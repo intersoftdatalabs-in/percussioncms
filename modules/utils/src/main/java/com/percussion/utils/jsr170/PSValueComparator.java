@@ -30,6 +30,8 @@ import javax.jcr.ValueFormatException;
  * @author dougrand
  */
 public class PSValueComparator implements Comparator<Value> {
+  /** Creates a value comparator using the default locale. */
+  public PSValueComparator() {}
   /**
    * The locale to use when comparing strings or string versions of values. Never <code>null</code>.
    */
@@ -105,6 +107,8 @@ public class PSValueComparator implements Comparator<Value> {
   }
 
   /**
+   * Returns the locale used for string comparisons.
+   *
    * @return the locale
    */
   public Locale getLocale() {

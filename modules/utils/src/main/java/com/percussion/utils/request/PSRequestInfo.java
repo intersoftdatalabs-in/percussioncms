@@ -32,6 +32,8 @@ import java.util.Map;
  * @author dougrand
  */
 public class PSRequestInfo extends PSRequestInfoBase {
+  /** Creates a request info. All members are static. */
+  public PSRequestInfo() {}
   /**
    * Initialize request information from a servlet. This method calls {@link
    * #initRequestInfo(Map)}with the derived information.

@@ -33,9 +33,13 @@ import org.joda.time.Days;
 public class PSDateRange {
   /** Units that the date range can be broken down into. */
   public enum Granularity {
+    /** Single days. */
     DAY,
+    /** Calendar months. */
     MONTH,
+    /** Calendar weeks. */
     WEEK,
+    /** Calendar years. */
     YEAR
   }
 
@@ -43,6 +47,11 @@ public class PSDateRange {
    * Convenience ctor that calls {@link #PSDateRange(Date, Date,
    * com.percussion.utils.date.PSDateRange.Granularity)} as <code>PSDateRange(start, end, null)
    * </code>.
+   *
+   * @param start the inclusive start date of the range, if <code>null</code> then it will default
+   *     to today's date with the time component set to 0's.
+   * @param end the inclusive end date of a range, if <code>null</code> it will default to today's
+   *     date with the time component set to 0's.
    */
   public PSDateRange(Date start, Date end) {
     this(start, end, null);
@@ -80,6 +89,9 @@ public class PSDateRange {
    * Convenience ctor that calls {@link #PSDateRange(Date,
    * com.percussion.utils.date.PSDateRange.Granularity, int)} as <code>
    * PSDateRange(null, granularity, duration)</code>.
+   *
+   * @param granularity value of DAY, MONTH, WEEK, or YEAR. Must not be <code>null</code>.
+   * @param duration number of granularity periods to extend backward. Must be &gt;= 0.
    */
   public PSDateRange(Granularity granularity, int duration) {
     this(null, granularity, duration);
@@ -142,6 +154,8 @@ public class PSDateRange {
   }
 
   /**
+   * Returns the start of this range.
+   *
    * @return the start date supplied in ctor or the date the range was created w/ no time component,
    *     never <code>null</code>.
    */
@@ -150,6 +164,8 @@ public class PSDateRange {
   }
 
   /**
+   * Returns the end of this range.
+   *
    * @return the end date supplied in ctor or the date the range was created w/ no time component,
    *     never <code>null</code>.
    */
@@ -158,6 +174,8 @@ public class PSDateRange {
   }
 
   /**
+   * Returns the granularity of this range.
+   *
    * @return the granularity supplied in ctor, or {@link PSDateRange.Granularity#DAY}, never <code>
    *     null</code>.
    */
@@ -225,6 +243,8 @@ public class PSDateRange {
   }
 
   /**
+   * Returns the number of inclusive calendar days spanned by this range.
+   *
    * @return The number of inclusive calendar days spanned by this range, regardless of the
    *     granularity setting. Time of day is ignored so a start later in the clock than the end
    *     cannot undercount (as {@code Days.daysIn(Interval)} does).
@@ -234,6 +254,8 @@ public class PSDateRange {
   }
 
   /**
+   * Returns the number of calendar weeks spanned by this range.
+   *
    * @return The number of calendar weeks spanned by this range, regardless of the granularity
    *     setting. Partial weeks at the beginning or end of the range are included. A week is assumed
    *     to begin on Sun.
@@ -260,6 +282,8 @@ public class PSDateRange {
   }
 
   /**
+   * Returns the number of calendar months spanned by this range.
+   *
    * @return The number of calendar months spanned by this range, regardless of the granularity
    *     setting. Partial months at the beginning or end of the range are included.
    */
@@ -278,6 +302,8 @@ public class PSDateRange {
   }
 
   /**
+   * Returns the number of calendar years spanned by this range.
+   *
    * @return The number of calendar years spanned by this range, regardless of the granularity
    *     setting. Partial years at the beginning or end of the range are included.
    */

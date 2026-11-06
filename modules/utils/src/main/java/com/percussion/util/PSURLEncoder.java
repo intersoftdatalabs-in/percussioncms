@@ -30,6 +30,8 @@ package com.percussion.util;
  * @since 1.0
  */
 public class PSURLEncoder {
+  /** Creates a URL encoder. All methods are static. */
+  public PSURLEncoder() {}
   /**
    * This is used as a flag to indicate to encode the PATH part of a URL. This encoding process will
    * replace space characters (' ') to its hex representation ("%20").

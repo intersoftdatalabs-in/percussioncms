@@ -41,6 +41,9 @@ import org.xml.sax.SAXNotSupportedException;
  */
 public class PSSaxParserFactoryImpl extends SAXParserFactory {
 
+  /** Creates a SAX parser factory. */
+  public PSSaxParserFactoryImpl() {}
+
   private static final Logger log = LogManager.getLogger(PSSaxParserFactoryImpl.class);
 
   /** Preferred Xerces factory class name (matches product security defaults). */

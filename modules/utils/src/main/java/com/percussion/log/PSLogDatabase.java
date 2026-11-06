@@ -24,6 +24,8 @@ import java.sql.SQLException;
  * databases.
  */
 public class PSLogDatabase {
+  /** Creates a log database helper. All methods are static. */
+  public PSLogDatabase() {}
   /**
    * Returns the log catalog name for the current connection.
    *

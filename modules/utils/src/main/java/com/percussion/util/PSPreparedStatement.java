@@ -73,8 +73,12 @@ public class PSPreparedStatement extends PSSQLStatement implements PreparedState
    * Just like {@link #getPreparedStatement(Connection, String)}, but with additional parameters,
    * result set type and concurrency type.
    *
+   * @param conn the connection to use, never <code>null</code>
+   * @param sql the SQL statement, never <code>null</code> or empty
    * @param resultSetType a result set type; see ResultSet.TYPE_XXX
    * @param resultSetConcurrency a concurrency type; see ResultSet.CONCUR_XXX
+   * @return the prepared statement, never <code>null</code>
+   * @throws SQLException on database errors
    * @see Connection#prepareStatement(String, int, int)
    */
   public static PreparedStatement getPreparedStatement(
@@ -90,8 +94,12 @@ public class PSPreparedStatement extends PSSQLStatement implements PreparedState
     else return stmt;
   }
 
-  // Get the prepared Statement class name, used currently by
-  // PSSqlHelper to resolve the driver class type
+  /**
+   * Get the prepared Statement class name, used currently by PSSqlHelper to resolve the driver
+   * class type.
+   *
+   * @return the prepared statement class name, never <code>null</code>
+   */
   public String getOriginalPreparedStmtClassName() {
     return m_stmt.getClass().getName();
   }

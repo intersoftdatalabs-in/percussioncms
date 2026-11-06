@@ -34,6 +34,7 @@ import org.apache.commons.lang3.time.FastDateFormat;
  * @since 1.0
  */
 public class PSStringOperation {
+  /** Creates a string operation helper. */
   public PSStringOperation() {
     super();
   }
@@ -262,8 +263,10 @@ public class PSStringOperation {
    * Convenience method that calls {@link #getSplittedList(String, char) getSplittedList(text,
    * separator.charAt(0))}.
    *
+   * @param text the text to split, may be <code>null</code>
    * @param separator Never <code>null</code> or empty. Only the first char is used as the
    *     seperator.
+   * @return the split list, never <code>null</code>
    */
   public static List<String> getSplittedList(String text, String separator) {
     if (null == separator || separator.length() < 1) {
@@ -361,6 +364,10 @@ public class PSStringOperation {
   /**
    * Convenience version of {@link #dateFormat(String, java.util.Date, Locale)} that calls <code>
    * dateFormat(strFormat, oneDate, null)</code> and returns the result.
+   *
+   * @param strFormat the intended new format to display date
+   * @param oneDate the reference date
+   * @return a string of date with the format defined by strFormat
    */
   public static String dateFormat(String strFormat, java.util.Date oneDate) {
     return dateFormat(strFormat, oneDate, null);
@@ -383,8 +390,6 @@ public class PSStringOperation {
    * <p>Example 2, suppose strFormat = "yyyy-MMMM-dd 'at' hh:mm:ss aaa"; and oneDate is the object
    * representing "1999-12-15 19:32:12", then dateFormat(strFormat, oneDate) returns a string
    * "1999-December-15 at 07:32:12 PM".
-   *
-   * <p>
    *
    * @param strFormat the intended new format to display date
    * @param oneDate the reference date in any known format

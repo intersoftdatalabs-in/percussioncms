@@ -34,6 +34,9 @@ import org.apache.commons.jexl3.introspection.JexlPermissions;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+/**
+ * JEXL script wrapper with shared engine configuration.
+ */
 public class PSScript implements IPSScript {
   /** The logger. NOTE: jexl requires commons logging */
   private static final Log LOG = LogFactory.getLog(PSScript.class);
@@ -41,6 +44,7 @@ public class PSScript implements IPSScript {
   /** The shared expression cache size. */
   public static int CACHE_SIZE = 512;
 
+  /** The script text to evaluate. */
   private String scriptText;
 
   // Control JEXL strict mode
@@ -75,6 +79,11 @@ public class PSScript implements IPSScript {
   private boolean useDebugMode = jexlUseDebug;
   private boolean useSilentMode = jexlUseSilent;
 
+  /**
+   * Creates a script for the supplied script text.
+   *
+   * @param scriptText the script text, never <code>null</code>
+   */
   public PSScript(String scriptText) {
     this.scriptText = scriptText;
   }
@@ -94,7 +103,7 @@ public class PSScript implements IPSScript {
 
   /***
    * Sets the type of system object that owns this script.  Should be user friendly and i18N.
-   * @param ownerType
+   * @param ownerType the owner type to set, may be <code>null</code>
    */
   @Override
   public void setOwnerType(String ownerType) {
@@ -265,8 +274,8 @@ public class PSScript implements IPSScript {
   }
 
   /***
-   * Reinitialize
-   * @param reloadOptionsFromConfig
+   * Reinitialize the script engine.
+   * @param reloadOptionsFromConfig <code>true</code> to reload options from configuration
    */
   @Override
   public void reinit(boolean reloadOptionsFromConfig) {

@@ -35,6 +35,8 @@ public class PSBinary implements Binary {
   private boolean m_disposed;
 
   /**
+   * Creates a binary value from a stream, buffering its bytes.
+   *
    * @param stream source stream, never {@code null}; fully read and closed by this constructor
    * @throws RepositoryException if the stream cannot be read
    */
@@ -56,6 +58,8 @@ public class PSBinary implements Binary {
   }
 
   /**
+   * Creates a binary value from a byte array, copying its contents.
+   *
    * @param data binary payload, never {@code null}
    */
   public PSBinary(byte[] data) {

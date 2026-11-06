@@ -18,6 +18,8 @@ package com.percussion.util;
 
 /** Tools for asking for OS information. */
 public class PSOsTool {
+  /** Creates an OS tool helper. All methods are static. */
+  public PSOsTool() {}
   /**
    * Determine whether the platform is Windows related by examing the system's file or path
    * separator.

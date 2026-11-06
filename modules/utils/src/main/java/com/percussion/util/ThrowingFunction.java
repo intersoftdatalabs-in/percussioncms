@@ -19,10 +19,33 @@ package com.percussion.util;
 
 import java.util.function.Function;
 
+/**
+ * Function that may throw a checked exception.
+ *
+ * @param <T> the input type
+ * @param <R> the result type
+ * @param <E> the exception type
+ */
 @FunctionalInterface
 public interface ThrowingFunction<T, R, E extends Throwable> {
+  /**
+   * Applies this function.
+   *
+   * @param t the input, may be <code>null</code>
+   * @return the result, may be <code>null</code>
+   * @throws E on function errors
+   */
   R apply(T t) throws E;
 
+  /**
+   * Wraps this function in an unchecked function.
+   *
+   * @param <T> the input type
+   * @param <R> the result type
+   * @param <E> the exception type
+   * @param f the function to wrap, never <code>null</code>
+   * @return the wrapping function, never <code>null</code>
+   */
   static <T, R, E extends Throwable> Function<T, R> unchecked(ThrowingFunction<T, R, E> f) {
     return t -> {
       try {

@@ -21,13 +21,20 @@ import org.apache.logging.log4j.Logger;
 
 /** A utility class used to log elapsed time. */
 public class PSTimer {
-  PSStopwatch m_watch = new PSStopwatch();
-  private static final Logger log = LogManager.getLogger(PSTimer.class);
-
+  /** Creates a timer. */
   public PSTimer() {
     // NOOP
   }
 
+  /** Stopwatch used to measure elapsed time. */
+  PSStopwatch m_watch = new PSStopwatch();
+  private static final Logger log = LogManager.getLogger(PSTimer.class);
+
+  /**
+   * Creates a timer logging to the supplied logger.
+   *
+   * @param log the logger, never <code>null</code>
+   */
   public PSTimer(Logger log) {
     m_watch.start();
   }

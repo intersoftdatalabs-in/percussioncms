@@ -169,6 +169,8 @@ public class PSRuntimeException extends RuntimeException implements IPSException
   /**
    * Typed error code when constructed via {@link #PSRuntimeException(IPSErrorCode)} (or overloads);
    * otherwise {@code null} for legacy int construction.
+   *
+   * @return the typed error code, or {@code null} when constructed with a legacy int code
    */
   public IPSErrorCode getTypedErrorCode() {
     return m_exception.getTypedErrorCode();
@@ -177,6 +179,8 @@ public class PSRuntimeException extends RuntimeException implements IPSException
   /**
    * Whether dual-write should consider this exception auditable. Prefer the typed code when
    * present; legacy int construction returns {@code false}.
+   *
+   * @return {@code true} when a typed code is present and auditable, otherwise {@code false}
    */
   public boolean isAuditable() {
     return m_exception.isAuditable();
@@ -211,5 +215,6 @@ public class PSRuntimeException extends RuntimeException implements IPSException
     m_exception.setArgs(msgCode, errorArgs);
   }
 
+  /** The wrapped exception holding the error state. */
   protected PSException m_exception;
 }

@@ -67,7 +67,7 @@ public class PSTransformerFactoryImpl extends SAXTransformerFactory {
    * @param title The value of the title attribute to match. May be null.
    * @param charset The value of the charset attribute to match. May be null.
    * @return A Source object capable of being used to create a Templates object.
-   * @throws TransformerConfigurationException
+   * @throws TransformerConfigurationException if the transformer cannot be configured
    */
   public Source getAssociatedStylesheet(Source source, String media, String title, String charset)
       throws TransformerConfigurationException {
@@ -154,7 +154,7 @@ public class PSTransformerFactoryImpl extends SAXTransformerFactory {
    *
    * @param src The source of the transformation instructions.
    * @return An XMLFilter object, or null if this feature is not supported.
-   * @throws TransformerConfigurationException
+   * @throws TransformerConfigurationException if the transformer cannot be configured
    */
   public XMLFilter newXMLFilter(Source src) throws TransformerConfigurationException {
     return delegate.newXMLFilter(src);
@@ -165,7 +165,7 @@ public class PSTransformerFactoryImpl extends SAXTransformerFactory {
    *
    * @param templates non-null reference to Templates object.
    * @return An XMLFilter object, or null if this feature is not supported.
-   * @throws TransformerConfigurationException
+   * @throws TransformerConfigurationException if the transformer cannot be configured
    */
   public XMLFilter newXMLFilter(Templates templates) throws TransformerConfigurationException {
     return delegate.newXMLFilter(templates);
@@ -177,7 +177,7 @@ public class PSTransformerFactoryImpl extends SAXTransformerFactory {
    *
    * @param src The source of the transformation instructions.
    * @return TransformerHandler ready to transform SAX events.
-   * @throws TransformerConfigurationException
+   * @throws TransformerConfigurationException if the transformer cannot be configured
    */
   public TransformerHandler newTransformerHandler(Source src)
       throws TransformerConfigurationException {
@@ -190,7 +190,7 @@ public class PSTransformerFactoryImpl extends SAXTransformerFactory {
    *
    * @param templates The source of the transformation instructions.
    * @return TransformerHandler ready to transform SAX events.
-   * @throws TransformerConfigurationException
+   * @throws TransformerConfigurationException if the transformer cannot be configured
    */
   public TransformerHandler newTransformerHandler(Templates templates)
       throws TransformerConfigurationException {
@@ -201,7 +201,7 @@ public class PSTransformerFactoryImpl extends SAXTransformerFactory {
    * Get a TransformerHandler object that can process SAX ContentHandler events into a Result.
    *
    * @return TransformerHandler ready to transform SAX events.
-   * @throws TransformerConfigurationException
+   * @throws TransformerConfigurationException if the transformer cannot be configured
    */
   public TransformerHandler newTransformerHandler() throws TransformerConfigurationException {
     return delegate.newTransformerHandler();

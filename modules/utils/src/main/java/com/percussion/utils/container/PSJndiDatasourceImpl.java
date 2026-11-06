@@ -20,25 +20,51 @@ package com.percussion.utils.container;
 import com.percussion.utils.string.PSStringUtils;
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * JNDI datasource configuration implementation.
+ */
 public class PSJndiDatasourceImpl implements IPSJndiDatasource {
 
+  /** The datasource name. */
   protected String name;
+  /** The driver name. */
   protected String driverName;
+  /** The server. */
   protected String server;
+  /** The user id. */
   protected String userId;
+  /** The password. */
   protected String password;
+  /** The driver class name. */
   protected String driverClassName;
+  /** The security domain. */
   protected String securityDomain;
+  /** The minimum connections. */
   protected int minConnections = 15;
+  /** The maximum connections. */
   protected int maxConnections = 100;
+  /** The idle timeout in milliseconds. */
   protected int idleTimeout = 59000;
+  /** The connection test query. */
   protected String connectionTestQuery;
+  /** Whether the password is encrypted. */
   protected boolean isEncrypted;
   /** Package/subclass-visible so copy constructors may assign without calling setId (this-escape). */
   protected int id;
 
+  /** Creates an empty datasource configuration. */
   public PSJndiDatasourceImpl() {}
 
+  /**
+   * Creates a datasource configuration.
+   *
+   * @param name the datasource name, never blank
+   * @param driverName the driver name, never blank
+   * @param driverClassName the driver class name, never blank
+   * @param server the server, never blank
+   * @param uid the user id, may be <code>null</code>
+   * @param pwd the password, may be <code>null</code>
+   */
   public PSJndiDatasourceImpl(
       String name,
       String driverName,

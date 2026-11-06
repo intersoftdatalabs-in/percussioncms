@@ -31,6 +31,8 @@ import org.w3c.dom.ProcessingInstruction;
 
 /** Helper class to facilitate common XML tasks. That is available to clients (rxclient.jar). */
 public class PSXMLDomUtil {
+  /** Creates an XML DOM utilities instance. All methods are static. */
+  public PSXMLDomUtil() {}
   /**
    * Static helper function to retrieve the first child element of type <code>Node.ELEMENT_NODE
    * </code>. The standard DOM supports getFirstChild() but does not allow for the type checking.
@@ -105,7 +107,7 @@ public class PSXMLDomUtil {
    * @return the next sibling element as an Element, or <code>null</code> if there is no sibling of
    *     the supplied node and compared with name case sensitive,
    * @see #checkNode(Element, String) for more info
-   * @throws PSUnknownNodeTypeException
+   * @throws PSUnknownNodeTypeException if the node is not of the expected type
    */
   public static Element getNextElementSibling(Node node, String name)
       throws PSUnknownNodeTypeException {
@@ -215,8 +217,12 @@ public class PSXMLDomUtil {
   }
 
   /**
-   * Convenience method that calls {@link #checkAttributeBool(Element, String, boolean, String)
-   * checkAttributeBool(el, name, <code>true</code>, "yes")}.
+   * Convenience method that calls {@link #checkAttributeBool(Element, String, boolean, String)}
+   * with {@code defaultValue=true} and {@code yesValue="yes"}.
+   *
+   * @param el the element to get the attribute from, must not be <code>null</code>
+   * @param name the name of the attribute to retrieve, must not be <code>null</code> or empty
+   * @return <code>true</code> if the attribute value matches, otherwise <code>false</code>
    */
   public static boolean checkAttributeBool(Element el, String name) {
     return checkAttributeBool(el, name, true, "yes");
@@ -264,6 +270,12 @@ public class PSXMLDomUtil {
   /**
    * Just like {@link #checkAttributeInt(Element, String, boolean)}, except this method will return
    * a <code>long</code>.
+   *
+   * @param el the element to get the attribute from, must not be <code>null</code>
+   * @param name the name of the attribute to retrieve, must not be <code>null</code> or empty
+   * @param required whether a missing attribute is an error
+   * @return the attribute value, or -1 if not found and not required
+   * @throws PSUnknownNodeTypeException if the attribute was not found and was required
    */
   public static long checkAttributeLong(Element el, String name, boolean required)
       throws PSUnknownNodeTypeException, NumberFormatException {
@@ -279,7 +291,11 @@ public class PSXMLDomUtil {
    * Just like {@link #checkAttributeInt(Element, String, boolean)}, except this method will return
    * a <code>Date</code>.
    *
+   * @param el the element to get the attribute from, must not be <code>null</code>
+   * @param name the name of the attribute to retrieve, must not be <code>null</code> or empty
+   * @param required whether a missing attribute is an error
    * @return a date or <code>null</code> if the value is empty
+   * @throws PSUnknownNodeTypeException if the attribute was not found and was required
    */
   public static Date checkAttributeDate(Element el, String name, boolean required)
       throws PSUnknownNodeTypeException, NumberFormatException {

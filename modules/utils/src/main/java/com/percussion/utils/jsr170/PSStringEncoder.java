@@ -26,6 +26,9 @@ package com.percussion.utils.jsr170;
  */
 public class PSStringEncoder {
 
+  /** Creates a string encoder. All methods are static. */
+  public PSStringEncoder() {}
+
   /**
    * Encode the string. The following characters are escaped:
    *

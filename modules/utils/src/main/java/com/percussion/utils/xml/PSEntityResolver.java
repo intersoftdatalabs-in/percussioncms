@@ -265,6 +265,9 @@ public class PSEntityResolver implements EntityResolver {
   }
 
   /**
+   * Returns the current resolution home. This is used to resolve entity reference that the resolver
+   * recognizes.
+   *
    * @return the current resolution home. This is used to resolve entity reference that the resolver
    *     recognizes.
    */

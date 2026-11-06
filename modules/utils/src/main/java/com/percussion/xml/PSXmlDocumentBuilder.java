@@ -74,6 +74,9 @@ import org.xml.sax.SAXParseException;
  */
 public class PSXmlDocumentBuilder {
 
+  /** Creates a document builder helper. All methods are static. */
+  public PSXmlDocumentBuilder() {}
+
   /** The logger for this class. */
   private static final Logger log = LogManager.getLogger(PSXmlDocumentBuilder.class);
 
@@ -135,10 +138,20 @@ public class PSXmlDocumentBuilder {
 
   private static IPSInternalRequestURIResolver internalRequestURIResolver;
 
+  /**
+   * Returns the internal request URI resolver.
+   *
+   * @return the resolver, may be <code>null</code>
+   */
   public static IPSInternalRequestURIResolver getInternalRequestURIResolver() {
     return internalRequestURIResolver;
   }
 
+  /**
+   * Sets the internal request URI resolver.
+   *
+   * @param internalRequestURIResolver the resolver, may be <code>null</code>
+   */
   public static void setInternalRequestURIResolver(
       IPSInternalRequestURIResolver internalRequestURIResolver) {
     PSXmlDocumentBuilder.internalRequestURIResolver = internalRequestURIResolver;
@@ -409,6 +422,7 @@ public class PSXmlDocumentBuilder {
    * @param in the input source to use
    * @param validate <code>true</code> to validate the document
    * @param errorLog where errors are written.
+   * @return the created document, never <code>null</code>
    * @throws IOException if an I/O error occurs
    * @throws SAXException if a parsing error occurs
    */
@@ -429,6 +443,7 @@ public class PSXmlDocumentBuilder {
    *     used when the error handler need non-standard behavior, or must throw exceptions
    *     immediately on error. Note that the PSXSaxErrorHandler is obfuscated, and cannot be used by
    *     Extensions. May not be <code>null</code>.
+   * @return the created document, never <code>null</code>
    * @throws IOException if an I/O error occurs
    * @throws SAXException if a parsing error occurs
    * @throws IllegalArgumentException if in or errHandler is <code>null</code>
@@ -493,6 +508,7 @@ public class PSXmlDocumentBuilder {
    * @param validate <code>true</code> to use a validating poarser, <code>false</code> otherwise.
    * @return the XML document created from the supplied source, never <code>null</code>.
    * @throws IOException for any I/O error.
+   * @throws SAXException if a parsing error occurs
    * @throws UnsupportedEncodingException if the requested encoding is invalid.
    */
   public static Document createXmlDocument(
@@ -662,6 +678,7 @@ public class PSXmlDocumentBuilder {
    *
    * @param t the exception to report
    * @param loc the locale to use when formatting the error text
+   * @return the error document, never <code>null</code>
    */
   public static Document createErrorDocument(Throwable t, Locale loc) {
 
@@ -678,7 +695,13 @@ public class PSXmlDocumentBuilder {
     return respDoc;
   }
 
-  /** Calls {@link #createRoot(Document, String, String) createRoot(doc, null, rootName)} */
+  /**
+   * Calls {@link #createRoot(Document, String, String) createRoot(doc, null, rootName)}.
+   *
+   * @param doc the document, never <code>null</code>
+   * @param rootName the root tag name, never <code>null</code> or empty
+   * @return the created root element, never <code>null</code>
+   */
   public static Element createRoot(Document doc, String rootName) {
     return createRoot(doc, null, rootName);
   }
@@ -686,6 +709,11 @@ public class PSXmlDocumentBuilder {
   /**
    * Calls {@link #createRoot(Document, String, String, String) createRoot(doc, namespace, null,
    * rootName)}
+   *
+   * @param doc the document, never <code>null</code>
+   * @param namespace the namespace, may be <code>null</code>
+   * @param rootName the root tag name, never <code>null</code> or empty
+   * @return the created root element, never <code>null</code>
    */
   public static Element createRoot(Document doc, String namespace, String rootName) {
     return createRoot(doc, namespace, null, rootName);
@@ -821,6 +849,12 @@ public class PSXmlDocumentBuilder {
   /**
    * Convenience method that calls {@link #addElement(Document, Element, String, String, String)
    * addElement(doc, parent, null, name, value)}
+   *
+   * @param doc the document, never <code>null</code>
+   * @param parent the parent element, never <code>null</code>
+   * @param name the tag name, never <code>null</code> or empty
+   * @param value the element value, may be <code>null</code>
+   * @return the created element, never <code>null</code>
    */
   public static Element addElement(Document doc, Element parent, String name, String value) {
     return addElement(doc, parent, null, name, value);
@@ -829,6 +863,13 @@ public class PSXmlDocumentBuilder {
   /**
    * Convenience method that calls {@link #addElement(Document, Element, String, String, String,
    * String) addElement(doc, parent, namespace, null, name, value)}
+   *
+   * @param doc the document, never <code>null</code>
+   * @param parent the parent element, never <code>null</code>
+   * @param namespace the namespace, may be <code>null</code>
+   * @param name the tag name, never <code>null</code> or empty
+   * @param value the element value, may be <code>null</code>
+   * @return the created element, never <code>null</code>
    */
   public static Element addElement(
       Document doc, Element parent, String namespace, String name, String value) {
@@ -889,6 +930,11 @@ public class PSXmlDocumentBuilder {
   /**
    * Convenience method that calls {@link #addEmptyElement(Document, Element, String, String)
    * addEmptyElement(doc, parent, null, name)}
+   *
+   * @param doc the document, never <code>null</code>
+   * @param parent the parent element, never <code>null</code>
+   * @param name the tag name, never <code>null</code> or empty
+   * @return the created element, never <code>null</code>
    */
   public static Element addEmptyElement(Document doc, Element parent, String name) {
     return addEmptyElement(doc, parent, null, name);
@@ -897,6 +943,12 @@ public class PSXmlDocumentBuilder {
   /**
    * Convenience method that calls {@link #addEmptyElement(Document, Element, String, String,
    * String) addEmptyElement(doc, parent, namespace, null, name)}
+   *
+   * @param doc the document, never <code>null</code>
+   * @param parent the parent element, never <code>null</code>
+   * @param namespace the namespace, may be <code>null</code>
+   * @param name the tag name, never <code>null</code> or empty
+   * @return the created element, never <code>null</code>
    */
   public static Element addEmptyElement(
       Document doc, Element parent, String namespace, String name) {
@@ -1005,6 +1057,7 @@ public class PSXmlDocumentBuilder {
    * @param doc the XML document to be written May not be <code>null</code>
    * @param out the output stream to write to May not be <code>null</code>
    * @throws IllegalArgumentException if doc or out is <code>null</code>
+   * @throws java.io.IOException on I/O errors
    */
   public static void write(Document doc, OutputStream out) throws java.io.IOException {
     if (doc == null) {
@@ -1135,6 +1188,7 @@ public class PSXmlDocumentBuilder {
    * @param doc the XML document to be written May not be <code>null</code>.
    * @param out the output writer to use May not be <code>null</code>.
    * @throws IllegalArgumentException if doc or out is <code>null</code>
+   * @throws java.io.IOException on I/O errors
    */
   public static void write(Document doc, Writer out) throws java.io.IOException {
     write(doc, out, null);
@@ -1148,6 +1202,7 @@ public class PSXmlDocumentBuilder {
    * @param encoding the character encoding used by the writer. May be <code>null</code> or empty.
    *     If <code>null</code> or empty, no XML header will be written.
    * @throws IllegalArgumentException if doc or out is <code>null</code>
+   * @throws java.io.IOException on I/O errors
    */
   public static void write(Document doc, Writer out, String encoding) throws IOException {
     PSXmlTreeWalker w = new PSXmlTreeWalker(doc);
@@ -1160,6 +1215,7 @@ public class PSXmlDocumentBuilder {
    *
    * @param node the XML document to be written
    * @param out the output stream to write to
+   * @throws java.io.IOException on I/O errors
    */
   public static void write(Element node, OutputStream out) throws java.io.IOException {
     try (OutputStreamWriter os = new OutputStreamWriter(out)) {
@@ -1172,6 +1228,7 @@ public class PSXmlDocumentBuilder {
    *
    * @param node the XML document to be written
    * @param out the output writer to use
+   * @throws java.io.IOException on I/O errors
    */
   public static void write(Element node, Writer out) throws java.io.IOException {
     PSXmlTreeWalker w = new PSXmlTreeWalker(node);
@@ -1189,8 +1246,6 @@ public class PSXmlDocumentBuilder {
    * <p>The following node types are currently not supported:
    *
    * <p>DocumentFragment DocumentType Entity EntityReference Notation
-   *
-   * <p>
    *
    * @param node the XML node whose string representation is to be obtained, may be <code>null
    *     </code> if <code>FLAG_ALLOW_NULL</code> is included in the specified flag. If this flag is
@@ -1343,6 +1398,7 @@ public class PSXmlDocumentBuilder {
    * @param elementNode the element to be replaced. It may not be <code>null</code>.
    * @param newValue the string which contains the new value. It may be <code>null</code>, then it
    *     has no effect or the value will not be changed.
+   * @return the element with replaced text, never <code>null</code>
    */
   public static Element replaceText(Document parentDoc, Element elementNode, String newValue) {
     if (parentDoc == null) {
@@ -1389,7 +1445,11 @@ public class PSXmlDocumentBuilder {
   }
 
   /**
+   * Removes an element from its document.
+   *
    * @deprecated Use {@link #removeElement(Element)} instead
+   * @param parentDoc the document, may be <code>null</code>
+   * @param elementNode the element to remove, may be <code>null</code>
    */
   @Deprecated
   public static void removeElement(Document parentDoc, Element elementNode) {
@@ -1427,7 +1487,7 @@ public class PSXmlDocumentBuilder {
    * @param stream The printstream that will recieve the output. It may not be <code>null</code>.
    * @param parentIndent The string representing the input header. It may be <code>null</code> or
    *     empty, then it will be default to 3 spaces.
-   * @throws java.io.IOException
+   * @throws java.io.IOException on I/O errors
    */
   public static void printXmlTree(Node currentNode, PrintStream stream, String parentIndent)
       throws java.io.IOException {
@@ -1533,7 +1593,7 @@ public class PSXmlDocumentBuilder {
    *
    * @param currentNode The node to start the print with. It may not be <code>null</code>.
    * @param stream The printstream that will recieve the output. It may not be <code>null</code>.
-   * @throws java.io.IOException
+   * @throws java.io.IOException on I/O errors
    */
   public static void printXmlTree(Node currentNode, PrintStream stream) throws java.io.IOException {
     printXmlTree(currentNode, stream, "");
@@ -1545,7 +1605,7 @@ public class PSXmlDocumentBuilder {
    *
    * @param doc The node to start the print with. It may not be <code>null</code>.
    * @param stream The printstream that will recieve the output. It may not be <code>null</code>.
-   * @throws java.io.IOException
+   * @throws java.io.IOException on I/O errors
    */
   public static void printXmlTree(Document doc, PrintStream stream) throws java.io.IOException {
     printXmlTree(doc, stream, "");

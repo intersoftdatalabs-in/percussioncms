@@ -33,6 +33,7 @@ public interface IRxConvert {
    * @param files - The list of files to convert.
    * @param conn - The connection pointing to the backend database specified by
    *     rxrepository.properties.
+   * @throws IOException if any of the files cannot be read or written during conversion.
    */
   public abstract void convert(ArrayList<File> files, Connection conn) throws IOException;
 }

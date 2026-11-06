@@ -69,6 +69,7 @@ public class PSInputStreamReader extends PushbackInputStream {
    * Read a line from this stream.
    *
    * @return the next line or null if no more lines exist
+   * @throws java.io.IOException if an I/O error occurs
    */
   public String readLine() throws java.io.IOException {
     return readLine(null);
@@ -79,6 +80,7 @@ public class PSInputStreamReader extends PushbackInputStream {
    *
    * @param enc The character encoding that will be used to transform the bytes to chars.
    * @return the next line or null if no more lines exist
+   * @throws java.io.IOException if an I/O error occurs
    */
   public String readLine(String enc) throws java.io.IOException {
     java.io.ByteArrayOutputStream bout = new java.io.ByteArrayOutputStream();

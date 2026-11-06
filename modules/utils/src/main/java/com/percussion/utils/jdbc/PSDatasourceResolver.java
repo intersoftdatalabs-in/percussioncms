@@ -34,6 +34,9 @@ import org.w3c.dom.Element;
 
 /** Concrete implementation of the {@link IPSDatasourceResolver} interface. */
 public class PSDatasourceResolver implements IPSDatasourceResolver {
+  /** Creates a datasource resolver. */
+  public PSDatasourceResolver() {}
+
   // see IPSDatasourceResolver
   public IPSDatasourceConfig resolveDatasource(IPSConnectionInfo info) {
     IPSDatasourceConfig dsConfig = null;
@@ -51,7 +54,11 @@ public class PSDatasourceResolver implements IPSDatasourceResolver {
     return dsConfig;
   }
 
-  // see IPSDatasourceResolver
+  /**
+   * Returns all configured datasources.
+   *
+   * @return the configured datasources, never <code>null</code>
+   */
   public List<IPSDatasourceConfig> getDatasources() {
     return new ArrayList<IPSDatasourceConfig>(m_configs);
   }
@@ -184,6 +191,11 @@ public class PSDatasourceResolver implements IPSDatasourceResolver {
     return props;
   }
 
+  /**
+   * Sets the datasource properties from the supplied properties.
+   *
+   * @param props the properties to set, never <code>null</code>
+   */
   public void setProperties(Properties props) {
     List<IPSDatasourceConfig> new_configs = new ArrayList<>();
 

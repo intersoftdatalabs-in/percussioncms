@@ -172,6 +172,12 @@ public class PSStopwatch {
     return System.nanoTime();
   }
 
+  /**
+   * Formats an elapsed millisecond duration as a readable string.
+   *
+   * @param millis the elapsed milliseconds
+   * @return the formatted string, never <code>null</code>
+   */
   public String elapasedString(double millis) {
     long lmillis = (long) millis;
     long hours = TimeUnit.MILLISECONDS.toHours(lmillis);

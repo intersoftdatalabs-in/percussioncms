@@ -111,7 +111,7 @@ public class PSObjectSerializer {
    *     mapping was registered with this class.
    * @param element Root element of the XML representation of the object to restore. Must not be
    *     <code>null</code>.
-   * @throws PSObjectSerializerException
+   * @throws PSObjectSerializerException if the object cannot be restored from XML
    */
   public Object fromXml(Element element) throws PSObjectSerializerException {
     if (element == null) throw new IllegalArgumentException("element must not be null");
@@ -127,7 +127,7 @@ public class PSObjectSerializer {
    *     mapping was registered with this class.
    * @param xmlString XML stringrepresentation of the object to restore. Must not be <code>null
    *     </code> or empty.
-   * @throws PSObjectSerializerException
+   * @throws PSObjectSerializerException if the object cannot be restored from XML
    */
   public Object fromXmlString(String xmlString) throws PSObjectSerializerException {
     if (xmlString == null) throw new IllegalArgumentException("xmlString must not be null");
@@ -151,10 +151,10 @@ public class PSObjectSerializer {
    *
    * @return DOM element of the XML representation of the object, never <code>null</code>.
    * @param object Object to serialize to XML, must not be <code>null</code>.
-   * @throws IntrospectionException
-   * @throws SAXException
-   * @throws IOException
-   * @throws ParserConfigurationException
+   * @throws IntrospectionException on bean introspection errors
+   * @throws SAXException if the XML cannot be parsed
+   * @throws IOException on I/O errors
+   * @throws ParserConfigurationException if the parser cannot be configured
    */
   public Element toXml(Object object)
       throws IOException, SAXException, IntrospectionException, ParserConfigurationException {
@@ -171,9 +171,9 @@ public class PSObjectSerializer {
    *
    * @return XML string representation of the object, never <code>null</code> or empty.
    * @param object Object to serialize to XML, must not be <code>null</code>.
-   * @throws IntrospectionException
-   * @throws SAXException
-   * @throws IOException
+   * @throws IntrospectionException on bean introspection errors
+   * @throws SAXException if the XML cannot be parsed
+   * @throws IOException on I/O errors
    */
   public String toXmlString(Object object)
       throws IOException, SAXException, IntrospectionException {

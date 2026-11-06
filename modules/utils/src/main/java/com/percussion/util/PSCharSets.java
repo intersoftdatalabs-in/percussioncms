@@ -46,6 +46,8 @@ public class PSCharSets {
    * available, and no equivalent encoding name is available, the parameter itself is returned.
    *
    * @param encodingAlias The (possibly non-standard) encoding name.
+   *
+   * @return the IANA name, an equivalent supported name, or the supplied alias itself
    */
   public static String getStdName(String encodingAlias) {
     String ret = encodingAlias;
@@ -64,6 +66,8 @@ public class PSCharSets {
    * encoding name is available, the parameter itself is returned.
    *
    * @param encodingAlias The (possibly non-standard) encoding name.
+   *
+   * @return the Java name, an equivalent supported name, or the supplied alias itself
    */
   public static String getJavaName(String encodingAlias) {
     String ret = encodingAlias;
@@ -81,6 +85,8 @@ public class PSCharSets {
    * Gets the IANA name for the default Java encoding for this locale.
    *
    * <p>The return value is equivalent to getStdName(System.getProperty("file.encoding")).
+   *
+   * @return the IANA name of the default Java encoding for this locale
    */
   public static String getLocalStdName() {
     // DBG>
@@ -89,7 +95,11 @@ public class PSCharSets {
     return ms_localStdName;
   }
 
-  /** Get the default Java encoding for this locale. */
+  /**
+   * Get the default Java encoding for this locale.
+   *
+   * @return the default Java encoding name for this locale
+   */
   public static String getLocalJavaName() {
     // DBG>
     //       System.out.println("localJavaName()=" + ms_localJavaName);
@@ -103,6 +113,8 @@ public class PSCharSets {
    * be sure all characters are representable.
    *
    * <p>The return value is the standard name for rxJavaEnc()
+   *
+   * @return the standard name of the preferred encoding for Rhythmyx, never <code>null</code>
    */
   public static String rxStdEnc() {
     return "UTF-8";
@@ -114,6 +126,8 @@ public class PSCharSets {
    * Unicode so that we can be sure all characters are representable.
    *
    * <p>The return value is the Java name for rxStdEnc()
+   *
+   * @return the Java name of the preferred encoding for Rhythmyx, never <code>null</code>
    */
   public static String rxJavaEnc() {
     return "UTF8";
@@ -307,12 +321,22 @@ public class PSCharSets {
    * <p><B>US-ASCII</B> If all characters are below 127, then we could really return either UTF-8 or
    * ISO-8859-1 because they are both identical in this range. Instead, we just return null (no
    * guess).
+   *
+   * @param bytes the bytes to examine, never <code>null</code>
+   * @return the guessed encoding constant
    */
   public static int guessEncoding(byte[] bytes) {
     return guessEncoding(bytes, 0, bytes.length);
   }
 
-  /** Member. */
+  /**
+   * Guesses the encoding of a byte range.
+   *
+   * @param bytes the bytes to examine, never <code>null</code>
+   * @param off the offset of the first byte to examine
+   * @param len the number of bytes to examine
+   * @return the guessed encoding constant
+   */
   public static int guessEncoding(byte[] bytes, int off, int len) {
     int cs = CS_ASCII | CS_UTF8 | CS_ISO8859_1;
     boolean sawHigh = false;

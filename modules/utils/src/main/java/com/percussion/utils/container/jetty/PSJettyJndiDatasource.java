@@ -52,6 +52,12 @@ public final class PSJettyJndiDatasource extends PSJBossJndiDatasource {
 
   private boolean encrypted = false;
 
+  /**
+   * Creates a datasource from an XML source element.
+   *
+   * @param source the source element, never <code>null</code>
+   * @throws PSInvalidXmlException if the source cannot be parsed
+   */
   public PSJettyJndiDatasource(Element source) throws PSInvalidXmlException {
     super(source);
   }
@@ -105,6 +111,16 @@ public final class PSJettyJndiDatasource extends PSJBossJndiDatasource {
     this.password = pwd;
   }
 
+  /**
+   * Creates a datasource from explicit connection attributes.
+   *
+   * @param name the datasource name, never blank
+   * @param driverName the driver name, never blank
+   * @param driverClassName the driver class name, never blank
+   * @param server the server, never blank
+   * @param userId the user id, may be <code>null</code>
+   * @param password the password, may be <code>null</code>
+   */
   public PSJettyJndiDatasource(
       String name,
       String driverName,
@@ -125,10 +141,20 @@ public final class PSJettyJndiDatasource extends PSJBossJndiDatasource {
     this.connectionTestQuery = connectionTestQuery;
   }
 
+  /**
+   * Returns whether the password is encrypted.
+   *
+   * @return <code>true</code> if encrypted
+   */
   public boolean isEncrypted() {
     return encrypted;
   }
 
+  /**
+   * Sets whether the password is encrypted.
+   *
+   * @param encrypted <code>true</code> if encrypted
+   */
   public void setEncrypted(boolean encrypted) {
     this.encrypted = encrypted;
   }

@@ -23,31 +23,39 @@ package com.percussion.error;
  * @author dougrand
  */
 public class PSMissingBeanConfigurationException extends RuntimeException {
-  /** */
+  /** Serialization id. */
   private static final long serialVersionUID = 1L;
 
-  /** */
+  /**
+   * Creates an exception with no message or cause.
+   */
   public PSMissingBeanConfigurationException() {
     super();
   }
 
   /**
-   * @param message
+   * Creates an exception with the supplied message.
+   *
+   * @param message the detail message, may be <code>null</code>
    */
   public PSMissingBeanConfigurationException(String message) {
     super(message);
   }
 
   /**
-   * @param message
-   * @param cause
+   * Creates an exception with the supplied message and cause.
+   *
+   * @param message the detail message, may be <code>null</code>
+   * @param cause the cause, may be <code>null</code>
    */
   public PSMissingBeanConfigurationException(String message, Throwable cause) {
     super(message, cause);
   }
 
   /**
-   * @param cause
+   * Creates an exception with the supplied cause.
+   *
+   * @param cause the cause, may be <code>null</code>
    */
   public PSMissingBeanConfigurationException(Throwable cause) {
     super(cause);

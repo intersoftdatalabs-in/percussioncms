@@ -39,13 +39,17 @@ public class PSNamingContextHelper {
   String m_root = null;
 
   /**
-   * @throws NamingException
+   * Creates a naming context helper backed by the initial context.
+   *
+   * @throws NamingException if the initial context cannot be created
    */
   public PSNamingContextHelper() throws NamingException {
     m_ctx = new InitialContext();
   }
 
   /**
+   * Returns the initial bindings.
+   *
    * @return Returns the props.
    */
   public Map<?, ?> getBindings() {
@@ -53,6 +57,8 @@ public class PSNamingContextHelper {
   }
 
   /**
+   * Sets the initial bindings.
+   *
    * @param props The props to set, never <code>null</code>
    * @throws NamingException If there is a problem storing a name/value
    */
@@ -74,7 +80,7 @@ public class PSNamingContextHelper {
    * @param key the name of the binding, the root will be prepended, never <code>null</code> or
    *     empty.
    * @param binding the bound data, never <code>null</code>.
-   * @throws NamingException
+   * @throws NamingException if the binding cannot be stored
    */
   public void addBinding(String key, Object binding) throws NamingException {
     if (StringUtils.isBlank(key)) {
@@ -91,7 +97,7 @@ public class PSNamingContextHelper {
    *
    * @param key the name of the binding, never <code>null</code> or empty.
    * @param binding the bound data, never <code>null</code>.
-   * @throws NamingException
+   * @throws NamingException if the binding cannot be stored
    */
   public void addBareBinding(String key, Object binding) throws NamingException {
     if (StringUtils.isBlank(key)) {
@@ -104,6 +110,8 @@ public class PSNamingContextHelper {
   }
 
   /**
+   * Returns the root path.
+   *
    * @return Returns the root.
    */
   public String getRoot() {
@@ -111,6 +119,8 @@ public class PSNamingContextHelper {
   }
 
   /**
+   * Sets the root path.
+   *
    * @param root The root to set.
    */
   public void setRoot(String root) {

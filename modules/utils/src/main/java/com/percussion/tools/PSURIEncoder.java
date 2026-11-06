@@ -22,10 +22,14 @@ package com.percussion.tools;
  * (x-www-form-urlencoded) a URI. Code is taken from w3c web site.
  */
 public class PSURIEncoder {
+  /** Creates a URI encoder. All methods are static. */
+  public PSURIEncoder() {}
+
   /**
    * Unescape a string from the "x-www-form-urlencoded" form, to a normal form.
    *
    * @param s - the escaped URI form parameter to be unescaped.
+   * @return the unescaped string, never <code>null</code>
    */
   public static String unescape(String s) {
     StringBuilder sbuf = new StringBuilder();

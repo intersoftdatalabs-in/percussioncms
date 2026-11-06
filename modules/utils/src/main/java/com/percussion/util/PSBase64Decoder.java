@@ -39,7 +39,6 @@ import java.util.Base64;
  * @since 1.0
  */
 @Deprecated // user java.util.Base64
-/** Member. */
 public class PSBase64Decoder {
 
   /** Default constructor. */
@@ -118,6 +117,8 @@ public class PSBase64Decoder {
   /**
    * Provides a simple way to decode a base64 encoded string. Supply the text as the only argument
    * to this method. The decoded string is printed to the console.
+   *
+   * @param args the base64 encoded text to decode, exactly one argument is expected
    */
   public static void main(String[] args) {
     if (args.length != 1) {

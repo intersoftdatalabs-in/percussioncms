@@ -50,11 +50,18 @@ import org.xml.sax.SAXException;
  */
 public final class PSTomcatConnector extends PSAbstractConnector implements XMLEnabled {
 
-  /*/
-   * Xml node name of the Connector element.
-   */
+  /** Xml node name of the Connector element. */
   public static final String CONNECTOR_NODE_NAME = "Connector";
 
+  /**
+   * Creates a connector with explicit scheme, port and properties.
+   *
+   * @param connectorFileContext base directory for relative connector files, never <code>null
+   *     </code>
+   * @param scheme the scheme, never <code>null</code>
+   * @param port the port
+   * @param props additional properties, may be <code>null</code>
+   */
   public PSTomcatConnector(
       Path connectorFileContext, String scheme, int port, Map<String, String> props) {
     super(connectorFileContext);
@@ -70,6 +77,14 @@ public final class PSTomcatConnector extends PSAbstractConnector implements XMLE
     updateFields();
   }
 
+  /**
+   * Creates a connector by copying another connector.
+   *
+   * @param connectorFileContext base directory for relative connector files, never <code>null
+   *     </code>
+   * @param copyFrom the connector to copy from, never <code>null</code>
+   * @param props additional properties, may be <code>null</code>
+   */
   public PSTomcatConnector(
       Path connectorFileContext, IPSConnector copyFrom, Map<String, String> props) {
     super(connectorFileContext);
@@ -77,6 +92,14 @@ public final class PSTomcatConnector extends PSAbstractConnector implements XMLE
     copyFrom(copyFrom);
   }
 
+  /**
+   * Creates a connector from an XML source element.
+   *
+   * @param connectorFileContext base directory for relative connector files, never <code>null
+   *     </code>
+   * @param source the source element, never <code>null</code>
+   * @param props additional properties, may be <code>null</code>
+   */
   public PSTomcatConnector(Path connectorFileContext, Element source, Map<String, String> props) {
     super(connectorFileContext);
     if (props != null) this.properties.putAll(props);
@@ -204,30 +227,53 @@ public final class PSTomcatConnector extends PSAbstractConnector implements XMLE
   /** Constant for the port attribute name. */
   public static final String PORT_ATTR = "port";
 
+  /** Connector attribute name "protocol". */
   public static final String PROTOCOL_ATTR = "protocol";
+  /** Connector attribute name "protocol". */
   public static final String CONNECTION_TIMEOUT_ATTR = "protocol";
+  /** Connector attribute name "redirectPort". */
   public static final String REDIRECT_PORT_ATTR = "redirectPort";
+  /** Connector attribute name "URIEncoding". */
   public static final String URI_ENCODING_ATTR = "URIEncoding";
+  /** Connector attribute name "xpoweredBy". */
   public static final String X_POWERED_BY_ATTR = "xpoweredBy";
+  /** Connector attribute name "compression". */
   public static final String COMPRESSION_ATTR = "compression";
+  /** Connector attribute name "compressableMimeType". */
   public static final String COMPRESSABLE_MIME_TYPE_ATTR = "compressableMimeType";
+  /** Connector attribute name "compressionMinSize". */
   public static final String COMPRESSION_MIN_SIZE_ATTR = "compressionMinSize";
+  /** Connector attribute name "SSLEnabled". */
   public static final String SSL_ENABLED_ATTR = "SSLEnabled";
+  /** Connector attribute name "maxThreads". */
   public static final String MAX_THREADS_ATTR = "maxThreads";
+  /** Connector attribute name "secure". */
   public static final String SECURE_ATTR = "secure";
+  /** Connector attribute name "clientAuth". */
   public static final String CLIENT_AUTH_ATTR = "clientAuth";
+  /** Connector attribute name "keystoreFile". */
   protected static final String KEYSTORE_FILE_ATTR = "keystoreFile";
+  /** Connector attribute name "keystorePass". */
   protected static final String KEYSTORE_PASS_ATTR = "keystorePass";
+  /** Connector attribute name "truststoreFile". */
   protected static final String TRUSTSTORE_FILE_ATTR = "truststoreFile";
+  /** Connector attribute name "truststorePass". */
   protected static final String TRUSTSTORE_PASS_ATTR = "truststorePass";
+  /** Connector attribute name "ciphers". */
   protected static final String CIPHERS_ATTR = "ciphers";
+  /** Connector attribute name "address". */
   protected static final String ADDRESS_ATTR = "address";
+  /** Connector attribute name "scheme". */
   protected static final String SCHEME_ATTR = "scheme";
+  /** Connector attribute name "sslProtocols". */
   protected static final String SSL_PROTOCOLS = "sslProtocols";
   private static final String OLD_SSP_PROTOCOL_ATTR = "sslProtocol";
+  /** Connector attribute name "xpoweredBy". */
   protected static final String X_POWERED_BY = "xpoweredBy";
+  /** Connector attribute name "sslEnabledProtocols". */
   protected static final String SSL_ENABLED_PROTOCOLS = "sslEnabledProtocols";
 
+  /** Property name mapping. */
   public static final Map<String, String> PROP_MAP = new HashMap<>();
 
   static final HashSet<String> DELETE_ATTRIBUTES =
@@ -272,10 +318,16 @@ public final class PSTomcatConnector extends PSAbstractConnector implements XMLE
         }
       };
 
+  /**
+   * Returns the property map.
+   *
+   * @return the property map, never <code>null</code>
+   */
   public HashMap<String, String> getPropertyMap() {
     return propertyMap;
   }
 
+  /** Shared property map. */
   public static final HashMap<String, String> propertyMap = new HashMap<>();
 
   static {

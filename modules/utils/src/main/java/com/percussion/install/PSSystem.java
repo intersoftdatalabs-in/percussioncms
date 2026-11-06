@@ -27,6 +27,8 @@ package com.percussion.install;
  * <p>Now that we use InstallShield, a wizard panel will be doing the loading.
  */
 public class PSSystem {
+  /** Creates a system helper. All methods are static. */
+  public PSSystem() {}
   /**
    * Get the number of a local machine's processors.
    *

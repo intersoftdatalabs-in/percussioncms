@@ -32,6 +32,8 @@ import org.apache.logging.log4j.Logger;
  * tasks.
  */
 public class PSLogger {
+  /** Creates a logger facade. All configuration is static. */
+  public PSLogger() {}
   /**
    * Sets the log file path and initializes the log4j logger.
    *

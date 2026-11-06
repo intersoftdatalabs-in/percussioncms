@@ -26,6 +26,8 @@ import org.apache.velocity.exception.MethodInvocationException;
  * @author dougrand
  */
 public class PSExceptionHelper {
+  /** Creates an exception helper. All methods are static. */
+  public PSExceptionHelper() {}
   /**
    * Exceptions can be nested in a variety of ways. The reflection API causes exceptions that occur
    * during method invocation to be wrapped in an {@link InvocationTargetException}, other

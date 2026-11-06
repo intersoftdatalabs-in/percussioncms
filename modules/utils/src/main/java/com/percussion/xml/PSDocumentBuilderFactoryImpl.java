@@ -21,9 +21,13 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.validation.Schema;
 
+/**
+ * Xerces document builder factory implementation used by the CMS.
+ */
 public class PSDocumentBuilderFactoryImpl
     extends org.apache.xerces.jaxp.DocumentBuilderFactoryImpl {
 
+  /** Creates a document builder factory. */
   public PSDocumentBuilderFactoryImpl() {
     super();
   }
@@ -50,7 +54,7 @@ public class PSDocumentBuilderFactoryImpl
   /**
    * Allows the user to retrieve specific attributes on the underlying implementation.
    *
-   * @param name
+   * @param name name of the attribute to retrieve
    */
   @Override
   public Object getAttribute(String name) throws IllegalArgumentException {

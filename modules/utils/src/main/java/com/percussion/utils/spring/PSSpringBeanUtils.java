@@ -47,7 +47,7 @@ public class PSSpringBeanUtils {
    * @param className The bean class name, may not be <code>null</code> or empty.
    * @param data The source element of the bean, may not be <code>null</code>.
    * @return The bean, never <code>null</code>.
-   * @throws PSInvalidXmlException
+   * @throws PSInvalidXmlException if the bean cannot be restored from XML
    */
   public static IPSBeanConfig createBean(String className, Element data)
       throws PSInvalidXmlException {

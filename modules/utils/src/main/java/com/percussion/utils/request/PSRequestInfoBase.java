@@ -32,6 +32,10 @@ import org.apache.commons.lang3.StringUtils;
  * @author dougrand
  */
 public class PSRequestInfoBase {
+  /** Creates a request info base. All members are static. */
+  public PSRequestInfoBase() {}
+
+  /** System language session object key. */
   public static final String USER_SESSION_OBJECT_SYS_LANG = "sys_lang";
 
   /** The authentication cookie for this request stored as a string value. */
@@ -50,6 +54,7 @@ public class PSRequestInfoBase {
    */
   public static final String KEY_PSREQUEST = "PSREQUEST";
 
+  /** The original request map key. */
   public static final String KEY_ORIG_MAP = "ORIG_MAP";
 
   /**
@@ -58,6 +63,7 @@ public class PSRequestInfoBase {
    */
   public static final String KEY_NOSESSIONTOUCH = "NOSESSIONTOUCH";
 
+  /** Request context key. */
   public static final String KEY_RX_REQUEST_CONTEXT = "RX_REQUEST_CONTEXT";
 
   /**
@@ -91,8 +97,11 @@ public class PSRequestInfoBase {
   /** Locale information */
   public static final String KEY_LOCALE = "LOCALE";
 
+  /** Request context key. */
   public static final String KEY_PSREQUESTCONTEXT = "REQUEST_CONTEXT";
+  /** User information key. */
   public static final String KEY_USER_INFO = "USER_INFO";
+  /** User access level key. */
   public static final String KEY_USER_ACCESS_LEVEL = "USER_ACCESS_LEVEL";
 
   /**
@@ -125,6 +134,11 @@ public class PSRequestInfoBase {
     return map.get(key);
   }
 
+  /**
+   * Returns the request info map for the current thread.
+   *
+   * @return the map, may be <code>null</code> if uninitialized
+   */
   public static Map<String, Object> getRequestInfoMap() {
     return mapThreadLocal.get();
   }

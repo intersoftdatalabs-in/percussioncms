@@ -30,6 +30,9 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSWorkflowRoleInfo implements IWorkflowRoleInfo {
 
+  /** Creates a workflow role info. */
+  public PSWorkflowRoleInfo() {}
+
   /* Getters & setters for state variables */
 
   /**

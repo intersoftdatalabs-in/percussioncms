@@ -46,6 +46,11 @@ public final class PSJBossConnectors extends PSAbstractXmlConnectors {
   private final Path serverFile;
   private final Path laxFile;
 
+  /**
+   * Creates JBoss connectors for the supplied installation directory.
+   *
+   * @param rxDir the installation root directory, never <code>null</code>
+   */
   public PSJBossConnectors(File rxDir) {
     super(JBOSS_APPSERVER_PATH.resolve(Paths.get("server", "rx")));
     rxRootDir = rxDir.toPath();
@@ -53,6 +58,12 @@ public final class PSJBossConnectors extends PSAbstractXmlConnectors {
     this.laxFile = rxRootDir.resolve(CM1_LEGACY_LAX_FILE);
   }
 
+  /**
+   * Creates JBoss connectors for the supplied installation directory and connector data.
+   *
+   * @param rxDir the installation root directory, never <code>null</code>
+   * @param connectorInfo the connector data, never <code>null</code>
+   */
   public PSJBossConnectors(File rxDir, PSAbstractConnectors connectorInfo) {
     this(rxDir);
     setConnectors(connectorInfo.getConnectors());

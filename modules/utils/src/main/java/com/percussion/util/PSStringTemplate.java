@@ -173,6 +173,9 @@ public class PSStringTemplate {
    *     template string. The values are of any class. They are generally {@link String} objects,
    *     but any class that implements a useful and predictable {@link Object#toString()} method
    *     will work.
+   *
+   * @return the expanded template, never <code>null</code>
+   * @throws PSStringTemplateException if the template cannot be expanded
    */
   public String expand(Map<String, ?> dict) throws PSStringTemplateException {
     if (dict == null) {

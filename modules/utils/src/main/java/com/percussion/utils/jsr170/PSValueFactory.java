@@ -41,6 +41,8 @@ import javax.jcr.ValueFormatException;
  * @author dougrand
  */
 public class PSValueFactory implements ValueFactory {
+  /** Creates a value factory. */
+  public PSValueFactory() {}
   /** Used in the static method */
   private static final PSValueFactory ms_fact = new PSValueFactory();
 

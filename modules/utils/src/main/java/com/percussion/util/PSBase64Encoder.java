@@ -39,7 +39,6 @@ import java.util.Base64;
  * @since 1.0
  */
 @Deprecated // Use java.util.Base64 instead
-/** Member. */
 public class PSBase64Encoder {
 
   /** Default constructor. */

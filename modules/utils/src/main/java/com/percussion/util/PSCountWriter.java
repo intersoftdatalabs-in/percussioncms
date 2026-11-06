@@ -33,14 +33,32 @@ import java.io.Writer;
  */
 public class PSCountWriter extends Writer {
 
+  /**
+   * Creates a counter using the default encoding and buffer size.
+   *
+   * @throws UnsupportedEncodingException if the default encoding is not supported
+   */
   public PSCountWriter() throws UnsupportedEncodingException {
     this(null, 1024);
   }
 
+  /**
+   * Creates a counter using the supplied encoding and the default buffer size.
+   *
+   * @param encoding the encoding name, or <code>null</code> to use the default Java encoding
+   * @throws UnsupportedEncodingException if the encoding is not supported
+   */
   public PSCountWriter(String encoding) throws UnsupportedEncodingException {
     this(encoding, 1024);
   }
 
+  /**
+   * Creates a counter using the supplied encoding and buffer size.
+   *
+   * @param encoding the encoding name, or <code>null</code> to use the default Java encoding
+   * @param size the buffer size
+   * @throws UnsupportedEncodingException if the encoding is not supported
+   */
   public PSCountWriter(String encoding, int size) throws UnsupportedEncodingException {
     super();
     m_length = 0L;
@@ -87,6 +105,8 @@ public class PSCountWriter extends Writer {
   }
 
   /**
+   * Get the number of characters that were written to the writer.
+   *
    * @return The number of characters that were written to the writer.
    */
   public long getNumChars() {

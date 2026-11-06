@@ -32,6 +32,11 @@ public class PSPatternMatcher {
    * match zero or more arbitrary characters. For typical DOS and UNIX wildcard matching, use '?'
    * (question mark) to match a single arbitrary character and '*' to match zero or more arbitrary
    * characters.
+   *
+   * @param matchOne the single-character wildcard
+   * @param matchZeroOrMore the multi-character wildcard
+   * @param pattern the pattern to match, never <code>null</code>
+   * @param caseSensitive <code>true</code> for case sensitive matching
    */
   public PSPatternMatcher(
       char matchOne, char matchZeroOrMore, String pattern, boolean caseSensitive) {
@@ -53,6 +58,10 @@ public class PSPatternMatcher {
    * match zero or more arbitrary characters. For typical DOS and UNIX wildcard matching, use '?'
    * (question mark) to match a single arbitrary character and '*' to match zero or more arbitrary
    * characters.
+   *
+   * @param matchOne the single-character wildcard
+   * @param matchZeroOrMore the multi-character wildcard
+   * @param pattern the pattern to match, never <code>null</code>
    */
   public PSPatternMatcher(char matchOne, char matchZeroOrMore, String pattern) {
     this(matchOne, matchZeroOrMore, pattern, true);
@@ -63,6 +72,9 @@ public class PSPatternMatcher {
    * and '%' to match zero or more arbitrary characters.
    *
    * <p>This conforms to the SQL LIKE operator (case sensitive)
+   *
+   * @param pattern the pattern to match, never <code>null</code>
+   * @return a SQL pattern matcher, never <code>null</code>
    */
   public static PSPatternMatcher SQLPatternMatcher(String pattern) {
     return new PSPatternMatcher('_', '%', pattern, true);
@@ -75,6 +87,9 @@ public class PSPatternMatcher {
    * <p>This will be case insensitive if and only if (new File("foo")).equals(new File("FOO")).
    *
    * <p>This conforms to UNIX and DOS filename matching.
+   *
+   * @param pattern the pattern to match, never <code>null</code>
+   * @return a file wildcard matcher, never <code>null</code>
    */
   public static PSPatternMatcher FileWildcardMatcher(String pattern) {
     if ((new File("foo")).equals(new File("FOO")))
@@ -86,12 +101,21 @@ public class PSPatternMatcher {
   /**
    * Returns true if and only if <CODE>str</CODE> matches the pattern that this class was
    * constructed with.
+   *
+   * @param str the string to match, never <code>null</code>
+   * @return <code>true</code> if the string matches
    */
   public boolean doesMatchPattern(String str) {
     return doesMatchPattern(m_pat, str);
   }
 
-  /** Returns true if and only if <CODE>str</CODE> matches the pattern <CODE>pat</CODE> */
+  /**
+   * Returns true if and only if <CODE>str</CODE> matches the pattern <CODE>pat</CODE>.
+   *
+   * @param pat the pattern to match against, never <code>null</code>
+   * @param str the string to match, never <code>null</code>
+   * @return <code>true</code> if the string matches
+   */
   public boolean doesMatchPattern(String pat, String str) {
     if (!m_caseSensitive) {
       pat = pat.toUpperCase();
@@ -143,22 +167,47 @@ public class PSPatternMatcher {
     return (sIdx >= sLen);
   }
 
+  /**
+   * Returns the pattern string to match against.
+   *
+   * @return the pattern, never <code>null</code>
+   */
   public String getPattern() {
     return m_pat;
   }
 
+  /**
+   * Returns the expression character that stands for exactly one arbitrary character.
+   *
+   * @return the match-one character
+   */
   public char getMatchOne() {
     return m_matchOne;
   }
 
+  /**
+   * Returns the expression character that stands for zero or more arbitrary characters.
+   *
+   * @return the match-zero-or-more character
+   */
   public char getMatchZeroOrMore() {
     return m_matchZeroOrMore;
   }
 
+  /**
+   * Returns whether matching is case sensitive.
+   *
+   * @return <code>true</code> if case sensitive
+   */
   public boolean isCaseSensitive() {
     return m_caseSensitive;
   }
 
+  /**
+   * Sets whether matching is case sensitive.
+   *
+   * @param caseSensitive <code>true</code> for case sensitive matching
+   */
   public void setCaseSensitive(boolean caseSensitive) {
     m_caseSensitive = caseSensitive;
   }

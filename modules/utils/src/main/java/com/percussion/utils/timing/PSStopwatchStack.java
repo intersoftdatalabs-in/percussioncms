@@ -206,7 +206,13 @@ public class PSStopwatchStack {
     m_counters = new HashMap<String, Integer>();
   }
 
-  // this method is the around advice
+  /**
+   * Around advice profiling the supplied join point.
+   *
+   * @param call the join point, never <code>null</code>
+   * @return the return value of the join point
+   * @throws Throwable any throwable raised by the join point
+   */
   public Object profile(ProceedingJoinPoint call) throws Throwable {
     Object returnValue;
     PSStopwatchStack threadinstance = getStack();

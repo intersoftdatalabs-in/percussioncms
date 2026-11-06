@@ -35,6 +35,9 @@ public abstract class PSBaseValue<Type> implements Value, IPSJcrCacheItem {
   /** Holds value, never <code>null</code> after ctor */
   protected Type m_value;
 
+  /** Default constructor for subclasses. */
+  protected PSBaseValue() {}
+
   /** Hold string value once loaded */
   protected String m_strValue = null;
 

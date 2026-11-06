@@ -25,14 +25,30 @@ public class PSJexlEvaluatorRuntimeException extends RuntimeException {
 
   private static final long serialVersionUID = 1L;
 
+  /**
+   * Creates an evaluation exception with the supplied message.
+   *
+   * @param message the detail message, may be <code>null</code>
+   */
   public PSJexlEvaluatorRuntimeException(String message) {
     super(message);
   }
 
+  /**
+   * Creates an evaluation exception with the supplied message and cause.
+   *
+   * @param message the detail message, may be <code>null</code>
+   * @param cause the cause, may be <code>null</code>
+   */
   public PSJexlEvaluatorRuntimeException(String message, Throwable cause) {
     super(message, cause);
   }
 
+  /**
+   * Creates an evaluation exception with the supplied cause.
+   *
+   * @param cause the cause, may be <code>null</code>
+   */
   public PSJexlEvaluatorRuntimeException(Throwable cause) {
     super(cause);
   }

@@ -52,6 +52,10 @@ public class PSConnectionHelper {
   /**
    * Convenience method that calls {@link #getDbConnection(IPSConnectionInfo) getDbConnection(null)}
    * to get the repository connection.
+   *
+   * @return the repository connection, never <code>null</code>
+   * @throws NamingException if the datasource is not found
+   * @throws SQLException on other database errors
    */
   public static Connection getDbConnection() throws NamingException, SQLException {
     return getDbConnection(null);
@@ -97,6 +101,10 @@ public class PSConnectionHelper {
   /**
    * Convenience method that calls {@link #getConnectionDetail(IPSConnectionInfo)
    * getConnectionDetail(null)} to get the repository connection detail.
+   *
+   * @return the repository connection detail, never <code>null</code>
+   * @throws NamingException if the datasource is not found
+   * @throws SQLException on other database errors
    */
   public static PSConnectionDetail getConnectionDetail() throws NamingException, SQLException {
     return getConnectionDetail(null);

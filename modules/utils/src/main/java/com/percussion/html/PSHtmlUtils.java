@@ -44,6 +44,9 @@ import org.jsoup.select.Elements;
  */
 public class PSHtmlUtils {
 
+  /** Creates an HTML utilities instance. All methods are static. */
+  public PSHtmlUtils() {}
+
   private static final Logger log = LogManager.getLogger(PSHtmlUtils.class);
 
   /**
@@ -75,6 +78,7 @@ public class PSHtmlUtils {
    * @param cleanse When true content will be cleansed using the supplied properties
    * @param configFile The path to the configuration file
    * @return A dom document
+   * @throws PSHtmlParsingException if the fragment cannot be parsed
    */
   public static Document createHTMLDocument(
       String fragment, Charset encoding, boolean cleanse, String configFile)
@@ -106,6 +110,8 @@ public class PSHtmlUtils {
    *     html-cleaner.properties in configFile parameter, or the system default.
    * @param configFile The absolute path to the html-cleaner.properties file to use for cleaning
    *     rules, if null, the system default will be used.
+   * @return the parsed HTML document, never <code>null</code>
+   * @throws PSHtmlParsingException if the fragment cannot be parsed
    */
   public static Document createHTMLDocument(
       File file, Charset encoding, boolean cleanse, String configFile)
@@ -287,6 +293,13 @@ public class PSHtmlUtils {
     return ret;
   }
 
+  /**
+   * Processes removed-tags cleaner configuration into the safelist.
+   *
+   * @param propVal the comma-separated tag list, may be <code>null</code>
+   * @param ret the safelist to update, never <code>null</code>
+   * @return the updated safelist, never <code>null</code>
+   */
   protected static Safelist processRemovedTags(String propVal, Safelist ret) {
     if (propVal == null || StringUtils.isEmpty(propVal.trim())) return ret;
 
@@ -315,6 +328,16 @@ public class PSHtmlUtils {
     return ret;
   }
 
+  /**
+   * Processes allowed-attributes cleaner configuration into the safelist.
+   *
+   * @param fragment the HTML fragment used to resolve wildcard attributes, may be <code>null</code>
+   * @param propVal the comma-separated attribute list, may be <code>null</code>
+   * @param ret the safelist to update, never <code>null</code>
+   * @param removeAttrConfigProp the config property naming attributes to remove, may be <code>null
+   *     </code>
+   * @return the updated safelist, never <code>null</code>
+   */
   protected static Safelist processAllowedAttributes(
       String fragment, String propVal, Safelist ret, String removeAttrConfigProp) {
 
@@ -361,6 +384,13 @@ public class PSHtmlUtils {
     return ret;
   }
 
+  /**
+   * Processes allowed-tags cleaner configuration into the safelist.
+   *
+   * @param propVal the comma-separated tag list, may be <code>null</code>
+   * @param ret the safelist to update, never <code>null</code>
+   * @return the updated safelist, never <code>null</code>
+   */
   protected static Safelist processAllowedTags(String propVal, Safelist ret) {
 
     if (propVal == null || StringUtils.isEmpty(propVal.trim())) return ret;
@@ -385,8 +415,11 @@ public class PSHtmlUtils {
   }
 
   /**
-   * @param propVal
-   * @param ret
+   * Processes add-protocols cleaner configuration into the safelist.
+   *
+   * @param propVal the comma-separated protocol list, may be <code>null</code>
+   * @param ret the safelist to update, never <code>null</code>
+   * @return the updated safelist, never <code>null</code>
    */
   protected static Safelist processAddProtocols(String propVal, Safelist ret) {
 
@@ -481,6 +514,12 @@ public class PSHtmlUtils {
     return doc.body().html();
   }
 
+  /**
+   * Replaces encoded ampersands in a URL.
+   *
+   * @param url the URL to process, never <code>null</code>
+   * @return the URL with {@code &amp;} replaced by {@code &}, never <code>null</code>
+   */
   public static String replaceAmpInURL(String url) {
     return url.replace("&amp;", "&");
   }
@@ -514,16 +553,28 @@ public class PSHtmlUtils {
     return ret;
   }
 
+  /** Cleaner property: output mode (xml or html). */
   public static final String PROP_OUTPUT_MODE = "output-mode";
+  /** Cleaner property: base safelist name. */
   public static final String PROP_BASE_SAFELIST = "base-safelist";
+  /** Cleaner property: whether relative links are preserved. */
   public static final String PROP_REL_LINKS = "preserveRelativeLinks";
+  /** Cleaner property: content encoding. */
   public static final String PROP_ENCODING = "encoding";
+  /** Cleaner property: allowed tags list. */
   public static final String PROP_ALLOWED_TAGS = "allowedTags";
+  /** Cleaner property: removed tags list. */
   public static final String PROP_REMOVE_TAGS = "removeTags";
+  /** Cleaner property: allowed attributes list. */
   public static final String PROP_ALLOWED_ATTRS = "allowedAttributes";
+  /** Cleaner property: removed attributes list. */
   public static final String PROP_REMOVE_ATTRS = "removeAttributes";
+  /** Cleaner property: enforced attributes list. */
   public static final String PROP_ENFORCED_ATTRS = "enforcedAttributes";
+  /** Cleaner property: added protocols list. */
   public static final String PROP_ADD_PROTOCOLS = "addProtocols";
+  /** Cleaner property: removed protocols list. */
   public static final String PROP_REMOVE_PROTOCOLS = "removeProtocols";
+  /** Cleaner property: pretty-print flag. */
   public static final String PROP_PRETTY_PRINT = "prettyPrint";
 }

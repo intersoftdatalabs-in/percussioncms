@@ -434,7 +434,7 @@ public enum PSTypeEnum {
    *
    * @param s ordinal value
    * @return an enumerated value or <code>null</code> if the ordinal does not match
-   * @throws IllegalArgumentException
+   * @throws IllegalArgumentException if the ordinal is invalid
    */
   public static PSTypeEnum valueOf(int s) throws IllegalArgumentException {
     PSTypeEnum types[] = values();
@@ -450,7 +450,7 @@ public enum PSTypeEnum {
    *
    * @param s ordinal value
    * @return an enumerated value or <code>null</code> if the ordinal does not match
-   * @throws IllegalArgumentException
+   * @throws IllegalArgumentException if the ordinal is invalid
    */
   public static PSTypeEnum valueOf(long s) throws IllegalArgumentException {
     PSTypeEnum types[] = values();

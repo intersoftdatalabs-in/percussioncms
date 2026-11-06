@@ -30,6 +30,9 @@ import org.apache.commons.lang3.StringUtils;
 /** Utility class for JDBC operations */
 public class PSJdbcUtils {
 
+  /** Creates a JDBC utilities instance. All methods are static. */
+  public PSJdbcUtils() {}
+
   // NOTE: the following driver constants must match the names used in the
   // server configuration (config.xml).
   /**
@@ -180,17 +183,24 @@ public class PSJdbcUtils {
   /** The path to the mysql database driver, relative to the root directory. */
   public static final String MYSQL_DRIVER_LOCATION = "/jetty/base/lib/jdbc/mysql-connector.jar";
 
+  /** DTS MySQL driver location, relative to the DTS root directory. */
   public static final String MYSQL_DTS_DRIVER_LOCATION =
       "/Deployment/Server/common/lib/mysql-connector.jar";
+  /** Staging DTS MySQL driver location, relative to the DTS root directory. */
   public static final String MYSQL_STAGING_DTS_DRIVER_LOCATION =
       "/Staging/Deployment/Server/common/lib/mysql-connector.jar";
 
+  /** Default JDBC driver location, relative to the root directory. */
   public static final String DEFAULT_JDBC_DRIVER_LOCATION = "/jetty/base/lib/jdbc";
+  /** DTS default driver location, relative to the DTS root directory. */
   public static final String DEFAULT_DTS_DRIVER_LOCATION = "/Deployment/Server/common/lib";
+  /** Staging DTS default driver location, relative to the DTS root directory. */
   public static final String DEFAULT_STAGING_DTS_DRIVER_LOCATION =
       "/Staging/Deployment/Server/common/lib";
 
+  /** Legacy JTDS SQL Server driver class name. */
   public static final String LEGACY_SQL_DRIVER_CLASSNAME = "net.sourceforge.jtds.jdbc.Driver";
+  /** Microsoft SQL Server driver class name. */
   public static final String MICROSOFT_SQL_DRIVER_CLASSNAME =
       "com.microsoft.sqlserver.jdbc.SQLServerDriver";
 
@@ -532,6 +542,7 @@ public class PSJdbcUtils {
    * Determines if the specified driver is external, which means that it is not distributed with the
    * server.
    *
+   * @param driver the driver name to check
    * @return <code>true</code> if the driver is external, <code>false</code> otherwise.
    */
   public static boolean isExternalDriver(String driver) {

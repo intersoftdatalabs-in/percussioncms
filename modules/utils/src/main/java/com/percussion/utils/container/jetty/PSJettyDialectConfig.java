@@ -21,7 +21,13 @@ import com.percussion.utils.container.IPSHibernateDialectConfig;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Hibernate dialect configuration for Jetty datasources.
+ */
 public class PSJettyDialectConfig implements IPSHibernateDialectConfig {
+
+  /** Creates a dialect configuration. */
+  public PSJettyDialectConfig() {}
 
   /**
    * Map of jdbc driver name to hibernate sql dialect, never <code>null</code>, may be empty.

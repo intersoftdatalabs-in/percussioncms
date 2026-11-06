@@ -23,6 +23,9 @@ import java.util.Map;
 /** A simple class that handles "escaped" text. */
 public class PSOutputEscaping {
 
+  /** Creates an output escaping helper. All methods are static. */
+  public PSOutputEscaping() {}
+
   /**
    * This method searches for the following strings "&amp;","&lt;","&gt;","&quot;","&apos;" and
    * replaces them with "&amp;","&lt;","&gt;","&quot;","&apos;" respectively
@@ -109,9 +112,13 @@ public class PSOutputEscaping {
   /** Strings which need to be substituted/unescaped. */
   public static final String AMP = "&amp;";
 
+  /** Less-than entity. */
   public static final String LT = "&lt;";
+  /** Greater-than entity. */
   public static final String GT = "&gt;";
+  /** Double-quote entity. */
   public static final String QUOT = "&quot;";
+  /** Apostrophe entity. */
   public static final String APOS = "&apos;";
 
   /** Map of character to entity mappings */

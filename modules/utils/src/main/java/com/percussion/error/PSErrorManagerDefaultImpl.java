@@ -31,8 +31,15 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * Default {@link IPSErrorManager} implementation backed by resource bundles for error strings and
+ * error page mappings.
+ */
 public class PSErrorManagerDefaultImpl implements IPSErrorManager {
   private static final Logger log = LogManager.getLogger(PSErrorManagerDefaultImpl.class);
+
+  /** Creates a default error manager instance. */
+  public PSErrorManagerDefaultImpl() {}
 
   @Override
   public void init() {

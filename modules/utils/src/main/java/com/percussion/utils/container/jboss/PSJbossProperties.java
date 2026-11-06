@@ -17,7 +17,13 @@
 
 package com.percussion.utils.container.jboss;
 
+/**
+ * JBoss container property names.
+ */
 public class PSJbossProperties {
+
+  /** Creates a JBoss properties holder. All members are static. */
+  public PSJbossProperties() {}
 
   /**
    * The name of the directory below the JBoss home directory that contains various configuration

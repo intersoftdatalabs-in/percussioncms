@@ -72,6 +72,10 @@ import java.util.MissingResourceException;
  */
 public class PSErrorManager {
 
+  /** Creates an error manager facade. */
+  public PSErrorManager() {}
+
+  /** System property key naming the {@link IPSErrorManager} implementation class. */
   public static final String ERROR_MGR_CLASS = "com.percussion.error.PSErrorManagerImpl";
   private static IPSErrorManager errorManagerInstance = new PSErrorManagerDefaultImpl();
 
@@ -194,6 +198,14 @@ public class PSErrorManager {
     return errorManagerInstance.createMessage(msgCode, arrayArgs, language);
   }
 
+  /**
+   * Get the error URL to use for the specified error.
+   *
+   * @param err the error, never <code>null</code>
+   * @param loc the locale of the error, never <code>null</code>
+   * @return the URL to use for the specified error, or <code>null</code> if the error is not
+   *     supported
+   */
   public static URL getErrorURL(PSLogInformation err, Locale loc) {
     return errorManagerInstance.getErrorURL(err, loc);
   }

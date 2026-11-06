@@ -129,6 +129,11 @@ public abstract class PSItemIterator<M> {
 
   // Type and ParameterizedType imports removed; no longer used.
 
+  /**
+   * Returns the next item in the iteration.
+   *
+   * @return the next item
+   */
   public M next() {
     m_current++;
     return m_iter.next();
@@ -172,10 +177,20 @@ public abstract class PSItemIterator<M> {
     return m_current;
   }
 
+  /**
+   * Returns whether the iteration has more elements.
+   *
+   * @return <code>true</code> if the iteration has more elements
+   */
   public boolean hasNext() {
     return m_iter.hasNext();
   }
 
+  /**
+   * Always throws, removal is not supported.
+   *
+   * @throws RuntimeException always
+   */
   public void remove() {
     throw new RuntimeException("Cannot remove properties");
   }
@@ -196,7 +211,7 @@ public abstract class PSItemIterator<M> {
    * for internal use of the assembly engine only. <b>You must copy the map from {@link
    * #getMap()}!</b>
    *
-   * @param newmap
+   * @param newmap the replacement map, never <code>null</code>
    */
   public void setMap(Map<?, ?> newmap) {
     m_map = newmap;

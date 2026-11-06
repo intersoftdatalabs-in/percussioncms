@@ -55,7 +55,11 @@ public class RxInstallerProperties {
     }
   }
 
-  /** Get the resource */
+  /**
+   * Get the resource bundle.
+   *
+   * @return the resource bundle, never <code>null</code>
+   */
   public static ResourceBundle getResources() {
     try {
       if (null == m_res) {

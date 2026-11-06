@@ -43,6 +43,12 @@ public class PSPurgableTempFile extends File implements AutoCloseable {
   /**
    * Convenience constructor that calls {@link #PSPurgableTempFile(String, String, File, String,
    * String, String) PSPurgableTempFile(prefix, suffix, dir, null, null, null)}.
+   *
+   * @param prefix the prefix to use for the temp file name, must be at least 3 characters
+   * @param suffix the suffix to use for the temp file name, may be <code>null</code>
+   * @param dir the directory to create the file in, may be <code>null</code> for the default temp
+   *     dir
+   * @throws IOException if any IO operation fails
    */
   public PSPurgableTempFile(String prefix, String suffix, File dir) throws IOException {
     this(prefix, suffix, dir, null, null, null);
@@ -143,6 +149,11 @@ public class PSPurgableTempFile extends File implements AutoCloseable {
     return m_sourceFile;
   }
 
+  /**
+   * Sets the name of the source file of this file.
+   *
+   * @param s the source file name, may be <code>null</code>
+   */
   public void setSourceFileName(String s) {
     m_sourceFile = s;
   }
@@ -157,6 +168,11 @@ public class PSPurgableTempFile extends File implements AutoCloseable {
     return m_contentType;
   }
 
+  /**
+   * Sets the content type of the source file of this file.
+   *
+   * @param contentType the content type, may be <code>null</code>
+   */
   public void setSourceContentType(String contentType) {
     this.m_contentType = contentType;
   }

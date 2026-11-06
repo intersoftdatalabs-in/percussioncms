@@ -26,6 +26,8 @@ public class PSRelationshipException extends PSException {
   /**
    * Pass-through constructor to super class.
    *
+   * @param msgCode the error code to load
+   * @param singleArg the single argument to use as the sole argument in the error message
    * @see PSException#PSException(int,Object)
    */
   public PSRelationshipException(int msgCode, Object singleArg) {
@@ -35,6 +37,8 @@ public class PSRelationshipException extends PSException {
   /**
    * Pass-through constructor to super class.
    *
+   * @param msgCode the error code to load
+   * @param arrayArgs the array of arguments to use as the arguments in the error message
    * @see PSException#PSException(int,Object[])
    */
   public PSRelationshipException(int msgCode, Object[] arrayArgs) {
@@ -44,6 +48,7 @@ public class PSRelationshipException extends PSException {
   /**
    * Pass-through constructor to super class.
    *
+   * @param msgCode the error code to load
    * @see PSException#PSException(int)
    */
   public PSRelationshipException(int msgCode) {

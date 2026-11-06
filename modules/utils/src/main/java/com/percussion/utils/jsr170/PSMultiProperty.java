@@ -75,8 +75,8 @@ public final class PSMultiProperty extends PSPropertyWrapper implements IPSJcrCa
    * @param parent parent node, never <code>null</code>
    * @param rep the object to extract the value from, never <code>null</code> but could conceivably
    *     be empty. The property must reference a collection type bean property in the object
-   * @throws PSPropertyAccessException
-   * @throws RepositoryException
+   * @throws PSPropertyAccessException if the property cannot be accessed
+   * @throws RepositoryException on repository errors
    */
   public PSMultiProperty(String property, Node parent, Object rep)
       throws PSPropertyAccessException, RepositoryException {

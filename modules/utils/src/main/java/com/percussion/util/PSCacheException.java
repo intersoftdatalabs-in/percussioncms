@@ -31,6 +31,8 @@ public class PSCacheException extends PSException {
   /**
    * Pass-through constructor to super class.
    *
+   * @param msgCode the error code to load
+   * @param singleArg the single argument to use in the error message
    * @see PSException#PSException(int,Object)
    */
   public PSCacheException(int msgCode, Object singleArg) {
@@ -40,6 +42,8 @@ public class PSCacheException extends PSException {
   /**
    * Pass-through constructor to super class.
    *
+   * @param msgCode the error code to load
+   * @param arrayArgs the array of arguments to use in the error message
    * @see PSException#PSException(int,Object[])
    */
   public PSCacheException(int msgCode, Object[] arrayArgs) {
@@ -49,6 +53,7 @@ public class PSCacheException extends PSException {
   /**
    * Pass-through constructor to super class.
    *
+   * @param msgCode the error code to load
    * @see PSException#PSException(int)
    */
   public PSCacheException(int msgCode) {

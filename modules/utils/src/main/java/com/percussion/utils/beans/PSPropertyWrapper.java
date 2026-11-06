@@ -240,6 +240,14 @@ public class PSPropertyWrapper {
     }
   }
 
+  /**
+   * Validates the supplied parent node.
+   *
+   * @param parent the parent node to validate, never <code>null</code>
+   * @return the declaring node type, never <code>null</code>
+   * @throws IllegalStateException if parent, parent definition or nodetype information is missing
+   * @throws RepositoryException on repository errors
+   */
   protected NodeType validateParent(Node parent) throws RepositoryException {
     if (parent == null
         || parent.getDefinition() == null

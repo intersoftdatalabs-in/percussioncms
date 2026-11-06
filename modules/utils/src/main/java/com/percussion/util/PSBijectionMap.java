@@ -109,12 +109,20 @@ public class PSBijectionMap<K, V> {
     return m_values.get(key);
   }
 
-  /** Returns an enumeration of all the values in the bijection map */
+  /**
+   * Returns an enumeration of all the values in the bijection map.
+   *
+   * @return an enumeration of all values, never <code>null</code>
+   */
   public Enumeration<V> values() {
     return m_values.elements();
   }
 
-  /** Returns an enumeration of all the keys in the bijection map */
+  /**
+   * Returns an enumeration of all the keys in the bijection map.
+   *
+   * @return an enumeration of all keys, never <code>null</code>
+   */
   public Enumeration<K> keys() {
     return m_keys.elements();
   }

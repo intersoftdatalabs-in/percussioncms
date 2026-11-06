@@ -57,9 +57,18 @@ import org.apache.logging.log4j.Logger;
  */
 public class PSSqlHelper {
 
+  /** Creates a SQL helper. All methods are static. */
+  public PSSqlHelper() {}
+
   private static final String JBOSS_WRAPPED_CLASS =
       "org.jboss.ejb.plugins.cmp.jdbc.WrappedStatement";
 
+  /**
+   * Escapes single quotes in a query parameter value.
+   *
+   * @param value the value to escape, never <code>null</code>
+   * @return the escaped value, never <code>null</code>
+   */
   public static String escapeQueryParamValue(String value) {
     return value.replace("'", "''");
   }
@@ -1357,6 +1366,12 @@ public class PSSqlHelper {
     return (driverName.toUpperCase().contains("MYSQL"));
   }
 
+  /**
+   * Determines if the supplied driver is for MS SQL Server database.
+   *
+   * @param driverName the database driver name, may be <code>null</code>.
+   * @return <code>true</code> if the driver is for MS SQL Server; otherwise <code>false</code>.
+   */
   public static boolean isMsSql(String driverName) {
     return (driverName.toUpperCase().contains("MSSQL")
         || driverName.toUpperCase().contains("SQLSERVER")

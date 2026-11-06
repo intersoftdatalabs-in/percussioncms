@@ -25,8 +25,22 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
+/**
+ * Resource loading utilities.
+ */
 public class PSResourceUtils {
 
+  /** Creates a resource utilities instance. All methods are static. */
+  public PSResourceUtils() {}
+
+  /**
+   * Returns the path of a resource.
+   *
+   * @param clazz The class to use for loading the resource
+   * @param resourcePath The resource path
+   * @return the resource path, never <code>null</code>
+   * @throws IllegalArgumentException if the resource cannot be loaded
+   */
   public static String getResourcePath(Class<?> clazz, String resourcePath) {
     URL url = clazz.getResource(resourcePath);
     if (url == null) throw new IllegalArgumentException("Cannot load resource " + resourcePath);
@@ -38,7 +52,8 @@ public class PSResourceUtils {
    * @param clazz The class to use for loading the resource
    * @param resourcePath The resource path
    * @param dir  May be null
-   *
+   * @return the temporary file, never <code>null</code>
+   * @throws IOException upon any error
    */
   public static File getFile(Class<?> clazz, String resourcePath, File dir) throws IOException {
     File ret = File.createTempFile("test", "tmp", dir);
@@ -54,6 +69,12 @@ public class PSResourceUtils {
     return ret;
   }
 
+  /**
+   * Creates a fake installation directory for tests.
+   *
+   * @return the directory, never <code>null</code>
+   * @throws IOException upon any error
+   */
   public static File getFakeRxDir() throws IOException {
     Path p = Files.createTempDirectory("test");
 
@@ -63,6 +84,14 @@ public class PSResourceUtils {
     return ret;
   }
 
+  /**
+   * Copies a resource to a file under a fake installation directory.
+   *
+   * @param clazz The class to use for loading the resource
+   * @param resourcePath The resource path
+   * @return the file, never <code>null</code>
+   * @throws IOException upon any error
+   */
   public static File getFakeRxDirFile(Class<?> clazz, String resourcePath) throws IOException {
     return getFile(clazz, resourcePath, getFakeRxDir());
   }

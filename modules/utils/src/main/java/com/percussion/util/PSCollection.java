@@ -115,7 +115,6 @@ public class PSCollection<E> extends PSConcurrentList<E> {
    * @throws ClassCastException if the object is not of the appropriate class
    */
   @Override
-  /** Member. */
   public void add(int index, E o) throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(o);
 
@@ -132,7 +131,6 @@ public class PSCollection<E> extends PSConcurrentList<E> {
    * @throws ClassCastException if the object is not of the appropriate class
    */
   @Override
-  /** Member. */
   public boolean add(E o) throws ClassCastException {
     checkType(o);
 
@@ -161,7 +159,6 @@ public class PSCollection<E> extends PSConcurrentList<E> {
    * @throws ClassCastException if the object is not of the appropriate class
    */
   @Override
-  /** Member. */
   public boolean addAll(Collection<? extends E> c)
       throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(c);
@@ -180,7 +177,6 @@ public class PSCollection<E> extends PSConcurrentList<E> {
    * @throws ClassCastException if the object is not of the appropriate class
    */
   @Override
-  /** Member. */
   public boolean addAll(int index, Collection<? extends E> c)
       throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(c);
@@ -200,7 +196,6 @@ public class PSCollection<E> extends PSConcurrentList<E> {
    * @throws ClassCastException if the object is not of the appropriate class
    */
   @Override
-  /** Member. */
   public E set(int index, E o) throws ArrayIndexOutOfBoundsException, ClassCastException {
     checkType(o);
 
@@ -224,7 +219,12 @@ public class PSCollection<E> extends PSConcurrentList<E> {
     set(index, o);
   }
 
-  /** Member. */
+  /**
+   * Inserts the specified element at the specified index.
+   *
+   * @param o the element to insert
+   * @param i the index at which to insert the element
+   */
   public void insertElementAt(E o, int i) {
     this.add(i, o);
   }
@@ -247,16 +247,16 @@ public class PSCollection<E> extends PSConcurrentList<E> {
     return m_memberClass.getName();
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public boolean equals(Object o) {
     if (this == o) return true;
     if (!(o instanceof PSCollection<?> that)) return false;
     return Objects.equals(m_memberClass, that.m_memberClass);
   }
 
+  /** {@inheritDoc} */
   @Override
-  /** Member. */
   public int hashCode() {
     return Objects.hash(m_memberClass);
   }
@@ -317,7 +317,12 @@ public class PSCollection<E> extends PSConcurrentList<E> {
     return copy;
   }
 
-  /** Member. */
+  /**
+   * Returns the last element in the collection.
+   *
+   * @return the last element, never <code>null</code>
+   * @throws NoSuchElementException if the collection is empty
+   */
   public E lastElement() {
     if (this.size() > 0) {
       return this.get(this.size() - 1);
@@ -331,12 +336,22 @@ public class PSCollection<E> extends PSConcurrentList<E> {
     this.clear();
   }
 
-  /** Member. */
+  /**
+   * Returns the element at the specified index.
+   *
+   * @param index the index of the element to return
+   * @return the element at the specified index
+   */
   public E elementAt(int index) {
     return this.get(index);
   }
 
-  /** Member. */
+  /**
+   * Returns the first element in the collection.
+   *
+   * @return the first element, never <code>null</code>
+   * @throws NoSuchElementException if the collection is empty
+   */
   public E firstElement() {
     if (this.size() > 0) return this.get(0);
     else throw new NoSuchElementException();

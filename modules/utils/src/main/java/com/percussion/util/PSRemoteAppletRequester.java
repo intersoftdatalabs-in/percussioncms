@@ -42,6 +42,7 @@ public class PSRemoteAppletRequester implements IPSRemoteRequester {
   /**
    * Constructs an instance from an URL object.
    *
+   * @param conn the HTTP connection to use, never <code>null</code>
    * @param url The object, which may be created by <code>Applet.getRhythmyxCodeBase()</code>. It
    *     may not be <code>null</code>.
    */

@@ -27,7 +27,13 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Node;
 
+/**
+ * XML utilities.
+ */
 public class PSXmlUtil {
+
+  /** Creates an XML utilities instance. All methods are static. */
+  public PSXmlUtil() {}
 
   /**
    * Returns the provided document as XML formatted, UTF8 encoded string with indentations.
