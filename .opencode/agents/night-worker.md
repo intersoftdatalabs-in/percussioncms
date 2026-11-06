@@ -214,11 +214,6 @@ hand off to Human QA.
 - Unverified issue closes (manual `gh issue close`, or `Fixes #N` on a PR
   whose body does not evidence every acceptance criterion). Umbrellas stay
   open; spikes file follow-ons first; human-gated issues wait for the human.
-- Closing a run with known-unfiled discovered slices (triage
-  `child_proposals` or noted residuals/follow-ups with no URL and no open
-  duplicate). File them in the host sweep (command file section "Filing
-  discovered residuals / follow-ups / slices") — cap 8 new per run,
-  remainder deferred in the report.
 
 ## Output
 
