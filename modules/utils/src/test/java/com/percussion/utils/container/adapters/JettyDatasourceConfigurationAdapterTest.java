@@ -27,9 +27,13 @@ import com.percussion.security.PSEncryptor;
 import com.percussion.utils.container.DefaultConfigurationContextImpl;
 import com.percussion.utils.container.IPSJndiDatasource;
 import com.percussion.utils.container.PSJettyConnectorsTest;
+import com.percussion.utils.container.PSStaticContainerUtils;
 import com.percussion.utils.io.PathUtils;
+import com.percussion.xml.PSXmlDocumentBuilder;
+import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
@@ -38,6 +42,10 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 public class JettyDatasourceConfigurationAdapterTest {
 
@@ -145,8 +153,122 @@ public class JettyDatasourceConfigurationAdapterTest {
     }
   }
 
-  private static DefaultConfigurationContextImpl newContext(Path root) {
-    PSLegacyEncrypter legacy =
+  /**
+   * 8.1.x Derby-era {@code perc-ds.xml} files build the URL from mixed content (literal {@code
+   * jdbc:} / {@code :} text around {@code Property} refs). Jetty 12 concatenates that whitespace
+   * verbatim, so after a Derby to H2 migration the driver receives {@code "jdbc:\n h2\n :\n
+   * file:..."}, rejects it, and the server fails to start (issue #5656). Normalization must
+   * rewrite the legacy shape to the {@code buildConnectionUrl} {@code Call} form and be
+   * idempotent.
+   */
+  @Test
+  public void normalizeLegacyJdbcUrlSets_rewritesMixedContentToCallForm() throws Exception {
+    String legacy;
+    try (InputStream in =
+        PSJettyConnectorsTest.class.getResourceAsStream(
+            "/com/percussion/utils/container/jetty/base/etc/perc-ds.xml")) {
+      legacy = new String(in.readAllBytes(), StandardCharsets.UTF_8);
+    }
+    assertTrue(legacy.contains("jdbc:"), "fixture must use the legacy mixed-content jdbcUrl form");
+
+    Document doc;
+    try (InputStream in = new ByteArrayInputStream(legacy.getBytes(StandardCharsets.UTF_8))) {
+      doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
+    }
+
+    assertTrue(
+        JettyDatasourceConfigurationAdapter.normalizeLegacyJdbcUrlSets(doc),
+        "legacy mixed-content jdbcUrl must be rewritten");
+    assertFalse(
+        JettyDatasourceConfigurationAdapter.normalizeLegacyJdbcUrlSets(doc),
+        "normalization must be idempotent");
+
+    Element jdbcUrl = findJdbcUrlSet(doc);
+    assertTrue(hasBuildConnectionUrlCall(jdbcUrl), "jdbcUrl must use the buildConnectionUrl Call");
+    assertFalse(
+        hasLiteralJdbcText(jdbcUrl), "no literal jdbc: text may remain in the jdbcUrl Set");
+    // Existing Property refs (names + defaults) must survive the rewrite.
+    assertTrue(
+        PSXmlDocumentBuilder.toString(doc).contains("perc.ds.1.driver.name"),
+        "driver Property ref must be preserved");
+    assertTrue(
+        PSXmlDocumentBuilder.toString(doc).contains("perc.ds.1.server"),
+        "server Property ref must be preserved");
+  }
+
+  /**
+   * End-to-end: saving a configuration seeded from a legacy 8.1.x {@code perc-ds.xml} must
+   * persist the normalized {@code buildConnectionUrl} form so a post-upgrade boot resolves a
+   * clean URL (issue #5656).
+   */
+  @Test
+  public void save_legacyPercDsXml_persistsNormalizedJdbcUrl() throws Exception {
+    Path root = seedJettyEtc(temporaryFolder);
+    JettyDatasourceConfigurationAdapter adapter = new JettyDatasourceConfigurationAdapter();
+    DefaultConfigurationContextImpl ctx = newContext(root);
+    adapter.load(ctx);
+    assertFalse(ctx.getConfig().getDatasources().isEmpty());
+
+    adapter.save(ctx);
+
+    Path dsXml = root.resolve("jetty").resolve("base").resolve("etc").resolve("perc-ds.xml");
+    Document saved;
+    try (InputStream in = Files.newInputStream(dsXml)) {
+      saved = PSXmlDocumentBuilder.createXmlDocument(in, false);
+    }
+    Element jdbcUrl = findJdbcUrlSet(saved);
+    assertTrue(hasBuildConnectionUrlCall(jdbcUrl), "saved jdbcUrl must use buildConnectionUrl");
+    assertFalse(hasLiteralJdbcText(jdbcUrl), "saved jdbcUrl must not keep literal jdbc: text");
+  }
+
+  /**
+   * Installer/migration property values may carry surrounding whitespace; the built URL must
+   * still be exact (issue #5656).
+   */
+  @Test
+  public void buildConnectionUrl_trimsFragments() {
+    assertEquals(
+        "jdbc:h2:file:C:/INSTALLS/cms/Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE",
+        PSStaticContainerUtils.buildConnectionUrl(
+            "\n h2\n ", " file:C:/INSTALLS/cms/Repository/CMDB;DB_CLOSE_ON_EXIT=FALSE\n "));
+    assertEquals(
+        "jdbc:derby:CMDB", PSStaticContainerUtils.buildConnectionUrl("derby", "CMDB"));
+  }
+
+  private static Element findJdbcUrlSet(Document doc) {
+    NodeList sets = doc.getElementsByTagName("Set");
+    for (int i = 0; i < sets.getLength(); i++) {
+      Element set = (Element) sets.item(i);
+      if ("jdbcUrl".equals(set.getAttribute("name"))) {
+        return set;
+      }
+    }
+    throw new AssertionError("no <Set name=\"jdbcUrl\"> found");
+  }
+
+  private static boolean hasBuildConnectionUrlCall(Element set) {
+    NodeList calls = set.getElementsByTagName("Call");
+    for (int i = 0; i < calls.getLength(); i++) {
+      Node name = calls.item(i).getAttributes().getNamedItem("name");
+      if (name != null && "buildConnectionUrl".equals(name.getNodeValue())) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean hasLiteralJdbcText(Element set) {
+    NodeList children = set.getChildNodes();
+    for (int i = 0; i < children.getLength(); i++) {
+      Node child = children.item(i);
+      if (child.getNodeType() == Node.TEXT_NODE && child.getNodeValue().contains("jdbc:")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static DefaultConfigurationContextImpl newContext(Path root) {    PSLegacyEncrypter legacy =
         PSLegacyEncrypter.getInstance(
             PathUtils.getRxPath().toAbsolutePath().toString().concat(PSEncryptor.SECURE_DIR));
     return new DefaultConfigurationContextImpl(root, legacy.getPartTwoKey());

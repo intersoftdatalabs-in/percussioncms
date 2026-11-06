@@ -62,6 +62,16 @@ If you are on product-managed Derby:
 
 New defaults do **not** promise Derby Network Server / DRDA remote access. Steady-state backup for the default embedded repository remains **offline only**.
 
+> **Troubleshooting — server fails to start after a Derby → H2 upgrade** with
+> `Driver org.h2.Driver claims to not accept jdbcUrl` showing a URL broken across lines
+> (`jdbc:`, `h2`, `:` on separate lines): the preserved 8.1.x `jetty/base/etc/perc-ds.xml`
+> built the JDBC URL from literal text, and Jetty concatenates that whitespace verbatim.
+> Current 8.2 builds repair the file automatically during upgrade/install datasource
+> configuration (the URL is rebuilt via `buildConnectionUrl`). If you hit this on an older
+> pre-release build, re-run the installer upgrade step to regenerate the datasource
+> configuration, or replace the `<Set name="jdbcUrl">` block in `perc-ds.xml` with the
+> `buildConnectionUrl` call form from a fresh 8.2 `perc-ds.xml`, then restart.
+
 Engineering release-note draft and support FAQ (Am I affected?): see repository folder  
 `docs/ai-generated/tasks/548-derby-embedded-migration/` (issue **#548**).
 

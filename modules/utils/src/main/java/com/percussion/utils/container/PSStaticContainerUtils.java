@@ -143,23 +143,26 @@ public class PSStaticContainerUtils {
    * @return the JDBC URL, never <code>null</code>
    */
   public static String buildConnectionUrl(Properties dbProps) {
-    String url =
-        "jdbc:"
-            + dbProps.getProperty(IPSJdbcDbmsDefConstants.DB_DRIVER_NAME_PROPERTY)
-            + ":"
-            + dbProps.getProperty(IPSJdbcDbmsDefConstants.DB_SERVER_PROPERTY);
-    return url;
+    return buildConnectionUrl(
+        dbProps.getProperty(IPSJdbcDbmsDefConstants.DB_DRIVER_NAME_PROPERTY),
+        dbProps.getProperty(IPSJdbcDbmsDefConstants.DB_SERVER_PROPERTY));
   }
 
   /**
    * Builds a JDBC connection URL from driver name and server properties.
+   *
+   * <p>Both fragments are trimmed: Jetty {@code Property} values and installer-written
+   * properties may carry surrounding whitespace/newlines, and an untrimmed fragment produces a
+   * URL the JDBC driver rejects at boot (issue #5656).
    *
    * @param driverName the database driver name (e.g., "derby", "postgresql")
    * @param server the server/database specification
    * @return the complete JDBC URL (e.g., "jdbc:derby:CMDB")
    */
   public static String buildConnectionUrl(String driverName, String server) {
-    return "jdbc:" + driverName + ":" + server;
+    String driver = driverName == null ? "" : driverName.trim();
+    String srv = server == null ? "" : server.trim();
+    return "jdbc:" + driver + ":" + srv;
   }
 
   /**
