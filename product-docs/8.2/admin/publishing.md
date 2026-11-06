@@ -457,6 +457,26 @@ this save. Choosing **Set S3 access key** on a Local, Oracle, or FTP server does
 server's folder, schema, or FTP host. Bucket, region, and secret key saves and full server edit
 (**Edit Server**) stay separate.
 
+### Set an S3 delivery-server secret key (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **AMAZONS3** (or **S3**). **Set S3 secret key** edits only the secret key.
+**Save S3 secret key** sends `PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the
+`securitykey` property (base64-encoded on the wire). Bucket, region, server name, driver, and
+default flag stay as they were. The access key is not sent again. The stored secret key is never
+shown: the form always opens empty, shows only **Stored secret key is never shown.**, and clears
+the typed key after a successful save. The server stores the new key encrypted.
+
+A blank secret key is refused on the form (**S3 secret key is required**) and is not written. A
+key longer than 255 characters is refused the same way. **Cancel** does not call the server and
+keeps the previous key. HTTP **400**, **403**, and **409** stay on the form and keep the previous
+key. The typed key is cleared — never displayed — after a successful save.
+
+**MYSQL**, **MSSQL**, **Oracle**, **FTP**, **FTPS**, **SFTP**, and a **Local** driver do not use
+this save. Choosing **Set S3 secret key** on a Local, Oracle, or FTP server does not change that
+server's folder, schema, or FTP host. Bucket, region, and access key saves and full server edit
+(**Edit Server**) stay separate.
+
 ### Set the FTP delivery-server port (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose

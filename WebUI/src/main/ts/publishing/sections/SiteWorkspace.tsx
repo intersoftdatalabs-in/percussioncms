@@ -70,6 +70,7 @@ import { DatabaseDeliveryOwnerPanel } from "../components/DatabaseDeliveryOwnerP
 import { S3DeliveryBucketPanel } from "../components/S3DeliveryBucketPanel";
 import { S3DeliveryRegionPanel } from "../components/S3DeliveryRegionPanel";
 import { S3DeliveryAccessKeyPanel } from "../components/S3DeliveryAccessKeyPanel";
+import { S3DeliverySecretKeyPanel } from "../components/S3DeliverySecretKeyPanel";
 import { FtpDeliveryHostPanel } from "../components/FtpDeliveryHostPanel";
 import { FtpDeliveryPortPanel } from "../components/FtpDeliveryPortPanel";
 import { FtpDeliveryUserPanel } from "../components/FtpDeliveryUserPanel";
@@ -908,6 +909,7 @@ export function SiteWorkspace({
             <S3DeliveryBucketPanel siteId={siteId} serverId={selectedServer} />
             <S3DeliveryRegionPanel siteId={siteId} serverId={selectedServer} />
             <S3DeliveryAccessKeyPanel siteId={siteId} serverId={selectedServer} />
+            <S3DeliverySecretKeyPanel siteId={siteId} serverId={selectedServer} />
             <FtpDeliveryHostPanel siteId={siteId} serverId={selectedServer} />
             <FtpDeliveryPortPanel siteId={siteId} serverId={selectedServer} />
             <FtpDeliveryUserPanel siteId={siteId} serverId={selectedServer} />
