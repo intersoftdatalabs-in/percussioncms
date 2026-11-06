@@ -360,6 +360,8 @@
    editor scope. */
 .tiptap :global(.perc-global-variable-marker) {
   display: inline-block;
+  min-width: 1.5rem;
+  min-height: 1em;
   padding: 0 6px;
   font-size: 12px;
   font-style: normal;

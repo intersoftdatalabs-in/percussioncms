@@ -368,7 +368,9 @@ test.describe("React Content Editor TipTap editor", () => {
       await varInput.fill("company_name");
       await expect(varInput).toHaveValue("company_name");
       await page.locator('[data-testid="tiptap-perc-apply-text"]').click();
-      await expect(editable.locator(".perc-global-variable-marker").first()).toBeVisible();
+      const variableBadge = editable.locator(".perc-global-variable-marker").first();
+      await expect(variableBadge).toBeVisible();
+      await expect(variableBadge).toContainText("$company_name");
 
       // Inline link dialog (rxinline/percadvlink port): stored CMS attributes.
       await page.locator('[data-testid="tiptap-perc-inline-link-text"]').click();

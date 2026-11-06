@@ -196,6 +196,21 @@ export const PercGlobalVariable = Node.create({
     ];
   },
 
+  addNodeView() {
+    return ({ node }: { node: { attrs: Record<string, unknown> } }) => {
+      const name = String(node.attrs["name"] ?? "");
+      const dom = document.createElement("span");
+      dom.className = PERC_GLOBAL_VARIABLE_CLASS;
+      // Edit surface shows the variable name (TinyMCE showed an image
+      // placeholder); the document keeps the stored span, so an unknown or
+      // empty resolved value still renders a visible badge.
+      dom.textContent = name ? `$${name}` : "";
+      dom.setAttribute("title", name);
+      dom.setAttribute("contenteditable", "false");
+      return { dom };
+    };
+  },
+
   addCommands() {
     return {
       insertPercGlobalVariable:
