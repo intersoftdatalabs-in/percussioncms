@@ -391,9 +391,10 @@ public class PSPubServerService implements IPSPubServerService {
       if (PSDatabaseDeliveryHostUpdate.isHostOnly(pubServerInfo)) {
         return updateDatabaseHostOnly(siteId, serverId, pubServerInfo);
       }
-      // Port-only PUT must not run the full property replace. FTP and database share this
-      // body shape; the stored driver selects FTP vs database apply.
+      // Port-only PUT must not run the full property replace. FTP, SFTP, and database
+      // share this body shape; the stored driver selects FTP vs SFTP vs database apply.
       if (PSFtpDeliveryPortUpdate.isPortOnly(pubServerInfo)
+          || PSSftpDeliveryPortUpdate.isPortOnly(pubServerInfo)
           || PSDatabaseDeliveryPortUpdate.isPortOnly(pubServerInfo)) {
         return updateDeliveryPortOnly(siteId, serverId, pubServerInfo);
       }
@@ -729,8 +730,9 @@ public class PSPubServerService implements IPSPubServerService {
 
   /**
    * Save only the {@code port} property. Does not rename the server or replace the property set.
-   * Database drivers use {@link PSDatabaseDeliveryPortUpdate}; other drivers use {@link
-   * PSFtpDeliveryPortUpdate} (FTP-only; Local/FTPS/SFTP throw before {@code savePubServer}).
+   * Database drivers use {@link PSDatabaseDeliveryPortUpdate}; SFTP servers use {@link
+   * PSSftpDeliveryPortUpdate}; other drivers use {@link PSFtpDeliveryPortUpdate} (FTP-only;
+   * Local/FTPS/database-driver bodies throw before {@code savePubServer}).
    */
   private PSPublishServerInfo updateDeliveryPortOnly(
       String siteId, String serverId, PSPublishServerInfo pubServerInfo)
@@ -750,6 +752,8 @@ public class PSPubServerService implements IPSPubServerService {
     String driver = server.getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY).orElse("");
     if (PSDatabaseDeliveryHostUpdate.isDatabaseDeliveryDriver(driver)) {
       PSDatabaseDeliveryPortUpdate.apply(server, pubServerInfo);
+    } else if ("SFTP".equalsIgnoreCase(driver)) {
+      PSSftpDeliveryPortUpdate.apply(server, pubServerInfo);
     } else {
       PSFtpDeliveryPortUpdate.apply(server, pubServerInfo);
     }
