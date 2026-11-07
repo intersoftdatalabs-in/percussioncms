@@ -225,11 +225,10 @@ test.describe("React Content Editor TipTap editor", () => {
       expect(text && text.value).toBe("<p>Bye</p>");
       await expect(page.getByText(/^Saved$/)).toBeVisible();
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
-      // Scoped to the editor form: the host-wide scope also covers the
-      // pre-existing translations panel, whose theme contrast fails on this
-      // stack for the default-engine spec too (not spike-introduced).
+      // Host scope covers the translations panel too: its light-surface
+      // text colors meet WCAG 2.2 AA on the panel's white background (#5657).
       await expectNoSeriousA11yViolations(page, {
-        scope: `[data-testid="${TEST_IDS.form}"]`,
+        scope: `[data-testid="${TEST_IDS.host}"]`,
       });
     },
   );

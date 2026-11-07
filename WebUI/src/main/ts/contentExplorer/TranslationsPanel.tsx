@@ -311,6 +311,13 @@ export function TranslationsPanel(
     }
   }, [itemId, selectedLocales, createVariants, onCreated]);
 
+  // Panel sections carry an explicit light-surface text color: the editor
+  // host mounts this panel under its dark root (inherited #e2e8f0), which
+  // fails WCAG 2.2 AA contrast on the panel's own white background (#5657).
+  const PANEL_TEXT = "#0f172a";
+  const PANEL_SECONDARY_TEXT = "#334155";
+  const PANEL_TERTIARY_TEXT = "#475569";
+
   const regionLabel = ariaLabel ?? message(EXPLORER_MSG.TRANSLATIONS_TITLE);
 
   if (state.kind === "loading") {
@@ -321,7 +328,7 @@ export function TranslationsPanel(
         data-testid="translations-panel"
         data-testid-state="loading"
         className={className}
-        style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
+        style={{ border: "1px solid #ccc", padding: 12, background: "#fff", color: PANEL_TEXT }}
       >
         <p aria-live="polite">{message(EXPLORER_MSG.TRANSLATIONS_LOADING)}</p>
       </section>
@@ -336,7 +343,7 @@ export function TranslationsPanel(
         data-testid="translations-panel"
         data-testid-state="auth"
         className={className}
-        style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
+        style={{ border: "1px solid #ccc", padding: 12, background: "#fff", color: PANEL_TEXT }}
       >
         <p role="status">{message(EXPLORER_MSG.PERMISSION_DENIED)}</p>
       </section>
@@ -351,7 +358,7 @@ export function TranslationsPanel(
         data-testid="translations-panel"
         data-testid-state="error"
         className={className}
-        style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
+        style={{ border: "1px solid #ccc", padding: 12, background: "#fff", color: PANEL_TEXT }}
       >
         <p role="alert">{state.message}</p>
       </section>
@@ -365,7 +372,7 @@ export function TranslationsPanel(
       data-testid="translations-panel"
       data-testid-state="ok"
       className={className}
-      style={{ border: "1px solid #ccc", padding: 12, background: "#fff" }}
+      style={{ border: "1px solid #ccc", padding: 12, background: "#fff", color: PANEL_TEXT }}
     >
       <header style={{ marginBottom: 8 }}>
         <h2
@@ -374,7 +381,7 @@ export function TranslationsPanel(
         >
           {message(EXPLORER_MSG.TRANSLATIONS_TITLE)}
           {itemLabel ? (
-            <span style={{ fontWeight: 400, marginLeft: 8, color: "#555" }}>
+            <span style={{ fontWeight: 400, marginLeft: 8, color: PANEL_SECONDARY_TEXT }}>
               — {itemLabel}
             </span>
           ) : null}
@@ -552,7 +559,7 @@ export function TranslationsPanel(
 
       <p
         data-testid="translations-inflight-note"
-        style={{ fontSize: 12, color: "#666", margin: 0 }}
+        style={{ fontSize: 12, color: PANEL_TERTIARY_TEXT, margin: 0 }}
       >
         {message(EXPLORER_MSG.TRANSLATIONS_INFLIGHT_OUT)}
       </p>
