@@ -70,16 +70,9 @@
           ],
         };
 
-        // The default npm bundle already contains the fullscreen addon
-        // (issue #5626), so only append the standalone files for fully
-        // custom jsFiles/cssFiles lists that do not use the bundle.
-        if (
-          userSettings.fullscreen &&
-          CMsettings.jsFiles.indexOf("codemirror.bundle.js") === -1
-        ) {
-          CMsettings.jsFiles.push("addon/display/fullscreen.js");
-          CMsettings.cssFiles.push("addon/display/fullscreen.css");
-        }
+        // Fullscreen needs no standalone files: the npm bundle already
+        // contains the fullscreen addon (issue #5626). Fully custom
+        // `disableFilesMerge` lists self-supply their own fullscreen assets.
 
         if (CMsettings.disableFilesMerge) {
           if (

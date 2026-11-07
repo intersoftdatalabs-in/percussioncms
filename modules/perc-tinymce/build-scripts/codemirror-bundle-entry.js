@@ -29,9 +29,10 @@
  *
  * CodeMirror 5 is imported for its side effects: the core exposes the global
  * `CodeMirror` object and each mode/addon self-registers on it. The bundle
- * is built with esbuild `format: "iife"` + `globalName: "CodeMirror"` (see
- * `bundle-codemirror.mjs`) so `window.CodeMirror` keeps working for the
- * legacy `document.write` loader in `source.html`.
+ * is built with esbuild `format: "iife"` and no `globalName` (see
+ * `bundle-codemirror.mjs`): the entry assigns `window.CodeMirror` itself,
+ * so `window.CodeMirror` keeps working for the legacy `document.write`
+ * loader in `source.html`.
  */
 
 import * as CodeMirrorModule from "codemirror/lib/codemirror.js";

@@ -33,6 +33,8 @@
  */
 
 const { test, expect } = require("@playwright/test");
+const fs = require("fs");
+const path = require("path");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 
 const PLUGIN_BASE =
@@ -40,6 +42,24 @@ const PLUGIN_BASE =
 const BUNDLE_JS = `${PLUGIN_BASE}/codemirror.bundle.js`;
 const BUNDLE_CSS = `${PLUGIN_BASE}/codemirror.bundle.css`;
 const LEGACY_LIB = `${PLUGIN_BASE}/lib/codemirror.js`;
+
+// Classic template-editor JSPs that embed the CodeMirror loader. The
+// `WebUI/war` tree is a dual-ship mirror of `WebUI/src/main/webapp` for
+// these residual dialogs (issue #5626 follow-up): every copy must load the
+// same npm bundle, never the removed per-file WebJar layout.
+const REPO_ROOT = path.join(__dirname, "..", "..", "..", "..");
+const TEMPLATE_JSP_MIRRORS = [
+  "WebUI/src/main/webapp/cm/app/includes/template/editTemplate_js.jsp",
+  "WebUI/src/main/webapp/cm/pages/app/includes/template/editTemplate_js.jsp",
+  "WebUI/war/app/includes/template/editTemplate_js.jsp",
+];
+
+function codemirrorLoaderLines(jspPath) {
+  const text = fs
+    .readFileSync(path.join(REPO_ROOT, jspPath), "utf8")
+    .replace(/\r\n/g, "\n");
+  return text.split("\n").filter((line) => /codemirror/i.test(line));
+}
 
 test.describe("TinyMCE CodeMirror npm bundle (issue #5626)", () => {
   test(
@@ -137,6 +157,37 @@ test.describe("TinyMCE CodeMirror npm bundle (issue #5626)", () => {
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual(
         [],
       );
+    },
+  );
+
+  test(
+    "classic template JSP mirrors load the same npm bundle",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async () => {
+      // No live CMS needed: static dual-ship consistency. A stale mirror
+      // pointing at the removed per-file layout would 404 its CodeMirror
+      // scripts (the bundle spec above asserts those legacy paths are gone).
+      const loaders = TEMPLATE_JSP_MIRRORS.map(codemirrorLoaderLines);
+      for (const [index, jspPath] of TEMPLATE_JSP_MIRRORS.entries()) {
+        expect(
+          loaders[index].length,
+          `${jspPath} must embed a CodeMirror loader block`,
+        ).toBeGreaterThan(0);
+        for (const line of loaders[index]) {
+          expect(
+            line,
+            `${jspPath} must not reference the removed per-file layout: ${line}`,
+          ).not.toMatch(/codemirror\/(lib|mode|addon|keymap|theme)\//);
+        }
+        expect(loaders[index]).toContain(
+          '<script src="/sys_resources/tinymce/plugins/codemirror/codemirror/codemirror.bundle.js"></script>',
+        );
+        expect(loaders[index]).toContain(
+          '<link rel="stylesheet" href="/sys_resources/tinymce/plugins/codemirror/codemirror/codemirror.bundle.css" />',
+        );
+      }
+      expect(loaders[1]).toEqual(loaders[0]);
+      expect(loaders[2]).toEqual(loaders[0]);
     },
   );
 });
