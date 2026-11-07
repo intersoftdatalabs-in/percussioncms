@@ -30,6 +30,31 @@ export function communityOptionValue(row: CommunitySummary): string {
   return guid;
 }
 
+/**
+ * A NUL cannot be stored in item field XML / JDBC text (#5694).
+ * Required-empty community stays in the required-field gate.
+ */
+export function communityContainsNul(value: string): boolean {
+  return (value ?? "").includes("\u0000");
+}
+
+/** NUL only. Empty required community stays in the required-field gate. */
+export function collectCommunityNulFieldErrors(
+  rows: readonly { name: string; kind: string; value: string }[],
+  invalidMessage: string,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const row of rows) {
+    if (row.kind !== "community") {
+      continue;
+    }
+    if (communityContainsNul(row.value)) {
+      out[row.name] = invalidMessage;
+    }
+  }
+  return out;
+}
+
 export interface CommunityFieldWidgetProps {
   name: string;
   value: string;

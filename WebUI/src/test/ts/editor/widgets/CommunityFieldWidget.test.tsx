@@ -18,7 +18,11 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { CommunityFieldWidget } from "../../../../main/ts/editor/widgets/CommunityFieldWidget";
+import {
+  collectCommunityNulFieldErrors,
+  communityContainsNul,
+  CommunityFieldWidget,
+} from "../../../../main/ts/editor/widgets/CommunityFieldWidget";
 
 describe("CommunityFieldWidget", () => {
   afterEach(() => {
@@ -109,5 +113,30 @@ describe("CommunityFieldWidget", () => {
     });
     fireEvent.change(select, { target: { value: "" } });
     expect(onChange).toHaveBeenCalledWith("");
+  });
+});
+
+describe("communityContainsNul", () => {
+  it("accepts a community id and an empty clear, and rejects an embedded NUL", () => {
+    expect(communityContainsNul("10")).toBe(false);
+    expect(communityContainsNul("20")).toBe(false);
+    expect(communityContainsNul("")).toBe(false);
+    expect(communityContainsNul("10X".slice(0, 2))).toBe(false);
+    expect(communityContainsNul("10\u0000")).toBe(true);
+    expect(communityContainsNul("\u0000")).toBe(true);
+  });
+});
+
+describe("collectCommunityNulFieldErrors", () => {
+  it("flags only community rows and leaves other kinds for values with a NUL", () => {
+    const nul = String.fromCharCode(0);
+    const rows = [
+      { name: "sys_communityid", kind: "community" as const, value: `10${nul}` },
+      { name: "other_community", kind: "community" as const, value: "20" },
+      { name: "sys_title", kind: "text" as const, value: `Home${nul}` },
+    ];
+    expect(collectCommunityNulFieldErrors(rows, "cannot save")).toEqual({
+      sys_communityid: "cannot save",
+    });
   });
 });

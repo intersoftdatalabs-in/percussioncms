@@ -280,7 +280,10 @@ import {
 } from "../api/contentExplorer/translationsApi";
 import { listLocales } from "../api/developer/localesApi";
 import type { LocaleSummary } from "../api/developer/types";
-import { CommunityFieldWidget } from "./widgets/CommunityFieldWidget";
+import {
+  collectCommunityNulFieldErrors,
+  CommunityFieldWidget,
+} from "./widgets/CommunityFieldWidget";
 import { FileFieldWidget } from "./widgets/FileFieldWidget";
 import { HtmlFieldWidget, type HtmlEditorEngine } from "./widgets/HtmlFieldWidget";
 import { ImageFieldWidget } from "./widgets/ImageFieldWidget";
@@ -1722,6 +1725,21 @@ export function EditorHost({
       queueFocusFirstInvalid(fileNuls);
       setFieldErrors(fileNuls);
       setSaveErrorKey(EDITOR_MSG.FILE_NUL_SAVE);
+      setSaving(false);
+      return;
+    }
+    const communityNuls = collectCommunityNulFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        value: row.value,
+      })),
+      message(EDITOR_MSG.COMMUNITY_NUL),
+    );
+    if (Object.keys(communityNuls).length > 0) {
+      queueFocusFirstInvalid(communityNuls);
+      setFieldErrors(communityNuls);
+      setSaveErrorKey(EDITOR_MSG.COMMUNITY_NUL_SAVE);
       setSaving(false);
       return;
     }
