@@ -458,6 +458,13 @@ public class PSPubServerService implements IPSPubServerService {
           || PSDatabaseDeliveryPasswordUpdate.isPasswordOnly(pubServerInfo)) {
         return updateDeliveryPasswordOnly(siteId, serverId, pubServerInfo);
       }
+      // SFTP private-key-only PUT must not run the full property replace (that clears host,
+      // port, user, folder, driver, and name) and must not decode secrets that are not in the
+      // body. The single private key value is base64-decoded inside updateSftpPrivateKeyOnly
+      // (product norm). The stored passphrase (password) is left untouched.
+      if (PSSftpDeliveryPrivateKeyUpdate.isPrivateKeyOnly(pubServerInfo)) {
+        return updateSftpPrivateKeyOnly(siteId, serverId, pubServerInfo);
+      }
       // Folder-only PUT must not run the full property replace. A blank folder
       // clears only the stored folder. Local and FTP share this body shape; the
       // stored driver selects Local vs FTP apply.
@@ -801,6 +808,33 @@ public class PSPubServerService implements IPSPubServerService {
     } else {
       PSFtpDeliveryPasswordUpdate.apply(server, pubServerInfo);
     }
+    pubServerDao.savePubServer(server);
+    return toPSPublishServerInfo(server, site, true);
+  }
+
+  /**
+   * Save only the SFTP {@code privateKey} property. Does not rename the server or replace the
+   * property set. Blank, overlong, and non-SFTP drivers throw before {@code savePubServer}.
+   * Host, port, user id, folder, driver, name, the default flag, and the stored passphrase are
+   * not decoded from this body and are left stored. The stored private key is never echoed.
+   */
+  private PSPublishServerInfo updateSftpPrivateKeyOnly(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    convertPrivateKeyFromBase64(pubServerInfo);
+    IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
+    PSPubServer server;
+    try {
+      server = pubServerDao.loadPubServerModifiable(getPubServerGuid(serverId));
+    } catch (Exception ex) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.", ex);
+    }
+    if (server == null) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.");
+    }
+    PSSftpDeliveryPrivateKeyUpdate.apply(server, pubServerInfo);
     pubServerDao.savePubServer(server);
     return toPSPublishServerInfo(server, site, true);
   }
@@ -2810,6 +2844,30 @@ public class PSPubServerService implements IPSPubServerService {
       }
 
       pubProperty.setValue(decodedSecretKey);
+      pubServerInfo.getProperties().add(pubProperty);
+    }
+  }
+
+  private void convertPrivateKeyFromBase64(PSPublishServerInfo pubServerInfo) {
+    String encodedPrivateKey =
+        pubServerInfo.findProperty(IPSPubServerDao.PUBLISH_PRIVATE_KEY_PROPERTY);
+    if (encodedPrivateKey != null) {
+      PSPublishServerProperty pubProperty = new PSPublishServerProperty();
+      pubProperty.setKey(IPSPubServerDao.PUBLISH_PRIVATE_KEY_PROPERTY);
+      pubProperty.setValue(encodedPrivateKey);
+      pubServerInfo.getProperties().remove(pubProperty);
+
+      String decodedPrivateKey = null;
+      try {
+        decodedPrivateKey = new String(Base64.getDecoder().decode(encodedPrivateKey));
+      } catch (Exception e) {
+        log.warn(
+            "Unable to decode SFTP private key, proceeding as if it is clear text."
+                + "  Try editing the Publishing server to clear this Warning.");
+        decodedPrivateKey = encodedPrivateKey;
+      }
+
+      pubProperty.setValue(decodedPrivateKey);
       pubServerInfo.getProperties().add(pubProperty);
     }
   }

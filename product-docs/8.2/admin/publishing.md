@@ -499,6 +499,29 @@ this save. Choosing **Set S3 secret key** on a Local, Oracle, or FTP server does
 server's folder, schema, or FTP host. Bucket, region, and access key saves and full server edit
 (**Edit Server**) stay separate.
 
+### Set an SFTP delivery-server private key (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **SFTP**. **Set SFTP private key** edits only the private key. **Save SFTP private
+key** sends `PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `privateKey`
+property (base64-encoded on the wire). Host, port, user id, name, driver, and default flag stay
+as they were. The passphrase is not sent again and is left unchanged.
+
+The stored private key is never shown: the form always opens empty, shows only **Stored private
+key is never shown.**, and clears the typed key after a successful save. The stored passphrase
+is never shown by this save either. The server stores the new key as-is (the same storage as a
+full server edit).
+
+A blank private key is refused on the form (**SFTP private key is required**) and is not
+written. A key longer than 255 characters is refused the same way. **Cancel** does not call the
+server and keeps the previous key. HTTP **400**, **403**, and **409** stay on the form and keep
+the previous key. The typed key is cleared — never displayed — after a successful save.
+
+**MYSQL**, **MSSQL**, **Oracle**, **FTP**, **FTPS**, Amazon S3, and a **Local** driver do not use
+this save. Choosing **Set SFTP private key** on a Local, Oracle, or FTP server does not change
+that server's folder, schema, or FTP host. Folder, passphrase, and full server edit (**Edit
+Server**) stay separate.
+
 ### Set the FTP delivery-server port (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
