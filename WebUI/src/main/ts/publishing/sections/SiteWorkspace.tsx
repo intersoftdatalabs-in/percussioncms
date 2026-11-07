@@ -67,6 +67,7 @@ import { DatabaseDeliveryNamePanel } from "../components/DatabaseDeliveryNamePan
 import { DatabaseDeliverySidPanel } from "../components/DatabaseDeliverySidPanel";
 import { DatabaseDeliverySchemaPanel } from "../components/DatabaseDeliverySchemaPanel";
 import { DatabaseDeliveryOwnerPanel } from "../components/DatabaseDeliveryOwnerPanel";
+import { DatabaseDeliveryPasswordPanel } from "../components/DatabaseDeliveryPasswordPanel";
 import { S3DeliveryBucketPanel } from "../components/S3DeliveryBucketPanel";
 import { S3DeliveryRegionPanel } from "../components/S3DeliveryRegionPanel";
 import { S3DeliveryAccessKeyPanel } from "../components/S3DeliveryAccessKeyPanel";
@@ -906,6 +907,7 @@ export function SiteWorkspace({
             <DatabaseDeliverySidPanel siteId={siteId} serverId={selectedServer} />
             <DatabaseDeliverySchemaPanel siteId={siteId} serverId={selectedServer} />
             <DatabaseDeliveryOwnerPanel siteId={siteId} serverId={selectedServer} />
+            <DatabaseDeliveryPasswordPanel siteId={siteId} serverId={selectedServer} />
             <S3DeliveryBucketPanel siteId={siteId} serverId={selectedServer} />
             <S3DeliveryRegionPanel siteId={siteId} serverId={selectedServer} />
             <S3DeliveryAccessKeyPanel siteId={siteId} serverId={selectedServer} />

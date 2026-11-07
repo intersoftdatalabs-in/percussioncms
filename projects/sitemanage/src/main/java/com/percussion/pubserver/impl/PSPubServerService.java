@@ -449,11 +449,14 @@ public class PSPubServerService implements IPSPubServerService {
       if (PSAmazonS3DeliverySecretKeyUpdate.isSecretKeyOnly(pubServerInfo)) {
         return updateS3SecretKeyOnly(siteId, serverId, pubServerInfo);
       }
-      // Password-only FTP PUT must not run the full property replace (that clears host, port,
+      // Password-only PUT must not run the full property replace (that clears host, port,
       // user, folder, driver, and name) and must not decode secrets that are not in the body.
-      // The single password value is base64-decoded inside updateFtpPasswordOnly (product norm).
-      if (PSFtpDeliveryPasswordUpdate.isPasswordOnly(pubServerInfo)) {
-        return updateFtpPasswordOnly(siteId, serverId, pubServerInfo);
+      // The single password value is base64-decoded inside updateDeliveryPasswordOnly (product
+      // norm). FTP and database share this body shape; the stored driver selects FTP vs
+      // database apply.
+      if (PSFtpDeliveryPasswordUpdate.isPasswordOnly(pubServerInfo)
+          || PSDatabaseDeliveryPasswordUpdate.isPasswordOnly(pubServerInfo)) {
+        return updateDeliveryPasswordOnly(siteId, serverId, pubServerInfo);
       }
       // Folder-only PUT must not run the full property replace. A blank folder
       // clears only the stored folder. Local and FTP share this body shape; the
@@ -769,12 +772,14 @@ public class PSPubServerService implements IPSPubServerService {
   }
 
   /**
-   * Save only the FTP {@code password} property. Does not rename the server or replace the
-   * property set. Blank, overlong, the masked placeholder, and non-FTP drivers throw before
-   * {@code savePubServer}. The stored secret is never echoed: the response masks it as {@code
-   * passwordEntry} via {@code toPSPublishServerInfo}.
+   * Save only the {@code password} property. Does not rename the server or replace the property
+   * set. Database drivers use {@link PSDatabaseDeliveryPasswordUpdate}; other drivers use {@link
+   * PSFtpDeliveryPasswordUpdate} (FTP-only; Local/FTPS/SFTP/S3 throw before {@code
+   * savePubServer}). Blank, overlong, the masked placeholder, and wrong-driver bodies throw
+   * before {@code savePubServer}. The stored secret is never echoed: the response masks it as
+   * {@code passwordEntry} via {@code toPSPublishServerInfo}.
    */
-  private PSPublishServerInfo updateFtpPasswordOnly(
+  private PSPublishServerInfo updateDeliveryPasswordOnly(
       String siteId, String serverId, PSPublishServerInfo pubServerInfo)
       throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
     convertPasswordFromBase64(pubServerInfo);
@@ -790,7 +795,12 @@ public class PSPubServerService implements IPSPubServerService {
       throw new PSPubServerServiceException(
           "The server you are trying to act on no longer exists in the system.");
     }
-    PSFtpDeliveryPasswordUpdate.apply(server, pubServerInfo);
+    String driver = server.getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY).orElse("");
+    if (PSDatabaseDeliveryHostUpdate.isDatabaseDeliveryDriver(driver)) {
+      PSDatabaseDeliveryPasswordUpdate.apply(server, pubServerInfo);
+    } else {
+      PSFtpDeliveryPasswordUpdate.apply(server, pubServerInfo);
+    }
     pubServerDao.savePubServer(server);
     return toPSPublishServerInfo(server, site, true);
   }
