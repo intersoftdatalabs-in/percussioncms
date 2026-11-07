@@ -22,6 +22,7 @@ import type {
   ContentTypeChoiceEntry,
   ContentTypeChoiceFilterField,
 } from "../api/developer/types";
+import { moveChoiceEntry } from "../api/developer/contentTypeChoiceCatalog";
 import { catalogColors, tableRow } from "./catalogStyles";
 import { DEV_MSG } from "./messages";
 
@@ -114,6 +115,16 @@ export function ContentTypeFieldChoicesSection({
       return;
     }
     patch({ entries: (catalog?.entries || []).filter((_, i) => i !== index) });
+  }
+
+  function moveEntry(index: number, delta: -1 | 1) {
+    if (!canEdit) {
+      return;
+    }
+    const next = moveChoiceEntry(catalog, index, index + delta);
+    if (next) {
+      patch({ entries: next.entries || [] });
+    }
   }
 
   function addDefaultSelected() {
@@ -264,7 +275,7 @@ export function ContentTypeFieldChoicesSection({
                   style={{
                     ...tableRow,
                     display: "grid",
-                    gridTemplateColumns: "1fr 1fr auto",
+                    gridTemplateColumns: "1fr 1fr auto auto auto",
                     gap: 8,
                     alignItems: "center",
                     padding: "6px 0",
@@ -290,6 +301,35 @@ export function ContentTypeFieldChoicesSection({
                     readOnly={!canEdit}
                     onChange={(ev) => updateEntry(i, "label", ev.target.value)}
                   />
+                  <button
+                    type="button"
+                    data-testid={`developer-ct-ch-entry-move-up-${i}`}
+                    aria-label={`${DEV_MSG.CT_CHOICES_ENTRY_MOVE_UP} ${i}`}
+                    disabled={!canEdit || i === 0}
+                    onClick={() => moveEntry(i, -1)}
+                    style={{
+                      ...smallBtnStyle,
+                      cursor: !canEdit || i === 0 ? "not-allowed" : "pointer",
+                    }}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    data-testid={`developer-ct-ch-entry-move-down-${i}`}
+                    aria-label={`${DEV_MSG.CT_CHOICES_ENTRY_MOVE_DOWN} ${i}`}
+                    disabled={!canEdit || i === (catalog?.entries || []).length - 1}
+                    onClick={() => moveEntry(i, 1)}
+                    style={{
+                      ...smallBtnStyle,
+                      cursor:
+                        !canEdit || i === (catalog?.entries || []).length - 1
+                          ? "not-allowed"
+                          : "pointer",
+                    }}
+                  >
+                    ↓
+                  </button>
                   <button
                     type="button"
                     data-testid={`developer-ct-ch-entry-remove-${i}`}

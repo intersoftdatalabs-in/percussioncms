@@ -8,6 +8,7 @@ import {
   choiceCatalogsEqual,
   cloneChoiceCatalog,
   isChoiceCatalogNone,
+  moveChoiceEntry,
   parseChoiceCatalog,
   toChoiceCatalogPayload,
 } from "../../../../main/ts/api/developer/contentTypeChoiceCatalog";
@@ -134,5 +135,37 @@ describe("contentTypeChoiceCatalog helpers (CD-07)", () => {
         entries: [{ value: "open", label: "Open" }],
       }),
     ).toBeNull();
+  });
+
+  it("moves one local entry without touching the rest (slice 5706 reorder)", () => {
+    const src = {
+      type: "local",
+      entries: [
+        { value: "a", label: "A" },
+        { value: "b", label: "B" },
+        { value: "c", label: "C" },
+      ],
+    };
+    expect(moveChoiceEntry(src, 0, 1)?.entries?.map((e) => e.value)).toEqual(["b", "a", "c"]);
+    expect(moveChoiceEntry(src, 2, 0)?.entries?.map((e) => e.value)).toEqual(["c", "a", "b"]);
+    // Source is never mutated; other catalog fields stay.
+    expect(src.entries.map((e) => e.value)).toEqual(["a", "b", "c"]);
+    const moved = moveChoiceEntry({ ...src, sortOrder: "user" }, 1, 2);
+    expect(moved?.sortOrder).toBe("user");
+    expect(moved?.entries?.map((e) => e.value)).toEqual(["a", "c", "b"]);
+  });
+
+  it("ignores out-of-range moves and null catalogs", () => {
+    const src = {
+      type: "local",
+      entries: [{ value: "a", label: "A" }],
+    };
+    expect(moveChoiceEntry(src, 5, 0)?.entries?.map((e) => e.value)).toEqual(["a"]);
+    expect(moveChoiceEntry(src, -1, 0)?.entries?.map((e) => e.value)).toEqual(["a"]);
+    expect(moveChoiceEntry(src, 0, 0)?.entries?.map((e) => e.value)).toEqual(["a"]);
+    // toIndex clamps into range instead of dropping the entry.
+    expect(moveChoiceEntry(src, 0, 9)?.entries?.map((e) => e.value)).toEqual(["a"]);
+    expect(moveChoiceEntry(null, 0, 1)).toBeNull();
+    expect(moveChoiceEntry(undefined, 0, 1)).toBeNull();
   });
 });

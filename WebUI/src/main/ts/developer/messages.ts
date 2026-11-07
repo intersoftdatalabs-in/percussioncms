@@ -333,6 +333,8 @@ export const DEV_MSG_KEYS = {
   CT_CHOICES_GLOBAL_ID: "perc.ui.developer@Keyword id",
   CT_CHOICES_ENTRY_VALUE: "perc.ui.developer@Entry value",
   CT_CHOICES_ENTRY_LABEL: "perc.ui.developer@Entry label",
+  CT_CHOICES_ENTRY_MOVE_UP: "perc.ui.developer@Move entry up",
+  CT_CHOICES_ENTRY_MOVE_DOWN: "perc.ui.developer@Move entry down",
   CT_CHOICES_ENTRIES_EMPTY: "perc.ui.developer@No local choice entries.",
   CT_CHOICES_LOOKUP_HREF: "perc.ui.developer@Lookup href",
   CT_CHOICES_LOOKUP_NAME: "perc.ui.developer@Lookup name",

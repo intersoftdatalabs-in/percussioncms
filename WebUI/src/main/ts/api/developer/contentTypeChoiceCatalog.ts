@@ -401,8 +401,33 @@ export function toChoiceCatalogPayload(
   return out;
 }
 
-export function choiceCatalogsEqual(
-  a: ContentTypeChoiceCatalog | null | undefined,
+/**
+ * Move one local choice entry from {@code fromIndex} to {@code toIndex}
+ * (slice 5706 reorder). Out-of-range {@code fromIndex} leaves entries
+ * unchanged; {@code toIndex} is clamped into range. Never mutates the input.
+ */
+export function moveChoiceEntry(
+  catalog: ContentTypeChoiceCatalog | null | undefined,
+  fromIndex: number,
+  toIndex: number,
+): ContentTypeChoiceCatalog | null {
+  if (catalog == null) {
+    return null;
+  }
+  const entries = [...(catalog.entries || [])];
+  if (fromIndex < 0 || fromIndex >= entries.length) {
+    return { ...catalog, entries };
+  }
+  const clamped = Math.max(0, Math.min(entries.length - 1, toIndex));
+  if (clamped === fromIndex) {
+    return { ...catalog, entries };
+  }
+  const [moved] = entries.splice(fromIndex, 1);
+  entries.splice(clamped, 0, moved);
+  return { ...catalog, entries };
+}
+
+export function choiceCatalogsEqual(  a: ContentTypeChoiceCatalog | null | undefined,
   b: ContentTypeChoiceCatalog | null | undefined,
 ): boolean {
   if (isChoiceCatalogNone(a) && isChoiceCatalogNone(b)) {
