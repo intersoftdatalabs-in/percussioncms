@@ -98,7 +98,7 @@ function isAutoTranslationsPut(request) {
   );
 }
 
-function openLocalesCatalog(page) {
+async function openLocalesCatalog(page) {
   await page.goto(developerLocalesUrl(), { waitUntil: "networkidle" });
   await expect(page.locator('[data-testid="nav-developer"]')).toBeVisible({
     timeout: 20_000,
