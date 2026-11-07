@@ -505,7 +505,12 @@ After **Lock**:
 2. Choose a source:
    * **None (clear catalog)** — next save sends `choices.type` `none` and
      removes the catalog.
-   * **Local list** — add value/label entries.
+   * **Local list** — add value/label entries. Each row has **Move up**
+     (↑) and **Move down** (↓) buttons to reorder that one field's
+     choices; the first row cannot move up and the last row cannot move
+     down. Reordering marks the catalog changed, so the next save sends
+     the full entry list in the new order. Entries you never touched keep
+     their values — only this field's catalog is replaced.
    * **Keyword (global)** — set the keyword / lookup table id.
    * **Lookup** / **Internal lookup** — set the lookup href (optional name).
    * **Table** — set table name, label column, and value column.
@@ -515,8 +520,11 @@ After **Lock**:
    `choices` on `PUT .../fields/{fieldName}/controlProperties` while the lock
    is still held. A following GET lists the new catalog. A properties-only
    save still omits `choices`, so the catalog is not cleared.
-5. Without a lock, choice editors and Save stay **disabled**. The product does
-   **not** steal another user's lock (lock failure is **409**).
+5. **Unlock** without saving (cancel) writes nothing: unsaved added,
+   removed, or reordered entries revert to the last saved catalog.
+   Without a lock, choice editors and Save stay **disabled**. The product does
+   **not** steal another user's lock (lock failure is **409**). A choices
+   save that loses the lock (409) shows the error and never reports success.
 
 This is not the full Workbench Properties visual chooser. Shared-field choice
 editors are a separate surface. Integrator notes:
