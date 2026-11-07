@@ -25,6 +25,9 @@ Do **not** reverse the dependency: `rest` never depends on `sitemanage`.
 
 - OpenAPI artifacts are generated from JAX-RS annotations (see `modules/perc-openapi-generator-plugin`).
 - A Swagger UI webapp module packages interactive exploration for supported deployments.
+- The legacy Swagger-UI 2.x viewer at `/Rhythmyx/cm/api` is retired (vendored
+  swagger-era libraries removed); use the `/openapi` webapp for interactive
+  exploration.
 
 Prefer the generated contract as the integration source of truth rather than reverse-engineering
 UI traffic alone.
