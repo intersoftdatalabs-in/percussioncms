@@ -214,6 +214,9 @@ export const EDITOR_MSG = {
   FILE_NUL:
     "perc.ui.editor@That file name contains a character that cannot be saved.",
   FILE_NUL_SAVE: "perc.ui.editor@Correct the file fields before saving.",
+  IMAGE_NUL:
+    "perc.ui.editor@That image name contains a character that cannot be saved.",
+  IMAGE_NUL_SAVE: "perc.ui.editor@Correct the image fields before saving.",
   KEYWORD_EMPTY: "perc.ui.editor@Select a keyword",
   KEYWORD_CLEAR: "perc.ui.editor@Clear keyword",
   KEYWORD_NUL:

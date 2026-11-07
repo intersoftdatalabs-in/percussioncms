@@ -286,7 +286,10 @@ import {
 } from "./widgets/CommunityFieldWidget";
 import { FileFieldWidget } from "./widgets/FileFieldWidget";
 import { HtmlFieldWidget, type HtmlEditorEngine } from "./widgets/HtmlFieldWidget";
-import { ImageFieldWidget } from "./widgets/ImageFieldWidget";
+import {
+  collectImageNulFieldErrors,
+  ImageFieldWidget,
+} from "./widgets/ImageFieldWidget";
 import {
   collectKeywordNulFieldErrors,
   collectKeywordOutsideCatalogErrors,
@@ -1725,6 +1728,22 @@ export function EditorHost({
       queueFocusFirstInvalid(fileNuls);
       setFieldErrors(fileNuls);
       setSaveErrorKey(EDITOR_MSG.FILE_NUL_SAVE);
+      setSaving(false);
+      return;
+    }
+    const imageNuls = collectImageNulFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        value: row.value,
+      })),
+      pendingFiles,
+      message(EDITOR_MSG.IMAGE_NUL),
+    );
+    if (Object.keys(imageNuls).length > 0) {
+      queueFocusFirstInvalid(imageNuls);
+      setFieldErrors(imageNuls);
+      setSaveErrorKey(EDITOR_MSG.IMAGE_NUL_SAVE);
       setSaving(false);
       return;
     }
