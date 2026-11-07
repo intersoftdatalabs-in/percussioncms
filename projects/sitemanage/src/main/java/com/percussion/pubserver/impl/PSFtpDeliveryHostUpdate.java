@@ -31,7 +31,9 @@ import java.util.List;
  *
  * <p>A body that carries only {@code serverip} must not clear port, user, folder, or password.
  * Blank and overlong hosts do not write. Any driver other than FTP (including Local, FTPS, and
- * SFTP) is rejected before properties change. Passwords are not read or included in the error.
+ * SFTP) is rejected by this apply before properties change; SFTP servers take the sibling {@link
+ * PSSftpDeliveryHostUpdate} path instead (the stored driver selects the apply). Passwords are
+ * not read or included in the error.
  *
  * <p>{@code PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE} is VARCHAR(255).
  */

@@ -78,6 +78,7 @@ import { FtpDeliveryUserPanel } from "../components/FtpDeliveryUserPanel";
 import { FtpDeliveryFolderPanel } from "../components/FtpDeliveryFolderPanel";
 import { FtpDeliveryPasswordPanel } from "../components/FtpDeliveryPasswordPanel";
 import { SftpDeliveryPrivateKeyPanel } from "../components/SftpDeliveryPrivateKeyPanel";
+import { SftpDeliveryHostPanel } from "../components/SftpDeliveryHostPanel";
 import { LocalDeliveryFolderPanel } from "../components/LocalDeliveryFolderPanel";
 import { DeliveryServerRenamePanel } from "../components/DeliveryServerRenamePanel";
 import { DeliveryServerDefaultPanel } from "../components/DeliveryServerDefaultPanel";
@@ -919,6 +920,7 @@ export function SiteWorkspace({
             <FtpDeliveryFolderPanel siteId={siteId} serverId={selectedServer} />
             <FtpDeliveryPasswordPanel siteId={siteId} serverId={selectedServer} />
             <SftpDeliveryPrivateKeyPanel siteId={siteId} serverId={selectedServer} />
+            <SftpDeliveryHostPanel siteId={siteId} serverId={selectedServer} />
             <LocalDeliveryFolderPanel siteId={siteId} serverId={selectedServer} />
           </>
         ) : null}
