@@ -398,9 +398,10 @@ public class PSPubServerService implements IPSPubServerService {
           || PSDatabaseDeliveryPortUpdate.isPortOnly(pubServerInfo)) {
         return updateDeliveryPortOnly(siteId, serverId, pubServerInfo);
       }
-      // User-id-only PUT must not run the full property replace. FTP and database share this
-      // body shape; the stored driver selects FTP vs database apply.
+      // User-id-only PUT must not run the full property replace. FTP, SFTP, and database
+      // share this body shape; the stored driver selects FTP vs SFTP vs database apply.
       if (PSFtpDeliveryUserUpdate.isUserOnly(pubServerInfo)
+          || PSSftpDeliveryUsernameUpdate.isUsernameOnly(pubServerInfo)
           || PSDatabaseDeliveryUserUpdate.isUserOnly(pubServerInfo)) {
         return updateDeliveryUserOnly(siteId, serverId, pubServerInfo);
       }
@@ -763,8 +764,9 @@ public class PSPubServerService implements IPSPubServerService {
 
   /**
    * Save only the {@code userid} property. Does not rename the server or replace the property
-   * set. Database drivers use {@link PSDatabaseDeliveryUserUpdate}; other drivers use {@link
-   * PSFtpDeliveryUserUpdate} (FTP-only; Local/FTPS/SFTP throw before {@code savePubServer}).
+   * set. Database drivers use {@link PSDatabaseDeliveryUserUpdate}; SFTP servers use {@link
+   * PSSftpDeliveryUsernameUpdate}; other drivers use {@link PSFtpDeliveryUserUpdate} (FTP-only;
+   * Local/FTPS/database-driver bodies throw before {@code savePubServer}).
    */
   private PSPublishServerInfo updateDeliveryUserOnly(
       String siteId, String serverId, PSPublishServerInfo pubServerInfo)
@@ -784,6 +786,8 @@ public class PSPubServerService implements IPSPubServerService {
     String driver = server.getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY).orElse("");
     if (PSDatabaseDeliveryHostUpdate.isDatabaseDeliveryDriver(driver)) {
       PSDatabaseDeliveryUserUpdate.apply(server, pubServerInfo);
+    } else if ("SFTP".equalsIgnoreCase(driver)) {
+      PSSftpDeliveryUsernameUpdate.apply(server, pubServerInfo);
     } else {
       PSFtpDeliveryUserUpdate.apply(server, pubServerInfo);
     }

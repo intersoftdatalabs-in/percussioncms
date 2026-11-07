@@ -312,6 +312,24 @@ successful save.
 Choosing **Set port** on a Local or FTP server does not change that server's folder or FTP port.
 Host-only save and full server edit (**Edit Server**) stay separate.
 
+### Set the SFTP delivery-server username (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **SFTP**. **Set username** edits only the server user id. **Save username** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `userid` property. Host,
+port, and folder stay as they were. The passphrase and private key are not shown and are not
+sent again.
+
+A blank username is refused on the form (**SFTP username is required**) and is not written. A
+username longer than 255 characters is refused the same way. **Cancel** does not call the server
+and keeps the previous username. HTTP **400**, **403**, and **409** stay on the form and keep
+the previous username. The new username is shown only after a successful save.
+
+**FTP**, **FTPS**, Amazon S3, database drivers, and a **Local** driver do not use this save.
+Choosing **Set username** on a Local or FTP server does not change that server's folder or FTP
+user id. The FTP username panel and other sibling panels stay separate, as does full server
+edit (**Edit Server**).
+
 ### Set a database delivery-server host (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
