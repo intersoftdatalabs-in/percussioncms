@@ -28,7 +28,7 @@ import javafx.application.Platform;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -97,7 +97,7 @@ public class PSFileSaver {
     } catch (UnsupportedEncodingException e) {
       log.error("Unable to decode file name: " + e);
     }
-    int extensionIndex = StringUtils.lastIndexOf(fileName, ".");
+    int extensionIndex = Strings.CS.lastIndexOf(fileName, ".");
     if (extensionIndex != -1) fileExtension = fileName.substring(extensionIndex).toLowerCase();
     else fileExtension = "";
   }

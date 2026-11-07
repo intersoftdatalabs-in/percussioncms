@@ -19,6 +19,7 @@ package com.percussion.cx.javafx;
 
 import com.percussion.cx.PSSelection;
 import com.percussion.cx.objectstore.PSMenuAction;
+import java.lang.reflect.InvocationTargetException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.HashMap;
@@ -115,10 +116,13 @@ public class PSWindowManager {
       for (Class<?> windowClass : WINDOW_CLASSES) {
         try {
           // Don't like too much that we have to create a new instance to check here
-          window = (PSDesktopExplorerWindow) windowClass.newInstance();
+          window = (PSDesktopExplorerWindow) windowClass.getDeclaredConstructor().newInstance();
           if (window != null && window.validateOpen(url, target, specs, mi_selection, action))
             break;
-        } catch (InstantiationException | IllegalAccessException e) {
+        } catch (InstantiationException
+            | IllegalAccessException
+            | NoSuchMethodException
+            | InvocationTargetException e) {
           log.error("Cannot instantiate window class " + windowClass.getName(), e);
         }
       }

@@ -252,7 +252,8 @@ public class PSMainDisplayPanel extends JScrollPane
     getViewport().addMouseListener(popupListener);
 
     if (m_actManager.viewSupportsCopyPaste()) {
-      KeyStroke ksCTLCKeyRelease = KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK, true);
+      KeyStroke ksCTLCKeyRelease =
+          KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK, true);
       m_childViewTable.getInputMap().put(ksCTLCKeyRelease, "ctlcAction");
       AbstractAction ctlcAction =
           new AbstractAction() {
@@ -267,7 +268,8 @@ public class PSMainDisplayPanel extends JScrollPane
           };
       m_childViewTable.getActionMap().put("ctlcAction", ctlcAction);
 
-      KeyStroke ksCTLVKeyRelease = KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_MASK, true);
+      KeyStroke ksCTLVKeyRelease =
+          KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK, true);
       AbstractAction ctlvAction =
           new AbstractAction() {
             public void actionPerformed(ActionEvent e) {

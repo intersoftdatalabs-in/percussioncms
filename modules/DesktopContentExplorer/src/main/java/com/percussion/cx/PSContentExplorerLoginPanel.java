@@ -75,6 +75,7 @@ import javax.swing.border.BevelBorder;
 import javax.swing.border.EtchedBorder;
 import javax.swing.plaf.basic.BasicComboBoxRenderer;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
@@ -424,7 +425,8 @@ public final class PSContentExplorerLoginPanel extends JFrame {
       return;
     }
 
-    if (m_password.getText() == null || m_password.getText().trim().length() == 0) {
+    String password = new String(m_password.getPassword());
+    if (password.trim().length() == 0) {
       JOptionPane.showMessageDialog(
           this,
           ErrorDialogs.cropErrorMessage(m_res.getString("missPassword")),
@@ -533,7 +535,7 @@ public final class PSContentExplorerLoginPanel extends JFrame {
                       host,
                       port,
                       m_userId.getText(),
-                      m_password.getText(),
+                      new String(m_password.getPassword()),
                       ((PSLocale) m_locale.getSelectedItem()).getCode());
 
               m_statusBar.setText(m_res.getString("connectedStatus") + host);
@@ -546,7 +548,7 @@ public final class PSContentExplorerLoginPanel extends JFrame {
               m_parent.setParameter("protocol", protocol);
               m_parent.setParameter("port", port);
               m_parent.setParameter("userId", m_userId.getText());
-              m_parent.setParameter("password", m_password.getText());
+              m_parent.setParameter("password", new String(m_password.getPassword()));
               m_parent.setParameter("locale", getDefaultLocale());
             } catch (NotAuthenticatedFaultMessage e) {
               errorMessage = "Failed to authenticate with username and password.";
@@ -556,9 +558,9 @@ public final class PSContentExplorerLoginPanel extends JFrame {
               return false;
             } catch (WebServiceException f) {
               errorMessage = f.getMessage();
-              if (StringUtils.contains(errorMessage, "Connection refused: connect"))
+              if (Strings.CS.contains(errorMessage, "Connection refused: connect"))
                 errorMessage = "The service is down or port is incorrect.";
-              if (StringUtils.contains(errorMessage, "java.net.UnknownHostException:"))
+              if (Strings.CS.contains(errorMessage, "java.net.UnknownHostException:"))
                 errorMessage =
                     errorMessage.replace("java.net.UnknownHostException:", "Unknown Hostname");
 

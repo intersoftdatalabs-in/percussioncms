@@ -17,6 +17,7 @@
 
 package com.percussion.cx;
 
+import java.lang.reflect.InvocationTargetException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -51,7 +52,7 @@ public class PSAjaxSwingWrapperLocator {
         if (wrapperClass == null && isAjaxSwingApplet()) {
           try {
             Class<?> c = Class.forName("com.percussion.ajaxswing.PSAjaxSwingWrapper");
-            wrapperClass = (IPSAjaxSwingWrapper) c.newInstance();
+            wrapperClass = (IPSAjaxSwingWrapper) c.getDeclaredConstructor().newInstance();
             log.info("Running Applet in AjaxSwing context");
           } catch (ClassNotFoundException e) {
             log.error(
@@ -68,6 +69,11 @@ public class PSAjaxSwingWrapperLocator {
           } catch (IllegalAccessException e) {
             log.error(
                 "Running with AjaxSwing but IllegalAccess creating instance"
+                    + " com.percussion.ajaxswing.PSAjaxSwingWrapper",
+                e);
+          } catch (NoSuchMethodException | InvocationTargetException e) {
+            log.error(
+                "Running with AjaxSwing but Cannot instantiate"
                     + " com.percussion.ajaxswing.PSAjaxSwingWrapper",
                 e);
           }
