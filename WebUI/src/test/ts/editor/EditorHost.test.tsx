@@ -9249,6 +9249,194 @@ describe("EditorHost refuse keyword NUL (#5525)", () => {
   });
 });
 
+describe("EditorHost refuse community NUL (#5694)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  const communityCatalog = async () => [
+    { id: 10, name: "Default", label: "Default" },
+    { id: 20, name: "Enterprise", label: "Enterprise" },
+    { name: "Nul", label: "Nul Community", guid: { stringValue: "10\u0000" } },
+  ];
+
+  function communityNulHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    communityId?: string;
+    required?: boolean;
+    confirmLeaveUnsaved?: (message: string) => boolean;
+  }) {
+    const communityId = opts.communityId ?? "10";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percEvent",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "sys_communityid", value: communityId }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "sys_communityid",
+              label: "Community",
+              control: "sys_DropDownSingle",
+              required: opts.required === true,
+            },
+          ],
+        })}
+        loadCommunities={communityCatalog}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  async function openCommunity(
+    element: React.ReactElement,
+    expected = "10",
+  ): Promise<HTMLSelectElement> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("editor-field-sys_communityid") as HTMLSelectElement).value,
+      ).toBe(expected);
+    });
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "Enterprise" })).toBeTruthy();
+    });
+    return screen.getByTestId("editor-field-sys_communityid") as HTMLSelectElement;
+  }
+
+  it("refuses a community NUL before PUT and keeps the previous community after reload", async () => {
+    const saveFields = vi.fn();
+    const select = await openCommunity(communityNulHost({ saveFields }));
+    expect(select.getAttribute("data-editor-kind")).toBe("community");
+    await waitFor(() => {
+      expect(screen.getByRole("option", { name: "Nul Community" })).toBeTruthy();
+    });
+    fireEvent.change(select, { target: { value: "10\u0000" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_communityid").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-field-error-sys_communityid").textContent).not.toMatch(
+      /required/i,
+    );
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /community fields before saving/i,
+    );
+    expect(
+      screen.getByTestId("editor-field-sys_communityid").getAttribute("aria-invalid"),
+    ).toBe("true");
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    cleanup();
+    const reloaded = await openCommunity(communityNulHost({ saveFields }));
+    expect(reloaded.value).toBe("10");
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("does not write when Close cancels an unsaved community NUL", async () => {
+    const saveFields = vi.fn();
+    const select = await openCommunity(
+      communityNulHost({ saveFields, confirmLeaveUnsaved: () => false }),
+    );
+    fireEvent.change(select, { target: { value: "10\u0000" } });
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("still saves a listed community", async () => {
+    let communityId = "10";
+    const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => {
+      communityId =
+        payload.fields.find((f) => f.name === "sys_communityid")?.value ?? communityId;
+      return {
+        contentId: "42",
+        contentType: "percEvent",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: payload.fields,
+      };
+    });
+    const select = await openCommunity(communityNulHost({ saveFields, communityId }));
+    fireEvent.change(select, { target: { value: "20" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "sys_communityid")?.value).toBe("20");
+    expect(String(sent.fields.find((f) => f.name === "sys_communityid")?.value)).not.toContain(
+      "\u0000",
+    );
+    cleanup();
+    const reloaded = await openCommunity(communityNulHost({ saveFields, communityId }), "20");
+    expect(reloaded.value).toBe("20");
+  });
+
+  it("leaves the required-empty community gate unchanged", async () => {
+    const saveFields = vi.fn();
+    const select = await openCommunity(communityNulHost({ saveFields, required: true }));
+    fireEvent.change(select, { target: { value: "" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_communityid").textContent).toMatch(
+        /required/i,
+      );
+    });
+    expect(screen.getByTestId("editor-field-error-sys_communityid").textContent).not.toMatch(
+      /character that cannot be saved/i,
+    );
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("does not treat HTTP 400, 403, or 409 on a community save as success", async () => {
+    const saveFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: { message: "rejected" } })
+      .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
+      .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
+    const select = await openCommunity(communityNulHost({ saveFields }));
+    fireEvent.change(select, { target: { value: "20" } });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_communityid").textContent).toMatch(
+        /could not be saved/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-sys_communityid").textContent).toMatch(
+        /not allowed/i,
+      );
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+});
+
 describe("EditorHost page link fields", () => {
   afterEach(() => {
     cleanup();

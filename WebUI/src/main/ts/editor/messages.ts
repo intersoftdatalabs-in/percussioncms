@@ -236,6 +236,10 @@ export const EDITOR_MSG = {
   KEYWORD_FORBIDDEN:
     "perc.ui.editor@You are not allowed to save that keyword.",
   COMMUNITY_EMPTY: "perc.ui.editor@Select a community",
+  COMMUNITY_NUL:
+    "perc.ui.editor@That community contains a character that cannot be saved.",
+  COMMUNITY_NUL_SAVE:
+    "perc.ui.editor@Correct the community fields before saving.",
   COMMUNITY_BAD_REQUEST: "perc.ui.editor@That community could not be saved.",
   COMMUNITY_FORBIDDEN:
     "perc.ui.editor@You are not allowed to save that community.",
