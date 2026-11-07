@@ -86,4 +86,14 @@ describe("mapDeliveryServerCopyError", () => {
       }),
     ).toMatch(/already exists/i);
   });
+
+  it("maps HTTP 403 to forbidden", () => {
+    expect(
+      mapDeliveryServerCopyError({
+        status: 403,
+        statusText: "Forbidden",
+        body: {},
+      }),
+    ).toMatch(/forbidden/i);
+  });
 });

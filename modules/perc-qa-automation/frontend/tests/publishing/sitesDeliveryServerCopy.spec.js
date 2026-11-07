@@ -25,6 +25,51 @@
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("../helpers/auth");
 
+const PASSTHROUGH_HEADS = new Set([
+  "stopPublishing",
+  "availableDrivers",
+  "availableRegions",
+  "isEC2Instance",
+  "defaultFolderLocation",
+  "availableDeliveryServers",
+]);
+
+function fulfillJson(route, status, payload) {
+  return route.fulfill({
+    status,
+    contentType: "application/json",
+    body: JSON.stringify(payload),
+  });
+}
+
+function handleCreatePost(route, name, options, holder, servers) {
+  const lastPost = route.request().postData() || "";
+  if (holder) {
+    holder.post = lastPost;
+  }
+  if (options.conflict) {
+    return fulfillJson(route, 409, {
+      message: "Publish server name already exists",
+    });
+  }
+  if (options.postStatus && options.postStatus !== 200) {
+    return fulfillJson(
+      route,
+      options.postStatus,
+      options.postBody || { message: "Request failed" },
+    );
+  }
+  servers.push({
+    serverId: 99,
+    serverName: name,
+    serverType: "PRODUCTION",
+    type: "File",
+    isDefault: false,
+    properties: [],
+  });
+  return fulfillJson(route, 200, { serverName: name, serverId: 99 });
+}
+
 function installServerRoutes(page, options, holder) {
   const servers = [
     {
@@ -40,66 +85,30 @@ function installServerRoutes(page, options, holder) {
       ],
     },
   ];
-  let lastPost = null;
   return page.route("**/publishmanagement/servers/**", async (route) => {
     const req = route.request();
     const parts = new URL(req.url()).pathname.split("/").filter(Boolean);
     const idx = parts.indexOf("servers");
     const rest = idx >= 0 ? parts.slice(idx + 1) : [];
     const head = rest[0] || "";
-    if (
-      head === "stopPublishing" ||
-      head === "availableDrivers" ||
-      head === "availableRegions" ||
-      head === "isEC2Instance" ||
-      head === "defaultFolderLocation" ||
-      head === "availableDeliveryServers"
-    ) {
+    if (PASSTHROUGH_HEADS.has(head)) {
       return route.continue();
     }
     if (rest.length === 1 && req.method() === "GET") {
-      return route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({ PubServer: servers }),
-      });
+      return fulfillJson(route, 200, { PubServer: servers });
     }
     if (rest.length === 2 && req.method() === "GET") {
       const found = servers.find((s) => String(s.serverId) === rest[1]) || {};
-      return route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify(found),
-      });
+      return fulfillJson(route, 200, found);
     }
     if (rest.length === 2 && req.method() === "POST") {
-      lastPost = req.postData() || "";
-      if (holder) {
-        holder.post = lastPost;
-      }
-      if (options.conflict) {
-        return route.fulfill({
-          status: 409,
-          contentType: "application/json",
-          body: JSON.stringify({
-            message: "Publish server name already exists",
-          }),
-        });
-      }
-      const name = decodeURIComponent(rest[1]);
-      servers.push({
-        serverId: 99,
-        serverName: name,
-        serverType: "PRODUCTION",
-        type: "File",
-        isDefault: false,
-        properties: [],
-      });
-      return route.fulfill({
-        status: 200,
-        contentType: "application/json",
-        body: JSON.stringify({ serverName: name, serverId: 99 }),
-      });
+      return handleCreatePost(
+        route,
+        decodeURIComponent(rest[1]),
+        options,
+        holder,
+        servers,
+      );
     }
     return route.continue();
   });
@@ -171,6 +180,60 @@ test.describe("PublishingShell Sites copy delivery server", () => {
     await openSites(page);
     await page.getByTestId("publish-copy-server").click();
     await expect(page.getByRole("alert")).toContainText(/already exists/i);
+    await expect(page.getByRole("button", { name: /^KeepMe/ })).toHaveCount(1);
+  });
+
+  test("cancel the name prompt posts nothing and keeps the list", async ({
+    page,
+  }) => {
+    let posted = false;
+    page.on("request", (req) => {
+      if (req.method() === "POST" && req.url().includes("/servers/")) {
+        posted = true;
+      }
+    });
+    await installServerRoutes(page, { conflict: false });
+    page.once("dialog", (dialog) => dialog.dismiss());
+    await openSites(page);
+    await page.getByTestId("publish-copy-server").click();
+    await expect(page.getByRole("button", { name: /^KeepMe/ })).toHaveCount(1);
+    expect(posted).toBe(false);
+    await expect(
+      page.getByTestId("publish-action-message"),
+    ).toHaveCount(0);
+  });
+
+  test("HTTP 400 keeps the list and shows the mapped error", async ({
+    page,
+  }) => {
+    await installServerRoutes(page, {
+      postStatus: 400,
+      postBody: { message: "Server name is required" },
+    });
+    page.once("dialog", (dialog) => dialog.accept("Bad Name"));
+    await openSites(page);
+    await page.getByTestId("publish-copy-server").click();
+    await expect(page.getByRole("alert")).toContainText(/required/i);
+    await expect(
+      page.getByRole("button", { name: /^Bad Name/ }),
+    ).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /^KeepMe/ })).toHaveCount(1);
+  });
+
+  test("HTTP 403 keeps the list and shows the mapped error", async ({
+    page,
+  }) => {
+    await installServerRoutes(page, {
+      postStatus: 403,
+      postBody: { message: "Publish Forbidden" },
+    });
+    page.once("dialog", (dialog) => dialog.accept("NopeSrv"));
+    await openSites(page);
+    await page.getByTestId("publish-copy-server").click();
+    await expect(page.getByRole("alert")).toContainText(/forbidden/i);
+    await expect(
+      page.getByRole("button", { name: /^NopeSrv/ }),
+    ).toHaveCount(0);
     await expect(page.getByRole("button", { name: /^KeepMe/ })).toHaveCount(1);
   });
 });

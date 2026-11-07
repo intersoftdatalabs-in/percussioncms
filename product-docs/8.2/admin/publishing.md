@@ -629,7 +629,10 @@ the publish-now default. Cancel the name prompt does not call the server.
 A blank name is refused in the workspace (**Server name is required**) and is not a successful
 copy. A name already used on the site is HTTP **409** and stays in the workspace error region;
 the list does not gain a second server. Passwords and other secret driver properties are not
-copied and are not shown in this help. Cross-site copy and delete are separate actions.
+copied and are not shown in this help: after a copy, re-enter secrets with the per-field
+secret actions (**Set a database delivery-server password**, **Set an S3 delivery-server
+secret key**, **Set the FTP delivery-server password**). Cross-site copy and delete are
+separate actions.
 
 ### Delete a site delivery server (Sites)
 
