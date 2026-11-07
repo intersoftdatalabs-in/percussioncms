@@ -72,33 +72,51 @@ test.describe("Legacy cm/api API-doc viewer retirement (issue #5672)", () => {
 
       await loginAsAdmin(page);
 
+      // Raw serve proof (no navigation side effects): the authenticated
+      // session answers the directory URL with the retirement document
+      // itself — not the 404 error page. page.request shares the login
+      // storage state, and unlike response.text() after page.goto() its body
+      // cannot be discarded by the instant meta-refresh hop that follows.
+      const apiResp = await page.request.get(`${BASE_URL}${API_BASE}/`);
+      expect(apiResp.ok(), "retirement page not served").toBe(true);
+      const html = await apiResp.text();
+      // Dependency-free redirect: meta refresh + canonical + visible link.
+      expect(html).toMatch(/<meta[^>]*http-equiv="refresh"[^>]*>/i);
+      expect(html).toMatch(/url=\/openapi\//i);
+      expect(html).toContain('<link rel="canonical" href="/openapi/" />');
+      expect((html.match(/<a href="\/openapi\/">/g) || []).length).toBe(1);
+      // No legacy viewer globals may leak onto the retirement page. The page
+      // carries no scripts at all, so none of the swagger-era globals
+      // (SwaggerUi/Backbone/Handlebars) can exist at runtime by construction.
+      expect(html, "retirement page must be script-free").not.toMatch(
+        /<script[\s>]/i,
+      );
+
+      // The redirect target itself must exist (raw API check before any
+      // routing below, so no interception can mask a missing /openapi/).
+      const openapi = await page.request.get(`${BASE_URL}/openapi/`);
+      expect(openapi.ok(), "redirect target /openapi/ not served").toBe(true);
+
+      // Browser navigation proof: the authenticated browser is served the
+      // page (HTTP 200, not the 404 error page). The instant meta-refresh hop
+      // is fulfilled with a blank dependency-free document so the live DOM
+      // cannot race the assertions and no foreign console state from the
+      // real /openapi/ app can leak into pageErrors. Login never touches
+      // /openapi/, so this cannot mask a login failure.
+      await page.route("**/openapi/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "text/html",
+          body: "<!doctype html><html><head><title>openapi</title></head><body></body></html>",
+        }),
+      );
+
       const response = await page.goto(`${BASE_URL}${API_BASE}/`, {
         waitUntil: "domcontentloaded",
       });
       expect(response && response.ok(), "retirement page not served").toBe(
         true,
       );
-      // Dependency-free redirect: meta refresh + canonical + visible link.
-      const refresh = await page
-        .locator('meta[http-equiv="refresh"]')
-        .getAttribute("content");
-      expect(String(refresh || "")).toMatch(/url=\/openapi\//i);
-      await expect(page.locator('link[rel="canonical"]')).toHaveAttribute(
-        "href",
-        "/openapi/",
-      );
-      await expect(page.locator('a[href="/openapi/"]')).toHaveCount(1);
-      // No legacy viewer globals may leak onto the retirement page.
-      const legacyGlobals = await page.evaluate(() => ({
-        swaggerUi: typeof window.SwaggerUi,
-        backbone: typeof window.Backbone,
-        handlebars: typeof window.Handlebars,
-      }));
-      expect(legacyGlobals).toEqual({
-        swaggerUi: "undefined",
-        backbone: "undefined",
-        handlebars: "undefined",
-      });
       expect(pageErrors, "console/page errors on retirement page").toEqual(
         [],
       );

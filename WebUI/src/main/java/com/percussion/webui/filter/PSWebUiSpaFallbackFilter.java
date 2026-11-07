@@ -80,6 +80,16 @@ public class PSWebUiSpaFallbackFilter implements Filter {
   private static final String PAGES_PREFIX = "/cm/pages/app";
   /** Canonical static image tree (not under the SPA mount). */
   private static final String CANONICAL_IMAGES = "/cm/images";
+  /**
+   * Retired legacy Swagger-UI 2.x API-doc viewer directory (#5672). The webapp welcome-file list
+   * only covers {@code index.jsp}, so a directory request for {@code /cm/api/} would 404 even
+   * though the dependency-free retirement redirect ({@code index.html} → {@code /openapi/}) ships
+   * in the WAR. Forward directory requests at the static page instead of widening the global
+   * welcome-file list (which would also expose vendored library test pages).
+   */
+  private static final String RETIRED_API_DIR = "/cm/api";
+  /** Static retirement redirect page for the legacy API-doc viewer (#5672). */
+  private static final String RETIRED_API_INDEX = "/cm/api/index.html";
 
   @Override
   public void init(FilterConfig filterConfig) {
@@ -121,6 +131,15 @@ public class PSWebUiSpaFallbackFilter implements Filter {
       RequestDispatcher remapDispatcher = request.getRequestDispatcher(imageRemap);
       if (remapDispatcher != null) {
         remapDispatcher.forward(request, response);
+        return;
+      }
+    }
+
+    String retirementForward = buildRetirementForwardPath(pathWithinContext);
+    if (retirementForward != null) {
+      RequestDispatcher retirementDispatcher = request.getRequestDispatcher(retirementForward);
+      if (retirementDispatcher != null) {
+        retirementDispatcher.forward(request, response);
         return;
       }
     }
@@ -274,6 +293,32 @@ public class PSWebUiSpaFallbackFilter implements Filter {
         || lowerPath.endsWith(".svg")
         || lowerPath.endsWith(".ico")
         || lowerPath.endsWith(".webp");
+  }
+
+  /**
+   * Forward path for the retired legacy API-doc viewer directory (#5672).
+   *
+   * <p>Directory requests for {@code /cm/api} (with or without trailing slash) forward to the
+   * static retirement redirect ({@code /cm/api/index.html} → {@code /openapi/}). Suffix matching
+   * tolerates an unstripped context prefix such as {@code /Rhythmyx} (same convention as {@link
+   * PSEditorHostRedirect#isRetiredArchitectureJsp}). The index page itself and any other path
+   * return {@code null} (pass through).
+   *
+   * @param pathWithinContext e.g. {@code /cm/api/} or {@code /Rhythmyx/cm/api}; may be null
+   * @return {@code /cm/api/index.html}, or {@code null} when this is not the retirement directory
+   */
+  static String buildRetirementForwardPath(String pathWithinContext) {
+    if (pathWithinContext == null || pathWithinContext.isEmpty()) {
+      return null;
+    }
+    String lower = pathWithinContext.toLowerCase(Locale.ROOT);
+    if (lower.equals(RETIRED_API_DIR)
+        || lower.equals(RETIRED_API_DIR + "/")
+        || lower.endsWith(RETIRED_API_DIR)
+        || lower.endsWith(RETIRED_API_DIR + "/")) {
+      return RETIRED_API_INDEX;
+    }
+    return null;
   }
 
   /**

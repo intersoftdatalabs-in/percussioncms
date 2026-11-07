@@ -276,4 +276,39 @@ public class PSWebUiSpaFallbackFilterTest {
     // Only one entry= and it is home (from path)
     assertEquals(1, forward.split("entry=", -1).length - 1);
   }
+
+  @Test
+  public void forwardsRetiredApiDirectoryToStaticRedirect() {
+    // #5672: directory requests serve the retirement redirect (index.html -> /openapi/)
+    // because the webapp welcome-file list only covers index.jsp.
+    assertEquals(
+        "/cm/api/index.html",
+        PSWebUiSpaFallbackFilter.buildRetirementForwardPath("/cm/api/"));
+    assertEquals(
+        "/cm/api/index.html", PSWebUiSpaFallbackFilter.buildRetirementForwardPath("/cm/api"));
+    // Tolerate an unstripped context prefix (root-context cells) and casing.
+    assertEquals(
+        "/cm/api/index.html",
+        PSWebUiSpaFallbackFilter.buildRetirementForwardPath("/Rhythmyx/cm/api/"));
+    assertEquals(
+        "/cm/api/index.html",
+        PSWebUiSpaFallbackFilter.buildRetirementForwardPath("/Rhythmyx/cm/api"));
+    assertEquals(
+        "/cm/api/index.html", PSWebUiSpaFallbackFilter.buildRetirementForwardPath("/CM/API/"));
+  }
+
+  @Test
+  public void retirementForwardPassesThroughIndexAndOtherPaths() {
+    // The index page itself is served statically — never forward (no self-loop).
+    assertNull(PSWebUiSpaFallbackFilter.buildRetirementForwardPath("/cm/api/index.html"));
+    assertNull(
+        PSWebUiSpaFallbackFilter.buildRetirementForwardPath("/Rhythmyx/cm/api/index.html"));
+    // Unrelated /cm/* trees and near-miss segments pass through.
+    assertNull(PSWebUiSpaFallbackFilter.buildRetirementForwardPath("/cm/app/home"));
+    assertNull(PSWebUiSpaFallbackFilter.buildRetirementForwardPath("/cm/apix"));
+    assertNull(PSWebUiSpaFallbackFilter.buildRetirementForwardPath("/cm/api-v2/"));
+    assertNull(PSWebUiSpaFallbackFilter.buildRetirementForwardPath("/cm/api/other.html"));
+    assertNull(PSWebUiSpaFallbackFilter.buildRetirementForwardPath(null));
+    assertNull(PSWebUiSpaFallbackFilter.buildRetirementForwardPath(""));
+  }
 }
