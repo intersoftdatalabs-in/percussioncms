@@ -277,6 +277,23 @@ on a Local server does not change that server's folder. Full server edit remains
 A site with no default delivery server can still save an FTP host; that save does not assign the
 default.
 
+### Set the SFTP delivery-server host (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **SFTP**. **Set host** edits only the server host. **Save host** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `serverip` property. Port,
+user id, and folder stay as they were. The passphrase and private key are not shown and are not
+sent again.
+
+A blank host is refused on the form (**SFTP host is required**) and is not written. A host longer
+than 255 characters is refused the same way. **Cancel** does not call the server and keeps the
+previous host. HTTP **400**, **403**, and **409** stay on the form and keep the previous host.
+The new host is shown only after a successful save.
+
+**FTP**, **FTPS**, Amazon S3, database drivers, and a **Local** driver do not use this save.
+Choosing **Set host** on a Local or FTP server does not change that server's folder or FTP host.
+Full server edit remains **Edit Server**.
+
 ### Set a database delivery-server host (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose

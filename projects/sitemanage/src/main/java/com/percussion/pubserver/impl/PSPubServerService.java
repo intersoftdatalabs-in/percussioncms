@@ -378,10 +378,12 @@ public class PSPubServerService implements IPSPubServerService {
       if (PSDeliveryServerDefaultUpdate.isDefaultOnly(pubServerInfo)) {
         return updateDefaultOnly(siteId, serverId, pubServerInfo);
       }
-      // Host-only FTP PUT must not run the full property replace (that clears port, user,
+      // Host-only PUT must not run the full property replace (that clears port, user,
       // folder, and password) and must not decode a password that is not in the body.
-      if (PSFtpDeliveryHostUpdate.isHostOnly(pubServerInfo)) {
-        return updateFtpHostOnly(siteId, serverId, pubServerInfo);
+      // FTP and SFTP share this body shape; the stored driver selects FTP vs SFTP apply.
+      if (PSFtpDeliveryHostUpdate.isHostOnly(pubServerInfo)
+          || PSSftpDeliveryHostUpdate.isHostOnly(pubServerInfo)) {
+        return updateDeliveryHostOnly(siteId, serverId, pubServerInfo);
       }
       // Host-only database PUT must not run the full property replace (that clears port,
       // user, database/sid, driver, and password) and must not decode a password that
@@ -671,10 +673,12 @@ public class PSPubServerService implements IPSPubServerService {
   }
 
   /**
-   * Save only the FTP {@code serverip} property. Does not rename the server or replace the
-   * property set. Blank, overlong, and non-FTP drivers throw before {@code savePubServer}.
+   * Save only the {@code serverip} property. Does not rename the server or replace the
+   * property set. SFTP servers use {@link PSSftpDeliveryHostUpdate}; other drivers use {@link
+   * PSFtpDeliveryHostUpdate} (FTP-only; Local/FTPS/SFTP throw before {@code savePubServer}).
+   * Blank, overlong, and wrong-driver bodies throw before {@code savePubServer}.
    */
-  private PSPublishServerInfo updateFtpHostOnly(
+  private PSPublishServerInfo updateDeliveryHostOnly(
       String siteId, String serverId, PSPublishServerInfo pubServerInfo)
       throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
     IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
@@ -689,7 +693,12 @@ public class PSPubServerService implements IPSPubServerService {
       throw new PSPubServerServiceException(
           "The server you are trying to act on no longer exists in the system.");
     }
-    PSFtpDeliveryHostUpdate.apply(server, pubServerInfo);
+    String driver = server.getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY).orElse("");
+    if ("SFTP".equalsIgnoreCase(driver)) {
+      PSSftpDeliveryHostUpdate.apply(server, pubServerInfo);
+    } else {
+      PSFtpDeliveryHostUpdate.apply(server, pubServerInfo);
+    }
     pubServerDao.savePubServer(server);
     return toPSPublishServerInfo(server, site, true);
   }
