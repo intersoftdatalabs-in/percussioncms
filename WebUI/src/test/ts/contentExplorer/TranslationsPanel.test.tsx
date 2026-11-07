@@ -372,6 +372,27 @@ describe("TranslationsPanel", () => {
     );
   });
 
+  it("pins an explicit light-surface text color on every state (#5657)", async () => {
+    // The editor host mounts this panel under its dark root (inherited
+    // #e2e8f0), which fails WCAG 2.2 AA contrast on the panel's own white
+    // background. Every state must therefore declare its own dark text.
+    render(
+      <TranslationsPanel
+        itemId="335"
+        itemLabel="Page"
+        loadVariants={async () => SAMPLE_VARIANTS}
+        loadLocaleCatalog={async () => CATALOG}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("translations-panel")).toHaveAttribute(
+        "data-testid-state",
+        "ok",
+      ),
+    );
+    expect(screen.getByTestId("translations-panel").style.color).toBeTruthy();
+  });
+
   it("passes the zero serious/critical axe-core gate", async () => {
     const { container } = render(
       <TranslationsPanel
