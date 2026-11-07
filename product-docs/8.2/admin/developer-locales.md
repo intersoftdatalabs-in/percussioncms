@@ -401,6 +401,22 @@ same Admin after a failed save is taken over so a retry can succeed.
 6. Unknown locale or content type is **400** and the editor shows the error.
    A design lock held by another user is **409**.
 
+## Product path — auto-translation rows for one locale
+
+1. Sign in as **Admin** and open **Developer → Locales**.
+2. Open one locale. Below the format sections, **Set auto-translations for
+   this locale** lists only that locale's rows (the locale column is fixed).
+3. Click **Add row** and choose a content type, workflow, and community.
+   Click **Save locale auto-translations**. Save **replaces only this
+   locale's rows**, merged with every other locale's untouched rows.
+4. Remove every row and save to **clear only this locale**. The other
+   locales' rows stay.
+5. An unknown content type is **400** and the section shows the error
+   without a success notice. A design lock held by another user is **409**.
+6. This save never calls the locale `PUT`: language string, label,
+   description, enabled status, and the format profile stay exactly as
+   stored.
+
 ## Limits
 
 - Language string is immutable after create (REST `PUT` rejects a change).
@@ -410,6 +426,9 @@ same Admin after a failed save is taken over so a retry can succeed.
 - Auto-translation save is a full replace of the singleton set via
   GET/PUT `/services/locales/auto-translations` (not a per-row PATCH). Empty
   list clears. There is no TMX bulk translate in this chrome.
+- The per-locale editor in each locale detail merges client-side: only the
+  open locale's rows are replaced or cleared; other locales' rows and the
+  locale's own language, label, description, status, and format fields stay.
 
 ## REST
 
@@ -436,5 +455,6 @@ The chrome calls:
 | Delete | `DELETE /services/locales/{idOrLang}` (`204` on success) |
 | Auto-translation list | `GET /services/locales/auto-translations` |
 | Auto-translation replace | `PUT /services/locales/auto-translations` (empty `[]` clears) |
+| Set one locale's auto-translations | `PUT /services/locales/auto-translations` with the open locale's edited rows merged ahead of every other locale's untouched rows; an empty edit clears only that locale; locale fields are omitted and stay |
 
 Integrator notes: [REST API — Locales](id:developer-rest).
