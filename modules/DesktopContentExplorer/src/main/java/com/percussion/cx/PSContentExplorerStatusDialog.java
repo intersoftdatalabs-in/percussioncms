@@ -233,7 +233,7 @@ public final class PSContentExplorerStatusDialog extends PSDialog {
     dlg.setSize(new Dimension(600, 400));
     dlg.pack();
     dlg.setResizable(true);
-    dlg.show();
+    dlg.setVisible(true);
 
     return Integer.parseInt(optPane.getValue().toString());
   }

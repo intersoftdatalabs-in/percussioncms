@@ -34,7 +34,12 @@ import org.w3c.dom.Element;
 /**
  * Behavioral tests for pure helpers on {@link PSOptionManager} after rawtypes cleanup (#3012). Does
  * not open the Swing applet (requires live server resources).
+ *
+ * <p>Suppression scope: {@code IPSClientObjects} is deprecated but remains the declared element
+ * type of {@link PSOptionManager#toXmlCollection}, so this test must reference it until the
+ * production API migrates (tracked under #2045).
  */
+@SuppressWarnings("deprecation")
 public class PSOptionManagerTest {
 
   @Test

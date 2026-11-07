@@ -87,6 +87,7 @@ import javax.swing.*;
 import javax.swing.text.DefaultEditorKit;
 import javax.xml.parsers.ParserConfigurationException;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -1302,7 +1303,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
       } else {
         if (!(comp instanceof JComboBox)) {
           // Use different colors if the component represents Headings
-          if (StringUtils.contains(PSContentExplorerConstants.HEADING_COMP_NAME, comp.getName()))
+          if (Strings.CS.contains(PSContentExplorerConstants.HEADING_COMP_NAME, comp.getName()))
             comp.setForeground(dispOptions.getHeadingForeGroundColor());
           else comp.setForeground(dispOptions.getForeGroundColor());
         }

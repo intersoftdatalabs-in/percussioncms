@@ -147,7 +147,8 @@ public final class PSNavigationTree extends JTree
 
     if (m_actManager.viewSupportsCopyPaste()) {
       // CTL-C Action, keeps the selected nodes in copy clip board
-      KeyStroke ksCTLCKeyRelease = KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_MASK, true);
+      KeyStroke ksCTLCKeyRelease =
+          KeyStroke.getKeyStroke(KeyEvent.VK_C, KeyEvent.CTRL_DOWN_MASK, true);
       getInputMap().put(ksCTLCKeyRelease, "ctlcAction");
       AbstractAction ctlcAction =
           new AbstractAction() {
@@ -170,7 +171,8 @@ public final class PSNavigationTree extends JTree
       getActionMap().put("ctlcAction", ctlcAction);
 
       // CTL-V Action, Displays pop-up menu for Paste Action of Copy clipboard
-      KeyStroke ksCTLVKeyRelease = KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_MASK, true);
+      KeyStroke ksCTLVKeyRelease =
+          KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK, true);
       getInputMap().put(ksCTLVKeyRelease, "ctlvAction");
       AbstractAction ctlvAction =
           new AbstractAction() {
