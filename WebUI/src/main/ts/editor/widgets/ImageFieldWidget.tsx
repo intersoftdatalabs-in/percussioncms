@@ -16,7 +16,41 @@
  */
 
 import React from "react";
+import { fileFieldContainsNul, pickedFileNameContainsNul } from "../fileField";
 import { FileFieldWidget, type FileFieldWidgetProps } from "./FileFieldWidget";
+
+/**
+ * A NUL cannot be stored in item field XML / JDBC text (#5695 / #4532).
+ * The image field carries its text (stored name / picked file name) through
+ * the binary widget, so the gate reads the raw value, not the rendered name.
+ * Mirrors the file-filename NUL slice (#5588); the file gate covers
+ * {@code kind === "file"} only.
+ */
+export function imageFieldContainsNul(value: string | undefined | null): boolean {
+  return fileFieldContainsNul(value);
+}
+
+/** NUL only, image rows. Stored value and picked file name are both refused. */
+export function collectImageNulFieldErrors(
+  rows: readonly { name: string; kind: string; value: string }[],
+  pendingFiles: Record<string, File>,
+  invalidMessage: string,
+): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const row of rows) {
+    if (row.kind !== "image") {
+      continue;
+    }
+    const pending = pendingFiles[row.name];
+    if (
+      imageFieldContainsNul(row.value) ||
+      pickedFileNameContainsNul(pending)
+    ) {
+      out[row.name] = invalidMessage;
+    }
+  }
+  return out;
+}
 
 export function ImageFieldWidget(
   props: Omit<FileFieldWidgetProps, "accept" | "preview">,
