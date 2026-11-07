@@ -1964,14 +1964,27 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         if (hasLockError(e.getErrors())) {
           throw lockConflict(e, "Could not include content type field");
         }
-        log.error("Failed to save included field for {}: {}", idOrName, e.getMessage(), e);
-        throw new IllegalStateException("Failed to save included field", e);
+        String saveDetail = firstSaveErrorMessage(e.getErrors());
+        log.error(
+            "Failed to save included field for {}: {}",
+            idOrName,
+            saveDetail != null ? saveDetail : e.getMessage(),
+            e);
+        throw new IllegalStateException(
+            saveDetail != null
+                ? "Failed to save included field: " + saveDetail
+                : "Failed to save included field",
+            e);
       }
       PSItemDefinition reloaded = reloadItemDef(trimmed);
       return reloaded != null ? toDetail(reloaded) : toDetail(def);
     } catch (ContentTypeDesignLockException
         | IllegalArgumentException
         | WebApplicationException e) {
+      throw e;
+    } catch (IllegalStateException e) {
+      // Already carries an actionable detail (for example the enriched
+      // save-failure message above); do not blanket-rewrap it.
       throw e;
     } catch (Exception e) {
       log.error("Failed to include field for {}: {}", idOrName, e.getMessage(), e);
@@ -4101,6 +4114,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
     removeFieldFromExcludes(mapper, fieldName, type);
     appendIncludeDisplayMapping(displayMapperOfStatic(def), fieldName, sourceMapping, body);
+    if (type == PSField.TYPE_SHARED) {
+      return ensureSharedIncludedField(def, fieldName, sharedGroup);
+    }
     return ensureTypedIncludedField(def, fieldName, type);
   }
 
@@ -4214,6 +4230,21 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     PSField field = new PSField(type, fieldName, null);
     parent.add(field);
     return field;
+  }
+
+  /**
+   * Adds the type-local entry for an included shared field.
+   *
+   * <p>Shared fields materialize at save/load time from the included shared group, so unlike
+   * system fields the type fieldset gets no extra entry: adding one collides with the group
+   * child set at save (duplicate field name). Returns the catalog field for origin callers.
+   */
+  static PSField ensureSharedIncludedField(
+      PSItemDefinition def, String fieldName, PSSharedFieldGroup group) {
+    if (group == null || group.getFieldSet() == null) {
+      return null;
+    }
+    return group.getFieldSet().findFieldByName(fieldName);
   }
 
   static PSDisplayMapping findSystemFieldMapping(
@@ -5388,6 +5419,31 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
     }
     return false;
+  }
+
+  /**
+   * Package-visible for unit tests. First non-blank nested save-error message from a batched
+   * {@code saveContentTypes} failure (for example the {@code SAVE_FAILED} root cause), so an
+   * otherwise opaque save failure surfaces an actionable detail. Returns {@code null} when there
+   * is no nested message.
+   */
+  static String firstSaveErrorMessage(Map<IPSGuid, Object> errors) {
+    if (errors == null || errors.isEmpty()) {
+      return null;
+    }
+    for (Object err : errors.values()) {
+      if (err instanceof Throwable t) {
+        if (StringUtils.isNotBlank(t.getMessage())) {
+          return t.getMessage().trim();
+        }
+      } else if (err != null) {
+        String text = err.toString().trim();
+        if (!text.isEmpty()) {
+          return text;
+        }
+      }
+    }
+    return null;
   }
 
   /**

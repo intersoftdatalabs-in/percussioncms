@@ -313,9 +313,10 @@ This is not the full Workbench template picker.
 
 The **Fields** catalog lists local, system, and shared fields. **Add local
 field** and **Delete** on a local row stay **disabled** until you hold the
-lock. Origin of a created field is always **local**. Include of existing
-system or shared fields is REST-only (`POST .../fields/include`) in this
-release.
+lock. Origin of a created field is always **local**. Including an existing
+system or shared field uses the detail **Include system or shared field**
+picker (see **Include a shared field** below); the same call is available to
+integrators as `POST .../fields/include`.
 
 After **Lock**:
 
@@ -335,6 +336,30 @@ After **Lock**:
 4. Without a lock, Add / Delete stay **disabled**. The product does **not**
    steal another user's lock (lock failure is **409**). An unlocked add or
    delete does not persist.
+
+### Include a shared field (after lock)
+
+The detail **Include system or shared field** picker adds one existing catalog
+field to the type without copying it as local. The picker lists catalog
+fields the type does not already include; already-included fields are omitted.
+
+After **Lock**:
+
+1. Set **origin** to **shared**. Pick one shared field from the picker (or
+   type its exact name), then click **Include**. The product POSTs
+   `POST /services/contenttypes/{idOrName}/fields/include` (JSON `name` and
+   `fieldType` `shared`) while the lock is still held and does **not**
+   unlock. The field catalog shows the new row with origin **shared**, and a
+   following `GET /services/contenttypes/{idOrName}` lists it with
+   `fieldType` `shared`. The other fields, the type label, and the type
+   description stay unchanged.
+2. Duplicate include is **409**; the lock is still held. Unknown catalog
+   field is **404**. An invalid origin is **400**.
+3. If the held lock is missing (for example it expired), the include is
+   **409**, the detail reports the lock lost (**Not locked**), and no
+   success is claimed. Lock again and retry.
+4. Clearing the pick (back to the placeholder) disables **Include**;
+   cancelling the pick writes nothing.
 
 ### Local field display labels (after lock)
 

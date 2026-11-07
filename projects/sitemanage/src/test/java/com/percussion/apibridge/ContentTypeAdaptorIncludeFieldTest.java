@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -34,6 +35,7 @@ import static org.mockito.Mockito.when;
 
 import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.cms.objectstore.server.PSItemDefManager;
+import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.design.objectstore.PSContentEditorMapper;
 import com.percussion.design.objectstore.PSContentEditorSharedDef;
@@ -54,6 +56,8 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.util.PSCollection;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfoBase;
+import com.percussion.webservices.PSErrorException;
+import com.percussion.webservices.PSErrorsException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.system.IPSSystemDesignWs;
 import jakarta.ws.rs.WebApplicationException;
@@ -61,6 +65,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
@@ -126,6 +131,30 @@ class ContentTypeAdaptorIncludeFieldTest {
   }
 
   @Test
+  void includeSystemOrSharedField_sharedAddsNoTopLevelEntry() {
+    StubType stub = stubType(List.of(), List.of(), List.of());
+    PSSharedFieldGroup group = sharedGroup("shared", "displaytitle", "body");
+    PSField canonical = group.getFieldSet().findFieldByName("displaytitle");
+    canonical.setLocator(
+        new PSBackEndColumn(new PSBackEndTable("RXS_CT_SHARED"), "DISPLAYTITLE"));
+    canonical.setDataType(PSField.DT_TEXT);
+    PSDisplayMapping source = mapping("displaytitle", "Display title:");
+    PSField field =
+        ContentTypeAdaptor.includeSystemOrSharedField(
+            stub.def, "displaytitle", PSField.TYPE_SHARED, source, group, null);
+    assertEquals(PSField.TYPE_SHARED, field.getType());
+    // The shared field materializes from the included group at save/load time;
+    // a type-level fieldset entry would collide with the group child set.
+    assertNull(
+        stub.parent.findFieldByName("displaytitle"),
+        "shared include must not add a top-level fieldset entry");
+    assertTrue(containsIgnoreCase(stub.mapper.getSharedFieldIncludes(), "shared"));
+    assertFalse(containsIgnoreCase(stub.mapper.getSharedFieldExcludes(), "displaytitle"));
+    assertTrue(containsIgnoreCase(stub.mapper.getSharedFieldExcludes(), "body"));
+    assertNotNull(ContentTypeAdaptor.findDisplayMapping(stub.display, "displaytitle"));
+  }
+
+  @Test
   void includeField_savesSystemWhenLockHeld() throws Exception {
     stubHeldLock();
     StubType stub = stubType(List.of("sys_title"), List.of(), List.of());
@@ -154,8 +183,9 @@ class ContentTypeAdaptorIncludeFieldTest {
     body.setFieldType("shared");
     adaptor.includeField(null, "311", body);
     verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
-    assertEquals(
-        PSField.TYPE_SHARED, stub.parent.findFieldByName("displaytitle", false).getType());
+    assertNull(
+        stub.parent.findFieldByName("displaytitle"),
+        "shared fields materialize from the included group, not the type fieldset");
     assertTrue(containsIgnoreCase(stub.mapper.getSharedFieldIncludes(), "shared"));
   }
 
@@ -262,6 +292,35 @@ class ContentTypeAdaptorIncludeFieldTest {
     IllegalArgumentException ex =
         assertThrows(IllegalArgumentException.class, () -> adaptor.includeField(null, "311", body));
     assertTrue(ex.getMessage().toLowerCase().contains("fieldtype"));
+  }
+
+  @Test
+  void firstSaveErrorMessage_surfacesNestedSaveDetail() {
+    Map<IPSGuid, Object> errors = new HashMap<>();
+    errors.put(guid, new PSErrorException("SAVE_FAILED save failed: boom"));
+    assertEquals(
+        "SAVE_FAILED save failed: boom", ContentTypeAdaptor.firstSaveErrorMessage(errors));
+    assertNull(ContentTypeAdaptor.firstSaveErrorMessage(new HashMap<>()));
+    assertNull(ContentTypeAdaptor.firstSaveErrorMessage(null));
+  }
+
+  @Test
+  void includeField_saveFailureSurfacesNestedDetail() throws Exception {
+    stubHeldLock();
+    StubType stub = stubType(List.of(), List.of(), List.of());
+    stubLockedLoad(stub.def);
+    stubSystemDef("sys_title");
+    PSErrorsException saveFailure = new PSErrorsException();
+    saveFailure.addError(guid, new PSErrorException("SAVE_FAILED save failed: boom"));
+    doThrow(saveFailure)
+        .when(designWs)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    ContentTypeField body = new ContentTypeField();
+    body.setName("sys_title");
+    body.setFieldType("system");
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.includeField(null, "311", body));
+    assertTrue(ex.getMessage().contains("boom"), ex.getMessage());
   }
 
   @Test
