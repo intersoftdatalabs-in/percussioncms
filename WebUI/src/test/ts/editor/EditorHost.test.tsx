@@ -18,7 +18,7 @@
 import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import React from "react";
 import { MemoryRouter, Route, Routes } from "react-router";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AppRoutes } from "../../../main/ts/app/routes";
 import {
   EditorHost,
@@ -5451,6 +5451,194 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
     );
     expect(screen.queryByTestId("editor-field-error-text")).toBeNull();
     expect(saveFields).not.toHaveBeenCalled();
+  });
+});
+
+describe("EditorHost refuse a TipTap rich-text NUL (#5696)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function tiptapHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+    html?: string;
+    confirmLeaveUnsaved?: (body: string) => boolean;
+  }) {
+    const html = opts.html ?? "<p>Hi</p>";
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percRichText",
+          name: "Intro",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [{ name: "text", value: html }],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [{ name: "text", label: "Body", control: "sys_tinymce" }],
+        })}
+        confirmLeaveUnsaved={opts.confirmLeaveUnsaved}
+      />
+    );
+  }
+
+  function tiptapRoute(element: React.ReactElement) {
+    return (
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tiptap"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>
+    );
+  }
+
+  // jsdom Range has no caret geometry; ProseMirror scrollToSelection (via the
+  // fragment Apply chain's focus()) needs these two or the transaction throws.
+  // Zero rects keep scrolling a no-op without changing editor behavior.
+  function stubJsdomCaretRects() {
+    const proto = window.Range.prototype as unknown as Record<string, unknown>;
+    if (typeof proto.getClientRects !== "function") {
+      proto.getClientRects = () => [];
+    }
+    if (typeof proto.getBoundingClientRect !== "function") {
+      proto.getBoundingClientRect = () => ({
+        x: 0,
+        y: 0,
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+        width: 0,
+        height: 0,
+        toJSON: () => ({}),
+      });
+    }
+  }
+
+  beforeEach(() => {
+    stubJsdomCaretRects();
+  });
+
+  it("refuses a TipTap NUL before PUT and keeps the previous HTML after reload", async () => {
+    const saveFields = vi.fn();
+    const view = render(tiptapRoute(tiptapHost({ saveFields, html: "<p>bad\u0000value</p>" })));
+    const editable = await screen.findByTestId("editor-field-text");
+    expect(editable.getAttribute("data-editor-kind")).toBe("html");
+    expect(editable.getAttribute("data-editor-engine")).toBe("tiptap");
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /correct the HTML fields before saving/i,
+    );
+    expect(screen.getByTestId("editor-field-text").getAttribute("aria-invalid")).toBe("true");
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    view.unmount();
+    render(
+      tiptapRoute(tiptapHost({ saveFields: vi.fn(), html: "<p>bad\u0000value</p>" })),
+    );
+    const reloaded = await screen.findByTestId("editor-field-text");
+    expect(reloaded.getAttribute("data-editor-engine")).toBe("tiptap");
+  });
+
+  it("refuses a TipTap fragment edit carrying a NUL before PUT", async () => {
+    const saveFields = vi.fn();
+    render(tiptapRoute(tiptapHost({ saveFields })));
+    await screen.findByText("Hi");
+    // Plain-text fragments insert as text (no markup parse), so an embedded
+    // NUL reaches the document and the row value the save gate reads.
+    fireEvent.click(screen.getByTestId("tiptap-perc-insert-html-text"));
+    fireEvent.change(screen.getByTestId("tiptap-perc-html-text"), {
+      target: { value: "xa\u0000yb" },
+    });
+    fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(
+        /character that cannot be saved/i,
+      );
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+      /correct the HTML fields before saving/i,
+    );
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("still saves an ordinary TipTap fragment edit", async () => {
+    let html = "<p>Hi</p>";
+    const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
+      html = body.fields.find((f) => f.name === "text")?.value ?? html;
+      return {
+        contentId: "42",
+        contentType: "percRichText",
+        name: "Intro",
+        checkoutUser: "admin",
+        revision: 4,
+        fields: body.fields,
+      };
+    });
+    render(tiptapRoute(tiptapHost({ saveFields })));
+    await screen.findByText("Hi");
+    fireEvent.click(screen.getByTestId("tiptap-perc-insert-html-text"));
+    fireEvent.change(screen.getByTestId("tiptap-perc-html-text"), {
+      target: { value: "<p>Bye</p>" },
+    });
+    fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
+    expect(sent.fields.find((f) => f.name === "text")?.value).toContain("Bye");
+    expect(String(sent.fields.find((f) => f.name === "text")?.value)).not.toContain("\u0000");
+  });
+
+  it("does not write when Close cancels an unsaved TipTap edit", async () => {
+    const saveFields = vi.fn();
+    render(tiptapRoute(tiptapHost({ saveFields, confirmLeaveUnsaved: () => false })));
+    await screen.findByText("Hi");
+    fireEvent.click(screen.getByTestId("tiptap-perc-insert-html-text"));
+    fireEvent.change(screen.getByTestId("tiptap-perc-html-text"), {
+      target: { value: "<p>Bye</p>" },
+    });
+    fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
+    fireEvent.click(screen.getByTestId("editor-close"));
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it.each([
+    { status: 400, message: /could not be saved/i },
+    { status: 403, message: /not allowed/i },
+    { status: 409, message: /newer revision/i },
+  ])("does not treat HTTP $status on a TipTap save as success", async ({ status, message }) => {
+    const saveFields = vi.fn().mockRejectedValue({
+      status,
+      body: { message: "rejected" },
+    });
+    render(tiptapRoute(tiptapHost({ saveFields })));
+    await screen.findByText("Hi");
+    fireEvent.click(screen.getByTestId("tiptap-perc-insert-html-text"));
+    fireEvent.change(screen.getByTestId("tiptap-perc-html-text"), {
+      target: { value: "<p>Rejected</p>" },
+    });
+    fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-save-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-save-error").textContent).toMatch(message);
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+    expect(saveFields).toHaveBeenCalledTimes(1);
   });
 });
 

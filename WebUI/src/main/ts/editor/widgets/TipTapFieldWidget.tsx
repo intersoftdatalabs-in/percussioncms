@@ -158,14 +158,22 @@ function useSyncTipTapEditor(
   const { value, readOnly, invalid } = state;
 
   useEffect(() => {
-    editorRef.current?.setEditable(!readOnly);
+    // Silent like the content sync below: flipping the editable flag must
+    // not echo the document back through onChange (TipTap v3 emits an
+    // update here by default). A stored NUL stays in the row value so the
+    // save-side HTML gate (#5696) can refuse it with a field message.
+    editorRef.current?.setEditable(!readOnly, false);
   }, [editorRef, readOnly]);
 
   useEffect(() => {
     const editor = editorRef.current;
     const prepared = preparePercussionHtml(value);
     if (editor && editor.getHTML() !== prepared) {
-      editor.commands.setContent(prepared);
+      // Silent by contract: external saves must not echo back through
+      // onChange (the option defaults to noisy in TipTap v3, so spell it
+      // out). A stored NUL stays in the row value so the save-side HTML
+      // gate (#5696) can refuse it instead of being normalized away here.
+      editor.commands.setContent(prepared, { emitUpdate: false });
     }
   }, [editorRef, value]);
 

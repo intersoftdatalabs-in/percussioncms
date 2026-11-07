@@ -50,7 +50,9 @@ describe("TipTapFieldWidget", () => {
       },
     });
     try {
-      // setContent only notifies when emitUpdate is true (core default false).
+      // setContent notifies only when emitUpdate is true (explicit here;
+      // the core default is noisy in TipTap v3, so the widget sync path
+      // spells out { emitUpdate: false } to stay silent, #5696).
       editor.commands.setContent("<p>Bye</p>", true);
       expect(seen).toEqual(["<p>Bye</p>"]);
     } finally {
