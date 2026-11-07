@@ -17,6 +17,7 @@
 
 package com.percussion.cx.javafx;
 
+import com.percussion.cx.PSContentExplorerUtils;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
@@ -59,7 +60,7 @@ public class PSWebViewUtils {
         if (!uri.startsWith("/")) uri = "/" + uri;
         uri = protocol + "//" + host + ":" + port + uri;
       }
-      URL url = new URL(uri);
+      URL url = PSContentExplorerUtils.toURL(uri);
       return IOUtils.toString(url.openStream(), StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new RuntimeException(e);

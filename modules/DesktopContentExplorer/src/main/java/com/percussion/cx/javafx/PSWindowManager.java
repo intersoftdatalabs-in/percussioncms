@@ -17,6 +17,7 @@
 
 package com.percussion.cx.javafx;
 
+import com.percussion.cx.PSContentExplorerUtils;
 import com.percussion.cx.PSSelection;
 import com.percussion.cx.objectstore.PSMenuAction;
 import java.lang.reflect.InvocationTargetException;
@@ -221,8 +222,8 @@ public class PSWindowManager {
           return null;
         }
 
-        baseUrl = new URL(parentWindow.getUrl());
-        mi_actionurl = new URL(baseUrl, mi_actionurl).toString();
+        baseUrl = PSContentExplorerUtils.toURL(parentWindow.getUrl());
+        mi_actionurl = PSContentExplorerUtils.toURL(baseUrl, mi_actionurl).toString();
       }
       boolean addParent = true;
       if (mi_target.equals("_parent")) {

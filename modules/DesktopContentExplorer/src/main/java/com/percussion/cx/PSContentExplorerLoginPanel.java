@@ -671,7 +671,7 @@ public final class PSContentExplorerLoginPanel extends JFrame {
       } else {
         localeURLString = serverUrl + "/locale.jsp";
       }
-      localeUrl = new URL(localeURLString);
+      localeUrl = PSContentExplorerUtils.toURL(localeURLString);
     } catch (MalformedURLException e) {
       log.warn(PSExceptionUtils.getMessageForLog(e));
       return locales;

@@ -560,7 +560,7 @@ public class PSFolderActionManager {
                 options.getFolderName()));
         String query = PSUrlUtils.createUrl(base, queryParams.entrySet().iterator(), null);
 
-        URL url = new URL(m_appletBase, query);
+        URL url = PSContentExplorerUtils.toURL(m_appletBase, query);
         Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
         Element root = doc.getDocumentElement();
         String NODE_NAME = "CopySiteDefResults";
@@ -935,7 +935,7 @@ public class PSFolderActionManager {
       String query = "../sys_pubSites/modifySiteDefs.xml";
       query += "?sys_originalPath=" + URLEncoder.encode(sourcePath, "UTF8");
       query += "&sys_newPath=" + URLEncoder.encode(targetPath, "UTF8");
-      URL url = new URL(m_appletBase, query);
+      URL url = PSContentExplorerUtils.toURL(m_appletBase, query);
       Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
       Element root = doc.getDocumentElement();
       // sites were modified, so clear cache

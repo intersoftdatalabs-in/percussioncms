@@ -17,6 +17,7 @@
 
 package com.percussion.cx.javafx;
 
+import com.percussion.cx.PSContentExplorerUtils;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -149,7 +150,7 @@ public class PSFileSaver {
 
   private void saveFile(String urlString, File file) {
     try {
-      URL url = new URL(urlString);
+      URL url = PSContentExplorerUtils.toURL(urlString);
       FileUtils.copyURLToFile(url, file);
     } catch (IOException ex) {
       log.error("Unable to save file: " + ex);

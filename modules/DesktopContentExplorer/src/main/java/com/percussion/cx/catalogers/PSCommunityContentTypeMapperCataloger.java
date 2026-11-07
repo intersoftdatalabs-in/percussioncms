@@ -23,6 +23,7 @@ import com.percussion.design.objectstore.PSEntry;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import com.percussion.cx.PSContentExplorerUtils;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -62,7 +63,7 @@ public final class PSCommunityContentTypeMapperCataloger {
    */
   public PSCommunityContentTypeMapperCataloger(URL urlBase) throws PSCmsException {
     try {
-      URL url = new URL(urlBase, "sys_commSupport/CommunityContentTypeMapper.xml");
+      URL url = PSContentExplorerUtils.toURL(urlBase, "sys_commSupport/CommunityContentTypeMapper.xml");
       Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
       m_commCtMapper = parseMapper(doc.getDocumentElement());
     } catch (Exception e) {

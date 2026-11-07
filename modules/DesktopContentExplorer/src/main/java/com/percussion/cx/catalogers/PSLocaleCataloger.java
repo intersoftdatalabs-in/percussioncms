@@ -21,6 +21,7 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSEntry;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import com.percussion.cx.PSContentExplorerUtils;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,7 +57,7 @@ public final class PSLocaleCataloger {
    */
   public PSLocaleCataloger(URL urlBase) throws PSCmsException {
     try {
-      URL url = new URL(urlBase, "sys_i18nSupport/languagelookup.xml");
+      URL url = PSContentExplorerUtils.toURL(urlBase, "sys_i18nSupport/languagelookup.xml");
       Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
       m_locales = parseLocales(doc.getDocumentElement());
     } catch (Exception e) {

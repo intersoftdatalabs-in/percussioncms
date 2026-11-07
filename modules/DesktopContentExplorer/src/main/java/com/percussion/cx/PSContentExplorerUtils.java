@@ -25,6 +25,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.file.Files;
@@ -75,6 +77,63 @@ public class PSContentExplorerUtils {
   }
 
   /**
+   * Builds a {@link URL} from its string form without using the deprecated-for-removal {@code
+   * URL(String)} constructor. Malformed input still surfaces as a checked {@link
+   * MalformedURLException}, preserving the historical error contract of the legacy constructor.
+   *
+   * @param spec the URL string, assumed not <code>null</code>.
+   * @return the parsed URL, never <code>null</code>.
+   * @throws MalformedURLException if the supplied string is not a valid URL.
+   */
+  public static URL toURL(String spec) throws MalformedURLException {
+    try {
+      return URI.create(spec).toURL();
+    } catch (IllegalArgumentException e) {
+      throw new MalformedURLException(e.getMessage());
+    }
+  }
+
+  /**
+   * Resolves {@code spec} against {@code context} without using the deprecated-for-removal {@code
+   * URL(URL, String)} constructor. Malformed input still surfaces as a checked {@link
+   * MalformedURLException}, preserving the historical error contract of the legacy constructor.
+   *
+   * @param context the base URL to resolve against, assumed not <code>null</code>.
+   * @param spec the relative (or absolute) reference, assumed not <code>null</code>.
+   * @return the resolved URL, never <code>null</code>.
+   * @throws MalformedURLException if the spec cannot be resolved against the context.
+   */
+  public static URL toURL(URL context, String spec) throws MalformedURLException {
+    try {
+      return context.toURI().resolve(spec).toURL();
+    } catch (IllegalArgumentException | URISyntaxException e) {
+      throw new MalformedURLException(e.getMessage());
+    }
+  }
+
+  /**
+   * Builds a {@link URL} from its components without using the deprecated-for-removal {@code
+   * URL(String, String, int, String)} constructor. Malformed input still surfaces as a checked
+   * {@link MalformedURLException}, preserving the historical error contract of the legacy
+   * constructor.
+   *
+   * @param protocol the protocol, assumed not <code>null</code>.
+   * @param host the host, assumed not <code>null</code>.
+   * @param port the port, or {@code -1} for the protocol default.
+   * @param file the path, assumed not <code>null</code>.
+   * @return the composed URL, never <code>null</code>.
+   * @throws MalformedURLException if the components do not form a valid URL.
+   */
+  public static URL toURL(String protocol, String host, int port, String file)
+      throws MalformedURLException {
+    try {
+      return new URI(protocol, null, host, port, file, null, null).toURL();
+    } catch (IllegalArgumentException | URISyntaxException e) {
+      throw new MalformedURLException(e.getMessage());
+    }
+  }
+
+  /**
    * Downloads the file at the supplied URL into the supplied target directory, replacing any
    * existing file with the same name.
    *
@@ -86,7 +145,7 @@ public class PSContentExplorerUtils {
    */
   public static Path download(String sourceUrl, String targetDirectory)
       throws MalformedURLException, IOException {
-    URL url = new URL(sourceUrl);
+    URL url = toURL(sourceUrl);
 
     String fileName = url.getFile();
 

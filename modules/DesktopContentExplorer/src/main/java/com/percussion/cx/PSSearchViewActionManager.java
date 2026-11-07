@@ -601,7 +601,7 @@ public class PSSearchViewActionManager {
       throws PSContentExplorerException {
     boolean ret = false;
     try {
-      URL url = new URL(urlBase, resourceName);
+      URL url = PSContentExplorerUtils.toURL(urlBase, resourceName);
       Document respDoc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
 
       if ((respDoc != null) && (respDoc.getDocumentElement() != null)) {
