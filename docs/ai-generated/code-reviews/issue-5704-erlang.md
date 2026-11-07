@@ -10,7 +10,7 @@
 - Targeted re-run (final content): `localeAutoTranslations.test.ts` + `LocaleAutoTranslationsSection.test.tsx` → 13 passed; `LocaleDetailPanel.test.tsx` + `AutoTranslationsPanel.test.tsx` → 77 passed
 - downstream_checked: none (no REST/sitemanage API change; GET/PUT auto-translation set shipped #3981)
 
-## Pre-push local code review
+## Pre-push local code review (final run, HEAD includes spec fix)
 
 ## Summary
 
@@ -20,7 +20,7 @@ Machine analysis found **0** finding(s), **0** bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 8 analyzed
+- Files: 9 analyzed
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
 
