@@ -1,12 +1,13 @@
 ## Summary
 
-Machine analysis found **0** finding(s), **0** bug(s).
+Machine analysis found **1** finding(s), **0** bug(s).
 
 ## Scope
 
 - Base: origin/main
 - Head: HEAD
-- Files: 3 analyzed
+- Files: 6 analyzed
+- In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
 - Persona source: /home/nate/.local/share/mkd/agents/erlang
 
@@ -21,5 +22,12 @@ approve
 
 ## Issues
 
-_No issues._
+### Issue 1 -- Severity: suggestion
+
+- File: projects/sitemanage/src/main/java/com/percussion/apibridge/ContentTypeAdaptor.java:1906 (preexisting)
+- Rule: `complexity.cognitive`
+- Tool: `arborist-metrics`
+- Description: Function `includeField` cognitive=23 (max 15), cyclomatic=22 (max 15)
+- Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
+- Status: open
 
