@@ -17,6 +17,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  collectFieldErrorSummaryEntries,
   collectInvalidDateFieldErrors,
   collectRequiredFieldErrors,
   firstInvalidEditorFieldName,
@@ -374,5 +375,61 @@ describe("mapSaveApiErrorToFieldErrors", () => {
     );
     expect(mapped.fieldErrors).toEqual({});
     expect(mapped.banner).toBe("Item is locked");
+  });
+});
+
+describe("collectFieldErrorSummaryEntries", () => {
+  const labels = { sys_title: "Title", qty: "Quantity" };
+
+  it("lists invalid fields in form order with their labels and messages", () => {
+    const entries = collectFieldErrorSummaryEntries(
+      ["sys_title", "displaytitle", "qty"],
+      { qty: "This field is required.", sys_title: "This field is required." },
+      labels,
+    );
+    expect(entries).toEqual([
+      { name: "sys_title", label: "Title", message: "This field is required." },
+      { name: "qty", label: "Quantity", message: "This field is required." },
+    ]);
+  });
+
+  it("skips fields without an error and falls back to the field name", () => {
+    const entries = collectFieldErrorSummaryEntries(
+      ["sys_title", "displaytitle"],
+      { displaytitle: "Too long", unknown_row: "Stale" },
+      labels,
+    );
+    expect(entries).toEqual([
+      { name: "displaytitle", label: "displaytitle", message: "Too long" },
+    ]);
+  });
+
+  it("returns an empty summary when no field has an error", () => {
+    expect(collectFieldErrorSummaryEntries(["sys_title"], {}, labels)).toEqual(
+      [],
+    );
+  });
+
+  it("includes mapped HTTP 400 field errors", () => {
+    const mapped = mapSaveApiErrorToFieldErrors(
+      {
+        status: 400,
+        body: { fieldErrors: { qty: "Quantity cannot be blank" } },
+      },
+      ["sys_title", "qty"],
+      "Could not save the item.",
+    );
+    const entries = collectFieldErrorSummaryEntries(
+      ["sys_title", "qty"],
+      mapped.fieldErrors,
+      labels,
+    );
+    expect(entries).toEqual([
+      {
+        name: "qty",
+        label: "Quantity",
+        message: "Quantity cannot be blank",
+      },
+    ]);
   });
 });

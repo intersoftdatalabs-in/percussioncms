@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import React from "react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
@@ -4634,7 +4634,7 @@ describe("EditorHost clear optional single-line text (#5205)", () => {
     fireEvent.click(screen.getByTestId("editor-text-clear-summary"));
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
-      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(/required/i);
+      expect(within(screen.getByTestId("editor-field-row-summary")).getByTestId("editor-field-error-summary").textContent).toMatch(/required/i);
     });
     expect(saveFields).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor-saved")).toBeNull();
@@ -4662,12 +4662,12 @@ describe("EditorHost clear optional single-line text (#5205)", () => {
     fireEvent.click(screen.getByTestId("editor-text-clear-summary"));
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
-      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(/could not be saved/i);
+      expect(within(screen.getByTestId("editor-field-row-summary")).getByTestId("editor-field-error-summary").textContent).toMatch(/could not be saved/i);
     });
     expect(screen.queryByTestId("editor-saved")).toBeNull();
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
-      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(/not allowed/i);
+      expect(within(screen.getByTestId("editor-field-row-summary")).getByTestId("editor-field-error-summary").textContent).toMatch(/not allowed/i);
     });
     expect(screen.queryByTestId("editor-saved")).toBeNull();
     fireEvent.click(screen.getByTestId("editor-save"));
@@ -4854,14 +4854,14 @@ describe("EditorHost save single-line text (#5206)", () => {
     });
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
-      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(
+      expect(within(screen.getByTestId("editor-field-row-summary")).getByTestId("editor-field-error-summary").textContent).toMatch(
         /could not be saved/i,
       );
     });
     expect(screen.queryByTestId("editor-saved")).toBeNull();
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
-      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(
+      expect(within(screen.getByTestId("editor-field-row-summary")).getByTestId("editor-field-error-summary").textContent).toMatch(
         /not allowed/i,
       );
     });
@@ -4959,7 +4959,7 @@ describe("EditorHost refuse a single-line text NUL (#5388)", () => {
     fireEvent.change(input, { target: { value: "bad\u0000value" } });
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
-      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(
+      expect(within(screen.getByTestId("editor-field-row-summary")).getByTestId("editor-field-error-summary").textContent).toMatch(
         /character that cannot be saved/i,
       );
     });
@@ -5109,7 +5109,7 @@ describe("EditorHost refuse a single-line text NUL (#5388)", () => {
     });
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
-      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(
+      expect(within(screen.getByTestId("editor-field-row-summary")).getByTestId("editor-field-error-summary").textContent).toMatch(
         /could not be saved/i,
       );
     });
@@ -5184,7 +5184,9 @@ describe("EditorHost refuse a single-line text NUL (#5388)", () => {
     expect(screen.getByTestId("editor-save-error").textContent).toMatch(
       /long text fields before saving/i,
     );
-    expect(screen.queryByTestId("editor-field-error-summary")).toBeNull();
+    expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(
+      /description/i,
+    );
     expect(saveFields).not.toHaveBeenCalled();
   });
 });
@@ -5724,7 +5726,7 @@ describe("EditorHost refuse a link NUL (#5390)", () => {
     });
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
-      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(
+      expect(within(screen.getByTestId("editor-field-row-summary")).getByTestId("editor-field-error-summary").textContent).toMatch(
         /character that cannot be saved/i,
       );
     });
@@ -5803,7 +5805,7 @@ describe("EditorHost refuse blank required single-line text (#5207)", () => {
     fireEvent.change(input, { target: { value: "" } });
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
-      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(/required/i);
+      expect(within(screen.getByTestId("editor-field-row-summary")).getByTestId("editor-field-error-summary").textContent).toMatch(/required/i);
     });
     expect(screen.getByTestId("editor-save-error").textContent).toMatch(
       /required fields before saving/i,
@@ -5831,7 +5833,7 @@ describe("EditorHost refuse blank required single-line text (#5207)", () => {
     fireEvent.change(input, { target: { value: "   " } });
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
-      expect(screen.getByTestId("editor-field-error-summary").textContent).toMatch(/required/i);
+      expect(within(screen.getByTestId("editor-field-row-summary")).getByTestId("editor-field-error-summary").textContent).toMatch(/required/i);
     });
     expect(saveFields).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor-saved")).toBeNull();
@@ -13649,6 +13651,178 @@ describe("EditorHost refuse a file field NUL (#5588)", () => {
     await waitFor(() => {
       expect(saveFields).toHaveBeenCalledTimes(3);
     });
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+});
+
+describe("EditorHost required/invalid field error summary (#5680)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  function summaryHost(opts: {
+    saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
+  }) {
+    return (
+      <EditorHost
+        checkout={vi.fn().mockResolvedValue(undefined)}
+        loadFields={async () => ({
+          contentId: "42",
+          contentType: "percPage",
+          name: "Home",
+          checkoutUser: "admin",
+          revision: 3,
+          fields: [
+            { name: "headline", value: "Hello" },
+            { name: "qty", value: "4" },
+          ],
+        })}
+        saveFields={opts.saveFields ?? vi.fn()}
+        loadType={async () => ({
+          fields: [
+            {
+              name: "headline",
+              label: "Headline",
+              control: "sys_EditBox",
+              dataType: "text",
+              required: true,
+            },
+            {
+              name: "qty",
+              label: "Quantity",
+              control: "sys_Number",
+              dataType: "integer",
+              required: true,
+            },
+          ],
+        })}
+      />
+    );
+  }
+
+  async function openSummaryHost(
+    element: React.ReactElement,
+  ): Promise<void> {
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-qty")).toBeTruthy();
+    });
+  }
+
+  it("lists every invalid field when save is blocked", async () => {
+    const saveFields = vi.fn();
+    await openSummaryHost(summaryHost({ saveFields }));
+    fireEvent.change(screen.getByTestId("editor-field-headline"), {
+      target: { value: "" },
+    });
+    fireEvent.change(screen.getByTestId("editor-field-qty"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-summary")).toBeTruthy();
+    });
+    const region = screen.getByTestId("editor-field-error-summary");
+    expect(region.getAttribute("role")).toBe("alert");
+    expect(region.textContent).toMatch(/headline/i);
+    expect(region.textContent).toMatch(/quantity/i);
+    expect(
+      within(screen.getByTestId("editor-field-row-headline")).getByTestId(
+        "editor-field-error-headline",
+      ).textContent,
+    ).toMatch(/required/i);
+    expect(
+      within(screen.getByTestId("editor-field-row-qty")).getByTestId(
+        "editor-field-error-qty",
+      ).textContent,
+    ).toMatch(/required/i);
+    expect(saveFields).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
+  it("moves focus to the field row when a summary entry is activated", async () => {
+    const saveFields = vi.fn();
+    await openSummaryHost(summaryHost({ saveFields }));
+    fireEvent.change(screen.getByTestId("editor-field-headline"), {
+      target: { value: "" },
+    });
+    fireEvent.change(screen.getByTestId("editor-field-qty"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-summary-qty")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-field-error-summary-qty"));
+    expect(document.activeElement).toBe(screen.getByTestId("editor-field-qty"));
+    fireEvent.click(screen.getByTestId("editor-field-error-summary-headline"));
+    expect(document.activeElement).toBe(
+      screen.getByTestId("editor-field-headline"),
+    );
+  });
+
+  it("clears the summary on successful save", async () => {
+    const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => ({
+      contentId: "42",
+      contentType: "percPage",
+      name: "Home",
+      checkoutUser: "admin",
+      revision: 4,
+      fields: payload.fields,
+    }));
+    await openSummaryHost(summaryHost({ saveFields }));
+    fireEvent.change(screen.getByTestId("editor-field-headline"), {
+      target: { value: "" },
+    });
+    fireEvent.change(screen.getByTestId("editor-field-qty"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-summary")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-field-headline"), {
+      target: { value: "Hello again" },
+    });
+    fireEvent.change(screen.getByTestId("editor-field-qty"), {
+      target: { value: "7" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-saved")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-field-error-summary")).toBeNull();
+  });
+
+  it("lists mapped HTTP 400 field errors in the summary", async () => {
+    const saveFields = vi.fn().mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: {
+        fieldErrors: {
+          headline: "Headline was rejected",
+          qty: "Quantity was rejected",
+        },
+      },
+    });
+    await openSummaryHost(summaryHost({ saveFields }));
+    fireEvent.change(screen.getByTestId("editor-field-headline"), {
+      target: { value: "Updated headline" },
+    });
+    fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-summary")).toBeTruthy();
+    });
+    const region = screen.getByTestId("editor-field-error-summary");
+    expect(region.textContent).toMatch(/headline was rejected/i);
+    expect(region.textContent).toMatch(/quantity was rejected/i);
     expect(screen.queryByTestId("editor-saved")).toBeNull();
   });
 });

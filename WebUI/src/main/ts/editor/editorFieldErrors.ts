@@ -355,3 +355,31 @@ export function mapSaveApiErrorToFieldErrors(
 
   return { fieldErrors, banner };
 }
+
+export interface EditorFieldErrorSummaryEntry {
+  name: string;
+  label: string;
+  message: string;
+}
+
+/**
+ * Ordered entries for the save-blocked error summary region. Form order;
+ * only fields with a non-empty error. Labels fall back to the field name so
+ * the summary never renders a blank entry.
+ */
+export function collectFieldErrorSummaryEntries(
+  fieldNamesInOrder: readonly string[],
+  errors: Record<string, string>,
+  labels: Readonly<Record<string, string>>,
+): EditorFieldErrorSummaryEntry[] {
+  const entries: EditorFieldErrorSummaryEntry[] = [];
+  for (const name of fieldNamesInOrder) {
+    const text = errors[name];
+    if (typeof text !== "string" || text.length === 0) {
+      continue;
+    }
+    const label = labels[name]?.trim() ? labels[name].trim() : name;
+    entries.push({ name, label, message: text });
+  }
+  return entries;
+}
