@@ -123,6 +123,7 @@ import {
 import { LOC_STATUS_MSG } from "./localeEnabledStatusMessages";
 import { localeLabelWrite, savedLocaleLabel, storedLocaleLabel } from "./localeLabel";
 import { LOC_LABEL_MSG } from "./localeLabelMessages";
+import { LocaleAutoTranslationsSection } from "./LocaleAutoTranslationsSection";
 import { DEV_MSG } from "./messages";
 
 const fieldStyle: React.CSSProperties = {
@@ -5198,6 +5199,13 @@ calendarEditing ||
                 </button>
               )}
             </section>
+          ) : null}
+
+          {!isNew && detail && detail.languageString ? (
+            <LocaleAutoTranslationsSection
+              key={detail.languageString}
+              languageString={detail.languageString}
+            />
           ) : null}
 
           {formatGapList(detail).length > 0 ? (
