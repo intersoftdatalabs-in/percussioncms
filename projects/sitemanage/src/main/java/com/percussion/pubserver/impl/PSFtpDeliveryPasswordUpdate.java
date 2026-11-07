@@ -36,7 +36,7 @@ import org.apache.commons.lang3.StringUtils;
  * properties change. The stored secret is never read into an error message.
  *
  * <p>The {@code info} value is the base64-decoded password (product norm): {@code
- * PSPubServerService#updateFtpPasswordOnly} runs {@code convertPasswordFromBase64} before this
+ * PSPubServerService#updateDeliveryPasswordOnly} runs {@code convertPasswordFromBase64} before this
  * apply, mirroring the full-edit path.
  *
  * <p>{@code PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE} is VARCHAR(255).

@@ -133,7 +133,7 @@ class PSFtpDeliveryPasswordUpdateTest {
     PSPubServer encoded = ftpServer(PASSWORD);
     String encodedPlaceholder =
         Base64.getEncoder().encodeToString(PSPubServerService.PASSWORD_ENTRY.getBytes());
-    // updateFtpPasswordOnly base64-decodes before apply (product norm); simulate that ordering.
+    // updateDeliveryPasswordOnly base64-decodes before apply (product norm); simulate that ordering.
     String decodedPlaceholder = new String(Base64.getDecoder().decode(encodedPlaceholder));
     PSValidationException encodedError =
         assertThrows(
