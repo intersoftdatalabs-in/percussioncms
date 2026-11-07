@@ -5432,18 +5432,19 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       return null;
     }
     for (Object err : errors.values()) {
-      if (err instanceof Throwable t) {
-        if (StringUtils.isNotBlank(t.getMessage())) {
-          return t.getMessage().trim();
-        }
-      } else if (err != null) {
-        String text = err.toString().trim();
-        if (!text.isEmpty()) {
-          return text;
-        }
+      String detail = saveErrorDetail(err);
+      if (StringUtils.isNotBlank(detail)) {
+        return detail.trim();
       }
     }
     return null;
+  }
+
+  private static String saveErrorDetail(Object err) {
+    if (err instanceof Throwable t) {
+      return t.getMessage();
+    }
+    return err != null ? err.toString() : null;
   }
 
   /**
