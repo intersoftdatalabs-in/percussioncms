@@ -17,6 +17,7 @@
 
 package com.percussion.cx.javafx;
 
+import com.percussion.cx.PSContentExplorerUtils;
 import java.awt.Desktop;
 import java.net.MalformedURLException;
 import java.net.URI;
@@ -70,10 +71,10 @@ public class PSBrowserUtils {
    * @throws MalformedURLException if the test URL is invalid
    */
   public static void main(String[] args) throws MalformedURLException {
-    URL url = new URL("http://www.google.com");
+    URL url = PSContentExplorerUtils.toURL("http://www.google.com");
     String pdf =
         "http://localhost:9992/Rhythmyx/assembler/render?sys_revision=2&sys_authtype=0&sys_variantid=533&sys_context=0&sys_folderid=526&sys_siteid=303&sys_contentid=698&sys_command=edit";
-    url = new URL(pdf);
+    url = PSContentExplorerUtils.toURL(pdf);
     openWebpage(url);
   }
 
@@ -85,7 +86,7 @@ public class PSBrowserUtils {
    */
   public static String toStringURL(String str) {
     try {
-      return new URL(str).toExternalForm();
+      return PSContentExplorerUtils.toURL(str).toExternalForm();
     } catch (MalformedURLException exception) {
       return null;
     }
@@ -99,7 +100,7 @@ public class PSBrowserUtils {
    */
   public static URL toURL(String str) {
     try {
-      return new URL(str);
+      return PSContentExplorerUtils.toURL(str);
     } catch (MalformedURLException exception) {
       return null;
     }

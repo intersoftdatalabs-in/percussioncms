@@ -23,6 +23,7 @@ import com.percussion.cx.PSFolderActionManager;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import com.percussion.cx.PSContentExplorerUtils;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -53,7 +54,7 @@ public class PSSiteCataloger {
    */
   private void init() throws PSCmsException {
     try {
-      URL url = new URL(m_urlBase, "sys_pubSites/getSites.xml");
+      URL url = PSContentExplorerUtils.toURL(m_urlBase, "sys_pubSites/getSites.xml");
       Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
 
       fromXml(doc.getDocumentElement());

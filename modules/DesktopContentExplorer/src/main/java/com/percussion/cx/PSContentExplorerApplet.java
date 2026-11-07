@@ -601,7 +601,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
   public void logout() {
     try {
       if (m_httpConnection != null) {
-        URL url = new URL(getRhythmyxCodeBase(), "../logout");
+        URL url = PSContentExplorerUtils.toURL(getRhythmyxCodeBase(), "../logout");
         m_httpConnection.postData(url, new HashMap<String, String>());
       }
     } catch (IOException | PSException e) {
@@ -838,7 +838,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
         if (!codeBase.contains("Rhythmyx")) {
           codeBase = codeBase + "Rhythmyx/";
         }
-        documentBase = new URL(codeBase);
+        documentBase = PSContentExplorerUtils.toURL(codeBase);
       } catch (MalformedURLException e) {
         e.printStackTrace();
       }
@@ -862,7 +862,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
       String proto = documentBase.getProtocol();
       int port = documentBase.getPort();
       try {
-        documentBase = new URL(proto, host, port, "/Rhythmyx/dce/");
+        documentBase = PSContentExplorerUtils.toURL(proto, host, port, "/Rhythmyx/dce/");
       } catch (Exception e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -880,7 +880,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
           (StringUtils.isEmpty(getParameter("port"))) ? -1 : Integer.parseInt(getParameter("port"));
 
       try {
-        documentBase = new URL(proto, host, port, "/Rhythmyx/dce/");
+        documentBase = PSContentExplorerUtils.toURL(proto, host, port, "/Rhythmyx/dce/");
       } catch (Exception e) {
         log.error("invalid document base " + proto + " " + host + " " + port);
       }
@@ -907,7 +907,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
       String proto = documentBase.getProtocol();
       int port = documentBase.getPort();
       try {
-        documentBase = new URL(proto, host, port, "/Rhythmyx/dce/");
+        documentBase = PSContentExplorerUtils.toURL(proto, host, port, "/Rhythmyx/dce/");
       } catch (Exception e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -928,7 +928,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
 
     URL systemLogBase = null;
     try {
-      systemLogBase = new URL(codeBase.substring(0, index) + "sys_logs/");
+      systemLogBase = PSContentExplorerUtils.toURL(codeBase.substring(0, index) + "sys_logs/");
     } catch (MalformedURLException e) {
       // this should never happen
     }
@@ -1879,7 +1879,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
    *     Rhythmyx code base.
    */
   public Icon getIcon(String strUrl) throws MalformedURLException {
-    URL url = new URL(getRhythmyxCodeBase(), strUrl);
+    URL url = PSContentExplorerUtils.toURL(getRhythmyxCodeBase(), strUrl);
 
     Icon cached = m_imgCache.get(url.toString());
     ImageIcon icon = cached instanceof ImageIcon ? (ImageIcon) cached : null;

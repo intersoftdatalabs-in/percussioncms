@@ -2175,7 +2175,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     params.put(IPSHtmlParameters.SYS_CONTENTID, contentIds);
     URL url;
     try {
-      url = new URL(m_applet.getRhythmyxCodeBase(), "../sys_cxSupport/getWfStateIds.xml");
+      url = PSContentExplorerUtils.toURL(m_applet.getRhythmyxCodeBase(), "../sys_cxSupport/getWfStateIds.xml");
       String resultDoc = m_applet.getHttpConnection().postData(url, params);
       Document doc = PSXmlDocumentBuilder.createXmlDocument(new StringReader(resultDoc), false);
       /*
@@ -3705,7 +3705,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         }
         if (launchNewWindow.equalsIgnoreCase(PSContentExplorerConstants.CONST_YES)) {
 
-          URL absUrl = new URL(m_applet.getRhythmyxCodeBase(), actionUrl);
+          URL absUrl = PSContentExplorerUtils.toURL(m_applet.getRhythmyxCodeBase(), actionUrl);
           WindowScript script = null;
           /*
            * It has been observed that some browsers and plugin
@@ -3746,7 +3746,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
         } else {
           Map<String, String> params = new HashMap<>();
           String sUrl = PSContentExplorerUtils.splitUrl(actionUrl, params);
-          URL url = new URL(m_applet.getRhythmyxCodeBase(), sUrl);
+          URL url = PSContentExplorerUtils.toURL(m_applet.getRhythmyxCodeBase(), sUrl);
           try {
             m_applet.getHttpConnection().postData(url, params);
           } catch (Exception e) {
@@ -4373,7 +4373,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     HttpURLConnection connection = null;
     int responseCode = 0;
     try {
-      theUrl = new URL(m_applet.getRhythmyxCodeBase(), strUrl);
+      theUrl = PSContentExplorerUtils.toURL(m_applet.getRhythmyxCodeBase(), strUrl);
       connection = (HttpURLConnection) theUrl.openConnection();
       // Make sure browser doesn't cache this URL.
       connection.setUseCaches(false);
@@ -4422,7 +4422,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
 
     if (paramMap == null) throw new IllegalArgumentException("paramMap must not be null");
 
-    URL url = new URL(m_applet.getRhythmyxCodeBase(), strUrl);
+    URL url = PSContentExplorerUtils.toURL(m_applet.getRhythmyxCodeBase(), strUrl);
 
     return m_applet.getHttpConnection().postData(url, paramMap);
   }
@@ -4451,7 +4451,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     if (XmlString == null || XmlString.length() < 1)
       throw new IllegalArgumentException("XmlString must not be null or empty");
 
-    URL url = new URL(m_applet.getRhythmyxCodeBase(), strUrl);
+    URL url = PSContentExplorerUtils.toURL(m_applet.getRhythmyxCodeBase(), strUrl);
 
     return m_applet.getHttpConnection().postXmlData(url, XmlString);
   }

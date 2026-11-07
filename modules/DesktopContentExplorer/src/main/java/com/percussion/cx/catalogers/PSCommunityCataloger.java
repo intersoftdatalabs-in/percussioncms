@@ -22,6 +22,7 @@ import com.percussion.cms.PSCmsException;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.util.PSXMLDomUtil;
 import com.percussion.xml.PSXmlDocumentBuilder;
+import com.percussion.cx.PSContentExplorerUtils;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -56,7 +57,7 @@ public final class PSCommunityCataloger {
    */
   public PSCommunityCataloger(URL urlBase) throws PSCmsException {
     try {
-      URL url = new URL(urlBase, "sys_cmpCommunities/communities.xml");
+      URL url = PSContentExplorerUtils.toURL(urlBase, "sys_cmpCommunities/communities.xml");
       Document doc = PSXmlDocumentBuilder.createXmlDocument(url.openStream(), false);
       m_collCommunities = parseCommunities(doc.getDocumentElement());
     } catch (Exception e) {

@@ -126,11 +126,11 @@ public class PSCESessionManager implements Runnable {
           extendSession = false;
         }
 
-        URL url = new URL(protocol, server, Integer.parseInt(port), resource);
+        URL url = PSContentExplorerUtils.toURL(protocol, server, Integer.parseInt(port), resource);
 
         PSHttpConnection httpConnection =
             new PSHttpConnection(
-                new URL(protocol, server, Integer.parseInt(port), "/Rhythmyx/sys_resources"),
+                PSContentExplorerUtils.toURL(protocol, server, Integer.parseInt(port), "/Rhythmyx/sys_resources"),
                 loginInfo.getSessionId());
         JSONObject sessionObject = httpConnection.getJSON(url);
 

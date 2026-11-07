@@ -62,7 +62,7 @@ public class PSContentExplorerHelper {
       // String proto = documentBase.getProtocol();
       int port = 9992; // Integer.parseInt(
       // getResources().getString("port"));
-      url = new URL("http", host, port, "/Rhythmyx/sys_resources/AppletJars/");
+      url = PSContentExplorerUtils.toURL("http", host, port, "/Rhythmyx/sys_resources/AppletJars/");
     } catch (MalformedURLException e) {
       e.printStackTrace();
     }

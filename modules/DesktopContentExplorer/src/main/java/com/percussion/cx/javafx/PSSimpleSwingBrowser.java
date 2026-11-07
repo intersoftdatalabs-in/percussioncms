@@ -19,6 +19,7 @@ package com.percussion.cx.javafx;
 
 import static javafx.concurrent.Worker.State.FAILED;
 
+import com.percussion.cx.PSContentExplorerUtils;
 import com.percussion.cx.PSContentExplorerApplication;
 import com.percussion.cx.PSSelection;
 import com.percussion.cx.objectstore.PSMenuAction;
@@ -368,7 +369,7 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
     /** Opens the stored URL in the system browser. */
     public void showFileInBrowser() {
       try {
-        PSBrowserUtils.openWebpage(new URL(urlToShow));
+        PSBrowserUtils.openWebpage(PSContentExplorerUtils.toURL(urlToShow));
       } catch (MalformedURLException e) {
         log.error("Launching Browser Failed", e);
       }
@@ -396,7 +397,7 @@ public class PSSimpleSwingBrowser extends PSDesktopExplorerWindow {
 
   private static String toURL(String str) {
     try {
-      return new URL(str).toExternalForm();
+      return PSContentExplorerUtils.toURL(str).toExternalForm();
     } catch (MalformedURLException exception) {
       return null;
     }
