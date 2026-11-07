@@ -136,6 +136,34 @@
   font-size: 12px;
 }
 
+.fieldErrorSummary {
+  border: 1px solid #fca5a5;
+  background: #fef2f2;
+  color: #991b1b;
+  border-radius: 4px;
+  padding: 8px 12px;
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+
+.fieldErrorSummaryList {
+  margin: 4px 0 0;
+  padding-left: 20px;
+  display: grid;
+  gap: 2px;
+}
+
+.fieldErrorSummaryLink {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+  text-align: left;
+}
+
 .input,
 .textarea {
   width: 100%;

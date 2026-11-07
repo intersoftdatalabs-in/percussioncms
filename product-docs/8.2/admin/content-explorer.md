@@ -298,7 +298,11 @@ React Content Editor sends that revision. If the item was saved again in the
 meantime, the PUT returns HTTP **409** and the host shows **This item was
 saved with a newer revision. Reload and try again.** — 409 is not treated as
 success. Validation errors (empty required fields, HTTP **400**) stay on the
-form as before. Active Assembly field saves that omit `revision` (or send `0`)
+form as before. When the save is blocked with invalid fields, the
+host also shows one error summary above the form listing each invalid field;
+choosing a summary entry moves focus to that field row. HTTP **400** and
+**403** errors the host maps onto named fields appear in that summary too.
+A successful save clears the summary. Active Assembly field saves that omit `revision` (or send `0`)
 are not stale-checked.
 **Check Out** and **Check In** on the editor host call public REST
 `POST /rest/editor/items/{id}/checkout` and `POST /rest/editor/items/{id}/checkin`.

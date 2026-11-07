@@ -57,6 +57,7 @@ import { parsePositiveInt } from "../assembly/assemblyHostUrl";
 import { message } from "../i18n/message";
 import { mergeEditorRows, type EditorFieldRow } from "./controlKinds";
 import {
+  collectFieldErrorSummaryEntries,
   collectInvalidDateFieldErrors,
   collectRequiredFieldErrors,
   firstInvalidEditorFieldName,
@@ -1371,6 +1372,16 @@ export function EditorHost({
     }
     focusInvalidRef.current = errors;
   }
+
+  const fieldErrorSummary = useMemo(
+    () =>
+      collectFieldErrorSummaryEntries(
+        rows.map((row) => row.name),
+        fieldErrors,
+        Object.fromEntries(rows.map((row) => [row.name, row.label])),
+      ),
+    [rows, fieldErrors],
+  );
 
   function setField(name: string, value: string): void {
     if (schemaReadOnlyNames.has(name)) {
@@ -4983,61 +4994,88 @@ export function EditorHost({
                 {message(EDITOR_MSG.EMPTY)}
               </div>
             ) : (
-              <form
-                className={styles.form}
-                data-testid="editor-form"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (canEdit) {
-                    void handleSave();
-                  }
-                }}
-              >
-                {rows.map((row) => (
-                  <label
-                    key={`${row.name}:${discardEpoch}:${
-                      row.kind === "file" || row.kind === "image" ? binaryEpoch : 0
-                    }`}
-                    className={styles.field}
-                    data-testid={`editor-field-row-${row.name}`}
-                    data-required={row.required ? "true" : "false"}
+              <>
+                {fieldErrorSummary.length > 0 ? (
+                  <div
+                    className={styles.fieldErrorSummary}
+                    role="alert"
+                    data-testid="editor-field-error-summary"
                   >
-                    <span className={styles.label}>
-                      {row.label}
-                      {row.required ? (
-                        <span className={styles.requiredMark} aria-hidden="true">
-                          {" "}
-                          *
+                    {message(EDITOR_MSG.FIELD_ERROR_SUMMARY)}
+                    <ul className={styles.fieldErrorSummaryList}>
+                      {fieldErrorSummary.map((entry) => (
+                        <li key={entry.name}>
+                          <button
+                            type="button"
+                            className={styles.fieldErrorSummaryLink}
+                            data-testid={`editor-field-error-summary-${entry.name}`}
+                            onClick={() => {
+                              focusInvalidEditorField(entry.name);
+                            }}
+                          >
+                            {entry.label}: {entry.message}
+                          </button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ) : null}
+                <form
+                  className={styles.form}
+                  data-testid="editor-form"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    if (canEdit) {
+                      void handleSave();
+                    }
+                  }}
+                >
+                  {rows.map((row) => (
+                    <label
+                      key={`${row.name}:${discardEpoch}:${
+                        row.kind === "file" || row.kind === "image" ? binaryEpoch : 0
+                      }`}
+                      className={styles.field}
+                      data-testid={`editor-field-row-${row.name}`}
+                      data-required={row.required ? "true" : "false"}
+                    >
+                      <span className={styles.label}>
+                        {row.label}
+                        {row.required ? (
+                          <span className={styles.requiredMark} aria-hidden="true">
+                            {" "}
+                            *
+                          </span>
+                        ) : null}
+                      </span>
+                      <EditorFieldControl
+                        row={row}
+                        itemId={String(contentId)}
+                        locked={readOnly || !canEdit || row.readOnly}
+                        invalid={Boolean(fieldErrors[row.name])}
+                        htmlEngine={htmlEngine}
+                        onChange={setField}
+                        onFile={setFile}
+                        onClear={markBinaryClear}
+                        loadKeywords={loadKeywords}
+                        onKeywordChoices={reportKeywordChoices}
+                        loadCommunities={loadCommunities}
+                        loadBinaryMeta={loadBinaryMeta}
+                        downloadBinary={downloadBinary}
+                      />
+                      {fieldErrors[row.name] ? (
+                        <span
+                          className={styles.fieldError}
+                          role="alert"
+                          data-testid={`editor-field-error-${row.name}`}
+                        >
+                          {fieldErrors[row.name]}
                         </span>
                       ) : null}
-                    </span>
-                    <EditorFieldControl
-                      row={row}
-                      itemId={String(contentId)}
-                      locked={readOnly || !canEdit || row.readOnly}
-                      invalid={Boolean(fieldErrors[row.name])}
-                      htmlEngine={htmlEngine}
-                      onChange={setField}
-                      onFile={setFile}
-                      onClear={markBinaryClear}
-                      loadKeywords={loadKeywords}
-                      onKeywordChoices={reportKeywordChoices}
-                      loadCommunities={loadCommunities}
-                      loadBinaryMeta={loadBinaryMeta}
-                      downloadBinary={downloadBinary}
-                    />
-                    {fieldErrors[row.name] ? (
-                      <span
-                        className={styles.fieldError}
-                        role="alert"
-                        data-testid={`editor-field-error-${row.name}`}
-                      >
-                        {fieldErrors[row.name]}
-                      </span>
-                    ) : null}
-                  </label>
-                ))}
-              </form>
+                    </label>
+                  ))}
+                </form>
+              </>
             )}
           </>
         )}

@@ -40,6 +40,8 @@ export const EDITOR_MSG = {
     "perc.ui.editor@Correct invalid dates before saving.",
   REQUIRED_SAVE:
     "perc.ui.editor@Fill in the required fields before saving.",
+  FIELD_ERROR_SUMMARY:
+    "perc.ui.editor@Correct the fields listed below, then save again.",
   REQUIRED_CHECKIN:
     "perc.ui.editor@Fill in the required fields before checking in.",
   CHECKIN: "perc.ui.editor@Check In",
