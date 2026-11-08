@@ -380,9 +380,11 @@ public class PSPubServerService implements IPSPubServerService {
       }
       // Host-only PUT must not run the full property replace (that clears port, user,
       // folder, and password) and must not decode a password that is not in the body.
-      // FTP and SFTP share this body shape; the stored driver selects FTP vs SFTP apply.
+      // FTP, SFTP, and FTPS share this body shape; the stored driver selects FTP vs SFTP
+      // vs FTPS apply.
       if (PSFtpDeliveryHostUpdate.isHostOnly(pubServerInfo)
-          || PSSftpDeliveryHostUpdate.isHostOnly(pubServerInfo)) {
+          || PSSftpDeliveryHostUpdate.isHostOnly(pubServerInfo)
+          || PSFtpsDeliveryHostUpdate.isHostOnly(pubServerInfo)) {
         return updateDeliveryHostOnly(siteId, serverId, pubServerInfo);
       }
       // Host-only database PUT must not run the full property replace (that clears port,
@@ -678,9 +680,10 @@ public class PSPubServerService implements IPSPubServerService {
 
   /**
    * Save only the {@code serverip} property. Does not rename the server or replace the
-   * property set. SFTP servers use {@link PSSftpDeliveryHostUpdate}; other drivers use {@link
-   * PSFtpDeliveryHostUpdate} (FTP-only; Local/FTPS/SFTP throw before {@code savePubServer}).
-   * Blank, overlong, and wrong-driver bodies throw before {@code savePubServer}.
+   * property set. FTPS servers use {@link PSFtpsDeliveryHostUpdate}; SFTP servers use {@link
+   * PSSftpDeliveryHostUpdate}; other drivers use {@link PSFtpDeliveryHostUpdate} (FTP-only;
+   * Local/SFTP throw before {@code savePubServer}). Blank, overlong, and wrong-driver bodies
+   * throw before {@code savePubServer}.
    */
   private PSPublishServerInfo updateDeliveryHostOnly(
       String siteId, String serverId, PSPublishServerInfo pubServerInfo)
@@ -698,7 +701,9 @@ public class PSPubServerService implements IPSPubServerService {
           "The server you are trying to act on no longer exists in the system.");
     }
     String driver = server.getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY).orElse("");
-    if ("SFTP".equalsIgnoreCase(driver)) {
+    if ("FTPS".equalsIgnoreCase(driver)) {
+      PSFtpsDeliveryHostUpdate.apply(server, pubServerInfo);
+    } else if ("SFTP".equalsIgnoreCase(driver)) {
       PSSftpDeliveryHostUpdate.apply(server, pubServerInfo);
     } else {
       PSFtpDeliveryHostUpdate.apply(server, pubServerInfo);
