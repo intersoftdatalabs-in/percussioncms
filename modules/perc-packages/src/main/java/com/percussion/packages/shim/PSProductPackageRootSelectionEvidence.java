@@ -44,10 +44,15 @@ import java.util.stream.Collectors;
  * {@code LEGACY_*} on a non-waived product widget fails the harness. {@code perc.Test} may still
  * select {@link PSDefinitionSourceKind#LEGACY_WIDGET_XML} while it remains on the Widget G4 waive
  * list; after that waiver is dropped (#3736) it must be modern-first like other product packages.
- * The shim itself is <strong>kept</strong> (#2852).
+ * The dual-run fallback itself is <strong>retired</strong> (#2852): selection is modern-only, so
+ * {@code LEGACY_*} can no longer be produced — a root with only retired legacy XML resolves to a
+ * {@code null} kind (unresolvable), never to a legacy kind. Ship-path reappearance of product
+ * definition XML remains guarded by the G4 file-presence inventories ({@code
+ * PSWidgetDefinitionXmlInventory} / {@code PSPageDefinitionXmlInventory} /
+ * {@code PSGadgetDefinitionXmlInventory}).
  *
- * <p>This is <em>not</em> M2 PASS overall: customer-only XML and the open upgrade window (M3)
- * still require the dual-run fallback. Do not treat a green scan as removal-ready.
+ * <p>M2 live-telemetry remainder rides with QA tracking (#5808) per owner directives 2026-11-08;
+ * a green scan here is modern-only conformance evidence, not live-load telemetry.
  *
  * <p>Uses {@link Path} / {@link Files} only (Windows / Linux / macOS).
  */
@@ -83,7 +88,8 @@ public final class PSProductPackageRootSelectionEvidence {
    *
    * @param packageDirName immediate child name under the Packages (or Modern) root
    * @param packageRoot absolute normalized package directory
-   * @param kind selected kind, or {@code null} when neither modern nor legacy material is found
+   * @param kind selected kind, or {@code null} when no modern material is found (including
+   *     retired-legacy-only roots, which no longer select)
    * @param wouldUseLegacyShim {@code true} when selection is a legacy XML kind
    * @param waived whether {@code packageDirName} is on the explicit waiver list
    */
@@ -106,7 +112,8 @@ public final class PSProductPackageRootSelectionEvidence {
    * One definition-id selection against modern roots + optional install Widgets XML.
    *
    * @param definitionId widget definition id
-   * @param kind selected kind, or {@code null} when neither source exists
+   * @param kind selected kind, or {@code null} when no modern source exists (including
+   *     retired-legacy-only ids, which no longer select)
    * @param waived whether this id is from a waived package ({@code perc.Test} until #3736)
    */
   public record DefinitionFinding(
@@ -227,8 +234,9 @@ public final class PSProductPackageRootSelectionEvidence {
   }
 
   /**
-   * Dual-run {@link PSLegacyDefinitionXmlShim#selectDefinition} for each id against modern roots
-   * and optional install Widgets XML (H2/runtime shape).
+   * Modern-only {@link PSLegacyDefinitionXmlShim#selectDefinition} for each id against modern roots
+   * and optional install Widgets XML (H2/runtime shape, #2852). Ids without a modern manifest
+   * resolve to a {@code null} kind (unresolvable) — retired legacy XML is never selected.
    *
    * @param modernPackageRoots modern package roots (may be empty)
    * @param legacyWidgetsDir install {@code rxconfig/Widgets} (may be {@code null})
@@ -545,7 +553,7 @@ public final class PSProductPackageRootSelectionEvidence {
       System.exit(1);
     }
     System.out.println(
-        "M2 product/H2 roots PASS: zero non-waived LEGACY_* (shim kept; M3 still FAIL)");
+        "M2 product/H2 roots PASS: zero non-waived LEGACY_* (modern-only selection, #2852)");
   }
 
   private static RootFinding classifyPackageRoot(Path packageDir, String packageDirName)
@@ -624,7 +632,7 @@ public final class PSProductPackageRootSelectionEvidence {
             + where
             + " (only waived package dirs: "
             + PSWidgetDefinitionXmlInventory.WAIVED_PACKAGE_DIRS
-            + "; shim kept, #2852 blocked):"
+            + "; modern-only selection retired the LEGACY_* path (#2852)):"
             + detail);
   }
 

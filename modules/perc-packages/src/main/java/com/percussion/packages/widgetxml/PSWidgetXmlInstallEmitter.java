@@ -42,8 +42,8 @@ import java.util.Objects;
  * descriptors (#3582 / #3736). This emitter re-injects those archive entries on the staging copy.
  *
  * <p>Policy: materialize only when modern widget packages are present <em>and</em> the package has
- * no committed install Widget XML. Keep {@code PSLegacyDefinitionXmlShim} and upgrade-input
- * compilers.
+ * no committed install Widget XML. Upgrade-input compilers are kept; the dual-run legacy
+ * selection fallback is retired (#2852).
  *
  * @see PSWidgetXmlDualShip
  * @see PSWidgetXmlPackageCompiler

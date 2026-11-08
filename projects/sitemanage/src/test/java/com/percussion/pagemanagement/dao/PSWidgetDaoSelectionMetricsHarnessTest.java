@@ -18,9 +18,12 @@
 package com.percussion.pagemanagement.dao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.packages.shim.PSDefinitionSourceKind;
+import com.percussion.packages.shim.PSDefinitionSourceNotFoundException;
 import com.percussion.packages.shim.PSLegacyDefinitionXmlShim;
 import com.percussion.pagemanagement.dao.impl.PSWidgetDao;
 import java.nio.charset.StandardCharsets;
@@ -33,11 +36,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * CI-assertable dual-run selection <strong>metrics evidence harness</strong> for {@link
- * PSWidgetDao} (#3131 / parent #2630).
+ * CI-assertable modern-only selection <strong>metrics evidence harness</strong> for {@link
+ * PSWidgetDao} (#3131 / #2852 / parent #2632).
  *
- * <p>Builds on #3024 selection kinds: drives modern and legacy paths and asserts cumulative
- * counters, snapshot map, and ops summary string — so M2 evidence is not only INFO logs.
+ * <p>Drives the modern path and asserts cumulative counters, snapshot map, and ops summary string
+ * — so M2 evidence is not only INFO logs. Legacy counters/keys are retained for dashboard
+ * compatibility and must read {@code 0}; retired-legacy ids fail clearly instead of counting.
  */
 class PSWidgetDaoSelectionMetricsHarnessTest {
 
@@ -67,26 +71,28 @@ class PSWidgetDaoSelectionMetricsHarnessTest {
   }
 
   @Test
-  void selectDefinitionSource_incrementsModernAndLegacyCountersIndependently() throws Exception {
+  void selectDefinitionSource_modernCountsLegacyStaysZeroAndRetiredThrows() throws Exception {
     String modernId = "percSimpleText";
-    String legacyId = "customerOnlyXml";
+    String retiredId = "customerOnlyXml";
     writeWidgetXml(modernId);
-    writeWidgetXml(legacyId);
+    writeWidgetXml(retiredId);
     Path modernRoot = writeModernPackageRoot(modernId);
 
     dao.setModernPackageRoots(List.of(modernRoot));
 
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE,
         dao.selectDefinitionSource(modernId).getKind());
-    assertEquals(PSDefinitionSourceKind.LEGACY_WIDGET_XML,
-        dao.selectDefinitionSource(legacyId).getKind());
+    // Retired legacy XML is never selected — clear error, no legacy count.
+    assertThrows(
+        PSDefinitionSourceNotFoundException.class,
+        () -> dao.selectDefinitionSource(retiredId));
     // Second modern select accumulates
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE,
         dao.selectDefinitionSource(modernId).getKind());
 
     assertEquals(2L, dao.getModernSelectionCount());
-    assertEquals(1L, dao.getLegacySelectionCount());
-    assertEquals(3L, dao.getTotalSelectionCount());
+    assertEquals(0L, dao.getLegacySelectionCount());
+    assertEquals(2L, dao.getTotalSelectionCount());
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, dao.getLastSelectionKind());
   }
 
@@ -101,43 +107,49 @@ class PSWidgetDaoSelectionMetricsHarnessTest {
 
     Map<String, PSDefinitionSourceKind> kinds = dao.getSelectionKindsById();
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, kinds.get("wModern"));
-    assertEquals(PSDefinitionSourceKind.LEGACY_WIDGET_XML, kinds.get("wLegacy"));
+    // Retired-legacy id stays unclassified under modern-only selection.
+    assertFalse(kinds.containsKey("wLegacy"), "retired id must not be classified: " + kinds);
     assertEquals(1L, dao.getModernSelectionCount());
-    assertEquals(1L, dao.getLegacySelectionCount());
-    assertEquals(2L, dao.getTotalSelectionCount());
+    assertEquals(0L, dao.getLegacySelectionCount());
+    assertEquals(1L, dao.getTotalSelectionCount());
 
     // Direct selects accumulate independently of poll (poll may no-op when files unchanged).
     dao.selectDefinitionSource("wModern");
-    dao.selectDefinitionSource("wLegacy");
+    assertThrows(
+        PSDefinitionSourceNotFoundException.class,
+        () -> dao.selectDefinitionSource("wLegacy"));
     assertEquals(2L, dao.getModernSelectionCount());
-    assertEquals(2L, dao.getLegacySelectionCount());
-    assertEquals(4L, dao.getTotalSelectionCount());
+    assertEquals(0L, dao.getLegacySelectionCount());
+    assertEquals(2L, dao.getTotalSelectionCount());
   }
 
   @Test
   void snapshotAndSummary_exposeModernLegacyTotalAndLastKind() throws Exception {
-    writeWidgetXml("snapLegacy");
-    dao.setModernPackageRoots(List.of());
-    dao.selectDefinitionSource("snapLegacy");
+    writeWidgetXml("snapModern");
+    Path modernRoot = writeModernPackageRoot("snapModern");
+    dao.setModernPackageRoots(List.of(modernRoot));
+    dao.selectDefinitionSource("snapModern");
 
     Map<String, Long> snap = dao.getSelectionMetricsSnapshot();
-    assertEquals(0L, snap.get("modern"));
-    assertEquals(1L, snap.get("legacyWidgetXml"));
+    assertEquals(1L, snap.get("modern"));
+    assertEquals(0L, snap.get("legacyWidgetXml"));
     assertEquals(1L, snap.get("total"));
 
     String summary = dao.formatSelectionMetricsSummary();
-    assertTrue(summary.contains("modern=0"), summary);
-    assertTrue(summary.contains("legacyWidgetXml=1"), summary);
+    assertTrue(summary.contains("modern=1"), summary);
+    assertTrue(summary.contains("legacyWidgetXml=0"), summary);
     assertTrue(summary.contains("total=1"), summary);
-    assertTrue(summary.contains("lastKind=LEGACY_WIDGET_XML"), summary);
+    assertTrue(summary.contains("lastKind=MODERN_COMPONENT_PACKAGE"), summary);
   }
 
   @Test
   void resetSelectionMetrics_clearsCountersAndLastKind() throws Exception {
     writeWidgetXml("resetMe");
+    Path modernRoot = writeModernPackageRoot("resetMe");
+    dao.setModernPackageRoots(List.of(modernRoot));
     dao.selectDefinitionSource("resetMe");
-    assertEquals(1L, dao.getLegacySelectionCount());
-    assertEquals(PSDefinitionSourceKind.LEGACY_WIDGET_XML, dao.getLastSelectionKind());
+    assertEquals(1L, dao.getModernSelectionCount());
+    assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, dao.getLastSelectionKind());
 
     dao.resetSelectionMetrics();
 

@@ -39,13 +39,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
 /**
- * Behavioral tests for {@link PSWidgetDao} dual-run modern-first selection (#3024 / #3130 / parent
- * #2630).
+ * Behavioral tests for {@link PSWidgetDao} modern-only selection (#2852 / parent #2632; dual-run
+ * retired).
  *
- * <p>Policy via {@link PSLegacyDefinitionXmlShim}: modern component package preferred; legacy
- * Widgets XML fallback; neither → clear {@link PSDefinitionSourceNotFoundException} (no silent
- * invent). Selection kinds are test-visible on the DAO. Product defaults under {@link
- * PSModernPackageRootDefaults#RELATIVE_MODERN_ROOTS_DIR} apply when the Spring property is blank.
+ * <p>Policy via {@link PSLegacyDefinitionXmlShim}: modern component package required; retired
+ * legacy Widgets XML is never selected — modern-absent fails with a clear {@link
+ * PSDefinitionSourceNotFoundException} (no silent invent). Selection kinds are test-visible on the
+ * DAO. Product defaults under {@link PSModernPackageRootDefaults#RELATIVE_MODERN_ROOTS_DIR} apply
+ * when the Spring property is blank.
  */
 class PSWidgetDaoTest {
 
@@ -95,17 +96,22 @@ class PSWidgetDaoTest {
   }
 
   @Test
-  void selectDefinitionSource_fallsBackToLegacyWidgetXmlWhenModernAbsent() throws Exception {
+  void selectDefinitionSource_modernAbsentThrowsRetiredErrorEvenWhenXmlPresent()
+      throws Exception {
     String id = "percRawHtml";
-    Path xml = writeWidgetXml(id);
+    writeWidgetXml(id);
 
     dao.setModernPackageRoots(List.of());
 
-    PSDefinitionSourceSelection selection = dao.selectDefinitionSource(id);
-    assertEquals(PSDefinitionSourceKind.LEGACY_WIDGET_XML, selection.getKind());
-    assertTrue(selection.isLegacyXml());
-    assertEquals(PSDefinitionSourceKind.LEGACY_WIDGET_XML, dao.getLastSelectionKind());
-    assertEquals(xml.toAbsolutePath().normalize(), selection.getPrimaryPath().orElseThrow());
+    // Modern-only (#2852): retired legacy XML is never selected.
+    PSDefinitionSourceNotFoundException ex =
+        assertThrows(
+            PSDefinitionSourceNotFoundException.class, () -> dao.selectDefinitionSource(id));
+    assertEquals(id, ex.getDefinitionId());
+    String msg = ex.getMessage();
+    assertTrue(msg.contains("retired"), msg);
+    assertTrue(msg.contains("percRawHtml.xml"), msg);
+    assertEquals(0L, dao.getLegacySelectionCount());
   }
 
   @Test
@@ -152,17 +158,19 @@ class PSWidgetDaoTest {
   }
 
   @Test
-  void pollRecordsSelectionKinds_legacyWhenOnlyXml() throws Exception {
+  void pollRecordsSelectionKinds_unclassifiedWhenOnlyRetiredXml() throws Exception {
     String id = "customCustomerWidget";
     writeWidgetXml(id);
 
     dao.setModernPackageRoots(List.of());
     dao.poll();
 
+    // Install wire content still loads; modern-only selection leaves the id unclassified
+    // (no legacy fallback) with a clear warn in the log.
     assertNotNull(dao.find(id));
-    MapAssert.assertKind(
-        dao.getSelectionKindsById(), id, PSDefinitionSourceKind.LEGACY_WIDGET_XML);
-    assertEquals(PSDefinitionSourceKind.LEGACY_WIDGET_XML, dao.getLastSelectionKind());
+    assertFalse(dao.getSelectionKindsById().containsKey(id));
+    assertEquals(0L, dao.getModernSelectionCount());
+    assertEquals(0L, dao.getLegacySelectionCount());
   }
 
   @Test
@@ -217,7 +225,7 @@ class PSWidgetDaoTest {
   }
 
   @Test
-  void productDefaults_modernAbsent_fallsBackToLegacyWidgetXml() throws Exception {
+  void productDefaults_modernAbsent_throwsRetiredError() throws Exception {
     PSWidgetDao defaultingDao = new PSWidgetDao();
     defaultingDao.setRepositoryDirectory(widgetsDir.toString());
 
@@ -225,19 +233,21 @@ class PSWidgetDaoTest {
     writeWidgetXml(id);
 
     // Blank property + empty install: classpath materialize may seed Packages/Modern for product
-    // packages, but a customer-only id still has no modern root → LEGACY_WIDGET_XML.
+    // packages, but a customer-only id still has no modern root → retired error (#2852).
     Path emptyRx = tempDir.resolve("emptyRx");
     Files.createDirectories(emptyRx);
     defaultingDao.setModernPackageRootsProperty("");
     defaultingDao.setRxDeployDir(emptyRx.toString());
 
-    assertEquals(
-        PSDefinitionSourceKind.LEGACY_WIDGET_XML,
-        defaultingDao.selectDefinitionSource(id).getKind());
+    PSDefinitionSourceNotFoundException ex =
+        assertThrows(
+            PSDefinitionSourceNotFoundException.class,
+            () -> defaultingDao.selectDefinitionSource(id));
+    assertTrue(ex.getMessage().contains("retired"), ex.getMessage());
   }
 
   @Test
-  void productDefaults_blankPropertyWithoutRxDir_legacyOnlyUntilRxConfigured() throws Exception {
+  void productDefaults_blankPropertyWithoutRxDir_throwsUntilRxConfigured() throws Exception {
     PSWidgetDao defaultingDao = new PSWidgetDao();
     defaultingDao.setRepositoryDirectory(widgetsDir.toString());
     defaultingDao.setModernPackageRootsProperty("");
@@ -246,9 +256,9 @@ class PSWidgetDaoTest {
 
     String id = "preRxLegacy";
     writeWidgetXml(id);
-    assertEquals(
-        PSDefinitionSourceKind.LEGACY_WIDGET_XML,
-        defaultingDao.selectDefinitionSource(id).getKind());
+    assertThrows(
+        PSDefinitionSourceNotFoundException.class,
+        () -> defaultingDao.selectDefinitionSource(id));
   }
 
   @Test

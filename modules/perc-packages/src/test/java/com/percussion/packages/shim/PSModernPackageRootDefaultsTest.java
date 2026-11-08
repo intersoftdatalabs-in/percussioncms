@@ -112,7 +112,8 @@ class PSModernPackageRootDefaultsTest {
   }
 
   @Test
-  void resolve_blankProperty_modernAbsent_returnsEmpty_legacyStillWorks() throws Exception {
+  void resolve_blankProperty_modernAbsent_returnsEmpty_modernOnlyThrowsRetiredError()
+      throws Exception {
     Path rx = tempDir.resolve("rxEmpty");
     Files.createDirectories(rx);
 
@@ -124,11 +125,15 @@ class PSModernPackageRootDefaultsTest {
     Path xml = widgets.resolve("customerOnly.xml");
     Files.writeString(xml, "<Widget/>", StandardCharsets.UTF_8);
 
-    PSDefinitionSourceSelection selection =
-        PSLegacyDefinitionXmlShim.selectDefinition(
-            "customerOnly", roots, widgets, null, null);
-    assertEquals(PSDefinitionSourceKind.LEGACY_WIDGET_XML, selection.getKind());
-    assertFalse(selection.isModern());
+    // Modern-only (#2852): retired legacy XML is never selected, even when present.
+    PSDefinitionSourceNotFoundException ex =
+        assertThrows(
+            PSDefinitionSourceNotFoundException.class,
+            () ->
+                PSLegacyDefinitionXmlShim.selectDefinition(
+                    "customerOnly", roots, widgets, null, null));
+    assertEquals("customerOnly", ex.getDefinitionId());
+    assertTrue(ex.getMessage().contains("retired"), ex.getMessage());
   }
 
   @Test

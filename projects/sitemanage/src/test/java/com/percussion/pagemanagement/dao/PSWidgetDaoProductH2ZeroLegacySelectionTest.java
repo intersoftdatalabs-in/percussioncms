@@ -19,9 +19,11 @@ package com.percussion.pagemanagement.dao;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.packages.shim.PSDefinitionSourceKind;
+import com.percussion.packages.shim.PSDefinitionSourceNotFoundException;
 import com.percussion.packages.shim.PSProductPackageRootSelectionEvidence;
 import com.percussion.pagemanagement.dao.impl.PSWidgetDao;
 import java.nio.charset.StandardCharsets;
@@ -35,11 +37,9 @@ import org.junit.jupiter.api.io.TempDir;
 /**
  * Runtime H2-shape M2 evidence: {@link PSWidgetDao} with blank {@code
  * widgetDao.modernPackageRoots} + product classpath materialize must select {@link
- * PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE} for every non-waived product widget (#3583 /
- * #3738 / parent #2630). Unexpected {@code LEGACY_WIDGET_XML} fails the harness. {@code perc.Test}
- * / {@code PSWidget_TestProperties} may remain legacy while the Widget G4 waive list is {@code
- * perc.Test} only; after that waiver is dropped (#3736) it must be modern-first. Customer-only XML
- * still selects legacy — the shim stays (#2852). Not M2 PASS overall (M3 still FAIL).
+ * PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE} for every product widget (#3583 / #3738 /
+ * #2852 / parent #2632). Retired-legacy ids without a modern manifest fail clearly instead of
+ * selecting legacy; legacy counters stay {@code 0}.
  */
 class PSWidgetDaoProductH2ZeroLegacySelectionTest {
 
@@ -57,7 +57,7 @@ class PSWidgetDaoProductH2ZeroLegacySelectionTest {
   @TempDir Path tempDir;
 
   @Test
-  void h2DefaultRoots_productWidgetsSelectModern_customerOnlyStaysLegacy() throws Exception {
+  void h2DefaultRoots_productWidgetsSelectModern_customerOnlyUnresolvable() throws Exception {
     Path widgetsDir = tempDir.resolve("rxconfig").resolve("Widgets");
     Files.createDirectories(widgetsDir);
 
@@ -115,27 +115,29 @@ class PSWidgetDaoProductH2ZeroLegacySelectionTest {
         productIds,
         PSProductPackageRootSelectionEvidence.currentWaivedDefinitionIds());
 
-    assertEquals(
-        PSDefinitionSourceKind.LEGACY_WIDGET_XML,
-        dao.selectDefinitionSource("customerOnlyXml").getKind(),
-        "customer-only XML must still select LEGACY_WIDGET_XML (shim kept)");
+    // Modern-only (#2852): a customer-only id with no modern manifest fails clearly
+    // instead of selecting LEGACY_WIDGET_XML.
+    PSDefinitionSourceNotFoundException customerEx =
+        assertThrows(
+            PSDefinitionSourceNotFoundException.class,
+            () -> dao.selectDefinitionSource("customerOnlyXml"));
+    assertTrue(customerEx.getMessage().contains("retired"), customerEx.getMessage());
 
-    long expectedLegacy = 1L;
     if (!percTestOnModernRoots) {
-      assertEquals(
-          PSDefinitionSourceKind.LEGACY_WIDGET_XML,
-          dao.selectDefinitionSource(PSProductPackageRootSelectionEvidence.PERC_TEST_WIDGET_STEM)
-              .getKind(),
-          "waived perc.Test widget may remain LEGACY_WIDGET_XML until #3736");
-      expectedLegacy = 2L;
+      // Waived perc.Test without a modern root is likewise unresolvable (never legacy).
+      assertThrows(
+          PSDefinitionSourceNotFoundException.class,
+          () ->
+              dao.selectDefinitionSource(
+                  PSProductPackageRootSelectionEvidence.PERC_TEST_WIDGET_STEM));
     }
 
     assertEquals(productIds.size(), dao.getModernSelectionCount());
-    assertEquals(expectedLegacy, dao.getLegacySelectionCount(), dao.formatSelectionMetricsSummary());
+    assertEquals(0L, dao.getLegacySelectionCount(), dao.formatSelectionMetricsSummary());
     assertEquals(0L, unexpectedLegacy.size());
 
     String summary = dao.formatSelectionMetricsSummary();
-    assertTrue(summary.contains("legacyWidgetXml=" + expectedLegacy), summary);
+    assertTrue(summary.contains("legacyWidgetXml=0"), summary);
     assertTrue(summary.contains("modern=" + productIds.size()), summary);
   }
 

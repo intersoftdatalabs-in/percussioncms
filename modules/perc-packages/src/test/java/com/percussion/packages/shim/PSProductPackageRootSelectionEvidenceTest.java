@@ -39,10 +39,10 @@ import org.junit.jupiter.api.io.TempDir;
  *
  * <p>Asserts product package roots and H2-style {@code Packages/Modern} trees select modern-first
  * ({@code wouldUseLegacyShim == false} / {@link PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE}).
- * Fails on unexpected {@code LEGACY_*} for non-waived widgets. {@code perc.Test} may still select
- * {@link PSDefinitionSourceKind#LEGACY_WIDGET_XML} while the Widget G4 waive list is {@code
- * perc.Test} only; after that waiver is dropped (#3736) it must be modern-first. Customer-only ids
- * may still select legacy — the shim stays (#2852). This is not M2 PASS overall (M3 still FAIL).
+ * Fails on unexpected {@code LEGACY_*} for non-waived widgets. {@code perc.Test} must be
+ * modern-first now that the Widget G4 waive list is empty (#3736). Customer-only ids without a
+ * modern manifest resolve to a {@code null} kind (unresolvable) — the legacy fallback is retired
+ * (#2852), so retired customer XML is never selected.
  *
  * <p>Cross-platform: {@link Path} / {@link Files} only.
  */
@@ -208,7 +208,8 @@ class PSProductPackageRootSelectionEvidenceTest {
           "<Widget id=\"" + id + "\"/>",
           StandardCharsets.UTF_8);
     }
-    // Customer-only install XML must still select LEGACY (shim kept).
+    // Customer-only install XML without a modern manifest is unresolvable under modern-only
+    // selection (#2852): null kind, never a legacy selection.
     Files.writeString(
         widgetsDir.resolve("customerOnlyXml.xml"),
         "<Widget id=\"customerOnlyXml\"/>",
@@ -221,15 +222,15 @@ class PSProductPackageRootSelectionEvidenceTest {
         PSProductPackageRootSelectionEvidence.scanDefinitionSelection(
             roots, widgetsDir, List.of("customerOnlyXml"), Set.of());
     assertEquals(1, defs.definitions().size());
-    assertEquals(
-        PSDefinitionSourceKind.LEGACY_WIDGET_XML, defs.definitions().get(0).kind());
-    assertTrue(defs.definitions().get(0).isUnexpectedLegacy());
-    // Customer-only is not a product widget — harness fails only when the caller
-    // includes it as a non-waived product id. Product scan above excluded it.
+    assertEquals(null, defs.definitions().get(0).kind());
+    assertFalse(defs.definitions().get(0).isUnexpectedLegacy());
+    assertTrue(defs.isClean());
+    // Customer-only is not a product widget — the harness records it as unresolvable (null kind),
+    // not as unexpected legacy. Product scan above excluded it.
   }
 
   @Test
-  void tempTree_dummyNonWaivedLegacyOnly_failsGate() throws Exception {
+  void tempTree_nonWaivedLegacyOnly_resolvesToNullKindModernOnly() throws Exception {
     Path packages = tempDir.resolve("Packages");
     Path widgets =
         packages
@@ -239,24 +240,21 @@ class PSProductPackageRootSelectionEvidenceTest {
     Files.createDirectories(widgets);
     Files.writeString(widgets.resolve("percSimpleText.xml"), "<Widget/>", StandardCharsets.UTF_8);
 
+    // Modern-only selection (#2852) cannot resolve a legacy-only root: null kind, never legacy.
+    // Ship-path reappearance of product definition XML remains guarded by the G4 file-presence
+    // inventory (PSWidgetDefinitionXmlInventory), not by selection kind.
     PSProductPackageRootSelectionEvidence.Report report =
         PSProductPackageRootSelectionEvidence.scanWidgetPackageRoots(packages);
-    assertFalse(report.isClean());
-    assertEquals(1, report.unexpectedLegacyRoots().size());
-    assertEquals("perc.baseWidgets", report.unexpectedLegacyRoots().get(0).packageDirName());
-    assertEquals(
-        PSDefinitionSourceKind.LEGACY_WIDGET_XML, report.unexpectedLegacyRoots().get(0).kind());
-    assertTrue(report.unexpectedLegacyRoots().get(0).wouldUseLegacyShim());
+    assertEquals(1, report.roots().size());
+    assertEquals(null, report.roots().get(0).kind());
+    assertFalse(report.roots().get(0).wouldUseLegacyShim());
+    assertTrue(report.isClean());
+    assertEquals(0, report.unexpectedLegacyRoots().size());
+    assertEquals("perc.baseWidgets", report.roots().get(0).packageDirName());
 
-    IllegalStateException err =
-        assertThrows(
-            IllegalStateException.class,
-            () ->
-                PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyOnWidgetPackageRoots(
-                    packages));
-    assertTrue(err.getMessage().contains("#3583") || err.getMessage().contains("#3738"));
-    assertTrue(err.getMessage().contains("perc.baseWidgets"));
-    assertTrue(err.getMessage().contains("LEGACY"));
+    // No LEGACY_* is selectable anymore, so the selection gate passes; the failure surface for
+    // retired XML is the modern-only not-found error, asserted at the shim level.
+    PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyOnWidgetPackageRoots(packages);
   }
 
   @Test
@@ -279,25 +277,23 @@ class PSProductPackageRootSelectionEvidenceTest {
     assertEquals(
         PSProductPackageRootSelectionEvidence.PERC_TEST_PACKAGE_DIR,
         report.roots().get(0).packageDirName());
-    assertTrue(report.roots().get(0).wouldUseLegacyShim());
+    // Modern-only (#2852): a legacy-only root resolves to null kind, never legacy.
+    assertEquals(null, report.roots().get(0).kind());
+    assertFalse(report.roots().get(0).wouldUseLegacyShim());
+    assertEquals(0, report.waivedLegacyRootCount());
+    assertTrue(report.isClean());
     if (PSProductPackageRootSelectionEvidence.isPercTestWidgetWaiverDropped()) {
-      assertFalse(report.isClean());
       assertFalse(report.roots().get(0).waived());
-      assertEquals(0, report.waivedLegacyRootCount());
-      assertThrows(
-          IllegalStateException.class,
-          () ->
-              PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyOnWidgetPackageRoots(
-                  packages));
+      PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyOnWidgetPackageRoots(packages);
+      // perc.Test legacy-only root is not modern-first, so the waiver-match assertion still
+      // requires the modern root (covered by tempTree_percTestModernRoot_matchesCurrentWaiver).
       assertThrows(
           IllegalStateException.class,
           () ->
               PSProductPackageRootSelectionEvidence.assertPercTestSelectionMatchesWaiver(
                   report, true));
     } else {
-      assertTrue(report.isClean());
       assertTrue(report.roots().get(0).waived());
-      assertEquals(1, report.waivedLegacyRootCount());
       PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyOnWidgetPackageRoots(packages);
       PSProductPackageRootSelectionEvidence.assertPercTestSelectionMatchesWaiver(report, true);
     }
@@ -387,7 +383,7 @@ class PSProductPackageRootSelectionEvidenceTest {
   }
 
   @Test
-  void scanDefinitionSelection_waivedIdMayBeLegacy() {
+  void scanDefinitionSelection_waivedLegacyOnlyIdResolvesNullKindButStaysClean() {
     Path widgets = tempDir.resolve("Widgets");
     try {
       Files.createDirectories(widgets);
@@ -403,7 +399,9 @@ class PSProductPackageRootSelectionEvidenceTest {
             List.of("PSWidget_TestProperties"),
             Set.of("PSWidget_TestProperties"));
     assertTrue(report.isClean());
-    assertEquals(PSDefinitionSourceKind.LEGACY_WIDGET_XML, report.definitions().get(0).kind());
+    // Modern-only (#2852): even a waived id without a modern manifest is unresolvable (null
+    // kind) — retired legacy XML is never selected.
+    assertEquals(null, report.definitions().get(0).kind());
     assertFalse(report.definitions().get(0).isUnexpectedLegacy());
   }
 
