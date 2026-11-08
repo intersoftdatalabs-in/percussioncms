@@ -33,6 +33,9 @@ describe("EditorHost leave a schema read-only field unchanged (#5345)", () => {
   function readOnlyHost(opts: {
     saveFields?: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
     title?: string;
+    // Shared holder so the post-save reload (#5768) serves the last-saved
+    // title instead of a stale fixture copy.
+    titleRef?: { current: string };
     readOnlyValue?: string;
     confirmLeaveUnsaved?: (message: string) => boolean;
   }) {
@@ -48,7 +51,7 @@ describe("EditorHost leave a schema read-only field unchanged (#5345)", () => {
           checkoutUser: "admin",
           revision: 3,
           fields: [
-            { name: "sys_title", value: title },
+            { name: "sys_title", value: opts.titleRef ? opts.titleRef.current : title },
             { name: "displaytitle", value: readOnlyValue },
           ],
         })}
@@ -95,10 +98,12 @@ describe("EditorHost leave a schema read-only field unchanged (#5345)", () => {
   }
 
   it("does not edit a schema read-only field and omits it from the fields PUT", async () => {
-    let title = "Home";
+    const titleRef = { current: "Home" };
     const readOnlyValue = STORED_TITLE;
     const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => {
-      title = payload.fields.find((field) => field.name === "sys_title")?.value ?? title;
+      titleRef.current =
+        payload.fields.find((field) => field.name === "sys_title")?.value ??
+        titleRef.current;
       expect(payload.fields.find((field) => field.name === "displaytitle")).toBeUndefined();
       return {
         contentId: "42",
@@ -107,12 +112,12 @@ describe("EditorHost leave a schema read-only field unchanged (#5345)", () => {
         checkoutUser: "admin",
         revision: 4,
         fields: [
-          { name: "sys_title", value: title },
+          { name: "sys_title", value: titleRef.current },
           { name: "displaytitle", value: readOnlyValue },
         ],
       };
     });
-    const fields = await openEditor(readOnlyHost({ saveFields }));
+    const fields = await openEditor(readOnlyHost({ saveFields, titleRef }));
     expect(fields.locked.readOnly).toBe(true);
     expect(screen.queryByTestId("editor-text-clear-displaytitle")).toBeNull();
     fireEvent.change(fields.locked, { target: { value: "Hacked" } });
@@ -128,7 +133,10 @@ describe("EditorHost leave a schema read-only field unchanged (#5345)", () => {
     expect(fields.locked.value).toBe(STORED_TITLE);
     expect(fields.title.value).toBe("Home page");
     cleanup();
-    const reloaded = await openEditor(readOnlyHost({ saveFields, title }), "Home page");
+    const reloaded = await openEditor(
+      readOnlyHost({ saveFields, titleRef }),
+      "Home page",
+    );
     expect(reloaded.locked.value).toBe(STORED_TITLE);
     expect(reloaded.locked.readOnly).toBe(true);
   });

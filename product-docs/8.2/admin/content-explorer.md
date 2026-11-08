@@ -303,7 +303,14 @@ form as before. When the save is blocked with invalid fields, the
 host also shows one error summary above the form listing each invalid field;
 choosing a summary entry moves focus to that field row. HTTP **400** and
 **403** errors the host maps onto named fields appear in that summary too.
-A successful save clears the summary. Active Assembly field saves that omit `revision` (or send `0`)
+A successful save clears the summary. After a successful fields PUT the host
+reloads the item (`GET /services/itemmanagement/item/fields/{id}`) so the
+form shows the stored values. When that refresh fails, the host keeps the
+truthful **Saved** indicator and shows a save-region notice that the latest
+values could not be reloaded, with **Retry** to reload the same item; a
+repeated failure keeps the notice instead of claiming a fresh load. HTTP
+**400**, **403**, and **409** from the PUT itself are unchanged: no success
+is claimed and no reload is attempted. Active Assembly field saves that omit `revision` (or send `0`)
 are not stale-checked.
 **Check Out** and **Check In** on the editor host call public REST
 `POST /rest/editor/items/{id}/checkout` and `POST /rest/editor/items/{id}/checkin`.
