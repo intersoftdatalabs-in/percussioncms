@@ -124,6 +124,20 @@ Per rhai README "Product-first queue":
   only — product overflow must never eat a reserved debt seat.
 - **Phase B** fills `low_slots` from DEBT only (lowest pN first, oldest
   `updatedAt` tie-break). Unused `priority_slots` stay **empty**.
+- **Phase B rotation (2.2.8-draft):** lowest-number-first reseats the same
+  blocked debt nightly (observed: #1820/#1976 twice while 20 candidates
+  waited). Deprioritize debt on the host's recently-blocked list (prior
+  `gated_prerequisite` / `verified_no_change` verdicts) — within the same
+  pN tier, fresh debt first; break remaining same-tier ties randomly, never
+  lowest-number-first. pN tier still outranks rotation; rotation reorders,
+  never starves the seat.
+- **One implement per parent across the WHOLE queue (HARD):** at most one
+  `disposition=implement` row per `parent_issue` — including adopted
+  EXISTING open children (observed: #5733 + #5734 both queued from #5622).
+  The second implement-ready child of an already-queued parent is
+  `disposition=skip` with `rationale=sibling_deferred_one_per_parent`.
+  The host backstop-skips it without a work agent, but triage must not
+  queue it as implement in the first place.
 - Report `priority_slots / low_slots / product_candidates / debt_candidates /
   product_queued / debt_queued` in `stats` so a zero-debt run is auditable
   (no candidates vs. no seats vs. starved seats).

@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 import re
 import sys
 from pathlib import Path
@@ -346,12 +347,48 @@ def peer_eligible(pr: dict, self_model_label: str) -> bool:
     return False
 
 
+def order_debt(
+    debt_c: list[dict],
+    exclude: set[int] | None = None,
+    seed: int | None = None,
+) -> list[dict]:
+    """Order the debt pool with rotation (2.2.8-draft).
+
+    Lowest-number-first reseats the same blocked issues every night
+    (observed: #1820/#1976 two cycles running while 20 debt candidates
+    waited). Instead:
+    - issues in `exclude` (attempted-and-blocked in recent cycles, passed
+      by the host from prior scratch/work-*.json verdicts) sort AFTER
+      fresh issues within the same pN tier. Reordering only, never
+      removal — an all-excluded pool still fills the seat (fail-open).
+    - within the same (pN, excluded-flag) group, order randomly under the
+      given seed for auditability. Seed None keeps legacy number order
+      (deterministic; existing callers unaffected).
+    """
+    excluded = exclude or set()
+    keys: dict[int, float] = {}
+    if seed is not None:
+        rng = random.Random(seed)
+        for c in debt_c:
+            keys[id(c)] = rng.random()
+
+    def sort_key(c):
+        tier = pn_rank(c["priority"])
+        flag = 1 if c["issue"]["number"] in excluded else 0
+        tie = keys[id(c)] if seed is not None else c["issue"]["number"]
+        return (tier, flag, tie)
+
+    return sorted(debt_c, key=sort_key)
+
+
 def build_queue(
     issues: list[dict],
     prs: list[dict],
     prescreen: dict | None,
     max_issues: int,
     low_slots: int,
+    debt_exclude: set[int] | None = None,
+    debt_seed: int | None = None,
 ) -> tuple[list[dict], dict]:
     """Rank one-per-parent queue with RESERVED debt seats (2.2.6-draft).
 
@@ -363,6 +400,9 @@ def build_queue(
     - low_slots uses floor-plus-one at the caller; a quota>0 with a small
       max_issues (e.g. max=3, quota=34) must yield >=1 debt seat, not 0
       via integer truncation. See compute_low_slots().
+    - debt pool order uses order_debt(): recently-blocked issues (host
+      --debt-exclude) sort after fresh ones per pN tier; same-tier ties
+      break randomly under --debt-seed. Exclusion reorders, never starves.
     """
     ps = prescreen_index(prescreen)
     covered = covering_map(prs)
@@ -413,7 +453,7 @@ def build_queue(
     product = [c for c in candidates if not c["debt"]]
     debt_c = [c for c in candidates if c["debt"]]
     product.sort(key=lambda c: (pn_rank(c["priority"]), c["issue"]["number"]))
-    debt_c.sort(key=lambda c: (pn_rank(c["priority"]), c["issue"]["number"]))
+    debt_c = order_debt(debt_c, debt_exclude, debt_seed)
 
     queue = []
     used_parents: set[int] = set()
@@ -467,6 +507,8 @@ def build_queue(
         "product_queued": product_queued,
         "debt_queued": debt_queued,
         "debt_candidates": len(debt_c),
+        "debt_excluded": sorted((debt_exclude or set())),
+        "debt_seed": debt_seed,
         "product_candidates": len(product),
         "priority_slots": priority_slots,
         "low_slots": low_slots,
@@ -549,10 +591,14 @@ def run(
     self_model_label: str,
     cluster_min_prs: int,
     alerts_raw: list | None = None,
+    debt_exclude: set[int] | None = None,
+    debt_seed: int | None = None,
 ) -> dict:
     issues = [normalize_issue(x) for x in issues_raw]
     prs = [normalize_pr(x) for x in prs_raw]
-    queue, stats = build_queue(issues, prs, prescreen, max_issues, low_slots)
+    queue, stats = build_queue(
+        issues, prs, prescreen, max_issues, low_slots, debt_exclude, debt_seed
+    )
     signals = build_signals(issues, prs, self_model_label, cluster_min_prs)
     open_alert_count = count_open_alerts(alerts_raw)
     closes = close_candidates(issues, prescreen)
@@ -636,6 +682,24 @@ def main(argv: list[str] | None = None) -> int:
     )
     p.add_argument("--self-model-label", default="model:grok-4.6")
     p.add_argument("--cluster-min-prs", type=int, default=3)
+    p.add_argument(
+        "--debt-exclude",
+        default="",
+        help=(
+            "CSV of debt issue numbers attempted-and-blocked in recent cycles "
+            "(host builds from prior scratch/work-*.json no-progress verdicts). "
+            "Reorders those after fresh debt per pN tier; never starves the seat."
+        ),
+    )
+    p.add_argument(
+        "--debt-seed",
+        type=int,
+        default=None,
+        help=(
+            "Seed for same-tier debt tie-breaks (host passes YYYYMMDD to rotate "
+            "nightly). Omit for legacy lowest-number-first order."
+        ),
+    )
     args = p.parse_args(argv)
 
     issues_path = Path(args.issues)
@@ -680,6 +744,9 @@ def main(argv: list[str] | None = None) -> int:
         )
     else:
         low_slots = max(0, args.low_slots)
+    debt_exclude = {
+        int(x) for x in str(args.debt_exclude).split(",") if x.strip().isdigit()
+    }
     result = run(
         issues_raw,
         prs_raw,
@@ -689,6 +756,8 @@ def main(argv: list[str] | None = None) -> int:
         str(args.self_model_label).lower(),
         max(2, args.cluster_min_prs),
         alerts_raw,
+        debt_exclude,
+        args.debt_seed,
     )
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

@@ -86,6 +86,19 @@ not evaporate either. After the gate verdict:
 Write `scratch/erlang-review.json` as before (status, summary, prs_reviewed,
 prs_merged, bugs_found, residual_issue_urls, blocked).
 
+## Output validity (HARD — 2.2.8-draft)
+
+A malformed review JSON is a defect (observed: `scratch/erlang-thisrun.json`
+with a closed `prs` array followed by trailing per-PR keys — unparsable).
+
+- After writing the review JSON, **validate it parses** before returning
+  (e.g. `python3 -c "import json; json.load(open('scratch/erlang-review.json'))"`).
+- Single top-level object. Multi-PR reviews use **one** `prs` array with all
+  per-PR keys **inside** their array element — no sibling per-PR keys
+  alongside the array.
+- Repair and re-validate before printing the DONE summary; never hand the
+  host a file you have not parsed yourself.
+
 ## Failure mode
 
 If `mkd-code-review` is not on PATH or the persona install is missing, emit
