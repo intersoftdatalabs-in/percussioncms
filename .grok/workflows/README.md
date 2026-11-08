@@ -572,6 +572,7 @@ Runs when `include_pr_cluster` is true (**independent of** `include_pr_followup`
 - PR follow-up only on **our** open PRs; hard gate reply+resolve (never bare resolve)  
 - Human and AI review comments **equal**; human is a **tie-break** when tech need is equal  
 - Residual / child issues left **unassigned** for the backlog  
+- **Complete the turn (HARD — 2.2.10-draft):** Work and Cycle verify run end-to-end in one turn — gates foreground (or background jobs polled to completion in-turn). A DONE line with builds/tests/QA still pending is a defect; return only with the PR URL (or green verify) or a concrete blocked reason with evidence
 
 ### Operator + model labels (daily status)
 

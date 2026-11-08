@@ -270,6 +270,15 @@ Record the verdict in the structured output (`close_verdict`: `fixes` /
 - **No unverified closes.** Never `gh issue close` a tracker/umbrella/spike
   manually (see step 10). A `Fixes #N` keyword is a claim that every
   acceptance criterion is met with evidence in the PR body.
+- **Complete the turn (HARD — 2.2.10-draft).** Work is one turn,
+  end-to-end: implement → gates → PR → parent table → structured output.
+  "Waiting on background gates" is NOT a DONE state — run Maven, Erlang
+  CLI, and the QA cell foreground, or poll background jobs to completion
+  inside this turn. Return ONLY when the PR URL exists or a concrete
+  blocked/skip reason with evidence exists. A status report with gates
+  still pending forces the host to spend extra turns re-prompting, which
+  is the defect this rule targets (observed: #4530 returned twice with
+  C1/C5 still running).
 
 ## Output
 
@@ -278,3 +287,8 @@ Print to stdout (the host captures it):
 ```
 WORK_DONE issue=<N> pr=<url> modules=<list> status=<status>
 ```
+
+The `WORK_DONE` line is a completion claim: every gate named above
+(builds, Erlang CLI, QA cell, PR, parent table, `work-<N>.json`) is
+finished or a concrete blocked reason with evidence is given. Never emit
+it with jobs still pending.
