@@ -5,7 +5,10 @@
 import { describe, expect, it } from "vitest";
 import {
   extractIncludeCatalogFields,
+  fieldOriginKey,
   includedFieldOrigin,
+  isDetachableSharedField,
+  isDetachLockConflict,
   isFieldIncluded,
   isIncludeLockConflict,
   parseIncludeFieldOrigin,
@@ -81,5 +84,30 @@ describe("contentTypeIncludeField helpers (CD-04)", () => {
         (c) => c.name,
       ),
     ).toEqual(["sys_suffix"]);
+  });
+
+  it("marks only shared rows detachable (CD-04 detach)", () => {
+    expect(isDetachableSharedField({ name: "displaytitle", fieldType: "shared" })).toBe(true);
+    expect(isDetachableSharedField({ name: "displaytitle", fieldType: "SHARED" })).toBe(true);
+    expect(isDetachableSharedField({ name: "rx_note", fieldType: "local" })).toBe(false);
+    expect(isDetachableSharedField({ name: "sys_title", fieldType: "system" })).toBe(false);
+    expect(isDetachableSharedField({ name: "  ", fieldType: "shared" })).toBe(false);
+    expect(isDetachableSharedField({ name: "displaytitle" })).toBe(false);
+    expect(isDetachableSharedField(null)).toBe(false);
+    expect(fieldOriginKey({ name: "displaytitle", fieldType: " Shared " })).toBe("shared");
+    expect(fieldOriginKey(null)).toBe("");
+  });
+
+  it("treats detach 409 as a lock conflict (misuse is 400, unknown is 404)", () => {
+    expect(
+      isDetachLockConflict({
+        status: 409,
+        body: { message: "Could not detach shared content type field; design lock required" },
+      }),
+    ).toBe(true);
+    expect(isDetachLockConflict({ status: 409, body: null })).toBe(true);
+    expect(isDetachLockConflict({ status: 409, body: {} })).toBe(true);
+    expect(isDetachLockConflict({ status: 400, body: { message: "lock" } })).toBe(false);
+    expect(isDetachLockConflict({ status: 404, body: { message: "lock" } })).toBe(false);
   });
 });

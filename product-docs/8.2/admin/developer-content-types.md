@@ -1,7 +1,7 @@
 ---
 id: admin-developer-content-types
 title: Developer Content Types
-description: Create, rename, or delete a content type from Developer chrome, lock, set a label, set or clear the description, mark or clear required on one local field, mark or clear searchable on one field, enable or disable, toggle type-level search indexing, set icon strategy, add or delete local fields from Developer Content Type detail, include system or shared fields from Developer detail, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, field choice catalogs, and field-rule expressions, and unlock a content type from Developer detail chrome
+description: Create, rename, or delete a content type from Developer chrome, lock, set a label, set or clear the description, mark or clear required on one local field, mark or clear searchable on one field, enable or disable, toggle type-level search indexing, set icon strategy, add or delete local fields from Developer Content Type detail, include system or shared fields from Developer detail, detach one shared field from Developer detail, export or import design XML from Developer Content Types chrome, save allowed workflows, templates, item-level exits, control property values, field choice catalogs, and field-rule expressions, and unlock a content type from Developer detail chrome
 version: "8.2"
 order: 42
 tags: [admin, developer, content-types]
@@ -361,6 +361,28 @@ After **Lock**:
 4. Clearing the pick (back to the placeholder) disables **Include**;
    cancelling the pick writes nothing.
 
+### Detach a shared field (after lock)
+
+A field row with origin **shared** shows a **Detach** button once the type
+is locked. Detaching removes that one shared field from the type without
+touching origin-local fields, other shared fields, the type label, or the
+type description. The shared group itself stays included.
+
+After **Lock**:
+
+1. Click **Detach** on the shared field row, then confirm. The product
+   sends `DELETE
+   /services/contenttypes/{idOrName}/fields/include/{fieldName}` while the
+   lock is still held and does **not** unlock. A following `GET
+   /services/contenttypes/{idOrName}` no longer lists the field; every
+   other field stays.
+2. Cancelling the confirm writes nothing (no `DELETE` is sent).
+3. Without a lock, **Detach** stays **disabled**. If the held lock is
+   missing (for example it expired), the detach is **409**, the detail
+   reports the lock lost (**Not locked**), and no success is claimed. Lock
+   again and retry. Detaching a local or system field is **400**; an
+   unknown field is **404**.
+
 ### Local field display labels (after lock)
 
 The **Fields** table shows each field's display label. **System** and **shared**
@@ -667,6 +689,7 @@ The chrome calls:
 | Load field rule expressions | `GET /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` |
 | Save field rule expressions | `PUT /services/contenttypes/{idOrName}/fields/{fieldName}/ruleExpressions` (held lock; full replace of validation, visibility, inputTranslation, outputTranslation; `applyWhen` empty clears, omit preserves) |
 | Include system or shared field | `POST /services/contenttypes/{idOrName}/fields/include` (CD-04; held lock; origin stays system/shared; duplicate 409; unknown catalog field 404; invalid `fieldType` 400) |
+| Detach one shared field | `DELETE /services/contenttypes/{idOrName}/fields/include/{fieldName}` (CD-04; held lock; **204**; group stays included; local/system **400**; unknown field **404**; lock lost **409**) |
 | Add local field | `POST /services/contenttypes/{idOrName}/fields` (CD-03; held lock; origin always `local`; duplicate name **409**) |
 | Delete local field | `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}` (CD-03; held lock; **204**; system/shared **400**) |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |

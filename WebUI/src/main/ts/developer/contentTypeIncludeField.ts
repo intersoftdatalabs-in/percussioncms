@@ -155,3 +155,44 @@ export function unusedIncludeCandidates(
 ): IncludeFieldCandidate[] {
   return candidates.filter((c) => !isFieldIncluded(existing, c.name));
 }
+
+/** Origin key of a content-type field row (empty when missing). */
+export function fieldOriginKey(
+  field: ContentTypeFieldSummary | undefined | null,
+): string {
+  return ((field?.fieldType || "").trim().toLowerCase());
+}
+
+/**
+ * True when the row is an included shared field that detach can remove.
+ * Local rows use local delete; system rows cannot be detached.
+ */
+export function isDetachableSharedField(
+  field: ContentTypeFieldSummary | undefined | null,
+): boolean {
+  if (!fieldNameKey(field?.name)) {
+    return false;
+  }
+  return fieldOriginKey(field) === "shared";
+}
+
+/**
+ * True when a detach 409 is a missing/stolen lock rather than a misuse 400.
+ * Detach only 409s on lock loss (local/system misuse is 400, unknown is 404),
+ * so any 409 with lock text — or an empty body — is a lock conflict.
+ */
+export function isDetachLockConflict(err: { status?: number; body?: unknown }): boolean {
+  if (err.status !== 409) {
+    return false;
+  }
+  const text =
+    typeof err.body === "string"
+      ? err.body
+      : err.body == null
+        ? ""
+        : JSON.stringify(err.body);
+  if (!text || text === "null" || text === "{}") {
+    return true;
+  }
+  return /design lock|locked by|lock required|detach/i.test(text);
+}

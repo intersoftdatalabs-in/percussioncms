@@ -377,6 +377,20 @@ public interface IContentTypesAdaptor {
   ContentTypeDetail includeField(URI baseUri, String idOrName, ContentTypeField body);
 
   /**
+   * Detach one included shared field from an existing content type (CD-04). Requires a
+   * design-session lock already held by the current user. Does not acquire or release the lock.
+   * The shared group stays included so other shared fields on the type are untouched; only the
+   * named field returns to the shared-field excludes and loses its display mapping. Origin-local
+   * fields stay (use {@link #deleteLocalField}); system fields cannot be detached.
+   *
+   * @return {@code Boolean.TRUE} when detached; {@code null} when the content type is not found
+   * @throws ContentTypeDesignLockException when no lock is held or another user owns the lock
+   * @throws IllegalArgumentException when the field is not an included shared field
+   * @throws jakarta.ws.rs.WebApplicationException {@code 404} when the type or field is not found
+   */
+  Boolean detachSharedField(URI baseUri, String idOrName, String fieldName);
+
+  /**
    * Import one Workbench-equivalent content-type design XML (CD-14).
    *
    * <p>Creates a new content type via {@code IPSContentDesignWs} ({@code createContentTypes} then

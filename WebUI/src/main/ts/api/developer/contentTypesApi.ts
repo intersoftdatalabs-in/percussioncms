@@ -1047,6 +1047,25 @@ export async function deleteLocalContentTypeField(
   await del(`${PATHS.CONTENT_TYPES}/${typeKey}/fields/${fieldKey}`);
 }
 
+/**
+ * DELETE /services/contenttypes/{idOrName}/fields/include/{fieldName} — CD-04 detach one
+ * included shared field (the field returns to the shared-field excludes and loses its display
+ * mapping; the shared group stays included).
+ *
+ * <p>Requires a design-session lock already held by the current user
+ * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409 when unlocked or
+ * locked by another user. HTTP 400 when the field is local or system. HTTP 404 when the type or
+ * field is missing. HTTP 204 on success (lock still held).
+ */
+export async function detachSharedContentTypeField(
+  idOrName: string,
+  fieldName: string,
+): Promise<void> {
+  const typeKey = encodeURIComponent(idOrName);
+  const fieldKey = encodeURIComponent(fieldName);
+  await del(`${PATHS.CONTENT_TYPES}/${typeKey}/fields/include/${fieldKey}`);
+}
+
 /** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeIcon}. */
 export const CONTENT_TYPE_ICON_ROOT = "ContentTypeIcon";
 

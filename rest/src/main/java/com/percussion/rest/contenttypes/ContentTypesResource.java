@@ -1966,6 +1966,46 @@ public class ContentTypesResource {
     }
   }
 
+  @DELETE
+  @Path("/{idOrName}/fields/include/{fieldName}")
+  @Operation(
+      summary = "Detach one shared field from a content type",
+      description =
+          "CD-04. Admin. Detaches one included shared field via"
+              + " IPSContentDesignWs.saveContentTypes: the field returns to the shared-field"
+              + " excludes and loses its display mapping. Requires a held design-session lock"
+              + " (POST .../lock). Does not acquire or release the lock. The shared group stays"
+              + " included, so other shared fields on the type are untouched. Origin-local fields"
+              + " stay (use DELETE .../fields for local fields). System fields are not detached"
+              + " (400). Missing type or field is 404.",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Detached (lock is still held)"),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid name, or field is local or system"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type or field not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock not held by the current user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response detachSharedField(
+      @PathParam("idOrName") String idOrName, @PathParam("fieldName") String fieldName) {
+    try {
+      Boolean detached =
+          requireAdaptor().detachSharedField(uriInfo.getBaseUri(), idOrName, fieldName);
+      if (detached == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return Response.noContent().build();
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      throw mapWriteFailure(e);
+    }
+  }
+
   @GET
   @Path("/{idOrName}/fields/{fieldName}/controlProperties")
   @Produces({MediaType.APPLICATION_JSON})

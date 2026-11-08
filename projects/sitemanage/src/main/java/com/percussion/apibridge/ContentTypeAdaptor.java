@@ -1993,6 +1993,130 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
   }
 
+  @Override
+  public Boolean detachSharedField(URI baseUri, String idOrName, String fieldName) {
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    if (StringUtils.isBlank(fieldName)) {
+      throw new IllegalArgumentException("fieldName is required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String field = fieldName.trim();
+    if (field.contains("..") || field.indexOf('/') >= 0 || field.indexOf('\\') >= 0) {
+      throw new WebApplicationException("Unknown field: " + field, 404);
+    }
+    requireSessionUserForLock();
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      IPSGuid ctGuid = resolveExistingContentTypeGuid(trimmed);
+      if (ctGuid == null) {
+        return null;
+      }
+      requireHeldLock(ctGuid, "Could not detach shared content type field");
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not detach shared content type field");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      if (!detachSharedFieldAndMapping(def, field)) {
+        throw new WebApplicationException("Unknown field: " + field, 404);
+      }
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not detach shared content type field");
+        }
+        String details = formatSaveErrors(e);
+        log.error("Failed to save shared field detach for {}: {}", idOrName, details, e);
+        if (isValidationSaveFailure(e)) {
+          throw new IllegalArgumentException("Could not detach shared field: " + details, e);
+        }
+        throw new IllegalStateException("Failed to save shared field detach: " + details, e);
+      }
+      return Boolean.TRUE;
+    } catch (IllegalStateException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to detach shared field for {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to detach shared field", e);
+    }
+  }
+
+  /**
+   * Detach one included shared field: the field returns to the shared-field excludes and loses
+   * its display mapping. The shared group stays included so other shared fields on the type are
+   * untouched. Package-visible for unit tests.
+   */
+  static boolean detachSharedFieldAndMapping(PSItemDefinition def, String fieldName) {
+    if (def == null || StringUtils.isBlank(fieldName)) {
+      return false;
+    }
+    String simple = simpleIncludeFieldName(validateIncludeFieldName(fieldName));
+    PSContentEditorMapper mapper = contentEditorMapperOf(def);
+    PSDisplayMapper display = displayMapperOfStatic(def);
+    PSField field = findField(def, simple);
+    if (field != null) {
+      if (field.getType() == PSField.TYPE_LOCAL) {
+        throw new IllegalArgumentException(
+            "Only shared fields can be detached (local fields use DELETE .../fields)");
+      }
+      if (field.getType() != PSField.TYPE_SHARED) {
+        throw new IllegalArgumentException("Only shared fields can be detached");
+      }
+      simple = field.getSubmitName();
+      // Shared includes leave no type-fieldset entry, but drop a stale one when present
+      // (a leftover entry collides with the group child set at save).
+      removeFieldFromSet(def, simple);
+    } else if (findDisplayMapping(display, simple) == null
+        || isSharedFieldExcluded(mapper, simple)) {
+      // Shared includes materialize from the group, so the type fieldset carries no entry:
+      // present means display-mapped and not excluded. Anything else is unknown (or already
+      // detached).
+      return false;
+    }
+    addSharedFieldExclude(mapper, simple);
+    removeDisplayMapping(display, simple);
+    return true;
+  }
+
+  /** Package-visible for unit tests. True when the field is in the shared-field excludes. */
+  static boolean isSharedFieldExcluded(PSContentEditorMapper mapper, String fieldName) {
+    if (mapper == null || StringUtils.isBlank(fieldName)) {
+      return false;
+    }
+    return copyStringList(mapper.getSharedFieldExcludes()).stream()
+        .anyMatch(n -> n != null && n.equalsIgnoreCase(fieldName));
+  }
+
+  /** Package-visible for unit tests. Adds a field back to the shared-field excludes. */
+  static void addSharedFieldExclude(PSContentEditorMapper mapper, String fieldName) {
+    if (mapper == null || StringUtils.isBlank(fieldName)) {
+      throw new IllegalArgumentException("content type editor mapper and field name are required");
+    }
+    ArrayList<String> names = copyStringList(mapper.getSharedFieldExcludes());
+    boolean present = isSharedFieldExcluded(mapper, fieldName);
+    if (!present) {
+      names.add(fieldName.trim());
+    }
+    mapper.setSharedFieldExcludes(names);
+  }
+
   /**
    * Apply default workflow id and/or allowed-workflow inclusion list.
    *
@@ -3841,6 +3965,35 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     containing.remove(actual);
     removeDisplayMapping(displayMapperOfStatic(def), actual);
     return true;
+  }
+
+  /**
+   * Remove a fieldset entry by submit name from the parent set or complex children. No-op when
+   * absent. Package-visible for unit tests.
+   */
+  static void removeFieldFromSet(PSItemDefinition def, String submitName) {
+    if (def == null || StringUtils.isBlank(submitName)) {
+      return;
+    }
+    PSFieldSet parent = def.getFieldSet();
+    PSFieldSet containing = parent != null ? fieldSetContaining(parent, submitName) : null;
+    if (containing == null) {
+      List<PSFieldSet> children = def.getComplexChildren();
+      if (children != null) {
+        for (PSFieldSet child : children) {
+          if (child == null) {
+            continue;
+          }
+          containing = fieldSetContaining(child, submitName);
+          if (containing != null) {
+            break;
+          }
+        }
+      }
+    }
+    if (containing != null) {
+      containing.remove(submitName);
+    }
   }
 
   static PSFieldSet fieldSetContaining(PSFieldSet root, String fieldName) {
