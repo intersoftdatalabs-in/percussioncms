@@ -336,6 +336,375 @@ const EMPTY_STATE: NodeState = {
 };
 
 /**
+ * Next node map for a failed {@link findChildren} load (#5793: extracted
+ * from the {@code ExplorerTree} catch branch so the component stays under
+ * the cognitive-complexity gate).
+ */
+export function applyExplorerTreeLoadError(
+  prev: Record<string, NodeState>,
+  key: string,
+  rootKey: string,
+  msg: string,
+  opts: { isRoot: boolean; force?: boolean },
+): Record<string, NodeState> {
+  if (!opts.isRoot && opts.force) {
+    const next = { ...prev };
+    const hit = lookupNodeKey(next, key);
+    if (hit != null && normalizeExplorerTreePathKey(hit) !== rootKey) {
+      delete next[hit];
+    }
+    return next;
+  }
+  const curKey = lookupNodeKey(prev, key) ?? key;
+  return {
+    ...prev,
+    [curKey]: {
+      loaded: true,
+      loading: false,
+      error: msg,
+      children: [],
+    },
+  };
+}
+
+/**
+ * Root key + state lookup shared by the error, empty, and tree render
+ * paths (#5793).
+ */
+export function resolveExplorerTreeRoot(
+  nodes: Record<string, NodeState>,
+  initialPath: string,
+): { rootKey: string; rootState: NodeState } {
+  const rootKey =
+    lookupNodeKey(nodes, initialPath) ??
+    normalizeExplorerTreePathKey(initialPath);
+  return { rootKey, rootState: nodes[rootKey] ?? nodes[initialPath] ?? EMPTY_STATE };
+}
+
+/**
+ * First surfaced load error: the root error wins, otherwise the first
+ * node error (#5793).
+ */
+export function resolveExplorerTreeError(
+  nodes: Record<string, NodeState>,
+  rootError: string | null,
+): string | null {
+  if (rootError) return rootError;
+  return Object.values(nodes).find((n) => n.error)?.error ?? null;
+}
+
+/**
+ * Whether a tree row counts as selected: finder path or resolved list
+ * path (folderPath) matches the shell selection (#5793).
+ */
+export function isExplorerTreeNodeSelected(
+  folder: PSPathItem,
+  pathKey: string,
+  selectedPath: string | null,
+): boolean {
+  const selectedNorm = normalizeExplorerTreePathKey(selectedPath);
+  if (selectedNorm === pathKey) return true;
+  const listPath = resolveExplorerListPath(folder, folder.path);
+  return (
+    listPath != null &&
+    selectedNorm === normalizeExplorerTreePathKey(listPath)
+  );
+}
+
+/**
+ * Pending one-level lazy loads for expand-all (#5760, extracted #5793):
+ * unloaded nodes plus loaded folder children with no node entry yet.
+ * Pure — the component only iterates the result with
+ * {@code ensureLoaded}.
+ */
+export function collectExpandAllPendingLoads(
+  snapshot: Record<string, NodeState>,
+): Array<{ key: string; folder: PSPathItem | null }> {
+  const pending = new Map<string, PSPathItem | null>();
+  for (const [key, state] of Object.entries(snapshot)) {
+    if (!state.loaded && !state.loading) {
+      pending.set(
+        normalizeExplorerTreePathKey(key),
+        findFolderItemForPath(snapshot, key),
+      );
+    }
+  }
+  for (const state of Object.values(snapshot)) {
+    for (const child of state.children ?? []) {
+      if (lookupNodeKey(snapshot, child.path) != null) {
+        continue;
+      }
+      if (!isFolder(child)) {
+        continue;
+      }
+      pending.set(normalizeExplorerTreePathKey(child.path), child);
+    }
+  }
+  return [...pending].map(([key, folder]) => ({ key, folder }));
+}
+
+export interface ExplorerTreeRowKeyContext {
+  folderish: boolean;
+  isOpen: boolean;
+  isSiteRoot: boolean;
+  onSelect: () => void;
+  onToggle: () => void;
+  onExpandIfCollapsed: () => void;
+}
+
+function activateExplorerTreeRow(ctx: ExplorerTreeRowKeyContext): void {
+  ctx.onSelect();
+  // Site roots match label click: expand Pages without onActivate,
+  // which overwrites the shell Pages path (#3696).
+  if (!ctx.folderish) {
+    return;
+  }
+  if (ctx.isSiteRoot) {
+    if (!ctx.isOpen) ctx.onExpandIfCollapsed();
+    return;
+  }
+  ctx.onToggle();
+}
+
+function stepExplorerTreeRow(
+  e: React.KeyboardEvent,
+  ctx: ExplorerTreeRowKeyContext,
+): void {
+  if (e.key === "ArrowRight") {
+    e.preventDefault();
+    if (ctx.folderish && !ctx.isOpen) ctx.onToggle();
+    return;
+  }
+  if (e.key === "ArrowLeft") {
+    e.preventDefault();
+    if (ctx.folderish && ctx.isOpen) ctx.onToggle();
+  }
+}
+
+/**
+ * ARIA tree keyboard behavior for one row (#5793: extracted from the
+ * inline {@code onKeyDown} so {@code ExplorerTree} stays under the
+ * complexity gate). ArrowDown/ArrowUp intentionally fall through to
+ * native focus traversal.
+ */
+export function handleExplorerTreeRowKeyDown(
+  e: React.KeyboardEvent,
+  ctx: ExplorerTreeRowKeyContext,
+): void {
+  if (e.key === "Enter" || e.key === " ") {
+    e.preventDefault();
+    activateExplorerTreeRow(ctx);
+    return;
+  }
+  stepExplorerTreeRow(e, ctx);
+}
+
+/**
+ * Node loading state + lazy {@code ensureLoaded} fetch (#5793: extracted
+ * hook so the component body stays under the complexity gate).
+ */
+function useExplorerTreeNodes(initialPath: string): {
+  nodes: Record<string, NodeState>;
+  nodesRef: React.MutableRefObject<Record<string, NodeState>>;
+  setNodes: React.Dispatch<React.SetStateAction<Record<string, NodeState>>>;
+  ensureLoaded: (
+    path: string,
+    folder?: PSPathItem | null,
+    force?: boolean,
+  ) => Promise<void>;
+} {
+  const [nodes, setNodes] = useState<Record<string, NodeState>>(() => ({
+    [normalizeExplorerTreePathKey(initialPath)]: EMPTY_STATE,
+  }));
+  const nodesRef = useRef(nodes);
+  nodesRef.current = nodes;
+
+  const ensureLoaded = useCallback(
+    async (path: string, folder?: PSPathItem | null, force?: boolean) => {
+      const key =
+        lookupNodeKey(nodesRef.current, path) ??
+        normalizeExplorerTreePathKey(path);
+      setNodes((prev) => {
+        const curKey = lookupNodeKey(prev, key) ?? key;
+        const cur = prev[curKey] ?? EMPTY_STATE;
+        if (!force && (cur.loaded || cur.loading)) return prev;
+        return { ...prev, [curKey]: { ...cur, loading: true, error: null } };
+      });
+      try {
+        const existing =
+          nodesRef.current[key] ??
+          nodesRef.current[lookupNodeKey(nodesRef.current, path) ?? ""];
+        const listPath =
+          resolveExplorerListPath(folder, path) ?? existing?.listPath ?? path;
+        const children = await findChildren(listPath);
+        setNodes((prev) => applyLoadedChildren(prev, key, children, listPath));
+      } catch (err) {
+        const msg = formatApiError(err, message(EXPLORER_MSG.TREE_LOAD_ERROR));
+        const rootKey = normalizeExplorerTreePathKey(initialPath);
+        const isRoot = normalizeExplorerTreePathKey(key) === rootKey;
+        setNodes((prev) =>
+          applyExplorerTreeLoadError(prev, key, rootKey, msg, { isRoot, force }),
+        );
+      }
+    },
+    [initialPath],
+  );
+
+  return { nodes, nodesRef, setNodes, ensureLoaded };
+}
+
+export interface ExplorerTreeNodeViewProps {
+  folder: PSPathItem;
+  depth: number;
+  expanded: Record<string, boolean>;
+  nodes: Record<string, NodeState>;
+  selectedPath: string | null;
+  onSelectFolder: (path: string, folder: PSPathItem) => void;
+  onToggle: (path: string, folder: PSPathItem) => void;
+  onExpandIfCollapsed: (path: string, folder: PSPathItem) => void;
+}
+
+/**
+ * One tree row + its open descendants (#5793: extracted from the nested
+ * {@code renderNode} closure so {@code ExplorerTree} stays under the
+ * complexity gate). Recursion goes through this component, not the
+ * parent.
+ */
+export function ExplorerTreeNodeView({
+  folder,
+  depth,
+  expanded,
+  nodes,
+  selectedPath,
+  onSelectFolder,
+  onToggle,
+  onExpandIfCollapsed,
+}: ExplorerTreeNodeViewProps): React.ReactElement {
+  const path = folder.path;
+  const pathKey = normalizeExplorerTreePathKey(path);
+  const isOpen = expanded[pathKey] ?? expanded[path] ?? false;
+  const state =
+    nodes[pathKey] ??
+    nodes[lookupNodeKey(nodes, path) ?? ""] ??
+    EMPTY_STATE;
+  const folderish = isFolder(folder);
+  const selected = isExplorerTreeNodeSelected(folder, pathKey, selectedPath);
+  const nodeName = explorerSiteDisplayName(folder) || folder.name || "";
+  const siteRoot = folderish && isExplorerSiteRootItem(folder);
+
+  // data-node-name is finder SITENAME / folder leaf; path may be a GUID
+  // (#3684 / #3001). Playwright matches folded names against testid,
+  // visible label, data-node-name, and data-folder-path.
+  return (
+    <div
+      key={pathKey}
+      data-testid={`tree-node-${path}`}
+      data-node-name={nodeName}
+      data-folder-path={folder.folderPath || ""}
+    >
+      <div
+        role="treeitem"
+        aria-expanded={folderish ? isOpen : undefined}
+        aria-selected={selected}
+        tabIndex={0}
+        style={nodeRowStyle(selected, depth)}
+        onClick={() => {
+          onSelectFolder(path, folder);
+          if (siteRoot && !isOpen) {
+            onExpandIfCollapsed(path, folder);
+          }
+        }}
+        onKeyDown={(e) =>
+          handleExplorerTreeRowKeyDown(e, {
+            folderish,
+            isOpen,
+            isSiteRoot: siteRoot,
+            onSelect: () => onSelectFolder(path, folder),
+            onToggle: () => onToggle(path, folder),
+            onExpandIfCollapsed: () => onExpandIfCollapsed(path, folder),
+          })
+        }
+      >
+        <span
+          style={toggleStyle}
+          onClick={(e) => {
+            e.stopPropagation();
+            if (folderish) onToggle(path, folder);
+          }}
+          aria-hidden="true"
+          data-testid={folderish ? `tree-toggle-${path}` : undefined}
+        >
+          {folderish ? (isOpen ? "▾" : "▸") : " "}
+        </span>
+        <span
+          style={nodeLabelStyle}
+          title={folder.path}
+          {...{ [MKD_LANG_IGNORE_ATTR]: "1" as const }}
+        >
+          {nodeName || folder.path}
+        </span>
+      </div>
+      {folderish &&
+        isOpen &&
+        state.children
+          // Guard against self-path or ancestor cycles from a bad API payload
+          // (would recurse forever in render). Accept name vs FOLDER_ROOT
+          // prefix mismatch on sample sites (#3001 / #3326).
+          .filter((child) =>
+            isSafeExplorerTreeChild(path, folder.folderPath, child.path),
+          )
+          .map((child) => (
+            <ExplorerTreeNodeView
+              key={normalizeExplorerTreePathKey(child.path)}
+              folder={child}
+              depth={depth + 1}
+              expanded={expanded}
+              nodes={nodes}
+              selectedPath={selectedPath}
+              onSelectFolder={onSelectFolder}
+              onToggle={onToggle}
+              onExpandIfCollapsed={onExpandIfCollapsed}
+            />
+          ))}
+    </div>
+  );
+}
+
+export interface ExplorerTreeToolbarProps {
+  onExpandAll: () => void;
+  onCollapseAll: () => void;
+}
+
+/** Expand-all / collapse-all toolbar (#5760, extracted #5793). */
+export function ExplorerTreeToolbar({
+  onExpandAll,
+  onCollapseAll,
+}: ExplorerTreeToolbarProps): React.ReactElement {
+  return (
+    <div data-testid="explorer-tree-expand-toolbar" style={treeToolbarStyle}>
+      <button
+        type="button"
+        data-testid="tree-expand-all"
+        aria-label={message(EXPLORER_MSG.TREE_EXPAND_ALL)}
+        style={treeToolbarButtonStyle}
+        onClick={onExpandAll}
+      >
+        {message(EXPLORER_MSG.TREE_EXPAND_ALL)}
+      </button>
+      <button
+        type="button"
+        data-testid="tree-collapse-all"
+        aria-label={message(EXPLORER_MSG.TREE_COLLAPSE_ALL)}
+        style={treeToolbarButtonStyle}
+        onClick={onCollapseAll}
+      >
+        {message(EXPLORER_MSG.TREE_COLLAPSE_ALL)}
+      </button>
+    </div>
+  );
+}
+
+/**
  * Minimum node shape for expand-all / collapse-all state math (#5760).
  * Only loaded children paths matter — selection and fetch state are
  * untouched by either action.
@@ -426,61 +795,9 @@ export function ExplorerTree({
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => ({
     [normalizeExplorerTreePathKey(initialPath)]: true,
   }));
-  const [nodes, setNodes] = useState<Record<string, NodeState>>(() => ({
-    [normalizeExplorerTreePathKey(initialPath)]: EMPTY_STATE,
-  }));
-  const nodesRef = useRef(nodes);
-  nodesRef.current = nodes;
+  const { nodes, nodesRef, ensureLoaded } = useExplorerTreeNodes(initialPath);
   const selectedPathRef = useRef(selectedPath);
   selectedPathRef.current = selectedPath;
-
-  const ensureLoaded = useCallback(
-    async (path: string, folder?: PSPathItem | null, force?: boolean) => {
-      const key =
-        lookupNodeKey(nodesRef.current, path) ??
-        normalizeExplorerTreePathKey(path);
-      setNodes((prev) => {
-        const curKey = lookupNodeKey(prev, key) ?? key;
-        const cur = prev[curKey] ?? EMPTY_STATE;
-        if (!force && (cur.loaded || cur.loading)) return prev;
-        return { ...prev, [curKey]: { ...cur, loading: true, error: null } };
-      });
-      try {
-        const existing =
-          nodesRef.current[key] ??
-          nodesRef.current[lookupNodeKey(nodesRef.current, path) ?? ""];
-        const listPath =
-          resolveExplorerListPath(folder, path) ?? existing?.listPath ?? path;
-        const children = await findChildren(listPath);
-        setNodes((prev) => applyLoadedChildren(prev, key, children, listPath));
-      } catch (err) {
-        const msg = formatApiError(err, message(EXPLORER_MSG.TREE_LOAD_ERROR));
-        const rootKey = normalizeExplorerTreePathKey(initialPath);
-        const isRoot = normalizeExplorerTreePathKey(key) === rootKey;
-        setNodes((prev) => {
-          if (!isRoot && force) {
-            const next = { ...prev };
-            const hit = lookupNodeKey(next, key);
-            if (hit != null && normalizeExplorerTreePathKey(hit) !== rootKey) {
-              delete next[hit];
-            }
-            return next;
-          }
-          const curKey = lookupNodeKey(prev, key) ?? key;
-          return {
-            ...prev,
-            [curKey]: {
-              loaded: true,
-              loading: false,
-              error: msg,
-              children: [],
-            },
-          };
-        });
-      }
-    },
-    [initialPath],
-  );
 
   useEffect(() => {
     void ensureLoaded(initialPath);
@@ -574,27 +891,7 @@ export function ExplorerTree({
   const expandAll = useCallback(() => {
     const snapshot = nodesRef.current;
     setExpanded((prev) => applyExpandAllExplorerTree(prev, snapshot));
-    const pending = new Map<string, PSPathItem | null>();
-    for (const [key, state] of Object.entries(snapshot)) {
-      if (!state.loaded && !state.loading) {
-        pending.set(
-          normalizeExplorerTreePathKey(key),
-          findFolderItemForPath(snapshot, key),
-        );
-      }
-    }
-    for (const state of Object.values(snapshot)) {
-      for (const child of state.children ?? []) {
-        if (lookupNodeKey(snapshot, child.path) != null) {
-          continue;
-        }
-        if (!isFolder(child)) {
-          continue;
-        }
-        pending.set(normalizeExplorerTreePathKey(child.path), child);
-      }
-    }
-    for (const [key, folder] of pending) {
+    for (const { key, folder } of collectExpandAllPendingLoads(snapshot)) {
       void ensureLoaded(key, folder);
     }
   }, [ensureLoaded]);
@@ -607,140 +904,11 @@ export function ExplorerTree({
     setExpanded(() => applyCollapseAllExplorerTree(initialPath));
   }, [initialPath]);
 
-  const renderNode = (
-    folder: PSPathItem,
-    depth: number,
-  ): React.ReactElement => {
-    const path = folder.path;
-    const pathKey = normalizeExplorerTreePathKey(path);
-    const isOpen = expanded[pathKey] ?? expanded[path] ?? false;
-    const state =
-      nodes[pathKey] ??
-      nodes[lookupNodeKey(nodes, path) ?? ""] ??
-      EMPTY_STATE;
-    const listPath = resolveExplorerListPath(folder, path);
-    const selectedNorm = normalizeExplorerTreePathKey(selectedPath);
-    const selected =
-      selectedNorm === pathKey ||
-      (listPath != null &&
-        selectedNorm === normalizeExplorerTreePathKey(listPath));
-    const folderish = isFolder(folder);
-    const nodeName = explorerSiteDisplayName(folder) || folder.name || "";
-
-    // data-node-name is finder SITENAME / folder leaf; path may be a GUID
-    // (#3684 / #3001). Playwright matches folded names against testid,
-    // visible label, data-node-name, and data-folder-path.
-    return (
-      <div
-        key={pathKey}
-        data-testid={`tree-node-${path}`}
-        data-node-name={nodeName}
-        data-folder-path={folder.folderPath || ""}
-      >
-        <div
-          role="treeitem"
-          aria-expanded={folderish ? isOpen : undefined}
-          aria-selected={selected}
-          tabIndex={0}
-          style={nodeRowStyle(selected, depth)}
-          onClick={() => {
-            onSelectFolder(path, folder);
-            if (folderish && isExplorerSiteRootItem(folder) && !isOpen) {
-              expandIfCollapsed(path, folder);
-            }
-          }}
-          onKeyDown={(e) => {
-            if (e.key === "Enter" || e.key === " ") {
-              e.preventDefault();
-              onSelectFolder(path, folder);
-              // Site roots match label click: expand Pages without
-              // onActivate, which overwrites the shell Pages path (#3696).
-              if (folderish && isExplorerSiteRootItem(folder)) {
-                if (!isOpen) expandIfCollapsed(path, folder);
-              } else if (folderish) {
-                toggle(path, folder);
-              }
-              return;
-            }
-            // ARIA tree keyboard navigation (WCAG 2.1):
-            if (e.key === "ArrowRight") {
-              e.preventDefault();
-              if (folderish && !isOpen) toggle(path, folder);
-            } else if (e.key === "ArrowLeft") {
-              e.preventDefault();
-              if (folderish && isOpen) toggle(path, folder);
-            } else if (e.key === "ArrowDown" || e.key === "ArrowUp") {
-              // Let the browser handle focus traversal between treeitems;
-              // native tab order through `[tabIndex={0}]` rows is correct.
-              return;
-            }
-          }}
-        >
-          <span
-            style={toggleStyle}
-            onClick={(e) => {
-              e.stopPropagation();
-              if (folderish) toggle(path, folder);
-            }}
-            aria-hidden="true"
-            data-testid={folderish ? `tree-toggle-${path}` : undefined}
-          >
-            {folderish ? (isOpen ? "▾" : "▸") : " "}
-          </span>
-          <span
-            style={nodeLabelStyle}
-            title={folder.path}
-            {...{ [MKD_LANG_IGNORE_ATTR]: "1" as const }}
-          >
-            {nodeName || folder.path}
-          </span>
-        </div>
-        {folderish &&
-          isOpen &&
-          state.children
-            // Guard against self-path or ancestor cycles from a bad API payload
-            // (would recurse forever in render). Accept name vs FOLDER_ROOT
-            // prefix mismatch on sample sites (#3001 / #3326).
-            .filter((child) =>
-              isSafeExplorerTreeChild(path, folder.folderPath, child.path),
-            )
-            .map((child) => renderNode(child, depth + 1))}
-      </div>
-    );
-  };
-
-  const expandCollapseToolbar = (
-    <div data-testid="explorer-tree-expand-toolbar" style={treeToolbarStyle}>
-      <button
-        type="button"
-        data-testid="tree-expand-all"
-        aria-label={message(EXPLORER_MSG.TREE_EXPAND_ALL)}
-        style={treeToolbarButtonStyle}
-        onClick={expandAll}
-      >
-        {message(EXPLORER_MSG.TREE_EXPAND_ALL)}
-      </button>
-      <button
-        type="button"
-        data-testid="tree-collapse-all"
-        aria-label={message(EXPLORER_MSG.TREE_COLLAPSE_ALL)}
-        style={treeToolbarButtonStyle}
-        onClick={collapseAll}
-      >
-        {message(EXPLORER_MSG.TREE_COLLAPSE_ALL)}
-      </button>
-    </div>
+  const { rootState } = resolveExplorerTreeRoot(nodes, initialPath);
+  const error = useMemo(
+    () => resolveExplorerTreeError(nodes, rootState.error),
+    [nodes, rootState.error],
   );
-
-  const rootKey =
-    lookupNodeKey(nodes, initialPath) ??
-    normalizeExplorerTreePathKey(initialPath);
-  const rootState = nodes[rootKey] ?? nodes[initialPath] ?? EMPTY_STATE;
-  const error = useMemo(() => {
-    if (rootState.error) return rootState.error;
-    const firstError = Object.values(nodes).find((n) => n.error)?.error;
-    return firstError ?? null;
-  }, [nodes, rootState.error]);
 
   if (error) {
     // Not role=tree: axe aria-required-children fails when there are no treeitems.
@@ -756,7 +924,7 @@ export function ExplorerTree({
   if (rootState.loaded && rootState.children.length === 0) {
     return (
       <>
-        {expandCollapseToolbar}
+        <ExplorerTreeToolbar onExpandAll={expandAll} onCollapseAll={collapseAll} />
         <div style={treeStyle} data-testid="explorer-tree">
           <div style={emptyStateStyle} data-testid="explorer-tree-empty">
             {message(EXPLORER_MSG.TREE_EMPTY)}
@@ -768,12 +936,24 @@ export function ExplorerTree({
 
   return (
     <>
-      {expandCollapseToolbar}
+      <ExplorerTreeToolbar onExpandAll={expandAll} onCollapseAll={collapseAll} />
       <div style={treeStyle} role="tree" data-testid="explorer-tree">
       {rootState.loading && rootState.children.length === 0 && (
         <div style={emptyStateStyle}>{message(EXPLORER_MSG.TREE_LOADING)}</div>
       )}
-      {rootState.children.map((child) => renderNode(child, 0))}
+      {rootState.children.map((child) => (
+        <ExplorerTreeNodeView
+          key={normalizeExplorerTreePathKey(child.path)}
+          folder={child}
+          depth={0}
+          expanded={expanded}
+          nodes={nodes}
+          selectedPath={selectedPath}
+          onSelectFolder={onSelectFolder}
+          onToggle={toggle}
+          onExpandIfCollapsed={expandIfCollapsed}
+        />
+      ))}
       </div>
     </>
   );
