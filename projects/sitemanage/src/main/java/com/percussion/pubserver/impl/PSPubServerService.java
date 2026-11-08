@@ -470,10 +470,11 @@ public class PSPubServerService implements IPSPubServerService {
         return updateSftpPrivateKeyOnly(siteId, serverId, pubServerInfo);
       }
       // Folder-only PUT must not run the full property replace. A blank folder
-      // clears only the stored folder. Local and FTP share this body shape; the
-      // stored driver selects Local vs FTP apply.
+      // clears only the stored folder. Local, FTP, and SFTP share this body shape; the
+      // stored driver selects Local vs FTP vs SFTP apply.
       if (PSFtpDeliveryFolderUpdate.isFolderOnly(pubServerInfo)
-          || PSLocalDeliveryFolderUpdate.isFolderOnly(pubServerInfo)) {
+          || PSLocalDeliveryFolderUpdate.isFolderOnly(pubServerInfo)
+          || PSSftpDeliveryFolderUpdate.isFolderOnly(pubServerInfo)) {
         return updateDeliveryFolderOnly(siteId, serverId, pubServerInfo);
       }
 
@@ -1105,6 +1106,8 @@ public class PSPubServerService implements IPSPubServerService {
     String driver = server.getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY).orElse("");
     if ("Local".equalsIgnoreCase(driver)) {
       PSLocalDeliveryFolderUpdate.apply(server, pubServerInfo);
+    } else if ("SFTP".equalsIgnoreCase(driver)) {
+      PSSftpDeliveryFolderUpdate.apply(server, pubServerInfo);
     } else {
       PSFtpDeliveryFolderUpdate.apply(server, pubServerInfo);
     }

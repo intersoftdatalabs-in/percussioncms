@@ -81,6 +81,7 @@ import { SftpDeliveryPrivateKeyPanel } from "../components/SftpDeliveryPrivateKe
 import { SftpDeliveryHostPanel } from "../components/SftpDeliveryHostPanel";
 import { SftpDeliveryPortPanel } from "../components/SftpDeliveryPortPanel";
 import { SftpDeliveryUsernamePanel } from "../components/SftpDeliveryUsernamePanel";
+import { SftpDeliveryFolderPanel } from "../components/SftpDeliveryFolderPanel";
 import { LocalDeliveryFolderPanel } from "../components/LocalDeliveryFolderPanel";
 import { DeliveryServerRenamePanel } from "../components/DeliveryServerRenamePanel";
 import { DeliveryServerDefaultPanel } from "../components/DeliveryServerDefaultPanel";
@@ -925,6 +926,7 @@ export function SiteWorkspace({
             <SftpDeliveryHostPanel siteId={siteId} serverId={selectedServer} />
             <SftpDeliveryPortPanel siteId={siteId} serverId={selectedServer} />
             <SftpDeliveryUsernamePanel siteId={siteId} serverId={selectedServer} />
+            <SftpDeliveryFolderPanel siteId={siteId} serverId={selectedServer} />
             <LocalDeliveryFolderPanel siteId={siteId} serverId={selectedServer} />
           </>
         ) : null}
