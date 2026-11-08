@@ -130,6 +130,28 @@ Per rhai README "Product-first queue":
 
 Empty queue beats padding with p7/p8 / Xlint.
 
+### 5B. Fill-until-full epic walk (HARD — 2.2.7-draft)
+
+Stopping with free slots while unwalked product epics remain is a defect
+(observed: 5 queued + 3 seats empty with epics unwalked and no per-epic record).
+
+- While implement slots remain (`slotted + prequeued < max_issues`) AND
+  unwalked open p1–p6 PRODUCT epics exist, keep walking: next epic in pN
+  order → 3 vertical next-phase slices → queue one as implement (or record
+  why not). Never stop early because the "obvious" epics are done.
+- Emit an `epics_walked` array — one row per open p1–p6 product epic you
+  evaluated: `{epic, verdict}` where verdict is `queued` (one child in
+  `slotted_for_work`), `backlog_only` (3 proposals emitted, implement would
+  exceed capacity or a sibling parent already queued), or a typed why:
+  `existing_unassigned_children` / `open_covering_pr` / `gated_prerequisite` /
+  `host_install_only` / `human_uat_only` / `no_remaining_product`. Never an
+  inferred `NotSafe`.
+- Emit `child_proposals` for EVERY expanded epic, including ones whose
+  implement cannot fit this run — those become backlog for the host sweep
+  (which files them deduped, capped), so expansion work does not evaporate.
+- A short queue is valid ONLY when `epics_walked` covers every open p1–p6
+  product epic and every remaining row carries a typed why.
+
 ### 6. Apply oversized-issue 3-slice rule (per rhai README "Oversized priority work")
 
 For each PRODUCT candidate, check whether it has open children OR an OPEN covering PR:
@@ -189,6 +211,11 @@ Write `scratch/triage.json`:
     {"parent_issue": 1200, "title": "...", "slice_index": 1},
     {"parent_issue": 1200, "title": "...", "slice_index": 2},
     {"parent_issue": 1200, "title": "...", "slice_index": 3}
+  ],
+  "epics_walked": [
+    {"epic": 1200, "verdict": "queued"},
+    {"epic": 1201, "verdict": "backlog_only"},
+    {"epic": 1202, "verdict": "no_remaining_product"}
   ],
   "stats": {
     "raw": 87,

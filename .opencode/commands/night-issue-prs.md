@@ -126,6 +126,7 @@ absent (count `-1` is unknown, not zero).
 | 4 | Reconcile (fallback) | `reconcile` | decision-front filled the queue or `include_reconcile: false` |
 | 5 | PR follow-up PRE | `pr-follow-up` | no merge blockers from Preflight |
 | 6 | Triage | `triage` | decision-front filled `max_issues` |
+| 6b | Triage follow-up | `triage` (one bounded retry) | queue full after Triage, or Triage emitted a complete `epics_walked` audit |
 | 7 | Peer PR review | `peer-pr-review` (spawns `erlang-review`; merge if LGTM) | no other-model eligible PRs |
 | 8 | Erlang leftover | `erlang-review` then `erlang-fix` if BLOCK | `include_erlang_review: false` or `owned_pr_count == 0` |
 | 9 | Work | `work` (×N; each runs Erlang skill CLI before PR) | no implement / split rows |
@@ -188,8 +189,13 @@ Host sweep (Report phase, covers everything Work did not):
 1. Collect unfiled items: triage `child_proposals` with no URL, plus any
    residual/follow-up noted in `work-*.json`, `reconcile.json`, or
    `cycle-verify.json` that has no URL in `issues_filed`/`residuals_filed`.
+   This EXPLICITLY includes backlog slices for expanded-but-unqueued parents
+   (fill-until-full `backlog_only` verdicts) — an expanded epic whose
+   children were never filed is evaporated work, not a plan.
 2. Dedupe each against open issues (same search as above, plus a title
-   search). Reuse-and-link on a match; never file a duplicate.
+   search). Reuse-and-link on a match; never file a duplicate. If the live
+   scope check shows the slice already ships on base (merge commits + code
+   presence), skip filing and note `already_shipped` instead of filing junk.
 3. File the rest (same labels/body convention as Work). Cap at **8 new
    issues per run**; beyond that file the 8 most valuable and list the
    deferred remainder in the report.
