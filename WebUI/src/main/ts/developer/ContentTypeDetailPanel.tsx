@@ -231,6 +231,29 @@ function contentTypeDesignGaps(detail: ContentTypeDetail | null | undefined): De
   return normalizeContentTypeDesignGaps(detail?.designGaps);
 }
 
+/**
+ * Design-gap codes whose SPA surface has shipped; the gaps list hides them so
+ * the panel never claims Workbench-only status for working editors (#5741).
+ * Codes with true remainders (e.g. {@code CT_ICON_STRATEGY} binary upload)
+ * stay visible with corrected server text.
+ */
+export const RETIRED_CONTENT_TYPE_DESIGN_GAPS: readonly string[] = [
+  "CT_SHARED_FIELD_INCLUSION",
+  "CT_SEARCH_INDEXING",
+  "CT_IMPORT_EXPORT",
+];
+
+export function withoutRetiredContentTypeDesignGaps(
+  gaps: DesignGapWire[] | null | undefined,
+): DesignGapWire[] {
+  if (!Array.isArray(gaps) || gaps.length === 0) {
+    return Array.isArray(gaps) ? gaps : [];
+  }
+  return gaps.filter(
+    (g) => !RETIRED_CONTENT_TYPE_DESIGN_GAPS.includes(designGapCode(g) ?? ""),
+  );
+}
+
 function normalizeDetailLists(d: ContentTypeDetail): ContentTypeDetail {
   return {
     ...d,
@@ -693,9 +716,7 @@ export function ContentTypeDetailPanel({
     setFieldOrder(parentFieldOrder(contentTypeFields(detail)));
   }, [detail]);
   const childSets = contentTypeChildSets(detail);
-  const gapRows = contentTypeDesignGaps(detail).filter(
-    (g) => designGapCode(g) !== "CT_SHARED_FIELD_INCLUSION",
-  );
+  const gapRows = withoutRetiredContentTypeDesignGaps(contentTypeDesignGaps(detail));
   const canEdit = heldLock && !busy && detail != null;
   const canEditItemExits = canEdit && itemExitsLoaded;
   const currentInternalName = asContentTypeText(detail?.name) || activeKey;

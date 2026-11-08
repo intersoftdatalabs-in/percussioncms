@@ -111,6 +111,49 @@ class DesignGapsStructuredTest {
   }
 
   @Test
+  void contentTypeDesignGaps_retiredClaimsStayShipped() {
+    List<DesignGap> gaps = ContentTypeAdaptor.contentTypeDesignGaps(true);
+    for (String code : List.of("CT_ICON_STRATEGY", "CT_SEARCH_INDEXING", "CT_IMPORT_EXPORT")) {
+      String message =
+          gaps.stream()
+              .filter(g -> code.equals(g.getCode()))
+              .map(DesignGap::getMessage)
+              .findFirst()
+              .orElseThrow(() -> new AssertionError("missing gap " + code + ": " + gaps));
+      assertFalse(
+          message.contains("SPA picker remain Workbench"),
+          () -> code + " still claims the SPA picker is Workbench-only: " + message);
+      assertFalse(
+          message.contains("is not exposed"),
+          () -> code + " still claims the SPA surface is not exposed: " + message);
+      assertFalse(
+          message.contains("remains Workbench until the export slice is installed"),
+          () -> code + " still claims export awaits a slice: " + message);
+    }
+    assertTrue(
+        gaps.stream()
+            .anyMatch(
+                g ->
+                    "CT_ICON_STRATEGY".equals(g.getCode())
+                        && g.getMessage().contains("SPA picker")),
+        () -> gaps.toString());
+    assertTrue(
+        gaps.stream()
+            .anyMatch(
+                g ->
+                    "CT_SEARCH_INDEXING".equals(g.getCode())
+                        && g.getMessage().contains("Developer editor")),
+        () -> gaps.toString());
+    assertTrue(
+        gaps.stream()
+            .anyMatch(
+                g ->
+                    "CT_IMPORT_EXPORT".equals(g.getCode())
+                        && g.getMessage().contains("import wizard")),
+        () -> gaps.toString());
+  }
+
+  @Test
   void contentTypeDesignGaps_addsControlResolutionWhenUnresolved() {
     List<DesignGap> gaps = ContentTypeAdaptor.contentTypeDesignGaps(false);
     assertTrue(
