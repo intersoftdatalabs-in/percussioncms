@@ -71,7 +71,7 @@
         "views/PercEditRegionPropertiesDialog.js",
         "plugins/perc_page_schema.js",
         "widgets/perc_asset_edit_dialog.js",
-        "widgets/perc_page_edit_dialog.js",
+        "widgets/perc_page_metadata_editor.js",
         "widgets/perc_save_as.js",
         "widgets/htmldiff.js",
         "plugins/perc_save_as_shared_asset_dialog.js",
