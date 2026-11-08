@@ -559,6 +559,10 @@ export const PATHS = {
   get ITEM_EDITOR_FIELDS() {
     return `${SERVICES_ROOT}/itemmanagement/item/fields`;
   },
+  /** GET page reverse-link site impact ({@code PercSiteImpactService} parity). Append {@code /{id}}. */
+  get PAGE_SITE_IMPACT() {
+    return `${SERVICES_ROOT}/itemmanagement/item/siteimpact/page`;
+  },
   /** GET metadata / PUT multipart binary field. Append {@code /{id}/{field}}. */
   get ITEM_EDITOR_BINARY() {
     return `${SERVICES_ROOT}/itemmanagement/item/binary`;

@@ -89,6 +89,19 @@ const TYPE = {
 };
 
 async function mockEditorHost(page, { onFieldsPut } = {}) {
+  await mockEditorHostRoutes(page, {
+    onFieldsPut,
+    fields: metadataFields(),
+    type: TYPE,
+  });
+}
+
+async function mockEditorHostRoutes(
+  page,
+  { onFieldsPut, fields, type, siteImpact } = {},
+) {
+  const fieldsBody = fields || metadataFields();
+  const typeBody = type || TYPE;
   await page.route("**/rest/editor/items/**/checkout", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
   );
@@ -101,14 +114,23 @@ async function mockEditorHost(page, { onFieldsPut } = {}) {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify(metadataFields()),
+      body: JSON.stringify(fieldsBody),
     });
   });
   await page.route("**/services/contenttypes/**", (route) =>
     route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify(TYPE),
+      body: JSON.stringify(typeBody),
+    }),
+  );
+  await page.route("**/itemmanagement/item/siteimpact/page/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(
+        siteImpact || { pages: [], templates: [] },
+      ),
     }),
   );
   await page.route("**/pagemanagement/page/changeTemplate/**", (route) =>
@@ -210,9 +232,14 @@ test.describe("React page metadata editor (classic dialog replacement)", () => {
       });
       // Field-level parity with the retired dialog: filename, link text,
       // browser title, summary and description all render for a percPage.
+      // Batch-2 groups (#5739): Page Summary starts open; SEO starts
+      // collapsed and expands on toggle.
       const sysTitle = page.locator('[data-testid="editor-field-sys_title"]');
       await expect(sysTitle).toBeVisible({ timeout: 20_000 });
       await expect(sysTitle).toHaveValue("Home");
+      await page
+        .locator('[data-testid="editor-metadata-group-toggle-seo"]')
+        .click();
       await expect(
         page.locator('[data-testid="editor-field-page_title"]'),
       ).toHaveValue("Home page");
@@ -261,6 +288,316 @@ test.describe("React page metadata editor (classic dialog replacement)", () => {
       await expect(sysTitle).toBeVisible({ timeout: 20_000 });
       await expect(sysTitle).not.toBeEditable();
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+});
+
+function batch2Fields(autoSummaryValue = "no") {
+  return {
+    ItemEditorFields: {
+      contentId: PAGE_ID,
+      contentType: "percPage",
+      name: "Home",
+      checkoutUser: "Admin",
+      revision: 3,
+      fields: [
+        { name: "sys_title", value: "Home" },
+        { name: "resource_link_title", value: "Home" },
+        { name: "page_title", value: "Home page" },
+        {
+          name: "page_summary",
+          value: "<p>Welcome<script>alert(1)</script></p>",
+        },
+        { name: "sys_contentpostdate", value: "2026-01-02" },
+        { name: "sys_contentpostdatetz", value: "America/New_York" },
+        { name: "auto_generate_summary", value: autoSummaryValue },
+        { name: "page_description", value: "Home page description." },
+        { name: "page_noindex", value: "no" },
+        { name: "page_tags", value: "" },
+        { name: "page_categories_tree", value: "" },
+        { name: "page_calendar", value: "" },
+        { name: "additional_head_content", value: "" },
+        { name: "code_insert_after_body_start", value: "" },
+        { name: "code_insert_before_body_close", value: "" },
+      ],
+    },
+  };
+}
+
+function batch2Type() {
+  const editBox = (name, label) => ({ name, label, control: "sys_EditBox" });
+  return {
+    ContentTypeDetail: {
+      name: "percPage",
+      fields: [
+        editBox("sys_title", "Filename"),
+        editBox("resource_link_title", "Link text"),
+        editBox("page_title", "Browser title"),
+        editBox("page_summary", "Page summary"),
+        {
+          name: "sys_contentpostdate",
+          label: "Post date",
+          control: "sys_Calendar",
+        },
+        editBox("sys_contentpostdatetz", "Post date time zone"),
+        {
+          name: "auto_generate_summary",
+          label: "Auto-generate summary",
+          control: "sys_SingleCheckBox",
+        },
+        editBox("page_description", "Page description"),
+        {
+          name: "page_noindex",
+          label: "No index",
+          control: "sys_SingleCheckBox",
+        },
+        editBox("page_tags", "Tags"),
+        editBox("page_categories_tree", "Categories"),
+        {
+          name: "page_calendar",
+          label: "Calendar",
+          control: "sys_Calendar",
+        },
+        editBox("additional_head_content", "Additional head content"),
+        editBox("code_insert_after_body_start", "Code after body start"),
+        editBox("code_insert_before_body_close", "Code before body close"),
+      ],
+      allowedTemplates: [
+        { name: "perc.base.page", label: "Base", guid: { stringValue: BASE_ID } },
+        { name: "perc.base.plain", label: "Plain", guid: { stringValue: PLAIN_ID } },
+      ],
+    },
+  };
+}
+
+function batch2SiteImpact() {
+  return {
+    pages: [
+      {
+        id: "7",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        status: "Live",
+        type: "Page",
+      },
+    ],
+    templates: [{ template: { name: "Base" }, site: "Demo" }],
+  };
+}
+
+function watchPage(page, errors, badResponses) {
+  page.on("pageerror", (err) => errors.push(String(err)));
+  page.on("response", (res) => {
+    if (res.status() >= 400) {
+      badResponses.push(`${res.status()} ${res.url()}`);
+    }
+  });
+  page.on("console", (msg) => {
+    if (msg.type() === "error") {
+      errors.push(msg.text());
+    }
+  });
+}
+
+function expectClean(errors, badResponses) {
+  expect(errors, `console/page errors: ${errors.join(" | ")}`).toEqual([]);
+  expect(
+    badResponses,
+    `HTTP 400+ responses: ${badResponses.join(" | ")}`,
+  ).toEqual([]);
+}
+
+test.describe("React page metadata editor batch-2 chrome (#5739)", () => {
+  test.beforeEach(async ({ page }) => {
+    test.setTimeout(45_000);
+    await loginAsAdmin(page);
+  });
+
+  test(
+    "collapsible field groups render with Page Summary open",
+    { tag: ["@page-metadata-editor", "@editor"] },
+    async ({ page }) => {
+      const errors = [];
+      const badResponses = [];
+      watchPage(page, errors, badResponses);
+      await mockEditorHostRoutes(page, {
+        fields: batch2Fields(),
+        type: batch2Type(),
+        siteImpact: batch2SiteImpact(),
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, `contentId=${PAGE_ID}&mode=edit`));
+      await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
+        timeout: 20_000,
+      });
+      for (const id of [
+        "page-summary",
+        "seo",
+        "tags-categories",
+        "calendar",
+        "additional-code",
+      ]) {
+        await expect(
+          page.locator(`[data-testid="editor-metadata-group-toggle-${id}"]`),
+        ).toBeVisible({ timeout: 20_000 });
+      }
+      // Page Summary starts open; SEO starts collapsed (classic parity).
+      await expect(
+        page.locator('[data-testid="editor-field-row-sys_title"]'),
+      ).toBeVisible();
+      await expect(
+        page.locator('[data-testid="editor-field-row-page_title"]'),
+      ).toHaveCount(0);
+      await expect(
+        page.locator('[data-testid="editor-metadata-group-toggle-seo"]'),
+      ).toHaveAttribute("aria-expanded", "false");
+
+      await page
+        .locator('[data-testid="editor-metadata-group-toggle-seo"]')
+        .click();
+      await expect(
+        page.locator('[data-testid="editor-field-row-page_title"]'),
+      ).toBeVisible();
+      await expect(
+        page.locator('[data-testid="editor-metadata-group-toggle-seo"]'),
+      ).toHaveAttribute("aria-expanded", "true");
+      // Classic dialog forced aria-required on filename / link text /
+      // browser title independent of schema flags.
+      await expect(
+        page.locator('[data-testid="editor-field-sys_title"]'),
+      ).toHaveAttribute("aria-required", "true");
+      await expect(
+        page.locator('[data-testid="editor-field-page_title"]'),
+      ).toHaveAttribute("aria-required", "true");
+      // Override-post-date note from the retired dialog.
+      await expect(
+        page.locator('[data-testid="editor-metadata-postdate-note"]'),
+      ).toBeVisible();
+      expectClean(errors, badResponses);
+    },
+  );
+
+  test(
+    "auto-generate summary swaps the editor for a sanitized preview",
+    { tag: ["@page-metadata-editor", "@editor"] },
+    async ({ page }) => {
+      const errors = [];
+      const badResponses = [];
+      watchPage(page, errors, badResponses);
+      await mockEditorHostRoutes(page, {
+        fields: batch2Fields("yes"),
+        type: batch2Type(),
+        siteImpact: batch2SiteImpact(),
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, `contentId=${PAGE_ID}&mode=edit`));
+      await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
+        timeout: 20_000,
+      });
+      const preview = page.locator(
+        '[data-testid="editor-metadata-summary-preview"]',
+      );
+      await expect(preview).toBeVisible({ timeout: 20_000 });
+      await expect(preview).toContainText("Welcome");
+      await expect(
+        page.locator('[data-testid="editor-field-page_summary"]'),
+      ).toHaveCount(0);
+
+      // Toggling back off restores the summary editor.
+      await page
+        .locator('[data-testid="editor-field-auto_generate_summary"]')
+        .selectOption("no");
+      await expect(
+        page.locator('[data-testid="editor-field-page_summary"]'),
+      ).toBeVisible();
+      await expect(preview).toHaveCount(0);
+      expectClean(errors, badResponses);
+    },
+  );
+
+  test(
+    "filename filter trims trailing dots on save",
+    { tag: ["@page-metadata-editor", "@editor"] },
+    async ({ page }) => {
+      const errors = [];
+      const badResponses = [];
+      const fieldPuts = [];
+      watchPage(page, errors, badResponses);
+      await mockEditorHostRoutes(page, {
+        fields: batch2Fields(),
+        type: batch2Type(),
+        siteImpact: batch2SiteImpact(),
+        onFieldsPut: (body) => fieldPuts.push(body),
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, `contentId=${PAGE_ID}&mode=edit`));
+      await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
+        timeout: 20_000,
+      });
+      const sysTitle = page.locator('[data-testid="editor-field-sys_title"]');
+      await expect(sysTitle).toBeVisible({ timeout: 20_000 });
+      await sysTitle.fill("Home...   ");
+      await page.locator(`[data-testid="${TEST_IDS.save}"]`).click();
+      await expect.poll(() => fieldPuts.length).toBeGreaterThan(0);
+      expect(fieldPuts[0]).toContain('"name":"sys_title","value":"Home"');
+      expectClean(errors, badResponses);
+    },
+  );
+
+  test(
+    "site impact panel lists impacting pages and templates",
+    { tag: ["@page-metadata-editor", "@editor"] },
+    async ({ page }) => {
+      const errors = [];
+      const badResponses = [];
+      watchPage(page, errors, badResponses);
+      await mockEditorHostRoutes(page, {
+        fields: batch2Fields(),
+        type: batch2Type(),
+        siteImpact: batch2SiteImpact(),
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, `contentId=${PAGE_ID}&mode=edit`));
+      await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(
+        page.locator('[data-testid="editor-site-impact-panel"]'),
+      ).toBeVisible({ timeout: 20_000 });
+      const pageRow = page.locator(
+        '[data-testid="editor-site-impact-page-row"]',
+      );
+      await expect(pageRow).toContainText("Home");
+      await expect(pageRow).toContainText("Demo");
+      await expect(pageRow).toContainText("Live");
+      await expect(
+        page.locator('[data-testid="editor-site-impact-template-row"]'),
+      ).toContainText("Base");
+      expectClean(errors, badResponses);
+    },
+  );
+
+  test(
+    "site impact panel renders an explicit empty state",
+    { tag: ["@page-metadata-editor", "@editor"] },
+    async ({ page }) => {
+      const errors = [];
+      const badResponses = [];
+      watchPage(page, errors, badResponses);
+      await mockEditorHostRoutes(page, {
+        fields: batch2Fields(),
+        type: batch2Type(),
+        siteImpact: { pages: [], templates: [] },
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, `contentId=${PAGE_ID}&mode=edit`));
+      await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(
+        page.locator('[data-testid="editor-site-impact-empty"]'),
+      ).toBeVisible({ timeout: 20_000 });
+      expectClean(errors, badResponses);
     },
   );
 });
