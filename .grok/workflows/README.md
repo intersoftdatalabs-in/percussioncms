@@ -39,7 +39,7 @@ Unattended overnight worker. Specialists spawn only when Preflight (or this-run 
 
 **Token skip (2.1.0):** Host skip is still fail-open on **unknown** counts (`-1`), but **known zeros** and sentinel `none` strings do not spawn specialists. Jev prescreen remains hints only.
 
-**Merge policy (2.0.8+):** Goal is **merged bug-free PRs** with **residual issues logged** for leftover scope. Work **opens PRs only** (never APPROVEs or merges its own). **Erlang** (independent sub-agent) **MAY APPROVE and squash-merge** when LGTM + checks green. Hard-gate findings are **fixed on the same PR** (`erlang-fix`) then re-reviewed (one retry). Out-of-scope leftovers become residual GitHub issues — they do not block merge of in-scope work. GitHub same-login APPROVE rejection → COMMENT LGTM + `--admin` merge. Oversized issues become child issues, not mega-PRs.
+**Merge policy (2.0.8+):** Goal is **merged bug-free PRs** with **residual issues logged** for leftover scope. Work **opens PRs only** (never APPROVEs or merges its own). **Erlang** (independent sub-agent) **MAY APPROVE and squash-merge** when LGTM + checks green. Hard-gate findings are **fixed on the same PR** (`erlang-fix`) then re-reviewed (one retry). Out-of-scope leftovers become residual GitHub issues — they do not block merge of in-scope work. **Preexisting machine bugs and complexity/cognitive-complexity findings in PR-touched files are never merge blockers, but they are never dropped either:** Erlang files deduped, capped (`max_erlang_residuals`, default 3) `tech-debt` residuals per PR — `p7` for preexisting **bug** rows, `p8` for **complexity/suggestion** rows (`nit` never files) — and records them in `residual_issue_urls` (`bugs_found` stays in-diff only). GitHub same-login APPROVE rejection → COMMENT LGTM + `--admin` merge. Oversized issues become child issues, not mega-PRs.
 
 **Close gate:** A `Fixes #N` keyword (or any close) is a claim that **every** acceptance criterion in the issue body is met with evidence in the PR body — quantitative criteria need the number (warning counts, test counts), not a bare `BUILD SUCCESS`. Umbrella/tracker issues stay open across slice PRs; research spikes file their required follow-on issue before the spike PR merges; human-gated issues (ops review, UAT, legal, soak) wait for the recorded human sign-off — an agent docs PR that *proposes* a decision is not the decision. Manual `gh issue close` on a tracker/umbrella/spike is a defect. The host Report phase audits every close and reopens with a reason comment anything closed without evidence (2026-11-05: #1976/#2028/#2045/#2200 reopened, #5622 epic filed for #4717).
 
@@ -54,9 +54,9 @@ Every run classifies candidates as **PRODUCT** or **DEBT** before ranking.
 
 | Rule | Behavior |
 |------|----------|
-| **Phase A — product seats** | Fill `priority_slots` from PRODUCT only, p1 → p6 → Unset. Implement-ready items **and** 3 PR-sized **next-phase slices** of open epics. A prior child PR + assigned QA ticket does **not** finish the parent. **Never** queue p7/p8 while any eligible product item remains |
+| **Phase A — product seats** | Fill `priority_slots = max_issues − low_slots` from PRODUCT only, p1 → p6 → Unset. Implement-ready items **and** 3 PR-sized **next-phase slices** of open epics. A prior child PR + assigned QA ticket does **not** finish the parent. **Never** queue p7/p8 while any eligible product item remains. Product overflow must never eat a reserved debt seat |
 | **Phase A — QA: Failed** | Not a skip. File or reuse an unassigned implement residual and queue it. Do not work the assigned `qa task` itself |
-| **Phase B — debt seats** | After Phase A is truly empty, p7/p8 may fill **`low_slots` only**. Unused `priority_slots` stay **empty**. Default `low_priority_quota_pct=0` → no debt seats. Empty queue beats an Xlint night |
+| **Phase B — debt seats (RESERVED)** | Fill **`low_slots` only**, where `low_slots = max(floor(max_issues × low_priority_quota_pct / 100) with min 1 when quota>0, min_debt_slots)`. Floor-plus-one: quota>0 on a small `max_issues` still seats ≥1 (max=3, quota=20 → 1; max=10, quota=20 → 2). The explicit **tech-debt count** knob is `min_debt_slots` (e.g. `min_debt_slots=1` guarantees one debt seat regardless of percentage math). Unused `priority_slots` stay **empty**. Default quota=0 + min_debt=0 → no debt seats. Empty queue beats an Xlint night. Report `priority_slots / low_slots / debt_candidates / debt_queued` every run so zero-debt is auditable |
 | **prefer_easy** | Tertiary **among DEBT items in the same pN** only. Default **false**. Never ranks tech-debt above product. Never a reason to pick p8 in Phase A |
 
 **p7/p8 does not relax build quality.** Tech-debt / Xlint batches use the same Maven gates as p1 work.
@@ -277,7 +277,9 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | `repo` | string | `intersoftdatalabs-in/percussioncms` | GitHub repo |
 | `base_branch` | string | `main` | PR base |
 | `prefer_easy` | bool | `false` | After product items in the same pN, prefer smaller debt/bugs. Never outranks product work |
-| `low_priority_quota_pct` | int | `0` | Percent of `max_issues` reserved for p7/p8 only. `0` = product-only (empty queue OK). Unused priority slots never become Xlint |
+| `low_priority_quota_pct` | int | `0` | Percent of `max_issues` reserved for p7/p8 only. `0` = product-only (empty queue OK). Floor pct with min 1 when quota>0 — small max still seats ≥1. Unused priority slots never become Xlint |
+| `min_debt_slots` | int | `0` | Explicit tech-debt count floor — guarantees ≥N debt seats regardless of percentage math |
+| `max_erlang_residuals` | int | `3` | Cap on Erlang preexisting-bug/complexity tech-debt residuals filed per PR (deduped, never blocking) |
 | `coding_tool` | string | live | Override stamp tool name. Empty = detect (`Grok Build`) |
 | `coding_tool_version` | string | live | Override stamp tool version. Empty = `grok --version` semver (e.g. `1.0.3`) |
 | `model_id` | string | live | Override session model slug. Empty = system identity (`You are Grok 4.6` → `grok-4.6`). Label is `model:<id>` |

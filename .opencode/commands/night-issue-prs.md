@@ -21,7 +21,9 @@ positional text). Parse them and pass to the workflow as described below.
 | `repo` | string | `intersoftdatalabs-in/percussioncms` | GitHub repo |
 | `base_branch` | string | `main` | PR base |
 | `prefer_easy` | bool | `false` | Tertiary among same-pN debt only |
-| `low_priority_quota_pct` | int | `0` | % of `max_issues` reserved for p7/p8 |
+| `low_priority_quota_pct` | int | `0` | % of `max_issues` reserved for p7/p8 (floor pct, min 1 when quota>0) |
+| `min_debt_slots` | int | `0` | Explicit tech-debt count floor (guarantees ≥N debt seats) |
+| `max_erlang_residuals` | int | `3` | Cap on Erlang preexisting/complexity tech-debt residuals per PR |
 | `coding_tool` | string | (detect) | Override stamp; empty = `OpenCode` |
 | `coding_tool_version` | string | (detect) | Override stamp; empty = `opencode --version` semver |
 | `model_id` | string | (detect) | Override session slug (`opencode-minimax-m3`) |

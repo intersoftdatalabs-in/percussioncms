@@ -264,6 +264,10 @@ def test_build_workflow_prompt_substitutes_json(tmp_path):
         "base_branch": "main",
         "max_prs": 1,
         "include_pr_followup": False,
+        "low_priority_quota_pct": 0,
+        "min_debt_slots": 0,
+        "max_erlang_residuals": 3,
+        "labels": "",
     }
 
 
@@ -282,6 +286,10 @@ def test_build_workflow_args_serializes_to_json():
         "base_branch": "release/8.2.x",
         "max_prs": 4,
         "include_pr_followup": True,
+        "low_priority_quota_pct": 0,
+        "min_debt_slots": 0,
+        "max_erlang_residuals": 3,
+        "labels": "",
     }
 
 

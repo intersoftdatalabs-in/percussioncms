@@ -26,6 +26,9 @@ The host will pass the relevant slice of the workflow args:
 | Key | Default | Meaning |
 |-----|---------|---------|
 | `max_issues` | `3` | Max candidates to return. |
+| `low_priority_quota_pct` | `0` | % of `max_issues` reserved for p7/p8 debt (floor pct, min 1 when quota>0). |
+| `min_debt_slots` | `0` | Explicit tech-debt count floor — guarantees ≥N debt seats. |
+| `max_erlang_residuals` | `3` | Cap for Erlang preexisting/complexity residuals per PR. |
 | `issue_numbers` | - | Restrict to these issue numbers (still triaged). |
 | `labels` | - | Restrict to issues matching this label filter. |
 | `maintainer_authors_only` | `true` | Drop issues whose author is not a registered maintainer. |
@@ -108,12 +111,22 @@ Within PRODUCT:
 
 Within DEBT: lowest priority number first, tie-break by `updatedAt` ascending.
 
-### 5. Apply Phase A / Phase B quota
+### 5. Apply Phase A / Phase B quota (RESERVED seats — 2.2.6-draft)
 
 Per rhai README "Product-first queue":
 
-- **Phase A** fills `max_issues` from PRODUCT only. If `low_priority_quota_pct=0` (default), DEBT does not enter.
-- **Phase B** (DEBT) only runs if Phase A returned fewer than `max_issues`. DEBT count is bounded by `floor(max_issues * low_priority_quota_pct / 100)`.
+- `low_slots = floor(max_issues * low_priority_quota_pct / 100)` with min 1 when quota>0, floored by
+  `min_debt_slots` (the explicit tech-debt count). Floor division truncated
+  small-max reservations to 0 (max=3, quota=20 → 0); floor-plus-one guarantees quota>0
+  yields ≥1 seat. Prefer `min_debt_slots: 1` over tuning percentages on
+  small `max_issues` runs.
+- **Phase A** fills `priority_slots = max_issues - low_slots` from PRODUCT
+  only — product overflow must never eat a reserved debt seat.
+- **Phase B** fills `low_slots` from DEBT only (lowest pN first, oldest
+  `updatedAt` tie-break). Unused `priority_slots` stay **empty**.
+- Report `priority_slots / low_slots / product_candidates / debt_candidates /
+  product_queued / debt_queued` in `stats` so a zero-debt run is auditable
+  (no candidates vs. no seats vs. starved seats).
 
 Empty queue beats padding with p7/p8 / Xlint.
 
