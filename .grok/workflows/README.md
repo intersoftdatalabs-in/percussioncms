@@ -94,6 +94,15 @@ When a **p1–p6/Unset PRODUCT** issue is too big for one PR, **or** an **open p
 5. Fill remaining `max_issues` slots from **other parents / surfaces**. Empty slots beat same-parent parallel PRs.
 6. Still create all 3 children if planned (backlog for later nights). **“This parent already has children” applies only to that parent.** Unused seats must walk other p1–p6 product epics and create their next-phase 3 children, or record a typed why (`existing_unassigned_children` / `open_covering_pr` / `gated_prerequisite` / `host_install_only` / `human_uat_only` / `no_remaining_product`) — never inferred `NotSafe`.
 
+### Fill-until-full (HARD — 2.2.7-draft)
+
+Stopping with free implement seats while unwalked open p1–p6 product epics remain is a **defect** — the queue must be walked full, not filled opportunistically:
+
+1. Triage walks open p1–p6 product epics in pN order **until seats are full or no unwalked epic remains**, emitting `epics_walked` (one `{epic, verdict}` row per epic evaluated; verdict `queued` / `backlog_only` / typed why).
+2. Triage emits `child_proposals` for **every** expanded epic — including ones whose implement cannot fit this run. Those become host-sweep backlog filings (deduped, capped), so expansion work does not evaporate.
+3. Host verifies: short queue + missing/incomplete `epics_walked` → **one** bounded follow-up triage pass scoped to uncovered epics (still capped by `max_issues`). A short queue is valid only with a complete per-epic audit.
+4. A short queue after a complete walk (every remaining epic carries a typed why) is success, not failure — record the whys in the report.
+
 Fallback Work `disposition=split` still creates exactly 3 **vertical** children and ships **only the first** slice the same turn.
 
 **HARD BAN:** splitting one increment into `REST PR` + `SPA PR` + `Playwright PR`. Change-class companions (REST + sitemanage + WebUI + Playwright + `product-docs`) belong **in the same PR** when that increment needs them. Layer splits duplicate `rest.md`, `sitemanage-beans.xml`, `paths.ts`, `messages.ts`, `DeveloperShell.tsx`, admin/developer indexes, and qa `package.json`, then go **CONFLICTING** (File Explorer #4331 / #4332 / #4333).

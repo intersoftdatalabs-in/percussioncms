@@ -1,6 +1,10 @@
 // Overnight / unattended open-issue worker for Percussion CMS.
-// workflow_version: 2.2.6-draft (UNCOMMITTED — human review required per root AGENTS.md)
-// 2.2.6-draft — Tech-debt reservation that actually reserves + Erlang preexisting residuals:
+// workflow_version: 2.2.7-draft (UNCOMMITTED — human review required per root AGENTS.md)
+// 2.2.7-draft — Fill-until-full: triage must walk every open p1–p6 product epic while
+//   implement seats remain (epics_walked audit per epic); host runs ONE bounded follow-up
+//   pass when the queue is short without an audit; host sweep files backlog slices for
+//   expanded-but-unqueued parents (deduped, capped) so expansion work does not evaporate.
+// 2.2.6 — Tech-debt reservation that actually reserves + Erlang preexisting residuals:
 //   (a) low_slots uses FLOOR-PLUS-ONE + optional min_debt_slots floor, so quota>0 on a
 //   small max_issues (e.g. max=3, quota=34) yields >=1 debt seat instead of 0 via
 //   integer truncation; PRODUCT capped at priority_slots so reserved debt seats
@@ -269,6 +273,17 @@ let triage_schema = #{
                     "slice_title": #{ "type": "string" },
                     "split_plan": #{ "type": "string" },
                     "parent_issue": #{ "type": "integer" },
+                },
+            },
+        },
+        "epics_walked": #{
+            "type": "array",
+            "items": #{
+                "type": "object",
+                "required": ["epic", "verdict"],
+                "properties": #{
+                    "epic": #{ "type": "integer" },
+                    "verdict": #{ "type": "string" },
                 },
             },
         },
@@ -1093,6 +1108,7 @@ let decision_front_ok = false;
 let expand_needed = false;
 let queue = [];
 let triage_notes = "";
+let triage_followup_needed = false;
 
 if include_decision_front {
     phase("Decision front");
@@ -1827,6 +1843,15 @@ triage_prompt += "     open_covering_pr | gated_prerequisite | host_install_only
 triage_prompt += "     no_remaining_product. Never use inferred NotSafe / \"agent-unsafe\" as that why.\n";
 triage_prompt += "     Creating 3 children IS required when the epic still has unscoped product work that\n";
 triage_prompt += "     H2 QA can prove — even if you will only implement one child tonight.\n";
+triage_prompt += "  FILL-UNTIL-FULL (HARD — 2.2.7-draft): stopping with free implement slots while\n";
+triage_prompt += "     unwalked open p1–p6 PRODUCT epics remain is a DEFECT. While slots remain and\n";
+triage_prompt += "     unwalked epics exist, keep walking in pN order (expand → queue one → next epic).\n";
+triage_prompt += "     Emit epics_walked: one row per open p1–p6 product epic evaluated —\n";
+triage_prompt += "     {epic, verdict} with verdict queued | backlog_only | existing_unassigned_children\n";
+triage_prompt += "     | open_covering_pr | gated_prerequisite | host_install_only | human_uat_only |\n";
+triage_prompt += "     no_remaining_product. Emit child_proposals for EVERY expanded epic, even when its\n";
+triage_prompt += "     implement cannot fit this run (host files those as backlog). A short queue is valid\n";
+triage_prompt += "     ONLY when epics_walked covers every open p1–p6 product epic with a typed why.\n";
 triage_prompt += "PRIMARY PRODUCT TRACK (HARD — do not stall):\n";
 triage_prompt += "  KEEP BUILDING these React product surfaces (not soak, not p8 javac, not #1371 UAT):\n";
 triage_prompt += "  1) Developer workbench — parent #1690. Read remaining DESIGN_GAPS under\n";
@@ -1890,6 +1915,14 @@ if triage != () && triage.success && triage.output != () {
             }
         }
     }
+    // FILL-UNTIL-FULL verification (2.2.7-draft): a short queue is valid only when
+    // triage walked every open p1–p6 product epic. If slots remain and epics_walked
+    // is missing or covers fewer epics than the inventory holds, run ONE bounded
+    // follow-up pass limited to the uncovered epics instead of leaving seats empty.
+    if queue.len() < max_issues && triage.output.epics_walked == () {
+        log("Triage short queue without epics_walked — fullness unauditable; follow-up pass required.");
+        triage_followup_needed = true;
+    }
 }
 } // end inventory nonempty
 
@@ -1898,6 +1931,48 @@ if queue.len() == 0 {
     log("Empty triage queue - issue Work will be skipped; POST PR follow-up still runs if enabled.");
 } else {
     log("Triage selected " + queue.len().to_string() + " item(s).");
+}
+
+// Fill-until-full follow-up (2.2.7-draft): exactly ONE bounded retry when triage left
+// implement seats empty without an auditable full epic walk. The retry is scoped to
+// uncovered epics only and still capped by max_issues — it never exceeds the run budget.
+if triage_followup_needed && queue.len() < max_issues {
+    phase("Triage follow-up");
+    log("Slots free (" + queue.len().to_string() + "/" + max_issues.to_string()
+        + ") with no epics_walked audit — one bounded follow-up pass.");
+    let triage_followup_prompt = "";
+    triage_followup_prompt += "You are the overnight TRIAGE FOLLOW-UP agent for Percussion CMS.\n";
+    triage_followup_prompt += "Repo: " + repo + "\nBase branch: " + base_branch + "\n";
+    triage_followup_prompt += "Free implement slots: " + (max_issues - queue.len()).to_string() + "\n";
+    triage_followup_prompt += "Already queued issue numbers (do NOT re-queue, do NOT expand their parents): "
+        + json_encode(queue) + "\n";
+    triage_followup_prompt += identity_block(coding_tool, coding_tool_version, model_id, "night-issue-prs-triage-followup");
+    triage_followup_prompt += "Walk open p1–p6 PRODUCT epics the first pass did not cover, in pN order: for\n";
+    triage_followup_prompt += "each, either (define exactly 3 vertical next-phase children + queue one as\n";
+    triage_followup_prompt += "disposition=implement) or record a typed why (existing_unassigned_children |\n";
+    triage_followup_prompt += "open_covering_pr | gated_prerequisite | host_install_only | human_uat_only |\n";
+    triage_followup_prompt += "no_remaining_product). One implement per parent. Emit epics_walked for every\n";
+    triage_followup_prompt += "epic evaluated plus child_proposals for every expanded epic.\n";
+    let triage_followup = agent(triage_followup_prompt, #{
+        label: "triage-followup",
+        capability_mode: "execute",
+        output_schema: triage_schema,
+    });
+    if triage_followup != () && triage_followup.success && triage_followup.output != () {
+        if triage_followup.output.queue != () {
+            for item in triage_followup.output.queue {
+                if queue.len() < max_issues {
+                    queue.push(item);
+                }
+            }
+        }
+        if triage_followup.output.notes != () {
+            triage_notes = triage_notes + "\nFollow-up: " + as_str(triage_followup.output.notes);
+        }
+    } else {
+        log("Triage follow-up failed or empty — seats stay empty with recorded reason.");
+    }
+    triage_followup_needed = false;
 }
 
 // ========== Peer / Work / POST (after Discover+Triage) ==========
