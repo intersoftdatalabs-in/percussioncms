@@ -1,5 +1,7 @@
 // Overnight / unattended open-issue worker for Percussion CMS.
-// workflow_version: 2.2.9-draft (UNCOMMITTED — human review required per root AGENTS.md)
+// workflow_version: 2.2.10-draft (UNCOMMITTED — human review required per root AGENTS.md)
+// 2.2.10-draft — Complete the turn: Work and Cycle verify run end-to-end in one
+//   turn (gates foreground or polled in-turn); DONE with jobs pending is a defect.
 // 2.2.9-draft — Blocked-with-unfiled-blocker: triage gate-checks before implement;
 //   a gated issue with no open blocker issue gets its blocker FILED (blocker_proposals,
 //   deduped, capped) and the first agent-actionable blocker takes the seat instead;
@@ -2317,6 +2319,7 @@ for item in queue {
     work_prompt += "Worktree relative under home: " + worktree_rel + "\n";
     work_prompt += "Sync branch (local default): " + sync_branch + "\n";
     work_prompt += "agent_safe_only=" + agent_safe_only.to_string() + "\n\n";
+    work_prompt += "COMPLETION (HARD — 2.2.10-draft): one turn, end-to-end. Run Maven, Erlang CLI, and the QA cell foreground (or poll background jobs to completion in-turn). Return ONLY with the PR URL or a concrete blocked reason with evidence — never with gates still pending.\n\n";
 
     work_prompt += "READ FIRST (use tools, do not skip):\n";
     work_prompt += "- Root AGENTS.md hard gates (Erlang pre-commit, per-module clean install,\n";

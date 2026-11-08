@@ -304,6 +304,10 @@ neither array contains the candidate PR's number.
 - **No human QA assignment, `qa task` label, or assignee `@<login>`**.
   Those are the `human-qa` phase's job. Cycle verify outputs go into
   next-cycle lead issues, not QA handoffs.
+- **Complete the turn (HARD — 2.2.10-draft).** Collect every module build
+  and the full Playwright pass before returning — "waiting on builds" is
+  not a DONE state. Return ONLY with status green (evidence) or failed
+  (failures_filed URLs).
 
 ### 9. Output
 
