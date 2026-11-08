@@ -5555,7 +5555,7 @@ describe("EditorHost refuse a TipTap rich-text NUL (#5696)", () => {
     await screen.findByText("Hi");
     // Plain-text fragments insert as text (no markup parse), so an embedded
     // NUL reaches the document and the row value the save gate reads.
-    fireEvent.click(screen.getByTestId("tiptap-perc-insert-html-text"));
+    fireEvent.click(await screen.findByTestId("tiptap-perc-insert-html-text"));
     fireEvent.change(screen.getByTestId("tiptap-perc-html-text"), {
       target: { value: "xa\u0000yb" },
     });
@@ -5588,7 +5588,7 @@ describe("EditorHost refuse a TipTap rich-text NUL (#5696)", () => {
     });
     render(tiptapRoute(tiptapHost({ saveFields })));
     await screen.findByText("Hi");
-    fireEvent.click(screen.getByTestId("tiptap-perc-insert-html-text"));
+    fireEvent.click(await screen.findByTestId("tiptap-perc-insert-html-text"));
     fireEvent.change(screen.getByTestId("tiptap-perc-html-text"), {
       target: { value: "<p>Bye</p>" },
     });
@@ -5606,7 +5606,7 @@ describe("EditorHost refuse a TipTap rich-text NUL (#5696)", () => {
     const saveFields = vi.fn();
     render(tiptapRoute(tiptapHost({ saveFields, confirmLeaveUnsaved: () => false })));
     await screen.findByText("Hi");
-    fireEvent.click(screen.getByTestId("tiptap-perc-insert-html-text"));
+    fireEvent.click(await screen.findByTestId("tiptap-perc-insert-html-text"));
     fireEvent.change(screen.getByTestId("tiptap-perc-html-text"), {
       target: { value: "<p>Bye</p>" },
     });
@@ -5627,7 +5627,7 @@ describe("EditorHost refuse a TipTap rich-text NUL (#5696)", () => {
     });
     render(tiptapRoute(tiptapHost({ saveFields })));
     await screen.findByText("Hi");
-    fireEvent.click(screen.getByTestId("tiptap-perc-insert-html-text"));
+    fireEvent.click(await screen.findByTestId("tiptap-perc-insert-html-text"));
     fireEvent.change(screen.getByTestId("tiptap-perc-html-text"), {
       target: { value: "<p>Rejected</p>" },
     });
