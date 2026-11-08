@@ -16,12 +16,12 @@
  */
 package com.percussion.cx;
 
-import com.percussion.util.IOTools;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.UIManager;
+import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -128,7 +128,7 @@ public class PSImageIconLoader extends UIManager {
       }
       if (in != null) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
-        IOTools.copyStream(in, out);
+        IOUtils.copy(in, out);
         icon = new ImageIcon(out.toByteArray());
       }
     } catch (Exception e) {
