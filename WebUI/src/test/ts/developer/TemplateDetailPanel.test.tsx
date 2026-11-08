@@ -1223,4 +1223,72 @@ describe("TemplateDetailPanel", () => {
     );
     expect((screen.getByTestId("developer-tpl-binding-var-0") as HTMLInputElement).value).toBe("$qa");
   });
+
+  it("assigns one catalog slot via checkbox and saves slots on PUT (#5786)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      slots: [{ name: "target", label: "Target" }],
+    });
+    listSlotsMock.mockResolvedValue([
+      { name: "target", label: "Target", description: "Main slot" },
+      { name: "extra", label: "Extra", description: "Spare slot" },
+    ]);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-slots-table")).toBeTruthy();
+    });
+    const save = screen.getByTestId("developer-tpl-save") as HTMLButtonElement;
+    expect(save.disabled).toBe(true);
+
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    // Checking one unassigned slot dirties only the slots section.
+    fireEvent.click(screen.getByTestId("developer-tpl-slot-check-name:extra"));
+    expect(save.disabled).toBe(false);
+    fireEvent.click(save);
+    await waitFor(() => {
+      expect(updateTemplateDetailMock).toHaveBeenCalled();
+    });
+    const body = updateTemplateDetailMock.mock.calls.at(-1)?.[1] as {
+      slots?: Array<{ name?: string }>;
+    };
+    expect(Array.isArray(body.slots)).toBe(true);
+    const names = (body.slots ?? []).map((s) => s.name).sort();
+    expect(names).toEqual(["extra", "target"]);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-detail-notice").textContent).toMatch(/saved/i);
+    });
+  });
+
+  it("omits slots from PUT when no slot checkbox changed (#5786)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      slots: [{ name: "target", label: "Target" }],
+    });
+    listSlotsMock.mockResolvedValue([
+      { name: "target", label: "Target", description: "Main slot" },
+    ]);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-slots-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.change(screen.getByTestId("developer-tpl-description"), {
+      target: { value: "Page template locked" },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-save"));
+    await waitFor(() => {
+      expect(updateTemplateDetailMock).toHaveBeenCalled();
+    });
+    const body = updateTemplateDetailMock.mock.calls.at(-1)?.[1] as {
+      slots?: unknown;
+    };
+    // Omit preserves: description-only save must not touch slot membership.
+    expect("slots" in body).toBe(false);
+  });
 });
