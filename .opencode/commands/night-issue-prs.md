@@ -183,10 +183,32 @@ Work duty (per claimed parent, before opening the PR):
 2. `gh issue create` each genuinely new slice (unassigned, parent `pN`
    copied, `Parent: #<P>` in the body, operator + `model:*` labels).
 3. Record URLs in `scratch/work-<N>.json` (`residuals_filed`).
+4. **Gate discovered at claim time (2.2.9-draft):** if triage queued the
+   issue as `implement` but the body/claim-check reveals a prerequisite
+   gate triage missed, apply the §5C logic yourself — name the blocking
+   condition, dedupe, file the first agent-actionable blocker (same
+   labels/body convention, `Blocked-by: #<N>` link both ways), record its
+   URL in `residuals_filed` with `"kind": "blocker"`, and return
+   `status=blocked` with `reason=gated_prerequisite_<what>`. Human-only
+   blockers are never filed — record `human_blocked_by` and return. The
+   spent seat does not chain same-run; the filed blocker becomes a
+   next-cycle candidate (or fills a still-empty seat at host discretion).
+
+Blocker filing (after Triage, before Work — 2.2.9-draft):
+
+1. For each triage `blocker_proposals` row, dedupe (title search + body-ref
+   search). Reuse-and-link on a match; never file a duplicate.
+2. File the rest (unassigned, parent `pN` copied, `Blocked-by: #<blocked>`
+   in the body, operator + `model:*` labels). Counts against the 8-new/run
+   cap shared with the host sweep.
+3. Replace any `file:blocker:<blocked>:<i>` placeholder in
+   `slotted_for_work` with the real issue number so Work picks up the
+   **first blocking issue instead** of the blocked one.
 
 Host sweep (Report phase, covers everything Work did not):
 
-1. Collect unfiled items: triage `child_proposals` with no URL, plus any
+1. Collect unfiled items: triage `child_proposals` with no URL, triage
+   `blocker_proposals` with no URL, plus any
    residual/follow-up noted in `work-*.json`, `reconcile.json`, or
    `cycle-verify.json` that has no URL in `issues_filed`/`residuals_filed`.
    This EXPLICITLY includes backlog slices for expanded-but-unqueued parents
@@ -231,9 +253,12 @@ If the fetch fails (403/404, no network), **omit `--alerts`** — the script
 emits `open_alert_count: -1` (unknown) and Phase 13 runs fail-open. Never
 write or pass a faked empty list to force a zero.
 
-## Debt rotation (Phase 2, every run with debt seats — 2.2.8-draft)
+## Debt rotation (Phase 2, every run with debt seats — 2.2.8-draft, cross-tier 2.2.9-draft)
 
-Lowest-number-first reseats the same blocked debt nightly. Before invoking
+Lowest-number-first reseats the same blocked debt nightly — and tier-first
+ordering is no fix when the blocked items outrank the whole fresh pool
+(observed: #1820/#1978 seated a third time as blocked p2s over 20 fresh
+p8s). Exclusion therefore outranks tier. Before invoking
 `scripts/night-decision-front.py`, build the rotation inputs:
 
 1. Collect recently-blocked debt: scan the previous run's

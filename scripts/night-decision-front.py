@@ -352,18 +352,22 @@ def order_debt(
     exclude: set[int] | None = None,
     seed: int | None = None,
 ) -> list[dict]:
-    """Order the debt pool with rotation (2.2.8-draft).
+    """Order the debt pool with rotation (2.2.8-draft, cross-tier 2.2.9-draft).
 
     Lowest-number-first reseats the same blocked issues every night
     (observed: #1820/#1976 two cycles running while 20 debt candidates
-    waited). Instead:
+    waited; then #1978/#1820 seated a third time under 2.2.8 because pN
+    tier outranked exclusion while every fresh debt candidate was p8).
+    Instead:
     - issues in `exclude` (attempted-and-blocked in recent cycles, passed
       by the host from prior scratch/work-*.json verdicts) sort AFTER
-      fresh issues within the same pN tier. Reordering only, never
-      removal — an all-excluded pool still fills the seat (fail-open).
-    - within the same (pN, excluded-flag) group, order randomly under the
-      given seed for auditability. Seed None keeps legacy number order
-      (deterministic; existing callers unaffected).
+      ALL fresh issues, regardless of pN tier. A blocked p2 yields to a
+      fresh p8 for one cycle; it returns when off the exclude list.
+      Reordering only, never removal — an all-excluded pool still fills
+      the seat (fail-open).
+    - within the same excluded-flag group, order by pN tier, then randomly
+      under the given seed for auditability. Seed None keeps legacy number
+      order (deterministic; existing callers unaffected).
     """
     excluded = exclude or set()
     keys: dict[int, float] = {}
@@ -373,10 +377,11 @@ def order_debt(
             keys[id(c)] = rng.random()
 
     def sort_key(c):
-        tier = pn_rank(c["priority"])
+        # Exclusion outranks tier (2.2.9): a blocked p2 yields to fresh p8.
         flag = 1 if c["issue"]["number"] in excluded else 0
+        tier = pn_rank(c["priority"])
         tie = keys[id(c)] if seed is not None else c["issue"]["number"]
-        return (tier, flag, tie)
+        return (flag, tier, tie)
 
     return sorted(debt_c, key=sort_key)
 
@@ -401,8 +406,9 @@ def build_queue(
       max_issues (e.g. max=3, quota=34) must yield >=1 debt seat, not 0
       via integer truncation. See compute_low_slots().
     - debt pool order uses order_debt(): recently-blocked issues (host
-      --debt-exclude) sort after fresh ones per pN tier; same-tier ties
-      break randomly under --debt-seed. Exclusion reorders, never starves.
+      --debt-exclude) sort after ALL fresh debt regardless of pN tier;
+      same-flag ties break by tier, then randomly under --debt-seed.
+      Exclusion reorders, never starves.
     """
     ps = prescreen_index(prescreen)
     covered = covering_map(prs)
@@ -688,7 +694,8 @@ def main(argv: list[str] | None = None) -> int:
         help=(
             "CSV of debt issue numbers attempted-and-blocked in recent cycles "
             "(host builds from prior scratch/work-*.json no-progress verdicts). "
-            "Reorders those after fresh debt per pN tier; never starves the seat."
+            "Reorders those after ALL fresh debt regardless of pN tier; "
+            "never starves the seat."
         ),
     )
     p.add_argument(
@@ -696,7 +703,7 @@ def main(argv: list[str] | None = None) -> int:
         type=int,
         default=None,
         help=(
-            "Seed for same-tier debt tie-breaks (host passes YYYYMMDD to rotate "
+            "Seed for debt tie-breaks (host passes YYYYMMDD to rotate "
             "nightly). Omit for legacy lowest-number-first order."
         ),
     )

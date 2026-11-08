@@ -260,11 +260,14 @@ def test_debt_exclude_reorders_but_never_starves():
     nums = [q["issue_number"] for q in result["queue"]]
     assert nums[0] == 1990
     assert len(nums) == 2
-    # pN tier still outranks exclusion: excluded p2 beats fresh p8.
+    # Cross-tier exclusion (2.2.9): blocked p2 yields to FRESH p8, so the
+    # debt seat cannot be held forever by a blocked high-tier item while
+    # fresh low-tier debt waits (observed: #1978/#1820 seated a third time).
     issues.append(issue(5711, "DCE warnings batch", labels=["p8", "tech-debt"]))
     result = df.run(issues, [], None, 3, 3, "model:x", 3, debt_exclude={1820, 1976})
     nums = [q["issue_number"] for q in result["queue"]]
-    assert nums[0] == 1990 and nums[-1] == 5711
+    assert nums[:2] == [1990, 5711]
+    assert len(nums) == 3
     # All-excluded pool still fills the seat (fail-open, reorder not removal).
     result = df.run(issues, [], None, 1, 1, "model:x", 3, debt_exclude={1820, 1976, 1990, 5711})
     assert len(result["queue"]) == 1

@@ -57,7 +57,7 @@ Every run classifies candidates as **PRODUCT** or **DEBT** before ranking.
 | **Phase A — product seats** | Fill `priority_slots = max_issues − low_slots` from PRODUCT only, p1 → p6 → Unset. Implement-ready items **and** 3 PR-sized **next-phase slices** of open epics. A prior child PR + assigned QA ticket does **not** finish the parent. **Never** queue p7/p8 while any eligible product item remains. Product overflow must never eat a reserved debt seat |
 | **Phase A — QA: Failed** | Not a skip. File or reuse an unassigned implement residual and queue it. Do not work the assigned `qa task` itself |
 | **Phase B — debt seats (RESERVED)** | Fill **`low_slots` only**, where `low_slots = max(floor(max_issues × low_priority_quota_pct / 100) with min 1 when quota>0, min_debt_slots)`. Floor-plus-one: quota>0 on a small `max_issues` still seats ≥1 (max=3, quota=20 → 1; max=10, quota=20 → 2). The explicit **tech-debt count** knob is `min_debt_slots` (e.g. `min_debt_slots=1` guarantees one debt seat regardless of percentage math). Unused `priority_slots` stay **empty**. Default quota=0 + min_debt=0 → no debt seats. Empty queue beats an Xlint night. Report `priority_slots / low_slots / debt_candidates / debt_queued` every run so zero-debt is auditable |
-| **Phase B — rotation (2.2.8-draft)** | Lowest-number-first reseats the same blocked debt nightly. Recently-blocked debt (prior no-progress verdicts) sorts **after** fresh debt **within the same pN tier**; same-tier ties break **randomly** (seeded, `YYYYMMDD`), never lowest-number-first. pN tier still outranks rotation; rotation **reorders, never starves** the seat |
+| **Phase B — rotation (2.2.8-draft, cross-tier 2.2.9-draft)** | Lowest-number-first reseats the same blocked debt nightly. Recently-blocked debt (prior no-progress verdicts) sorts **after ALL fresh debt regardless of pN tier** — a blocked p2 yields to a fresh p8 for one cycle (observed: tier-first ordering seated #1820/#1978 a third time while 20 fresh p8s waited). Same-flag ties break by pN, then **randomly** (seeded, `YYYYMMDD`), never lowest-number-first. Rotation **reorders, never starves** the seat |
 | **prefer_easy** | Tertiary **among DEBT items in the same pN** only. Default **false**. Never ranks tech-debt above product. Never a reason to pick p8 in Phase A |
 
 **p7/p8 does not relax build quality.** Tech-debt / Xlint batches use the same Maven gates as p1 work.
@@ -103,6 +103,14 @@ Stopping with free implement seats while unwalked open p1–p6 product epics rem
 2. Triage emits `child_proposals` for **every** expanded epic — including ones whose implement cannot fit this run. Those become host-sweep backlog filings (deduped, capped), so expansion work does not evaporate.
 3. Host verifies: short queue + missing/incomplete `epics_walked` → **one** bounded follow-up triage pass scoped to uncovered epics (still capped by `max_issues`). A short queue is valid only with a complete per-epic audit.
 4. A short queue after a complete walk (every remaining epic carries a typed why) is success, not failure — record the whys in the report.
+
+### Blocked-with-unfiled-blocker (HARD — 2.2.9-draft)
+
+Re-seating a gated issue while its blocker has no open issue and no owner burns a seat every cycle to re-verify the same FAIL (observed: #2852 — M2/M3 gates with zero open issues; all evidence slices #3132/#3583/#3738/#3951 closed, M3 human-owned). A gate `skip` without a blocker plan is a defect:
+
+1. Triage gate-checks before `implement` and names each blocking condition concretely. Gated → `skip` + typed rationale.
+2. Each blocker resolves to an open issue (substitute implement candidate) or a `blocker_proposals` row (host files pre-Work, capped); the **first** agent-actionable blocker **takes the seat instead**. Human-only blockers (upgrade windows, customer confirmations, soak sign-offs) are never filed — record `human_blocked_by` + owner, seat goes to the next epic. One level only, max 3 proposals per blocked issue.
+3. Gates discovered at Work claim time follow the same logic (work files the blocker, returns `blocked`), but the spent seat does not chain same-run.
 
 Fallback Work `disposition=split` still creates exactly 3 **vertical** children and ships **only the first** slice the same turn.
 
