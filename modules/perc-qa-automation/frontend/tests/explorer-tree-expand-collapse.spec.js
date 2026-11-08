@@ -57,6 +57,15 @@ const TREE_ROUTES = [
   { suffix: "/path/folder/Assets", items: [] },
 ];
 
+/** Mock folder items for path/item lookups (shell folder-id resolution). */
+const TREE_ITEMS = [
+  { suffix: "/path/item/Sites/Foo/Bar", item: BAR },
+  { suffix: "/path/item/Sites/Foo", item: FOO },
+  { suffix: "/path/item/Sites/Leaf", item: LEAF },
+  { suffix: "/path/item/Sites", item: SITES },
+  { suffix: "/path/item/Assets", item: ASSETS },
+];
+
 /**
  * @param {import('@playwright/test').Page} page
  * @returns {Promise<{ folderHits: () => string[] }>}
@@ -78,6 +87,18 @@ async function installTreeRoutes(page) {
       status: 200,
       contentType: "application/json",
       body: JSON.stringify(EMPTY_PAGE),
+    });
+  });
+  // Folder-item lookups (shell folder-id resolution) would 404 against the
+  // live H2 CMS because Foo/Bar exist only in the mock tree. Serve the mock
+  // items so the run stays console-clean (#5760).
+  await page.route("**/pathmanagement/path/item/**", async (route) => {
+    const url = route.request().url();
+    const hit = TREE_ITEMS.find((r) => url.endsWith(r.suffix) || url.endsWith(`${r.suffix}/`));
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ PathItem: hit ? hit.item : {} }),
     });
   });
   return { folderHits: () => folderHits };
@@ -127,10 +148,11 @@ test.describe("Explorer tree expand-all / collapse-all", () => {
         routes.folderHits().filter((u) => /\/path\/folder\/Sites\/Foo\/?$/.test(u)).length;
       expect(fooLoads()).toBe(1);
 
-      // Collapse-all folds back to the roots.
+      // Collapse-all folds back to the roots: Sites/Assets stay visible
+      // while every nested folder (Foo, Bar) collapses away.
       await page.locator('[data-testid="tree-collapse-all"]').click();
       await expect(page.locator('[data-testid="tree-node-/Sites/Foo/Bar"]')).toBeHidden({ timeout: 10_000 });
-      await expect(page.locator('[data-testid="tree-node-/Sites/Foo"]')).toBeVisible();
+      await expect(page.locator('[data-testid="tree-node-/Sites/Foo"]')).toBeHidden({ timeout: 10_000 });
       await expect(page.locator('[data-testid="tree-node-/Sites"]')).toBeVisible();
       await expect(page.locator('[data-testid="tree-node-/Assets"]')).toBeVisible();
 
@@ -168,22 +190,24 @@ test.describe("Explorer tree expand-all / collapse-all", () => {
       await page.locator('[data-testid="tree-toggle-/Sites/Foo"]').click();
       await expect(page.locator('[data-testid="tree-node-/Sites/Foo/Bar"]')).toBeVisible({ timeout: 10_000 });
 
-      // Select Foo via its row (not the toggle).
-      await page.locator('[data-testid="tree-node-/Sites/Foo"] [role="treeitem"]').first().click();
-      await expect(
-        page.locator('[data-testid="tree-node-/Sites/Foo"] [role="treeitem"][aria-selected="true"]'),
-      ).toBeVisible({ timeout: 10_000 });
+      // Select Bar: a nested (non-site-root) folder keeps its own path, so
+      // the tree marks it aria-selected. Direct /Sites children resolve to
+      // a Pages-chrome browse path (#3696) and are not used here.
+      await page.locator('[data-testid="tree-node-/Sites/Foo/Bar"] [role="treeitem"]').first().click();
+      const selectedBar = page.locator(
+        '[data-testid="tree-node-/Sites/Foo/Bar"] [role="treeitem"][aria-selected="true"]',
+      );
+      await expect(selectedBar).toBeVisible({ timeout: 10_000 });
 
       await page.locator('[data-testid="tree-expand-all"]').click();
-      await expect(
-        page.locator('[data-testid="tree-node-/Sites/Foo"] [role="treeitem"][aria-selected="true"]'),
-      ).toBeVisible({ timeout: 10_000 });
+      await expect(selectedBar).toBeVisible({ timeout: 10_000 });
 
       await page.locator('[data-testid="tree-collapse-all"]').click();
       await expect(page.locator('[data-testid="tree-node-/Sites/Foo/Bar"]')).toBeHidden({ timeout: 10_000 });
-      await expect(
-        page.locator('[data-testid="tree-node-/Sites/Foo"] [role="treeitem"][aria-selected="true"]'),
-      ).toBeVisible({ timeout: 10_000 });
+
+      // A full collapse/expand cycle restores the selected folder selected.
+      await page.locator('[data-testid="tree-expand-all"]').click();
+      await expect(selectedBar).toBeVisible({ timeout: 10_000 });
 
       expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
       expect(consoleErrors, consoleErrors.join(" | ")).toEqual([]);
