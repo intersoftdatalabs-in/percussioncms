@@ -54,10 +54,10 @@ export interface HtmlFieldWidgetProps {
   onChange: (value: string) => void;
   loadScript?: (src: string) => Promise<void>;
   /**
-   * Engine seam for #5622/#5650. {@code "tinymce"} (default) keeps the
-   * current script-loaded editor; {@code "tiptap"} renders the bundled
-   * TipTap editor with the parity toolbar (#5651). TinyMCE stays the
-   * default until a later cutover slice; the seam is not removed here.
+   * Engine seam for #5622/#5758. {@code "tiptap"} (default) renders the
+   * bundled TipTap editor with the parity toolbar (#5651); {@code "tinymce"}
+   * keeps the legacy script-loaded editor as a one-release escape hatch
+   * ({@code ?engine=tinymce}).
    */
   engine?: HtmlEditorEngine;
 }
@@ -98,7 +98,7 @@ export function HtmlFieldWidget({
   invalid = false,
   onChange,
   loadScript = defaultLoadTinyMceScript,
-  engine = "tinymce",
+  engine = "tiptap",
 }: HtmlFieldWidgetProps): React.ReactElement {
   if (engine === "tiptap") {
     return (

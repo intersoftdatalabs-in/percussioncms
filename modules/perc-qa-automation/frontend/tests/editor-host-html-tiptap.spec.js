@@ -18,14 +18,15 @@
 /**
  * React Content Editor TipTap toolbar parity (#5651).
  *
- * <p>Proves the bundled TipTap editor ({@code ?engine=tiptap}) matches the
+ * <p>Proves the bundled TipTap editor (the default engine since #5758;
+ * {@code ?engine=tinymce} keeps the legacy TinyMCE escape hatch) matches the
  * {@code rx_default_config.json} toolbar contract — lists, link, code,
  * tables (plus undo/redo, inline styles, alignment) — and reduces Word
  * pastes to the {@code paste_word_valid_elements} contract. Toolbar edits
  * persist through the existing
- * {@code PUT /services/itemmanagement/item/fields/{id}} path. Default
- * engine stays TinyMCE; spike coverage (#5650) lives in the tests below
- * alongside the parity tests.</p>
+ * {@code PUT /services/itemmanagement/item/fields/{id}} path. Cutover
+ * coverage (#5758) lives in {@code editor-host-default-tiptap.spec.js};
+ * parity tests stay below.</p>
  *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor} {@code @html} {@code @tiptap}</p>
  *

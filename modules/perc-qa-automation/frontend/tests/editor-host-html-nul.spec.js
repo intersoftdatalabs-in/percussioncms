@@ -16,7 +16,7 @@
  */
 
 /**
- * React Content Editor refuses an HTML NUL on save (#5389 / #4532).
+ * React Content Editor refuses an HTML NUL on save (#5389 / #4532). Pinned to the {@code ?engine=tinymce} escape hatch (#5758): TipTap is the default engine and these specs drive the legacy textarea fallback.
  *
  * <p>The client gate in {@code htmlField.ts} stays beside the unsafe-HTML
  * heuristic and the long-text gate in {@code longTextField.ts}. TinyMCE is
@@ -238,7 +238,7 @@ test.describe("React Content Editor HTML NUL", () => {
       const descriptionError = () =>
         page.locator('[data-testid="editor-field-error-description"]');
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveAttribute("data-editor-kind", "html", {
         timeout: 20_000,
       });
@@ -257,7 +257,7 @@ test.describe("React Content Editor HTML NUL", () => {
       expect(fieldPuts).toEqual([]);
       expect(await controlHasNul(htmlField())).toBe(true);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue(PREVIOUS, { timeout: 20_000 });
       await setTextareaValue(htmlField(), NUL_VALUE);
       await expect.poll(() => controlHasNul(htmlField())).toBe(true);
@@ -270,7 +270,7 @@ test.describe("React Content Editor HTML NUL", () => {
       expect(fieldPuts).toEqual([]);
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue(PREVIOUS, { timeout: 20_000 });
       await htmlField().fill("<p><script>alert(1)</script></p>");
       await page.locator('[data-testid="editor-save"]').click();
@@ -278,7 +278,7 @@ test.describe("React Content Editor HTML NUL", () => {
       expect(fieldPuts).toEqual([]);
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue(PREVIOUS, { timeout: 20_000 });
       await htmlField().fill(ORDINARY);
       await page.locator('[data-testid="editor-save"]').click();
@@ -291,7 +291,7 @@ test.describe("React Content Editor HTML NUL", () => {
       await expect(page.locator('[data-testid="editor-saved"]')).toBeVisible();
       await expect(htmlField()).toHaveValue(ORDINARY);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue(ORDINARY, { timeout: 20_000 });
       rejectNext = true;
       await htmlField().fill("<p>Rejected</p>");
@@ -301,11 +301,11 @@ test.describe("React Content Editor HTML NUL", () => {
       await expect(page.locator('[data-testid="editor-save-error"]')).toBeVisible();
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue(ORDINARY, { timeout: 20_000 });
 
       includeLongText = true;
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue(ORDINARY, { timeout: 20_000 });
       await expect(descriptionField()).toHaveAttribute("data-editor-kind", "longtext");
       await expect(descriptionField()).toHaveValue(LONG_PREVIOUS);
@@ -321,7 +321,7 @@ test.describe("React Content Editor HTML NUL", () => {
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
       await expect(htmlError()).toHaveCount(0);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(descriptionField()).toHaveValue(LONG_PREVIOUS, { timeout: 20_000 });
       await expect(htmlField()).toHaveValue(ORDINARY);
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);

@@ -16,7 +16,7 @@
  */
 
 /**
- * React Content Editor clear of an optional HTML field (#5071).
+ * React Content Editor clear of an optional HTML field (#5071). Pinned to the {@code ?engine=tinymce} escape hatch (#5758): TipTap is the default engine and these specs drive the legacy textarea fallback.
  *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor}</p>
  *
@@ -146,7 +146,7 @@ test.describe("React Content Editor clear optional HTML", () => {
         }),
       );
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(page.locator('[data-testid="editor-html-clear-text"]')).toBeVisible({
         timeout: 20_000,
       });
@@ -156,7 +156,7 @@ test.describe("React Content Editor clear optional HTML", () => {
       await page.waitForTimeout(300);
       expect(fieldPuts).toEqual([]);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(page.locator('[data-testid="editor-field-text"]')).toHaveValue("<p>Hi</p>", {
         timeout: 20_000,
       });
@@ -168,7 +168,7 @@ test.describe("React Content Editor clear optional HTML", () => {
       await expect(page.locator('[data-testid="editor-field-text"]')).toHaveValue("");
       await expect(page.locator('[data-testid="editor-html-clear-text"]')).toHaveCount(0);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(page.locator('[data-testid="editor-field-text"]')).toHaveValue("", {
         timeout: 20_000,
       });
@@ -176,7 +176,7 @@ test.describe("React Content Editor clear optional HTML", () => {
       bodyHtml = "<p>Hi</p>";
       required = true;
       fieldPuts.length = 0;
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(page.locator('[data-testid="editor-html-clear-text"]')).toBeVisible({
         timeout: 20_000,
       });
@@ -187,7 +187,7 @@ test.describe("React Content Editor clear optional HTML", () => {
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
 
       required = false;
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(page.locator('[data-testid="editor-html-clear-text"]')).toBeVisible({
         timeout: 20_000,
       });

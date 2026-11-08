@@ -33,6 +33,7 @@ describe("HtmlFieldWidget", () => {
         value="<p>Hi</p>"
         readOnly={false}
         onChange={onChange}
+        engine="tinymce"
         loadScript={async () => {
           /* do not attach TinyMCE in unit tests */
         }}
@@ -52,6 +53,7 @@ describe("HtmlFieldWidget", () => {
         value="<p>Hi</p>"
         readOnly={true}
         onChange={vi.fn()}
+        engine="tinymce"
       />,
     );
     const area = screen.getByTestId("editor-field-text") as HTMLTextAreaElement;
@@ -66,6 +68,7 @@ describe("HtmlFieldWidget", () => {
         readOnly={false}
         invalid
         onChange={vi.fn()}
+        engine="tinymce"
         loadScript={async () => {
           /* do not attach TinyMCE in unit tests */
         }}
@@ -73,5 +76,19 @@ describe("HtmlFieldWidget", () => {
     );
     const area = screen.getByTestId("editor-field-text") as HTMLTextAreaElement;
     expect(area.getAttribute("aria-invalid")).toBe("true");
+  });
+
+  it("renders TipTap by default with no engine flag (#5758)", async () => {
+    render(
+      <HtmlFieldWidget
+        name="text"
+        value="<p>Hi</p>"
+        readOnly={false}
+        onChange={vi.fn()}
+      />,
+    );
+    const editable = await screen.findByTestId("editor-field-text");
+    expect(editable.getAttribute("data-editor-kind")).toBe("html");
+    expect(editable.getAttribute("data-editor-engine")).toBe("tiptap");
   });
 });

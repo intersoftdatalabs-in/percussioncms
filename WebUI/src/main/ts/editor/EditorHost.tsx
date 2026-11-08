@@ -884,13 +884,13 @@ export function EditorHost({
   const readOnly = mode === "view";
   const promote = mode === "promote";
   /**
-   * Engine seam for #5622/#5650: {@code ?engine=tiptap} renders the bundled
-   * TipTap editor (parity toolbar since #5651) for HTML fields instead of
-   * script-loaded TinyMCE. Defaults to TinyMCE; the seam stays until a
-   * later cutover slice.
+   * Engine seam for #5622/#5758: TipTap is the default editor for HTML
+   * fields (parity toolbar since #5651). {@code ?engine=tinymce} renders the
+   * legacy script-loaded TinyMCE as a one-release escape hatch; any other
+   * value (or no value) renders TipTap.
    */
   const htmlEngine: HtmlEditorEngine =
-    params.get("engine") === "tiptap" ? "tiptap" : "tinymce";
+    params.get("engine") === "tinymce" ? "tinymce" : "tiptap";
 
   const [payload, setPayload] = useState<ItemEditorFields | null>(null);
   const [schema, setSchema] = useState<ContentTypeFieldSummary[]>([]);
