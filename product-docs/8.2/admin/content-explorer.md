@@ -375,7 +375,13 @@ not need assignees still runs immediately with the comment only, unless assignee
 were already chosen — then those names are sent on the same request. The state
 name and **Workflow transition completed** change only after the call succeeds.
 HTTP **400**, **403**, and **409** stay on the confirm (or on the workflow region)
-and are not success. **View** mode does not load or run transitions.
+and are not success. **View** mode does not load or run transitions. When the
+transition list (`getTransitions`) or the workflow catalog (`allowedWorkflows`)
+fails to load, the **Workflow** region shows a load notice with **Retry**
+instead of the empty hint, so a load failure is not mistaken for "no
+transitions allowed". **Retry** reloads the same item's lists; a repeated
+failure keeps the notice instead of claiming the triggers loaded, and a
+successful reload clears it and shows the triggers.
 
 In **Edit** mode the host also shows **Publish now** for the already-open **page** or
 **asset** so authors do not need to bounce to Explorer solely to publish. Confirm
