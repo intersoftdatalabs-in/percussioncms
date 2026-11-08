@@ -86,11 +86,16 @@ const DE_TIPTAP = {
 };
 
 async function stubEditorApis(page) {
+  // Static compile-time catalog (no user input flows into this stub), but
+  // escape `<` so the serialized payload can never break out of a script
+  // context (e.g. `</script>`) if this body is parsed as HTML downstream.
+  // `\u003c` decodes back to `<`, so catalog lookups are unchanged.
+  const catalogJson = JSON.stringify(DE_TIPTAP).replace(/</g, "\\u003c");
   await page.route("**/tmx/tmx.jsp*", (route) =>
     route.fulfill({
       status: 200,
       contentType: "text/javascript; charset=UTF-8",
-      body: `window.I18N = { message: function (k) { var d = ${JSON.stringify(DE_TIPTAP)}; return Object.prototype.hasOwnProperty.call(d, k) ? d[k] : k; } };`,
+      body: `window.I18N = { message: function (k) { var d = ${catalogJson}; return Object.prototype.hasOwnProperty.call(d, k) ? d[k] : k; } };`,
     }),
   );
   await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
