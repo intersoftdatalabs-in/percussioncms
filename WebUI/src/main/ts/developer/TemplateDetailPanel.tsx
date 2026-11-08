@@ -61,6 +61,10 @@ import {
 } from "./templateDescription";
 import { TPL_DESC_MSG } from "./templateDescriptionMessages";
 import {
+  templateAssemblerLabel,
+  templateAssemblerShortId,
+} from "./templateAssembler";
+import {
   savedTemplateLabel,
   storedTemplateLabel,
   templateLabelWrite,
@@ -435,6 +439,13 @@ export function TemplateDetailPanel({
     !!trimmedCtInput && ctInputValid && !busy && heldLock && detail != null;
 
   const objectGuid = resolveTemplateObjectGuid(detail, catalogGuid);
+
+  // Normalized assembler display (#2626 slice 1): canonical epic label for
+  // registered assemblers, raw value fallback, em-dash when blank.
+  const assemblerLabel = templateAssemblerLabel(detail?.assembler) ?? "—";
+  const assemblerShortId = templateAssemblerShortId(detail?.assembler) ?? "";
+  const assemblerRaw =
+    typeof detail?.assembler === "string" ? detail.assembler.trim() : "";
 
   function updateBinding(index: number, patch: Partial<TemplateBindingSummary>) {
     setBindings((prev) => prev.map((b, i) => (i === index ? { ...b, ...patch } : b)));
@@ -1304,7 +1315,14 @@ export function TemplateDetailPanel({
             </section>
             <dl style={metaGrid}>
               <dt>{DEV_MSG.TPL_META_ASSEMBLER}</dt>
-              <dd style={{ margin: 0, ...monoCell }}>{detail.assembler || "—"}</dd>
+              <dd
+                style={{ margin: 0, ...monoCell }}
+                data-testid="developer-tpl-detail-assembler"
+                data-assembler-id={assemblerShortId}
+                title={assemblerRaw && assemblerRaw !== assemblerLabel ? assemblerRaw : undefined}
+              >
+                {assemblerLabel}
+              </dd>
               <dt>{DEV_MSG.TPL_META_OUTPUT}</dt>
               <dd style={{ margin: 0 }}>{detail.outputFormat || "—"}</dd>
               <dt>{DEV_MSG.TPL_META_TYPE}</dt>
