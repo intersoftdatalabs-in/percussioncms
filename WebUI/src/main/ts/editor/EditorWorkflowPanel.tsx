@@ -45,6 +45,14 @@ export interface EditorWorkflowPanelProps {
   busy?: boolean;
   errorKey?: string | null;
   errorDetail?: string;
+  /**
+   * Panel-level transition-list load failure (#5769). When set, the panel
+   * shows a load notice with retry instead of the empty-allowlist hint so
+   * operators can tell "no transitions allowed" from "the list failed to load".
+   */
+  loadErrorKey?: string | null;
+  loadErrorDetail?: string;
+  onRetryLoad?: () => void;
   commentRequiredTriggers?: readonly string[] | null;
   workflowChoices?: readonly EditorWorkflowChoiceOption[];
   selectedWorkflowId?: string;
@@ -68,6 +76,9 @@ export function EditorWorkflowPanel({
   busy = false,
   errorKey,
   errorDetail,
+  loadErrorKey,
+  loadErrorDetail,
+  onRetryLoad,
   commentRequiredTriggers,
   workflowChoices = [],
   selectedWorkflowId = "",
@@ -89,10 +100,32 @@ export function EditorWorkflowPanel({
           </span>
         ) : null}
       </div>
+      {loadErrorKey ? (
+        <div
+          className={styles.status}
+          role="alert"
+          data-testid="editor-workflow-load-error"
+        >
+          {message(loadErrorKey)}
+          {loadErrorDetail ? ` ${loadErrorDetail}` : ""}
+          <div className={styles.actions}>
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-retry-workflow-load"
+              onClick={() => onRetryLoad?.()}
+            >
+              {message(EDITOR_MSG.LOAD_RETRY)}
+            </button>
+          </div>
+        </div>
+      ) : null}
       {triggers.length === 0 ? (
-        <p className={styles.hint} data-testid="editor-workflow-empty">
-          {message(EDITOR_MSG.WORKFLOW_EMPTY)}
-        </p>
+        loadErrorKey ? null : (
+          <p className={styles.hint} data-testid="editor-workflow-empty">
+            {message(EDITOR_MSG.WORKFLOW_EMPTY)}
+          </p>
+        )
       ) : (
         <div className={styles.workflowActions} data-testid="editor-workflow-actions">
           {triggers.map((trigger) => (

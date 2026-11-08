@@ -295,6 +295,8 @@ export const EDITOR_MSG = {
   WORKFLOW_CONFLICT:
     "perc.ui.editor@That workflow transition could not run because the item state rejected it.",
   WORKFLOW_FAILED: "perc.ui.editor@Could not run this workflow transition.",
+  WORKFLOW_LOAD_FAILED:
+    "perc.ui.editor@Could not load the workflow transitions. Retry the load to see the available transitions.",
   WORKFLOW_DONE: "perc.ui.editor@Workflow transition completed.",
   WORKFLOW_CHANGE: "perc.ui.editor@Change workflow",
   WORKFLOW_CHANGE_APPLY: "perc.ui.editor@Save workflow",

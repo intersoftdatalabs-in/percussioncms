@@ -960,6 +960,15 @@ export function EditorHost({
   );
   const [workflowErrorKey, setWorkflowErrorKey] = useState<string | null>(null);
   const [workflowErrorDetail, setWorkflowErrorDetail] = useState("");
+  /**
+   * Panel-level workflow-list load failure (#5769). Either `loadTransitions`
+   * or `loadWorkflowChoices` throwing surfaces this notice with retry
+   * instead of a silent empty trigger list.
+   */
+  const [workflowLoadErrorKey, setWorkflowLoadErrorKey] = useState<string | null>(
+    null,
+  );
+  const [workflowLoadErrorDetail, setWorkflowLoadErrorDetail] = useState("");
   const [workflowBusy, setWorkflowBusy] = useState(false);
   const [workflowDone, setWorkflowDone] = useState(false);
   const [workflowChoices, setWorkflowChoices] = useState<
@@ -1203,42 +1212,7 @@ export function EditorHost({
           }
         }
         if (!readOnly) {
-          try {
-            const trans = await loadTransitions(itemId);
-            if (!cancelled) {
-              setWorkflowTriggers(
-                uniqueTransitionTriggers(trans.transitionTriggers),
-              );
-              setWorkflowState(trans.stateName ?? "");
-              setAssigneeRequiredTriggers(
-                uniqueTransitionTriggers(trans.assigneeRequiredTriggers),
-              );
-              if (trans.workflowId) {
-                setCurrentWorkflowId(trans.workflowId);
-              }
-            }
-          } catch {
-            if (!cancelled) {
-              setWorkflowTriggers([]);
-              setWorkflowState("");
-              setAssigneeRequiredTriggers([]);
-            }
-          }
-          try {
-            const catalog = await loadWorkflowChoices(itemId);
-            if (!cancelled) {
-              setWorkflowChoices(catalog.choices ?? []);
-              const current = catalog.currentWorkflowId ?? "";
-              if (current) {
-                setCurrentWorkflowId(current);
-              }
-              setSelectedWorkflowId("");
-            }
-          } catch {
-            if (!cancelled) {
-              setWorkflowChoices([]);
-            }
-          }
+          await loadWorkflowPanel(itemId, () => cancelled);
         }
       } catch (err) {
         if (!cancelled) {
@@ -2280,6 +2254,78 @@ export function EditorHost({
     }
   }
 
+  /**
+   * Loads workflow transitions + choices for the same contentId (#5769).
+   * Either load throwing surfaces the panel-level load notice with retry
+   * instead of a silent empty trigger list; both succeeding clears the
+   * notice and renders the triggers.
+   */
+  async function loadWorkflowPanel(
+    itemId: string,
+    isCancelled?: () => boolean,
+  ): Promise<void> {
+    const alive = (): boolean => !(isCancelled?.() ?? false);
+    let failed = false;
+    try {
+      const trans = await loadTransitions(itemId);
+      if (alive()) {
+        setWorkflowTriggers(
+          uniqueTransitionTriggers(trans.transitionTriggers),
+        );
+        setWorkflowState(trans.stateName ?? "");
+        setAssigneeRequiredTriggers(
+          uniqueTransitionTriggers(trans.assigneeRequiredTriggers),
+        );
+        if (trans.workflowId) {
+          setCurrentWorkflowId(trans.workflowId);
+        }
+      }
+    } catch (err) {
+      failed = true;
+      if (alive()) {
+        setWorkflowTriggers([]);
+        setWorkflowState("");
+        setAssigneeRequiredTriggers([]);
+        setWorkflowLoadErrorKey(EDITOR_MSG.WORKFLOW_LOAD_FAILED);
+        setWorkflowLoadErrorDetail(formatApiError(err, ""));
+      }
+    }
+    try {
+      const catalog = await loadWorkflowChoices(itemId);
+      if (alive()) {
+        setWorkflowChoices(catalog.choices ?? []);
+        const current = catalog.currentWorkflowId ?? "";
+        if (current) {
+          setCurrentWorkflowId(current);
+        }
+        setSelectedWorkflowId("");
+      }
+    } catch (err) {
+      failed = true;
+      if (alive()) {
+        setWorkflowChoices([]);
+        setWorkflowLoadErrorKey(EDITOR_MSG.WORKFLOW_LOAD_FAILED);
+        setWorkflowLoadErrorDetail(formatApiError(err, ""));
+      }
+    }
+    if (!failed && alive()) {
+      setWorkflowLoadErrorKey(null);
+      setWorkflowLoadErrorDetail("");
+    }
+  }
+
+  /**
+   * Re-runs the workflow transition load for the same contentId after a
+   * panel load failure (#5769). Success renders the triggers; a repeated
+   * failure keeps the notice without claiming a load.
+   */
+  async function handleRetryWorkflowLoad(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    await loadWorkflowPanel(String(contentId));
+  }
+
   function workflowErrorFor(reason: string): string {
     if (reason === "unauthorized") {
       return EDITOR_MSG.WORKFLOW_UNAUTHORIZED;
@@ -2360,6 +2406,9 @@ export function EditorHost({
         setAssigneeRequiredTriggers(
           uniqueTransitionTriggers(trans.assigneeRequiredTriggers),
         );
+        // Transitions demonstrably load now; drop any earlier panel notice.
+        setWorkflowLoadErrorKey(null);
+        setWorkflowLoadErrorDetail("");
       }
       setWorkflowDone(true);
       return true;
@@ -5113,6 +5162,9 @@ export function EditorHost({
                 busy={workflowBusy || saving || workflowAssigneeDialog != null}
                 errorKey={workflowAssigneeDialog ? null : workflowErrorKey}
                 errorDetail={workflowAssigneeDialog ? "" : workflowErrorDetail}
+                loadErrorKey={workflowLoadErrorKey}
+                loadErrorDetail={workflowLoadErrorDetail}
+                onRetryLoad={() => void handleRetryWorkflowLoad()}
                 commentRequiredTriggers={commentRequiredTriggers}
                 workflowChoices={workflowChoices}
                 selectedWorkflowId={selectedWorkflowId}
