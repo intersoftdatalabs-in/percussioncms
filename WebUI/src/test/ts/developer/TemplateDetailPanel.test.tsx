@@ -1262,8 +1262,47 @@ describe("TemplateDetailPanel", () => {
     });
   });
 
-  it("omits slots from PUT when no slot checkbox changed (#5786)", async () => {
+  it("keeps a lone bare-object slot checked and preserves it on assign (#5786)", async () => {
+    // Jackson emits one slot as the object itself, not a one-element array.
+    // Dropping it here used to wipe the member on the next full-replace save.
     getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      slots: {
+        name: "target",
+        label: "Target",
+        guid: { stringValue: "0-5-522" },
+      },
+    });
+    listSlotsMock.mockResolvedValue([
+      { name: "target", label: "Target", description: "Main slot" },
+      { name: "extra", label: "Extra", description: "Spare slot" },
+    ]);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-slots-table")).toBeTruthy();
+    });
+    // The lone member must render checked even in bare-object form.
+    expect(
+      (screen.getByTestId("developer-tpl-slot-check-name:target") as HTMLInputElement).checked,
+    ).toBe(true);
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-slot-check-name:extra"));
+    fireEvent.click(screen.getByTestId("developer-tpl-save"));
+    await waitFor(() => {
+      expect(updateTemplateDetailMock).toHaveBeenCalled();
+    });
+    const body = updateTemplateDetailMock.mock.calls.at(-1)?.[1] as {
+      slots?: Array<{ name?: string }>;
+    };
+    const names = (body.slots ?? []).map((s) => s.name).sort();
+    // Full replace must keep the pre-existing member, not wipe it.
+    expect(names).toEqual(["extra", "target"]);
+  });
+
+  it("omits slots from PUT when no slot checkbox changed (#5786)", async () => {    getTemplateDetailMock.mockResolvedValue({
       ...sampleDetail,
       slots: [{ name: "target", label: "Target" }],
     });
