@@ -41,6 +41,8 @@ import {
   nodeLabelStyle,
   nodeRowStyle,
   treeStyle,
+  treeToolbarStyle,
+  treeToolbarButtonStyle,
   toggleStyle,
 } from "./styles";
 import { EXPLORER_MSG } from "./messages";
@@ -333,6 +335,66 @@ const EMPTY_STATE: NodeState = {
   children: [],
 };
 
+/**
+ * Minimum node shape for expand-all / collapse-all state math (#5760).
+ * Only loaded children paths matter — selection and fetch state are
+ * untouched by either action.
+ */
+export interface ExplorerTreeChildSnapshot {
+  children: ReadonlyArray<{
+    path: string;
+    folderPath?: string | null;
+  }>;
+}
+
+/**
+ * Every known tree key (loaded node keys + their children paths),
+ * canonicalized. Expand-all reveals exactly these loaded descendants —
+ * it never prefetches the whole hierarchy (#5760).
+ */
+export function collectLoadedExplorerTreeKeys(
+  nodes: Record<string, ExplorerTreeChildSnapshot>,
+): string[] {
+  const out = new Set<string>();
+  for (const [key, state] of Object.entries(nodes)) {
+    if (key != null && String(key).trim().length > 0) {
+      out.add(normalizeExplorerTreePathKey(key));
+    }
+    for (const child of state?.children ?? []) {
+      if (child?.path != null && String(child.path).trim().length > 0) {
+        out.add(normalizeExplorerTreePathKey(child.path));
+      }
+    }
+  }
+  return [...out];
+}
+
+/**
+ * Expand-all reducer: mark every loaded key expanded, keep prior extras.
+ * Pure — the component triggers one-level lazy loads for expanded but
+ * unloaded subtrees separately (#5760).
+ */
+export function applyExpandAllExplorerTree(
+  prev: Record<string, boolean>,
+  nodes: Record<string, ExplorerTreeChildSnapshot>,
+): Record<string, boolean> {
+  const next: Record<string, boolean> = { ...prev };
+  for (const key of collectLoadedExplorerTreeKeys(nodes)) {
+    next[key] = true;
+  }
+  return next;
+}
+
+/**
+ * Collapse-all reducer: collapse to roots — only the product root stays
+ * expanded so top-level folders remain visible (#5760).
+ */
+export function applyCollapseAllExplorerTree(
+  initialPath: string,
+): Record<string, boolean> {
+  return { [normalizeExplorerTreePathKey(initialPath)]: true };
+}
+
 function findFolderItemForPath(
   nodes: Record<string, NodeState>,
   path: string,
@@ -503,6 +565,48 @@ export function ExplorerTree({
     [ensureLoaded, nodes],
   );
 
+  /**
+   * Expand-all (#5760): reveal loaded descendants client-side. Expanded
+   * but unloaded subtrees lazy-load one level (no whole-hierarchy
+   * prefetch). Selection is untouched — no {@code onSelectFolder} or
+   * {@code onActivate} call.
+   */
+  const expandAll = useCallback(() => {
+    const snapshot = nodesRef.current;
+    setExpanded((prev) => applyExpandAllExplorerTree(prev, snapshot));
+    const pending = new Map<string, PSPathItem | null>();
+    for (const [key, state] of Object.entries(snapshot)) {
+      if (!state.loaded && !state.loading) {
+        pending.set(
+          normalizeExplorerTreePathKey(key),
+          findFolderItemForPath(snapshot, key),
+        );
+      }
+    }
+    for (const state of Object.values(snapshot)) {
+      for (const child of state.children ?? []) {
+        if (lookupNodeKey(snapshot, child.path) != null) {
+          continue;
+        }
+        if (!isFolder(child)) {
+          continue;
+        }
+        pending.set(normalizeExplorerTreePathKey(child.path), child);
+      }
+    }
+    for (const [key, folder] of pending) {
+      void ensureLoaded(key, folder);
+    }
+  }, [ensureLoaded]);
+
+  /**
+   * Collapse-all (#5760): collapse to roots. Client-side only; selection
+   * and loaded children are preserved.
+   */
+  const collapseAll = useCallback(() => {
+    setExpanded(() => applyCollapseAllExplorerTree(initialPath));
+  }, [initialPath]);
+
   const renderNode = (
     folder: PSPathItem,
     depth: number,
@@ -605,6 +709,29 @@ export function ExplorerTree({
     );
   };
 
+  const expandCollapseToolbar = (
+    <div data-testid="explorer-tree-expand-toolbar" style={treeToolbarStyle}>
+      <button
+        type="button"
+        data-testid="tree-expand-all"
+        aria-label={message(EXPLORER_MSG.TREE_EXPAND_ALL)}
+        style={treeToolbarButtonStyle}
+        onClick={expandAll}
+      >
+        {message(EXPLORER_MSG.TREE_EXPAND_ALL)}
+      </button>
+      <button
+        type="button"
+        data-testid="tree-collapse-all"
+        aria-label={message(EXPLORER_MSG.TREE_COLLAPSE_ALL)}
+        style={treeToolbarButtonStyle}
+        onClick={collapseAll}
+      >
+        {message(EXPLORER_MSG.TREE_COLLAPSE_ALL)}
+      </button>
+    </div>
+  );
+
   const rootKey =
     lookupNodeKey(nodes, initialPath) ??
     normalizeExplorerTreePathKey(initialPath);
@@ -628,20 +755,26 @@ export function ExplorerTree({
 
   if (rootState.loaded && rootState.children.length === 0) {
     return (
-      <div style={treeStyle} data-testid="explorer-tree">
-        <div style={emptyStateStyle} data-testid="explorer-tree-empty">
-          {message(EXPLORER_MSG.TREE_EMPTY)}
+      <>
+        {expandCollapseToolbar}
+        <div style={treeStyle} data-testid="explorer-tree">
+          <div style={emptyStateStyle} data-testid="explorer-tree-empty">
+            {message(EXPLORER_MSG.TREE_EMPTY)}
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   return (
-    <div style={treeStyle} role="tree" data-testid="explorer-tree">
+    <>
+      {expandCollapseToolbar}
+      <div style={treeStyle} role="tree" data-testid="explorer-tree">
       {rootState.loading && rootState.children.length === 0 && (
         <div style={emptyStateStyle}>{message(EXPLORER_MSG.TREE_LOADING)}</div>
       )}
       {rootState.children.map((child) => renderNode(child, 0))}
-    </div>
+      </div>
+    </>
   );
 }

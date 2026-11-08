@@ -28,6 +28,9 @@ export const EXPLORER_MSG = {
   TREE_LOADING: "perc.ui.explorer@Loading folders",
   TREE_EMPTY: "perc.ui.explorer@No folders available",
   TREE_LOAD_ERROR: "perc.ui.explorer@Failed to load folders",
+  /** Tree expand-all / collapse-all toolbar (#5760). */
+  TREE_EXPAND_ALL: "perc.ui.explorer@Expand all",
+  TREE_COLLAPSE_ALL: "perc.ui.explorer@Collapse all",
   LIST_LOADING: "perc.ui.explorer@Loading items",
   LIST_EMPTY: "perc.ui.explorer@No items in this folder",
   LIST_LOAD_ERROR: "perc.ui.explorer@Failed to load items",
