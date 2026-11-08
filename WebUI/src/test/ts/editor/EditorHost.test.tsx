@@ -145,7 +145,10 @@ describe("EditorHost", () => {
   });
 
   it("shows the loaded revision and updates it from a successful save", async () => {
-    const loadFields = vi.fn().mockResolvedValue(fields);
+    const loadFields = vi
+      .fn()
+      .mockResolvedValueOnce(fields)
+      .mockResolvedValue({ ...fields, revision: 5 });
     const saveFields = vi.fn().mockResolvedValue({ ...fields, revision: 5 });
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
@@ -1206,7 +1209,7 @@ describe("EditorHost rich controls", () => {
 
   it("renders TinyMCE / file / keyword / community widgets and uploads binary on save", async () => {
     const checkout = vi.fn().mockResolvedValue(undefined);
-    const loadFields = vi.fn().mockResolvedValue({
+    const storedRichText = {
       contentId: "42",
       contentType: "percRichText",
       name: "Intro",
@@ -1217,8 +1220,8 @@ describe("EditorHost rich controls", () => {
         { name: "keywords", value: "news" },
         { name: "sys_communityid", value: "10" },
       ],
-    });
-    const saveFields = vi.fn().mockResolvedValue({
+    };
+    const savedRichText = {
       contentId: "42",
       contentType: "percRichText",
       name: "Intro",
@@ -1229,7 +1232,14 @@ describe("EditorHost rich controls", () => {
         { name: "keywords", value: "events" },
         { name: "sys_communityid", value: "20" },
       ],
-    });
+    };
+    // The initial load serves the stored fixture; the post-save reload
+    // serves the saved state (#5768), so the refreshed form keeps "20".
+    const loadFields = vi
+      .fn()
+      .mockResolvedValueOnce(storedRichText)
+      .mockResolvedValue(savedRichText);
+    const saveFields = vi.fn().mockResolvedValue(savedRichText);
     const uploadBinary = vi.fn().mockResolvedValue({});
     const loadType = vi.fn().mockResolvedValue({
       fields: [
@@ -2831,27 +2841,39 @@ describe("EditorHost clear optional date (#5039)", () => {
     startRequired?: boolean;
     onlyStart?: boolean;
     confirmLeaveUnsaved?: (body: string) => boolean;
+    // Shared holders so the post-save reload (#5768) serves the last-saved
+    // values instead of a stale fixture copy.
+    startDateRef?: { current: string };
+    eventAtRef?: { current: string };
   }) {
     const startDate = opts.startDate ?? "2026-01-01";
     const eventAt = opts.eventAt ?? "2026-01-01 09:00:00";
-    const fields = [
-      { name: "sys_title", value: "Event" },
-      { name: "sys_contentstartdate", value: startDate },
-    ];
-    if (!opts.onlyStart) {
-      fields.push({ name: "event_at", value: eventAt });
-    }
     return (
       <EditorHost
         checkout={vi.fn().mockResolvedValue(undefined)}
-        loadFields={async () => ({
-          contentId: "42",
-          contentType: "percEvent",
-          name: "Event",
-          checkoutUser: "admin",
-          revision: 3,
-          fields,
-        })}
+        loadFields={async () => {
+          const loaded = [
+            { name: "sys_title", value: "Event" },
+            {
+              name: "sys_contentstartdate",
+              value: opts.startDateRef ? opts.startDateRef.current : startDate,
+            },
+          ];
+          if (!opts.onlyStart) {
+            loaded.push({
+              name: "event_at",
+              value: opts.eventAtRef ? opts.eventAtRef.current : eventAt,
+            });
+          }
+          return {
+            contentId: "42",
+            contentType: "percEvent",
+            name: "Event",
+            checkoutUser: "admin",
+            revision: 3,
+            fields: loaded,
+          };
+        }}
         saveFields={opts.saveFields}
         loadType={async () => ({
           fields: [
@@ -2880,11 +2902,13 @@ describe("EditorHost clear optional date (#5039)", () => {
   }
 
   it("saves cleared optional date and datetime and shows them empty after reload", async () => {
-    let start = "2026-01-01";
-    let eventAt = "2026-01-01 09:00:00";
+    const startRef = { current: "2026-01-01" };
+    const eventAtRef = { current: "2026-01-01 09:00:00" };
     const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
-      start = body.fields.find((f) => f.name === "sys_contentstartdate")?.value ?? start;
-      eventAt = body.fields.find((f) => f.name === "event_at")?.value ?? eventAt;
+      startRef.current =
+        body.fields.find((f) => f.name === "sys_contentstartdate")?.value ?? startRef.current;
+      eventAtRef.current =
+        body.fields.find((f) => f.name === "event_at")?.value ?? eventAtRef.current;
       return {
         contentId: "42",
         contentType: "percEvent",
@@ -2894,7 +2918,7 @@ describe("EditorHost clear optional date (#5039)", () => {
         fields: body.fields,
       };
     });
-    const host = dateHost({ saveFields, startDate: start, eventAt });
+    const host = dateHost({ saveFields, startDateRef: startRef, eventAtRef });
     const view = render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
@@ -2924,7 +2948,7 @@ describe("EditorHost clear optional date (#5039)", () => {
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={dateHost({ saveFields, startDate: start, eventAt })} />
+          <Route path="/editor" element={dateHost({ saveFields, startDateRef: startRef, eventAtRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -3041,6 +3065,9 @@ describe("EditorHost save datetime (#5092)", () => {
     eventAt?: string;
     required?: boolean;
     confirmLeaveUnsaved?: (body: string) => boolean;
+    // Shared holder so the post-save reload (#5768) serves the last-saved
+    // value instead of a stale fixture copy.
+    eventAtRef?: { current: string };
   }) {
     const eventAt = opts.eventAt ?? "2026-01-01 09:00:00";
     return (
@@ -3054,7 +3081,7 @@ describe("EditorHost save datetime (#5092)", () => {
           revision: 3,
           fields: [
             { name: "sys_title", value: "Event" },
-            { name: "event_at", value: eventAt },
+            { name: "event_at", value: opts.eventAtRef ? opts.eventAtRef.current : eventAt },
           ],
         })}
         saveFields={opts.saveFields}
@@ -3076,9 +3103,10 @@ describe("EditorHost save datetime (#5092)", () => {
   }
 
   it("saves a datetime-local value and shows the same date and time after reload", async () => {
-    let eventAt = "2026-01-01 09:00:00";
+    const eventAtRef = { current: "2026-01-01 09:00:00" };
     const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
-      eventAt = body.fields.find((f) => f.name === "event_at")?.value ?? eventAt;
+      eventAtRef.current =
+        body.fields.find((f) => f.name === "event_at")?.value ?? eventAtRef.current;
       return {
         contentId: "42",
         contentType: "percEvent",
@@ -3091,7 +3119,7 @@ describe("EditorHost save datetime (#5092)", () => {
     const view = render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={datetimeHost({ saveFields, eventAt })} />
+          <Route path="/editor" element={datetimeHost({ saveFields, eventAtRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -3120,7 +3148,7 @@ describe("EditorHost save datetime (#5092)", () => {
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={datetimeHost({ saveFields, eventAt })} />
+          <Route path="/editor" element={datetimeHost({ saveFields, eventAtRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -3237,6 +3265,9 @@ describe("EditorHost clear datetime (#5122)", () => {
     eventAt?: string;
     required?: boolean;
     confirmLeaveUnsaved?: (body: string) => boolean;
+    // Shared holder so the post-save reload (#5768) serves the last-saved
+    // value instead of a stale fixture copy.
+    eventAtRef?: { current: string };
   }) {
     const eventAt = opts.eventAt ?? "2026-01-01 09:00:00";
     return (
@@ -3250,7 +3281,7 @@ describe("EditorHost clear datetime (#5122)", () => {
           revision: 3,
           fields: [
             { name: "sys_title", value: "Event" },
-            { name: "event_at", value: eventAt },
+            { name: "event_at", value: opts.eventAtRef ? opts.eventAtRef.current : eventAt },
           ],
         })}
         saveFields={opts.saveFields}
@@ -3272,9 +3303,10 @@ describe("EditorHost clear datetime (#5122)", () => {
   }
 
   it("saves a cleared datetime and shows it empty after reload", async () => {
-    let eventAt = "2026-01-01 09:00:00";
+    const eventAtRef = { current: "2026-01-01 09:00:00" };
     const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
-      eventAt = body.fields.find((f) => f.name === "event_at")?.value ?? eventAt;
+      eventAtRef.current =
+        body.fields.find((f) => f.name === "event_at")?.value ?? eventAtRef.current;
       return {
         contentId: "42",
         contentType: "percEvent",
@@ -3287,7 +3319,7 @@ describe("EditorHost clear datetime (#5122)", () => {
     const view = render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={datetimeHost({ saveFields, eventAt })} />
+          <Route path="/editor" element={datetimeHost({ saveFields, eventAtRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -3313,7 +3345,7 @@ describe("EditorHost clear datetime (#5122)", () => {
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={datetimeHost({ saveFields, eventAt })} />
+          <Route path="/editor" element={datetimeHost({ saveFields, eventAtRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -3869,6 +3901,9 @@ describe("EditorHost HTML field save (#4680)", () => {
     value?: string;
     required?: boolean;
     confirmLeaveUnsaved?: (body: string) => boolean;
+    // Shared holder so the post-save reload (#5768) serves the last-saved
+    // value instead of a stale fixture copy.
+    valueRef?: { current: string };
   }) {
     const value = opts.value ?? "line one";
     return (
@@ -3882,7 +3917,7 @@ describe("EditorHost HTML field save (#4680)", () => {
           revision: 2,
           fields: [
             { name: "sys_title", value: "Home" },
-            { name: "description", value },
+            { name: "description", value: opts.valueRef ? opts.valueRef.current : value },
           ],
         })}
         saveFields={opts.saveFields}
@@ -3903,9 +3938,10 @@ describe("EditorHost HTML field save (#4680)", () => {
   }
 
   it("saves a cleared optional long-text field and shows it empty after reload", async () => {
-    let stored = "line one";
+    const storedRef = { current: "line one" };
     const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
-      stored = body.fields.find((f) => f.name === "description")?.value ?? stored;
+      storedRef.current =
+        body.fields.find((f) => f.name === "description")?.value ?? storedRef.current;
       return {
         contentId: "42",
         contentType: "percPage",
@@ -3918,7 +3954,7 @@ describe("EditorHost HTML field save (#4680)", () => {
     const view = render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={longTextHost({ saveFields, value: stored })} />
+          <Route path="/editor" element={longTextHost({ saveFields, valueRef: storedRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -3938,7 +3974,7 @@ describe("EditorHost HTML field save (#4680)", () => {
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={longTextHost({ saveFields, value: stored })} />
+          <Route path="/editor" element={longTextHost({ saveFields, valueRef: storedRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -4216,6 +4252,9 @@ describe("EditorHost clear optional number (#5070)", () => {
     qty?: string;
     required?: boolean;
     confirmLeaveUnsaved?: (body: string) => boolean;
+    // Shared holder so the post-save reload (#5768) serves the last-saved
+    // value instead of a stale fixture copy.
+    qtyRef?: { current: string };
   }) {
     return (
       <EditorHost
@@ -4228,7 +4267,7 @@ describe("EditorHost clear optional number (#5070)", () => {
           revision: 3,
           fields: [
             { name: "sys_title", value: "Home" },
-            { name: "qty", value: opts.qty ?? "4" },
+            { name: "qty", value: opts.qtyRef ? opts.qtyRef.current : (opts.qty ?? "4") },
           ],
         })}
         saveFields={opts.saveFields}
@@ -4254,9 +4293,9 @@ describe("EditorHost clear optional number (#5070)", () => {
   }
 
   it("saves a cleared optional number and shows it empty after reload", async () => {
-    let qty = "4";
+    const qtyRef = { current: "4" };
     const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
-      qty = body.fields.find((f) => f.name === "qty")?.value ?? qty;
+      qtyRef.current = body.fields.find((f) => f.name === "qty")?.value ?? qtyRef.current;
       return {
         contentId: "42",
         contentType: "percPage",
@@ -4269,7 +4308,7 @@ describe("EditorHost clear optional number (#5070)", () => {
     const view = render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={numberHost({ saveFields, qty })} />
+          <Route path="/editor" element={numberHost({ saveFields, qtyRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -4289,7 +4328,7 @@ describe("EditorHost clear optional number (#5070)", () => {
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={numberHost({ saveFields, qty })} />
+          <Route path="/editor" element={numberHost({ saveFields, qtyRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -4417,6 +4456,9 @@ describe("EditorHost clear optional HTML (#5071)", () => {
     body?: string;
     required?: boolean;
     confirmLeaveUnsaved?: (body: string) => boolean;
+    // Shared holder so the post-save reload (#5768) serves the last-saved
+    // value instead of a stale fixture copy.
+    bodyRef?: { current: string };
   }) {
     return (
       <EditorHost
@@ -4429,7 +4471,7 @@ describe("EditorHost clear optional HTML (#5071)", () => {
           revision: 3,
           fields: [
             { name: "sys_title", value: "Intro" },
-            { name: "text", value: opts.body ?? "<p>Hi</p>" },
+            { name: "text", value: opts.bodyRef ? opts.bodyRef.current : (opts.body ?? "<p>Hi</p>") },
           ],
         })}
         saveFields={opts.saveFields}
@@ -4450,9 +4492,9 @@ describe("EditorHost clear optional HTML (#5071)", () => {
   }
 
   it("saves a cleared optional HTML body and shows it empty after reload", async () => {
-    let body = "<p>Hi</p>";
+    const bodyRef = { current: "<p>Hi</p>" };
     const saveFields = vi.fn(async (_id: string, payload: ItemEditorFields) => {
-      body = payload.fields.find((f) => f.name === "text")?.value ?? body;
+      bodyRef.current = payload.fields.find((f) => f.name === "text")?.value ?? bodyRef.current;
       return {
         contentId: "42",
         contentType: "percRichText",
@@ -4465,7 +4507,7 @@ describe("EditorHost clear optional HTML (#5071)", () => {
     const view = render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={htmlHost({ saveFields, body })} />
+          <Route path="/editor" element={htmlHost({ saveFields, bodyRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -4485,7 +4527,7 @@ describe("EditorHost clear optional HTML (#5071)", () => {
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={htmlHost({ saveFields, body })} />
+          <Route path="/editor" element={htmlHost({ saveFields, bodyRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -4584,14 +4626,11 @@ describe("EditorHost clear optional single-line text (#5205)", () => {
     required?: boolean;
     withTitle?: boolean;
     confirmLeaveUnsaved?: (body: string) => boolean;
+    // Shared holder so the post-save reload (#5768) serves the last-saved
+    // value instead of a stale fixture copy.
+    summaryRef?: { current: string };
   }) {
     const summary = opts.summary ?? "Hello";
-    const fields = [
-      ...(opts.withTitle === false
-        ? []
-        : [{ name: "sys_title", value: "Home" }]),
-      { name: "summary", value: summary },
-    ];
     const schema = [
       ...(opts.withTitle === false
         ? []
@@ -4604,6 +4643,8 @@ describe("EditorHost clear optional single-line text (#5205)", () => {
         required: opts.required === true,
       },
     ];
+    const summaryValue = (): string =>
+      opts.summaryRef ? opts.summaryRef.current : summary;
     return (
       <EditorHost
         checkout={vi.fn().mockResolvedValue(undefined)}
@@ -4613,7 +4654,12 @@ describe("EditorHost clear optional single-line text (#5205)", () => {
           name: "Home",
           checkoutUser: "admin",
           revision: 3,
-          fields,
+          fields: [
+            ...(opts.withTitle === false
+              ? []
+              : [{ name: "sys_title", value: "Home" }]),
+            { name: "summary", value: summaryValue() },
+          ],
         })}
         saveFields={opts.saveFields ?? vi.fn()}
         loadType={async () => ({ fields: schema })}
@@ -4623,9 +4669,10 @@ describe("EditorHost clear optional single-line text (#5205)", () => {
   }
 
   it("saves a cleared optional text field and shows it empty after reload", async () => {
-    let summary = "Hello";
+    const summaryRef = { current: "Hello" };
     const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
-      summary = body.fields.find((f) => f.name === "summary")?.value ?? summary;
+      summaryRef.current =
+        body.fields.find((f) => f.name === "summary")?.value ?? summaryRef.current;
       return {
         contentId: "42",
         contentType: "percPage",
@@ -4638,7 +4685,7 @@ describe("EditorHost clear optional single-line text (#5205)", () => {
     const view = render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={textHost({ saveFields, summary })} />
+          <Route path="/editor" element={textHost({ saveFields, summaryRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -4662,7 +4709,7 @@ describe("EditorHost clear optional single-line text (#5205)", () => {
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={textHost({ saveFields, summary })} />
+          <Route path="/editor" element={textHost({ saveFields, summaryRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -4793,6 +4840,9 @@ describe("EditorHost save single-line text (#5206)", () => {
     saveFields: (id: string, body: ItemEditorFields) => Promise<ItemEditorFields>;
     summary?: string;
     confirmLeaveUnsaved?: (body: string) => boolean;
+    // Shared holder so the post-save reload (#5768) serves the last-saved
+    // value instead of a stale fixture copy.
+    summaryRef?: { current: string };
   }) {
     const summary = opts.summary ?? "Hello";
     return (
@@ -4804,7 +4854,7 @@ describe("EditorHost save single-line text (#5206)", () => {
           name: "Home",
           checkoutUser: "admin",
           revision: 3,
-          fields: [{ name: "summary", value: summary }],
+          fields: [{ name: "summary", value: opts.summaryRef ? opts.summaryRef.current : summary }],
         })}
         saveFields={opts.saveFields}
         loadType={async () => ({
@@ -4823,9 +4873,10 @@ describe("EditorHost save single-line text (#5206)", () => {
   }
 
   it("saves a new single-line text value and shows it after reload", async () => {
-    let summary = "Hello";
+    const summaryRef = { current: "Hello" };
     const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
-      summary = body.fields.find((f) => f.name === "summary")?.value ?? summary;
+      summaryRef.current =
+        body.fields.find((f) => f.name === "summary")?.value ?? summaryRef.current;
       return {
         contentId: "42",
         contentType: "percPage",
@@ -4838,7 +4889,7 @@ describe("EditorHost save single-line text (#5206)", () => {
     const view = render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={textHost({ saveFields, summary })} />
+          <Route path="/editor" element={textHost({ saveFields, summaryRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -4866,7 +4917,7 @@ describe("EditorHost save single-line text (#5206)", () => {
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={textHost({ saveFields, summary })} />
+          <Route path="/editor" element={textHost({ saveFields, summaryRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -6659,6 +6710,10 @@ describe("EditorHost save a decimal number (#5346)", () => {
     qty?: string;
     fields?: "both" | "float";
     confirmLeaveUnsaved?: (body: string) => boolean;
+    // Shared holders so the post-save reload (#5768) serves the last-saved
+    // values instead of a stale fixture copy.
+    rateRef?: { current: string };
+    qtyRef?: { current: string };
   }) {
     const rate = opts.rate ?? "1";
     const qty = opts.qty ?? "4";
@@ -6689,10 +6744,10 @@ describe("EditorHost save a decimal number (#5346)", () => {
           checkoutUser: "admin",
           revision: 3,
           fields: floatOnly
-            ? [{ name: "rate", value: rate }]
+            ? [{ name: "rate", value: opts.rateRef ? opts.rateRef.current : rate }]
             : [
-                { name: "rate", value: rate },
-                { name: "qty", value: qty },
+                { name: "rate", value: opts.rateRef ? opts.rateRef.current : rate },
+                { name: "qty", value: opts.qtyRef ? opts.qtyRef.current : qty },
               ],
         })}
         saveFields={opts.saveFields ?? vi.fn()}
@@ -6742,9 +6797,9 @@ describe("EditorHost save a decimal number (#5346)", () => {
   }
 
   it("saves 1.5 on a float field and shows that decimal after reload", async () => {
-    let rate = "1";
+    const rateRef = { current: "1" };
     const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
-      rate = body.fields.find((f) => f.name === "rate")?.value ?? rate;
+      rateRef.current = body.fields.find((f) => f.name === "rate")?.value ?? rateRef.current;
       return {
         contentId: "42",
         contentType: "percPage",
@@ -6754,7 +6809,7 @@ describe("EditorHost save a decimal number (#5346)", () => {
         fields: body.fields,
       };
     });
-    const { rate: input } = await openDecimal(decimalHost({ saveFields, rate }));
+    const { rate: input } = await openDecimal(decimalHost({ saveFields, rateRef }));
     expect(input.getAttribute("data-editor-kind")).toBe("number");
     expect(input.getAttribute("inputmode")).toBe("decimal");
     fireEvent.change(input, { target: { value: "1.5" } });
@@ -6768,7 +6823,7 @@ describe("EditorHost save a decimal number (#5346)", () => {
     });
     expect((screen.getByTestId("editor-field-rate") as HTMLInputElement).value).toBe("1.5");
     cleanup();
-    const reloaded = await openDecimal(decimalHost({ saveFields, rate }), "1.5");
+    const reloaded = await openDecimal(decimalHost({ saveFields, rateRef }), "1.5");
     expect(reloaded.rate.value).toBe("1.5");
   });
 
@@ -7285,6 +7340,9 @@ describe("EditorHost save a yes-no field (#5586)", () => {
     summary?: string;
     confirmLeaveUnsaved?: (body: string) => boolean;
     readOnly?: boolean;
+    // Shared holder so the post-save reload (#5768) serves the last-saved
+    // value instead of a stale fixture copy.
+    flagRef?: { current: string };
   }) {
     const flag = opts.flag ?? "yes";
     const summary = opts.summary ?? "Hello";
@@ -7298,7 +7356,7 @@ describe("EditorHost save a yes-no field (#5586)", () => {
           checkoutUser: "admin",
           revision: 3,
           fields: [
-            { name: "no_propagate", value: flag },
+            { name: "no_propagate", value: opts.flagRef ? opts.flagRef.current : flag },
             { name: "summary", value: summary },
           ],
         })}
@@ -7346,9 +7404,10 @@ describe("EditorHost save a yes-no field (#5586)", () => {
   }
 
   it("saves yes or no with boolean dataType and keeps the sibling text", async () => {
-    let flag = "yes";
+    const flagRef = { current: "yes" };
     const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
-      flag = body.fields.find((f) => f.name === "no_propagate")?.value ?? flag;
+      flagRef.current =
+        body.fields.find((f) => f.name === "no_propagate")?.value ?? flagRef.current;
       return {
         contentId: "42",
         contentType: "percPage",
@@ -7358,7 +7417,7 @@ describe("EditorHost save a yes-no field (#5586)", () => {
         fields: body.fields,
       };
     });
-    const select = await openYesNo(yesNoSaveHost({ saveFields, flag }));
+    const select = await openYesNo(yesNoSaveHost({ saveFields, flagRef }));
     expect(select.getAttribute("data-editor-kind")).toBe("yesno");
     expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe("Hello");
     fireEvent.change(select, { target: { value: "no" } });
@@ -7377,7 +7436,7 @@ describe("EditorHost save a yes-no field (#5586)", () => {
       "no",
     );
     cleanup();
-    const reloaded = await openYesNo(yesNoSaveHost({ saveFields, flag }), "no");
+    const reloaded = await openYesNo(yesNoSaveHost({ saveFields, flagRef }), "no");
     expect(reloaded.value).toBe("no");
     expect((screen.getByTestId("editor-field-summary") as HTMLInputElement).value).toBe("Hello");
   });
@@ -7697,6 +7756,9 @@ describe("EditorHost clear optional decimal (#5415)", () => {
     rate?: string;
     qty?: string;
     confirmLeaveUnsaved?: (body: string) => boolean;
+    // Shared holder so the post-save reload (#5768) serves the last-saved
+    // value instead of a stale fixture copy.
+    rateRef?: { current: string };
   }) {
     const rate = opts.rate ?? "1.5";
     const qty = opts.qty ?? "4";
@@ -7710,7 +7772,7 @@ describe("EditorHost clear optional decimal (#5415)", () => {
           checkoutUser: "admin",
           revision: 3,
           fields: [
-            { name: "rate", value: rate },
+            { name: "rate", value: opts.rateRef ? opts.rateRef.current : rate },
             { name: "qty", value: qty },
           ],
         })}
@@ -7766,10 +7828,10 @@ describe("EditorHost clear optional decimal (#5415)", () => {
   }
 
   it("clears an optional float on save and leaves the integer", async () => {
-    let rate = "1.5";
+    const rateRef = { current: "1.5" };
     const qty = "4";
     const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
-      rate = body.fields.find((f) => f.name === "rate")?.value ?? rate;
+      rateRef.current = body.fields.find((f) => f.name === "rate")?.value ?? rateRef.current;
       return {
         contentId: "42",
         contentType: "percPage",
@@ -7779,7 +7841,7 @@ describe("EditorHost clear optional decimal (#5415)", () => {
         fields: body.fields,
       };
     });
-    const opened = await openDecimalClear(decimalClearHost({ saveFields, rate, qty }));
+    const opened = await openDecimalClear(decimalClearHost({ saveFields, rateRef, qty }));
     expect(opened.rate.getAttribute("data-editor-numeric")).toBe("float");
     expect(opened.qty.getAttribute("data-editor-numeric")).toBe("integer");
     const clearRate = screen.getByTestId("editor-number-clear-rate");
@@ -7803,7 +7865,7 @@ describe("EditorHost clear optional decimal (#5415)", () => {
     expect(screen.queryByTestId("editor-number-clear-rate")).toBeNull();
     expect(screen.getByTestId("editor-number-clear-qty")).toBeTruthy();
     cleanup();
-    const reloaded = await openDecimalClear(decimalClearHost({ saveFields, rate, qty }), "", "4");
+    const reloaded = await openDecimalClear(decimalClearHost({ saveFields, rateRef, qty }), "", "4");
     expect(reloaded.rate.value).toBe("");
     expect(reloaded.qty.value).toBe("4");
     expect(screen.queryByTestId("editor-number-clear-rate")).toBeNull();
@@ -9707,14 +9769,19 @@ describe("EditorHost page link fields", () => {
   });
 
   it("saves and clears a page link without calling save for an invalid target", async () => {
-    const saveFields = vi.fn().mockImplementation(async (_id: string, body: { fields: { name: string; value: string }[] }) => ({
-      contentId: "42",
-      contentType: "percPage",
-      name: "Home",
-      checkoutUser: "admin",
-      revision: 3,
-      fields: body.fields,
-    }));
+    const pageRef = { current: "" };
+    const saveFields = vi.fn().mockImplementation(async (_id: string, body: { fields: { name: string; value: string }[] }) => {
+      pageRef.current =
+        body.fields.find((field) => field.name === "page")?.value ?? pageRef.current;
+      return {
+        contentId: "42",
+        contentType: "percPage",
+        name: "Home",
+        checkoutUser: "admin",
+        revision: 3,
+        fields: body.fields,
+      };
+    });
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
@@ -9728,7 +9795,7 @@ describe("EditorHost page link fields", () => {
                   contentType: "percPage",
                   name: "Home",
                   checkoutUser: "admin",
-                  fields: [{ name: "page", value: "" }],
+                  fields: [{ name: "page", value: pageRef.current }],
                 })}
                 saveFields={saveFields}
                 loadType={async () => ({
@@ -9885,6 +9952,9 @@ describe("EditorHost clear optional link (#5072)", () => {
     page?: string;
     required?: boolean;
     confirmLeaveUnsaved?: (body: string) => boolean;
+    // Shared holder so the post-save reload (#5768) serves the last-saved
+    // value instead of a stale fixture copy.
+    pageRef?: { current: string };
   }) {
     return (
       <EditorHost
@@ -9897,7 +9967,7 @@ describe("EditorHost clear optional link (#5072)", () => {
           revision: 3,
           fields: [
             { name: "sys_title", value: "Home" },
-            { name: "page", value: opts.page ?? "594" },
+            { name: "page", value: opts.pageRef ? opts.pageRef.current : (opts.page ?? "594") },
           ],
         })}
         saveFields={opts.saveFields}
@@ -9919,9 +9989,9 @@ describe("EditorHost clear optional link (#5072)", () => {
   }
 
   it("saves a cleared optional link and shows it empty after reload", async () => {
-    let page = "594";
+    const pageRef = { current: "594" };
     const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
-      page = body.fields.find((f) => f.name === "page")?.value ?? page;
+      pageRef.current = body.fields.find((f) => f.name === "page")?.value ?? pageRef.current;
       return {
         contentId: "42",
         contentType: "percPage",
@@ -9934,7 +10004,7 @@ describe("EditorHost clear optional link (#5072)", () => {
     const view = render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={linkHost({ saveFields, page })} />
+          <Route path="/editor" element={linkHost({ saveFields, pageRef })} />
         </Routes>
       </MemoryRouter>,
     );
@@ -9958,7 +10028,7 @@ describe("EditorHost clear optional link (#5072)", () => {
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={linkHost({ saveFields, page })} />
+          <Route path="/editor" element={linkHost({ saveFields, pageRef })} />
         </Routes>
       </MemoryRouter>,
     );

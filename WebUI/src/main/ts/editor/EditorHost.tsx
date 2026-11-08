@@ -934,6 +934,13 @@ export function EditorHost({
   const [saved, setSaved] = useState(false);
   const [saveErrorKey, setSaveErrorKey] = useState<string | null>(null);
   const [saveErrorDetail, setSaveErrorDetail] = useState("");
+  /**
+   * Post-save reload notice (#5768). The fields PUT already succeeded when
+   * this is set, so the saved indicator stays truthful while the save
+   * status region reports the stale refresh with Retry semantics.
+   */
+  const [saveReloadErrorKey, setSaveReloadErrorKey] = useState<string | null>(null);
+  const [saveReloadErrorDetail, setSaveReloadErrorDetail] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const keywordChoicesRef = useRef<Record<string, KeywordOption[]>>({});
   const reportKeywordChoices = (name: string, options: KeywordOption[]): void => {
@@ -1481,6 +1488,8 @@ export function EditorHost({
     setSaved(false);
     setSaveErrorKey(null);
     setSaveErrorDetail("");
+    setSaveReloadErrorKey(null);
+    setSaveReloadErrorDetail("");
     const missing = requiredErrorsForDraft();
     const invalidDates = collectInvalidDateFieldErrors(
       rows.map((row) => ({
@@ -1910,6 +1919,26 @@ export function EditorHost({
         ),
       );
       setSaved(true);
+      try {
+        const refreshed = await loadFields(itemId);
+        setPayload(refreshed);
+        setDraft(
+          Object.fromEntries(
+            refreshed.fields.map((f) => [f.name, fieldValueAsString(f.value)]),
+          ),
+        );
+        setSaveReloadErrorKey(null);
+        setSaveReloadErrorDetail("");
+      } catch (reloadErr) {
+        if (isSessionRedirectError(reloadErr)) {
+          return;
+        }
+        // The PUT already succeeded: keep the saved indicator truthful and
+        // surface the stale refresh on the save status region with Retry
+        // semantics instead of silently showing unrefreshed values.
+        setSaveReloadErrorKey(EDITOR_MSG.SAVE_RELOAD_FAILED);
+        setSaveReloadErrorDetail(formatApiError(reloadErr, ""));
+      }
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
@@ -2219,6 +2248,35 @@ export function EditorHost({
       setSaveErrorDetail(mapped.banner === fallback ? "" : mapped.banner);
     } finally {
       setSaving(false);
+    }
+  }
+
+  /**
+   * Re-runs the post-save reload for the same contentId after a save whose
+   * refresh failed (#5768). Never re-sends the fields PUT; a repeated
+   * failure keeps the save-region notice and the truthful saved indicator.
+   */
+  async function handleRetrySaveReload(): Promise<void> {
+    if (contentId == null) {
+      return;
+    }
+    const itemId = String(contentId);
+    try {
+      const refreshed = await loadFields(itemId);
+      setPayload(refreshed);
+      setDraft(
+        Object.fromEntries(
+          refreshed.fields.map((f) => [f.name, fieldValueAsString(f.value)]),
+        ),
+      );
+      setSaveReloadErrorKey(null);
+      setSaveReloadErrorDetail("");
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setSaveReloadErrorKey(EDITOR_MSG.SAVE_RELOAD_FAILED);
+      setSaveReloadErrorDetail(formatApiError(err, ""));
     }
   }
 
@@ -4601,6 +4659,26 @@ export function EditorHost({
               >
                 {message(saveErrorKey)}
                 {saveErrorDetail ? ` ${saveErrorDetail}` : ""}
+              </div>
+            ) : null}
+            {saveReloadErrorKey ? (
+              <div
+                className={styles.status}
+                role="alert"
+                data-testid="editor-save-reload-error"
+              >
+                {message(saveReloadErrorKey)}
+                {saveReloadErrorDetail ? ` ${saveReloadErrorDetail}` : ""}
+                <div className={styles.actions}>
+                  <button
+                    type="button"
+                    className={styles.button}
+                    data-testid="editor-retry-save-reload"
+                    onClick={() => void handleRetrySaveReload()}
+                  >
+                    {message(EDITOR_MSG.LOAD_RETRY)}
+                  </button>
+                </div>
               </div>
             ) : null}
             {publishErrorKey ? (
