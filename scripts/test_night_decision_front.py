@@ -249,6 +249,42 @@ def test_cli_roundtrip():
     assert data["signals_complete"] is True
 
 
+def test_debt_exclude_reorders_but_never_starves():
+    issues = [
+        issue(1820, "issue 1372 slice 4: blocked before", labels=["p2", "tech-debt"]),
+        issue(1976, "issue 962 slice 4: blocked before", labels=["p2", "tech-debt"]),
+        issue(1990, "issue 962 slice 5: fresh debt", labels=["p2", "tech-debt"]),
+    ]
+    # Excluded low-number debt sorts after fresh debt within the same pN tier.
+    result = df.run(issues, [], None, 2, 2, "model:x", 3, debt_exclude={1820, 1976})
+    nums = [q["issue_number"] for q in result["queue"]]
+    assert nums[0] == 1990
+    assert len(nums) == 2
+    # pN tier still outranks exclusion: excluded p2 beats fresh p8.
+    issues.append(issue(5711, "DCE warnings batch", labels=["p8", "tech-debt"]))
+    result = df.run(issues, [], None, 3, 3, "model:x", 3, debt_exclude={1820, 1976})
+    nums = [q["issue_number"] for q in result["queue"]]
+    assert nums[0] == 1990 and nums[-1] == 5711
+    # All-excluded pool still fills the seat (fail-open, reorder not removal).
+    result = df.run(issues, [], None, 1, 1, "model:x", 3, debt_exclude={1820, 1976, 1990, 5711})
+    assert len(result["queue"]) == 1
+
+
+def test_debt_seed_randomizes_within_tier_deterministically():
+    issues = [
+        issue(5711, "DCE warnings a", labels=["p8", "tech-debt"]),
+        issue(5712, "DCE warnings b", labels=["p8", "tech-debt"]),
+        issue(5713, "DCE warnings c", labels=["p8", "tech-debt"]),
+        issue(5721, "DCE warnings d", labels=["p8", "tech-debt"]),
+    ]
+    first = [q["issue_number"] for q in df.run(issues, [], None, 4, 4, "model:x", 3, debt_seed=20261108)["queue"]]
+    second = [q["issue_number"] for q in df.run(issues, [], None, 4, 4, "model:x", 3, debt_seed=20261108)["queue"]]
+    assert first == second  # seeded: reproducible
+    assert sorted(first) == [5711, 5712, 5713, 5721]
+    legacy = [q["issue_number"] for q in df.run(issues, [], None, 4, 4, "model:x", 3)["queue"]]
+    assert legacy == [5711, 5712, 5713, 5721]  # no seed: legacy number order
+
+
 if __name__ == "__main__":
     test_one_per_parent_and_skip_epic()
     test_covering_pr_skips_issue_and_siblings()
@@ -262,4 +298,6 @@ if __name__ == "__main__":
     test_cli_alerts_roundtrip()
     test_cli_no_alerts_flag_is_unknown()
     test_cli_roundtrip()
+    test_debt_exclude_reorders_but_never_starves()
+    test_debt_seed_randomizes_within_tier_deterministically()
     print("ok")

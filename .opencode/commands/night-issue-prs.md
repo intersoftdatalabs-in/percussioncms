@@ -231,6 +231,21 @@ If the fetch fails (403/404, no network), **omit `--alerts`** — the script
 emits `open_alert_count: -1` (unknown) and Phase 13 runs fail-open. Never
 write or pass a faked empty list to force a zero.
 
+## Debt rotation (Phase 2, every run with debt seats — 2.2.8-draft)
+
+Lowest-number-first reseats the same blocked debt nightly. Before invoking
+`scripts/night-decision-front.py`, build the rotation inputs:
+
+1. Collect recently-blocked debt: scan the previous run's
+   `scratch/work-*.json` in the worktree for debt-class issues whose
+   `status` shows no progress (`skipped` with `gated_prerequisite`,
+   `verified_no_change`, `skipped_*`). Take their issue numbers (cap 20).
+2. Pass `--debt-exclude "<csv>"` plus `--debt-seed <YYYYMMDD>` (UTC date,
+   so ties rotate nightly and the choice is auditable via
+   `stats.debt_excluded` / `stats.debt_seed`).
+3. Omission is fail-open (legacy number order), but a debt run without a
+   seed re-risks reseating — prefer always passing both when seats exist.
+
 ## Output contract
 
 Write `${NIGHT_REPORT_PATH}` at the end of every run with:

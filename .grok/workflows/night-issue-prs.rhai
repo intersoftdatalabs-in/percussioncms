@@ -1,5 +1,10 @@
 // Overnight / unattended open-issue worker for Percussion CMS.
-// workflow_version: 2.2.7-draft (UNCOMMITTED — human review required per root AGENTS.md)
+// workflow_version: 2.2.8-draft (UNCOMMITTED — human review required per root AGENTS.md)
+// 2.2.8-draft — Debt rotation + queue guards: decision-front --debt-exclude /
+//   --debt-seed rotate debt seats (recently-blocked sorts after fresh per pN tier,
+//   same-tier ties random; reorder-only, never starves); triage queues at most ONE
+//   implement per parent across the whole queue incl. adopted children; Erlang
+//   validates its review JSON parses before returning.
 // 2.2.7-draft — Fill-until-full: triage must walk every open p1–p6 product epic while
 //   implement seats remain (epics_walked audit per epic); host runs ONE bounded follow-up
 //   pass when the queue is short without an audit; host sweep files backlog slices for
@@ -1873,7 +1878,7 @@ triage_prompt += "     actions). Legacy webmgt/AA is debt; overnight ships React
 triage_prompt += "     jQuery. File 3 children for the next unshipped editor increment.\n";
 triage_prompt += "  Labels on new children: operator:grok, operator:night-issue-prs, " + model_label + ", parent pN (p2 if new epic).\n";
 triage_prompt += "  5) Leaving max_issues unfilled while (1)–(4) still have React work is a DEFECT.\n";
-triage_prompt += "     one-per-parent still limits IMPLEMENT to one child of a GIVEN parent per run.\n";
+triage_prompt += "     one-per-parent still limits IMPLEMENT to one child of a GIVEN parent per run. ONE IMPLEMENT PER PARENT ACROSS THE WHOLE QUEUE (HARD — 2.2.8-draft): at most one disposition=implement row per parent_issue — INCLUDING adopted EXISTING open children; the second implement-ready child of an already-queued parent is disposition=skip with rationale=sibling_deferred_one_per_parent. DEBT ROTATION (2.2.8-draft): deprioritize debt the host names as recently-blocked (fresh debt first within the same pN tier; break remaining same-tier ties RANDOMLY, never lowest-number-first; pN tier still outranks rotation).\n";
 triage_prompt += "     It does NOT forbid creating the next 3 backlog children, and it does NOT forbid\n";
 triage_prompt += "     implementing one child from workbench AND one from publish/explorer/editor in the\n";
 triage_prompt += "     same run (different parents).\n";
