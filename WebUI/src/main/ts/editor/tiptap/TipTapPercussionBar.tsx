@@ -340,10 +340,10 @@ function InlineLinkPanel({ editor, name, onClose }: PanelProps): React.ReactElem
         value={target}
         onChange={(e) => setTarget(e.target.value)}
       >
-        <option value="">Same window</option>
-        <option value="_blank">New window</option>
-        <option value="_parent">Parent window</option>
-        <option value="_top">Top window</option>
+        <option value="">{message(EDITOR_MSG.TIPTAP_PERC_LINK_TARGET_SAME)}</option>
+        <option value="_blank">{message(EDITOR_MSG.TIPTAP_PERC_LINK_TARGET_BLANK)}</option>
+        <option value="_parent">{message(EDITOR_MSG.TIPTAP_PERC_LINK_TARGET_PARENT)}</option>
+        <option value="_top">{message(EDITOR_MSG.TIPTAP_PERC_LINK_TARGET_TOP)}</option>
       </select>
       {error ? (
         <span role="alert" className={styles.tiptapLinkError}>
@@ -431,7 +431,7 @@ function InlineImagePanel({ editor, name, onClose }: PanelProps): React.ReactEle
       />
       <input
         data-testid={`tiptap-perc-image-width-${name}`}
-        aria-label="Width"
+        aria-label={message(EDITOR_MSG.TIPTAP_PERC_IMAGE_WIDTH)}
         className={styles.tiptapLinkInput}
         value={width}
         inputMode="numeric"
@@ -439,7 +439,7 @@ function InlineImagePanel({ editor, name, onClose }: PanelProps): React.ReactEle
       />
       <input
         data-testid={`tiptap-perc-image-height-${name}`}
-        aria-label="Height"
+        aria-label={message(EDITOR_MSG.TIPTAP_PERC_IMAGE_HEIGHT)}
         className={styles.tiptapLinkInput}
         value={height}
         inputMode="numeric"
@@ -447,17 +447,17 @@ function InlineImagePanel({ editor, name, onClose }: PanelProps): React.ReactEle
       />
       <select
         data-testid={`tiptap-perc-image-align-${name}`}
-        aria-label="Alignment"
+        aria-label={message(EDITOR_MSG.TIPTAP_PERC_IMAGE_ALIGN)}
         className={styles.tiptapStyleSelect}
         value={align}
         onChange={(e) => setAlign(e.target.value)}
       >
-        <option value="">No alignment</option>
-        <option value="left">Left</option>
-        <option value="right">Right</option>
-        <option value="top">Top</option>
-        <option value="middle">Middle</option>
-        <option value="bottom">Bottom</option>
+        <option value="">{message(EDITOR_MSG.TIPTAP_PERC_IMAGE_ALIGN_NONE)}</option>
+        <option value="left">{message(EDITOR_MSG.TIPTAP_PERC_IMAGE_ALIGN_LEFT)}</option>
+        <option value="right">{message(EDITOR_MSG.TIPTAP_PERC_IMAGE_ALIGN_RIGHT)}</option>
+        <option value="top">{message(EDITOR_MSG.TIPTAP_PERC_IMAGE_ALIGN_TOP)}</option>
+        <option value="middle">{message(EDITOR_MSG.TIPTAP_PERC_IMAGE_ALIGN_MIDDLE)}</option>
+        <option value="bottom">{message(EDITOR_MSG.TIPTAP_PERC_IMAGE_ALIGN_BOTTOM)}</option>
       </select>
       <label className={styles.tiptapPercCheck}>
         <input

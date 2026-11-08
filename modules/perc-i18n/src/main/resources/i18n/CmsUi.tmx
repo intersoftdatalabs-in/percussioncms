@@ -27530,115 +27530,318 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <!-- #4808: Status job-detail chrome. en-us only; Job ID and Error reuse existing tuids. -->
     <tu tuid="perc.ui.publish.modern@Job details">
       <tuv xml:lang="en-us"><seg>Job details</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Jobdetails</seg></tuv><tuv xml:lang="fr"><seg>Détails du poste</seg></tuv><tuv xml:lang="zh-tw"><seg>职位详情</seg></tuv><tuv xml:lang="es"><seg>Detalles del trabajo</seg></tuv><tuv xml:lang="nl"><seg>Taakdetails</seg></tuv><tuv xml:lang="pt"><seg>Detalhes do trabalho</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Edition">
       <tuv xml:lang="en-us"><seg>Edition</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Ausgabe</seg></tuv><tuv xml:lang="fr"><seg>Edition</seg></tuv><tuv xml:lang="zh-tw"><seg>版</seg></tuv><tuv xml:lang="es"><seg>Edición</seg></tuv><tuv xml:lang="nl"><seg>Editie</seg></tuv><tuv xml:lang="pt"><seg>Edição</seg></tuv></tu>
     <!-- #4886: Status job content items. en-us only. -->
     <tu tuid="perc.ui.publish.modern@Content items">
       <tuv xml:lang="en-us"><seg>Content items</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Inhaltselemente</seg></tuv><tuv xml:lang="fr"><seg>Éléments de contenu</seg></tuv><tuv xml:lang="zh-tw"><seg>内容项目</seg></tuv><tuv xml:lang="es"><seg>Elementos de contenido</seg></tuv><tuv xml:lang="nl"><seg>Inhoud artikelen</seg></tuv><tuv xml:lang="pt"><seg>Itens de conteúdo</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Name">
       <tuv xml:lang="en-us"><seg>Name</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Name</seg></tuv><tuv xml:lang="fr"><seg>Nom</seg></tuv><tuv xml:lang="zh-tw"><seg>姓名</seg></tuv><tuv xml:lang="es"><seg>Nombre</seg></tuv><tuv xml:lang="nl"><seg>Naam</seg></tuv><tuv xml:lang="pt"><seg>Nome</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@No content items for this job">
       <tuv xml:lang="en-us"><seg>No content items for this job</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Keine Inhaltselemente für diesen Job</seg></tuv><tuv xml:lang="fr"><seg>Aucun élément de contenu pour ce travail</seg></tuv><tuv xml:lang="zh-tw"><seg>此职位没有内容项目</seg></tuv><tuv xml:lang="es"><seg>No hay elementos de contenido para este trabajo</seg></tuv><tuv xml:lang="nl"><seg>Geen inhoudsitems voor deze taak</seg></tuv><tuv xml:lang="pt"><seg>Nenhum item de conteúdo para este trabalho</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@You are not allowed to view items for this job">
       <tuv xml:lang="en-us"><seg>You are not allowed to view items for this job</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Sie sind nicht berechtigt, Elemente für diesen Job anzuzeigen</seg></tuv><tuv xml:lang="fr"><seg>Vous n'êtes pas autorisé à afficher les éléments pour ce travail</seg></tuv><tuv xml:lang="zh-tw"><seg>您无权查看该职位的项目</seg></tuv><tuv xml:lang="es"><seg>No tienes permiso para ver elementos para este trabajo.</seg></tuv><tuv xml:lang="nl"><seg>U mag geen items voor deze vacature bekijken</seg></tuv><tuv xml:lang="pt"><seg>Você não tem permissão para visualizar itens deste trabalho</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Job items were not found">
       <tuv xml:lang="en-us"><seg>Job items were not found</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Jobelemente wurden nicht gefunden</seg></tuv><tuv xml:lang="fr"><seg>Les éléments de travail n'ont pas été trouvés</seg></tuv><tuv xml:lang="zh-tw"><seg>找不到工作项目</seg></tuv><tuv xml:lang="es"><seg>No se encontraron elementos de trabajo</seg></tuv><tuv xml:lang="nl"><seg>Er zijn geen taakitems gevonden</seg></tuv><tuv xml:lang="pt"><seg>Itens de trabalho não foram encontrados</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Could not load items for this job">
       <tuv xml:lang="en-us"><seg>Could not load items for this job</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Für diesen Job konnten keine Elemente geladen werden</seg></tuv><tuv xml:lang="fr"><seg>Impossible de charger les éléments pour cette tâche</seg></tuv><tuv xml:lang="zh-tw"><seg>无法加载该作业的项目</seg></tuv><tuv xml:lang="es"><seg>No se pudieron cargar elementos para este trabajo</seg></tuv><tuv xml:lang="nl"><seg>Kan items voor deze taak niet laden</seg></tuv><tuv xml:lang="pt"><seg>Não foi possível carregar itens para este trabalho</seg></tuv></tu>
     <!-- #4837: PublishingShell Runtime chrome. en-us only; Site reuses perc.ui.publish.title@Site. -->
     <tu tuid="perc.ui.publish.sections.runtime@Runtime site">
       <tuv xml:lang="en-us"><seg>Runtime site</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Laufzeitseite</seg></tuv><tuv xml:lang="fr"><seg>Site d'exécution</seg></tuv><tuv xml:lang="zh-tw"><seg>运行时站点</seg></tuv><tuv xml:lang="es"><seg>Sitio de ejecución</seg></tuv><tuv xml:lang="nl"><seg>Runtime-site</seg></tuv><tuv xml:lang="pt"><seg>Site de tempo de execução</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Publish server">
       <tuv xml:lang="en-us"><seg>Publish server</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Veröffentlichungsserver</seg></tuv><tuv xml:lang="fr"><seg>Serveur de publication</seg></tuv><tuv xml:lang="zh-tw"><seg>发布服务器</seg></tuv><tuv xml:lang="es"><seg>Servidor de publicación</seg></tuv><tuv xml:lang="nl"><seg>Publicatieserver</seg></tuv><tuv xml:lang="pt"><seg>Servidor de publicação</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Runtime publish server">
       <tuv xml:lang="en-us"><seg>Runtime publish server</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Laufzeitveröffentlichungsserver</seg></tuv><tuv xml:lang="fr"><seg>Serveur de publication d'exécution</seg></tuv><tuv xml:lang="zh-tw"><seg>运行时发布服务器</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Refresh">
       <tuv xml:lang="en-us"><seg>Refresh</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Aktualisieren</seg></tuv><tuv xml:lang="fr"><seg>Rafraîchir</seg></tuv><tuv xml:lang="zh-tw"><seg>刷新</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@No editions for this site">
       <tuv xml:lang="en-us"><seg>No editions for this site</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Keine Ausgaben für diese Site</seg></tuv><tuv xml:lang="fr"><seg>Aucune édition pour ce site</seg></tuv><tuv xml:lang="zh-tw"><seg>该网站没有任何版本</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Idle">
       <tuv xml:lang="en-us"><seg>Idle</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Leerlauf</seg></tuv><tuv xml:lang="fr"><seg>Inactif</seg></tuv><tuv xml:lang="zh-tw"><seg>闲置的</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Start">
       <tuv xml:lang="en-us"><seg>Start</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Start</seg></tuv><tuv xml:lang="fr"><seg>Commencer</seg></tuv><tuv xml:lang="zh-tw"><seg>开始</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Job {0}">
       <tuv xml:lang="en-us"><seg>Job {0}</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Auftrag {0}</seg></tuv><tuv xml:lang="fr"><seg>Emploi {0}</seg></tuv><tuv xml:lang="zh-tw"><seg>作业{0}</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Open job">
       <tuv xml:lang="en-us"><seg>Open job</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Offener Job</seg></tuv><tuv xml:lang="fr"><seg>Emploi ouvert</seg></tuv><tuv xml:lang="zh-tw"><seg>空缺职位</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Demand publish">
       <tuv xml:lang="en-us"><seg>Demand publish</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Veröffentlichung verlangen</seg></tuv><tuv xml:lang="fr"><seg>Demander une publication</seg></tuv><tuv xml:lang="zh-tw"><seg>需求发布</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Selected edition: {0}. Enter content ids (comma-separated). Folder parent is resolved on the server when possible.">
       <tuv xml:lang="en-us"><seg>Selected edition: {0}. Enter content ids (comma-separated). Folder parent is resolved on the server when possible.</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Ausgewählte Ausgabe: {0}. Geben Sie Inhalts-IDs ein (durch Kommas getrennt). Der übergeordnete Ordner wird nach Möglichkeit auf dem Server aufgelöst.</seg></tuv><tuv xml:lang="fr"><seg>Édition sélectionnée : {0}. Saisissez les identifiants de contenu (séparés par des virgules). Le dossier parent est résolu sur le serveur lorsque cela est possible.</seg></tuv><tuv xml:lang="zh-tw"><seg>所选版本：{0}。输入内容 ID（以逗号分隔）。如果可能，文件夹父级会在服务器上解析。</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@none">
       <tuv xml:lang="en-us"><seg>none</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>keiner</seg></tuv><tuv xml:lang="fr"><seg>aucun</seg></tuv><tuv xml:lang="zh-tw"><seg>没有任何</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Content ids">
       <tuv xml:lang="en-us"><seg>Content ids</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Inhalts-IDs</seg></tuv><tuv xml:lang="fr"><seg>Identifiants de contenu</seg></tuv><tuv xml:lang="zh-tw"><seg>内容 ID</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@e.g. 101, 102">
       <tuv xml:lang="en-us"><seg>e.g. 101, 102</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>z.B. 101, 102</seg></tuv><tuv xml:lang="fr"><seg>par ex. 101, 102</seg></tuv><tuv xml:lang="zh-tw"><seg>例如101, 102</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Queue demand">
       <tuv xml:lang="en-us"><seg>Queue demand</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Warteschlangennachfrage</seg></tuv><tuv xml:lang="fr"><seg>Demande de file d'attente</seg></tuv><tuv xml:lang="zh-tw"><seg>排队需求</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Select an edition and enter at least one content id">
       <tuv xml:lang="en-us"><seg>Select an edition and enter at least one content id</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Wählen Sie eine Ausgabe aus und geben Sie mindestens eine Inhalts-ID ein</seg></tuv><tuv xml:lang="fr"><seg>Sélectionnez une édition et saisissez au moins un identifiant de contenu</seg></tuv><tuv xml:lang="zh-tw"><seg>选择一个版本并输入至少一个内容 ID</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Advanced cleanup">
       <tuv xml:lang="en-us"><seg>Advanced cleanup</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Erweiterte Bereinigung</seg></tuv><tuv xml:lang="fr"><seg>Nettoyage avancé</seg></tuv><tuv xml:lang="zh-tw"><seg>高级清理</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Clear site record">
       <tuv xml:lang="en-us"><seg>Clear site record</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Standortdatensatz löschen</seg></tuv><tuv xml:lang="fr"><seg>Effacer l'enregistrement du site</seg></tuv><tuv xml:lang="zh-tw"><seg>清除站点记录</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Clear published site record for this site? This cannot be undone.">
       <tuv xml:lang="en-us"><seg>Clear published site record for this site? This cannot be undone.</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Veröffentlichten Site-Datensatz für diese Site löschen? Dies kann nicht rückgängig gemacht werden.</seg></tuv><tuv xml:lang="fr"><seg>Effacer l'enregistrement de site publié pour ce site ? Cela ne peut pas être annulé.</seg></tuv><tuv xml:lang="zh-tw"><seg>清除该网站的发布网站记录吗？此操作无法撤消。</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Purge job log by id">
       <tuv xml:lang="en-us"><seg>Purge job log by id</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Jobprotokoll nach ID löschen</seg></tuv><tuv xml:lang="fr"><seg>Purger le journal des tâches par identifiant</seg></tuv><tuv xml:lang="zh-tw"><seg>按 ID 清除作业日志</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Enter a job id to purge">
       <tuv xml:lang="en-us"><seg>Enter a job id to purge</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Geben Sie eine Job-ID zum Löschen ein</seg></tuv><tuv xml:lang="fr"><seg>Saisissez un identifiant de tâche à purger</seg></tuv><tuv xml:lang="zh-tw"><seg>输入要清除的作业 ID</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Purge log for job {0}?">
       <tuv xml:lang="en-us"><seg>Purge log for job {0}?</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Protokoll für Job {0} löschen?</seg></tuv><tuv xml:lang="fr"><seg>Purger le journal pour la tâche {0} ?</seg></tuv><tuv xml:lang="zh-tw"><seg>清除作业 {0} 的日志吗？</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Purge log">
       <tuv xml:lang="en-us"><seg>Purge log</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Protokoll löschen</seg></tuv><tuv xml:lang="fr"><seg>Journal de purge</seg></tuv><tuv xml:lang="zh-tw"><seg>清除日志</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@Last result: {0}">
       <tuv xml:lang="en-us"><seg>Last result: {0}</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Letztes Ergebnis: {0}</seg></tuv><tuv xml:lang="fr"><seg>Dernier résultat : {0}</seg></tuv><tuv xml:lang="zh-tw"><seg>最后结果：{0}</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@job {0}">
       <tuv xml:lang="en-us"><seg>job {0}</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Job {0}</seg></tuv><tuv xml:lang="fr"><seg>travail {0}</seg></tuv><tuv xml:lang="zh-tw"><seg>工作{0}</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@request {0}">
       <tuv xml:lang="en-us"><seg>request {0}</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>Anfrage {0}</seg></tuv><tuv xml:lang="fr"><seg>demande {0}</seg></tuv><tuv xml:lang="zh-tw"><seg>请求{0}</seg></tuv></tu>
     <tu tuid="perc.ui.publish.sections.runtime@delivered {0}">
       <tuv xml:lang="en-us"><seg>delivered {0}</seg></tuv>
-    </tu>
+    <tuv xml:lang="de"><seg>geliefert {0}</seg></tuv><tuv xml:lang="fr"><seg>livré {0}</seg></tuv><tuv xml:lang="zh-tw"><seg>已交付{0}</seg></tuv></tu>
     <!-- #3217: tooltip tuid is @Site navigation (MSG.NAV_ARCHITECTURE_TITLE). -->
     <tu tuid="perc.ui.architecture.modern@Site navigation">
       <tuv xml:lang="en-us"><seg>Site navigation</seg></tuv>
     <tuv xml:lang="hi"><seg>साइट नेविगेशन</seg></tuv><tuv xml:lang="bn"><seg>সাইট নেভিগেশন</seg></tuv><tuv xml:lang="te"><seg>సైట్ నావిగేషన్</seg></tuv><tuv xml:lang="tr"><seg>Sitede gezinme</seg></tuv><tuv xml:lang="es"><seg>Navegación del sitio</seg></tuv><tuv xml:lang="fr"><seg>Navigation sur les sites</seg></tuv><tuv xml:lang="de"><seg>Site-Navigation</seg></tuv><tuv xml:lang="zh-cn"><seg>站点导航</seg></tuv><tuv xml:lang="ar"><seg>التنقل في الموقع</seg></tuv><tuv xml:lang="he"><seg>ניווט באתר</seg></tuv><tuv xml:lang="it"><seg>Navigazione del sito</seg></tuv><tuv xml:lang="ja-jp"><seg>サイトナビゲーション</seg></tuv><tuv xml:lang="nb"><seg>Nettstednavigering</seg></tuv><tuv xml:lang="nl"><seg>Sitenavigatie</seg></tuv><tuv xml:lang="pl"><seg>Nawigacja witryny</seg></tuv><tuv xml:lang="pt"><seg>Navegação no site</seg></tuv><tuv xml:lang="ru"><seg>Навигация по сайту</seg></tuv><tuv xml:lang="sv"><seg>Webbplatsnavigering</seg></tuv><tuv xml:lang="zh-tw"><seg>站点导航</seg></tuv><tuv xml:lang="uk"><seg>Навігація сайту</seg></tuv></tu>
+
+    <!-- #5732: TipTap toolbar + dialog keys follow the session locale via tmx.jsp (prefix perc.ui.). -->
+    <tu tuid="perc.ui.editor@Rich text">
+      <tuv xml:lang="en-us"><seg>Rich text</seg></tuv>
+    <tuv xml:lang="de"><seg>Rich-Text</seg></tuv><tuv xml:lang="fr"><seg>Texte enrichi</seg></tuv><tuv xml:lang="zh-tw"><seg>富文本</seg></tuv><tuv xml:lang="es"><seg>Texto enriquecido</seg></tuv><tuv xml:lang="nl"><seg>Rijke tekst</seg></tuv><tuv xml:lang="pt"><seg>Texto rico</seg></tuv><tuv xml:lang="ru"><seg>Форматированный текст</seg></tuv><tuv xml:lang="uk"><seg>Розширений текст</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Add row">
+      <tuv xml:lang="en-us"><seg>Add row</seg></tuv>
+    <tuv xml:lang="de"><seg>Zeile hinzufügen</seg></tuv><tuv xml:lang="fr"><seg>Ajouter une ligne</seg></tuv><tuv xml:lang="zh-tw"><seg>添加行</seg></tuv><tuv xml:lang="es"><seg>Agregar fila</seg></tuv><tuv xml:lang="nl"><seg>Rij toevoegen</seg></tuv><tuv xml:lang="pt"><seg>Adicionar linha</seg></tuv><tuv xml:lang="ru"><seg>Добавить строку</seg></tuv><tuv xml:lang="uk"><seg>Додати рядок</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Remove row">
+      <tuv xml:lang="en-us"><seg>Remove row</seg></tuv>
+    <tuv xml:lang="de"><seg>Zeile entfernen</seg></tuv><tuv xml:lang="fr"><seg>Supprimer la ligne</seg></tuv><tuv xml:lang="zh-tw"><seg>删除行</seg></tuv><tuv xml:lang="es"><seg>Quitar fila</seg></tuv><tuv xml:lang="nl"><seg>Rij verwijderen</seg></tuv><tuv xml:lang="pt"><seg>Remover linha</seg></tuv><tuv xml:lang="ru"><seg>Удалить строку</seg></tuv><tuv xml:lang="uk"><seg>Видалити рядок</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Formatting toolbar">
+      <tuv xml:lang="en-us"><seg>Formatting toolbar</seg></tuv>
+    <tuv xml:lang="de"><seg>Formatierungssymbolleiste</seg></tuv><tuv xml:lang="fr"><seg>Barre d'outils de formatage</seg></tuv><tuv xml:lang="zh-tw"><seg>格式化工具栏</seg></tuv><tuv xml:lang="es"><seg>Barra de herramientas de formato</seg></tuv><tuv xml:lang="nl"><seg>Werkbalk Opmaak</seg></tuv><tuv xml:lang="pt"><seg>Barra de ferramentas de formatação</seg></tuv><tuv xml:lang="ru"><seg>Панель инструментов форматирования</seg></tuv><tuv xml:lang="uk"><seg>Панель інструментів форматування</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Undo">
+      <tuv xml:lang="en-us"><seg>Undo</seg></tuv>
+    <tuv xml:lang="de"><seg>Rückgängig machen</seg></tuv><tuv xml:lang="fr"><seg>Annuler</seg></tuv><tuv xml:lang="zh-tw"><seg>撤消</seg></tuv><tuv xml:lang="es"><seg>Deshacer</seg></tuv><tuv xml:lang="nl"><seg>Ongedaan maken</seg></tuv><tuv xml:lang="pt"><seg>Desfazer</seg></tuv><tuv xml:lang="ru"><seg>Отменить</seg></tuv><tuv xml:lang="uk"><seg>Скасувати</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Redo">
+      <tuv xml:lang="en-us"><seg>Redo</seg></tuv>
+    <tuv xml:lang="de"><seg>Wiederholen</seg></tuv><tuv xml:lang="fr"><seg>Rétablir</seg></tuv><tuv xml:lang="zh-tw"><seg>重做</seg></tuv><tuv xml:lang="es"><seg>Rehacer</seg></tuv><tuv xml:lang="nl"><seg>Opnieuw</seg></tuv><tuv xml:lang="pt"><seg>Refazer</seg></tuv><tuv xml:lang="ru"><seg>Повторить</seg></tuv><tuv xml:lang="uk"><seg>Повторити</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Bold">
+      <tuv xml:lang="en-us"><seg>Bold</seg></tuv>
+    <tuv xml:lang="de"><seg>Fett</seg></tuv><tuv xml:lang="fr"><seg>Gras</seg></tuv><tuv xml:lang="zh-tw"><seg>大胆的</seg></tuv><tuv xml:lang="es"><seg>Negrita</seg></tuv><tuv xml:lang="nl"><seg>Vetgedrukt</seg></tuv><tuv xml:lang="pt"><seg>Negrito</seg></tuv><tuv xml:lang="ru"><seg>Полужирный</seg></tuv><tuv xml:lang="uk"><seg>Напівжирний</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Italic">
+      <tuv xml:lang="en-us"><seg>Italic</seg></tuv>
+    <tuv xml:lang="de"><seg>Kursiv</seg></tuv><tuv xml:lang="fr"><seg>Italique</seg></tuv><tuv xml:lang="zh-tw"><seg>斜体</seg></tuv><tuv xml:lang="es"><seg>Itálico</seg></tuv><tuv xml:lang="nl"><seg>Cursief</seg></tuv><tuv xml:lang="pt"><seg>itálico</seg></tuv><tuv xml:lang="ru"><seg>Курсив</seg></tuv><tuv xml:lang="uk"><seg>Курсив</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Underline">
+      <tuv xml:lang="en-us"><seg>Underline</seg></tuv>
+    <tuv xml:lang="de"><seg>Unterstreichen</seg></tuv><tuv xml:lang="fr"><seg>Souligner</seg></tuv><tuv xml:lang="zh-tw"><seg>强调</seg></tuv><tuv xml:lang="es"><seg>Subrayar</seg></tuv><tuv xml:lang="nl"><seg>Onderstrepen</seg></tuv><tuv xml:lang="pt"><seg>Sublinhado</seg></tuv><tuv xml:lang="ru"><seg>Подчеркнуть</seg></tuv><tuv xml:lang="uk"><seg>Підкреслити</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Text style">
+      <tuv xml:lang="en-us"><seg>Text style</seg></tuv>
+    <tuv xml:lang="de"><seg>Textstil</seg></tuv><tuv xml:lang="fr"><seg>Style de texte</seg></tuv><tuv xml:lang="zh-tw"><seg>文字样式</seg></tuv><tuv xml:lang="es"><seg>Estilo de texto</seg></tuv><tuv xml:lang="nl"><seg>Tekststijl</seg></tuv><tuv xml:lang="pt"><seg>Estilo de texto</seg></tuv><tuv xml:lang="ru"><seg>Стиль текста</seg></tuv><tuv xml:lang="uk"><seg>Стиль тексту</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Paragraph">
+      <tuv xml:lang="en-us"><seg>Paragraph</seg></tuv>
+    <tuv xml:lang="de"><seg>Absatz</seg></tuv><tuv xml:lang="fr"><seg>Paragraphe</seg></tuv><tuv xml:lang="zh-tw"><seg>段落</seg></tuv><tuv xml:lang="es"><seg>Párrafo</seg></tuv><tuv xml:lang="nl"><seg>Paragraaf</seg></tuv><tuv xml:lang="pt"><seg>Parágrafo</seg></tuv><tuv xml:lang="ru"><seg>Параграф</seg></tuv><tuv xml:lang="uk"><seg>Абзац</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Align left">
+      <tuv xml:lang="en-us"><seg>Align left</seg></tuv>
+    <tuv xml:lang="de"><seg>Links ausrichten</seg></tuv><tuv xml:lang="fr"><seg>Aligner à gauche</seg></tuv><tuv xml:lang="zh-tw"><seg>左对齐</seg></tuv><tuv xml:lang="es"><seg>Alinear a la izquierda</seg></tuv><tuv xml:lang="nl"><seg>Links uitlijnen</seg></tuv><tuv xml:lang="pt"><seg>Alinhar à esquerda</seg></tuv><tuv xml:lang="ru"><seg>Выровнять по левому краю</seg></tuv><tuv xml:lang="uk"><seg>Вирівняти ліворуч</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Align center">
+      <tuv xml:lang="en-us"><seg>Align center</seg></tuv>
+    <tuv xml:lang="de"><seg>Mittig ausrichten</seg></tuv><tuv xml:lang="fr"><seg>Aligner au centre</seg></tuv><tuv xml:lang="zh-tw"><seg>居中对齐</seg></tuv><tuv xml:lang="es"><seg>Alinear al centro</seg></tuv><tuv xml:lang="nl"><seg>Midden uitlijnen</seg></tuv><tuv xml:lang="pt"><seg>Alinhar centro</seg></tuv><tuv xml:lang="ru"><seg>Выровнять по центру</seg></tuv><tuv xml:lang="uk"><seg>Вирівняти по центру</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Align right">
+      <tuv xml:lang="en-us"><seg>Align right</seg></tuv>
+    <tuv xml:lang="de"><seg>Rechts ausrichten</seg></tuv><tuv xml:lang="fr"><seg>Aligner à droite</seg></tuv><tuv xml:lang="zh-tw"><seg>右对齐</seg></tuv><tuv xml:lang="es"><seg>Alinear a la derecha</seg></tuv><tuv xml:lang="nl"><seg>Rechts uitlijnen</seg></tuv><tuv xml:lang="pt"><seg>Alinhar à direita</seg></tuv><tuv xml:lang="ru"><seg>Выровнять по правому краю</seg></tuv><tuv xml:lang="uk"><seg>Вирівняти праворуч</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Justify">
+      <tuv xml:lang="en-us"><seg>Justify</seg></tuv>
+    <tuv xml:lang="de"><seg>Blocksatz</seg></tuv><tuv xml:lang="fr"><seg>Justifier</seg></tuv><tuv xml:lang="zh-tw"><seg>证明合法</seg></tuv><tuv xml:lang="es"><seg>Justificar</seg></tuv><tuv xml:lang="nl"><seg>Uitvullen</seg></tuv><tuv xml:lang="pt"><seg>Justificar</seg></tuv><tuv xml:lang="ru"><seg>По ширине</seg></tuv><tuv xml:lang="uk"><seg>За шириною</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Bullet list">
+      <tuv xml:lang="en-us"><seg>Bullet list</seg></tuv>
+    <tuv xml:lang="de"><seg>Aufzählungsliste</seg></tuv><tuv xml:lang="fr"><seg>Liste à puces</seg></tuv><tuv xml:lang="zh-tw"><seg>项目符号列表</seg></tuv><tuv xml:lang="es"><seg>lista de viñetas</seg></tuv><tuv xml:lang="nl"><seg>Lijst met opsommingstekens</seg></tuv><tuv xml:lang="pt"><seg>Lista com marcadores</seg></tuv><tuv xml:lang="ru"><seg>Маркированный список</seg></tuv><tuv xml:lang="uk"><seg>Маркований список</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Numbered list">
+      <tuv xml:lang="en-us"><seg>Numbered list</seg></tuv>
+    <tuv xml:lang="de"><seg>Nummerierte Liste</seg></tuv><tuv xml:lang="fr"><seg>Liste numérotée</seg></tuv><tuv xml:lang="zh-tw"><seg>编号列表</seg></tuv><tuv xml:lang="es"><seg>lista numerada</seg></tuv><tuv xml:lang="nl"><seg>Genummerde lijst</seg></tuv><tuv xml:lang="pt"><seg>Lista numerada</seg></tuv><tuv xml:lang="ru"><seg>Нумерованный список</seg></tuv><tuv xml:lang="uk"><seg>Нумерований список</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Outdent list item">
+      <tuv xml:lang="en-us"><seg>Outdent list item</seg></tuv>
+    <tuv xml:lang="de"><seg>Listenelement ausrücken</seg></tuv><tuv xml:lang="fr"><seg>Désindenter l'élément de liste</seg></tuv><tuv xml:lang="zh-tw"><seg>减少缩进列表项</seg></tuv><tuv xml:lang="es"><seg>Reducir la sangría del elemento de lista</seg></tuv><tuv xml:lang="nl"><seg>Inspringing lijstitem verkleinen</seg></tuv><tuv xml:lang="pt"><seg>Reduzir o avanço do item da lista</seg></tuv><tuv xml:lang="ru"><seg>Уменьшить отступ элемента списка</seg></tuv><tuv xml:lang="uk"><seg>Зменшити відступ елемента списку</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Indent list item">
+      <tuv xml:lang="en-us"><seg>Indent list item</seg></tuv>
+    <tuv xml:lang="de"><seg>Listenelement einrücken</seg></tuv><tuv xml:lang="fr"><seg>Indenter l'élément de liste</seg></tuv><tuv xml:lang="zh-tw"><seg>缩进列表项</seg></tuv><tuv xml:lang="es"><seg>Aumentar la sangría del elemento de lista</seg></tuv><tuv xml:lang="nl"><seg>Inspringing lijstitem vergroten</seg></tuv><tuv xml:lang="pt"><seg>Aumentar o avanço do item da lista</seg></tuv><tuv xml:lang="ru"><seg>Увеличить отступ элемента списка</seg></tuv><tuv xml:lang="uk"><seg>Збільшити відступ елемента списку</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Link">
+      <tuv xml:lang="en-us"><seg>Link</seg></tuv>
+    <tuv xml:lang="de"><seg>Link</seg></tuv><tuv xml:lang="fr"><seg>Lien</seg></tuv><tuv xml:lang="zh-tw"><seg>关联</seg></tuv><tuv xml:lang="es"><seg>Enlace</seg></tuv><tuv xml:lang="nl"><seg>Link</seg></tuv><tuv xml:lang="pt"><seg>Link</seg></tuv><tuv xml:lang="ru"><seg>Ссылка</seg></tuv><tuv xml:lang="uk"><seg>Посилання</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Remove link">
+      <tuv xml:lang="en-us"><seg>Remove link</seg></tuv>
+    <tuv xml:lang="de"><seg>Link entfernen</seg></tuv><tuv xml:lang="fr"><seg>Supprimer le lien</seg></tuv><tuv xml:lang="zh-tw"><seg>删除链接</seg></tuv><tuv xml:lang="es"><seg>Quitar enlace</seg></tuv><tuv xml:lang="nl"><seg>Koppeling verwijderen</seg></tuv><tuv xml:lang="pt"><seg>Remover link</seg></tuv><tuv xml:lang="ru"><seg>Удалить ссылку</seg></tuv><tuv xml:lang="uk"><seg>Видалити посилання</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Link address">
+      <tuv xml:lang="en-us"><seg>Link address</seg></tuv>
+    <tuv xml:lang="de"><seg>Linkadresse</seg></tuv><tuv xml:lang="fr"><seg>Adresse du lien</seg></tuv><tuv xml:lang="zh-tw"><seg>链接地址</seg></tuv><tuv xml:lang="es"><seg>Dirección del enlace</seg></tuv><tuv xml:lang="nl"><seg>Link-adres</seg></tuv><tuv xml:lang="pt"><seg>Endereço do link</seg></tuv><tuv xml:lang="ru"><seg>Адрес ссылки</seg></tuv><tuv xml:lang="uk"><seg>Адреса посилання</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Apply link">
+      <tuv xml:lang="en-us"><seg>Apply link</seg></tuv>
+    <tuv xml:lang="de"><seg>Link anwenden</seg></tuv><tuv xml:lang="fr"><seg>Appliquer le lien</seg></tuv><tuv xml:lang="zh-tw"><seg>申请链接</seg></tuv><tuv xml:lang="es"><seg>Aplicar enlace</seg></tuv><tuv xml:lang="nl"><seg>Koppeling toepassen</seg></tuv><tuv xml:lang="pt"><seg>Aplicar link</seg></tuv><tuv xml:lang="ru"><seg>Применить ссылку</seg></tuv><tuv xml:lang="uk"><seg>Застосувати посилання</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Close link editor">
+      <tuv xml:lang="en-us"><seg>Close link editor</seg></tuv>
+    <tuv xml:lang="de"><seg>Link-Editor schließen</seg></tuv><tuv xml:lang="fr"><seg>Fermer l'éditeur de liens</seg></tuv><tuv xml:lang="zh-tw"><seg>关闭链接编辑器</seg></tuv><tuv xml:lang="es"><seg>Cerrar editor de enlaces</seg></tuv><tuv xml:lang="nl"><seg>Link-editor sluiten</seg></tuv><tuv xml:lang="pt"><seg>Fechar editor de links</seg></tuv><tuv xml:lang="ru"><seg>Закрыть редактор ссылок</seg></tuv><tuv xml:lang="uk"><seg>Закрити редактор посилань</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@That link address cannot be used.">
+      <tuv xml:lang="en-us"><seg>That link address cannot be used.</seg></tuv>
+    <tuv xml:lang="de"><seg>Diese Linkadresse kann nicht verwendet werden.</seg></tuv><tuv xml:lang="fr"><seg>Cette adresse de lien ne peut pas être utilisée.</seg></tuv><tuv xml:lang="zh-tw"><seg>该链接地址无法使用。</seg></tuv><tuv xml:lang="es"><seg>Esa dirección de enlace no se puede utilizar.</seg></tuv><tuv xml:lang="nl"><seg>Dat linkadres kan niet worden gebruikt.</seg></tuv><tuv xml:lang="pt"><seg>Esse endereço de link não pode ser usado.</seg></tuv><tuv xml:lang="ru"><seg>Этот адрес ссылки не может быть использован.</seg></tuv><tuv xml:lang="uk"><seg>Ця адреса посилання не може бути використана.</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Inline code">
+      <tuv xml:lang="en-us"><seg>Inline code</seg></tuv>
+    <tuv xml:lang="de"><seg>Inline-Code</seg></tuv><tuv xml:lang="fr"><seg>Code en ligne</seg></tuv><tuv xml:lang="zh-tw"><seg>内联代码</seg></tuv><tuv xml:lang="es"><seg>código en línea</seg></tuv><tuv xml:lang="nl"><seg>Inline-code</seg></tuv><tuv xml:lang="pt"><seg>Código embutido</seg></tuv><tuv xml:lang="ru"><seg>Встроенный код</seg></tuv><tuv xml:lang="uk"><seg>Вбудований код</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Code block">
+      <tuv xml:lang="en-us"><seg>Code block</seg></tuv>
+    <tuv xml:lang="de"><seg>Codeblock</seg></tuv><tuv xml:lang="fr"><seg>Bloc de code</seg></tuv><tuv xml:lang="zh-tw"><seg>代码块</seg></tuv><tuv xml:lang="es"><seg>bloque de código</seg></tuv><tuv xml:lang="nl"><seg>Codeblok</seg></tuv><tuv xml:lang="pt"><seg>Bloco de código</seg></tuv><tuv xml:lang="ru"><seg>Кодовый блок</seg></tuv><tuv xml:lang="uk"><seg>Кодовий блок</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Insert table">
+      <tuv xml:lang="en-us"><seg>Insert table</seg></tuv>
+    <tuv xml:lang="de"><seg>Tabelle einfügen</seg></tuv><tuv xml:lang="fr"><seg>Insérer un tableau</seg></tuv><tuv xml:lang="zh-tw"><seg>插入表格</seg></tuv><tuv xml:lang="es"><seg>Insertar tabla</seg></tuv><tuv xml:lang="nl"><seg>Tabel invoegen</seg></tuv><tuv xml:lang="pt"><seg>Inserir tabela</seg></tuv><tuv xml:lang="ru"><seg>Вставить таблицу</seg></tuv><tuv xml:lang="uk"><seg>Вставити таблицю</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Add column">
+      <tuv xml:lang="en-us"><seg>Add column</seg></tuv>
+    <tuv xml:lang="de"><seg>Spalte hinzufügen</seg></tuv><tuv xml:lang="fr"><seg>Ajouter une colonne</seg></tuv><tuv xml:lang="zh-tw"><seg>添加栏目</seg></tuv><tuv xml:lang="es"><seg>Agregar columna</seg></tuv><tuv xml:lang="nl"><seg>Kolom toevoegen</seg></tuv><tuv xml:lang="pt"><seg>Adicionar coluna</seg></tuv><tuv xml:lang="ru"><seg>Добавить столбец</seg></tuv><tuv xml:lang="uk"><seg>Додати стовпець</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Remove column">
+      <tuv xml:lang="en-us"><seg>Remove column</seg></tuv>
+    <tuv xml:lang="de"><seg>Spalte entfernen</seg></tuv><tuv xml:lang="fr"><seg>Supprimer la colonne</seg></tuv><tuv xml:lang="zh-tw"><seg>删除列</seg></tuv><tuv xml:lang="es"><seg>Quitar columna</seg></tuv><tuv xml:lang="nl"><seg>Kolom verwijderen</seg></tuv><tuv xml:lang="pt"><seg>Remover coluna</seg></tuv><tuv xml:lang="ru"><seg>Удалить столбец</seg></tuv><tuv xml:lang="uk"><seg>Видалити стовпець</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Delete table">
+      <tuv xml:lang="en-us"><seg>Delete table</seg></tuv>
+    <tuv xml:lang="de"><seg>Tabelle löschen</seg></tuv><tuv xml:lang="fr"><seg>Supprimer le tableau</seg></tuv><tuv xml:lang="zh-tw"><seg>删除表</seg></tuv><tuv xml:lang="es"><seg>Eliminar tabla</seg></tuv><tuv xml:lang="nl"><seg>Tabel verwijderen</seg></tuv><tuv xml:lang="pt"><seg>Excluir tabela</seg></tuv><tuv xml:lang="ru"><seg>Удалить таблицу</seg></tuv><tuv xml:lang="uk"><seg>Видалити таблицю</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Percussion content">
+      <tuv xml:lang="en-us"><seg>Percussion content</seg></tuv>
+    <tuv xml:lang="de"><seg>Percussion-Inhalte</seg></tuv><tuv xml:lang="fr"><seg>Contenu Percussion</seg></tuv><tuv xml:lang="zh-tw"><seg>打击乐内容</seg></tuv><tuv xml:lang="es"><seg>Contenido Percussion</seg></tuv><tuv xml:lang="nl"><seg>Percussion-inhoud</seg></tuv><tuv xml:lang="pt"><seg>Conteúdo Percussion</seg></tuv><tuv xml:lang="ru"><seg>Контент Percussion</seg></tuv><tuv xml:lang="uk"><seg>Контент Percussion</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Insert inline link">
+      <tuv xml:lang="en-us"><seg>Insert inline link</seg></tuv>
+    <tuv xml:lang="de"><seg>Inline-Link einfügen</seg></tuv><tuv xml:lang="fr"><seg>Insérer un lien en ligne</seg></tuv><tuv xml:lang="zh-tw"><seg>插入内嵌链接</seg></tuv><tuv xml:lang="es"><seg>Insertar enlace en línea</seg></tuv><tuv xml:lang="nl"><seg>Inline-link invoegen</seg></tuv><tuv xml:lang="pt"><seg>Inserir link embutido</seg></tuv><tuv xml:lang="ru"><seg>Вставить встроенную ссылку</seg></tuv><tuv xml:lang="uk"><seg>Вставити вбудоване посилання</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Insert inline image">
+      <tuv xml:lang="en-us"><seg>Insert inline image</seg></tuv>
+    <tuv xml:lang="de"><seg>Inline-Bild einfügen</seg></tuv><tuv xml:lang="fr"><seg>Insérer une image en ligne</seg></tuv><tuv xml:lang="zh-tw"><seg>插入内嵌图像</seg></tuv><tuv xml:lang="es"><seg>Insertar imagen en línea</seg></tuv><tuv xml:lang="nl"><seg>Inline-afbeelding invoegen</seg></tuv><tuv xml:lang="pt"><seg>Inserir imagem embutida</seg></tuv><tuv xml:lang="ru"><seg>Вставить встроенное изображение</seg></tuv><tuv xml:lang="uk"><seg>Вставте вбудоване зображення</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Insert inline template">
+      <tuv xml:lang="en-us"><seg>Insert inline template</seg></tuv>
+    <tuv xml:lang="de"><seg>Inline-Vorlage einfügen</seg></tuv><tuv xml:lang="fr"><seg>Insérer un modèle en ligne</seg></tuv><tuv xml:lang="zh-tw"><seg>插入内联模板</seg></tuv><tuv xml:lang="es"><seg>Insertar plantilla en línea</seg></tuv><tuv xml:lang="nl"><seg>Inline-sjabloon invoegen</seg></tuv><tuv xml:lang="pt"><seg>Inserir modelo embutido</seg></tuv><tuv xml:lang="ru"><seg>Вставить встроенный шаблон</seg></tuv><tuv xml:lang="uk"><seg>Вставити вбудований шаблон</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Insert HTML fragment">
+      <tuv xml:lang="en-us"><seg>Insert HTML fragment</seg></tuv>
+    <tuv xml:lang="de"><seg>HTML-Fragment einfügen</seg></tuv><tuv xml:lang="fr"><seg>Insérer un fragment HTML</seg></tuv><tuv xml:lang="zh-tw"><seg>插入 HTML 片段</seg></tuv><tuv xml:lang="es"><seg>Insertar fragmento HTML</seg></tuv><tuv xml:lang="nl"><seg>HTML-fragment invoegen</seg></tuv><tuv xml:lang="pt"><seg>Inserir fragmento HTML</seg></tuv><tuv xml:lang="ru"><seg>Вставить HTML-фрагмент</seg></tuv><tuv xml:lang="uk"><seg>Вставити фрагмент HTML</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Insert global variable">
+      <tuv xml:lang="en-us"><seg>Insert global variable</seg></tuv>
+    <tuv xml:lang="de"><seg>Globale Variable einfügen</seg></tuv><tuv xml:lang="fr"><seg>Insérer une variable globale</seg></tuv><tuv xml:lang="zh-tw"><seg>插入全局变量</seg></tuv><tuv xml:lang="es"><seg>Insertar variable global</seg></tuv><tuv xml:lang="nl"><seg>Voeg een globale variabele in</seg></tuv><tuv xml:lang="pt"><seg>Inserir variável global</seg></tuv><tuv xml:lang="ru"><seg>Вставить глобальную переменную</seg></tuv><tuv xml:lang="uk"><seg>Вставте глобальну змінну</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Insert more link">
+      <tuv xml:lang="en-us"><seg>Insert more link</seg></tuv>
+    <tuv xml:lang="de"><seg>Weiteren Link einfügen</seg></tuv><tuv xml:lang="fr"><seg>Insérer plus de lien</seg></tuv><tuv xml:lang="zh-tw"><seg>插入更多链接</seg></tuv><tuv xml:lang="es"><seg>Insertar más enlaces</seg></tuv><tuv xml:lang="nl"><seg>Voeg meer link in</seg></tuv><tuv xml:lang="pt"><seg>Inserir mais links</seg></tuv><tuv xml:lang="ru"><seg>Вставить дополнительную ссылку</seg></tuv><tuv xml:lang="uk"><seg>Вставити додаткове посилання</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@View HTML source">
+      <tuv xml:lang="en-us"><seg>View HTML source</seg></tuv>
+    <tuv xml:lang="de"><seg>HTML-Quelle anzeigen</seg></tuv><tuv xml:lang="fr"><seg>Afficher la source HTML</seg></tuv><tuv xml:lang="zh-tw"><seg>查看 HTML 源代码</seg></tuv><tuv xml:lang="es"><seg>Ver fuente HTML</seg></tuv><tuv xml:lang="nl"><seg>HTML-bron bekijken</seg></tuv><tuv xml:lang="pt"><seg>Ver fonte HTML</seg></tuv><tuv xml:lang="ru"><seg>Посмотреть исходный код HTML</seg></tuv><tuv xml:lang="uk"><seg>Переглянути джерело HTML</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Close">
+      <tuv xml:lang="en-us"><seg>Close</seg></tuv>
+    <tuv xml:lang="de"><seg>Schließen</seg></tuv><tuv xml:lang="fr"><seg>Fermer</seg></tuv><tuv xml:lang="zh-tw"><seg>关闭</seg></tuv><tuv xml:lang="es"><seg>Cerrar</seg></tuv><tuv xml:lang="nl"><seg>Sluiten</seg></tuv><tuv xml:lang="pt"><seg>Fechar</seg></tuv><tuv xml:lang="ru"><seg>Закрыть</seg></tuv><tuv xml:lang="uk"><seg>Закрити</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Apply">
+      <tuv xml:lang="en-us"><seg>Apply</seg></tuv>
+    <tuv xml:lang="de"><seg>Anwenden</seg></tuv><tuv xml:lang="fr"><seg>Appliquer</seg></tuv><tuv xml:lang="zh-tw"><seg>申请</seg></tuv><tuv xml:lang="es"><seg>Aplicar</seg></tuv><tuv xml:lang="nl"><seg>Toepassen</seg></tuv><tuv xml:lang="pt"><seg>Aplicar</seg></tuv><tuv xml:lang="ru"><seg>Применить</seg></tuv><tuv xml:lang="uk"><seg>Застосувати</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Link address or CMS path">
+      <tuv xml:lang="en-us"><seg>Link address or CMS path</seg></tuv>
+    <tuv xml:lang="de"><seg>Linkadresse oder CMS-Pfad</seg></tuv><tuv xml:lang="fr"><seg>Adresse du lien ou chemin CMS</seg></tuv><tuv xml:lang="zh-tw"><seg>链接地址或CMS路径</seg></tuv><tuv xml:lang="es"><seg>Dirección de enlace o ruta CMS</seg></tuv><tuv xml:lang="nl"><seg>Linkadres of CMS-pad</seg></tuv><tuv xml:lang="pt"><seg>Endereço do link ou caminho do CMS</seg></tuv><tuv xml:lang="ru"><seg>Адрес ссылки или путь CMS</seg></tuv><tuv xml:lang="uk"><seg>Адреса посилання або шлях CMS</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Link text">
+      <tuv xml:lang="en-us"><seg>Link text</seg></tuv>
+    <tuv xml:lang="de"><seg>Linktext</seg></tuv><tuv xml:lang="fr"><seg>Texte du lien</seg></tuv><tuv xml:lang="zh-tw"><seg>链接文字</seg></tuv><tuv xml:lang="es"><seg>Texto del enlace</seg></tuv><tuv xml:lang="nl"><seg>Linktekst</seg></tuv><tuv xml:lang="pt"><seg>Texto do link</seg></tuv><tuv xml:lang="ru"><seg>Текст ссылки</seg></tuv><tuv xml:lang="uk"><seg>Текст посилання</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Title">
+      <tuv xml:lang="en-us"><seg>Title</seg></tuv>
+    <tuv xml:lang="de"><seg>Titel</seg></tuv><tuv xml:lang="fr"><seg>Titre</seg></tuv><tuv xml:lang="zh-tw"><seg>标题</seg></tuv><tuv xml:lang="es"><seg>Título</seg></tuv><tuv xml:lang="nl"><seg>Titel</seg></tuv><tuv xml:lang="pt"><seg>Título</seg></tuv><tuv xml:lang="ru"><seg>Заголовок</seg></tuv><tuv xml:lang="uk"><seg>Назва</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Target">
+      <tuv xml:lang="en-us"><seg>Target</seg></tuv>
+    <tuv xml:lang="de"><seg>Ziel</seg></tuv><tuv xml:lang="fr"><seg>Cible</seg></tuv><tuv xml:lang="zh-tw"><seg>目标</seg></tuv><tuv xml:lang="es"><seg>Objetivo</seg></tuv><tuv xml:lang="nl"><seg>Doel</seg></tuv><tuv xml:lang="pt"><seg>Alvo</seg></tuv><tuv xml:lang="ru"><seg>Цель</seg></tuv><tuv xml:lang="uk"><seg>Ціль</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Same window">
+      <tuv xml:lang="en-us"><seg>Same window</seg></tuv>
+    <tuv xml:lang="de"><seg>Gleiches Fenster</seg></tuv><tuv xml:lang="fr"><seg>Même fenêtre</seg></tuv><tuv xml:lang="zh-tw"><seg>同一窗口</seg></tuv><tuv xml:lang="es"><seg>Misma ventana</seg></tuv><tuv xml:lang="nl"><seg>Hetzelfde venster</seg></tuv><tuv xml:lang="pt"><seg>Mesma janela</seg></tuv><tuv xml:lang="ru"><seg>То же окно</seg></tuv><tuv xml:lang="uk"><seg>Те саме вікно</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@New window">
+      <tuv xml:lang="en-us"><seg>New window</seg></tuv>
+    <tuv xml:lang="de"><seg>Neues Fenster</seg></tuv><tuv xml:lang="fr"><seg>Nouvelle fenêtre</seg></tuv><tuv xml:lang="zh-tw"><seg>新窗口</seg></tuv><tuv xml:lang="es"><seg>Nueva ventana</seg></tuv><tuv xml:lang="nl"><seg>Nieuw venster</seg></tuv><tuv xml:lang="pt"><seg>Nova janela</seg></tuv><tuv xml:lang="ru"><seg>Новое окно</seg></tuv><tuv xml:lang="uk"><seg>Нове вікно</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Parent window">
+      <tuv xml:lang="en-us"><seg>Parent window</seg></tuv>
+    <tuv xml:lang="de"><seg>Übergeordnetes Fenster</seg></tuv><tuv xml:lang="fr"><seg>Fenêtre parente</seg></tuv><tuv xml:lang="zh-tw"><seg>父窗口</seg></tuv><tuv xml:lang="es"><seg>ventana principal</seg></tuv><tuv xml:lang="nl"><seg>Oudervenster</seg></tuv><tuv xml:lang="pt"><seg>Janela pai</seg></tuv><tuv xml:lang="ru"><seg>Родительское окно</seg></tuv><tuv xml:lang="uk"><seg>Батьківське вікно</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Top window">
+      <tuv xml:lang="en-us"><seg>Top window</seg></tuv>
+    <tuv xml:lang="de"><seg>Oberes Fenster</seg></tuv><tuv xml:lang="fr"><seg>Fenêtre supérieure</seg></tuv><tuv xml:lang="zh-tw"><seg>顶窗</seg></tuv><tuv xml:lang="es"><seg>ventana superior</seg></tuv><tuv xml:lang="nl"><seg>Bovenste venster</seg></tuv><tuv xml:lang="pt"><seg>Janela superior</seg></tuv><tuv xml:lang="ru"><seg>Верхнее окно</seg></tuv><tuv xml:lang="uk"><seg>Верхнє вікно</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Image address or CMS path">
+      <tuv xml:lang="en-us"><seg>Image address or CMS path</seg></tuv>
+    <tuv xml:lang="de"><seg>Bildadresse oder CMS-Pfad</seg></tuv><tuv xml:lang="fr"><seg>Adresse de l'image ou chemin CMS</seg></tuv><tuv xml:lang="zh-tw"><seg>图片地址或CMS路径</seg></tuv><tuv xml:lang="es"><seg>Dirección de imagen o ruta CMS</seg></tuv><tuv xml:lang="nl"><seg>Afbeeldingsadres of CMS-pad</seg></tuv><tuv xml:lang="pt"><seg>Endereço da imagem ou caminho do CMS</seg></tuv><tuv xml:lang="ru"><seg>Адрес изображения или путь к CMS</seg></tuv><tuv xml:lang="uk"><seg>Адреса зображення або шлях CMS</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Alternate text">
+      <tuv xml:lang="en-us"><seg>Alternate text</seg></tuv>
+    <tuv xml:lang="de"><seg>Alternativer Text</seg></tuv><tuv xml:lang="fr"><seg>Texte alternatif</seg></tuv><tuv xml:lang="zh-tw"><seg>替代文本</seg></tuv><tuv xml:lang="es"><seg>Texto alternativo</seg></tuv><tuv xml:lang="nl"><seg>Alternatieve tekst</seg></tuv><tuv xml:lang="pt"><seg>Texto alternativo</seg></tuv><tuv xml:lang="ru"><seg>Альтернативный текст</seg></tuv><tuv xml:lang="uk"><seg>Альтернативний текст</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Decorative image">
+      <tuv xml:lang="en-us"><seg>Decorative image</seg></tuv>
+    <tuv xml:lang="de"><seg>Dekoratives Bild</seg></tuv><tuv xml:lang="fr"><seg>Image décorative</seg></tuv><tuv xml:lang="zh-tw"><seg>装饰形象</seg></tuv><tuv xml:lang="es"><seg>Imagen decorativa</seg></tuv><tuv xml:lang="nl"><seg>Decoratief beeld</seg></tuv><tuv xml:lang="pt"><seg>Imagem decorativa</seg></tuv><tuv xml:lang="ru"><seg>Декоративное изображение</seg></tuv><tuv xml:lang="uk"><seg>Декоративне зображення</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Width">
+      <tuv xml:lang="en-us"><seg>Width</seg></tuv>
+    <tuv xml:lang="de"><seg>Breite</seg></tuv><tuv xml:lang="fr"><seg>Largeur</seg></tuv><tuv xml:lang="zh-tw"><seg>宽度</seg></tuv><tuv xml:lang="es"><seg>Ancho</seg></tuv><tuv xml:lang="nl"><seg>Breedte</seg></tuv><tuv xml:lang="pt"><seg>Largura</seg></tuv><tuv xml:lang="ru"><seg>Ширина</seg></tuv><tuv xml:lang="uk"><seg>Ширина</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Height">
+      <tuv xml:lang="en-us"><seg>Height</seg></tuv>
+    <tuv xml:lang="de"><seg>Höhe</seg></tuv><tuv xml:lang="fr"><seg>Hauteur</seg></tuv><tuv xml:lang="zh-tw"><seg>高度</seg></tuv><tuv xml:lang="es"><seg>Altura</seg></tuv><tuv xml:lang="nl"><seg>Hoogte</seg></tuv><tuv xml:lang="pt"><seg>Altura</seg></tuv><tuv xml:lang="ru"><seg>Высота</seg></tuv><tuv xml:lang="uk"><seg>Висота</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Alignment">
+      <tuv xml:lang="en-us"><seg>Alignment</seg></tuv>
+    <tuv xml:lang="de"><seg>Ausrichtung</seg></tuv><tuv xml:lang="fr"><seg>Alignement</seg></tuv><tuv xml:lang="zh-tw"><seg>结盟</seg></tuv><tuv xml:lang="es"><seg>Alineación</seg></tuv><tuv xml:lang="nl"><seg>Uitlijning</seg></tuv><tuv xml:lang="pt"><seg>Alinhamento</seg></tuv><tuv xml:lang="ru"><seg>Выравнивание</seg></tuv><tuv xml:lang="uk"><seg>Вирівнювання</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@No alignment">
+      <tuv xml:lang="en-us"><seg>No alignment</seg></tuv>
+    <tuv xml:lang="de"><seg>Keine Ausrichtung</seg></tuv><tuv xml:lang="fr"><seg>Aucun alignement</seg></tuv><tuv xml:lang="zh-tw"><seg>没有对齐</seg></tuv><tuv xml:lang="es"><seg>Sin alineación</seg></tuv><tuv xml:lang="nl"><seg>Geen uitlijning</seg></tuv><tuv xml:lang="pt"><seg>Sem alinhamento</seg></tuv><tuv xml:lang="ru"><seg>Нет выравнивания</seg></tuv><tuv xml:lang="uk"><seg>Немає вирівнювання</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Left">
+      <tuv xml:lang="en-us"><seg>Left</seg></tuv>
+    <tuv xml:lang="de"><seg>Links</seg></tuv><tuv xml:lang="fr"><seg>Gauche</seg></tuv><tuv xml:lang="zh-tw"><seg>左边</seg></tuv><tuv xml:lang="es"><seg>Izquierda</seg></tuv><tuv xml:lang="nl"><seg>Links</seg></tuv><tuv xml:lang="pt"><seg>Esquerda</seg></tuv><tuv xml:lang="ru"><seg>Слева</seg></tuv><tuv xml:lang="uk"><seg>Ліворуч</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Right">
+      <tuv xml:lang="en-us"><seg>Right</seg></tuv>
+    <tuv xml:lang="de"><seg>Rechts</seg></tuv><tuv xml:lang="fr"><seg>Droite</seg></tuv><tuv xml:lang="zh-tw"><seg>正确的</seg></tuv><tuv xml:lang="es"><seg>Derecha</seg></tuv><tuv xml:lang="nl"><seg>Rechts</seg></tuv><tuv xml:lang="pt"><seg>Direita</seg></tuv><tuv xml:lang="ru"><seg>Справа</seg></tuv><tuv xml:lang="uk"><seg>Праворуч</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Top">
+      <tuv xml:lang="en-us"><seg>Top</seg></tuv>
+    <tuv xml:lang="de"><seg>Oben</seg></tuv><tuv xml:lang="fr"><seg>Haut</seg></tuv><tuv xml:lang="zh-tw"><seg>顶部</seg></tuv><tuv xml:lang="es"><seg>Arriba</seg></tuv><tuv xml:lang="nl"><seg>Bovenkant</seg></tuv><tuv xml:lang="pt"><seg>Topo</seg></tuv><tuv xml:lang="ru"><seg>Сверху</seg></tuv><tuv xml:lang="uk"><seg>Зверху</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Middle">
+      <tuv xml:lang="en-us"><seg>Middle</seg></tuv>
+    <tuv xml:lang="de"><seg>Mitte</seg></tuv><tuv xml:lang="fr"><seg>Milieu</seg></tuv><tuv xml:lang="zh-tw"><seg>中间</seg></tuv><tuv xml:lang="es"><seg>Medio</seg></tuv><tuv xml:lang="nl"><seg>Midden</seg></tuv><tuv xml:lang="pt"><seg>Meio</seg></tuv><tuv xml:lang="ru"><seg>Посередине</seg></tuv><tuv xml:lang="uk"><seg>Посередині</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Bottom">
+      <tuv xml:lang="en-us"><seg>Bottom</seg></tuv>
+    <tuv xml:lang="de"><seg>Unten</seg></tuv><tuv xml:lang="fr"><seg>Bas</seg></tuv><tuv xml:lang="zh-tw"><seg>底部</seg></tuv><tuv xml:lang="es"><seg>Abajo</seg></tuv><tuv xml:lang="nl"><seg>Onderkant</seg></tuv><tuv xml:lang="pt"><seg>Fundo</seg></tuv><tuv xml:lang="ru"><seg>Снизу</seg></tuv><tuv xml:lang="uk"><seg>Знизу</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Template path">
+      <tuv xml:lang="en-us"><seg>Template path</seg></tuv>
+    <tuv xml:lang="de"><seg>Vorlagenpfad</seg></tuv><tuv xml:lang="fr"><seg>Chemin du modèle</seg></tuv><tuv xml:lang="zh-tw"><seg>模板路径</seg></tuv><tuv xml:lang="es"><seg>Ruta de plantilla</seg></tuv><tuv xml:lang="nl"><seg>Sjabloonpad</seg></tuv><tuv xml:lang="pt"><seg>Caminho do modelo</seg></tuv><tuv xml:lang="ru"><seg>Путь к шаблону</seg></tuv><tuv xml:lang="uk"><seg>Шлях шаблону</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Template text">
+      <tuv xml:lang="en-us"><seg>Template text</seg></tuv>
+    <tuv xml:lang="de"><seg>Vorlagentext</seg></tuv><tuv xml:lang="fr"><seg>Texte du modèle</seg></tuv><tuv xml:lang="zh-tw"><seg>模板文本</seg></tuv><tuv xml:lang="es"><seg>Texto de plantilla</seg></tuv><tuv xml:lang="nl"><seg>Sjabloontekst</seg></tuv><tuv xml:lang="pt"><seg>Texto do modelo</seg></tuv><tuv xml:lang="ru"><seg>Текст шаблона</seg></tuv><tuv xml:lang="uk"><seg>Текст шаблону</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@HTML fragment">
+      <tuv xml:lang="en-us"><seg>HTML fragment</seg></tuv>
+    <tuv xml:lang="de"><seg>HTML-Fragment</seg></tuv><tuv xml:lang="fr"><seg>Fragment HTML</seg></tuv><tuv xml:lang="zh-tw"><seg>HTML 片段</seg></tuv><tuv xml:lang="es"><seg>fragmento HTML</seg></tuv><tuv xml:lang="nl"><seg>HTML-fragment</seg></tuv><tuv xml:lang="pt"><seg>Fragmento HTML</seg></tuv><tuv xml:lang="ru"><seg>HTML-фрагмент</seg></tuv><tuv xml:lang="uk"><seg>HTML фрагмент</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Global variable">
+      <tuv xml:lang="en-us"><seg>Global variable</seg></tuv>
+    <tuv xml:lang="de"><seg>Globale Variable</seg></tuv><tuv xml:lang="fr"><seg>Variable globale</seg></tuv><tuv xml:lang="zh-tw"><seg>全局变量</seg></tuv><tuv xml:lang="es"><seg>variables globales</seg></tuv><tuv xml:lang="nl"><seg>Globale variabele</seg></tuv><tuv xml:lang="pt"><seg>Variável global</seg></tuv><tuv xml:lang="ru"><seg>Глобальная переменная</seg></tuv><tuv xml:lang="uk"><seg>Глобальна змінна</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@HTML source">
+      <tuv xml:lang="en-us"><seg>HTML source</seg></tuv>
+    <tuv xml:lang="de"><seg>HTML-Quelle</seg></tuv><tuv xml:lang="fr"><seg>Source HTML</seg></tuv><tuv xml:lang="zh-tw"><seg>HTML 源代码</seg></tuv><tuv xml:lang="es"><seg>fuente HTML</seg></tuv><tuv xml:lang="nl"><seg>HTML-bron</seg></tuv><tuv xml:lang="pt"><seg>Fonte HTML</seg></tuv><tuv xml:lang="ru"><seg>HTML-источник</seg></tuv><tuv xml:lang="uk"><seg>Джерело HTML</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Fill in the required fields.">
+      <tuv xml:lang="en-us"><seg>Fill in the required fields.</seg></tuv>
+    <tuv xml:lang="de"><seg>Füllen Sie die erforderlichen Felder aus.</seg></tuv><tuv xml:lang="fr"><seg>Remplissez les champs obligatoires.</seg></tuv><tuv xml:lang="zh-tw"><seg>填写必填字段。</seg></tuv><tuv xml:lang="es"><seg>Complete los campos requeridos.</seg></tuv><tuv xml:lang="nl"><seg>Vul de verplichte velden in.</seg></tuv><tuv xml:lang="pt"><seg>Preencha os campos obrigatórios.</seg></tuv><tuv xml:lang="ru"><seg>Заполните необходимые поля.</seg></tuv><tuv xml:lang="uk"><seg>Заповніть необхідні поля.</seg></tuv></tu>
 
   </body>
 </tmx>
