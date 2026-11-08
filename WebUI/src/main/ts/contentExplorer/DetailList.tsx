@@ -39,6 +39,12 @@
  * descending toggle, {@code aria-sort} on the active header). Sorting
  * reorders rows only — selection, checkboxes, and paging are preserved —
  * and issues no REST traffic. Switching folders restores server order.</p>
+ *
+ * <p>#5761: rows use roving tabindex with ArrowUp/ArrowDown/Home/End row
+ * navigation. Arrow keys move DOM focus and selection together (wrapping
+ * at the ends); Home/End jump to the first/last row. Pager or folder
+ * changes reset focus to the first row. Rows carry {@code aria-rowindex}
+ * so screen-reader position stays correct.</p>
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -268,6 +274,54 @@ export function sortDetailRows(
     .map((entry) => entry.item);
 }
 
+/**
+ * Row-focus move for detail-list arrow-key navigation (#5761 / parent
+ * #4530). Pure so Vitest can drive it without rendering.
+ */
+export type DetailRowMove = "next" | "prev" | "first" | "last";
+
+/**
+ * Map a keyboard key to a row-focus move. Returns null for keys the
+ * detail list does not handle (Enter/click keep their existing paths).
+ */
+export function detailRowMoveForKey(key: string): DetailRowMove | null {
+  switch (key) {
+    case "ArrowDown":
+      return "next";
+    case "ArrowUp":
+      return "prev";
+    case "Home":
+      return "first";
+    case "End":
+      return "last";
+    default:
+      return null;
+  }
+}
+
+/**
+ * Next focused-row index for a move. ArrowUp/ArrowDown wrap around the
+ * visible rows so focus never leaves the list; Home/End jump to the
+ * first/last row. An empty list stays at 0.
+ */
+export function nextDetailRowIndex(
+  count: number,
+  current: number,
+  move: DetailRowMove,
+): number {
+  if (count <= 0) return 0;
+  switch (move) {
+    case "next":
+      return (current + 1) % count;
+    case "prev":
+      return (current - 1 + count) % count;
+    case "first":
+      return 0;
+    case "last":
+      return count - 1;
+  }
+}
+
 /** Translate a column id to the human-readable header text. */
 export function columnHeaderLabel(
   column: DetailColumnId,
@@ -479,7 +533,15 @@ export function DetailList({
   const [error, setError] = useState<string | null>(null);
   /** Client-side column sort of the loaded page; null keeps server order (#5759). */
   const [sort, setSort] = useState<DetailSortState | null>(null);
+  /**
+   * Roving-tabindex anchor for arrow-key row navigation (#5761). The row
+   * at this index is the tab stop; pager/folder changes reset it to the
+   * first row (see the reset effect below).
+   */
+  const [focusIndex, setFocusIndex] = useState(0);
   const lastLoadedPath = useRef<string | null>(null);
+  /** Live row elements in display order for programmatic focus moves. */
+  const bodyRef = useRef<HTMLTableSectionElement | null>(null);
 
   // Track the page-to-request in a ref so a folder change can reset
   // `page` to 0 *without* causing the effect to re-run with a stale
@@ -537,6 +599,13 @@ export function DetailList({
     };
   }, [folderPath, page, displayFormatId]);
 
+  // Pager / folder changes reset row focus to the first row (#5761).
+  // Kept separate from the data-load effect so the anchor resets even
+  // when the new page resolves from cache without re-running the fetch.
+  useEffect(() => {
+    setFocusIndex(0);
+  }, [folderPath, page]);
+
   const children = useMemo<PSPathItem[]>(() => {
     if (!data) return [];
     return data.children;
@@ -571,6 +640,24 @@ export function DetailList({
 
   const multiSelectEnabled = onToggleSelectItem != null;
   const multiSelected: ReadonlySet<string> = selectedItemIds ?? new Set();
+
+  /**
+   * Clamp the roving anchor while a shorter page is in flight so the tab
+   * stop always lands on a rendered row (#5761).
+   */
+  const safeFocusIndex =
+    sortedChildren.length === 0
+      ? 0
+      : Math.min(Math.max(0, focusIndex), sortedChildren.length - 1);
+
+  /** Move DOM focus to the row at the given display index. */
+  const focusDetailRow = useCallback((index: number) => {
+    const row = bodyRef.current?.rows.item(index) as unknown as
+      | HTMLElement
+      | null
+      | undefined;
+    row?.focus();
+  }, []);
 
   const visibleCheckedCount = useMemo(() => {
     if (!multiSelectEnabled) return 0;
@@ -625,7 +712,7 @@ export function DetailList({
 
   return (
     <div {...detailListRootProps(folderPath, displayFormatId)}>
-      <table style={tableStyle}>
+      <table style={tableStyle} aria-rowcount={sortedChildren.length}>
         <thead style={theadStyle}>
           <tr>
             {multiSelectEnabled ? (
@@ -701,8 +788,8 @@ export function DetailList({
             })}
           </tr>
         </thead>
-        <tbody {...{ [MKD_LANG_IGNORE_ATTR]: "1" as const }}>
-          {sortedChildren.map((item) => {
+        <tbody ref={bodyRef} {...{ [MKD_LANG_IGNORE_ATTR]: "1" as const }}>
+          {sortedChildren.map((item, rowIndex) => {
             const selected = sameExplorerItemId(selectedItemId, item.id);
             const idKey = explorerDetailRowIdKey(item);
             const isChecked = multiSelectEnabled && multiSelected.has(idKey);
@@ -813,6 +900,7 @@ export function DetailList({
                 draggable={visible}
                 style={rowStyle(selected)}
                 role="row"
+                aria-rowindex={rowIndex + 1}
                 aria-selected={selected}
                 aria-disabled={!visible}
                 onDragStart={(e) => {
@@ -842,9 +930,27 @@ export function DetailList({
                 }}
                 onKeyDown={(e) => {
                   if (!visible) return;
-                  if (e.key === "Enter") onActivateItem?.(item);
+                  if (e.key === "Enter") {
+                    onActivateItem?.(item);
+                    return;
+                  }
+                  // Arrow-key row navigation (#5761): move DOM focus and
+                  // selection together; the move wraps at the ends.
+                  const move = detailRowMoveForKey(e.key);
+                  if (!move) return;
+                  e.preventDefault();
+                  const next = nextDetailRowIndex(
+                    sortedChildren.length,
+                    rowIndex,
+                    move,
+                  );
+                  const nextItem = sortedChildren[next];
+                  if (!nextItem) return;
+                  setFocusIndex(next);
+                  onSelectItem(nextItem);
+                  focusDetailRow(next);
                 }}
-                tabIndex={visible ? 0 : -1}
+                tabIndex={visible ? (rowIndex === safeFocusIndex ? 0 : -1) : -1}
               >
                 {multiSelectEnabled ? (
                   <td style={tdCellStyle}>

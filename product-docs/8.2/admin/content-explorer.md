@@ -895,6 +895,13 @@ opened yet load one level on demand instead of prefetching the whole hierarchy.
 Collapse all folds the tree back to the roots. Either action keeps the current folder
 and selection unchanged.
 
+**Row keyboard navigation** — in the detail list, **Down arrow** / **Up arrow** move
+focus row-to-row and select the newly focused row (focus wraps from the last row back
+to the first, and from the first back to the last). **Home** jumps to the first row
+and **End** to the last row. Only the focused row is in the Tab order, and each row
+announces its position for assistive tech. Changing pages or opening a different
+folder returns focus to the first row. **Enter** still opens the focused row.
+
 ## Server actions and context menu
 
 The **Server actions** toolbar is the labeled product chrome under Open / Preview / Create Folder
