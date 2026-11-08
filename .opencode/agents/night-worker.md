@@ -99,7 +99,7 @@ contract is unchanged; only the executor is different.
 | `pr-cluster` | Absorb same-file thrash PRs (B1–B3 hard gate on the union tip). |
 | `security-audit` | CodeQL inventory + mitigation PRs. |
 | `cycle-verify` | Maven on integration tip; H2 `qa-up` + Playwright surface when WebUI is in scope. |
-| `human-qa` | Q1–Q8 gate; create `qa task` issue, assign `qa_assignee`, link Parent + PR. |
+| `human-qa` | Q1–Q8 gate; create labeled `qa task` handoff issue (label-routed, never user-assigned), link Parent + PR. |
 
 `preflight`, `triage`, and `reconcile` MUST write their results as structured
 JSON to `${NIGHT_WORKTREE_PATH}/scratch/<phase>.json` so a re-launch can pick

@@ -35,7 +35,7 @@ Unattended overnight worker. Specialists spawn only when Preflight (or this-run 
 15. **Human QA** — only if an independent APPROVE already exists (Q2 can pass). Erlang squash-merge counts. Work self-review does not.  
 16. **Report** — written in-script to `scratch/night-report.md` (**no report agent**).
 
-**Human QA handoff (after Cycle verify, default on):** when a this-run PR is **ready for human QA** *and* cycle verify did not fail it, create a **`qa task`** issue with a numbered **test plan**, assign **`vijaya-boddipudi`**, link Parent + PR. Pause: `include_human_qa: false`.
+**Human QA handoff (after Cycle verify, default on):** when a this-run PR is **ready for human QA** *and* cycle verify did not fail it, create a **`qa task`** issue with a numbered **test plan**, routed to the QA queue by **label only** (never assign a GitHub user — no hardcoded login), link Parent + PR. Pause: `include_human_qa: false`.
 
 **Token skip (2.1.0):** Host skip is still fail-open on **unknown** counts (`-1`), but **known zeros** and sentinel `none` strings do not spawn specialists. Jev prescreen remains hints only.
 
@@ -319,9 +319,8 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | `cluster_min_prs` | int | `3` | Min owned open PRs sharing thrash files to open a cluster (2–8) |
 | `include_security_audit` | bool | `true` | After PR cluster: inventory open code-scanning alerts; singleton Security Audit issue + mitigation PRs |
 | `max_security_prs` | int | `3` | Max CodeQL mitigation PRs per Security Audit pass (capped 1–8) |
-| `include_human_qa` | bool | `true` | **After Cycle verify only:** create a QA issue and assign designated QA when Q1–Q8 pass. Work never assigns. Pause UAT: `include_human_qa: false` |
-| `qa_assignee` | string | `vijaya-boddipudi` | GitHub login for human QA handoff |
-| `qa_label` | string | `qa task` | Label applied to human QA issues |
+| `include_human_qa` | bool | `true` | **After Cycle verify only:** create a QA issue routed by label to the QA queue when Q1–Q8 pass. Work never routes to a human. Pause UAT: `include_human_qa: false` |
+| `qa_label` | string | `qa task` | Routing label for human QA handoff issues (the QA queue; no user assignment) |
 | `max_prs` | int | `6` | Max open PRs per follow-up pass (capped 1-12). Raise on heavy conflict/thread debt nights |
 | `worktree_path` | string | empty | Override dedicated overnight worktree; empty = portable default under home |
 | `sync_branch` | string | `night-issue-prs-main` | Local mirror of `origin/<base_branch>` in the worktree |
@@ -330,11 +329,11 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 
 **When:** after Cycle verify only, **and** only if Preflight or peer review already sees an independent APPROVE (Q2 can pass). Same-night own-model Work PRs skip this phase. Work, POST, cluster, Security, and Cycle verify **must not** assign any human.
 
-**Assignment means the change is good enough for a human to spend time on.** It is not a dump of night PRs.
+**Handoff means the change is good enough for a human to spend time on.** It is not a dump of night PRs.
 
-`pr_opened` + UI/install is only a **candidate**. Do **not** assign because the agent could not prove the fix — that is agent failure, not QA intake.
+`pr_opened` + UI/install is only a **candidate**. Do **not** hand off because the agent could not prove the fix — that is agent failure, not QA intake.
 
-Quality bar (all required before create **or** assign). Evaluated **after Cycle verify**:
+Quality bar (all required before create **or** handoff). Evaluated **after Cycle verify**:
 
 | Gate | Required |
 |------|----------|
@@ -345,19 +344,18 @@ Quality bar (all required before create **or** assign). Evaluated **after Cycle 
 | **Q5** | UI: C5 with **commands** in the PR body (not a self-claim) |
 | **Q6** | Slice complete enough for one QA session (not a fragment while siblings still break) |
 | **Q7** | No overlapping open QA ticket for the same surface |
-| **Q8** | Cycle verify did **not** fail this PR. If cycle verify `failed` / `skipped_budget` / agent failed: assign **nobody**. If `failures_filed`: do not assign PRs in `build_failures` / `playwright_failures`. If `skipped_disabled`: Q8 is N/A (still require Q1–Q7) |
+| **Q8** | Cycle verify did **not** fail this PR. If cycle verify `failed` / `skipped_budget` / agent failed: hand off **nothing**. If `failures_filed`: do not hand off PRs in `build_failures` / `playwright_failures`. If `skipped_disabled`: Q8 is N/A (still require Q1–Q7) |
 
-If any Q fails: **no QA issue, no assignee.** Leave the PR open; comment `qa_deferred_quality`.
+If any Q fails: **no QA issue, no handoff.** Leave the PR open; comment `qa_deferred_quality`.
 
 When the bar passes:
 
 1. Create a GitHub issue (avoid duplicates for same parent/PR).
 2. **Title:** `QA (#N): <what to verify>` (peer pattern also uses `QA (#N residual): …`).
-3. **Assign:** `qa_assignee` (default **`vijaya-boddipudi`**).
-4. **Label:** `qa task` (+ `8.2`, operator labels).
-5. **Body:** Parent, PR URL(s), **numbered test plan**, pass/fail criteria, out of scope, agent evidence.
+3. **Route by label only:** `qa task` (+ `8.2`, operator labels). No `--assignee`, no hardcoded login, no `@<login>` mention — humans triage the label queue.
+4. **Body:** Parent, PR URL(s), **numbered test plan**, pass/fail criteria, out of scope, agent evidence.
 
-Human QA issues are handoff work (assigned), not unassigned residual implement slices.
+Human QA issues are handoff work (label-queued), not unassigned residual implement slices.
 
 ### Issue lifecycle / close rules (no empty trackers)
 
@@ -370,7 +368,7 @@ Every open issue is either **worked** or **closed**. Merged-but-still-open is a 
 | Unassigned **QA: Failed** whose residual PR (or absorbing cluster) **merged** and the fail steps are addressed | **Close** the QA ticket. Do not keep it open waiting for a retest that never happens. |
 | **QA: Failed** residual merged but **other** fail steps remain | File/queue a **new** implement residual. Do not skip as “residual already filed.” |
 | Assigned **QA: To Be Tested** | Leave it — human owns it. |
-| Candidate for human QA (new this-run PR) | **Work:** record candidacy only — never assign. **After Cycle verify:** only if `include_human_qa=true` AND Q1–Q8 pass, create QA issue and assign `qa_assignee`. |
+| Candidate for human QA (new this-run PR) | **Work:** record candidacy only — never route to a human. **After Cycle verify:** only if `include_human_qa=true` AND Q1–Q8 pass, create QA issue routed by `qa task` label. |
 | Remaining agent work | File **PR-sized** residual/child issues; parent stays open while children exist |
 | Open children or **open** linked PRs | **Do not close** the parent |
 
@@ -406,7 +404,7 @@ Runs **after** Security audit and **before** Human QA. This is the quality gate 
 | **Playwright** | Only if `modules_built` includes WebUI or `perc-qa-automation`. Then `perc-devctl qa-up` → `qa-health` → golden + login + this-run surfaces (or `--allow-full` if `cycle_verify_allow_full_playwright`) → **always** `qa-down`. Non-UI nights skip qa-up |
 | **Failures** | Unassigned **p1** issues titled `[night-issues: Cycle Verify] Maven: …` or `… Playwright: …`. Reuse if the same module/spec is already open |
 | **Next cycle** | Discover/Triage treat those titles as **LEAD** — they fill the queue **before** other p1 |
-| **Not** | Human QA assignment, `qa task` labels, or assignee `@vijaya-boddipudi` |
+| **Not** | Human QA handoff, `qa task` labels, or any user assignee |
 | **Green** | Zero new residuals |
 | **Disable** | `include_cycle_verify: false` |
 

@@ -184,10 +184,10 @@
 //                                Security Audit issue for the same base_branch.
 //   max_security_prs    int    - max mitigation PRs to open per Security Audit pass (default 3, cap 8)
 //   include_human_qa    bool   - AFTER Cycle verify only: when a this-run PR meets the HUMAN
-//                                QA QUALITY BAR (Q1–Q8), create a QA issue and assign designated
-//                                QA (default true). Work / Cycle verify NEVER assign humans.
-//                                pr_opened + UI is NOT enough. Cycle-verify failure is NOT
-//                                enough. "Agent could not prove it" is a reason to NOT assign.
+//                                QA QUALITY BAR (Q1–Q8), create a QA issue routed by label to
+//                                the QA queue (default true). Work / Cycle verify NEVER route
+//                                humans. pr_opened + UI is NOT enough. Cycle-verify failure
+//                                is NOT enough. "Agent could not prove it" is a reason to NOT hand off.
 //   include_cycle_verify bool  - after Security: Maven clean install of this-run modules + H2
 //                                qa-up Playwright. Failures become next-cycle p1 lead issues
 //                                (default true). Never assigns human QA. Human QA (if enabled)
@@ -195,8 +195,9 @@
 //   cycle_verify_allow_full_playwright bool - if true, Playwright --allow-full (expensive).
 //                                Default false: golden + login + this-run QA surfaces.
 //   max_cycle_verify_residuals int - max NEW cycle-verify issues per run (default 8, cap 20).
-//   qa_assignee         string - GitHub login for human QA (default vijaya-boddipudi)
-//   qa_label            string - label for human QA issues (default "qa task")
+//   qa_label            string - routing label for human QA handoff issues
+//                                (default "qa task"). Handoff is label-only: never --assignee,
+//                                never a hardcoded login, never an @mention.
 //   worktree_path       string - dedicated overnight git worktree; empty = portable default under
 //                                $HOME or %USERPROFILE%/.grok/worktrees/intersoft-workspace-percussioncms/night-issue-prs
 //   sync_branch         string - local default branch in that worktree (default night-issue-prs-main)
@@ -634,7 +635,7 @@ let human_qa_schema = #{
         "summary": #{ "type": "string" },
         "qa_issues_created": #{ "type": "integer" },
         "qa_issue_urls": #{ "type": "string" },
-        "assigned_to": #{ "type": "string" },
+        "route": #{ "type": "string" },
         "deferred": #{ "type": "string" },
         "skipped_reason": #{ "type": "string" },
         "blocked": #{ "type": "string" },
@@ -761,8 +762,7 @@ let security_audit_title = "[night-issues: Security Audit - Fix Pass]";
 // Prefix for implement residuals created from cycle-verify Maven/Playwright failures.
 // Discover/Triage treat open issues with this prefix as next-cycle LEAD (before other p1).
 let cycle_verify_title_prefix = "[night-issues: Cycle Verify]";
-// Designated human QA resource (Intersoft QA). Override via args.
-let qa_assignee = "vijaya-boddipudi";
+// QA handoff routes by label only (humans triage the qa task queue).
 let qa_label = "qa task";
 
 // --- args (guard unit) ---
@@ -863,7 +863,6 @@ if args != () {
     }
     if args.include_human_qa != () { include_human_qa = args.include_human_qa; }
     if args.allow_peer_squash_merge != () { allow_peer_squash_merge = args.allow_peer_squash_merge; }
-    if args.qa_assignee != () { qa_assignee = args.qa_assignee; }
     if args.qa_label != () { qa_label = args.qa_label; }
     if args.max_prs != () { max_prs = args.max_prs; }
     if args.max_peer_reviews != () { max_peer_reviews = args.max_peer_reviews; }
@@ -944,7 +943,6 @@ log("night-issue-prs: repo=" + repo + " base=" + base_branch
     + " cycle_verify_allow_full_playwright=" + cycle_verify_allow_full_playwright.to_string()
     + " max_cycle_verify_residuals=" + max_cycle_verify_residuals.to_string()
     + " include_human_qa=" + include_human_qa.to_string()
-    + " qa_assignee=" + qa_assignee
     + " qa_label=" + qa_label
     + " max_prs=" + max_prs.to_string()
     + " cluster_min_prs=" + cluster_min_prs.to_string()
@@ -2506,12 +2504,12 @@ for item in queue {
     work_prompt += "HUMAN ASSIGNMENT (HARD BAN in Work — all humans, not only QA):\n";
     work_prompt += "Work MUST NOT assign anyone. Human QA (if include_human_qa) runs AFTER Cycle verify.\n";
     work_prompt += "FORBIDDEN this phase: gh issue create --assignee, gh issue edit --add-assignee,\n";
-    work_prompt += "  assigning @" + qa_assignee + ", creating a \"" + qa_label + "\" issue, or assigning\n";
+    work_prompt += "  hardcoded-login routing (@<login>), creating a \"" + qa_label + "\" issue, or routing\n";
     work_prompt += "  any other human to an implement/child/residual/QA ticket.\n";
     work_prompt += "Children/residuals stay unassigned. Leave In Progress only on the issue you are working.\n";
     if include_human_qa {
         work_prompt += "include_human_qa=true: RECORD candidacy only (qa_candidate + qa_notes on the schema).\n";
-        work_prompt += "A later Human QA phase will create/assign if Cycle verify passed AND Q1–Q8 pass.\n";
+        work_prompt += "A later Human QA phase will create/route if Cycle verify passed AND Q1–Q8 pass.\n";
         work_prompt += "CANDIDATE (eligible for that later phase to consider):\n";
         work_prompt += "  A) Product UI / Explorer / WebUI / user-visible flow changed, OR\n";
         work_prompt += "  B) Installer / packaging / upgrade / host-visible behavior, OR\n";
@@ -2531,12 +2529,12 @@ for item in queue {
     work_prompt += "Apply to the issue you worked (#" + inum.to_string() + ") and to PARENT_TRACKER when you own the lifecycle:\n";
     work_prompt += "L1) Inventory open related issues: children/residuals with Parent: #N, QA (#N) issues,\n";
     work_prompt += "    and open PRs still linked to this issue. Use gh issue list / search + body links.\n";
-    work_prompt += "L2) HUMAN ASSIGNMENT is forbidden in Work (even if include_human_qa=true).\n";
-    work_prompt += "    Do NOT create, assign, or reassign human QA / \"" + qa_label + "\" issues.\n";
-    work_prompt += "    Do NOT assign @" + qa_assignee + " or any other human.\n";
+    work_prompt += "L2) HUMAN ROUTING is forbidden in Work (even if include_human_qa=true).\n";
+    work_prompt += "    Do NOT create, route, or reassign human QA / \"" + qa_label + "\" issues.\n";
+    work_prompt += "    Do NOT assign/mention a hardcoded login or any other human.\n";
     work_prompt += "    An open PR waiting for Cycle verify + later Human QA is a valid remaining step.\n";
     work_prompt += "    Leave the parent open. Do not invent a qa-task here to satisfy empty-tracker rules.\n";
-    work_prompt += "    Existing open QA issues: leave them (do not reassign).\n";
+    work_prompt += "    Existing open QA issues: leave them (do not reroute).\n";
     work_prompt += "L3) If remaining agent work exists: file PR-sized residual/child issues (not empty\n";
     work_prompt += "    trackers). Parent may stay open while children exist.\n";
     work_prompt += "L4) If NO remaining steps AND NO open related child/residual/QA issues AND your PR\n";
@@ -3421,7 +3419,7 @@ if include_cycle_verify && need_cycle_verify {
         cv_prompt += "4) No -DskipTests / -Dmaven.test.skip on the verify Maven installs.\n";
         cv_prompt += "5) Always qa-down if you qa-up (even on failure).\n";
         cv_prompt += "6) Never hardcode :9993 — use TEST_CMS_URL from qa-up.\n";
-        cv_prompt += "7) Never commit passwords. Never assign @" + qa_assignee + ".\n";
+        cv_prompt += "7) Never commit passwords. Never assign/mention a user (--assignee or hardcoded login).\n";
         cv_prompt += "8) Do not invent failures. Only file residuals for commands you actually ran.\n\n";
 
         cv_prompt += "INTEGRATION TIP (one tree for the Playwright cell):\n";
@@ -3565,8 +3563,9 @@ if include_cycle_verify && need_cycle_verify {
 }
 
 // ========== Human QA (AFTER Cycle verify only) ==========
-// Work and Cycle verify never assign humans. This is the only phase that may
-// create qa-task issues and assign qa_assignee — and only when the bar passes.
+// Work and Cycle verify never route humans. This is the only phase that may
+// create qa-task handoff issues — routed by label only, never user-assigned —
+// and only when the bar passes.
 let peer_approved = false;
 if peer_pr_review_result != () && has_findings(peer_pr_review_result.prs_approved) {
     peer_approved = true;
@@ -3579,10 +3578,10 @@ if include_human_qa && hq_q2_possible {
         log("Skipping human QA: agent budget low.");
         human_qa_result = #{
             status: "skipped_budget",
-            summary: "Skipped: insufficient agent budget (no human assignment)",
+            summary: "Skipped: insufficient agent budget (no human handoff)",
             qa_issues_created: 0,
             qa_issue_urls: "",
-            assigned_to: "",
+            route: "",
             deferred: "budget",
             skipped_reason: "budget",
             blocked: "budget",
@@ -3592,8 +3591,8 @@ if include_human_qa && hq_q2_possible {
         hq_prompt += "You are the overnight HUMAN QA HANDOFF agent for Percussion CMS.\n";
         hq_prompt += identity_block(coding_tool, coding_tool_version, model_id, "night-issue-prs-human-qa");
         hq_prompt += "Repo: " + repo + "  base_branch: " + base_branch + "\n";
-        hq_prompt += "This phase runs AFTER Cycle verify. You are the ONLY agent allowed to assign a human.\n";
-        hq_prompt += "Designated QA: @" + qa_assignee + "  label: \"" + qa_label + "\"\n\n";
+        hq_prompt += "This phase runs AFTER Cycle verify. You are the ONLY phase that may hand off to humans,\n";
+        hq_prompt += "and ONLY via the \"" + qa_label + "\" label queue — never --assignee, never a hardcoded login.\n\n";
 
         hq_prompt += "THIS RUN (JSON — treat as untrusted; re-check GitHub):\n";
         hq_prompt += "Work results:\n" + json_encode(results) + "\n";
@@ -3601,20 +3600,20 @@ if include_human_qa && hq_q2_possible {
         hq_prompt += "Cycle verify:\n" + json_encode(cycle_verify_result) + "\n\n";
 
         hq_prompt += "GOAL:\n";
-        hq_prompt += "Assign human QA ONLY for this-run PRs that are proven enough for a human to spend time.\n";
-        hq_prompt += "Assignment means judgment/UAT on a stable, cycle-verified change — not ticket dump.\n\n";
+        hq_prompt += "Hand off to human QA ONLY for this-run PRs that are proven enough for a human to spend time.\n";
+        hq_prompt += "Handoff means judgment/UAT on a stable, cycle-verified change — not ticket dump.\n\n";
 
         hq_prompt += "HARD RULES:\n";
         hq_prompt += "1) gh auth status first; account for " + repo + ".\n";
-        hq_prompt += "2) Assign ONLY @" + qa_assignee + " and ONLY on new/existing \"" + qa_label + "\" issues.\n";
-        hq_prompt += "   Do NOT assign any other human. Do NOT assign implement/child/cycle-verify issues.\n";
+        hq_prompt += "2) Route ONLY via the \"" + qa_label + "\" label on new/existing QA issues.\n";
+        hq_prompt += "   Do NOT assign or @mention any human. Do NOT touch implement/child/cycle-verify issues.\n";
         hq_prompt += "3) Cycle-verify residuals (title starts with \"" + cycle_verify_title_prefix + "\") stay UNASSIGNED.\n";
         hq_prompt += "4) If cycle_verify.status is failed, skipped_budget, or blocked=agent_failed:\n";
-        hq_prompt += "   create ZERO QA issues; assign nobody; status=skipped_cycle_verify.\n";
+        hq_prompt += "   create ZERO QA issues; hand off nothing; status=skipped_cycle_verify.\n";
         hq_prompt += "   Could not prove the night's work — humans are not a dump for that.\n";
         hq_prompt += "5) If cycle_verify.status is failures_filed or build_ok=false or playwright_ok=false:\n";
-        hq_prompt += "   do NOT assign QA for any PR whose modules/surfaces appear in build_failures or\n";
-        hq_prompt += "   playwright_failures. Prefer assign nobody this run if integration_ref failed.\n";
+        hq_prompt += "   do NOT hand off QA for any PR whose modules/surfaces appear in build_failures or\n";
+        hq_prompt += "   playwright_failures. Prefer handing off nothing this run if integration_ref failed.\n";
         hq_prompt += "6) If cycle_verify.status is skipped_disabled: Q8 is N/A; still require Q1–Q7 live.\n";
         hq_prompt += "7) If cycle_verify.status is passed: Q8 passes for this-run PRs (still require Q1–Q7).\n";
         hq_prompt += "8) Do not invent candidates. Re-read PR files + issue bodies. Work qa_candidate is a hint.\n\n";
@@ -3626,7 +3625,7 @@ if include_human_qa && hq_q2_possible {
         hq_prompt += "NOT a candidate: agent could not prove it; C5 skipped; incomplete slice;\n";
         hq_prompt += "  draft/CONFLICTING/DIRTY/superseded; duplicate QA; cycle-verify residual.\n\n";
 
-        hq_prompt += "QUALITY BAR (HARD — every item live on GitHub before create OR assign):\n";
+        hq_prompt += "QUALITY BAR (HARD — every item live on GitHub before create OR handoff):\n";
         hq_prompt += "  Q1) PR exists, not draft, not superseded, mergeable (not CONFLICTING/DIRTY).\n";
         hq_prompt += "  Q2) Independent review APPROVE (human, Erlang sub-agent, or other-model peer).\n";
         hq_prompt += "      Work implementer self-review does not count. Erlang squash-merge counts.\n";
@@ -3637,7 +3636,7 @@ if include_human_qa && hq_q2_possible {
         hq_prompt += "  Q6) Slice complete enough for one QA session.\n";
         hq_prompt += "  Q7) No overlapping open QA ticket for the same surface/parent.\n";
         hq_prompt += "  Q8) Cycle verify did not fail this PR (see HARD rules 4–7).\n";
-        hq_prompt += "If ANY Q fails: do NOT create a QA issue, do NOT assign @" + qa_assignee + ".\n";
+        hq_prompt += "If ANY Q fails: do NOT create a QA issue, do NOT hand off to anyone.\n";
         hq_prompt += "  Comment once on the implement issue/PR: qa_deferred_quality + which Q failed.\n";
         hq_prompt += "  List that item in deferred.\n\n";
 
@@ -3649,15 +3648,14 @@ if include_human_qa && hq_q2_possible {
         hq_prompt += "       --title \"QA (#<parent>): <short what to verify>\" \\\n";
         hq_prompt += "       --label \"" + qa_label + "\" --label 8.2 --label operator:night-issue-prs \\\n";
         hq_prompt += "       --label operator:grok --label " + model_label + " \\\n";
-        hq_prompt += "       --assignee " + qa_assignee + " \\\n";
         hq_prompt += "       --body-file <temp>\n";
         hq_prompt += "     Body MUST include: Parent, PR URL(s), base_branch, numbered ## Test plan,\n";
         hq_prompt += "     ## Pass / fail, ## Out of scope, ## Evidence (C5 commands + cycle-verify status).\n";
         hq_prompt += "  4) Comment on Parent and PR with the QA issue URL.\n";
-        hq_prompt += "  5) Do not assign the parent implement issue — only the QA issue.\n\n";
+        hq_prompt += "  5) Do not touch the parent implement issue — only the QA issue.\n\n";
 
-        hq_prompt += "status=assigned|none_ready|skipped_cycle_verify|skipped|failed\n";
-        hq_prompt += "qa_issues_created = count of NEW issues. assigned_to=" + qa_assignee + " or empty.\n";
+        hq_prompt += "status=handed_off|none_ready|skipped_cycle_verify|skipped|failed\n";
+        hq_prompt += "qa_issues_created = count of NEW issues. route=\"label:<qa_label>\" or empty.\n";
         hq_prompt += "Return the structured schema honestly.\n";
 
         let hq_agent = agent(hq_prompt, #{
@@ -3672,10 +3670,10 @@ if include_human_qa && hq_q2_possible {
         } else {
             human_qa_result = #{
                 status: "failed",
-                summary: "Human QA agent failed (no assignment assumed)",
+                summary: "Human QA agent failed (no handoff assumed)",
                 qa_issues_created: 0,
                 qa_issue_urls: "",
-                assigned_to: "",
+                route: "",
                 deferred: "agent_failed",
                 skipped_reason: "agent_failed",
                 blocked: "agent_failed",
@@ -3690,19 +3688,19 @@ if include_human_qa && hq_q2_possible {
         summary: "Skipped: Q2 cannot pass (no independent APPROVE on preflight/peer)",
         qa_issues_created: 0,
         qa_issue_urls: "",
-        assigned_to: "",
+        route: "",
         deferred: "q2_no_independent_approve",
         skipped_reason: "q2_no_independent_approve",
         blocked: "",
     };
 } else {
-    log("Human QA disabled (include_human_qa=false). No human assignment this run.");
+    log("Human QA disabled (include_human_qa=false). No human handoff this run.");
     human_qa_result = #{
         status: "skipped_disabled",
         summary: "include_human_qa=false",
         qa_issues_created: 0,
         qa_issue_urls: "",
-        assigned_to: "",
+        route: "",
         deferred: "include_human_qa=false",
         skipped_reason: "include_human_qa=false",
         blocked: "",
