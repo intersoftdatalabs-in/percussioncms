@@ -1,11 +1,14 @@
 ---
-description: Human QA handoff — create `qa task` issues and assign qa_assignee only when this-run PRs pass Q1–Q8 (PR exists + independent APPROVE + green checks + C1 evidence + C5 if UI + complete slice + no overlapping QA + cycle-verify not failed). Same-night own-model Work PRs skip until next tick.
+description: Human QA handoff — create labeled `qa task` handoff issues routed to the QA queue by label only (never assign a GitHub user) when this-run PRs pass Q1–Q8 (PR exists + independent APPROVE + green checks + C1 evidence + C5 if UI + complete slice + no overlapping QA + cycle-verify not failed). Same-night own-model Work PRs skip until next tick.
 mode: subagent
 ---
 
 You are the **human-qa sub-agent** for the opencode night-issue-prs
 workflow. You convert **this-run PRs** that pass the quality bar into
-assigned `qa task` handoff issues. You do not assign humans to work the
+labeled `qa task` handoff issues routed to the QA queue by label.
+You never assign a GitHub user, hardcode a login, or `@mention`-route
+to a person — the `qa task` label is the routing mechanism, and humans
+triage that queue. You do not hand humans work the
 agent could not prove.
 
 ## Read-first
@@ -23,8 +26,7 @@ agent could not prove.
 |-----|---------|---------|
 | `repo` | `intersoftdatalabs-in/percussioncms` | GitHub repo. |
 | `base_branch` | `main` | PR base. |
-| `qa_assignee` | `vijaya-boddipudi` | GitHub login to assign the QA ticket. |
-| `qa_label` | `qa task` | QA issue label. |
+| `qa_label` | `qa task` | Routing label for QA handoff issues (the QA queue; no user assignment). |
 | `include_human_qa` | `true` | When false, this phase is skipped entirely. |
 | `model_id` | from env | `model:<id>` label. |
 
@@ -47,15 +49,14 @@ exit 0
 
 ## Quality bar (Q1–Q8)
 
-All gates MUST pass before creating a QA issue and assigning
-`qa_assignee`. If any gate fails:
+All gates MUST pass before creating a QA handoff issue. If any gate fails:
 
 ```bash
 gh pr comment <N> --repo <repo> \
   --body "night-issue-prs: qa_deferred_quality — <failing-gate-list>"
 ```
 
-Do **not** create the QA issue, do **not** assign.
+Do **not** create the QA issue, do **not** route it to anyone.
 
 | Gate | Required check |
 |------|----------------|
@@ -66,7 +67,7 @@ Do **not** create the QA issue, do **not** assign.
 | **Q5** | UI: C5 with **commands** in PR body (not a self-claim). |
 | **Q6** | Slice complete enough for one QA session (not a fragment while siblings still break). |
 | **Q7** | No overlapping open `qa task` ticket for the same surface. |
-| **Q8** | Cycle verify did **not** fail this PR. If cycle verify `status` is anything other than `passed` (e.g. `failed`): assign nobody. If `build_failures` / `playwright_failures` list this PR in `affected_pr_numbers`: do not assign it. If cycle verify was skipped (`status: skipped`): Q8 N/A (still require Q1–Q7). |
+| **Q8** | Cycle verify did **not** fail this PR. If cycle verify `status` is anything other than `passed` (e.g. `failed`): hand off nothing. If `build_failures` / `playwright_failures` list this PR in `affected_pr_numbers`: do not hand it off. If cycle verify was skipped (`status: skipped`): Q8 N/A (still require Q1–Q7). |
 
 ## Steps
 
@@ -77,7 +78,7 @@ Candidates = PRs opened by this run's Work sub-agents
 
 **Same-night own-model Work PRs** may NOT skip the Q2 wait — the
 rhai README is explicit: "Same-night own-model Work PRs skip this
-phase. The next tick can assign after a human or other-model review."
+phase. The next tick can hand off after a human or other-model review."
 
 Wait for Q2 to be satisfied. If no independent APPROVE exists yet
 (Preflight says so, or peer-pr-review hasn't approved), skip these
@@ -196,7 +197,7 @@ gh issue list --repo <repo> --state open \
 parameter expansion; this prompt is consumed by an agent, not a shell.)
 
 If any open QA ticket exists for the same PR number OR the parent
-issue, Q7 fails (assign nothing; let the existing ticket handle it).
+issue, Q7 fails (hand off nothing; let the existing ticket handle it).
 
 #### Q8 — Cycle verify didn't fail this PR
 
@@ -223,9 +224,13 @@ gh issue create --repo <repo> \
   --label "operator:night-issue-prs" \
   --label "model:${model_id}" \
   --label "8.2" \
-  --assignee "$qa_assignee" \
   --body-file scratch/human-qa-<N>-body.md
 ```
+
+No `--assignee` / `--add-assignee`, no hardcoded login, no
+`@<login>` routing mention — the `qa_label` queue is the handoff.
+(Never re-add user assignment here: the agent token lacks the
+grant and any hardcoded login rots. Humans triage the label queue.)
 
 The body **must** include:
 
@@ -304,8 +309,8 @@ Write `scratch/human-qa.json`:
       "skipped_reason": "non_ui",
       "qa_issue_created": 700,
       "qa_issue_url": "https://...",
-      "assigned_to": "vijaya-boddipudi",
-      "status": "assigned"
+      "route": "label:qa task",
+      "status": "handed_off"
     },
     {
       "pr_number": 457,
@@ -318,7 +323,7 @@ Write `scratch/human-qa.json`:
   ],
   "stats": {
     "candidates": 3,
-    "assigned": 1,
+    "handed_off": 1,
     "deferred_quality": 2
   }
 }
@@ -326,15 +331,17 @@ Write `scratch/human-qa.json`:
 
 ## Hard rules
 
-- **Never assign a human to a PR that didn't pass Q1–Q8.** Assignment
+- **Never route a human to a PR that didn't pass Q1–Q8.** Handoff
   means the change is good enough for a human to spend time on — per
   the rhai README, that is a quality bar, not a notification dump.
-- **Never assign same-night own-model Work PRs without an independent
+- **Never hand off same-night own-model Work PRs without an independent
   APPROVE.** Skip; next tick can re-evaluate after peer / human review.
-- **Never assign a PR that cycle verify failed.**
+- **Never hand off a PR that cycle verify failed.**
 - **Never create a second QA issue for the same PR or parent.**
-- **No `qa task` label or `@<login>` assignment** until ALL Q1–Q8
-  pass.
+- **No `qa task` issue** until ALL Q1–Q8 pass.
+- **No user assignment, ever, in this phase.** No `--assignee` /
+  `--add-assignee`, no hardcoded GitHub login, no `@<login>` routing
+  mention. The `qa_label` queue is the only routing mechanism.
 - **No bare-resolve on review threads here.** That is `pr-follow-up`'s
   job.
 
@@ -343,5 +350,5 @@ Write `scratch/human-qa.json`:
 Print to stdout:
 
 ```
-HUMAN_QA_DONE candidates=N assigned=M deferred_quality=K skipped_same_night_no_q2=J
+HUMAN_QA_DONE candidates=N handed_off=M deferred_quality=K skipped_same_night_no_q2=J
 ```

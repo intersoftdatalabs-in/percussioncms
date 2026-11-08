@@ -157,15 +157,17 @@ Apply **after** Cycle verify only. The host never assigns Q1–Q8 work; the
 | **Q5** | UI: C5 with **commands** in the PR body (not a self-claim). |
 | **Q6** | Slice complete enough for one QA session (not a fragment while siblings still break). |
 | **Q7** | No overlapping open QA ticket for the same surface. |
-| **Q8** | Cycle verify did **not** fail this PR. If `failed` / `skipped_budget` / agent failed: assign **nobody**. If `failures_filed`: do not assign PRs in `build_failures` / `playwright_failures`. If `skipped_disabled`: Q8 N/A (still require Q1–Q7). |
+| **Q8** | Cycle verify did **not** fail this PR. If `failed` / `skipped_budget` / agent failed: hand off **nothing**. If `failures_filed`: do not hand off PRs in `build_failures` / `playwright_failures`. If `skipped_disabled`: Q8 N/A (still require Q1–Q7). |
 
-If any gate fails: **no QA issue, no assignee.** Leave the PR open;
+If any gate fails: **no QA issue, no handoff.** Leave the PR open;
 comment `qa_deferred_quality`.
 
 When all gates pass, the `human-qa` sub-agent creates a GitHub issue:
 
 - **Title:** `QA (#N): <what to verify>`
-- **Assignee:** `${qa_assignee}` (default `vijaya-boddipudi`)
+- **Assignee:** none — never `--assignee`, never a hardcoded login.
+  Route via **label** `${qa_label}` (default `qa task`); humans triage
+  that queue.
 - **Label:** `${qa_label}` (default `qa task`)
 - **Body:** Parent, PR URL(s), **numbered test plan**, pass / fail
   criteria, out of scope, agent evidence.

@@ -55,8 +55,7 @@ positional text). Parse them and pass to the workflow as described below.
 | `include_security_audit` | bool | `true` | CodeQL inventory + mitigation PRs |
 | `max_security_prs` | int | `3` | Max CodeQL mitigation PRs per pass |
 | `include_human_qa` | bool | `true` | After Cycle verify only — issue + assign |
-| `qa_assignee` | string | `vijaya-boddipudi` | Human QA login |
-| `qa_label` | string | `qa task` | QA issue label |
+| `qa_label` | string | `qa task` | Routing label for human QA handoff issues (the QA queue; no user assignment) |
 | `max_prs` | int | `6` | Max open PRs per follow-up pass |
 | `worktree_path` | string | `<home>/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs` | Dedicated worktree |
 | `sync_branch` | string | `night-issue-prs-main` | Local mirror of `origin/<base_branch>` |
@@ -302,7 +301,7 @@ Create labels if missing (`gh label create`).
 - `--force-with-lease` to `main` or `night-issue-prs-main`.
 - Direct push to `main` (PRs only).
 - Approving your own review threads (always inline reply + `resolveReviewThread`).
-- Human QA assignment without an independent APPROVE.
+- Human QA handoff without an independent APPROVE.
 - Approving or merging your own-model-only Work PRs (same `model:*`, no other operator).
 - Performing Erlang in the host or Peer agent's own voice (always spawn `erlang-review`). Work runs the Erlang CLI before opening a PR but must not self-APPROVE or self-merge.
 - Skipping other-model merge because GitHub login equals the PR author.
