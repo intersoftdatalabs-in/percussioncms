@@ -172,6 +172,21 @@
         <url-pattern>/cm/pages/app/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
+    <!--
+      #5672: retired legacy API-doc viewer directory. The webapp welcome-file
+      list only covers index.jsp, so /cm/api/ would 404 despite the static
+      retirement redirect (index.html -> /openapi/) shipping in the WAR.
+      The filter forwards directory requests at that page; auth behavior is
+      unchanged (PSSecurityFilter still 302s unauthenticated requests).
+      FORWARD covers root-context cells where PSDispatcherFilter strips the
+      /Rhythmyx prefix via an internal forward before this mapping can match.
+    -->
+    <filter-mapping>
+        <filter-name>PSWebUiSpaFallbackFilter</filter-name>
+        <url-pattern>/cm/api/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+    </filter-mapping>
     <filter-mapping>
         <filter-name>PSCharacterSetFilter</filter-name>
         <url-pattern>/*</url-pattern>
