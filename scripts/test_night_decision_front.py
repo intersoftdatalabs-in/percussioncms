@@ -288,6 +288,27 @@ def test_debt_seed_randomizes_within_tier_deterministically():
     assert legacy == [5711, 5712, 5713, 5721]  # no seed: legacy number order
 
 
+def test_qa_tickets_excluded_by_label_and_title():
+    # Labeled QA ticket: skipped via the routing label.
+    labeled = issue(5799, "QA (#5781): Explorer expand-collapse", labels=["qa task", "8.2"])
+    # Label-less QA ticket (observed #5799-#5801 filed without labels):
+    # the title pattern is the backstop.
+    unlabeled = issue(5800, "QA (#5782): SFTP passphrase panel", labels=[])
+    normal = issue(5761, "issue 4530 slice 138: arrow-key nav")
+    assert df.rule_skip_issue(labeled, None) == (True, "human_qa")
+    assert df.rule_skip_issue(unlabeled, None) == (True, "human_qa_title")
+    assert df.rule_skip_issue(normal, None) == (False, "")
+    result = df.run([labeled, unlabeled, normal], [], None, 3, 0, "model:x", 3)
+    nums = [q["issue_number"] for q in result["queue"]]
+    assert 5799 not in nums and 5800 not in nums and 5761 in nums
+    # Custom routing label is honored.
+    custom = issue(5801, "handoff ticket", labels=["qa-review"])
+    assert df.rule_skip_issue(custom, None, qa_label="qa-review") == (True, "human_qa")
+    assert df.rule_skip_issue(custom, None) == (False, "")
+    # A non-handoff title containing 'qa' elsewhere is NOT skipped.
+    assert df.rule_skip_issue(issue(1, "Adequate coverage for login"), None) == (False, "")
+
+
 if __name__ == "__main__":
     test_one_per_parent_and_skip_epic()
     test_covering_pr_skips_issue_and_siblings()
@@ -303,4 +324,5 @@ if __name__ == "__main__":
     test_cli_roundtrip()
     test_debt_exclude_reorders_but_never_starves()
     test_debt_seed_randomizes_within_tier_deterministically()
+    test_qa_tickets_excluded_by_label_and_title()
     print("ok")
