@@ -23,7 +23,13 @@ import org.w3c.dom.Element;
 /**
  * Base interface for client objects in the cx package.
  *
- * @deprecated is there a base Iface for other objects in the cx?
+ * <p>This is the supported contract for content-explorer option objects that populate from and
+ * serialize to XML ({@link #fromXml} / {@link #toXml}). It is implemented by the option model on
+ * both the server ({@code PSFont}, {@code PSOption}, {@code PSOptions}, {@code PSUserOptions}) and
+ * the desktop client ({@code PSColumnWidthsOption}, {@code PSDisplayFormatOption}, {@code
+ * PSExpandedOption}) and consumed via {@code instanceof} checks and casts by the option-manager
+ * helpers, so it is intentionally not deprecated: removing or replacing it would break those public
+ * call sites (see #2045 / #5712).
  */
 public interface IPSClientObjects {
 

@@ -34,12 +34,7 @@ import org.w3c.dom.Element;
 /**
  * Behavioral tests for pure helpers on {@link PSOptionManager} after rawtypes cleanup (#3012). Does
  * not open the Swing applet (requires live server resources).
- *
- * <p>Suppression scope: {@code IPSClientObjects} is deprecated but remains the declared element
- * type of {@link PSOptionManager#toXmlCollection}, so this test must reference it until the
- * production API migrates (tracked under #2045).
  */
-@SuppressWarnings("deprecation")
 public class PSOptionManagerTest {
 
   @Test
@@ -93,6 +88,37 @@ public class PSOptionManagerTest {
 
     assertThrows(
         IllegalArgumentException.class, () -> PSOptionManager.toXmlCollection(root, doc, items));
+  }
+
+  @Test
+  public void optionObjectsRemainClientObjects() {
+    // Guards the #5712 API decision: IPSClientObjects is the supported (non-deprecated) contract,
+    // so the option model must keep implementing it — removing an implements clause breaks
+    // instanceof call sites in the option managers.
+    assertTrue(new PSColumnWidthsOption() instanceof IPSClientObjects);
+    assertTrue(new PSDisplayFormatOption() instanceof IPSClientObjects);
+    assertTrue(new PSExpandedOption(Collections.emptyList()) instanceof IPSClientObjects);
+  }
+
+  @Test
+  public void toXmlCollectionSerializesRealOptionObjects() {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    // NOTE: no doc.appendChild(root) here — each option's toXml appends its own element to the
+    // document, and toXmlCollection reparents it under root; a pre-appended root would trip the
+    // single-root Document constraint.
+    Element root = doc.createElement("root");
+
+    List<IPSClientObjects> items = new ArrayList<>();
+    items.add(new PSColumnWidthsOption());
+    items.add(new PSDisplayFormatOption());
+    items.add(new PSExpandedOption(Collections.emptyList()));
+
+    PSOptionManager.toXmlCollection(root, doc, items);
+
+    assertEquals(3, root.getChildNodes().getLength());
+    assertEquals("PSXColumnWidthsOption", ((Element) root.getChildNodes().item(0)).getTagName());
+    assertEquals("PSXDisplayFormatOption", ((Element) root.getChildNodes().item(1)).getTagName());
+    assertEquals("PSXExpandedOption", ((Element) root.getChildNodes().item(2)).getTagName());
   }
 
   @Test
