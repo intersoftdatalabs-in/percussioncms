@@ -124,13 +124,15 @@ Per rhai README "Product-first queue":
   only — product overflow must never eat a reserved debt seat.
 - **Phase B** fills `low_slots` from DEBT only (lowest pN first, oldest
   `updatedAt` tie-break). Unused `priority_slots` stay **empty**.
-- **Phase B rotation (2.2.8-draft):** lowest-number-first reseats the same
-  blocked debt nightly (observed: #1820/#1976 twice while 20 candidates
-  waited). Deprioritize debt on the host's recently-blocked list (prior
-  `gated_prerequisite` / `verified_no_change` verdicts) — within the same
-  pN tier, fresh debt first; break remaining same-tier ties randomly, never
-  lowest-number-first. pN tier still outranks rotation; rotation reorders,
-  never starves the seat.
+- **Phase B rotation (2.2.8-draft, cross-tier 2.2.9-draft):** lowest-number-first reseats the same
+  blocked debt nightly (observed: #1820/#1976 twice, then #1978/#1820 a
+  third time — the blocked pair were p2 while every fresh candidate was
+  p8, so tier-first ordering seated them forever). Debt on the host's
+  recently-blocked list (prior `gated_prerequisite` / `verified_no_change`
+  verdicts) sorts after ALL fresh debt **regardless of pN tier** — a
+  blocked p2 yields to a fresh p8 for one cycle and returns when off the
+  list. Same-flag ties break by pN, then randomly (never
+  lowest-number-first). Rotation reorders, never starves the seat.
 - **One implement per parent across the WHOLE queue (HARD):** at most one
   `disposition=implement` row per `parent_issue` — including adopted
   EXISTING open children (observed: #5733 + #5734 both queued from #5622).
@@ -165,6 +167,48 @@ Stopping with free slots while unwalked product epics remain is a defect
   (which files them deduped, capped), so expansion work does not evaporate.
 - A short queue is valid ONLY when `epics_walked` covers every open p1–p6
   product epic and every remaining row carries a typed why.
+
+### 5C. Blocked-with-unfiled-blocker → file the blocker, seat the blocker (HARD — 2.2.9-draft)
+
+A gated issue that keeps getting re-seated while its blocker has no open
+issue is a defect (observed: #2852 re-seated while its M2/M3 gates had zero
+open issues and no owner — every cycle burned a seat re-verifying the same
+FAIL). A `skip` for a gate is only half the job:
+
+- **Gate-check before `implement`.** Read the candidate's body for
+  prerequisite gates ("Do not start until…", criteria-doc references with
+  unchecked boxes, soak / UAT / customer-env requirements). A gated
+  candidate is `disposition=skip` with a typed rationale
+  (`gated_prerequisite_<what>`) — never `implement`.
+- **Name each blocking condition concretely** (e.g. "M2 production runtime
+  metrics evidence", "M3 upgrade-window closed or waived" — not "criteria
+  unmet").
+- **Resolve each blocker against open issues** (title + `Parent:`/body-ref
+  search, same dedupe as §6):
+  - Open match that is agent-actionable (unassigned, maintainer-authored,
+    agent-safe) → it is the **substitute implement candidate** for this
+    seat. Link both ways in the rationale.
+  - No open match and agent-actionable → emit a **`blocker_proposals`**
+    row (`{blocked_issue, title, body_outline, parent_issue, priority}` —
+    parent `pN` copied, PR-sized, vertical). The host files it before the
+    Work phase; the **first** filed blocker takes this seat as `implement`.
+  - No open match and **human-only** (upgrade-window decisions, customer
+    confirmations, ops soak sign-off) → do NOT file agent work. Record
+    `human_blocked_by` (condition + human owner, e.g. support/product) in
+    the rationale and give the seat to the next epic.
+- **One level only.** Do not recurse into the blocker's own blockers this
+  run — note a deeper chain in the rationale and move on.
+- **Caps.** At most 3 `blocker_proposals` per blocked issue; the host
+  sweep cap (8 new issues/run) covers them.
+- **Debt seats included.** §5C gate-check applies to Phase B seats
+  equally: a soak/UAT/customer gate on a debt seat (observed: #1978
+  soak-gated + #1820 UAT-blocked holding both debt seats) yields it to
+  fresh debt with `human_blocked_by`, exactly like product.
+- Emit `blocker_proposals` alongside `child_proposals` in the structured
+  output; `slotted_for_work` may name the substitute (existing issue
+  number, or `file:blocker:<blocked_issue>:1` when the host must file
+  first — the host replaces the placeholder with the real number before
+  spawning Work).
 
 ### 6. Apply oversized-issue 3-slice rule (per rhai README "Oversized priority work")
 

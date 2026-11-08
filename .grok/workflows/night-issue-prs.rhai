@@ -1,5 +1,12 @@
 // Overnight / unattended open-issue worker for Percussion CMS.
-// workflow_version: 2.2.8-draft (UNCOMMITTED — human review required per root AGENTS.md)
+// workflow_version: 2.2.9-draft (UNCOMMITTED — human review required per root AGENTS.md)
+// 2.2.9-draft — Blocked-with-unfiled-blocker: triage gate-checks before implement;
+//   a gated issue with no open blocker issue gets its blocker FILED (blocker_proposals,
+//   deduped, capped) and the first agent-actionable blocker takes the seat instead;
+//   human-only blockers record human_blocked_by and yield the seat. Work applies the
+//   same logic for gates discovered at claim time. Debt exclusion goes cross-tier:
+//   excluded debt sorts after ALL fresh debt regardless of pN tier (tier-first
+//   ordering seated the same blocked p2s over fresh p8s three cycles running).
 // 2.2.8-draft — Debt rotation + queue guards: decision-front --debt-exclude /
 //   --debt-seed rotate debt seats (recently-blocked sorts after fresh per pN tier,
 //   same-tier ties random; reorder-only, never starves); triage queues at most ONE
@@ -1878,7 +1885,7 @@ triage_prompt += "     actions). Legacy webmgt/AA is debt; overnight ships React
 triage_prompt += "     jQuery. File 3 children for the next unshipped editor increment.\n";
 triage_prompt += "  Labels on new children: operator:grok, operator:night-issue-prs, " + model_label + ", parent pN (p2 if new epic).\n";
 triage_prompt += "  5) Leaving max_issues unfilled while (1)–(4) still have React work is a DEFECT.\n";
-triage_prompt += "     one-per-parent still limits IMPLEMENT to one child of a GIVEN parent per run. ONE IMPLEMENT PER PARENT ACROSS THE WHOLE QUEUE (HARD — 2.2.8-draft): at most one disposition=implement row per parent_issue — INCLUDING adopted EXISTING open children; the second implement-ready child of an already-queued parent is disposition=skip with rationale=sibling_deferred_one_per_parent. DEBT ROTATION (2.2.8-draft): deprioritize debt the host names as recently-blocked (fresh debt first within the same pN tier; break remaining same-tier ties RANDOMLY, never lowest-number-first; pN tier still outranks rotation).\n";
+triage_prompt += "     one-per-parent still limits IMPLEMENT to one child of a GIVEN parent per run. ONE IMPLEMENT PER PARENT ACROSS THE WHOLE QUEUE (HARD — 2.2.8-draft): at most one disposition=implement row per parent_issue — INCLUDING adopted EXISTING open children; the second implement-ready child of an already-queued parent is disposition=skip with rationale=sibling_deferred_one_per_parent. DEBT ROTATION (2.2.8-draft, cross-tier 2.2.9-draft): deprioritize debt the host names as recently-blocked — excluded debt sorts after ALL fresh debt REGARDLESS of pN tier (tier-first ordering reseated the same blocked p2s over fresh p8s three cycles running); same-flag ties break by pN, then RANDOMLY, never lowest-number-first. GATE-CHECK also applies to debt seats: a soak/UAT/customer gate yields the seat to fresh debt with human_blocked_by. BLOCKED-WITH-UNFILED-BLOCKER (HARD — 2.2.9-draft): gate-check each candidate before implement (criteria-doc / soak / UAT / customer-env gates in the body) — a gated candidate is skip, and when its blocker has no open issue, emit blocker_proposals and seat the FIRST agent-actionable blocker (existing or filed) instead; human-only blockers record human_blocked_by and yield the seat; one level only.\n";
 triage_prompt += "     It does NOT forbid creating the next 3 backlog children, and it does NOT forbid\n";
 triage_prompt += "     implementing one child from workbench AND one from publish/explorer/editor in the\n";
 triage_prompt += "     same run (different parents).\n";
