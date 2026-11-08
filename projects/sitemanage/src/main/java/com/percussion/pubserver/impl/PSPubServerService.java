@@ -456,10 +456,11 @@ public class PSPubServerService implements IPSPubServerService {
       // Password-only PUT must not run the full property replace (that clears host, port,
       // user, folder, driver, and name) and must not decode secrets that are not in the body.
       // The single password value is base64-decoded inside updateDeliveryPasswordOnly (product
-      // norm). FTP and database share this body shape; the stored driver selects FTP vs
-      // database apply.
+      // norm). FTP, database, and SFTP (key passphrase) share this body shape; the stored driver
+      // selects FTP vs database vs SFTP-passphrase apply.
       if (PSFtpDeliveryPasswordUpdate.isPasswordOnly(pubServerInfo)
-          || PSDatabaseDeliveryPasswordUpdate.isPasswordOnly(pubServerInfo)) {
+          || PSDatabaseDeliveryPasswordUpdate.isPasswordOnly(pubServerInfo)
+          || PSSftpDeliveryPassphraseUpdate.isPassphraseOnly(pubServerInfo)) {
         return updateDeliveryPasswordOnly(siteId, serverId, pubServerInfo);
       }
       // SFTP private-key-only PUT must not run the full property replace (that clears host,
@@ -798,11 +799,12 @@ public class PSPubServerService implements IPSPubServerService {
 
   /**
    * Save only the {@code password} property. Does not rename the server or replace the property
-   * set. Database drivers use {@link PSDatabaseDeliveryPasswordUpdate}; other drivers use {@link
-   * PSFtpDeliveryPasswordUpdate} (FTP-only; Local/FTPS/SFTP/S3 throw before {@code
-   * savePubServer}). Blank, overlong, the masked placeholder, and wrong-driver bodies throw
-   * before {@code savePubServer}. The stored secret is never echoed: the response masks it as
-   * {@code passwordEntry} via {@code toPSPublishServerInfo}.
+   * set. Database drivers use {@link PSDatabaseDeliveryPasswordUpdate}; SFTP servers use {@link
+   * PSSftpDeliveryPassphraseUpdate} (stored key passphrase; the private key is left untouched);
+   * other drivers use {@link PSFtpDeliveryPasswordUpdate} (FTP-only; Local/FTPS/S3 throw before
+   * {@code savePubServer}). Blank, overlong, the masked placeholder, and wrong-driver bodies
+   * throw before {@code savePubServer}. The stored secret is never echoed: the response masks it
+   * as {@code passwordEntry} via {@code toPSPublishServerInfo}.
    */
   private PSPublishServerInfo updateDeliveryPasswordOnly(
       String siteId, String serverId, PSPublishServerInfo pubServerInfo)
@@ -823,6 +825,8 @@ public class PSPubServerService implements IPSPubServerService {
     String driver = server.getPropertyValue(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY).orElse("");
     if (PSDatabaseDeliveryHostUpdate.isDatabaseDeliveryDriver(driver)) {
       PSDatabaseDeliveryPasswordUpdate.apply(server, pubServerInfo);
+    } else if ("SFTP".equalsIgnoreCase(driver)) {
+      PSSftpDeliveryPassphraseUpdate.apply(server, pubServerInfo);
     } else {
       PSFtpDeliveryPasswordUpdate.apply(server, pubServerInfo);
     }

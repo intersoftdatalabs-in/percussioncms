@@ -78,6 +78,7 @@ import { FtpDeliveryUserPanel } from "../components/FtpDeliveryUserPanel";
 import { FtpDeliveryFolderPanel } from "../components/FtpDeliveryFolderPanel";
 import { FtpDeliveryPasswordPanel } from "../components/FtpDeliveryPasswordPanel";
 import { SftpDeliveryPrivateKeyPanel } from "../components/SftpDeliveryPrivateKeyPanel";
+import { SftpDeliveryPassphrasePanel } from "../components/SftpDeliveryPassphrasePanel";
 import { SftpDeliveryHostPanel } from "../components/SftpDeliveryHostPanel";
 import { SftpDeliveryPortPanel } from "../components/SftpDeliveryPortPanel";
 import { SftpDeliveryUsernamePanel } from "../components/SftpDeliveryUsernamePanel";
@@ -923,6 +924,7 @@ export function SiteWorkspace({
             <FtpDeliveryFolderPanel siteId={siteId} serverId={selectedServer} />
             <FtpDeliveryPasswordPanel siteId={siteId} serverId={selectedServer} />
             <SftpDeliveryPrivateKeyPanel siteId={siteId} serverId={selectedServer} />
+            <SftpDeliveryPassphrasePanel siteId={siteId} serverId={selectedServer} />
             <SftpDeliveryHostPanel siteId={siteId} serverId={selectedServer} />
             <SftpDeliveryPortPanel siteId={siteId} serverId={selectedServer} />
             <SftpDeliveryUsernamePanel siteId={siteId} serverId={selectedServer} />
