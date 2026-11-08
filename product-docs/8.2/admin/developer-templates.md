@@ -108,6 +108,20 @@ bindings, contained slots, and **content-type associations**, then **Save templa
 **Export XML** is available on the same toolbar. Object ACL for the template is on the
 detail panel.
 
+### Assembler label
+
+The detail header shows the template **assembler** as a normalized label instead of the
+raw extension path: **Velocity (power path)**, **HTML-first**, **Markdown**,
+**Legacy XSL**, **Page**, **Page variant**, **Page database**, **Binary**, **Dispatch**, **Database**,
+**Resource**, or **Debug**. A custom assembler outside this catalog still shows its stored
+value so existing templates round-trip; a blank assembler shows an em-dash. The label is
+display-only — it never changes the stored value. To change the assembler, use
+[Design templates](id:admin-design-templates).
+
+Automated H2 surface coverage lives in
+`modules/perc-qa-automation/frontend/tests/developer-template-assembler-label.spec.js`
+(`npm run test:surface -- --path tests/developer-template-assembler-label.spec.js`).
+
 ### Content-type associations
 
 The **Content types** section lists each associated content type with **name** and **GUID**.
