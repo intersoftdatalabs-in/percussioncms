@@ -524,7 +524,9 @@ Preflight/Reconcile/Triage Grok agents are skipped when the script fills
   Never pass a faked empty list — a missing inventory is unknown, not zero.
 
 - **Hard rules in code**: labels beat Jev; covering PR from `Fixes #N` / `issue-N`
-  branch; at most one implement item per parent; p7/p8 only in `--low-slots`.
+  branch; at most one implement item per parent; p7/p8 only in `--low-slots`;
+  human-QA handoff tickets excluded by routing label (`--qa-label`, default
+  `qa task`) or `QA (#N)` title backstop (label-less tickets must not eat seats).
 - **Tests**: `python3 scripts/test_night_decision_front.py`
 
 ### `typesafe-prescreen.py` / `typesafe-prescreen.cmd`

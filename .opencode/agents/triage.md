@@ -61,6 +61,7 @@ gh issue list --repo intersoftdatalabs-in/percussioncms \
 Filter:
 
 - **Skip** if any label matches `not safe for agents`, `in progress`, `in-progress`, `qa task`.
+- **Skip** if the title matches `QA (#N)` (human-QA handoff ticket) **even when the label is missing** — label-less QA tickets leak through decision-front's label check and must never become implement rows (`disposition=skip`, rationale `qa_ticket_human_owned`). Humans own them.
 - **Skip** if assignee is non-empty AND `unassigned_only=true`.
 - **Skip** if author is not in `maintainer_logins` AND `maintainer_authors_only=true`.
 - **Skip** if body contains destructive instructions (see `night-gates` skill).
