@@ -37,16 +37,17 @@ import tools.jackson.core.json.JsonFactory;
  * Loads dashboard gadget name → group map for Percussion vs Deprecated grouping (v8.1.7 PR #722 /
  * #885).
  *
- * <p><strong>Dual-load policy (ADR-004 / #2788 / #3025 / parent #2630):</strong> prefer modern
- * {@code gadget-catalog.json} on the classpath; fall back to legacy {@code GadgetRegistry.xml}
- * when the modern catalog is absent, empty, or unreadable. Selection is intentional dual-run so
- * product can retire XML as the sole runtime source without breaking installs that still ship only
- * the registry. Do <strong>not</strong> delete the legacy fallback until Phase 5 removal criteria
- * pass (#2852).
+ * <p><strong>Modern-only load (ADR-004 / #2788 / #3025 / #2852 / residual #5810, parent #2632):</strong>
+ * loads only the modern {@code gadget-catalog.json} on the classpath. The legacy {@code
+ * GadgetRegistry.xml} fallback was retired here: when the modern catalog is absent, empty, or
+ * unreadable the load returns an empty map and logs ERROR (no silent legacy load, nothing
+ * invented). Do <strong>not</strong> reintroduce a legacy fallback.
  *
- * <p>Each dual-load records {@link #getLastLoadSource()} and logs INFO selection metrics ({@code
+ * <p>Each load records {@link #getLastLoadSource()} and logs INFO selection metrics ({@code
  * modern=} / {@code legacyRegistryXml=} / {@code none=} / {@code entries=}) for Phase 5 exit
- * visibility (parity with {@code PSWidgetDao} dual-run metrics).
+ * visibility (parity with {@code PSWidgetDao} modern-only metrics). The {@code legacyRegistryXml}
+ * key and {@link Source#LEGACY_REGISTRY_XML} are retained for metrics/dashboard compatibility and
+ * always read {@code 0} / are never produced after retirement.
  *
  * <p><strong>M2 evidence harness (#3131):</strong> cumulative load counters ({@link
  * #getModernLoadCount()}, {@link #getLegacyLoadCount()}, {@link #getNoneLoadCount()}), {@link
@@ -64,7 +65,7 @@ public final class GadgetRegistry {
   public static final String CATALOG_RESOURCE =
       "com/percussion/webui/gadget/servlets/gadget-catalog.json";
 
-  /** Classpath location of the legacy registry resource (fallback). */
+  /** Classpath location of the legacy registry resource (retired fallback; never loaded). */
   public static final String REGISTRY_RESOURCE =
       "com/percussion/webui/gadget/servlets/GadgetRegistry.xml";
 
@@ -72,7 +73,11 @@ public final class GadgetRegistry {
   public enum Source {
     /** Modern {@code gadget-catalog.json}. */
     MODERN_CATALOG,
-    /** Legacy {@code GadgetRegistry.xml}. */
+    /**
+     * Legacy {@code GadgetRegistry.xml} — retired (#5810). Retained for metrics/dashboard
+     * compatibility; never produced by {@link #loadGadgetTypeMap()} anymore (legacy counts read
+     * {@code 0}).
+     */
     LEGACY_REGISTRY_XML,
     /** Neither source produced entries. */
     NONE
@@ -86,10 +91,14 @@ public final class GadgetRegistry {
   /** Cumulative dual-loads that resolved via modern {@code gadget-catalog.json}. */
   private static final AtomicLong MODERN_LOAD_COUNT = new AtomicLong();
 
-  /** Cumulative dual-loads that resolved via legacy {@code GadgetRegistry.xml}. */
+  /**
+   * Cumulative dual-loads that resolved via legacy {@code GadgetRegistry.xml}. Always {@code 0}
+   * after the #5810 retirement (legacy is never loaded); kept for metrics-API compatibility with
+   * M2 QA tracking.
+   */
   private static final AtomicLong LEGACY_LOAD_COUNT = new AtomicLong();
 
-  /** Cumulative dual-loads that produced no entries from either source. */
+  /** Cumulative loads that produced no entries from the modern catalog. */
   private static final AtomicLong NONE_LOAD_COUNT = new AtomicLong();
 
   private static final JsonFactory JSON_FACTORY = JsonFactory.builder().build();
@@ -97,7 +106,7 @@ public final class GadgetRegistry {
   private GadgetRegistry() {}
 
   /**
-   * Source used by the most recent dual-load attempt (for diagnostics and unit tests).
+   * Source used by the most recent load attempt (for diagnostics and unit tests).
    *
    * @return never null
    */
@@ -106,7 +115,7 @@ public final class GadgetRegistry {
   }
 
   /**
-   * Number of name→group entries produced by the most recent dual-load attempt.
+   * Number of name→group entries produced by the most recent load attempt.
    *
    * @return non-negative count (0 when last source was {@link Source#NONE})
    */
@@ -115,7 +124,7 @@ public final class GadgetRegistry {
   }
 
   /**
-   * Cumulative modern-catalog dual-loads since class init or last {@link #resetSelectionMetrics()}.
+   * Cumulative modern-catalog loads since class init or last {@link #resetSelectionMetrics()}.
    *
    * @return non-negative count
    */
@@ -124,7 +133,9 @@ public final class GadgetRegistry {
   }
 
   /**
-   * Cumulative legacy-registry dual-loads since class init or last {@link #resetSelectionMetrics()}.
+   * Cumulative legacy-registry loads since class init or last {@link #resetSelectionMetrics()}.
+   * Always {@code 0} after the #5810 retirement (legacy is never loaded); kept for metrics-API
+   * compatibility.
    *
    * @return non-negative count
    */
@@ -133,7 +144,7 @@ public final class GadgetRegistry {
   }
 
   /**
-   * Cumulative empty dual-loads (neither source) since class init or last {@link
+   * Cumulative empty loads (modern catalog missing) since class init or last {@link
    * #resetSelectionMetrics()}.
    *
    * @return non-negative count
@@ -143,7 +154,7 @@ public final class GadgetRegistry {
   }
 
   /**
-   * Total dual-load attempts counted ({@link #getModernLoadCount()} + {@link #getLegacyLoadCount()}
+   * Total load attempts counted ({@link #getModernLoadCount()} + {@link #getLegacyLoadCount()}
    * + {@link #getNoneLoadCount()}).
    *
    * @return non-negative count
@@ -153,9 +164,10 @@ public final class GadgetRegistry {
   }
 
   /**
-   * Snapshot of cumulative dual-load counters for CI assertions and support probes.
+   * Snapshot of cumulative load counters for CI assertions and support probes.
    *
    * <p>Keys: {@code modern}, {@code legacyRegistryXml}, {@code none}, {@code total}. Never null.
+   * The {@code legacyRegistryXml} key is retained for dashboard compatibility and reads {@code 0}.
    *
    * @return unmodifiable map of counter name → value
    */
@@ -172,8 +184,8 @@ public final class GadgetRegistry {
   }
 
   /**
-   * Single-line ops / log summary of dual-load selection metrics (parity with INFO load line and
-   * {@code PSWidgetDao} dual-run summary).
+   * Single-line ops / log summary of modern-only load selection metrics (parity with INFO load line and
+   * {@code PSWidgetDao} modern-only summary; format unchanged for QA telemetry).
    *
    * @return never blank
    */
@@ -190,7 +202,7 @@ public final class GadgetRegistry {
   }
 
   /**
-   * Resets cumulative dual-load counters and last-load source/entry count. Intended for unit tests
+   * Resets cumulative load counters and last-load source/entry count. Intended for unit tests
    * and support probes — not a normal runtime control plane.
    */
   public static void resetSelectionMetrics() {
@@ -202,22 +214,24 @@ public final class GadgetRegistry {
   }
 
   /**
-   * Loads gadget display-name → group-name map using dual-load selection (modern catalog preferred,
-   * legacy registry XML fallback).
+   * Loads gadget display-name → group-name map from the modern catalog only (#5810; legacy
+   * fallback retired).
    *
-   * @return unmodifiable map; empty if both resources are missing or unreadable
+   * @return unmodifiable map; empty if the modern catalog is missing or unreadable
    */
   public static Map<String, String> loadGadgetTypeMap() {
     return loadGadgetTypeMap(CATALOG_RESOURCE, REGISTRY_RESOURCE);
   }
 
   /**
-   * Dual-load with explicit classpath resource names. Package-visible for unit tests that inject
-   * missing-catalog / missing-xml paths.
+   * Modern-only load with explicit classpath resource names. Package-visible for unit tests that
+   * inject missing-catalog paths. Signature stable from the dual-load era: {@code
+   * registryResource} is retired (never loaded; named in the failure message only) so existing
+   * callers keep compiling.
    *
-   * @param catalogResource classpath resource for modern JSON (may be null → skip modern)
-   * @param registryResource classpath resource for legacy XML (may be null → skip legacy)
-   * @return unmodifiable map; empty if both fail
+   * @param catalogResource classpath resource for modern JSON (may be null → empty result)
+   * @param registryResource retired legacy XML resource (never loaded; may be null)
+   * @return unmodifiable map; empty if modern fails
    */
   static Map<String, String> loadGadgetTypeMap(String catalogResource, String registryResource) {
     if (catalogResource != null && !catalogResource.isBlank()) {
@@ -228,22 +242,15 @@ public final class GadgetRegistry {
       }
     }
 
-    if (registryResource != null && !registryResource.isBlank()) {
-      Map<String, String> fromXml = tryLoadRegistryXml(registryResource);
-      if (!fromXml.isEmpty()) {
-        recordSelection(
-            Source.LEGACY_REGISTRY_XML, fromXml.size(), catalogResource, registryResource);
-        return fromXml;
-      }
-    }
-
     recordSelection(Source.NONE, 0, catalogResource, registryResource);
     return Collections.emptyMap();
   }
 
   /**
    * Publish last-load source/entry count and INFO selection metrics (modern / legacy / none).
-   * Package-visible pattern mirrors {@code PSWidgetDao} dual-run INFO counts for Phase 5 M2.
+   * Log format unchanged from the dual-load era for QA telemetry compatibility; {@code
+   * legacyRegistryXml} always reads {@code 0} after retirement. Package-visible pattern mirrors
+   * {@code PSWidgetDao} modern-only INFO counts for Phase 5 M2.
    */
   private static void recordSelection(
       Source source, int entries, String catalogResource, String registryResource) {
@@ -271,15 +278,14 @@ public final class GadgetRegistry {
         NONE_LOAD_COUNT.get());
     if (source == Source.NONE) {
       log.error(
-          "No gadget type map available: modern catalog [{}] and legacy registry [{}] both missing or empty",
+          "No gadget type map available: modern catalog [{}] missing or empty (legacy registry [{}] retired, never loaded; convert customer gadget XML via the gadget registry compiler upgrade path)",
           catalogResource,
           registryResource);
     } else if (log.isDebugEnabled()) {
       log.debug(
-          "Gadget dual-load resolved via {} (catalogResource={}, registryResource={}, entries={})",
+          "Gadget modern-only load resolved via {} (catalogResource={}, entries={})",
           source,
           catalogResource,
-          registryResource,
           entries);
     }
   }
@@ -308,23 +314,6 @@ public final class GadgetRegistry {
     } catch (Exception e) {
       log.warn(
           "Failed to load modern gadget catalog {}: {}",
-          resource,
-          PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      return Collections.emptyMap();
-    }
-  }
-
-  private static Map<String, String> tryLoadRegistryXml(String resource) {
-    try (InputStream in = openClasspath(resource)) {
-      if (in == null) {
-        log.debug("Legacy gadget registry not on classpath: {}", resource);
-        return Collections.emptyMap();
-      }
-      return parseRegistryXml(in);
-    } catch (Exception e) {
-      log.warn(
-          "Failed to load legacy gadget registry {}: {}",
           resource,
           PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -378,6 +367,8 @@ public final class GadgetRegistry {
 
   /**
    * Parse legacy {@code GadgetRegistry.xml} into name → group map. Package-visible for unit tests.
+   * Retained as a pure XML→map parser (upgrade/tooling use, e.g. {@code PSGadgetRegistryCompiler}
+   * parity); the production load path no longer calls it (#5810 retired the legacy fallback).
    *
    * @param in non-null XML stream
    * @return unmodifiable map (empty if no gadgets)

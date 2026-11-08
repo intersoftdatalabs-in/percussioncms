@@ -26,9 +26,10 @@ import java.util.Map;
 import org.junit.Test;
 
 /**
- * Regression for v8.1.7 PR #722 / #885: Percussion + Deprecated groups. Issue #715 (Redirect
- * Management removed). Issue #2788 / #3025 dual-load: prefer {@code gadget-catalog.json}, fall
- * back to {@code GadgetRegistry.xml}; last-load source + entry count + INFO metrics.
+ * Regression for v8.1.7 PR #722 / #885: Percussion + Deprecated groups. Issue #2788 / #3025
+ * modern-only load: {@code gadget-catalog.json} is the sole runtime source; the legacy {@code
+ * GadgetRegistry.xml} fallback was retired (#5810) — modern absent/empty/unreadable yields an
+ * empty map with source NONE (no silent legacy load).
  */
 public class GadgetRegistryTest {
 
@@ -38,11 +39,11 @@ public class GadgetRegistryTest {
       "com/percussion/webui/gadget/servlets/invalid-gadget-catalog.json";
 
   @Test
-  public void dualLoadPrefersModernCatalogWhenPresent() {
+  public void modernOnlyLoadsFromCatalogWhenPresent() {
     Map<String, String> map = GadgetRegistry.loadGadgetTypeMap();
-    assertFalse("gadget type map must load from modern catalog or legacy registry", map.isEmpty());
+    assertFalse("gadget type map must load from the modern catalog", map.isEmpty());
     assertEquals(
-        "product ships modern catalog; dual-load must prefer it",
+        "product ships modern catalog; modern-only load must report it",
         GadgetRegistry.Source.MODERN_CATALOG,
         GadgetRegistry.getLastLoadSource());
     assertTrue(
@@ -64,39 +65,34 @@ public class GadgetRegistryTest {
   }
 
   @Test
-  public void fallsBackToRegistryXmlWhenModernCatalogAbsent() {
+  public void emptyWhenModernCatalogAbsent_despiteLegacyRegistryPresent() {
+    // #5810 retired the legacy fallback: a present GadgetRegistry.xml must NOT satisfy the load.
     Map<String, String> map =
         GadgetRegistry.loadGadgetTypeMap(
             "com/percussion/webui/gadget/servlets/does-not-exist-catalog.json",
             GadgetRegistry.REGISTRY_RESOURCE);
-    assertFalse("legacy GadgetRegistry.xml must still be on the classpath", map.isEmpty());
-    assertEquals(GadgetRegistry.Source.LEGACY_REGISTRY_XML, GadgetRegistry.getLastLoadSource());
-    assertEquals(map.size(), GadgetRegistry.getLastLoadEntryCount());
-
-    assertEquals("Deprecated", map.get("Activity"));
-    assertEquals("Percussion", map.get("Welcome"));
-    assertEquals("Percussion", map.get("Google Setup"));
-    assertFalse(map.containsKey("Redirect Management"));
+    assertTrue("retired legacy registry must not satisfy the load", map.isEmpty());
+    assertEquals(GadgetRegistry.Source.NONE, GadgetRegistry.getLastLoadSource());
+    assertEquals(0, GadgetRegistry.getLastLoadEntryCount());
   }
 
   @Test
-  public void fallsBackToRegistryXmlWhenModernCatalogEmpty() {
+  public void emptyWhenModernCatalogEmpty_despiteLegacyRegistryPresent() {
     Map<String, String> map =
         GadgetRegistry.loadGadgetTypeMap(EMPTY_CATALOG_RESOURCE, GadgetRegistry.REGISTRY_RESOURCE);
-    assertFalse("empty modern catalog must fall back to legacy registry", map.isEmpty());
-    assertEquals(GadgetRegistry.Source.LEGACY_REGISTRY_XML, GadgetRegistry.getLastLoadSource());
-    assertTrue(GadgetRegistry.getLastLoadEntryCount() > 0);
-    assertEquals("Percussion", map.get("Welcome"));
+    assertTrue("empty modern catalog must not fall back to legacy registry", map.isEmpty());
+    assertEquals(GadgetRegistry.Source.NONE, GadgetRegistry.getLastLoadSource());
+    assertEquals(0, GadgetRegistry.getLastLoadEntryCount());
   }
 
   @Test
-  public void fallsBackToRegistryXmlWhenModernCatalogUnreadable() {
+  public void emptyWhenModernCatalogUnreadable_despiteLegacyRegistryPresent() {
     Map<String, String> map =
         GadgetRegistry.loadGadgetTypeMap(
             INVALID_CATALOG_RESOURCE, GadgetRegistry.REGISTRY_RESOURCE);
-    assertFalse("unreadable modern catalog must fall back to legacy registry", map.isEmpty());
-    assertEquals(GadgetRegistry.Source.LEGACY_REGISTRY_XML, GadgetRegistry.getLastLoadSource());
-    assertEquals(map.size(), GadgetRegistry.getLastLoadEntryCount());
+    assertTrue("unreadable modern catalog must not fall back to legacy registry", map.isEmpty());
+    assertEquals(GadgetRegistry.Source.NONE, GadgetRegistry.getLastLoadSource());
+    assertEquals(0, GadgetRegistry.getLastLoadEntryCount());
   }
 
   @Test
@@ -111,19 +107,19 @@ public class GadgetRegistryTest {
   }
 
   @Test
-  public void blankCatalogResourceSkipsModernAndUsesLegacy() {
+  public void blankCatalogResourceYieldsEmpty() {
     Map<String, String> map =
         GadgetRegistry.loadGadgetTypeMap("   ", GadgetRegistry.REGISTRY_RESOURCE);
-    assertFalse(map.isEmpty());
-    assertEquals(GadgetRegistry.Source.LEGACY_REGISTRY_XML, GadgetRegistry.getLastLoadSource());
+    assertTrue(map.isEmpty());
+    assertEquals(GadgetRegistry.Source.NONE, GadgetRegistry.getLastLoadSource());
   }
 
   @Test
-  public void nullCatalogResourceSkipsModernAndUsesLegacy() {
+  public void nullCatalogResourceYieldsEmpty() {
     Map<String, String> map =
         GadgetRegistry.loadGadgetTypeMap(null, GadgetRegistry.REGISTRY_RESOURCE);
-    assertFalse(map.isEmpty());
-    assertEquals(GadgetRegistry.Source.LEGACY_REGISTRY_XML, GadgetRegistry.getLastLoadSource());
+    assertTrue(map.isEmpty());
+    assertEquals(GadgetRegistry.Source.NONE, GadgetRegistry.getLastLoadSource());
   }
 
   @Test
@@ -134,11 +130,12 @@ public class GadgetRegistryTest {
     assertEquals(GadgetRegistry.Source.NONE, GadgetRegistry.getLastLoadSource());
     assertEquals(0, GadgetRegistry.getLastLoadEntryCount());
 
+    // Legacy registry present but retired: still NONE, never LEGACY_REGISTRY_XML.
     GadgetRegistry.loadGadgetTypeMap(
         "com/percussion/webui/gadget/servlets/does-not-exist-catalog.json",
         GadgetRegistry.REGISTRY_RESOURCE);
-    assertEquals(GadgetRegistry.Source.LEGACY_REGISTRY_XML, GadgetRegistry.getLastLoadSource());
-    assertTrue(GadgetRegistry.getLastLoadEntryCount() > 0);
+    assertEquals(GadgetRegistry.Source.NONE, GadgetRegistry.getLastLoadSource());
+    assertEquals(0, GadgetRegistry.getLastLoadEntryCount());
 
     GadgetRegistry.loadGadgetTypeMap();
     assertEquals(GadgetRegistry.Source.MODERN_CATALOG, GadgetRegistry.getLastLoadSource());
@@ -146,8 +143,8 @@ public class GadgetRegistryTest {
   }
 
   @Test
-  public void modernPreferredEvenWhenLegacyAlsoPresent() {
-    // Product classpath has both; dual-load must still report modern, not legacy.
+  public void modernLoadIgnoresLegacyRegistryResource() {
+    // Product classpath still carries both resources; modern-only load must report modern.
     Map<String, String> map =
         GadgetRegistry.loadGadgetTypeMap(
             GadgetRegistry.CATALOG_RESOURCE, GadgetRegistry.REGISTRY_RESOURCE);
@@ -181,6 +178,8 @@ public class GadgetRegistryTest {
 
   @Test
   public void parseRegistryXmlBuildsNameToGroupMap() throws Exception {
+    // Retained pure-parser coverage: parseRegistryXml stays available for upgrade/tooling use
+    // even though the production load path no longer calls it (#5810).
     String xml =
         """
         <?xml version="1.0" encoding="UTF-8"?>

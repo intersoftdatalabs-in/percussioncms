@@ -13,8 +13,8 @@ tags: [admin, upgrade, packages, widgets, dual-run]
 > **modern component packages only** and **no longer falls back** to customer
 > **Widget / Page definition XML** when no modern package is present — that id now fails
 > with a clear error naming the retired XML and the compiler path. Convert any remaining
-> customer XML **before** relying on those ids. (Gadget registry XML fallback is a separate
-> surface and still loads; see below.)
+> customer XML **before** relying on those ids. (Gadget registry XML fallback was a separate
+> surface and was retired via #5810: the dashboard gadget map is modern-catalog-only; see below.)
 
 Percussion CMS **8.2** loads **modern component packages**. Product Widget Builder, Design
 create, and shipped product packages already write **modern** format only.
@@ -31,7 +31,7 @@ XML that remains after upgrade.
 | **Neither is an error** | Missing both modern and XML fails with a clear error naming the definition id. There is no silent default. |
 | **Product packages** | Shipped product widgets and page layouts already author modern packages. Native page install is **not** the same as removing dual-run. See [Product page packages](id:developer-page-packages). |
 | **Shim retired** | The runtime dual-run fallback was hard-disabled (#2852). Do **not** reintroduce a legacy fallback to “keep XML working” — convert the XML instead. |
-| **Gadget registry** | Gadget `GadgetRegistry.xml` fallback is a **separate surface** and still loads when the modern catalog is absent. Leave it in place. |
+| **Gadget registry** | Gadget `GadgetRegistry.xml` fallback was a **separate surface** and is retired (#5810): the dashboard gadget map loads the modern catalog only, and a missing catalog yields an empty map with a clear error. Do not reintroduce it. |
 
 **Honest product messaging:**
 
@@ -159,7 +159,7 @@ New widgets and templates created in the product UI already skip Widget definiti
 |-------|-------------|
 | Page / widget that uses the converted id | Edit and preview work on a non-production site |
 | Widget dual-run log | INFO `Widget definition dual-run selection: modern=…, legacyWidgetXml=…` — converted ids resolve modern; `legacyWidgetXml` stays `0` (retired, never selected) |
-| Gadget load | INFO `Gadget registry dual-load selection: … source=…` — product classpath typically `MODERN_CATALOG`; the gadget XML fallback is a separate surface, leave it in place |
+| Gadget load | INFO `Gadget registry dual-load selection: … source=…` — product classpath `MODERN_CATALOG`; the gadget XML fallback is retired (#5810), `legacyRegistryXml` always `0` |
 | Neither | No mass `PSDefinitionSourceNotFoundException` / “expected modern vs legacy” errors for ids you converted |
 
 Modern present **and** old XML still on disk is expected during conversion: selection
@@ -181,8 +181,8 @@ Do **not**:
 
 - Reintroduce a legacy Widget / Page XML fallback because an unconverted id errors —
   convert that XML with the compiler path above instead
-- Remove gadget `GadgetRegistry.xml` fallback because the modern catalog loaded once
-  (separate surface, still supported)
+- Remove gadget `GadgetRegistry.xml` because the modern catalog loaded once
+  (it is already retired as a load path via #5810; never-loaded file, not a fallback)
 - Claim QA “M2” telemetry alone proves every customer id converted — convert and smoke
   each id you depend on
 
@@ -206,7 +206,7 @@ A **zero** product ship-path count does **not** mean your **customer** XML is go
 
 ## What this page does not do
 
-- Reintroduce the retired dual-run fallback or the gadget XML fallback removal
+- Reintroduce the retired dual-run fallback or the retired gadget XML fallback
 - Force conversion of every XML file during 8.2 upgrade
 - Convert XSL / `legacyAssembler` templates (see
   [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler))
