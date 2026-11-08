@@ -117,6 +117,8 @@ public class TemplateDetailJsonReader implements MessageBodyReader<TemplateDetai
       copy.remove("associatedContentTypes");
       copy.remove("bindings");
       copy.remove("slots");
+      // Read-only output: PUT never flows sites (adaptor ignores it too).
+      copy.remove("associatedSites");
       fieldsForDto = copy;
     }
     TemplateDetail out;

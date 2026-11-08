@@ -275,7 +275,9 @@ public class TemplatesResource {
               + " templateSource, and/or assembler. When assembler is present it must be"
               + " non-blank. When bindings, slots, or associatedContentTypes is present"
               + " (including empty), replaces that collection. Omit fields to leave unchanged."
-              + " Unknown associated content-type id/name is 400. Name/id remain unsupported. Does"
+              + " Unknown associated content-type id/name is 400. associatedSites is read-only"
+              + " output (site publishing usage) and is ignored on PUT. Name/id remain"
+              + " unsupported. Does"
               + " not acquire or release the lock (POST .../unlock). Unlocked or stolen lock is"
               + " 409. Non-Admin is 403.",
       responses = {

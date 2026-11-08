@@ -1615,6 +1615,61 @@ export function TemplateDetailPanel({
             </div>
           </section>
 
+          <section style={{ marginBottom: "16px" }} data-testid="developer-tpl-sites">
+            <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.TPL_SITES}</h3>
+            <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+              {DEV_MSG.TPL_SITES_HINT}
+            </p>
+            {(detail?.associatedSites ?? []).length === 0 ? (
+              <p style={{ color: catalogColors.empty }} data-testid="developer-tpl-sites-empty">
+                {DEV_MSG.TPL_SITES_EMPTY}
+              </p>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table
+                  data-testid="developer-tpl-sites-table"
+                  style={{
+                    width: "100%",
+                    borderCollapse: "collapse",
+                    fontSize: "0.95rem",
+                  }}
+                >
+                  <thead>
+                    <tr style={tableHeaderRow}>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_LABEL}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_NAME}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.TPL_CT_COL_GUID}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {(detail?.associatedSites ?? []).map((site, i) => (
+                      <tr
+                        key={refKey(site, i)}
+                        style={tableRow}
+                        data-testid={`developer-tpl-sites-row-${i}`}
+                      >
+                        <td style={{ padding: "8px" }}>{site.label || "—"}</td>
+                        <td
+                          style={{ padding: "8px", fontFamily: "monospace" }}
+                          data-testid={`developer-tpl-sites-name-${i}`}
+                        >
+                          {site.name || "—"}
+                        </td>
+                        <td
+                          style={{ padding: "8px", fontFamily: "monospace" }}
+                          data-testid={`developer-tpl-sites-guid-${i}`}
+                        >
+                          {site.guid?.stringValue ||
+                            (site.guid?.uuid != null ? String(site.guid.uuid) : "—")}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </section>
+
           <section style={{ marginBottom: "16px" }} data-testid="developer-tpl-source">
             <div
               style={{

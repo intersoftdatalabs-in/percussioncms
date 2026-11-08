@@ -596,6 +596,10 @@ export const DEV_MSG_KEYS = {
   TPL_CT_NAME_INVALID: "perc.ui.developer@Enter a content type name or a GUID (for example 0-6-311).",
   TPL_CT_EMPTY: "perc.ui.developer@No content types associated.",
   TPL_CT_COL_GUID: "perc.ui.developer@GUID",
+  TPL_SITES: "perc.ui.developer@Sites",
+  TPL_SITES_HINT:
+    "perc.ui.developer@Sites associated with this template for publishing usage (name and GUID). Read-only; site-association changes stay in Workbench.",
+  TPL_SITES_EMPTY: "perc.ui.developer@No sites associated.",
   TPL_SOURCE: "perc.ui.developer@Template source",
   TPL_SOURCE_COPY: "perc.ui.developer@Copy source",
   TPL_SOURCE_COPIED: "perc.ui.developer@Copied",

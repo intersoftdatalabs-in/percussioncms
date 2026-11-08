@@ -308,6 +308,11 @@ export interface TemplateDetail {
   slots?: TemplateSlotSummary[];
   /** Associated content types (name + guid). Empty list is none; omit on PUT preserves. */
   associatedContentTypes?: NamedObjectRef[];
+  /**
+   * Associated sites for publishing usage (name + guid). GET always lists them;
+   * empty list is none. Read-only: PUT ignores this property (#5742).
+   */
+  associatedSites?: NamedObjectRef[];
   /** Structured {code,message} on template detail (REST-GAPS-01). */
   designGaps?: DesignGapWire[];
 }

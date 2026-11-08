@@ -49,6 +49,8 @@ import com.percussion.services.locking.data.PSObjectLockSummary;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.guidmgr.PSGuidManagerLocator;
 import com.percussion.services.guidmgr.data.PSGuid;
+import com.percussion.services.sitemgr.IPSSiteManager;
+import com.percussion.services.sitemgr.PSSiteManagerLocator;
 import com.percussion.services.utils.xml.PSXmlSerializationHelper;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
@@ -56,6 +58,7 @@ import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
+import com.percussion.utils.types.PSPair;
 import com.percussion.utils.xml.PSInvalidXmlException;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorResultsException;
@@ -73,6 +76,7 @@ import jakarta.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashSet;
@@ -111,6 +115,12 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
    */
   static final String TPL_CT_ASSOC_LOAD = "TPL_CT_ASSOC_LOAD";
 
+  /**
+   * Runtime GET gap when site/template publishing-association load fails. Distinguishes
+   * "none" from "errored" (empty list + this code). Not a static capability gap.
+   */
+  static final String TPL_SITE_ASSOC_LOAD = "TPL_SITE_ASSOC_LOAD";
+
   static final String ADMIN_REQUIRED =
       "Admin role required to lock, save, export, or import assembly templates";
 
@@ -122,6 +132,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
   private final IPSAssemblyDesignWs designWs;
   private final IPSSystemDesignWs systemDesign;
   private final IPSContentDesignWs contentDesign;
+  private final IPSSiteManager siteManager;
   private final BooleanSupplier adminChecker;
 
   /**
@@ -138,6 +149,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
         PSAssemblyWsLocator.getAssemblyDesignWebservice(),
         PSSystemWsLocator.getSystemDesignWebservice(),
         PSContentWsLocator.getContentDesignWebservice(),
+        PSSiteManagerLocator.getSiteManager(),
         null);
   }
 
@@ -180,11 +192,28 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
       IPSSystemDesignWs systemDesign,
       IPSContentDesignWs contentDesign,
       BooleanSupplier adminChecker) {
+    this(asmSvc, contentwsService, designWs, systemDesign, contentDesign, null, adminChecker);
+  }
+
+  /**
+   * Package-visible for site-association tests that inject {@link IPSSiteManager}.
+   * A {@code null} siteManager disables site lookup (empty list, no gap) so existing
+   * content-type-only tests keep their wiring.
+   */
+  TemplateAdaptor(
+      IPSAssemblyService asmSvc,
+      IPSContentWs contentwsService,
+      IPSAssemblyDesignWs designWs,
+      IPSSystemDesignWs systemDesign,
+      IPSContentDesignWs contentDesign,
+      IPSSiteManager siteManager,
+      BooleanSupplier adminChecker) {
     this.asmSvc = asmSvc;
     this.contentwsService = contentwsService;
     this.designWs = designWs;
     this.systemDesign = systemDesign;
     this.contentDesign = contentDesign;
+    this.siteManager = siteManager;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
   }
 
@@ -1165,6 +1194,7 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
     d.setSlots(slots);
     List<DesignGap> gaps = new ArrayList<>(TEMPLATE_DESIGN_GAPS);
     d.setAssociatedContentTypes(loadAssociatedContentTypes(t.getGUID(), gaps));
+    d.setAssociatedSites(loadAssociatedSites(t.getGUID(), gaps));
     d.setDesignGaps(gaps);
     return d;
   }
@@ -1207,6 +1237,76 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
         Comparator.comparing(
             r -> r.getLabel() != null ? r.getLabel() : "", String.CASE_INSENSITIVE_ORDER));
     return out;
+  }
+
+  /**
+   * Reverse lookup of site/template publishing associations ({@code
+   * IPSSiteManager.findSiteTemplatesAssociations}) for one template. Read-only: association
+   * writes stay in Workbench. A {@code null} siteManager (unit-test wiring) yields an empty
+   * list with no gap; a load failure yields an empty list plus {@link #TPL_SITE_ASSOC_LOAD}.
+   */
+  private List<NamedObjectRef> loadAssociatedSites(
+      IPSGuid templateGuid, List<DesignGap> gaps) {
+    List<NamedObjectRef> out = new ArrayList<>();
+    if (templateGuid == null || siteManager == null) {
+      return out;
+    }
+    try {
+      Map<PSPair<IPSGuid, String>, Collection<IPSGuid>> assoc =
+          siteManager.findSiteTemplatesAssociations();
+      if (assoc == null) {
+        return out;
+      }
+      for (Map.Entry<PSPair<IPSGuid, String>, Collection<IPSGuid>> entry : assoc.entrySet()) {
+        if (entry == null || entry.getKey() == null || entry.getValue() == null) {
+          continue;
+        }
+        if (templateUsedBySite(entry.getValue(), templateGuid)) {
+          out.add(toSiteRef(entry.getKey()));
+        }
+      }
+    } catch (Exception e) {
+      log.warn("Could not load site associations for template {}", templateGuid, e);
+      if (gaps != null) {
+        gaps.add(
+            DesignGap.of(
+                TPL_SITE_ASSOC_LOAD,
+                "Could not load site associations; listed sites may be incomplete"));
+      }
+    }
+    out.sort(
+        Comparator.comparing(
+            r -> r.getLabel() != null ? r.getLabel() : "", String.CASE_INSENSITIVE_ORDER));
+    return out;
+  }
+
+  private static boolean templateUsedBySite(
+      Collection<IPSGuid> templateIds, IPSGuid templateGuid) {
+    if (templateIds == null || templateGuid == null) {
+      return false;
+    }
+    for (IPSGuid templateId : templateIds) {
+      if (sameTemplate(templateId, templateGuid)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static NamedObjectRef toSiteRef(PSPair<IPSGuid, String> siteKey) {
+    NamedObjectRef ref = new NamedObjectRef();
+    IPSGuid siteGuid = siteKey.getFirst();
+    String siteName = siteKey.getSecond();
+    try {
+      if (siteGuid != null) {
+        ref.setGuid(ApiUtils.convertGuid(siteGuid));
+      }
+    } catch (Exception ignore) {
+      // optional
+    }
+    ref.setName(siteName);
+    ref.setLabel(StringUtils.defaultIfBlank(siteName, siteName));
+    return ref;
   }
 
   private Map<Integer, IPSCatalogSummary> contentTypeSummariesByUuid() {
