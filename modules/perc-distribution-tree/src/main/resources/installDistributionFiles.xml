@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!-- Build file for Rhythmyx repository install -->
-<project name="install" default="install" basedir="..\..\..">
+<project name="install" default="install" basedir="../../..">
 
 	<target name="install">
 		<property environment="env" />
@@ -93,19 +93,19 @@
 		</unzip>
 
 		<copy todir="${assembly-directory}/Docs">
-			<fileset dir="{basedir}/../../../system/Docs" />
+			<fileset dir="${basedir}/../../system/Docs" />
 		</copy>
 
 		<copy todir="${assembly-directory}">
 			<fileset
-				dir="{basedir}/../../../system/target/classes/com/percussion/util/">
+				dir="${basedir}/../../system/target/classes/com/percussion/util/">
 				<include name="Version.properties" />
 			</fileset>
 		</copy>
 
 		<copy todir="${assembly-directory}">
 			<fileset
-				dir="{basedir}/../../perc-xml-security/src/main/resources/">
+				dir="${basedir}/../perc-xml-security/src/main/resources/">
 				<include name="PercussionXMLCatalog.xml" />
 			</fileset>
 		</copy>
@@ -113,7 +113,7 @@
 		<mkdir dir="${assembly-directory}/var/config" />
 		<copy todir="${assembly-directory}/var/config">
 			<fileset
-				dir="{basedir}/../../perc-xml-security/src/main/resources/">
+				dir="${basedir}/../perc-xml-security/src/main/resources/">
 				<include name="CustomXMLCatalog.xml" />
 			</fileset>
 		</copy>
@@ -821,7 +821,7 @@
 			<then>
 				<echo>Copying legacy MySQL connector for development install..</echo>
 				<copy
-					file="${basedir}../../../system/Tools/mysql/mysql-connector-java-8.0.18.jar"
+					file="${basedir}/../../system/Tools/mysql/mysql-connector-java-8.0.18.jar"
 					tofile="${assembly-directory}/jetty/base/lib/jdbc/mysql-connector.jar"
 					failonerror="false" />
 			</then>
