@@ -22,6 +22,7 @@ import net.bytebuddy.dynamic.DynamicType;
 import net.bytebuddy.dynamic.loading.ClassLoadingStrategy;
 import net.bytebuddy.implementation.FieldAccessor;
 
+import java.lang.invoke.MethodHandles;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -75,13 +76,29 @@ class PSBeanGenerator {
   /**
    * Generates and loads the bean class with all declared properties.
    *
+   * <p>Uses {@link ClassLoadingStrategy.UsingLookup MethodHandles Lookup}
+   * injection so the class is defined in the target {@link ClassLoader} itself
+   * (visible by name to Hibernate mappings). The legacy
+   * {@code ClassLoadingStrategy.Default.INJECTION} strategy relies on Unsafe
+   * reflection and is disabled by default as of Java 26, so it must not be
+   * used here.
+   *
+   * <p>{@code Lookup.defineClass} can only define classes in the same package
+   * as the lookup class, so the requested {@code className} contributes only
+   * its simple name: the class is always defined in the superclass's package
+   * (or this generator's own package when the superclass has no suitable
+   * package, e.g. {@code Object} or a {@code java.*} type).
+   *
    * @return the generated {@link Class}
    */
   Class<?> createClass() {
+    Class<?> lookupClass = lookupClassFor(superclass);
+    String targetPackage = packageOf(lookupClass);
+    String simpleName = simpleNameOf(className);
     // Append a unique suffix to guarantee a unique class name for each call,
     // since multiple content types may resolve to the same base name and the
     // same ClassLoader cannot define the same class name twice.
-    String uniqueName = className + "$" + CLASS_COUNTER.incrementAndGet();
+    String uniqueName = targetPackage + "." + simpleName + "$" + CLASS_COUNTER.incrementAndGet();
 
     DynamicType.Builder<?> builder =
         new ByteBuddy().subclass(superclass).name(uniqueName);
@@ -103,7 +120,42 @@ class PSBeanGenerator {
     ClassLoader loader =
         classLoader != null ? classLoader : Thread.currentThread().getContextClassLoader();
 
-    return builder.make().load(loader, ClassLoadingStrategy.Default.INJECTION).getLoaded();
+    try {
+      MethodHandles.Lookup lookup =
+          MethodHandles.privateLookupIn(lookupClass, MethodHandles.lookup());
+      return builder.make().load(loader, ClassLoadingStrategy.UsingLookup.of(lookup)).getLoaded();
+    } catch (IllegalAccessException e) {
+      throw new IllegalStateException(
+          "Cannot obtain MethodHandles lookup for bean superclass " + lookupClass.getName(), e);
+    }
+  }
+
+  private static Class<?> lookupClassFor(Class<?> superclass) {
+    if (superclass == null
+        || superclass.isPrimitive()
+        || superclass.isArray()
+        || superclass == Object.class
+        || superclass.getPackageName().startsWith("java.")) {
+      return PSBeanGenerator.class;
+    }
+    return superclass;
+  }
+
+  private static String packageOf(Class<?> lookupClass) {
+    String pkg = lookupClass.getPackageName();
+    if (pkg == null || pkg.isEmpty()) {
+      return PSBeanGenerator.class.getPackageName();
+    }
+    return pkg;
+  }
+
+  private static String simpleNameOf(String className) {
+    if (className == null || className.isBlank()) {
+      return "GeneratedBean";
+    }
+    int dot = className.lastIndexOf('.');
+    String simple = dot == -1 ? className : className.substring(dot + 1);
+    return simple.isEmpty() ? "GeneratedBean" : simple;
   }
 
   private static String getterName(String property) {
