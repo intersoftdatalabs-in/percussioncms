@@ -3518,7 +3518,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       ],
     });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route
             path="/editor"
@@ -3565,7 +3565,7 @@ describe("EditorHost HTML field save (#4680)", () => {
   it("blocks XSS markup before PUT and maps unnamed HTTP 400 onto the html field", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route
             path="/editor"
@@ -3615,7 +3615,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       body: { Error: { message: "HTML rejected" } },
     });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route
             path="/editor"
@@ -3662,7 +3662,7 @@ describe("EditorHost HTML field save (#4680)", () => {
 
   it("keeps html widgets read-only in view mode", async () => {
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view&engine=tinymce"]}>
         <Routes>
           <Route
             path="/editor"
@@ -3706,7 +3706,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       ],
     });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route
             path="/editor"
@@ -3760,7 +3760,7 @@ describe("EditorHost HTML field save (#4680)", () => {
   it("blocks a NUL in long text before PUT", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route
             path="/editor"
@@ -3810,7 +3810,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       body: { Error: { message: "rejected" } },
     });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route
             path="/editor"
@@ -3857,7 +3857,7 @@ describe("EditorHost HTML field save (#4680)", () => {
 
   it("keeps long-text read-only in view mode", async () => {
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view&engine=tinymce"]}>
         <Routes>
           <Route
             path="/editor"
@@ -3952,7 +3952,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       };
     });
     const view = render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={longTextHost({ saveFields, valueRef: storedRef })} />
         </Routes>
@@ -3972,7 +3972,7 @@ describe("EditorHost HTML field save (#4680)", () => {
     expect(screen.queryByTestId("editor-longtext-clear-description")).toBeNull();
     view.unmount();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={longTextHost({ saveFields, valueRef: storedRef })} />
         </Routes>
@@ -3988,7 +3988,7 @@ describe("EditorHost HTML field save (#4680)", () => {
   it("does not save when Close cancels an unsaved long-text clear", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route
             path="/editor"
@@ -4010,7 +4010,7 @@ describe("EditorHost HTML field save (#4680)", () => {
   it("does not claim success when required long text is cleared", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={longTextHost({ saveFields, required: true })} />
         </Routes>
@@ -4035,7 +4035,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
       .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={longTextHost({ saveFields })} />
         </Routes>
@@ -4079,7 +4079,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       ],
     });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route
             path="/editor"
@@ -4158,7 +4158,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       body: { message: "Field 'qty' is not a valid number." },
     });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route
             path="/editor"
@@ -4202,7 +4202,7 @@ describe("EditorHost HTML field save (#4680)", () => {
 
   it("keeps a number field read-only in view mode", async () => {
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view&engine=tinymce"]}>
         <Routes>
           <Route
             path="/editor"
@@ -4505,7 +4505,7 @@ describe("EditorHost clear optional HTML (#5071)", () => {
       };
     });
     const view = render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields, bodyRef })} />
         </Routes>
@@ -4525,7 +4525,7 @@ describe("EditorHost clear optional HTML (#5071)", () => {
     expect(screen.queryByTestId("editor-html-clear-text")).toBeNull();
     view.unmount();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields, bodyRef })} />
         </Routes>
@@ -4539,7 +4539,7 @@ describe("EditorHost clear optional HTML (#5071)", () => {
   it("does not save when Close cancels an unsaved HTML clear", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route
             path="/editor"
@@ -4560,7 +4560,7 @@ describe("EditorHost clear optional HTML (#5071)", () => {
   it("does not claim success when a required HTML field is cleared", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields, required: true })} />
         </Routes>
@@ -4585,7 +4585,7 @@ describe("EditorHost clear optional HTML (#5071)", () => {
       .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
       .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields })} />
         </Routes>
@@ -5365,7 +5365,7 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
   it("refuses an HTML NUL before PUT and keeps the previous HTML after reload", async () => {
     const saveFields = vi.fn();
     const view = render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields })} />
         </Routes>
@@ -5393,7 +5393,7 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
     expect(screen.queryByTestId("editor-saved")).toBeNull();
     view.unmount();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields: vi.fn() })} />
         </Routes>
@@ -5409,7 +5409,7 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
   it("does not write when Close cancels an unsaved HTML NUL", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route
             path="/editor"
@@ -5443,7 +5443,7 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
       };
     });
     const view = render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields, html })} />
         </Routes>
@@ -5466,7 +5466,7 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
     expect(String(sent.fields.find((f) => f.name === "text")?.value)).not.toContain("\u0000");
     view.unmount();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields: vi.fn(), html })} />
         </Routes>
@@ -5485,7 +5485,7 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
       body: { message: "rejected" },
     });
     const view = render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields })} />
         </Routes>
@@ -5510,7 +5510,7 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
     expect(saveFields).toHaveBeenCalledTimes(1);
     view.unmount();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields: vi.fn() })} />
         </Routes>
@@ -5526,7 +5526,7 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
   it("still refuses unsafe HTML with the unsafe-HTML message", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields })} />
         </Routes>
@@ -5551,7 +5551,7 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
   it("still refuses a long-text NUL with the long-text message", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields, includeLongText: true })} />
         </Routes>
@@ -5622,6 +5622,26 @@ describe("EditorHost refuse a TipTap rich-text NUL (#5696)", () => {
     );
   }
 
+  function defaultRoute(element: React.ReactElement) {
+    return (
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>
+    );
+  }
+
+  function tinymceRoute(element: React.ReactElement) {
+    return (
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+        <Routes>
+          <Route path="/editor" element={element} />
+        </Routes>
+      </MemoryRouter>
+    );
+  }
+
   // jsdom Range has no caret geometry; ProseMirror scrollToSelection (via the
   // fragment Apply chain's focus()) needs these two or the transaction throws.
   // Zero rects keep scrolling a no-op without changing editor behavior.
@@ -5673,6 +5693,24 @@ describe("EditorHost refuse a TipTap rich-text NUL (#5696)", () => {
     );
     const reloaded = await screen.findByTestId("editor-field-text");
     expect(reloaded.getAttribute("data-editor-engine")).toBe("tiptap");
+  });
+
+  it("renders TipTap by default with no engine flag (#5758)", async () => {
+    render(defaultRoute(tiptapHost({ saveFields: vi.fn() })));
+    const editable = await screen.findByTestId("editor-field-text");
+    expect(editable.getAttribute("data-editor-kind")).toBe("html");
+    expect(editable.getAttribute("data-editor-engine")).toBe("tiptap");
+    await screen.findByText("Hi");
+  });
+
+  it("renders the TinyMCE escape hatch only with ?engine=tinymce (#5758)", async () => {
+    render(tinymceRoute(tiptapHost({ saveFields: vi.fn() })));
+    const area = (await screen.findByTestId(
+      "editor-field-text",
+    )) as HTMLTextAreaElement;
+    expect(area.getAttribute("data-editor-kind")).toBe("html");
+    expect(area.getAttribute("data-editor-engine")).toBeNull();
+    expect(area.tagName).toBe("TEXTAREA");
   });
 
   it("refuses a TipTap fragment edit carrying a NUL before PUT", async () => {
@@ -8886,7 +8924,7 @@ describe("EditorHost refuse blank required HTML (#5251)", () => {
 
   async function openRequiredHtml(element: React.ReactElement): Promise<HTMLTextAreaElement> {
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={element} />
         </Routes>
@@ -8979,7 +9017,7 @@ describe("EditorHost refuse blank required HTML (#5251)", () => {
     expect(sent.fields.find((f) => f.name === "text")?.value).toBe("<p>Bye</p>");
     cleanup();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={requiredHtmlHost({ saveFields, body })} />
         </Routes>
@@ -9036,7 +9074,7 @@ describe("EditorHost refuse unsafe HTML on save (#5313)", () => {
     expected = "<p>Hi</p>",
   ): Promise<HTMLTextAreaElement> {
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
           <Route path="/editor" element={element} />
         </Routes>

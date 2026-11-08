@@ -16,7 +16,7 @@
  */
 
 /**
- * React Content Editor refuses a blank required HTML field (#5251).
+ * React Content Editor refuses a blank required HTML field (#5251). Pinned to the {@code ?engine=tinymce} escape hatch (#5758): TipTap is the default engine and these specs drive the legacy textarea fallback.
  *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor} {@code @html}</p>
  *
@@ -146,7 +146,7 @@ test.describe("React Content Editor blank required HTML", () => {
       const htmlRow = () => page.locator('[data-testid="editor-field-row-text"]');
       const clearHtml = () => page.locator('[data-testid="editor-html-clear-text"]');
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveAttribute("data-editor-kind", "html", {
         timeout: 20_000,
       });
@@ -162,7 +162,7 @@ test.describe("React Content Editor blank required HTML", () => {
       await expect(htmlField()).toHaveValue("");
       await expect(htmlRow()).toHaveAttribute("data-required", "true");
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue("<p>Hi</p>", { timeout: 20_000 });
       await clearHtml().click();
       await page.locator('[data-testid="editor-save"]').click();
@@ -175,7 +175,7 @@ test.describe("React Content Editor blank required HTML", () => {
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
       await expect(htmlRow()).toHaveAttribute("data-required", "true");
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue("<p>Hi</p>", { timeout: 20_000 });
       await htmlField().fill("");
       await page.locator('[data-testid="editor-save"]').click();
@@ -185,7 +185,7 @@ test.describe("React Content Editor blank required HTML", () => {
       expect(fieldPuts).toEqual([]);
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue("<p>Hi</p>", { timeout: 20_000 });
       await htmlField().fill("   ");
       await page.locator('[data-testid="editor-save"]').click();
@@ -195,7 +195,7 @@ test.describe("React Content Editor blank required HTML", () => {
       expect(fieldPuts).toEqual([]);
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue("<p>Hi</p>", { timeout: 20_000 });
       await htmlField().fill("<p>Bye</p>");
       await page.locator('[data-testid="editor-save"]').click();
@@ -204,7 +204,7 @@ test.describe("React Content Editor blank required HTML", () => {
       await expect(page.locator('[data-testid="editor-saved"]')).toBeVisible();
       await expect(htmlField()).toHaveValue("<p>Bye</p>");
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue("<p>Bye</p>", { timeout: 20_000 });
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       await expectNoSeriousA11yViolations(page, {

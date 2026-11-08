@@ -54,10 +54,10 @@ export interface ParsedSpaEntry {
   /** Content Editor mode ({@code edit} or {@code view}). */
   mode?: string;
   /**
-   * Rich-text engine override ({@code tiptap} only; #5622 spike #5650).
-   * Temporary seam — removed when toolbar parity lands (#5651).
+   * Rich-text engine override ({@code tinymce} escape hatch, otherwise the
+   * TipTap default; #5622 cutover #5758).
    */
-  engine?: "tiptap";
+  engine?: "tiptap" | "tinymce";
 }
 
 /**

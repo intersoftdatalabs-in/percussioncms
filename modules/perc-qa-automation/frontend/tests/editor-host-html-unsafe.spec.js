@@ -16,7 +16,7 @@
  */
 
 /**
- * React Content Editor refuses unsafe HTML on save (#5313).
+ * React Content Editor refuses unsafe HTML on save (#5313). Pinned to the {@code ?engine=tinymce} escape hatch (#5758): TipTap is the default engine and these specs drive the legacy textarea fallback.
  *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor} {@code @html}</p>
  *
@@ -151,7 +151,7 @@ test.describe("React Content Editor unsafe HTML", () => {
 
       const htmlField = () => page.locator('[data-testid="editor-field-text"]');
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveAttribute("data-editor-kind", "html", {
         timeout: 20_000,
       });
@@ -164,7 +164,7 @@ test.describe("React Content Editor unsafe HTML", () => {
       expect(fieldPuts).toEqual([]);
       await expect(htmlField()).toHaveValue("<script>x</script>");
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue("<p>Hi</p>", { timeout: 20_000 });
       await htmlField().fill("<p><script>alert(1)</script></p>");
       await page.locator('[data-testid="editor-save"]').click();
@@ -179,7 +179,7 @@ test.describe("React Content Editor unsafe HTML", () => {
       expect(fieldPuts).toEqual([]);
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue("<p>Hi</p>", { timeout: 20_000 });
       await htmlField().fill('<img src="x" onerror="alert(1)">');
       await page.locator('[data-testid="editor-save"]').click();
@@ -189,7 +189,7 @@ test.describe("React Content Editor unsafe HTML", () => {
       expect(fieldPuts).toEqual([]);
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue("<p>Hi</p>", { timeout: 20_000 });
       await htmlField().fill('<a href="javascript:alert(1)">x</a>');
       await page.locator('[data-testid="editor-save"]').click();
@@ -198,7 +198,7 @@ test.describe("React Content Editor unsafe HTML", () => {
       );
       expect(fieldPuts).toEqual([]);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue("<p>Hi</p>", { timeout: 20_000 });
       await htmlField().fill("<p>Bye</p>");
       await page.locator('[data-testid="editor-save"]').click();
@@ -208,7 +208,7 @@ test.describe("React Content Editor unsafe HTML", () => {
       await expect(page.locator('[data-testid="editor-saved"]')).toBeVisible();
       await expect(htmlField()).toHaveValue("<p>Bye</p>");
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue("<p>Bye</p>", { timeout: 20_000 });
       rejectNext = true;
       await htmlField().fill("<p>Ok</p>");
@@ -220,7 +220,7 @@ test.describe("React Content Editor unsafe HTML", () => {
       await expect(page.locator('[data-testid="editor-save-error"]')).toBeVisible();
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(htmlField()).toHaveValue("<p>Bye</p>", { timeout: 20_000 });
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       await expectNoSeriousA11yViolations(page, {

@@ -16,7 +16,7 @@
  */
 
 /**
- * React Content Editor HTML field save (#4680).
+ * React Content Editor HTML field save (#4680). Pinned to the {@code ?engine=tinymce} escape hatch (#5758): TipTap is the default engine and these specs drive the legacy textarea fallback.
  *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor} {@code @html}</p>
  *
@@ -153,7 +153,7 @@ test.describe("React Content Editor HTML field save", () => {
         onPut: (req) => puts.push(req),
       });
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
         timeout: 20_000,
       });
@@ -195,7 +195,7 @@ test.describe("React Content Editor HTML field save", () => {
       });
       await stubEditorApis(page, { putStatus: 400 });
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(page.locator(`[data-testid="${TEST_IDS.form}"]`)).toBeVisible({
         timeout: 20_000,
       });

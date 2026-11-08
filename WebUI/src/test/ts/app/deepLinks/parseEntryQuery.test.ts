@@ -173,14 +173,20 @@ describe("parseEntryQuery", () => {
     expect(c.clientPath).toBe("/editor?contentId=42&mode=edit&engine=tiptap");
   });
 
+  it("carries the tinymce escape hatch through the editor handoff (#5758)", () => {
+    const p = parseEntryQuery("?entry=editor&contentId=42&mode=edit&engine=tinymce");
+    expect(p.engine).toBe("tinymce");
+    expect(p.clientPath).toBe("/editor?contentId=42&mode=edit&engine=tinymce");
+    const c = parseClientPath("/editor", "?contentId=42&mode=edit&engine=tinymce");
+    expect(c.engine).toBe("tinymce");
+    expect(c.clientPath).toBe("/editor?contentId=42&mode=edit&engine=tinymce");
+  });
+
   it("drops non-allowlisted engine values", () => {
     expect(parseEntryQuery("?entry=editor&contentId=42&engine=prosemirror").engine).toBeUndefined();
     expect(
       parseEntryQuery("?entry=editor&contentId=42&engine=prosemirror").clientPath,
     ).toBe("/editor?contentId=42");
-    expect(
-      parseEntryQuery("?entry=editor&contentId=42&engine=tinymce").engine,
-    ).toBeUndefined();
   });
 
   it("maps assembly entry to chrome-less /assembly with ids", () => {

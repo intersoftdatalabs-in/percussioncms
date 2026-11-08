@@ -16,7 +16,8 @@
  */
 
 /**
- * React Content Editor rich controls (TinyMCE, file, image, keyword, community).
+ * React Content Editor rich controls (TipTap HTML by default since #5758,
+ * file, image, keyword, community).
  *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor}</p>
  *
@@ -71,7 +72,7 @@ test.describe("React Content Editor rich controls", () => {
   });
 
   test(
-    "renders TinyMCE, file, image, keyword, and community widgets without leftover CE HTML",
+    "renders TipTap HTML (default), file, image, keyword, and community widgets without leftover CE HTML",
     { tag: ["@explorer-content-editor", "@editor"] },
     async ({ page }) => {
       const blocked = [];
@@ -169,6 +170,43 @@ test.describe("React Content Editor rich controls", () => {
           status: 200,
           contentType: "application/javascript",
           body: "window.tinymce=undefined;",
+        }),
+      );
+      // Unstubbed, these hit the fake id 42 for real (404/500/400 in a bare
+      // H2 cell): same empty shapes as editor-host-html-tiptap.spec.js keep
+      // the host quiet so the widgets stay the surface under test (#5758).
+      await page.route("**/services/itemmanagement/workflow/getTransitions/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemStateTransition: {
+              itemId: "42",
+              stateName: "Draft",
+              transitionTriggers: ["Submit"],
+            },
+          }),
+        }),
+      );
+      await page.route("**/rest/content-explorer/translations/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ itemId: 42, variants: [] }),
+        }),
+      );
+      await page.route("**/services/itemmanagement/workflow/allowedWorkflows/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ choices: [] }),
+        }),
+      );
+      await page.route("**/services/assembly/slot-relationships/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ SlotCanvas: { ownerId: 42, slots: [] } }),
         }),
       );
 
