@@ -606,6 +606,67 @@ describe("TemplateDetailPanel", () => {
     expect(downloadXmlFile).not.toHaveBeenCalled();
   });
 
+  it("lists associated sites with name and guid, read-only (#5742)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      associatedSites: [
+        {
+          name: "EI",
+          label: "Enterprise Investments",
+          guid: { stringValue: "0-4-7", uuid: 7 },
+        },
+      ],
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-sites")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-tpl-sites-table")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-sites-name-0").textContent).toContain("EI");
+    expect(screen.getByTestId("developer-tpl-sites-guid-0").textContent).toContain("0-4-7");
+  });
+
+  it("shows sites empty state when no site uses the template (#5742)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      associatedSites: [],
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-sites")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-tpl-sites-empty")).toBeTruthy();
+    expect(screen.queryByTestId("developer-tpl-sites-table")).toBeNull();
+  });
+
+  it("save PUT never sends associatedSites (#5742)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      associatedSites: [{ name: "EI", label: "EI", guid: { stringValue: "0-4-7", uuid: 7 } }],
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-sites")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.change(screen.getByTestId("developer-tpl-ct-input"), {
+      target: { value: "percImage" },
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-ct-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-ct-name-0").textContent).toContain("percImage");
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-save"));
+    await waitFor(() => {
+      expect(updateTemplateDetailMock).toHaveBeenCalled();
+    });
+    const body = updateTemplateDetailMock.mock.calls[0][1] as Record<string, unknown>;
+    expect("associatedSites" in body).toBe(false);
+  });
+
   it("lists associated content types with name and guid (#4461)", async () => {
     getTemplateDetailMock.mockResolvedValue({
       ...sampleDetail,

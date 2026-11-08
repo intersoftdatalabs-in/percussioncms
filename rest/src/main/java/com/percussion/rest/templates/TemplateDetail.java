@@ -91,6 +91,20 @@ public class TemplateDetail {
   private List<NamedObjectRef> associatedContentTypes;
 
   /**
+   * Associated sites for publishing usage (name + guid). GET always returns a list (empty when no
+   * site uses the template). Read-only: derived server-side from site/template publishing
+   * associations ({@code IPSSiteManager.findSiteTemplatesAssociations}); PUT ignores this property
+   * (see {@code TemplateDetailJsonReader}). ALWAYS include so empty {@code []} is distinguishable
+   * from omit on WRAP_ROOT_VALUE.
+   */
+  @Schema(
+      description =
+          "Associated sites for publishing usage (name + guid). GET always lists them. Read-only:"
+              + " PUT ignores this property; site-association writes stay in Workbench.")
+  @JsonInclude(JsonInclude.Include.ALWAYS)
+  private List<NamedObjectRef> associatedSites;
+
+  /**
    * Structured design capability gaps (REST-GAPS-01).
    *
    * <p><strong>BREAKING wire change:</strong> previously {@code string[]}; now {@link DesignGap}
@@ -279,6 +293,14 @@ public class TemplateDetail {
 
   public void setAssociatedContentTypes(List<NamedObjectRef> associatedContentTypes) {
     this.associatedContentTypes = associatedContentTypes;
+  }
+
+  public List<NamedObjectRef> getAssociatedSites() {
+    return associatedSites;
+  }
+
+  public void setAssociatedSites(List<NamedObjectRef> associatedSites) {
+    this.associatedSites = associatedSites;
   }
 
   public List<DesignGap> getDesignGaps() {

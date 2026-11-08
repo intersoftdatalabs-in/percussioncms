@@ -46,6 +46,15 @@ class TemplateDetailJsonReaderTest {
   }
 
   @Test
+  void parse_associatedSitesStrippedReadOnly() {
+    TemplateDetail d =
+        TemplateDetailJsonReader.parse(
+            "{\"TemplateDetail\":{\"label\":\"Page\",\"associatedSites\":[{\"name\":\"EI\"}]}}");
+    assertEquals("Page", d.getLabel());
+    assertNull(d.getAssociatedSites());
+  }
+
+  @Test
   void parse_nullAssociatedContentTypesStaysNull() {
     TemplateDetail d =
         TemplateDetailJsonReader.parse(

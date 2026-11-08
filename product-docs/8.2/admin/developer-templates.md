@@ -147,6 +147,22 @@ Create and delete of modern assembly templates remain on
 [Design templates](id:admin-design-templates) — this Developer catalog does not
 add those actions.
 
+### Site associations
+
+The **Sites** section lists each site associated with the template for publishing
+usage with **name** and **GUID**. Browse is available without a lock. The list is
+**read-only** — site-association changes stay in Workbench until a follow-on slice.
+Saving label, description, source, bindings, slots, or content-type associations
+never sends `associatedSites`, and REST `PUT /services/templates/{idOrName}`
+ignores it. Integrators read the same list on
+`GET /services/templates/{idOrName}` as `associatedSites`
+(see [REST API](id:developer-rest)). If site-association load fails, the list may
+be empty and the detail shows design gap `TPL_SITE_ASSOC_LOAD`.
+
+Automated H2 surface coverage lives in
+`modules/perc-qa-automation/frontend/tests/developer-template-sites.spec.js`
+(`npm run test:surface -- --path tests/developer-template-sites.spec.js`).
+
 ## Insert a Velocity snippet (AS-09)
 
 While editing **Template source**, choose **Insert snippet** to open the built-in
