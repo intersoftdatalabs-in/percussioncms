@@ -595,6 +595,31 @@ this save. Choosing **Set SFTP private key** on a Local, Oracle, or FTP server d
 that server's folder, schema, or FTP host. Folder, passphrase, and full server edit (**Edit
 Server**) stay separate.
 
+### Set an SFTP delivery-server passphrase (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **SFTP**. **Set SFTP passphrase** edits only the key passphrase. **Save SFTP
+passphrase** sends `PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the
+`password` property (base64-encoded on the wire; the stored driver selects the SFTP passphrase
+save). Host, port, user id, folder, name, driver, and default flag stay as they were. The
+private key is not sent again and is left unchanged.
+
+The stored passphrase is never shown: the form always opens empty, shows only **Stored
+passphrase is never shown.**, and clears the typed passphrase after a successful save. The
+stored private key is never shown by this save either. The server stores the new passphrase
+trimmed (the same storage as a full server edit).
+
+A blank passphrase is refused on the form (**SFTP passphrase is required**) and is not
+written. A passphrase longer than 255 characters is refused the same way. **Cancel** does not
+call the server and keeps the previous passphrase. HTTP **400**, **403**, and **409** stay on
+the form and keep the previous passphrase. The typed passphrase is cleared — never displayed —
+after a successful save.
+
+**MYSQL**, **MSSQL**, **Oracle**, **FTP**, **FTPS**, Amazon S3, and a **Local** driver do not use
+this save. Choosing **Set SFTP passphrase** on a Local, Oracle, or FTP server does not change
+that server's folder, schema, or FTP host. Folder, private key, and full server edit (**Edit
+Server**) stay separate.
+
 ### Set the FTP delivery-server port (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
