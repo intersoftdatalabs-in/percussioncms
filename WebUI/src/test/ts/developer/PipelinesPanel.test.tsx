@@ -5,12 +5,14 @@
 import React from "react";
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapContext";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import {
   getApplicationDetail,
   getPipelineIr,
   listApplications,
 } from "../../../main/ts/api/developer/pipelinesApi";
+import * as pipeImportExport from "../../../main/ts/api/developer/pipelineImportExport";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import {
   PipelinesPanel,
@@ -205,5 +207,136 @@ describe("PipelinesPanel", () => {
       expect(screen.getByTestId("developer-pipe-error")).toBeTruthy();
     });
     expect(screen.getByTestId("developer-pipe-error").textContent).toBe(DEV_MSG.PIPE_ERROR);
+  });
+
+  function renderAsAdmin() {
+    return render(
+      <BootstrapProvider
+        value={{
+          userName: "admin",
+          locale: "en-us",
+          entry: "developer",
+          isAdmin: true,
+          isDesigner: true,
+          isWidgetBuilderActive: false,
+          allowExternalAvatarFetch: true,
+        }}
+      >
+        <PipelinesPanel />
+      </BootstrapProvider>,
+    );
+  }
+
+  it("Admin sees the create-only import section; non-Admin does not", async () => {
+    listApplicationsMock.mockResolvedValue([
+      {
+        id: 1,
+        name: "sys_cmpDocuments",
+        description: "System content editor app",
+        enabled: true,
+        appType: "CONTENT_EDITOR",
+        appRoot: "sys_cmpDocuments",
+      },
+    ]);
+    renderAsAdmin();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-pipe-import")).toBeTruthy();
+    expect(screen.getByTestId("developer-pipe-import-submit")).toBeTruthy();
+    // Honest empty state: no file chosen, no notice, no error.
+    expect(screen.queryByTestId("developer-pipe-import-error")).toBeNull();
+    expect(screen.queryByTestId("developer-pipe-import-notice")).toBeNull();
+    cleanup();
+
+    listApplicationsMock.mockResolvedValue([
+      {
+        id: 1,
+        name: "sys_cmpDocuments",
+        description: "System content editor app",
+        enabled: true,
+        appType: "CONTENT_EDITOR",
+        appRoot: "sys_cmpDocuments",
+      },
+    ]);
+    render(<PipelinesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-table")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-pipe-import")).toBeNull();
+  });
+
+  it("Admin import with no file shows the honest empty error", async () => {
+    listApplicationsMock.mockResolvedValue([
+      {
+        id: 1,
+        name: "sys_cmpDocuments",
+        description: "System content editor app",
+        enabled: true,
+        appType: "CONTENT_EDITOR",
+        appRoot: "sys_cmpDocuments",
+      },
+    ]);
+    renderAsAdmin();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-import-submit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-import-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-import-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-pipe-import-error").textContent).toBe(
+      DEV_MSG.PIPE_IMPORT_NO_FILE,
+    );
+  });
+
+  it("Admin duplicate import surfaces 409 and keeps the catalog", async () => {
+    listApplicationsMock.mockResolvedValue([
+      {
+        id: 1,
+        name: "sys_cmpDocuments",
+        description: "System content editor app",
+        enabled: true,
+        appType: "CONTENT_EDITOR",
+        appRoot: "sys_cmpDocuments",
+      },
+    ]);
+    const importMock = vi
+      .spyOn(pipeImportExport, "importPipelineApplication")
+      .mockRejectedValue({
+        status: 409,
+        statusText: "Conflict",
+        body: { message: "Application already exists: sys_cmpDocuments" },
+      });
+    try {
+      renderAsAdmin();
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-pipe-import-file")).toBeTruthy();
+      });
+      const xml =
+        '<PSXApplication id="9914" version="2.0"><name>sys_cmpDocuments</name>' +
+        "<requestRoot>sys_cmpDocuments</requestRoot></PSXApplication>";
+      const file = new File([xml], "sys_cmpDocuments.xml", { type: "application/xml" });
+      fireEvent.change(screen.getByTestId("developer-pipe-import-file"), {
+        target: { files: [file] },
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-pipe-import-submit")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("developer-pipe-import-submit"));
+      await waitFor(() => {
+        expect(importMock).toHaveBeenCalled();
+      });
+      await waitFor(() => {
+        expect(screen.getByTestId("developer-pipe-import-error")).toBeTruthy();
+      });
+      expect(screen.getByTestId("developer-pipe-import-error").textContent).toContain(
+        DEV_MSG.PIPE_IMPORT_DUPLICATE,
+      );
+      // Catalog is retained (create-only 409 mutates nothing).
+      expect(screen.getByTestId("developer-pipe-table")).toBeTruthy();
+    } finally {
+      importMock.mockRestore();
+    }
   });
 });

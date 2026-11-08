@@ -18,6 +18,7 @@
 package com.percussion.rest.test.apibridge;
 
 import com.percussion.rest.pipelines.ApplicationDetail;
+import com.percussion.rest.pipelines.ApplicationExport;
 import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
@@ -192,6 +193,16 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
 
   @Override
   public PipelineRequestTrace getLastTrace(URI baseUri, String idOrName) {
+    return null;
+  }
+
+  @Override
+  public ApplicationExport exportApplication(URI baseUri, String idOrName) {
+    return null;
+  }
+
+  @Override
+  public ApplicationDetail importApplication(URI baseUri, String xml) {
     return null;
   }
 }

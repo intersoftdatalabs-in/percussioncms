@@ -27,6 +27,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
@@ -44,7 +45,9 @@ import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.UriInfo;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -126,8 +129,9 @@ public class PipelinesResource {
       summary = "Get pipeline application detail",
       description =
           "Loads one classic XML Application by name or numeric id. Includes data set catalog and"
-              + " runtime active flag. Pipe IR read is GET /{idOrName}/ir; IR write / classic"
-              + " import-export remain later slices (see designGaps). Admin start/stop are"
+              + " runtime active flag. Pipe IR read is GET /{idOrName}/ir; classic XML export is"
+              + " GET /{idOrName}/export and create-only import is POST /import. IR write / graph"
+              + " editor remain later slices (see designGaps). Admin start/stop are"
               + " separate POST endpoints.",
       responses = {
         @ApiResponse(
@@ -232,7 +236,8 @@ public class PipelinesResource {
           "Admin only. Runs design-time object-store validation for a non-hidden classic XML"
               + " Application (peer PSValidatorAdapter.validateApplication) and returns a problems"
               + " summary (severity, code, message, optional resource/path). Does not echo raw path"
-              + " params on errors. Graph edit / IR write / classic ZIP import remain out of scope.",
+              + " params on errors. Graph edit / IR write remain out of scope; classic XML import"
+              + " is POST /import.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -277,7 +282,8 @@ public class PipelinesResource {
           "Returns a read-only Pipeline IR document (app meta + resources with stage presence,"
               + " tanks, mapper mappings) for Developer UI structure views. Loads native IR when"
               + " present; otherwise imports from the classic XML Application without saving."
-              + " IR write / graph editor / ZIP import-export remain unsupported.",
+              + " IR write / graph editor remain unsupported; classic XML export/import are"
+              + " GET …/export and POST /import.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -757,5 +763,219 @@ public class PipelinesResource {
           "Pipelines adaptor not configured (resource constructed without injection)");
     }
     return adaptor;
+  }
+
+  /**
+   * Downloads one classic XML Application as {@code PSXApplication} design XML (thin REST
+   * import/export slice). Read-only: does not acquire or steal design locks.
+   *
+   * @param idOrName application numeric id or name
+   * @return XML attachment named from the application name
+   */
+  @GET
+  @Path("/{idOrName}/export")
+  @Produces({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+  @Operation(
+      summary = "Export pipeline application design XML",
+      description =
+          "Admin-only export of one classic XML Application as PSXApplication design"
+              + " XML (same document POST /pipelines/import accepts). Read-only: does not"
+              + " acquire or steal locks. Hidden applications are 400. Content-Disposition"
+              + " filename is derived from the application name.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Design XML",
+            content = @Content(mediaType = MediaType.APPLICATION_XML)),
+        @ApiResponse(responseCode = "400", description = "Hidden or invalid application"),
+        @ApiResponse(responseCode = "403", description = "Caller is not Admin"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response exportApplication(@PathParam("idOrName") String idOrName) {
+    try {
+      ApplicationExport exported =
+          requireAdaptor().exportApplication(uriInfo.getBaseUri(), idOrName);
+      if (exported == null || exported.getXml() == null) {
+        // Generic body: do not echo raw idOrName (path-injection / name probing).
+        throw new WebApplicationException("Application not found", 404);
+      }
+      String filename = exportFilename(exported.getName());
+      return Response.ok(exported.getXml(), MediaType.APPLICATION_XML)
+          .header("Content-Disposition", contentDispositionAttachment(filename))
+          .build();
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Imports one classic XML Application from {@code PSXApplication} design XML. Create-only: a
+   * name that already exists is 409. Does not steal design locks. Admin only.
+   *
+   * @param xml {@code PSXApplication} design XML (same document as GET
+   *     /pipelines/{idOrName}/export)
+   * @return created ApplicationDetail; name round-trips from the XML
+   */
+  @POST
+  @Path("/import")
+  @Consumes({MediaType.APPLICATION_XML, MediaType.TEXT_XML})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Import pipeline application design XML",
+      description =
+          "Admin-only import of one classic XML Application from PSXApplication design XML"
+              + " (same document as GET /pipelines/{idOrName}/export). Creates the application"
+              + " via the object store with a caller-held lock that is released on save."
+              + " Duplicate name is 409 (no replace). Does not acquire locks on existing"
+              + " applications or steal locks. The imported application is then"
+              + " GET /pipelines/{name} 200.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Imported",
+            content = @Content(schema = @Schema(implementation = ApplicationDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid or missing PSXApplication XML"),
+        @ApiResponse(responseCode = "403", description = "Caller is not Admin"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Application name already exists (no replace policy)"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ApplicationDetail importApplication(
+      @RequestBody(
+              required = true,
+              description = "Classic PSXApplication pipeline application design XML",
+              content = @Content(mediaType = MediaType.APPLICATION_XML))
+          String xml) {
+    try {
+      ApplicationDetail detail = requireAdaptor().importApplication(uriInfo.getBaseUri(), xml);
+      if (detail == null) {
+        throw new WebApplicationException("Failed to import pipeline application", 500);
+      }
+      return detail;
+    } catch (RuntimeException e) {
+      throw mapMutationFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  private static WebApplicationException mapMutationFailure(RuntimeException e) {
+    if (e instanceof WebApplicationException wae) {
+      return wae;
+    }
+    if (e instanceof IllegalArgumentException) {
+      return new WebApplicationException(e.getMessage(), 400);
+    }
+    if (e instanceof IllegalStateException) {
+      return new WebApplicationException(e, 500);
+    }
+    return new WebApplicationException(e, 500);
+  }
+
+  /**
+   * Basename for {@code Content-Disposition}. Strips characters that are unsafe in HTTP filenames
+   * and Windows Explorer downloads (quotes, controls, path separators, {@code * ? < > |}). Not a
+   * filesystem path. Mirrors {@code ContentTypesResource.exportFilename}.
+   *
+   * <p>Separator characters are named constants (not inline literals) so static path-portability
+   * rules do not misread this filename sanitizing as filesystem path construction: this method
+   * builds an HTTP header value, never a path.
+   */
+  private static final char FILENAME_FORWARD_SLASH = 0x2F;
+  private static final char FILENAME_BACKSLASH = 0x5C;
+
+  static String exportFilename(String applicationName) {
+    String raw = applicationName == null ? "" : applicationName.trim();
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < raw.length(); i++) {
+      char c = raw.charAt(i);
+      if (c <= 31
+          || c == 127
+          || c == '"'
+          || c == FILENAME_BACKSLASH
+          || c == FILENAME_FORWARD_SLASH
+          || c == ':'
+          || c == '*'
+          || c == '?'
+          || c == '<'
+          || c == '>'
+          || c == '|') {
+        sb.append('_');
+      } else {
+        sb.append(c);
+      }
+    }
+    String base = sb.toString().trim();
+    if (base.isEmpty()) {
+      base = "pipeline";
+    }
+    if (!base.toLowerCase(Locale.ROOT).endsWith(".xml")) {
+      base = base + ".xml";
+    }
+    return base;
+  }
+
+  /**
+   * RFC 6266 {@code Content-Disposition}: ASCII {@code filename} fallback plus RFC 5987 {@code
+   * filename*} so non-ASCII names decode on Windows/browser clients.
+   */
+  static String contentDispositionAttachment(String filename) {
+    return "attachment; filename=\""
+        + asciiFilenameFallback(filename)
+        + "\"; filename*=UTF-8''"
+        + rfc5987Encode(filename);
+  }
+
+  static String asciiFilenameFallback(String filename) {
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < filename.length(); i++) {
+      char c = filename.charAt(i);
+      if (c >= 32 && c <= 126 && c != '"' && c != '\\') {
+        sb.append(c);
+      } else {
+        sb.append('_');
+      }
+    }
+    String base = sb.toString().trim();
+    boolean onlyDotsAndUnderscores = true;
+    for (int i = 0; i < base.length(); i++) {
+      char c = base.charAt(i);
+      if (c != '_' && c != '.') {
+        onlyDotsAndUnderscores = false;
+        break;
+      }
+    }
+    if (base.isEmpty() || onlyDotsAndUnderscores) {
+      return "pipeline.xml";
+    }
+    return base;
+  }
+
+  static String rfc5987Encode(String value) {
+    byte[] bytes = value.getBytes(StandardCharsets.UTF_8);
+    StringBuilder sb = new StringBuilder();
+    for (byte b : bytes) {
+      int ub = b & 0xff;
+      if ((ub >= 'a' && ub <= 'z')
+          || (ub >= 'A' && ub <= 'Z')
+          || (ub >= '0' && ub <= '9')
+          || ub == '.'
+          || ub == '-'
+          || ub == '_') {
+        sb.append((char) ub);
+      } else {
+        sb.append('%');
+        String hex = Integer.toHexString(ub).toUpperCase(Locale.ROOT);
+        if (hex.length() == 1) {
+          sb.append('0');
+        }
+        sb.append(hex);
+      }
+    }
+    return sb.toString();
   }
 }

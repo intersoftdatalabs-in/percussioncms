@@ -20,10 +20,20 @@ package com.percussion.apibridge;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.design.objectstore.PSContentEditor;
 import com.percussion.design.objectstore.PSDataSet;
+import com.percussion.design.objectstore.PSLockedException;
 import com.percussion.design.objectstore.PSRequestor;
+import com.percussion.design.objectstore.PSUnknownDocTypeException;
+import com.percussion.design.objectstore.PSUnknownNodeTypeException;
+import com.percussion.design.objectstore.server.IPSLockerId;
 import com.percussion.design.objectstore.server.PSApplicationSummary;
 import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
+import com.percussion.design.objectstore.server.PSXmlObjectStoreLockerId;
+import com.percussion.error.PSNonUniqueException;
 import com.percussion.error.PSNotFoundException;
+import com.percussion.error.PSNotLockedException;
+import com.percussion.rest.pipelines.ApplicationDataSetSummary;
+import com.percussion.rest.pipelines.ApplicationDetail;
+import com.percussion.rest.pipelines.ApplicationExport;
 import com.percussion.rest.pipelines.ApplicationDataSetSummary;
 import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
@@ -78,7 +88,11 @@ import com.percussion.services.pipeline.model.WhereClauseIr;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.util.PSCollection;
+import com.percussion.utils.request.PSRequestInfo;
+import com.percussion.xml.PSXmlDocumentBuilder;
 import jakarta.ws.rs.WebApplicationException;
+import java.io.IOException;
+import java.io.StringReader;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -92,6 +106,9 @@ import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.xml.sax.SAXException;
 
 /**
  * Lists classic XML Applications (pipeline packages) visible to the current security token,
@@ -118,7 +135,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   public static final int MAX_LIMIT = 1000;
 
   static final String ADMIN_REQUIRED =
-      "Admin role required to start, stop, validate, persist HTTP backend tanks, persist filter groups, persist binary resources, persist result pages, or manage request tracing";
+      "Admin role required to start, stop, validate, import or export applications, persist HTTP backend tanks, persist filter groups, persist binary resources, persist result pages, or manage request tracing";
 
   static final String HIDDEN_NOT_ALLOWED =
       "Hidden applications cannot be started, stopped, validated, or documented via this API";
@@ -133,6 +150,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   private final ApplicationLifecycleOps lifecycleOps;
   private final ApplicationDetailLoader detailLoader;
   private final ApplicationValidationOps validationOps;
+  private final ApplicationPersistOps persistOps;
 
   /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
   @Autowired(required = false)
@@ -268,6 +286,32 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       ApplicationLifecycleOps lifecycleOps,
       ApplicationDetailLoader detailLoader,
       ApplicationValidationOps validationOps) {
+    this(
+        summaryLoader,
+        runtimeSupplier,
+        irSupplier,
+        applicationLoader,
+        adminChecker,
+        lifecycleOps,
+        detailLoader,
+        validationOps,
+        null);
+  }
+
+  /**
+   * Full canonical constructor; unused collaborators fall back to production locators. {@code
+   * persistOps} defaults to the object-store lock/save/release path.
+   */
+  PipelinesAdaptor(
+      Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader,
+      Supplier<IPSPipelineRuntimeService> runtimeSupplier,
+      Supplier<IPSPipelineIrService> irSupplier,
+      BiFunction<String, PSSecurityToken, PSApplication> applicationLoader,
+      BooleanSupplier adminChecker,
+      ApplicationLifecycleOps lifecycleOps,
+      ApplicationDetailLoader detailLoader,
+      ApplicationValidationOps validationOps,
+      ApplicationPersistOps persistOps) {
     this.summaryLoader = summaryLoader;
     this.runtimeSupplier =
         runtimeSupplier != null
@@ -282,6 +326,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     this.detailLoader = detailLoader != null ? detailLoader : this::loadDetailFromObjectStore;
     this.validationOps =
         validationOps != null ? validationOps : this::validateApplicationFromObjectStore;
+    this.persistOps = persistOps != null ? persistOps : new DefaultApplicationPersistOps();
   }
 
   private static PSApplication loadApplicationObject(String name, PSSecurityToken tok) {
@@ -1157,6 +1202,175 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     return validationOps.validate(resolved.name, resolved.summary, resolved.token);
   }
 
+  @Override
+  public ApplicationExport exportApplication(URI baseUri, String idOrName) {
+    // baseUri reserved for HATEOAS link building (interface contract)
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName) || !isSafeApplicationName(idOrName.trim())) {
+      throw new WebApplicationException("Invalid pipeline application name", 400);
+    }
+    ResolvedApp resolved = resolveForLifecycle(idOrName);
+    if (resolved == null) {
+      return null;
+    }
+    if (resolved.summary.isHidden()) {
+      throw new WebApplicationException(HIDDEN_NOT_ALLOWED, Response.Status.BAD_REQUEST);
+    }
+    PSApplication app = applicationLoader.apply(resolved.name, resolved.token);
+    if (app == null) {
+      return null;
+    }
+    ApplicationExport exported = new ApplicationExport();
+    exported.setName(resolved.name);
+    exported.setXml(toApplicationXml(app));
+    return exported;
+  }
+
+  @Override
+  public ApplicationDetail importApplication(URI baseUri, String xml) {
+    // baseUri reserved for HATEOAS link building (interface contract)
+    requireAdmin();
+    PSApplication parsed = parseApplicationXml(xml);
+    String name = validateNewApplicationName(parsed.getName());
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline import");
+    }
+    PSSecurityToken tok = req.getSecurityToken();
+    assertApplicationNameUnique(name, summaryLoader.apply(tok));
+    // Create-only: drop the exported id so the object store allocates a fresh one. Saving with
+    // the source id would resolve as a rename of the existing application.
+    parsed.setId(0);
+    try {
+      persistOps.saveNewApplication(parsed, tok);
+    } catch (WebApplicationException | IllegalStateException e) {
+      throw e;
+    } catch (PSNonUniqueException | PSLockedException e) {
+      // Request-root in use or a held design lock: conflict, never an overwrite (no replace).
+      throw new WebApplicationException("Application already exists: " + name, 409);
+    } catch (PSSystemValidationException e) {
+      String msg =
+          StringUtils.isNotBlank(e.getMessage())
+              ? e.getMessage()
+              : "Invalid pipeline application design XML";
+      throw new WebApplicationException(msg, Response.Status.BAD_REQUEST);
+    } catch (PSAuthorizationException e) {
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to import pipeline application {}", name, e);
+      throw new IllegalStateException("Failed to import pipeline application", e);
+    }
+    ApplicationDetail detail = detailLoader.load(name, tok);
+    if (detail == null) {
+      // Fallback from the parsed design object when object-store detail is unavailable.
+      detail = toDetail(parsed);
+    }
+    detail.setActive(lifecycleOps.isActive(name));
+    return detail;
+  }
+
+  /**
+   * Parse classic {@code PSXApplication} design XML (same document as export). Malformed input is
+   * {@link IllegalArgumentException} (resource maps to 400), never a null return.
+   */
+  static PSApplication parseApplicationXml(String xml) {
+    if (StringUtils.isBlank(xml)) {
+      throw new IllegalArgumentException("pipeline application design XML is required");
+    }
+    String trimmed = xml.trim();
+    if (trimmed.startsWith("{") || trimmed.startsWith("[")) {
+      throw new IllegalArgumentException("expected pipeline application design XML");
+    }
+    Document doc;
+    try (StringReader reader = new StringReader(trimmed)) {
+      doc = PSXmlDocumentBuilder.createXmlDocument(reader, false);
+    } catch (IOException | SAXException | RuntimeException e) {
+      throw new IllegalArgumentException("invalid pipeline application design XML", e);
+    }
+    Element root = doc == null ? null : doc.getDocumentElement();
+    if (root == null || !"PSXApplication".equals(root.getNodeName())) {
+      throw new IllegalArgumentException("invalid pipeline application design XML");
+    }
+    try {
+      PSApplication app = new PSApplication(doc);
+      if (StringUtils.isBlank(app.getName())) {
+        throw new IllegalArgumentException("pipeline application design XML is missing name");
+      }
+      return app;
+    } catch (IllegalArgumentException e) {
+      throw e;
+    } catch (PSUnknownDocTypeException | PSUnknownNodeTypeException | RuntimeException e) {
+      throw new IllegalArgumentException("invalid pipeline application design XML", e);
+    }
+  }
+
+  /**
+   * Application names become object-store directory names. Beyond the single-segment rule ({@link
+   * #isSafeApplicationName}), reject Windows-invalid filename characters and controls so an
+   * imported name stays portable across the Windows/Linux/macOS install base.
+   */
+  static String validateNewApplicationName(String newName) {
+    if (StringUtils.isBlank(newName)) {
+      throw new IllegalArgumentException("application name is required");
+    }
+    String trimmed = newName.trim();
+    if (!isSafeApplicationName(trimmed)) {
+      throw new IllegalArgumentException("application name must not contain path separators");
+    }
+    for (int i = 0; i < trimmed.length(); i++) {
+      char c = trimmed.charAt(i);
+      if (c <= 31
+          || c == 127
+          || c == '"'
+          || c == ':'
+          || c == '*'
+          || c == '?'
+          || c == '<'
+          || c == '>'
+          || c == '|') {
+        throw new IllegalArgumentException(
+            "application name contains an invalid character for portable installs");
+      }
+    }
+    return trimmed;
+  }
+
+  /**
+   * Case-insensitive uniqueness against the application catalog. Duplicate names are 409 so
+   * clients can distinguish them from 400 invalid-name failures. Hidden applications still
+   * reserve their names (no replace, no lock steal).
+   */
+  static void assertApplicationNameUnique(String name, PSApplicationSummary[] sums) {
+    if (sums == null) {
+      return;
+    }
+    for (PSApplicationSummary sum : sums) {
+      if (sum != null && name.equalsIgnoreCase(StringUtils.defaultString(sum.getName()))) {
+        throw new WebApplicationException("Application already exists: " + name, 409);
+      }
+    }
+  }
+
+  /** Classic {@code PSXApplication} design XML for a loaded application ({@link PSApplication#toXml}). */
+  static String toApplicationXml(PSApplication app) {
+    if (app == null) {
+      throw new IllegalArgumentException("application is required");
+    }
+    try {
+      Document xml = app.toXml();
+      if (xml == null) {
+        throw new IllegalStateException("Failed to serialize pipeline application design XML");
+      }
+      return PSXmlDocumentBuilder.toString(xml);
+    } catch (IllegalStateException | IllegalArgumentException e) {
+      throw e;
+    } catch (RuntimeException e) {
+      throw new IllegalStateException("Failed to serialize pipeline application design XML", e);
+    }
+  }
+
   private ResolvedApp resolveForLifecycle(String idOrName) {
     if (StringUtils.isBlank(idOrName)) {
       return null;
@@ -1441,16 +1655,18 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   }
 
   /**
-   * Remaining design gaps after IR <strong>read</strong>, Admin start/stop, and validation/problems
-   * ship. IR write / enable / ZIP import remain later slices.
+   * Remaining design gaps after IR <strong>read</strong>, Admin start/stop, validation/problems,
+   * and classic XML export/import ship. IR write / enable / auxiliary-file transfer remain later
+   * slices.
    */
   static List<String> defaultDesignGaps() {
     List<String> gaps = new ArrayList<>();
     // Validation/problems read ships via GET …/validation — do not claim it unsupported.
+    // Classic XML export/import ships via GET …/export + POST /import — same rule.
     gaps.add(
         "Pipe IR graph editor / classic XML write not supported (native HTTP backend tank persist is PUT …/backendTank; webhook hooks are PUT …/webhookHooks; nested filter groups are PUT …/filterGroup)");
     gaps.add("Enable / disable application not supported via this API");
-    gaps.add("Classic application import/export ZIP not supported via this API");
+    gaps.add("Classic application auxiliary-file transfer not supported via this API");
     return gaps;
   }
 
@@ -1545,6 +1761,16 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
         String name, PSApplicationSummary summary, PSSecurityToken token);
   }
 
+  /**
+   * Persist a brand-new classic application from import XML — injectable for unit tests. The
+   * production path locks the new name with the caller's session/user, saves with validation,
+   * and releases the lock. It never overrides another holder's lock (no lock steal).
+   */
+  @FunctionalInterface
+  interface ApplicationPersistOps {
+    void saveNewApplication(PSApplication app, PSSecurityToken token) throws Exception;
+  }
+
   private static final class DefaultApplicationLifecycleOps implements ApplicationLifecycleOps {
     @Override
     public boolean isActive(String appName) {
@@ -1560,5 +1786,39 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     public boolean stop(String appName) {
       return PSServer.shutdownApplication(appName);
     }
+  }
+
+  private static final class DefaultApplicationPersistOps implements ApplicationPersistOps {
+    @Override
+    public void saveNewApplication(PSApplication app, PSSecurityToken tok) throws Exception {
+      String session = currentSession();
+      String user = currentUser();
+      if (StringUtils.isBlank(session) || StringUtils.isBlank(user)) {
+        throw new WebApplicationException(
+            "session and user are required for application import",
+            Response.Status.CONFLICT);
+      }
+      IPSLockerId lockId = new PSXmlObjectStoreLockerId(user, true, session);
+      PSServerXmlObjectStore store = PSServerXmlObjectStore.getInstance();
+      // Acquire-only: a held lock surfaces as PSLockedException (409), never an override.
+      store.getApplicationLock(lockId, app.getName(), 30);
+      try {
+        store.saveApplication(app, lockId, tok, true);
+      } finally {
+        try {
+          store.releaseApplicationLock(lockId, app.getName());
+        } catch (RuntimeException e) {
+          log.warn("Failed to release import lock for {}", app.getName(), e);
+        }
+      }
+    }
+  }
+
+  static String currentSession() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_JSESSIONID);
+  }
+
+  static String currentUser() {
+    return (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
   }
 }

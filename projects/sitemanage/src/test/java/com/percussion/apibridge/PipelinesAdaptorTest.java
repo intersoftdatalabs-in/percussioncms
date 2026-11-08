@@ -1921,4 +1921,294 @@ class PipelinesAdaptorTest {
     }
   }
 
+  private static final String MINIMAL_APP_XML =
+      "<PSXApplication id=\"9914\" version=\"2.0\">"
+          + "<name>pw_import_probe</name>"
+          + "<requestRoot>pw_import_probe</requestRoot>"
+          + "</PSXApplication>";
+
+  @Test
+  void parseApplicationXml_rejectsBlankJsonAndWrongRoot() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PipelinesAdaptor.parseApplicationXml(null));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PipelinesAdaptor.parseApplicationXml("{\"name\":\"x\"}"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PipelinesAdaptor.parseApplicationXml("<ItemDefData/>"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PipelinesAdaptor.parseApplicationXml("<PSXApplication/>"));
+  }
+
+  @Test
+  void parseApplicationXml_parsesMinimalApplicationXml() {
+    PSApplication app = PipelinesAdaptor.parseApplicationXml(MINIMAL_APP_XML);
+    assertEquals("pw_import_probe", app.getName());
+  }
+
+  @Test
+  void validateNewApplicationName_rejectsUnsafeNames() {
+    assertEquals("plain_app-1", PipelinesAdaptor.validateNewApplicationName("  plain_app-1 "));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PipelinesAdaptor.validateNewApplicationName("  "));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PipelinesAdaptor.validateNewApplicationName("../evil"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PipelinesAdaptor.validateNewApplicationName("a/b"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PipelinesAdaptor.validateNewApplicationName("a:b"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PipelinesAdaptor.validateNewApplicationName("a*b"));
+  }
+
+  @Test
+  void assertApplicationNameUnique_conflictIs409CaseInsensitive() {
+    PSApplicationSummary sum = summary(7, "ExistingApp", "docs", true, "r", false, false);
+    PSApplicationSummary[] sums = new PSApplicationSummary[] {sum};
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> PipelinesAdaptor.assertApplicationNameUnique("existingapp", sums));
+    assertEquals(409, ex.getResponse().getStatus());
+
+    // No catalog rows (or null catalog) never blocks import.
+    PipelinesAdaptor.assertApplicationNameUnique("brand_new", new PSApplicationSummary[0]);
+    PipelinesAdaptor.assertApplicationNameUnique("brand_new", null);
+  }
+
+  @Test
+  void toApplicationXml_serializesLoadedApplication() {
+    PSApplication app = mock(PSApplication.class);
+    when(app.toXml()).thenReturn(com.percussion.xml.PSXmlDocumentBuilder.createXmlDocument());
+
+    String xml = PipelinesAdaptor.toApplicationXml(app);
+
+    assertNotNull(xml);
+    assertThrows(IllegalArgumentException.class, () -> PipelinesAdaptor.toApplicationXml(null));
+  }
+
+  private static PipelinesAdaptor importExportAdaptor(
+      PSApplicationSummary[] sums,
+      java.util.function.BiFunction<String, PSSecurityToken, PSApplication> loader,
+      PipelinesAdaptor.ApplicationPersistOps persistOps) {
+    return new PipelinesAdaptor(
+        tok -> sums,
+        () -> mock(IPSPipelineRuntimeService.class),
+        () -> mock(IPSPipelineIrService.class),
+        loader,
+        () -> true,
+        noopLifecycle(),
+        (name, tok) -> detailNamed(name, false),
+        null,
+        persistOps);
+  }
+
+  @Test
+  void exportApplication_requiresAdmin() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> false,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.exportApplication(
+                      URI.create("http://localhost/services/"), "sys_cmpDocuments"));
+      assertEquals(403, ex.getResponse().getStatus());
+      assertEquals(PipelinesAdaptor.ADMIN_REQUIRED, ex.getMessage());
+    }
+  }
+
+  @Test
+  void exportApplication_unknownReturnsNull() {
+    PipelinesAdaptor adaptor =
+        importExportAdaptor(
+            new PSApplicationSummary[0], (name, tok) -> mock(PSApplication.class), null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      assertNull(
+          adaptor.exportApplication(URI.create("http://localhost/services/"), "missing"));
+    }
+  }
+
+  @Test
+  void exportApplication_hiddenIs400() {
+    PSApplicationSummary sum = summary(7, "hidden_app", "docs", true, "r", false, true);
+    PipelinesAdaptor adaptor =
+        importExportAdaptor(
+            new PSApplicationSummary[] {sum}, (name, tok) -> mock(PSApplication.class), null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.exportApplication(
+                      URI.create("http://localhost/services/"), "hidden_app"));
+      assertEquals(400, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void exportApplication_returnsXmlPayload() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_export", "docs", true, "r", false, false);
+    PSApplication app = mock(PSApplication.class);
+    // Production PSApplication.toXml() returns a PSXApplication-rooted document; an empty
+    // document would serialize without the root, so parse the minimal design XML instead.
+    when(app.toXml())
+        .thenReturn(
+            com.percussion.xml.PSXmlDocumentBuilder.createXmlDocument(
+                new java.io.StringReader(MINIMAL_APP_XML), false));
+    PipelinesAdaptor adaptor =
+        importExportAdaptor(new PSApplicationSummary[] {sum}, (name, tok) -> app, null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      com.percussion.rest.pipelines.ApplicationExport exported =
+          adaptor.exportApplication(URI.create("http://localhost/services/"), "sys_export");
+      assertNotNull(exported);
+      assertEquals("sys_export", exported.getName());
+      assertNotNull(exported.getXml());
+      assertTrue(exported.getXml().contains("PSXApplication"));
+    }
+  }
+
+  @Test
+  void importApplication_requiresAdmin() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> false,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.importApplication(
+                      URI.create("http://localhost/services/"), MINIMAL_APP_XML));
+      assertEquals(403, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void importApplication_invalidXmlIs400() {
+    PipelinesAdaptor adaptor =
+        importExportAdaptor(new PSApplicationSummary[0], (name, tok) -> null, null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      assertThrows(
+          IllegalArgumentException.class,
+          () ->
+              adaptor.importApplication(
+                  URI.create("http://localhost/services/"), "not-xml"));
+    }
+  }
+
+  @Test
+  void importApplication_duplicateNameIs409WithoutPersist() {
+    PSApplicationSummary sum = summary(7, "pw_import_probe", "docs", true, "r", false, false);
+    AtomicBoolean persisted = new AtomicBoolean(false);
+    PipelinesAdaptor adaptor =
+        importExportAdaptor(
+            new PSApplicationSummary[] {sum},
+            (name, tok) -> null,
+            (app, tok) -> persisted.set(true));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.importApplication(
+                      URI.create("http://localhost/services/"), MINIMAL_APP_XML));
+      assertEquals(409, ex.getResponse().getStatus());
+      assertFalse(persisted.get(), "duplicate import must not reach the object store");
+    }
+  }
+
+  @Test
+  void importApplication_savesAndReturnsDetail() {
+    AtomicBoolean isActive = new AtomicBoolean(true);
+    java.util.concurrent.atomic.AtomicReference<PSApplication> saved =
+        new java.util.concurrent.atomic.AtomicReference<>();
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[0],
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> null,
+            () -> true,
+            new PipelinesAdaptor.ApplicationLifecycleOps() {
+              @Override
+              public boolean isActive(String appName) {
+                return isActive.get();
+              }
+
+              @Override
+              public void start(String appName) {}
+
+              @Override
+              public boolean stop(String appName) {
+                return false;
+              }
+            },
+            (name, tok) -> detailNamed(name, false),
+            null,
+            (app, tok) -> saved.set(app));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      ApplicationDetail detail =
+          adaptor.importApplication(URI.create("http://localhost/services/"), MINIMAL_APP_XML);
+      assertNotNull(detail);
+      assertEquals("pw_import_probe", detail.getName());
+      assertTrue(detail.getActive());
+      assertNotNull(saved.get());
+      assertEquals("pw_import_probe", saved.get().getName());
+    }
+  }
+
+  @Test
+  void importApplication_unsafeNameIs400() {
+    String evilXml =
+        MINIMAL_APP_XML.replace(
+            "<name>pw_import_probe</name>", "<name>../evil</name>");
+    PipelinesAdaptor adaptor =
+        importExportAdaptor(new PSApplicationSummary[0], (name, tok) -> null, null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      assertThrows(
+          IllegalArgumentException.class,
+          () -> adaptor.importApplication(URI.create("http://localhost/services/"), evilXml));
+    }
+  }
+
 }
