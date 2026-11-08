@@ -26,6 +26,7 @@ import {
   CONTENT_TYPE_ICON_SPECIFIED,
   deleteContentType,
   deleteLocalContentTypeField,
+  detachSharedContentTypeField,
   getContentTypeAllowedTemplates,
   getContentTypeDetail,
   getContentTypeIcon,
@@ -335,7 +336,7 @@ export function ContentTypeDetailPanel({
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [pendingDelete, setPendingDelete] = useState<
-    { kind: "type" } | { kind: "field"; name: string } | null
+    { kind: "type" } | { kind: "field"; name: string } | { kind: "sharedField"; name: string } | null
   >(null);
   const [label, setLabel] = useState("");
   const [labelShown, setLabelShown] = useState("");
@@ -964,6 +965,56 @@ export function ContentTypeDetailPanel({
         setHeldLock(false);
       }
       setError(panelErrMsg(err, DEV_MSG.CT_FIELD_DELETE_ERROR));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function requestDetachSharedField(
+    ev: React.MouseEvent<HTMLElement>,
+    fieldName: string,
+  ): void {
+    if (!heldLockRef.current) {
+      setError(DEV_MSG.CT_FIELD_DETACH_LOCK_REQUIRED);
+      return;
+    }
+    const name = fieldName.trim();
+    if (!name) {
+      return;
+    }
+    captureDialogOpener(ev.currentTarget);
+    setPendingDelete({ kind: "sharedField", name });
+  }
+
+  async function handleDetachSharedField(fieldName: string) {
+    setPendingDelete(null);
+    if (!heldLockRef.current) {
+      setError(DEV_MSG.CT_FIELD_DETACH_LOCK_REQUIRED);
+      return;
+    }
+    const name = fieldName.trim();
+    if (!name) {
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      await detachSharedContentTypeField(activeKeyRef.current, name);
+      const refreshed = applyLoadedDetail(
+        await getContentTypeDetail(activeKeyRef.current),
+      );
+      const remaining = normalizeContentTypeFields(refreshed.fields);
+      if (selectedFieldName === name) {
+        setSelectedFieldName(remaining.find((f) => !!f.name)?.name || "");
+      }
+      setNotice(DEV_MSG.CT_FIELD_DETACHED);
+    } catch (err: unknown) {
+      if (isApiError(err) && err.status === 409) {
+        heldLockRef.current = false;
+        setHeldLock(false);
+      }
+      setError(panelErrMsg(err, DEV_MSG.CT_FIELD_DETACH_ERROR));
     } finally {
       setBusy(false);
     }
@@ -3269,6 +3320,7 @@ export function ContentTypeDetailPanel({
                     const k = fieldKey(f);
                     const draft = fieldDrafts[k];
                     const isLocal = (f.fieldType || "").toLowerCase() === "local";
+                    const isShared = (f.fieldType || "").toLowerCase() === "shared";
                     return (
                       <tr
                         key={k}
@@ -3419,6 +3471,20 @@ export function ContentTypeDetailPanel({
                                   }}
                                 >
                                   {DEV_MSG.CT_FIELD_DELETE}
+                                </button>
+                              ) : isShared && f.name ? (
+                                <button
+                                  type="button"
+                                  data-testid={`developer-ct-field-detach-${f.name}`}
+                                  aria-label={`${DEV_MSG.CT_FIELD_DETACH} ${f.name}`}
+                                  disabled={!canEdit}
+                                  onClick={(ev) => requestDetachSharedField(ev, f.name || "")}
+                                  style={{
+                                    ...smallBtnStyle,
+                                    cursor: canEdit ? "pointer" : "not-allowed",
+                                  }}
+                                >
+                                  {DEV_MSG.CT_FIELD_DETACH}
                                 </button>
                               ) : null}
                             </div>
@@ -3744,12 +3810,16 @@ export function ContentTypeDetailPanel({
         message={
           pendingDelete?.kind === "field"
             ? DEV_MSG.CT_FIELD_DELETE_CONFIRM
-            : DEV_MSG.CT_DELETE_CONFIRM
+            : pendingDelete?.kind === "sharedField"
+              ? DEV_MSG.CT_FIELD_DETACH_CONFIRM
+              : DEV_MSG.CT_DELETE_CONFIRM
         }
         onCancel={() => setPendingDelete(null)}
         onConfirm={() => {
           if (pendingDelete?.kind === "field") {
             void handleDeleteLocalField(pendingDelete.name);
+          } else if (pendingDelete?.kind === "sharedField") {
+            void handleDetachSharedField(pendingDelete.name);
           } else {
             void handleDelete();
           }

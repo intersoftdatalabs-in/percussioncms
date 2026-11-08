@@ -1559,6 +1559,71 @@ public class ContentTypesResourceDetailTest {
   }
 
   @Test
+  public void detachSharedFieldReturns204() {
+    when(adaptor.detachSharedField(any(), eq("percPage"), eq("displaytitle")))
+        .thenReturn(Boolean.TRUE);
+    Response out = resource.detachSharedField("percPage", "displaytitle");
+    assertEquals(204, out.getStatus());
+    verify(adaptor).detachSharedField(any(), eq("percPage"), eq("displaytitle"));
+  }
+
+  @Test
+  public void detachSharedFieldTypeNotFound() {
+    when(adaptor.detachSharedField(any(), eq("missing"), eq("displaytitle")))
+        .thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.detachSharedField("missing", "displaytitle"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void detachSharedFieldUnknownField404() {
+    when(adaptor.detachSharedField(any(), eq("percPage"), eq("nope")))
+        .thenThrow(new WebApplicationException("Unknown field: nope", 404));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.detachSharedField("percPage", "nope"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void detachSharedFieldNotShared400() {
+    when(adaptor.detachSharedField(any(), eq("percPage"), eq("rx_note")))
+        .thenThrow(new IllegalArgumentException("Only shared fields can be detached"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.detachSharedField("percPage", "rx_note"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void detachSharedFieldRequiresLock() {
+    when(adaptor.detachSharedField(any(), eq("percPage"), eq("displaytitle")))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not detach shared content type field; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.detachSharedField("percPage", "displaytitle"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void detachSharedFieldForbiddenWhenNotAdmin() {
+    when(adaptor.detachSharedField(any(), eq("percPage"), eq("displaytitle")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.detachSharedField("percPage", "displaytitle"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void includeFieldSuccess() {
     ContentTypeField body = new ContentTypeField();
     body.setName("sys_title");

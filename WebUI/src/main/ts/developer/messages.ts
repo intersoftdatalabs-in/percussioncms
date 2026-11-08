@@ -268,6 +268,12 @@ export const DEV_MSG_KEYS = {
   CT_FIELD_ADDED: "perc.ui.developer@Local field added.",
   CT_FIELD_DELETED: "perc.ui.developer@Local field deleted.",
   CT_FIELD_DELETE_CONFIRM: "perc.ui.developer@Delete this local field?",
+  CT_FIELD_DETACH: "perc.ui.developer@Detach",
+  CT_FIELD_DETACHED: "perc.ui.developer@Shared field detached.",
+  CT_FIELD_DETACH_CONFIRM: "perc.ui.developer@Detach this shared field?",
+  CT_FIELD_DETACH_ERROR: "perc.ui.developer@Could not detach shared field.",
+  CT_FIELD_DETACH_LOCK_REQUIRED:
+    "perc.ui.developer@Lock this content type before detaching a shared field.",
   CT_COL_ACTIONS: "perc.ui.developer@Actions",
   CT_FIELD_MOVE_UP: "perc.ui.developer@Move up",
   CT_FIELD_MOVE_DOWN: "perc.ui.developer@Move down",
