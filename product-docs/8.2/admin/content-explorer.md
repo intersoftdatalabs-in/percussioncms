@@ -881,6 +881,13 @@ Sorting is client-side: it reorders the rows already on screen, sends no server 
 and keeps the selected row and any checked rows. The sorted header shows an arrow and
 `aria-sort` for assistive tech. Opening a different folder restores server order.
 
+**Expand all / collapse all** — the toolbar above the folder tree offers **Expand all**
+and **Collapse all** buttons (keyboard-focusable, announced by name). Expand all opens
+every loaded folder so loaded descendants become visible; folders that have not been
+opened yet load one level on demand instead of prefetching the whole hierarchy.
+Collapse all folds the tree back to the roots. Either action keeps the current folder
+and selection unchanged.
+
 ## Server actions and context menu
 
 The **Server actions** toolbar is the labeled product chrome under Open / Preview / Create Folder

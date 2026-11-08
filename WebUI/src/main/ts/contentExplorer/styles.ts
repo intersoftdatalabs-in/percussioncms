@@ -102,6 +102,26 @@ export const treeStyle: CSSProperties = {
 };
 
 /** Left nav column: folder tree + Views catalog (#3116). */
+/** Tree expand-all / collapse-all toolbar row (#5760). */
+export const treeToolbarStyle: CSSProperties = {
+  display: "flex",
+  gap: 6,
+  padding: "4px 8px",
+  borderBottom: "1px solid #ddd",
+  background: "#fafafa",
+};
+
+/** Tree expand-all / collapse-all button (#5760). */
+export const treeToolbarButtonStyle: CSSProperties = {
+  padding: "3px 8px",
+  border: "1px solid #ccc",
+  background: "#fff",
+  color: "#222",
+  borderRadius: 3,
+  fontSize: "0.8rem",
+  cursor: "pointer",
+};
+
 export const navColumnStyle: CSSProperties = {
   gridArea: "tree",
   display: "flex",
