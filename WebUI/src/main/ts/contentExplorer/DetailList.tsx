@@ -34,6 +34,11 @@
  * mapped to {@link PSPathItem} fields. Unknown ids are ignored. The
  * matcher is pure so a unit-test fixture exercises every supported id.
  * </p>
+ *
+ * <p>#5759: column headers sort the loaded page client-side (ascending /
+ * descending toggle, {@code aria-sort} on the active header). Sorting
+ * reorders rows only — selection, checkboxes, and paging are preserved —
+ * and issues no REST traffic. Switching folders restores server order.</p>
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -197,6 +202,72 @@ export function renderDisplayFormatCell(
   }
 }
 
+/** Sort direction for the detail-list column sort (#5759). */
+export type DetailSortDirection = "asc" | "desc";
+
+/**
+ * Active column sort. Null means server order (no client re-sort).
+ * Sorting applies to the currently loaded page only and issues no
+ * REST traffic (#5759).
+ */
+export interface DetailSortState {
+  column: DetailColumnId;
+  direction: DetailSortDirection;
+}
+
+/**
+ * Pure comparator for detail-list rows (#5759). Compares the rendered
+ * cell text for the column with a numeric-aware, case-insensitive
+ * comparison so "Page2" sorts before "Page10". Pure so Vitest can drive
+ * it without rendering.
+ */
+export function compareDetailRows(
+  a: PSPathItem,
+  b: PSPathItem,
+  column: DetailColumnId,
+): number {
+  const left = renderDisplayFormatCell(column, a);
+  const right = renderDisplayFormatCell(column, b);
+  return left.localeCompare(right, undefined, {
+    numeric: true,
+    sensitivity: "base",
+  });
+}
+
+/**
+ * Next sort state when a header is activated (#5759): a new column
+ * starts ascending; activating the sorted column toggles direction.
+ */
+export function nextDetailSort(
+  current: DetailSortState | null,
+  column: DetailColumnId,
+): DetailSortState {
+  if (current && current.column === column) {
+    return { column, direction: current.direction === "asc" ? "desc" : "asc" };
+  }
+  return { column, direction: "asc" };
+}
+
+/**
+ * Stable client-side re-sort of the loaded page (#5759). A null sort
+ * returns the rows untouched in server order. Stability keeps the
+ * selection/checkbox association predictable for equal keys.
+ */
+export function sortDetailRows(
+  rows: PSPathItem[],
+  sort: DetailSortState | null,
+): PSPathItem[] {
+  if (!sort) return rows;
+  return rows
+    .map((item, index) => ({ item, index }))
+    .sort((x, y) => {
+      const cmp = compareDetailRows(x.item, y.item, sort.column);
+      if (cmp !== 0) return sort.direction === "asc" ? cmp : -cmp;
+      return x.index - y.index;
+    })
+    .map((entry) => entry.item);
+}
+
 /** Translate a column id to the human-readable header text. */
 export function columnHeaderLabel(
   column: DetailColumnId,
@@ -238,6 +309,7 @@ import {
   itemIconStyle,
   listStyle,
   rowStyle,
+  sortHeaderButtonStyle,
   tableStyle,
   tdCellStyle,
   thCellStyle,
@@ -405,6 +477,8 @@ export function DetailList({
   const [data, setData] = useState<PSPagedResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /** Client-side column sort of the loaded page; null keeps server order (#5759). */
+  const [sort, setSort] = useState<DetailSortState | null>(null);
   const lastLoadedPath = useRef<string | null>(null);
 
   // Track the page-to-request in a ref so a folder change can reset
@@ -420,6 +494,7 @@ export function DetailList({
       setData(null);
       setPage(0);
       setError(null);
+      setSort(null);
       lastLoadedPath.current = null;
       return;
     }
@@ -428,6 +503,8 @@ export function DetailList({
     if (isNewFolder) {
       // Schedule the visible page reset; do not depend on it in this run.
       setPage(0);
+      // A new folder restores server order until the user sorts again (#5759).
+      setSort(null);
       lastLoadedPath.current = folderPath;
       effectivePage = 0;
     }
@@ -465,6 +542,16 @@ export function DetailList({
     return data.children;
   }, [data]);
 
+  /**
+   * Rows in display order: server order untouched until the user sorts,
+   * then a stable client-side re-sort of the loaded page (#5759). Row
+   * identity (keys, selection, checkboxes) is unchanged — only order.
+   */
+  const sortedChildren = useMemo<PSPathItem[]>(
+    () => sortDetailRows(children, sort),
+    [children, sort],
+  );
+
   const totalCount = data?.totalCount;
   const totalPages = totalCount
     ? Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
@@ -488,14 +575,16 @@ export function DetailList({
   const visibleCheckedCount = useMemo(() => {
     if (!multiSelectEnabled) return 0;
     let n = 0;
-    for (const child of children) {
+    for (const child of sortedChildren) {
       const id = explorerDetailRowIdKey(child);
       if (id && multiSelected.has(id)) n += 1;
     }
     return n;
-  }, [children, multiSelectEnabled, multiSelected]);
+  }, [sortedChildren, multiSelectEnabled, multiSelected]);
   const allVisibleChecked =
-    multiSelectEnabled && children.length > 0 && visibleCheckedCount === children.length;
+    multiSelectEnabled &&
+    sortedChildren.length > 0 &&
+    visibleCheckedCount === sortedChildren.length;
   const someVisibleChecked =
     multiSelectEnabled && visibleCheckedCount > 0 && !allVisibleChecked;
 
@@ -563,7 +652,7 @@ export function DetailList({
                   }}
                   onChange={(e) => {
                     const next = e.currentTarget.checked;
-                    for (const child of children) {
+                    for (const child of sortedChildren) {
                       const id = explorerDetailRowIdKey(child);
                       if (!id) continue;
                       const isOn = multiSelected.has(id);
@@ -580,19 +669,40 @@ export function DetailList({
               data-testid="detail-col-header-icon"
               aria-label={message(EXPLORER_MSG.ICON_COLUMN_LABEL)}
             />
-            {columnsToRender.map((c) => (
-              <th
-                key={c}
-                style={thCellStyle}
-                data-testid={`detail-col-header-${c}`}
-              >
-                {columnHeaderLabel(c, EXPLORER_MSG)}
-              </th>
-            ))}
+            {columnsToRender.map((c) => {
+              const active = sort?.column === c;
+              const ariaSortValue: "none" | "ascending" | "descending" =
+                !active ? "none" : sort.direction === "asc" ? "ascending" : "descending";
+              const label = columnHeaderLabel(c, EXPLORER_MSG);
+              return (
+                <th
+                  key={c}
+                  style={thCellStyle}
+                  data-testid={`detail-col-header-${c}`}
+                  aria-sort={ariaSortValue}
+                >
+                  <button
+                    type="button"
+                    data-testid={`detail-col-sort-${c}`}
+                    aria-label={`${label}: ${message(EXPLORER_MSG.SORT_COLUMN)}`}
+                    title={`${label}: ${message(EXPLORER_MSG.SORT_COLUMN)}`}
+                    onClick={() => setSort(nextDetailSort(sort, c))}
+                    style={sortHeaderButtonStyle}
+                  >
+                    <span>{label}</span>
+                    {active ? (
+                      <span aria-hidden="true">
+                        {sort.direction === "asc" ? " ▲" : " ▼"}
+                      </span>
+                    ) : null}
+                  </button>
+                </th>
+              );
+            })}
           </tr>
         </thead>
         <tbody {...{ [MKD_LANG_IGNORE_ATTR]: "1" as const }}>
-          {children.map((item) => {
+          {sortedChildren.map((item) => {
             const selected = sameExplorerItemId(selectedItemId, item.id);
             const idKey = explorerDetailRowIdKey(item);
             const isChecked = multiSelectEnabled && multiSelected.has(idKey);
