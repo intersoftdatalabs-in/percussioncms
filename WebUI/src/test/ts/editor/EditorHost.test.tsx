@@ -221,6 +221,81 @@ describe("EditorHost", () => {
     expect(screen.queryByTestId("editor-revision")).toBeNull();
   });
 
+  it("retries the item load after a failure and renders the form", async () => {
+    const loadFields = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 500, message: "boom" })
+      .mockResolvedValue(fields);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue({
+                  checkOutUser: "admin",
+                  currentUser: "admin",
+                })}
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-retry-load")).toBeTruthy();
+    expect(screen.queryByTestId("editor-form")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-retry-load"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    });
+    expect(loadFields).toHaveBeenCalledTimes(2);
+    expect(loadFields).toHaveBeenLastCalledWith("42");
+    expect(screen.queryByTestId("editor-error")).toBeNull();
+  });
+
+  it("keeps the alert when the load retry also fails", async () => {
+    const loadFields = vi
+      .fn()
+      .mockRejectedValue({ status: 500, message: "boom" });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={vi.fn().mockResolvedValue({
+                  checkOutUser: "admin",
+                  currentUser: "admin",
+                })}
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-retry-load")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-retry-load"));
+    await waitFor(() => {
+      expect(loadFields).toHaveBeenCalledTimes(2);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-error")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-form")).toBeNull();
+    expect(screen.queryByTestId("editor-saved")).toBeNull();
+  });
+
   it("refreshes the revision badge after check-in when reload returns a new id", async () => {
     const loadFields = vi
       .fn()

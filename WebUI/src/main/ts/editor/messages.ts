@@ -28,6 +28,7 @@ export const EDITOR_MSG = {
     "perc.ui.editor@Open an item from Explorer or Home, or create one from Home → Create.",
   LOADING: "perc.ui.editor@Loading item fields…",
   LOAD_FAILED: "perc.ui.editor@Could not load this item for editing.",
+  LOAD_RETRY: "perc.ui.editor@Retry",
   SAVE: "perc.ui.editor@Save",
   SAVING: "perc.ui.editor@Saving…",
   SAVE_FAILED: "perc.ui.editor@Could not save the item.",

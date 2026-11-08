@@ -923,6 +923,12 @@ export function EditorHost({
   const [errorDetail, setErrorDetail] = useState<string>(
     contentId == null ? linkbackWarning : "",
   );
+  /**
+   * Bumped by the load-failure Retry button so the item-load effect below
+   * re-runs for the same contentId. A failed retry keeps the alert; it
+   * never claims success and never touches checkout/save state.
+   */
+  const [loadAttempt, setLoadAttempt] = useState(0);
   const [loading, setLoading] = useState(contentId != null && !promote);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -1251,6 +1257,7 @@ export function EditorHost({
     loadType,
     loadTransitions,
     loadWorkflowChoices,
+    loadAttempt,
   ]);
 
   useEffect(() => {
@@ -4569,6 +4576,16 @@ export function EditorHost({
           <div className={styles.status} role="alert" data-testid="editor-error">
             {message(errorKey)}
             {errorDetail ? ` ${errorDetail}` : ""}
+            <div className={styles.actions}>
+              <button
+                type="button"
+                className={styles.button}
+                data-testid="editor-retry-load"
+                onClick={() => setLoadAttempt((attempt) => attempt + 1)}
+              >
+                {message(EDITOR_MSG.LOAD_RETRY)}
+              </button>
+            </div>
           </div>
         ) : loading ? (
           <div className={styles.status} role="status" data-testid="editor-loading">
