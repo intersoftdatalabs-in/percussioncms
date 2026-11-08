@@ -251,7 +251,8 @@
         }
         function _editPageMetadata()
         {
-            $.perc_page_edit_dialog(options.mcol, content_viewer, _getPageId());
+            // #5733: page metadata opens in the React Content Editor host.
+            $.perc_page_metadata_editor.open(_getPageId());
         }
         /**
          * Retrieve the given page from the server, and render it in the content area.

@@ -148,7 +148,8 @@
                                 percDropdownCallbacks: [function()
                                 {}, function()
                                 {
-                                    $.perc_page_edit_dialog($.perc_finder(), pageViewAPI, currentPageId);
+                                    // #5733: page metadata opens in the React Content Editor host.
+                                    $.perc_page_metadata_editor.open(currentPageId);
                                 },
                                     _loadTemplate, _changeTemplate],
                                 percDropdownCallbackData: [I18N.message("perc.ui.page.menu@Action"), I18N.message("perc.ui.page.menu@Edit Metadata"), I18N.message("perc.ui.page.menu@Edit Template"), I18N.message("perc.ui.page.menu@Change Template")],
@@ -164,7 +165,8 @@
                                 percDropdownCallbacks: [function()
                                 {}, function()
                                 {
-                                    $.perc_page_edit_dialog($.perc_finder(), pageViewAPI, currentPageId);
+                                    // #5733: page metadata opens in the React Content Editor host.
+                                    $.perc_page_metadata_editor.open(currentPageId);
                                 },
                                     _changeTemplate],
                                 percDropdownCallbackData: [I18N.message("perc.ui.page.menu@Action"), I18N.message("perc.ui.page.menu@Edit Metadata"), I18N.message("perc.ui.page.menu@Change Template")],
@@ -179,7 +181,8 @@
             // Enable the Metadata
             $("#perc-metadata-button").off("click").perc_button().removeClass("ui-meta-pre-disabled").addClass("ui-meta-pre-enabled").on("click",function()
             {
-                $.perc_page_edit_dialog($.perc_finder(), pageViewAPI, currentPageId);
+                // #5733: page metadata opens in the React Content Editor host.
+                $.perc_page_metadata_editor.open(currentPageId);
             });
 
             // Add view dropdown on content tab
@@ -197,7 +200,8 @@
                         percDropdownCallbacks: [function()
                         {}, function()
                         {
-                            $.perc_page_edit_dialog($.perc_finder(), pageViewAPI, currentPageId);
+                            // #5733: page metadata opens in the React Content Editor host.
+                $.perc_page_metadata_editor.open(currentPageId);
                         }],
                         percDropdownCallbackData: [I18N.message("perc.ui.page.menu@Action"), I18N.message("perc.ui.page.menu@View Metadata")],
                         percDropdownDisabledFlag: [false, true]

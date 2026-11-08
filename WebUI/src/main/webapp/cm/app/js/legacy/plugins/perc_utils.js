@@ -651,7 +651,8 @@
   // "...url(javascript:alert(1))..." which matches the javascript: arm of
   // the regex; url( is also blocked outright so CSS url() exfil /
   // tracking cannot ride the style allowlist. Modeled on the same
-  // DOMParser-based allowlist approach already used by PercPageEditSanitizer.
+  // DOMParser-based allowlist approach (see also the retired page-edit
+  // summary preview sanitizer, removed with perc_page_edit_dialog in #5733).
   //
   // contentIsHtml / questionIsHtml are accepted for backward compatibility
   // (sole flag user today: PercNewPageDialog's red <span style="color:red">

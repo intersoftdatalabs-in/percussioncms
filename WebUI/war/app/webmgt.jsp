@@ -215,7 +215,7 @@
     <script src="../views/PercEditRegionPropertiesDialog.js"></script>
     <script src="../plugins/perc_page_schema.js"></script>
     <script src="../widgets/perc_asset_edit_dialog.js"></script>
-    <script src="../widgets/perc_page_edit_dialog.js"></script>
+    <script src="../widgets/perc_page_metadata_editor.js"></script>
     <script src="../widgets/perc_save_as.js"></script>
     <script src="../plugins/perc_save_as_shared_asset_dialog.js"></script>
     <script src="../widgets/perc_widget_library.js"></script>
