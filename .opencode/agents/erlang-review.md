@@ -56,7 +56,32 @@ step and stop after the review.
 ## Block
 
 COMMENT file:line findings. Do **not** merge. Host will spawn erlang-fix.
-Residual issues only for **out-of-scope** leftovers.
+Residual issues for **out-of-scope** leftovers **plus preexisting machine
+findings in PR-touched files** (see below).
+
+## Preexisting tech-debt residuals (HARD — do not drop machine findings)
+
+In-diff bugs gate the merge; preexisting rows do not BLOCK — but they must
+not evaporate either. After the gate verdict:
+
+1. Collect preexisting/out-of-diff machine **bug** rows and
+   **complexity / cognitive-complexity** warnings whose file is in the PR
+   diff file list (hunk outside the diff still counts when the file is
+   touched by this PR).
+2. Dedupe first (`gh issue list --state open --search "<file> <rule>"` plus
+   a Parent-linked search when the PR has a parent). Reuse-and-link on a
+   match; never file a duplicate.
+3. File at most `max_erlang_residuals` (default **3**) new issues per PR:
+   unassigned, labels `tech-debt` + operator + `model:*` **plus exactly one
+   priority label by severity** — `p7` for preexisting machine **bug** rows,
+   `p8` for **complexity / cognitive-complexity / maintainability
+   suggestion** rows (`nit` rows never file). Title
+   `Residual: <file>: <rule/sink>`, body cites the PR number, CLI rule id,
+   file:line, severity → priority mapping, and why it is out of scope here.
+4. Record every URL in `residual_issue_urls`; keep `bugs_found` for
+   **in-diff** blockers only. Zero qualifying rows → empty residuals is fine.
+5. Never block or delay the merge for these residuals; never expand the PR
+   to fix them in place (that is future debt work, not this slice).
 
 Write `scratch/erlang-review.json` as before (status, summary, prs_reviewed,
 prs_merged, bugs_found, residual_issue_urls, blocked).

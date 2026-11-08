@@ -287,6 +287,26 @@ def model_skip(prescreen_row: dict | None) -> bool:
     return bool(prescreen_row.get("recommend_skip"))
 
 
+def compute_low_slots(max_issues: int, quota_pct: int, min_debt_slots: int = 0) -> int:
+    """Floor-plus-one debt seats with an optional floor (2.2.6-draft).
+
+    Floor division (max*quota//100) truncates a small-max reservation to 0
+    (max=3, quota=20 -> 0), which is the observed "debt never selected"
+    failure. Floor-plus-one guarantees quota>0 yields >=1 seat when max_issues>=1.
+    min_debt_slots is the explicit "tech-debt count" floor: when the
+    operator passes a debt count, it wins over the percentage.
+    """
+    if max_issues <= 0:
+        return 0
+    quota_pct = max(0, min(50, quota_pct))
+    if quota_pct <= 0 and min_debt_slots <= 0:
+        return 0
+    floor_slots = (max_issues * quota_pct) // 100 if quota_pct > 0 else 0
+    if quota_pct > 0 and max_issues >= 1:
+        floor_slots = max(floor_slots, 1)
+    return max(floor_slots, max(0, min_debt_slots), 0)
+
+
 def pn_rank(p: str) -> int:
     order = {
         "p1": 0,
@@ -333,6 +353,17 @@ def build_queue(
     max_issues: int,
     low_slots: int,
 ) -> tuple[list[dict], dict]:
+    """Rank one-per-parent queue with RESERVED debt seats (2.2.6-draft).
+
+    - priority_slots = max_issues - min(low_slots, max_issues) are for
+      PRODUCT only; DEBT may fill low_slots only.
+    - PRODUCT is capped at priority_slots so a reserved debt seat cannot be
+      starved by product overflow (previous code capped product at
+      max_issues, making the reservation advisory-only).
+    - low_slots uses floor-plus-one at the caller; a quota>0 with a small
+      max_issues (e.g. max=3, quota=34) must yield >=1 debt seat, not 0
+      via integer truncation. See compute_low_slots().
+    """
     ps = prescreen_index(prescreen)
     covered = covering_map(prs)
     open_prs = [p for p in prs if p["state"] in ("OPEN", "")]
@@ -386,11 +417,17 @@ def build_queue(
 
     queue = []
     used_parents: set[int] = set()
-    for pool, cap in ((product, max_issues), (debt_c, low_slots)):
+    priority_slots = max(0, max_issues - min(low_slots, max_issues))
+    debt_queued = 0
+    product_queued = 0
+    for pool, cap, debt_flag in ((product, priority_slots, False), (debt_c, low_slots, True)):
         for c in pool:
             if len(queue) >= max_issues:
                 break
-            if cap == low_slots and len([q for q in queue if q.get("_debt")]) >= low_slots:
+            if debt_flag:
+                if debt_queued >= low_slots:
+                    break
+            elif product_queued >= priority_slots:
                 break
             par = c["parent"]
             if par in used_parents:
@@ -417,15 +454,22 @@ def build_queue(
             }
             queue.append(item)
             used_parents.add(par)
-            if cap == max_issues and not c["debt"] and len([q for q in queue if not q.get("_debt")]) >= max_issues:
-                break
+            if debt_flag:
+                debt_queued += 1
+            else:
+                product_queued += 1
 
     for item in queue:
         item.pop("_debt", None)
     stats = {
         "candidates": len(candidates),
         "skipped": skipped[:40],
-        "product_queued": sum(1 for q in queue if True),
+        "product_queued": product_queued,
+        "debt_queued": debt_queued,
+        "debt_candidates": len(debt_c),
+        "product_candidates": len(product),
+        "priority_slots": priority_slots,
+        "low_slots": low_slots,
     }
     return queue[:max_issues], stats
 
@@ -577,7 +621,19 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--prescreen", help="scratch/prescreen.json from typesafe-prescreen")
     p.add_argument("--out", required=True)
     p.add_argument("--max-issues", type=int, default=3)
-    p.add_argument("--low-slots", type=int, default=0)
+    p.add_argument("--low-slots", type=int, default=None)
+    p.add_argument(
+        "--low-priority-quota-pct",
+        type=int,
+        default=0,
+        help="Percent of max_issues reserved for p7/p8 debt (floor pct, min 1 when quota>0).",
+    )
+    p.add_argument(
+        "--min-debt-slots",
+        type=int,
+        default=0,
+        help="Explicit tech-debt count floor: guarantees at least N debt seats.",
+    )
     p.add_argument("--self-model-label", default="model:grok-4.6")
     p.add_argument("--cluster-min-prs", type=int, default=3)
     args = p.parse_args(argv)
@@ -618,12 +674,18 @@ def main(argv: list[str] | None = None) -> int:
             return 2
         alerts_raw = loaded_alerts
 
+    if args.low_slots is None:
+        low_slots = compute_low_slots(
+            max(1, args.max_issues), args.low_priority_quota_pct, args.min_debt_slots
+        )
+    else:
+        low_slots = max(0, args.low_slots)
     result = run(
         issues_raw,
         prs_raw,
         prescreen,
         max(1, args.max_issues),
-        max(0, args.low_slots),
+        low_slots,
         str(args.self_model_label).lower(),
         max(2, args.cluster_min_prs),
         alerts_raw,

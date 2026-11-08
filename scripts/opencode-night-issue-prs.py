@@ -233,6 +233,10 @@ def build_workflow_args(args: argparse.Namespace) -> str:
         "base_branch": args.base_branch,
         "max_prs": args.max_prs,
         "include_pr_followup": bool(args.include_pr_followup),
+        "low_priority_quota_pct": getattr(args, "low_priority_quota_pct", 0),
+        "min_debt_slots": getattr(args, "min_debt_slots", 0),
+        "max_erlang_residuals": getattr(args, "max_erlang_residuals", 3),
+        "labels": getattr(args, "labels", ""),
     }
     return json.dumps(payload)
 
@@ -339,6 +343,29 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--worktree", default="", help="Override worktree path (default: ~/.opencode/worktrees/<repo>/night-issue-prs).")
     parser.add_argument("--report-path", default="", help="Override night-report.md path (default: <worktree>/scratch/night-report.md).")
     parser.add_argument("--max-prs", type=int, default=6, help="Max open PRs per follow-up pass (default: 6).")
+    parser.add_argument(
+        "--low-priority-quota-pct",
+        type=int,
+        default=0,
+        help="Percent of max_issues reserved for p7/p8 tech-debt (ceil division; default: 0).",
+    )
+    parser.add_argument(
+        "--min-debt-slots",
+        type=int,
+        default=0,
+        help="Explicit tech-debt count floor: guarantees at least N debt seats (default: 0).",
+    )
+    parser.add_argument(
+        "--max-erlang-residuals",
+        type=int,
+        default=3,
+        help="Cap on Erlang preexisting/complexity tech-debt residuals per PR (default: 3).",
+    )
+    parser.add_argument(
+        "--labels",
+        default="",
+        help="Optional discovery label filter, comma-separated (e.g. 'tech-debt'). Empty = all labels.",
+    )
     parser.add_argument(
         "--include-pr-followup",
         action=argparse.BooleanOptionalAction,

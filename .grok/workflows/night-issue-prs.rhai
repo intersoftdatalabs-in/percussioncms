@@ -1,8 +1,12 @@
 // Overnight / unattended open-issue worker for Percussion CMS.
-// workflow_version: 2.2.5
-// Grok Build workflow meta has no version field (only name/description/when_to_use/phases).
-// Keep invocation name night-issue-prs stable; bump this header when behavior changes.
-//
+// workflow_version: 2.2.6-draft (UNCOMMITTED — human review required per root AGENTS.md)
+// 2.2.6-draft — Tech-debt reservation that actually reserves + Erlang preexisting residuals:
+//   (a) low_slots uses FLOOR-PLUS-ONE + optional min_debt_slots floor, so quota>0 on a
+//   small max_issues (e.g. max=3, quota=34) yields >=1 debt seat instead of 0 via
+//   integer truncation; PRODUCT capped at priority_slots so reserved debt seats
+//   cannot be starved by product overflow. (b) Erlang files tech-debt residuals for
+//   preexisting machine bugs + cognitive/complexity findings in PR-touched files
+//   (deduped, capped, never blocking merge) instead of dropping them as "preexisting".
 // 2.2.5 — Implementers run the Erlang skill CLI themselves before gh pr create.
 //   Do not spawn a nested Erlang agent or `grok --prompt-file`. Nested headless
 //   Grok dies on the first shell permission (erlang_not_spawned) and blocks the PR.
@@ -100,7 +104,13 @@
 //                                debt/javadoc/bugs (default false). NEVER ranks tech-debt above
 //                                product work. NEVER a reason to pick p8 during Phase A.
 //   low_priority_quota_pct int - percent of max_issues reserved for p7+p8 labels (default 0).
-//                                Example max_issues=10, quota=20 → 8 priority-pool + 2 low.
+//                                Floor-plus-one: quota>0 on small max_issues still yields >=1
+//                                debt seat (max=3, quota=34 → 1). Example max_issues=10,
+//                                quota=20 → 8 priority-pool + 2 low.
+//   min_debt_slots int - explicit tech-debt count floor (default 0). When set, guarantees
+//                                at least N debt seats regardless of the percentage math.
+//                                This is the "tech debt count" knob: prefer it over tuning
+//                                quota percentages on small max_issues runs.
 //                                HARD: never select p7/p8 while eligible higher-priority PRODUCT
 //                                work remains (including next-phase slices of open p1–p6 epics).
 //                                p7/p8 may fill ONLY reserved low_slots. Unused priority_slots
@@ -393,6 +403,21 @@ fn erlang_gate_text(repo, base_branch, allow_merge, scope_note) {
     p += "Report header must show Persona: erlang 0.1.1 and Persona source:\n";
     p += "~/.local/share/mkd/agents/erlang. Scope Base/Head must be set.\n";
     p += "Gate and short-circuit count (in-diff) bugs only. Preexisting rows do not BLOCK.\n";
+    p += "PREEXISTING RESIDUALS (HARD — do not drop machine findings): preexisting/out-of-diff\n";
+    p += "machine bugs AND cognitive/complexity findings in files this PR touched are NOT\n";
+    p += "merge blockers, but they MUST become tech-debt residuals (not silence):\n";
+    p += "  1) Collect preexisting bug rows + complexity/cognitive-complexity warnings whose\n";
+    p += "     file is in the PR diff file list (even when the hunk/line is outside the diff).\n";
+    p += "  2) Dedupe first: gh issue list --state open --search \"<file path> <sink/rule>\"\n";
+    p += "     (+ Parent link when the PR has one). Reuse-and-link on a match; never file dupes.\n";
+    p += "  3) File at most max_erlang_residuals new issues per PR (default 3): unassigned,\n";
+    p += "     labels tech-debt + operator + model:* PLUS exactly one priority label by\n";
+    p += "     severity — p7 for preexisting machine BUG rows, p8 for complexity /\n";
+    p += "     cognitive-complexity / maintainability SUGGESTION rows (nit rows never file).\n";
+    p += "     Title \"Residual: <file>: <rule/sink>\"; body cites PR number, CLI rule id,\n";
+    p += "     file:line, severity-to-priority mapping, and why it is out of scope here.\n";
+    p += "  4) Record every URL in residual_issue_urls; keep bugs_found for IN-DIFF blockers\n";
+    p += "     only. Zero qualifying preexisting rows → residual_issue_urls stays empty (fine).\n";
     p += "Ollama local model is dev-coder:latest at http://localhost:11434.\n";
     p += "If the models file is missing, omit --models and continue machine-only.\n";
     p += "If Ollama is down, keep machine findings; do not fail the review for llm warn.\n";
@@ -418,8 +443,10 @@ fn erlang_gate_text(repo, base_branch, allow_merge, scope_note) {
     p += "   If allow_erlang_squash_merge: `gh pr merge --squash --delete-branch` (`--admin` if\n";
     p += "   required-reviews blocks). Do not leave a clean PR open.\n";
     p += "2) If BLOCK: COMMENT file:line findings. Do not merge. List bugs_found.\n";
-    p += "   Open residual issues ONLY for out-of-scope leftovers (not for bugs you expect\n";
-    p += "   erlang-fix to address on this PR).\n";
+    p += "   Open residual issues for out-of-scope leftovers (not for bugs you expect\n";
+    p += "   erlang-fix to address on this PR) AND for preexisting machine bugs +\n";
+    p += "   complexity findings in PR-touched files (tech-debt, deduped, capped at\n";
+    p += "   max_erlang_residuals — never a merge blocker).\n";
     p += "3) CONFLICTING/DIRTY: skip merge; note blocked.\n";
     p += "Return status, summary, prs_reviewed, prs_approved, prs_merged, bugs_found,\n";
     p += "residual_issue_urls, blocked.\n";
@@ -726,6 +753,10 @@ let base_branch = "main";
 let prefer_easy = false;
 // Percent of max_issues reserved for low labels p7+p8. Default 0 = product-only nights.
 let low_priority_quota_pct = 0;
+// Explicit tech-debt count floor. Default 0 = percentage only.
+let min_debt_slots = 0;
+// Max tech-debt residuals Erlang may file per PR for preexisting bugs/complexity.
+let max_erlang_residuals = 3;
 let agent_safe_only = true;
 // Only work issues filed by repo maintainers (push/maintain/admin collaborators).
 let maintainer_authors_only = true;
@@ -779,6 +810,8 @@ if args != () {
     if args.base_branch != () { base_branch = args.base_branch; }
     if args.prefer_easy != () { prefer_easy = args.prefer_easy; }
     if args.low_priority_quota_pct != () { low_priority_quota_pct = args.low_priority_quota_pct; }
+    if args.min_debt_slots != () { min_debt_slots = args.min_debt_slots; }
+    if args.max_erlang_residuals != () { max_erlang_residuals = args.max_erlang_residuals; }
     if args.agent_safe_only != () { agent_safe_only = args.agent_safe_only; }
     if args.maintainer_authors_only != () { maintainer_authors_only = args.maintainer_authors_only; }
     if args.allowed_issue_authors != () { allowed_issue_authors = args.allowed_issue_authors; }
@@ -838,6 +871,10 @@ if max_cycle_verify_residuals < 0 { max_cycle_verify_residuals = 0; }
 if max_cycle_verify_residuals > 20 { max_cycle_verify_residuals = 20; }
 if low_priority_quota_pct < 0 { low_priority_quota_pct = 0; }
 if low_priority_quota_pct > 50 { low_priority_quota_pct = 50; }
+if min_debt_slots < 0 { min_debt_slots = 0; }
+if min_debt_slots > max_issues { min_debt_slots = max_issues; }
+if max_erlang_residuals < 0 { max_erlang_residuals = 0; }
+if max_erlang_residuals > 8 { max_erlang_residuals = 8; }
 if stale_in_progress_hours < 1 { stale_in_progress_hours = 1; }
 if stale_in_progress_hours > 72 { stale_in_progress_hours = 72; }
 if max_reconcile_closes < 1 { max_reconcile_closes = 1; }
@@ -845,9 +882,15 @@ if max_reconcile_closes > 40 { max_reconcile_closes = 40; }
 if max_reconcile_inspect < 20 { max_reconcile_inspect = 20; }
 if max_reconcile_inspect > 120 { max_reconcile_inspect = 120; }
 
-// Queue split: priority-pool is product work (p1 first). low_slots are the ONLY p7/p8 seats.
-// Default quota=0 → low_slots=0 → empty queue beats Xlint. quota=20 + max=10 → 8+2.
+// Queue split: priority-pool is product work (p1 first). low_slots are RESERVED p7/p8
+// seats (floor pct, min 1 when quota>0, plus min_debt_slots floor), NOT backfill-only. PRODUCT is capped
+// at priority_slots so reserved debt seats cannot be starved by product overflow.
+// Default quota=0 + min_debt=0 → low_slots=0 → empty queue beats Xlint.
+// quota=20 + max=10 → 8+2. max=3 + quota=20 (or min_debt_slots=1) → 2+1.
 let low_slots = max_issues * low_priority_quota_pct / 100;
+if low_priority_quota_pct > 0 && max_issues >= 1 && low_slots < 1 { low_slots = 1; }
+if min_debt_slots > low_slots { low_slots = min_debt_slots; }
+if low_slots > max_issues { low_slots = max_issues; }
 let priority_slots = max_issues - low_slots;
 
 log("night-issue-prs: repo=" + repo + " base=" + base_branch
