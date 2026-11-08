@@ -330,6 +330,26 @@ Choosing **Set username** on a Local or FTP server does not change that server's
 user id. The FTP username panel and other sibling panels stay separate, as does full server
 edit (**Edit Server**).
 
+### Set the SFTP delivery-server folder (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **SFTP**. **Set folder** edits only the remote folder. **Save folder** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `folder` property. Host,
+port, and user id stay as they were. The passphrase and private key are not shown and are not
+sent again.
+
+The folder is optional. A blank folder clears the stored folder. A folder longer than 255
+characters is refused on the form (**SFTP folder must be 255 characters or fewer**) and is not
+written. **Cancel** does not call the server and keeps the previous folder. HTTP **400**,
+**403**, and **409** stay on the form and keep the previous folder. The new folder is shown
+only after a successful save.
+
+**FTP**, **FTPS**, Amazon S3, database drivers, and a **Local** driver do not use this save.
+Choosing **Set folder** on a Local or FTP server does not change that server's folder. Use
+**Local folder** on the same Sites workspace for a Local driver and **FTP folder** for an FTP
+driver. Host-only save, port-only save, user-id-only save, and full server edit (**Edit
+Server**) stay separate.
+
 ### Set a database delivery-server host (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
