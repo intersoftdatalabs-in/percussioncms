@@ -294,6 +294,23 @@ The new host is shown only after a successful save.
 Choosing **Set host** on a Local or FTP server does not change that server's folder or FTP host.
 Full server edit remains **Edit Server**.
 
+### Set the FTPS delivery-server host (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **FTPS**. **Set host** edits only the server host. **Save host** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `serverip` property. Port,
+user id, and folder stay as they were. The passphrase and private key are not shown and are not
+sent again.
+
+A blank host is refused on the form (**FTPS host is required**) and is not written. A host longer
+than 255 characters is refused the same way. **Cancel** does not call the server and keeps the
+previous host. HTTP **400**, **403**, and **409** stay on the form and keep the previous host.
+The new host is shown only after a successful save.
+
+**FTP**, **SFTP**, Amazon S3, database drivers, and a **Local** driver do not use this save.
+Choosing **Set host** on a Local, FTP, or SFTP server does not change that server's folder,
+FTP host, or SFTP host. Full server edit remains **Edit Server**.
+
 ### Set the SFTP delivery-server port (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
