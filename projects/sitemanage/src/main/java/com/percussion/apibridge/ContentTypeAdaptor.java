@@ -817,20 +817,21 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         DesignGap.of(
             "CT_ICON_STRATEGY",
             "Icon strategy: GET/PUT /contenttypes/{idOrName}/icon (held lock for write)."
-                + " source none|specified|fromFileField. none clears value. Binary upload and"
-                + " SPA picker remain Workbench"));
+                + " source none|specified|fromFileField. none clears value. The Developer"
+                + " editor ships the SPA picker and PUT save; binary upload remains"
+                + " Workbench"));
     gaps.add(
         DesignGap.of(
             "CT_SEARCH_INDEXING",
             "Type-level search indexing: GET/PUT /contenttypes/{idOrName}/searchIndexing"
                 + " (held lock for write). Default is on. Per-field searchable is a separate PUT"
-                + " detail flag. SPA Properties checkbox is not exposed"));
+                + " detail flag. The Developer editor Properties section exposes the toggle"));
     gaps.add(
         DesignGap.of(
             "CT_IMPORT_EXPORT",
             "Import: POST /contenttypes/import (Admin, create-only, 409 on name collision)."
-                + " GET /contenttypes/{id}/export remains Workbench until the export slice is"
-                + " installed. SPA import wizard is not exposed"));
+                + " Export: GET /contenttypes/{idOrName}/export (no lock steal). The Developer"
+                + " editor ships export download plus the import wizard"));
     if (!controlsResolved) {
       gaps.add(
           DesignGap.of(

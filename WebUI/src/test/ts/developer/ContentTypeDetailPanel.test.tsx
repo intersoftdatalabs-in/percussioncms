@@ -479,6 +479,32 @@ describe("ContentTypeDetailPanel", () => {
     expect(coded?.textContent).toBe("Item-level pre/post exits not exposed");
   });
 
+  it("hides retired design-gap codes for shipped SPA surfaces (#5741)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      designGaps: [
+        { code: "CT_SEARCH_INDEXING", message: "stale search indexing gap" },
+        { code: "CT_IMPORT_EXPORT", message: "stale import/export gap" },
+        { code: "CT_SHARED_FIELD_INCLUSION", message: "stale include picker gap" },
+        { code: "CT_ICON_STRATEGY", message: "binary upload remains Workbench" },
+        { code: "CT_ITEM_EXITS", message: "Item-level pre/post exits not exposed" },
+      ],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-gaps")).toBeTruthy();
+    });
+    const gaps = screen.getByTestId("developer-ct-gaps");
+    expect(gaps.textContent).not.toContain("stale search indexing gap");
+    expect(gaps.textContent).not.toContain("stale import/export gap");
+    expect(gaps.textContent).not.toContain("stale include picker gap");
+    expect(gaps.querySelector('[data-gap-code="CT_SEARCH_INDEXING"]')).toBeNull();
+    expect(gaps.querySelector('[data-gap-code="CT_IMPORT_EXPORT"]')).toBeNull();
+    expect(gaps.querySelector('[data-gap-code="CT_SHARED_FIELD_INCLUSION"]')).toBeNull();
+    expect(gaps.textContent).toContain("binary upload remains Workbench");
+    expect(gaps.textContent).toContain("Item-level pre/post exits not exposed");
+  });
+
   it("unwraps singleton association objects and JAXB DesignGap envelope (#3712)", async () => {
     getContentTypeDetail.mockResolvedValue({
       ...sampleDetail,
