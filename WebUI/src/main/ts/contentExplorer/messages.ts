@@ -38,6 +38,8 @@ export const EXPLORER_MSG = {
   COL_TITLE: "perc.ui.explorer@Title",
   COL_CATEGORY: "perc.ui.explorer@Category",
   COL_WORKFLOW: "perc.ui.explorer@Workflow",
+  /** Detail-list column-sort toggle (#5759). Appended after the column label. */
+  SORT_COLUMN: "perc.ui.explorer@Sort",
   ACTION_OPEN: "perc.ui.explorer@Open",
   ACTION_PREVIEW: "perc.ui.explorer@Preview",
   /** View residual: reload detail list for the current folder (#2733). */

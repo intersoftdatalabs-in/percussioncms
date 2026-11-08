@@ -220,6 +220,20 @@ export const iconTdCellStyle: CSSProperties = {
   overflow: "visible",
 };
 
+/** Sortable column-header button (#5759) — inherits header type, no chrome. */
+export const sortHeaderButtonStyle: CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 4,
+  padding: 0,
+  border: "none",
+  background: "transparent",
+  color: "inherit",
+  font: "inherit",
+  fontWeight: 600,
+  cursor: "pointer",
+};
+
 export const folderIconButtonStyle: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",

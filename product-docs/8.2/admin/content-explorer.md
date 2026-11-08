@@ -875,6 +875,12 @@ session restores the columns. A missing folder, unknown field, or duplicate fiel
 **HTTP 400**. A request with no signed-in user is **HTTP 403**. The list shows that
 status next to the Columns control. Restarting the server clears the overlay.
 
+**Sorting** — click any column header (Name, Type, Path, Title, Category, Modified,
+Workflow) to sort the loaded page by that column; click again to reverse the order.
+Sorting is client-side: it reorders the rows already on screen, sends no server request,
+and keeps the selected row and any checked rows. The sorted header shows an arrow and
+`aria-sort` for assistive tech. Opening a different folder restores server order.
+
 ## Server actions and context menu
 
 The **Server actions** toolbar is the labeled product chrome under Open / Preview / Create Folder
