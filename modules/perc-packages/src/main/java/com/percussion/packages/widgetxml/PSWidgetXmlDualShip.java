@@ -56,8 +56,9 @@ import java.util.Objects;
  * </ul>
  *
  * <p>Modern roots are committed so selection prefers Component Package Manifest when both exist
- * ({@code PSLegacyDefinitionXmlShim}). Keep the runtime shim until Phase 5 criteria (#2852 / #2632)
- * are met — do <em>not</em> delete the shim in ship-exit batches.
+ * ({@code PSLegacyDefinitionXmlShim}). The dual-run fallback was retired in Phase 5 (#2852 /
+ * #2632): selection is modern-only, so committed modern roots are now required, not merely
+ * preferred.
  *
  * <p>Batch A (#2831 modern roots / #2883 stop shipping XML): {@code perc.baseWidgets}, {@code
  * perc.defaultLanguage}, {@code perc.eventWidget}, {@code perc.openGraphWidget}, {@code

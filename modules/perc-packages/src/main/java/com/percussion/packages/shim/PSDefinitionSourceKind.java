@@ -18,11 +18,13 @@
 package com.percussion.packages.shim;
 
 /**
- * Source kind chosen by the time-boxed legacy definition-XML runtime shim (ADR-004 / issue #2752).
+ * Source kind chosen by definition selection (ADR-004 / issue #2752).
  *
- * <p><strong>Prefer modern</strong> component package manifests; fall back to legacy Widget / Page
- * / Gadget definition XML only when the modern package is absent. Product packages must not depend
- * on the legacy path long-term.
+ * <p><strong>Modern required</strong>: selection resolves {@link
+ * #MODERN_COMPONENT_PACKAGE} only. The legacy Widget / Page / Gadget definition-XML fallback was
+ * retired (#2852) — the {@code LEGACY_*} constants below are retained for metrics / dashboard
+ * compatibility (counters read {@code 0}) and are never produced by {@code
+ * PSLegacyDefinitionXmlShim} anymore. Product packages must not depend on the legacy path.
  */
 public enum PSDefinitionSourceKind {
 

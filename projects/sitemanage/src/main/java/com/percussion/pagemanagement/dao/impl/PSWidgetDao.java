@@ -48,16 +48,15 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 /**
- * Loads widget definitions from install {@code rxconfig/Widgets} (legacy Widget definition XML wire
- * format).
+ * Loads widget definitions from install {@code rxconfig/Widgets} (install Widget definition XML
+ * wire format, materialised from modern packages by package-build emitters).
  *
- * <p><strong>Dual-run modern-first selection (ADR-004 / #3024 / #3130 / parent #2630):</strong> when
- * modern package roots are configured <em>or</em> product defaults apply, each loaded definition id
- * is classified via {@link PSLegacyDefinitionXmlShim#selectDefinition} so product / H2 installs
- * prefer {@link PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE} when a Component Package Manifest
- * is present for that id. Legacy {@link PSDefinitionSourceKind#LEGACY_WIDGET_XML} remains the
- * fallback when modern is absent. Selection kind is test-visible and logged for Phase 5 exit
- * metrics; the shim itself is <strong>not</strong> deleted here (#2852).
+ * <p><strong>Modern-only selection (ADR-004 / #2852 / parent #2632; dual-run retired):</strong>
+ * each loaded definition id is classified via {@link PSLegacyDefinitionXmlShim#selectDefinition}
+ * against modern package roots, and the shim is now modern-only — {@link
+ * PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE} when a Component Package Manifest is present
+ * for that id, otherwise a clear {@link PSDefinitionSourceNotFoundException} (retired legacy XML
+ * is never selected). Selection kind is test-visible and logged for Phase 5 exit metrics.
  *
  * <p><strong>Default modern roots (#3130):</strong> when Spring property {@code
  * widgetDao.modernPackageRoots} is blank, roots are resolved from {@link
@@ -66,17 +65,17 @@ import org.springframework.stereotype.Component;
  * override. Operators need not hand-edit Spring for H2 {@code qa-up} / product sample installs.
  *
  * <p>Content continues to load from the Widgets XML repository (install wire format materialised
- * from modern packages by package-build emitters). Selection records which dual-run source won for
- * each id.
+ * from modern packages by package-build emitters). Selection records the modern-only source for
+ * each id; ids without a modern manifest are logged clearly and left unclassified (no legacy
+ * fallback).
  *
- * <p><strong>M2 evidence harness (#3131 / #3583 / #3738):</strong> cumulative modern / legacy
- * selection counters ({@link #getModernSelectionCount()}, {@link #getLegacySelectionCount()}),
- * per-poll kinds, and {@link #formatSelectionMetricsSummary()} are test- and support-visible so
- * Phase 5 M2 is not only INFO log text. Reset with {@link #resetSelectionMetrics()} in tests /
- * probes only. Product/H2 zero-legacy-selection: {@code PSProductPackageRootSelectionEvidence}
- * plus {@code PSWidgetDaoProductH2ZeroLegacySelectionTest} fail on unexpected {@code LEGACY_*}
- * for non-waived product widgets ({@code perc.Test} remains waived until #3736). The shim is
- * <strong>not</strong> deleted (#2852).
+ * <p><strong>Metrics compat (#3131 / #3583 / #3738 / QA #5808):</strong> cumulative modern /
+ * legacy selection counters ({@link #getModernSelectionCount()}, {@link
+ * #getLegacySelectionCount()}), per-poll kinds, and {@link #formatSelectionMetricsSummary()} keep
+ * their keys and log format; legacy counts read {@code 0} after retirement. Reset with {@link
+ * #resetSelectionMetrics()} in tests / probes only. Product/H2 zero-legacy-selection: {@code
+ * PSProductPackageRootSelectionEvidence} plus {@code PSWidgetDaoProductH2ZeroLegacySelectionTest}
+ * assert {@code MODERN_COMPONENT_PACKAGE} for product widgets.
  *
  * <p>Paths use portable {@link Path} / {@link File#pathSeparator} for multi-root lists.
  */
@@ -96,7 +95,7 @@ public class PSWidgetDao
     }
   }
 
-  /** Last dual-run selection kind recorded by {@link #selectDefinitionSource(String)} or poll. */
+  /** Last modern-only selection kind recorded by {@link #selectDefinitionSource(String)} or poll. */
   private final AtomicReference<PSDefinitionSourceKind> lastSelectionKind =
       new AtomicReference<>();
 
@@ -116,7 +115,7 @@ public class PSWidgetDao
    */
   private final AtomicLong legacySelectionCount = new AtomicLong();
 
-  /** Modern package roots consulted before legacy Widgets XML (empty = legacy-only selection). */
+  /** Modern package roots consulted for modern-only selection (empty = ids fail clearly until roots are configured). */
   private volatile List<Path> modernPackageRoots = List.of();
 
   /**
@@ -154,7 +153,7 @@ public class PSWidgetDao
   }
 
   /**
-   * Classify every loaded widget id with modern-first dual-run selection and publish metrics.
+   * Classify every loaded widget id with modern-only selection and publish metrics.
    *
    * @param data loaded widget definitions (non-null)
    */
@@ -185,9 +184,12 @@ public class PSWidgetDao
               selection.getPrimaryPath().map(Path::toString).orElse(""));
         }
       } catch (PSDefinitionSourceNotFoundException e) {
-        // Definition was just loaded from XML; selection should not fail unless files vanished.
+        // Modern-only selection (#2852): the id has no modern manifest, so it stays
+        // unclassified. The failure is logged clearly (retired legacy is never selected).
         log.warn(
-            "Widget definition selection failed for loaded id '{}': {}", id, e.getMessage());
+            "Widget definition has no modern component package for loaded id '{}': {}",
+            id,
+            e.getMessage());
       }
     }
     selectionKindsById.set(Collections.unmodifiableMap(kinds));
@@ -212,12 +214,13 @@ public class PSWidgetDao
   }
 
   /**
-   * Dual-run selection for a single definition id (modern preferred, legacy Widgets XML fallback).
-   * Updates {@link #getLastSelectionKind()}. Does not invent a source when neither is present.
+   * Modern-only selection for a single definition id (#2852). Updates {@link
+   * #getLastSelectionKind()}. Fails clearly when no modern package is present (retired legacy XML
+   * is never loaded; nothing is invented).
    *
    * @param definitionId non-blank widget definition id
-   * @return selection result (never null)
-   * @throws PSDefinitionSourceNotFoundException when neither modern package nor legacy XML exists
+   * @return selection result (never null; always modern)
+   * @throws PSDefinitionSourceNotFoundException when no modern package exists for the id
    * @throws IllegalArgumentException when {@code definitionId} is blank
    */
   public PSDefinitionSourceSelection selectDefinitionSource(String definitionId)
@@ -268,7 +271,8 @@ public class PSWidgetDao
 
   /**
    * Cumulative count of legacy Widget-XML (or other non-modern) selections since construction or
-   * last {@link #resetSelectionMetrics()}.
+   * last {@link #resetSelectionMetrics()}. Always {@code 0} after the #2852 retirement (legacy is
+   * never selected); kept for metrics-API compatibility with M2 QA tracking (#5808).
    *
    * @return non-negative count
    */
@@ -287,9 +291,10 @@ public class PSWidgetDao
   }
 
   /**
-   * Snapshot of cumulative dual-run selection counters for CI assertions and support probes.
+   * Snapshot of cumulative modern-only selection counters for CI assertions and support probes.
    *
-   * <p>Keys: {@code modern}, {@code legacyWidgetXml}, {@code total}. Never null.
+   * <p>Keys: {@code modern}, {@code legacyWidgetXml}, {@code total}. Never null. The {@code
+   * legacyWidgetXml} key is retained for dashboard compatibility and reads {@code 0} (#2852).
    *
    * @return unmodifiable map of counter name → value
    */
@@ -304,8 +309,8 @@ public class PSWidgetDao
   }
 
   /**
-   * Single-line ops / log summary of dual-run selection metrics (parity with INFO poll line and
-   * WebUI {@code GadgetRegistry} dual-load summary).
+   * Single-line ops / log summary of modern-only selection metrics (parity with INFO poll line and
+   * WebUI {@code GadgetRegistry} dual-load summary; format unchanged for #5808 telemetry).
    *
    * @return never blank
    */
@@ -346,7 +351,8 @@ public class PSWidgetDao
    * Sets modern package roots for dual-run selection (programmatic / tests). Disables product
    * default re-apply until a new Spring property is injected.
    *
-   * @param roots package root directories; {@code null} or empty means legacy-only selection
+   * @param roots package root directories; {@code null} or empty means modern-only selection
+   *     cannot resolve (ids fail clearly until modern roots are configured)
    */
   public void setModernPackageRoots(List<Path> roots) {
     modernRootsProgrammatic = true;
@@ -429,7 +435,7 @@ public class PSWidgetDao
       }
     } catch (IOException e) {
       log.warn(
-          "Failed to resolve widgetDao.modernPackageRoots defaults; using legacy-only selection",
+          "Failed to resolve widgetDao.modernPackageRoots defaults; modern-only selection cannot resolve until roots are configured",
           e);
       this.modernPackageRoots = List.of();
     }

@@ -37,7 +37,7 @@ import java.util.stream.Collectors;
  *
  * <p>Peer of {@code PSWidgetDefinitionXmlInventory}. Scans both the package staging layout ({@code
  * sys__UserDependency--rxconfig/Pages|Gadgets}) and the install layout ({@code
- * rxconfig/Pages|Gadgets}) that {@code PSLegacyDefinitionXmlShim} recognizes. Does <em>not</em>
+ * rxconfig/Pages|Gadgets}) of retired legacy definition XML. Does <em>not</em>
  * treat modern authoring trees ({@code pages/}, {@code gadgets/}, catalog JSON) as definition XML.
  *
  * <p>Uses {@link Path#resolve(String)} / {@link Files} only — no hardcoded filesystem separators.

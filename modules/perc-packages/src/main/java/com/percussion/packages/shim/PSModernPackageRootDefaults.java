@@ -51,7 +51,8 @@ import java.util.jar.JarFile;
  * package roots under that directory (after optionally materializing modern {@code widgets/} trees
  * from the product classpath {@code Packages/&lt;pkg&gt;/widgets/…}). Explicit {@link
  * File#pathSeparator} lists still override defaults. Missing modern trees leave an empty list so
- * legacy Widgets XML remains the fallback via {@link PSLegacyDefinitionXmlShim}.
+ * modern-only selection fails clearly via {@link PSLegacyDefinitionXmlShim} (legacy fallback
+ * retired, #2852).
  *
  * <p>Portable {@link Path} / {@link Files} only (Windows / Linux / macOS).
  */
