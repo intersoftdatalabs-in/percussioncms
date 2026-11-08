@@ -627,7 +627,7 @@ public final class PSContentExplorerLoginPanel extends JFrame {
          */
         m_adminProps.store(new FileOutputStream(file.getAbsolutePath()), null);
       } catch (IOException e) {
-        e.printStackTrace();
+        log.warn("Could not save admin properties to [" + file.getAbsolutePath() + "]", e);
       }
     }
   }

@@ -1794,7 +1794,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       /**
        * @todo catching the right exception ??
        */
-      ex.printStackTrace();
+      log.warn(
+          "Could not look up action for mode [" + mode + "] context [" + uiContext + "]", ex);
     }
     return action;
   }
@@ -1864,7 +1865,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       node.setChildren(children);
       children = node.getChildren();
     } catch (Exception ex) {
-      ex.printStackTrace();
+      log.error("Exception loading children", ex);
       // Any known exception the code throws should be added here.
       if (ex instanceof PSException
           || ex instanceof ParserConfigurationException
@@ -3022,9 +3023,8 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
                 // Need to reload the flagged folder set
                 m_applet.loadFlaggedFoldersSet();
               } catch (Exception e) {
-                // Just print a stacktrace if this fails as
-                // it is not vital
-                e.printStackTrace();
+                // Not vital, log and continue with selective refresh
+                log.warn("Could not reload flagged folder set, continuing", e);
               }
 
               // do selective refresh
@@ -3283,6 +3283,7 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
       }
     } catch (PSException e) {
       m_applet.debugMessage(e);
+      log.error("Error executing action <" + action.getName() + ">", e);
       m_applet.displayErrorMessage(
           null,
           getClass(),
@@ -3290,9 +3291,9 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           new String[] {action.getName(), e.getLocalizedMessage()},
           "Error",
           null);
-      e.printStackTrace();
     } catch (PSContentExplorerException e) {
       m_applet.debugMessage(e);
+      log.error("Error executing action <" + action.getName() + ">", e);
       m_applet.displayErrorMessage(
           null,
           getClass(),
@@ -3300,7 +3301,6 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
           new String[] {action.getName(), e.getLocalizedMessage()},
           "Error",
           null);
-      e.printStackTrace();
     } finally {
       m_applet.resetCursor();
     }

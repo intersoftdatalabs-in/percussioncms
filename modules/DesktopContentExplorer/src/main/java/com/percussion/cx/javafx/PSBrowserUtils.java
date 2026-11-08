@@ -23,6 +23,8 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 /**
  * Utility class for opening URLs in the system's default web browser. Provides methods to launch
@@ -31,6 +33,9 @@ import java.net.URL;
  * @since 8.0.0
  */
 public class PSBrowserUtils {
+
+  /** Logger for this class. */
+  private static final Logger log = LogManager.getLogger(PSBrowserUtils.class);
 
   /** Default constructor. This class is not intended to be instantiated; all methods are static. */
   public PSBrowserUtils() {}
@@ -46,7 +51,7 @@ public class PSBrowserUtils {
       try {
         desktop.browse(uri);
       } catch (Exception e) {
-        e.printStackTrace();
+        log.warn("Could not open web page [" + uri + "] in system browser", e);
       }
     }
   }
@@ -60,7 +65,7 @@ public class PSBrowserUtils {
     try {
       openWebpage(url.toURI());
     } catch (URISyntaxException e) {
-      e.printStackTrace();
+      log.warn("Could not open web page [" + url + "]: invalid URI syntax", e);
     }
   }
 

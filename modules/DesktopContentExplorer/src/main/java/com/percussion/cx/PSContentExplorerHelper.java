@@ -64,7 +64,7 @@ public class PSContentExplorerHelper {
       // getResources().getString("port"));
       url = PSContentExplorerUtils.toURL("http", host, port, "/Rhythmyx/sys_resources/AppletJars/");
     } catch (MalformedURLException e) {
-      e.printStackTrace();
+      log.error("Could not build applet code base URL", e);
     }
     return url;
   }

@@ -615,11 +615,11 @@ public class PSSearchViewActionManager {
         }
       }
     } catch (IOException ex) {
-      ex.printStackTrace();
+      log.warn("Could not read case-sensitivity flag, using default", ex);
       throw new PSContentExplorerException(
           ContentExplorerErrorCodes.GENERAL_ERROR, ex.getLocalizedMessage());
     } catch (SAXException ex) {
-      ex.printStackTrace();
+      log.warn("Could not parse case-sensitivity flag, using default", ex);
       throw new PSContentExplorerException(
           ContentExplorerErrorCodes.GENERAL_ERROR, ex.getLocalizedMessage());
     }

@@ -233,7 +233,6 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
         m_httpConnection = new PSHttpConnection(getRhythmyxCodeBase(), ms_userInfo.getSessionId());
       }
     } catch (PSCmsException e) {
-      e.printStackTrace();
       displayErrorMessage(
           getDialogParentFrame(), getClass(), "{0}", new String[] {e.getMessage()}, "Error", null);
       log.error("Error getting userinfo", e);
@@ -294,7 +293,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
       try {
         UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
       } catch (Exception e) {
-        e.printStackTrace();
+        log.warn("Could not set cross-platform look and feel", e);
       }
 
       if (isMacPlatform()) {
@@ -393,7 +392,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
               PSXmlDocumentBuilder.toString(
                   ms_userInfo.toXml(PSXmlDocumentBuilder.createXmlDocument())));
         } catch (PSBeansException ex) {
-          ex.printStackTrace();
+          log.warn("Could not load localized key values", ex);
         }
       }
 
@@ -434,8 +433,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
 
       m_initialized = true;
     } catch (Exception ex) {
-      ex.printStackTrace();
-      if (ms_isDebug) ex.printStackTrace();
+      log.error("Content Explorer applet initialization failed", ex);
       System.exit(ERROR);
       if (ex instanceof RuntimeException) {
         throw (RuntimeException) ex;
@@ -840,7 +838,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
         }
         documentBase = PSContentExplorerUtils.toURL(codeBase);
       } catch (MalformedURLException e) {
-        e.printStackTrace();
+        log.warn("Could not build Rhythmyx code base URL from [" + codeBase + "]", e);
       }
     }
 
@@ -864,8 +862,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
       try {
         documentBase = PSContentExplorerUtils.toURL(proto, host, port, "/Rhythmyx/dce/");
       } catch (Exception e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        log.warn("Could not build AjaxSwing code base URL, using default", e);
       }
       return documentBase;
 
@@ -909,8 +906,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
       try {
         documentBase = PSContentExplorerUtils.toURL(proto, host, port, "/Rhythmyx/dce/");
       } catch (Exception e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+        log.warn("Could not build AjaxSwing code base URL, using default", e);
       }
       return documentBase;
     }
@@ -1791,7 +1787,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
    */
   public void debugMessage(Throwable t) {
     if (!isDebug() || t == null) return;
-    t.printStackTrace();
+    log.debug("Content Explorer debug throwable", t);
   }
 
   /**
@@ -2508,8 +2504,7 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
           }
         }
       } catch (Throwable ex) {
-        log.error("Caught exception: " + ex.toString());
-        ex.printStackTrace();
+        log.error("Caught exception dispatching key event: " + ex, ex);
       }
 
       return isConsumed;
