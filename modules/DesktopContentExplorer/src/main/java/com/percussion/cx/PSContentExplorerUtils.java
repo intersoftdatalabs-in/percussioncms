@@ -225,8 +225,6 @@ public class PSContentExplorerUtils {
       log.debug("UserInfo locale = " + ms_userInfo.getLocale());
 
     } catch (PSCmsException e) {
-      e.printStackTrace();
-
       log.error("Error getting userinfo", e);
     }
   }

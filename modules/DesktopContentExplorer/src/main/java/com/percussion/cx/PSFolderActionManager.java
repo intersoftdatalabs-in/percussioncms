@@ -61,6 +61,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
@@ -73,6 +75,9 @@ import org.w3c.dom.Element;
  * @version 1.0
  */
 public class PSFolderActionManager {
+  /** Logger for this class. */
+  static Logger log = LogManager.getLogger(PSFolderActionManager.class);
+
   /**
    * Constructs this manager with remote proxy that is set with folder context to handle actions
    * related to the folders.
@@ -223,9 +228,8 @@ public class PSFolderActionManager {
         try {
           m_actionManager.getApplet().loadFlaggedFoldersSet();
         } catch (Exception e) {
-          // Just print a stacktrace as we don't want
-          // to throw an exception for this minor error
-          e.printStackTrace();
+          // Minor error, log and continue without throwing
+          log.warn("Could not reload flagged folder set, continuing", e);
         }
       }
     } catch (PSUnknownNodeTypeException e) {
