@@ -190,4 +190,25 @@ public interface IPipelinesAdaptor {
    * @return validation summary, or {@code null} when not found / not visible
    */
   ApplicationValidationResult getValidation(URI baseUri, String idOrName);
+
+  /**
+   * Admin: export one classic XML Application as {@code PSXApplication} design XML (thin REST
+   * import/export slice). Read-only: does not acquire or steal design locks.
+   *
+   * @param baseUri request base URI (reserved for HATEOAS)
+   * @param idOrName application numeric id or name
+   * @return export payload, or {@code null} when not found / not visible
+   */
+  ApplicationExport exportApplication(URI baseUri, String idOrName);
+
+  /**
+   * Admin: import one classic XML Application from {@code PSXApplication} design XML (same
+   * document as {@code GET /pipelines/{idOrName}/export}). Create-only: a name that already
+   * exists is 409. Does not steal design locks. Mirrors the content-type CD-14 precedent.
+   *
+   * @param baseUri request base URI (reserved for HATEOAS)
+   * @param xml classic application design XML
+   * @return created detail; name round-trips from the XML
+   */
+  ApplicationDetail importApplication(URI baseUri, String xml);
 }

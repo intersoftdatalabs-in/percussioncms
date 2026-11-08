@@ -102,7 +102,7 @@ resources. It does not publish to an external registry.
   that endpoint is present. If validation REST is not deployed yet, the section
   shows a soft empty state instead of failing the page.
 
-Graph editing, enable/disable, and classic ZIP import/export remain later slices
+Graph editing and enable/disable remain later slices
 (see detail **design gaps** when present).
 
 ## Product path — browse and lifecycle
@@ -268,6 +268,25 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
 4. Non-Admin sessions do not see the Problems section. Admin callers without the
    role on the REST path receive **403**.
 
+## Product path — classic XML import/export
+
+1. As **Admin**, open **Developer → Pipelines**. The catalog shows an
+   **Import application XML** section (non-Admin sessions do not see it).
+2. To back up or move one classic application, open its detail page and use
+   **Export XML**. The download is the `PSXApplication` design XML
+   (`GET /services/pipelines/{idOrName}/export`, `Content-Disposition`
+   attachment named from the application). Export is read-only: it does not
+   acquire or steal a design lock. Hidden applications cannot be exported
+   (**400**); unknown names are **404**.
+3. To import, choose a `PSXApplication` XML file in the catalog import
+   section and optionally set **Import as** to a unique name (blank keeps the
+   XML name), then **Import application**. Import is **create-only**: a name
+   that already exists is rejected with **409** and nothing is overwritten.
+   Imported names must be single-segment and portable across the
+   Windows/Linux/macOS install base (no path separators or `"` `:` `*` `?`
+   `<` `>` `|`). Malformed XML is **400**.
+4. Non-Admin callers on either REST path receive **403**.
+
 ## Limits
 
 - Catalog and detail omit **hidden** applications from the list contract used by
@@ -275,7 +294,8 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
 - Pipe IR has no graph editor or drag-drop tanks. Admins may persist an HTTP
   backend tank, nested selector filter groups, HTTP webhook hooks, a binary
   resource, and an HTML result-page binding (native IR overlay) only.
-- Enable/disable and classic ZIP import/export are not in this chrome.
+- Enable/disable is not in this chrome. Classic application transfer is XML
+  export/import (above); auxiliary-file transfer is not supported.
 - Surface-filtered Playwright for Start/Stop lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-start-stop.spec.js`.
 - Surface-filtered Playwright for pipe IR lives under
@@ -302,6 +322,8 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-openapi.spec.js`
   (prefers `sys_cmp*` IR/execute apps, or `PIPELINE_APP_NAME`; does not require
   OpenAPI execute paths on empty-IR first-catalog rows).
+- Surface-filtered Playwright for classic XML export + duplicate-import 409 lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-import-export.spec.js`.
 
 ## REST
 
@@ -325,6 +347,8 @@ The chrome calls:
 | Last trace | `GET /services/pipelines/{idOrName}/lastTrace` (**Admin**) |
 | Test invoke | `POST /services/pipelines/{app}/resources/{resource}/execute` |
 | Problems | `GET /services/pipelines/{idOrName}/validation` (**Admin**; soft-empty if absent) |
+| Export XML | `GET /services/pipelines/{idOrName}/export` (**Admin**; XML attachment) |
+| Import XML | `POST /services/pipelines/import` (**Admin**; create-only, duplicate is **409**) |
 
 Successful start/stop responses return refreshed `ApplicationDetail` including
 `active` (**Running** in the UI). Execute returns `PipelineExecuteResult`.

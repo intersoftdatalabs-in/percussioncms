@@ -1028,6 +1028,30 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Start is unavailable while the application is disabled, hidden, or already running.",
   PIPE_STOP_DISABLED_HINT:
     "perc.ui.developer@Stop is unavailable while the application is hidden or not running.",
+  PIPE_EXPORT: "perc.ui.developer@Export XML",
+  PIPE_EXPORTING: "perc.ui.developer@Exporting…",
+  PIPE_EXPORT_ERROR: "perc.ui.developer@Could not export pipeline application.",
+  PIPE_EXPORT_NOT_FOUND: "perc.ui.developer@Pipeline application not found.",
+  PIPE_EXPORT_DISABLED_HINT:
+    "perc.ui.developer@Export is unavailable while the application is hidden.",
+  PIPE_IMPORT_EXPORT_FORBIDDEN:
+    "perc.ui.developer@Admin role is required to import or export pipeline applications.",
+  PIPE_IMPORT_SECTION: "perc.ui.developer@Import application XML",
+  PIPE_IMPORT_HINT:
+    "perc.ui.developer@Admin create-only import of PSXApplication design XML. Duplicate names are rejected; nothing is overwritten.",
+  PIPE_IMPORT_FILE: "perc.ui.developer@Design XML file",
+  PIPE_IMPORT_NAME: "perc.ui.developer@Import as (unique name)",
+  PIPE_IMPORT_NAME_PLACEHOLDER: "perc.ui.developer@Leave blank to keep the XML name",
+  PIPE_IMPORT_SUBMIT: "perc.ui.developer@Import application",
+  PIPE_IMPORTING: "perc.ui.developer@Importing…",
+  PIPE_IMPORT_ERROR: "perc.ui.developer@Could not import pipeline application.",
+  PIPE_IMPORT_INVALID: "perc.ui.developer@Invalid pipeline application design XML.",
+  PIPE_IMPORT_DUPLICATE:
+    "perc.ui.developer@An application with that name already exists.",
+  PIPE_IMPORT_BAD_NAME:
+    "perc.ui.developer@Name is required and must not contain path separators.",
+  PIPE_IMPORT_NO_FILE: "perc.ui.developer@Choose a PSXApplication XML file to import.",
+  PIPE_IMPORTED: "perc.ui.developer@Pipeline application imported.",
   PIPE_DATASETS: "perc.ui.developer@Data sets",
   PIPE_DATASETS_HINT:
     "perc.ui.developer@Request pages and content editors listed on the classic application catalog. Pipe IR structure (stages, tanks, mapper) is shown below when available. Use a data-set name as the Test invoke resource when the app has native pipe IR.",

@@ -744,8 +744,110 @@ public class PipelinesResourceTest {
     assertInstanceOf(IllegalStateException.class, ex.getCause());
   }
 
-  private static Map<String, Object> sampleOpenApiSpec() {
-    PipelineIrDocument ir = new PipelineIrDocument();
+  @Test
+  public void exportApplicationReturnsXmlAttachment() {
+    ApplicationExport exported =
+        new ApplicationExport("sys_foo", "<PSXApplication><name>sys_foo</name></PSXApplication>");
+    when(adaptor.exportApplication(any(), eq("sys_foo"))).thenReturn(exported);
+
+    Response response = resource.exportApplication("sys_foo");
+
+    assertEquals(200, response.getStatus());
+    assertEquals("<PSXApplication><name>sys_foo</name></PSXApplication>", response.getEntity());
+    assertEquals(
+        MediaType.APPLICATION_XML_TYPE, response.getMediaType());
+    String disposition = String.valueOf(response.getHeaders().getFirst("Content-Disposition"));
+    assertTrue(disposition.contains("sys_foo.xml"), "disposition=" + disposition);
+    verify(adaptor).exportApplication(any(), eq("sys_foo"));
+  }
+
+  @Test
+  public void exportApplicationUnknownMapsTo404WithoutEcho() {
+    when(adaptor.exportApplication(any(), eq("secret"))).thenReturn(null);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.exportApplication("secret"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertFalse(ex.getMessage().contains("secret"));
+  }
+
+  @Test
+  public void exportApplicationPropagatesAdaptorStatus() {
+    when(adaptor.exportApplication(any(), eq("secret")))
+        .thenThrow(new WebApplicationException("Hidden applications cannot be exported", 400));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.exportApplication("secret"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertFalse(ex.getMessage().contains("secret"));
+  }
+
+  @Test
+  public void exportApplicationWrapsUnexpectedFailuresAs500() {
+    IllegalStateException boom = new IllegalStateException("serializer down");
+    when(adaptor.exportApplication(any(), eq("sys_foo"))).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.exportApplication("sys_foo"));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
+  public void importApplicationDelegatesToAdaptor() {
+    ApplicationDetail detail = new ApplicationDetail();
+    detail.setName("sys_imported");
+    String xml = "<PSXApplication><name>sys_imported</name></PSXApplication>";
+    when(adaptor.importApplication(any(), eq(xml))).thenReturn(detail);
+
+    ApplicationDetail out = resource.importApplication(xml);
+
+    assertEquals("sys_imported", out.getName());
+    verify(adaptor).importApplication(any(), eq(xml));
+  }
+
+  @Test
+  public void importApplicationNullMapsTo500() {
+    when(adaptor.importApplication(any(), any())).thenReturn(null);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.importApplication("<PSXApplication/>"));
+    assertEquals(500, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void importApplicationDuplicateMapsTo409() {
+    when(adaptor.importApplication(any(), any()))
+        .thenThrow(new WebApplicationException("Application already exists: sys_foo", 409));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.importApplication("<PSXApplication/>"));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void importApplicationInvalidXmlMapsTo400() {
+    when(adaptor.importApplication(any(), any()))
+        .thenThrow(new IllegalArgumentException("invalid pipeline application design XML"));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.importApplication("not-xml"));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void exportFilenameSanitizesSeparators() {
+    assertEquals("sys_foo.xml", PipelinesResource.exportFilename("sys_foo"));
+    assertEquals("a_b.xml", PipelinesResource.exportFilename("a/b"));
+    assertEquals("pipeline.xml", PipelinesResource.exportFilename("   "));
+  }
+
+  private static Map<String, Object> sampleOpenApiSpec() {    PipelineIrDocument ir = new PipelineIrDocument();
     ir.getApp().setName("sys_foo");
     com.percussion.services.pipeline.model.PipelineResourceIr res =
         new com.percussion.services.pipeline.model.PipelineResourceIr();

@@ -36,6 +36,10 @@ import {
   startApplication,
   stopApplication,
 } from "../api/developer/pipelinesApi";
+import { downloadXmlFile } from "../api/developer/contentTypeImportExport";
+import {
+  exportPipelineApplication,
+} from "../api/developer/pipelineImportExport";
 import type { PipelineOpenApiFormat } from "../api/developer/pipelinesApi";
 import type {
   ApplicationDetail,
@@ -568,6 +572,7 @@ export function PipelineDetailPanel({
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [lifecycleAction, setLifecycleAction] = useState<"start" | "stop" | null>(null);
+  const [exporting, setExporting] = useState(false);
   const [resourceName, setResourceName] = useState("");
   const [invokeBody, setInvokeBody] = useState(DEFAULT_INVOKE_BODY);
   const [invokeBusy, setInvokeBusy] = useState(false);
@@ -641,6 +646,7 @@ export function PipelineDetailPanel({
     setNotice(null);
     setBusy(false);
     setLifecycleAction(null);
+    setExporting(false);
     setResourceName("");
     setInvokeBody(DEFAULT_INVOKE_BODY);
     setInvokeBusy(false);
@@ -889,6 +895,43 @@ export function PipelineDetailPanel({
       if (mountedRef.current) {
         setBusy(false);
         setLifecycleAction(null);
+      }
+    }
+  }
+
+  function exportErrMsg(err: unknown): string {
+    if (isApiError(err) && err.status === 404) {
+      return panelErrMsg(err, DEV_MSG.PIPE_EXPORT_NOT_FOUND);
+    }
+    if (isApiError(err) && err.status === 403) {
+      return DEV_MSG.PIPE_IMPORT_EXPORT_FORBIDDEN;
+    }
+    return panelErrMsg(err, DEV_MSG.PIPE_EXPORT_ERROR);
+  }
+
+  function canExport(d: ApplicationDetail | null): boolean {
+    return d != null && d.hidden !== true;
+  }
+
+  async function onExport(): Promise<void> {
+    if (!detail || inflight.current || !canExport(detail)) return;
+    inflight.current = true;
+    setBusy(true);
+    setExporting(true);
+    setActionError(null);
+    setNotice(null);
+    try {
+      const exported = await exportPipelineApplication(idOrName);
+      if (!mountedRef.current) return;
+      downloadXmlFile(exported.xml, exported.filename);
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setActionError(exportErrMsg(err));
+    } finally {
+      inflight.current = false;
+      if (mountedRef.current) {
+        setBusy(false);
+        setExporting(false);
       }
     }
   }
@@ -1337,6 +1380,7 @@ export function PipelineDetailPanel({
 
   const startEnabled = detail != null && !busy && canStart(detail);
   const stopEnabled = detail != null && !busy && canStop(detail);
+  const exportEnabled = detail != null && !busy && canExport(detail);
   // Keep Invoke clickable when resource is blank so client validation can surface.
   const invokeEnabled = detail != null && !invokeBusy;
   const dataSetNames = (detail?.dataSets || [])
@@ -1441,6 +1485,17 @@ export function PipelineDetailPanel({
                 style={stopEnabled ? secondaryButton : disabledSecondary}
               >
                 {lifecycleAction === "stop" ? DEV_MSG.PIPE_STOPPING : DEV_MSG.PIPE_STOP}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-pipe-export"
+                aria-label={DEV_MSG.PIPE_EXPORT}
+                title={exportEnabled ? DEV_MSG.PIPE_EXPORT : DEV_MSG.PIPE_EXPORT_DISABLED_HINT}
+                disabled={!exportEnabled}
+                onClick={() => void onExport()}
+                style={exportEnabled ? secondaryButton : disabledSecondary}
+              >
+                {exporting ? DEV_MSG.PIPE_EXPORTING : DEV_MSG.PIPE_EXPORT}
               </button>
             </div>
           ) : null}

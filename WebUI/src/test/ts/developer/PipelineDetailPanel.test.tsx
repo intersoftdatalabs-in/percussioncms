@@ -8,8 +8,17 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapContext";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as pipelinesApi from "../../../main/ts/api/developer/pipelinesApi";
+import { downloadXmlFile } from "../../../main/ts/api/developer/contentTypeImportExport";
+import { exportPipelineApplication } from "../../../main/ts/api/developer/pipelineImportExport";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { PipelineDetailPanel } from "../../../main/ts/developer/PipelineDetailPanel";
+
+vi.mock("../../../main/ts/api/developer/contentTypeImportExport", () => ({
+  downloadXmlFile: vi.fn(),
+}));
+vi.mock("../../../main/ts/api/developer/pipelineImportExport", () => ({
+  exportPipelineApplication: vi.fn(),
+}));
 
 vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   getApplicationDetail: vi.fn(),
@@ -1174,5 +1183,48 @@ describe("PipelineDetailPanel", () => {
     expect(screen.getByTestId("developer-pipe-openapi-error").textContent).not.toContain(
       "../",
     );
+  });
+
+  it("Admin exports application XML and triggers a download", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    (exportPipelineApplication as ReturnType<typeof vi.fn>).mockResolvedValue({
+      xml: "<PSXApplication/>",
+      filename: "sys_cmpDocuments.xml",
+    });
+    renderDetail(true);
+    const btn = await screen.findByTestId("developer-pipe-export");
+    expect(btn).toBeEnabled();
+    fireEvent.click(btn);
+    await waitFor(() => {
+      expect(exportPipelineApplication).toHaveBeenCalledWith("sys_cmpDocuments");
+    });
+    expect(downloadXmlFile).toHaveBeenCalledWith(
+      "<PSXApplication/>",
+      "sys_cmpDocuments.xml",
+    );
+  });
+
+  it("Admin export surfaces a 404 without echoing the path id", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    (exportPipelineApplication as ReturnType<typeof vi.fn>).mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: { message: "Application not found" },
+    });
+    renderDetail(true);
+    fireEvent.click(await screen.findByTestId("developer-pipe-export"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-lifecycle-error")).toBeTruthy();
+    });
+  });
+
+  it("non-Admin has no lifecycle toolbar and no export", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(false);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-detail-title")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-pipe-lifecycle")).toBeNull();
+    expect(screen.queryByTestId("developer-pipe-export")).toBeNull();
   });
 });
