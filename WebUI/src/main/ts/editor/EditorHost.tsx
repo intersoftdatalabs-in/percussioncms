@@ -268,6 +268,21 @@ import {
 import styles from "./EditorHost.module.css";
 import { normalizeEditorMode, type EditorHostMode } from "./editorHostUrl";
 import { EditorRelatedContentPanel } from "./EditorRelatedContentPanel";
+import {
+  EditorPageMetadataPanel,
+  PageSummaryPreview,
+} from "./EditorPageMetadataPanel";
+import { EditorSiteImpactPanel } from "./EditorSiteImpactPanel";
+import {
+  defaultPageMetadataOpenGroups,
+  groupPageMetadataRows,
+  isAutoSummaryOn,
+  PAGE_METADATA_ARIA_REQUIRED_FIELDS,
+  PAGE_METADATA_AUTO_SUMMARY_FIELD,
+  PAGE_METADATA_SUMMARY_FIELD,
+  pageMetadataGroupsWithErrors,
+  withPageFilenameField,
+} from "./editorPageMetadata";
 import { EditorWorkflowAssigneeDialog } from "./EditorWorkflowAssigneeDialog";
 import { EditorWorkflowPanel } from "./EditorWorkflowPanel";
 import { EDITOR_MSG } from "./messages";
@@ -499,6 +514,7 @@ function EditorFieldControl({
   itemId,
   locked,
   invalid,
+  forceAriaRequired,
   onChange,
   onFile,
   onClear,
@@ -513,6 +529,11 @@ function EditorFieldControl({
   itemId: string;
   locked: boolean;
   invalid?: boolean;
+  /**
+   * Page-metadata parity (#5739): force {@code aria-required} on filename /
+   * link-text / browser-title without changing schema validation.
+   */
+  forceAriaRequired?: boolean;
   htmlEngine: HtmlEditorEngine;
   onChange: (name: string, value: string) => void;
   onFile: (name: string, file: File | null) => void;
@@ -528,6 +549,7 @@ function EditorFieldControl({
     storedName: string,
   ) => Promise<{ filename: string; bytes: Uint8Array<ArrayBuffer> }>;
 }): React.ReactElement {
+  const ariaRequired = row.required || forceAriaRequired === true;
   if (row.kind === "html") {
     const showClear = !locked && row.value.length > 0;
     return (
@@ -648,7 +670,7 @@ function EditorFieldControl({
           value={row.value}
           readOnly={locked}
           aria-invalid={invalid ? true : undefined}
-          aria-required={row.required ? true : undefined}
+          aria-required={ariaRequired ? true : undefined}
           onChange={(e) => onChange(row.name, e.target.value)}
         />
         {showClear ? (
@@ -681,7 +703,7 @@ function EditorFieldControl({
           value={value}
           disabled={locked}
           aria-invalid={invalid ? true : undefined}
-          aria-required={row.required ? true : undefined}
+          aria-required={ariaRequired ? true : undefined}
           onChange={(e) => onChange(row.name, e.target.value)}
         >
           <option value="">{message(EDITOR_MSG.YESNO_EMPTY)}</option>
@@ -718,7 +740,7 @@ function EditorFieldControl({
           value={row.value}
           readOnly={locked}
           aria-invalid={invalid ? true : undefined}
-          aria-required={row.required ? true : undefined}
+          aria-required={ariaRequired ? true : undefined}
           onChange={(e) => onChange(row.name, e.target.value)}
         />
         {showClear ? (
@@ -748,7 +770,7 @@ function EditorFieldControl({
           value={row.value}
           readOnly={locked}
           aria-invalid={invalid ? true : undefined}
-          aria-required={row.required ? true : undefined}
+          aria-required={ariaRequired ? true : undefined}
           onChange={(e) => onChange(row.name, e.target.value)}
         />
         {showClear ? (
@@ -776,7 +798,7 @@ function EditorFieldControl({
         value={row.value}
         readOnly={locked}
         aria-invalid={invalid ? true : undefined}
-        aria-required={row.required ? true : undefined}
+        aria-required={ariaRequired ? true : undefined}
         onChange={(e) => onChange(row.name, e.target.value)}
       />
       {showTextClear ? (
@@ -1342,6 +1364,55 @@ export function EditorHost({
       }));
   }, [payload, draft, schema, schemaReadOnlyNames]);
 
+  /**
+   * Page-metadata dialog chrome (#5739): collapsible groups, auto-summary
+   * preview, filename filter, and site-impact panel for {@code percPage}
+   * items. Other content types keep the flat field list.
+   */
+  const isPageMetadata = payload != null && isExplorerPageType(payload.contentType);
+  const pageMetadata = useMemo(
+    () => (isPageMetadata ? groupPageMetadataRows(rows) : null),
+    [isPageMetadata, rows],
+  );
+  const [metadataOpenGroups, setMetadataOpenGroups] = useState<
+    Record<string, boolean>
+  >(() => defaultPageMetadataOpenGroups());
+
+  function toggleMetadataGroup(id: string): void {
+    setMetadataOpenGroups((prev) => ({
+      ...prev,
+      [id]: !(prev[id] ?? false),
+    }));
+  }
+
+  useEffect(() => {
+    if (!pageMetadata) {
+      return;
+    }
+    const ids = pageMetadataGroupsWithErrors(pageMetadata.sections, fieldErrors);
+    if (ids.length === 0) {
+      return;
+    }
+    setMetadataOpenGroups((prev) => {
+      if (ids.every((id) => prev[id] === true)) {
+        return prev;
+      }
+      return { ...prev, ...Object.fromEntries(ids.map((id) => [id, true])) };
+    });
+  }, [pageMetadata, fieldErrors]);
+
+  const autoSummaryRow = isPageMetadata
+    ? rows.find(
+        (row) =>
+          row.name.trim().toLowerCase() === PAGE_METADATA_AUTO_SUMMARY_FIELD,
+      )
+    : undefined;
+  const autoSummaryOn = isAutoSummaryOn(autoSummaryRow?.value);
+  const pageSummaryValue =
+    rows.find(
+      (row) => row.name.trim().toLowerCase() === PAGE_METADATA_SUMMARY_FIELD,
+    )?.value ?? "";
+
   useEffect(() => {
     const errors = focusInvalidRef.current;
     if (!errors) {
@@ -1359,6 +1430,71 @@ export function EditorHost({
       focusInvalidRef.current = null;
     }
   }, [fieldErrors, rows]);
+
+  /**
+   * One metadata field row. Shared by the flat list and the page-metadata
+   * groups (#5739): for {@code percPage} items the summary editor hides
+   * behind the sanitized read-only preview while auto-summary is on, and
+   * filename / link-text / browser-title carry {@code aria-required}.
+   */
+  function renderFieldRow(row: EditorFieldRow): React.ReactElement {
+    const showSummaryPreview =
+      isPageMetadata &&
+      autoSummaryOn &&
+      row.name.trim().toLowerCase() === PAGE_METADATA_SUMMARY_FIELD;
+    return (
+      <label
+        key={`${row.name}:${discardEpoch}:${
+          row.kind === "file" || row.kind === "image" ? binaryEpoch : 0
+        }`}
+        className={styles.field}
+        data-testid={`editor-field-row-${row.name}`}
+        data-required={row.required ? "true" : "false"}
+      >
+        <span className={styles.label}>
+          {row.label}
+          {row.required ? (
+            <span className={styles.requiredMark} aria-hidden="true">
+              {" "}
+              *
+            </span>
+          ) : null}
+        </span>
+        {showSummaryPreview ? (
+          <PageSummaryPreview html={pageSummaryValue} />
+        ) : (
+          <EditorFieldControl
+            row={row}
+            itemId={String(contentId)}
+            locked={readOnly || !canEdit || row.readOnly}
+            invalid={Boolean(fieldErrors[row.name])}
+            forceAriaRequired={
+              isPageMetadata &&
+              PAGE_METADATA_ARIA_REQUIRED_FIELDS.has(row.name.trim().toLowerCase())
+            }
+            htmlEngine={htmlEngine}
+            onChange={setField}
+            onFile={setFile}
+            onClear={markBinaryClear}
+            loadKeywords={loadKeywords}
+            onKeywordChoices={reportKeywordChoices}
+            loadCommunities={loadCommunities}
+            loadBinaryMeta={loadBinaryMeta}
+            downloadBinary={downloadBinary}
+          />
+        )}
+        {fieldErrors[row.name] ? (
+          <span
+            className={styles.fieldError}
+            role="alert"
+            data-testid={`editor-field-error-${row.name}`}
+          >
+            {fieldErrors[row.name]}
+          </span>
+        ) : null}
+      </label>
+    );
+  }
 
   function queueFocusFirstInvalid(errors: Record<string, string>): void {
     if (Object.keys(errors).length === 0) {
@@ -1787,6 +1923,12 @@ export function EditorHost({
         ...payload,
         fields: fieldsForEditorSave(rows),
       };
+      if (isExplorerPageType(payload.contentType)) {
+        // Classic `_saveMetadata` parity (#5739): trim + trailing-dot
+        // strip on the filename before submit. The echoed PUT response
+        // re-syncs the draft below.
+        next.fields = withPageFilenameField(next.fields);
+      }
       if (
         isExplorerPageType(payload.contentType) &&
         isAllowedPageTemplate(pageTemplateId, pageTemplateChoices)
@@ -5214,51 +5356,21 @@ export function EditorHost({
                     }
                   }}
                 >
-                  {rows.map((row) => (
-                    <label
-                      key={`${row.name}:${discardEpoch}:${
-                        row.kind === "file" || row.kind === "image" ? binaryEpoch : 0
-                      }`}
-                      className={styles.field}
-                      data-testid={`editor-field-row-${row.name}`}
-                      data-required={row.required ? "true" : "false"}
-                    >
-                      <span className={styles.label}>
-                        {row.label}
-                        {row.required ? (
-                          <span className={styles.requiredMark} aria-hidden="true">
-                            {" "}
-                            *
-                          </span>
-                        ) : null}
-                      </span>
-                      <EditorFieldControl
-                        row={row}
-                        itemId={String(contentId)}
-                        locked={readOnly || !canEdit || row.readOnly}
-                        invalid={Boolean(fieldErrors[row.name])}
-                        htmlEngine={htmlEngine}
-                        onChange={setField}
-                        onFile={setFile}
-                        onClear={markBinaryClear}
-                        loadKeywords={loadKeywords}
-                        onKeywordChoices={reportKeywordChoices}
-                        loadCommunities={loadCommunities}
-                        loadBinaryMeta={loadBinaryMeta}
-                        downloadBinary={downloadBinary}
-                      />
-                      {fieldErrors[row.name] ? (
-                        <span
-                          className={styles.fieldError}
-                          role="alert"
-                          data-testid={`editor-field-error-${row.name}`}
-                        >
-                          {fieldErrors[row.name]}
-                        </span>
-                      ) : null}
-                    </label>
-                  ))}
+                  {pageMetadata ? (
+                    <EditorPageMetadataPanel
+                      sections={pageMetadata.sections}
+                      ungrouped={pageMetadata.ungrouped}
+                      openGroups={metadataOpenGroups}
+                      onToggleGroup={toggleMetadataGroup}
+                      renderRow={renderFieldRow}
+                    />
+                  ) : (
+                    rows.map((row) => renderFieldRow(row))
+                  )}
                 </form>
+                {isPageMetadata && contentId != null ? (
+                  <EditorSiteImpactPanel itemId={String(contentId)} />
+                ) : null}
               </>
             )}
           </>

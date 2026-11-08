@@ -164,6 +164,70 @@
   text-align: left;
 }
 
+.metadataGroup {
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  margin-bottom: 8px;
+}
+
+.metadataGroupToggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: #f1f5f9;
+  border: none;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  text-align: left;
+}
+
+.metadataGroupMarker {
+  display: inline-block;
+  width: 0;
+  height: 0;
+  border-top: 5px solid transparent;
+  border-bottom: 5px solid transparent;
+  border-left: 8px solid #334155;
+}
+
+.metadataGroupMarker[data-metadata-open="true"] {
+  border-left: 5px solid transparent;
+  border-right: 5px solid transparent;
+  border-top: 8px solid #334155;
+}
+
+.metadataGroupBody {
+  display: grid;
+  gap: 0.9rem;
+  padding: 12px;
+}
+
+.metadataNote {
+  display: grid;
+  gap: 2px;
+}
+
+.metadataNoteTitle {
+  font-size: 12px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.metadataNoteText {
+  font-size: 12px;
+  color: #64748b;
+}
+
+.metadataPreview {
+  min-height: 4rem;
+  overflow: auto;
+}
+
 .input,
 .textarea {
   width: 100%;
