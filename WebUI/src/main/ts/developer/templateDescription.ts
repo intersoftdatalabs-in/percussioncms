@@ -117,6 +117,11 @@ function asSlotList(raw: unknown): TemplateSlotSummary[] {
   const nested = env.Slot ?? env.TemplateSlot;
   if (Array.isArray(nested)) return nested as TemplateSlotSummary[];
   if (nested && typeof nested === "object") return [nested as TemplateSlotSummary];
+  // Jackson emits one slot as the object itself, not a one-element array
+  // (bare {name,label,guid,...} when a template contains exactly one slot).
+  if ("name" in env || "label" in env || "guid" in env) {
+    return [raw as TemplateSlotSummary];
+  }
   return [];
 }
 

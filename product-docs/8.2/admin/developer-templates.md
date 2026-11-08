@@ -135,6 +135,31 @@ Integrators read and write the same list on `GET` / `PUT /services/templates/{id
 Automated H2 surface coverage lives in
 `modules/perc-qa-automation/frontend/tests/developer-template-content-type-assoc.spec.js`.
 
+### Contained slots
+
+The **Slots** section lists every catalog slot with a **Member** checkbox for
+whether the template contains it. Browse is available without a lock. After
+**Lock**:
+
+1. Check one unassigned slot to assign it to the template (or uncheck a member
+   to remove it). Other members, label, description, source, bindings, and
+   content-type associations stay.
+2. **Save template** replaces the full set (the SPA sends the remaining `slots`
+   list only when a checkbox changed; omitting the field on REST leaves slot
+   membership unchanged). After **Save**, a subsequent GET of the same template
+   must list the assigned slot (assign and remove both persist).
+
+Unlocked save is refused (**Save template** stays disabled without a held lock,
+and a stolen lock is **409**). Unknown slot names are **400** (the rest of the
+save is not applied). Non-Admin is **403**. Unknown templates are **404**. Save
+does **not** release the lock. Integrators read and write the same list on
+`GET` / `PUT /services/templates/{idOrName}` as `slots`
+(see [REST API](id:developer-rest)).
+
+Automated H2 surface coverage lives in
+`modules/perc-qa-automation/frontend/tests/developer-template-slot-assign.spec.js`
+(`npm run test:surface -- --path tests/developer-template-slot-assign.spec.js`).
+
 The **assembler** extension name (for example
 `Java/global/percussion/assembly/htmlAssembler`) is **read-only** on this
 catalog. To create a template or to switch **HTML-first**, **Markdown**, or
