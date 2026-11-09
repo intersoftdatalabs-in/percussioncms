@@ -1411,11 +1411,11 @@ onchange    %Script;       #IMPLIED
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="codemirror.bundle.js" type="script" mimetype="text/javascript">
-            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror/codemirror.bundle.js</psxctl:FileLocation>
+            <psxctl:FileLocation>/sys_resources/codemirror/codemirror/codemirror.bundle.js</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
          <psxctl:FileDescriptor name="codemirror.bundle.css" type="css" mimetype="text/css">
-            <psxctl:FileLocation>/sys_resources/tinymce/plugins/codemirror/codemirror/codemirror.bundle.css</psxctl:FileLocation>
+            <psxctl:FileLocation>/sys_resources/codemirror/codemirror/codemirror.bundle.css</psxctl:FileLocation>
             <psxctl:Timestamp/>
          </psxctl:FileDescriptor>
       </psxctl:AssociatedFileList>

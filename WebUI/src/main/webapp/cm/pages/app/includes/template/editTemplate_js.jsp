@@ -57,8 +57,10 @@
 <script  src="../controllers/PercCSSController.js"></script>
 <script  src="../plugins/PercContentEditorHandlers.js"></script>
 
-<%--  CodeMirror 5, npm-managed + esbuild-bundled (issue #5626). Built from the
-      `codemirror` npm package by modules/perc-tinymce; exposes the same global
-      `CodeMirror` API the template editor uses (fromTextArea/getValue). --%>
-<script src="/sys_resources/tinymce/plugins/codemirror/codemirror/codemirror.bundle.js"></script>
-<link rel="stylesheet" href="/sys_resources/tinymce/plugins/codemirror/codemirror/codemirror.bundle.css" />
+<%--  CodeMirror 5, npm-managed + esbuild-bundled. Built from the `codemirror`
+      npm package by modules/perc-common-ui-bundle (issue #5784; relocated
+      from modules/perc-tinymce so the bundle survives the perc-tinymce
+      packaging removal in #5734); exposes the same global `CodeMirror` API
+      the template editor uses (fromTextArea/getValue). --%>
+<script src="/sys_resources/codemirror/codemirror/codemirror.bundle.js"></script>
+<link rel="stylesheet" href="/sys_resources/codemirror/codemirror/codemirror.bundle.css" />

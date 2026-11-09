@@ -5,8 +5,12 @@
   "private": true,
   "scripts": {
     "bundle": "node build-scripts/bundle.mjs",
+    "bundle:codemirror": "node build-scripts/bundle-codemirror.mjs",
     "test": "vitest run",
     "test:watch": "vitest"
+  },
+  "dependencies": {
+    "codemirror": "5.65.21"
   },
   "devDependencies": {
     "esbuild": "0.28.2",

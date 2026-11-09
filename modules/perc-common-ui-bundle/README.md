@@ -13,6 +13,20 @@ the `src/main` and `src/test` directories hold JavaScript files that the
 those generated resources inside
 `perc-common-ui-bundle-8.2.0-SNAPSHOT.jar`.
 
+## CodeMirror bundle (issue #5784)
+
+`build-scripts/bundle-codemirror.mjs` (npm script `bundle:codemirror`,
+Maven `bundle-codemirror` execution) bundles the `codemirror` npm package
+(pinned to CodeMirror 5 until #5701 lands the CodeMirror 6 replacement)
+into `target/classes/META-INF/resources/sys_resources/codemirror/codemirror/`
+(`codemirror.bundle.js` + `codemirror.bundle.css`). The classic template
+editor (`editTemplate_js.jsp` mirrors) and the `sys_TextArea` code-editor
+control (`sys_Templates.xsl`) load this TinyMCE-independent path, so they
+survive the `perc-tinymce` packaging removal (#5734). Contract tests:
+`src/test/js/codemirror-bundle.test.js` (pinned major line + entry
+unwrapping); live coverage:
+`modules/perc-qa-automation/frontend/tests/editor-codemirror-bundle.spec.js`.
+
 The POM disables the standard `maven-compiler-plugin` execution and uses
 `frontend-maven-plugin` (run via `npm`) plus `maven-jar-plugin` to
 package the generated resources into the final JAR. The

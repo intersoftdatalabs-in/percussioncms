@@ -96,6 +96,21 @@
                             <arguments>run bundle</arguments>
                         </configuration>
                     </execution>
+                    <execution>
+                        <!-- CodeMirror 5 npm bundle for the classic template
+                             editor + sys_TextArea code-editor control
+                             (issue #5784). Served from the TinyMCE-independent
+                             path /sys_resources/codemirror/codemirror/ so it
+                             survives the perc-tinymce removal (#5734). -->
+                        <id>bundle-codemirror</id>
+                        <goals>
+                            <goal>npm</goal>
+                        </goals>
+                        <phase>prepare-package</phase>
+                        <configuration>
+                            <arguments>run bundle:codemirror</arguments>
+                        </configuration>
+                    </execution>
                 </executions>
             </plugin>
             <!--

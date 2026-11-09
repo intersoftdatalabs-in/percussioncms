@@ -16,17 +16,20 @@
  */
 
 /**
- * TinyMCE `codemirror` plugin npm bundle regression (issue #5626).
+ * Classic CodeMirror bundle regression (issues #5626, #5784).
  *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor}</p>
  *
  * <p>Run (QA mode after {@code perc-devctl qa-up}):
  * {@code npm run test:surface -- --path tests/editor-codemirror-bundle.spec.js}</p>
  *
- * <p>Covers the WebJar-to-npm migration: the file the plugin and the classic
- * template/page-edit dialogs load ({@code codemirror.bundle.js} built from the
- * {@code codemirror} npm package by {@code modules/perc-tinymce}) must be
- * served, must expose the same global CodeMirror 5 API the consumers use
+ * <p>Covers the WebJar-to-npm migration (#5626) and the TinyMCE-independent
+ * relocation (#5784): the file the classic template/page-edit dialogs and the
+ * {@code sys_TextArea} code-editor control load
+ * ({@code codemirror.bundle.js} built from the {@code codemirror} npm package
+ * by {@code modules/perc-common-ui-bundle}, served from
+ * {@code /sys_resources/codemirror/codemirror/}) must be served, must expose
+ * the same global CodeMirror 5 API the consumers use
  * ({@code fromTextArea}/{@code getValue}, {@code htmlmixed} mode, search and
  * fullscreen addons), and must edit HTML in a real browser. The old
  * per-file WebJar layout ({@code codemirror/lib/...}) must be gone.</p>
@@ -37,16 +40,22 @@ const fs = require("fs");
 const path = require("path");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 
-const PLUGIN_BASE =
-  "/Rhythmyx/sys_resources/tinymce/plugins/codemirror/codemirror";
+const PLUGIN_BASE = "/Rhythmyx/sys_resources/codemirror/codemirror";
 const BUNDLE_JS = `${PLUGIN_BASE}/codemirror.bundle.js`;
 const BUNDLE_CSS = `${PLUGIN_BASE}/codemirror.bundle.css`;
-const LEGACY_LIB = `${PLUGIN_BASE}/lib/codemirror.js`;
+// Old per-file WebJar layout (removed by #5626) under the legacy
+// TinyMCE-hosted base (kept serving the bundle until #5734 deletes
+// modules/perc-tinymce; #5784 consumers no longer point at it).
+const LEGACY_TINYMCE_BASE =
+  "/Rhythmyx/sys_resources/tinymce/plugins/codemirror/codemirror";
+const LEGACY_LIB = `${LEGACY_TINYMCE_BASE}/lib/codemirror.js`;
 
 // Classic template-editor JSPs that embed the CodeMirror loader. The
 // `WebUI/war` tree is a dual-ship mirror of `WebUI/src/main/webapp` for
-// these residual dialogs (issue #5626 follow-up): every copy must load the
-// same npm bundle, never the removed per-file WebJar layout.
+// these residual dialogs: every copy must load the same TinyMCE-independent
+// npm bundle (#5784), never the removed per-file WebJar layout (#5626) and
+// never the legacy TinyMCE-hosted bundle path (kept only as a fallback until
+// #5734 deletes modules/perc-tinymce).
 const REPO_ROOT = path.join(__dirname, "..", "..", "..", "..");
 const TEMPLATE_JSP_MIRRORS = [
   "WebUI/src/main/webapp/cm/app/includes/template/editTemplate_js.jsp",
@@ -61,7 +70,7 @@ function codemirrorLoaderLines(jspPath) {
   return text.split("\n").filter((line) => /codemirror/i.test(line));
 }
 
-test.describe("TinyMCE CodeMirror npm bundle (issue #5626)", () => {
+test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
   test(
     "bundle serves the CodeMirror 5 API and edits HTML",
     { tag: ["@explorer-content-editor", "@editor"] },
@@ -77,7 +86,8 @@ test.describe("TinyMCE CodeMirror npm bundle (issue #5626)", () => {
 
       await loginAsAdmin(page);
 
-      // Bundle assets are served (200) from the packaged perc-tinymce JAR.
+      // Bundle assets are served (200) from the packaged
+      // perc-common-ui-bundle JAR (issue #5784 relocation).
       const jsResponse = await page.request.get(`${BASE_URL}${BUNDLE_JS}`);
       expect(jsResponse.ok(), `bundle JS not served: ${BUNDLE_JS}`).toBe(true);
       const cssResponse = await page.request.get(`${BASE_URL}${BUNDLE_CSS}`);
@@ -180,11 +190,17 @@ test.describe("TinyMCE CodeMirror npm bundle (issue #5626)", () => {
           ).not.toMatch(/codemirror\/(lib|mode|addon|keymap|theme)\//);
         }
         expect(loaders[index]).toContain(
-          '<script src="/sys_resources/tinymce/plugins/codemirror/codemirror/codemirror.bundle.js"></script>',
+          '<script src="/sys_resources/codemirror/codemirror/codemirror.bundle.js"></script>',
         );
         expect(loaders[index]).toContain(
-          '<link rel="stylesheet" href="/sys_resources/tinymce/plugins/codemirror/codemirror/codemirror.bundle.css" />',
+          '<link rel="stylesheet" href="/sys_resources/codemirror/codemirror/codemirror.bundle.css" />',
         );
+        for (const line of loaders[index]) {
+          expect(
+            line,
+            `${jspPath} must not reference the legacy TinyMCE-hosted bundle path: ${line}`,
+          ).not.toMatch(/sys_resources\/tinymce\//);
+        }
       }
       expect(loaders[1]).toEqual(loaders[0]);
       expect(loaders[2]).toEqual(loaders[0]);
