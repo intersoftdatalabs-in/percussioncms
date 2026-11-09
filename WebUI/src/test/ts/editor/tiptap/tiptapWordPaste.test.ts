@@ -98,4 +98,61 @@ describe("tiptapWordPaste", () => {
     expect(isPastedLinkHrefSafe("")).toBe(false);
     expect(isPastedLinkHrefSafe("https://example.com/\u0000x")).toBe(false);
   });
+
+  it("rebuilds Word bullet paragraphs into a real list", () => {
+    const word =
+      '<html xmlns:o="urn:schemas-microsoft-com:office:office"><body>' +
+      '<p class="MsoNormal">Intro<o:p></o:p></p>' +
+      '<p class="MsoListParagraph" style="text-indent:-18pt;mso-list:l0 level1 lfo1;">' +
+      '<span style="font-family:Symbol;">\u00b7<span>&nbsp;&nbsp;</span></span>Item one<o:p></o:p></p>' +
+      '<p class="MsoListParagraph"><span>\u00b7</span> Item <b>two</b><o:p></o:p></p>' +
+      '<p class="MsoNormal">After<o:p></o:p></p>' +
+      "</body></html>";
+    const out = sanitizeWordPastedHtml(word);
+    expect(out).toContain("<ul>");
+    expect(out).toContain("<li>Item one</li>");
+    expect(out).toContain("<li>Item <b>two</b></li>");
+    expect(out).not.toContain("MsoListParagraph");
+    expect(out).not.toContain("mso-list");
+    expect(out).not.toContain("\u00b7");
+    expect(out).toContain("<p>Intro</p>");
+    expect(out).toContain("<p>After</p>");
+  });
+
+  it("rebuilds Word numbered paragraphs into an ordered list", () => {
+    const word =
+      '<p class="MsoListParagraph" style="mso-list:l1 level1 lfo1;">1. First<o:p></o:p></p>' +
+      '<p class="MsoListParagraph">2. Second<o:p></o:p></p>' +
+      '<p class="MsoListParagraph">a) Third<o:p></o:p></p>';
+    const out = sanitizeWordPastedHtml(word);
+    expect(out).toContain("<ol>");
+    expect(out).toContain("<li>First</li>");
+    expect(out).toContain("<li>Second</li>");
+    expect(out).toContain("<li>Third</li>");
+    expect(out).not.toContain("<ul>");
+  });
+
+  it("nests deeper mso-list levels inside their parent item", () => {
+    const word =
+      '<p class="MsoListParagraph" style="mso-list:l0 level1 lfo1;"><span>\u00b7</span> Top<o:p></o:p></p>' +
+      '<p class="MsoListParagraph" style="mso-list:l0 level2 lfo1;"><span>o</span> Nested<o:p></o:p></p>' +
+      '<p class="MsoListParagraph" style="mso-list:l0 level1 lfo1;"><span>\u00b7</span> Back<o:p></o:p></p>';
+    const out = sanitizeWordPastedHtml(word);
+    expect(out).toContain("<li>Top<ul>");
+    expect(out).toContain("<li>Nested</li>");
+    expect(out).toContain("<li>Back</li>");
+  });
+
+  it("splits list runs on non-list content and ordered/bullet changes", () => {
+    const word =
+      '<p class="MsoListParagraph"><span>\u00b7</span> One<o:p></o:p></p>' +
+      '<p class="MsoNormal">Break<o:p></o:p></p>' +
+      '<p class="MsoListParagraph">1. Two<o:p></o:p></p>' +
+      '<p class="MsoListParagraph"><span>\u00b7</span> Three<o:p></o:p></p>';
+    const out = sanitizeWordPastedHtml(word);
+    expect(out).toContain("<p>Break</p>");
+    expect(out).toContain("<ul><li>One</li></ul>");
+    expect(out).toContain("<ol><li>Two</li></ol>");
+    expect(out).toContain("<ul><li>Three</li></ul>");
+  });
 });
