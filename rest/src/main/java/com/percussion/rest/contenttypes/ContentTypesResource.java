@@ -1065,6 +1065,14 @@ public class ContentTypesResource {
   }
 
   /**
+   * Characters stripped from HTTP download filenames (RFC 6266 {@code Content-Disposition}).
+   * Protocol-level filename sanitization, not filesystem path construction: both separators are
+   * replaced on every OS on purpose so a download filename can never act as a path on any client
+   * platform. Deliberately not {@code File.separator}.
+   */
+  private static final String EXPORT_FILENAME_FORBIDDEN = "\"/\\:*?<>|";
+
+  /**
    * Basename for {@code Content-Disposition}. Strips characters that are unsafe in HTTP filenames
    * and Windows Explorer downloads (quotes, controls, path separators, {@code * ? < > |}). Not a
    * filesystem path.
@@ -1074,17 +1082,7 @@ public class ContentTypesResource {
     StringBuilder sb = new StringBuilder();
     for (int i = 0; i < raw.length(); i++) {
       char c = raw.charAt(i);
-      if (c <= 31
-          || c == 127
-          || c == '"'
-          || c == '\\'
-          || c == '/'
-          || c == ':'
-          || c == '*'
-          || c == '?'
-          || c == '<'
-          || c == '>'
-          || c == '|') {
+      if (c <= 31 || c == 127 || EXPORT_FILENAME_FORBIDDEN.indexOf(c) >= 0) {
         sb.append('_');
       } else {
         sb.append(c);

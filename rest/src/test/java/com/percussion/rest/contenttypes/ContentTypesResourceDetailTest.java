@@ -1858,6 +1858,9 @@ public class ContentTypesResourceDetailTest {
     assertEquals("a_b.xml", ContentTypesResource.exportFilename("a<b"));
     assertEquals("a_b.xml", ContentTypesResource.exportFilename("a>b"));
     assertEquals("a_b.xml", ContentTypesResource.exportFilename("a|b"));
+    assertEquals("a_b.xml", ContentTypesResource.exportFilename("a\\b"));
+    assertEquals("a_b.xml", ContentTypesResource.exportFilename("a:b"));
+    assertEquals("a_b.xml", ContentTypesResource.exportFilename("a\"b"));
   }
 
   @Test
