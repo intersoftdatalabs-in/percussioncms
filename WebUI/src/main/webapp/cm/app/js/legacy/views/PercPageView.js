@@ -739,9 +739,13 @@
             typeof asset.folderPaths != "undefined" &&
             asset.folderPaths.length > 0
           ) {
+            // Intentional "/": joins a CMS logical folder path (//Folders/$System$
+            // convention) with an asset name for display hover-text, not an OS filesystem path.
+            // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #5897,
+            // same as #5898/#5910/#5927/#5924) — slash joins CMS logical path segments, not an OS path.
             hoverText =
               asset.folderPaths[0].replace("//Folders/$System$", "") +
-              "/" +
+              "/" + // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #5897, same as #5898/#5910/#5927/#5924)
               asset.name;
             folderPaths = asset.folderPaths;
           }
@@ -1107,8 +1111,12 @@
     }
 
     function resetPageName() {
+      // Intentional "/": joins REST URL path segments (PAGE_CREATE endpoint + page id),
+      // not an OS filesystem path.
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #5897,
+      // same as #5898/#5910/#5927/#5924) — slash joins URL segments, not an OS path.
       $.ajax({
-        url: $.perc_paths.PAGE_CREATE + "/" + currentPageId,
+        url: $.perc_paths.PAGE_CREATE + "/" + currentPageId, // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #5897, same as #5898/#5910/#5927/#5924)
         success: function (data) {
           $("#perc-pageEditor-menu-name").html(data.Page.name);
         },
@@ -1371,6 +1379,10 @@
       if (siteName === undefined && itemType === "Page") {
         // Retrieve the page path folder by getting its data using its id,
         // Stripe the //Sites prefix from it and retrieve the site's name
+        // Intentional "/": parses a CMS logical path (//Sites/... convention,
+        // SITES_ROOT itself is defined with "/"), not an OS filesystem path.
+        // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #5897,
+        // same as #5898/#5910/#5927/#5924) — slashes parse the CMS logical folder path, not an OS path.
         var currentItemPath =
           $.perc_finder().getPathItemById(itemId).folderPath;
         siteName = currentItemPath
