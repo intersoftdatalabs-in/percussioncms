@@ -650,4 +650,17 @@ export const EDITOR_MSG = {
   WORKFLOW_HISTORY_COMMENT: "perc.ui.editor@Comment",
   WORKFLOW_HISTORY_OPEN: "perc.ui.editor@Show workflow history",
   WORKFLOW_HISTORY_HIDE: "perc.ui.editor@Hide workflow history",
+  SCHEDULED_TRANSITIONS_TITLE: "perc.ui.editor@Scheduled transitions",
+  SCHEDULED_TRANSITIONS_LOADING:
+    "perc.ui.editor@Loading scheduled transitions…",
+  SCHEDULED_TRANSITIONS_LOAD_FAILED:
+    "perc.ui.editor@Could not load the scheduled transitions.",
+  SCHEDULED_TRANSITIONS_EMPTY:
+    "perc.ui.editor@No embargo or expiry dates are scheduled for this item.",
+  SCHEDULED_TRANSITIONS_EMBARGO: "perc.ui.editor@Embargo (publish from)",
+  SCHEDULED_TRANSITIONS_EXPIRY: "perc.ui.editor@Expiry (until)",
+  SCHEDULED_TRANSITIONS_OPEN: "perc.ui.editor@Show scheduled transitions",
+  SCHEDULED_TRANSITIONS_HIDE: "perc.ui.editor@Hide scheduled transitions",
+  SCHEDULED_TRANSITIONS_SET: "perc.ui.editor@Set schedule",
+  SCHEDULED_TRANSITIONS_CLEAR: "perc.ui.editor@Clear schedule",
 };

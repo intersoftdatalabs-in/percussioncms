@@ -157,6 +157,10 @@ import {
   canViewWorkflowHistoryFromEditor,
   workflowHistoryEntries,
 } from "./editorWorkflowHistory";
+import {
+  canViewScheduledTransitionsFromEditor,
+  scheduledTransitionEntries,
+} from "./editorScheduledTransitions";
 import { fetchPreviewLocation } from "../api/contentExplorer/assemblyApi";
 import {
   canPreviewFromEditor,
@@ -290,6 +294,7 @@ import {
   withPageFilenameField,
 } from "./editorPageMetadata";
 import { EditorWorkflowAssigneeDialog } from "./EditorWorkflowAssigneeDialog";
+import { EditorScheduledTransitionsPanel } from "./EditorScheduledTransitionsPanel";
 import { EditorWorkflowHistoryPanel } from "./EditorWorkflowHistoryPanel";
 import { EditorWorkflowPanel } from "./EditorWorkflowPanel";
 import { EDITOR_MSG } from "./messages";
@@ -1139,6 +1144,16 @@ export function EditorHost({
   const [workflowHistoryLoadErrorKey, setWorkflowHistoryLoadErrorKey] =
     useState<string | null>(null);
   const [workflowHistoryLoadErrorDetail, setWorkflowHistoryLoadErrorDetail] =
+    useState("");
+  const [scheduledTransitionsOpen, setScheduledTransitionsOpen] =
+    useState(false);
+  const [scheduledTransitionsBusy, setScheduledTransitionsBusy] =
+    useState(false);
+  const [scheduledTransitionsDates, setScheduledTransitionsDates] =
+    useState<ItemScheduleDates | null>(null);
+  const [scheduledTransitionsLoadErrorKey, setScheduledTransitionsLoadErrorKey] =
+    useState<string | null>(null);
+  const [scheduledTransitionsLoadErrorDetail, setScheduledTransitionsLoadErrorDetail] =
     useState("");
   const [createOpen, setCreateOpen] = useState(contentId == null);
   const [createTypes, setCreateTypes] = useState<ContentTypeSummary[]>([]);
@@ -2836,6 +2851,7 @@ export function EditorHost({
     try {
       await saveScheduleDates(dates);
       setScheduleCurrent(dates);
+      setScheduledTransitionsDates(dates);
       setScheduleOpen(false);
       setScheduleDone(true);
       setClearScheduleDone(false);
@@ -2916,6 +2932,7 @@ export function EditorHost({
         return;
       }
       setScheduleCurrent(next);
+      setScheduledTransitionsDates(next);
       setClearScheduleOpen(false);
       setClearScheduleDone(true);
     } catch (err) {
@@ -4133,6 +4150,51 @@ export function EditorHost({
     }
   }
 
+  async function loadScheduledTransitionsDates(): Promise<void> {
+    if (contentId == null || !canViewScheduledTransitionsFromEditor(mode)) {
+      return;
+    }
+    setScheduledTransitionsBusy(true);
+    setScheduledTransitionsLoadErrorKey(null);
+    setScheduledTransitionsLoadErrorDetail("");
+    try {
+      const dates = await loadScheduleDates(String(contentId));
+      setScheduledTransitionsDates({
+        itemId: String(contentId),
+        startDate: dates.startDate ?? "",
+        endDate: dates.endDate ?? "",
+        comments: dates.comments ?? "",
+      });
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setScheduledTransitionsDates(null);
+      setScheduledTransitionsLoadErrorKey(
+        EDITOR_MSG.SCHEDULED_TRANSITIONS_LOAD_FAILED,
+      );
+      setScheduledTransitionsLoadErrorDetail(
+        formatApiError(
+          err,
+          message(EDITOR_MSG.SCHEDULED_TRANSITIONS_LOAD_FAILED),
+        ),
+      );
+    } finally {
+      setScheduledTransitionsBusy(false);
+    }
+  }
+
+  async function handleScheduledTransitionsOpen(): Promise<void> {
+    if (contentId == null || !canViewScheduledTransitionsFromEditor(mode)) {
+      return;
+    }
+    setScheduledTransitionsOpen((prev) => !prev);
+    if (scheduledTransitionsOpen) {
+      return;
+    }
+    await loadScheduledTransitionsDates();
+  }
+
   function compareErrorKeyFor(
     reason: ReturnType<typeof editorRevisionErrorReason>,
   ): string {
@@ -4297,6 +4359,8 @@ export function EditorHost({
   const showRestore = canRestoreFromEditor(mode) && contentId != null;
   const showWorkflowHistory =
     canViewWorkflowHistoryFromEditor(mode) && contentId != null;
+  const showScheduledTransitions =
+    canViewScheduledTransitionsFromEditor(mode) && contentId != null;
   const showCreate = canCreateFromEditor(mode);
 
   return (
@@ -4756,6 +4820,23 @@ export function EditorHost({
                 workflowHistoryOpen
                   ? EDITOR_MSG.WORKFLOW_HISTORY_HIDE
                   : EDITOR_MSG.WORKFLOW_HISTORY_OPEN,
+              )}
+            </button>
+          ) : null}
+          {showScheduledTransitions ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-scheduled-transitions-toggle"
+              disabled={
+                scheduledTransitionsBusy || loading || payload == null
+              }
+              onClick={() => void handleScheduledTransitionsOpen()}
+            >
+              {message(
+                scheduledTransitionsOpen
+                  ? EDITOR_MSG.SCHEDULED_TRANSITIONS_HIDE
+                  : EDITOR_MSG.SCHEDULED_TRANSITIONS_OPEN,
               )}
             </button>
           ) : null}
@@ -5417,6 +5498,21 @@ export function EditorHost({
                 loading={workflowHistoryBusy}
                 loadErrorKey={workflowHistoryLoadErrorKey}
                 loadErrorDetail={workflowHistoryLoadErrorDetail}
+              />
+            ) : null}
+            {showScheduledTransitions && scheduledTransitionsOpen ? (
+              <EditorScheduledTransitionsPanel
+                entries={scheduledTransitionEntries(
+                  scheduledTransitionsDates,
+                )}
+                loading={scheduledTransitionsBusy}
+                loadErrorKey={scheduledTransitionsLoadErrorKey}
+                loadErrorDetail={scheduledTransitionsLoadErrorDetail}
+                onRetryLoad={() => void loadScheduledTransitionsDates()}
+                canSet={mode === "edit"}
+                busy={scheduleBusy || scheduleSaving || clearScheduleBusy}
+                onSetSchedule={() => void handleOpenSchedule()}
+                onClearSchedule={() => void handleOpenClearSchedule()}
               />
             ) : null}
             {rows.length === 0 ? (
