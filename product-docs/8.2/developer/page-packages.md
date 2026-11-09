@@ -102,6 +102,26 @@ fallback stays in place (removal is tracked separately). Operators do not need t
 anything: this is the inspection path package build and upgrade tooling use to verify
 a modern package before it is staged into `TemplateDef-N/`.
 
+## Legacy definition-XML migration dry-run report
+
+Upgrade tooling previews a legacy definition-XML migration with
+`Java code: PSPageXmlMigrationDryRun` before anything is converted. The dry-run
+simulates parse → compile → manifest readback → install-XML parity for every
+`*.templateDef` file and renders a per-package status panel — what would change
+(would-be manifest id, template type, assembler, slot / binding counts) and what
+blocks (parse, compile, validation, or parity reason). **It writes nothing**: compile
+results live only in memory and `writeArtifacts` is never called.
+
+| Status | Meaning | Operator action |
+|--------|---------|-----------------|
+| `READY` | Parses, compiles, validates, and round-trips through the manifest path | Safe to convert with the normal package-build path |
+| `BLOCKED` | Migration cannot proceed; the panel names the reason | Fix the named blocker (malformed XML, unknown assembler, parity mismatch), then re-run |
+
+The panel renders as Markdown (`Report.toMarkdown()`, one row per package) for
+issue evidence and operator tooling, or plain text (`Report.toText()`) for CLI use.
+The legacy fallback is untouched by the dry-run; fallback-path removal is tracked
+separately.
+
 ## Dual-ship vs dual-run (do not mix them up)
 
 | Concept | Layer | Product 8.2 status |
