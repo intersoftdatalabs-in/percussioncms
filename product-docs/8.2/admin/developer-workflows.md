@@ -39,6 +39,22 @@ Workflow, Local Content, and any workflow the server marks as the default;
 other workflows show **Custom workflow**. Missing workflows (`404`) and
 non-Admin callers (`403`) surface as section alerts — not a blank success body.
 
+## Readback
+
+The catalog table is a thin read: it lists name, description, and the
+default flag from `GET /services/workflowmanagement/workflows/metadata`
+(`{"Workflow":[...]}`) and carries no step, transition, or role payload;
+the **Steps** cell shows a count only when the payload includes steps,
+otherwise **—**. Opening a row loads the detail from
+`GET /services/workflowmanagement/workflows/{name}` and shows the title,
+default flag, the step list (state, permissions, roles, transitions), and
+the state graph from `GET /services/workflows/{idOrName}/graph`. The
+thin-read detail payload carries no stored description (the description
+editor is present but empty), so the catalog row is the description
+readback. Packaged workflows (for example `Default Workflow`) read back
+with zero writes: the row renders from the thin list and the detail
+renders steps without creating, renaming, or deleting anything.
+
 ## Product path — browse steps (read-only)
 
 1. Sign in as **Admin**.
