@@ -1291,9 +1291,13 @@ describe("EditorHost rich controls", () => {
     await waitFor(() => {
       expect(screen.getByTestId("editor-form")).toBeTruthy();
     });
-    expect(screen.getByTestId("editor-field-text").getAttribute("data-editor-kind")).toBe(
-      "html",
-    );
+    // Field rows commit after the type catalog resolves, which can lag the
+    // form shell under parallel-worker load; wait for the first row (#5890).
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-text").getAttribute("data-editor-kind")).toBe(
+        "html",
+      );
+    });
     expect(screen.getByTestId("editor-field-img").getAttribute("data-editor-kind")).toBe(
       "image",
     );
