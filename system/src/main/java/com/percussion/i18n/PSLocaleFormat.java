@@ -112,6 +112,15 @@ public class PSLocaleFormat {
   @Column(name = "CALENDAR", length = 32)
   private String m_calendar;
 
+  /**
+   * Ordered per-locale fallback chain as comma-separated normalized language strings
+   * (e.g. {@code "en-us,es"}); null/blank when no chain is stored. Resolution still
+   * uses regional → language-only → {@code en-us} defaults unless a chain is stored.
+   */
+  @Basic
+  @Column(name = "FALLBACKCHAIN", length = 255)
+  private String m_fallbackChain;
+
   @Version
   @Column(name = "VERSION")
   private Integer m_version = 0;
@@ -229,6 +238,15 @@ public class PSLocaleFormat {
     m_calendar = emptyToNull(calendar);
   }
 
+  /** Raw stored chain (comma-separated) or null when none stored. */
+  public String getFallbackChain() {
+    return m_fallbackChain;
+  }
+
+  public void setFallbackChain(String fallbackChain) {
+    m_fallbackChain = emptyToNull(fallbackChain);
+  }
+
   public Integer getVersion() {
     return m_version;
   }
@@ -256,6 +274,7 @@ public class PSLocaleFormat {
     putIfPresent(m, "defaultTz", m_defaultTz);
     putIfPresent(m, "numberingSystem", m_numberingSystem);
     putIfPresent(m, "calendar", m_calendar);
+    putIfPresent(m, "fallbackChain", m_fallbackChain);
     return m;
   }
 

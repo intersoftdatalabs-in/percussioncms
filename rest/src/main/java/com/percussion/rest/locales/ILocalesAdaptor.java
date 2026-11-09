@@ -64,7 +64,11 @@ public interface ILocalesAdaptor {
    * stay. A blank {@code numberingSystem} clears that value. A value longer than 16 characters
    * is not a write. A calendar-only {@code format} updates {@code calendar}; omitted format
    * fields stay. A blank {@code calendar} clears that value. A value longer than 32 characters
-   * is not a write.
+   * is not a write. A fallback-chain-only {@code format} updates {@code fallbackChain};
+   * omitted format fields stay. An empty list clears the stored chain (sent blank-only on
+   * the wire, since nested empty arrays do not survive every JSON provider). Each entry
+   * must be a known locale language string; an unknown or invalid entry, or the locale
+   * itself, is not a write.
    *
    * @return detail, or {@code null} when not found / unsafe key
    */

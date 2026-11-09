@@ -3190,6 +3190,12 @@
                 <size>32</size>
                 <allowsnull>yes</allowsnull>
             </column>
+            <!-- Ordered per-locale fallback chain: comma-separated language strings (#5788). -->
+            <column name="FALLBACKCHAIN">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>255</size>
+                <allowsnull>yes</allowsnull>
+            </column>
             <column name="VERSION">
                 <jdbctype>INTEGER</jdbctype>
                 <size/>

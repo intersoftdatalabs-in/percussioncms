@@ -2280,4 +2280,261 @@ class LocalesAdaptorDesignWsTest {
     loc.setStatus(PSLocale.STATUS_INACTIVE);
     return loc;
   }
+
+  private static IPSCatalogSummary catalogSummary(IPSGuid guid) {
+    IPSCatalogSummary sum = mock(IPSCatalogSummary.class);
+    when(sum.getGUID()).thenReturn(guid);
+    return sum;
+  }
+
+  @Test
+  void updateLocale_fallbackChainOnlyLeavesOtherFields() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guidEn = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSGuid guidFr = new PSGuid(PSTypeEnum.LOCALE, 10L);
+    PSLocale locEn = newLocale(9, "en-us", "English");
+    locEn.setDescription("US English");
+    locEn.setStatus(PSLocale.STATUS_ACTIVE);
+    PSLocale locFr = newLocale(10, "fr-fr", "French");
+    IPSCatalogSummary sum0 = catalogSummary(guidEn);
+    IPSCatalogSummary sum1 = catalogSummary(guidFr);
+    when(designWs.findLocales(isNull(), isNull()))
+        .thenReturn(List.of(sum0, sum1));
+    when(designWs.loadLocales(eq(List.of(guidEn, guidFr)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(locEn, locFr));
+    when(designWs.loadLocales(eq(List.of(guidEn)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(locEn));
+
+    PSLocaleFormat existing = new PSLocaleFormat("en-us");
+    existing.setDatePattern("MM/dd/yyyy");
+    existing.setCalendar("gregory");
+    existing.setFallbackChain("es");
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.of(existing), saved::add, deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setFallbackChain(List.of("fr-fr", "fr-fr"));
+    body.setFormat(fmt);
+    LocaleDetail out = adaptor.updateLocale(null, "en-us", body);
+
+    assertEquals("English", locEn.getDisplayName());
+    assertEquals("US English", locEn.getDescription());
+    assertEquals(PSLocale.STATUS_ACTIVE, locEn.getStatus());
+    assertEquals(1, saved.size());
+    assertEquals("fr-fr", saved.get(0).getFallbackChain());
+    assertEquals("gregory", saved.get(0).getCalendar());
+    assertEquals("MM/dd/yyyy", saved.get(0).getDatePattern());
+    assertTrue(deleted.isEmpty());
+    assertNotNull(out);
+    assertEquals(List.of("fr-fr"), out.getFormat().getFallbackChain());
+  }
+
+  @Test
+  void updateLocale_emptyFallbackChainClearsChainOnly() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guidEn = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSGuid guidFr = new PSGuid(PSTypeEnum.LOCALE, 10L);
+    PSLocale locEn = newLocale(9, "en-us", "English");
+    PSLocale locFr = newLocale(10, "fr-fr", "French");
+    IPSCatalogSummary sum0 = catalogSummary(guidEn);
+    IPSCatalogSummary sum1 = catalogSummary(guidFr);
+    when(designWs.findLocales(isNull(), isNull()))
+        .thenReturn(List.of(sum0, sum1));
+    when(designWs.loadLocales(eq(List.of(guidEn, guidFr)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(locEn, locFr));
+    when(designWs.loadLocales(eq(List.of(guidEn)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(locEn));
+
+    PSLocaleFormat existing = new PSLocaleFormat("en-us");
+    existing.setCalendar("gregory");
+    existing.setFallbackChain("fr-fr,es");
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.of(existing), saved::add, lang -> {});
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setFallbackChain(List.of());
+    body.setFormat(fmt);
+    adaptor.updateLocale(null, "en-us", body);
+
+    assertEquals(1, saved.size());
+    assertNull(saved.get(0).getFallbackChain());
+    assertEquals("gregory", saved.get(0).getCalendar());
+  }
+
+  @Test
+  void updateLocale_blankOnlyFallbackChainClearsChainOnly() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guidEn = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSGuid guidFr = new PSGuid(PSTypeEnum.LOCALE, 10L);
+    PSLocale locEn = newLocale(9, "en-us", "English");
+    PSLocale locFr = newLocale(10, "fr-fr", "French");
+    IPSCatalogSummary sum0 = catalogSummary(guidEn);
+    IPSCatalogSummary sum1 = catalogSummary(guidFr);
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum0, sum1));
+    when(designWs.loadLocales(eq(List.of(guidEn, guidFr)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(locEn, locFr));
+    when(designWs.loadLocales(eq(List.of(guidEn)), eq(true), eq(false), any(), any()))
+        .thenReturn(List.of(locEn));
+
+    // Blank-only lists are the wire encoding of a clear: nested empty arrays do
+    // not survive the CXF JSON provider, so the SPA sends [""] and the server
+    // normalizes blanks before storing.
+    PSLocaleFormat existing = new PSLocaleFormat("en-us");
+    existing.setFallbackChain("fr-fr");
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.of(existing), saved::add, lang -> {});
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setFallbackChain(List.of(""));
+    body.setFormat(fmt);
+    adaptor.updateLocale(null, "en-us", body);
+
+    assertEquals(1, saved.size());
+    assertNull(saved.get(0).getFallbackChain());
+  }
+
+  @Test
+  void updateLocale_unknownFallbackLocaleIs400WithoutWrite() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guidEn = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    PSLocale locEn = newLocale(9, "en-us", "English");
+    IPSCatalogSummary sum0 = catalogSummary(guidEn);
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum0));
+    when(designWs.loadLocales(eq(List.of(guidEn)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(locEn));
+
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.empty(), saved::add, lang -> {});
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setFallbackChain(List.of("xx-zz"));
+    body.setFormat(fmt);
+    assertThrows(IllegalArgumentException.class, () -> adaptor.updateLocale(null, "en-us", body));
+    assertTrue(saved.isEmpty());
+    verify(designWs, never()).saveLocales(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void updateLocale_selfFallbackIs400WithoutWrite() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guidEn = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    IPSGuid guidFr = new PSGuid(PSTypeEnum.LOCALE, 10L);
+    PSLocale locEn = newLocale(9, "en-us", "English");
+    PSLocale locFr = newLocale(10, "fr-fr", "French");
+    IPSCatalogSummary sum0 = catalogSummary(guidEn);
+    IPSCatalogSummary sum1 = catalogSummary(guidFr);
+    when(designWs.findLocales(isNull(), isNull()))
+        .thenReturn(List.of(sum0, sum1));
+    when(designWs.loadLocales(eq(List.of(guidEn, guidFr)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(locEn, locFr));
+
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        allowAdmin(designWs, lang -> Optional.empty(), saved::add, lang -> {});
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setFallbackChain(List.of("EN_us", "fr-fr"));
+    body.setFormat(fmt);
+    assertThrows(IllegalArgumentException.class, () -> adaptor.updateLocale(null, "en-us", body));
+    assertTrue(saved.isEmpty());
+  }
+
+  @Test
+  void updateLocale_invalidFallbackPatternIs400() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guidEn = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    PSLocale locEn = newLocale(9, "en-us", "English");
+    IPSCatalogSummary sum0 = catalogSummary(guidEn);
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum0));
+    when(designWs.loadLocales(eq(List.of(guidEn)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(locEn));
+    LocalesAdaptor adaptor = allowAdmin(designWs);
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setFallbackChain(List.of("en-us!!"));
+    body.setFormat(fmt);
+    assertThrows(IllegalArgumentException.class, () -> adaptor.updateLocale(null, "en-us", body));
+    verify(designWs, never()).saveLocales(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void updateLocale_unknownIdWithChainBodyReturnsNull() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    IPSGuid guidEn = new PSGuid(PSTypeEnum.LOCALE, 9L);
+    PSLocale locEn = newLocale(9, "en-us", "English");
+    IPSCatalogSummary sum0 = catalogSummary(guidEn);
+    when(designWs.findLocales(isNull(), isNull())).thenReturn(List.of(sum0));
+    when(designWs.loadLocales(eq(List.of(guidEn)), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(locEn));
+
+    LocalesAdaptor adaptor = allowAdmin(designWs);
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setFallbackChain(List.of("en-us"));
+    body.setFormat(fmt);
+    assertNull(adaptor.updateLocale(null, "xx-zz", body));
+  }
+
+  @Test
+  void isFallbackChainOnlyWrite_requiresPresentAndOmittedOtherFields() {
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary only = new LocaleFormatSummary();
+    only.setFallbackChain(List.of("en-us"));
+    body.setFormat(only);
+    assertTrue(LocalesAdaptor.isFallbackChainOnlyWrite(body));
+
+    LocaleDetail blank = new LocaleDetail();
+    LocaleFormatSummary blankFmt = new LocaleFormatSummary();
+    blankFmt.setFallbackChain(List.of());
+    blank.setFormat(blankFmt);
+    assertTrue(LocalesAdaptor.isFallbackChainOnlyWrite(blank));
+
+    LocaleDetail absent = new LocaleDetail();
+    absent.setFormat(new LocaleFormatSummary());
+    assertFalse(LocalesAdaptor.isFallbackChainOnlyWrite(absent));
+
+    LocaleDetail extra = new LocaleDetail();
+    LocaleFormatSummary both = new LocaleFormatSummary();
+    both.setFallbackChain(List.of("en-us"));
+    both.setCalendar("gregory");
+    extra.setFormat(both);
+    assertFalse(LocalesAdaptor.isFallbackChainOnlyWrite(extra));
+    assertFalse(LocalesAdaptor.isCalendarOnlyWrite(extra));
+
+    LocaleDetail withProfile = new LocaleDetail();
+    withProfile.setFormat(only);
+    withProfile.setHasFormatProfile(Boolean.TRUE);
+    assertFalse(LocalesAdaptor.isFallbackChainOnlyWrite(withProfile));
+  }
+
+  @Test
+  void calendarOnlyWrite_rejectsChainBody() {
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setCalendar("gregory");
+    fmt.setFallbackChain(List.of("en-us"));
+    body.setFormat(fmt);
+    assertFalse(LocalesAdaptor.isCalendarOnlyWrite(body));
+  }
+
+  @Test
+  void fallbackChain_normalizeDecodeRoundTrip() {
+    List<String> withNull = new ArrayList<>(List.of("EN_us", "es", "en-us", " "));
+    withNull.add(null);
+    assertEquals(List.of("en-us", "es"), LocalesAdaptor.normalizeFallbackChain(withNull));
+    assertEquals(List.of("en-us", "es"), LocalesAdaptor.decodeFallbackChain("en-us,es"));
+    assertNull(LocalesAdaptor.decodeFallbackChain(null));
+    assertNull(LocalesAdaptor.decodeFallbackChain("  "));
+  }
 }

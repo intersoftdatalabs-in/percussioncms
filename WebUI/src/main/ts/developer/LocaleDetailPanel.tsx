@@ -124,6 +124,8 @@ import { LOC_STATUS_MSG } from "./localeEnabledStatusMessages";
 import { localeLabelWrite, savedLocaleLabel, storedLocaleLabel } from "./localeLabel";
 import { LOC_LABEL_MSG } from "./localeLabelMessages";
 import { LocaleAutoTranslationsSection } from "./LocaleAutoTranslationsSection";
+import { LocaleFallbackChainSection } from "./LocaleFallbackChainSection";
+import { storedLocaleFallbackChain } from "./localeFallbackChain";
 import { DEV_MSG } from "./messages";
 
 const fieldStyle: React.CSSProperties = {
@@ -5205,6 +5207,15 @@ calendarEditing ||
             <LocaleAutoTranslationsSection
               key={detail.languageString}
               languageString={detail.languageString}
+            />
+          ) : null}
+
+          {!isNew && detail && detail.languageString ? (
+            <LocaleFallbackChainSection
+              key={`fallback-${detail.languageString}`}
+              languageString={detail.languageString}
+              initialChain={storedLocaleFallbackChain(detail.format?.fallbackChain)}
+              detail={detail}
             />
           ) : null}
 

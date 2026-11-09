@@ -23,6 +23,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.xml.bind.annotation.XmlRootElement;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Optional RXLOCALEFORMAT profile row keyed by BCP-47 language string (not LOCALEID).
@@ -52,6 +54,13 @@ public class LocaleFormatSummary {
   private String defaultTz;
   private String numberingSystem;
   private String calendar;
+
+  /**
+   * Ordered per-locale fallback chain (language strings). {@code null} when the client omits the
+   * property; an empty list clears the stored chain. Stored on RXLOCALEFORMAT.FALLBACKCHAIN as
+   * comma-separated codes.
+   */
+  private List<String> fallbackChain;
 
   public LocaleFormatSummary() {}
 
@@ -203,5 +212,43 @@ public class LocaleFormatSummary {
 
   public void setCalendar(String calendar) {
     this.calendar = calendar;
+  }
+
+  public List<String> getFallbackChain() {
+    return fallbackChain;
+  }
+
+  public void setFallbackChain(List<String> fallbackChain) {
+    this.fallbackChain = fallbackChain;
+  }
+
+  /**
+   * JSON {@code fallbackChain}: an array of language strings, a single string (JAXB JSON may
+   * unwrap a one-element list to a scalar), JSON {@code null}, or a blank-only list to clear
+   * (nested empty arrays do not survive every JSON provider, so clears are sent blank-only
+   * and normalized back to empty server-side). Omitted properties leave {@link
+   * #getFallbackChain()} null.
+   */
+  @JsonSetter("fallbackChain")
+  public void assignFallbackChain(Object raw) {
+    if (raw == null) {
+      setFallbackChain(null);
+      return;
+    }
+    if (raw instanceof List<?> list) {
+      List<String> out = new ArrayList<>();
+      for (Object item : list) {
+        if (item != null) {
+          out.add(String.valueOf(item));
+        }
+      }
+      setFallbackChain(out);
+      return;
+    }
+    if (raw instanceof String text) {
+      setFallbackChain(List.of(text));
+      return;
+    }
+    throw new IllegalArgumentException("invalid fallbackChain: " + raw);
   }
 }

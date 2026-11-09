@@ -146,6 +146,16 @@ blank calendar clears the calendar. A calendar longer than
 32 characters does not write. **Cancel** does not write. HTTP 400, 403, and 409
 are not success and leave the previous calendar.
 
+**Set locale fallback chain** on an existing locale saves the ordered
+fallback chain only. The update sends `format.fallbackChain` and does not
+send the language string, label, description, enabled status, or any other
+format field, so those stay. The language string is immutable. The new chain
+shows only after that save succeeds. Entries can be reordered; removing every
+entry and saving clears the stored chain. Each entry must be a known locale;
+the locale itself, an unknown locale, or a malformed code does not write.
+**Cancel** does not write. HTTP 400, 403, 404, and 409 are not success and
+leave the previous chain.
+
 **Set locale enabled status** on an existing locale saves enabled status
 only (`active` or `inactive`). The update does not send the language string,
 label, description, or format profile, so those stay. The language string is
@@ -417,6 +427,27 @@ same Admin after a failed save is taken over so a retry can succeed.
    description, enabled status, and the format profile stay exactly as
    stored.
 
+## Product path — fallback chain for one locale
+
+1. Sign in as **Admin** and open **Developer → Locales**.
+2. Open one locale. Below the auto-translations section, **Set locale
+   fallback chain** lists that locale's stored ordered chain (empty when
+   none is stored).
+3. Click **Set locale fallback chain**, type a known locale code (for
+   example `en-us`), and click **Add**. Use the arrow buttons to reorder
+   and **×** to remove entries. Click **Save fallback chain**. The request
+   is `PUT /services/locales/{idOrLang}` with `format.fallbackChain` only.
+   Reload shows that chain. The language string, label, description,
+   enabled status, and every other format field are unchanged.
+4. Remove every entry and save to **clear only this locale's chain**. The
+   other locales' chains stay. (Clears are sent blank-only on the wire
+   because nested empty arrays do not survive every JSON provider; the
+   server normalizes them back to empty before storing.)
+5. A malformed code or the locale's own code is rejected before any write.
+   An unknown locale is **400** and the section shows the error without a
+   success notice. An unknown locale id is **404**. **Cancel** does not
+   write.
+
 ## Limits
 
 - Language string is immutable after create (REST `PUT` rejects a change).
@@ -429,6 +460,14 @@ same Admin after a failed save is taken over so a retry can succeed.
 - The per-locale editor in each locale detail merges client-side: only the
   open locale's rows are replaced or cleared; other locales' rows and the
   locale's own language, label, description, status, and format fields stay.
+- The fallback chain is stored per locale on the format profile
+  (`RXLOCALEFORMAT.FALLBACKCHAIN`, comma-separated codes). An empty list
+  clears the stored chain. Runtime format resolution still uses regional →
+  base → en-us defaults.
+- Wire note: clears are sent blank-only (`[""]`) because the CXF JSON
+  provider drops nested empty arrays (a bare `[]` would arrive as omitted
+  and preserve the chain). Single-element chains may arrive unwrapped as a
+  scalar string; the server accepts both shapes.
 
 ## REST
 
@@ -456,5 +495,6 @@ The chrome calls:
 | Auto-translation list | `GET /services/locales/auto-translations` |
 | Auto-translation replace | `PUT /services/locales/auto-translations` (empty `[]` clears) |
 | Set one locale's auto-translations | `PUT /services/locales/auto-translations` with the open locale's edited rows merged ahead of every other locale's untouched rows; an empty edit clears only that locale; locale fields are omitted and stay |
+| Set fallback chain | `PUT /services/locales/{idOrLang}` (`format.fallbackChain` only; an empty chain clears — send blank-only `[""]` because nested empty arrays do not survive every JSON provider; each entry must be a known locale; language, label, description, enabled status, and other format fields are omitted and stay) |
 
 Integrator notes: [REST API — Locales](id:developer-rest).
