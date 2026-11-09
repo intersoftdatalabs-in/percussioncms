@@ -2,7 +2,7 @@
 
 | Field | Value |
 |-------|--------|
-| **Status** | **RETIRED 2026-11-08** via [#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852): dual-run legacy fallback hard-disabled, selection modern-only (criteria [retired/met](./definition-xml-shim-removal-criteria.md)). Gadget WebUI dual-load left as focused residual [#5810](https://github.com/intersoftdatalabs-in/percussioncms/issues/5810) |
+| **Status** | **RETIRED 2026-11-08** via [#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852): dual-run legacy fallback hard-disabled, selection modern-only (criteria [retired/met](./definition-xml-shim-removal-criteria.md)). Gadget WebUI dual-load retired as focused residual [#5810](https://github.com/intersoftdatalabs-in/percussioncms/issues/5810) (modern-only) |
 | **Parent** | [#2630](https://github.com/intersoftdatalabs-in/percussioncms/issues/2630) (Phase 3) |
 | **Epic** | [#2626](https://github.com/intersoftdatalabs-in/percussioncms/issues/2626) |
 | **Phase 5 criteria** | [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) (#2835 / #2632 / criteria refresh #3132) |
@@ -46,7 +46,7 @@ Hard order for a package root or definition id (**retired to modern-only** via #
 | Widget definitions (install) | `${rxdeploydir}/rxconfig/Widgets/*.xml` via `PSWidgetDao` (`projects/sitemanage/.../dao/impl/PSWidgetDao`) | Loads install Widget XML by file id; modern-only selection via `PSLegacyDefinitionXmlShim` (#2852) | Require modern: `widgetDao.modernPackageRoots` must have a matching `component-package.json`; **defaults (#3130):** blank property → `${rxdeploydir}/Packages/Modern` (+ classpath materialize); selection kind test-visible; XML content remains install wire format |
 | Package source trees | `modules/perc-packages/src/main/resources/Packages/<pkg>/` | Ships product `.ppkg` content including `sys__UserDependency--rxconfig/Widgets/*.xml` | Product conversion (#2751+) emits modern manifest; batch A dual-ships modern `widgets/<stem>/` (#2831) while install XML remains; product source of truth moves off XML (ADR-004) |
 | Package staging Widgets | `sys__UserDependency--rxconfig/Widgets/` or `rxconfig/Widgets/` under a package root | Upgrade-input / deploy layout | Shim package-root API resolves either layout |
-| Gadget registry | `WebUI/.../GadgetRegistry` dual-load (`gadget-catalog.json` preferred, `GadgetRegistry.xml` fallback) | Product ships modern catalog; legacy XML fallback **left as focused residual [#5810](https://github.com/intersoftdatalabs-in/percussioncms/issues/5810)** (not rewired here) | Prefer modern (#2788); INFO metrics + `getLastLoadSource()` / `getLastLoadEntryCount()` (#3025) |
+| Gadget registry | `WebUI/.../GadgetRegistry` modern-only load (`gadget-catalog.json`; legacy `GadgetRegistry.xml` fallback retired via [#5810](https://github.com/intersoftdatalabs-in/percussioncms/issues/5810)) | Product ships modern catalog; modern absent yields empty map + ERROR (no silent legacy load) | Modern-only (#2788 / #5810); INFO metrics + `getLastLoadSource()` / `getLastLoadEntryCount()` (#3025); `legacyRegistryXml` key retained, always 0 |
 | Page meta / definition XML | Site/page storage dialects | Composition authoring legacy | Product layout packages (`perc.baseTemplates`, `perc.responsiveTemplates`) author modern `pages/` (#2786); native package install stages archive `TemplateDef-N/` without dual-ship roots (#2806). Shim recognizes `rxconfig/Pages` if present for customer defs |
 
 **Selection API (no Spring wiring required for unit use):**
@@ -83,9 +83,9 @@ High-level convert path (all environments):
 5. **Remove** legacy XML after smoke/parity for converted definitions.
 6. **Exit dual-run** when no required customer definitions rely on the XML path (Phase 5) — only after [criteria](./definition-xml-shim-removal-criteria.md) M1–M3 + G1–G6.
 
-### When the shim **must stay**
+### When the shim **must stay** (historical — retired via #2852 / #5810)
 
-Keep `PSLegacyDefinitionXmlShim` and gadget legacy fallback when **any** of the following is true:
+The shim fallback and the gadget legacy fallback were retired; the conditions below are kept as the historical keep-list:
 
 | Condition | Why |
 |-----------|-----|
@@ -93,7 +93,7 @@ Keep `PSLegacyDefinitionXmlShim` and gadget legacy fallback when **any** of the 
 | Criteria M3 **FAIL** | Customer upgrade window still open |
 | Install has Widget XML without a matching modern package root | Customer / residual defs still load via legacy |
 | `widgetDao.modernPackageRoots` is blank **and** product defaults (#3130) are not on the build | Pre-#3130 `main`: blank property ⇒ legacy-only selection kinds |
-| Gadget classpath missing `gadget-catalog.json` | Product prefers modern; fallback is the safety net |
+| Gadget classpath missing `gadget-catalog.json` | ~~Product prefers modern; fallback is the safety net~~ — retired (#5810): modern absent now yields empty map + ERROR |
 | Agent or human is tempted to “finish Phase 5 early” | **#2852 is blocked** — deletion is not the dual-run checklist |
 
 ### How to read metrics
@@ -105,9 +105,9 @@ Keep `PSLegacyDefinitionXmlShim` and gadget legacy fallback when **any** of the 
 | Widgets | `PSWidgetDao.getModernPackageRoots()` | Empty ⇒ expect legacy kinds for install Widgets XML on disk (or missing modern tree) |
 | Widgets | `getSelectionMetricsSnapshot()` / `formatSelectionMetricsSummary()` / cumulative counters (#3131) | Process-lifetime modern vs legacy rate |
 | Product / H2 roots | `PSProductPackageRootSelectionEvidence` + Surefire (#3583) | `wouldUseLegacyShim == false` / kind MODERN for non-waived widget packages; unexpected `LEGACY_*` fails CI |
-| Gadgets | INFO `Gadget registry dual-load selection: modern=…, legacyRegistryXml=…, none=…, entries=…, source=…` | Product classpath should show modern preferred; `legacyRegistryXml=1` means fallback fired |
+| Gadgets | INFO `Gadget registry dual-load selection: modern=…, legacyRegistryXml=…, none=…, entries=…, source=…` (format unchanged) | Product classpath shows modern; `legacyRegistryXml` always 0 after #5810 |
 | Gadgets | `GadgetRegistry.getLastLoadSource()` / `getLastLoadEntryCount()` | Diagnostics / unit tests |
-| Gadgets | cumulative counters + `formatSelectionMetricsSummary()` (#3131) | Process-lifetime dual-load rate |
+| Gadgets | cumulative counters + `formatSelectionMetricsSummary()` (#3131) | Process-lifetime load rate (legacy counter always 0 after #5810) |
 
 See criteria § **How to measure M2** for CI harness tests.
 
@@ -117,10 +117,10 @@ M2 becomes **PASS** only when **all** hold (document on #2852 when claiming):
 
 1. Product / QA installs have modern roots available (explicit property **or** product defaults from #3130).
 2. Over the agreed time-box, widget `legacyWidgetXml` rate is **0** (or an explicit waiver list with owner + sunset date).
-3. Gadget product path reports modern catalog with **no** required production dependence on `LEGACY_REGISTRY_XML` (or waived classpaths only).
+3. Gadget product path reports modern catalog with **no** production dependence on `LEGACY_REGISTRY_XML` (retired #5810; legacy counter always 0).
 4. Evidence is attached (log excerpts and/or counter snapshots) — not chat assertion alone.
 
-Until then: **shim stays; #2852 stays blocked.**
+Historical note: the shim stayed until #2852 retired it (2026-11-08); the gadget fallback stayed until #5810 retired it.
 
 ### H2 `qa-up` (docker / local QA)
 
@@ -130,7 +130,7 @@ Until then: **shim stays; #2852 stays blocked.**
 | 2 | Confirm install Widgets dir exists (`${rxdeploydir}/rxconfig/Widgets`) | Product widgets present as install wire XML (materialized) |
 | 3 | With #3130 defaults: leave `widgetDao.modernPackageRoots` blank (discovers `Packages/Modern` + classpath materialize) **or** set an explicit path-separator list for a custom tree | `getModernPackageRoots()` non-empty when modern tree present |
 | 4 | Exercise widget list / page edit that loads definitions (poll triggers `recordSelectionKinds`) | INFO line appears with `modern=` / `legacyWidgetXml=` |
-| 5 | Open dashboard (gadget type map load) | INFO gadget dual-load line; product classpath typically `source=MODERN_CATALOG` |
+| 5 | Open dashboard (gadget type map load) | INFO gadget load line; product classpath `source=MODERN_CATALOG` (legacy retired #5810) |
 | 6 | Capture log excerpts / `formatSelectionMetricsSummary()` for any M2 discussion | Attach to #2852 only when claiming zero-legacy — do **not** open deletion work from PARTIAL metrics |
 
 ### Product install (full installer / upgrade)
@@ -151,7 +151,7 @@ Until then: **shim stays; #2852 stays blocked.**
 | `widgetDao.modernPackageRoots` | `File.pathSeparator`-separated paths. **Blank default** → `PSModernPackageRootDefaults` discovers `${rxdeploydir}/Packages/Modern` (+ classpath materialize when empty). Explicit list still overrides. |
 | Widgets repository | `${rxdeploydir}/rxconfig/Widgets` (existing DAO repository directory) |
 | Gadget modern resource | Classpath `com/percussion/webui/gadget/servlets/gadget-catalog.json` |
-| Gadget legacy resource | Classpath `…/GadgetRegistry.xml` (fallback; **do not delete** until #2852 criteria met) |
+| Gadget legacy resource | Classpath `…/GadgetRegistry.xml` (retired fallback via #5810; never loaded — kept on classpath, **do not reintroduce** as a load path) |
 
 ### Product / H2 default modern roots (#3130)
 
@@ -171,8 +171,8 @@ The dual-run window is retired. **Authoritative metrics, test gates, time-box, a
 - [x] Product **page layout** packages `perc.baseTemplates` / `perc.responsiveTemplates` / `perc.Baseline` are **not** authored as `*.templateDef` (#2786; native install mode #2806 / #3673 — dual-ship roots off). Dual-ship is retired as the **product ship path** (#3951); DualShip **code remains**.
 - [x] Product **Widget** packages no longer ship definition XML as source of truth under Packages — cluster [#2897](https://github.com/intersoftdatalabs-in/percussioncms/pull/2897) (A+B+C) plus [#3750](https://github.com/intersoftdatalabs-in/percussioncms/pull/3750) #3736 (`perc.Test` modern; Widget G4 waiver **empty**; committed Widget XML **0**). G4 gate [#3051](https://github.com/intersoftdatalabs-in/percussioncms/pull/3051). Install wire XML may still be **materialized** at package-build for runtime load — that is not ADR-004 authoring regression. **Pages/Gadgets ship-path G4** (#3581): `PSPageDefinitionXmlInventory` / `PSGadgetDefinitionXmlInventory` fail CI if definition XML reappears under Packages Pages/Gadgets ship paths.
 - [x] Customer upgrade path documented and used for remaining XML — operators convert via the Widget XML compiler path; remaining live-load telemetry rides QA [#5808](https://github.com/intersoftdatalabs-in/percussioncms/issues/5808) (**M3 PASS**, owner upgrade-YES 2026-11-08).
-- [x] Runtime selection retired to modern-only — `PSWidgetDao` + package-root loaders require `component-package.json` and fail clearly otherwise; no `LEGACY_*` selectable. Historical snapshots: (#3024) dual-run counts + selection kinds; (#3130) product/H2 default `Packages/Modern`; (#3025) WebUI `GadgetRegistry` dual-load metrics (gadget fallback left as focused residual #5810); (#3131) cumulative counters + CI harness; (#3583) product/H2 zero-`LEGACY_XML`; (#3738/#3951) empty waive list. See criteria doc.
-- [x] Phase 5 (#2632) hard-disabled the shim and updated help — **[#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852)** done for widget/page selection (this change); Gadget WebUI dual-load left as focused residual #5810.
+- [x] Runtime selection retired to modern-only — `PSWidgetDao` + package-root loaders require `component-package.json` and fail clearly otherwise; no `LEGACY_*` selectable. Historical snapshots: (#3024) dual-run counts + selection kinds; (#3130) product/H2 default `Packages/Modern`; (#3025) WebUI `GadgetRegistry` load metrics (gadget fallback retired via focused residual #5810); (#3131) cumulative counters + CI harness; (#3583) product/H2 zero-`LEGACY_XML`; (#3738/#3951) empty waive list. See criteria doc.
+- [x] Phase 5 (#2632) hard-disabled the shim and updated help — **[#2852](https://github.com/intersoftdatalabs-in/percussioncms/issues/2852)** done for widget/page selection; Gadget WebUI dual-load retired via focused residual [#5810](https://github.com/intersoftdatalabs-in/percussioncms/issues/5810).
 
 Retired legacy XML on disk is never loaded; the failure message names it and points at the compiler path. **Do not** reintroduce a silent legacy fallback.
 
