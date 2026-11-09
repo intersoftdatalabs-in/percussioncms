@@ -2318,6 +2318,7 @@ for item in queue {
     work_prompt += "Sync branch (local default): " + sync_branch + "\n";
     work_prompt += "agent_safe_only=" + agent_safe_only.to_string() + "\n\n";
     work_prompt += "COMPLETION (HARD — 2.2.10-draft): one turn, end-to-end. Run Maven, Erlang CLI, and the QA cell foreground (or poll background jobs to completion in-turn). Return ONLY with the PR URL or a concrete blocked reason with evidence — never with gates still pending.\n\n";
+    work_prompt += "WORKTREE CONFINEMENT (HARD): before any git/code work, cd to the Worktree path given above, then test `git rev-parse --show-toplevel` equals that path — abort the turn if not. Branch, edit, build, and commit ONLY there; never in the human primary or another agent's worktree.\n\n";
 
     work_prompt += "READ FIRST (use tools, do not skip):\n";
     work_prompt += "- Root AGENTS.md hard gates (Erlang pre-commit, per-module clean install,\n";

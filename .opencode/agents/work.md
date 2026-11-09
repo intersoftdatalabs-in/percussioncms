@@ -48,11 +48,20 @@ Add `In Progress` label before starting; remove on exit.
 
 ### 2. Branch
 
+First, prove you are in the assigned worktree — run this BEFORE any
+`git checkout`, edit, or build, and abort the turn if it fails:
+
 ```bash
 cd "$NIGHT_WORKTREE_PATH"
+test "$(git rev-parse --show-toplevel)" = "$NIGHT_WORKTREE_PATH" \
+  || { echo "WRONG WORKTREE: $(git rev-parse --show-toplevel)"; exit 1; }
 git fetch origin "$NIGHT_BASE_BRANCH"
 git checkout -b "fix/issue-<N>-<short-slug>" "origin/$NIGHT_BASE_BRANCH"
 ```
+
+Working (branching, editing, building, committing) in any other checkout
+— the human primary, another agent's worktree, a stale branch — leaks
+commits into foreign branches and PRs. The check above is the gate.
 
 Slug: lowercase, ASCII, hyphens, ≤ 50 chars, from the issue title.
 
@@ -251,6 +260,10 @@ Record the verdict in the structured output (`close_verdict`: `fixes` /
 
 ## Hard rules
 
+- **Stay in the assigned worktree (HARD).** The Step 2 toplevel check is
+  the gate: branch, edit, build, and commit ONLY under
+  `$NIGHT_WORKTREE_PATH`. A turn that drifts into another checkout
+  contaminates foreign branches and PRs with unattributable commits.
 - **No `-DskipTests`.** No `-Dmaven.test.skip`. No `--force` (use
   `--force-with-lease` only after rebase).
 - **No `--force-with-lease` to `main` or `night-issue-prs-main`.**

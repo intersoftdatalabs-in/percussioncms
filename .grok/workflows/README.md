@@ -561,6 +561,7 @@ Runs when `include_pr_cluster` is true (**independent of** `include_pr_followup`
 ### Safety model
 
 - Sequential implementers (shared workspace)  
+- Work proves the assigned worktree first (`git rev-parse --show-toplevel` === worktree path) and aborts otherwise — branching/editing/building anywhere else contaminates foreign branches and PRs  
 - Fresh branch per issue from `origin/<base_branch>` **unless** absorbing into an existing same-parent OPEN PR  
 - Never a second owned PR on the same parent or on occupied thrash files the same run  
 - No merge, no direct push to `main`  
