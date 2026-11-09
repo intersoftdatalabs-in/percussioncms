@@ -306,6 +306,62 @@ const DEVELOPER_SMOKE_SET = [
     notes:
       "Product TemplateSummary name/label empty (#2189); also selector #2186 until harden merges",
   },
+  {
+    id: "surface-shell-tabs",
+    file: "developer-surface-smoke.spec.js",
+    title: "shell renders every developer section tab",
+    status: "green",
+    notes: "Developer shell tab inventory, all 28 DEVELOPER_SECTIONS (#5867 / parent #1690)",
+  },
+  {
+    id: "surface-templates",
+    file: "developer-surface-smoke.spec.js",
+    title: "templates: surface loads without API error",
+    status: "green",
+    notes: "Sites tab #5742 / slot assign #5786 / source viewer #5865 surface (#5867 / parent #1690)",
+  },
+  {
+    id: "surface-display-formats",
+    file: "developer-surface-smoke.spec.js",
+    title: "display-formats: surface loads without API error",
+    status: "green",
+    notes: "Detail readback #5866 surface (#5867 / parent #1690)",
+  },
+  {
+    id: "surface-communities",
+    file: "developer-surface-smoke.spec.js",
+    title: "communities: surface loads without API error",
+    status: "green",
+    notes: "Community slices #5042/#5177/#5178 surface (#5867 / parent #1690)",
+  },
+  {
+    id: "surface-workflows",
+    file: "developer-surface-smoke.spec.js",
+    title: "workflows: surface loads without API error",
+    status: "green",
+    notes: "Workflow transition/aging slices surface (#5867 / parent #1690)",
+  },
+  {
+    id: "surface-action-menus",
+    file: "developer-surface-smoke.spec.js",
+    title: "action-menus: surface loads without API error",
+    status: "green",
+    notes: "Action-menu editor surface (#5867 / parent #1690)",
+  },
+  {
+    id: "surface-extensions",
+    file: "developer-surface-smoke.spec.js",
+    title: "extensions: surface loads without API error",
+    status: "green",
+    notes: "Extension editor surface (#5867 / parent #1690)",
+  },
+  {
+    id: "surface-relationship-types",
+    file: "developer-surface-smoke.spec.js",
+    title: "relationship-types: surface loads without API error",
+    status: "green",
+    notes: "Relationship-type editor surface (#5867 / parent #1690)",
+  },
 ];
 
 /**
