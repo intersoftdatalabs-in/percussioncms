@@ -68,6 +68,16 @@ public final class PSModernPackageRootDefaults {
   /** Classpath prefix for product package sources inside {@code perc-packages}. */
   public static final String CLASSPATH_PACKAGES_PREFIX = "Packages/";
 
+  /**
+   * Separator for JAR/ZIP archive entry names.
+   *
+   * <p>The ZIP specification fixes entry-name separators to {@code '/'} on every platform, so
+   * archive-name joins and prefix matches intentionally use this constant — never {@link
+   * File#separator}. Filesystem paths must use {@link Path} / {@link java.nio.file.Files} joins
+   * instead (cross-platform: Windows / Linux / macOS).
+   */
+  static final String ARCHIVE_ENTRY_SEPARATOR = "/";
+
   private PSModernPackageRootDefaults() {
     // utility
   }
@@ -342,7 +352,7 @@ public final class PSModernPackageRootDefaults {
         }
         String packageName = rest.substring(0, slash);
         String after = rest.substring(slash + 1);
-        if (after.startsWith(PSWidgetXmlDualShip.WIDGETS_DIR_NAME + "/")
+        if (after.startsWith(PSWidgetXmlDualShip.WIDGETS_DIR_NAME + ARCHIVE_ENTRY_SEPARATOR)
             || after.equals(PSLegacyDefinitionXmlShim.MODERN_MANIFEST_FILE_NAME)) {
           names.add(packageName);
         }
@@ -392,7 +402,7 @@ public final class PSModernPackageRootDefaults {
 
   private static int copyModernPackageFromJar(
       Path jarPath, String packageName, Path packageDest) throws IOException {
-    String prefix = CLASSPATH_PACKAGES_PREFIX + packageName + "/";
+    String prefix = CLASSPATH_PACKAGES_PREFIX + packageName + ARCHIVE_ENTRY_SEPARATOR;
     Path destRoot = packageDest.toAbsolutePath().normalize();
     int written = 0;
     try (JarFile jar = new JarFile(jarPath.toFile())) {
@@ -406,7 +416,8 @@ public final class PSModernPackageRootDefaults {
         String relative = name.substring(prefix.length());
         boolean isRootManifest =
             relative.equals(PSLegacyDefinitionXmlShim.MODERN_MANIFEST_FILE_NAME);
-        boolean underWidgets = relative.startsWith(PSWidgetXmlDualShip.WIDGETS_DIR_NAME + "/");
+        boolean underWidgets =
+            relative.startsWith(PSWidgetXmlDualShip.WIDGETS_DIR_NAME + ARCHIVE_ENTRY_SEPARATOR);
         if (!isRootManifest && !underWidgets) {
           continue;
         }
