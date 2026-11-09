@@ -1358,19 +1358,28 @@
     }
 
     /**
-     * Publish/Take Down the item(page/asset) for the supplied pageId/assetId.
+     * Normalizes the publish-menu callback payload. Menu handlers may pass
+     * either the data object directly or a jQuery Event wrapping it.
+     * @param Object callbackData raw menu callback payload
+     * @return Object the unwrapped {pageId, trName} data object
      */
-    function _publishItem(callbackData) {
+    function _normalizePublishCallbackData(callbackData) {
       if (callbackData.class === jQuery.Event.class) {
-        callbackData = callbackData.data;
+        return callbackData.data;
       }
+      return callbackData;
+    }
 
-      var itemId = callbackData.pageId;
-      var trName = callbackData.trName;
-      var itemType =
-        view === $.PercNavigationManager.VIEW_EDIT_ASSET ? "Asset" : "Page";
-      var siteName = $.PercNavigationManager.getSiteName();
-
+    /**
+     * Resolves the site name for a publish action. The user can create a
+     * page without selecting a site, in which case the site is derived
+     * from the item's folder path.
+     * @param String siteName site from the navigation manager (may be undefined)
+     * @param String itemId page/asset id
+     * @param String itemType "Page" or "Asset"
+     * @return String the resolved site name
+     */
+    function _resolvePublishSiteName(siteName, itemId, itemType) {
       // The user can create a page without selecting a site
       if (siteName === undefined && itemType === "Page") {
         // Retrieve the page path folder by getting its data using its id,
@@ -1379,10 +1388,103 @@
         // SITES_ROOT itself is defined with "/"), not an OS filesystem path.
         var currentItemPath =
           $.perc_finder().getPathItemById(itemId).folderPath;
-        siteName = currentItemPath
+        return currentItemPath
           .replace("/" + $.perc_paths.SITES_ROOT, "")
           .split("/")[1];
       }
+      return siteName;
+    }
+
+    /**
+     * Handles the saved-schedule-dates lookup result for a Publish action.
+     * @param boolean status lookup success flag
+     * @param String result JSON payload holding ItemDates
+     */
+    function _onScheduleDatesReceived(status, result) {
+      if (status) {
+        var scheduleDates = eval("(" + result + ")").ItemDates;
+        _confirmPublish(scheduleDates);
+      } else {
+        $.perc_utils.alert_dialog({
+          content: I18N.message(
+            "perc.ui.page.confirmpublish@Unable to get the saved publish dates",
+          ),
+          title: I18N.message("perc.ui.labels@Error"),
+        });
+        return false;
+      }
+    }
+
+    /**
+     * Dispatches a publish-menu action (Publish / Take Down / Stage /
+     * Remove from Staging) to the item publisher service.
+     * @param String trName menu action label
+     * @param String itemId page/asset id
+     * @param String itemType "Page" or "Asset"
+     */
+    function _runPublishAction(trName, itemId, itemType) {
+      if (trName === I18N.message("perc.ui.page.menu@Publish")) {
+        $.PercItemPublisherService.getScheduleDates(
+          itemId,
+          _onScheduleDatesReceived,
+        );
+      } else if (trName === I18N.message("perc.ui.page.menu@Take Down")) {
+        // $.PercBlockUI();
+        $.PercItemPublisherService.takeDownItem(
+          itemId,
+          itemType,
+          _afterPublish,
+        );
+      } else if (trName === I18N.message("perc.ui.page.menu@Stage")) {
+        $.PercBlockUI();
+        $.PercItemPublisherService.publishToStaging(
+          itemId,
+          itemType,
+          _afterPublish,
+        );
+      } else if (
+        trName === I18N.message("perc.ui.page.menu@Remove from Staging")
+      ) {
+        $.PercBlockUI();
+        $.PercItemPublisherService.removeFromStaging(
+          itemId,
+          itemType,
+          _afterPublish,
+        );
+      }
+    }
+
+    /**
+     * Shows the "action not performed" guard alert and returns the editor
+     * to the edit view on acknowledgement.
+     * @param String trName menu action label used as the dialog title
+     * @param String messageKey I18N key for the dialog content
+     */
+    function _showPublishGuardAlert(trName, messageKey) {
+      $.perc_utils.alert_dialog({
+        title: trName,
+        content: I18N.message(messageKey),
+        okCallBack: function () {
+          $.PercNavigationManager.goTo($.PercNavigationManager.VIEW_EDITOR, true);
+        },
+      });
+    }
+
+    /**
+     * Publish/Take Down the item(page/asset) for the supplied pageId/assetId.
+     */
+    function _publishItem(callbackData) {
+      callbackData = _normalizePublishCallbackData(callbackData);
+
+      var itemId = callbackData.pageId;
+      var trName = callbackData.trName;
+      var itemType =
+        view === $.PercNavigationManager.VIEW_EDIT_ASSET ? "Asset" : "Page";
+      var siteName = _resolvePublishSiteName(
+        $.PercNavigationManager.getSiteName(),
+        itemId,
+        itemType,
+      );
 
       confirm_if_dirty(function () {
         doIfItemExists(
@@ -1393,82 +1495,22 @@
             doIfDefaultServerNotModified(
               siteName,
               function () {
-                if (trName === I18N.message("perc.ui.page.menu@Publish")) {
-                  $.PercItemPublisherService.getScheduleDates(
-                    itemId,
-                    function (status, result) {
-                      if (status) {
-                        var scheduleDates = eval("(" + result + ")").ItemDates;
-                        _confirmPublish(scheduleDates);
-                      } else {
-                        $.perc_utils.alert_dialog({
-                          content: I18N.message(
-                            "perc.ui.page.confirmpublish@Unable to get the saved publish dates",
-                          ),
-                          title: I18N.message("perc.ui.labels@Error"),
-                        });
-                        return false;
-                      }
-                    },
-                  );
-                } else if (
-                  trName === I18N.message("perc.ui.page.menu@Take Down")
-                ) {
-                  // $.PercBlockUI();
-                  $.PercItemPublisherService.takeDownItem(
-                    itemId,
-                    itemType,
-                    _afterPublish,
-                  );
-                } else if (trName === I18N.message("perc.ui.page.menu@Stage")) {
-                  $.PercBlockUI();
-                  $.PercItemPublisherService.publishToStaging(
-                    itemId,
-                    itemType,
-                    _afterPublish,
-                  );
-                } else if (
-                  trName ===
-                  I18N.message("perc.ui.page.menu@Remove from Staging")
-                ) {
-                  $.PercBlockUI();
-                  $.PercItemPublisherService.removeFromStaging(
-                    itemId,
-                    itemType,
-                    _afterPublish,
-                  );
-                }
+                _runPublishAction(trName, itemId, itemType);
               },
               function () {
                 //an Admin has overridden the current editor in another session
-                $.perc_utils.alert_dialog({
-                  title: trName,
-                  content: I18N.message(
-                    "perc.ui.webmgt.contentbrowser.warning@Action Not Performed Overridden",
-                  ),
-                  okCallBack: function () {
-                    $.PercNavigationManager.goTo(
-                      $.PercNavigationManager.VIEW_EDITOR,
-                      true,
-                    );
-                  },
-                });
+                _showPublishGuardAlert(
+                  trName,
+                  "perc.ui.webmgt.contentbrowser.warning@Action Not Performed Overridden",
+                );
               },
             );
           },
           function () {
-            $.perc_utils.alert_dialog({
-              title: trName,
-              content: I18N.message(
-                "perc.ui.webmgt.contentbrowser.warning@Action Not Performed Deleted",
-              ),
-              okCallBack: function () {
-                $.PercNavigationManager.goTo(
-                  $.PercNavigationManager.VIEW_EDITOR,
-                  true,
-                );
-              },
-            });
+            _showPublishGuardAlert(
+              trName,
+              "perc.ui.webmgt.contentbrowser.warning@Action Not Performed Deleted",
+            );
           },
         );
       });
