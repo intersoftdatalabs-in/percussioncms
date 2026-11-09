@@ -901,6 +901,14 @@ Sorting is client-side: it reorders the rows already on screen, sends no server 
 and keeps the selected row and any checked rows. The sorted header shows an arrow and
 `aria-sort` for assistive tech. Opening a different folder restores server order.
 
+**Column visibility** — the **Column visibility** button above the detail list opens a
+menu of the currently resolved columns (Name, Type, Path, and any display-format extras).
+Unchecking a column hides its header and cells for this operator only; the choice is
+remembered in the browser across reloads. At least one column always stays visible —
+the last visible checkbox locks on. Hiding columns sends no server request and does not
+touch the shared **Columns** field overlay above; sorting, row selection, and arrow-key
+navigation keep working with hidden columns.
+
 **Expand all / collapse all** — the toolbar above the folder tree offers **Expand all**
 and **Collapse all** buttons (keyboard-focusable, announced by name). Expand all opens
 every loaded folder so loaded descendants become visible; folders that have not been

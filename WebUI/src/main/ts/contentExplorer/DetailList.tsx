@@ -46,12 +46,19 @@
  * changes reset focus to the first row. Rows carry {@code aria-rowindex}
  * so screen-reader position stays correct.</p>
  *
- * <p>#5842: PageUp/PageDown move focus+selection by one client page
+ *  * <p>#5842: PageUp/PageDown move focus+selection by one client page
  * (the visible row count) and clamp at the ends instead of wrapping.
  * The grid carries {@code aria-rowcount} for the full folder row count
  * (server {@code totalCount}, falling back to the loaded rows when the
  * count is absent) so keyboard operators hear the list size. Zero new
  * REST — paging stays client-side within the loaded page.</p>
+ *
+ * <p>#5881: a Columns visibility menu toggles the resolved display-format
+ * columns per operator, persisted client-side in {@code localStorage}
+ * (no new REST — the server Columns overlay in
+ * {@link ExplorerListColumnsPanel} is untouched). At least one column
+ * always stays visible; selection, arrow-key navigation, and sorting
+ * keep working with hidden columns.</p>
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -351,6 +358,126 @@ export function nextDetailRowIndex(
   }
 }
 
+/**
+ * Per-operator hidden-column storage key for the detail-list column
+ * visibility menu (#5881). Client-side only ({@code localStorage}) —
+ * the server Columns overlay ({@code ExplorerListColumnsPanel}) keeps
+ * its own per-folder REST persistence and is untouched.
+ */
+export const DETAIL_COLUMN_VISIBILITY_STORAGE_KEY =
+  "perc.explorer.detailColumns.hidden.v1";
+
+/**
+ * Parse a persisted hidden-column list. Unknown ids, non-strings, and
+ * duplicates are dropped; anything unparseable resolves to "hide
+ * nothing" so a corrupt entry can never blank the list.
+ */
+export function parseHiddenDetailColumns(
+  raw: string | null | undefined,
+): DetailColumnId[] {
+  if (!raw) return [];
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return [];
+  }
+  if (!Array.isArray(parsed)) return [];
+  const allowed: readonly string[] = [
+    "name",
+    "type",
+    "path",
+    "title",
+    "category",
+    "modified",
+    "workflow",
+  ];
+  const out: DetailColumnId[] = [];
+  for (const entry of parsed) {
+    if (
+      typeof entry === "string" &&
+      allowed.includes(entry) &&
+      !out.includes(entry as DetailColumnId)
+    ) {
+      out.push(entry as DetailColumnId);
+    }
+  }
+  return out;
+}
+
+/**
+ * Load the persisted hidden columns. Guarded for non-DOM runtimes and
+ * private-mode storage failures — both resolve to "hide nothing".
+ */
+export function loadHiddenDetailColumns(): DetailColumnId[] {
+  try {
+    if (typeof localStorage !== "undefined") {
+      return parseHiddenDetailColumns(
+        localStorage.getItem(DETAIL_COLUMN_VISIBILITY_STORAGE_KEY),
+      );
+    }
+  } catch {
+    /* private mode: visibility stays session-local */
+  }
+  return [];
+}
+
+/**
+ * Persist the hidden columns. Failures (private mode, quota) are
+ * swallowed — the in-memory state still drives this session's list.
+ */
+export function saveHiddenDetailColumns(
+  hidden: readonly DetailColumnId[],
+): void {
+  try {
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(
+        DETAIL_COLUMN_VISIBILITY_STORAGE_KEY,
+        JSON.stringify([...hidden]),
+      );
+    }
+  } catch {
+    /* private mode: visibility stays session-local */
+  }
+}
+
+/**
+ * Visible columns after applying the hidden set. Defensive: when the
+ * hidden set covers every column (stale storage), the first column is
+ * kept so the list never renders columnless. Pure so Vitest can drive
+ * it without rendering.
+ */
+export function applyHiddenDetailColumns(
+  columns: DetailColumnId[],
+  hidden: readonly DetailColumnId[],
+): DetailColumnId[] {
+  const hiddenSet = new Set<DetailColumnId>(hidden);
+  const visible = columns.filter((c) => !hiddenSet.has(c));
+  if (visible.length > 0) return visible;
+  return columns.length > 0 ? [columns[0]] : [];
+}
+
+/**
+ * Next hidden list after toggling one column. Showing is always
+ * allowed; hiding the last visible column is refused (returns the
+ * list unchanged) so at least one column always stays visible.
+ * Columns outside the resolved set are ignored. Pure so Vitest can
+ * drive it without rendering.
+ */
+export function toggleHiddenDetailColumn(
+  columns: DetailColumnId[],
+  hidden: DetailColumnId[],
+  column: DetailColumnId,
+): DetailColumnId[] {
+  if (!columns.includes(column)) return [...hidden];
+  if (hidden.includes(column)) {
+    return hidden.filter((c) => c !== column);
+  }
+  const visibleCount = columns.filter((c) => !hidden.includes(c)).length;
+  if (visibleCount <= 1) return [...hidden];
+  return [...hidden, column];
+}
+
 /** Translate a column id to the human-readable header text. */
 export function columnHeaderLabel(
   column: DetailColumnId,
@@ -384,6 +511,9 @@ import { isPreviewableItem } from "./previewItem";
 import { explorerDetailRowIdKey } from "../api/contentExplorer/pathItemId";
 import { canRead, isFolder, sameExplorerItemId } from "./selection";
 import {
+  detailColumnsMenuStyle,
+  detailColumnsToggleButtonStyle,
+  detailColumnsToolbarStyle,
   emptyStateStyle,
   errorStateStyle,
   folderIconButtonStyle,
@@ -563,6 +693,26 @@ export function DetailList({
   /** Client-side column sort of the loaded page; null keeps server order (#5759). */
   const [sort, setSort] = useState<DetailSortState | null>(null);
   /**
+   * Column visibility menu open state (#5881). The hidden-column set
+   * below is the persisted per-operator preference.
+   */
+  const [columnsMenuOpen, setColumnsMenuOpen] = useState(false);
+  /**
+   * Operator-hidden display-format columns, persisted client-side in
+   * localStorage with zero new REST (#5881). Applies to the resolved
+   * base columns (format order); the server Columns overlay is
+   * untouched.
+   */
+  const [hiddenColumns, setHiddenColumns] = useState<DetailColumnId[]>(() =>
+    loadHiddenDetailColumns(),
+  );
+
+  // Persist visibility choices as they change; storage failures stay
+  // session-local (see saveHiddenDetailColumns).
+  useEffect(() => {
+    saveHiddenDetailColumns(hiddenColumns);
+  }, [hiddenColumns]);
+  /**
    * Roving-tabindex anchor for arrow-key row navigation (#5761). The row
    * at this index is the tab stop; pager/folder changes reset it to the
    * first row (see the reset effect below).
@@ -669,9 +819,43 @@ export function DetailList({
     setPage((p) => (totalPages == null ? p + 1 : Math.min(totalPages - 1, p + 1)));
   }, [totalPages]);
 
-  const columnsToRender = useMemo<DetailColumnId[]>(
+  /**
+   * Resolved display-format columns (format order) before visibility
+   * filtering (#5881). The menu always lists this base set so hidden
+   * columns can be re-shown.
+   */
+  const baseColumns = useMemo<DetailColumnId[]>(
     () => resolveDisplayFormatColumns(displayFormat?.columns),
     [displayFormat?.columns],
+  );
+
+  /**
+   * Rendered columns: the base set minus the operator-hidden set.
+   * Never empty — the first base column is kept when the hidden set
+   * covers everything (stale storage). Selection, keyboard nav, and
+   * sorting operate on rows and are unaffected by hidden columns.
+   */
+  const columnsToRender = useMemo<DetailColumnId[]>(
+    () => applyHiddenDetailColumns(baseColumns, hiddenColumns),
+    [baseColumns, hiddenColumns],
+  );
+
+  /**
+   * Toggle one column's visibility (#5881). Refuses to hide the last
+   * visible column so the list never renders columnless.
+   */
+  const toggleColumnVisibility = useCallback(
+    (column: DetailColumnId) => {
+      setHiddenColumns((prev) =>
+        toggleHiddenDetailColumn(baseColumns, prev, column),
+      );
+    },
+    [baseColumns],
+  );
+
+  const hiddenColumnSet = useMemo(
+    () => new Set<DetailColumnId>(hiddenColumns),
+    [hiddenColumns],
   );
 
   const multiSelectEnabled = onToggleSelectItem != null;
@@ -748,6 +932,57 @@ export function DetailList({
 
   return (
     <div {...detailListRootProps(folderPath, displayFormatId)}>
+      <div style={detailColumnsToolbarStyle} data-testid="detail-columns-toolbar">
+        <button
+          type="button"
+          data-testid="detail-columns-toggle"
+          aria-expanded={columnsMenuOpen}
+          aria-controls="detail-columns-menu"
+          onClick={() => setColumnsMenuOpen((v) => !v)}
+          style={detailColumnsToggleButtonStyle}
+        >
+          {message(EXPLORER_MSG.DETAIL_COLUMNS_MENU)}
+        </button>
+        {columnsMenuOpen ? (
+          <div
+            role="group"
+            id="detail-columns-menu"
+            data-testid="detail-columns-menu"
+            aria-label={message(EXPLORER_MSG.DETAIL_COLUMNS_MENU)}
+            style={detailColumnsMenuStyle}
+          >
+            {baseColumns.map((c) => {
+              const visible = !hiddenColumnSet.has(c);
+              // The last visible column locks on: hiding it would leave
+              // the list columnless (#5881).
+              const lockVisible =
+                visible &&
+                columnsToRender.length === 1 &&
+                columnsToRender[0] === c;
+              return (
+                <label key={c} data-testid={`detail-column-option-${c}`}>
+                  <input
+                    type="checkbox"
+                    data-testid={`detail-column-toggle-${c}`}
+                    checked={visible}
+                    disabled={lockVisible}
+                    title={
+                      lockVisible
+                        ? message(EXPLORER_MSG.DETAIL_COLUMNS_KEEP_ONE)
+                        : undefined
+                    }
+                    onChange={() => toggleColumnVisibility(c)}
+                  />{" "}
+                  {columnHeaderLabel(c, EXPLORER_MSG)}
+                </label>
+              );
+            })}
+            <span data-testid="detail-columns-keep-one">
+              {message(EXPLORER_MSG.DETAIL_COLUMNS_KEEP_ONE)}
+            </span>
+          </div>
+        ) : null}
+      </div>
       <table style={tableStyle} aria-rowcount={gridRowCount}>
         <thead style={theadStyle}>
           <tr>
