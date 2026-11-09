@@ -21,16 +21,18 @@
  * to content the editor schema persists, and everything Word-specific
  * (namespaced {@code o:}/{@code w:}/{@code m:}/{@code v:} markup,
  * {@code mso-*} classes and styles, conditional comments, {@code <style>} /
- * {@code <xml>} metadata blocks) is dropped.</p>
+ * {@code <xml>} metadata blocks) is dropped. Word list paragraphs
+ * ({@code MsoListParagraph}, the {@code mso-list} style) are rebuilt into
+ * real {@code <ul>}/{@code <ol>} items — like the TinyMCE paste filter —
+ * with {@code mso-list} levels nested and ordered markers ({@code 1.},
+ * {@code a)}) landing in {@code <ol>}.</p>
  *
  * <p>The sanitizer only rewrites HTML that smells like a Word/Office paste
  * (Office namespace, {@code mso-} markers, or {@code Mso*} classes).
  * Ordinary clipboard HTML — including copy/paste inside the editor itself —
  * passes through byte-identical so intra-editor fidelity never regresses.</p>
  *
- * <p>Known limit (same as the TinyMCE paste filter): Word list paragraphs
- * ({@code MsoListParagraph} with Symbol bullets) keep their text but are
- * not reconstructed into {@code <ul>}/{@code <ol>} items. Table header
+ * <p>Known limit (same as the TinyMCE paste filter): table header
  * cells ({@code th}) are kept as {@code td}: the paste contract has no
  * {@code th}, and content is preserved.</p>
  */
@@ -116,8 +118,210 @@ export function sanitizeWordPastedHtml(html: string): string {
   if (!body) {
     return "";
   }
+  rebuildWordLists(body);
   sanitizeNode(body);
   return body.innerHTML;
+}
+
+/**
+ * Word list paragraph ({@code MsoListParagraph} / {@code mso-list} style)
+ * seen as a body-level run, with its marker stripped and content kept.
+ */
+interface WordListItem {
+  paragraph: HTMLElement;
+  level: number;
+  ordered: boolean;
+  content: ChildNode[];
+}
+
+/** Bullet glyphs Word emits for unordered list paragraphs. */
+const WORD_BULLETS = "·•◦○●■□▪▫►‣⁃–—*o§v";
+
+/** True for a plain (unprefixed) {@code <p>} carrying Word list markers. */
+function wordListItemInfo(p: HTMLElement): { level: number; ordered: boolean } | null {
+  if (localName(p.tagName) !== "p" || namespacePrefix(p.tagName) !== null) {
+    return null;
+  }
+  const cls = p.getAttribute("class") ?? "";
+  const style = p.getAttribute("style") ?? "";
+  const isListParagraph =
+    /(^|\s)MsoListParagraph(\s|$)/i.test(cls) || /mso-list\s*:/i.test(style);
+  if (!isListParagraph) {
+    return null;
+  }
+  const levelMatch = /mso-list\s*:[^;]*?\blevel\s*0*([1-9]\d*)/i.exec(style);
+  const level = levelMatch ? Math.min(Number(levelMatch[1]), 9) : 1;
+  return { level, ordered: isOrderedWordListItem(p) };
+}
+
+/**
+ * Ordered when the leading marker reads like {@code 1.} / {@code a)} /
+ * {@code iv.}; anything else (Symbol bullets, {@code ·}, no marker) is an
+ * unordered item, matching the TinyMCE paste filter default.
+ */
+function isOrderedWordListItem(p: HTMLElement): boolean {
+  const marker = readWordListMarker(p);
+  return marker !== null && marker.ordered;
+}
+
+/** Leading marker text of a list paragraph, without surrounding spacing. */
+function readWordListMarker(
+  p: HTMLElement,
+): { ordered: boolean; node: ChildNode; element: boolean } | null {
+  let node: ChildNode | null = p.firstChild;
+  while (
+    node !== null &&
+    (node.nodeType === Node.COMMENT_NODE ||
+      (node.nodeType === Node.TEXT_NODE && (node.textContent ?? "").trim() === ""))
+  ) {
+    node = node.nextSibling;
+  }
+  if (node === null) {
+    return null;
+  }
+  if (node.nodeType === Node.ELEMENT_NODE) {
+    const tag = localName((node as HTMLElement).tagName);
+    if (tag !== "span" && tag !== "font") {
+      return null;
+    }
+    return classifyWordMarker(node.textContent ?? "", node, true);
+  }
+  if (node.nodeType === Node.TEXT_NODE) {
+    // A bare text marker ("1. Item", "· Item") classifies on its leading
+    // token; anything else is content, not a marker.
+    const leading = /^[\s\u00a0]*(\S+[.)])[\s\u00a0]+/.exec(node.textContent ?? "");
+    if (!leading) {
+      return null;
+    }
+    return classifyWordMarker(leading[1], node, false);
+  }
+  return null;
+}
+
+function classifyWordMarker(
+  text: string,
+  node: ChildNode,
+  element: boolean,
+): { ordered: boolean; node: ChildNode; element: boolean } | null {
+  const compact = text.replace(/[\s\u00a0]/g, "");
+  if (compact === "") {
+    return null;
+  }
+  if (/^[0-9]+[.)]$|^[a-zA-Z][.)]$|^[ivxlcdmIVXLCDM]+[.)]$/.test(compact)) {
+    return { ordered: true, node, element };
+  }
+  const bullets = new RegExp(`^[${escapeRegExp(WORD_BULLETS)}]+$`, "u");
+  if (bullets.test(compact)) {
+    return { ordered: false, node, element };
+  }
+  return null;
+}
+
+function escapeRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\-]/g, "\\$&");
+}
+
+/** Drop the leading marker so the item keeps only its text and inline markup. */
+function stripWordListMarker(p: HTMLElement): void {
+  const marker = readWordListMarker(p);
+  if (marker === null) {
+    return;
+  }
+  if (marker.element) {
+    marker.node.remove();
+    trimLeadingSpacing(p);
+    return;
+  }
+  const text = marker.node.textContent ?? "";
+  const match = /^([\s\u00a0]*\S+[.)][\s\u00a0]*)/.exec(text);
+  marker.node.textContent = match ? text.slice(match[1].length) : text.trimStart();
+}
+
+function trimLeadingSpacing(p: HTMLElement): void {
+  const first = p.firstChild;
+  if (first !== null && first.nodeType === Node.TEXT_NODE) {
+    first.textContent = (first.textContent ?? "").trimStart();
+  }
+}
+
+/**
+ * Rebuild body-level runs of Word list paragraphs into real
+ * {@code <ul>}/{@code <ol>} lists before the allowlist pass (which keeps
+ * {@code ul}/{@code ol}/{@code li} and sanitizes their content like the
+ * TinyMCE paste filter). Non-list content splits runs; {@code mso-list}
+ * levels nest; a type change at one level starts a sibling list.
+ */
+function rebuildWordLists(body: HTMLElement): void {
+  let node: Element | null = body.firstElementChild;
+  let run: HTMLElement[] = [];
+  const flush = (): void => {
+    if (run.length > 0) {
+      replaceWordListRun(run);
+      run = [];
+    }
+  };
+  while (node !== null) {
+    const next = node.nextElementSibling;
+    const info =
+      node instanceof HTMLElement ? wordListItemInfo(node) : null;
+    if (node instanceof HTMLElement && info !== null) {
+      run.push(node);
+    } else {
+      flush();
+    }
+    node = next;
+  }
+  flush();
+}
+
+function replaceWordListRun(run: HTMLElement[]): void {
+  const doc = run[0].ownerDocument;
+  const items: WordListItem[] = run.map((paragraph) => {
+    const info = wordListItemInfo(paragraph) ?? { level: 1, ordered: false };
+    stripWordListMarker(paragraph);
+    const content = Array.from(paragraph.childNodes);
+    return { paragraph, level: info.level, ordered: info.ordered, content };
+  });
+  const fragment = buildWordListLevel(doc, items, 0, items[0].level).fragment;
+  run[0].before(fragment);
+  for (const paragraph of run) {
+    paragraph.remove();
+  }
+}
+
+function buildWordListLevel(
+  doc: Document,
+  items: WordListItem[],
+  start: number,
+  level: number,
+): { fragment: DocumentFragment; next: number } {
+  const fragment = doc.createDocumentFragment();
+  let current: HTMLElement | null = null;
+  let currentOrdered: boolean | null = null;
+  let lastItem: HTMLElement | null = null;
+  let i = start;
+  while (i < items.length && items[i].level >= level) {
+    const item = items[i];
+    if (item.level > level) {
+      const nested = buildWordListLevel(doc, items, i, item.level);
+      (lastItem ?? fragment).append(nested.fragment);
+      i = nested.next;
+      continue;
+    }
+    if (current === null || item.ordered !== currentOrdered) {
+      current = doc.createElement(item.ordered ? "ol" : "ul");
+      fragment.append(current);
+      currentOrdered = item.ordered;
+    }
+    const listItem = doc.createElement("li");
+    for (const child of item.content) {
+      listItem.append(child);
+    }
+    current.append(listItem);
+    lastItem = listItem;
+    i += 1;
+  }
+  return { fragment, next: i };
 }
 
 function sanitizeNode(parent: ParentNode): void {

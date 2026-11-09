@@ -476,4 +476,63 @@ test.describe("React Content Editor TipTap editor", () => {
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
   );
+
+  test(
+    "tiptap paste from Word rebuilds bullet and numbered lists",
+    { tag: ["@explorer-content-editor", "@editor", "@html", "@tiptap"] },
+    async ({ page }) => {
+      const puts = [];
+      const pageErrors = watchErrors(page);
+      await stubEditorApis(page, {
+        onPut: (req) => puts.push(req),
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tiptap"));
+      await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
+        timeout: 20_000,
+      });
+      const editable = page.locator(`[data-testid="${TEST_IDS.fieldText}"]`);
+      await expect(editable).toContainText("Hi");
+
+      // Word list paragraphs (MsoListParagraph + mso-list levels) must land
+      // as real lists like the TinyMCE paste filter produces, with Word
+      // markers and metadata stripped.
+      await editable.click();
+      await page.keyboard.press("ControlOrMeta+a");
+      await editable.evaluate((el) => {
+        const word =
+          '<p class="MsoNormal">Lead<o:p></o:p></p>' +
+          '<p class="MsoListParagraph" style="mso-list:l0 level1 lfo1;"><span>&middot;</span> One<o:p></o:p></p>' +
+          '<p class="MsoListParagraph" style="mso-list:l0 level2 lfo1;"><span>o</span> Nested<o:p></o:p></p>' +
+          '<p class="MsoListParagraph" style="mso-list:l1 level1 lfo2;">1. Two<o:p></o:p></p>';
+        const dt = new DataTransfer();
+        dt.setData("text/html", word);
+        const event = new Event("paste", { bubbles: true, cancelable: true });
+        event.clipboardData = dt;
+        el.dispatchEvent(event);
+      });
+      await expect(editable.locator("ul > li").first()).toContainText("One");
+      await expect(editable.locator("ul li ul li").first()).toContainText("Nested");
+      await expect(editable.locator("ol > li").first()).toContainText("Two");
+      const pastedHtml = await editable.innerHTML();
+      expect(pastedHtml).not.toContain("Mso");
+      expect(pastedHtml).not.toContain("mso-");
+      expect(pastedHtml).not.toContain("o:p");
+
+      await page.locator(`[data-testid="${TEST_IDS.save}"]`).click();
+      await expect.poll(() => puts.length).toBeGreaterThan(0);
+      const putReq = puts.find((r) => isItemFieldsPutUrl(r.url()));
+      expect(putReq).toBeTruthy();
+      const body = JSON.parse(putReq.postData() || "{}");
+      const payload = body.ItemEditorFields || body;
+      const text = (payload.fields || []).find((f) => f.name === "text");
+      const saved = (text && text.value) || "";
+      expect(saved).toContain("<ul>");
+      expect(saved).toContain("<ol>");
+      expect(saved).toContain("Nested");
+      expect(saved).not.toContain("mso-");
+      await expect(page.getByText(/^Saved$/)).toBeVisible();
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
 });
