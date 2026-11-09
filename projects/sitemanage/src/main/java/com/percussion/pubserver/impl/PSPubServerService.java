@@ -369,215 +369,307 @@ public class PSPubServerService implements IPSPubServerService {
     boolean locked = tryToLockSite(siteId);
 
     try {
-      // Name-only PUT must not run the full property replace (that clears driver, folder,
-      // type, default flag, and secrets) and must not decode a password that is not in the body.
-      if (PSDeliveryServerRename.isNameOnly(pubServerInfo)) {
-        return updateNameOnly(siteId, serverId, pubServerInfo);
-      }
-      // Default-flag-only PUT must not run the full property replace (that clears driver,
-      // folder, type, name, and secrets) and must not decode a password that is not in the body.
-      if (PSDeliveryServerDefaultUpdate.isDefaultOnly(pubServerInfo)) {
-        return updateDefaultOnly(siteId, serverId, pubServerInfo);
-      }
-      // Host-only PUT must not run the full property replace (that clears port, user,
-      // folder, and password) and must not decode a password that is not in the body.
-      // FTP, SFTP, and FTPS share this body shape; the stored driver selects FTP vs SFTP
-      // vs FTPS apply.
-      if (PSFtpDeliveryHostUpdate.isHostOnly(pubServerInfo)
-          || PSSftpDeliveryHostUpdate.isHostOnly(pubServerInfo)
-          || PSFtpsDeliveryHostUpdate.isHostOnly(pubServerInfo)) {
-        return updateDeliveryHostOnly(siteId, serverId, pubServerInfo);
-      }
-      // Host-only database PUT must not run the full property replace (that clears port,
-      // user, database/sid, driver, and password) and must not decode a password that
-      // is not in the body.
-      if (PSDatabaseDeliveryHostUpdate.isHostOnly(pubServerInfo)) {
-        return updateDatabaseHostOnly(siteId, serverId, pubServerInfo);
-      }
-      // Port-only PUT must not run the full property replace. FTP, SFTP, and database
-      // share this body shape; the stored driver selects FTP vs SFTP vs database apply.
-      if (PSFtpDeliveryPortUpdate.isPortOnly(pubServerInfo)
-          || PSSftpDeliveryPortUpdate.isPortOnly(pubServerInfo)
-          || PSDatabaseDeliveryPortUpdate.isPortOnly(pubServerInfo)) {
-        return updateDeliveryPortOnly(siteId, serverId, pubServerInfo);
-      }
-      // User-id-only PUT must not run the full property replace. FTP, SFTP, and database
-      // share this body shape; the stored driver selects FTP vs SFTP vs database apply.
-      if (PSFtpDeliveryUserUpdate.isUserOnly(pubServerInfo)
-          || PSSftpDeliveryUsernameUpdate.isUsernameOnly(pubServerInfo)
-          || PSDatabaseDeliveryUserUpdate.isUserOnly(pubServerInfo)) {
-        return updateDeliveryUserOnly(siteId, serverId, pubServerInfo);
-      }
-      // Database-name-only PUT must not run the full property replace (that clears host, port,
-      // user, driver, SID, owner, and password) and must not decode a password that is not
-      // in the body.
-      if (PSDatabaseDeliveryDatabaseNameUpdate.isDatabaseNameOnly(pubServerInfo)) {
-        return updateDatabaseNameOnly(siteId, serverId, pubServerInfo);
-      }
-      // Oracle SID-only PUT must not run the full property replace (that clears host, port,
-      // user, driver, schema, and password) and must not decode a password that is not
-      // in the body.
-      if (PSDatabaseDeliverySidUpdate.isSidOnly(pubServerInfo)) {
-        return updateOracleSidOnly(siteId, serverId, pubServerInfo);
-      }
-      // Oracle schema-only PUT must not run the full property replace (that clears host, port,
-      // user, driver, SID, and password) and must not decode a password that is not
-      // in the body.
-      if (PSDatabaseDeliverySchemaUpdate.isSchemaOnly(pubServerInfo)) {
-        return updateOracleSchemaOnly(siteId, serverId, pubServerInfo);
-      }
-      // MSSQL owner-only PUT must not run the full property replace (that clears host, port,
-      // user, driver, database, and password) and must not decode a password that is not
-      // in the body.
-      if (PSDatabaseDeliveryOwnerUpdate.isOwnerOnly(pubServerInfo)) {
-        return updateMssqlOwnerOnly(siteId, serverId, pubServerInfo);
-      }
-      // S3 bucket-only PUT must not run the full property replace (that clears region,
-      // access key, secret key, driver, and name) and must not decode secrets that
-      // are not in the body.
-      if (PSAmazonS3DeliveryBucketUpdate.isBucketOnly(pubServerInfo)) {
-        return updateS3BucketOnly(siteId, serverId, pubServerInfo);
-      }
-      // S3 region-only PUT must not run the full property replace (that clears bucket,
-      // access key, secret key, driver, and name) and must not decode secrets that
-      // are not in the body.
-      if (PSAmazonS3DeliveryRegionUpdate.isRegionOnly(pubServerInfo)) {
-        return updateS3RegionOnly(siteId, serverId, pubServerInfo);
-      }
-      // S3 access-key-only PUT must not run the full property replace (that clears bucket,
-      // region, secret key, driver, and name). The single access key value is base64-decoded
-      // inside updateS3AccessKeyOnly (product norm) and stored encrypted with PSEncryptor.
-      if (PSAmazonS3DeliveryAccessKeyUpdate.isAccessKeyOnly(pubServerInfo)) {
-        return updateS3AccessKeyOnly(siteId, serverId, pubServerInfo);
-      }
-      // S3 secret-key-only PUT must not run the full property replace (that clears bucket,
-      // region, access key, driver, and name). The single secret key value is base64-decoded
-      // inside updateS3SecretKeyOnly (product norm) and stored encrypted with PSEncryptor.
-      if (PSAmazonS3DeliverySecretKeyUpdate.isSecretKeyOnly(pubServerInfo)) {
-        return updateS3SecretKeyOnly(siteId, serverId, pubServerInfo);
-      }
-      // Password-only PUT must not run the full property replace (that clears host, port,
-      // user, folder, driver, and name) and must not decode secrets that are not in the body.
-      // The single password value is base64-decoded inside updateDeliveryPasswordOnly (product
-      // norm). FTP, database, and SFTP (key passphrase) share this body shape; the stored driver
-      // selects FTP vs database vs SFTP-passphrase apply.
-      if (PSFtpDeliveryPasswordUpdate.isPasswordOnly(pubServerInfo)
-          || PSDatabaseDeliveryPasswordUpdate.isPasswordOnly(pubServerInfo)
-          || PSSftpDeliveryPassphraseUpdate.isPassphraseOnly(pubServerInfo)) {
-        return updateDeliveryPasswordOnly(siteId, serverId, pubServerInfo);
-      }
-      // SFTP private-key-only PUT must not run the full property replace (that clears host,
-      // port, user, folder, driver, and name) and must not decode secrets that are not in the
-      // body. The single private key value is base64-decoded inside updateSftpPrivateKeyOnly
-      // (product norm). The stored passphrase (password) is left untouched.
-      if (PSSftpDeliveryPrivateKeyUpdate.isPrivateKeyOnly(pubServerInfo)) {
-        return updateSftpPrivateKeyOnly(siteId, serverId, pubServerInfo);
-      }
-      // Folder-only PUT must not run the full property replace. A blank folder
-      // clears only the stored folder. Local, FTP, and SFTP share this body shape; the
-      // stored driver selects Local vs FTP vs SFTP apply.
-      if (PSFtpDeliveryFolderUpdate.isFolderOnly(pubServerInfo)
-          || PSLocalDeliveryFolderUpdate.isFolderOnly(pubServerInfo)
-          || PSSftpDeliveryFolderUpdate.isFolderOnly(pubServerInfo)) {
-        return updateDeliveryFolderOnly(siteId, serverId, pubServerInfo);
+      // Partial PUT bodies must not run the full property replace (that clears the stored
+      // driver, folder, type, default flag, and secrets) and must not decode secrets that
+      // are not in the body. Grouped dispatch below preserves the original branch order.
+      PSPublishServerInfo partialUpdate = dispatchPartialUpdate(siteId, serverId, pubServerInfo);
+      if (partialUpdate != null) {
+        return partialUpdate;
       }
 
-      convertPasswordFromBase64(pubServerInfo);
-
-      IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
-
-      PSPubServer server = null;
-      try {
-        server = pubServerDao.loadPubServerModifiable(getPubServerGuid(serverId));
-      } catch (Exception ex) {
-        throw new PSPubServerServiceException(
-            "The server you are trying to act on no longer exists in the system.", ex);
-      }
-
-      String serverName = getPubServerName(pubServerInfo.getServerName());
-
-      String currentServerName = (server.getName() != null) ? server.getName().trim() : "";
-      String newServerName = (serverName != null) ? serverName : currentServerName;
-
-      PSPubServer currentDefaultServer = getDefaultPubServer(site.getGUID());
-
-      /*
-       * Validate the server name and properties for the publishing server to be updated
-       */
-      validateServerName(newServerName, currentServerName, siteId);
-      validateProperties(pubServerInfo, siteId, false);
-
-      server.setName(newServerName);
-
-      if (pubServerInfo.getDescription() != null) {
-        server.setDescription(pubServerInfo.getDescription().trim());
-      }
-
-      String oldType = server.getPublishType();
-      boolean isDefaultServer = pubServerInfo.getIsDefault();
-
-      if (pubServerInfo.getType() != null) {
-        boolean isXmlSet = Boolean.parseBoolean(pubServerInfo.findProperty(XML_FLAG));
-        String formatValue = isXmlSet ? XML_FLAG : HTML_FLAG;
-        setPublishType(
-            server,
-            pubServerInfo.getType(),
-            pubServerInfo.findProperty(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY),
-            pubServerInfo.findProperty(IPSPubServerDao.PUBLISH_SECURE_FTP_PROPERTY),
-            isDefaultServer,
-            formatValue);
-        updatePublishTypeForStaging(server);
-      }
-
-      setProperties(server, pubServerInfo, site);
-
-      if (isDefaultServer) {
-        siteDataService.setPublishServerAsDefault(site, server);
-      }
-
-      PSPubServer oldServer = pubServerDao.findPubServer(server.getServerId()).orElse(null);
-      siteDataService.updateServerEditions(site, oldServer, server, isDefaultServer);
-
-      /*
-       * Check if the server being updated is the same default server. If not, then
-       * the previous default server needs to be updated in order to change the publishing type
-       * and update the content list appropriately.
-       *
-       */
-      boolean clearIncrementalQueue =
-          updatePreviousDefaultPubServer(currentDefaultServer, server, site, isDefaultServer);
-
-      if (!server.isSamePublish(oldServer)) {
-        server.setHasFullPublished(false);
-        if (isDefaultServer) {
-          clearIncrementalQueue = true;
-        }
-      }
-
-      String error =
-          updateDBConfigFiles(site, oldType, currentServerName, newServerName, pubServerInfo);
-      if (error != null) {
-        throw new PSPubServerServiceException(error);
-      }
-
-      pubServerDao.savePubServer(server);
-
-      try {
-        removeServerEntry(site.getName(), server.getServerId());
-      } catch (IOException e) {
-        log.error(
-            "Failed to update site configure cache . Error: {}",
-            PSExceptionUtils.getMessageForLog(e));
-      }
-
-      if (clearIncrementalQueue) {
-        clearLiveIncrementalQueue(site);
-      }
-
-      return toPSPublishServerInfo(server, site, true);
+      return applyFullPropertyReplace(siteId, serverId, pubServerInfo);
     } finally {
       if (locked) tryToUnlockSite(siteId);
     }
+  }
+
+  /**
+   * Full property replace for a PUT body that matches no partial shape. Validates the name and
+   * properties, replaces the driver/type/format, stores the properties, and follows default-flag
+   * and edition side effects. Called with the site lock held.
+   */
+  private PSPublishServerInfo applyFullPropertyReplace(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    convertPasswordFromBase64(pubServerInfo);
+
+    IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
+
+    PSPubServer server = null;
+    try {
+      server = pubServerDao.loadPubServerModifiable(getPubServerGuid(serverId));
+    } catch (Exception ex) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.", ex);
+    }
+
+    String serverName = getPubServerName(pubServerInfo.getServerName());
+
+    String currentServerName = (server.getName() != null) ? server.getName().trim() : "";
+    String newServerName = (serverName != null) ? serverName : currentServerName;
+
+    PSPubServer currentDefaultServer = getDefaultPubServer(site.getGUID());
+
+    /*
+     * Validate the server name and properties for the publishing server to be updated
+     */
+    validateServerName(newServerName, currentServerName, siteId);
+    validateProperties(pubServerInfo, siteId, false);
+
+    server.setName(newServerName);
+
+    if (pubServerInfo.getDescription() != null) {
+      server.setDescription(pubServerInfo.getDescription().trim());
+    }
+
+    String oldType = server.getPublishType();
+    boolean isDefaultServer = pubServerInfo.getIsDefault();
+
+    if (pubServerInfo.getType() != null) {
+      boolean isXmlSet = Boolean.parseBoolean(pubServerInfo.findProperty(XML_FLAG));
+      String formatValue = isXmlSet ? XML_FLAG : HTML_FLAG;
+      setPublishType(
+          server,
+          pubServerInfo.getType(),
+          pubServerInfo.findProperty(IPSPubServerDao.PUBLISH_DRIVER_PROPERTY),
+          pubServerInfo.findProperty(IPSPubServerDao.PUBLISH_SECURE_FTP_PROPERTY),
+          isDefaultServer,
+          formatValue);
+      updatePublishTypeForStaging(server);
+    }
+
+    setProperties(server, pubServerInfo, site);
+
+    if (isDefaultServer) {
+      siteDataService.setPublishServerAsDefault(site, server);
+    }
+
+    PSPubServer oldServer = pubServerDao.findPubServer(server.getServerId()).orElse(null);
+    siteDataService.updateServerEditions(site, oldServer, server, isDefaultServer);
+
+    /*
+     * Check if the server being updated is the same default server. If not, then
+     * the previous default server needs to be updated in order to change the publishing type
+     * and update the content list appropriately.
+     *
+     */
+    boolean clearIncrementalQueue =
+        updatePreviousDefaultPubServer(currentDefaultServer, server, site, isDefaultServer);
+
+    if (!server.isSamePublish(oldServer)) {
+      server.setHasFullPublished(false);
+      if (isDefaultServer) {
+        clearIncrementalQueue = true;
+      }
+    }
+
+    String error =
+        updateDBConfigFiles(site, oldType, currentServerName, newServerName, pubServerInfo);
+    if (error != null) {
+      throw new PSPubServerServiceException(error);
+    }
+
+    pubServerDao.savePubServer(server);
+
+    try {
+      removeServerEntry(site.getName(), server.getServerId());
+    } catch (IOException e) {
+      log.error(
+          "Failed to update site configure cache . Error: {}",
+          PSExceptionUtils.getMessageForLog(e));
+    }
+
+    if (clearIncrementalQueue) {
+      clearLiveIncrementalQueue(site);
+    }
+
+    return toPSPublishServerInfo(server, site, true);
+  }
+
+  /**
+   * Route a partial PUT body to its matching *-only updater. Returns the updater result, or {@code
+   * null} when no partial shape matches and the caller must run the full property replace. Group
+   * order preserves the original inline chain: identity, host, port/user, database, S3, secrets,
+   * then folder.
+   */
+  private PSPublishServerInfo dispatchPartialUpdate(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    PSPublishServerInfo partial = dispatchIdentityOnlyUpdate(siteId, serverId, pubServerInfo);
+    if (partial != null) {
+      return partial;
+    }
+    partial = dispatchHostOnlyUpdate(siteId, serverId, pubServerInfo);
+    if (partial != null) {
+      return partial;
+    }
+    partial = dispatchPortUserOnlyUpdate(siteId, serverId, pubServerInfo);
+    if (partial != null) {
+      return partial;
+    }
+    partial = dispatchDatabaseOnlyUpdate(siteId, serverId, pubServerInfo);
+    if (partial != null) {
+      return partial;
+    }
+    partial = dispatchS3OnlyUpdate(siteId, serverId, pubServerInfo);
+    if (partial != null) {
+      return partial;
+    }
+    partial = dispatchSecretOnlyUpdate(siteId, serverId, pubServerInfo);
+    if (partial != null) {
+      return partial;
+    }
+    return dispatchFolderOnlyUpdate(siteId, serverId, pubServerInfo);
+  }
+
+  /**
+   * Name-only and default-flag-only PUTs. Neither may run the full property replace (that clears
+   * driver, folder, type, and secrets) nor decode a password that is not in the body.
+   *
+   * @return the updater result, or {@code null} when the body is not an identity-only PUT.
+   */
+  private PSPublishServerInfo dispatchIdentityOnlyUpdate(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    if (PSDeliveryServerRename.isNameOnly(pubServerInfo)) {
+      return updateNameOnly(siteId, serverId, pubServerInfo);
+    }
+    if (PSDeliveryServerDefaultUpdate.isDefaultOnly(pubServerInfo)) {
+      return updateDefaultOnly(siteId, serverId, pubServerInfo);
+    }
+    return null;
+  }
+
+  /**
+   * Host-only PUTs. FTP, SFTP, and FTPS share one body shape (the stored driver selects FTP vs
+   * SFTP vs FTPS apply); database hosts have their own shape. Neither may run the full property
+   * replace nor decode a password that is not in the body.
+   *
+   * @return the updater result, or {@code null} when the body is not a host-only PUT.
+   */
+  private PSPublishServerInfo dispatchHostOnlyUpdate(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    if (PSFtpDeliveryHostUpdate.isHostOnly(pubServerInfo)
+        || PSSftpDeliveryHostUpdate.isHostOnly(pubServerInfo)
+        || PSFtpsDeliveryHostUpdate.isHostOnly(pubServerInfo)) {
+      return updateDeliveryHostOnly(siteId, serverId, pubServerInfo);
+    }
+    if (PSDatabaseDeliveryHostUpdate.isHostOnly(pubServerInfo)) {
+      return updateDatabaseHostOnly(siteId, serverId, pubServerInfo);
+    }
+    return null;
+  }
+
+  /**
+   * Port-only and user-id-only PUTs. FTP, SFTP, and database share each body shape; the stored
+   * driver selects the apply path. Neither may run the full property replace.
+   *
+   * @return the updater result, or {@code null} when the body is not a port/user-only PUT.
+   */
+  private PSPublishServerInfo dispatchPortUserOnlyUpdate(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    if (PSFtpDeliveryPortUpdate.isPortOnly(pubServerInfo)
+        || PSSftpDeliveryPortUpdate.isPortOnly(pubServerInfo)
+        || PSDatabaseDeliveryPortUpdate.isPortOnly(pubServerInfo)) {
+      return updateDeliveryPortOnly(siteId, serverId, pubServerInfo);
+    }
+    if (PSFtpDeliveryUserUpdate.isUserOnly(pubServerInfo)
+        || PSSftpDeliveryUsernameUpdate.isUsernameOnly(pubServerInfo)
+        || PSDatabaseDeliveryUserUpdate.isUserOnly(pubServerInfo)) {
+      return updateDeliveryUserOnly(siteId, serverId, pubServerInfo);
+    }
+    return null;
+  }
+
+  /**
+   * Database-name-only, Oracle SID-only, Oracle schema-only, and MSSQL owner-only PUTs. None may
+   * run the full property replace nor decode a password that is not in the body.
+   *
+   * @return the updater result, or {@code null} when the body is not a database-only PUT.
+   */
+  private PSPublishServerInfo dispatchDatabaseOnlyUpdate(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    if (PSDatabaseDeliveryDatabaseNameUpdate.isDatabaseNameOnly(pubServerInfo)) {
+      return updateDatabaseNameOnly(siteId, serverId, pubServerInfo);
+    }
+    if (PSDatabaseDeliverySidUpdate.isSidOnly(pubServerInfo)) {
+      return updateOracleSidOnly(siteId, serverId, pubServerInfo);
+    }
+    if (PSDatabaseDeliverySchemaUpdate.isSchemaOnly(pubServerInfo)) {
+      return updateOracleSchemaOnly(siteId, serverId, pubServerInfo);
+    }
+    if (PSDatabaseDeliveryOwnerUpdate.isOwnerOnly(pubServerInfo)) {
+      return updateMssqlOwnerOnly(siteId, serverId, pubServerInfo);
+    }
+    return null;
+  }
+
+  /**
+   * S3 bucket-only, region-only, access-key-only, and secret-key-only PUTs. None may run the full
+   * property replace nor decode secrets that are not in the body. Single key values are
+   * base64-decoded inside their updater (product norm) and stored encrypted with PSEncryptor.
+   *
+   * @return the updater result, or {@code null} when the body is not an S3-only PUT.
+   */
+  private PSPublishServerInfo dispatchS3OnlyUpdate(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    if (PSAmazonS3DeliveryBucketUpdate.isBucketOnly(pubServerInfo)) {
+      return updateS3BucketOnly(siteId, serverId, pubServerInfo);
+    }
+    if (PSAmazonS3DeliveryRegionUpdate.isRegionOnly(pubServerInfo)) {
+      return updateS3RegionOnly(siteId, serverId, pubServerInfo);
+    }
+    if (PSAmazonS3DeliveryAccessKeyUpdate.isAccessKeyOnly(pubServerInfo)) {
+      return updateS3AccessKeyOnly(siteId, serverId, pubServerInfo);
+    }
+    if (PSAmazonS3DeliverySecretKeyUpdate.isSecretKeyOnly(pubServerInfo)) {
+      return updateS3SecretKeyOnly(siteId, serverId, pubServerInfo);
+    }
+    return null;
+  }
+
+  /**
+   * Password-only (FTP, database, and SFTP key passphrase share one body shape; the stored driver
+   * selects the apply path) and SFTP private-key-only PUTs. The single secret value is
+   * base64-decoded inside its updater (product norm); the stored passphrase is left untouched on
+   * the private-key path. Neither may run the full property replace.
+   *
+   * @return the updater result, or {@code null} when the body is not a secret-only PUT.
+   */
+  private PSPublishServerInfo dispatchSecretOnlyUpdate(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    if (PSFtpDeliveryPasswordUpdate.isPasswordOnly(pubServerInfo)
+        || PSDatabaseDeliveryPasswordUpdate.isPasswordOnly(pubServerInfo)
+        || PSSftpDeliveryPassphraseUpdate.isPassphraseOnly(pubServerInfo)) {
+      return updateDeliveryPasswordOnly(siteId, serverId, pubServerInfo);
+    }
+    if (PSSftpDeliveryPrivateKeyUpdate.isPrivateKeyOnly(pubServerInfo)) {
+      return updateSftpPrivateKeyOnly(siteId, serverId, pubServerInfo);
+    }
+    return null;
+  }
+
+  /**
+   * Folder-only PUT. A blank folder clears only the stored folder. Local, FTP, and SFTP share this
+   * body shape; the stored driver selects Local vs FTP vs SFTP apply. Must not run the full
+   * property replace.
+   *
+   * @return the updater result, or {@code null} when the body is not a folder-only PUT.
+   */
+  private PSPublishServerInfo dispatchFolderOnlyUpdate(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    if (PSFtpDeliveryFolderUpdate.isFolderOnly(pubServerInfo)
+        || PSLocalDeliveryFolderUpdate.isFolderOnly(pubServerInfo)
+        || PSSftpDeliveryFolderUpdate.isFolderOnly(pubServerInfo)) {
+      return updateDeliveryFolderOnly(siteId, serverId, pubServerInfo);
+    }
+    return null;
   }
 
   /**
