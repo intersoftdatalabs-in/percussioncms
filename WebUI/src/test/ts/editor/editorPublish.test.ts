@@ -16,12 +16,14 @@
  */
 
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { SessionRedirectError } from "../../../main/ts/api/client";
 import {
   canPublishFromEditor,
   canRemoveFromStagingFromEditor,
   canStageFromEditor,
   canTakedownFromEditor,
   canViewPublishHistoryFromEditor,
+  editorPublishNowFailureMessage,
   formatEditorTakedownConfirm,
   publishEditorItem,
   removeEditorItemFromStaging,
@@ -137,6 +139,45 @@ describe("publishEditorItem", () => {
     await expect(publishEditorItem("42", "page")).rejects.toThrow(
       "Could not connect to publishing server",
     );
+  });
+});
+
+describe("editorPublishNowFailureMessage (#5939)", () => {
+  it("maps HTTP 400, 403, and 409 as failures", () => {
+    expect(
+      editorPublishNowFailureMessage({
+        status: 400,
+        statusText: "Bad Request",
+        body: {},
+      }),
+    ).toMatch(/rejected/i);
+    expect(
+      editorPublishNowFailureMessage({
+        status: 403,
+        statusText: "Forbidden",
+        body: {},
+      }),
+    ).toMatch(/not allowed/i);
+    expect(
+      editorPublishNowFailureMessage({
+        status: 409,
+        statusText: "Conflict",
+        body: {},
+      }),
+    ).toMatch(/cannot be published right now/i);
+  });
+
+  it("maps FORBIDDEN and CONFLICT failure text onto the item", () => {
+    expect(editorPublishNowFailureMessage(new Error("FORBIDDEN"))).toMatch(
+      /not allowed/i,
+    );
+    expect(editorPublishNowFailureMessage(new Error("CONFLICT"))).toMatch(
+      /cannot be published right now/i,
+    );
+  });
+
+  it("stays silent when the session is already redirecting", () => {
+    expect(editorPublishNowFailureMessage(new SessionRedirectError())).toBe("");
   });
 });
 

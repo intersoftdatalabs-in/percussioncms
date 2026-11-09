@@ -31,6 +31,10 @@ const TEST_IDS = Object.freeze({
   publishNow: "editor-publish-now",
   publishDone: "editor-publish-done",
   publishError: "editor-publish-error",
+  publishDialog: "editor-publish-now-dialog",
+  publishCancel: "editor-publish-now-cancel",
+  publishConfirm: "editor-publish-now-confirm",
+  publishDialogError: "editor-publish-now-error",
 });
 
 /**

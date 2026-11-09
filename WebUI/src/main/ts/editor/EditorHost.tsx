@@ -189,6 +189,7 @@ import {
   canStageFromEditor,
   canTakedownFromEditor,
   canViewPublishHistoryFromEditor,
+  editorPublishNowFailureMessage,
   formatEditorTakedownConfirm,
   publishEditorItem,
   removeEditorItemFromStaging,
@@ -201,6 +202,7 @@ import { ScheduleDatesDialog } from "../contentExplorer/ScheduleDatesDialog";
 import type { ItemScheduleDates } from "../contentExplorer/itemScheduleDates";
 import { EditorClearScheduleDialog } from "./EditorClearScheduleDialog";
 import { EditorIncrementalApproveDialog } from "./EditorIncrementalApproveDialog";
+import { EditorPublishNowDialog } from "./EditorPublishNowDialog";
 import { EditorIncrementalRemoveDialog } from "./EditorIncrementalRemoveDialog";
 import { EditorIncrementalUnapproveDialog } from "./EditorIncrementalUnapproveDialog";
 import {
@@ -543,8 +545,6 @@ export interface EditorHostProps {
     itemId: string,
     kind: EditorPublishKind,
   ) => Promise<boolean>;
-  /** Test seam: confirm before Publish now (defaults to {@code window.confirm}). */
-  confirmPublish?: (body: string) => boolean;
   /** Test seam: sitemanage stage ({@code publish/page|resource/staging/{id}}). */
   stageItem?: (itemId: string, kind: EditorPublishKind) => Promise<boolean>;
   /** Test seam: confirm before Stage (defaults to {@code window.confirm}). */
@@ -982,7 +982,6 @@ export function EditorHost({
   approveIncremental = approveEditorItemToIncrementalQueue,
   unapproveIncremental = unapproveEditorItemOnIncrementalQueue,
   removeIncremental = removeEditorItemFromIncrementalQueue,
-  confirmPublish,
   stageItem = stageEditorItem,
   confirmStage,
   removeFromStaging = removeEditorItemFromStaging,
@@ -1156,8 +1155,10 @@ export function EditorHost({
   const [workflowChanged, setWorkflowChanged] = useState(false);
   const [publishBusy, setPublishBusy] = useState(false);
   const [publishDone, setPublishDone] = useState(false);
-  const [publishErrorKey, setPublishErrorKey] = useState<string | null>(null);
-  const [publishErrorDetail, setPublishErrorDetail] = useState("");
+  const [publishOpen, setPublishOpen] = useState(false);
+  const [publishServerError, setPublishServerError] = useState<string | null>(
+    null,
+  );
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [scheduleBusy, setScheduleBusy] = useState(false);
   const [scheduleSaving, setScheduleSaving] = useState(false);
@@ -2724,8 +2725,23 @@ export function EditorHost({
     }
   }
 
-  async function handlePublish(): Promise<void> {
-    if (contentId == null) {
+  function handleOpenPublish(): void {
+    if (
+      contentId == null ||
+      mode !== "edit" ||
+      publishBusy ||
+      incrementalApproveOpen ||
+      incrementalUnapproveOpen ||
+      incrementalRemoveOpen
+    ) {
+      return;
+    }
+    setPublishServerError(null);
+    setPublishOpen(true);
+  }
+
+  async function handleConfirmPublish(): Promise<void> {
+    if (contentId == null || publishBusy || mode !== "edit") {
       return;
     }
     const itemId = String(contentId);
@@ -2733,33 +2749,29 @@ export function EditorHost({
       id: itemId,
       allowedTemplateCount,
     });
-    if (!canPublishFromEditor(mode, kind)) {
-      setPublishDone(false);
-      setPublishErrorDetail("");
-      setPublishErrorKey(EDITOR_MSG.PUBLISH_UNAVAILABLE);
-      return;
-    }
-    const confirmFn =
-      confirmPublish ??
-      ((body: string) =>
-        typeof window !== "undefined" ? window.confirm(body) : false);
-    if (!confirmFn(message(EDITOR_MSG.CONFIRM_PUBLISH_NOW))) {
-      return;
-    }
     setPublishBusy(true);
     setPublishDone(false);
-    setPublishErrorKey(null);
-    setPublishErrorDetail("");
+    setPublishServerError(null);
     try {
-      const published = await publishItem(itemId, kind);
-      if (!published) {
-        setPublishErrorKey(EDITOR_MSG.PUBLISH_UNAVAILABLE);
+      if (!canPublishFromEditor(mode, kind)) {
+        setPublishServerError(message(EDITOR_MSG.PUBLISH_UNAVAILABLE));
         return;
       }
+      const published = await publishItem(itemId, kind);
+      if (!published) {
+        setPublishServerError(message(EDITOR_MSG.PUBLISH_UNAVAILABLE));
+        return;
+      }
+      setPublishOpen(false);
       setPublishDone(true);
     } catch (err) {
-      setPublishErrorDetail(formatApiError(err, message(EDITOR_MSG.PUBLISH_FAILED)));
-      setPublishErrorKey(EDITOR_MSG.PUBLISH_FAILED);
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setPublishServerError(
+        editorPublishNowFailureMessage(err) ||
+          message(EDITOR_MSG.PUBLISH_FAILED),
+      );
     } finally {
       setPublishBusy(false);
     }
@@ -2914,6 +2926,7 @@ export function EditorHost({
     if (
       contentId == null ||
       mode !== "edit" ||
+      publishOpen ||
       incrementalUnapproveOpen ||
       incrementalRemoveOpen
     ) {
@@ -2969,6 +2982,7 @@ export function EditorHost({
     if (
       contentId == null ||
       mode !== "edit" ||
+      publishOpen ||
       incrementalApproveOpen ||
       incrementalRemoveOpen
     ) {
@@ -3024,6 +3038,7 @@ export function EditorHost({
     if (
       contentId == null ||
       mode !== "edit" ||
+      publishOpen ||
       incrementalApproveOpen ||
       incrementalUnapproveOpen
     ) {
@@ -4486,8 +4501,10 @@ export function EditorHost({
               type="button"
               className={styles.button}
               data-testid="editor-publish-now"
-              disabled={publishBusy || loading || payload == null || saving}
-              onClick={() => void handlePublish()}
+              disabled={
+                publishBusy || publishOpen || loading || payload == null || saving
+              }
+              onClick={() => handleOpenPublish()}
             >
               {message(publishBusy ? EDITOR_MSG.PUBLISHING : EDITOR_MSG.PUBLISH_NOW)}
             </button>
@@ -4545,6 +4562,7 @@ export function EditorHost({
                 incrementalUnapproveOpen ||
                 incrementalRemoveBusy ||
                 incrementalRemoveOpen ||
+                publishOpen ||
                 loading ||
                 payload == null ||
                 saving
@@ -4563,6 +4581,7 @@ export function EditorHost({
                 incrementalUnapproveBusy ||
                 incrementalApproveBusy ||
                 incrementalApproveOpen ||
+                publishOpen ||
                 incrementalRemoveBusy ||
                 incrementalRemoveOpen ||
                 loading ||
@@ -4587,6 +4606,7 @@ export function EditorHost({
                 incrementalRemoveBusy ||
                 incrementalApproveBusy ||
                 incrementalApproveOpen ||
+                publishOpen ||
                 incrementalUnapproveBusy ||
                 incrementalUnapproveOpen ||
                 loading ||
@@ -5043,16 +5063,6 @@ export function EditorHost({
                     {message(EDITOR_MSG.LOAD_RETRY)}
                   </button>
                 </div>
-              </div>
-            ) : null}
-            {publishErrorKey ? (
-              <div
-                className={styles.status}
-                role="alert"
-                data-testid="editor-publish-error"
-              >
-                {message(publishErrorKey)}
-                {publishErrorDetail ? ` ${publishErrorDetail}` : ""}
               </div>
             ) : null}
             {scheduleLoadError ? (
@@ -5645,6 +5655,22 @@ export function EditorHost({
           onCancel={handleAssigneeCancel}
           onConfirm={() => {
             void handleAssigneeConfirm();
+          }}
+        />
+      ) : null}
+      {publishOpen ? (
+        <EditorPublishNowDialog
+          busy={publishBusy}
+          serverError={publishServerError}
+          onCancel={() => {
+            if (publishBusy) {
+              return;
+            }
+            setPublishOpen(false);
+            setPublishServerError(null);
+          }}
+          onConfirm={() => {
+            void handleConfirmPublish();
           }}
         />
       ) : null}

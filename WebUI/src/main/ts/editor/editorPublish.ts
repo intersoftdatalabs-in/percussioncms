@@ -24,7 +24,13 @@
  * {@code publishSelectedItem}.</p>
  */
 
-import { get, put } from "../api/client";
+import {
+  formatApiError,
+  get,
+  isApiError,
+  isSessionRedirectError,
+  put,
+} from "../api/client";
 import type { LinkedPageForTakedown } from "../contentExplorer/itemPublish";
 import { linkedPagePathsForConfirm } from "../contentExplorer/itemPublish";
 import { message } from "../i18n/message";
@@ -149,6 +155,35 @@ export async function publishEditorItem(
     throw new Error(preflight.message || preflight.token || "Publish failed");
   }
   return true;
+}
+
+/**
+ * User-visible failure for Publish now. Empty when the session is already
+ * redirecting. HTTP 400/403/409 stay failures on the open item.
+ */
+export function editorPublishNowFailureMessage(err: unknown): string {
+  if (isSessionRedirectError(err)) {
+    return "";
+  }
+  if (isApiError(err)) {
+    if (err.status === 403) {
+      return formatApiError(err, message(EDITOR_MSG.PUBLISH_FORBIDDEN));
+    }
+    if (err.status === 400) {
+      return formatApiError(err, message(EDITOR_MSG.PUBLISH_REJECTED));
+    }
+    if (err.status === 409) {
+      return formatApiError(err, message(EDITOR_MSG.PUBLISH_CONFLICT));
+    }
+  }
+  const text = formatApiError(err, message(EDITOR_MSG.PUBLISH_FAILED));
+  if (/\bFORBIDDEN\b/i.test(text)) {
+    return message(EDITOR_MSG.PUBLISH_FORBIDDEN);
+  }
+  if (/\bCONFLICT\b/i.test(text)) {
+    return message(EDITOR_MSG.PUBLISH_CONFLICT);
+  }
+  return text;
 }
 
 /**

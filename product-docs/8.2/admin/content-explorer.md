@@ -403,11 +403,16 @@ failure keeps the notice instead of claiming the triggers loaded, and a
 successful reload clears it and shows the triggers.
 
 In **Edit** mode the host also shows **Publish now** for the already-open **page** or
-**asset** so authors do not need to bounce to Explorer solely to publish. Confirm
-**Publish this item now?** then demand-publish (`GET /services/sitemanage/publish/page/{id}`
-or `/resource/{id}` — same URLs as Explorer **Publish Now**). HTTP 200 with
+**asset** so authors do not need to bounce to Explorer solely to publish. **Publish now**
+opens a confirm dialog (**Publish now — Publish this item now?**). Confirm
+demand-publishes (`GET /services/sitemanage/publish/page/{id}`
+or `/resource/{id}` — same URLs as Explorer **Publish Now**) and closes the dialog with
+**Publish started.** **Cancel** closes the dialog and does not call the server. HTTP 200 with
 application-level `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` is a
-failure: the host shows the server warning and does not treat the job as started.
+failure: the dialog shows the server warning and does not treat the job as started.
+HTTP **400** (the request was rejected), **403** (publish not allowed), and **409**
+(the item cannot be published right now) stay on the dialog — they are not success,
+the dialog stays open, and the item stays open.
 **View** and **Promote** stay read-only (no Publish now). Templates and other
 non-page/non-asset types stay unavailable. Does not open the demand-publish servlet.
 

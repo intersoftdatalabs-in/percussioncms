@@ -11261,7 +11261,6 @@ describe("EditorHost publish now (#4540)", () => {
 
   it("confirms then demand-publishes a percPage in edit mode", async () => {
     const publishItem = vi.fn().mockResolvedValue(true);
-    const confirmPublish = vi.fn().mockReturnValue(true);
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
@@ -11273,7 +11272,6 @@ describe("EditorHost publish now (#4540)", () => {
                 loadFields={vi.fn().mockResolvedValue(fields)}
                 loadType={async () => titleType()}
                 publishItem={publishItem}
-                confirmPublish={confirmPublish}
               />
             }
           />
@@ -11284,19 +11282,20 @@ describe("EditorHost publish now (#4540)", () => {
       expect(screen.getByTestId("editor-publish-now")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("editor-publish-now"));
-    await waitFor(() => {
-      expect(confirmPublish).toHaveBeenCalled();
-    });
+    expect(screen.getByTestId("editor-publish-now-dialog")).toBeTruthy();
+    expect(publishItem).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("editor-publish-now-confirm"));
     await waitFor(() => {
       expect(publishItem).toHaveBeenCalledWith("42", "page");
     });
     await waitFor(() => {
       expect(screen.getByTestId("editor-publish-done")).toBeTruthy();
     });
-    expect(screen.queryByTestId("editor-publish-error")).toBeNull();
+    expect(screen.queryByTestId("editor-publish-now-dialog")).toBeNull();
+    expect(screen.queryByTestId("editor-publish-now-error")).toBeNull();
   });
 
-  it("does not publish when the confirm is cancelled", async () => {
+  it("does not publish when the confirm dialog is cancelled", async () => {
     const publishItem = vi.fn().mockResolvedValue(true);
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
@@ -11309,7 +11308,6 @@ describe("EditorHost publish now (#4540)", () => {
                 loadFields={vi.fn().mockResolvedValue(fields)}
                 loadType={async () => titleType()}
                 publishItem={publishItem}
-                confirmPublish={() => false}
               />
             }
           />
@@ -11320,14 +11318,21 @@ describe("EditorHost publish now (#4540)", () => {
       expect(screen.getByTestId("editor-publish-now")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("editor-publish-now"));
+    expect(screen.getByTestId("editor-publish-now-dialog")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("editor-publish-now-cancel"));
     await waitFor(() => {
-      expect(publishItem).not.toHaveBeenCalled();
+      expect(screen.queryByTestId("editor-publish-now-dialog")).toBeNull();
     });
+    expect(publishItem).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor-publish-done")).toBeNull();
   });
 
-  it("surfaces FORBIDDEN as failure, not success", async () => {
-    const publishItem = vi.fn().mockRejectedValue(new Error("FORBIDDEN"));
+  it("keeps HTTP 403 on the dialog as failure, not success", async () => {
+    const publishItem = vi.fn().mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: {},
+    });
     render(
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
@@ -11339,7 +11344,6 @@ describe("EditorHost publish now (#4540)", () => {
                 loadFields={vi.fn().mockResolvedValue(fields)}
                 loadType={async () => titleType()}
                 publishItem={publishItem}
-                confirmPublish={() => true}
               />
             }
           />
@@ -11350,12 +11354,14 @@ describe("EditorHost publish now (#4540)", () => {
       expect(screen.getByTestId("editor-publish-now")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("editor-publish-now"));
+    fireEvent.click(screen.getByTestId("editor-publish-now-confirm"));
     await waitFor(() => {
-      expect(screen.getByTestId("editor-publish-error").textContent).toMatch(
-        /FORBIDDEN/,
+      expect(screen.getByTestId("editor-publish-now-error").textContent).toMatch(
+        /not allowed/i,
       );
     });
     expect(screen.queryByTestId("editor-publish-done")).toBeNull();
+    expect(screen.getByTestId("editor-publish-now-dialog")).toBeTruthy();
   });
 
   it("hides Publish now in view mode", async () => {
@@ -11521,7 +11527,6 @@ describe("EditorHost publish now (#4540)", () => {
                 })}
                 loadType={async () => titleType()}
                 publishItem={publishItem}
-                confirmPublish={() => true}
               />
             }
           />
@@ -11532,6 +11537,8 @@ describe("EditorHost publish now (#4540)", () => {
       expect(screen.getByTestId("editor-publish-now")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("editor-publish-now"));
+    expect(screen.getByTestId("editor-publish-now-dialog")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("editor-publish-now-confirm"));
     await waitFor(() => {
       expect(publishItem).toHaveBeenCalledWith("99", "asset");
     });
