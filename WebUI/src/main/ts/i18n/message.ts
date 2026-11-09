@@ -551,6 +551,20 @@ export const MSG = {
   PUBLISH_STAGE_CONFIRM_UNSTAGE: "perc.ui.publish.modern@Remove this item from staging?",
   PUBLISH_STAGE_SUCCESS_STAGE: "perc.ui.publish.modern@Item staged.",
   PUBLISH_STAGE_SUCCESS_UNSTAGE: "perc.ui.publish.modern@Item removed from staging.",
+  PUBLISH_STAGED_STATUS: "perc.ui.publish.modern@Staged item status",
+  PUBLISH_STAGED_STATUS_HINT:
+    "perc.ui.publish.modern@Read-only publish status and log lines for one staged item. Looking up status never stages, unstages, publishes, or edits the item.",
+  PUBLISH_STAGED_STATUS_VIEW: "perc.ui.publish.modern@View status",
+  PUBLISH_STAGED_STATUS_EMPTY: "perc.ui.publish.modern@No publish status for this item",
+  PUBLISH_STAGED_STATUS_EMPTY_HINT:
+    "perc.ui.publish.modern@The item has no publish or takedown rows yet.",
+  PUBLISH_STAGED_STATUS_NEED_ID: "perc.ui.publish.modern@Enter an item id",
+  PUBLISH_STAGED_STATUS_INVALID_ID: "perc.ui.publish.modern@Invalid item id",
+  PUBLISH_STAGED_STATUS_ERROR: "perc.ui.publish.modern@Error fetching staged item status",
+  PUBLISH_STAGED_STATUS_CONFLICT: "perc.ui.publish.modern@Status conflict for this item",
+  PUBLISH_STAGED_STATUS_SUMMARY: "perc.ui.publish.modern@Latest status",
+  PUBLISH_STAGED_STATUS_LOG_LINES: "perc.ui.publish.modern@Log lines",
+  PUBLISH_STAGED_STATUS_FAILURES: "perc.ui.publish.modern@failures",
   PUBLISH_ACTIONS: "perc.ui.publish.modern@Available publishing actions",
   PUBLISH_ACTIONS_HINT:
     "perc.ui.publish.modern@Server-driven actions for the selected page or asset. Unavailable actions are disabled.",
