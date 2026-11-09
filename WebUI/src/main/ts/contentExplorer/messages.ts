@@ -31,6 +31,12 @@ export const EXPLORER_MSG = {
   /** Tree expand-all / collapse-all toolbar (#5760). */
   TREE_EXPAND_ALL: "perc.ui.explorer@Expand all",
   TREE_COLLAPSE_ALL: "perc.ui.explorer@Collapse all",
+  /** Tree inline new-folder row trigger (#5882). */
+  TREE_NEW_FOLDER: "perc.ui.explorer@New folder",
+  /** Accessible label + placeholder for the inline new-folder name field (#5882). */
+  TREE_INLINE_NEW_FOLDER_LABEL: "perc.ui.explorer@New folder name",
+  /** Inline new-folder blank refusal — no POST is sent (#5882). */
+  TREE_INLINE_NEW_FOLDER_BLANK: "perc.ui.explorer@Enter a folder name",
   LIST_LOADING: "perc.ui.explorer@Loading items",
   LIST_EMPTY: "perc.ui.explorer@No items in this folder",
   LIST_LOAD_ERROR: "perc.ui.explorer@Failed to load items",

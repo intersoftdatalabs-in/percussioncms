@@ -25,6 +25,7 @@
 import React, { useEffect, useState, useCallback, useMemo, useRef } from "react";
 import { formatApiError } from "../api/client";
 import { findChildren } from "../api/contentExplorer/pathApi";
+import { addNewFolder } from "../api/contentExplorer/folderMutations";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { MKD_LANG_IGNORE_ATTR } from "../i18n/mkdLangIgnore";
 import { message } from "../i18n/message";
@@ -35,6 +36,13 @@ import {
   resolveExplorerListPath,
 } from "./sitePath";
 import { isFolder } from "./selection";
+import {
+  ExplorerTreeInlineNewFolderRow,
+  formatInlineNewFolderCommitError,
+  formatInlineNewFolderFieldError,
+  validateInlineNewFolderName,
+} from "./ExplorerTreeInlineFolder";
+import type { ExplorerTreeInlineCreateState } from "./ExplorerTreeInlineFolder";
 import {
   emptyStateStyle,
   errorStateStyle,
@@ -68,6 +76,12 @@ export interface ExplorerTreeProps {
    * folder-mutation epoch, not the detail-list epoch.
    */
   childrenEpoch?: number;
+  /**
+   * Fires after an inline new-folder commit succeeds (#5882) so the host
+   * can refresh surfaces the tree does not own (the detail list). The
+   * tree reloads the parent node itself.
+   */
+  onFolderCreated?: (folder: PSPathItem) => void;
 }
 
 /**
@@ -628,6 +642,8 @@ export interface ExplorerTreeNodeViewProps {
   onSelectFolder: (path: string, folder: PSPathItem) => void;
   onToggle: (path: string, folder: PSPathItem) => void;
   onExpandIfCollapsed: (path: string, folder: PSPathItem) => void;
+  /** Open inline new-folder row; rendered under the matching parent (#5882). */
+  inlineCreate?: ExplorerTreeInlineCreateState | null;
 }
 
 /**
@@ -645,6 +661,7 @@ export function ExplorerTreeNodeView({
   onSelectFolder,
   onToggle,
   onExpandIfCollapsed,
+  inlineCreate = null,
 }: ExplorerTreeNodeViewProps): React.ReactElement {
   const path = folder.path;
   const pathKey = normalizeExplorerTreePathKey(path);
@@ -730,8 +747,18 @@ export function ExplorerTreeNodeView({
               onSelectFolder={onSelectFolder}
               onToggle={onToggle}
               onExpandIfCollapsed={onExpandIfCollapsed}
+              inlineCreate={inlineCreate}
             />
           ))}
+      {folderish && isOpen && inlineCreate?.parentKey === pathKey ? (
+        <ExplorerTreeInlineNewFolderRow
+          depth={depth + 1}
+          error={inlineCreate.error}
+          busy={inlineCreate.busy}
+          onCommit={inlineCreate.onCommit}
+          onCancel={inlineCreate.onCancel}
+        />
+      ) : null}
     </div>
   );
 }
@@ -739,12 +766,15 @@ export function ExplorerTreeNodeView({
 export interface ExplorerTreeToolbarProps {
   onExpandAll: () => void;
   onCollapseAll: () => void;
+  /** Opens the inline new-folder row at the selected location (#5882). */
+  onNewFolder?: () => void;
 }
 
 /** Expand-all / collapse-all toolbar (#5760, extracted #5793). */
 export function ExplorerTreeToolbar({
   onExpandAll,
   onCollapseAll,
+  onNewFolder,
 }: ExplorerTreeToolbarProps): React.ReactElement {
   return (
     <div data-testid="explorer-tree-expand-toolbar" style={treeToolbarStyle}>
@@ -766,6 +796,17 @@ export function ExplorerTreeToolbar({
       >
         {message(EXPLORER_MSG.TREE_COLLAPSE_ALL)}
       </button>
+      {onNewFolder ? (
+        <button
+          type="button"
+          data-testid="tree-new-folder"
+          aria-label={message(EXPLORER_MSG.TREE_NEW_FOLDER)}
+          style={treeToolbarButtonStyle}
+          onClick={onNewFolder}
+        >
+          {message(EXPLORER_MSG.TREE_NEW_FOLDER)}
+        </button>
+      ) : null}
     </div>
   );
 }
@@ -857,6 +898,7 @@ export function ExplorerTree({
   onSelectFolder,
   onActivate,
   childrenEpoch = 0,
+  onFolderCreated,
 }: ExplorerTreeProps): React.ReactElement {
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => ({
     [normalizeExplorerTreePathKey(initialPath)]: true,
@@ -864,6 +906,8 @@ export function ExplorerTree({
   const { nodes, nodesRef, ensureLoaded } = useExplorerTreeNodes(initialPath);
   const selectedPathRef = useRef(selectedPath);
   selectedPathRef.current = selectedPath;
+  const onFolderCreatedRef = useRef(onFolderCreated);
+  onFolderCreatedRef.current = onFolderCreated;
   const treeRef = useRef<HTMLDivElement | null>(null);
   const typeAheadRef = useRef<{
     buffer: string;
@@ -986,6 +1030,93 @@ export function ExplorerTree({
   }, [initialPath]);
 
   /**
+   * Inline new-folder row (#5882). The row opens under the selected
+   * folder (or the tree root with no selection) so the operator types
+   * the name at the tree location: Enter commits, Escape cancels and
+   * leaves the tree unchanged.
+   */
+  const [inlineParent, setInlineParent] = useState<{
+    key: string;
+    path: string;
+    item: PSPathItem | null;
+  } | null>(null);
+  const inlineParentRef = useRef<typeof inlineParent>(null);
+  inlineParentRef.current = inlineParent;
+  const [inlineError, setInlineError] = useState<string | null>(null);
+  const [inlineBusy, setInlineBusy] = useState(false);
+
+  const startInlineCreate = useCallback(() => {
+    const snapshot = nodesRef.current;
+    const selected = selectedPathRef.current;
+    const item = selected ? findFolderItemForPath(snapshot, selected) : null;
+    const hit = selected ? lookupNodeKey(snapshot, selected) : undefined;
+    // Create against the folder's LIST path (repository folderPath, not
+    // the finder id): POST /rest/folders/create rejects finder ids such
+    // as /Assets with "Parent path is not a folder" (#5882 QA). This
+    // mirrors the dialog flow, whose parent comes from the shell list
+    // selection. Site /Pages browse chrome is deliberately excluded —
+    // it is a virtual listing, not a creatable parent.
+    const parentPath =
+      (item ? resolveExplorerListPath(item, item.path) : null) ??
+      hit ??
+      selected ??
+      initialPath;
+    // Render anchor stays on the finder path (the visible node key); the
+    // POST parent above is the list path. They differ for roots such as
+    // /Assets (finder) vs //Folders/$System$/Assets (repository).
+    const key = normalizeExplorerTreePathKey(
+      item?.path ?? hit ?? selected ?? initialPath,
+    );
+    setInlineParent({ key, path: parentPath, item });
+    setInlineError(null);
+    setInlineBusy(false);
+    setExpanded((prev) => ({ ...prev, [key]: true }));
+    const node = snapshot[key];
+    if (!node?.loaded) {
+      void ensureLoaded(key, item);
+    }
+  }, [ensureLoaded, initialPath]);
+
+  const commitInlineCreate = useCallback(
+    async (name: string) => {
+      const pending = inlineParentRef.current;
+      if (!pending) {
+        return;
+      }
+      const reason = validateInlineNewFolderName(name);
+      if (reason) {
+        setInlineError(formatInlineNewFolderFieldError(reason));
+        return;
+      }
+      const trimmed = String(name ?? "").trim();
+      setInlineBusy(true);
+      setInlineError(null);
+      try {
+        const created = await addNewFolder(pending.path, trimmed);
+        setInlineParent(null);
+        setInlineBusy(false);
+        setInlineError(null);
+        setExpanded((prev) => ({ ...prev, [pending.key]: true }));
+        // Reload the parent node only on success — a failed commit
+        // (notably 409) keeps the row open with no tree refresh.
+        await ensureLoaded(pending.key, pending.item ?? created ?? null, true);
+        onFolderCreatedRef.current?.(created);
+      } catch (err) {
+        setInlineBusy(false);
+        setInlineError(formatInlineNewFolderCommitError(err, trimmed));
+      }
+    },
+    [ensureLoaded],
+  );
+
+  /** Escape: close the row with no POST and no reload. */
+  const cancelInlineCreate = useCallback(() => {
+    setInlineParent(null);
+    setInlineError(null);
+    setInlineBusy(false);
+  }, []);
+
+  /**
    * Classic Explorer type-ahead (#5841): printable keys typed while the
    * tree is focused accumulate for ~1s into a prefix; focus jumps to the
    * next visible row whose label starts with the prefix (wrap-around) and
@@ -1002,8 +1133,14 @@ export function ExplorerTree({
       if (!container) {
         return;
       }
+      // The open inline new-folder row is a peer treeitem (ARIA ownership)
+      // but must not steal type-ahead focus or selection (#5882).
       const items = Array.from(
         container.querySelectorAll('[role="treeitem"]'),
+      ).filter(
+        (el) =>
+          el.getAttribute("data-testid") !== "tree-inline-new-folder" &&
+          el.closest('[data-testid="tree-inline-new-folder"]') == null,
       );
       if (items.length === 0) {
         return;
@@ -1051,11 +1188,23 @@ export function ExplorerTree({
     [onSelectFolder, nodesRef],
   );
 
-  const { rootState } = resolveExplorerTreeRoot(nodes, initialPath);
+  const { rootState, rootKey } = resolveExplorerTreeRoot(nodes, initialPath);
   const error = useMemo(
     () => resolveExplorerTreeError(nodes, rootState.error),
     [nodes, rootState.error],
   );
+
+  const inlineCreate: ExplorerTreeInlineCreateState | null = inlineParent
+    ? {
+        parentKey: inlineParent.key,
+        error: inlineError,
+        busy: inlineBusy,
+        onCommit: (name) => {
+          void commitInlineCreate(name);
+        },
+        onCancel: cancelInlineCreate,
+      }
+    : null;
 
   if (error) {
     // Not role=tree: axe aria-required-children fails when there are no treeitems.
@@ -1071,7 +1220,11 @@ export function ExplorerTree({
   if (rootState.loaded && rootState.children.length === 0) {
     return (
       <>
-        <ExplorerTreeToolbar onExpandAll={expandAll} onCollapseAll={collapseAll} />
+        <ExplorerTreeToolbar
+          onExpandAll={expandAll}
+          onCollapseAll={collapseAll}
+          onNewFolder={startInlineCreate}
+        />
         <div style={treeStyle} data-testid="explorer-tree">
           <div style={emptyStateStyle} data-testid="explorer-tree-empty">
             {message(EXPLORER_MSG.TREE_EMPTY)}
@@ -1083,7 +1236,11 @@ export function ExplorerTree({
 
   return (
     <>
-      <ExplorerTreeToolbar onExpandAll={expandAll} onCollapseAll={collapseAll} />
+      <ExplorerTreeToolbar
+        onExpandAll={expandAll}
+        onCollapseAll={collapseAll}
+        onNewFolder={startInlineCreate}
+      />
       <div
         style={treeStyle}
         role="tree"
@@ -1105,8 +1262,20 @@ export function ExplorerTree({
           onSelectFolder={onSelectFolder}
           onToggle={toggle}
           onExpandIfCollapsed={expandIfCollapsed}
+          inlineCreate={inlineCreate}
         />
       ))}
+      {inlineCreate &&
+      normalizeExplorerTreePathKey(inlineCreate.parentKey) ===
+        normalizeExplorerTreePathKey(rootKey) ? (
+        <ExplorerTreeInlineNewFolderRow
+          depth={0}
+          error={inlineCreate.error}
+          busy={inlineCreate.busy}
+          onCommit={inlineCreate.onCommit}
+          onCancel={inlineCreate.onCancel}
+        />
+      ) : null}
       </div>
     </>
   );
