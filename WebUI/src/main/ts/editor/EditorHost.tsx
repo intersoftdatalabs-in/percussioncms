@@ -222,8 +222,12 @@ import {
   editorCreateErrorReason,
   parseCreateLandingContentId,
 } from "./editorCreate";
-import { editorBinaryErrorReason, isImageFile } from "./editorBinary";
-import { editorSaveErrorReason } from "./editorSave";
+import {
+  editorBinaryErrorReason,
+  isImageFile,
+  type EditorBinaryErrorReason,
+} from "./editorBinary";
+import { editorSaveErrorReason, type EditorSaveErrorReason } from "./editorSave";
 import {
   fieldsForEditorSave,
   schemaReadOnlyFieldNames,
@@ -326,6 +330,124 @@ export { mergeEditorRows } from "./controlKinds";
 /** Coerce item-field JSON so controlled inputs never receive a number. */
 export function fieldValueAsString(value: unknown): string {
   return value == null ? "" : String(value);
+}
+
+/**
+ * Save-time binary upload failure copy (#5794). A missing entry (generic
+ * failures) means the error is rethrown for the generic save-failure path.
+ */
+const BINARY_UPLOAD_SAVE_KEYS: Record<
+  EditorBinaryErrorReason,
+  { image: string; file: string } | undefined
+> = {
+  forbidden: {
+    image: EDITOR_MSG.IMAGE_FORBIDDEN,
+    file: EDITOR_MSG.FILE_FORBIDDEN,
+  },
+  tooLarge: {
+    image: EDITOR_MSG.IMAGE_TOO_LARGE,
+    file: EDITOR_MSG.FILE_TOO_LARGE,
+  },
+  badRequest: {
+    image: EDITOR_MSG.IMAGE_BAD_REQUEST,
+    file: EDITOR_MSG.FILE_BAD_REQUEST,
+  },
+  conflict: {
+    image: EDITOR_MSG.IMAGE_CONFLICT,
+    file: EDITOR_MSG.FILE_CONFLICT,
+  },
+  failed: undefined,
+};
+
+type SaveFailureKindRule = {
+  /** Row kinds covered by this rule, in save-banner priority order. */
+  kinds: readonly string[];
+  /** Save reasons that map onto this group (link additionally maps notFound). */
+  statuses: readonly EditorSaveErrorReason[];
+  forbiddenKey?: string;
+  notFoundKey?: string;
+  badRequestKey: string;
+};
+
+/**
+ * Per-kind save-failure mapping (#5794: replaces nine near-identical inline
+ * blocks in handleSave). The first rule (in order) whose status matches and
+ * whose kind is either named by the server error or is the only field of
+ * its kind wins the banner; an earlier badRequest winner blocks later
+ * rules, mirroring the original `!html400 && …` chain.
+ */
+const SAVE_FAILURE_KIND_RULES: readonly SaveFailureKindRule[] = [
+  {
+    kinds: ["html"],
+    statuses: ["badRequest", "forbidden"],
+    forbiddenKey: EDITOR_MSG.HTML_FORBIDDEN,
+    badRequestKey: EDITOR_MSG.HTML_BAD_REQUEST,
+  },
+  {
+    kinds: ["longtext"],
+    statuses: ["badRequest", "forbidden"],
+    forbiddenKey: EDITOR_MSG.LONGTEXT_FORBIDDEN,
+    badRequestKey: EDITOR_MSG.LONGTEXT_BAD_REQUEST,
+  },
+  {
+    kinds: ["number"],
+    statuses: ["badRequest", "forbidden"],
+    forbiddenKey: EDITOR_MSG.NUMBER_FORBIDDEN,
+    badRequestKey: EDITOR_MSG.NUMBER_BAD_REQUEST,
+  },
+  {
+    kinds: ["link"],
+    statuses: ["notFound", "forbidden", "badRequest"],
+    forbiddenKey: EDITOR_MSG.LINK_FORBIDDEN,
+    notFoundKey: EDITOR_MSG.LINK_NOT_FOUND,
+    badRequestKey: EDITOR_MSG.LINK_BAD_REQUEST,
+  },
+  {
+    kinds: ["keyword"],
+    statuses: ["forbidden", "badRequest"],
+    forbiddenKey: EDITOR_MSG.KEYWORD_FORBIDDEN,
+    badRequestKey: EDITOR_MSG.KEYWORD_BAD_REQUEST,
+  },
+  {
+    kinds: ["date", "datetime"],
+    statuses: ["forbidden", "badRequest"],
+    forbiddenKey: EDITOR_MSG.DATE_FORBIDDEN,
+    badRequestKey: EDITOR_MSG.DATE_BAD_REQUEST,
+  },
+  {
+    kinds: ["yesno"],
+    statuses: ["forbidden", "badRequest"],
+    forbiddenKey: EDITOR_MSG.YESNO_FORBIDDEN,
+    badRequestKey: EDITOR_MSG.YESNO_BAD_REQUEST,
+  },
+  {
+    kinds: ["community"],
+    statuses: ["forbidden", "badRequest"],
+    forbiddenKey: EDITOR_MSG.COMMUNITY_FORBIDDEN,
+    badRequestKey: EDITOR_MSG.COMMUNITY_BAD_REQUEST,
+  },
+  {
+    kinds: ["text"],
+    statuses: ["forbidden", "badRequest"],
+    forbiddenKey: EDITOR_MSG.TEXT_FORBIDDEN,
+    badRequestKey: EDITOR_MSG.TEXT_BAD_REQUEST,
+  },
+];
+
+/**
+ * Banner key for the winning save-failure rule (#5794).
+ */
+function saveFailureMessageKey(
+  saveReason: EditorSaveErrorReason,
+  rule: SaveFailureKindRule,
+): string {
+  if (saveReason === "notFound" && rule.notFoundKey != null) {
+    return rule.notFoundKey;
+  }
+  if (saveReason === "forbidden" && rule.forbiddenKey != null) {
+    return rule.forbiddenKey;
+  }
+  return rule.badRequestKey;
 }
 
 export interface EditorHostProps {
@@ -1614,6 +1736,521 @@ export function EditorHost({
     );
   }
 
+  type SaveValidationFailure = {
+    errors: Record<string, string>;
+    saveKey: string;
+    focusFirst: boolean;
+  };
+
+  /**
+   * First failing save validation in submit order (#5794: extracted from
+   * handleSave so each function stays within the complexity budget). Steps
+   * run lazily so collectors after a failure never run — the same
+   * short-circuit as the inline chain this replaces.
+   */
+  function firstSaveValidationFailure(): SaveValidationFailure | null {
+    const invalidDates = collectInvalidDateFieldErrors(
+      rows.map((row) => ({
+        name: row.name,
+        kind: row.kind,
+        required: row.required,
+        value: row.value,
+      })),
+      message(EDITOR_MSG.FIELD_INVALID_DATE),
+    );
+    const steps: ReadonlyArray<{
+      collect: () => Record<string, string>;
+      saveKey: string;
+      focusFirst: boolean;
+    }> = [
+      {
+        collect: () => {
+          const missing = requiredErrorsForDraft();
+          if (Object.keys(missing).length === 0) {
+            return missing;
+          }
+          return { ...invalidDates, ...missing };
+        },
+        saveKey: EDITOR_MSG.REQUIRED_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () =>
+          collectDateNulFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+            })),
+            message(EDITOR_MSG.DATE_NUL)
+          ),
+        saveKey: EDITOR_MSG.DATE_NUL_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () =>
+          collectDatetimeNulFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+            })),
+            message(EDITOR_MSG.DATETIME_NUL)
+          ),
+        saveKey: EDITOR_MSG.DATETIME_NUL_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () =>
+          invalidDates,
+        saveKey: EDITOR_MSG.INVALID_DATE_SAVE,
+        focusFirst: false,
+      },
+      {
+        collect: () =>
+          collectUnsafeHtmlFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+            })),
+            message(EDITOR_MSG.HTML_UNSAFE)
+          ),
+        saveKey: EDITOR_MSG.HTML_INVALID_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () =>
+          collectInvalidLongTextFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+            })),
+            message(EDITOR_MSG.LONGTEXT_INVALID)
+          ),
+        saveKey: EDITOR_MSG.LONGTEXT_INVALID_SAVE,
+        focusFirst: false,
+      },
+      {
+        collect: () =>
+          collectInvalidSingleLineTextFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+            })),
+            message(EDITOR_MSG.TEXT_INVALID)
+          ),
+        saveKey: EDITOR_MSG.TEXT_INVALID_SAVE,
+        focusFirst: false,
+      },
+      {
+        collect: () =>
+          collectInvalidHtmlFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+            })),
+            message(EDITOR_MSG.HTML_NUL)
+          ),
+        saveKey: EDITOR_MSG.HTML_INVALID_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () =>
+          collectNumberNulFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+              numericInteger: row.numericInteger,
+              numericMinimum: row.numericMinimum,
+              numericMaximum: row.numericMaximum,
+            })),
+            message(EDITOR_MSG.NUMBER_NUL)
+          ),
+        saveKey: EDITOR_MSG.NUMBER_NUL_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () =>
+          collectDecimalNulFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+              numericInteger: row.numericInteger,
+              numericMinimum: row.numericMinimum,
+              numericMaximum: row.numericMaximum,
+            })),
+            message(EDITOR_MSG.NUMBER_NUL)
+          ),
+        saveKey: EDITOR_MSG.NUMBER_NUL_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () =>
+          collectYesNoNulFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+            })),
+            message(EDITOR_MSG.YESNO_NUL)
+          ),
+        saveKey: EDITOR_MSG.YESNO_NUL_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () =>
+          collectInvalidNumericFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+              numericInteger: row.numericInteger,
+              numericMinimum: row.numericMinimum,
+              numericMaximum: row.numericMaximum,
+            })),
+            message(EDITOR_MSG.NUMBER_INVALID),
+            message(EDITOR_MSG.NUMBER_RANGE)
+          ),
+        saveKey: EDITOR_MSG.NUMBER_INVALID_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () =>
+          collectLinkNulFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+            })),
+            message(EDITOR_MSG.LINK_NUL)
+          ),
+        saveKey: EDITOR_MSG.LINK_INVALID_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () =>
+          collectInvalidLinkFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+            })),
+            message(EDITOR_MSG.LINK_INVALID)
+          ),
+        saveKey: EDITOR_MSG.LINK_INVALID_SAVE,
+        focusFirst: false,
+      },
+      {
+        collect: () =>
+          collectTableNulFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+            })),
+            message(EDITOR_MSG.TABLE_NUL)
+          ),
+        saveKey: EDITOR_MSG.TABLE_NUL_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () =>
+          collectKeywordNulFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+            })),
+            message(EDITOR_MSG.KEYWORD_NUL)
+          ),
+        saveKey: EDITOR_MSG.KEYWORD_INVALID_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () =>
+          collectFileNulFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+            })),
+            pendingFiles,
+            message(EDITOR_MSG.FILE_NUL)
+          ),
+        saveKey: EDITOR_MSG.FILE_NUL_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () =>
+          collectImageNulFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+            })),
+            pendingFiles,
+            message(EDITOR_MSG.IMAGE_NUL)
+          ),
+        saveKey: EDITOR_MSG.IMAGE_NUL_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () =>
+          collectCommunityNulFieldErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              value: row.value,
+            })),
+            message(EDITOR_MSG.COMMUNITY_NUL)
+          ),
+        saveKey: EDITOR_MSG.COMMUNITY_NUL_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () =>
+          collectKeywordOutsideCatalogErrors(
+            rows.map((row) => ({
+              name: row.name,
+              kind: row.kind,
+              label: row.label,
+              value: row.value,
+            })),
+            keywordChoicesRef.current,
+            keywordOutsideCatalogMessage
+          ),
+        saveKey: EDITOR_MSG.KEYWORD_INVALID_SAVE,
+        focusFirst: true,
+      },
+    ];
+    for (const step of steps) {
+      const errors = step.collect();
+      if (Object.keys(errors).length > 0) {
+        return { errors, saveKey: step.saveKey, focusFirst: step.focusFirst };
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Rejects non-image uploads staged on image fields (#5794: extracted
+   * from handleSave).
+   */
+  function hasInvalidImageUpload(imageFieldNames: ReadonlySet<string>): boolean {
+    for (const [field, file] of Object.entries(pendingFiles)) {
+      if (imageFieldNames.has(field) && !isImageFile(file)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Assembles the fields PUT payload including classic page parity (#5739:
+   * filename trim/dot-strip, allowed template stamp) (#5794: extracted
+   * from handleSave).
+   */
+  function buildSaveSubmitFields(source: ItemEditorFields): ItemEditorFields {
+    const next: ItemEditorFields = {
+      ...source,
+      fields: fieldsForEditorSave(rows),
+    };
+    if (!isExplorerPageType(source.contentType)) {
+      return next;
+    }
+    // Classic `_saveMetadata` parity (#5739): trim + trailing-dot
+    // strip on the filename before submit. The echoed PUT response
+    // re-syncs the draft below.
+    next.fields = withPageFilenameField(next.fields);
+    if (isAllowedPageTemplate(pageTemplateId, pageTemplateChoices)) {
+      next.fields = withPageTemplateField(next.fields, pageTemplateId);
+    }
+    return next;
+  }
+
+  /**
+   * Persists a changed page template after the fields PUT (#5794:
+   * extracted from handleSave).
+   */
+  async function syncSavePageTemplate(
+    itemId: string,
+    contentType: string,
+  ): Promise<void> {
+    if (!isExplorerPageType(contentType)) {
+      return;
+    }
+    if (!isAllowedPageTemplate(pageTemplateId, pageTemplateChoices)) {
+      return;
+    }
+    if (pageTemplateId === pageTemplateBaseline) {
+      return;
+    }
+    await changeTemplate(itemId, pageTemplateId);
+    setPageTemplateBaseline(pageTemplateId);
+  }
+
+  /**
+   * Uploads staged binaries after the fields PUT (#5794: extracted from
+   * handleSave). Returns true when the caller must stop (a failure banner
+   * was already surfaced); rethrows unmapped errors for the generic
+   * save-failure path.
+   */
+  async function uploadPendingSaveBinaries(
+    itemId: string,
+    imageFieldNames: ReadonlySet<string>,
+  ): Promise<boolean> {
+    try {
+      for (const [field, file] of Object.entries(pendingFiles)) {
+        await uploadBinary(itemId, field, file);
+      }
+    } catch (binErr) {
+      if (isSessionRedirectError(binErr)) {
+        return true;
+      }
+      const mapping = BINARY_UPLOAD_SAVE_KEYS[editorBinaryErrorReason(binErr)];
+      if (mapping == null) {
+        throw binErr;
+      }
+      const imageUpload = Object.keys(pendingFiles).some((name) =>
+        imageFieldNames.has(name),
+      );
+      setFieldErrors({});
+      setSaveErrorKey(imageUpload ? mapping.image : mapping.file);
+      setSaveErrorDetail("");
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Clears binaries staged for removal (#5794: extracted from handleSave).
+   * Same true-means-stop contract as uploadPendingSaveBinaries.
+   */
+  async function clearPendingSaveBinaries(itemId: string): Promise<boolean> {
+    for (const field of Object.keys(pendingClears)) {
+      if (pendingFiles[field]) {
+        continue;
+      }
+      try {
+        await clearBinary(itemId, field);
+      } catch (binErr) {
+        if (isSessionRedirectError(binErr)) {
+          return true;
+        }
+        const binaryReason = editorBinaryErrorReason(binErr);
+        if (binaryReason === "forbidden" || binaryReason === "badRequest") {
+          const errors = {
+            [field]:
+              message(
+                binaryReason === "forbidden"
+                  ? EDITOR_MSG.FILE_CLEAR_FORBIDDEN
+                  : EDITOR_MSG.FILE_CLEAR_BAD_REQUEST,
+              ) + ` (${field})`,
+          };
+          if (binaryReason === "badRequest") {
+            queueFocusFirstInvalid(errors);
+          }
+          setFieldErrors(errors);
+          setSaveErrorKey(null);
+          setSaveErrorDetail("");
+          return true;
+        }
+        throw binErr;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Re-reads the item after a successful save so the draft reflects stored
+   * values; a stale refresh keeps the truthful saved indicator and raises
+   * the save-region retry notice instead (#5768, #5794: extracted from
+   * handleSave).
+   */
+  async function refreshPayloadAfterSave(itemId: string): Promise<void> {
+    try {
+      const refreshed = await loadFields(itemId);
+      setPayload(refreshed);
+      setDraft(
+        Object.fromEntries(
+          refreshed.fields.map((f) => [f.name, fieldValueAsString(f.value)]),
+        ),
+      );
+      setSaveReloadErrorKey(null);
+      setSaveReloadErrorDetail("");
+    } catch (reloadErr) {
+      if (isSessionRedirectError(reloadErr)) {
+        return;
+      }
+      // The PUT already succeeded: keep the saved indicator truthful and
+      // surface the stale refresh on the save status region with Retry
+      // semantics instead of silently showing unrefreshed values.
+      setSaveReloadErrorKey(EDITOR_MSG.SAVE_RELOAD_FAILED);
+      setSaveReloadErrorDetail(formatApiError(reloadErr, ""));
+    }
+  }
+
+  /**
+   * Surfaces a fields-PUT failure: stale-revision banner, then the first
+   * per-kind rule matching the server error (#5794: extracted from
+   * handleSave; the rule table replaces nine near-identical inline
+   * blocks).
+   */
+  function applySaveFailure(err: unknown): void {
+    if (editorSaveErrorReason(err) === "stale") {
+      setFieldErrors({});
+      setSaveErrorKey(EDITOR_MSG.SAVE_STALE);
+      setSaveErrorDetail("");
+      return;
+    }
+    const fallback = message(EDITOR_MSG.SAVE_FAILED);
+    const mapped = mapSaveApiErrorToFieldErrors(
+      err,
+      rows.map((row) => row.name),
+      fallback,
+    );
+    const saveReason = editorSaveErrorReason(err);
+    let saveKey: string = EDITOR_MSG.SAVE_FAILED;
+    for (const rule of SAVE_FAILURE_KIND_RULES) {
+      if (!rule.statuses.includes(saveReason)) {
+        continue;
+      }
+      const names = rows
+        .filter((row) => rule.kinds.includes(row.kind))
+        .map((row) => row.name);
+      const named = Object.keys(mapped.fieldErrors).some((name) =>
+        names.includes(name),
+      );
+      const single =
+        Object.keys(mapped.fieldErrors).length === 0 && names.length === 1;
+      if (!named && !single) {
+        continue;
+      }
+      if (single) {
+        mapped.fieldErrors[names[0]] = message(
+          saveFailureMessageKey(saveReason, rule),
+        );
+      }
+      saveKey = saveFailureMessageKey(saveReason, rule);
+      break;
+    }
+    if (
+      saveReason === "badRequest" &&
+      Object.keys(mapped.fieldErrors).length > 0
+    ) {
+      queueFocusFirstInvalid(mapped.fieldErrors);
+    }
+    setFieldErrors(mapped.fieldErrors);
+    setSaveErrorKey(saveKey);
+    setSaveErrorDetail(mapped.banner === fallback ? "" : mapped.banner);
+  }
+
   async function handleSave(): Promise<void> {
     if (contentId == null || payload == null) {
       return;
@@ -1624,308 +2261,13 @@ export function EditorHost({
     setSaveErrorDetail("");
     setSaveReloadErrorKey(null);
     setSaveReloadErrorDetail("");
-    const missing = requiredErrorsForDraft();
-    const invalidDates = collectInvalidDateFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        required: row.required,
-        value: row.value,
-      })),
-      message(EDITOR_MSG.FIELD_INVALID_DATE),
-    );
-    if (Object.keys(missing).length > 0) {
-      const errors = { ...invalidDates, ...missing };
-      queueFocusFirstInvalid(errors);
-      setFieldErrors(errors);
-      setSaveErrorKey(EDITOR_MSG.REQUIRED_SAVE);
-      setSaving(false);
-      return;
-    }
-    const dateNuls = collectDateNulFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-      })),
-      message(EDITOR_MSG.DATE_NUL),
-    );
-    if (Object.keys(dateNuls).length > 0) {
-      queueFocusFirstInvalid(dateNuls);
-      setFieldErrors(dateNuls);
-      setSaveErrorKey(EDITOR_MSG.DATE_NUL_SAVE);
-      setSaving(false);
-      return;
-    }
-    const datetimeNuls = collectDatetimeNulFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-      })),
-      message(EDITOR_MSG.DATETIME_NUL),
-    );
-    if (Object.keys(datetimeNuls).length > 0) {
-      queueFocusFirstInvalid(datetimeNuls);
-      setFieldErrors(datetimeNuls);
-      setSaveErrorKey(EDITOR_MSG.DATETIME_NUL_SAVE);
-      setSaving(false);
-      return;
-    }
-    if (Object.keys(invalidDates).length > 0) {
-      setFieldErrors(invalidDates);
-      setSaveErrorKey(EDITOR_MSG.INVALID_DATE_SAVE);
-      setSaving(false);
-      return;
-    }
-    const unsafeHtml = collectUnsafeHtmlFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-      })),
-      message(EDITOR_MSG.HTML_UNSAFE),
-    );
-    if (Object.keys(unsafeHtml).length > 0) {
-      queueFocusFirstInvalid(unsafeHtml);
-      setFieldErrors(unsafeHtml);
-      setSaveErrorKey(EDITOR_MSG.HTML_INVALID_SAVE);
-      setSaving(false);
-      return;
-    }
-    const invalidLongText = collectInvalidLongTextFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-      })),
-      message(EDITOR_MSG.LONGTEXT_INVALID),
-    );
-    if (Object.keys(invalidLongText).length > 0) {
-      setFieldErrors(invalidLongText);
-      setSaveErrorKey(EDITOR_MSG.LONGTEXT_INVALID_SAVE);
-      setSaving(false);
-      return;
-    }
-    const invalidText = collectInvalidSingleLineTextFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-      })),
-      message(EDITOR_MSG.TEXT_INVALID),
-    );
-    if (Object.keys(invalidText).length > 0) {
-      setFieldErrors(invalidText);
-      setSaveErrorKey(EDITOR_MSG.TEXT_INVALID_SAVE);
-      setSaving(false);
-      return;
-    }
-    const invalidHtml = collectInvalidHtmlFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-      })),
-      message(EDITOR_MSG.HTML_NUL),
-    );
-    if (Object.keys(invalidHtml).length > 0) {
-      queueFocusFirstInvalid(invalidHtml);
-      setFieldErrors(invalidHtml);
-      setSaveErrorKey(EDITOR_MSG.HTML_INVALID_SAVE);
-      setSaving(false);
-      return;
-    }
-    const numberNuls = collectNumberNulFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-        numericInteger: row.numericInteger,
-        numericMinimum: row.numericMinimum,
-        numericMaximum: row.numericMaximum,
-      })),
-      message(EDITOR_MSG.NUMBER_NUL),
-    );
-    if (Object.keys(numberNuls).length > 0) {
-      queueFocusFirstInvalid(numberNuls);
-      setFieldErrors(numberNuls);
-      setSaveErrorKey(EDITOR_MSG.NUMBER_NUL_SAVE);
-      setSaving(false);
-      return;
-    }
-    const decimalNuls = collectDecimalNulFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-        numericInteger: row.numericInteger,
-        numericMinimum: row.numericMinimum,
-        numericMaximum: row.numericMaximum,
-      })),
-      message(EDITOR_MSG.NUMBER_NUL),
-    );
-    if (Object.keys(decimalNuls).length > 0) {
-      queueFocusFirstInvalid(decimalNuls);
-      setFieldErrors(decimalNuls);
-      setSaveErrorKey(EDITOR_MSG.NUMBER_NUL_SAVE);
-      setSaving(false);
-      return;
-    }
-    const yesNoNuls = collectYesNoNulFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-      })),
-      message(EDITOR_MSG.YESNO_NUL),
-    );
-    if (Object.keys(yesNoNuls).length > 0) {
-      queueFocusFirstInvalid(yesNoNuls);
-      setFieldErrors(yesNoNuls);
-      setSaveErrorKey(EDITOR_MSG.YESNO_NUL_SAVE);
-      setSaving(false);
-      return;
-    }
-    const invalidNumbers = collectInvalidNumericFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-        numericInteger: row.numericInteger,
-        numericMinimum: row.numericMinimum,
-        numericMaximum: row.numericMaximum,
-      })),
-      message(EDITOR_MSG.NUMBER_INVALID),
-      message(EDITOR_MSG.NUMBER_RANGE),
-    );
-    if (Object.keys(invalidNumbers).length > 0) {
-      queueFocusFirstInvalid(invalidNumbers);
-      setFieldErrors(invalidNumbers);
-      setSaveErrorKey(EDITOR_MSG.NUMBER_INVALID_SAVE);
-      setSaving(false);
-      return;
-    }
-    const linkNuls = collectLinkNulFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-      })),
-      message(EDITOR_MSG.LINK_NUL),
-    );
-    if (Object.keys(linkNuls).length > 0) {
-      queueFocusFirstInvalid(linkNuls);
-      setFieldErrors(linkNuls);
-      setSaveErrorKey(EDITOR_MSG.LINK_INVALID_SAVE);
-      setSaving(false);
-      return;
-    }
-    const invalidLinks = collectInvalidLinkFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-      })),
-      message(EDITOR_MSG.LINK_INVALID),
-    );
-    if (Object.keys(invalidLinks).length > 0) {
-      setFieldErrors(invalidLinks);
-      setSaveErrorKey(EDITOR_MSG.LINK_INVALID_SAVE);
-      setSaving(false);
-      return;
-    }
-    const tableNuls = collectTableNulFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-      })),
-      message(EDITOR_MSG.TABLE_NUL),
-    );
-    if (Object.keys(tableNuls).length > 0) {
-      queueFocusFirstInvalid(tableNuls);
-      setFieldErrors(tableNuls);
-      setSaveErrorKey(EDITOR_MSG.TABLE_NUL_SAVE);
-      setSaving(false);
-      return;
-    }
-    const keywordNuls = collectKeywordNulFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-      })),
-      message(EDITOR_MSG.KEYWORD_NUL),
-    );
-    if (Object.keys(keywordNuls).length > 0) {
-      queueFocusFirstInvalid(keywordNuls);
-      setFieldErrors(keywordNuls);
-      setSaveErrorKey(EDITOR_MSG.KEYWORD_INVALID_SAVE);
-      setSaving(false);
-      return;
-    }
-    const fileNuls = collectFileNulFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-      })),
-      pendingFiles,
-      message(EDITOR_MSG.FILE_NUL),
-    );
-    if (Object.keys(fileNuls).length > 0) {
-      queueFocusFirstInvalid(fileNuls);
-      setFieldErrors(fileNuls);
-      setSaveErrorKey(EDITOR_MSG.FILE_NUL_SAVE);
-      setSaving(false);
-      return;
-    }
-    const imageNuls = collectImageNulFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-      })),
-      pendingFiles,
-      message(EDITOR_MSG.IMAGE_NUL),
-    );
-    if (Object.keys(imageNuls).length > 0) {
-      queueFocusFirstInvalid(imageNuls);
-      setFieldErrors(imageNuls);
-      setSaveErrorKey(EDITOR_MSG.IMAGE_NUL_SAVE);
-      setSaving(false);
-      return;
-    }
-    const communityNuls = collectCommunityNulFieldErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        value: row.value,
-      })),
-      message(EDITOR_MSG.COMMUNITY_NUL),
-    );
-    if (Object.keys(communityNuls).length > 0) {
-      queueFocusFirstInvalid(communityNuls);
-      setFieldErrors(communityNuls);
-      setSaveErrorKey(EDITOR_MSG.COMMUNITY_NUL_SAVE);
-      setSaving(false);
-      return;
-    }
-    const outsideKeywords = collectKeywordOutsideCatalogErrors(
-      rows.map((row) => ({
-        name: row.name,
-        kind: row.kind,
-        label: row.label,
-        value: row.value,
-      })),
-      keywordChoicesRef.current,
-      keywordOutsideCatalogMessage,
-    );
-    if (Object.keys(outsideKeywords).length > 0) {
-      queueFocusFirstInvalid(outsideKeywords);
-      setFieldErrors(outsideKeywords);
-      setSaveErrorKey(EDITOR_MSG.KEYWORD_INVALID_SAVE);
+    const validationFailure = firstSaveValidationFailure();
+    if (validationFailure != null) {
+      if (validationFailure.focusFirst) {
+        queueFocusFirstInvalid(validationFailure.errors);
+      }
+      setFieldErrors(validationFailure.errors);
+      setSaveErrorKey(validationFailure.saveKey);
       setSaving(false);
       return;
     }
@@ -1933,120 +2275,25 @@ export function EditorHost({
     const imageFieldNames = new Set(
       rows.filter((row) => row.kind === "image").map((row) => row.name),
     );
-    for (const [field, file] of Object.entries(pendingFiles)) {
-      if (imageFieldNames.has(field) && !isImageFile(file)) {
-        setSaveErrorKey(EDITOR_MSG.IMAGE_BAD_REQUEST);
-        setSaveErrorDetail("");
-        setSaving(false);
-        return;
-      }
+    if (hasInvalidImageUpload(imageFieldNames)) {
+      setSaveErrorKey(EDITOR_MSG.IMAGE_BAD_REQUEST);
+      setSaveErrorDetail("");
+      setSaving(false);
+      return;
     }
     try {
       const itemId = String(contentId);
-      const next: ItemEditorFields = {
-        ...payload,
-        fields: fieldsForEditorSave(rows),
-      };
-      if (isExplorerPageType(payload.contentType)) {
-        // Classic `_saveMetadata` parity (#5739): trim + trailing-dot
-        // strip on the filename before submit. The echoed PUT response
-        // re-syncs the draft below.
-        next.fields = withPageFilenameField(next.fields);
-      }
-      if (
-        isExplorerPageType(payload.contentType) &&
-        isAllowedPageTemplate(pageTemplateId, pageTemplateChoices)
-      ) {
-        next.fields = withPageTemplateField(next.fields, pageTemplateId);
-      }
+      const next = buildSaveSubmitFields(payload);
       const savedPayload = await saveFields(itemId, next);
-      if (
-        isExplorerPageType(payload.contentType) &&
-        isAllowedPageTemplate(pageTemplateId, pageTemplateChoices) &&
-        pageTemplateId !== pageTemplateBaseline
-      ) {
-        await changeTemplate(itemId, pageTemplateId);
-        setPageTemplateBaseline(pageTemplateId);
+      await syncSavePageTemplate(itemId, payload.contentType);
+      if (await uploadPendingSaveBinaries(itemId, imageFieldNames)) {
+        return;
       }
-      try {
-        for (const [field, file] of Object.entries(pendingFiles)) {
-          await uploadBinary(itemId, field, file);
-        }
-      } catch (binErr) {
-        if (isSessionRedirectError(binErr)) {
-          return;
-        }
-        const binaryReason = editorBinaryErrorReason(binErr);
-        const imageUpload = Object.keys(pendingFiles).some((name) =>
-          imageFieldNames.has(name),
-        );
-        if (binaryReason === "forbidden") {
-          setFieldErrors({});
-          setSaveErrorKey(
-            imageUpload ? EDITOR_MSG.IMAGE_FORBIDDEN : EDITOR_MSG.FILE_FORBIDDEN,
-          );
-          setSaveErrorDetail("");
-          return;
-        }
-        if (binaryReason === "tooLarge") {
-          setFieldErrors({});
-          setSaveErrorKey(
-            imageUpload ? EDITOR_MSG.IMAGE_TOO_LARGE : EDITOR_MSG.FILE_TOO_LARGE,
-          );
-          setSaveErrorDetail("");
-          return;
-        }
-        if (binaryReason === "badRequest") {
-          setFieldErrors({});
-          setSaveErrorKey(
-            imageUpload ? EDITOR_MSG.IMAGE_BAD_REQUEST : EDITOR_MSG.FILE_BAD_REQUEST,
-          );
-          setSaveErrorDetail("");
-          return;
-        }
-        if (binaryReason === "conflict") {
-          setFieldErrors({});
-          setSaveErrorKey(
-            imageUpload ? EDITOR_MSG.IMAGE_CONFLICT : EDITOR_MSG.FILE_CONFLICT,
-          );
-          setSaveErrorDetail("");
-          return;
-        }
-        throw binErr;
-      }
-      for (const field of Object.keys(pendingClears)) {
-        if (pendingFiles[field]) {
-          continue;
-        }
-        try {
-          await clearBinary(itemId, field);
-        } catch (binErr) {
-          if (isSessionRedirectError(binErr)) {
-            return;
-          }
-          const binaryReason = editorBinaryErrorReason(binErr);
-          if (binaryReason === "forbidden" || binaryReason === "badRequest") {
-            const errors = {
-              [field]:
-                message(
-                  binaryReason === "forbidden"
-                    ? EDITOR_MSG.FILE_CLEAR_FORBIDDEN
-                    : EDITOR_MSG.FILE_CLEAR_BAD_REQUEST,
-                ) + ` (${field})`,
-            };
-            if (binaryReason === "badRequest") {
-              queueFocusFirstInvalid(errors);
-            }
-            setFieldErrors(errors);
-            setSaveErrorKey(null);
-            setSaveErrorDetail("");
-            return;
-          }
-          throw binErr;
-        }
+      if (await clearPendingSaveBinaries(itemId)) {
+        return;
       }
       const replacedBinary =
-        Object.keys(pendingFiles).length > 0 || Object.keys(pendingClears).length > 0;
+        Object.keys(pendingFiles).length + Object.keys(pendingClears).length > 0;
       setPendingFiles({});
       setPendingClears({});
       if (replacedBinary) {
@@ -2059,333 +2306,12 @@ export function EditorHost({
         ),
       );
       setSaved(true);
-      try {
-        const refreshed = await loadFields(itemId);
-        setPayload(refreshed);
-        setDraft(
-          Object.fromEntries(
-            refreshed.fields.map((f) => [f.name, fieldValueAsString(f.value)]),
-          ),
-        );
-        setSaveReloadErrorKey(null);
-        setSaveReloadErrorDetail("");
-      } catch (reloadErr) {
-        if (isSessionRedirectError(reloadErr)) {
-          return;
-        }
-        // The PUT already succeeded: keep the saved indicator truthful and
-        // surface the stale refresh on the save status region with Retry
-        // semantics instead of silently showing unrefreshed values.
-        setSaveReloadErrorKey(EDITOR_MSG.SAVE_RELOAD_FAILED);
-        setSaveReloadErrorDetail(formatApiError(reloadErr, ""));
-      }
+      await refreshPayloadAfterSave(itemId);
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
       }
-      if (editorSaveErrorReason(err) === "stale") {
-        setFieldErrors({});
-        setSaveErrorKey(EDITOR_MSG.SAVE_STALE);
-        setSaveErrorDetail("");
-        return;
-      }
-      const fallback = message(EDITOR_MSG.SAVE_FAILED);
-      const mapped = mapSaveApiErrorToFieldErrors(
-        err,
-        rows.map((row) => row.name),
-        fallback,
-      );
-      const htmlNames = rows
-        .filter((row) => row.kind === "html")
-        .map((row) => row.name);
-      const namedHtml = Object.keys(mapped.fieldErrors).some((name) =>
-        htmlNames.includes(name),
-      );
-      const htmlReason = editorSaveErrorReason(err);
-      const htmlStatus = htmlReason === "badRequest" || htmlReason === "forbidden";
-      const htmlMapped =
-        htmlStatus &&
-        (namedHtml ||
-          (Object.keys(mapped.fieldErrors).length === 0 && htmlNames.length === 1));
-      const html400 = htmlMapped && htmlReason === "badRequest";
-      if (
-        htmlMapped &&
-        Object.keys(mapped.fieldErrors).length === 0 &&
-        htmlNames.length === 1
-      ) {
-        mapped.fieldErrors[htmlNames[0]] = message(
-          htmlReason === "forbidden"
-            ? EDITOR_MSG.HTML_FORBIDDEN
-            : EDITOR_MSG.HTML_BAD_REQUEST,
-        );
-      }
-      const longNames = rows
-        .filter((row) => row.kind === "longtext")
-        .map((row) => row.name);
-      const namedLong = Object.keys(mapped.fieldErrors).some((name) =>
-        longNames.includes(name),
-      );
-      const saveReasonEarly = editorSaveErrorReason(err);
-      const longStatus =
-        saveReasonEarly === "badRequest" || saveReasonEarly === "forbidden";
-      const long400 = !html400 && saveReasonEarly === "badRequest" && (namedLong ||
-        (Object.keys(mapped.fieldErrors).length === 0 && longNames.length === 1));
-      const longMapped =
-        !html400 &&
-        longStatus &&
-        (namedLong ||
-          (Object.keys(mapped.fieldErrors).length === 0 && longNames.length === 1));
-      if (
-        longMapped &&
-        Object.keys(mapped.fieldErrors).length === 0 &&
-        longNames.length === 1
-      ) {
-        mapped.fieldErrors[longNames[0]] = message(
-          saveReasonEarly === "forbidden"
-            ? EDITOR_MSG.LONGTEXT_FORBIDDEN
-            : EDITOR_MSG.LONGTEXT_BAD_REQUEST,
-        );
-      }
-      const numberNames = rows
-        .filter((row) => row.kind === "number")
-        .map((row) => row.name);
-      const namedNumber = Object.keys(mapped.fieldErrors).some((name) =>
-        numberNames.includes(name),
-      );
-      const numberStatus =
-        saveReasonEarly === "badRequest" || saveReasonEarly === "forbidden";
-      const numberMapped =
-        !html400 &&
-        !longMapped &&
-        numberStatus &&
-        (namedNumber ||
-          (Object.keys(mapped.fieldErrors).length === 0 && numberNames.length === 1));
-      const number400 = numberMapped && saveReasonEarly === "badRequest";
-      if (
-        numberMapped &&
-        Object.keys(mapped.fieldErrors).length === 0 &&
-        numberNames.length === 1
-      ) {
-        mapped.fieldErrors[numberNames[0]] = message(
-          saveReasonEarly === "forbidden"
-            ? EDITOR_MSG.NUMBER_FORBIDDEN
-            : EDITOR_MSG.NUMBER_BAD_REQUEST,
-        );
-      }
-      const linkNames = rows
-        .filter((row) => row.kind === "link")
-        .map((row) => row.name);
-      const namedLink = Object.keys(mapped.fieldErrors).some((name) =>
-        linkNames.includes(name),
-      );
-      const saveReason = editorSaveErrorReason(err);
-      const linkStatus =
-        saveReason === "notFound" || saveReason === "forbidden" || saveReason === "badRequest";
-      const linkMapped =
-        !html400 &&
-        !long400 &&
-        !number400 &&
-        linkStatus &&
-        (namedLink ||
-          (Object.keys(mapped.fieldErrors).length === 0 && linkNames.length === 1));
-      if (linkMapped && Object.keys(mapped.fieldErrors).length === 0 && linkNames.length === 1) {
-        mapped.fieldErrors[linkNames[0]] = message(
-          saveReason === "notFound"
-            ? EDITOR_MSG.LINK_NOT_FOUND
-            : saveReason === "forbidden"
-              ? EDITOR_MSG.LINK_FORBIDDEN
-              : EDITOR_MSG.LINK_BAD_REQUEST,
-        );
-      }
-      const keywordNames = rows
-        .filter((row) => row.kind === "keyword")
-        .map((row) => row.name);
-      const namedKeyword = Object.keys(mapped.fieldErrors).some((name) =>
-        keywordNames.includes(name),
-      );
-      const keywordStatus = saveReason === "forbidden" || saveReason === "badRequest";
-      const keywordMapped =
-        !html400 &&
-        !long400 &&
-        !number400 &&
-        !linkMapped &&
-        keywordStatus &&
-        (namedKeyword ||
-          (Object.keys(mapped.fieldErrors).length === 0 && keywordNames.length === 1));
-      if (
-        keywordMapped &&
-        Object.keys(mapped.fieldErrors).length === 0 &&
-        keywordNames.length === 1
-      ) {
-        mapped.fieldErrors[keywordNames[0]] = message(
-          saveReason === "forbidden"
-            ? EDITOR_MSG.KEYWORD_FORBIDDEN
-            : EDITOR_MSG.KEYWORD_BAD_REQUEST,
-        );
-      }
-      const dateNames = rows
-        .filter((row) => row.kind === "date" || row.kind === "datetime")
-        .map((row) => row.name);
-      const namedDate = Object.keys(mapped.fieldErrors).some((name) =>
-        dateNames.includes(name),
-      );
-      const dateStatus = saveReason === "forbidden" || saveReason === "badRequest";
-      const dateMapped =
-        !html400 &&
-        !long400 &&
-        !number400 &&
-        !linkMapped &&
-        !keywordMapped &&
-        dateStatus &&
-        (namedDate ||
-          (Object.keys(mapped.fieldErrors).length === 0 && dateNames.length === 1));
-      if (
-        dateMapped &&
-        Object.keys(mapped.fieldErrors).length === 0 &&
-        dateNames.length === 1
-      ) {
-        mapped.fieldErrors[dateNames[0]] = message(
-          saveReason === "forbidden"
-            ? EDITOR_MSG.DATE_FORBIDDEN
-            : EDITOR_MSG.DATE_BAD_REQUEST,
-        );
-      }
-      const yesNoNames = rows
-        .filter((row) => row.kind === "yesno")
-        .map((row) => row.name);
-      const namedYesNo = Object.keys(mapped.fieldErrors).some((name) =>
-        yesNoNames.includes(name),
-      );
-      const yesNoStatus = saveReason === "forbidden" || saveReason === "badRequest";
-      const yesNoMapped =
-        !html400 &&
-        !long400 &&
-        !number400 &&
-        !linkMapped &&
-        !keywordMapped &&
-        !dateMapped &&
-        yesNoStatus &&
-        (namedYesNo ||
-          (Object.keys(mapped.fieldErrors).length === 0 && yesNoNames.length === 1));
-      if (
-        yesNoMapped &&
-        Object.keys(mapped.fieldErrors).length === 0 &&
-        yesNoNames.length === 1
-      ) {
-        mapped.fieldErrors[yesNoNames[0]] = message(
-          saveReason === "forbidden"
-            ? EDITOR_MSG.YESNO_FORBIDDEN
-            : EDITOR_MSG.YESNO_BAD_REQUEST,
-        );
-      }
-      const communityNames = rows
-        .filter((row) => row.kind === "community")
-        .map((row) => row.name);
-      const namedCommunity = Object.keys(mapped.fieldErrors).some((name) =>
-        communityNames.includes(name),
-      );
-      const communityStatus = saveReason === "forbidden" || saveReason === "badRequest";
-      const communityMapped =
-        !html400 &&
-        !long400 &&
-        !number400 &&
-        !linkMapped &&
-        !keywordMapped &&
-        !dateMapped &&
-        !yesNoMapped &&
-        communityStatus &&
-        (namedCommunity ||
-          (Object.keys(mapped.fieldErrors).length === 0 && communityNames.length === 1));
-      if (
-        communityMapped &&
-        Object.keys(mapped.fieldErrors).length === 0 &&
-        communityNames.length === 1
-      ) {
-        mapped.fieldErrors[communityNames[0]] = message(
-          saveReason === "forbidden"
-            ? EDITOR_MSG.COMMUNITY_FORBIDDEN
-            : EDITOR_MSG.COMMUNITY_BAD_REQUEST,
-        );
-      }
-      const textNames = rows
-        .filter((row) => row.kind === "text")
-        .map((row) => row.name);
-      const namedText = Object.keys(mapped.fieldErrors).some((name) =>
-        textNames.includes(name),
-      );
-      const textStatus = saveReason === "forbidden" || saveReason === "badRequest";
-      const textMapped =
-        !html400 &&
-        !long400 &&
-        !number400 &&
-        !linkMapped &&
-        !keywordMapped &&
-        !dateMapped &&
-        !yesNoMapped &&
-        !communityMapped &&
-        textStatus &&
-        (namedText ||
-          (Object.keys(mapped.fieldErrors).length === 0 && textNames.length === 1));
-      if (
-        textMapped &&
-        Object.keys(mapped.fieldErrors).length === 0 &&
-        textNames.length === 1
-      ) {
-        mapped.fieldErrors[textNames[0]] = message(
-          saveReason === "forbidden"
-            ? EDITOR_MSG.TEXT_FORBIDDEN
-            : EDITOR_MSG.TEXT_BAD_REQUEST,
-        );
-      }
-      if (
-        saveReason === "badRequest" &&
-        Object.keys(mapped.fieldErrors).length > 0
-      ) {
-        queueFocusFirstInvalid(mapped.fieldErrors);
-      }
-      setFieldErrors(mapped.fieldErrors);
-      setSaveErrorKey(
-        htmlMapped && saveReason === "forbidden"
-          ? EDITOR_MSG.HTML_FORBIDDEN
-          : html400
-          ? EDITOR_MSG.HTML_BAD_REQUEST
-          : longMapped && saveReason === "forbidden"
-            ? EDITOR_MSG.LONGTEXT_FORBIDDEN
-            : long400
-              ? EDITOR_MSG.LONGTEXT_BAD_REQUEST
-              : numberMapped && saveReason === "forbidden"
-                ? EDITOR_MSG.NUMBER_FORBIDDEN
-              : number400
-              ? EDITOR_MSG.NUMBER_BAD_REQUEST
-              : linkMapped && saveReason === "notFound"
-                ? EDITOR_MSG.LINK_NOT_FOUND
-                : linkMapped && saveReason === "forbidden"
-                  ? EDITOR_MSG.LINK_FORBIDDEN
-                  : linkMapped
-                    ? EDITOR_MSG.LINK_BAD_REQUEST
-                    : keywordMapped && saveReason === "forbidden"
-                      ? EDITOR_MSG.KEYWORD_FORBIDDEN
-                      : keywordMapped
-                        ? EDITOR_MSG.KEYWORD_BAD_REQUEST
-                        : dateMapped && saveReason === "forbidden"
-                          ? EDITOR_MSG.DATE_FORBIDDEN
-                          : dateMapped
-                            ? EDITOR_MSG.DATE_BAD_REQUEST
-                            : yesNoMapped && saveReason === "forbidden"
-                              ? EDITOR_MSG.YESNO_FORBIDDEN
-                              : yesNoMapped
-                                ? EDITOR_MSG.YESNO_BAD_REQUEST
-                            : communityMapped && saveReason === "forbidden"
-                              ? EDITOR_MSG.COMMUNITY_FORBIDDEN
-                              : communityMapped
-                                ? EDITOR_MSG.COMMUNITY_BAD_REQUEST
-                                : textMapped && saveReason === "forbidden"
-                                  ? EDITOR_MSG.TEXT_FORBIDDEN
-                                  : textMapped
-                                    ? EDITOR_MSG.TEXT_BAD_REQUEST
-                                    : EDITOR_MSG.SAVE_FAILED,
-      );
-      setSaveErrorDetail(mapped.banner === fallback ? "" : mapped.banner);
+      applySaveFailure(err);
     } finally {
       setSaving(false);
     }
