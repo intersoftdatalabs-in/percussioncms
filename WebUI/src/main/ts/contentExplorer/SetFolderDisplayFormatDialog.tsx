@@ -56,6 +56,9 @@ export function SetFolderDisplayFormatDialog({
   const [value, setValue] = useState(initial);
   const rootRef = useRef<HTMLDivElement>(null);
   const selectRef = useRef<HTMLSelectElement>(null);
+  const selectedDescription = (
+    choices.find((row) => row.id === value)?.description ?? ""
+  ).trim();
 
   useDialogEscape(true, busy, onCancel);
 
@@ -156,6 +159,14 @@ export function SetFolderDisplayFormatDialog({
             ))}
           </select>
         </label>
+        {selectedDescription ? (
+          <p
+            data-testid="explorer-set-folder-display-format-description"
+            style={{ fontSize: 12, color: "#475569", margin: "8px 0 0" }}
+          >
+            {selectedDescription}
+          </p>
+        ) : null}
         {error ? (
           <p data-testid="explorer-set-folder-display-format-dialog-error" role="alert">
             {error}

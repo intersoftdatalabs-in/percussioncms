@@ -43,11 +43,17 @@ public final class FolderDisplayFormatCatalogRules {
     private final int id;
     private final String name;
     private final boolean validForFolder;
+    private final String description;
 
     public SourceRow(int id, String name, boolean validForFolder) {
+      this(id, name, validForFolder, "");
+    }
+
+    public SourceRow(int id, String name, boolean validForFolder, String description) {
       this.id = id;
       this.name = name;
       this.validForFolder = validForFolder;
+      this.description = description;
     }
 
     public int id() {
@@ -60,6 +66,10 @@ public final class FolderDisplayFormatCatalogRules {
 
     public boolean validForFolder() {
       return validForFolder;
+    }
+
+    public String description() {
+      return description;
     }
   }
 
@@ -111,7 +121,13 @@ public final class FolderDisplayFormatCatalogRules {
       } catch (RuntimeException ex) {
         valid = false;
       }
-      rows.add(new SourceRow(format.getDisplayId(), name, valid));
+      String description = "";
+      try {
+        description = trim(format.getDescription());
+      } catch (RuntimeException ex) {
+        description = "";
+      }
+      rows.add(new SourceRow(format.getDisplayId(), name, valid, description));
     }
     return rows;
   }
@@ -140,6 +156,7 @@ public final class FolderDisplayFormatCatalogRules {
           PSFolderDisplayFormatChoice choice = new PSFolderDisplayFormatChoice();
           choice.setId(id);
           choice.setName(name);
+          choice.setDescription(trim(row.description()));
           byId.put(id, choice);
           validById.put(id, valid);
         }

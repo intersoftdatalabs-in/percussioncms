@@ -92,4 +92,38 @@ describe("SetFolderDisplayFormatDialog (#5131)", () => {
     expect(onSave).not.toHaveBeenCalled();
     await renderA11yGate(container);
   });
+
+  it("shows the selected format description and hides the line when absent (#5840)", async () => {
+    const described = [
+      { id: "3", name: "Default", description: "One row per page." },
+      { id: "12", name: "Simple" },
+    ];
+    const { container } = render(
+      <SetFolderDisplayFormatDialog
+        choices={described}
+        currentId="3"
+        busy={false}
+        error=""
+        onSave={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    // Initial selection is the first non-current choice ("12"), which has no description.
+    expect(
+      screen.queryByTestId("explorer-set-folder-display-format-description"),
+    ).toBeNull();
+    fireEvent.change(screen.getByTestId("explorer-set-folder-display-format-select"), {
+      target: { value: "3" },
+    });
+    expect(
+      screen.getByTestId("explorer-set-folder-display-format-description").textContent,
+    ).toBe("One row per page.");
+    fireEvent.change(screen.getByTestId("explorer-set-folder-display-format-select"), {
+      target: { value: "12" },
+    });
+    expect(
+      screen.queryByTestId("explorer-set-folder-display-format-description"),
+    ).toBeNull();
+    await renderA11yGate(container);
+  });
 });
