@@ -76,9 +76,13 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -115,6 +119,18 @@ public class PSPublishingDesignRestService {
   /** {@link IPSEdition.Priority} is 1 (lowest) through 5 (highest). */
   static final String EDITION_PRIORITY_OUT_OF_RANGE =
       "Edition priority must be from 1 to 5";
+  /**
+   * Wire format for edition embargo/expiry dates. Same {@code MM/dd/yyyy hh:mm a}
+   * wall-time convention as the classic item schedule-dates surface so the
+   * React panel reuses one format/parse pair.
+   */
+  static final String EDITION_SCHEDULE_DATE_FORMAT = "MM/dd/yyyy hh:mm a";
+
+  static final String EDITION_SCHEDULE_DATE_INVALID =
+      "Edition schedule dates must be MM/dd/yyyy hh:mm am or pm";
+
+  static final String EDITION_SCHEDULE_END_BEFORE_START =
+      "Edition expiry must be after the embargo date";
   static final String CONTENT_LIST_NAME_CONFLICT = "Content list name already exists";
   /** Matches {@code RXCONTENTLIST.NAME} VARCHAR(100). */
   static final int MAX_CONTENT_LIST_NAME_LENGTH = 100;
@@ -542,6 +558,8 @@ public class PSPublishingDesignRestService {
       if (source.getPriority() != null) {
         copy.setPriority(source.getPriority());
       }
+      copy.setStartDate(source.getStartDate());
+      copy.setEndDate(source.getEndDate());
       copy.setSiteId(toSiteGuid(request.getTargetSiteId()));
       // setName writes the visible display title. Apply it last so the source title cannot replace it.
       copy.setName(newName);
@@ -1962,6 +1980,13 @@ public class PSPublishingDesignRestService {
     } else if (trimmedName.length() > MAX_EDITION_NAME_LENGTH) {
       throw badRequest(EDITION_NAME_TOO_LONG);
     }
+    // Parse both dates before any field is written so a 400 leaves the stored
+    // row (name, priority, comment, schedule, content-list order) unchanged.
+    Date nextStart = parseEditionScheduleDate(body.getStartDate());
+    Date nextEnd = parseEditionScheduleDate(body.getEndDate());
+    if (nextStart != null && nextEnd != null && !nextEnd.after(nextStart)) {
+      throw badRequest(EDITION_SCHEDULE_END_BEFORE_START);
+    }
     if (body.getComment() != null) {
       edition.setComment(body.getComment());
     }
@@ -1973,6 +1998,15 @@ public class PSPublishingDesignRestService {
           IPSEdition.Priority.findByValue(body.getPriority())
               .orElseThrow(() -> badRequest(EDITION_PRIORITY_OUT_OF_RANGE));
       edition.setPriority(p);
+    }
+    // Schedule-only updates omit name/comment/priority/site id so the server
+    // leaves them stored. An empty string clears that side; an omitted date
+    // (null) leaves the stored date unchanged.
+    if (body.getStartDate() != null) {
+      edition.setStartDate(nextStart);
+    }
+    if (body.getEndDate() != null) {
+      edition.setEndDate(nextEnd);
     }
     // setName writes the visible display title. Apply it last so site assignment
     // cannot replace the title the operator typed (same class as edition copy).
@@ -2165,6 +2199,8 @@ public class PSPublishingDesignRestService {
     if (edition.getPriority() != null) {
       s.setPriority(edition.getPriority().getValue());
     }
+    s.setStartDate(formatEditionScheduleDate(edition.getStartDate()));
+    s.setEndDate(formatEditionScheduleDate(edition.getEndDate()));
     return s;
   }
 
@@ -3356,6 +3392,40 @@ public class PSPublishingDesignRestService {
     if (IPSEdition.Priority.findByValue(priority).isEmpty()) {
       throw badRequest(EDITION_PRIORITY_OUT_OF_RANGE);
     }
+  }
+
+  /**
+   * Parse one edition embargo/expiry wire value. Blank (or null) means clear
+   * (or leave stored when the key is omitted — the caller distinguishes).
+   * Anything else must match {@link #EDITION_SCHEDULE_DATE_FORMAT} or the
+   * update is a 400 that writes nothing.
+   */
+  private static Date parseEditionScheduleDate(String raw) {
+    if (raw == null || raw.isBlank()) {
+      return null;
+    }
+    SimpleDateFormat format =
+        new SimpleDateFormat(EDITION_SCHEDULE_DATE_FORMAT, Locale.US);
+    format.setLenient(false);
+    try {
+      return format.parse(raw.trim());
+    } catch (ParseException e) {
+      throw badRequest(EDITION_SCHEDULE_DATE_INVALID);
+    }
+  }
+
+  /**
+   * Format one stored edition date for the wire, or null when unscheduled.
+   * The am/pm marker is lowercased to match the classic item schedule-dates
+   * surface (whose GET lowercases it) and the React parser/formatter pair.
+   */
+  private static String formatEditionScheduleDate(Date value) {
+    if (value == null) {
+      return null;
+    }
+    String formatted =
+        new SimpleDateFormat(EDITION_SCHEDULE_DATE_FORMAT, Locale.US).format(value);
+    return formatted.replace(" AM", " am").replace(" PM", " pm");
   }
 
   private static WebApplicationException badRequest(String msg) {
