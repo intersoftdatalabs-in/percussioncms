@@ -35,6 +35,15 @@
  *
  * Invoked by the Maven build via frontend-maven-plugin at the prepare-package
  * phase (`npm run bundle:codemirror`), after the regular `minify` step.
+ *
+ * END-OF-LIFE (decision #5701, recorded 2026-11-09): the canonical CodeMirror 5
+ * bundle now lives in `modules/perc-common-ui-bundle` (TinyMCE-independent path
+ * `/sys_resources/codemirror/`, surviving the `perc-tinymce` removal). This copy
+ * is a legacy fallback only — it retires together with the TinyMCE 6.8.6 /
+ * `perc-tinymce` packaging removal (#5734). Do NOT migrate this wiring to the
+ * CodeMirror 6 `@codemirror/*` API: React/TipTap surfaces need no CodeMirror
+ * (guard: `WebUI/src/test/ts/editor/tiptap/noCodeMirrorImports.test.ts`), and
+ * classic surfaces are slated for replacement + deletion, not churn.
  */
 
 import { build } from "esbuild";
