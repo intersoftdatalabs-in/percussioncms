@@ -64,6 +64,28 @@ export interface HtmlFieldWidgetProps {
 
 let tinymceLoad: Promise<void> | null = null;
 
+function watchExistingTinyMceScriptTag(
+  existing: Element,
+  resolve: () => void,
+  reject: (reason: Error) => void,
+): void {
+  existing.addEventListener("load", () => resolve());
+  existing.addEventListener("error", () => reject(new Error("tinymce")));
+}
+
+function injectTinyMceScriptTag(
+  src: string,
+  resolve: () => void,
+  reject: (reason: Error) => void,
+): void {
+  const script = document.createElement("script");
+  script.src = src;
+  script.async = true;
+  script.onload = () => resolve();
+  script.onerror = () => reject(new Error("tinymce"));
+  document.head.appendChild(script);
+}
+
 export function defaultLoadTinyMceScript(src: string): Promise<void> {
   if (typeof window === "undefined") {
     return Promise.resolve();
@@ -77,18 +99,130 @@ export function defaultLoadTinyMceScript(src: string): Promise<void> {
   tinymceLoad = new Promise((resolve, reject) => {
     const existing = document.querySelector(`script[src="${src}"]`);
     if (existing) {
-      existing.addEventListener("load", () => resolve());
-      existing.addEventListener("error", () => reject(new Error("tinymce")));
+      watchExistingTinyMceScriptTag(existing, resolve, reject);
       return;
     }
-    const script = document.createElement("script");
-    script.src = src;
-    script.async = true;
-    script.onload = () => resolve();
-    script.onerror = () => reject(new Error("tinymce"));
-    document.head.appendChild(script);
+    injectTinyMceScriptTag(src, resolve, reject);
   });
   return tinymceLoad;
+}
+
+const TINYMCE_PLUGINS = "lists link code";
+const TINYMCE_TOOLBAR =
+  "undo redo | bold italic underline | bullist numlist | link | code";
+const TINYMCE_HEIGHT = 280;
+
+function buildTinyMceInitOptions(
+  target: HTMLTextAreaElement,
+  onEditor: (ed: TinyMceEditor) => void,
+  onContentChange: (html: string) => void,
+): Record<string, unknown> {
+  return {
+    target,
+    menubar: false,
+    branding: false,
+    statusbar: false,
+    height: TINYMCE_HEIGHT,
+    plugins: TINYMCE_PLUGINS,
+    toolbar: TINYMCE_TOOLBAR,
+    convert_urls: false,
+    setup: (ed: TinyMceEditor) => {
+      onEditor(ed);
+      ed.on("change", () => {
+        onContentChange(ed.getContent());
+      });
+    },
+  };
+}
+
+function isThenable(value: unknown): value is PromiseLike<unknown> {
+  return (
+    typeof value === "object" &&
+    value !== null &&
+    typeof (value as { then?: unknown }).then === "function"
+  );
+}
+
+interface TinyMceAttachHooks {
+  isCancelled: () => boolean;
+  onEditor: (ed: TinyMceEditor) => void;
+  onContentChange: (html: string) => void;
+}
+
+async function attachTinyMceEditor(
+  areaRef: React.RefObject<HTMLTextAreaElement | null>,
+  loadScript: (src: string) => Promise<void>,
+  hooks: TinyMceAttachHooks,
+): Promise<void> {
+  const src = withCmsContextPrefix(TINYMCE_SCRIPT_PATH);
+  try {
+    await loadScript(src);
+  } catch {
+    /* textarea fallback */
+    return;
+  }
+  const area = areaRef.current;
+  const tinymce = window.tinymce;
+  if (hooks.isCancelled() || !tinymce || !area) {
+    return;
+  }
+  const initResult = tinymce.init(
+    buildTinyMceInitOptions(area, hooks.onEditor, hooks.onContentChange),
+  );
+  if (isThenable(initResult)) {
+    await initResult;
+  }
+}
+
+function useTinyMceEditor(
+  areaRef: React.RefObject<HTMLTextAreaElement | null>,
+  options: {
+    readOnly: boolean;
+    name: string;
+    loadScript: (src: string) => Promise<void>;
+    onContentChange: (html: string) => void;
+  },
+): React.RefObject<TinyMceEditor | null> {
+  const { readOnly, name, loadScript, onContentChange } = options;
+  const editorRef = useRef<TinyMceEditor | null>(null);
+  const onChangeRef = useRef(onContentChange);
+  onChangeRef.current = onContentChange;
+
+  useEffect(() => {
+    if (!areaRef.current || readOnly) {
+      return;
+    }
+    let cancelled = false;
+    void attachTinyMceEditor(areaRef, loadScript, {
+      isCancelled: () => cancelled,
+      onEditor: (ed: TinyMceEditor) => {
+        editorRef.current = ed;
+      },
+      onContentChange: (html: string) => {
+        onChangeRef.current(html);
+      },
+    });
+    return () => {
+      cancelled = true;
+      editorRef.current?.remove();
+      editorRef.current = null;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [loadScript, readOnly, name]);
+
+  return editorRef;
+}
+
+function useTinyMceValueSync(
+  editorRef: React.RefObject<TinyMceEditor | null>,
+  value: string,
+): void {
+  useEffect(() => {
+    const ed = editorRef.current;
+    if (ed && ed.getContent() !== value) {
+      ed.setContent(value);
+    }
+  }, [editorRef, value]);
 }
 
 export function HtmlFieldWidget({
@@ -139,59 +273,13 @@ function TinyMceFieldWidget({
   loadScript: (src: string) => Promise<void>;
 }): React.ReactElement {
   const areaRef = useRef<HTMLTextAreaElement | null>(null);
-  const editorRef = useRef<TinyMceEditor | null>(null);
-  const onChangeRef = useRef(onChange);
-  onChangeRef.current = onChange;
-
-  useEffect(() => {
-    const area = areaRef.current;
-    if (!area || readOnly) {
-      return;
-    }
-    let cancelled = false;
-    const src = withCmsContextPrefix(TINYMCE_SCRIPT_PATH);
-    void loadScript(src)
-      .then(async () => {
-        const tinymce = window.tinymce;
-        if (cancelled || !tinymce || !areaRef.current) {
-          return;
-        }
-        const result = tinymce.init({
-          target: areaRef.current,
-          menubar: false,
-          branding: false,
-          statusbar: false,
-          height: 280,
-          plugins: "lists link code",
-          toolbar: "undo redo | bold italic underline | bullist numlist | link | code",
-          convert_urls: false,
-          setup: (ed: TinyMceEditor) => {
-            editorRef.current = ed;
-            ed.on("change", () => {
-              onChangeRef.current(ed.getContent());
-            });
-          },
-        });
-        if (result && typeof (result as Promise<unknown>).then === "function") {
-          await result;
-        }
-      })
-      .catch(() => {
-        /* textarea fallback */
-      });
-    return () => {
-      cancelled = true;
-      editorRef.current?.remove();
-      editorRef.current = null;
-    };
-  }, [loadScript, readOnly, name]);
-
-  useEffect(() => {
-    const ed = editorRef.current;
-    if (ed && ed.getContent() !== value) {
-      ed.setContent(value);
-    }
-  }, [value]);
+  const editorRef = useTinyMceEditor(areaRef, {
+    readOnly,
+    name,
+    loadScript,
+    onContentChange: onChange,
+  });
+  useTinyMceValueSync(editorRef, value);
 
   return (
     <textarea
