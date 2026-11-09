@@ -735,6 +735,11 @@ export interface LocaleFormatSummary {
   defaultTz?: string;
   numberingSystem?: string;
   calendar?: string;
+  /**
+   * Ordered per-locale fallback chain (#5788). Omitted when no chain is stored;
+   * an empty array clears. JAXB JSON may unwrap a one-element list to a string.
+   */
+  fallbackChain?: string[] | string | null;
 }
 
 /** Locale detail including optional exact format profile. */

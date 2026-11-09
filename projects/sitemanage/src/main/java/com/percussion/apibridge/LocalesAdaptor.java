@@ -91,6 +91,9 @@ public class LocalesAdaptor implements ILocalesAdaptor {
 
   private static final String LANGUAGE_PATTERN = "[a-z]{2,8}(-[a-z0-9]{1,8})*";
 
+  /** Separator for the ordered fallback chain stored on RXLOCALEFORMAT.FALLBACKCHAIN. */
+  static final String FALLBACK_CHAIN_SEPARATOR = ",";
+
   private final IPSContentDesignWs designWs;
   private final Function<String, Optional<PSLocaleFormat>> formatByLang;
   private final Supplier<Set<String>> formatLanguageIndex;
@@ -215,6 +218,9 @@ public class LocalesAdaptor implements ILocalesAdaptor {
       throw new IllegalArgumentException("label is required");
     }
     validateFormatWrite(body);
+    if (carriesFallbackChain(body)) {
+      validateFallbackChainLocales(body.getFormat().getFallbackChain(), code);
+    }
     assertLanguageUnique(code);
     String session = currentSession();
     String user = currentUser();
@@ -271,6 +277,10 @@ public class LocalesAdaptor implements ILocalesAdaptor {
       }
     }
     validateFormatWrite(body);
+    if (carriesFallbackChain(body)) {
+      validateFallbackChainLocales(
+          body.getFormat().getFallbackChain(), existing.getLanguageString());
+    }
     IPSGuid g = existing.getGUID();
     String session = currentSession();
     String user = currentUser();
@@ -490,7 +500,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * {@code measurementSystem} the same way. A default-timezone-only {@code format} updates
    * {@code defaultTz} the same way. A numbering-system-only {@code format} updates
    * {@code numberingSystem} the same way. A calendar-only {@code format} updates
-   * {@code calendar} the same way.
+   * {@code calendar} the same way. A fallback-chain-only {@code format} updates the ordered
+   * per-locale {@code fallbackChain} the same way; an empty list clears the stored chain.
    */
   void persistFormatIfRequested(String language, LocaleDetail body) {
     if (body == null || language == null) {
@@ -557,6 +568,10 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     if (isCalendarOnlyWrite(body)) {
       persistCalendarOnly(language, src);
+      return;
+    }
+    if (isFallbackChainOnlyWrite(body)) {
+      persistFallbackChainOnly(language, src);
       return;
     }
     PSLocaleFormat row = formatByLang.apply(language).orElseGet(() -> new PSLocaleFormat(language));
@@ -734,12 +749,29 @@ public class LocalesAdaptor implements ILocalesAdaptor {
   }
 
   /**
+   * Persists only the fallback chain. An empty list clears the stored chain; other format fields
+   * are not sent and therefore stay.
+   */
+  private void persistFallbackChainOnly(String language, LocaleFormatSummary src) {
+    List<String> chain = normalizeFallbackChain(src == null ? null : src.getFallbackChain());
+    Optional<PSLocaleFormat> existing = formatByLang.apply(language);
+    if (existing.isEmpty() && chain.isEmpty()) {
+      return;
+    }
+    PSLocaleFormat row = existing.orElseGet(() -> new PSLocaleFormat(language));
+    row.setFallbackChain(chain.isEmpty() ? null : String.join(FALLBACK_CHAIN_SEPARATOR, chain));
+    row.setLanguageString(language);
+    formatSaver.accept(row);
+  }
+
+  /**
    * True when PUT {@code format} carries {@code datePattern} (including blank to clear) and omits
    * {@code hasFormatProfile} plus every other format field. Language on the format object is
    * ignored.
    */
   static boolean isDatePatternOnlyWrite(LocaleDetail body) {
-    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null
+        || body.getFormat().getFallbackChain() != null) {
       return false;
     }
     LocaleFormatSummary src = body.getFormat();
@@ -766,7 +798,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * ignored.
    */
   static boolean isTimePatternOnlyWrite(LocaleDetail body) {
-    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null
+        || body.getFormat().getFallbackChain() != null) {
       return false;
     }
     LocaleFormatSummary src = body.getFormat();
@@ -793,7 +826,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * is ignored.
    */
   static boolean isDateTimePatternOnlyWrite(LocaleDetail body) {
-    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null
+        || body.getFormat().getFallbackChain() != null) {
       return false;
     }
     LocaleFormatSummary src = body.getFormat();
@@ -820,7 +854,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * ignored.
    */
   static boolean isDecimalSepOnlyWrite(LocaleDetail body) {
-    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null
+        || body.getFormat().getFallbackChain() != null) {
       return false;
     }
     LocaleFormatSummary src = body.getFormat();
@@ -847,7 +882,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * ignored.
    */
   static boolean isGroupingSepOnlyWrite(LocaleDetail body) {
-    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null
+        || body.getFormat().getFallbackChain() != null) {
       return false;
     }
     LocaleFormatSummary src = body.getFormat();
@@ -874,7 +910,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * ignored.
    */
   static boolean isCurrencyCodeOnlyWrite(LocaleDetail body) {
-    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null
+        || body.getFormat().getFallbackChain() != null) {
       return false;
     }
     LocaleFormatSummary src = body.getFormat();
@@ -901,7 +938,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * is ignored.
    */
   static boolean isCurrencyPatternOnlyWrite(LocaleDetail body) {
-    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null
+        || body.getFormat().getFallbackChain() != null) {
       return false;
     }
     LocaleFormatSummary src = body.getFormat();
@@ -928,7 +966,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * ignored.
    */
   static boolean isTextDirOnlyWrite(LocaleDetail body) {
-    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null
+        || body.getFormat().getFallbackChain() != null) {
       return false;
     }
     LocaleFormatSummary src = body.getFormat();
@@ -955,7 +994,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * format object is ignored. Out-of-range values fail {@link #validateFirstDay} before persist.
    */
   static boolean isFirstDayOfWeekOnlyWrite(LocaleDetail body) {
-    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null
+        || body.getFormat().getFallbackChain() != null) {
       return false;
     }
     LocaleFormatSummary src = body.getFormat();
@@ -983,7 +1023,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * #validateMeasurement} before persist.
    */
   static boolean isMeasurementSystemOnlyWrite(LocaleDetail body) {
-    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null
+        || body.getFormat().getFallbackChain() != null) {
       return false;
     }
     LocaleFormatSummary src = body.getFormat();
@@ -1011,7 +1052,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * validation before persist.
    */
   static boolean isDefaultTzOnlyWrite(LocaleDetail body) {
-    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null
+        || body.getFormat().getFallbackChain() != null) {
       return false;
     }
     LocaleFormatSummary src = body.getFormat();
@@ -1039,7 +1081,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * validation before persist.
    */
   static boolean isNumberingSystemOnlyWrite(LocaleDetail body) {
-    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null
+        || body.getFormat().getFallbackChain() != null) {
       return false;
     }
     LocaleFormatSummary src = body.getFormat();
@@ -1067,7 +1110,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
    * validation before persist.
    */
   static boolean isCalendarOnlyWrite(LocaleDetail body) {
-    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null
+        || body.getFormat().getFallbackChain() != null) {
       return false;
     }
     LocaleFormatSummary src = body.getFormat();
@@ -1086,6 +1130,76 @@ public class LocalesAdaptor implements ILocalesAdaptor {
         && src.getMeasurementSystem() == null
         && src.getDefaultTz() == null
         && src.getNumberingSystem() == null;
+  }
+
+  /**
+   * True when PUT {@code format} carries {@code fallbackChain} (including an empty list to clear)
+   * and omits {@code hasFormatProfile} plus every other format field. Language on the format
+   * object is ignored. Entry validation (pattern, self-reference, known locale) happens in
+   * {@link #validateFormat(LocaleFormatSummary)} and {@link #validateFallbackChainLocales} before
+   * persist.
+   */
+  static boolean isFallbackChainOnlyWrite(LocaleDetail body) {
+    if (body == null || body.getFormat() == null || body.getHasFormatProfile() != null) {
+      return false;
+    }
+    LocaleFormatSummary src = body.getFormat();
+    if (src.getFallbackChain() == null) {
+      return false;
+    }
+    return src.getTextDir() == null
+        && src.getDatePattern() == null
+        && src.getTimePattern() == null
+        && src.getDateTimePattern() == null
+        && src.getDecimalSep() == null
+        && src.getGroupingSep() == null
+        && src.getCurrencyCode() == null
+        && src.getCurrencyPattern() == null
+        && (!src.isFirstDayOfWeekPresent() && src.getFirstDayOfWeek() == null)
+        && src.getMeasurementSystem() == null
+        && src.getDefaultTz() == null
+        && src.getNumberingSystem() == null
+        && src.getCalendar() == null;
+  }
+
+  /** True when the PUT body carries a fallback chain (fallback-only or full-format write). */
+  static boolean carriesFallbackChain(LocaleDetail body) {
+    return body != null && body.getFormat() != null && body.getFormat().getFallbackChain() != null;
+  }
+
+  /**
+   * Normalized chain entries: trimmed, lower-cased, {@code _} → {@code -}, blanks dropped,
+   * duplicates removed in first-seen order.
+   */
+  static List<String> normalizeFallbackChain(List<String> chain) {
+    List<String> out = new ArrayList<>();
+    if (chain == null) {
+      return out;
+    }
+    Set<String> seen = new HashSet<>();
+    for (String item : chain) {
+      String code = normalizeLanguageString(item);
+      if (code != null && seen.add(code)) {
+        out.add(code);
+      }
+    }
+    return out;
+  }
+
+  /** Decodes a stored comma-separated chain; blank storage decodes to null (absent). */
+  static List<String> decodeFallbackChain(String stored) {
+    if (stored == null || stored.trim().isEmpty()) {
+      return null;
+    }
+    List<String> out = new ArrayList<>();
+    Set<String> seen = new HashSet<>();
+    for (String part : stored.split(FALLBACK_CHAIN_SEPARATOR, -1)) {
+      String code = normalizeLanguageString(part);
+      if (code != null && seen.add(code)) {
+        out.add(code);
+      }
+    }
+    return out.isEmpty() ? null : out;
   }
 
   static void validateFormatWrite(LocaleDetail body) {
@@ -1120,6 +1234,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     validateMaxLen("defaultTz", src.getDefaultTz(), 64);
     validateMaxLen("numberingSystem", src.getNumberingSystem(), 16);
     validateMaxLen("calendar", src.getCalendar(), 32);
+    validateFallbackChain(src.getFallbackChain());
     if (StringUtils.isNotBlank(src.getLanguageString())) {
       String want = normalizeLanguageString(src.getLanguageString());
       if (want != null && !isValidLanguageString(want)) {
@@ -1145,6 +1260,13 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     row.setDefaultTz(src.getDefaultTz());
     row.setNumberingSystem(src.getNumberingSystem());
     row.setCalendar(src.getCalendar());
+    // Omitted-on-full-save preservation: a null chain leaves the stored chain alone so
+    // locale PUT clients that predate fallback chains never clear one. An explicit empty
+    // list clears (chain-only write). See persistFallbackChainOnly.
+    if (src.getFallbackChain() != null) {
+      List<String> chain = normalizeFallbackChain(src.getFallbackChain());
+      row.setFallbackChain(chain.isEmpty() ? null : String.join(FALLBACK_CHAIN_SEPARATOR, chain));
+    }
   }
 
   static void validateDateTimePattern(String field, String pattern) {
@@ -1242,6 +1364,51 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     if (value.trim().length() > maxLen) {
       throw new IllegalArgumentException("invalid " + field + ": too long");
+    }
+  }
+
+  /**
+   * Pattern validation for chain entries (a {@code null} chain is omitted, not a write).
+   * Membership (known locale) and self-reference are checked in {@link
+   * #validateFallbackChainLocales} where the locale catalog is available.
+   */
+  static void validateFallbackChain(List<String> chain) {
+    if (chain == null) {
+      return;
+    }
+    // Normalize first: blanks never survive the wire as list items (a blank-only
+    // list is the clear encoding, see isFallbackChainOnlyWrite), so validate the
+    // surviving codes.
+    for (String code : normalizeFallbackChain(chain)) {
+      if (!isValidLanguageString(code)) {
+        throw new IllegalArgumentException("invalid fallbackChain entry: " + code);
+      }
+    }
+  }
+
+  /**
+   * Membership validation for a chain write: every entry must be a known locale and the chain
+   * must not include the locale itself. Runs before any design-WS write so a rejected chain
+   * leaves the locale and every other field unchanged.
+   */
+  private void validateFallbackChainLocales(List<String> chain, String selfLang) {
+    List<String> codes = normalizeFallbackChain(chain);
+    Set<String> known = new HashSet<>();
+    for (PSLocale loc : loadAllLocalesViaDesignWs()) {
+      String code = loc == null ? null : normalizeLanguageString(loc.getLanguageString());
+      if (code != null) {
+        known.add(code);
+      }
+    }
+    String self = normalizeLanguageString(selfLang);
+    for (String code : codes) {
+      if (code.equals(self)) {
+        throw new IllegalArgumentException(
+            "fallbackChain must not include the locale itself: " + code);
+      }
+      if (!known.contains(code)) {
+        throw new IllegalArgumentException("unknown fallbackChain locale: " + code);
+      }
     }
   }
 
@@ -1508,6 +1675,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     f.setDefaultTz(format.getDefaultTz());
     f.setNumberingSystem(format.getNumberingSystem());
     f.setCalendar(format.getCalendar());
+    f.setFallbackChain(decodeFallbackChain(format.getFallbackChain()));
     return f;
   }
 
