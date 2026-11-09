@@ -45,6 +45,7 @@ import { ItemPublishNowPanel } from "../components/ItemPublishNowPanel";
 import { ItemPublishingActionsMenu } from "../components/ItemPublishingActionsMenu";
 import { ItemScheduleDatesPanel } from "../components/ItemScheduleDatesPanel";
 import { ItemStagePanel } from "../components/ItemStagePanel";
+import { ItemStagedStatusPanel } from "../components/ItemStagedStatusPanel";
 import { ItemTakedownPanel } from "../components/ItemTakedownPanel";
 import { CopySitePanel } from "../components/CopySitePanel";
 import { DeleteSitePanel } from "../components/DeleteSitePanel";
@@ -856,6 +857,7 @@ export function SiteWorkspace({
         onPublished={refreshJobs}
       />
       <ItemStagePanel itemId={itemId} onItemIdChange={onItemIdChange} />
+      <ItemStagedStatusPanel itemId={itemId} onItemIdChange={onItemIdChange} />
       <ItemTakedownPanel itemId={itemId} onItemIdChange={onItemIdChange} />
 
       {loadingServers && <p>{message(MSG.PUBLISH_LOADING)}</p>}

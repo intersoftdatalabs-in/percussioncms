@@ -2301,6 +2301,16 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 - `spa.jsp?entry=publish&section=sites&siteId={siteId}&itemId={id}&action={stage|unstage}`
 - Path form: `/cm/app/publish/sites?siteId={siteId}&itemId={id}&action={stage|unstage}`
 
+## Staged item status and log readback (Publishing site workspace)
+
+From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, then a site). The **Staged item status** panel reads back the publish status and log lines for one staged item: a **Latest status** summary (status, operation, server, location, log-line count, failure count) plus a **Log lines** table (server, location, revision, date, operation, status). It is read-only — looking up status never stages, unstages, publishes, or edits the item. It reuses the existing item history endpoint (`GET /services/itemmanagement/item/pubhistory/{id}`), so no new REST surface was added. Use it right below **Stage / Remove From Staging** to verify what a staged item last did before the next publish.
+
+1. Sign in as an **Admin** (or an operator who can read publish history).
+2. Open **Publish → Sites** and select a site (or deep-link `section=sites` with `siteId` and `itemId`).
+3. Enter the item id (content GUID such as `16777215-101-9`) and choose **View status**.
+
+**Empty and error states:** Blank or invalid item id is not a lookup. An item with no publish or takedown rows shows **No publish status for this item**, not an error. HTTP **400** (invalid id), **403** (forbidden), **404** (unknown item), and **409** (status conflict) show the mapped error. A failed fetch keeps the previous view on screen — the earlier status summary and log lines stay visible under the error instead of being cleared. HTTP **500** keeps the server message.
+
 ## Available publishing actions menu (Publishing site workspace)
 
 From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, then a site). The **Available publishing actions** menu calls the existing sitemanage endpoint (`GET /services/sitemanage/publish/publishingActions/{id}`) and renders one button per server row — **Publish**, **Schedule...**, **Remove from Site**, **Stage**, **Remove from Staging**. It replaces the classic jQuery `PercItemPublisherService` get-publishing-actions menu for this shell; it adds no new REST and reuses the publish-now, schedule, takedown, and stage panels below it.
