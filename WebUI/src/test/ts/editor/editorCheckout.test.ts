@@ -21,6 +21,7 @@ import {
   canUseEditorCheckoutActions,
   checkinCommentContainsNul,
   editorLockErrorReason,
+  formatLockOwnerNotice,
   isCheckedOutToSelf,
 } from "../../../main/ts/editor/editorCheckout";
 
@@ -78,6 +79,15 @@ describe("editorCheckout", () => {
     expect(editorLockErrorReason({ status: 500, statusText: "Error", body: {} })).toBe(
       "failed",
     );
+  });
+
+  it("names the lock owner in the steal warning and keeps base copy when blank", () => {
+    expect(formatLockOwnerNotice("Locked", "editor")).toBe("Locked (editor)");
+    expect(formatLockOwnerNotice("Locked", "  editor  ")).toBe("Locked (editor)");
+    expect(formatLockOwnerNotice("Locked", "")).toBe("Locked");
+    expect(formatLockOwnerNotice("Locked", "   ")).toBe("Locked");
+    expect(formatLockOwnerNotice("Locked", null)).toBe("Locked");
+    expect(formatLockOwnerNotice("Locked", undefined)).toBe("Locked");
   });
 
   it("refuses a check-in comment NUL and keeps a blank or normal comment", () => {
