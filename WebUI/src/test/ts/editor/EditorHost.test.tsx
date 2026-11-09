@@ -10260,8 +10260,43 @@ describe("EditorHost workflow transitions (#4539)", () => {
     });
   });
 
-  it("does not run a trigger that is not in the allowlist", async () => {
+  it("honors the server-driven comment-required list (#5828)", async () => {
     const runTransition = vi.fn().mockResolvedValue({});
+    renderEdit({
+      runTransition,
+      loadTransitions: async () => ({
+        stateName: "Draft",
+        transitionTriggers: ["Approve", "Submit"],
+        commentRequiredTriggers: ["Approve"],
+      }),
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-trigger-Approve")).toBeTruthy();
+    });
+    expect(
+      screen.getByTestId("editor-workflow-trigger-Approve").getAttribute(
+        "data-comment-required",
+      ),
+    ).toBe("true");
+    expect(
+      screen.getByTestId("editor-workflow-trigger-Submit").getAttribute(
+        "data-comment-required",
+      ),
+    ).toBe("false");
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Approve"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-error").textContent).toMatch(
+        /Enter a comment/i,
+      );
+    });
+    expect(runTransition).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    await waitFor(() => {
+      expect(runTransition).toHaveBeenCalledWith("42", "Submit", undefined);
+    });
+  });
+
+  it("does not run a trigger that is not in the allowlist", async () => {    const runTransition = vi.fn().mockResolvedValue({});
     renderEdit({
       runTransition,
       loadTransitions: async () => ({

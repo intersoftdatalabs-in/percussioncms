@@ -17,6 +17,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  COMMENT_REQUIRED_TRIGGERS,
   canChangeEditorWorkflow,
   canRunEditorTransition,
   confirmEditorAssignees,
@@ -24,6 +25,7 @@ import {
   editorAssigneeStep,
   editorTransitionHttpFailure,
   normalizeAdhocAssignees,
+  resolveCommentRequiredTriggers,
   triggerRequiresAssignees,
   triggerRequiresComment,
   isAllowedTransitionTrigger,
@@ -52,6 +54,60 @@ describe("editorWorkflow (#4539)", () => {
     expect(triggerRequiresComment("Submit")).toBe(false);
     expect(triggerRequiresComment("Approve")).toBe(false);
     expect(triggerRequiresComment("Custom", ["Custom"])).toBe(true);
+  });
+
+  it("resolveCommentRequiredTriggers extends the base with the server list (#5828)", () => {
+    expect(resolveCommentRequiredTriggers(["Approve"], ["Reject"])).toEqual([
+      "Approve",
+      "Reject",
+    ]);
+    expect(resolveCommentRequiredTriggers([], ["Approve"])).toEqual([
+      ...COMMENT_REQUIRED_TRIGGERS,
+      "Approve",
+    ]);
+    expect(resolveCommentRequiredTriggers(undefined, ["Approve"])).toEqual([
+      ...COMMENT_REQUIRED_TRIGGERS,
+      "Approve",
+    ]);
+    expect(resolveCommentRequiredTriggers(undefined, [])).toEqual([
+      ...COMMENT_REQUIRED_TRIGGERS,
+    ]);
+    expect(resolveCommentRequiredTriggers(undefined, undefined)).toEqual([
+      ...COMMENT_REQUIRED_TRIGGERS,
+    ]);
+    expect(resolveCommentRequiredTriggers(null, null)).toEqual([
+      ...COMMENT_REQUIRED_TRIGGERS,
+    ]);
+  });
+
+  it("canRunEditorTransition honors the server-driven comment list (#5828)", () => {
+    expect(
+      canRunEditorTransition({
+        mode: "edit",
+        trigger: "Approve",
+        allowed: ["Approve", "Submit"],
+        comment: "",
+        commentRequiredTriggers: resolveCommentRequiredTriggers(undefined, ["Approve"]),
+      }),
+    ).toEqual({ ok: false, reason: "comment" });
+    expect(
+      canRunEditorTransition({
+        mode: "edit",
+        trigger: "Submit",
+        allowed: ["Approve", "Submit"],
+        comment: "",
+        commentRequiredTriggers: resolveCommentRequiredTriggers(undefined, ["Approve"]),
+      }),
+    ).toEqual({ ok: true });
+    expect(
+      canRunEditorTransition({
+        mode: "edit",
+        trigger: "Reject",
+        allowed: ["Reject"],
+        comment: "",
+        commentRequiredTriggers: resolveCommentRequiredTriggers(undefined, []),
+      }),
+    ).toEqual({ ok: false, reason: "comment" });
   });
 
   it("canRunEditorTransition blocks view, unauthorized, and empty required comments", () => {

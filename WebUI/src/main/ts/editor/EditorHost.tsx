@@ -243,6 +243,7 @@ import {
   editorAssigneeStep,
   editorTransitionHttpFailure,
   normalizeAdhocAssignees,
+  resolveCommentRequiredTriggers,
   triggerRequiresAssignees,
   uniqueTransitionTriggers,
   workflowCommentContainsNul,
@@ -366,7 +367,7 @@ export interface EditorHostProps {
     comment?: string,
     adhocAssignees?: readonly string[],
   ) => Promise<unknown>;
-  /** Extra / override names that require a comment (tests). */
+  /** Override for comment-required triggers (tests). Replaces the built-in base; the loaded server-driven list still extends it (#5828). */
   commentRequiredTriggers?: readonly string[];
   /** Test seam: sitemanage demand-publish ({@code publish/page|resource/{id}}). */
   publishItem?: (itemId: string, kind: EditorPublishKind) => Promise<boolean>;
@@ -972,6 +973,14 @@ export function EditorHost({
   const [workflowTriggers, setWorkflowTriggers] = useState<string[]>([]);
   const [workflowState, setWorkflowState] = useState<string>("");
   const [workflowComment, setWorkflowComment] = useState("");
+  /**
+   * Server-driven comment-required triggers from the loaded
+   * `getTransitions` DTO (#5828). `null` while never loaded or after a load
+   * failure; a loaded list extends the built-in reject-style list like the
+   * classic surface.
+   */
+  const [serverCommentRequiredTriggers, setServerCommentRequiredTriggers] =
+    useState<string[] | null>(null);
   const [assigneeRequiredTriggers, setAssigneeRequiredTriggers] = useState<string[]>(
     [],
   );
@@ -2415,6 +2424,11 @@ export function EditorHost({
           uniqueTransitionTriggers(trans.transitionTriggers),
         );
         setWorkflowState(trans.stateName ?? "");
+        setServerCommentRequiredTriggers(
+          trans.commentRequiredTriggers == null
+            ? null
+            : uniqueTransitionTriggers(trans.commentRequiredTriggers),
+        );
         setAssigneeRequiredTriggers(
           uniqueTransitionTriggers(trans.assigneeRequiredTriggers),
         );
@@ -2427,6 +2441,7 @@ export function EditorHost({
       if (alive()) {
         setWorkflowTriggers([]);
         setWorkflowState("");
+        setServerCommentRequiredTriggers(null);
         setAssigneeRequiredTriggers([]);
         setWorkflowLoadErrorKey(EDITOR_MSG.WORKFLOW_LOAD_FAILED);
         setWorkflowLoadErrorDetail(formatApiError(err, ""));
@@ -2507,6 +2522,17 @@ export function EditorHost({
     setWorkflowAssigneeDraft("");
   }
 
+  /**
+   * Comment-required triggers actually enforced (#5828): the test-seam
+   * override (or the built-in reject-style list) extended with the loaded
+   * server-driven `getTransitions` `commentRequiredTriggers` list. The panel
+   * marking and both transition gates share this value.
+   */
+  const effectiveCommentRequiredTriggers = resolveCommentRequiredTriggers(
+    commentRequiredTriggers,
+    serverCommentRequiredTriggers,
+  );
+
   async function runEditorTransition(
     trigger: string,
     assignees: readonly string[],
@@ -2545,6 +2571,11 @@ export function EditorHost({
         const trans = await loadTransitions(itemId);
         setWorkflowTriggers(uniqueTransitionTriggers(trans.transitionTriggers));
         setWorkflowState(trans.stateName ?? "");
+        setServerCommentRequiredTriggers(
+          trans.commentRequiredTriggers == null
+            ? null
+            : uniqueTransitionTriggers(trans.commentRequiredTriggers),
+        );
         setAssigneeRequiredTriggers(
           uniqueTransitionTriggers(trans.assigneeRequiredTriggers),
         );
@@ -2575,7 +2606,7 @@ export function EditorHost({
       trigger,
       allowed: workflowTriggers,
       comment: workflowComment,
-      commentRequiredTriggers,
+      commentRequiredTriggers: effectiveCommentRequiredTriggers,
     });
     if (!gate.ok) {
       setWorkflowDone(false);
@@ -2611,7 +2642,7 @@ export function EditorHost({
       trigger,
       allowed: workflowTriggers,
       comment: workflowComment,
-      commentRequiredTriggers,
+      commentRequiredTriggers: effectiveCommentRequiredTriggers,
     });
     if (!gate.ok) {
       setWorkflowDone(false);
@@ -2681,6 +2712,11 @@ export function EditorHost({
       const trans = await changeWorkflow(String(contentId), gate.workflowId);
       setWorkflowTriggers(uniqueTransitionTriggers(trans.transitionTriggers));
       setWorkflowState(trans.stateName ?? "");
+      setServerCommentRequiredTriggers(
+        trans.commentRequiredTriggers == null
+          ? null
+          : uniqueTransitionTriggers(trans.commentRequiredTriggers),
+      );
       setAssigneeRequiredTriggers(
         uniqueTransitionTriggers(trans.assigneeRequiredTriggers),
       );
@@ -5307,7 +5343,7 @@ export function EditorHost({
                 loadErrorKey={workflowLoadErrorKey}
                 loadErrorDetail={workflowLoadErrorDetail}
                 onRetryLoad={() => void handleRetryWorkflowLoad()}
-                commentRequiredTriggers={commentRequiredTriggers}
+                commentRequiredTriggers={effectiveCommentRequiredTriggers}
                 workflowChoices={workflowChoices}
                 selectedWorkflowId={selectedWorkflowId}
                 onWorkflowIdChange={setSelectedWorkflowId}
