@@ -2268,6 +2268,8 @@ From **Publish** (`spa.jsp?entry=publish`), open **Status** or **Logs**. The **I
 
 Use **Open Logs** / **Open Status** in the panel to switch those sections without leaving the lookup. Site-level job status and publish logs stay on the same tabs. Schedule dates and site-workspace takedown (below) are separate Publishing steps.
 
+The same read-only panel also sits on the **site workspace** (Sites, then a site), below **Remove From Site**, so an operator can read back the editions and runs for the selected item without leaving the site context. It shares the workspace item id — typing an id in any item panel updates the history lookup — and uses the same `GET /services/itemmanagement/item/pubhistory/{id}` route with the same empty and error states. It never publishes, takes down, stages, or edits.
+
 ## Schedule publish dates (Publishing site workspace)
 
 From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, then a site). The **Schedule** panel gets and sets item publish and removal dates using the existing item-management APIs (`GET /services/itemmanagement/item/getitemdates/{id}`, `POST /services/itemmanagement/item/setitemdates`). It replaces the classic jQuery `PercScheduleDialog` for this shell. Explorer still has its own Schedule action for a selected page or asset, including one dialog for every checked page or asset (folders skipped; a partial save is an error).
@@ -2284,7 +2286,7 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 - `spa.jsp?entry=publish&section=sites&siteId={siteId}&itemId={id}`
 - Path form: `/cm/app/publish/sites?siteId={siteId}&itemId={id}`
 
-Item publishing history stays on Status / Logs. Site-workspace **Publish now** and takedown are below.
+Item publishing history is on Status / Logs and on the site workspace below. Site-workspace **Publish now** and takedown are below.
 
 ## Publish now from the Publishing site workspace
 
@@ -2318,7 +2320,7 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 - `spa.jsp?entry=publish&section=sites&siteId={siteId}&itemId={id}`
 - Path form: `/cm/app/publish/sites?siteId={siteId}&itemId={id}`
 
-Item publishing history stays on Status / Logs. Schedule dates stay on the same site workspace.
+Item publishing history is on Status / Logs and on the site workspace below. Schedule dates stay on the same site workspace.
 
 ## Stage and Remove from Staging (Publishing site workspace)
 
