@@ -159,76 +159,100 @@
 
   /**
    *Initialize the Action buttons - Edit(pencil), Delete(cross) and Configure(wrench)
+   *
+   *Each button family is bound by a dedicated helper below so this entry
+   *point stays a flat sequence of bindings (issue #5913: previously a
+   *single function with cognitive complexity 34 against a max of 15).
    */
   function initiActionButtons() {
+    bindToggleEditorAction();
+    bindDeleteFieldAction();
+    bindConfigureAction();
+    bindControlMenuActions();
+  }
+
+  // Single-instance field type -> control-menu label class. The menu item
+  // is disabled while the field is on the form and re-enabled on delete.
+  var FIELD_TYPE_MENU_CLASS = {
+    PercEmailFieldControl: "form-email-label",
+    PercURLFieldControl: "form-website-label",
+    PercHoneypotFieldControl: "form-honeypot-label",
+    PercTitleFieldControl: "form-title-label",
+    PercUserFieldControl: "form-username-label",
+  };
+
+  function isCommentFieldType(fieldType) {
+    return (
+      fieldType === "PercTextareaFieldControl" ||
+      fieldType === "PercSubmitButtonControl"
+    );
+  }
+
+  function bindToggleEditorAction() {
     //Attach event to Edit button
     $(document).on("click", ".toggle-editor", function () {
-      // Deactivate old extended editor, since we can only have one active at a time.
-      var extEditorElem = $("." + $.PercFormConstants.FIELD_EDITOR_EXT_CLASS);
-      if (extEditorElem.length) deactivateEditor(extEditorElem);
-      $(".defaultFocus").trigger("focus");
-
-      var parent = $(this).parent().parent();
-      var newElem = $.PercCommentsFormController().toggleFieldEditor(parent);
-      var fieldType = parent.attr("type");
-      var isComment = false;
-      if (
-        fieldType === "PercTextareaFieldControl" ||
-        fieldType === "PercSubmitButtonControl"
-      ) {
-        isComment = true;
-      }
-      addConfig(newElem, isComment);
-      newElem = parent.parent().replaceWith(newElem);
-      $(".defaultFocus").trigger("focus");
-      fieldType = parent.attr("type");
-      if (fieldType === "PercTextFieldControl") {
-        var toggleEditor = widgetEditor();
-        if (toggleEditor) toggleEditor.addEditor("elm1");
-      }
-      $("input[type = 'text']").css("height", "auto");
+      onToggleEditorClick($(this));
     });
+  }
 
-    //Attch event to Delete button
+  function onToggleEditorClick(toggleButton) {
+    // Deactivate old extended editor, since we can only have one active at a time.
+    var extEditorElem = $("." + $.PercFormConstants.FIELD_EDITOR_EXT_CLASS);
+    if (extEditorElem.length) deactivateEditor(extEditorElem);
+    $(".defaultFocus").trigger("focus");
+
+    var parent = toggleButton.parent().parent();
+    var newElem = $.PercCommentsFormController().toggleFieldEditor(parent);
+    addConfig(newElem, isCommentFieldType(parent.attr("type")));
+    parent.parent().replaceWith(newElem);
+    $(".defaultFocus").trigger("focus");
+    if (parent.attr("type") === "PercTextFieldControl") {
+      var toggleEditor = widgetEditor();
+      if (toggleEditor) toggleEditor.addEditor("elm1");
+    }
+    $("input[type = 'text']").css("height", "auto");
+  }
+
+  function bindDeleteFieldAction() {
+    //Attach event to Delete button
     $(document).on("click", ".delete-field", function () {
-      var deleteEditor = widgetEditor();
-      if (
-        deleteEditor &&
-        deleteEditor.get("elm1") &&
-        $(this).parent().parent().children("#elm1").length > 0
-      ) {
-        deleteEditor.removeEditor("elm1");
-      }
-      var fieldType = $(this).parent().parent().attr("type");
-      var className = "";
-      if (fieldType === "PercEmailFieldControl") {
-        className = "form-email-label";
-        activateMenuItem(className);
-      } else if (fieldType === "PercURLFieldControl") {
-        className = "form-website-label";
-        activateMenuItem(className);
-      } else if (fieldType === "PercHoneypotFieldControl") {
-        className = "form-honeypot-label";
-        activateMenuItem(className);
-      } else if (fieldType === "PercTitleFieldControl") {
-        className = "form-title-label";
-        activateMenuItem(className);
-      } else if (fieldType === "PercUserFieldControl") {
-        className = "form-username-label";
-        activateMenuItem(className);
-      }
-
-      $(this).parent().parent().parent().remove();
+      onDeleteFieldClick($(this));
     });
+  }
 
+  function onDeleteFieldClick(deleteButton) {
+    removeFieldRichTextEditor(deleteButton);
+    reactivateMenuItem(deleteButton);
+    deleteButton.parent().parent().parent().remove();
+  }
+
+  function removeFieldRichTextEditor(deleteButton) {
+    var deleteEditor = widgetEditor();
+    if (!deleteEditor || !deleteEditor.get("elm1")) return;
+    if (deleteButton.parent().parent().children("#elm1").length === 0) return;
+    deleteEditor.removeEditor("elm1");
+  }
+
+  function reactivateMenuItem(deleteButton) {
+    var menuClass =
+      FIELD_TYPE_MENU_CLASS[deleteButton.parent().parent().attr("type")];
+    if (menuClass) activateMenuItem(menuClass);
+  }
+
+  function bindConfigureAction() {
     //Attach event to Configure button
     $(document).on("click", ".toggle-configure", function () {
-      var controlWrapper = $(this).parent().parent().parent();
-      var controlEl = $(this).parent().parent();
-      var control = $.PercCommentsFormController().getControl(controlEl);
-      openPrefsDialog(controlEl, control().getAvailablePrefs());
+      onConfigureClick($(this));
     });
+  }
 
+  function onConfigureClick(configureButton) {
+    var controlEl = configureButton.parent().parent();
+    var control = $.PercCommentsFormController().getControl(controlEl);
+    openPrefsDialog(controlEl, control().getAvailablePrefs());
+  }
+
+  function bindControlMenuActions() {
     //Toggle the control menu button on click event
     $("#perc-control-menu-button").on("click", function () {
       $("#perc-control-menu-wrapper").show();
