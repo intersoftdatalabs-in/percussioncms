@@ -110,7 +110,35 @@ class FolderDisplayFormatCatalogRulesTest {
     assertTrue(FolderDisplayFormatCatalogRules.fromFormats(null).getChoices().isEmpty());
   }
 
+  @Test
+  void descriptionFlowsFromFormatToChoiceAndDefaultsToBlank() throws PSCmsException {
+    PSDisplayFormat simple = new PSDisplayFormat();
+    simple.tuneClone(7);
+    simple.setDisplayName("Simple");
+    simple.setDescription("One row per page.");
+
+    PSFolderDisplayFormatCatalog catalog =
+        FolderDisplayFormatCatalogRules.fromFormats(Arrays.asList(simple));
+    assertEquals("One row per page.", catalog.getChoices().get(0).getDescription());
+
+    PSFolderDisplayFormatCatalog rows =
+        FolderDisplayFormatCatalogRules.fromRows(
+            Arrays.asList(
+                new SourceRow(7, "Simple", true, "  Spacious.  "),
+                new SourceRow(9, "Related", true)));
+    assertEquals("Spacious.", descriptionOf(rows, "7"));
+    assertEquals("", descriptionOf(rows, "9"));
+  }
+
   private static List<String> ids(PSFolderDisplayFormatCatalog catalog) {
     return catalog.getChoices().stream().map(PSFolderDisplayFormatChoice::getId).toList();
+  }
+
+  private static String descriptionOf(PSFolderDisplayFormatCatalog catalog, String id) {
+    return catalog.getChoices().stream()
+        .filter((choice) -> choice != null && id.equals(choice.getId()))
+        .map((choice) -> choice.getDescription() == null ? "" : choice.getDescription())
+        .findFirst()
+        .orElse("");
   }
 }

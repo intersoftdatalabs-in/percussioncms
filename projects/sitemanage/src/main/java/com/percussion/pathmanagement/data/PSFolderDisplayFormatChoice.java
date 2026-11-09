@@ -21,7 +21,9 @@ import jakarta.xml.bind.annotation.XmlRootElement;
 
 /**
  * One display-format id and catalog name that can be stored on a folder. {@code id} is the value
- * of {@code sys_displayformat}. {@code name} is not persisted (#5131).
+ * of {@code sys_displayformat}. {@code name} is not persisted (#5131). {@code description} is the
+ * read-only format description shown in the Explorer dialog so operators know what each format
+ * does before assigning it (#5840 / parent #4530); it is never persisted.
  */
 @XmlRootElement(name = "FolderDisplayFormatChoice")
 public class PSFolderDisplayFormatChoice extends PSAbstractDataObject {
@@ -29,6 +31,7 @@ public class PSFolderDisplayFormatChoice extends PSAbstractDataObject {
 
   private String id;
   private String name;
+  private String description;
 
   public String getId() {
     return id;
@@ -44,5 +47,13 @@ public class PSFolderDisplayFormatChoice extends PSAbstractDataObject {
 
   public void setName(String name) {
     this.name = name;
+  }
+
+  public String getDescription() {
+    return description;
+  }
+
+  public void setDescription(String description) {
+    this.description = description;
   }
 }

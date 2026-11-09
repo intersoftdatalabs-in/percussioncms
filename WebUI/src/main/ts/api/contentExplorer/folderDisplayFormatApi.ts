@@ -27,6 +27,8 @@ import { PATHS } from "../paths";
 export interface FolderDisplayFormatChoice {
   id: string;
   name: string;
+  /** Read-only catalog description (#5840). Absent when the wire has none. */
+  description?: string;
 }
 
 export interface FolderDisplayFormatCatalog {
@@ -84,7 +86,12 @@ function coerceChoices(value: unknown): FolderDisplayFormatChoice[] {
       continue;
     }
     const name = asText(row.name) || id;
-    out.push({ id, name });
+    const description = asText(row.description);
+    if (description) {
+      out.push({ id, name, description });
+    } else {
+      out.push({ id, name });
+    }
   }
   return out;
 }

@@ -256,6 +256,9 @@ describe("set folder display format (#5131)", () => {
       { id: "3", name: "Default" },
       { id: "12", name: "Simple" },
     ]);
+  });
+
+  it("keeps a catalog description and drops a blank one (#5840)", () => {
     expect(
       readReloadedDisplayFormat({
         FolderProperties: {
@@ -266,6 +269,21 @@ describe("set folder display format (#5131)", () => {
         },
       }),
     ).toEqual({ id: "12", name: "Simple" });
+    expect(
+      unwrapFolderDisplayFormatCatalog({
+        FolderDisplayFormatCatalog: {
+          choices: [
+            { id: "3", name: "Default", description: "One row per page." },
+            { id: "12", name: "Simple", description: "   " },
+            { id: "13", name: "Bare" },
+          ],
+        },
+      }).choices,
+    ).toEqual([
+      { id: "3", name: "Default", description: "One row per page." },
+      { id: "12", name: "Simple" },
+      { id: "13", name: "Bare" },
+    ]);
   });
 });
 
