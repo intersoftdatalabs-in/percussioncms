@@ -15,10 +15,13 @@
  */
 
 /**
- * Explorer detail-list arrow-key row navigation (#5761 / parent #4530).
+ * Explorer detail-list arrow-key row navigation (#5761 / parent #4530)
+ * plus client-page keys and full-folder row count (#5842).
  *
  * <p>ArrowDown/ArrowUp move focus and selection row-to-row (wrapping at
- * the ends); Home/End jump to the first/last row. Rows use roving
+ * the ends); Home/End jump to the first/last row. PageUp/PageDown move
+ * by one client page and clamp at the ends; the grid carries
+ * {@code aria-rowcount} for the full folder size. Rows use roving
  * tabindex with {@code aria-rowindex} so screen-reader position stays
  * correct. Client-side only — the folder listing is fetched once.</p>
  *
@@ -70,16 +73,22 @@ const LISTING = {
 
 /**
  * @param {import('@playwright/test').Page} page
+ * @param {number} [childrenCount]
  * @returns {Promise<{ listingHits: () => number }>}
  */
-async function installKeyboardRoutes(page) {
+async function installKeyboardRoutes(page, childrenCount = 3) {
   let listingHits = 0;
   await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
     listingHits += 1;
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify(LISTING),
+      body: JSON.stringify({
+        PagedItemList: {
+          ...LISTING.PagedItemList,
+          childrenCount,
+        },
+      }),
     });
   });
   return { listingHits: () => listingHits };
@@ -192,6 +201,54 @@ test.describe("Explorer detail-list arrow-key navigation", () => {
         "3",
       );
 
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="content-explorer-shell"]',
+      });
+      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
+    },
+  );
+
+  test(
+    "PageUp/PageDown move selection a client page, clamp at ends, announce row count",
+    {
+      tag: ["@explorer", "@explorer-detail-keyboard"],
+    },
+    async ({ page }) => {
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      // Folder holds 55 rows; only the first 3-row client page is loaded.
+      const routes = await installKeyboardRoutes(page, 55);
+      await openListing(page);
+
+      // The grid announces the full folder size, not the loaded page.
+      await expect(page.locator('[data-testid="detail-list"] table')).toHaveAttribute(
+        "aria-rowcount",
+        "55",
+      );
+
+      // Visible page is 3 rows: PageDown from the first row lands last.
+      await page.locator('[data-testid="detail-row-c-3"]').focus();
+      await page.keyboard.press("PageDown");
+      expect(await focusedRowTestId(page)).toBe("detail-row-b-2");
+      await expect(
+        page.locator('[data-testid="content-explorer-shell"][data-selected-item-id="b-2"]'),
+      ).toBeVisible({ timeout: 10_000 });
+
+      // A second PageDown clamps on the last row instead of wrapping.
+      await page.keyboard.press("PageDown");
+      expect(await focusedRowTestId(page)).toBe("detail-row-b-2");
+
+      // PageUp returns to the first row and clamps there.
+      await page.keyboard.press("PageUp");
+      expect(await focusedRowTestId(page)).toBe("detail-row-c-3");
+      await expect(
+        page.locator('[data-testid="content-explorer-shell"][data-selected-item-id="c-3"]'),
+      ).toBeVisible({ timeout: 10_000 });
+      await page.keyboard.press("PageUp");
+      expect(await focusedRowTestId(page)).toBe("detail-row-c-3");
+
+      // Client-side only: the folder listing was fetched exactly once.
+      expect(routes.listingHits()).toBe(1);
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="content-explorer-shell"]',
       });

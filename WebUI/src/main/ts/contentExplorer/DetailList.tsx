@@ -45,6 +45,13 @@
  * at the ends); Home/End jump to the first/last row. Pager or folder
  * changes reset focus to the first row. Rows carry {@code aria-rowindex}
  * so screen-reader position stays correct.</p>
+ *
+ * <p>#5842: PageUp/PageDown move focus+selection by one client page
+ * (the visible row count) and clamp at the ends instead of wrapping.
+ * The grid carries {@code aria-rowcount} for the full folder row count
+ * (server {@code totalCount}, falling back to the loaded rows when the
+ * count is absent) so keyboard operators hear the list size. Zero new
+ * REST — paging stays client-side within the loaded page.</p>
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -276,9 +283,16 @@ export function sortDetailRows(
 
 /**
  * Row-focus move for detail-list arrow-key navigation (#5761 / parent
- * #4530). Pure so Vitest can drive it without rendering.
+ * #4530) plus client-page moves (#5842). Pure so Vitest can drive it
+ * without rendering.
  */
-export type DetailRowMove = "next" | "prev" | "first" | "last";
+export type DetailRowMove =
+  | "next"
+  | "prev"
+  | "first"
+  | "last"
+  | "pageUp"
+  | "pageDown";
 
 /**
  * Map a keyboard key to a row-focus move. Returns null for keys the
@@ -294,6 +308,10 @@ export function detailRowMoveForKey(key: string): DetailRowMove | null {
       return "first";
     case "End":
       return "last";
+    case "PageUp":
+      return "pageUp";
+    case "PageDown":
+      return "pageDown";
     default:
       return null;
   }
@@ -302,14 +320,21 @@ export function detailRowMoveForKey(key: string): DetailRowMove | null {
 /**
  * Next focused-row index for a move. ArrowUp/ArrowDown wrap around the
  * visible rows so focus never leaves the list; Home/End jump to the
- * first/last row. An empty list stays at 0.
+ * first/last row. PageUp/PageDown (#5842) move by one client page —
+ * the visible row count — and clamp at the ends instead of wrapping,
+ * so keyboard operators page long folders without leaving the list.
+ * An empty list stays at 0.
  */
 export function nextDetailRowIndex(
   count: number,
   current: number,
   move: DetailRowMove,
+  pageSize?: number,
 ): number {
   if (count <= 0) return 0;
+  // A non-positive page size degrades to a single-row step so a page key
+  // can never strand focus off the list.
+  const step = Math.max(1, Math.floor(pageSize ?? count));
   switch (move) {
     case "next":
       return (current + 1) % count;
@@ -319,6 +344,10 @@ export function nextDetailRowIndex(
       return 0;
     case "last":
       return count - 1;
+    case "pageUp":
+      return Math.max(0, current - step);
+    case "pageDown":
+      return Math.min(count - 1, current + step);
   }
 }
 
@@ -622,6 +651,13 @@ export function DetailList({
   );
 
   const totalCount = data?.totalCount;
+  /**
+   * Full folder row count for the grid's {@code aria-rowcount} (#5842).
+   * The server total spans every page; only when it is absent do we
+   * fall back to the loaded rows so the count never reads 0 on a
+   * non-empty list.
+   */
+  const gridRowCount = totalCount ?? sortedChildren.length;
   const totalPages = totalCount
     ? Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
     : null;
@@ -712,7 +748,7 @@ export function DetailList({
 
   return (
     <div {...detailListRootProps(folderPath, displayFormatId)}>
-      <table style={tableStyle} aria-rowcount={sortedChildren.length}>
+      <table style={tableStyle} aria-rowcount={gridRowCount}>
         <thead style={theadStyle}>
           <tr>
             {multiSelectEnabled ? (
@@ -934,8 +970,9 @@ export function DetailList({
                     onActivateItem?.(item);
                     return;
                   }
-                  // Arrow-key row navigation (#5761): move DOM focus and
-                  // selection together; the move wraps at the ends.
+                  // Arrow-key row navigation (#5761) plus client-page
+                  // keys (#5842): move DOM focus and selection together.
+                  // Arrows wrap at the ends; page keys clamp.
                   const move = detailRowMoveForKey(e.key);
                   if (!move) return;
                   e.preventDefault();
@@ -943,6 +980,7 @@ export function DetailList({
                     sortedChildren.length,
                     rowIndex,
                     move,
+                    sortedChildren.length,
                   );
                   const nextItem = sortedChildren[next];
                   if (!nextItem) return;
