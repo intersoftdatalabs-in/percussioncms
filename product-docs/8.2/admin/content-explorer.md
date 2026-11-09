@@ -910,8 +910,11 @@ and selection unchanged.
 **Row keyboard navigation** — in the detail list, **Down arrow** / **Up arrow** move
 focus row-to-row and select the newly focused row (focus wraps from the last row back
 to the first, and from the first back to the last). **Home** jumps to the first row
-and **End** to the last row. Only the focused row is in the Tab order, and each row
-announces its position for assistive tech. Changing pages or opening a different
+and **End** to the last row. **Page Down** / **Page Up** move focus and selection by
+one screenful of rows (the visible page) and stop at the first or last row instead
+of wrapping, so long folders page without leaving the list. Only the focused row is
+in the Tab order, each row announces its position, and the grid announces the full
+folder row count for assistive tech. Changing pages or opening a different
 folder returns focus to the first row. **Enter** still opens the focused row.
 
 **Tree type-ahead** — with keyboard focus anywhere in the folder tree, typing the
