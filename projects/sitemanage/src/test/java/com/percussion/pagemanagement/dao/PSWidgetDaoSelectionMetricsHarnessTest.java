@@ -56,6 +56,10 @@ class PSWidgetDaoSelectionMetricsHarnessTest {
       </Widget>
       """;
 
+  private static final String MANIFEST_JSON_TEMPLATE =
+      """
+      {"schemaVersion":"1.0","id":"%s","name":"%s","version":"1.0.0"}""";
+
   @TempDir Path tempDir;
 
   private PSWidgetDao dao;
@@ -192,14 +196,19 @@ class PSWidgetDaoSelectionMetricsHarnessTest {
   private Path writeModernPackageRoot(String definitionId) throws Exception {
     Path modernRoot = tempDir.resolve("modern").resolve(definitionId);
     Files.createDirectories(modernRoot);
-    Files.writeString(
-        modernRoot.resolve(PSLegacyDefinitionXmlShim.MODERN_MANIFEST_FILE_NAME),
-        "{\"schemaVersion\":\"1.0\",\"id\":\""
-            + definitionId
-            + "\",\"name\":\""
-            + definitionId
-            + "\",\"version\":\"1.0.0\"}",
-        StandardCharsets.UTF_8);
+    writeManifestJson(modernRoot, definitionId, definitionId);
     return modernRoot.toAbsolutePath().normalize();
+  }
+
+  /**
+   * Writes the modern component manifest for tests. Uses a text block (no backslash escapes) so
+   * the content stays identical on every platform; JSON manifest text is platform-independent.
+   */
+  private static void writeManifestJson(Path packageDir, String id, String name)
+      throws Exception {
+    Files.writeString(
+        packageDir.resolve(PSLegacyDefinitionXmlShim.MODERN_MANIFEST_FILE_NAME),
+        MANIFEST_JSON_TEMPLATE.formatted(id, name),
+        StandardCharsets.UTF_8);
   }
 }
