@@ -3818,6 +3818,9 @@ function ContentExplorerShellInner({
           onSelectFolder={handleSelectFolder}
           onActivate={handleActivate}
           childrenEpoch={folderTreeEpoch}
+          // Inline tree create (#5882) reloads its own parent node; the
+          // detail list still needs a refresh to show the new folder.
+          onFolderCreated={handleRefreshList}
         />
         <ViewsCatalogTree
           listViews={listViews}
