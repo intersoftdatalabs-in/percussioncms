@@ -17,6 +17,7 @@
 package com.percussion.pubserver.impl;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -28,7 +29,9 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 import com.percussion.pubserver.IPSPubServerService;
+import com.percussion.pubserver.data.PSPubServerConnectionTest;
 import com.percussion.pubserver.data.PSPublishServerInfo;
+import com.percussion.services.error.PSNotFoundException;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
@@ -155,6 +158,71 @@ public class PSPubServerRestServiceTest {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> rest.deleteServer("1", "9"));
     assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void testConnection_returnsConnectedWhenHandlerSucceeds() throws Exception {
+    IPSPubServerService svc = mock(IPSPubServerService.class);
+    when(svc.testPubServerConnection(eq("1"), eq("9")))
+        .thenReturn(new PSPubServerConnectionTest(true));
+    PSPubServerRestService rest = new PSPubServerRestService(svc);
+    rest.setUserService(adminUsers());
+    PSPubServerConnectionTest result = rest.testConnection("1", "9");
+    assertNotNull(result);
+    assertTrue(result.isConnected());
+  }
+
+  @Test
+  public void testConnection_returnsUnconnectedWhenHandlerFails() throws Exception {
+    IPSPubServerService svc = mock(IPSPubServerService.class);
+    when(svc.testPubServerConnection(eq("1"), eq("9")))
+        .thenReturn(new PSPubServerConnectionTest(false));
+    PSPubServerRestService rest = new PSPubServerRestService(svc);
+    rest.setUserService(adminUsers());
+    PSPubServerConnectionTest result = rest.testConnection("1", "9");
+    assertNotNull(result);
+    assertFalse(result.isConnected());
+  }
+
+  @Test
+  public void testConnection_blankIdsAreRejected() throws Exception {
+    IPSPubServerService svc = mock(IPSPubServerService.class);
+    PSPubServerRestService rest = new PSPubServerRestService(svc);
+    rest.setUserService(adminUsers());
+    assertThrows(
+        com.percussion.share.service.exception.PSValidationException.class,
+        () -> rest.testConnection("  ", "9"));
+    assertThrows(
+        com.percussion.share.service.exception.PSValidationException.class,
+        () -> rest.testConnection("1", "  "));
+  }
+
+  @Test
+  public void testConnection_forbiddenWhenNotAdminOrDesigner() throws Exception {
+    IPSPubServerService svc = mock(IPSPubServerService.class);
+    PSPubServerRestService rest = new PSPubServerRestService(svc);
+    IPSUserService users = mock(IPSUserService.class);
+    PSCurrentUser editor = mock(PSCurrentUser.class);
+    when(editor.getName()).thenReturn("Editor");
+    when(users.getCurrentUser()).thenReturn(editor);
+    when(users.isAdminUser("Editor")).thenReturn(false);
+    when(users.isDesignUser("Editor")).thenReturn(false);
+    rest.setUserService(users);
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> rest.testConnection("1", "9"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void testConnection_mapsUnknownServerTo404() throws Exception {
+    IPSPubServerService svc = mock(IPSPubServerService.class);
+    when(svc.testPubServerConnection(eq("1"), eq("404")))
+        .thenThrow(new PSNotFoundException("Invalid server 404"));
+    PSPubServerRestService rest = new PSPubServerRestService(svc);
+    rest.setUserService(adminUsers());
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> rest.testConnection("1", "404"));
+    assertEquals(404, ex.getResponse().getStatus());
   }
 
   private static IPSUserService adminUsers() throws Exception {

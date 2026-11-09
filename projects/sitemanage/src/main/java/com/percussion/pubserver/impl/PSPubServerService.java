@@ -27,6 +27,7 @@ import static org.apache.commons.lang3.Validate.notNull;
 
 import com.percussion.legacy.security.deprecated.PSAesCBC;
 import com.percussion.pubserver.IPSPubServerService;
+import com.percussion.pubserver.data.PSPubServerConnectionTest;
 import com.percussion.pubserver.data.PSPublishServerInfo;
 import com.percussion.pubserver.data.PSPublishServerProperty;
 import com.percussion.pubserver.impl.helper.PSPubServerPropertyHelper;
@@ -2898,6 +2899,43 @@ public class PSPubServerService implements IPSPubServerService {
 
       pubProperty.setValue(decodedPrivateKey);
       pubServerInfo.getProperties().add(pubProperty);
+    }
+  }
+
+  /**
+   * Tests the stored delivery-server connection without persisting any change. A handler failure
+   * (including an unexpected handler error) is a failed test, never a thrown error, so the call
+   * always answers with an outcome. The returned result carries no server fields or secrets.
+   */
+  @Override
+  public PSPubServerConnectionTest testPubServerConnection(String siteId, String serverId)
+      throws PSPubServerServiceException, PSNotFoundException {
+    if (isBlank(siteId)) throw new IllegalArgumentException(SITEID_NOT_BLANK);
+    if (isBlank(serverId)) throw new IllegalArgumentException("Server id cannot be blank.");
+    try {
+      var site = siteMgr.findSite(getSiteGuid(siteId));
+      if (site == null) throw new PSNotFoundException("Invalid site " + siteId);
+      var pubServer = pubServerDao.findPubServer(getPubServerGuid(serverId)).orElse(null);
+      if (pubServer == null) throw new PSNotFoundException("Invalid server " + serverId);
+      if (!serverBelongsToSite(site.getGUID(), pubServer))
+        throw new PSNotFoundException(
+            "Invalid server " + pubServer.getName() + " for site " + site.getName());
+      PSPublishServerInfo info = toPSPublishServerInfo(pubServer, site, true);
+      boolean connected;
+      try {
+        connected = checkPubServerConfig(info, site);
+      } catch (RuntimeException e) {
+        log.warn(
+            "Delivery-server connection test failed for server {}: {}",
+            serverId,
+            PSExceptionUtils.getMessageForLog(e));
+        connected = false;
+      }
+      return new PSPubServerConnectionTest(connected);
+    } catch (PSNotFoundException e) {
+      throw e;
+    } catch (Exception e) {
+      throw new PSPubServerServiceException(PSExceptionUtils.getMessageForLog(e), e);
     }
   }
 

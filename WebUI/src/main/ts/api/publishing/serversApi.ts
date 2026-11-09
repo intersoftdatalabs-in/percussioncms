@@ -96,6 +96,21 @@ export async function deleteServer(
   );
 }
 
+/**
+ * Test the stored delivery-server connection without persisting any change
+ * (POST …/servers/testConnection/{siteId}/{serverId} with an empty body).
+ * No server fields — and no secrets — are sent or stored by this call.
+ */
+export async function testServerConnection(
+  siteId: string | number,
+  serverId: string | number,
+): Promise<unknown> {
+  return post(
+    `${PATHS.PUB_SERVERS}testConnection/${encodeURIComponent(String(siteId))}/${encodeURIComponent(String(serverId))}`,
+    {},
+  );
+}
+
 /** Request stop for a running publish job (POST …/servers/stopPublishing/{jobId}). */
 export async function stopPublishing(
   jobId: string | number,
