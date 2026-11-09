@@ -17,6 +17,18 @@ defaults**, and inspect **object visibility**. Per-object COMMUNITY ACL entries
 stay on object detail panels (for example content types). Rename does not
 change the description. Description save does not change the name or roles.
 
+## Readback
+
+The catalog table is a thin read: it lists label, unique name, id, and
+description from `GET /services/communities/find?name=*` and carries no
+role payload. Opening a row loads the detail from
+`GET /services/communities/{idOrName}` (numeric id, GUID string, or exact
+name) and shows the title, name, numeric id, GUID, stored description, the
+role membership lens, new-search defaults, and the visibility lens.
+Packaged communities (for example `Default`) read back with zero writes:
+the row renders from the thin list and the detail renders identity plus
+lenses without creating, renaming, or deleting anything.
+
 ## Product path — create, rename, description, and delete
 
 1. Sign in as **Admin** (create, rename, and delete require the Admin role).
