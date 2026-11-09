@@ -416,6 +416,11 @@ public final class PSWidgetXmlInstallEmitter {
   /**
    * Install href form used in product Widget XML ({@code /rx_resources/...} or {@code
    * /web_resources/...}). Package-relative targets without a leading slash get one.
+   *
+   * <p>The leading slash is a URL-path separator, not a filesystem separator: install hrefs are
+   * consumed as web paths by the deployer / {@code PSWidgetDao}, so forward slashes are required
+   * on every OS (including Windows). Do not replace with {@code File.separator} or NIO {@code
+   * Path} joins — those would emit backslashes on Windows and break the install XML.
    */
   static String toInstallHref(String packageRelativeOrInstall) {
     if (packageRelativeOrInstall == null || packageRelativeOrInstall.isBlank()) {
@@ -425,6 +430,7 @@ public final class PSWidgetXmlInstallEmitter {
     if (p.startsWith("/")) {
       return p;
     }
+    // URL form — always '/' (see javadoc above).
     return "/" + p;
   }
 

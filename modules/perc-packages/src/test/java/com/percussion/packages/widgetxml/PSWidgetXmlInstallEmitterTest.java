@@ -146,6 +146,32 @@ class PSWidgetXmlInstallEmitterTest {
         PSWidgetXmlInstallEmitter.toInstallHref("/rx_resources/widgets/x.png"));
   }
 
+  @Test
+  void toInstallHref_alwaysUsesForwardSlashUrlForm() {
+    // Install hrefs are URL paths, not filesystem paths: forward slashes on every OS (#5823).
+    // Windows-style backslash input must normalize to '/' — never emit File.separator.
+    assertEquals(
+        "/rx_resources/widgets/x.png",
+        PSWidgetXmlInstallEmitter.toInstallHref("rx_resources\\widgets\\x.png"));
+    assertEquals(
+        "/web_resources/widgets/y.css",
+        PSWidgetXmlInstallEmitter.toInstallHref("  web_resources/widgets/y.css  "));
+    for (String in :
+        new String[] {
+          "rx_resources/widgets/x.png",
+          "/rx_resources/widgets/x.png",
+          "rx_resources\\widgets\\x.png",
+          "\\rx_resources\\widgets\\x.png"
+        }) {
+      String href = PSWidgetXmlInstallEmitter.toInstallHref(in);
+      assertNotNull(href);
+      assertTrue(href.startsWith("/"), "href must start with '/': " + href);
+      assertFalse(href.contains("\\"), "href must not contain backslash: " + href);
+    }
+    assertEquals(null, PSWidgetXmlInstallEmitter.toInstallHref(null));
+    assertEquals(null, PSWidgetXmlInstallEmitter.toInstallHref("   "));
+  }
+
   private static String normalize(String s) {
     return s == null ? null : s.replace("\r\n", "\n").replace('\r', '\n');
   }
