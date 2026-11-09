@@ -125,6 +125,21 @@ async function stubEditorApis(page, { onPut } = {}) {
       body: JSON.stringify({ SlotCanvas: { ownerId: 42, slots: [] } }),
     }),
   );
+  // The percussion-plugins test inserts a stub <img
+  // src="/Rhythmyx/Assets/i.png"> that the browser would otherwise load
+  // from the live cell: the preview servlet logs a server ERROR for the
+  // nonexistent fake asset and fails qa-health. Serve a 1x1 PNG so the
+  // host stays quiet; assertions check src attributes, not pixels.
+  await page.route("**/Assets/i.png*", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "image/png",
+      body: Buffer.from(
+        "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==",
+        "base64",
+      ),
+    }),
+  );
   await page.route("**/services/contenttypes/**", (route) =>
     route.fulfill({
       status: 200,

@@ -11,6 +11,9 @@ const {
 const {
   classifyLoginSurface,
   isOffLoginPath,
+  resolveLoginAttempts,
+  loginRetryDelayMs,
+  summarizeLoginFailure,
 } = require("./login-surface");
 
 const envPath = path.resolve(__dirname, "../../../.env");
@@ -558,22 +561,55 @@ async function fillLoginForm(page, username, password, options = {}) {
 }
 
 /**
+ * True while the browser is still on the CMS login page (native POST
+ * answered 200 and re-rendered login instead of 302 away from it).
+ *
+ * @param {string} url
+ * @returns {boolean}
+ */
+function isStillOnLoginPage(url) {
+  return url.includes("/Rhythmyx/login") || /\/login(\?|$)/.test(url);
+}
+
+/**
+ * Best-effort predicate for the native login document POST (form action
+ * is server-owned: {@code /login} or {@code /Rhythmyx/login}).
+ *
+ * @param {import("@playwright/test").Response} resp
+ * @returns {boolean}
+ */
+function isLoginPostResponse(resp) {
+  try {
+    if (resp.request().method() !== "POST") {
+      return false;
+    }
+    const pathname = new URL(resp.url()).pathname;
+    return /\/login\/?(\?|#|$)/.test(pathname);
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * One login attempt: fresh login page (fresh OWASP-CSRFTOKEN bootstrap +
+ * session binding), fill, native submit, then settle.
+ *
  * @param {import("@playwright/test").Page} page
  * @param {string} username
  * @param {string} password
  * @param {LoginOptions} [options]
+ * @returns {Promise<{done: boolean, lastPostStatus: number|null,
+ *   errorBanner: string}>} {@code done} when authenticated (or the page
+ *   was already authenticated); otherwise the rejection diagnostics for
+ *   the caller to summarize after the retry loop.
  */
-async function login(page, username, password, options = {}) {
-  if (!password) {
-    throw new Error(missingPasswordMessage(username));
-  }
-
+async function attemptLoginOnce(page, username, password, options = {}) {
   await page.goto(`${PERCUSSION_URL}/Rhythmyx/login`);
   // Wait for SPA mount or legacy form before filling.
   await page.waitForLoadState("domcontentloaded");
   const surface = await waitForLoginSurface(page);
   if (surface.kind === "already_authenticated") {
-    return;
+    return { done: true, lastPostStatus: null, errorBanner: "" };
   }
   const { submit, alreadyAuthenticated } = await fillLoginForm(
     page,
@@ -582,14 +618,31 @@ async function login(page, username, password, options = {}) {
     options,
   );
   if (alreadyAuthenticated || !submit) {
-    return;
+    return { done: true, lastPostStatus: null, errorBanner: "" };
   }
 
   // The CMS uses a multipart/form-data POST with OWASP-CSRFTOKEN. Modern
   // login may land at /cm/app/spa.jsp?entry=home; legacy lands at index.jsp.
-  // Poll until we leave the login path, with a hard timeout.
-  await Promise.all([
-    page
+  // Capture the POST document response for diagnostics: 302 means the
+  // server accepted the login (navigation follows); 200 means it
+  // re-rendered the login page (server-side rejection — no navigation
+  // will ever come, so skip the navigation wait).
+  const postProbe = page
+    .waitForResponse(isLoginPostResponse, { timeout: 30_000 })
+    .catch(() => null);
+  await submit.click();
+  const probe = await postProbe;
+  let lastPostStatus = null;
+  if (probe) {
+    try {
+      lastPostStatus = probe.status();
+    } catch {
+      lastPostStatus = null;
+    }
+  }
+  if (!(lastPostStatus === 200 && isStillOnLoginPage(page.url()))) {
+    // Poll until we leave the login path, with a hard timeout.
+    await page
       .waitForFunction(
         () => {
           const p = window.location.pathname;
@@ -602,16 +655,63 @@ async function login(page, username, password, options = {}) {
         // networkidle sometimes fires before the JS function evaluates;
         // fall back to a short poll.
         await page.waitForTimeout(1500);
-      }),
-    submit.click(),
-  ]);
-
-  const url = page.url();
-  if (url.includes("/Rhythmyx/login") || /\/login(\?|$)/.test(url)) {
-    throw new Error(
-      `Login did not navigate away from login page (still at ${url})`,
-    );
+      });
   }
+
+  if (!isStillOnLoginPage(page.url())) {
+    return { done: true, lastPostStatus, errorBanner: "" };
+  }
+  // Best-effort server banner read: never auto-wait the full action
+  // timeout when the banner is absent (that burn per attempt is what
+  // used to blow the spec's test budget before the retry could help).
+  const banner = page.locator('[data-testid="perc-login-error"]').first();
+  const errorBanner = await banner
+    .waitFor({ state: "visible", timeout: 3_000 })
+    .then(() => banner.innerText())
+    .catch(() => "");
+  return { done: false, lastPostStatus, errorBanner };
+}
+
+/**
+ * @param {import("@playwright/test").Page} page
+ * @param {string} username
+ * @param {string} password
+ * @param {LoginOptions} [options]
+ */
+async function login(page, username, password, options = {}) {
+  if (!password) {
+    throw new Error(missingPasswordMessage(username));
+  }
+
+  // Retry loop (#5937): the QA-cell login servlet intermittently answers
+  // a correct native POST with HTTP 200 + server-side auth failure
+  // instead of the 302 away from /login. Each attempt re-renders the
+  // login page and staggers with backoff so repeated runner logins do not
+  // hammer the cell auth path in lockstep. The green path is unchanged
+  // (no added delay when the first attempt navigates away).
+  const attempts = resolveLoginAttempts(process.env);
+  let lastPostStatus = null;
+  let lastErrorBanner = "";
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const result = await attemptLoginOnce(page, username, password, options);
+    if (result.done) {
+      return;
+    }
+    lastPostStatus = result.lastPostStatus;
+    lastErrorBanner = result.errorBanner;
+    if (attempt < attempts) {
+      await page.waitForTimeout(loginRetryDelayMs(attempt - 1));
+    }
+  }
+
+  throw new Error(
+    summarizeLoginFailure({
+      attempts,
+      url: page.url(),
+      errorBanner: lastErrorBanner,
+      lastPostStatus,
+    }),
+  );
 }
 
 /**
@@ -692,4 +792,7 @@ module.exports = {
   resolveCmsBaseUrl,
   resolveRolePassword,
   hasQaModeUrlEnv,
+  resolveLoginAttempts,
+  loginRetryDelayMs,
+  summarizeLoginFailure,
 };
