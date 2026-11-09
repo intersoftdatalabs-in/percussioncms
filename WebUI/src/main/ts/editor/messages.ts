@@ -325,6 +325,15 @@ export const EDITOR_MSG = {
   CONFIRM_PUBLISH_NOW: "perc.ui.editor@Publish this item now?",
   PUBLISH_DONE: "perc.ui.editor@Publish started.",
   PUBLISH_FAILED: "perc.ui.editor@Could not publish this item.",
+  PUBLISH_TITLE: "perc.ui.editor@Publish now",
+  PUBLISH_CONFIRM: "perc.ui.editor@Publish",
+  PUBLISH_CANCEL: "perc.ui.editor@Cancel",
+  PUBLISH_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to publish this item.",
+  PUBLISH_REJECTED:
+    "perc.ui.editor@The publish request was rejected. The item was not published.",
+  PUBLISH_CONFLICT:
+    "perc.ui.editor@This item cannot be published right now. It was not published.",
   PUBLISH_UNAVAILABLE:
     "perc.ui.editor@Publish now is only available for pages and assets.",
   SCHEDULE: "perc.ui.editor@Schedule",

@@ -85,9 +85,18 @@ function leftoverOn(page, leftover) {
 function consoleOn(page, pageErrors) {
   page.on("pageerror", (err) => pageErrors.push(String(err)));
   page.on("console", (msg) => {
-    if (msg.type() === "error") {
-      pageErrors.push(msg.text());
+    if (msg.type() !== "error") {
+      return;
     }
+    const text = msg.text();
+    if (
+      /Failed to load resource: the server responded with a status of (400|403|404|409|500)/.test(
+        text,
+      )
+    ) {
+      return;
+    }
+    pageErrors.push(text);
   });
 }
 
@@ -155,16 +164,17 @@ test.describe("React Content Editor Publish now", () => {
       leftoverOn(page, leftover);
       consoleOn(page, pageErrors);
       await stubEditorApis(page, { publishCalls });
-      page.on("dialog", async (dialog) => {
-        expect(dialog.type()).toBe("confirm");
-        await dialog.accept();
-      });
 
       await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
       await expect(page.locator(`[data-testid="${TEST_IDS.publishNow}"]`)).toBeVisible({
         timeout: 20_000,
       });
       await page.locator(`[data-testid="${TEST_IDS.publishNow}"]`).click();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
+      ).toBeVisible();
+      expect(publishCalls).toEqual([]);
+      await page.locator(`[data-testid="${TEST_IDS.publishConfirm}"]`).click();
       await expect.poll(() => publishCalls.length).toBe(1);
       expect(isPagePublishUrl(publishCalls[0])).toBe(true);
       expect(parsePublishUrl(publishCalls[0]).itemId).toBe("42");
@@ -194,16 +204,20 @@ test.describe("React Content Editor Publish now", () => {
         }),
       });
       page.on("dialog", async (dialog) => {
-        await dialog.accept();
+        throw new Error(`unexpected native dialog: ${dialog.type()}`);
       });
       await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
       await expect(page.locator(`[data-testid="${TEST_IDS.publishNow}"]`)).toBeVisible({
         timeout: 20_000,
       });
       await page.locator(`[data-testid="${TEST_IDS.publishNow}"]`).click();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
+      ).toBeVisible();
+      await page.locator(`[data-testid="${TEST_IDS.publishConfirm}"]`).click();
       await expect.poll(() => publishCalls.length).toBe(1);
-      await expect(page.locator(`[data-testid="${TEST_IDS.publishError}"]`)).toContainText(
-        /Publication stopped|FORBIDDEN/i,
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDialogError}"]`)).toContainText(
+        /Publication stopped|not allowed/i,
       );
       await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
     },
@@ -215,14 +229,18 @@ test.describe("React Content Editor Publish now", () => {
     async ({ page }) => {
       const publishCalls = [];
       await stubEditorApis(page, { publishCalls });
-      page.on("dialog", async (dialog) => {
-        await dialog.dismiss();
-      });
       await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
       await expect(page.locator(`[data-testid="${TEST_IDS.publishNow}"]`)).toBeVisible({
         timeout: 20_000,
       });
       await page.locator(`[data-testid="${TEST_IDS.publishNow}"]`).click();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
+      ).toBeVisible();
+      await page.locator(`[data-testid="${TEST_IDS.publishCancel}"]`).click();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
+      ).toHaveCount(0);
       expect(publishCalls).toEqual([]);
       await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
     },
@@ -253,14 +271,12 @@ test.describe("React Content Editor Publish now", () => {
         fields: ASSET_FIELDS,
         type: ASSET_TYPE,
       });
-      page.on("dialog", async (dialog) => {
-        await dialog.accept();
-      });
       await page.goto(editorSpaUrl(BASE_URL, "contentId=99&mode=edit"));
       await expect(page.locator(`[data-testid="${TEST_IDS.publishNow}"]`)).toBeVisible({
         timeout: 20_000,
       });
       await page.locator(`[data-testid="${TEST_IDS.publishNow}"]`).click();
+      await page.locator(`[data-testid="${TEST_IDS.publishConfirm}"]`).click();
       await expect.poll(() => publishCalls.length).toBe(1);
       expect(isResourcePublishUrl(publishCalls[0])).toBe(true);
       expect(parsePublishUrl(publishCalls[0])).toEqual({
