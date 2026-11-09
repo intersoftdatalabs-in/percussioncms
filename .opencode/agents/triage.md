@@ -125,15 +125,19 @@ Per rhai README "Product-first queue":
   only — product overflow must never eat a reserved debt seat.
 - **Phase B** fills `low_slots` from DEBT only (lowest pN first, oldest
   `updatedAt` tie-break). Unused `priority_slots` stay **empty**.
-- **Phase B rotation (2.2.8-draft, cross-tier 2.2.9-draft):** lowest-number-first reseats the same
+- **Phase B rotation (2.2.8-draft, cross-tier 2.2.9-draft, cooldown follow-on):** lowest-number-first reseats the same
   blocked debt nightly (observed: #1820/#1976 twice, then #1978/#1820 a
   third time — the blocked pair were p2 while every fresh candidate was
   p8, so tier-first ordering seated them forever). Debt on the host's
   recently-blocked list (prior `gated_prerequisite` / `verified_no_change`
   verdicts) sorts after ALL fresh debt **regardless of pN tier** — a
   blocked p2 yields to a fresh p8 for one cycle and returns when off the
-  list. Same-flag ties break by pN, then randomly (never
-  lowest-number-first). Rotation reorders, never starves the seat.
+  list. Mirror image: debt the host lists as recently-*seated* (`pr_opened`
+  in the window) cools down behind unseated fresh debt regardless of tier —
+  a just-worked p3 yields to a never-seated p8 so seats rotate through the
+  pool instead of camping on one tier band. Same-flag ties break by pN, then randomly (never
+  lowest-number-first). Both lists are windowed host input (entries age out,
+  so stale blocks get re-probed); rotation reorders, never starves the seat.
 - **One implement per parent across the WHOLE queue (HARD):** at most one
   `disposition=implement` row per `parent_issue` — including adopted
   EXISTING open children (observed: #5733 + #5734 both queued from #5622).
