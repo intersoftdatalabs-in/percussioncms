@@ -500,6 +500,72 @@ export function handleExplorerTreeRowKeyDown(
 }
 
 /**
+ * Type-ahead window (#5841): printable keys typed within this span
+ * accumulate into one prefix; a pause resets the buffer.
+ */
+export const EXPLORER_TREE_TYPE_AHEAD_TIMEOUT_MS = 1000;
+
+export interface ExplorerTreeTypeAheadRow {
+  /** Finder path of the row (the {@code tree-node-} testid suffix). */
+  path: string;
+  /** Visible label ({@code data-node-name}, falling back to row text). */
+  label: string;
+}
+
+/**
+ * Whether a keydown can extend the type-ahead buffer: one printable
+ * character with no Ctrl/Meta/Alt modifier (#5841). Non-printable keys
+ * (arrows, Home/End, Enter, modifiers) return false so navigation and
+ * activation are untouched.
+ */
+export function isExplorerTreeTypeAheadKey(e: {
+  key: string;
+  ctrlKey?: boolean;
+  metaKey?: boolean;
+  altKey?: boolean;
+}): boolean {
+  if (e.ctrlKey || e.metaKey || e.altKey) {
+    return false;
+  }
+  return e.key.length === 1;
+}
+
+/**
+ * Accumulate one printable key onto the type-ahead buffer (case-folded
+ * for prefix matching, #5841).
+ */
+export function appendExplorerTreeTypeAhead(
+  buffer: string,
+  key: string,
+): string {
+  return `${buffer}${key.toLocaleLowerCase()}`;
+}
+
+/**
+ * Next visible row whose label starts with {@code buffer}, searching
+ * forward from {@code startIndex} (exclusive) with wrap-around (#5841).
+ * Returns {@code -1} on no match so the caller keeps the current
+ * selection and focus.
+ */
+export function matchExplorerTreeTypeAhead(
+  rows: ReadonlyArray<Pick<ExplorerTreeTypeAheadRow, "label">>,
+  buffer: string,
+  startIndex: number,
+): number {
+  const needle = buffer.toLocaleLowerCase();
+  if (!needle || rows.length === 0) {
+    return -1;
+  }
+  for (let step = 1; step <= rows.length; step++) {
+    const i = (startIndex + step) % rows.length;
+    if ((rows[i]?.label ?? "").toLocaleLowerCase().startsWith(needle)) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+/**
  * Node loading state + lazy {@code ensureLoaded} fetch (#5793: extracted
  * hook so the component body stays under the complexity gate).
  */
@@ -798,6 +864,21 @@ export function ExplorerTree({
   const { nodes, nodesRef, ensureLoaded } = useExplorerTreeNodes(initialPath);
   const selectedPathRef = useRef(selectedPath);
   selectedPathRef.current = selectedPath;
+  const treeRef = useRef<HTMLDivElement | null>(null);
+  const typeAheadRef = useRef<{
+    buffer: string;
+    timer: ReturnType<typeof setTimeout> | null;
+  }>({ buffer: "", timer: null });
+
+  useEffect(
+    () => () => {
+      if (typeAheadRef.current.timer) {
+        clearTimeout(typeAheadRef.current.timer);
+        typeAheadRef.current.timer = null;
+      }
+    },
+    [],
+  );
 
   useEffect(() => {
     void ensureLoaded(initialPath);
@@ -904,6 +985,72 @@ export function ExplorerTree({
     setExpanded(() => applyCollapseAllExplorerTree(initialPath));
   }, [initialPath]);
 
+  /**
+   * Classic Explorer type-ahead (#5841): printable keys typed while the
+   * tree is focused accumulate for ~1s into a prefix; focus jumps to the
+   * next visible row whose label starts with the prefix (wrap-around) and
+   * selection follows focus. Non-printable keys, modified keys, and keys
+   * already handled by the row (Enter/Space/arrows) are ignored. No
+   * match keeps the current selection. Zero new REST — client-side only.
+   */
+  const onTreeTypeAheadKeyDown = useCallback(
+    (e: React.KeyboardEvent) => {
+      if (e.defaultPrevented || !isExplorerTreeTypeAheadKey(e)) {
+        return;
+      }
+      const container = treeRef.current;
+      if (!container) {
+        return;
+      }
+      const items = Array.from(
+        container.querySelectorAll('[role="treeitem"]'),
+      );
+      if (items.length === 0) {
+        return;
+      }
+      const state = typeAheadRef.current;
+      if (state.timer) {
+        clearTimeout(state.timer);
+      }
+      state.buffer = appendExplorerTreeTypeAhead(state.buffer, e.key);
+      state.timer = setTimeout(() => {
+        state.buffer = "";
+        state.timer = null;
+      }, EXPLORER_TREE_TYPE_AHEAD_TIMEOUT_MS);
+      const active = document.activeElement as HTMLElement | null;
+      const activeItem = active?.closest?.('[role="treeitem"]');
+      const startIndex = activeItem ? items.indexOf(activeItem) : -1;
+      const rows: ExplorerTreeTypeAheadRow[] = items.map((el) => {
+        const host = el.closest('[data-testid^="tree-node-"]');
+        const named = host?.getAttribute("data-node-name") ?? "";
+        const label =
+          named.trim() || (el.textContent ?? "").trim();
+        const testid = host?.getAttribute("data-testid") ?? "";
+        return {
+          label,
+          path: testid.startsWith("tree-node-")
+            ? testid.slice("tree-node-".length)
+            : "",
+        };
+      });
+      const hit = matchExplorerTreeTypeAhead(
+        rows,
+        state.buffer,
+        startIndex,
+      );
+      if (hit < 0 || !rows[hit]?.path) {
+        return;
+      }
+      e.preventDefault();
+      (items[hit] as HTMLElement).focus();
+      onSelectFolder(
+        rows[hit].path,
+        findFolderItemForPath(nodesRef.current, rows[hit].path),
+      );
+    },
+    [onSelectFolder, nodesRef],
+  );
+
   const { rootState } = resolveExplorerTreeRoot(nodes, initialPath);
   const error = useMemo(
     () => resolveExplorerTreeError(nodes, rootState.error),
@@ -937,7 +1084,13 @@ export function ExplorerTree({
   return (
     <>
       <ExplorerTreeToolbar onExpandAll={expandAll} onCollapseAll={collapseAll} />
-      <div style={treeStyle} role="tree" data-testid="explorer-tree">
+      <div
+        style={treeStyle}
+        role="tree"
+        data-testid="explorer-tree"
+        ref={treeRef}
+        onKeyDown={onTreeTypeAheadKeyDown}
+      >
       {rootState.loading && rootState.children.length === 0 && (
         <div style={emptyStateStyle}>{message(EXPLORER_MSG.TREE_LOADING)}</div>
       )}

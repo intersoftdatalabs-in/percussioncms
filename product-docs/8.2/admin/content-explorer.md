@@ -913,6 +913,16 @@ and **End** to the last row. Only the focused row is in the Tab order, and each 
 announces its position for assistive tech. Changing pages or opening a different
 folder returns focus to the first row. **Enter** still opens the focused row.
 
+**Tree type-ahead** — with keyboard focus anywhere in the folder tree, typing the
+first letters of a folder name jumps to the next visible folder whose name starts
+with those letters. Keys typed close together (about a second) accumulate into one
+prefix, so typing `ma` finds `Marketing` faster than `m` alone. The search wraps
+from the last visible folder back to the first, and the jumped-to folder becomes
+the selected folder. Pausing clears the typed prefix; arrow keys, **Enter**, and
+other non-letter keys are unaffected, and typing a prefix nothing matches keeps
+the current folder selected. Type-ahead is client-side: it searches the folders
+already shown and sends no server request.
+
 ## Server actions and context menu
 
 The **Server actions** toolbar is the labeled product chrome under Open / Preview / Create Folder
