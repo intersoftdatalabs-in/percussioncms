@@ -54,6 +54,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.ResourceBundle;
@@ -425,18 +426,24 @@ public final class PSContentExplorerLoginPanel extends JFrame {
       return;
     }
 
-    String password = new String(m_password.getPassword());
-    if (password.trim().length() == 0) {
-      JOptionPane.showMessageDialog(
-          this,
-          ErrorDialogs.cropErrorMessage(m_res.getString("missPassword")),
-          m_res.getString("error"),
-          JOptionPane.ERROR_MESSAGE);
-      this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-      m_statusBar.setText(m_res.getString("disconnectedStatus"));
-      m_password.requestFocus();
-      this.m_login.setEnabled(true);
-      return;
+    // Scan the char[] directly so the typed password is never retained as an immutable
+    // String on this path; the copy is zeroed before every return.
+    char[] passwordCopy = m_password.getPassword();
+    try {
+      if (isPasswordBlank(passwordCopy)) {
+        JOptionPane.showMessageDialog(
+            this,
+            ErrorDialogs.cropErrorMessage(m_res.getString("missPassword")),
+            m_res.getString("error"),
+            JOptionPane.ERROR_MESSAGE);
+        this.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+        m_statusBar.setText(m_res.getString("disconnectedStatus"));
+        m_password.requestFocus();
+        this.m_login.setEnabled(true);
+        return;
+      }
+    } finally {
+      clearPassword(passwordCopy);
     }
 
     if (m_locale.getSelectedItem() == null) {
@@ -524,6 +531,12 @@ public final class PSContentExplorerLoginPanel extends JFrame {
 
           @Override
           protected Boolean doInBackground() {
+            // Copy the typed password once and zero it when login settles. The login API
+            // takes a String, so one immutable copy is unavoidable here, but it must not
+            // outlive the call and must never be stashed in the applet parameter map
+            // (nothing reads a "password" parameter; retaining it only widens exposure
+            // of cleartext credentials in memory).
+            char[] passwordCopy = m_password.getPassword();
             try {
               String host = m_parent.getParameter("serverName");
               String protocol = m_parent.getParameter("protocol");
@@ -535,7 +548,7 @@ public final class PSContentExplorerLoginPanel extends JFrame {
                       host,
                       port,
                       m_userId.getText(),
-                      new String(m_password.getPassword()),
+                      new String(passwordCopy),
                       ((PSLocale) m_locale.getSelectedItem()).getCode());
 
               m_statusBar.setText(m_res.getString("connectedStatus") + host);
@@ -548,10 +561,9 @@ public final class PSContentExplorerLoginPanel extends JFrame {
               m_parent.setParameter("protocol", protocol);
               m_parent.setParameter("port", port);
               m_parent.setParameter("userId", m_userId.getText());
-              m_parent.setParameter("password", new String(m_password.getPassword()));
               m_parent.setParameter("locale", getDefaultLocale());
             } catch (NotAuthenticatedFaultMessage e) {
-              errorMessage = "Failed to authenticate with username and password.";
+              errorMessage = "Failed to authenticate with the provided credentials.";
               return false;
             } catch (ContractViolationFaultMessage e) {
               errorMessage = "Login details are invalid.";
@@ -569,6 +581,8 @@ public final class PSContentExplorerLoginPanel extends JFrame {
               errorMessage = e.getMessage();
               PSContentExplorerApplication.logout();
               return false;
+            } finally {
+              clearPassword(passwordCopy);
             }
             updateAdminProperties();
             return true;
@@ -655,6 +669,37 @@ public final class PSContentExplorerLoginPanel extends JFrame {
     Locale current = Locale.getDefault();
 
     return current.getLanguage().concat("_").concat(current.getCountry());
+  }
+
+  /**
+   * Reports whether the typed password is missing or blank without materializing it as a {@link
+   * String}, so the credential is not retained on the heap as an immutable copy.
+   *
+   * @param password the typed password copy from {@link JPasswordField#getPassword()}, may be
+   *     {@code null}.
+   * @return {@code true} when {@code password} is {@code null}, empty, or all whitespace.
+   */
+  static boolean isPasswordBlank(char[] password) {
+    if (password == null || password.length == 0) {
+      return true;
+    }
+    for (char c : password) {
+      if (!Character.isWhitespace(c)) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /**
+   * Zeroes a typed-password copy when it is no longer needed.
+   *
+   * @param password the copy to clear, may be {@code null}.
+   */
+  static void clearPassword(char[] password) {
+    if (password != null) {
+      Arrays.fill(password, '\0');
+    }
   }
 
   private List<PSLocale> getLocaleList(String serverUrl) {
