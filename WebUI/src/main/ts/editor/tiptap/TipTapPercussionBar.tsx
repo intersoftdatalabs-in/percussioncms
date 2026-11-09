@@ -24,8 +24,10 @@
  *       {@code sys_dependentvariantid}, {@code rxselectedtext});</li>
  *   <li>{@code percadvlink} / {@code percadvimage} — URL/title/target and
  *       src/alt/title/dimension/alignment/decorative controls writing the
- *       same attributes the advanced dialogs persist (the CMS content-picker
- *       lookup stays a classic-dialog concern, out of slice scope);</li>
+ *       same attributes the advanced dialogs persist, plus a React
+ *       content-picker lookup (browse/search CMS content, #5900) that
+ *       resolves the managed-link reference through the render-link
+ *       preview — manual URL entry stays as fallback;</li>
  *   <li>{@code percglobalvariables} — variable picker (CMS table when the
  *       hosting frame provides {@code PercGlobalVariablesData}, manual name
  *       entry otherwise) inserting the stored marker span;</li>
@@ -47,6 +49,7 @@ import React, { useEffect, useState } from "react";
 import { message } from "../../i18n/message";
 import { EDITOR_MSG } from "../messages";
 import styles from "../EditorHost.module.css";
+import { fetchInlineRenderLink } from "../../api/contentExplorer/renderLinkApi";
 import {
   PERC_DEFAULT_IMAGE_SLOT,
   PERC_DEFAULT_LINK_SLOT,
@@ -57,6 +60,13 @@ import {
   buildPercInlineLinkHtml,
   readGlobalVariableData,
 } from "./tiptapPercussion";
+import {
+  resolveManagedImageRef,
+  resolveManagedLinkRef,
+  type ManagedImageRef,
+  type ManagedLinkRef,
+} from "./tiptapContentPicker";
+import { ContentPickerDialog, type ContentPickerSelection } from "./ContentPickerDialog";
 import { TipTapToolButton } from "./TipTapToolbar";
 import { isPastedLinkHrefSafe } from "./tiptapWordPaste";
 
@@ -269,7 +279,38 @@ function InlineLinkPanel({ editor, name, onClose }: PanelProps): React.ReactElem
   const [title, setTitle] = useState("");
   const [target, setTarget] = useState("");
   const [error, setError] = useState(false);
-  const canApply = href.trim().length > 0 && !error;
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [resolving, setResolving] = useState(false);
+  const [resolveFailed, setResolveFailed] = useState(false);
+  const [managed, setManaged] = useState<ManagedLinkRef | null>(null);
+  const canApply = href.trim().length > 0 && !error && !resolving;
+
+  async function pickContent(selection: ContentPickerSelection): Promise<void> {
+    setPickerOpen(false);
+    setResolving(true);
+    setResolveFailed(false);
+    setError(false);
+    try {
+      const preview = await fetchInlineRenderLink(selection.contentId);
+      const ref = resolveManagedLinkRef(preview, selection.path);
+      if (!ref) {
+        setResolveFailed(true);
+        return;
+      }
+      setHref(ref.href);
+      setManaged(ref);
+      if (!title.trim() && ref.title) {
+        setTitle(ref.title);
+      }
+      if (!text.trim()) {
+        setText(selection.name);
+      }
+    } catch {
+      setResolveFailed(true);
+    } finally {
+      setResolving(false);
+    }
+  }
 
   const apply = (): void => {
     if (!editor) {
@@ -293,6 +334,9 @@ function InlineLinkPanel({ editor, name, onClose }: PanelProps): React.ReactElem
           slot: PERC_DEFAULT_LINK_SLOT,
           inlineType: PERC_INLINE_TYPE_LINK,
           selectedText: label,
+          dependentId: managed?.dependentId,
+          dependentVariantId: managed?.dependentVariantId,
+          jcrPath: managed?.jcrPath,
         }),
       )
       .run();
@@ -316,9 +360,48 @@ function InlineLinkPanel({ editor, name, onClose }: PanelProps): React.ReactElem
         placeholder="/Sites/…"
         onChange={(e) => {
           setHref(e.target.value);
+          // Manual edits after a pick revert to an external/manual link:
+          // the managed reference only applies to the picked address.
+          setManaged(null);
           setError(false);
+          setResolveFailed(false);
         }}
       />
+      <button
+        type="button"
+        data-testid={`tiptap-perc-link-browse-${name}`}
+        className={styles.tiptapLinkApply}
+        disabled={resolving}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => setPickerOpen((open) => !open)}
+      >
+        {message(EDITOR_MSG.TIPTAP_PERC_BROWSE)}
+      </button>
+      {pickerOpen ? (
+        <ContentPickerDialog
+          name={name}
+          mode="link"
+          onPick={(selection) => void pickContent(selection)}
+          onClose={() => setPickerOpen(false)}
+        />
+      ) : null}
+      {resolving ? (
+        <div
+          className={styles.status}
+          data-testid={`tiptap-perc-link-resolving-${name}`}
+        >
+          {message(EDITOR_MSG.TIPTAP_PERC_PICK_LOADING)}
+        </div>
+      ) : null}
+      {resolveFailed ? (
+        <span
+          role="alert"
+          className={styles.tiptapLinkError}
+          data-testid={`tiptap-perc-link-resolve-error-${name}`}
+        >
+          {message(EDITOR_MSG.TIPTAP_PERC_PICK_RESOLVE_FAILED)}
+        </span>
+      ) : null}
       <input
         data-testid={`tiptap-perc-link-text-${name}`}
         aria-label={message(EDITOR_MSG.TIPTAP_PERC_LINK_TEXT)}
@@ -363,7 +446,38 @@ function InlineImagePanel({ editor, name, onClose }: PanelProps): React.ReactEle
   const [align, setAlign] = useState("");
   const [decorative, setDecorative] = useState(false);
   const [error, setError] = useState(false);
-  const canApply = src.trim().length > 0 && !error;
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [resolving, setResolving] = useState(false);
+  const [resolveFailed, setResolveFailed] = useState(false);
+  const [managed, setManaged] = useState<ManagedImageRef | null>(null);
+  const canApply = src.trim().length > 0 && !error && !resolving;
+
+  async function pickContent(selection: ContentPickerSelection): Promise<void> {
+    setPickerOpen(false);
+    setResolving(true);
+    setResolveFailed(false);
+    setError(false);
+    try {
+      const preview = await fetchInlineRenderLink(selection.contentId);
+      const ref = resolveManagedImageRef(preview, selection.path);
+      if (!ref) {
+        setResolveFailed(true);
+        return;
+      }
+      setSrc(ref.src);
+      setManaged(ref);
+      if (!alt.trim() && ref.alt) {
+        setAlt(ref.alt);
+      }
+      if (!title.trim() && ref.title) {
+        setTitle(ref.title);
+      }
+    } catch {
+      setResolveFailed(true);
+    } finally {
+      setResolving(false);
+    }
+  }
 
   const apply = (): void => {
     if (!editor) {
@@ -387,6 +501,9 @@ function InlineImagePanel({ editor, name, onClose }: PanelProps): React.ReactEle
           align: align || undefined,
           decorative,
           slot: PERC_DEFAULT_IMAGE_SLOT,
+          dependentId: managed?.dependentId,
+          dependentVariantId: managed?.dependentVariantId,
+          jcrPath: managed?.jcrPath,
         }),
       )
       .run();
@@ -410,9 +527,48 @@ function InlineImagePanel({ editor, name, onClose }: PanelProps): React.ReactEle
         placeholder="/Assets/…"
         onChange={(e) => {
           setSrc(e.target.value);
+          // Manual edits after a pick revert to an external/manual image:
+          // the managed reference only applies to the picked address.
+          setManaged(null);
           setError(false);
+          setResolveFailed(false);
         }}
       />
+      <button
+        type="button"
+        data-testid={`tiptap-perc-image-browse-${name}`}
+        className={styles.tiptapLinkApply}
+        disabled={resolving}
+        onMouseDown={(e) => e.preventDefault()}
+        onClick={() => setPickerOpen((open) => !open)}
+      >
+        {message(EDITOR_MSG.TIPTAP_PERC_BROWSE)}
+      </button>
+      {pickerOpen ? (
+        <ContentPickerDialog
+          name={name}
+          mode="image"
+          onPick={(selection) => void pickContent(selection)}
+          onClose={() => setPickerOpen(false)}
+        />
+      ) : null}
+      {resolving ? (
+        <div
+          className={styles.status}
+          data-testid={`tiptap-perc-image-resolving-${name}`}
+        >
+          {message(EDITOR_MSG.TIPTAP_PERC_PICK_LOADING)}
+        </div>
+      ) : null}
+      {resolveFailed ? (
+        <span
+          role="alert"
+          className={styles.tiptapLinkError}
+          data-testid={`tiptap-perc-image-resolve-error-${name}`}
+        >
+          {message(EDITOR_MSG.TIPTAP_PERC_PICK_RESOLVE_FAILED)}
+        </span>
+      ) : null}
       <input
         data-testid={`tiptap-perc-image-alt-${name}`}
         aria-label={message(EDITOR_MSG.TIPTAP_PERC_IMAGE_ALT)}

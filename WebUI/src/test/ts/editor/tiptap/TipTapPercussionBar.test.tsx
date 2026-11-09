@@ -12,9 +12,15 @@
  */
 
 import { Editor } from "@tiptap/core";
-import { cleanup, fireEvent, render, screen } from "@testing-library/react";
+import {
+  cleanup,
+  fireEvent,
+  render,
+  screen,
+  waitFor,
+} from "@testing-library/react";
 import React from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createTipTapEditorExtensions } from "../../../../main/ts/editor/tiptap/tiptapSetup";
 import { TipTapPercussionBar } from "../../../../main/ts/editor/tiptap/TipTapPercussionBar";
 
@@ -191,6 +197,206 @@ describe("TipTapPercussionBar", () => {
       fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
       expect(editor.getHTML()).toBe("<p>Edited</p>");
     } finally {
+      editor.destroy();
+    }
+  });
+
+  it("picks CMS content through the link picker with managed attributes", async () => {
+    vi.spyOn(global, "fetch").mockImplementation((input: Parameters<typeof fetch>[0]) => {
+      const url = String(input ?? "");
+      if (url.includes("renderlink/preview/")) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              InlineRenderLink: {
+                sys_dependentid: 77,
+                sys_dependentvariantid: 512,
+                url: "/Sites/About",
+                title: "About us",
+              },
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          ),
+        );
+      }
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            PathItem: [
+              { id: "77", name: "About", path: "/Sites/About", type: "page" },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+    });
+    const editor = makeEditor();
+    try {
+      render(<TipTapPercussionBar editor={editor} name="text" />);
+      fireEvent.click(screen.getByTestId("tiptap-perc-inline-link-text"));
+      fireEvent.click(screen.getByTestId("tiptap-perc-link-browse-text"));
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("tiptap-content-picker-text"),
+        ).toBeTruthy();
+      });
+      await waitFor(() => {
+        expect(
+          screen.getAllByTestId("tiptap-content-picker-row-text"),
+        ).toHaveLength(1);
+      });
+      fireEvent.click(
+        screen.getAllByTestId("tiptap-content-picker-row-text")[0],
+      );
+      fireEvent.click(screen.getByTestId("tiptap-content-picker-use-text"));
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("tiptap-perc-link-resolving-text"),
+        ).toBeNull();
+      });
+      // Pick fills the managed address, title, and link text.
+      expect(
+        (screen.getByTestId("tiptap-perc-link-url-text") as HTMLInputElement)
+          .value,
+      ).toBe("/Sites/About");
+      fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
+      const html = editor.getHTML();
+      expect(html).toContain('href="/Sites/About"');
+      expect(html).toContain('sys_dependentid="77"');
+      expect(html).toContain('sys_dependentvariantid="512"');
+      expect(html).toContain('data-jcrpath="/Sites/About"');
+      expect(html).toContain('rxinlineslot="103"');
+      expect(html).toContain('inlinetype="rxhyperlink"');
+    } finally {
+      vi.restoreAllMocks();
+      editor.destroy();
+    }
+  });
+
+  it("picks CMS content through the image picker with managed attributes", async () => {
+    vi.spyOn(global, "fetch").mockImplementation((input: Parameters<typeof fetch>[0]) => {
+      const url = String(input ?? "");
+      if (url.includes("renderlink/preview/")) {
+        return Promise.resolve(
+          new Response(
+            JSON.stringify({
+              InlineRenderLink: {
+                sys_dependentid: 88,
+                url: "/Assets/Images/logo.png",
+                altText: "Company logo",
+                title: "Logo",
+              },
+            }),
+            { status: 200, headers: { "Content-Type": "application/json" } },
+          ),
+        );
+      }
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            PathItem: [
+              {
+                id: "88",
+                name: "logo.png",
+                path: "/Assets/Images/logo.png",
+                type: "asset",
+              },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+    });
+    const editor = makeEditor();
+    try {
+      render(<TipTapPercussionBar editor={editor} name="text" />);
+      fireEvent.click(screen.getByTestId("tiptap-perc-inline-image-text"));
+      fireEvent.click(screen.getByTestId("tiptap-perc-image-browse-text"));
+      await waitFor(() => {
+        expect(
+          screen.getAllByTestId("tiptap-content-picker-row-text"),
+        ).toHaveLength(1);
+      });
+      fireEvent.click(
+        screen.getAllByTestId("tiptap-content-picker-row-text")[0],
+      );
+      fireEvent.click(screen.getByTestId("tiptap-content-picker-use-text"));
+      await waitFor(() => {
+        expect(
+          screen.queryByTestId("tiptap-perc-image-resolving-text"),
+        ).toBeNull();
+      });
+      expect(
+        (screen.getByTestId("tiptap-perc-image-src-text") as HTMLInputElement)
+          .value,
+      ).toBe("/Assets/Images/logo.png");
+      fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
+      const html = editor.getHTML();
+      expect(html).toContain('src="/Assets/Images/logo.png"');
+      expect(html).toContain('alt="Company logo"');
+      expect(html).toContain('sys_dependentid="88"');
+      expect(html).toContain('data-jcrpath="/Assets/Images/logo.png"');
+      expect(html).toContain('inlinetype="rximage"');
+    } finally {
+      vi.restoreAllMocks();
+      editor.destroy();
+    }
+  });
+
+  it("keeps manual URL entry when the managed lookup fails", async () => {
+    vi.spyOn(global, "fetch").mockImplementation((input: Parameters<typeof fetch>[0]) => {
+      const url = String(input ?? "");
+      if (url.includes("renderlink/preview/")) {
+        return Promise.resolve(
+          new Response("boom", {
+            status: 500,
+            headers: { "Content-Type": "application/json" },
+          }),
+        );
+      }
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            PathItem: [
+              { id: "77", name: "About", path: "/Sites/About", type: "page" },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      );
+    });
+    const editor = makeEditor();
+    try {
+      render(<TipTapPercussionBar editor={editor} name="text" />);
+      fireEvent.click(screen.getByTestId("tiptap-perc-inline-link-text"));
+      fireEvent.click(screen.getByTestId("tiptap-perc-link-browse-text"));
+      await waitFor(() => {
+        expect(
+          screen.getAllByTestId("tiptap-content-picker-row-text"),
+        ).toHaveLength(1);
+      });
+      fireEvent.click(
+        screen.getAllByTestId("tiptap-content-picker-row-text")[0],
+      );
+      fireEvent.click(screen.getByTestId("tiptap-content-picker-use-text"));
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("tiptap-perc-link-resolve-error-text"),
+        ).toBeTruthy();
+      });
+      // Manual entry still works after the failure.
+      fireEvent.change(screen.getByTestId("tiptap-perc-link-url-text"), {
+        target: { value: "https://example.com/manual" },
+      });
+      fireEvent.change(screen.getByTestId("tiptap-perc-link-text-text"), {
+        target: { value: "Manual" },
+      });
+      fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
+      const html = editor.getHTML();
+      expect(html).toContain('href="https://example.com/manual"');
+      expect(html).not.toContain("sys_dependentid");
+    } finally {
+      vi.restoreAllMocks();
       editor.destroy();
     }
   });

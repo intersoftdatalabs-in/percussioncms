@@ -106,6 +106,15 @@ export const PATHS = {
   get PAGE_PREVIEW() {
     return `${SERVICES_ROOT}/pagemanagement/render/page`;
   },
+  /**
+   * Inline render-link preview by content id (legacy
+   * {@code RENDER_LINK_PREVIEW}). Append {@code /{id}/default} — the CMS
+   * content-picker lookup backing the TipTap adv link/image dialogs (#5900).
+   * Server: sitemanage {@code PSRenderLinkService#restRenderPreviewLinkDefault}.
+   */
+  get RENDER_LINK_PREVIEW() {
+    return `${SERVICES_ROOT}/pagemanagement/renderlink/preview`;
+  },
   /** Page-level copy (US7 clipboard paste; PSPageRestService#copy). */
   get PAGE_COPY() {
     return `${SERVICES_ROOT}/pagemanagement/page/copy`;
