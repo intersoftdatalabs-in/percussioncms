@@ -1386,6 +1386,8 @@
         // Stripe the //Sites prefix from it and retrieve the site's name
         // Intentional "/": parses a CMS logical path (//Sites/... convention,
         // SITES_ROOT itself is defined with "/"), not an OS filesystem path.
+        // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #5927,
+        // same as #5898/#5910) — slashes parse the CMS logical folder path, not an OS path.
         var currentItemPath =
           $.perc_finder().getPathItemById(itemId).folderPath;
         return currentItemPath
