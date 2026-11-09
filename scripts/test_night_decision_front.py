@@ -309,6 +309,36 @@ def test_qa_tickets_excluded_by_label_and_title():
     assert df.rule_skip_issue(issue(1, "Adequate coverage for login"), None) == (False, "")
 
 
+def test_debt_seated_cooldown_yields_to_unseated_across_tiers():
+    # Just-worked p3 yields to never-seated p8: cooldown outranks tier.
+    issues = [
+        issue(5660, "vendored jQuery npm migration", labels=["p3", "tech-debt"]),
+        issue(5793, "ExplorerTree complexity residual", labels=["p8", "tech-debt"]),
+        issue(5794, "EditorHost complexity residual", labels=["p8", "tech-debt"]),
+    ]
+    result = df.run(issues, [], None, 2, 2, "model:x", 3, debt_seated={5660})
+    nums = [q["issue_number"] for q in result["queue"]]
+    assert 5660 not in nums and set(nums) == {5793, 5794}
+    # Same call without the cooldown seats the p3 first (tier-first baseline).
+    result = df.run(issues, [], None, 2, 2, "model:x", 3)
+    nums = [q["issue_number"] for q in result["queue"]]
+    assert nums[0] == 5660
+    # All-seated pool still fills the seat (fail-open, reorder not removal).
+    result = df.run(issues, [], None, 1, 1, "model:x", 3, debt_seated={5660, 5793, 5794})
+    assert len(result["queue"]) == 1
+    # Seated + excluded combine: excluded p2 still last.
+    issues.append(issue(1820, "packaging verification slice", labels=["p2", "tech-debt"]))
+    result = df.run(issues, [], None, 2, 2, "model:x", 3,
+                    debt_exclude={1820}, debt_seated={5660})
+    nums = [q["issue_number"] for q in result["queue"]]
+    assert nums == [5793, 5794] or nums == [5794, 5793]
+    ordered = df.order_debt(
+        [{"issue": {"number": i}, "priority": p} for i, p in
+         ((1820, "p2"), (5660, "p3"), (5793, "p8"))],
+        exclude={1820}, seed=7, seated={5660})
+    assert [c["issue"]["number"] for c in ordered] == [5793, 5660, 1820]
+
+
 if __name__ == "__main__":
     test_one_per_parent_and_skip_epic()
     test_covering_pr_skips_issue_and_siblings()
@@ -324,5 +354,6 @@ if __name__ == "__main__":
     test_cli_roundtrip()
     test_debt_exclude_reorders_but_never_starves()
     test_debt_seed_randomizes_within_tier_deterministically()
+    test_debt_seated_cooldown_yields_to_unseated_across_tiers()
     test_qa_tickets_excluded_by_label_and_title()
     print("ok")
