@@ -139,6 +139,7 @@ import {
   fetchItemRevisionCompare,
   fetchItemRevisions,
   restoreItemRevision,
+  type ItemAuditComment,
   type ItemRevision,
   type ItemRevisionCompare,
   type ItemRevisionsSummary,
@@ -152,6 +153,10 @@ import {
   revisionCompareSelection,
   summarizeRevisionRow,
 } from "./editorRevisions";
+import {
+  canViewWorkflowHistoryFromEditor,
+  workflowHistoryEntries,
+} from "./editorWorkflowHistory";
 import { fetchPreviewLocation } from "../api/contentExplorer/assemblyApi";
 import {
   canPreviewFromEditor,
@@ -285,6 +290,7 @@ import {
   withPageFilenameField,
 } from "./editorPageMetadata";
 import { EditorWorkflowAssigneeDialog } from "./EditorWorkflowAssigneeDialog";
+import { EditorWorkflowHistoryPanel } from "./EditorWorkflowHistoryPanel";
 import { EditorWorkflowPanel } from "./EditorWorkflowPanel";
 import { EDITOR_MSG } from "./messages";
 import { TranslationsPanel } from "../contentExplorer/TranslationsPanel";
@@ -1125,6 +1131,15 @@ export function EditorHost({
   );
   const [compareErrorKey, setCompareErrorKey] = useState<string | null>(null);
   const [compareErrorDetail, setCompareErrorDetail] = useState("");
+  const [workflowHistoryOpen, setWorkflowHistoryOpen] = useState(false);
+  const [workflowHistoryBusy, setWorkflowHistoryBusy] = useState(false);
+  const [workflowHistoryComments, setWorkflowHistoryComments] = useState<
+    ItemAuditComment[]
+  >([]);
+  const [workflowHistoryLoadErrorKey, setWorkflowHistoryLoadErrorKey] =
+    useState<string | null>(null);
+  const [workflowHistoryLoadErrorDetail, setWorkflowHistoryLoadErrorDetail] =
+    useState("");
   const [createOpen, setCreateOpen] = useState(contentId == null);
   const [createTypes, setCreateTypes] = useState<ContentTypeSummary[]>([]);
   const [createType, setCreateType] = useState("");
@@ -4090,6 +4105,34 @@ export function EditorHost({
     }
   }
 
+  async function handleWorkflowHistoryOpen(): Promise<void> {
+    if (contentId == null || !canViewWorkflowHistoryFromEditor(mode)) {
+      return;
+    }
+    setWorkflowHistoryOpen((prev) => !prev);
+    setWorkflowHistoryLoadErrorKey(null);
+    setWorkflowHistoryLoadErrorDetail("");
+    if (workflowHistoryOpen) {
+      return;
+    }
+    setWorkflowHistoryBusy(true);
+    try {
+      const summary = await loadRevisions(String(contentId));
+      setWorkflowHistoryComments(workflowHistoryEntries(summary));
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setWorkflowHistoryComments([]);
+      setWorkflowHistoryLoadErrorKey(EDITOR_MSG.WORKFLOW_HISTORY_LOAD_FAILED);
+      setWorkflowHistoryLoadErrorDetail(
+        formatApiError(err, message(EDITOR_MSG.WORKFLOW_HISTORY_LOAD_FAILED)),
+      );
+    } finally {
+      setWorkflowHistoryBusy(false);
+    }
+  }
+
   function compareErrorKeyFor(
     reason: ReturnType<typeof editorRevisionErrorReason>,
   ): string {
@@ -4252,6 +4295,8 @@ export function EditorHost({
   const showMove = canMoveFromEditor(mode) && contentId != null;
   const showRecycle = canRecycleFromEditor(mode) && contentId != null;
   const showRestore = canRestoreFromEditor(mode) && contentId != null;
+  const showWorkflowHistory =
+    canViewWorkflowHistoryFromEditor(mode) && contentId != null;
   const showCreate = canCreateFromEditor(mode);
 
   return (
@@ -4696,6 +4741,21 @@ export function EditorHost({
             >
               {message(
                 restoreOpen ? EDITOR_MSG.RESTORE_HIDE : EDITOR_MSG.RESTORE_OPEN,
+              )}
+            </button>
+          ) : null}
+          {showWorkflowHistory ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-workflow-history-toggle"
+              disabled={workflowHistoryBusy || loading || payload == null}
+              onClick={() => void handleWorkflowHistoryOpen()}
+            >
+              {message(
+                workflowHistoryOpen
+                  ? EDITOR_MSG.WORKFLOW_HISTORY_HIDE
+                  : EDITOR_MSG.WORKFLOW_HISTORY_OPEN,
               )}
             </button>
           ) : null}
@@ -5349,6 +5409,14 @@ export function EditorHost({
                 onWorkflowIdChange={setSelectedWorkflowId}
                 onChangeWorkflow={() => void handleChangeWorkflow()}
                 workflowChanged={workflowChanged}
+              />
+            ) : null}
+            {showWorkflowHistory && workflowHistoryOpen ? (
+              <EditorWorkflowHistoryPanel
+                comments={workflowHistoryComments}
+                loading={workflowHistoryBusy}
+                loadErrorKey={workflowHistoryLoadErrorKey}
+                loadErrorDetail={workflowHistoryLoadErrorDetail}
               />
             ) : null}
             {rows.length === 0 ? (

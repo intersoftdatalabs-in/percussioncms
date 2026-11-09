@@ -638,4 +638,16 @@ export const EDITOR_MSG = {
   SITE_IMPACT_STATUS: "perc.ui.editor@Status",
   SITE_IMPACT_TEMPLATE_NAME: "perc.ui.editor@Template Name",
   SITE_IMPACT_NO_TEMPLATES: "perc.ui.editor@No Templates Found",
+  WORKFLOW_HISTORY_TITLE: "perc.ui.editor@Workflow history",
+  WORKFLOW_HISTORY_LOADING: "perc.ui.editor@Loading workflow history…",
+  WORKFLOW_HISTORY_LOAD_FAILED:
+    "perc.ui.editor@Could not load the workflow history.",
+  WORKFLOW_HISTORY_EMPTY:
+    "perc.ui.editor@No workflow comments are recorded for this item.",
+  WORKFLOW_HISTORY_DATE: "perc.ui.editor@Date",
+  WORKFLOW_HISTORY_USER: "perc.ui.editor@User",
+  WORKFLOW_HISTORY_TYPE: "perc.ui.editor@Transition",
+  WORKFLOW_HISTORY_COMMENT: "perc.ui.editor@Comment",
+  WORKFLOW_HISTORY_OPEN: "perc.ui.editor@Show workflow history",
+  WORKFLOW_HISTORY_HIDE: "perc.ui.editor@Hide workflow history",
 };
