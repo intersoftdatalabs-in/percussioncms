@@ -1121,6 +1121,17 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
 
   private TemplateDetail toDetail(IPSAssemblyTemplate t) {
     TemplateDetail d = new TemplateDetail();
+    mapScalarFields(d, t);
+    d.setBindings(mapBindings(t));
+    d.setSlots(mapSlots(t));
+    List<DesignGap> gaps = new ArrayList<>(TEMPLATE_DESIGN_GAPS);
+    loadAssociationRefs(d, t.getGUID(), gaps);
+    d.setDesignGaps(gaps);
+    return d;
+  }
+
+  /** Scalar + enum field mapping for {@link #toDetail}; association loading stays with callers. */
+  private static void mapScalarFields(TemplateDetail d, IPSAssemblyTemplate t) {
     if (t.getGUID() != null) {
       d.setGuid(ApiUtils.convertGuid(t.getGUID()));
       d.setTemplateId(t.getGUID().getUUID());
@@ -1152,7 +1163,10 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
     }
     d.setVariant(t.isVariant());
     d.setTemplateSource(t.getTemplate());
+  }
 
+  /** Binding rows for {@link #toDetail}, ordered by execution order (nulls last). */
+  private static List<TemplateBindingSummary> mapBindings(IPSAssemblyTemplate t) {
     List<TemplateBindingSummary> bindings = new ArrayList<>();
     List<PSTemplateBinding> rawBindings = t.getBindings();
     if (rawBindings != null) {
@@ -1168,8 +1182,11 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
           Comparator.comparing(
               TemplateBindingSummary::getExecutionOrder, Comparator.nullsLast(Integer::compareTo)));
     }
-    d.setBindings(bindings);
+    return bindings;
+  }
 
+  /** Slot rows for {@link #toDetail}, ordered by label (case-insensitive, nulls last). */
+  private static List<TemplateSlotSummary> mapSlots(IPSAssemblyTemplate t) {
     List<TemplateSlotSummary> slots = new ArrayList<>();
     if (t.getSlots() != null) {
       for (IPSTemplateSlot slot : t.getSlots()) {
@@ -1191,12 +1208,16 @@ public class TemplateAdaptor implements ITemplatesAdaptor {
           Comparator.comparing(
               TemplateSlotSummary::getLabel, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
     }
-    d.setSlots(slots);
-    List<DesignGap> gaps = new ArrayList<>(TEMPLATE_DESIGN_GAPS);
-    d.setAssociatedContentTypes(loadAssociatedContentTypes(t.getGUID(), gaps));
-    d.setAssociatedSites(loadAssociatedSites(t.getGUID(), gaps));
-    d.setDesignGaps(gaps);
-    return d;
+    return slots;
+  }
+
+  /**
+   * Association-loading block for {@link #toDetail}: content-type and site loaders share one gap
+   * list so load failures surface as design gaps instead of failing the detail readback.
+   */
+  private void loadAssociationRefs(TemplateDetail d, IPSGuid templateGuid, List<DesignGap> gaps) {
+    d.setAssociatedContentTypes(loadAssociatedContentTypes(templateGuid, gaps));
+    d.setAssociatedSites(loadAssociatedSites(templateGuid, gaps));
   }
 
   private List<NamedObjectRef> loadAssociatedContentTypes(
