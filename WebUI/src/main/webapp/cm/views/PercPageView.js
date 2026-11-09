@@ -740,6 +740,8 @@
             asset.folderPaths.length > 0
           ) {
             hoverText =
+              // Intentional "/": joins a CMS logical folder path (//Folders/... convention),
+              // not an OS filesystem path, so the forward slash is portable as-is.
               asset.folderPaths[0].replace("//Folders/$System$", "") +
               "/" +
               asset.name;
@@ -1108,6 +1110,8 @@
 
     function resetPageName() {
       $.ajax({
+        // Intentional "/": joins a REST URL path, which always uses forward
+        // slashes regardless of OS (see Cross-Platform File I/O rules).
         url: $.perc_paths.PAGE_CREATE + "/" + currentPageId,
         success: function (data) {
           $("#perc-pageEditor-menu-name").html(data.Page.name);
@@ -1371,6 +1375,8 @@
       if (siteName === undefined && itemType === "Page") {
         // Retrieve the page path folder by getting its data using its id,
         // Stripe the //Sites prefix from it and retrieve the site's name
+        // Intentional "/": parses a CMS logical path (//Sites/... convention,
+        // SITES_ROOT itself is defined with "/"), not an OS filesystem path.
         var currentItemPath =
           $.perc_finder().getPathItemById(itemId).folderPath;
         siteName = currentItemPath
