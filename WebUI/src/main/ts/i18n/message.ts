@@ -882,6 +882,14 @@ GADGET_DESC_DASHBOARD_CONFIG:
           "perc.ui.publish.design.editions@Could not remove the content list from the edition",
         MOVE_UP: "perc.ui.publish.design.editions@Move up",
         MOVE_DOWN: "perc.ui.publish.design.editions@Move down",
+        EDITION_MOVE_UP: "perc.ui.publish.design.editions@Move edition up",
+        EDITION_MOVE_DOWN: "perc.ui.publish.design.editions@Move edition down",
+        CONFIRM_EDITION_MOVE_UP:
+          "perc.ui.publish.design.editions@Move this edition up? Its priority rises by one.",
+        CONFIRM_EDITION_MOVE_DOWN:
+          "perc.ui.publish.design.editions@Move this edition down? Its priority drops by one.",
+        EDITION_REORDER_FAILED:
+          "perc.ui.publish.design.editions@Could not reorder the edition",
         CONFIRM_MOVE_UP:
           "perc.ui.publish.design.editions@Move this content list up in the edition?",
         CONFIRM_MOVE_DOWN:

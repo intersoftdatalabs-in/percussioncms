@@ -20,6 +20,7 @@ import { fetchSites } from "../../api/home/homeApi";
 import {
   listContentLists,
   listEditionsBySite,
+  updateEdition,
   type ContentListSummary,
   type EditionSummary,
 } from "../../api/publishing/designApi";
@@ -31,7 +32,14 @@ import { contentListsAfterSuccessfulUrl } from "../contentListUrl";
 import { storedItemFilterLabel } from "../contentListItemFilter";
 import { editionsAfterSuccessfulComment } from "../editionComment";
 import { editionsAfterSuccessfulPriority } from "../editionPriority";
+import {
+  buildEditionReorderBody,
+  editionsAfterSuccessfulReorder,
+  sortEditionsByPriority,
+  type EditionReorderDirection,
+} from "../editionPriorityReorder";
 import { editionsAfterSuccessfulSchedule } from "../editionSchedule";
+import { mapEditionReorderError } from "../editionSaveErrors";
 import { ContentListCopyPanel } from "../design/ContentListCopyPanel";
 import { ContentListDescriptionPanel } from "../design/ContentListDescriptionPanel";
 import { ContentListGeneratorPanel } from "../design/ContentListGeneratorPanel";
@@ -88,6 +96,8 @@ export function DesignSection(): React.ReactElement {
   const [editionSchedule, setEditionSchedule] = useState<EditionSummary | null>(
     null,
   );
+  /** Edition id with an in-flight priority reorder; row buttons stay disabled. */
+  const [movingEdition, setMovingEdition] = useState<string | null>(null);
   const [clEdit, setClEdit] = useState<ContentListSummary | null | "new">(null);
   const [clCopy, setClCopy] = useState<ContentListSummary | null>(null);
   const [clDescribe, setClDescribe] = useState<ContentListSummary | null>(null);
@@ -129,6 +139,56 @@ export function DesignSection(): React.ReactElement {
       .catch(() => setError(message(MSG.PUBLISH_ERROR)))
       .finally(() => setLoading(false));
   }, []);
+
+  /**
+   * Move one edition up (+1 priority) or down (−1) with a priority-only
+   * update. The list is priority-ordered, so the stored write is what
+   * persists the new order. Cancel and HTTP 400/403/409 keep the previous
+   * order and surface the mapped error; name, comment, schedule, and
+   * content-list order stay.
+   */
+  async function handleEditionReorder(
+    edition: EditionSummary,
+    direction: EditionReorderDirection,
+  ): Promise<void> {
+    const editionId = edition.editionId;
+    if (!editionId || movingEdition !== null) {
+      return;
+    }
+    const body = buildEditionReorderBody(edition.priority, direction);
+    if (!body || body.priority == null) {
+      return;
+    }
+    const confirmText = message(
+      direction < 0
+        ? MSG.PUBLISH.DESIGN.EDITIONS.CONFIRM_EDITION_MOVE_DOWN
+        : MSG.PUBLISH.DESIGN.EDITIONS.CONFIRM_EDITION_MOVE_UP,
+    );
+    if (!window.confirm(confirmText)) {
+      return;
+    }
+    const nextPriority = body.priority;
+    setMovingEdition(editionId);
+    setError(null);
+    try {
+      await updateEdition(editionId, body);
+      let refreshed: EditionSummary[] | null = null;
+      try {
+        if (siteId) {
+          refreshed = await listEditionsBySite(siteId);
+        }
+      } catch {
+        refreshed = null;
+      }
+      setEditions((prev) =>
+        editionsAfterSuccessfulReorder(refreshed, editionId, nextPriority, prev),
+      );
+    } catch (e) {
+      setError(mapEditionReorderError(e));
+    } finally {
+      setMovingEdition(null);
+    }
+  }
 
   useEffect(() => {
     if (nav === "editions") {
@@ -439,7 +499,7 @@ export function DesignSection(): React.ReactElement {
             <p style={emptyStyle}>No editions for this site.</p>
           )}
           <ul style={listStyle}>
-            {editions.map((e) => (
+            {sortEditionsByPriority(editions).map((e) => (
               <li key={e.editionId ?? e.name} style={listItemStyle}>
                 <button
                   type="button"
@@ -453,6 +513,40 @@ export function DesignSection(): React.ReactElement {
                 >
                   {e.name}
                 </button>
+                {e.editionId && (
+                  <span style={{ display: "flex", gap: 8 }}>
+                    <button
+                      type="button"
+                      data-testid={`design-edition-move-up-${e.editionId}`}
+                      style={buttonStyle}
+                      disabled={
+                        movingEdition !== null ||
+                        buildEditionReorderBody(e.priority, 1) === null
+                      }
+                      aria-label={message(
+                        MSG.PUBLISH.DESIGN.EDITIONS.EDITION_MOVE_UP,
+                      )}
+                      onClick={() => void handleEditionReorder(e, 1)}
+                    >
+                      {message(MSG.PUBLISH.DESIGN.EDITIONS.EDITION_MOVE_UP)}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid={`design-edition-move-down-${e.editionId}`}
+                      style={buttonStyle}
+                      disabled={
+                        movingEdition !== null ||
+                        buildEditionReorderBody(e.priority, -1) === null
+                      }
+                      aria-label={message(
+                        MSG.PUBLISH.DESIGN.EDITIONS.EDITION_MOVE_DOWN,
+                      )}
+                      onClick={() => void handleEditionReorder(e, -1)}
+                    >
+                      {message(MSG.PUBLISH.DESIGN.EDITIONS.EDITION_MOVE_DOWN)}
+                    </button>
+                  </span>
+                )}
                 <span
                   style={{ color: "#666" }}
                   data-testid={

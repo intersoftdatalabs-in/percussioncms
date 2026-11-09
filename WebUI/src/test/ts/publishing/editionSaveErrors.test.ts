@@ -19,6 +19,7 @@ import { describe, expect, it } from "vitest";
 import {
   mapEditionContentListDisassociateError,
   mapEditionDeleteError,
+  mapEditionReorderError,
   mapEditionSaveError,
 } from "@/publishing/editionSaveErrors";
 
@@ -140,6 +141,44 @@ describe("mapEditionContentListDisassociateError", () => {
   it("does not treat a plain API error as an Error message", () => {
     expect(
       mapEditionContentListDisassociateError({
+        status: 400,
+        statusText: "Bad Request",
+        body: {},
+      }),
+    ).not.toBe("[object Object]");
+  });
+});
+
+describe("mapEditionReorderError", () => {
+  it("maps HTTP 403 to forbidden chrome", () => {
+    expect(
+      mapEditionReorderError({ status: 403, statusText: "Forbidden", body: {} }),
+    ).toMatch(/Forbidden|403/i);
+  });
+
+  it("maps HTTP 409 to edition in use", () => {
+    expect(
+      mapEditionReorderError({
+        status: 409,
+        statusText: "Conflict",
+        body: { message: "Edition is in use" },
+      }),
+    ).toBe("Edition is in use");
+  });
+
+  it("maps HTTP 400 to the reorder failure message", () => {
+    expect(
+      mapEditionReorderError({
+        status: 400,
+        statusText: "Bad Request",
+        body: { message: "Edition priority must be from 1 to 5" },
+      }),
+    ).toBe("Edition priority must be from 1 to 5");
+  });
+
+  it("does not treat a plain API error as an Error message", () => {
+    expect(
+      mapEditionReorderError({
         status: 400,
         statusText: "Bad Request",
         body: {},

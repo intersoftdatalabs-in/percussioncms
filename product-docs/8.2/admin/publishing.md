@@ -989,6 +989,27 @@ priority form error region. Those responses do not change the priority on **Edit
 an edition, setting only the comment, creating an edition, and reordering content lists are
 separate actions.
 
+### Reorder publish editions (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
+The edition list is ordered by stored priority, highest first, so the top row is the
+highest-priority edition. On an edition row, **Move edition up** raises that edition's stored
+priority by one and **Move edition down** lowers it by one; each move asks for confirmation
+first and sends `PUT …/sitemanage/publishingdesign/editions/{editionId}` with an `edition`
+object that contains only `priority`. Name, comment, schedule, and site id are omitted, so the
+server leaves them as they are. The call does not associate, remove, or reorder content lists,
+so that order stays as stored.
+
+**Editions** keeps the previous order until that update succeeds, then re-sorts with the new
+stored priority. Because the order is stored as priority, a fresh load shows the same order.
+**Move edition up** is disabled at priority 5 and **Move edition down** is disabled at priority
+1; dismissing the confirmation does not call the server.
+
+HTTP **400** (priority rejected), **403** (not Admin or Designer), and **409** (edition in use)
+stay in the **Editions** error region. Those responses keep the previous order and do not change
+the priority. Setting an exact priority value, renaming an edition, and reordering content
+lists are separate actions.
+
 ### Set an edition comment (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
