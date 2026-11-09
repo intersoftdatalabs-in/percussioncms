@@ -22,9 +22,11 @@ import { message, MSG } from "../../i18n/message";
 import { mapIdParam } from "../deepLinkMap";
 import { formatPublishedDate } from "../itemHistory";
 import {
+  filterStagedStatusLines,
   stagedStatusErrorMessage,
   summarizeStagedStatus,
   type StagedItemLogLine,
+  type StagedStatusSeverityFilter,
 } from "../itemStagedStatus";
 import {
   emptyStyle,
@@ -59,6 +61,8 @@ export function ItemStagedStatusPanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [lookedUp, setLookedUp] = useState(false);
+  const [severity, setSeverity] =
+    useState<StagedStatusSeverityFilter>("all");
 
   useEffect(() => {
     setInputId(itemId ?? "");
@@ -103,6 +107,12 @@ export function ItemStagedStatusPanel({
   }, [itemId, load]);
 
   const summary = useMemo(() => summarizeStagedStatus(lines), [lines]);
+  // Client-side severity filter over the already-loaded lines (#5887):
+  // narrowing never refetches and never writes.
+  const visibleLines = useMemo(
+    () => filterStagedStatusLines(lines, severity),
+    [lines, severity],
+  );
 
   function onSubmit(e: React.FormEvent): void {
     e.preventDefault();
@@ -195,6 +205,37 @@ export function ItemStagedStatusPanel({
             {message(MSG.PUBLISH_STAGED_STATUS_LOG_LINES)}
             {loadedId ? ` — ${loadedId}` : ""}
           </h3>
+          <div style={{ ...formRowStyle, maxWidth: 240 }}>
+            <label htmlFor="item-staged-status-severity">
+              {message(MSG.PUBLISH_STAGED_STATUS_SEVERITY)}
+            </label>
+            <select
+              id="item-staged-status-severity"
+              value={severity}
+              onChange={(e) =>
+                setSeverity(e.target.value as StagedStatusSeverityFilter)
+              }
+              data-testid="item-staged-status-severity"
+            >
+              <option value="all">
+                {message(MSG.PUBLISH_STAGED_STATUS_SEVERITY_ALL)}
+              </option>
+              <option value="failure">
+                {message(MSG.PUBLISH_STAGED_STATUS_SEVERITY_FAILURE)}
+              </option>
+              <option value="success">
+                {message(MSG.PUBLISH_STAGED_STATUS_SEVERITY_SUCCESS)}
+              </option>
+            </select>
+          </div>
+          {visibleLines.length === 0 && (
+            <EmptyState
+              testId="item-staged-status-filter-empty"
+              title={message(MSG.PUBLISH_STAGED_STATUS_FILTER_EMPTY)}
+              nextAction={message(MSG.PUBLISH_STAGED_STATUS_FILTER_EMPTY_HINT)}
+            />
+          )}
+          {visibleLines.length > 0 && (
           <table
             style={tableStyle}
             data-testid="item-staged-status-table"
@@ -210,7 +251,7 @@ export function ItemStagedStatusPanel({
               </tr>
             </thead>
             <tbody>
-              {lines.map((row, idx) => {
+              {visibleLines.map((row, idx) => {
                 const failed =
                   String(row.status ?? "").toUpperCase() === "FAILURE";
                 return (
@@ -234,6 +275,7 @@ export function ItemStagedStatusPanel({
               })}
             </tbody>
           </table>
+          )}
         </>
       )}
     </section>

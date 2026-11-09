@@ -17,7 +17,9 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  filterStagedStatusLines,
   itemStagedStatusShellHref,
+  matchesStagedStatusSeverity,
   normalizeStagedStatusLog,
   spaItemStagedStatusHref,
   stagedStatusErrorMessage,
@@ -73,6 +75,45 @@ describe("summarizeStagedStatus", () => {
     expect(summary.totalCount).toBe(0);
     expect(summary.failureCount).toBe(0);
     expect(summary.latestStatus).toBeUndefined();
+  });
+});
+
+describe("filterStagedStatusLines (#5887)", () => {
+  const lines = normalizeStagedStatusLog([
+    { server: "a", operation: "publish", status: "SUCCESS" },
+    { server: "b", operation: "publish", status: "FAILURE" },
+    { server: "c", operation: "publish", status: "failure" },
+    { server: "d", operation: "publish", status: "PENDING" },
+  ]);
+
+  it("passes every line through on all", () => {
+    expect(filterStagedStatusLines(lines, "all")).toHaveLength(4);
+  });
+
+  it("matches failure lines case-insensitively", () => {
+    const out = filterStagedStatusLines(lines, "failure");
+    expect(out.map((l) => l.server)).toEqual(["b", "c"]);
+  });
+
+  it("matches success lines only", () => {
+    const out = filterStagedStatusLines(lines, "success");
+    expect(out.map((l) => l.server)).toEqual(["a"]);
+  });
+
+  it("leaves unknown statuses out of both buckets", () => {
+    expect(matchesStagedStatusSeverity({ status: "PENDING" }, "failure")).toBe(
+      false,
+    );
+    expect(matchesStagedStatusSeverity({ status: "PENDING" }, "success")).toBe(
+      false,
+    );
+    expect(
+      matchesStagedStatusSeverity({ status: undefined }, "success"),
+    ).toBe(false);
+  });
+
+  it("filters an empty log to an empty log", () => {
+    expect(filterStagedStatusLines([], "failure")).toEqual([]);
   });
 });
 

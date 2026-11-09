@@ -565,6 +565,16 @@ export const MSG = {
   PUBLISH_STAGED_STATUS_SUMMARY: "perc.ui.publish.modern@Latest status",
   PUBLISH_STAGED_STATUS_LOG_LINES: "perc.ui.publish.modern@Log lines",
   PUBLISH_STAGED_STATUS_FAILURES: "perc.ui.publish.modern@failures",
+  PUBLISH_STAGED_STATUS_SEVERITY: "perc.ui.publish.modern@Severity",
+  PUBLISH_STAGED_STATUS_SEVERITY_ALL: "perc.ui.publish.modern@All severities",
+  PUBLISH_STAGED_STATUS_SEVERITY_FAILURE:
+    "perc.ui.publish.modern@Failures",
+  PUBLISH_STAGED_STATUS_SEVERITY_SUCCESS:
+    "perc.ui.publish.modern@Successes",
+  PUBLISH_STAGED_STATUS_FILTER_EMPTY:
+    "perc.ui.publish.modern@No log lines match this severity filter",
+  PUBLISH_STAGED_STATUS_FILTER_EMPTY_HINT:
+    "perc.ui.publish.modern@Clear the severity filter to see every log line.",
   PUBLISH_ACTIONS: "perc.ui.publish.modern@Available publishing actions",
   PUBLISH_ACTIONS_HINT:
     "perc.ui.publish.modern@Server-driven actions for the selected page or asset. Unavailable actions are disabled.",
