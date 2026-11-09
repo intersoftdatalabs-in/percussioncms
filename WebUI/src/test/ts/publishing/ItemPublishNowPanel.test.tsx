@@ -137,4 +137,40 @@ describe("ItemPublishNowPanel", () => {
     });
     expect(screen.queryByTestId("item-publish-now-success")).toBeNull();
   });
+
+  it("surfaces HTTP 409 as a checkout conflict, not success", async () => {
+    publishNow.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "checked out" },
+    });
+    render(<ItemPublishNowPanel itemId="42" />);
+    fireEvent.click(screen.getByTestId("item-publish-now-review"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-publish-now-submit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("item-publish-now-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-publish-now-error").textContent).toMatch(
+        /editing this item|checked out/i,
+      );
+    });
+    expect(screen.queryByTestId("item-publish-now-success")).toBeNull();
+  });
+
+  it("maps conflict text to the checkout message, not success", async () => {
+    publishNow.mockRejectedValue(new Error("CONFLICT: someone is editing this"));
+    render(<ItemPublishNowPanel itemId="42" />);
+    fireEvent.click(screen.getByTestId("item-publish-now-review"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-publish-now-submit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("item-publish-now-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-publish-now-error").textContent).toMatch(
+        /editing this item/i,
+      );
+    });
+    expect(screen.queryByTestId("item-publish-now-success")).toBeNull();
+  });
 });
