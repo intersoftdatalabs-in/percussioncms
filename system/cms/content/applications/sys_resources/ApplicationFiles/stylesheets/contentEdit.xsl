@@ -49,9 +49,9 @@
 				<meta name='_csrf_header' content='{$sysCSRFHeader}' />
 				<meta name='_csrf' content='{$sysCSRFTokenValue}' />
 				<script src="/tmx/tmx.jsp?/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang={$lang}"><xsl:value-of select="' '"/></script>
-				<script src="/cm/jslib/profiles/3x/jquery/jquery-3.6.0.js"><xsl:value-of select="' '"/></script>
-				<script src="/cm/jslib/profiles/3x/jquery/jquery-migrate-3.3.2.js"><xsl:value-of select="' '"/></script>
-				<script src="/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js"><xsl:value-of select="' '"/></script>
+				<script src="/cm/jslib/profiles/3x/jquery/jquery.min.js"><xsl:value-of select="' '"/></script>
+				<script src="/cm/jslib/profiles/3x/jquery/jquery-migrate.min.js"><xsl:value-of select="' '"/></script>
+				<script src="/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js"><xsl:value-of select="' '"/></script>
 				<script src="/cm/jslib/profiles/3x/libraries/bowser/es5.js"><xsl:value-of select="' '"/></script>
 				<script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-percutils/jquery.percutils.js"><xsl:value-of select="' '"/></script>
 				<script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-jeditable/jquery.jeditable.js"><xsl:value-of select="' '"/></script>

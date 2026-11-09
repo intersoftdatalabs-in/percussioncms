@@ -43,13 +43,16 @@ const REQUIRED_INTERMEDIATE_BUNDLES = [
   "shared-common-minuet.css",
 ];
 
-// Mapping of jslib paths to npm package names for npm-managed libraries
+// Mapping of jslib paths to npm package names for npm-managed libraries.
+// Classic-UI direct <script> loads use the versionless npm-backed mins
+// (jquery.min.js / jquery-migrate.min.js / jquery-ui.min.js), synced into
+// target/generated-webui by STANDALONE_NPM_COPIES below (issue #5660).
 const NPM_LIBRARY_MAPPINGS = {
-  "jslib/profiles/3x/jquery/jquery-3.6.0.js": "jquery/dist/jquery.js",
-  "jslib/profiles/3x/jquery/profiles/3x/jquery/plugins/jquery-migrate/jquery-migrate-3.3.2.js":
-    "jquery-migrate/dist/jquery-migrate.js",
-  "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js":
-    "jquery-ui/dist/jquery-ui.js",
+  "jslib/profiles/3x/jquery/jquery.min.js": "jquery/dist/jquery.min.js",
+  "jslib/profiles/3x/jquery/jquery-migrate.min.js":
+    "jquery-migrate/dist/jquery-migrate.min.js",
+  "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js":
+    "jquery-ui/dist/jquery-ui.min.js",
   "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js":
     "bootstrap/dist/js/bootstrap.bundle.js",
   "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.css":
@@ -234,15 +237,27 @@ function buildBundlesFromConfig(configFile, processingPhase = 1, options = {}) {
  * (target/generated-webui/cm/), never src/main/webapp/cm/ — writing into the
  * source tree breaks ai-build-integrity-maven-plugin seals (issue #1510).
  * maven-war-plugin overlays target/generated-webui onto the WAR at package time.
+ *
+ * Classic-UI trio (issue #5660): jQuery core + Migrate + UI are served ONLY
+ * from these npm dist files. The vendored cm/jslib copies were deleted, so a
+ * missing `required` entry must fail the build instead of shipping pages with
+ * a 404 where jQuery used to load.
  */
 const STANDALONE_NPM_COPIES = [
   {
     src: "jquery/dist/jquery.min.js",
     dest: "jslib/profiles/3x/jquery/jquery.min.js",
+    required: true,
   },
   {
     src: "jquery-migrate/dist/jquery-migrate.min.js",
     dest: "jslib/profiles/3x/jquery/jquery-migrate.min.js",
+    required: true,
+  },
+  {
+    src: "jquery-ui/dist/jquery-ui.min.js",
+    dest: "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js",
+    required: true,
   },
 ];
 
@@ -250,13 +265,14 @@ const STANDALONE_NPM_COPIES = [
  * Copy standalone npm library files into target/generated-webui/cm/ so they can
  * be loaded individually via <script> tags (e.g. sys_aaPageHeader.html).
  * Does not write under src/main/webapp (source tree stays sealed).
+ * Throws when a `required` npm source is missing (fail-fast for the #5660 trio).
  */
 function syncStandaloneNpmLibraries() {
   console.log(
     "📋 Phase 0: Syncing standalone npm libraries to target/generated-webui/cm/...",
   );
 
-  STANDALONE_NPM_COPIES.forEach(({ src, dest }) => {
+  STANDALONE_NPM_COPIES.forEach(({ src, dest, required }) => {
     const srcPath = path.join(NODE_MODULES_DIR, src);
     const destPath = path.join(OUTPUT_DIR, dest);
     const destDir = path.dirname(destPath);
@@ -266,7 +282,11 @@ function syncStandaloneNpmLibraries() {
     }
 
     if (!fs.existsSync(srcPath)) {
-      console.warn(`  ⚠️  npm file not found: ${srcPath}`);
+      const message = `npm file not found: ${srcPath}`;
+      if (required) {
+        throw new Error(`syncStandaloneNpmLibraries: ${message}`);
+      }
+      console.warn(`  ⚠️  ${message}`);
       return;
     }
 
@@ -382,6 +402,7 @@ module.exports = {
   OUTPUT_DIR,
   BUNDLE_CONFIG_DIR,
   REQUIRED_INTERMEDIATE_BUNDLES,
+  NPM_LIBRARY_MAPPINGS,
   STANDALONE_NPM_COPIES,
   resolvePath,
   buildBundlesFromConfig,

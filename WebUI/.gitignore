@@ -136,6 +136,7 @@ fabric.properties
 # Standalone npm jquery mins — generated into target/generated-webui only (#1510).
 /src/main/webapp/cm/jslib/profiles/3x/jquery/jquery.min.js
 /src/main/webapp/cm/jslib/profiles/3x/jquery/jquery-migrate.min.js
+/src/main/webapp/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js
 /src/main/webapp/jslib/profiles/3x/jquery/jquery.min.js
 /src/main/webapp/jslib/profiles/3x/jquery/jquery-migrate.min.js
 /war/jslib/profiles/3x/jquery/jquery.min.js

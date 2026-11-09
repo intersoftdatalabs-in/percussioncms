@@ -31,7 +31,7 @@
     <script src="/Rhythmyx/tmx/tmx.jsp?mode=js&amp;prefix=perc.ui.&amp;sys_lang=<%= locale %>"></script>
     <script src="/JavaScriptServlet"></script>
     <i18n:settings lang="<%=locale %>" prefixes="perc.ui.revisionDialog." debug="<%= debug %>"/>
-    <script src="/cm/jslib/profiles/3x/jquery/jquery-3.6.0.js"></script>
+    <script src="/cm/jslib/profiles/3x/jquery/jquery.min.js"></script>
     <script type="text/javascript" src="/cm/app/js/legacy/services/PercCompareService.js"></script>
     <script type="text/javascript" src="/cm/app/js/legacy/services/PercRevisionService.js"></script>
     <script type="text/javascript" src="/cm/app/js/legacy/plugins/perc_path_constants.js"></script>

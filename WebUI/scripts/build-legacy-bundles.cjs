@@ -26,13 +26,15 @@ const BUNDLE_CONFIG_DIR = path.join(WEBUI_DIR, "src/main/resources/minify");
 const OUTPUT_DIR = path.join(WEBUI_DIR, "target/generated-webui/cm");
 const NODE_MODULES_DIR = path.join(WEBUI_DIR, "src/main/frontend/node_modules");
 
-// Mapping of jslib paths to npm package names for npm-managed libraries
+// Mapping of jslib paths to npm package names for npm-managed libraries.
+// Classic-UI direct <script> loads use the versionless npm-backed mins
+// (issue #5660); keys mirror the canonical frontend builder.
 const NPM_LIBRARY_MAPPINGS = {
-  "jslib/profiles/3x/jquery/jquery-3.6.0.js": "jquery/dist/jquery.js",
-  "jslib/profiles/3x/jquery/profiles/3x/jquery/plugins/jquery-migrate/jquery-migrate-3.3.2.js":
-    "jquery-migrate/dist/jquery-migrate.js",
-  "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js":
-    "jquery-ui/dist/jquery-ui.js",
+  "jslib/profiles/3x/jquery/jquery.min.js": "jquery/dist/jquery.min.js",
+  "jslib/profiles/3x/jquery/jquery-migrate.min.js":
+    "jquery-migrate/dist/jquery-migrate.min.js",
+  "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js":
+    "jquery-ui/dist/jquery-ui.min.js",
   "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js":
     "bootstrap/dist/js/bootstrap.bundle.js",
   "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.css":
@@ -163,28 +165,38 @@ function buildBundlesFromConfig(configFile, processingPhase = 1) {
 
 /**
  * Standalone npm mins → target/generated-webui/cm only (never war/ or src/).
- * See issue #1510 / canonical frontend builder.
+ * See issue #1510 / canonical frontend builder. Classic-UI trio (issue #5660)
+ * is required: the vendored cm/jslib copies are deleted, so a missing source
+ * must fail instead of shipping pages with a 404 where jQuery used to load.
  */
 const STANDALONE_NPM_COPIES = [
   {
     src: "jquery/dist/jquery.min.js",
     dest: "jslib/profiles/3x/jquery/jquery.min.js",
+    required: true,
   },
   {
     src: "jquery-migrate/dist/jquery-migrate.min.js",
     dest: "jslib/profiles/3x/jquery/jquery-migrate.min.js",
+    required: true,
+  },
+  {
+    src: "jquery-ui/dist/jquery-ui.min.js",
+    dest: "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js",
+    required: true,
   },
 ];
 
 /**
  * Copy standalone npm library files into the generated overlay.
+ * Throws when a `required` npm source is missing (fail-fast, issue #5660).
  */
 function syncStandaloneNpmLibraries() {
   console.log(
     "📋 Phase 0: Syncing standalone npm libraries to target/generated-webui/cm/...",
   );
 
-  STANDALONE_NPM_COPIES.forEach(({ src, dest }) => {
+  STANDALONE_NPM_COPIES.forEach(({ src, dest, required }) => {
     const srcPath = path.join(NODE_MODULES_DIR, src);
     const destPath = path.join(OUTPUT_DIR, dest);
     const destDir = path.dirname(destPath);
@@ -194,7 +206,11 @@ function syncStandaloneNpmLibraries() {
     }
 
     if (!fs.existsSync(srcPath)) {
-      console.warn(`  ⚠️  npm file not found: ${srcPath}`);
+      const message = `npm file not found: ${srcPath}`;
+      if (required) {
+        throw new Error(`syncStandaloneNpmLibraries: ${message}`);
+      }
+      console.warn(`  ⚠️  ${message}`);
       return;
     }
 

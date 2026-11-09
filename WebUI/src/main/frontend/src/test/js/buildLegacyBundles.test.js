@@ -32,7 +32,7 @@
  * the drift that drove CodeQL false positives on the checked-in copies.
  */
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
@@ -53,6 +53,7 @@ const {
   OUTPUT_DIR,
   BUNDLE_CONFIG_DIR,
   REQUIRED_INTERMEDIATE_BUNDLES,
+  NPM_LIBRARY_MAPPINGS,
   STANDALONE_NPM_COPIES,
   resolvePath,
   buildBundlesFromConfig,
@@ -212,6 +213,120 @@ describe("legacy intermediate bundle builder", () => {
       expect(generatedNorm.includes("src/main/webapp")).toBe(false);
       // Source tree must still be free of regenerable mins after the build.
       expect(fs.existsSync(path.join(WAR_DIR, dest))).toBe(false);
+    }
+  });
+});
+
+/**
+ * Classic-UI jQuery trio from npm (issue #5660).
+ *
+ * The vendored cm/jslib copies (jquery-3.6.0.js, jquery-migrate-3.3.2.js,
+ * libraries/jquery-ui/*) and the unbuilt `@VERSION` root jquery-ui.js copies
+ * were deleted. Classic pages now load the versionless npm-backed mins, synced
+ * into target/generated-webui/cm by syncStandaloneNpmLibraries and overlaid
+ * onto the WAR at package time. These tests pin:
+ *
+ *   1. The trio is present in STANDALONE_NPM_COPIES and marked required.
+ *   2. Synced bytes are byte-identical to the node_modules dist files
+ *      (npm-tracked, Dependabot-visible via frontend package.json).
+ *   3. The synced trio carries the expected npm versions
+ *      (jQuery 4.x + Migrate 4.x + UI 1.14.x).
+ *   4. Bundle-config jslib paths for the trio resolve into node_modules
+ *      (NPM_LIBRARY_MAPPINGS), never into deleted vendored files.
+ *   5. A missing required npm source fails the build instead of shipping
+ *      pages with a 404 where jQuery used to load.
+ */
+describe("classic-UI jQuery trio from npm (issue #5660)", () => {
+  const FRONTEND_ROOT = path.dirname(
+    path.dirname(path.dirname(__dirname)),
+  );
+  const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+
+  const TRIO = [
+    {
+      src: "jquery/dist/jquery.min.js",
+      dest: "jslib/profiles/3x/jquery/jquery.min.js",
+      versionRe: /jQuery v4\./,
+    },
+    {
+      src: "jquery-migrate/dist/jquery-migrate.min.js",
+      dest: "jslib/profiles/3x/jquery/jquery-migrate.min.js",
+      versionRe: /jQuery Migrate v4\./,
+    },
+    {
+      src: "jquery-ui/dist/jquery-ui.min.js",
+      dest: "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js",
+      versionRe: /jQuery UI - v1\.14\./,
+    },
+  ];
+
+  it("pins the required trio in STANDALONE_NPM_COPIES", () => {
+    for (const { src, dest } of TRIO) {
+      const entry = STANDALONE_NPM_COPIES.find((e) => e.dest === dest);
+      expect(entry, `missing standalone copy for ${dest}`).toBeDefined();
+      expect(entry.src).toBe(src);
+      expect(entry.required).toBe(true);
+    }
+  });
+
+  it("syncs trio bytes identical to the npm dist files", () => {
+    const missing = TRIO.map(({ src }) => path.join(NODE_MODULES, src)).filter(
+      (p) => !fs.existsSync(p),
+    );
+    if (missing.length > 0) {
+      // Hermetic CI without frontend node_modules: presence is pinned above.
+      return;
+    }
+    syncStandaloneNpmLibraries();
+    for (const { src, dest, versionRe } of TRIO) {
+      const generated = fs.readFileSync(path.join(OUTPUT_DIR, dest));
+      const npmDist = fs.readFileSync(path.join(NODE_MODULES, src));
+      expect(generated.equals(npmDist), `${dest} differs from npm ${src}`).toBe(
+        true,
+      );
+      expect(generated.toString("utf8", 0, 4096)).toMatch(versionRe);
+      // The deleted vendored version must not leak back into the source tree.
+      expect(fs.existsSync(path.join(WAR_DIR, dest))).toBe(false);
+    }
+  });
+
+  it("resolves trio bundle paths into node_modules, not vendored files", () => {
+    for (const { dest } of TRIO) {
+      expect(
+        NPM_LIBRARY_MAPPINGS[dest],
+        `no npm mapping for ${dest}`,
+      ).toBeDefined();
+      const resolved = resolvePath(dest);
+      const normalized = resolved.split(path.sep).join("/");
+      expect(normalized).toContain("node_modules/");
+      expect(fs.existsSync(resolved), resolved).toBe(true);
+    }
+    // Deleted vendored names must not resolve back into the source tree.
+    expect(
+      NPM_LIBRARY_MAPPINGS["jslib/profiles/3x/jquery/jquery-3.6.0.js"],
+    ).toBeUndefined();
+    expect(
+      NPM_LIBRARY_MAPPINGS[
+        "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js"
+      ],
+    ).toBeUndefined();
+  });
+
+  it("fails fast when a required npm source is missing", () => {
+    const jquerySrc = path.join(NODE_MODULES, "jquery/dist/jquery.min.js");
+    const realExists = fs.existsSync;
+    const spy = vi.spyOn(fs, "existsSync").mockImplementation((p) => {
+      if (String(p) === jquerySrc) {
+        return false;
+      }
+      return realExists(p);
+    });
+    try {
+      expect(() => syncStandaloneNpmLibraries()).toThrow(
+        /syncStandaloneNpmLibraries: npm file not found/,
+      );
+    } finally {
+      spy.mockRestore();
     }
   });
 });
