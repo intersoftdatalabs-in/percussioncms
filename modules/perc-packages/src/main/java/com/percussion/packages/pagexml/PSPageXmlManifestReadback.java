@@ -39,17 +39,26 @@ import java.util.Objects;
  * PSPageXmlCompiler}) turns that model into a manifest plus template source artifacts. This class
  * closes the loop: given a manifest (plus its template sources), it rebuilds the same normalized
  * {@link PSPageXmlModel} — same assembler extension path, output format, bindings order, region
- * holes, and install defaults — without touching legacy definition XML. The legacy fallback is
- * untouched; removal stays tracked separately.
+ * holes, and install defaults — without touching legacy definition XML.
+ *
+ * <p>Modern-only strictness (issue #5864 / parent #2626): the assembler fallback path is removed
+ * behind migrated definitions. The short manifest assembler id must resolve against the
+ * registered product catalog ({@link PSPageXmlTemplateDefEmitter#resolveRegisteredAssemblerPath});
+ * blank or unregistered values fail with {@link PSPageXmlException} instead of silently
+ * defaulting to the page assembler or passing a custom id through. The lenient {@link
+ * PSPageXmlTemplateDefEmitter#toLegacyAssemblerPath} fallback stays available only to the
+ * legacy-upgrade emit path ({@link PSPageXmlTemplateDefEmitter}, {@link PSPageXmlNativeInstall},
+ * {@link PSPageXmlDualShip}) so customer XML with site-local custom assemblers still compiles —
+ * the dry-run ({@link PSPageXmlMigrationDryRun}) then reports such packages as blocked.
  *
  * <p>Normalization contract (mirrors {@link PSPageXmlTemplateDefEmitter} install defaults so that
  * {@code parse(emit(manifest, source, guid))} and {@code readback(manifest, source, guid)} agree
  * field-for-field):
  *
  * <ul>
- *   <li>assembler: short manifest id resolved to the legacy extension path (registered catalog or
- *       {@code Java/global/percussion/assembly/} pass-through); blank resolves to the page-assembler
- *       default.
+ *   <li>assembler: short manifest id resolved strictly to the registered extension path (issue
+ *       #5864 — no blank default, no custom-id pass-through); blank or unregistered values fail
+ *       with {@link PSPageXmlException}.
  *   <li>output format: modern template type mapped back ({@code page} → {@code Page}, …).
  *   <li>mime type / charset / publish-when / template-type: manifest values when present, else the
  *       install defaults ({@code text/html}, {@code UTF-8}, {@code Default}, {@code Shared}).
@@ -155,7 +164,7 @@ public final class PSPageXmlManifestReadback {
             manifest.getCatalog() != null ? manifest.getCatalog().getDescription() : null,
             manifest.getDescription()));
     model.setGuid(guid != null && !guid.isBlank() ? guid.trim() : null);
-    model.setAssembler(PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath(template.getAssembler()));
+    model.setAssembler(resolveAssembler(manifest.getId(), template));
     model.setOutputFormat(PSPageXmlTemplateDefEmitter.toLegacyOutputFormat(template.getType()));
     model.setTemplateType(firstNonBlank(template.getLegacyTemplateType(), DEFAULT_TEMPLATE_TYPE));
     String mime = firstNonBlank(template.getMimeType(), binary ? null : DEFAULT_MIME);
@@ -194,6 +203,28 @@ public final class PSPageXmlManifestReadback {
               + (sourceRef == null ? "(no sourceRef)" : sourceRef));
     }
     return readback(manifest, textArtifacts.get(sourceRef), null);
+  }
+
+  /**
+   * Strict modern-only assembler resolution for a migrated definition (issue #5864): the short
+   * manifest id must name a registered catalog assembler — no blank default, no custom-id
+   * pass-through. Wraps the catalog failure in {@link PSPageXmlException} naming the manifest so
+   * the dry-run panel can report it as a migration blocker.
+   */
+  private static String resolveAssembler(
+      String manifestId, PSComponentPackageManifest.TemplateRef template)
+      throws PSPageXmlException {
+    try {
+      return PSPageXmlTemplateDefEmitter.resolveRegisteredAssemblerPath(template.getAssembler());
+    } catch (IllegalArgumentException e) {
+      throw new PSPageXmlException(
+          "Modern page package '"
+              + manifestId
+              + "' names an unregistered assembler ("
+              + e.getMessage()
+              + "); migrate the definition to a registered catalog id",
+          e);
+    }
   }
 
   private static PSComponentPackageManifest.TemplateRef primaryTemplate(

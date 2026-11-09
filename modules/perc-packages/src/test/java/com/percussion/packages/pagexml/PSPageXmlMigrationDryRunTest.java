@@ -39,7 +39,8 @@ import org.junit.jupiter.api.io.TempDir;
  *
  * <p>The dry-run simulates parse → compile → manifest readback → install-XML parity without
  * writing anything; the report renders per-package migration status (what would change, what
- * blocks). The legacy fallback is untouched.
+ * blocks). The assembler fallback path is removed behind migrated definitions (issue #5864):
+ * unregistered manifest assemblers fail the readback and surface as {@link Status#BLOCKED}.
  */
 class PSPageXmlMigrationDryRunTest {
 
@@ -160,6 +161,36 @@ class PSPageXmlMigrationDryRunTest {
     String text = normalize(report.toText());
     assertTrue(text.contains("READY perc.base.plain.templateDef -> perc.base.plain"));
     assertTrue(text.contains("BLOCKED perc.broken.templateDef :"));
+  }
+
+  @Test
+  void customAssembler_blockedWithUnregisteredAssemblerReason() throws Exception {
+    // Issue #5864: the upgrade compile still parses legacy XML with a site-local custom
+    // assembler, but the modern-only readback fails closed — the panel names the blocker.
+    Path legacyDir = tempDir.resolve("custom-assembler");
+    Files.createDirectories(legacyDir);
+    String custom;
+    try (var in =
+        PSPageXmlMigrationDryRunTest.class.getResourceAsStream(
+            "/pagexml/perc.base.plain.templateDef")) {
+      assertNotNull(in);
+      custom =
+          new String(in.readAllBytes(), StandardCharsets.UTF_8)
+              .replace(
+                  "<assembler>Java/global/percussion/assembly/pageAssembler</assembler>",
+                  "<assembler>Java/global/percussion/assembly/siteAssembler</assembler>");
+    }
+    Path file = legacyDir.resolve("perc.base.custom.templateDef");
+    Files.writeString(file, custom, StandardCharsets.UTF_8);
+
+    Entry entry = PSPageXmlMigrationDryRun.dryRunOne(file);
+
+    assertEquals(Status.BLOCKED, entry.getStatus());
+    assertNotNull(entry.getBlockReason());
+    assertTrue(
+        entry.getBlockReason().toLowerCase(java.util.Locale.ROOT).contains("assembler"),
+        "block reason must name the unregistered assembler, was: " + entry.getBlockReason());
+    assertNull(entry.getManifestId());
   }
 
   private static Entry byFile(Report report, String fileName) {

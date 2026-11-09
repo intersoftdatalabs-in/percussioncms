@@ -49,7 +49,12 @@ import java.util.Objects;
  * renders the panel as Markdown for operator tooling and issue evidence; {@link Report#toText()}
  * renders a plain-text variant for CLI use.
  *
- * <p>The legacy fallback is untouched; fallback-path removal stays tracked separately (slice 3).
+ * <p>Fallback-path removal behind migrated definitions (issue #5864 / parent #2626): the
+ * manifest readback resolves the assembler strictly against the registered product catalog, so
+ * a legacy definition whose assembler has no catalog entry surfaces here as {@link Status#BLOCKED}
+ * (unregistered-assembler reason) instead of silently defaulting. The legacy-upgrade compile path
+ * itself is untouched — it still parses and compiles customer XML with site-local custom
+ * assemblers; only the modern-only readback fails closed.
  */
 public final class PSPageXmlMigrationDryRun {
 

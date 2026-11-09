@@ -170,16 +170,51 @@ public final class PSPageXmlTemplateDefEmitter {
    * Manifest id (e.g. {@code htmlAssembler}) or the full extension path (e.g. {@code
    * Java/global/percussion/assembly/htmlAssembler}). Comparison is case-insensitive; the legacy
    * {@code xslAssembler} alias counts as {@code legacyAssembler}. Custom (unregistered) ids and
-   * full paths return {@code false} but still pass through {@link #toLegacyAssemblerPath} for
-   * site-local extensibility.
+   * full paths return {@code false}: they still pass through {@link #toLegacyAssemblerPath} for
+   * the legacy-upgrade emit path only — modern-only load paths ({@link
+   * #resolveRegisteredAssemblerPath}, {@code PSPageXmlManifestReadback}) fail closed on them
+   * (issue #5864 / parent #2626).
    */
   public static boolean isRegisteredAssemblerId(String assembler) {
     return lookupRegisteredPath(assembler) != null;
   }
 
   /**
+   * Resolve an assembler value strictly against the registered product catalog (issue #5864 /
+   * parent #2626): the modern-only resolution behind migrated definitions.
+   *
+   * <p>Unlike {@link #toLegacyAssemblerPath}, there is <strong>no fallback</strong> here — blank
+   * values do not default to the page assembler, unregistered short ids do not gain the product
+   * extension prefix, and full extension paths are accepted only when their leaf names a
+   * registered assembler. Callers on the modern manifest load path fail closed so an unmigrated
+   * assembler surfaces as a migration blocker instead of a silently defaulted install.
+   *
+   * @param assembler short manifest id or full extension path (must name a registered assembler)
+   * @return registered product extension path (never null)
+   * @throws IllegalArgumentException when blank or unregistered
+   */
+  public static String resolveRegisteredAssemblerPath(String assembler) {
+    String registered = lookupRegisteredPath(assembler);
+    if (registered == null) {
+      throw new IllegalArgumentException(
+          "Unregistered assembler '"
+              + assembler
+              + "': modern page definitions must name a registered catalog id "
+              + REGISTERED_ASSEMBLER_PATHS.keySet()
+              + " (xslAssembler counts as legacyAssembler).");
+    }
+    return registered;
+  }
+
+  /**
    * Map short Component Package Manifest assembler id back to the product extension path used in
    * legacy {@code *.templateDef} files.
+   *
+   * <p><strong>Lenient upgrade path (kept):</strong> blank defaults to the page assembler, full
+   * paths pass through, and unregistered short ids gain the product extension prefix so
+   * customer legacy XML with site-local custom assemblers still compiles and emits. Modern-only
+   * load paths behind migrated definitions must use {@link #resolveRegisteredAssemblerPath}
+   * instead — the silent fallback is removed there (issue #5864).
    */
   public static String toLegacyAssemblerPath(String assembler) {
     if (assembler == null || assembler.isBlank()) {
