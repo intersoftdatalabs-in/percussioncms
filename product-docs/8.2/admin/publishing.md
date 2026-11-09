@@ -2314,7 +2314,7 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 3. Enter the item id (content GUID such as `16777215-101-9`), choose **Page** or **Asset**, and choose **Review take down**.
 4. Confirm lists linked page paths when present. Choose **Take down** to unpublish.
 
-**Empty and error states:** Blank item id is not a takedown. HTTP 200 with application-level `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` is a failure — the panel shows the server warning and does **not** treat the item as unpublished. HTTP **400** (validation), **403** (forbidden), **404** (item not found), and **409** (someone else is editing the item) are shown in the panel and are **not** success. The content item remains in the CMS. Content Explorer Take Down remains the selection-based action for a Finder row.
+**Empty and error states:** Blank item id is not a takedown. HTTP 200 with application-level `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` is a failure — the panel shows the server warning and does **not** treat the item as unpublished. HTTP **400** (validation), **403** (forbidden), **404** (item not found), and **409** (someone else is editing the item) are shown in the panel and are **not** success. The content item remains in the CMS. Content Explorer Take Down remains the selection-based action for a Finder row. The panel shares the workspace item id — typing an id in any item panel updates the takedown lookup — and reuses the same linked-page confirm copy as Content Explorer.
 
 **Deep links:**
 
