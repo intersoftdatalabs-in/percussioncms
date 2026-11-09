@@ -260,6 +260,7 @@ import {
   confirmEditorAssignees,
   editorAssigneeStep,
   editorTransitionHttpFailure,
+  formatDelegationNotice,
   normalizeAdhocAssignees,
   resolveCommentRequiredTriggers,
   triggerRequiresAssignees,
@@ -1140,6 +1141,12 @@ export function EditorHost({
   const [workflowLoadErrorDetail, setWorkflowLoadErrorDetail] = useState("");
   const [workflowBusy, setWorkflowBusy] = useState(false);
   const [workflowDone, setWorkflowDone] = useState(false);
+  /**
+   * Assignees the last successful transition delegated to (#5890). Set only
+   * after the transition call succeeds; cleared when a new run starts so a
+   * later 400/403/409 never shows a stale delegation notice.
+   */
+  const [workflowDelegatedTo, setWorkflowDelegatedTo] = useState<string[]>([]);
   const [workflowChoices, setWorkflowChoices] = useState<
     { id: string; name: string }[]
   >([]);
@@ -2529,6 +2536,7 @@ export function EditorHost({
     }
     setWorkflowBusy(true);
     setWorkflowDone(false);
+    setWorkflowDelegatedTo([]);
     setWorkflowChanged(false);
     setWorkflowErrorKey(null);
     setWorkflowErrorDetail("");
@@ -2565,6 +2573,7 @@ export function EditorHost({
         setWorkflowLoadErrorDetail("");
       }
       setWorkflowDone(true);
+      setWorkflowDelegatedTo(names);
       return true;
     } catch (err) {
       if (!isSessionRedirectError(err)) {
@@ -4384,6 +4393,14 @@ export function EditorHost({
           {workflowDone ? (
             <span className={styles.meta} data-testid="editor-workflow-done">
               {message(EDITOR_MSG.WORKFLOW_DONE)}
+            </span>
+          ) : null}
+          {workflowDone && workflowDelegatedTo.length > 0 ? (
+            <span className={styles.meta} data-testid="editor-workflow-delegated">
+              {formatDelegationNotice(
+                message(EDITOR_MSG.WORKFLOW_DELEGATED),
+                workflowDelegatedTo,
+              )}
             </span>
           ) : null}
           {publishDone ? (

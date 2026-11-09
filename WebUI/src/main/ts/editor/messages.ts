@@ -299,6 +299,7 @@ export const EDITOR_MSG = {
   WORKFLOW_LOAD_FAILED:
     "perc.ui.editor@Could not load the workflow transitions. Retry the load to see the available transitions.",
   WORKFLOW_DONE: "perc.ui.editor@Workflow transition completed.",
+  WORKFLOW_DELEGATED: "perc.ui.editor@Delegated to {0}.",
   WORKFLOW_CHANGE: "perc.ui.editor@Change workflow",
   WORKFLOW_CHANGE_APPLY: "perc.ui.editor@Save workflow",
   WORKFLOW_CHANGE_EMPTY: "perc.ui.editor@Select a workflow.",

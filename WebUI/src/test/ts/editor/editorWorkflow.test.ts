@@ -21,6 +21,8 @@ import {
   canChangeEditorWorkflow,
   canRunEditorTransition,
   confirmEditorAssignees,
+  formatDelegatedAssigneeList,
+  formatDelegationNotice,
   workflowCommentContainsNul,
   editorAssigneeStep,
   editorTransitionHttpFailure,
@@ -253,6 +255,25 @@ describe("editorWorkflow (#4539)", () => {
     expect(editorTransitionHttpFailure(409)).toBe("conflict");
     expect(editorTransitionHttpFailure(500)).toBe("failed");
     expect(editorTransitionHttpFailure(undefined)).toBe("failed");
+  });
+
+  it("formatDelegatedAssigneeList joins normalized names (#5890)", () => {
+    expect(formatDelegatedAssigneeList(["alice", "bob"])).toBe("alice, bob");
+    expect(formatDelegatedAssigneeList([" ada ", "ada", "", "bob"])).toBe(
+      "ada, bob",
+    );
+    expect(formatDelegatedAssigneeList([])).toBe("");
+    expect(formatDelegatedAssigneeList(null)).toBe("");
+  });
+
+  it("formatDelegationNotice fills the {0} slot (#5890)", () => {
+    expect(
+      formatDelegationNotice("Delegated to {0}.", ["alice", "bob"]),
+    ).toBe("Delegated to alice, bob.");
+    expect(formatDelegationNotice("Delegated to {0}.", [])).toBe(
+      "Delegated to .",
+    );
+    expect(formatDelegationNotice("Done.", ["alice"])).toBe("Done.");
   });
 
   it("canChangeEditorWorkflow accepts only a different listed id", () => {

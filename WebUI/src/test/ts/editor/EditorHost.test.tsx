@@ -1291,9 +1291,13 @@ describe("EditorHost rich controls", () => {
     await waitFor(() => {
       expect(screen.getByTestId("editor-form")).toBeTruthy();
     });
-    expect(screen.getByTestId("editor-field-text").getAttribute("data-editor-kind")).toBe(
-      "html",
-    );
+    // Field rows commit after the type catalog resolves, which can lag the
+    // form shell under parallel-worker load; wait for the first row (#5890).
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-text").getAttribute("data-editor-kind")).toBe(
+        "html",
+      );
+    });
     expect(screen.getByTestId("editor-field-img").getAttribute("data-editor-kind")).toBe(
       "image",
     );
@@ -10513,6 +10517,95 @@ describe("EditorHost workflow transitions (#4539)", () => {
       expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
       expect(screen.queryByTestId("editor-workflow-done")).toBeNull();
       expect(screen.getByTestId("editor-workflow-assignee-dialog")).toBeTruthy();
+      expect(loadTransitions).toHaveBeenCalledTimes(1);
+    }
+  });
+
+  it("shows the delegation notice with chosen names after success (#5890)", async () => {
+    const runTransition = vi.fn().mockResolvedValue({});
+    const loadTransitions = vi
+      .fn()
+      .mockResolvedValueOnce({
+        stateName: "Draft",
+        transitionTriggers: ["Submit"],
+      })
+      .mockResolvedValue({
+        stateName: "Review",
+        transitionTriggers: ["Approve"],
+      });
+    renderEdit({ runTransition, loadTransitions });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-assignee-input")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-workflow-assignee-input"), {
+      target: { value: "alice" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-assignee-add"));
+    fireEvent.change(screen.getByTestId("editor-workflow-assignee-input"), {
+      target: { value: "bob" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-assignee-add"));
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    await waitFor(() => {
+      expect(runTransition).toHaveBeenCalledWith("42", "Submit", undefined, [
+        "alice",
+        "bob",
+      ]);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-done")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-workflow-delegated").textContent).toMatch(
+      /Delegated to alice, bob/,
+    );
+    expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Review/);
+  });
+
+  it("shows no delegation notice for a transition without assignees (#5890)", async () => {
+    const runTransition = vi.fn().mockResolvedValue({});
+    renderEdit({ runTransition });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-trigger-Submit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    await waitFor(() => {
+      expect(runTransition).toHaveBeenCalledWith("42", "Submit", undefined);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-done")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("editor-workflow-delegated")).toBeNull();
+  });
+
+  it("shows no delegation notice on HTTP 400, 403, and 409 (#5890)", async () => {
+    const statuses = [400, 403, 409];
+    for (const status of statuses) {
+      cleanup();
+      const runTransition = vi.fn().mockRejectedValue({
+        status,
+        statusText: "no",
+        body: null,
+      });
+      const loadTransitions = vi.fn().mockResolvedValue({
+        stateName: "Draft",
+        transitionTriggers: ["Submit"],
+      });
+      renderEdit({ runTransition, loadTransitions });
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-workflow-trigger-Submit")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("editor-workflow-assignee-input"), {
+        target: { value: "cara" },
+      });
+      fireEvent.click(screen.getByTestId("editor-workflow-assignee-add"));
+      fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-workflow-error")).toBeTruthy();
+      });
+      expect(runTransition).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId("editor-workflow-state").textContent).toMatch(/Draft/);
+      expect(screen.queryByTestId("editor-workflow-done")).toBeNull();
+      expect(screen.queryByTestId("editor-workflow-delegated")).toBeNull();
       expect(loadTransitions).toHaveBeenCalledTimes(1);
     }
   });
