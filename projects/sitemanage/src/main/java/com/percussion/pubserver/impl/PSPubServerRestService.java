@@ -21,6 +21,7 @@ import com.percussion.delivery.service.IPSDeliveryInfoService;
 import com.percussion.delivery.service.PSDeliveryInfoServiceLocator;
 import com.percussion.delivery.service.impl.PSDeliveryInfoService;
 import com.percussion.pubserver.IPSPubServerService;
+import com.percussion.pubserver.data.PSPubServerConnectionTest;
 import com.percussion.pubserver.data.PSPublishServerInfo;
 import com.percussion.pubserver.data.PSPublishServerInfoList;
 import com.percussion.security.error.PSExceptionUtils;
@@ -213,6 +214,35 @@ public class PSPubServerRestService {
       PSParameterValidationUtils.rejectIfBlank("delete", "jobId", jobId);
       service.stopPublishing(jobId);
     } catch (PSValidationException | IPSPubServerService.PSPubServerServiceException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new WebApplicationException(e);
+    }
+  }
+
+  /**
+   * Tests the stored delivery-server connection without persisting any change. A failed
+   * connection is a {@code 200} result with {@code connected=false}, not an error; only blank
+   * ids (400), a non Admin/Designer caller (403), or an unknown site/server (404) fail the call.
+   */
+  @POST
+  @Path("/testConnection/{siteId}/{serverId}")
+  @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
+  public PSPubServerConnectionTest testConnection(
+      @PathParam("siteId") String siteId, @PathParam("serverId") String serverId)
+      throws PSValidationException {
+    requirePubServerWrite();
+    try {
+      PSParameterValidationUtils.rejectIfBlank("testConnection", "siteId", siteId);
+      PSParameterValidationUtils.rejectIfBlank("testConnection", "serverId", serverId);
+      return service.testPubServerConnection(siteId, serverId);
+    } catch (PSNotFoundException e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      String msg =
+          e.getMessage() != null && !e.getMessage().isBlank() ? e.getMessage() : "Not found";
+      throw new WebApplicationException(msg, Response.Status.NOT_FOUND);
+    } catch (IPSPubServerService.PSPubServerServiceException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new WebApplicationException(e);

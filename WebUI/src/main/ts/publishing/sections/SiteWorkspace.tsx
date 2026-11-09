@@ -88,6 +88,7 @@ import { FtpsDeliveryHostPanel } from "../components/FtpsDeliveryHostPanel";
 import { LocalDeliveryFolderPanel } from "../components/LocalDeliveryFolderPanel";
 import { DeliveryServerRenamePanel } from "../components/DeliveryServerRenamePanel";
 import { DeliveryServerDefaultPanel } from "../components/DeliveryServerDefaultPanel";
+import { DeliveryServerConnectionTestPanel } from "../components/DeliveryServerConnectionTestPanel";
 import { ServerEditor } from "../components/ServerEditor";
 import { ServerList } from "../components/ServerList";
 import { useDirtyForm } from "../dirtyFormContext";
@@ -934,6 +935,7 @@ export function SiteWorkspace({
             <SftpDeliveryFolderPanel siteId={siteId} serverId={selectedServer} />
             <FtpsDeliveryHostPanel siteId={siteId} serverId={selectedServer} />
             <LocalDeliveryFolderPanel siteId={siteId} serverId={selectedServer} />
+            <DeliveryServerConnectionTestPanel siteId={siteId} serverId={selectedServer} />
           </>
         ) : null}
       </div>

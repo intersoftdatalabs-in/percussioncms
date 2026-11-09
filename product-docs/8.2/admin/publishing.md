@@ -783,6 +783,20 @@ The server cannot be deleted when it is the site default or when a publish job i
 cases, and HTTP **403** (not Admin or Designer) or **404**, stay in the server editor error region.
 The list is not refreshed as a successful delete. Edition delete is a separate Design action.
 
+### Test a site delivery-server connection (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a publish server. **Test
+connection** calls `POST …/publishmanagement/servers/testConnection/{siteId}/{serverId}` with an
+empty body. The call tests the stored server and saves nothing: no server field is written, and
+the notice only says **Connection test succeeded.** or **Connection test failed. Check the
+server settings and try again.** Passwords, private keys, and passphrases are never sent by the
+test and never appear in the notice. The test works for every driver (File, FTP, FTPS, SFTP,
+database, Amazon S3, Local).
+
+HTTP **400**, **403**, and **409** stay in the panel error region with the usual save-error
+message and change nothing stored. An unknown site or server is HTTP **404**. A failed delivery
+check is a normal result (HTTP **200** with `connected: false`), not an error.
+
 ### Retry a failed status job (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), open **Status**. A job whose status is **Failed** or **Completed with failures**, and that names both a site and a delivery server, shows **Retry**. Running, completed, and failed rows that omit the site or server do not. **Retry** asks for confirmation (**Retry this failed publish for the same site and server?**). Confirm starts a new publish for that site and server: incremental when the status payload's publish kind or edition name says incremental (`GET …/sitemanage/publish/incremental/publish/{site}/{server}`), otherwise a full site publish (`GET …/sitemanage/publish/{site}/{server}`). Status reloads after a job starts. Cancel does not call publish. Application-level `FORBIDDEN` and `BADCONFIG` (including HTTP 200 bodies) stay in the Status error region and are not treated as a started job. Stop remains a separate action for a running job.

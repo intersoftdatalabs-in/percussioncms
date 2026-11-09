@@ -18,6 +18,7 @@
 package com.percussion.pubserver;
 
 import com.percussion.error.PSException;
+import com.percussion.pubserver.data.PSPubServerConnectionTest;
 import com.percussion.pubserver.data.PSPublishServerInfo;
 import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.pubserver.IPSPubServer;
@@ -201,6 +202,18 @@ public interface IPSPubServerService {
       super(cause);
     }
   }
+
+  /**
+   * Tests the stored delivery-server connection without persisting any change.
+   *
+   * @param siteId the site ID, never empty or {@code null}
+   * @param serverId the ID of the publish server to test, never empty or {@code null}
+   * @return the connection outcome, never {@code null}; carries no server fields or secrets
+   * @throws PSPubServerServiceException if the test itself cannot run
+   * @throws PSNotFoundException if the site or server does not exist
+   */
+  PSPubServerConnectionTest testPubServerConnection(String siteId, String serverId)
+      throws PSPubServerServiceException, PSNotFoundException;
 
   /**
    * Checks the configuration of a publish server.
