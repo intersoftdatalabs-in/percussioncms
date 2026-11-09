@@ -87,6 +87,21 @@ the registered extension path into the archive `TemplateDef-N/<stem>.templateDef
 `<assembler>` element. Values that are already full extension paths pass through
 unchanged for site-local custom assemblers.
 
+## Assembler-model readback from the manifest
+
+Tooling reads a normalized assembler-model definition back through the modern
+manifest path (`Java code: PSPageXmlManifestReadback`) instead of legacy definition
+XML: given `pages/<id>/component-package.json` plus its template sources, readback
+rebuilds the same definition the legacy `<assembly-template>` parser would produce —
+assembler extension path, output format, ordered JEXL bindings, region holes, and the
+install defaults (`text/html`, `UTF-8`, `Default`, `Shared`, `Normal`). Binary asset
+templates omit mime type and charset, matching install emit.
+
+Readback never touches Widget / Page definition XML, and the customer legacy-XML
+fallback stays in place (removal is tracked separately). Operators do not need to do
+anything: this is the inspection path package build and upgrade tooling use to verify
+a modern package before it is staged into `TemplateDef-N/`.
+
 ## Dual-ship vs dual-run (do not mix them up)
 
 | Concept | Layer | Product 8.2 status |
