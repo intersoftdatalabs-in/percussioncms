@@ -124,7 +124,8 @@ Per rhai README "Product-first queue":
 - **Phase A** fills `priority_slots = max_issues - low_slots` from PRODUCT
   only — product overflow must never eat a reserved debt seat.
 - **Phase B** fills `low_slots` from DEBT only (lowest pN first, oldest
-  `updatedAt` tie-break). Unused `priority_slots` stay **empty**.
+  `updatedAt` tie-break). Unused `priority_slots` stay **empty** only after
+  the §5D refill cascade is exhausted — never while actionable work waits.
 - **Phase B rotation (2.2.8-draft, cross-tier 2.2.9-draft, cooldown follow-on):** lowest-number-first reseats the same
   blocked debt nightly (observed: #1820/#1976 twice, then #1978/#1820 a
   third time — the blocked pair were p2 while every fresh candidate was
@@ -163,7 +164,8 @@ Per rhai README "Product-first queue":
   product_queued / debt_queued` in `stats` so a zero-debt run is auditable
   (no candidates vs. no seats vs. starved seats).
 
-Empty queue beats padding with p7/p8 / Xlint.
+Empty queue beats padding with gated / stale / human-blocked debt — but
+actionable fresh debt always beats an empty seat once §5D reaches step 3.
 
 ### 5B. Fill-until-full epic walk (HARD — 2.2.7-draft)
 
@@ -185,7 +187,39 @@ Stopping with free slots while unwalked product epics remain is a defect
   implement cannot fit this run — those become backlog for the host sweep
   (which files them deduped, capped), so expansion work does not evaporate.
 - A short queue is valid ONLY when `epics_walked` covers every open p1–p6
-  product epic and every remaining row carries a typed why.
+  product epic and every remaining row carries a typed why — AND the §5D
+  refill cascade below is exhausted.
+
+### 5D. Pared-below-quota refill (HARD)
+
+Repairs pare the queue (§5C gate skips, sibling defers, already-fixed
+skips, over-quota debt defers) — paring must not shrink the night's
+output (observed: 12 queued → 7 slotted with 5 seats empty while open
+backlog slices sat idle). When `slotted_for_work` falls below
+`max_issues` after repairs, refill in this order until the target is hit
+or the pool is genuinely exhausted:
+
+1. **Seatable backlog first.** Open unassigned backlog slices left by
+   earlier repairs (`sibling_deferred_one_per_parent`, `backlog_only`
+   filings, `third_debt_over_quota` defers) are actionable work — seat
+   them before claiming exhaustion. One-per-parent still applies: a
+   deferred sibling of an already-seated parent stays deferred; deferred
+   siblings of UNseated parents are first in line.
+2. **Fresh epic expansion next.** Continue the §5B walk: unwalked epics
+   → 3 vertical slices → seat one.
+3. **Debt overflow last.** When no actionable product remains (every
+   walked epic carries a typed why) and product seats still sit free,
+   fill them from the actionable DEBT pool in rotation order (fresh
+   before blocked / seated-cooldown, same seed). Reserved `low_slots`
+   are a floor, not a ceiling — overflow seats never reduce them.
+   Product overflow must still never eat a reserved debt seat; the
+   reverse (debt filling otherwise-empty product seats) is the last
+   resort before an empty seat.
+4. **Short queue valid only** when the product walk is complete AND
+   backlog is unseatable AND the debt pool has no actionable issue —
+   record all three in `stats` (`refill_backlog_seated` /
+   `refill_expanded` / `refill_debt_overflow`) so an empty seat is
+   auditable, not assumed.
 
 ### 5C. Blocked-with-unfiled-blocker → file the blocker, seat the blocker (HARD — 2.2.9-draft)
 
