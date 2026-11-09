@@ -28,8 +28,12 @@ import static org.mockito.Mockito.when;
 import com.percussion.i18n.PSLocale;
 import com.percussion.i18n.PSLocaleFormat;
 import com.percussion.rest.locales.LocaleDetail;
+import com.percussion.rest.locales.LocaleFormatSummary;
 import com.percussion.rest.locales.LocaleSummary;
+import com.percussion.webservices.content.IPSContentDesignWs;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -242,5 +246,102 @@ class LocalesAdaptorTest {
     assertEquals("active", LocalesAdaptor.mapStatus(PSLocale.STATUS_ACTIVE));
     assertEquals("inactive", LocalesAdaptor.mapStatus(PSLocale.STATUS_INACTIVE));
     assertEquals("unknown", LocalesAdaptor.mapStatus(-5));
+  }
+
+  @Test
+  void persistFormatIfRequested_partialWriteDispatchLeavesOtherFields() {
+    PSLocaleFormat existing = new PSLocaleFormat("en-us");
+    existing.setDatePattern("MM/dd/yyyy");
+    existing.setTextDir("ltr");
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        new LocalesAdaptor(
+            mock(IPSContentDesignWs.class),
+            lang -> Optional.of(existing),
+            Set::of,
+            () -> true,
+            saved::add,
+            deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setCalendar("gregory");
+    body.setFormat(fmt);
+    adaptor.persistFormatIfRequested("en-us", body);
+
+    assertEquals(1, saved.size());
+    assertEquals("gregory", saved.get(0).getCalendar());
+    assertEquals("MM/dd/yyyy", saved.get(0).getDatePattern());
+    assertEquals("ltr", saved.get(0).getTextDir());
+    assertTrue(deleted.isEmpty());
+  }
+
+  @Test
+  void persistFormatIfRequested_fullWriteSavesAllRequestedFields() {
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        new LocalesAdaptor(
+            mock(IPSContentDesignWs.class),
+            lang -> Optional.empty(),
+            Set::of,
+            () -> true,
+            saved::add,
+            deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    LocaleFormatSummary fmt = new LocaleFormatSummary();
+    fmt.setDatePattern("yyyy-MM-dd");
+    fmt.setTextDir("ltr");
+    body.setFormat(fmt);
+    adaptor.persistFormatIfRequested("en-us", body);
+
+    assertEquals(1, saved.size());
+    assertEquals("yyyy-MM-dd", saved.get(0).getDatePattern());
+    assertEquals("ltr", saved.get(0).getTextDir());
+    assertTrue(deleted.isEmpty());
+  }
+
+  @Test
+  void persistFormatIfRequested_clearDeletesProfileWithoutSaving() {
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        new LocalesAdaptor(
+            mock(IPSContentDesignWs.class),
+            lang -> Optional.empty(),
+            Set::of,
+            () -> true,
+            saved::add,
+            deleted::add);
+
+    LocaleDetail body = new LocaleDetail();
+    body.setHasFormatProfile(Boolean.FALSE);
+    adaptor.persistFormatIfRequested("en-us", body);
+
+    assertEquals(List.of("en-us"), deleted);
+    assertTrue(saved.isEmpty());
+  }
+
+  @Test
+  void persistFormatIfRequested_noFormatRequestIsNoOp() {
+    List<PSLocaleFormat> saved = new ArrayList<>();
+    List<String> deleted = new ArrayList<>();
+    LocalesAdaptor adaptor =
+        new LocalesAdaptor(
+            mock(IPSContentDesignWs.class),
+            lang -> Optional.empty(),
+            Set::of,
+            () -> true,
+            saved::add,
+            deleted::add);
+
+    adaptor.persistFormatIfRequested("en-us", new LocaleDetail());
+    adaptor.persistFormatIfRequested("en-us", null);
+    adaptor.persistFormatIfRequested(null, new LocaleDetail());
+
+    assertTrue(saved.isEmpty());
+    assertTrue(deleted.isEmpty());
   }
 }

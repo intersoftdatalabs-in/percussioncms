@@ -54,9 +54,11 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.BiConsumer;
 import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import org.apache.commons.lang3.StringUtils;
@@ -518,60 +520,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     LocaleFormatSummary src =
         body.getFormat() != null ? body.getFormat() : new LocaleFormatSummary();
-    if (isDatePatternOnlyWrite(body)) {
-      persistDatePatternOnly(language, src);
-      return;
-    }
-    if (isTimePatternOnlyWrite(body)) {
-      persistTimePatternOnly(language, src);
-      return;
-    }
-    if (isDateTimePatternOnlyWrite(body)) {
-      persistDateTimePatternOnly(language, src);
-      return;
-    }
-    if (isDecimalSepOnlyWrite(body)) {
-      persistDecimalSepOnly(language, src);
-      return;
-    }
-    if (isGroupingSepOnlyWrite(body)) {
-      persistGroupingSepOnly(language, src);
-      return;
-    }
-    if (isCurrencyCodeOnlyWrite(body)) {
-      persistCurrencyCodeOnly(language, src);
-      return;
-    }
-    if (isCurrencyPatternOnlyWrite(body)) {
-      persistCurrencyPatternOnly(language, src);
-      return;
-    }
-    if (isTextDirOnlyWrite(body)) {
-      persistTextDirOnly(language, src);
-      return;
-    }
-    if (isFirstDayOfWeekOnlyWrite(body)) {
-      persistFirstDayOfWeekOnly(language, src);
-      return;
-    }
-    if (isMeasurementSystemOnlyWrite(body)) {
-      persistMeasurementSystemOnly(language, src);
-      return;
-    }
-    if (isDefaultTzOnlyWrite(body)) {
-      persistDefaultTzOnly(language, src);
-      return;
-    }
-    if (isNumberingSystemOnlyWrite(body)) {
-      persistNumberingSystemOnly(language, src);
-      return;
-    }
-    if (isCalendarOnlyWrite(body)) {
-      persistCalendarOnly(language, src);
-      return;
-    }
-    if (isFallbackChainOnlyWrite(body)) {
-      persistFallbackChainOnly(language, src);
+    if (persistPartialFormatWrite(language, body, src)) {
       return;
     }
     PSLocaleFormat row = formatByLang.apply(language).orElseGet(() -> new PSLocaleFormat(language));
@@ -579,6 +528,55 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     row.setLanguageString(language);
     formatSaver.accept(row);
   }
+
+  /**
+   * Single-field partial-write dispatch. Each entry pairs an {@code is*OnlyWrite} predicate with
+   * its persister in the same first-match order as the historical if-chain, keeping this
+   * dispatcher under the cognitive-complexity budget while preserving exact behavior.
+   */
+  private boolean persistPartialFormatWrite(
+      String language, LocaleDetail body, LocaleFormatSummary src) {
+    for (PartialFormatWrite handler : partialFormatWrites()) {
+      if (handler.matches().test(body)) {
+        handler.persister().accept(language, src);
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private List<PartialFormatWrite> partialFormatWrites() {
+    return List.of(
+        new PartialFormatWrite(
+            LocalesAdaptor::isDatePatternOnlyWrite, this::persistDatePatternOnly),
+        new PartialFormatWrite(
+            LocalesAdaptor::isTimePatternOnlyWrite, this::persistTimePatternOnly),
+        new PartialFormatWrite(
+            LocalesAdaptor::isDateTimePatternOnlyWrite, this::persistDateTimePatternOnly),
+        new PartialFormatWrite(
+            LocalesAdaptor::isDecimalSepOnlyWrite, this::persistDecimalSepOnly),
+        new PartialFormatWrite(
+            LocalesAdaptor::isGroupingSepOnlyWrite, this::persistGroupingSepOnly),
+        new PartialFormatWrite(
+            LocalesAdaptor::isCurrencyCodeOnlyWrite, this::persistCurrencyCodeOnly),
+        new PartialFormatWrite(
+            LocalesAdaptor::isCurrencyPatternOnlyWrite, this::persistCurrencyPatternOnly),
+        new PartialFormatWrite(LocalesAdaptor::isTextDirOnlyWrite, this::persistTextDirOnly),
+        new PartialFormatWrite(
+            LocalesAdaptor::isFirstDayOfWeekOnlyWrite, this::persistFirstDayOfWeekOnly),
+        new PartialFormatWrite(
+            LocalesAdaptor::isMeasurementSystemOnlyWrite, this::persistMeasurementSystemOnly),
+        new PartialFormatWrite(
+            LocalesAdaptor::isDefaultTzOnlyWrite, this::persistDefaultTzOnly),
+        new PartialFormatWrite(
+            LocalesAdaptor::isNumberingSystemOnlyWrite, this::persistNumberingSystemOnly),
+        new PartialFormatWrite(LocalesAdaptor::isCalendarOnlyWrite, this::persistCalendarOnly),
+        new PartialFormatWrite(
+            LocalesAdaptor::isFallbackChainOnlyWrite, this::persistFallbackChainOnly));
+  }
+
+  private record PartialFormatWrite(
+      Predicate<LocaleDetail> matches, BiConsumer<String, LocaleFormatSummary> persister) {}
 
   private void persistDatePatternOnly(String language, LocaleFormatSummary src) {
     Optional<PSLocaleFormat> existing = formatByLang.apply(language);
