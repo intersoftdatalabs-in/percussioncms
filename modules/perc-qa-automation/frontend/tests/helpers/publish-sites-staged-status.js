@@ -34,6 +34,8 @@ const TEST_IDS = Object.freeze({
   summary: "item-staged-status-summary",
   table: "item-staged-status-table",
   row: "item-staged-status-row",
+  severity: "item-staged-status-severity",
+  filterEmpty: "item-staged-status-filter-empty",
   empty: "item-staged-status-empty",
   error: "item-staged-status-error",
 });

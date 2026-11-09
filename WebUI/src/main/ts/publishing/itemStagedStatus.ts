@@ -37,6 +37,42 @@ import {
 /** One log line in the staged-item readback (a pubhistory row). */
 export type StagedItemLogLine = ItemPublishingHistory;
 
+/** Client-side severity filter for staged-item log lines (#5887). */
+export type StagedStatusSeverityFilter = "all" | "failure" | "success";
+
+/**
+ * Whether a log line matches a severity bucket. Severity is derived from
+ * the row status only (case-insensitive): FAILURE lines are failures,
+ * SUCCESS lines are successes; any other status matches "all" alone.
+ */
+export function matchesStagedStatusSeverity(
+  line: StagedItemLogLine,
+  filter: StagedStatusSeverityFilter,
+): boolean {
+  if (filter === "all") {
+    return true;
+  }
+  const status = String(line.status ?? "").toUpperCase();
+  if (filter === "failure") {
+    return status === "FAILURE";
+  }
+  return status === "SUCCESS";
+}
+
+/**
+ * Client-side severity filter for already-loaded staged-item log lines.
+ * Pure and read-only: never fetches, never mutates the input array.
+ */
+export function filterStagedStatusLines(
+  lines: StagedItemLogLine[],
+  filter: StagedStatusSeverityFilter,
+): StagedItemLogLine[] {
+  if (filter === "all") {
+    return lines;
+  }
+  return lines.filter((line) => matchesStagedStatusSeverity(line, filter));
+}
+
 /** Read-only status summary derived from the log lines. */
 export interface StagedItemStatusSummary {
   totalCount: number;

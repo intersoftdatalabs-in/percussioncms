@@ -2343,8 +2343,9 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 1. Sign in as an **Admin** (or an operator who can read publish history).
 2. Open **Publish → Sites** and select a site (or deep-link `section=sites` with `siteId` and `itemId`).
 3. Enter the item id (content GUID such as `16777215-101-9`) and choose **View status**.
+4. Use the **Severity** filter above the **Log lines** table to narrow the loaded lines to **Failures** or **Successes**; choose **All severities** to restore the full list. The filter is client-side — narrowing or clearing it issues no new request and never writes.
 
-**Empty and error states:** Blank or invalid item id is not a lookup. An item with no publish or takedown rows shows **No publish status for this item**, not an error. HTTP **400** (invalid id), **403** (forbidden), **404** (unknown item), and **409** (status conflict) show the mapped error. A failed fetch keeps the previous view on screen — the earlier status summary and log lines stay visible under the error instead of being cleared. HTTP **500** keeps the server message.
+**Empty and error states:** Blank or invalid item id is not a lookup. An item with no publish or takedown rows shows **No publish status for this item**, not an error. When the severity filter matches nothing, the table is replaced by **No log lines match this severity filter** (clear the filter to see every log line). HTTP **400** (invalid id), **403** (forbidden), **404** (unknown item), and **409** (status conflict) show the mapped error. A failed fetch keeps the previous view on screen — the earlier status summary and log lines stay visible under the error instead of being cleared. HTTP **500** keeps the server message.
 
 ## Available publishing actions menu (Publishing site workspace)
 
