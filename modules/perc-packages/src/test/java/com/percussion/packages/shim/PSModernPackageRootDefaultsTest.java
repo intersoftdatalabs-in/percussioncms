@@ -23,10 +23,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.IOException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Set;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
 
@@ -191,5 +196,69 @@ class PSModernPackageRootDefaultsTest {
         () -> PSModernPackageRootDefaults.safeResolveUnder(root, "widgets/../../escape.txt"));
     assertThrows(
         IOException.class, () -> PSModernPackageRootDefaults.safeResolveUnder(root, "/abs.txt"));
+  }
+
+  @Test
+  void listModernPackageNames_jarContainer_detectsWidgetsAndRootManifestPackages()
+      throws Exception {
+    String manifest = PSLegacyDefinitionXmlShim.MODERN_MANIFEST_FILE_NAME;
+    Path jar = tempDir.resolve("prod.jar");
+    try (JarOutputStream out = new JarOutputStream(Files.newOutputStream(jar))) {
+      writeJarEntry(
+          out, "Packages/perc.baseWidgets/widgets/percSimpleText/" + manifest, "{\"id\":\"x\"}");
+      writeJarEntry(out, "Packages/perc.other/" + manifest, "{\"id\":\"y\"}");
+      writeJarEntry(out, "Packages/perc.other/Definition.xml", "<Widget/>");
+    }
+
+    Set<String> names = PSModernPackageRootDefaults.listModernPackageNames(jar);
+    assertTrue(names.contains("perc.baseWidgets"), "widgets-rooted package: " + names);
+    assertTrue(names.contains("perc.other"), "root-manifest package: " + names);
+    assertEquals(2, names.size());
+  }
+
+  @Test
+  void materializeFromClasspath_jarContainer_copiesOnlyModernEntries() throws Exception {
+    String manifest = PSLegacyDefinitionXmlShim.MODERN_MANIFEST_FILE_NAME;
+    Path jar = tempDir.resolve("synth-prod.jar");
+    try (JarOutputStream out = new JarOutputStream(Files.newOutputStream(jar))) {
+      // Sample entry locatePackagesContainer pins to this jar.
+      writeJarEntry(
+          out,
+          "Packages/perc.baseWidgets/widgets/percSimpleText/" + manifest,
+          "{\"id\":\"percSimpleText\"}");
+      // Legacy definition XML must be skipped by the jar copy filter.
+      writeJarEntry(out, "Packages/perc.baseWidgets/Definition.xml", "<Widget/>");
+    }
+
+    URLClassLoader cl =
+        new URLClassLoader(new URL[] {jar.toUri().toURL()}, null);
+    try {
+      Path dest = tempDir.resolve("mat").resolve("Modern");
+      int written = PSModernPackageRootDefaults.materializeFromClasspath(cl, dest);
+      assertTrue(written > 0, "expected modern widget files to materialize");
+
+      List<Path> roots = PSModernPackageRootDefaults.discoverPackageRoots(dest);
+      assertEquals(1, roots.size());
+      assertTrue(roots.get(0).endsWith(Path.of("perc.baseWidgets")));
+      assertTrue(
+          Files.isRegularFile(
+              dest.resolve("perc.baseWidgets")
+                  .resolve("widgets")
+                  .resolve("percSimpleText")
+                  .resolve(manifest)));
+      assertFalse(
+          Files.exists(dest.resolve("perc.baseWidgets").resolve("Definition.xml")),
+          "legacy Definition.xml must not materialize");
+    } finally {
+      cl.close();
+    }
+  }
+
+  private static void writeJarEntry(JarOutputStream out, String name, String content)
+      throws IOException {
+    JarEntry entry = new JarEntry(name);
+    out.putNextEntry(entry);
+    out.write(content.getBytes(StandardCharsets.UTF_8));
+    out.closeEntry();
   }
 }
