@@ -43,6 +43,7 @@ import { buildDeliveryServerCopy } from "../deliveryServerCopy";
 import { mapDeliveryServerCopyError } from "../deliveryServerSaveErrors";
 import { ItemPublishNowPanel } from "../components/ItemPublishNowPanel";
 import { ItemPublishingActionsMenu } from "../components/ItemPublishingActionsMenu";
+import { ItemPublishingHistoryPanel } from "../components/ItemPublishingHistoryPanel";
 import { ItemScheduleDatesPanel } from "../components/ItemScheduleDatesPanel";
 import { ItemStagePanel } from "../components/ItemStagePanel";
 import { ItemStagedStatusPanel } from "../components/ItemStagedStatusPanel";
@@ -860,6 +861,11 @@ export function SiteWorkspace({
       <ItemStagePanel itemId={itemId} onItemIdChange={onItemIdChange} />
       <ItemStagedStatusPanel itemId={itemId} onItemIdChange={onItemIdChange} />
       <ItemTakedownPanel itemId={itemId} onItemIdChange={onItemIdChange} />
+      <ItemPublishingHistoryPanel
+        itemId={itemId}
+        onItemIdChange={onItemIdChange}
+        currentSection="status"
+      />
 
       {loadingServers && <p>{message(MSG.PUBLISH_LOADING)}</p>}
       {noServers && (
