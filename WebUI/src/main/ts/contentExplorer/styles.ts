@@ -254,6 +254,39 @@ export const sortHeaderButtonStyle: CSSProperties = {
   cursor: "pointer",
 };
 
+/** Detail-list column-visibility toolbar row (#5881). */
+export const detailColumnsToolbarStyle: CSSProperties = {
+  display: "flex",
+  gap: 6,
+  alignItems: "center",
+  padding: "4px 10px",
+  borderBottom: "1px solid #eee",
+  background: "#fafafa",
+};
+
+/** Detail-list column-visibility toggle button (#5881). */
+export const detailColumnsToggleButtonStyle: CSSProperties = {
+  padding: "3px 8px",
+  border: "1px solid #ccc",
+  background: "#fff",
+  color: "#222",
+  borderRadius: 3,
+  fontSize: "0.8rem",
+  cursor: "pointer",
+};
+
+/** Detail-list column-visibility menu panel (#5881). */
+export const detailColumnsMenuStyle: CSSProperties = {
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+  padding: "6px 8px",
+  border: "1px solid #ddd",
+  borderRadius: 3,
+  background: "#fff",
+  fontSize: "0.8rem",
+};
+
 export const folderIconButtonStyle: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",

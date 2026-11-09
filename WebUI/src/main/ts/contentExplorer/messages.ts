@@ -43,6 +43,10 @@ export const EXPLORER_MSG = {
   COL_WORKFLOW: "perc.ui.explorer@Workflow",
   /** Detail-list column-sort toggle (#5759). Appended after the column label. */
   SORT_COLUMN: "perc.ui.explorer@Sort",
+  /** Detail-list per-operator column visibility menu (#5881). */
+  DETAIL_COLUMNS_MENU: "perc.ui.explorer@Column visibility",
+  /** Explains why the last visible column cannot be hidden (#5881). */
+  DETAIL_COLUMNS_KEEP_ONE: "perc.ui.explorer@At least one column stays visible",
   ACTION_OPEN: "perc.ui.explorer@Open",
   ACTION_PREVIEW: "perc.ui.explorer@Preview",
   /** View residual: reload detail list for the current folder (#2733). */
