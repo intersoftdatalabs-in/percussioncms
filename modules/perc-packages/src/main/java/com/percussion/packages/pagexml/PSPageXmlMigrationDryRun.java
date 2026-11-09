@@ -380,86 +380,121 @@ public final class PSPageXmlMigrationDryRun {
 
   /** First field-for-field difference between oracle and readback, or null when they agree. */
   static String firstMismatch(PSPageXmlModel expected, PSPageXmlModel actual) {
-    if (!Objects.equals(expected.getName(), actual.getName())) {
-      return "name expected=" + expected.getName() + " actual=" + actual.getName();
+    String mismatch = firstIdentityMismatch(expected, actual);
+    if (mismatch != null) {
+      return mismatch;
     }
-    if (!Objects.equals(expected.getLabel(), actual.getLabel())) {
-      return "label expected=" + expected.getLabel() + " actual=" + actual.getLabel();
+    mismatch = firstInstallMismatch(expected, actual);
+    if (mismatch != null) {
+      return mismatch;
     }
-    if (!Objects.equals(expected.getDescription(), actual.getDescription())) {
-      return "description mismatch";
+    mismatch = firstBindingMismatch(expected, actual);
+    if (mismatch != null) {
+      return mismatch;
     }
-    if (!Objects.equals(expected.getGuid(), actual.getGuid())) {
-      return "guid expected=" + expected.getGuid() + " actual=" + actual.getGuid();
+    return firstRegionMismatch(expected, actual);
+  }
+
+  private static String check(String field, Object expected, Object actual) {
+    return Objects.equals(expected, actual)
+        ? null
+        : field + " expected=" + expected + " actual=" + actual;
+  }
+
+  private static String firstIdentityMismatch(PSPageXmlModel expected, PSPageXmlModel actual) {
+    String mismatch = check("name", expected.getName(), actual.getName());
+    if (mismatch != null) {
+      return mismatch;
     }
-    if (!Objects.equals(expected.getAssembler(), actual.getAssembler())) {
-      return "assembler expected=" + expected.getAssembler() + " actual=" + actual.getAssembler();
+    mismatch = check("label", expected.getLabel(), actual.getLabel());
+    if (mismatch != null) {
+      return mismatch;
     }
-    if (!Objects.equals(expected.getOutputFormat(), actual.getOutputFormat())) {
-      return "outputFormat expected="
-          + expected.getOutputFormat()
-          + " actual="
-          + actual.getOutputFormat();
+    mismatch = check("description", expected.getDescription(), actual.getDescription());
+    if (mismatch != null) {
+      return mismatch;
     }
-    if (!Objects.equals(expected.getTemplateType(), actual.getTemplateType())) {
-      return "templateType expected="
-          + expected.getTemplateType()
-          + " actual="
-          + actual.getTemplateType();
+    mismatch = check("guid", expected.getGuid(), actual.getGuid());
+    if (mismatch != null) {
+      return mismatch;
     }
-    if (!Objects.equals(expected.getMimeType(), actual.getMimeType())) {
-      return "mimeType expected=" + expected.getMimeType() + " actual=" + actual.getMimeType();
+    mismatch = check("assembler", expected.getAssembler(), actual.getAssembler());
+    if (mismatch != null) {
+      return mismatch;
     }
-    if (!Objects.equals(expected.getCharset(), actual.getCharset())) {
-      return "charset expected=" + expected.getCharset() + " actual=" + actual.getCharset();
+    mismatch = check("outputFormat", expected.getOutputFormat(), actual.getOutputFormat());
+    if (mismatch != null) {
+      return mismatch;
     }
-    if (!Objects.equals(expected.getActiveAssemblyType(), actual.getActiveAssemblyType())) {
-      return "activeAssemblyType expected="
-          + expected.getActiveAssemblyType()
-          + " actual="
-          + actual.getActiveAssemblyType();
+    return check("templateType", expected.getTemplateType(), actual.getTemplateType());
+  }
+
+  private static String firstInstallMismatch(PSPageXmlModel expected, PSPageXmlModel actual) {
+    String mismatch = check("mimeType", expected.getMimeType(), actual.getMimeType());
+    if (mismatch != null) {
+      return mismatch;
     }
-    if (!Objects.equals(expected.getPublishWhen(), actual.getPublishWhen())) {
-      return "publishWhen expected="
-          + expected.getPublishWhen()
-          + " actual="
-          + actual.getPublishWhen();
+    mismatch = check("charset", expected.getCharset(), actual.getCharset());
+    if (mismatch != null) {
+      return mismatch;
     }
-    if (!Objects.equals(expected.getLocationPrefix(), actual.getLocationPrefix())) {
-      return "locationPrefix mismatch";
+    mismatch =
+        check(
+            "activeAssemblyType",
+            expected.getActiveAssemblyType(),
+            actual.getActiveAssemblyType());
+    if (mismatch != null) {
+      return mismatch;
     }
-    if (!Objects.equals(expected.getLocationSuffix(), actual.getLocationSuffix())) {
-      return "locationSuffix mismatch";
+    mismatch = check("publishWhen", expected.getPublishWhen(), actual.getPublishWhen());
+    if (mismatch != null) {
+      return mismatch;
     }
-    if (!Objects.equals(expected.getTemplateBody(), actual.getTemplateBody())) {
-      return "templateBody mismatch";
+    mismatch =
+        check("locationPrefix", expected.getLocationPrefix(), actual.getLocationPrefix());
+    if (mismatch != null) {
+      return mismatch;
     }
-    List<PSPageXmlModel.Binding> eb = expected.getBindings() != null
-        ? expected.getBindings()
-        : List.of();
-    List<PSPageXmlModel.Binding> ab = actual.getBindings() != null
-        ? actual.getBindings()
-        : List.of();
+    mismatch =
+        check("locationSuffix", expected.getLocationSuffix(), actual.getLocationSuffix());
+    if (mismatch != null) {
+      return mismatch;
+    }
+    return check("templateBody", expected.getTemplateBody(), actual.getTemplateBody());
+  }
+
+  private static String firstBindingMismatch(PSPageXmlModel expected, PSPageXmlModel actual) {
+    List<PSPageXmlModel.Binding> eb =
+        expected.getBindings() != null ? expected.getBindings() : List.of();
+    List<PSPageXmlModel.Binding> ab =
+        actual.getBindings() != null ? actual.getBindings() : List.of();
     if (!eb.equals(ab)) {
       return "bindings size expected=" + eb.size() + " actual=" + ab.size();
     }
-    List<PSPageXmlModel.RegionHole> er = expected.getRegionHoles() != null
-        ? expected.getRegionHoles()
-        : List.of();
-    List<PSPageXmlModel.RegionHole> ar = actual.getRegionHoles() != null
-        ? actual.getRegionHoles()
-        : List.of();
+    return null;
+  }
+
+  private static String firstRegionMismatch(PSPageXmlModel expected, PSPageXmlModel actual) {
+    List<PSPageXmlModel.RegionHole> er =
+        expected.getRegionHoles() != null ? expected.getRegionHoles() : List.of();
+    List<PSPageXmlModel.RegionHole> ar =
+        actual.getRegionHoles() != null ? actual.getRegionHoles() : List.of();
     if (er.size() != ar.size()) {
       return "regionHoles size expected=" + er.size() + " actual=" + ar.size();
     }
     for (int i = 0; i < er.size(); i++) {
-      if (!Objects.equals(er.get(i).getRegionId(), ar.get(i).getRegionId())
-          || !Objects.equals(er.get(i).getCssClass(), ar.get(i).getCssClass())
-          || !Objects.equals(er.get(i).getLayoutHints(), ar.get(i).getLayoutHints())
-          || !Objects.equals(er.get(i).getStyleHints(), ar.get(i).getStyleHints())) {
+      if (regionHoleDiffers(er.get(i), ar.get(i))) {
         return "regionHoles[" + i + "] mismatch";
       }
     }
     return null;
+  }
+
+  private static boolean regionHoleDiffers(
+      PSPageXmlModel.RegionHole expected, PSPageXmlModel.RegionHole actual) {
+    return !Objects.equals(expected.getRegionId(), actual.getRegionId())
+        || !Objects.equals(expected.getCssClass(), actual.getCssClass())
+        || !Objects.equals(expected.getLayoutHints(), actual.getLayoutHints())
+        || !Objects.equals(expected.getStyleHints(), actual.getStyleHints());
   }
 }
