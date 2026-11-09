@@ -26,6 +26,20 @@ handler, interfaces, `initParameters.className`, extra **init parameters**
 (Workbench parameter dialog), deprecated, the **method map**, and the **runtime
 parameter list**).
 
+## Readback
+
+The catalog table is a thin read: it lists name, handler, context,
+category, and flags from `GET /services/extensions/catalog`
+(`{"Extension":[...]}`) and carries no method-map or runtime-parameter
+payload. Opening a row loads the detail from
+`GET /services/extensions/catalog/item?key=` (FQN or short-name key) and
+shows the title, FQN, context, handler, interface list,
+`initParameters.className`, the method map, and the runtime parameter
+list. Packaged **system** extensions (for example the `add` UDF under
+`global/percussion/udf/`) read back with zero writes: the row renders
+from the thin list and the detail renders read-only with Save and
+Delete disabled.
+
 ## Product path — create, save, delete
 
 1. Sign in as **Admin** (write calls require the Admin role).

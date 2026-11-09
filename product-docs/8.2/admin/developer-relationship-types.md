@@ -17,6 +17,19 @@ from this chrome. Packaged **system** types remain **read-only** — open them
 to inspect effects, properties, and cloning field overrides, then create a
 user type (optionally **Copy from** a system type) to customize.
 
+## Readback
+
+The catalog table is a thin read: it lists name, label, category, type,
+and flags from `GET /services/relationshiptypes`
+(`{"RelationshipType":[...]}`). Opening a row loads the detail from
+`GET /services/relationshiptypes/{idOrName}` and shows the title, label,
+description, cloning and revision flags, the cloning field-override
+list, effects with conditions and execution contexts, and the system and
+user property lists. Packaged **system** types (for example
+`ActiveAssembly`) read back with zero writes: the row renders from the
+thin list and the detail renders read-only with no Save or Delete
+chrome.
+
 ## Product path — create, save, delete
 
 1. Sign in as **Admin** (write calls require the Admin role).
