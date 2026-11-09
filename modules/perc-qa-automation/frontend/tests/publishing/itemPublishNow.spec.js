@@ -201,7 +201,7 @@ test.describe("PublishingShell site-workspace publish now", () => {
   );
 
   test(
-    "HTTP 403 400 and 404 are not success",
+    "HTTP 403 400 404 and 409 are not success",
     { tag: ["@publishing", "@publishing-publish-now"] },
     async ({ page }) => {
       const pageErrors = [];
@@ -263,6 +263,24 @@ test.describe("PublishingShell site-workspace publish now", () => {
       await page.locator('[data-testid="item-publish-now-submit"]').click();
       await expect(page.locator('[data-testid="item-publish-now-error"]')).toContainText(
         /Unknown item|not found|404/i,
+      );
+      await expect(page.locator('[data-testid="item-publish-now-success"]')).toHaveCount(0);
+
+      await page.unroute("**/sitemanage/publish/page/**");
+      await page.route("**/sitemanage/publish/page/**", async (route) => {
+        if (route.request().url().includes("/staging/")) {
+          await route.continue();
+          return;
+        }
+        await route.fulfill({
+          status: 409,
+          contentType: "application/json",
+          body: JSON.stringify({ message: "checked out" }),
+        });
+      });
+      await page.locator('[data-testid="item-publish-now-submit"]').click();
+      await expect(page.locator('[data-testid="item-publish-now-error"]')).toContainText(
+        /editing this item|checked out/i,
       );
       await expect(page.locator('[data-testid="item-publish-now-success"]')).toHaveCount(0);
 

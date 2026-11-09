@@ -2235,7 +2235,7 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 3. Enter the item id (content GUID such as `16777215-101-9`), choose **Page** or **Asset**, and choose **Review publish now**.
 4. Confirm **Publish this item now?** then **Publish Now**. The site workspace job list refreshes after a successful start.
 
-**Empty and error states:** Blank or invalid item id is not a publish. HTTP **403** (non-Admin or locked/forbidden item) and HTTP **400** (validation) are shown in the panel — they are **not** treated as success. HTTP **404** (unknown id) shows **Item not found**. HTTP 200 with application-level `FORBIDDEN` or `BADCONFIG` is also a failure (same as Explorer). Stage / unstage have their own panels; the **Available publishing actions** menu above them jumps to each panel for the same item.
+**Empty and error states:** Blank or invalid item id is not a publish. HTTP **403** (non-Admin or locked/forbidden item) and HTTP **400** (validation) are shown in the panel — they are **not** treated as success. HTTP **404** (unknown id) shows **Item not found**. HTTP **409** (someone else is editing the item) shows the mapped conflict message and is **not** success. HTTP 200 with application-level `FORBIDDEN` or `BADCONFIG` is also a failure (same as Explorer). Stage / unstage have their own panels; the **Available publishing actions** menu above them jumps to each panel for the same item.
 
 **Deep links:**
 
