@@ -300,6 +300,12 @@ neither array contains the candidate PR's number.
 - **No HTTP-poll `/Rhythmyx/login`** after `server.log` shows
   `Failed startup of context` — use `qa-health`.
 - **`qa-down` always**, even on failure.
+- **Serialize chains that share a staging dir.** Parallel Maven chains
+  whose inputs overlap (observed: two chains sharing `WebUI/war` staging —
+  one's `clean` wiped the other's source) must not run `clean`
+  concurrently; stagger the cleans or run those chains sequentially. A
+  green sequential rerun after a collision proves a harness race, not a
+  product defect — record it, do not file a residual.
 - **No fixes here.** Cycle verify finds; Work fixes next cycle.
 - **No human QA assignment, `qa task` label, or assignee `@<login>`**.
   Those are the `human-qa` phase's job. Cycle verify outputs go into
