@@ -37,7 +37,9 @@ import org.junit.jupiter.api.io.TempDir;
  *
  * <p>A normalized definition read back from {@code component-package.json} + template sources must
  * agree field-for-field with the legacy definition-XML readback ({@link PSPageXmlParser}) of the
- * equivalent install XML ({@link PSPageXmlTemplateDefEmitter}). The legacy fallback is untouched.
+ * equivalent install XML ({@link PSPageXmlTemplateDefEmitter}). The assembler fallback path is
+ * removed behind migrated definitions (issue #5864): blank or unregistered manifest assembler
+ * values fail fast instead of defaulting or passing through.
  */
 class PSPageXmlManifestReadbackTest {
 
@@ -132,6 +134,9 @@ class PSPageXmlManifestReadbackTest {
         new PSComponentPackageManifest.TemplateRef();
     template.setName("perc.modern.minimal");
     template.setType("page");
+    // Modern-only strictness (issue #5864): migrated definitions name a registered assembler;
+    // the blank default fallback is removed, so the minimal manifest states it explicitly.
+    template.setAssembler("pageAssembler");
     manifest.setTemplates(List.of(template));
 
     PSPageXmlModel readback = PSPageXmlManifestReadback.readback(manifest, "<p>hi</p>");
@@ -175,6 +180,70 @@ class PSPageXmlManifestReadbackTest {
     assertEquals("perc.base.plain", readback.getName());
     assertEquals("Java/global/percussion/assembly/pageAssembler", readback.getAssembler());
     assertEquals("Page", readback.getOutputFormat());
+  }
+
+  @Test
+  void blankAssembler_failsFastWithoutDefaultFallback() {
+    // Issue #5864: behind migrated definitions there is no blank → pageAssembler fallback.
+    PSComponentPackageManifest manifest = new PSComponentPackageManifest();
+    manifest.setId("perc.blank-assembler");
+    PSComponentPackageManifest.TemplateRef template =
+        new PSComponentPackageManifest.TemplateRef();
+    template.setName("perc.blank-assembler");
+    template.setType("page");
+    manifest.setTemplates(List.of(template));
+    PSPageXmlException ex =
+        assertThrows(
+            PSPageXmlException.class, () -> PSPageXmlManifestReadback.readback(manifest, "body"));
+    assertTrue(ex.getMessage().contains("unregistered assembler"));
+    assertTrue(ex.getMessage().contains("perc.blank-assembler"));
+  }
+
+  @Test
+  void unregisteredAssembler_failsFastWithoutPassthroughFallback() {
+    // Issue #5864: custom ids no longer gain the product extension prefix on the modern path.
+    PSComponentPackageManifest manifest = new PSComponentPackageManifest();
+    manifest.setId("perc.custom-assembler");
+    PSComponentPackageManifest.TemplateRef template =
+        new PSComponentPackageManifest.TemplateRef();
+    template.setName("perc.custom-assembler");
+    template.setType("page");
+    template.setAssembler("siteAssembler");
+    manifest.setTemplates(List.of(template));
+    PSPageXmlException ex =
+        assertThrows(
+            PSPageXmlException.class, () -> PSPageXmlManifestReadback.readback(manifest, "body"));
+    assertTrue(ex.getMessage().contains("unregistered assembler"));
+    assertTrue(ex.getMessage().contains("siteAssembler"));
+  }
+
+  @Test
+  void registeredAssemblerVariants_resolveToCatalogPaths() throws Exception {
+    // Registered short id, full extension path, legacy alias, and casing all resolve (no throw).
+    assertReadbackAssembler(
+        "pageAssembler", "Java/global/percussion/assembly/pageAssembler");
+    assertReadbackAssembler(
+        "Java/global/percussion/assembly/htmlAssembler",
+        "Java/global/percussion/assembly/htmlAssembler");
+    assertReadbackAssembler(
+        "xslAssembler", "Java/global/percussion/assembly/legacyAssembler");
+    assertReadbackAssembler(
+        "MARKDOWNASSEMBLER", "Java/global/percussion/assembly/markdownAssembler");
+  }
+
+  private static void assertReadbackAssembler(String manifestAssembler, String expectedPath)
+      throws Exception {
+    PSComponentPackageManifest manifest = new PSComponentPackageManifest();
+    manifest.setId("perc.variant");
+    PSComponentPackageManifest.TemplateRef template =
+        new PSComponentPackageManifest.TemplateRef();
+    template.setName("perc.variant");
+    template.setType("page");
+    template.setAssembler(manifestAssembler);
+    manifest.setTemplates(List.of(template));
+    assertEquals(
+        expectedPath,
+        PSPageXmlManifestReadback.readback(manifest, "<p>hi</p>").getAssembler());
   }
 
   @Test

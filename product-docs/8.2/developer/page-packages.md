@@ -85,7 +85,17 @@ so new page templates never need Widget / Page definition XML.
 Author the short id (for example `"assembler": "htmlAssembler"`); package build stages
 the registered extension path into the archive `TemplateDef-N/<stem>.templateDef`
 `<assembler>` element. Values that are already full extension paths pass through
-unchanged for site-local custom assemblers.
+unchanged for site-local custom assemblers **on the legacy-upgrade emit path only**
+(`PSPageXmlTemplateDefEmitter.emit`, native install, dual-ship materialization), so
+customer XML still compiles.
+
+Behind migrated definitions there is **no fallback** (slice 3, #5864): the modern-only
+readback (`PSPageXmlManifestReadback`) resolves strictly through the registered catalog
+(`PSPageXmlTemplateDefEmitter.resolveRegisteredAssemblerPath`). A blank assembler no
+longer defaults to `pageAssembler`, and unregistered ids no longer gain the product
+extension prefix — either fails fast naming the manifest id and the registered catalog.
+Author a registered id in every modern manifest; the migration dry-run reports
+unregistered assemblers as `BLOCKED`.
 
 ## Assembler-model readback from the manifest
 
@@ -97,10 +107,11 @@ assembler extension path, output format, ordered JEXL bindings, region holes, an
 install defaults (`text/html`, `UTF-8`, `Default`, `Shared`, `Normal`). Binary asset
 templates omit mime type and charset, matching install emit.
 
-Readback never touches Widget / Page definition XML, and the customer legacy-XML
-fallback stays in place (removal is tracked separately). Operators do not need to do
-anything: this is the inspection path package build and upgrade tooling use to verify
-a modern package before it is staged into `TemplateDef-N/`.
+Readback never touches Widget / Page definition XML. The assembler fallback path is removed
+behind migrated definitions (slice 3, #5864): blank or unregistered manifest assembler values
+fail fast instead of silently defaulting, so operators see the blocker instead of a wrong
+install. Operators do not need to do anything: this is the inspection path package build and
+upgrade tooling use to verify a modern package before it is staged into `TemplateDef-N/`.
 
 ## Legacy definition-XML migration dry-run report
 
@@ -119,8 +130,9 @@ results live only in memory and `writeArtifacts` is never called.
 
 The panel renders as Markdown (`Report.toMarkdown()`, one row per package) for
 issue evidence and operator tooling, or plain text (`Report.toText()`) for CLI use.
-The legacy fallback is untouched by the dry-run; fallback-path removal is tracked
-separately.
+The assembler fallback path is removed behind migrated definitions (slice 3, #5864):
+a legacy definition whose assembler has no registered catalog entry reports `BLOCKED`
+with an unregistered-assembler reason — fix by authoring a registered id, then re-run.
 
 ## Dual-ship vs dual-run (do not mix them up)
 

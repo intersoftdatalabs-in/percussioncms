@@ -667,6 +667,40 @@ class PSPageXmlDualShipTest {
         PSPageXmlTemplateDefEmitter.REGISTERED_ASSEMBLER_PATHS.containsKey("velocityAssembler"));
   }
 
+  @Test
+  void resolveRegisteredAssemblerPath_strictModernOnlyResolution() {
+    // Issue #5864: the modern-only load path has no fallback — blank, unregistered short ids,
+    // and unregistered full paths all throw; registered values (short, full path, alias,
+    // any casing) resolve.
+    assertEquals(
+        "Java/global/percussion/assembly/pageAssembler",
+        PSPageXmlTemplateDefEmitter.resolveRegisteredAssemblerPath("pageAssembler"));
+    assertEquals(
+        "Java/global/percussion/assembly/htmlAssembler",
+        PSPageXmlTemplateDefEmitter.resolveRegisteredAssemblerPath(
+            "Java/global/percussion/assembly/htmlAssembler"));
+    assertEquals(
+        "Java/global/percussion/assembly/legacyAssembler",
+        PSPageXmlTemplateDefEmitter.resolveRegisteredAssemblerPath("xslAssembler"));
+    assertEquals(
+        "Java/global/percussion/assembly/markdownAssembler",
+        PSPageXmlTemplateDefEmitter.resolveRegisteredAssemblerPath("MARKDOWNASSEMBLER"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSPageXmlTemplateDefEmitter.resolveRegisteredAssemblerPath(null));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSPageXmlTemplateDefEmitter.resolveRegisteredAssemblerPath("  "));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> PSPageXmlTemplateDefEmitter.resolveRegisteredAssemblerPath("siteAssembler"));
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            PSPageXmlTemplateDefEmitter.resolveRegisteredAssemblerPath(
+                "Java/global/percussion/assembly/siteAssembler"));
+  }
+
   private static PSPageXmlPackageContext baseTemplatesLikeContext() {
     PSPageXmlPackageContext ctx = new PSPageXmlPackageContext();
     ctx.setPackageId("perc.baseTemplates");
