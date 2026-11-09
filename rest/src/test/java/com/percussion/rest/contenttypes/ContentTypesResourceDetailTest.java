@@ -48,6 +48,17 @@ import tools.jackson.databind.ObjectMapper;
 @Tag("UnitTest")
 public class ContentTypesResourceDetailTest {
 
+  // Item-exits JSON payloads below use text blocks (no backslash escapes). The `/` inside
+  // extension names (e.g. Java/global/...) are Rhythmyx logical extension identifiers in
+  // JSON content, not filesystem paths, so they are platform-independent.
+  private static final String UNWRAP_EMPTY_LISTS_JSON =
+      """
+      {"ContentTypeItemExits":{"inputTranslations":[{"extension":"Java/global/percussion/generic/sys_ToUpperCase","parameters":[{"value":"sys_title"}]}],"outputTranslations":[],"validations":[],"preExits":[],"postExits":[],"maxErrorsToStopValidation":10}}""";
+
+  private static final String ROUND_TRIP_APPLY_WHEN_JSON =
+      """
+      {"ContentTypeItemExits":{"inputTranslations":[{"extension":"Java/global/percussion/content/sys_cleanReservedHtmlClasses","parameters":[{"value":"sys_title"}],"applyWhen":[{"type":"conditional","conditionals":[{"variable":"sys_communityid","operator":"=","value":"1001"}]}]}],"outputTranslations":[],"validations":[]}}""";
+
   private IContentTypesAdaptor adaptor;
   private ContentTypesResource resource;
 
@@ -310,12 +321,7 @@ public class ContentTypesResourceDetailTest {
   @Test
   public void itemExitsPutJsonUnwrapsWrappedEmptyLists() throws Exception {
     ObjectMapper mapper = new JacksonContextResolver().getContext(ContentTypeItemExits.class);
-    String json =
-        "{\"ContentTypeItemExits\":{"
-            + "\"inputTranslations\":[{\"extension\":\"Java/global/percussion/generic/sys_ToUpperCase\","
-            + "\"parameters\":[{\"value\":\"sys_title\"}]}],"
-            + "\"outputTranslations\":[],\"validations\":[],\"preExits\":[],\"postExits\":[],"
-            + "\"maxErrorsToStopValidation\":10}}";
+    String json = UNWRAP_EMPTY_LISTS_JSON;
     ContentTypeItemExits back = mapper.readValue(json, ContentTypeItemExits.class);
     assertNotNull(back.getInputTranslations());
     assertEquals(1, back.getInputTranslations().size());
@@ -333,12 +339,7 @@ public class ContentTypesResourceDetailTest {
   @Test
   public void itemExitsPutJsonRoundTripsApplyWhen() throws Exception {
     ObjectMapper mapper = new JacksonContextResolver().getContext(ContentTypeItemExits.class);
-    String json =
-        "{\"ContentTypeItemExits\":{"
-            + "\"inputTranslations\":[{\"extension\":\"Java/global/percussion/content/sys_cleanReservedHtmlClasses\","
-            + "\"parameters\":[{\"value\":\"sys_title\"}],"
-            + "\"applyWhen\":[{\"type\":\"conditional\",\"conditionals\":[{\"variable\":\"sys_communityid\",\"operator\":\"=\",\"value\":\"1001\"}]}]}],"
-            + "\"outputTranslations\":[],\"validations\":[]}}";
+    String json = ROUND_TRIP_APPLY_WHEN_JSON;
     ContentTypeItemExits back = mapper.readValue(json, ContentTypeItemExits.class);
     assertEquals(1, back.getInputTranslations().size());
     assertNotNull(back.getInputTranslations().get(0).getApplyWhen());
