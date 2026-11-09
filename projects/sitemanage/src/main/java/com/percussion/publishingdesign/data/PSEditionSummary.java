@@ -28,6 +28,8 @@ public class PSEditionSummary {
   private String siteId;
   private String comment;
   private Integer priority;
+  private String startDate;
+  private String endDate;
 
   public String getEditionId() {
     return editionId;
@@ -67,5 +69,32 @@ public class PSEditionSummary {
 
   public void setPriority(Integer priority) {
     this.priority = priority;
+  }
+
+  /**
+   * Embargo (scheduled publish) date on the wire in
+   * {@code MM/dd/yyyy hh:mm a} wall time (classic item schedule-dates
+   * convention). Empty string clears the stored date. Omitted (null) on
+   * update leaves the stored date unchanged.
+   */
+  public String getStartDate() {
+    return startDate;
+  }
+
+  public void setStartDate(String startDate) {
+    this.startDate = startDate;
+  }
+
+  /**
+   * Expiry (scheduled takedown) date on the wire in
+   * {@code MM/dd/yyyy hh:mm a} wall time. Empty string clears the stored
+   * date. Omitted (null) on update leaves the stored date unchanged.
+   */
+  public String getEndDate() {
+    return endDate;
+  }
+
+  public void setEndDate(String endDate) {
+    this.endDate = endDate;
   }
 }

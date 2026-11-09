@@ -31,6 +31,7 @@ import { contentListsAfterSuccessfulUrl } from "../contentListUrl";
 import { storedItemFilterLabel } from "../contentListItemFilter";
 import { editionsAfterSuccessfulComment } from "../editionComment";
 import { editionsAfterSuccessfulPriority } from "../editionPriority";
+import { editionsAfterSuccessfulSchedule } from "../editionSchedule";
 import { ContentListCopyPanel } from "../design/ContentListCopyPanel";
 import { ContentListDescriptionPanel } from "../design/ContentListDescriptionPanel";
 import { ContentListGeneratorPanel } from "../design/ContentListGeneratorPanel";
@@ -45,6 +46,7 @@ import { DeliveryTypesPanel } from "../design/DeliveryTypesPanel";
 import { EditionCommentPanel } from "../design/EditionCommentPanel";
 import { EditionEditor, type EditionCopiedInfo } from "../design/EditionEditor";
 import { EditionPriorityPanel } from "../design/EditionPriorityPanel";
+import { EditionSchedulePanel } from "../design/EditionSchedulePanel";
 import { SiteDesignPanel } from "../design/SiteDesignPanel";
 import {
   buttonStyle,
@@ -54,6 +56,7 @@ import {
   listStyle,
   toolbarStyle,
 } from "../publishing.styles";
+import { formatEditionScheduleLabel } from "../editionSchedule";
 
 type DesignNav =
   | "sites"
@@ -80,6 +83,9 @@ export function DesignSection(): React.ReactElement {
     null,
   );
   const [editionPriority, setEditionPriority] = useState<EditionSummary | null>(
+    null,
+  );
+  const [editionSchedule, setEditionSchedule] = useState<EditionSummary | null>(
     null,
   );
   const [clEdit, setClEdit] = useState<ContentListSummary | null | "new">(null);
@@ -183,6 +189,33 @@ export function DesignSection(): React.ReactElement {
             }
             setEditions((prev) =>
               editionsAfterSuccessfulPriority(refreshed, id, priority, prev),
+            );
+          }}
+        />
+      </div>
+    );
+  }
+
+  if (editionSchedule !== null) {
+    const scheduleEdition = editionSchedule;
+    return (
+      <div data-testid="publish-section-design">
+        <EditionSchedulePanel
+          edition={scheduleEdition}
+          onCancel={() => setEditionSchedule(null)}
+          onSaved={async (dates) => {
+            const id = scheduleEdition.editionId ?? "";
+            setEditionSchedule(null);
+            let refreshed: EditionSummary[] | null = null;
+            try {
+              if (siteId) {
+                refreshed = await listEditionsBySite(siteId);
+              }
+            } catch {
+              refreshed = null;
+            }
+            setEditions((prev) =>
+              editionsAfterSuccessfulSchedule(refreshed, id, dates, prev),
             );
           }}
         />
@@ -457,6 +490,25 @@ export function DesignSection(): React.ReactElement {
                     onClick={() => setEditionPriority(e)}
                   >
                     Priority
+                  </button>
+                )}
+                <span
+                  data-testid={
+                    e.editionId
+                      ? `design-edition-schedule-value-${e.editionId}`
+                      : undefined
+                  }
+                >
+                  {formatEditionScheduleLabel(e.startDate, e.endDate)}
+                </span>
+                {e.editionId && (
+                  <button
+                    type="button"
+                    style={buttonStyle}
+                    data-testid={`design-edition-set-schedule-${e.editionId}`}
+                    onClick={() => setEditionSchedule(e)}
+                  >
+                    Schedule
                   </button>
                 )}
               </li>

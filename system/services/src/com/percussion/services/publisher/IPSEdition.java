@@ -21,6 +21,7 @@ import com.percussion.services.catalog.IPSCatalogIdentifier;
 import com.percussion.services.publisher.data.PSEditionType;
 import com.percussion.utils.guid.IPSGuid;
 
+import java.util.Date;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -314,6 +315,30 @@ public interface IPSEdition extends IPSCatalogIdentifier {
     * Internal implementation for priority setting.
     */
    void setPriorityImpl(Priority priority);
+
+   /**
+    * Get the embargo (scheduled publish) date for the edition.
+    * @return the embargo date, may be {@code null} when unscheduled
+    */
+   Date getStartDate();
+
+   /**
+    * Set the embargo (scheduled publish) date for the edition.
+    * @param startDate the embargo date, may be {@code null} to clear
+    */
+   void setStartDate(Date startDate);
+
+   /**
+    * Get the expiry (scheduled takedown) date for the edition.
+    * @return the expiry date, may be {@code null} when unscheduled
+    */
+   Date getEndDate();
+
+   /**
+    * Set the expiry (scheduled takedown) date for the edition.
+    * @param endDate the expiry date, may be {@code null} to clear
+    */
+   void setEndDate(Date endDate);
 
    /**
     * Check if this edition has a display title.

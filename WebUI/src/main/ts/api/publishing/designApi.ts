@@ -24,6 +24,16 @@ export interface EditionSummary {
   siteId?: string;
   comment?: string;
   priority?: number;
+  /**
+   * Embargo (scheduled publish) date on the wire in
+   * {@code MM/dd/yyyy hh:mm a} wall time. Null/empty when unscheduled.
+   */
+  startDate?: string | null;
+  /**
+   * Expiry (scheduled takedown) date on the wire in
+   * {@code MM/dd/yyyy hh:mm a} wall time. Null/empty when unscheduled.
+   */
+  endDate?: string | null;
 }
 
 export interface ContentListSummary {

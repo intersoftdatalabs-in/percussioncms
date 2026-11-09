@@ -991,6 +991,16 @@
                 <size />
                 <allowsnull>yes</allowsnull>
             </column>
+            <column name="STARTDATE">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <size />
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="ENDDATE">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <size />
+                <allowsnull>yes</allowsnull>
+            </column>
         </row>
         <primarykey>
             <name>EDITIONID</name>

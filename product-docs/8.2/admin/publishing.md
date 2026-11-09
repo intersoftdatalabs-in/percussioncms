@@ -1009,6 +1009,31 @@ HTTP **400**, **403** (not Admin or Designer), and **409** stay in the comment f
 Those responses do not change the comment on **Editions**. Renaming an edition, setting only the
 priority, creating an edition, and reordering content lists are separate actions.
 
+### Set an edition schedule (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
+On an edition row, **Schedule** opens **Edition schedule** (it does not call the server).
+The form shows the current **name**, **priority**, and **comment** and does not let you change
+them. The **Embargo (publish from)** and **Expiry (until)** fields are prefilled from the stored
+schedule, or blank when unscheduled. Change either date, or both. **Save schedule** sends
+`PUT …/sitemanage/publishingdesign/editions/{editionId}` with an `edition` object that contains
+only `startDate` and `endDate` (wall time, `MM/dd/yyyy hh:mm am/pm`). Name, priority, comment,
+and site id are omitted, so the server leaves the stored name, priority, and comment as they
+are. The call does not associate, remove, or reorder content lists, so that order stays as
+stored. Copying an edition carries its schedule to the copy.
+
+**Editions** keeps the previous schedule until that update succeeds, then shows the new embargo
+and expiry range with the same name, priority, and comment. **Cancel** closes the form and does
+not call the server. **Clear** empties both fields; saving then clears the stored schedule (an
+empty date clears that side). An expiry that is not after the embargo stays in the form and does
+not call the server.
+
+HTTP **400** (a date is not a valid schedule date, or the expiry is not after the embargo),
+**403** (not Admin or Designer), and **409** stay in the schedule form error region. Those
+responses do not change the schedule on **Editions**. Renaming an edition, setting only the
+comment, setting only the priority, creating an edition, and reordering content lists are
+separate actions. Schedule dates are site-local: design packages do not carry them.
+
 ### Associate a content list with an edition (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.

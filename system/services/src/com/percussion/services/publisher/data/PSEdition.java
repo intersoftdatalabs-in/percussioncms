@@ -35,6 +35,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import jakarta.persistence.Version;
 import java.io.IOException;
+import java.util.Date;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
@@ -102,6 +103,20 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
 
    @Basic
    private Long pubserver;
+
+   /**
+    * Embargo (scheduled publish) date, {@code null} when unscheduled.
+    * Column {@code STARTDATE} on {@code RXEDITION}.
+    */
+   @Basic
+   private Date startdate;
+
+   /**
+    * Expiry (scheduled takedown) date, {@code null} when unscheduled.
+    * Column {@code ENDDATE} on {@code RXEDITION}.
+    */
+   @Basic
+   private Date enddate;
 
    // Constructors
 
@@ -194,6 +209,8 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
          // preserve current priority if not available
       }
       setPubServerId(other.getPubServerId());
+      setStartDate(other.getStartDate());
+      setEndDate(other.getEndDate());
    }
 
    /* (non-Javadoc)
@@ -211,6 +228,38 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
    public void setComment(String comment)
    {
       this.editioncomment = comment;
+   }
+
+   /* (non-Javadoc)
+    * @see com.percussion.services.publisher.IPSEdition#getStartDate()
+    */
+   public Date getStartDate()
+   {
+      return this.startdate;
+   }
+
+   /* (non-Javadoc)
+    * @see com.percussion.services.publisher.IPSEdition#setStartDate(java.util.Date)
+    */
+   public void setStartDate(Date startDate)
+   {
+      this.startdate = startDate;
+   }
+
+   /* (non-Javadoc)
+    * @see com.percussion.services.publisher.IPSEdition#getEndDate()
+    */
+   public Date getEndDate()
+   {
+      return this.enddate;
+   }
+
+   /* (non-Javadoc)
+    * @see com.percussion.services.publisher.IPSEdition#setEndDate(java.util.Date)
+    */
+   public void setEndDate(Date endDate)
+   {
+      this.enddate = endDate;
    }
 
    /* (non-Javadoc)
@@ -445,6 +494,8 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
       sb.append(", destsite=").append(destsite);
       sb.append(", priority=").append(priority);
       sb.append(", pubserver=").append(pubserver);
+      sb.append(", startdate=").append(startdate);
+      sb.append(", enddate=").append(enddate);
       sb.append('}');
       return sb.toString();
    }
@@ -492,5 +543,7 @@ public class PSEdition implements IPSCatalogItem, IPSEdition, Cloneable
       editioncomment = src.editioncomment;
       editiontype = src.editiontype;
       priority = src.priority;
+      startdate = src.startdate;
+      enddate = src.enddate;
    }
 }

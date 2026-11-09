@@ -72,6 +72,9 @@ import com.percussion.services.sitemgr.data.PSSiteProperty;
 import com.percussion.utils.guid.IPSGuid;
 import jakarta.ws.rs.WebApplicationException;
 import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.Collections;
 import java.util.List;
@@ -422,6 +425,123 @@ class PSPublishingDesignRestServiceTest {
     verify(publisherService, times(2)).saveEdition(loaded);
     verify(publisherService, never()).loadEditionContentLists(any());
     verify(publisherService, never()).saveEditionContentList(any());
+  }
+
+  @Test
+  void updateEdition_scheduleOnly_setsDatesAndLeavesNamePriorityComment() throws Exception {
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    IPSEdition loaded = mock(IPSEdition.class);
+    when(publisherService.loadEditionModifiable(editionGuid)).thenReturn(loaded);
+    when(loaded.getGUID()).thenReturn(editionGuid);
+    when(editionGuid.getUUID()).thenReturn(11);
+    when(loaded.getName()).thenReturn("NightEd");
+    when(loaded.getComment()).thenReturn("keep-me");
+    when(loaded.getPriority()).thenReturn(IPSEdition.Priority.MEDIUM);
+    when(loaded.getSiteId()).thenReturn(null);
+    AtomicReference<Date> storedStart = new AtomicReference<>();
+    AtomicReference<Date> storedEnd = new AtomicReference<>();
+    doAnswer(
+            invocation -> {
+              storedStart.set(invocation.getArgument(0));
+              return null;
+            })
+        .when(loaded)
+        .setStartDate(any(Date.class));
+    doAnswer(
+            invocation -> {
+              storedEnd.set(invocation.getArgument(0));
+              return null;
+            })
+        .when(loaded)
+        .setEndDate(any(Date.class));
+    when(loaded.getStartDate()).thenAnswer(invocation -> storedStart.get());
+    when(loaded.getEndDate()).thenAnswer(invocation -> storedEnd.get());
+
+    PSEditionSummary body = new PSEditionSummary();
+    body.setStartDate("11/09/2026 08:00 am");
+    body.setEndDate("11/10/2026 05:00 pm");
+    PSEditionSummary saved = service.updateEdition("11", body);
+
+    assertEquals("NightEd", saved.getName());
+    assertEquals("keep-me", saved.getComment());
+    assertEquals(3, saved.getPriority());
+    assertEquals("11/09/2026 08:00 am", saved.getStartDate());
+    assertEquals("11/10/2026 05:00 pm", saved.getEndDate());
+    SimpleDateFormat wire =
+        new SimpleDateFormat(
+            PSPublishingDesignRestService.EDITION_SCHEDULE_DATE_FORMAT, Locale.US);
+    wire.setLenient(false);
+    assertEquals(
+        wire.parse("11/09/2026 08:00 am").getTime(), storedStart.get().getTime());
+    assertEquals(
+        wire.parse("11/10/2026 05:00 pm").getTime(), storedEnd.get().getTime());
+    verify(loaded, never()).setName(any());
+    verify(loaded, never()).setComment(any());
+    verify(loaded, never()).setPriority(any());
+    verify(loaded, never()).setSiteId(any());
+    verify(publisherService).saveEdition(loaded);
+    verify(publisherService, never()).loadEditionContentLists(any());
+  }
+
+  @Test
+  void updateEdition_scheduleInvalidDate_400WithoutSave() throws Exception {
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    IPSEdition loaded = mock(IPSEdition.class);
+    when(publisherService.loadEditionModifiable(editionGuid)).thenReturn(loaded);
+
+    PSEditionSummary body = new PSEditionSummary();
+    body.setStartDate("not-a-date");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateEdition("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        ex.getMessage()
+            .contains(PSPublishingDesignRestService.EDITION_SCHEDULE_DATE_INVALID));
+    verify(loaded, never()).setStartDate(any());
+    verify(loaded, never()).setEndDate(any());
+    verify(loaded, never()).setComment(any());
+    verify(publisherService, never()).saveEdition(any());
+  }
+
+  @Test
+  void updateEdition_scheduleEndBeforeStart_400WithoutSave() throws Exception {
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    IPSEdition loaded = mock(IPSEdition.class);
+    when(publisherService.loadEditionModifiable(editionGuid)).thenReturn(loaded);
+
+    PSEditionSummary body = new PSEditionSummary();
+    body.setStartDate("11/10/2026 05:00 pm");
+    body.setEndDate("11/09/2026 08:00 am");
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> service.updateEdition("11", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(
+        ex.getMessage()
+            .contains(PSPublishingDesignRestService.EDITION_SCHEDULE_END_BEFORE_START));
+    verify(loaded, never()).setStartDate(any());
+    verify(loaded, never()).setEndDate(any());
+    verify(publisherService, never()).saveEdition(any());
+  }
+
+  @Test
+  void updateEdition_scheduleBlankClearsDates() throws Exception {
+    when(guidManager.makeGuid(eq("11"), eq(PSTypeEnum.EDITION))).thenReturn(editionGuid);
+    IPSEdition loaded = mock(IPSEdition.class);
+    when(publisherService.loadEditionModifiable(editionGuid)).thenReturn(loaded);
+    when(loaded.getGUID()).thenReturn(editionGuid);
+    when(editionGuid.getUUID()).thenReturn(11);
+    when(loaded.getSiteId()).thenReturn(null);
+
+    PSEditionSummary body = new PSEditionSummary();
+    body.setStartDate("");
+    body.setEndDate("   ");
+    PSEditionSummary saved = service.updateEdition("11", body);
+
+    verify(loaded).setStartDate(null);
+    verify(loaded).setEndDate(null);
+    assertNull(saved.getStartDate());
+    assertNull(saved.getEndDate());
+    verify(publisherService).saveEdition(loaded);
   }
 
   @Test
