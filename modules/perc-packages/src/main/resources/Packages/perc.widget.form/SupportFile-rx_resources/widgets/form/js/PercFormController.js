@@ -19,6 +19,13 @@
  * Form controller class.
  */
 (function ($) {
+  // Rich-text engine (issue #5901): vanilla TipTap via PercWidgetEditor,
+  // translated from TinymceConfig.js. Null when the editor bundle is not
+  // loaded; getFieldData falls back to the plain textarea value.
+  function widgetEditor() {
+    if (typeof window === "undefined") return null;
+    return window.PercWidgetEditor || null;
+  }
   /**
    * An object to hold the form constants.
    */
@@ -3092,8 +3099,16 @@
           .find("." + $.PercFormConstants.FIELD_EDITOR_LABEL_CLASS)
           .html();
       } else {
-        fieldData.label = tinymce.EditorManager.get("elm1").getContent();
-        tinymce.EditorManager.execCommand("mceRemoveEditor", true, "elm1");
+        var labelEditor = widgetEditor();
+        var labelEditorInstance = labelEditor
+          ? labelEditor.get("elm1")
+          : null;
+        if (labelEditorInstance) {
+          fieldData.label = labelEditorInstance.getContent();
+          labelEditor.removeEditor("elm1");
+        } else {
+          fieldData.label = $fieldElem.find("textarea#elm1").val();
+        }
       }
       fieldData.type = $.PercFormConstants.FIELD_CONTROL_TEXT;
       return fieldData;

@@ -20,6 +20,14 @@
  */
 (function ($) {
   var prefsDialog = null;
+  // Rich-text engine (issue #5901): vanilla TipTap via PercWidgetEditor,
+  // translated from TinymceConfig.js. Null when the editor bundle is not
+  // loaded; call sites below degrade to the plain textarea instead of
+  // throwing on a missing global.
+  function widgetEditor() {
+    if (typeof window === "undefined") return null;
+    return window.PercWidgetEditor || null;
+  }
   $(document).ready(function () {
     if ($(".PercFormWidget").length > 0) {
       initializeForm();
@@ -63,7 +71,8 @@
         attachFormDatepicker();
       }
       if (fieldType === "PercTextFieldControl") {
-        tinymce.EditorManager.execCommand("mceAddEditor", true, "elm1");
+        var textEditor = widgetEditor();
+        if (textEditor) textEditor.addEditor("elm1");
       }
 
       if ($.browser.msie) {
@@ -75,11 +84,13 @@
 
     //Attach event to Delete button
     $(document).on("click", ".delete-field", function () {
+      var deleteEditor = widgetEditor();
       if (
-        tinymce.EditorManager.get("elm1") &&
+        deleteEditor &&
+        deleteEditor.get("elm1") &&
         $(this).parent().parent().children("#elm1").length > 0
       ) {
-        tinymce.EditorManager.execCommand("mceRemoveEditor", true, "elm1");
+        deleteEditor.removeEditor("elm1");
       }
       $(this).parent().parent().parent().remove();
     });
@@ -186,7 +197,8 @@
       $("#perc-form-dnd-fields").append(newElem);
       newElem.find(".toggle-editor").trigger("click");
       $("iframe").scrollTop(20000);
-      tinymce.EditorManager.execCommand("mceAddEditor", true, "elm1");
+      var addedEditor = widgetEditor();
+      if (addedEditor) addedEditor.addEditor("elm1");
     });
 
     //Add Hidden field
@@ -198,7 +210,8 @@
       $("#perc-form-dnd-fields").append(newElem);
       newElem.find(".toggle-editor").trigger("click");
       $("iframe").scrollTop(20000);
-      tinymce.EditorManager.execCommand("mceAddEditor", true, "elm1");
+      var menuEditor = widgetEditor();
+      if (menuEditor) menuEditor.addEditor("elm1");
     });
 
     //Add Honeypot field
@@ -210,7 +223,8 @@
       $("#perc-form-dnd-fields").append(newElem);
       newElem.find(".toggle-editor").trigger("click");
       $("iframe").scrollTop(20000);
-      tinymce.EditorManager.execCommand("mceAddEditor", true, "elm1");
+      var menuEditor = widgetEditor();
+      if (menuEditor) menuEditor.addEditor("elm1");
     });
 
     //Add recaptcha field
@@ -222,7 +236,8 @@
       $("#perc-form-dnd-fields").append(newElem);
       newElem.find(".toggle-editor").trigger("click");
       $("iframe").scrollTop(20000);
-      tinymce.EditorManager.execCommand("mceAddEditor", true, "elm1");
+      var menuEditor = widgetEditor();
+      if (menuEditor) menuEditor.addEditor("elm1");
     });
 
     //Toggle the control menu button on click event
@@ -262,14 +277,16 @@
       },
       snap: true,
       start: function (e, ui) {
-        // removes tinymce ok from textarea
-        if (tinymce.EditorManager.get("elm1")) {
-          tinymce.EditorManager.execCommand("mceRemoveEditor", true, "elm1");
+        // removes rich-text editor from textarea while dragging
+        var dragEditor = widgetEditor();
+        if (dragEditor && dragEditor.get("elm1")) {
+          dragEditor.removeEditor("elm1");
         }
       },
       beforeStop: function (e, ui) {
-        // add tinymce to textarea
-        tinymce.EditorManager.execCommand("mceAddEditor", true, "elm1");
+        // add rich-text editor back to textarea after drop
+        var dropEditor = widgetEditor();
+        if (dropEditor) dropEditor.addEditor("elm1");
         $(this).sortable("refresh");
       },
       containment: $("#perc-form-dnd-fields").parents(

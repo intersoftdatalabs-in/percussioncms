@@ -17,6 +17,7 @@ Extension points, REST, assemblers, Virtual Sites, and building Percussion CMS 8
 - [Virtual Sites](id:developer-virtual-sites)
 - [Extensions & packages](id:developer-extensions)
 - [Product page packages](id:developer-page-packages)
+- [Form widget rich-text editor](id:developer-widget-editor)
 - [Build from source](id:developer-build-source)
 
 Operators using **Developer → Content types** lock/save/copy chrome: [Developer Content Types](id:admin-developer-content-types).

@@ -102,18 +102,7 @@
 											</PSXDependency>
 											<RequiredClasses />
 										</PSXDeployableObject>
-										<PSXDeployableObject>
-											<PSXDependency autoDep="no" autoExpand="yes"
-												dependencyId="sys_resources/tinymce/js/PercCustomStylesService.js"
-												dependencyType="System"
-												displayName="PercCustomStylesService.js" isAssociation="yes"
-												isIncluded="no" objectType="SupportFile"
-												objectTypeName="Support File" supportsIdMapping="no"
-												supportsIdTypes="no" supportsParentId="no"
-												supportsUserDependencies="no" />
-											<RequiredClasses />
-										</PSXDeployableObject>
-										<PSXDeployableObject>
+<PSXDeployableObject>
 											<PSXDependency autoDep="no" autoExpand="yes"
 												dependencyId="rx_resources/widgets/form/js/PercFormController.js"
 												dependencyType="Shared" displayName="PercFormController.js"
@@ -159,17 +148,53 @@
 											</PSXDependency>
 											<RequiredClasses />
 										</PSXDeployableObject>
-										<PSXDeployableObject>
+<PSXDeployableObject>
 											<PSXDependency autoDep="no" autoExpand="yes"
-												dependencyId="sys_resources/tinymce/js/tinymce/tinymce.min.js"
-												dependencyType="System" displayName="tinymce.min.js"
-												isAssociation="yes" isIncluded="no" objectType="SupportFile"
+												dependencyId="rx_resources/widgets/form/js/perc-tiptap-editor.bundle.min.js"
+												dependencyType="Shared" displayName="perc-tiptap-editor.bundle.min.js"
+												isAssociation="no" isIncluded="yes" objectType="SupportFile"
 												objectTypeName="Support File" supportsIdMapping="no"
 												supportsIdTypes="no" supportsParentId="no"
-												supportsUserDependencies="no" />
+												supportsUserDependencies="no">
+												<Dependencies>
+													<PSXDeployableObject>
+														<PSXDependency autoDep="no" autoExpand="yes"
+															dependencyId="rx_resources" dependencyType="System"
+															displayName="rx_resources" isAssociation="yes"
+															isIncluded="no" objectType="Application"
+															objectTypeName="Application" supportsIdMapping="no"
+															supportsIdTypes="no" supportsParentId="no"
+															supportsUserDependencies="no" />
+														<RequiredClasses />
+													</PSXDeployableObject>
+												</Dependencies>
+											</PSXDependency>
 											<RequiredClasses />
 										</PSXDeployableObject>
-										<PSXDeployableObject>
+<PSXDeployableObject>
+											<PSXDependency autoDep="no" autoExpand="yes"
+												dependencyId="rx_resources/widgets/form/js/PercWidgetEditor.js"
+												dependencyType="Shared" displayName="PercWidgetEditor.js"
+												isAssociation="no" isIncluded="yes" objectType="SupportFile"
+												objectTypeName="Support File" supportsIdMapping="no"
+												supportsIdTypes="no" supportsParentId="no"
+												supportsUserDependencies="no">
+												<Dependencies>
+													<PSXDeployableObject>
+														<PSXDependency autoDep="no" autoExpand="yes"
+															dependencyId="rx_resources" dependencyType="System"
+															displayName="rx_resources" isAssociation="yes"
+															isIncluded="no" objectType="Application"
+															objectTypeName="Application" supportsIdMapping="no"
+															supportsIdTypes="no" supportsParentId="no"
+															supportsUserDependencies="no" />
+														<RequiredClasses />
+													</PSXDeployableObject>
+												</Dependencies>
+											</PSXDependency>
+											<RequiredClasses />
+										</PSXDeployableObject>
+<PSXDeployableObject>
 											<PSXDependency autoDep="no" autoExpand="yes"
 												dependencyId="rx_resources/widgets/form/js/TinymceConfig.js"
 												dependencyType="Shared" displayName="TinymceConfig.js"
@@ -703,18 +728,7 @@
 														</PSXDependency>
 														<RequiredClasses />
 													</PSXDeployableObject>
-													<PSXDeployableObject>
-														<PSXDependency autoDep="no" autoExpand="yes"
-															dependencyId="sys_resources/tinymce/js/PercCustomStylesService.js"
-															dependencyType="System"
-															displayName="PercCustomStylesService.js"
-															isAssociation="yes" isIncluded="no"
-															objectType="SupportFile" objectTypeName="Support File"
-															supportsIdMapping="no" supportsIdTypes="no"
-															supportsParentId="no" supportsUserDependencies="no" />
-														<RequiredClasses />
-													</PSXDeployableObject>
-													<PSXDeployableObject>
+<PSXDeployableObject>
 														<PSXDependency autoDep="no" autoExpand="yes"
 															dependencyId="rx_resources/widgets/form/js/PercFormController.js"
 															dependencyType="Shared"
@@ -761,17 +775,53 @@
 														</PSXDependency>
 														<RequiredClasses />
 													</PSXDeployableObject>
-													<PSXDeployableObject>
+<PSXDeployableObject>
 														<PSXDependency autoDep="no" autoExpand="yes"
-															dependencyId="sys_resources/tinymce/js/tinymce/tinymce.min.js"
-															dependencyType="System" displayName="tinymce.min.js"
-															isAssociation="yes" isIncluded="no"
+															dependencyId="rx_resources/widgets/form/js/perc-tiptap-editor.bundle.min.js"
+															dependencyType="Shared" displayName="perc-tiptap-editor.bundle.min.js"
+															isAssociation="no" isIncluded="yes"
 															objectType="SupportFile" objectTypeName="Support File"
 															supportsIdMapping="no" supportsIdTypes="no"
-															supportsParentId="no" supportsUserDependencies="no" />
+															supportsParentId="no" supportsUserDependencies="no">
+															<Dependencies>
+																<PSXDeployableObject>
+																	<PSXDependency autoDep="no"
+																		autoExpand="yes" dependencyId="rx_resources"
+																		dependencyType="System" displayName="rx_resources"
+																		isAssociation="yes" isIncluded="no"
+																		objectType="Application" objectTypeName="Application"
+																		supportsIdMapping="no" supportsIdTypes="no"
+																		supportsParentId="no" supportsUserDependencies="no" />
+																	<RequiredClasses />
+																</PSXDeployableObject>
+															</Dependencies>
+														</PSXDependency>
 														<RequiredClasses />
 													</PSXDeployableObject>
-													<PSXDeployableObject>
+<PSXDeployableObject>
+														<PSXDependency autoDep="no" autoExpand="yes"
+															dependencyId="rx_resources/widgets/form/js/PercWidgetEditor.js"
+															dependencyType="Shared" displayName="PercWidgetEditor.js"
+															isAssociation="no" isIncluded="yes"
+															objectType="SupportFile" objectTypeName="Support File"
+															supportsIdMapping="no" supportsIdTypes="no"
+															supportsParentId="no" supportsUserDependencies="no">
+															<Dependencies>
+																<PSXDeployableObject>
+																	<PSXDependency autoDep="no"
+																		autoExpand="yes" dependencyId="rx_resources"
+																		dependencyType="System" displayName="rx_resources"
+																		isAssociation="yes" isIncluded="no"
+																		objectType="Application" objectTypeName="Application"
+																		supportsIdMapping="no" supportsIdTypes="no"
+																		supportsParentId="no" supportsUserDependencies="no" />
+																	<RequiredClasses />
+																</PSXDeployableObject>
+															</Dependencies>
+														</PSXDependency>
+														<RequiredClasses />
+													</PSXDeployableObject>
+<PSXDeployableObject>
 														<PSXDependency autoDep="no" autoExpand="yes"
 															dependencyId="rx_resources/widgets/form/js/TinymceConfig.js"
 															dependencyType="Shared" displayName="TinymceConfig.js"
