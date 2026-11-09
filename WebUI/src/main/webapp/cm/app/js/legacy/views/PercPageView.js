@@ -84,7 +84,11 @@
       "#region-tool, #region-tool-help, #perc-region-tool-inspector, #perc-region-tool-menu, #perc-error-alert",
     ).css("visibility", "hidden");
 
-    function openPage(pageId, pageName) {
+    /**
+     * Records the opened page in the recent-items list. Failures are
+     * reported but never block opening the page.
+     */
+    function _trackRecentPage(pageId) {
       try {
         $.PercRecentListService.setRecent(
           $.PercRecentListService.RECENT_TYPE_ITEM,
@@ -103,10 +107,13 @@
           I18N.message("perc.ui.page.recent@Error Adding Recent Page", pageId),
         );
       }
-      currentPageId = pageId;
-      $(".perc-page-status").show();
-      $(".perc-page-name").show();
-      getPageStatus(currentPageId);
+    }
+
+    /**
+     * Renders the page header (editing/viewing label, title, details) and
+     * wires the My Pages action for the opened page.
+     */
+    function _renderPageHeader(pageId, pageName) {
       var pglabel =
         $.PercNavigationManager.getMode() === $.PercNavigationManager.MODE_EDIT
           ? I18N.message("perc.ui.page.label@Editing Page")
@@ -115,111 +122,143 @@
         $.PercNavigationManager.getMode() === $.PercNavigationManager.MODE_EDIT
           ? "page-editing"
           : "page-viewing";
-      if (pageName) {
-        var titleValue = $.PercNavigationManager.getPath();
-        $(".perc-page-name-name").html(
-          '<span class = "perc-title-value"><span class = "perc-page-name-text">' +
-            pageName +
-            "</span></span>",
-        );
-        $(".perc-title-value").attr("title", titleValue);
-        $(".perc-title-value").prepend(
-          '<span class = "perc-page-name-label">' + pglabel + "</span>",
-        );
-        $(".perc-page-details").attr("type", pgType);
-        $("#perc-pageEditor-menu-name").html(pageName);
-        _addMyPagesAction(pageId);
-        $(".perc-page-details").show();
+      var titleValue = $.PercNavigationManager.getPath();
+      $(".perc-page-name-name").html(
+        '<span class = "perc-title-value"><span class = "perc-page-name-text">' +
+          pageName +
+          "</span></span>",
+      );
+      $(".perc-title-value").attr("title", titleValue);
+      $(".perc-title-value").prepend(
+        '<span class = "perc-page-name-label">' + pglabel + "</span>",
+      );
+      $(".perc-page-details").attr("type", pgType);
+      $("#perc-pageEditor-menu-name").html(pageName);
+      _addMyPagesAction(pageId);
+      $(".perc-page-details").show();
+    }
+
+    /**
+     * Loads the page model in edit mode and wires the page actions menu
+     * once the model is ready.
+     */
+    function _initEditMode(
+      pageId,
+      pageName,
+      $tabs,
+      currentTabIndex,
+      defaultTabIndex,
+      actionsDropdown,
+      viewDropdown,
+    ) {
+      pageModel = P.pageModel(
+        $.perc_pagemanager,
+        $.perc_templatemanager,
+        pageId,
+        function () {
+          _onPageModelReady(
+            pageName,
+            $tabs,
+            currentTabIndex,
+            defaultTabIndex,
+            actionsDropdown,
+            viewDropdown,
+          );
+        },
+      );
+    }
+
+    /**
+     * Enables tabs and builds the page actions menu for the loaded model.
+     */
+    function _onPageModelReady(
+      pageName,
+      $tabs,
+      currentTabIndex,
+      defaultTabIndex,
+      actionsDropdown,
+      viewDropdown,
+    ) {
+      // enable all tabs and select the first tab
+      $tabs.data("disabled.tabs", []).tabs("option", "active", defaultTabIndex);
+      $("#perc-pageEditor-tabs")
+        .find("li")
+        .each(function (i) {
+          // Don't enable Layout and Style tabs if template type is UNASSIGNED
+          if (pageModel.getTemplateModel().getTemplateType() !== unassigned) {
+            $(this).removeClass("ui-state-disabled");
+          }
+        });
+
+      // Don't enable Edit Template action if template type is UNASSIGNED
+      var enableMenu =
+        pageModel.getTemplateModel().getTemplateType() !== unassigned;
+      _buildPageActionsDropdown(actionsDropdown, enableMenu);
+
+      addMoreMenus(pageName, viewDropdown, currentTabIndex, defaultTabIndex);
+    }
+
+    /**
+     * Builds the page actions menu; privileged users also get Edit Template.
+     */
+    function _buildPageActionsDropdown(actionsDropdown, enableMenu) {
+      if (isAdmin || isDesigner) {
+        actionsDropdown.PercDropdown({
+          percDropdownRootClass: "perc-dropdown-page-actions",
+          percDropdownOptionLabels: [
+            I18N.message("perc.ui.page.menu@Actions"),
+            I18N.message("perc.ui.page.menu@Edit Metadata"),
+            I18N.message("perc.ui.page.menu@Edit Template"),
+            I18N.message("perc.ui.page.menu@Change Template"),
+          ],
+          percDropdownCallbacks: [
+            function () {},
+            function () {
+              // #5733: page metadata opens in the React Content Editor host.
+              $.perc_page_metadata_editor.open(currentPageId);
+            },
+            _loadTemplate,
+            _changeTemplate,
+          ],
+          percDropdownCallbackData: [
+            I18N.message("perc.ui.page.menu@Action"),
+            I18N.message("perc.ui.page.menu@Edit Metadata"),
+            I18N.message("perc.ui.page.menu@Edit Template"),
+            I18N.message("perc.ui.page.menu@Change Template"),
+          ],
+          percDropdownDisabledFlag: [false, true, enableMenu, true],
+        });
+      } else {
+        actionsDropdown.PercDropdown({
+          percDropdownRootClass: "perc-dropdown-page-actions",
+          percDropdownOptionLabels: [
+            I18N.message("perc.ui.page.menu@Actions"),
+            I18N.message("perc.ui.page.menu@Edit Metadata"),
+            I18N.message("perc.ui.page.menu@Change Template"),
+          ],
+          percDropdownCallbacks: [
+            function () {},
+            function () {
+              // #5733: page metadata opens in the React Content Editor host.
+              $.perc_page_metadata_editor.open(currentPageId);
+            },
+            _changeTemplate,
+          ],
+          percDropdownCallbackData: [
+            I18N.message("perc.ui.page.menu@Action"),
+            I18N.message("perc.ui.page.menu@Edit Metadata"),
+            I18N.message("perc.ui.page.menu@Change Template"),
+          ],
+          percDropdownDisabledFlag: [false, true, true],
+        });
       }
+    }
 
-      /* If the default tab happens to already be selected, the content will not be loaded, so we do that below. */
-      var $tabs = $("#perc-pageEditor-tabs");
-      var currentTabIndex = $tabs.tabs("option", "active");
-      var defaultTabIndex = 0;
-
-      if (
-        $.PercNavigationManager.getMode() == $.PercNavigationManager.MODE_EDIT
-      ) {
-        pageModel = P.pageModel(
-          $.perc_pagemanager,
-          $.perc_templatemanager,
-          pageId,
-          function () {
-            // enable all tabs and select the first tab
-            $tabs
-              .data("disabled.tabs", [])
-              .tabs("option", "active", defaultTabIndex);
-            $("#perc-pageEditor-tabs")
-              .find("li")
-              .each(function (i) {
-                // Don't enable Layout and Style tabs if template type is UNASSIGNED
-                if (
-                  pageModel.getTemplateModel().getTemplateType() !== unassigned
-                ) {
-                  $(this).removeClass("ui-state-disabled");
-                }
-              });
-
-            // Don't enable Edit Template action if template type is UNASSIGNED
-            var enableMenu =
-              pageModel.getTemplateModel().getTemplateType() !== unassigned;
-            if (isAdmin || isDesigner) {
-              actionsDropdown.PercDropdown({
-                percDropdownRootClass: "perc-dropdown-page-actions",
-                percDropdownOptionLabels: [
-                  I18N.message("perc.ui.page.menu@Actions"),
-                  I18N.message("perc.ui.page.menu@Edit Metadata"),
-                  I18N.message("perc.ui.page.menu@Edit Template"),
-                  I18N.message("perc.ui.page.menu@Change Template"),
-                ],
-                percDropdownCallbacks: [
-                  function () {},
-                  function () {
-                    // #5733: page metadata opens in the React Content Editor host.
-                    $.perc_page_metadata_editor.open(currentPageId);
-                  },
-                  _loadTemplate,
-                  _changeTemplate,
-                ],
-                percDropdownCallbackData: [
-                  I18N.message("perc.ui.page.menu@Action"),
-                  I18N.message("perc.ui.page.menu@Edit Metadata"),
-                  I18N.message("perc.ui.page.menu@Edit Template"),
-                  I18N.message("perc.ui.page.menu@Change Template"),
-                ],
-                percDropdownDisabledFlag: [false, true, enableMenu, true],
-              });
-            } else {
-              actionsDropdown.PercDropdown({
-                percDropdownRootClass: "perc-dropdown-page-actions",
-                percDropdownOptionLabels: [
-                  I18N.message("perc.ui.page.menu@Actions"),
-                  I18N.message("perc.ui.page.menu@Edit Metadata"),
-                  I18N.message("perc.ui.page.menu@Change Template"),
-                ],
-                percDropdownCallbacks: [
-                  function () {},
-                  function () {
-                    // #5733: page metadata opens in the React Content Editor host.
-                    $.perc_page_metadata_editor.open(currentPageId);
-                  },
-                  _changeTemplate,
-                ],
-                percDropdownCallbackData: [
-                  I18N.message("perc.ui.page.menu@Action"),
-                  I18N.message("perc.ui.page.menu@Edit Metadata"),
-                  I18N.message("perc.ui.page.menu@Change Template"),
-                ],
-                percDropdownDisabledFlag: [false, true, true],
-              });
-            }
-
-            addMoreMenus();
-          },
-        );
-      }
-
-      // Enable the Metadata
+    /**
+     * Enables the Metadata button; metadata opens in the React Content
+     * Editor host (#5733).
+     */
+    function _initMetadataButton() {
       $("#perc-metadata-button")
         .off("click")
         .perc_button()
@@ -229,366 +268,437 @@
           // #5733: page metadata opens in the React Content Editor host.
           $.perc_page_metadata_editor.open(currentPageId);
         });
+    }
+
+    /**
+     * Wires the actions menu in page readonly mode.
+     */
+    function _initReadonlyActions(
+      actionsDropdown,
+      pageName,
+      viewDropdown,
+      currentTabIndex,
+      defaultTabIndex,
+    ) {
+      //Action drop down menu in page readonly mode
+      actionsDropdown.PercDropdown({
+        percDropdownRootClass: "perc-dropdown-page-actions",
+        percDropdownOptionLabels: [
+          I18N.message("perc.ui.page.menu@Actions"),
+          I18N.message("perc.ui.page.menu@View Metadata"),
+        ],
+        percDropdownCallbacks: [
+          function () {},
+          function () {
+            // #5733: page metadata opens in the React Content Editor host.
+            $.perc_page_metadata_editor.open(currentPageId);
+          },
+        ],
+        percDropdownCallbackData: [
+          I18N.message("perc.ui.page.menu@Action"),
+          I18N.message("perc.ui.page.menu@View Metadata"),
+        ],
+        percDropdownDisabledFlag: [false, true],
+      });
+
+      addMoreMenus(pageName, viewDropdown, currentTabIndex, defaultTabIndex);
+    }
+
+    /**
+     * Adds the action dropdowns on the layout and style tabs; privileged
+     * users also get Edit Template there.
+     */
+    function _initLayoutStyleDropdowns() {
+      if (isAdmin || isDesigner) {
+        // Add action dropdown on layout tab
+        var layoutActionsDropdown = $("#perc-dropdown-actions-layout");
+        layoutActionsDropdown.PercDropdown({
+          percDropdownRootClass: "perc-dropdown-actions-layout",
+          percDropdownOptionLabels: [
+            I18N.message("perc.ui.page.menu@Actions"),
+            I18N.message("perc.ui.page.menu@Edit Template"),
+            I18N.message("perc.ui.page.menu@Change Template"),
+          ],
+          percDropdownCallbacks: [
+            function () {},
+            _loadTemplate,
+            _changeTemplate,
+          ],
+          percDropdownCallbackData: [
+            I18N.message("perc.ui.page.menu@Action"),
+            I18N.message("perc.ui.page.menu@Edit TemplateEdit Template"),
+            I18N.message("perc.ui.page.menu@Change Template"),
+          ],
+          percDropdownDisabledFlag: [false, true, true],
+        });
+
+        // Add action dropdown on style tab
+        var styleActionsDropdown = $("#perc-dropdown-actions-style");
+        styleActionsDropdown.PercDropdown({
+          percDropdownRootClass: "perc-dropdown-actions-style",
+          percDropdownOptionLabels: [
+            I18N.message("perc.ui.page.menu@Actions"),
+            I18N.message("perc.ui.page.menu@Edit Template"),
+            I18N.message("perc.ui.page.menu@Change Template"),
+          ],
+          percDropdownCallbacks: [
+            function () {},
+            _loadTemplate,
+            _changeTemplate,
+          ],
+          percDropdownCallbackData: [
+            I18N.message("perc.ui.page.menu@Action"),
+            I18N.message("perc.ui.page.menu@Edit Template"),
+            I18N.message("perc.ui.page.menu@Change Template"),
+          ],
+          percDropdownDisabledFlag: [false, true, true],
+        });
+      } else {
+        // Add action dropdown on layout tab
+        let layoutActionsDropdown = $("#perc-dropdown-actions-layout");
+        layoutActionsDropdown.PercDropdown({
+          percDropdownRootClass: "perc-dropdown-layout-actions",
+          percDropdownOptionLabels: [
+            I18N.message("perc.ui.page.menu@Actions"),
+            I18N.message("perc.ui.page.menu@Change Template"),
+          ],
+          percDropdownCallbacks: [function () {}, _changeTemplate],
+          percDropdownCallbackData: [
+            I18N.message("perc.ui.page.menu@Action"),
+            I18N.message("perc.ui.page.menu@Change Template"),
+          ],
+          percDropdownDisabledFlag: [false, true],
+        });
+
+        // Add action dropdown on style tab
+        let styleActionsDropdown = $("#perc-dropdown-actions-style");
+        styleActionsDropdown.PercDropdown({
+          percDropdownRootClass: "perc-dropdown-actions-style",
+          percDropdownOptionLabels: [
+            I18N.message("perc.ui.page.menu@Actions"),
+            I18N.message("perc.ui.page.menu@Change Template"),
+          ],
+          percDropdownCallbacks: [function () {}, _changeTemplate],
+          percDropdownCallbackData: [
+            I18N.message("perc.ui.page.menu@Action"),
+            I18N.message("perc.ui.page.menu@Change Template"),
+          ],
+          percDropdownDisabledFlag: [false, true],
+        });
+      }
+    }
+
+    /**
+     * Adds the view dropdowns on the layout and style tabs.
+     */
+    function _initEditorViewDropdown() {
+      // Add view dropdown on layout tab
+      var layoutViewDropdown = $("#perc-dropdown-view-layout");
+      layoutViewDropdown.PercDropdown({
+        percDropdownRootClass: "perc-dropdown-view-layout",
+        percDropdownOptionLabels: [
+          I18N.message("perc.ui.page.menu@View"),
+          I18N.message("perc.ui.menu@JavaScript Off"),
+          I18N.message("perc.ui.page.menu@Hide Guides"),
+        ],
+        percDropdownCallbacks: [function () {}, function () {}, function () {}],
+        percDropdownCallbackData: [
+          I18N.message("perc.ui.page.menu@View"),
+          I18N.message("perc.ui.page.menu@View"),
+          I18N.message("perc.ui.page.menu@View"),
+        ],
+        percDropdownDisabledFlag: [false, true, true],
+      });
+      //Add View dropdown under Style tab
+      var styleViewDropdown = $("#perc-dropdown-view-style");
+      styleViewDropdown.PercDropdown({
+        percDropdownRootClass: "perc-dropdown-view-style",
+        percDropdownOptionLabels: [
+          I18N.message("perc.ui.page.menu@View"),
+          I18N.message("perc.ui.menu@JavaScript Off"),
+        ],
+        percDropdownCallbacks: [function () {}, function () {}],
+        percDropdownCallbackData: [
+          I18N.message("perc.ui.page.menu@View"),
+          I18N.message("perc.ui.menu@JavaScript Off"),
+        ],
+        percDropdownDisabledFlag: [false, true],
+      });
+    }
+
+    /**
+     * Adds the Publishing dropdown menu in the toolbar when the page has
+     * publish actions.
+     */
+    function _initPublishDropdown(pageName) {
+      // Add Publishing dropdown
+      $.PercItemPublisherService.getPublishActions(
+        currentPageId,
+        function (status, result) {
+          if (status) {
+            var pubActions = eval("(" + result + ")").PSPublishingActionList;
+            if (pubActions.length > 0) {
+              var actionNames = [I18N.message("perc.ui.page.menu@Publishing")];
+              var disableAction = [false];
+              $.each(pubActions, function () {
+                actionNames.push(this.name);
+                disableAction.push(this.enabled);
+              });
+              //Add Publishing dropdown menu in toolbar
+              var publishNowDropdown = $("#perc-dropdown-publish-now");
+              publishNowDropdown.PercDropdown({
+                percDropdownRootClass: "perc-dropdown-publish-now",
+                percDropdownOptionLabels: actionNames,
+                percDropdownCallbacks: [
+                  function () {},
+                  _publishItem,
+                  _openSchedule,
+                  _publishItem,
+                  _publishItem,
+                  _publishItem,
+                ],
+                percDropdownCallbackData: [
+                  I18N.message("perc.ui.page.menu@Publishing"),
+                  {
+                    pageId: currentPageId,
+                    pageName: pageName,
+                    trName: I18N.message("perc.ui.page.menu@Publish"),
+                  },
+                  {
+                    pageId: currentPageId,
+                    pageName: pageName,
+                    trName: I18N.message("perc.ui.page.menu@Publish"),
+                  },
+                  {
+                    pageId: currentPageId,
+                    pageName: pageName,
+                    trName: I18N.message("perc.ui.page.menu@Take Down"),
+                  },
+                  {
+                    pageId: currentPageId,
+                    pageName: pageName,
+                    trName: I18N.message("perc.ui.page.menu@Stage"),
+                  },
+                  {
+                    pageId: currentPageId,
+                    pageName: pageName,
+                    trName: I18N.message(
+                      "perc.ui.page.menu@Remove from Staging",
+                    ),
+                  },
+                  currentPageId,
+                ],
+                percDropdownDisabledFlag: disableAction,
+              });
+            }
+          }
+        },
+      );
+    }
+
+    function openPage(pageId, pageName) {
+      _trackRecentPage(pageId);
+      currentPageId = pageId;
+      $(".perc-page-status").show();
+      $(".perc-page-name").show();
+      getPageStatus(currentPageId);
+      if (pageName) {
+        _renderPageHeader(pageId, pageName);
+      }
+
+      /* If the default tab happens to already be selected, the content will not be loaded, so we do that below. */
+      var $tabs = $("#perc-pageEditor-tabs");
+      var currentTabIndex = $tabs.tabs("option", "active");
+      var defaultTabIndex = 0;
 
       // Add view dropdown on content tab
       var actionsDropdown = $("#perc-dropdown-actions");
       var viewDropdown = $("#perc-dropdown-view");
 
       if (
+        $.PercNavigationManager.getMode() == $.PercNavigationManager.MODE_EDIT
+      ) {
+        _initEditMode(
+          pageId,
+          pageName,
+          $tabs,
+          currentTabIndex,
+          defaultTabIndex,
+          actionsDropdown,
+          viewDropdown,
+        );
+      }
+
+      // Enable the Metadata button (React Content Editor host, see #5733).
+      _initMetadataButton();
+
+      if (
         $.PercNavigationManager.getMode() ===
         $.PercNavigationManager.MODE_READONLY
       ) {
-        //Action drop down menu in page readonly mode
-        actionsDropdown.PercDropdown({
-          percDropdownRootClass: "perc-dropdown-page-actions",
-          percDropdownOptionLabels: [
-            I18N.message("perc.ui.page.menu@Actions"),
-            I18N.message("perc.ui.page.menu@View Metadata"),
-          ],
-          percDropdownCallbacks: [
-            function () {},
-            function () {
-              // #5733: page metadata opens in the React Content Editor host.
-              $.perc_page_metadata_editor.open(currentPageId);
-            },
-          ],
-          percDropdownCallbackData: [
-            I18N.message("perc.ui.page.menu@Action"),
-            I18N.message("perc.ui.page.menu@View Metadata"),
-          ],
-          percDropdownDisabledFlag: [false, true],
-        });
-
-        addMoreMenus();
+        _initReadonlyActions(
+          actionsDropdown,
+          pageName,
+          viewDropdown,
+          currentTabIndex,
+          defaultTabIndex,
+        );
       }
+    }
 
-      /**
-       * Sets the appropriate class to my pages, to indicate whether the page has already been added to the user pages or not,
-       * Adds either Add to my pages click event or remove from my pages click event.
-       * @param {Object} pageId assumed to be the currently opened page id.
-       */
-      function _addMyPagesAction(pageId) {
-        $.PercPageService.isMyPage(pageId, function (status, result) {
-          if (status === $.PercServiceUtils.STATUS_ERROR) {
+    /**
+     * Sets the appropriate class to my pages, to indicate whether the page has already been added to the user pages or not,
+     * Adds either Add to my pages click event or remove from my pages click event.
+     * @param {Object} pageId assumed to be the currently opened page id.
+     */
+    function _addMyPagesAction(pageId) {
+      $.PercPageService.isMyPage(pageId, function (status, result) {
+        if (status === $.PercServiceUtils.STATUS_ERROR) {
+          $(".perc-my-pages-action")
+            .addClass("perc-my-pages-error")
+            .attr(
+              "title",
+              I18N.message("perc.ui.page.mypages@Error retrieving status"),
+            );
+        } else {
+          if (result) {
             $(".perc-my-pages-action")
-              .addClass("perc-my-pages-error")
-              .attr(
-                "title",
-                I18N.message("perc.ui.page.mypages@Error retrieving status"),
-              );
-          } else {
-            if (result) {
-              $(".perc-my-pages-action")
-                .addClass("perc-remove-from-my-pages")
-                .attr(
-                  "title",
-                  I18N.message("perc.ui.page.mypages@Remove from My Pages"),
-                )
-                .on("click", function () {
-                  _removeFromMyPages(pageId);
-                });
-            } else {
-              $(".perc-my-pages-action")
-                .addClass("perc-add-to-my-pages")
-                .attr(
-                  "title",
-                  I18N.message("perc.ui.page.mypages@Add to My Pages"),
-                )
-                .on("click", function () {
-                  _addToMyPages(pageId);
-                });
-            }
-          }
-        });
-      }
-
-      /**
-       * Makes a call to the service to add to my pages and if successful toggles the class and click event to remove pages.
-       * @param {Object} pageId assumed to be the currently opened page id.
-       */
-      function _addToMyPages(pageId) {
-        $.PercPageService.addToMyPages(pageId, function (status, result) {
-          if (status == $.PercServiceUtils.STATUS_ERROR) {
-            $.perc_utils.alert_dialog({
-              title: I18N.message("perc.ui.labels@Error"),
-              content: result,
-            });
-          } else {
-            $(".perc-my-pages-action")
-              .removeClass("perc-add-to-my-pages")
               .addClass("perc-remove-from-my-pages")
               .attr(
                 "title",
                 I18N.message("perc.ui.page.mypages@Remove from My Pages"),
               )
-              .off("click")
               .on("click", function () {
                 _removeFromMyPages(pageId);
               });
-          }
-        });
-      }
-
-      /**
-       * Makes a call to the service to remove from my pages and if successful toggles the class and click event to add pages.
-       * @param {Object} pageId assumed to be the currently opened page id.
-       */
-      function _removeFromMyPages(pageId) {
-        $.PercPageService.removeFromMyPages(pageId, function (status, result) {
-          if (status === $.PercServiceUtils.STATUS_ERROR) {
-            $.perc_utils.alert_dialog({
-              title: I18N.message("perc.ui.labels@Error"),
-              content: result,
-            });
           } else {
             $(".perc-my-pages-action")
-              .removeClass("perc-remove-from-my-pages")
               .addClass("perc-add-to-my-pages")
               .attr(
                 "title",
                 I18N.message("perc.ui.page.mypages@Add to My Pages"),
               )
-              .off("click")
               .on("click", function () {
                 _addToMyPages(pageId);
               });
           }
-        });
-      }
+        }
+      });
+    }
 
-      function addMoreMenus() {
-        if (isAdmin || isDesigner) {
-          // Add action dropdown on layout tab
-          var layoutActionsDropdown = $("#perc-dropdown-actions-layout");
-          layoutActionsDropdown.PercDropdown({
-            percDropdownRootClass: "perc-dropdown-actions-layout",
-            percDropdownOptionLabels: [
-              I18N.message("perc.ui.page.menu@Actions"),
-              I18N.message("perc.ui.page.menu@Edit Template"),
-              I18N.message("perc.ui.page.menu@Change Template"),
-            ],
-            percDropdownCallbacks: [
-              function () {},
-              _loadTemplate,
-              _changeTemplate,
-            ],
-            percDropdownCallbackData: [
-              I18N.message("perc.ui.page.menu@Action"),
-              I18N.message("perc.ui.page.menu@Edit TemplateEdit Template"),
-              I18N.message("perc.ui.page.menu@Change Template"),
-            ],
-            percDropdownDisabledFlag: [false, true, true],
-          });
-
-          // Add action dropdown on style tab
-          var styleActionsDropdown = $("#perc-dropdown-actions-style");
-          styleActionsDropdown.PercDropdown({
-            percDropdownRootClass: "perc-dropdown-actions-style",
-            percDropdownOptionLabels: [
-              I18N.message("perc.ui.page.menu@Actions"),
-              I18N.message("perc.ui.page.menu@Edit Template"),
-              I18N.message("perc.ui.page.menu@Change Template"),
-            ],
-            percDropdownCallbacks: [
-              function () {},
-              _loadTemplate,
-              _changeTemplate,
-            ],
-            percDropdownCallbackData: [
-              I18N.message("perc.ui.page.menu@Action"),
-              I18N.message("perc.ui.page.menu@Edit Template"),
-              I18N.message("perc.ui.page.menu@Change Template"),
-            ],
-            percDropdownDisabledFlag: [false, true, true],
+    /**
+     * Makes a call to the service to add to my pages and if successful toggles the class and click event to remove pages.
+     * @param {Object} pageId assumed to be the currently opened page id.
+     */
+    function _addToMyPages(pageId) {
+      $.PercPageService.addToMyPages(pageId, function (status, result) {
+        if (status == $.PercServiceUtils.STATUS_ERROR) {
+          $.perc_utils.alert_dialog({
+            title: I18N.message("perc.ui.labels@Error"),
+            content: result,
           });
         } else {
-          // Add action dropdown on layout tab
-          let layoutActionsDropdown = $("#perc-dropdown-actions-layout");
-          layoutActionsDropdown.PercDropdown({
-            percDropdownRootClass: "perc-dropdown-layout-actions",
-            percDropdownOptionLabels: [
-              I18N.message("perc.ui.page.menu@Actions"),
-              I18N.message("perc.ui.page.menu@Change Template"),
-            ],
-            percDropdownCallbacks: [function () {}, _changeTemplate],
-            percDropdownCallbackData: [
-              I18N.message("perc.ui.page.menu@Action"),
-              I18N.message("perc.ui.page.menu@Change Template"),
-            ],
-            percDropdownDisabledFlag: [false, true],
-          });
-
-          // Add action dropdown on style tab
-          let styleActionsDropdown = $("#perc-dropdown-actions-style");
-          styleActionsDropdown.PercDropdown({
-            percDropdownRootClass: "perc-dropdown-actions-style",
-            percDropdownOptionLabels: [
-              I18N.message("perc.ui.page.menu@Actions"),
-              I18N.message("perc.ui.page.menu@Change Template"),
-            ],
-            percDropdownCallbacks: [function () {}, _changeTemplate],
-            percDropdownCallbackData: [
-              I18N.message("perc.ui.page.menu@Action"),
-              I18N.message("perc.ui.page.menu@Change Template"),
-            ],
-            percDropdownDisabledFlag: [false, true],
-          });
+          $(".perc-my-pages-action")
+            .removeClass("perc-add-to-my-pages")
+            .addClass("perc-remove-from-my-pages")
+            .attr(
+              "title",
+              I18N.message("perc.ui.page.mypages@Remove from My Pages"),
+            )
+            .off("click")
+            .on("click", function () {
+              _removeFromMyPages(pageId);
+            });
         }
+      });
+    }
 
-        // Add view dropdown on layout tab
-        var layoutViewDropdown = $("#perc-dropdown-view-layout");
-        layoutViewDropdown.PercDropdown({
-          percDropdownRootClass: "perc-dropdown-view-layout",
+    /**
+     * Makes a call to the service to remove from my pages and if successful toggles the class and click event to add pages.
+     * @param {Object} pageId assumed to be the currently opened page id.
+     */
+    function _removeFromMyPages(pageId) {
+      $.PercPageService.removeFromMyPages(pageId, function (status, result) {
+        if (status === $.PercServiceUtils.STATUS_ERROR) {
+          $.perc_utils.alert_dialog({
+            title: I18N.message("perc.ui.labels@Error"),
+            content: result,
+          });
+        } else {
+          $(".perc-my-pages-action")
+            .removeClass("perc-remove-from-my-pages")
+            .addClass("perc-add-to-my-pages")
+            .attr("title", I18N.message("perc.ui.page.mypages@Add to My Pages"))
+            .off("click")
+            .on("click", function () {
+              _addToMyPages(pageId);
+            });
+        }
+      });
+    }
+
+    function addMoreMenus(
+      pageName,
+      viewDropdown,
+      currentTabIndex,
+      defaultTabIndex,
+    ) {
+      _initLayoutStyleDropdowns();
+
+      _initEditorViewDropdown();
+      _initPublishDropdown(pageName);
+      $.PercAssetService.getUnusedAssets(currentPageId, populateOrphanAssets);
+      // View dropdowm in editmode
+      if (
+        $.PercNavigationManager.getView() ===
+        $.PercNavigationManager.VIEW_EDITOR
+      ) {
+        var viewDropDownData = {
+          percDropdownRootClass: "perc-dropdown-page-view",
           percDropdownOptionLabels: [
             I18N.message("perc.ui.page.menu@View"),
+            I18N.message("erc.ui.page.menu@Revisions"),
+            I18N.message("perc.ui.page.menu@Comments"),
+            I18N.message("perc.ui.page.menu@Preview"),
+            I18N.message("perc.ui.page.menu@Publishing History"),
             I18N.message("perc.ui.menu@JavaScript Off"),
-            I18N.message("perc.ui.page.menu@Hide Guides"),
           ],
           percDropdownCallbacks: [
-            function () {},
-            function () {},
-            function () {},
+            $.noop,
+            _openRevisions,
+            _openComments,
+            _previewPage,
+            _openPublishingHistory,
+            $.noop,
           ],
           percDropdownCallbackData: [
             I18N.message("perc.ui.page.menu@View"),
-            I18N.message("perc.ui.page.menu@View"),
-            I18N.message("perc.ui.page.menu@View"),
-          ],
-          percDropdownDisabledFlag: [false, true, true],
-        });
-        //Add View dropdown under Style tab
-        var styleViewDropdown = $("#perc-dropdown-view-style");
-        styleViewDropdown.PercDropdown({
-          percDropdownRootClass: "perc-dropdown-view-style",
-          percDropdownOptionLabels: [
-            I18N.message("perc.ui.page.menu@View"),
+            {
+              pageId: currentPageId,
+              pageName: pageName,
+            },
+            {
+              pageId: currentPageId,
+              pageName: pageName,
+            },
+            currentPageId,
+            {
+              pageId: currentPageId,
+              pageName: pageName,
+            },
             I18N.message("perc.ui.menu@JavaScript Off"),
           ],
-          percDropdownCallbacks: [function () {}, function () {}],
-          percDropdownCallbackData: [
-            I18N.message("perc.ui.page.menu@View"),
-            I18N.message("perc.ui.menu@JavaScript Off"),
-          ],
-          percDropdownDisabledFlag: [false, true],
-        });
-        // Add Publishing dropdown
-        $.PercItemPublisherService.getPublishActions(
-          currentPageId,
-          function (status, result) {
-            if (status) {
-              var pubActions = eval("(" + result + ")").PSPublishingActionList;
-              if (pubActions.length > 0) {
-                var actionNames = [
-                  I18N.message("perc.ui.page.menu@Publishing"),
-                ];
-                var disableAction = [false];
-                $.each(pubActions, function () {
-                  actionNames.push(this.name);
-                  disableAction.push(this.enabled);
-                });
-                //Add Publishing dropdown menu in toolbar
-                var publishNowDropdown = $("#perc-dropdown-publish-now");
-                publishNowDropdown.PercDropdown({
-                  percDropdownRootClass: "perc-dropdown-publish-now",
-                  percDropdownOptionLabels: actionNames,
-                  percDropdownCallbacks: [
-                    function () {},
-                    _publishItem,
-                    _openSchedule,
-                    _publishItem,
-                    _publishItem,
-                    _publishItem,
-                  ],
-                  percDropdownCallbackData: [
-                    I18N.message("perc.ui.page.menu@Publishing"),
-                    {
-                      pageId: currentPageId,
-                      pageName: pageName,
-                      trName: I18N.message("perc.ui.page.menu@Publish"),
-                    },
-                    {
-                      pageId: currentPageId,
-                      pageName: pageName,
-                      trName: I18N.message("perc.ui.page.menu@Publish"),
-                    },
-                    {
-                      pageId: currentPageId,
-                      pageName: pageName,
-                      trName: I18N.message("perc.ui.page.menu@Take Down"),
-                    },
-                    {
-                      pageId: currentPageId,
-                      pageName: pageName,
-                      trName: I18N.message("perc.ui.page.menu@Stage"),
-                    },
-                    {
-                      pageId: currentPageId,
-                      pageName: pageName,
-                      trName: I18N.message(
-                        "perc.ui.page.menu@Remove from Staging",
-                      ),
-                    },
-                    currentPageId,
-                  ],
-                  percDropdownDisabledFlag: disableAction,
-                });
-              }
-            }
-          },
-        );
-        $.PercAssetService.getUnusedAssets(currentPageId, populateOrphanAssets);
-        // View dropdowm in editmode
-        if (
-          $.PercNavigationManager.getView() ===
-          $.PercNavigationManager.VIEW_EDITOR
-        ) {
-          var viewDropDownData = {
-            percDropdownRootClass: "perc-dropdown-page-view",
-            percDropdownOptionLabels: [
-              I18N.message("perc.ui.page.menu@View"),
-              I18N.message("erc.ui.page.menu@Revisions"),
-              I18N.message("perc.ui.page.menu@Comments"),
-              I18N.message("perc.ui.page.menu@Preview"),
-              I18N.message("perc.ui.page.menu@Publishing History"),
-              I18N.message("perc.ui.menu@JavaScript Off"),
-            ],
-            percDropdownCallbacks: [
-              $.noop,
-              _openRevisions,
-              _openComments,
-              _previewPage,
-              _openPublishingHistory,
-              $.noop,
-            ],
-            percDropdownCallbackData: [
-              I18N.message("perc.ui.page.menu@View"),
-              {
-                pageId: currentPageId,
-                pageName: pageName,
-              },
-              {
-                pageId: currentPageId,
-                pageName: pageName,
-              },
-              currentPageId,
-              {
-                pageId: currentPageId,
-                pageName: pageName,
-              },
-              I18N.message("perc.ui.menu@JavaScript Off"),
-            ],
-            percDropdownDisabledFlag: [false, true, true, true, true, true],
-          };
+          percDropdownDisabledFlag: [false, true, true, true, true, true],
+        };
 
-          viewDropdown.PercDropdown(viewDropDownData);
-        }
-
-        // Add workflow transition buttons
-        if (currentTabIndex === defaultTabIndex) loadTab(defaultTabIndex);
-
-        // Init Orphan Assets Menu Actions
-        initOrphanAssetsMenu();
+        viewDropdown.PercDropdown(viewDropDownData);
       }
+
+      // Add workflow transition buttons
+      if (currentTabIndex === defaultTabIndex) loadTab(defaultTabIndex);
+
+      // Init Orphan Assets Menu Actions
+      initOrphanAssetsMenu();
     }
 
     //handle Hover In image for unusedAssets
