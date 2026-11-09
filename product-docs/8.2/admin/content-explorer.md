@@ -382,6 +382,10 @@ by commas (and `comment` when the comment is not empty). A transition that does
 not need assignees still runs immediately with the comment only, unless assignees
 were already chosen — then those names are sent on the same request. The state
 name and **Workflow transition completed** change only after the call succeeds.
+When that successful transition carried ad-hoc assignees, the host also shows
+**Delegated to {names}** naming those assignees; a transition without assignees
+shows only **Workflow transition completed**. HTTP **400**, **403**, and **409**
+show neither notice and the state name stays.
 HTTP **400**, **403**, and **409** stay on the confirm (or on the workflow region)
 and are not success. **View** mode does not load or run transitions. When the
 transition list (`getTransitions`) or the workflow catalog (`allowedWorkflows`)

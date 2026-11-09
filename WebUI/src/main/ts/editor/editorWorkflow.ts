@@ -242,6 +242,32 @@ export function confirmEditorAssignees(
 }
 
 /**
+ * Display list for the delegation notice after an adhoc-assignee transition
+ * succeeds (#5890). Names are normalized first (trimmed, blanks dropped,
+ * de-duped in first-seen order) and joined for the `{0}` slot of
+ * `WORKFLOW_DELEGATED`. Empty when nobody was delegated to.
+ */
+export function formatDelegatedAssigneeList(
+  raw: readonly string[] | null | undefined,
+): string {
+  return normalizeAdhocAssignees(raw).join(", ");
+}
+
+/**
+ * Apply the `{0}` delegation placeholder after TMX resolve (works with key
+ * fallbacks, mirroring the admin audit summary).
+ */
+export function formatDelegationNotice(
+  template: string,
+  raw: readonly string[] | null | undefined,
+): string {
+  return String(template ?? "").replace(
+    "{0}",
+    formatDelegatedAssigneeList(raw),
+  );
+}
+
+/**
  * 400, 403, and 409 are failures. Anything else is a generic failure.
  * None of these claim the workflow state changed.
  */
