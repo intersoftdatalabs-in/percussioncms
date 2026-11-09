@@ -164,6 +164,13 @@ async function stubCommon(page) {
       body: JSON.stringify({ itemId: 42, locale: "en-us", variants: [] }),
     }),
   );
+  await page.route("**/itemmanagement/item/siteimpact/page/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ pages: [], templates: [] }),
+    }),
+  );
 }
 
 test.describe("EditorHost workflow history", () => {
