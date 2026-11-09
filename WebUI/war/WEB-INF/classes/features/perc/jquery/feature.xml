@@ -3,7 +3,7 @@
   <name>perc_jquery</name>
   <gadget>
     <!-- Copied as part of installDistributionFiles.xml -->
-    <script src="jquery-3.6.0.js"></script>
-    <script src="jquery-migrate-3.3.2.js"></script>
+    <script src="jquery.min.js"></script>
+    <script src="jquery-migrate.min.js"></script>
   </gadget>
 </feature>

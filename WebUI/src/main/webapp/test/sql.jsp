@@ -300,8 +300,8 @@
 }
 %>
 </body>
-<script src="/cm/jslib/profiles/3x/jquery/jquery-3.6.0.js"></script>
-<script src="/cm/jslib/profiles/3x/jquery/jquery-migrate-3.3.2.js"></script>
+<script src="/cm/jslib/profiles/3x/jquery/jquery.min.js"></script>
+<script src="/cm/jslib/profiles/3x/jquery/jquery-migrate.min.js"></script>
 <script src="/rx_resources/js/bootstrap/3.3.4/bootstrap.min.js"></script>
 <script>
     $(function(){

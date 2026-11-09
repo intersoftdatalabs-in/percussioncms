@@ -225,6 +225,7 @@ WebUI/src/main/webapp/cm/shared-finder.js
 # Never commit under source trees — issue #1510 integrity seal + vendor drift.
 WebUI/src/main/webapp/cm/jslib/profiles/3x/jquery/jquery.min.js
 WebUI/src/main/webapp/cm/jslib/profiles/3x/jquery/jquery-migrate.min.js
+WebUI/src/main/webapp/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js
 WebUI/src/main/webapp/jslib/profiles/3x/jquery/jquery.min.js
 WebUI/src/main/webapp/jslib/profiles/3x/jquery/jquery-migrate.min.js
 WebUI/war/jslib/profiles/3x/jquery/jquery.min.js

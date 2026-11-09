@@ -176,7 +176,7 @@
     </tbody>
 </table>
 </body>
-<script src="/cm/jslib/profiles/3x/jquery/jquery-3.6.0.js"></script>
+<script src="/cm/jslib/profiles/3x/jquery/jquery.min.js"></script>
 <script src="/cm/jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js"></script>
 <script>
     $(function () {

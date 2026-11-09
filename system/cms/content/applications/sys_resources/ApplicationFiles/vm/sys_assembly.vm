@@ -615,8 +615,8 @@ $__style
 #perc_displayText($rx.pageutils.processFrameworkContent("$!perc.linkContext.site.siteAdditionalHeadContent"))##
 #if($jqueryWidgetInstances.size() > 0)##
 #if($perc.isEditMode())##
-<script src="/cm/jslib/profiles/3x/jquery/jquery-3.6.0.js"></script>
-<script src="/cm/jslib/profiles/3x/jquery/jquery-migrate-3.3.2.js"></script>
+<script src="/cm/jslib/profiles/3x/jquery/jquery.min.js"></script>
+<script src="/cm/jslib/profiles/3x/jquery/jquery-migrate.min.js"></script>
 #else##
 #print_jquery("additionalHeadContent")##
 #end##
@@ -624,8 +624,8 @@ $__style
 #foreach($js_link in $rx.pageutils.javascriptLinks($perc.linkContext, $sys.assemblyItem))##
 #if($js_link.getUrl().endsWith("/jquery.js"))##
 #if($perc.isEditMode() || $perc.isPreviewMode())##
-<script src="/cm/jslib/profiles/3x/jquery/jquery-3.6.0.js"></script>
-<script src="/cm/jslib/profiles/3x/jquery/jquery-migrate-3.3.2.js"></script>
+<script src="/cm/jslib/profiles/3x/jquery/jquery.min.js"></script>
+<script src="/cm/jslib/profiles/3x/jquery/jquery-migrate.min.js"></script>
 #else##
 #if($perc.linkContext.site.overrideSystemJQuery==false)##
 #print_jquery("additionalHeadContent")##
@@ -701,9 +701,9 @@ display:none;
 #foreach($js_link in $rx.pageutils.javascriptLinks($perc.linkContext, $sys.assemblyItem))##
 #if($js_link.getUrl().endsWith("/jquery-ui.js"))##
 #if($perc.isEditMode())##
-<script src='/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js'></script>
+<script src='/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js'></script>
 #elseif ($perc.isPreviewMode() && ($perc.linkContext.site.overrideSystemJQueryUI==false) && ($jqueryUIwidget.size()==0) )##
-<script src='/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js'#if($deferDependents) defer#end></script>
+<script src='/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js'#if($deferDependents) defer#end></script>
 #else##
 #print_jqueryUI("additionalHeadContent")##
 #end##
@@ -1024,7 +1024,7 @@ $value.trim().replaceAll(" +"," ")##
 #if($perc.linkContext.mode.toString() == "PUBLISH")##
 #set($jQueryLocation = "/web_resources/cm/jslib/jquery.js")##
 #else##
-#set($jQueryLocation = "/cm/jslib/profiles/3x/jquery/jquery-3.6.0.js")##
+#set($jQueryLocation = "/cm/jslib/profiles/3x/jquery/jquery.min.js")##
 #end##
 #end##
 #if( (($perc.linkContext.mode.toString() == "PUBLISH") && ($includeOnPublishedPage != "no")) || (($perc.linkContext.mode.toString() == "PREVIEW") && ($includeOnPublishedPage != "no")))##
@@ -1083,7 +1083,7 @@ crossorigin="$!{jQueryMigrateCrossOrigin}"
 #if($perc.linkContext.mode == "PUBLISH")##
 #set($jQueryLocation = "/web_resources/cm/jslib/jquery-ui.js")##
 #else##
-#set($jQueryLocation = "/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js")##
+#set($jQueryLocation = "/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js")##
 #end##
 #end##
 #set($jQuerySRIHash = $widgetitem.getProperties().get("jQueryUILocationIntegrity"))##
@@ -1106,7 +1106,7 @@ crossorigin="$!{jQueryMigrateCrossOrigin}"
 #if($perc.linkContext.mode.toString() == "PUBLISH" && $widgetitem.getProperties().get("includeUIOnPublishedPage")  !=  "no")##
 #set($jQueryLocation = "/web_resources/cm/jslib/jquery-ui.js")##
 #else##
-#set($jQueryLocation = "/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js")##
+#set($jQueryLocation = "/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js")##
 #end##
 #end##
 #if( (($perc.linkContext.mode.toString() == "PUBLISH") && ($widgetitem.getProperties().get("includeUIOnPublishedPage")  !=  "no")) || (($perc.linkContext.mode.toString()  ==  "PREVIEW") && ($widgetitem.getProperties().get("includeUIOnPublishedPage")  !=  "no")))##

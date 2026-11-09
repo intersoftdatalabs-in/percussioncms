@@ -59,7 +59,7 @@
 				<!-- <xsl:copy-of select="/*/UserStatus"/> -->
 				<script src="../tmx/tmx.jsp?sys_lang={$lang}">;</script>
 				<script src="../cm/jslib/profiles/3x/jquery/jquery.min.js">;</script>
-				<script src="../cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js">;</script>
+				<script src="../cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js">;</script>
 				<script src="../cm/jslib/profiles/3x/jquery/jquery-migrate.min.js">;</script>
 				<script src="../sys_resources/js/browser.js">;</script>
 				<script src="../cm/jslib/profiles/3x/libraries/perc-retiredjs/json2.js">;</script>

@@ -63,7 +63,7 @@
 			<!-- JavaScript -->
 			<psxctl:FileDescriptor name="jquery-ui.js"
 				type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js</psxctl:FileLocation>
+				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js</psxctl:FileLocation>
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
 			<psxctl:FileDescriptor

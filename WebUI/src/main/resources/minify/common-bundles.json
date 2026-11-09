@@ -5,9 +5,9 @@
       "name": "shared-common.js",
       "files": [
         "jslib/profiles/3x/libraries/bowser/es5.js",
-        "jslib/profiles/3x/jquery/jquery-3.6.0.js",
+        "jslib/profiles/3x/jquery/jquery.min.js",
         "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js",
-        "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js",
+        "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js",
         "jslib/profiles/3x/libraries/perc-retiredjs/json2.js",
         "jslib/profiles/3x/jquery/plugins/jquery-form/jquery.form.js",
         "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.blockUI.js",

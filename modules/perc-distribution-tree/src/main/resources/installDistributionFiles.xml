@@ -344,34 +344,36 @@
 			file="${basedir}/../perc-common-ui-bundle/target/classes/META-INF/resources/cm/common/js/perc_common_ui_slim.js" />
 
 		<!-- Copy Java Script -->
-		<!-- jquery for gadgets -->
+		<!-- jquery for gadgets (npm-built, versionless; read from the unpacked
+			perc-web-ui WAR above so WebUI/war/ carries no vendored binaries.
+			Feature gadget names match feature.xml <script src> (issue #5660). -->
 		<copy
-			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/jquery/jquery-3.6.0.js"
-			file="${basedir}/../../WebUI/war/jslib/profiles/3x/jquery/jquery-3.6.0.js" />
+			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/jquery/jquery.min.js"
+			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/jslib/profiles/3x/jquery/jquery.min.js" />
 		<copy
-			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/jquery/jquery-migrate-3.3.2.js"
-			file="${basedir}/../../WebUI/war/jslib/profiles/3x/jquery/jquery-migrate-3.3.2.js" />
+			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/jquery/jquery-migrate.min.js"
+			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/jslib/profiles/3x/jquery/jquery-migrate.min.js" />
 		<copy
 			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/core/es5.js"
 			file="${basedir}/../../WebUI/war/jslib/profiles/3x/libraries/bowser/es5.js" />
-		<!-- jquery for published site -->
+		<!-- jquery for published site (npm-built; published filename stable) -->
 		<copy
 			tofile="${assembly-directory}/web_resources/cm/jslib/jquery.js"
-			file="${basedir}/../../WebUI/war/jslib/profiles/3x/jquery/jquery-3.6.0.js" />
+			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/jslib/profiles/3x/jquery/jquery.min.js" />
 
-		<!-- jquery-ui for published site -->
+		<!-- jquery-ui for published site (npm-built; published filename stable) -->
 		<copy
 			tofile="${assembly-directory}/web_resources/cm/jslib/jquery-ui.js"
-			file="${basedir}/../../WebUI/war/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js" />
-		<!-- jquery migrate for published site -->
+			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js" />
+		<!-- jquery migrate for published site (npm-built; published filename stable) -->
 		<copy
 			tofile="${assembly-directory}/web_resources/cm/jslib/jquery-migrate.js"
-			file="${basedir}/../../WebUI/war/jslib/profiles/3x/jquery/jquery-migrate-3.3.2.js" />
+			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/jslib/profiles/3x/jquery/jquery-migrate.min.js" />
 
 		<!-- jquery ui -->
 		<copy
-			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/jqueryUi/jquery-ui.js"
-			file="${basedir}/../../WebUI/war/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.js" />
+			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/jqueryUi/jquery-ui.min.js"
+			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js" />
 		<!-- collapser -->
 		<copy
 			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/collapser/jquery.collapser.js"
