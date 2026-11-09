@@ -35,6 +35,7 @@ export const EDITOR_MSG = {
   SAVE_STALE:
     "perc.ui.editor@This item was saved with a newer revision. Reload and try again.",
   SAVED: "perc.ui.editor@Saved",
+  REVERT: "perc.ui.editor@Revert changes",
   SAVE_RELOAD_FAILED:
     "perc.ui.editor@Saved, but the latest values could not be reloaded. Retry the load to see the current values.",
   FIELD_REQUIRED: "perc.ui.editor@This field is required.",

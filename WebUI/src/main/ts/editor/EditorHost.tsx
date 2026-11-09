@@ -173,6 +173,11 @@ import {
   PREVIEW_TEMPLATE_CURRENT,
 } from "./editorPreview";
 import {
+  canRevertFromEditor,
+  editorDirtyFieldNames,
+  revertedEditorDraft,
+} from "./editorRevert";
+import {
   loadLinkedPagesForTakedown,
   type LinkedPageForTakedown,
 } from "../contentExplorer/itemPublish";
@@ -1526,6 +1531,25 @@ export function EditorHost({
   }, [payload, draft, schema, schemaReadOnlyNames]);
 
   /**
+   * Per-field dirty tracking (#5889): names whose draft differs from the
+   * loaded values, plus staged binaries. Drives the row markers and the
+   * revert control visibility.
+   */
+  const dirtyFieldNames = useMemo(
+    () =>
+      new Set(
+        editorDirtyFieldNames(
+          payload?.fields,
+          draft,
+          pendingFiles,
+          pendingClears,
+          schemaReadOnlyNames,
+        ),
+      ),
+    [payload, draft, pendingFiles, pendingClears, schemaReadOnlyNames],
+  );
+
+  /**
    * Page-metadata dialog chrome (#5739): collapsible groups, auto-summary
    * preview, filename filter, and site-impact panel for {@code percPage}
    * items. Other content types keep the flat field list.
@@ -1611,6 +1635,7 @@ export function EditorHost({
         className={styles.field}
         data-testid={`editor-field-row-${row.name}`}
         data-required={row.required ? "true" : "false"}
+        data-editor-dirty={dirtyFieldNames.has(row.name) ? "true" : undefined}
       >
         <span className={styles.label}>
           {row.label}
@@ -3314,12 +3339,20 @@ export function EditorHost({
     setPendingClears({});
     setDiscardEpoch((epoch) => epoch + 1);
     if (payload) {
-      setDraft(
-        Object.fromEntries(
-          payload.fields.map((f) => [f.name, fieldValueAsString(f.value)]),
-        ),
-      );
+      setDraft(revertedEditorDraft(payload.fields));
     }
+  }
+
+  /**
+   * Bulk revert (#5889): restore the loaded values and drop staged
+   * binaries. Client-side only — never issues a fields PUT/POST. Stale
+   * field errors refer to the discarded draft, so they clear too; the
+   * saved indicator still describes the last successful save.
+   */
+  function handleRevert(): void {
+    discardUnsavedEdits();
+    focusInvalidRef.current = null;
+    setFieldErrors({});
   }
 
   function allowLeave(): boolean {
@@ -4243,6 +4276,14 @@ export function EditorHost({
     checkoutOk,
   );
   const canEdit = !readOnly && !promote && heldBySelf;
+  const draftDirty = editorDraftIsDirty(
+    payload?.fields,
+    draft,
+    pendingFiles,
+    pendingClears,
+    schemaReadOnlyNames,
+  );
+  const showRevert = canEdit && canRevertFromEditor(mode, draftDirty);
   const checkoutOwner = (
     restLockUser ||
     lockUser ||
@@ -4409,6 +4450,17 @@ export function EditorHost({
               onClick={() => void handleSave()}
             >
               {message(saving ? EDITOR_MSG.SAVING : EDITOR_MSG.SAVE)}
+            </button>
+          ) : null}
+          {showRevert ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-revert"
+              disabled={saving || loading || payload == null}
+              onClick={handleRevert}
+            >
+              {message(EDITOR_MSG.REVERT)}
             </button>
           ) : null}
           {showPublish ? (
