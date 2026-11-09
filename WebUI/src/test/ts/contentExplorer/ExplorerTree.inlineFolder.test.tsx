@@ -37,6 +37,9 @@ const SITES: PSPathItem = {
 const FOO: PSPathItem = {
   id: "foo-1",
   path: "/Sites/Foo",
+  // Repository list path differs from the finder id (cf. /Assets vs
+  // //Folders/$System$/Assets): the POST parent must be the list path.
+  folderPath: "//Folders/$System$/Foo",
   name: "Foo",
   type: "folder",
   hasFolderChildren: true,
@@ -82,10 +85,23 @@ describe("ExplorerTree inline new-folder (#5882)", {
   it("commits on Enter, reloads the parent, and closes the row", async () => {
     let created = false;
     let createPosts = 0;
+    let postedParent: string | null = null;
+    let postedName: string | null = null;
     mockFetch(async (input, init) => {
       const url = requestUrl(input);
       if (url.includes("/folders/create") && requestMethod(init) === "POST") {
         createPosts += 1;
+        try {
+          const body = JSON.parse(
+            String((init as RequestInit)?.body ?? "{}"),
+          ) as {
+            CreateFolderRequest?: { parentPath?: string; name?: string };
+          };
+          postedParent = body.CreateFolderRequest?.parentPath ?? null;
+          postedName = body.CreateFolderRequest?.name ?? null;
+        } catch {
+          postedParent = null;
+        }
         created = true;
         return new Response(JSON.stringify({ Folder: CREATED }), {
           status: 200,
@@ -96,7 +112,9 @@ describe("ExplorerTree inline new-folder (#5882)", {
       if (/\/pathmanagement\/path\/folder\/?(\?|$)/.test(url)) {
         return pathItemListResponse([SITES]);
       }
-      if (url.includes("/Sites/Foo")) {
+      // Children of Foo under either encoding (finder /Sites/Foo or the
+      // repository list path //Folders/$System$/Foo).
+      if (url.includes("Foo")) {
         return pathItemListResponse(created ? [{ ...CREATED } as PSPathItem] : []);
       }
       if (url.includes("/Sites")) {
@@ -136,6 +154,10 @@ describe("ExplorerTree inline new-folder (#5882)", {
       ).toBeInTheDocument(),
     );
     expect(createPosts).toBe(1);
+    // List path (repository folderPath), not the finder id — the server
+    // rejects finder ids with "Parent path is not a folder" (#5882 QA).
+    expect(postedParent).toBe("/Folders/$System$/Foo");
+    expect(postedName).toBe("NewKid");
     expect(
       screen.queryByTestId("tree-inline-new-folder"),
     ).not.toBeInTheDocument();
@@ -235,9 +257,14 @@ describe("ExplorerTree inline new-folder (#5882)", {
       if (/\/pathmanagement\/path\/folder\/?(\?|$)/.test(url)) {
         return pathItemListResponse([SITES]);
       }
+      // Children of Sites, and of Foo under either encoding (finder or
+      // repository list path).
+      if (url.includes("Foo")) {
+        fooLoads += 1;
+        return pathItemListResponse([]);
+      }
       if (url.includes("/Sites")) {
-        fooLoads += url.includes("/Sites/Foo") ? 1 : 0;
-        return pathItemListResponse(url.includes("/Sites/Foo") ? [] : [FOO]);
+        return pathItemListResponse([FOO]);
       }
       return pathItemListResponse([]);
     });

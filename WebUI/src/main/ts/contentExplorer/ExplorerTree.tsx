@@ -1050,8 +1050,23 @@ export function ExplorerTree({
     const selected = selectedPathRef.current;
     const item = selected ? findFolderItemForPath(snapshot, selected) : null;
     const hit = selected ? lookupNodeKey(snapshot, selected) : undefined;
-    const parentPath = item?.path ?? hit ?? selected ?? initialPath;
-    const key = normalizeExplorerTreePathKey(parentPath);
+    // Create against the folder's LIST path (repository folderPath, not
+    // the finder id): POST /rest/folders/create rejects finder ids such
+    // as /Assets with "Parent path is not a folder" (#5882 QA). This
+    // mirrors the dialog flow, whose parent comes from the shell list
+    // selection. Site /Pages browse chrome is deliberately excluded —
+    // it is a virtual listing, not a creatable parent.
+    const parentPath =
+      (item ? resolveExplorerListPath(item, item.path) : null) ??
+      hit ??
+      selected ??
+      initialPath;
+    // Render anchor stays on the finder path (the visible node key); the
+    // POST parent above is the list path. They differ for roots such as
+    // /Assets (finder) vs //Folders/$System$/Assets (repository).
+    const key = normalizeExplorerTreePathKey(
+      item?.path ?? hit ?? selected ?? initialPath,
+    );
     setInlineParent({ key, path: parentPath, item });
     setInlineError(null);
     setInlineBusy(false);
