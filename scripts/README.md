@@ -526,7 +526,9 @@ Preflight/Reconcile/Triage Grok agents are skipped when the script fills
 - **Hard rules in code**: labels beat Jev; covering PR from `Fixes #N` / `issue-N`
   branch; at most one implement item per parent; p7/p8 only in `--low-slots`;
   human-QA handoff tickets excluded by routing label (`--qa-label`, default
-  `qa task`) or `QA (#N)` title backstop (label-less tickets must not eat seats).
+  `qa task`) or `QA (#N)` title backstop (label-less tickets must not eat seats);
+  debt rotation is cross-tier exclusion + win-cooldown (`--debt-exclude` /
+  `--debt-seated`, windowed host input so entries age out, `--debt-seed` nightly).
 - **Tests**: `python3 scripts/test_night_decision_front.py`
 
 ### `typesafe-prescreen.py` / `typesafe-prescreen.cmd`

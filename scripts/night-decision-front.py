@@ -360,25 +360,37 @@ def order_debt(
     debt_c: list[dict],
     exclude: set[int] | None = None,
     seed: int | None = None,
+    seated: set[int] | None = None,
 ) -> list[dict]:
-    """Order the debt pool with rotation (2.2.8-draft, cross-tier 2.2.9-draft).
+    """Order the debt pool with rotation (2.2.8-draft, cross-tier 2.2.9-draft,
+    win-cooldown + block-expiry follow-ons).
 
     Lowest-number-first reseats the same blocked issues every night
     (observed: #1820/#1976 two cycles running while 20 debt candidates
     waited; then #1978/#1820 seated a third time under 2.2.8 because pN
     tier outranked exclusion while every fresh debt candidate was p8).
-    Instead:
+    Tier-first fresh ordering has the mirror defect: the same top-tier
+    fresh items win every seat while dozens of p8s wait (observed: a 43-deep
+    pool where 23 p8s never reached the nightly-seeded lottery because p3/p7
+    fresh items always outranked them). Instead:
     - issues in `exclude` (attempted-and-blocked in recent cycles, passed
       by the host from prior scratch/work-*.json verdicts) sort AFTER
       ALL fresh issues, regardless of pN tier. A blocked p2 yields to a
       fresh p8 for one cycle; it returns when off the exclude list.
       Reordering only, never removal — an all-excluded pool still fills
       the seat (fail-open).
-    - within the same excluded-flag group, order by pN tier, then randomly
-      under the given seed for auditability. Seed None keeps legacy number
-      order (deterministic; existing callers unaffected).
+    - issues in `seated` (won a debt seat in a recent cycle: `pr_opened`
+      in the host's window) sort after UNSEATED fresh issues, regardless
+      of tier — a just-worked p3 yields to a never-seated p8 so the seats
+      rotate through the pool instead of camping on one tier band.
+    - within the same (excluded, seated) flag group, order by pN tier, then
+      randomly under the given seed for auditability. Seed None keeps
+      legacy number order (deterministic; existing callers unaffected).
+    Expiry is by windowed host input (the host passes only the last few
+    cycles), never by counters in this script.
     """
     excluded = exclude or set()
+    seated_set = seated or set()
     keys: dict[int, float] = {}
     if seed is not None:
         rng = random.Random(seed)
@@ -387,10 +399,14 @@ def order_debt(
 
     def sort_key(c):
         # Exclusion outranks tier (2.2.9): a blocked p2 yields to fresh p8.
-        flag = 1 if c["issue"]["number"] in excluded else 0
+        # Win-cooldown outranks tier too: a just-worked p3 yields to an
+        # unseated p8, so seats rotate instead of camping on one tier band.
+        n = c["issue"]["number"]
+        flag = 1 if n in excluded else 0
+        cooled = 1 if n in seated_set else 0
         tier = pn_rank(c["priority"])
         tie = keys[id(c)] if seed is not None else c["issue"]["number"]
-        return (flag, tier, tie)
+        return (flag, cooled, tier, tie)
 
     return sorted(debt_c, key=sort_key)
 
@@ -404,6 +420,7 @@ def build_queue(
     debt_exclude: set[int] | None = None,
     debt_seed: int | None = None,
     qa_label: str = "qa task",
+    debt_seated: set[int] | None = None,
 ) -> tuple[list[dict], dict]:
     """Rank one-per-parent queue with RESERVED debt seats (2.2.6-draft).
 
@@ -469,7 +486,7 @@ def build_queue(
     product = [c for c in candidates if not c["debt"]]
     debt_c = [c for c in candidates if c["debt"]]
     product.sort(key=lambda c: (pn_rank(c["priority"]), c["issue"]["number"]))
-    debt_c = order_debt(debt_c, debt_exclude, debt_seed)
+    debt_c = order_debt(debt_c, debt_exclude, debt_seed, debt_seated)
 
     queue = []
     used_parents: set[int] = set()
@@ -524,6 +541,7 @@ def build_queue(
         "debt_queued": debt_queued,
         "debt_candidates": len(debt_c),
         "debt_excluded": sorted((debt_exclude or set())),
+        "debt_seated": sorted((debt_seated or set())),
         "debt_seed": debt_seed,
         "product_candidates": len(product),
         "priority_slots": priority_slots,
@@ -610,12 +628,13 @@ def run(
     debt_exclude: set[int] | None = None,
     debt_seed: int | None = None,
     qa_label: str = "qa task",
+    debt_seated: set[int] | None = None,
 ) -> dict:
     issues = [normalize_issue(x) for x in issues_raw]
     prs = [normalize_pr(x) for x in prs_raw]
     queue, stats = build_queue(
         issues, prs, prescreen, max_issues, low_slots, debt_exclude, debt_seed,
-        qa_label,
+        qa_label, debt_seated,
     )
     signals = build_signals(issues, prs, self_model_label, cluster_min_prs)
     open_alert_count = count_open_alerts(alerts_raw)
@@ -727,6 +746,17 @@ def main(argv: list[str] | None = None) -> int:
             "nightly). Omit for legacy lowest-number-first order."
         ),
     )
+    p.add_argument(
+        "--debt-seated",
+        default="",
+        help=(
+            "CSV of debt issue numbers that won a seat in recent cycles "
+            "(host builds from prior scratch/work-*.json pr_opened verdicts). "
+            "Win-cooldown: seated debt sorts after unseated fresh debt "
+            "regardless of tier, so seats rotate instead of camping on one "
+            "tier band. Fail-open like --debt-exclude."
+        ),
+    )
     args = p.parse_args(argv)
 
     issues_path = Path(args.issues)
@@ -774,6 +804,9 @@ def main(argv: list[str] | None = None) -> int:
     debt_exclude = {
         int(x) for x in str(args.debt_exclude).split(",") if x.strip().isdigit()
     }
+    debt_seated = {
+        int(x) for x in str(args.debt_seated).split(",") if x.strip().isdigit()
+    }
     result = run(
         issues_raw,
         prs_raw,
@@ -786,6 +819,7 @@ def main(argv: list[str] | None = None) -> int:
         debt_exclude,
         args.debt_seed,
         str(args.qa_label),
+        debt_seated,
     )
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)
