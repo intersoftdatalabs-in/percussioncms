@@ -148,6 +148,52 @@
 
 										<PSXDeployableObject>
 											<PSXDependency autoDep="no" autoExpand="yes"
+												dependencyId="rx_resources/widgets/commentsForm/js/perc-tiptap-editor.bundle.min.js"
+												dependencyType="Shared" displayName="perc-tiptap-editor.bundle.min.js"
+												isAssociation="no" isIncluded="yes" objectType="SupportFile"
+												objectTypeName="Support File" supportsIdMapping="no"
+												supportsIdTypes="no" supportsParentId="no"
+												supportsUserDependencies="no">
+												<Dependencies>
+													<PSXDeployableObject>
+														<PSXDependency autoDep="no" autoExpand="yes"
+															dependencyId="rx_resources" dependencyType="System"
+															displayName="rx_resources" isAssociation="yes"
+															isIncluded="no" objectType="Application"
+															objectTypeName="Application" supportsIdMapping="no"
+															supportsIdTypes="no" supportsParentId="no"
+															supportsUserDependencies="no" />
+														<RequiredClasses />
+													</PSXDeployableObject>
+												</Dependencies>
+											</PSXDependency>
+											<RequiredClasses />
+										</PSXDeployableObject>
+										<PSXDeployableObject>
+											<PSXDependency autoDep="no" autoExpand="yes"
+												dependencyId="rx_resources/widgets/commentsForm/js/PercWidgetEditor.js"
+												dependencyType="Shared" displayName="PercWidgetEditor.js"
+												isAssociation="no" isIncluded="yes" objectType="SupportFile"
+												objectTypeName="Support File" supportsIdMapping="no"
+												supportsIdTypes="no" supportsParentId="no"
+												supportsUserDependencies="no">
+												<Dependencies>
+													<PSXDeployableObject>
+														<PSXDependency autoDep="no" autoExpand="yes"
+															dependencyId="rx_resources" dependencyType="System"
+															displayName="rx_resources" isAssociation="yes"
+															isIncluded="no" objectType="Application"
+															objectTypeName="Application" supportsIdMapping="no"
+															supportsIdTypes="no" supportsParentId="no"
+															supportsUserDependencies="no" />
+														<RequiredClasses />
+													</PSXDeployableObject>
+												</Dependencies>
+											</PSXDependency>
+											<RequiredClasses />
+										</PSXDeployableObject>
+										<PSXDeployableObject>
+											<PSXDependency autoDep="no" autoExpand="yes"
 												dependencyId="rx_resources/widgets/commentsForm/js/TinymceConfig.js"
 												dependencyType="Shared" displayName="TinymceConfig.js"
 												isAssociation="no" isIncluded="yes" objectType="SupportFile"

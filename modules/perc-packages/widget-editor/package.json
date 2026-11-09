@@ -1,0 +1,22 @@
+{
+  "name": "perc-widget-tiptap-editor",
+  "version": "8.2.0",
+  "private": true,
+  "description": "Build tooling for the prebuilt vanilla (no-React) TipTap editor bundle shipped inside perc.widget.form and perc.widget.commentForm (issue #5901). Not published; output is committed under both packages' SupportFile-rx_resources trees.",
+  "type": "module",
+  "scripts": {
+    "build": "node build.mjs",
+    "build:clean": "node build.mjs --clean"
+  },
+  "dependencies": {
+    "@tiptap/core": "3.33.0",
+    "@tiptap/extension-underline": "3.33.0",
+    "@tiptap/starter-kit": "3.33.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

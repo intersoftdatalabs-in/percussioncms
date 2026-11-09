@@ -28,15 +28,17 @@
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
 
-			<!-- TinyMce -->
-			<psxctl:FileDescriptor name="jquery.tinymce.js"
+			<!-- TipTap vanilla editor (issue #5901): prebuilt bundle + controller.
+			Ships inside this package under rx_resources — no CMS-served
+			TinyMCE script dependency on delivered sites. -->
+			<psxctl:FileDescriptor name="perc-tiptap-editor.bundle.min.js"
 				type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>/sys_resources/tinymce/js/tinymce/tinymce.min.js</psxctl:FileLocation>
+				<psxctl:FileLocation>/rx_resources/widgets/form/js/perc-tiptap-editor.bundle.min.js</psxctl:FileLocation>
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor name="jquery.tinymce.js"
+			<psxctl:FileDescriptor name="PercWidgetEditor.js"
 				type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>/sys_resources/tinymce/js/PercCustomStylesService.js</psxctl:FileLocation>
+				<psxctl:FileLocation>/rx_resources/widgets/form/js/PercWidgetEditor.js</psxctl:FileLocation>
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
 			<psxctl:FileDescriptor name="TinymceConfig.js"
