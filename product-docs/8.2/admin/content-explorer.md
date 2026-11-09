@@ -328,7 +328,14 @@ stays checked out to you.
 When the item is **not** checked out to you, the host is **view-only** (fields
 read-only; Save and Check In hidden). Use **Check Out** to take the lock. HTTP
 **403** (not allowed) and **409** (checked out to someone else) are shown as
-errors — they are not treated as success. Use **Show revisions** to open the
+errors — they are not treated as success. When another user holds the lock,
+the host also shows a locked warning that names that holder, and the
+**Force Check-in** steal confirm names the holder too, so the operator knows
+who loses the checkout before editing proceeds. **Cancel** on that confirm
+does not call the server and keeps the named lock. HTTP **403** (not allowed)
+and **409** (no longer checked out) from the force check-in keep the named
+lock and claim no success — the holder line, the locked warning, and
+**Force Check-in** stay, while Save and Check In stay hidden. Use **Show revisions** to open the
 restore-prior-revision panel: the host lists revisions plus workflow comments
 (`GET /services/itemmanagement/item/revisions/{id}`). Pick a revision and
 **Restore prior revision** to call

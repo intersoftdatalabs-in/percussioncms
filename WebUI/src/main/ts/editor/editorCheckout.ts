@@ -78,6 +78,20 @@ export function isCheckedOutToSelf(
   return namesEqual(lockUser, session);
 }
 
+/**
+ * Lock-owner steal warning (#5891). Names the holder in the locked banner
+ * and the force check-in (steal) confirm so the operator knows who loses
+ * the checkout before editing proceeds. A blank owner keeps the base copy
+ * unchanged. HTTP 403/409 paths never clear the owner before calling this.
+ */
+export function formatLockOwnerNotice(
+  row: string,
+  owner: string | null | undefined,
+): string {
+  const name = (owner ?? "").trim();
+  return name ? `${row} (${name})` : row;
+}
+
 /** Check-out / check-in chrome is for edit mode only. */
 export function canUseEditorCheckoutActions(mode: EditorHostMode): boolean {
   return mode === "edit";

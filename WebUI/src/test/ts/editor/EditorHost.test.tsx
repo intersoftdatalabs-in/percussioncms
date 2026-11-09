@@ -439,6 +439,97 @@ describe("EditorHost", () => {
     );
   });
 
+  it("names the lock owner in the locked warning and the steal confirm", async () => {
+    const checkout = vi.fn().mockResolvedValue({
+      checkOutUser: "editor",
+      currentUser: "admin",
+    });
+    const forceCheckin = vi.fn().mockResolvedValue(undefined);
+    const confirmForceCheckin = vi.fn().mockReturnValue(true);
+    const loadFields = vi.fn().mockResolvedValue({
+      ...fields,
+      checkoutUser: "editor",
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                forceCheckin={forceCheckin}
+                confirmForceCheckin={confirmForceCheckin}
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-force-checkin")).toBeTruthy();
+    });
+    expect(screen.getByTestId("editor-locked").textContent).toMatch(/editor/i);
+    expect(screen.queryByTestId("editor-save")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-force-checkin"));
+    await waitFor(() => {
+      expect(forceCheckin).toHaveBeenCalledWith("42");
+    });
+    expect(confirmForceCheckin).toHaveBeenCalledTimes(1);
+    expect(String(confirmForceCheckin.mock.calls[0][0])).toMatch(/editor/i);
+  });
+
+  it("keeps the named lock when force check-in answers 403 and claims no success", async () => {
+    const checkout = vi.fn().mockResolvedValue({
+      checkOutUser: "editor",
+      currentUser: "admin",
+    });
+    const forceCheckin = vi.fn().mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: {},
+    });
+    const loadFields = vi.fn().mockResolvedValue({
+      ...fields,
+      checkoutUser: "editor",
+    });
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                checkout={checkout}
+                forceCheckin={forceCheckin}
+                confirmForceCheckin={() => true}
+                loadFields={loadFields}
+                loadType={async () => ({ fields: [] })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-force-checkin")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-force-checkin"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-lock-error").textContent).toMatch(
+        /not allowed to force check-in/i,
+      );
+    });
+    expect(forceCheckin).toHaveBeenCalledWith("42");
+    expect(screen.getByTestId("editor-checkout-user").textContent).toMatch(/editor/i);
+    expect(screen.getByTestId("editor-locked").textContent).toMatch(/editor/i);
+    expect(screen.getByTestId("editor-force-checkin")).toBeTruthy();
+    expect(screen.queryByTestId("editor-save")).toBeNull();
+    expect(screen.queryByTestId("editor-checkin")).toBeNull();
+  });
+
   it("stays view-only when checkout user-info has another holder and empty currentUser", async () => {
     const checkout = vi.fn().mockResolvedValue({
       checkOutUser: "editor",

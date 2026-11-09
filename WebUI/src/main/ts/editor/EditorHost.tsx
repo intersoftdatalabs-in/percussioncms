@@ -131,6 +131,7 @@ import {
   canUseEditorCheckoutActions,
   checkinCommentContainsNul,
   editorLockErrorReason,
+  formatLockOwnerNotice,
   isCheckedOutToSelf,
   type EditorCheckoutUserInfo,
 } from "./editorCheckout";
@@ -3998,7 +3999,7 @@ export function EditorHost({
       confirmForceCheckin ??
       ((body: string) =>
         typeof window !== "undefined" ? window.confirm(body) : false);
-    if (!confirmFn(message(EDITOR_MSG.CONFIRM_FORCE_CHECKIN))) {
+    if (!confirmFn(formatLockOwnerNotice(message(EDITOR_MSG.CONFIRM_FORCE_CHECKIN), owner))) {
       return;
     }
     setLockBusy(true);
@@ -5192,7 +5193,7 @@ export function EditorHost({
             ) : null}
             {!canEdit && !readOnly && !promote && payload != null ? (
               <div className={styles.status} data-testid="editor-locked">
-                {message(EDITOR_MSG.LOCKED)}
+                {formatLockOwnerNotice(message(EDITOR_MSG.LOCKED), checkoutOwner)}
               </div>
             ) : null}
             {restoreDone ? (
