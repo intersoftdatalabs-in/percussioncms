@@ -62,6 +62,9 @@ function scheduleErrorMessage(err: unknown): string {
   if (/\bFORBIDDEN\b/i.test(text)) {
     return message(MSG.PUBLISH_SCHEDULE_FORBIDDEN);
   }
+  if (/\bBADCONFIG\b/i.test(text)) {
+    return message(MSG.PUBLISH_SCHEDULE_INVALID);
+  }
   if (/\bINVALID\b/i.test(text)) {
     return message(MSG.PUBLISH_SCHEDULE_INVALID);
   }
@@ -79,6 +82,8 @@ export function ItemScheduleDatesPanel({
   const [comments, setComments] = useState("");
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [confirmingClear, setConfirmingClear] = useState(false);
+  const [clearing, setClearing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
@@ -104,6 +109,7 @@ export function ItemScheduleDatesPanel({
     setLoading(true);
     setError(null);
     setSuccess(null);
+    setConfirmingClear(false);
     setLoadedId(safe);
     try {
       const dates = await fetchItemScheduleDates(safe);
@@ -170,6 +176,7 @@ export function ItemScheduleDatesPanel({
       setEndLocal(serverDateToDatetimeLocal(saved.endDate));
       setComments(savedComments);
       setLoadedId(safe);
+      setConfirmingClear(false);
       setSuccess(message(MSG.PUBLISH_SCHEDULE_SAVED));
       onItemIdChange?.(safe);
     } catch (err) {
@@ -179,6 +186,47 @@ export function ItemScheduleDatesPanel({
       setError(scheduleErrorMessage(err));
     } finally {
       setSaving(false);
+    }
+  }
+
+  async function onClear(e: React.FormEvent): Promise<void> {
+    e.preventDefault();
+    const safe = mapIdParam(inputId) || loadedId;
+    if (!safe) {
+      setError(message(MSG.PUBLISH_ITEM_HISTORY_NEED_ID));
+      return;
+    }
+    setClearing(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      // Empty dates clear the stored schedule through the existing route.
+      await saveItemScheduleDates({
+        itemId: safe,
+        startDate: "",
+        endDate: "",
+        comments: "",
+      });
+      const reloaded = await fetchItemScheduleDates(safe);
+      // Show the stored schedule: only empty when the reload has neither date.
+      setStartLocal(serverDateToDatetimeLocal(reloaded.startDate));
+      setEndLocal(serverDateToDatetimeLocal(reloaded.endDate));
+      setComments("");
+      setLoadedId(safe);
+      onItemIdChange?.(safe);
+      if (!reloaded.startDate && !reloaded.endDate) {
+        setConfirmingClear(false);
+        setSuccess(message(MSG.PUBLISH_SCHEDULE_CLEARED));
+      } else {
+        setError(message(MSG.PUBLISH_SCHEDULE_INVALID));
+      }
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setError(scheduleErrorMessage(err));
+    } finally {
+      setClearing(false);
     }
   }
 
@@ -284,12 +332,56 @@ export function ItemScheduleDatesPanel({
             type="submit"
             style={primaryButtonStyle}
             data-testid="item-schedule-save"
-            disabled={loading || saving}
+            disabled={loading || saving || clearing}
           >
             {message(MSG.PUBLISH_SCHEDULE_SAVE)}
           </button>
+          <button
+            type="button"
+            data-testid="item-schedule-clear-submit"
+            disabled={loading || saving || clearing}
+            onClick={() => {
+              const safe = mapIdParam(inputId) || loadedId;
+              if (!safe) {
+                setError(message(MSG.PUBLISH_ITEM_HISTORY_NEED_ID));
+                return;
+              }
+              setError(null);
+              setSuccess(null);
+              setConfirmingClear(true);
+            }}
+          >
+            {message(MSG.PUBLISH_SCHEDULE_CLEAR_SUBMIT)}
+          </button>
         </div>
       </form>
+      {confirmingClear && (
+        <div data-testid="item-schedule-clear-confirm" style={{ marginTop: 12 }}>
+          <p style={{ margin: "0 0 8px", fontSize: 13 }}>
+            {message(MSG.PUBLISH_SCHEDULE_CLEAR_CONFIRM)}
+          </p>
+          <form onSubmit={(e) => void onClear(e)}>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              <button
+                type="submit"
+                style={primaryButtonStyle}
+                data-testid="item-schedule-clear-yes"
+                disabled={loading || saving || clearing}
+              >
+                {message(MSG.PUBLISH_SCHEDULE_CLEAR_SUBMIT)}
+              </button>
+              <button
+                type="button"
+                data-testid="item-schedule-clear-cancel"
+                disabled={clearing}
+                onClick={() => setConfirmingClear(false)}
+              >
+                {message(MSG.PUBLISH_SCHEDULE_CLEAR_CANCEL)}
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
       {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
       {error && (
         <p style={errorStyle} role="alert" data-testid="item-schedule-error">

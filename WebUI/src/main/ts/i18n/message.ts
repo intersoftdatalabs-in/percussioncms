@@ -506,7 +506,7 @@ export const MSG = {
   PUBLISH_ITEM_HISTORY_OPEN_LOGS: "perc.ui.publish.modern@Open Logs",
   PUBLISH_SCHEDULE: "perc.ui.schedule.dialog@Schedule",
   PUBLISH_SCHEDULE_HINT:
-    "perc.ui.publish.modern@Get or set publish and removal dates for a page or asset from this site workspace.",
+    "perc.ui.publish.modern@Get, set, or clear publish and removal dates for a page or asset from this site workspace.",
   PUBLISH_SCHEDULE_PUBLISH_DATE: "perc.ui.publish.modern@Publish date",
   PUBLISH_SCHEDULE_REMOVAL_DATE: "perc.ui.publish.modern@Removal date",
   PUBLISH_SCHEDULE_COMMENTS: "perc.ui.publish.modern@Comments",
@@ -520,6 +520,12 @@ export const MSG = {
   PUBLISH_SCHEDULE_CONFLICT:
     "perc.ui.publish.modern@Someone else is editing this item",
   PUBLISH_SCHEDULE_SAVED: "perc.ui.publish.modern@Schedule dates saved",
+  PUBLISH_SCHEDULE_CLEAR_SUBMIT:
+    "perc.ui.publish.modern@Clear scheduled dates",
+  PUBLISH_SCHEDULE_CLEAR_CONFIRM:
+    "perc.ui.publish.modern@Clear the start and end publish dates on this item?",
+  PUBLISH_SCHEDULE_CLEAR_CANCEL: "perc.ui.publish.modern@Cancel",
+  PUBLISH_SCHEDULE_CLEARED: "perc.ui.publish.modern@Scheduled dates cleared",
   PUBLISH_NOW: "perc.ui.publish.title@Publish Now",
   PUBLISH_NOW_HINT:
     "perc.ui.publish.modern@Publish a selected page or asset now from this site workspace.",
