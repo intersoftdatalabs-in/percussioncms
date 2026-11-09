@@ -201,4 +201,116 @@ describe("ItemScheduleDatesPanel", () => {
     });
     expect(saveDates).not.toHaveBeenCalled();
   });
+
+  it("asks for an item before opening the clear confirm", async () => {
+    render(<ItemScheduleDatesPanel />);
+    fireEvent.click(screen.getByTestId("item-schedule-clear-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-error")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("item-schedule-clear-confirm")).toBeNull();
+    expect(saveDates).not.toHaveBeenCalled();
+  });
+
+  it("cancelling the clear confirm writes nothing", async () => {
+    fetchDates.mockResolvedValue({
+      itemId: "42",
+      startDate: "09/18/2026 09:00 am",
+      endDate: "09/19/2026 10:00 am",
+      comments: "",
+    });
+    render(<ItemScheduleDatesPanel itemId="42" />);
+    await waitFor(() => expect(fetchDates).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId("item-schedule-clear-submit"));
+    expect(screen.getByTestId("item-schedule-clear-confirm")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("item-schedule-clear-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("item-schedule-clear-confirm")).toBeNull();
+    });
+    expect(saveDates).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("item-schedule-success")).toBeNull();
+  });
+
+  it("confirming clear posts empty dates and shows the empty schedule", async () => {
+    fetchDates
+      .mockResolvedValueOnce({
+        itemId: "42",
+        startDate: "09/18/2026 09:00 am",
+        endDate: "09/19/2026 10:00 am",
+        comments: "",
+      })
+      .mockResolvedValueOnce({
+        itemId: "42",
+        startDate: "",
+        endDate: "",
+        comments: "",
+      });
+    saveDates.mockResolvedValue();
+    render(<ItemScheduleDatesPanel itemId="42" />);
+    await waitFor(() => expect(fetchDates).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId("item-schedule-clear-submit"));
+    fireEvent.click(screen.getByTestId("item-schedule-clear-yes"));
+    await waitFor(() => {
+      expect(saveDates).toHaveBeenCalledWith({
+        itemId: "42",
+        startDate: "",
+        endDate: "",
+        comments: "",
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-success").textContent).toMatch(
+        /cleared/i,
+      );
+    });
+    expect(screen.queryByTestId("item-schedule-clear-confirm")).toBeNull();
+    expect(screen.getByTestId("item-schedule-start")).toHaveValue("");
+    expect(screen.getByTestId("item-schedule-end")).toHaveValue("");
+    expect(screen.queryByTestId("item-schedule-error")).toBeNull();
+  });
+
+  it("a failed clear stays on the confirm as an error, not success", async () => {
+    fetchDates.mockResolvedValue({
+      itemId: "42",
+      startDate: "09/18/2026 09:00 am",
+      endDate: "09/19/2026 10:00 am",
+      comments: "",
+    });
+    saveDates.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "User demo is editing this page." },
+    });
+    render(<ItemScheduleDatesPanel itemId="42" />);
+    await waitFor(() => expect(fetchDates).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId("item-schedule-clear-submit"));
+    fireEvent.click(screen.getByTestId("item-schedule-clear-yes"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-error")).toBeTruthy();
+    });
+    expect(
+      screen.getByTestId("item-schedule-clear-confirm"),
+    ).toBeTruthy();
+    expect(screen.queryByTestId("item-schedule-success")).toBeNull();
+  });
+
+  it("maps application-level BADCONFIG on clear to the invalid-dates error", async () => {
+    fetchDates.mockResolvedValue({
+      itemId: "42",
+      startDate: "09/18/2026 09:00 am",
+      endDate: "09/19/2026 10:00 am",
+      comments: "",
+    });
+    saveDates.mockRejectedValue(new Error("BADCONFIG: schedule rejected"));
+    render(<ItemScheduleDatesPanel itemId="42" />);
+    await waitFor(() => expect(fetchDates).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId("item-schedule-clear-submit"));
+    fireEvent.click(screen.getByTestId("item-schedule-clear-yes"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-error").textContent).toMatch(
+        /Invalid schedule dates/i,
+      );
+    });
+    expect(screen.queryByTestId("item-schedule-success")).toBeNull();
+  });
 });
