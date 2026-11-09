@@ -611,6 +611,18 @@ class PSPageXmlDualShipTest {
         "Java/global/percussion/assembly/velocityAssembler",
         PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath("velocityAssembler"));
     assertEquals(
+        "Java/global/percussion/assembly/htmlAssembler",
+        PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath("htmlAssembler"));
+    assertEquals(
+        "Java/global/percussion/assembly/markdownAssembler",
+        PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath("markdownAssembler"));
+    assertEquals(
+        "Java/global/percussion/assembly/legacyAssembler",
+        PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath("legacyAssembler"));
+    assertEquals(
+        "Java/global/percussion/assembly/legacyAssembler",
+        PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath("xslAssembler"));
+    assertEquals(
         "Java/global/percussion/assembly/dispatchAssembler",
         PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath("dispatchAssembler"));
     assertEquals(
@@ -626,6 +638,33 @@ class PSPageXmlDualShipTest {
         "Java/global/percussion/assembly/pageAssembler",
         PSPageXmlTemplateDefEmitter.toLegacyAssemblerPath(
             "Java/global/percussion/assembly/pageAssembler"));
+  }
+
+  @Test
+  void assemblerCatalog_registersModernPageAssemblers() {
+    // Issue #5818: manifest assembler ids resolve against the registered catalog.
+    assertTrue(PSPageXmlTemplateDefEmitter.isRegisteredAssemblerId("velocityAssembler"));
+    assertTrue(PSPageXmlTemplateDefEmitter.isRegisteredAssemblerId("htmlAssembler"));
+    assertTrue(PSPageXmlTemplateDefEmitter.isRegisteredAssemblerId("markdownAssembler"));
+    assertTrue(PSPageXmlTemplateDefEmitter.isRegisteredAssemblerId("legacyAssembler"));
+    assertTrue(PSPageXmlTemplateDefEmitter.isRegisteredAssemblerId("xslAssembler"));
+    assertTrue(
+        PSPageXmlTemplateDefEmitter.isRegisteredAssemblerId(
+            "Java/global/percussion/assembly/htmlAssembler"));
+    assertTrue(
+        PSPageXmlTemplateDefEmitter.isRegisteredAssemblerId("HTMLASSEMBLER"),
+        "catalog lookup is case-insensitive");
+    assertFalse(
+        PSPageXmlTemplateDefEmitter.isRegisteredAssemblerId("htmlAssmbler"),
+        "typo'd ids must not resolve against the catalog");
+    assertFalse(PSPageXmlTemplateDefEmitter.isRegisteredAssemblerId(null));
+    assertFalse(PSPageXmlTemplateDefEmitter.isRegisteredAssemblerId("  "));
+    assertTrue(
+        PSPageXmlTemplateDefEmitter.REGISTERED_ASSEMBLER_PATHS.containsKey("htmlAssembler"));
+    assertTrue(
+        PSPageXmlTemplateDefEmitter.REGISTERED_ASSEMBLER_PATHS.containsKey("markdownAssembler"));
+    assertTrue(
+        PSPageXmlTemplateDefEmitter.REGISTERED_ASSEMBLER_PATHS.containsKey("velocityAssembler"));
   }
 
   private static PSPageXmlPackageContext baseTemplatesLikeContext() {

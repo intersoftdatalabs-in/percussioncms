@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.percussion.packages.manifest.PSComponentPackageManifest;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -512,6 +513,77 @@ class PSPageXmlNativeInstallTest {
     assertEquals("0-4-620", thumbModel.getGuid());
     assertEquals("Local", thumbModel.getTemplateType());
     assertEquals(2, thumbModel.getBindings().size());
+  }
+
+  @Test
+  void modernPage_manifestAssemblerResolvesRegisteredCatalogPath() throws Exception {
+    // Issue #5818: a manifest-authored page template selects its assembler through the
+    // modern Component Package Manifest path — the short id resolves against the
+    // registered catalog (velocityAssembler, htmlAssembler, markdownAssembler) with
+    // no Widget/Page definition XML involved.
+    assertModernAssemblerResolves("perc.modern.html", "htmlAssembler", "0-4-901");
+    assertModernAssemblerResolves("perc.modern.markdown", "markdownAssembler", "0-4-902");
+    assertModernAssemblerResolves("perc.modern.velocity", "velocityAssembler", "0-4-903");
+  }
+
+  private void assertModernAssemblerResolves(String id, String assembler, String guid)
+      throws Exception {
+    Path pageDir = tempDir.resolve(id);
+    Path templates = pageDir.resolve("templates");
+    Files.createDirectories(templates);
+    Files.writeString(
+        templates.resolve("main.html"),
+        "<html><body><h1>${title}</h1></body></html>",
+        StandardCharsets.UTF_8);
+    String manifestJson =
+        """
+        {
+          "schemaVersion": "1.0",
+          "id": "%ID%",
+          "name": "Modern",
+          "version": "1.0.0",
+          "catalog": { "kind": "page", "title": "Modern" },
+          "contentTypes": [],
+          "templates": [
+            {
+              "name": "%ID%",
+              "type": "page",
+              "assembler": "%ASSEMBLER%",
+              "sourceRef": "templates/main.html",
+              "bindings": [
+                { "variable": "$title", "expression": "$sys.title" }
+              ]
+            }
+          ]
+        }
+        """
+            .replace("%ID%", id)
+            .replace("%ASSEMBLER%", assembler);
+    Files.writeString(
+        pageDir.resolve(PSComponentPackageManifest.DEFAULT_MANIFEST_FILE_NAME),
+        manifestJson,
+        StandardCharsets.UTF_8);
+
+    assertTrue(
+        PSPageXmlTemplateDefEmitter.isRegisteredAssemblerId(assembler),
+        "manifest assembler '" + assembler + "' must resolve against the registered catalog");
+
+    PSPageXmlInstallArtifact artifact = PSPageXmlNativeInstall.fromModernPageDir(pageDir, guid);
+    assertEquals("TemplateDef-" + guid.substring("0-4-".length()), artifact.archiveFolder());
+    assertTrue(
+        artifact.templateDefXml().contains("<assembler>" + "Java/global/percussion/assembly/"),
+        "install XML must carry the registered extension path");
+
+    Path staged = tempDir.resolve(id + ".templateDef");
+    Files.writeString(staged, artifact.templateDefXml(), StandardCharsets.UTF_8);
+    PSPageXmlModel install = PSPageXmlParser.parse(staged);
+    assertEquals(id, install.getName());
+    assertEquals(guid, install.getGuid());
+    assertEquals(
+        "Java/global/percussion/assembly/" + assembler,
+        install.getAssembler(),
+        "manifest assembler id must resolve to the registered catalog path");
+    assertEquals("Page", install.getOutputFormat());
   }
 
   @Test

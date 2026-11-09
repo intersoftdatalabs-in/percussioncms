@@ -66,6 +66,27 @@ Packages that have **not** set `page.installMode` resolve to **native** (policy 
 selected — it does **not** materialize root `*.templateDef`. **Shipped product** page
 packages on 8.2 are native-only.
 
+## Assembler selection from the manifest
+
+A manifest-authored page template selects its assembler through the modern Component
+Package Manifest path: the short `templates[].assembler` id resolves against the
+registered product catalog (`Java code: PSPageXmlTemplateDefEmitter.REGISTERED_ASSEMBLER_PATHS`),
+so new page templates never need Widget / Page definition XML.
+
+| Manifest `assembler` id | Resolves to | Use for |
+|-------------------------|-------------|---------|
+| `velocityAssembler` | `Java/global/percussion/assembly/velocityAssembler` | Power path: macros, loops, Active Assembly |
+| `htmlAssembler` | `Java/global/percussion/assembly/htmlAssembler` | HTML-first snippets and pages (`${path}` placeholders) |
+| `markdownAssembler` | `Java/global/percussion/assembly/markdownAssembler` | CommonMark → HTML after JEXL bindings |
+| `pageAssembler` / `pageVariantAssembler` | `…/pageAssembler` / `…/pageVariantAssembler` | Page and page-variant layouts |
+| `legacyAssembler` (alias `xslAssembler`) | `…/legacyAssembler` | XSL migration path (see [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler)) |
+| `dispatchAssembler` / `resourceAssembler` / `pageDatabaseAssembler` / `binaryAssembler` | `…/<id>` | Dispatch, resource, database, and binary templates |
+
+Author the short id (for example `"assembler": "htmlAssembler"`); package build stages
+the registered extension path into the archive `TemplateDef-N/<stem>.templateDef`
+`<assembler>` element. Values that are already full extension paths pass through
+unchanged for site-local custom assemblers.
+
 ## Dual-ship vs dual-run (do not mix them up)
 
 | Concept | Layer | Product 8.2 status |

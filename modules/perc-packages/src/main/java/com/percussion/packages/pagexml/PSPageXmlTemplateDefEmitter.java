@@ -18,8 +18,11 @@
 package com.percussion.packages.pagexml;
 
 import com.percussion.packages.manifest.PSComponentPackageManifest;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -41,6 +44,33 @@ public final class PSPageXmlTemplateDefEmitter {
   private static final String DEFAULT_TEMPLATE_TYPE = "Shared";
   private static final String DEFAULT_PUBLISH_WHEN = "Default";
   private static final String DEFAULT_GLOBAL_USAGE = "None";
+
+  /** Product extension context for registered assembly plugins. */
+  public static final String ASSEMBLER_EXTENSION_PREFIX = "Java/global/percussion/assembly/";
+
+  /**
+   * Registered Component Package Manifest assembler ids → product extension paths (issue #5818 /
+   * parent #2626). A manifest-authored page template selects its assembler through this catalog:
+   * the short {@code templates[].assembler} id resolves to the registered path, so new page
+   * templates never need Widget/Page definition XML. Keys are canonical short ids; lookup is
+   * case-insensitive (see {@link #isRegisteredAssemblerId}).
+   */
+  public static final Map<String, String> REGISTERED_ASSEMBLER_PATHS = registeredAssemblerPaths();
+
+  private static Map<String, String> registeredAssemblerPaths() {
+    Map<String, String> paths = new LinkedHashMap<>();
+    paths.put("pageAssembler", ASSEMBLER_EXTENSION_PREFIX + "pageAssembler");
+    paths.put("pageVariantAssembler", ASSEMBLER_EXTENSION_PREFIX + "pageVariantAssembler");
+    paths.put("velocityAssembler", ASSEMBLER_EXTENSION_PREFIX + "velocityAssembler");
+    paths.put("htmlAssembler", ASSEMBLER_EXTENSION_PREFIX + "htmlAssembler");
+    paths.put("markdownAssembler", ASSEMBLER_EXTENSION_PREFIX + "markdownAssembler");
+    paths.put("legacyAssembler", ASSEMBLER_EXTENSION_PREFIX + "legacyAssembler");
+    paths.put("dispatchAssembler", ASSEMBLER_EXTENSION_PREFIX + "dispatchAssembler");
+    paths.put("resourceAssembler", ASSEMBLER_EXTENSION_PREFIX + "resourceAssembler");
+    paths.put("pageDatabaseAssembler", ASSEMBLER_EXTENSION_PREFIX + "pageDatabaseAssembler");
+    paths.put("binaryAssembler", ASSEMBLER_EXTENSION_PREFIX + "binaryAssembler");
+    return Collections.unmodifiableMap(paths);
+  }
 
   private PSPageXmlTemplateDefEmitter() {
     // utility
@@ -136,6 +166,18 @@ public final class PSPageXmlTemplateDefEmitter {
   }
 
   /**
+   * Whether the value names a registered product assembler — either a short Component Package
+   * Manifest id (e.g. {@code htmlAssembler}) or the full extension path (e.g. {@code
+   * Java/global/percussion/assembly/htmlAssembler}). Comparison is case-insensitive; the legacy
+   * {@code xslAssembler} alias counts as {@code legacyAssembler}. Custom (unregistered) ids and
+   * full paths return {@code false} but still pass through {@link #toLegacyAssemblerPath} for
+   * site-local extensibility.
+   */
+  public static boolean isRegisteredAssemblerId(String assembler) {
+    return lookupRegisteredPath(assembler) != null;
+  }
+
+  /**
    * Map short Component Package Manifest assembler id back to the product extension path used in
    * legacy {@code *.templateDef} files.
    */
@@ -147,21 +189,38 @@ public final class PSPageXmlTemplateDefEmitter {
     if (a.contains("/")) {
       return a;
     }
-    String leaf = a;
+    String registered = lookupRegisteredPath(a);
+    if (registered != null) {
+      return registered;
+    }
+    return ASSEMBLER_EXTENSION_PREFIX + a;
+  }
+
+  /**
+   * Resolve a short id (or the leaf of a full extension path) against {@link
+   * #REGISTERED_ASSEMBLER_PATHS}; {@code null} when unregistered. The {@code xslAssembler} alias
+   * resolves to the {@code legacyAssembler} path.
+   */
+  private static String lookupRegisteredPath(String assembler) {
+    if (assembler == null || assembler.isBlank()) {
+      return null;
+    }
+    String a = assembler.trim();
+    int slash = a.lastIndexOf('/');
+    String leaf = slash >= 0 ? a.substring(slash + 1) : a;
+    if (leaf.isBlank()) {
+      return null;
+    }
     String lower = leaf.toLowerCase(Locale.ROOT);
-    return switch (lower) {
-      case "pageassembler" -> "Java/global/percussion/assembly/pageAssembler";
-      case "pagevariantassembler" -> "Java/global/percussion/assembly/pageVariantAssembler";
-      case "velocityassembler" -> "Java/global/percussion/assembly/velocityAssembler";
-      case "htmlassembler" -> "Java/global/percussion/assembly/htmlAssembler";
-      case "markdownassembler" -> "Java/global/percussion/assembly/markdownAssembler";
-      case "legacyassembler", "xslassembler" -> "Java/global/percussion/assembly/legacyAssembler";
-      case "dispatchassembler" -> "Java/global/percussion/assembly/dispatchAssembler";
-      case "resourceassembler" -> "Java/global/percussion/assembly/resourceAssembler";
-      case "pagedatabaseassembler" -> "Java/global/percussion/assembly/pageDatabaseAssembler";
-      case "binaryassembler" -> "Java/global/percussion/assembly/binaryAssembler";
-      default -> "Java/global/percussion/assembly/" + leaf;
-    };
+    if (lower.equals("xslassembler")) {
+      return REGISTERED_ASSEMBLER_PATHS.get("legacyAssembler");
+    }
+    for (Map.Entry<String, String> entry : REGISTERED_ASSEMBLER_PATHS.entrySet()) {
+      if (entry.getKey().toLowerCase(Locale.ROOT).equals(lower)) {
+        return entry.getValue();
+      }
+    }
+    return null;
   }
 
   /** Map modern template type ({@code page}/{@code global}/…) to legacy {@code output-format}. */
