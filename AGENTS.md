@@ -111,6 +111,57 @@ Before `git commit`, `git push`, or opening/updating a GitHub PR for changes you
 6. Durable reports: `docs/ai-generated/code-reviews/` (not `tmp/` — temp is wipeable). Pattern memory: `modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md`.
 7. Refresh pattern memory from Kilo/GitHub PR review history (including closed PRs): `python3 scripts/erlang-harvest-review-patterns.py --apply` (Windows: `scripts\erlang-harvest-review-patterns.bat --apply`). See `scripts/README.md`.
 
+### Review finding suppressions & false positives
+
+When `mkd-code-review` (Erlang) or CodeQL reports a finding that is a **verified
+false positive** (e.g. CMS logical-path separators mistaken for OS paths, test
+fixture mock separators, intentional URI assembly, mock credential tokens, or a
+custom sanitizer the analyzer cannot model despite a structural fix + tests):
+
+1. **Fix first**: if the issue is genuine, fix it using portable APIs (`Path`,
+   `File.separator`, `Path.of()`, etc.). Suppression is only for findings
+   verified false after investigation — never a shortcut around a real defect.
+2. **Inline suppression** (preferred for single sinks). Format and placement
+   differ by consumer:
+   - `mkd-code-review`: `// mkd-code-review[<rule_id>]: <short reason + precedent>`
+     on the flagged line or the comment line(s) immediately above it:
+     ```js
+     // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #5927,
+     // same as #5898/#5910) — slashes parse the CMS logical folder path, not an OS path.
+     ```
+   - CodeQL: a **short** `// codeql[<rule_id>]` on the **exact sink line**.
+     Comments several lines above a multi-line builder are ignored by CodeQL,
+     and Spotless/google-java-format rewraps long trailing comments off the
+     sink — keep the inline text short and put the full rationale in
+     `suppressions.md` (next step).
+   - `// gitleaks:allow` for mock-secret fixtures follows the same
+     short-inline + ledger pattern.
+3. **Record it**: every inline `// codeql[rule-id]` MUST have exactly one row in
+   `docs/ai-generated/tasks/gh-codeql-alerts/suppressions.md` (contracts/C3),
+   with `justification` matching the inline comment. Every
+   `// mkd-code-review[rule]` MUST cite the adjudicating issue and any
+   precedent in the comment itself, and MUST be recorded in the Erlang report
+   (`docs/ai-generated/code-reviews/`) and the PR body section
+   **Pre-push local code review**.
+4. **Repository configuration** (tree-wide, not single sinks): path exclusions
+   belong in `.github/codeql/codeql-config.yml` under `paths-ignore`
+   (which `mkd-code-review` inherits automatically), per-query carve-outs under
+   `query-filters` (each requires a matching `suppressions.md` row with
+   `file_path` set to the config), and sanitizer barriers in
+   `.github/codeql/models/`. Do not invent parallel config files.
+5. **Reviewer verification**: the Erlang reviewer re-verifies every suppression
+   in the diff (correct rule id, justification matches the code reality,
+   precedent cited). An unjustified or wrong-id suppression is itself a
+   **BLOCK** finding.
+6. **Reopen hygiene**: never re-edit an annotated sink just to chase a
+   re-fingerprinted alert ID — each edit opens a new ID. If CodeQL re-flags an
+   annotated sink after a line shift, dismiss as FP referencing the existing
+   `suppressions.md` row; do not re-sprinkle suppressions.
+
+**Gate exemption**: documented suppressions satisfying the above satisfy
+Erlang's gate and do not block commits or PRs. Never suppress genuine findings
+or suppress without a recorded justification.
+
 Tool-agnostic one-shot prompt: `modules/ai-shared-develop/src/main/resources/prompts/erlang-review-uncommitted.md`.
 
 ## Change-class completeness (HARD GATE)
