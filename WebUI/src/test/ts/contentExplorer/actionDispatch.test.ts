@@ -2070,6 +2070,27 @@ describe("actionDispatch", () => {
     }
   });
 
+  it("Take Down maps HTTP 400 to a named failure without refresh (#5942)", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response("[]", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const onTakedown = vi.fn().mockRejectedValueOnce({ status: 400, body: {} });
+    const result = await dispatchAction(action({ name: "Take_Down" }), {
+      item: item({ name: "Home" }),
+      onTakedown,
+      confirm: () => true,
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.messageKey).toBe(EXPLORER_MSG.TAKEDOWN_FAILED);
+    expect(result.messageText).toContain("Home");
+    expect(result.messageText).toContain("HTTP 400");
+    expect(result.refresh).toBeUndefined();
+    expect(onTakedown).toHaveBeenCalled();
+  });
+
   it("Take Down rethrows non-HTTP failures (#5630)", async () => {
     const onTakedown = vi.fn().mockRejectedValueOnce(new Error("boom"));
     vi.spyOn(global, "fetch").mockResolvedValue(

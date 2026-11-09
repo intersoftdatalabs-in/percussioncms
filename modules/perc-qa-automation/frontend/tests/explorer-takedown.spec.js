@@ -19,7 +19,7 @@
  * Explorer single-item Take Down / unpublish (#5630 / parent #4530).
  *
  * <p>One selected page row + Take Down asks once, unpublishes that item,
- * and refreshes the row. Cancel takes nothing down. HTTP 403/404/409 names
+ * and refreshes the row. Cancel takes nothing down. HTTP 400/403/404/409 names
  * the item and leaves the selection intact.</p>
  *
  * <p>Run (QA mode after {@code perc-devctl qa-up}):
@@ -203,6 +203,36 @@ test.describe("Explorer single-item Take Down", () => {
       const error = page.locator('[data-testid="explorer-server-actions-error"]');
       await expect(error).toBeVisible({ timeout: 10_000 });
       await expect(error).toContainText(/Home \(HTTP 403\)/i);
+      await expect(error).toContainText(/Take down failed/i);
+      await expect.poll(() => takenDown.length).toBe(1);
+      await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
+        "data-list-epoch",
+        "0",
+      );
+      await expect(
+        page.locator('[data-testid="content-explorer-shell"][data-selected-item-id="42"]'),
+      ).toBeVisible({ timeout: 10_000 });
+      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
+    },
+  );
+
+  test(
+    "HTTP 400 names the item and keeps the selection",
+    {
+      tag: ["@explorer", "@explorer-takedown", "@explorer-single-takedown"],
+    },
+    async ({ page }) => {
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("dialog", (dialog) => {
+        void dialog.accept();
+      });
+      const takenDown = await installTakedownRoutes(page, { homeStatus: 400 });
+      await openListing(page);
+      await page.locator('[data-testid="action-toolbar-item-Take_Down"]').click();
+      const error = page.locator('[data-testid="explorer-server-actions-error"]');
+      await expect(error).toBeVisible({ timeout: 10_000 });
+      await expect(error).toContainText(/Home \(HTTP 400\)/i);
       await expect(error).toContainText(/Take down failed/i);
       await expect.poll(() => takenDown.length).toBe(1);
       await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
