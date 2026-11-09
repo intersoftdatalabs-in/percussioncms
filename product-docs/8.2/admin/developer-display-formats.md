@@ -73,6 +73,27 @@ allowed communities.
 5. Open a packaged format such as **By_Author**. The column table is
    read-only (including default sort); add/remove/save controls are not shown.
 
+## Product path — detail identity readback
+
+1. Open an existing display format from the catalog. The detail header shows
+   the stored identity read back through
+   `GET /services/displayformats/{idOrName}`: the **title** (label), the
+   **GUID**, the read-only **name** (catalog key — renaming is not offered),
+   the stored **label** and **description**, and the derived **usage** flags
+   (`validForFolder`, `validForViewsAndSearches`, `validForRelatedContent`).
+2. Open a packaged format such as **By_Author**. The same identity block
+   reads back (title, GUID, read-only name, label, description, usage) while
+   the column table, default sort, and allowed communities stay read-only.
+3. The identity block is read-only display: it never issues a write, so
+   opening detail cannot change the stored format.
+
+Covered by
+`modules/perc-qa-automation/frontend/tests/developer-display-format-detail-readback.spec.js`
+(`npm run test:surface -- --path tests/developer-display-format-detail-readback.spec.js`)
+and the surface pass in
+`modules/perc-qa-automation/frontend/tests/developer-surface-smoke.spec.js`
+(`npm run test:surface -- --path tests/developer-surface-smoke.spec.js`).
+
 ## Product path — set a label
 
 1. Open an existing display format. Detail shows the stored label and **Set
