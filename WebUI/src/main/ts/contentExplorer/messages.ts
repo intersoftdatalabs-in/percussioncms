@@ -53,6 +53,12 @@ export const EXPLORER_MSG = {
   DETAIL_COLUMNS_MENU: "perc.ui.explorer@Column visibility",
   /** Explains why the last visible column cannot be hidden (#5881). */
   DETAIL_COLUMNS_KEEP_ONE: "perc.ui.explorer@At least one column stays visible",
+  /** Detail-list row-density switch label (#5883). */
+  DETAIL_DENSITY_LABEL: "perc.ui.explorer@Row density",
+  /** Comfortable (default) row-density option (#5883). */
+  DETAIL_DENSITY_COMFORTABLE: "perc.ui.explorer@Comfortable",
+  /** Compact row-density option (#5883). */
+  DETAIL_DENSITY_COMPACT: "perc.ui.explorer@Compact",
   ACTION_OPEN: "perc.ui.explorer@Open",
   ACTION_PREVIEW: "perc.ui.explorer@Preview",
   /** View residual: reload detail list for the current folder (#2733). */

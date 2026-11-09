@@ -914,6 +914,13 @@ the last visible checkbox locks on. Hiding columns sends no server request and d
 touch the shared **Columns** field overlay above; sorting, row selection, and arrow-key
 navigation keep working with hidden columns.
 
+**Row density** — the **Comfortable** / **Compact** switch above the detail list
+changes row spacing for this operator only; the choice is remembered in the
+browser across reloads. Compact rows use tighter padding and smaller type so more
+rows fit on small screens. Density is display-only: it sends no server request,
+and row selection, sorting, arrow-key navigation, and screen-reader row
+positions work the same in both densities.
+
 **Expand all / collapse all** — the toolbar above the folder tree offers **Expand all**
 and **Collapse all** buttons (keyboard-focusable, announced by name). Expand all opens
 every loaded folder so loaded descendants become visible; folders that have not been
