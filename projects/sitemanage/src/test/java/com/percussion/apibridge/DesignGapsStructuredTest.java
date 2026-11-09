@@ -37,71 +37,64 @@ class DesignGapsStructuredTest {
   void contentTypeDesignGaps_includeCodesAndMessages() {
     List<DesignGap> gaps = ContentTypeAdaptor.contentTypeDesignGaps(true);
     assertFalse(gaps.isEmpty());
-    Set<String> codes = gaps.stream().map(DesignGap::getCode).collect(Collectors.toSet());
-    assertTrue(codes.contains("CT_FIELD_RULE_EXPR"));
-    assertTrue(codes.contains("CT_ITEM_EXITS"));
-    assertTrue(codes.contains("CT_CREATE_DELETE"));
-    assertTrue(codes.contains("CT_FIELD_CREATE_DELETE"));
-    assertTrue(codes.contains("CT_SEARCH_INDEXING"));
-    assertTrue(codes.contains("CT_ICON_STRATEGY"));
-    assertTrue(codes.contains("CT_IMPORT_EXPORT"));
-    assertTrue(
-        gaps.stream()
-            .anyMatch(
-                g ->
-                    "CT_IMPORT_EXPORT".equals(g.getCode())
-                        && g.getMessage().contains("/contenttypes/import")
-                        && g.getMessage().toLowerCase().contains("create-only")),
-        () -> gaps.toString());
-    assertTrue(
-        gaps.stream()
-            .anyMatch(
-                g ->
-                    "CT_SEARCH_INDEXING".equals(g.getCode())
-                        && g.getMessage().contains("searchIndexing")
-                        && g.getMessage().toLowerCase().contains("held")
-                        && g.getMessage().toLowerCase().contains("default")),
-        () -> gaps.toString());
-    assertTrue(
-        gaps.stream()
-            .anyMatch(
-                g ->
-                    "CT_ICON_STRATEGY".equals(g.getCode())
-                        && g.getMessage().contains("/icon")
-                        && g.getMessage().toLowerCase().contains("held")),
-        () -> gaps.toString());
-    assertTrue(
-        gaps.stream()
-            .anyMatch(
-                g ->
-                    "CT_CREATE_DELETE".equals(g.getCode())
-                        && g.getMessage().contains("POST /contenttypes")
-                        && g.getMessage().contains("PUT /contenttypes/{idOrName}/name")
-                        && g.getMessage().contains("DELETE")
-                        && g.getMessage().toLowerCase().contains("held")
-                        && !g.getMessage().startsWith("Create / delete not supported")),
-        () -> gaps.toString());
-    assertTrue(
-        gaps.stream()
-            .anyMatch(
-                g ->
-                    "CT_FIELD_CREATE_DELETE".equals(g.getCode())
-                        && g.getMessage().contains("POST/DELETE")
-                        && g.getMessage().contains("/fields")
-                        && g.getMessage().toLowerCase().contains("held")),
-        () -> gaps.toString());
-    assertTrue(
-        gaps.stream()
-            .anyMatch(
-                g ->
-                    "CT_SHARED_FIELD_INCLUSION".equals(g.getCode())
-                        && g.getMessage().contains("fields/include")
-                        && g.getMessage().toLowerCase().contains("held")),
+    Set<String> codes = gapCodes(gaps);
+    for (String code :
+        List.of(
+            "CT_FIELD_RULE_EXPR",
+            "CT_ITEM_EXITS",
+            "CT_CREATE_DELETE",
+            "CT_FIELD_CREATE_DELETE",
+            "CT_SEARCH_INDEXING",
+            "CT_ICON_STRATEGY",
+            "CT_IMPORT_EXPORT")) {
+      assertTrue(codes.contains(code), () -> "missing gap " + code + ": " + gaps);
+    }
+    assertGapMessageContains(gaps, "CT_IMPORT_EXPORT", "/contenttypes/import", "create-only");
+    assertGapMessageContains(gaps, "CT_SEARCH_INDEXING", "searchIndexing", "held", "default");
+    assertGapMessageContains(gaps, "CT_ICON_STRATEGY", "/icon", "held");
+    assertGapMessageContains(
+        gaps,
+        "CT_CREATE_DELETE",
+        "POST /contenttypes",
+        "PUT /contenttypes/{idOrName}/name",
+        "DELETE",
+        "held");
+    assertGapMessageContains(gaps, "CT_FIELD_CREATE_DELETE", "POST/DELETE", "/fields", "held");
+    assertGapMessageContains(gaps, "CT_SHARED_FIELD_INCLUSION", "fields/include", "held");
+    assertFalse(
+        gapMessage(gaps, "CT_CREATE_DELETE").startsWith("Create / delete not supported"),
         () -> gaps.toString());
     assertFalse(codes.contains("CT_CONTROL_RESOLUTION"));
     assertFalse(
         codes.contains("CT_FIELD_LABELS_WRITE"),
         "local field display labels are writable on PUT detail");
+    assertGapsWellFormed(gaps);
+  }
+
+  private static Set<String> gapCodes(List<DesignGap> gaps) {
+    return gaps.stream().map(DesignGap::getCode).collect(Collectors.toSet());
+  }
+
+  private static String gapMessage(List<DesignGap> gaps, String code) {
+    return gaps.stream()
+        .filter(g -> code.equals(g.getCode()))
+        .map(DesignGap::getMessage)
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("missing gap " + code + ": " + gaps));
+  }
+
+  private static void assertGapMessageContains(
+      List<DesignGap> gaps, String code, String... fragments) {
+    String message = gapMessage(gaps, code);
+    String lowered = message.toLowerCase();
+    for (String fragment : fragments) {
+      assertTrue(
+          lowered.contains(fragment.toLowerCase()),
+          () -> code + " message missing <" + fragment + ">: " + message);
+    }
+  }
+
+  private static void assertGapsWellFormed(List<DesignGap> gaps) {
     for (DesignGap g : gaps) {
       assertNotNull(g.getCode());
       assertFalse(g.getCode().isBlank());
