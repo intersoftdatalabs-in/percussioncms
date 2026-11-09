@@ -141,6 +141,20 @@ Per rhai README "Product-first queue":
   `disposition=skip` with `rationale=sibling_deferred_one_per_parent`.
   The host backstop-skips it without a work agent, but triage must not
   queue it as implement in the first place.
+- **Seat the blocker, not the blocked (HARD):** when the children competing
+  for one parent seat include a blocked dependent AND its open,
+  agent-actionable blocker, the seat goes to the **blocker**; the blocked
+  dependent is `disposition=skip` with a `blocked_by` rationale naming the
+  seated issue. "Oldest first" never outranks unblocking order — seating the
+  blocked item burns a work turn re-proving a known gate while the unblocker
+  waits (observed: a packaging-removal seat re-proved its block on the open
+  migration prerequisite twice while the prerequisite sat deferred).
+- **Respect prior no-progress verdicts:** a candidate whose last work verdict
+  was `blocked` / `skipped_superseded` / `verified_no_change` on UNCHANGED
+  scope (no merged PR touching it, no gate flip since) seats only when no
+  fresh-scope candidate wants the seat. Re-check the gate live every cycle —
+  a flip re-seats immediately. Never spend work turns re-proving standing
+  verdicts.
 - Report `priority_slots / low_slots / product_candidates / debt_candidates /
   product_queued / debt_queued` in `stats` so a zero-debt run is auditable
   (no candidates vs. no seats vs. starved seats).
