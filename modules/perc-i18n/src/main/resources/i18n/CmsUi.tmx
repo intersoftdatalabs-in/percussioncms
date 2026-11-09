@@ -27839,6 +27839,39 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.editor@HTML source">
       <tuv xml:lang="en-us"><seg>HTML source</seg></tuv>
     <tuv xml:lang="de"><seg>HTML-Quelle</seg></tuv><tuv xml:lang="fr"><seg>Source HTML</seg></tuv><tuv xml:lang="zh-tw"><seg>HTML 源代码</seg></tuv><tuv xml:lang="es"><seg>fuente HTML</seg></tuv><tuv xml:lang="nl"><seg>HTML-bron</seg></tuv><tuv xml:lang="pt"><seg>Fonte HTML</seg></tuv><tuv xml:lang="ru"><seg>HTML-источник</seg></tuv><tuv xml:lang="uk"><seg>Джерело HTML</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Browse…">
+      <tuv xml:lang="en-us"><seg>Browse…</seg></tuv>
+    <tuv xml:lang="de"><seg>Durchsuchen…</seg></tuv><tuv xml:lang="fr"><seg>Parcourir…</seg></tuv><tuv xml:lang="zh-tw"><seg>浏览…</seg></tuv><tuv xml:lang="es"><seg>Examinar…</seg></tuv><tuv xml:lang="nl"><seg>Bladeren…</seg></tuv><tuv xml:lang="pt"><seg>Procurar…</seg></tuv><tuv xml:lang="ru"><seg>Обзор…</seg></tuv><tuv xml:lang="uk"><seg>Огляд…</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Pick CMS content">
+      <tuv xml:lang="en-us"><seg>Pick CMS content</seg></tuv>
+    <tuv xml:lang="de"><seg>CMS-Inhalt auswählen</seg></tuv><tuv xml:lang="fr"><seg>Choisir le contenu CMS</seg></tuv><tuv xml:lang="zh-tw"><seg>选择CMS内容</seg></tuv><tuv xml:lang="es"><seg>Elegir contenido CMS</seg></tuv><tuv xml:lang="nl"><seg>CMS-inhoud kiezen</seg></tuv><tuv xml:lang="pt"><seg>Escolher conteúdo CMS</seg></tuv><tuv xml:lang="ru"><seg>Выбрать контент CMS</seg></tuv><tuv xml:lang="uk"><seg>Вибрати вміст CMS</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Folder">
+      <tuv xml:lang="en-us"><seg>Folder</seg></tuv>
+    <tuv xml:lang="de"><seg>Ordner</seg></tuv><tuv xml:lang="fr"><seg>Dossier</seg></tuv><tuv xml:lang="zh-tw"><seg>文件夹</seg></tuv><tuv xml:lang="es"><seg>Carpeta</seg></tuv><tuv xml:lang="nl"><seg>Map</seg></tuv><tuv xml:lang="pt"><seg>Pasta</seg></tuv><tuv xml:lang="ru"><seg>Папка</seg></tuv><tuv xml:lang="uk"><seg>Папка</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@List">
+      <tuv xml:lang="en-us"><seg>List</seg></tuv>
+    <tuv xml:lang="de"><seg>Auflisten</seg></tuv><tuv xml:lang="fr"><seg>Lister</seg></tuv><tuv xml:lang="zh-tw"><seg>列出</seg></tuv><tuv xml:lang="es"><seg>Listar</seg></tuv><tuv xml:lang="nl"><seg>Vermelden</seg></tuv><tuv xml:lang="pt"><seg>Listar</seg></tuv><tuv xml:lang="ru"><seg>Список</seg></tuv><tuv xml:lang="uk"><seg>Список</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Search">
+      <tuv xml:lang="en-us"><seg>Search</seg></tuv>
+    <tuv xml:lang="de"><seg>Suchen</seg></tuv><tuv xml:lang="fr"><seg>Rechercher</seg></tuv><tuv xml:lang="zh-tw"><seg>搜索</seg></tuv><tuv xml:lang="es"><seg>Buscar</seg></tuv><tuv xml:lang="nl"><seg>Zoeken</seg></tuv><tuv xml:lang="pt"><seg>Pesquisar</seg></tuv><tuv xml:lang="ru"><seg>Поиск</seg></tuv><tuv xml:lang="uk"><seg>Пошук</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Search CMS content">
+      <tuv xml:lang="en-us"><seg>Search CMS content</seg></tuv>
+    <tuv xml:lang="de"><seg>CMS-Inhalt suchen</seg></tuv><tuv xml:lang="fr"><seg>Rechercher du contenu CMS</seg></tuv><tuv xml:lang="zh-tw"><seg>搜索CMS内容</seg></tuv><tuv xml:lang="es"><seg>Buscar contenido CMS</seg></tuv><tuv xml:lang="nl"><seg>CMS-inhoud zoeken</seg></tuv><tuv xml:lang="pt"><seg>Pesquisar conteúdo CMS</seg></tuv><tuv xml:lang="ru"><seg>Найти контент CMS</seg></tuv><tuv xml:lang="uk"><seg>Знайти вміст CMS</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Use selected">
+      <tuv xml:lang="en-us"><seg>Use selected</seg></tuv>
+    <tuv xml:lang="de"><seg>Auswahl übernehmen</seg></tuv><tuv xml:lang="fr"><seg>Utiliser la sélection</seg></tuv><tuv xml:lang="zh-tw"><seg>使用所选项</seg></tuv><tuv xml:lang="es"><seg>Usar selección</seg></tuv><tuv xml:lang="nl"><seg>Selectie gebruiken</seg></tuv><tuv xml:lang="pt"><seg>Usar seleção</seg></tuv><tuv xml:lang="ru"><seg>Использовать выбранное</seg></tuv><tuv xml:lang="uk"><seg>Використати вибране</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@No content found.">
+      <tuv xml:lang="en-us"><seg>No content found.</seg></tuv>
+    <tuv xml:lang="de"><seg>Kein Inhalt gefunden.</seg></tuv><tuv xml:lang="fr"><seg>Aucun contenu trouvé.</seg></tuv><tuv xml:lang="zh-tw"><seg>未找到内容。</seg></tuv><tuv xml:lang="es"><seg>No se encontró contenido.</seg></tuv><tuv xml:lang="nl"><seg>Geen inhoud gevonden.</seg></tuv><tuv xml:lang="pt"><seg>Nenhum conteúdo encontrado.</seg></tuv><tuv xml:lang="ru"><seg>Контент не найден.</seg></tuv><tuv xml:lang="uk"><seg>Вміст не знайдено.</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Content lookup failed.">
+      <tuv xml:lang="en-us"><seg>Content lookup failed.</seg></tuv>
+    <tuv xml:lang="de"><seg>Inhaltssuche fehlgeschlagen.</seg></tuv><tuv xml:lang="fr"><seg>Échec de la recherche de contenu.</seg></tuv><tuv xml:lang="zh-tw"><seg>内容查找失败。</seg></tuv><tuv xml:lang="es"><seg>Error en la búsqueda de contenido.</seg></tuv><tuv xml:lang="nl"><seg>Opzoeken van inhoud is mislukt.</seg></tuv><tuv xml:lang="pt"><seg>Falha na pesquisa de conteúdo.</seg></tuv><tuv xml:lang="ru"><seg>Не удалось найти контент.</seg></tuv><tuv xml:lang="uk"><seg>Не вдалося знайти вміст.</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Loading…">
+      <tuv xml:lang="en-us"><seg>Loading…</seg></tuv>
+    <tuv xml:lang="de"><seg>Wird geladen…</seg></tuv><tuv xml:lang="fr"><seg>Chargement…</seg></tuv><tuv xml:lang="zh-tw"><seg>正在加载…</seg></tuv><tuv xml:lang="es"><seg>Cargando…</seg></tuv><tuv xml:lang="nl"><seg>Laden…</seg></tuv><tuv xml:lang="pt"><seg>Carregando…</seg></tuv><tuv xml:lang="ru"><seg>Загрузка…</seg></tuv><tuv xml:lang="uk"><seg>Завантаження…</seg></tuv></tu>
+    <tu tuid="perc.ui.editor@Could not read the selected item.">
+      <tuv xml:lang="en-us"><seg>Could not read the selected item.</seg></tuv>
+    <tuv xml:lang="de"><seg>Das ausgewählte Element konnte nicht gelesen werden.</seg></tuv><tuv xml:lang="fr"><seg>Impossible de lire l’élément sélectionné.</seg></tuv><tuv xml:lang="zh-tw"><seg>无法读取所选项目。</seg></tuv><tuv xml:lang="es"><seg>No se pudo leer el elemento seleccionado.</seg></tuv><tuv xml:lang="nl"><seg>Het geselecteerde item kan niet worden gelezen.</seg></tuv><tuv xml:lang="pt"><seg>Não foi possível ler o item selecionado.</seg></tuv><tuv xml:lang="ru"><seg>Не удалось прочитать выбранный элемент.</seg></tuv><tuv xml:lang="uk"><seg>Не вдалося прочитати вибраний елемент.</seg></tuv></tu>
     <tu tuid="perc.ui.editor@Fill in the required fields.">
       <tuv xml:lang="en-us"><seg>Fill in the required fields.</seg></tuv>
     <tuv xml:lang="de"><seg>Füllen Sie die erforderlichen Felder aus.</seg></tuv><tuv xml:lang="fr"><seg>Remplissez les champs obligatoires.</seg></tuv><tuv xml:lang="zh-tw"><seg>填写必填字段。</seg></tuv><tuv xml:lang="es"><seg>Complete los campos requeridos.</seg></tuv><tuv xml:lang="nl"><seg>Vul de verplichte velden in.</seg></tuv><tuv xml:lang="pt"><seg>Preencha os campos obrigatórios.</seg></tuv><tuv xml:lang="ru"><seg>Заполните необходимые поля.</seg></tuv><tuv xml:lang="uk"><seg>Заповніть необхідні поля.</seg></tuv></tu>

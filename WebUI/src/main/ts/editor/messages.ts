@@ -154,6 +154,18 @@ export const EDITOR_MSG = {
   TIPTAP_PERC_VARIABLE_NAME: "perc.ui.editor@Global variable",
   TIPTAP_PERC_SOURCE_CONTENT: "perc.ui.editor@HTML source",
   TIPTAP_PERC_REQUIRED: "perc.ui.editor@Fill in the required fields.",
+  TIPTAP_PERC_BROWSE: "perc.ui.editor@Browse…",
+  TIPTAP_PERC_PICK_TITLE: "perc.ui.editor@Pick CMS content",
+  TIPTAP_PERC_PICK_PATH: "perc.ui.editor@Folder",
+  TIPTAP_PERC_PICK_LIST: "perc.ui.editor@List",
+  TIPTAP_PERC_PICK_SEARCH: "perc.ui.editor@Search",
+  TIPTAP_PERC_PICK_QUERY: "perc.ui.editor@Search CMS content",
+  TIPTAP_PERC_PICK_USE: "perc.ui.editor@Use selected",
+  TIPTAP_PERC_PICK_EMPTY: "perc.ui.editor@No content found.",
+  TIPTAP_PERC_PICK_FAILED: "perc.ui.editor@Content lookup failed.",
+  TIPTAP_PERC_PICK_LOADING: "perc.ui.editor@Loading…",
+  TIPTAP_PERC_PICK_RESOLVE_FAILED:
+    "perc.ui.editor@Could not read the selected item.",
   LONGTEXT_INVALID:
     "perc.ui.editor@That long text contains a character that cannot be saved.",
   LONGTEXT_BAD_REQUEST: "perc.ui.editor@That long text could not be saved.",

@@ -121,8 +121,33 @@ public class PSTipTapEditorKeysTmxTest {
       "HTML source",
       "Fill in the required fields.");
 
+  /** Expected {@code perc.ui.editor@...} suffixes for the #5900 content-picker lookup. */
+  private static final List<String> PICKER_ENGLISH_5900 =
+      List.of(
+          "Browse\u2026",
+          "Pick CMS content",
+          "Folder",
+          "List",
+          "Search",
+          "Search CMS content",
+          "Use selected",
+          "No content found.",
+          "Content lookup failed.",
+          "Loading\u2026",
+          "Could not read the selected item.");
+
   @Test
   public void tiptapToolbarAndDialogKeys_areRegisteredWithEnglish() throws Exception {
+    assertKeysRegistered(loadEnSegsByTuid(), EXPECTED_ENGLISH);
+    // No exact-size pin: later editor slices may register further perc.ui.editor keys.
+  }
+
+  @Test
+  public void contentPickerKeys_areRegisteredWithEnglish() throws Exception {
+    assertKeysRegistered(loadEnSegsByTuid(), PICKER_ENGLISH_5900);
+  }
+
+  private static Map<String, List<String>> loadEnSegsByTuid() throws Exception {
     Path cmsUi = resolveCmsUiTmx();
     assertNotNull(cmsUi, "CmsUi.tmx not found");
 
@@ -135,24 +160,34 @@ public class PSTipTapEditorKeysTmxTest {
       if (!tuid.startsWith("perc.ui.editor@")) {
         continue;
       }
-      NodeList tuvs = tu.getElementsByTagName("tuv");
-      for (int j = 0; j < tuvs.getLength(); j++) {
-        Element tuv = (Element) tuvs.item(j);
-        if ("en-us".equals(normalizeLang(readXmlLang(tuv)))) {
-          NodeList segs = tuv.getElementsByTagName("seg");
-          if (segs.getLength() > 0) {
-            enSegsByTuid
-                .computeIfAbsent(tuid, k -> new ArrayList<>())
-                .add(segs.item(0).getTextContent());
-          }
-        }
+      collectEnSeg(enSegsByTuid, tuid, tu);
+    }
+    return enSegsByTuid;
+  }
+
+  private static void collectEnSeg(
+      Map<String, List<String>> enSegsByTuid, String tuid, Element tu) {
+    NodeList tuvs = tu.getElementsByTagName("tuv");
+    for (int j = 0; j < tuvs.getLength(); j++) {
+      Element tuv = (Element) tuvs.item(j);
+      if (!"en-us".equals(normalizeLang(readXmlLang(tuv)))) {
+        continue;
+      }
+      NodeList segs = tuv.getElementsByTagName("seg");
+      if (segs.getLength() > 0) {
+        enSegsByTuid
+            .computeIfAbsent(tuid, k -> new ArrayList<>())
+            .add(segs.item(0).getTextContent());
       }
     }
+  }
 
+  private static void assertKeysRegistered(
+      Map<String, List<String>> enSegsByTuid, List<String> expected) {
     Set<String> missing = new LinkedHashSet<>();
     List<String> mismatched = new ArrayList<>();
     List<String> duplicated = new ArrayList<>();
-    for (String en : EXPECTED_ENGLISH) {
+    for (String en : expected) {
       String tuid = "perc.ui.editor@" + en;
       List<String> segs = enSegsByTuid.get(tuid);
       if (segs == null || segs.isEmpty()) {
@@ -169,7 +204,6 @@ public class PSTipTapEditorKeysTmxTest {
     assertTrue(missing.isEmpty(), "CmsUi.tmx missing TipTap editor keys: " + missing);
     assertTrue(duplicated.isEmpty(), "CmsUi.tmx has duplicate TipTap editor keys: " + duplicated);
     assertTrue(mismatched.isEmpty(), "CmsUi.tmx en-us seg differs from TS fallback: " + mismatched);
-    // No exact-size pin: later editor slices may register further perc.ui.editor keys.
   }
 
   /**
