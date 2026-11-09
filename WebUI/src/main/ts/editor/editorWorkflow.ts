@@ -18,10 +18,10 @@
 /**
  * Pure gates for React Content Editor workflow transitions (#4539 / parent #4532).
  *
- * <p>Allowed triggers come from itemmanagement {@code getTransitions}. Comment
- * required is a client gate for reject-style triggers (the getTransitions DTO
- * does not carry {@code requiresComment}). Unauthorized names never run. A
- * transition comment that contains a NUL never runs (#5443).</p>
+ * <p>Allowed triggers come from itemmanagement {@code getTransitions}. The
+ * server-driven {@code commentRequiredTriggers} list from the same DTO
+ * extends the built-in reject-style list (#5828). Unauthorized names never
+ * run. A transition comment that contains a NUL never runs (#5443).</p>
  */
 
 import type { EditorHostMode } from "./editorHostUrl";
@@ -105,6 +105,30 @@ export function triggerRequiresComment(
 }
 
 /**
+ * Effective comment-required triggers for the editor host (#5828).
+ *
+ * <p>The server-driven `getTransitions` `commentRequiredTriggers` list
+ * extends the built-in reject-style list: workflow-designer-configured names
+ * (for example a comment-required **Approve**) are enforced like the classic
+ * surface, while the built-in names keep their long-standing gate (QA #4554,
+ * `content-explorer.md`). An explicit override (the
+ * `commentRequiredTriggers` test seam) replaces the built-in base but the
+ * server list still extends it; an empty override still means the built-in
+ * list. A missing server list (never loaded or load failed) leaves the base
+ * unchanged.</p>
+ */
+export function resolveCommentRequiredTriggers(
+  override: readonly string[] | null | undefined,
+  server: readonly string[] | null | undefined,
+): string[] {
+  const base =
+    override != null && override.length > 0
+      ? override
+      : COMMENT_REQUIRED_TRIGGERS;
+  return uniqueTransitionTriggers([...base, ...(server ?? [])]);
+}
+
+/**
  * True when a workflow transition comment contains a NUL.
  * A blank comment is not a NUL. A normal comment is not a NUL.
  * A NUL is refused before {@code transitionWithComments} (#5443).
@@ -119,9 +143,12 @@ export function workflowCommentContainsNul(
  * Whether the editor host may invoke {@code transitionWithComments}.
  *
  * <p>View / promote stay read-only. Triggers not in the loaded allowlist
- * never run. Comment-required triggers block until the comment is non-blank.
- * A comment that contains a NUL never runs, including on a comment-optional
- * trigger and on a required trigger whose comment is otherwise non-blank.</p>
+ * never run. Comment-required triggers block until the comment is non-blank;
+ * pass the resolved list from {@code resolveCommentRequiredTriggers} so a
+ * workflow-designer-configured `getTransitions` `commentRequiredTriggers`
+ * list is honored (#5828). A comment that contains a NUL never runs,
+ * including on a comment-optional trigger and on a required trigger whose
+ * comment is otherwise non-blank.</p>
  */
 export function canRunEditorTransition(input: {
   mode: EditorHostMode;

@@ -361,9 +361,14 @@ character is refused before that call. The state name stays the same, and the
 host shows **That transition comment contains a character that cannot be saved.**
 A blank comment on a trigger that does not require one still runs. The
 required-comment gate is unchanged. Triggers that are not in the
-loaded allowlist are not shown and cannot run. **Reject**, **Return**, **Disapprove**,
-**Decline**, and **Send Back** require a comment — the host blocks the request until
-the comment field is filled. The same region has **Ad-hoc assignees**: type a user
+loaded allowlist are not shown and cannot run. Which triggers require a comment
+comes from the workflow design plus the built-in reject-style names:
+`getTransitions` returns a `commentRequiredTriggers` list, and the host blocks
+those triggers until the comment field is filled — for example a workflow that
+marks **Approve** as comment-required blocks **Approve** with an empty comment,
+while an unlisted, non-reject trigger still runs. The reject-style names
+(**Reject**, **Return**, **Disapprove**, **Decline**, and **Send Back**) always
+require a comment, even when the server list does not name them. The same region has **Ad-hoc assignees**: type a user
 name and **Add assignee**. When `getTransitions` lists that trigger in
 `assigneeRequiredTriggers` (the destination state has ad-hoc assignment enabled),
 choosing the trigger opens a confirm. **Cancel** does not call the server.
