@@ -287,6 +287,69 @@ export const detailColumnsMenuStyle: CSSProperties = {
   fontSize: "0.8rem",
 };
 
+/**
+ * Detail-list row-density switch container (#5883). Sits at the end of
+ * the list toolbar so the density choice reads as list chrome, not a
+ * column control.
+ */
+export const detailDensitySwitchStyle: CSSProperties = {
+  display: "inline-flex",
+  gap: 4,
+  alignItems: "center",
+  marginLeft: "auto",
+};
+
+/**
+ * Detail-list row-density option button (#5883). The active density
+ * reads pressed (`aria-pressed`) and highlighted; both options share
+ * the toggle-button metrics so the switch stays one row tall.
+ */
+export const detailDensityOptionStyle = (active: boolean): CSSProperties => ({
+  padding: "3px 8px",
+  border: "1px solid #ccc",
+  background: active ? "#e8f0fe" : "#fff",
+  color: "#222",
+  borderRadius: 3,
+  fontSize: "0.8rem",
+  fontWeight: active ? 600 : 400,
+  cursor: "pointer",
+});
+
+/**
+ * Detail-list table shell for a row density (#5883). Comfortable keeps
+ * the legacy metrics; compact drops the type size so more rows fit on
+ * small screens. Takes a boolean (not the density union) so this module
+ * stays free of component state types.
+ */
+export const detailTableStyle = (compact: boolean): CSSProperties => ({
+  ...tableStyle,
+  fontSize: compact ? "0.8rem" : tableStyle.fontSize,
+});
+
+/** Detail-list header cell for a row density (#5883). */
+export const detailThCellStyle = (compact: boolean): CSSProperties => ({
+  ...thCellStyle,
+  padding: compact ? "2px 10px" : thCellStyle.padding,
+});
+
+/** Detail-list body cell for a row density (#5883). */
+export const detailTdCellStyle = (compact: boolean): CSSProperties => ({
+  ...tdCellStyle,
+  padding: compact ? "2px 10px" : tdCellStyle.padding,
+});
+
+/** Detail-list type-icon header cell for a row density (#5883). */
+export const detailIconThCellStyle = (compact: boolean): CSSProperties => ({
+  ...iconThCellStyle,
+  padding: compact ? "2px 4px" : iconThCellStyle.padding,
+});
+
+/** Detail-list type-icon body cell for a row density (#5883). */
+export const detailIconTdCellStyle = (compact: boolean): CSSProperties => ({
+  ...iconTdCellStyle,
+  padding: compact ? "2px 6px" : iconTdCellStyle.padding,
+});
+
 export const folderIconButtonStyle: CSSProperties = {
   display: "inline-flex",
   alignItems: "center",

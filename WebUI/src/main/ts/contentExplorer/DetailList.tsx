@@ -59,6 +59,12 @@
  * {@link ExplorerListColumnsPanel} is untouched). At least one column
  * always stays visible; selection, arrow-key navigation, and sorting
  * keep working with hidden columns.</p>
+ *
+ * <p>#5883: a row-density switch (comfortable/compact) above the list
+ * changes row metrics per operator, persisted client-side in
+ * {@code localStorage} (no new REST). Density is styling only — row
+ * identity, roving-tabindex navigation, and screen-reader positions
+ * are identical in both densities.</p>
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -478,6 +484,70 @@ export function toggleHiddenDetailColumn(
   return [...hidden, column];
 }
 
+/**
+ * Detail-list row density (#5883). Comfortable keeps the legacy row
+ * metrics; compact halves vertical padding and drops the type size so
+ * more rows fit on small screens. Styling only — rows, navigation, and
+ * announcements are identical in both densities.
+ */
+export type DetailDensity = "comfortable" | "compact";
+
+/**
+ * Per-operator row-density storage key (#5883). Client-side only
+ * ({@code localStorage}) — zero new REST, like the column-visibility
+ * key above.
+ */
+export const DETAIL_DENSITY_STORAGE_KEY = "perc.explorer.detailDensity.v1";
+
+/**
+ * Parse a persisted density. Anything that is not exactly
+ * {@code "compact"} resolves to {@code "comfortable"} so a corrupt or
+ * future entry can never strand the list in an unknown density.
+ */
+export function parseDetailDensity(
+  raw: string | null | undefined,
+): DetailDensity {
+  if (!raw) return "comfortable";
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return "comfortable";
+  }
+  return parsed === "compact" ? "compact" : "comfortable";
+}
+
+/**
+ * Load the persisted density. Guarded for non-DOM runtimes and
+ * private-mode storage failures — both resolve to comfortable.
+ */
+export function loadDetailDensity(): DetailDensity {
+  try {
+    if (typeof localStorage !== "undefined") {
+      return parseDetailDensity(
+        localStorage.getItem(DETAIL_DENSITY_STORAGE_KEY),
+      );
+    }
+  } catch {
+    /* private mode: density stays session-local */
+  }
+  return "comfortable";
+}
+
+/**
+ * Persist the density. Failures (private mode, quota) are swallowed —
+ * the in-memory state still drives this session's list.
+ */
+export function saveDetailDensity(density: DetailDensity): void {
+  try {
+    if (typeof localStorage !== "undefined") {
+      localStorage.setItem(DETAIL_DENSITY_STORAGE_KEY, JSON.stringify(density));
+    }
+  } catch {
+    /* private mode: density stays session-local */
+  }
+}
+
 /** Translate a column id to the human-readable header text. */
 export function columnHeaderLabel(
   column: DetailColumnId,
@@ -514,18 +584,20 @@ import {
   detailColumnsMenuStyle,
   detailColumnsToggleButtonStyle,
   detailColumnsToolbarStyle,
+  detailDensityOptionStyle,
+  detailDensitySwitchStyle,
+  detailIconTdCellStyle,
+  detailIconThCellStyle,
+  detailTableStyle,
+  detailTdCellStyle,
+  detailThCellStyle,
   emptyStateStyle,
   errorStateStyle,
   folderIconButtonStyle,
-  iconTdCellStyle,
-  iconThCellStyle,
   itemIconStyle,
   listStyle,
   rowStyle,
   sortHeaderButtonStyle,
-  tableStyle,
-  tdCellStyle,
-  thCellStyle,
   theadStyle,
 } from "./styles";
 import { EXPLORER_MSG } from "./messages";
@@ -535,17 +607,20 @@ const PAGE_SIZE = 50;
 function detailListRootProps(
   folderPath: string | null,
   displayFormatId?: string | null,
+  density?: DetailDensity,
 ): {
   style: typeof listStyle;
   "data-testid": "detail-list";
   "data-folder-path": string;
   "data-display-format-id": string;
+  "data-density": DetailDensity;
 } {
   return {
     style: listStyle,
     "data-testid": "detail-list",
     "data-folder-path": folderPath ?? "",
     "data-display-format-id": displayFormatId ?? "",
+    "data-density": density ?? "comfortable",
   };
 }
 
@@ -712,6 +787,22 @@ export function DetailList({
   useEffect(() => {
     saveHiddenDetailColumns(hiddenColumns);
   }, [hiddenColumns]);
+  /**
+   * Operator row density, persisted client-side in localStorage with
+   * zero new REST (#5883). Styling only — rows, selection, keyboard
+   * navigation, and announcements are identical in both densities.
+   */
+  const [density, setDensity] = useState<DetailDensity>(() =>
+    loadDetailDensity(),
+  );
+
+  // Persist density choices as they change; storage failures stay
+  // session-local (see saveDetailDensity).
+  useEffect(() => {
+    saveDetailDensity(density);
+  }, [density]);
+  /** True when the compact density is active (tighter row metrics). */
+  const compact = density === "compact";
   /**
    * Roving-tabindex anchor for arrow-key row navigation (#5761). The row
    * at this index is the tab stop; pager/folder changes reset it to the
@@ -897,7 +988,7 @@ export function DetailList({
 
   if (!folderPath) {
     return (
-      <div {...detailListRootProps(folderPath, displayFormatId)}>
+      <div {...detailListRootProps(folderPath, displayFormatId, density)}>
         <div style={emptyStateStyle} data-testid="detail-list-empty">
           {message(EXPLORER_MSG.LIST_EMPTY)}
         </div>
@@ -906,7 +997,7 @@ export function DetailList({
   }
   if (error) {
     return (
-      <div {...detailListRootProps(folderPath, displayFormatId)}>
+      <div {...detailListRootProps(folderPath, displayFormatId, density)}>
         <div style={errorStateStyle} role="alert">
           {message(EXPLORER_MSG.LIST_LOAD_ERROR)}: {error}
         </div>
@@ -915,14 +1006,14 @@ export function DetailList({
   }
   if (loading && children.length === 0) {
     return (
-      <div {...detailListRootProps(folderPath, displayFormatId)}>
+      <div {...detailListRootProps(folderPath, displayFormatId, density)}>
         <div style={emptyStateStyle}>{message(EXPLORER_MSG.LIST_LOADING)}</div>
       </div>
     );
   }
   if (!loading && children.length === 0) {
     return (
-      <div {...detailListRootProps(folderPath, displayFormatId)}>
+      <div {...detailListRootProps(folderPath, displayFormatId, density)}>
         <div style={emptyStateStyle} data-testid="detail-list-empty">
           {message(EXPLORER_MSG.LIST_EMPTY)}
         </div>
@@ -931,7 +1022,7 @@ export function DetailList({
   }
 
   return (
-    <div {...detailListRootProps(folderPath, displayFormatId)}>
+    <div {...detailListRootProps(folderPath, displayFormatId, density)}>
       <div style={detailColumnsToolbarStyle} data-testid="detail-columns-toolbar">
         <button
           type="button"
@@ -943,6 +1034,31 @@ export function DetailList({
         >
           {message(EXPLORER_MSG.DETAIL_COLUMNS_MENU)}
         </button>
+        <div
+          role="group"
+          data-testid="detail-density-switch"
+          aria-label={message(EXPLORER_MSG.DETAIL_DENSITY_LABEL)}
+          style={detailDensitySwitchStyle}
+        >
+          <button
+            type="button"
+            data-testid="detail-density-comfortable"
+            aria-pressed={density === "comfortable"}
+            onClick={() => setDensity("comfortable")}
+            style={detailDensityOptionStyle(density === "comfortable")}
+          >
+            {message(EXPLORER_MSG.DETAIL_DENSITY_COMFORTABLE)}
+          </button>
+          <button
+            type="button"
+            data-testid="detail-density-compact"
+            aria-pressed={density === "compact"}
+            onClick={() => setDensity("compact")}
+            style={detailDensityOptionStyle(density === "compact")}
+          >
+            {message(EXPLORER_MSG.DETAIL_DENSITY_COMPACT)}
+          </button>
+        </div>
         {columnsMenuOpen ? (
           <div
             role="group"
@@ -983,12 +1099,12 @@ export function DetailList({
           </div>
         ) : null}
       </div>
-      <table style={tableStyle} aria-rowcount={gridRowCount}>
+      <table style={detailTableStyle(compact)} aria-rowcount={gridRowCount}>
         <thead style={theadStyle}>
           <tr>
             {multiSelectEnabled ? (
               <th
-                style={thCellStyle}
+                style={detailThCellStyle(compact)}
                 data-testid="detail-col-header-select"
                 aria-label={message(
                   allVisibleChecked
@@ -1023,7 +1139,7 @@ export function DetailList({
               </th>
             ) : null}
             <th
-              style={iconThCellStyle}
+              style={detailIconThCellStyle(compact)}
               data-testid="detail-col-header-icon"
               aria-label={message(EXPLORER_MSG.ICON_COLUMN_LABEL)}
             />
@@ -1035,7 +1151,7 @@ export function DetailList({
               return (
                 <th
                   key={c}
-                  style={thCellStyle}
+                  style={detailThCellStyle(compact)}
                   data-testid={`detail-col-header-${c}`}
                   aria-sort={ariaSortValue}
                 >
@@ -1226,7 +1342,7 @@ export function DetailList({
                 tabIndex={visible ? (rowIndex === safeFocusIndex ? 0 : -1) : -1}
               >
                 {multiSelectEnabled ? (
-                  <td style={tdCellStyle}>
+                  <td style={detailTdCellStyle(compact)}>
                     <input
                       type="checkbox"
                       data-testid={`detail-select-${idKey}`}
@@ -1240,7 +1356,7 @@ export function DetailList({
                     />
                   </td>
                 ) : null}
-                <td style={iconTdCellStyle} data-testid={`detail-cell-icon-${idKey}`}>
+                <td style={detailIconTdCellStyle(compact)} data-testid={`detail-cell-icon-${idKey}`}>
                   {folderish ? (
                     <button
                       type="button"
@@ -1273,7 +1389,7 @@ export function DetailList({
                 {columnsToRender.map((c) => (
                   <td
                     key={c}
-                    style={tdCellStyle}
+                    style={detailTdCellStyle(compact)}
                     data-testid={`detail-cell-${c}-${idKey}`}
                     title={renderDisplayFormatCell(c, item)}
                   >
