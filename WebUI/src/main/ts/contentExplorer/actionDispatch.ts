@@ -2426,8 +2426,10 @@ export async function dispatchAction(
     if (!ok) {
       return { kind: "rest" };
     }
-    // HTTP 403/404/409 names the item so the operator knows which row
+    // HTTP 400/403/404/409 names the item so the operator knows which row
     // failed; the list is not refreshed and the selection stays (#5630).
+    // A 400 (malformed id, rejected before publish lookup — see #4598)
+    // names the item the same way instead of the generic error path (#5942).
     // Other failures keep the previous generic error path.
     const label = (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
     try {
@@ -2443,7 +2445,10 @@ export async function dispatchAction(
     } catch (err: unknown) {
       if (
         isApiError(err) &&
-        (err.status === 403 || err.status === 404 || err.status === 409)
+        (err.status === 400 ||
+          err.status === 403 ||
+          err.status === 404 ||
+          err.status === 409)
       ) {
         return {
           kind: "rest",
