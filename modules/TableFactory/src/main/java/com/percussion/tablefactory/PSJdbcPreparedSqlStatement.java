@@ -47,7 +47,7 @@ public class PSJdbcPreparedSqlStatement extends PSJdbcSqlStatement {
    * @throws IllegalArgumentException if statement is <code>null</code> or empty, or if values does
    *     not contain at least one object, or does not contain object of the correct type.
    */
-  public PSJdbcPreparedSqlStatement(String statement, PSCollection values) {
+  public PSJdbcPreparedSqlStatement(String statement, PSCollection<PSJdbcStatementColumn> values) {
     super(statement);
     setValues(values);
   }
@@ -60,7 +60,7 @@ public class PSJdbcPreparedSqlStatement extends PSJdbcSqlStatement {
    * @throws IllegalArgumentException if values does not contain at least one object, or does not
    *     contain object of the correct type.
    */
-  public final void setValues(PSCollection values) {
+  public final void setValues(PSCollection<PSJdbcStatementColumn> values) {
     if (values != null) {
       if (values.isEmpty())
         throw new IllegalArgumentException("values must contain at least one object");
@@ -121,7 +121,7 @@ public class PSJdbcPreparedSqlStatement extends PSJdbcSqlStatement {
     return updateCount;
   }
 
-  protected void closeColumnStreams(PSCollection values) {
+  protected void closeColumnStreams(PSCollection<PSJdbcStatementColumn> values) {
     try {
       if (values != null) {
         for (Object o : values) {
@@ -148,9 +148,10 @@ public class PSJdbcPreparedSqlStatement extends PSJdbcSqlStatement {
    *     </code> or empty.
    * @throws SQLException if any errors occur
    */
-  protected void bindValues(PreparedStatement stmt, PSCollection values) throws SQLException {
+  protected void bindValues(PreparedStatement stmt, PSCollection<PSJdbcStatementColumn> values)
+      throws SQLException {
     for (int i = 0; i < values.size(); i++) {
-      PSJdbcStatementColumn value = (PSJdbcStatementColumn) values.get(i);
+      PSJdbcStatementColumn value = values.get(i);
       try {
 
         PSJdbcTableFactory.logDebugMessage("bind value " + i + ": " + value.getValue());
@@ -171,5 +172,5 @@ public class PSJdbcPreparedSqlStatement extends PSJdbcSqlStatement {
    * runtime. May be <code>null</code> if the statement does not require any parameters, but never
    * emtpy if not <code>null</code>.
    */
-  protected PSCollection m_values = null;
+  protected PSCollection<PSJdbcStatementColumn> m_values = null;
 }

@@ -34,7 +34,9 @@ import org.w3c.dom.Element;
  * as a collection to and from Xml.
  */
 @SuppressWarnings("this-escape")
-public class PSJdbcTableSchemaCollection extends PSCollection {
+public class PSJdbcTableSchemaCollection extends PSCollection<PSJdbcTableSchema> {
+  private static final long serialVersionUID = 1L;
+
   /** Constructs an empty PSJdbcTableSchemaCollection */
   public PSJdbcTableSchemaCollection() {
     super(PSJdbcTableSchema.class);
@@ -119,7 +121,7 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
     Element root = doc.createElement(NODE_NAME);
     // Sort based upon foreign keys correctly.
     for (int i = 0; i < size(); i++) {
-      PSJdbcTableSchema table = (PSJdbcTableSchema) get(i);
+      PSJdbcTableSchema table = get(i);
       root.appendChild(table.toXml(doc));
     }
 
@@ -189,7 +191,7 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
     PSJdbcTableSchema tableSchema = null;
 
     for (int i = 0; i < size(); i++) {
-      PSJdbcTableSchema tempTable = (PSJdbcTableSchema) get(i);
+      PSJdbcTableSchema tempTable = get(i);
       if (tempTable.getName().equalsIgnoreCase(name)) {
         tableSchema = tempTable;
         break;
@@ -215,7 +217,7 @@ public class PSJdbcTableSchemaCollection extends PSCollection {
     PSJdbcTableSchema parentTableSchema;
     int size = size();
     for (int i = 0; i < size; i++) {
-      childTableSchema = (PSJdbcTableSchema) get(i);
+      childTableSchema = get(i);
       childTableName = childTableSchema.getName();
       it = childTableSchema.getParentTables();
       while (it.hasNext()) {

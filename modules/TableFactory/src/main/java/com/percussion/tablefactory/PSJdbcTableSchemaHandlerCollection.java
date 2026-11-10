@@ -28,7 +28,9 @@ import org.w3c.dom.Element;
  * them to be serialized as a collection to and from Xml.
  */
 @SuppressWarnings("this-escape")
-public class PSJdbcTableSchemaHandlerCollection extends PSCollection {
+public class PSJdbcTableSchemaHandlerCollection extends PSCollection<PSJdbcTableSchemaHandler> {
+  private static final long serialVersionUID = 1L;
+
   /** Constructor */
   public PSJdbcTableSchemaHandlerCollection() {
     super(PSJdbcTableSchemaHandler.class);

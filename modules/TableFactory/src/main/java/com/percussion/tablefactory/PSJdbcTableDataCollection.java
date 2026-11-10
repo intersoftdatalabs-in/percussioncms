@@ -34,7 +34,9 @@ import org.w3c.dom.Element;
  * as a collection to and from Xml.
  */
 @SuppressWarnings("this-escape")
-public class PSJdbcTableDataCollection extends PSCollection {
+public class PSJdbcTableDataCollection extends PSCollection<PSJdbcTableData> {
+  private static final long serialVersionUID = 1L;
+
   private static final Logger log = LogManager.getLogger(LOG_CATEGORY);
 
   /** Constructs an empty PSJdbcTableDataCollection */

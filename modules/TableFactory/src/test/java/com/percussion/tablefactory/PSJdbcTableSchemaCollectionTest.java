@@ -32,8 +32,8 @@ import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 
 /**
- * Unit test for {@link PSJdbcTableSchemaCollection}. Iteration uses the inherited {@code
- * List<Object>} iterator from {@code PSCollection}; members are {@link PSJdbcTableSchema}.
+ * Unit test for {@link PSJdbcTableSchemaCollection}. Iteration uses the inherited typed iterator
+ * from {@code PSCollection<PSJdbcTableSchema>}; members are {@link PSJdbcTableSchema}.
  */
 public class PSJdbcTableSchemaCollectionTest {
 
