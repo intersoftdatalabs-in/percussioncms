@@ -68,7 +68,10 @@
     
     <!-- JavaScript Includes (order matters) -->
     <%@include file="includes/common_js.jsp" %>
-    <script src="../jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.min.js"></script>    
+    <script src="../jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.min.js"></script>
+    <!-- Bootstrap 5 jQuery-bridge (issue #5661): classic code calls $.fn.modal /
+         $.fn.tooltip (Bootstrap 4 API); the bundle above is Bootstrap 5 from npm. -->
+    <script src="/cm/assets/js/bootstrap5-compat.js"></script>    
     <script src="../plugins/PercDataList.js"></script>
     <script src="../plugins/PercAddItemDialog.js"></script>
     <script src="../services/PercUserService.js"></script>

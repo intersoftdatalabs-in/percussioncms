@@ -330,3 +330,102 @@ describe("classic-UI jQuery trio from npm (issue #5660)", () => {
     }
   });
 });
+
+/**
+ * Classic-UI Bootstrap 5 from npm (issue #5661).
+ *
+ * The vendored Bootstrap 4.6.2 tree (EOL January 2023, no security fixes)
+ * under cm/jslib, cm/vendor/js/legacy, and war/jslib was deleted. Classic
+ * pages keep loading the same stable versionless jslib URLs, now served
+ * from npm bootstrap 5 (the same major the React SPA already tracks as
+ * ^5.3.8, Dependabot-visible in frontend package.json) via
+ * syncStandaloneNpmLibraries + the generated-webui overlay. These tests pin:
+ *
+ *   1. Every bundled bootstrap jslib path resolves into node_modules
+ *      (NPM_LIBRARY_MAPPINGS), covering both the full bundle and the
+ *      non-bundle bootstrap.js used by shared-common-minuet.js.
+ *   2. Directly loaded jslib URLs are present in STANDALONE_NPM_COPIES and
+ *      marked required (common_js.jsp, adminWorkflow.jsp, test/logs.jsp).
+ *   3. Synced bytes are byte-identical to the npm dist files and carry the
+ *      Bootstrap 5 banner (not the deleted 4.6.2).
+ *   4. The deleted 4.6.2 vendored files resolve nowhere (no mapping, no
+ *      source-tree file).
+ */
+describe("classic-UI Bootstrap 5 from npm (issue #5661)", () => {
+  const FRONTEND_ROOT = path.dirname(
+    path.dirname(path.dirname(__dirname)),
+  );
+  const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+
+  const MAPPED = [
+    "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js",
+    "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.min.js",
+    "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.js",
+    "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.min.js",
+    "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.css",
+    "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css",
+  ];
+
+  const STANDALONE = [
+    {
+      src: "bootstrap/dist/js/bootstrap.bundle.js",
+      dest: "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js",
+    },
+    {
+      src: "bootstrap/dist/js/bootstrap.bundle.min.js",
+      dest: "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.min.js",
+    },
+    {
+      src: "bootstrap/dist/css/bootstrap.min.css",
+      dest: "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css",
+    },
+  ];
+
+  it("resolves every bundled bootstrap jslib path into node_modules", () => {
+    for (const dest of MAPPED) {
+      expect(
+        NPM_LIBRARY_MAPPINGS[dest],
+        `no npm mapping for ${dest}`,
+      ).toBeDefined();
+      const resolved = resolvePath(dest);
+      const normalized = resolved.split(path.sep).join("/");
+      expect(normalized).toContain("node_modules/");
+      expect(fs.existsSync(resolved), resolved).toBe(true);
+    }
+  });
+
+  it("pins the required standalone copies for directly loaded URLs", () => {
+    for (const { src, dest } of STANDALONE) {
+      const entry = STANDALONE_NPM_COPIES.find((e) => e.dest === dest);
+      expect(entry, `missing standalone copy for ${dest}`).toBeDefined();
+      expect(entry.src).toBe(src);
+      expect(entry.required).toBe(true);
+    }
+  });
+
+  it("syncs Bootstrap 5 bytes identical to the npm dist files", () => {
+    const missing = STANDALONE.map(({ src }) =>
+      path.join(NODE_MODULES, src),
+    ).filter((p) => !fs.existsSync(p));
+    if (missing.length > 0) {
+      // Hermetic CI without frontend node_modules: presence is pinned above.
+      return;
+    }
+    syncStandaloneNpmLibraries();
+    for (const { src, dest } of STANDALONE) {
+      const generated = fs.readFileSync(path.join(OUTPUT_DIR, dest));
+      const npmDist = fs.readFileSync(path.join(NODE_MODULES, src));
+      expect(generated.equals(npmDist), `${dest} differs from npm ${src}`).toBe(
+        true,
+      );
+      // Bootstrap 5 banner, not the deleted 4.6.2 ("Bootstrap v4.6.2").
+      // Note: bootstrap.min.css ships "Bootstrap  v5…" (two spaces).
+      expect(generated.toString("utf8", 0, 4096)).toMatch(/Bootstrap\s+v5\./);
+      expect(generated.toString("utf8", 0, 4096)).not.toMatch(
+        /Bootstrap v4\./,
+      );
+      // The deleted vendored copy must not leak back into the source tree.
+      expect(fs.existsSync(path.join(WAR_DIR, dest))).toBe(false);
+    }
+  });
+});

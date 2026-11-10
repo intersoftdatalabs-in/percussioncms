@@ -37,8 +37,18 @@ const NPM_LIBRARY_MAPPINGS = {
     "jquery-ui/dist/jquery-ui.min.js",
   "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js":
     "bootstrap/dist/js/bootstrap.bundle.js",
+  // Bootstrap 4.6.2 (EOL) retired (issue #5661): keys mirror the canonical
+  // frontend builder.
+  "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.min.js":
+    "bootstrap/dist/js/bootstrap.bundle.min.js",
+  "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.js":
+    "bootstrap/dist/js/bootstrap.js",
+  "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.min.js":
+    "bootstrap/dist/js/bootstrap.min.js",
   "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.css":
     "bootstrap/dist/css/bootstrap.css",
+  "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css":
+    "bootstrap/dist/css/bootstrap.min.css",
   "jslib/profiles/3x/libraries/bowser/es5.js": "bowser/es5.js",
   "jslib/profiles/3x/libraries/handlebars/handlebars-v4.7.8.js":
     "handlebars/dist/handlebars.js",
@@ -183,6 +193,23 @@ const STANDALONE_NPM_COPIES = [
   {
     src: "jquery-ui/dist/jquery-ui.min.js",
     dest: "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js",
+    required: true,
+  },
+  // Bootstrap 5 from npm (issue #5661); keys mirror the canonical frontend
+  // builder. The vendored copies were deleted, so every entry is required.
+  {
+    src: "bootstrap/dist/js/bootstrap.bundle.js",
+    dest: "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js",
+    required: true,
+  },
+  {
+    src: "bootstrap/dist/js/bootstrap.bundle.min.js",
+    dest: "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.min.js",
+    required: true,
+  },
+  {
+    src: "bootstrap/dist/css/bootstrap.min.css",
+    dest: "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css",
     required: true,
   },
 ];
