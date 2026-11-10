@@ -22,7 +22,7 @@ This section covers how to obtain, install, upgrade, and take first steps with P
 | Role | Recommended path |
 |------|------------------|
 | New operator | Install binaries from GitHub Releases → verify login → configure first Site |
-| Upgrading customer | Read upgrade notes → back up → run installer upgrade path. Convert leftover definition XML incrementally ([dual-run](id:admin-definition-xml-dual-run)); do not remove the runtime shim. |
+| Upgrading customer | Read upgrade notes → back up → run installer upgrade path. Convert leftover definition XML incrementally ([dual-run](id:admin-definition-xml-dual-run)) — unconverted Widget / Page ids now fail clearly instead of loading legacy XML (shim retired, #2852). |
 | Developer | [Build from source](id:developer-build-source) after a quick install overview |
 
 ## After install

@@ -15,6 +15,10 @@ tags: [admin, upgrade, packages, widgets, dual-run]
 > with a clear error naming the retired XML and the compiler path. Convert any remaining
 > customer XML **before** relying on those ids. (Gadget registry XML fallback was a separate
 > surface and was retired via #5810: the dashboard gadget map is modern-catalog-only; see below.)
+>
+> **M1 retirement evidence** (ship-path inventory; #3736 / PR #3750, re-verified #5756 /
+> #5780): committed product Widget definition XML **0**, Widget waiver set **empty**,
+> **81** `component-package.json` under Packages, Pages/Gadgets ship-path **0**.
 
 Percussion CMS **8.2** loads **modern component packages**. Product Widget Builder, Design
 create, and shipped product packages already write **modern** format only.
@@ -51,8 +55,9 @@ XML that remains after upgrade.
 | **Dual-ship** | Package **build** (`*.templateDef` next to modern `pages/`) | Retired as the **product ship** path. Product page packages use native install. |
 | **Dual-run** | **Runtime** selection (was: modern package vs definition XML) | **Retired** — selection is modern-only. Do not turn dual-ship back on to “keep XML working”; convert the XML instead. |
 
-Do not turn dual-ship back on to “keep XML working.” Dual-run already does that at
-runtime. Details: [Product page packages](id:developer-page-packages).
+Do not turn dual-ship back on to “keep XML working” — dual-run is retired and no
+longer loads legacy XML at runtime; convert the XML instead.
+Details: [Product page packages](id:developer-page-packages).
 
 This page is also **not** the XSL assembler cookbook. Existing **Legacy / XSL**
 templates keep running; convert those separately — see
@@ -78,7 +83,8 @@ That wire format is not a reason to author new customer XML.
   Page ids now fail clearly instead of loading legacy XML).
 - Preview / page edit / gadget load still depends on that id and you have not smoked
   the modern package.
-- Support has an explicit residual waiver (owner + sunset) — do not invent one.
+- There is no waiver path for unconverted ids — the legacy fallback is retired, so
+  convert the XML instead of requesting an exception.
 
 ## Convert → deploy modern (operator cookbook)
 

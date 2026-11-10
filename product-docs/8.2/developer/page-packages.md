@@ -139,13 +139,13 @@ with an unregistered-assembler reason — fix by authoring a registered id, then
 | Concept | Layer | Product 8.2 status |
 |---------|-------|--------------------|
 | **Dual-ship** page `*.templateDef` | Package **build** | Retired as the product ship path. Product packages use native install. |
-| **Dual-run** definition XML shim | **Runtime** selection | Still required so customer Widget / Page / Gadget XML loads when no modern package is present. |
+| **Dual-run** definition XML shim | **Runtime** selection | **Retired** (#2852): selection is modern-only. Legacy Widget / Page / Gadget XML without a modern package is never loaded — those ids fail with a clear error instead. |
 
 Native page package install is **not** the same as removing the runtime legacy-definition
-XML shim. Customer XML fallback stays until remaining definitions have modern packages
-and engineering removal criteria pass. Operators convert customer XML with
-[Convert definition XML (dual-run)](id:admin-definition-xml-dual-run). Do **not** delete
-or hard-disable the dual-run shim as an upgrade cleanup step.
+XML shim (retired via #2852). Unconverted customer XML ids now fail clearly instead of
+loading legacy XML. Operators convert customer XML with
+[Convert definition XML (dual-run)](id:admin-definition-xml-dual-run). Do **not**
+reintroduce a legacy fallback to “keep XML working” — convert the XML instead.
 
 ## Related
 
