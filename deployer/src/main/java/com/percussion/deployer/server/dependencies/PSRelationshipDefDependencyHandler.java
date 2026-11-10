@@ -133,7 +133,7 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -180,7 +180,7 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
     try {
       // restore the object
       String cfgName = dep.getDependencyId();
-      Iterator files = archive.getFiles(dep);
+      Iterator<PSDependencyFile> files = archive.getFiles(dep);
 
       if (!files.hasNext()) {
         Object[] args = {
@@ -193,7 +193,7 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
       }
 
       Document doc = null;
-      PSDependencyFile file = (PSDependencyFile) files.next();
+      PSDependencyFile file = files.next();
       if (file.getType() == PSDependencyFile.TYPE_COMPONENT_XML) {
         doc = createXmlDocument(archive.getFileData(file));
       } else {
@@ -270,7 +270,7 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
     PSApplicationIDTypes idTypes = new PSApplicationIDTypes(dep);
 
     // exit and effect params, user properties,
-    List mappings = new ArrayList();
+    List<PSApplicationIDTypeMapping> mappings = new ArrayList<>();
     String reqName = dep.getDisplayName();
 
     mappings.clear();
@@ -318,16 +318,16 @@ public class PSRelationshipDefDependencyHandler extends PSAppObjectDependencyHan
     PSRelationshipConfig cfg = (PSRelationshipConfig) object;
 
     // walk id types and perform any transforms
-    Iterator resources = idTypes.getResourceList(false);
+    Iterator<String> resources = idTypes.getResourceList(false);
     while (resources.hasNext()) {
-      String resource = (String) resources.next();
-      Iterator elements = idTypes.getElementList(resource, false);
+      String resource = resources.next();
+      Iterator<String> elements = idTypes.getElementList(resource, false);
       while (elements.hasNext()) {
-        String element = (String) elements.next();
-        Iterator mappings = idTypes.getIdTypeMappings(resource, element, false);
+        String element = elements.next();
+        Iterator<PSApplicationIDTypeMapping> mappings = idTypes.getIdTypeMappings(resource, element, false);
         while (mappings.hasNext()) {
 
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
 
           if (mapping.getType().equals(PSApplicationIDTypeMapping.TYPE_NONE)) {
             continue;

@@ -264,16 +264,6 @@ public class PSFilterDefDependencyHandler extends PSDependencyHandler implements
   }
 
   /**
-   * Persist the filter. {@code ver} is the Hibernate optimistic-lock version from the target DB for
-   * updates, or {@code null} for inserts ({@link
-   * com.percussion.services.filter.impl.PSFilterManager#saveFilter} treats null version as
-   * persist-new).
-   *
-   * @param f the actual filter never <code>null</code>
-   * @param ver the version of filter, may be <code>null</code> for new filters
-   * @throws PSDeployException
-   */
-  /**
    * Saves the supplied item filter with the supplied version.
    *
    * <p>Not Spring-managed — do not put {@code @Transactional} here. Persistence runs under {@link

@@ -219,7 +219,7 @@ public class PSDependencyUtils {
     while (it.hasNext()) {
       String key = it.next();
       PSPair<String, String> val = oldMap.get(key);
-      PSPair<String, String> newVal = new PSPair(val.getFirst(), val.getSecond());
+      PSPair<String, String> newVal = new PSPair<>(val.getFirst(), val.getSecond());
       newMap.put(key, newVal);
     }
     return newMap;
@@ -416,14 +416,14 @@ public class PSDependencyUtils {
       log.error(PSExceptionUtils.getDebugMessageForLog(e));
     }
 
-    PSCollection dataSetColl = null;
+    PSCollection<?> dataSetColl = null;
     if (app != null) {
       dataSetColl = app.getDataSets();
     }
 
     if (dataSetColl == null) return Collections.emptyList();
 
-    Iterator datasets = dataSetColl.iterator();
+    Iterator<?> datasets = dataSetColl.iterator();
     while (datasets.hasNext()) {
       PSDataSet ds = (PSDataSet) datasets.next();
       if (!(ds instanceof PSContentEditor)) continue;
@@ -449,10 +449,10 @@ public class PSDependencyUtils {
 
     List<String> tables = new ArrayList<>();
 
-    Iterator tableSets = locator.getTableSets();
+    Iterator<?> tableSets = locator.getTableSets();
     while (tableSets.hasNext()) {
       PSTableSet tableSet = (PSTableSet) tableSets.next();
-      Iterator refs = tableSet.getTableRefs();
+      Iterator<?> refs = tableSet.getTableRefs();
       while (refs.hasNext()) {
         PSTableRef ref = (PSTableRef) refs.next();
         tables.add(ref.getName());
@@ -490,7 +490,7 @@ public class PSDependencyUtils {
 
     List<PSSharedFieldGroup> groups = new ArrayList<>();
 
-    Iterator fieldGroups = getSharedDef().getFieldGroups();
+    Iterator<?> fieldGroups = getSharedDef().getFieldGroups();
     while (fieldGroups.hasNext()) {
       Object obj = fieldGroups.next();
       if (obj instanceof PSSharedFieldGroup) {

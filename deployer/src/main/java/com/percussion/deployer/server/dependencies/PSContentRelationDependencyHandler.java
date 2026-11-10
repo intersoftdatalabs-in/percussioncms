@@ -271,6 +271,8 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
   }
 
   // see base class
+  // Legacy-raw PSRelationshipSet (system module) backs add() with raw PSCollection.add(E).
+  @SuppressWarnings("unchecked")
   public void installDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
@@ -614,6 +616,8 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
    *     method, assumed not <code>null</code>, may be empty.
    * @throws PSDeployException if there are any errors.
    */
+  // Legacy-raw PSRelationshipSet (system module) backs add() with raw PSCollection.add(E).
+  @SuppressWarnings("unchecked")
   private void processFieldSet(
       PSDependency dep,
       PSImportCtx ctx,

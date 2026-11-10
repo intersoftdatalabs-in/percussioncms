@@ -20,9 +20,11 @@ package com.percussion.deployer.server.dependencies;
 import com.percussion.cms.PSCmsException;
 import com.percussion.cms.objectstore.PSComponentSummaries;
 import com.percussion.cms.objectstore.PSComponentSummary;
+import com.percussion.cms.objectstore.PSKey;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.cms.objectstore.server.PSRelationshipProcessor;
 import com.percussion.deployer.objectstore.PSDependency;
+import com.percussion.deployer.objectstore.PSDependencyFile;
 import com.percussion.deployer.objectstore.PSTransactionSummary;
 import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDependencyDef;
@@ -33,8 +35,8 @@ import com.percussion.design.objectstore.PSRelationshipSet;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.utils.collections.PSIteratorUtils;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
@@ -56,10 +58,10 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
   }
 
   // see base class
-  public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException {
+  public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class
@@ -127,10 +129,10 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     // all the info we need is in the dependency tree
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class
@@ -167,12 +169,12 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
       }
 
       // delete all current translations
-      List deletes = new ArrayList();
+      List<PSKey> deletes = new ArrayList<>();
       PSComponentSummaries sums = getTranslatedFolderSummaries(proc, parentFolder, relType);
       if (sums.size() > 0) {
-        Iterator transFolders = sums.iterator();
+        Iterator<PSComponentSummary> transFolders = sums.iterator();
         while (transFolders.hasNext()) {
-          PSComponentSummary sum = (PSComponentSummary) transFolders.next();
+          PSComponentSummary sum = transFolders.next();
           deletes.add(sum.getLocator());
         }
 
@@ -188,10 +190,10 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
       }
 
       // add new translations
-      List list = new ArrayList();
-      Iterator it = dep.getDependencies();
+      List<PSKey> list = new ArrayList<>();
+      Iterator<PSDependency> it = dep.getDependencies();
       while (it.hasNext()) {
-        PSDependency childDep = (PSDependency) it.next();
+        PSDependency childDep = it.next();
         String childType = childDep.getObjectType();
         if (!(childType.equals(PSFolderTreeDefDependencyHandler.DEPENDENCY_TYPE)
             || childType.equals(PSFolderDefDependencyHandler.DEPENDENCY_TYPE))) {
@@ -344,7 +346,7 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -366,7 +368,7 @@ public class PSFolderTranslationsDependencyHandler extends PSFolderObjectDepende
   static final String DEPENDENCY_TYPE = "FolderTranslations";
 
   /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
-  private static List ms_childTypes = new ArrayList();
+  private static List<String> ms_childTypes = new ArrayList<>();
 
   static {
     ms_childTypes.add(PSFolderDefDependencyHandler.DEPENDENCY_TYPE);

@@ -167,7 +167,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
     PSDependencyHandler schemaHandler =
         getDependencyHandler(PSSchemaDependencyHandler.DEPENDENCY_TYPE);
     boolean gotCE = false;
-    PSCollection dataSetColl = app.getDataSets();
+    PSCollection<?> dataSetColl = app.getDataSets();
     if (dataSetColl != null) {
       for (Object rawDsObj : dataSetColl) {
         PSDataSet ds = (PSDataSet) rawDsObj;
@@ -204,7 +204,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
 
           PSDataSelector selector = qPipe.getDataSelector();
           if (selector != null) {
-            PSCollection whereColl = selector.getWhereClauses();
+            PSCollection<?> whereColl = selector.getWhereClauses();
             if (whereColl != null) {
               for (Object rawWhere : whereColl) {
                 PSWhereClause where = (PSWhereClause) rawWhere;
@@ -274,7 +274,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
       PSApplication app = os.getApplicationObject(dep.getDependencyId(), tok);
 
       // locate backend tables in the app
-      PSCollection dataSetColl = app.getDataSets();
+      PSCollection<?> dataSetColl = app.getDataSets();
       if (dataSetColl == null) return infoList;
 
       for (Object rawDs : dataSetColl) {
@@ -588,7 +588,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
       PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
       PSApplication app = os.getApplicationObject(dep.getDependencyId(), tok);
 
-      PSCollection dataSetColl = app.getDataSets();
+      PSCollection<?> dataSetColl = app.getDataSets();
       if (dataSetColl == null) return idTypes;
 
       for (Object rawDs : dataSetColl) {
@@ -621,7 +621,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
 
           PSResultPageSet pageSet = ds.getOutputResultPages();
           if (pageSet != null) {
-            PSCollection pageColl = pageSet.getResultPages();
+            PSCollection<?> pageColl = pageSet.getResultPages();
             if (pageColl != null) {
               mappings.clear();
               for (Object rawPage : pageColl) {
@@ -723,7 +723,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
               if (element.equals(IPSDeployConstants.ID_TYPE_ELEMENT_RESULT_PAGES)) {
                 PSResultPageSet pageSet = ds.getOutputResultPages();
                 if (pageSet != null) {
-                  PSCollection pageColl = pageSet.getResultPages();
+                  PSCollection<?> pageColl = pageSet.getResultPages();
                   if (pageColl != null) {
                     for (Object rawPage : pageColl) {
                       PSAppTransformer.transformResultPage((PSResultPage) rawPage, mapping, idMap);
@@ -826,7 +826,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
     if (srcRepInfo != null) srcRep = srcRepInfo.getDbmsIdentifier();
 
     // get all mappings and locate backend tables in the app
-    PSCollection dataSetColl = app.getDataSets();
+    PSCollection<?> dataSetColl = app.getDataSets();
     if (dataSetColl == null) return;
 
     for (Object rawDs : dataSetColl) {
@@ -943,7 +943,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
   public static PSDataSet getResource(PSApplication app, String resourceName) {
     PSDataSet ds = null;
 
-    PSCollection dataSetColl = app.getDataSets();
+    PSCollection<?> dataSetColl = app.getDataSets();
     if (dataSetColl != null) {
       for (Object rawDs : dataSetColl) {
         if (ds != null) break;
@@ -968,7 +968,7 @@ public class PSApplicationDependencyHandler extends PSContentEditorObjectDepende
   private void updateBackEndRoles(PSApplication app) {
     IPSBackEndRoleMgr beRoleMgr = PSRoleMgrLocator.getBackEndRoleManager();
     PSAcl acl = app.getAcl();
-    PSCollection coll = acl.getEntries();
+    PSCollection<?> coll = acl.getEntries();
     for (Object rawEntry : coll) {
       PSAclEntry aclEntry = (PSAclEntry) rawEntry;
       if (aclEntry.isRole()) {

@@ -17,6 +17,7 @@
 package com.percussion.deployer.server.dependencies;
 
 import com.percussion.deployer.objectstore.PSDependency;
+import com.percussion.deployer.objectstore.PSDependencyFile;
 import com.percussion.deployer.objectstore.PSIdMap;
 import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDbmsHelper;
@@ -132,13 +133,13 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   // see base class
-  public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException {
+  public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-    List deps = new ArrayList();
-    Iterator ids = getChildPairIdsFromTable(STATES_TABLE, STATE_ID, WORKFLOW_ID, null);
+    List<PSDependency> deps = new ArrayList<>();
+    Iterator<String> ids = getChildPairIdsFromTable(STATES_TABLE, STATE_ID, WORKFLOW_ID, null);
     while (ids.hasNext()) {
-      String id = (String) ids.next();
+      String id = ids.next();
       PSPairDependencyId pairId = new PSPairDependencyId(id);
       PSDependency dep =
           getDependency(
@@ -153,8 +154,8 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   // see base class
-  public Iterator getDependencies(PSSecurityToken tok, String parentType, String parentId)
-      throws PSDeployException {
+  public Iterator<PSDependency> getDependencies(
+      PSSecurityToken tok, String parentType, String parentId) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     if (parentType == null || parentType.trim().length() == 0)
@@ -163,10 +164,10 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler {
     if (parentId == null || parentId.trim().length() == 0)
       throw new IllegalArgumentException("parentId may not be null or empty");
 
-    List deps = new ArrayList();
-    Iterator ids = getChildPairIdsFromTable(STATES_TABLE, STATE_ID, WORKFLOW_ID, parentId);
+    List<PSDependency> deps = new ArrayList<>();
+    Iterator<String> ids = getChildPairIdsFromTable(STATES_TABLE, STATE_ID, WORKFLOW_ID, parentId);
     while (ids.hasNext()) {
-      String id = (String) ids.next();
+      String id = ids.next();
       PSPairDependencyId pairId = new PSPairDependencyId(id);
       PSDependency dep =
           getDependency(
@@ -217,8 +218,8 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler {
 
     // should only get back one, take the first if found
     if (data != null && data.getRows().hasNext()) {
-      Iterator rows = data.getRows();
-      PSJdbcRowData row = (PSJdbcRowData) rows.next();
+      Iterator<PSJdbcRowData> rows = data.getRows();
+      PSJdbcRowData row = rows.next();
       String stateName = dbmsHelper.getColumnString(STATES_TABLE, STATE_NAME, row);
       stateDep = createDependency(m_def, id, stateName);
       stateDep.setParent(parentId, parentType);
@@ -300,7 +301,7 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler {
 
     // Check to see if there are already any states in this workflow.  If not,
     // reuse the source state ids so intial state will keep its id
-    Iterator ids = getChildPairIdsFromTable(STATES_TABLE, STATE_ID, WORKFLOW_ID, tgtParentId);
+    Iterator<String> ids = getChildPairIdsFromTable(STATES_TABLE, STATE_ID, WORKFLOW_ID, tgtParentId);
     if (!ids.hasNext()) newId = dep.getDependencyId();
     else {
       // already have states, so get the next available id
@@ -315,7 +316,7 @@ public class PSStateDefDependencyHandler extends PSDataObjectDependencyHandler {
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 

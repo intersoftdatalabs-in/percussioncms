@@ -168,7 +168,7 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
    *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -193,7 +193,7 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
 
   // see base class
   @Override
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -277,8 +277,8 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
     // retrieve the data from the archive
-    Iterator files = getDependecyDataFiles(archive, dep);
-    PSDependencyFile file = (PSDependencyFile) files.next();
+    Iterator<PSDependencyFile> files = getDependecyDataFiles(archive, dep);
+    PSDependencyFile file = files.next();
 
     IPSEdition edition = null;
     PSIdMapping edtnMapping = getIdMapping(ctx, dep);
@@ -316,7 +316,7 @@ public class PSEditionDefDependencyHandler extends PSDataObjectDependencyHandler
       for (IPSEditionContentList ecl : targetEcls) m_pubSvc.deleteEditionContentList(ecl);
 
       while (files.hasNext()) {
-        file = (PSDependencyFile) files.next();
+        file = files.next();
         String eclFileContent = PSDependencyUtils.getFileContentAsString(archive, file);
         PSEditionContentList ecl = (PSEditionContentList) m_pubSvc.createEditionContentList();
         long eclId = ecl.getEditionContentListPK().getEditionclistid();

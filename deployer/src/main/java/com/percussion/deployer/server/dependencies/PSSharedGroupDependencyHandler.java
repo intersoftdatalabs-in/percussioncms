@@ -214,6 +214,9 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
   }
 
   // see base class
+  // PSContentEditorSharedDef.getFieldGroups() is a legacy raw Iterator; the element type is
+  // PSSharedFieldGroup (verified by the casts at the use sites this replaces).
+  @SuppressWarnings("unchecked")
   @Override
   public void installDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
@@ -312,28 +315,28 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
         }
       }
 
-      PSCollection defCol;
+      PSCollection<PSSharedFieldGroup> defCol;
       if (defFile == null) {
         // group not found in any existing file, add to original file if
         // found, or else create one
         if (matchFile == null) {
           // create one using original file name
-          defCol = new PSCollection(PSIteratorUtils.iterator(group));
+          defCol = new PSCollection<>(PSIteratorUtils.iterator(group));
           tgtDef = new PSContentEditorSharedDef(defCol);
           defFile = origFile;
           transAction = PSTransactionSummary.ACTION_CREATED;
         } else {
           defFile = matchFile;
           tgtDef = matchDef;
-          defCol = new PSCollection(tgtDef.getFieldGroups());
+          defCol = new PSCollection<>(tgtDef.getFieldGroups());
           defCol.add(group);
         }
       } else {
         // we have the file with the existing group
         String fileName = defFile.getName();
-        defCol = new PSCollection(tgtDef.getFieldGroups());
+        defCol = new PSCollection<>(tgtDef.getFieldGroups());
         for (int i = 0; i < defCol.size(); i++) {
-          PSSharedFieldGroup grp = (PSSharedFieldGroup) defCol.get(i);
+          PSSharedFieldGroup grp = defCol.get(i);
           if (group.getName().equals(grp.getName())) {
             defCol.remove(i);
             break;

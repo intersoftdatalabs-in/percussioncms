@@ -22,6 +22,7 @@ import com.intsof.percussioncms.auditlog.codes.WebdavErrorCodes;
 import com.percussion.webdav.error.PSWebdavException;
 import com.percussion.webdav.objectstore.IPSRxWebDavDTD;
 import com.percussion.webdav.objectstore.PSWebdavConfigDef;
+import com.percussion.webdav.objectstore.PSWebdavContentType;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.InputStream;
 import java.util.Iterator;
@@ -42,7 +43,7 @@ public class PSWebdavConfigTest {
     PSWebdavConfigDef config = new PSWebdavConfigDef(loadXmlResource(CONFIG_GOOD));
     assertEquals("default", config.getCommunityName());
     assertEquals("/Site/mysite", config.getRootPath());
-    Iterator it = config.getContentTypes();
+    Iterator<PSWebdavContentType> it = config.getContentTypes();
     int typesCount = 0;
     while (it.hasNext()) {
       typesCount++;

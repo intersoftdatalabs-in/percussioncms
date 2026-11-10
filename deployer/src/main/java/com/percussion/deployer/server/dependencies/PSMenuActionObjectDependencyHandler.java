@@ -79,9 +79,9 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
     var proc = getComponentProcessor(tok);
     var action = loadAction(proc, dep, isLeaf());
 
-    Iterator actions = loadActions(proc, false, String.valueOf(action.getId()));
+    Iterator<PSAction> actions = loadActions(proc, false, String.valueOf(action.getId()));
     while (actions != null && actions.hasNext()) {
-      PSAction parent = (PSAction) actions.next();
+      PSAction parent = actions.next();
       String name = parent.getName();
       String childType = PSMenuActionCategoryDependencyHandler.DEPENDENCY_TYPE;
       PSDependencyDef def =
@@ -135,7 +135,7 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
       }
 
       // get icon url dep
-      String iconPath = action.getProperties().getProperty(action.PROP_SMALL_ICON);
+      String iconPath = action.getProperties().getProperty(PSAction.PROP_SMALL_ICON);
       if (iconPath != null && iconPath.trim().length() > 0) {
         PSDependency iconDep = null;
 
@@ -257,15 +257,15 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
 
     PSAction action = loadAction(getComponentProcessor(tok), dep, isLeaf());
 
-    List mappings = new ArrayList();
+    List<PSApplicationIDTypeMapping> mappings = new ArrayList<>();
     String reqName = "URL";
 
     // User parameters
-    Iterator actionParams = action.getParameters().iterator();
+    Iterator<PSActionParameter> actionParams = action.getParameters().iterator();
     // convert to PSParam to leverage existing code - don't worry about
     // automatic params, as the value won't be a number
     while (actionParams.hasNext()) {
-      PSActionParameter actionParam = (PSActionParameter) actionParams.next();
+      PSActionParameter actionParam = actionParams.next();
       PSParam param = new PSParam(actionParam.getName(), new PSTextLiteral(actionParam.getValue()));
 
       PSAppTransformer.checkParam(mappings, param, null);
@@ -300,16 +300,16 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
     PSAction action = (PSAction) object;
 
     // walk id types and perform any transforms
-    Iterator resources = idTypes.getResourceList(false);
+    Iterator<String> resources = idTypes.getResourceList(false);
     while (resources.hasNext()) {
-      String resource = (String) resources.next();
-      Iterator elements = idTypes.getElementList(resource, false);
+      String resource = resources.next();
+      Iterator<String> elements = idTypes.getElementList(resource, false);
       while (elements.hasNext()) {
-        String element = (String) elements.next();
-        Iterator mappings = idTypes.getIdTypeMappings(resource, element, false);
+        String element = elements.next();
+        Iterator<PSApplicationIDTypeMapping> mappings = idTypes.getIdTypeMappings(resource, element, false);
         while (mappings.hasNext()) {
 
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
 
           if (mapping.getType().equals(PSApplicationIDTypeMapping.TYPE_NONE)) {
             continue;
@@ -318,9 +318,9 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
           if (element.equals(IPSDeployConstants.ID_TYPE_ELEMENT_URL_PARAMS)) {
             // walk action params, build PSParam, call transform, then set
             // resulting value back on the action param
-            Iterator actionParams = action.getParameters().iterator();
+            Iterator<PSActionParameter> actionParams = action.getParameters().iterator();
             while (actionParams.hasNext()) {
-              PSActionParameter actionParam = (PSActionParameter) actionParams.next();
+              PSActionParameter actionParam = actionParams.next();
               PSParam param =
                   new PSParam(actionParam.getName(), new PSTextLiteral(actionParam.getValue()));
 
@@ -440,9 +440,9 @@ public abstract class PSMenuActionObjectDependencyHandler extends PSCmsObjectDep
    */
   private boolean isChild(PSAction action, String childId) {
     boolean isChild = false;
-    Iterator childActions = action.getChildren().iterator();
+    Iterator<PSMenuChild> childActions = action.getChildren().iterator();
     while (childActions.hasNext() && !isChild) {
-      PSMenuChild child = (PSMenuChild) childActions.next();
+      PSMenuChild child = childActions.next();
       if (child.getChildActionId().equals(childId)) isChild = true;
     }
 

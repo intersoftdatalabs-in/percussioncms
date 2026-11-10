@@ -134,7 +134,7 @@ public class PSJexlExpressionHelper {
    * <li>{1, "1001"}
    * <li>{2, "" }
    */
-  class PSJexlOccurence {
+  static class PSJexlOccurence {
     /** map of occurence(Integer) with its value String */
     private Map<Integer, String> m_values = new HashMap<>();
 
@@ -177,7 +177,7 @@ public class PSJexlExpressionHelper {
    *
    * @see PSJexlOccurence
    */
-  class PSJexlBindingParamOccurence {
+  static class PSJexlBindingParamOccurence {
     /**
      * a map to hold the old id value references in an expression
      *

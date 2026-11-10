@@ -18,6 +18,7 @@
 package com.percussion.deployer.server.dependencies;
 
 import com.percussion.deployer.objectstore.PSDependency;
+import com.percussion.deployer.objectstore.PSDependencyFile;
 import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDependencyDef;
 import com.percussion.deployer.server.PSDependencyMap;
@@ -67,7 +68,7 @@ public class PSStylesheetDependencyHandler extends PSSupportFileDependencyHandle
   }
 
   // see base class
-  public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException {
+  public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     return PSIteratorUtils.emptyIterator();
   }
 
@@ -105,7 +106,7 @@ public class PSStylesheetDependencyHandler extends PSSupportFileDependencyHandle
   }
 
   // see base class
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null || dep == null || !dep.getObjectType().equals(DEPENDENCY_TYPE)) {
       throw new IllegalArgumentException("Invalid arguments provided.");
@@ -113,7 +114,8 @@ public class PSStylesheetDependencyHandler extends PSSupportFileDependencyHandle
 
     var childDeps = new HashSet<PSDependency>();
     var fileDep =
-        getDependencyHandler(super.DEPENDENCY_TYPE).getDependency(tok, dep.getDependencyId());
+        getDependencyHandler(PSSupportFileDependencyHandler.DEPENDENCY_TYPE)
+            .getDependency(tok, dep.getDependencyId());
     if (fileDep != null) {
       Iterator<PSDependency> iter1 = super.getChildDependencies(tok, fileDep);
       while (iter1.hasNext()) {
@@ -128,7 +130,7 @@ public class PSStylesheetDependencyHandler extends PSSupportFileDependencyHandle
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 

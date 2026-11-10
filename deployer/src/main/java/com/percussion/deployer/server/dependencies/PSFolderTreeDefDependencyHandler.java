@@ -61,7 +61,7 @@ public class PSFolderTreeDefDependencyHandler extends PSFolderObjectDependencyHa
   }
 
   // see base class
-  public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException {
+  public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     // ancestors not supported
@@ -98,7 +98,7 @@ public class PSFolderTreeDefDependencyHandler extends PSFolderObjectDependencyHa
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -111,7 +111,7 @@ public class PSFolderTreeDefDependencyHandler extends PSFolderObjectDependencyHa
   static final String DEPENDENCY_TYPE = "FolderTreeDef";
 
   /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
-  private static List ms_childTypes = new ArrayList<>();
+  private static List<String> ms_childTypes = new ArrayList<>();
 
   static {
     ms_childTypes.add(PSCommunityDefDependencyHandler.DEPENDENCY_TYPE);

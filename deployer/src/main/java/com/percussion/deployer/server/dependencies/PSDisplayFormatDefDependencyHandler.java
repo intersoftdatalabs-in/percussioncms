@@ -161,7 +161,7 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
 
     try {
       var files = getDependencyFilesFromArchive(archive, dep);
-      var root = getElementFromFile(archive, dep, (PSDependencyFile) files.next());
+      var root = getElementFromFile(archive, dep, files.next());
       var sourceDispFormat = new PSDisplayFormat(root);
       var newDispFormat = (PSDisplayFormat) sourceDispFormat.clone();
 
@@ -235,7 +235,7 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
     }
   }
 
-  /**
+  /*
    * Loads the display format specified by the supplied id. A wrapper for doFindDisplayFormatById()
    *
    * @param tok The security token, never <code>null</code>
@@ -250,7 +250,7 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
   //      return doFindDisplayFormatById(getComponentProcessor(tok), depId);
   //   }
 
-  /**
+  /*
    * Loads the display format specified by the supplied id.
    *
    * @param proc The processor to use, may not be <code>null</code>.
@@ -340,9 +340,9 @@ public class PSDisplayFormatDefDependencyHandler extends PSCmsObjectDependencyHa
     if (!df.doesPropertyHaveValue(
         PSDisplayFormat.PROP_COMMUNITY, PSDisplayFormat.PROP_COMMUNITY_ALL)) {
       // find the community property
-      Iterator props = df.getProperties();
+      Iterator<PSDFMultiProperty> props = df.getProperties();
       while (props.hasNext() && result == null) {
-        PSDFMultiProperty prop = (PSDFMultiProperty) props.next();
+        PSDFMultiProperty prop = props.next();
         if (PSDisplayFormat.PROP_COMMUNITY.equals(prop.getName())) result = prop;
       }
     }

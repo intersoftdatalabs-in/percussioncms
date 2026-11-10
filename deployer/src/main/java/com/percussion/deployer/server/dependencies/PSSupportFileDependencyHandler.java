@@ -50,7 +50,7 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
   }
 
   // see base class
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -58,7 +58,7 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
       throw new IllegalArgumentException("dep wrong type");
 
     // if specifies an app, return as system or server dependency
-    List deps = new ArrayList();
+    List<PSDependency> deps = new ArrayList<>();
     String appName = PSDeployComponentUtils.getAppName(dep.getDependencyId());
     if (appName != null) {
       PSDependency appDep = getAppHandler().getDependency(tok, appName);
@@ -71,7 +71,7 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
   }
 
   // see base class
-  public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException {
+  public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     // not supported
@@ -130,7 +130,7 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -226,9 +226,9 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
     // expecting 1 file
     PSDependencyFile depFile = null;
 
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
     if (files.hasNext()) {
-      PSDependencyFile file = (PSDependencyFile) files.next();
+      PSDependencyFile file = files.next();
       if (file.getType() == PSDependencyFile.TYPE_SUPPORT_FILE) depFile = file;
     }
 

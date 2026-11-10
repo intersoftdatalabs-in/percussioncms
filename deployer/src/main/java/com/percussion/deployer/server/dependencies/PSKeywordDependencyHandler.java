@@ -66,7 +66,7 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
 
   // see base class
   @Override
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -131,7 +131,7 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
 
   // see base class
   @Override
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -143,7 +143,7 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
 
   // see base class
   @Override
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -212,8 +212,8 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
     // retrieve the data from the archive
-    Iterator files = getDependecyDataFiles(archive, dep);
-    PSDependencyFile file = (PSDependencyFile) files.next();
+    Iterator<PSDependencyFile> files = getDependecyDataFiles(archive, dep);
+    PSDependencyFile file = files.next();
 
     PSKeyword keyword = null;
     PSIdMapping keyMapping = getIdMapping(ctx, dep);
@@ -338,16 +338,16 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
    *     delimiter. Never <code>null</code>, may be empty.
    * @throws PSDeployException if there are any errors.
    */
-  PSBijectionMap getRowIdMap(PSJdbcTableData data) throws PSDeployException {
+  PSBijectionMap<String, String> getRowIdMap(PSJdbcTableData data) throws PSDeployException {
     if (data == null) throw new IllegalArgumentException("data may not be null");
 
     if (!LOOKUP_TABLE.equalsIgnoreCase(data.getName()))
       throw new IllegalArgumentException("data must be from RXLOOKUP table");
 
-    PSBijectionMap map = new PSBijectionMap(data.getRowCount());
-    Iterator rows = data.getRows();
+    PSBijectionMap<String, String> map = new PSBijectionMap<>(data.getRowCount());
+    Iterator<PSJdbcRowData> rows = data.getRows();
     while (rows.hasNext()) {
-      PSJdbcRowData row = (PSJdbcRowData) rows.next();
+      PSJdbcRowData row = rows.next();
       String rowId = getRequiredColumnValue(data.getName(), LOOKUP_ID, row);
       String type = getRequiredColumnValue(data.getName(), LOOKUP_TYPE, row);
       String val = getRequiredColumnValue(data.getName(), LOOKUP_VALUE, row);
@@ -373,7 +373,8 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
    * @throws IllegalArgumentException if any param is invalid.
    * @throws PSDeployException if there are any other errors.
    */
-  String getKeywordDepId(PSBijectionMap rowIdMap, String rowId) throws PSDeployException {
+  String getKeywordDepId(PSBijectionMap<String, String> rowIdMap, String rowId)
+      throws PSDeployException {
     if (rowIdMap == null) throw new IllegalArgumentException("rowIdMap may not be null");
 
     if (rowId == null || rowId.trim().length() == 0)
@@ -381,7 +382,7 @@ public class PSKeywordDependencyHandler extends PSDataObjectDependencyHandler
 
     String depId = null;
 
-    String typeValPair = (String) rowIdMap.getValue(rowId);
+    String typeValPair = rowIdMap.getValue(rowId);
 
     if (typeValPair != null) {
       PSPairDependencyId pairId = new PSPairDependencyId(typeValPair);

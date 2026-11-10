@@ -104,7 +104,7 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
 
   // see base class
   @Override
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -167,7 +167,7 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
 
   // see base class
   @Override
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -226,7 +226,7 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
     PSDependencyFile depFile =
-        (PSDependencyFile) getTranslationSettingsDependecyFilesFromArchive(archive, dep).next();
+        getTranslationSettingsDependecyFilesFromArchive(archive, dep).next();
     // delete existing translations
     List<PSAutoTranslation> xlnList = findTranslationSettingsByLocaleID(dep.getDependencyId());
     for (PSAutoTranslation xln : xlnList) {
@@ -412,12 +412,12 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
    * @throws PSDeployException if there is no dependency file in the archive for the specified
    *     dependency object, or any other error occurs.
    */
-  protected Iterator getTranslationSettingsDependecyFilesFromArchive(
+  protected Iterator<PSDependencyFile> getTranslationSettingsDependecyFilesFromArchive(
       PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
     if (archive == null) throw new IllegalArgumentException("archive may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
 
     if (!files.hasNext()) {
       Object[] args = {
@@ -447,6 +447,9 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
    * @param idMap the id map used for the transformation, may not be <code>null</code>.
    * @throws PSDeployException if the transformation fails.
    */
+  // The entry point receives the settings list as Object; the cast below is safe when callers
+  // pass the List<PSAutoTranslation> this handler produces.
+  @SuppressWarnings("unchecked")
   public void transformIds(Object object, PSApplicationIDTypes idTypes, PSIdMap idMap)
       throws PSDeployException {
     if (object == null) throw new IllegalArgumentException("object may not be null");
@@ -459,15 +462,16 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
 
     List<PSAutoTranslation> xlnList = (List<PSAutoTranslation>) object;
     // walk id types and perform any transforms
-    Iterator resources = idTypes.getResourceList(false);
+    Iterator<String> resources = idTypes.getResourceList(false);
     while (resources.hasNext()) {
-      String resource = (String) resources.next();
-      Iterator elements = idTypes.getElementList(resource, false);
+      String resource = resources.next();
+      Iterator<String> elements = idTypes.getElementList(resource, false);
       while (elements.hasNext()) {
-        String element = (String) elements.next();
-        Iterator mappings = idTypes.getIdTypeMappings(resource, element, false);
+        String element = elements.next();
+        Iterator<PSApplicationIDTypeMapping> mappings =
+            idTypes.getIdTypeMappings(resource, element, false);
         while (mappings.hasNext()) {
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
 
           if (mapping.getType().equals(PSApplicationIDTypeMapping.TYPE_NONE)) {
             continue;
@@ -516,7 +520,7 @@ public class PSTranslationSettingsDefDependencyHandler extends PSDependencyHandl
   }
 
   @Override
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 

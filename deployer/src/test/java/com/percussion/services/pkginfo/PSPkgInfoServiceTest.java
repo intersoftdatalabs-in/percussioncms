@@ -113,7 +113,7 @@ public class PSPkgInfoServiceTest {
     return theDate;
   }
 
-  /**
+  /*
    * Test that the configuration can be obtained.
    *
    * @throws Exception If the test fails.
@@ -229,7 +229,7 @@ public class PSPkgInfoServiceTest {
     final long tcId = 1;
     final PSGuid tcPkgOwnerGuid2 = new PSGuid(PSTypeEnum.PACKAGE_INFO, 2);
     final PSGuid tcPkgDepGuid3 = new PSGuid(PSTypeEnum.PACKAGE_INFO, 3);
-    final Boolean tcImpliedDep = new Boolean(true);
+    final Boolean tcImpliedDep = Boolean.valueOf(true);
 
     // Use the setters (mutators) to set values for each property
     //
@@ -568,7 +568,7 @@ public class PSPkgInfoServiceTest {
 
     pkgDep.setOwnerPackageGuid(tcParentGuid);
     pkgDep.setDependentPackageGuid(tcDepPkgGuid);
-    pkgDep.setImpliedDep(new Boolean(true));
+    pkgDep.setImpliedDep(Boolean.valueOf(true));
 
     // Save the Package Info and Package Element objects
     pkgInfoService.savePkgInfo(pkgInfo);

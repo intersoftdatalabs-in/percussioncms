@@ -988,7 +988,7 @@ public class PSAppTransformer {
             mappings, (IPSReplacementValue) mapping.getDocumentMapping(), mappingCtx);
       }
 
-      PSCollection conds = mapping.getConditionals();
+      PSCollection<?> conds = mapping.getConditionals();
       if (conds != null) {
         PSAppDataMappingIdContext mappingCtx =
             new PSAppDataMappingIdContext(mapping, PSAppDataMappingIdContext.TYPE_COND);
@@ -1036,7 +1036,7 @@ public class PSAppTransformer {
               (IPSReplacementValue) dataMapping.getDocumentMapping(), mapping, idMap);
           mappingCtx.updateCtxValue((IPSReplacementValue) dataMapping.getDocumentMapping());
         } else if (mappingCtx.getType() == PSAppDataMappingIdContext.TYPE_COND) {
-          PSCollection conds = dataMapping.getConditionals();
+          PSCollection<?> conds = dataMapping.getConditionals();
           if (conds != null) transformConditionals(conds.iterator(), mapping, idMap);
         }
       }
@@ -1451,7 +1451,7 @@ public class PSAppTransformer {
       PSAppNamedItemIdContext pageCtx =
           new PSAppNamedItemIdContext(PSAppNamedItemIdContext.TYPE_RESULT_PAGE, name);
       pageCtx.setParentCtx(ctx);
-      PSCollection condColl = page.getConditionals();
+      PSCollection<?> condColl = page.getConditionals();
       if (condColl != null) {
         checkConditionals(mappings, condColl.iterator(), pageCtx);
       }
@@ -1487,7 +1487,7 @@ public class PSAppTransformer {
     if (page.getStyleSheet() != null) {
       String name = page.getStyleSheet().getFile();
       if (pageCtx.getName().equals(name)) {
-        PSCollection condColl = page.getConditionals();
+        PSCollection<?> condColl = page.getConditionals();
         if (condColl != null) {
           transformConditionals(condColl.iterator(), mapping, idMap);
         }

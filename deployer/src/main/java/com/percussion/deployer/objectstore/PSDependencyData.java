@@ -33,15 +33,6 @@ public final class PSDependencyData implements IPSDeployComponent {
   /**
    * Constructing the object with the given parameters.
    *
-   * @param sourceId The source ID, may not be <code>null</code> or empty.
-   * @param sourceName The name of the source, may not be <code>null</code> or empty.
-   * @param objectType The type of the object, may not be <code>null</code> or empty.
-   * @throws IllegalArgumentException If any param is invalid.
-   */
-
-  /**
-   * Constructing the object with the given parameters.
-   *
    * @param schema The schema object, may not be <code>null</code>.
    * @param data The table data object, may not be <code>null</code>.
    * @throws IllegalArgumentException If any param is invalid.

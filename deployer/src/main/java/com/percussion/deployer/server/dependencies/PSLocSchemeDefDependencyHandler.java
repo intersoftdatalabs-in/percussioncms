@@ -63,7 +63,7 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
 
   // see base class
   @Override
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -177,7 +177,7 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
 
   // see base class
   @Override
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -235,8 +235,8 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
     // retrieve the data from the archive
-    Iterator files = getDependecyDataFiles(archive, dep);
-    PSDependencyFile file = (PSDependencyFile) files.next();
+    Iterator<PSDependencyFile> files = getDependecyDataFiles(archive, dep);
+    PSDependencyFile file = files.next();
 
     IPSLocationScheme scheme = null;
     PSIdMapping schemeMapping = getIdMapping(ctx, dep);
@@ -329,11 +329,11 @@ public class PSLocSchemeDefDependencyHandler extends PSDataObjectDependencyHandl
                 tempIdStr, dep, PSVariantDefDependencyHandler.DEPENDENCY_TYPE, ctx);
       }
 
-      scheme.setTemplateId(new Long(mappedIdStr));
+      scheme.setTemplateId(Long.valueOf(mappedIdStr));
     }
 
     scheme.setContentTypeId(
-        new Long(
+        Long.valueOf(
             mapChildIdForNullableValue(
                 String.valueOf(scheme.getContentTypeId()),
                 dep,

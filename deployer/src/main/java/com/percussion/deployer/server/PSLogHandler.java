@@ -732,15 +732,6 @@ public class PSLogHandler {
   }
 
   /**
-   * Inserts the given parameters into the archive summary and archive package tables.
-   *
-   * @param archiveInfo The to be inserted archive information. It may not be <code>null</code>, it
-   *     should also contain the archive detail.
-   * @param archiveManifest The to be inserted archive manifest. It may not be <code>null</code>.
-   * @return The archive id of new entry in the archive log summary table.
-   * @throws PSDeployException if any error occurs.
-   */
-  /**
    * Public wrapper for {@link #getTableDataForSaveArchiveSummary(int, PSArchiveInfo,
    * PSArchiveManifest)}.
    *

@@ -18,6 +18,7 @@ package com.percussion.deployer.server.dependencies;
 
 import com.percussion.conn.PSServerException;
 import com.percussion.deployer.objectstore.PSDependency;
+import com.percussion.deployer.objectstore.PSDependencyFile;
 import com.percussion.deployer.objectstore.PSTransactionSummary;
 import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDependencyDef;
@@ -56,7 +57,7 @@ public class PSRoleDefDependencyHandler
   }
 
   // see base class
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -100,7 +101,7 @@ public class PSRoleDefDependencyHandler
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -193,7 +194,7 @@ public class PSRoleDefDependencyHandler
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -209,7 +210,7 @@ public class PSRoleDefDependencyHandler
    * List of child types supported by this handler, it will never be <code>null</code>, but may be
    * empty.
    */
-  private static List ms_childTypes = new ArrayList();
+  private static List<String> ms_childTypes = new ArrayList<>();
 
   /** Get the role manager. */
   private static IPSBackEndRoleMgr ms_roleMgr = PSRoleMgrLocator.getBackEndRoleManager();

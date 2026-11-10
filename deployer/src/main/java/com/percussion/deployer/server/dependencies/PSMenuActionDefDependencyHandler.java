@@ -71,7 +71,7 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -80,7 +80,7 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
     if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
       throw new IllegalArgumentException("dep wrong type");
 
-    List files = new ArrayList();
+    List<PSDependencyFile> files = new ArrayList<>();
 
     // first get action
     PSComponentProcessorProxy proc = getComponentProcessor(tok);
@@ -155,22 +155,22 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
     try {
       // restore all actions - build map of action to its children so we
       // can restore parent-child relationships as well
-      Map actionMap = new HashMap();
-      Iterator files = getDependencyFilesFromArchive(archive, dep);
+      Map<String, PSAction> actionMap = new HashMap<>();
+      Iterator<PSDependencyFile> files = getDependencyFilesFromArchive(archive, dep);
       while (files.hasNext()) {
-        Element root = getElementFromFile(archive, dep, (PSDependencyFile) files.next());
+        Element root = getElementFromFile(archive, dep, files.next());
         PSAction action = new PSAction(root);
-        actionMap.put(getIdFromKey(action, action.getLabel()), action.clone());
+        actionMap.put(getIdFromKey(action, action.getLabel()), (PSAction) action.clone());
       }
 
       PSComponentProcessorProxy proc = getComponentProcessor(tok);
-      List txnList = new ArrayList();
+      List<Object[]> txnList = new ArrayList<>();
       installActions(proc, ctx, dep, txnList, actionMap, null);
 
       // process transactions for all dependencies installed
-      Iterator txns = txnList.iterator();
+      Iterator<Object[]> txns = txnList.iterator();
       while (txns.hasNext()) {
-        Object[] txnEntry = (Object[]) txns.next();
+        Object[] txnEntry = txns.next();
         PSAction action = (PSAction) txnEntry[0];
         PSDependency txnDep = (PSDependency) txnEntry[1];
         Integer txnAction = (Integer) txnEntry[2];
@@ -223,14 +223,14 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
       PSComponentProcessorProxy proc,
       PSImportCtx ctx,
       PSDependency dep,
-      List txnList,
-      Map actionMap,
+      List<Object[]> txnList,
+      Map<String, PSAction> actionMap,
       PSAction tgtChild)
       throws PSDeployException, PSCmsException {
     PSDbComponentCollection compDeletes = new PSDbComponentCollection(PSAction.class);
     PSDbComponentCollection compInserts = new PSDbComponentCollection(PSAction.class);
 
-    PSAction srcAction = (PSAction) actionMap.get(dep.getDependencyId());
+    PSAction srcAction = actionMap.get(dep.getDependencyId());
     if (srcAction == null) {
       Object args[] = {
         PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_COMPONENT_XML],
@@ -257,11 +257,11 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
         // for the tgtChild along the way
         PSChildActions tgtChildActions = tgtAction.getChildren();
         if (tgtChildActions != null) {
-          Iterator tgtChildren = tgtChildActions.iterator();
+          Iterator<PSMenuChild> tgtChildren = tgtChildActions.iterator();
           String tgtChildId = null;
           if (tgtChild != null) tgtChildId = getIdFromKey(tgtChild, tgtChild.getLabel());
           while (tgtChildren.hasNext()) {
-            PSMenuChild menuChild = (PSMenuChild) tgtChildren.next();
+            PSMenuChild menuChild = tgtChildren.next();
             if (tgtChildId != null && menuChild.getChildActionId().equals(tgtChildId)) {
               foundChild = true;
             }
@@ -297,9 +297,9 @@ public class PSMenuActionDefDependencyHandler extends PSMenuActionObjectDependen
         new Object[] {srcAction, dep, Integer.valueOf(PSTransactionSummary.ACTION_CREATED)});
 
     // process "parents" - these are actually the child dependencies
-    Iterator deps = dep.getDependencies(PSDependency.TYPE_LOCAL);
+    Iterator<PSDependency> deps = dep.getDependencies(PSDependency.TYPE_LOCAL);
     while (deps.hasNext()) {
-      PSDependency childDep = (PSDependency) deps.next();
+      PSDependency childDep = deps.next();
       String childDepType = childDep.getObjectType();
       if (childDepType.equals(DEPENDENCY_TYPE)
           || childDepType.equals(PSMenuActionCategoryDependencyHandler.DEPENDENCY_TYPE)) {

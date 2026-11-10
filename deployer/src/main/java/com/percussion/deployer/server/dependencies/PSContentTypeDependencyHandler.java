@@ -139,7 +139,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       }
     }
 
-    PSCollection dataSetColl = app.getDataSets();
+    PSCollection<?> dataSetColl = app.getDataSets();
     if (dataSetColl != null) {
       PSDependencyHandler wfHandler =
           getDependencyHandler(PSWorkflowDependencyHandler.DEPENDENCY_TYPE);
@@ -1229,7 +1229,7 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
       PSApplication app = getCEAppFromDependencyID(tok, dep.getDependencyId());
 
       if (app == null) return idTypes;
-      PSCollection dataSetColl = app.getDataSets();
+      PSCollection<?> dataSetColl = app.getDataSets();
 
       if (dataSetColl == null) return idTypes;
 
