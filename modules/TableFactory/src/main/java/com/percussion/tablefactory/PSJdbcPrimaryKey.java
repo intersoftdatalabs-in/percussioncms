@@ -29,6 +29,12 @@ public class PSJdbcPrimaryKey extends PSJdbcKey {
   /**
    * Convenience method for calling {@link #PSJdbcPrimaryKey(String, Iterator, int)} with the pkName
    * parameter as <code>null</code>. See that method for parameter descriptions.
+   *
+   * @param names an iterator over one or more column names as Strings to include in the primary
+   *     key, may not be <code>null</code>.
+   * @param action one of the <code>PSJdbcTableComponent.ACTION_xxx</code> constants.
+   * @throws PSJdbcTableFactoryException if names contains any <code>null</code>, empty or duplicate
+   *     column names, or if there are any other errors.
    */
   public PSJdbcPrimaryKey(Iterator<String> names, int action) throws PSJdbcTableFactoryException {
     this(null, names, action);

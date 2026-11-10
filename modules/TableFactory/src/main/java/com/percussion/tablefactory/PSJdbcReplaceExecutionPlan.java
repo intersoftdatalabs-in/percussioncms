@@ -29,6 +29,14 @@ import java.util.ListIterator;
  */
 public class PSJdbcReplaceExecutionPlan {
   /**
+   * Creates an empty execution plan. Steps are added with {@link #addStep(PSJdbcExecutionStep,
+   * PSJdbcExecutionStep)}.
+   */
+  public PSJdbcReplaceExecutionPlan() {
+    super();
+  }
+
+  /**
    * Adds the steps to this plan.
    *
    * @param firstStep The step to execute, may not be <code>null</code>.
@@ -88,8 +96,8 @@ public class PSJdbcReplaceExecutionPlan {
    * @param forward if true then executes the steps in the plan from the beginning to the end of the
    *     list, else executes the steps in reverse order.
    * @throws IllegalArgumentException if conn is <code>null</code>.
-   * @throws SQLException if any errors occur and {@link PSJdbcExecutionStep#stopOnError() is
-   *     <code>true</code>}.
+   * @throws SQLException if any errors occur and {@link PSJdbcExecutionStep#stopOnError()
+   *     stopOnError} returns <code>true</code>.
    */
   public void execute(Connection conn, boolean forward) throws SQLException {
     if (conn == null) throw new IllegalArgumentException("conn may not be null");

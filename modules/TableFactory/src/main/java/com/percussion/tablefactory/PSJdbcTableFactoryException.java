@@ -260,6 +260,8 @@ public class PSJdbcTableFactoryException extends Exception {
   /**
    * Typed error code when constructed via {@link #PSJdbcTableFactoryException(IPSErrorCode)} (or
    * overloads); otherwise {@code null} for legacy int construction.
+   *
+   * @return the typed error code, or {@code null} for legacy int construction.
    */
   public IPSErrorCode getTypedErrorCode() {
     return m_typedErrorCode;
@@ -268,6 +270,8 @@ public class PSJdbcTableFactoryException extends Exception {
   /**
    * Whether dual-write should consider this exception auditable. Prefer the typed code when
    * present; legacy int construction returns {@code false}.
+   *
+   * @return {@code true} if this exception is auditable, {@code false} otherwise.
    */
   public boolean isAuditable() {
     return m_typedErrorCode != null && m_typedErrorCode.isAuditable();
@@ -293,6 +297,7 @@ public class PSJdbcTableFactoryException extends Exception {
    * Get the stack trace for the specified exception as a string.
    *
    * @param t the throwable (usually an exception)
+   * @return the stack trace as a string.
    */
   public static String getStackTraceAsString(Throwable t) {
     // for unknown exceptions, it's useful to log the stack trace

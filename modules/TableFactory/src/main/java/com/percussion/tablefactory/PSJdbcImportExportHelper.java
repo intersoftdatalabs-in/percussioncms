@@ -95,6 +95,15 @@ public class PSJdbcImportExportHelper {
     limitSizeForIndexMap.put("DPL_ID_MAPPING", "REPOSITORY_ID");
   }
 
+  /**
+   * Parses the supplied options array into the option map used by the import/export helpers.
+   *
+   * @param options the options array, may not be <code>null</code> or empty; the first option must
+   *     be either {@link #OPTION_DB_EXPORT} or {@link #OPTION_DB_IMPPORT}.
+   * @return a map of the parsed options, never <code>null</code>.
+   * @throws IllegalArgumentException if options is <code>null</code> or empty, or if the first
+   *     option is invalid.
+   */
   public static Map<String, String> getOptions(String[] options) {
     if (options == null || options.length < 1) {
       throw new IllegalArgumentException("options must not be null or empty");

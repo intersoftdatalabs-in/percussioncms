@@ -891,6 +891,12 @@ public class PSJdbcDbmsDef implements IPSJdbcDbmsDefConstants {
     return null;
   }
 
+  /**
+   * Returns details of the underlying JDBC connection. Currently returns {@code null}; subclasses
+   * with access to a live connection should override.
+   *
+   * @return {@code null}
+   */
   public IPSConnectionInfo getConnectionInfo() {
     return null;
   }

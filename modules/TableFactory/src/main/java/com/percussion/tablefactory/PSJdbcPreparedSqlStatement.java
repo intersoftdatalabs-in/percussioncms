@@ -121,6 +121,12 @@ public class PSJdbcPreparedSqlStatement extends PSJdbcSqlStatement {
     return updateCount;
   }
 
+  /**
+   * Closes any binary streams held by the supplied statement column values.
+   *
+   * @param values the statement column values whose binary streams should be closed, may be <code>
+   *     null</code>.
+   */
   protected void closeColumnStreams(PSCollection<PSJdbcStatementColumn> values) {
     try {
       if (values != null) {

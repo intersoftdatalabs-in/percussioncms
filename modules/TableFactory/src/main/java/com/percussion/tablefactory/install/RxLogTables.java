@@ -41,6 +41,11 @@ import java.util.Properties;
  * server.
  */
 public class RxLogTables {
+  /** Creates a logging tables helper. */
+  public RxLogTables() {
+    super();
+  }
+
   /**
    * Create all tables for the rhythmyx logging system. If the logging tables already exist we skip
    * that steps.
@@ -182,7 +187,8 @@ public class RxLogTables {
    * @param server the database server
    * @param db the database to be used
    * @param uid the user Id
-   * @param pw the user password return the created connection, may be <code>null</code>
+   * @param pw the user password
+   * @return the created connection, may be <code>null</code>
    * @throws SQLException if any database related error occurred
    */
   public static Connection createConnection(

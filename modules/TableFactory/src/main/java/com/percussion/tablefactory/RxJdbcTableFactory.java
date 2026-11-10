@@ -65,6 +65,7 @@ import org.xml.sax.SAXException;
 
 /** This class is used to install and upgrade Rhythmyx tables. */
 public class RxJdbcTableFactory {
+  /** Creates a table factory with default configuration. */
   public RxJdbcTableFactory() {
     super();
   }
@@ -75,6 +76,8 @@ public class RxJdbcTableFactory {
    * @param sServer - the server the database is on
    * @param sDatabase - the database the tables should be in.
    * @param sSchema - the schema for the database
+   * @return <code>true</code> if the tables were installed successfully, <code>false</code>
+   *     otherwise.
    * @throws Exception if an error occurs
    */
   public boolean populateTablesIn(String sServer, String sDatabase, String sSchema)
@@ -357,6 +360,15 @@ public class RxJdbcTableFactory {
     return sStatus;
   } // parseTableDefs()
 
+  /**
+   * Writes the Rhythmyx table definitions to an XML document.
+   *
+   * @param sServer - the server the database is on.
+   * @param sDatabase - the database the tables should be in.
+   * @param sSchema - the schema for the database.
+   * @return the XML document containing the table definitions, may be <code>null</code> if the
+   *     definitions could not be produced.
+   */
   public Document populateTablesOut(String sServer, String sDatabase, String sSchema) {
     Document xmlDoc = null;
     Statement stmt = null;
@@ -3599,6 +3611,7 @@ public class RxJdbcTableFactory {
     }
   }
 
+  /** Helper that creates the workflow SQL statements document. */
   public class WfSqlCreate {
     WfSqlCreate() {}
 
@@ -3756,6 +3769,11 @@ public class RxJdbcTableFactory {
     private List<Object> m_sortOrders = new ArrayList<>();
   }
 
+  /**
+   * Sets the file the log output is written to.
+   *
+   * @param sFileName the log file name, may not be <code>null</code>.
+   */
   public void setLogFileName(String sFileName) {
     FileOutputStream out = null;
     try {
@@ -3768,50 +3786,123 @@ public class RxJdbcTableFactory {
     }
   }
 
+  /**
+   * Sets the properties file name used to load the database connection properties.
+   *
+   * @param sFileName the properties file name, may not be <code>null</code>.
+   * @throws IOException if the file cannot be read.
+   */
   public void setPropFileName(String sFileName) throws IOException {
     m_Props.load(new FileInputStream(sFileName));
   }
 
+  /**
+   * Sets the properties used for the database connection.
+   *
+   * @param props the properties, may not be <code>null</code>.
+   */
   public void setPropFile(Properties props) {
     m_Props = props;
   }
 
+  /**
+   * Sets the backend database type.
+   *
+   * @param sType the backend database type, may not be <code>null</code>.
+   */
   public void setBackEndDB(String sType) {
     m_sBackend = sType;
   }
 
+  /**
+   * Sets the data type map document from an XML file.
+   *
+   * @param sDataTypeMapFileName the data type map file name, may not be <code>null</code>.
+   * @throws IOException if the file cannot be read.
+   * @throws SAXException if the file cannot be parsed.
+   */
   public void setDataTypeMapFileName(String sDataTypeMapFileName) throws IOException, SAXException {
     setDataTypeMapDocument(loadXMLDocument(sDataTypeMapFileName));
   }
 
+  /**
+   * Sets the data type map document.
+   *
+   * @param docDataTypeMap the data type map document, may not be <code>null</code>.
+   */
   public void setDataTypeMapDocument(Document docDataTypeMap) {
     m_docDataTypeMap = docDataTypeMap;
   }
 
+  /**
+   * Sets the data type map document from an input stream.
+   *
+   * @param in the stream containing the data type map document, may not be <code>null</code>.
+   * @throws IOException if the stream cannot be read.
+   * @throws SAXException if the stream cannot be parsed.
+   */
   public void setDataTypeMapDocument(InputStream in) throws IOException, SAXException {
     setDataTypeMapDocument(loadXMLDocument(in));
   }
 
+  /**
+   * Sets the table description file name used to load the table configuration.
+   *
+   * @param sTableDescFileName the table description file name, may not be <code>null</code>.
+   * @throws IOException if the file cannot be read.
+   * @throws SAXException if the file cannot be parsed.
+   */
   public void setTableDescFileName(String sTableDescFileName) throws IOException, SAXException {
     setConfigDocument(loadXMLDocument(sTableDescFileName));
   }
 
+  /**
+   * Sets the table configuration document.
+   *
+   * @param docConfig the table configuration document, may not be <code>null</code>.
+   */
   public void setConfigDocument(Document docConfig) {
     m_docConfig = docConfig;
   }
 
+  /**
+   * Sets the data type map document from an input stream.
+   *
+   * @param in the stream containing the data type map document, may not be <code>null</code>.
+   * @throws IOException if the stream cannot be read.
+   * @throws SAXException if the stream cannot be parsed.
+   */
   public void setConfigDocument(InputStream in) throws IOException, SAXException {
     setConfigDocument(loadXMLDocument(in));
   }
 
+  /**
+   * Sets the table data file name used to load the table data document.
+   *
+   * @param sTableDataFileName the table data file name, may not be <code>null</code>.
+   * @throws IOException if the file cannot be read.
+   * @throws SAXException if the file cannot be parsed.
+   */
   public void setTableDataFileName(String sTableDataFileName) throws IOException, SAXException {
     setTableDataDocument(loadXMLDocument(sTableDataFileName));
   }
 
+  /**
+   * Sets the table data document.
+   *
+   * @param docTableData the table data document, may not be <code>null</code>.
+   */
   public void setTableDataDocument(Document docTableData) {
     m_docTableData = docTableData;
   }
 
+  /**
+   * Sets the table data document from an input stream.
+   *
+   * @param in the stream containing the table data document, may not be <code>null</code>.
+   * @throws IOException if the stream cannot be read.
+   * @throws SAXException if the stream cannot be parsed.
+   */
   public void setTableDataDocument(InputStream in) throws IOException, SAXException {
     setTableDataDocument(loadXMLDocument(in));
   }
@@ -3830,6 +3921,7 @@ public class RxJdbcTableFactory {
    * Worker function to look at column changes and determine if only column adds are needed.
    *
    * @param vColumnChanges - Vector of RxColumns to check.
+   * @return <code>true</code> if only column adds are needed, <code>false</code> otherwise.
    */
   public static final boolean onlyAdds(Vector<RxColumns> vColumnChanges) {
     boolean bOnlyAdds = true;
@@ -3852,6 +3944,7 @@ public class RxJdbcTableFactory {
    * not because the user adding a column.
    *
    * @param vColumnChanges - Vector of RxColumns to check.
+   * @return <code>true</code> if any non-user column changes exist, <code>false</code> otherwise.
    */
   public static final boolean anyNonUser(Vector<RxColumns> vColumnChanges) {
     boolean bAnyNonUser = false;
@@ -3874,6 +3967,13 @@ public class RxJdbcTableFactory {
     return (bAnyNonUser);
   }
 
+  /**
+   * Command line entry point for installing and upgrading Rhythmyx tables.
+   *
+   * @param args the command line arguments: properties file name, data type map file,
+   *     table description file and table data file, with optional server, database and schema
+   *     overrides.
+   */
   public static void main(String args[]) {
     try {
       if (args.length < 4) {

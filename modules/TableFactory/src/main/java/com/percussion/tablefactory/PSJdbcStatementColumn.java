@@ -46,6 +46,16 @@ public class PSJdbcStatementColumn {
     m_encoding = encoding;
   }
 
+  /**
+   * Constructor for this class using a binary column value.
+   *
+   * @param value the binary value to set on the column, may be <code>null</code>.
+   * @param dataType the jdbc datatype, one of the values defined in {@link java.sql.Types}.
+   * @param encoding the method used to encode this column. Valid values are <code>
+   *     PSJdbcColumnData.ENC_TEXT </code>, <code> PSJdbcColumnData.ENC_BASE64 </code> and <code>
+   *     PSJdbcColumnData.ENC_ESCAPED </code>.
+   * @throws IllegalArgumentException if encoding specified is not a valid value.
+   */
   public PSJdbcStatementColumn(PSJdbcBinaryColumnValue value, int dataType, int encoding) {
     m_binaryValue = value;
     m_type = dataType;
@@ -68,6 +78,8 @@ public class PSJdbcStatementColumn {
   }
 
   /**
+   * Returns the value of this column.
+   *
    * @return The value of this column, may be <code>null</code>, or emtpy.
    */
   public String getValue() {
@@ -75,6 +87,8 @@ public class PSJdbcStatementColumn {
   }
 
   /***
+   * Returns the binary value of this column.
+   *
    * @return  The binary column value - including stream for this column, may be null or empty.
    */
   public PSJdbcBinaryColumnValue getBinaryValue() {
@@ -82,6 +96,8 @@ public class PSJdbcStatementColumn {
   }
 
   /**
+   * Returns the jdbc data type of this column.
+   *
    * @return The jdbc data type of this column.
    */
   public int getType() {
@@ -89,6 +105,8 @@ public class PSJdbcStatementColumn {
   }
 
   /**
+   * Returns the encoding method used for this column.
+   *
    * @return the encoding method for this column
    */
   public int getEncoding() {

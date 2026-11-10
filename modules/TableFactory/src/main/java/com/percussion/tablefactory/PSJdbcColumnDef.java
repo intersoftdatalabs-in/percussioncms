@@ -38,7 +38,9 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
    *
    * @param dataTypeMap the object containing the JDBC-to-native type mappings, never {@code null}
    * @param name the column name, never {@code null} or empty
-   * @param action one of the {@link PSJdbcTableComponent#ACTION_xxx} constants
+   * @param action one of the {@link PSJdbcTableComponent#ACTION_CREATE}, {@link
+   *     PSJdbcTableComponent#ACTION_REPLACE}, {@link PSJdbcTableComponent#ACTION_DELETE} or {@link
+   *     PSJdbcTableComponent#ACTION_NONE} constants
    * @param jdbcType a valid JDBC type whose name is contained in {@code dataTypeMap}
    * @param size the column size/precision, may be {@code null} if the type does not support it
    * @param allowsNull {@code true} if the column may be {@code NULL}
@@ -339,6 +341,12 @@ public class PSJdbcColumnDef extends PSJdbcTableComponent {
     return hash;
   }
 
+  /**
+   * Indicates whether this column definition carries changes to apply to the database.
+   *
+   * @return <code>true</code> if this column specifies changes compared to the cataloged column,
+   *     <code>false</code> otherwise
+   */
   public boolean isChanged() {
     return m_isChanged;
   }

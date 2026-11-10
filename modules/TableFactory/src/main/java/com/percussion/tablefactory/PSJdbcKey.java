@@ -230,13 +230,11 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
   }
 
   /**
-   * Compares the columns names in the specified lists. The default implementation does not consider
+   * Compares two column-name lists for ordering match. The default implementation does not consider
    * the order of the names in the lists, only that they contain the same number of items and have
    * the same names.
    *
-   * @param cols1 list containing column names. Not <code>null</code>, may be empty.
-   * @param cols2 list containing column names. Not <code>null</code>, may be empty.
-   *     <table border="1">
+   * <table border="1">
    * <caption>Column Match Results</caption>
    * <tr>
    * <td> IS_GENERIC_MISMATCH </td>
@@ -252,13 +250,12 @@ public abstract class PSJdbcKey extends PSJdbcTableComponent {
    * <td> the columns in the specified lists exactly match </td>
    * </tr>
    * </table>
-   */
-  /**
-   * Compares two column-name lists for ordering match.
    *
    * @param cols1 the first list of column names, never {@code null}
    * @param cols2 the second list of column names, never {@code null}
-   * @return {@link #IS_GENERIC_MISMATCH} or {@link #IS_COLUMN_ORDER_MISMATCH} as appropriate
+   * @return {@link PSJdbcTableComponent#IS_GENERIC_MISMATCH}, {@link
+   *     PSJdbcTableComponent#IS_EXACT_MATCH} or {@link
+   *     PSJdbcTableComponent#IS_CASE_INSENSITIVE_MATCH} as appropriate
    */
   protected int compareColumns(List<String> cols1, List<String> cols2) {
     notNull(cols1);

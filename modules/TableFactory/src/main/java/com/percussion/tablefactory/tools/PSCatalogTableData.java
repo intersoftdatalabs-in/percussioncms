@@ -70,6 +70,7 @@ public class PSCatalogTableData {
    * @param propsName name of a properties file that provides database connection information, not
    *     <code>null</code>. See {@link PSJdbcDbmsDef#PSJdbcDbmsDef(Properties)} for a list of the
    *     required properties.
+   * @return the database definition loaded from the properties file, never <code>null</code>.
    * @throws IllegalArgumentException if the properties file is missing required properties.
    * @throws IOException if the file referenced by <code>propsName</code> does not exist, or if
    *     errors occur reading the file

@@ -332,6 +332,14 @@ public class PSJdbcDataTypeMap {
   /**
    * Convenience version that calls {@link #getJdbcType(String, String, String, int)
    * getJdbcType(nativeString, null, null, defaultJdbcType)}
+   *
+   * @param nativeString the native data type, may not be <code>null</code> or empty.
+   * @param defaultJdbcType the jdbc data type to return in case no mapping exists for the specified
+   *     native data type <code>nativeString</code>.
+   * @return the jdbc data type for the specified native data type, or <code>defaultJdbcType</code>
+   *     if no mapping exists.
+   * @throws PSJdbcTableFactoryException if an error occurs converting the jdbc data type from the
+   *     string to integer format.
    */
   public int getJdbcType(String nativeString, int defaultJdbcType)
       throws PSJdbcTableFactoryException {
@@ -345,8 +353,6 @@ public class PSJdbcDataTypeMap {
    * this mapping, matching on size and scale if provided. If no data type mapping exists for the
    * specified native data type <code>nativeString</code> or the mapping does not return true from
    * the <code>isNative2Jdbc()</code> method then it returns <code>defaultJdbcType</code>
-   *
-   * <p>
    *
    * @param nativeString the native data type, may not be <code>null</code> or empty.
    * @param size The size to match on, may be <code>null</code> or empty to exclude it as matching

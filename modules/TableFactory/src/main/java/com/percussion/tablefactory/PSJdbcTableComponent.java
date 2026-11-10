@@ -352,6 +352,8 @@ public abstract class PSJdbcTableComponent {
   }
 
   /**
+   * Indicates whether this table component carries changes to apply to the database.
+   *
    * @return <code>false</code> if this table components has an action of
    *     PSJdbcTableComponent#ACTION_NONE, <code>true</code> if not.
    */

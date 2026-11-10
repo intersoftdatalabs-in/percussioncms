@@ -112,6 +112,11 @@ public class RxColumns {
     return colAction;
   }
 
+  /**
+   * Builds the native column definition fragment for this column.
+   *
+   * @return the column definition string, never <code>null</code>.
+   */
   public String getColumnDef() {
     StringBuilder buf = new StringBuilder();
 
@@ -145,11 +150,17 @@ public class RxColumns {
   private int decimal = 0;
   private int colAction = 0;
   private String colValue = new String();
+  /** The previously existing values of this column. */
   public Vector<String> vtOldValues = new Vector<>();
 
+  /** Column action indicating the column should be added. */
   public static final int ADD_COLUMN = 1;
+  /** Column action indicating the column should be modified. */
   public static final int MODIFY_COLUMN = 2;
+  /** Column action indicating the column should be deleted. */
   public static final int DELETE_COLUMN = 3;
+  /** Column action indicating a user-defined column. */
   public static final int USER_COLUMN = 4;
+  /** Column action indicating no action should be taken. */
   public static final int NO_ACTION = 0;
 }
