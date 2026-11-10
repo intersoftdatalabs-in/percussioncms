@@ -17,6 +17,7 @@
 
 package com.percussion.cx;
 
+import com.percussion.cx.error.PSContentExplorerException;
 import com.percussion.util.PSHttpConnection;
 import com.percussion.webservices.security.data.PSLogin;
 import com.percussion.webservices.securityservices.LoginRequest;
@@ -116,142 +117,257 @@ public class PSCESessionManager implements Runnable {
     try {
       PSContentExplorerApplet applet = PSContentExplorerApplication.getApplet();
 
-      long expiry = 0;
-      long warning = 0;
-      try {
-        String resource = "/Rhythmyx/sessioncheck";
-        if (extendSession) {
-          log.debug("Extending session");
-          resource += "?extendSession=true";
-          extendSession = false;
-        }
-
-        URL url = PSContentExplorerUtils.toURL(protocol, server, Integer.parseInt(port), resource);
-
-        PSHttpConnection httpConnection =
-            new PSHttpConnection(
-                PSContentExplorerUtils.toURL(protocol, server, Integer.parseInt(port), "/Rhythmyx/sys_resources"),
-                loginInfo.getSessionId());
-        JSONObject sessionObject = httpConnection.getJSON(url);
-
-        expiry = sessionObject.getLong("expiry");
-        warning = sessionObject.getLong("warning");
-        lastCheckTime = System.currentTimeMillis();
-        expireTime = lastCheckTime + expiry;
-        warningTime = expireTime - warning;
-
-      } catch (Exception e) {
-        // Assume that countdown is continuing
-        log.warn(
-            "Failed to check session state server may be down or network connection lost: {}",
-            e.getLocalizedMessage());
-        log.debug(
-            "Failed to check session state server may be down or network connection lost: {}",
-            e.getLocalizedMessage(),
-            e);
-        long currTime = System.currentTimeMillis();
-        expiry = expireTime - currTime;
-        warning = warningTime - currTime;
-      }
+      SessionStatus status = pollSessionState();
+      long expiry = status.expiry();
+      long warning = status.warning();
 
       log.debug("session status check: expiry={} warning={}", expiry, warning);
 
-      if (expiry <= 0) {
-        if (isLoggedIn) {
-          if (dialog != null) {
-            dialog.dispose();
-          }
-          PSContentExplorerApplication.getBaseFrame().logout();
-          shutdown();
-        }
-      } else if (warning > 0 && expiry <= warning) {
-
-        if (dialogOn.compareAndSet(false, true)) {
-          Object[] options = {
-            applet.getResourceString(getClass(), EXTEND_SESSION),
-            applet.getResourceString(getClass(), LOGOUT_NOW)
-          };
-
-          SwingUtilities.invokeLater(
-              () -> {
-                if (!ex.isShutdown())
-                  countdown = ex.scheduleAtFixedRate(new Countdown(), 0, 1, TimeUnit.SECONDS);
-
-                Object[] message = {
-                  applet.getResourceString(getClass(), "You will be automatically logged out in\n"),
-                  timeLabel
-                };
-                JOptionPane optionPane =
-                    new JOptionPane(
-                        message,
-                        JOptionPane.QUESTION_MESSAGE,
-                        JOptionPane.YES_NO_OPTION,
-                        null,
-                        options,
-                        options[0]);
-
-                dialog =
-                    optionPane.createDialog(
-                        applet.getDialogParentFrame(),
-                        applet.getResourceString(getClass(), "Are you still there?"));
-                dialog.pack();
-                dialog.setVisible(true);
-
-                countdown.cancel(false);
-                if (optionPane.getValue() == null) {
-                  log.debug("Close / Cross dialog button clicked.");
-                  if (countdown != null) {
-                    countdown.cancel(false);
-                  }
-
-                  if (dialog != null && dialog.isVisible()) {
-                    dialog.dispose();
-                  }
-                  return;
-                }
-                if (optionPane.getValue() != null && optionPane.getValue().equals(options[1])) {
-                  PSContentExplorerApplication.getBaseFrame().logout();
-                  isLoggedIn = false;
-                  shutdown();
-                  return;
-                } else if (optionPane.getValue() != null
-                    && optionPane.getValue().equals(options[0])) {
-                  log.debug("Setting extendSession");
-                  extendSession = true;
-                  if (!ex.isShutdown()) ex.schedule(this, 0, TimeUnit.MILLISECONDS);
-                  return;
-                }
-              });
-          // Take the chance to save the applet state while there is no
-          // activity. Need to make sure that saving the state does not reset session time.
-          if (applet.getOptionsManager() != null) {
-            applet.saveAppletState();
-            applet.getOptionsManager().save(true);
-          }
-        }
-        if (!ex.isShutdown()) ex.schedule(this, expiry, TimeUnit.MILLISECONDS);
-        log.debug("Waiting for logout in {}ms", expiry);
-
+      if (isExpired(expiry)) {
+        handleExpiredSession();
+      } else if (isWarningState(expiry, warning)) {
+        handleSessionWarning(applet, expiry);
       } else {
-        if (dialogOn.compareAndSet(true, false)) {
-          log.debug("Turning off warning");
-          SwingUtilities.invokeLater(
-              () -> {
-                // Stop countdown timer
-                if (countdown != null) countdown.cancel(false);
-                if (dialog != null && dialog.isVisible()) {
-                  dialog.dispose();
-                }
-              });
-        }
-        if (!ex.isShutdown()) ex.schedule(this, (expiry - warning), TimeUnit.MILLISECONDS);
-        log.debug("Waiting for warning in {}ms", expiry - warning);
+        handleHealthySession(expiry, warning);
       }
 
     } catch (Exception e) {
       log.error("Error with session check thread", e);
     }
   }
+
+  /**
+   * Branch predicate for an expired session: no usable time remains.
+   *
+   * @param expiry remaining session time in milliseconds.
+   * @return {@code true} when the session has expired.
+   */
+  static boolean isExpired(long expiry) {
+    return expiry <= 0;
+  }
+
+  /**
+   * Branch predicate for the expiring-session warning state.
+   *
+   * @param expiry remaining session time in milliseconds.
+   * @param warning remaining warning-window time in milliseconds.
+   * @return {@code true} when the warning dialog should be shown.
+   */
+  static boolean isWarningState(long expiry, long warning) {
+    return expiry > 0 && warning > 0 && expiry <= warning;
+  }
+
+  /**
+   * Builds the session-check resource path, requesting a session extension when one was banked by
+   * a previous warning-dialog choice.
+   *
+   * @param extendSession {@code true} to request a session extension.
+   * @return the session-check resource path, never {@code null}.
+   */
+  static String sessionCheckResource(boolean extendSession) {
+    String resource = "/Rhythmyx/sessioncheck";
+    if (extendSession) {
+      resource += "?extendSession=true";
+    }
+    return resource;
+  }
+
+  /**
+   * Computes the fallback session status used when the server cannot be reached, assuming the
+   * previously observed countdown is still running.
+   *
+   * @param expireTime the last known absolute expiry time in milliseconds.
+   * @param warningTime the last known absolute warning time in milliseconds.
+   * @param now the current time in milliseconds.
+   * @return the remaining expiry and warning times, never {@code null}.
+   */
+  static SessionStatus fallbackStatus(long expireTime, long warningTime, long now) {
+    return new SessionStatus(expireTime - now, warningTime - now);
+  }
+
+  /**
+   * Polls the server for the current session state, falling back to the previously observed
+   * countdown when the server cannot be reached. Updates {@link #lastCheckTime},
+   * {@link #expireTime}, and {@link #warningTime} on a successful check.
+   *
+   * @return the remaining expiry and warning times in milliseconds, never {@code null}.
+   */
+  private SessionStatus pollSessionState() {
+    boolean extend = extendSession;
+    if (extend) {
+      log.debug("Extending session");
+      extendSession = false;
+    }
+    try {
+      String resource = sessionCheckResource(extend);
+      int portNumber = Integer.parseInt(port);
+      URL url = PSContentExplorerUtils.toURL(protocol, server, portNumber, resource);
+
+      PSHttpConnection httpConnection =
+          new PSHttpConnection(
+              PSContentExplorerUtils.toURL(protocol, server, portNumber, "/Rhythmyx/sys_resources"),
+              loginInfo.getSessionId());
+      JSONObject sessionObject = httpConnection.getJSON(url);
+
+      long expiry = sessionObject.getLong("expiry");
+      long warning = sessionObject.getLong("warning");
+      lastCheckTime = System.currentTimeMillis();
+      expireTime = lastCheckTime + expiry;
+      warningTime = expireTime - warning;
+      return new SessionStatus(expiry, warning);
+
+    } catch (Exception e) {
+      // Assume that countdown is continuing
+      log.warn(
+          "Failed to check session state server may be down or network connection lost: {}",
+          e.getLocalizedMessage());
+      log.debug(
+          "Failed to check session state server may be down or network connection lost: {}",
+          e.getLocalizedMessage(),
+          e);
+      return fallbackStatus(expireTime, warningTime, System.currentTimeMillis());
+    }
+  }
+
+  /** Logs out and shuts down when the session has expired. No-op when not logged in. */
+  private void handleExpiredSession() {
+    if (!isLoggedIn) {
+      return;
+    }
+    if (dialog != null) {
+      dialog.dispose();
+    }
+    PSContentExplorerApplication.getBaseFrame().logout();
+    shutdown();
+  }
+
+  /**
+   * Shows the expiring-session warning dialog (once) and schedules the next session check.
+   *
+   * @param applet the content explorer applet, assumed not {@code null}.
+   * @param expiry remaining session time in milliseconds.
+   */
+  private void handleSessionWarning(PSContentExplorerApplet applet, long expiry)
+      throws Exception {
+    if (dialogOn.compareAndSet(false, true)) {
+      showSessionWarningDialog(applet);
+      saveAppletStateQuietly(applet);
+    }
+    if (!ex.isShutdown()) ex.schedule(this, expiry, TimeUnit.MILLISECONDS);
+    log.debug("Waiting for logout in {}ms", expiry);
+  }
+
+  /**
+   * Dismisses a visible warning when the session recovered and schedules the next check for the
+   * start of the warning window.
+   *
+   * @param expiry remaining session time in milliseconds.
+   * @param warning remaining warning-window time in milliseconds.
+   */
+  private void handleHealthySession(long expiry, long warning) {
+    if (dialogOn.compareAndSet(true, false)) {
+      log.debug("Turning off warning");
+      SwingUtilities.invokeLater(
+          () -> {
+            // Stop countdown timer
+            if (countdown != null) countdown.cancel(false);
+            if (dialog != null && dialog.isVisible()) {
+              dialog.dispose();
+            }
+          });
+    }
+    if (!ex.isShutdown()) ex.schedule(this, (expiry - warning), TimeUnit.MILLISECONDS);
+    log.debug("Waiting for warning in {}ms", expiry - warning);
+  }
+
+  /**
+   * Shows the "still there?" warning dialog on the event-dispatch thread with a live countdown.
+   *
+   * @param applet the content explorer applet, assumed not {@code null}.
+   */
+  private void showSessionWarningDialog(PSContentExplorerApplet applet) {
+    Object[] options = {
+      applet.getResourceString(getClass(), EXTEND_SESSION),
+      applet.getResourceString(getClass(), LOGOUT_NOW)
+    };
+
+    SwingUtilities.invokeLater(
+        () -> {
+          if (!ex.isShutdown())
+            countdown = ex.scheduleAtFixedRate(new Countdown(), 0, 1, TimeUnit.SECONDS);
+
+          Object[] message = {
+            applet.getResourceString(getClass(), "You will be automatically logged out in\n"),
+            timeLabel
+          };
+          JOptionPane optionPane =
+              new JOptionPane(
+                  message,
+                  JOptionPane.QUESTION_MESSAGE,
+                  JOptionPane.YES_NO_OPTION,
+                  null,
+                  options,
+                  options[0]);
+
+          dialog =
+              optionPane.createDialog(
+                  applet.getDialogParentFrame(),
+                  applet.getResourceString(getClass(), "Are you still there?"));
+          dialog.pack();
+          dialog.setVisible(true);
+
+          countdown.cancel(false);
+          handleWarningChoice(optionPane, options);
+        });
+  }
+
+  /**
+   * Applies the user's warning-dialog choice: logout, bank a session extension, or dismiss.
+   *
+   * @param optionPane the answered option pane, assumed not {@code null}.
+   * @param options the dialog options, {@code options[0]} extends and {@code options[1]} logs out.
+   */
+  private void handleWarningChoice(JOptionPane optionPane, Object[] options) {
+    Object value = optionPane.getValue();
+    if (value == null) {
+      log.debug("Close / Cross dialog button clicked.");
+      if (countdown != null) {
+        countdown.cancel(false);
+      }
+
+      if (dialog != null && dialog.isVisible()) {
+        dialog.dispose();
+      }
+      return;
+    }
+    if (value.equals(options[1])) {
+      PSContentExplorerApplication.getBaseFrame().logout();
+      isLoggedIn = false;
+      shutdown();
+    } else if (value.equals(options[0])) {
+      log.debug("Setting extendSession");
+      extendSession = true;
+      if (!ex.isShutdown()) ex.schedule(this, 0, TimeUnit.MILLISECONDS);
+    }
+  }
+
+  /**
+   * Saves the applet state while the session is idle. Must not touch the session clock.
+   *
+   * @param applet the content explorer applet, assumed not {@code null}.
+   */
+  private static void saveAppletStateQuietly(PSContentExplorerApplet applet)
+      throws PSContentExplorerException {
+    // Take the chance to save the applet state while there is no
+    // activity. Need to make sure that saving the state does not reset session time.
+    if (applet.getOptionsManager() != null) {
+      applet.saveAppletState();
+      applet.getOptionsManager().save(true);
+    }
+  }
+
+  /** Remaining session-time snapshot in milliseconds, as reported by the last session check. */
+  record SessionStatus(long expiry, long warning) {}
 
   /**
    * Shuts down the session manager, disposing any open warning dialog and stopping the scheduler.
