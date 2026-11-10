@@ -104,6 +104,22 @@ are writable after **Lock** (see **Item-level exits**). Field **choice catalogs*
 from **Control property values** after **Lock** (see **Field choice catalog**
 below).
 
+## Readback
+
+The catalog table is a thin read: it lists label, name, GUID, and
+description from `GET /services/contenttypes` and carries no field,
+workflow, template, choice, or exit payload. Opening a row loads the detail
+from `GET /services/contenttypes/{idOrName}` and shows the title, the
+committed name with its GUID, and the label and description text. Packaged
+types (for example `percPage`) read back with zero writes: the row renders
+from the thin list and the detail renders without creating, renaming, or
+deleting anything. A type created through the shell
+(`POST /services/contenttypes`) reads back in the detail (title, committed
+name, label, description) and as a new catalog row showing that
+description; removing it is a held-lock
+`DELETE /services/contenttypes/{idOrName}` (`204` on success; an unlocked
+DELETE is `409`), after which the catalog no longer lists that name.
+
 ## Product path — create a content type
 
 1. Sign in as **Admin**.
