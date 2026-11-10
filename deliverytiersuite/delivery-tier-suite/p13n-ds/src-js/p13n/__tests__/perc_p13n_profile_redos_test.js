@@ -34,14 +34,17 @@
  *   container.filter("script").remove();
  * </pre>
  *
- * <p>jQuery 1.3.2 (bundled with this module) does NOT expose `parseHTML`
- * (added in 1.8), so the `<div/>`+`html()` idiom is used. The HTML parser
- * turns the responseText into a detached DOM subtree; `.find('script')`
- * + `.filter('script')` walks the subtree and removes every `<script>`
- * element via `Element.remove()` — the CodeQL-recognized sanitizer for the
- * js/incomplete-multi-character-sanitization rule. The DOM walk also
- * handles malformed/unclosed `<script>` tags because the parser already
- * turned them into DOM elements.
+ * <p>Since issue #5668 the vendored jQuery 1.3.2 copy was removed from this
+ * module, so the legacy `<div/>`+`html()` idiom (which predates the
+ * `parseHTML` API added in jQuery 1.8) is retained deliberately: it works on
+ * every jQuery line and keeps the CodeQL-recognized sanitizer pair
+ * (`.find('script').remove()` + `.filter('script').remove()`) intact. The
+ * HTML parser turns the responseText into a detached DOM subtree;
+ * `.find('script')` + `.filter('script')` walks the subtree and removes every
+ * `<script>` element via `Element.remove()` — the CodeQL-recognized
+ * sanitizer for the js/incomplete-multi-character-sanitization rule. The DOM
+ * walk also handles malformed/unclosed `<script>` tags because the parser
+ * already turned them into DOM elements.
  *
  * <p>Since the source no longer uses a custom regex on responseText, the
  * redos vulnerability (alert #1040) is also resolved: there is no custom
@@ -54,9 +57,10 @@
 "use strict";
 
 /**
- * Static-analysis test: confirm that the source file uses the jQuery-1.3-compatible
- * DOM-based scrub (NOT the missing `jQuery.parseHTML` API) and that no custom
- * regex is applied to responseText. This is what proves alerts #1040 (redos)
+ * Static-analysis test: confirm that the source file uses the DOM-based scrub
+ * (NOT a custom regex on responseText, and NOT the `jQuery.parseHTML` API,
+ * so the scrub keeps working on every jQuery line including the legacy
+ * 1.x idiom). This is what proves alerts #1040 (redos)
  * and #1730/#1731/#1732 (incomplete-sanitization) cannot re-occur.
  */
 function assertNoRegexOnResponseText() {
@@ -83,20 +87,20 @@ function assertNoRegexOnResponseText() {
         "Element.remove() instead.",
     );
   }
-  // Must NOT use jQuery.parseHTML — that API doesn't exist in jQuery 1.3.2
-  // (bundled with this module). Confirmed by reading the bundled file.
+  // Must NOT use jQuery.parseHTML — the scrub deliberately uses the
+  // `<div/>`+`html()` idiom so it works on every jQuery line and keeps the
+  // CodeQL-recognized sanitizer pair intact.
   if (/parseHTML\s*\(/.test(codeOnly)) {
     throw new Error(
-      "onProfileDataSubmit must NOT use jQuery.parseHTML — that API " +
-        "was added in jQuery 1.8 but this module bundles jQuery 1.3.2. " +
+      "onProfileDataSubmit must NOT use jQuery.parseHTML. " +
         "Use jQuery('<div/>').html(responseText) instead.",
     );
   }
-  // Must use the jQuery 1.3-compatible container+html idiom.
+  // Must use the version-agnostic container+html idiom.
   if (!/jQuery\s*\(\s*["']<div[^"']*["']\s*\)\s*\.html\s*\(/.test(codeOnly)) {
     throw new Error(
       "onProfileDataSubmit must use jQuery('<div/>').html(responseText) " +
-        "for the DOM-based scrub (jQuery 1.3 compatible)",
+        "for the DOM-based scrub",
     );
   }
   // Must call .find('script').remove() — the CodeQL-recognized sanitizer.
@@ -136,7 +140,7 @@ function assertNoRegexOnResponseText() {
 function runAllTests() {
   const tests = [
     [
-      "Source uses jQuery-1.3-compatible DOM-based scrub with guards",
+      "Source uses version-agnostic DOM-based scrub with guards",
       assertNoRegexOnResponseText,
     ],
   ];

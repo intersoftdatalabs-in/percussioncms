@@ -15,7 +15,8 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
 	<title>Personalized view of: ${previewPageUrl}</title>
 	<link rel="stylesheet" href="${resources}/css/p13nMain.css" type="text/css" media="screen" />
-	<link rel="stylesheet" href="${scripts}/jquery-treeview/treeview.css" type="text/css"
-		media="screen" />
+	<%-- Issue #5668: jquery-treeview/treeview.css removed with the vendored
+	     lib-js tree (dead upstream). Re-add from a supported source if the
+	     treeview UI is ever rewired to a live deployment. --%>
 	<%@ include file="scripts.jsp" %>
 </head>
