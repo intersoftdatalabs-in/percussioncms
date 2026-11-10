@@ -571,6 +571,7 @@ export const DEV_MSG_KEYS = {
   TPL_LOADING: "perc.ui.developer@Loading templates...",
   TPL_EMPTY: "perc.ui.developer@No templates returned.",
   TPL_ERROR: "perc.ui.developer@Could not load templates.",
+  TPL_RETRY: "perc.ui.developer@Retry",
   TPL_HINT: "perc.ui.developer@Select a template to lock, edit label, description, source, bindings, contained slots, and content-type associations, then save while the lock is held. Export XML from detail. Import XML creates a new unique template (no overwrite).",
   TPL_COL_LABEL: "perc.ui.developer@Label",
   TPL_COL_NAME: "perc.ui.developer@Name",
