@@ -3785,7 +3785,7 @@ onchange    %Script;       #IMPLIED
     sys_tinymce
     -->
    <psxctl:ControlMeta name="sys_tinymce" dimension="single" choiceset="none">
-      <psxctl:Description>Ephox EditLive HTML Editor</psxctl:Description>
+      <psxctl:Description>Classic rich-text editor (DEPRECATED in 8.2: frozen on TinyMCE 6.8.6 for classic content editing only; will be removed when classic editing retires. New development should use the React Content Editor with the TipTap engine.)</psxctl:Description>
       <psxctl:ParamList>
          <psxctl:Param name="width" datatype="String" paramtype="generic">
             <psxctl:Description>This parameter specifies the width of the inline frame. This parameter may be either a pixel or a percentage of the available horizontal space. The default value is "960".</psxctl:Description>
