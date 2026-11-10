@@ -57,40 +57,51 @@ function asText(value: unknown): string {
   return "";
 }
 
+const CHOICE_KEYS = [
+  "FolderDisplayFormatChoice",
+  "folderDisplayFormatChoice",
+] as const;
+
+function unwrapList(value: unknown): unknown[] {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  const wrapped = asRecord(value);
+  if (!wrapped) {
+    return [];
+  }
+  for (const key of CHOICE_KEYS) {
+    const nested = wrapped[key];
+    if (Array.isArray(nested)) {
+      return nested;
+    }
+    if (nested != null) {
+      return [nested];
+    }
+  }
+  return [];
+}
+
+function coerceChoice(entry: unknown): FolderDisplayFormatChoice | null {
+  const row = asRecord(entry);
+  if (!row) {
+    return null;
+  }
+  const id = asText(row.id);
+  if (!id) {
+    return null;
+  }
+  const name = asText(row.name) || id;
+  const description = asText(row.description);
+  return description ? { id, name, description } : { id, name };
+}
+
 function coerceChoices(value: unknown): FolderDisplayFormatChoice[] {
-  const list = Array.isArray(value)
-    ? value
-    : (() => {
-        const wrapped = asRecord(value);
-        if (!wrapped) {
-          return [];
-        }
-        const nested =
-          wrapped.FolderDisplayFormatChoice ?? wrapped.folderDisplayFormatChoice;
-        if (Array.isArray(nested)) {
-          return nested;
-        }
-        if (nested != null) {
-          return [nested];
-        }
-        return [];
-      })();
   const out: FolderDisplayFormatChoice[] = [];
-  for (const entry of list) {
-    const row = asRecord(entry);
-    if (!row) {
-      continue;
-    }
-    const id = asText(row.id);
-    if (!id) {
-      continue;
-    }
-    const name = asText(row.name) || id;
-    const description = asText(row.description);
-    if (description) {
-      out.push({ id, name, description });
-    } else {
-      out.push({ id, name });
+  for (const entry of unwrapList(value)) {
+    const choice = coerceChoice(entry);
+    if (choice) {
+      out.push(choice);
     }
   }
   return out;

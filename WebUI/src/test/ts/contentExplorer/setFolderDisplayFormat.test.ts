@@ -258,6 +258,38 @@ describe("set folder display format (#5131)", () => {
     ]);
   });
 
+  it("coerces flat, single-wrapped, and sparse choice shapes (#5848)", () => {
+    expect(
+      unwrapFolderDisplayFormatCatalog({
+        choices: [{ id: "3", name: "Default" }],
+      }).choices,
+    ).toEqual([{ id: "3", name: "Default" }]);
+    expect(
+      unwrapFolderDisplayFormatCatalog({
+        FolderDisplayFormatCatalog: {
+          choices: {
+            FolderDisplayFormatChoice: { id: 12, description: "Solo." },
+          },
+        },
+      }).choices,
+    ).toEqual([{ id: "12", name: "12", description: "Solo." }]);
+    expect(
+      unwrapFolderDisplayFormatCatalog({
+        folderDisplayFormatCatalog: {
+          choices: {
+            folderDisplayFormatChoice: [
+              { id: "3", name: "Default" },
+              { id: "   " },
+              null,
+              "nope",
+            ],
+          },
+        },
+      }).choices,
+    ).toEqual([{ id: "3", name: "Default" }]);
+    expect(unwrapFolderDisplayFormatCatalog(null).choices).toEqual([]);
+  });
+
   it("keeps a catalog description and drops a blank one (#5840)", () => {
     expect(
       readReloadedDisplayFormat({
