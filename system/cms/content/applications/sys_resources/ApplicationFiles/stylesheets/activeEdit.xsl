@@ -62,7 +62,6 @@
 				<script src="../cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js">;</script>
 				<script src="../cm/jslib/profiles/3x/jquery/jquery-migrate.min.js">;</script>
 				<script src="../sys_resources/js/browser.js">;</script>
-				<script src="../cm/jslib/profiles/3x/libraries/perc-retiredjs/json2.js">;</script>
 				<script src="../sys_resources/js/href.js">;</script>
 				<script language="javascript" src="../sys_resources/js/globalErrorMessages.js">;</script>
 				<script language="javascript" src="{concat('../rx_resources/js/',$lang,'/globalErrorMessages.js')}">;</script>

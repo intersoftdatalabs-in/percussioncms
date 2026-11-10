@@ -330,3 +330,160 @@ describe("classic-UI jQuery trio from npm (issue #5660)", () => {
     }
   });
 });
+
+/**
+ * Classic-UI loader/misc infra from npm (issue #5667).
+ *
+ * popper.js + bowser es5.js are still loaded directly by classic pages
+ * (common_js.jsp x2, contentEdit.xsl) at stable jslib URLs, but the bytes
+ * are now the Dependabot-tracked npm dist files
+ * (@popperjs/core 2.11.8 + bowser 2.15.0 from frontend/package.json), synced
+ * into target/generated-webui/cm by syncStandaloneNpmLibraries. json2.js is
+ * dropped outright (native JSON on every baseline browser) and the dead
+ * vendored-only trees (mousetrap/, requirejs/, modernizr-custom.js,
+ * vendored animate.css) are deleted. These tests pin:
+ *
+ *   1. The pair is present in STANDALONE_NPM_COPIES and marked required.
+ *   2. Synced bytes are byte-identical to the node_modules dist files and
+ *      carry the expected npm version markers.
+ *   3. Bundle-config jslib paths for the pair resolve into node_modules.
+ *   4. json2.js is gone from both bundle configs and has no npm mapping
+ *      (dropped, not migrated).
+ *   5. Every deleted vendored file resolves to a path that no longer exists
+ *      (no silent fallback back into the source tree).
+ */
+describe("classic-UI loader/misc infra from npm (issue #5667)", () => {
+  const FRONTEND_ROOT = path.dirname(
+    path.dirname(path.dirname(__dirname)),
+  );
+  const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+
+  const PAIR = [
+    {
+      src: "@popperjs/core/dist/umd/popper.js",
+      dest: "jslib/profiles/3x/libraries/popper/popper.js",
+      versionRe: /@popperjs\/core v2\.11\./,
+    },
+    {
+      src: "bowser/es5.js",
+      dest: "jslib/profiles/3x/libraries/bowser/es5.js",
+      versionRe: /lancedikson\/bowser/,
+    },
+  ];
+
+  // NOTE: popper.js + bowser es5.js are intentionally absent here — they are
+  // npm-served (covered by the pair tests above) and resolve into
+  // node_modules by design.
+  const DELETED_VENDORED = [
+    "jslib/profiles/3x/libraries/mousetrap/mousetrap.js",
+    "jslib/profiles/3x/libraries/animate.css/animate.css",
+    "jslib/profiles/3x/libraries/perc-retiredjs/json2.js",
+    "jslib/profiles/3x/libraries/requirejs/require.js",
+    "jslib/profiles/3x/libraries/requirejs/init.js",
+    "jslib/modernizer/modernizr-custom.js",
+  ];
+
+  // Drop set with no npm mapping at all: nothing may resolve them.
+  const UNMAPPED_DELETED = [
+    "jslib/profiles/3x/libraries/perc-retiredjs/json2.js",
+    "jslib/profiles/3x/libraries/requirejs/require.js",
+    "jslib/profiles/3x/libraries/requirejs/init.js",
+    "jslib/modernizer/modernizr-custom.js",
+  ];
+
+  it("pins the required pair in STANDALONE_NPM_COPIES", () => {
+    for (const { src, dest } of PAIR) {
+      const entry = STANDALONE_NPM_COPIES.find((e) => e.dest === dest);
+      expect(entry, `missing standalone copy for ${dest}`).toBeDefined();
+      expect(entry.src).toBe(src);
+      expect(entry.required).toBe(true);
+    }
+  });
+
+  it("syncs pair bytes identical to the npm dist files", () => {
+    const missing = PAIR.map(({ src }) => path.join(NODE_MODULES, src)).filter(
+      (p) => !fs.existsSync(p),
+    );
+    if (missing.length > 0) {
+      // Hermetic CI without frontend node_modules: presence is pinned above.
+      return;
+    }
+    syncStandaloneNpmLibraries();
+    for (const { src, dest, versionRe } of PAIR) {
+      const generated = fs.readFileSync(path.join(OUTPUT_DIR, dest));
+      const npmDist = fs.readFileSync(path.join(NODE_MODULES, src));
+      expect(generated.equals(npmDist), `${dest} differs from npm ${src}`).toBe(
+        true,
+      );
+      expect(generated.toString("utf8", 0, 4096)).toMatch(versionRe);
+      // The deleted vendored copy must not leak back into the source tree.
+      expect(fs.existsSync(path.join(WAR_DIR, dest))).toBe(false);
+    }
+    // Bowser ships the npm-tracked 2.15.x line (was vendored es5 build).
+    const bowserPkg = JSON.parse(
+      fs.readFileSync(path.join(NODE_MODULES, "bowser", "package.json"), "utf8"),
+    );
+    expect(bowserPkg.version).toMatch(/^2\.15\./);
+  });
+
+  it("resolves pair bundle paths into node_modules, not vendored files", () => {
+    for (const { dest } of PAIR) {
+      expect(
+        NPM_LIBRARY_MAPPINGS[dest],
+        `no npm mapping for ${dest}`,
+      ).toBeDefined();
+      const resolved = resolvePath(dest);
+      const normalized = resolved.split(path.sep).join("/");
+      expect(normalized).toContain("node_modules/");
+      expect(fs.existsSync(resolved), resolved).toBe(true);
+    }
+    // The retired modernizr key (nonexistent jslib path / node CLI target)
+    // must stay out of the mappings.
+    expect(
+      NPM_LIBRARY_MAPPINGS["jslib/profiles/3x/libraries/modernizer/modernizr.custom.js"],
+    ).toBeUndefined();
+  });
+
+  it("drops json2.js from bundles instead of migrating it", () => {
+    for (const configFile of ["common-bundles.json", "common-minuet-bundles.json"]) {
+      const configPath = path.join(BUNDLE_CONFIG_DIR, configFile);
+      const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+      const hits = [];
+      for (const bundle of config.bundles) {
+        for (const file of bundle.files) {
+          if (file.includes("json2")) {
+            hits.push(`${bundle.name}: ${file}`);
+          }
+        }
+      }
+      expect(hits, `${configFile} still bundles json2:\n${hits.join("\n")}`).toEqual(
+        [],
+      );
+    }
+    expect(
+      NPM_LIBRARY_MAPPINGS["jslib/profiles/3x/libraries/perc-retiredjs/json2.js"],
+    ).toBeUndefined();
+  });
+
+  it("deleted vendored files are gone from the source tree", () => {
+    for (const dest of DELETED_VENDORED) {
+      expect(
+        fs.existsSync(path.join(WAR_DIR, dest)),
+        `deleted vendored file still in source tree: ${dest}`,
+      ).toBe(false);
+    }
+    // The unmapped drop set must resolve nowhere on disk (no silent
+    // fallback back into the source tree).
+    for (const dest of UNMAPPED_DELETED) {
+      expect(
+        NPM_LIBRARY_MAPPINGS[dest],
+        `unexpected npm mapping for dropped ${dest}`,
+      ).toBeUndefined();
+      const resolved = resolvePath(dest);
+      expect(
+        fs.existsSync(resolved),
+        `deleted vendored file still resolves: ${dest} -> ${resolved}`,
+      ).toBe(false);
+    }
+  });
+});

@@ -353,9 +353,12 @@
 		<copy
 			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/jquery/jquery-migrate.min.js"
 			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/jslib/profiles/3x/jquery/jquery-migrate.min.js" />
+		<!-- bowser for published gadgets (npm-built, versionless; read from the
+			unpacked perc-web-ui WAR above so WebUI/war/ carries no vendored
+			binaries. Published filename stable: features/perc/core/es5.js. -->
 		<copy
 			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/core/es5.js"
-			file="${basedir}/../../WebUI/war/jslib/profiles/3x/libraries/bowser/es5.js" />
+			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/jslib/profiles/3x/libraries/bowser/es5.js" />
 		<!-- jquery for published site (npm-built; published filename stable) -->
 		<copy
 			tofile="${assembly-directory}/web_resources/cm/jslib/jquery.js"
