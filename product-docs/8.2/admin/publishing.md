@@ -2266,28 +2266,30 @@ From **Publish** (`spa.jsp?entry=publish`), open **Status** or **Logs**. The **I
 - `spa.jsp?entry=publish&section=logs&itemId={id}`
 - Path form: `/cm/app/publish/status?itemId={id}` and `/cm/app/publish/logs?itemId={id}`
 
-Use **Open Logs** / **Open Status** in the panel to switch those sections without leaving the lookup. Site-level job status and publish logs stay on the same tabs. Schedule dates and site-workspace takedown (below) are separate Publishing steps.
+Use **Open Logs** / **Open Status** in the panel to switch those sections without leaving the lookup. Site-level job status and publish logs stay on the same tabs. The **Schedule** panel below sits on the same Status / Logs tabs; site-workspace takedown is a separate Publishing step.
 
 The same read-only panel also sits on the **site workspace** (Sites, then a site), below **Remove From Site**, so an operator can read back the editions and runs for the selected item without leaving the site context. It shares the workspace item id — typing an id in any item panel updates the history lookup — and uses the same `GET /services/itemmanagement/item/pubhistory/{id}` route with the same empty and error states. It never publishes, takes down, stages, or edits.
 
-## Schedule publish dates (Publishing site workspace)
+## Schedule publish dates (Publishing)
 
-From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, then a site). The **Schedule** panel gets, sets, and clears item publish and removal dates using the existing item-management APIs (`GET /services/itemmanagement/item/getitemdates/{id}`, `POST /services/itemmanagement/item/setitemdates`). It replaces the classic jQuery `PercScheduleDialog` for this shell. Explorer still has its own Schedule action for a selected page or asset, including one dialog for every checked page or asset (folders skipped; a partial save is an error).
+From **Publish** (`spa.jsp?entry=publish`), open **Status**, **Logs**, or a **site workspace** (Sites, then a site). The **Schedule** panel gets, sets, and clears item publish and removal dates using the existing item-management APIs (`GET /services/itemmanagement/item/getitemdates/{id}`, `POST /services/itemmanagement/item/setitemdates`). It replaces the classic jQuery `PercScheduleDialog` for this shell. Explorer still has its own Schedule action for a selected page or asset, including one dialog for every checked page or asset (folders skipped; a partial save is an error).
 
 1. Sign in as an operator who can open Publish.
-2. Open **Publish → Sites** and select a site (or deep-link `section=sites` with `siteId`).
+2. Open **Publish → Status** or **Publish → Logs** (or **Publish → Sites** and select a site, or deep-link `section=status|logs|sites` with `itemId`).
 3. Enter the item id (content GUID such as `16777215-101-9`) and choose **Load dates**.
 4. Set or clear **Publish date** and **Removal date** (optional comments, 500 characters). Removal must be after publish when both are set. **Save dates** posts the `ItemDates` envelope.
 5. To remove the schedule from the selected item, choose **Clear scheduled dates** and confirm **Clear the start and end publish dates on this item?** The panel posts empty dates through the same `setitemdates` route. Cancel writes nothing.
 
 **Empty and error states:** Blank item id is not a lookup. Invalid dates return **HTTP 400** (the panel shows the server validation message — past dates, unparseable values, or removal before publish). Forbidden updates return **HTTP 403** (reader or no assignment, or an application-level `FORBIDDEN` body). If another user has the item checked out, save returns **HTTP 409** and the panel shows that conflict. None of those responses are treated as success. A failed clear (**400** / **403** / **409**, or an application-level `FORBIDDEN` / `INVALID` / `BADCONFIG` body) stays on the clear confirm as an error — it is not success and the dates stay as loaded. After a successful save the panel reloads the stored publish and removal dates. After a successful clear the panel reloads and shows both dates empty. The optional comment is the workflow note sent with the save; it is not returned by the dates lookup, so it stays in the form until the next lookup. Clearing both dates and saving removes the schedule.
 
-**Deep links:**
+**Deep links** (same panel on Status, Logs, or the site workspace):
 
+- `spa.jsp?entry=publish&section=status&itemId={id}`
+- `spa.jsp?entry=publish&section=logs&itemId={id}`
 - `spa.jsp?entry=publish&section=sites&siteId={siteId}&itemId={id}`
 - Path form: `/cm/app/publish/sites?siteId={siteId}&itemId={id}`
 
-Item publishing history is on Status / Logs and on the site workspace below. Site-workspace **Publish now** and takedown are below.
+The Status / Logs schedule panel shares the shell item id — typing an id in the schedule lookup (or in the history panel) updates both panels. Item publishing history is on Status / Logs and on the site workspace below. Site-workspace **Publish now** and takedown are below.
 
 ## Publish now from the Publishing site workspace
 
@@ -2321,7 +2323,7 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 - `spa.jsp?entry=publish&section=sites&siteId={siteId}&itemId={id}`
 - Path form: `/cm/app/publish/sites?siteId={siteId}&itemId={id}`
 
-Item publishing history is on Status / Logs and on the site workspace below. Schedule dates stay on the same site workspace.
+Item publishing history and schedule dates are on Status / Logs and on the site workspace below.
 
 ## Stage and Remove from Staging (Publishing site workspace)
 

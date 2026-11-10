@@ -48,6 +48,7 @@ import {
   toolbarStyle,
 } from "../publishing.styles";
 import { ItemPublishingHistoryPanel } from "../components/ItemPublishingHistoryPanel";
+import { ItemScheduleDatesPanel } from "../components/ItemScheduleDatesPanel";
 import type {
   PublishSection,
   PublishSiteSummary,
@@ -187,6 +188,10 @@ export function LogsSection({
         currentSection="logs"
         onItemIdChange={onItemIdChange}
         onOpenSection={onOpenSection}
+      />
+      <ItemScheduleDatesPanel
+        itemId={itemId}
+        onItemIdChange={onItemIdChange}
       />
       <div
         style={{
