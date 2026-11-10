@@ -27,8 +27,8 @@ const OUTPUT_DIR = path.join(WEBUI_DIR, "target/generated-webui/cm");
 const NODE_MODULES_DIR = path.join(WEBUI_DIR, "src/main/frontend/node_modules");
 
 // Mapping of jslib paths to npm package names for npm-managed libraries.
-// Classic-UI direct <script> loads use the versionless npm-backed mins
-// (issue #5660); keys mirror the canonical frontend builder.
+// Classic-UI direct <script> loads use the npm-backed files
+// (issue #5660 trio + issue #5667 popper/bowser); keys mirror the canonical frontend builder.
 const NPM_LIBRARY_MAPPINGS = {
   "jslib/profiles/3x/jquery/jquery.min.js": "jquery/dist/jquery.min.js",
   "jslib/profiles/3x/jquery/jquery-migrate.min.js":
@@ -52,8 +52,8 @@ const NPM_LIBRARY_MAPPINGS = {
   "jslib/profiles/3x/libraries/qunit/qunit.js": "qunit/qunit/qunit.js",
   "jslib/profiles/3x/libraries/mousetrap/mousetrap.js":
     "mousetrap/mousetrap.js",
-  "jslib/profiles/3x/libraries/modernizer/modernizr.custom.js":
-    "modernizr/bin/modernizr",
+  // Retired with issue #5667 (no Modernizr consumers remain in classic UI;
+  // the old key pointed at a non-existent jslib path / node CLI entry).
   "jslib/profiles/3x/libraries/animate.css/animate.css":
     "animate.css/animate.css",
 };
@@ -168,6 +168,8 @@ function buildBundlesFromConfig(configFile, processingPhase = 1) {
  * See issue #1510 / canonical frontend builder. Classic-UI trio (issue #5660)
  * is required: the vendored cm/jslib copies are deleted, so a missing source
  * must fail instead of shipping pages with a 404 where jQuery used to load.
+ * Loader/misc pair (issue #5667: popper.js + bowser es5.js) is likewise
+ * required: vendored copies deleted, tags keep stable URLs served from npm.
  */
 const STANDALONE_NPM_COPIES = [
   {
@@ -183,6 +185,16 @@ const STANDALONE_NPM_COPIES = [
   {
     src: "jquery-ui/dist/jquery-ui.min.js",
     dest: "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js",
+    required: true,
+  },
+  {
+    src: "@popperjs/core/dist/umd/popper.js",
+    dest: "jslib/profiles/3x/libraries/popper/popper.js",
+    required: true,
+  },
+  {
+    src: "bowser/es5.js",
+    dest: "jslib/profiles/3x/libraries/bowser/es5.js",
     required: true,
   },
 ];

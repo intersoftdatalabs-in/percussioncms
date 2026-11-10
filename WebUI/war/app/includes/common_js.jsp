@@ -4,7 +4,6 @@
 <script src="/cm/app/js/legacy/profiles/3x/jquery/jquery-migrate.min.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js"></script>
-<script src="/cm/app/js/legacy/profiles/3x/libraries/perc-retiredjs/json2.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-form/jquery.form.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.blockUI.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.caret.js"></script>

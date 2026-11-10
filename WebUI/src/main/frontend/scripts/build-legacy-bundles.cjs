@@ -44,9 +44,10 @@ const REQUIRED_INTERMEDIATE_BUNDLES = [
 ];
 
 // Mapping of jslib paths to npm package names for npm-managed libraries.
-// Classic-UI direct <script> loads use the versionless npm-backed mins
-// (jquery.min.js / jquery-migrate.min.js / jquery-ui.min.js), synced into
-// target/generated-webui by STANDALONE_NPM_COPIES below (issue #5660).
+// Classic-UI direct <script> loads use the npm-backed files
+// (jquery.min.js / jquery-migrate.min.js / jquery-ui.min.js from issue #5660;
+// popper.js / bowser es5.js from issue #5667), synced into
+// target/generated-webui by STANDALONE_NPM_COPIES below.
 const NPM_LIBRARY_MAPPINGS = {
   "jslib/profiles/3x/jquery/jquery.min.js": "jquery/dist/jquery.min.js",
   "jslib/profiles/3x/jquery/jquery-migrate.min.js":
@@ -70,8 +71,8 @@ const NPM_LIBRARY_MAPPINGS = {
   "jslib/profiles/3x/libraries/qunit/qunit.js": "qunit/qunit/qunit.js",
   "jslib/profiles/3x/libraries/mousetrap/mousetrap.js":
     "mousetrap/mousetrap.js",
-  "jslib/profiles/3x/libraries/modernizer/modernizr.custom.js":
-    "modernizr/bin/modernizr",
+  // Retired with issue #5667 (no Modernizr consumers remain in classic UI;
+  // the old key pointed at a non-existent jslib path / node CLI entry).
   "jslib/profiles/3x/libraries/animate.css/animate.css":
     "animate.css/animate.css",
 };
@@ -242,6 +243,10 @@ function buildBundlesFromConfig(configFile, processingPhase = 1, options = {}) {
  * from these npm dist files. The vendored cm/jslib copies were deleted, so a
  * missing `required` entry must fail the build instead of shipping pages with
  * a 404 where jQuery used to load.
+ *
+ * Loader/misc infra (issue #5667): popper.js + bowser es5.js likewise come
+ * ONLY from npm (Dependabot-tracked in frontend/package.json); their vendored
+ * cm/jslib copies were deleted and the <script> tags keep stable URLs.
  */
 const STANDALONE_NPM_COPIES = [
   {
@@ -257,6 +262,16 @@ const STANDALONE_NPM_COPIES = [
   {
     src: "jquery-ui/dist/jquery-ui.min.js",
     dest: "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js",
+    required: true,
+  },
+  {
+    src: "@popperjs/core/dist/umd/popper.js",
+    dest: "jslib/profiles/3x/libraries/popper/popper.js",
+    required: true,
+  },
+  {
+    src: "bowser/es5.js",
+    dest: "jslib/profiles/3x/libraries/bowser/es5.js",
     required: true,
   },
 ];
