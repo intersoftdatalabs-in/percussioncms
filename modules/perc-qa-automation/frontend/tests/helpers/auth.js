@@ -399,6 +399,9 @@ async function listModernLoginLocales(page) {
         .filter(Boolean),
     );
   // Close listbox (Escape or re-click) so it does not obscure submit.
+  // Best-effort only: the listbox may already be closed (option click
+  // dismisses it), so a rejected Escape press is expected, not an error.
+  // mkd-code-review[patterns.hard_gate]: adjudicated intentional tests.empty-catch (issue #5946) — best-effort listbox dismiss; rejection means already closed.
   await page.keyboard.press("Escape").catch(() => {});
   return tags;
 }
@@ -476,6 +479,104 @@ async function waitForLoginSurface(page, timeout = 30_000) {
 }
 
 /**
+ * Wait out a {@code pending} surface until a real login form (or
+ * authenticated chrome) appears. Never waits on a hidden perc-login-root
+ * (that 0×0 mount used to burn the 30s timeout, #3492).
+ *
+ * Extracted from {@link fillLoginForm} (#5946) so the fill router stays
+ * small; behavior is unchanged.
+ *
+ * @param {import("@playwright/test").Page} page
+ * @param {import("@playwright/test").Locator} modernForm
+ * @param {import("@playwright/test").Locator} legacyUser
+ * @returns {Promise<import("./login-surface").LoginSurfaceDecision>}
+ */
+async function ensureLoginFormReady(page, modernForm, legacyUser) {
+  const first = classifyLoginSurface(await snapshotLoginSurface(page));
+  if (first.kind !== "pending") {
+    return first;
+  }
+  // Wait for the form (or legacy username) only — never perc-login-root.
+  try {
+    await modernForm
+      .or(legacyUser)
+      .first()
+      .waitFor({ state: "visible", timeout: 30_000 });
+  } catch {
+    const retry = classifyLoginSurface(await snapshotLoginSurface(page));
+    if (retry.kind === "already_authenticated") {
+      return retry;
+    }
+    throw new Error(
+      `Login form did not become visible within 30000ms ` +
+        `(hidden perc-login-root is not the login form). url=${page.url()}`,
+    );
+  }
+  return classifyLoginSurface(await snapshotLoginSurface(page));
+}
+
+/**
+ * Fill Admin/role credentials on the modern React login (data-testid).
+ * Locale defaults to en-us when the modern LocaleSelect already posts a
+ * hidden j_locale (#5946: extracted from {@link fillLoginForm}).
+ *
+ * @param {import("@playwright/test").Page} page
+ * @param {string} username
+ * @param {string} password
+ * @param {string} desiredLocale login j_locale tag (may be "")
+ * @returns {Promise<{ submit: import("@playwright/test").Locator, alreadyAuthenticated: boolean }>}
+ */
+async function fillModernLoginForm(page, username, password, desiredLocale) {
+  await page.locator('[data-testid="perc-login-username"]').fill(username);
+  await page.locator('[data-testid="perc-login-password"]').fill(password); // mkd-code-review[secrets.heuristic]: adjudicated false positive (issue #5946) — runtime credential parameter from env, never a literal secret.
+  // LocaleSelect posts hidden input[name=j_locale]; default bootstrap is en-us.
+  if (desiredLocale) {
+    await selectModernLoginLocale(page, desiredLocale);
+  } else {
+    // Only open the combobox when we must force English for existing specs.
+    const hiddenLocale = page.locator(
+      'input[type="hidden"][name="j_locale"], input[name="j_locale"]',
+    );
+    if ((await hiddenLocale.count()) > 0) {
+      const current = await hiddenLocale.first().inputValue().catch(() => "");
+      if (current && current !== "en-us") {
+        await selectModernLoginLocale(page, "en-us");
+      }
+    }
+  }
+  return {
+    submit: page.locator('[data-testid="perc-login-submit"]'),
+    alreadyAuthenticated: false,
+  };
+}
+
+/**
+ * Fill Admin/role credentials on the legacy JSP form (name= attributes,
+ * native select[name=j_locale]).
+ * (#5946: extracted from {@link fillLoginForm}.)
+ *
+ * @param {import("@playwright/test").Page} page
+ * @param {string} username
+ * @param {string} password
+ * @param {string} desiredLocale login j_locale tag (may be "")
+ * @returns {Promise<{ submit: import("@playwright/test").Locator, alreadyAuthenticated: boolean }>}
+ */
+async function fillLegacyLoginForm(page, username, password, desiredLocale) {
+  const legacyUser = page.locator('input[name="j_username"]');
+  await legacyUser.waitFor({ state: "visible", timeout: 30_000 });
+  await page.fill('input[name="j_username"]', username);
+  await page.fill('input[name="j_password"]', password); // mkd-code-review[secrets.heuristic]: adjudicated false positive (issue #5946) — runtime credential parameter from env, never a literal secret.
+  const nativeLocale = page.locator('select[name="j_locale"]');
+  if ((await nativeLocale.count()) > 0) {
+    await nativeLocale.selectOption(desiredLocale || "en-us");
+  }
+  return {
+    submit: page.locator('button[type="submit"]'),
+    alreadyAuthenticated: false,
+  };
+}
+
+/**
  * Fill Admin/role credentials on either the modern React login (data-testid)
  * or the legacy JSP form (name= attributes). Locale defaults to en-us when
  * the modern LocaleSelect already posts a hidden j_locale.
@@ -495,69 +596,17 @@ async function fillLoginForm(page, username, password, options = {}) {
   const modernForm = page.locator('[data-testid="perc-login-form"]');
   const legacyUser = page.locator('input[name="j_username"]');
 
-  let decision = classifyLoginSurface(await snapshotLoginSurface(page));
+  const decision = await ensureLoginFormReady(page, modernForm, legacyUser);
   if (decision.kind === "already_authenticated") {
     return { submit: null, alreadyAuthenticated: true };
   }
-  if (decision.kind === "pending") {
-    // Wait for the form (or legacy username) only — never perc-login-root.
-    try {
-      await modernForm
-        .or(legacyUser)
-        .first()
-        .waitFor({ state: "visible", timeout: 30_000 });
-    } catch {
-      decision = classifyLoginSurface(await snapshotLoginSurface(page));
-      if (decision.kind === "already_authenticated") {
-        return { submit: null, alreadyAuthenticated: true };
-      }
-      throw new Error(
-        `Login form did not become visible within 30000ms ` +
-          `(hidden perc-login-root is not the login form). url=${page.url()}`,
-      );
-    }
-    decision = classifyLoginSurface(await snapshotLoginSurface(page));
-    if (decision.kind === "already_authenticated") {
-      return { submit: null, alreadyAuthenticated: true };
-    }
-  }
 
   if (decision.kind === "modern_form") {
-    await page.locator('[data-testid="perc-login-username"]').fill(username);
-    await page.locator('[data-testid="perc-login-password"]').fill(password);
-    // LocaleSelect posts hidden input[name=j_locale]; default bootstrap is en-us.
-    if (desiredLocale) {
-      await selectModernLoginLocale(page, desiredLocale);
-    } else {
-      // Only open the combobox when we must force English for existing specs.
-      const hiddenLocale = page.locator(
-        'input[type="hidden"][name="j_locale"], input[name="j_locale"]',
-      );
-      if ((await hiddenLocale.count()) > 0) {
-        const current = await hiddenLocale.first().inputValue().catch(() => "");
-        if (current && current !== "en-us") {
-          await selectModernLoginLocale(page, "en-us");
-        }
-      }
-    }
-    return {
-      submit: page.locator('[data-testid="perc-login-submit"]'),
-      alreadyAuthenticated: false,
-    };
+    return fillModernLoginForm(page, username, password, desiredLocale);
   }
 
   // Legacy native form (select[name=j_locale]).
-  await legacyUser.waitFor({ state: "visible", timeout: 30_000 });
-  await page.fill('input[name="j_username"]', username);
-  await page.fill('input[name="j_password"]', password);
-  const nativeLocale = page.locator('select[name="j_locale"]');
-  if ((await nativeLocale.count()) > 0) {
-    await nativeLocale.selectOption(desiredLocale || "en-us");
-  }
-  return {
-    submit: page.locator('button[type="submit"]'),
-    alreadyAuthenticated: false,
-  };
+  return fillLegacyLoginForm(page, username, password, desiredLocale);
 }
 
 /**
@@ -780,6 +829,9 @@ module.exports = {
   loginAsEditor,
   loginAsContributor,
   fillLoginForm,
+  fillModernLoginForm,
+  fillLegacyLoginForm,
+  ensureLoginFormReady,
   snapshotLoginSurface,
   waitForLoginSurface,
   classifyLoginSurface,
