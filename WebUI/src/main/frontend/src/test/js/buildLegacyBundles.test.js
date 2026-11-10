@@ -49,6 +49,7 @@ const builder = require(
 );
 
 const {
+  WEBUI_DIR,
   WAR_DIR,
   OUTPUT_DIR,
   BUNDLE_CONFIG_DIR,
@@ -327,6 +328,193 @@ describe("classic-UI jQuery trio from npm (issue #5660)", () => {
       );
     } finally {
       spy.mockRestore();
+    }
+  });
+});
+
+/**
+ * Classic-UI Moment.js from npm (issue #5665).
+ *
+ * The vendored Moment 2.29.4 copies (`moment-with-locales.js` under cm/jslib,
+ * cm/vendor/js/legacy, and the war/ mirror) and the vendored
+ * `moment-jdateformatparser.js` copies in the same trees were deleted.
+ * Classic bundles (common-ui-bundle.json, common-minuet-bundles.json) keep
+ * loading the stable jslib paths, now resolved from the npm graph
+ * (Dependabot-tracked in frontend package.json: moment ^2.31.0,
+ * moment-jdateformatparser ^1.2.1) via NPM_LIBRARY_MAPPINGS. These tests pin:
+ *
+ *   1. The moment + plugin jslib paths resolve into node_modules, never into
+ *      deleted vendored files — and the mapping points at the with-locales
+ *      dist (delivery views call moment.locale(); the old bare
+ *      moment/moment.js mapping carried no locale data).
+ *   2. The shipped moment version matches the npm package version.
+ *   3. Date formatting/parity on the exact dist classic UI ships: the
+ *      `moment(dateString).format("L LTS")` shape from PercCommonMinuetView,
+ *      duration humanize, German locale output, and the Java-format
+ *      translation helpers (toMomentFormatString/formatWithJDF/toJDFString).
+ *   4. No vendored moment/plugin copies remain in any of the three trees,
+ *      while simpledateformat.js is explicitly retained (Tim Down's file is
+ *      not published on npm — same "not on npm, kept as committed source"
+ *      rule as modules/perc-common-ui-bundle).
+ */
+describe("classic-UI Moment.js from npm (issue #5665)", () => {
+  const FRONTEND_ROOT = path.dirname(
+    path.dirname(path.dirname(__dirname)),
+  );
+  const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+  const WEBAPP_CM = WAR_DIR;
+
+  const MOMENT_DEST =
+    "jslib/profiles/3x/libraries/momentjs/moment-with-locales.js";
+  const MOMENT_SRC = "moment/min/moment-with-locales.js";
+  const PLUGIN_DEST =
+    "jslib/profiles/3x/libraries/momentjs/plugins/moment-jdateformatparser/moment-jdateformatparser.js";
+  const PLUGIN_SRC = "moment-jdateformatparser/moment-jdateformatparser.js";
+
+  function loadShippedMoment() {
+    const distPath = path.join(NODE_MODULES, MOMENT_SRC);
+    if (!fs.existsSync(distPath)) {
+      return null;
+    }
+    const shipped = require(distPath);
+    // Load the npm plugin the way the concatenated classic bundle does: as a
+    // plain script against the global moment instance (no bundler, no AMD).
+    const pluginSource = fs.readFileSync(
+      path.join(NODE_MODULES, PLUGIN_SRC),
+      "utf8",
+    );
+    const sandbox = {
+      moment: shipped,
+      module: { exports: {} },
+      console,
+    };
+    require("node:vm").createContext(sandbox);
+    require("node:vm").runInContext(pluginSource, sandbox);
+    return shipped;
+  }
+
+  it("resolves the moment + plugin bundle paths into node_modules", () => {
+    expect(NPM_LIBRARY_MAPPINGS[MOMENT_DEST]).toBe(MOMENT_SRC);
+    expect(NPM_LIBRARY_MAPPINGS[PLUGIN_DEST]).toBe(PLUGIN_SRC);
+    for (const dest of [MOMENT_DEST, PLUGIN_DEST]) {
+      const resolved = resolvePath(dest);
+      const normalized = resolved.split(path.sep).join("/");
+      expect(normalized).toContain("node_modules/");
+      expect(fs.existsSync(resolved), resolved).toBe(true);
+    }
+  });
+
+  it("ships moment with locales matching the npm package version", () => {
+    const moment = loadShippedMoment();
+    if (moment === null) {
+      return;
+    }
+    const pkg = JSON.parse(
+      fs.readFileSync(
+        path.join(NODE_MODULES, "moment/package.json"),
+        "utf8",
+      ),
+    );
+    expect(moment.version).toBe(pkg.version);
+    // The with-locales dist (not bare moment/moment.js) must carry locale
+    // data: delivery views call moment.locale(locale).
+    expect(moment.locales()).toContain("de");
+    expect(moment.locales().length).toBeGreaterThan(100);
+    const pluginPkg = JSON.parse(
+      fs.readFileSync(
+        path.join(NODE_MODULES, "moment-jdateformatparser/package.json"),
+        "utf8",
+      ),
+    );
+    expect(pluginPkg.version).toBe("1.2.1");
+  });
+
+  it("formats classic L LTS dates identically (parity)", () => {
+    const moment = loadShippedMoment();
+    if (moment === null) {
+      return;
+    }
+    // Mirrors the stringToDate helper in PercCommonMinuetView.
+    expect(moment("2026-03-04T15:30:00").format("L LTS")).toBe(
+      "03/04/2026 3:30:00 PM",
+    );
+    // Mirrors the duration helper in the same view.
+    expect(moment.duration(90, "seconds").humanize()).toBe("2 minutes");
+    // Locale data must actually switch output (de short date).
+    expect(moment("2026-03-04").locale("de").format("L")).toBe("04.03.2026");
+  });
+
+  it("translates Java date formats via the npm plugin (parity)", () => {
+    const moment = loadShippedMoment();
+    if (moment === null) {
+      return;
+    }
+    expect(
+      moment("2026-03-04").toMomentFormatString("yyyy-MM-dd HH:mm:ss"),
+    ).toBe("YYYY-MM-DD HH:mm:ss");
+    expect(
+      moment("2026-03-04T15:30:00").formatWithJDF("yyyy-MM-dd HH:mm:ss"),
+    ).toBe("2026-03-04 15:30:00");
+    expect(moment("2026-03-04").toJDFString("YYYY-MM-DD")).toBe("yyyy-MM-dd");
+  });
+
+  it("keeps no vendored moment copies while retaining simpledateformat.js", () => {
+    // Per-tree relative paths: the vendor mirror hangs directly under
+    // profiles/ (no jslib/ prefix); the war mirror roots its own jslib/.
+    const deletedByTree = [
+      [WEBAPP_CM, MOMENT_DEST],
+      [WEBAPP_CM, PLUGIN_DEST],
+      [
+        path.join(WEBAPP_CM, "vendor/js/legacy"),
+        "profiles/3x/libraries/momentjs/moment-with-locales.js",
+      ],
+      [
+        path.join(WEBAPP_CM, "vendor/js/legacy"),
+        "profiles/3x/libraries/momentjs/plugins/moment-jdateformatparser/moment-jdateformatparser.js",
+      ],
+      [path.join(WEBUI_DIR, "war"), MOMENT_DEST],
+      [path.join(WEBUI_DIR, "war"), PLUGIN_DEST],
+    ];
+    for (const [root, rel] of deletedByTree) {
+      const candidate = path.join(root, rel);
+      expect(
+        fs.existsSync(candidate),
+        `vendored copy must be gone: ${candidate}`,
+      ).toBe(false);
+    }
+    // simpledateformat.js is not on npm: retained in every tree.
+    const retainedByTree = [
+      [
+        WEBAPP_CM,
+        "jslib/profiles/3x/libraries/momentjs/plugins/moment-jdateformatparser/simpledateformat.js",
+      ],
+      [
+        path.join(WEBAPP_CM, "vendor/js/legacy"),
+        "profiles/3x/libraries/momentjs/plugins/moment-jdateformatparser/simpledateformat.js",
+      ],
+      [
+        path.join(WEBUI_DIR, "war"),
+        "jslib/profiles/3x/libraries/momentjs/plugins/moment-jdateformatparser/simpledateformat.js",
+      ],
+    ];
+    for (const [root, rel] of retainedByTree) {
+      const candidate = path.join(root, rel);
+      expect(
+        fs.existsSync(candidate),
+        `simpledateformat.js must be retained: ${candidate}`,
+      ).toBe(true);
+    }
+  });
+
+  it("resolves every minify-config moment entry to an existing file", () => {
+    const entries = [
+      "jslib/profiles/3x/libraries/momentjs/plugins/moment-jdateformatparser/simpledateformat.js",
+      MOMENT_DEST,
+      PLUGIN_DEST,
+    ];
+    for (const entry of entries) {
+      const resolved = resolvePath(entry);
+      expect(fs.existsSync(resolved), `${entry} -> ${resolved}`).toBe(true);
     }
   });
 });
