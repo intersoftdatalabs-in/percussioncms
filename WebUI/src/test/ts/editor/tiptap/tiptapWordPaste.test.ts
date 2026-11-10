@@ -15,7 +15,9 @@ import { describe, expect, it } from "vitest";
 import {
   isPastedLinkHrefSafe,
   looksLikeWordHtml,
+  markTipTapWordPasteCapable,
   sanitizeWordPastedHtml,
+  TIPTAP_WORD_PASTE_WINDOW_KEY,
 } from "../../../../main/ts/editor/tiptap/tiptapWordPaste";
 
 const WORD_DOC = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
@@ -154,5 +156,21 @@ describe("tiptapWordPaste", () => {
     expect(out).toContain("<ul><li>One</li></ul>");
     expect(out).toContain("<ol><li>Two</li></ol>");
     expect(out).toContain("<ul><li>Three</li></ul>");
+  });
+
+  it("publishes the Word-paste capability marker on module load (#5945)", () => {
+    // Live Playwright specs read this marker fail-fast so a stale SPA
+    // bundle (pre-#5933 rebuild) is reported as stale, not as a
+    // paste-path regression.
+    const scope = (globalThis as unknown as Record<string, unknown>);
+    expect(scope[TIPTAP_WORD_PASTE_WINDOW_KEY]).toEqual({ lists: true });
+  });
+
+  it("marks an explicit scope and refuses unusable scopes", () => {
+    const scope: Record<string, unknown> = {};
+    expect(markTipTapWordPasteCapable(scope)).toBe(true);
+    expect(scope[TIPTAP_WORD_PASTE_WINDOW_KEY]).toEqual({ lists: true });
+    expect(markTipTapWordPasteCapable(null)).toBe(false);
+    expect(markTipTapWordPasteCapable(undefined)).toBe(true);
   });
 });
