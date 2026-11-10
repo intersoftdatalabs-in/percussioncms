@@ -703,68 +703,119 @@ public final class PSContentExplorerLoginPanel extends JFrame {
   }
 
   private List<PSLocale> getLocaleList(String serverUrl) {
-
-    List<PSLocale> locales = new ArrayList<>();
-
-    URL localeUrl = null;
-
-    String localeURLString = "";
-
-    try {
-      if (serverUrl.endsWith("/")) {
-        localeURLString = serverUrl + "locale.jsp";
-      } else {
-        localeURLString = serverUrl + "/locale.jsp";
-      }
-      localeUrl = PSContentExplorerUtils.toURL(localeURLString);
-    } catch (MalformedURLException e) {
-      log.warn(PSExceptionUtils.getMessageForLog(e));
-      return locales;
+    URL localeUrl = buildLocaleUrl(serverUrl);
+    if (localeUrl == null) {
+      return new ArrayList<>();
     }
-
-    HttpURLConnection connection = null;
-    int responseCode = 0;
     try {
-      connection = (HttpURLConnection) localeUrl.openConnection();
+      HttpURLConnection connection = (HttpURLConnection) localeUrl.openConnection();
       connection.setUseCaches(false);
       connection.setRequestProperty("Content-Type", "application/json");
       connection.setDoOutput(true);
-      responseCode = connection.getResponseCode();
-
-      String localeJsonString = "{}";
-      BufferedReader br = null;
-      String strCurrentLine;
-      if (responseCode == 200) {
-        br =
-            new BufferedReader(
-                new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8));
-
-        while ((strCurrentLine = br.readLine()) != null) {
-          if (!strCurrentLine.equalsIgnoreCase("")) localeJsonString = strCurrentLine;
-        }
-        try {
-          JSONObject obj = new JSONObject(localeJsonString);
-          JSONArray activelocales = obj.getJSONArray("activelocales");
-          for (int i = 0; i < activelocales.length(); i++) {
-            JSONObject activeLoale = activelocales.getJSONObject(i);
-            PSLocale psl = new PSLocale();
-            psl.setCode(activeLoale.getString("localecode"));
-            psl.setLabel(activeLoale.getString("localedisplayname"));
-            locales.add(psl);
-          }
-        } catch (JSONException je) {
-          log.error(je);
-        }
-      } else {
-        br = new BufferedReader(new InputStreamReader(connection.getErrorStream()));
-        while ((strCurrentLine = br.readLine()) != null) {
-          log.info(strCurrentLine);
-        }
+      if (connection.getResponseCode() == 200) {
+        return readSuccessLocales(connection);
       }
+      drainErrorStream(connection);
     } catch (IOException e) {
       log.error(e);
     }
+    return new ArrayList<>();
+  }
+
+  /**
+   * Builds the {@code locale.jsp} URL for the given server URL.
+   *
+   * @param serverUrl the server base URL, never {@code null}.
+   * @return the locale URL, or {@code null} when it cannot be built.
+   */
+  static URL buildLocaleUrl(String serverUrl) {
+    String localeURLString =
+        serverUrl.endsWith("/") ? serverUrl + "locale.jsp" : serverUrl + "/locale.jsp";
+    try {
+      return PSContentExplorerUtils.toURL(localeURLString);
+    } catch (MalformedURLException e) {
+      log.warn(PSExceptionUtils.getMessageForLog(e));
+      return null;
+    }
+  }
+
+  /**
+   * Reads and parses the locale list from a successful locale response.
+   *
+   * @param connection the connected locale request, assumed to have a 200 response code.
+   * @return the parsed locales, empty when the payload cannot be parsed.
+   * @throws IOException when the response body cannot be read.
+   */
+  private static List<PSLocale> readSuccessLocales(HttpURLConnection connection)
+      throws IOException {
+    try (BufferedReader br =
+        new BufferedReader(
+            new InputStreamReader(connection.getInputStream(), StandardCharsets.UTF_8))) {
+      return parseLocaleJson(readLocalePayload(br));
+    }
+  }
+
+  /**
+   * Reads the locale JSON payload, keeping the last non-empty line (matches the legacy
+   * single-line payload contract while tolerating multi-line bodies).
+   *
+   * @param reader the response body reader, never {@code null}.
+   * @return the payload, {@code "{}"} when the body has no non-empty line.
+   * @throws IOException when a line cannot be read.
+   */
+  static String readLocalePayload(BufferedReader reader) throws IOException {
+    String payload = "{}";
+    String line;
+    while ((line = reader.readLine()) != null) {
+      if (!line.isEmpty()) {
+        payload = line;
+      }
+    }
+    return payload;
+  }
+
+  /**
+   * Parses a locale JSON payload of the form {@code {"activelocales":[{"localecode":...,
+   * "localedisplayname":...}, ...]}}.
+   *
+   * @param localeJsonString the payload, never {@code null}.
+   * @return the parsed locales, empty when the payload cannot be parsed.
+   */
+  static List<PSLocale> parseLocaleJson(String localeJsonString) {
+    List<PSLocale> locales = new ArrayList<>();
+    try {
+      JSONObject obj = new JSONObject(localeJsonString);
+      JSONArray activeLocales = obj.getJSONArray("activelocales");
+      for (int i = 0; i < activeLocales.length(); i++) {
+        JSONObject activeLocale = activeLocales.getJSONObject(i);
+        PSLocale locale = new PSLocale();
+        locale.setCode(activeLocale.getString("localecode"));
+        locale.setLabel(activeLocale.getString("localedisplayname"));
+        locales.add(locale);
+      }
+    } catch (JSONException je) {
+      log.error(je);
+    }
     return locales;
+  }
+
+  /**
+   * Logs the error body of a failed locale request for diagnostics.
+   *
+   * @param connection the failed locale request, never {@code null}.
+   * @throws IOException when the error body cannot be read.
+   */
+  private static void drainErrorStream(HttpURLConnection connection) throws IOException {
+    if (connection.getErrorStream() == null) {
+      return;
+    }
+    try (BufferedReader br =
+        new BufferedReader(new InputStreamReader(connection.getErrorStream()))) {
+      String line;
+      while ((line = br.readLine()) != null) {
+        log.info(line);
+      }
+    }
   }
 
   private static final class PSLocaleRenderer extends BasicComboBoxRenderer {
