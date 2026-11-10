@@ -20,7 +20,7 @@
  *
  * <p>One selected page row + Stage asks once, stages that item, and
  * refreshes the row. Remove from Staging asks once and clears the staged
- * state. Cancel changes nothing. HTTP 403/404/409 names the item and
+ * state. Cancel changes nothing. HTTP 400/403/404/409 names the item and
  * leaves the selection intact.</p>
  *
  * <p>Run (QA mode after {@code perc-devctl qa-up}):
@@ -301,6 +301,68 @@ test.describe("Explorer single-item Stage / Remove from Staging", () => {
       const error = page.locator('[data-testid="explorer-server-actions-error"]');
       await expect(error).toBeVisible({ timeout: 10_000 });
       await expect(error).toContainText(/Home \(HTTP 409\)/i);
+      await expect(error).toContainText(/Remove from staging failed/i);
+      await expect.poll(() => unstaged.length).toBe(1);
+      await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
+        "data-list-epoch",
+        "0",
+      );
+      await expect(
+        page.locator('[data-testid="content-explorer-shell"][data-selected-item-id="42"]'),
+      ).toBeVisible({ timeout: 10_000 });
+      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
+    },
+  );
+
+  test(
+    "HTTP 400 on Stage names the item and keeps the selection",
+    {
+      tag: ["@explorer", "@explorer-staging", "@explorer-single-staging"],
+    },
+    async ({ page }) => {
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("dialog", (dialog) => {
+        void dialog.accept();
+      });
+      const { staged } = await installStagingRoutes(page, { homeStatus: 400 });
+      await openListing(page);
+      await page.locator('[data-testid="action-toolbar-item-Stage"]').click();
+      const error = page.locator('[data-testid="explorer-server-actions-error"]');
+      await expect(error).toBeVisible({ timeout: 10_000 });
+      await expect(error).toContainText(/Home \(HTTP 400\)/i);
+      await expect(error).toContainText(/Stage failed/i);
+      await expect.poll(() => staged.length).toBe(1);
+      await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
+        "data-list-epoch",
+        "0",
+      );
+      await expect(
+        page.locator('[data-testid="content-explorer-shell"][data-selected-item-id="42"]'),
+      ).toBeVisible({ timeout: 10_000 });
+      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
+    },
+  );
+
+  test(
+    "HTTP 400 on Remove from Staging names the item and keeps the selection",
+    {
+      tag: ["@explorer", "@explorer-staging", "@explorer-single-staging"],
+    },
+    async ({ page }) => {
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("dialog", (dialog) => {
+        void dialog.accept();
+      });
+      const { unstaged } = await installStagingRoutes(page, { homeStatus: 400 });
+      await openListing(page);
+      await page
+        .locator('[data-testid="action-toolbar-item-Remove_from_Staging"]')
+        .click();
+      const error = page.locator('[data-testid="explorer-server-actions-error"]');
+      await expect(error).toBeVisible({ timeout: 10_000 });
+      await expect(error).toContainText(/Home \(HTTP 400\)/i);
       await expect(error).toContainText(/Remove from staging failed/i);
       await expect.poll(() => unstaged.length).toBe(1);
       await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(

@@ -2125,6 +2125,21 @@ describe("actionDispatch", () => {
     }
   });
 
+  it("Stage maps HTTP 400 to a named failure without refresh (#5943)", async () => {
+    const onStage = vi.fn().mockRejectedValueOnce({ status: 400, body: {} });
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item({ name: "Home" }),
+      onStage,
+      confirm: () => true,
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.messageKey).toBe(EXPLORER_MSG.STAGE_FAILED);
+    expect(result.messageText).toContain("Home");
+    expect(result.messageText).toContain("HTTP 400");
+    expect(result.refresh).toBeUndefined();
+    expect(onStage).toHaveBeenCalled();
+  });
+
   it("Stage rethrows non-HTTP failures (#5631)", async () => {
     const onStage = vi.fn().mockRejectedValueOnce(new Error("boom"));
     await expect(
@@ -2156,6 +2171,26 @@ describe("actionDispatch", () => {
       expect(result.refresh).toBeUndefined();
       expect(onRemoveFromStaging).toHaveBeenCalled();
     }
+  });
+
+  it("Remove from Staging maps HTTP 400 to a named failure without refresh (#5943)", async () => {
+    const onRemoveFromStaging = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 400, body: {} });
+    const result = await dispatchAction(
+      action({ name: "Remove_From_Staging" }),
+      {
+        item: item({ name: "Home" }),
+        onRemoveFromStaging,
+        confirm: () => true,
+      },
+    );
+    expect(result.kind).toBe("rest");
+    expect(result.messageKey).toBe(EXPLORER_MSG.UNSTAGE_FAILED);
+    expect(result.messageText).toContain("Home");
+    expect(result.messageText).toContain("HTTP 400");
+    expect(result.refresh).toBeUndefined();
+    expect(onRemoveFromStaging).toHaveBeenCalled();
   });
 
   it("Remove from Staging rethrows non-HTTP failures (#5631)", async () => {
