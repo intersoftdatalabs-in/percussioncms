@@ -2453,830 +2453,64 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
             "selection not found for the action " + action.getName());
 
       if (action.getName().equals(ACTION_OPTIONS)) {
-        PSDisplayOptions defOptions = m_applet.getOptionsManager().getDefaultDisplayOptions();
-        PSDisplayOptions userOptions = m_applet.getOptionsManager().getDisplayOptions();
-
-        PSDisplayOptionsDialog dlg =
-            new PSDisplayOptionsDialog(
-                m_applet.getDialogParentFrame(), userOptions, defOptions, m_applet);
-        dlg.pack();
-        dlg.setVisible(true);
-
-        if (dlg.isOk()) informListeners(PSActionEvent.REFRESH_OPTIONS);
+        handleOptionsAction();
       } else if (action.getName().equals(ACTION_SEARCH)
           || action.getName().equals(ACTION_SLOT_SEARCH)
           || action.getName().equals(ACTION_EDIT_SEARCH)
               && (selection.getNodeList().next()).isOfType(PSNode.TYPE_EMPTY_SRCH)) {
-        if (action.getName().equals(ACTION_SLOT_SEARCH)) {
-          PSNode selectedSlotNode = selection.getNodeList().next();
-          if (selectedSlotNode.getSlotId().length() == 0)
-            throw new IllegalArgumentException(
-                "The action "
-                    + ACTION_SLOT_SEARCH
-                    + "is not a valid action for "
-                    + selectedSlotNode.getName());
-
-          m_newSearchNode.setPropertyObj(PROPERTY_SLOT_NODE, selectedSlotNode);
-
-          m_newSearchNode.setProperty(PROPERTY_SLOTID, selectedSlotNode.getSlotId());
-        }
-
-        String oldFolderPath = m_newSearchNode.getProp(PROPERTY_FOLDER_PATH);
-        String path = null;
-        if (null != data && data.toString().trim().length() > 0) path = data.toString();
-        m_newSearchNode.setProperty(PROPERTY_FOLDER_PATH, path);
-
-        boolean isRcSearch = m_newSearchNode.getSlotId().length() > 0;
-        // prepare the search fields filter and pass it to the
-        // PSSearchDialog
-        Map<String, PSSearchFieldFilter> searchFieldFilterMap =
-            prepareSearchFilterMap(m_newSearchNode);
-        // see the NOTE above
-        Runtime.getRuntime().gc();
-        PSSearchDialog dlg =
-            new PSSearchDialog(
-                m_applet.getDialogParentFrame(),
-                m_searchViewMgr,
-                m_remCataloger,
-                m_newSearchNode,
-                searchFieldFilterMap,
-                true,
-                isRcSearch,
-                m_applet.getSearchConfig(),
-                m_applet.getSearachableFieldsCache(),
-                m_applet.getCodeBase());
-        dlg.setVisible(true);
-        if (dlg.isOk()) {
-          PSSearchViewActionManager.setAsInitialized(m_newSearchNode);
-          if (m_newSearchNode.isHidden()) {
-            addNewSearchNode();
-          }
-          informListeners(PSIteratorUtils.iterator(m_newSearchNode));
-        } else {
-          /*
-           * they cancelled, so make the existing search results behavior
-           * unchanged
-           */
-          m_newSearchNode.setProperty(PROPERTY_FOLDER_PATH, oldFolderPath);
-        }
+        handleNewSearchAction(action, selection, data);
       } else if (action.getName().equals(ACTION_EDIT_SEARCH)) {
-        PSNode searchNode = selection.getNodeList().next();
-        if (!searchNode.isOfType(PSNode.TYPE_SAVE_SRCH)
-            && !searchNode.isOfType(PSNode.TYPE_NEW_SRCH)
-            && !searchNode.isOfType(PSNode.TYPE_CUSTOM_SRCH)
-            && !searchNode.isOfType(PSNode.TYPE_STANDARD_SRCH)) {
-          throw new IllegalArgumentException("Found a node that is not search to edit query.");
-        }
-
-        // Show dialog always for 'CX' view, but in other views (IA & RC)
-        // only if the slot id is available to search on.
-        if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_CX)
-            || searchNode.getSlotId().length() > 0) {
-          boolean isRcSearch = searchNode.getSlotId().length() > 0;
-          // prepare the search fields filter and pass it to the
-          // PSSearchDialog
-          Map<String, PSSearchFieldFilter> searchFieldFilterMap =
-              prepareSearchFilterMap(searchNode);
-          // see the NOTE above
-          Runtime.getRuntime().gc();
-          PSSearchDialog dlg =
-              new PSSearchDialog(
-                  m_applet.getDialogParentFrame(),
-                  m_searchViewMgr,
-                  m_remCataloger,
-                  searchNode,
-                  searchFieldFilterMap,
-                  false,
-                  isRcSearch,
-                  m_applet.getSearchConfig(),
-                  m_applet.getSearachableFieldsCache(),
-                  m_applet.getCodeBase());
-
-          dlg.setVisible(true);
-          if (dlg.isOk()) {
-            // Sets any search as initialized if not yet initialized
-            if (PSSearchViewActionManager.isNodeInitializable(searchNode)) {
-              PSSearchViewActionManager.setAsInitialized(searchNode);
-            }
-            // Save the search if it is of the type saveable
-            if (searchNode.isOfType(PSNode.TYPE_SAVE_SRCH)) {
-              m_searchViewMgr.saveSearch(dlg.getSearch());
-            }
-            informListeners(PSActionEvent.REFRESH_NAV_SELECTED);
-          }
-        }
+        handleEditSearchAction(action, selection);
       } else if (action.getName().equals(ACTION_CREATE_FOLDER)) {
-        PSNode parentFolderNode = null;
-        if (selection != null) parentFolderNode = selection.getNodeList().next();
-
-        boolean isFolderSel = true;
-        if (parentFolderNode == null || !parentFolderNode.isAnyFolderType()) {
-          parentFolderNode = m_applet.getSystemFoldersNode();
-          isFolderSel = false;
-        }
-
-        if (parentFolderNode == null)
-          throw new IllegalStateException("Parent folder is not found to create a new folder");
-
-        PSFolderDialog dlg =
-            new PSFolderDialog(
-                m_applet.getDialogParentFrame(),
-                m_applet.getUserInfo(),
-                m_folderMgr,
-                null,
-                parentFolderNode,
-                m_navSelectionPath);
-
-        dlg.setVisible(true);
-
-        if (dlg.isOk()) {
-          if (isFolderSel) informListeners(PSActionEvent.REFRESH_NAV_SELECTED);
-          else informListeners(PSIteratorUtils.iterator(parentFolderNode));
-        }
+        handleCreateFolderAction(selection);
       } else if (action.getName().equals(ACTION_EDIT_FOLDER)) {
-        PSNode folderNode = selection.getNodeList().next();
-
-        if (!folderNode.isFolderType())
-          throw new IllegalArgumentException("Invalid node for the action " + action.getName());
-
-        PSFolderDialog dlg =
-            new PSFolderDialog(
-                m_applet.getDialogParentFrame(),
-                m_applet.getUserInfo(),
-                m_folderMgr,
-                folderNode,
-                selection.getParent(),
-                m_navSelectionPath);
-
-        dlg.setVisible(true);
-        if (!dlg.isOk()) return;
-
-        // dirty the selected node
-        informListeners(selection.getNodeList(), PSActionEvent.DIRTY_NODES);
-        PSNode currentSelectedNode = m_applet.getSelectedNavTreeNode();
-
-        if (selection.getMode().getViewMode().equals(PSUiMode.TYPE_CXMAN))
-          informListeners(PSActionEvent.REFRESH_NAV_SELECTED);
-        else {
-          informListeners(PSActionEvent.REFRESH_NAV_SEL_PARENT);
-          if (currentSelectedNode != null) {
-            // Rx-05-02-0118 Fix selection in nav tree after
-            // folder property change
-            // This code causes the parent node to reload immediately
-            // so we can find the new PSNode that matches the id of the
-            // old node
-            String content_id = currentSelectedNode.getContentId();
-            PSNode match = null;
-            // Search for the matching new node in the refreshed parent
-            PSNode parent = m_applet.getNavTree().getSelectedNode();
-            m_folderMgr.loadChildren(parent);
-            Iterator<PSNode> citer = parent.getChildren();
-            while (citer.hasNext()) {
-              PSNode child = citer.next();
-              if (child.getContentId().equals(content_id)) {
-                match = child;
-                break;
-              }
-            }
-            if (match != null) {
-              m_applet.getNavTree().selectNode(match);
-            }
-          }
-        }
+        handleEditFolderAction(action, selection);
       } else if (action.getName().equals(ACTION_COPY_ACL_TO_SUBFOLDERS)) {
-        PSNode folderNode = selection.getNodeList().next();
-        PSFolder folder = m_folderMgr.loadFolder(folderNode);
-        if (folder.getPermissions().hasServerAdminAccess()) {
-          propagateFolderSecurity(folderNode);
-        } else {
-          Object[] args = {action.getLabel()};
-
-          String error =
-              MessageFormat.format(
-                  m_applet.getResourceString(getClass(), "ServerAdminAccessRequired"), args);
-
-          ErrorDialogs.showErrorMessage(
-              null, error, m_applet.getResourceString(getClass(), "Server Admin Access Required"));
-        }
+        handleCopyAclToSubfoldersAction(action, selection);
       } else if (action.getName().equals(ACTION_DELETE)
           || action.getName().equals(ACTION_FORCE_DELETE)) {
-        int ok =
-            JOptionPane.showConfirmDialog(
-                null,
-                m_applet.getResourceString(
-                    getClass().getName()
-                        + "@Delete actions cannot be undone. "
-                        + "Are you sure you want to delete?"),
-                m_applet.getResourceString(getClass().getName() + "@Confirm delete"),
-                JOptionPane.YES_NO_OPTION);
-
-        if (ok != JOptionPane.YES_OPTION) return;
-        boolean force = action.getName().equals(ACTION_FORCE_DELETE);
-        m_folderMgr.delete(selection.getParent(), selection.getNodeList(), force);
-
-        // dirty the selected node
-        informListeners(selection.getNodeList(), PSActionEvent.DIRTY_NODES);
-
-        if (selection.getMode().getViewMode().equals(PSUiMode.TYPE_CXMAN))
-          informListeners(PSActionEvent.REFRESH_NAV_SELECTED);
-        else informListeners(PSActionEvent.REFRESH_NAV_SEL_PARENT);
+        handleDeleteAction(action, selection);
       } else if (action.getName().equals(ACTION_PURGEALL)) {
         handlePurgeAllAction(selection);
       } else if (action.getName().equals(ACTION_PURGE_NAV)) {
         handlePurgeNavAction(selection);
       } else if (action.getName().equals(ACTION_DELETE_SEARCH)) {
-        if (!selection.isOfType(PSNode.TYPE_SAVE_SRCH)) {
-          throw new IllegalArgumentException(
-              "Invalid node type for the action " + action.getName());
-        }
-        int ok =
-            JOptionPane.showConfirmDialog(
-                null,
-                m_applet.getResourceString(
-                    getClass().getName()
-                        + "@Delete actions cannot be undone. "
-                        + "Are you sure you want to delete?"),
-                m_applet.getResourceString(getClass().getName() + "@Confirm delete"),
-                JOptionPane.YES_NO_OPTION);
-
-        if (ok != JOptionPane.YES_OPTION) return;
-
-        m_searchViewMgr.delete(selection.getNodeList());
-
-        if (selection.getMode().getViewMode().equals(PSUiMode.TYPE_CXMAN))
-          informListeners(PSActionEvent.REFRESH_NAV_SELECTED);
-        else informListeners(PSActionEvent.REFRESH_NAV_SEL_PARENT);
+        handleDeleteSearchAction(action, selection);
       } else if (action.getName().equals(ACTION_REFRESH)) {
-        m_applet.debugMessage("Executing \'Refresh\' action");
-
-        if (selection == null) informListeners(PSActionEvent.REFRESH_NAV_ROOT, true);
-        else if (selection instanceof PSNavigationalSelection)
-          informListeners(PSActionEvent.REFRESH_NAV_SELECTED, true);
-        else informListeners(PSActionEvent.REFRESH_NAV_SEL_PARENT, true);
+        handleRefreshAction(selection);
       } else if (action.getName().equals(ACTION_COPY)) {
-        m_clipBoard.setClip(PSClipBoard.TYPE_COPY, selection);
+        handleCopyAction(selection);
       } else if (action.getName().equals(ACTION_COPY_URL_TO_CLIPBOARD)) {
-        Iterator<PSNode> selectedItems = selection.getNodeList();
-        PSNode item = selectedItems.next();
-        String codeBase = m_applet.getRhythmyxCodeBase().toString();
-        String link = codeBase + "/sys_ActionPage/Panel.html?sys_contentid=" + item.getContentId();
-        Transferable trans = new StringSelection(link);
-        try {
-          Clipboard clip = getApplet().getToolkit().getSystemClipboard();
-          clip.setContents(
-              trans,
-              new ClipboardOwner() {
-                @Override
-                @SuppressWarnings("unused")
-                public void lostOwnership(Clipboard arg0, Transferable arg1) {
-                  // Ignore loss of ownership
-                }
-              });
-        } catch (Exception e1) {
-          m_applet.debugMessage("Unable to copy to clipboard, problem was " + e1.getMessage());
-        }
+        handleCopyUrlToClipboardAction(selection);
       } else if (action.getName().equals(ACTION_SAVEAS)) {
-        Iterator<PSNode> iter = selection.getNodeList();
-        PSNode newSearchNode = iter.next();
-        if (!newSearchNode.isOfType(PSNode.TYPE_NEW_SRCH)) {
-          throw new IllegalArgumentException("Invalid node found for action " + ACTION_SAVEAS);
-        }
-
-        PSSaveSearchDialog dlg = new PSSaveSearchDialog(m_applet.getDialogParentFrame(), m_applet);
-        dlg.setVisible(true);
-        if (dlg.isOk()) {
-          String saveName = dlg.getSearchName();
-          m_searchViewMgr.saveNewSearch(newSearchNode, saveName, dlg.getShowTo());
-
-          informListeners(PSActionEvent.REFRESH_NAV_SEL_PARENT);
-        }
+        handleSaveSearchAsAction(selection);
       } else if (action.getName().equals(ACTION_CHANGE_DF)) {
-        String newDf = action.getProperties().getProperty(PROPERTY_DISPLAYFORMATID);
-        if (newDf == null || newDf.length() < 1) {
-          throw new IllegalArgumentException(
-              "Displayformat id for action " + ACTION_CHANGE_DF + "is not found");
-        }
-
-        // take only the first one
-        PSNode node = selection.getNodeList().next();
-        if (node.isFolderType()
-            || node.isOfType(PSNode.TYPE_NEW_SRCH)
-            || node.isOfType(PSNode.TYPE_SAVE_SRCH)
-            || node.isOfType(PSNode.TYPE_CUSTOM_SRCH)
-            || node.isOfType(PSNode.TYPE_STANDARD_SRCH)
-            || node.isOfType(PSNode.TYPE_VIEW)) {
-          node.setDisplayFormatId(newDf);
-          m_applet.saveDisplayFormatIdToOptions(node);
-          informListeners(PSActionEvent.REFRESH_NAV_SELECTED, true);
-        } else {
-          throw new IllegalArgumentException(
-              "The action " + ACTION_CHANGE_DF + "is not valid for selected node " + node);
-        }
+        handleChangeDisplayFormatAction(action, selection);
       } else if (action.getName().startsWith(PSMenuAction.PREFIX_DROP_PASTE)
           || action.getName().startsWith(PSMenuAction.PREFIX_COPY_PASTE)) {
-        if (!viewSupportsCopyPaste())
-          throw new IllegalStateException("Invalid action " + action.getName() + "for this view");
-
-        int clipType = PSClipBoard.TYPE_COPY;
-        if (action.getName().startsWith(PSMenuAction.PREFIX_DROP_PASTE))
-          clipType = PSClipBoard.TYPE_DRAG;
-
-        Iterator<PSNode> clipNodes = m_clipBoard.getClip(clipType);
-        if (clipNodes == null)
-          throw new IllegalStateException(
-              "Paste action is called without content in the clip board.");
-
-        List<PSNode> refreshNodes = new ArrayList<PSNode>();
-        PSNode targetParent = selection.getParent();
-        Iterator<PSNode> targetNodes = selection.getNodeList();
-
-        // Remember where we currently are to restore this below
-        PSNode currentSelectedNode = m_applet.getSelectedNavTreeNode();
-
-        PSNode srcParent = m_clipBoard.getClipSource(clipType);
-        boolean isFullRefresh = true;
-
-        if (action.getName().endsWith(ACTION_PASTE_DF)) {
-          // Take only the first node for getting display format of the
-          // source
-          PSNode nodeSrc = clipNodes.next();
-          String nodeSrcType = nodeSrc.getType();
-
-          // Displays an error if the current content in the clip board
-          // is not a valid type that supports display format
-          if (!isFolderType(nodeSrcType)
-              && !nodeSrcType.equals(PSNode.TYPE_SAVE_SRCH)
-              && !nodeSrcType.equals(PSNode.TYPE_CUSTOM_SRCH)
-              && !nodeSrcType.equals(PSNode.TYPE_STANDARD_SRCH)
-              && !nodeSrcType.equals(PSNode.TYPE_VIEW)) {
-            ErrorDialogs.showErrorMessage(
-                null,
-                m_applet.getResourceString(
-                    getClass(), "Source must be a Folder/Saved Search/View for this Paste action"),
-                m_applet.getResourceString(getClass(), "Error"));
-            return;
-          }
-
-          String newDf = nodeSrc.getDisplayFormatId();
-          if (newDf == null || newDf.length() < 1) {
-            throw new IllegalArgumentException("Displayformat id is not found for " + nodeSrc);
-          }
-
-          // Apply the display format of the source to all target(selected)
-          // nodes
-          while (targetNodes.hasNext()) {
-            PSNode nodeTgt = targetNodes.next();
-            String tgtType = nodeTgt.getType();
-            if (isFolderType(tgtType)
-                || tgtType.equals(PSNode.TYPE_SAVE_SRCH)
-                || tgtType.equals(PSNode.TYPE_CUSTOM_SRCH)
-                || tgtType.equals(PSNode.TYPE_STANDARD_SRCH)
-                || tgtType.equals(PSNode.TYPE_VIEW)) {
-              nodeTgt.setDisplayFormatId(newDf);
-              m_applet.saveDisplayFormatIdToOptions(nodeTgt);
-              refreshNodes.add(nodeTgt);
-            }
-          }
-        } else if (action.getName().endsWith(ACTION_PASTE_LINK)
-            || action.getName().endsWith(ACTION_PASTE_NEW_COPY)
-            || action.getName().endsWith(ACTION_MOVE)
-            || action.getName().endsWith(ACTION_FORCE_MOVE)
-            || action.getName().endsWith(ACTION_MOVE_TO_SLOT)
-            || action.getName().endsWith(ACTION_PASTE_LINK_TO_SLOT)
-            || action.getName().endsWith(ACTION_PASTE_LINK_SEARCH_TO_SLOT)) {
-          if (srcParent == null || targetParent == null)
-            throw new IllegalStateException(
-                "Either parent of the source or target may not be null");
-
-          if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
-            PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
-
-            if (targetParent.isOfType(PSNode.TYPE_SLOT)) refreshNodes.add(targetParent);
-            while (targetNodes.hasNext()) {
-              PSNode target = targetNodes.next();
-
-              /*
-               * the new variant id is stored as action property in this
-               * case. Change the sys_variantid property of all clipboard
-               * nodes before modifying.
-               */
-              String varid = action.getProperty(PROPERTY_VARIANTID);
-              // only if action got a new variant id previously set
-              if (varid != null && varid.trim().length() > 0) {
-                List<PSNode> tempNodes = new ArrayList<PSNode>();
-                PSNode node = null;
-                while (clipNodes.hasNext()) {
-                  node = clipNodes.next();
-                  node.setProperty(PROPERTY_VARIANTID, varid);
-                  tempNodes.add(node);
-                }
-                clipNodes = tempNodes.iterator();
-              }
-              if (action.getName().endsWith(ACTION_MOVE_TO_SLOT)) {
-                /*
-                 * Reorder if the source and target nodes belong to the
-                 * same parent or if the target is the slot that is
-                 * parent of the source. In later case it puts the
-                 * source at the end of the list. If the parent slot of
-                 * source and target items are different, it updates
-                 * target and source parents.
-                 */
-                if (srcParent == targetParent || srcParent == target) {
-                  mgr.reorder(srcParent, target, clipNodes);
-                } else {
-                  mgr.update(targetParent, target, clipNodes);
-                  // Source need to be refreshed in case of move when
-                  // source and target parents are different.
-                  refreshNodes.add(srcParent);
-                }
-              } else if (action.getName().endsWith(ACTION_PASTE_LINK_TO_SLOT)
-                  || action.getName().endsWith(ACTION_PASTE_LINK_SEARCH_TO_SLOT)) {
-                // Always inserts in case of links and copies
-                mgr.insert(targetParent, target, clipNodes);
-                // Source does not really need to be refreshed but needs
-                // to be selected after proess is completed
-                refreshNodes.add(srcParent);
-              }
-              // Always insert in the beginning as we to keep the last
-              // node as selected node
-              if (target.isOfType(PSNode.TYPE_SLOT)) refreshNodes.add(0, target);
-            }
-          } else {
-            boolean refreshSrcParent = false;
-            boolean addedSrcParent = false;
-            while (targetNodes.hasNext()) {
-              PSNode target = targetNodes.next();
-
-              // right-now supports only pasting on Folders
-              if (!target.isAnyFolderType()) continue;
-
-              if (target.isOfType(PSNode.TYPE_SYS_FOLDERS)
-                  || target.isOfType(PSNode.TYPE_SYS_SITES)) {
-                // Can Paste only folders
-                List<PSNode> list = new ArrayList<PSNode>();
-                PSNode tmp = null;
-                while (clipNodes.hasNext()) {
-                  tmp = clipNodes.next();
-                  if (tmp.isFolderType()) list.add(tmp);
-                }
-                clipNodes = list.iterator();
-              }
-
-              if (clipNodes.hasNext()) refreshSrcParent = true;
-
-              // save clip nodes list for dirty action
-              List<PSNode> clipList = PSIteratorUtils.cloneList(clipNodes);
-              clipNodes = clipList.iterator();
-              boolean doDirty = true;
-              if (action.getName().endsWith(ACTION_PASTE_LINK)) {
-                m_folderMgr.add(target, clipList.iterator());
-                // no need to dirty parent on copy
-                refreshSrcParent = false;
-              } else if (action.getName().endsWith(ACTION_PASTE_NEW_COPY)) {
-                // the copy action must handle dirtying
-                doDirty = false;
-                // no need to dirty parent on copy
-                refreshSrcParent = false;
-
-                /*
-                 * There can only be one source for copy site and copy
-                 * site subfolder actions.
-                 */
-                PSNode singleSource = null;
-                if (clipList.size() == 1) singleSource = clipList.get(0);
-
-                PSFolderActionManager.ErrorResults errorLog = null;
-                if (singleSource != null
-                    && singleSource.isOfType(PSNode.TYPE_SITE)
-                    && isChild("//Sites", target)
-                    && !(target.isOfType(PSNode.TYPE_SITE)
-                        || target.isOfType(PSNode.TYPE_SITESUBFOLDER))) {
-                  PSWizardDialog dialog = createCopySiteWizard(singleSource, target);
-
-                  if (dialog.isOk()) {
-                    m_applet.setWaitCursor();
-
-                    errorLog =
-                        m_folderMgr.copyFolder(
-                            singleSource, target, createSiteCloningOptions(dialog.getData()));
-                  }
-                } else if (singleSource != null
-                    && singleSource.isAnyFolderType()
-                    && (target.isSiteFolder() || target.isSiteSubfolder())) {
-                  PSWizardDialog dialog = createCopySiteSubfolderWizard(singleSource, target);
-
-                  if (dialog.isOk()) {
-                    m_applet.setWaitCursor();
-
-                    errorLog =
-                        m_folderMgr.copyFolder(
-                            singleSource,
-                            target,
-                            createSiteSubfolderCloningOptions(dialog.getData()));
-                  }
-                } else m_folderMgr.copy(target, clipList.iterator());
-
-                if (!(errorLog == null || errorLog.wasSuccessful())) {
-                  if (errorLog.m_logFileName != null) {
-                    /*
-                     * There were errors cloning a site or site
-                     * subfolder. Display the error message to inform
-                     * the user.
-                     */
-                    String logLocation =
-                        m_applet.getSystemLogBase().toExternalForm() + errorLog.m_logFileName;
-
-                    Object[] args = {logLocation};
-                    String msg =
-                        m_applet.getResourceString(
-                            getClass(),
-                            "@There were errors copying a Site or Site "
-                                + "Subfolder which you must fix manually. The "
-                                + "errors are logged to the file: {0}.\n\nDo "
-                                + "you want to view the error log now?");
-                    String message = MessageFormat.format(msg, args);
-                    int option =
-                        JOptionPane.showConfirmDialog(
-                            m_applet.getDialogParentFrame(),
-                            PSLineBreaker.wrapString(message, 80, 10, null),
-                            "Error",
-                            JOptionPane.YES_NO_OPTION);
-                    if (option == JOptionPane.OK_OPTION) UTBrowserControl.displayURL(logLocation);
-                  }
-                  if (errorLog.m_siteCloneErrorText != null) {
-                    Object[] args = {errorLog.m_siteCloneErrorText};
-                    String msg = m_applet.getResourceString(getClass(), "@SiteDefCloneProblem");
-                    String message = MessageFormat.format(msg, args);
-                    JOptionPane.showMessageDialog(
-                        m_applet.getDialogParentFrame(),
-                        PSLineBreaker.wrapString(message, 80, 10, null),
-                        "Error",
-                        JOptionPane.WARNING_MESSAGE);
-                  }
-                }
-              } else {
-                boolean force = action.getName().endsWith(ACTION_FORCE_MOVE);
-                m_folderMgr.move(srcParent, target, clipNodes, force);
-              }
-
-              try {
-                // Need to reload the flagged folder set
-                m_applet.loadFlaggedFoldersSet();
-              } catch (Exception e) {
-                // Not vital, log and continue with selective refresh
-                log.warn("Could not reload flagged folder set, continuing", e);
-              }
-
-              // do selective refresh
-              isFullRefresh = false;
-
-              // dirty nodes for the refresh
-              if (doDirty) {
-                informListeners(clipList.iterator(), PSActionEvent.DIRTY_NODES);
-              }
-
-              refreshNodes.add(target);
-
-              if (refreshSrcParent && !addedSrcParent && target != srcParent) {
-                refreshNodes.add(srcParent);
-                addedSrcParent = true;
-              }
-            }
-          }
-        }
-
-        if (clipType == PSClipBoard.TYPE_DRAG) m_clipBoard.clearDragClip();
-
-        // call inform listeners with proper nodes to refresh.
-        informListeners(refreshNodes.iterator(), isFullRefresh);
-        // Keep the view pointing to the original node
-        m_applet.setSelectedNavTreeNode(currentSelectedNode);
-        // Fix the count since a move will cause the counts in the folder
-        // to be off
-        currentSelectedNode.fixSearchResultCount();
-        // Refresh search stuff
-        if (currentSelectedNode.isAnyFolderType()) {
-          m_folderMgr.runSearchCompleted(currentSelectedNode);
-        }
+        handlePasteAction(action, selection);
       } else if (action.getName().equals(ACTION_ARRANGE_REMOVE)) {
-        if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
-          Iterator<PSNode> targetNodes = selection.getNodeList();
-
-          PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
-          mgr.delete(selection.getParent(), targetNodes);
-
-          List<PSNode> refreshNodes = new ArrayList<PSNode>();
-          refreshNodes.add(selection.getParent());
-
-          informListeners(refreshNodes.iterator());
-        }
+        handleArrangeRemoveAction(selection);
       } else if (action.getName().equals(ACTION_MOVE_UPLEFT)) {
-        if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
-          PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
-          mgr.reorder(selection, -1);
-
-          List<PSNode> refreshNodes = new ArrayList<PSNode>();
-          refreshNodes.add(selection.getParent());
-
-          informListeners(refreshNodes.iterator());
-        }
+        handleMoveUpLeftAction(selection);
       } else if (action.getName().equals(ACTION_MOVE_DOWNRT)) {
-        if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
-          PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
-          mgr.reorder(selection, 1);
-
-          List<PSNode> refreshNodes = new ArrayList<PSNode>();
-          refreshNodes.add(selection.getParent());
-
-          informListeners(refreshNodes.iterator());
-        }
+        handleMoveDownRightAction(selection);
       } else if (action.getName().equals(ACTION_LINK_TO_SLOT)) {
-        if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
-          PSNode origSelection = m_applet.getSelectedNavTreeNode();
-
-          PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
-
-          PSNode slotNode = (PSNode) m_newSearchNode.getSlotNode();
-
-          mgr.insert(slotNode, slotNode, selection.getNodeList());
-
-          List<PSNode> refreshNodes = new ArrayList<PSNode>();
-          refreshNodes.add(slotNode);
-          informListeners(refreshNodes.iterator());
-
-          // always reselect the original selection since the refresh
-          // will change the selection
-          m_applet.setSelectedNavTreeNode(origSelection);
-        } else if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_RC)) {
-          String ownerContentId = m_newSearchNode.getContentId();
-          String slotId = m_newSearchNode.getSlotId();
-
-          m_applet.debugMessage(
-              "Linking selected items to slot "
-                  + slotId
-                  + " of the content item "
-                  + ownerContentId
-                  + ")");
-          PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
-          mgr.insert(ownerContentId, slotId, selection.getNodeList());
-
-          // LiveConnect (JSObject.getWindow) was removed in JDK 11.
-          // TODO: Implement alternative mechanism to call refreshParent.
-          log.warn(
-              "LiveConnect is no longer available; cannot call refreshParent JavaScript method.");
-        }
+        handleLinkToSlotAction(selection);
       } else if (action.getName().endsWith(ACTION_CHANGE_VARIANT)) {
-        if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
-          PSNode target = selection.getParent();
-          PSNode nodeCurrent = selection.getNodeList().next();
-          String newVarid = action.getProperty(PROPERTY_VARIANTID);
-          String oldVarid = nodeCurrent.getProp(PROPERTY_VARIANTID);
-          if (newVarid.equals(oldVarid)) {
-            m_applet.debugMessage("No change since old and new varaintids are same");
-            return;
-          }
-          nodeCurrent.setProperty(PROPERTY_VARIANTID, newVarid);
-          List<PSNode> list = new ArrayList<PSNode>();
-          list.add(nodeCurrent);
-
-          PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
-          mgr.update(target, target, list.iterator());
-        }
+        handleChangeVariantAction(action, selection);
       } else if (action.getName().equals(ACTION_TOP_HELP)
           || action.getName().equals(ACTION_CXT_HELP)) // 'Help'
       // and
       // 'topMenuHelp'
       {
-        String helpId;
-        if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_CX)) helpId = "ContentExplorer";
-        else if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) helpId = "ItemAssembly";
-        else if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_RC)) helpId = "RelatedContentSearch";
-        else helpId = "DependencyViewer";
-        if (action.getName().equals(ACTION_CXT_HELP)) {
-          PSNode helpNode = selection.getNodeList().next();
-          String nodeType = helpNode.getType();
-          String helpTypeHint = helpNode.getHelpTypeHint();
-          if (nodeType.equals(PSNode.TYPE_SYS_SITES)) {
-            helpId = "Sites";
-          } else if (nodeType.equals(PSNode.TYPE_SYS_FOLDERS) || isFolderType(nodeType)) {
-            helpId = "Folders";
-          } else if (nodeType.equals(PSNode.TYPE_SYS_CATEGORY)
-              || nodeType.equals(PSNode.TYPE_CATEGORY)) {
-            if (helpTypeHint != null && helpTypeHint.equals(PSNode.HELP_TYPE_HINT_SRCH)) {
-              helpId = "Search";
-            } else {
-              helpId = "Categories";
-            }
-          } else if (nodeType.equals(PSNode.TYPE_SYS_VIEW) || nodeType.equals(PSNode.TYPE_VIEW)) {
-            helpId = "Views";
-          } else if (nodeType.equals(PSNode.TYPE_SLOT) || nodeType.equals(PSNode.TYPE_SLOT_ITEM)) {
-            helpId = "SlotItemAssembly";
-          } else if (nodeType.equals(PSNode.TYPE_NEW_SRCH)
-              || nodeType.equals(PSNode.TYPE_CUSTOM_SRCH)
-              || nodeType.equals(PSNode.TYPE_STANDARD_SRCH)
-              || nodeType.equals(PSNode.TYPE_SAVE_SRCH)) {
-            if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_CX)) helpId = "Search";
-            else if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)
-                || m_applet.getView().equals(PSUiMode.TYPE_VIEW_RC)) {
-              helpId = "RelatedContentSearch";
-            }
-          }
-        }
-
-        PSJavaHelp.launchHelp(helpId);
+        handleHelpAction(action, selection);
       } else if (action.getName().equals(ACTION_ABOUT)) {
-        PSI18NTranslationKeyValues resources = PSI18NTranslationKeyValues.getInstance();
-        String appPackage = "com.percussion.util";
-        String title = resources.getTranslationValue(getClass().getPackage().getName() + "@title");
-        PSFormatVersion version = new PSFormatVersion(appPackage);
-
-        PSAboutDialog dlg =
-            new PSAboutDialog(m_applet.getDialogParentFrame(), title, version.getVersionString());
-        dlg.setAppletContext(m_applet.getAppletContext());
-        dlg.setVisible(true);
+        handleAboutAction();
       } else if (action.getName().equals(ACTION_OPEN_FOLDER_REF)) {
-        PSNode node = selection.getNodeList().next();
-        /*
-         * Use the path, if present, otherwise, retrieve the path from the
-         * server based on the folder id.
-         */
-        String id = node.getContentId();
-        String[] results;
-        try {
-          results = m_folderMgr.getFolderPaths(new PSLocator(id));
-        } catch (PSCmsException e) {
-          // could happen if folder removed since search results generated
-          JOptionPane.showMessageDialog(
-              m_applet.getDialogParentFrame(),
-              m_applet.getResourceString(
-                  getClass().getName()
-                      + "@Could not find path of this folder, probably "
-                      + "because the folder was deleted."),
-              m_applet.getResourceString(getClass().getName() + "@Invalid Folder Path"),
-              JOptionPane.OK_OPTION);
-
-          return;
-        }
-
-        if (results.length == 0) {
-          // should never happen
-          m_applet.debugMessage("No folder path found for id " + id);
-          return;
-        }
-        String path = results[0] + "/" + node.getName();
-        ((PSMainView) m_applet.m_mainView).getNavTree().setSelectionPath(path, false);
-        return;
+        handleOpenFolderRefAction(selection);
       } else if (action.getName().equals(ACTION_SEARCH_WITHIN_FOLDER)) {
-        /*
-         * This action depends on the current behavior that the
-         * SearchResults parent node loads it's children before the applet
-         * starts.
-         */
-        PSNode node = selection.getNodeList().next();
-        if (!node.isAnyFolderType()) {
-          // may happen if action mis-configured
-          JOptionPane.showConfirmDialog(
-              m_applet.getDialogParentFrame(),
-              m_applet.getResourceString(
-                  getClass().getName()
-                      + "@This action is only supported on folders. See your "
-                      + "admin to correct the Rhythmyx configuration."),
-              m_applet.getResourceString(getClass().getName() + "@Wrong Node Type"),
-              JOptionPane.OK_OPTION);
-
-          return;
-        }
-        if (null == m_emptySearchNode) {
-          // should never happen
-          m_applet.debugMessage(
-              "No empty search node set before action '" + action.getLabel() + "' was called.");
-          return;
-        }
-        String path = getNavSelectionPath();
-        if (path.length() == 0) {
-          // should never happen
-          m_applet.debugMessage(
-              "Trying to perform action " + action.getLabel() + ", but no node selected.");
-          return;
-        }
-        /*
-         * If the selected item is in the main display pane, path will only
-         * be the tree part. In that case, we need to add the last part onto
-         * the path.
-         */
-        if (!path.endsWith(node.getLabel())) {
-          if (!path.endsWith("/")) path += "/";
-          path += node.getLabel();
-        }
-
-        PSSelection sel =
-            new PSSelection(
-                new PSUiMode(PSUiMode.TYPE_VIEW_CX, PSUiMode.TYPE_MODE_NAV),
-                null,
-                PSIteratorUtils.iterator(m_emptySearchNode));
-        PSMenuAction defAction = findDefaultAction(sel);
-        if (defAction != null) executeAction(defAction, sel, path);
-        return;
+        handleSearchWithinFolderAction(action, selection);
       } else if (!action.getName().equals(ACTION_NO_ENTRIES)) {
         JOptionPane.showMessageDialog(
             null, "Action '" + action.getName() + "' not implemented yet");
@@ -3304,6 +2538,1001 @@ public class PSActionManager implements IPSConstants, IPSSelectionListener {
     } finally {
       m_applet.resetCursor();
     }
+  }
+
+  /**
+   * Handles the ACTION_OPTIONS client action. Shows the display options dialog and refreshes options on OK.
+   */
+  private void handleOptionsAction() throws PSException, PSContentExplorerException {
+    PSDisplayOptions defOptions = m_applet.getOptionsManager().getDefaultDisplayOptions();
+    PSDisplayOptions userOptions = m_applet.getOptionsManager().getDisplayOptions();
+
+    PSDisplayOptionsDialog dlg =
+        new PSDisplayOptionsDialog(
+            m_applet.getDialogParentFrame(), userOptions, defOptions, m_applet);
+    dlg.pack();
+    dlg.setVisible(true);
+
+    if (dlg.isOk()) informListeners(PSActionEvent.REFRESH_OPTIONS);
+  }
+
+  /**
+   * Handles the ACTION_SEARCH, ACTION_SLOT_SEARCH or ACTION_EDIT_SEARCH on an empty search node client action. Opens the search dialog for a new, slot or empty search node.
+   *
+   * @param action the action being executed, assumed not <code>null</code>.
+   * @param selection the selection of nodes, may be <code>null</code>.
+   * @param data optional action data, may be <code>null</code>.
+   */
+  private void handleNewSearchAction(PSMenuAction action, PSSelection selection, Object data) throws PSException, PSContentExplorerException {
+    if (action.getName().equals(ACTION_SLOT_SEARCH)) {
+      PSNode selectedSlotNode = selection.getNodeList().next();
+      if (selectedSlotNode.getSlotId().length() == 0)
+        throw new IllegalArgumentException(
+            "The action "
+                + ACTION_SLOT_SEARCH
+                + "is not a valid action for "
+                + selectedSlotNode.getName());
+
+      m_newSearchNode.setPropertyObj(PROPERTY_SLOT_NODE, selectedSlotNode);
+
+      m_newSearchNode.setProperty(PROPERTY_SLOTID, selectedSlotNode.getSlotId());
+    }
+
+    String oldFolderPath = m_newSearchNode.getProp(PROPERTY_FOLDER_PATH);
+    String path = null;
+    if (null != data && data.toString().trim().length() > 0) path = data.toString();
+    m_newSearchNode.setProperty(PROPERTY_FOLDER_PATH, path);
+
+    boolean isRcSearch = m_newSearchNode.getSlotId().length() > 0;
+    // prepare the search fields filter and pass it to the
+    // PSSearchDialog
+    Map<String, PSSearchFieldFilter> searchFieldFilterMap =
+        prepareSearchFilterMap(m_newSearchNode);
+    // see the NOTE above
+    Runtime.getRuntime().gc();
+    PSSearchDialog dlg =
+        new PSSearchDialog(
+            m_applet.getDialogParentFrame(),
+            m_searchViewMgr,
+            m_remCataloger,
+            m_newSearchNode,
+            searchFieldFilterMap,
+            true,
+            isRcSearch,
+            m_applet.getSearchConfig(),
+            m_applet.getSearachableFieldsCache(),
+            m_applet.getCodeBase());
+    dlg.setVisible(true);
+    if (dlg.isOk()) {
+      PSSearchViewActionManager.setAsInitialized(m_newSearchNode);
+      if (m_newSearchNode.isHidden()) {
+        addNewSearchNode();
+      }
+      informListeners(PSIteratorUtils.iterator(m_newSearchNode));
+    } else {
+      /*
+       * they cancelled, so make the existing search results behavior
+       * unchanged
+       */
+      m_newSearchNode.setProperty(PROPERTY_FOLDER_PATH, oldFolderPath);
+    }
+  }
+
+  /**
+   * Handles the ACTION_EDIT_SEARCH client action. Opens the search dialog to edit an existing search node.
+   *
+   * @param action the action being executed, assumed not <code>null</code>.
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleEditSearchAction(PSMenuAction action, PSSelection selection) throws PSException, PSContentExplorerException {
+    PSNode searchNode = selection.getNodeList().next();
+    if (!searchNode.isOfType(PSNode.TYPE_SAVE_SRCH)
+        && !searchNode.isOfType(PSNode.TYPE_NEW_SRCH)
+        && !searchNode.isOfType(PSNode.TYPE_CUSTOM_SRCH)
+        && !searchNode.isOfType(PSNode.TYPE_STANDARD_SRCH)) {
+      throw new IllegalArgumentException("Found a node that is not search to edit query.");
+    }
+
+    // Show dialog always for 'CX' view, but in other views (IA & RC)
+    // only if the slot id is available to search on.
+    if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_CX)
+        || searchNode.getSlotId().length() > 0) {
+      boolean isRcSearch = searchNode.getSlotId().length() > 0;
+      // prepare the search fields filter and pass it to the
+      // PSSearchDialog
+      Map<String, PSSearchFieldFilter> searchFieldFilterMap =
+          prepareSearchFilterMap(searchNode);
+      // see the NOTE above
+      Runtime.getRuntime().gc();
+      PSSearchDialog dlg =
+          new PSSearchDialog(
+              m_applet.getDialogParentFrame(),
+              m_searchViewMgr,
+              m_remCataloger,
+              searchNode,
+              searchFieldFilterMap,
+              false,
+              isRcSearch,
+              m_applet.getSearchConfig(),
+              m_applet.getSearachableFieldsCache(),
+              m_applet.getCodeBase());
+
+      dlg.setVisible(true);
+      if (dlg.isOk()) {
+        // Sets any search as initialized if not yet initialized
+        if (PSSearchViewActionManager.isNodeInitializable(searchNode)) {
+          PSSearchViewActionManager.setAsInitialized(searchNode);
+        }
+        // Save the search if it is of the type saveable
+        if (searchNode.isOfType(PSNode.TYPE_SAVE_SRCH)) {
+          m_searchViewMgr.saveSearch(dlg.getSearch());
+        }
+        informListeners(PSActionEvent.REFRESH_NAV_SELECTED);
+      }
+    }
+  }
+
+  /**
+   * Handles the ACTION_CREATE_FOLDER client action. Shows the folder dialog to create a new folder.
+   *
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleCreateFolderAction(PSSelection selection) throws PSException, PSContentExplorerException {
+    PSNode parentFolderNode = null;
+    if (selection != null) parentFolderNode = selection.getNodeList().next();
+
+    boolean isFolderSel = true;
+    if (parentFolderNode == null || !parentFolderNode.isAnyFolderType()) {
+      parentFolderNode = m_applet.getSystemFoldersNode();
+      isFolderSel = false;
+    }
+
+    if (parentFolderNode == null)
+      throw new IllegalStateException("Parent folder is not found to create a new folder");
+
+    PSFolderDialog dlg =
+        new PSFolderDialog(
+            m_applet.getDialogParentFrame(),
+            m_applet.getUserInfo(),
+            m_folderMgr,
+            null,
+            parentFolderNode,
+            m_navSelectionPath);
+
+    dlg.setVisible(true);
+
+    if (dlg.isOk()) {
+      if (isFolderSel) informListeners(PSActionEvent.REFRESH_NAV_SELECTED);
+      else informListeners(PSIteratorUtils.iterator(parentFolderNode));
+    }
+  }
+
+  /**
+   * Handles the ACTION_EDIT_FOLDER client action. Shows the folder dialog to edit a folder and restores the nav selection.
+   *
+   * @param action the action being executed, assumed not <code>null</code>.
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleEditFolderAction(PSMenuAction action, PSSelection selection) throws PSException, PSContentExplorerException {
+    PSNode folderNode = selection.getNodeList().next();
+
+    if (!folderNode.isFolderType())
+      throw new IllegalArgumentException("Invalid node for the action " + action.getName());
+
+    PSFolderDialog dlg =
+        new PSFolderDialog(
+            m_applet.getDialogParentFrame(),
+            m_applet.getUserInfo(),
+            m_folderMgr,
+            folderNode,
+            selection.getParent(),
+            m_navSelectionPath);
+
+    dlg.setVisible(true);
+    if (!dlg.isOk()) return;
+
+    // dirty the selected node
+    informListeners(selection.getNodeList(), PSActionEvent.DIRTY_NODES);
+    PSNode currentSelectedNode = m_applet.getSelectedNavTreeNode();
+
+    if (selection.getMode().getViewMode().equals(PSUiMode.TYPE_CXMAN))
+      informListeners(PSActionEvent.REFRESH_NAV_SELECTED);
+    else {
+      informListeners(PSActionEvent.REFRESH_NAV_SEL_PARENT);
+      restoreNavSelectionAfterFolderEdit(currentSelectedNode);
+    }
+  }
+
+  /**
+   * Restores the nav-tree selection after a folder edit by finding the reloaded node that matches
+   * the previously selected node's content id (Rx-05-02-0118).
+   *
+   * @param currentSelectedNode the node that was selected before the refresh, may be
+   *     <code>null</code>.
+   */
+  private void restoreNavSelectionAfterFolderEdit(PSNode currentSelectedNode)
+      throws PSException, PSContentExplorerException {
+    if (currentSelectedNode == null) return;
+    // Rx-05-02-0118 Fix selection in nav tree after
+    // folder property change
+    // This code causes the parent node to reload immediately
+    // so we can find the new PSNode that matches the id of the
+    // old node
+    String content_id = currentSelectedNode.getContentId();
+    PSNode match = null;
+    // Search for the matching new node in the refreshed parent
+    PSNode parent = m_applet.getNavTree().getSelectedNode();
+    m_folderMgr.loadChildren(parent);
+    Iterator<PSNode> citer = parent.getChildren();
+    while (citer.hasNext()) {
+      PSNode child = citer.next();
+      if (child.getContentId().equals(content_id)) {
+        match = child;
+        break;
+      }
+    }
+    if (match != null) {
+      m_applet.getNavTree().selectNode(match);
+    }
+  }
+
+  /**
+   * Handles the ACTION_COPY_ACL_TO_SUBFOLDERS client action. Propagates folder security to subfolders for server admins.
+   *
+   * @param action the action being executed, assumed not <code>null</code>.
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleCopyAclToSubfoldersAction(PSMenuAction action, PSSelection selection) throws PSException, PSContentExplorerException {
+    PSNode folderNode = selection.getNodeList().next();
+    PSFolder folder = m_folderMgr.loadFolder(folderNode);
+    if (folder.getPermissions().hasServerAdminAccess()) {
+      propagateFolderSecurity(folderNode);
+    } else {
+      Object[] args = {action.getLabel()};
+
+      String error =
+          MessageFormat.format(
+              m_applet.getResourceString(getClass(), "ServerAdminAccessRequired"), args);
+
+      ErrorDialogs.showErrorMessage(
+          null, error, m_applet.getResourceString(getClass(), "Server Admin Access Required"));
+    }
+  }
+
+  /**
+   * Handles the ACTION_DELETE or ACTION_FORCE_DELETE client action. Confirms and deletes the selected nodes.
+   *
+   * @param action the action being executed, assumed not <code>null</code>.
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleDeleteAction(PSMenuAction action, PSSelection selection) throws PSException, PSContentExplorerException {
+    int ok =
+        JOptionPane.showConfirmDialog(
+            null,
+            m_applet.getResourceString(
+                getClass().getName()
+                    + "@Delete actions cannot be undone. "
+                    + "Are you sure you want to delete?"),
+            m_applet.getResourceString(getClass().getName() + "@Confirm delete"),
+            JOptionPane.YES_NO_OPTION);
+
+    if (ok != JOptionPane.YES_OPTION) return;
+    boolean force = action.getName().equals(ACTION_FORCE_DELETE);
+    m_folderMgr.delete(selection.getParent(), selection.getNodeList(), force);
+
+    // dirty the selected node
+    informListeners(selection.getNodeList(), PSActionEvent.DIRTY_NODES);
+
+    if (selection.getMode().getViewMode().equals(PSUiMode.TYPE_CXMAN))
+      informListeners(PSActionEvent.REFRESH_NAV_SELECTED);
+    else informListeners(PSActionEvent.REFRESH_NAV_SEL_PARENT);
+  }
+
+  /**
+   * Handles the ACTION_DELETE_SEARCH client action. Confirms and deletes the selected saved search.
+   *
+   * @param action the action being executed, assumed not <code>null</code>.
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleDeleteSearchAction(PSMenuAction action, PSSelection selection) throws PSException, PSContentExplorerException {
+    if (!selection.isOfType(PSNode.TYPE_SAVE_SRCH)) {
+      throw new IllegalArgumentException(
+          "Invalid node type for the action " + action.getName());
+    }
+    int ok =
+        JOptionPane.showConfirmDialog(
+            null,
+            m_applet.getResourceString(
+                getClass().getName()
+                    + "@Delete actions cannot be undone. "
+                    + "Are you sure you want to delete?"),
+            m_applet.getResourceString(getClass().getName() + "@Confirm delete"),
+            JOptionPane.YES_NO_OPTION);
+
+    if (ok != JOptionPane.YES_OPTION) return;
+
+    m_searchViewMgr.delete(selection.getNodeList());
+
+    if (selection.getMode().getViewMode().equals(PSUiMode.TYPE_CXMAN))
+      informListeners(PSActionEvent.REFRESH_NAV_SELECTED);
+    else informListeners(PSActionEvent.REFRESH_NAV_SEL_PARENT);
+  }
+
+  /**
+   * Handles the ACTION_REFRESH client action. Refreshes the navigation view for the current selection.
+   *
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleRefreshAction(PSSelection selection) throws PSException, PSContentExplorerException {
+    m_applet.debugMessage("Executing \'Refresh\' action");
+
+    if (selection == null) informListeners(PSActionEvent.REFRESH_NAV_ROOT, true);
+    else if (selection instanceof PSNavigationalSelection)
+      informListeners(PSActionEvent.REFRESH_NAV_SELECTED, true);
+    else informListeners(PSActionEvent.REFRESH_NAV_SEL_PARENT, true);
+  }
+
+  /**
+   * Handles the ACTION_COPY client action. Copies the current selection to the clipboard.
+   *
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleCopyAction(PSSelection selection) throws PSException, PSContentExplorerException {
+    m_clipBoard.setClip(PSClipBoard.TYPE_COPY, selection);
+  }
+
+  /**
+   * Handles the ACTION_COPY_URL_TO_CLIPBOARD client action. Copies a preview URL for the selected item to the system clipboard.
+   *
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleCopyUrlToClipboardAction(PSSelection selection) throws PSException, PSContentExplorerException {
+    Iterator<PSNode> selectedItems = selection.getNodeList();
+    PSNode item = selectedItems.next();
+    String codeBase = m_applet.getRhythmyxCodeBase().toString();
+    String link = codeBase + "/sys_ActionPage/Panel.html?sys_contentid=" + item.getContentId();
+    Transferable trans = new StringSelection(link);
+    try {
+      Clipboard clip = getApplet().getToolkit().getSystemClipboard();
+      clip.setContents(
+          trans,
+          new ClipboardOwner() {
+            @Override
+            @SuppressWarnings("unused")
+            public void lostOwnership(Clipboard arg0, Transferable arg1) {
+              // Ignore loss of ownership
+            }
+          });
+    } catch (Exception e1) {
+      m_applet.debugMessage("Unable to copy to clipboard, problem was " + e1.getMessage());
+    }
+  }
+
+  /**
+   * Handles the ACTION_SAVEAS client action. Saves a new search node under a user-supplied name.
+   *
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleSaveSearchAsAction(PSSelection selection) throws PSException, PSContentExplorerException {
+    Iterator<PSNode> iter = selection.getNodeList();
+    PSNode newSearchNode = iter.next();
+    if (!newSearchNode.isOfType(PSNode.TYPE_NEW_SRCH)) {
+      throw new IllegalArgumentException("Invalid node found for action " + ACTION_SAVEAS);
+    }
+
+    PSSaveSearchDialog dlg = new PSSaveSearchDialog(m_applet.getDialogParentFrame(), m_applet);
+    dlg.setVisible(true);
+    if (dlg.isOk()) {
+      String saveName = dlg.getSearchName();
+      m_searchViewMgr.saveNewSearch(newSearchNode, saveName, dlg.getShowTo());
+
+      informListeners(PSActionEvent.REFRESH_NAV_SEL_PARENT);
+    }
+  }
+
+  /**
+   * Handles the ACTION_CHANGE_DF client action. Applies the action display format id to the selected node.
+   *
+   * @param action the action being executed, assumed not <code>null</code>.
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleChangeDisplayFormatAction(PSMenuAction action, PSSelection selection) throws PSException, PSContentExplorerException {
+    String newDf = action.getProperties().getProperty(PROPERTY_DISPLAYFORMATID);
+    if (newDf == null || newDf.length() < 1) {
+      throw new IllegalArgumentException(
+          "Displayformat id for action " + ACTION_CHANGE_DF + "is not found");
+    }
+
+    // take only the first one
+    PSNode node = selection.getNodeList().next();
+    if (node.isFolderType()
+        || node.isOfType(PSNode.TYPE_NEW_SRCH)
+        || node.isOfType(PSNode.TYPE_SAVE_SRCH)
+        || node.isOfType(PSNode.TYPE_CUSTOM_SRCH)
+        || node.isOfType(PSNode.TYPE_STANDARD_SRCH)
+        || node.isOfType(PSNode.TYPE_VIEW)) {
+      node.setDisplayFormatId(newDf);
+      m_applet.saveDisplayFormatIdToOptions(node);
+      informListeners(PSActionEvent.REFRESH_NAV_SELECTED, true);
+    } else {
+      throw new IllegalArgumentException(
+          "The action " + ACTION_CHANGE_DF + "is not valid for selected node " + node);
+    }
+  }
+
+  /**
+   * Handles the drop-paste and copy-paste actions client action. Pastes clipboard nodes onto the selected targets.
+   *
+   * @param action the action being executed, assumed not <code>null</code>.
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handlePasteAction(PSMenuAction action, PSSelection selection) throws PSException, PSContentExplorerException {
+    if (!viewSupportsCopyPaste())
+      throw new IllegalStateException("Invalid action " + action.getName() + "for this view");
+
+    int clipType = PSClipBoard.TYPE_COPY;
+    if (action.getName().startsWith(PSMenuAction.PREFIX_DROP_PASTE))
+      clipType = PSClipBoard.TYPE_DRAG;
+
+    Iterator<PSNode> clipNodes = m_clipBoard.getClip(clipType);
+    if (clipNodes == null)
+      throw new IllegalStateException(
+          "Paste action is called without content in the clip board.");
+
+    List<PSNode> refreshNodes = new ArrayList<PSNode>();
+    PSNode targetParent = selection.getParent();
+    Iterator<PSNode> targetNodes = selection.getNodeList();
+
+    // Remember where we currently are to restore this below
+    PSNode currentSelectedNode = m_applet.getSelectedNavTreeNode();
+
+    PSNode srcParent = m_clipBoard.getClipSource(clipType);
+    boolean isFullRefresh = true;
+
+    if (action.getName().endsWith(ACTION_PASTE_DF)) {
+      // Take only the first node for getting display format of the
+      // source
+      PSNode nodeSrc = clipNodes.next();
+      String nodeSrcType = nodeSrc.getType();
+
+      // Displays an error if the current content in the clip board
+      // is not a valid type that supports display format
+      if (!isFolderType(nodeSrcType)
+          && !nodeSrcType.equals(PSNode.TYPE_SAVE_SRCH)
+          && !nodeSrcType.equals(PSNode.TYPE_CUSTOM_SRCH)
+          && !nodeSrcType.equals(PSNode.TYPE_STANDARD_SRCH)
+          && !nodeSrcType.equals(PSNode.TYPE_VIEW)) {
+        ErrorDialogs.showErrorMessage(
+            null,
+            m_applet.getResourceString(
+                getClass(), "Source must be a Folder/Saved Search/View for this Paste action"),
+            m_applet.getResourceString(getClass(), "Error"));
+        return;
+      }
+
+      String newDf = nodeSrc.getDisplayFormatId();
+      if (newDf == null || newDf.length() < 1) {
+        throw new IllegalArgumentException("Displayformat id is not found for " + nodeSrc);
+      }
+
+      // Apply the display format of the source to all target(selected)
+      // nodes
+      while (targetNodes.hasNext()) {
+        PSNode nodeTgt = targetNodes.next();
+        String tgtType = nodeTgt.getType();
+        if (isFolderType(tgtType)
+            || tgtType.equals(PSNode.TYPE_SAVE_SRCH)
+            || tgtType.equals(PSNode.TYPE_CUSTOM_SRCH)
+            || tgtType.equals(PSNode.TYPE_STANDARD_SRCH)
+            || tgtType.equals(PSNode.TYPE_VIEW)) {
+          nodeTgt.setDisplayFormatId(newDf);
+          m_applet.saveDisplayFormatIdToOptions(nodeTgt);
+          refreshNodes.add(nodeTgt);
+        }
+      }
+    } else if (action.getName().endsWith(ACTION_PASTE_LINK)
+        || action.getName().endsWith(ACTION_PASTE_NEW_COPY)
+        || action.getName().endsWith(ACTION_MOVE)
+        || action.getName().endsWith(ACTION_FORCE_MOVE)
+        || action.getName().endsWith(ACTION_MOVE_TO_SLOT)
+        || action.getName().endsWith(ACTION_PASTE_LINK_TO_SLOT)
+        || action.getName().endsWith(ACTION_PASTE_LINK_SEARCH_TO_SLOT)) {
+      if (srcParent == null || targetParent == null)
+        throw new IllegalStateException(
+            "Either parent of the source or target may not be null");
+
+      if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
+        PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
+
+        if (targetParent.isOfType(PSNode.TYPE_SLOT)) refreshNodes.add(targetParent);
+        while (targetNodes.hasNext()) {
+          PSNode target = targetNodes.next();
+
+          /*
+           * the new variant id is stored as action property in this
+           * case. Change the sys_variantid property of all clipboard
+           * nodes before modifying.
+           */
+          String varid = action.getProperty(PROPERTY_VARIANTID);
+          // only if action got a new variant id previously set
+          if (varid != null && varid.trim().length() > 0) {
+            List<PSNode> tempNodes = new ArrayList<PSNode>();
+            PSNode node = null;
+            while (clipNodes.hasNext()) {
+              node = clipNodes.next();
+              node.setProperty(PROPERTY_VARIANTID, varid);
+              tempNodes.add(node);
+            }
+            clipNodes = tempNodes.iterator();
+          }
+          if (action.getName().endsWith(ACTION_MOVE_TO_SLOT)) {
+            /*
+             * Reorder if the source and target nodes belong to the
+             * same parent or if the target is the slot that is
+             * parent of the source. In later case it puts the
+             * source at the end of the list. If the parent slot of
+             * source and target items are different, it updates
+             * target and source parents.
+             */
+            if (srcParent == targetParent || srcParent == target) {
+              mgr.reorder(srcParent, target, clipNodes);
+            } else {
+              mgr.update(targetParent, target, clipNodes);
+              // Source need to be refreshed in case of move when
+              // source and target parents are different.
+              refreshNodes.add(srcParent);
+            }
+          } else if (action.getName().endsWith(ACTION_PASTE_LINK_TO_SLOT)
+              || action.getName().endsWith(ACTION_PASTE_LINK_SEARCH_TO_SLOT)) {
+            // Always inserts in case of links and copies
+            mgr.insert(targetParent, target, clipNodes);
+            // Source does not really need to be refreshed but needs
+            // to be selected after proess is completed
+            refreshNodes.add(srcParent);
+          }
+          // Always insert in the beginning as we to keep the last
+          // node as selected node
+          if (target.isOfType(PSNode.TYPE_SLOT)) refreshNodes.add(0, target);
+        }
+      } else {
+        boolean refreshSrcParent = false;
+        boolean addedSrcParent = false;
+        while (targetNodes.hasNext()) {
+          PSNode target = targetNodes.next();
+
+          // right-now supports only pasting on Folders
+          if (!target.isAnyFolderType()) continue;
+
+          if (target.isOfType(PSNode.TYPE_SYS_FOLDERS)
+              || target.isOfType(PSNode.TYPE_SYS_SITES)) {
+            // Can Paste only folders
+            List<PSNode> list = new ArrayList<PSNode>();
+            PSNode tmp = null;
+            while (clipNodes.hasNext()) {
+              tmp = clipNodes.next();
+              if (tmp.isFolderType()) list.add(tmp);
+            }
+            clipNodes = list.iterator();
+          }
+
+          if (clipNodes.hasNext()) refreshSrcParent = true;
+
+          // save clip nodes list for dirty action
+          List<PSNode> clipList = PSIteratorUtils.cloneList(clipNodes);
+          clipNodes = clipList.iterator();
+          boolean doDirty = true;
+          if (action.getName().endsWith(ACTION_PASTE_LINK)) {
+            m_folderMgr.add(target, clipList.iterator());
+            // no need to dirty parent on copy
+            refreshSrcParent = false;
+          } else if (action.getName().endsWith(ACTION_PASTE_NEW_COPY)) {
+            // the copy action must handle dirtying
+            doDirty = false;
+            // no need to dirty parent on copy
+            refreshSrcParent = false;
+
+            /*
+             * There can only be one source for copy site and copy
+             * site subfolder actions.
+             */
+            PSNode singleSource = null;
+            if (clipList.size() == 1) singleSource = clipList.get(0);
+
+            PSFolderActionManager.ErrorResults errorLog = null;
+            if (singleSource != null
+                && singleSource.isOfType(PSNode.TYPE_SITE)
+                && isChild("//Sites", target)
+                && !(target.isOfType(PSNode.TYPE_SITE)
+                    || target.isOfType(PSNode.TYPE_SITESUBFOLDER))) {
+              PSWizardDialog dialog = createCopySiteWizard(singleSource, target);
+
+              if (dialog.isOk()) {
+                m_applet.setWaitCursor();
+
+                errorLog =
+                    m_folderMgr.copyFolder(
+                        singleSource, target, createSiteCloningOptions(dialog.getData()));
+              }
+            } else if (singleSource != null
+                && singleSource.isAnyFolderType()
+                && (target.isSiteFolder() || target.isSiteSubfolder())) {
+              PSWizardDialog dialog = createCopySiteSubfolderWizard(singleSource, target);
+
+              if (dialog.isOk()) {
+                m_applet.setWaitCursor();
+
+                errorLog =
+                    m_folderMgr.copyFolder(
+                        singleSource,
+                        target,
+                        createSiteSubfolderCloningOptions(dialog.getData()));
+              }
+            } else m_folderMgr.copy(target, clipList.iterator());
+
+            if (!(errorLog == null || errorLog.wasSuccessful())) {
+              if (errorLog.m_logFileName != null) {
+                /*
+                 * There were errors cloning a site or site
+                 * subfolder. Display the error message to inform
+                 * the user.
+                 */
+                String logLocation =
+                    m_applet.getSystemLogBase().toExternalForm() + errorLog.m_logFileName;
+
+                Object[] args = {logLocation};
+                String msg =
+                    m_applet.getResourceString(
+                        getClass(),
+                        "@There were errors copying a Site or Site "
+                            + "Subfolder which you must fix manually. The "
+                            + "errors are logged to the file: {0}.\n\nDo "
+                            + "you want to view the error log now?");
+                String message = MessageFormat.format(msg, args);
+                int option =
+                    JOptionPane.showConfirmDialog(
+                        m_applet.getDialogParentFrame(),
+                        PSLineBreaker.wrapString(message, 80, 10, null),
+                        "Error",
+                        JOptionPane.YES_NO_OPTION);
+                if (option == JOptionPane.OK_OPTION) UTBrowserControl.displayURL(logLocation);
+              }
+              if (errorLog.m_siteCloneErrorText != null) {
+                Object[] args = {errorLog.m_siteCloneErrorText};
+                String msg = m_applet.getResourceString(getClass(), "@SiteDefCloneProblem");
+                String message = MessageFormat.format(msg, args);
+                JOptionPane.showMessageDialog(
+                    m_applet.getDialogParentFrame(),
+                    PSLineBreaker.wrapString(message, 80, 10, null),
+                    "Error",
+                    JOptionPane.WARNING_MESSAGE);
+              }
+            }
+          } else {
+            boolean force = action.getName().endsWith(ACTION_FORCE_MOVE);
+            m_folderMgr.move(srcParent, target, clipNodes, force);
+          }
+
+          try {
+            // Need to reload the flagged folder set
+            m_applet.loadFlaggedFoldersSet();
+          } catch (Exception e) {
+            // Not vital, log and continue with selective refresh
+            log.warn("Could not reload flagged folder set, continuing", e);
+          }
+
+          // do selective refresh
+          isFullRefresh = false;
+
+          // dirty nodes for the refresh
+          if (doDirty) {
+            informListeners(clipList.iterator(), PSActionEvent.DIRTY_NODES);
+          }
+
+          refreshNodes.add(target);
+
+          if (refreshSrcParent && !addedSrcParent && target != srcParent) {
+            refreshNodes.add(srcParent);
+            addedSrcParent = true;
+          }
+        }
+      }
+    }
+
+    if (clipType == PSClipBoard.TYPE_DRAG) m_clipBoard.clearDragClip();
+
+    // call inform listeners with proper nodes to refresh.
+    informListeners(refreshNodes.iterator(), isFullRefresh);
+    // Keep the view pointing to the original node
+    m_applet.setSelectedNavTreeNode(currentSelectedNode);
+    // Fix the count since a move will cause the counts in the folder
+    // to be off
+    currentSelectedNode.fixSearchResultCount();
+    // Refresh search stuff
+    if (currentSelectedNode.isAnyFolderType()) {
+      m_folderMgr.runSearchCompleted(currentSelectedNode);
+    }
+  }
+
+  /**
+   * Handles the ACTION_ARRANGE_REMOVE client action. Removes the selected nodes from an item-assembly view.
+   *
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleArrangeRemoveAction(PSSelection selection) throws PSException, PSContentExplorerException {
+    if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
+      Iterator<PSNode> targetNodes = selection.getNodeList();
+
+      PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
+      mgr.delete(selection.getParent(), targetNodes);
+
+      List<PSNode> refreshNodes = new ArrayList<PSNode>();
+      refreshNodes.add(selection.getParent());
+
+      informListeners(refreshNodes.iterator());
+    }
+  }
+
+  /**
+   * Handles the ACTION_MOVE_UPLEFT client action. Reorders the selection one slot up/left in an item-assembly view.
+   *
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleMoveUpLeftAction(PSSelection selection) throws PSException, PSContentExplorerException {
+    if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
+      PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
+      mgr.reorder(selection, -1);
+
+      List<PSNode> refreshNodes = new ArrayList<PSNode>();
+      refreshNodes.add(selection.getParent());
+
+      informListeners(refreshNodes.iterator());
+    }
+  }
+
+  /**
+   * Handles the ACTION_MOVE_DOWNRT client action. Reorders the selection one slot down/right in an item-assembly view.
+   *
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleMoveDownRightAction(PSSelection selection) throws PSException, PSContentExplorerException {
+    if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
+      PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
+      mgr.reorder(selection, 1);
+
+      List<PSNode> refreshNodes = new ArrayList<PSNode>();
+      refreshNodes.add(selection.getParent());
+
+      informListeners(refreshNodes.iterator());
+    }
+  }
+
+  /**
+   * Handles the ACTION_LINK_TO_SLOT client action. Links the selected items to the active slot.
+   *
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleLinkToSlotAction(PSSelection selection) throws PSException, PSContentExplorerException {
+    if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
+      PSNode origSelection = m_applet.getSelectedNavTreeNode();
+
+      PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
+
+      PSNode slotNode = (PSNode) m_newSearchNode.getSlotNode();
+
+      mgr.insert(slotNode, slotNode, selection.getNodeList());
+
+      List<PSNode> refreshNodes = new ArrayList<PSNode>();
+      refreshNodes.add(slotNode);
+      informListeners(refreshNodes.iterator());
+
+      // always reselect the original selection since the refresh
+      // will change the selection
+      m_applet.setSelectedNavTreeNode(origSelection);
+    } else if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_RC)) {
+      String ownerContentId = m_newSearchNode.getContentId();
+      String slotId = m_newSearchNode.getSlotId();
+
+      m_applet.debugMessage(
+          "Linking selected items to slot "
+              + slotId
+              + " of the content item "
+              + ownerContentId
+              + ")");
+      PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
+      mgr.insert(ownerContentId, slotId, selection.getNodeList());
+
+      // LiveConnect (JSObject.getWindow) was removed in JDK 11.
+      // TODO: Implement alternative mechanism to call refreshParent.
+      log.warn(
+          "LiveConnect is no longer available; cannot call refreshParent JavaScript method.");
+    }
+  }
+
+  /**
+   * Handles the ACTION_CHANGE_VARIANT client action. Applies the action variant id to the selected slot item.
+   *
+   * @param action the action being executed, assumed not <code>null</code>.
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleChangeVariantAction(PSMenuAction action, PSSelection selection) throws PSException, PSContentExplorerException {
+    if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) {
+      PSNode target = selection.getParent();
+      PSNode nodeCurrent = selection.getNodeList().next();
+      String newVarid = action.getProperty(PROPERTY_VARIANTID);
+      String oldVarid = nodeCurrent.getProp(PROPERTY_VARIANTID);
+      if (newVarid.equals(oldVarid)) {
+        m_applet.debugMessage("No change since old and new varaintids are same");
+        return;
+      }
+      nodeCurrent.setProperty(PROPERTY_VARIANTID, newVarid);
+      List<PSNode> list = new ArrayList<PSNode>();
+      list.add(nodeCurrent);
+
+      PSItemAssemblyManager mgr = new PSItemAssemblyManager(this);
+      mgr.update(target, target, list.iterator());
+    }
+  }
+
+  /**
+   * Handles the ACTION_TOP_HELP or ACTION_CXT_HELP client action. Launches JavaHelp for the current view and node type.
+   *
+   * @param action the action being executed, assumed not <code>null</code>.
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleHelpAction(PSMenuAction action, PSSelection selection) throws PSException, PSContentExplorerException {
+    String helpId;
+    if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_CX)) helpId = "ContentExplorer";
+    else if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)) helpId = "ItemAssembly";
+    else if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_RC)) helpId = "RelatedContentSearch";
+    else helpId = "DependencyViewer";
+    if (action.getName().equals(ACTION_CXT_HELP)) {
+      PSNode helpNode = selection.getNodeList().next();
+      String nodeType = helpNode.getType();
+      String helpTypeHint = helpNode.getHelpTypeHint();
+      if (nodeType.equals(PSNode.TYPE_SYS_SITES)) {
+        helpId = "Sites";
+      } else if (nodeType.equals(PSNode.TYPE_SYS_FOLDERS) || isFolderType(nodeType)) {
+        helpId = "Folders";
+      } else if (nodeType.equals(PSNode.TYPE_SYS_CATEGORY)
+          || nodeType.equals(PSNode.TYPE_CATEGORY)) {
+        if (helpTypeHint != null && helpTypeHint.equals(PSNode.HELP_TYPE_HINT_SRCH)) {
+          helpId = "Search";
+        } else {
+          helpId = "Categories";
+        }
+      } else if (nodeType.equals(PSNode.TYPE_SYS_VIEW) || nodeType.equals(PSNode.TYPE_VIEW)) {
+        helpId = "Views";
+      } else if (nodeType.equals(PSNode.TYPE_SLOT) || nodeType.equals(PSNode.TYPE_SLOT_ITEM)) {
+        helpId = "SlotItemAssembly";
+      } else if (nodeType.equals(PSNode.TYPE_NEW_SRCH)
+          || nodeType.equals(PSNode.TYPE_CUSTOM_SRCH)
+          || nodeType.equals(PSNode.TYPE_STANDARD_SRCH)
+          || nodeType.equals(PSNode.TYPE_SAVE_SRCH)) {
+        if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_CX)) helpId = "Search";
+        else if (m_applet.getView().equals(PSUiMode.TYPE_VIEW_IA)
+            || m_applet.getView().equals(PSUiMode.TYPE_VIEW_RC)) {
+          helpId = "RelatedContentSearch";
+        }
+      }
+    }
+
+    PSJavaHelp.launchHelp(helpId);
+  }
+
+  /**
+   * Handles the ACTION_ABOUT client action. Shows the about dialog.
+   */
+  private void handleAboutAction() throws PSException, PSContentExplorerException {
+    PSI18NTranslationKeyValues resources = PSI18NTranslationKeyValues.getInstance();
+    String appPackage = "com.percussion.util";
+    String title = resources.getTranslationValue(getClass().getPackage().getName() + "@title");
+    PSFormatVersion version = new PSFormatVersion(appPackage);
+
+    PSAboutDialog dlg =
+        new PSAboutDialog(m_applet.getDialogParentFrame(), title, version.getVersionString());
+    dlg.setAppletContext(m_applet.getAppletContext());
+    dlg.setVisible(true);
+  }
+
+  /**
+   * Handles the ACTION_OPEN_FOLDER_REF client action. Selects the folder path of the selected node in the nav tree.
+   *
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleOpenFolderRefAction(PSSelection selection) throws PSException, PSContentExplorerException {
+    PSNode node = selection.getNodeList().next();
+    /*
+     * Use the path, if present, otherwise, retrieve the path from the
+     * server based on the folder id.
+     */
+    String id = node.getContentId();
+    String[] results;
+    try {
+      results = m_folderMgr.getFolderPaths(new PSLocator(id));
+    } catch (PSCmsException e) {
+      // could happen if folder removed since search results generated
+      JOptionPane.showMessageDialog(
+          m_applet.getDialogParentFrame(),
+          m_applet.getResourceString(
+              getClass().getName()
+                  + "@Could not find path of this folder, probably "
+                  + "because the folder was deleted."),
+          m_applet.getResourceString(getClass().getName() + "@Invalid Folder Path"),
+          JOptionPane.OK_OPTION);
+
+      return;
+    }
+
+    if (results.length == 0) {
+      // should never happen
+      m_applet.debugMessage("No folder path found for id " + id);
+      return;
+    }
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #5797,
+    // same FP class as the PSFolderActionManager.java:903-904 hits) — '/' joins
+    // the CMS repository folder path for setSelectionPath, not an OS path.
+    String path = results[0] + "/" + node.getName();
+    ((PSMainView) m_applet.m_mainView).getNavTree().setSelectionPath(path, false);
+    return;
+  }
+
+  /**
+   * Handles the ACTION_SEARCH_WITHIN_FOLDER client action. Runs the default search action scoped to the selected folder.
+   *
+   * @param action the action being executed, assumed not <code>null</code>.
+   * @param selection the selection of nodes, may be <code>null</code>.
+   */
+  private void handleSearchWithinFolderAction(PSMenuAction action, PSSelection selection) throws PSException, PSContentExplorerException {
+    /*
+     * This action depends on the current behavior that the
+     * SearchResults parent node loads it's children before the applet
+     * starts.
+     */
+    PSNode node = selection.getNodeList().next();
+    if (!node.isAnyFolderType()) {
+      // may happen if action mis-configured
+      JOptionPane.showConfirmDialog(
+          m_applet.getDialogParentFrame(),
+          m_applet.getResourceString(
+              getClass().getName()
+                  + "@This action is only supported on folders. See your "
+                  + "admin to correct the Rhythmyx configuration."),
+          m_applet.getResourceString(getClass().getName() + "@Wrong Node Type"),
+          JOptionPane.OK_OPTION);
+
+      return;
+    }
+    if (null == m_emptySearchNode) {
+      // should never happen
+      m_applet.debugMessage(
+          "No empty search node set before action '" + action.getLabel() + "' was called.");
+      return;
+    }
+    String path = getNavSelectionPath();
+    if (path.length() == 0) {
+      // should never happen
+      m_applet.debugMessage(
+          "Trying to perform action " + action.getLabel() + ", but no node selected.");
+      return;
+    }
+    /*
+     * If the selected item is in the main display pane, path will only
+     * be the tree part. In that case, we need to add the last part onto
+     * the path.
+     */
+    if (!path.endsWith(node.getLabel())) {
+      if (!path.endsWith("/")) path += "/";
+      path += node.getLabel();
+    }
+
+    PSSelection sel =
+        new PSSelection(
+            new PSUiMode(PSUiMode.TYPE_VIEW_CX, PSUiMode.TYPE_MODE_NAV),
+            null,
+            PSIteratorUtils.iterator(m_emptySearchNode));
+    PSMenuAction defAction = findDefaultAction(sel);
+    if (defAction != null) executeAction(defAction, sel, path);
+    return;
   }
 
   /**
