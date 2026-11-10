@@ -197,6 +197,15 @@ const STANDALONE_NPM_COPIES = [
     dest: "jslib/profiles/3x/libraries/bowser/es5.js",
     required: true,
   },
+  {
+    // Classic-UI Handlebars (issue #5666): the vulnerable vendored
+    // handlebars-v4.0.12.js and the duplicate v4.7.8 copies were deleted.
+    // Classic pages keep loading the stable versioned URL, now served from
+    // the npm 4.7.10 dist (Dependabot-tracked) via the generated overlay.
+    src: "handlebars/dist/handlebars.js",
+    dest: "jslib/profiles/3x/libraries/handlebars/handlebars-v4.7.8.js",
+    required: true,
+  },
 ];
 
 /**
