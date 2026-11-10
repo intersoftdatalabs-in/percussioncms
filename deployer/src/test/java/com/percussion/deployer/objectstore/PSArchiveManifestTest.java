@@ -114,18 +114,18 @@ public class PSArchiveManifestTest {
     PSApplicationIDTypes idtypes = archman.getIdTypes(de1);
     assertTrue(idtypes.equals(idtype1));
 
-    Iterator fileList_1 = archman.getFiles(de1);
+    Iterator<PSDependencyFile> fileList_1 = archman.getFiles(de1);
     assertTrue(doesFileListTheSame(fileList_1, fileList1.iterator()));
 
-    Iterator fileList_2 = archman.getFiles(de2);
+    Iterator<PSDependencyFile> fileList_2 = archman.getFiles(de2);
     assertTrue(doesFileListTheSame(fileList_2, fileList2.iterator()));
 
-    assertTrue(doesFileListTheSame(archman.getFiles(de3), (new ArrayList()).iterator()));
+    assertTrue(doesFileListTheSame(archman.getFiles(de3), new ArrayList<PSDependencyFile>().iterator()));
 
     List<PSDependencyFile> allFiles = new ArrayList<PSDependencyFile>();
-    Iterator fileList_All = archman.getFiles();
+    Iterator<PSDependencyFile> fileList_All = archman.getFiles();
     while (fileList_All.hasNext()) {
-      allFiles.add((PSDependencyFile) fileList_All.next());
+      allFiles.add(fileList_All.next());
     }
 
     assertEquals(allFiles.size(), fileListAll.size());
@@ -148,10 +148,11 @@ public class PSArchiveManifestTest {
    * @param list2 The second list, assume not <code>null</code>, may be empty
    * @return <code>true</code> if they are equals; <code>false</code> otherwise
    */
-  public static boolean doesFileListTheSame(Iterator list1, Iterator list2) {
+  public static boolean doesFileListTheSame(
+      Iterator<PSDependencyFile> list1, Iterator<PSDependencyFile> list2) {
     while (list1.hasNext() && list2.hasNext()) {
-      PSDependencyFile df1 = (PSDependencyFile) list1.next();
-      PSDependencyFile df2 = (PSDependencyFile) list2.next();
+      PSDependencyFile df1 = list1.next();
+      PSDependencyFile df2 = list2.next();
 
       if (!df1.equals(df2)) return false;
     }

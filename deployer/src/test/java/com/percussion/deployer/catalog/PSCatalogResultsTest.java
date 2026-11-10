@@ -103,13 +103,12 @@ public class PSCatalogResultsTest {
    */
   @Test
   public void testInterfaceMethods() throws Exception {
-    List columns = new ArrayList();
+    List<PSCatalogResultColumn> columns = new ArrayList<>();
     columns.add(new PSCatalogResultColumn("Name", PSCatalogResultColumn.TYPE_TEXT));
     columns.add(new PSCatalogResultColumn("Number", PSCatalogResultColumn.TYPE_NUMERIC));
     columns.add(new PSCatalogResultColumn("Created Date", PSCatalogResultColumn.TYPE_DATE));
 
-    PSCatalogResultColumn[] columnMeta =
-        (PSCatalogResultColumn[]) columns.toArray(new PSCatalogResultColumn[0]);
+    PSCatalogResultColumn[] columnMeta = columns.toArray(new PSCatalogResultColumn[0]);
     PSCatalogResultSet resultSet = new PSCatalogResultSet(columnMeta);
 
     PSCatalogResult result = new PSCatalogResult("ArchiveLogID1", "testArchive1");

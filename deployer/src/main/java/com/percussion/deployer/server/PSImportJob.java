@@ -64,11 +64,11 @@ import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
 import java.util.ResourceBundle;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
@@ -153,9 +153,9 @@ public class PSImportJob extends PSDeployJob {
   public void install(
       PSRequest request, File archiveFile, PSImportDescriptor descriptor, boolean applytoAllComms)
       throws PSJobException {
-    Validate.notNull(request);
-    Validate.notNull(archiveFile);
-    Validate.notNull(descriptor);
+    Objects.requireNonNull(request);
+    Objects.requireNonNull(archiveFile);
+    Objects.requireNonNull(descriptor);
 
     m_archiveFile = archiveFile;
     m_descriptor = descriptor;

@@ -24,12 +24,12 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.TreeSet;
@@ -258,7 +258,7 @@ public class PSDependencyTest {
             true,
             false,
             false);
-    List elemList = new ArrayList();
+    List<PSDependency> elemList = new ArrayList<>();
     elemList.add(de2);
     elemList.add(de3);
 
@@ -272,7 +272,7 @@ public class PSDependencyTest {
             true,
             false,
             true);
-    List classList = new ArrayList();
+    List<String> classList = new ArrayList<>();
     classList.add("com.percussion.deployer.PSDependency");
     classList.add("com.percussion.deployer.PSDependencyTest");
     do1.setRequiredClasses(classList.iterator());
@@ -302,7 +302,7 @@ public class PSDependencyTest {
     tgtEl.copyFrom(de1);
     assertEquals(de1, tgtEl);
 
-    Iterator deps = de1.getDependencies(PSDependency.TYPE_SHARED);
+    Iterator<PSDependency> deps = de1.getDependencies(PSDependency.TYPE_SHARED);
     assertTrue(deps.hasNext());
     assertEquals(do2, deps.next());
 
@@ -310,7 +310,7 @@ public class PSDependencyTest {
     Files.createDirectories(folderPath);
     File folder = folderPath.toFile();
     File file = new File(folder.getAbsolutePath() + "config.xml");
-    do1.setDependencies(PSIteratorUtils.emptyIterator());
+    do1.setDependencies(Collections.emptyIterator());
     PSUserDependency userDep1 = do1.addUserDependency(file);
     el = userDep1.toXml(doc);
     PSUserDependency userDep2 = new PSUserDependency(el);

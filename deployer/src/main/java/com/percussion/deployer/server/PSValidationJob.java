@@ -35,7 +35,6 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.text.MessageFormat;
 import java.util.*;
-import org.apache.commons.lang3.Validate;
 import org.apache.logging.log4j.LogManager;
 import org.w3c.dom.Document;
 import com.intsof.percussioncms.auditlog.codes.JobErrorCodes;
@@ -128,9 +127,9 @@ public class PSValidationJob extends PSDeployJob {
    */
   public void validate(PSImportDescriptor descriptor, IPSJobHandle jobHandle, PSSecurityToken tok)
       throws PSDeployException, PSNotFoundException {
-    Validate.notNull(descriptor);
-    Validate.notNull(jobHandle);
-    Validate.notNull(tok);
+    Objects.requireNonNull(descriptor);
+    Objects.requireNonNull(jobHandle);
+    Objects.requireNonNull(tok);
 
     PSDbmsHelper dbmsHelper = null;
     PSDependencyManager dm = null;

@@ -112,7 +112,7 @@ public class PSConfigMapperTest {
     assertTrue(replacedProps.get(K2).equals(props.get(KEY2)));
     // test the replaced map
     assertTrue(replacedProps.get(K3) instanceof Map);
-    Map rmap = (Map) replacedProps.get(K3);
+    Map<?, ?> rmap = (Map<?, ?>) replacedProps.get(K3);
     assertTrue(rmap.size() == 2);
     assertTrue(rmap.get("$backgroundColor").equals("red"));
     assertTrue(rmap.get("$fontColor").equals("black"));
@@ -280,10 +280,8 @@ public class PSConfigMapperTest {
    * @param m2 the 2nd map to be compared with, assumed not <code>null</code>.
    */
   private void validateMapValues(Map<String, Object> m1, Map<String, Object> m2) {
-    Set values1 = new HashSet<String>();
-    values1.addAll(m1.values());
-    Set values2 = new HashSet<String>();
-    values2.addAll(m2.values());
+    Set<Object> values1 = new HashSet<>(m1.values());
+    Set<Object> values2 = new HashSet<>(m2.values());
 
     assertTrue(values1.equals(values2));
   }
@@ -401,14 +399,14 @@ public class PSConfigMapperTest {
 
     // \/\/\/\/\/\/\/
     // validate List
-    List listEntry = (List) replacedProps.get(K4);
+    List<?> listEntry = (List<?>) replacedProps.get(K4);
     assertTrue(listEntry.size() == 2);
     assertTrue(listEntry.get(0).equals(props.get(KEY1)));
     assertTrue(listEntry.get(1).equals(props.get(KEY2)));
 
     // \/\/\/\/\/\/\/
     // validate Map
-    Map mapEntry = (Map) replacedProps.get(K5);
+    Map<?, ?> mapEntry = (Map<?, ?>) replacedProps.get(K5);
     assertTrue(mapEntry.size() == 2);
 
     // "Label_Begin_ ${com.percussion.RSS.label}"

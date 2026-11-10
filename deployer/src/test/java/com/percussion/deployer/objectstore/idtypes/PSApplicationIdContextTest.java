@@ -153,7 +153,7 @@ public class PSApplicationIdContextTest {
     PSAppEntryIdContext entryCtx = new PSAppEntryIdContext(entry);
     assertTrue(entryCtx.equals(testXml(entryCtx)));
 
-    PSCollection urlparams = new PSCollection(PSParam.class);
+    PSCollection<PSParam> urlparams = new PSCollection<>(PSParam.class);
     PSUrlRequest req = new PSUrlRequest("foo", null, urlparams);
     PSAppUrlRequestIdContext urlCtx = new PSAppUrlRequestIdContext(req);
     assertTrue(urlCtx.equals(testXml(urlCtx)));

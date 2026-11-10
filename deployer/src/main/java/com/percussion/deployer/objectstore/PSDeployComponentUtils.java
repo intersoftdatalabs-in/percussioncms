@@ -27,6 +27,7 @@ import com.percussion.server.content.PSFormContentParser;
 import com.percussion.xml.PSXmlTreeWalker;
 import java.io.File;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -254,9 +255,10 @@ public class PSDeployComponentUtils {
 
     // see if its a url
     try {
-      URL url = new URL(path);
+      URL url = URI.create(path).toURL();
       path = url.getFile();
-    } catch (MalformedURLException e) {
+    } catch (MalformedURLException | IllegalArgumentException e) {
+      // not a URL, leave it alone
     }
 
     // if now we don't have a path, we're done
