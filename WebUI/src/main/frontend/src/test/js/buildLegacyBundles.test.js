@@ -49,6 +49,7 @@ const builder = require(
 );
 
 const {
+  WEBUI_DIR,
   WAR_DIR,
   OUTPUT_DIR,
   BUNDLE_CONFIG_DIR,
@@ -328,5 +329,239 @@ describe("classic-UI jQuery trio from npm (issue #5660)", () => {
     } finally {
       spy.mockRestore();
     }
+  });
+});
+
+/**
+ * Classic-UI Backbone/Underscore from npm, Backgrid retired (issue #5664).
+ *
+ * The vendored Backbone 1.4.0 (`backbone.js`) and Underscore 1.13.1
+ * (`underscore.js` + min + map) copies under cm/jslib, cm/vendor/js/legacy,
+ * and the war/ mirror were deleted, as were every vendored Backgrid (~0.3.x)
+ * copy (top-level `backgridjs/` trees plus the
+ * `profiles/3x/jquery/libraries/backgridjs/` twins in the same three roots).
+ * The stale `war/api/lib/{backbone-min,underscore-min}.js` copies went too:
+ * that Swagger-UI 2.x viewer was already retired to a redirect (#5672), so
+ * the war/api mirror is dead weight, never packaged (the WAR builds from
+ * src/main/webapp).
+ *
+ * Disposition, mirroring the issue acceptance:
+ *   1. Backbone/Underscore stay npm-tracked (Dependabot-visible in frontend
+ *      package.json: backbone ^1.6.0, underscore ^1.13.7) and the stable
+ *      jslib paths keep resolving from the npm graph via
+ *      NPM_LIBRARY_MAPPINGS (a repo-wide grep proves no JSP/JS/bundle
+ *      references those URLs anymore, so nothing loads them at runtime —
+ *      the mappings are resolution continuity, not live loads).
+ *   2. Backgrid is retired with rationale, not replaced in place: upstream
+ *      EOL ~2017, zero in-repo consumers (only the vendored files
+ *      themselves referenced `backgrid`), so there is nothing to migrate.
+ *      DataTables (`datatables.net`, already npm-tracked) is the grid going
+ *      forward for any future grid work.
+ *
+ * These tests pin:
+ *   1. The backbone + underscore jslib paths resolve into node_modules and
+ *      the shipped dists report the npm package versions.
+ *   2. Functional parity on the exact dists classic bundles would ship:
+ *      underscore `map`/`template`, Backbone Model defaults/set/toJSON and
+ *      Collection add/length.
+ *   3. No vendored backbone/underscore/backgrid copy remains in any tree.
+ *   4. No minify bundle config references the removed paths, and Backgrid
+ *      has no npm mapping to resurrect it.
+ */
+describe("classic-UI Backbone/Underscore from npm, Backgrid retired (issue #5664)", () => {
+  const FRONTEND_ROOT = path.dirname(
+    path.dirname(path.dirname(__dirname)),
+  );
+  const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+  const WEBAPP_CM = WAR_DIR;
+
+  const UNDERSCORE_DEST =
+    "jslib/profiles/3x/libraries/underscore/underscore.js";
+  const UNDERSCORE_SRC = "underscore/underscore.js";
+  const BACKBONE_DEST = "jslib/profiles/3x/libraries/backbone/backbone.js";
+  const BACKBONE_SRC = "backbone/backbone.js";
+
+  function loadShippedStack() {
+    const underscorePath = path.join(NODE_MODULES, UNDERSCORE_SRC);
+    const backbonePath = path.join(NODE_MODULES, BACKBONE_SRC);
+    if (!fs.existsSync(underscorePath) || !fs.existsSync(backbonePath)) {
+      return null;
+    }
+    const underscore = require(underscorePath);
+    const Backbone = require(backbonePath);
+    return { underscore, Backbone };
+  }
+
+  it("resolves the backbone + underscore bundle paths into node_modules", () => {
+    expect(NPM_LIBRARY_MAPPINGS[UNDERSCORE_DEST]).toBe(UNDERSCORE_SRC);
+    expect(NPM_LIBRARY_MAPPINGS[BACKBONE_DEST]).toBe(BACKBONE_SRC);
+    for (const dest of [UNDERSCORE_DEST, BACKBONE_DEST]) {
+      const resolved = resolvePath(dest);
+      const normalized = resolved.split(path.sep).join("/");
+      expect(normalized).toContain("node_modules/");
+      expect(fs.existsSync(resolved), resolved).toBe(true);
+    }
+  });
+
+  it("ships backbone/underscore versions matching the npm packages", () => {
+    const stack = loadShippedStack();
+    if (stack === null) {
+      return;
+    }
+    const underscorePkg = JSON.parse(
+      fs.readFileSync(
+        path.join(NODE_MODULES, "underscore/package.json"),
+        "utf8",
+      ),
+    );
+    const backbonePkg = JSON.parse(
+      fs.readFileSync(
+        path.join(NODE_MODULES, "backbone/package.json"),
+        "utf8",
+      ),
+    );
+    expect(stack.underscore.VERSION).toBe(underscorePkg.version);
+    expect(stack.Backbone.VERSION).toBe(backbonePkg.version);
+  });
+
+  it("keeps underscore collection/template parity on the shipped dist", () => {
+    const stack = loadShippedStack();
+    if (stack === null) {
+      return;
+    }
+    const { underscore: _ } = stack;
+    expect(_.map([1, 2, 3], (x) => x * 2)).toEqual([2, 4, 6]);
+    expect(_.template("Hello <%= name %>")({ name: "CM1" })).toBe(
+      "Hello CM1",
+    );
+    expect(_.groupBy([1.3, 2.1, 2.4], (n) => Math.floor(n))).toEqual({
+      1: [1.3],
+      2: [2.1, 2.4],
+    });
+  });
+
+  it("keeps Backbone Model/Collection parity on the shipped dist", () => {
+    const stack = loadShippedStack();
+    if (stack === null) {
+      return;
+    }
+    const { Backbone } = stack;
+    const Widget = Backbone.Model.extend({ defaults: { kind: "grid" } });
+    const widget = new Widget();
+    expect(widget.get("kind")).toBe("grid");
+    widget.set("rows", 3);
+    expect(widget.get("rows")).toBe(3);
+    expect(widget.toJSON()).toEqual({ kind: "grid", rows: 3 });
+    const Widgets = Backbone.Collection.extend({ model: Widget });
+    const widgets = new Widgets([{ kind: "a" }, { kind: "b" }]);
+    expect(widgets.length).toBe(2);
+    expect(widgets.at(0).get("kind")).toBe("a");
+  });
+
+  it("keeps no vendored backbone/underscore/backgrid copies", () => {
+    // Per-tree relative paths: the vendor mirror hangs directly under
+    // profiles/ (no jslib/ prefix); the war mirror roots its own jslib/.
+    const deletedFiles = [
+      [WEBAPP_CM, BACKBONE_DEST],
+      [WEBAPP_CM, UNDERSCORE_DEST],
+      [
+        WEBAPP_CM,
+        "jslib/profiles/3x/libraries/underscore/underscore-min.js",
+      ],
+      [
+        WEBAPP_CM,
+        "jslib/profiles/3x/libraries/underscore/underscore-min.js.map",
+      ],
+      [
+        path.join(WEBAPP_CM, "vendor/js/legacy"),
+        "profiles/3x/libraries/backbone/backbone.js",
+      ],
+      [
+        path.join(WEBAPP_CM, "vendor/js/legacy"),
+        "profiles/3x/libraries/underscore/underscore.js",
+      ],
+      [
+        path.join(WEBAPP_CM, "vendor/js/legacy"),
+        "profiles/3x/libraries/underscore/underscore-min.js",
+      ],
+      [
+        path.join(WEBAPP_CM, "vendor/js/legacy"),
+        "profiles/3x/libraries/underscore/underscore-min.js.map",
+      ],
+      [path.join(WEBUI_DIR, "war"), BACKBONE_DEST],
+      [path.join(WEBUI_DIR, "war"), UNDERSCORE_DEST],
+      [
+        path.join(WEBUI_DIR, "war"),
+        "jslib/profiles/3x/libraries/underscore/underscore-min.js",
+      ],
+      [
+        path.join(WEBUI_DIR, "war"),
+        "jslib/profiles/3x/libraries/underscore/underscore-min.js.map",
+      ],
+      // Stale war/api Swagger-UI 2.x mirror (#5672 retired the viewer):
+      // the vendored backbone/underscore copies go with this migration.
+      [path.join(WEBUI_DIR, "war"), "api/lib/backbone-min.js"],
+      [path.join(WEBUI_DIR, "war"), "api/lib/underscore-min.js"],
+    ];
+    for (const [root, rel] of deletedFiles) {
+      const candidate = path.join(root, rel);
+      expect(
+        fs.existsSync(candidate),
+        `vendored copy must be gone: ${candidate}`,
+      ).toBe(false);
+    }
+    // Backgrid went as whole directories: top-level trees plus the
+    // profiles/3x/jquery/libraries twins, in all three roots.
+    const deletedDirs = [
+      [WEBAPP_CM, "jslib/backgridjs"],
+      [WEBAPP_CM, "jslib/profiles/3x/jquery/libraries/backgridjs"],
+      [path.join(WEBAPP_CM, "vendor/js/legacy"), "backgridjs"],
+      [
+        path.join(WEBAPP_CM, "vendor/js/legacy"),
+        "profiles/3x/jquery/libraries/backgridjs",
+      ],
+      [path.join(WEBUI_DIR, "war"), "jslib/backgridjs"],
+      [
+        path.join(WEBUI_DIR, "war"),
+        "jslib/profiles/3x/jquery/libraries/backgridjs",
+      ],
+    ];
+    for (const [root, rel] of deletedDirs) {
+      const candidate = path.join(root, rel);
+      expect(
+        fs.existsSync(candidate),
+        `vendored backgrid tree must be gone: ${candidate}`,
+      ).toBe(false);
+    }
+  });
+
+  it("references no removed path from any minify bundle config", () => {
+    const configs = [
+      "common-bundles.json",
+      "common-minuet-bundles.json",
+      "static-bundles.json",
+      "common-ui-bundle.json",
+    ];
+    const removedRe = /backbone|underscore|backgrid/i;
+    for (const name of configs) {
+      const configPath = path.join(BUNDLE_CONFIG_DIR, name);
+      const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
+      const hits = [];
+      for (const bundle of config.bundles) {
+        for (const file of bundle.files) {
+          if (removedRe.test(file)) {
+            hits.push(`${bundle.name}: ${file}`);
+          }
+        }
+      }
+      expect(hits, `${name} still references removed libs:\n${hits.join("\n")}`).toEqual(
+        [],
+      );
+    }
+    // Backgrid is retired, not npm-mapped: nothing may resurrect it.
+    expect(
+      Object.keys(NPM_LIBRARY_MAPPINGS).filter((k) => /backgrid/i.test(k)),
+      "backgrid must have no npm mapping",
+    ).toEqual([]);
   });
 });
