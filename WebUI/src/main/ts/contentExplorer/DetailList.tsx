@@ -75,10 +75,7 @@ import {
 } from "../api/contentExplorer/pathApi";
 import type { PSPathItem, PSPagedResult } from "../api/contentExplorer/types";
 import { MKD_LANG_IGNORE_ATTR } from "../i18n/mkdLangIgnore";
-import {
-  explorerSiteDisplayName,
-  isExplorerSiteRootItem,
-} from "./sitePath";
+import { explorerSiteDisplayName } from "./sitePath";
 
 /**
  * Public display-format column contract. Maps to the live
@@ -86,24 +83,18 @@ import {
  * today from {@link PSPathItem} (i.e. columns whose values are present on
  * the per-row item the `paginatedFolder` endpoint returns).
  *
- * The `modified` and `workflow` columns live on
- * {@link PSFolderProperties} rather than `PSPathItem`; they are noted
- * here for the future when the API exposes per-row modification dates
- * and workflow IDs. Until then, those column ids resolve to empty
- * strings (the test fixture asserts this behaviour).
+ * <p>The column ids, per-column renderers, and dispatch map live in
+ * {@link ./detailCellRenderers} (#5777); this module re-exports the
+ * contract so existing imports keep working.</p>
  *
- * Adding a new column requires (1) adding the column id to this union,
- * (2) adding a renderer in {@link renderDisplayFormatCell}, (3) adding a
- * translation key in `EXPLORER_MSG`.
+ * <p>Adding a new column requires (1) adding the column id to the union
+ * in {@code detailCellRenderers}, (2) adding a renderer there,
+ * (3) adding a translation key in `EXPLORER_MSG`.</p>
  */
-export type DetailColumnId =
-  | "name"
-  | "type"
-  | "path"
-  | "title"
-  | "category"
-  | "modified"
-  | "workflow";
+export type { DetailColumnId } from "./detailCellRenderers";
+import type { DetailColumnId } from "./detailCellRenderers";
+import { renderDisplayFormatCell } from "./detailCellRenderers";
+export { renderDisplayFormatCell };
 
 /**
  * One row of the display format definition. The modern list renders
@@ -144,88 +135,6 @@ export function resolveDisplayFormatColumns(
     return ["name", "type", "path"];
   }
   return dedup;
-}
-
-/**
- * Pure per-cell renderer. Returns the cell text for the given column +
- * item. Pure so the unit test can drive it without rendering.
- *
- * Note on `modified` / `workflow`: PSPathItem does not carry these fields
- * yet (they live on PSFolderProperties). The renderer returns empty
- * strings for them today; when the API exposes per-row modification +
- * workflow the renderer is updated to consume them. The unit test
- * asserts the empty-string contract.
- */
-export function renderDisplayFormatCell(
-  column: DetailColumnId,
-  item: PSPathItem,
-): string {
-  // Prefer pathmanagement displayProperties (columnData) when a display
-  // format id was requested — keys are CX system field names.
-  const fromProps = (keys: string[]): string => {
-    const props = item.displayProperties;
-    if (!props || typeof props !== "object") return "";
-    for (const key of keys) {
-      const v = props[key];
-      if (v != null && String(v).length > 0) return String(v);
-    }
-    const lowerKeys = keys.map((k) => k.toLowerCase());
-    for (const [k, v] of Object.entries(props)) {
-      if (lowerKeys.includes(k.toLowerCase()) && v != null && String(v).length > 0) {
-        return String(v);
-      }
-    }
-    return "";
-  };
-
-  switch (column) {
-    case "name": {
-      const fromSys = fromProps(["sys_title", "name", "Name"]);
-      // Site rows must expose finder SITENAME (Corporate_Investments) or
-      // the repository folder leaf, not a GUID sys_title / path (#3684).
-      if (isExplorerSiteRootItem(item)) {
-        return explorerSiteDisplayName(item) || fromSys || item.path || "";
-      }
-      return fromSys || item.name || item.path || "";
-    }
-    case "type":
-      return (
-        fromProps(["sys_contenttypename", "sys_contenttype", "type", "Type"]) ||
-        item.type ||
-        item.category ||
-        ""
-      );
-    case "path":
-      return item.path ?? "";
-    case "title":
-      return (
-        fromProps(["sys_title", "title", "Title"]) ||
-        item.title ||
-        item.name ||
-        ""
-      );
-    case "category":
-      return fromProps(["category", "Category"]) || item.category || "";
-    case "modified":
-      return (
-        fromProps([
-          "sys_contentlastmodifieddate",
-          "sys_contentmodifieddate",
-          "lastModified",
-          "modified",
-        ]) ||
-        (item as unknown as { lastModified?: string }).lastModified ||
-        ""
-      );
-    case "workflow":
-      return (
-        fromProps(["sys_workflow", "sys_workflowid", "workflow", "workflowId"]) ||
-        (item as unknown as { workflowId?: string }).workflowId ||
-        ""
-      );
-    default:
-      return "";
-  }
 }
 
 /** Sort direction for the detail-list column sort (#5759). */
