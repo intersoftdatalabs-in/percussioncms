@@ -29,7 +29,7 @@ and installer guidance for the exact build you are deploying.
 |------|----------|
 | **8.1.x** | Preferred path into 8.2. Apply latest 8.1.x security patches first when possible, then run the 8.2 installer upgrade mode against a clone of production. |
 | **Older 8.x / CM1 lineage** | Plan multi-hop upgrades (stable intermediate releases) rather than jumping multiple major lines at once. Engage Intersoft support for complex multi-version leaps. |
-| **Customized installs** | Catalog custom Java extensions, XSL/variants, WebUI overlays, and third-party JARs; recompile against the 8.2 toolchain (JDK 21) and retest. Existing **Legacy / XSL** (`legacyAssembler`) templates **keep running** — 8.2 does not force conversion on upgrade. Prefer HTML-first, Markdown, or Velocity for new work; see [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler). Customer **Widget / Page / Gadget definition XML** still loads when no modern package is present (dual-run). Convert incrementally; do not remove the runtime shim — see [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run). |
+| **Customized installs** | Catalog custom Java extensions, XSL/variants, WebUI overlays, and third-party JARs; recompile against the 8.2 toolchain (JDK 21) and retest. Existing **Legacy / XSL** (`legacyAssembler`) templates **keep running** — 8.2 does not force conversion on upgrade. Prefer HTML-first, Markdown, or Velocity for new work; see [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler). Customer **Widget / Page / Gadget definition XML** without a modern package now fails with a clear error instead of loading (dual-run retired, #2852). Convert incrementally before relying on those ids — see [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run). |
 
 ## Upgrade steps (high level)
 
@@ -75,11 +75,13 @@ New defaults do **not** promise Derby Network Server / DRDA remote access. Stead
 Engineering release-note draft and support FAQ (Am I affected?): see repository folder  
 `docs/ai-generated/tasks/548-derby-embedded-migration/` (issue **#548**).
 
-## Customer definition XML (dual-run)
+## Customer definition XML (dual-run, retired)
 
 8.2 does **not** require converting every customer Widget / Page / Gadget definition XML
-file on upgrade day. Runtime selection is **modern-first**: a `component-package.json`
-wins even if old XML remains on disk; XML still loads when modern is absent.
+file on upgrade day. Runtime selection is **modern-only** (dual-run retired, #2852):
+a `component-package.json` wins even if old XML remains on disk; XML without a modern
+package is **never loaded** — those ids fail with a clear retired-legacy error naming
+the compiler path.
 
 After the installer upgrade:
 
@@ -87,7 +89,8 @@ After the installer upgrade:
    directories (not product engineering inventories).
 2. Convert → deploy modern packages on a lower environment, then smoke.
 3. Remove XML only for ids that now have a modern package.
-4. Keep the dual-run shim until remaining customer XML is converted or waived.
+4. There is no shim to keep and no waiver path for unconverted ids — convert remaining
+   customer XML with the cookbook below; unconverted ids error until converted.
 
 Cookbook: [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run).
 Do not confuse this with retired **dual-ship** page `*.templateDef` files — see
