@@ -94,6 +94,35 @@ public final class PSPageXmlTemplateDefEmitter {
       throw new IllegalArgumentException("manifest.templates must not be empty for page dual-ship");
     }
 
+    EmitModel model = resolveEmitModel(manifest, templateSource, guid);
+    StringBuilder xml = new StringBuilder(Math.max(512, model.body().length() + 512));
+    xml.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>  <assembly-template id=\"1\">\n");
+    appendAssemblyHead(xml, model);
+    appendAssemblyIdentity(xml, model);
+    appendAssemblyBody(xml, model);
+    xml.append("  </assembly-template>\n");
+    return xml.toString();
+  }
+
+  /** Resolved emit inputs: manifest/template fields normalized to legacy install-parity values. */
+  private record EmitModel(
+      String name,
+      String label,
+      String description,
+      String assembler,
+      String outputFormat,
+      String body,
+      String guidValue,
+      String mime,
+      String charset,
+      String publishWhen,
+      String locationPrefix,
+      String locationSuffix,
+      String templateType,
+      List<PSComponentPackageManifest.Binding> bindings) {}
+
+  private static EmitModel resolveEmitModel(
+      PSComponentPackageManifest manifest, String templateSource, String guid) {
     PSComponentPackageManifest.TemplateRef t = manifest.getTemplates().get(0);
     String name = firstNonBlank(t.getName(), manifest.getId());
     String label =
@@ -108,61 +137,66 @@ public final class PSPageXmlTemplateDefEmitter {
             manifest.getCatalog() != null ? manifest.getCatalog().getDescription() : null,
             manifest.getDescription(),
             "");
-    String assembler = toLegacyAssemblerPath(t.getAssembler());
-    String outputFormat = toLegacyOutputFormat(t.getType());
-    String body = templateSource != null ? templateSource : "";
-    String guidValue = guid != null ? guid.trim() : "";
     boolean binary = "binary".equalsIgnoreCase(t.getType());
     // Binary asset templates bind $sys.mimetype; do not inject HTML defaults (#3674).
-    String mime = firstNonBlank(t.getMimeType(), binary ? "" : DEFAULT_MIME);
-    String charset = binary ? "" : DEFAULT_CHARSET;
-    String publishWhen = firstNonBlank(t.getPublishWhen(), DEFAULT_PUBLISH_WHEN);
-    String locationPrefix = t.getLocationPrefix() != null ? t.getLocationPrefix() : "";
-    String locationSuffix = t.getLocationSuffix() != null ? t.getLocationSuffix() : "";
-    String templateType = firstNonBlank(t.getLegacyTemplateType(), DEFAULT_TEMPLATE_TYPE);
+    return new EmitModel(
+        name,
+        label,
+        description,
+        toLegacyAssemblerPath(t.getAssembler()),
+        toLegacyOutputFormat(t.getType()),
+        templateSource != null ? templateSource : "",
+        guid != null ? guid.trim() : "",
+        firstNonBlank(t.getMimeType(), binary ? "" : DEFAULT_MIME),
+        binary ? "" : DEFAULT_CHARSET,
+        firstNonBlank(t.getPublishWhen(), DEFAULT_PUBLISH_WHEN),
+        t.getLocationPrefix() != null ? t.getLocationPrefix() : "",
+        t.getLocationSuffix() != null ? t.getLocationSuffix() : "",
+        firstNonBlank(t.getLegacyTemplateType(), DEFAULT_TEMPLATE_TYPE),
+        t.getBindings());
+  }
 
-    StringBuilder xml = new StringBuilder(Math.max(512, body.length() + 512));
-    xml.append("<?xml version=\"1.0\" encoding=\"utf-8\"?>  <assembly-template id=\"1\">\n");
-    appendBindings(xml, t.getBindings());
+  private static void appendAssemblyHead(StringBuilder xml, EmitModel model) {
+    appendBindings(xml, model.bindings());
     xml.append("    <template-slot-ids/>\n");
-    xml.append("    <guid>").append(escapeXml(guidValue)).append("</guid>\n");
+    xml.append("    <guid>").append(escapeXml(model.guidValue())).append("</guid>\n");
     xml.append("    <active-assembly-type>")
         .append(DEFAULT_ACTIVE_ASSEMBLY)
         .append("</active-assembly-type>\n");
-    xml.append("    <assembler>").append(escapeXml(assembler)).append("</assembler>\n");
+    xml.append("    <assembler>").append(escapeXml(model.assembler())).append("</assembler>\n");
     xml.append("    <assembly-url>").append(DEFAULT_ASSEMBLY_URL).append("</assembly-url>\n");
-    appendMaybeEmpty(xml, "charset", charset);
-    xml.append("    <description>").append(escapeXml(description)).append("</description>\n");
+    appendMaybeEmpty(xml, "charset", model.charset());
+    xml.append("    <description>")
+        .append(escapeXml(model.description()))
+        .append("</description>\n");
+  }
+
+  private static void appendAssemblyIdentity(StringBuilder xml, EmitModel model) {
     xml.append("    <global-template/>\n");
     xml.append("    <global-template-usage>")
         .append(DEFAULT_GLOBAL_USAGE)
         .append("</global-template-usage>\n");
-    xml.append("    <label>").append(escapeXml(label)).append("</label>\n");
-    if (locationPrefix.isEmpty()) {
-      xml.append("    <location-prefix/>\n");
-    } else {
-      xml.append("    <location-prefix>")
-          .append(escapeXml(locationPrefix))
-          .append("</location-prefix>\n");
-    }
-    if (locationSuffix.isEmpty()) {
-      xml.append("    <location-suffix/>\n");
-    } else {
-      xml.append("    <location-suffix>")
-          .append(escapeXml(locationSuffix))
-          .append("</location-suffix>\n");
-    }
-    appendMaybeEmpty(xml, "mime-type", mime);
-    xml.append("    <name>").append(escapeXml(name)).append("</name>\n");
-    xml.append("    <output-format>").append(escapeXml(outputFormat)).append("</output-format>\n");
-    xml.append("    <publish-when>").append(escapeXml(publishWhen)).append("</publish-when>\n");
+    xml.append("    <label>").append(escapeXml(model.label())).append("</label>\n");
+    appendTextOrEmpty(xml, "location-prefix", model.locationPrefix());
+    appendTextOrEmpty(xml, "location-suffix", model.locationSuffix());
+  }
+
+  private static void appendAssemblyBody(StringBuilder xml, EmitModel model) {
+    appendMaybeEmpty(xml, "mime-type", model.mime());
+    xml.append("    <name>").append(escapeXml(model.name())).append("</name>\n");
+    xml.append("    <output-format>")
+        .append(escapeXml(model.outputFormat()))
+        .append("</output-format>\n");
+    xml.append("    <publish-when>")
+        .append(escapeXml(model.publishWhen()))
+        .append("</publish-when>\n");
     xml.append("    <style-sheet-path/>\n");
-    xml.append("    <template>").append(escapeXml(body)).append("</template>\n");
-    xml.append("    <template-type>").append(escapeXml(templateType)).append("</template-type>\n");
+    xml.append("    <template>").append(escapeXml(model.body())).append("</template>\n");
+    xml.append("    <template-type>")
+        .append(escapeXml(model.templateType()))
+        .append("</template-type>\n");
     xml.append("    <type>TEMPLATE</type>\n");
     xml.append("    <variant>false</variant>\n");
-    xml.append("  </assembly-template>\n");
-    return xml.toString();
   }
 
   /**
@@ -315,6 +349,20 @@ public final class PSPageXmlTemplateDefEmitter {
 
   static String escapeXmlAttr(String s) {
     return escapeXml(s).replace("'", "&apos;");
+  }
+
+  private static void appendTextOrEmpty(StringBuilder xml, String tag, String value) {
+    if (value == null || value.isEmpty()) {
+      xml.append("    <").append(tag).append("/>\n");
+      return;
+    }
+    xml.append("    <")
+        .append(tag)
+        .append(">")
+        .append(escapeXml(value))
+        .append("</")
+        .append(tag)
+        .append(">\n");
   }
 
   private static void appendMaybeEmpty(StringBuilder xml, String tag, String value) {
