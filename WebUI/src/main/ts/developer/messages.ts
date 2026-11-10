@@ -143,6 +143,7 @@ export const DEV_MSG_KEYS = {
   CT_LOADING: "perc.ui.developer@Loading content types...",
   CT_EMPTY: "perc.ui.developer@No content types returned.",
   CT_ERROR: "perc.ui.developer@Could not load content types.",
+  CT_RETRY: "perc.ui.developer@Retry",
   CT_COL_NAME: "perc.ui.developer@Name",
   CT_COL_LABEL: "perc.ui.developer@Label",
   CT_COL_DESCRIPTION: "perc.ui.developer@Description",
