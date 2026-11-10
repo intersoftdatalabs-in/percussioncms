@@ -311,4 +311,53 @@ describe("CommunitiesPanel", () => {
     });
     expect(screen.getByTestId("developer-comm-error").textContent).toBe(DEV_MSG.COMM_ERROR);
   });
+
+  it("filters catalog rows by query with a named empty state and no refetch", async () => {
+    listCommunities.mockResolvedValue([
+      {
+        id: 7,
+        name: "DefaultComm",
+        label: "Default Community",
+        description: "System community",
+        guid: { stringValue: "0-1-7", longValue: 7 },
+      },
+      {
+        id: 8,
+        name: "NoirComm",
+        label: "Noir Community",
+        description: "Second community",
+        guid: { stringValue: "0-1-8", longValue: 8 },
+      },
+    ]);
+    render(<CommunitiesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-comm-search")).toBeTruthy();
+    fireEvent.change(screen.getByTestId("developer-comm-search"), {
+      target: { value: "noir" },
+    });
+    await waitFor(() => {
+      expect(screen.queryByText("DefaultComm")).toBeNull();
+    });
+    expect(screen.getByTestId("developer-comm-table").textContent).toContain("NoirComm");
+    fireEvent.change(screen.getByTestId("developer-comm-search"), {
+      target: { value: "zzz-no-such-community" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-search-empty")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-comm-search-empty").textContent).toBe(
+      DEV_MSG.COMM_SEARCH_EMPTY,
+    );
+    expect(screen.queryByTestId("developer-comm-table")).toBeNull();
+    fireEvent.change(screen.getByTestId("developer-comm-search"), {
+      target: { value: "" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-comm-table").textContent).toContain("DefaultComm");
+    expect(listCommunities).toHaveBeenCalledTimes(1);
+  });
 });

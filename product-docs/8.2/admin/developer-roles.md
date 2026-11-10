@@ -53,6 +53,14 @@ on the role.
 Non-Admin sessions receive **403** from the catalog API and the panel shows an
 error. An empty catalog is a valid **200** with no rows.
 
+## Filter the catalog
+
+Type in **Filter catalog** to narrow the rows by role name, description, or
+home page. Filtering is client-side: it never calls the server and never
+changes catalog data, and it combines with the group filters above. A query
+with no matches shows "No roles match the current filter"; clearing the box
+restores the full list.
+
 ## Product path — create a role
 
 1. Sign in as **Admin**.

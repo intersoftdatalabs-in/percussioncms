@@ -122,4 +122,51 @@ describe("SlotsPanel", () => {
     });
     expect(screen.getByTestId("developer-slot-error").textContent).toBe(DEV_MSG.SLOT_ERROR);
   });
+
+  it("filters catalog rows by query with a named empty state and no refetch", async () => {
+    listSlots.mockResolvedValue([
+      {
+        name: "rffList",
+        label: "List",
+        description: "List slot",
+        guid: { stringValue: "0-1-20", longValue: 20 },
+      },
+      {
+        name: "rffImage",
+        label: "Image",
+        description: "Image slot",
+        guid: { stringValue: "0-1-21", longValue: 21 },
+      },
+    ]);
+    render(<SlotsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-slot-search")).toBeTruthy();
+    fireEvent.change(screen.getByTestId("developer-slot-search"), {
+      target: { value: "image" },
+    });
+    await waitFor(() => {
+      expect(screen.queryByText("rffList")).toBeNull();
+    });
+    expect(screen.getByTestId("developer-slot-table").textContent).toContain("rffImage");
+    fireEvent.change(screen.getByTestId("developer-slot-search"), {
+      target: { value: "zzz-no-such-slot" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-search-empty")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-slot-search-empty").textContent).toBe(
+      DEV_MSG.SLOT_SEARCH_EMPTY,
+    );
+    expect(screen.queryByTestId("developer-slot-table")).toBeNull();
+    fireEvent.change(screen.getByTestId("developer-slot-search"), {
+      target: { value: "" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-slot-table").textContent).toContain("rffList");
+    expect(listSlots).toHaveBeenCalledTimes(1);
+  });
 });

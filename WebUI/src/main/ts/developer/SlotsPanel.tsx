@@ -19,6 +19,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { listSlots } from "../api/developer/assemblyApi";
 import type { SlotSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { CatalogSearchFilter, matchesCatalogQuery } from "./CatalogSearchFilter";
 import { catalogColors, monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -38,6 +39,8 @@ function selectionKey(s: SlotSummary): string | null {
 export function SlotsPanel(): React.ReactElement {
   const [items, setItems] = useState<SlotSummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  /** Client-side catalog filter (#5995). Never triggers a fetch; never mutates. */
+  const [query, setQuery] = useState("");
   /** null = catalog; "new" = create; otherwise slot name or guid. */
   const [selected, setSelected] = useState<string | "new" | null>(null);
   const mountedRef = useRef(true);
@@ -81,6 +84,12 @@ export function SlotsPanel(): React.ReactElement {
       }),
     );
   }, [items]);
+
+  const visible = useMemo(() => {
+    return sorted.filter((s) =>
+      matchesCatalogQuery([s.label, s.name, s.description], query),
+    );
+  }, [sorted, query]);
 
   function handleDeleted(): void {
     setSelected(null);
@@ -163,11 +172,22 @@ export function SlotsPanel(): React.ReactElement {
       {items.length === 0 ? (
         <CatalogStatus testId="developer-slot-empty">{DEV_MSG.SLOT_EMPTY}</CatalogStatus>
       ) : (
+        <>
+          <CatalogSearchFilter
+            testId="developer-slot-search"
+            query={query}
+            onQueryChange={setQuery}
+          />
+          {visible.length === 0 ? (
+            <CatalogStatus testId="developer-slot-search-empty">
+              {DEV_MSG.SLOT_SEARCH_EMPTY}
+            </CatalogStatus>
+          ) : (
         <SimpleCatalogTable
           tableTestId="developer-slot-table"
           rowTestId="developer-slot-row"
           columns={[DEV_MSG.SLOT_COL_LABEL, DEV_MSG.SLOT_COL_NAME, DEV_MSG.SLOT_COL_DESCRIPTION]}
-          rows={sorted.map((s, index) => {
+          rows={visible.map((s, index) => {
             const openKey = selectionKey(s);
             const interactive = openKey != null && openKey.length > 0;
             return {
@@ -209,6 +229,8 @@ export function SlotsPanel(): React.ReactElement {
             };
           })}
         />
+          )}
+        </>
       )}
     </div>
   );

@@ -36,6 +36,8 @@ export const DEV_MSG_KEYS = {
   CATALOG_CONFIRM_HINT: "perc.ui.developer@This action cannot be undone.",
   CATALOG_CONFIRM_SUBMIT: "perc.ui.developer@Delete",
   CATALOG_CONFIRM_CANCEL: "perc.ui.developer@Cancel",
+  CATALOG_SEARCH_LABEL: "perc.ui.developer@Filter catalog",
+  CATALOG_SEARCH_PLACEHOLDER: "perc.ui.developer@Type to filter by name...",
   SESSION_REDIRECT: "perc.ui.developer@Session expired - redirecting to login...",
   ACL_TITLE: "perc.ui.developer@Object ACL",
   ACL_HINT:
@@ -680,6 +682,7 @@ export const DEV_MSG_KEYS = {
   TPL_NONE: "perc.ui.developer@None",
   SLOT_LOADING: "perc.ui.developer@Loading slots...",
   SLOT_EMPTY: "perc.ui.developer@No slots returned.",
+  SLOT_SEARCH_EMPTY: "perc.ui.developer@No slots match the current filter.",
   SLOT_ERROR: "perc.ui.developer@Could not load slots.",
   SLOT_HINT:
     "perc.ui.developer@Create, rename, or delete assembly slots (Admin). Name is unique and cannot contain spaces. The catalog shows a new name only after a successful save. Lock an existing slot to edit finder, relationship, and finder arguments.",
@@ -755,6 +758,7 @@ export const DEV_MSG_KEYS = {
   SLOT_COL_ACTIONS: "perc.ui.developer@Actions",
   COMM_LOADING: "perc.ui.developer@Loading communities...",
   COMM_EMPTY: "perc.ui.developer@No communities returned.",
+  COMM_SEARCH_EMPTY: "perc.ui.developer@No communities match the current filter.",
   COMM_ERROR: "perc.ui.developer@Could not load communities.",
   COMM_HINT:
     "perc.ui.developer@Create, rename, set a description, or delete a community, then open one to edit role membership, Content Explorer new-search defaults, and inspect object visibility. Per-object COMMUNITY ACL entries are edited on object detail panels (e.g. content types).",
@@ -864,6 +868,7 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Full ACL editor parity remains a separate slice; assign COMMUNITY principals on object ACL sections where mounted. Use Community Visibility for the SE-05 navigator groups.",
   ROLES_LOADING: "perc.ui.developer@Loading roles catalog...",
   ROLES_EMPTY: "perc.ui.developer@No roles returned.",
+  ROLES_SEARCH_EMPTY: "perc.ui.developer@No roles match the current filter.",
   ROLES_ERROR: "perc.ui.developer@Could not load roles catalog.",
   ROLES_HINT:
     "perc.ui.developer@Security Design catalog of system roles grouped by community membership, workflow assignment, or unassigned. Admins can create a role, copy one role's description, home page, and users to a new name, open one role to see its users, add one existing user, remove one user after confirming, edit one role's description, set or clear one role's home page, and delete one non-system role after confirming. System and Default cannot be deleted.",
@@ -1546,6 +1551,7 @@ export const DEV_MSG_KEYS = {
   IF_GAP_RULE_EDIT: "perc.ui.developer@Rule and parameter editing not supported via this chrome",
   DF_LOADING: "perc.ui.developer@Loading display formats...",
   DF_EMPTY: "perc.ui.developer@No display formats returned.",
+  DF_SEARCH_EMPTY: "perc.ui.developer@No display formats match the current filter.",
   DF_ERROR: "perc.ui.developer@Could not load display formats.",
   DF_HINT:
     "perc.ui.developer@Create or delete Content Explorer display formats (name required, no spaces). Open a user format to add, remove, or reorder columns and set the default sort. Packaged/system formats are read-only.",
@@ -2102,6 +2108,7 @@ export const DEV_MSG_KEYS = {
   RT_COPY_NONE: "perc.ui.developer@(none — choose category)",
   WF_LOADING: "perc.ui.developer@Loading workflows...",
   WF_EMPTY: "perc.ui.developer@No workflows returned.",
+  WF_SEARCH_EMPTY: "perc.ui.developer@No workflows match the current filter.",
   WF_ERROR: "perc.ui.developer@Could not load workflows.",
   WF_HINT:
     "perc.ui.developer@Workflow definitions for association and step browse. Custom workflows can be renamed; packaged and system-default workflows stay read-only.",
