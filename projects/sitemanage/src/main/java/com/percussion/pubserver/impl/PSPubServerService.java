@@ -1873,48 +1873,15 @@ public class PSPubServerService implements IPSPubServerService {
       for (PSPubServerProperty property : properties) {
         String propertyName = property.getName();
         String propertyValue = property.getValue();
-        // This is handling a special case, where server was created with a AdminURL that is changed
-        // in
-        // deliverServer.xml and is not valid anymore, thus , need to fix it.
-        if (IPSPubServerDao.PUBLISH_SERVER_PROPERTY.equalsIgnoreCase(propertyName)) {
-          String server = pubServer.getPublishServer().orElse("");
-          if (!server.equalsIgnoreCase(propertyValue)) {
+        // This is handling a special case, where server was created with a AdminURL that is
+        // changed in deliverServer.xml and is not valid anymore, thus , need to fix it.
+        if (isAdminUrlProperty(propertyName)) {
+          if (appendRepairedAdminUrlProperty(pubServer, serverInfo, propertyName, propertyValue)) {
             needToSave = true;
           }
-          PSPublishServerProperty serverProperty = new PSPublishServerProperty();
-          serverProperty.setKey(propertyName);
-          serverProperty.setValue(server);
-          serverInfo.getProperties().add(serverProperty);
           continue;
         }
-        if (ArrayUtils.contains(encryptableProperties, propertyName)) {
-          try {
-            propertyValue = decrypt(propertyValue);
-          } catch (Exception e) {
-            throw new PSPubServerServiceException(
-                "Error occurred while decrypting the server properties", e);
-          }
-        }
-
-        if (!propertyName.equalsIgnoreCase(IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY)
-            && !propertyName.equalsIgnoreCase(IPSPubServerDao.PUBLISH_PRIVATE_KEY_PROPERTY)
-            && !propertyName.equalsIgnoreCase(IPSPubServerDao.PUBLISH_FOLDER_PROPERTY)
-            && !propertyName.equalsIgnoreCase(IPSPubServerDao.PUBLISH_OWN_SERVER_PROPERTY)
-            && !propertyName.equalsIgnoreCase(IPSPubServerDao.PUBLISH_FORMAT_PROPERTY)) {
-          PSPublishServerProperty serverProperty = new PSPublishServerProperty();
-          serverProperty.setKey(propertyName);
-          serverProperty.setValue(propertyValue);
-          serverInfo.getProperties().add(serverProperty);
-        }
-
-        if (propertyName.equals(IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY)) {
-          PSPublishServerProperty obfuPasswordProperty = new PSPublishServerProperty();
-          obfuPasswordProperty.setKey(propertyName);
-          obfuPasswordProperty.setValue(propertyValue);
-          serverInfo.getProperties().remove(obfuPasswordProperty);
-          obfuPasswordProperty.setValue(PASSWORD_ENTRY);
-          serverInfo.getProperties().add(obfuPasswordProperty);
-        }
+        appendMappedProperty(serverInfo, propertyName, propertyValue);
       }
       if (site.isPageBased()) {
         setPublishDates(pubServer, site, serverInfo);
@@ -1931,37 +1898,7 @@ public class PSPubServerService implements IPSPubServerService {
             site.getDefaultPubServer(), pubServer.getServerId()));
     serverInfo.setServerType(pubServer.getServerType().orElse(""));
 
-    String pubType = pubServer.getPublishType();
-    if (equalsIgnoreCase(pubType, PublishType.filesystem.toString())
-        || equalsIgnoreCase(pubType, PublishType.ftp.toString())
-        || equalsIgnoreCase(pubType, PublishType.sftp.toString())
-        || equalsIgnoreCase(pubType, PublishType.filesystem_only.toString())
-        || equalsIgnoreCase(pubType, PublishType.ftp_only.toString())
-        || equalsIgnoreCase(pubType, PublishType.ftps.toString())
-        || equalsIgnoreCase(pubType, PublishType.ftps_only.toString())
-        || equalsIgnoreCase(pubType, PublishType.sftp_only.toString())
-        || equalsIgnoreCase(pubType, PublishType.amazon_s3.toString())
-        || equalsIgnoreCase(pubType, PublishType.amazon_s3_only.toString())) {
-      if (PublishType.sftp_only.toString().equals(pubType)) {
-        String driver =
-            PSPubServerPropertyHelper.findProperty(
-                properties, IPSPubServerDao.PUBLISH_DRIVER_PROPERTY);
-        if (driver != null && driver.equals(PSPubServerService.DRIVER_FTP)) {
-          PSPubServerPropertyHelper.updateProperty(
-              serverInfo.getProperties(),
-              IPSPubServerDao.PUBLISH_DRIVER_PROPERTY,
-              PSPubServerService.DRIVER_SFTP);
-        }
-      }
-      serverInfo.setType(PUBLISH_FILE_TYPE);
-      serverInfo.setIsModified(false);
-    } else {
-      if (equalsIgnoreCase(pubServer.getPublishType(), PublishType.database.toString())) {
-        serverInfo.setType(PUBLISH_DB_TYPE);
-        serverInfo.setIsModified(
-            serverFileService.isServerModified(site.getSiteId(), pubServer.getName()));
-      }
-    }
+    classifyPublishType(pubServer, properties, site, serverInfo);
 
     // only the default server can incrementally publish
     if (site.isPageBased()) {
@@ -1972,17 +1909,148 @@ public class PSPubServerService implements IPSPubServerService {
     }
 
     if (needToSave) {
-      try {
-        updatePubServer(
-            String.valueOf(pubServer.getSiteId()),
-            String.valueOf(pubServer.getServerId()),
-            serverInfo);
-      } catch (PSDataServiceException | PSNotFoundException e) {
-        log.error(
-            "Unable to Save the AdminServer URL. Error: {}", PSExceptionUtils.getMessageForLog(e));
-      }
+      persistRepairedAdminUrl(pubServer, site, serverInfo);
     }
     return serverInfo;
+  }
+
+  static boolean isAdminUrlProperty(String propertyName) {
+    return IPSPubServerDao.PUBLISH_SERVER_PROPERTY.equalsIgnoreCase(propertyName);
+  }
+
+  /**
+   * Appends the current admin URL for a stale stored admin-URL property.
+   *
+   * @return {@code true} when the stored value differed and the caller must re-save the server
+   */
+  private boolean appendRepairedAdminUrlProperty(
+      IPSPubServer pubServer,
+      PSPublishServerInfo serverInfo,
+      String propertyName,
+      String propertyValue) {
+    String server = pubServer.getPublishServer().orElse("");
+    boolean changed = !server.equalsIgnoreCase(propertyValue);
+    PSPublishServerProperty serverProperty = new PSPublishServerProperty();
+    serverProperty.setKey(propertyName);
+    serverProperty.setValue(server);
+    serverInfo.getProperties().add(serverProperty);
+    return changed;
+  }
+
+  private void appendMappedProperty(
+      PSPublishServerInfo serverInfo, String propertyName, String propertyValue)
+      throws PSPubServerServiceException {
+    String mappedValue = decryptIfEncryptable(propertyName, propertyValue);
+    if (!isReadoutExcluded(propertyName)) {
+      addServerProperty(serverInfo, propertyName, mappedValue);
+    }
+    if (propertyName.equals(IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY)) {
+      maskPasswordProperty(serverInfo, propertyName, mappedValue);
+    }
+  }
+
+  private String decryptIfEncryptable(String propertyName, String propertyValue)
+      throws PSPubServerServiceException {
+    if (!ArrayUtils.contains(encryptableProperties, propertyName)) {
+      return propertyValue;
+    }
+    try {
+      return decrypt(propertyValue);
+    } catch (Exception e) {
+      throw new PSPubServerServiceException(
+          "Error occurred while decrypting the server properties", e);
+    }
+  }
+
+  /**
+   * Password, private key, folder, own-server, and format properties are surfaced through the flag
+   * helpers instead of the raw property readout.
+   */
+  static boolean isReadoutExcluded(String propertyName) {
+    return propertyName.equalsIgnoreCase(IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY)
+        || propertyName.equalsIgnoreCase(IPSPubServerDao.PUBLISH_PRIVATE_KEY_PROPERTY)
+        || propertyName.equalsIgnoreCase(IPSPubServerDao.PUBLISH_FOLDER_PROPERTY)
+        || propertyName.equalsIgnoreCase(IPSPubServerDao.PUBLISH_OWN_SERVER_PROPERTY)
+        || propertyName.equalsIgnoreCase(IPSPubServerDao.PUBLISH_FORMAT_PROPERTY);
+  }
+
+  private static void addServerProperty(
+      PSPublishServerInfo serverInfo, String key, String value) {
+    PSPublishServerProperty serverProperty = new PSPublishServerProperty();
+    serverProperty.setKey(key);
+    serverProperty.setValue(value);
+    serverInfo.getProperties().add(serverProperty);
+  }
+
+  private static void maskPasswordProperty(
+      PSPublishServerInfo serverInfo, String propertyName, String propertyValue) {
+    PSPublishServerProperty obfuPasswordProperty = new PSPublishServerProperty();
+    obfuPasswordProperty.setKey(propertyName);
+    obfuPasswordProperty.setValue(propertyValue);
+    serverInfo.getProperties().remove(obfuPasswordProperty);
+    obfuPasswordProperty.setValue(PASSWORD_ENTRY);
+    serverInfo.getProperties().add(obfuPasswordProperty);
+  }
+
+  private void classifyPublishType(
+      IPSPubServer pubServer,
+      Set<PSPubServerProperty> properties,
+      IPSSite site,
+      PSPublishServerInfo serverInfo) {
+    String pubType = pubServer.getPublishType();
+    if (isFilePublishType(pubType)) {
+      if (PublishType.sftp_only.toString().equals(pubType)) {
+        repairSftpDriverProperty(properties, serverInfo);
+      }
+      serverInfo.setType(PUBLISH_FILE_TYPE);
+      serverInfo.setIsModified(false);
+    } else {
+      if (equalsIgnoreCase(pubServer.getPublishType(), PublishType.database.toString())) {
+        serverInfo.setType(PUBLISH_DB_TYPE);
+        serverInfo.setIsModified(
+            serverFileService.isServerModified(site.getSiteId(), pubServer.getName()));
+      }
+    }
+  }
+
+  static boolean isFilePublishType(String pubType) {
+    return equalsIgnoreCase(pubType, PublishType.filesystem.toString())
+        || equalsIgnoreCase(pubType, PublishType.ftp.toString())
+        || equalsIgnoreCase(pubType, PublishType.sftp.toString())
+        || equalsIgnoreCase(pubType, PublishType.filesystem_only.toString())
+        || equalsIgnoreCase(pubType, PublishType.ftp_only.toString())
+        || equalsIgnoreCase(pubType, PublishType.ftps.toString())
+        || equalsIgnoreCase(pubType, PublishType.ftps_only.toString())
+        || equalsIgnoreCase(pubType, PublishType.sftp_only.toString())
+        || equalsIgnoreCase(pubType, PublishType.amazon_s3.toString())
+        || equalsIgnoreCase(pubType, PublishType.amazon_s3_only.toString());
+  }
+
+  static void repairSftpDriverProperty(
+      Set<PSPubServerProperty> properties, PSPublishServerInfo serverInfo) {
+    String driver =
+        PSPubServerPropertyHelper.findProperty(
+            properties, IPSPubServerDao.PUBLISH_DRIVER_PROPERTY);
+    if (driver != null && driver.equals(PSPubServerService.DRIVER_FTP)) {
+      PSPubServerPropertyHelper.updateProperty(
+          serverInfo.getProperties(),
+          IPSPubServerDao.PUBLISH_DRIVER_PROPERTY,
+          PSPubServerService.DRIVER_SFTP);
+    }
+  }
+
+  private void persistRepairedAdminUrl(
+      IPSPubServer pubServer, IPSSite site, PSPublishServerInfo serverInfo)
+      throws PSPubServerServiceException {
+    try {
+      updatePubServer(
+          String.valueOf(pubServer.getSiteId()),
+          String.valueOf(pubServer.getServerId()),
+          serverInfo);
+    } catch (PSDataServiceException | PSNotFoundException e) {
+      log.error(
+          "Unable to Save the AdminServer URL. Error: {}", PSExceptionUtils.getMessageForLog(e));
+    }
   }
 
   private void setPublishDates(
@@ -2242,74 +2310,85 @@ public class PSPubServerService implements IPSPubServerService {
       String secure,
       boolean isDefaultServer,
       String format) {
-    // Check for file type and local driver
-    if (type.equalsIgnoreCase(PUBLISH_FILE_TYPE) && driver.equalsIgnoreCase(DRIVER_LOCAL)) {
-      String publishTypeValue = PublishType.filesystem.toString();
-      if (format.equalsIgnoreCase(XML_FLAG)) {
-        publishTypeValue = PublishType.filesystem_only.toString();
-      }
-      server.setPublishType(publishTypeValue);
-      return;
-    }
-
-    // Check for file type and FTP driver
-    if (type.equalsIgnoreCase(PUBLISH_FILE_TYPE) && driver.equalsIgnoreCase(DRIVER_FTP)) {
-      boolean isSecureFtp = secure != null && secure.equalsIgnoreCase("true");
-      String publishTypeValue =
-          isDefaultServer ? PublishType.ftp.toString() : PublishType.ftp_only.toString();
-      if (isSecureFtp) {
-        publishTypeValue =
-            isDefaultServer ? PublishType.sftp.toString() : PublishType.sftp_only.toString();
-      }
-
-      if (isDefaultServer && format.equalsIgnoreCase(XML_FLAG)) {
-        publishTypeValue = PublishType.ftp_only.toString();
-        if (isSecureFtp) {
-          publishTypeValue = PublishType.sftp_only.toString();
-        }
-      }
-      server.setPublishType(publishTypeValue);
-      return;
-    }
-    if (type.equalsIgnoreCase(PUBLISH_FILE_TYPE) && driver.equalsIgnoreCase(DRIVER_SFTP)) {
-
-      String publishTypeValue =
-          isDefaultServer ? PublishType.sftp.toString() : PublishType.sftp_only.toString();
-
-      if (isDefaultServer && format.equalsIgnoreCase(XML_FLAG)) {
-        publishTypeValue = PublishType.sftp_only.toString();
-      }
-      server.setPublishType(publishTypeValue);
-      return;
-    }
-    // Check for file type and FTPS driver
-    if (type.equalsIgnoreCase(PUBLISH_FILE_TYPE) && driver.equalsIgnoreCase(DRIVER_FTPS)) {
-      if (isDefaultServer && !format.equalsIgnoreCase(XML_FLAG)) {
-        server.setPublishType(PublishType.ftps.toString());
-      } else {
-        server.setPublishType(PublishType.ftps_only.toString());
-      }
-      return;
-    }
-    if (type.equalsIgnoreCase(PUBLISH_FILE_TYPE) && driver.equalsIgnoreCase(DRIVER_AMAZONS3)) {
-      String publishTypeValue =
-          isDefaultServer
-              ? PublishType.amazon_s3.toString()
-              : PublishType.amazon_s3_only.toString();
+    String publishTypeValue = resolvePublishType(type, driver, secure, isDefaultServer, format);
+    if (publishTypeValue != null) {
       server.setPublishType(publishTypeValue);
     }
+  }
 
-    if (type.equalsIgnoreCase(PUBLISH_FILE_TYPE) && driver.equalsIgnoreCase(DRIVER_AMAZONS3)) {
-      String publishTypeValue =
-          isDefaultServer
-              ? PublishType.amazon_s3.toString()
-              : PublishType.amazon_s3_only.toString();
-      server.setPublishType(publishTypeValue);
+  /**
+   * Resolves the publish type for the supplied driver selection without mutating the server. Returns
+   * {@code null} when the type/driver combination maps to no publish type, in which case the caller
+   * leaves the server untouched.
+   */
+  static String resolvePublishType(
+      String type, String driver, String secure, boolean isDefaultServer, String format) {
+    if (isDatabaseTypeValue(type)) {
+      return PublishType.database.toString();
     }
-    // Check for database type
-    if (isDatabaseType(type)) {
-      server.setPublishType(PublishType.database.toString());
+    if (!type.equalsIgnoreCase(PUBLISH_FILE_TYPE)) {
+      return null;
     }
+    if (driver.equalsIgnoreCase(DRIVER_LOCAL)) {
+      return resolveLocalPublishType(format);
+    }
+    if (driver.equalsIgnoreCase(DRIVER_FTP)) {
+      return resolveFtpPublishType(secure, isDefaultServer, format);
+    }
+    if (driver.equalsIgnoreCase(DRIVER_SFTP)) {
+      return resolveSftpPublishType(isDefaultServer, format);
+    }
+    if (driver.equalsIgnoreCase(DRIVER_FTPS)) {
+      return resolveFtpsPublishType(isDefaultServer, format);
+    }
+    if (driver.equalsIgnoreCase(DRIVER_AMAZONS3)) {
+      return resolveAmazonS3PublishType(isDefaultServer);
+    }
+    return null;
+  }
+
+  private static boolean isDatabaseTypeValue(String type) {
+    return equalsIgnoreCase(type, PUBLISH_DB_TYPE);
+  }
+
+  static String resolveLocalPublishType(String format) {
+    if (format.equalsIgnoreCase(XML_FLAG)) {
+      return PublishType.filesystem_only.toString();
+    }
+    return PublishType.filesystem.toString();
+  }
+
+  static String resolveFtpPublishType(String secure, boolean isDefaultServer, String format) {
+    boolean isSecureFtp = secure != null && secure.equalsIgnoreCase("true");
+    // XML-format default servers publish file-only, same as their non-default siblings.
+    if (isDefaultServer && format.equalsIgnoreCase(XML_FLAG)) {
+      return isSecureFtp ? PublishType.sftp_only.toString() : PublishType.ftp_only.toString();
+    }
+    if (isSecureFtp) {
+      return isDefaultServer ? PublishType.sftp.toString() : PublishType.sftp_only.toString();
+    }
+    return isDefaultServer ? PublishType.ftp.toString() : PublishType.ftp_only.toString();
+  }
+
+  static String resolveSftpPublishType(boolean isDefaultServer, String format) {
+    // XML-format default servers publish file-only, same as their non-default siblings.
+    if (isDefaultServer && format.equalsIgnoreCase(XML_FLAG)) {
+      return PublishType.sftp_only.toString();
+    }
+    return isDefaultServer ? PublishType.sftp.toString() : PublishType.sftp_only.toString();
+  }
+
+  static String resolveFtpsPublishType(boolean isDefaultServer, String format) {
+    if (isDefaultServer && !format.equalsIgnoreCase(XML_FLAG)) {
+      return PublishType.ftps.toString();
+    }
+    return PublishType.ftps_only.toString();
+  }
+
+  static String resolveAmazonS3PublishType(boolean isDefaultServer) {
+    return isDefaultServer
+        ? PublishType.amazon_s3.toString()
+        : PublishType.amazon_s3_only.toString();
   }
 
   /**
@@ -2447,96 +2526,140 @@ public class PSPubServerService implements IPSPubServerService {
     boolean isPrivateKeySelected =
         privateKeyFlag != null && privateKeyFlag.equalsIgnoreCase("true") ? true : false;
 
+    requireDriver(driver);
+    validateNoDuplicateStagingServer(siteId, serverType, isNew);
+
+    if (type.equalsIgnoreCase(PUBLISH_FILE_TYPE)) {
+      validateFileTypeProperties(pubServerInfo, driver, secure, port, isPrivateKeySelected);
+      return;
+    }
+    if (isDatabaseType(type)) {
+      validateDatabaseTypeProperties(pubServerInfo, driver, port);
+      return;
+    }
+  }
+
+  private static void requireDriver(String driver) throws PSValidationException {
     if (isBlank(driver)) {
       validateParameters("validateProperties")
           .rejectField(
               IPSPubServerDao.PUBLISH_DRIVER_PROPERTY.toString(), PROPERTY_FIELD_REQUIRED, driver)
           .throwIfInvalid();
     }
+  }
 
-    if (isNew
-        && StringUtils.isNotBlank(serverType)
-        && PSPubServer.STAGING.equalsIgnoreCase(serverType)) {
-      // Make sure there are no other staging pub server for the supplied type.
-      List<PSPublishServerInfo> pubSrvs = getPubServerList(siteId);
-      for (PSPublishServerInfo srvInfo : pubSrvs) {
-        if (PSPubServer.STAGING.equalsIgnoreCase(srvInfo.getServerType())) {
-          String opName = "validateServer";
-          PSValidationErrorsBuilder builder =
-              validateParameters(opName)
-                  .reject("Server Save", "Only one staging server is allowed per site.");
-          builder.throwIfInvalid();
-        }
+  private void validateNoDuplicateStagingServer(String siteId, String serverType, boolean isNew)
+      throws PSValidationException, PSPubServerServiceException {
+    if (!isNew
+        || StringUtils.isBlank(serverType)
+        || !PSPubServer.STAGING.equalsIgnoreCase(serverType)) {
+      return;
+    }
+    // Make sure there are no other staging pub server for the supplied type.
+    List<PSPublishServerInfo> pubSrvs = getPubServerList(siteId);
+    for (PSPublishServerInfo srvInfo : pubSrvs) {
+      if (PSPubServer.STAGING.equalsIgnoreCase(srvInfo.getServerType())) {
+        String opName = "validateServer";
+        PSValidationErrorsBuilder builder =
+            validateParameters(opName)
+                .reject("Server Save", "Only one staging server is allowed per site.");
+        builder.throwIfInvalid();
+      }
+    }
+  }
+
+  private void validateFileTypeProperties(
+      PSPublishServerInfo pubServerInfo,
+      String driver,
+      String secure,
+      String port,
+      boolean isPrivateKeySelected)
+      throws PSValidationException {
+    if (driver.equalsIgnoreCase(DRIVER_LOCAL)) {
+      validatePropertiesByDriver(pubServerInfo, FILESYSTEM_PROPERTIES);
+      validateLocalFilesystemFlags(pubServerInfo);
+    } else if (driver.equalsIgnoreCase(DRIVER_FTP)
+        || driver.equalsIgnoreCase(DRIVER_FTPS)
+        || driver.equalsIgnoreCase(DRIVER_SFTP)) {
+      validateOptionalPort(port);
+      validatePropertiesByDriver(
+          pubServerInfo, resolveFtpPropertySet(driver, secure, isPrivateKeySelected));
+    } else if (driver.equalsIgnoreCase(DRIVER_AMAZONS3)) {
+      validatePropertiesByDriver(pubServerInfo, AMAZON_S3_PROPERTIES);
+    }
+  }
+
+  private void validateLocalFilesystemFlags(PSPublishServerInfo pubServerInfo)
+      throws PSValidationException {
+    String ownProperty = StringUtils.defaultString(pubServerInfo.findProperty(OWN_SERVER_FLAG));
+    if (ownProperty.equalsIgnoreCase(Boolean.TRUE.toString())) {
+      String ownServer = pubServerInfo.findProperty(IPSPubServerDao.PUBLISH_OWN_SERVER_PROPERTY);
+      if (isBlank(ownServer)) {
+        validateParameters("validateProperties")
+            .rejectField(
+                IPSPubServerDao.PUBLISH_OWN_SERVER_PROPERTY.toString(),
+                PROPERTY_FIELD_REQUIRED,
+                ownServer)
+            .throwIfInvalid();
       }
     }
 
-    if (type.equalsIgnoreCase(PUBLISH_FILE_TYPE)) {
-      if (driver.equalsIgnoreCase(DRIVER_LOCAL)) {
-        validatePropertiesByDriver(pubServerInfo, FILESYSTEM_PROPERTIES);
-
-        String ownProperty = StringUtils.defaultString(pubServerInfo.findProperty(OWN_SERVER_FLAG));
-        if (ownProperty.equalsIgnoreCase(Boolean.TRUE.toString())) {
-          String ownServer =
-              pubServerInfo.findProperty(IPSPubServerDao.PUBLISH_OWN_SERVER_PROPERTY);
-          if (isBlank(ownServer)) {
-            validateParameters("validateProperties")
-                .rejectField(
-                    IPSPubServerDao.PUBLISH_OWN_SERVER_PROPERTY.toString(),
-                    PROPERTY_FIELD_REQUIRED,
-                    ownServer)
-                .throwIfInvalid();
-          }
-        }
-
-        String defaultProperty =
-            StringUtils.defaultString(pubServerInfo.findProperty(DEFAULT_SERVER_FLAG));
-        if (defaultProperty.equalsIgnoreCase(Boolean.TRUE.toString())) {
-          String defaultServer =
-              pubServerInfo.findProperty(IPSPubServerDao.PUBLISH_DEFAULT_SERVER_PROPERTY);
-          if (isBlank(defaultServer)) {
-            validateParameters("validateProperties")
-                .rejectField(
-                    IPSPubServerDao.PUBLISH_DEFAULT_SERVER_PROPERTY.toString(),
-                    PROPERTY_FIELD_REQUIRED,
-                    defaultServer)
-                .throwIfInvalid();
-          }
-        }
-      } else if (driver.equalsIgnoreCase(DRIVER_FTP)
-          || driver.equalsIgnoreCase(DRIVER_FTPS)
-          || driver.equalsIgnoreCase(DRIVER_SFTP)) {
-        // validate the port value
-        if (port != null) {
-          validatePort(port);
-        }
-        // Taking care of Upgrade Cases and new cases
-        if (driver.equalsIgnoreCase(DRIVER_SFTP)) {
-          secure = "true";
-        }
-
-        String[] propsToCheck =
-            secure.equalsIgnoreCase(Boolean.TRUE.toString())
-                ? (isPrivateKeySelected ? SFTP_PROPERTIES_WITHOUT_PASS : SFTP_PROPERTIES)
-                : FTP_PROPERTIES;
-        if (driver.equalsIgnoreCase(DRIVER_FTPS)) {
-          propsToCheck = FTPS_PROPERTIES;
-        }
-        validatePropertiesByDriver(pubServerInfo, propsToCheck);
-      } else if (driver.equalsIgnoreCase(DRIVER_AMAZONS3)) {
-        validatePropertiesByDriver(pubServerInfo, AMAZON_S3_PROPERTIES);
+    String defaultProperty =
+        StringUtils.defaultString(pubServerInfo.findProperty(DEFAULT_SERVER_FLAG));
+    if (defaultProperty.equalsIgnoreCase(Boolean.TRUE.toString())) {
+      String defaultServer =
+          pubServerInfo.findProperty(IPSPubServerDao.PUBLISH_DEFAULT_SERVER_PROPERTY);
+      if (isBlank(defaultServer)) {
+        validateParameters("validateProperties")
+            .rejectField(
+                IPSPubServerDao.PUBLISH_DEFAULT_SERVER_PROPERTY.toString(),
+                PROPERTY_FIELD_REQUIRED,
+                defaultServer)
+            .throwIfInvalid();
       }
-      return;
-    } else if (isDatabaseType(type)) {
-      // validate the port value
-      if (port != null) {
-        validatePort(port);
-      }
-      String[] propsToCheck =
-          driver.equalsIgnoreCase(DRIVER_ORACLE)
-              ? ORACLE_PROPERTIES
-              : driver.equalsIgnoreCase(DRIVER_MSSQL) ? MSSQL_PROPERTIES : DB_PROPERTIES;
-      validatePropertiesByDriver(pubServerInfo, propsToCheck);
-      return;
+    }
+  }
+
+  /**
+   * Selects the required-property set for an FTP-family driver. SFTP upgrades the connection to
+   * secure; private-key authentication drops the password requirement; FTPS has its own set.
+   */
+  static String[] resolveFtpPropertySet(
+      String driver, String secure, boolean isPrivateKeySelected) {
+    // Taking care of Upgrade Cases and new cases
+    if (driver.equalsIgnoreCase(DRIVER_SFTP)) {
+      secure = "true";
+    }
+    if (driver.equalsIgnoreCase(DRIVER_FTPS)) {
+      return FTPS_PROPERTIES;
+    }
+    if (secure.equalsIgnoreCase(Boolean.TRUE.toString())) {
+      return isPrivateKeySelected ? SFTP_PROPERTIES_WITHOUT_PASS : SFTP_PROPERTIES;
+    }
+    return FTP_PROPERTIES;
+  }
+
+  private void validateDatabaseTypeProperties(
+      PSPublishServerInfo pubServerInfo, String driver, String port)
+      throws PSValidationException {
+    validateOptionalPort(port);
+    validatePropertiesByDriver(pubServerInfo, resolveDatabasePropertySet(driver));
+  }
+
+  static String[] resolveDatabasePropertySet(String driver) {
+    if (driver.equalsIgnoreCase(DRIVER_ORACLE)) {
+      return ORACLE_PROPERTIES;
+    }
+    if (driver.equalsIgnoreCase(DRIVER_MSSQL)) {
+      return MSSQL_PROPERTIES;
+    }
+    return DB_PROPERTIES;
+  }
+
+  private void validateOptionalPort(String port) throws PSValidationException {
+    // validate the port value
+    if (port != null) {
+      validatePort(port);
     }
   }
 
@@ -2720,7 +2843,7 @@ public class PSPubServerService implements IPSPubServerService {
   private static final String PROPERTY_FIELD_REQUIRED = "This is a required field.";
 
   // File system Properties names that should exist in the object
-  private String[] FILESYSTEM_PROPERTIES = {
+  private static final String[] FILESYSTEM_PROPERTIES = {
     IPSPubServerDao.PUBLISH_DRIVER_PROPERTY,
     XML_FLAG,
     HTML_FLAG,
@@ -2729,7 +2852,7 @@ public class PSPubServerService implements IPSPubServerService {
   };
 
   // File system Properties names that should exist in the object
-  private String[] FTP_PROPERTIES = {
+  private static final String[] FTP_PROPERTIES = {
     IPSPubServerDao.PUBLISH_DRIVER_PROPERTY,
     XML_FLAG,
     HTML_FLAG,
@@ -2742,7 +2865,7 @@ public class PSPubServerService implements IPSPubServerService {
     IPSPubServerDao.PUBLISH_FOLDER_PROPERTY
   };
   // File system Properties names that should exist in the object
-  private String[] FTPS_PROPERTIES = {
+  private static final String[] FTPS_PROPERTIES = {
     IPSPubServerDao.PUBLISH_DRIVER_PROPERTY,
     XML_FLAG,
     HTML_FLAG,
@@ -2756,7 +2879,7 @@ public class PSPubServerService implements IPSPubServerService {
   };
 
   // File system Properties names that should exist in the object when the server is SFTP
-  private String[] SFTP_PROPERTIES = {
+  private static final String[] SFTP_PROPERTIES = {
     IPSPubServerDao.PUBLISH_DRIVER_PROPERTY,
     XML_FLAG,
     HTML_FLAG,
@@ -2771,7 +2894,7 @@ public class PSPubServerService implements IPSPubServerService {
 
   // File system Properties names that should exist in the object when the server is SFTP with
   // private key
-  private String[] SFTP_PROPERTIES_WITHOUT_PASS = {
+  private static final String[] SFTP_PROPERTIES_WITHOUT_PASS = {
     IPSPubServerDao.PUBLISH_DRIVER_PROPERTY,
     XML_FLAG,
     HTML_FLAG,
@@ -2784,7 +2907,7 @@ public class PSPubServerService implements IPSPubServerService {
   };
 
   // Database Properties names that should exist in the object
-  private String[] DB_PROPERTIES = {
+  private static final String[] DB_PROPERTIES = {
     IPSPubServerDao.PUBLISH_DRIVER_PROPERTY,
     IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY,
     IPSPubServerDao.PUBLISH_PORT_PROPERTY,
@@ -2794,7 +2917,7 @@ public class PSPubServerService implements IPSPubServerService {
   };
 
   // Database Properties names that should exist in the object
-  private String[] MSSQL_PROPERTIES = {
+  private static final String[] MSSQL_PROPERTIES = {
     IPSPubServerDao.PUBLISH_DRIVER_PROPERTY,
     IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY,
     IPSPubServerDao.PUBLISH_PORT_PROPERTY,
@@ -2805,7 +2928,7 @@ public class PSPubServerService implements IPSPubServerService {
   };
 
   // Oracle Database Properties names that should exist in the object
-  private String[] ORACLE_PROPERTIES = {
+  private static final String[] ORACLE_PROPERTIES = {
     IPSPubServerDao.PUBLISH_DRIVER_PROPERTY,
     IPSPubServerDao.PUBLISH_PASSWORD_PROPERTY,
     IPSPubServerDao.PUBLISH_PORT_PROPERTY,
@@ -2816,7 +2939,7 @@ public class PSPubServerService implements IPSPubServerService {
   };
 
   // AMAZON S3 BUCKET PROPERTIES Properties names that should exist in the object
-  private String[] AMAZON_S3_PROPERTIES = {
+  private static final String[] AMAZON_S3_PROPERTIES = {
     IPSPubServerDao.PUBLISH_DRIVER_PROPERTY,
     IPSPubServerDao.PUBLISH_AS3_ACCESSKEY_PROPERTY,
     IPSPubServerDao.PUBLISH_AS3_BUCKET_PROPERTY,
