@@ -242,19 +242,54 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
   /**
    * Sets up the applet using the supplied user info, or loads it from the server if none is
    * supplied. Performs the full initialization including splash, look and feel, action manager,
-   * i18n, help, view and option manager.
+   * i18n, help, view and option manager. Each phase is delegated to a small helper below so this
+   * orchestrator stays readable; the execution order matches the historical inline sequence.
    *
    * @param userInfo the user info to use for the session, may be <code>null</code> in which case
    *     the user info is loaded via {@link #setUserInfo()}.
    */
   public synchronized void setupApplet(PSUserInfo userInfo) {
+    resolveSessionUserInfo(userInfo);
+    resetAjaxSwingCookies();
+
+    try {
+      initSplashAndDebug();
+      initLookAndFeel();
+      initSearchFieldCaching();
+      initManagedNavFlag();
+      resolveView();
+      loadUserOptions();
+
+      m_splash.setMessage("Retrieving actions");
+      m_actManager = new PSActionManager(this);
+
+      loadI18nValues();
+
+      ms_optChangeUpdater = new OptionsUpdater();
+      loadHelp();
+      finishViewInit();
+    } catch (Exception ex) {
+      handleSetupFailure(ex);
+    }
+  }
+
+  /**
+   * Applies the supplied user info to the session, loading it from the server when none is
+   * supplied.
+   *
+   * @param userInfo the user info to use, may be <code>null</code>.
+   */
+  private void resolveSessionUserInfo(PSUserInfo userInfo) {
     if (userInfo == null) {
       setUserInfo();
     } else {
       ms_userInfo = userInfo;
       m_httpConnection = new PSHttpConnection(getRhythmyxCodeBase(), ms_userInfo.getSessionId());
     }
+  }
 
+  /** Clears stale cookies left over from previous sessions when AjaxSwing is enabled. */
+  private void resetAjaxSwingCookies() {
     try {
 
       if (PSAjaxSwingWrapperLocator.getInstance().isAjaxSwingEnabled()) {
@@ -267,182 +302,218 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
     } catch (Exception e) {
       log.error("Something is wrong with cookie manager. {}", e);
     }
+  }
+
+  /** Creates the splash screen and applies the debug / show-splash applet parameters. */
+  private void initSplashAndDebug() {
+    m_splash = new SplashScreen();
+    m_splash.setMaxMessageCount(6);
+
+    String debug = getParameter(PSContentExplorerConstants.PARAM_DEBUG);
+    if (debug != null) // reset isDebug if not on
+    {
+      Configurator.setLevel(log.getName(), Level.DEBUG);
+      ms_isDebug = "TRUE".equalsIgnoreCase(debug) || "YES".equalsIgnoreCase(debug);
+    }
+    String showSplash = getParameter(PSContentExplorerConstants.PARAM_SHOW_SPLASH);
+    if (showSplash != null) m_splash.show();
+  }
+
+  /** Initializes the cursor, look and feel, platform key bindings and tree icons. */
+  private void initLookAndFeel() {
+    // Resize to full frame
+
+    m_cursor = new CxCursor(getParentFrame());
+    m_cursor.start();
+
+    ms_thisApplet = this;
+    m_osName = System.getProperty("os.name");
 
     try {
+      UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
+    } catch (Exception e) {
+      log.warn("Could not set cross-platform look and feel", e);
+    }
 
-      m_splash = new SplashScreen();
-      m_splash.setMaxMessageCount(6);
+    if (isMacPlatform()) {
+      bindMacClipboardShortcuts();
+    }
 
-      String debug = getParameter(PSContentExplorerConstants.PARAM_DEBUG);
-      if (debug != null) // reset isDebug if not on
-      {
-        Configurator.setLevel(log.getName(), Level.DEBUG);
-        ms_isDebug = "TRUE".equalsIgnoreCase(debug) || "YES".equalsIgnoreCase(debug);
-      }
-      String showSplash = getParameter(PSContentExplorerConstants.PARAM_SHOW_SPLASH);
-      if (showSplash != null) m_splash.show();
+    UIManager.put(
+        "Tree.collapsedIcon", PSImageIconLoader.loadIcon(collapsed_icon, false, ms_thisApplet));
+    UIManager.put(
+        "Tree.expandedIcon", PSImageIconLoader.loadIcon(expanded_icon, false, ms_thisApplet));
+  }
 
-      // Resize to full frame
+  /** Binds copy/paste/cut to the Mac command-key shortcuts for text fields. */
+  private void bindMacClipboardShortcuts() {
+    InputMap im = (InputMap) UIManager.get("TextField.focusInputMap");
+    im.put(
+        KeyStroke.getKeyStroke(
+            KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
+        DefaultEditorKit.copyAction);
+    im.put(
+        KeyStroke.getKeyStroke(
+            KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
+        DefaultEditorKit.pasteAction);
+    im.put(
+        KeyStroke.getKeyStroke(
+            KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
+        DefaultEditorKit.cutAction);
+  }
 
-      m_cursor = new CxCursor(getParentFrame());
-      m_cursor.start();
+  /** Configures searchable-field caching from the {@code CacheSearchableFields} parameter. */
+  private void initSearchFieldCaching() {
+    String rsflag =
+        getParameter(PSContentExplorerConstants.PARAM_RESTRICTSEARCHFIELDSTOUSERCOMMUNITY);
+    if (rsflag != null && rsflag.equalsIgnoreCase("yes")) ms_restrictContent = true;
 
-      ms_thisApplet = this;
-      m_osName = System.getProperty("os.name");
+    // set the m_searchableFields according to "CacheSearchableFields"
+    // property, defined in server.properties
+    String cacheSearchFields =
+        getParameter(PSContentExplorerConstants.PARAM_CACHE_SEARCHABLE_FIELDS);
+    log.debug(
+        "PARAM: "
+            + PSContentExplorerConstants.PARAM_CACHE_SEARCHABLE_FIELDS
+            + " = "
+            + cacheSearchFields);
 
+    // default to cache the searchable fields per JVM
+    m_searchableFields = ms_searchableFieldsPerJVM;
+    if (cacheSearchFields != null && cacheSearchFields.equalsIgnoreCase("CachePerApplet"))
+      m_searchableFields = new HashMap<>();
+    else if (cacheSearchFields != null && cacheSearchFields.equalsIgnoreCase("None"))
+      m_searchableFields = null;
+  }
+
+  /** Reads the managed-navigation flag from the applet parameters. */
+  private void initManagedNavFlag() {
+    // set the "ms_isManagedNavUsed" from the applet parameter
+    String isManagedNavUsed = getParameter(PSContentExplorerConstants.PARAM_IS_MANAGEDNAV_USED);
+    ms_isManagedNavUsed = "YES".equalsIgnoreCase(isManagedNavUsed);
+    log.debug(
+        "PARAM: "
+            + PSContentExplorerConstants.PARAM_IS_MANAGEDNAV_USED
+            + " = "
+            + isManagedNavUsed);
+    log.debug("       ms_isManagedNavUsed = " + ms_isManagedNavUsed);
+  }
+
+  /** Resolves the current view from the {@code view} applet parameter, defaulting to CX. */
+  private void resolveView() {
+    // Initialize view first because the applet behavior is defined by
+    // the view.
+    String view = getParameter(PSContentExplorerConstants.PARAM_VIEW);
+    if (view == null || !PSUiMode.isValidView(view)) {
+      debugMessage(
+          "The parameter "
+              + PSContentExplorerConstants.PARAM_VIEW
+              + "is either not supplied or has a invalid value: "
+              + view);
+      debugMessage("Assuming default view: " + PSUiMode.TYPE_VIEW_CX);
+      m_view = PSUiMode.TYPE_VIEW_CX;
+    } else m_view = view;
+
+    debugMessage("Current view is " + m_view);
+  }
+
+  /** Loads the user options manager, falling back to defaults when it cannot be loaded. */
+  private void loadUserOptions() {
+    try {
+      m_splash.setMessage("Retrieving user options");
+      m_optionsManager = new PSOptionManager(this);
+      m_optionsManager.load();
+    } catch (PSContentExplorerException e) {
+      // ignore this error for now, since we will use defaults
+      // if the options manager could not be loaded
+      debugMessage("Error loading options: " + e.getLocalizedMessage());
+    }
+  }
+
+  /** Loads the shared i18n key values once per JVM. */
+  private void loadI18nValues() throws Exception {
+    m_splash.setMessage("Getting i18n values");
+    if (ms_i18nKeyValue == null) {
       try {
-        UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-      } catch (Exception e) {
-        log.warn("Could not set cross-platform look and feel", e);
-      }
-
-      if (isMacPlatform()) {
-        InputMap im = (InputMap) UIManager.get("TextField.focusInputMap");
-        im.put(
-            KeyStroke.getKeyStroke(
-                KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
-            DefaultEditorKit.copyAction);
-        im.put(
-            KeyStroke.getKeyStroke(
-                KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
-            DefaultEditorKit.pasteAction);
-        im.put(
-            KeyStroke.getKeyStroke(
-                KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
-            DefaultEditorKit.cutAction);
-      }
-
-      UIManager.put(
-          "Tree.collapsedIcon", PSImageIconLoader.loadIcon(collapsed_icon, false, ms_thisApplet));
-      UIManager.put(
-          "Tree.expandedIcon", PSImageIconLoader.loadIcon(expanded_icon, false, ms_thisApplet));
-
-      String rsflag =
-          getParameter(PSContentExplorerConstants.PARAM_RESTRICTSEARCHFIELDSTOUSERCOMMUNITY);
-      if (rsflag != null && rsflag.equalsIgnoreCase("yes")) ms_restrictContent = true;
-
-      // set the m_searchableFields according to "CacheSearchableFields"
-      // property, defined in server.properties
-      String cacheSearchFields =
-          getParameter(PSContentExplorerConstants.PARAM_CACHE_SEARCHABLE_FIELDS);
-      log.debug(
-          "PARAM: "
-              + PSContentExplorerConstants.PARAM_CACHE_SEARCHABLE_FIELDS
-              + " = "
-              + cacheSearchFields);
-
-      // default to cache the searchable fields per JVM
-      m_searchableFields = ms_searchableFieldsPerJVM;
-      if (cacheSearchFields != null && cacheSearchFields.equalsIgnoreCase("CachePerApplet"))
-        m_searchableFields = new HashMap<>();
-      else if (cacheSearchFields != null && cacheSearchFields.equalsIgnoreCase("None"))
-        m_searchableFields = null;
-
-      // set the "ms_isManagedNavUsed" from the applet parameter
-      String isManagedNavUsed = getParameter(PSContentExplorerConstants.PARAM_IS_MANAGEDNAV_USED);
-      ms_isManagedNavUsed = "YES".equalsIgnoreCase(isManagedNavUsed);
-      log.debug(
-          "PARAM: "
-              + PSContentExplorerConstants.PARAM_IS_MANAGEDNAV_USED
-              + " = "
-              + isManagedNavUsed);
-      log.debug("       ms_isManagedNavUsed = " + ms_isManagedNavUsed);
-
-      // Initialize view first because the applet behavior is defined by
-      // the view.
-      String view = getParameter(PSContentExplorerConstants.PARAM_VIEW);
-      if (view == null || !PSUiMode.isValidView(view)) {
+        ms_i18nKeyValue = PSI18NTranslationKeyValues.getInstance();
+        List<String> packages = new ArrayList<String>();
+        packages.add("com.percussion.wizard");
+        packages.add("com.percussion.search.ui");
+        packages.add("com.percussion.guitools");
+        packages.add("com.percussion.cx");
+        ms_i18nKeyValue.setPackages(packages);
+        ms_i18nKeyValue.load(
+            new PSRemoteAppletRequester(getHttpConnection(), getRhythmyxCodeBase()));
         debugMessage(
-            "The parameter "
-                + PSContentExplorerConstants.PARAM_VIEW
-                + "is either not supplied or has a invalid value: "
-                + view);
-        debugMessage("Assuming default view: " + PSUiMode.TYPE_VIEW_CX);
-        m_view = PSUiMode.TYPE_VIEW_CX;
-      } else m_view = view;
-
-      debugMessage("Current view is " + m_view);
-
-      try {
-        m_splash.setMessage("Retrieving user options");
-        m_optionsManager = new PSOptionManager(this);
-        m_optionsManager.load();
-      } catch (PSContentExplorerException e) {
-        // ignore this error for now, since we will use defaults
-        // if the options manager could not be loaded
-        debugMessage("Error loading options: " + e.getLocalizedMessage());
+            PSXmlDocumentBuilder.toString(
+                ms_userInfo.toXml(PSXmlDocumentBuilder.createXmlDocument())));
+      } catch (PSBeansException ex) {
+        log.warn("Could not load localized key values", ex);
       }
-      m_splash.setMessage("Retrieving actions");
+    }
+  }
 
-      m_actManager = new PSActionManager(this);
-
-      m_splash.setMessage("Getting i18n values");
-      if (ms_i18nKeyValue == null) {
-        try {
-          ms_i18nKeyValue = PSI18NTranslationKeyValues.getInstance();
-          List<String> packages = new ArrayList<String>();
-          packages.add("com.percussion.wizard");
-          packages.add("com.percussion.search.ui");
-          packages.add("com.percussion.guitools");
-          packages.add("com.percussion.cx");
-          ms_i18nKeyValue.setPackages(packages);
-          ms_i18nKeyValue.load(
-              new PSRemoteAppletRequester(getHttpConnection(), getRhythmyxCodeBase()));
-          debugMessage(
-              PSXmlDocumentBuilder.toString(
-                  ms_userInfo.toXml(PSXmlDocumentBuilder.createXmlDocument())));
-        } catch (PSBeansException ex) {
-          log.warn("Could not load localized key values", ex);
-        }
-      }
-
-      ms_optChangeUpdater = new OptionsUpdater();
-
-      /*
-       * Keeps the singleton instance of help class to load the map or
-       * helpset files once only.
-       */
-      if (ms_help == null) {
-        m_splash.setMessage("Retrieving user help");
-        String helpFile = getParameter(PSContentExplorerConstants.PARAM_HELPSET);
-        log.debug("Help url pre" + helpFile);
-        String helpSetURL =
-            PSJavaHelp.getHelpSetURL(helpFile, true, getRhythmyxCodeBase().toString());
-        log.debug("Help url post " + helpSetURL);
-        if (helpSetURL != null && helpSetURL.trim().length() != 0) {
-          ms_help = PSJavaHelp.getInstance();
-          ms_help.setHelpSet(helpSetURL, "com.percussion.cx.helptopicmapping");
-        } else {
-          debugMessage("HelpSet URL is not available. So help is not activated.");
-        }
-      }
-      if (ms_help != null) ms_help.clearBroker();
-      m_splash.setMessage("Initializing the view");
-
-      loadFlaggedFoldersSet();
-
-      UIManager.getDefaults().put(PSContentExplorerConstants.DISPLAY_OPTIONS, null);
-      initView();
-
-      m_splash.setMessage("Restoring applet state information");
-      restoreAppletState();
-
-      m_parentFrame = getParentFrame();
-
-      PSAjaxSwingWrapperLocator.getInstance().refreshWindow(getHttpConnection());
-
-      m_initialized = true;
-    } catch (Exception ex) {
-      log.error("Content Explorer applet initialization failed", ex);
-      System.exit(ERROR);
-      if (ex instanceof RuntimeException) {
-        throw (RuntimeException) ex;
-
+  /** Loads the shared help set once per JVM when a help-set URL is available. */
+  private void loadHelp() {
+    /*
+     * Keeps the singleton instance of help class to load the map or
+     * helpset files once only.
+     */
+    if (ms_help == null) {
+      m_splash.setMessage("Retrieving user help");
+      String helpFile = getParameter(PSContentExplorerConstants.PARAM_HELPSET);
+      log.debug("Help url pre" + helpFile);
+      String helpSetURL =
+          PSJavaHelp.getHelpSetURL(helpFile, true, getRhythmyxCodeBase().toString());
+      log.debug("Help url post " + helpSetURL);
+      if (helpSetURL != null && helpSetURL.trim().length() != 0) {
+        ms_help = PSJavaHelp.getInstance();
+        ms_help.setHelpSet(helpSetURL, "com.percussion.cx.helptopicmapping");
       } else {
-
-        throw new RuntimeException(
-            "Exception Initializing applet, " + ex.getLocalizedMessage(), ex);
+        debugMessage("HelpSet URL is not available. So help is not activated.");
       }
+    }
+  }
+
+  /**
+   * Completes initialization: builds the view, restores applet state and marks the applet
+   * initialized.
+   */
+  private void finishViewInit() throws Exception {
+    if (ms_help != null) ms_help.clearBroker();
+    m_splash.setMessage("Initializing the view");
+
+    loadFlaggedFoldersSet();
+
+    UIManager.getDefaults().put(PSContentExplorerConstants.DISPLAY_OPTIONS, null);
+    initView();
+
+    m_splash.setMessage("Restoring applet state information");
+    restoreAppletState();
+
+    m_parentFrame = getParentFrame();
+
+    PSAjaxSwingWrapperLocator.getInstance().refreshWindow(getHttpConnection());
+
+    m_initialized = true;
+  }
+
+  /**
+   * Logs an applet setup failure, terminates the JVM as before, and rethrows the failure as a
+   * {@link RuntimeException}.
+   *
+   * @param ex the setup failure, assumed non-null.
+   */
+  private void handleSetupFailure(Exception ex) {
+    log.error("Content Explorer applet initialization failed", ex);
+    System.exit(ERROR);
+    if (ex instanceof RuntimeException) {
+      throw (RuntimeException) ex;
+
+    } else {
+
+      throw new RuntimeException(
+          "Exception Initializing applet, " + ex.getLocalizedMessage(), ex);
     }
   }
 
