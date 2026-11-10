@@ -3,6 +3,9 @@
 <script src="/cm/jslib/profiles/3x/jquery/jquery.min.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/jquery-migrate.min.js"></script>
 <script src="/cm/jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js"></script>
+<!-- Bootstrap 5 jQuery-bridge (issue #5661): classic code calls $.fn.modal /
+     $.fn.tooltip (Bootstrap 4 API); the bundle above is Bootstrap 5 from npm. -->
+<script src="/cm/assets/js/bootstrap5-compat.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-form/jquery.form.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.blockUI.js"></script>

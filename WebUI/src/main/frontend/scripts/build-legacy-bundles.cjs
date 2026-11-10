@@ -56,8 +56,19 @@ const NPM_LIBRARY_MAPPINGS = {
     "jquery-ui/dist/jquery-ui.min.js",
   "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js":
     "bootstrap/dist/js/bootstrap.bundle.js",
+  // Bootstrap 4.6.2 (EOL) retired (issue #5661): every directly loaded or
+  // bundled jslib bootstrap path resolves to npm bootstrap 5 (same package
+  // the React SPA already tracks as ^5.3.8, Dependabot-visible).
+  "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.min.js":
+    "bootstrap/dist/js/bootstrap.bundle.min.js",
+  "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.js":
+    "bootstrap/dist/js/bootstrap.js",
+  "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.min.js":
+    "bootstrap/dist/js/bootstrap.min.js",
   "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.css":
     "bootstrap/dist/css/bootstrap.css",
+  "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css":
+    "bootstrap/dist/css/bootstrap.min.css",
   "jslib/profiles/3x/libraries/bowser/es5.js": "bowser/es5.js",
   "jslib/profiles/3x/libraries/handlebars/handlebars-v4.7.8.js":
     "handlebars/dist/handlebars.js",
@@ -454,6 +465,24 @@ const STANDALONE_NPM_COPIES = [
   {
     src: "jquery.fancytree/dist/skin-win8/vline-rtl.gif",
     dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/vline-rtl.gif",
+    required: true,
+  },
+  // Bootstrap 5 from npm (issue #5661): classic pages load bootstrap from
+  // these stable jslib URLs (common_js.jsp, adminWorkflow.jsp, test/logs.jsp).
+  // The vendored 4.6.2 copies were deleted, so every entry is required.
+  {
+    src: "bootstrap/dist/js/bootstrap.bundle.js",
+    dest: "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js",
+    required: true,
+  },
+  {
+    src: "bootstrap/dist/js/bootstrap.bundle.min.js",
+    dest: "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.min.js",
+    required: true,
+  },
+  {
+    src: "bootstrap/dist/css/bootstrap.min.css",
+    dest: "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css",
     required: true,
   },
 ];
