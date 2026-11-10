@@ -260,6 +260,81 @@ class ContentTypeAdaptorDetachSharedFieldTest {
     assertEquals(403, ex.getResponse().getStatus());
   }
 
+  @Test
+  void detachSharedField_pathTraversalIs404() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.detachSharedField(null, "311", "../x"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void requireDetachableSharedSubmitName_sharedReturnsSubmitName() {
+    PSField field = new PSField(PSField.TYPE_SHARED, "displaytitle", null);
+    assertEquals("displaytitle", ContentTypeAdaptor.requireDetachableSharedSubmitName(field));
+  }
+
+  @Test
+  void requireDetachableSharedSubmitName_localHintsDeleteEndpoint() {
+    PSField field = new PSField(PSField.TYPE_LOCAL, "rx_note", null);
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> ContentTypeAdaptor.requireDetachableSharedSubmitName(field));
+    assertTrue(ex.getMessage().contains("DELETE"), ex.getMessage());
+  }
+
+  @Test
+  void requireDetachableSharedSubmitName_systemRejected() {
+    PSField field = new PSField(PSField.TYPE_SYSTEM, "sys_title", null);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ContentTypeAdaptor.requireDetachableSharedSubmitName(field));
+  }
+
+  @Test
+  void isUnknownOrAlreadyDetached_coversUnknownAndExcluded() {
+    StubType stub = stubTypeWithShared("displaytitle", "body");
+    assertTrue(
+        ContentTypeAdaptor.isUnknownOrAlreadyDetached(stub.display, stub.mapper, "nope"),
+        "unmapped field is unknown");
+    ContentTypeAdaptor.addSharedFieldExclude(stub.mapper, "body");
+    assertTrue(
+        ContentTypeAdaptor.isUnknownOrAlreadyDetached(stub.display, stub.mapper, "body"),
+        "excluded sibling with a stale mapping is already detached");
+    assertFalse(
+        ContentTypeAdaptor.isUnknownOrAlreadyDetached(stub.display, stub.mapper, "displaytitle"),
+        "mapped, non-excluded include is detachable");
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void findContainingFieldSet_findsParentAndMissesUnknown() {
+    StubType stub = stubTypeWithShared("displaytitle", "body");
+    stub.parent.add(new PSField(PSField.TYPE_SHARED, "displaytitle", null));
+    assertEquals(
+        stub.parent, ContentTypeAdaptor.findContainingFieldSet(stub.def, "displaytitle"));
+    assertNull(ContentTypeAdaptor.findContainingFieldSet(stub.def, "nope"));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  void removeFieldFromSet_noopsOnUnknownAndRemovesPresent() {
+    StubType stub = stubTypeWithShared("displaytitle", "body");
+    stub.parent.add(new PSField(PSField.TYPE_SHARED, "displaytitle", null));
+    ContentTypeAdaptor.removeFieldFromSet(null, "displaytitle");
+    ContentTypeAdaptor.removeFieldFromSet(stub.def, null);
+    ContentTypeAdaptor.removeFieldFromSet(stub.def, "nope");
+    assertEquals(
+        stub.parent,
+        ContentTypeAdaptor.findContainingFieldSet(stub.def, "displaytitle"),
+        "no-op removals must leave the entry in place");
+    ContentTypeAdaptor.removeFieldFromSet(stub.def, "displaytitle");
+    assertNull(
+        ContentTypeAdaptor.findContainingFieldSet(stub.def, "displaytitle"),
+        "present entry must be removed");
+  }
+
   private void stubHeldLock() throws Exception {
     PSObjectSummary held = new PSObjectSummary(guid, "percPage");
     held.setLockedInfo("test-session", "Admin", 30);
