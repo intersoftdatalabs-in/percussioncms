@@ -337,6 +337,46 @@ describe("ContentTypesPanel", () => {
     );
   });
 
+  it("names the load failure and offers Retry instead of an empty catalog (#5993)", async () => {
+    listContentTypes.mockRejectedValue(new Error("network down"));
+    render(<ContentTypesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-error").textContent).toBe(
+      `${DEV_MSG.CT_ERROR} network down`,
+    );
+    expect(screen.getByTestId("developer-ct-retry")).toBeTruthy();
+    expect(screen.getByTestId("developer-ct-retry").textContent).toBe(DEV_MSG.CT_RETRY);
+    expect(screen.queryByTestId("developer-ct-empty")).toBeNull();
+    expect(screen.queryByTestId("developer-ct-table")).toBeNull();
+  });
+
+  it("Retry reloads the catalog after a load failure (#5993)", async () => {
+    listContentTypes
+      .mockRejectedValueOnce(new Error("network down"))
+      .mockResolvedValueOnce([
+        {
+          name: "percPage",
+          label: "Page",
+          description: "Page type",
+          guid: { stringValue: "0-1-2", longValue: 2 },
+        },
+      ]);
+    render(<ContentTypesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-retry")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-retry"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-table")).toBeTruthy();
+    });
+    expect(listContentTypes).toHaveBeenCalledTimes(2);
+    expect(screen.queryByTestId("developer-ct-error")).toBeNull();
+    expect(screen.queryByTestId("developer-ct-empty")).toBeNull();
+    expect(screen.getByTestId("developer-ct-table").textContent).toContain("percPage");
+  });
+
   it("shows import wizard on the catalog (#4034)", async () => {
     listContentTypes.mockResolvedValue([
       {

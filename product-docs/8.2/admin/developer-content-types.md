@@ -120,6 +120,18 @@ description; removing it is a held-lock
 `DELETE /services/contenttypes/{idOrName}` (`204` on success; an unlocked
 DELETE is `409`), after which the catalog no longer lists that name.
 
+## Load failure and retry
+
+The catalog rows render only after `GET /services/contenttypes` succeeds.
+When that load fails, the panel names the failure (**Could not load content
+types**, plus the status or transport reason) instead of showing an empty
+catalog, and offers **Retry**, which reloads the list. There is no REST gap
+behind this screen: both the thin list (`GET /services/contenttypes`) and
+the row detail (`GET /services/contenttypes/{idOrName}`) are public REST
+(see the gap map `docs/ai-generated/tasks/developer-module-p0/content-type-api-gaps.md`).
+Write and design-lock gaps (field-rule save, SPA choice/locale editors) are
+documented under their own sections below, not here.
+
 ## Product path — create a content type
 
 1. Sign in as **Admin**.

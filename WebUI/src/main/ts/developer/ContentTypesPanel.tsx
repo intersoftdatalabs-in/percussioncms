@@ -113,9 +113,9 @@ export function ContentTypesPanel(): React.ReactElement {
       .catch((err: unknown) => {
         if (!mountedRef.current) return;
         // Session redirect navigates away; still leave an error so UI does not hang
-        // if navigation is delayed or blocked.
+        // if navigation is delayed or blocked. Leave items null so the failure
+        // reads as a named load error (with Retry) instead of an empty catalog.
         setError(panelErrMsg(err, DEV_MSG.CT_ERROR));
-        setItems([]);
       });
   }, []);
 
@@ -282,9 +282,26 @@ export function ContentTypesPanel(): React.ReactElement {
         </form>
       ) : null}
       {error ? (
-        <CatalogStatus testId="developer-ct-error" error>
-          {error}
-        </CatalogStatus>
+        <>
+          <CatalogStatus testId="developer-ct-error" error>
+            {error}
+          </CatalogStatus>
+          <button
+            type="button"
+            data-testid="developer-ct-retry"
+            onClick={() => reload({ showLoading: true })}
+            style={{
+              padding: "8px 14px",
+              background: catalogColors.accent,
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            {DEV_MSG.CT_RETRY}
+          </button>
+        </>
       ) : items == null ? (
         <CatalogStatus testId="developer-ct-loading">{DEV_MSG.CT_LOADING}</CatalogStatus>
       ) : items.length === 0 ? (

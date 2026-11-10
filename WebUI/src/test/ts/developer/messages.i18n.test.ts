@@ -27,6 +27,7 @@ describe("Developer DEV_MSG i18n keys", () => {
     expect(DEV_MSG.TAB_OBJECT_SORTER).toBe("Object Sorter");
     expect(DEV_MSG.ACL_SAVED).toBe("Object ACL saved.");
     expect(DEV_MSG.CT_LOCK).toBe("Lock");
+    expect(DEV_MSG.CT_RETRY).toBe("Retry");
     expect(DEV_MSG.CT_UNLOCK).toBe("Unlock");
     expect(DEV_MSG.CT_LOCKED).toBe("Locked by you");
     expect(DEV_MSG.CT_FORM_SEARCH_INDEXING).toBe("Search indexing");
