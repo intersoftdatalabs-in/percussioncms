@@ -37,6 +37,55 @@
  * {@code th}, and content is preserved.</p>
  */
 
+/**
+ * Window key publishing the Word-paste capability of the served SPA bundle
+ * (#5945). The live re-probe of the Word-list rebuild failed only because
+ * the QA cell served a bundle built before the rebuild landed (#5933):
+ * {@code transformPastedHTML} wiring and the base sanitizer were present,
+ * the list rebuild was not. Specs read this marker fail-fast instead of
+ * misreporting a stale bundle as a paste-path regression.
+ */
+export const TIPTAP_WORD_PASTE_WINDOW_KEY = "__PERC_TIPTAP_WORD_PASTE__";
+
+/**
+ * Capability payload for {@link TIPTAP_WORD_PASTE_WINDOW_KEY}.
+ * {@code lists} is true when pasted Word list paragraphs
+ * ({@code MsoListParagraph} / {@code mso-list}) are rebuilt into real
+ * {@code <ul>}/{@code <ol>} items by {@link sanitizeWordPastedHtml}.
+ */
+export interface TipTapWordPasteCapability {
+  lists: boolean;
+}
+
+/**
+ * Publish the Word-paste capability marker on a global scope (browsers:
+ * {@code globalThis}). Never throws; returns false when there is no
+ * usable scope (SSR / non-browser). Called once at module load so marker
+ * presence proves the served bundle contains the list rebuild.
+ *
+ * @param scope global scope to mark; defaults to {@code globalThis}.
+ * @returns true when the marker was published.
+ */
+export function markTipTapWordPasteCapable(scope: unknown = globalThis): boolean {
+  try {
+    const target = scope as Record<string, unknown> | null | undefined;
+    if (
+      target === null ||
+      target === undefined ||
+      (typeof target !== "object" && typeof target !== "function")
+    ) {
+      return false;
+    }
+    const capability: TipTapWordPasteCapability = { lists: true };
+    target[TIPTAP_WORD_PASTE_WINDOW_KEY] = capability;
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+markTipTapWordPasteCapable();
+
 /** Tags Word content may keep (element allowlist, local names). */
 const KEPT_TAGS = new Set([
   "b",

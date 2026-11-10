@@ -189,6 +189,27 @@ test.describe("React Content Editor TipTap editor", () => {
     return pageErrors;
   }
 
+  // Must match TIPTAP_WORD_PASTE_WINDOW_KEY in
+  // WebUI/src/main/ts/editor/tiptap/tiptapWordPaste.ts. Fail-fast bundle
+  // freshness gate (#5945): the Word-list rebuild landed in #5933, and a
+  // cell serving an older SPA bundle fails paste assertions that the
+  // served code cannot satisfy. Report the stale bundle with the
+  // redeploy remedy instead of misreporting a paste-path regression.
+  const TIPTAP_WORD_PASTE_KEY = "__PERC_TIPTAP_WORD_PASTE__";
+
+  async function expectWordPasteCapable(page) {
+    const caps = await page.evaluate(
+      (key) => window[key] ?? null,
+      TIPTAP_WORD_PASTE_KEY,
+    );
+    expect(
+      caps?.lists,
+      "served SPA bundle predates the Word-list rebuild: redeploy fresh " +
+        "WebUI cm/modern assets into the QA cell " +
+        "(perc-devctl qa-up --then-qa-deploy-webui) and re-run",
+    ).toBe(true);
+  }
+
   test(
     "tiptap engine renders, edits, and saves HTML",
     { tag: ["@explorer-content-editor", "@editor", "@html", "@tiptap"] },
@@ -452,6 +473,7 @@ test.describe("React Content Editor TipTap editor", () => {
       });
       const editable = page.locator(`[data-testid="${TEST_IDS.fieldText}"]`);
       await expect(editable).toContainText("Hi");
+      await expectWordPasteCapable(page);
 
       // Synthetic Word paste: mso classes/styles, o:p, a style block, and
       // an unsafe link. ProseMirror reads clipboardData off the paste event.
@@ -508,6 +530,7 @@ test.describe("React Content Editor TipTap editor", () => {
       });
       const editable = page.locator(`[data-testid="${TEST_IDS.fieldText}"]`);
       await expect(editable).toContainText("Hi");
+      await expectWordPasteCapable(page);
 
       // Word list paragraphs (MsoListParagraph + mso-list levels) must land
       // as real lists like the TinyMCE paste filter produces, with Word
