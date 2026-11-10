@@ -35,6 +35,7 @@ import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Function;
 import tools.jackson.core.JacksonException;
 import tools.jackson.databind.JsonNode;
 import tools.jackson.databind.json.JsonMapper;
@@ -95,48 +96,78 @@ public class TemplateDetailJsonReader implements MessageBodyReader<TemplateDetai
     if (json == null || json.isBlank()) {
       return new TemplateDetail();
     }
+    JsonNode root = readRoot(json);
+    if (root == null) {
+      return new TemplateDetail();
+    }
+    JsonNode fields = resolveFields(root);
+    TemplateDetail out = convertDetail(stripListSections(fields));
+    applyAssociationLists(out, fields);
+    return out;
+  }
+
+  /** Parses the body and validates the envelope is a JSON object; null for JSON null. */
+  private static JsonNode readRoot(String json) {
     JsonNode root;
     try {
       root = MAPPER.readTree(json);
     } catch (JacksonException e) {
-      throw new WebApplicationException(
-          e.getMessage() != null ? e.getMessage() : "Invalid template detail", 400);
+      throw badRequest(e.getMessage());
     }
     if (root == null || root.isNull() || root.isMissingNode()) {
-      return new TemplateDetail();
+      return null;
     }
     if (!root.isObject()) {
-      throw new WebApplicationException("Invalid template detail", 400);
+      throw badRequest(null);
     }
+    return root;
+  }
+
+  /** Unwraps the {@code TemplateDetail} envelope when present, else the root itself. */
+  private static JsonNode resolveFields(JsonNode root) {
     JsonNode nested = firstObject(root, "TemplateDetail", "templateDetail");
-    JsonNode fields = nested != null ? nested : root;
-    JsonNode fieldsForDto = fields;
-    if (fields.isObject()) {
-      ObjectNode copy = (ObjectNode) fields.deepCopy();
-      // Defaults on these lists are "replace". Strip them so an omitted property stays null.
-      copy.remove("associatedContentTypes");
-      copy.remove("bindings");
-      copy.remove("slots");
-      // Read-only output: PUT never flows sites (adaptor ignores it too).
-      copy.remove("associatedSites");
-      fieldsForDto = copy;
+    return nested != null ? nested : root;
+  }
+
+  /**
+   * Copies the fields for DTO binding with the replace-semantics lists and read-only output
+   * stripped, so an omitted property stays {@code null} (leave unchanged).
+   */
+  private static JsonNode stripListSections(JsonNode fields) {
+    if (!fields.isObject()) {
+      return fields;
     }
+    ObjectNode copy = (ObjectNode) fields.deepCopy();
+    // Defaults on these lists are "replace". Strip them so an omitted property stays null.
+    copy.remove("associatedContentTypes");
+    copy.remove("bindings");
+    copy.remove("slots");
+    // Read-only output: PUT never flows sites (adaptor ignores it too).
+    copy.remove("associatedSites");
+    return copy;
+  }
+
+  private static TemplateDetail convertDetail(JsonNode fieldsForDto) {
     TemplateDetail out;
     try {
       out = MAPPER.convertValue(fieldsForDto, TemplateDetail.class);
     } catch (IllegalArgumentException e) {
-      throw new WebApplicationException(
-          e.getMessage() != null ? e.getMessage() : "Invalid template detail", 400);
+      throw badRequest(e.getMessage());
     }
-    if (out == null) {
-      out = new TemplateDetail();
-    }
+    return out != null ? out : new TemplateDetail();
+  }
+
+  private static void applyAssociationLists(TemplateDetail out, JsonNode fields) {
     if (fields.has("associatedContentTypes") && !fields.get("associatedContentTypes").isNull()) {
       out.setAssociatedContentTypes(refsFromNode(fields.get("associatedContentTypes")));
     }
     out.setBindings(optionalList(fields, "bindings", TemplateDetailJsonReader::bindingsFromNode));
     out.setSlots(optionalList(fields, "slots", TemplateDetailJsonReader::slotsFromNode));
-    return out;
+  }
+
+  private static WebApplicationException badRequest(String message) {
+    return new WebApplicationException(
+        message != null ? message : "Invalid template detail", 400);
   }
 
   /**
@@ -152,33 +183,7 @@ public class TemplateDetailJsonReader implements MessageBodyReader<TemplateDetai
   }
 
   static List<TemplateBindingSummary> bindingsFromNode(JsonNode raw) {
-    if (raw == null || raw.isNull() || raw.isMissingNode()) {
-      return new ArrayList<>();
-    }
-    if (raw.isArray()) {
-      List<TemplateBindingSummary> out = new ArrayList<>();
-      for (JsonNode n : raw) {
-        TemplateBindingSummary row = bindingFromNode(n);
-        if (row != null) {
-          out.add(row);
-        }
-      }
-      return out;
-    }
-    if (raw.isObject()) {
-      JsonNode wrapped = raw.get("TemplateBinding");
-      if (wrapped == null) {
-        wrapped = raw.get("Binding");
-      }
-      if (wrapped != null) {
-        return bindingsFromNode(wrapped);
-      }
-      TemplateBindingSummary row = bindingFromNode(raw);
-      if (row != null) {
-        return List.of(row);
-      }
-    }
-    return new ArrayList<>();
+    return collectList(raw, "TemplateBinding", "Binding", TemplateDetailJsonReader::bindingFromNode);
   }
 
   private static TemplateBindingSummary bindingFromNode(JsonNode n) {
@@ -192,33 +197,7 @@ public class TemplateDetailJsonReader implements MessageBodyReader<TemplateDetai
   }
 
   static List<TemplateSlotSummary> slotsFromNode(JsonNode raw) {
-    if (raw == null || raw.isNull() || raw.isMissingNode()) {
-      return new ArrayList<>();
-    }
-    if (raw.isArray()) {
-      List<TemplateSlotSummary> out = new ArrayList<>();
-      for (JsonNode n : raw) {
-        TemplateSlotSummary row = slotFromNode(n);
-        if (row != null) {
-          out.add(row);
-        }
-      }
-      return out;
-    }
-    if (raw.isObject()) {
-      JsonNode wrapped = raw.get("TemplateSlot");
-      if (wrapped == null) {
-        wrapped = raw.get("Slot");
-      }
-      if (wrapped != null) {
-        return slotsFromNode(wrapped);
-      }
-      TemplateSlotSummary row = slotFromNode(raw);
-      if (row != null) {
-        return List.of(row);
-      }
-    }
-    return new ArrayList<>();
+    return collectList(raw, "TemplateSlot", "Slot", TemplateDetailJsonReader::slotFromNode);
   }
 
   private static TemplateSlotSummary slotFromNode(JsonNode n) {
@@ -232,33 +211,51 @@ public class TemplateDetailJsonReader implements MessageBodyReader<TemplateDetai
   }
 
   static List<NamedObjectRef> refsFromNode(JsonNode raw) {
-    List<NamedObjectRef> out = new ArrayList<>();
+    return collectList(raw, "NamedObjectRef", "namedObjectRef", TemplateDetailJsonReader::refFromNode);
+  }
+
+  /**
+   * Shared array-or-wrapped-object list reader behind bindings/slots/refs. Accepts an array, a
+   * single row object, or a wrapper object holding the rows under either envelope name.
+   */
+  private static <T> List<T> collectList(
+      JsonNode raw, String wrapA, String wrapB, Function<JsonNode, T> rowParser) {
     if (raw == null || raw.isNull() || raw.isMissingNode()) {
-      return out;
+      return new ArrayList<>();
     }
     if (raw.isArray()) {
+      List<T> out = new ArrayList<>();
       for (JsonNode n : raw) {
-        NamedObjectRef row = refFromNode(n);
+        T row = rowParser.apply(n);
         if (row != null) {
           out.add(row);
         }
       }
       return out;
     }
-    if (raw.isObject()) {
-      JsonNode wrapped = raw.get("NamedObjectRef");
-      if (wrapped == null) {
-        wrapped = raw.get("namedObjectRef");
-      }
-      if (wrapped != null) {
-        return refsFromNode(wrapped);
-      }
-      NamedObjectRef row = refFromNode(raw);
-      if (row != null) {
-        out.add(row);
-      }
+    return collectSingle(raw, wrapA, wrapB, rowParser);
+  }
+
+  private static <T> List<T> collectSingle(
+      JsonNode raw, String wrapA, String wrapB, Function<JsonNode, T> rowParser) {
+    if (!raw.isObject()) {
+      return new ArrayList<>();
     }
-    return out;
+    JsonNode wrapped = wrappedChild(raw, wrapA, wrapB);
+    if (wrapped != null) {
+      return collectList(wrapped, wrapA, wrapB, rowParser);
+    }
+    T row = rowParser.apply(raw);
+    List<T> single = new ArrayList<>();
+    if (row != null) {
+      single.add(row);
+    }
+    return single;
+  }
+
+  private static JsonNode wrappedChild(JsonNode raw, String wrapA, String wrapB) {
+    JsonNode wrapped = raw.get(wrapA);
+    return wrapped != null ? wrapped : raw.get(wrapB);
   }
 
   private static NamedObjectRef refFromNode(JsonNode n) {
@@ -274,25 +271,34 @@ public class TemplateDetailJsonReader implements MessageBodyReader<TemplateDetai
     if (label != null) {
       ref.setLabel(label);
     }
-    JsonNode guidNode = n.get("guid");
-    if (guidNode != null && guidNode.isObject()) {
-      Guid g = new Guid();
-      String sv = textField(guidNode, "stringValue");
-      if (sv != null) {
-        g.setStringValue(sv);
-      }
-      JsonNode uuid = guidNode.get("uuid");
-      if (uuid != null && uuid.isNumber()) {
-        g.setUuid(uuid.asInt());
-      }
-      if (g.getStringValue() != null || g.getUuid() > 0) {
-        ref.setGuid(g);
-      }
+    Guid guid = guidFromNode(n.get("guid"));
+    if (guid != null) {
+      ref.setGuid(guid);
     }
     if (ref.getName() == null && ref.getGuid() == null) {
       return null;
     }
     return ref;
+  }
+
+  /** Parses the {@code guid} child; null when absent or carrying no identity. */
+  private static Guid guidFromNode(JsonNode guidNode) {
+    if (guidNode == null || guidNode.isNull() || !guidNode.isObject()) {
+      return null;
+    }
+    Guid guid = new Guid();
+    String sv = textField(guidNode, "stringValue");
+    if (sv != null) {
+      guid.setStringValue(sv);
+    }
+    JsonNode uuid = guidNode.get("uuid");
+    if (uuid != null && uuid.isNumber()) {
+      guid.setUuid(uuid.asInt());
+    }
+    if (guid.getStringValue() == null && guid.getUuid() <= 0) {
+      return null;
+    }
+    return guid;
   }
 
   private static JsonNode firstObject(JsonNode root, String... names) {
