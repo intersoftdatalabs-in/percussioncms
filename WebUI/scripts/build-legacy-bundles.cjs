@@ -53,6 +53,12 @@ const NPM_LIBRARY_MAPPINGS = {
     "moment/min/moment-with-locales.js",
   "jslib/profiles/3x/libraries/momentjs/plugins/moment-jdateformatparser/moment-jdateformatparser.js":
     "moment-jdateformatparser/moment-jdateformatparser.js",
+  // Classic-UI MVC stack (issue #5664): the vendored Backbone 1.4.0 and
+  // Underscore 1.13.1 copies were deleted. Bundles keep resolving the stable
+  // jslib paths from the npm graph (Dependabot-tracked: backbone ^1.6.0,
+  // underscore ^1.13.7). Backgrid (~0.3.x, EOL ~2017) had zero in-repo
+  // consumers, so it is retired with no mapping; DataTables
+  // (datatables.net, already npm-tracked) is the grid going forward.
   "jslib/profiles/3x/libraries/underscore/underscore.js":
     "underscore/underscore.js",
   "jslib/profiles/3x/libraries/backbone/backbone.js": "backbone/backbone.js",
