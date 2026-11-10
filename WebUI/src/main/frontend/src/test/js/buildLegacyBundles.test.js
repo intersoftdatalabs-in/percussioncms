@@ -49,6 +49,7 @@ const builder = require(
 );
 
 const {
+  WEBUI_DIR,
   WAR_DIR,
   OUTPUT_DIR,
   BUNDLE_CONFIG_DIR,
@@ -328,5 +329,176 @@ describe("classic-UI jQuery trio from npm (issue #5660)", () => {
     } finally {
       spy.mockRestore();
     }
+  });
+});
+
+/**
+ * Classic-UI Handlebars from npm (issue #5666).
+ *
+ * The vendored classic-UI copies (handlebars-v4.0.12.js — affected by known
+ * template-escape CVEs such as CVE-2021-20922, fixed in >= 4.7.7 — and the
+ * duplicate handlebars-v4.7.8.js, under cm/jslib, cm/vendor/js/legacy, and
+ * the war/ mirror) were deleted. Classic pages now load the stable versioned
+ * URL `jslib/profiles/3x/libraries/handlebars/handlebars-v4.7.8.js`, synced
+ * from the npm 4.7.10 dist (Dependabot-tracked in frontend package.json)
+ * into target/generated-webui/cm by syncStandaloneNpmLibraries and overlaid
+ * onto the WAR at package time; the minify bundle configs resolve the same
+ * path through NPM_LIBRARY_MAPPINGS. These tests pin:
+ *
+ *   1. The entry is present in STANDALONE_NPM_COPIES and marked required.
+ *   2. Synced bytes are byte-identical to the node_modules dist file.
+ *   3. The shipped version is >= 4.7.7 (CVE floor) and matches package.json.
+ *   4. The bundle-config jslib path resolves into node_modules, never into
+ *      deleted vendored files.
+ *   5. No common_js.jsp (webapp or war mirror) still references v4.0.12.
+ *   6. Template-rendering parity on the exact dist classic UI ships:
+ *      interpolation, #if/#unless, subexpression helpers, and HTML escaping
+ *      of double-stash output (the CVE class) vs raw triple-stash.
+ */
+describe("classic-UI Handlebars from npm (issue #5666)", () => {
+  const FRONTEND_ROOT = path.dirname(
+    path.dirname(path.dirname(__dirname)),
+  );
+  const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+  const WEBAPP_CM = WAR_DIR;
+
+  const SRC = "handlebars/dist/handlebars.js";
+  const DEST = "jslib/profiles/3x/libraries/handlebars/handlebars-v4.7.8.js";
+  const VULNERABLE_DEST =
+    "jslib/profiles/3x/libraries/handlebars/handlebars-v4.0.12.js";
+
+  function loadShippedHandlebars() {
+    const distPath = path.join(NODE_MODULES, SRC);
+    if (!fs.existsSync(distPath)) {
+      return null;
+    }
+    return require(distPath);
+  }
+
+  function atLeastMinimumVersion(version, minimum) {
+    const parts = String(version).split(".").map(Number);
+    const floor = String(minimum).split(".").map(Number);
+    for (let i = 0; i < floor.length; i += 1) {
+      if (parts[i] !== floor[i]) {
+        return parts[i] > floor[i];
+      }
+    }
+    return true;
+  }
+
+  it("pins the required standalone copy for the versioned URL", () => {
+    const entry = STANDALONE_NPM_COPIES.find((e) => e.dest === DEST);
+    expect(entry, `missing standalone copy for ${DEST}`).toBeDefined();
+    expect(entry.src).toBe(SRC);
+    expect(entry.required).toBe(true);
+  });
+
+  it("syncs handlebars bytes identical to the npm dist file", () => {
+    const distPath = path.join(NODE_MODULES, SRC);
+    if (!fs.existsSync(distPath)) {
+      // Hermetic CI without frontend node_modules: presence pinned above.
+      return;
+    }
+    syncStandaloneNpmLibraries();
+    const generated = fs.readFileSync(path.join(OUTPUT_DIR, DEST));
+    const npmDist = fs.readFileSync(distPath);
+    expect(generated.equals(npmDist), `${DEST} differs from npm ${SRC}`).toBe(
+      true,
+    );
+    // The deleted vendored copies must not leak back into the source tree.
+    expect(fs.existsSync(path.join(WEBAPP_CM, DEST))).toBe(false);
+    expect(fs.existsSync(path.join(WEBAPP_CM, VULNERABLE_DEST))).toBe(false);
+    expect(
+      fs.existsSync(
+        path.join(WEBAPP_CM, "vendor/js/legacy", VULNERABLE_DEST),
+      ),
+    ).toBe(false);
+  });
+
+  it("ships Handlebars >= 4.7.7 matching the npm package version", () => {
+    const Handlebars = loadShippedHandlebars();
+    if (Handlebars === null) {
+      return;
+    }
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(NODE_MODULES, "handlebars/package.json"), "utf8"),
+    );
+    expect(Handlebars.VERSION).toBe(pkg.version);
+    expect(
+      atLeastMinimumVersion(Handlebars.VERSION, "4.7.7"),
+      `shipped Handlebars ${Handlebars.VERSION} is below the CVE floor 4.7.7`,
+    ).toBe(true);
+  });
+
+  it("resolves the bundle-config handlebars path into node_modules", () => {
+    expect(NPM_LIBRARY_MAPPINGS[DEST]).toBe(SRC);
+    const resolved = resolvePath(DEST);
+    const normalized = resolved.split(path.sep).join("/");
+    expect(normalized).toContain("node_modules/");
+    expect(fs.existsSync(resolved), resolved).toBe(true);
+    // The deleted vulnerable name must have no npm mapping of its own.
+    expect(NPM_LIBRARY_MAPPINGS[VULNERABLE_DEST]).toBeUndefined();
+  });
+
+  it("points every common_js.jsp at v4.7.8, never v4.0.12", () => {
+    const jsps = [
+      path.join(WEBAPP_CM, "app/includes/common_js.jsp"),
+      path.join(WEBAPP_CM, "pages/app/includes/common_js.jsp"),
+      path.join(WEBUI_DIR, "war/app/includes/common_js.jsp"),
+    ];
+    for (const jsp of jsps) {
+      const content = fs.readFileSync(jsp, "utf8");
+      expect(content, `${jsp} still loads vulnerable v4.0.12`).not.toContain(
+        "handlebars-v4.0.12",
+      );
+      expect(content, `${jsp} must load npm-backed v4.7.8`).toContain(
+        "handlebars/handlebars-v4.7.8.js",
+      );
+    }
+  });
+
+  it("renders classic alert-style templates identically (parity)", () => {
+    const Handlebars = loadShippedHandlebars();
+    if (Handlebars === null) {
+      return;
+    }
+    // Mirrors templateResponseFooterAlert in minuetCommonTemplates:
+    // unless-branch, nested path, and escaped interpolation.
+    const footer = Handlebars.compile(
+      '<div class="alert alert-{{#unless result.warning}}success{{else}}warning{{/unless}}">{{source}}:{{#unless result.warning}}{{result.status}}{{else}}{{result.warning}}{{/unless}}</div>',
+    );
+    expect(
+      footer({ source: "Publish", result: { status: "ok" } }),
+    ).toBe('<div class="alert alert-success">Publish:ok</div>');
+    expect(
+      footer({ source: "Publish", result: { warning: "staged" } }),
+    ).toBe('<div class="alert alert-warning">Publish:staged</div>');
+    // Mirrors templateFullScreenDialog: {{#if}} block plus a subexpression
+    // helper in the classic (validatePropertyValue name 'warning') shape.
+    Handlebars.registerHelper("validatePropertyValue", (value, expected) => value === expected);
+    const dialog = Handlebars.compile(
+      '<div class="{{#if (validatePropertyValue type \'warning\')}}inverse{{else}}branded{{/if}}">{{#if title}}<span>{{title}}</span>{{/if}}</div>',
+    );
+    expect(dialog({ type: "warning", title: "Hi" })).toBe(
+      '<div class="inverse"><span>Hi</span></div>',
+    );
+    expect(dialog({ type: "info" })).toBe('<div class="branded"></div>');
+    Handlebars.unregisterHelper("validatePropertyValue");
+  });
+
+  it("escapes double-stash output and passes triple-stash raw (CVE class)", () => {
+    const Handlebars = loadShippedHandlebars();
+    if (Handlebars === null) {
+      return;
+    }
+    const evil = '<script>alert("x")</script>';
+    // {{...}} must HTML-escape attacker markup (the template-escape CVE class
+    // fixed in >= 4.7.7); {{{...}}} stays raw for intentional markup.
+    expect(Handlebars.compile("{{source}}")({ source: evil })).toBe(
+      "&lt;script&gt;alert(&quot;x&quot;)&lt;/script&gt;",
+    );
+    expect(Handlebars.compile("{{{source}}}")({ source: "<b>ok</b>" })).toBe(
+      "<b>ok</b>",
+    );
   });
 });

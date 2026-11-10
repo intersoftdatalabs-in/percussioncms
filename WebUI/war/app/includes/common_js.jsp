@@ -28,7 +28,7 @@
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-superfish/js/hoverIntent.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-superfish/js/superfish.js"></script>
-<script src="/cm/app/js/legacy/profiles/3x/libraries/handlebars/handlebars-v4.0.12.js"></script>
+<script src="/cm/app/js/legacy/profiles/3x/libraries/handlebars/handlebars-v4.7.8.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/libraries/popper/popper.js"></script>
 <script src="/cm/app/js/legacy/profiles/3x/jquery/plugins/jquery-perc-retiredjs/timepicker.js"></script>
 <script src="/cm/app/js/legacy/plugins/perc_path_constants.js"></script>
