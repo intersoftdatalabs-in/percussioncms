@@ -621,6 +621,7 @@ public class PSTDToolDialog extends JPanel {
      * Creates a file filter that accepts files with the given extension. Example: new
      * ExampleFileFilter("jpg");
      *
+     * @param extension the file extension to accept, without the leading dot.
      * @see #addExtension
      */
     public PSFileFilter(String extension) {
@@ -633,6 +634,8 @@ public class PSTDToolDialog extends JPanel {
      *
      * <p>Note that the "." before the extension is not needed. If provided, it will be ignored.
      *
+     * @param extension the file extension to accept, without the leading dot.
+     * @param description the human readable description of this filter, may be <code>null</code>.
      * @see #addExtension
      */
     public PSFileFilter(String extension, String description) {
@@ -647,6 +650,7 @@ public class PSTDToolDialog extends JPanel {
      *
      * <p>Note that the "." before the extension is not needed adn will be ignored.
      *
+     * @param filters the array of file extensions to accept, may not be <code>null</code>.
      * @see #addExtension
      */
     public PSFileFilter(String[] filters) {
@@ -658,6 +662,8 @@ public class PSTDToolDialog extends JPanel {
      * ExampleFileFilter(String {"gif", "jpg"}, "Gif and JPG Images"); Note that the "." before the
      * extension is not needed and will be ignored.
      *
+     * @param filters the array of file extensions to accept, may not be <code>null</code>.
+     * @param description the human readable description of this filter, may be <code>null</code>.
      * @see #addExtension
      */
     public PSFileFilter(String[] filters, String description) {
@@ -674,6 +680,9 @@ public class PSTDToolDialog extends JPanel {
      *
      * <p>Files that begin with "." are ignored.
      *
+     * @param f the file to test, may be <code>null</code>.
+     * @return <code>true</code> if this file should be shown in the directory pane, <code>false
+     *     </code> if it shouldn't.
      * @see #getExtension
      */
     @Override
@@ -693,6 +702,8 @@ public class PSTDToolDialog extends JPanel {
     /**
      * Return the extension portion of the file's name .
      *
+     * @param f the file whose extension should be returned, may be <code>null</code>.
+     * @return the extension portion of the file's name, or <code>null</code> if there is none.
      * @see #getExtension
      * @see FileFilter#accept
      */
@@ -717,6 +728,8 @@ public class PSTDToolDialog extends JPanel {
      * filter.addExtension("tif");
      *
      * <p>Note that the "." before the extension is not needed and will be ignored.
+     *
+     * @param extension the filetype "dot" extension to filter against, without the leading dot.
      */
     public void addExtension(String extension) {
       if (filters == null) {
@@ -759,6 +772,7 @@ public class PSTDToolDialog extends JPanel {
      * Sets the human readable description of this filter. For example: filter.setDescription("Gif
      * and JPG Images");
      *
+     * @param description the human readable description of this filter, may be <code>null</code>.
      * @see #setExtensionListInDescription(boolean)
      * @see #isExtensionListInDescription()
      */
@@ -773,6 +787,8 @@ public class PSTDToolDialog extends JPanel {
      *
      * <p>Only relevent if a description was provided in the constructor or using setDescription();
      *
+     * @param b <code>true</code> to show the extension list in the description, <code>false</code>
+     *     otherwise.
      * @see #getDescription()
      * @see #setDescription(String)
      * @see #isExtensionListInDescription()
@@ -788,6 +804,8 @@ public class PSTDToolDialog extends JPanel {
      *
      * <p>Only relevent if a description was provided in the constructor or using setDescription();
      *
+     * @return <code>true</code> if the extension list should show up in the description, <code>
+     *     false</code> otherwise.
      * @see #getDescription()
      * @see #setDescription(String)
      * @see #setExtensionListInDescription(boolean)
@@ -799,6 +817,11 @@ public class PSTDToolDialog extends JPanel {
 
   /** The actionPerformed method in this class is called each time the Timer "goes off". */
   protected class TimerListener implements ActionListener {
+    /** Creates a timer listener that updates the progress monitor on each tick. */
+    protected TimerListener() {
+      super();
+    }
+
     public void actionPerformed(@SuppressWarnings("unused") ActionEvent evt) {
       if (m_progressMonitor.isCanceled() || done()) {
         m_progressMonitor.close();
@@ -817,6 +840,11 @@ public class PSTDToolDialog extends JPanel {
    * methods the JTable will use to interrogate a tabular data model.
    */
   protected class DataTableModel extends AbstractTableModel {
+    /** Creates an empty data table model. */
+    protected DataTableModel() {
+      super();
+    }
+
     /** */
     private static final long serialVersionUID = 3833747672556517428L;
 

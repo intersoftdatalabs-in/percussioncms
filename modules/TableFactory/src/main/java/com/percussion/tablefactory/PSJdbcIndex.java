@@ -223,6 +223,13 @@ public class PSJdbcIndex extends PSJdbcKey {
     return isComponentEqual(other);
   }
 
+  /**
+   * Compares this index to another, testing equality of type, action and column names.
+   *
+   * @param other the index to compare to, may be <code>null</code>.
+   * @return <code>true</code> if the other index defines the same index, <code>false</code>
+   *     otherwise.
+   */
   public boolean isComponentEqual(PSJdbcIndex other) {
     if (other == null) return false;
 

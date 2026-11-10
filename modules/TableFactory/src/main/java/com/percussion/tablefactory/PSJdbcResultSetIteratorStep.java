@@ -118,6 +118,7 @@ public class PSJdbcResultSetIteratorStep extends PSJdbcSqlStatement {
    *
    * @return <code>false</code> if the resultset encapsulated by this object is <code>null</code> or
    *     if the resultset does not have any more rows left, <code>true</code> otherwise.
+   * @throws SQLException if a database access error occurs.
    */
   public boolean hasNext() throws SQLException {
     if (m_rs == null) return false;
@@ -131,6 +132,7 @@ public class PSJdbcResultSetIteratorStep extends PSJdbcSqlStatement {
    * @return the next row of data, may be <code>null</code> if there are no more rows in the result
    *     set
    * @throws SQLException if a database access error occurs
+   * @throws PSJdbcTableFactoryException if an error occurs building the row data
    */
   public PSJdbcRowData next() throws SQLException, PSJdbcTableFactoryException {
     if (m_rs == null) return null;

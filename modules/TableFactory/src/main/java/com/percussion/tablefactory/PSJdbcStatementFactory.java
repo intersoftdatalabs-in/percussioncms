@@ -113,6 +113,8 @@ public class PSJdbcStatementFactory {
    *     foreign keys. May not be <code>null</code>.
    * @return complete ALTER table SQL statement, returns <code>null</code> if there is no FK in this
    *     table.
+   * @param fk the foreign key whose supporting index should be dropped. May not be <code>null
+   *     </code>.
    */
   public static String getDropFKIndex(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcForeignKey fk) {
@@ -149,6 +151,7 @@ public class PSJdbcStatementFactory {
    *     foreign keys. May not be <code>null</code>.
    * @return complete ALTER table SQL statement, returns <code>null</code> if there is no FK in this
    *     table.
+   * @param fk the foreign key constraint to drop. May not be <code>null</code>.
    */
   public static String getDropFKContraint(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcForeignKey fk) {
@@ -179,6 +182,7 @@ public class PSJdbcStatementFactory {
    *     foreign keys. May not be <code>null</code>.
    * @return complete ALTER table SQL statement, returns <code>null</code> if there is no FK in this
    *     table.
+   * @param pk the primary key constraint to drop. May not be <code>null</code>.
    */
   public static String getDropPrimaryContraint(
       PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema tableSchema, PSJdbcPrimaryKey pk) {
@@ -368,6 +372,7 @@ public class PSJdbcStatementFactory {
    *     </code>.
    * @param sourceTableSchema The source table. May not be <code>null</code>.
    * @param targetTableSchema The target table. May not be <code>null</code>.
+   * @return the execution step that copies the data, never <code>null</code>.
    * @throws IllegalArgumentException if any param is invalid.
    */
   public static PSJdbcExecutionStep getCopyTableDataStatement(
@@ -1118,6 +1123,14 @@ public class PSJdbcStatementFactory {
     return buf == null ? null : buf.toString();
   }
 
+  /**
+   * Creates sql definition for the foreign key constraints of a table.
+   *
+   * @param dbmsDef The database server info for the tables. Assumed not <code>null</code>.
+   * @param schema The table possibly containing the foreign key. Assumed not <code>null</code>.
+   * @return The foreign key definition, or <code>null</code> if the tableSchema does not contain
+   *     any.
+   */
   public static String getForeignKeyConstraint(PSJdbcDbmsDef dbmsDef, PSJdbcTableSchema schema) {
     return getForeignKeyConstraint(dbmsDef, schema, null);
   }
@@ -1126,8 +1139,9 @@ public class PSJdbcStatementFactory {
    * Creates sql definition for all external tables in a foreign key definition.
    *
    * @param dbmsDef The database server info for the tables. Assumed not <code>null</code>.
-   * @param schema
    * @param schema The table possibly containing the foreign key. Assumed not <code>null</code>.
+   * @param newSchema The new table schema used to qualify renamed foreign key tables, may be <code>
+   *     null</code> to use the current table names.
    * @return The foreign key definition, or <code>null</code> if the tableSchema does not contain
    *     any.
    */

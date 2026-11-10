@@ -229,6 +229,11 @@ public class PSJdbcTableSchemaCollection extends PSCollection<PSJdbcTableSchema>
   }
 
   // testing only
+  /**
+   * Test entry point that validates an XML table schema file against this collection.
+   *
+   * @param args the command line arguments, expects a single XML file containing the expected xml.
+   */
   public static void main(String[] args) {
     if (args.length != 1) {
       System.out.println("test usage: ");

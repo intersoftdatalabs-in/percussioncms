@@ -171,6 +171,8 @@ public class PSJdbcRowData {
   }
 
   /**
+   * Indicates whether this row data is only processed when its table is being created.
+   *
    * @return The value of the onTableCreateOnly flag. See {@link #setOnTableCreateOnly(boolean)} for
    *     more info.
    */
@@ -208,7 +210,12 @@ public class PSJdbcRowData {
     return m_childTables.iterator();
   }
 
-  /** Convenience method that calls {@link #getColumn(String, boolean) getColumn(name, false)} */
+  /**
+   * Convenience method that calls {@link #getColumn(String, boolean) getColumn(name, false)}.
+   *
+   * @param name the name of the column, may not be <code>null</code> or empty.
+   * @return the column with the specified name, may be <code>null</code> if not found.
+   */
   public PSJdbcColumnData getColumn(String name) {
     return getColumn(name, false);
   }

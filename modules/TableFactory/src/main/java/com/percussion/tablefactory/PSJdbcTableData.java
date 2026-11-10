@@ -37,6 +37,10 @@ public class PSJdbcTableData {
   /**
    * Convenience constructor that calls {@link #PSJdbcTableData(String, Iterator, boolean)
    * this(name, rows, true)}
+   *
+   * @param name The name of this table, may not be <code>null</code>.
+   * @param rows An iterator over one or more PSJdbcRowData objects, may be <code>null</code> in
+   *     which case a table data object is created containing no rows.
    */
   public PSJdbcTableData(String name, Iterator<PSJdbcRowData> rows) {
     this(name, rows, true);
@@ -178,6 +182,8 @@ public class PSJdbcTableData {
   }
 
   /**
+   * Indicates whether this table data is only processed when its table is being created.
+   *
    * @return The value of the onCreateOnly flag. See {@link #setOnCreateOnly( boolean)} for more
    *     info.
    */

@@ -126,6 +126,8 @@ public class PSJdbcTableMetaData {
   }
 
   /**
+   * Indicates whether the table exists.
+   *
    * @return <code>true</code> if the table exists, <code>false</code> if not.
    */
   public final boolean exists() {
@@ -172,7 +174,12 @@ public class PSJdbcTableMetaData {
     return m_foreignKeyColumns;
   }
 
-  /** Convenience method that calls {@link #getIndexes(int) getIndexes(PSJdbcIndex.TYPE_UNIQUE)} */
+  /**
+   * Convenience method that calls {@link #getIndexes(int) getIndexes(PSJdbcIndex.TYPE_UNIQUE)}.
+   *
+   * @return an iterator over zero or more index name to column name list entries, never <code>null
+   *     </code>, may be empty.
+   */
   public Iterator<Map.Entry<String, List<String>>> getIndexes() {
     return getIndexes(PSJdbcIndex.TYPE_UNIQUE);
   }
@@ -214,6 +221,8 @@ public class PSJdbcTableMetaData {
   }
 
   /**
+   * Indicates whether the table represented by this meta data is a database view.
+   *
    * @return <code>true</code> if the table represented by this meta data is a "VIEW", <code>false
    *     </code> if not.
    */

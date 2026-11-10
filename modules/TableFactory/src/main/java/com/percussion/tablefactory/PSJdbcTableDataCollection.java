@@ -150,6 +150,11 @@ public class PSJdbcTableDataCollection extends PSCollection<PSJdbcTableData> {
   }
 
   // testing only
+  /**
+   * Test entry point that validates an XML table data file against this collection.
+   *
+   * @param args the command line arguments, expects a single XML file containing the expected xml.
+   */
   public static void main(String[] args) {
     if (args.length != 1) {
       log.info("test usage: ");

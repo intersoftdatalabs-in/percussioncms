@@ -71,6 +71,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
    * = <code>true</code>, {@link #isDelOldData()} = <code>false</code>, {@link #isAlter()} = false.
    *
    * @param name The name of this table, may not be <code>null</code> or empty.
+   * @throws PSJdbcTableFactoryException if the schema cannot be initialized for the supplied name.
    */
   public PSJdbcTableSchema(String name) throws PSJdbcTableFactoryException {
     if (name == null || name.trim().length() == 0)
@@ -280,6 +281,7 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
    * have an action of {@link PSJdbcTableComponent#ACTION_NONE}).
    *
    * @param foreignKeys The List of foreign key definition, may be <code>null</code>.
+   * @param createIndexes if <code>true</code>, indexes are created for the foreign keys.
    * @throws PSJdbcTableFactoryException if the foreign key references internal columns not defined
    *     in this schema (external columns are not validated until the schema is processed).
    */
@@ -335,6 +337,13 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
     return oldIndex;
   }
 
+  /**
+   * Replaces the index definitions of this schema with the supplied indexes.
+   *
+   * @param indexes the new index definitions, may not be <code>null</code>.
+   * @throws IllegalArgumentException if indexes is <code>null</code>.
+   * @throws PSJdbcTableFactoryException if the schema is invalid after the reset.
+   */
   public void resetIndexes(List<PSJdbcIndex> indexes) throws PSJdbcTableFactoryException {
     if (indexes == null) throw new IllegalArgumentException("indexes may not be null");
     m_indexes.clear();
@@ -381,6 +390,13 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
     return null;
   }
 
+  /**
+   * Returns the index definition matching the supplied index.
+   *
+   * @param newIndex the index to look up, may not be <code>null</code>.
+   * @return the matching index object, or <code>null</code> if not found.
+   * @throws IllegalArgumentException if newIndex is <code>null</code>.
+   */
   public PSJdbcIndex getIndex(PSJdbcIndex newIndex) {
     if (newIndex == null) throw new IllegalArgumentException("index may not be null");
 
@@ -392,7 +408,12 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
     }
   }
 
-  /** Convenience method that calls {@link #getIndexes(int) getIndexes(PSJdbcIndex.TYPE_UNIQUE)} */
+  /**
+   * Convenience method that calls {@link #getIndexes(int) getIndexes(PSJdbcIndex.TYPE_UNIQUE)}.
+   *
+   * @return an iterator over zero or more <code>PSJdbcIndex</code> objects, never <code>null</code>,
+   *     may be empty.
+   */
   public Iterator<PSJdbcIndex> getIndexes() {
     return getIndexes(PSJdbcIndex.TYPE_UNIQUE);
   }
@@ -815,6 +836,8 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
+   * Returns the name of this table.
+   *
    * @return The name of this table, never <code>null</code> or empty.
    */
   public String getName() {
@@ -836,6 +859,8 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
+   * Indicates whether this table should be created if it does not exist.
+   *
    * @return The create flag value. See {@link #setCreate(boolean) setCreate} for more info.
    */
   public boolean isCreate() {
@@ -859,6 +884,8 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
+   * Indicates whether old data should be discarded when this table already exists.
+   *
    * @return The delolddata flag value. See {@link #setDelOldData(boolean) setDelOldData} for more
    *     info.
    */
@@ -890,6 +917,8 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
+   * Indicates whether child objects are treated as the complete schema or only as changes.
+   *
    * @return The alter flag value. See {@link #setAlter(boolean) setAlter} for more info.
    */
   public boolean isAlter() {
@@ -1146,6 +1175,8 @@ public class PSJdbcTableSchema implements Comparable<PSJdbcTableSchema> {
   }
 
   /**
+   * Indicates whether any table component carries changes to apply to the database.
+   *
    * @return <code>false</code> if all table components have an action of
    *     PSJdbcTableComponent#ACTION_NONE, <code>true</code> if not.
    */

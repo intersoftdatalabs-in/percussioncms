@@ -34,6 +34,11 @@ import org.apache.logging.log4j.Logger;
  */
 public class RxTableInstallLogic {
 
+  /** Creates a table install logic holder. */
+  public RxTableInstallLogic() {
+    super();
+  }
+
   private static final Logger log = LogManager.getLogger(RxTableInstallLogic.class);
 
   /** Role delimiter (in role list) */
@@ -60,25 +65,41 @@ public class RxTableInstallLogic {
    */
   public static final int CREATE_NONE = 0;
 
+  /** Installer option value indicating create yes. */
   public static final int CREATE_YES = 1;
+  /** Installer option value indicating create no. */
   public static final int CREATE_NO = 2;
+  /** Installer option value indicating create without drop. */
   public static final int CREATE_NODROP = 3;
+  /** Installer option value indicating alter none. */
   public static final int ALTER_NONE = 0;
+  /** Installer option value indicating alter yes. */
   public static final int ALTER_YES = 1;
+  /** Installer option value indicating alter no. */
   public static final int ALTER_NO = 2;
+  /** Installer option value indicating alter not applicable. */
   public static final int ALTER_NOT = 3;
+  /** Installer option value indicating delete none. */
   public static final int DELETE_NONE = 0;
+  /** Installer option value indicating delete yes. */
   public static final int DELETE_YES = 1;
+  /** Installer option value indicating delete no. */
   public static final int DELETE_NO = 2;
+  /** Installer option value indicating delete not applicable. */
   public static final int DELETE_NOT = 3;
 
   /** Error Messages ref write option to Disk. */
   public static final int SUCCESS = 0;
 
+  /** Write to disk result code indicating a write error. */
   public static final int WRITE_ERRROR = 1;
+  /** Write to disk result code indicating a security failure. */
   public static final int SECURITY_FAILURE = 2;
+  /** Write to disk result code indicating the file already exists. */
   public static final int FILE_ALREADY_EXIST = 3;
+  /** Write to disk result code indicating the file was not found. */
   public static final int FILE_NOT_FOUND = 4;
+  /** Write to disk result code indicating an unknown failure. */
   public static final int UNKNOWN_FAILURE = 5;
 
   /**
@@ -88,14 +109,22 @@ public class RxTableInstallLogic {
    */
   public static final int CREATE_NEW_OVERWRITE = 0;
 
+  /** Flag for writing to disk: create new, rename old file with ".old" extension if it exists. */
   public static final int CREATE_NEW_OLD = 1;
+  /** Flag for writing to disk: append to file, create file if it does not exist. */
   public static final int APPEND_CREATE = 2;
+  /** Flag for writing to disk: append to existing file, fail if it does not exist. */
   public static final int APPEND = 3;
 
+  /** Table install option indicating no action should be taken. */
   public static final int TABLE_NO_ACTION = 0;
+  /** Table install option indicating the table should be created. */
   public static final int TABLE_CREATE_YES = 1;
+  /** Table install option indicating the table should not be created. */
   public static final int TABLE_CREATE_NO = 2;
+  /** Table install option indicating the table should be altered. */
   public static final int TABLE_ALTER_YES = 4;
+  /** Table install option indicating the table should not be altered. */
   public static final int TABLE_ALTER_NO = 5;
 
   /**
@@ -104,12 +133,15 @@ public class RxTableInstallLogic {
    */
   public static String PS_OLD_DATA_FILENAME = new String("ps_org_tbl_data.xml");
 
+  /** Preset file name which the old table definition is stored in if system fails to insert it back into the new tables. */
   public static String PS_OLD_DTD_FILENAME = new String("ps_org_tbl_def.xml");
 
   /** error constants */
   public static final int ERROR_INVALID_NMBER_OF_PARAMETERS = 7006;
 
+  /** Error code indicating an invalid parameter type. */
   public static final int ERROR_INVALID_PARAMETER_TYPE = 7003;
+  /** Error code indicating an authorization failure. */
   public static final int ERROR_AUTHORIZATION_FAILURE = 1203;
 
   /** Instantiation of empty properties. File will be loaded later. */
@@ -124,9 +156,13 @@ public class RxTableInstallLogic {
    */
   public static final int ASSIGNMENT_TYPE_NOT_IN_WORKFLOW = 0;
 
+  /** Assignment type indicating the user is in a role, but the role is not assigned for this state. */
   public static final int ASSIGNMENT_TYPE_NONE = 1;
+  /** Assignment type indicating the user is in a role assigned as reader. */
   public static final int ASSIGNMENT_TYPE_READER = 2;
+  /** Assignment type indicating the user is assigned to transition the document. */
   public static final int ASSIGNMENT_TYPE_ASSIGNEE = 3;
+  /** Assignment type indicating the user is a workflow administrator. */
   public static final int ASSIGNMENT_TYPE_ADMIN = 4;
 
   /**
@@ -141,7 +177,9 @@ public class RxTableInstallLogic {
    */
   public static final int CHECKOUT_STATUS_NONE = 0;
 
+  /** Document checkout status indicating the document is checked out by the current user. */
   public static final int CHECKOUT_STATUS_CURRENT_USER = 1;
+  /** Document checkout status indicating the document is checked out by somebody else. */
   public static final int CHECKOUT_STATUS_OTHER = 2;
 
   /**
@@ -159,7 +197,6 @@ public class RxTableInstallLogic {
   /** HTML Parameter name that stores the content status history id after writing the history. */
   public static final String HTML_PARAM_CONTENTSTATUSHISTORYID = "contentstatushistoryid";
 
-  /*
   /**
   * Ad-hoc options:
   *  0 - No Ad-Hoc
@@ -168,37 +205,60 @@ public class RxTableInstallLogic {
   *
   */
   public static final int ADHOC_DISABLED = 0;
+  /** Ad-hoc option indicating ad-hoc is enabled. */
   public static final int ADHOC_ENABLED = 1;
+  /** Ad-hoc option indicating anonymous ad-hoc is enabled. */
   public static final int ADHOC_ANONYMOUS = 2;
 
+  /** HTML parameter name storing the new state id key. */
   public static final String SNEWSTATEIDKEY = "sNewStateIDKey";
 
+  /** Name of the action trigger. */
   public static final String ACTION_TRIGGER_NAME = "ACTION_TRIGGER_NAME";
+  /** Default action trigger name. */
   public static final String DEFAULT_ACTION_TRIGGER_NAME = "WFAction";
 
+  /** Name of the request. */
   public static final String REQUEST_NAME = "REQUEST_NAME";
+  /** Default request name. */
   public static final String DEFAULT_REQUEST_NAME = "request";
 
+  /** Name of the action list element. */
   public static final String ACTION_LIST_ELEMENT_NAME = "ACTION_LIST_ELEMENT_NAME";
+  /** Default action list element name. */
   public static final String DEFAULT_ACTION_LIST_ELEMENT_NAME = "ActionList";
 
+  /** Name of the action element. */
   public static final String ACTION_ELEMENT_NAME = "ACTION_ELEMENT_NAME";
+  /** Default action element name. */
   public static final String DEFAULT_ACTION_ELEMENT_NAME = "Action";
 
+  /** Name of the content history request. */
   public static final String CONTENT_HISTORY_REQUEST = "CONTENT_HISTORY_REQUEST";
+  /** Name of the history action element. */
   public static final String HISTORY_ACTION_ELEMENT_NAME = "HistoryAction";
+  /** Name of the view action element. */
   public static final String VIEW_ACTION_ELEMENT_NAME = "ViewAction";
+  /** Name of the edit action element. */
   public static final String EDIT_ACTION_ELEMENT_NAME = "EditAction";
+  /** Name of the check-in/check-out action element. */
   public static final String CHECKINOUT_ACTION_ELEMENT_NAME = "CheckInOutAction";
 
+  /** Name of the check-in trigger. */
   public static final String TRIGGER_CHECK_IN = "TRIGGER_CHECK_IN";
+  /** Default check-in trigger name. */
   public static final String DEFAULT_TRIGGER_CHECK_IN = "CheckIn";
 
+  /** Name of the check-out trigger. */
   public static final String TRIGGER_CHECK_OUT = "TRIGGER_CHECK_OUT";
+  /** Default check-out trigger name. */
   public static final String DEFAULT_TRIGGER_CHECK_OUT = "CheckOut";
 
+  /** Check-in/check-out condition indicating the condition should be ignored. */
   public static final String CHECKINOUT_CONDITION_IGNORE = "ignore";
+  /** Check-in/check-out condition indicating check-in. */
   public static final String CHECKINOUT_CONDITION_CHECKIN = "checkin";
+  /** Check-in/check-out condition indicating check-out. */
   public static final String CHECKINOUT_CONDITION_CHECKOUT = "checkout";
 
   private static ResourceBundle m_ResourceBundle = null;
@@ -308,8 +368,8 @@ public class RxTableInstallLogic {
    * extract actual user name out of the user name that is obtainable by user contex/username. This
    * has of the form: host1,host2,host3,host4,username.
    *
-   * @author Rammohan Vangapalli
-   * @version 1.0
+   * @param sUserName the user name to filter, may not be <code>null</code>.
+   * @return the user name after the last comma, never <code>null</code>.
    * @since 2.0
    */
   public static String filterUserName(String sUserName) {
@@ -333,6 +393,8 @@ public class RxTableInstallLogic {
   /**
    * All the error and other messages are stored in a resource file. This static method returns
    * (instantiates if required) the resource bundle.
+   *
+   * @return the resource bundle, never <code>null</code>.
    */
   public static ResourceBundle getResourceBundle() {
     /* load the resources first. this will throw an exception if we can't

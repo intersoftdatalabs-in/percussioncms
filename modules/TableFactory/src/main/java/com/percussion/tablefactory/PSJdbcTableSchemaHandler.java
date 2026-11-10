@@ -348,13 +348,21 @@ public class PSJdbcTableSchemaHandler {
   private static final String DATA_HANDLERS_EL = "dataHandlers";
   private static final String TYPE_ATTR = "type";
 
+  /** The schema handler type string for statements that do not alter the table. */
   public static final String TYPE_STR_NO_ALTER_TABLE_STMT = "noAlterTableStmt";
+  /** The schema handler type string for backup processing. */
   public static final String TYPE_STR_TO_BACKUP = "toBackup";
+  /** The schema handler type string for restore-from-backup processing. */
   public static final String TYPE_STR_FROM_BACKUP = "fromBackup";
+  /** The schema handler type string for on-create processing. */
   public static final String TYPE_STR_ON_CREATE = "onCreate";
 
+  /** The schema handler type int for statements that do not alter the table. */
   public static final int TYPE_INT_NO_ALTER_TABLE_STMT = 1;
+  /** The schema handler type int for backup processing. */
   public static final int TYPE_INT_TO_BACKUP = 2;
+  /** The schema handler type int for restore-from-backup processing. */
   public static final int TYPE_INT_FROM_BACKUP = 3;
+  /** The schema handler type int for on-create processing. */
   public static final int TYPE_INT_ON_CREATE = 4;
 }
