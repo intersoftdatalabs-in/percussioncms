@@ -80,6 +80,10 @@ describe("ItemPublishingHistoryPanel", () => {
     const cells = screen.getAllByTestId("item-history-row");
     expect(cells[0].textContent).toContain("new");
     expect(cells[1].textContent).toContain("old");
+    // Failed rows name the failure reason inline (not tooltip-only).
+    expect(screen.getByTestId("item-history-row-error")).toHaveTextContent(
+      "denied",
+    );
 
     fetchHistory.mockRejectedValue({ status: 500, statusText: "Server Error" });
     rerender(

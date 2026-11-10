@@ -131,6 +131,16 @@ test.describe("PublishingShell item publishing history", () => {
             status: "SUCCESS",
             contentId: 42,
           },
+          {
+            server: "prod",
+            location: "/index.html",
+            revisionId: 2,
+            publishedDate: Date.now() - 86400000,
+            operation: "publish",
+            status: "FAILURE",
+            errorMessage: "delivery refused connection",
+            contentId: 42,
+          },
         ],
       });
 
@@ -141,9 +151,13 @@ test.describe("PublishingShell item publishing history", () => {
       await expect(page.locator('[data-testid="item-history-table"]')).toBeVisible({
         timeout: 15_000,
       });
-      await expect(page.locator('[data-testid="item-history-row"]')).toContainText(
+      await expect(page.locator('[data-testid="item-history-row"]').first()).toContainText(
         "prod",
       );
+      // Failed rows name the failure reason inline.
+      await expect(
+        page.locator('[data-testid="item-history-row-error"]'),
+      ).toContainText("delivery refused connection");
 
       await page.unroute("**/itemmanagement/item/pubhistory/**");
       await page.route("**/itemmanagement/item/pubhistory/**", async (route) => {

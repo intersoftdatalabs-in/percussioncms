@@ -235,6 +235,18 @@ export function ItemPublishingHistoryPanel({
                     title={failed ? row.errorMessage : undefined}
                   >
                     {row.status ?? "—"}
+                    {failed && row.errorMessage && (
+                      <div
+                        data-testid="item-history-row-error"
+                        style={{
+                          fontSize: "0.8rem",
+                          color: "#8a1f1f",
+                          marginTop: 2,
+                        }}
+                      >
+                        {row.errorMessage}
+                      </div>
+                    )}
                   </td>
                 </tr>
               );
