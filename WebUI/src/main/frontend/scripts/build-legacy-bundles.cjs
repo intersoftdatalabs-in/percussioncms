@@ -155,6 +155,57 @@ const BUNDLE_CONFIGS = [
 ];
 
 /**
+ * Content transforms applied to individual bundle sources during
+ * concatenation (keyed by the bundle-config-relative path).
+ *
+ * CodeQL js/incomplete-sanitization #1467: moment's unescapeFormat strips
+ * backslashes with a first-only string replace (`.replace('\\', '')`),
+ * which only touches the first occurrence. The global-regex fix (`/\\/g`)
+ * was previously hand-applied to the checked-in perc_common_ui.js twin
+ * (issue #1366); with that twin deleted (issue #6017) the shipped bytes
+ * come straight from the npm dist, so the builder applies the same fix at
+ * concatenation time, everywhere the moment source is embedded
+ * (perc_common_ui.js and the shared-common-minuet intermediate).
+ * Each entry logs when applied and warns (without failing) when its search
+ * snippet no longer matches — e.g. a moment upgrade that fixes upstream —
+ * so the entry can retire instead of silently doing nothing.
+ */
+const CONTENT_TRANSFORMS = [
+  {
+    file: "jslib/profiles/3x/libraries/momentjs/moment-with-locales.js",
+    search: ".replace('\\\\', '')",
+    replace: ".replace(/\\\\/g, '')",
+    issue: "#1467",
+  },
+];
+
+/**
+ * Apply CONTENT_TRANSFORMS entries for one bundle source file.
+ * Operates on the already-read content; returns it unchanged when no entry
+ * matches the file or the snippet is already gone.
+ */
+function applyContentTransforms(file, content) {
+  let out = content;
+  for (const t of CONTENT_TRANSFORMS) {
+    if (file !== t.file) {
+      continue;
+    }
+    const hits = out.split(t.search).length - 1;
+    if (hits === 0) {
+      console.warn(
+        `  ⚠️  transform ${t.issue} did not match ${file}; upstream may have fixed it — retire the entry`,
+      );
+      continue;
+    }
+    out = out.split(t.search).join(t.replace);
+    console.log(
+      `  ✓ applied transform ${t.issue} to ${file} (${hits} occurrence(s))`,
+    );
+  }
+  return out;
+}
+
+/**
  * Resolve a file path, checking node_modules first for npm packages, then
  * the cm app root (and the delivery common-ui module for legacy relative paths).
  */
@@ -272,7 +323,7 @@ function buildBundlesFromConfig(configFile, processingPhase = 1, options = {}) {
       if (error) {
         errorCount += 1;
       }
-      parts.push(content);
+      parts.push(applyContentTransforms(file, content));
     }
     const content = parts.join("\n");
 
@@ -630,7 +681,9 @@ module.exports = {
   REQUIRED_INTERMEDIATE_BUNDLES,
   NPM_LIBRARY_MAPPINGS,
   STANDALONE_NPM_COPIES,
+  CONTENT_TRANSFORMS,
   resolvePath,
+  applyContentTransforms,
   buildBundlesFromConfig,
   assertRequiredIntermediates,
   syncStandaloneNpmLibraries,

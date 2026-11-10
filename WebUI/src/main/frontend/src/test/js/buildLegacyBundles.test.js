@@ -56,7 +56,9 @@ const {
   REQUIRED_INTERMEDIATE_BUNDLES,
   NPM_LIBRARY_MAPPINGS,
   STANDALONE_NPM_COPIES,
+  CONTENT_TRANSFORMS,
   resolvePath,
+  applyContentTransforms,
   buildBundlesFromConfig,
   assertRequiredIntermediates,
   syncStandaloneNpmLibraries,
@@ -848,6 +850,120 @@ describe("classic-UI Moment.js from npm (issue #5665)", () => {
       const resolved = resolvePath(entry);
       expect(fs.existsSync(resolved), `${entry} -> ${resolved}`).toBe(true);
     }
+  });
+});
+
+/**
+ * Served perc_common_ui.js comes from the generated overlay, not a
+ * checked-in twin (issue #6017).
+ *
+ * The WAR used to serve a stale checked-in
+ * `src/main/webapp/cm/perc_common_ui.js` twin (moment 2.29.4 bytes) that
+ * shadowed the npm-moment 2.31.0 bundle the builder writes to
+ * `target/generated-webui/cm/` (maven-war-plugin duplicate-path handling
+ * kept the first-listed `src/main/webapp` copy). A second stale twin lived
+ * in the tracked `WebUI/war/` mirror. Both twins are deleted; the war
+ * plugin overlay is now the only source of `/cm/perc_common_ui.js`.
+ *
+ * Deleting the twins removes the hand-applied CodeQL #1467 fix they
+ * carried (global `/\\/g` in moment's unescapeFormat, issue #1366) — the
+ * pristine npm dist uses a first-only `.replace('\\', '')`. The builder
+ * therefore applies the same fix at concatenation time via
+ * CONTENT_TRANSFORMS. These tests pin:
+ *
+ *   1. No perc_common_ui*.js twin exists under src/main/webapp/cm or
+ *      WebUI/war (any file there would shadow the generated bundle).
+ *   2. The transform entry targets the npm moment source and rewrites the
+ *      exact upstream snippet (unit-level, no node_modules needed).
+ *   3. A real common-ui-bundle.json build ships npm moment 2.31.0 +
+ *      formatWithJDF with the global-regex fix and no first-only strip.
+ */
+describe("generated perc_common_ui.js, no checked-in twin (issue #6017)", () => {
+  const MOMENT_DEST =
+    "jslib/profiles/3x/libraries/momentjs/moment-with-locales.js";
+  const FIRST_ONLY = ".replace('\\\\', '')";
+  const GLOBAL_FIX = ".replace(/\\\\/g, '')";
+
+  it("keeps no perc_common_ui twin in any committed tree", () => {
+    for (const root of [WAR_DIR, path.join(WEBUI_DIR, "war")]) {
+      for (const name of ["perc_common_ui.js", "perc_common_ui_slim.js"]) {
+        const candidate = path.join(root, name);
+        expect(
+          fs.existsSync(candidate),
+          `stale twin would shadow the generated bundle: ${candidate}`,
+        ).toBe(false);
+      }
+    }
+  });
+
+  it("pins the #1467 transform on the npm moment source", () => {
+    expect(Array.isArray(CONTENT_TRANSFORMS)).toBe(true);
+    const entry = CONTENT_TRANSFORMS.find((t) => t.file === MOMENT_DEST);
+    expect(entry, "missing transform for the npm moment source").toBeDefined();
+    expect(entry.issue).toBe("#1467");
+  });
+
+  it("rewrites the first-only strip to the global fix (unit)", () => {
+    const input = `function unescapeFormat(s) {\n  return s\n    ${FIRST_ONLY}\n}`;
+    const out = applyContentTransforms(MOMENT_DEST, input);
+    expect(out).toContain(GLOBAL_FIX);
+    expect(out).not.toContain(FIRST_ONLY);
+  });
+
+  it("leaves other bundle sources untouched (unit)", () => {
+    const input = `var x = 1;\n${FIRST_ONLY}\n`;
+    expect(applyContentTransforms("plugins/perc_utils.js", input)).toBe(
+      input,
+    );
+  });
+
+  it("warns instead of failing when upstream no longer matches (unit)", () => {
+    const warn = vi.spyOn(console, "warn").mockImplementation(() => {});
+    try {
+      const input = "var alreadyFixed = s.replace(/\\\\/g, '');";
+      expect(applyContentTransforms(MOMENT_DEST, input)).toBe(input);
+      expect(warn).toHaveBeenCalled();
+    } finally {
+      warn.mockRestore();
+    }
+  });
+
+  it("builds perc_common_ui.js with npm moment + the global fix", () => {
+    // Integration-style: exercises real resolvePath + concatenation +
+    // transforms. Writes under target/generated-webui/cm (OUTPUT_DIR),
+    // which is gitignored. Skips if node_modules absent (hermetic CI).
+    const momentDist = path.join(
+      path.dirname(path.dirname(path.dirname(__dirname))),
+      "node_modules",
+      "moment",
+      "min",
+      "moment-with-locales.js",
+    );
+    if (!fs.existsSync(momentDist)) {
+      return;
+    }
+
+    buildBundlesFromConfig("common-ui-bundle.json", 2);
+
+    for (const name of ["perc_common_ui.js", "perc_common_ui_slim.js"]) {
+      const out = path.join(OUTPUT_DIR, name);
+      expect(fs.existsSync(out), out).toBe(true);
+      expect(fs.statSync(out).size, `${name} size`).toBeGreaterThan(1024);
+    }
+
+    const content = fs.readFileSync(
+      path.join(OUTPUT_DIR, "perc_common_ui.js"),
+      "utf8",
+    );
+    // npm moment bytes the Playwright spec asserts on the served bundle.
+    expect(content).toContain("2.31.0");
+    expect(content).toContain("formatWithJDF");
+    // CodeQL #1467 stays fixed in the shipped bytes.
+    const fnStart = content.indexOf("function unescapeFormat");
+    expect(fnStart).toBeGreaterThan(-1);
+    const fnBody = content.slice(fnStart, fnStart + 400);
+    expect(fnBody).toMatch(/\.replace\s*\(\s*\/\\\\\/g\s*,\s*["']{2}\s*\)/);
+    expect(content).not.toContain(FIRST_ONLY);
   });
 });
 
