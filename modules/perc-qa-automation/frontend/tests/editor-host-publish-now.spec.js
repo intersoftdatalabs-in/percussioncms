@@ -105,6 +105,8 @@ async function stubEditorApis(page, opts) {
   const type = opts.type || PAGE_TYPE;
   const publishBody = opts.publishBody || "{}";
   const publishCalls = opts.publishCalls;
+  // Optional mutable holder ({ status }) so one test can walk 400/403/409.
+  const publishStatus = opts.publishStatus || null;
   await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
   );
@@ -140,11 +142,19 @@ async function stubEditorApis(page, opts) {
   );
   await page.route("**/services/sitemanage/publish/**", async (route) => {
     publishCalls.push(route.request().url());
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: publishBody,
-    });
+    const status = publishStatus ? publishStatus.status : 200;
+    if (status === 200) {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: publishBody,
+      });
+      return;
+    }
+    // Empty body so the dialog shows the mapped editor message
+    // (PUBLISH_REJECTED / PUBLISH_FORBIDDEN / PUBLISH_CONFLICT): a
+    // non-blank plain-text body would be surfaced verbatim instead.
+    await route.fulfill({ status, contentType: "text/plain", body: "" });
   });
 }
 
@@ -220,6 +230,59 @@ test.describe("React Content Editor Publish now", () => {
         /Publication stopped|not allowed/i,
       );
       await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+    },
+  );
+
+  test(
+    "HTTP 400, 403, and 409 stay on the dialog and do not claim publish",
+    { tag: ["@explorer-content-editor", "@editor", "@publish"] },
+    async ({ page }) => {
+      const publishCalls = [];
+      const pageErrors = [];
+      consoleOn(page, pageErrors);
+      const publishStatus = { status: 400 };
+      await stubEditorApis(page, { publishCalls, publishStatus });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishNow}"]`)).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.locator(`[data-testid="${TEST_IDS.publishNow}"]`).click();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
+      ).toBeVisible();
+
+      await page.locator(`[data-testid="${TEST_IDS.publishConfirm}"]`).click();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.publishDialogError}"]`),
+      ).toContainText(/rejected/i);
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
+      ).toBeVisible();
+
+      publishStatus.status = 403;
+      await page.locator(`[data-testid="${TEST_IDS.publishConfirm}"]`).click();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.publishDialogError}"]`),
+      ).toContainText(/not allowed/i);
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
+      ).toBeVisible();
+
+      publishStatus.status = 409;
+      await page.locator(`[data-testid="${TEST_IDS.publishConfirm}"]`).click();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.publishDialogError}"]`),
+      ).toContainText(/cannot be published right now/i);
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
+      ).toBeVisible();
+
+      expect(publishCalls.length).toBe(3);
+      expect(publishCalls.every((url) => isPagePublishUrl(url))).toBe(true);
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
   );
 
