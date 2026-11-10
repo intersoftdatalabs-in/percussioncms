@@ -208,7 +208,9 @@ describe("legacy intermediate bundle builder", () => {
     for (const { dest } of STANDALONE_NPM_COPIES) {
       const generated = path.join(OUTPUT_DIR, dest);
       expect(fs.existsSync(generated), generated).toBe(true);
-      expect(fs.statSync(generated).size).toBeGreaterThan(1000);
+      // Sanity floor only: small CSS assets (e.g. superfish-vertical ~1KB)
+      // are legitimate standalone copies (issue #5663).
+      expect(fs.statSync(generated).size).toBeGreaterThan(500);
       const generatedNorm = generated.split(path.sep).join("/");
       expect(generatedNorm.includes("target/generated-webui/cm")).toBe(true);
       expect(generatedNorm.includes("src/main/webapp")).toBe(false);
@@ -1079,5 +1081,194 @@ describe("classic-UI Backbone/Underscore from npm, Backgrid retired (issue #5664
       Object.keys(NPM_LIBRARY_MAPPINGS).filter((k) => /backgrid/i.test(k)),
       "backgrid must have no npm mapping",
     ).toEqual([]);
+  });
+});
+
+/**
+ * Classic-UI jQuery plugin cluster from npm (issue #5663).
+ *
+ * The vendored plugin copies under cm/jslib (mirrored in cm/vendor/js/legacy
+ * and WebUI/war) were deleted. Classic pages keep loading the stable jslib
+ * URLs, now served from Dependabot-tracked npm dist files
+ * (frontend package.json) via syncStandaloneNpmLibraries (direct <script>
+ * loads) and NPM_LIBRARY_MAPPINGS (bundle concatenation). Dead copies with
+ * no npm upstream and zero references (DataTables FixedHeader, standalone
+ * print-this, collapser, war/api/lib ba-bbq/slideto/wiggle, validation
+ * locales, jeditable input-type extras, superfish supersubs) were removed
+ * outright. These tests pin:
+ *
+ *   1. Every migrated jslib path has an npm mapping and a required
+ *      standalone copy.
+ *   2. Synced bytes are byte-identical to the npm dist files and carry the
+ *      expected versions (form 4.3.0, validation 1.22.x, jeditable 2.0.x,
+ *      superfish 1.7.10, timeago 1.6.7, multiselect 3.0.x, hoverintent 2.2.x).
+ *   3. Removed plugin dirs/files resolve nowhere (no mapping, absent from
+ *      all three trees).
+ */
+describe("classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
+  const FRONTEND_ROOT = path.dirname(
+    path.dirname(path.dirname(__dirname)),
+  );
+  const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+  const WEBUI_DIR = path.dirname(
+    path.dirname(path.dirname(FRONTEND_ROOT)),
+  );
+  const WAR_MIRROR = path.join(WEBUI_DIR, "war");
+  const VENDOR_MIRROR = path.join(WAR_DIR, "vendor/js/legacy");
+
+  const CLUSTER = [
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-form/jquery.form.js",
+      src: "jquery-form/dist/jquery.form.min.js",
+      versionRe: /version: 4\.3\.0/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-validation/jquery.validate.js",
+      src: "jquery-validation/dist/jquery.validate.min.js",
+      versionRe: /jQuery Validation Plugin - v1\.22\.1/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-validation/additional-methods.js",
+      src: "jquery-validation/dist/additional-methods.min.js",
+      versionRe: /jQuery Validation Plugin - v1\.22\.1/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-jeditable/jquery.jeditable.js",
+      src: "jquery-jeditable/dist/jquery.jeditable.min.js",
+      versionRe: /editableAriaShim/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/js/superfish.js",
+      src: "superfish/dist/js/superfish.min.js",
+      versionRe: /Superfish Menu Plugin - v1\.7\.10/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/js/hoverIntent.js",
+      src: "superfish/dist/js/hoverIntent.js",
+      versionRe: /hoverIntent is similar/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish.css",
+      src: "superfish/dist/css/superfish.css",
+      versionRe: /\.sf-menu/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish-vertical.css",
+      src: "superfish/dist/css/superfish-vertical.css",
+      versionRe: /\.sf-vertical/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish-navbar.css",
+      src: "superfish/dist/css/superfish-navbar.css",
+      versionRe: /\.sf-navbar/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/megafish.css",
+      src: "superfish/dist/css/megafish.css",
+      versionRe: /\.sf-mega/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-hoverintent/jquery.hoverIntent.js",
+      src: "hoverintent/dist/hoverintent.min.js",
+      versionRe: /hoverintent/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-timeago/jquery.timeago.js",
+      src: "timeago/jquery.timeago.js",
+      versionRe: /@version 1\.6\.7/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.js",
+      src: "jquery-ui-multiselect-widget/src/jquery.multiselect.js",
+      versionRe: /MultiSelect Widget 3\.0\.0/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.filter.js",
+      src: "jquery-ui-multiselect-widget/src/jquery.multiselect.filter.js",
+      versionRe: /multiselectfilter/,
+    },
+  ];
+
+  // Dead copies removed outright: no npm mapping, absent from every tree.
+  const REMOVED_PREFIXES = [
+    "jslib/profiles/3x/jquery/plugins/jquery-datatables-fixedheader/",
+    "jslib/profiles/3x/jquery/plugins/jquery-print-this/",
+    "jslib/profiles/3x/jquery/plugins/jquery-collapser/",
+    "jslib/profiles/3x/jquery/plugins/jquery-validation/localization/",
+  ];
+  const REMOVED_WAR_API_LIBS = [
+    "api/lib/jquery.ba-bbq.min.js",
+    "api/lib/jquery.slideto.min.js",
+    "api/lib/jquery.wiggle.min.js",
+  ];
+
+  it("pins every migrated plugin in NPM_LIBRARY_MAPPINGS + STANDALONE_NPM_COPIES", () => {
+    for (const { dest, src } of CLUSTER) {
+      expect(
+        NPM_LIBRARY_MAPPINGS[dest],
+        `no npm mapping for ${dest}`,
+      ).toBe(src);
+      const entry = STANDALONE_NPM_COPIES.find((e) => e.dest === dest);
+      expect(entry, `missing standalone copy for ${dest}`).toBeDefined();
+      expect(entry.src).toBe(src);
+      expect(entry.required).toBe(true);
+    }
+  });
+
+  it("syncs plugin bytes identical to the npm dist files with expected versions", () => {
+    const missing = CLUSTER.map(({ src }) => path.join(NODE_MODULES, src)).filter(
+      (p) => !fs.existsSync(p),
+    );
+    if (missing.length > 0) {
+      // Hermetic CI without frontend node_modules: presence is pinned above.
+      return;
+    }
+    syncStandaloneNpmLibraries();
+    for (const { dest, src, versionRe } of CLUSTER) {
+      const generated = fs.readFileSync(path.join(OUTPUT_DIR, dest));
+      const npmDist = fs.readFileSync(path.join(NODE_MODULES, src));
+      expect(generated.equals(npmDist), `${dest} differs from npm ${src}`).toBe(
+        true,
+      );
+      expect(generated.toString("utf8", 0, 8192)).toMatch(versionRe);
+      // The deleted vendored version must not leak back into the source tree.
+      expect(fs.existsSync(path.join(WAR_DIR, dest))).toBe(false);
+    }
+  });
+
+  it("resolves migrated bundle paths into node_modules, not vendored files", () => {
+    for (const { dest } of CLUSTER) {
+      const resolved = resolvePath(dest);
+      const normalized = resolved.split(path.sep).join("/");
+      expect(normalized).toContain("node_modules/");
+      expect(fs.existsSync(resolved), resolved).toBe(true);
+    }
+  });
+
+  it("leaves no mapping or vendored copy for the removed dead plugins", () => {
+    for (const prefix of REMOVED_PREFIXES) {
+      const mapped = Object.keys(NPM_LIBRARY_MAPPINGS).filter((k) =>
+        k.startsWith(prefix),
+      );
+      expect(mapped, `unexpected npm mapping under ${prefix}`).toEqual([]);
+      const standalone = STANDALONE_NPM_COPIES.filter((e) =>
+        e.dest.startsWith(prefix),
+      );
+      expect(standalone, `unexpected standalone copy under ${prefix}`).toEqual(
+        [],
+      );
+      for (const root of [WAR_DIR, VENDOR_MIRROR, path.join(WAR_MIRROR, "jslib")]) {
+        expect(
+          fs.existsSync(path.join(root, prefix)),
+          `vendored copy still present: ${path.join(root, prefix)}`,
+        ).toBe(false);
+      }
+    }
+    for (const rel of REMOVED_WAR_API_LIBS) {
+      expect(
+        fs.existsSync(path.join(WAR_MIRROR, rel)),
+        `dead war api lib still present: ${rel}`,
+      ).toBe(false);
+    }
   });
 });
