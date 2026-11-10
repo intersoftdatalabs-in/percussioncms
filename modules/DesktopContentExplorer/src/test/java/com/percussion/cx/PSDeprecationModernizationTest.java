@@ -22,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
@@ -51,6 +52,26 @@ public class PSDeprecationModernizationTest {
     assertEquals(
         KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_MASK, true),
         KeyStroke.getKeyStroke(KeyEvent.VK_V, KeyEvent.CTRL_DOWN_MASK, true));
+  }
+
+  @Test
+  @SuppressWarnings("deprecation") // legacy mask referenced only to prove binding equivalence
+  public void menuShortcutKeyExPreservesMacClipboardBindings() {
+    // Behavioral equivalence for the #5713 getMenuShortcutKeyMask -> getMenuShortcutKeyMaskEx
+    // migration in PSContentExplorerApplet.bindMacClipboardShortcuts: AWTKeyStroke normalizes
+    // legacy and extended modifier masks to the same KeyStroke, so the copy/paste/cut
+    // InputMap bindings are unchanged. Uses the same 2-arg overload as the applet.
+    // Headless-safe: KeyStroke/Toolkit only, no windows created.
+    Toolkit toolkit = Toolkit.getDefaultToolkit();
+    assertEquals(
+        KeyStroke.getKeyStroke(KeyEvent.VK_C, toolkit.getMenuShortcutKeyMask()),
+        KeyStroke.getKeyStroke(KeyEvent.VK_C, toolkit.getMenuShortcutKeyMaskEx()));
+    assertEquals(
+        KeyStroke.getKeyStroke(KeyEvent.VK_V, toolkit.getMenuShortcutKeyMask()),
+        KeyStroke.getKeyStroke(KeyEvent.VK_V, toolkit.getMenuShortcutKeyMaskEx()));
+    assertEquals(
+        KeyStroke.getKeyStroke(KeyEvent.VK_X, toolkit.getMenuShortcutKeyMask()),
+        KeyStroke.getKeyStroke(KeyEvent.VK_X, toolkit.getMenuShortcutKeyMaskEx()));
   }
 
   @Test

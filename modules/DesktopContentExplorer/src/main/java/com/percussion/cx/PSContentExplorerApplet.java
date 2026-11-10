@@ -350,15 +350,15 @@ public class PSContentExplorerApplet extends PSJApplet implements IPSActionListe
     InputMap im = (InputMap) UIManager.get("TextField.focusInputMap");
     im.put(
         KeyStroke.getKeyStroke(
-            KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
+            KeyEvent.VK_C, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()),
         DefaultEditorKit.copyAction);
     im.put(
         KeyStroke.getKeyStroke(
-            KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
+            KeyEvent.VK_V, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()),
         DefaultEditorKit.pasteAction);
     im.put(
         KeyStroke.getKeyStroke(
-            KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMask()),
+            KeyEvent.VK_X, Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()),
         DefaultEditorKit.cutAction);
   }
 
