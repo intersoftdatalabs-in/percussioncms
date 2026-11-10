@@ -276,4 +276,41 @@ test.describe("Explorer single-item Schedule publish dates", () => {
       expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
     },
   );
+
+  test(
+    "HTTP 400 names the item and leaves the prior dates intact (#5944)",
+    {
+      tag: ["@explorer", "@explorer-schedule", "@explorer-single-schedule"],
+    },
+    async ({ page }) => {
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("dialog", (dialog) => {
+        void dialog.accept();
+      });
+      const posted = await installScheduleRoutes(page, { homeStatus: 400 });
+      await openListing(page);
+      await openScheduleDialog(page);
+      await page.locator('[data-testid="explorer-schedule-start"]').fill("2026-09-20T09:00");
+      await page.locator('[data-testid="explorer-schedule-save"]').click();
+      const error = page.locator('[data-testid="explorer-server-actions-error"]');
+      await expect(error).toBeVisible({ timeout: 10_000 });
+      await expect(error).toContainText(/Home \(HTTP 400\)/i);
+      await expect(error).toContainText(/Schedule failed/i);
+      await expect.poll(() => posted.length).toBe(1);
+      await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
+        "data-list-epoch",
+        "0",
+      );
+      await expect(
+        page.locator('[data-testid="content-explorer-shell"][data-selected-item-id="42"]'),
+      ).toBeVisible({ timeout: 10_000 });
+      await openScheduleDialog(page);
+      await expect(page.locator('[data-testid="explorer-schedule-start"]')).toHaveValue(
+        "2026-09-18T09:00",
+      );
+      await page.locator('[data-testid="explorer-schedule-cancel"]').click();
+      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
+    },
+  );
 });
