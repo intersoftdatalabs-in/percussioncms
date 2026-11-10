@@ -63,8 +63,15 @@ const NPM_LIBRARY_MAPPINGS = {
     "handlebars/dist/handlebars.js",
   "jslib/profiles/3x/libraries/popper/popper.js":
     "@popperjs/core/dist/umd/popper.js",
+  // Classic-UI Moment.js (issue #5665): the vendored 2.29.4 copies were
+  // deleted. Bundles resolve the stable jslib path from npm moment 2.31.0
+  // (Dependabot-tracked). The with-locales dist preserves the locale data
+  // the vendored file carried (delivery views call moment.locale()).
+  // simpledateformat.js stays vendored: Tim Down's file is not on npm.
   "jslib/profiles/3x/libraries/momentjs/moment-with-locales.js":
-    "moment/moment.js",
+    "moment/min/moment-with-locales.js",
+  "jslib/profiles/3x/libraries/momentjs/plugins/moment-jdateformatparser/moment-jdateformatparser.js":
+    "moment-jdateformatparser/moment-jdateformatparser.js",
   "jslib/profiles/3x/libraries/underscore/underscore.js":
     "underscore/underscore.js",
   "jslib/profiles/3x/libraries/backbone/backbone.js": "backbone/backbone.js",
