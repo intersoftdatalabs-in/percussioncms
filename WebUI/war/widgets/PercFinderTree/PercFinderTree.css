@@ -42,97 +42,10 @@
   background-color: #caf589 !important;
 }
 
-.dynatree-folder,
-.dynatree-node {
-  padding: 2px;
-  padding-left: 8px;
-  display: block;
-}
-
-div.dynatree-container {
-  background-color: #e6e6e9;
-}
-
-.dynatree-exp-el span.dynatree-expander,
-.dynatree-exp-edl span.dynatree-expander {
-  background-image: url(/cm/app/app/images/images/buttonBlueSmallMinus.gif);
-  background-position: 3px 2px;
-}
-
-.dynatree-exp-cl span.dynatree-expander,
-span.dynatree-expander {
-  background-image: url(/cm/app/app/images/images/buttonBlueSmallPlus.gif);
-  background-position: 3px 2px;
-}
-
-div.dynatree-container a:focus,
-span.uidyantree-focused a:link {
-}
-
-span.dynatree-active,
-span.dynatree-active a {
-  background-color: #caf589 !important;
-  color: #000000 !important;
-}
-
-.dynatree-exp-e span.dynatree-expander,
-.dynatree-exp-ed span.dynatree-expander {
-  background-image: url(/cm/app/app/images/images/buttonBlueSmallMinus.gif);
-  background-position: 3px 2px;
-}
-
-.dynatree-exp-cdl span.dynatree-expander {
-  background-image: url(/cm/app/app/images/images/buttonBlueSmallPlus.gif);
-  background-position: 3px 2px;
-}
-
-.dynatree-exp-cd span.dynatree-expander {
-  background-image: url(/cm/app/app/images/images/buttonBlueSmallPlus.gif);
-  background-position: 3px 2px;
-}
-
-span.dynatree-expanded a,
-span.dynatree-active a,
-span.dynatree-folder a,
-span.dynatree-has-children a,
-span.dynatree-has-children a {
-  color: #000000;
-  text-decoration: none;
-}
-span.dynatree-vline {
-  background-image: none;
-}
-
-.perc-hide-node-expander .dynatree-expander {
-  display: none;
-}
-
 #perc-imageautolist-detail td {
   vertical-align: top;
 }
-.dynatree-folder img {
-  display: none;
-}
 
-span.dynatree-empty,
-span.dynatree-vline,
-span.dynatree-connector,
-span.dynatree-expander,
-span.dynatree-icon,
-span.dynatree-checkbox,
-span.dynatree-radio {
-  background-position: left center;
-  background-repeat: no-repeat;
-  display: inline-block;
-  height: 11px;
-  vertical-align: middle;
-  width: 13px;
-}
-
-span.dynatree-document a,
-span.dynatree-folder a {
-  padding-left: 0px;
-}
 #perc-asset-browser-placeholder {
   background-color: #f5f5f6;
   padding: 17px 15px 17px 15px;
@@ -226,13 +139,6 @@ span.dynatree-folder a {
   border-bottom: none;
   border-top: 7px solid #ffffff;
 }
-.dynatree-loading span.dynatree-expander  /* 'Loading' status overrides all others */ {
-  background-position: -6px -3px;
-  background-image: url("/cm/app/css/legacy/dynatree/skin/loading.gif");
-  height: 15px;
-  width: 16px;
-}
-
 body * {
   font-family: "Open Sans", sans-serif;
 }

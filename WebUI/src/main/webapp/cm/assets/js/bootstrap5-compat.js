@@ -38,6 +38,12 @@
     jQuery.fn.modal = function (action) {
       return this.each(function () {
         const el = this;
+        // Bootstrap 4 exposed a private _enforceFocus jQuery entry that
+        // Perc Minuet views still invoke (issue #5661). Bootstrap 5
+        // enforces modal focus internally on show(), so this is a no-op.
+        if (action === "_enforceFocus") {
+          return;
+        }
         let modalInstance = bootstrap.Modal.getInstance(el);
 
         switch (action) {

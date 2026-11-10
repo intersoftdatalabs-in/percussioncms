@@ -37,15 +37,38 @@ const NPM_LIBRARY_MAPPINGS = {
     "jquery-ui/dist/jquery-ui.min.js",
   "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js":
     "bootstrap/dist/js/bootstrap.bundle.js",
+  // Bootstrap 4.6.2 (EOL) retired (issue #5661): keys mirror the canonical
+  // frontend builder.
+  "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.min.js":
+    "bootstrap/dist/js/bootstrap.bundle.min.js",
+  "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.js":
+    "bootstrap/dist/js/bootstrap.js",
+  "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.min.js":
+    "bootstrap/dist/js/bootstrap.min.js",
   "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.css":
     "bootstrap/dist/css/bootstrap.css",
+  "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css":
+    "bootstrap/dist/css/bootstrap.min.css",
   "jslib/profiles/3x/libraries/bowser/es5.js": "bowser/es5.js",
   "jslib/profiles/3x/libraries/handlebars/handlebars-v4.7.8.js":
     "handlebars/dist/handlebars.js",
   "jslib/profiles/3x/libraries/popper/popper.js":
     "@popperjs/core/dist/umd/popper.js",
+  // Classic-UI Moment.js (issue #5665): the vendored 2.29.4 copies were
+  // deleted. Bundles resolve the stable jslib path from npm moment 2.31.0
+  // (Dependabot-tracked). The with-locales dist preserves the locale data
+  // the vendored file carried (delivery views call moment.locale()).
+  // simpledateformat.js stays vendored: Tim Down's file is not on npm.
   "jslib/profiles/3x/libraries/momentjs/moment-with-locales.js":
-    "moment/moment.js",
+    "moment/min/moment-with-locales.js",
+  "jslib/profiles/3x/libraries/momentjs/plugins/moment-jdateformatparser/moment-jdateformatparser.js":
+    "moment-jdateformatparser/moment-jdateformatparser.js",
+  // Classic-UI MVC stack (issue #5664): the vendored Backbone 1.4.0 and
+  // Underscore 1.13.1 copies were deleted. Bundles keep resolving the stable
+  // jslib paths from the npm graph (Dependabot-tracked: backbone ^1.6.0,
+  // underscore ^1.13.7). Backgrid (~0.3.x, EOL ~2017) had zero in-repo
+  // consumers, so it is retired with no mapping; DataTables
+  // (datatables.net, already npm-tracked) is the grid going forward.
   "jslib/profiles/3x/libraries/underscore/underscore.js":
     "underscore/underscore.js",
   "jslib/profiles/3x/libraries/backbone/backbone.js": "backbone/backbone.js",
@@ -56,6 +79,44 @@ const NPM_LIBRARY_MAPPINGS = {
   // the old key pointed at a non-existent jslib path / node CLI entry).
   "jslib/profiles/3x/libraries/animate.css/animate.css":
     "animate.css/animate.css",
+  // jQuery plugin cluster from npm (issue #5663); keys mirror the canonical
+  // frontend builder.
+  "jslib/profiles/3x/jquery/plugins/jquery-form/jquery.form.js":
+    "jquery-form/dist/jquery.form.min.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-validation/jquery.validate.js":
+    "jquery-validation/dist/jquery.validate.min.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-validation/additional-methods.js":
+    "jquery-validation/dist/additional-methods.min.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-jeditable/jquery.jeditable.js":
+    "jquery-jeditable/dist/jquery.jeditable.min.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-superfish/js/superfish.js":
+    "superfish/dist/js/superfish.min.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-superfish/js/hoverIntent.js":
+    "superfish/dist/js/hoverIntent.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish.css":
+    "superfish/dist/css/superfish.css",
+  "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish-vertical.css":
+    "superfish/dist/css/superfish-vertical.css",
+  "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish-navbar.css":
+    "superfish/dist/css/superfish-navbar.css",
+  "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/megafish.css":
+    "superfish/dist/css/megafish.css",
+  "jslib/profiles/3x/jquery/plugins/jquery-hoverintent/jquery.hoverIntent.js":
+    "hoverintent/dist/hoverintent.min.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-timeago/jquery.timeago.js":
+    "timeago/jquery.timeago.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.js":
+    "jquery-ui-multiselect-widget/src/jquery.multiselect.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.filter.js":
+    "jquery-ui-multiselect-widget/src/jquery.multiselect.filter.js",
+  // Tree widgets from npm (issue #5662); keys mirror the canonical
+  // frontend builder.
+  "jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js":
+    "jquery.fancytree/dist/jquery.fancytree-all.min.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.css":
+    "jquery.fancytree/dist/skin-win8/ui.fancytree.css",
+  "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.min.css":
+    "jquery.fancytree/dist/skin-win8/ui.fancytree.min.css",
 };
 
 // List of bundle config files to process
@@ -195,6 +256,141 @@ const STANDALONE_NPM_COPIES = [
   {
     src: "bowser/es5.js",
     dest: "jslib/profiles/3x/libraries/bowser/es5.js",
+    required: true,
+  },
+  {
+    // Classic-UI Handlebars (issue #5666): the vulnerable vendored
+    // handlebars-v4.0.12.js and the duplicate v4.7.8 copies were deleted.
+    // Classic pages keep loading the stable versioned URL, now served from
+    // the npm 4.7.10 dist (Dependabot-tracked) via the generated overlay.
+    src: "handlebars/dist/handlebars.js",
+    dest: "jslib/profiles/3x/libraries/handlebars/handlebars-v4.7.8.js",
+    required: true,
+  },
+  // jQuery plugin cluster from npm (issue #5663); mirrors the canonical
+  // frontend builder.
+  {
+    src: "jquery-form/dist/jquery.form.min.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-form/jquery.form.js",
+    required: true,
+  },
+  {
+    src: "jquery-validation/dist/jquery.validate.min.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-validation/jquery.validate.js",
+    required: true,
+  },
+  {
+    src: "jquery-validation/dist/additional-methods.min.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-validation/additional-methods.js",
+    required: true,
+  },
+  {
+    src: "jquery-jeditable/dist/jquery.jeditable.min.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-jeditable/jquery.jeditable.js",
+    required: true,
+  },
+  {
+    src: "superfish/dist/js/superfish.min.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/js/superfish.js",
+    required: true,
+  },
+  {
+    src: "superfish/dist/js/hoverIntent.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/js/hoverIntent.js",
+    required: true,
+  },
+  {
+    src: "superfish/dist/css/superfish.css",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish.css",
+    required: true,
+  },
+  {
+    src: "superfish/dist/css/superfish-vertical.css",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish-vertical.css",
+    required: true,
+  },
+  {
+    src: "superfish/dist/css/superfish-navbar.css",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish-navbar.css",
+    required: true,
+  },
+  {
+    src: "superfish/dist/css/megafish.css",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/megafish.css",
+    required: true,
+  },
+  {
+    src: "hoverintent/dist/hoverintent.min.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-hoverintent/jquery.hoverIntent.js",
+    required: true,
+  },
+  {
+    src: "timeago/jquery.timeago.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-timeago/jquery.timeago.js",
+    required: true,
+  },
+  {
+    src: "jquery-ui-multiselect-widget/src/jquery.multiselect.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.js",
+    required: true,
+  },
+  {
+    src: "jquery-ui-multiselect-widget/src/jquery.multiselect.filter.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.filter.js",
+    required: true,
+  },
+  // Tree widgets from npm (issue #5662); keys mirror the canonical frontend
+  // builder. The vendored copies were deleted, so every entry is required.
+  {
+    src: "jquery.fancytree/dist/jquery.fancytree-all.min.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/ui.fancytree.min.css",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.min.css",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/icons.gif",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/icons.gif",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/icons-rtl.gif",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/icons-rtl.gif",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/loading.gif",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/loading.gif",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/vline.gif",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/vline.gif",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/vline-rtl.gif",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/vline-rtl.gif",
+    required: true,
+  },
+  // Bootstrap 5 from npm (issue #5661); keys mirror the canonical frontend
+  // builder. The vendored copies were deleted, so every entry is required.
+  {
+    src: "bootstrap/dist/js/bootstrap.bundle.js",
+    dest: "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js",
+    required: true,
+  },
+  {
+    src: "bootstrap/dist/js/bootstrap.bundle.min.js",
+    dest: "jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.min.js",
+    required: true,
+  },
+  {
+    src: "bootstrap/dist/css/bootstrap.min.css",
+    dest: "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css",
     required: true,
   },
 ];

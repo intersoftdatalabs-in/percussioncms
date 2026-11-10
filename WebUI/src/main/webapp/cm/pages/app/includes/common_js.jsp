@@ -3,6 +3,9 @@
 <script src="/cm/jslib/profiles/3x/jquery/jquery.min.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/jquery-migrate.min.js"></script>
 <script src="/cm/jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js"></script>
+<!-- Bootstrap 5 jQuery-bridge (issue #5661): classic code calls $.fn.modal /
+     $.fn.tooltip (Bootstrap 4 API); the bundle above is Bootstrap 5 from npm. -->
+<script src="/cm/assets/js/bootstrap5-compat.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-form/jquery.form.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.blockUI.js"></script>
@@ -27,7 +30,7 @@
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-superfish/js/hoverIntent.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-superfish/js/superfish.js"></script>
-<script src="/cm/jslib/profiles/3x/libraries/handlebars/handlebars-v4.0.12.js"></script>
+<script src="/cm/jslib/profiles/3x/libraries/handlebars/handlebars-v4.7.8.js"></script>
 <script src="/cm/jslib/profiles/3x/libraries/popper/popper.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/timepicker.js"></script>
 <script src="/cm/app/js/legacy/plugins/perc_path_constants.js"></script>

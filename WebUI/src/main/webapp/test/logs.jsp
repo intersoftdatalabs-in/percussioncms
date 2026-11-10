@@ -178,6 +178,8 @@
 </body>
 <script src="/cm/jslib/profiles/3x/jquery/jquery.min.js"></script>
 <script src="/cm/jslib/profiles/3x/libraries/bootstrap/js/bootstrap.bundle.js"></script>
+<!-- Bootstrap 5 jQuery-bridge (issue #5661): the bundle above is Bootstrap 5 from npm. -->
+<script src="/cm/assets/js/bootstrap5-compat.js"></script>
 <script>
     $(function () {
         var row;
