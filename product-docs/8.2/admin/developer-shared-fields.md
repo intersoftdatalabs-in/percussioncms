@@ -26,6 +26,21 @@ This is **not** the Workbench stylesheet or system-definition editor. The
 content-editor **system definition** is a separate catalog
 (**Developer → System definition**).
 
+## Readback
+
+The catalog table is a thin read: it lists name, filename, and field count
+from `GET /services/sharedfields` and carries no field, control-property,
+or choice payload. Opening a row loads the detail from
+`GET /services/sharedfields/{name}` and shows the title, the committed name
+and filename inputs, and the nested-field table. Packaged groups (for
+example the `rssfeeds` Page Auto List widget set) read back with zero
+writes: the row renders from the thin list and the detail renders without
+creating, renaming, or deleting anything. A group created through the shell
+(`POST /services/sharedfields`, filename defaults to `{name}.xml`) reads
+back in the detail (title, name, filename) and as a new catalog row showing
+that filename; removing it is `DELETE /services/sharedfields/{name}`
+(`204` on success), after which the catalog no longer lists that name.
+
 ## Product path — create, save, delete a group
 
 1. Sign in as **Admin** (write calls require the Admin role).
