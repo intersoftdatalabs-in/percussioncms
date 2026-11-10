@@ -668,7 +668,6 @@ public abstract class PSDescriptor implements IPSDeployComponent {
   private static final String XML_EL_IMPL_CONFIG_FILE = "ImplConfigFile";
 
   /** XML element name for the LocalConfigFile element. */
-  /** XML element name for the LocalConfigFile element. */
   private static final String XML_EL_LOCAL_CONFIG_FILE = "LocalConfigFile";
 
   /** XML element name for the PKGDependencies root element. */

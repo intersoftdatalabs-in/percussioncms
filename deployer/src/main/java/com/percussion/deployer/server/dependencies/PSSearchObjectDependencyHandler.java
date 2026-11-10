@@ -76,7 +76,7 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
   }
 
   // see base class
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -207,7 +207,7 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -341,9 +341,9 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
     // method
     String url = search.getUrl();
     if (url != null && url.trim().length() > 0) {
-      List mappings = new ArrayList();
+      List<PSApplicationIDTypeMapping> mappings = new ArrayList<>();
       String reqName = dep.getDisplayName();
-      List propList = mapToProps(PSSearch.parseParameters(url, null));
+      List<PSProperty> propList = mapToProps(PSSearch.parseParameters(url, null));
 
       PSAppTransformer.checkProperties(mappings, propList.iterator(), null);
 
@@ -371,16 +371,17 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
     PSSearch search = (PSSearch) object;
 
     // walk id types and perform any transforms
-    Iterator resources = idTypes.getResourceList(false);
+    Iterator<String> resources = idTypes.getResourceList(false);
     while (resources.hasNext()) {
-      String resource = (String) resources.next();
-      Iterator elements = idTypes.getElementList(resource, false);
+      String resource = resources.next();
+      Iterator<String> elements = idTypes.getElementList(resource, false);
       while (elements.hasNext()) {
-        String element = (String) elements.next();
-        Iterator mappings = idTypes.getIdTypeMappings(resource, element, false);
+        String element = elements.next();
+        Iterator<PSApplicationIDTypeMapping> mappings =
+            idTypes.getIdTypeMappings(resource, element, false);
         while (mappings.hasNext()) {
 
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
 
           if (mapping.getType().equals(PSApplicationIDTypeMapping.TYPE_NONE)) {
             continue;
@@ -392,7 +393,7 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
 
             // convert to PSProperties so we can use an existing app
             // transformer method
-            List propList = mapToProps(PSSearch.parseParameters(search.getUrl(), null));
+            List<PSProperty> propList = mapToProps(PSSearch.parseParameters(search.getUrl(), null));
 
             if (propList.isEmpty()) continue;
 
@@ -404,9 +405,9 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
             if (paramsPos != -1) url = url.substring(0, paramsPos);
 
             char sep = '?';
-            Iterator props = propList.iterator();
+            Iterator<PSProperty> props = propList.iterator();
             while (props.hasNext()) {
-              PSProperty prop = (PSProperty) props.next();
+              PSProperty prop = props.next();
               url += (sep + prop.getName() + '=' + prop.getValue());
 
               if (sep == '?') sep = '&';
@@ -487,9 +488,9 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
     // get community dependencies unless "all" is specified
     if (!search.doesPropertyHaveValue(PSSearch.PROP_COMMUNITY, PSSearch.PROP_COMMUNITY_ALL)) {
       // find the community propery
-      Iterator props = search.getProperties();
+      Iterator<PSSearchMultiProperty> props = search.getProperties();
       while (props.hasNext() && result == null) {
-        PSSearchMultiProperty prop = (PSSearchMultiProperty) props.next();
+        PSSearchMultiProperty prop = props.next();
         if (PSSearch.PROP_COMMUNITY.equals(prop.getName())) result = prop;
       }
     }
@@ -509,15 +510,16 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
       throws PSDeployException, PSNotFoundException {
     List<PSDependency> deps = new ArrayList<>();
     List<String[]> childList = new ArrayList<>();
-    Iterator fields = getSystemDefFields(search, false).entrySet().iterator();
+    Iterator<Map.Entry<String, PSSearchField>> fields =
+        getSystemDefFields(search, false).entrySet().iterator();
     while (fields.hasNext()) {
-      Map.Entry entry = (Map.Entry) fields.next();
-      String type = (String) entry.getKey();
-      PSSearchField field = (PSSearchField) entry.getValue();
+      Map.Entry<String, PSSearchField> entry = fields.next();
+      String type = entry.getKey();
+      PSSearchField field = entry.getValue();
 
-      Iterator vals = field.getFieldValues().iterator();
+      Iterator<String> vals = field.getFieldValues().iterator();
       while (vals.hasNext()) {
-        String val = (String) vals.next();
+        String val = vals.next();
         PSDependencyHandler handler = getDependencyHandler(type);
         PSDependencyDef def = m_map.getDependencyDef(type);
         if (def.supportsParentId()) {
@@ -647,17 +649,17 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
    */
   private void transformSystemFieldIds(PSDependency dep, PSImportCtx ctx, PSSearch search)
       throws PSDeployException {
-    Map fieldMap = getSystemDefFields(search, true);
-    Iterator fields = fieldMap.entrySet().iterator();
+    Map<String, PSSearchField> fieldMap = getSystemDefFields(search, true);
+    Iterator<Map.Entry<String, PSSearchField>> fields = fieldMap.entrySet().iterator();
     while (fields.hasNext()) {
-      Map.Entry entry = (Map.Entry) fields.next();
-      String type = (String) entry.getKey();
-      PSSearchField field = (PSSearchField) entry.getValue();
-      Iterator vals = field.getFieldValues().iterator();
+      Map.Entry<String, PSSearchField> entry = fields.next();
+      String type = entry.getKey();
+      PSSearchField field = entry.getValue();
+      Iterator<String> vals = field.getFieldValues().iterator();
       // build list of new values to replace current list
       List<String> newVals = new ArrayList<>();
       while (vals.hasNext()) {
-        String val = (String) vals.next();
+        String val = vals.next();
         // if this was determined to be a dependency on package, we'll find
         // the child somewhere below
         PSDependencyDef def = m_map.getDependencyDef(type);
@@ -667,9 +669,9 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
           String parentType = handler.getParentType();
 
           // try each parent field value till we hit a dependency
-          Iterator parentVals = field.getFieldValues().iterator();
+          Iterator<String> parentVals = field.getFieldValues().iterator();
           while (parentVals.hasNext()) {
-            String parentVal = (String) parentVals.next();
+            String parentVal = parentVals.next();
             PSDependency parent = doGetChildDependency(dep, parentVal, parentType);
             if (parent != null) {
               PSDependency child = parent.getChildDependency(val, type);
@@ -702,23 +704,23 @@ public abstract class PSSearchObjectDependencyHandler extends PSCmsObjectDepende
    * @return A map where the key is the object type of the dependency the field represents as a
    *     <code>String</code>, and the value is the <code>PSSearchField</code> object.
    */
-  private Map getSystemDefFields(PSSearch search, boolean forTransform) {
+  private Map<String, PSSearchField> getSystemDefFields(PSSearch search, boolean forTransform) {
     Map<String, PSSearchField> values = new HashMap<>();
 
-    Iterator fields = search.getFields();
+    Iterator<PSSearchField> fields = search.getFields();
     while (fields.hasNext()) {
-      PSSearchField field = (PSSearchField) fields.next();
+      PSSearchField field = fields.next();
       String type;
       if (forTransform) {
-        type = (String) ms_sysTransformDepFieldTypes.get(field.getFieldName());
+        type = ms_sysTransformDepFieldTypes.get(field.getFieldName());
       } else {
-        type = (String) ms_sysChildDepFieldTypes.get(field.getFieldName());
+        type = ms_sysChildDepFieldTypes.get(field.getFieldName());
       }
 
       if (type == null) continue;
 
       if (field.getFieldType() != PSSearchField.TYPE_NUMBER) continue;
-      List vals = field.getFieldValues();
+      List<String> vals = field.getFieldValues();
       if (!vals.isEmpty()) values.put(type, field);
     }
 

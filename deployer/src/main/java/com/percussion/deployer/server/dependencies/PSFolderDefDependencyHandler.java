@@ -67,7 +67,7 @@ public class PSFolderDefDependencyHandler extends PSFolderObjectDependencyHandle
   }
 
   // see base class
-  public Iterator getDependencies(PSSecurityToken tok) throws PSDeployException {
+  public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     // ancestors not supported
@@ -105,7 +105,7 @@ public class PSFolderDefDependencyHandler extends PSFolderObjectDependencyHandle
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -130,10 +130,10 @@ public class PSFolderDefDependencyHandler extends PSFolderObjectDependencyHandle
   static final String DEPENDENCY_TYPE = IPSDeployConstants.DEP_OBJECT_TYPE_FOLDER_DEF;
 
   /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
-  private static List ms_childTypes = new ArrayList();
+  private static List<String> ms_childTypes = new ArrayList<>();
 
   /** List of optional child types, it will never be <code>null</code> or empty. */
-  private static List ms_optChildTypes = new ArrayList();
+  private static List<String> ms_optChildTypes = new ArrayList<>();
 
   static {
     ms_optChildTypes.add(DEPENDENCY_TYPE);

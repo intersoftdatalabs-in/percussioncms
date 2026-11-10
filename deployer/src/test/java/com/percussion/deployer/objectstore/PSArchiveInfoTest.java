@@ -93,13 +93,6 @@ public class PSArchiveInfoTest {
   }
 
   /**
-   * Construct an archive info object.
-   *
-   * @param includeDetail <code>true</code> to include an archive detail object, <code>false</code>
-   *     otherwise.
-   * @return The archive info object, never <code>null</code>.
-   */
-  /**
    * Return an instance of {@link PSFormatVersion} that will not trigger any static initialization
    * of <code>PSConsole</code>. The no-arg constructor is private, so we use reflection; if that
    * fails we fall back to the normal constructor since the tests are not run in an environment that

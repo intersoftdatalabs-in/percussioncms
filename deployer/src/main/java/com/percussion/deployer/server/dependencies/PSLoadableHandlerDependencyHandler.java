@@ -58,14 +58,13 @@ public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler {
   }
 
   // see base class
-  @SuppressWarnings("unchecked")
   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     Iterator<PSRequestHandlerDef> defs = getReqHandlerCfg().getHandlerDefs();
     List<PSDependency> result = new ArrayList<>();
     while (defs != null && defs.hasNext()) {
-      PSRequestHandlerDef def = (PSRequestHandlerDef) defs.next();
+      PSRequestHandlerDef def = defs.next();
       result.add(createDependency(m_def, def.getHandlerName(), def.getHandlerName()));
     }
     return result.iterator();
@@ -81,7 +80,7 @@ public class PSLoadableHandlerDependencyHandler extends PSDependencyHandler {
     PSDependency dep = null;
     Iterator<PSDependency> deps = getDependencies(tok);
     while (deps.hasNext() && dep == null) {
-      PSDependency test = (PSDependency) deps.next();
+      PSDependency test = deps.next();
       if (id.equals(test.getDependencyId())) dep = test;
     }
 

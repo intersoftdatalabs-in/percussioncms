@@ -69,6 +69,9 @@ public class PSConfigNormalizerTest {
     return props;
   }
 
+  // Casts from the untyped normalized map are inherently unchecked; the assertions below
+  // verify the actual element types.
+  @SuppressWarnings("unchecked")
   public void validateLocalConfig(Map<String, Object> props, boolean resolveFQName) {
     int count = resolveFQName ? 9 + 14 : 9; // == 9 top level + 14 sub-level
     assertTrue(props.size() == count);
@@ -114,7 +117,7 @@ public class PSConfigNormalizerTest {
     String VALUE5_PAIR2_VALUE0 = "c";
     String VALUE5_PAIR2_VALUE1 = "3";
 
-    List<PSPair> valueList2 = (List<PSPair>) props.get(KEY5);
+    List<PSPair<String, String>> valueList2 = (List<PSPair<String, String>>) props.get(KEY5);
     assertEquals(VALUE5_PAIR0_VALUE0, valueList2.get(0).getFirst());
     assertEquals(VALUE5_PAIR0_VALUE1, valueList2.get(0).getSecond());
     assertEquals(VALUE5_PAIR1_VALUE0, valueList2.get(1).getFirst());

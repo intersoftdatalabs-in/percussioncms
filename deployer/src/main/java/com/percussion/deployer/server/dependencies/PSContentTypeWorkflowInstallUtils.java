@@ -61,7 +61,9 @@ final class PSContentTypeWorkflowInstallUtils {
       return;
     }
     Integer defaultId = Integer.valueOf(ce.getWorkflowId());
-    List wfIds = wfInfo.getWorkflowIds();
+    // PSWorkflowInfo.getWorkflowIds() is a legacy raw List documented to hold Integers.
+    @SuppressWarnings("unchecked")
+    List<Integer> wfIds = wfInfo.getWorkflowIds();
     if (!wfIds.isEmpty() && !wfIds.contains(defaultId)) {
       wfIds.add(defaultId);
     }

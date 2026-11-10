@@ -18,6 +18,7 @@
 package com.percussion.deployer.server.dependencies;
 
 import com.percussion.deployer.objectstore.PSDependency;
+import com.percussion.deployer.objectstore.PSDependencyFile;
 import com.percussion.deployer.objectstore.PSIdMap;
 import com.percussion.deployer.server.PSArchiveHandler;
 import com.percussion.deployer.server.PSDbmsHelper;
@@ -64,7 +65,7 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
     if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
       throw new IllegalArgumentException("dep wrong type");
 
-    Iterator childIDs = getExitDependencies(dep);
+    Iterator<String> childIDs = getExitDependencies(dep);
 
     return getDepsFromIds(childIDs, PSExitDefDependencyHandler.DEPENDENCY_TYPE, tok).iterator();
   }
@@ -79,7 +80,7 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
     var ids = getChildPairIdsFromTable(TRANSITIONS_TABLE, TRANSITION_ID, WORKFLOW_ID, null);
     List<PSDependency> deps = new ArrayList<>();
     while (ids.hasNext()) {
-      String id = (String) ids.next();
+      String id = ids.next();
       var pairId = new PSPairDependencyId(id);
       PSDependency dep =
           getDependency(
@@ -95,8 +96,8 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
   }
 
   // see base class
-  public Iterator getDependencies(PSSecurityToken tok, String parentType, String parentId)
-      throws PSDeployException {
+  public Iterator<PSDependency> getDependencies(
+      PSSecurityToken tok, String parentType, String parentId) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     if (parentType == null || parentType.trim().length() == 0)
@@ -105,11 +106,11 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
     if (parentId == null || parentId.trim().length() == 0)
       throw new IllegalArgumentException("parentId may not be null or empty");
 
-    List deps = new ArrayList();
-    Iterator ids =
+    List<PSDependency> deps = new ArrayList<>();
+    Iterator<String> ids =
         getChildPairIdsFromTable(TRANSITIONS_TABLE, TRANSITION_ID, WORKFLOW_ID, parentId);
     while (ids.hasNext()) {
-      String id = (String) ids.next();
+      String id = ids.next();
       PSPairDependencyId pairId = new PSPairDependencyId(id);
       PSDependency dep =
           getDependency(
@@ -160,8 +161,8 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
 
     // should only get back one, take the first if found
     if (data != null && data.getRows().hasNext()) {
-      Iterator rows = data.getRows();
-      PSJdbcRowData row = (PSJdbcRowData) rows.next();
+      Iterator<PSJdbcRowData> rows = data.getRows();
+      PSJdbcRowData row = rows.next();
       String transName = dbmsHelper.getColumnString(TRANSITIONS_TABLE, TRANSITION_NAME, row);
       transDep = createDependency(m_def, id, transName);
       transDep.setParent(parentId, parentType);
@@ -195,7 +196,7 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
    * @return An iterator over zero or more types as <code>String</code> objects, never <code>null
    *     </code>, does not contain <code>null</code> or empty entries.
    */
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -222,7 +223,7 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
   }
 
   // see base class
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -274,7 +275,7 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
    *     </code> objects. Never <code>null</code>, but may be empty.
    * @throws PSDeployException if there are any errors.
    */
-  private Iterator getExitDependencies(PSDependency dep) throws PSDeployException {
+  private Iterator<String> getExitDependencies(PSDependency dep) throws PSDeployException {
     PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
     String[] columns = {TRANSITION_ACTION};
     PSJdbcSelectFilter fltTrans;
@@ -299,14 +300,14 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
     PSJdbcTableData data = dbmsHelper.catalogTableData(TRANSITIONS_TABLE, columns, fltWhere);
 
     // use "Set" to make sure it is a distinct list
-    Set ids = new HashSet();
+    Set<String> ids = new HashSet<>();
 
     if (data != null && data.getRows().hasNext()) {
-      Iterator rows = data.getRows();
+      Iterator<PSJdbcRowData> rows = data.getRows();
       String id;
       PSJdbcRowData row;
       while (rows.hasNext()) {
-        row = (PSJdbcRowData) rows.next();
+        row = rows.next();
 
         // this is a nullable column
         id = getColumnValueNullable(TRANSITIONS_TABLE, TRANSITION_ACTION, row);
@@ -327,7 +328,7 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
   private static final String WORKFLOW_ID = "WORKFLOWAPPID";
 
   /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
-  private static List ms_childTypes = new ArrayList();
+  private static List<String> ms_childTypes = new ArrayList<>();
 
   static {
     ms_childTypes.add(PSExitDefDependencyHandler.DEPENDENCY_TYPE);

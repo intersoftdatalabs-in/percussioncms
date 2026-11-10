@@ -74,8 +74,8 @@ public class PSServletRequesterTest extends PSWebdavServlet {
     PSEntry defaultCommunity = new PSEntry("10", new PSDisplayText("Default"));
     assertTrue(community.equals(defaultCommunity));
 
-    List communities = getRemoteAgent().getCommunities();
-    Iterator it = communities.iterator();
+    List<PSEntry> communities = getRemoteAgent().getCommunities();
+    Iterator<PSEntry> it = communities.iterator();
     while (it.hasNext()) writeln(it.next().toString());
     assertTrue(communities.contains(defaultCommunity));
   }
@@ -91,8 +91,8 @@ public class PSServletRequesterTest extends PSWebdavServlet {
     PSEntry wfIndex = new PSEntry("2", new PSDisplayText("Index"));
     PSEntry wfImages = new PSEntry("3", new PSDisplayText("Images"));
 
-    List workflows = getRemoteAgent().getWorkflows(defaultCommunity);
-    Iterator it = workflows.iterator();
+    List<PSEntry> workflows = getRemoteAgent().getWorkflows(defaultCommunity);
+    Iterator<PSEntry> it = workflows.iterator();
     while (it.hasNext()) writeln(it.next().toString());
     assertTrue(workflows.contains(wfArticle));
     assertTrue(workflows.contains(wfIndex));
@@ -108,8 +108,8 @@ public class PSServletRequesterTest extends PSWebdavServlet {
     PSEntry defaultCommunity = new PSEntry("10", new PSDisplayText("Default"));
     PSEntry article = new PSEntry("1", new PSDisplayText("Article"));
 
-    List contentTypes = getRemoteAgent().getContentTypes(defaultCommunity);
-    Iterator it = contentTypes.iterator();
+    List<PSEntry> contentTypes = getRemoteAgent().getContentTypes(defaultCommunity);
+    Iterator<PSEntry> it = contentTypes.iterator();
     while (it.hasNext()) writeln(it.next().toString());
     assertTrue(contentTypes.contains(article));
   }
@@ -122,8 +122,8 @@ public class PSServletRequesterTest extends PSWebdavServlet {
   public void testGetContextVariables() throws Exception {
     PSEntry rxcss = new PSEntry("web_resources/xroads/resources/css", new PSDisplayText("rxcss"));
 
-    List ctxVars = getRemoteAgent().getContextVariables();
-    Iterator it = ctxVars.iterator();
+    List<PSEntry> ctxVars = getRemoteAgent().getContextVariables();
+    Iterator<PSEntry> it = ctxVars.iterator();
     while (it.hasNext()) writeln(it.next().toString());
     assertTrue(ctxVars.contains(rxcss));
   }
@@ -138,8 +138,8 @@ public class PSServletRequesterTest extends PSWebdavServlet {
     PSEntry submit = new PSEntry("SubmitToQA", new PSDisplayText("Submit"));
     PSEntry approve = new PSEntry("Approve", new PSDisplayText("Approve"));
 
-    List transitions = getRemoteAgent().getTransitions(wfIndex);
-    Iterator it = transitions.iterator();
+    List<PSEntry> transitions = getRemoteAgent().getTransitions(wfIndex);
+    Iterator<PSEntry> it = transitions.iterator();
     while (it.hasNext()) writeln(it.next().toString());
     assertTrue(transitions.contains(submit));
     assertTrue(transitions.contains(approve));
@@ -151,19 +151,24 @@ public class PSServletRequesterTest extends PSWebdavServlet {
    * @throws Exception
    */
   public void testFolders() throws Exception {
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #5978) —
+    // slashes are the CMS logical folder path for PSWebdavUtils.getComponentByPath, not an OS path.
     String FOLDER_PATH = "//Folders/TestFolder";
     String FOLDER_NAME = "TestFolder";
 
     PSComponentSummary folderSummary = PSWebdavUtils.getComponentByPath(FOLDER_PATH, m_requester);
     if (folderSummary == null) {
+      // mkd-code-review[paths.hardcoded_sep]: FOLDER_PATH logged here only; CMS logical path, see adjudication above (issue #5978).
       writeln("\"" + FOLDER_PATH + "\" does not exist.");
       PSLocator parent = new PSLocator(3, 1);
-      List props = new ArrayList();
+      List<String> props = new ArrayList<>();
       PSWebdavUtils.createFolder(FOLDER_NAME, props.iterator(), parent, m_requester);
 
       folderSummary = PSWebdavUtils.getComponentByPathRqd(FOLDER_PATH, m_requester);
+      // mkd-code-review[paths.hardcoded_sep]: FOLDER_PATH logged here only; CMS logical path, see adjudication above (issue #5978).
       writeln("Created folder: " + FOLDER_PATH);
     } else {
+      // mkd-code-review[paths.hardcoded_sep]: FOLDER_PATH logged here only; CMS logical path, see adjudication above (issue #5978).
       writeln("\"" + FOLDER_PATH + "\" exists.");
     }
 
@@ -290,10 +295,10 @@ public class PSServletRequesterTest extends PSWebdavServlet {
   private void runTest(String test) {
 
     try {
-      Class me = this.getClass();
-      Method method = me.getMethod(test, null);
+      Class<?> me = this.getClass();
+      Method method = me.getMethod(test, new Class<?>[0]);
       writeln("Starting: " + test, TITLE);
-      method.invoke(this, null);
+      method.invoke(this, new Object[0]);
       writeln(test + " ran successfully", SUCCESS);
       writeln("");
     } catch (SecurityException e) {
@@ -321,8 +326,10 @@ public class PSServletRequesterTest extends PSWebdavServlet {
   // Using instance fields in a servlet is bad
   // but I don't expect more then one person to
   // be hitting this at one time.
-  private PrintWriter m_writer;
-  private IPSRemoteRequester m_requester;
+  private static final long serialVersionUID = 1L;
+
+  private transient PrintWriter m_writer;
+  private transient IPSRemoteRequester m_requester;
 
   // Html line display styles
   private static final int NORMAL = 1;

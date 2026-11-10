@@ -319,7 +319,7 @@ public class PSEditionTaskDefDependencyHandler extends PSDataObjectDependencyHan
 
     // retrieve the data from the archive
     Iterator<PSDependencyFile> files = getDependecyDataFiles(archive, dep);
-    PSDependencyFile file = (PSDependencyFile) files.next();
+    PSDependencyFile file = files.next();
 
     IPSEditionTaskDef task = null;
     PSIdMapping taskMapping = getIdMapping(ctx, dep);

@@ -17,15 +17,14 @@
 
 package com.percussion.deployer.client;
 
-/** Deployment related constants. */
-
-/******************************************************************************
+/* *****************************************************************************
  *                               R E A D    T H I S
  * NOTE: Any ID Type Elements that are defined here must have a counterpart in
  * $RXDIR/deploy/src/com/percussion/deploy/ui/PSIDTypesPanelResources.properties
  * ****************************************************************************
  */
 
+/** Deployment related constants. */
 public interface IPSDeployConstants {
   /** The root directory for all deployment files stored under the Rhythmyx root */
   public static final String DEPLOYMENT_ROOT = "sys_Packager";

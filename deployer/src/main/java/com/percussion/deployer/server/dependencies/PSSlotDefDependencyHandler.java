@@ -142,7 +142,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
 
   // see base class
   @Override
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -253,16 +253,11 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
 
     // add any finder params that are id-mapped
     Map<String, String> paramMap = slot.getFinderArguments();
-    List mappings = new ArrayList();
+    List<PSApplicationIDTypeMapping> mappings = new ArrayList<>();
     // check each param for idtypes
-    Iterator entries = paramMap.entrySet().iterator();
-    while (entries.hasNext()) {
-      Map.Entry entry = (Map.Entry) entries.next();
-
+    for (Map.Entry<String, String> entry : paramMap.entrySet()) {
       // convert to PSParam to leverage existing transformer code
-      Iterator params = PSDeployComponentUtils.convertToParams(entry).iterator();
-      while (params.hasNext()) {
-        PSParam param = (PSParam) params.next();
+      for (PSParam param : PSDeployComponentUtils.convertToParams(entry)) {
         PSAppTransformer.checkParam(mappings, param, null);
       }
     }
@@ -363,8 +358,8 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
   public void installDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException, PSAssemblyException, PSNotFoundException {
-    Iterator files = getSlotDependecyFilesFromArchive(archive, dep);
-    PSDependencyFile depFile = (PSDependencyFile) files.next();
+    Iterator<PSDependencyFile> files = getSlotDependecyFilesFromArchive(archive, dep);
+    PSDependencyFile depFile = files.next();
     String tgtId = findTargetId(dep, ctx);
     PSTemplateSlot slot = (PSTemplateSlot) findSlotByDependencyID(tgtId);
 
@@ -708,12 +703,13 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
    * @throws PSDeployException if there is no dependency file in the archive for the specified
    *     dependency object, or any other error occurs.
    */
-  protected Iterator getSlotDependecyFilesFromArchive(PSArchiveHandler archive, PSDependency dep)
+  protected Iterator<PSDependencyFile> getSlotDependecyFilesFromArchive(
+      PSArchiveHandler archive, PSDependency dep)
       throws PSDeployException {
     if (archive == null) throw new IllegalArgumentException("archive may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
 
     if (!files.hasNext()) {
       Object[] args = {
@@ -735,6 +731,9 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
 
   // see base class
 
+  // Legacy finder-args map mixes String and List<String> values despite the
+  // Map<String, String> signature, and this entry point receives it as Object.
+  @SuppressWarnings({"unchecked", "rawtypes"})
   public void transformIds(Object object, PSApplicationIDTypes idTypes, PSIdMap idMap)
       throws PSDeployException {
     if (object == null) throw new IllegalArgumentException("object may not be null");
@@ -745,18 +744,19 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
 
     if (!(object instanceof Map)) throw new IllegalArgumentException("invalid object type");
 
-    Map paramMap = (Map) object;
+    Map<String, String> paramMap = (Map<String, String>) object;
     // walk id types and perform any transforms
-    Iterator resources = idTypes.getResourceList(false);
+    Iterator<String> resources = idTypes.getResourceList(false);
     while (resources.hasNext()) {
-      String resource = (String) resources.next();
-      Iterator elements = idTypes.getElementList(resource, false);
+      String resource = resources.next();
+      Iterator<String> elements = idTypes.getElementList(resource, false);
       while (elements.hasNext()) {
-        String element = (String) elements.next();
-        Iterator mappings = idTypes.getIdTypeMappings(resource, element, false);
+        String element = elements.next();
+        Iterator<PSApplicationIDTypeMapping> mappings =
+            idTypes.getIdTypeMappings(resource, element, false);
         while (mappings.hasNext()) {
 
-          PSApplicationIDTypeMapping mapping = (PSApplicationIDTypeMapping) mappings.next();
+          PSApplicationIDTypeMapping mapping = mappings.next();
 
           if (mapping.getType().equals(PSApplicationIDTypeMapping.TYPE_NONE)) {
             continue;
@@ -769,10 +769,10 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
               // convert to PSParam(s) to leverage existing code
               List<String> valList = new ArrayList<String>();
               Map.Entry entry = (Map.Entry) entries.next();
-              List paramList = PSDeployComponentUtils.convertToParams(entry);
-              Iterator params = paramList.iterator();
+              List<PSParam> paramList = PSDeployComponentUtils.convertToParams(entry);
+              Iterator<PSParam> params = paramList.iterator();
               while (params.hasNext()) {
-                PSParam param = (PSParam) params.next();
+                PSParam param = params.next();
 
                 // transform
                 PSAppTransformer.transformParam(param, mapping, idMap);
@@ -792,7 +792,7 @@ public class PSSlotDefDependencyHandler extends PSDependencyHandler implements I
 
   // see base class
   @Override
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 

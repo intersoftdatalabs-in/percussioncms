@@ -165,7 +165,7 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
       Iterator<PSComponentSummary> sums =
           getChildItemSummaries(getRelationshipProcessor(tok), sum.getCurrentLocator());
       while (sums.hasNext()) {
-        PSComponentSummary itemSum = (PSComponentSummary) sums.next();
+        PSComponentSummary itemSum = sums.next();
         files.add(createDependencyFile(itemSum));
       }
     }
@@ -209,7 +209,7 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
       List<PSKey> deletes = new ArrayList<>();
       Iterator<PSComponentSummary> sums = getChildItemSummaries(proc, tgtFolderLoc);
       while (sums.hasNext()) {
-        PSComponentSummary itemSum = (PSComponentSummary) sums.next();
+        PSComponentSummary itemSum = sums.next();
         deletes.add(itemSum.getLocator());
       }
 
@@ -225,10 +225,9 @@ public class PSFolderContentsDependencyHandler extends PSFolderObjectDependencyH
 
       // now add new relationships
       List<PSLocator> adds = new ArrayList<>();
-      @SuppressWarnings("unchecked")
       Iterator<PSDependencyFile> files = getDependencyFilesFromArchive(archive, dep);
       while (files.hasNext()) {
-        Element root = getElementFromFile(archive, dep, (PSDependencyFile) files.next());
+        Element root = getElementFromFile(archive, dep, files.next());
         PSComponentSummary srcSum = new PSComponentSummary(root);
         PSLocator srcLoc = srcSum.getCurrentLocator();
         int childId = srcLoc.getId();

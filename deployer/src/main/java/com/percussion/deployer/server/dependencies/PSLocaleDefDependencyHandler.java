@@ -105,19 +105,19 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
 
   // see base class
   @Override
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
     if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
       throw new IllegalArgumentException("dep wrong type");
 
-    Set childDeps = new HashSet();
+    Set<PSDependency> childDeps = new HashSet<>();
 
     PSDependencyHandler fileHandler =
         getDependencyHandler(PSSupportFileDependencyHandler.DEPENDENCY_TYPE);
 
-    Iterator files = m_localeMgr.getResourceFiles(dep.getDependencyId());
+    Iterator<?> files = m_localeMgr.getResourceFiles(dep.getDependencyId());
     while (files.hasNext()) {
       File file = (File) files.next();
       PSDependency child =
@@ -216,7 +216,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
    *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -286,7 +286,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
       throw new IllegalArgumentException("dep wrong type");
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
 
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
     PSDependencyFile localeFile = null;
     PSDependencyFile tmxFile = null;
     PSDependencyFile keyDataFile = null;
@@ -294,7 +294,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
     while (files.hasNext()) {
       PSDependencyFile file;
       // get the locale def if we don't have it
-      file = (PSDependencyFile) files.next();
+      file = files.next();
       if (localeFile == null && file.getType() == type) localeFile = file;
       else if (tmxFile == null && file.getType() == type) {
         tmxFile = file;
@@ -424,9 +424,9 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
    * @return A set of dependency objects, never <code>null</code>, may be empty.
    * @throws PSDeployException If the are any errors.
    */
-  private Set getTmxDependencies(PSSecurityToken tok, Document doc)
+  private Set<PSDependency> getTmxDependencies(PSSecurityToken tok, Document doc)
       throws PSDeployException, PSNotFoundException {
-    Set deps = new HashSet();
+    Set<PSDependency> deps = new HashSet<>();
     clearKeyData();
 
     NodeList elements = doc.getElementsByTagName(IPSTmxDtdConstants.ELEM_TU);
@@ -456,9 +456,9 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
     PSDependency dep = null;
 
     // walk all possible tmx dependency types and process any match
-    Iterator types = m_tmxTypes.iterator();
+    Iterator<PSTmxType> types = m_tmxTypes.iterator();
     while (types.hasNext()) {
-      PSTmxType tmxType = (PSTmxType) types.next();
+      PSTmxType tmxType = types.next();
       if (tuid.startsWith(tmxType.getPrefix())) {
         // try to parse the tuid for an id.  If we don't get one, keep
         // checking other types
@@ -474,7 +474,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
         // keywords require special handling
         if (handler.getType().equals(PSKeywordDependencyHandler.DEPENDENCY_TYPE)) {
           PSKeywordDependencyHandler keyHandler = (PSKeywordDependencyHandler) handler;
-          PSBijectionMap idMap = keyHandler.getRowIdMap(getKeyData());
+          PSBijectionMap<String, String> idMap = keyHandler.getRowIdMap(getKeyData());
 
           // if we don't find a match, assume this is not our key.
           depId = keyHandler.getKeywordDepId(idMap, ids[0]);
@@ -511,9 +511,9 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
       for (int i = 0; i < elements.getLength(); i++) {
         Element unit = (Element) elements.item(i);
         String key = unit.getAttribute(IPSTmxDtdConstants.ATTR_TUID);
-        Iterator types = m_tmxTypes.iterator();
+        Iterator<PSTmxType> types = m_tmxTypes.iterator();
         while (types.hasNext()) {
-          PSTmxType tmxType = (PSTmxType) types.next();
+          PSTmxType tmxType = types.next();
           if (key.startsWith(tmxType.getPrefix())) {
             String newKey = key;
 
@@ -550,7 +550,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
                     (PSKeywordDependencyHandler)
                         getDependencyHandler(PSKeywordDependencyHandler.DEPENDENCY_TYPE);
 
-                PSBijectionMap srcIdMap = keyHandler.getRowIdMap(srcKeyData);
+                PSBijectionMap<String, String> srcIdMap = keyHandler.getRowIdMap(srcKeyData);
 
                 // make sure we found this as a dependency - avoids
                 // attempts to transform system dependencies that are
@@ -561,16 +561,16 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
                   continue;
                 }
 
-                PSBijectionMap tgtIdMap = keyHandler.getRowIdMap(getKeyData());
+                PSBijectionMap<String, String> tgtIdMap = keyHandler.getRowIdMap(getKeyData());
 
                 // get source type and value
-                String srcTypeVal = (String) srcIdMap.getValue(ids[0]);
+                String srcTypeVal = srcIdMap.getValue(ids[0]);
                 if (srcTypeVal != null) {
                   // translate source type and value
                   String tgtTypeVal = keyHandler.transformTypeVal(ctx, srcTypeVal);
 
                   // get new row id from tgt map
-                  String tgtId = (String) tgtIdMap.getKey(tgtTypeVal);
+                  String tgtId = tgtIdMap.getKey(tgtTypeVal);
                   if (tgtId != null) {
                     newKey =
                         tmxType.getPrefix() + tgtId + tmxType.getDelims()[0] + suffix.toString();
@@ -786,7 +786,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
   private static Document ms_mergeConfig = null;
 
   /** List of child types supported by this handler, it will never be <code>null</code> or empty. */
-  private static List ms_childTypes = new ArrayList();
+  private static List<String> ms_childTypes = new ArrayList<>();
 
   /** The prefix for the translation unit id reperesenting a workflow. */
   private static final String TMX_ID_WORKFLOW = "psx.workflow.workflow.";
@@ -822,7 +822,7 @@ public class PSLocaleDefDependencyHandler extends PSDependencyHandler {
    * List of tmx types, never <code>null</code>, empty until ctor calls {@link #initTmxTypes()},
    * never modified after that.
    */
-  private List m_tmxTypes = new ArrayList();
+  private List<PSTmxType> m_tmxTypes = new ArrayList<>();
 
   static {
     ms_childTypes.add(PSSupportFileDependencyHandler.DEPENDENCY_TYPE);

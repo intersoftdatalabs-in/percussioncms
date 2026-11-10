@@ -63,8 +63,7 @@ public class PSDbFunctionDefDependencyHandler extends PSDependencyHandler {
 
     var mgr = PSDatabaseFunctionManager.getInstance();
 
-    Iterator<PSDatabaseFunction> funcs =
-        (Iterator<PSDatabaseFunction>) mgr.getDatabaseFunctions(ALL_FUNC_TYPES);
+    Iterator<PSDatabaseFunction> funcs = mgr.getDatabaseFunctions(ALL_FUNC_TYPES);
 
     var deps = new java.util.HashSet<PSDependency>();
     while (funcs.hasNext()) {

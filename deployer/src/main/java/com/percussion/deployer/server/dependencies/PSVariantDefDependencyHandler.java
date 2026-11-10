@@ -64,7 +64,7 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
 
   // see base class
   @Override
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -179,11 +179,11 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
 
     HashMap<String, IPSAssemblyTemplate> legTemplates = m_assemblyHelper.getLegacyTemplatesMap();
 
-    Iterator variantNames = legTemplates.keySet().iterator();
+    Iterator<String> variantNames = legTemplates.keySet().iterator();
     List<PSDependency> deps = new ArrayList<PSDependency>();
     PSDependency dep;
     while (variantNames.hasNext()) {
-      String name = (String) variantNames.next();
+      String name = variantNames.next();
       IPSAssemblyTemplate tmp = legTemplates.get(name);
       dep = createDeployableElement(m_def, "" + tmp.getGUID().longValue(), name);
       deps.add(dep);
@@ -220,7 +220,7 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
    *     </code>, does not contain <code>null</code> or empty entries.
    */
   @Override
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -245,7 +245,7 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
 
   // see base class
   @Override
-  public Iterator getDependencyFiles(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependencyFile> getDependencyFiles(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
@@ -281,9 +281,9 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
 
     init();
     // retrieve datas, variant data followed by its child data if any
-    Iterator files =
+    Iterator<PSDependencyFile> files =
         PSTemplateDefDependencyHandler.getTemplateDependecyFilesFromArchive(archive, dep);
-    PSDependencyFile depFile = (PSDependencyFile) files.next();
+    PSDependencyFile depFile = files.next();
     PSIdMapping clMapping = getIdMapping(ctx, dep);
     PSAssemblyTemplate tmp = null;
 

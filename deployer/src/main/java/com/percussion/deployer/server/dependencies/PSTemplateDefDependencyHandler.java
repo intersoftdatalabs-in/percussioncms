@@ -214,7 +214,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
 
   // see base class
   @Override
-  public Iterator getChildDependencies(PSSecurityToken tok, PSDependency dep)
+  public Iterator<PSDependency> getChildDependencies(PSSecurityToken tok, PSDependency dep)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -469,9 +469,9 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
     init();
 
     // retrieve datas, variant data followed by its child data if any
-    Iterator files = getTemplateDependecyFilesFromArchive(archive, dep);
+    Iterator<PSDependencyFile> files = getTemplateDependecyFilesFromArchive(archive, dep);
 
-    PSDependencyFile depFile = (PSDependencyFile) files.next();
+    PSDependencyFile depFile = files.next();
     PSIdMapping clMapping = getIdMapping(ctx, dep);
     PSAssemblyTemplate tmp = null;
 
@@ -485,17 +485,17 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
     HashMap<Long, Integer> bVer = new HashMap<>();
     if (!isNew) {
       // deserialize on the existing template
-      ver = ((PSAssemblyTemplate) tmp).getVersion();
+      ver = tmp.getVersion();
       List<PSTemplateBinding> bList = tmp.getBindings();
       for (PSTemplateBinding b : bList) {
         if (b != null) bVer.put(b.getId(), b.getVersion());
       }
-      ((PSAssemblyTemplate) tmp).setVersion(null);
+      tmp.setVersion(null);
 
       // remove any existing slot associations
       // The old getTemplateSlotIds method was removed in newer assembly
       // service versions, so retrieve slots via getSlots() and remove them.
-      Set<IPSTemplateSlot> slotSet = ((PSAssemblyTemplate) tmp).getSlots();
+      Set<IPSTemplateSlot> slotSet = tmp.getSlots();
       for (IPSTemplateSlot slot : slotSet) {
         if (slot != null) {
           tmp.removeSlot(slot);
@@ -625,12 +625,12 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
    * @throws PSDeployException if there is no dependency file in the archive for the specified
    *     dependency object, or any other error occurs.
    */
-  protected static Iterator getTemplateDependecyFilesFromArchive(
+  protected static Iterator<PSDependencyFile> getTemplateDependecyFilesFromArchive(
       PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
     if (archive == null) throw new IllegalArgumentException("archive may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
 
     if (!files.hasNext()) {
       Object[] args = {
@@ -646,7 +646,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
 
   // see base class
   @Override
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 
@@ -667,9 +667,9 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
    * @return iterator on a set of names
    * @throws PSDeployException if the templates cannot be loaded.
    */
-  public Iterator getNewAssemblyTemplateNames() throws PSDeployException {
+  public Iterator<String> getNewAssemblyTemplateNames() throws PSDeployException {
     init();
-    Set templateNames = m_assemblyHelper.getNamedTemplatesMap().keySet();
+    Set<String> templateNames = m_assemblyHelper.getNamedTemplatesMap().keySet();
     return templateNames.iterator();
   }
 
@@ -818,12 +818,12 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
     PSJexlBindings bindings = (PSJexlBindings) object;
 
     // walk id types and perform any transforms
-    Iterator resources = idTypes.getResourceList(false);
+    Iterator<String> resources = idTypes.getResourceList(false);
     while (resources.hasNext()) {
-      String resource = (String) resources.next();
-      Iterator elements = idTypes.getElementList(resource, false);
+      String resource = resources.next();
+      Iterator<String> elements = idTypes.getElementList(resource, false);
       while (elements.hasNext()) {
-        String element = (String) elements.next();
+        String element = elements.next();
         Iterator<PSApplicationIDTypeMapping> mappings =
             idTypes.getIdTypeMappings(resource, element, false);
 

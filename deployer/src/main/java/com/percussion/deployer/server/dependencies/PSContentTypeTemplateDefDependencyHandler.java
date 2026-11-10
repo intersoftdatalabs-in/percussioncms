@@ -217,12 +217,12 @@ public class PSContentTypeTemplateDefDependencyHandler extends PSDependencyHandl
    * @throws PSDeployException if there is no dependency file in the archive for the specified
    *     dependency object, or any other error occurs.
    */
-  protected Iterator getTemplateDependecyFilesFromArchive(
+  protected Iterator<PSDependencyFile> getTemplateDependecyFilesFromArchive(
       PSArchiveHandler archive, PSDependency dep) throws PSDeployException {
     if (archive == null) throw new IllegalArgumentException("archive may not be null");
     if (dep == null) throw new IllegalArgumentException("dep may not be null");
 
-    Iterator files = archive.getFiles(dep);
+    Iterator<PSDependencyFile> files = archive.getFiles(dep);
 
     if (!files.hasNext()) {
       Object[] args = {
@@ -237,7 +237,7 @@ public class PSContentTypeTemplateDefDependencyHandler extends PSDependencyHandl
   }
 
   // see base class
-  public Iterator getChildTypes() {
+  public Iterator<String> getChildTypes() {
     return ms_childTypes.iterator();
   }
 

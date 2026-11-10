@@ -103,7 +103,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
 
     try {
       var files = getDependencyFilesFromArchive(archive, dep);
-      var root = getElementFromFile(archive, dep, (PSDependencyFile) files.next());
+      var root = getElementFromFile(archive, dep, files.next());
       var srcFolder = new PSFolder(root);
       var newFolder = (PSFolder) srcFolder.clone();
 
@@ -175,7 +175,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
       PSComponentSummaries sums = new PSComponentSummaries(sumEls);
       if (!sums.isEmpty()) {
         // can only get one for a folder
-        PSComponentSummary sum = (PSComponentSummary) sums.iterator().next();
+        PSComponentSummary sum = sums.iterator().next();
         path = getFolderPath(getRelationshipProcessor(tok), sum);
       }
 
@@ -227,7 +227,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
    * @throws IllegalArgumentException if dep is invalid.
    * @throws PSDeployException if there are any errors.
    */
-  protected List getChildDependencies(PSSecurityToken tok, String path, int folderDepType)
+  protected List<PSDependency> getChildDependencies(PSSecurityToken tok, String path, int folderDepType)
       throws PSDeployException, PSNotFoundException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
@@ -243,10 +243,10 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
       PSFolder folder = getFolderObject(getComponentProcessor(tok), loc);
       if (folder != null) // unlikely
       {
-        Iterator children = getChildFolderSummaries(proc, loc);
+        Iterator<PSComponentSummary> children = getChildFolderSummaries(proc, loc);
         String pathPrefix = path + PATH_SEP;
         while (children.hasNext()) {
-          PSComponentSummary child = (PSComponentSummary) children.next();
+          PSComponentSummary child = children.next();
           PSDependency childDep =
               createDependency(m_def, pathPrefix + child.getName(), child.getName());
           childDep.setDependencyType(folderDepType);
@@ -258,7 +258,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
         // category, see if there are any child relationships of that type
         PSDependencyHandler trHandler =
             getDependencyHandler(PSFolderTranslationsDependencyHandler.DEPENDENCY_TYPE);
-        Iterator configs =
+        Iterator<?> configs =
             PSRelationshipCommandHandler.getRelationshipConfigs(
                 PSRelationshipConfig.CATEGORY_TRANSLATION);
         while (configs.hasNext()) {
@@ -673,7 +673,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
         throw new PSDeployException(DeploymentErrorCodes.CHILD_DEP_NOT_FOUND, args);
       }
 
-      PSDependency dfDep = (PSDependency) deps.next();
+      PSDependency dfDep = deps.next();
       PSDisplayFormatDefDependencyHandler dfHandler =
           (PSDisplayFormatDefDependencyHandler)
               getDependencyHandler(PSDisplayFormatDefDependencyHandler.DEPENDENCY_TYPE);
@@ -717,7 +717,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
     PSComponentSummary childSum = null;
     Iterator<PSComponentSummary> children = getChildFolderSummaries(processor, locator);
     while (children.hasNext() && childSum == null) {
-      PSComponentSummary test = (PSComponentSummary) children.next();
+      PSComponentSummary test = children.next();
       if (test.getName().equals(name)) childSum = test;
     }
 
@@ -766,7 +766,7 @@ public abstract class PSFolderObjectDependencyHandler extends PSCmsObjectDepende
     StringTokenizer tok = new StringTokenizer(path, PATH_SEP);
     while (tok.hasMoreTokens()) names.add(tok.nextToken());
 
-    return (String[]) names.toArray(new String[names.size()]);
+    return names.toArray(new String[names.size()]);
   }
 
   /** Separator used for folder paths, a forward slash ("/"). */
