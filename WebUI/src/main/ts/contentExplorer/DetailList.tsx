@@ -93,7 +93,8 @@ import {
  * strings (the test fixture asserts this behaviour).
  *
  * Adding a new column requires (1) adding the column id to this union,
- * (2) adding a renderer in {@link renderDisplayFormatCell}, (3) adding a
+ * (2) adding a per-column renderer below (dispatched by
+ * {@link renderDisplayFormatCell}), (3) adding a
  * translation key in `EXPLORER_MSG`.
  */
 export type DetailColumnId =
@@ -150,6 +151,11 @@ export function resolveDisplayFormatColumns(
  * Pure per-cell renderer. Returns the cell text for the given column +
  * item. Pure so the unit test can drive it without rendering.
  *
+ * Thin dispatch over the per-column renderers below (#5777) so no single
+ * function carries the whole column matrix. Behaviour is unchanged: the
+ * Vitest cell-text contract (`DetailList.test.tsx`) and the sort
+ * comparator pin every column's output.
+ *
  * Note on `modified` / `workflow`: PSPathItem does not carry these fields
  * yet (they live on PSFolderProperties). The renderer returns empty
  * strings for them today; when the API exposes per-row modification +
@@ -160,72 +166,118 @@ export function renderDisplayFormatCell(
   column: DetailColumnId,
   item: PSPathItem,
 ): string {
-  // Prefer pathmanagement displayProperties (columnData) when a display
-  // format id was requested — keys are CX system field names.
-  const fromProps = (keys: string[]): string => {
-    const props = item.displayProperties;
-    if (!props || typeof props !== "object") return "";
-    for (const key of keys) {
-      const v = props[key];
-      if (v != null && String(v).length > 0) return String(v);
-    }
-    const lowerKeys = keys.map((k) => k.toLowerCase());
-    for (const [k, v] of Object.entries(props)) {
-      if (lowerKeys.includes(k.toLowerCase()) && v != null && String(v).length > 0) {
-        return String(v);
-      }
-    }
-    return "";
-  };
-
   switch (column) {
-    case "name": {
-      const fromSys = fromProps(["sys_title", "name", "Name"]);
-      // Site rows must expose finder SITENAME (Corporate_Investments) or
-      // the repository folder leaf, not a GUID sys_title / path (#3684).
-      if (isExplorerSiteRootItem(item)) {
-        return explorerSiteDisplayName(item) || fromSys || item.path || "";
-      }
-      return fromSys || item.name || item.path || "";
-    }
+    case "name":
+      return renderNameCell(item);
     case "type":
-      return (
-        fromProps(["sys_contenttypename", "sys_contenttype", "type", "Type"]) ||
-        item.type ||
-        item.category ||
-        ""
-      );
+      return renderTypeCell(item);
     case "path":
-      return item.path ?? "";
+      return renderPathCell(item);
     case "title":
-      return (
-        fromProps(["sys_title", "title", "Title"]) ||
-        item.title ||
-        item.name ||
-        ""
-      );
+      return renderTitleCell(item);
     case "category":
-      return fromProps(["category", "Category"]) || item.category || "";
+      return renderCategoryCell(item);
     case "modified":
-      return (
-        fromProps([
-          "sys_contentlastmodifieddate",
-          "sys_contentmodifieddate",
-          "lastModified",
-          "modified",
-        ]) ||
-        (item as unknown as { lastModified?: string }).lastModified ||
-        ""
-      );
+      return renderModifiedCell(item);
     case "workflow":
-      return (
-        fromProps(["sys_workflow", "sys_workflowid", "workflow", "workflowId"]) ||
-        (item as unknown as { workflowId?: string }).workflowId ||
-        ""
-      );
+      return renderWorkflowCell(item);
     default:
       return "";
   }
+}
+
+/**
+ * First non-blank display-property value for the given keys (#5777).
+ * Prefer pathmanagement displayProperties (columnData) when a display
+ * format id was requested — keys are CX system field names. Matches
+ * case-insensitively as a fallback.
+ */
+function displayFormatProp(item: PSPathItem, keys: string[]): string {
+  const props = item.displayProperties;
+  if (!props || typeof props !== "object") return "";
+  for (const key of keys) {
+    const v = props[key];
+    if (v != null && String(v).length > 0) return String(v);
+  }
+  const lowerKeys = keys.map((k) => k.toLowerCase());
+  for (const [k, v] of Object.entries(props)) {
+    if (lowerKeys.includes(k.toLowerCase()) && v != null && String(v).length > 0) {
+      return String(v);
+    }
+  }
+  return "";
+}
+
+/**
+ * Name-column renderer (#5777). Site rows must expose finder SITENAME
+ * (Corporate_Investments) or the repository folder leaf, not a GUID
+ * sys_title / path (#3684).
+ */
+function renderNameCell(item: PSPathItem): string {
+  const fromSys = displayFormatProp(item, ["sys_title", "name", "Name"]);
+  if (isExplorerSiteRootItem(item)) {
+    return explorerSiteDisplayName(item) || fromSys || item.path || "";
+  }
+  return fromSys || item.name || item.path || "";
+}
+
+/** Type-column renderer (#5777). */
+function renderTypeCell(item: PSPathItem): string {
+  return (
+    displayFormatProp(item, ["sys_contenttypename", "sys_contenttype", "type", "Type"]) ||
+    item.type ||
+    item.category ||
+    ""
+  );
+}
+
+/** Path-column renderer (#5777). */
+function renderPathCell(item: PSPathItem): string {
+  return item.path ?? "";
+}
+
+/** Title-column renderer (#5777). Falls back to the item name. */
+function renderTitleCell(item: PSPathItem): string {
+  return (
+    displayFormatProp(item, ["sys_title", "title", "Title"]) ||
+    item.title ||
+    item.name ||
+    ""
+  );
+}
+
+/** Category-column renderer (#5777). */
+function renderCategoryCell(item: PSPathItem): string {
+  return displayFormatProp(item, ["category", "Category"]) || item.category || "";
+}
+
+/**
+ * Modified-column renderer (#5777). Empty until the API exposes per-row
+ * modification dates (see {@link renderDisplayFormatCell}).
+ */
+function renderModifiedCell(item: PSPathItem): string {
+  return (
+    displayFormatProp(item, [
+      "sys_contentlastmodifieddate",
+      "sys_contentmodifieddate",
+      "lastModified",
+      "modified",
+    ]) ||
+    (item as unknown as { lastModified?: string }).lastModified ||
+    ""
+  );
+}
+
+/**
+ * Workflow-column renderer (#5777). Empty until the API exposes per-row
+ * workflow IDs (see {@link renderDisplayFormatCell}).
+ */
+function renderWorkflowCell(item: PSPathItem): string {
+  return (
+    displayFormatProp(item, ["sys_workflow", "sys_workflowid", "workflow", "workflowId"]) ||
+    (item as unknown as { workflowId?: string }).workflowId ||
+    ""
+  );
 }
 
 /** Sort direction for the detail-list column sort (#5759). */
