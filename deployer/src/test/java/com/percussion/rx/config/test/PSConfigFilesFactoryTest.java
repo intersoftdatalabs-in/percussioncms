@@ -234,7 +234,7 @@ public class PSConfigFilesFactoryTest {
     return IOUtils.toString(in, PSCharSets.rxJavaEnc());
   }
 
-  public void init(String pkgName, String configFile, String defaultConfig, String localConfig)
+  public final void init(String pkgName, String configFile, String defaultConfig, String localConfig)
       throws Exception {
     m_pkgName = pkgName;
 

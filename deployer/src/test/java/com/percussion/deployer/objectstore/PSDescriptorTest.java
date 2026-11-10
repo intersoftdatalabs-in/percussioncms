@@ -91,12 +91,13 @@ public class PSDescriptorTest {
   public void testImport() throws Exception {
     PSArchiveInfo info = PSArchiveInfoTest.getArchiveInfo(true);
     PSImportDescriptor desc = new PSImportDescriptor(info);
-    List pkgList = desc.getImportPackageList();
+    List<PSImportPackage> pkgList = desc.getImportPackageList();
 
     assertTrue(pkgList.isEmpty());
     if (info.getArchiveDetail().getExportDescriptor().getPackages().hasNext()) {
-      Iterator packages = info.getArchiveDetail().getExportDescriptor().getPackages();
-      PSDeployableElement element = (PSDeployableElement) packages.next();
+      Iterator<PSDeployableElement> packages =
+          info.getArchiveDetail().getExportDescriptor().getPackages();
+      PSDeployableElement element = packages.next();
       pkgList.add(new PSImportPackage(element));
       assertTrue(desc.isPackageIncluded(element));
     }
@@ -159,14 +160,14 @@ public class PSDescriptorTest {
             false,
             true);
 
-    List pkgs = new ArrayList(3);
+    List<PSDeployableElement> pkgs = new ArrayList<>(3);
     pkgs.add(de1);
     pkgs.add(de2);
     pkgs.add(de3);
     desc.setPackages(pkgs.iterator());
 
     if (full) {
-      List names = new ArrayList();
+      List<String> names = new ArrayList<>();
       names.add("de2");
       names.add("de3");
       desc.setModifiedPackages(names.iterator());

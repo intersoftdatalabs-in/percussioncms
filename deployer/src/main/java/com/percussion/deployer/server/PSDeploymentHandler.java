@@ -115,6 +115,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import javax.security.auth.login.LoginException;
@@ -773,7 +774,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
       boolean warnOnBuildMismatch,
       boolean warnMissingPackageDep,
       boolean shouldValidateVersion) {
-    Validate.notNull(info);
+    Objects.requireNonNull(info);
 
     PSMultiValueHashMap<String, String> validationMap = new PSMultiValueHashMap<>();
     String message = "";

@@ -25,10 +25,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import com.percussion.deployer.objectstore.idtypes.PSAppCEItemIdContext;
 import com.percussion.deployer.objectstore.idtypes.PSApplicationIdContext;
 import com.percussion.server.PSServer;
-import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
@@ -99,7 +99,7 @@ public class PSApplicationIDTypesTest {
 
     File file =
         new File(PSServer.getRxDir().getAbsolutePath(), "rx_resources\\ewebeditpro\\config.xml");
-    do1.setDependencies(PSIteratorUtils.emptyIterator());
+    do1.setDependencies(Collections.emptyIterator());
     PSUserDependency userDep1 = do1.addUserDependency(file);
 
     // these should work fine
@@ -216,8 +216,8 @@ public class PSApplicationIDTypesTest {
     assertTrue(!idtype1.isComplete("r1"));
     assertTrue(!idtype1.isComplete("r2", "e2"));
 
-    Iterator mappingList = idtype1.getIdTypeMappings("r1", "e1", false);
-    PSApplicationIDTypeMapping mapping1 = (PSApplicationIDTypeMapping) mappingList.next();
+    Iterator<PSApplicationIDTypeMapping> mappingList = idtype1.getIdTypeMappings("r1", "e1", false);
+    PSApplicationIDTypeMapping mapping1 = mappingList.next();
     mapping1.setType("t1");
 
     assertTrue(idtype1.isComplete("r1"));
@@ -225,9 +225,9 @@ public class PSApplicationIDTypesTest {
     assertTrue(!idtype1.isComplete("r2", "e2"));
 
     mappingList = idtype1.getIdTypeMappings("r2", "e2", false);
-    mapping1 = (PSApplicationIDTypeMapping) mappingList.next();
+    mapping1 = mappingList.next();
     mapping1.setType("t2_1");
-    mapping1 = (PSApplicationIDTypeMapping) mappingList.next();
+    mapping1 = mappingList.next();
     mapping1.setType("t2_2");
 
     assertTrue(idtype1.isComplete("r2", "e2"));
@@ -259,18 +259,18 @@ public class PSApplicationIDTypesTest {
     PSApplicationIDTypes idtype1 =
         createIDTypes(de1, "r1", "e1", ctx1, "v1", "r2", "e2", ctx2_1, "v2_1", ctx2_2, "v2_2");
 
-    Iterator mappingList = idtype1.getIdTypeMappings("r1", "e1", false);
-    PSApplicationIDTypeMapping mapping1 = (PSApplicationIDTypeMapping) mappingList.next();
+    Iterator<PSApplicationIDTypeMapping> mappingList = idtype1.getIdTypeMappings("r1", "e1", false);
+    PSApplicationIDTypeMapping mapping1 = mappingList.next();
     mapping1.setType("t1");
 
     // testing get...list
-    Iterator resList = idtype1.getResourceList(true);
-    String resourceName = (String) resList.next();
+    Iterator<String> resList = idtype1.getResourceList(true);
+    String resourceName = resList.next();
     assertTrue(resourceName.equals("r2"));
     assertTrue(!resList.hasNext());
 
-    Iterator elemList = idtype1.getElementList("r2", true);
-    String elemName = (String) elemList.next();
+    Iterator<String> elemList = idtype1.getElementList("r2", true);
+    String elemName = elemList.next();
     assertTrue(elemName.equals("e2"));
     assertTrue(!elemList.hasNext());
 

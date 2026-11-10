@@ -105,9 +105,9 @@ public class PSPackageLockManagerTest {
 
       Map<String, Long> entryMap1 = new HashMap<String, Long>();
       zipFile1 = new ZipFile(f);
-      Enumeration entries = zipFile1.entries();
+      Enumeration<? extends ZipEntry> entries = zipFile1.entries();
       while (entries.hasMoreElements()) {
-        ZipEntry entry = (ZipEntry) entries.nextElement();
+        ZipEntry entry = entries.nextElement();
         entryMap1.put(entry.getName(), entry.getCrc());
       }
       zipFile1.close();

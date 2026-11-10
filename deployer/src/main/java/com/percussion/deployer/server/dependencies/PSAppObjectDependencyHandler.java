@@ -53,6 +53,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -319,7 +320,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
       String href = sheetEl.getAttribute("href");
       if (!href.isBlank()) {
         try {
-          URL url = new URL(href);
+          URL url = URI.create(href).toURL();
           String path = url.getFile();
           PSDependency dep = getDepFromPath(tok, path);
           if (dep != null) {
@@ -333,7 +334,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
               break;
             }
           }
-        } catch (MalformedURLException | com.percussion.services.error.PSNotFoundException e) {
+        } catch (MalformedURLException | IllegalArgumentException | com.percussion.services.error.PSNotFoundException e) {
           // Ignore invalid URLs
         }
       }
@@ -377,9 +378,9 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
     PSDependency dep = null;
     // see if its a url
     try {
-      URL url = new URL(path);
+      URL url = URI.create(path).toURL();
       path = url.getFile();
-    } catch (MalformedURLException e) {
+    } catch (MalformedURLException | IllegalArgumentException e) {
       // nope, leave it alone
     }
 

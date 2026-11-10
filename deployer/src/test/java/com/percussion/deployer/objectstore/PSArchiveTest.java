@@ -114,9 +114,9 @@ public class PSArchiveTest {
     // archive open will clear the dbmsinfo since there were no external dbms
     // listed in the manifest
     PSArchiveDetail detail1 = info1.getArchiveDetail();
-    Iterator pkgs = detail1.getPackages();
+    Iterator<PSDeployableElement> pkgs = detail1.getPackages();
     while (pkgs.hasNext()) {
-      detail1.setDbmsInfoList((PSDeployableElement) pkgs.next(), new ArrayList<>());
+      detail1.setDbmsInfoList(pkgs.next(), new ArrayList<>());
     }
 
     // archive ref will now be filename

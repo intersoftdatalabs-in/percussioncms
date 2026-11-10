@@ -129,9 +129,9 @@ public class PSArchiveInfoTest {
       PSExportDescriptor desc = PSDescriptorTest.getExportDescriptor(true);
       PSArchiveDetail detail = new PSArchiveDetail(desc);
 
-      Iterator pkgs = desc.getPackages();
+      Iterator<PSDeployableElement> pkgs = desc.getPackages();
       if (pkgs.hasNext()) {
-        PSDeployableElement de = (PSDeployableElement) pkgs.next();
+        PSDeployableElement de = pkgs.next();
         final List<PSDatasourceMap> infoList = new ArrayList<PSDatasourceMap>();
         PSDatasourceMap dsMap = new PSDatasourceMap("RhythmyxData", "");
         infoList.add(dsMap);

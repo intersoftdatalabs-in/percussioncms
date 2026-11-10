@@ -79,8 +79,8 @@ public class PSArchiveHandlerTest {
             true,
             false,
             false);
-    List depFiles1 = getDepFiles(dep1);
-    List depFiles2 = getDepFiles(dep2);
+    List<PSDependencyFile> depFiles1 = getDepFiles(dep1);
+    List<PSDependencyFile> depFiles2 = getDepFiles(dep2);
 
     // add the data to the archive
     ah.addFiles(dep1, depFiles1.iterator());
@@ -99,8 +99,8 @@ public class PSArchiveHandlerTest {
       archive = new PSArchive(archiveFile);
       ah = new PSArchiveHandler(archive);
 
-      Iterator tgtDepFiles1 = ah.getFiles(dep1);
-      Iterator tgtDepFiles2 = ah.getFiles(dep2);
+      Iterator<PSDependencyFile> tgtDepFiles1 = ah.getFiles(dep1);
+      Iterator<PSDependencyFile> tgtDepFiles2 = ah.getFiles(dep2);
       PSDependency tgtDep1 = getDepFromDepFile(ah, tgtDepFiles1.next());
       PSDependency tgtDep2 = getDepFromDepFile(ah, tgtDepFiles2.next());
 
@@ -152,7 +152,7 @@ public class PSArchiveHandlerTest {
    *     or empty.
    * @throws IOException if any error occures.
    */
-  private static List getDepFiles(PSDependency dep1) throws IOException {
+  private static List<PSDependencyFile> getDepFiles(PSDependency dep1) throws IOException {
     List<PSDependencyFile> depFiles = new ArrayList<PSDependencyFile>();
     depFiles.add(getDepFile(dep1));
     return depFiles;

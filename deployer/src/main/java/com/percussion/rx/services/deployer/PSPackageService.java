@@ -49,6 +49,11 @@ public class PSPackageService {
   /** Default constructor. */
   public PSPackageService() {}
 
+  /**
+   * REST endpoint: gets all packages available on the server.
+   *
+   * @return the packages available on the server, never <code>null</code>.
+   */
   @GET
   @Path("/packages")
   @Produces({MediaType.APPLICATION_XML, MediaType.APPLICATION_JSON})

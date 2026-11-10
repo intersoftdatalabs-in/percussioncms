@@ -59,7 +59,7 @@ public class PSJexlVisitorTest {
     PSJexlSimpleNode psExp = PSJexlParserUtils.createNewExpression(code, false);
     SimpleNode exp = psExp.getNode();
     exp.childrenAccept(visitor, exp);
-    assertEquals(2, ((PSGetIDsJexlVisitor) visitor).getIds().size());
+    assertEquals(2, visitor.getIds().size());
   }
 
   @Test

@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -347,7 +348,7 @@ public abstract class PSDescriptor implements IPSDeployComponent {
    * @param version the version to set, may be <code>null</code> or empty.
    */
   public void setVersion(String version) {
-    m_version = StringUtils.defaultString(formatVersion(version, true, true), DEFAULT_VERSION);
+    m_version = Objects.toString(formatVersion(version, true, true), DEFAULT_VERSION);
   }
 
   /**
@@ -367,8 +368,7 @@ public abstract class PSDescriptor implements IPSDeployComponent {
    */
   public void setCmsMinVersion(String cmsMinVersion) {
     m_cmsMinVersion =
-        StringUtils.defaultString(
-            formatVersion(cmsMinVersion, false, true), DEFAULT_CMS_MIN_VERSION);
+        Objects.toString(formatVersion(cmsMinVersion, false, true), DEFAULT_CMS_MIN_VERSION);
   }
 
   /**
@@ -403,7 +403,7 @@ public abstract class PSDescriptor implements IPSDeployComponent {
     pkgDepMap.put(PSDescriptor.XML_PKG_DEP_NAME, pkgName);
     pkgDepMap.put(
         PSDescriptor.XML_PKG_DEP_VERSION,
-        StringUtils.defaultString(formatVersion(pkgVersion, false, false), DEFAULT_VERSION));
+        Objects.toString(formatVersion(pkgVersion, false, false), DEFAULT_VERSION));
     pkgDepMap.put(PSDescriptor.XML_PKG_DEP_IMPLIED, Boolean.toString(pkgImplied));
 
     m_pkgDepList.add(pkgDepMap);

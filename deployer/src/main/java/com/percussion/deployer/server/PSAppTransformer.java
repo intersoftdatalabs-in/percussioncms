@@ -99,6 +99,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
 
 /**
@@ -2332,7 +2333,7 @@ public class PSAppTransformer {
     String bVal = binding.getExpression();
 
     if (paramCtx.getOccurence() == 0) {
-      binding.setExpression(StringUtils.replaceOnce(bVal, oldVal, newVal));
+      binding.setExpression(Strings.CS.replaceOnce(bVal, oldVal, newVal));
       je.updateBindingParam(oldVal, newVal, paramCtx);
     } else {
       int index = 0;

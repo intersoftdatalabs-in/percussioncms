@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.extension.PSExtensionRef;
+import java.net.URI;
 import java.net.URL;
 import java.util.Arrays;
 import java.util.Collections;
@@ -61,7 +62,7 @@ public class PSExitDefDependencyHandlerTypedTest {
   @Test
   public void extensionFilesTreatsNullAsEmptyAndKeepsRealIterator() throws Exception {
     assertFalse(PSExitDefDependencyHandler.extensionFiles(null).hasNext());
-    Iterator<URL> urls = Collections.singleton(new URL("file:///ext.jar")).iterator();
+    Iterator<URL> urls = Collections.singleton(URI.create("file:///ext.jar").toURL()).iterator();
     assertSame(urls, PSExitDefDependencyHandler.extensionFiles(urls));
   }
 }
