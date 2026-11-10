@@ -1078,55 +1078,10 @@ li.ui-tabs-active #perc-tab-workflow,
   border-top: 10px solid #fff;
 }
 
-#datatree-workflow-sites span.dynatree-checkbox,
-#datatree-workflow-assets span.dynatree-checkbox {
-  background-repeat: no-repeat;
-  background-image: url(../css/dynatree/skin/icons2.gif);
-  display: inline-block;
-  float: left;
-  height: 16px;
-  vertical-align: top;
-  width: 16px;
-  background-position: 0 -32px;
-  margin: 5px 0 0 3px;
-}
-
-#datatree-workflow-sites span.dynatree-custom-checkbox,
-#datatree-workflow-assets span.dynatree-custom-checkbox {
-  background-repeat: no-repeat;
-  background-image: url(../css/dynatree/skin/icons2.gif);
-  float: right;
-  height: 16px;
-  vertical-align: top;
-  width: 16px;
-  display: inline-block;
-  background-position: 0 -32px;
-  margin: 5px 10px 0 0;
-}
-
 #datatree-workflow-sites li,
 #datatree-workflow-assets li {
   background-color: #f5f5f6;
   border-top-color: #e6e6e9;
-}
-
-#datatree-workflow-sites span.dynatree-custom-checkbox-container,
-#datatree-workflow-assets span.dynatree-custom-checkbox-container {
-  border-left: 3px solid #e6e6e9;
-  display: inline-block;
-  float: right;
-  height: 24px;
-  padding-left: 10px;
-}
-
-#datatree-workflow-sites .dynatree-partsel span.dynatree-checkbox,
-#datatree-workflow-assets .dynatree-partsel span.dynatree-checkbox {
-  background-position: -64px -32px;
-}
-
-#datatree-workflow-sites .dynatree-partsel span.dynatree-checkbox:hover,
-#datatree-workflow-assets .dynatree-partsel span.dynatree-checkbox:hover {
-  background-position: -80px -32px;
 }
 
 #datatree-workflow-sites .perc-item-disabled,
@@ -1143,13 +1098,6 @@ li.ui-tabs-active #perc-tab-workflow,
   background-color: #fff;
   overflow-x: hidden;
   padding: 0;
-}
-
-#datatree-workflow-sites ul.dynatree-container li,
-#datatree-workflow-assets ul.dynatree-container li,
-#perc-category-tree ul.dynatree-container li {
-  border-top-color: #e6e6e9;
-  background-color: #f5f5f6;
 }
 
 #datatree-workflow-sites,
@@ -1198,12 +1146,6 @@ li.ui-tabs-active #perc-tab-workflow,
 
 #perc-assign-workflow-sites-folder-dialog {
   top: 145px;
-}
-
-#datatree-instance1 .dynatree-expander,
-#perc-assign-workflow-sites-tree .dynatree-expander,
-#perc-assign-workflow-assets-tree .dynatree-expander {
-  background-position: center center;
 }
 
 #perc-assign-workflow-sites-title-wrapper .perc-assign-workflow-sites-apply-top,
@@ -1273,37 +1215,6 @@ li.ui-tabs-active #perc-tab-workflow,
 
 .perc-children-other-workflow {
   color: #808797;
-}
-
-.perc-itemname-treelist li span.dynatree-title {
-  text-overflow: ellipsis;
-  padding: 4px 0 4px 1px;
-}
-
-/* NEW */
-#perc-category-tree li .dynatree-title {
-  font-size: 12px;
-  font-family: "Open Sans", sans-serif;
-}
-
-.perc-itemname-treelist .dynatree-has-children span.dynatree-expander {
-  background-image: url(/cm/app/app/images/images/buttonBlueSmallPlus.gif);
-  background-position: 3px 2px;
-  background-repeat: no-repeat;
-  display: inline-block;
-  height: 11px;
-  vertical-align: middle;
-  width: 13px;
-}
-
-.perc-itemname-treelist .dynatree-expanded span.dynatree-expander {
-  background-image: url(/cm/app/app/images/images/buttonBlueSmallMinus.gif);
-  background-position: 3px 2px;
-  background-repeat: no-repeat;
-  display: inline-block;
-  height: 11px;
-  vertical-align: middle;
-  width: 13px;
 }
 
 #perc-category-save-cancel-block > .btn-primary {
@@ -1444,48 +1355,6 @@ textarea {
   cursor: default;
 }
 
-#datatree-workflow-sites span.dynatree-checkbox:hover,
-#datatree-workflow-assets span.dynatree-checkbox:hover,
-#datatree-workflow-sites span.dynatree-custom-checkbox:hover,
-#datatree-workflow-assets span.dynatree-custom-checkbox:hover {
-  background-position: -16px -32px;
-}
-
-#datatree-workflow-sites span.perc-item-disabled span.dynatree-checkbox,
-#datatree-workflow-assets span.perc-item-disabled span.dynatree-checkbox,
-#datatree-workflow-sites span.perc-item-disabled span.dynatree-checkbox:hover,
-#datatree-workflow-assets span.perc-item-disabled span.dynatree-checkbox:hover,
-#datatree-workflow-sites span.perc-item-disabled span.dynatree-custom-checkbox,
-#datatree-workflow-assets span.perc-item-disabled span.dynatree-custom-checkbox,
-#datatree-workflow-sites
-  span.perc-item-disabled
-  span.dynatree-custom-checkbox:hover,
-#datatree-workflow-assets
-  span.perc-item-disabled
-  span.dynatree-custom-checkbox:hover {
-  background-position: -96px -32px;
-}
-
-#datatree-workflow-sites .dynatree-selected span.dynatree-checkbox,
-#datatree-workflow-assets .dynatree-selected span.dynatree-checkbox,
-#datatree-workflow-sites span.dynatree-custom-checkbox-selected,
-#datatree-workflow-assets span.dynatree-custom-checkbox-selected {
-  background-position: -32px -32px;
-}
-
-#datatree-workflow-sites .dynatree-selected span.dynatree-checkbox:hover,
-#datatree-workflow-assets .dynatree-selected span.dynatree-checkbox:hover,
-#datatree-workflow-sites span.dynatree-custom-checkbox-selected:hover,
-#datatree-workflow-assets span.dynatree-custom-checkbox-selected:hover {
-  background-position: -48px -32px;
-}
-
-#datatree-instance1 .dynatree-title,
-#perc-assign-workflow-sites-tree .dynatree-title,
-#perc-assign-workflow-assets-tree .dynatree-title,
-#perc-category-tree .dynatree-title {
-  vertical-align: middle;
-}
 .perc-loading-warning-message {
   margin-left: 20px;
   margin-bottom: 5px;
@@ -1520,11 +1389,6 @@ div.perc-workflow-unavailale-message {
 
 #perc-category-title:hover #perc-category-title-hover {
   display: block;
-}
-
-.dynatree-container ul {
-  position: relative;
-  margin-left: 12px;
 }
 
 #perc-categories-publish {

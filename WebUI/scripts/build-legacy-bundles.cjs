@@ -99,6 +99,14 @@ const NPM_LIBRARY_MAPPINGS = {
     "jquery-ui-multiselect-widget/src/jquery.multiselect.js",
   "jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.filter.js":
     "jquery-ui-multiselect-widget/src/jquery.multiselect.filter.js",
+  // Tree widgets from npm (issue #5662); keys mirror the canonical
+  // frontend builder.
+  "jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js":
+    "jquery.fancytree/dist/jquery.fancytree-all.min.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.css":
+    "jquery.fancytree/dist/skin-win8/ui.fancytree.css",
+  "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.min.css":
+    "jquery.fancytree/dist/skin-win8/ui.fancytree.min.css",
 };
 
 // List of bundle config files to process
@@ -319,6 +327,43 @@ const STANDALONE_NPM_COPIES = [
   {
     src: "jquery-ui-multiselect-widget/src/jquery.multiselect.filter.js",
     dest: "jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.filter.js",
+    required: true,
+  },
+  // Tree widgets from npm (issue #5662); keys mirror the canonical frontend
+  // builder. The vendored copies were deleted, so every entry is required.
+  {
+    src: "jquery.fancytree/dist/jquery.fancytree-all.min.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/ui.fancytree.min.css",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.min.css",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/icons.gif",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/icons.gif",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/icons-rtl.gif",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/icons-rtl.gif",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/loading.gif",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/loading.gif",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/vline.gif",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/vline.gif",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/vline-rtl.gif",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/vline-rtl.gif",
     required: true,
   },
 ];

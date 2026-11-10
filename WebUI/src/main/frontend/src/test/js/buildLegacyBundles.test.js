@@ -208,9 +208,10 @@ describe("legacy intermediate bundle builder", () => {
     for (const { dest } of STANDALONE_NPM_COPIES) {
       const generated = path.join(OUTPUT_DIR, dest);
       expect(fs.existsSync(generated), generated).toBe(true);
-      // Sanity floor only: small CSS assets (e.g. superfish-vertical ~1KB)
-      // are legitimate standalone copies (issue #5663).
-      expect(fs.statSync(generated).size).toBeGreaterThan(500);
+      // Non-empty (not a fixed KB floor): skin gifs synced for #5662 are
+      // legitimately sub-KB (vline.gif is 852 bytes), as are the small
+      // plugin CSS assets (issue #5663, e.g. superfish-vertical ~1KB).
+      expect(fs.statSync(generated).size).toBeGreaterThan(0);
       const generatedNorm = generated.split(path.sep).join("/");
       expect(generatedNorm.includes("target/generated-webui/cm")).toBe(true);
       expect(generatedNorm.includes("src/main/webapp")).toBe(false);
@@ -1270,5 +1271,169 @@ describe("classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
         `dead war api lib still present: ${rel}`,
       ).toBe(false);
     }
+  });
+});
+
+/**
+ * Classic-UI tree widgets from npm (issue #5662).
+ *
+ * The vendored cm/jslib copies (FancyTree 2.38.3 + dead DynaTree 1.1.0) were
+ * deleted. Classic finder pages keep loading the stable jslib URLs
+ * (finder_js.jsp direct loads + shared-finder bundle), served from the
+ * Dependabot-tracked npm jquery.fancytree dist files via
+ * syncStandaloneNpmLibraries and NPM_LIBRARY_MAPPINGS. DynaTree is retired
+ * outright: no app code invoked it (only dead CSS selectors and the script
+ * include, both removed), so it has no mapping and no standalone entry.
+ * These tests pin:
+ *
+ *   1. The FancyTree min.js + win8 skin css are npm-mapped for bundle
+ *      resolution and present in STANDALONE_NPM_COPIES marked required.
+ *   2. Synced bytes are byte-identical to the node_modules dist files
+ *      (Fancytree 2.38.x, MIT), including the relatively-resolved skin gifs.
+ *   3. The deleted vendored trees (jslib + vendor/ + war/ mirrors, dynatree
+ *      skins) no longer exist in the source tree.
+ *   4. DynaTree has no mapping, no standalone entry, and no bundle line.
+ */
+describe("classic-UI tree widgets from npm (issue #5662)", () => {
+  const FRONTEND_ROOT = path.dirname(
+    path.dirname(path.dirname(__dirname)),
+  );
+  const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+  const WEBUI_DIR = path.dirname(FRONTEND_ROOT);
+
+  const FANCYTREE = [
+    {
+      src: "jquery.fancytree/dist/jquery.fancytree-all.min.js",
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js",
+      versionRe: /jQuery Fancytree Plugin - 2\.38\./,
+    },
+    {
+      src: "jquery.fancytree/dist/skin-win8/ui.fancytree.min.css",
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.min.css",
+    },
+    {
+      src: "jquery.fancytree/dist/skin-win8/icons.gif",
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/icons.gif",
+    },
+    {
+      src: "jquery.fancytree/dist/skin-win8/icons-rtl.gif",
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/icons-rtl.gif",
+    },
+    {
+      src: "jquery.fancytree/dist/skin-win8/loading.gif",
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/loading.gif",
+    },
+    {
+      src: "jquery.fancytree/dist/skin-win8/vline.gif",
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/vline.gif",
+    },
+    {
+      src: "jquery.fancytree/dist/skin-win8/vline-rtl.gif",
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/vline-rtl.gif",
+    },
+  ];
+
+  const DELETED_VENDORED = [
+    "jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js",
+    "jslib/profiles/3x/jquery/plugins/jquery-dynatree/jquery.dynatree.js",
+    "vendor/js/legacy/profiles/3x/jquery/plugins/jquery-dynatree/jquery.dynatree.js",
+    "vendor/js/legacy/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js",
+    "vendor/css/legacy/skin-win8/ui.fancytree.css",
+    "css/dynatree/skin/ui.dynatree.css",
+    "app/css/legacy/dynatree/skin/ui.dynatree.css",
+    "skin-win8/ui.fancytree.css",
+  ];
+
+  it("pins the FancyTree files in STANDALONE_NPM_COPIES as required", () => {
+    for (const { src, dest } of FANCYTREE) {
+      const entry = STANDALONE_NPM_COPIES.find((e) => e.dest === dest);
+      expect(entry, `missing standalone copy for ${dest}`).toBeDefined();
+      expect(entry.src).toBe(src);
+      expect(entry.required).toBe(true);
+    }
+  });
+
+  it("syncs FancyTree bytes identical to the npm dist files", () => {
+    const missing = FANCYTREE.map(({ src }) =>
+      path.join(NODE_MODULES, src),
+    ).filter((p) => !fs.existsSync(p));
+    if (missing.length > 0) {
+      // Hermetic CI without frontend node_modules: presence is pinned above.
+      return;
+    }
+    syncStandaloneNpmLibraries();
+    for (const { src, dest, versionRe } of FANCYTREE) {
+      const generated = fs.readFileSync(path.join(OUTPUT_DIR, dest));
+      const npmDist = fs.readFileSync(path.join(NODE_MODULES, src));
+      expect(generated.equals(npmDist), `${dest} differs from npm ${src}`).toBe(
+        true,
+      );
+      if (versionRe) {
+        expect(generated.toString("utf8", 0, 4096)).toMatch(versionRe);
+      }
+      // The deleted vendored copy must not leak back into the source tree.
+      expect(fs.existsSync(path.join(WAR_DIR, dest))).toBe(false);
+    }
+  });
+
+  it("resolves FancyTree bundle paths into node_modules, not vendored files", () => {
+    for (const dest of [
+      "jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js",
+      "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.css",
+      "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.min.css",
+    ]) {
+      expect(
+        NPM_LIBRARY_MAPPINGS[dest],
+        `no npm mapping for ${dest}`,
+      ).toBeDefined();
+      const resolved = resolvePath(dest);
+      const normalized = resolved.split(path.sep).join("/");
+      expect(normalized).toContain("node_modules/");
+      expect(fs.existsSync(resolved), resolved).toBe(true);
+    }
+  });
+
+  it("leaves DynaTree with no mapping and no standalone entry", () => {
+    expect(
+      Object.keys(NPM_LIBRARY_MAPPINGS).some((k) =>
+        k.toLowerCase().includes("dynatree"),
+      ),
+      "dynatree must have no npm mapping",
+    ).toBe(false);
+    expect(
+      STANDALONE_NPM_COPIES.some((e) =>
+        e.dest.toLowerCase().includes("dynatree"),
+      ),
+      "dynatree must have no standalone copy",
+    ).toBe(false);
+    const bundleJson = JSON.parse(
+      fs.readFileSync(
+        path.join(BUNDLE_CONFIG_DIR, "common-bundles.json"),
+        "utf8",
+      ),
+    );
+    const bundled = JSON.stringify(bundleJson);
+    expect(bundled.toLowerCase()).not.toContain("dynatree");
+  });
+
+  it("deleted vendored tree copies are gone from the source tree", () => {
+    for (const rel of DELETED_VENDORED) {
+      expect(
+        fs.existsSync(path.join(WAR_DIR, rel)),
+        `deleted vendored file still present: ${rel}`,
+      ).toBe(false);
+    }
+    // war/ overlay mirrors are deleted too (tracked legacy duplicate tree).
+    const warFile = (rel) => path.join(WEBUI_DIR, "war", rel);
+    expect(fs.existsSync(warFile("jslib/profiles/3x/jquery/plugins/jquery-dynatree/jquery.dynatree.js"))).toBe(
+      false,
+    );
+    expect(fs.existsSync(warFile("jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js"))).toBe(
+      false,
+    );
+    expect(fs.existsSync(warFile("css/dynatree/skin/ui.dynatree.css"))).toBe(
+      false,
+    );
+    expect(fs.existsSync(warFile("skin-win8/ui.fancytree.css"))).toBe(false);
   });
 });
