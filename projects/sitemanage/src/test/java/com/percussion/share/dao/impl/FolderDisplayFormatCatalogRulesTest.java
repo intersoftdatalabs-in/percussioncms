@@ -130,6 +130,28 @@ class FolderDisplayFormatCatalogRulesTest {
     assertEquals("", descriptionOf(rows, "9"));
   }
 
+  @Test
+  void duplicateIdsKeepFolderValidRowAndFilterToFolderValid() {
+    PSFolderDisplayFormatCatalog upgraded =
+        FolderDisplayFormatCatalogRules.fromRows(
+            Arrays.asList(
+                new SourceRow(7, "Related", false, "stale"),
+                new SourceRow(7, "Simple", true, "current"),
+                new SourceRow(9, "Other", false)));
+    assertEquals(List.of("7"), ids(upgraded));
+    assertEquals("Simple", FolderDisplayFormatCatalogRules.nameOf(upgraded, "7"));
+    assertEquals("current", descriptionOf(upgraded, "7"));
+
+    PSFolderDisplayFormatCatalog kept =
+        FolderDisplayFormatCatalogRules.fromRows(
+            Arrays.asList(
+                new SourceRow(7, "Simple", true, "current"),
+                new SourceRow(7, "Related", false, "stale"),
+                new SourceRow(9, "Other", false)));
+    assertEquals(List.of("7"), ids(kept));
+    assertEquals("Simple", FolderDisplayFormatCatalogRules.nameOf(kept, "7"));
+  }
+
   private static List<String> ids(PSFolderDisplayFormatCatalog catalog) {
     return catalog.getChoices().stream().map(PSFolderDisplayFormatChoice::getId).toList();
   }

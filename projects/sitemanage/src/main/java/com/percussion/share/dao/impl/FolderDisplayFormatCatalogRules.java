@@ -137,46 +137,69 @@ public final class FolderDisplayFormatCatalogRules {
   }
 
   public static PSFolderDisplayFormatCatalog fromRows(List<SourceRow> raw) {
-    Map<String, PSFolderDisplayFormatChoice> byId = new LinkedHashMap<>();
-    Map<String, Boolean> validById = new LinkedHashMap<>();
-    boolean anyFolder = false;
-    if (raw != null) {
-      for (SourceRow row : raw) {
-        if (row == null || row.id() <= 0) {
-          continue;
-        }
-        String id = Integer.toString(row.id());
-        String name = trim(row.name());
-        if (name.isEmpty()) {
-          name = id;
-        }
-        boolean valid = row.validForFolder();
-        Boolean previous = validById.get(id);
-        if (previous == null || (!previous && valid)) {
-          PSFolderDisplayFormatChoice choice = new PSFolderDisplayFormatChoice();
-          choice.setId(id);
-          choice.setName(name);
-          choice.setDescription(trim(row.description()));
-          byId.put(id, choice);
-          validById.put(id, valid);
-        }
-        if (valid) {
-          anyFolder = true;
-        }
-      }
-    }
-    List<PSFolderDisplayFormatChoice> choices = new ArrayList<>();
-    for (Map.Entry<String, PSFolderDisplayFormatChoice> entry : byId.entrySet()) {
-      if (!anyFolder || Boolean.TRUE.equals(validById.get(entry.getKey()))) {
-        choices.add(entry.getValue());
-      }
-    }
+    RowIndex index = indexById(raw);
+    List<PSFolderDisplayFormatChoice> choices = selectChoices(index);
     choices.sort(
         Comparator.comparing(PSFolderDisplayFormatChoice::getName, String.CASE_INSENSITIVE_ORDER)
             .thenComparing(PSFolderDisplayFormatChoice::getId));
     PSFolderDisplayFormatCatalog catalog = new PSFolderDisplayFormatCatalog();
     catalog.setChoices(choices);
     return catalog;
+  }
+
+  /** Deduplicated rows keyed by id plus whether any loaded row is folder-valid. */
+  private static final class RowIndex {
+    private final Map<String, PSFolderDisplayFormatChoice> byId = new LinkedHashMap<>();
+    private final Map<String, Boolean> validById = new LinkedHashMap<>();
+    private boolean anyFolderValid;
+  }
+
+  private static RowIndex indexById(List<SourceRow> raw) {
+    RowIndex index = new RowIndex();
+    if (raw == null) {
+      return index;
+    }
+    for (SourceRow row : raw) {
+      if (row == null || row.id() <= 0) {
+        continue;
+      }
+      mergeRow(index, row);
+    }
+    return index;
+  }
+
+  /**
+   * Merges one row into the index. A folder-valid row replaces a previously stored non-valid row
+   * for the same id; a non-valid row never displaces a stored valid row. Any folder-valid row —
+   * stored or not — marks the index as folder-valid for catalog filtering.
+   */
+  private static void mergeRow(RowIndex index, SourceRow row) {
+    String id = Integer.toString(row.id());
+    boolean valid = row.validForFolder();
+    if (valid) {
+      index.anyFolderValid = true;
+    }
+    Boolean previous = index.validById.get(id);
+    if (previous != null && (previous || !valid)) {
+      return;
+    }
+    PSFolderDisplayFormatChoice choice = new PSFolderDisplayFormatChoice();
+    choice.setId(id);
+    String name = trim(row.name());
+    choice.setName(name.isEmpty() ? id : name);
+    choice.setDescription(trim(row.description()));
+    index.byId.put(id, choice);
+    index.validById.put(id, valid);
+  }
+
+  private static List<PSFolderDisplayFormatChoice> selectChoices(RowIndex index) {
+    List<PSFolderDisplayFormatChoice> choices = new ArrayList<>();
+    for (Map.Entry<String, PSFolderDisplayFormatChoice> entry : index.byId.entrySet()) {
+      if (!index.anyFolderValid || Boolean.TRUE.equals(index.validById.get(entry.getKey()))) {
+        choices.add(entry.getValue());
+      }
+    }
+    return choices;
   }
 
   public static ParsedId parseId(String raw) {
