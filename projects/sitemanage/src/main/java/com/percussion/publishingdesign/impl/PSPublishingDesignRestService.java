@@ -540,55 +540,15 @@ public class PSPublishingDesignRestService {
   @Produces({MediaType.APPLICATION_JSON, MediaType.APPLICATION_XML})
   public PSEditionSummary copyEdition(PSCopyEditionRequest request) {
     requireDesignWrite();
-    if (request == null
-        || isBlank(request.getSourceEditionId())
-        || isBlank(request.getTargetSiteId())) {
-      throw badRequest("sourceEditionId and targetSiteId are required");
-    }
+    requireCopyEditionRequest(request);
     try {
       IPSEdition source = publisherService.loadEdition(toEditionGuid(request.getSourceEditionId()));
-      String newName =
-          isBlank(request.getNewName()) ? source.getName() + "_copy" : request.getNewName().trim();
+      String newName = resolveCopyEditionName(request, source);
       requireUniqueEditionName(newName, null);
       IPSEdition copy = publisherService.createEdition();
-      copy.setComment(source.getComment());
-      if (source.getEditionType() != null) {
-        copy.setEditionType(source.getEditionType());
-      }
-      if (source.getPriority() != null) {
-        copy.setPriority(source.getPriority());
-      }
-      copy.setStartDate(source.getStartDate());
-      copy.setEndDate(source.getEndDate());
-      copy.setSiteId(toSiteGuid(request.getTargetSiteId()));
-      // setName writes the visible display title. Apply it last so the source title cannot replace it.
-      copy.setName(newName);
+      applyCopiedEditionFields(copy, source, newName, request.getTargetSiteId());
       publisherService.saveEdition(copy);
-
-      if (request.isCopyContentLists() && source.getGUID() != null && copy.getGUID() != null) {
-        List<IPSEditionContentList> links =
-            publisherService.loadEditionContentLists(source.getGUID());
-        for (IPSEditionContentList link : links) {
-          if (link.getContentListId() == null || link.getDeliveryContextId() == null) {
-            continue;
-          }
-          IPSEditionContentList newLink = publisherService.createEditionContentList();
-          if (newLink instanceof PSEditionContentList pcl) {
-            PSEditionContentListPK pk = pcl.getEditionContentListPK();
-            pk.setEditionid(copy.getGUID().longValue());
-            pk.setContentlistid(link.getContentListId().longValue());
-            pcl.setEditionContentListPK(pk);
-            pcl.setDeliveryContextId(link.getDeliveryContextId());
-            if (link.getAssemblyContextId() != null) {
-              pcl.setAssemblyContextId(link.getAssemblyContextId());
-            }
-            if (link.getSequence() != null) {
-              pcl.setSequence(link.getSequence());
-            }
-            publisherService.saveEditionContentList(pcl);
-          }
-        }
-      }
+      copyEditionContentLists(request.isCopyContentLists(), source, copy);
       return toEditionSummary(copy, request.getTargetSiteId());
     } catch (PSNotFoundException e) {
       throw notFound("Source edition not found");
@@ -597,6 +557,71 @@ public class PSPublishingDesignRestService {
     } catch (Exception e) {
       throw internalError(e);
     }
+  }
+
+  private void requireCopyEditionRequest(PSCopyEditionRequest request) {
+    if (request == null
+        || isBlank(request.getSourceEditionId())
+        || isBlank(request.getTargetSiteId())) {
+      throw badRequest("sourceEditionId and targetSiteId are required");
+    }
+  }
+
+  private String resolveCopyEditionName(PSCopyEditionRequest request, IPSEdition source) {
+    if (isBlank(request.getNewName())) {
+      return source.getName() + "_copy";
+    }
+    return request.getNewName().trim();
+  }
+
+  private void applyCopiedEditionFields(
+      IPSEdition copy, IPSEdition source, String newName, String targetSiteId) {
+    copy.setComment(source.getComment());
+    if (source.getEditionType() != null) {
+      copy.setEditionType(source.getEditionType());
+    }
+    if (source.getPriority() != null) {
+      copy.setPriority(source.getPriority());
+    }
+    copy.setStartDate(source.getStartDate());
+    copy.setEndDate(source.getEndDate());
+    copy.setSiteId(toSiteGuid(targetSiteId));
+    // setName writes the visible display title. Apply it last so the source title cannot replace it.
+    copy.setName(newName);
+  }
+
+  private void copyEditionContentLists(
+      boolean copyContentLists, IPSEdition source, IPSEdition copy) {
+    if (!copyContentLists || source.getGUID() == null || copy.getGUID() == null) {
+      return;
+    }
+    List<IPSEditionContentList> links =
+        publisherService.loadEditionContentLists(source.getGUID());
+    for (IPSEditionContentList link : links) {
+      duplicateEditionContentListLink(link, copy.getGUID());
+    }
+  }
+
+  private void duplicateEditionContentListLink(IPSEditionContentList link, IPSGuid editionId) {
+    if (link.getContentListId() == null || link.getDeliveryContextId() == null) {
+      return;
+    }
+    IPSEditionContentList newLink = publisherService.createEditionContentList();
+    if (!(newLink instanceof PSEditionContentList pcl)) {
+      return;
+    }
+    PSEditionContentListPK pk = pcl.getEditionContentListPK();
+    pk.setEditionid(editionId.longValue());
+    pk.setContentlistid(link.getContentListId().longValue());
+    pcl.setEditionContentListPK(pk);
+    pcl.setDeliveryContextId(link.getDeliveryContextId());
+    if (link.getAssemblyContextId() != null) {
+      pcl.setAssemblyContextId(link.getAssemblyContextId());
+    }
+    if (link.getSequence() != null) {
+      pcl.setSequence(link.getSequence());
+    }
+    publisherService.saveEditionContentList(pcl);
   }
 
   @GET
