@@ -71,9 +71,9 @@ public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
   public PSJdbcOracleSqlStatement(
       int statementType,
       String statement,
-      PSCollection values,
+      PSCollection<PSJdbcStatementColumn> values,
       String selLobString,
-      PSCollection keyValues,
+      PSCollection<PSJdbcStatementColumn> keyValues,
       List<Integer> lobTypes,
       List<String> lobValues,
       List<Integer> lobValuesEncoding) {
@@ -524,7 +524,7 @@ public class PSJdbcOracleSqlStatement extends PSJdbcPreparedSqlStatement {
    * statement at runtime. May be <code>null</code> if the statement does not require any
    * parameters, but never emtpy if not <code>null</code>.
    */
-  private PSCollection m_keyValues;
+  private PSCollection<PSJdbcStatementColumn> m_keyValues;
 
   /**
    * an array of Integer objects indicating the type of lob object in the m_lobValues array at the

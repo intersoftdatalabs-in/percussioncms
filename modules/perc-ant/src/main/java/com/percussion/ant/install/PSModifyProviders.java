@@ -218,7 +218,7 @@ public final class PSModifyProviders extends PSAction {
       String authType = "";
       PSAcl acl = app.getAcl();
       PSAclEntry aclEntry = null;
-      PSCollection aclEntries = acl.getEntries();
+      PSCollection<?> aclEntries = acl.getEntries();
       PSSecurityConfiguration secConf = null;
       File userSecConfFile = null;
       int i;

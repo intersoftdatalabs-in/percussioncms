@@ -400,7 +400,8 @@ public class PSJdbcStatementFactory {
     // add columns from target, saving values for binding as we go
     StringBuilder valueBuf = new StringBuilder();
     boolean firstTime = true;
-    PSCollection values = new PSCollection(PSJdbcStatementColumn.class);
+    PSCollection<PSJdbcStatementColumn> values =
+        new PSCollection<>(PSJdbcStatementColumn.class);
     Iterator<PSJdbcColumnDef> targetColumns = targetTableSchema.getColumns();
     while (targetColumns.hasNext()) {
       // first check to see if it's in the source
@@ -685,7 +686,8 @@ public class PSJdbcStatementFactory {
 
     StringBuilder buf = new StringBuilder();
     StringBuilder valueBuf = new StringBuilder();
-    PSCollection values = new PSCollection(PSJdbcStatementColumn.class);
+    PSCollection<PSJdbcStatementColumn> values =
+        new PSCollection<>(PSJdbcStatementColumn.class);
 
     buf.append("INSERT INTO ");
     buf.append(fullName);
@@ -871,10 +873,12 @@ public class PSJdbcStatementFactory {
     boolean isDummyUpdate = true;
 
     StringBuilder buf = new StringBuilder();
-    PSCollection values = new PSCollection(PSJdbcStatementColumn.class);
+    PSCollection<PSJdbcStatementColumn> values =
+        new PSCollection<>(PSJdbcStatementColumn.class);
     StringBuilder keyBuf = new StringBuilder();
     StringBuilder keyColBuf = new StringBuilder();
-    PSCollection keyValues = new PSCollection(PSJdbcStatementColumn.class);
+    PSCollection<PSJdbcStatementColumn> keyValues =
+        new PSCollection<>(PSJdbcStatementColumn.class);
 
     buf.append("UPDATE ");
     buf.append(fullName);
@@ -1018,7 +1022,8 @@ public class PSJdbcStatementFactory {
             tableSchema.getName(), dbmsDef.getDataBase(), dbmsDef.getSchema(), dbmsDef.getDriver());
 
     StringBuilder keyBuf = new StringBuilder();
-    PSCollection keyValues = new PSCollection(PSJdbcStatementColumn.class);
+    PSCollection<PSJdbcStatementColumn> keyValues =
+        new PSCollection<>(PSJdbcStatementColumn.class);
 
     keyBuf.append("DELETE FROM ");
     keyBuf.append(fullName);
