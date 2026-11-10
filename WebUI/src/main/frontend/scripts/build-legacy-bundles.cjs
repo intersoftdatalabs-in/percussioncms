@@ -74,6 +74,19 @@ const NPM_LIBRARY_MAPPINGS = {
     "modernizr/bin/modernizr",
   "jslib/profiles/3x/libraries/animate.css/animate.css":
     "animate.css/animate.css",
+  // Tree widgets from npm (issue #5662). The vendored
+  // cm/jslib copies (FancyTree 2.38.3 + dead DynaTree 1.1.0) were deleted;
+  // classic finder pages keep loading the stable jslib URLs, served from
+  // these Dependabot-tracked npm dist files via the generated-webui
+  // overlay (STANDALONE_NPM_COPIES) and bundle resolution below.
+  // DynaTree (upstream dead, predecessor of FancyTree) is retired outright:
+  // no app code invoked it, so it has no mapping or standalone entry.
+  "jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js":
+    "jquery.fancytree/dist/jquery.fancytree-all.min.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.css":
+    "jquery.fancytree/dist/skin-win8/ui.fancytree.css",
+  "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.min.css":
+    "jquery.fancytree/dist/skin-win8/ui.fancytree.min.css",
 };
 
 // List of bundle config files to process
@@ -257,6 +270,47 @@ const STANDALONE_NPM_COPIES = [
   {
     src: "jquery-ui/dist/jquery-ui.min.js",
     dest: "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js",
+    required: true,
+  },
+  // Tree widgets from npm (issue #5662). Dest paths are the stable
+  // classic-UI jslib URLs (finder_js.jsp direct loads + shared-finder
+  // bundle keep referencing them unchanged); sources are the
+  // Dependabot-tracked npm dist files, including the win8 skin images the
+  // css resolves relatively. The vendored copies were deleted, so every
+  // entry is required.
+  {
+    src: "jquery.fancytree/dist/jquery.fancytree-all.min.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/ui.fancytree.min.css",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.min.css",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/icons.gif",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/icons.gif",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/icons-rtl.gif",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/icons-rtl.gif",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/loading.gif",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/loading.gif",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/vline.gif",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/vline.gif",
+    required: true,
+  },
+  {
+    src: "jquery.fancytree/dist/skin-win8/vline-rtl.gif",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/vline-rtl.gif",
     required: true,
   },
 ];
