@@ -74,6 +74,38 @@ const NPM_LIBRARY_MAPPINGS = {
     "modernizr/bin/modernizr",
   "jslib/profiles/3x/libraries/animate.css/animate.css":
     "animate.css/animate.css",
+  // jQuery plugin cluster from npm (issue #5663). The vendored
+  // cm/jslib copies were deleted; classic pages keep loading the stable
+  // jslib URLs, served from these npm dist files via the generated-webui
+  // overlay (STANDALONE_NPM_COPIES) and bundle resolution below.
+  "jslib/profiles/3x/jquery/plugins/jquery-form/jquery.form.js":
+    "jquery-form/dist/jquery.form.min.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-validation/jquery.validate.js":
+    "jquery-validation/dist/jquery.validate.min.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-validation/additional-methods.js":
+    "jquery-validation/dist/additional-methods.min.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-jeditable/jquery.jeditable.js":
+    "jquery-jeditable/dist/jquery.jeditable.min.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-superfish/js/superfish.js":
+    "superfish/dist/js/superfish.min.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-superfish/js/hoverIntent.js":
+    "superfish/dist/js/hoverIntent.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish.css":
+    "superfish/dist/css/superfish.css",
+  "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish-vertical.css":
+    "superfish/dist/css/superfish-vertical.css",
+  "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish-navbar.css":
+    "superfish/dist/css/superfish-navbar.css",
+  "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/megafish.css":
+    "superfish/dist/css/megafish.css",
+  "jslib/profiles/3x/jquery/plugins/jquery-hoverintent/jquery.hoverIntent.js":
+    "hoverintent/dist/hoverintent.min.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-timeago/jquery.timeago.js":
+    "timeago/jquery.timeago.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.js":
+    "jquery-ui-multiselect-widget/src/jquery.multiselect.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.filter.js":
+    "jquery-ui-multiselect-widget/src/jquery.multiselect.filter.js",
 };
 
 // List of bundle config files to process
@@ -257,6 +289,80 @@ const STANDALONE_NPM_COPIES = [
   {
     src: "jquery-ui/dist/jquery-ui.min.js",
     dest: "jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js",
+    required: true,
+  },
+  // jQuery plugin cluster from npm (issue #5663). Dest paths are the stable
+  // classic-UI jslib URLs (common_js.jsp / common_css.jsp / bundle configs
+  // keep referencing them unchanged); sources are the Dependabot-tracked npm
+  // dist files. The vendored copies were deleted, so every entry is required.
+  {
+    src: "jquery-form/dist/jquery.form.min.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-form/jquery.form.js",
+    required: true,
+  },
+  {
+    src: "jquery-validation/dist/jquery.validate.min.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-validation/jquery.validate.js",
+    required: true,
+  },
+  {
+    src: "jquery-validation/dist/additional-methods.min.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-validation/additional-methods.js",
+    required: true,
+  },
+  {
+    src: "jquery-jeditable/dist/jquery.jeditable.min.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-jeditable/jquery.jeditable.js",
+    required: true,
+  },
+  {
+    src: "superfish/dist/js/superfish.min.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/js/superfish.js",
+    required: true,
+  },
+  {
+    src: "superfish/dist/js/hoverIntent.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/js/hoverIntent.js",
+    required: true,
+  },
+  {
+    src: "superfish/dist/css/superfish.css",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish.css",
+    required: true,
+  },
+  {
+    src: "superfish/dist/css/superfish-vertical.css",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish-vertical.css",
+    required: true,
+  },
+  {
+    src: "superfish/dist/css/superfish-navbar.css",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/superfish-navbar.css",
+    required: true,
+  },
+  {
+    src: "superfish/dist/css/megafish.css",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-superfish/css/megafish.css",
+    required: true,
+  },
+  {
+    src: "hoverintent/dist/hoverintent.min.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-hoverintent/jquery.hoverIntent.js",
+    required: true,
+  },
+  {
+    src: "timeago/jquery.timeago.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-timeago/jquery.timeago.js",
+    required: true,
+  },
+  {
+    src: "jquery-ui-multiselect-widget/src/jquery.multiselect.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.js",
+    required: true,
+  },
+  {
+    src: "jquery-ui-multiselect-widget/src/jquery.multiselect.filter.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.filter.js",
     required: true,
   },
 ];

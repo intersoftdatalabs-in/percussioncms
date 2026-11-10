@@ -374,10 +374,9 @@
 		<copy
 			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/jqueryUi/jquery-ui.min.js"
 			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/jslib/profiles/3x/jquery/libraries/jquery-ui/jquery-ui.min.js" />
-		<!-- collapser -->
-		<copy
-			tofile="${assembly-directory}/jetty/base/webapps/Rhythmyx/WEB-INF/classes/features/perc/collapser/jquery.collapser.js"
-			file="${basedir}/../../WebUI/war/jslib/profiles/3x/jquery/plugins/jquery-collapser/jquery.collapser.js" />
+		<!-- collapser gadget retired with the vendored copy (issue #5663):
+			nothing Requires perc_collapser, so the feature, its manifest
+			entries, and this copy are removed. -->
 
 		<!-- jQuery.cookie -->
 		<copy

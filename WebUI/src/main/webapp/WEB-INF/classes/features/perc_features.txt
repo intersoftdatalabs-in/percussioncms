@@ -10,6 +10,5 @@
 features/perc/core/feature.xml
 features/perc/jquery/feature.xml
 features/perc/jqueryUi/feature.xml
-features/perc/collapser/feature.xml
 features/perc/uploadify/feature.xml
 features/perc/getDashboardColumn/feature.xml
