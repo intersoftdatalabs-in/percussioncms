@@ -27,6 +27,17 @@ into template source. Create and delete of modern templates stay on
 If the catalog is empty, **Import XML** is still available so you can create the
 first template from a design document.
 
+## Load failure and retry
+
+The catalog rows render only after `GET /services/templates` succeeds.
+When that load fails, the panel names the failure (**Could not load
+templates**, plus the status or transport reason) instead of showing an empty
+catalog, and offers **Retry**, which reloads the list. There is no REST gap
+behind this screen: both the thin list (`GET /services/templates`) and the
+row detail (`GET /services/templates/{idOrName}`) are public REST. Write and
+design-lock gaps (label/description save, source, bindings, slots,
+associations) are documented under their own sections below, not here.
+
 ## Export template design XML (AS-08)
 
 Export is read-only and does **not** steal a design lock.

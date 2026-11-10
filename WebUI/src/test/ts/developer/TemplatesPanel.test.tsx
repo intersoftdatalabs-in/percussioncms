@@ -2,7 +2,7 @@
  * Copyright (c) 2026 Intersoft Data Labs, Inc.
  */
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
@@ -117,6 +117,46 @@ describe("TemplatesPanel", () => {
       `${DEV_MSG.TPL_ERROR} network down`,
     );
     expect(screen.queryByTestId("developer-tpl-table")).toBeNull();
+  });
+
+  it("names the load failure and offers Retry instead of an empty catalog (#5994)", async () => {
+    listTemplates.mockRejectedValue(new Error("network down"));
+    render(<TemplatesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-tpl-error").textContent).toBe(
+      `${DEV_MSG.TPL_ERROR} network down`,
+    );
+    expect(screen.getByTestId("developer-tpl-retry")).toBeTruthy();
+    expect(screen.getByTestId("developer-tpl-retry").textContent).toBe(DEV_MSG.TPL_RETRY);
+    expect(screen.queryByTestId("developer-tpl-empty")).toBeNull();
+    expect(screen.queryByTestId("developer-tpl-table")).toBeNull();
+  });
+
+  it("Retry reloads the catalog after a load failure (#5994)", async () => {
+    listTemplates
+      .mockRejectedValueOnce(new Error("network down"))
+      .mockResolvedValueOnce([
+        {
+          templateId: 42,
+          templateName: "perc.page",
+          templateLabel: "Page",
+          templateDescription: "Page template",
+        },
+      ]);
+    render(<TemplatesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-retry")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-retry"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-table")).toBeTruthy();
+    });
+    expect(listTemplates).toHaveBeenCalledTimes(2);
+    expect(screen.queryByTestId("developer-tpl-error")).toBeNull();
+    expect(screen.queryByTestId("developer-tpl-empty")).toBeNull();
+    expect(screen.getByTestId("developer-tpl-table").textContent).toContain("perc.page");
   });
 
   it("shows fallback when rejection has no message", async () => {

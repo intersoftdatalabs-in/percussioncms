@@ -20,7 +20,7 @@ import { resolveTemplateObjectGuid } from "../api/displayFormatGuid";
 import { listTemplates } from "../api/developer/assemblyApi";
 import type { TemplateSummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
-import { monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
+import { catalogColors, monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { DeveloperSectionErrorBoundary } from "./DeveloperSectionErrorBoundary";
@@ -59,8 +59,9 @@ export function TemplatesPanel(): React.ReactElement {
       })
       .catch((e: unknown) => {
         if (cancelled) return;
+        // Leave items null so the failure reads as a named load error
+        // (with Retry) instead of an empty catalog (#5994).
         setError(panelErrMsg(e, DEV_MSG.TPL_ERROR));
-        setItems([]);
       });
     return () => {
       cancelled = true;
@@ -108,9 +109,26 @@ export function TemplatesPanel(): React.ReactElement {
       <CatalogHint>{DEV_MSG.TPL_HINT}</CatalogHint>
       <TemplateImportWizard onImported={() => reloadCatalog()} />
       {error ? (
-        <CatalogStatus testId="developer-tpl-error" error>
-          {error}
-        </CatalogStatus>
+        <>
+          <CatalogStatus testId="developer-tpl-error" error>
+            {error}
+          </CatalogStatus>
+          <button
+            type="button"
+            data-testid="developer-tpl-retry"
+            onClick={() => reloadCatalog()}
+            style={{
+              padding: "8px 14px",
+              background: catalogColors.accent,
+              color: "#fff",
+              border: "none",
+              borderRadius: "4px",
+              cursor: "pointer",
+            }}
+          >
+            {DEV_MSG.TPL_RETRY}
+          </button>
+        </>
       ) : items == null ? (
         <CatalogStatus testId="developer-tpl-loading">{DEV_MSG.TPL_LOADING}</CatalogStatus>
       ) : items.length === 0 ? (
