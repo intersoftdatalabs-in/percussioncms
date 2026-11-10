@@ -3192,84 +3192,99 @@ public class PSPubServerService implements IPSPubServerService {
     if (siteId == null) {
       throw new IllegalArgumentException("siteId must not be null");
     }
-    PSPubInfo pubInfo = null;
-
     IPSPubServer pubServer = getDefaultPubServer(siteId);
+    S3PubConfig config = readS3PubConfig(pubServer);
     String pubType = pubServer.getPublishType();
-    PSPubServerProperty buckProp =
-        pubServer.getProperty(IPSPubServerDao.PUBLISH_AS3_BUCKET_PROPERTY).orElse(null);
-    String bucketProperty = null;
-    if (buckProp != null) {
-      bucketProperty = buckProp.getValue();
+    if (isS3PublishType(pubType)) {
+      return toS3PubInfo(config);
     }
+    // In some cases the S3 publisher may not be the default - loop through pubservers to see if
+    // any are pointed at s3
+    return findS3PubInfo(siteId.toString(), config, pubType);
+  }
 
-    PSPubServerProperty accessKeyProp =
-        pubServer.getProperty(IPSPubServerDao.PUBLISH_AS3_ACCESSKEY_PROPERTY).orElse(null);
-    // As will be null in case of EC2 instance
-    String accessKey = null;
-    if (accessKeyProp != null) {
-      accessKey = accessKeyProp.getValue();
-
-      try {
-        if (accessKey != null) {
-          accessKey = decrypt(accessKey);
-        }
-      } catch (Exception e) {
-        throw new PSPubServerServiceException(e);
-      }
-    }
-
-    String securityKey = null;
-    PSPubServerProperty securityKeyProp =
-        pubServer.getProperty(IPSPubServerDao.PUBLISH_AS3_SECURITYKEY_PROPERTY).orElse(null);
-    if (securityKeyProp != null) {
-      securityKey = securityKeyProp.getValue();
-      try {
-        securityKey = decrypt(securityKey);
-      } catch (Exception e) {
-        throw new PSPubServerServiceException(e);
-      }
-    }
-    String region = null;
-    PSPubServerProperty regioProp =
-        pubServer.getProperty(IPSPubServerDao.PUBLISH_EC2_REGION).orElse(null);
-    if (regioProp != null) {
-      region = regioProp.getValue();
-    }
+  /** S3 credential/config snapshot for {@link #getS3PubInfo}. */
+  static final class S3PubConfig {
+    String bucket;
+    String accessKey;
+    String securityKey;
+    String region;
     String useAssumeRole = "false";
-    PSPubServerProperty useAssumeRoleProp =
-        pubServer.getProperty(IPSPubServerDao.PUBLISH_AS3_USE_ASSUME_ROLE).orElse(null);
-    if (useAssumeRoleProp != null && useAssumeRoleProp.getValue() != null) {
-      useAssumeRole = useAssumeRoleProp.getValue();
-    }
+    String arnRole;
+  }
 
-    String arnRole = null;
-    PSPubServerProperty arnRoleProp =
-        pubServer.getProperty(IPSPubServerDao.PUBLISH_AS3_ARN_ROLE).orElse(null);
-    if (arnRoleProp != null) {
-      arnRole = arnRoleProp.getValue();
+  static boolean isS3PublishType(String publishType) {
+    return equalsIgnoreCase(publishType, PublishType.amazon_s3.toString())
+        || equalsIgnoreCase(publishType, PublishType.amazon_s3_only.toString());
+  }
+
+  /**
+   * Matches a non-default publisher against the S3 driver. Preserves the original loop predicate,
+   * where the {@code amazon_s3_only} leg tests the default server publish type.
+   */
+  static boolean matchesS3PubServer(String driver, String defaultPubType) {
+    return equalsIgnoreCase(driver, PublishType.amazon_s3.toString())
+        || equalsIgnoreCase(defaultPubType, PublishType.amazon_s3_only.toString());
+  }
+
+  static PSPubInfo toS3PubInfo(S3PubConfig config) {
+    PSPubInfo pubInfo =
+        new PSPubInfo(config.bucket, config.accessKey, config.securityKey, config.region);
+    pubInfo.setUseAssumeRole(config.useAssumeRole);
+    pubInfo.setArnRole(config.arnRole);
+    return pubInfo;
+  }
+
+  static String getPubServerPropertyValue(IPSPubServer pubServer, String name) {
+    PSPubServerProperty prop = pubServer.getProperty(name).orElse(null);
+    return prop == null ? null : prop.getValue();
+  }
+
+  private String decryptPropertyValue(String value) throws PSPubServerServiceException {
+    try {
+      return decrypt(value);
+    } catch (Exception e) {
+      throw new PSPubServerServiceException(e);
     }
-    if (equalsIgnoreCase(pubType, PublishType.amazon_s3.toString())
-        || equalsIgnoreCase(pubType, PublishType.amazon_s3_only.toString())) {
-      pubInfo = new PSPubInfo(bucketProperty, accessKey, securityKey, region);
-      pubInfo.setUseAssumeRole(useAssumeRole);
-      pubInfo.setArnRole(arnRole);
-    } else {
-      // In some cases the S3 publisher may not be the default - loop through pubservers to see if
-      // any are pointed at s3
-      List<PSPublishServerInfo> pubservers = getPubServerList(siteId.toString());
-      for (PSPublishServerInfo p : pubservers) {
-        String driver = p.findProperty("driver");
-        if (equalsIgnoreCase(driver, PublishType.amazon_s3.toString())
-            || equalsIgnoreCase(pubType, PublishType.amazon_s3_only.toString())) {
-          pubInfo = new PSPubInfo(bucketProperty, accessKey, securityKey, region);
-          pubInfo.setUseAssumeRole(useAssumeRole);
-          pubInfo.setArnRole(arnRole);
-          break;
-        }
+  }
+
+  private S3PubConfig readS3PubConfig(IPSPubServer pubServer) throws PSPubServerServiceException {
+    S3PubConfig config = new S3PubConfig();
+    config.bucket =
+        getPubServerPropertyValue(pubServer, IPSPubServerDao.PUBLISH_AS3_BUCKET_PROPERTY);
+    // As will be null in case of EC2 instance
+    String accessKey =
+        getPubServerPropertyValue(pubServer, IPSPubServerDao.PUBLISH_AS3_ACCESSKEY_PROPERTY);
+    if (accessKey != null) {
+      accessKey = decryptPropertyValue(accessKey);
+    }
+    config.accessKey = accessKey;
+    if (pubServer.getProperty(IPSPubServerDao.PUBLISH_AS3_SECURITYKEY_PROPERTY).orElse(null)
+        != null) {
+      config.securityKey =
+          decryptPropertyValue(
+              getPubServerPropertyValue(
+                  pubServer, IPSPubServerDao.PUBLISH_AS3_SECURITYKEY_PROPERTY));
+    }
+    config.region = getPubServerPropertyValue(pubServer, IPSPubServerDao.PUBLISH_EC2_REGION);
+    String useAssumeRole =
+        getPubServerPropertyValue(pubServer, IPSPubServerDao.PUBLISH_AS3_USE_ASSUME_ROLE);
+    if (useAssumeRole != null) {
+      config.useAssumeRole = useAssumeRole;
+    }
+    config.arnRole = getPubServerPropertyValue(pubServer, IPSPubServerDao.PUBLISH_AS3_ARN_ROLE);
+    return config;
+  }
+
+  private PSPubInfo findS3PubInfo(String siteId, S3PubConfig config, String defaultPubType)
+      throws PSPubServerServiceException, PSNotFoundException {
+    List<PSPublishServerInfo> pubservers = getPubServerList(siteId);
+    for (PSPublishServerInfo p : pubservers) {
+      if (matchesS3PubServer(p.findProperty("driver"), defaultPubType)) {
+        return toS3PubInfo(config);
       }
     }
-    return pubInfo;
+    return null;
   }
 
   @Override
