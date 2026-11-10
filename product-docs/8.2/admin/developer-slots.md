@@ -34,6 +34,20 @@ The new description shows only after that save succeeds. A blank description
 clears the description. **Cancel** does not write. HTTP 400, 403, and 409
 are not success and leave the previous description.
 
+## Readback
+
+The catalog table is a thin read: it lists label, name, and description
+from `GET /services/slots` and carries no finder, relationship, argument,
+or association payload. Opening a row loads the detail from
+`GET /services/slots/{idOrName}` and shows the title, the committed name
+with its GUID, the label and description text, and the slot type. Packaged
+slots read back with zero writes: the row renders from the thin list and
+the detail renders without creating, renaming, or deleting anything. A
+slot created through the shell (`POST /services/slots`) reads back in the
+detail (title, committed name + GUID, label, description) and as a new
+catalog row; removing it is `DELETE /services/slots/{idOrName}` (`204` on
+success), after which the catalog no longer lists that name.
+
 ## Product path — set a label
 
 1. Open an existing slot. The committed label is shown under **Set slot
