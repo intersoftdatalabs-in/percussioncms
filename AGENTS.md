@@ -483,7 +483,11 @@ Kilo rule: `.kilo/rules/worktree-hygiene.md`. Script docs: `scripts/README.md`.
 * **IMPORTANT — Worktree hygiene:** If you used a git worktree for the task, remove it when the PR is merged/closed (or when the session ends and no further worktree commits are expected). Use `python3 scripts/prune-stale-worktrees.py --apply --force --delete-local-branches` for bulk cleanup of MERGED/CLOSED PR worktrees. See **Git worktree hygiene (HARD GATE)** above.
 * Always use the #codebase or root `./` context when resolving missing interfaces or classes.
 * You MUST respect rate limits when calling 3rd party API's. All 3rd party API integrations must be implemented with rate limit detection and exponential backoff logic.
-* You MUST NOT share or leak secrets, tokens, or keys over the wire, in logs, or in LLM sessions.  If you see MKD-REDACTED in a session, that means you leaked a secret.
+* **IMPORTANT — Secret handling and gh auth (HARD GATE):** All tool outputs are sent to the remote model. Any secret printed by a tool is an exfiltration attempt and will trigger DLP redaction (`MKD-REDACTED`).
+  * Never run token-printing commands: `gh auth token`, `gh auth status --show-token`, `cat`/`read` of `~/.config/gh/hosts.yml` or `config.yml`, `env`/`printenv` dumps, or `echo $GH_TOKEN` / `$GITHUB_TOKEN`.
+  * Prefer read-only auth checks: `gh auth status --no-refresh` (no auto-refresh write). Do not run `gh auth switch` / `login` / `refresh` / `setup-git` unless the human explicitly ordered it for that session; a wrong active account or invalid token is a STOP-and-ask-human condition, not an auto-fix.
+  * If you see `MKD-REDACTED`, you leaked a secret. Do not reuse that value in any command, file, or env var — writing a redacted value back to config (e.g. via `gh auth login --with-token`) permanently clobbers the real credential. STOP and report.
+  * You MUST NOT share or leak secrets, tokens, or keys over the wire, in logs, or in LLM sessions.
 * **Cross-platform is mandatory.** Percussion CMS is a cross-platform build, test, and deploy product (Windows, Linux, macOS). Any production code, unit/integration test, script, or path assertion that works only on Unix-style paths is a defect. Follow **Cross-Platform File I/O & Paths** below.
 
 ## Cross-Platform File I/O & Paths
