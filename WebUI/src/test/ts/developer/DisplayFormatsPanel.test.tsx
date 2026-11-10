@@ -268,4 +268,47 @@ describe("DisplayFormatsPanel", () => {
     });
     expect(screen.getByTestId("developer-df-error").textContent).toBe(DEV_MSG.DF_ERROR);
   });
+
+  it("filters catalog rows by query with a named empty state and no refetch", async () => {
+    listDisplayFormats.mockResolvedValue([
+      sampleFormat,
+      {
+        name: "NoirSummary",
+        label: "Noir Summary",
+        description: "Second format",
+        validForFolder: true,
+        validForViewsAndSearches: false,
+        columns: [],
+      },
+    ]);
+    render(<DisplayFormatsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-df-search")).toBeTruthy();
+    fireEvent.change(screen.getByTestId("developer-df-search"), {
+      target: { value: "noir" },
+    });
+    await waitFor(() => {
+      expect(screen.queryByText("Default")).toBeNull();
+    });
+    expect(screen.getByTestId("developer-df-table").textContent).toContain("NoirSummary");
+    fireEvent.change(screen.getByTestId("developer-df-search"), {
+      target: { value: "zzz-no-such-format" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-search-empty")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-df-search-empty").textContent).toBe(
+      DEV_MSG.DF_SEARCH_EMPTY,
+    );
+    expect(screen.queryByTestId("developer-df-table")).toBeNull();
+    fireEvent.change(screen.getByTestId("developer-df-search"), {
+      target: { value: "" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-table")).toBeTruthy();
+    });
+    expect(listDisplayFormats).toHaveBeenCalledTimes(1);
+  });
 });

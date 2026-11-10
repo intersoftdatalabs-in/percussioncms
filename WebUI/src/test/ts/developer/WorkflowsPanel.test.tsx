@@ -357,4 +357,41 @@ describe("WorkflowsPanel", () => {
       expect(screen.getByTestId("developer-wf-open").textContent).toContain("Nightly QA 2");
     });
   });
+
+  it("filters catalog rows by query with a named empty state and no refetch", async () => {
+    listWorkflows.mockResolvedValue([
+      { workflowName: "Alpha Flow", defaultWorkflow: true, workflowSteps: [] },
+      { workflowName: "Beta Flow", defaultWorkflow: false, workflowSteps: [] },
+    ]);
+    render(<WorkflowsPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-search")).toBeTruthy();
+    fireEvent.change(screen.getByTestId("developer-wf-search"), {
+      target: { value: "beta" },
+    });
+    await waitFor(() => {
+      expect(screen.queryByText("Alpha Flow")).toBeNull();
+    });
+    expect(screen.getByTestId("developer-wf-table").textContent).toContain("Beta Flow");
+    fireEvent.change(screen.getByTestId("developer-wf-search"), {
+      target: { value: "zzz-no-such-workflow" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-search-empty")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-search-empty").textContent).toContain(
+      DEV_MSG.WF_SEARCH_EMPTY,
+    );
+    expect(screen.queryByTestId("developer-wf-table")).toBeNull();
+    fireEvent.change(screen.getByTestId("developer-wf-search"), {
+      target: { value: "" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-table")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-wf-table").textContent).toContain("Alpha Flow");
+    expect(listWorkflows).toHaveBeenCalledTimes(1);
+  });
 });

@@ -19,6 +19,7 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from "react"
 import { listCommunities } from "../api/developer/assemblyApi";
 import type { CommunitySummary } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { CatalogSearchFilter, matchesCatalogQuery } from "./CatalogSearchFilter";
 import { catalogColors, monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { CommunityDetailPanel } from "./CommunityDetailPanel";
 import { panelErrMsg } from "./errors";
@@ -38,6 +39,8 @@ function openKey(c: CommunitySummary): string | null {
 export function CommunitiesPanel(): React.ReactElement {
   const [items, setItems] = useState<CommunitySummary[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  /** Client-side catalog filter (#5995). Never triggers a fetch; never mutates. */
+  const [query, setQuery] = useState("");
   /** null = catalog; "new" = create; otherwise name or id. */
   const [selected, setSelected] = useState<string | "new" | null>(null);
   const mountedRef = useRef(true);
@@ -81,6 +84,15 @@ export function CommunitiesPanel(): React.ReactElement {
       }),
     );
   }, [items]);
+
+  const visible = useMemo(() => {
+    return sorted.filter((c) =>
+      matchesCatalogQuery(
+        [c.label, c.name, c.description, c.id != null ? String(c.id) : undefined],
+        query,
+      ),
+    );
+  }, [sorted, query]);
 
   function handleDeleted(): void {
     setSelected(null);
@@ -185,6 +197,17 @@ export function CommunitiesPanel(): React.ReactElement {
       {items.length === 0 ? (
         <CatalogStatus testId="developer-comm-empty">{DEV_MSG.COMM_EMPTY}</CatalogStatus>
       ) : (
+        <>
+          <CatalogSearchFilter
+            testId="developer-comm-search"
+            query={query}
+            onQueryChange={setQuery}
+          />
+          {visible.length === 0 ? (
+            <CatalogStatus testId="developer-comm-search-empty">
+              {DEV_MSG.COMM_SEARCH_EMPTY}
+            </CatalogStatus>
+          ) : (
         <SimpleCatalogTable
           tableTestId="developer-comm-table"
           rowTestId="developer-comm-row"
@@ -194,7 +217,7 @@ export function CommunitiesPanel(): React.ReactElement {
             DEV_MSG.COMM_COL_ID,
             DEV_MSG.COMM_COL_DESCRIPTION,
           ]}
-          rows={sorted.map((c, index) => {
+          rows={visible.map((c, index) => {
             const key = openKey(c);
             return {
               key: String(c.id ?? c.guid?.stringValue ?? c.name ?? `comm-${index}`),
@@ -227,6 +250,8 @@ export function CommunitiesPanel(): React.ReactElement {
             };
           })}
         />
+          )}
+        </>
       )}
     </div>
   );

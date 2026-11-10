@@ -55,6 +55,13 @@ readback. Packaged workflows (for example `Default Workflow`) read back
 with zero writes: the row renders from the thin list and the detail
 renders steps without creating, renaming, or deleting anything.
 
+## Filter the catalog
+
+Type in **Filter catalog** to narrow the rows by workflow name or
+description. Filtering is client-side: it never calls the server and never
+changes catalog data. A query with no matches shows "No workflows match the
+current filter"; clearing the box restores the full list.
+
 ## Product path — browse steps (read-only)
 
 1. Sign in as **Admin**.

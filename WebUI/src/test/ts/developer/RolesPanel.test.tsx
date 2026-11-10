@@ -1245,4 +1245,61 @@ describe("RolesPanel", () => {
     expect(screen.getByTestId("developer-roles-copy-form")).toBeTruthy();
     expect(browseRoles).toHaveBeenCalledTimes(1);
   });
+
+  it("filters roles by query with a named empty state and no refetch", async () => {
+    browseRoles.mockResolvedValue({
+      roles: [
+        {
+          name: "Author",
+          description: "Authors content",
+          groups: ["community"],
+          communities: ["Default"],
+          workflows: [],
+        },
+        {
+          name: "Orphan",
+          description: "No assignments",
+          groups: ["unassigned"],
+          communities: [],
+          workflows: [],
+        },
+      ],
+    });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-groups")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-roles-search")).toBeTruthy();
+    fireEvent.change(screen.getByTestId("developer-roles-search"), {
+      target: { value: "orph" },
+    });
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("developer-roles-group-unassigned").textContent,
+      ).toContain("Orphan");
+    });
+    expect(screen.getByTestId("developer-roles-group-community").textContent).not.toContain(
+      "Author",
+    );
+    fireEvent.change(screen.getByTestId("developer-roles-search"), {
+      target: { value: "zzz-no-such-role" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-search-empty")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-roles-search-empty").textContent).toBe(
+      DEV_MSG.ROLES_SEARCH_EMPTY,
+    );
+    expect(screen.queryByTestId("developer-roles-groups")).toBeNull();
+    fireEvent.change(screen.getByTestId("developer-roles-search"), {
+      target: { value: "" },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-roles-groups")).toBeTruthy();
+    });
+    expect(
+      screen.getByTestId("developer-roles-group-community").textContent,
+    ).toContain("Author");
+    expect(browseRoles).toHaveBeenCalledTimes(1);
+  });
 });

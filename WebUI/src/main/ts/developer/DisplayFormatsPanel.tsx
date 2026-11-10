@@ -22,6 +22,7 @@ import {
 } from "../api/developer/displayFormatsApi";
 import type { DisplayFormat } from "../api/developer/types";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { CatalogSearchFilter, matchesCatalogQuery } from "./CatalogSearchFilter";
 import { catalogColors, monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DisplayFormatDetailPanel } from "./DisplayFormatDetailPanel";
@@ -41,6 +42,8 @@ type SelectedFormat = {
 export function DisplayFormatsPanel(): React.ReactElement {
   const [items, setItems] = useState<DisplayFormat[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  /** Client-side catalog filter (#5995). Never triggers a fetch; never mutates. */
+  const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<SelectedFormat | null>(null);
   const mountedRef = useRef(true);
 
@@ -85,6 +88,15 @@ export function DisplayFormatsPanel(): React.ReactElement {
       ),
     );
   }, [items]);
+
+  const visible = useMemo(() => {
+    return sorted.filter((f) =>
+      matchesCatalogQuery(
+        [f.name, f.label, f.internalName, f.displayName, f.description],
+        query,
+      ),
+    );
+  }, [sorted, query]);
 
   const openFormat = (f: DisplayFormat) => {
     const idOrName = f.name || f.internalName || resolveDisplayFormatObjectGuid(f) || "";
@@ -169,6 +181,17 @@ export function DisplayFormatsPanel(): React.ReactElement {
       {items.length === 0 ? (
         <CatalogStatus testId="developer-df-empty">{DEV_MSG.DF_EMPTY}</CatalogStatus>
       ) : (
+        <>
+          <CatalogSearchFilter
+            testId="developer-df-search"
+            query={query}
+            onQueryChange={setQuery}
+          />
+          {visible.length === 0 ? (
+            <CatalogStatus testId="developer-df-search-empty">
+              {DEV_MSG.DF_SEARCH_EMPTY}
+            </CatalogStatus>
+          ) : (
         <SimpleCatalogTable
           tableTestId="developer-df-table"
           rowTestId="developer-df-row"
@@ -179,7 +202,7 @@ export function DisplayFormatsPanel(): React.ReactElement {
             DEV_MSG.DF_COL_USAGE,
             DEV_MSG.DF_COL_DESCRIPTION,
           ]}
-          rows={sorted.map((f, index) => {
+          rows={visible.map((f, index) => {
             const openKey =
               f.name || f.internalName || resolveDisplayFormatObjectGuid(f) || "";
             const interactive = openKey.length > 0;
@@ -239,6 +262,8 @@ export function DisplayFormatsPanel(): React.ReactElement {
             };
           })}
         />
+          )}
+        </>
       )}
     </div>
   );

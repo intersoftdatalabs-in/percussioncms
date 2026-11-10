@@ -22,6 +22,13 @@ characters. Name cannot be renamed after create.
 other installer catalog names) stay **read-only** for columns, default sort, and
 allowed communities.
 
+## Filter the catalog
+
+Type in **Filter catalog** to narrow the rows by name, label, or
+description. Filtering is client-side: it never calls the server and never
+changes catalog data. A query with no matches shows "No display formats
+match the current filter"; clearing the box restores the full list.
+
 ## Product path — create, delete
 
 1. Sign in as **Admin** (write calls require the Admin role).

@@ -7,6 +7,7 @@ import { listWorkflows } from "../api/developer/workflowsApi";
 import type { WorkflowDef } from "../api/developer/types";
 import type { WorkflowCreateResult } from "../api/developer/workflowsApi";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { CatalogSearchFilter, matchesCatalogQuery } from "./CatalogSearchFilter";
 import { catalogColors, mutedCell, openButtonStyle } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -21,6 +22,8 @@ import { WorkflowDetailPanel } from "./WorkflowDetailPanel";
 export function WorkflowsPanel(): React.ReactElement {
   const [items, setItems] = useState<WorkflowDef[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  /** Client-side catalog filter (#5995). Never triggers a fetch; never mutates. */
+  const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string | "new" | null>(null);
 
   function reload(): void {
@@ -72,6 +75,12 @@ export function WorkflowsPanel(): React.ReactElement {
         }),
       );
   }, [items]);
+
+  const visible = useMemo(() => {
+    return sorted.filter((w) =>
+      matchesCatalogQuery([w.workflowName, w.workflowDescription], query),
+    );
+  }, [sorted, query]);
 
   if (selected === "new") {
     return (
@@ -179,6 +188,16 @@ export function WorkflowsPanel(): React.ReactElement {
         <CatalogHint>{DEV_MSG.WF_HINT}</CatalogHint>
         {newWorkflowButton}
       </div>
+      <CatalogSearchFilter
+        testId="developer-wf-search"
+        query={query}
+        onQueryChange={setQuery}
+      />
+      {visible.length === 0 ? (
+        <CatalogStatus testId="developer-wf-search-empty">
+          {DEV_MSG.WF_SEARCH_EMPTY}
+        </CatalogStatus>
+      ) : (
       <SimpleCatalogTable
         tableTestId="developer-wf-table"
         rowTestId="developer-wf-row"
@@ -188,7 +207,7 @@ export function WorkflowsPanel(): React.ReactElement {
           DEV_MSG.WF_COL_DEFAULT,
           DEV_MSG.WF_COL_STEPS,
         ]}
-        rows={sorted.map((w, index) => {
+        rows={visible.map((w, index) => {
           const openKey = (w.workflowName || "").trim();
           const stepCount = Array.isArray(w.workflowSteps) ? w.workflowSteps.length : 0;
           return {
@@ -232,6 +251,7 @@ export function WorkflowsPanel(): React.ReactElement {
           };
         })}
       />
+      )}
     </div>
   );
 }

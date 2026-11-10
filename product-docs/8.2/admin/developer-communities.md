@@ -29,6 +29,13 @@ Packaged communities (for example `Default`) read back with zero writes:
 the row renders from the thin list and the detail renders identity plus
 lenses without creating, renaming, or deleting anything.
 
+## Filter the catalog
+
+Type in **Filter catalog** to narrow the rows by label, name, or
+description. Filtering is client-side: it never calls the server and never
+changes catalog data. A query with no matches shows "No communities match
+the current filter"; clearing the box restores the full list.
+
 ## Product path — create, rename, description, and delete
 
 1. Sign in as **Admin** (create, rename, and delete require the Admin role).

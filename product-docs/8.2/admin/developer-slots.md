@@ -48,6 +48,13 @@ detail (title, committed name + GUID, label, description) and as a new
 catalog row; removing it is `DELETE /services/slots/{idOrName}` (`204` on
 success), after which the catalog no longer lists that name.
 
+## Filter the catalog
+
+Type in **Filter catalog** to narrow the rows by label, name, or
+description. Filtering is client-side: it never calls the server and never
+changes catalog data. A query with no matches shows "No slots match the
+current filter"; clearing the box restores the full list.
+
 ## Product path — set a label
 
 1. Open an existing slot. The committed label is shown under **Set slot

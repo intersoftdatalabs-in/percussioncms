@@ -38,6 +38,7 @@ import {
 } from "../api/developer/rolesApi";
 import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
+import { CatalogSearchFilter, matchesCatalogQuery } from "./CatalogSearchFilter";
 import { catalogColors, errorAlert, monoCell, mutedCell } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
@@ -498,6 +499,8 @@ export function RolesPanel(): React.ReactElement {
   const [error, setError] = useState<string | null>(null);
   /** null = show all three Workbench folders (client-side). */
   const [filter, setFilter] = useState<RoleBrowseGroupKey | null>(null);
+  /** Client-side text filter (#5995). Never triggers a fetch; never mutates. */
+  const [query, setQuery] = useState("");
   const [expanded, setExpanded] = useState<Set<RoleBrowseGroupKey>>(
     () => new Set(ROLE_BROWSE_GROUPS),
   );
@@ -626,14 +629,20 @@ export function RolesPanel(): React.ReactElement {
     [filter],
   );
 
+  const searched = useMemo(() => {
+    return (catalog ?? []).filter((r) =>
+      matchesCatalogQuery([r.name, r.description, r.homePage], query),
+    );
+  }, [catalog, query]);
+
   const grouped = useMemo(() => {
-    const roles = catalog ?? [];
+    const roles = searched;
     const map = {} as Record<RoleBrowseGroupKey, RoleBrowseEntry[]>;
     for (const g of ROLE_BROWSE_GROUPS) {
       map[g] = rolesInBrowseGroup(roles, g);
     }
     return map;
-  }, [catalog]);
+  }, [searched]);
 
   function toggleGroup(group: RoleBrowseGroupKey) {
     setExpanded((prev) => {
@@ -1674,6 +1683,17 @@ export function RolesPanel(): React.ReactElement {
           {DEV_MSG.ROLES_EMPTY}
         </CatalogStatus>
       ) : (
+        <>
+          <CatalogSearchFilter
+            testId="developer-roles-search"
+            query={query}
+            onQueryChange={setQuery}
+          />
+          {searched.length === 0 ? (
+            <CatalogStatus testId="developer-roles-search-empty">
+              {DEV_MSG.ROLES_SEARCH_EMPTY}
+            </CatalogStatus>
+          ) : (
         <div data-testid="developer-roles-groups">
           {groupsToShow.map((g) => (
             <RoleGroupSection
@@ -1690,6 +1710,8 @@ export function RolesPanel(): React.ReactElement {
             />
           ))}
         </div>
+          )}
+        </>
       )}
       <CatalogConfirmDialog
         open={pendingDelete != null}
