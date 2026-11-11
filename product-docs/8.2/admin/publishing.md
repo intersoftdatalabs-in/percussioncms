@@ -513,6 +513,30 @@ password** on a non-database server does not change that server. Host-only save,
 user-id-only save, database-name-only save, Oracle SID/schema saves, MSSQL owner save, and full
 server edit (**Edit Server**) stay separate.
 
+### Set a database delivery-server connection (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **MYSQL**, **MYSQL8**, **MSSQL**, or **Oracle**. **Set connection** edits the database
+host, user id, and password together. **Save connection** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `server`, `userid`, and
+`password` properties (the password base64-encoded in flight). Port, database/SID, server name,
+driver, and default flag stay as they were.
+
+The stored password is never shown: the secret field always opens empty, the summary shows
+only **Stored password is never shown**, and server responses carry a masked placeholder that
+is never persisted as the secret.
+
+A blank host (**Database host is required**), a blank user id (**Database user id is required**),
+or a blank password (**Database password is required**) is refused on the form and does not
+write. Values longer than 255 characters are refused the same way. **Cancel** does not call the
+server and clears the typed secret. HTTP **400**, **403**, and **409** stay on the form and keep
+the previous host, user id, and password.
+
+**FTP**, **FTPS**, **SFTP**, Amazon S3, and a **Local** driver do not use this save. Choosing
+**Set connection** on a non-database server does not change that server. Single-field saves
+(host-only, port-only, user-id-only, password-only, database name, Oracle SID/schema, MSSQL
+owner) and full server edit (**Edit Server**) stay separate.
+
 ### Set an S3 delivery-server bucket (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
