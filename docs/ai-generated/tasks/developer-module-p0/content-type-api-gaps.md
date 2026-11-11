@@ -81,8 +81,8 @@ with a held design lock released on save). Empty list clears. Admin 403; unknown
 
 |                         Gap                          |    FR IDs    |                       Notes                       |
 |------------------------------------------------------|--------------|---------------------------------------------------|
-| Full field rule **expressions** / control properties | CD-05–CD-07  | **Read-only expressions** shipped (#2920); **control property values + choice catalogs** GET/PUT (#3786). Rule write/save still open |
-| Control property + choice configuration              | CD-07        | **REST GET/PUT** `.../fields/{fieldName}/controlProperties` (#3786, held design lock for PUT). Choice filter / null-entry / default-selected **written** when `choices` is sent (#3995). SPA still omits `choices`. Shared-field control properties are #3984 |
+| Full field rule **expressions** / control properties | CD-05–CD-07  | **Read-only expressions** shipped (#2920); **control property values + choice catalogs** GET/PUT (#3786). **Rule write shipped**: PUT `.../fields/{fieldName}/ruleExpressions` persists validation/visibility/input/output translations plus field-validation `applyWhen` (empty clears, omit preserves, #4449); the Developer editor Field rule expressions section edits all four lists plus apply-when after lock. Remainder: detail field rows stay summary strings |
+| Control property + choice configuration              | CD-07        | **REST GET/PUT** `.../fields/{fieldName}/controlProperties` (#3786, held design lock for PUT). Choice filter / null-entry / default-selected **written** when `choices` is sent (#3995). The Developer editor Choices section loads, reorders, and saves `choices` on the same PUT (move up/down, validation). Shared-field control properties are #3984 |
 | Item-level pre/post exits & validations              | CD-09        | Properties tab                                    |
 | Edit workflow/template associations                  | CD-08, CD-12 | **CD-08 REST PUT .../allowedWorkflows** (#3763, held design lock); **CD-12 REST PUT .../allowedTemplates** (#3775, held design lock; full replace, empty list clears) |
 | Enable/disable search indexing at type level         | CD-10        | **REST `GET`/`PUT /contenttypes/{id}/searchIndexing`** (#3996, root field-set `isUserSearchable`; held design lock on PUT; 409 without). Default on. Distinct from per-field `searchable`. SPA Properties checkbox still open |
@@ -97,7 +97,7 @@ with a held design lock released on save). Empty list clears. Admin 403; unknown
 | ~~Keyword write~~                                    | CD-17        | **Done** — REST + SPA + design WS (#1612/#1701)   |
 | Locale **write** (create/update/delete)              | CD-18        | **REST write shipped** (#3959, design WS + Admin 403 / lock 409) |
 | Auto-translation **set** (GET/PUT)                   | CD-18        | **REST GET/PUT shipped** (#3981, `loadTranslationSettings` / `saveTranslationSettings`, Admin 403 / lock 409 / unknown locale-type 400). SPA locale editor remains open |
-| Include system/shared fields                         | CD-04        | **REST `POST /contenttypes/{id}/fields/include` shipped** (#3985, held design lock, origin stays system/shared). SPA field picker still Workbench |
+| Include system/shared fields                         | CD-04        | **REST `POST /contenttypes/{id}/fields/include` shipped** (#3985, held design lock, origin stays system/shared). **Detach shipped** (`DELETE .../fields/include/{fieldName}`, held lock, group stays included). The Developer editor ships the include picker plus Detach confirm |
 
 ## Recommended next API work
 
@@ -105,10 +105,10 @@ with a held design lock released on save). Empty list clears. Admin 403; unknown
 2. ~~Read-only field rule expressions + control property names~~ **Done CD-05-07 read path (#2920)**
 3. ~~Design-session lock + `PUT` save via thin REST over `IPSContentDesignWs`~~ **Lock** (#3742) + **PUT save requires held lock** (#3743)
 4. ~~Keyword create/update/delete~~ **Done CD-17** (REST write + design WS + SPA editor)
-5. ~~Control property value/choice catalogs~~ **Done CD-07 REST** (#3786). ~~Choice filter / null-entry / default-selected write~~ **Done** (#3995). Field-rule write/save still open. SPA Choices tab still later
+5. ~~Control property value/choice catalogs~~ **Done CD-07 REST** (#3786). ~~Choice filter / null-entry / default-selected write~~ **Done** (#3995). ~~Field-rule write~~ **Done** (PUT `.../fields/{fieldName}/ruleExpressions` #3826; ~~apply-when write~~ #4449). ~~SPA Choices section~~ **Done** (choices load/reorder/save #5725; field-rules section edits all four lists plus apply-when). Remainder: detail field rows stay summary strings
 6. ~~Shared field catalog read~~ **Done CD-15 read** (`GET /services/sharedfields`, Admin 403). ~~Write~~ **Done CD-15 group create/save/delete** (`POST`/`PUT`/`DELETE`, #3944). ~~Field create/delete~~ **Done** (`POST …/fields`, `DELETE …/fields/{fieldName}`, #3954). ~~Control/choice write~~ **Done** (`GET`/`PUT …/fields/{fieldName}/controlProperties`, #3984). SPA editor still open
 7. ~~System def field-property write~~ **Done CD-16 PUT** (`PUT /services/systemdef`, Admin 403, request lock + release on save, #3958). ~~Field create/delete~~ **Done** (`POST /services/systemdef/fields`, `DELETE …/fields/{fieldName}`, #3964). Control/stylesheet/flow + SPA still open
-8. ~~Include system/shared fields~~ **Done CD-04 REST** (`POST /contenttypes/{id}/fields/include`, Admin 403, held lock 409, origin stays system/shared, #3985). SPA field picker still open
+8. ~~Include system/shared fields~~ **Done CD-04 REST** (`POST /contenttypes/{id}/fields/include`, Admin 403, held lock 409, origin stays system/shared, #3985) + ~~detach~~ (`DELETE .../fields/include/{fieldName}`). ~~SPA field picker~~ **Done** (include picker + Detach confirm #5716; detach #5814)
 9. Templates/slots design editors
 10. CD-18 remainder: SPA locale / auto-translation editor (REST locale CRUD #3959; REST auto-translation set #3981)
 
