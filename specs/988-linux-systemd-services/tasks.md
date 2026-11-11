@@ -29,7 +29,7 @@
 - [x] T007 [US1] Add systemd unit template under `modules/perc-jetty/src/main/jetty/service/` (e.g. `percussion-cms.service.in`)
 - [x] T008 [US1] Update `install-jetty-service.sh` to detect systemd, install unit + EnvironmentFile + init.d start helper without SysV enable, `daemon-reload` + `enable`
 - [x] T009 [US1] Update `modules/perc-jetty/README.md` (+ AGENTS note) for systemd install usage
-- [ ] T010 [US1] Commit changes and submit PR for US1, pause for review/merge before US2
+- [x] T010 [US1] Commit changes and submit PR for US1, pause for review/merge before US2 — PR #1334 (merged 2026-07-17; US1/US2/US3 shipped as single PR)
 
 ## Phase 4: User Story 2 - Slow start / journal (Priority: P1)
 
@@ -44,7 +44,7 @@
 
 - [x] T012 [US2] Set default `TimeoutStartSec=1800`, journal stdout/stderr, document drop-in override
 - [x] T013 [US2] Align PIDFile path with `/etc/default` `JETTY_PID` and installer `JETTY_RUN` layout
-- [ ] T014 [US2] Commit and PR for US2; merge before US3 *(combined with US1 in initial PR)*
+- [x] T014 [US2] Commit and PR for US2; merge before US3 *(combined with US1 in initial PR)* — PR #1334 (merged 2026-07-17; combined with US1 per task note)
 
 ## Phase 5: User Story 3 - Uninstall / migrate / init.d fallback (Priority: P2)
 
@@ -60,14 +60,14 @@
 - [x] T016 [US3] systemd uninstall (`disable`, remove unit, daemon-reload); remove unit on uninstall
 - [x] T017 [US3] Keep/force init.d path when no systemd or `--initd`
 - [x] T018 [US3] Migration notes (init.d → systemd) in README
-- [ ] T019 [US3] Commit and PR for US3 *(combined with US1/US2 in initial PR)*
+- [x] T019 [US3] Commit and PR for US3 *(combined with US1/US2 in initial PR)* — PR #1334 (merged 2026-07-17; combined with US1/US2 per task note)
 
 ## Phase 6: Polish & Cross-Cutting
 
 - [x] T020 [P] Verify Windows `install-jetty-service.bat` untouched / still present
 - [x] T021 [P] Update `quickstart.md` with final command names
 - [x] T022 Spotless/format N/A for shell; ensure scripts use portable bash and LF
-- [ ] T023 Link issue #962 in PR descriptions; close on final merge
+- [x] T023 Link issue #962 in PR descriptions; close on final merge — PRs #1334/#1985/#1986 link #962 (verified); #962 epic itself still OPEN — final close pending
 
 ## Phase 7: DTS Production + Staging systemd (in-scope extension)
 
@@ -82,8 +82,8 @@
 **Goal**: Validate source + packaging inventory on `main`; dual-ship still present; no live soak  
 - [x] T028 Write durable inventory `inventory.md` (CMS Jetty + DTS + packaging chain + dual-ship)
 - [x] T029 Record Gap A (`defaults/bin/rxjetty.sh` missing after #662) and Gap B (DTS `.in` not co-located with service scripts under `installDts.xml`) for residual product fixes
-- [ ] T030 Residual: restore/ship CMS `rxjetty.sh` + structural presence test
-- [ ] T031 Residual: fix DTS unit template packaging or resolution path
+- [x] T030 Residual: restore/ship CMS `rxjetty.sh` + structural presence test — PR #1992 (merged 2026-08-05; defaults/bin/rxjetty.sh present in-tree)
+- [x] T031 Residual: fix DTS unit template packaging or resolution path — verified packaged (installDts.xml includes dts-tomcat.service.in x3; scripts resolve via dirname); dual-ship verified via PR #1988 (no live soak per scope)
 
 ## Dependencies & Execution Order
 
