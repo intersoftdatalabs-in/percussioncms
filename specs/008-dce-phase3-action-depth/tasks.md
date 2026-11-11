@@ -38,14 +38,14 @@
 
 ### Tests
 
-- [ ] T008 [P] [US1] Vitest offer-set matrix in `WebUI/` covering FR-001/002 (permitted-only offers, empty-offer valid, recompute after execute)
+- [x] T008 [P] [US1] Vitest offer-set matrix in `WebUI/` covering FR-001/002 (permitted-only offers, empty-offer valid, recompute after execute) — WebUI/src/test/ts/contentExplorer/workflowOfferMatrix.test.ts — 11/11 green (offers/intersection/recompute/eligibility)
 - [ ] T009 [P] [US1] Playwright menu spec under `modules/perc-qa-automation/` for transition offers incl. axe checks on changed menus
 
 ### Implementation
 
-- [ ] T010 [US1] Wire offer sets into Explorer menus (`WebUI/src/main/ts/contentExplorer/ContextMenu.tsx`, `actionDispatch.ts`, `actionEnablement.ts`) per `contracts/transition-offer.md`
-- [ ] T011 [US1] Recompute offers after executed transitions (state-change refresh across tree/list/host surfaces, FR-010)
-- [ ] T012 [US1] Add `perc-i18n` TMX keys for new menu strings
+- [x] T010 [US1] Wire offer sets into Explorer menus (`WebUI/src/main/ts/contentExplorer/ContextMenu.tsx`, `actionDispatch.ts`, `actionEnablement.ts`) per `contracts/transition-offer.md` — verified wired: menuCatalogLoad merges workflow group for eligible items; dispatch routes transition actions (no rebuild)
+- [x] T011 [US1] Recompute offers after executed transitions (state-change refresh across tree/list/host surfaces, FR-010) — verified wired: dispatch returns refresh:true post-execute; shell reloads menus with fresh transitions (merge test covers recompute)
+- [x] T012 [US1] Add `perc-i18n` TMX keys for new menu strings — N/A for US1 — group label already i18n (WORKFLOW_MENU_LABEL); trigger labels come from server; no new strings
 - [ ] T013 [US1] Standalone builds for each changed module; commit; open PR “008 US1 transition offers”; pause for review/merge
 
 ---
