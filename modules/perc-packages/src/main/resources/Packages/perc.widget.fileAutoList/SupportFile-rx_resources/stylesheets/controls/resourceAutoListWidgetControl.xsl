@@ -43,11 +43,6 @@
 				<psxctl:FileLocation>/cm/themes/smoothness/ui.datepicker.css</psxctl:FileLocation>
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor name="ui.dynatree.css"
-				type="css" mimetype="text/css">
-				<psxctl:FileLocation>/cm/css/dynatree/skin/ui.dynatree.css</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
 			<psxctl:FileDescriptor
 				name="jquery.resourceAutoList.css" type="css" mimetype="text/css">
 				<psxctl:FileLocation>/rx_resources/controls/percResourceAutoListControl/css/jquery.resourceAutoList.css</psxctl:FileLocation>
@@ -132,11 +127,6 @@
 			<psxctl:FileDescriptor
 				name="perc_path_manager.js" type="script" mimetype="text/javascript">
 				<psxctl:FileLocation>/cm/plugins/perc_path_manager.js</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor
-				name="jquery.dynatree.js" type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-dynatree/jquery.dynatree.js</psxctl:FileLocation>
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
 			<psxctl:FileDescriptor
