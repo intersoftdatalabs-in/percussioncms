@@ -4,7 +4,7 @@
 **Integration branch**: `main` (implementation stack merged; residual human QA **#2332**)  
 **Purpose**: Document and capture CMS login + DTS health smoke on **Windows, Linux, and macOS** for clean installs accepting defaults (H2, no port 1527).
 
-> **Agent note:** Full multi-OS install/login is **human QA** (#2332). Overnight agents re-verify packaging unit evidence only; they do not claim T038 closed without host installs.
+> **Agent note:** Full multi-OS install/login was **human QA** (#2332 — **closed 2026-08-17 by assignee with no per-OS logs attached**; administrative close, not an evidence PASS). Packaging unit evidence below is the audited PASS; per-OS rows stay `_pending_` until a real matrix run attaches logs. #548 closed 2026-08-19 citing #2332's closure.
 
 ## Commands (cross-platform outline)
 
@@ -32,14 +32,14 @@
 
 ## Product-owner waivers
 
-None recorded. Unsupported component/OS pairs must be waived on GitHub #548 before skipping.
+None recorded. #2332 was closed 2026-08-17 without a waiver comment or per-OS evidence; #548's 2026-08-19 close comment treats that closure as the T038 disposition. Unsupported component/OS pairs still need an explicit waiver on GitHub #548 before skipping.
 
 ## Residual tracker
 
 | Residual | Issue | Status (as of 2026-08-11) |
 |----------|-------|---------------------------|
-| T038 full OS install/login/health | **#2332** | open — assignee @vijaya-boddipudi |
-| QC-023 hard package install on H2 | **#2333** | closed — QA Passed |
+| T038 full OS install/login/health | **#2332** | closed 2026-08-17 (administrative; no per-OS logs — see note above) |
+| QC-023 hard package install on H2 | **#2333** | closed — #2333 passed 2026-08-11 |
 
 ## Related
 

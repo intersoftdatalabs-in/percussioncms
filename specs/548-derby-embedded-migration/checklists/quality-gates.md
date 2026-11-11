@@ -109,16 +109,16 @@
 
 ---
 
-## Still open for product GA (not QC text freeze)
+## Closed for product GA (was: still open — reconciled 2026-11-10)
 
 |                Item                |      Task      |                                 Notes / tracker                                 |
 |------------------------------------|----------------|---------------------------------------------------------------------------------|
-| Full OS install login/health smoke | T038 / SC-001  | Packaging unit PASS; full multi-OS install/login → human QA **#2332** (open)    |
+| Full OS install login/health smoke | T038 / SC-001  | Packaging unit PASS; full multi-OS install/login → human QA **#2332** (**closed 2026-08-17, administrative — no per-OS logs; see os-smoke-matrix note**) |
 | QC-023 hard package install IT     | T096 follow-up | **Closed** — #2333 passed 2026-08-11                                            |
 | FR-021 GA line name                | T093           | Checklist open until GA version locks (policy + deprecation template ready)     |
-| Issue #548 close                   | T104           | Leave open until T038 (#2332) done or product-owner waiver on #548              |
+| Issue #548 close                   | T104           | **Closed 2026-08-19** (close comment C1–C7 cites #2332/#2333/#3065 closures)     |
 
-Agent-safe US6 residual inventory/QC freeze: **#3065** (docs only; does not replace #2332).
+Agent-safe US6 residual inventory/QC freeze: **#3065** (closed via #3069; docs only).
 
 ---
 
@@ -143,6 +143,12 @@ Agent-safe US6 residual inventory/QC freeze: **#3065** (docs only; does not repl
 | 16    | major       | Identity / NEXTNUMBER                                   | **addressed**                              |
 | 17    | major       | Multi-file cutover                                      | **addressed**                              |
 | 18    | major       | Windows service scripts                                 | **addressed** — notes + defaults           |
+| 14    | minor       | Migration duration / sizing guidance                    | **addressed** — T087 sizing doc + T050 wall-clock |
+| 19    | minor       | H2 risk disclosure / lock entry points                  | **addressed** — bake-off report (product checkout/workflow harness) |
+| 20    | minor       | AGENTS gates (Maven evidence, Erlang, i18n)             | **addressed** — T102 per-PR evidence; T103/T055/T100 N/A waivers for docs-only closeout |
+| 21    | nit         | Observability outcome enum                              | **addressed** — data-model + observability contract unified (`ALREADY_MIGRATED`) |
+| 22    | minor       | Secrets / backup-dir permissions                        | **addressed** — QC-022 redaction tests + security-pass |
+| 23    | minor       | Bake-off evidence template                              | **addressed** — T006 template + closed bake-off report |
 
 Track residual GA items in the table above and GitHub #548.
 
@@ -150,6 +156,6 @@ Track residual GA items in the table above and GitHub #548.
 
 ## Notes
 
-- Do **not** mark #548 complete until all **hard** gates above are checked or explicitly waived with product owner sign-off in the issue.
-- Engineering stack + US6 docs are on **main**. Remaining product-GA blocker tracked as human QA: **T038 full OS install smoke (#2332)**. QC-023 hard is closed (#2333).
+- #548 is **closed (2026-08-19)**; hard gates above are checked, with T038 dispositioned via #2332's administrative closure (see residual table + os-smoke-matrix note) rather than per-OS evidence.
+- Engineering stack + US6 docs are on **main**. QC-023 hard is closed (#2333).
 

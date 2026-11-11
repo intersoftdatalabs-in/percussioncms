@@ -72,8 +72,9 @@ New defaults do **not** promise Derby Network Server / DRDA remote access. Stead
 > configuration, or replace the `<Set name="jdbcUrl">` block in `perc-ds.xml` with the
 > `buildConnectionUrl` call form from a fresh 8.2 `perc-ds.xml`, then restart.
 
-Engineering release-note draft and support FAQ (Am I affected?): see repository folder  
-`docs/ai-generated/tasks/548-derby-embedded-migration/` (issue **#548**).
+Background: Apache Derby retirement and the Derby → H2 migration (issue **#548**).
+If you hit migration problems, file a support ticket with the durable migration-report outcome
+and upgrade-log excerpts attached (never attach files containing passwords).
 
 ## Customer definition XML (dual-run, retired)
 
