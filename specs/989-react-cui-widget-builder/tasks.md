@@ -70,8 +70,8 @@
 - [x] T023 [US1] Rewire `views.put("home", …)` in `WebUI/src/main/webapp/cm/app/index.jsp` and `cm/pages/app/index.jsp` to the new shell; pass mapped `initialSection` from query without classic iframe
 - [x] T024 [US1] Ensure open-item / editor handoff uses existing product navigation patterns (no full editor rewrite) from Home Library/Recent/Search
 - [x] T025 [US1] Run Home Vitest suite and fix failures under `WebUI/src/test/ts/home/`
-- [ ] T026 [US1] Commit US1 changes and open PR for review; pause downstream story work per constitution checkpoint. **Do not merge US1 alone to `development`/release** without US2+US3 in the same train (FR-008 release gate). Include partial i18n checklist rows for Home keys in PR notes.
-- [ ] T027 [US1] Address review/CI feedback and resolve review threads; verify stack-ready approval before US2 continues on integrated baseline
+- [ ] T026 [US1] Commit US1 changes and open PR for review; pause downstream story work per constitution checkpoint. **Do not merge US1 alone to `development`/release** without US2+US3 in the same train (FR-008 release gate). Include partial i18n checklist rows for Home keys in PR notes. — tracked by #6087 (closeout + sign-offs); train contents questioned in #6086 (does #1337 contain the US3 hard cut?)
+- [ ] T027 [US1] Address review/CI feedback and resolve review threads; verify stack-ready approval before US2 continues on integrated baseline — tracked by #6087; depends on #6086 train-scope answer
 
 **Checkpoint**: Home is modern-only via view key `home` on the feature branch; classic `home.jsp` may still exist on disk until US3 hard cut and is no longer the mapped view target. **Not shippable alone** (FR-008).
 
@@ -99,8 +99,8 @@
 - [x] T036 [US2] Mirror modern WB shell under `WebUI/src/main/webapp/cm/pages/app/` if needed (include same `tmx.jsp` pattern)
 - [x] T037 [US2] Rewire `views.put("widgetbuilder", …)` in `WebUI/src/main/webapp/cm/app/index.jsp` and `cm/pages/app/index.jsp`; preserve admin/designer view gates and `IS_WIDGET_BUILDER_ACTIVE` nav behavior
 - [x] T038 [US2] Run WB Vitest suite under `WebUI/src/test/ts/widgetbuilder/` and fix failures
-- [ ] T039 [US2] Commit US2 changes and open PR; pause for review/CI. **Do not merge US2 alone to `development`/release** without US3 in the same train (FR-008). Update i18n checklist rows for WB keys.
-- [ ] T040 [US2] Address feedback, resolve threads; verify stack ready before US3 deletion work
+- [ ] T039 [US2] Commit US2 changes and open PR; pause for review/CI. **Do not merge US2 alone to `development`/release** without US3 in the same train (FR-008). Update i18n checklist rows for WB keys. — tracked by #6087; depends on #6086 train-scope answer
+- [ ] T040 [US2] Address feedback, resolve threads; verify stack ready before US3 deletion work — tracked by #6087; depends on #6086 train-scope answer
 
 **Checkpoint**: Widget Builder modern-only via view key `widgetbuilder` on the feature branch; classic `widgetBuilder.jsp` unmapped but may remain on disk until US3. **Not shippable without US3** (FR-008).
 
@@ -131,7 +131,7 @@
 - [x] T050c [US3] Add/reuse TMX key(s) for unavailable/moved message in `modules/perc-i18n/src/main/resources/i18n/CmsUi.tmx` (FR-022) and list on i18n-key-checklist
 - [x] T051 [US3] Clean packaged/synced `WebUI/war/cui` and `war/widgetbuilder` (or ensure build no longer copies them) so installs do not ship retired trees
 - [x] T052 [US3] Fill and sign off all sections of `specs/989-react-cui-widget-builder/checklists/removal-inventory.md` in the US3 PR description/review (include final shell JSP names and orphan keep/drop)
-- [ ] T053 [US3] Commit US3 changes and open PR to complete the shippable train with US1+US2; address CI/review; resolve threads
+- [ ] T053 [US3] Commit US3 changes and open PR to complete the shippable train with US1+US2; address CI/review; resolve threads — tracked by #6087; depends on #6086 train-scope answer
 
 **Checkpoint**: Production Home/WB paths modern-only; inventory signed; **shippable only when US1–US3 are all on the release branch** (FR-008 big-bang).
 
@@ -143,10 +143,10 @@
 
 - [x] T054 [P] Update WebUI-facing notes if needed (`WebUI/AGENTS.md` migration status and/or module README) documenting Home/WB React shells and removal of CUI/WB classic
 - [x] T055 [P] Accessibility pass on primary Home actions and WB forms (keyboard, labels) per FR-012 in `WebUI/src/main/ts/home/` and `widgetbuilder/`
-- [ ] T056 Run Home and Widget Builder end-to-end smoke from [quickstart.md](./quickstart.md) (SC-001, SC-002, SC-006, SC-007 known deep links) and record results in PR or feature notes
-- [ ] T056a Execute **main-nav smoke checklist (SC-005 / FR-020)** and record pass/fail in PR or `specs/989-react-cui-widget-builder/checklists/` notes: (1) Dashboard opens; (2) at least one other non-Home tab (e.g. editor/Web Management or Design) opens for the tester’s roles; (3) Home still opens; (4) Widget Builder opens only when enabled
-- [ ] T056b UAT sample **unmapped** legacy path shows the on-page moved/unavailable message (SC-007); record URL used and result
-- [ ] T056c Complete and sign **SC-008 / FR-024 i18n key-presence checklist** in `specs/989-react-cui-widget-builder/checklists/i18n-key-checklist.md` (primary Home + WB chrome → TMX keys; optional non-default locale spot-check if env available); attach to shippable PR notes
+- [ ] T056 Run Home and Widget Builder end-to-end smoke from [quickstart.md](./quickstart.md) (SC-001, SC-002, SC-006, SC-007 known deep links) and record results in PR or feature notes — tracked by #6082 (UAT smoke evidence SC-001/002/007)
+- [ ] T056a Execute **main-nav smoke checklist (SC-005 / FR-020)** and record pass/fail in PR or `specs/989-react-cui-widget-builder/checklists/` notes: (1) Dashboard opens; (2) at least one other non-Home tab (e.g. editor/Web Management or Design) opens for the tester’s roles; (3) Home still opens; (4) Widget Builder opens only when enabled — tracked by #6083 (main-nav smoke SC-005)
+- [ ] T056b UAT sample **unmapped** legacy path shows the on-page moved/unavailable message (SC-007); record URL used and result — tracked by #6084 (unavailable-message UAT)
+- [ ] T056c Complete and sign **SC-008 / FR-024 i18n key-presence checklist** in `specs/989-react-cui-widget-builder/checklists/i18n-key-checklist.md` (primary Home + WB chrome → TMX keys; optional non-default locale spot-check if env available); attach to shippable PR notes — tracked by #6087 (i18n checklist sign-off)
 - [x] T057 Security review of CSRF, session expiry messaging, and WB AuthZ gates on new shells (evidence: #6085 — live H2-cell pass + `api/client.ts` login-redirect fix)
 - [x] T058 Spotless / formatting and frontend lint clean on touched WebUI sources
 

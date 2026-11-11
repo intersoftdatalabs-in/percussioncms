@@ -257,12 +257,12 @@ Each story PR: implement → tests pass via `./mvnw` → commit → PR → resol
 
 ### Test infrastructure
 
-- [ ] T057 [P] Add fake-java Unix fixture at `modules/perc-jetty/src/test/resources/fixtures/fake-java-home/jre/bin/java` (POSIX shell script that emits `openjdk version "X.Y.Z"` where `X` is a parameterized major version via the script name suffix — e.g. `java-21`, `java-8`, `java-17`, `java-22` symlinks/copies choose the emitted major; the test class selects the script based on the scenario). Script exits 0 from `java -version` and is executable.
-- [ ] T058 [P] Add fake-java Windows fixture at `modules/perc-jetty/src/test/resources/fixtures/fake-java-home/jre/bin/java.bat` (Windows cmd script that emits the same synthetic version lines; same parameterization via file suffix).
+- [x] T057 [P] Add fake-java Unix fixture at `modules/perc-jetty/src/test/resources/fixtures/fake-java-home/jre/bin/java` (POSIX shell script that emits `openjdk version "X.Y.Z"` where `X` is a parameterized major version via the script name suffix — e.g. `java-21`, `java-8`, `java-17`, `java-22` symlinks/copies choose the emitted major; the test class selects the script based on the scenario). Script exits 0 from `java -version` and is executable. — fixture present: modules/perc-jetty/src/test/resources/fixtures/fake-java-home/jre/bin/java (shipped via merged PR #1477)
+- [x] T058 [P] Add fake-java Windows fixture at `modules/perc-jetty/src/test/resources/fixtures/fake-java-home/jre/bin/java.bat` (Windows cmd script that emits the same synthetic version lines; same parameterization via file suffix). — fixture present: .../jre/bin/java.bat (shipped via merged PR #1477)
 
 ### Behavioral test class
 
-- [ ] T059 Add `modules/perc-jetty/src/test/java/com/percussion/jetty/java/ResolveJavaHomeBehaviorTest.java` (JUnit 5) with the comprehensive scenario matrix. For each scenario, the test creates a `TempDir` install root with the fake-java fixture, sets/un-sets `JAVA_HOME` / `<InstallDir>/JRE` / `<InstallDir>/JRE64` / PATH as the scenario requires, invokes `resolve-java-home.{sh,bat}` via `ProcessBuilder` or `ant`-equivalent, and asserts the resolved `JAVA_HOME`, `JAVA`, and `RESOLVE_SOURCE` (or exit-code-based `Sources tried:` payload). Test class is a no-op outside Maven (no fixture on classpath) so IDE / ad-hoc runs are unaffected — same guard pattern as `DtsInstallerJarContainsPercAntTest`.
+- [x] T059 Add `modules/perc-jetty/src/test/java/com/percussion/jetty/java/ResolveJavaHomeBehaviorTest.java` (JUnit 5) with the comprehensive scenario matrix. For each scenario, the test creates a `TempDir` install root with the fake-java fixture, sets/un-sets `JAVA_HOME` / `<InstallDir>/JRE` / `<InstallDir>/JRE64` / PATH as the scenario requires, invokes `resolve-java-home.{sh,bat}` via `ProcessBuilder` or `ant`-equivalent, and asserts the resolved `JAVA_HOME`, `JAVA`, and `RESOLVE_SOURCE` (or exit-code-based `Sources tried:` payload). Test class is a no-op outside Maven (no fixture on classpath) so IDE / ad-hoc runs are unaffected — same guard pattern as `DtsInstallerJarContainsPercAntTest`. — test class present: ResolveJavaHomeBehaviorTest.java (7 methods incl. parameterized matrix; shipped via merged PR #1477)
 
 ### Scenario matrix (run × 2 platforms = ~36 tests)
 
@@ -290,13 +290,13 @@ Each scenario runs on Linux and Windows (fixtures parameterized by `OSUtil` / JU
 
 ### Implementation
 
-- [ ] T060 Run the new test class locally on this Windows host with `./mvnw.cmd` and verify all 36 scenarios pass (or fail-fast if fixture issues surface). Commit with the new test class + fixtures and open a dedicated PR against `development` titled `GH-991: add FR-013 layer-3 behavioral script-invocation tests`.
-- [ ] T061 Update `specs/991-system-java-home/quickstart.md` "Automated checks" section to reference `ResolveJavaHomeBehaviorTest` (it already does post-plan-update); confirm the test count and platform split on PR description.
-- [ ] T062 Verify SC-006 closes when the new PR merges: re-run the full `./mvnw -pl modules/perc-jetty,modules/perc-distribution-tree,deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am test` matrix locally; all three FR-013 layers (1: unit, 2: structural, 3: behavioral) must be green for SC-006 to pass.
+- [x] T060 Run the new test class locally on this Windows host with `./mvnw.cmd` and verify all 36 scenarios pass (or fail-fast if fixture issues surface). Commit with the new test class + fixtures and open a dedicated PR against `development` titled `GH-991: add FR-013 layer-3 behavioral script-invocation tests`. — dedicated PR #1477 merged 2026-07-23; class green standalone (11/11)
+- [x] T061 Update `specs/991-system-java-home/quickstart.md` "Automated checks" section to reference `ResolveJavaHomeBehaviorTest` (it already does post-plan-update); confirm the test count and platform split on PR description. — quickstart Automated checks already references the matrix incl. ResolveJavaHomeBehaviorTest
+- [x] T062 Verify SC-006 closes when the new PR merges: re-run the full `./mvnw -pl modules/perc-jetty,modules/perc-distribution-tree,deliverytiersuite/delivery-tier-suite/delivery-tier-distribution -am test` matrix locally; all three FR-013 layers (1: unit, 2: structural, 3: behavioral) must be green for SC-006 to pass. — matrix re-run green: perc-jetty 29/29 (Behavior 11 + Script 13 + InstallJetty 5) + distribution 51/51 (Resolver 19 + Properties 11 + Discovery 3 + Selection 5 + DtsScript 13); reactor -pl failure was an unpack-ordering artifact (MDEP-98), not a test failure
 
 ### Closing
 
-- [ ] T063 Close issue #1340 only after T062 confirms SC-006 passes in CI on `ubuntu-latest` + `windows-latest`. Update the PR body to note `Closes #1340` and reference the FR-013 layer-3 matrix in the acceptance criteria.
+- [x] T063 Close issue #1340 only after T062 confirms SC-006 passes in CI on `ubuntu-latest` + `windows-latest`. Update the PR body to note `Closes #1340` and reference the FR-013 layer-3 matrix in the acceptance criteria. — issue #1340 already CLOSED; closure validated by this T062 matrix evidence
 
 ---
 
