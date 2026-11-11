@@ -49,8 +49,10 @@ import {
   type PSSearchResults,
 } from "../api/contentExplorer/searchApi";
 import {
+  deleteSearch as deleteSearchApi,
   executeSearch as executeSearchApi,
   listExplorerSavedSearches,
+  saveSearch as saveSearchApi,
 } from "../api/developer/searchesApi";
 import type {
   SearchDef,
@@ -86,6 +88,18 @@ export interface SearchPanelProps {
     idOrName: string,
     request?: SearchExecuteRequest | null,
   ) => Promise<PSSearchResults | SearchExecuteResult>;
+  /**
+   * Override for saved-search rename (default: PUT display label via
+   * {@link saveSearchApi}). The catalog name key is not renamed on PUT —
+   * rename edits the display label only.
+   */
+  renameSavedSearch?: (idOrName: string, label: string) => Promise<SearchDef>;
+  /**
+   * Override for saved-search delete (default: {@link deleteSearchApi}).
+   * On success the row is dropped from the catalog; on 400/403/404/409 the
+   * rows are kept and the error is shown.
+   */
+  deleteSavedSearch?: (idOrName: string) => Promise<void>;
   /** Triggered when the user clicks "Open" on a result. */
   onOpen?: (result: PSItemProperties) => void;
   /** Triggered when the user clicks "Reveal in folder" on a result. */
@@ -158,6 +172,171 @@ export function toSearchResults(
   return { children, totalCount, startIndex };
 }
 
+/**
+ * Default saved-search rename: PUT the display label only. The catalog name
+ * key is not renamed on PUT (REST-GAPS-02 / #6075), so the picker-visible
+ * label is what changes. Other stored fields are omitted and left unchanged.
+ */
+export async function defaultRenameSavedSearch(
+  idOrName: string,
+  label: string,
+): Promise<SearchDef> {
+  const key = (idOrName ?? "").trim();
+  if (!key) {
+    throw new Error("Search id or name is required");
+  }
+  return saveSearchApi(key, { name: key, label: label.trim() });
+}
+
+/** Saved-search manage dialog mode (rename label or confirm delete). */
+type ManageMode = "rename" | "delete";
+
+/**
+ * Pure catalog update for a renamed row: refresh the display label by key,
+ * keep every other row (and the catalog key) untouched.
+ */
+export function renameCatalogRow(
+  prev: CatalogStatus,
+  key: string,
+  label: string,
+): CatalogStatus {
+  if (prev.kind !== "ready") return prev;
+  return {
+    kind: "ready",
+    items: prev.items.map((d) =>
+      searchKey(d) === key ? { ...d, label } : d,
+    ),
+  };
+}
+
+/**
+ * Pure catalog update for a deleted row: drop the row by key, keep the rest.
+ */
+export function deleteCatalogRow(prev: CatalogStatus, key: string): CatalogStatus {
+  if (prev.kind !== "ready") return prev;
+  return {
+    kind: "ready",
+    items: prev.items.filter((d) => searchKey(d) !== key),
+  };
+}
+
+/** Transport + state contract for the saved-search manage hook (#6075). */
+export interface SavedSearchManageApi {
+  manageMode: ManageMode | null;
+  renameDraft: string;
+  manageBusy: boolean;
+  manageError: string | null;
+  manageNotice: string | null;
+  setRenameDraft: (value: string) => void;
+  openManage: (mode: ManageMode) => void;
+  closeManage: () => void;
+  handleRenameSave: () => void;
+  handleDeleteConfirm: () => void;
+}
+
+/**
+ * Saved-search rename/delete state machine (#6075 / parent #4530).
+ *
+ * <p>Rename PUTs the display label only (the catalog name key is not renamed
+ * on PUT); delete confirms before DELETE. Cancel closes without transport.
+ * Errors stay on the dialog; 400/403/404/409 keep every catalog row because
+ * the catalog is only merged after the transport resolves.</p>
+ */
+export function useSavedSearchManage(opts: {
+  selectedKey: string;
+  selectedLabel: string;
+  setCatalog: React.Dispatch<React.SetStateAction<CatalogStatus>>;
+  setSelectedSaved: React.Dispatch<React.SetStateAction<string>>;
+  renameSavedSearch: (idOrName: string, label: string) => Promise<SearchDef>;
+  deleteSavedSearch: (idOrName: string) => Promise<void>;
+}): SavedSearchManageApi {
+  const {
+    selectedKey,
+    selectedLabel,
+    setCatalog,
+    setSelectedSaved,
+    renameSavedSearch,
+    deleteSavedSearch,
+  } = opts;
+  const [manageMode, setManageMode] = useState<ManageMode | null>(null);
+  const [renameDraft, setRenameDraft] = useState("");
+  const [manageBusy, setManageBusy] = useState(false);
+  const [manageError, setManageError] = useState<string | null>(null);
+  const [manageNotice, setManageNotice] = useState<string | null>(null);
+
+  function openManage(mode: ManageMode): void {
+    if (!selectedKey) return;
+    setManageError(null);
+    setManageNotice(null);
+    setRenameDraft(selectedLabel);
+    setManageMode(mode);
+  }
+
+  function closeManage(): void {
+    if (manageBusy) return;
+    setManageMode(null);
+    setManageError(null);
+  }
+
+  async function handleRenameSave(): Promise<void> {
+    if (!selectedKey || manageBusy) return;
+    const next = renameDraft.trim();
+    if (!next) {
+      // Blank refused client-side: no PUT, rows untouched (#6075).
+      setManageError(message(EXPLORER_MSG.SEARCH_SAVED_RENAME_EMPTY));
+      return;
+    }
+    setManageBusy(true);
+    setManageError(null);
+    try {
+      const updated = await renameSavedSearch(selectedKey, next);
+      // Server echo preferred, draft as fallback; key never changes on PUT.
+      const label = (updated.label ?? "").trim() || next;
+      setCatalog((prev) => renameCatalogRow(prev, selectedKey, label));
+      setManageNotice(message(EXPLORER_MSG.SEARCH_SAVED_RENAMED));
+      setManageMode(null);
+    } catch (err: unknown) {
+      setManageError(
+        formatApiError(err, message(EXPLORER_MSG.SEARCH_SAVED_RENAME_ERROR)),
+      );
+    } finally {
+      setManageBusy(false);
+    }
+  }
+
+  async function handleDeleteConfirm(): Promise<void> {
+    if (!selectedKey || manageBusy) return;
+    setManageBusy(true);
+    setManageError(null);
+    try {
+      await deleteSavedSearch(selectedKey);
+      setCatalog((prev) => deleteCatalogRow(prev, selectedKey));
+      setSelectedSaved((prev) => (prev === selectedKey ? "" : prev));
+      setManageNotice(message(EXPLORER_MSG.SEARCH_SAVED_DELETED));
+      setManageMode(null);
+    } catch (err: unknown) {
+      setManageError(
+        formatApiError(err, message(EXPLORER_MSG.SEARCH_SAVED_DELETE_ERROR)),
+      );
+    } finally {
+      setManageBusy(false);
+    }
+  }
+
+  return {
+    manageMode,
+    renameDraft,
+    manageBusy,
+    manageError,
+    manageNotice,
+    setRenameDraft,
+    openManage,
+    closeManage,
+    handleRenameSave: () => void handleRenameSave(),
+    handleDeleteConfirm: () => void handleDeleteConfirm(),
+  };
+}
+
 export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
   const {
     initialQuery = "",
@@ -165,6 +344,8 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
     search = searchExtended,
     listSavedSearches = listExplorerSavedSearches,
     executeSavedSearch = executeSearchApi,
+    renameSavedSearch = defaultRenameSavedSearch,
+    deleteSavedSearch = deleteSearchApi,
     onOpen,
     onReveal,
     ariaLabel,
@@ -324,6 +505,16 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
     }
   }
 
+  /** Rename/delete state machine for the selected saved search (#6075). */
+  const manage = useSavedSearchManage({
+    selectedKey: selectedSaved,
+    selectedLabel: selectedDef ? searchLabel(selectedDef) : "",
+    setCatalog,
+    setSelectedSaved,
+    renameSavedSearch,
+    deleteSavedSearch,
+  });
+
   return (
     <section
       role="search"
@@ -367,6 +558,33 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
           isCustomViewSavedSearch(selectedDef)
         }
         selectedIsCustom={isCustomViewSavedSearch(selectedDef)}
+        manageDisabled={
+          manage.manageBusy ||
+          !selectedSaved ||
+          isCustomViewSavedSearch(selectedDef)
+        }
+        onRename={() => manage.openManage("rename")}
+        onDelete={() => manage.openManage("delete")}
+      />
+      {manage.manageNotice ? (
+        <p
+          role="status"
+          data-testid="search-panel-saved-manage-notice"
+          style={{ marginTop: 8, color: "#276749" }}
+        >
+          {manage.manageNotice}
+        </p>
+      ) : null}
+      <ManageSavedSearchDialog
+        mode={manage.manageMode}
+        busy={manage.manageBusy}
+        error={manage.manageError}
+        currentLabel={selectedDef ? searchLabel(selectedDef) : ""}
+        renameDraft={manage.renameDraft}
+        onRenameDraft={manage.setRenameDraft}
+        onSaveRename={manage.handleRenameSave}
+        onConfirmDelete={manage.handleDeleteConfirm}
+        onClose={manage.closeManage}
       />
 
       <SearchStatusView
@@ -388,6 +606,10 @@ function SavedSearchPicker(props: {
   onRetryCatalog: () => void;
   runDisabled: boolean;
   selectedIsCustom: boolean;
+  /** Rename/delete stay disabled without a runnable selection (#6075). */
+  manageDisabled: boolean;
+  onRename: () => void;
+  onDelete: () => void;
 }): React.JSX.Element {
   const {
     catalog,
@@ -398,6 +620,9 @@ function SavedSearchPicker(props: {
     onRetryCatalog,
     runDisabled,
     selectedIsCustom,
+    manageDisabled,
+    onRename,
+    onDelete,
   } = props;
 
   if (catalog.kind === "loading") {
@@ -496,6 +721,150 @@ function SavedSearchPicker(props: {
       >
         {message(EXPLORER_MSG.SEARCH_SAVED_RUN)}
       </button>
+      <button
+        type="button"
+        data-testid="search-panel-saved-rename"
+        disabled={manageDisabled}
+        onClick={onRename}
+        title={
+          selectedIsCustom
+            ? message(EXPLORER_MSG.SEARCH_SAVED_CUSTOM_UNSUPPORTED)
+            : undefined
+        }
+      >
+        {message(EXPLORER_MSG.SEARCH_SAVED_RENAME)}
+      </button>
+      <button
+        type="button"
+        data-testid="search-panel-saved-delete"
+        disabled={manageDisabled}
+        onClick={onDelete}
+        title={
+          selectedIsCustom
+            ? message(EXPLORER_MSG.SEARCH_SAVED_CUSTOM_UNSUPPORTED)
+            : undefined
+        }
+      >
+        {message(EXPLORER_MSG.SEARCH_SAVED_DELETE)}
+      </button>
+    </div>
+  );
+}
+
+/**
+ * Rename / delete dialog for the selected saved search (#6075).
+ * Rename edits the display label (PUT); delete confirms before DELETE.
+ * Cancel closes without transport. Errors stay on the dialog; rows are kept.
+ */
+function ManageSavedSearchDialog(props: {
+  mode: ManageMode | null;
+  busy: boolean;
+  error: string | null;
+  currentLabel: string;
+  renameDraft: string;
+  onRenameDraft: (value: string) => void;
+  onSaveRename: () => void;
+  onConfirmDelete: () => void;
+  onClose: () => void;
+}): React.JSX.Element {
+  const {
+    mode,
+    busy,
+    error,
+    currentLabel,
+    renameDraft,
+    onRenameDraft,
+    onSaveRename,
+    onConfirmDelete,
+    onClose,
+  } = props;
+  if (mode == null) {
+    return <></>;
+  }
+  const renameSaveDisabled = busy || renameDraft.trim().length === 0;
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={
+        mode === "rename"
+          ? message(EXPLORER_MSG.SEARCH_SAVED_RENAME_TITLE)
+          : message(EXPLORER_MSG.SEARCH_SAVED_DELETE_TITLE)
+      }
+      data-testid="search-panel-saved-manage-dialog"
+      style={{
+        border: "1px solid #999",
+        borderRadius: 4,
+        padding: 12,
+        marginTop: 10,
+        background: "#fafafa",
+      }}
+    >
+      {mode === "rename" ? (
+        <>
+          <p data-testid="search-panel-saved-manage-title" style={{ margin: "0 0 8px 0" }}>
+            {message(EXPLORER_MSG.SEARCH_SAVED_RENAME_TITLE)}: {currentLabel}
+          </p>
+          <label
+            htmlFor="search-panel-saved-rename-input"
+            style={{ display: "block", fontSize: 13, color: "#333", marginBottom: 4 }}
+          >
+            {message(EXPLORER_MSG.SEARCH_SAVED_RENAME_NEW_LABEL)}
+          </label>
+          <input
+            id="search-panel-saved-rename-input"
+            type="text"
+            data-testid="search-panel-saved-rename-input"
+            value={renameDraft}
+            onChange={(e) => onRenameDraft(e.target.value)}
+            style={{ width: "100%", padding: "4px 8px", boxSizing: "border-box" }}
+          />
+        </>
+      ) : (
+        <p data-testid="search-panel-saved-manage-title" style={{ margin: "0 0 8px 0" }}>
+          {message(EXPLORER_MSG.SEARCH_SAVED_DELETE_CONFIRM)} {currentLabel}
+        </p>
+      )}
+      {error ? (
+        <p
+          role="alert"
+          data-testid="search-panel-saved-manage-error"
+          style={{ color: "#a00", margin: "8px 0 0 0" }}
+        >
+          {error}
+        </p>
+      ) : null}
+      <div style={{ display: "flex", gap: 8, marginTop: 10 }}>
+        {mode === "rename" ? (
+          <button
+            type="button"
+            data-testid="search-panel-saved-rename-save"
+            disabled={renameSaveDisabled}
+            onClick={onSaveRename}
+          >
+            {message(EXPLORER_MSG.SEARCH_SAVED_RENAME_SAVE)}
+          </button>
+        ) : (
+          <button
+            type="button"
+            data-testid="search-panel-saved-delete-confirm"
+            disabled={busy}
+            onClick={onConfirmDelete}
+          >
+            {message(EXPLORER_MSG.SEARCH_SAVED_DELETE_DELETE)}
+          </button>
+        )}
+        <button
+          type="button"
+          data-testid="search-panel-saved-manage-cancel"
+          disabled={busy}
+          onClick={onClose}
+        >
+          {mode === "rename"
+            ? message(EXPLORER_MSG.SEARCH_SAVED_RENAME_CANCEL)
+            : message(EXPLORER_MSG.SEARCH_SAVED_DELETE_CANCEL)}
+        </button>
+      </div>
     </div>
   );
 }
