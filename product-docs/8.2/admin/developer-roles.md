@@ -53,6 +53,21 @@ on the role.
 Non-Admin sessions receive **403** from the catalog API and the panel shows an
 error. An empty catalog is a valid **200** with no rows.
 
+## Readback
+
+The catalog table is a thin read: it lists name, description, home page, and
+the community/workflow membership cells from `GET /services/roles/catalog`
+(grouped into Community / Workflow / Unassigned) and carries no member-list
+payload. Opening a row loads the detail from
+`GET /services/roles/{roleName}` and shows the stored name (read-only), the
+stored description, the stored home page, and the member list. Packaged roles
+such as Admin read back with zero writes: the row renders from the thin list
+and the detail renders without creating, renaming, or deleting anything. A
+role created through the shell (`PUT /services/roles/?create=true`) reads back
+in the detail (name, description) and as a new catalog row under **Workflow**;
+removing it is `DELETE /services/roles/{roleName}` (`200`/`204` on success),
+after which the catalog no longer lists that name.
+
 ## Filter the catalog
 
 Type in **Filter catalog** to narrow the rows by role name, description, or
