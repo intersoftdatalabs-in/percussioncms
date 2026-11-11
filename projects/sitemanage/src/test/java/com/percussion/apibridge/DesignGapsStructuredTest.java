@@ -147,6 +147,25 @@ class DesignGapsStructuredTest {
   }
 
   @Test
+  void contentTypeDesignGaps_correctedClaimsStayShipped() {
+    List<DesignGap> gaps = ContentTypeAdaptor.contentTypeDesignGaps(true);
+    String ruleExpr = gapMessage(gaps, "CT_FIELD_RULE_EXPR");
+    assertFalse(
+        ruleExpr.contains("Apply-when on field validation is read-only"),
+        () -> "CT_FIELD_RULE_EXPR still claims field-validation apply-when is read-only: "
+            + ruleExpr);
+    assertGapMessageContains(
+        gaps, "CT_FIELD_RULE_EXPR", "apply-when is writable", "ruleExpressions", "held");
+    String inclusion = gapMessage(gaps, "CT_SHARED_FIELD_INCLUSION");
+    assertFalse(
+        inclusion.contains("SPA field picker remains Workbench"),
+        () -> "CT_SHARED_FIELD_INCLUSION still claims the SPA picker is Workbench-only: "
+            + inclusion);
+    assertGapMessageContains(
+        gaps, "CT_SHARED_FIELD_INCLUSION", "include picker", "fields/include", "detach");
+  }
+
+  @Test
   void contentTypeDesignGaps_addsControlResolutionWhenUnresolved() {
     List<DesignGap> gaps = ContentTypeAdaptor.contentTypeDesignGaps(false);
     assertTrue(

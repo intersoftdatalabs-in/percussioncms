@@ -774,7 +774,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
               "CT_FIELD_RULE_EXPR",
               "Field rule expressions: GET/PUT .../fields/{fieldName}/ruleExpressions"
                   + " (held lock for write). Detail field rows remain summary strings."
-                  + " Apply-when on field validation is read-only. Control property values:"
+                  + " Field-validation apply-when is writable on PUT (empty clears, omit"
+                  + " preserves) and editable in the Developer editor Field rule expressions"
+                  + " section after lock. Control property values:"
                   + " GET/PUT .../fields/{fieldName}/controlProperties"));
     gaps.add(
         DesignGap.of(
@@ -801,8 +803,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         DesignGap.of(
             "CT_SHARED_FIELD_INCLUSION",
             "Include system/shared fields: POST /contenttypes/{idOrName}/fields/include"
-                + " (held lock, Admin). Origin stays system/shared. SPA field picker remains"
-                + " Workbench"));
+                + " (held lock, Admin). Origin stays system/shared. The Developer editor"
+                + " ships the include picker plus shared-field detach"
+                + " (DELETE .../fields/include/{fieldName})"));
     gaps.add(
         DesignGap.of(
             "CT_WF_TEMPLATE_ASSOC_SEMANTICS",
