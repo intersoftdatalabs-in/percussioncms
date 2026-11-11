@@ -1759,7 +1759,7 @@ describe("classic-UI tree widgets from npm (issue #5662)", () => {
  *      (NPM_LIBRARY_MAPPINGS), covering both the full bundle and the
  *      non-bundle bootstrap.js used by shared-common-minuet.js.
  *   2. Directly loaded jslib URLs are present in STANDALONE_NPM_COPIES and
- *      marked required (common_js.jsp, adminWorkflow.jsp, test/logs.jsp).
+ *      marked required (common_js.jsp, dashboard.jsp, test/logs.jsp).
  *   3. Synced bytes are byte-identical to the npm dist files and carry the
  *      Bootstrap 5 banner (not the deleted 4.6.2).
  *   4. The deleted 4.6.2 vendored files resolve nowhere (no mapping, no

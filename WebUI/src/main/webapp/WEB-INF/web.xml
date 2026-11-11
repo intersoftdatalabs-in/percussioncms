@@ -148,6 +148,57 @@
         <servlet-name>PSRetiredEditAssetRedirect</servlet-name>
         <url-pattern>/cm/pages/app/editAsset.jsp</url-pattern>
     </servlet-mapping>
+    <!-- #6095: retired legacy workflow/admin hosts 301 to SPA Admin shell.
+         FR-002 ships React-only admin; adminWorkflow/percWorkflow/percRoles/
+         percUsers/percCategories JSPs are removed from the distribution. -->
+    <servlet>
+        <servlet-name>PSRetiredWorkflowAdminRedirect</servlet-name>
+        <servlet-class>com.percussion.webui.servlet.PSRetiredJspRedirectServlet</servlet-class>
+        <init-param>
+            <param-name>view</param-name>
+            <param-value>admin</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowAdminRedirect</servlet-name>
+        <url-pattern>/cm/app/adminWorkflow.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowAdminRedirect</servlet-name>
+        <url-pattern>/cm/pages/app/adminWorkflow.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowAdminRedirect</servlet-name>
+        <url-pattern>/cm/app/percWorkflow.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowAdminRedirect</servlet-name>
+        <url-pattern>/cm/pages/app/percWorkflow.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowAdminRedirect</servlet-name>
+        <url-pattern>/cm/app/percRoles.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowAdminRedirect</servlet-name>
+        <url-pattern>/cm/pages/app/percRoles.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowAdminRedirect</servlet-name>
+        <url-pattern>/cm/app/percUsers.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowAdminRedirect</servlet-name>
+        <url-pattern>/cm/pages/app/percUsers.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowAdminRedirect</servlet-name>
+        <url-pattern>/cm/app/percCategories.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowAdminRedirect</servlet-name>
+        <url-pattern>/cm/pages/app/percCategories.jsp</url-pattern>
+    </servlet-mapping>
     
      
     <filter>

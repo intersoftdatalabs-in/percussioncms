@@ -50,20 +50,9 @@ describe("Admin portrait layout contract (GH-945)", () => {
     expect(block).toMatch(/overflow-y:\s*hidden/);
   });
 
-  it("classic adminWorkflow.jsp drops fixed min-width:500px (dual-ship)", () => {
-    const rels = [
-      resolve(webappRoot, "cm/app/adminWorkflow.jsp"),
-      resolve(webappRoot, "cm/pages/app/adminWorkflow.jsp"),
-      resolve(warRoot, "app/adminWorkflow.jsp"),
-    ];
-    for (const path of rels) {
-      const text = readFileSync(path, "utf8");
-      expect(text, path).not.toMatch(/min-width\s*:\s*500px/);
-      expect(text, path).toContain('class="perc-admin-tabs"');
-      expect(text, path).toContain("perc-admin-workflow-page");
-      expect(text, path).toMatch(/overflow-y:\s*auto/);
-    }
-  });
+  // #6095 FR-002: legacy adminWorkflow.jsp hosts retired — no classic markup to assert.
+  // Portrait contract now lives in AdminChrome.module.css (first two cases) plus the
+  // shared percWorkflow.css bundle below (still served for live webmgt/users/editTemplate).
 
   it("percWorkflow.css ships portrait media-query rules (dual-ship)", () => {
     const rels = [

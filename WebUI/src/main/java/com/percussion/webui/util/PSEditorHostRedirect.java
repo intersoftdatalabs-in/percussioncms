@@ -142,6 +142,22 @@ public final class PSEditorHostRedirect {
   }
 
   /**
+   * True when {@code lowerPath} is a retired legacy workflow/admin host JSP (#6095, FR-002): {@code
+   * adminWorkflow.jsp}, {@code percWorkflow.jsp}, {@code percRoles.jsp}, {@code percUsers.jsp}, or
+   * {@code percCategories.jsp} in the app or pages tree.
+   *
+   * @param lowerPath already lower-cased webapp path; may be null
+   * @return true when the path is an app or pages legacy workflow/admin JSP
+   */
+  public static boolean isRetiredWorkflowAdminJsp(String lowerPath) {
+    return isRetiredAppJsp(lowerPath, "adminworkflow.jsp")
+        || isRetiredAppJsp(lowerPath, "percworkflow.jsp")
+        || isRetiredAppJsp(lowerPath, "percroles.jsp")
+        || isRetiredAppJsp(lowerPath, "percusers.jsp")
+        || isRetiredAppJsp(lowerPath, "perccategories.jsp");
+  }
+
+  /**
    * Product-tree JSP bookmark: {@code …/cm/app/<file>} or {@code …/cm/pages/app/<file>}. Uses
    * suffix match so {@code /cm/app-editasset.jsp} is not a false positive.
    */

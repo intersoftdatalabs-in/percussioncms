@@ -87,9 +87,11 @@ const SHELLS = [
   },
   {
     name: "adminWorkflow",
+    // #6095 FR-002: legacy host retired → 301 to SPA Admin shell (not explorer mount)
     path: "/Rhythmyx/cm/app/adminWorkflow.jsp",
-    asserted: true, // T031 complete on 2026-07-19
-    expectModernShell: true,
+    asserted: true,
+    expectModernShell: false,
+    expectAdminSpa: true,
   },
   {
     name: "users",
@@ -143,6 +145,12 @@ test.describe("US6 hard cut — no miller-column Finder chrome (SC-006)", () => 
         // Dedicated modern entry point: ContentExplorerShell mounts.
         const shellEl = page.locator('[data-testid="content-explorer-shell"]');
         await expect(shellEl).toBeVisible({ timeout: 15_000 });
+      }
+      if (shell.expectAdminSpa) {
+        // #6095: retired adminWorkflow.jsp bookmark → SPA Admin shell
+        await expect(page.getByTestId("perc-admin-shell")).toBeVisible({
+          timeout: 30_000,
+        });
       }
       if (shell.expectArchitectureSpa) {
         // #3099 / #3587: siteArchitecture.jsp bookmark → SPA Architecture shell
