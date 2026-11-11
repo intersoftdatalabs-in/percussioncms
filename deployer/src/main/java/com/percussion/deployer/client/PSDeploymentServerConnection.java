@@ -17,13 +17,6 @@
 
 package com.percussion.deployer.client;
 
-import com.percussion.HTTPClient.Codecs;
-import com.percussion.HTTPClient.HTTPConnection;
-import com.percussion.HTTPClient.HTTPResponse;
-import com.percussion.HTTPClient.HttpOutputStream;
-import com.percussion.HTTPClient.NVPair;
-import com.percussion.HTTPClient.PSBinaryFileData;
-import com.percussion.HTTPClient.ProtocolNotSuppException;
 import com.percussion.conn.PSServerException;
 import com.percussion.deployer.objectstore.PSDbmsInfo;
 import com.percussion.deployer.objectstore.PSDeploymentServerConnectionInfo;
@@ -53,12 +46,24 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
+import java.net.CookieManager;
+import java.net.CookiePolicy;
+import java.net.URI;
+import java.net.URLConnection;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.util.Base64;
 import java.util.Date;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import org.apache.logging.log4j.LogManager;
@@ -191,16 +196,28 @@ public final class PSDeploymentServerConnection {
     operatingMode = mode;
     m_password = password == null ? "" : password;
 
-    // create the connection object
-    try {
-      m_conn = new HTTPConnection(protocol, m_server, m_port);
-      m_conn.setContext(this); // associate cookies with this instance
-      m_conn.setAllowUserInteraction(false);
-      m_conn.setTimeout(0); // no timeout
-      m_conn.addBasicAuthorization("", m_uid, m_password);
-    } catch (ProtocolNotSuppException e) {
-      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
+    // create the connection object. Only 'http' and 'https' are supported; anything
+    // else used to surface as a vendored ProtocolNotSuppException and is mapped to the
+    // same UNEXPECTED_ERROR contract here.
+    if (!protocol.equalsIgnoreCase("http") && !protocol.equalsIgnoreCase("https")) {
+      throw new PSDeployException(
+          DeploymentErrorCodes.UNEXPECTED_ERROR, "Unsupported protocol: " + protocol);
     }
+    m_baseUri =
+        URI.create(protocol.toLowerCase(Locale.ROOT) + "://" + m_server + ":" + m_port);
+    m_basicAuthHeader =
+        "Basic "
+            + Base64.getEncoder()
+                .encodeToString(
+                    (m_uid + ":" + m_password).getBytes(StandardCharsets.ISO_8859_1));
+    // Per-instance cookie jar, replacing the vendored client's setContext(this) association.
+    // ACCEPT_ALL mirrors the vendored default of storing whatever the server sets.
+    m_httpClient =
+        HttpClient.newBuilder()
+            .version(HttpClient.Version.HTTP_1_1)
+            .followRedirects(HttpClient.Redirect.NORMAL)
+            .cookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ALL))
+            .build();
 
     m_isConnected = true;
     Document respDoc = connect(overrideLock);
@@ -456,43 +473,50 @@ public final class PSDeploymentServerConnection {
     int status = -1;
     PSPurgableTempFile reqFile = null;
     byte[] data = null;
-    HTTPResponse resp = null;
-    // add reqtype header after first header (will get set with
-    // content-type header automatically by the formDataEncode call)
-    NVPair[] hdrs = new NVPair[2];
+    HttpResponse<byte[]> resp = null;
+    // Content-Type is set by the multipart encoder below; the request-type header rides along.
+    Map<String, String> headers = new LinkedHashMap<>();
     try {
       // add the params
-      NVPair[] opts = getParams(params);
+      Map<String, String> formFields = getFormFields(params);
 
       // add the request doc as an attachment with explicit XML content type
       // so PSFormContentParser always sets the input document (NULL_INPUT_DOC)
       reqFile = createAttachmentFile(req);
 
-      hdrs[1] = new NVPair(IPSCgiVariables.CGI_PS_REQUEST_TYPE, type);
-      data = encodeXmlDocumentMultipart(opts, reqFile, hdrs);
+      MultipartBody encoded = encodeXmlDocumentMultipart(formFields, reqFile);
+      headers.put("Content-Type", encoded.getContentType());
+      headers.put(IPSCgiVariables.CGI_PS_REQUEST_TYPE, type);
+      data = encoded.getBody();
 
       // send the request to the Rx server
       synchronized (m_mutexObject) {
-        resp = m_conn.Post(requestPage, data, hdrs);
+        resp = postBytes(requestPage, data, headers);
       }
       // get the response code
-      status = resp.getStatusCode();
-      respData = resp.getData();
+      status = resp.statusCode();
+      respData = resp.body();
     } catch (IOException ioe) {
       log.error(ioe.getMessage());
       log.debug(ioe.getMessage(), ioe);
       System.out.println("3. IOException occurred, rePOSTing: " + ioe.getLocalizedMessage());
       try {
-        resp = m_conn.Post(requestPage, data, hdrs);
-        status = resp.getStatusCode();
-        respData = resp.getData();
+        synchronized (m_mutexObject) {
+          resp = postBytes(requestPage, data, headers);
+        }
+        status = resp.statusCode();
+        respData = resp.body();
+      } catch (InterruptedException ie) {
+        Thread.currentThread().interrupt();
+        throw new PSDeployException(
+            DeploymentErrorCodes.UNEXPECTED_ERROR, ie.getLocalizedMessage());
       } catch (Exception e) {
         log.error(PSExceptionUtils.getMessageForLog(e));
         log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         if (data != null && log.isDebugEnabled()) {
           try {
             // log the request data to make debugging easier
-            log.debug(getParams(params));
+            log.debug(getFormFields(params));
             String request = new String(data, "ISO-8859-1");
             log.debug(request);
           } catch (UnsupportedEncodingException uee) {
@@ -502,13 +526,16 @@ public final class PSDeploymentServerConnection {
         }
         throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
       }
+    } catch (InterruptedException ie) {
+      Thread.currentThread().interrupt();
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, ie.getLocalizedMessage());
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       if (data != null && log.isDebugEnabled()) {
         try {
           // log the request data to make debugging easier
-          log.debug(getParams(params));
+          log.debug(getFormFields(params));
           String request = new String(data, "ISO-8859-1");
           log.debug(request);
         } catch (UnsupportedEncodingException uee) {
@@ -618,71 +645,72 @@ public final class PSDeploymentServerConnection {
     byte[] respData = null;
     Document respDoc = null;
     int status = -1;
-    // add reqtype header after first header (will get set with
-    // content-type header automatically by the formDataEncode call)
-    NVPair[] hdrs = new NVPair[3];
+    // Content-Type is set by the multipart encoder below; the request-type header rides along.
+    // (The vendored client also sent "Connection: Keep-Alive"; java.net.http manages persistence
+    // itself and forbids that restricted header, so it is not forwarded.)
+    Map<String, String> headers = new LinkedHashMap<>();
 
-    HTTPResponse resp = null;
+    HttpResponse<byte[]> resp = null;
     boolean doRepost = false;
 
     // add the params
-    NVPair[] opts = getParams(params);
+    Map<String, String> formFields = getFormFields(params);
 
-    // Read in file and create multipart form
-    NVPair[] file = new NVPair[1];
-    file[0] = new NVPair(body.getName(), body.getPath());
+    // Read in file and create multipart form. Content type mirrors the vendored encoder's
+    // URLConnection filename guess, defaulting to application/octet-stream when unknown.
+    String fileContentType = URLConnection.guessContentTypeFromName(body.getName());
+    if (fileContentType == null) fileContentType = "application/octet-stream";
 
-    hdrs[1] = new NVPair(IPSCgiVariables.CGI_PS_REQUEST_TYPE, type);
+    headers.put(IPSCgiVariables.CGI_PS_REQUEST_TYPE, type);
     try {
-      byte[] data = Codecs.mpFormDataEncode(opts, file, hdrs);
+      byte[] fileBytes = Files.readAllBytes(body.toPath());
+      MultipartBody encoded =
+          encodeMultipart(
+              formFields,
+              List.of(
+                  new MultipartFileUpload(
+                      body.getName(), body.getName(), fileContentType, fileBytes)));
+      headers.put("Content-Type", encoded.getContentType());
+      byte[] data = encoded.getBody();
 
-      // keep alive connection header
-      hdrs[2] = new NVPair("Connection", "Keep-Alive");
-      // send the request to the Rx server
-
-      try (HttpOutputStream out = new HttpOutputStream(data.length)) {
-        synchronized (m_mutexObject) {
-          resp = m_conn.Post(requestPage, out, hdrs);
-        }
-        try (ByteArrayInputStream bIn = new ByteArrayInputStream(data)) {
-          try (PSInputStreamCounter counter = new PSInputStreamCounter(bIn)) {
-            controller.setStream(counter, data.length);
-            // copy the data
-            copyStream(counter, out, controller);
-          }
-          // get the response code
-          status = resp.getStatusCode();
-          respData = resp.getData();
-        }
-      } catch (IOException ioe) {
-        if (repost) {
-          log.error("6. IOException occurred rePOSTing: {}", ioe.getLocalizedMessage());
-          log.debug(ioe.getMessage(), ioe);
-          doRepost = true;
-        } else {
-          log.error(ioe.getMessage());
-          log.debug(ioe.getMessage(), ioe);
-          throw new PSDeployException(
-              DeploymentErrorCodes.UNEXPECTED_ERROR, ioe.getLocalizedMessage());
-        }
-      } catch (Exception e) {
-        log.error(PSExceptionUtils.getMessageForLog(e));
-        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      // send the request to the Rx server, streaming the buffered body through the progress
+      // counter the same way the vendored copyStream pump did
+      PSInputStreamCounter counter = new PSInputStreamCounter(new ByteArrayInputStream(data));
+      controller.setStream(counter, data.length);
+      synchronized (m_mutexObject) {
+        resp = postUpload(requestPage, headers, cancellableUploadStream(counter, controller));
       }
-    } catch (IOException e) {
+      // get the response code
+      status = resp.statusCode();
+      respData = resp.body();
+    } catch (IOException ioe) {
       if (repost) {
-        log.error("6. IOException occurred rePOSTing: {} ", PSExceptionUtils.getMessageForLog(e));
-        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+        log.error("6. IOException occurred rePOSTing: {}", ioe.getLocalizedMessage());
+        log.debug(ioe.getMessage(), ioe);
         doRepost = true;
       } else {
-        log.error(PSExceptionUtils.getMessageForLog(e));
-        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getMessage());
+        log.error(ioe.getMessage());
+        log.debug(ioe.getMessage(), ioe);
+        throw new PSDeployException(
+            DeploymentErrorCodes.UNEXPECTED_ERROR, ioe.getLocalizedMessage());
       }
+    } catch (InterruptedException ie) {
+      Thread.currentThread().interrupt();
+      if (repost) {
+        log.error("6. Interrupted rePOSTing: {}", PSExceptionUtils.getMessageForLog(ie));
+        log.debug(PSExceptionUtils.getDebugMessageForLog(ie));
+        doRepost = true;
+      } else {
+        throw new PSDeployException(
+            DeploymentErrorCodes.UNEXPECTED_ERROR, ie.getLocalizedMessage());
+      }
+    } catch (Exception e) {
+      log.error(PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
 
-    if (repost) {
+    if (doRepost) {
       return execute(type, params, body, controller, reconnect, false);
     }
 
@@ -779,36 +807,40 @@ public final class PSDeploymentServerConnection {
     InputStream in = null;
     int status = -1;
 
-    // no options
-    NVPair[] opts = null;
-
     // add the request doc as an attachment with explicit XML content type
     try (PSPurgableTempFile reqFile = createAttachmentFile(req)) {
 
-      // add reqtype header after first header (will get set with
-      // content-type header automatically by the formDataEncode call)
-      NVPair[] hdrs = new NVPair[2];
-      hdrs[1] = new NVPair(IPSCgiVariables.CGI_PS_REQUEST_TYPE, type);
-      byte[] data = encodeXmlDocumentMultipart(opts, reqFile, hdrs);
+      // Content-Type is set by the multipart encoder below; the request-type header rides along.
+      Map<String, String> headers = new LinkedHashMap<>();
+      headers.put(IPSCgiVariables.CGI_PS_REQUEST_TYPE, type);
+      MultipartBody encoded = encodeXmlDocumentMultipart(null, reqFile);
+      headers.put("Content-Type", encoded.getContentType());
+      byte[] data = encoded.getBody();
 
       // send the request to the Rx server
-      HTTPResponse resp = null;
+      HttpResponse<InputStream> resp;
       synchronized (m_mutexObject) {
-        resp = m_conn.Post(requestPage, data, hdrs);
+        resp = postDownload(requestPage, data, headers);
       }
       // get the response code
-      status = resp.getStatusCode();
-      int contentLength = resp.getHeaderAsInt("Content-Length");
+      status = resp.statusCode();
+      int contentLength = parseContentLength(resp);
       if (status == 200) {
-        in = resp.getInputStream();
+        in = resp.body();
         PSInputStreamCounter cIn = new PSInputStreamCounter(in);
         controller.setStream(cIn, contentLength);
         copyStream(cIn, out, controller);
       } else {
         // in this case we should have gotten back an exception in an XML
         // doc
-        respData = resp.getData();
+        try (InputStream errIn = resp.body()) {
+          respData = errIn.readAllBytes();
+        }
       }
+    } catch (InterruptedException ie) {
+      Thread.currentThread().interrupt();
+      throw new PSDeployException(
+          DeploymentErrorCodes.UNEXPECTED_ERROR, ie.getLocalizedMessage());
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -1054,7 +1086,75 @@ public final class PSDeploymentServerConnection {
   public static final String XML_REQUEST_CONTENT_TYPE = "application/xml";
 
   /**
-   * Builds multipart file parts for an XML request body with an explicit {@link
+   * One multipart {@code form-data} file part: field name, filename, part Content-Type (may be
+   * {@code null}, in which case no part Content-Type header is written, mirroring the vendored
+   * encoder's filename-guess behavior), and raw bytes.
+   *
+   * <p>Package-private for unit tests.
+   */
+  static final class MultipartFileUpload {
+    private final String fieldName;
+    private final String fileName;
+    private final String contentType;
+    private final byte[] data;
+
+    MultipartFileUpload(String fieldName, String fileName, String contentType, byte[] data) {
+      if (fieldName == null || fieldName.isEmpty())
+        throw new IllegalArgumentException("fieldName may not be null or empty");
+      if (fileName == null || fileName.isEmpty())
+        throw new IllegalArgumentException("fileName may not be null or empty");
+      if (data == null) throw new IllegalArgumentException("data may not be null");
+      this.fieldName = fieldName;
+      this.fileName = fileName;
+      this.contentType = contentType;
+      this.data = data;
+    }
+
+    String getFieldName() {
+      return fieldName;
+    }
+
+    String getFileName() {
+      return fileName;
+    }
+
+    String getContentType() {
+      return contentType;
+    }
+
+    byte[] getData() {
+      return data;
+    }
+  }
+
+  /**
+   * An encoded {@code multipart/form-data} body plus the {@code Content-Type} header value
+   * (including boundary) to send with it.
+   *
+   * <p>Package-private for unit tests.
+   */
+  static final class MultipartBody {
+    private final byte[] body;
+    private final String contentType;
+
+    MultipartBody(byte[] body, String contentType) {
+      if (body == null) throw new IllegalArgumentException("body may not be null");
+      if (contentType == null) throw new IllegalArgumentException("contentType may not be null");
+      this.body = body;
+      this.contentType = contentType;
+    }
+
+    byte[] getBody() {
+      return body;
+    }
+
+    String getContentType() {
+      return contentType;
+    }
+  }
+
+  /**
+   * Builds a multipart file part for an XML request body with an explicit {@link
    * #XML_REQUEST_CONTENT_TYPE} Content-Type.
    *
    * <p>Package-private for unit tests.
@@ -1062,10 +1162,9 @@ public final class PSDeploymentServerConnection {
    * @param fieldName form field / disposition name; if {@code null} or blank, {@code
    *     dpl_request.xml} is used. A {@code .xml} suffix is ensured for filename-based fallbacks.
    * @param xmlBytes raw XML bytes, not {@code null}
-   * @return a one-element array suitable for {@link Codecs#mpFormDataEncode(NVPair[],
-   *     PSBinaryFileData[], NVPair[])}
+   * @return the file part, never {@code null}
    */
-  static PSBinaryFileData[] createXmlRequestFileData(String fieldName, byte[] xmlBytes) {
+  static MultipartFileUpload createXmlRequestFileData(String fieldName, byte[] xmlBytes) {
     if (xmlBytes == null) {
       throw new IllegalArgumentException("xmlBytes may not be null");
     }
@@ -1079,9 +1178,7 @@ public final class PSDeploymentServerConnection {
     if (!partName.toLowerCase(Locale.ROOT).endsWith(".xml")) {
       partName = partName + ".xml";
     }
-    return new PSBinaryFileData[] {
-      new PSBinaryFileData(xmlBytes, partName, partName, XML_REQUEST_CONTENT_TYPE)
-    };
+    return new MultipartFileUpload(partName, partName, XML_REQUEST_CONTENT_TYPE, xmlBytes);
   }
 
   /**
@@ -1090,24 +1187,19 @@ public final class PSDeploymentServerConnection {
    *
    * <p>Package-private for unit tests.
    *
-   * @param opts form name/value pairs, may be {@code null}
+   * @param fields form field map, may be {@code null}
    * @param xmlFile temp file containing the XML document, not {@code null}
-   * @param hdrs header array of length &gt;= 1; element 0 is set to the multipart Content-Type by
-   *     the encoder
    * @return encoded multipart body, never {@code null}
-   * @throws IOException if the file cannot be read or encoding fails
+   * @throws IOException if the file cannot be read
    */
-  static byte[] encodeXmlDocumentMultipart(NVPair[] opts, File xmlFile, NVPair[] hdrs)
+  static MultipartBody encodeXmlDocumentMultipart(Map<String, String> fields, File xmlFile)
       throws IOException {
     if (xmlFile == null) {
       throw new IllegalArgumentException("xmlFile may not be null");
     }
-    if (hdrs == null || hdrs.length < 1) {
-      throw new IllegalArgumentException("hdrs must have at least one slot for Content-Type");
-    }
-    byte[] xmlBytes = java.nio.file.Files.readAllBytes(xmlFile.toPath());
-    PSBinaryFileData[] files = createXmlRequestFileData(xmlFile.getName(), xmlBytes);
-    return Codecs.mpFormDataEncode(opts, files, hdrs);
+    byte[] xmlBytes = Files.readAllBytes(xmlFile.toPath());
+    MultipartFileUpload file = createXmlRequestFileData(xmlFile.getName(), xmlBytes);
+    return encodeMultipart(fields, List.of(file));
   }
 
   /**
@@ -1117,13 +1209,12 @@ public final class PSDeploymentServerConnection {
    *
    * <p>Package-private for unit tests.
    *
-   * @param opts form name/value pairs, may be {@code null}
+   * @param fields form field map, may be {@code null}
    * @param doc XML request document, not {@code null}
-   * @param hdrs header array of length &gt;= 1
    * @return encoded multipart body, never {@code null}
-   * @throws Exception if the document cannot be serialized or encoding fails
+   * @throws Exception if the document cannot be serialized
    */
-  static byte[] encodeXmlDocumentMultipart(NVPair[] opts, Document doc, NVPair[] hdrs)
+  static MultipartBody encodeXmlDocumentMultipart(Map<String, String> fields, Document doc)
       throws Exception {
     if (doc == null) {
       throw new IllegalArgumentException("doc may not be null");
@@ -1131,8 +1222,209 @@ public final class PSDeploymentServerConnection {
     ByteArrayOutputStream bos = new ByteArrayOutputStream();
     PSXmlDocumentBuilder.write(doc, bos);
     byte[] xmlBytes = bos.toByteArray();
-    PSBinaryFileData[] files = createXmlRequestFileData("dpl_request.xml", xmlBytes);
-    return Codecs.mpFormDataEncode(opts, files, hdrs);
+    MultipartFileUpload file = createXmlRequestFileData("dpl_request.xml", xmlBytes);
+    return encodeMultipart(fields, List.of(file));
+  }
+
+  /**
+   * Encodes form fields and file parts into a {@code multipart/form-data} body, using the same
+   * part layout the vendored {@code Codecs.mpFormDataEncode} produced: field parts as {@code
+   * Content-Disposition: form-data; name="..."} followed by file parts with an explicit filename
+   * and, when known, a part Content-Type. Field names/values are encoded ISO-8859-1, matching the
+   * vendored default.
+   *
+   * <p>Package-private for unit tests.
+   *
+   * @param fields form field map, may be {@code null} or empty
+   * @param files file parts, may be {@code null} or empty
+   * @return encoded body plus Content-Type header value, never {@code null}
+   */
+  static MultipartBody encodeMultipart(
+      Map<String, String> fields, List<MultipartFileUpload> files) {
+    String boundary = "-----------------------------" + Long.toUnsignedString(System.nanoTime());
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    boolean hasPart = false;
+
+    if (fields != null) {
+      for (Map.Entry<String, String> field : fields.entrySet()) {
+        if (field == null) continue;
+        hasPart = true;
+        writeFieldPart(out, boundary, field.getKey(), field.getValue());
+      }
+    }
+
+    if (files != null) {
+      for (MultipartFileUpload file : files) {
+        if (file == null) continue;
+        hasPart = true;
+        writeFilePart(out, boundary, file);
+      }
+    }
+
+    if (!hasPart) {
+      return new MultipartBody(new byte[0], "application/octet-stream");
+    }
+    writeAscii(out, "--" + boundary + "--\r\n");
+    return new MultipartBody(
+        out.toByteArray(), "multipart/form-data; boundary=" + boundary);
+  }
+
+  /**
+   * Writes one {@code form-data} field part. Header tokens ({@code Content-Disposition}, CRLF)
+   * are RFC 2046 wire literals, identical on every OS.
+   */
+  private static void writeFieldPart(
+      ByteArrayOutputStream out, String boundary, String name, String value) {
+    writeAscii(out, "--" + boundary + "\r\n");
+    // mkd-code-review[paths.hardcoded_sep]: RFC 2046 wire literal (CRLF, quoted disposition
+    // name), not a filesystem path join — byte-identical on all platforms by protocol.
+    writeAscii(out, "Content-Disposition: form-data; name=\"" + name + "\"\r\n");
+    writeAscii(out, "\r\n");
+    byte[] valueBytes = value == null ? new byte[0] : value.getBytes(StandardCharsets.ISO_8859_1);
+    out.write(valueBytes, 0, valueBytes.length);
+    writeAscii(out, "\r\n");
+  }
+
+  /**
+   * Writes one {@code form-data} file part, with a part Content-Type only when known. Header
+   * tokens are RFC 2046 wire literals, identical on every OS.
+   */
+  private static void writeFilePart(
+      ByteArrayOutputStream out, String boundary, MultipartFileUpload file) {
+    writeAscii(out, "--" + boundary + "\r\n");
+    // mkd-code-review[paths.hardcoded_sep]: RFC 2046 wire literal (CRLF, quoted disposition
+    // name/filename), not a filesystem path join — byte-identical on all platforms by protocol.
+    String disposition = String.format("Content-Disposition: form-data; name=\"%s\"; filename=\"%s\"\r\n", file.getFieldName(), file.getFileName());
+    writeAscii(out, disposition);
+    if (file.getContentType() != null) {
+      writeAscii(out, "Content-Type: " + file.getContentType() + "\r\n");
+    }
+    writeAscii(out, "\r\n");
+    byte[] data = file.getData();
+    out.write(data, 0, data.length);
+    writeAscii(out, "\r\n");
+  }
+
+  /**
+   * Sends a buffered request body and buffers the full response, mirroring the vendored {@code
+   * Post(byte[], headers)} call shape. The per-instance client carries the preemptive {@code
+   * Authorization} header and the connection cookie jar on every request.
+   *
+   * @param requestPage request path, resolved against the connection base URI
+   * @param body buffered request body, never {@code null}
+   * @param headers additional request headers, never {@code null}
+   * @return the response with a buffered body, never {@code null}
+   * @throws IOException if the send fails
+   * @throws InterruptedException if the send is interrupted
+   */
+  private HttpResponse<byte[]> postBytes(
+      String requestPage, byte[] body, Map<String, String> headers)
+      throws IOException, InterruptedException {
+    HttpRequest.Builder builder =
+        HttpRequest.newBuilder(m_baseUri.resolve(requestPage))
+            .POST(HttpRequest.BodyPublishers.ofByteArray(body))
+            .header("Authorization", m_basicAuthHeader);
+    for (Map.Entry<String, String> header : headers.entrySet()) {
+      builder.header(header.getKey(), header.getValue());
+    }
+    return m_httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
+  }
+
+  /**
+   * Sends a streaming upload body (progress counted through the supplied stream) and buffers the
+   * response, replacing the vendored {@code Post(HttpOutputStream, headers)} + {@code copyStream}
+   * pump. The body is sent chunked; servlet containers de-chunk transparently before the
+   * multipart parser sees it.
+   *
+   * @param requestPage request path, resolved against the connection base URI
+   * @param headers additional request headers, never {@code null}
+   * @param upload body stream (progress-counting and cancellation-aware), never {@code null}
+   * @return the response with a buffered body, never {@code null}
+   * @throws IOException if the send fails
+   * @throws InterruptedException if the send is interrupted
+   */
+  private HttpResponse<byte[]> postUpload(
+      String requestPage, Map<String, String> headers, InputStream upload)
+      throws IOException, InterruptedException {
+    HttpRequest.Builder builder =
+        HttpRequest.newBuilder(m_baseUri.resolve(requestPage))
+            .POST(HttpRequest.BodyPublishers.ofInputStream(() -> upload))
+            .header("Authorization", m_basicAuthHeader);
+    for (Map.Entry<String, String> header : headers.entrySet()) {
+      builder.header(header.getKey(), header.getValue());
+    }
+    return m_httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofByteArray());
+  }
+
+  /**
+   * Sends a buffered request body and streams the response, replacing the vendored {@code
+   * Post(byte[], headers)} + {@code getInputStream} download shape. Callers own the response
+   * stream.
+   *
+   * @param requestPage request path, resolved against the connection base URI
+   * @param body buffered request body, never {@code null}
+   * @param headers additional request headers, never {@code null}
+   * @return the response with a streaming body, never {@code null}
+   * @throws IOException if the send fails
+   * @throws InterruptedException if the send is interrupted
+   */
+  private HttpResponse<InputStream> postDownload(
+      String requestPage, byte[] body, Map<String, String> headers)
+      throws IOException, InterruptedException {
+    HttpRequest.Builder builder =
+        HttpRequest.newBuilder(m_baseUri.resolve(requestPage))
+            .POST(HttpRequest.BodyPublishers.ofByteArray(body))
+            .header("Authorization", m_basicAuthHeader);
+    for (Map.Entry<String, String> header : headers.entrySet()) {
+      builder.header(header.getKey(), header.getValue());
+    }
+    return m_httpClient.send(builder.build(), HttpResponse.BodyHandlers.ofInputStream());
+  }
+
+  /**
+   * Reads the response {@code Content-Length}, throwing {@link NumberFormatException} when the
+   * header is absent or unparseable — the same contract the vendored {@code getHeaderAsInt} had,
+   * so the surrounding error mapping is unchanged.
+   */
+  private static int parseContentLength(HttpResponse<?> resp) {
+    String value = resp.headers().firstValue("Content-Length").orElse(null);
+    if (value == null) throw new NumberFormatException("null");
+    return Integer.parseInt(value);
+  }
+
+  /**
+   * Wraps the upload progress stream so a controller cancellation aborts the send with an {@link
+   * IOException}, mirroring the vendored {@code copyStream} pump which stopped (and failed the
+   * request) once {@code getCancelledStatus()} left {@code -1}.
+   */
+  private static InputStream cancellableUploadStream(
+      InputStream in, PSDeployFileJobControl controller) {
+    return new FilterInputStream(in) {
+      private void checkCancelled() throws IOException {
+        if (controller.getCancelledStatus() != -1) throw new IOException("Upload cancelled");
+      }
+
+      @Override
+      public int read() throws IOException {
+        checkCancelled();
+        return super.read();
+      }
+
+      @Override
+      public int read(byte[] b, int off, int len) throws IOException {
+        checkCancelled();
+        return super.read(b, off, len);
+      }
+    };
+  }
+
+  /**
+   * Writes an ASCII header line to the multipart buffer. Header names, boundaries, and disposition
+   * attributes are protocol ASCII by construction.
+   */
+  private static void writeAscii(ByteArrayOutputStream out, String text) {
+    byte[] bytes = text.getBytes(StandardCharsets.US_ASCII);
+    out.write(bytes, 0, bytes.length);
   }
 
   /**
@@ -1146,7 +1438,7 @@ public final class PSDeploymentServerConnection {
     if (multipartBody == null) {
       return false;
     }
-    // Multipart encoding uses ISO-8859-1 / 8859_1 for headers (see Codecs).
+    // Multipart header bytes are ISO-8859-1 by construction (see encodeMultipart).
     String body = new String(multipartBody, StandardCharsets.ISO_8859_1);
     String lower = body.toLowerCase(Locale.ROOT);
     return lower.contains("content-type: application/xml")
@@ -1355,34 +1647,29 @@ public final class PSDeploymentServerConnection {
   }
 
   /**
-   * Converts params to an <code>NVPair[]</code> array.
+   * Converts params to an insertion-ordered form-field map for multipart encoding.
    *
    * @param params Map of params, where param name is key as <code>String</code> and value is the
    *     param value. May be <code>null</code>, may not contain a <code>null</code> key.
-   * @return The array, will be <code>null</code> if <code>params</code> is <code>null</code> or
-   *     emtpy.
+   * @return The field map, will be <code>null</code> if <code>params</code> is <code>null</code> or
+   *     empty.
    */
-  private NVPair[] getParams(Map<String, ?> params) {
+  private Map<String, String> getFormFields(Map<String, ?> params) {
     // add the params
-    NVPair[] opts = null;
+    Map<String, String> fields = null;
     if (params != null && params.size() > 0) {
-      opts = new NVPair[params.size()];
-      var iterator = params.entrySet().iterator();
-      int onParam = 0;
-      while (iterator.hasNext()) {
-
-        Map.Entry<String, ?> entry = (Map.Entry<String, ?>) iterator.next();
+      fields = new LinkedHashMap<>();
+      for (Map.Entry<String, ?> entry : params.entrySet()) {
         if (entry.getKey() == null)
           throw new IllegalArgumentException("params may not contain a null key");
 
         String val = entry.getValue() != null ? entry.getValue().toString() : "";
 
-        opts[onParam] = new NVPair(entry.getKey().toString(), val);
-        onParam++;
+        fields.put(entry.getKey().toString(), val);
       }
     }
 
-    return opts;
+    return fields;
   }
 
   /** Reference to Log4j singleton object used to log any errors or debug info. */
@@ -1440,10 +1727,26 @@ public final class PSDeploymentServerConnection {
   private String m_password;
 
   /**
-   * The http connection object constructed on first attempt to connect to the server. Never
-   * modified or <code>null</code> after that.
+   * Base URI of the Rx server (scheme + host + port), set during ctor, never <code>null</code> or
+   * modified after that. Request pages from {@link #getRequestPage(String)} are resolved against
+   * it.
    */
-  private HTTPConnection m_conn;
+  private final URI m_baseUri;
+
+  /**
+   * Preemptive {@code Authorization} header value ({@code Basic} userid:password), replacing the
+   * vendored client's {@code addBasicAuthorization}. Never <code>null</code> or modified after
+   * ctor.
+   */
+  private final String m_basicAuthHeader;
+
+  /**
+   * Shared JDK HTTP client for this connection. Thread-safe, so the {@link #m_mutexObject} guard
+   * around sends is retained only to preserve the original mutual-exclusion behavior. Carries a
+   * per-instance cookie jar, replacing the vendored client's {@code setContext(this)} cookie
+   * association. Never <code>null</code> or modified after ctor.
+   */
+  private final HttpClient m_httpClient;
 
   /**
    * Mutex preventing concurrent access to a critical section by having threads synchronize on it.

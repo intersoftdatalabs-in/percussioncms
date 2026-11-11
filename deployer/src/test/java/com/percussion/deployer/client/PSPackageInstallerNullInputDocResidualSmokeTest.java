@@ -24,7 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import com.percussion.HTTPClient.NVPair;
+import com.percussion.deployer.client.PSDeploymentServerConnection.MultipartBody;
 import com.percussion.deployer.catalog.server.PSCatalogHandler;
 import com.percussion.deployer.server.PSDeploymentHandler;
 import com.percussion.error.IPSDeploymentErrors;
@@ -33,7 +33,9 @@ import com.percussion.server.PSRequest;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.LinkedHashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -87,24 +89,23 @@ public class PSPackageInstallerNullInputDocResidualSmokeTest {
       root.setAttribute("type", "Package");
     }
 
-    NVPair[] opts = new NVPair[] {new NVPair("sessionProbe", "1")};
-    NVPair[] hdrs = new NVPair[2];
-    hdrs[1] = new NVPair("PS-Request-Type", requestType);
+    Map<String, String> opts = new LinkedHashMap<>();
+    opts.put("sessionProbe", "1");
 
-    byte[] body = PSDeploymentServerConnection.encodeXmlDocumentMultipart(opts, doc, hdrs);
+    MultipartBody encoded =
+        PSDeploymentServerConnection.encodeXmlDocumentMultipart(opts, doc);
 
     assertTrue(
-        PSDeploymentServerConnection.multipartContainsXmlContentType(body),
+        PSDeploymentServerConnection.multipartContainsXmlContentType(encoded.getBody()),
         () -> "missing XML Content-Type for " + requestType);
-    String asText = new String(body, StandardCharsets.ISO_8859_1);
+    String asText = new String(encoded.getBody(), StandardCharsets.ISO_8859_1);
     assertTrue(
         asText.toLowerCase(Locale.ROOT).contains("content-type: application/xml"),
         () -> "expected application/xml for " + requestType + ", headers:\n" + extractHeaders(asText));
     assertTrue(asText.contains(rootElement), () -> "XML body must include " + rootElement);
-    assertEquals("Content-Type", hdrs[0].getName());
     assertTrue(
-        hdrs[0].getValue().toLowerCase(Locale.ROOT).startsWith("multipart/form-data"),
-        hdrs[0].getValue());
+        encoded.getContentType().toLowerCase(Locale.ROOT).startsWith("multipart/form-data"),
+        encoded.getContentType());
   }
 
   @Test
@@ -118,15 +119,11 @@ public class PSPackageInstallerNullInputDocResidualSmokeTest {
               + "<PSXDeployValidateArchiveRequest checkArchiveRef=\"yes\"/>";
       Files.writeString(tmp, xml, StandardCharsets.UTF_8);
 
-      NVPair[] opts = null;
-      NVPair[] hdrs = new NVPair[2];
-      hdrs[1] = new NVPair("PS-Request-Type", "deploy-validateArchive");
+      MultipartBody encoded =
+          PSDeploymentServerConnection.encodeXmlDocumentMultipart(null, tmp.toFile());
 
-      byte[] body =
-          PSDeploymentServerConnection.encodeXmlDocumentMultipart(opts, tmp.toFile(), hdrs);
-
-      assertTrue(PSDeploymentServerConnection.multipartContainsXmlContentType(body));
-      String asText = new String(body, StandardCharsets.ISO_8859_1);
+      assertTrue(PSDeploymentServerConnection.multipartContainsXmlContentType(encoded.getBody()));
+      String asText = new String(encoded.getBody(), StandardCharsets.ISO_8859_1);
       assertTrue(asText.toLowerCase(Locale.ROOT).contains("content-type: application/xml"));
       assertTrue(asText.contains("PSXDeployValidateArchiveRequest"));
     } finally {

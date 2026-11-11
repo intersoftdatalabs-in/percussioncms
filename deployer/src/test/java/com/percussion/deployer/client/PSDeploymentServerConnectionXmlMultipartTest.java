@@ -21,12 +21,14 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.percussion.HTTPClient.Codecs;
-import com.percussion.HTTPClient.NVPair;
-import com.percussion.HTTPClient.PSBinaryFileData;
+import com.percussion.deployer.client.PSDeploymentServerConnection.MultipartBody;
+import com.percussion.deployer.client.PSDeploymentServerConnection.MultipartFileUpload;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -43,37 +45,36 @@ public class PSDeploymentServerConnectionXmlMultipartTest {
   @Test
   public void createXmlRequestFileDataForcesApplicationXmlContentType() {
     byte[] xml = "<root/>".getBytes(StandardCharsets.UTF_8);
-    PSBinaryFileData[] parts =
+    MultipartFileUpload part =
         PSDeploymentServerConnection.createXmlRequestFileData("dpl_abc123.xml", xml);
-    assertEquals(1, parts.length);
-    assertEquals(PSDeploymentServerConnection.XML_REQUEST_CONTENT_TYPE, parts[0].getContentType());
-    assertEquals("dpl_abc123.xml", parts[0].getFileName());
-    assertEquals("dpl_abc123.xml", parts[0].getFieldName());
+    assertEquals(PSDeploymentServerConnection.XML_REQUEST_CONTENT_TYPE, part.getContentType());
+    assertEquals("dpl_abc123.xml", part.getFileName());
+    assertEquals("dpl_abc123.xml", part.getFieldName());
   }
 
   @Test
   public void createXmlRequestFileDataStripsPathAndEnsuresXmlSuffix() {
     byte[] xml = "<root/>".getBytes(StandardCharsets.UTF_8);
     // Windows-style path (backslashes)
-    PSBinaryFileData[] winParts =
-        PSDeploymentServerConnection.createXmlRequestFileData("C:\\temp\\dpl_req", xml);
-    assertEquals(1, winParts.length);
-    String winName = winParts[0].getFileName();
+    // mkd-code-review[paths.hardcoded_sep]: separator-family fixture vector proving basename
+    // stripping, not an OS path join — the assertion below requires the backslashes literally.
+    MultipartFileUpload winPart = PSDeploymentServerConnection.createXmlRequestFileData("C:\\temp\\dpl_req", xml);
+    String winName = winPart.getFileName();
     assertFalse(winName.contains("\\") || winName.contains("/"), "basename only: " + winName);
     assertTrue(winName.toLowerCase(Locale.ROOT).endsWith(".xml"), winName);
     assertEquals(
-        PSDeploymentServerConnection.XML_REQUEST_CONTENT_TYPE, winParts[0].getContentType());
+        PSDeploymentServerConnection.XML_REQUEST_CONTENT_TYPE, winPart.getContentType());
 
     // Unix-style path (forward slashes) — same stripping on both separator families
-    PSBinaryFileData[] unixParts =
-        PSDeploymentServerConnection.createXmlRequestFileData("/tmp/dpl_req", xml);
-    assertEquals(1, unixParts.length);
-    String unixName = unixParts[0].getFileName();
+    // mkd-code-review[paths.hardcoded_sep]: separator-family fixture vector proving basename
+    // stripping, not an OS path join — the assertion below requires the slashes literally.
+    MultipartFileUpload unixPart = PSDeploymentServerConnection.createXmlRequestFileData("/tmp/dpl_req", xml);
+    String unixName = unixPart.getFileName();
     assertFalse(unixName.contains("\\") || unixName.contains("/"), "basename only: " + unixName);
     assertTrue(unixName.toLowerCase(Locale.ROOT).endsWith(".xml"), unixName);
     assertEquals("dpl_req.xml", unixName);
     assertEquals(
-        PSDeploymentServerConnection.XML_REQUEST_CONTENT_TYPE, unixParts[0].getContentType());
+        PSDeploymentServerConnection.XML_REQUEST_CONTENT_TYPE, unixPart.getContentType());
   }
 
   @Test
@@ -91,43 +92,39 @@ public class PSDeploymentServerConnectionXmlMultipartTest {
     // Placeholder only — not a real credential (REVIEW.md: no secrets in fixtures)
     root.setAttribute("password", "test-password");
 
-    NVPair[] opts = new NVPair[] {new NVPair("sessionProbe", "1")};
-    NVPair[] hdrs = new NVPair[2];
-    hdrs[1] = new NVPair("PS-Request-Type", "deploy-connect");
+    Map<String, String> opts = new LinkedHashMap<>();
+    opts.put("sessionProbe", "1");
 
-    byte[] body = PSDeploymentServerConnection.encodeXmlDocumentMultipart(opts, doc, hdrs);
+    MultipartBody encoded =
+        PSDeploymentServerConnection.encodeXmlDocumentMultipart(opts, doc);
 
     assertTrue(
-        PSDeploymentServerConnection.multipartContainsXmlContentType(body),
+        PSDeploymentServerConnection.multipartContainsXmlContentType(encoded.getBody()),
         "multipart body must declare application/xml (or text/xml) on the XML part");
-    String asText = new String(body, StandardCharsets.ISO_8859_1);
+    String asText = new String(encoded.getBody(), StandardCharsets.ISO_8859_1);
     assertTrue(
         asText.toLowerCase(Locale.ROOT).contains("content-type: application/xml"),
         "expected explicit application/xml, body headers were:\n" + extractHeaders(asText));
     assertTrue(asText.contains("PSXDeployConnectRequest"), "XML body must be present");
     assertTrue(asText.contains("sessionProbe"), "form fields must be present");
-    assertEquals("Content-Type", hdrs[0].getName());
     assertTrue(
-        hdrs[0].getValue().toLowerCase(Locale.ROOT).startsWith("multipart/form-data"),
-        hdrs[0].getValue());
+        encoded.getContentType().toLowerCase(Locale.ROOT).startsWith("multipart/form-data"),
+        encoded.getContentType());
   }
 
   @Test
   public void encodeWithExplicitContentTypeWinsOverFilenameGuess() throws Exception {
-    // Even if the filename map is empty / wrong, explicit content type on PSBinaryFileData
-    // is what Codecs writes into the part headers.
+    // Even if the filename map has no entry / would not guess XML, the explicit content type
+    // on the file part is what the encoder writes into the part headers.
     byte[] xml = "<PSXDeployValidateArchiveRequest/>".getBytes(StandardCharsets.UTF_8);
-    PSBinaryFileData[] files =
-        new PSBinaryFileData[] {
-          new PSBinaryFileData(
-              xml,
-              "req",
-              "dpl_no_map.bin", // non-.xml name would not guess as XML
-              PSDeploymentServerConnection.XML_REQUEST_CONTENT_TYPE)
-        };
-    NVPair[] hdrs = new NVPair[1];
-    byte[] body = Codecs.mpFormDataEncode(null, files, hdrs);
-    assertTrue(PSDeploymentServerConnection.multipartContainsXmlContentType(body));
+    MultipartFileUpload file =
+        new MultipartFileUpload(
+            "req",
+            "dpl_no_map.bin", // non-.xml name would not guess as XML
+            PSDeploymentServerConnection.XML_REQUEST_CONTENT_TYPE,
+            xml);
+    MultipartBody encoded = PSDeploymentServerConnection.encodeMultipart(null, List.of(file));
+    assertTrue(PSDeploymentServerConnection.multipartContainsXmlContentType(encoded.getBody()));
   }
 
   private static String extractHeaders(String multipartBody) {
