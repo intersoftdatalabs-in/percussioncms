@@ -76,6 +76,29 @@ describe("relationshipsApi", () => {
     );
   });
 
+  it("fetchNodeSummary unwraps the @JsonRootName wire envelope", async () => {
+    // Live wire shape (proven 2026-11-11 on the H2 candidate cell):
+    // {"PSNodeRelationshipSummary": {...}}. The viewer must read
+    // authoritative counts from the envelope, not render all-zeros.
+    const wrapped = {
+      PSNodeRelationshipSummary: {
+        outgoing: { count: 2, byType: [{ type: "translation", count: 2 }] },
+        incoming: { count: 0, byType: [] },
+        taxonomy: { count: 1, nodes: ["/Sites/Foo"] },
+        local: { count: 0, links: [] },
+        reverse: { count: 0, byType: [] },
+      },
+    };
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () => new Response(JSON.stringify(wrapped), { status: 200 }),
+      ),
+    );
+    const result = await fetchNodeSummary("1");
+    expect(result).toEqual(wrapped.PSNodeRelationshipSummary);
+  });
+
   it("fetchNodeSummary preserves the consolidated shape", async () => {
     const consolidated = {
       outgoing: SAMPLE_OUTGOING,

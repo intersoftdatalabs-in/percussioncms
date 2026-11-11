@@ -70,7 +70,11 @@
         if (!document.querySelector('script[src*="perc-modern-ui.js"]')) {
             var s = document.createElement("script");
             s.type = "module";
-            s.src = "/cm/modern/assets/perc-modern-ui.js?cb=" + Date.now();
+            // Do NOT cache-bust perc-modern-ui.js: a ?cb= URL is a second
+            // ESM graph and lazy chunks then load a second React
+            // (useState-null mount failure). URL must match the chunk
+            // import exactly (#3438 / #2799).
+            s.src = "/cm/modern/assets/perc-modern-ui.js";
             document.head.appendChild(s);
         }
         function mountAll() {
@@ -107,9 +111,16 @@
             // SubfolderCopyWizard: empty initial paths.
             window.PercModernUI.mount("perc-subfolder-copy-root", "SubfolderCopyWizard", {});
             // DependencyViewer + RelationshipsView: a single synthetic
-            // item so the 6 dimensions render with the AA row
-            // populated and the rest marked unknown.
-            var item = { id: "u-1", folderPath: "/Sites/Foo/Bar", type: "page" };
+            // item with a parseable GUID-format id (host-type-uuid;
+            // the last segment is the content id) so the US8 server
+            // round-trip fires and all 6 dimensions render
+            // authoritatively (no client-side-preview banner).
+            // Playwright specs stub the summary endpoint for
+            // determinism; the live candidate build serves real data.
+            // ?itemId=<host-type-uuid> overrides the pilot id so the
+            // live round-trip test can address real candidate content.
+            var qs = new URLSearchParams(window.location.search);
+            var item = { id: qs.get("itemId") || "1-101-708", folderPath: "/Sites/Foo/Bar", type: "page" };
             window.PercModernUI.mount("perc-dependency-root", "DependencyViewer", {
                 item: item,
                 aaLinkCount: 3,
