@@ -205,26 +205,64 @@ public class PSPkgHelper {
 
   /** Gets the current version of the design object for the supplied package element. */
   private static Long getVersion(PSPkgElement pkgElem) throws IOException {
-    Long version = null;
     var objGuid = pkgElem.getObjectGuid();
     var objType = PSTypeEnum.valueOf(objGuid.getType());
-    if (PSIdNameHelper.isSupported(objType)) {
-      var objName = PSIdNameHelper.getName(objGuid);
-      if (objName != null) {
-        version = PSDesignModelUtils.getVersion(objType, objName);
-        if (version == null && (objName.startsWith("/") || objName.startsWith("\\"))) {
-          if (objName.trim().length() > 1) objName = objName.substring(1);
-        }
-        if (version == null) {
-          if (PSOsTool.isUnixPlatform()) objName = objName.replace('\\', '/');
-          var file = new File(PSServer.getRxDir(), objName);
-          if (file.exists()) version = IOTools.getChecksum(file);
-        }
-      }
-    } else {
-      version = PSDesignModelUtils.getVersion(objGuid);
+    if (!PSIdNameHelper.isSupported(objType)) {
+      return PSDesignModelUtils.getVersion(objGuid);
     }
-    return version;
+    return getNamedObjectVersion(objGuid, objType);
+  }
+
+  /** Resolves the version for name-addressed design objects (file fallback included). */
+  private static Long getNamedObjectVersion(IPSGuid objGuid, PSTypeEnum objType)
+      throws IOException {
+    var objName = PSIdNameHelper.getName(objGuid);
+    if (objName == null) {
+      return null;
+    }
+    Long version = PSDesignModelUtils.getVersion(objType, objName);
+    if (version != null) {
+      return version;
+    }
+    return getFileVersion(stripLeadingSeparator(objName));
+  }
+
+  /**
+   * Strips a single leading file separator so repository paths resolve against the Rx root.
+   * Preserves the pre-extraction guard: only strips names longer than the separator itself.
+   *
+   * @param objName The repository object name, never null in this path.
+   * @return The lookup name with at most one leading separator removed.
+   */
+  static String stripLeadingSeparator(String objName) {
+    if (objName.startsWith("/") || objName.startsWith("\\")) {
+      if (objName.trim().length() > 1) {
+        return objName.substring(1);
+      }
+    }
+    return objName;
+  }
+
+  /**
+   * Normalizes a repository name for file lookup on Unix platforms.
+   *
+   * @param objName The lookup name, never null in this path.
+   * @return The name with backslashes converted on Unix, unchanged otherwise.
+   */
+  static String normalizeForFileLookup(String objName) {
+    if (PSOsTool.isUnixPlatform()) {
+      return objName.replace('\\', '/');
+    }
+    return objName;
+  }
+
+  /** Returns the file checksum version for the supplied lookup name, or null if absent. */
+  private static Long getFileVersion(String objName) throws IOException {
+    var file = new File(PSServer.getRxDir(), normalizeForFileLookup(objName));
+    if (!file.exists()) {
+      return null;
+    }
+    return IOTools.getChecksum(file);
   }
 
   /**
