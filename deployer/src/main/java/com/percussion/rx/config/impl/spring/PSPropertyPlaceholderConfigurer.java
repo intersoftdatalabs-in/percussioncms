@@ -18,44 +18,100 @@ package com.percussion.rx.config.impl.spring;
 
 import com.percussion.rx.config.IPSBeanProperties;
 import com.percussion.rx.config.PSBeanPropertiesLocator;
-import java.util.Properties;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
+import org.springframework.context.support.PropertySourcesPlaceholderConfigurer;
+import org.springframework.core.env.ConfigurablePropertyResolver;
+import org.springframework.core.env.MutablePropertySources;
+import org.springframework.core.env.PropertySource;
 
 /**
- * This class uses {@link PropertyPlaceholderConfigurer} to attempt to resolve a given place-holder
- * 1st, then attempt to resolve the place-holder from the instance of {@link IPSBeanProperties} if
- * it cannot be resolved by its super class.
+ * Resolves {@code ${...}} placeholders against local properties first, then the
+ * {@link IPSBeanProperties} configuration store, and finally system properties and
+ * environment variables.
+ *
+ * <p>This is the Spring 7 migration of the former {@code PropertyPlaceholderConfigurer}
+ * base class (deprecated since Spring 5.2 {@code forRemoval=true}, slated for removal
+ * in Spring 8). The {@link IPSBeanProperties} fallback is contributed as a
+ * {@link PropertySource} slotted directly after the local-properties source, which
+ * preserves the historical resolution order: local properties win over
+ * {@code IPSBeanProperties}, which wins over system properties and environment
+ * variables. That matches the old {@code SYSTEM_PROPERTIES_MODE_FALLBACK} default,
+ * expressed here via {@code localOverride=true} (local properties take precedence
+ * over the environment).
+ *
+ * <p>One intentional observability change: the old implementation logged a warning
+ * for every placeholder missed by both local properties and {@code IPSBeanProperties},
+ * even when a system property subsequently resolved it. Misses are now simply passed
+ * down the source chain; a placeholder missed by every source still fails fast with
+ * an exception naming the placeholder (unless {@code ignoreUnresolvablePlaceholders}
+ * is set), as before.
  *
  * @author YuBingChen
  */
-public class PSPropertyPlaceholderConfigurer extends PropertyPlaceholderConfigurer {
-
-  /** Default constructor for use by Spring. */
-  public PSPropertyPlaceholderConfigurer() {}
+public class PSPropertyPlaceholderConfigurer extends PropertySourcesPlaceholderConfigurer {
 
   /**
-   * Resolves the supplied placeholder.
+   * Default constructor for use by Spring.
    *
-   * @param placeholder the placeholder name, may not be <code>null</code>.
-   * @param props the properties to use, may not be <code>null</code>.
-   * @return the resolved value, may be <code>null</code>.
+   * @implNote {@code setLocalOverride} only assigns a boolean flag on the fully
+   *     constructed support object and this class has no subclasses in-repo, so
+   *     the constructor call cannot observe uninitialized subclass state.
    */
-  @Override
-  protected String resolvePlaceholder(String placeholder, Properties props) {
-    var value = super.resolvePlaceholder(placeholder, props);
-    if (value != null) {
-      return value;
-    }
-    var pMgr = PSBeanPropertiesLocator.getBeanProperties();
-    var v = pMgr.getString(placeholder);
-    if (v == null) {
-      ms_log.warn("Cannot replace placeholder: \"{}\".", placeholder);
-    }
-    return v;
+  @SuppressWarnings("this-escape")
+  public PSPropertyPlaceholderConfigurer() {
+    // Preserve the legacy FALLBACK contract: local properties beat system/environment.
+    setLocalOverride(true);
   }
 
-  /** Logger for this class. */
-  private static final Logger ms_log = LogManager.getLogger("PSPropertyPlaceholderConfigurer");
+  /**
+   * Appends the {@link IPSBeanProperties} fallback source directly after the
+   * local-properties source so the historical precedence (local, then bean
+   * properties, then environment) holds inside the resolver built by the super
+   * class. This is the {@code createPropertyResolver} customization point
+   * designed for exactly this kind of extension.
+   *
+   * @param propertySources the sources assembled by the super class, never
+   *     {@code null}
+   * @return the resolver to use for placeholder replacement, never {@code null}
+   */
+  @Override
+  protected ConfigurablePropertyResolver createPropertyResolver(MutablePropertySources propertySources) {
+    var fallback = new IPSBeanPropertiesPropertySource();
+    if (propertySources.contains(LOCAL_PROPERTIES_PROPERTY_SOURCE_NAME)) {
+      propertySources.addAfter(LOCAL_PROPERTIES_PROPERTY_SOURCE_NAME, fallback);
+    } else {
+      // Defensive: only reachable if a caller supplied a fully custom source set
+      // via setPropertySources without a local source; keep the fallback last so
+      // explicit sources still win.
+      propertySources.addLast(fallback);
+    }
+    return super.createPropertyResolver(propertySources);
+  }
+
+  /**
+   * {@link PropertySource} that resolves keys against the {@link IPSBeanProperties}
+   * singleton. The bean manager is looked up lazily on every call so this source
+   * honors late {@code sys_beanProperties} initialization, exactly as the previous
+   * per-placeholder override did.
+   */
+  private static final class IPSBeanPropertiesPropertySource extends PropertySource<Object> {
+
+    /** Name under which this source appears in {@code getAppliedPropertySources}. */
+    private static final String BEAN_PROPERTIES_PROPERTY_SOURCE_NAME = "beanProperties";
+
+    IPSBeanPropertiesPropertySource() {
+      super(BEAN_PROPERTIES_PROPERTY_SOURCE_NAME, new Object());
+    }
+
+    @Override
+    public boolean containsProperty(String name) {
+      return PSBeanPropertiesLocator.getBeanProperties().getProperty(name) != null;
+    }
+
+    @Override
+    public String getProperty(String name) {
+      // Same accessor (including its String-cast contract) as the previous
+      // resolvePlaceholder override used.
+      return PSBeanPropertiesLocator.getBeanProperties().getString(name);
+    }
+  }
 }
