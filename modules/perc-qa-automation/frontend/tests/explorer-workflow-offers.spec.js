@@ -105,6 +105,7 @@ test.describe("Explorer workflow transition offers", () => {
       page.on("pageerror", (err) => pageErrors.push(String(err)));
       await installRoutes(page, ["Approve", "Reject"]);
       await openRowMenu(page);
+      await page.locator('[data-testid="context-menu-item-workflow"]').click();
       await expect(
         page.locator('[data-testid="context-menu-submenu-workflow"]'),
       ).toBeVisible({ timeout: 15_000 });
@@ -129,9 +130,7 @@ test.describe("Explorer workflow transition offers", () => {
       page.on("pageerror", (err) => pageErrors.push(String(err)));
       await installRoutes(page, []);
       await openRowMenu(page);
-      await expect(
-        page.locator('[data-testid="context-menu-submenu-workflow"]'),
-      ).toHaveCount(0);
+      await expect(page.locator('[data-testid="context-menu-item-workflow"]')).toHaveCount(0);
       expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
     },
   );

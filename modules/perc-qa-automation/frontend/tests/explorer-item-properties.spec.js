@@ -58,7 +58,7 @@ async function installRoutes(page, { saveStatus = 200 } = {}) {
       body: JSON.stringify(LISTING),
     });
   });
-  await page.route("**/folders/item/properties/*", async (route) => {
+  await page.route("**/folders/item-properties**", async (route) => {
     if (route.request().method() === "GET") {
       await route.fulfill({
         status: 200,
@@ -102,7 +102,7 @@ async function openProperties(page) {
   const home = page.locator('[data-testid="detail-row-42"][data-row-kind="item"]');
   await expect(home).toBeVisible({ timeout: 20_000 });
   await home.click();
-  const toggle = page.locator('[data-testid="toggle-item-props"]');
+  const toggle = page.locator('[data-testid="explorer-toggle-item-properties"]');
   if ((await toggle.count()) > 0) {
     await toggle.click();
   }
