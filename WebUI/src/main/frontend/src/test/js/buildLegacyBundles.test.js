@@ -1391,6 +1391,197 @@ describe("classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
 });
 
 /**
+ * DataTables dead styling removal + keep-vendored disposition (issue #6002).
+ *
+ * Follow-on for the #5663 plugin cluster: DataTables 1.12.1 core stays
+ * vendored for now (the npm datatables.net 3.x line removed the legacy fn*
+ * instance API, so the core swap needs a call-site rewrite with live grid
+ * parity — deferred, not done here). What this slice does pin:
+ *
+ *   1. The unreferenced styling integrations (bootstrap/bootstrap4/
+ *      bootstrap5/bulma/foundation/semanticui/jqueryui + dataTables.dataTables
+ *      CSS+JS) and the sort_*.png icons (no url() reference in any DT CSS;
+ *      DT 1.12 renders sort indicators without them) are deleted from all
+ *      three trees (cm/jslib, cm/vendor/js/legacy, WebUI/war mirror) and
+ *      have no npm mapping, no standalone copy, and no bundle line.
+ *   2. The live core (js/jquery.dataTables.js + css/jquery.dataTables.css)
+ *      still exists in all three trees and is still referenced from both
+ *      common_js.jsp / common_css.jsp twins (app + pages) and both bundle
+ *      configs.
+ *   3. Keep-vendored disposition with rationale: jquery-layout (Dalman UI
+ *      Layout 1.6.3, live via common_js.jsp + bundles; npm `jquery-layout`
+ *      is a different library by scravy — no upstream), jquery-dropdown
+ *      (claviska jqDropdown, live via common includes + bundles; npm
+ *      `jquery-dropdown` is a different plugin by techhysahil — no
+ *      upstream), jquery-testrunner (Resig/Zaefferer 2009, test-only,
+ *      loaded by cm/{,pages/}testing/*.html; no npm upstream — QUnit
+ *      precedent). Each stays vendored in all three trees with its live
+ *      reference intact.
+ */
+describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => {
+  const FRONTEND_ROOT = path.dirname(path.dirname(path.dirname(__dirname)));
+  const WEBUI_DIR = path.dirname(path.dirname(path.dirname(FRONTEND_ROOT)));
+  const WAR_MIRROR = path.join(WEBUI_DIR, "war");
+  const VENDOR_MIRROR = path.join(WAR_DIR, "vendor/js/legacy");
+  const DT = "jslib/profiles/3x/jquery/plugins/jquery-datatables";
+
+  const PRUNED_STYLING = [
+    "css/dataTables.bootstrap.css",
+    "css/dataTables.bootstrap4.css",
+    "css/dataTables.bootstrap5.css",
+    "css/dataTables.bulma.css",
+    "css/dataTables.dataTables.css",
+    "css/dataTables.foundation.css",
+    "css/dataTables.jqueryui.css",
+    "css/dataTables.semanticui.css",
+    "js/dataTables.bootstrap.js",
+    "js/dataTables.bootstrap4.js",
+    "js/dataTables.bootstrap5.js",
+    "js/dataTables.bulma.js",
+    "js/dataTables.dataTables.js",
+    "js/dataTables.foundation.js",
+    "js/dataTables.jqueryui.js",
+    "js/dataTables.semanticui.js",
+    "images/sort_asc.png",
+    "images/sort_asc_disabled.png",
+    "images/sort_both.png",
+    "images/sort_desc.png",
+    "images/sort_desc_disabled.png",
+  ];
+
+  const LIVE_CORE = [
+    "jslib/profiles/3x/jquery/plugins/jquery-datatables/js/jquery.dataTables.js",
+    "jslib/profiles/3x/jquery/plugins/jquery-datatables/css/jquery.dataTables.css",
+  ];
+
+  // Keep-vendored (no npm upstream): file must exist + live reference intact.
+  const KEPT = [
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_and_plugins.js",
+      refs: ["app/includes/common_js.jsp", "pages/app/includes/common_js.jsp"],
+      refRe: /jquery-layout\/jquery\.layout_and_plugins\.js/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-layout/jquery.layout_customresizer.js",
+      refs: ["app/includes/common_js.jsp", "pages/app/includes/common_js.jsp"],
+      refRe: /jquery-layout\/jquery\.layout_customresizer\.js/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js",
+      refs: ["app/includes/common_js.jsp", "pages/app/includes/common_js.jsp"],
+      refRe: /jquery-dropdown\/jquery\.dropdown\.js/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css",
+      refs: ["app/includes/common_css.jsp", "pages/app/includes/common_css.jsp"],
+      refRe: /jquery-dropdown\/jquery\.dropdown\.css/,
+    },
+    {
+      dest: "jslib/profiles/3x/jquery/plugins/jquery-testrunner/testrunner.js",
+      refs: ["testing/test_PercAssetEditorLibrary.html"],
+      refRe: /jquery-testrunner\/testrunner\.js/,
+    },
+  ];
+
+  // The vendor mirror roots at vendor/js/legacy and the war mirror at
+  // war/jslib (no jslib/ segment in either), while WAR_DIR roots at the
+  // jslib/ segment.
+  const WAR_JSLIB_MIRROR = path.join(WAR_MIRROR, "jslib");
+  const TREES = [WAR_DIR, VENDOR_MIRROR, WAR_JSLIB_MIRROR];
+  const inTree = (root, dest) =>
+    root === WAR_DIR
+      ? path.join(root, dest)
+      : path.join(root, dest.replace(/^jslib\//, ""));
+
+  it("leaves no mapping, standalone copy, bundle line, or vendored file for pruned DT styling", () => {
+    const bundleSources = [];
+    for (const configFile of [
+      "common-bundles.json",
+      "common-minuet-bundles.json",
+    ]) {
+      const config = JSON.parse(
+        fs.readFileSync(path.join(BUNDLE_CONFIG_DIR, configFile), "utf8"),
+      );
+      for (const bundle of config.bundles ?? config) {
+        bundleSources.push(...(bundle.sources ?? bundle.files ?? []));
+      }
+    }
+    for (const rel of PRUNED_STYLING) {
+      const dest = `${DT}/${rel}`;
+      const mapped = Object.keys(NPM_LIBRARY_MAPPINGS).filter(
+        (k) => k === dest,
+      );
+      expect(mapped, `unexpected npm mapping for pruned ${dest}`).toEqual([]);
+      const standalone = STANDALONE_NPM_COPIES.filter((e) => e.dest === dest);
+      expect(
+        standalone,
+        `unexpected standalone copy for pruned ${dest}`,
+      ).toEqual([]);
+      expect(
+        bundleSources.filter((s) => s === dest || s.endsWith(`/${rel}`)),
+        `bundle still lists pruned ${dest}`,
+      ).toEqual([]);
+      for (const root of TREES) {
+        expect(
+          fs.existsSync(inTree(root, dest)),
+          `pruned file still present: ${inTree(root, dest)}`,
+        ).toBe(false);
+      }
+    }
+  });
+
+  it("keeps the live DataTables core in all trees with includes + bundle refs", () => {
+    for (const dest of LIVE_CORE) {
+      for (const root of TREES) {
+        expect(
+          fs.existsSync(inTree(root, dest)),
+          `live DT core missing: ${inTree(root, dest)}`,
+        ).toBe(true);
+      }
+    }
+    for (const includes of [
+      "app/includes/common_js.jsp",
+      "pages/app/includes/common_js.jsp",
+    ]) {
+      const text = fs.readFileSync(path.join(WAR_DIR, includes), "utf8");
+      expect(text).toMatch(
+        /jquery-datatables\/js\/jquery\.dataTables\.js/,
+      );
+    }
+    for (const includes of [
+      "app/includes/common_css.jsp",
+      "pages/app/includes/common_css.jsp",
+    ]) {
+      const text = fs.readFileSync(path.join(WAR_DIR, includes), "utf8");
+      expect(text).toMatch(
+        /jquery-datatables\/css\/jquery\.dataTables\.css/,
+      );
+    }
+  });
+
+  it("keeps vendored layout/dropdown/testrunner with live references intact", () => {
+    for (const { dest } of KEPT) {
+      const mapped = Object.keys(NPM_LIBRARY_MAPPINGS).filter(
+        (k) => k === dest,
+      );
+      expect(mapped, `unexpected npm mapping for kept ${dest}`).toEqual([]);
+      for (const root of TREES) {
+        expect(
+          fs.existsSync(inTree(root, dest)),
+          `kept vendored file missing: ${inTree(root, dest)}`,
+        ).toBe(true);
+      }
+    }
+    for (const { dest, refs, refRe } of KEPT) {
+      for (const ref of refs) {
+        const text = fs.readFileSync(path.join(WAR_DIR, ref), "utf8");
+        expect(text, `${dest} unreferenced from ${ref}`).toMatch(refRe);
+      }
+    }
+  });
+});
+
+/**
  * Classic-UI tree widgets from npm (issue #5662).
  *
  * The vendored cm/jslib copies (FancyTree 2.38.3 + dead DynaTree 1.1.0) were
