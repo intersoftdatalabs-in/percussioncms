@@ -71,7 +71,7 @@
 
 - [x] T018 [US3] Fix #6119 in `system/webservices/src/com/percussion/webservices/ui/impl/PSUiDesignWs.java`: skip delete-then-insert for searches (direct UPDATE) + JDBC verify-and-repair safety net (`ensureSearchRowCurrent`) — cell-verified, no row loss, labels apply
 - [x] T019 [US3] Verify slice #6075 (PR #6120, merged) rename/delete row-loss-free on H2 post-fix — verified: PUT 200 with new label, GET shows change, DB row intact with children preserved
-- [ ] T020 [US3] Standalone `clean install` for the touched search-service module with the regression test green; commit; open PR “009 fix #6119 saved-search PUT row-loss”; pause for review/merge
+- [x] T020 [US3] Standalone `clean install` for the touched search-service module with the regression test green; commit; open PR “009 fix #6119 saved-search PUT row-loss”; pause for review/merge — done: PR #6135 (BUILD SUCCESS, 3157 tests green)
 
 ---
 
