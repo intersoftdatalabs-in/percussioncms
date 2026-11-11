@@ -20,6 +20,9 @@ package com.percussion.services.pipeline.xsl;
 import com.percussion.services.pipeline.PSPipelineIrException;
 import com.percussion.services.pipeline.model.PipelineResultPageIr;
 import java.net.URL;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.MalformedURLException;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.InvalidPathException;
@@ -122,6 +125,38 @@ public final class PSPipelineResultPagePath {
    * @param url classic stylesheet URL, may be {@code null}
    * @return trimmed relative URI, or {@code null} to skip the page
    */
+  /**
+   * Normalize an operator-supplied stylesheet value to the portable relative URI stored in IR.
+   *
+   * <p>Slice D XSL-compatibility: classic definitions carry app-local sheets as {@code
+   * file:pages/result.xsl}. Those values normalize to {@code pages/result.xsl}; anything the
+   * classic importer would skip (absolute paths, traversal, cloud URLs, credentials) still fails
+   * closed via {@link #requireSafeStylesheetUri}.
+   *
+   * @return trimmed portable relative URI, never {@code null}
+   */
+  public static String normalizeLegacyStylesheetUri(String raw) throws PSPipelineIrException {
+    if (raw != null) {
+      String trimmed = raw.trim();
+      if (trimmed.regionMatches(true, 0, "file:", 0, 5)) {
+        String imported = tryImportedFileUri(trimmed);
+        if (imported != null) {
+          return imported;
+        }
+      }
+    }
+    return requireSafeStylesheetUri(raw);
+  }
+
+  static String tryImportedFileUri(String trimmed) {
+    try {
+      URL url = new URI(trimmed).toURL();
+      return tryImportedStylesheetUri(url);
+    } catch (URISyntaxException | MalformedURLException | IllegalArgumentException e) {
+      return null;
+    }
+  }
+
   public static String tryImportedStylesheetUri(URL url) {
     if (url == null) {
       return null;

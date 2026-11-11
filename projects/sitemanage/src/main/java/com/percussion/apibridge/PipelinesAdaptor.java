@@ -834,7 +834,10 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     String mimeType = null;
     try {
       if (!none || StringUtils.isNotBlank(body.getStylesheetUri())) {
-        stylesheetUri = PSPipelineResultPagePath.requireSafeStylesheetUri(body.getStylesheetUri());
+        // Slice D XSL-compatibility: classic `file:`-relative values normalize to the
+        // portable relative URI; absolute/cloud/traversal values still fail closed.
+        stylesheetUri =
+            PSPipelineResultPagePath.normalizeLegacyStylesheetUri(body.getStylesheetUri());
       }
       if (!none) {
         requestExtension =

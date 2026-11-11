@@ -20,6 +20,7 @@ package com.percussion.services.pipeline;
 import com.percussion.design.objectstore.PSApplication;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Optional;
 
 /**
@@ -63,4 +64,17 @@ public interface IPSPipelineIrService {
 
   /** @return true when native IR exists for the name */
   boolean exists(String appName) throws PSPipelineIrException;
+
+  /**
+   * File-backed IR store root, when this service persists to disk.
+   *
+   * <p>Slice D XSL-compatibility: the runtime resolves application-owned result-page
+   * stylesheets under {@code storeRoot/<appName>/}. Implementations without a file store
+   * return {@code null} and keep bundled-only stylesheet resolution.
+   *
+   * @return store root, or {@code null} when not file-backed
+   */
+  default Path getStoreBaseDir() {
+    return null;
+  }
 }

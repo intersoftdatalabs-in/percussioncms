@@ -25,6 +25,7 @@ import {
   getLastTrace,
   getPipelineIr,
   getPipelineOpenApi,
+  normalizeStylesheetUriInput,
   openApiDownloadFilename,
   putBinaryResource,
   putFilterGroup,
@@ -1203,7 +1204,7 @@ export function PipelineDetailPanel({
       setResultPageNotice(null);
       return;
     }
-    const stylesheetUri = resultPageUri.trim();
+    const stylesheetUri = normalizeStylesheetUriInput(resultPageUri);
     if (!stylesheetUri) {
       setResultPageError(DEV_MSG.PIPE_RESULT_PAGE_STYLESHEET_REQUIRED);
       setResultPageNotice(null);
