@@ -328,20 +328,6 @@ export function normalizeId(raw: string | null | undefined): string | undefined 
 }
 
 /**
- * Rich-text engine override for the editor deep link (#5622 cutover #5758).
- * {@code "tiptap"} (the default) and {@code "tinymce"} (the one-release
- * escape hatch) pass; anything else normalizes to undefined so the default
- * engine applies.
- */
-export function normalizeEditorEngine(
-  raw: string | null | undefined,
-): "tiptap" | "tinymce" | undefined {
-  if (raw == null || !raw.trim()) return undefined;
-  const v = raw.trim().toLowerCase();
-  return v === "tiptap" || v === "tinymce" ? v : undefined;
-}
-
-/**
  * Allowlist explorer deep-link paths. Rejects traversal **segments** ({@code ..}),
  * not the substring {@code ..} inside a folder name (e.g. {@code /Sites/foo..bar}).
  */

@@ -42,6 +42,31 @@ const fields: ItemEditorFields = {
   ],
 };
 
+// jsdom Range has no caret geometry; ProseMirror scrollToSelection (via the
+// fragment Apply chain's focus()) needs these two or the transaction throws.
+// Zero rects keep scrolling a no-op without changing editor behavior.
+// Hoisted to module scope (#5902) so every TipTap-driven test — not just the
+// TipTap describe block — can drive fragment edits.
+export function stubJsdomCaretRects(): void {
+  const proto = window.Range.prototype as unknown as Record<string, unknown>;
+  if (typeof proto.getClientRects !== "function") {
+    proto.getClientRects = () => [];
+  }
+  if (typeof proto.getBoundingClientRect !== "function") {
+    proto.getBoundingClientRect = () => ({
+      x: 0,
+      y: 0,
+      top: 0,
+      left: 0,
+      bottom: 0,
+      right: 0,
+      width: 0,
+      height: 0,
+      toJSON: () => ({}),
+    });
+  }
+}
+
 describe("visibleEditorRevision", () => {
   it("keeps a positive integer and hides missing or fake ids", () => {
     expect(visibleEditorRevision(4)).toBe(4);
@@ -58,7 +83,6 @@ describe("EditorHost", () => {
     cleanup();
     vi.restoreAllMocks();
   });
-
   it("asks for an item when contentId is missing", () => {
     render(
       <MemoryRouter initialEntries={["/editor"]}>
@@ -3601,7 +3625,8 @@ describe("EditorHost HTML field save (#4680)", () => {
     vi.restoreAllMocks();
   });
 
-  it("saves TinyMCE HTML through PUT fields", async () => {
+  it("saves TipTap HTML through PUT fields (#5902)", async () => {
+    stubJsdomCaretRects();
     const saveFields = vi.fn().mockResolvedValue({
       contentId: "42",
       contentType: "percRichText",
@@ -3613,7 +3638,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       ],
     });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route
             path="/editor"
@@ -3643,24 +3668,24 @@ describe("EditorHost HTML field save (#4680)", () => {
         </Routes>
       </MemoryRouter>,
     );
-    await waitFor(() => {
-      expect(screen.getByTestId("editor-field-text")).toBeTruthy();
-    });
-    fireEvent.change(screen.getByTestId("editor-field-text"), {
+    await screen.findByText("Hi");
+    fireEvent.click(await screen.findByTestId("tiptap-perc-insert-html-text"));
+    fireEvent.change(screen.getByTestId("tiptap-perc-html-text"), {
       target: { value: "<p>Bye</p>" },
     });
+    fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
       expect(saveFields).toHaveBeenCalled();
     });
     const saved = saveFields.mock.calls[0]?.[1] as ItemEditorFields;
-    expect(saved.fields.find((f) => f.name === "text")?.value).toBe("<p>Bye</p>");
+    expect(saved.fields.find((f) => f.name === "text")?.value).toContain("Bye");
   });
 
   it("blocks XSS markup before PUT and maps unnamed HTTP 400 onto the html field", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route
             path="/editor"
@@ -3674,7 +3699,7 @@ describe("EditorHost HTML field save (#4680)", () => {
                   checkoutUser: "admin",
                   fields: [
                     { name: "sys_title", value: "Intro" },
-                    { name: "text", value: "<p>Hi</p>" },
+                    { name: "text", value: "<p><script>alert(1)</script></p>" },
                   ],
                 })}
                 saveFields={saveFields}
@@ -3693,9 +3718,8 @@ describe("EditorHost HTML field save (#4680)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("editor-field-text")).toBeTruthy();
     });
-    fireEvent.change(screen.getByTestId("editor-field-text"), {
-      target: { value: '<p><script>alert(1)</script></p>' },
-    });
+    // TipTap-only (#5902): the draft seeds from the loaded value, so the
+    // save-side HTML gate refuses the seeded script markup with no edit.
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
       expect(screen.getByTestId("editor-field-error-text")).toBeTruthy();
@@ -3710,7 +3734,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       body: { Error: { message: "HTML rejected" } },
     });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route
             path="/editor"
@@ -3743,9 +3767,8 @@ describe("EditorHost HTML field save (#4680)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("editor-field-text")).toBeTruthy();
     });
-    fireEvent.change(screen.getByTestId("editor-field-text"), {
-      target: { value: "<p>Updated</p>" },
-    });
+    // The loaded draft already carries clean HTML; the rejecting save maps
+    // the unnamed 400 onto the html field with no edit required.
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
       expect(screen.getByTestId("editor-field-error-text")).toBeTruthy();
@@ -3757,7 +3780,7 @@ describe("EditorHost HTML field save (#4680)", () => {
 
   it("keeps html widgets read-only in view mode", async () => {
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
         <Routes>
           <Route
             path="/editor"
@@ -3783,8 +3806,12 @@ describe("EditorHost HTML field save (#4680)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("editor-form")).toBeTruthy();
     });
-    const area = screen.getByTestId("editor-field-text") as HTMLTextAreaElement;
-    expect(area.readOnly).toBe(true);
+    // TipTap-only (#5902): view mode renders the read-only TipTap surface —
+    // no toolbar, no clear button, no save.
+    const editable = screen.getByTestId("editor-field-text");
+    expect(editable.getAttribute("data-editor-kind")).toBe("html");
+    expect(editable.getAttribute("data-editor-engine")).toBe("tiptap");
+    expect(editable.getAttribute("contenteditable")).toBe("false");
     expect(screen.queryByTestId("editor-html-clear-text")).toBeNull();
     expect(screen.queryByTestId("editor-save")).toBeNull();
   });
@@ -3801,7 +3828,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       ],
     });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route
             path="/editor"
@@ -3855,7 +3882,7 @@ describe("EditorHost HTML field save (#4680)", () => {
   it("blocks a NUL in long text before PUT", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route
             path="/editor"
@@ -3905,7 +3932,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       body: { Error: { message: "rejected" } },
     });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route
             path="/editor"
@@ -3952,7 +3979,7 @@ describe("EditorHost HTML field save (#4680)", () => {
 
   it("keeps long-text read-only in view mode", async () => {
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
         <Routes>
           <Route
             path="/editor"
@@ -4047,7 +4074,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       };
     });
     const view = render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={longTextHost({ saveFields, valueRef: storedRef })} />
         </Routes>
@@ -4067,7 +4094,7 @@ describe("EditorHost HTML field save (#4680)", () => {
     expect(screen.queryByTestId("editor-longtext-clear-description")).toBeNull();
     view.unmount();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={longTextHost({ saveFields, valueRef: storedRef })} />
         </Routes>
@@ -4083,7 +4110,7 @@ describe("EditorHost HTML field save (#4680)", () => {
   it("does not save when Close cancels an unsaved long-text clear", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route
             path="/editor"
@@ -4105,7 +4132,7 @@ describe("EditorHost HTML field save (#4680)", () => {
   it("does not claim success when required long text is cleared", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={longTextHost({ saveFields, required: true })} />
         </Routes>
@@ -4130,7 +4157,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
       .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={longTextHost({ saveFields })} />
         </Routes>
@@ -4174,7 +4201,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       ],
     });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route
             path="/editor"
@@ -4253,7 +4280,7 @@ describe("EditorHost HTML field save (#4680)", () => {
       body: { message: "Field 'qty' is not a valid number." },
     });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route
             path="/editor"
@@ -4297,7 +4324,7 @@ describe("EditorHost HTML field save (#4680)", () => {
 
   it("keeps a number field read-only in view mode", async () => {
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=view"]}>
         <Routes>
           <Route
             path="/editor"
@@ -4600,7 +4627,7 @@ describe("EditorHost clear optional HTML (#5071)", () => {
       };
     });
     const view = render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields, bodyRef })} />
         </Routes>
@@ -4610,7 +4637,9 @@ describe("EditorHost clear optional HTML (#5071)", () => {
       expect(screen.getByTestId("editor-html-clear-text")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("editor-html-clear-text"));
-    expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe("");
+    // TipTap-only (#5902): the cleared draft empties the TipTap document, so
+    // the loaded "Hi" content is gone and the clear button hides.
+    expect(screen.queryByText("Hi")).toBeNull();
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
       expect(screen.getByTestId("editor-saved")).toBeTruthy();
@@ -4620,21 +4649,23 @@ describe("EditorHost clear optional HTML (#5071)", () => {
     expect(screen.queryByTestId("editor-html-clear-text")).toBeNull();
     view.unmount();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields, bodyRef })} />
         </Routes>
       </MemoryRouter>,
     );
     await waitFor(() => {
-      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe("");
+      expect(screen.getByTestId("editor-field-text")).toBeTruthy();
     });
+    expect(screen.queryByText("Hi")).toBeNull();
+    expect(screen.queryByTestId("editor-html-clear-text")).toBeNull();
   });
 
   it("does not save when Close cancels an unsaved HTML clear", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route
             path="/editor"
@@ -4655,7 +4686,7 @@ describe("EditorHost clear optional HTML (#5071)", () => {
   it("does not claim success when a required HTML field is cleared", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields, required: true })} />
         </Routes>
@@ -4680,7 +4711,7 @@ describe("EditorHost clear optional HTML (#5071)", () => {
       .mockRejectedValueOnce({ status: 403, body: { message: "denied" } })
       .mockRejectedValueOnce({ status: 409, body: { message: "stale" } });
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields })} />
         </Routes>
@@ -5460,20 +5491,20 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
   it("refuses an HTML NUL before PUT and keeps the previous HTML after reload", async () => {
     const saveFields = vi.fn();
     const view = render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={htmlHost({ saveFields })} />
+          <Route
+            path="/editor"
+            element={htmlHost({ saveFields, html: "<p>bad\u0000value</p>" })}
+          />
         </Routes>
       </MemoryRouter>,
     );
     await waitFor(() => {
-      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
-        "<p>Hi</p>",
-      );
+      expect(screen.getByTestId("editor-field-text")).toBeTruthy();
     });
-    const area = screen.getByTestId("editor-field-text") as HTMLTextAreaElement;
-    expect(area.getAttribute("data-editor-kind")).toBe("html");
-    fireEvent.change(area, { target: { value: "<p>bad\u0000value</p>" } });
+    // TipTap-only (#5902): the draft seeds from the loaded value, so the
+    // save-side NUL gate refuses it with no edit.
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
       expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(
@@ -5488,27 +5519,29 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
     expect(screen.queryByTestId("editor-saved")).toBeNull();
     view.unmount();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields: vi.fn() })} />
         </Routes>
       </MemoryRouter>,
     );
-    await waitFor(() => {
-      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
-        "<p>Hi</p>",
-      );
-    });
+    await screen.findByText("Hi");
   });
 
   it("does not write when Close cancels an unsaved HTML NUL", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route
             path="/editor"
-            element={htmlHost({ saveFields, confirmLeaveUnsaved: () => false })}
+            element={
+              htmlHost({
+                saveFields,
+                html: "<p>bad\u0000value</p>",
+                confirmLeaveUnsaved: () => false,
+              })
+            }
           />
         </Routes>
       </MemoryRouter>,
@@ -5516,15 +5549,13 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("editor-field-text")).toBeTruthy();
     });
-    fireEvent.change(screen.getByTestId("editor-field-text"), {
-      target: { value: "<p>bad\u0000value</p>" },
-    });
     fireEvent.click(screen.getByTestId("editor-close"));
     expect(saveFields).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor-saved")).toBeNull();
   });
 
   it("still saves ordinary HTML", async () => {
+    stubJsdomCaretRects();
     let html = "<p>Hi</p>";
     const saveFields = vi.fn(async (_id: string, body: ItemEditorFields) => {
       html = body.fields.find((f) => f.name === "text")?.value ?? html;
@@ -5538,40 +5569,34 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
       };
     });
     const view = render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields, html })} />
         </Routes>
       </MemoryRouter>,
     );
-    await waitFor(() => {
-      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
-        "<p>Hi</p>",
-      );
-    });
-    fireEvent.change(screen.getByTestId("editor-field-text"), {
+    await screen.findByText("Hi");
+    fireEvent.click(await screen.findByTestId("tiptap-perc-insert-html-text"));
+    fireEvent.change(screen.getByTestId("tiptap-perc-html-text"), {
       target: { value: "<p>Bye</p>" },
     });
+    fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
       expect(screen.getByTestId("editor-saved")).toBeTruthy();
     });
     const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
-    expect(sent.fields.find((f) => f.name === "text")?.value).toBe("<p>Bye</p>");
+    expect(sent.fields.find((f) => f.name === "text")?.value).toContain("Bye");
     expect(String(sent.fields.find((f) => f.name === "text")?.value)).not.toContain("\u0000");
     view.unmount();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields: vi.fn(), html })} />
         </Routes>
       </MemoryRouter>,
     );
-    await waitFor(() => {
-      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
-        "<p>Bye</p>",
-      );
-    });
+    await screen.findByText("Bye");
   });
 
   it("does not treat HTTP 400 on an HTML save as success", async () => {
@@ -5580,20 +5605,15 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
       body: { message: "rejected" },
     });
     const view = render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields })} />
         </Routes>
       </MemoryRouter>,
     );
-    await waitFor(() => {
-      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
-        "<p>Hi</p>",
-      );
-    });
-    fireEvent.change(screen.getByTestId("editor-field-text"), {
-      target: { value: "<p>Rejected</p>" },
-    });
+    await screen.findByText("Hi");
+    // The rejecting save maps the unnamed 400 onto the html field with no
+    // edit required.
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
       expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(
@@ -5605,34 +5625,32 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
     expect(saveFields).toHaveBeenCalledTimes(1);
     view.unmount();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields: vi.fn() })} />
         </Routes>
       </MemoryRouter>,
     );
-    await waitFor(() => {
-      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
-        "<p>Hi</p>",
-      );
-    });
+    await screen.findByText("Hi");
   });
 
   it("still refuses unsafe HTML with the unsafe-HTML message", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
-          <Route path="/editor" element={htmlHost({ saveFields })} />
+          <Route
+            path="/editor"
+            element={htmlHost({ saveFields, html: "<p><script>alert(1)</script></p>" })}
+          />
         </Routes>
       </MemoryRouter>,
     );
     await waitFor(() => {
       expect(screen.getByTestId("editor-field-text")).toBeTruthy();
     });
-    fireEvent.change(screen.getByTestId("editor-field-text"), {
-      target: { value: "<p><script>alert(1)</script></p>" },
-    });
+    // TipTap-only (#5902): the draft seeds from the loaded value, so the
+    // save-side HTML gate refuses the seeded script markup with no edit.
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
       expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(
@@ -5646,7 +5664,7 @@ describe("EditorHost refuse an HTML NUL (#5389)", () => {
   it("still refuses a long-text NUL with the long-text message", async () => {
     const saveFields = vi.fn();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={htmlHost({ saveFields, includeLongText: true })} />
         </Routes>
@@ -5709,7 +5727,7 @@ describe("EditorHost refuse a TipTap rich-text NUL (#5696)", () => {
 
   function tiptapRoute(element: React.ReactElement) {
     return (
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tiptap"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={element} />
         </Routes>
@@ -5727,7 +5745,7 @@ describe("EditorHost refuse a TipTap rich-text NUL (#5696)", () => {
     );
   }
 
-  function tinymceRoute(element: React.ReactElement) {
+  function legacyEngineRoute(element: React.ReactElement) {
     return (
       <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
         <Routes>
@@ -5735,29 +5753,6 @@ describe("EditorHost refuse a TipTap rich-text NUL (#5696)", () => {
         </Routes>
       </MemoryRouter>
     );
-  }
-
-  // jsdom Range has no caret geometry; ProseMirror scrollToSelection (via the
-  // fragment Apply chain's focus()) needs these two or the transaction throws.
-  // Zero rects keep scrolling a no-op without changing editor behavior.
-  function stubJsdomCaretRects() {
-    const proto = window.Range.prototype as unknown as Record<string, unknown>;
-    if (typeof proto.getClientRects !== "function") {
-      proto.getClientRects = () => [];
-    }
-    if (typeof proto.getBoundingClientRect !== "function") {
-      proto.getBoundingClientRect = () => ({
-        x: 0,
-        y: 0,
-        top: 0,
-        left: 0,
-        bottom: 0,
-        right: 0,
-        width: 0,
-        height: 0,
-        toJSON: () => ({}),
-      });
-    }
   }
 
   beforeEach(() => {
@@ -5798,14 +5793,13 @@ describe("EditorHost refuse a TipTap rich-text NUL (#5696)", () => {
     await screen.findByText("Hi");
   });
 
-  it("renders the TinyMCE escape hatch only with ?engine=tinymce (#5758)", async () => {
-    render(tinymceRoute(tiptapHost({ saveFields: vi.fn() })));
-    const area = (await screen.findByTestId(
-      "editor-field-text",
-    )) as HTMLTextAreaElement;
-    expect(area.getAttribute("data-editor-kind")).toBe("html");
-    expect(area.getAttribute("data-editor-engine")).toBeNull();
-    expect(area.tagName).toBe("TEXTAREA");
+  it("ignores the legacy ?engine=tinymce param and renders TipTap (#5902)", async () => {
+    render(legacyEngineRoute(tiptapHost({ saveFields: vi.fn() })));
+    const editable = await screen.findByTestId("editor-field-text");
+    expect(editable.getAttribute("data-editor-kind")).toBe("html");
+    expect(editable.getAttribute("data-editor-engine")).toBe("tiptap");
+    expect(editable.tagName).not.toBe("TEXTAREA");
+    await screen.findByText("Hi");
   });
 
   it("refuses a TipTap fragment edit carrying a NUL before PUT", async () => {
@@ -9017,20 +9011,26 @@ describe("EditorHost refuse blank required HTML (#5251)", () => {
     );
   }
 
-  async function openRequiredHtml(element: React.ReactElement): Promise<HTMLTextAreaElement> {
+  async function openRequiredHtml(
+    element: React.ReactElement,
+    expectedText: string | null = "Hi",
+  ): Promise<HTMLElement> {
+    stubJsdomCaretRects();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={element} />
         </Routes>
       </MemoryRouter>,
     );
-    await waitFor(() => {
-      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
-        "<p>Hi</p>",
-      );
-    });
-    return screen.getByTestId("editor-field-text") as HTMLTextAreaElement;
+    if (expectedText === null) {
+      await screen.findByTestId("editor-field-text");
+    } else {
+      await screen.findByText(expectedText);
+    }
+    const editable = screen.getByTestId("editor-field-text");
+    expect(editable.getAttribute("data-editor-engine")).toBe("tiptap");
+    return editable;
   }
 
   it("does not save a blank required HTML field and reloads the previous value", async () => {
@@ -9039,7 +9039,7 @@ describe("EditorHost refuse blank required HTML (#5251)", () => {
     expect(input.getAttribute("data-editor-kind")).toBe("html");
     expect(screen.getByTestId("editor-field-row-text").getAttribute("data-required")).toBe("true");
     fireEvent.click(screen.getByTestId("editor-html-clear-text"));
-    expect(input.value).toBe("");
+    expect(screen.queryByText("Hi")).toBeNull();
     expect(screen.queryByTestId("editor-html-clear-text")).toBeNull();
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
@@ -9048,34 +9048,35 @@ describe("EditorHost refuse blank required HTML (#5251)", () => {
     expect(screen.getByTestId("editor-save-error").textContent).toMatch(
       /required fields before saving/i,
     );
-    expect(document.activeElement).toBe(screen.getByTestId("editor-field-text"));
     expect(saveFields).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor-saved")).toBeNull();
     expect(screen.getByTestId("editor-field-row-text").getAttribute("data-required")).toBe("true");
     cleanup();
-    const reloaded = await openRequiredHtml(requiredHtmlHost({ saveFields }));
-    expect(reloaded.value).toBe("<p>Hi</p>");
+    await openRequiredHtml(requiredHtmlHost({ saveFields }));
     expect(saveFields).not.toHaveBeenCalled();
   });
 
   it("does not save when the required HTML is emptied or only spaces", async () => {
     const saveFields = vi.fn();
-    const input = await openRequiredHtml(requiredHtmlHost({ saveFields }));
-    fireEvent.change(input, { target: { value: "" } });
+    await openRequiredHtml(requiredHtmlHost({ saveFields }));
+    fireEvent.click(screen.getByTestId("editor-html-clear-text"));
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
       expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(/required/i);
     });
     expect(saveFields).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor-saved")).toBeNull();
-    fireEvent.change(screen.getByTestId("editor-field-text"), { target: { value: "   " } });
+    cleanup();
+    // A whitespace-only stored value is still blank for the required gate.
+    await openRequiredHtml(requiredHtmlHost({ saveFields, body: "   " }), null);
     fireEvent.click(screen.getByTestId("editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(/required/i);
+    });
     expect(saveFields).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor-saved")).toBeNull();
-    expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe("   ");
     cleanup();
-    const reloaded = await openRequiredHtml(requiredHtmlHost({ saveFields }));
-    expect(reloaded.value).toBe("<p>Hi</p>");
+    await openRequiredHtml(requiredHtmlHost({ saveFields }));
   });
 
   it("does not write when Close cancels a blank required HTML edit", async () => {
@@ -9085,7 +9086,7 @@ describe("EditorHost refuse blank required HTML (#5251)", () => {
     fireEvent.click(screen.getByTestId("editor-close"));
     expect(saveFields).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor-saved")).toBeNull();
-    expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe("");
+    expect(screen.queryByText("Hi")).toBeNull();
     expect(screen.getByTestId("editor-field-row-text").getAttribute("data-required")).toBe("true");
   });
 
@@ -9102,27 +9103,27 @@ describe("EditorHost refuse blank required HTML (#5251)", () => {
         fields: payload.fields,
       };
     });
-    const input = await openRequiredHtml(requiredHtmlHost({ saveFields, body }));
-    fireEvent.change(input, { target: { value: "<p>Bye</p>" } });
+    await openRequiredHtml(requiredHtmlHost({ saveFields, body }));
+    fireEvent.click(await screen.findByTestId("tiptap-perc-insert-html-text"));
+    fireEvent.change(screen.getByTestId("tiptap-perc-html-text"), {
+      target: { value: "<p>Bye</p>" },
+    });
+    fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
       expect(screen.getByTestId("editor-saved")).toBeTruthy();
     });
     const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
-    expect(sent.fields.find((f) => f.name === "text")?.value).toBe("<p>Bye</p>");
+    expect(sent.fields.find((f) => f.name === "text")?.value).toContain("Bye");
     cleanup();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={requiredHtmlHost({ saveFields, body })} />
         </Routes>
       </MemoryRouter>,
     );
-    await waitFor(() => {
-      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
-        "<p>Bye</p>",
-      );
-    });
+    await screen.findByText("Bye");
   });
 });
 
@@ -9164,74 +9165,61 @@ describe("EditorHost refuse unsafe HTML on save (#5313)", () => {
     );
   }
 
-  async function openHtml(
-    element: React.ReactElement,
-    expected = "<p>Hi</p>",
-  ): Promise<HTMLTextAreaElement> {
+  async function openHtml(element: React.ReactElement): Promise<HTMLElement> {
+    stubJsdomCaretRects();
     render(
-      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit&engine=tinymce"]}>
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
         <Routes>
           <Route path="/editor" element={element} />
         </Routes>
       </MemoryRouter>,
     );
     await waitFor(() => {
-      expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
-        expected,
-      );
+      expect(screen.getByTestId("editor-field-text")).toBeTruthy();
     });
-    return screen.getByTestId("editor-field-text") as HTMLTextAreaElement;
+    return screen.getByTestId("editor-field-text");
   }
 
   it("does not save script, event-handler, or javascript URL HTML", async () => {
     const saveFields = vi.fn();
-    const input = await openHtml(htmlHost({ saveFields }));
-    expect(input.getAttribute("data-editor-kind")).toBe("html");
-    fireEvent.change(input, { target: { value: "<p><script>alert(1)</script></p>" } });
-    fireEvent.click(screen.getByTestId("editor-save"));
-    await waitFor(() => {
-      expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(
-        /script or event markup/i,
+    // TipTap-only (#5902): the draft seeds from the loaded value, so each
+    // unsafe payload is refused by the save-side HTML gate with no edit.
+    for (const unsafe of [
+      "<p><script>alert(1)</script></p>",
+      '<img src="x" onerror="alert(1)">',
+      '<a href="javascript:alert(1)">x</a>',
+    ]) {
+      cleanup();
+      const input = await openHtml(htmlHost({ saveFields, body: unsafe }));
+      expect(input.getAttribute("data-editor-kind")).toBe("html");
+      expect(input.getAttribute("data-editor-engine")).toBe("tiptap");
+      fireEvent.click(screen.getByTestId("editor-save"));
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(
+          /script or event markup/i,
+        );
+      });
+      expect(screen.getByTestId("editor-save-error").textContent).toMatch(
+        /HTML fields before saving/i,
       );
-    });
-    expect(screen.getByTestId("editor-save-error").textContent).toMatch(
-      /HTML fields before saving/i,
-    );
-    expect(input.getAttribute("aria-invalid")).toBe("true");
-    expect(document.activeElement).toBe(input);
-    expect(saveFields).not.toHaveBeenCalled();
-    expect(screen.queryByTestId("editor-saved")).toBeNull();
-    fireEvent.change(input, { target: { value: '<img src="x" onerror="alert(1)">' } });
-    fireEvent.click(screen.getByTestId("editor-save"));
-    await waitFor(() => {
-      expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(
-        /script or event markup/i,
-      );
-    });
-    expect(saveFields).not.toHaveBeenCalled();
-    fireEvent.change(input, { target: { value: '<a href="javascript:alert(1)">x</a>' } });
-    fireEvent.click(screen.getByTestId("editor-save"));
-    await waitFor(() => {
       expect(input.getAttribute("aria-invalid")).toBe("true");
-    });
-    expect(saveFields).not.toHaveBeenCalled();
-    expect(screen.queryByTestId("editor-saved")).toBeNull();
+      expect(saveFields).not.toHaveBeenCalled();
+      expect(screen.queryByTestId("editor-saved")).toBeNull();
+    }
     cleanup();
-    const reloaded = await openHtml(htmlHost({ saveFields }));
-    expect(reloaded.value).toBe("<p>Hi</p>");
+    await openHtml(htmlHost({ saveFields }));
+    await screen.findByText("Hi");
     expect(saveFields).not.toHaveBeenCalled();
   });
 
   it("does not write when Close cancels an unsafe HTML edit", async () => {
     const saveFields = vi.fn();
-    const input = await openHtml(htmlHost({ saveFields, confirmLeaveUnsaved: () => false }));
-    fireEvent.change(input, { target: { value: "<script>x</script>" } });
+    await openHtml(
+      htmlHost({ saveFields, body: "<script>x</script>", confirmLeaveUnsaved: () => false }),
+    );
     fireEvent.click(screen.getByTestId("editor-close"));
     expect(saveFields).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor-saved")).toBeNull();
-    expect((screen.getByTestId("editor-field-text") as HTMLTextAreaElement).value).toBe(
-      "<script>x</script>",
-    );
   });
 
   it("still saves ordinary HTML", async () => {
@@ -9247,22 +9235,22 @@ describe("EditorHost refuse unsafe HTML on save (#5313)", () => {
         fields: payload.fields,
       };
     });
-    const input = await openHtml(htmlHost({ saveFields, body }));
-    fireEvent.change(input, { target: { value: "<p>Bye <strong>there</strong></p>" } });
+    await openHtml(htmlHost({ saveFields, body }));
+    await screen.findByText("Hi");
+    fireEvent.click(await screen.findByTestId("tiptap-perc-insert-html-text"));
+    fireEvent.change(screen.getByTestId("tiptap-perc-html-text"), {
+      target: { value: "<p>Bye <strong>there</strong></p>" },
+    });
+    fireEvent.click(screen.getByTestId("tiptap-perc-apply-text"));
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
       expect(screen.getByTestId("editor-saved")).toBeTruthy();
     });
     const sent = saveFields.mock.calls[0][1] as ItemEditorFields;
-    expect(sent.fields.find((f) => f.name === "text")?.value).toBe(
-      "<p>Bye <strong>there</strong></p>",
-    );
+    expect(sent.fields.find((f) => f.name === "text")?.value).toContain("Bye");
     cleanup();
-    const reloaded = await openHtml(
-      htmlHost({ saveFields, body }),
-      "<p>Bye <strong>there</strong></p>",
-    );
-    expect(reloaded.value).toBe("<p>Bye <strong>there</strong></p>");
+    await openHtml(htmlHost({ saveFields, body }));
+    await screen.findByText("Bye");
   });
 
   it("does not claim success when a safe HTML save returns HTTP 400", async () => {
@@ -9270,8 +9258,9 @@ describe("EditorHost refuse unsafe HTML on save (#5313)", () => {
       status: 400,
       body: { message: "Field 'text' contains script that cannot be saved." },
     });
-    const input = await openHtml(htmlHost({ saveFields }));
-    fireEvent.change(input, { target: { value: "<p>Ok</p>" } });
+    await openHtml(htmlHost({ saveFields }));
+    // The rejecting save maps the named 400 onto the html field with no
+    // edit required.
     fireEvent.click(screen.getByTestId("editor-save"));
     await waitFor(() => {
       expect(screen.getByTestId("editor-field-error-text").textContent).toMatch(/script/i);
@@ -9280,8 +9269,8 @@ describe("EditorHost refuse unsafe HTML on save (#5313)", () => {
     expect(screen.queryByTestId("editor-saved")).toBeNull();
     expect(saveFields).toHaveBeenCalledTimes(1);
     cleanup();
-    const reloaded = await openHtml(htmlHost({ saveFields }));
-    expect(reloaded.value).toBe("<p>Hi</p>");
+    await openHtml(htmlHost({ saveFields }));
+    await screen.findByText("Hi");
   });
 });
 

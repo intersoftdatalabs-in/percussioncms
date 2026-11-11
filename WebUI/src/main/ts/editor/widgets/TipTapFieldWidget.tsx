@@ -45,9 +45,6 @@ import { TipTapPercussionBar } from "../tiptap/TipTapPercussionBar";
 import { TipTapToolbar } from "../tiptap/TipTapToolbar";
 import styles from "../EditorHost.module.css";
 
-/** Which rich-text engine backs an HTML field. TinyMCE stays the default. */
-export type HtmlEditorEngine = "tinymce" | "tiptap";
-
 export interface TipTapFieldWidgetProps {
   name: string;
   value: string;

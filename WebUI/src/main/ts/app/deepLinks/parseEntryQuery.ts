@@ -21,7 +21,6 @@ import {
   normalizeArchitectureSite,
   normalizeDesignSection,
   normalizeDeveloperSection,
-  normalizeEditorEngine,
   normalizeExplorerPath,
   normalizeHomeSection,
   normalizeId,
@@ -53,11 +52,6 @@ export interface ParsedSpaEntry {
   templateId?: string;
   /** Content Editor mode ({@code edit} or {@code view}). */
   mode?: string;
-  /**
-   * Rich-text engine override ({@code tinymce} escape hatch, otherwise the
-   * TipTap default; #5622 cutover #5758).
-   */
-  engine?: "tiptap" | "tinymce";
 }
 
 /**
@@ -180,17 +174,14 @@ export function parseEntryQuery(
     case "editor": {
       const contentId = normalizeId(params.get("contentId"));
       const mode = normalizeId(params.get("mode"));
-      const engine = normalizeEditorEngine(params.get("engine"));
       const qs = new URLSearchParams();
       if (contentId) qs.set("contentId", contentId);
       if (mode) qs.set("mode", mode);
-      if (engine) qs.set("engine", engine);
       const qstr = qs.toString();
       return {
         entry,
         contentId,
         mode,
-        engine,
         clientPath: qstr ? `/editor?${qstr}` : "/editor",
       };
     }
@@ -218,7 +209,6 @@ export function toSpaEntryUrl(parsed: ParsedSpaEntry): string {
   if (parsed.contentId) params.set("contentId", parsed.contentId);
   if (parsed.templateId) params.set("templateId", parsed.templateId);
   if (parsed.mode) params.set("mode", parsed.mode);
-  if (parsed.engine) params.set("engine", parsed.engine);
   return `/cm/app/spa.jsp?${params.toString()}`;
 }
 
@@ -363,17 +353,14 @@ export function parseClientPath(
     case "editor": {
       const contentId = normalizeId(params.get("contentId"));
       const mode = normalizeId(params.get("mode"));
-      const engine = normalizeEditorEngine(params.get("engine"));
       const qs = new URLSearchParams();
       if (contentId) qs.set("contentId", contentId);
       if (mode) qs.set("mode", mode);
-      if (engine) qs.set("engine", engine);
       const qstr = qs.toString();
       return {
         entry,
         contentId,
         mode,
-        engine,
         clientPath: qstr ? `/editor?${qstr}` : "/editor",
       };
     }

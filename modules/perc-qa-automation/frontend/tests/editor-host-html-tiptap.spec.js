@@ -18,8 +18,8 @@
 /**
  * React Content Editor TipTap toolbar parity (#5651).
  *
- * <p>Proves the bundled TipTap editor (the default engine since #5758;
- * {@code ?engine=tinymce} keeps the legacy TinyMCE escape hatch) matches the
+ * <p>Proves the bundled TipTap editor (the only engine since #5902 removed
+ * the {@code ?engine=tinymce} escape hatch) matches the
  * {@code rx_default_config.json} toolbar contract — lists, link, code,
  * tables (plus undo/redo, inline styles, alignment) — and reduces Word
  * pastes to the {@code paste_word_valid_elements} contract. Toolbar edits
@@ -231,7 +231,7 @@ test.describe("React Content Editor TipTap editor", () => {
         onPut: (req) => puts.push(req),
       });
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tiptap"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
       await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
         timeout: 20_000,
       });
@@ -275,7 +275,7 @@ test.describe("React Content Editor TipTap editor", () => {
     { tag: ["@explorer-content-editor", "@editor", "@html", "@tiptap"] },
     async ({ page }) => {
       await stubEditorApis(page);
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=view&engine=tiptap"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=view"));
       await expect(page.locator(`[data-testid="${TEST_IDS.form}"]`)).toBeVisible({
         timeout: 20_000,
       });
@@ -297,7 +297,7 @@ test.describe("React Content Editor TipTap editor", () => {
         onPut: (req) => puts.push(req),
       });
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tiptap"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
       await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
         timeout: 20_000,
       });
@@ -377,7 +377,7 @@ test.describe("React Content Editor TipTap editor", () => {
         onPut: (req) => puts.push(req),
       });
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tiptap"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
       await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
         timeout: 20_000,
       });
@@ -467,7 +467,7 @@ test.describe("React Content Editor TipTap editor", () => {
         onPut: (req) => puts.push(req),
       });
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tiptap"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
       await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
         timeout: 20_000,
       });
@@ -524,7 +524,7 @@ test.describe("React Content Editor TipTap editor", () => {
         onPut: (req) => puts.push(req),
       });
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tiptap"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
       await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
         timeout: 20_000,
       });
