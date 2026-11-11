@@ -179,6 +179,14 @@ import {
   revertedEditorDraft,
 } from "./editorRevert";
 import {
+  browserAutosaveStorage,
+  clearAutosavedEditorDraft,
+  readAutosavedEditorDraft,
+  shouldOfferAutosaveRestore,
+  writeAutosavedEditorDraft,
+  type AutosavedEditorDraft,
+} from "./editorAutosave";
+import {
   loadLinkedPagesForTakedown,
   type LinkedPageForTakedown,
 } from "../contentExplorer/itemPublish";
@@ -1103,6 +1111,13 @@ export function EditorHost({
    */
   const [saveReloadErrorKey, setSaveReloadErrorKey] = useState<string | null>(null);
   const [saveReloadErrorDetail, setSaveReloadErrorDetail] = useState("");
+  /**
+   * Stale autosave draft offered after a reload (#6076). Restoring only
+   * fills the local draft — it never PUTs — so a newer server save is
+   * never clobbered; only an explicit Save writes.
+   */
+  const [autosaveNotice, setAutosaveNotice] =
+    useState<AutosavedEditorDraft | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const keywordChoicesRef = useRef<Record<string, KeywordOption[]>>({});
   const reportKeywordChoices = (name: string, options: KeywordOption[]): void => {
@@ -1331,6 +1346,7 @@ export function EditorHost({
     setPendingFiles({});
     setPendingClears({});
     if (contentId == null || promote) {
+      setAutosaveNotice(null);
       return;
     }
     const itemId = String(contentId);
@@ -1390,6 +1406,19 @@ export function EditorHost({
             fields.fields.map((f) => [f.name, fieldValueAsString(f.value)]),
           ),
         );
+        if (!readOnly) {
+          const stored = readAutosavedEditorDraft(
+            browserAutosaveStorage(),
+            itemId,
+          );
+          setAutosaveNotice(
+            stored && shouldOfferAutosaveRestore(stored, fields.fields)
+              ? stored
+              : null,
+          );
+        } else {
+          setAutosaveNotice(null);
+        }
         if (fields.contentType) {
           try {
             const detail = await loadType(fields.contentType);
@@ -1414,6 +1443,7 @@ export function EditorHost({
       } catch (err) {
         if (!cancelled) {
           setPayload(null);
+          setAutosaveNotice(null);
           setErrorDetail(err instanceof Error ? err.message : String(err));
           setErrorKey(EDITOR_MSG.LOAD_FAILED);
         }
@@ -2354,6 +2384,8 @@ export function EditorHost({
           savedPayload.fields.map((f) => [f.name, fieldValueAsString(f.value)]),
         ),
       );
+      clearAutosavedEditorDraft(browserAutosaveStorage(), itemId);
+      setAutosaveNotice(null);
       setSaved(true);
       await refreshPayloadAfterSave(itemId);
     } catch (err) {
@@ -3380,6 +3412,37 @@ export function EditorHost({
     setFieldErrors({});
   }
 
+  /**
+   * Autosave recovery (#6076). Restore fills the local draft from the
+   * stored pre-reload edit and remounts field widgets (same epoch bump as
+   * revert) — client-side only, never a fields PUT, so a newer server save
+   * is never clobbered. The operator still saves explicitly.
+   */
+  function handleRestoreAutosave(): void {
+    if (autosaveNotice == null) {
+      return;
+    }
+    setDraft({ ...autosaveNotice.draft });
+    setDiscardEpoch((epoch) => epoch + 1);
+    focusInvalidRef.current = null;
+    setFieldErrors({});
+    setAutosaveNotice(null);
+  }
+
+  /**
+   * Autosave recovery (#6076). Discard drops the stored pre-reload edit and
+   * keeps the freshly loaded values; it never writes to the server.
+   */
+  function handleDiscardAutosave(): void {
+    if (contentId != null) {
+      clearAutosavedEditorDraft(
+        browserAutosaveStorage(),
+        String(contentId),
+      );
+    }
+    setAutosaveNotice(null);
+  }
+
   function allowLeave(): boolean {
     if (
       !editorDraftIsDirty(
@@ -4309,6 +4372,28 @@ export function EditorHost({
     schemaReadOnlyNames,
   );
   const showRevert = canEdit && canRevertFromEditor(mode, draftDirty);
+  /**
+   * Autosave mirror (#6076): while the form is dirty in Edit mode the text
+   * draft is mirrored to localStorage so a reload can offer recovery. A
+   * clean form clears the entry so a revert or save never resurfaces a
+   * stale banner. Binary picks are not serializable and stay out.
+   */
+  useEffect(() => {
+    if (contentId == null || payload == null || !canEdit) {
+      return;
+    }
+    const itemId = String(contentId);
+    if (draftDirty) {
+      writeAutosavedEditorDraft(
+        browserAutosaveStorage(),
+        itemId,
+        draft,
+        visibleEditorRevision(payload.revision),
+      );
+    } else {
+      clearAutosavedEditorDraft(browserAutosaveStorage(), itemId);
+    }
+  }, [contentId, payload, draft, draftDirty, canEdit]);
   const checkoutOwner = (
     restLockUser ||
     lockUser ||
@@ -5061,6 +5146,33 @@ export function EditorHost({
                     onClick={() => void handleRetrySaveReload()}
                   >
                     {message(EDITOR_MSG.LOAD_RETRY)}
+                  </button>
+                </div>
+              </div>
+            ) : null}
+            {autosaveNotice && canEdit ? (
+              <div
+                className={styles.status}
+                role="status"
+                data-testid="editor-autosave-notice"
+              >
+                {message(EDITOR_MSG.AUTOSAVE_NOTICE)}
+                <div className={styles.actions}>
+                  <button
+                    type="button"
+                    className={styles.button}
+                    data-testid="editor-autosave-restore"
+                    onClick={handleRestoreAutosave}
+                  >
+                    {message(EDITOR_MSG.AUTOSAVE_RESTORE)}
+                  </button>
+                  <button
+                    type="button"
+                    className={styles.button}
+                    data-testid="editor-autosave-discard"
+                    onClick={handleDiscardAutosave}
+                  >
+                    {message(EDITOR_MSG.AUTOSAVE_DISCARD)}
                   </button>
                 </div>
               </div>

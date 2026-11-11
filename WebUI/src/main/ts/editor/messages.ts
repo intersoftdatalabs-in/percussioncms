@@ -36,6 +36,10 @@ export const EDITOR_MSG = {
     "perc.ui.editor@This item was saved with a newer revision. Reload and try again.",
   SAVED: "perc.ui.editor@Saved",
   REVERT: "perc.ui.editor@Revert changes",
+  AUTOSAVE_NOTICE:
+    "perc.ui.editor@An unsaved draft from before the reload is available. Restore it or discard it — restoring never overwrites the saved item until you save.",
+  AUTOSAVE_RESTORE: "perc.ui.editor@Restore draft",
+  AUTOSAVE_DISCARD: "perc.ui.editor@Discard draft",
   SAVE_RELOAD_FAILED:
     "perc.ui.editor@Saved, but the latest values could not be reloaded. Retry the load to see the current values.",
   FIELD_REQUIRED: "perc.ui.editor@This field is required.",
