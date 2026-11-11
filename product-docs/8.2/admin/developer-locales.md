@@ -172,6 +172,22 @@ profile** and **Save**.
 Admins can also **view and replace** the singleton **auto-translation** set
 (locale × content-type rows, plus workflow and community) from this chrome.
 
+## Readback
+
+The catalog table is a thin read: it lists language string, label, status,
+base-locale flag, format-profile presence, and description from
+`GET /services/locales` and carries no format-profile payload. Opening a row
+loads the detail from `GET /services/locales/{idOrLang}` and shows the stored
+language (read-only), the stored label, the stored description, the stored
+status, the base-locale flag, and the numeric id. Packaged locales such as
+en-us read back with zero writes: the row renders from the thin list and the
+detail renders without creating, saving, or deleting anything. A locale
+created through the shell (`POST /services/locales` with `languageString`
+and `label`) reads back in the detail (label title, read-only language) and
+as a new catalog row; removing it is
+`DELETE /services/locales/{idOrLang}` (`200`/`204` on success), after which
+the catalog no longer lists that language string.
+
 ## Product path — set a label
 
 1. Open an existing locale. The committed label is shown under **Set
