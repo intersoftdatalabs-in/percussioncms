@@ -13,9 +13,9 @@
 
 ## Phase 1: Setup
 
-- [ ] T001 Identify owning modules and read AGENTS hierarchy: root `AGENTS.md`, `WebUI/` module rules, `rest/`, `projects/sitemanage/`, `modules/perc-qa-automation/`
-- [ ] T002 Confirm branch `dce-phase3-action-depth` is based on current `main`, JDK 21 via `./mvnw -version`, and WebUI toolchain builds
-- [ ] T003 [P] Re-read design package: `specs/008-dce-phase3-action-depth/{spec,plan,research,data-model,quickstart}.md`, `contracts/*`, plus `specs/2400-dce-explorer-parity/contracts/gap-matrix.md`, issue #6110, and epic #4530 overlap notes
+- [x] T001 Identify owning modules and read AGENTS hierarchy: root `AGENTS.md`, `WebUI/` module rules, `rest/`, `projects/sitemanage/`, `modules/perc-qa-automation/` — root + WebUI/rest/sitemanage/perc-qa-automation AGENTS read (Playwright hard gate, adaptor direction, React-only locks)
+- [x] T002 Confirm branch `dce-phase3-action-depth` is based on current `main`, JDK 21 via `./mvnw -version`, and WebUI toolchain builds — branch dce-phase3-action-depth rebased on origin/main; spec package committed
+- [x] T003 [P] Re-read design package: `specs/008-dce-phase3-action-depth/{spec,plan,research,data-model,quickstart}.md`, `contracts/*`, plus `specs/2400-dce-explorer-parity/contracts/gap-matrix.md`, issue #6110, and epic #4530 overlap notes — design package + gap-matrix + #6110/#4530 re-read
 
 ---
 
@@ -24,10 +24,10 @@
 **Goal**: FR-by-FR coverage map (reference / verify / build) plus verified integration points, so no story duplicates #4530-shipped work.
 **Blocks**: All user stories.
 
-- [ ] T004 Produce the WP0 coverage map at `specs/008-dce-phase3-action-depth/checklists/coverage-map.md`: every FR-001–FR-011 dispositioned as reference / verify / build-or-rework with evidence links (shipped PR/issue or gap) — Option C enforced here
-- [ ] T005 Verify production adaptor coverage for `getAllowedTransitions` (rest `ActionMenuResource` → sitemanage adaptor) with a probe test; record go/no-go for new-adaptor work — no new REST resource unless this probe fails
-- [ ] T006 Inventory properties dialog coverage (folder editor vs item dialogs) and new-content menu paths in `WebUI/src/main/ts/contentExplorer/`; record per-FR delta list feeding WP1–WP3
-- [ ] T007 [P] Baseline check: TMX key process and axe-gate pattern for the touched Explorer areas (reference existing `renderA11yGate`/axe usage); record conventions for story phases
+- [x] T004 Produce the WP0 coverage map at `specs/008-dce-phase3-action-depth/checklists/coverage-map.md`: every FR-001–FR-011 dispositioned as reference / verify / build-or-rework with evidence links (shipped PR/issue or gap) — Option C enforced here — checklists/coverage-map.md written (Option C enforced)
+- [x] T005 Verify production adaptor coverage for `getAllowedTransitions` (rest `ActionMenuResource` → sitemanage adaptor) with a probe test; record go/no-go for new-adaptor work — no new REST resource unless this probe fails — GO — ActionMenuResource.getAllowedTransitions → IActionMenuAdaptor.findAllowedTransitions → ActionMenuAdaptor (no new adaptor work)
+- [x] T006 Inventory properties dialog coverage (folder editor vs item dialogs) and new-content menu paths in `WebUI/src/main/ts/contentExplorer/`; record per-FR delta list feeding WP1–WP3 — inventory recorded in coverage-map.md (menus/props/new-content/bulk deltas)
+- [x] T007 [P] Baseline check: TMX key process and axe-gate pattern for the touched Explorer areas (reference existing `renderA11yGate`/axe usage); record conventions for story phases — EXPLORER_MSG/CmsUi.tmx + axe-on-changed-surfaces conventions recorded
 
 ---
 
