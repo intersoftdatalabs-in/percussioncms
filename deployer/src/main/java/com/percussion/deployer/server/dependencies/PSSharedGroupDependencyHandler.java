@@ -213,10 +213,27 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
         .iterator();
   }
 
+  /**
+   * Copies the field groups of a shared def into a typed collection.
+   *
+   * <p>{@code PSContentEditorSharedDef.getFieldGroups()} (system module) is still a legacy raw
+   * {@code Iterator}, so the elements are copied through a checked cast instead of the raw {@code
+   * PSCollection(Iterator)} constructor. The element type is {@code PSSharedFieldGroup} (verified
+   * by the casts at the pre-generics use sites).
+   *
+   * @param def the shared def to copy from, may not be {@code null}.
+   * @return a typed collection holding the def's field groups, never {@code null}.
+   */
+  private static PSCollection<PSSharedFieldGroup> typedFieldGroups(PSContentEditorSharedDef def) {
+    PSCollection<PSSharedFieldGroup> groups = new PSCollection<>(PSSharedFieldGroup.class);
+    Iterator<?> it = def.getFieldGroups();
+    while (it.hasNext()) {
+      groups.add((PSSharedFieldGroup) it.next());
+    }
+    return groups;
+  }
+
   // see base class
-  // PSContentEditorSharedDef.getFieldGroups() is a legacy raw Iterator; the element type is
-  // PSSharedFieldGroup (verified by the casts at the use sites this replaces).
-  @SuppressWarnings("unchecked")
   @Override
   public void installDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
@@ -328,13 +345,13 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
         } else {
           defFile = matchFile;
           tgtDef = matchDef;
-          defCol = new PSCollection<>(tgtDef.getFieldGroups());
+          defCol = typedFieldGroups(tgtDef);
           defCol.add(group);
         }
       } else {
         // we have the file with the existing group
         String fileName = defFile.getName();
-        defCol = new PSCollection<>(tgtDef.getFieldGroups());
+        defCol = typedFieldGroups(tgtDef);
         for (int i = 0; i < defCol.size(); i++) {
           PSSharedFieldGroup grp = defCol.get(i);
           if (group.getName().equals(grp.getName())) {
