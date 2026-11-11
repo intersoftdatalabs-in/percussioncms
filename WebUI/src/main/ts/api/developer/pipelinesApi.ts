@@ -440,6 +440,24 @@ export function unwrapPipelineResultPage(payload: unknown): PipelineResultPage {
 }
 
 /**
+ * Normalize a result-page stylesheet URI typed into Developer Pipelines.
+ *
+ * Slice D XSL-compatibility: classic definitions carry app-local sheets as
+ * {@code file:pages/result.xsl}. The server accepts and normalizes those values, and the
+ * input mirrors that here so the field shows the portable relative URI that is stored.
+ * Absolute / traversal / cloud values are returned trimmed and unchanged — the server
+ * remains the authority and rejects them with HTTP 400.
+ */
+export function normalizeStylesheetUriInput(raw: string | null | undefined): string {
+  const trimmed = (raw ?? "").trim();
+  const match = /^file:(.*)$/i.exec(trimmed);
+  if (!match) return trimmed;
+  const remainder = (match[1] ?? "").trim();
+  if (!remainder || remainder.startsWith("/")) return trimmed;
+  return remainder;
+}
+
+/**
  * PUT /services/pipelines/{app}/resources/{resource}/resultPage — Admin native IR result page.
  * {@code presentation: "none"} clears/disables XSL. Cloud / credentialed / traversal stylesheet
  * URIs are rejected by the server (HTTP 400).

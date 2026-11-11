@@ -40,6 +40,7 @@ import com.percussion.services.pipeline.sql.IPSPipelineSqlAdapter;
 import com.percussion.services.pipeline.sql.PSPipelineSqlPlan;
 import com.percussion.services.pipeline.sql.PSPipelineSqlPlanner;
 import java.time.Instant;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
@@ -341,7 +342,16 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
     }
   }
 
-  private static void applyResultPageHtml(
+  /**
+   * Slice D XSL-compatibility: application-owned result-page stylesheets resolve under {@code
+   * <irStore>/<appName>/}. A {@code null} root keeps the previous bundled-only behavior (app-owned
+   * URIs fail closed with "stylesheet not found").
+   */
+  private Path xslSandboxRoot() {
+    return irService.getStoreBaseDir();
+  }
+
+  private void applyResultPageHtml(
       PipelineResourceIr resource,
       PipelineExecuteRequest req,
       PipelineExecuteResult result,
@@ -374,7 +384,8 @@ public class PSPipelineRuntimeService implements IPSPipelineRuntimeService {
       return;
     }
     String html =
-        PSPipelineXslMerge.merge(result.getAppName(), page, result.getRows(), null);
+        PSPipelineXslMerge.merge(
+            result.getAppName(), page, result.getRows(), xslSandboxRoot());
     result.setHtml(html);
     result.getMeta().put("contentType", page.resolvedMimeType());
     result.getMeta().put("resultPageApplied", true);

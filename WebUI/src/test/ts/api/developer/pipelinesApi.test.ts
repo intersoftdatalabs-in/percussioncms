@@ -36,6 +36,7 @@ import {
   wrapPipelineResultPageForWire,
   unwrapPipelineResultPage,
   putResultPage,
+  normalizeStylesheetUriInput,
   wrapPipelineTracingSettingsForWire,
   unwrapPipelineTracingSettings,
   unwrapPipelineRequestTrace,
@@ -482,6 +483,20 @@ describe("pipelinesApi Slice D result page", () => {
       },
     });
     expect(out.stylesheetUri).toBe("pipeline-xsl-result-fixture");
+  });
+
+  it("normalizeStylesheetUriInput strips legacy file: but keeps server authority", () => {
+    expect(normalizeStylesheetUriInput("file:pages/result.xsl")).toBe("pages/result.xsl");
+    expect(normalizeStylesheetUriInput("FILE:login.xsl")).toBe("login.xsl");
+    expect(normalizeStylesheetUriInput("  pipeline-xsl-result-fixture  ")).toBe(
+      "pipeline-xsl-result-fixture",
+    );
+    // Absolute / cloud values pass through trimmed; the server rejects them with HTTP 400.
+    expect(normalizeStylesheetUriInput("file:/tmp/secret.xsl")).toBe("file:/tmp/secret.xsl");
+    expect(normalizeStylesheetUriInput("https://cdn.example/result.xsl")).toBe(
+      "https://cdn.example/result.xsl",
+    );
+    expect(normalizeStylesheetUriInput(null)).toBe("");
   });
 });
 

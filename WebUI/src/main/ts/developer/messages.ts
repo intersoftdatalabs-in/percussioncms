@@ -1197,7 +1197,7 @@ export const DEV_MSG_KEYS = {
   PIPE_BINARY_DOWNLOAD: "perc.ui.developer@Download",
   PIPE_RESULT_PAGE: "perc.ui.developer@Result page (HTML)",
   PIPE_RESULT_PAGE_HINT:
-    "perc.ui.developer@Associate a local XSL stylesheet with this resource. Test HTML applies the stylesheet merge. Use raw structured output to omit presentation so Test invoke returns JSON or XML without XSL. JSON (.json / Accept: application/json) never applies XSL even when a result page remains. Cloud URLs, credentials, and path traversal are rejected.",
+    "perc.ui.developer@Associate a local XSL stylesheet with this resource. Test HTML applies the stylesheet merge. Use raw structured output to omit presentation so Test invoke returns JSON or XML without XSL. JSON (.json / Accept: application/json) never applies XSL even when a result page remains. Cloud URLs, credentials, and path traversal are rejected. Legacy file:pages/result.xsl values are normalized to the portable relative path; operators stage app-owned sheets under the pipeline store app directory.",
   PIPE_RESULT_PAGE_STYLESHEET: "perc.ui.developer@Stylesheet URI",
   PIPE_RESULT_PAGE_STYLESHEET_PLACEHOLDER: "perc.ui.developer@pipeline-xsl-result-fixture",
   PIPE_RESULT_PAGE_EXTENSION: "perc.ui.developer@Request extension",

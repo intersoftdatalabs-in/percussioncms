@@ -20,7 +20,8 @@ vi.mock("../../../main/ts/api/developer/pipelineImportExport", () => ({
   exportPipelineApplication: vi.fn(),
 }));
 
-vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
+vi.mock("../../../main/ts/api/developer/pipelinesApi", async (importOriginal) => ({
+  ...((await importOriginal()) as Record<string, unknown>),
   getApplicationDetail: vi.fn(),
   listApplications: vi.fn(),
   startApplication: vi.fn(),
@@ -734,6 +735,36 @@ describe("PipelineDetailPanel", () => {
       expect(screen.getByTestId("developer-pipe-binary-error").textContent).toMatch(
         /cloud/i,
       );
+    });
+  });
+
+  it("Admin legacy file: URI is normalized before result page PUT", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    putResultPage.mockResolvedValue({
+      stylesheetUri: "pages/result.xsl",
+      requestExtension: ".html",
+      mimeType: "text/html",
+      presentation: "html",
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-result-page")).toBeTruthy();
+    });
+    const uri = screen.getByTestId("developer-pipe-result-page-uri") as HTMLInputElement;
+    fireEvent.change(uri, { target: { value: "file:pages/result.xsl" } });
+    fireEvent.click(screen.getByTestId("developer-pipe-result-page-save"));
+    await waitFor(() => {
+      expect(putResultPage).toHaveBeenCalledWith("sys_cmpDocuments", "contenteditor", {
+        stylesheetUri: "pages/result.xsl",
+        requestExtension: ".html",
+        mimeType: "text/html",
+        presentation: "html",
+      });
+    });
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-pipe-result-page-uri") as HTMLInputElement).value,
+      ).toBe("pages/result.xsl");
     });
   });
 

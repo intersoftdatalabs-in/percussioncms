@@ -83,7 +83,8 @@ public class PSPipelineIrService implements IPSPipelineIrService {
     return store.exists(appName);
   }
 
-  /** Exposed for diagnostics / tests. */
+  /** Slice D XSL-compatibility: application-owned stylesheets resolve under this root. */
+  @Override
   public Path getStoreBaseDir() {
     return store.getBaseDir();
   }

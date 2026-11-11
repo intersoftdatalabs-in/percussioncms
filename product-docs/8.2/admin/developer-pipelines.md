@@ -76,6 +76,14 @@ resources. It does not publish to an external registry.
   output** sends `presentation=none` so HTML Test invoke is untransformed.
   **Test JSON** (`.json` / `Accept: application/json`) **never** applies XSL
   even when a result page remains. **Test XML** returns untransformed row XML.
+  **Legacy stylesheets:** classic definitions carry app-local sheets as
+  `file:pages/result.xsl`. The save endpoint accepts that form and stores the
+  portable relative URI (`pages/result.xsl`). Operators stage app-owned sheets
+  as files under the pipeline IR store app directory
+  (`<pipeline-store>/<appName>/pages/result.xsl`); at execute time the runtime
+  resolves the bound URI under that directory and merges it the same way as
+  the bundled fixture (byte-identical output for the same stylesheet and row
+  document). Absolute paths, traversal, and cloud URLs still return **400**.
 - **Nested filter groups** save an AND/OR tree of selector predicates on the
   selected native resource via
   `PUT /services/pipelines/{app}/resources/{resource}/filterGroup`. The default
@@ -242,7 +250,12 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
    `http://127.0.0.1/pipeline-http-fixture` and choose **Save HTTP tank** so
    Test HTML has fixture rows to merge.
 4. In **Result page (HTML)**, keep **Stylesheet URI** as
-   `pipeline-xsl-result-fixture` (or another portable-safe relative path).
+   `pipeline-xsl-result-fixture` (or another portable-safe relative path). A
+   legacy classic value such as `file:pages/result.xsl` is accepted and
+   normalized to `pages/result.xsl` before save; app-owned sheets must exist as
+   files under the pipeline store app directory
+   (`<pipeline-store>/<appName>/pages/result.xsl`) for **Test HTML** to merge
+   them.
 5. Choose **Save result page**. Success shows a saved notice. Cloud URLs such as
    `https://cdn.example/result.xsl`, credentialed URLs, and `..` traversal fail
    closed with a clear **400** error.
