@@ -126,19 +126,25 @@ public class PSContentListSetter extends PSSimplePropertySetter {
 
   /** Sets the {@link #EXPANDER_PARAMS} property. */
   private void setExpanderParams(IPSContentList cList, Object value) {
-    if (!(value instanceof Map)) {
+    if (!(value instanceof Map<?, ?>)) {
       throw new PSConfigException(
           "The type of property \"" + EXPANDER_PARAMS + "\" must be a Map.");
     }
-    cList.setExpanderParams((Map<String, String>) value);
+    // Expander/generator params are String-keyed maps by config construction.
+    @SuppressWarnings("unchecked")
+    Map<String, String> params = (Map<String, String>) value;
+    cList.setExpanderParams(params);
   }
 
   /** Sets the {@link #GEN_PARAMS} property. */
   private void setGeneratorParams(IPSContentList cList, Object value) {
-    if (!(value instanceof Map)) {
+    if (!(value instanceof Map<?, ?>)) {
       throw new PSConfigException("The type of property \"" + GEN_PARAMS + "\" must be a Map.");
     }
-    cList.setGeneratorParams((Map<String, String>) value);
+    // Expander/generator params are String-keyed maps by config construction.
+    @SuppressWarnings("unchecked")
+    Map<String, String> params = (Map<String, String>) value;
+    cList.setGeneratorParams(params);
   }
 
   /** Sets the {@link #FILTER} property. */

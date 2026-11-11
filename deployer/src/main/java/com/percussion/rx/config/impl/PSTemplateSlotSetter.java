@@ -202,6 +202,8 @@ public class PSTemplateSlotSetter extends PSPropertySetterWithValidation {
    * @return the filtered map, never <code>null</code>, may be empty.
    */
   private Map<String, String> filterParameters(IPSTemplateSlot slot, Object propValue) {
+    // Filter arguments are String-keyed maps by Spring bean construction (validated by callers).
+    @SuppressWarnings("unchecked")
     var props = (Map<String, String>) propValue;
     var params = new HashMap<String, String>();
     params.putAll(props);

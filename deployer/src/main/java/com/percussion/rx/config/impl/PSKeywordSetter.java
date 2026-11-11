@@ -84,6 +84,8 @@ public class PSKeywordSetter extends PSSimplePropertySetter {
       throw new PSConfigException("The value type of the " + CHOICES_PAIRS + " must be a List");
     }
 
+    // Choice pairs are name/value pairs by config construction.
+    @SuppressWarnings("unchecked")
     var choices = (List<PSPair<String, String>>) propValue;
     var kwChoices = new ArrayList<PSKeywordChoice>();
     for (int i = 0; i < choices.size(); i++) {

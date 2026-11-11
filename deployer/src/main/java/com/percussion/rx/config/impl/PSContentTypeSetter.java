@@ -258,7 +258,7 @@ public class PSContentTypeSetter extends PSSimplePropertySetter {
   private void addFieldToExcludes(PSItemDefinition itemDef, String fieldName, int type) {
     if (type == PSField.TYPE_SYSTEM) {
       ArrayList<String> names = new ArrayList<>();
-      Iterator excludes;
+      Iterator<?> excludes;
       excludes = itemDef.getContentEditorMapper().getSystemFieldExcludes();
       CollectionUtils.addAll(names, excludes);
       names.add(fieldName);
@@ -327,7 +327,7 @@ public class PSContentTypeSetter extends PSSimplePropertySetter {
    * @param it the iterator, assumed not <code>null</code>.
    * @return the converted list, never <code>null</code>, may be empty.
    */
-  private ArrayList<String> iteratorToList(Iterator it) {
+  private ArrayList<String> iteratorToList(Iterator<?> it) {
     ArrayList<String> list = new ArrayList<>();
     CollectionUtils.addAll(list, it);
 
@@ -359,11 +359,15 @@ public class PSContentTypeSetter extends PSSimplePropertySetter {
   private Map<String, Map<String, Object>> convertObjectToMap(Object fields) {
     if (fields == null) return Collections.emptyMap();
 
-    if (!(fields instanceof Map))
+    if (!(fields instanceof Map<?, ?>))
       throw new PSConfigException(
           "The type of \"" + FIELDS + "\" property (in PSContentTypeSetter) must be Map");
 
-    return (Map<String, Map<String, Object>>) fields;
+    // The FIELDS property maps field names to their property maps (String keys/values)
+    // by Spring bean construction; verified as a Map above.
+    @SuppressWarnings("unchecked")
+    Map<String, Map<String, Object>> fieldMap = (Map<String, Map<String, Object>>) fields;
+    return fieldMap;
   }
 
   /**

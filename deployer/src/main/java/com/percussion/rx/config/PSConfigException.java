@@ -25,6 +25,9 @@ package com.percussion.rx.config;
  */
 public class PSConfigException extends RuntimeException {
 
+  /** Serialization id. */
+  private static final long serialVersionUID = 1L;
+
   /**
    * Constructs an exception with the specified detail message.
    *

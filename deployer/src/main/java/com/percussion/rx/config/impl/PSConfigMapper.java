@@ -338,17 +338,20 @@ public class PSConfigMapper {
    *     replaced values; the 2nd element determines if a replacement has happened, never <code>null
    *     </code>.
    */
+  // Config property values are untyped Collections/Maps produced by Spring bean wiring; elements
+  // are re-inserted as Objects into the same collection instance, so raw access is unavoidable.
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private PSPair<Object, Boolean> replaceCollectionValues(
       Object value, Map<String, Object> props, boolean isDelta) {
     PSPair<Object, Boolean> r;
     boolean replaced = false;
     if (value instanceof Collection) {
-      Collection values = (Collection) value;
+      Collection<Object> values = (Collection<Object>) value;
       List<Object> tmpList = new ArrayList<>();
       tmpList.addAll(values);
       values.clear();
 
-      for (Object obj : (List) tmpList) {
+      for (Object obj : tmpList) {
         if (obj instanceof String) r = getReplacedValue((String) obj, props, isDelta);
         else r = replaceCollectionValues(obj, props, isDelta);
         if (r.getSecond()) replaced = true;
@@ -360,7 +363,7 @@ public class PSConfigMapper {
     }
     // ignore other types if there is any
 
-    return new PSPair(value, replaced);
+    return new PSPair<>(value, replaced);
   }
 
   /**
@@ -373,6 +376,9 @@ public class PSConfigMapper {
    * @return a pair, where the 1st element may or may not contains the replaced values; the 2nd
    *     element determines if a replacement has happened, never <code>null</code>.
    */
+  // The map keys/values below are untyped by Spring bean wiring; entries are re-inserted
+  // into the same map instance, so raw access is unavoidable.
+  @SuppressWarnings({"unchecked", "rawtypes"})
   private PSPair<Object, Boolean> replaceMapValues(
       Map map, Map<String, Object> props, boolean isDelta) {
     PSPair<Object, Boolean> r;
@@ -386,7 +392,7 @@ public class PSConfigMapper {
       map.put(key, r.getFirst());
     }
 
-    return new PSPair(map, replaced);
+    return new PSPair<>(map, replaced);
   }
 
   /**
@@ -404,7 +410,7 @@ public class PSConfigMapper {
    */
   private PSPair<Object, Boolean> getReplacedValue(
       String origValue, Map<String, Object> props, boolean isDelta) {
-    if (StringUtils.isBlank(origValue)) return new PSPair(origValue, false);
+    if (StringUtils.isBlank(origValue)) return new PSPair<>(origValue, false);
 
     origValue = origValue.trim();
     // is this a simple (one) place-holder?
@@ -415,7 +421,7 @@ public class PSConfigMapper {
     StringBuilder buffer = new StringBuilder();
     // take the part before PREFIX
     int i = origValue.indexOf(PREFIX);
-    if (i == -1) return new PSPair(origValue, false);
+    if (i == -1) return new PSPair<>(origValue, false);
 
     buffer.append(origValue.substring(0, i));
     origValue = origValue.substring(i);
@@ -432,7 +438,7 @@ public class PSConfigMapper {
       }
     }
     String newValue = buffer.toString();
-    return new PSPair(newValue, replaced);
+    return new PSPair<>(newValue, replaced);
   }
 
   /**
@@ -566,7 +572,7 @@ public class PSConfigMapper {
   private static PSPair<Object, Boolean> replaceOneValue(
       String origValue, Map<String, Object> props, boolean isDelta) {
     int index = origValue.indexOf(SUFFIX);
-    if (index == -1) return new PSPair(origValue, false);
+    if (index == -1) return new PSPair<>(origValue, false);
 
     String key = origValue.substring(0, index);
     Object rValue = props.get(key);
@@ -580,12 +586,12 @@ public class PSConfigMapper {
       }
 
       // the replaced value is null
-      if (index == origValue.length() - 1) return new PSPair(null, true);
-      else return new PSPair(origValue.substring(index + 1), true);
+      if (index == origValue.length() - 1) return new PSPair<>(null, true);
+      else return new PSPair<>(origValue.substring(index + 1), true);
     }
 
-    if (index == origValue.length() - 1) return new PSPair(rValue, true);
-    else return new PSPair(rValue.toString() + origValue.substring(index + 1), true);
+    if (index == origValue.length() - 1) return new PSPair<>(rValue, true);
+    else return new PSPair<>(rValue.toString() + origValue.substring(index + 1), true);
   }
 
   /** The prefix of the place holder */

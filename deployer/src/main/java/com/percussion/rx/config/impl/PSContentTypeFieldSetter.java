@@ -49,7 +49,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.IteratorUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -76,7 +75,11 @@ public class PSContentTypeFieldSetter extends PSSimplePropertySetter {
   public PSContentTypeFieldSetter(PSItemDefinition itemDef, String fieldName) {
     if (!itemDef.isFieldExists(fieldName)) addField(itemDef, fieldName);
 
-    setFieldName(fieldName);
+    // setFieldName is overridable; inline the init here so the constructor never leaks
+    // `this` to a subclass override.
+    if (StringUtils.isBlank(fieldName))
+      throw new IllegalArgumentException("fieldName must not be null or empty.");
+    m_fieldName = strippedFieldName(fieldName);
   }
 
   /**
@@ -197,11 +200,10 @@ public class PSContentTypeFieldSetter extends PSSimplePropertySetter {
   private List<PSPair<String, String>> getControlParams(PSItemDefinition itemDef) {
     PSControlRef control = getControl(itemDef).getFirst();
     List<PSPair<String, String>> result = new ArrayList<>();
-    List<PSParam> params = (List<PSParam>) IteratorUtils.toList(control.getParameters());
-    PSPair<String, String> pair;
-    for (PSParam p : params) {
-      pair = new PSPair<>(p.getName(), p.getValue().getValueText());
-      result.add(pair);
+    Iterator<?> parameters = control.getParameters();
+    while (parameters.hasNext()) {
+      PSParam p = (PSParam) parameters.next();
+      result.add(new PSPair<>(p.getName(), p.getValue().getValueText()));
     }
     return result;
   }
@@ -308,7 +310,7 @@ public class PSContentTypeFieldSetter extends PSSimplePropertySetter {
   private void updateSharedGroup(PSItemDefinition itemDef, String fieldName) {
     PSSharedFieldGroup shGroup = PSContentTypeHelper.getSharedGroup(fieldName);
     PSContentEditorMapper mapper = itemDef.getContentEditorMapper();
-    Iterator includes = mapper.getSharedFieldIncludes();
+    Iterator<?> includes = mapper.getSharedFieldIncludes();
     ArrayList<String> names = new ArrayList<>();
     CollectionUtils.addAll(names, includes);
 
@@ -320,7 +322,7 @@ public class PSContentTypeFieldSetter extends PSSimplePropertySetter {
 
     // update excludes
     ArrayList<String> excNames = new ArrayList<>();
-    Iterator excludes = mapper.getSharedFieldExcludes();
+    Iterator<?> excludes = mapper.getSharedFieldExcludes();
     CollectionUtils.addAll(excNames, excludes);
     for (PSField f : shGroup.getFieldSet().getAllFields()) excNames.add(f.getSubmitName());
 
@@ -370,7 +372,7 @@ public class PSContentTypeFieldSetter extends PSSimplePropertySetter {
    * @param type assumed it is either {@link PSField#TYPE_SYSTEM} or {@link PSField#TYPE_SHARED}
    */
   private void removeFieldFromExcludes(PSItemDefinition itemDef, String fieldName, int type) {
-    Iterator excludes;
+    Iterator<?> excludes;
     ArrayList<String> names = new ArrayList<>();
     if (type == PSField.TYPE_SYSTEM)
       excludes = itemDef.getContentEditorMapper().getSystemFieldExcludes();
@@ -468,7 +470,17 @@ public class PSContentTypeFieldSetter extends PSSimplePropertySetter {
       throw new IllegalArgumentException("fieldName must not be null or empty.");
 
     // get rid of the shared group name (from fieldName) if there is one
-    m_fieldName = PSContentTypeHelper.getSharedFieldName(fieldName)[0];
+    m_fieldName = strippedFieldName(fieldName);
+  }
+
+  /**
+   * Strips the shared group name (if any) from the given field name.
+   *
+   * @param fieldName the field name, assumed not blank.
+   * @return the base field name, never <code>null</code>.
+   */
+  private static String strippedFieldName(String fieldName) {
+    return PSContentTypeHelper.getSharedFieldName(fieldName)[0];
   }
 
   /**
@@ -529,21 +541,20 @@ public class PSContentTypeFieldSetter extends PSSimplePropertySetter {
     PSPair<PSControlRef, PSUISet> pair = getControl(itemDef);
     PSControlRef control = pair.getFirst();
 
-    PSCollection parameters = new PSCollection(PSParam.class);
+    PSCollection<PSParam> parameters = new PSCollection<>(PSParam.class);
 
-    if (params instanceof Map) {
-      Map<String, String> paramMap = (Map<String, String>) params;
-      for (Map.Entry<String, String> entry : paramMap.entrySet()) {
-        PSTextLiteral value = new PSTextLiteral(entry.getValue());
-        PSParam p = new PSParam(entry.getKey(), value);
-        parameters.add(p);
+    if (params instanceof Map<?, ?> paramMap) {
+      for (var entry : paramMap.entrySet()) {
+        var value = new PSTextLiteral((String) entry.getValue());
+        parameters.add(new PSParam((String) entry.getKey(), value));
       }
     } else {
-      List<PSPair<String, String>> pairList = (List<PSPair<String, String>>) params;
-      for (PSPair<String, String> entry : pairList) {
-        PSTextLiteral value = new PSTextLiteral(entry.getSecond());
-        PSParam p = new PSParam(entry.getFirst(), value);
-        parameters.add(p);
+      // Validated as a List by the check above; entries are name/value pairs by construction.
+      var pairList = (List<?>) params;
+      for (var entry : pairList) {
+        var paramPair = (PSPair<?, ?>) entry;
+        var value = new PSTextLiteral((String) paramPair.getSecond());
+        parameters.add(new PSParam((String) paramPair.getFirst(), value));
       }
     }
     control.setParameters(parameters);
@@ -599,7 +610,7 @@ public class PSContentTypeFieldSetter extends PSSimplePropertySetter {
 
     // get all extension the implemented IPSFieldValidator
     IPSExtensionManager mgr = PSServer.getExtensionManager(null);
-    Iterator it =
+    Iterator<PSExtensionRef> it =
         mgr.getExtensionNames(
             null, null, com.percussion.extension.IPSFieldValidator.class.getName(), null);
     List<PSExtensionRef> extensions = new ArrayList<>();
@@ -626,6 +637,9 @@ public class PSContentTypeFieldSetter extends PSSimplePropertySetter {
    * @param itemDef the Content Type contains the current field, assumed not <code>null</code>.
    * @param seqValue the sequence value in String format, may not be <code>null</code> or empty.
    */
+  // PSDisplayMapper inherits raw insertElementAt from legacy-raw PSCollectionComponent
+  // (system module); the element type is PSDisplayMapping by construction.
+  @SuppressWarnings("unchecked")
   private void setSequence(PSItemDefinition itemDef, String seqValue) {
     if (StringUtils.isBlank(seqValue))
       throw new IllegalArgumentException("seqVaule may not be null or empty.");

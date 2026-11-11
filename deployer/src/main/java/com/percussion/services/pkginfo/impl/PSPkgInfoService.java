@@ -309,7 +309,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
     if (result == null) {
       throw new PSNotFoundException(id);
     }
-    return (PSPkgElement) result;
+    return result;
   }
 
   @Override
@@ -329,8 +329,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
     var critRoot = criteria.from(PSPkgDependency.class);
     criteria.where(builder.equal(critRoot.get("ownerPackageGuid"), guid.longValue()));
     var pkgDeps = entityManager.createQuery(criteria).getResultList();
-    return ((List<PSPkgDependency>) pkgDeps)
-        .stream().map(PSPkgDependency::getDependentPackageGuid).collect(Collectors.toList());
+    return pkgDeps.stream().map(PSPkgDependency::getDependentPackageGuid).collect(Collectors.toList());
   }
 
   @Override
@@ -342,8 +341,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
     var critRoot = criteria.from(PSPkgDependency.class);
     criteria.where(builder.equal(critRoot.get("dependentPackageGuid"), guid.longValue()));
     var pkgDeps = entityManager.createQuery(criteria).getResultList();
-    return ((List<PSPkgDependency>) pkgDeps)
-        .stream().map(PSPkgDependency::getOwnerPackageGuid).collect(Collectors.toList());
+    return pkgDeps.stream().map(PSPkgDependency::getOwnerPackageGuid).collect(Collectors.toList());
   }
 
   @Override

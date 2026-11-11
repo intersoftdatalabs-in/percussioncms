@@ -85,8 +85,11 @@ public class PSConfigNormalizer {
       if (prefix != null) {
         tgtMap.put(key, value);
       }
-      if (value instanceof Map) {
-        appendFQNames(tgtMap, key, (Map<String, Object>) value);
+      if (value instanceof Map<?, ?>) {
+        // Nested config maps are String-keyed by construction (see callers).
+        @SuppressWarnings("unchecked")
+        Map<String, Object> nested = (Map<String, Object>) value;
+        appendFQNames(tgtMap, key, nested);
       }
     }
   }

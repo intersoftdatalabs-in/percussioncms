@@ -196,7 +196,7 @@ public class PSDescriptorSummaryReport {
     if ("Custom".equals(dep.getObjectType())) {
       var it = dep.getDependencies();
       if (it != null && it.hasNext()) {
-        return (PSDependency) it.next();
+        return it.next();
       }
     }
     return dep;

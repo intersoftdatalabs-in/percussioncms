@@ -296,8 +296,8 @@ public class PSVariantDefDependencyHandler extends PSDataObjectDependencyHandler
     Integer ver = null;
     if (!isNew) {
       // deserialize on the existing variant
-      ver = ((PSAssemblyTemplate) tmp).getVersion();
-      ((PSAssemblyTemplate) tmp).setVersion(null);
+      ver = tmp.getVersion();
+      tmp.setVersion(null);
     }
 
     IPSDeployService depSvc = PSDeployServiceLocator.getDeployService();

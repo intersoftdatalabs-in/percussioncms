@@ -130,7 +130,7 @@ public class PSConfigMerger {
     if (cfgHandlers == null) throw new IllegalArgumentException("cfgHandlers must not be null");
     var props = new HashMap<String, Object>();
     var cfgExceptions = new ArrayList<Exception>();
-    var result = new PSPair(props, cfgExceptions);
+    PSPair<Map<String, Object>, List<Exception>> result = new PSPair<>(props, cfgExceptions);
     for (var handler : cfgHandlers) {
       try {
         var type = handler.getType();

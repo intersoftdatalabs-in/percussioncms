@@ -40,8 +40,13 @@ public class PSPackageCommunity {
    * @param communities comma-separated list, may be null or empty.
    */
   public PSPackageCommunity(String pkg, String communities) {
-    setPackage(pkg);
-    setCommunities(communities);
+    // Setters are overridable; assign fields directly so the constructor never leaks
+    // `this` to a subclass override (same validation as the setters).
+    if (pkg == null || pkg.trim().isEmpty()) {
+      throw new IllegalArgumentException("pkg must not be blank");
+    }
+    this.pkg = pkg;
+    this.communities = communities == null ? "" : communities;
   }
 
   /**

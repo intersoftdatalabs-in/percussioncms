@@ -119,10 +119,10 @@ public class PSActionSetter extends PSSimplePropertySetter {
           "The type of propValue object is not valid for " + "this setter. Expected type is Map.";
       throwError(msg, null);
     }
+    Map<?, ?> params = (Map<?, ?>) propValue;
     var aps = action.getParameters();
-    var params = (Map<String, String>) propValue;
-    for (var name : params.keySet()) {
-      aps.setParameter(name, params.get(name));
+    for (var entry : params.entrySet()) {
+      aps.setParameter((String) entry.getKey(), (String) entry.getValue());
     }
     // Prepare a delete list by getting current params
     List<PSActionParameter> deleteList = new ArrayList<>();
@@ -170,7 +170,7 @@ public class PSActionSetter extends PSSimplePropertySetter {
     var ctxIter = actionContexts.iterator();
     String avCxtName = "";
     var contexts = getResourceLookupData(VISIBILITY_CONTEXTS_LOOKUP_KEY);
-    Map<String, String> revContexts = (Map<String, String>) getReverseMap(contexts);
+    Map<String, String> revContexts = getReverseMap(contexts);
     initVisibilityContexts();
     List<String> processedContexts = new ArrayList<>();
     while (ctxIter.hasNext()) {
@@ -183,7 +183,7 @@ public class PSActionSetter extends PSSimplePropertySetter {
       Map<String, String> supportedVals = new HashMap<>();
       if (resource != null) supportedVals = getReverseMap(getResourceLookupData(resource));
       while (propsIter.hasNext()) {
-        String val = (String) propsIter.next();
+        String val = propsIter.next();
         String remapped = supportedVals.get(val);
         if (remapped != null) {
           val = remapped;
@@ -219,6 +219,9 @@ public class PSActionSetter extends PSSimplePropertySetter {
     }
     var visContexts = getNormalizedMaps(getResourceLookupData(VISIBILITY_CONTEXTS_LOOKUP_KEY));
     var actionContexts = action.getVisibilityContexts();
+    // Visibility config maps are String-keyed by Spring bean construction; values are Strings
+    // or lists of Strings (validated below).
+    @SuppressWarnings("unchecked")
     var params = (Map<String, Object>) propValue;
     var iter = params.keySet().iterator();
     initVisibilityContexts();
@@ -236,10 +239,15 @@ public class PSActionSetter extends PSSimplePropertySetter {
         Object[] args = {context};
         throwError(msg, args);
       }
-      List<String> valList =
-          values instanceof String
-              ? Collections.singletonList(((String) values))
-              : (List<String>) values;
+      List<String> valList;
+      if (values instanceof String strValue) {
+        valList = Collections.singletonList(strValue);
+      } else {
+        // Non-String visibility values are lists of Strings by config construction.
+        @SuppressWarnings("unchecked")
+        List<String> listValue = (List<String>) values;
+        valList = listValue;
+      }
       var validValues = getValidValues(context, contextVal, valList);
       // Delete the ones that do not exist in the current list
       var cxt = actionContexts.getContext(contextVal);
@@ -341,7 +349,7 @@ public class PSActionSetter extends PSSimplePropertySetter {
    */
   private static Map<String, String> getResourceLookupData(String resource) {
     var data = new HashMap<String, String>();
-    var params = new HashMap();
+    var params = new HashMap<String, Object>();
     try {
       int lookupId = Integer.parseInt(resource);
       params.put(RXLOOKUP_KEY_PARAM, lookupId);
@@ -391,11 +399,10 @@ public class PSActionSetter extends PSSimplePropertySetter {
    * @param map The input map that needs to be reversed, assumed not <code>null</code>.
    * @return Reversed map, never <code>null</code>, may be empty.
    */
-  private Map getReverseMap(Map<String, String> map) {
+  private Map<String, String> getReverseMap(Map<String, String> map) {
     var revMap = new HashMap<String, String>();
-    for (var entryObj : map.entrySet()) {
-      var entry = (Map.Entry) entryObj;
-      revMap.put((String) entry.getValue(), (String) entry.getKey());
+    for (var entry : map.entrySet()) {
+      revMap.put(entry.getValue(), entry.getKey());
     }
     return revMap;
   }

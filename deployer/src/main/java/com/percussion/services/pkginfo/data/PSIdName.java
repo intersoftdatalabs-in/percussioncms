@@ -40,6 +40,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table(name = "PSX_ID_NAME")
 public class PSIdName implements Serializable {
 
+  /** Serialization id. */
+  private static final long serialVersionUID = 1L;
+
   /** Unique identifier for this entry is the user-readable representation of a GUID. */
   @Id
   @Column(name = "DEP_ID", nullable = false)

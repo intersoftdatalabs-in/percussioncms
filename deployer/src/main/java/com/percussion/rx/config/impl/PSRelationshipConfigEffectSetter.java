@@ -19,6 +19,7 @@ package com.percussion.rx.config.impl;
 import com.percussion.design.objectstore.PSConditionalEffect;
 import com.percussion.design.objectstore.PSExtensionCall;
 import com.percussion.design.objectstore.PSRelationshipConfig;
+import com.percussion.design.objectstore.PSRule;
 import com.percussion.rx.config.IPSConfigHandler.ObjectState;
 import com.percussion.rx.config.PSConfigException;
 import com.percussion.rx.config.PSConfigValidation;
@@ -170,7 +171,7 @@ public class PSRelationshipConfigEffectSetter extends PSPropertySetterWithValida
 
   private List<Map<String, Object>> getEffectProperty(PSRelationshipConfig relConfig) {
     List<Map<String, Object>> effects = new ArrayList<>();
-    Iterator iter = relConfig.getEffects();
+    Iterator<?> iter = relConfig.getEffects();
     while (iter.hasNext()) {
       PSConditionalEffect effect = (PSConditionalEffect) iter.next();
       effects.add(getEffectPropertyDef(effect));
@@ -190,7 +191,7 @@ public class PSRelationshipConfigEffectSetter extends PSPropertySetterWithValida
 
     // Direction prop
     String endPoint = effect.getActivationEndPoint();
-    String direction = (String) PSConfigUtils.getReverseMap(ms_directionConsts).get(endPoint);
+    String direction = PSConfigUtils.getReverseMap(ms_directionConsts).get(endPoint);
     efPropDef.put(PROP_DIRECTION, direction);
 
     // Extension prop
@@ -210,7 +211,7 @@ public class PSRelationshipConfigEffectSetter extends PSPropertySetterWithValida
    * @param propValue assumed not <code>null</code>.
    */
   private void removeEffects(PSRelationshipConfig relConfig, Object propValue) {
-    Iterator iter = relConfig.getEffects();
+    Iterator<?> iter = relConfig.getEffects();
     List<PSConditionalEffect> curEffects = new ArrayList<>();
     while (iter.hasNext()) {
       curEffects.add((PSConditionalEffect) iter.next());
@@ -229,7 +230,7 @@ public class PSRelationshipConfigEffectSetter extends PSPropertySetterWithValida
   private void mergeEffects(
       PSRelationshipConfig relConfig, Object propValue, Object prevPropValue) {
     if (propValue == null && prevPropValue == null) return;
-    Iterator iter = relConfig.getEffects();
+    Iterator<?> iter = relConfig.getEffects();
     List<PSConditionalEffect> curEffects = new ArrayList<>();
     while (iter.hasNext()) {
       curEffects.add((PSConditionalEffect) iter.next());
@@ -301,6 +302,8 @@ public class PSRelationshipConfigEffectSetter extends PSPropertySetterWithValida
     if (propValue == null) return effects;
     if (!(propValue instanceof List))
       throw new PSConfigException("The type of the propValue must be \"List\"");
+    // Effect configs are String-keyed maps by Spring bean construction.
+    @SuppressWarnings("unchecked")
     List<Map<String, Object>> tempMaps = (List<Map<String, Object>>) propValue;
     for (Map<String, Object> map : tempMaps) {
       PSConditionalEffect effect = createEffect(map);
@@ -319,6 +322,8 @@ public class PSRelationshipConfigEffectSetter extends PSPropertySetterWithValida
   private PSConditionalEffect createEffect(Map<String, Object> map) {
     String extension = (String) map.get(PROP_EXTENSION);
     String direction = (String) map.get(PROP_DIRECTION);
+    // Execution-context and extension params are lists of Strings by config construction.
+    @SuppressWarnings("unchecked")
     List<String> execContext = (List<String>) map.get(PROP_EXECUTION_CONTEXT);
     Object condition = map.get(PROP_CONDITION);
     if (StringUtils.isBlank(extension)) {
@@ -330,6 +335,8 @@ public class PSRelationshipConfigEffectSetter extends PSPropertySetterWithValida
     }
 
     List<Integer> execCtxts = getExecutionContexts(execContext);
+    // Extension params are Strings by config construction (see above).
+    @SuppressWarnings("unchecked")
     List<String> extParams = (List<String>) map.get("extensionParams");
     PSExtensionCall extCall =
         PSConfigUtils.createExtensionCall(
@@ -346,7 +353,7 @@ public class PSRelationshipConfigEffectSetter extends PSPropertySetterWithValida
     effect.setActivationEndPoint(endPoint);
     effect.setExecutionContexts(execCtxts);
     if (condition != null) {
-      PSCollection conds = PSConfigUtils.prepareConditions(condition);
+      PSCollection<PSRule> conds = PSConfigUtils.prepareConditions(condition);
       effect.setConditions(conds.iterator());
     }
     return effect;

@@ -110,13 +110,17 @@ public class PSRelationshipConfigSetter extends PSSimplePropertySetter {
     }
   }
 
+  // Field-override configs are String-keyed maps by Spring bean construction, and
+  // PSCloneOverrideFieldList inherits raw add(E) from legacy-raw PSCollectionComponent
+  // (system module).
+  @SuppressWarnings("unchecked")
   private void setCloneFieldOverrides(PSRelationshipConfig relConfig, Object propValue) {
     if (!(propValue instanceof List))
       throw new IllegalArgumentException(
           PROP_FIELDOVERRIDES + " property value must be a List type");
-    var tempMap = (List<Map<String, Object>>) propValue;
+    var tempMaps = (List<Map<String, Object>>) propValue;
     var cofList = new PSCloneOverrideFieldList();
-    for (var map : tempMap) {
+    for (var map : tempMaps) {
       var fieldName = (String) map.get(PROP_FIELDNAME);
       if (StringUtils.isBlank(fieldName)) {
         throw new PSConfigException(
@@ -152,7 +156,7 @@ public class PSRelationshipConfigSetter extends PSSimplePropertySetter {
     if (iter.hasNext()) {
       var cond = (PSRule) iter.next();
       var trueCcond = PSConfigUtils.createBooleanCondition(true);
-      var condRules = new PSCollection(PSConditional.class);
+      PSCollection<PSConditional> condRules = new PSCollection<>(PSConditional.class);
       condRules.add(trueCcond);
       var trueRule = new PSRule(condRules);
       if (cond.equals(trueRule)) {
@@ -161,7 +165,7 @@ public class PSRelationshipConfigSetter extends PSSimplePropertySetter {
         result.put(PROP_ENABLED, Boolean.FALSE);
       }
     }
-    var conditions = new PSCollection(PSConditional.class);
+    var conditions = new PSCollection<>(PSConditional.class);
     while (iter.hasNext()) {
       conditions.add((PSConditional) iter.next());
     }
@@ -198,6 +202,8 @@ public class PSRelationshipConfigSetter extends PSSimplePropertySetter {
       PSRelationshipConfig relConfig, Object cloningPropValue, boolean isShallow) {
     if (!(cloningPropValue instanceof Map))
       throw new PSConfigException("cloningPropValue must be a \"Map\" type");
+    // Cloning property configs are String-keyed maps by Spring bean construction.
+    @SuppressWarnings("unchecked")
     var map = (Map<String, Object>) cloningPropValue;
 
     var enabled = (String) map.get(PROP_ENABLED);
@@ -212,10 +218,10 @@ public class PSRelationshipConfigSetter extends PSSimplePropertySetter {
     var prCheck = relConfig.getProcessCheck(cloneName);
     var enFlag = Boolean.valueOf(enabled);
     var cond = PSConfigUtils.createBooleanCondition(enFlag);
-    var condRules = new PSCollection(PSConditional.class);
+    PSCollection<PSConditional> condRules = new PSCollection<>(PSConditional.class);
     condRules.add(cond);
     var rule = new PSRule(condRules);
-    var rules = new PSCollection(PSRule.class);
+    PSCollection<PSRule> rules = new PSCollection<>(PSRule.class);
     rules.add(rule);
     // If enabled and conditions are not null then add the conditions.
     if (enFlag && condition != null) {
