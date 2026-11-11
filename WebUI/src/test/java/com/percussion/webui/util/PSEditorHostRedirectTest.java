@@ -76,6 +76,24 @@ public class PSEditorHostRedirectTest {
   }
 
   @Test
+  public void retiredWorkflowAdminJspsMatchAppAndPagesTrees() {
+    // #6095 FR-002: five legacy hosts retired from both product trees.
+    String[] hosts = {
+      "adminworkflow.jsp", "percworkflow.jsp", "percroles.jsp", "percusers.jsp", "perccategories.jsp"
+    };
+    for (String host : hosts) {
+      assertTrue(PSEditorHostRedirect.isRetiredWorkflowAdminJsp("/cm/app/" + host));
+      assertTrue(PSEditorHostRedirect.isRetiredWorkflowAdminJsp("/cm/pages/app/" + host));
+      assertTrue(PSEditorHostRedirect.isRetiredWorkflowAdminJsp("/rhythmyx/cm/app/" + host));
+    }
+    assertFalse(PSEditorHostRedirect.isRetiredWorkflowAdminJsp("/cm/app/admin.jsp"));
+    assertFalse(PSEditorHostRedirect.isRetiredWorkflowAdminJsp("/cm/app/webmgt.jsp"));
+    assertFalse(PSEditorHostRedirect.isRetiredWorkflowAdminJsp("/cm/app-adminworkflow.jsp"));
+    assertFalse(PSEditorHostRedirect.isRetiredWorkflowAdminJsp("/cm/foo/percusers.jsp"));
+    assertFalse(PSEditorHostRedirect.isRetiredWorkflowAdminJsp(null));
+  }
+
+  @Test
   public void spaRedirectForwardsLinkbackWarningWithoutLegacySiteHints() {
     String loc =
         PSEditorHostRedirect.buildSpaRedirect(

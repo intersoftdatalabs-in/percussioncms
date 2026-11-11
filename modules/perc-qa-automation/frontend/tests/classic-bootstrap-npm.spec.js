@@ -146,40 +146,6 @@ test.describe("Classic-UI Bootstrap 5 from npm (issue #5661)", () => {
     },
   );
 
-  test(
-    "adminWorkflow loads npm Bootstrap with zero jslib 404s @ui",
-    { tag: ["@classic-ui", "@ui"] },
-    async ({ page }) => {
-      test.setTimeout(120_000);
-      const failedRequests = [];
-      page.on("requestfailed", (req) => {
-        if (req.url().includes("/cm/jslib/")) {
-          failedRequests.push(`${req.url()} :: ${req.failure()?.errorText}`);
-        }
-      });
-      page.on("response", (resp) => {
-        if (resp.status() >= 400 && resp.url().includes("/cm/jslib/")) {
-          failedRequests.push(`${resp.url()} :: HTTP ${resp.status()}`);
-        }
-      });
-
-      await loginAsAdmin(page);
-      await page.goto(`${BASE_URL}/Rhythmyx/cm/app/adminWorkflow.jsp`, {
-        waitUntil: "networkidle",
-      });
-
-      const bootstrap = await page.evaluate(
-        () =>
-          typeof window.bootstrap === "object" &&
-          window.bootstrap !== null &&
-          typeof window.bootstrap.Modal === "function",
-      );
-      expect(bootstrap, "npm Bootstrap 5 missing on adminWorkflow").toBe(true);
-
-      expect(
-        failedRequests,
-        `failed jslib requests:\n${failedRequests.join("\n")}`,
-      ).toEqual([]);
-    },
-  );
+  // #6095 FR-002: legacy adminWorkflow.jsp host retired (301 to SPA Admin);
+  // classic Bootstrap page-load coverage remains on dashboard.jsp above.
 });

@@ -183,7 +183,8 @@ public class PSWebUiSpaFallbackFilter implements Filter {
   }
 
   /**
-   * 301 Location for retired classic JSP bookmarks (#3587 Architecture, #3473 editAsset).
+   * 301 Location for retired classic JSP bookmarks (#3587 Architecture, #3473 editAsset, #6095
+   * legacy workflow/admin hosts).
    *
    * <p>The JSP hosts are no longer in the WAR. Bookmarks still land on the SPA via {@link
    * PSLegacyViewRedirect}. Other JSPs return {@code null} (pass through).
@@ -204,6 +205,9 @@ public class PSWebUiSpaFallbackFilter implements Filter {
     if (PSEditorHostRedirect.isRetiredEditAssetJsp(lower)) {
       return PSLegacyViewRedirect.buildLocation("editor", queryString);
     }
+    if (PSEditorHostRedirect.isRetiredWorkflowAdminJsp(lower)) {
+      return PSLegacyViewRedirect.buildLocation("admin", queryString);
+    }
     return null;
   }
 
@@ -214,6 +218,15 @@ public class PSWebUiSpaFallbackFilter implements Filter {
    */
   static boolean isRetiredArchitectureJsp(String lowerPath) {
     return PSEditorHostRedirect.isRetiredArchitectureJsp(lowerPath);
+  }
+
+  /**
+   * True when {@code lowerPath} is a retired legacy workflow/admin host JSP (#6095, FR-002).
+   * Accepts an optional leading context prefix such as {@code /rhythmyx} when {@link
+   * #pathWithinContext(HttpServletRequest)} could not strip it.
+   */
+  static boolean isRetiredWorkflowAdminJsp(String lowerPath) {
+    return PSEditorHostRedirect.isRetiredWorkflowAdminJsp(lowerPath);
   }
 
   /**

@@ -213,6 +213,51 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
     expect(filter).toContain("isRetiredEditAssetJsp");
   });
 
+  it("legacy workflow/admin JSP hosts are retired; filter+servlet keep bookmark 301 (#6095)", () => {
+    // FR-002 React-only mandate: five legacy hosts removed from the distribution.
+    const retired = [
+      "adminWorkflow.jsp",
+      "percWorkflow.jsp",
+      "percRoles.jsp",
+      "percUsers.jsp",
+      "percCategories.jsp",
+    ];
+    for (const file of retired) {
+      const hosts = [
+        resolve(webappRoot, `cm/app/${file}`),
+        resolve(webappRoot, `cm/pages/app/${file}`),
+      ];
+      for (const jsp of hosts) {
+        expect(existsSync(jsp), jsp).toBe(false);
+      }
+      expect(
+        existsSync(resolve(__dirname, `../../../../war/app/${file}`)),
+        `war/app/${file}`,
+      ).toBe(false);
+    }
+    const filter = read(
+      resolve(
+        __dirname,
+        "../../../main/java/com/percussion/webui/filter/PSWebUiSpaFallbackFilter.java",
+      ),
+    );
+    expect(filter).toContain("isRetiredWorkflowAdminJsp");
+    const redirect = read(
+      resolve(
+        __dirname,
+        "../../../main/java/com/percussion/webui/util/PSEditorHostRedirect.java",
+      ),
+    );
+    expect(redirect).toContain("isRetiredWorkflowAdminJsp");
+    const webXml = read(resolve(webappRoot, "WEB-INF/web.xml"));
+    expect(webXml).toContain("PSRetiredWorkflowAdminRedirect");
+    for (const file of retired) {
+      expect(webXml).toContain(`/cm/app/${file}`);
+      expect(webXml).toContain(`/cm/pages/app/${file}`);
+    }
+    expect(webXml).toContain("<param-value>admin</param-value>");
+  });
+
   it("does not pack retired perc_architecture bundles (#3099)", () => {
     const bundles = resolve(
       __dirname,

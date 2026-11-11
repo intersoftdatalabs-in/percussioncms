@@ -519,7 +519,7 @@ const STANDALONE_NPM_COPIES = [
     required: true,
   },
   // Bootstrap 5 from npm (issue #5661): classic pages load bootstrap from
-  // these stable jslib URLs (common_js.jsp, adminWorkflow.jsp, test/logs.jsp).
+  // these stable jslib URLs (common_js.jsp, dashboard.jsp, test/logs.jsp).
   // The vendored 4.6.2 copies were deleted, so every entry is required.
   {
     src: "bootstrap/dist/js/bootstrap.bundle.js",

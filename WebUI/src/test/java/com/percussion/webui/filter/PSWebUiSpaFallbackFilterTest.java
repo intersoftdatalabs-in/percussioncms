@@ -17,6 +17,7 @@
 package com.percussion.webui.filter;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
@@ -179,6 +180,40 @@ public class PSWebUiSpaFallbackFilterTest {
     assertEquals(
         "/Rhythmyx/cm/app/?view=editor",
         PSWebUiSpaFallbackFilter.withContextPath("/Rhythmyx", "/cm/app/?view=editor"));
+  }
+
+  @Test
+  public void retiredWorkflowAdminJspsRedirectToAdminView() {
+    // #6095 FR-002: all five legacy hosts (app + pages trees) land on SPA Admin.
+    String[] hosts = {
+      "adminWorkflow.jsp", "percWorkflow.jsp", "percRoles.jsp", "percUsers.jsp", "percCategories.jsp"
+    };
+    for (String host : hosts) {
+      assertEquals(
+          "/cm/app/?view=admin",
+          PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation("/cm/app/" + host, null));
+      assertEquals(
+          "/cm/app/?view=admin",
+          PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+              "/cm/pages/app/" + host, ""));
+      assertEquals(
+          "/cm/app/?view=admin",
+          PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+              "/Rhythmyx/cm/app/" + host, null));
+      assertTrue(
+          PSWebUiSpaFallbackFilter.isRetiredWorkflowAdminJsp(("/cm/app/" + host).toLowerCase()));
+      assertTrue(
+          PSWebUiSpaFallbackFilter.isRetiredWorkflowAdminJsp(
+              ("/cm/pages/app/" + host).toLowerCase()));
+    }
+    // Untouched hosts still pass through; near-miss names are not false positives.
+    assertNull(
+        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation("/cm/app/admin.jsp", null));
+    assertNull(
+        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+            "/cm/app/adminWorkflow.jspx", null));
+    assertFalse(PSWebUiSpaFallbackFilter.isRetiredWorkflowAdminJsp("/cm/app/admin.jsp"));
+    assertFalse(PSWebUiSpaFallbackFilter.isRetiredWorkflowAdminJsp(null));
   }
 
   @Test
