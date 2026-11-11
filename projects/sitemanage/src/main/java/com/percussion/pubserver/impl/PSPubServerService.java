@@ -489,8 +489,8 @@ public class PSPubServerService implements IPSPubServerService {
   /**
    * Route a partial PUT body to its matching *-only updater. Returns the updater result, or {@code
    * null} when no partial shape matches and the caller must run the full property replace. Group
-   * order preserves the original inline chain: identity, host, port/user, database, S3, secrets,
-   * then folder.
+   * order preserves the original inline chain: identity, host, port/user, database, database
+   * connection triple, S3, secrets, then folder.
    */
   private PSPublishServerInfo dispatchPartialUpdate(
       String siteId, String serverId, PSPublishServerInfo pubServerInfo)
@@ -508,6 +508,10 @@ public class PSPubServerService implements IPSPubServerService {
       return partial;
     }
     partial = dispatchDatabaseOnlyUpdate(siteId, serverId, pubServerInfo);
+    if (partial != null) {
+      return partial;
+    }
+    partial = dispatchDatabaseConnectionOnlyUpdate(siteId, serverId, pubServerInfo);
     if (partial != null) {
       return partial;
     }
@@ -603,6 +607,24 @@ public class PSPubServerService implements IPSPubServerService {
     }
     if (PSDatabaseDeliveryOwnerUpdate.isOwnerOnly(pubServerInfo)) {
       return updateMssqlOwnerOnly(siteId, serverId, pubServerInfo);
+    }
+    return null;
+  }
+
+  /**
+   * Database host/user-id/password connection-triple PUT. The single secret value is
+   * base64-decoded before apply (product norm); the host and user id travel plain. None of the
+   * three may be blank or the masked placeholder, and no other property may change. Neither may
+   * this run the full property replace. The response masks the stored secret as {@code
+   * passwordEntry} via {@code toPSPublishServerInfo}.
+   *
+   * @return the updater result, or {@code null} when the body is not a connection-only PUT.
+   */
+  private PSPublishServerInfo dispatchDatabaseConnectionOnlyUpdate(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    if (PSDatabaseDeliveryConnectionUpdate.isConnectionOnly(pubServerInfo)) {
+      return updateDatabaseConnectionOnly(siteId, serverId, pubServerInfo);
     }
     return null;
   }
@@ -825,6 +847,34 @@ public class PSPubServerService implements IPSPubServerService {
           "The server you are trying to act on no longer exists in the system.");
     }
     PSDatabaseDeliveryHostUpdate.apply(server, pubServerInfo);
+    pubServerDao.savePubServer(server);
+    return toPSPublishServerInfo(server, site, true);
+  }
+
+  /**
+   * Save the database {@code server}, {@code userid}, and {@code password} connection triple.
+   * Does not rename the server or replace the property set. Blank or overlong host, user id, or
+   * password, the masked placeholder, and non-database drivers throw before {@code
+   * savePubServer}. The stored secret is never echoed: the response masks it as {@code
+   * passwordEntry} via {@code toPSPublishServerInfo}.
+   */
+  private PSPublishServerInfo updateDatabaseConnectionOnly(
+      String siteId, String serverId, PSPublishServerInfo pubServerInfo)
+      throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
+    convertPasswordFromBase64(pubServerInfo);
+    IPSSite site = siteMgr.findSite(getSiteGuid(siteId));
+    PSPubServer server;
+    try {
+      server = pubServerDao.loadPubServerModifiable(getPubServerGuid(serverId));
+    } catch (Exception ex) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.", ex);
+    }
+    if (server == null) {
+      throw new PSPubServerServiceException(
+          "The server you are trying to act on no longer exists in the system.");
+    }
+    PSDatabaseDeliveryConnectionUpdate.apply(server, pubServerInfo);
     pubServerDao.savePubServer(server);
     return toPSPublishServerInfo(server, site, true);
   }
