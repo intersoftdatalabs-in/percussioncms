@@ -104,6 +104,8 @@ class PSPipelineXslLegacyParityTest {
 
   @BeforeEach
   void setUp() throws Exception {
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6070,
+    // same as PSPipelineRuntimeServiceTest) — H2 JDBC URL, not an OS path.
     jdbcUrl = "jdbc:h2:mem:pipeline_legacy_" + System.nanoTime() + ";DB_CLOSE_DELAY=-1";
     try (Connection c = DriverManager.getConnection(jdbcUrl);
         Statement st = c.createStatement()) {
