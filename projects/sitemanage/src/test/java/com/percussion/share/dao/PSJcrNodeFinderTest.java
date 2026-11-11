@@ -20,8 +20,12 @@ package com.percussion.share.dao;
 import static com.percussion.test.TestAssertions.*;
 
 import com.percussion.services.contentmgr.IPSContentMgr;
+import com.percussion.services.contentmgr.IPSNode;
 import java.util.Map;
 import java.util.TreeMap;
+import javax.jcr.NodeIterator;
+import javax.jcr.query.Query;
+import javax.jcr.query.QueryResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -66,5 +70,43 @@ public class PSJcrNodeFinderTest {
         "select rx:sys_contentid, rx:sys_folderid, jcr:path from ct where rx:field1 = 'value1'"
             + " and rx:field2 = 'value2'";
     assertEquals(expected, actual, "Jcr query: ");
+  }
+
+  private QueryResult singleNodeResult(IPSNode node) throws Exception {
+    QueryResult qr = Mockito.mock(QueryResult.class);
+    NodeIterator nodes = Mockito.mock(NodeIterator.class);
+    if (node == null) {
+      Mockito.when(nodes.hasNext()).thenReturn(false);
+    } else {
+      Mockito.when(nodes.hasNext()).thenReturn(true, false);
+      Mockito.when(nodes.nextNode()).thenReturn(node);
+    }
+    Mockito.when(qr.getNodes()).thenReturn(nodes);
+    Query q = Mockito.mock(Query.class);
+    Mockito.when(cm.createQuery(Mockito.anyString(), Mockito.eq(Query.SQL))).thenReturn(q);
+    Mockito.when(cm.executeQuery(Mockito.eq(q), Mockito.anyInt(), Mockito.isNull(), Mockito.isNull()))
+        .thenReturn(qr);
+    return qr;
+  }
+
+  /**
+   * 987 T035: the folder+id finder path must keep resolving nodes by identity
+   * field after the JCR 2.0 migration (finder itself carries no JCR identity
+   * calls, so this pins the path end-to-end against the migrated
+   * content-manager query surface).
+   */
+  @Test
+  void shouldFindSingleNodeByFolderAndId() throws Exception {
+    IPSNode node = Mockito.mock(IPSNode.class);
+    singleNodeResult(node);
+
+    assertEquals(node, nodeFinder.find("//folderpath", "my-id"));
+  }
+
+  @Test
+  void shouldReturnNullWhenNoNodeFound() throws Exception {
+    singleNodeResult(null);
+
+    assertEquals(null, nodeFinder.find("//folderpath", "missing-id"));
   }
 }
