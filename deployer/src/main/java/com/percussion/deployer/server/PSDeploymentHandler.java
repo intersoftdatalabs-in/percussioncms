@@ -107,6 +107,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Constructor;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -386,7 +387,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
    * @return the directory path, never <code>null</code> or empty.
    */
   public static String getValidationDir() {
-    return PSServer.getRxDir() + "/" + VALIDATION_RESULTS_DIR;
+    return resolveRxPath(PSServer.getRxDir(), VALIDATION_RESULTS_DIR).toString();
   }
 
   /**
@@ -611,9 +612,12 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
         fw.flush();
 
         File xsdFile =
-            new File(
-                PSServer.getRxDir(),
-                IPSDeployConstants.DEPLOYMENT_ROOT + "/schema/localConfig.xsd");
+            resolveRxPath(
+                    PSServer.getRxDir(),
+                    IPSDeployConstants.DEPLOYMENT_ROOT,
+                    "schema",
+                    "localConfig.xsd")
+                .toFile();
         List<Exception> errors = new ArrayList<>();
         boolean isValid = PSXmlValidator.validateXmlAgainstSchema(tempFile, xsdFile, errors);
 
@@ -1704,8 +1708,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
                 req, PSAppPolicySettings.class, PSAppPolicySettings.XML_NODE_NAME);
 
     saveComponentToFile(
-        POLICY_SETTINGS_FILE,
-        new File(PSServer.getRxDir().getAbsolutePath() + "/" + OBJECTSTORE_DIR),
+        POLICY_SETTINGS_FILE, resolveRxPath(PSServer.getRxDir(), OBJECTSTORE_DIR).toFile(),
         policySettings);
 
     Document respDoc = PSXmlDocumentBuilder.createXmlDocument();
@@ -3386,51 +3389,68 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
   }
 
   /** Directory below the server directory containing all objectstore files. */
-  public static final String OBJECTSTORE_DIR = IPSDeployConstants.SERVER_DIR + "/objectstore";
+  public static final String OBJECTSTORE_DIR =
+      IPSDeployConstants.SERVER_DIR + File.separator + "objectstore";
+
+  /**
+   * Resolves deployment path segments below the given Rx root using portable path APIs. Each
+   * segment may itself contain {@code /} or {@code \} separators (as the legacy {@code
+   * IPSDeployConstants} fragments do); those are split so the result is normalized on every
+   * platform. Package-private for unit testing.
+   *
+   * @param rxDir the Rx install root, never {@code null}.
+   * @param segments path segments below the root.
+   * @return the resolved path, never {@code null}.
+   */
+  static Path resolveRxPath(File rxDir, String... segments) {
+    Path path = rxDir.toPath();
+    for (String segment : segments) {
+      for (String part : segment.split("[/\\\\]")) {
+        if (!part.isEmpty()) {
+          path = path.resolve(part);
+        }
+      }
+    }
+    return path;
+  }
 
   /** Directory below the objectstore directory containing all DbmsMap files. */
   public static final File DBMSMAP_DIR =
-      new File(PSServer.getRxDir().getAbsolutePath() + "/" + OBJECTSTORE_DIR, "DbmsMap");
+      resolveRxPath(PSServer.getRxDir(), OBJECTSTORE_DIR, "DbmsMap").toFile();
 
   /** Directory below the SERVER directory containing all config files. */
   public static final File CFG_DIR =
-      new File(PSServer.getRxDir().getAbsolutePath() + "/" + IPSDeployConstants.SERVER_DIR, "cfg");
+      resolveRxPath(PSServer.getRxDir(), IPSDeployConstants.SERVER_DIR, "cfg").toFile();
 
   /** Directory below the objectstore directory containing all export descriptors. */
   public static final File EXPORT_DESC_DIR =
-      new File(PSServer.getRxDir().getAbsolutePath() + "/" + OBJECTSTORE_DIR, "ExportDescriptors");
+      resolveRxPath(PSServer.getRxDir(), OBJECTSTORE_DIR, "ExportDescriptors").toFile();
 
   /** Directory below the server directory containing all temporary export archive files. */
   public static final String EXPORT_ARCHIVE_DIR =
-      PSServer.getRxDir().getAbsolutePath()
-          + "/"
-          + IPSDeployConstants.SERVER_DIR
-          + "/ExportArchives";
+      resolveRxPath(PSServer.getRxDir(), IPSDeployConstants.SERVER_DIR, "ExportArchives")
+          .toString();
 
   /** Directory below the server directory containing all archive files. */
   public static final String IMPORT_ARCHIVE_DIR =
-      PSServer.getRxDir().getAbsolutePath()
-          + "/"
-          + IPSDeployConstants.SERVER_DIR
-          + "/ImportArchives";
+      resolveRxPath(PSServer.getRxDir(), IPSDeployConstants.SERVER_DIR, "ImportArchives")
+          .toString();
 
   /** Directory below the server directory containing all temp config files. */
   public static final String TEMP_CONFIG_DIR =
-      PSServer.getRxDir().getAbsolutePath() + "/" + IPSDeployConstants.SERVER_DIR + "/TempConfigs";
+      resolveRxPath(PSServer.getRxDir(), IPSDeployConstants.SERVER_DIR, "TempConfigs").toString();
 
   /** Directory below the objectstore directory containing all idTypes files. */
   public static final File IDTYPE_DIR =
-      new File(PSServer.getRxDir().getAbsolutePath() + "/" + OBJECTSTORE_DIR, "IdTypes");
+      resolveRxPath(PSServer.getRxDir(), OBJECTSTORE_DIR, "IdTypes").toFile();
 
   /** The <code>File</code> object for policy settings. */
   public static final File POLICY_SETTINGS_FILE =
-      new File(
-          PSServer.getRxDir().getAbsolutePath() + "/" + OBJECTSTORE_DIR,
-          "DeploymentPolicySettings.xml");
+      resolveRxPath(PSServer.getRxDir(), OBJECTSTORE_DIR, "DeploymentPolicySettings.xml").toFile();
 
   /** Directory below the server directory containing all validation results. */
   public static final String VALIDATION_RESULTS_DIR =
-      IPSDeployConstants.SERVER_DIR + "/ValidationResults";
+      IPSDeployConstants.SERVER_DIR + File.separator + "ValidationResults";
 
   /**
    * Mutex preventing concurrent access to a critical section by having threads synchronize on it.
