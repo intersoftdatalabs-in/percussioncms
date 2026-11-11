@@ -41,9 +41,9 @@
 - [x] T013 [US1] Implement best-effort recursive delete with per-path failure capture (warn-and-continue) in `ObsoleteInstallDirCleaner.java`
 - [x] T014 [US1] Wire upgrade early cleanup orchestration in `modules/perc-distribution-tree/src/main/java/com/percussion/preinstall/Main.java`: detect upgrade, list candidates, if prompt required then prompt, else skip when no candidates; log outcomes; never abort Main solely on cleanup failure
 - [x] T015 [US1] Run cleaner unit tests + `MainExtractExecutableTest` (if still applicable) via `./mvnw -pl modules/perc-distribution-tree test -Dtest=ObsoleteInstallDirCleanerTest,MainExtractExecutableTest -Dai.integrity.skip=true`
-- [ ] T016 [US1] Commit US1 changes and open PR; pause for review
-- [ ] T017 [US1] Monitor CI/Kilo; address feedback; reply+resolve review threads per `AGENTS.md`
-- [ ] T018 [US1] Verify merge before US2 (or continue on same PR stack if team prefers single PR — still complete review gates)
+- [x] T016 [US1] Commit US1 changes and open PR; pause for review — verified merged via PR #1299 (merged 2026-07-16; single-PR ship)
+- [x] T017 [US1] Monitor CI/Kilo; address feedback; reply+resolve review threads per `AGENTS.md` — verified merged via PR #1299 (merged 2026-07-16; APPROVED, zero review threads)
+- [x] T018 [US1] Verify merge before US2 (or continue on same PR stack if team prefers single PR — still complete review gates) — verified merged via PR #1299 (merged 2026-07-16)
 
 ## Phase 4: User Story 2 — Automated flag `--clean-install-dir` (Priority: P1)
 
@@ -60,7 +60,7 @@
 - [x] T021 [US2] Parse `--clean-install-dir` from `DbInstallConfigResolver.parseArgs` options in Main (and optional `-Dclean.install.dir` system property if documented); default false
 - [x] T022 [US2] Implement `shouldProceedWithoutPrompt` / decision matrix in `ObsoleteInstallDirCleaner.java` per contracts/cleanup-cli.md (flag wins over TTY)
 - [x] T023 [US2] Ensure new-install path (no upgrade markers) is no-op even if flag true
-- [ ] T024 [US2] Run unit tests; commit US2; PR/review/merge gate as for US1
+- [x] T024 [US2] Run unit tests; commit US2; PR/review/merge gate as for US1 — verified merged via PR #1299 (merged 2026-07-16; single-PR ship)
 
 ## Phase 5: User Story 3 — Full MVP path list + JBoss eligibility (Priority: P1)
 
@@ -78,7 +78,7 @@
 - [x] T028 [US3] Encode MVP relative names and JBoss eligibility rules from `specs/007-clean-install-dir/contracts/obsolete-paths.md` into `ObsoleteInstallDirCleaner.java`
 - [x] T029 [US3] Hard-exclude known live roots (never list `jetty`, `rxconfig`, `ObjectStore`, `Repository`, etc.) in candidate discovery
 - [x] T030 [US3] Update or annotate `modules/perc-distribution-tree/src/main/resources/distribution/rxconfig/Installer/remove_PercussionInstallation.xml` so it does not double-delete or conflict (no-op note or remove TODO that implies incomplete product behavior)
-- [ ] T031 [US3] Run full cleaner tests; commit US3; PR/review gate
+- [x] T031 [US3] Run full cleaner tests; commit US3; PR/review gate — verified merged via PR #1299 (merged 2026-07-16; single-PR ship)
 
 ## Phase 6: User Story 4 — Operator-visible cleanup reporting (Priority: P2)
 
@@ -93,7 +93,7 @@
 
 - [x] T033 [US4] Implement `formatCleanupReport(CleanupResult)` (or equivalent) and print via `System.out` / log from Main after cleanup decision
 - [x] T034 [US4] When candidates found but flag false and non-interactive, emit advisory that dirs were left and how to enable `--clean-install-dir`
-- [ ] T035 [US4] Run tests; commit US4; PR/review gate
+- [x] T035 [US4] Run tests; commit US4; PR/review gate — verified merged via PR #1299 (merged 2026-07-16; single-PR ship)
 
 ## Phase 7: Polish & Cross-Cutting Concerns
 
@@ -101,7 +101,7 @@
 - [x] T037 [P] Security pass: symlink escape, path confinement, refuse delete outside install root (tests already cover; re-read cleaner)
 - [x] T038 Walk [quickstart.md](quickstart.md) scenarios 1–5 against implementation; fix gaps
 - [x] T039 Full module test: `./mvnw -pl modules/perc-distribution-tree test -Dtest=ObsoleteInstallDirCleanerTest,MainExtractExecutableTest,MainInstallExitCodeTest -Dai.integrity.skip=true`
-- [ ] T040 Final PR polish commits if needed; resolve all review threads before merge
+- [x] T040 Final PR polish commits if needed; resolve all review threads before merge — verified merged via PR #1299 (merged 2026-07-16; zero review threads)
 
 ---
 
