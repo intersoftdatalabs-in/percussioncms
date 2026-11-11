@@ -6,14 +6,61 @@ import React, { useEffect, useMemo, useState } from "react";
 import { listWorkflows } from "../api/developer/workflowsApi";
 import type { WorkflowDef } from "../api/developer/types";
 import type { WorkflowCreateResult } from "../api/developer/workflowsApi";
-import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
-import { CatalogSearchFilter, matchesCatalogQuery } from "./CatalogSearchFilter";
-import { catalogColors, mutedCell, openButtonStyle } from "./catalogStyles";
+import { CatalogHint, CatalogStatus } from "./CatalogTable";
+import { CatalogSearchFilter } from "./CatalogSearchFilter";
+import { catalogColors } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 import { WorkflowCopyPanel } from "./WorkflowCopyPanel";
 import { WorkflowCreatePanel } from "./WorkflowCreatePanel";
 import { WorkflowDetailPanel } from "./WorkflowDetailPanel";
+import { WorkflowCatalogTable } from "./WorkflowCatalogTable";
+import {
+  COPY_SELECTION_PREFIX,
+  filterWorkflowCatalog,
+  markDefaultWorkflowInCatalog,
+  parseWorkflowSelection,
+  renameWorkflowInCatalog,
+  sortWorkflowCatalog,
+} from "./workflowCatalog";
+
+/** Load the catalog, mapping failures to panel error (never to empty). */
+function fetchWorkflows(
+  setItems: (items: WorkflowDef[] | null) => void,
+  setError: (error: string | null) => void,
+  isCancelled?: () => boolean,
+): void {
+  listWorkflows()
+    .then((list) => {
+      if (isCancelled?.()) return;
+      setItems(list);
+    })
+    .catch((e: unknown) => {
+      if (isCancelled?.()) return;
+      setError(panelErrMsg(e, DEV_MSG.WF_ERROR));
+      // Leave items null so error ≠ empty catalog (and retry can show loading).
+    });
+}
+
+function NewWorkflowButton({ onNew }: { onNew: () => void }): React.ReactElement {
+  return (
+    <button
+      type="button"
+      data-testid="developer-wf-new"
+      onClick={onNew}
+      style={{
+        padding: "8px 14px",
+        background: catalogColors.accent,
+        color: "#fff",
+        border: "none",
+        borderRadius: "4px",
+        cursor: "pointer",
+      }}
+    >
+      {DEV_MSG.WF_NEW}
+    </button>
+  );
+}
 
 /**
  * P0.17 — workflow catalog browse (SY-04) via existing workflowmanagement API,
@@ -26,113 +73,70 @@ export function WorkflowsPanel(): React.ReactElement {
   const [query, setQuery] = useState("");
   const [selected, setSelected] = useState<string | "new" | null>(null);
 
-  function reload(): void {
+  const reload = (): void => {
     setError(null);
-    listWorkflows()
-      .then((list) => {
-        setItems(list);
-      })
-      .catch((e: unknown) => {
-        setError(panelErrMsg(e, DEV_MSG.WF_ERROR));
-        // Leave items null so error ≠ empty catalog (and retry can show loading).
-      });
-  }
+    fetchWorkflows(setItems, setError);
+  };
 
   useEffect(() => {
     let cancelled = false;
-    listWorkflows()
-      .then((list) => {
-        if (!cancelled) setItems(list);
-      })
-      .catch((e: unknown) => {
-        if (cancelled) return;
-        setError(panelErrMsg(e, DEV_MSG.WF_ERROR));
-        // Leave items null so error ≠ empty catalog (and retry can show loading).
-      });
+    fetchWorkflows(setItems, setError, () => cancelled);
     return () => {
       cancelled = true;
     };
   }, []);
 
-  function handleCreated(created: WorkflowCreateResult): void {
+  const handleCreated = (created: WorkflowCreateResult): void => {
     const name = (created.workflowName || "").trim();
     reload();
     setSelected(name ? name : null);
-  }
+  };
 
-  function handleDeleted(): void {
+  const handleDeleted = (): void => {
     setSelected(null);
     reload();
+  };
+
+  const sorted = useMemo(() => sortWorkflowCatalog(items), [items]);
+  const visible = useMemo(() => filterWorkflowCatalog(sorted, query), [sorted, query]);
+
+  const openSelected = (name: string): void => setSelected(name);
+  const copySelected = (name: string): void => setSelected(`${COPY_SELECTION_PREFIX}${name}`);
+
+  const selection = parseWorkflowSelection(selected);
+
+  if (selection.kind === "create") {
+    return <WorkflowCreatePanel onBack={() => setSelected(null)} onCreated={handleCreated} />;
   }
 
-  const sorted = useMemo(() => {
-    if (!items) return [];
-    return [...items]
-      .filter((w) => (w.workflowName || "").trim().length > 0)
-      .sort((a, b) =>
-        (a.workflowName || "").localeCompare(b.workflowName || "", undefined, {
-          sensitivity: "base",
-        }),
-      );
-  }, [items]);
-
-  const visible = useMemo(() => {
-    return sorted.filter((w) =>
-      matchesCatalogQuery([w.workflowName, w.workflowDescription], query),
-    );
-  }, [sorted, query]);
-
-  if (selected === "new") {
-    return (
-      <WorkflowCreatePanel onBack={() => setSelected(null)} onCreated={handleCreated} />
-    );
-  }
-
-  if (selected != null && selected.startsWith("copy:")) {
-    const sourceName = selected.slice("copy:".length);
+  if (selection.kind === "copy") {
     return (
       <WorkflowCopyPanel
-        sourceName={sourceName}
+        sourceName={selection.sourceName}
         onBack={() => setSelected(null)}
         onCopied={handleCreated}
       />
     );
   }
 
-  if (selected) {
+  if (selection.kind === "detail") {
+    const name = selection.name;
     return (
       <WorkflowDetailPanel
-        name={selected}
+        name={name}
         onBack={() => setSelected(null)}
         onDeleted={handleDeleted}
         onRenamed={(previousName, newName) => {
-          const prev = previousName.trim().toLowerCase();
           const next = newName.trim();
           if (!next) {
             return;
           }
-          setItems((itemsPrev) =>
-            itemsPrev == null
-              ? itemsPrev
-              : itemsPrev.map((w) =>
-                  (w.workflowName || "").trim().toLowerCase() === prev
-                    ? { ...w, workflowName: next }
-                    : w,
-                ),
-          );
+          setItems((itemsPrev) => renameWorkflowInCatalog(itemsPrev, previousName, next));
           setSelected(next);
           reload();
         }}
         onDefaultChanged={(workflowName) => {
-          const key = workflowName.trim().toLowerCase();
-          setItems((prev) =>
-            prev == null
-              ? prev
-              : prev.map((w) => ({
-                  ...w,
-                  defaultWorkflow: (w.workflowName || "").trim().toLowerCase() === key,
-                })),
-          );
+          setItems((prev) => markDefaultWorkflowInCatalog(prev, workflowName));
         }}
       />
     );
@@ -146,28 +150,13 @@ export function WorkflowsPanel(): React.ReactElement {
     );
   if (items == null)
     return <CatalogStatus testId="developer-wf-loading">{DEV_MSG.WF_LOADING}</CatalogStatus>;
-  const newWorkflowButton = (
-    <button
-      type="button"
-      data-testid="developer-wf-new"
-      onClick={() => setSelected("new")}
-      style={{
-        padding: "8px 14px",
-        background: catalogColors.accent,
-        color: "#fff",
-        border: "none",
-        borderRadius: "4px",
-        cursor: "pointer",
-      }}
-    >
-      {DEV_MSG.WF_NEW}
-    </button>
-  );
+
+  const newButton = <NewWorkflowButton onNew={() => setSelected("new")} />;
 
   if (items.length === 0) {
     return (
       <div data-testid="developer-wf-panel">
-        <div style={{ marginBottom: "12px" }}>{newWorkflowButton}</div>
+        <div style={{ marginBottom: "12px" }}>{newButton}</div>
         <CatalogStatus testId="developer-wf-empty">{DEV_MSG.WF_EMPTY}</CatalogStatus>
       </div>
     );
@@ -186,7 +175,7 @@ export function WorkflowsPanel(): React.ReactElement {
         }}
       >
         <CatalogHint>{DEV_MSG.WF_HINT}</CatalogHint>
-        {newWorkflowButton}
+        {newButton}
       </div>
       <CatalogSearchFilter
         testId="developer-wf-search"
@@ -198,59 +187,7 @@ export function WorkflowsPanel(): React.ReactElement {
           {DEV_MSG.WF_SEARCH_EMPTY}
         </CatalogStatus>
       ) : (
-      <SimpleCatalogTable
-        tableTestId="developer-wf-table"
-        rowTestId="developer-wf-row"
-        columns={[
-          DEV_MSG.WF_COL_NAME,
-          DEV_MSG.WF_COL_DESC,
-          DEV_MSG.WF_COL_DEFAULT,
-          DEV_MSG.WF_COL_STEPS,
-        ]}
-        rows={visible.map((w, index) => {
-          const openKey = (w.workflowName || "").trim();
-          const stepCount = Array.isArray(w.workflowSteps) ? w.workflowSteps.length : 0;
-          return {
-            key: `${openKey}-${index}`,
-            onClick: () => setSelected(openKey),
-            cells: [
-              <span key="open" style={{ display: "inline-flex", gap: "8px", alignItems: "center" }}>
-                <button
-                  type="button"
-                  data-testid="developer-wf-open"
-                  data-wf-name={openKey}
-                  aria-label={`Open ${openKey}`}
-                  onClick={(ev) => {
-                    ev.stopPropagation();
-                    setSelected(openKey);
-                  }}
-                  style={{ ...openButtonStyle, fontFamily: "monospace" }}
-                >
-                  {openKey}
-                </button>
-                <button
-                  type="button"
-                  data-testid="developer-wf-copy"
-                  data-wf-name={openKey}
-                  aria-label={`Copy ${openKey}`}
-                  onClick={(ev) => {
-                    ev.stopPropagation();
-                    setSelected(`copy:${openKey}`);
-                  }}
-                  style={openButtonStyle}
-                >
-                  {DEV_MSG.WF_COPY}
-                </button>
-              </span>,
-              <span key="d" style={mutedCell}>
-                {w.workflowDescription || ""}
-              </span>,
-              w.defaultWorkflow ? DEV_MSG.WF_YES : "—",
-              stepCount > 0 ? String(stepCount) : "—",
-            ],
-          };
-        })}
-      />
+        <WorkflowCatalogTable workflows={visible} onOpen={openSelected} onCopy={copySelected} />
       )}
     </div>
   );
