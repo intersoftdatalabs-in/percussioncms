@@ -171,6 +171,13 @@ New widgets and templates created in the product UI already skip Widget definiti
 Modern present **and** old XML still on disk is expected during conversion: selection
 is **modern-only** (retired XML on disk is ignored).
 
+The convert → modern-selection round trip is pinned by automated regression coverage
+(`PSCustomerLegacyXmlUpgradePathTest` in `modules/perc-packages`): legacy Widget XML,
+Page templateDef, and Gadget registry fixtures compile through the normalized path to
+`component-package.json`, the retired shim then selects `MODERN` for each converted id
+(even with the legacy XML still on disk), and an unconverted legacy-only id fails with
+the retired-legacy error naming the compiler upgrade path.
+
 ### 5. Remove XML only for converted ids
 
 After smoke/parity on the converted definitions:
