@@ -89,26 +89,62 @@ public class PSAclDefDependencyHandler extends PSDependencyHandler {
 
     var childDeps = new ArrayList<PSDependency>();
     var acl = findAclByDependencyID(dep.getDependencyId());
-
-    if (acl != null) {
-      var roleMgr = PSRoleMgrLocator.getBackEndRoleManager();
-      for (var entry : acl.getEntries()) {
-        if (entry.getType() == IPSTypedPrincipal.PrincipalTypes.COMMUNITY
-            && !entry.getName().equals(PSTypedPrincipal.ANY_COMMUNITY_ENTRY)) {
-          var cList = roleMgr.findCommunitiesByName(entry.getName());
-          if (!cList.isEmpty()) {
-            PSDependency child =
-                getDependencyHandler(PSCommunityDependencyHandler.DEPENDENCY_TYPE)
-                    .getDependency(tok, String.valueOf(cList.get(0).getGUID().getUUID()));
-            if (child != null) {
-              childDeps.add(child);
-            }
-          }
-        }
-      }
+    if (acl == null) {
+      return childDeps.iterator();
     }
 
+    collectCommunityChildDependencies(tok, acl, childDeps);
+
     return childDeps.iterator();
+  }
+
+  /**
+   * Collects the community child dependencies for each community-scoped entry in the given ACL.
+   *
+   * @param tok the security token to use, assumed not <code>null</code>.
+   * @param acl the ACL whose entries are scanned, assumed not <code>null</code>.
+   * @param childDeps the accumulator for resolved child dependencies, assumed not <code>null
+   *     </code>.
+   * @throws PSDeployException if there are any errors resolving a child dependency.
+   * @throws PSNotFoundException if a child dependency cannot be located.
+   */
+  private void collectCommunityChildDependencies(
+      PSSecurityToken tok, PSAclImpl acl, List<PSDependency> childDeps)
+      throws PSDeployException, PSNotFoundException {
+    var roleMgr = PSRoleMgrLocator.getBackEndRoleManager();
+    for (var entry : acl.getEntries()) {
+      PSDependency child = resolveCommunityChildDependency(tok, roleMgr, entry);
+      if (child != null) {
+        childDeps.add(child);
+      }
+    }
+  }
+
+  /**
+   * Resolves the community child dependency for a single ACL entry.
+   *
+   * @param tok the security token to use, assumed not <code>null</code>.
+   * @param roleMgr the back-end role manager used to look up communities, assumed not <code>null
+   *     </code>.
+   * @param entry the ACL entry to resolve, assumed not <code>null</code>.
+   * @return the child dependency, or <code>null</code> when the entry is not a deployable
+   *     community reference (non-community type, the any-community placeholder, an unknown
+   *     community name, or an unresolvable dependency).
+   * @throws PSDeployException if there are any errors resolving the child dependency.
+   * @throws PSNotFoundException if the child dependency cannot be located.
+   */
+  private PSDependency resolveCommunityChildDependency(
+      PSSecurityToken tok, IPSBackEndRoleMgr roleMgr, IPSAclEntry entry)
+      throws PSDeployException, PSNotFoundException {
+    if (!PSAclCommunityEntries.isCommunityChildCandidate(entry)) {
+      return null;
+    }
+    var communities = roleMgr.findCommunitiesByName(entry.getName());
+    if (communities.isEmpty()) {
+      return null;
+    }
+    return getDependencyHandler(PSCommunityDependencyHandler.DEPENDENCY_TYPE)
+        .getDependency(tok, String.valueOf(communities.get(0).getGUID().getUUID()));
   }
 
   /**
