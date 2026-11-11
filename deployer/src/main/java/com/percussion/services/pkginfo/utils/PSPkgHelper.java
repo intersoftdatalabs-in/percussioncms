@@ -25,7 +25,7 @@ import com.percussion.services.error.PSNotFoundException;
 import com.percussion.services.pkginfo.IPSPkgInfoService;
 import com.percussion.services.pkginfo.PSPkgInfoServiceLocator;
 import com.percussion.services.pkginfo.data.PSPkgElement;
-import com.percussion.util.IOTools;
+import org.apache.commons.io.FileUtils;
 import com.percussion.util.PSOsTool;
 import com.percussion.utils.guid.IPSGuid;
 import java.io.File;
@@ -262,7 +262,7 @@ public class PSPkgHelper {
     if (!file.exists()) {
       return null;
     }
-    return IOTools.getChecksum(file);
+    return FileUtils.checksumCRC32(file);
   }
 
   /**

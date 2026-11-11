@@ -32,8 +32,8 @@ import com.percussion.tablefactory.PSJdbcFilterContainer;
 import com.percussion.tablefactory.PSJdbcRowData;
 import com.percussion.tablefactory.PSJdbcSelectFilter;
 import com.percussion.tablefactory.PSJdbcTableData;
-import com.percussion.utils.collections.PSIteratorUtils;
 import java.sql.Types;
+import java.util.Collections;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -233,7 +233,7 @@ public class PSTransitionDefDependencyHandler extends PSDataObjectDependencyHand
       throw new IllegalArgumentException("dep wrong type");
 
     // nothing to deploy, assume it has been handled by the workflow handler
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class

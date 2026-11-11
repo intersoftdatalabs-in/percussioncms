@@ -46,7 +46,7 @@ import com.percussion.security.PSAuthorizationException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSCustomControlManager;
 import com.percussion.tablefactory.PSJdbcTableSchema;
-import com.percussion.util.IOTools;
+import org.apache.commons.io.IOUtils;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.tools.PSPatternMatcher;
 import java.io.File;
@@ -619,7 +619,7 @@ public abstract class PSAppObjectDependencyHandler extends PSIdTypeDependencyHan
     try (PSPurgableTempFile tmpFile = new PSPurgableTempFile("dpl_", ".tmp", null)) {
       PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
       try (FileOutputStream out = new FileOutputStream(tmpFile)) {
-        IOTools.copyStream(os.getApplicationFile(appName, normalizePathSep(appFile), tok), out);
+        IOUtils.copyLarge(os.getApplicationFile(appName, normalizePathSep(appFile), tok), out);
       }
       return tmpFile;
     } catch (Exception e) {

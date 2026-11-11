@@ -54,12 +54,13 @@ import com.percussion.services.pkginfo.data.PSPkgInfo.PackageAction;
 import com.percussion.services.pkginfo.data.PSPkgInfo.PackageActionStatus;
 import com.percussion.services.pkginfo.data.PSPkgInfo.PackageType;
 import com.percussion.services.pkginfo.utils.PSPkgHelper;
-import com.percussion.util.IOTools;
+import org.apache.commons.io.IOUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.text.MessageFormat;
 import java.util.Date;
 import java.util.List;
@@ -551,7 +552,7 @@ public class PSImportJob extends PSDeployJob {
       if (!pDir.exists()) pDir.mkdirs();
 
       is = archive.getFile(PSDescriptor.getConfigArchiveEntryPath(type));
-      String contents = IOTools.getContent(is);
+      String contents = IOUtils.toString(is, StandardCharsets.UTF_8);
       if (path.exists()) path.delete();
       fw = new FileWriter(path);
       fw.write(contents);

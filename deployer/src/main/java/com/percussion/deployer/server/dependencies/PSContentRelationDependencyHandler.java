@@ -992,13 +992,13 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
       String colName,
       String sysId,
       PSRelationshipSet modifiedSet) {
-    String inlineRelText = mod.getProperty(PSRelationshipConfig.RS_INLINERELATIONSHIP);
+    String inlineRelText = mod.getProperty(PSRelationshipConfig.PDU_INLINERELATIONSHIP);
     String fieldName = fieldMap.get(colName);
     if (!matchesInlineRelationship(fieldName, inlineRelText)) {
       return;
     }
     mod.setProperty(
-        PSRelationshipConfig.RS_INLINERELATIONSHIP,
+        PSRelationshipConfig.PDU_INLINERELATIONSHIP,
         PSInlineLinkField.makeInlineRelationshipId(fieldName, sysId));
     modifiedSet.add(mod);
   }

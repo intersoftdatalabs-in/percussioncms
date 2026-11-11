@@ -59,6 +59,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
+import org.apache.commons.lang3.Strings;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -790,7 +791,7 @@ public class PSTemplateDefDependencyHandler extends PSDependencyHandler {
         PSJexlBinding orig_b = origBindings.getByIndex(new_b.getIndex());
         if (StringUtils.isNotBlank(new_b.getExpression())
             && StringUtils.isNotBlank(orig_b.getExpression())
-            && !StringUtils.equals(orig_b.getExpression(), new_b.getExpression()))
+            && !Strings.CS.equals(orig_b.getExpression(), new_b.getExpression()))
           updateTemplateBinding(t, orig_b, new_b);
       }
     }

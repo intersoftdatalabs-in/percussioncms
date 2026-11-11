@@ -26,9 +26,10 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.pkginfo.PSPkgInfoServiceLocator;
 import com.percussion.services.pkginfo.utils.PSIdNameHelper;
-import com.percussion.util.IOTools;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
+import java.util.zip.CRC32;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Element;
@@ -69,8 +70,11 @@ public class PSUpgradePluginRelationshipVersions implements IPSUpgradePlugin {
         }
         try {
           var doc = PSXmlDocumentBuilder.createXmlDocument();
-          var version =
-              IOTools.getChecksum(PSXmlDocumentBuilder.toString(relConfig.toXml(doc)));
+          var crc = new CRC32();
+          crc.update(
+              PSXmlDocumentBuilder.toString(relConfig.toXml(doc))
+                  .getBytes(StandardCharsets.UTF_8));
+          var version = crc.getValue();
 
           var relName = relConfig.getName();
           var relGuid = PSIdNameHelper.getGuid(relName, PSTypeEnum.RELATIONSHIP_CONFIGNAME);
