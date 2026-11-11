@@ -829,19 +829,19 @@ export const PATHS = {
   },
   /** Category tree management (categorymanagement) — Feature 993 */
   get CATEGORY_ALL() {
-    return `${SERVICES_ROOT}/category/all`;
+    return `${SERVICES_ROOT}/categorymanagement/category/all`;
   },
   get CATEGORY_UPDATE() {
-    return `${SERVICES_ROOT}/category/update`;
+    return `${SERVICES_ROOT}/categorymanagement/category/update`;
   },
   get CATEGORY_LOCK_INFO() {
-    return `${SERVICES_ROOT}/category/lockinfo`;
+    return `${SERVICES_ROOT}/categorymanagement/category/lockinfo`;
   },
   get CATEGORY_LOCK_TAB() {
-    return `${SERVICES_ROOT}/category/locktab/`;
+    return `${SERVICES_ROOT}/categorymanagement/category/locktab/`;
   },
   get CATEGORY_REMOVE_LOCK_TAB() {
-    return `${SERVICES_ROOT}/category/removelocktab`;
+    return `${SERVICES_ROOT}/categorymanagement/category/removelocktab`;
   },
   /** Item workflow management (itemmanagement) — Feature 993 */
   get ITEM_WORKFLOW_TRANSITIONS() {

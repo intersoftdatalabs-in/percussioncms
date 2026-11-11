@@ -83,8 +83,8 @@ export const CategoriesSection: React.FC = () => {
     setIsLoading(true);
     setError(null);
     try {
-      // 1. Fetch Categories tree
-      const res = await get<CategoryTree>(`${PATHS.CATEGORY_ALL}/undefined`);
+      // 1. Fetch Categories tree (global tree; no site segment)
+      const res = await get<CategoryTree>(PATHS.CATEGORY_ALL);
       // 2. Fetch Lock info
       const lock = await get<LockInfo>(PATHS.CATEGORY_LOCK_INFO);
       
@@ -147,7 +147,7 @@ export const CategoriesSection: React.FC = () => {
     try {
       // API expects form param or string payload
       const payloadString = JSON.stringify(updatedTree);
-      await post(`${PATHS.CATEGORY_UPDATE}/undefined`, payloadString, {
+      await post(PATHS.CATEGORY_UPDATE, payloadString, {
         "Content-Type": "application/json"
       });
       setTree(updatedTree);
