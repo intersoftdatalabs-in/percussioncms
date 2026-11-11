@@ -17,6 +17,7 @@
 package com.percussion.deployer.server;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.deployer.objectstore.PSArchive;
@@ -29,7 +30,6 @@ import java.io.File;
 import java.io.InputStream;
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -40,82 +40,44 @@ import org.w3c.dom.Document;
 @org.junit.jupiter.api.Disabled("requires packaged resources that are not available on CI")
 public class PSPackageLockManagerTest {
   /**
-   * Tests lock/unlock.
+   * Tests lock/unlock of a package directory.
    *
    * @throws Exception If there is an error.
    */
   @Test
-  public void testAll() throws Exception {
-    File tmpFile = null;
-    ZipFile zipFile1 = null;
-    PSArchive archive1 = null;
-    PSArchive archive2 = null;
-
+  public void testLockUnlockDirectory() throws Exception {
+    File stagingDir = stageResourceFiles();
     try {
-      tmpFile = File.createTempFile("tmp", null);
-      tmpFile.deleteOnExit();
-      tmpFile.delete();
-      tmpFile.mkdir();
-
-      File resourceDir = new File(RESOURCE_DIR);
-      File[] resourceFiles = resourceDir.listFiles();
-      for (File file : resourceFiles) {
-        if (file.isDirectory()) {
-          continue;
-        }
-
-        IOTools.copyToDir(file, tmpFile);
-      }
-
       PSPackageLockManager pkgLockMgr = new PSPackageLockManager();
 
-      // test update directory
-
       // lock packages
-      pkgLockMgr.update(tmpFile, true);
-
-      File[] files = tmpFile.listFiles();
-      for (File file : files) {
-        assertTrue(isLocked(file));
-      }
+      pkgLockMgr.update(stagingDir, true);
+      assertAllLocked(stagingDir);
 
       // unlock packages
-      pkgLockMgr.update(tmpFile, false);
-
-      for (File file : files) {
-        assertTrue(!isLocked(file));
-      }
+      pkgLockMgr.update(stagingDir, false);
+      assertAllUnlocked(stagingDir);
 
       // re-lock packages
-      pkgLockMgr.update(tmpFile, true);
+      pkgLockMgr.update(stagingDir, true);
+      assertAllLocked(stagingDir);
+    } finally {
+      IOTools.deleteFile(stagingDir);
+    }
+  }
 
-      for (File file : files) {
-        assertTrue(isLocked(file));
-      }
+  /**
+   * Tests lock/unlock of a single package file.
+   *
+   * @throws Exception If there is an error.
+   */
+  @Test
+  public void testLockUnlockSinglePackage() throws Exception {
+    File stagingDir = stageResourceFiles();
+    try {
+      PSPackageLockManager pkgLockMgr = new PSPackageLockManager();
 
-      // test update single package
-      for (File file : resourceFiles) {
-        if (file.isDirectory()) {
-          continue;
-        }
-
-        IOTools.copyToDir(file, tmpFile);
-      }
-      File f = files[0];
-
-      Map<String, Long> entryMap1 = new HashMap<String, Long>();
-      zipFile1 = new ZipFile(f);
-      Enumeration<? extends ZipEntry> entries = zipFile1.entries();
-      while (entries.hasMoreElements()) {
-        ZipEntry entry = entries.nextElement();
-        entryMap1.put(entry.getName(), entry.getCrc());
-      }
-      zipFile1.close();
-
-      // load the original manifest
-      archive1 = new PSArchive(f);
-      PSArchiveManifest manifest1 = archive1.getArchiveManifest();
-      archive1.close();
+      File f = stagingDir.listFiles()[0];
 
       // lock
       pkgLockMgr.update(f, true);
@@ -123,59 +85,166 @@ public class PSPackageLockManagerTest {
 
       // unlock
       pkgLockMgr.update(f, false);
-      assertTrue(!isLocked(f));
+      assertFalse(isLocked(f));
 
       // re-lock
       pkgLockMgr.update(f, true);
       assertTrue(isLocked(f));
+    } finally {
+      IOTools.deleteFile(stagingDir);
+    }
+  }
+
+  /**
+   * Tests that locking a package preserves its entries and manifest.
+   *
+   * @throws Exception If there is an error.
+   */
+  @Test
+  public void testLockedPackageContentsPreserved() throws Exception {
+    File stagingDir = stageResourceFiles();
+    try {
+      PSPackageLockManager pkgLockMgr = new PSPackageLockManager();
+
+      File f = stagingDir.listFiles()[0];
+
+      Map<String, Long> entryMap1 = zipEntryCrcs(f);
+
+      // load the original manifest
+      PSArchiveManifest manifest1 = loadManifest(f);
+
+      // lock
+      pkgLockMgr.update(f, true);
+      assertTrue(isLocked(f));
 
       // load the manifest after locking
-      archive2 = new PSArchive(f);
-      PSArchiveManifest manifest2 = archive2.getArchiveManifest();
-      archive2.close();
+      PSArchiveManifest manifest2 = loadManifest(f);
 
-      Map<String, Long> entryMap2 = new HashMap<String, Long>();
-      zipFile1 = new ZipFile(f);
-      entries = zipFile1.entries();
-      while (entries.hasMoreElements()) {
-        ZipEntry entry = (ZipEntry) entries.nextElement();
-        entryMap2.put(entry.getName(), entry.getCrc());
-      }
-      zipFile1.close();
+      Map<String, Long> entryMap2 = zipEntryCrcs(f);
 
-      assertEquals(entryMap1.size(), entryMap2.size());
-
-      Iterator<String> iter = entryMap2.keySet().iterator();
-      while (iter.hasNext()) {
-        String key = iter.next();
-        if (key.equals(PSArchive.ARCHIVE_INFO_PATH)
-            || key.equals(PSArchive.ARCHIVE_MANIFEST_PATH)) {
-          // archive info may be different, archive manifest contents may
-          // have different order
-          continue;
-        }
-
-        assertEquals(entryMap1.get(key), entryMap2.get(key));
-      }
+      assertPackageContentsPreserved(entryMap1, entryMap2);
 
       // make sure archive manifests are equal
       assertEquals(manifest1, manifest2);
     } finally {
-      if (archive1 != null) {
-        archive1.close();
+      IOTools.deleteFile(stagingDir);
+    }
+  }
+
+  /**
+   * Stages the test resource packages into a new temp directory.
+   *
+   * @return The staging directory, never <code>null</code>.
+   * @throws Exception If there is an error.
+   */
+  private File stageResourceFiles() throws Exception {
+    File stagingDir = File.createTempFile("tmp", null);
+    stagingDir.deleteOnExit();
+    stagingDir.delete();
+    stagingDir.mkdir();
+
+    copyResourceFilesInto(stagingDir);
+
+    return stagingDir;
+  }
+
+  /**
+   * Copies the test resource package files into the specified directory, skipping sub-directories.
+   *
+   * @param stagingDir The target directory, assumed not <code>null</code>.
+   * @throws Exception If there is an error.
+   */
+  private void copyResourceFilesInto(File stagingDir) throws Exception {
+    File resourceDir = new File(RESOURCE_DIR);
+    File[] resourceFiles = resourceDir.listFiles();
+    for (File file : resourceFiles) {
+      if (file.isDirectory()) {
+        continue;
       }
 
-      if (archive2 != null) {
-        archive2.close();
+      IOTools.copyToDir(file, stagingDir);
+    }
+  }
+
+  /**
+   * Asserts that every file in the specified directory is locked.
+   *
+   * @param stagingDir The directory to check, assumed not <code>null</code>.
+   * @throws Exception If there is an error.
+   */
+  private void assertAllLocked(File stagingDir) throws Exception {
+    File[] files = stagingDir.listFiles();
+    for (File file : files) {
+      assertTrue(isLocked(file));
+    }
+  }
+
+  /**
+   * Asserts that every file in the specified directory is unlocked.
+   *
+   * @param stagingDir The directory to check, assumed not <code>null</code>.
+   * @throws Exception If there is an error.
+   */
+  private void assertAllUnlocked(File stagingDir) throws Exception {
+    File[] files = stagingDir.listFiles();
+    for (File file : files) {
+      assertFalse(isLocked(file));
+    }
+  }
+
+  /**
+   * Loads the archive manifest of the specified package file.
+   *
+   * @param packageFile The package file, assumed not <code>null</code>.
+   * @return The manifest, never <code>null</code>.
+   * @throws Exception If there is an error.
+   */
+  private PSArchiveManifest loadManifest(File packageFile) throws Exception {
+    PSArchive archive = new PSArchive(packageFile);
+    try {
+      return archive.getArchiveManifest();
+    } finally {
+      archive.close();
+    }
+  }
+
+  /**
+   * Maps each zip entry name of the specified package file to its CRC.
+   *
+   * @param packageFile The package file, assumed not <code>null</code>.
+   * @return The entry name to CRC map, never <code>null</code>.
+   * @throws Exception If there is an error.
+   */
+  private Map<String, Long> zipEntryCrcs(File packageFile) throws Exception {
+    Map<String, Long> entryMap = new HashMap<String, Long>();
+    try (ZipFile zipFile = new ZipFile(packageFile)) {
+      Enumeration<? extends ZipEntry> entries = zipFile.entries();
+      while (entries.hasMoreElements()) {
+        ZipEntry entry = entries.nextElement();
+        entryMap.put(entry.getName(), entry.getCrc());
+      }
+    }
+    return entryMap;
+  }
+
+  /**
+   * Asserts that locking preserved every package entry except the archive info and manifest entries,
+   * whose contents may legitimately differ.
+   *
+   * @param before The entry CRCs before locking, assumed not <code>null</code>.
+   * @param after The entry CRCs after locking, assumed not <code>null</code>.
+   */
+  private void assertPackageContentsPreserved(Map<String, Long> before, Map<String, Long> after) {
+    assertEquals(before.size(), after.size());
+
+    for (String key : after.keySet()) {
+      if (key.equals(PSArchive.ARCHIVE_INFO_PATH) || key.equals(PSArchive.ARCHIVE_MANIFEST_PATH)) {
+        // archive info may be different, archive manifest contents may
+        // have different order
+        continue;
       }
 
-      if (zipFile1 != null) {
-        zipFile1.close();
-      }
-
-      if (tmpFile != null) {
-        IOTools.deleteFile(tmpFile);
-      }
+      assertEquals(before.get(key), after.get(key));
     }
   }
 
