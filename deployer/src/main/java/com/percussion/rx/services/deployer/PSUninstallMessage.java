@@ -42,9 +42,12 @@ public class PSUninstallMessage {
    * @param body the message body, may be <code>null</code>.
    */
   public PSUninstallMessage(String packageName, String type, String body) {
-    setPackageName(packageName);
-    setType(type);
-    setBody(body);
+    // Setters are overridable; assign fields directly so the constructor never leaks
+    // `this` to a subclass override (same validation as the setters).
+    if (packageName == null) throw new IllegalArgumentException("packageName must not be null");
+    this.packageName = packageName;
+    this.type = type == null ? "" : type;
+    this.body = body == null ? "" : body;
   }
 
   /**

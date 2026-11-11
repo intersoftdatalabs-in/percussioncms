@@ -97,6 +97,9 @@ public class PSIdNameService implements IPSIdNameService {
     return loadMap(ID_NAME_MAP);
   }
 
+  // The cached maps are written by saveMaps with the matching key/value types, so the
+  // flag-selected casts below are safe (verified by the requiredMap branch above).
+  @SuppressWarnings("unchecked")
   private <K, V> Map<K, V> loadMap(int requiredMap) {
     if (requiredMap == NAME_TYPE_ID_MAP) {
       var m = getNameTypeToIdMap();
@@ -124,18 +127,17 @@ public class PSIdNameService implements IPSIdNameService {
   }
 
   private Map<String, IPSGuid> getNameTypeToIdMap() {
-    // cache.get now returns Optional<Serializable>
-    return cache
-        .get(NAME_TYPE_ID_MAP_KEY, IPSCacheAccess.IN_MEMORY_STORE)
-        .map(o -> (Map<String, IPSGuid>) o)
-        .orElse(null);
+    // The cached value is written by saveMaps as Map<String, IPSGuid> under this key.
+    @SuppressWarnings("unchecked")
+    var cached = (Map<String, IPSGuid>) cache.get(NAME_TYPE_ID_MAP_KEY, IPSCacheAccess.IN_MEMORY_STORE).orElse(null);
+    return cached;
   }
 
   private Map<IPSGuid, String> getIdToNameMap() {
-    return cache
-        .get(ID_NAME_MAP_KEY, IPSCacheAccess.IN_MEMORY_STORE)
-        .map(o -> (Map<IPSGuid, String>) o)
-        .orElse(null);
+    // The cached value is written by saveMaps as Map<IPSGuid, String> under this key.
+    @SuppressWarnings("unchecked")
+    var cached = (Map<IPSGuid, String>) cache.get(ID_NAME_MAP_KEY, IPSCacheAccess.IN_MEMORY_STORE).orElse(null);
+    return cached;
   }
 
   private void loadMaps(Map<String, IPSGuid> ntMap, Map<IPSGuid, String> idMap) {

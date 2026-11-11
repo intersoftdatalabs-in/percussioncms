@@ -234,7 +234,10 @@ public class PSSiteSetter extends PSPropertySetterWithValidation {
       throw new PSConfigException(
           "The type of property \"" + VARIABLES + "\" of the Site Variable Setter must be List.");
 
-    return (List<Map<String, Object>>) propValue;
+    // Site variables are String-keyed maps by Spring bean construction.
+    @SuppressWarnings("unchecked")
+    List<Map<String, Object>> maps = (List<Map<String, Object>>) propValue;
+    return maps;
   }
 
   /**

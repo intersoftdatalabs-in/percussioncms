@@ -201,6 +201,8 @@ public class PSLocationSchemeSetter extends PSSimplePropertySetter {
       throw new PSConfigException(
           "\"" + GENERATOR_PARAMS + "\" property must be defined by pvalues, as a list of pairs.");
     }
+    // Generator params are name/value pairs by config construction.
+    @SuppressWarnings("unchecked")
     var props = (List<PSPair<String, String>>) propValue;
     var params = new ArrayList<PSPair<String, String>>();
     var names = PSConfigUtils.getExtensionParameterNames(extFQN);
@@ -231,7 +233,7 @@ public class PSLocationSchemeSetter extends PSSimplePropertySetter {
           mgr.getExtensionNames(
               null, null, "com.percussion.extension.IPSAssemblyLocation", extName);
       while (iterator.hasNext()) {
-        return (PSExtensionRef) iterator.next();
+        return iterator.next();
       }
     } catch (PSExtensionException e) {
       log.error(PSExceptionUtils.getMessageForLog(e));

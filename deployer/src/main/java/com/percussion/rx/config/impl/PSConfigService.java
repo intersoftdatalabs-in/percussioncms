@@ -682,6 +682,8 @@ public class PSConfigService implements IPSConfigService {
     if (!f.exists()) {
       return Collections.emptySet();
     }
+    // Community visibility is persisted as a list of names (Strings) by saveCommunityVisibility.
+    @SuppressWarnings("unchecked")
     var loaded = (Collection<String>) PSConfigUtils.loadObjectFromFile(f);
     return loaded == null ? Collections.emptySet() : loaded;
   }

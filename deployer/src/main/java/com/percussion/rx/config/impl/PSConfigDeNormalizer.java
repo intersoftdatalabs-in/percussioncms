@@ -170,8 +170,11 @@ public class PSConfigDeNormalizer {
       hasFixMe = fixedName.startsWith(FIXME_INVALID_PREFIX);
       el = doc.createElement(ELEM_PROPERTY);
       el.setAttribute(ATTR_NAME, fixedName);
-    } else if (prop instanceof Map) {
-      var sortedProps = sortMap((Map<String, Object>) prop);
+    } else if (prop instanceof Map<?, ?>) {
+      // Config property maps are String-keyed by Spring bean construction.
+      @SuppressWarnings("unchecked")
+      Map<String, Object> propMap = (Map<String, Object>) prop;
+      var sortedProps = sortMap(propMap);
       el = doc.createElement(ELEM_PROPERTY_SET);
       if (name != null) {
         var fixedName = nameTobeFixed ? fixName(name, prefix) : name;

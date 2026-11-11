@@ -20,6 +20,7 @@ import com.percussion.rx.config.impl.PSConfigService;
 import com.percussion.rx.config.impl.PSConfigUtils;
 import com.percussion.server.PSServer;
 import java.io.File;
+import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,11 +38,16 @@ public class PSBeanProperties implements IPSBeanPropertiesInternal {
 
   /** Loads the properties from file into memory. Does nothing if there is no properties file. */
   private void loadProperties() {
-    var f = getPropertiesFile();
+    // getPropertiesFile() is overridable; resolve the default file directly so the constructor
+    // never leaks `this` to a subclass override.
+    var f = defaultPropertiesFile();
     if (!f.exists()) {
       return;
     }
-    m_props = (Map<String, Object>) PSConfigUtils.loadObjectFromFile(f);
+    // Bean properties are String-keyed maps by XStream persistence construction.
+    @SuppressWarnings("unchecked")
+    var loaded = (Map<String, Object>) PSConfigUtils.loadObjectFromFile(f);
+    m_props = loaded;
   }
 
   /** Saves current properties into the properties file. */
@@ -55,7 +61,10 @@ public class PSBeanProperties implements IPSBeanPropertiesInternal {
   @Override
   public List<Object> getList(String name) {
     var v = getProperty(name);
-    return (v == null) ? null : (List<Object>) v;
+    // Bean property values are untyped by XStream persistence construction.
+    @SuppressWarnings("unchecked")
+    List<Object> list = (v == null) ? null : (List<Object>) v;
+    return list;
   }
 
   /*
@@ -64,7 +73,10 @@ public class PSBeanProperties implements IPSBeanPropertiesInternal {
   @Override
   public Map<String, Object> getMap(String name) {
     var v = getProperty(name);
-    return (v == null) ? null : (Map<String, Object>) v;
+    // Bean property values are untyped by XStream persistence construction.
+    @SuppressWarnings("unchecked")
+    Map<String, Object> map = (v == null) ? null : (Map<String, Object>) v;
+    return map;
   }
 
   /*
@@ -116,9 +128,21 @@ public class PSBeanProperties implements IPSBeanPropertiesInternal {
     if (m_file != null) {
       return m_file;
     }
-    var path = PSServer.getRxDir() + "/" + PSConfigService.CONFIG_FILE_BASE + "/BeanProperties.xml";
-    m_file = new File(path);
+    m_file = defaultPropertiesFile();
     return m_file;
+  }
+
+  /**
+   * Computes the default properties file location.
+   *
+   * @return the default properties file, never <code>null</code>.
+   */
+  private static File defaultPropertiesFile() {
+    return PSServer.getRxDir()
+        .toPath()
+        .resolve(PSConfigService.CONFIG_FILE_BASE)
+        .resolve("BeanProperties.xml")
+        .toFile();
   }
 
   /** All bean properties. Defaults to empty. Never {@code null}. */

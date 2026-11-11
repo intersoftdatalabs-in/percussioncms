@@ -41,6 +41,9 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Table(name = "PSX_PKG_ELEMENT_DEPEND")
 public class PSPkgElementDependency implements Serializable {
 
+  /** Serialization id. */
+  private static final long serialVersionUID = 1L;
+
   /** Default constructor for use by JPA. */
   public PSPkgElementDependency() {}
 

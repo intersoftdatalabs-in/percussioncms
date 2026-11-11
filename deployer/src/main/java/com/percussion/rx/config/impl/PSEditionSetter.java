@@ -118,9 +118,12 @@ public class PSEditionSetter extends PSSimplePropertySetter {
   }
 
   private void setTasks(PSEditionWrapper wrapper, Object propValue, boolean isPreTasks) {
-    var srcTasks = new ArrayList<Map>();
-    if (propValue instanceof List) {
-      srcTasks.addAll((List<Map>) propValue);
+    var srcTasks = new ArrayList<Map<String, Object>>();
+    if (propValue instanceof List<?>) {
+      // Edition task configs are String-keyed maps by Spring bean construction.
+      @SuppressWarnings("unchecked")
+      var taskList = (List<Map<String, Object>>) propValue;
+      srcTasks.addAll(taskList);
     } else if (!(propValue instanceof Map) || !((Map) propValue).isEmpty()) {
       throw new IllegalArgumentException("A list of Edition task type must be List or empty Map.");
     }
@@ -168,6 +171,8 @@ public class PSEditionSetter extends PSSimplePropertySetter {
         if (!(value instanceof List)) {
           throw new IllegalArgumentException("The extensionParams property type must be List.");
         }
+        // Extension params are name/value pairs by config construction.
+        @SuppressWarnings("unchecked")
         var params = (List<PSPair<String, String>>) value;
         for (var pair : params) {
           task.setParam(pair.getFirst(), pair.getSecond());

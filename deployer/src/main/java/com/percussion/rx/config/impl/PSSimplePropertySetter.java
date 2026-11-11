@@ -342,10 +342,10 @@ public class PSSimplePropertySetter implements IPSPropertySetter {
     if (!(pvalue instanceof Map))
       throw new PSConfigException("The type of property \"" + propName + "\" must be Map.");
 
-    var mapProp = (Map<String, Object>) pvalue;
-
-    for (var k : mapProp.keySet()) {
-      var v = mapProp.get(k);
+    Map<?, ?> mapProp = (Map<?, ?>) pvalue;
+    for (var entry : mapProp.entrySet()) {
+      var k = (String) entry.getKey();
+      var v = entry.getValue();
       if (v instanceof String && srcMap != null) {
         addPropertyDefs((String) v, srcMap.get(k), defs);
       } else if (v instanceof List) {
@@ -375,7 +375,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter {
    * @param type the target type of the returned value, never <code>null</code>.
    * @return the converted value, may be <code>null</code>.
    */
-  protected Object convertValue(Object value, Class type) {
+  protected Object convertValue(Object value, Class<?> type) {
     var cvt = new SimpleTypeConverter();
     return cvt.convertIfNecessary(value, type);
   }
@@ -449,7 +449,7 @@ public class PSSimplePropertySetter implements IPSPropertySetter {
    * @param numParams the number of parameters of the specified method.
    * @return the method in the given class. It may be <code>null</code> if cannot find the method.
    */
-  private Method findtMethod(Class clz, String methodName, int numParams) {
+  private Method findtMethod(Class<?> clz, String methodName, int numParams) {
     for (var m : clz.getDeclaredMethods()) {
       if (m.getName().equals(methodName)) {
         if (m.getParameterTypes().length == numParams) {

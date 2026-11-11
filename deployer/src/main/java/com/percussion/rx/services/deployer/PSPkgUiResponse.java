@@ -42,8 +42,10 @@ public class PSPkgUiResponse {
    * @param message sets as empty string if it is {@code null}.
    */
   public PSPkgUiResponse(PSPkgUiResponseType type, String message) {
-    setType(type);
-    setMessage(message);
+    // Setters are overridable; assign fields directly so the constructor never leaks
+    // `this` to a subclass override (same handling as the setters).
+    this.type = type;
+    this.message = StringUtils.defaultString(message);
   }
 
   /**

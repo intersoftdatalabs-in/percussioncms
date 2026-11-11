@@ -118,7 +118,7 @@ public class PSLocationSchemeConfigHandler extends PSObjectConfigHandler {
   }
 
   @Override
-  public boolean unprocess(Object obj, List assocSets) {
+  public boolean unprocess(Object obj, List<IPSAssociationSet> assocSets) {
     m_isUnProcess = true;
     super.unprocess(obj, assocSets);
     return true;

@@ -97,7 +97,8 @@ public class PSConfigUtils {
    * @param applyStyleSheet <code>true</code> if returns the merged result document.
    * @return The resulting xml document. Never <code>null</code>.
    */
-  public static Document getDocument(String url, Map extraParams, boolean applyStyleSheet) {
+  public static Document getDocument(
+      String url, Map<String, Object> extraParams, boolean applyStyleSheet) {
     Objects.requireNonNull(url, "url must not be null");
     var origReq = (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
     var origUser = (String) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_USER);
@@ -138,7 +139,7 @@ public class PSConfigUtils {
       // ignore
     }
     var req = PSRequest.getContextForRequest();
-    PSRequestInfo.initRequestInfo((Map) null);
+    PSRequestInfo.initRequestInfo((Map<String, Object>) null);
     PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_PSREQUEST, req);
   }
 
@@ -150,7 +151,7 @@ public class PSConfigUtils {
    */
   public static void resetRequestToOriginal(PSRequest origReq, String userName) {
     PSRequestInfo.resetRequestInfo();
-    PSRequestInfo.initRequestInfo((Map) null);
+    PSRequestInfo.initRequestInfo((Map<String, Object>) null);
     PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_PSREQUEST, origReq);
     PSRequestInfo.setRequestInfo(PSRequestInfo.KEY_USER, userName);
   }
@@ -183,7 +184,10 @@ public class PSConfigUtils {
               + propName
               + "\" property must be a \"Collection\" or a String type.");
     }
-    return (Collection<String>) objNames;
+    // Design-object names are Strings by contract (matchedStrings or caller-supplied name lists).
+    @SuppressWarnings("unchecked")
+    Collection<String> names = (Collection<String>) objNames;
+    return names;
   }
 
   /**
@@ -305,10 +309,12 @@ public class PSConfigUtils {
    * @param conditonConfig object corresponding to the condition configuration.
    * @return The collection of rules, never <code>null</code>.
    */
-  public static PSCollection prepareConditions(Object conditonConfig) {
-    if (!(conditonConfig instanceof List))
+  public static PSCollection<PSRule> prepareConditions(Object conditonConfig) {
+    if (!(conditonConfig instanceof List<?>))
       throw new PSConfigException("The value of \"conditions\" property must be a \"List\" type");
-    var condCol = new PSCollection(PSRule.class);
+    var condCol = new PSCollection<>(PSRule.class);
+    // XStream-deserialized condition lists contain String-keyed maps by config construction.
+    @SuppressWarnings("unchecked")
     var conditions = (List<Map<String, Object>>) conditonConfig;
     for (var map : conditions) {
       condCol.add(createRule(map));
@@ -322,7 +328,7 @@ public class PSConfigUtils {
    * @param conditionsIter the iterator over {@link PSRule} objects, never <code>null</code>.
    * @return the list of condition maps, never <code>null</code>, may be empty.
    */
-  public static List<Map<String, Object>> getCondtionsDef(Iterator conditionsIter) {
+  public static List<Map<String, Object>> getCondtionsDef(Iterator<?> conditionsIter) {
     Objects.requireNonNull(conditionsIter, "conditionsIter must not be null");
     var conds = new ArrayList<Map<String, Object>>();
     while (conditionsIter.hasNext()) {
@@ -351,9 +357,13 @@ public class PSConfigUtils {
       if (StringUtils.isBlank(name))
         throw new PSConfigException(
             "The required property " + PROP_NAME + " is missing for the supplied condition.");
+      // Extension params are Strings by config construction (XStream-deserialized).
+      @SuppressWarnings("unchecked")
       var extensionParams = (List<String>) map.get(PROP_EXTENSION_PARAMS);
       rule = createExtensionRule(name, extensionParams);
     } else if (type.equalsIgnoreCase(TYPE_CONDITIONAL)) {
+      // Conditional rules are String-keyed maps by config construction (XStream-deserialized).
+      @SuppressWarnings("unchecked")
       var rules = (List<Map<String, String>>) map.get(PROP_RULES);
       if (rules == null)
         throw new PSConfigException(
@@ -396,7 +406,7 @@ public class PSConfigUtils {
     return map;
   }
 
-  private static List<Map<String, String>> createConditionalRuleDef(Iterator rulesIter) {
+  private static List<Map<String, String>> createConditionalRuleDef(Iterator<?> rulesIter) {
     var rulesDef = new ArrayList<Map<String, String>>();
     while (rulesIter.hasNext()) {
       var map = new HashMap<String, String>();
@@ -423,7 +433,7 @@ public class PSConfigUtils {
    * @return PSRule
    */
   private static PSRule createConditionalRule(List<Map<String, String>> rules) {
-    var conds = new PSCollection(PSConditional.class);
+    var conds = new PSCollection<>(PSConditional.class);
     for (var rule : rules) {
       var name = StringUtils.defaultString(rule.get(PROP_VARIABLE1));
       var value = StringUtils.defaultString(rule.get(PROP_VARIABLE2));
@@ -453,8 +463,14 @@ public class PSConfigUtils {
   private static PSRule createExtensionRule(String name, List<String> params) {
     var callSet = new PSExtensionCallSet();
     var extCall = createExtensionCall(name, params, "com.percussion.extension.IPSUdfProcessor");
-    callSet.add(extCall);
+    // PSExtensionCallSet inherits raw add(E) from legacy-raw PSCollectionComponent (system module).
+    addToCallSet(callSet, extCall);
     return new PSRule(callSet);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static void addToCallSet(PSExtensionCallSet callSet, PSExtensionCall extCall) {
+    callSet.add(extCall);
   }
 
   /**
@@ -498,7 +514,7 @@ public class PSConfigUtils {
       if (StringUtils.isNotBlank(interfaceName)) {
         var iterator = mgr.getExtensionNames(null, null, interfaceName, tempRef.getExtensionName());
         while (iterator.hasNext()) {
-          if (tempRef.equals((PSExtensionRef) iterator.next())) {
+          if (tempRef.equals(iterator.next())) {
             extRef = tempRef;
             break;
           }
@@ -560,12 +576,10 @@ public class PSConfigUtils {
    * @param map The input map that needs to be reversed, assumed not <code>null</code>.
    * @return Reversed map, never <code>null</code>, may be empty.
    */
-  public static Map getReverseMap(Map<String, String> map) {
+  public static Map<String, String> getReverseMap(Map<String, String> map) {
     var revMap = new HashMap<String, String>();
-    var i = map.entrySet().iterator();
-    while (i.hasNext()) {
-      var entry = (Map.Entry) i.next();
-      revMap.put((String) entry.getValue(), (String) entry.getKey());
+    for (var entry : map.entrySet()) {
+      revMap.put(entry.getValue(), entry.getKey());
     }
     return revMap;
   }

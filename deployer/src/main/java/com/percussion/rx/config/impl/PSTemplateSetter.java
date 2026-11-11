@@ -169,6 +169,8 @@ public class PSTemplateSetter extends PSSimplePropertySetter {
     if (!(propValue instanceof Map))
       throw new PSConfigException("The value type of the " + BINDINGS + " must be Map");
 
+    // Bindings are String-keyed maps by Spring bean construction.
+    @SuppressWarnings("unchecked")
     var props = (Map<String, Object>) propValue;
     if (props.isEmpty()) return;
 
@@ -242,7 +244,10 @@ public class PSTemplateSetter extends PSSimplePropertySetter {
     if (!(seq instanceof List))
       throw new PSConfigException("\"" + BINDING_SEQ + "\" property must be \"List\" type.");
 
-    return (List<String>) seq;
+    // Binding sequences are lists of Strings by config construction.
+    @SuppressWarnings("unchecked")
+    List<String> seqList = (List<String>) seq;
+    return seqList;
   }
 
   /**
@@ -270,6 +275,8 @@ public class PSTemplateSetter extends PSSimplePropertySetter {
     if (!(obj instanceof List))
       throw new PSConfigException("The value type of the " + BINDING_SET + " must be List");
 
+    // Binding sets are name/value pairs by config construction.
+    @SuppressWarnings("unchecked")
     var bindings = (List<PSPair<String, String>>) obj;
     template.getBindings().clear();
     for (int i = 0; i < bindings.size(); i++) {
