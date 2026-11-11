@@ -583,6 +583,27 @@ export const EXPLORER_MSG = {
   SEARCH_SAVED_RETRY: "perc.ui.explorer@Retry loading saved searches",
   SEARCH_SAVED_CUSTOM_UNSUPPORTED:
     "perc.ui.explorer@Custom URL views cannot be run from the saved-search list",
+  // Saved-search rename / delete from the Search panel (#6075 / parent #4530).
+  // Rename edits the display label via PUT (the catalog name key is not
+  // renamed on PUT); delete removes the row via DELETE. 400/403/409 keep rows.
+  SEARCH_SAVED_RENAME: "perc.ui.explorer@Rename saved search",
+  SEARCH_SAVED_DELETE: "perc.ui.explorer@Delete saved search",
+  SEARCH_SAVED_RENAME_TITLE: "perc.ui.explorer@Rename saved search",
+  SEARCH_SAVED_RENAME_NEW_LABEL: "perc.ui.explorer@New display name",
+  SEARCH_SAVED_RENAME_SAVE: "perc.ui.explorer@Save name",
+  SEARCH_SAVED_RENAME_CANCEL: "perc.ui.explorer@Cancel",
+  SEARCH_SAVED_RENAME_EMPTY:
+    "perc.ui.explorer@Enter a name for the saved search",
+  SEARCH_SAVED_RENAME_ERROR:
+    "perc.ui.explorer@Could not rename the saved search",
+  SEARCH_SAVED_RENAMED: "perc.ui.explorer@Saved search renamed",
+  SEARCH_SAVED_DELETE_TITLE: "perc.ui.explorer@Delete saved search",
+  SEARCH_SAVED_DELETE_CONFIRM: "perc.ui.explorer@Delete this saved search?",
+  SEARCH_SAVED_DELETE_DELETE: "perc.ui.explorer@Delete",
+  SEARCH_SAVED_DELETE_CANCEL: "perc.ui.explorer@Cancel",
+  SEARCH_SAVED_DELETE_ERROR:
+    "perc.ui.explorer@Could not delete the saved search",
+  SEARCH_SAVED_DELETED: "perc.ui.explorer@Saved search deleted",
   DISPLAY_FORMAT_LABEL: "perc.ui.explorer@Display format",
   DISPLAY_FORMAT_DEFAULT: "perc.ui.explorer@Default columns",
   /** Non-fatal catalog load failure — selector stays mounted (#3208). */

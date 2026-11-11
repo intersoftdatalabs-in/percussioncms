@@ -33,6 +33,15 @@ const TEST_IDS = Object.freeze({
   resultsEmpty: "search-panel-empty",
   resultsList: "search-panel-results",
   resultRow: "search-panel-result-row",
+  savedRename: "search-panel-saved-rename",
+  savedDelete: "search-panel-saved-delete",
+  manageDialog: "search-panel-saved-manage-dialog",
+  manageNotice: "search-panel-saved-manage-notice",
+  manageError: "search-panel-saved-manage-error",
+  manageCancel: "search-panel-saved-manage-cancel",
+  renameInput: "search-panel-saved-rename-input",
+  renameSave: "search-panel-saved-rename-save",
+  deleteConfirm: "search-panel-saved-delete-confirm",
 });
 
 /** CX design-search catalog (same path as WebUI {@code PATHS.SEARCHES}). */

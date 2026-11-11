@@ -871,6 +871,18 @@ When the panel is open you can:
    and HTTP 404 stay on the error panel (Retry is available). Leaving the picker on
    “Select a saved search…” does not call execute. Custom URL **views** in this list are
    not run here — open them from the Views tree. Their Run button stays disabled.
+4. Manage a **saved / design search** from the same picker (Admin role required —
+   the write endpoints return HTTP 403 otherwise). With a standard or user search
+   selected, **Rename saved search** opens a dialog to edit its display label
+   (the catalog name key is not renamed on PUT, so the stored name stays and only
+   the label changes), and **Delete saved search** asks for confirmation before
+   removing the row (`DELETE /services/searches/{idOrName}`, 204 on success).
+   **Cancel** on either dialog calls no transport and leaves the catalog untouched.
+   A blank rename is refused before the PUT. HTTP **400**, **403**, or **409**
+   on rename, and HTTP **400**, **403**, **404**, or **409** on delete, stay on
+   the dialog — they are not success and no row is lost or dropped. Custom URL
+   **views** cannot be renamed or deleted from this list (their buttons stay
+   disabled); manage them from the Views tree instead.
 
 Closing **Search** again (view-tools button, **View → Search**, or **Content → Search**)
 hides the panel. Revealing a result in its folder also closes the panel so the

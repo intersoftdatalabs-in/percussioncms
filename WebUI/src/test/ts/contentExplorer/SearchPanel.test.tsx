@@ -23,6 +23,8 @@ import type {
 import type { SearchDef } from "../../../main/ts/api/developer/types";
 import {
   SearchPanel,
+  deleteCatalogRow,
+  renameCatalogRow,
   toSearchResults,
 } from "../../../main/ts/contentExplorer/SearchPanel";
 import { renderA11yGate } from "./a11y";
@@ -71,6 +73,12 @@ function readyCatalog(items: SearchDef[] = SAVED) {
   return vi.fn().mockResolvedValue(items);
 }
 
+/** Two-row manageable catalog for rename/delete tests (#6075). */
+const MANAGEABLE: SearchDef[] = [
+  { name: "My Pages", label: "My Pages", userSearch: true },
+  { name: "All Content", label: "All Content", standardSearch: true },
+];
+
 describe("toSearchResults", () => {
   it("maps execute wire rows into PSSearchResults", () => {
     const out = toSearchResults({
@@ -81,6 +89,41 @@ describe("toSearchResults", () => {
     expect(out.children).toHaveLength(1);
     expect(out.children[0]?.id).toBe("9");
     expect(out.totalCount).toBe(1);
+  });
+});
+
+describe("saved-search catalog reducers (#6075)", () => {
+  it("renameCatalogRow refreshes the label by key and keeps other rows", () => {
+    const out = renameCatalogRow(
+      { kind: "ready", items: MANAGEABLE },
+      "My Pages",
+      "PAGES!",
+    );
+    expect(out.kind).toBe("ready");
+    if (out.kind !== "ready") return;
+    expect(out.items).toHaveLength(2);
+    expect(out.items.find((d) => d.name === "My Pages")?.label).toBe("PAGES!");
+    expect(out.items.find((d) => d.name === "My Pages")?.name).toBe("My Pages");
+    expect(out.items.find((d) => d.name === "All Content")?.label).toBe(
+      "All Content",
+    );
+  });
+
+  it("deleteCatalogRow drops the row by key and keeps the rest", () => {
+    const out = deleteCatalogRow(
+      { kind: "ready", items: MANAGEABLE },
+      "My Pages",
+    );
+    expect(out.kind).toBe("ready");
+    if (out.kind !== "ready") return;
+    expect(out.items.map((d) => d.name)).toEqual(["All Content"]);
+  });
+
+  it("reducers pass through non-ready catalogs", () => {
+    expect(renameCatalogRow({ kind: "loading" }, "k", "L")).toEqual({
+      kind: "loading",
+    });
+    expect(deleteCatalogRow({ kind: "empty" }, "k")).toEqual({ kind: "empty" });
   });
 });
 
@@ -687,6 +730,295 @@ describe("SearchPanel", () => {
       await waitFor(() => {
         expect(screen.getByTestId("search-panel-saved-picker")).toBeTruthy();
       });
+      await renderA11yGate(container);
+    });
+  });
+
+  describe("saved-search rename/delete (#6075)", () => {
+    function readyManageable() {
+      return vi.fn().mockResolvedValue(MANAGEABLE);
+    }
+
+    async function selectManageableRow(value = "My Pages") {
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
+        target: { value },
+      });
+    }
+
+    function optionValues(): string[] {
+      const select = screen.getByTestId(
+        "search-panel-saved-select",
+      ) as HTMLSelectElement;
+      return Array.from(select.options)
+        .map((o) => o.value)
+        .filter((v) => v.length > 0);
+    }
+
+    it("rename saves the new label and updates the picker row", async () => {
+      const renameSavedSearch = vi.fn().mockResolvedValue({
+        name: "My Pages",
+        label: "PAGES!",
+        userSearch: true,
+      } as SearchDef);
+      render(
+        <SearchPanel
+          listSavedSearches={readyManageable()}
+          renameSavedSearch={renameSavedSearch}
+          deleteSavedSearch={vi.fn()}
+        />,
+      );
+      await selectManageableRow();
+      fireEvent.click(screen.getByTestId("search-panel-saved-rename"));
+      const input = screen.getByTestId(
+        "search-panel-saved-rename-input",
+      ) as HTMLInputElement;
+      expect(input.value).toBe("My Pages");
+      fireEvent.change(input, { target: { value: "PAGES!" } });
+      fireEvent.click(screen.getByTestId("search-panel-saved-rename-save"));
+      await waitFor(() => {
+        expect(renameSavedSearch).toHaveBeenCalledTimes(1);
+      });
+      expect(renameSavedSearch.mock.calls[0]?.[0]).toBe("My Pages");
+      expect(renameSavedSearch.mock.calls[0]?.[1]).toBe("PAGES!");
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("search-panel-saved-manage-notice"),
+        ).toHaveTextContent(/renamed/i);
+      });
+      // Dialog closes; the picker still lists both rows with the new label.
+      expect(
+        screen.queryByTestId("search-panel-saved-manage-dialog"),
+      ).toBeNull();
+      expect(optionValues()).toEqual(
+        expect.arrayContaining(["My Pages", "All Content"]),
+      );
+      const select = screen.getByTestId(
+        "search-panel-saved-select",
+      ) as HTMLSelectElement;
+      expect(
+        Array.from(select.options).some((o) => o.textContent === "PAGES!"),
+      ).toBe(true);
+    });
+
+    it("rename cancel calls no transport and keeps rows", async () => {
+      const renameSavedSearch = vi.fn();
+      render(
+        <SearchPanel
+          listSavedSearches={readyManageable()}
+          renameSavedSearch={renameSavedSearch}
+          deleteSavedSearch={vi.fn()}
+        />,
+      );
+      await selectManageableRow();
+      fireEvent.click(screen.getByTestId("search-panel-saved-rename"));
+      fireEvent.change(
+        screen.getByTestId("search-panel-saved-rename-input"),
+        { target: { value: "Changed!" } },
+      );
+      fireEvent.click(screen.getByTestId("search-panel-saved-manage-cancel"));
+      expect(renameSavedSearch).not.toHaveBeenCalled();
+      expect(
+        screen.queryByTestId("search-panel-saved-manage-dialog"),
+      ).toBeNull();
+      expect(optionValues()).toEqual(
+        expect.arrayContaining(["My Pages", "All Content"]),
+      );
+    });
+
+    it("rename refuses a blank label before PUT (#6075)", async () => {
+      const renameSavedSearch = vi.fn();
+      render(
+        <SearchPanel
+          listSavedSearches={readyManageable()}
+          renameSavedSearch={renameSavedSearch}
+          deleteSavedSearch={vi.fn()}
+        />,
+      );
+      await selectManageableRow();
+      fireEvent.click(screen.getByTestId("search-panel-saved-rename"));
+      fireEvent.change(
+        screen.getByTestId("search-panel-saved-rename-input"),
+        { target: { value: "   " } },
+      );
+      expect(
+        (screen.getByTestId("search-panel-saved-rename-save") as HTMLButtonElement)
+          .disabled,
+      ).toBe(true);
+      fireEvent.click(screen.getByTestId("search-panel-saved-rename-save"));
+      expect(renameSavedSearch).not.toHaveBeenCalled();
+      expect(optionValues()).toEqual(
+        expect.arrayContaining(["My Pages", "All Content"]),
+      );
+    });
+
+    it.each([400, 403, 409])(
+      "rename HTTP %i keeps rows and stays on the dialog",
+      async (status) => {
+        const renameSavedSearch = vi
+          .fn()
+          .mockRejectedValue({ status, statusText: "Refused", body: null });
+        render(
+          <SearchPanel
+            listSavedSearches={readyManageable()}
+            renameSavedSearch={renameSavedSearch}
+            deleteSavedSearch={vi.fn()}
+          />,
+        );
+        await selectManageableRow();
+        fireEvent.click(screen.getByTestId("search-panel-saved-rename"));
+        fireEvent.change(
+          screen.getByTestId("search-panel-saved-rename-input"),
+          { target: { value: "PAGES!" } },
+        );
+        fireEvent.click(screen.getByTestId("search-panel-saved-rename-save"));
+        await waitFor(() => {
+          expect(renameSavedSearch).toHaveBeenCalledTimes(1);
+        });
+        await waitFor(() => {
+          expect(
+            screen.getByTestId("search-panel-saved-manage-error").textContent,
+          ).toMatch(new RegExp(`HTTP ${status}`));
+        });
+        // Dialog stays open; no row loss.
+        expect(
+          screen.getByTestId("search-panel-saved-manage-dialog"),
+        ).toBeTruthy();
+        expect(optionValues()).toEqual(
+          expect.arrayContaining(["My Pages", "All Content"]),
+        );
+      },
+    );
+
+    it("delete confirm drops the row and clears the selection", async () => {
+      const deleteSavedSearch = vi.fn().mockResolvedValue(undefined);
+      render(
+        <SearchPanel
+          listSavedSearches={readyManageable()}
+          renameSavedSearch={vi.fn()}
+          deleteSavedSearch={deleteSavedSearch}
+        />,
+      );
+      await selectManageableRow();
+      fireEvent.click(screen.getByTestId("search-panel-saved-delete"));
+      expect(
+        screen.getByTestId("search-panel-saved-manage-dialog"),
+      ).toBeTruthy();
+      fireEvent.click(screen.getByTestId("search-panel-saved-delete-confirm"));
+      await waitFor(() => {
+        expect(deleteSavedSearch).toHaveBeenCalledTimes(1);
+      });
+      expect(deleteSavedSearch.mock.calls[0]?.[0]).toBe("My Pages");
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("search-panel-saved-manage-notice"),
+        ).toHaveTextContent(/deleted/i);
+      });
+      expect(
+        screen.queryByTestId("search-panel-saved-manage-dialog"),
+      ).toBeNull();
+      expect(optionValues()).toEqual(["All Content"]);
+      expect(
+        (screen.getByTestId("search-panel-saved-select") as HTMLSelectElement)
+          .value,
+      ).toBe("");
+    });
+
+    it("delete cancel calls no transport and keeps rows", async () => {
+      const deleteSavedSearch = vi.fn();
+      render(
+        <SearchPanel
+          listSavedSearches={readyManageable()}
+          renameSavedSearch={vi.fn()}
+          deleteSavedSearch={deleteSavedSearch}
+        />,
+      );
+      await selectManageableRow();
+      fireEvent.click(screen.getByTestId("search-panel-saved-delete"));
+      fireEvent.click(screen.getByTestId("search-panel-saved-manage-cancel"));
+      expect(deleteSavedSearch).not.toHaveBeenCalled();
+      expect(
+        screen.queryByTestId("search-panel-saved-manage-dialog"),
+      ).toBeNull();
+      expect(optionValues()).toEqual(
+        expect.arrayContaining(["My Pages", "All Content"]),
+      );
+    });
+
+    it.each([400, 403, 409])(
+      "delete HTTP %i keeps rows and stays on the dialog",
+      async (status) => {
+        const deleteSavedSearch = vi
+          .fn()
+          .mockRejectedValue({ status, statusText: "Refused", body: null });
+        render(
+          <SearchPanel
+            listSavedSearches={readyManageable()}
+            renameSavedSearch={vi.fn()}
+            deleteSavedSearch={deleteSavedSearch}
+          />,
+        );
+        await selectManageableRow();
+        fireEvent.click(screen.getByTestId("search-panel-saved-delete"));
+        fireEvent.click(screen.getByTestId("search-panel-saved-delete-confirm"));
+        await waitFor(() => {
+          expect(deleteSavedSearch).toHaveBeenCalledTimes(1);
+        });
+        await waitFor(() => {
+          expect(
+            screen.getByTestId("search-panel-saved-manage-error").textContent,
+          ).toMatch(new RegExp(`HTTP ${status}`));
+        });
+        expect(
+          screen.getByTestId("search-panel-saved-manage-dialog"),
+        ).toBeTruthy();
+        expect(optionValues()).toEqual(
+          expect.arrayContaining(["My Pages", "All Content"]),
+        );
+      },
+    );
+
+    it("rename/delete stay disabled for custom URL views", async () => {
+      render(
+        <SearchPanel
+          listSavedSearches={readyCatalog([
+            { name: "Outbox", label: "Outbox", type: "View", customSearch: true },
+          ])}
+          renameSavedSearch={vi.fn()}
+          deleteSavedSearch={vi.fn()}
+        />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
+        target: { value: "Outbox" },
+      });
+      expect(
+        (screen.getByTestId("search-panel-saved-rename") as HTMLButtonElement)
+          .disabled,
+      ).toBe(true);
+      expect(
+        (screen.getByTestId("search-panel-saved-delete") as HTMLButtonElement)
+          .disabled,
+      ).toBe(true);
+    });
+
+    it("passes axe-core with the rename dialog open", async () => {
+      const { container } = render(
+        <SearchPanel
+          listSavedSearches={readyManageable()}
+          renameSavedSearch={vi.fn()}
+          deleteSavedSearch={vi.fn()}
+        />,
+      );
+      await selectManageableRow();
+      fireEvent.click(screen.getByTestId("search-panel-saved-rename"));
+      expect(
+        screen.getByTestId("search-panel-saved-manage-dialog"),
+      ).toBeTruthy();
       await renderA11yGate(container);
     });
   });
