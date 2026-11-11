@@ -97,6 +97,8 @@ Authors and publishers continue to **publish now**, **take down**, **stage**, **
 
 **Why P2**: Item actions are part of publishing feature parity even when the primary new shell is site-centric.
 
+**Amendment (#6090)**: React item surfaces have since shipped in the PublishingShell under epic #4531 — item publishing history (ITM-06: #5928/#5987), schedule dates (ITM-05: #5988), takedown/unpublish from the site workspace (ITM-02: #5930), and staged-status/log readback (#5838). Finder/editor jQuery `PercItemPublisherService` entry points remain as content-adjacent fallback with no regression.
+
 **Acceptance Scenarios**:
 1. **Given** an item the user is allowed to publish, **When** they invoke Publish Now (page or asset/resource), **Then** publish proceeds under the same rules (default server, multi-site constraints, license) as today.
 2. **Given** take down / stage / unstage actions are offered, **When** the user confirms, **Then** results match current item publisher behavior (including linked-item warnings where applicable).
@@ -199,7 +201,7 @@ In the release(s) that achieve parity for a surface, operators and developers no
 - **Phased cutover by surface is allowed**: Ops (Stories 1–3) may ship and retire Minuet Publish before Design/Runtime JSF retirement, provided navigation remains coherent and dual entry points are temporary and documented. Final state is one unified Publishing UI.
 - **Engine reuse**: Existing sitemanage publish/status/server services and system publisher/rx.publisher remain backend of record; plan phase may add thin adapters only where Design JSF has no REST equivalent today—without inventing undocumented engine behavior.
 - **Track B stack**: Implementation targets the existing React + TypeScript + Vite modern UI pipeline and mount/registry patterns already used for Dashboard/Home/Widget Builder (see WebUI AGENTS Track B).
-- **Item actions stay content-adjacent**: Item publish-now need not be fully redesigned into the site shell in P1, but must not regress; deeper embedding can follow.
+- **Item actions stay content-adjacent**: Item publish-now need not be fully redesigned into the site shell in P1, but must not regress; deeper embedding can follow. **Amendment (#6090)**: deeper embedding has since shipped — React history/schedule/takedown/staged-status panels live in the PublishingShell (epic #4531); jQuery entry points retained as fallback.
 - **Legacy design objects remain editable**: No forced migration of legacy content lists or location schemes in this feature.
 - **Desktop Content Explorer** publish-related actions are out of primary scope unless plan identifies a hard dependency; web Publishing UI is the consolidation target.
 - **Big-bang within a surface**: Once a surface’s modern parity is accepted, that surface does not remain dual-path long term (aligns with modernization features such as 989).

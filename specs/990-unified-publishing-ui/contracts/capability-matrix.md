@@ -82,7 +82,7 @@ Status: `Todo` | `In progress` | `Done` | `N/A (deprecated)`
 | ITM-05 | Schedule dates get/set                  | Item service | Done   |
 | ITM-06 | Publishing history dialog               | Item service | Done   |
 
-ITM-01–06: item actions intentionally remain on jQuery `PercItemPublisherService` (no regression); history dialog links to modern logs.
+ITM-01–06: item actions remain available with no regression via the jQuery `PercItemPublisherService` entry points; React item surfaces have shipped in the PublishingShell under epic #4531 — history (ITM-06: #5928/#5987), schedule dates (ITM-05: #5988), takedown/unpublish (ITM-02: #5930), staged-status/log readback (#5838). History panel links to modern logs.
 
 ## CG-UX / RETIRE (US7–US8)
 
