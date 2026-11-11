@@ -235,15 +235,42 @@ async function parseBody(response: Response): Promise<unknown> {
   return text;
 }
 
+/**
+ * Container form-auth answers expired-session API calls with 302 → /login
+ * (fetch follows to 200 login HTML), not 401 — see #6085 T057. Detect the
+ * followed login redirect so the SPA routes to React Login instead of
+ * parsing login HTML as endpoint data.
+ */
+function isLoginRedirect(response: Response): boolean {
+  if (!response.redirected) {
+    return false;
+  }
+  try {
+    const path = new URL(response.url, "http://localhost").pathname
+      .toLowerCase();
+    return /(^|\/)login$/.test(path) || path.endsWith("/rxlogin.jsp");
+  } catch {
+    return false;
+  }
+}
+
+/**
+ * Mid-session expiry / auth loss → React Login (query return URL).
+ * Do not parse the body or throw a normal ApiError — callers would race
+ * setState/toasts while the document navigates away (#1526 review).
+ */
+function throwIfSessionLost(response: Response): void {
+  if (response.status === 401 || isLoginRedirect(response)) {
+    redirectToLoginOnUnauthorized({
+      reason: response.status === 401 ? "api-401" : "api-login-redirect",
+    });
+    throw new SessionRedirectError();
+  }
+}
+
 async function handleResponse<T>(response: Response): Promise<T> {
+  throwIfSessionLost(response);
   if (!response.ok) {
-    // Mid-session expiry / auth loss → React Login (query return URL).
-    // Do not parse the body or throw a normal ApiError — callers would race
-    // setState/toasts while the document navigates away (#1526 review).
-    if (response.status === 401) {
-      redirectToLoginOnUnauthorized({ reason: "api-401" });
-      throw new SessionRedirectError();
-    }
     let body: unknown;
     try {
       body = await parseBody(response);
@@ -411,10 +438,7 @@ export async function getBinary(
     headers: buildHeaders({ Accept: "*/*", ...headers }, false),
     credentials: "same-origin",
   });
-  if (response.status === 401) {
-    redirectToLoginOnUnauthorized({ reason: "api-401" });
-    throw new SessionRedirectError();
-  }
+  throwIfSessionLost(response);
   if (!response.ok) {
     let body: unknown;
     try {
