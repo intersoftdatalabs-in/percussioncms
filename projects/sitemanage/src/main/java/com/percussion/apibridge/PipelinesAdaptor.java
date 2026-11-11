@@ -135,10 +135,10 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   public static final int MAX_LIMIT = 1000;
 
   static final String ADMIN_REQUIRED =
-      "Admin role required to start, stop, validate, import or export applications, persist HTTP backend tanks, persist filter groups, persist binary resources, persist result pages, or manage request tracing";
+      "Admin role required to start, stop, enable, disable, validate, import or export applications, persist HTTP backend tanks, persist filter groups, persist binary resources, persist result pages, or manage request tracing";
 
   static final String HIDDEN_NOT_ALLOWED =
-      "Hidden applications cannot be started, stopped, validated, or documented via this API";
+      "Hidden applications cannot be started, stopped, enabled, disabled, validated, or documented via this API";
 
   static final String DISABLED_NOT_ALLOWED = "Application is disabled";
 
@@ -1190,6 +1190,51 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   }
 
   @Override
+  public ApplicationDetail setApplicationEnabled(URI baseUri, String idOrName, boolean enabled) {
+    requireAdmin();
+    ResolvedApp resolved = resolveForLifecycle(idOrName);
+    if (resolved == null) {
+      return null;
+    }
+    if (resolved.summary.isHidden()) {
+      throw new WebApplicationException(HIDDEN_NOT_ALLOWED, Response.Status.BAD_REQUEST);
+    }
+    try {
+      PSApplication app = applicationLoader.apply(resolved.name, resolved.token);
+      if (app == null) {
+        return null;
+      }
+      // Idempotent: no object-store write when the flag already matches (avoids lock churn and
+      // a needless shutdown/start cycle from PSServer.applicationUpdated).
+      if (app.isEnabled() != enabled) {
+        persistOps.saveEnabledFlag(resolved.name, enabled, resolved.token);
+      }
+    } catch (WebApplicationException | IllegalStateException e) {
+      throw e;
+    } catch (PSNotFoundException e) {
+      return null;
+    } catch (PSLockedException | PSNotLockedException | PSNonUniqueException e) {
+      // Held design lock or request-root race: conflict, never a lock steal.
+      throw new WebApplicationException(
+          "Application design is locked by another session", Response.Status.CONFLICT);
+    } catch (PSSystemValidationException e) {
+      String msg =
+          StringUtils.isNotBlank(e.getMessage())
+              ? e.getMessage()
+              : "Application failed validation";
+      throw new WebApplicationException(msg, Response.Status.BAD_REQUEST);
+    } catch (PSAuthorizationException e) {
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to set enabled flag on pipeline application {}", resolved.name, e);
+      throw new IllegalStateException("Failed to set enabled flag on pipeline application", e);
+    }
+    return detailAfterLifecycle(resolved);
+  }
+
+  @Override
   public ApplicationValidationResult getValidation(URI baseUri, String idOrName) {
     requireAdmin();
     ResolvedApp resolved = resolveForLifecycle(idOrName);
@@ -1655,17 +1700,17 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   }
 
   /**
-   * Remaining design gaps after IR <strong>read</strong>, Admin start/stop, validation/problems,
-   * and classic XML export/import ship. IR write / enable / auxiliary-file transfer remain later
-   * slices.
+   * Remaining design gaps after IR <strong>read</strong>, Admin start/stop, Admin enable/disable,
+   * validation/problems, and classic XML export/import ship. IR write / auxiliary-file transfer
+   * remain later slices.
    */
   static List<String> defaultDesignGaps() {
     List<String> gaps = new ArrayList<>();
     // Validation/problems read ships via GET …/validation — do not claim it unsupported.
     // Classic XML export/import ships via GET …/export + POST /import — same rule.
+    // Admin enable/disable ships via PUT …/enabled — same rule.
     gaps.add(
         "Pipe IR graph editor / classic XML write not supported (native HTTP backend tank persist is PUT …/backendTank; webhook hooks are PUT …/webhookHooks; nested filter groups are PUT …/filterGroup)");
-    gaps.add("Enable / disable application not supported via this API");
     gaps.add("Classic application auxiliary-file transfer not supported via this API");
     return gaps;
   }
@@ -1762,13 +1807,22 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   }
 
   /**
-   * Persist a brand-new classic application from import XML — injectable for unit tests. The
-   * production path locks the new name with the caller's session/user, saves with validation,
-   * and releases the lock. It never overrides another holder's lock (no lock steal).
+   * Persist classic applications — injectable for unit tests. The production path locks with the
+   * caller's session/user, saves with validation, and releases the lock. It never overrides
+   * another holder's lock (no lock steal).
    */
-  @FunctionalInterface
   interface ApplicationPersistOps {
+    /** Persist a brand-new classic application from import XML. */
     void saveNewApplication(PSApplication app, PSSecurityToken token) throws Exception;
+
+    /**
+     * Persist the classic enabled flag on an existing application. Default throws: production
+     * supplies the object-store lock/load/mutate/save/release path.
+     */
+    default void saveEnabledFlag(String name, boolean enabled, PSSecurityToken token)
+        throws Exception {
+      throw new UnsupportedOperationException("saveEnabledFlag not implemented");
+    }
   }
 
   private static final class DefaultApplicationLifecycleOps implements ApplicationLifecycleOps {
@@ -1788,7 +1842,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     }
   }
 
-  private static final class DefaultApplicationPersistOps implements ApplicationPersistOps {
+  private final class DefaultApplicationPersistOps implements ApplicationPersistOps {
     @Override
     public void saveNewApplication(PSApplication app, PSSecurityToken tok) throws Exception {
       String session = currentSession();
@@ -1809,6 +1863,38 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
           store.releaseApplicationLock(lockId, app.getName());
         } catch (RuntimeException e) {
           log.warn("Failed to release import lock for {}", app.getName(), e);
+        }
+      }
+    }
+
+    @Override
+    public void saveEnabledFlag(String name, boolean enabled, PSSecurityToken tok)
+        throws Exception {
+      String session = currentSession();
+      String user = currentUser();
+      if (StringUtils.isBlank(session) || StringUtils.isBlank(user)) {
+        throw new WebApplicationException(
+            "session and user are required to enable or disable the application",
+            Response.Status.CONFLICT);
+      }
+      IPSLockerId lockId = new PSXmlObjectStoreLockerId(user, true, session);
+      PSServerXmlObjectStore store = PSServerXmlObjectStore.getInstance();
+      // Acquire-only: a held lock surfaces as PSLockedException (409), never an override.
+      store.getApplicationLock(lockId, name, 30);
+      try {
+        PSApplication app = applicationLoader.apply(name, tok);
+        if (app == null) {
+          throw new PSNotFoundException("Pipeline application not found: " + name);
+        }
+        app.setEnabled(enabled);
+        // Validated save: the server applies classic lifecycle (shutdown + start-if-enabled,
+        // peer PSServer.applicationUpdated).
+        store.saveApplication(app, lockId, tok, true);
+      } finally {
+        try {
+          store.releaseApplicationLock(lockId, name);
+        } catch (RuntimeException e) {
+          log.warn("Failed to release enable/disable lock for {}", name, e);
         }
       }
     }

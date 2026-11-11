@@ -1,7 +1,7 @@
 ---
 id: admin-developer-pipelines
 title: Developer Pipelines
-description: Browse classic XML Applications, Admin start/stop, pipe IR, OpenAPI from resources, HTTP datasource, nested filter groups, webhook hooks, binary resource retrieve, HTML result pages or raw JSON/XML, request tracing, Test invoke, and Problems from Developer Pipelines chrome
+description: Browse classic XML Applications, Admin start/stop, Admin enable/disable, pipe IR, OpenAPI from resources, HTTP datasource, nested filter groups, webhook hooks, binary resource retrieve, HTML result pages or raw JSON/XML, request tracing, Test invoke, and Problems from Developer Pipelines chrome
 version: "8.2"
 order: 51
 tags: [admin, developer, pipelines]
@@ -17,10 +17,13 @@ imported **result pages**) so operators can inspect structure without the Swing
 E2Designer.
 
 **Admins** can **Start** or **Stop** a non-hidden application from the detail
-toolbar. Those actions peer the server console `start application` /
-`stop application` commands and call Admin REST
-`POST /services/pipelines/{idOrName}/start` and
-`POST /services/pipelines/{idOrName}/stop`. Non-Admin sessions do not see the
+toolbar, and can **Enable** or **Disable** it via the same toolbar. Those
+actions peer the server console `start application` /
+`stop application` commands and the classic save-with-`setEnabled` behavior,
+calling Admin REST `POST /services/pipelines/{idOrName}/start`,
+`POST /services/pipelines/{idOrName}/stop`, and
+`PUT /services/pipelines/{idOrName}/enabled`. Disabling a running application
+stops it on save; enabling starts it on save. Non-Admin sessions do not see the
 lifecycle controls.
 
 The IR section calls `GET /services/pipelines/{idOrName}/ir`. When a native IR
@@ -102,12 +105,13 @@ resources. It does not publish to an external registry.
   that endpoint is present. If validation REST is not deployed yet, the section
   shows a soft empty state instead of failing the page.
 
-Graph editing and enable/disable remain later slices
+Graph editing and auxiliary-file transfer remain later slices
 (see detail **design gaps** when present).
 
 ## Product path — browse and lifecycle
 
-1. Sign in (Admin required for Start / Stop, Test invoke, and Problems).
+1. Sign in (Admin required for Start / Stop, Enable / Disable, Test invoke,
+   and Problems).
 2. Open **Developer → Pipelines**, or deep-link
    `spa.jsp?entry=developer&section=pipelines`.
 3. Open a listed application. Detail shows type, **Enabled**, **Running**,
@@ -116,10 +120,17 @@ Graph editing and enable/disable remain later slices
    not already running. Use **Stop** when it is running. Both actions are
    idempotent on the server (already running / already stopped returns success
    with refreshed **Running** state).
-5. Start stays disabled while the application is **disabled**, **hidden**, or
+5. Use **Disable** when the application is enabled and not hidden; use
+   **Enable** when it is disabled and not hidden. The flag persists through the
+   classic object store, so the server stops a running application on disable
+   and starts it on enable. A no-change save is a no-op that still returns the
+   refreshed detail.
+6. Start stays disabled while the application is **disabled**, **hidden**, or
    already **running**. Stop stays disabled while hidden or not running.
-6. Non-Admin callers that hit the REST start/stop paths receive **403**. Hidden
-   or disabled lifecycle attempts are **400**. Unknown applications are **404**.
+   Enable stays disabled while **hidden** or already **enabled**; Disable stays
+   disabled while **hidden** or already **disabled**.
+7. Non-Admin callers that hit the REST start/stop/enabled paths receive **403**.
+   Hidden lifecycle attempts are **400**. Unknown applications are **404**.
 
 ## Product path — inspect pipe IR
 
@@ -294,10 +305,13 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
 - Pipe IR has no graph editor or drag-drop tanks. Admins may persist an HTTP
   backend tank, nested selector filter groups, HTTP webhook hooks, a binary
   resource, and an HTML result-page binding (native IR overlay) only.
-- Enable/disable is not in this chrome. Classic application transfer is XML
-  export/import (above); auxiliary-file transfer is not supported.
+- Enable/disable ships in this chrome (Admin toolbar toggle + REST below).
+  Classic application transfer is XML export/import (above); auxiliary-file
+  transfer is not supported.
 - Surface-filtered Playwright for Start/Stop lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-start-stop.spec.js`.
+- Surface-filtered Playwright for Enable/Disable lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-enabled.spec.js`.
 - Surface-filtered Playwright for pipe IR lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-pipe-ir.spec.js`.
 - Surface-filtered Playwright for Test invoke (+ Problems soft-assert) lives under
@@ -335,6 +349,7 @@ The chrome calls:
 | Load | `GET /services/pipelines/{idOrName}` |
 | Start | `POST /services/pipelines/{idOrName}/start` (**Admin**) |
 | Stop | `POST /services/pipelines/{idOrName}/stop` (**Admin**) |
+| Enable / Disable | `PUT /services/pipelines/{idOrName}/enabled` (**Admin**; `{enabled:boolean}`; disabling a running app stops it, enabling starts it) |
 | Pipe IR | `GET /services/pipelines/{idOrName}/ir` |
 | OpenAPI | `GET /services/pipelines/{idOrName}/openapi` (`format=yaml` default, or `json`) |
 | HTTP tank | `PUT /services/pipelines/{app}/resources/{resource}/backendTank` (**Admin**) |
@@ -350,7 +365,8 @@ The chrome calls:
 | Export XML | `GET /services/pipelines/{idOrName}/export` (**Admin**; XML attachment) |
 | Import XML | `POST /services/pipelines/import` (**Admin**; create-only, duplicate is **409**) |
 
-Successful start/stop responses return refreshed `ApplicationDetail` including
-`active` (**Running** in the UI). Execute returns `PipelineExecuteResult`.
+Successful start/stop/enable/disable responses return refreshed
+`ApplicationDetail` including `active` (**Running** in the UI) and the persisted
+`enabled` flag. Execute returns `PipelineExecuteResult`.
 Validation returns `ApplicationValidationResult` with `problems[]` when present.
 Integrator notes: [REST API — Pipelines](id:developer-rest).

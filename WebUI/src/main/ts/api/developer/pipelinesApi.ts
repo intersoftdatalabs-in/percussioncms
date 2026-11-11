@@ -23,6 +23,7 @@ import type {
   ApplicationValidationResult,
   PipelineBinaryBytes,
   PipelineBinaryResource,
+  PipelineEnabledState,
   PipelineExecuteRequest,
   PipelineResultPage,
   PipelineExecuteResult,
@@ -42,6 +43,9 @@ export interface ListApplicationsOptions {
 
 /** Drop pre-lifecycle catalog strings once Admin start/stop ships (Slice B). */
 const STALE_LIFECYCLE_GAP = /start\s*\/\s*stop|start\/stop.*not\s+supported/i;
+
+/** Drop pre-enable/disable catalog strings once Admin enable/disable ships (#6046). */
+const STALE_ENABLED_GAP = /enable\s*\/\s*disable.*not\s+supported/i;
 
 function asArray<T>(payload: unknown): T[] {
   if (payload == null) return [];
@@ -84,8 +88,18 @@ export function unwrapApplicationDetail(payload: unknown): ApplicationDetail {
   return {
     ...detail,
     dataSets: jacksonSingularAsList(detail.dataSets),
-    designGaps: withoutStalePipelineLifecycleGap(detail.designGaps),
+    designGaps: withoutStalePipelineEnabledGap(
+      withoutStalePipelineLifecycleGap(detail.designGaps),
+    ),
   };
+}
+
+/** Drop pre-enable/disable catalog strings now that Admin enable/disable ships. */
+export function withoutStalePipelineEnabledGap(
+  gaps: string[] | undefined | null,
+): string[] {
+  if (gaps == null || gaps.length === 0) return [];
+  return gaps.filter((g) => !STALE_ENABLED_GAP.test(g));
 }
 
 /** Drop stale REST start/stop gap strings now that Slice B lifecycle ships. */
@@ -141,6 +155,34 @@ export async function stopApplication(
   const key = encodeURIComponent(idOrName);
   const payload = await post<unknown>(`${PATHS.PIPELINES}/${key}/stop`);
   return unwrapApplicationDetail(payload);
+}
+
+/**
+ * PUT /services/pipelines/{idOrName}/enabled — Admin classic enable/disable (#6046).
+ * Persists the PSApplication enabled flag; the server applies classic lifecycle
+ * (disabling stops a running app; enabling starts it on save). No-op server-side
+ * when the flag already matches. Returns refreshed ApplicationDetail.
+ */
+export async function setApplicationEnabled(
+  idOrName: string,
+  enabled: boolean,
+): Promise<ApplicationDetail> {
+  const key = encodeURIComponent(idOrName);
+  const body: PipelineEnabledState = { enabled };
+  const payload = await put<unknown>(
+    `${PATHS.PIPELINES}/${key}/enabled`,
+    wrapPipelineEnabledStateForWire(body),
+  );
+  return unwrapApplicationDetail(payload);
+}
+
+/** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineEnabledState}. */
+export const PIPELINE_ENABLED_STATE_ROOT = "PipelineEnabledState";
+
+export function wrapPipelineEnabledStateForWire(body: PipelineEnabledState): {
+  PipelineEnabledState: PipelineEnabledState;
+} {
+  return { [PIPELINE_ENABLED_STATE_ROOT]: body ?? {} };
 }
 
 /** Unwrap Jackson WRAP_ROOT_VALUE {@code {"PipelineIrDocument":{…}}}. */

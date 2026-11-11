@@ -41,6 +41,9 @@ import {
   unwrapPipelineRequestTrace,
   putTracing,
   getLastTrace,
+  setApplicationEnabled,
+  withoutStalePipelineEnabledGap,
+  wrapPipelineEnabledStateForWire,
 } from "../../../../main/ts/api/developer/pipelinesApi";
 import { PATHS } from "../../../../main/ts/api/paths";
 
@@ -142,6 +145,51 @@ describe("pipelinesApi Slice B lifecycle", () => {
       `/pipelines/${encodeURIComponent("app with spaces")}/stop`,
     );
     expect(detail.active).toBe(false);
+  });
+
+  it("withoutStalePipelineEnabledGap drops enable/disable unsupported strings", () => {
+    expect(
+      withoutStalePipelineEnabledGap([
+        "Enable / disable application not supported via this API",
+        "Classic application auxiliary-file transfer not supported via this API",
+      ]),
+    ).toEqual(["Classic application auxiliary-file transfer not supported via this API"]);
+    expect(withoutStalePipelineEnabledGap([])).toEqual([]);
+    expect(withoutStalePipelineEnabledGap(null)).toEqual([]);
+  });
+
+  it("unwrapApplicationDetail strips the shipped enable/disable gap", () => {
+    const detail = unwrapApplicationDetail({
+      name: "sys_cmpDocuments",
+      enabled: true,
+      designGaps: [
+        "Enable / disable application not supported via this API",
+        "Classic application auxiliary-file transfer not supported via this API",
+      ],
+    });
+    expect(detail.designGaps).toEqual([
+      "Classic application auxiliary-file transfer not supported via this API",
+    ]);
+  });
+
+  it("setApplicationEnabled PUTs /enabled with the wrapped flag and returns refreshed detail", async () => {
+    const spy = vi.spyOn(client, "put").mockResolvedValue({
+      name: "sys_cmpDocuments",
+      enabled: false,
+      active: false,
+    });
+    const detail = await setApplicationEnabled("app with spaces", false);
+    expect(spy).toHaveBeenCalledWith(
+      `${PATHS.PIPELINES}/${encodeURIComponent("app with spaces")}/enabled`,
+      { PipelineEnabledState: { enabled: false } },
+    );
+    expect(detail.enabled).toBe(false);
+  });
+
+  it("wrapPipelineEnabledStateForWire wraps the JAXB root", () => {
+    expect(wrapPipelineEnabledStateForWire({ enabled: true })).toEqual({
+      PipelineEnabledState: { enabled: true },
+    });
   });
   it("getPipelineIr GETs /ir with encoded idOrName", async () => {
     const doc = {

@@ -33,6 +33,7 @@ import {
   putTracing,
   putWebhookHooks,
   retrieveBinaryResource,
+  setApplicationEnabled,
   startApplication,
   stopApplication,
 } from "../api/developer/pipelinesApi";
@@ -233,6 +234,21 @@ function canStart(detail: ApplicationDetail): boolean {
 
 function canStop(detail: ApplicationDetail): boolean {
   return detail.hidden !== true && detail.active === true;
+}
+
+function canEnable(detail: ApplicationDetail): boolean {
+  return detail.hidden !== true && detail.enabled === false;
+}
+
+function canDisable(detail: ApplicationDetail): boolean {
+  return detail.hidden !== true && detail.enabled === true;
+}
+
+function enabledErrMsg(err: unknown, enable: boolean): string {
+  if (isApiError(err) && err.status === 403) {
+    return DEV_MSG.PIPE_ENABLE_FORBIDDEN;
+  }
+  return panelErrMsg(err, enable ? DEV_MSG.PIPE_ENABLE_ERROR : DEV_MSG.PIPE_DISABLE_ERROR);
 }
 
 function lifecycleErrMsg(err: unknown, fallback: string): string {
@@ -571,7 +587,7 @@ export function PipelineDetailPanel({
   const [actionError, setActionError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [lifecycleAction, setLifecycleAction] = useState<"start" | "stop" | null>(null);
+  const [lifecycleAction, setLifecycleAction] = useState<"start" | "stop" | "enable" | "disable" | null>(null);
   const [exporting, setExporting] = useState(false);
   const [resourceName, setResourceName] = useState("");
   const [invokeBody, setInvokeBody] = useState(DEFAULT_INVOKE_BODY);
@@ -890,6 +906,31 @@ export function PipelineDetailPanel({
     } catch (err: unknown) {
       if (!mountedRef.current) return;
       setActionError(lifecycleErrMsg(err, DEV_MSG.PIPE_STOP_ERROR));
+    } finally {
+      inflight.current = false;
+      if (mountedRef.current) {
+        setBusy(false);
+        setLifecycleAction(null);
+      }
+    }
+  }
+
+  async function onSetEnabled(enabled: boolean): Promise<void> {
+    if (!detail || inflight.current) return;
+    if (enabled ? !canEnable(detail) : !canDisable(detail)) return;
+    inflight.current = true;
+    setBusy(true);
+    setLifecycleAction(enabled ? "enable" : "disable");
+    setActionError(null);
+    setNotice(null);
+    try {
+      const next = await setApplicationEnabled(idOrName, enabled);
+      if (!mountedRef.current) return;
+      setDetail(next);
+      setNotice(enabled ? DEV_MSG.PIPE_ENABLED : DEV_MSG.PIPE_DISABLED);
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setActionError(enabledErrMsg(err, enabled));
     } finally {
       inflight.current = false;
       if (mountedRef.current) {
@@ -1380,6 +1421,8 @@ export function PipelineDetailPanel({
 
   const startEnabled = detail != null && !busy && canStart(detail);
   const stopEnabled = detail != null && !busy && canStop(detail);
+  const enableEnabled = detail != null && !busy && canEnable(detail);
+  const disableEnabled = detail != null && !busy && canDisable(detail);
   const exportEnabled = detail != null && !busy && canExport(detail);
   // Keep Invoke clickable when resource is blank so client validation can surface.
   const invokeEnabled = detail != null && !invokeBusy;
@@ -1485,6 +1528,28 @@ export function PipelineDetailPanel({
                 style={stopEnabled ? secondaryButton : disabledSecondary}
               >
                 {lifecycleAction === "stop" ? DEV_MSG.PIPE_STOPPING : DEV_MSG.PIPE_STOP}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-pipe-enable"
+                aria-label={DEV_MSG.PIPE_ENABLE}
+                title={enableEnabled ? DEV_MSG.PIPE_ENABLE : DEV_MSG.PIPE_ENABLE_DISABLED_HINT}
+                disabled={!enableEnabled}
+                onClick={() => void onSetEnabled(true)}
+                style={enableEnabled ? primaryButton : disabledPrimary}
+              >
+                {lifecycleAction === "enable" ? DEV_MSG.PIPE_ENABLING : DEV_MSG.PIPE_ENABLE}
+              </button>
+              <button
+                type="button"
+                data-testid="developer-pipe-disable"
+                aria-label={DEV_MSG.PIPE_DISABLE}
+                title={disableEnabled ? DEV_MSG.PIPE_DISABLE : DEV_MSG.PIPE_DISABLE_DISABLED_HINT}
+                disabled={!disableEnabled}
+                onClick={() => void onSetEnabled(false)}
+                style={disableEnabled ? secondaryButton : disabledSecondary}
+              >
+                {lifecycleAction === "disable" ? DEV_MSG.PIPE_DISABLING : DEV_MSG.PIPE_DISABLE}
               </button>
               <button
                 type="button"

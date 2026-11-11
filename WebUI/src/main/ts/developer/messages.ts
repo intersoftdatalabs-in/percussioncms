@@ -1019,7 +1019,7 @@ export const DEV_MSG_KEYS = {
   PIPE_EMPTY: "perc.ui.developer@No pipeline applications returned.",
   PIPE_ERROR: "perc.ui.developer@Could not load pipelines.",
   PIPE_HINT:
-    "perc.ui.developer@Server applications (classic XML Applications). Open a row for detail, data sets, pipe IR, OpenAPI, Admin Start/Stop, HTTP backend tank (loopback/local fixture), nested filter groups, Test invoke, and Problems when available. Graph editor remains a later slice.",
+    "perc.ui.developer@Server applications (classic XML Applications). Open a row for detail, data sets, pipe IR, OpenAPI, Admin Start/Stop, Admin Enable/Disable, HTTP backend tank (loopback/local fixture), nested filter groups, Test invoke, and Problems when available. Graph editor remains a later slice.",
   PIPE_COL_NAME: "perc.ui.developer@Name",
   PIPE_COL_ID: "perc.ui.developer@Id",
   PIPE_COL_TYPE: "perc.ui.developer@Type",
@@ -1045,6 +1045,19 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Start is unavailable while the application is disabled, hidden, or already running.",
   PIPE_STOP_DISABLED_HINT:
     "perc.ui.developer@Stop is unavailable while the application is hidden or not running.",
+  PIPE_ENABLE: "perc.ui.developer@Enable",
+  PIPE_DISABLE: "perc.ui.developer@Disable",
+  PIPE_ENABLING: "perc.ui.developer@Enabling…",
+  PIPE_DISABLING: "perc.ui.developer@Disabling…",
+  PIPE_ENABLED: "perc.ui.developer@Application enabled.",
+  PIPE_DISABLED: "perc.ui.developer@Application disabled.",
+  PIPE_ENABLE_ERROR: "perc.ui.developer@Could not enable pipeline application.",
+  PIPE_DISABLE_ERROR: "perc.ui.developer@Could not disable pipeline application.",
+  PIPE_ENABLE_FORBIDDEN: "perc.ui.developer@Admin role is required to enable or disable pipeline applications.",
+  PIPE_ENABLE_DISABLED_HINT:
+    "perc.ui.developer@Enable is unavailable while the application is hidden or already enabled.",
+  PIPE_DISABLE_DISABLED_HINT:
+    "perc.ui.developer@Disable is unavailable while the application is hidden or already disabled.",
   PIPE_EXPORT: "perc.ui.developer@Export XML",
   PIPE_EXPORTING: "perc.ui.developer@Exporting…",
   PIPE_EXPORT_ERROR: "perc.ui.developer@Could not export pipeline application.",
