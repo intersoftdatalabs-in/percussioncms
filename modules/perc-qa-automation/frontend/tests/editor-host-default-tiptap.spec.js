@@ -18,13 +18,13 @@
 /**
  * React Content Editor default-engine cutover (#5758).
  *
- * <p>TipTap is the default HTML engine: the editor renders the bundled
- * TipTap surface with no opt-in flag. {@code ?engine=tinymce} keeps the
- * legacy script-loaded TinyMCE as a one-release escape hatch. The legacy
- * textarea-fallback specs ({@code editor-host-html-fields},
- * {@code editor-host-html-clear}, {@code editor-host-html-nul},
- * {@code editor-host-html-required-blank}, {@code editor-host-html-unsafe})
- * stay pinned to that escape hatch; this spec proves the default path.</p>
+ * <p>TipTap is the only HTML engine since #5902 removed the
+ * {@code ?engine=tinymce} escape hatch: the editor renders the bundled
+ * TipTap surface with no opt-in flag. The former textarea-fallback specs
+ * ({@code editor-host-html-fields}, {@code editor-host-html-clear},
+ * {@code editor-host-html-nul}, {@code editor-host-html-required-blank},
+ * {@code editor-host-html-unsafe}) now drive the same TipTap surface;
+ * this spec proves the default path.</p>
  *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor} {@code @html} {@code @tiptap}</p>
  *
@@ -215,11 +215,17 @@ test.describe("React Content Editor default TipTap engine (#5758)", () => {
   );
 
   test(
-    "?engine=tinymce renders the legacy escape hatch",
-    { tag: ["@explorer-content-editor", "@editor", "@html"] },
+    "legacy ?engine=tinymce param is ignored and renders TipTap (#5902)",
+    { tag: ["@explorer-content-editor", "@editor", "@html", "@tiptap"] },
     async ({ page }) => {
       const pageErrors = [];
+      const tinymceRequests = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("request", (req) => {
+        if (req.url().includes("/sys_resources/tinymce/")) {
+          tinymceRequests.push(req.url());
+        }
+      });
       page.on("console", (msg) => {
         if (msg.type() !== "error") {
           return;
@@ -231,24 +237,16 @@ test.describe("React Content Editor default TipTap engine (#5758)", () => {
         pageErrors.push(text);
       });
       await stubEditorApis(page);
-      // Keep the hatch hermetic: the shipped script is stubbed to a no-op so
-      // the textarea fallback is the surface under test.
-      await page.route("**/sys_resources/tinymce/**", (route) =>
-        route.fulfill({
-          status: 200,
-          contentType: "application/javascript",
-          body: "window.tinymce=undefined;",
-        }),
-      );
 
       await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
       await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
         timeout: 20_000,
       });
-      const area = page.locator(`[data-testid="${TEST_IDS.fieldText}"]`);
-      await expect(area).toHaveAttribute("data-editor-kind", "html");
-      await expect(area).not.toHaveAttribute("data-editor-engine", "tiptap");
-      await expect(area).toHaveValue("<p>Hi</p>");
+      const editable = page.locator(`[data-testid="${TEST_IDS.fieldText}"]`);
+      await expect(editable).toHaveAttribute("data-editor-kind", "html");
+      await expect(editable).toHaveAttribute("data-editor-engine", "tiptap");
+      await expect(editable).toContainText("Hi");
+      expect(tinymceRequests, `tinymce fetched: ${tinymceRequests.join(" ")}`).toEqual([]);
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
   );

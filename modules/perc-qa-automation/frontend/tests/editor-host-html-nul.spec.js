@@ -16,13 +16,17 @@
  */
 
 /**
- * React Content Editor refuses an HTML NUL on save (#5389 / #4532). Pinned to the {@code ?engine=tinymce} escape hatch (#5758): TipTap is the default engine and these specs drive the legacy textarea fallback.
+ * React Content Editor refuses an HTML NUL on save (#5389 / #4532).
+ * TipTap-only since #5902 (the {@code ?engine=tinymce} escape hatch is
+ * removed): the NUL reaches the row through the TipTap insert-HTML-fragment
+ * dialog (a keyboard cannot type U+0000, so the spec sets the real
+ * fragment textarea through the DOM setter and an {@code input} event),
+ * while unsafe payloads seed the fields GET stub (parsed markup would
+ * strip them from the surface but the draft still carries them). No
+ * {@code engine} param is passed.
  *
  * <p>The client gate in {@code htmlField.ts} stays beside the unsafe-HTML
- * heuristic and the long-text gate in {@code longTextField.ts}. TinyMCE is
- * stubbed so the textarea fallback is the control under test. A keyboard
- * cannot type U+0000, so the spec sets the textarea through the DOM setter
- * and an {@code input} event.</p>
+ * heuristic and the long-text gate in {@code longTextField.ts}.</p>
  *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor} {@code @html}</p>
  *
@@ -38,6 +42,10 @@ const { editorSpaUrl } = require("./helpers/editor-host-longtext-fields");
 const PREVIOUS = "<p>Hi</p>";
 const ORDINARY = "<p>Bye</p>";
 const NUL_VALUE = `<p>bad${String.fromCharCode(0)}value</p>`;
+// Plain-text twin for the TipTap insert-HTML dialog: parsed markup would
+// strip the NUL in the ProseMirror schema, while plain text carries it
+// into the row value the save gate reads.
+const NUL_FRAGMENT = `bad${String.fromCharCode(0)}value`;
 const LONG_PREVIOUS = "line one";
 
 /**
@@ -76,6 +84,22 @@ async function controlHasNul(locator) {
   return locator.evaluate((el) => el.value.includes("\u0000"));
 }
 
+/**
+ * Insert a raw fragment through the TipTap insert-HTML dialog. Parsed
+ * markup would strip control characters, but a plain-text fragment carries
+ * them into the row value the save gate reads.
+ *
+ * @param {import("@playwright/test").Page} page
+ * @param {string} value
+ */
+async function insertTipTapFragment(page, value) {
+  await page.locator('[data-testid="tiptap-perc-insert-html-text"]').click();
+  const fragment = page.locator('[data-testid="tiptap-perc-html-text"]');
+  await setTextareaValue(fragment, value);
+  await expect(fragment).toHaveValue(value);
+  await page.locator('[data-testid="tiptap-perc-apply-text"]').click();
+}
+
 test.describe("React Content Editor HTML NUL", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(90_000);
@@ -88,6 +112,13 @@ test.describe("React Content Editor HTML NUL", () => {
     async ({ page }) => {
       const fieldPuts = [];
       const pageErrors = [];
+      // Single dialog listener with an explicit mode: competing
+      // page.once() handlers race (a pending dismiss wins over a later
+      // accept and aborts the navigation). The close-cancel phase keeps
+      // the default dismiss; gotos after a refused (still-dirty) save
+      // switch to accept first.
+      let dialogMode = "dismiss";
+      page.on("dialog", (dialog) => dialog[dialogMode]());
       let html = PREVIOUS;
       let description = LONG_PREVIOUS;
       let rejectNext = false;
@@ -103,9 +134,14 @@ test.describe("React Content Editor HTML NUL", () => {
         }
         pageErrors.push(text);
       });
-      await page.route("**/sys_resources/tinymce/**", (route) =>
-        route.fulfill({ status: 404, body: "" }),
-      );
+      // TipTap-only (#5902): the React editor must never fetch the legacy
+      // TinyMCE script under any param.
+      const tinymceRequests = [];
+      page.on("request", (req) => {
+        if (req.url().includes("/sys_resources/tinymce/")) {
+          tinymceRequests.push(req.url());
+        }
+      });
       await page.route("**/sys_resources/**", (route) =>
         route.fulfill({ status: 404, body: "" }),
       );
@@ -135,6 +171,23 @@ test.describe("React Content Editor HTML NUL", () => {
               transitionTriggers: [],
             },
           }),
+        }),
+      );
+      // Quiet the fake id 42 against the live cell: untranslated and
+      // workflow-allowance lookups would otherwise log server ERRORs
+      // (same empty shapes as editor-host-html-tiptap.spec.js).
+      await page.route("**/services/itemmanagement/workflow/allowedWorkflows/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ choices: [] }),
+        }),
+      );
+      await page.route("**/services/assembly/slot-relationships/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ SlotCanvas: { ownerId: 42, slots: [] } }),
         }),
       );
       await page.route("**/rest/content-explorer/translations/**", (route) =>
@@ -238,29 +291,31 @@ test.describe("React Content Editor HTML NUL", () => {
       const descriptionError = () =>
         page.locator('[data-testid="editor-field-error-description"]');
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
       await expect(htmlField()).toHaveAttribute("data-editor-kind", "html", {
         timeout: 20_000,
       });
-      await expect(htmlField()).toHaveValue(PREVIOUS);
+      await expect(htmlField()).toHaveAttribute("data-editor-engine", "tiptap");
+      await expect(htmlField()).toContainText("Hi");
       await expect(descriptionField()).toHaveCount(0);
 
-      await setTextareaValue(htmlField(), NUL_VALUE);
-      await expect.poll(() => controlHasNul(htmlField())).toBe(true);
-      let dismissed = false;
-      page.once("dialog", async (dialog) => {
-        dismissed = true;
-        await dialog.dismiss();
-      });
+      // The fragment insert carries the NUL into the row value; closing
+      // asks first and cancelling writes nothing, and the NUL is still
+      // refused on the subsequent save.
+      await insertTipTapFragment(page, NUL_FRAGMENT);
       await page.locator('[data-testid="editor-close"]').click();
-      await expect.poll(() => dismissed).toBe(true);
+      await page.waitForTimeout(300);
       expect(fieldPuts).toEqual([]);
-      expect(await controlHasNul(htmlField())).toBe(true);
+      dialogMode = "accept";
+      await page.locator('[data-testid="editor-save"]').click();
+      await expect(htmlError()).toContainText(/character that cannot be saved/i);
+      expect(fieldPuts).toEqual([]);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
-      await expect(htmlField()).toHaveValue(PREVIOUS, { timeout: 20_000 });
-      await setTextareaValue(htmlField(), NUL_VALUE);
-      await expect.poll(() => controlHasNul(htmlField())).toBe(true);
+      // The refused save keeps the draft dirty, so leaving asks
+      // first; accepting is the operator path under test here.
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(htmlField()).toContainText("Hi", { timeout: 20_000 });
+      await insertTipTapFragment(page, NUL_FRAGMENT);
       await page.locator('[data-testid="editor-save"]').click();
       await expect(htmlError()).toContainText(/character that cannot be saved/i);
       await expect(page.locator('[data-testid="editor-save-error"]')).toContainText(
@@ -270,17 +325,28 @@ test.describe("React Content Editor HTML NUL", () => {
       expect(fieldPuts).toEqual([]);
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
-      await expect(htmlField()).toHaveValue(PREVIOUS, { timeout: 20_000 });
-      await htmlField().fill("<p><script>alert(1)</script></p>");
+      // Seeded script markup: parsed markup would strip it from the
+      // surface, but the draft still carries it to the save-side gate.
+      // The refused save keeps the draft dirty, so leaving asks
+      // first; accepting is the operator path under test here.
+      html = "<p><script>alert(1)</script></p>";
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(htmlField()).toHaveAttribute("data-editor-engine", "tiptap", {
+        timeout: 20_000,
+      });
       await page.locator('[data-testid="editor-save"]').click();
       await expect(htmlError()).toContainText(/script or event markup/i);
       expect(fieldPuts).toEqual([]);
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
+      // The refused save keeps the draft dirty, so leaving asks
+      // first; accepting is the operator path under test here.
+      html = PREVIOUS;
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
-      await expect(htmlField()).toHaveValue(PREVIOUS, { timeout: 20_000 });
-      await htmlField().fill(ORDINARY);
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(htmlField()).toContainText("Hi", { timeout: 20_000 });
+      await htmlField().click();
+      await page.keyboard.press("ControlOrMeta+a");
+      await page.keyboard.type("Bye");
       await page.locator('[data-testid="editor-save"]').click();
       await expect.poll(() => fieldPuts.length).toBe(1);
       const savedBody = JSON.parse(fieldPuts[0] || "{}");
@@ -289,24 +355,28 @@ test.describe("React Content Editor HTML NUL", () => {
       expect(savedHtml && savedHtml.value).toBe(ORDINARY);
       expect(String(savedHtml.value).includes("\u0000")).toBe(false);
       await expect(page.locator('[data-testid="editor-saved"]')).toBeVisible();
-      await expect(htmlField()).toHaveValue(ORDINARY);
+      await expect(htmlField()).toContainText("Bye");
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
-      await expect(htmlField()).toHaveValue(ORDINARY, { timeout: 20_000 });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(htmlField()).toContainText("Bye", { timeout: 20_000 });
       rejectNext = true;
-      await htmlField().fill("<p>Rejected</p>");
+      await htmlField().click();
+      await page.keyboard.press("ControlOrMeta+a");
+      await page.keyboard.type("Rejected");
       await page.locator('[data-testid="editor-save"]').click();
       await expect.poll(() => fieldPuts.length).toBe(2);
       await expect(htmlError()).toContainText(/could not be saved/i);
       await expect(page.locator('[data-testid="editor-save-error"]')).toBeVisible();
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
-      await expect(htmlField()).toHaveValue(ORDINARY, { timeout: 20_000 });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(htmlField()).toContainText("Bye", { timeout: 20_000 });
 
+      // The refused save keeps the draft dirty, so leaving asks
+      // first; accepting is the operator path under test here.
       includeLongText = true;
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
-      await expect(htmlField()).toHaveValue(ORDINARY, { timeout: 20_000 });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(htmlField()).toContainText("Bye", { timeout: 20_000 });
       await expect(descriptionField()).toHaveAttribute("data-editor-kind", "longtext");
       await expect(descriptionField()).toHaveValue(LONG_PREVIOUS);
       const putsBeforeLong = fieldPuts.length;
@@ -321,9 +391,12 @@ test.describe("React Content Editor HTML NUL", () => {
       await expect(page.locator('[data-testid="editor-saved"]')).toHaveCount(0);
       await expect(htmlError()).toHaveCount(0);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
+      // The refused save keeps the draft dirty, so leaving asks
+      // first; accepting is the operator path under test here.
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
       await expect(descriptionField()).toHaveValue(LONG_PREVIOUS, { timeout: 20_000 });
-      await expect(htmlField()).toHaveValue(ORDINARY);
+      await expect(htmlField()).toContainText("Bye");
+      expect(tinymceRequests, `tinymce fetched: ${tinymceRequests.join(" | ")}`).toEqual([]);
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="editor-host"]',

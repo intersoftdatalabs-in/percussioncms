@@ -16,7 +16,9 @@
  */
 
 /**
- * React Content Editor HTML field save (#4680). Pinned to the {@code ?engine=tinymce} escape hatch (#5758): TipTap is the default engine and these specs drive the legacy textarea fallback.
+ * React Content Editor HTML field save (#4680). TipTap-only since #5902
+ * (the {@code ?engine=tinymce} escape hatch is removed): every HTML field
+ * renders the bundled TipTap editor, so no {@code engine} param is passed.
  *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor} {@code @html}</p>
  *
@@ -69,9 +71,6 @@ const TYPE = {
 };
 
 async function stubEditorApis(page, { putStatus, putBody, onPut } = {}) {
-  await page.route("**/sys_resources/tinymce/**", (route) =>
-    route.fulfill({ status: 404, body: "" }),
-  );
   await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
   );
@@ -94,6 +93,23 @@ async function stubEditorApis(page, { putStatus, putBody, onPut } = {}) {
       }),
     }),
   );
+      // Quiet the fake id 42 against the live cell: untranslated and
+      // workflow-allowance lookups would otherwise log server ERRORs
+      // (same empty shapes as editor-host-html-tiptap.spec.js).
+      await page.route("**/services/itemmanagement/workflow/allowedWorkflows/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ choices: [] }),
+        }),
+      );
+      await page.route("**/services/assembly/slot-relationships/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ SlotCanvas: { ownerId: 42, slots: [] } }),
+        }),
+      );
   await page.route("**/services/contenttypes/**", (route) =>
     route.fulfill({
       status: 200,
@@ -138,6 +154,14 @@ test.describe("React Content Editor HTML field save", () => {
     async ({ page }) => {
       const puts = [];
       const pageErrors = [];
+      // TipTap-only (#5902): the React editor must never fetch the legacy
+      // TinyMCE script under any param.
+      const tinymceRequests = [];
+      page.on("request", (req) => {
+        if (req.url().includes("/sys_resources/tinymce/")) {
+          tinymceRequests.push(req.url());
+        }
+      });
       page.on("pageerror", (err) => pageErrors.push(String(err)));
       page.on("console", (msg) => {
         if (msg.type() !== "error") {
@@ -153,14 +177,19 @@ test.describe("React Content Editor HTML field save", () => {
         onPut: (req) => puts.push(req),
       });
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
       await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
         timeout: 20_000,
       });
       await expect(page.locator(`[data-testid="${TEST_IDS.form}"]`)).toBeVisible();
       const htmlField = page.locator(`[data-testid="${TEST_IDS.fieldText}"]`);
       await expect(htmlField).toHaveAttribute("data-editor-kind", "html");
-      await htmlField.fill("<p>Bye</p>");
+      await expect(htmlField).toHaveAttribute("data-editor-engine", "tiptap");
+      await expect(htmlField).toHaveAttribute("contenteditable", "true");
+      await expect(htmlField).toContainText("Hi");
+      await htmlField.click();
+      await page.keyboard.press("ControlOrMeta+a");
+      await page.keyboard.type("Bye");
       await page.locator(`[data-testid="${TEST_IDS.save}"]`).click();
       await expect.poll(() => puts.length).toBeGreaterThan(0);
       const putReq = puts.find((r) => isItemFieldsPutUrl(r.url()));
@@ -170,6 +199,7 @@ test.describe("React Content Editor HTML field save", () => {
       const text = (payload.fields || []).find((f) => f.name === "text");
       expect(text && text.value).toBe("<p>Bye</p>");
       await expect(page.getByText(/^Saved$/)).toBeVisible();
+      expect(tinymceRequests, `tinymce fetched: ${tinymceRequests.join(" | ")}`).toEqual([]);
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       await expectNoSeriousA11yViolations(page, {
         scope: `[data-testid="${TEST_IDS.host}"]`,
@@ -195,11 +225,16 @@ test.describe("React Content Editor HTML field save", () => {
       });
       await stubEditorApis(page, { putStatus: 400 });
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tinymce"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
       await expect(page.locator(`[data-testid="${TEST_IDS.form}"]`)).toBeVisible({
         timeout: 20_000,
       });
-      await page.locator(`[data-testid="${TEST_IDS.fieldText}"]`).fill("<p>Updated</p>");
+      const editField = page.locator(`[data-testid="${TEST_IDS.fieldText}"]`);
+      await expect(editField).toHaveAttribute("data-editor-engine", "tiptap");
+      await expect(editField).toContainText("Hi");
+      await editField.click();
+      await page.keyboard.press("ControlOrMeta+a");
+      await page.keyboard.type("Updated");
       await page.locator(`[data-testid="${TEST_IDS.save}"]`).click();
       await expect(page.locator(`[data-testid="${TEST_IDS.fieldErrorText}"]`)).toBeVisible();
       await expect(page.locator(`[data-testid="${TEST_IDS.saveError}"]`)).toBeVisible();
@@ -218,6 +253,7 @@ test.describe("React Content Editor HTML field save", () => {
         timeout: 20_000,
       });
       const viewHtml = page.locator(`[data-testid="${TEST_IDS.fieldText}"]`);
+      await expect(viewHtml).toHaveAttribute("data-editor-engine", "tiptap");
       await expect(viewHtml).toHaveAttribute("readonly", "");
       await expect(page.locator(`[data-testid="${TEST_IDS.save}"]`)).toHaveCount(0);
     },

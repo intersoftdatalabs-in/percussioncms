@@ -325,7 +325,7 @@ import {
   CommunityFieldWidget,
 } from "./widgets/CommunityFieldWidget";
 import { FileFieldWidget } from "./widgets/FileFieldWidget";
-import { HtmlFieldWidget, type HtmlEditorEngine } from "./widgets/HtmlFieldWidget";
+import { HtmlFieldWidget } from "./widgets/HtmlFieldWidget";
 import {
   collectImageNulFieldErrors,
   ImageFieldWidget,
@@ -664,7 +664,6 @@ function EditorFieldControl({
   loadCommunities,
   loadBinaryMeta,
   downloadBinary,
-  htmlEngine,
 }: {
   row: EditorFieldRow;
   itemId: string;
@@ -675,7 +674,6 @@ function EditorFieldControl({
    * link-text / browser-title without changing schema validation.
    */
   forceAriaRequired?: boolean;
-  htmlEngine: HtmlEditorEngine;
   onChange: (name: string, value: string) => void;
   onFile: (name: string, file: File | null) => void;
   onClear: (name: string, hadStored: boolean) => void;
@@ -700,7 +698,6 @@ function EditorFieldControl({
           value={row.value}
           readOnly={locked}
           invalid={invalid}
-          engine={htmlEngine}
           onChange={(value) => onChange(row.name, value)}
         />
         {showClear ? (
@@ -1045,14 +1042,6 @@ export function EditorHost({
   const linkbackWarning = (params.get("warningMessage") ?? "").trim();
   const readOnly = mode === "view";
   const promote = mode === "promote";
-  /**
-   * Engine seam for #5622/#5758: TipTap is the default editor for HTML
-   * fields (parity toolbar since #5651). {@code ?engine=tinymce} renders the
-   * legacy script-loaded TinyMCE as a one-release escape hatch; any other
-   * value (or no value) renders TipTap.
-   */
-  const htmlEngine: HtmlEditorEngine =
-    params.get("engine") === "tinymce" ? "tinymce" : "tiptap";
 
   const [payload, setPayload] = useState<ItemEditorFields | null>(null);
   const [schema, setSchema] = useState<ContentTypeFieldSummary[]>([]);
@@ -1667,7 +1656,6 @@ export function EditorHost({
               isPageMetadata &&
               PAGE_METADATA_ARIA_REQUIRED_FIELDS.has(row.name.trim().toLowerCase())
             }
-            htmlEngine={htmlEngine}
             onChange={setField}
             onFile={setFile}
             onClear={markBinaryClear}

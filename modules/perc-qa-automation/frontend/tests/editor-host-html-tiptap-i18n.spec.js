@@ -181,7 +181,7 @@ test.describe("React Content Editor TipTap session locale", () => {
       });
       await stubEditorApis(page);
 
-      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tiptap"));
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
       await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
         timeout: 20_000,
       });

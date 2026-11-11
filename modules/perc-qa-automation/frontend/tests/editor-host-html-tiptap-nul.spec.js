@@ -18,7 +18,7 @@
 /**
  * React Content Editor refuses a TipTap rich-text NUL on save (#5696 / #4532).
  *
- * <p>The TipTap engine ({@code ?engine=tiptap}) reports ProseMirror HTML
+ * <p>The TipTap editor reports ProseMirror HTML
  * through the same {@code onChange} contract as the TinyMCE textarea, so the
  * save-side HTML NUL gate ({@code htmlField.ts}, shipped for TinyMCE in
  * #5389) also covers TipTap rows. Two widget details make that true: the
@@ -219,7 +219,7 @@ test.describe("React Content Editor TipTap rich-text NUL", () => {
 
       const editable = () => page.locator(`[data-testid="${TEST_IDS.fieldText}"]`);
       const fieldError = () => page.locator(`[data-testid="${TEST_IDS.fieldErrorText}"]`);
-      const tiptapUrl = () => editorSpaUrl(BASE_URL, "contentId=42&mode=edit&engine=tiptap");
+      const tiptapUrl = () => editorSpaUrl(BASE_URL, "contentId=42&mode=edit");
 
       // Stored NUL: ProseMirror shows the stripped text, but the row value
       // still carries the NUL, so save refuses with a per-field message and
