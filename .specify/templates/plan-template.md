@@ -1,7 +1,10 @@
 # Implementation Plan: [FEATURE]
 
 **Branch**: `[###-feature-name]` | **Date**: [DATE] | **Spec**: [link]
+
 **Input**: Feature specification from `/specs/[###-feature-name]/spec.md`
+
+**Note**: This template is filled in by the `/speckit.plan` command; its definition describes the execution workflow.
 
 ## Summary
 
@@ -9,25 +12,35 @@
 
 ## Technical Context
 
-- **Language/Version**: Java 21 (on `development`) / Java 8 (on `development-8.1.x`)
-- **Owning Module(s)**: [e.g., `system/`, `rest/` — required]
-- **AGENTS Hierarchy**: [paths of AGENTS.md / AGENTS.local.md read]
-- **Dependencies & Storage**: [e.g., Maven modules, Spring, Hibernate, RDBMS]
-- **Testing**: [e.g., JUnit 5, Mockito]
-- **Scale/Impact**: [e.g., modules touched, user roles, install/upgrade impact]
+<!--
+  ACTION REQUIRED: Replace the content in this section with the technical details
+  for the project. The structure here is presented in advisory capacity to guide
+  the iteration process.
+-->
+
+**Language/Version**: [e.g., Python 3.11, Swift 5.9, Rust 1.75 or NEEDS CLARIFICATION]
+
+**Primary Dependencies**: [e.g., FastAPI, UIKit, LLVM or NEEDS CLARIFICATION]
+
+**Storage**: [if applicable, e.g., PostgreSQL, CoreData, files or N/A]
+
+**Testing**: [e.g., pytest, XCTest, cargo test or NEEDS CLARIFICATION]
+
+**Target Platform**: [e.g., Linux server, iOS 15+, WASM or NEEDS CLARIFICATION]
+
+**Project Type**: [e.g., library/cli/web-service/mobile-app/compiler/desktop-app or NEEDS CLARIFICATION]
+
+**Performance Goals**: [domain-specific, e.g., 1000 req/s, 10k lines/sec, 60 fps or NEEDS CLARIFICATION]
+
+**Constraints**: [domain-specific, e.g., <200ms p95, <100MB memory, offline-capable or NEEDS CLARIFICATION]
+
+**Scale/Scope**: [domain-specific, e.g., 10k users, 1M LOC, 50 screens or NEEDS CLARIFICATION]
 
 ## Constitution Check
 
-- [ ] **I. Module-First Boundaries** (owning modules identified, AGENTS applied)
-- [ ] **II. Evidence Over Invention** (cites existing paths/APIs)
-- [ ] **III. Test Discipline** (unit tests planned for all changes)
-- [ ] **IV. Contract & Integration Integrity** (REST/schema impacts assessed)
-- [ ] **V. Safe Modernization** (no Spring Boot/framework churn)
-- [ ] **VI. Security by Default** (AuthZ, XML, upload, logging reviewed)
-- [ ] **VII. Build & Dependency Hygiene** (branch JDK, maven/npm deps)
-- [ ] **VIII. Documentation & Operability** (README/i18n updates planned)
-- [ ] **IX. PR Review Comment Resolution** (inline replies & resolving threads)
-- [ ] **Complexity Budget** (any constitution violations listed in Complexity Tracking with justification)
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+[Gates determined based on constitution file]
 
 ## Project Structure
 
@@ -35,19 +48,66 @@
 
 ```text
 specs/[###-feature]/
-├── plan.md              # Technical plan
-├── research.md          # Research findings
-└── tasks.md             # Task list
+├── plan.md              # This file (/speckit.plan command output)
+├── research.md          # Phase 0 output (/speckit.plan command)
+├── data-model.md        # Phase 1 output (/speckit.plan command)
+├── quickstart.md        # Phase 1 output (/speckit.plan command)
+├── contracts/           # Phase 1 output (/speckit.plan command)
+└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
 ```
 
-### Source Code (affected paths)
+### Source Code (repository root)
+<!--
+  ACTION REQUIRED: Replace the placeholder tree below with the concrete layout
+  for this feature. Delete unused options and expand the chosen structure with
+  real paths (e.g., apps/admin, packages/something). The delivered plan must
+  not include Option labels.
+-->
 
 ```text
-[Insert specific module paths that will change]
+# [REMOVE IF UNUSED] Option 1: Single project (DEFAULT)
+src/
+├── models/
+├── services/
+├── cli/
+└── lib/
+
+tests/
+├── contract/
+├── integration/
+└── unit/
+
+# [REMOVE IF UNUSED] Option 2: Web application (when "frontend" + "backend" detected)
+backend/
+├── src/
+│   ├── models/
+│   ├── services/
+│   └── api/
+└── tests/
+
+frontend/
+├── src/
+│   ├── components/
+│   ├── pages/
+│   └── services/
+└── tests/
+
+# [REMOVE IF UNUSED] Option 3: Mobile + API (when "iOS/Android" detected)
+api/
+└── [same as backend above]
+
+ios/ or android/
+└── [platform-specific structure: feature modules, UI flows, platform tests]
 ```
+
+**Structure Decision**: [Document the selected structure and reference the real
+directories captured above]
 
 ## Complexity Tracking
 
-*(Only if constitution exceptions are justified)*
-- **Violation**:
-- **Justification & Alternatives**:
+> **Fill ONLY if Constitution Check has violations that must be justified**
+
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| [e.g., 4th project] | [current need] | [why 3 projects insufficient] |
+| [e.g., Repository pattern] | [specific problem] | [why direct DB access insufficient] |
