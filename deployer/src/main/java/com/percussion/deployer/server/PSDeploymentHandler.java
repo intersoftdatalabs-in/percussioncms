@@ -2735,133 +2735,238 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
   public void processRequest(PSRequest request) {
     Document respDoc = null;
 
-    String reqType = request.getCgiVariable(IPSCgiVariables.CGI_PS_REQUEST_TYPE);
-    String subReqType;
-
     try {
-      if (reqType == null || !reqType.startsWith("deploy-")) {
-        throw new PSDeployException(
-            DeploymentErrorCodes.INVALID_REQUEST_TYPE, reqType == null ? "" : reqType);
-      } else {
-        subReqType = reqType.substring("deploy-".length());
-      }
-
-      if (subReqType.equals("connect")) {
-        // this will authenticate and check security
-        respDoc = connect(request);
-      } else {
-        Document tempDoc = null;
-        boolean isDisconnect = subReqType.equals("disconnect");
-
-        // all requests other than disconnect have security checked and
-        // lock extended by default
-        if (!isDisconnect) {
-          PSServer.checkAccessLevel(request, PSAclEntry.SACE_ADMINISTER_SERVER);
-          tempDoc = extendLock(request);
-        }
-
-        if (subReqType.equals("extendlock")) respDoc = tempDoc;
-        else if (subReqType.equals("disconnect")) respDoc = disconnect(request);
-        else if (subReqType.equals("catalog")) respDoc = PSCatalogHandler.processRequest(request);
-        else if (subReqType.equals("getExportDescriptor")) respDoc = getExportDescriptor(request);
-        else if (subReqType.equals("saveExportDescriptor")) respDoc = saveExportDescriptor(request);
-        else if (subReqType.equals("saveArchiveFile")) respDoc = saveArchiveFile(request);
-        else if (subReqType.equals("saveConfigFile")) respDoc = saveConfigFile(request);
-        else if (subReqType.equals("getArchiveFile")) respDoc = getArchiveFile(request);
-        else if (subReqType.equals("saveUserDependency")) respDoc = saveUserDependency(request);
-        else if (subReqType.equals("deleteUserDependency")) respDoc = deleteUserDependency(request);
-        else if (subReqType.equals("deleteExportDescriptor"))
-          respDoc = deleteExportDescriptor(request);
-        else if (subReqType.equals("loadDependencies")) respDoc = loadDependencies(request);
-        else if (subReqType.equals("loadAncestors")) respDoc = loadAncestors(request);
-        else if (subReqType.equals("getIdMap")) respDoc = getIdMap(request);
-        else if (subReqType.equals("saveIdMap")) respDoc = saveIdMap(request);
-        else if (subReqType.equals("getArchiveSummary")) respDoc = getArchiveSummary(request);
-        else if (subReqType.equals("getArchiveInfo")) respDoc = getArchiveInfo(request);
-        else if (subReqType.equals("getLogSummary")) respDoc = getLogSummary(request);
-        else if (subReqType.equals("deleteArchive")) respDoc = deleteArchive(request);
-        else if (subReqType.equals("getDbmsMap")) respDoc = getDbmsMap(request);
-        else if (subReqType.equals("saveDbmsMap")) respDoc = saveDbmsMap(request);
-        else if (subReqType.equals("getDeployableElements"))
-          respDoc = getDeployableElements(request);
-        else if (subReqType.equals("getIdTypes")) respDoc = getIdTypes(request);
-        else if (subReqType.equals("saveIdTypes")) respDoc = saveIdTypes(request);
-        else if (subReqType.equals("validateLocalConfig")) respDoc = validateLocalConfig(request);
-        else if (subReqType.equals("validateArchive")) respDoc = validateArchive(request);
-        else if (subReqType.equals("saveAppPolicySettings"))
-          respDoc = saveAppPolicySettings(request);
-        else if (subReqType.equals("getAppPolicySettings")) respDoc = getAppPolicySettings(request);
-        else if (subReqType.equals("getFeatureSet")) respDoc = getFeatureSet(request);
-        else if (subReqType.equals("getDependencies")) respDoc = getDependencies(request);
-        else if (subReqType.equals("getParentTypes")) respDoc = getParentTypes(request);
-        else if (subReqType.equals("getValidationResults")) respDoc = getValidationResults(request);
-        else if (subReqType.equals("createDescriptorGuid")) respDoc = createDescriptorGuid();
-        else if (subReqType.equals("getDependencyToPackageNameIndex"))
-          respDoc = getDependencyToPackageNameIndex();
-        else if (subReqType.equals("createConfigDef")) respDoc = createConfigDef(request);
-        else if (subReqType.equals("createDefaultConfig")) respDoc = createDefaultConfig(request);
-        else if (subReqType.equals("createDescriptorSummary"))
-          respDoc = createDescriptorSummary(request);
-        else {
-          throw new PSDeployException(DeploymentErrorCodes.INVALID_REQUEST_TYPE, reqType);
-        }
-      }
+      String reqType = request.getCgiVariable(IPSCgiVariables.CGI_PS_REQUEST_TYPE);
+      respDoc = dispatchDeployRequest(request, reqType);
     } catch (PSAuthenticationFailedException af) {
       ms_log.warn("Authentication Failed.  Invalid User Name and/or Password.");
       ms_log.debug("AuthenticationFailed.. Invalid User Name and/or Password.", af);
       return;
     } catch (Exception e) {
-      String msg = "An unexpected error occurred while processing the Request.";
-      try {
-        msg = msg + " Request Source is: " + PSXMLDomUtil.toString(respDoc.getDocumentElement());
-      } catch (Exception ex) {
-        ms_log.error(PSExceptionUtils.getMessageForLog(e));
-      }
-      ms_log.warn(msg);
-
-      try {
-        // its possible that session has timed out, so
-        // release the lock if the session id sent by the client doesn't match
-        // the real session id
-        Document reqDoc = request.getInputDocument();
-        if (reqDoc != null) {
-          Element root = reqDoc.getDocumentElement();
-          if (root != null) {
-            String clientSessId = root.getAttribute(SESSION_ID_ATTR);
-            if (clientSessId != null && !clientSessId.equals(request.getUserSessionId())) {
-              try {
-                releaseLock(clientSessId);
-              } catch (Exception exSession) {
-                msg = "An unexpected exception occurred while releasing a Session lock.";
-                if (clientSessId != null) msg = msg + " For Session Id: " + clientSessId;
-
-                ms_log.warn(msg);
-              }
-            }
-          }
-        }
-
-        // Convert to xml response
-        PSDeployException de = null;
-        if (e instanceof PSDeployException) de = (PSDeployException) e;
-        else if (e instanceof PSException) de = new PSDeployException((PSException) e);
-        else {
-          de =
-              new PSDeployException(
-                  DeploymentErrorCodes.UNEXPECTED_ERROR, PSExceptionUtils.getMessageForLog(e));
-        }
-
-        respDoc = PSXmlDocumentBuilder.createXmlDocument();
-        Element respEl = de.toXml(respDoc);
-        PSXmlDocumentBuilder.replaceRoot(respDoc, respEl);
-        request.getResponse().setStatus(500);
-      } catch (RuntimeException ex) {
-        ms_log.warn("An unexpected error occurred while handling an error in the request.", ex);
-        // At this point this is an actual runtime exception, so we should throw it up the chain.
-        throw ex;
-      }
+      respDoc = buildProcessRequestErrorResponse(e, request, respDoc);
     }
 
+    writeProcessResponse(request, respDoc);
+  }
+
+  /**
+   * Validates the deploy request type and dispatches to the matching handler. The {@code
+   * connect} request authenticates and checks security itself; {@code disconnect} needs
+   * neither a security check nor a lock extension; every other request has security
+   * checked and the lock extended by default.
+   *
+   * @param request the incoming request, assumed not <code>null</code>.
+   * @param reqType the raw request type CGI variable, may be <code>null</code>.
+   * @return the response document, may be <code>null</code>.
+   * @throws Exception if validation fails or the dispatched handler fails.
+   */
+  private Document dispatchDeployRequest(PSRequest request, String reqType) throws Exception {
+    String subReqType = extractDeploySubRequestType(reqType);
+
+    if (subReqType.equals("connect")) {
+      // this will authenticate and check security
+      return connect(request);
+    }
+
+    if (subReqType.equals("disconnect")) {
+      return disconnect(request);
+    }
+
+    // all requests other than disconnect have security checked and
+    // lock extended by default
+    PSServer.checkAccessLevel(request, PSAclEntry.SACE_ADMINISTER_SERVER);
+    Document lockDoc = extendLock(request);
+
+    if (subReqType.equals("extendlock")) {
+      return lockDoc;
+    }
+
+    return dispatchLockedDeployRequest(request, reqType, subReqType);
+  }
+
+  /**
+   * Validates that the request type names a deploy request and strips the {@code
+   * deploy-} prefix.
+   *
+   * @param reqType the raw request type CGI variable, may be <code>null</code>.
+   * @return the sub-request type with the prefix removed, never <code>null</code>.
+   * @throws PSDeployException if the request type is not a deploy request type.
+   */
+  private static String extractDeploySubRequestType(String reqType) throws PSDeployException {
+    if (reqType == null || !reqType.startsWith("deploy-")) {
+      throw new PSDeployException(
+          DeploymentErrorCodes.INVALID_REQUEST_TYPE, reqType == null ? "" : reqType);
+    }
+    return reqType.substring("deploy-".length());
+  }
+
+  /**
+   * Dispatches an authenticated, lock-extended deploy sub-request to its handler.
+   * Table-driven: one map entry per sub-request type keeps this method flat no
+   * matter how many operations exist.
+   *
+   * @param request the incoming request, assumed not <code>null</code>.
+   * @param reqType the raw request type, used for the invalid-type error.
+   * @param subReqType the sub-request type with the prefix removed.
+   * @return the response document, may be <code>null</code>.
+   * @throws Exception if the sub-request type is unknown or the handler fails.
+   */
+  private Document dispatchLockedDeployRequest(PSRequest request, String reqType, String subReqType)
+      throws Exception {
+    DeploySubRequestHandler handler = DEPLOY_SUB_REQUEST_HANDLERS.get(subReqType);
+    if (handler == null) {
+      throw new PSDeployException(DeploymentErrorCodes.INVALID_REQUEST_TYPE, reqType);
+    }
+    return handler.handle(this, request);
+  }
+
+  /** Single deploy sub-request handler invoked with its owning handler and request. */
+  @FunctionalInterface
+  private interface DeploySubRequestHandler {
+    /**
+     * Handles one deploy sub-request.
+     *
+     * @param handler the owning deployment handler, assumed not <code>null</code>.
+     * @param request the incoming request, assumed not <code>null</code>.
+     * @return the response document, may be <code>null</code>.
+     * @throws Exception if handling fails.
+     */
+    Document handle(PSDeploymentHandler handler, PSRequest request) throws Exception;
+  }
+
+  /** Exact-match dispatch table for authenticated, lock-extended deploy sub-requests. */
+  private static final Map<String, DeploySubRequestHandler> DEPLOY_SUB_REQUEST_HANDLERS =
+      Map.ofEntries(
+          Map.entry("catalog", (handler, req) -> PSCatalogHandler.processRequest(req)),
+          Map.entry("getExportDescriptor", PSDeploymentHandler::getExportDescriptor),
+          Map.entry("saveExportDescriptor", PSDeploymentHandler::saveExportDescriptor),
+          Map.entry("saveArchiveFile", PSDeploymentHandler::saveArchiveFile),
+          Map.entry("saveConfigFile", PSDeploymentHandler::saveConfigFile),
+          Map.entry("getArchiveFile", PSDeploymentHandler::getArchiveFile),
+          Map.entry("saveUserDependency", PSDeploymentHandler::saveUserDependency),
+          Map.entry("deleteUserDependency", PSDeploymentHandler::deleteUserDependency),
+          Map.entry("deleteExportDescriptor", PSDeploymentHandler::deleteExportDescriptor),
+          Map.entry("loadDependencies", PSDeploymentHandler::loadDependencies),
+          Map.entry("loadAncestors", PSDeploymentHandler::loadAncestors),
+          Map.entry("getIdMap", PSDeploymentHandler::getIdMap),
+          Map.entry("saveIdMap", PSDeploymentHandler::saveIdMap),
+          Map.entry("getArchiveSummary", PSDeploymentHandler::getArchiveSummary),
+          Map.entry("getArchiveInfo", PSDeploymentHandler::getArchiveInfo),
+          Map.entry("getLogSummary", PSDeploymentHandler::getLogSummary),
+          Map.entry("deleteArchive", PSDeploymentHandler::deleteArchive),
+          Map.entry("getDbmsMap", PSDeploymentHandler::getDbmsMap),
+          Map.entry("saveDbmsMap", PSDeploymentHandler::saveDbmsMap),
+          Map.entry("getDeployableElements", PSDeploymentHandler::getDeployableElements),
+          Map.entry("getIdTypes", PSDeploymentHandler::getIdTypes),
+          Map.entry("saveIdTypes", PSDeploymentHandler::saveIdTypes),
+          Map.entry("validateLocalConfig", PSDeploymentHandler::validateLocalConfig),
+          Map.entry("validateArchive", PSDeploymentHandler::validateArchive),
+          Map.entry("saveAppPolicySettings", PSDeploymentHandler::saveAppPolicySettings),
+          Map.entry("getAppPolicySettings", PSDeploymentHandler::getAppPolicySettings),
+          Map.entry("getFeatureSet", PSDeploymentHandler::getFeatureSet),
+          Map.entry("getDependencies", PSDeploymentHandler::getDependencies),
+          Map.entry("getParentTypes", PSDeploymentHandler::getParentTypes),
+          Map.entry("getValidationResults", PSDeploymentHandler::getValidationResults),
+          Map.entry("createDescriptorGuid", (handler, req) -> handler.createDescriptorGuid()),
+          Map.entry(
+              "getDependencyToPackageNameIndex",
+              (handler, req) -> handler.getDependencyToPackageNameIndex()),
+          Map.entry("createConfigDef", PSDeploymentHandler::createConfigDef),
+          Map.entry("createDefaultConfig", PSDeploymentHandler::createDefaultConfig),
+          Map.entry("createDescriptorSummary", PSDeploymentHandler::createDescriptorSummary));
+
+  /**
+   * Builds the error response document for a failed deploy request. Releases the
+   * session lock when the client session id no longer matches the server session id
+   * (session may have timed out) and marks the response status 500.
+   *
+   * @param e the failure, assumed not <code>null</code>.
+   * @param request the incoming request, assumed not <code>null</code>.
+   * @param respDoc the partial response document, may be <code>null</code>.
+   * @return the error response document, never <code>null</code>.
+   * @throws RuntimeException if building the error response itself fails.
+   */
+  private Document buildProcessRequestErrorResponse(
+      Exception e, PSRequest request, Document respDoc) {
+    String msg = "An unexpected error occurred while processing the Request.";
+    try {
+      msg = msg + " Request Source is: " + PSXMLDomUtil.toString(respDoc.getDocumentElement());
+    } catch (Exception ex) {
+      ms_log.error(PSExceptionUtils.getMessageForLog(e));
+    }
+    ms_log.warn(msg);
+
+    try {
+      releaseStaleSessionLock(request);
+
+      // Convert to xml response
+      PSDeployException de = toDeployException(e);
+
+      Document errDoc = PSXmlDocumentBuilder.createXmlDocument();
+      Element respEl = de.toXml(errDoc);
+      PSXmlDocumentBuilder.replaceRoot(errDoc, respEl);
+      request.getResponse().setStatus(500);
+      return errDoc;
+    } catch (RuntimeException ex) {
+      ms_log.warn("An unexpected error occurred while handling an error in the request.", ex);
+      // At this point this is an actual runtime exception, so we should throw it up the chain.
+      throw ex;
+    }
+  }
+
+  /**
+   * Releases the session lock when the session id sent by the client does not match
+   * the real session id (its possible that session has timed out).
+   *
+   * @param request the incoming request, assumed not <code>null</code>.
+   */
+  private void releaseStaleSessionLock(PSRequest request) {
+    Document reqDoc = request.getInputDocument();
+    if (reqDoc == null) {
+      return;
+    }
+    Element root = reqDoc.getDocumentElement();
+    if (root == null) {
+      return;
+    }
+    String clientSessId = root.getAttribute(SESSION_ID_ATTR);
+    if (clientSessId == null || clientSessId.equals(request.getUserSessionId())) {
+      return;
+    }
+    try {
+      releaseLock(clientSessId);
+    } catch (Exception exSession) {
+      String msg = "An unexpected exception occurred while releasing a Session lock.";
+      if (clientSessId != null) msg = msg + " For Session Id: " + clientSessId;
+
+      ms_log.warn(msg);
+    }
+  }
+
+  /**
+   * Converts any failure into a {@link PSDeployException} for XML error rendering.
+   *
+   * @param e the failure, assumed not <code>null</code>.
+   * @return the deploy exception, never <code>null</code>.
+   */
+  private static PSDeployException toDeployException(Exception e) {
+    if (e instanceof PSDeployException) {
+      return (PSDeployException) e;
+    }
+    if (e instanceof PSException) {
+      return new PSDeployException((PSException) e);
+    }
+    return new PSDeployException(
+        DeploymentErrorCodes.UNEXPECTED_ERROR, PSExceptionUtils.getMessageForLog(e));
+  }
+
+  /**
+   * Writes the response document to the request response when present.
+   *
+   * @param request the incoming request, assumed not <code>null</code>.
+   * @param respDoc the response document, may be <code>null</code>.
+   */
+  private static void writeProcessResponse(PSRequest request, Document respDoc) {
     PSResponse resp = request.getResponse();
     if (respDoc != null) resp.setContent(respDoc);
   }
