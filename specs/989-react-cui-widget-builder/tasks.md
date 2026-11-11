@@ -147,7 +147,7 @@
 - [ ] T056a Execute **main-nav smoke checklist (SC-005 / FR-020)** and record pass/fail in PR or `specs/989-react-cui-widget-builder/checklists/` notes: (1) Dashboard opens; (2) at least one other non-Home tab (e.g. editor/Web Management or Design) opens for the tester’s roles; (3) Home still opens; (4) Widget Builder opens only when enabled
 - [ ] T056b UAT sample **unmapped** legacy path shows the on-page moved/unavailable message (SC-007); record URL used and result
 - [ ] T056c Complete and sign **SC-008 / FR-024 i18n key-presence checklist** in `specs/989-react-cui-widget-builder/checklists/i18n-key-checklist.md` (primary Home + WB chrome → TMX keys; optional non-default locale spot-check if env available); attach to shippable PR notes
-- [ ] T057 Security review of CSRF, session expiry messaging, and WB AuthZ gates on new shells
+- [x] T057 Security review of CSRF, session expiry messaging, and WB AuthZ gates on new shells (evidence: #6085 — live H2-cell pass + `api/client.ts` login-redirect fix)
 - [x] T058 Spotless / formatting and frontend lint clean on touched WebUI sources
 
 ---
