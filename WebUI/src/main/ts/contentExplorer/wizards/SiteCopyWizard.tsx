@@ -262,7 +262,7 @@ export function SiteCopyWizard(
         role="status"
         aria-live="polite"
         data-testid="site-copy-step-count"
-        style={{ color: "#888", margin: "0 0 8px 0" }}
+        style={{ color: "#767676", margin: "0 0 8px 0" }}
       >
         {message(EXPLORER_MSG.WIZARD_STEP)} {wizard.current + 1}{" "}
         {message(EXPLORER_MSG.WIZARD_OF)} {STEPS.length}

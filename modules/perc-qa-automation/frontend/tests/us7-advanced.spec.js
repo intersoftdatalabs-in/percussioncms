@@ -20,17 +20,20 @@
  * <p>Asserts the modern React advanced-CE surfaces mount on
  * <code>us7AdvancedModern.jsp</code> against the live docker dev CMS
  * at <code>http://localhost:9992</code>. SC-011 acceptance criteria
- * for the 6 capability-matrix P-Adv rows are gated on a
- * system-installed CMS (the dev Derby image has no installed
- * relationship data, the AA-link synthesis row however renders
- * locally with the supplied {@code aaLinkCount: 3}). The Vitest
- * suites cover the structural surface.</p>
+ * for the 6 capability-matrix P-Adv rows are gated on US8
+ * server-authoritative summaries: the pilot mounts the viewers with a
+ * parseable GUID-format item id, the specs stub the consolidated
+ * <code>/summary</code> endpoint for determinism, and every dimension
+ * row renders a server count (never the pre-US8 <code>"—"</code>
+ * placeholder or the <code>client-side-preview</code> banner, both
+ * removed by US8). The Vitest suites cover the structural surface.</p>
  *
  * <p>One <code>test()</code> per capability-matrix dimension where
  * the smoke wiring applies; vitest + Playwright list is the union of
- * the SC-011 evidence. The dependency-viewer rows other than AA are
- * expected to render the <code>"—"</code> placeholder (per the
- * <code>clientSideOnly</code> gate), not actual server data.</p>
+ * the SC-011 evidence. Server-authoritative rows are asserted here;
+ * the <code>us8-dependency.spec.js</code> companion additionally drives
+ * one un-stubbed live round-trip and asserts the viewer settles
+ * without the legacy banner.</p>
  *
  * <p>Run from <code>modules/perc-qa-automation/frontend</code>:</p>
  * <pre>
@@ -44,10 +47,58 @@ const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
 const US7_URL = `${BASE_URL}/Rhythmyx/cm/app/us7AdvancedModern.jsp?_=${Date.now()}`;
 
+/**
+ * Deterministic US8 consolidated-summary payload (mirrors the
+ * `fetchNodeSummary` Vitest shape in
+ * `WebUI/src/test/ts/contentExplorer/relationshipsApi.test.ts`).
+ * Row text derived from `dependencyModel.composeFromServerSummary`:
+ * outgoing "3 translation", incoming "1 translation", aa "3 AA links"
+ * (host-supplied), taxonomy "2 nodes", local "2 local links", reverse
+ * "1 translation", total "Known edges: 12".
+ */
+const US8_STUB_SUMMARY = {
+  outgoing: { count: 3, byType: [{ type: "translation", count: 3 }] },
+  incoming: { count: 1, byType: [{ type: "translation", count: 1 }] },
+  taxonomy: { count: 2, nodes: ["/Sites/Foo", "/Sites/Foo/Bar"] },
+  local: { count: 2, links: [] },
+  reverse: { count: 1, byType: [{ type: "translation", count: 1 }] },
+};
+
+async function stubRelationshipSummary(page) {
+  await page.route(
+    "**/rest/content-explorer/relationships/*/summary",
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify(US8_STUB_SUMMARY),
+      });
+    },
+  );
+  // RelationshipsView also loads the edge list on mount; an empty edge
+  // set keeps the stubbed suites hermetic (no server round-trip for the
+  // synthetic pilot id, hence no exception-mapper noise in server.log).
+  await page.route(
+    "**/rest/content-explorer/relationships/*/edges",
+    async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ items: [] }),
+      });
+    },
+  );
+}
+
 test.describe("US7 P-Adv \u2014 advanced CE (SC-011)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(60_000);
     await loginAsAdmin(page);
+    // Hermetic pilot: the viewers mount with the synthetic pilot id, so
+    // stub the summary + edges for every test (a real 404 for the
+    // synthetic id logs a server-side exception-mapper ERROR; the true
+    // live round-trip is covered by us8-dependency.spec.js).
+    await stubRelationshipSummary(page);
   });
 
   test("advanced CE pilot mounts all five US7 surfaces (clipboard + 2 wizards + 2 views)", async ({
@@ -120,16 +171,40 @@ test.describe("US7 P-Adv \u2014 advanced CE (SC-011)", () => {
     ).toContainText("of 4");
   });
 
-  test("Capability-matrix P-Adv \u2014 DependencyViewer AA row (SC-011 row 4 \u2014 known; others unknown)", async ({
+  test("Capability-matrix P-Adv — DependencyViewer renders 6 server-authoritative rows, no banner (SC-011 row 4)", async ({
     page,
   }) => {
+    await stubRelationshipSummary(page);
     await page.goto(US7_URL, { waitUntil: "networkidle" });
     const viewer = page.locator('[data-testid="dependency-viewer"]');
     await expect(viewer).toBeVisible({ timeout: 15_000 });
-    // AA row is known (we supplied aaLinkCount: 3).
-    const aaRow = page.locator('[data-testid="dependency-row-aa"]');
-    await expect(aaRow).toContainText("3 AA links");
-    // The other 5 dimensions are marked unknown per the T074 spike.
+    await expect(viewer).toHaveAttribute("data-testid-state", "ok", {
+      timeout: 15_000,
+    });
+    // AA row is host-supplied (aaLinkCount: 3 on the pilot).
+    await expect(
+      page.locator('[data-testid="dependency-row-aa"]'),
+    ).toContainText("3 AA links");
+    // The other 5 dimensions render server counts (US8), never "—".
+    await expect(
+      page.locator('[data-testid="dependency-row-outgoing"]'),
+    ).toContainText("3 translation");
+    await expect(
+      page.locator('[data-testid="dependency-row-incoming"]'),
+    ).toContainText("1 translation");
+    await expect(
+      page.locator('[data-testid="dependency-row-taxonomy"]'),
+    ).toContainText("2 nodes");
+    await expect(
+      page.locator('[data-testid="dependency-row-local"]'),
+    ).toContainText("2 local links");
+    await expect(
+      page.locator('[data-testid="dependency-row-reverse"]'),
+    ).toContainText("1 translation");
+    await expect(
+      page.locator('[data-testid="dependency-total"]'),
+    ).toContainText("Known edges: 12");
+    // No unknown placeholder and no client-side preview banner (US8 removed both).
     for (const dim of [
       "outgoing",
       "incoming",
@@ -138,30 +213,34 @@ test.describe("US7 P-Adv \u2014 advanced CE (SC-011)", () => {
       "reverse",
     ]) {
       const row = page.locator(`[data-testid="dependency-row-${dim}"]`);
-      await expect(row).toContainText("\u2014");
+      await expect(row).not.toContainText("—");
     }
-    // Client-side preview banner is visible.
     await expect(
       page.locator('[data-testid="dependency-client-side-preview"]'),
-    ).toBeVisible();
+    ).toHaveCount(0);
   });
 
-  test("Capability-matrix P-Adv \u2014 RelationshipsView shows 4 primary rows + supplementary (SC-011 row 5)", async ({
+  test("Capability-matrix P-Adv — RelationshipsView shows 4 primary rows + supplementary, no banner (SC-011 row 5)", async ({
     page,
   }) => {
+    await stubRelationshipSummary(page);
     await page.goto(US7_URL, { waitUntil: "networkidle" });
     const viewer = page.locator('[data-testid="relationships-view"]');
     await expect(viewer).toBeVisible({ timeout: 15_000 });
+    await expect(viewer).toHaveAttribute("data-testid-state", "ok", {
+      timeout: 15_000,
+    });
     for (const dim of ["outgoing", "incoming", "taxonomy", "local"]) {
       const row = page.locator(`[data-testid="relationships-row-${dim}"]`);
-      await expect(row).toBeTruthy();
+      await expect(row).toBeVisible();
+      await expect(row).not.toContainText("—");
     }
     // Supplementary AA + reverse rows in the <details> panel.
     const aa = page.locator('[data-testid="relationships-row-aa"]');
     await expect(aa).toContainText("3 AA links");
     await expect(
       page.locator('[data-testid="relationships-client-side-preview"]'),
-    ).toBeVisible();
+    ).toHaveCount(0);
   });
 
   test("US7 pilot: legacy miller-column Finder chrome is NOT loaded", async ({
@@ -174,6 +253,11 @@ test.describe("US7 P-Adv \u2014 advanced CE (SC-011)", () => {
   test("axe-core a11y gate — DependencyViewer / Clipboard / Sites wizard (T082b)", async ({
     page,
   }) => {
+    // Stub the summary so the viewers settle to ok-state without hitting
+    // the server for the synthetic pilot id (a real 404 would log a
+    // server-side exception-mapper ERROR; the live round-trip is covered
+    // by us8-dependency.spec.js against real candidate content).
+    await stubRelationshipSummary(page);
     await page.goto(US7_URL, { waitUntil: "networkidle" });
     // The pilot page embeds 6+ panels stacked; the modern shell root has
     // a stable testid we can scope to. If absent, scan page-level.

@@ -132,14 +132,27 @@ export function fetchReverse(
   );
 }
 
-export function fetchNodeSummary(
+export async function fetchNodeSummary(
   itemId: string,
   signal?: AbortSignal,
 ): Promise<PSNodeRelationshipSummary> {
-  return fetchOne<PSNodeRelationshipSummary>(
-    `${BASE_PATH}/${encodeURIComponent(itemId)}/summary`,
-    signal,
-  );
+  const raw = await fetchOne<
+    | PSNodeRelationshipSummary
+    | { PSNodeRelationshipSummary?: PSNodeRelationshipSummary }
+  >(`${BASE_PATH}/${encodeURIComponent(itemId)}/summary`, signal);
+  // The JAX-RS resource serializes with the @JsonRootName wrapper
+  // ({"PSNodeRelationshipSummary": {...}} — proven on the live wire);
+  // accept the wrapped and the flat shape so unit stubs and the
+  // candidate build both parse to authoritative counts.
+  if (raw && typeof raw === "object" && "PSNodeRelationshipSummary" in raw) {
+    const inner = (
+      raw as { PSNodeRelationshipSummary?: PSNodeRelationshipSummary }
+    ).PSNodeRelationshipSummary;
+    if (inner && typeof inner === "object") {
+      return inner;
+    }
+  }
+  return raw as PSNodeRelationshipSummary;
 }
 
 /**

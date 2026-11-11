@@ -216,7 +216,7 @@ export function ClipboardPanel(props: ClipboardPanelProps): React.JSX.Element {
             style={{ padding: "2px 0" }}
           >
             <code style={{ fontFamily: "monospace" }}>{it.path}</code>
-            <small style={{ marginLeft: 6, color: "#888" }}>
+            <small style={{ marginLeft: 6, color: "#767676" }}>
               ({it.kind})
             </small>
           </li>
