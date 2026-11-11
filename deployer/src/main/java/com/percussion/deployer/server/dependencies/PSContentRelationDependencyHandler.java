@@ -631,132 +631,392 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
     try {
       Map<String, List<String>> inlineFieldMap = new HashMap<>();
       Map<String, String> fieldMap = new HashMap<>(); // map of be col names to field submit names
-      Iterator<PSComponent> fields = fieldSet.getAll();
-      while (fields.hasNext()) {
-        PSComponent o = fields.next();
-        if (o instanceof PSFieldSet) {
-          processFieldSet(dep, ctx, contentid, (PSFieldSet) o, relationshipMap, modifiedSet);
-        } else if (o instanceof PSField) {
-          PSField field = (PSField) o;
-          if (field.mayHaveInlineLinks()) {
-            IPSBackEndMapping beMapping = field.getLocator();
-            if (beMapping instanceof PSBackEndColumn) {
-              PSBackEndColumn becol = (PSBackEndColumn) beMapping;
-              String tableName = becol.getTable().getTable();
-              List<String> fieldList = inlineFieldMap.get(tableName);
-              if (fieldList == null) {
-                fieldList = new ArrayList<>();
-                inlineFieldMap.put(tableName, fieldList);
-              }
-              fieldList.add(becol.getColumn().toLowerCase());
-              fieldMap.put(becol.getColumn(), field.getSubmitName());
-            }
-          }
-        }
-      }
-
-      // query each table and process each field in each row returned
-      PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
-      PSJdbcSelectFilter filter =
-          new PSJdbcSelectFilter(
-              IPSConstants.ITEM_PKEY_CONTENTID,
-              PSJdbcSelectFilter.EQUALS,
-              contentid,
-              Types.INTEGER);
-
-      for (Entry<String, List<String>> entry : inlineFieldMap.entrySet()) {
-        // query all matching rows from the table
-        String tableName = entry.getKey();
-        List<String> colList = entry.getValue();
-        PSJdbcTableSchema schema = dbmsHelper.catalogTable(tableName, false);
-        PSJdbcTableData data = dbmsHelper.catalogTableData(schema, null, filter);
-        if (data == null) continue;
-
-        List<PSJdbcRowData> modRowList = new ArrayList<>();
-        Iterator<PSJdbcRowData> rows = data.getRows();
-        while (rows.hasNext()) {
-          boolean modifiedRow = false;
-          List<PSJdbcColumnData> modColList = new ArrayList<>();
-
-          // see if this is a child row
-          boolean isChild = false;
-          String sysId = null;
-          PSJdbcRowData row = rows.next();
-          PSJdbcColumnData sysCol = row.getColumn(IPSConstants.CHILD_ITEM_PKEY, true);
-          if (sysCol != null) {
-            sysId = sysCol.getValue();
-            if (sysId != null && sysId.trim().length() > 0) isChild = true;
-          }
-
-          // walk the fields and get the value for each if there
-          Iterator<PSJdbcColumnData> cols = row.getColumns();
-          while (cols.hasNext()) {
-            PSJdbcColumnData colData = cols.next();
-            modColList.add(colData);
-            String colName = colData.getName();
-            if (!colList.contains(colName.toLowerCase())) continue;
-
-            String text = colData.getValue();
-            if (null == text || text.trim().length() == 0) continue;
-
-            // Assume the text is a valid XML document, already tidied
-            Document fieldDoc =
-                PSXmlDocumentBuilder.createXmlDocument(
-                    new InputSource((Reader) new StringReader(text)), false);
-
-            // update all links and get back relationships matching
-            // modified links (typed Collection avoids unchecked PSRelationshipSet conversion)
-            List<PSRelationship> modifiedLinks = new ArrayList<>();
-            PSInlineLinkField.modifyField(
-                fieldDoc.getDocumentElement(), relationshipMap, modifiedLinks);
-
-            // update the column if the links were modified and
-            // remember if we changed the row
-            if (!modifiedLinks.isEmpty()) {
-              modifiedRow = true;
-              colData.setValue(PSXmlDocumentBuilder.toString(fieldDoc));
-            }
-
-            // update the inlinelinkfield prop of any changed
-            // relationships if this is a child row
-            if (isChild) {
-              for (PSRelationship mod : modifiedLinks) {
-                String inlineRelText = mod.getProperty(PSRelationshipConfig.RS_INLINERELATIONSHIP);
-                String fieldName = fieldMap.get(colName);
-                if (inlineRelText != null
-                    && inlineRelText.trim().length() > 0
-                    && fieldName.equalsIgnoreCase(PSInlineLinkField.getFieldName(inlineRelText))) {
-                  mod.setProperty(
-                      PSRelationshipConfig.RS_INLINERELATIONSHIP,
-                      PSInlineLinkField.makeInlineRelationshipId(fieldName, sysId));
-                  modifiedSet.add(mod);
-                }
-              }
-            }
-          }
-
-          // if we changed the row, add it to the modified row list
-          if (modifiedRow)
-            modRowList.add(new PSJdbcRowData(modColList.iterator(), PSJdbcRowData.ACTION_UPDATE));
-        }
-
-        if (modRowList.isEmpty()) continue;
-
-        // save any modified rows back
-        PSJdbcTableData newData = new PSJdbcTableData(tableName, modRowList.iterator());
-        schema.setAllowSchemaChanges(false); // don't change the table
-        dbmsHelper.processTable(schema, newData);
-        addTransactionLogEntry(
-            dep,
-            ctx,
-            tableName,
-            PSTransactionSummary.TYPE_DATA,
-            PSTransactionSummary.ACTION_MODIFIED);
-      }
+      collectInlineFields(
+          dep, ctx, contentid, fieldSet, relationshipMap, modifiedSet, inlineFieldMap, fieldMap);
+      processInlineFieldTables(
+          dep, ctx, contentid, inlineFieldMap, fieldMap, relationshipMap, modifiedSet);
     } catch (Exception e) {
       if (e instanceof PSDeployException) throw (PSDeployException) e.fillInStackTrace();
       throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
+  }
+
+  /**
+   * Walks the supplied field set collecting inline-link capable fields into the supplied maps, and
+   * recursing into nested field sets via {@link #processFieldSet}.
+   *
+   * @param dep The dependency for which relationships are being installed, assumed not <code>null
+   *     </code>.
+   * @param ctx The current installation context, assumed not <code>null</code>.
+   * @param contentid The content id of the parent item, assumed not <code>null</code> or empty.
+   * @param fieldSet The field set being walked, assumed not <code>null</code>.
+   * @param relationshipMap Map of inline relationships being installed, assumed not <code>null
+   *     </code>.
+   * @param modifiedSet The set of modified relationships populated by nested processing, assumed
+   *     not <code>null</code>.
+   * @param inlineFieldMap Map of table name to its inline column names (lower-cased), populated by
+   *     this method, assumed not <code>null</code>.
+   * @param fieldMap Map of back-end column names to field submit names, populated by this method,
+   *     assumed not <code>null</code>.
+   * @throws PSDeployException if nested field set processing fails.
+   */
+  private void collectInlineFields(
+      PSDependency dep,
+      PSImportCtx ctx,
+      String contentid,
+      PSFieldSet fieldSet,
+      Map<Integer, PSRelationship> relationshipMap,
+      PSRelationshipSet modifiedSet,
+      Map<String, List<String>> inlineFieldMap,
+      Map<String, String> fieldMap)
+      throws PSDeployException {
+    Iterator<PSComponent> fields = fieldSet.getAll();
+    while (fields.hasNext()) {
+      PSComponent o = fields.next();
+      if (o instanceof PSFieldSet) {
+        processFieldSet(dep, ctx, contentid, (PSFieldSet) o, relationshipMap, modifiedSet);
+      } else if (o instanceof PSField) {
+        registerInlineField((PSField) o, inlineFieldMap, fieldMap);
+      }
+    }
+  }
+
+  /**
+   * Registers a single field in the inline-field maps when it may contain inline links backed by a
+   * back-end column. Fields without inline-link support or without a {@link PSBackEndColumn}
+   * locator are ignored.
+   *
+   * @param field The field to register, assumed not <code>null</code>.
+   * @param inlineFieldMap Map of table name to its inline column names (lower-cased), populated by
+   *     this method, assumed not <code>null</code>.
+   * @param fieldMap Map of back-end column names to field submit names, populated by this method,
+   *     assumed not <code>null</code>.
+   */
+  static void registerInlineField(
+      PSField field, Map<String, List<String>> inlineFieldMap, Map<String, String> fieldMap) {
+    if (!field.mayHaveInlineLinks()) {
+      return;
+    }
+    IPSBackEndMapping beMapping = field.getLocator();
+    if (!(beMapping instanceof PSBackEndColumn)) {
+      return;
+    }
+    PSBackEndColumn becol = (PSBackEndColumn) beMapping;
+    String tableName = becol.getTable().getTable();
+    List<String> fieldList = inlineFieldMap.get(tableName);
+    if (fieldList == null) {
+      fieldList = new ArrayList<>();
+      inlineFieldMap.put(tableName, fieldList);
+    }
+    fieldList.add(becol.getColumn().toLowerCase());
+    fieldMap.put(becol.getColumn(), field.getSubmitName());
+  }
+
+  /**
+   * Queries each table in the inline-field map and fixes up inline link text in every matching row.
+   *
+   * @param dep The dependency for which relationships are being installed, assumed not <code>null
+   *     </code>.
+   * @param ctx The current installation context, assumed not <code>null</code>.
+   * @param contentid The content id of the parent item, assumed not <code>null</code> or empty.
+   * @param inlineFieldMap Map of table name to its inline column names (lower-cased), assumed not
+   *     <code>null</code>.
+   * @param fieldMap Map of back-end column names to field submit names, assumed not <code>null
+   *     </code>.
+   * @param relationshipMap Map of inline relationships being installed, assumed not <code>null
+   *     </code>.
+   * @param modifiedSet The set of modified relationships populated by this method, assumed not
+   *     <code>null</code>.
+   * @throws Exception if any table query, row update, or link fix-up fails; the caller wraps it.
+   */
+  private void processInlineFieldTables(
+      PSDependency dep,
+      PSImportCtx ctx,
+      String contentid,
+      Map<String, List<String>> inlineFieldMap,
+      Map<String, String> fieldMap,
+      Map<Integer, PSRelationship> relationshipMap,
+      PSRelationshipSet modifiedSet)
+      throws Exception {
+    // query each table and process each field in each row returned
+    PSDbmsHelper dbmsHelper = PSDbmsHelper.getInstance();
+    PSJdbcSelectFilter filter =
+        new PSJdbcSelectFilter(
+            IPSConstants.ITEM_PKEY_CONTENTID,
+            PSJdbcSelectFilter.EQUALS,
+            contentid,
+            Types.INTEGER);
+
+    for (Entry<String, List<String>> entry : inlineFieldMap.entrySet()) {
+      processInlineTable(
+          dep, ctx, entry.getKey(), entry.getValue(), filter, fieldMap, relationshipMap,
+          modifiedSet, dbmsHelper);
+    }
+  }
+
+  /**
+   * Queries all matching rows from a single table, fixes up inline link text, and saves modified
+   * rows back.
+   *
+   * @param dep The dependency for which relationships are being installed, assumed not <code>null
+   *     </code>.
+   * @param ctx The current installation context, assumed not <code>null</code>.
+   * @param tableName The table to query, assumed not <code>null</code> or empty.
+   * @param colList The inline column names (lower-cased) to process, assumed not <code>null</code>.
+   * @param filter The content-id select filter, assumed not <code>null</code>.
+   * @param fieldMap Map of back-end column names to field submit names, assumed not <code>null
+   *     </code>.
+   * @param relationshipMap Map of inline relationships being installed, assumed not <code>null
+   *     </code>.
+   * @param modifiedSet The set of modified relationships populated by this method, assumed not
+   *     <code>null</code>.
+   * @param dbmsHelper The dbms helper to query and update with, assumed not <code>null</code>.
+   * @throws Exception if any table query, row update, or link fix-up fails; the caller wraps it.
+   */
+  private void processInlineTable(
+      PSDependency dep,
+      PSImportCtx ctx,
+      String tableName,
+      List<String> colList,
+      PSJdbcSelectFilter filter,
+      Map<String, String> fieldMap,
+      Map<Integer, PSRelationship> relationshipMap,
+      PSRelationshipSet modifiedSet,
+      PSDbmsHelper dbmsHelper)
+      throws Exception {
+    // query all matching rows from the table
+    PSJdbcTableSchema schema = dbmsHelper.catalogTable(tableName, false);
+    PSJdbcTableData data = dbmsHelper.catalogTableData(schema, null, filter);
+    if (data == null) {
+      return;
+    }
+
+    List<PSJdbcRowData> modRowList = new ArrayList<>();
+    Iterator<PSJdbcRowData> rows = data.getRows();
+    while (rows.hasNext()) {
+      PSJdbcRowData updatedRow =
+          processInlineRow(rows.next(), colList, fieldMap, relationshipMap, modifiedSet);
+      if (updatedRow != null) {
+        modRowList.add(updatedRow);
+      }
+    }
+
+    if (modRowList.isEmpty()) {
+      return;
+    }
+
+    // save any modified rows back
+    PSJdbcTableData newData = new PSJdbcTableData(tableName, modRowList.iterator());
+    schema.setAllowSchemaChanges(false); // don't change the table
+    dbmsHelper.processTable(schema, newData);
+    addTransactionLogEntry(
+        dep, ctx, tableName, PSTransactionSummary.TYPE_DATA, PSTransactionSummary.ACTION_MODIFIED);
+  }
+
+  /**
+   * Fixes up inline link text in a single row. Returns an update row when any inline column was
+   * modified, otherwise <code>null</code>.
+   *
+   * @param row The row to process, assumed not <code>null</code>.
+   * @param colList The inline column names (lower-cased) to process, assumed not <code>null</code>.
+   * @param fieldMap Map of back-end column names to field submit names, assumed not <code>null
+   *     </code>.
+   * @param relationshipMap Map of inline relationships being installed, assumed not <code>null
+   *     </code>.
+   * @param modifiedSet The set of modified relationships populated by this method, assumed not
+   *     <code>null</code>.
+   * @return An update {@link PSJdbcRowData} when the row changed, otherwise <code>null</code>.
+   * @throws Exception if any link fix-up fails; the caller wraps it.
+   */
+  private PSJdbcRowData processInlineRow(
+      PSJdbcRowData row,
+      List<String> colList,
+      Map<String, String> fieldMap,
+      Map<Integer, PSRelationship> relationshipMap,
+      PSRelationshipSet modifiedSet)
+      throws Exception {
+    // see if this is a child row
+    String sysId = resolveChildSysId(row);
+
+    boolean modifiedRow = false;
+    List<PSJdbcColumnData> modColList = new ArrayList<>();
+
+    // walk the fields and get the value for each if there
+    Iterator<PSJdbcColumnData> cols = row.getColumns();
+    while (cols.hasNext()) {
+      PSJdbcColumnData colData = cols.next();
+      modColList.add(colData);
+      if (updateInlineColumn(colData, colList, fieldMap, sysId, relationshipMap, modifiedSet)) {
+        modifiedRow = true;
+      }
+    }
+
+    // if we changed the row, return it as a modified row
+    if (!modifiedRow) {
+      return null;
+    }
+    return new PSJdbcRowData(modColList.iterator(), PSJdbcRowData.ACTION_UPDATE);
+  }
+
+  /**
+   * Resolves the child-row id of the supplied row. A row is a child row when its {@link
+   * IPSConstants#CHILD_ITEM_PKEY} column holds a non-blank value.
+   *
+   * @param row The row to inspect, assumed not <code>null</code>.
+   * @return The child-row id, or <code>null</code> when this is not a child row.
+   */
+  static String resolveChildSysId(PSJdbcRowData row) {
+    String sysId = null;
+    PSJdbcColumnData sysCol = row.getColumn(IPSConstants.CHILD_ITEM_PKEY, true);
+    if (sysCol != null) {
+      sysId = sysCol.getValue();
+      if (sysId != null && sysId.trim().length() == 0) {
+        sysId = null;
+      }
+    }
+    return sysId;
+  }
+
+  /**
+   * Fixes up inline link text in a single column. Returns <code>true</code> when the column value
+   * was modified.
+   *
+   * @param colData The column data to process, assumed not <code>null</code>.
+   * @param colList The inline column names (lower-cased) to process, assumed not <code>null</code>.
+   * @param fieldMap Map of back-end column names to field submit names, assumed not <code>null
+   *     </code>.
+   * @param sysId The child-row id, or <code>null</code> when the row is not a child row.
+   * @param relationshipMap Map of inline relationships being installed, assumed not <code>null
+   *     </code>.
+   * @param modifiedSet The set of modified relationships populated by this method, assumed not
+   *     <code>null</code>.
+   * @return <code>true</code> when the column value changed.
+   * @throws Exception if any link fix-up fails; the caller wraps it.
+   */
+  private boolean updateInlineColumn(
+      PSJdbcColumnData colData,
+      List<String> colList,
+      Map<String, String> fieldMap,
+      String sysId,
+      Map<Integer, PSRelationship> relationshipMap,
+      PSRelationshipSet modifiedSet)
+      throws Exception {
+    String colName = colData.getName();
+    if (!isInlineColumn(colName, colList)) {
+      return false;
+    }
+
+    String text = colData.getValue();
+    if (null == text || text.trim().length() == 0) {
+      return false;
+    }
+
+    // Assume the text is a valid XML document, already tidied
+    Document fieldDoc =
+        PSXmlDocumentBuilder.createXmlDocument(
+            new InputSource((Reader) new StringReader(text)), false);
+
+    // update all links and get back relationships matching
+    // modified links (typed Collection avoids unchecked PSRelationshipSet conversion)
+    List<PSRelationship> modifiedLinks = new ArrayList<>();
+    PSInlineLinkField.modifyField(fieldDoc.getDocumentElement(), relationshipMap, modifiedLinks);
+
+    // update the column if the links were modified and
+    // remember if we changed the row
+    if (modifiedLinks.isEmpty()) {
+      return false;
+    }
+    colData.setValue(PSXmlDocumentBuilder.toString(fieldDoc));
+
+    // update the inlinelinkfield prop of any changed
+    // relationships if this is a child row
+    if (sysId != null) {
+      updateChildInlineProperties(modifiedLinks, fieldMap, colName, sysId, modifiedSet);
+    }
+    return true;
+  }
+
+  /**
+   * Tells whether the supplied column holds inline-link text to process.
+   *
+   * @param colName The column name from the row cursor, assumed not <code>null</code>.
+   * @param colList The inline column names (lower-cased), assumed not <code>null</code>.
+   * @return <code>true</code> when the column is an inline column.
+   */
+  static boolean isInlineColumn(String colName, List<String> colList) {
+    return colList.contains(colName.toLowerCase());
+  }
+
+  /**
+   * Updates the inlinelinkfield property of changed relationships for a child row so they may be
+   * resaved by the caller.
+   *
+   * @param modifiedLinks The relationships with modified links, assumed not <code>null</code>.
+   * @param fieldMap Map of back-end column names to field submit names, assumed not <code>null
+   *     </code>.
+   * @param colName The column the links were found in, assumed not <code>null</code>.
+   * @param sysId The child-row id, assumed not <code>null</code>.
+   * @param modifiedSet The set of modified relationships populated by this method, assumed not
+   *     <code>null</code>.
+   */
+  // Legacy-raw PSRelationshipSet (system module) backs add() with raw PSCollection.add(E).
+  @SuppressWarnings("unchecked")
+  private void updateChildInlineProperties(
+      List<PSRelationship> modifiedLinks,
+      Map<String, String> fieldMap,
+      String colName,
+      String sysId,
+      PSRelationshipSet modifiedSet) {
+    for (PSRelationship mod : modifiedLinks) {
+      updateChildInlineProperty(mod, fieldMap, colName, sysId, modifiedSet);
+    }
+  }
+
+  /**
+   * Updates the inlinelinkfield property of a single changed relationship when it represents an
+   * inline link in a child item field.
+   *
+   * @param mod The modified relationship, assumed not <code>null</code>.
+   * @param fieldMap Map of back-end column names to field submit names, assumed not <code>null
+   *     </code>.
+   * @param colName The column the links were found in, assumed not <code>null</code>.
+   * @param sysId The child-row id, assumed not <code>null</code>.
+   * @param modifiedSet The set of modified relationships populated by this method, assumed not
+   *     <code>null</code>.
+   */
+  // Legacy-raw PSRelationshipSet (system module) backs add() with raw PSCollection.add(E).
+  @SuppressWarnings("unchecked")
+  private void updateChildInlineProperty(
+      PSRelationship mod,
+      Map<String, String> fieldMap,
+      String colName,
+      String sysId,
+      PSRelationshipSet modifiedSet) {
+    String inlineRelText = mod.getProperty(PSRelationshipConfig.RS_INLINERELATIONSHIP);
+    String fieldName = fieldMap.get(colName);
+    if (!matchesInlineRelationship(fieldName, inlineRelText)) {
+      return;
+    }
+    mod.setProperty(
+        PSRelationshipConfig.RS_INLINERELATIONSHIP,
+        PSInlineLinkField.makeInlineRelationshipId(fieldName, sysId));
+    modifiedSet.add(mod);
+  }
+
+  /**
+   * Tells whether the supplied inline-relationship property value belongs to the supplied field.
+   *
+   * @param fieldName The field submit name, may be <code>null</code> when the column has no mapped
+   *     field (behaves as no match only when the property text is blank; a non-blank property text
+   *     with a <code>null</code> field name throws {@link NullPointerException}, matching the
+   *     pre-extraction behavior).
+   * @param inlineRelText The inline-relationship property value, may be <code>null</code>.
+   * @return <code>true</code> when the property value belongs to the field.
+   */
+  static boolean matchesInlineRelationship(String fieldName, String inlineRelText) {
+    return inlineRelText != null
+        && inlineRelText.trim().length() > 0
+        && fieldName.equalsIgnoreCase(PSInlineLinkField.getFieldName(inlineRelText));
   }
 
   /**
