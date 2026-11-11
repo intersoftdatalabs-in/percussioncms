@@ -1569,7 +1569,8 @@ interface WorkflowBatchFailure {
   message: string;
 }
 
-function partitionWorkflowSelection(items: readonly PSPathItem[]): {
+/** Partition a multi-select into eligible vs skipped workflow targets (008 US4, T028). Pure. */
+export function partitionWorkflowSelection(items: readonly PSPathItem[]): {
   eligible: PSPathItem[];
   skippedFolders: string[];
   skippedOther: string[];
