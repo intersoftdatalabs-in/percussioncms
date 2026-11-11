@@ -38,6 +38,21 @@ row detail (`GET /services/templates/{idOrName}`) are public REST. Write and
 design-lock gaps (label/description save, source, bindings, slots,
 associations) are documented under their own sections below, not here.
 
+## Readback
+
+The catalog table is a thin read: it lists label, name, id, and description
+from `GET /services/templates` and carries no source, binding, slot,
+association, or site payload. Opening a row loads the detail from
+`GET /services/templates/{idOrName}` and shows the title, the committed name
+with its numeric id and object GUID, the label and description text, and the
+assembler. Packaged templates read back with zero writes: the row renders
+from the thin list and the detail renders without creating, locking,
+importing, or deleting anything. A template created through
+`POST /services/templates` reads back in the detail (title, committed name,
+label, description, defaulted assembler) and as a new catalog row; removing
+it is `DELETE /services/templates/{idOrName}` (`204` on success), after which
+the catalog no longer lists that name.
+
 ## Export template design XML (AS-08)
 
 Export is read-only and does **not** steal a design lock.

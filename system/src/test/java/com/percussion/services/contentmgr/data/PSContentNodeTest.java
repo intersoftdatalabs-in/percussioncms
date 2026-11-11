@@ -18,6 +18,7 @@ package com.percussion.services.contentmgr.data;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import javax.jcr.Node;
 import javax.jcr.NodeIterator;
 import javax.jcr.RepositoryException;
@@ -82,5 +83,21 @@ public class PSContentNodeTest {
     n = parent.getNode("bar[1]");
     assertNotNull(n);
     assertEquals("bar", n.getName());
+  }
+
+  /**
+   * 987 T033: JCR 2.0 {@code getIdentifier()} must expose the same stable
+   * content identity as {@code getUUID()} after the 1.0 → 2.0 migration.
+   */
+  @Test
+  public void testGetIdentifierMatchesUuid() throws RepositoryException {
+    PSContentNode noGuid = new PSContentNode(null, "noguid", null, null, null, null);
+    assertEquals("", noGuid.getUUID());
+    assertEquals(noGuid.getUUID(), noGuid.getIdentifier());
+
+    PSContentNode withGuid =
+        new PSContentNode(new PSLegacyGuid(4242, 1), "withguid", null, null, null, null);
+    assertEquals("4242", withGuid.getUUID());
+    assertEquals(withGuid.getUUID(), withGuid.getIdentifier());
   }
 }
