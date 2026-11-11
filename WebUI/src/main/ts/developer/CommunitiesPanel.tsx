@@ -18,19 +18,18 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { listCommunities } from "../api/developer/assemblyApi";
 import type { CommunitySummary } from "../api/developer/types";
-import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
-import { CatalogSearchFilter, matchesCatalogQuery } from "./CatalogSearchFilter";
-import { catalogColors, monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
+import { CatalogHint, CatalogStatus } from "./CatalogTable";
+import { CatalogSearchFilter } from "./CatalogSearchFilter";
+import { catalogColors } from "./catalogStyles";
+import { CommunityCatalogTable } from "./CommunityCatalogTable";
 import { CommunityDetailPanel } from "./CommunityDetailPanel";
+import {
+  filterCommunityCatalog,
+  patchCommunityByName,
+  sortCommunityCatalog,
+} from "./communityCatalog";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
-
-function openKey(c: CommunitySummary): string | null {
-  if (c.name) return c.name;
-  if (c.id != null) return String(c.id);
-  if (c.guid?.stringValue) return c.guid.stringValue;
-  return null;
-}
 
 /**
  * SE-01 — community catalog with create / delete. Role membership stays on
@@ -76,28 +75,41 @@ export function CommunitiesPanel(): React.ReactElement {
     void reload({ showLoading: true });
   }, [reload]);
 
-  const sorted = useMemo(() => {
-    if (!items) return [];
-    return [...items].sort((a, b) =>
-      (a.label || a.name || "").localeCompare(b.label || b.name || "", undefined, {
-        sensitivity: "base",
-      }),
-    );
-  }, [items]);
-
-  const visible = useMemo(() => {
-    return sorted.filter((c) =>
-      matchesCatalogQuery(
-        [c.label, c.name, c.description, c.id != null ? String(c.id) : undefined],
-        query,
-      ),
-    );
-  }, [sorted, query]);
+  const sorted = useMemo(() => sortCommunityCatalog(items), [items]);
+  const visible = useMemo(() => filterCommunityCatalog(sorted, query), [sorted, query]);
 
   function handleDeleted(): void {
     setSelected(null);
     void reload();
   }
+
+  const handleRenamed = useCallback(
+    (previousName: string, newName: string): void => {
+      const next = newName.trim();
+      if (!next) {
+        return;
+      }
+      setItems((itemsPrev) =>
+        patchCommunityByName(itemsPrev, previousName, { name: next, label: next }),
+      );
+      setSelected(next);
+      void reload();
+    },
+    [reload],
+  );
+
+  const handleDescriptionSaved = useCallback(
+    (communityName: string, description: string): void => {
+      if (!communityName.trim()) {
+        return;
+      }
+      setItems((itemsPrev) => patchCommunityByName(itemsPrev, communityName, { description }));
+      void reload();
+    },
+    [reload],
+  );
+
+  const openSelected = useCallback((key: string): void => setSelected(key), []);
 
   if (selected === "new") {
     return (
@@ -117,40 +129,8 @@ export function CommunitiesPanel(): React.ReactElement {
         onBack={() => setSelected(null)}
         onSaved={() => void reload()}
         onDeleted={handleDeleted}
-        onRenamed={(previousName, newName) => {
-          const prev = previousName.trim().toLowerCase();
-          const next = newName.trim();
-          if (!next) {
-            return;
-          }
-          setItems((itemsPrev) =>
-            itemsPrev == null
-              ? itemsPrev
-              : itemsPrev.map((c) =>
-                  (c.name || "").trim().toLowerCase() === prev
-                    ? { ...c, name: next, label: next }
-                    : c,
-                ),
-          );
-          setSelected(next);
-          void reload();
-        }}
-        onDescriptionSaved={(communityName, description) => {
-          const key = communityName.trim().toLowerCase();
-          if (!key) {
-            return;
-          }
-          setItems((itemsPrev) =>
-            itemsPrev == null
-              ? itemsPrev
-              : itemsPrev.map((c) =>
-                  (c.name || "").trim().toLowerCase() === key
-                    ? { ...c, description }
-                    : c,
-                ),
-          );
-          void reload();
-        }}
+        onRenamed={handleRenamed}
+        onDescriptionSaved={handleDescriptionSaved}
       />
     );
   }
@@ -208,48 +188,7 @@ export function CommunitiesPanel(): React.ReactElement {
               {DEV_MSG.COMM_SEARCH_EMPTY}
             </CatalogStatus>
           ) : (
-        <SimpleCatalogTable
-          tableTestId="developer-comm-table"
-          rowTestId="developer-comm-row"
-          columns={[
-            DEV_MSG.COMM_COL_LABEL,
-            DEV_MSG.COMM_COL_NAME,
-            DEV_MSG.COMM_COL_ID,
-            DEV_MSG.COMM_COL_DESCRIPTION,
-          ]}
-          rows={visible.map((c, index) => {
-            const key = openKey(c);
-            return {
-              key: String(c.id ?? c.guid?.stringValue ?? c.name ?? `comm-${index}`),
-              cells: [
-                key ? (
-                  <button
-                    key="open"
-                    type="button"
-                    data-testid="developer-comm-open"
-                    data-comm-name={c.name || key}
-                    style={openButtonStyle}
-                    aria-label={`Open ${c.label || c.name || key}`}
-                    onClick={() => setSelected(key)}
-                  >
-                    {c.label || c.name || "—"}
-                  </button>
-                ) : (
-                  c.label || "—"
-                ),
-                <span key="n" style={monoCell}>
-                  {c.name || "—"}
-                </span>,
-                <span key="i" style={monoCell}>
-                  {c.id != null ? String(c.id) : c.guid?.stringValue || "—"}
-                </span>,
-                <span key="d" style={mutedCell}>
-                  {c.description || ""}
-                </span>,
-              ],
-            };
-          })}
-        />
+            <CommunityCatalogTable communities={visible} onOpen={openSelected} />
           )}
         </>
       )}
