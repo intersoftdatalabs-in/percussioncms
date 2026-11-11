@@ -67,7 +67,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(
     name = "Pipelines",
     description =
-        "Data pipeline / XML application design catalog, Admin start/stop, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, nested filter groups, binary resource persist/retrieve, HTML result-page persist, request tracing, and IR execute")
+        "Data pipeline / XML application design catalog, Admin start/stop, Admin enable/disable, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, nested filter groups, binary resource persist/retrieve, HTML result-page persist, request tracing, and IR execute")
 public class PipelinesResource {
 
   private final IPipelinesAdaptor adaptor;
@@ -214,6 +214,50 @@ public class PipelinesResource {
   public ApplicationDetail stopApplication(@PathParam("idOrName") String idOrName) {
     try {
       ApplicationDetail detail = requireAdaptor().stopApplication(uriInfo.getBaseUri(), idOrName);
+      if (detail == null) {
+        throw new WebApplicationException("Application not found", 404);
+      }
+      return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  @PUT
+  @Path("/{idOrName}/enabled")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Enable or disable a pipeline application",
+      description =
+          "Admin only. Persists the classic PSApplication enabled flag via the object store, so"
+              + " the server applies classic lifecycle (disabling stops a running application;"
+              + " enabling starts it on save, peer PSServer.applicationUpdated). No-op when the"
+              + " flag already matches. Hidden applications are 400. Does not echo raw path params"
+              + " on errors. A missing body fails closed with 400 (never a silent disable).",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Saved; refreshed ApplicationDetail with the persisted enabled flag",
+            content = @Content(schema = @Schema(implementation = ApplicationDetail.class))),
+        @ApiResponse(responseCode = "400", description = "Hidden, invalid, or missing body"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "409", description = "Design lock held by another session"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ApplicationDetail setApplicationEnabled(
+      @PathParam("idOrName") String idOrName, PipelineEnabledState body) {
+    try {
+      if (body == null) {
+        throw new WebApplicationException("Enabled state body is required", 400);
+      }
+      ApplicationDetail detail =
+          requireAdaptor().setApplicationEnabled(uriInfo.getBaseUri(), idOrName, body.isEnabled());
       if (detail == null) {
         throw new WebApplicationException("Application not found", 404);
       }

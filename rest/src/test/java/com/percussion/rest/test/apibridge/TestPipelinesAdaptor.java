@@ -99,6 +99,14 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
   }
 
   @Override
+  public ApplicationDetail setApplicationEnabled(URI baseUri, String idOrName, boolean enabled) {
+    ApplicationDetail detail = new ApplicationDetail();
+    detail.setName(idOrName);
+    detail.setEnabled(enabled);
+    return detail;
+  }
+
+  @Override
   public ApplicationValidationResult getValidation(URI baseUri, String idOrName) {
     return null;
   }

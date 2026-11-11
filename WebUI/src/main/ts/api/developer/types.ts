@@ -540,6 +540,11 @@ export interface PipelineTracingSettings {
   enabled?: boolean;
 }
 
+/** Body for PUT /services/pipelines/{idOrName}/enabled (Admin classic enable/disable). */
+export interface PipelineEnabledState {
+  enabled?: boolean;
+}
+
 /** One timed stage in GET /services/pipelines/{idOrName}/lastTrace. */
 export interface PipelineRequestTraceStage {
   name?: string;

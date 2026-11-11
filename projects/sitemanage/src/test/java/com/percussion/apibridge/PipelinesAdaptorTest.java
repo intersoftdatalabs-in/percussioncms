@@ -671,6 +671,194 @@ class PipelinesAdaptorTest {
     }
   }
 
+  private static PipelinesAdaptor enabledAdaptor(
+      PSApplicationSummary[] sums,
+      java.util.function.BiFunction<String, PSSecurityToken, PSApplication> loader,
+      PipelinesAdaptor.ApplicationPersistOps persistOps) {
+    return new PipelinesAdaptor(
+        tok -> sums,
+        () -> mock(IPSPipelineRuntimeService.class),
+        () -> mock(IPSPipelineIrService.class),
+        loader,
+        () -> true,
+        noopLifecycle(),
+        (name, tok) -> detailNamed(name, false),
+        null,
+        persistOps);
+  }
+
+  @Test
+  void setApplicationEnabled_requiresAdmin() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> false,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.setApplicationEnabled(
+                      URI.create("http://localhost/services/"), "sys_cmpDocuments", false));
+      assertEquals(403, ex.getResponse().getStatus());
+      assertEquals(PipelinesAdaptor.ADMIN_REQUIRED, ex.getMessage());
+    }
+  }
+
+  @Test
+  void setApplicationEnabled_rejectsHidden() {
+    PSApplicationSummary hidden = summary(1, "hiddenApp", "h", true, "r", false, true);
+    PipelinesAdaptor adaptor =
+        enabledAdaptor(
+            new PSApplicationSummary[] {hidden},
+            (name, tok) -> mock(PSApplication.class),
+            mock(PipelinesAdaptor.ApplicationPersistOps.class));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () -> adaptor.setApplicationEnabled(URI.create("http://localhost/"), "hiddenApp", false));
+      assertEquals(400, ex.getResponse().getStatus());
+      assertEquals(PipelinesAdaptor.HIDDEN_NOT_ALLOWED, ex.getMessage());
+    }
+  }
+
+  @Test
+  void setApplicationEnabled_unknownReturnsNull() {
+    PipelinesAdaptor adaptor =
+        enabledAdaptor(
+            new PSApplicationSummary[0],
+            (name, tok) -> mock(PSApplication.class),
+            mock(PipelinesAdaptor.ApplicationPersistOps.class));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      assertNull(adaptor.setApplicationEnabled(URI.create("http://localhost/"), "missing", false));
+    }
+  }
+
+  @Test
+  void setApplicationEnabled_disablesEnabledApp() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PSApplication app = mock(PSApplication.class);
+    when(app.isEnabled()).thenReturn(true);
+    PipelinesAdaptor.ApplicationPersistOps persistOps =
+        mock(PipelinesAdaptor.ApplicationPersistOps.class);
+    PipelinesAdaptor adaptor =
+        enabledAdaptor(new PSApplicationSummary[] {sum}, (name, tok) -> app, persistOps);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      ApplicationDetail out =
+          adaptor.setApplicationEnabled(
+              URI.create("http://localhost/services/"), "sys_cmpDocuments", false);
+      assertNotNull(out);
+      assertEquals("sys_cmpDocuments", out.getName());
+      verify(persistOps).saveEnabledFlag(eq("sys_cmpDocuments"), eq(false), any());
+    }
+  }
+
+  @Test
+  void setApplicationEnabled_enablesDisabledApp() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", false, "r", false, false);
+    PSApplication app = mock(PSApplication.class);
+    when(app.isEnabled()).thenReturn(false);
+    PipelinesAdaptor.ApplicationPersistOps persistOps =
+        mock(PipelinesAdaptor.ApplicationPersistOps.class);
+    PipelinesAdaptor adaptor =
+        enabledAdaptor(new PSApplicationSummary[] {sum}, (name, tok) -> app, persistOps);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      ApplicationDetail out =
+          adaptor.setApplicationEnabled(
+              URI.create("http://localhost/services/"), "sys_cmpDocuments", true);
+      assertNotNull(out);
+      verify(persistOps).saveEnabledFlag(eq("sys_cmpDocuments"), eq(true), any());
+    }
+  }
+
+  @Test
+  void setApplicationEnabled_noopWhenFlagAlreadyMatches() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PSApplication app = mock(PSApplication.class);
+    when(app.isEnabled()).thenReturn(true);
+    PipelinesAdaptor.ApplicationPersistOps persistOps =
+        mock(PipelinesAdaptor.ApplicationPersistOps.class);
+    PipelinesAdaptor adaptor =
+        enabledAdaptor(new PSApplicationSummary[] {sum}, (name, tok) -> app, persistOps);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      ApplicationDetail out =
+          adaptor.setApplicationEnabled(
+              URI.create("http://localhost/services/"), "sys_cmpDocuments", true);
+      assertNotNull(out);
+      verify(persistOps, never()).saveEnabledFlag(anyString(), eq(true), any());
+    }
+  }
+
+  @Test
+  void setApplicationEnabled_mapsLockConflictTo409() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PSApplication app = mock(PSApplication.class);
+    when(app.isEnabled()).thenReturn(true);
+    PipelinesAdaptor.ApplicationPersistOps persistOps =
+        mock(PipelinesAdaptor.ApplicationPersistOps.class);
+    org.mockito.Mockito.doThrow(
+            new com.percussion.design.objectstore.PSLockedException(1, "sys_cmpDocuments"))
+        .when(persistOps)
+        .saveEnabledFlag(eq("sys_cmpDocuments"), eq(false), any());
+    PipelinesAdaptor adaptor =
+        enabledAdaptor(new PSApplicationSummary[] {sum}, (name, tok) -> app, persistOps);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.setApplicationEnabled(
+                      URI.create("http://localhost/services/"), "sys_cmpDocuments", false));
+      assertEquals(409, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void setApplicationEnabled_mapsValidationFailureTo400() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PSApplication app = mock(PSApplication.class);
+    when(app.isEnabled()).thenReturn(false);
+    PipelinesAdaptor.ApplicationPersistOps persistOps =
+        mock(PipelinesAdaptor.ApplicationPersistOps.class);
+    org.mockito.Mockito.doThrow(
+            new com.percussion.design.objectstore.PSSystemValidationException(
+                1, "Application failed validation"))
+        .when(persistOps)
+        .saveEnabledFlag(eq("sys_cmpDocuments"), eq(true), any());
+    PipelinesAdaptor adaptor =
+        enabledAdaptor(new PSApplicationSummary[] {sum}, (name, tok) -> app, persistOps);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.setApplicationEnabled(
+                      URI.create("http://localhost/services/"), "sys_cmpDocuments", true));
+      assertEquals(400, ex.getResponse().getStatus());
+    }
+  }
+
   @Test
   void getValidation_requiresAdminAndRejectsHidden() {
     PSApplicationSummary visible = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
@@ -801,6 +989,9 @@ class PipelinesAdaptorTest {
     assertTrue(
         gaps.stream().noneMatch(g -> g.toLowerCase().contains("validation")),
         "validation/problems read shipped — designGaps must not claim it unsupported");
+    assertTrue(
+        gaps.stream().noneMatch(g -> g.toLowerCase().contains("enable / disable")),
+        "Admin enable/disable shipped — designGaps must not claim it unsupported");
     assertTrue(
         gaps.stream().anyMatch(g -> g.toLowerCase().contains("graph edit")),
         "graph edit / IR write should remain listed as a gap");

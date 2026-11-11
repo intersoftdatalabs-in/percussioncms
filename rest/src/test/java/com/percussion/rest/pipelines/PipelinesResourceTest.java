@@ -609,6 +609,72 @@ public class PipelinesResourceTest {
   }
 
   @Test
+  public void setApplicationEnabledDelegatesToAdaptor() {
+    ApplicationDetail d = new ApplicationDetail();
+    d.setName("sys_foo");
+    d.setEnabled(false);
+    when(adaptor.setApplicationEnabled(any(), eq("sys_foo"), eq(false))).thenReturn(d);
+
+    PipelineEnabledState body = new PipelineEnabledState();
+    body.setEnabled(false);
+    ApplicationDetail out = resource.setApplicationEnabled("sys_foo", body);
+    assertEquals("sys_foo", out.getName());
+    assertEquals(Boolean.FALSE, out.getEnabled());
+    verify(adaptor).setApplicationEnabled(any(), eq("sys_foo"), eq(false));
+  }
+
+  @Test
+  public void setApplicationEnabledNotFound() {
+    when(adaptor.setApplicationEnabled(any(), eq("missing"), eq(true))).thenReturn(null);
+
+    PipelineEnabledState body = new PipelineEnabledState();
+    body.setEnabled(true);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.setApplicationEnabled("missing", body));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Application not found", ex.getMessage());
+  }
+
+  @Test
+  public void setApplicationEnabledNullBodyFailsClosed() {
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.setApplicationEnabled("sys_foo", null));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("Enabled state body is required", ex.getMessage());
+    verify(adaptor, never()).setApplicationEnabled(any(), any(), eq(false));
+  }
+
+  @Test
+  public void setApplicationEnabledRethrowsWebApplicationException() {
+    when(adaptor.setApplicationEnabled(any(), eq("sys_foo"), eq(true)))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+
+    PipelineEnabledState body = new PipelineEnabledState();
+    body.setEnabled(true);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.setApplicationEnabled("sys_foo", body));
+    assertEquals(403, ex.getResponse().getStatus());
+    assertEquals("Admin role required", ex.getMessage());
+  }
+
+  @Test
+  public void setApplicationEnabledWrapsUnexpectedFailuresAs500() {
+    IllegalStateException boom = new IllegalStateException("server down");
+    when(adaptor.setApplicationEnabled(any(), eq("sys_foo"), eq(true))).thenThrow(boom);
+
+    PipelineEnabledState body = new PipelineEnabledState();
+    body.setEnabled(true);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.setApplicationEnabled("sys_foo", body));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
+
+  @Test
   public void getValidationDelegatesToAdaptor() {
     ApplicationValidationResult result = new ApplicationValidationResult();
     result.setName("sys_foo");

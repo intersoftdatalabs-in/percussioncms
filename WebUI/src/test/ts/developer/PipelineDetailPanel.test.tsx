@@ -23,6 +23,7 @@ vi.mock("../../../main/ts/api/developer/pipelineImportExport", () => ({
 vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
   getApplicationDetail: vi.fn(),
   listApplications: vi.fn(),
+  setApplicationEnabled: vi.fn(),
   startApplication: vi.fn(),
   stopApplication: vi.fn(),
   executeResource: vi.fn(),
@@ -43,6 +44,7 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", () => ({
 }));
 
 const getApplicationDetail = pipelinesApi.getApplicationDetail as ReturnType<typeof vi.fn>;
+const setApplicationEnabled = pipelinesApi.setApplicationEnabled as ReturnType<typeof vi.fn>;
 const startApplication = pipelinesApi.startApplication as ReturnType<typeof vi.fn>;
 const stopApplication = pipelinesApi.stopApplication as ReturnType<typeof vi.fn>;
 const executeResource = pipelinesApi.executeResource as ReturnType<typeof vi.fn>;
@@ -107,6 +109,7 @@ describe("PipelineDetailPanel", () => {
       message: (key: string) => key,
     };
     getApplicationDetail.mockReset();
+    setApplicationEnabled.mockReset();
     startApplication.mockReset();
     stopApplication.mockReset();
     executeResource.mockReset();
@@ -328,6 +331,93 @@ describe("PipelineDetailPanel", () => {
     expect((screen.getByTestId("developer-pipe-stop") as HTMLButtonElement).disabled).toBe(
       true,
     );
+  });
+
+  it("disables an enabled application and refreshes the Enabled meta", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    setApplicationEnabled.mockResolvedValue({ ...sampleDetail, enabled: false });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-disable")).toBeTruthy();
+    });
+    const enableBtn = screen.getByTestId("developer-pipe-enable") as HTMLButtonElement;
+    const disableBtn = screen.getByTestId("developer-pipe-disable") as HTMLButtonElement;
+    expect(enableBtn.disabled).toBe(true);
+    expect(disableBtn.disabled).toBe(false);
+    fireEvent.click(disableBtn);
+    await waitFor(() => {
+      expect(setApplicationEnabled).toHaveBeenCalledWith("sys_cmpDocuments", false);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-meta-enabled").textContent).toBe(
+        DEV_MSG.NO,
+      );
+    });
+    expect(screen.getByTestId("developer-pipe-lifecycle-notice").textContent).toBe(
+      DEV_MSG.PIPE_DISABLED,
+    );
+    expect((screen.getByTestId("developer-pipe-enable") as HTMLButtonElement).disabled).toBe(
+      false,
+    );
+    expect((screen.getByTestId("developer-pipe-disable") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+  });
+
+  it("enables a disabled application and refreshes the Enabled meta", async () => {
+    getApplicationDetail.mockResolvedValue({ ...sampleDetail, enabled: false });
+    setApplicationEnabled.mockResolvedValue({ ...sampleDetail, enabled: true });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-enable")).toBeTruthy();
+    });
+    expect((screen.getByTestId("developer-pipe-enable") as HTMLButtonElement).disabled).toBe(
+      false,
+    );
+    expect((screen.getByTestId("developer-pipe-disable") as HTMLButtonElement).disabled).toBe(
+      true,
+    );
+    fireEvent.click(screen.getByTestId("developer-pipe-enable"));
+    await waitFor(() => {
+      expect(setApplicationEnabled).toHaveBeenCalledWith("sys_cmpDocuments", true);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-meta-enabled").textContent).toBe(
+        DEV_MSG.YES,
+      );
+    });
+    expect(screen.getByTestId("developer-pipe-lifecycle-notice").textContent).toBe(
+      DEV_MSG.PIPE_ENABLED,
+    );
+  });
+
+  it("hides Enable/Disable chrome for non-Admin", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(false);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-detail-title")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-pipe-enable")).toBeNull();
+    expect(screen.queryByTestId("developer-pipe-disable")).toBeNull();
+  });
+
+  it("shows PIPE_ENABLE_FORBIDDEN on 403 disable", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    setApplicationEnabled.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: null,
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-disable")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-disable"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-lifecycle-error").textContent).toBe(
+        DEV_MSG.PIPE_ENABLE_FORBIDDEN,
+      );
+    });
   });
 
   it("shows PIPE_FORBIDDEN on 403 start", async () => {

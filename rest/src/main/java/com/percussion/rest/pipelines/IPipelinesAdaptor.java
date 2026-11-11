@@ -182,6 +182,20 @@ public interface IPipelinesAdaptor {
   ApplicationDetail stopApplication(URI baseUri, String idOrName);
 
   /**
+   * Admin: enable or disable a non-hidden classic XML Application (peer classic save with {@code
+   * PSApplication#setEnabled}). Persisted via the object store, so the server applies classic
+   * lifecycle (disabling stops a running application; enabling starts it on save). No-op when the
+   * flag already matches.
+   *
+   * @param baseUri request base URI (reserved for HATEOAS)
+   * @param idOrName application numeric id or name
+   * @param enabled target enabled flag
+   * @return refreshed detail with the persisted {@code enabled} flag, or {@code null} when not
+   *     found / not visible
+   */
+  ApplicationDetail setApplicationEnabled(URI baseUri, String idOrName, boolean enabled);
+
+  /**
    * Admin: run design-time validation / problems for a non-hidden classic XML Application (peer
    * {@code PSValidatorAdapter#validateApplication}).
    *
