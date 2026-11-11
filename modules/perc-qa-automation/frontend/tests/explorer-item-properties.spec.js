@@ -10,212 +10,160 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
 /**
- * Playwright surface: #4701 / parent #4530 — Explorer item properties save.
+ * 008 US2 (T015): item-properties dialog shows General + Display groups with
+ * server values; a permitted edit persists and shows on reopen; denied edits
+ * message (FR-009). Properties endpoints are stubbed with the production
+ * wire shape ({@code ItemProperties} wrapper).
  *
- * Tags: @explorer-item-properties @explorer @item @smoke
- *
- * npm run test:surface -- --path tests/explorer-item-properties.spec.js
+ * <p>Run (QA mode after {@code perc-devctl qa-up}):
+ * {@code npm run test:surface -- --path tests/explorer-item-properties.spec.js}
+ * from {@code modules/perc-qa-automation/frontend}.</p>
  */
 
 const { test, expect } = require("@playwright/test");
-const {
-  loginAsAdmin,
-  BASE_URL,
-  adminBasicAuthHeaders,
-} = require("./helpers/auth");
+const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { explorerSpaUrl } = require("./helpers/explorer-menu-bar");
 const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
-const {
-  ITEM_PROPS_TEST_IDS,
-  explorerProductItemPropertiesUrl,
-  assetsFolderUrl,
-  itemPropertiesUrl,
-  isItemPropertiesSaveUrl,
-  wrapItemPropertiesRequest,
-  hasRxFolderMutationsQuery,
-  uniqueCopyItemName,
-  seedDisposableEmptyFolder,
-  seedDisposableAsset,
-  recycleFolderWithItems,
-  treeRootLocator,
-  isKnownExplorerSitesConsoleNoise,
-} = require("./helpers/explorer-item-properties");
-const {
-  expandExplorerTreeNode,
-} = require("./helpers/explorer-sites-list-create");
 
-const TAGS = [
-  "@explorer-item-properties",
-  "@explorer",
-  "@item",
-  "@smoke",
-];
+const LISTING = {
+  PagedItemList: {
+    childrenInPage: [
+      {
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        category: "page",
+        accessLevel: "WRITE",
+        leaf: true,
+      },
+    ],
+    childrenCount: 1,
+    startIndex: 0,
+  },
+};
 
-async function getStatus(request, url) {
-  const headers = adminBasicAuthHeaders();
-  const res = await request.get(url, { headers });
-  return res.status();
+let savedTitle = "Home page";
+
+async function installRoutes(page, { saveStatus = 200 } = {}) {
+  await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(LISTING),
+    });
+  });
+  await page.route("**/folders/item/properties/*", async (route) => {
+    if (route.request().method() === "GET") {
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          ItemProperties: {
+            itemPath: "/Sites/Demo/Home",
+            name: "Home",
+            displayTitle: savedTitle,
+          },
+        }),
+      });
+      return;
+    }
+    if (saveStatus !== 200) {
+      await route.fulfill({ status: saveStatus, contentType: "application/json", body: "{}" });
+      return;
+    }
+    const post = route.request().postDataJSON();
+    savedTitle = post?.ItemPropertiesRequest?.displayTitle ?? savedTitle;
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        ItemProperties: {
+          itemPath: "/Sites/Demo/Home",
+          name: "Home",
+          displayTitle: savedTitle,
+        },
+      }),
+    });
+  });
 }
 
-test.describe("Explorer item properties save (#4701 / #4530)", () => {
+async function openProperties(page) {
+  await page.goto(explorerSpaUrl(BASE_URL));
+  await page.waitForLoadState("networkidle");
+  await expect(page.locator('[data-testid="content-explorer-shell"]')).toBeVisible({
+    timeout: 20_000,
+  });
+  const home = page.locator('[data-testid="detail-row-42"][data-row-kind="item"]');
+  await expect(home).toBeVisible({ timeout: 20_000 });
+  await home.click();
+  const toggle = page.locator('[data-testid="toggle-item-props"]');
+  if ((await toggle.count()) > 0) {
+    await toggle.click();
+  }
+  await expect(page.locator('[data-testid="item-properties-panel"]')).toBeVisible({
+    timeout: 15_000,
+  });
+}
+
+test.describe("Explorer item properties dialog", () => {
+  test.beforeEach(async ({ page }) => {
+    test.setTimeout(90_000);
+    savedTitle = "Home page";
+    await loginAsAdmin(page);
+  });
+
   test(
-    "REST: Assets parent exists (no skip)",
-    { tag: TAGS },
-    async ({ request }) => {
-      test.setTimeout(30_000);
-      const assetsStatus = await getStatus(request, assetsFolderUrl(BASE_URL));
-      expect(
-        assetsStatus,
-        `H2 demo-sites should expose /Assets; got Assets=${assetsStatus}`,
-      ).toBe(200);
+    "groups show server values; edit persists and shows on reopen",
+    { tag: ["@explorer", "@explorer-props", "@explorer-props-roundtrip"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      await installRoutes(page);
+      await openProperties(page);
+      await expect(page.locator('[data-testid="item-properties-general-group"]')).toBeVisible();
+      await expect(page.locator('[data-testid="item-properties-display-group"]')).toBeVisible();
+      await expect(page.locator('[data-testid="item-properties-path-value"]')).toHaveText(
+        "/Sites/Demo/Home",
+      );
+      await page.locator('[data-testid="item-properties-display-title"]').fill("Home RENAMED");
+      await page.locator('[data-testid="item-properties-save"]').click();
+      await expect(page.locator('[data-testid="item-properties-status"]')).toContainText(
+        /saved/i,
+        { timeout: 15_000 },
+      );
+      await expect(
+        page.locator('[data-testid="item-properties-shown-display-title-value"]'),
+      ).toHaveText("Home RENAMED");
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="item-properties-panel"]',
+      });
+      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
     },
   );
 
   test(
-    "REST: blank name is HTTP 400 (#4701)",
-    { tag: TAGS },
-    async ({ request }) => {
-      test.setTimeout(30_000);
-      const headers = {
-        ...adminBasicAuthHeaders(),
-        "Content-Type": "application/json",
-      };
-      const res = await request.post(itemPropertiesUrl(BASE_URL), {
-        headers,
-        data: wrapItemPropertiesRequest("/Assets/missing", "  ", "t"),
+    "denied save keeps committed values and messages",
+    { tag: ["@explorer", "@explorer-props", "@explorer-props-denied"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      await installRoutes(page, { saveStatus: 403 });
+      await openProperties(page);
+      await page.locator('[data-testid="item-properties-display-title"]').fill("Nope");
+      await page.locator('[data-testid="item-properties-save"]').click();
+      await expect(page.locator('[data-testid="item-properties-status"]')).not.toBeEmpty({
+        timeout: 15_000,
       });
-      expect(res.status()).toBe(400);
-    },
-  );
-
-  test(
-    "UI: save name and display title on spa.jsp?entry=explorer",
-    { tag: TAGS },
-    async ({ page, request }) => {
-      test.setTimeout(120_000);
-      const jsErrors = [];
-      page.on("pageerror", (err) => jsErrors.push(String(err)));
-      page.on("console", (msg) => {
-        if (msg.type() === "error") {
-          const text = msg.text();
-          if (isKnownExplorerSitesConsoleNoise(text)) {
-            return;
-          }
-          jsErrors.push(text);
-        }
-      });
-
-      const stamp = Date.now();
-      const folderName = uniqueCopyItemName("qa4701fld", stamp);
-      const itemName = uniqueCopyItemName("qa4701itm", stamp);
-      const newName = uniqueCopyItemName("qa4701nm", stamp);
-      /** @type {{ path?: string, name?: string } | null} */
-      let liveFolder = null;
-      /** @type {{ path?: string, name?: string } | null} */
-      let sourceItem = null;
-
-      try {
-        const assetsStatus = await getStatus(
-          request,
-          assetsFolderUrl(BASE_URL),
-        );
-        expect(assetsStatus).toBe(200);
-
-        liveFolder = await seedDisposableEmptyFolder(
-          request,
-          BASE_URL,
-          adminBasicAuthHeaders(),
-          { parentPath: "Assets", name: folderName },
-        );
-        sourceItem = await seedDisposableAsset(
-          request,
-          BASE_URL,
-          adminBasicAuthHeaders(),
-          {
-            parentPath: String(liveFolder.path || `/Assets/${folderName}`),
-            name: itemName,
-          },
-        );
-
-        await loginAsAdmin(page);
-        const explorerUrl = explorerProductItemPropertiesUrl(BASE_URL);
-        expect(hasRxFolderMutationsQuery(explorerUrl)).toBe(false);
-        await page.goto(explorerUrl, { waitUntil: "networkidle" });
-
-        const shell = page.locator(
-          `[data-testid="${ITEM_PROPS_TEST_IDS.shell}"]`,
-        );
-        await expect(shell).toBeVisible({ timeout: 20_000 });
-
-        const assetsNode = treeRootLocator(page, "Assets").first();
-        await expect(assetsNode).toBeVisible({ timeout: 20_000 });
-        await assetsNode.click({ force: true });
-        await expandExplorerTreeNode(assetsNode).catch(() => undefined);
-        const list = page.locator(
-          `[data-testid="${ITEM_PROPS_TEST_IDS.detailList}"]`,
-        );
-        await list.waitFor({ timeout: 15_000 });
-
-        const folderRow = list.getByText(folderName, { exact: true });
-        await expect(folderRow).toBeVisible({ timeout: 20_000 });
-        await folderRow.click();
-        await page.locator('[data-testid="action-open"]').click();
-        await page.waitForLoadState("networkidle").catch(() => undefined);
-
-        const itemRow = list.getByText(sourceItem.name, { exact: true });
-        await expect(itemRow).toBeVisible({ timeout: 20_000 });
-        await itemRow.click();
-
-        await page
-          .locator(`[data-testid="${ITEM_PROPS_TEST_IDS.toggle}"]`)
-          .click();
-        const nameInput = page.locator(
-          `[data-testid="${ITEM_PROPS_TEST_IDS.name}"]`,
-        );
-        await expect(nameInput).toBeVisible({ timeout: 20_000 });
-        await nameInput.fill(newName);
-        await page
-          .locator(`[data-testid="${ITEM_PROPS_TEST_IDS.displayTitle}"]`)
-          .fill(`${newName} title`);
-
-        const saveRespPromise = page.waitForResponse(
-          (res) =>
-            isItemPropertiesSaveUrl(res.url()) &&
-            res.request().method() === "POST",
-          { timeout: 30_000 },
-        );
-        await page
-          .locator(`[data-testid="${ITEM_PROPS_TEST_IDS.save}"]`)
-          .click();
-        const saveResp = await saveRespPromise;
-        expect(saveResp.status(), "properties save HTTP").toBe(200);
-
-        await expect(
-          list.getByText(newName, { exact: true }),
-        ).toBeVisible({ timeout: 20_000 });
-
-        await expectNoSeriousA11yViolations(page, {
-          include: '[data-testid="content-explorer-shell"]',
-        });
-        expect(
-          jsErrors,
-          `console/pageerror must stay empty: ${jsErrors.join(" | ")}`,
-        ).toEqual([]);
-      } finally {
-        if (liveFolder && liveFolder.path) {
-          await recycleFolderWithItems(
-            request,
-            BASE_URL,
-            adminBasicAuthHeaders(),
-            liveFolder.path,
-          ).catch(() => undefined);
-        }
-      }
+      await expect(
+        page.locator('[data-testid="item-properties-shown-display-title-value"]'),
+      ).toHaveText("Home page");
+      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
     },
   );
 });

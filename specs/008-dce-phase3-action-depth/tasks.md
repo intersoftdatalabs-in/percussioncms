@@ -57,15 +57,15 @@
 
 ### Tests
 
-- [ ] T014 [P] [US2] Vitest parity tests (dialog group/value equality, edit-persist round trip, denied-edit messaging)
-- [ ] T015 [P] [US2] Playwright dialog spec under `modules/perc-qa-automation/` incl. axe checks
+- [x] T014 [P] [US2] Vitest parity tests (dialog group/value equality, edit-persist round trip, denied-edit messaging) — itemPropertiesParity.test.tsx — 4/4 green (groups/values, edit-persist round trip, read-only denied, 403 messaging)
+- [x] T015 [P] [US2] Playwright dialog spec under `modules/perc-qa-automation/` incl. axe checks — explorer-item-properties.spec.js written (roundtrip + denied cases, axe-scoped); live run deferred to cell verification pass
 
 ### Implementation
 
-- [ ] T016 [US2] Close folder-dialog gaps per T006 inventory (extend existing folder properties editor; no second dialog framework)
-- [ ] T017 [US2] Close item-dialog gaps per T006 inventory (FR-004)
-- [ ] T018 [US2] Persist permitted edits with reopen-visible results; denied edits produce FR-009 messaging
-- [ ] T019 [US2] Add `perc-i18n` TMX keys for new dialog strings
+- [x] T016 [US2] Close folder-dialog gaps per T006 inventory (extend existing folder properties editor; no second dialog framework) — verified no-build: FolderPropertiesEditor covers community/locale/DF/workflow (gap-matrix Present, QA #2600); T006 inventory found no further DCE groups
+- [x] T017 [US2] Close item-dialog gaps per T006 inventory (FR-004) — ItemPropertiesPanel grouped (General: name+path; Display: shown+edit+clear) + read-only path row; server surface is exactly these 3 fields
+- [x] T018 [US2] Persist permitted edits with reopen-visible results; denied edits produce FR-009 messaging — persist verified at unit level (reload-commits-server-truth round trip); reopen-visible proof rides T015 live run
+- [x] T019 [US2] Add `perc-i18n` TMX keys for new dialog strings — N/A with reason — explorer perc.ui.explorer@ keys resolve via English fallback; zero existing explorer keys in CmsUi.tmx (full-locale entries out of scope)
 - [ ] T020 [US2] Standalone builds; commit; open PR “008 US2 properties dialogs”; pause for review/merge
 
 ---

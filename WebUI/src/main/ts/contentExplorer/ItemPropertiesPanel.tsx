@@ -276,56 +276,72 @@ export function ItemPropertiesPanel(
           {message(EXPLORER_MSG.ITEM_PROPS_READ_ONLY)}
         </p>
       ) : null}
-      <div>
-        <label htmlFor="item-props-name">
-          {message(EXPLORER_MSG.ITEM_PROPS_NAME)}
-        </label>
-        <input
-          id="item-props-name"
-          data-testid="item-properties-name"
-          type="text"
-          value={status.name}
-          disabled={!canEdit || pending}
-          onChange={(e) =>
-            setStatus({ ...status, name: e.target.value, dirty: true })
-          }
-        />
-      </div>
-      <p data-testid="item-properties-shown-display-title">
-        {message(EXPLORER_MSG.ITEM_PROPS_SAVED_DISPLAY_TITLE)}{" "}
-        <span data-testid="item-properties-shown-display-title-value">
-          {status.committedDisplayTitle}
-        </span>
-      </p>
-      <div>
-        <label htmlFor="item-props-display-title">
-          {message(EXPLORER_MSG.ITEM_PROPS_DISPLAY_TITLE)}
-        </label>
-        <input
-          id="item-props-display-title"
-          data-testid="item-properties-display-title"
-          type="text"
-          value={status.displayTitle}
-          disabled={!canEdit || pending}
-          onChange={(e) =>
-            setStatus({
-              ...status,
-              displayTitle: e.target.value,
-              dirty: true,
-            })
-          }
-        />
-      </div>
-      {allowClearDisplayTitle && canEdit ? (
-        <button
-          type="button"
-          data-testid="item-properties-clear-display-title"
-          disabled={pending || status.displayTitle.trim() === ""}
-          onClick={handleClearDisplayTitle}
-        >
-          {message(EXPLORER_MSG.ITEM_PROPS_CLEAR_DISPLAY_TITLE)}
-        </button>
-      ) : null}
+      <section
+        data-testid="item-properties-general-group"
+        aria-label={message(EXPLORER_MSG.ITEM_PROPS_GENERAL_GROUP)}
+      >
+        <h3>{message(EXPLORER_MSG.ITEM_PROPS_GENERAL_GROUP)}</h3>
+        <p data-testid="item-properties-path">
+          {message(EXPLORER_MSG.ITEM_PROPS_PATH)}:{" "}
+          <span data-testid="item-properties-path-value">{itemPath}</span>
+        </p>
+        <div>
+          <label htmlFor="item-props-name">
+            {message(EXPLORER_MSG.ITEM_PROPS_NAME)}
+          </label>
+          <input
+            id="item-props-name"
+            data-testid="item-properties-name"
+            type="text"
+            value={status.name}
+            disabled={!canEdit || pending}
+            onChange={(e) =>
+              setStatus({ ...status, name: e.target.value, dirty: true })
+            }
+          />
+        </div>
+      </section>
+      <section
+        data-testid="item-properties-display-group"
+        aria-label={message(EXPLORER_MSG.ITEM_PROPS_DISPLAY_GROUP)}
+      >
+        <h3>{message(EXPLORER_MSG.ITEM_PROPS_DISPLAY_GROUP)}</h3>
+        <p data-testid="item-properties-shown-display-title">
+          {message(EXPLORER_MSG.ITEM_PROPS_SAVED_DISPLAY_TITLE)}{" "}
+          <span data-testid="item-properties-shown-display-title-value">
+            {status.committedDisplayTitle}
+          </span>
+        </p>
+        <div>
+          <label htmlFor="item-props-display-title">
+            {message(EXPLORER_MSG.ITEM_PROPS_DISPLAY_TITLE)}
+          </label>
+          <input
+            id="item-props-display-title"
+            data-testid="item-properties-display-title"
+            type="text"
+            value={status.displayTitle}
+            disabled={!canEdit || pending}
+            onChange={(e) =>
+              setStatus({
+                ...status,
+                displayTitle: e.target.value,
+                dirty: true,
+              })
+            }
+          />
+        </div>
+        {allowClearDisplayTitle && canEdit ? (
+          <button
+            type="button"
+            data-testid="item-properties-clear-display-title"
+            disabled={pending || status.displayTitle.trim() === ""}
+            onClick={handleClearDisplayTitle}
+          >
+            {message(EXPLORER_MSG.ITEM_PROPS_CLEAR_DISPLAY_TITLE)}
+          </button>
+        ) : null}
+      </section>
       <button
         type="button"
         data-testid="item-properties-cancel"
