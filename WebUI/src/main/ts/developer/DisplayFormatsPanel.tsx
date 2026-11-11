@@ -10,30 +10,27 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import {
-  listDisplayFormats,
-  normalizeColumns,
-  resolveDisplayFormatObjectGuid,
-} from "../api/developer/displayFormatsApi";
+import { listDisplayFormats } from "../api/developer/displayFormatsApi";
 import type { DisplayFormat } from "../api/developer/types";
-import { CatalogHint, CatalogStatus, SimpleCatalogTable } from "./CatalogTable";
-import { CatalogSearchFilter, matchesCatalogQuery } from "./CatalogSearchFilter";
-import { catalogColors, monoCell, mutedCell, openButtonStyle } from "./catalogStyles";
-import { panelErrMsg } from "./errors";
+import { CatalogHint, CatalogStatus } from "./CatalogTable";
+import { CatalogSearchFilter } from "./CatalogSearchFilter";
+import { catalogColors } from "./catalogStyles";
+import { DisplayFormatCatalogTable } from "./DisplayFormatCatalogTable";
+import {
+  type DisplayFormatSelection,
+  displayFormatSelection,
+  filterDisplayFormatCatalog,
+  sortDisplayFormatCatalog,
+} from "./displayFormatCatalog";
 import { DisplayFormatDetailPanel } from "./DisplayFormatDetailPanel";
+import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
-
-type SelectedFormat = {
-  /** null = catalog; "new" = create; otherwise name or GUID. */
-  idOrName: string | "new";
-  /** List-row GUID fallback when detail payload omits stringValue (#2951). */
-  catalogGuid?: string;
-};
 
 /**
  * UI-05 / UI-08 — display format catalog with create / save / delete,
@@ -44,7 +41,7 @@ export function DisplayFormatsPanel(): React.ReactElement {
   const [error, setError] = useState<string | null>(null);
   /** Client-side catalog filter (#5995). Never triggers a fetch; never mutates. */
   const [query, setQuery] = useState("");
-  const [selected, setSelected] = useState<SelectedFormat | null>(null);
+  const [selected, setSelected] = useState<DisplayFormatSelection | null>(null);
   const mountedRef = useRef(true);
 
   useEffect(() => {
@@ -78,34 +75,13 @@ export function DisplayFormatsPanel(): React.ReactElement {
     void reload({ showLoading: true });
   }, [reload]);
 
-  const sorted = useMemo(() => {
-    if (!items) return [];
-    return [...items].sort((a, b) =>
-      (a.name || a.displayName || "").localeCompare(
-        b.name || b.displayName || "",
-        undefined,
-        { sensitivity: "base" },
-      ),
-    );
-  }, [items]);
+  const sorted = useMemo(() => sortDisplayFormatCatalog(items), [items]);
+  const visible = useMemo(() => filterDisplayFormatCatalog(sorted, query), [sorted, query]);
 
-  const visible = useMemo(() => {
-    return sorted.filter((f) =>
-      matchesCatalogQuery(
-        [f.name, f.label, f.internalName, f.displayName, f.description],
-        query,
-      ),
-    );
-  }, [sorted, query]);
-
-  const openFormat = (f: DisplayFormat) => {
-    const idOrName = f.name || f.internalName || resolveDisplayFormatObjectGuid(f) || "";
-    if (!idOrName) return;
-    setSelected({
-      idOrName,
-      catalogGuid: resolveDisplayFormatObjectGuid(f),
-    });
-  };
+  const openSelected = useCallback((f: DisplayFormat): void => {
+    const selection = displayFormatSelection(f);
+    if (selection) setSelected(selection);
+  }, []);
 
   function handleDeleted(): void {
     setSelected(null);
@@ -192,76 +168,7 @@ export function DisplayFormatsPanel(): React.ReactElement {
               {DEV_MSG.DF_SEARCH_EMPTY}
             </CatalogStatus>
           ) : (
-        <SimpleCatalogTable
-          tableTestId="developer-df-table"
-          rowTestId="developer-df-row"
-          columns={[
-            DEV_MSG.DF_COL_NAME,
-            DEV_MSG.DF_COL_LABEL,
-            DEV_MSG.DF_COL_COLUMNS,
-            DEV_MSG.DF_COL_USAGE,
-            DEV_MSG.DF_COL_DESCRIPTION,
-          ]}
-          rows={visible.map((f, index) => {
-            const openKey =
-              f.name || f.internalName || resolveDisplayFormatObjectGuid(f) || "";
-            const interactive = openKey.length > 0;
-            const colCount = normalizeColumns(f.columns).length;
-            const usage: string[] = [];
-            if (f.validForFolder) usage.push(DEV_MSG.DF_USAGE_FOLDER);
-            if (f.validForViewsAndSearches) usage.push(DEV_MSG.DF_USAGE_VIEWS);
-            if (f.validForRelatedContent) usage.push(DEV_MSG.DF_USAGE_RELATED);
-            return {
-              key: resolveDisplayFormatObjectGuid(f) || f.name || `df-${index}`,
-              onClick: interactive ? () => openFormat(f) : undefined,
-              // Exact name on the row — Playwright must not use hasText substring (#3269).
-              dataAttrs: openKey ? { "data-df-name": openKey } : undefined,
-              cells: [
-                interactive ? (
-                  <button
-                    key="open"
-                    type="button"
-                    data-testid="developer-df-open"
-                    data-df-name={openKey}
-                    aria-label={`Open ${f.name || openKey}`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      openFormat(f);
-                    }}
-                    style={{ ...openButtonStyle, fontFamily: "monospace" }}
-                  >
-                    {f.name || "—"}
-                  </button>
-                ) : (
-                  <span key="n" style={monoCell}>
-                    {f.name || "—"}
-                  </span>
-                ),
-                <span
-                  key="l"
-                  data-testid="developer-df-catalog-label"
-                  data-df-name={openKey}
-                  data-df-label={f.label || f.displayName || ""}
-                >
-                  {f.label || f.displayName || ""}
-                </span>,
-                colCount,
-                <span key="u" style={{ fontSize: "0.85rem" }}>
-                  {usage.length ? usage.join(", ") : "—"}
-                </span>,
-                <span
-                  key="d"
-                  style={mutedCell}
-                  data-testid="developer-df-catalog-description"
-                  data-df-name={openKey}
-                  data-df-description={f.description || ""}
-                >
-                  {f.description || ""}
-                </span>,
-              ],
-            };
-          })}
-        />
+            <DisplayFormatCatalogTable formats={visible} onOpen={openSelected} />
           )}
         </>
       )}
