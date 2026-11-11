@@ -40,6 +40,7 @@ public class PSCommunityPackage {
    * @param name the community name, must not be blank.
    * @param packages the packages string, may be null or empty.
    */
+  @SuppressWarnings("this-escape")
   public PSCommunityPackage(String name, String packages) {
     // Setters are overridable; assign fields directly so the constructor never leaks
     // `this` to a subclass override (same validation as the setters).

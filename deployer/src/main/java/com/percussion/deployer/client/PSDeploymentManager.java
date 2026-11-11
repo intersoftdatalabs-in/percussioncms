@@ -61,12 +61,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.reflect.Constructor;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.ResourceBundle;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -815,7 +817,7 @@ public class PSDeploymentManager {
           "localConfig file cannot be null and must exist on file system.");
     String reqType = getDeployReqType("validateLocalConfig");
     try {
-      String xmlContent = com.percussion.util.IOTools.getFileContent(localConfig);
+      String xmlContent = FileUtils.readFileToString(localConfig, StandardCharsets.UTF_8);
       Document reqDoc = PSXmlDocumentBuilder.createXmlDocument();
       Element root = PSXmlDocumentBuilder.createRoot(reqDoc, "PSXValidateLocalConfigRequest");
       Element content = reqDoc.createElement("xmlContent");

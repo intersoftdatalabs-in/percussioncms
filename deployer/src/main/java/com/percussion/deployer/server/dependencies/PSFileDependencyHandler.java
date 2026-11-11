@@ -28,11 +28,11 @@ import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.server.PSServer;
 import com.percussion.services.notification.PSNotificationHelper;
-import com.percussion.util.IOTools;
-import com.percussion.utils.collections.PSIteratorUtils;
+import org.apache.commons.io.IOUtils;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import com.intsof.percussioncms.auditlog.codes.DeploymentErrorCodes;
@@ -66,7 +66,7 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler {
     if (!dep.getObjectType().equals(getType()))
       throw new IllegalArgumentException("dep wrong type");
 
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class
@@ -134,7 +134,7 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler {
 
     try (var out = new FileOutputStream(tgtFile);
         var in = archive.getFileData(depFile)) {
-      IOTools.copyStream(in, out);
+      IOUtils.copyLarge(in, out);
     } catch (IOException e) {
       throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     }
@@ -149,7 +149,7 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler {
   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class
@@ -177,7 +177,7 @@ public abstract class PSFileDependencyHandler extends PSDependencyHandler {
    */
   @Override
   public Iterator<String> getChildTypes() {
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class

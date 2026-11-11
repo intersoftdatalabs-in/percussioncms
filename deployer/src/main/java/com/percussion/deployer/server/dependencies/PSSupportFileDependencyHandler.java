@@ -27,7 +27,6 @@ import com.percussion.deployer.server.PSImportCtx;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.utils.collections.PSIteratorUtils;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,7 +74,7 @@ public class PSSupportFileDependencyHandler extends PSAppObjectDependencyHandler
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     // not supported
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class

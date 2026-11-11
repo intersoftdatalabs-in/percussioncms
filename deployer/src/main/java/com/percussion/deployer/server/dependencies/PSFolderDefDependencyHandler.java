@@ -25,7 +25,7 @@ import com.percussion.deployer.server.PSDependencyMap;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.utils.collections.PSIteratorUtils;
+import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -71,7 +71,7 @@ public class PSFolderDefDependencyHandler extends PSFolderObjectDependencyHandle
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     // ancestors not supported
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class

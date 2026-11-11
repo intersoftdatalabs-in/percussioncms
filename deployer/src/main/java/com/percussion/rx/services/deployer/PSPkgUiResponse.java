@@ -41,6 +41,7 @@ public class PSPkgUiResponse {
    * @param type the type of the response.
    * @param message sets as empty string if it is {@code null}.
    */
+  @SuppressWarnings("this-escape")
   public PSPkgUiResponse(PSPkgUiResponseType type, String message) {
     // Setters are overridable; assign fields directly so the constructor never leaks
     // `this` to a subclass override (same handling as the setters).

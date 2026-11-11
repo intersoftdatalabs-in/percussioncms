@@ -164,7 +164,7 @@ public class PSPkgInfoService implements IPSPkgInfoService {
   @Override
   public PSPkgInfo loadPkgInfoModifiable(IPSGuid id) throws PSNotFoundException {
     Objects.requireNonNull(id, "id may not be null");
-    var pkgInfo = getSession().get(PSPkgInfo.class, id.longValue());
+    var pkgInfo = getSession().find(PSPkgInfo.class, id.longValue());
     if (pkgInfo == null) {
       throw new PSNotFoundException(id);
     }
@@ -239,11 +239,11 @@ public class PSPkgInfoService implements IPSPkgInfoService {
         "select p from PSPkgElement p, PSPkgInfo i where"
             + " p.objectGuid = :objId"
             + " and i.lastAction != :action and p.packageGuid = i.guid";
-    var q = session.createQuery(query);
+    var q = session.createQuery(query, PSPkgElement.class);
     q.setParameter("objId", objId.toString());
     q.setParameter("action", PackageAction.UNINSTALL.name());
     q.setCacheable(true);
-    return (PSPkgElement) q.uniqueResult();
+    return q.uniqueResult();
   }
 
   @Override

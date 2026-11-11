@@ -88,9 +88,9 @@ import com.percussion.services.system.IPSDeploymentHandler;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.system.utils.PSBaseBean;
 import com.percussion.system.utils.PSFormatVersion;
-import com.percussion.util.IOTools;
+import org.apache.commons.io.IOUtils;
 import com.percussion.util.IPSBrandCodeConstants;
-import com.percussion.util.PSXMLDomUtil;
+import com.percussion.xml.PSXmlUtil;
 import com.percussion.utils.codec.PSXmlDecoder;
 import com.percussion.utils.collections.PSMultiValueHashMap;
 import com.percussion.utils.guid.IPSGuid;
@@ -2376,7 +2376,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
       archiveFile.getParentFile().mkdirs();
       out = new FileOutputStream(archiveFile);
       in = new FileInputStream(inFile);
-      IOTools.copyStream(in, out);
+      IOUtils.copyLarge(in, out);
 
     } catch (IOException e) {
       throw new PSDeployException(
@@ -2443,7 +2443,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
       configFile.getParentFile().mkdirs();
       out = new FileOutputStream(configFile);
       in = new FileInputStream(inFile);
-      IOTools.copyStream(in, out);
+      IOUtils.copyLarge(in, out);
     } catch (IOException e) {
       throw new PSDeployException(
           DeploymentErrorCodes.UNEXPECTED_ERROR, PSExceptionUtils.getMessageForLog(e));
@@ -2893,7 +2893,7 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
       Exception e, PSRequest request, Document respDoc) {
     String msg = "An unexpected error occurred while processing the Request.";
     try {
-      msg = msg + " Request Source is: " + PSXMLDomUtil.toString(respDoc.getDocumentElement());
+      msg = msg + " Request Source is: " + PSXmlUtil.toString(respDoc.getDocumentElement());
     } catch (Exception ex) {
       ms_log.error(PSExceptionUtils.getMessageForLog(e));
     }

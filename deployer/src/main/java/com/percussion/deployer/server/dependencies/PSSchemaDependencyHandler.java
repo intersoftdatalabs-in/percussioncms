@@ -34,11 +34,11 @@ import com.percussion.tablefactory.PSJdbcDataTypeMap;
 import com.percussion.tablefactory.PSJdbcTableChangeEvent;
 import com.percussion.tablefactory.PSJdbcTableFactoryException;
 import com.percussion.tablefactory.PSJdbcTableSchema;
-import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.utils.jdbc.PSConnectionDetail;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -73,7 +73,7 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
     if (!dep.getObjectType().equals(DEPENDENCY_TYPE))
       throw new IllegalArgumentException("dep wrong type");
 
-    return PSIteratorUtils.emptyIterator(); // there is no child dependencies
+    return Collections.emptyIterator(); // there is no child dependencies
   }
 
   // see base class
@@ -154,7 +154,7 @@ public class PSSchemaDependencyHandler extends PSDataObjectDependencyHandler {
    *     </code>, does not contain <code>null</code> or empty entries.
    */
   public Iterator<String> getChildTypes() {
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class

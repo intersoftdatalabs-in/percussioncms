@@ -24,7 +24,7 @@ import com.percussion.deployer.objectstore.PSArchive;
 import com.percussion.deployer.objectstore.PSArchiveInfo;
 import com.percussion.deployer.objectstore.PSArchiveManifest;
 import com.percussion.system.utils.PSArchiveFiles;
-import com.percussion.util.IOTools;
+import org.apache.commons.io.FileUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.io.InputStream;
@@ -62,7 +62,7 @@ public class PSPackageLockManagerTest {
       pkgLockMgr.update(stagingDir, true);
       assertAllLocked(stagingDir);
     } finally {
-      IOTools.deleteFile(stagingDir);
+      FileUtils.deleteQuietly(stagingDir);
     }
   }
 
@@ -91,7 +91,7 @@ public class PSPackageLockManagerTest {
       pkgLockMgr.update(f, true);
       assertTrue(isLocked(f));
     } finally {
-      IOTools.deleteFile(stagingDir);
+      FileUtils.deleteQuietly(stagingDir);
     }
   }
 
@@ -127,7 +127,7 @@ public class PSPackageLockManagerTest {
       // make sure archive manifests are equal
       assertEquals(manifest1, manifest2);
     } finally {
-      IOTools.deleteFile(stagingDir);
+      FileUtils.deleteQuietly(stagingDir);
     }
   }
 
@@ -162,7 +162,7 @@ public class PSPackageLockManagerTest {
         continue;
       }
 
-      IOTools.copyToDir(file, stagingDir);
+      FileUtils.copyFileToDirectory(file, stagingDir);
     }
   }
 

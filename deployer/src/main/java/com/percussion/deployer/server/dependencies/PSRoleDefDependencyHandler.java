@@ -34,7 +34,7 @@ import com.percussion.security.PSSecurityToken;
 import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.PSRoleMgrLocator;
 import com.percussion.services.security.data.PSBackEndRole;
-import com.percussion.utils.collections.PSIteratorUtils;
+import java.util.Collections;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -65,7 +65,7 @@ public class PSRoleDefDependencyHandler
       throw new IllegalArgumentException("dep wrong type");
 
     // there is no children for roles
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class
@@ -111,7 +111,7 @@ public class PSRoleDefDependencyHandler
       throw new IllegalArgumentException("dep wrong type");
 
     // don't need to save data other than the role name, which is the dep id
-    return PSIteratorUtils.emptyIterator();
+    return Collections.emptyIterator();
   }
 
   // see base class

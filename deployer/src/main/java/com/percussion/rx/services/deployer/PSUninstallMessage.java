@@ -41,6 +41,7 @@ public class PSUninstallMessage {
    * @param type the message type, may be <code>null</code>.
    * @param body the message body, may be <code>null</code>.
    */
+  @SuppressWarnings("this-escape")
   public PSUninstallMessage(String packageName, String type, String body) {
     // Setters are overridable; assign fields directly so the constructor never leaks
     // `this` to a subclass override (same validation as the setters).

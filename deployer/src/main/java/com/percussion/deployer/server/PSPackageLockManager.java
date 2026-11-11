@@ -24,7 +24,8 @@ import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.system.utils.PSArchiveFiles;
-import com.percussion.util.IOTools;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -163,7 +164,7 @@ public class PSPackageLockManager {
 
         oldHandler.close();
         newArchive.close();
-        IOTools.copyFileStreams(tmpArchive, packageFile);
+        FileUtils.copyFile(tmpArchive, packageFile);
       }
     }
   }
@@ -196,7 +197,7 @@ public class PSPackageLockManager {
 
     var tmp = File.createTempFile("tmp", null);
     try (var out = new FileOutputStream(tmp)) {
-      IOTools.copyStream(in, out);
+      IOUtils.copyLarge(in, out);
       archive.storeFile(tmp, entryPath);
     } finally {
       tmp.delete();
