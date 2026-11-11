@@ -70,9 +70,9 @@
 
 ### Tests (Required)
 
-- [ ] T033 [P] [US1] Add/adjust contentmgr or finder tests covering node identity after `getIdentifier` migration under `system/services/src/test/`
-- [ ] T034 [P] [US1] Add/adjust publisher/content-list tests if query/result changes affect generators under `system/services/src/test/` (or existing publisher test packages)
-- [ ] T035 [P] [US1] Add/adjust sitemanage tests for JCR finder paths under `projects/sitemanage/src/test/` where `PSJcrNodeFinder` / path services are covered
+- [x] T033 [P] [US1] Add/adjust contentmgr or finder tests covering node identity after `getIdentifier` migration under `system/services/src/test/` — testGetIdentifierMatchesUuid in system/src/test/.../PSContentNodeTest.java (null-guid empty identity + PSLegacyGuid stable identity; green)
+- [x] T034 [P] [US1] Add/adjust publisher/content-list tests if query/result changes affect generators under `system/services/src/test/` (or existing publisher test packages) — new system/src/test/.../publisher/impl/PSQueryResultUtilsTest.java pins getSelectorNames() 2.0 stub + split behavior (Intersoft header 2026; green)
+- [x] T035 [P] [US1] Add/adjust sitemanage tests for JCR finder paths under `projects/sitemanage/src/test/` where `PSJcrNodeFinder` / path services are covered — shouldFindSingleNodeByFolderAndId + shouldReturnNullWhenNoNodeFound in projects/sitemanage/.../PSJcrNodeFinderTest.java (mocked IPSContentMgr chain; green; finder carries no JCR identity calls so path pinned end-to-end)
 
 ### Implementation
 
