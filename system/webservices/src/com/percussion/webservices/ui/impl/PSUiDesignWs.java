@@ -82,6 +82,7 @@ import org.w3c.dom.Element;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.util.Objects;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -1357,6 +1358,16 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       {
          ensureSearchRowPersisted(prepared);
       }
+      for (IPSDbComponent component : components)
+      {
+         // Updated (already persisted) searches: the XML update leg can report
+         // success while writing 0 rows on H2 (#6119). Verify each one landed
+         // and JDBC-repair it the same way creates are repaired above.
+         if (component instanceof PSSearch && !unpersisted.contains(component))
+         {
+            ensureSearchRowCurrent((PSSearch) component);
+         }
+      }
       invalidateSearchCatalog();
    }
 
@@ -2091,10 +2102,27 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          int saveVersion;
          if (version != null)
          {
-            // delete the original component first, then save the updated object
-            // this is a quick & dirty updating, so that we don't have to
-            // "merge" all child lists.
-            deleteComponent(comp.getLocator(), comp.getComponentType(), id, cz, null);
+            if (!PSSearch.class.isAssignableFrom(cz))
+            {
+               // delete the original component first, then save the updated object
+               // this is a quick & dirty updating, so that we don't have to
+               // "merge" all child lists.
+               deleteComponent(comp.getLocator(), comp.getComponentType(), id, cz, null);
+            }
+            else
+            {
+               // Searches update in place: delete-then-insert permanently loses
+               // the row on H2 (the re-INSERT leg writes 0 rows while reporting
+               // success, #6119). A direct UPDATE preserves the row and lets
+               // the pipe merge child lists as usual.
+               // The UPDATE leg binds its WHERE clause from the HTML SEARCHID
+               // request parameter: without it the update matches 0 rows and
+               // silently succeeds. Seed it from the component key.
+               PSRequest updateReq =
+                     (PSRequest) PSRequestInfo.getRequestInfo(PSRequestInfo.KEY_PSREQUEST);
+               if (updateReq != null && id != null)
+                  updateReq.setParameter("SEARCHID", String.valueOf(id.getUUID()));
+            }
 
             saveVersion = version;
          }
@@ -2644,6 +2672,119 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       {
          searches.setInt(1, searchId);
          searches.executeUpdate();
+      }
+   }
+
+   /**
+    * Verifies that a just-saved persisted search actually landed in
+    * PSX_SEARCHES, JDBC-repairing it when the XML update leg silently wrote
+    * nothing (#6119: PUT 200, then GET 404 with the row gone — or present
+    * but stale when no delete leg ran). Mirrors the create-path
+    * {@link #ensureSearchRowPersisted} safety net.
+    *
+    * @param search the saved search; never {@code null}
+    * @return {@code true} when a repair write was needed
+    */
+   static boolean ensureSearchRowCurrent(PSSearch search)
+   {
+      Connection conn = null;
+      try
+      {
+         conn = PSConnectionHelper.getDbConnection();
+         return ensureSearchRowCurrent(conn, search);
+      }
+      catch (NamingException | SQLException e)
+      {
+         throw new IllegalStateException(
+               "Search was saved but is not visible to findSearches: " + search.getInternalName(), e);
+      }
+      finally
+      {
+         PSConnectionHelper.releaseDbConnection(conn);
+      }
+   }
+
+   static boolean ensureSearchRowCurrent(Connection conn, PSSearch search) throws SQLException
+   {
+      SearchRowSpec want = searchRowSpec(search);
+      SearchRowSpec have = readSearchRow(conn, want.searchId);
+      if (have == null)
+      {
+         if (searchNameExists(conn, want.internalName))
+            return false;
+         int searchId = want.searchId;
+         if (searchIdExists(conn, searchId))
+            searchId = nextFreeSearchId(conn);
+         insertSearchRow(conn,
+               new SearchRowSpec(searchId, want.internalName, want.displayName, want.parentCategory,
+                     want.customUrl, want.type, want.displayFormat, want.maximumItems, want.description,
+                     want.caseSensitive, want.version));
+         return true;
+      }
+      if (sameSearchRow(have, want))
+         return false;
+      updateSearchRow(conn, want);
+      return true;
+   }
+
+   static SearchRowSpec readSearchRow(Connection conn, int searchId) throws SQLException
+   {
+      String sql = "SELECT SEARCHID, INTERNALNAME, DISPLAYNAME, PARENTCATEGORY, "
+            + "CUSTOMURL, TYPE, DISPLAYFORMAT, MAXIMUMITEMS, DESCRIPTION, CASESENSITIVE, VERSION "
+            + "FROM PSX_SEARCHES WHERE SEARCHID = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, searchId);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            if (!rs.next())
+               return null;
+            int displayFormatValue = rs.getInt(7);
+            Integer displayFormat = rs.wasNull() ? null : Integer.valueOf(displayFormatValue);
+            return new SearchRowSpec(rs.getInt(1), rs.getString(2), rs.getString(3), rs.getInt(4),
+                  rs.getString(5), rs.getString(6), displayFormat, rs.getInt(8), rs.getString(9),
+                  rs.getInt(10), rs.getInt(11));
+         }
+      }
+   }
+
+   static boolean sameSearchRow(SearchRowSpec have, SearchRowSpec want)
+   {
+      return have.searchId == want.searchId
+            && StringUtils.equals(have.internalName, want.internalName)
+            && StringUtils.equals(have.displayName, want.displayName)
+            && have.parentCategory == want.parentCategory
+            && StringUtils.equals(have.customUrl, want.customUrl)
+            && StringUtils.equals(have.type, want.type)
+            && Objects.equals(have.displayFormat, want.displayFormat)
+            && have.maximumItems == want.maximumItems
+            && StringUtils.equals(have.description, want.description)
+            && have.caseSensitive == want.caseSensitive
+            && have.version == want.version;
+   }
+
+   static void updateSearchRow(Connection conn, SearchRowSpec spec) throws SQLException
+   {
+      String sql = "UPDATE PSX_SEARCHES SET INTERNALNAME = ?, DISPLAYNAME = ?, PARENTCATEGORY = ?, "
+            + "CUSTOMURL = ?, TYPE = ?, DISPLAYFORMAT = ?, MAXIMUMITEMS = ?, DESCRIPTION = ?, "
+            + "CASESENSITIVE = ?, VERSION = ? WHERE SEARCHID = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setString(1, spec.internalName);
+         ps.setString(2, spec.displayName);
+         ps.setInt(3, spec.parentCategory);
+         ps.setString(4, spec.customUrl);
+         ps.setString(5, spec.type);
+         if (spec.displayFormat == null)
+            ps.setNull(6, java.sql.Types.INTEGER);
+         else
+            ps.setInt(6, spec.displayFormat.intValue());
+         ps.setInt(7, spec.maximumItems);
+         ps.setString(8, spec.description);
+         ps.setInt(9, spec.caseSensitive);
+         ps.setInt(10, spec.version);
+         ps.setInt(11, spec.searchId);
+         ps.executeUpdate();
       }
    }
 
