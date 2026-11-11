@@ -33,11 +33,6 @@
 			and Site/Save As control -->
 		<psxctl:AssociatedFileList>
 			<psxctl:FileDescriptor
-				name="perc_webmgt.packed.css" type="css" mimetype="text/css">
-				<psxctl:FileLocation>/cm/css/dynatree/skin/ui.dynatree.css</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor
 				name="percQueryControl.css" type="css" mimetype="text/css">
 				<psxctl:FileLocation>/rx_resources/controls/percQueryControl/css/percQueryControl.css</psxctl:FileLocation>
 				<psxctl:Timestamp />
@@ -108,11 +103,6 @@
 			<psxctl:FileDescriptor
 				name="perc_path_manager.js" type="script" mimetype="text/javascript">
 				<psxctl:FileLocation>/cm/plugins/perc_path_manager.js</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor
-				name="jquery.dynatree.js" type="script" mimetype="text/javascript">
-				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-dynatree/jquery.dynatree.js</psxctl:FileLocation>
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
 			<psxctl:FileDescriptor
