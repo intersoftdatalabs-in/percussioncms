@@ -113,7 +113,7 @@
 
 - [x] T033 [P] i18n sweep: no hardcoded new strings in changed screens; TMX keys complete — sweep done: no hardcoded UI strings in changed screens (17 message() calls in panel); 3 new keys follow perc.ui.explorer@ pattern with English fallback (T019 rationale)
 - [x] T034 [P] Attach WCAG 2.1 AA axe evidence for changed screens (repo hard gate) — axe evidence: T009 (2/2 live, context-menu scope), T015 (2/2 live, panel scope), T022-test1 (type picker scope) — expectNoSeriousA11yViolations green in all passing runs
-- [ ] T035 Run SC-004 operator trial (≥3 operators, transition/review/create flows incl. one partial-failure case); record results
+- [ ] T035 Run SC-004 operator trial (≥3 operators, transition/review/create flows incl. one partial-failure case); record results — tracked by #6152 (SC-004 operator trial)
 - [x] T036 Record spec-package closeout note linking this work back to #6110 disposition (and #4530 where overlaps were referenced) — checklists/closeout.md recorded (WP0/US1-4 disposition, PR strategy, pending human gates T035 + #6110)
 - [x] T037 Final standalone `clean install` on every changed module; attach command list + BUILD SUCCESS to final PR — WebUI standalone clean install BUILD SUCCESS (Java 71/71; Vitest 902 files / 8648 tests green; earlier single-run jsdom-CPU flake passed on rerun, unrelated to this diff). No Java modules changed (WebUI TS + Playwright specs only)
 - [x] T038 Erlang pre-commit review for code PRs per AGENTS; fix hard-gate findings before merge — mkd-code-review erlang: approve, 0 findings, 0 blocking — docs/ai-generated/code-reviews/008-dce-phase3-erlang.md
