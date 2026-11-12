@@ -31,7 +31,6 @@ import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.security.io.PSPathInjectionGuard;
 import com.percussion.server.PSServer;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.util.IOTools;
 import com.percussion.util.PSPurgableTempFile;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.types.PSPair;
@@ -550,7 +549,7 @@ public class PSConfigService implements IPSConfigService {
     var configuration = "";
     if (file.exists()) { // codeql[java/path-injection]
       try {
-        configuration = IOTools.getFileContent(file);
+        configuration = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
       } catch (Exception e) {
         var msg =
             "Failed to read the configuration file \""

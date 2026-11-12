@@ -1095,3 +1095,63 @@ request-changes
 > Tip: To suppress false positives, add `// mkd-code-review[<rule_id>] <reason>` (e.g. `// mkd-code-review[paths.hardcoded_sep] web url join`) or `// codeql[<rule_id>] <reason>` on or above the line, or add an entry in `.mkd-code-review.toml`.
 
 ```
+
+
+---
+
+# Slice 2 — rx-config deprecation cleanup (2026-11-12, branch fix/issue-6021-rx-config-deployer-warnings)
+
+Tool gate: **advisory** — 0 blocking bugs, 0 in-diff findings. **May commit/push: yes.**
+
+The 2 flagged rows are both preexisting `paths.hardcoded_sep` FPs (exception/log message string literals with escaped quotes, no path joins) at `PSConfigService.java:315` and `:557`, untouched by this diff.
+
+## Full tool report (mkd-code-review, advisory)
+
+```markdown
+## Summary
+
+Machine analysis found **2** finding(s), **0** blocking bug(s).
+
+## Scope
+
+- Base: origin/main
+- Head: HEAD
+- Files: 2 analyzed
+- In-diff: 0 finding(s); preexisting: 2
+- Persona: erlang 0.1.1
+- Persona source: /home/nate/.local/share/mkd/agents/erlang
+
+## Recommendation
+
+approve
+
+## Gate
+
+- Blocking bugs: 0
+- May commit/push: yes
+
+## Issues
+
+### Issue 1 -- Severity: bug
+
+- File: deployer/src/main/java/com/percussion/rx/config/impl/PSConfigService.java:315 (preexisting)
+- Rule: `paths.hardcoded_sep`
+- Tool: `paths.hardcoded_sep`
+- Pattern-id: paths.hardcoded-sep
+- Description: Possible non-portable path construction (line 315)
+- Suggestion: Use Path/PathBuf, path.join, File.separator, or pathSeparator — not literal / or \ joins.
+- Status: open
+
+### Issue 2 -- Severity: bug
+
+- File: deployer/src/main/java/com/percussion/rx/config/impl/PSConfigService.java:557 (preexisting)
+- Rule: `paths.hardcoded_sep`
+- Tool: `paths.hardcoded_sep`
+- Pattern-id: paths.hardcoded-sep
+- Description: Possible non-portable path construction (line 557)
+- Suggestion: Use Path/PathBuf, path.join, File.separator, or pathSeparator — not literal / or \ joins.
+- Status: open
+
+> Tip: To suppress false positives, add `// mkd-code-review[<rule_id>] <reason>` (e.g. `// mkd-code-review[paths.hardcoded_sep] web url join`) or `// codeql[<rule_id>] <reason>` on or above the line, or add an entry in `.mkd-code-review.toml`.
+
+```
