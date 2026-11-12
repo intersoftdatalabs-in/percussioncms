@@ -2,6 +2,20 @@
 
 **Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/workflow-api.md, contracts/admin-api.md, quickstart.md
 
+> **Routing & layout errata (#6097, #3088)** — the plan-time routing and several
+> planned file paths were folded during implementation; annotated inline below
+> with `(#6097: …)`. As shipped: `index.jsp` is a dispatcher with **no**
+> `views` map (`?view=workflow` → 302 `spa.jsp?entry=admin&tab=…`;
+> `?view=admin` → 302 `spa.jsp?entry=admin[&tab=…]`); no `adminWorkflowModern.jsp`
+> / `adminModern.jsp` were ever created; `WorkflowAdminShell.tsx` is a
+> redirect-only stub and the product shell is the unified `AdminShell` (tabs:
+> tasks, logs, notifications, tools, workflow, roles, users, categories);
+> on-disk dirs are singular (`role/`, `user/`, `category/`) with task sections
+> flat under `admin/` (no `tasks/` subdir); `CategoryNode.tsx`,
+> `tasks/TaskEditor.tsx`, `WorkflowEditor.test.tsx`, and per-dir `setup.ts`
+> files were never created (lock rendering / task editor live in-file, editor
+> coverage lives in `WorkflowSection.test.tsx`, fetch mocks are per-test).
+
 ## Phase 1: Setup
 
 - [x] T001 Identify owning module path(s) and read AGENTS hierarchy (root `AGENTS.md` and `WebUI/AGENTS.md`)
@@ -32,8 +46,8 @@
 - [x] T012 [P] [US1] Create the workflow section list view `WebUI/src/main/ts/workflowAdmin/workflow/WorkflowSection.tsx`
 - [x] T013 [P] [US1] Create the workflow detail editor `WebUI/src/main/ts/workflowAdmin/workflow/WorkflowEditor.tsx` with CRUD forms
 - [x] T014 [P] [US1] Create the step list and drag-reorder component `WebUI/src/main/ts/workflowAdmin/workflow/WorkflowStepList.tsx`
-- [x] T015 [P] [US1] Add host JSP `WebUI/src/main/webapp/cm/app/adminWorkflowModern.jsp` to load modern bundle and mount `WorkflowAdminShell`
-- [x] T016 [US1] Update `WebUI/src/main/webapp/cm/app/index.jsp` view map to route `workflow` to `adminWorkflowModern.jsp`
+- [x] T015 [P] [US1] Add host JSP `WebUI/src/main/webapp/cm/app/adminWorkflowModern.jsp` to load modern bundle and mount `WorkflowAdminShell` (#6097: folded — JSP never created; `index.jsp` dispatches `?view=workflow` → 302 `spa.jsp?entry=admin&tab=…`)
+- [x] T016 [US1] Update `WebUI/src/main/webapp/cm/app/index.jsp` view map to route `workflow` to `adminWorkflowModern.jsp` (#6097: folded — no `views` map exists; dispatcher redirect per #3088)
 - [x] T017 [US1] Commit changes and submit PR for review, pausing downstream tasks
 - [x] T018 [US1] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
 - [x] T019 [US1] Verify human approval and merge of PR before starting next story
@@ -68,9 +82,9 @@
 
 ### Implementation
 
-- [x] T023a [P] [US3] Create roles list view in `WebUI/src/main/ts/workflowAdmin/roles/RolesSection.tsx`
-- [x] T024a [P] [US3] Create role form and user membership dual list in `WebUI/src/main/ts/workflowAdmin/roles/RoleEditor.tsx`
-- [x] T025a [US3] Wire roles tab component into main shell `WebUI/src/main/ts/workflowAdmin/WorkflowAdminShell.tsx`
+- [x] T023a [P] [US3] Create roles list view in `WebUI/src/main/ts/workflowAdmin/roles/RolesSection.tsx` (#6097: shipped as singular `workflowAdmin/role/RolesSection.tsx`)
+- [x] T024a [P] [US3] Create role form and user membership dual list in `WebUI/src/main/ts/workflowAdmin/roles/RoleEditor.tsx` (#6097: shipped as singular `workflowAdmin/role/RoleEditor.tsx`)
+- [x] T025a [US3] Wire roles tab component into main shell `WebUI/src/main/ts/workflowAdmin/WorkflowAdminShell.tsx` (#6097: post-#3088 the roles tab lives in unified `admin/AdminShell.tsx`; `WorkflowAdminShell` is a redirect stub)
 - [x] T026a [US3] Commit changes and submit PR for review, pausing downstream tasks
 - [x] T027 [US3] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
 - [x] T028 [US3] Verify human approval and merge of PR before proceeding
@@ -87,10 +101,10 @@
 
 ### Implementation
 
-- [x] T031 [P] [US4] Create user list and table view in `WebUI/src/main/ts/workflowAdmin/users/UsersSection.tsx`
-- [x] T032 [P] [US4] Create user form and role assignment checkboxes in `WebUI/src/main/ts/workflowAdmin/users/UserEditor.tsx`
-- [x] T033 [P] [US4] Create LDAP directory search and select modal `WebUI/src/main/ts/workflowAdmin/users/LdapImportDialog.tsx`
-- [x] T034 [US4] Wire users tab component into main shell `WebUI/src/main/ts/workflowAdmin/WorkflowAdminShell.tsx`
+- [x] T031 [P] [US4] Create user list and table view in `WebUI/src/main/ts/workflowAdmin/users/UsersSection.tsx` (#6097: shipped as singular `workflowAdmin/user/UsersSection.tsx`)
+- [x] T032 [P] [US4] Create user form and role assignment checkboxes in `WebUI/src/main/ts/workflowAdmin/users/UserEditor.tsx` (#6097: shipped as singular `workflowAdmin/user/UserEditor.tsx`)
+- [x] T033 [P] [US4] Create LDAP directory search and select modal `WebUI/src/main/ts/workflowAdmin/users/LdapImportDialog.tsx` (#6097: shipped as singular `workflowAdmin/user/LdapImportDialog.tsx`)
+- [x] T034 [US4] Wire users tab component into main shell `WebUI/src/main/ts/workflowAdmin/WorkflowAdminShell.tsx` (#6097: post-#3088 the users tab lives in unified `admin/AdminShell.tsx`; `WorkflowAdminShell` is a redirect stub)
 - [x] T035 [US4] Commit changes and submit PR for review, pausing downstream tasks
 - [x] T036 [US4] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
 - [x] T037 [US4] Verify human approval and merge of PR before proceeding
@@ -128,9 +142,9 @@
 
 ### Implementation
 
-- [x] T050 [P] [US6] Create tree explorer layout `WebUI/src/main/ts/workflowAdmin/categories/CategoriesSection.tsx`
-- [x] T051 [P] [US6] Create interactive category item row with lock validation `WebUI/src/main/ts/workflowAdmin/categories/CategoryNode.tsx`
-- [x] T052 [US6] Wire categories tab component into main shell `WebUI/src/main/ts/workflowAdmin/WorkflowAdminShell.tsx`
+- [x] T050 [P] [US6] Create tree explorer layout `WebUI/src/main/ts/workflowAdmin/categories/CategoriesSection.tsx` (#6097: shipped as singular `workflowAdmin/category/CategoriesSection.tsx`)
+- [x] T051 [P] [US6] Create interactive category item row with lock validation `WebUI/src/main/ts/workflowAdmin/categories/CategoryNode.tsx` (#6097: folded — file never created; lock rendering lives in `CategoriesSection.tsx`)
+- [x] T052 [US6] Wire categories tab component into main shell `WebUI/src/main/ts/workflowAdmin/WorkflowAdminShell.tsx` (#6097: post-#3088 the categories tab lives in unified `admin/AdminShell.tsx`; `WorkflowAdminShell` is a redirect stub)
 - [x] T053 [US6] Commit changes and submit PR for review, pausing downstream tasks
 - [x] T054 [US6] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
 - [x] T055 [US6] Verify human approval and merge of PR before proceeding
@@ -151,12 +165,12 @@
 - [x] T059 [P] [US7] Register `AdminShell` in `WebUI/src/main/ts/registry.ts`
 - [x] T060 [P] [US7] Define i18n TMX key mappings for admin tool actions in `WebUI/src/main/ts/admin/messages.ts`
 - [x] T061 [P] [US7] Create the core admin shell `WebUI/src/main/ts/admin/AdminShell.tsx`
-- [x] T062 [P] [US7] Create scheduled tasks list and settings screen `WebUI/src/main/ts/admin/tasks/TasksSection.tsx`
-- [x] T063 [P] [US7] Create scheduled task editor form `WebUI/src/main/ts/admin/tasks/TaskEditor.tsx`
-- [x] T064 [P] [US7] Create task log records viewer `WebUI/src/main/ts/admin/tasks/TaskLogsSection.tsx`
-- [x] T065 [P] [US7] Create email alerts setting component `WebUI/src/main/ts/admin/tasks/TaskNotifications.tsx`
-- [x] T066 [P] [US7] Add host JSP `WebUI/src/main/webapp/cm/app/adminModern.jsp` to load modern bundle and mount `AdminShell`
-- [x] T067 [US7] Update `WebUI/src/main/webapp/cm/app/index.jsp` view map to route `admin` to `adminModern.jsp`
+- [x] T062 [P] [US7] Create scheduled tasks list and settings screen `WebUI/src/main/ts/admin/tasks/TasksSection.tsx` (#6097: shipped flat as `admin/TasksSection.tsx`, no `tasks/` subdir)
+- [x] T063 [P] [US7] Create scheduled task editor form `WebUI/src/main/ts/admin/tasks/TaskEditor.tsx` (#6097: folded — file never created; task editor lives in `TasksSection.tsx`)
+- [x] T064 [P] [US7] Create task log records viewer `WebUI/src/main/ts/admin/tasks/TaskLogsSection.tsx` (#6097: shipped flat as `admin/TaskLogsSection.tsx`)
+- [x] T065 [P] [US7] Create email alerts setting component `WebUI/src/main/ts/admin/tasks/TaskNotifications.tsx` (#6097: shipped flat as `admin/TaskNotifications.tsx`)
+- [x] T066 [P] [US7] Add host JSP `WebUI/src/main/webapp/cm/app/adminModern.jsp` to load modern bundle and mount `AdminShell` (#6097: folded — JSP never created; `index.jsp` dispatches `?view=admin` → 302 `spa.jsp?entry=admin[&tab=…]`)
+- [x] T067 [US7] Update `WebUI/src/main/webapp/cm/app/index.jsp` view map to route `admin` to `adminModern.jsp` (#6097: folded — no `views` map exists; dispatcher redirect)
 - [x] T068 [US7] Commit changes and submit PR for review, pausing downstream tasks
 - [x] T069 [US7] Monitor Kilo Code check, address feedback, and resolve comments (pause on check failure)
 - [x] T070 [US7] Verify human approval and merge of PR before proceeding
@@ -212,11 +226,11 @@
 
 ```bash
 # Developer A builds Role management views
-Task: "Create roles list view in WebUI/src/main/ts/workflowAdmin/roles/RolesSection.tsx"
+Task: "Create roles list view in WebUI/src/main/ts/workflowAdmin/role/RolesSection.tsx"  # (#6097: singular role/)
 Task: "Unit test for RolesSection in WebUI/src/test/ts/workflowAdmin/RolesSection.test.tsx"
 
 # Developer B builds Categories tree component in parallel
-Task: "Create tree explorer layout WebUI/src/main/ts/workflowAdmin/categories/CategoriesSection.tsx"
+Task: "Create tree explorer layout WebUI/src/main/ts/workflowAdmin/category/CategoriesSection.tsx"  # (#6097: singular category/)
 Task: "Unit test for tree structure in WebUI/src/test/ts/workflowAdmin/CategoriesSection.test.tsx"
 ```
 

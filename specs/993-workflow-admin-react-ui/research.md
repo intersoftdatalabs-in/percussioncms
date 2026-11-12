@@ -62,7 +62,13 @@ componentRegistry.set("AdminShell", AdminShell);
 
 ## Decision 5: Mount Point & JSP Integration
 
-**Decision**: Reuse the existing `perc-admin-workflow-explorer` div in `adminWorkflow.jsp`; replace the `mount("...", "ContentExplorerShell", ...)` call with `mount("perc-admin-workflow-explorer", "WorkflowAdminShell", { section: "<%= section %>" })`.
+**Decision**: ~~Reuse the existing `perc-admin-workflow-explorer` div in `adminWorkflow.jsp`; replace the `mount("...", "ContentExplorerShell", ...)` call with `mount("perc-admin-workflow-explorer", "WorkflowAdminShell", { section: "<%= section %>" })`.~~ (plan-time; superseded — see note below)
+
+> **Superseded (#3088, #6097)**: no `adminWorkflowModern.jsp` was ever created
+> and the mount-point plan was overtaken by the unified-shell cutover —
+> `index.jsp` dispatches `?view=workflow` → 302 `spa.jsp?entry=admin&tab=…`,
+> and `WorkflowAdminShell` ships only as a redirect-only stub into the unified
+> `AdminShell` (`/admin/*`). Retained here as plan-time rationale.
 
 **Rationale**: The JSP already loads the TMX script, the modern bundle, and the React root element. The only change needed is the component name in the `mount()` call and removal of the legacy jQuery `#tabs` section. A new `adminWorkflowModern.jsp` may be created as a clean replacement (no legacy jQuery/Dojo), with `index.jsp` view map updated from `adminWorkflow.jsp` → `adminWorkflowModern.jsp`.
 
@@ -72,7 +78,11 @@ componentRegistry.set("AdminShell", AdminShell);
 
 ## Decision 6: Admin Shell Routing
 
-**Decision**: Create a new `adminModern.jsp` for the AdminShell (scheduled tasks, tools) and add `views.put("admin", "adminModern.jsp")` in `index.jsp`. The existing `admin.jsp` entry becomes `adminModern.jsp`.
+**Decision**: ~~Create a new `adminModern.jsp` for the AdminShell (scheduled tasks, tools) and add `views.put("admin", "adminModern.jsp")` in `index.jsp`. The existing `admin.jsp` entry becomes `adminModern.jsp`.~~ (plan-time; superseded — see note below)
+
+> **Superseded (#3088, #6097)**: no `adminModern.jsp` was ever created and
+> `index.jsp` carries no `views` map — it dispatches `?view=admin` → 302
+> `spa.jsp?entry=admin[&tab=…]`. Retained here as plan-time rationale.
 
 **Rationale**: The `index.jsp` view dispatch table already maps view keys to JSP files. Adding the new shell follows the identical pattern used for publishing.
 
@@ -112,9 +122,9 @@ None. All technical questions are resolved from codebase evidence.
 | Intra-shell navigation | `useState<Section>` state machine                                      | `PublishingShell.tsx` lines 73–100          |
 | REST API calls         | `get<T>(PATHS.X)` from `api/client.ts`                                 | `client.ts`, `paths.ts`                     |
 | i18n                   | `message(WF_MSG.KEY)` + per-module `messages.ts`                       | `message.ts`, `contentExplorer/messages.ts` |
-| Mount element          | `perc-admin-workflow-explorer`                                         | `adminWorkflow.jsp` lines 219–221           |
-| Mount call change      | Replace `ContentExplorerShell` with `WorkflowAdminShell`               | `adminWorkflow.jsp` line 240                |
+| Mount element          | `perc-admin-workflow-explorer`                                         | `adminWorkflow.jsp` lines 219–221 (plan-time; superseded — #3088 SPA entry, #6097) |
+| Mount call change      | Replace `ContentExplorerShell` with `WorkflowAdminShell`               | `adminWorkflow.jsp` line 240 (plan-time; superseded — stub redirect, #6097) |
 | Unit tests             | `src/test/ts/workflowAdmin/*.test.tsx` via `npm test`                  | `package.json`, existing test files         |
 | E2E specs              | `perc-qa-automation/frontend/tests/{us-id}-workflow-admin.spec.js`     | Existing spec files                         |
-| View dispatch          | `views.put("workflowAdmin", "adminWorkflowModern.jsp")` in `index.jsp` | `index.jsp` lines 62–72                     |
+| View dispatch          | ~~`views.put("workflowAdmin", "adminWorkflowModern.jsp")` in `index.jsp`~~ | ~~`index.jsp` lines 62–72~~ — FOLDED (#3088, #6097): `index.jsp` is a dispatcher (`?view=` → 302 `spa.jsp?entry=…`); `?view=workflow` → `entry=admin&tab=…` |
 

@@ -64,11 +64,11 @@ Expected: All tests pass against the running CMS instance.
 
 ## Manual Validation Scenarios
 
-### Scenario A: WorkflowAdminShell loads at correct URL
+### Scenario A: AdminShell loads at correct URL (unified shell, #3088)
 
 1. Log in to CMS as admin.
 2. Navigate to `{BASE_URL}/cm/app/index.jsp?view=workflow`
-3. **Expected**: The React `WorkflowAdminShell` renders with four navigation sections: Workflow, Roles, Users, Categories. No legacy jQuery tabs visible. No JavaScript console errors.
+3. **Expected**: `index.jsp` redirects to `spa.jsp?entry=admin&tab=workflow` and the React unified `AdminShell` renders with eight navigation tabs (Tasks, Logs, Notifications, Tools, Workflow, Roles, Users, Categories) with the Workflow tab active. No legacy jQuery tabs visible. No JavaScript console errors. (`WorkflowAdminShell` is a redirect-only stub, not a product shell.)
 
 ### Scenario B: Workflow CRUD (US1)
 
@@ -124,8 +124,8 @@ jar -tf WebUI/target/*.war | grep -E "adminWorkflow|percWorkflow|percRoles|percU
 
 ### Scenario H: Deep-Link Navigation (SC-007)
 
-1. Navigate directly to `{BASE_URL}/cm/app/index.jsp?view=workflow&section=roles`
-2. **Expected**: WorkflowAdminShell opens with the Roles section active.
+1. Navigate directly to `{BASE_URL}/cm/app/index.jsp?view=workflow&tab=roles` (`section=roles` is still accepted as a fallback alias)
+2. **Expected**: The unified `AdminShell` opens (via `spa.jsp?entry=admin&tab=roles`) with the Roles tab active.
 3. Navigate to `{BASE_URL}/cm/app/index.jsp?view=admin`
 4. **Expected**: AdminShell loads with Scheduled Tasks section active.
 

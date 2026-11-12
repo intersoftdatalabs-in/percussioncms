@@ -1,7 +1,7 @@
 # API Contract: Workflow Admin Shell
 
 **Feature**: 993 — Unified Workflow & Admin React UI
-**Consumed by**: `WorkflowAdminShell`, `WorkflowSection`, `RolesSection`, `UsersSection`, `CategoriesSection`
+**Consumed by**: `WorkflowSection`, `RolesSection`, `UsersSection`, `CategoriesSection` (hosted in unified `AdminShell` per #3088; `WorkflowAdminShell` is a redirect-only stub)
 **Base path**: `/Rhythmyx/services/`
 
 All endpoints require an authenticated CMS session cookie. CSRF tokens are auto-injected by `api/client.ts`. Responses use JSON; `Content-Type: application/json`.
