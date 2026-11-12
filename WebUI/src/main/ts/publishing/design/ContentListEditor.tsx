@@ -23,6 +23,7 @@ import {
   updateContentList,
   type ContentListSummary,
 } from "../../api/publishing/designApi";
+import { isSessionRedirectError } from "../../api/client";
 import { message, MSG } from "../../i18n/message";
 import {
   itemFilterChoices,
@@ -142,6 +143,11 @@ export function ContentListEditor({
       setDirty(false);
       onSaved();
     } catch (e) {
+      // Mid-session expiry already navigates to React Login (client.ts);
+      // keep the dirty model so the operator can retry after re-login.
+      if (isSessionRedirectError(e)) {
+        return;
+      }
       setError(mapContentListSaveError(e));
     } finally {
       setSaving(false);
@@ -170,6 +176,9 @@ export function ContentListEditor({
       setDirty(false);
       onSaved();
     } catch (e) {
+      if (isSessionRedirectError(e)) {
+        return;
+      }
       setError(mapContentListDeleteError(e));
     } finally {
       setSaving(false);
