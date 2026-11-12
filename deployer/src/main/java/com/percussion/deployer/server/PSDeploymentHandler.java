@@ -52,8 +52,6 @@ import com.percussion.error.PSDeployException;
 import com.percussion.error.PSDeployNonUniqueException;
 import com.percussion.error.PSException;
 import com.percussion.error.PSLockedException;
-import com.percussion.legacy.security.deprecated.PSCryptographer;
-import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.rx.config.data.PSDescriptorSummaryReport;
 import com.percussion.rx.config.impl.PSConfigDefGenerator;
 import com.percussion.rx.config.impl.PSDefaultConfigGenerator;
@@ -2982,59 +2980,28 @@ public class PSDeploymentHandler implements IPSDeploymentHandler, IPSLoadableReq
   /**
    * Decrypts the supplied password if it is non-<code>null</code> and not empty.
    *
+   * <p>Decryption uses {@code PSEncryptor} (AES/GCM) only. The legacy lasagna/DES fallback was
+   * removed in issue #6057: {@code PSEncryptionKeyFactory} unconditionally rejects DES, so the
+   * old fallback could never decrypt pre-AES artifacts — it only threw {@code
+   * IllegalArgumentException} for input the AES path rejects. Undecryptable input now yields an
+   * empty string, matching this method's documented contract. Restoring true legacy decryption
+   * needs a human/owner accept-risk decision (same bar as PSAesCBC, issue #1347).
+   *
    * @param uid The user id, may be <code>null</code> or empty.
    * @param pwd The password to decrypt, may be <code>null</code> or empty.
    * @return The decrypted password, or an empty string if the supplied password is <code>null
-   *     </code> or empty.
+   *     </code> or empty, or cannot be decrypted.
    */
   public String decryptPwd(String uid, String pwd) {
     if (pwd == null || pwd.trim().length() == 0) return "";
-
-    String key =
-        uid == null || uid.trim().length() == 0
-            ? PSLegacyEncrypter.getInstance(null).INVALID_DRIVER()
-            : uid;
 
     try {
       return PSEncryptor.decryptString(
           PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR), pwd);
     } catch (PSEncryptionException e) {
-      try {
-        return PSCryptographer.decrypt(
-            PSLegacyEncrypter.getInstance(null).INVALID_CRED(), key, pwd);
-      } catch (Exception ex) {
-        ms_log.error("Error: Pwd Decryption Failed: {}", PSExceptionUtils.getMessageForLog(ex));
-        return "";
-      }
+      ms_log.error("Error: Pwd Decryption Failed: {}", PSExceptionUtils.getMessageForLog(e));
+      return "";
     }
-  }
-
-  /**
-   * Decrypts the supplied password if it is non-<code-null</code> and not
-   * empty.
-   *
-   * @param pwd The password to decrypt, may be <code>null</code> or empty.
-   * @param key1 The part one key to use, assumed not <code>null</code> or
-   *            empty.
-   * @param key2 The part two key to use, assumed not <code>null</code> or
-   *            empty.
-   *
-   * @return The decrypted password, or an empty string if the supplied
-   *         password is <code>null</code> or empty.
-   */
-  private String decryptPwd(String pwd, String key1, String key2) {
-    String ret = pwd;
-
-    if (pwd == null || pwd.trim().length() == 0) return "";
-
-    try {
-      ret =
-          PSEncryptor.decryptString(
-              PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR), pwd);
-    } catch (PSEncryptionException e) {
-      ret = PSCryptographer.decrypt(key1, key2, pwd);
-    }
-    return ret;
   }
 
   /**
