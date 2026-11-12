@@ -16,6 +16,7 @@
  */
 
 import type { PublishingLogEntry } from "./types";
+import { neutralizeCsvFormulaCell } from "../util/csvFormula";
 
 /** Columns that match the Logs table (job id identifies the row). */
 export const PUBLISHING_LOG_CSV_HEADERS = [
@@ -28,10 +29,13 @@ export const PUBLISHING_LOG_CSV_HEADERS = [
 export const PUBLISHING_LOGS_EXPORT_FILENAME = "publish-logs.csv";
 
 function csvCell(value: string): string {
-  if (/[",\r\n]/.test(value)) {
-    return `"${value.replace(/"/g, '""')}"`;
+  // Neutralize spreadsheet formula injection (#6175) before RFC 4180
+  // quoting: a leading = + - @ tab CR gets a single-quote text marker.
+  const safe = neutralizeCsvFormulaCell(value);
+  if (/[",\r\n]/.test(safe)) {
+    return `"${safe.replace(/"/g, '""')}"`;
   }
-  return value;
+  return safe;
 }
 
 function cell(value: unknown): string {

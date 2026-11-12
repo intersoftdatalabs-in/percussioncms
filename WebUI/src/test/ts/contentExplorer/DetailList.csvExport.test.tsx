@@ -126,6 +126,21 @@ describe("csvEscapeCell", () => {
     expect(csvEscapeCell("line1\nline2")).toBe('"line1\nline2"');
     expect(csvEscapeCell("line1\r\nline2")).toBe('"line1\r\nline2"');
   });
+
+  it("neutralizes spreadsheet formula injection (#6175)", () => {
+    expect(csvEscapeCell("=cmd|' /C calc'!A0")).toBe(
+      "'=cmd|' /C calc'!A0",
+    );
+    expect(csvEscapeCell("=1+1")).toBe("'=1+1");
+    expect(csvEscapeCell("+2+3")).toBe("'+2+3");
+    expect(csvEscapeCell("-2+3")).toBe("'-2+3");
+    expect(csvEscapeCell("@SUM(A1:A2)")).toBe("'@SUM(A1:A2)");
+    expect(csvEscapeCell("\t=1+1")).toBe("'\t=1+1");
+    // The marker survives RFC 4180 quoting for hostile quoted fields.
+    expect(csvEscapeCell('=HYPERLINK("http://evil", "click")')).toBe(
+      `"'=HYPERLINK(""http://evil"", ""click"")"`,
+    );
+  });
 });
 
 describe("buildDetailCsv", () => {
@@ -142,6 +157,12 @@ describe("buildDetailCsv", () => {
   it("quotes fields that need it", () => {
     expect(buildDetailCsv(["Name"], [['apple, "crisp"']])).toBe(
       'Name\r\n"apple, ""crisp"""\r\n',
+    );
+  });
+
+  it("neutralizes formula-trigger row cells before quoting (#6175)", () => {
+    expect(buildDetailCsv(["Name"], [["=cmd|' /C calc'!A0"]])).toBe(
+      "Name\r\n'=cmd|' /C calc'!A0\r\n",
     );
   });
 });

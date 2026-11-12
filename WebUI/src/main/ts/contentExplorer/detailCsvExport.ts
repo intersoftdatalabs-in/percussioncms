@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+import { neutralizeCsvFormulaCell } from "../util/csvFormula";
+
 /**
  * Client-side CSV export for the modern Content Explorer detail list
  * (#6079 / parent #4530).
@@ -27,17 +29,23 @@
  *
  * <p>Quoting follows RFC 4180: a field containing a comma, quote,
  * carriage return, or line feed is wrapped in double quotes with inner
- * quotes doubled. Rows are joined with CRLF.</p>
+ * quotes doubled. Rows are joined with CRLF. Before quoting, each field
+ * passes through the shared formula-injection neutralization
+ * ({@code util/csvFormula}) so hostile leading {@code =+-@} / tab / CR
+ * cells are single-quote prefixed.</p>
  */
 
 /**
- * Escape one CSV field per RFC 4180. Nullish values become empty
- * fields; fields containing a comma, quote, CR, or LF are wrapped in
- * double quotes with inner quotes doubled. Pure so Vitest can drive
- * it without rendering.
+ * Escape one CSV field per RFC 4180, with spreadsheet-formula-injection
+ * neutralization (#6175) applied first: fields opening with {@code =},
+ * {@code +}, {@code -}, {@code @}, tab, or CR get a single-quote text
+ * marker so hostile content values cannot execute on open in Excel /
+ * Sheets. Nullish values become empty fields; fields containing a comma,
+ * quote, CR, or LF are wrapped in double quotes with inner quotes
+ * doubled. Pure so Vitest can drive it without rendering.
  */
 export function csvEscapeCell(value: string | null | undefined): string {
-  const text = value == null ? "" : String(value);
+  const text = neutralizeCsvFormulaCell(value == null ? "" : String(value));
   if (
     text.includes(",") ||
     text.includes('"') ||
