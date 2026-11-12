@@ -124,7 +124,7 @@ absent (count `-1` is unknown, not zero).
 | 3 | Preflight (fallback) — stale In Progress cleanup + TypeSafe pre-screen | `preflight` | decision-front `signals_complete` (still write `scratch/preflight.json` via `scripts/write-preflight.py` — see below) |
 | 4 | Reconcile (fallback) | `reconcile` | decision-front filled the queue or `include_reconcile: false` |
 | 5 | PR follow-up PRE | `pr-follow-up` | no merge blockers from Preflight |
-| 6 | Triage | `triage` | decision-front filled `max_issues` |
+| 6 | Triage | `triage` | decision-front filled `max_issues` **with zero unadjudicated flags** (`gate_hints_needed == 0` and `reseats_needed == 0`) |
 | 6b | Triage follow-up | `triage` (one bounded retry) | queue full after Triage, or Triage emitted a complete `epics_walked` audit |
 | 7 | Peer PR review | `peer-pr-review` (spawns `erlang-review`; merge if LGTM) | no other-model eligible PRs |
 | 8 | Erlang leftover | `erlang-review` then `erlang-fix` if BLOCK | `include_erlang_review: false` or `owned_pr_count == 0` |
@@ -140,6 +140,18 @@ absent (count `-1` is unknown, not zero).
 `skip` rows in the triage queue **do not** spawn a `work` sub-agent — record
 the disposition in the parent's `## Agent progress (night-issue-prs)` table
 and move on.
+
+**Gate-hint adjudication (2.2.11-draft):** decision-front flags each queue row
+with `gate_hint` (`human_uat` / `customer_env` / `maintainer_decision` /
+`soak_gate`) and `reseated` (no-progress `work-*.json` verdict in the ~72h
+window) — hints only, never skips. When the queue is full but
+`gate_hints_needed + reseats_needed > 0`, do NOT walk it blind into Work:
+spawn one bounded `triage` gate-audit (read `scratch/decision-front.json` +
+recent `work-*.json`, re-check flagged rows live, keep implementable rows,
+replace gated rows product-first with one-per-parent, debt only into
+`low_slots`, still capped by `max_issues`, no expansion). Human-only
+blockers are never filed — record `human_blocked_by` and yield the seat.
+Work claim-checks remain the backstop, not the plan.
 
 ## Preflight output contract (skipped-preflight path)
 
