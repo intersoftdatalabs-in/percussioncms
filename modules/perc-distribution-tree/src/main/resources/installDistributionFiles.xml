@@ -388,10 +388,30 @@
 		<copy
 			tofile="${assembly-directory}/web_resources/cm/jslib/jquery.cookie.min.js"
 			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.cookie.js" />
-		<!-- jQuery.dynatree retired with the vendored copy (issue #5662):
-			upstream dead (predecessor of FancyTree); no app code invoked it,
-			so the library, its skin, and these web_resources copies are removed.
-			Tree usage is consolidated on npm-tracked FancyTree. -->
+		<!-- FancyTree for published pages (npm-built, issue #6052): the published
+			category-list widget (category.min.js) and the delivery bundle view
+			(PercCategoryListView.js) invoke .fancytree(, which the DTS bundle
+			does not ship. Publish-time copy from the npm-backed WebUI tree
+			(Dependabot-tracked jquery.fancytree in WebUI/src/main/frontend/
+			package.json), mirroring the jquery/jquery-ui/jquery.cookie
+			precedent above. Published filenames stay stable. -->
+		<copy
+			tofile="${assembly-directory}/web_resources/cm/jslib/jquery.fancytree.js"
+			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js" />
+		<copy
+			tofile="${assembly-directory}/web_resources/cm/css/fancytree/skin/ui.fancytree.css"
+			file="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.min.css" />
+		<copy
+			todir="${assembly-directory}/web_resources/cm/css/fancytree/skin-win8">
+			<fileset
+				dir="${assembly-directory}/jetty/base/webapps/Rhythmyx/cm/jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8">
+				<include name="icons.gif" />
+				<include name="icons-rtl.gif" />
+				<include name="loading.gif" />
+				<include name="vline.gif" />
+				<include name="vline-rtl.gif" />
+			</fileset>
+		</copy>
 		<!-- jQuery Validate -->
 		<copy
 			tofile="${assembly-directory}/web_resources/cm/jslib/jquery.validate.js"

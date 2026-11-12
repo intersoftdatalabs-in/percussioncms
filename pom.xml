@@ -2693,7 +2693,6 @@
                                 <exclude>**/cui/components/jquery/**</exclude>
                                 <exclude>**/cui/components/jquery-migrate/**</exclude>
                                 <exclude>**/cui/components/jquery-ui/**</exclude>
-                                <exclude>**/cui/components/dynatree/**</exclude>
                                 <exclude>**/cui/components/pubsub-js/**</exclude>
                                 <exclude>**/cui/components/requirejs/**</exclude>
                                 <exclude>**/cui/components/requirejs-text/**</exclude>

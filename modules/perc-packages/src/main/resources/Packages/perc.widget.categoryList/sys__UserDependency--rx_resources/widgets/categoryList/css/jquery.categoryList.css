@@ -39,97 +39,9 @@
 .perc-folder-selected-item {
   background-color: #caf589 !important;
 }
-.dynatree-folder {
-  padding: 2px;
-  padding-left: 8px;
-  display: block;
-}
-
-div.dynatree-container {
-  background-color: #e6e6e9;
-}
-
-.dynatree-exp-el span.dynatree-expander,
-.dynatree-exp-edl span.dynatree-expander {
-  background-image: url("../images/collapsable.gif");
-  background-position: 3px 2px;
-}
-
-.dynatree-exp-cl span.dynatree-expander,
-span.dynatree-expander {
-  background-image: url("../images/expandable.gif");
-  background-position: 3px 2px;
-}
-
-div.dynatree-container a:focus,
-span.uidyantree-focused a:link {
-}
-
-span.dynatree-active,
-span.dynatree-active a {
-  background-color: #caf589 !important;
-  color: #0099cc !important;
-}
-
-.dynatree-exp-e span.dynatree-expander,
-.dynatree-exp-ed span.dynatree-expander {
-  background-image: url("../images/collapsable.gif");
-  background-position: 3px 2px;
-}
-
-.dynatree-exp-cdl span.dynatree-expander {
-  background-image: url("../images/expandable.gif");
-  background-position: 3px 2px;
-}
-
-.dynatree-exp-cd span.dynatree-expander {
-  background-image: url("../images/expandable.gif");
-  background-position: 3px 2px;
-}
-
-span.dynatree-expanded a,
-span.dynatree-active a,
-span.dynatree-folder a,
-span.dynatree-has-children a,
-span.dynatree-has-children a {
-  color: #0099cc;
-  text-decoration: none;
-}
-span.dynatree-vline {
-  background-image: none;
-}
 
 #perc-categorylist-detail td {
   vertical-align: top;
-}
-.dynatree-folder img {
-  display: none;
-}
-
-span.dynatree-empty,
-span.dynatree-vline,
-span.dynatree-connector,
-span.dynatree-icon,
-span.dynatree-checkbox,
-span.dynatree-radio {
-  background-position: left center;
-  background-repeat: no-repeat;
-  display: inline-block;
-  height: 11px;
-  vertical-align: middle;
-  width: 13px;
-}
-
-span.dynatree-expander {
-  background-repeat: no-repeat;
-  display: inline-block;
-  height: 11px;
-  vertical-align: middle;
-  width: 13px;
-}
-
-span.dynatree-document a,
-span.dynatree-folder a {
 }
 .perc-pagetemplates-entry {
   font-family: Verdana;

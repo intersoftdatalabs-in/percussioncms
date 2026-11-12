@@ -3,7 +3,7 @@
 **Feature Branch**: `992-react-content-explorer`  
 **Created**: 2026-07-19  
 **Status**: Draft  
-**Input**: Consolidate the main Finder UI (dynatree/fancytree miller-column navigation, heavy iframe usage) and the Desktop Content Explorer UI (Java applet / Swing / AWT / JavaFX) into a single modern React UI that adopts the Content Explorer interaction model. Close capability gaps (folder permissions, ACLs, customizable action menus). Provide a reusable content browser component for dialogs and other features that need navigate / search / locate content.
+**Input**: Consolidate the main Finder UI (fancytree miller-column navigation, heavy iframe usage) and the Desktop Content Explorer UI (Java applet / Swing / AWT / JavaFX) into a single modern React UI that adopts the Content Explorer interaction model. Close capability gaps (folder permissions, ACLs, customizable action menus). Provide a reusable content browser component for dialogs and other features that need navigate / search / locate content.
 
 ## Module Scope
 
