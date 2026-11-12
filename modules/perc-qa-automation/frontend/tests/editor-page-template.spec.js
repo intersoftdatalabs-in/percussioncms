@@ -80,10 +80,30 @@ test.describe("React Content Editor page template", () => {
       let current = BASE_ID;
       page.on("pageerror", (err) => pageErrors.push(String(err)));
       page.on("console", (msg) => {
-        if (msg.type() === "error") {
-          pageErrors.push(msg.text());
+        if (msg.type() !== "error") {
+          return;
         }
+        const text = msg.text();
+        // Ignore failed-resource noise for stubbed 404s (same filter as the
+        // checkout/save-reload specs); real page errors still fail the test.
+        if (
+          /Failed to load resource: the server responded with a status of (403|404|409)/.test(
+            text,
+          )
+        ) {
+          return;
+        }
+        pageErrors.push(text);
       });
+      // Registered first so later specific stubs win. Newer EditorHost
+      // load-time calls (site impact, allowed workflows) stay 404-silent for
+      // fake id 42 instead of hitting the QA server as 400/500 console noise.
+      await page.route("**/services/**", (route) =>
+        route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/rest/**", (route) =>
+        route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+      );
       await page.route("**/rest/editor/items/**/checkout", (route) =>
         route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
       );
