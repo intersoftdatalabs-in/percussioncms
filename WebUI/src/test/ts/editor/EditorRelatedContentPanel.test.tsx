@@ -590,3 +590,70 @@ describe("EditorRelatedContentPanel", () => {
     });
   });
 });
+
+describe("EditorRelatedContentPanel snippet preview (#6224)", () => {
+  const canvas = {
+    ownerId: 42,
+    templateId: 7,
+    slots: [
+      {
+        slotId: 9,
+        name: "content",
+        label: "Content",
+        items: [
+          {
+            relationshipId: 3,
+            ownerId: 42,
+            dependentId: 55,
+            slotId: 9,
+            templateId: 7,
+            sortRank: 0,
+          },
+        ],
+      },
+    ],
+  };
+
+  function renderPanel(previewSnippet?: (request: {
+    contentId: number;
+    templateId: number;
+  }) => Promise<void>) {
+    return render(
+      <EditorRelatedContentPanel
+        itemId="42"
+        loadCanvas={async () => canvas}
+        loadLocal={async () => ({
+          count: 1,
+          links: [{ type: "local", targetId: "88" }],
+        })}
+        previewSnippet={previewSnippet}
+      />,
+    );
+  }
+
+  it("offers preview for the snippet row but not the inline row", async () => {
+    const preview = vi.fn().mockResolvedValue(undefined);
+    renderPanel(preview);
+    await waitFor(() => {
+      expect(screen.getAllByTestId("editor-related-row")).toHaveLength(2);
+    });
+    expect(screen.getAllByTestId("editor-related-preview")).toHaveLength(1);
+    fireEvent.click(screen.getByTestId("editor-related-preview"));
+    await waitFor(() => expect(preview).toHaveBeenCalledTimes(1));
+    expect(preview).toHaveBeenCalledWith({ contentId: 55, templateId: 7 });
+    expect(screen.queryByTestId("editor-related-preview-error")).toBeNull();
+  });
+
+  it("a failed preview stays on the panel", async () => {
+    const preview = vi.fn().mockRejectedValue(new Error("nope"));
+    renderPanel(preview);
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-preview")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-related-preview"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-preview-error")).toBeTruthy();
+    });
+    expect(preview).toHaveBeenCalledTimes(1);
+  });
+});

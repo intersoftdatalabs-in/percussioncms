@@ -1980,3 +1980,93 @@ describe("RelationshipsView", () => {
     await renderA11yGate(container);
   });
 });
+
+describe("RelationshipsView snippet preview (#6224)", () => {
+  const aaEdge = {
+    relationshipId: 7,
+    configName: "rs_activeassembly",
+    category: "rs_activeassembly",
+    dependentId: 55,
+    slotId: 9,
+    templateId: 4,
+    templateName: "Brief",
+    label: "AA -> 55",
+  };
+
+  function renderWithEdges(
+    edges: typeof aaEdge[],
+    previewSnippet?: ComponentProps<typeof RelationshipsView>["previewSnippet"],
+  ) {
+    return render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => edges}
+        previewSnippet={previewSnippet}
+      />,
+    );
+  }
+
+  it("offers a per-row preview affordance for snippet rows", async () => {
+    const preview = vi.fn().mockResolvedValue(undefined);
+    renderWithEdges([aaEdge], preview);
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-7")).toBeTruthy(),
+    );
+    const button = screen.getByTestId("relationships-preview-snippet-7");
+    expect(button).toHaveAttribute("data-content-id", "55");
+    expect(button).toHaveAttribute("data-template-id", "4");
+    fireEvent.click(button);
+    await waitFor(() => expect(preview).toHaveBeenCalledTimes(1));
+    expect(preview).toHaveBeenCalledWith({ contentId: 55, templateId: 4 });
+    expect(
+      screen.queryByTestId("relationships-preview-snippet-error"),
+    ).toBeNull();
+  });
+
+  it("a failed preview stays on the panel instead of opening", async () => {
+    const preview = vi.fn().mockRejectedValue(new Error("nope"));
+    renderWithEdges([aaEdge], preview);
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-7")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-preview-snippet-7"));
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("relationships-preview-snippet-error"),
+      ).toBeTruthy(),
+    );
+    expect(preview).toHaveBeenCalledTimes(1);
+  });
+
+  it("rows without a snippet template have no preview affordance", async () => {
+    renderWithEdges([{ ...aaEdge, templateId: 0 }]);
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-7")).toBeTruthy(),
+    );
+    expect(
+      screen.queryByTestId("relationships-preview-snippet-7"),
+    ).toBeNull();
+  });
+
+  it("non-assembly rows have no preview affordance", async () => {
+    renderWithEdges([
+      {
+        relationshipId: 7,
+        configName: "Translation",
+        category: "rs_translation",
+        dependentId: 9,
+        slotId: 0,
+        templateId: 0,
+        templateName: "",
+        label: "Translation -> 9",
+      },
+    ]);
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-7")).toBeTruthy(),
+    );
+    expect(
+      screen.queryByTestId("relationships-preview-snippet-7"),
+    ).toBeNull();
+  });
+});

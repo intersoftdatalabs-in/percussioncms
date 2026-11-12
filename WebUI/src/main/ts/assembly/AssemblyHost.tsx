@@ -81,6 +81,10 @@ import {
 import { classifyEditorControl } from "../editor/controlKinds";
 import { keywordChoicesForField } from "../editor/widgets/KeywordFieldWidget";
 import { message } from "../i18n/message";
+import {
+  canPreviewSnippetRow,
+  openSnippetPreview,
+} from "../contentExplorer/snippetPreview";
 import { parsePositiveInt, withCmsContextPrefix } from "./assemblyHostUrl";
 import styles from "./AssemblyHost.module.css";
 import { ASSEMBLY_MSG } from "./messages";
@@ -576,15 +580,21 @@ export function AssemblyHost({
   }, [refreshCanvas]);
 
   const selectedSlot = canvas?.slots.find((s) => s.slotId === selectedSlotId) ?? null;
+  const selectedSlotItem =
+    selectedSlot?.items.find((i) => i.relationshipId === selectedRelId) ?? null;
+  const canPreviewSelectedSnippet =
+    selectedSlotItem != null &&
+    canPreviewSnippetRow(
+      selectedSlotItem.dependentId,
+      selectedSlotItem.templateId,
+    );
   const slotCtx: AssemblySlotContext | null =
     contentId != null && selectedSlotId != null
       ? {
           ownerId: contentId,
           slotId: selectedSlotId,
           relationshipId: selectedRelId,
-          snippetTemplateId:
-            selectedSlot?.items.find((i) => i.relationshipId === selectedRelId)
-              ?.templateId ?? null,
+          snippetTemplateId: selectedSlotItem?.templateId ?? null,
           ownerTemplateId: templateId,
           folderPath: null,
         }
@@ -667,6 +677,25 @@ export function AssemblyHost({
       settleSlotTemplateSlotPickerSession(changeCurrent, null);
     };
   }, []);
+
+  async function runSnippetPreview(): Promise<void> {
+    setSlotNotice(null);
+    if (selectedSlotItem == null || !canPreviewSelectedSnippet) {
+      setSlotNotice(message(ASSEMBLY_MSG.SLOT_PREVIEW_FAILED));
+      return;
+    }
+    try {
+      await openSnippetPreview(
+        {
+          contentId: selectedSlotItem.dependentId,
+          templateId: selectedSlotItem.templateId,
+        },
+        { fetchPreview, openWindow },
+      );
+    } catch {
+      setSlotNotice(message(ASSEMBLY_MSG.SLOT_PREVIEW_FAILED));
+    }
+  }
 
   async function runSlotAction(name: string): Promise<void> {
     setSlotNotice(null);
@@ -1110,6 +1139,15 @@ export function AssemblyHost({
             onClick={() => void runSlotAction("Arrange_ChangeTemplateSlot")}
           >
             {message(ASSEMBLY_MSG.SLOT_CHANGE)}
+          </button>
+          <button
+            type="button"
+            className={styles.slotBtn}
+            data-testid="assembly-slot-preview"
+            disabled={!canPreviewSelectedSnippet}
+            onClick={() => void runSnippetPreview()}
+          >
+            {message(ASSEMBLY_MSG.SLOT_PREVIEW)}
           </button>
           <button
             type="button"

@@ -110,6 +110,10 @@ import {
 } from "../../editor/openEditorHost";
 import { OpenRelatedItemDialog } from "../OpenRelatedItemDialog";
 import {
+  canPreviewSnippetRow,
+  openSnippetPreview,
+} from "../snippetPreview";
+import {
   openRelatedItemInEditor,
   type OpenRelatedItemDeps,
   type OpenRelatedItemRequest,
@@ -231,6 +235,11 @@ export interface RelationshipsViewProps {
   ) => Promise<OpenRelatedItemResult>;
   /** Optional injection seam: popup reserved on the confirm gesture. */
   reserveRelatedWindow?: () => Window | null;
+  /** Optional injection seam: open one related snippet preview in a window. */
+  previewSnippet?: (request: {
+    contentId: number;
+    templateId: number;
+  }) => Promise<void>;
   /** Optional injection seam for tests: summarises server-shape with AA-link count. */
   composeSummary?: (
     item: DependencyItemShared,
@@ -307,6 +316,7 @@ export function RelationshipsView(
     reserveCreatedWindow = reserveEditorWindow,
     openRelated = openRelatedItemInEditor,
     reserveRelatedWindow = reserveEditorWindow,
+    previewSnippet = openSnippetPreview,
     composeSummary,
     ariaLabel,
     className,
@@ -340,6 +350,8 @@ export function RelationshipsView(
   const [opening, setOpening] = React.useState(false);
   const [openedNotice, setOpenedNotice] = React.useState(false);
   const [openError, setOpenError] = React.useState<string | null>(null);
+  const [previewing, setPreviewing] = React.useState(false);
+  const [previewError, setPreviewError] = React.useState<string | null>(null);
   const [templateRequest, setTemplateRequest] = React.useState<number | null>(
     null,
   );
@@ -507,6 +519,7 @@ export function RelationshipsView(
     setOpenError(null);
     setOpenedNotice(false);
     setOpenPrompt(null);
+    setPreviewError(null);
     setTemplateRequest(null);
     setTemplateNotice(false);
     setTemplateError(null);
@@ -816,6 +829,37 @@ export function RelationshipsView(
       );
     } finally {
       setOpening(false);
+    }
+  }
+
+  async function confirmPreviewSnippet(
+    edge: PSExplorerRelationshipEdge,
+  ): Promise<void> {
+    if (!itemId || previewing) return;
+    const target = relatedItemOpenTarget(edge);
+    if (target.kind !== "content") {
+      setPreviewError(
+        message(EXPLORER_MSG.RELATIONSHIPS_PREVIEW_SNIPPET_FAILED),
+      );
+      return;
+    }
+    const templateId = Number(edge.templateId);
+    if (!canPreviewSnippetRow(target.contentId, templateId)) {
+      setPreviewError(
+        message(EXPLORER_MSG.RELATIONSHIPS_PREVIEW_SNIPPET_FAILED),
+      );
+      return;
+    }
+    setPreviewing(true);
+    setPreviewError(null);
+    try {
+      await previewSnippet({ contentId: target.contentId, templateId });
+    } catch {
+      setPreviewError(
+        message(EXPLORER_MSG.RELATIONSHIPS_PREVIEW_SNIPPET_FAILED),
+      );
+    } finally {
+      setPreviewing(false);
     }
   }
 
@@ -1717,6 +1761,11 @@ export function RelationshipsView(
             {openError}
           </p>
         ) : null}
+        {previewError ? (
+          <p role="alert" data-testid="relationships-preview-snippet-error">
+            {previewError}
+          </p>
+        ) : null}
         {templateNotice ? (
           <p role="status" data-testid="relationships-template-changed">
             {message(EXPLORER_MSG.RELATIONSHIPS_TEMPLATE_CHANGED)}
@@ -1897,6 +1946,24 @@ export function RelationshipsView(
                       onClick={() => beginOpen(edge)}
                     >
                       {message(EXPLORER_MSG.RELATIONSHIPS_OPEN)}
+                    </button>
+                  ) : null}
+                  {openTarget.kind === "content" &&
+                  canPreviewSnippetRow(
+                    openTarget.contentId,
+                    edge.templateId,
+                  ) ? (
+                    <button
+                      type="button"
+                      data-testid={`relationships-preview-snippet-${edge.relationshipId}`}
+                      data-content-id={String(openTarget.contentId)}
+                      data-template-id={String(edge.templateId ?? 0)}
+                      disabled={previewing}
+                      onClick={() => {
+                        void confirmPreviewSnippet(edge);
+                      }}
+                    >
+                      {message(EXPLORER_MSG.RELATIONSHIPS_PREVIEW_SNIPPET)}
                     </button>
                   ) : null}
                   {ends.up ? (

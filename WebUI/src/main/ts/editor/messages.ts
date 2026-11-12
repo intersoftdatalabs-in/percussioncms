@@ -625,6 +625,9 @@ export const EDITOR_MSG = {
   RELATED_MOVE_FAILED: "perc.ui.editor@Could not reorder the related item.",
   RELATED_OPEN: "perc.ui.editor@Open",
   RELATED_OPEN_FAILED: "perc.ui.editor@Could not open the related item.",
+  RELATED_PREVIEW: "perc.ui.editor@Preview snippet",
+  RELATED_PREVIEW_FAILED:
+    "perc.ui.editor@Could not open the snippet preview.",
   NEW_ITEM: "perc.ui.editor@New item",
   CREATING: "perc.ui.editor@Creating…",
   CREATE: "perc.ui.editor@Create",
