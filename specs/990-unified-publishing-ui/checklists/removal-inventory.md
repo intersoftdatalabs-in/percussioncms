@@ -6,12 +6,12 @@
 
 |              Slice               | Issue |                              Role                               |   Status    |
 |----------------------------------|-------|-----------------------------------------------------------------|-------------|
-| Parent RET-06                    | #1372 | Packaging: retire residual JSF publishing/pubruntime deep pages | Open        |
+| Parent RET-06                    | #1372 | Packaging: retire residual JSF publishing/pubruntime deep pages | Open (verified complete #6089; host close decision) |
 | A — Inventory / consumer audit   | #1817 | Faces-config + grep audit + deletion checklists (this update)   | **Done**    |
 | B — Design deep-page delete      | #1819 | Delete exclusive `ui/publishing/**` deep JSPs (keep redirects)  | **Done**    |
 | C — Runtime deep-page delete     | #1818 | Delete exclusive `ui/pubruntime/**` deep JSPs (keep redirects)  | **Done**    |
 | D — Packaging / WAR verification | #1820 | Installer/WAR assertions (absence enforced) + inventory closure + product-docs note | **Done**    |
-| UAT gate                         | #1371 | SC-001 / SC-003 / SC-008 sign-off before product deletes        | Open        |
+| UAT gate                         | #1371 | SC-001 / SC-003 / SC-008 sign-off before product deletes        | Closed (maintainer 2026-11-08) |
 
 Child D **verification** (#1820): packaging unit tests enforce the retirement (redirect stubs only), inventory tables below are closed, and the operator note lives in `product-docs/8.2/admin/publishing.md`. Deep-page deletes landed via #1819 (Design) and #1818 (Runtime); UAT sign-off remains tracked on #1371.
 
@@ -118,7 +118,8 @@ It now `sendRedirect`s to the modern Publishing shell peer
 `publishingShellHref({ section: 'status' })` →
 `{contextPath}/cm/app/?view=publish&section=status` (URL path separators only).
 Demand `requestid` is **not** appended: modern shell deep-link contract has no
-request-id filter. **`web.xml` mapping `/publisher/demandpublishing` is kept.**
+request-id filter. **Follow-up tracked in #6215** (decision from #6091: restore,
+not wontfix). **`web.xml` mapping `/publisher/demandpublishing` is kept.**
 **JSP file delete landed** under #1818 — this rewire had removed the live
 server-side consumer first so DemandPublish.jsp could be deleted safely.
 
@@ -129,7 +130,8 @@ It now targets the modern Publishing shell peer
 `publishingShellHref({ section: 'logs' })` →
 `{protocol}://{host}:{port}{requestRoot}/cm/app/?view=publish&section=logs`.
 Job-id query is **not** appended: modern shell deep-link contract has no job-id
-filter yet (only `section` / optional `siteId` / `serverId`). **JSP file delete
+filter yet (only `section` / optional `siteId` / `serverId`). **Follow-up tracked
+in #6215** (decision from #6091: restore, not wontfix). **JSP file delete
 landed** under #1818 — this rewire had removed the live server-side
 consumer first so JobPubLog.jsp could be deleted safely.
 
@@ -370,7 +372,7 @@ These are **not** product-nav, but are **product/engine** callers. Deleting the 
 - [x] Enable `afterDesignRetirementOnlyKeepFilesRemain` / `afterRuntimeRetirementOnlyKeepFilesRemain` in `PublishingDeepPagePackagingTest` (freeze replaced with KEEP-only redirect-stub sets).
 - [x] Assert WAR / WebUI package contains only `ui/publishing/index.jsp` and `ui/pubruntime/index.jsp` (optional `publish.jsp` KEEP removed — deleted in #1819).
 - [x] Keep `ObsoleteWebInfArtifactsCleanupTest` expectations for faces-config upgrade deletes.
-- [x] Mark RET-06 / T124 Done in this file with PR/issue links; parent #1372 acceptance checkoff (UAT #1371 still open — see note below).
+- [x] Mark RET-06 / T124 Done in this file with PR/issue links; parent #1372 acceptance checkoff (UAT #1371 closed by maintainer 2026-11-08 — reconciled #6089).
 - Cross-platform: packaging path assertions use `Path.of` / `Path.resolve` only (no Unix-only separators).
 
 **RET-06 closure (Child D, #1820):** exclusive deep pages are deleted, redirect stubs ship, `publishing-faces-config.xml` ships nowhere (installer still cleans pre-retirement upgrade copies), and the operator note lives in `product-docs/8.2/admin/publishing.md`. The commented-out `jakarta.faces.CONFIG_FILES` block in `cm/WEB-INF/web.xml` is intentionally retained — it also covers `admin-faces-config.xml` and documents the disabled JSF bootstrap; shared cleanup is out of scope. Full product-delete sign-off (UAT #1371 or human ack on #1372) is recorded on the parent, not in this file.
