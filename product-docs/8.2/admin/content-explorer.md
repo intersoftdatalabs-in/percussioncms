@@ -1166,7 +1166,23 @@ From the **View** menu you can also toggle:
   `templateId`. The slot lists that item only after the call returns the
   same slot and the same item. HTTP **400**, **403**, and **409** stay on
   the panel, do not show *Item linked into the slot.*, and do not list the
-  item in the slot. **Create new item** is on a slot that already lists an
+  item in the slot. **Paste as link** is on a slot that already lists an
+  Active Assembly row and is enabled once the Explorer clipboard holds a
+  copied page or asset (Content menu, **Add to clipboard**). Select the
+  slot, or use **Paste as link** on that slot. The dialog names the
+  destination slot, the clipboard item ids, and the slot's first allowed
+  snippet template — the same template the server-driven
+  **Paste as link to slot** menu action would use. **Cancel**, an empty
+  clipboard, or a cut clipboard does not call the server and does not list
+  a new row. **Paste links into slot** calls
+  `POST /services/assembly/slot-relationships` once per clipboard item
+  with the page as `ownerId`, the clipboard item as `dependentId`, the
+  selected `slotId`, and that template. The slot lists each item only
+  after the call returns the same slot and the same item. HTTP **400**,
+  **403**, and **409** stay on the panel, do not show *Items pasted as
+  links into the slot.*, and do not list the items in the slot. This is
+  not **Link existing item** (that links an id typed into the dialog) and
+  it does not copy or move the item into a folder. **Create new item** is on a slot that already lists an
   Active Assembly row. It is not **Create Page** or **Create Asset** in a
   folder, and it is not **Link existing item** (that links an item that
   already exists and does not create one). Select the slot, or use

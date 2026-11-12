@@ -86,6 +86,12 @@ import {
   type LinkSlotSelection,
 } from "../linkExistingItemToSlot";
 import {
+  applyPastedLinksToSlot,
+  gatePasteLinkToSlot,
+  type PasteLinkBlock,
+  type PasteLinkClipboard,
+} from "../pasteLinkToSlot";
+import {
   applyCreatedItemToSlot,
   gateCreateItemInSlot,
   runCreateItemInSlot,
@@ -172,6 +178,19 @@ export interface RelationshipsViewProps {
    * Does not create an item and does not use the relationships-panel add.
    */
   linkExisting?: (request: SlotAddRequest) => Promise<SlotRelationship>;
+  /**
+   * Optional Explorer clipboard snapshot for paste-as-link. Copy or cut
+   * items staged with View / Content clipboard actions; folders are
+   * dropped by the host. Paste posts one slot add per content id.
+   */
+  clipboard?: PasteLinkClipboard;
+  /**
+   * Optional injection seam: paste clipboard items as links into a slot.
+   * Defaults to {@code POST /services/assembly/slot-relationships}.
+   * Separate from {@link linkExisting} so a typed id never reads the
+   * clipboard and a clipboard paste never needs a typed id.
+   */
+  pasteLink?: (request: SlotAddRequest) => Promise<SlotRelationship>;
   /**
    * Optional injection seam: content types allowed in one slot.
    * Defaults to {@code GET …/slot-relationships/allowed-types}.
@@ -279,6 +298,8 @@ export function RelationshipsView(
     moveToSlot = (relationshipId, slotId, templateId) =>
       changeSlotTemplateSlot(relationshipId, slotId, templateId),
     linkExisting = addSlotRelationship,
+    clipboard,
+    pasteLink = addSlotRelationship,
     loadAllowedTypes = fetchSlotAllowedTypes,
     createItem = createEditorItem,
     linkCreated = addSlotRelationship,
@@ -350,6 +371,13 @@ export function RelationshipsView(
   const [linkBusy, setLinkBusy] = React.useState(false);
   const [linkNotice, setLinkNotice] = React.useState(false);
   const [linkError, setLinkError] = React.useState<string | null>(null);
+  const [pasteSlotId, setPasteSlotId] = React.useState<number | null>(null);
+  const [pasteChoices, setPasteChoices] = React.useState<SlotAllowedChoice[]>(
+    [],
+  );
+  const [pasteBusy, setPasteBusy] = React.useState(false);
+  const [pasteNotice, setPasteNotice] = React.useState(false);
+  const [pasteError, setPasteError] = React.useState<string | null>(null);
   const [createSlotId, setCreateSlotId] = React.useState<number | null>(null);
   const [createType, setCreateType] = React.useState("");
   const [createFolder, setCreateFolder] = React.useState("");
@@ -406,6 +434,10 @@ export function RelationshipsView(
       setLinkChoices([]);
       setLinkNotice(false);
       setLinkError(null);
+      setPasteSlotId(null);
+      setPasteChoices([]);
+      setPasteNotice(false);
+      setPasteError(null);
       setCreateSlotId(null);
       setCreateType("");
       setCreateFolder("");
@@ -500,6 +532,10 @@ export function RelationshipsView(
     setCreateTemplates([]);
     setCreateNotice(false);
     setCreateError(null);
+    setPasteSlotId(null);
+    setPasteChoices([]);
+    setPasteNotice(false);
+    setPasteError(null);
   }, [itemId]);
 
   function statusOf(err: unknown): number | undefined {
@@ -603,6 +639,27 @@ export function RelationshipsView(
       return message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_NOT_ALLOWED);
     }
     return message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_NOT_SLOT);
+  }
+
+  function pasteFailureMessage(err: unknown): string {
+    const status = statusOf(err);
+    if (status === 400) return message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_FAILED_400);
+    if (status === 403) return message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_FAILED_403);
+    if (status === 409) return message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_FAILED_409);
+    return err instanceof Error
+      ? err.message
+      : message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_FAILED);
+  }
+
+  function pasteGateMessage(reason: PasteLinkBlock): string {
+    if (reason === "empty_clipboard") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_EMPTY);
+    }
+    if (reason === "cut") return message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_CUT);
+    if (reason === "no_template") {
+      return message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_NO_TEMPLATE);
+    }
+    return message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_NOT_SLOT);
   }
 
   function createFailureMessage(err: unknown): string {
@@ -1019,6 +1076,9 @@ export function RelationshipsView(
     setCreateSlotId(null);
     setCreateNotice(false);
     setCreateError(null);
+    setPasteSlotId(null);
+    setPasteNotice(false);
+    setPasteError(null);
     setLinkSlotId(slotId);
     try {
       const choices = await loadAllowedTemplates(slotId);
@@ -1084,6 +1144,133 @@ export function RelationshipsView(
       setLinkError(linkFailureMessage(err));
     } finally {
       setLinkBusy(false);
+    }
+  }
+
+  function refusePasteBecauseSelectionIsNotSlot(): void {
+    setPasteNotice(false);
+    setPasteSlotId(null);
+    setPasteError(message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_NOT_SLOT));
+  }
+
+  function clearSlotDialogPeersForPaste(): void {
+    setRemovedNotice(null);
+    setRemoveError(null);
+    setMovedNotice(false);
+    setMoveError(null);
+    setOpenedNotice(false);
+    setOpenError(null);
+    setOpenPrompt(null);
+    setAddedNotice(false);
+    setAddError(null);
+    setConfirmId(null);
+    setConfirmAll(false);
+    setMoveRequest(null);
+    setAddOpen(false);
+    setTemplateRequest(null);
+    setTemplateNotice(false);
+    setTemplateError(null);
+    setSlotMoveRequest(null);
+    setSlotMoveNotice(false);
+    setSlotMoveError(null);
+    setLinkNotice(false);
+    setLinkError(null);
+    setLinkSlotId(null);
+    setCreateSlotId(null);
+    setCreateNotice(false);
+    setCreateError(null);
+    setPasteNotice(false);
+    setPasteError(null);
+    setPasteSlotId(null);
+  }
+
+  async function openPasteSlot(slotId: number): Promise<void> {
+    const known = knownActiveAssemblySlotIds(edges);
+    if (!known.includes(slotId)) {
+      setLinkSelection({ kind: "other" });
+      refusePasteBecauseSelectionIsNotSlot();
+      return;
+    }
+    setLinkSelection({ kind: "slot", slotId });
+    clearSlotDialogPeersForPaste();
+    setPasteNotice(false);
+    setPasteError(null);
+    setPasteChoices([]);
+    setPasteSlotId(slotId);
+    try {
+      const choices = await loadAllowedTemplates(slotId);
+      setPasteChoices(choices);
+    } catch (err: unknown) {
+      setPasteNotice(false);
+      setPasteError(pasteFailureMessage(err));
+    }
+  }
+
+  function openPasteFromSelection(): void {
+    if (linkSelection?.kind !== "slot") {
+      refusePasteBecauseSelectionIsNotSlot();
+      return;
+    }
+    void openPasteSlot(linkSelection.slotId);
+  }
+
+  async function confirmPaste(): Promise<void> {
+    if (!itemId || pasteBusy || pasteSlotId == null) return;
+    const gate = gatePasteLinkToSlot({
+      clipboard,
+      ownerId: Number(itemId),
+      slotId: pasteSlotId,
+      knownSlotIds: knownActiveAssemblySlotIds(edges),
+      allowedTemplateIds: pasteChoices.map((choice) => choice.id),
+    });
+    if (!gate.ok) {
+      setPasteNotice(false);
+      setPasteError(pasteGateMessage(gate.reason));
+      return;
+    }
+    setPasteBusy(true);
+    setPasteNotice(false);
+    setPasteError(null);
+    const templateName =
+      pasteChoices.find((choice) => choice.id === gate.templateId)?.label ||
+      pasteChoices.find((choice) => choice.id === gate.templateId)?.name ||
+      "";
+    const applyCreated = (rows: SlotRelationship[]): void => {
+      if (rows.length > 0) {
+        setEdges((current) => applyPastedLinksToSlot(current, rows, templateName));
+      }
+    };
+    const created: SlotRelationship[] = [];
+    try {
+      for (const dependentId of gate.dependentIds) {
+        const row = await pasteLink({
+          ownerId: gate.ownerId,
+          dependentId,
+          slotId: gate.slotId,
+          templateId: gate.templateId,
+        });
+        if (
+          row.slotId !== gate.slotId ||
+          row.dependentId !== dependentId ||
+          !(row.relationshipId > 0)
+        ) {
+          applyCreated(created);
+          setPasteNotice(false);
+          setPasteError(message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_FAILED));
+          return;
+        }
+        created.push(row);
+      }
+      applyCreated(created);
+      setPasteSlotId(null);
+      setPasteError(null);
+      setPasteNotice(true);
+    } catch (err: unknown) {
+      applyCreated(created);
+      setPasteNotice(false);
+      setPasteError(pasteFailureMessage(err));
+    } finally {
+      setPasteBusy(false);
     }
   }
 
@@ -1579,6 +1766,16 @@ export function RelationshipsView(
             {linkError}
           </p>
         ) : null}
+        {pasteNotice ? (
+          <p role="status" data-testid="relationships-paste-link-done">
+            {message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_DONE)}
+          </p>
+        ) : null}
+        {pasteError ? (
+          <p role="alert" data-testid="relationships-paste-link-error">
+            {pasteError}
+          </p>
+        ) : null}
         {createNotice ? (
           <p role="status" data-testid="relationships-create-slot-done">
             {message(EXPLORER_MSG.RELATIONSHIPS_CREATE_SLOT_DONE)}
@@ -1596,6 +1793,14 @@ export function RelationshipsView(
             onClick={() => openLinkFromSelection()}
           >
             {message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT)}
+          </button>
+          <button
+            type="button"
+            data-testid="relationships-paste-link"
+            disabled={(clipboard?.contentIds.length ?? 0) === 0}
+            onClick={() => openPasteFromSelection()}
+          >
+            {message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK)}
           </button>
           <button
             type="button"
@@ -1788,6 +1993,15 @@ export function RelationshipsView(
                           }}
                         >
                           {message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT)}
+                        </button>
+                        <button
+                          type="button"
+                          data-testid={`relationships-paste-link-${group.slotId}`}
+                          onClick={() => {
+                            void openPasteSlot(group.slotId);
+                          }}
+                        >
+                          {message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK)}
                         </button>
                         <button
                           type="button"
@@ -1991,6 +2205,54 @@ export function RelationshipsView(
               }}
             >
               {message(EXPLORER_MSG.RELATIONSHIPS_LINK_SLOT_DO)}
+            </button>
+          </div>
+        ) : null}
+        {pasteSlotId != null ? (
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="relationships-paste-link-title"
+            data-testid="relationships-paste-link-dialog"
+            style={{ marginTop: 8, padding: 8, border: "1px solid #ccc" }}
+          >
+            <h3 id="relationships-paste-link-title" style={{ fontSize: "1rem" }}>
+              {message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_TITLE)}
+            </h3>
+            <p data-testid="relationships-paste-link-summary">
+              {message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_SLOT)}:{" "}
+              {slotLabelFor(pasteSlotId)}
+              {" — "}
+              {message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_ITEMS)}:{" "}
+              {(clipboard?.contentIds.length ?? 0) > 0
+                ? clipboard!.contentIds.map((id) => String(id)).join(", ")
+                : "—"}
+              {" — "}
+              {message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_TEMPLATE)}:{" "}
+              {pasteChoices.length > 0
+                ? (pasteChoices[0].label || pasteChoices[0].name || String(pasteChoices[0].id))
+                : "—"}
+            </p>
+            <button
+              type="button"
+              data-testid="relationships-paste-link-cancel"
+              onClick={() => {
+                if (!pasteBusy) {
+                  setPasteSlotId(null);
+                }
+              }}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_REMOVE_CANCEL)}
+            </button>
+            <button
+              type="button"
+              data-testid="relationships-paste-link-confirm"
+              disabled={pasteBusy}
+              onClick={() => {
+                void confirmPaste();
+              }}
+            >
+              {message(EXPLORER_MSG.RELATIONSHIPS_PASTE_LINK_DO)}
             </button>
           </div>
         ) : null}

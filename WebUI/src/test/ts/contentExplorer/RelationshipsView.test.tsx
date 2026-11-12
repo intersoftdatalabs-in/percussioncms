@@ -1777,4 +1777,206 @@ describe("RelationshipsView", () => {
     await openCreateDialog();
     await renderA11yGate(container);
   });
+
+  function renderPaste(options?: {
+    clipboard?: ComponentProps<typeof RelationshipsView>["clipboard"];
+    pasteLink?: ComponentProps<typeof RelationshipsView>["pasteLink"];
+  }) {
+    return render(
+      <RelationshipsView
+        item={{ id: "42" }}
+        loadServerSummary={mockLoad}
+        loadEdges={async () => [slotted, slottedSibling, folderEdge]}
+        loadAllowedTemplates={async () => allowed}
+        clipboard={options?.clipboard}
+        pasteLink={options?.pasteLink}
+      />,
+    );
+  }
+
+  it("an empty clipboard disables paste-as-link and a row selection is not a slot (#6103)", async () => {
+    renderPaste();
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-edge-71")).toBeTruthy(),
+    );
+    expect(screen.getByTestId("relationships-paste-link")).toHaveAttribute(
+      "disabled",
+    );
+    expect(screen.queryByTestId("relationships-paste-link-done")).toBeNull();
+  });
+
+  it("cancel posts nothing and a cut clipboard is not pasted (#6103)", async () => {
+    const paste = vi.fn();
+    renderPaste({
+      clipboard: { operation: "copy", contentIds: [88] },
+      pasteLink: paste,
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-paste-link-5")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-paste-link-5"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-paste-link-dialog")).toBeTruthy(),
+    );
+    expect(
+      screen.getByTestId("relationships-paste-link-summary").textContent,
+    ).toContain("88");
+    fireEvent.click(screen.getByTestId("relationships-paste-link-cancel"));
+    expect(paste).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("relationships-paste-link-dialog")).toBeNull();
+    expect(screen.queryByTestId("relationships-paste-link-done")).toBeNull();
+    expect(idsInSlot(5)).toEqual(["71", "72"]);
+  });
+
+  it("the panel button needs a selected slot and pastes every clipboard id (#6103)", async () => {
+    const paste = vi
+      .fn()
+      .mockImplementation(async (request: { dependentId: number }) => ({
+        relationshipId: 90 + request.dependentId,
+        ownerId: 42,
+        dependentId: request.dependentId,
+        slotId: 5,
+        templateId: 4,
+        sortRank: 2,
+      }));
+    renderPaste({
+      clipboard: { operation: "copy", contentIds: [88, 89] },
+      pasteLink: paste,
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-paste-link")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-paste-link"));
+    expect(paste).not.toHaveBeenCalled();
+    expect(screen.getByTestId("relationships-paste-link-error")).toBeTruthy();
+    expect(screen.queryByTestId("relationships-paste-link-dialog")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("relationships-select-slot-5"));
+    fireEvent.click(screen.getByTestId("relationships-paste-link"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-paste-link-dialog")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-paste-link-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-paste-link-done")).toBeTruthy(),
+    );
+    expect(paste).toHaveBeenCalledTimes(2);
+    expect(paste).toHaveBeenNthCalledWith(1, {
+      ownerId: 42,
+      dependentId: 88,
+      slotId: 5,
+      templateId: 4,
+    });
+    expect(paste).toHaveBeenNthCalledWith(2, {
+      ownerId: 42,
+      dependentId: 89,
+      slotId: 5,
+      templateId: 4,
+    });
+    expect(idsInSlot(5)).toEqual(["71", "72", "178", "179"]);
+    expect(
+      screen.getByTestId("relationships-edge-178"),
+    ).toHaveAttribute("data-dependent-id", "88");
+  });
+
+  it("a cut clipboard and HTTP 400/403/409 do not claim pasted links (#6103)", async () => {
+    const paste = vi.fn();
+    renderPaste({
+      clipboard: { operation: "cut", contentIds: [88] },
+      pasteLink: paste,
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-paste-link-5")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-paste-link-5"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-paste-link-dialog")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-paste-link-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-paste-link-error")).toBeTruthy(),
+    );
+    expect(paste).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("relationships-paste-link-done")).toBeNull();
+    expect(idsInSlot(5)).toEqual(["71", "72"]);
+  });
+
+  it("HTTP failures keep the slot unchanged (#6103)", async () => {
+    for (const status of [400, 403, 409]) {
+      const paste = vi.fn().mockRejectedValue({ status });
+      const { unmount } = renderPaste({
+        clipboard: { operation: "copy", contentIds: [88] },
+        pasteLink: paste,
+      });
+      await waitFor(() =>
+        expect(screen.getByTestId("relationships-paste-link-5")).toBeTruthy(),
+      );
+      fireEvent.click(screen.getByTestId("relationships-paste-link-5"));
+      await waitFor(() =>
+        expect(
+          screen.getByTestId("relationships-paste-link-dialog"),
+        ).toBeTruthy(),
+      );
+      fireEvent.click(screen.getByTestId("relationships-paste-link-confirm"));
+      await waitFor(() =>
+        expect(screen.getByTestId("relationships-paste-link-error")).toBeTruthy(),
+      );
+      expect(paste).toHaveBeenCalledTimes(1);
+      expect(screen.queryByTestId("relationships-paste-link-done")).toBeNull();
+      expect(idsInSlot(5)).toEqual(["71", "72"]);
+      unmount();
+    }
+  });
+
+  it("a later POST failure keeps already-created rows (#6103)", async () => {
+    const paste = vi
+      .fn()
+      .mockResolvedValueOnce({
+        relationshipId: 178,
+        ownerId: 42,
+        dependentId: 88,
+        slotId: 5,
+        templateId: 4,
+        sortRank: 2,
+      })
+      .mockRejectedValueOnce({ status: 500 });
+    renderPaste({
+      clipboard: { operation: "copy", contentIds: [88, 89] },
+      pasteLink: paste,
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-paste-link-5")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-paste-link-5"));
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("relationships-paste-link-dialog"),
+      ).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-paste-link-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-paste-link-error")).toBeTruthy(),
+    );
+    expect(paste).toHaveBeenCalledTimes(2);
+    expect(screen.queryByTestId("relationships-paste-link-done")).toBeNull();
+    expect(idsInSlot(5)).toEqual(["71", "72", "178"]);
+    expect(
+      screen.getByTestId("relationships-edge-178"),
+    ).toHaveAttribute("data-dependent-id", "88");
+  });
+
+  it("paste-as-link dialog passes the zero serious/critical axe-core gate (#6103)", async () => {
+    const { container } = renderPaste({
+      clipboard: { operation: "copy", contentIds: [88] },
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-paste-link-5")).toBeTruthy(),
+    );
+    await renderA11yGate(container);
+    fireEvent.click(screen.getByTestId("relationships-paste-link-5"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-paste-link-dialog")).toBeTruthy(),
+    );
+    await renderA11yGate(container);
+  });
 });
