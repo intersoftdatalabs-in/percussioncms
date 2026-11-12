@@ -179,6 +179,40 @@ public final class PSDeploymentServerConnection {
           PSAuthorizationException,
           PSServerException,
           PSDeployException {
+    validateConstructorArgs(protocol, server, port, userid);
+
+    m_server = server;
+    m_port = port;
+    m_uid = userid;
+    operatingMode = mode;
+    m_password = password == null ? "" : password;
+
+    ConnectionTransport transport = ConnectionTransport.create(protocol, server, port, m_uid, m_password);
+    m_baseUri = transport.baseUri();
+    m_basicAuthHeader = transport.basicAuthHeader();
+    m_httpClient = transport.httpClient();
+
+    m_isConnected = true;
+    Document respDoc = connect(overrideLock);
+
+    PSXmlTreeWalker tree = new PSXmlTreeWalker(respDoc);
+    Element root = respDoc.getDocumentElement();
+    tree.setCurrent(root);
+
+    validateDeploymentInterface(root);
+    m_bLicensed = readLicensedFlag(root);
+    m_version = loadServerVersion(tree);
+    m_serverRepositoryInfo = loadRepositoryInfo(tree);
+
+    startLockerThread();
+  }
+
+  /**
+   * Validates the connection constructor arguments. Extracted from the constructor to keep its
+   * cognitive complexity within limits; behavior is unchanged.
+   */
+  private static void validateConstructorArgs(
+      String protocol, String server, int port, String userid) {
     if (protocol == null || protocol.trim().length() == 0)
       throw new IllegalArgumentException("protocol may not be null or empty");
 
@@ -189,43 +223,72 @@ public final class PSDeploymentServerConnection {
 
     if (userid == null || userid.trim().length() == 0)
       throw new IllegalArgumentException("userid may not be null or empty");
+  }
 
-    m_server = server;
-    m_port = port;
-    m_uid = userid;
-    operatingMode = mode;
-    m_password = password == null ? "" : password;
+  /**
+   * Immutable holder for the JDK HTTP transport built during construction: the base URI, the
+   * preemptive {@code Authorization} header value, and the per-instance client with its cookie
+   * jar. Package-private for unit tests.
+   */
+  static final class ConnectionTransport {
+    private final URI baseUri;
+    private final String basicAuthHeader;
+    private final HttpClient httpClient;
 
-    // create the connection object. Only 'http' and 'https' are supported; anything
-    // else used to surface as a vendored ProtocolNotSuppException and is mapped to the
-    // same UNEXPECTED_ERROR contract here.
-    if (!protocol.equalsIgnoreCase("http") && !protocol.equalsIgnoreCase("https")) {
-      throw new PSDeployException(
-          DeploymentErrorCodes.UNEXPECTED_ERROR, "Unsupported protocol: " + protocol);
+    private ConnectionTransport(URI baseUri, String basicAuthHeader, HttpClient httpClient) {
+      this.baseUri = baseUri;
+      this.basicAuthHeader = basicAuthHeader;
+      this.httpClient = httpClient;
     }
-    m_baseUri =
-        URI.create(protocol.toLowerCase(Locale.ROOT) + "://" + m_server + ":" + m_port);
-    m_basicAuthHeader =
-        "Basic "
-            + Base64.getEncoder()
-                .encodeToString(
-                    (m_uid + ":" + m_password).getBytes(StandardCharsets.ISO_8859_1));
-    // Per-instance cookie jar, replacing the vendored client's setContext(this) association.
-    // ACCEPT_ALL mirrors the vendored default of storing whatever the server sets.
-    m_httpClient =
-        HttpClient.newBuilder()
-            .version(HttpClient.Version.HTTP_1_1)
-            .followRedirects(HttpClient.Redirect.NORMAL)
-            .cookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ALL))
-            .build();
 
-    m_isConnected = true;
-    Document respDoc = connect(overrideLock);
+    URI baseUri() {
+      return baseUri;
+    }
 
-    PSXmlTreeWalker tree = new PSXmlTreeWalker(respDoc);
-    Element root = respDoc.getDocumentElement();
-    tree.setCurrent(root);
+    String basicAuthHeader() {
+      return basicAuthHeader;
+    }
 
+    HttpClient httpClient() {
+      return httpClient;
+    }
+
+    /**
+     * Builds the transport for the given connection parameters. Only {@code http} and {@code
+     * https} are supported; anything else used to surface as a vendored ProtocolNotSuppException
+     * and is mapped to the same UNEXPECTED_ERROR contract here.
+     */
+    static ConnectionTransport create(
+        String protocol, String server, int port, String uid, String password)
+        throws PSDeployException {
+      if (!protocol.equalsIgnoreCase("http") && !protocol.equalsIgnoreCase("https")) {
+        throw new PSDeployException(
+            DeploymentErrorCodes.UNEXPECTED_ERROR, "Unsupported protocol: " + protocol);
+      }
+      URI baseUri =
+          URI.create(protocol.toLowerCase(Locale.ROOT) + "://" + server + ":" + port);
+      String basicAuthHeader =
+          "Basic "
+              + Base64.getEncoder()
+                  .encodeToString(
+                      (uid + ":" + password).getBytes(StandardCharsets.ISO_8859_1));
+      // Per-instance cookie jar, replacing the vendored client's setContext(this) association.
+      // ACCEPT_ALL mirrors the vendored default of storing whatever the server sets.
+      HttpClient httpClient =
+          HttpClient.newBuilder()
+              .version(HttpClient.Version.HTTP_1_1)
+              .followRedirects(HttpClient.Redirect.NORMAL)
+              .cookieHandler(new CookieManager(null, CookiePolicy.ACCEPT_ALL))
+              .build();
+      return new ConnectionTransport(baseUri, basicAuthHeader, httpClient);
+    }
+  }
+
+  /**
+   * Validates the {@code deployVersion} attribute of the connect response against {@link
+   * #DEPLOYMENT_INTERFACE_VERSION}. Extracted from the constructor; behavior is unchanged.
+   */
+  private void validateDeploymentInterface(Element root) throws PSDeployException {
     String deployVersion = root.getAttribute("deployVersion");
     int deployInterface = -1;
     try {
@@ -244,11 +307,26 @@ public final class PSDeploymentServerConnection {
       throw new PSDeployException(
           DeploymentErrorCodes.SERVER_VERSION_INVALID, m_version.getVersionString());
     }
+  }
 
+  /**
+   * Reads the {@code licensed} flag of the connect response. Extracted from the constructor;
+   * behavior is unchanged.
+   *
+   * @return {@code true} unless the attribute is present and not {@code "yes"}.
+   */
+  private static boolean readLicensedFlag(Element root) {
     String licensed = root.getAttribute("licensed");
     if ((licensed != null) && (licensed.trim().length() > 0))
-      m_bLicensed = "yes".equalsIgnoreCase(licensed.trim());
+      return "yes".equalsIgnoreCase(licensed.trim());
+    return true;
+  }
 
+  /**
+   * Loads the server version from the connect response. Extracted from the constructor; behavior
+   * is unchanged.
+   */
+  private PSFormatVersion loadServerVersion(PSXmlTreeWalker tree) throws PSDeployException {
     Element versionEl =
         tree.getNextElement(PSFormatVersion.NODE_TYPE, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
     if (versionEl == null) {
@@ -256,8 +334,8 @@ public final class PSDeploymentServerConnection {
       Object[] args = {"connect", PSFormatVersion.NODE_TYPE};
       throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_MISSING, args);
     }
-    m_version = PSFormatVersion.createFromXml(versionEl);
-    if (m_version == null) {
+    PSFormatVersion version = PSFormatVersion.createFromXml(versionEl);
+    if (version == null) {
       m_isConnected = false;
       Object[] args = {"connect", PSFormatVersion.NODE_TYPE, "unknown"};
       throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID, args);
@@ -266,12 +344,19 @@ public final class PSDeploymentServerConnection {
     // It will need to know the difference of cougar and rhythmyx
     // currently versions prior to 6.0 are not supported
     // TODO: Fix me so the version checking is real
-    if (m_version.getMajorVersion() < 6) {
+    if (version.getMajorVersion() < 6) {
       m_isConnected = false;
       throw new PSDeployException(
-          DeploymentErrorCodes.SERVER_VERSION_INVALID, m_version.getVersionString());
+          DeploymentErrorCodes.SERVER_VERSION_INVALID, version.getVersionString());
     }
+    return version;
+  }
 
+  /**
+   * Loads the server repository info from the connect response. Extracted from the constructor;
+   * behavior is unchanged.
+   */
+  private PSDbmsInfo loadRepositoryInfo(PSXmlTreeWalker tree) throws PSDeployException {
     Element repositoryEl =
         tree.getNextElement(PSDbmsInfo.XML_NODE_NAME, PSXmlTreeWalker.GET_NEXT_ALLOW_SIBLINGS);
     if (repositoryEl == null) {
@@ -280,13 +365,20 @@ public final class PSDeploymentServerConnection {
       throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_MISSING, args);
     }
     try {
-      m_serverRepositoryInfo = new PSDbmsInfo(repositoryEl);
+      return new PSDbmsInfo(repositoryEl);
     } catch (PSUnknownNodeTypeException e) {
       m_isConnected = false;
       Object[] args = {"connect", PSDbmsInfo.XML_NODE_NAME, e.getLocalizedMessage()};
       throw new PSDeployException(DeploymentErrorCodes.SERVER_RESPONSE_ELEMENT_INVALID, args);
     }
+  }
 
+  /**
+   * Starts the daemon locker thread which renews the lock 2 minutes before the lock expiration
+   * {@link IPSDeployConstants#LOCK_EXPIRATION_DURATION}. Extracted from the constructor;
+   * behavior is unchanged.
+   */
+  private void startLockerThread() {
     // locker thread tries to extend the lock 2 minutes before expiration.
     final int lockTimeoutBuffer = 2;
     Runnable runnable =
@@ -471,9 +563,8 @@ public final class PSDeploymentServerConnection {
     byte[] respData = null;
     Document respDoc = null;
     int status = -1;
-    PSPurgableTempFile reqFile = null;
     byte[] data = null;
-    HttpResponse<byte[]> resp = null;
+    PSPurgableTempFile reqFile = null;
     // Content-Type is set by the multipart encoder below; the request-type header rides along.
     Map<String, String> headers = new LinkedHashMap<>();
     try {
@@ -490,60 +581,22 @@ public final class PSDeploymentServerConnection {
       data = encoded.getBody();
 
       // send the request to the Rx server
-      synchronized (m_mutexObject) {
-        resp = postBytes(requestPage, data, headers);
-      }
+      HttpResponse<byte[]> resp = sendWithRepost(requestPage, data, headers, params);
       // get the response code
       status = resp.statusCode();
       respData = resp.body();
     } catch (IOException ioe) {
+      // Request-body build failure (attachment/multipart): the legacy rePOST path cannot run
+      // without a body, so surface the failure under the same UNEXPECTED_ERROR contract.
       log.error(ioe.getMessage());
       log.debug(ioe.getMessage(), ioe);
-      System.out.println("3. IOException occurred, rePOSTing: " + ioe.getLocalizedMessage());
-      try {
-        synchronized (m_mutexObject) {
-          resp = postBytes(requestPage, data, headers);
-        }
-        status = resp.statusCode();
-        respData = resp.body();
-      } catch (InterruptedException ie) {
-        Thread.currentThread().interrupt();
-        throw new PSDeployException(
-            DeploymentErrorCodes.UNEXPECTED_ERROR, ie.getLocalizedMessage());
-      } catch (Exception e) {
-        log.error(PSExceptionUtils.getMessageForLog(e));
-        log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-        if (data != null && log.isDebugEnabled()) {
-          try {
-            // log the request data to make debugging easier
-            log.debug(getFormFields(params));
-            String request = new String(data, "ISO-8859-1");
-            log.debug(request);
-          } catch (UnsupportedEncodingException uee) {
-            log.error(uee.getMessage());
-            log.debug(uee.getMessage(), uee);
-          }
-        }
-        throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
-      }
+      throw new PSDeployException(
+          DeploymentErrorCodes.UNEXPECTED_ERROR, ioe.getLocalizedMessage());
     } catch (InterruptedException ie) {
       Thread.currentThread().interrupt();
       throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, ie.getLocalizedMessage());
     } catch (Exception e) {
-      log.error(PSExceptionUtils.getMessageForLog(e));
-      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
-      if (data != null && log.isDebugEnabled()) {
-        try {
-          // log the request data to make debugging easier
-          log.debug(getFormFields(params));
-          String request = new String(data, "ISO-8859-1");
-          log.debug(request);
-        } catch (UnsupportedEncodingException uee) {
-          log.error(uee.getMessage());
-          log.debug(uee.getMessage(), uee);
-        }
-      }
-
+      logFailedRequest(e, params, data);
       throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
     } finally {
       if (reqFile != null) reqFile.release();
@@ -553,18 +606,84 @@ public final class PSDeploymentServerConnection {
     try {
       respDoc = parseServerResponse(type, status, respData);
     } catch (PSAuthorizationException e) {
-      if (reconnect && m_sessionId.trim().length() > 0) {
-        reconnect();
-        respDoc = execute(type, req, params, false);
-      } else throw e;
+      if (!shouldRetrySession(reconnect)) throw e;
+      reconnect();
+      respDoc = execute(type, req, params, false);
     } catch (PSLockedException e) {
-      if (reconnect && m_sessionId.trim().length() > 0) {
-        reconnect();
-        respDoc = execute(type, req, params, false);
-      } else throw e;
+      if (!shouldRetrySession(reconnect)) throw e;
+      reconnect();
+      respDoc = execute(type, req, params, false);
     }
 
     return respDoc;
+  }
+
+  /**
+   * Sends a buffered request body, retrying the POST once on {@link IOException} exactly as the
+   * legacy transport did. Extracted from {@link #execute(String, Document, Map, boolean)} to keep
+   * its cognitive complexity within limits; behavior is unchanged.
+   */
+  private HttpResponse<byte[]> sendWithRepost(
+      String requestPage, byte[] data, Map<String, String> headers, Map<String, String> params)
+      throws PSDeployException {
+    HttpResponse<byte[]> resp;
+    try {
+      synchronized (m_mutexObject) {
+        resp = postBytes(requestPage, data, headers);
+      }
+    } catch (IOException ioe) {
+      log.error(ioe.getMessage());
+      log.debug(ioe.getMessage(), ioe);
+      System.out.println("3. IOException occurred, rePOSTing: " + ioe.getLocalizedMessage());
+      try {
+        synchronized (m_mutexObject) {
+          resp = postBytes(requestPage, data, headers);
+        }
+      } catch (InterruptedException ie) {
+        Thread.currentThread().interrupt();
+        throw new PSDeployException(
+            DeploymentErrorCodes.UNEXPECTED_ERROR, ie.getLocalizedMessage());
+      } catch (Exception e) {
+        logFailedRequest(e, params, data);
+        throw new PSDeployException(
+            DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
+      }
+    } catch (InterruptedException ie) {
+      Thread.currentThread().interrupt();
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, ie.getLocalizedMessage());
+    } catch (Exception e) {
+      logFailedRequest(e, params, data);
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
+    }
+    return resp;
+  }
+
+  /**
+   * Logs a failed request at debug level, including the request body when available. Extracted
+   * from the duplicated debug-logging blocks of the document {@code execute} overload.
+   */
+  private void logFailedRequest(Exception e, Map<String, String> params, byte[] data) {
+    log.error(PSExceptionUtils.getMessageForLog(e));
+    log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+    if (data != null && log.isDebugEnabled()) {
+      try {
+        // log the request data to make debugging easier
+        log.debug(getFormFields(params));
+        String request = new String(data, "ISO-8859-1");
+        log.debug(request);
+      } catch (UnsupportedEncodingException uee) {
+        log.error(uee.getMessage());
+        log.debug(uee.getMessage(), uee);
+      }
+    }
+  }
+
+  /**
+   * Whether a failed request may be retried after {@link #reconnect()}: only when the caller
+   * allowed a reconnect attempt and a session id exists. Shared by all {@code execute} overloads.
+   */
+  private boolean shouldRetrySession(boolean reconnect) {
+    return reconnect && m_sessionId.trim().length() > 0;
   }
 
   /**
@@ -656,54 +775,16 @@ public final class PSDeploymentServerConnection {
     // add the params
     Map<String, String> formFields = getFormFields(params);
 
-    // Read in file and create multipart form. Content type mirrors the vendored encoder's
-    // URLConnection filename guess, defaulting to application/octet-stream when unknown.
-    String fileContentType = URLConnection.guessContentTypeFromName(body.getName());
-    if (fileContentType == null) fileContentType = "application/octet-stream";
-
     headers.put(IPSCgiVariables.CGI_PS_REQUEST_TYPE, type);
     try {
-      byte[] fileBytes = Files.readAllBytes(body.toPath());
-      MultipartBody encoded =
-          encodeMultipart(
-              formFields,
-              List.of(
-                  new MultipartFileUpload(
-                      body.getName(), body.getName(), fileContentType, fileBytes)));
-      headers.put("Content-Type", encoded.getContentType());
-      byte[] data = encoded.getBody();
-
-      // send the request to the Rx server, streaming the buffered body through the progress
-      // counter the same way the vendored copyStream pump did
-      PSInputStreamCounter counter = new PSInputStreamCounter(new ByteArrayInputStream(data));
-      controller.setStream(counter, data.length);
-      synchronized (m_mutexObject) {
-        resp = postUpload(requestPage, headers, cancellableUploadStream(counter, controller));
-      }
+      resp = postUploadOnce(requestPage, headers, formFields, body, controller);
       // get the response code
       status = resp.statusCode();
       respData = resp.body();
     } catch (IOException ioe) {
-      if (repost) {
-        log.error("6. IOException occurred rePOSTing: {}", ioe.getLocalizedMessage());
-        log.debug(ioe.getMessage(), ioe);
-        doRepost = true;
-      } else {
-        log.error(ioe.getMessage());
-        log.debug(ioe.getMessage(), ioe);
-        throw new PSDeployException(
-            DeploymentErrorCodes.UNEXPECTED_ERROR, ioe.getLocalizedMessage());
-      }
+      doRepost = markUploadRepost(ioe, repost);
     } catch (InterruptedException ie) {
-      Thread.currentThread().interrupt();
-      if (repost) {
-        log.error("6. Interrupted rePOSTing: {}", PSExceptionUtils.getMessageForLog(ie));
-        log.debug(PSExceptionUtils.getDebugMessageForLog(ie));
-        doRepost = true;
-      } else {
-        throw new PSDeployException(
-            DeploymentErrorCodes.UNEXPECTED_ERROR, ie.getLocalizedMessage());
-      }
+      doRepost = markUploadRepost(ie, repost);
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
@@ -719,18 +800,89 @@ public final class PSDeploymentServerConnection {
       respDoc = parseServerResponse(type, status, respData);
     } catch (PSAuthorizationException e) {
       // String type, Map params, File body, PSDeployFileJobControl controller
-      if (reconnect && m_sessionId.trim().length() > 0) {
-        reconnect();
-        respDoc = execute(type, params, body, controller, false, repost);
-      } else throw e;
+      if (!shouldRetrySession(reconnect)) throw e;
+      reconnect();
+      respDoc = execute(type, params, body, controller, false, repost);
     } catch (PSLockedException e) {
-      if (reconnect && m_sessionId.trim().length() > 0) {
-        reconnect();
-        respDoc = execute(type, params, body, controller, false, repost);
-      } else throw e;
+      if (!shouldRetrySession(reconnect)) throw e;
+      reconnect();
+      respDoc = execute(type, params, body, controller, false, repost);
     }
 
     return respDoc;
+  }
+
+  /**
+   * Reads the upload file, multipart-encodes it, and posts it once with upload progress counting.
+   * Extracted from {@link #execute(String, Map, File, PSDeployFileJobControl, boolean, boolean)};
+   * behavior is unchanged.
+   */
+  private HttpResponse<byte[]> postUploadOnce(
+      String requestPage,
+      Map<String, String> headers,
+      Map<String, String> formFields,
+      File body,
+      PSDeployFileJobControl controller)
+      throws IOException, InterruptedException {
+    // Read in file and create multipart form. Content type mirrors the vendored encoder's
+    // URLConnection filename guess, defaulting to application/octet-stream when unknown.
+    String fileContentType = URLConnection.guessContentTypeFromName(body.getName());
+    if (fileContentType == null) fileContentType = "application/octet-stream";
+
+    byte[] fileBytes = Files.readAllBytes(body.toPath());
+    MultipartBody encoded =
+        encodeMultipart(
+            formFields,
+            List.of(
+                new MultipartFileUpload(
+                    body.getName(), body.getName(), fileContentType, fileBytes)));
+    headers.put("Content-Type", encoded.getContentType());
+    byte[] data = encoded.getBody();
+
+    // send the request to the Rx server, streaming the buffered body through the progress
+    // counter the same way the vendored copyStream pump did
+    PSInputStreamCounter counter = new PSInputStreamCounter(new ByteArrayInputStream(data));
+    controller.setStream(counter, data.length);
+    synchronized (m_mutexObject) {
+      return postUpload(requestPage, headers, cancellableUploadStream(counter, controller));
+    }
+  }
+
+  /**
+   * Handles an {@link IOException} from an upload POST: either reposts (when the caller allowed
+   * it) or wraps it. Extracted from the upload {@code execute} overload; behavior is unchanged.
+   *
+   * @return {@code true} when the caller must repost.
+   */
+  private boolean markUploadRepost(IOException ioe, boolean repost) throws PSDeployException {
+    if (!repost) {
+      log.error(ioe.getMessage());
+      log.debug(ioe.getMessage(), ioe);
+      throw new PSDeployException(
+          DeploymentErrorCodes.UNEXPECTED_ERROR, ioe.getLocalizedMessage());
+    }
+    log.error("6. IOException occurred rePOSTing: {}", ioe.getLocalizedMessage());
+    log.debug(ioe.getMessage(), ioe);
+    return true;
+  }
+
+  /**
+   * Handles an {@link InterruptedException} from an upload POST: either reposts (when the caller
+   * allowed it) or wraps it. Extracted from the upload {@code execute} overload; behavior is
+   * unchanged.
+   *
+   * @return {@code true} when the caller must repost.
+   */
+  private boolean markUploadRepost(InterruptedException ie, boolean repost)
+      throws PSDeployException {
+    Thread.currentThread().interrupt();
+    if (!repost) {
+      throw new PSDeployException(
+          DeploymentErrorCodes.UNEXPECTED_ERROR, ie.getLocalizedMessage());
+    }
+    log.error("6. Interrupted rePOSTing: {}", PSExceptionUtils.getMessageForLog(ie));
+    log.debug(PSExceptionUtils.getDebugMessageForLog(ie));
+    return true;
   }
 
   /**
@@ -798,14 +950,68 @@ public final class PSDeploymentServerConnection {
           PSServerLockException {
     String requestPage = getRequestPage(type);
 
+    DownloadResult result;
+    try {
+      result = performDownload(requestPage, req, type, out, controller);
+    } finally {
+      closeQuietly(out);
+    }
+
+    if (result.status() != 200 || result.errorData() != null) {
+      try {
+        parseServerResponse(type, result.status(), result.errorData());
+      } catch (PSAuthorizationException e) {
+        if (!shouldRetrySession(reconnect)) throw e;
+        reconnect();
+        execute(type, req, out, controller, false);
+      } catch (PSLockedException e) {
+        if (!shouldRetrySession(reconnect)) throw e;
+        reconnect();
+        execute(type, req, out, controller, false);
+      }
+    }
+  }
+
+  /**
+   * Outcome of {@link #performDownload(String, Document, String, OutputStream,
+   * PSDeployFileJobControl)}: the HTTP status plus, for non-{@code 200} responses, the buffered
+   * error body (an exception XML document). For {@code 200} responses the body was already
+   * streamed to the caller and {@code errorData} is {@code null}.
+   */
+  private static final class DownloadResult {
+    private final int status;
+    private final byte[] errorData;
+
+    private DownloadResult(int status, byte[] errorData) {
+      this.status = status;
+      this.errorData = errorData;
+    }
+
+    private int status() {
+      return status;
+    }
+
+    private byte[] errorData() {
+      return errorData;
+    }
+  }
+
+  /**
+   * Posts a download request and either streams a {@code 200} body to {@code out} (via the
+   * controller) or buffers the error body. Extracted from the download {@code execute} overload;
+   * behavior is unchanged: the response body stream is always closed here, while {@code out} is
+   * closed by the caller exactly as the legacy {@code finally} block did.
+   */
+  private DownloadResult performDownload(
+      String requestPage,
+      Document req,
+      String type,
+      OutputStream out,
+      PSDeployFileJobControl controller)
+      throws PSDeployException {
     // add session id if we have one
     Element root = req.getDocumentElement();
     root.setAttribute("sessionId", m_sessionId);
-
-    // make request
-    byte[] respData = null;
-    InputStream in = null;
-    int status = -1;
 
     // add the request doc as an attachment with explicit XML content type
     try (PSPurgableTempFile reqFile = createAttachmentFile(req)) {
@@ -823,54 +1029,38 @@ public final class PSDeploymentServerConnection {
         resp = postDownload(requestPage, data, headers);
       }
       // get the response code
-      status = resp.statusCode();
+      int status = resp.statusCode();
       int contentLength = parseContentLength(resp);
       if (status == 200) {
-        in = resp.body();
-        PSInputStreamCounter cIn = new PSInputStreamCounter(in);
-        controller.setStream(cIn, contentLength);
-        copyStream(cIn, out, controller);
-      } else {
-        // in this case we should have gotten back an exception in an XML
-        // doc
-        try (InputStream errIn = resp.body()) {
-          respData = errIn.readAllBytes();
+        try (InputStream in = resp.body()) {
+          PSInputStreamCounter cIn = new PSInputStreamCounter(in);
+          controller.setStream(cIn, contentLength);
+          copyStream(cIn, out, controller);
         }
+        return new DownloadResult(status, null);
+      }
+      // in this case we should have gotten back an exception in an XML
+      // doc
+      try (InputStream errIn = resp.body()) {
+        return new DownloadResult(status, errIn.readAllBytes());
       }
     } catch (InterruptedException ie) {
       Thread.currentThread().interrupt();
-      throw new PSDeployException(
-          DeploymentErrorCodes.UNEXPECTED_ERROR, ie.getLocalizedMessage());
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, ie.getLocalizedMessage());
     } catch (Exception e) {
       log.error(PSExceptionUtils.getMessageForLog(e));
       log.debug(PSExceptionUtils.getDebugMessageForLog(e));
       throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.getLocalizedMessage());
-    } finally {
-      if (in != null)
-        try {
-          in.close();
-        } catch (IOException e) {
-        }
-      if (out != null)
-        try {
-          out.close();
-        } catch (IOException e) {
-        }
     }
+  }
 
-    if (status != 200 || respData != null) {
+  /** Closes a stream quietly, mirroring the legacy download {@code finally} block. */
+  private static void closeQuietly(java.io.Closeable stream) {
+    if (stream != null) {
       try {
-        parseServerResponse(type, status, respData);
-      } catch (PSAuthorizationException e) {
-        if (reconnect && m_sessionId.trim().length() > 0) {
-          reconnect();
-          execute(type, req, out, controller, false);
-        } else throw e;
-      } catch (PSLockedException e) {
-        if (reconnect && m_sessionId.trim().length() > 0) {
-          reconnect();
-          execute(type, req, out, controller, false);
-        } else throw e;
+        stream.close();
+      } catch (IOException e) {
+        // ignore close failures, as before
       }
     }
   }
@@ -1626,10 +1816,23 @@ public final class PSDeploymentServerConnection {
     if (requestType == null || requestType.trim().length() == 0)
       throw new IllegalArgumentException("requestType may not be null or empty");
 
+    String reqRoot = resolveRequestRoot();
+
+    if (requestType.startsWith(DEPLOY_REQUEST)) return reqRoot + DEPLOY_REQUEST_PAGE;
+    if (requestType.startsWith(JOB_REQUEST)) return reqRoot + JOB_REQUEST_PAGE;
+    throw new IllegalArgumentException("invalid type");
+  }
+
+  /**
+   * Lazily resolves and caches the Rhythmyx server request root. Extracted from {@link
+   * #getRequestPage(String)}; behavior is unchanged.
+   */
+  private String resolveRequestRoot() {
     if (m_reqRoot == null) {
       String reqRoot = System.getProperty(IPSDeployConstants.PROP_RX_ROOT);
-      if (reqRoot == null || reqRoot.trim().length() == 0) reqRoot = "/Rhythmyx";
-      else {
+      if (reqRoot == null || reqRoot.trim().length() == 0) {
+        reqRoot = "/Rhythmyx";
+      } else {
         // make sure it starts with a slash, and doesn't end with one
         String slash = "/";
         if (!reqRoot.startsWith(slash)) reqRoot = slash + reqRoot;
@@ -1637,13 +1840,7 @@ public final class PSDeploymentServerConnection {
       }
       m_reqRoot = reqRoot;
     }
-
-    String page;
-    if (requestType.startsWith(DEPLOY_REQUEST)) page = m_reqRoot + DEPLOY_REQUEST_PAGE;
-    else if (requestType.startsWith(JOB_REQUEST)) page = m_reqRoot + JOB_REQUEST_PAGE;
-    else throw new IllegalArgumentException("invalid type");
-
-    return page;
+    return m_reqRoot;
   }
 
   /**
