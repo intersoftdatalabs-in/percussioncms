@@ -147,6 +147,58 @@ public class PSTipTapEditorKeysTmxTest {
     assertKeysRegistered(loadEnSegsByTuid(), PICKER_ENGLISH_5900);
   }
 
+  /**
+   * Above-floor locale back-fill for issue #5735: every TipTap toolbar/dialog key has a
+   * non-blank TUV in each of the 12 above-floor ship locales, so those sessions render
+   * translated strings instead of silent English fallback.
+   */
+  private static final List<String> ABOVE_FLOOR_LOCALES =
+      List.of(
+          "hi", "bn", "te", "tr", "ar", "he", "it", "ja-jp", "nb", "pl", "sv", "zh-cn");
+
+  @Test
+  public void aboveFloorLocales_haveFullTipTapCoverage() throws Exception {
+    Path cmsUi = resolveCmsUiTmx();
+    assertNotNull(cmsUi, "CmsUi.tmx not found");
+    Map<String, Set<String>> langsByTuid = loadLangsByTuid(parse(cmsUi));
+    List<String> gaps = new ArrayList<>();
+    for (String en : EXPECTED_ENGLISH) {
+      String tuid = "perc.ui.editor@" + en;
+      Set<String> langs = langsByTuid.getOrDefault(tuid, Set.of());
+      for (String loc : ABOVE_FLOOR_LOCALES) {
+        if (!langs.contains(loc)) {
+          gaps.add(tuid + " [" + loc + "]");
+        }
+      }
+    }
+    assertTrue(
+        gaps.isEmpty(), "CmsUi.tmx TipTap keys missing above-floor TUVs: " + gaps);
+  }
+
+  private static Map<String, Set<String>> loadLangsByTuid(Document doc) {
+    Map<String, Set<String>> langsByTuid = new LinkedHashMap<>();
+    NodeList tus = doc.getElementsByTagName("tu");
+    for (int i = 0; i < tus.getLength(); i++) {
+      Element tu = (Element) tus.item(i);
+      String tuid = tu.getAttribute("tuid");
+      if (!tuid.startsWith("perc.ui.editor@")) {
+        continue;
+      }
+      NodeList tuvs = tu.getElementsByTagName("tuv");
+      for (int j = 0; j < tuvs.getLength(); j++) {
+        Element tuv = (Element) tuvs.item(j);
+        String lang = normalizeLang(readXmlLang(tuv));
+        NodeList segs = tuv.getElementsByTagName("seg");
+        if (!lang.isEmpty()
+            && segs.getLength() > 0
+            && !segs.item(0).getTextContent().isBlank()) {
+          langsByTuid.computeIfAbsent(tuid, k -> new LinkedHashSet<>()).add(lang);
+        }
+      }
+    }
+    return langsByTuid;
+  }
+
   private static Map<String, List<String>> loadEnSegsByTuid() throws Exception {
     Path cmsUi = resolveCmsUiTmx();
     assertNotNull(cmsUi, "CmsUi.tmx not found");
