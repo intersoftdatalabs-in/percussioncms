@@ -167,4 +167,33 @@ class RelationshipSummaryResourceTest {
     assertEquals(200, resp.getStatus());
     assertEquals(list, resp.getEntity());
   }
+
+  @Test
+  void summaryPropagatesAdaptor403WithoutTranslation() {
+    // #6130: an unresolvable id surfaces as WebApplicationException(403) from the adaptor.
+    // The resource must let it through untouched — never translate it into a 500.
+    WebApplicationException forbidden =
+        new WebApplicationException("Cannot summarise node 708", 403);
+    when(adaptor.summary(
+            org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.eq("708")))
+        .thenThrow(forbidden);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.summary("708"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void edgesPropagatesAdaptor404WithoutTranslation() {
+    // #6130: a gone item surfaces as WebApplicationException(404) from the adaptor.
+    // The resource must let it through untouched — never translate it into a 500.
+    WebApplicationException notFound = new WebApplicationException("Item was not found", 404);
+    when(adaptor.listEdges(
+            org.mockito.ArgumentMatchers.any(), org.mockito.ArgumentMatchers.eq("708")))
+        .thenThrow(notFound);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.edges("708"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
 }

@@ -318,6 +318,94 @@ class PSRelationshipSummaryServiceTest {
     assertFalse(service.summariseOutgoing("   ").isPresent());
   }
 
+  @Test
+  void summariseOutgoingReturnsEmptyWhenItemNoLongerExists() {
+    // #6130: the guid resolves (PSIdMapper guid construction never touches the store) but the
+    // item itself is gone, so the design webservice throws "Failed to get locator ... does not
+    // exist" one step downstream of the guid pre-check. That must surface as empty (→ HTTP 403
+    // via the adaptor), not a 500 with a server ERROR.
+    IPSGuid guid = org.mockito.Mockito.mock(IPSGuid.class);
+    when(idMapper.getGuid("708")).thenReturn(guid);
+    when(relationshipCataloger.findOwners(
+            org.mockito.ArgumentMatchers.eq("708"), anyString(), any(), any()))
+        .thenThrow(locatorFailure());
+
+    assertFalse(service.summariseOutgoing("708").isPresent());
+    assertFalse(service.summariseReverse("708").isPresent());
+  }
+
+  @Test
+  void summariseIncomingReturnsEmptyWhenLocatorLookupFails() {
+    // #6130 DEPENDENTS direction: idMapper.getLocator routes through the design webservice
+    // getItemGuid, which throws the same locator failure for a gone item.
+    IPSGuid guid = org.mockito.Mockito.mock(IPSGuid.class);
+    when(idMapper.getGuid("708")).thenReturn(guid);
+    when(idMapper.getLocator(guid)).thenThrow(locatorFailure());
+
+    assertFalse(service.summariseIncoming("708").isPresent());
+  }
+
+  @Test
+  void summariseConsolidatedReturnsEmptyWhenItemNoLongerExists() {
+    // #6130: every cataloger-backed dimension goes empty for the gone item while the
+    // content-id taxonomy/local dimensions stay present-empty, so the consolidated
+    // /summary answers empty (→ HTTP 403 via absence(), which still resolves the guid).
+    IPSGuid guid = org.mockito.Mockito.mock(IPSGuid.class);
+    when(idMapper.getGuid("708")).thenReturn(guid);
+    when(idMapper.getLocator(guid)).thenThrow(locatorFailure());
+    when(relationshipCataloger.findOwners(anyString(), anyString(), any(), any()))
+        .thenThrow(locatorFailure());
+
+    assertFalse(service.summarise("708").isPresent());
+    assertEquals(RelationshipSummaryAbsence.FORBIDDEN, service.absence("708"));
+  }
+
+  @Test
+  void summariseReverseTreatsMissingLinkedPagesAsUnavailable() throws Exception {
+    // #6130: when the owners side resolves but the linked-pages lookup reports the item as
+    // gone, the reverse dimension degrades to the owners count instead of 500.
+    IPSGuid guid = org.mockito.Mockito.mock(IPSGuid.class);
+    when(idMapper.getGuid("777")).thenReturn(guid);
+    when(relationshipCataloger.findOwners(
+            org.mockito.ArgumentMatchers.eq("777"),
+            org.mockito.ArgumentMatchers.eq(PSRelationshipFilter.FILTER_CATEGORY_TRANSLATION),
+            any(),
+            any()))
+        .thenReturn(List.of("d1"));
+    when(widgetAssetRelationshipService.getLinkedPages("777")).thenThrow(locatorFailure());
+
+    Optional<com.percussion.share.relationship.data.PSRelationshipSummary> out =
+        service.summariseReverse("777");
+
+    assertTrue(out.isPresent());
+    assertEquals(1L, out.get().getCount());
+  }
+
+  @Test
+  void isMissingMatchesLocatorFailureButNotInfraFailure() {
+    // The classifier must stay narrow: anything it misses still propagates as a 5xx.
+    assertTrue(PSRelationshipSummaryService.isMissing(locatorFailure()));
+    assertFalse(
+        PSRelationshipSummaryService.isMissing(new RuntimeException("cataloger down")));
+    assertFalse(
+        PSRelationshipSummaryService.isMissing(new RuntimeException("access denied")));
+    assertFalse(PSRelationshipSummaryService.isMissing(new RuntimeException("jcr down")));
+  }
+
+  /**
+   * The live #6130 signal: {@code PSContentDesignWs.getItemGuid} throws {@code "Failed to get
+   * locator for item id=..."} wrapping a cause that reports the requested design object {@code
+   * "does not exist"}.
+   */
+  private static RuntimeException locatorFailure() {
+    return new RuntimeException(
+        "Failed to get locator for item id=708",
+        new RuntimeException(
+            "The requested design object of type"
+                + " 'com.percussion.cms.objectstore.PSComponentSummary' for id '708' does not"
+                + " exist."));
+  }
+
   // ---- helpers ----
 
   private IPSGuid stubGuid(String id) {

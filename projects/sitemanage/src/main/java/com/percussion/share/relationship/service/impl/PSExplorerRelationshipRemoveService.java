@@ -83,18 +83,36 @@ public class PSExplorerRelationshipRemoveService implements IPSExplorerRelations
     if (resolved.failure != null) {
       return resolved.failure;
     }
-    List<PSRelationship> owned = new ArrayList<>();
-    for (PSRelationship rel : loadOwned(resolved.contentId)) {
+    final List<PSRelationship> owned;
+    try {
+      owned = loadOwned(resolved.contentId);
+    } catch (RuntimeException e) {
+      // The guid resolved but the item is gone (or unreadable): map to the documented
+      // NOT_FOUND / FORBIDDEN outcomes instead of leaking a 500 with a server ERROR (#6130).
+      // Genuine infrastructure failures still propagate.
+      if (isMissing(e)) {
+        return ExplorerRelationshipAction.of(
+            ExplorerRelationshipAction.Status.NOT_FOUND, "Item was not found");
+      }
+      if (isAccessDenied(e)) {
+        return ExplorerRelationshipAction.of(
+            ExplorerRelationshipAction.Status.FORBIDDEN,
+            "You do not have permission to read this item");
+      }
+      throw e;
+    }
+    List<PSRelationship> filtered = new ArrayList<>();
+    for (PSRelationship rel : owned) {
       if (rel == null || isFolder(rel)) {
         continue;
       }
-      owned.add(rel);
+      filtered.add(rel);
     }
-    List<PSExplorerRelationshipEdge> edges = new ArrayList<>(owned.size());
-    for (PSRelationship rel : owned) {
+    List<PSExplorerRelationshipEdge> edges = new ArrayList<>(filtered.size());
+    for (PSRelationship rel : filtered) {
       edges.add(toEdge(rel));
     }
-    orderActiveAssemblyBySortRank(owned, edges);
+    orderActiveAssemblyBySortRank(filtered, edges);
     return ExplorerRelationshipAction.listed(edges);
   }
 
@@ -407,6 +425,34 @@ public class PSExplorerRelationshipRemoveService implements IPSExplorerRelations
             || lower.contains("not authorized")
             || lower.contains("forbidden")
             || lower.contains("permission denied")) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  /**
+   * True when the error signals that the item itself does not (or no longer) exist, as opposed to
+   * a genuine infrastructure failure. Mirrors the classifier in {@link
+   * PSRelationshipSummaryService}: the canonical live signal is the design webservice throwing
+   * {@code "Failed to get locator for item id=..."} for a guid that resolves but has no item
+   * behind it (#6130). Kept narrow so real outages still propagate as 5xx.
+   */
+  static boolean isMissing(Throwable error) {
+    for (Throwable current = error; current != null; current = current.getCause()) {
+      String simple = current.getClass().getSimpleName().toLowerCase(Locale.ROOT);
+      if (simple.contains("notfound") || simple.contains("notexist")) {
+        return true;
+      }
+      String message = current.getMessage();
+      if (message != null) {
+        String lower = message.toLowerCase(Locale.ROOT);
+        if (lower.contains("does not exist")
+            || lower.contains("does not exists")
+            || lower.contains("not found")
+            || lower.contains("no such")
+            || lower.contains("failed to get locator")) {
           return true;
         }
       }
