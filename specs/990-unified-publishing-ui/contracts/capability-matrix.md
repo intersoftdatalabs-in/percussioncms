@@ -97,6 +97,6 @@ ITM-01–06: item actions remain available with no regression via the jQuery `Pe
 | RET-03 | JSF Runtime **entry** removed from product path (redirect) | Done   |
 | RET-04 | Deep links mapped                                          | Done   |
 | RET-05 | Removal inventory signed off (entry path)                  | Done   |
-| RET-06 | Residual deep faces JSPs + faces-config packaging cleanup  | Todo   |
+| RET-06 | Residual deep faces JSPs + faces-config packaging cleanup  | Done   |
 
-**RET residual:** Primary entries (`index.jsp`, DCE header, Minuet exclusive clients) are retired. Deep `ui/publishing/*.jsp` / `ui/pubruntime/*.jsp` faces pages may still exist on disk — tracked as **RET-06 / US9 T124**.
+**RET residual:** Primary entries (`index.jsp`, DCE header, Minuet exclusive clients) are retired. Deep `ui/publishing/*.jsp` / `ui/pubruntime/*.jsp` faces pages were deleted (slices #1819 Design / #1818 Runtime; only `index.jsp` entry redirects ship) and `publishing-faces-config.xml` ships nowhere (JSF bootstrap block in `cm/WEB-INF/web.xml` intentionally retained commented-out — shared cleanup out of scope). Tracked as **RET-06 / US9 T124** — closed in `checklists/removal-inventory.md`; UAT gate #1371 closed by maintainer 2026-11-08; parent #1372 verified complete, left open for host close decision (reconciled #6089).
