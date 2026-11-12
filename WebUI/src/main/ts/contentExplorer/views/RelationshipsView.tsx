@@ -1231,17 +1231,17 @@ export function RelationshipsView(
     setPasteBusy(true);
     setPasteNotice(false);
     setPasteError(null);
+    const templateName =
+      pasteChoices.find((choice) => choice.id === gate.templateId)?.label ||
+      pasteChoices.find((choice) => choice.id === gate.templateId)?.name ||
+      "";
+    const applyCreated = (rows: SlotRelationship[]): void => {
+      if (rows.length > 0) {
+        setEdges((current) => applyPastedLinksToSlot(current, rows, templateName));
+      }
+    };
+    const created: SlotRelationship[] = [];
     try {
-      const templateName =
-        pasteChoices.find((choice) => choice.id === gate.templateId)?.label ||
-        pasteChoices.find((choice) => choice.id === gate.templateId)?.name ||
-        "";
-      const applyCreated = (rows: SlotRelationship[]): void => {
-        if (rows.length > 0) {
-          setEdges((current) => applyPastedLinksToSlot(current, rows, templateName));
-        }
-      };
-      const created: SlotRelationship[] = [];
       for (const dependentId of gate.dependentIds) {
         const row = await pasteLink({
           ownerId: gate.ownerId,
@@ -1266,6 +1266,7 @@ export function RelationshipsView(
       setPasteError(null);
       setPasteNotice(true);
     } catch (err: unknown) {
+      applyCreated(created);
       setPasteNotice(false);
       setPasteError(pasteFailureMessage(err));
     } finally {

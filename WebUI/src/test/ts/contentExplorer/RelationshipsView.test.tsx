@@ -1928,6 +1928,43 @@ describe("RelationshipsView", () => {
     }
   });
 
+  it("a later POST failure keeps already-created rows (#6103)", async () => {
+    const paste = vi
+      .fn()
+      .mockResolvedValueOnce({
+        relationshipId: 178,
+        ownerId: 42,
+        dependentId: 88,
+        slotId: 5,
+        templateId: 4,
+        sortRank: 2,
+      })
+      .mockRejectedValueOnce({ status: 500 });
+    renderPaste({
+      clipboard: { operation: "copy", contentIds: [88, 89] },
+      pasteLink: paste,
+    });
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-paste-link-5")).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-paste-link-5"));
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("relationships-paste-link-dialog"),
+      ).toBeTruthy(),
+    );
+    fireEvent.click(screen.getByTestId("relationships-paste-link-confirm"));
+    await waitFor(() =>
+      expect(screen.getByTestId("relationships-paste-link-error")).toBeTruthy(),
+    );
+    expect(paste).toHaveBeenCalledTimes(2);
+    expect(screen.queryByTestId("relationships-paste-link-done")).toBeNull();
+    expect(idsInSlot(5)).toEqual(["71", "72", "178"]);
+    expect(
+      screen.getByTestId("relationships-edge-178"),
+    ).toHaveAttribute("data-dependent-id", "88");
+  });
+
   it("paste-as-link dialog passes the zero serious/critical axe-core gate (#6103)", async () => {
     const { container } = renderPaste({
       clipboard: { operation: "copy", contentIds: [88] },
