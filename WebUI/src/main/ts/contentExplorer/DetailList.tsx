@@ -65,6 +65,11 @@
  * {@code localStorage} (no new REST). Density is styling only — row
  * identity, roving-tabindex navigation, and screen-reader positions
  * are identical in both densities.</p>
+ *
+ * <p>#6079: an Export CSV button above the list downloads the current
+ * view — the displayed rows in display order with the visible columns
+ * only — as an RFC 4180 file built client-side from the already-loaded
+ * page (no new REST). Only the loaded page is exported.</p>
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -483,6 +488,10 @@ export function columnHeaderLabel(
 }
 import { message } from "../i18n/message";
 import {
+  buildDetailCsv,
+  downloadCsvFile,
+} from "./detailCsvExport";
+import {
   finderDragMimeForItem,
   serializeFinderItemDrag,
 } from "../architecture/landingPageDrop";
@@ -853,6 +862,23 @@ export function DetailList({
     [baseColumns],
   );
 
+  /**
+   * Export the current view to CSV (#6079). Uses the displayed rows in
+   * display order (active client-side sort included) and the visible
+   * columns only, so the file matches what the operator sees. The
+   * download is built from the already-loaded page — zero new REST —
+   * and covers that page only; paging stays server-side.
+   */
+  const exportCurrentViewCsv = useCallback(() => {
+    const headers = columnsToRender.map((c) =>
+      columnHeaderLabel(c, EXPLORER_MSG),
+    );
+    const rows = sortedChildren.map((item) =>
+      columnsToRender.map((c) => renderDisplayFormatCell(c, item)),
+    );
+    downloadCsvFile(buildDetailCsv(headers, rows), folderPath ?? "");
+  }, [columnsToRender, sortedChildren, folderPath]);
+
   const hiddenColumnSet = useMemo(
     () => new Set<DetailColumnId>(hiddenColumns),
     [hiddenColumns],
@@ -968,6 +994,16 @@ export function DetailList({
             {message(EXPLORER_MSG.DETAIL_DENSITY_COMPACT)}
           </button>
         </div>
+        <button
+          type="button"
+          data-testid="detail-export-csv"
+          aria-label={message(EXPLORER_MSG.DETAIL_EXPORT_CSV)}
+          title={message(EXPLORER_MSG.DETAIL_EXPORT_CSV)}
+          onClick={exportCurrentViewCsv}
+          style={detailColumnsToggleButtonStyle}
+        >
+          {message(EXPLORER_MSG.DETAIL_EXPORT_CSV)}
+        </button>
         {columnsMenuOpen ? (
           <div
             role="group"

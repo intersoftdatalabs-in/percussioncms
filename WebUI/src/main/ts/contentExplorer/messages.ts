@@ -55,6 +55,8 @@ export const EXPLORER_MSG = {
   DETAIL_COLUMNS_KEEP_ONE: "perc.ui.explorer@At least one column stays visible",
   /** Detail-list row-density switch label (#5883). */
   DETAIL_DENSITY_LABEL: "perc.ui.explorer@Row density",
+  /** Detail-list export-current-view button (#6079). */
+  DETAIL_EXPORT_CSV: "perc.ui.explorer@Export CSV",
   /** Comfortable (default) row-density option (#5883). */
   DETAIL_DENSITY_COMFORTABLE: "perc.ui.explorer@Comfortable",
   /** Compact row-density option (#5883). */
