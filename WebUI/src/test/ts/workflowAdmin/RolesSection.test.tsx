@@ -18,14 +18,20 @@ import React from "react";
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { RolesSection } from "../../../main/ts/workflowAdmin/role/RolesSection";
+import { WF_ADMIN_MSG } from "../../../main/ts/workflowAdmin/messages";
+import { message } from "../../../main/ts/i18n/message";
 import * as client from "../../../main/ts/api/client";
 
-vi.mock("../../../main/ts/api/client", () => ({
-  get: vi.fn(),
-  post: vi.fn(),
-  put: vi.fn(),
-  del: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/client", async (importOriginal) => {
+  const actual = await importOriginal<typeof client>();
+  return {
+    ...actual,
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    del: vi.fn(),
+  };
+});
 
 describe("RolesSection", () => {
   beforeEach(() => {
@@ -89,5 +95,74 @@ describe("RolesSection", () => {
     await waitFor(() => {
       expect(screen.getByTestId("perc-role-editor")).toBeTruthy();
     });
+  });
+
+  it("validates then deletes a role and reloads (US3-AC3)", async () => {
+    vi.mocked(client.get).mockResolvedValue({
+      RoleList: { roles: ["Admin"] },
+    });
+    const posted: string[] = [];
+    vi.mocked(client.post).mockImplementation(async (url: string, payload: any) => {
+      posted.push(String(url));
+      if (String(url).includes("role/find")) {
+        return {
+          Role: { name: "Admin", description: "Administrator", users: [] },
+        };
+      }
+      return {};
+    });
+
+    window.confirm = vi.fn().mockReturnValue(true);
+
+    render(<RolesSection />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("delete-role-Admin")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("delete-role-Admin"));
+
+    await waitFor(() => {
+      expect(posted.some((u) => u.includes("validateForDelete"))).toBe(true);
+      expect(posted.some((u) => u.includes("role/delete"))).toBe(true);
+    });
+  });
+
+  it("surfaces the server dependency message when validate rejects (US3-AC3/FR-019)", async () => {
+    vi.mocked(client.get).mockResolvedValue({
+      RoleList: { roles: ["Admin"] },
+    });
+    vi.mocked(client.post).mockImplementation(async (url: string, payload: any) => {
+      if (String(url).includes("role/find")) {
+        return {
+          Role: { name: "Admin", description: "Administrator", users: [] },
+        };
+      }
+      if (String(url).includes("validateForDelete")) {
+        throw {
+          status: 409,
+          statusText: "Conflict",
+          body: { message: "Role Admin is assigned to workflow Default Workflow" },
+        };
+      }
+      return {};
+    });
+
+    window.confirm = vi.fn().mockReturnValue(true);
+
+    render(<RolesSection />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("delete-role-Admin")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("delete-role-Admin"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByText("Role Admin is assigned to workflow Default Workflow"),
+      ).toBeTruthy();
+    });
+    expect(message(WF_ADMIN_MSG.DELETE_FAILED)).toBeTruthy();
   });
 });

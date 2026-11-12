@@ -15,7 +15,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { get, post, put, del } from "../../api/client";
+import { formatApiError, get, post, put, del } from "../../api/client";
 import { parseWorkflowList } from "../../api/developer/workflowsApi";
 import { parseRoleNameList } from "../../api/jsonList";
 import type { WorkflowDef } from "../../api/developer/types";
@@ -128,8 +128,10 @@ export const WorkflowSection: React.FC = () => {
     try {
       await del(`${PATHS.WORKFLOWS}${encodeURIComponent(wf.name)}`);
       await loadData();
-    } catch (err) {
-      alert(message(WF_ADMIN_MSG.DELETE_FAILED));
+    } catch (err: unknown) {
+      // US1-AC6/FR-019: surface the server's in-flight/system-workflow 409
+      // explanation instead of a generic failure (ApiError is a plain object).
+      alert(formatApiError(err, message(WF_ADMIN_MSG.DELETE_FAILED)));
     }
   };
 

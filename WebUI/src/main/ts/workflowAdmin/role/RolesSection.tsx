@@ -15,7 +15,7 @@
  */
 
 import React, { useEffect, useState } from "react";
-import { get, post } from "../../api/client";
+import { formatApiError, get, post } from "../../api/client";
 import { asStringArray, parseRoleNameList } from "../../api/jsonList";
 import { PATHS } from "../../api/paths";
 import { message } from "../../i18n/message";
@@ -85,8 +85,11 @@ export const RolesSection: React.FC = () => {
       // Perform delete
       await post(PATHS.ROLE_DELETE, { psstring: { value: roleName } });
       loadRoles();
-    } catch (err: any) {
-      setError(err?.message || message(WF_ADMIN_MSG.DELETE_FAILED));
+    } catch (err: unknown) {
+      // US3-AC3/FR-019: surface the server's dependency explanation (409 from
+      // validateForDelete/deleteRole) instead of a generic failure. ApiError is
+      // a plain object — formatApiError extracts the RestError body message.
+      setError(formatApiError(err, message(WF_ADMIN_MSG.DELETE_FAILED)));
     }
   };
 
