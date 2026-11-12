@@ -18,7 +18,7 @@ Prove the preview-first host + slot ops + scalar overlay work end-to-end (FR-001
 | FR-005 | Scalar contenteditable overlay persists via itemmanagement | Shipped (#3475 CLOSED) — verify |
 | FR-006 | Denied/failed ops message; no silent loss | Shipped pattern — verify |
 | FR-007 | Related-content menu parity replacing `updaterelateditems.html` (R17) | OPEN issue #6104 — build or recorded reduced-scope decision |
-| FR-008 | Compare (`sys_Compare`) add-on | No implementation found — build or defer decision |
+| FR-008 | Compare (`sys_Compare`) add-on | DEFERRED — decision recorded in spec + `checklists/closeout.md` T012 (#6105, via #6154); spec no longer promises it |
 
 Out of scope (spec): Explorer browse, Publish Now, revisions, translations, purge, Arrange_* from folder browse with no slot, Content Editor forms, dual-shipping Dojo AA JSPs.
 

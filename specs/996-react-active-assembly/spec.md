@@ -32,7 +32,14 @@ Field editing is **not** invented here. When the Content Editor (`specs/995-reac
 ## In scope (later)
 
 - Contenteditable / content-type overlay for **rich** (HTML) assembled fields
-- Compare (`sys_Compare`) may follow as a small add-on
+- Compare (`sys_Compare`): **deferred — not planned** (decision #6105, recorded
+  2026-11-12; evidence `checklists/closeout.md` T012 via #6154). No React
+  Compare surface exists — `sys_compare` appears only in the legacy-Data-Flow
+  blocklist (`DATA_FLOW_PATH_MARKERS`, `actionDispatch.ts`), and the legacy
+  `sys_Compare` XML application is not an acceptable stand-in. Building a new
+  Compare host without a requesting slice would violate the vertical-increment
+  rule. Revisit trigger: file a new issue referencing this note when a Compare
+  consumer slice is scheduled.
 
 Scalar text overlay, slot add / create / arrange, and itemmanagement persist are implemented on the preview-first host.
 
