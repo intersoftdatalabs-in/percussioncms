@@ -812,15 +812,122 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   public PipelineResultPage putResultPage(
       URI baseUri, String appName, String resourceName, PipelineResultPage body) {
     requireAdmin();
+    String trimmedApp = requireValidApplicationName(appName);
+    String safeResource = requireValidResourceName(resourceName);
+    requireResultPageBody(body);
+    ValidatedResultPage page = validateResultPageBody(body);
+    PSSecurityToken tok = currentResultPageToken();
+    String name = resolveApplicationName(trimmedApp, summaryLoader.apply(tok));
+    if (name == null) {
+      throw new WebApplicationException("Application not found", 404);
+    }
+    try {
+      IPSPipelineIrService ir = irSupplier.get();
+      PipelineIrDocument doc = loadOrImportResultPageDocument(ir, name, tok);
+      PipelineResourceIr resource = findOrCreateQueryResource(doc, safeResource);
+      if (page.isUnbound()) {
+        resource.setResultPage(null);
+        ir.save(doc);
+        PipelineResultPage saved = new PipelineResultPage();
+        saved.setPresentation(PipelineResultPageIr.PRESENTATION_NONE);
+        return saved;
+      }
+      PipelineResultPageIr stored = page.toStoredIr();
+      resource.setResultPage(stored);
+      ir.save(doc);
+      return page.toResponse(stored);
+    } catch (PSPipelineIrException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Failed to persist result page";
+      if (isNotFoundMessage(msg)) {
+        throw new WebApplicationException("Pipeline application or resource not found", 404);
+      }
+      throw new WebApplicationException(msg, 400);
+    }
+  }
+
+  /** Guard: blank or path-unsafe pipeline application names fail closed with 400. */
+  private static String requireValidApplicationName(String appName) {
     if (StringUtils.isBlank(appName) || !isSafeApplicationName(appName.trim())) {
       throw new WebApplicationException("Invalid pipeline application name", 400);
     }
+    return appName.trim();
+  }
+
+  /** Guard: blank or path-unsafe pipeline resource names fail closed with 400. */
+  private static String requireValidResourceName(String resourceName) {
     if (StringUtils.isBlank(resourceName) || !isSafeResourceName(resourceName.trim())) {
       throw new WebApplicationException("Invalid pipeline resource name", 400);
     }
+    return resourceName.trim();
+  }
+
+  /** Guard: a missing result-page body fails closed with 400. */
+  private static void requireResultPageBody(PipelineResultPage body) {
     if (body == null) {
       throw new WebApplicationException("Result page body is required", 400);
     }
+  }
+
+  /** Guard: result-page persist requires a current request security token. */
+  private static PSSecurityToken currentResultPageToken() {
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline result page persist");
+    }
+    return req.getSecurityToken();
+  }
+
+  /** Result-page binding validated against the Slice D XSL-compatibility rules. */
+  private static final class ValidatedResultPage {
+    private final String presentation;
+    private final boolean none;
+    private final String stylesheetUri;
+    private final String requestExtension;
+    private final String mimeType;
+
+    private ValidatedResultPage(
+        String presentation,
+        boolean none,
+        String stylesheetUri,
+        String requestExtension,
+        String mimeType) {
+      this.presentation = presentation;
+      this.none = none;
+      this.stylesheetUri = stylesheetUri;
+      this.requestExtension = requestExtension;
+      this.mimeType = mimeType;
+    }
+
+    /** True when a `none` presentation carries no stylesheet, so any binding is cleared. */
+    private boolean isUnbound() {
+      return none && StringUtils.isBlank(stylesheetUri);
+    }
+
+    private PipelineResultPageIr toStoredIr() {
+      PipelineResultPageIr stored = new PipelineResultPageIr();
+      stored.setStylesheetUri(stylesheetUri);
+      stored.setRequestExtension(requestExtension);
+      stored.setMimeType(mimeType);
+      stored.setPresentation(presentation);
+      return stored;
+    }
+
+    private PipelineResultPage toResponse(PipelineResultPageIr stored) {
+      PipelineResultPage saved = new PipelineResultPage();
+      saved.setStylesheetUri(stored.getStylesheetUri());
+      saved.setRequestExtension(stored.getRequestExtension());
+      saved.setMimeType(stored.getMimeType());
+      saved.setPresentation(stored.getPresentation());
+      return saved;
+    }
+  }
+
+  /**
+   * Validates the presentation token, then normalizes the stylesheet URI, request extension, and
+   * MIME type. Classic `file:`-relative stylesheet values normalize to the portable relative URI;
+   * absolute/cloud/traversal values still fail closed.
+   */
+  private static ValidatedResultPage validateResultPageBody(PipelineResultPage body) {
     String presentation;
     try {
       presentation = PSPipelineResultPagePath.requireSafePresentation(body.getPresentation());
@@ -834,8 +941,6 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     String mimeType = null;
     try {
       if (!none || StringUtils.isNotBlank(body.getStylesheetUri())) {
-        // Slice D XSL-compatibility: classic `file:`-relative values normalize to the
-        // portable relative URI; absolute/cloud/traversal values still fail closed.
         stylesheetUri =
             PSPipelineResultPagePath.normalizeLegacyStylesheetUri(body.getStylesheetUri());
       }
@@ -851,72 +956,45 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       throw new WebApplicationException(
           e.getMessage() != null ? e.getMessage() : "Invalid result page stylesheet URI", 400);
     }
+    return new ValidatedResultPage(
+        presentation, none, stylesheetUri, requestExtension, mimeType);
+  }
 
-    PSRequest req = PSSecurityFilter.getCurrentRequest();
-    if (req == null) {
-      throw new IllegalStateException("No current request for pipeline result page persist");
-    }
-    PSSecurityToken tok = req.getSecurityToken();
-    String name = resolveApplicationName(appName.trim(), summaryLoader.apply(tok));
-    if (name == null) {
-      throw new WebApplicationException("Application not found", 404);
-    }
-    String safeResource = resourceName.trim();
-    try {
-      IPSPipelineIrService ir = irSupplier.get();
-      PipelineIrDocument doc = ir.load(name).orElse(null);
-      if (doc == null) {
-        PSApplication app = applicationLoader.apply(name, tok);
-        if (app != null) {
-          doc = ir.importClassicApplication(app);
-        } else {
-          doc = new PipelineIrDocument();
-          doc.getApp().setName(name);
-        }
-      }
-      doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
-      if (doc.getApp() == null || StringUtils.isBlank(doc.getApp().getName())) {
+  /** Loads the native IR document, importing the classic application on first persist. */
+  private PipelineIrDocument loadOrImportResultPageDocument(
+      IPSPipelineIrService ir, String name, PSSecurityToken tok) throws PSPipelineIrException {
+    PipelineIrDocument doc = ir.load(name).orElse(null);
+    if (doc == null) {
+      PSApplication app = applicationLoader.apply(name, tok);
+      if (app != null) {
+        doc = ir.importClassicApplication(app);
+      } else {
+        doc = new PipelineIrDocument();
         doc.getApp().setName(name);
       }
-      PipelineResourceIr resource = doc.findResource(safeResource);
-      if (resource == null) {
-        resource = new PipelineResourceIr();
-        resource.setName(safeResource);
-        resource.setKind(PipelineResourceIr.KIND_QUERY);
-        doc.getResources().add(resource);
-      }
-      if (resource.getKind() == null
-          || PipelineResourceIr.KIND_UNKNOWN.equals(resource.getKind())) {
-        resource.setKind(PipelineResourceIr.KIND_QUERY);
-      }
-      if (none && StringUtils.isBlank(stylesheetUri)) {
-        resource.setResultPage(null);
-        ir.save(doc);
-        PipelineResultPage saved = new PipelineResultPage();
-        saved.setPresentation(PipelineResultPageIr.PRESENTATION_NONE);
-        return saved;
-      }
-      PipelineResultPageIr stored = new PipelineResultPageIr();
-      stored.setStylesheetUri(stylesheetUri);
-      stored.setRequestExtension(requestExtension);
-      stored.setMimeType(mimeType);
-      stored.setPresentation(presentation);
-      resource.setResultPage(stored);
-      ir.save(doc);
-
-      PipelineResultPage saved = new PipelineResultPage();
-      saved.setStylesheetUri(stored.getStylesheetUri());
-      saved.setRequestExtension(stored.getRequestExtension());
-      saved.setMimeType(stored.getMimeType());
-      saved.setPresentation(stored.getPresentation());
-      return saved;
-    } catch (PSPipelineIrException e) {
-      String msg = e.getMessage() != null ? e.getMessage() : "Failed to persist result page";
-      if (isNotFoundMessage(msg)) {
-        throw new WebApplicationException("Pipeline application or resource not found", 404);
-      }
-      throw new WebApplicationException(msg, 400);
     }
+    doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
+    if (doc.getApp() == null || StringUtils.isBlank(doc.getApp().getName())) {
+      doc.getApp().setName(name);
+    }
+    return doc;
+  }
+
+  /** Finds the query resource backing result-page persist, creating it when absent. */
+  private static PipelineResourceIr findOrCreateQueryResource(
+      PipelineIrDocument doc, String safeResource) {
+    PipelineResourceIr resource = doc.findResource(safeResource);
+    if (resource == null) {
+      resource = new PipelineResourceIr();
+      resource.setName(safeResource);
+      resource.setKind(PipelineResourceIr.KIND_QUERY);
+      doc.getResources().add(resource);
+    }
+    if (resource.getKind() == null
+        || PipelineResourceIr.KIND_UNKNOWN.equals(resource.getKind())) {
+      resource.setKind(PipelineResourceIr.KIND_QUERY);
+    }
+    return resource;
   }
 
   @Override
