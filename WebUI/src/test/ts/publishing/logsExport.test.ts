@@ -59,4 +59,18 @@ describe("buildPublishingLogsCsv", () => {
       buildPublishingLogsCsv(undefined as unknown as PublishingLogEntry[]),
     ).toThrow(/requires a list/);
   });
+
+  it("neutralizes spreadsheet formula injection in hostile fields (#6175)", () => {
+    const csv = buildPublishingLogsCsv([
+      {
+        jobId: 12,
+        siteName: "=cmd|' /C calc'!A0",
+        serverName: "+evil",
+        status: "@SUM(A1:A2)",
+      },
+    ]).replace(/\r\n/g, "\n");
+    expect(csv).toBe(
+      `${PUBLISHING_LOG_CSV_HEADERS.join(",")}\n12,'=cmd|' /C calc'!A0,'+evil,'@SUM(A1:A2)\n`,
+    );
+  });
 });
