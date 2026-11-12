@@ -21,8 +21,6 @@ import com.percussion.deployer.server.PSDbmsHelper;
 import com.intsof.percussioncms.auditlog.codes.ObjectStoreErrorCodes;
 import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 import com.percussion.error.PSDeployException;
-import com.percussion.legacy.security.deprecated.PSCryptographer;
-import com.percussion.legacy.security.deprecated.PSLegacyEncrypter;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSEncryptor;
 import com.percussion.security.error.PSExceptionUtils;
@@ -504,31 +502,28 @@ public final class PSDbmsInfo implements IPSDeployComponent {
   /**
    * Decrypts the supplied password if it is non-&lt;code-null&lt;/code> and not empty.
    *
+   * <p>Decryption uses {@code PSEncryptor} (AES/GCM) only. The legacy lasagna/DES fallback was
+   * removed in issue #6057: {@code PSEncryptionKeyFactory} unconditionally rejects DES, so the
+   * old fallback could never decrypt pre-AES artifacts — it only threw {@code
+   * IllegalArgumentException} for input the AES path rejects. Undecryptable input now yields an
+   * empty string, matching this method's documented contract. Restoring true legacy decryption
+   * needs a human/owner accept-risk decision (same bar as PSAesCBC, issue #1347).
+   *
    * @param uid The user id, may be &lt;code>null&lt;/code> or empty.
    * @param pwd The password to decrypt, may be &lt;code>null&lt;/code> or empty.
    * @return The decrypted password, or an empty string if the supplied password is
-   *     &lt;code>null&lt;/code> or empty.
+   *     &lt;code>null&lt;/code> or empty, or cannot be decrypted.
    */
   private String decryptPwd(String uid, String pwd) {
     if (pwd == null || pwd.trim().length() == 0) return "";
-
-    String key =
-        uid == null || uid.trim().length() == 0
-            ? PSLegacyEncrypter.getInstance(
-                    PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR))
-                .INVALID_DRIVER()
-            : uid;
 
     try {
       return PSEncryptor.decryptString(
           PathUtils.getRxDir().getAbsolutePath().concat(PSEncryptor.SECURE_DIR), pwd);
     } catch (PSEncryptionException e) {
-      return PSCryptographer.decrypt(
-          PSLegacyEncrypter.getInstance(
-                  PathUtils.getRxDir(null).getAbsolutePath().concat(PSEncryptor.SECURE_DIR))
-              .INVALID_CRED(),
-          key,
-          pwd);
+      logger.warn("Error decrypting datasource password: {}", PSExceptionUtils.getMessageForLog(e));
+      logger.debug(e);
+      return "";
     }
   }
 
