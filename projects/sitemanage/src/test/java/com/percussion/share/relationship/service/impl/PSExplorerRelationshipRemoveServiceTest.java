@@ -248,6 +248,64 @@ class PSExplorerRelationshipRemoveServiceTest {
     verify(systemWs, never()).deleteRelationships(anyList());
   }
 
+  @Test
+  void listOwnedMapsGoneItemToNotFound() throws Exception {
+    // #6130: the guid resolves but the item itself is gone — the backend throws the design
+    // webservice locator failure instead of rows. /edges must answer 404 (via NOT_FOUND),
+    // not 500 with a server ERROR.
+    when(idMapper.getGuid("708")).thenReturn(itemGuid);
+    when(itemGuid.getUUID()).thenReturn(708);
+    when(systemWs.loadRelationships(any(PSRelationshipFilter.class)))
+        .thenThrow(locatorFailure());
+
+    ExplorerRelationshipAction action = service.listOwned("708");
+
+    assertEquals(ExplorerRelationshipAction.Status.NOT_FOUND, action.getStatus());
+    assertEquals("Item was not found", action.getMessage());
+  }
+
+  @Test
+  void listOwnedMapsWrappedMissingItemToNotFound() throws Exception {
+    // Same outcome when the backend failure arrives as the webservice error type:
+    // loadOwned wraps PSErrorException in IllegalStateException, and listOwned classifies
+    // the cause chain.
+    when(idMapper.getGuid("708")).thenReturn(itemGuid);
+    when(itemGuid.getUUID()).thenReturn(708);
+    when(systemWs.loadRelationships(any(PSRelationshipFilter.class)))
+        .thenThrow(
+            new com.percussion.webservices.PSErrorException(
+                "Failed to load relationships for owner 708", locatorFailure()));
+
+    ExplorerRelationshipAction action = service.listOwned("708");
+
+    assertEquals(ExplorerRelationshipAction.Status.NOT_FOUND, action.getStatus());
+  }
+
+  @Test
+  void listOwnedPropagatesInfraFailure() throws Exception {
+    // The missing-item classifier stays narrow: a real outage still propagates as a 5xx.
+    when(idMapper.getGuid("708")).thenReturn(itemGuid);
+    when(itemGuid.getUUID()).thenReturn(708);
+    when(systemWs.loadRelationships(any(PSRelationshipFilter.class)))
+        .thenThrow(new RuntimeException("db down"));
+
+    org.junit.jupiter.api.Assertions.assertThrows(
+        RuntimeException.class, () -> service.listOwned("708"));
+  }
+
+  /**
+   * The live #6130 signal: the design webservice throws {@code "Failed to get locator for item
+   * id=..."} wrapping a cause that reports the requested design object {@code "does not exist"}.
+   */
+  private static RuntimeException locatorFailure() {
+    return new RuntimeException(
+        "Failed to get locator for item id=708",
+        new RuntimeException(
+            "The requested design object of type"
+                + " 'com.percussion.cms.objectstore.PSComponentSummary' for id '708' does not"
+                + " exist."));
+  }
+
   private static PSRelationship edge(
       int id, int ownerId, int dependentId, String name, String category) {
     PSRelationship rel = org.mockito.Mockito.mock(PSRelationship.class);

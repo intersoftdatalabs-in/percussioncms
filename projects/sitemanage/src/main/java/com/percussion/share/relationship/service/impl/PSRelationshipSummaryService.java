@@ -166,9 +166,8 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
   @Override
   public Optional<PSRelationshipSummary> summariseOutgoing(String itemId) {
     if (!isResolvable(itemId)) return Optional.empty();
-    return Optional.of(
-        summariseFromCataloger(
-            itemId, PSRelationshipFilter.FILTER_CATEGORY_TRANSLATION, Direction.OWNERS));
+    return summariseFromCataloger(
+        itemId, PSRelationshipFilter.FILTER_CATEGORY_TRANSLATION, Direction.OWNERS);
   }
 
   @Override
@@ -180,17 +179,18 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
     // with the supplied item treated as the owner. The cataloger helper delegates to the
     // systemWs facade per the direction parameter; the single-argument cataloger path is the
     // OWNERS direction only.
-    return Optional.of(
-        summariseFromCataloger(
-            itemId, PSRelationshipFilter.FILTER_CATEGORY_ACTIVE_ASSEMBLY, Direction.DEPENDENTS));
+    return summariseFromCataloger(
+        itemId, PSRelationshipFilter.FILTER_CATEGORY_ACTIVE_ASSEMBLY, Direction.DEPENDENTS);
   }
 
   @Override
   public Optional<PSRelationshipSummary> summariseReverse(String itemId) {
     if (!isResolvable(itemId)) return Optional.empty();
-    PSRelationshipSummary byOwners =
+    Optional<PSRelationshipSummary> byOwners =
         summariseFromCataloger(
             itemId, PSRelationshipFilter.FILTER_CATEGORY_TRANSLATION, Direction.OWNERS);
+    if (byOwners.isEmpty()) return Optional.empty();
+    PSRelationshipSummary owners = byOwners.get();
     long extraParents = 0L;
     Map<String, Long> extraTypes = new HashMap<>();
     try {
@@ -201,10 +201,23 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
       }
     } catch (PSValidationException | PSNotFoundException e) {
       log.debug("Linked-pages lookup unavailable for {}: {}", itemId, e.getMessage());
+    } catch (RuntimeException e) {
+      // A missing-item signal here (e.g. the locator lookup behind getLinkedPages fails for
+      // an id whose guid resolved but whose item no longer exists) is AuthZ-equivalent:
+      // treat the linked-parents side as unavailable rather than 500. Genuine infra
+      // failures still propagate so the framework returns 5xx (#6130).
+      if (isAccessDenied(e) || isMissing(e)) {
+        log.debug(
+            "Linked-pages lookup found no resolvable item for {}: {}",
+            itemId,
+            e.getMessage());
+      } else {
+        throw e;
+      }
     }
-    long total = byOwners.getCount() + extraParents;
+    long total = owners.getCount() + extraParents;
     Map<String, Long> merged = new HashMap<>();
-    for (PSRelationshipTypeBucket bucket : byOwners.getByType()) {
+    for (PSRelationshipTypeBucket bucket : owners.getByType()) {
       // Sum-with-existing semantic so a cataloger-sourced `linkback` count is preserved when the
       // linked-pages lookup yields its own `linkback` count. Map.putAll would overwrite; merge
       // (with Long::sum) is the safer operator.
@@ -342,6 +355,35 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
     return false;
   }
 
+  /**
+   * True when the error signals that the item itself does not (or no longer) exist, as opposed to
+   * a genuine infrastructure failure. The canonical live signal is {@code PSContentDesignWs}
+   * throwing {@code "Failed to get locator for item id=..."} whose cause reports that the
+   * requested design object {@code "does not exist"} (#6130): the guid resolved, but there is no
+   * item behind it. Must stay narrow — anything this misses still propagates as a 5xx, and
+   * anything it over-matches downgrades a real outage to 403.
+   */
+  static boolean isMissing(Throwable error) {
+    for (Throwable current = error; current != null; current = current.getCause()) {
+      String simple = current.getClass().getSimpleName().toLowerCase(Locale.ROOT);
+      if (simple.contains("notfound") || simple.contains("notexist")) {
+        return true;
+      }
+      String message = current.getMessage();
+      if (message != null) {
+        String lower = message.toLowerCase(Locale.ROOT);
+        if (lower.contains("does not exist")
+            || lower.contains("does not exists")
+            || lower.contains("not found")
+            || lower.contains("no such")
+            || lower.contains("failed to get locator")) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
   // ---------------------------------------------------------------------
   // helpers
   // ---------------------------------------------------------------------
@@ -395,17 +437,21 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
    * com.percussion.webservices.system.IPSSystemWs#findOwners} (OWNERS) or {@link
    * com.percussion.webservices.system.IPSSystemWs#findDependents} (DEPENDENTS) calls.
    *
-   * <p>Throws {@link RuntimeException} on infrastructure failures (e.g. caller cannot read the
-   * item) so the framework can return 500. The bot review on PR #1414/1415 flagged the previous
-   * empty-summary fallback as masking AuthZ as 200 — this method now propagates exceptions; the
-   * caller is expected to surface them.
+   * <p>Returns {@link Optional#empty()} when the id cannot be resolved to a readable item: either
+   * the pre-check fails or a downstream collaborator reports the item as missing / access-denied
+   * (e.g. {@code PSContentDesignWs} throws {@code "Failed to get locator for item id=..."} for a
+   * guid that resolves but whose item no longer exists — #6130). Only genuine infrastructure
+   * failures (e.g. caller cannot read the item for an unexpected reason, JCR outage) propagate as
+   * {@link RuntimeException} so the framework can return 500. The bot review on PR #1414/1415
+   * flagged the previous empty-summary fallback as masking AuthZ as 200 — this method still
+   * propagates real infra exceptions; the caller is expected to surface them.
    *
    * @param itemId the content id or guid-string of the item.
    * @param category the {@link PSRelationshipFilter} category to scope the lookup.
    * @param direction OWNERS walks up the parents (incoming from item's POV); DEPENDENTS walks down
    *     the children.
    */
-  private PSRelationshipSummary summariseFromCataloger(
+  private Optional<PSRelationshipSummary> summariseFromCataloger(
       String itemId, String category, Direction direction) {
     List<PSRelationshipTypeBucket> byType = new ArrayList<>();
     long count = 0L;
@@ -419,6 +465,16 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
         byType.add(new PSRelationshipTypeBucket(normaliseCategoryLabel(category), rows.size()));
       }
     } catch (RuntimeException e) {
+      if (isAccessDenied(e) || isMissing(e)) {
+        // Id-resolution failure or read-access denial one step downstream of the guid
+        // pre-check: surface as empty so the adaptor maps to HTTP 403, with no ERROR log.
+        log.debug(
+            "Relationship summary lookup found no resolvable item for {} ({}): {}",
+            itemId,
+            category,
+            e.getMessage());
+        return Optional.empty();
+      }
       // Surface the exception to the framework so the JAX-RS layer emits a 5xx. The dependency
       // viewer treats this as a real error and the operator investigates via the application log.
       log.warn(
@@ -426,7 +482,7 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
       throw e;
     }
     Collections.sort(byType, (a, b) -> Long.compare(b.getCount(), a.getCount()));
-    return new PSRelationshipSummary(count, byType);
+    return Optional.of(new PSRelationshipSummary(count, byType));
   }
 
   /**
@@ -434,9 +490,11 @@ public class PSRelationshipSummaryService implements IPSRelationshipSummaryServi
    * by the incoming dimension only; the per-owner query goes through {@link
    * IPSRelationshipCataloger#findOwners}.
    *
-   * <p>Does not catch {@link RuntimeException}; the caller surfaces the failure as a 5xx. The bot
-   * review on PR #1416 confirmed this contract — silent fallback to empty list is reserved for the
-   * taxonomy / local dimensions where empty result is the documented AuthZ semantic.
+   * <p>Does not catch {@link RuntimeException} itself; the caller ({@link
+   * #summariseFromCataloger}) classifies the failure — a missing item surfaces as empty
+   * (AuthZ-equivalent, HTTP 403 via the adaptor) while genuine infra failures propagate as a 5xx.
+   * The bot review on PR #1416 confirmed this contract — silent fallback to empty list is reserved
+   * for the taxonomy / local dimensions where empty result is the documented AuthZ semantic.
    */
   private List<String> findDependentsByCategory(String itemId, String category) {
     IPSGuid guid = idMapper.getGuid(itemId);
