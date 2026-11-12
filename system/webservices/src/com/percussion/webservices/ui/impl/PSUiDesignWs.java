@@ -29,6 +29,9 @@ import com.percussion.cms.objectstore.PSDFMultiProperty;
 import com.percussion.cms.objectstore.PSKey;
 import com.percussion.cms.objectstore.PSMenuChild;
 import com.percussion.cms.objectstore.PSSearch;
+import com.percussion.cms.objectstore.PSSearchField;
+import com.percussion.cms.objectstore.PSSearchMultiProperty;
+import com.percussion.cms.objectstore.PSSFields;
 import com.percussion.cms.objectstore.PSVersionableDbComponent;
 import com.percussion.data.PSIdGenerator;
 import com.percussion.data.PSTableChangeEvent;
@@ -86,9 +89,12 @@ import java.util.Objects;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.naming.NamingException;
@@ -2682,6 +2688,12 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
     * but stale when no delete leg ran). Mirrors the create-path
     * {@link #ensureSearchRowPersisted} safety net.
     *
+    * <p>#6136: the child lists are repaired too — field add/change/remove and
+    * property membership in PSX_SEARCHFIELDS / PSX_SEARCHPROPERTIES are
+    * reconciled from the saved domain via
+    * {@link #ensureSearchChildrenCurrent(Connection, PSSearch)} because the
+    * update leg can report success while writing zero child statements.
+    *
     * @param search the saved search; never {@code null}
     * @return {@code true} when a repair write was needed
     */
@@ -2708,6 +2720,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
    {
       SearchRowSpec want = searchRowSpec(search);
       SearchRowSpec have = readSearchRow(conn, want.searchId);
+      boolean repaired;
       if (have == null)
       {
          if (searchNameExists(conn, want.internalName))
@@ -2719,12 +2732,22 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
                new SearchRowSpec(searchId, want.internalName, want.displayName, want.parentCategory,
                      want.customUrl, want.type, want.displayFormat, want.maximumItems, want.description,
                      want.caseSensitive, want.version));
-         return true;
+         repaired = true;
       }
-      if (sameSearchRow(have, want))
-         return false;
-      updateSearchRow(conn, want);
-      return true;
+      else if (sameSearchRow(have, want))
+         repaired = false;
+      else
+      {
+         updateSearchRow(conn, want);
+         repaired = true;
+      }
+      // #6136: the XML update leg can report success while writing zero child
+      // statements on H2, so field/property edits via PUT are silently dropped
+      // while the parent row looks current. Reconcile the child lists from the
+      // saved domain the same way the parent row is repaired above.
+      if (ensureSearchChildrenCurrent(conn, search))
+         repaired = true;
+      return repaired;
    }
 
    static SearchRowSpec readSearchRow(Connection conn, int searchId) throws SQLException
@@ -2811,6 +2834,404 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
          ps.setInt(11, spec.version);
          ps.executeUpdate();
       }
+   }
+
+   /**
+    * Reconciles the child rows of a just-saved persisted search from the saved
+    * domain object: {@code PSX_SEARCHFIELDS} rows are inserted, updated, or
+    * deleted to match the search's field container, and
+    * {@code PSX_SEARCHPROPERTIES} rows are inserted or deleted to match its
+    * property values (#6136). The XML update leg can report success while
+    * writing zero child statements on H2, so without this step field
+    * add/change/remove via {@code PUT /Rhythmyx/services/searches/{id}} is
+    * silently dropped even though the parent row is current.
+    *
+    * <p>Property names the saved domain does not carry at all (for example
+    * {@code sys_community}, which {@link #prepareSearchForSave} deliberately
+    * strips before the update leg) are left untouched — only names present in
+    * the domain participate in deletes.
+    *
+    * @param conn live JDBC connection; never {@code null}
+    * @param search the saved search; never {@code null}
+    * @return {@code true} when a repair write was needed
+    */
+   static boolean ensureSearchChildrenCurrent(Connection conn, PSSearch search) throws SQLException
+   {
+      if (search == null)
+         throw new IllegalArgumentException("search cannot be null");
+      int searchId = search.getId();
+      if (searchId <= 0)
+         throw new IllegalArgumentException("search id must be assigned before persist");
+      boolean repaired = reconcileSearchFields(conn, searchId, searchFieldSpecs(search));
+      if (reconcileSearchProperties(conn, searchId, searchPropertySpecs(search)))
+         repaired = true;
+      return repaired;
+   }
+
+   /**
+    * Desired {@code PSX_SEARCHFIELDS} row for one {@link PSSearchField}.
+    * {@code fieldValue} is the same comma-join encoding
+    * {@code PSSearchField.toXml} writes ({@code ","} escaped to {@code ",,"}
+    * with a {@code ","} terminator after each value, {@code null} when the
+    * field carries no value) so the repair converges with pipe-written rows
+    * instead of churning them.
+    */
+   static final class SearchFieldSpec
+   {
+      final String fieldName;
+      final String label;
+      final String type;
+      final String operator;
+      final String fieldValue;
+      final int sequence;
+      final String description;
+      final String extOperator;
+
+      SearchFieldSpec(String fieldName, String label, String type, String operator, String fieldValue,
+            int sequence, String description, String extOperator)
+      {
+         this.fieldName = fieldName;
+         this.label = label;
+         this.type = type;
+         this.operator = operator;
+         this.fieldValue = fieldValue;
+         this.sequence = sequence;
+         this.description = description;
+         this.extOperator = extOperator;
+      }
+   }
+
+   static List<SearchFieldSpec> searchFieldSpecs(PSSearch search)
+   {
+      List<SearchFieldSpec> specs = new ArrayList<>();
+      if (search == null)
+         return specs;
+      PSSFields container = search.getFieldContainer();
+      if (container == null)
+         return specs;
+      for (int i = 0; i < container.size(); i++)
+      {
+         Object o = container.get(i);
+         if (!(o instanceof PSSearchField field) || field == null)
+            continue;
+         String name = field.getFieldName();
+         if (StringUtils.isBlank(name))
+            continue;
+         specs.add(new SearchFieldSpec(name, orEmpty(field.getDisplayName()), orEmpty(field.getFieldType()),
+               orEmpty(field.getOperator()), encodeSearchFieldValue(field), field.getPosition(),
+               orEmpty(field.getFieldDescription()), orEmpty(field.getExternalOperator())));
+      }
+      return specs;
+   }
+
+   static String encodeSearchFieldValue(PSSearchField field)
+   {
+      if (field == null)
+         return null;
+      boolean haveValue = false;
+      StringBuilder buf = new StringBuilder();
+      for (String value : field.getFieldValues())
+      {
+         if (value == null)
+            value = "";
+         if (!value.isEmpty())
+         {
+            buf.append(value.replace(",", ",,"));
+            haveValue = true;
+         }
+         buf.append(",");
+      }
+      return haveValue ? buf.toString() : null;
+   }
+
+   static Map<String, SearchFieldSpec> readSearchFields(Connection conn, int searchId) throws SQLException
+   {
+      String sql = "SELECT FIELDNAME, FIELDLABEL, FIELDTYPE, OPERATOR, FIELDVALUE, SEQUENCE, "
+            + "FIELDESCRIPTION, EXTOPERATOR FROM PSX_SEARCHFIELDS WHERE SEARCHID = ?";
+      Map<String, SearchFieldSpec> rows = new HashMap<>();
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, searchId);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            while (rs.next())
+            {
+               int sequence = rs.getInt(6);
+               if (rs.wasNull())
+                  sequence = 0;
+               SearchFieldSpec spec = new SearchFieldSpec(rs.getString(1), orEmpty(rs.getString(2)),
+                     orEmpty(rs.getString(3)), orEmpty(rs.getString(4)), rs.getString(5), sequence,
+                     orEmpty(rs.getString(7)), orEmpty(rs.getString(8)));
+               rows.put(spec.fieldName, spec);
+            }
+         }
+      }
+      return rows;
+   }
+
+   static boolean sameSearchField(SearchFieldSpec have, SearchFieldSpec want)
+   {
+      return StringUtils.equals(have.fieldName, want.fieldName)
+            && StringUtils.equals(have.label, want.label)
+            && StringUtils.equals(have.type, want.type)
+            && StringUtils.equals(have.operator, want.operator)
+            && StringUtils.equals(have.fieldValue, want.fieldValue)
+            && have.sequence == want.sequence
+            && StringUtils.equals(have.description, want.description)
+            && StringUtils.equals(have.extOperator, want.extOperator);
+   }
+
+   static boolean reconcileSearchFields(Connection conn, int searchId, List<SearchFieldSpec> desired)
+         throws SQLException
+   {
+      Map<String, SearchFieldSpec> have = readSearchFields(conn, searchId);
+      Set<String> want = new HashSet<>();
+      boolean changed = upsertSearchFields(conn, searchId, desired, have, want);
+      if (deleteMissingSearchFields(conn, searchId, have, want))
+         changed = true;
+      return changed;
+   }
+
+   static boolean upsertSearchFields(Connection conn, int searchId, List<SearchFieldSpec> desired,
+         Map<String, SearchFieldSpec> have, Set<String> want) throws SQLException
+   {
+      boolean changed = false;
+      if (desired == null)
+         return false;
+      for (SearchFieldSpec spec : desired)
+      {
+         if (spec == null || StringUtils.isBlank(spec.fieldName))
+            continue;
+         want.add(spec.fieldName);
+         SearchFieldSpec existing = have.get(spec.fieldName);
+         if (existing == null)
+         {
+            insertSearchField(conn, searchId, spec);
+            changed = true;
+         }
+         else if (!sameSearchField(existing, spec))
+         {
+            updateSearchField(conn, searchId, spec);
+            changed = true;
+         }
+      }
+      return changed;
+   }
+
+   static boolean deleteMissingSearchFields(Connection conn, int searchId, Map<String, SearchFieldSpec> have,
+         Set<String> want) throws SQLException
+   {
+      boolean changed = false;
+      for (String name : have.keySet())
+      {
+         if (!want.contains(name))
+         {
+            deleteSearchField(conn, searchId, name);
+            changed = true;
+         }
+      }
+      return changed;
+   }
+
+   static void insertSearchField(Connection conn, int searchId, SearchFieldSpec spec) throws SQLException
+   {
+      String sql = "INSERT INTO PSX_SEARCHFIELDS (SEARCHID, FIELDNAME, FIELDLABEL, FIELDTYPE, OPERATOR, "
+            + "FIELDVALUE, SEQUENCE, FIELDESCRIPTION, EXTOPERATOR) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, searchId);
+         ps.setString(2, spec.fieldName);
+         ps.setString(3, spec.label);
+         ps.setString(4, spec.type);
+         ps.setString(5, spec.operator);
+         setNullableString(ps, 6, spec.fieldValue);
+         ps.setInt(7, spec.sequence);
+         setNullableString(ps, 8, spec.description);
+         ps.setString(9, spec.extOperator);
+         ps.executeUpdate();
+      }
+   }
+
+   static void updateSearchField(Connection conn, int searchId, SearchFieldSpec spec) throws SQLException
+   {
+      String sql = "UPDATE PSX_SEARCHFIELDS SET FIELDLABEL = ?, FIELDTYPE = ?, OPERATOR = ?, FIELDVALUE = ?, "
+            + "SEQUENCE = ?, FIELDESCRIPTION = ?, EXTOPERATOR = ? WHERE SEARCHID = ? AND FIELDNAME = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setString(1, spec.label);
+         ps.setString(2, spec.type);
+         ps.setString(3, spec.operator);
+         setNullableString(ps, 4, spec.fieldValue);
+         ps.setInt(5, spec.sequence);
+         setNullableString(ps, 6, spec.description);
+         ps.setString(7, spec.extOperator);
+         ps.setInt(8, searchId);
+         ps.setString(9, spec.fieldName);
+         ps.executeUpdate();
+      }
+   }
+
+   static void deleteSearchField(Connection conn, int searchId, String fieldName) throws SQLException
+   {
+      try (PreparedStatement ps = conn.prepareStatement("DELETE FROM PSX_SEARCHFIELDS WHERE SEARCHID = ? AND FIELDNAME = ?"))
+      {
+         ps.setInt(1, searchId);
+         ps.setString(2, fieldName);
+         ps.executeUpdate();
+      }
+   }
+
+   /**
+    * Desired {@code PSX_SEARCHPROPERTIES} row: one per (name, value) pair of a
+    * multi-valued search property, matching the pipe's one-row-per-value
+    * layout ({@code PK_SEARCHPROPERTIES} on {@code PROPERTYID, PROPERTYNAME,
+    * PROPERTYVALUE}).
+    */
+   static final class SearchPropertySpec
+   {
+      final String name;
+      final String value;
+
+      SearchPropertySpec(String name, String value)
+      {
+         this.name = name;
+         this.value = value;
+      }
+
+      @Override
+      public boolean equals(Object obj)
+      {
+         if (this == obj)
+            return true;
+         if (!(obj instanceof SearchPropertySpec other))
+            return false;
+         return StringUtils.equals(name, other.name) && StringUtils.equals(value, other.value);
+      }
+
+      @Override
+      public int hashCode()
+      {
+         return Objects.hash(name, value);
+      }
+   }
+
+   static Set<SearchPropertySpec> searchPropertySpecs(PSSearch search)
+   {
+      Set<SearchPropertySpec> specs = new HashSet<>();
+      if (search == null)
+         return specs;
+      Iterator<PSSearchMultiProperty> props = search.getProperties();
+      if (props == null)
+         return specs;
+      while (props.hasNext())
+      {
+         PSSearchMultiProperty multi = props.next();
+         if (multi == null || StringUtils.isBlank(multi.getName()))
+            continue;
+         String name = multi.getName();
+         Iterator<String> values = multi.iterator();
+         if (values == null)
+            continue;
+         while (values.hasNext())
+         {
+            String value = values.next();
+            if (value == null)
+               continue;
+            specs.add(new SearchPropertySpec(name, value));
+         }
+      }
+      return specs;
+   }
+
+   static Set<SearchPropertySpec> readSearchProperties(Connection conn, int propertyId) throws SQLException
+   {
+      String sql = "SELECT PROPERTYNAME, PROPERTYVALUE FROM PSX_SEARCHPROPERTIES WHERE PROPERTYID = ?";
+      Set<SearchPropertySpec> rows = new HashSet<>();
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, propertyId);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            while (rs.next())
+            {
+               String name = rs.getString(1);
+               String value = rs.getString(2);
+               if (name == null || value == null)
+                  continue;
+               rows.add(new SearchPropertySpec(name, value));
+            }
+         }
+      }
+      return rows;
+   }
+
+   static boolean reconcileSearchProperties(Connection conn, int propertyId, Set<SearchPropertySpec> desired)
+         throws SQLException
+   {
+      Set<SearchPropertySpec> want = desired == null ? new HashSet<>() : new HashSet<>(desired);
+      Set<SearchPropertySpec> have = readSearchProperties(conn, propertyId);
+      Set<String> managedNames = new HashSet<>();
+      for (SearchPropertySpec spec : want)
+         managedNames.add(spec.name);
+      boolean changed = false;
+      for (SearchPropertySpec spec : want)
+      {
+         if (!have.contains(spec))
+         {
+            insertSearchProperty(conn, propertyId, spec);
+            changed = true;
+         }
+      }
+      for (SearchPropertySpec spec : have)
+      {
+         if (managedNames.contains(spec.name) && !want.contains(spec))
+         {
+            deleteSearchProperty(conn, propertyId, spec);
+            changed = true;
+         }
+      }
+      return changed;
+   }
+
+   static void insertSearchProperty(Connection conn, int propertyId, SearchPropertySpec spec)
+         throws SQLException
+   {
+      String sql = "INSERT INTO PSX_SEARCHPROPERTIES (PROPERTYID, PROPERTYNAME, PROPERTYVALUE, "
+            + "PROPERTYDESCRIPTION) VALUES (?, ?, ?, ?)";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, propertyId);
+         ps.setString(2, spec.name);
+         ps.setString(3, spec.value);
+         ps.setNull(4, java.sql.Types.VARCHAR);
+         ps.executeUpdate();
+      }
+   }
+
+   static void deleteSearchProperty(Connection conn, int propertyId, SearchPropertySpec spec)
+         throws SQLException
+   {
+      String sql = "DELETE FROM PSX_SEARCHPROPERTIES WHERE PROPERTYID = ? AND PROPERTYNAME = ? AND PROPERTYVALUE = ?";
+      try (PreparedStatement ps = conn.prepareStatement(sql))
+      {
+         ps.setInt(1, propertyId);
+         ps.setString(2, spec.name);
+         ps.setString(3, spec.value);
+         ps.executeUpdate();
+      }
+   }
+
+   static String orEmpty(String value)
+   {
+      return value == null ? "" : value;
+   }
+
+   static void setNullableString(PreparedStatement ps, int index, String value) throws SQLException
+   {
+      if (value == null || value.isEmpty())
+         ps.setNull(index, java.sql.Types.VARCHAR);
+      else
+         ps.setString(index, value);
    }
 
    /**
