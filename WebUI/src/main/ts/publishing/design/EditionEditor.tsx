@@ -31,6 +31,7 @@ import {
   type ContextSummary,
   type EditionSummary,
 } from "../../api/publishing/designApi";
+import { isSessionRedirectError } from "../../api/client";
 import { message, MSG } from "../../i18n/message";
 import {
   EDITION_PRIORITY_FORM_DEFAULT,
@@ -179,6 +180,11 @@ export function EditionEditor({
       }
       onSaved();
     } catch (e) {
+      // Mid-session expiry already navigates to React Login (client.ts);
+      // keep the dirty model so the operator can retry after re-login.
+      if (isSessionRedirectError(e)) {
+        return;
+      }
       setError(mapEditionSaveError(e));
     } finally {
       setSaving(false);
@@ -198,6 +204,9 @@ export function EditionEditor({
       await deleteEdition(edition.editionId);
       onSaved();
     } catch (e) {
+      if (isSessionRedirectError(e)) {
+        return;
+      }
       setError(mapEditionDeleteError(e));
     } finally {
       setSaving(false);

@@ -16,6 +16,7 @@
  */
 
 import React, { useEffect, useMemo, useState } from "react";
+import { isSessionRedirectError } from "../../api/client";
 import { message, MSG } from "../../i18n/message";
 import {
   mapDeliveryServerDeleteError,
@@ -133,6 +134,11 @@ export function ServerEditor({
       setBaseline(JSON.stringify(model));
       onDirtyChange?.(false);
     } catch (e) {
+      // Mid-session expiry already navigates to React Login (client.ts);
+      // keep the dirty model so the operator can retry after re-login.
+      if (isSessionRedirectError(e)) {
+        return;
+      }
       setError(mapDeliveryServerSaveError(e));
     } finally {
       setSaving(false);
@@ -151,6 +157,9 @@ export function ServerEditor({
       await onDelete();
       onDirtyChange?.(false);
     } catch (e) {
+      if (isSessionRedirectError(e)) {
+        return;
+      }
       setError(mapDeliveryServerDeleteError(e));
     } finally {
       setSaving(false);

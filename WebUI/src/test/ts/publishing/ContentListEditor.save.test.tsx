@@ -17,6 +17,7 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { SessionRedirectError } from "@/api/client";
 import { ContentListEditor } from "@/publishing/design/ContentListEditor";
 
 const createContentList = vi.fn();
@@ -87,6 +88,28 @@ describe("ContentListEditor save", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Content list name already exists",
     );
+  });
+
+  it("stays silent on mid-save session expiry so the React Login redirect proceeds (#6092)", async () => {
+    createContentList.mockRejectedValue(new SessionRedirectError());
+    const onSaved = vi.fn();
+    render(
+      <ContentListEditor
+        contentList={null}
+        onSaved={onSaved}
+        onCancel={() => undefined}
+      />,
+    );
+    fireEvent.change(screen.getByLabelText(/Name/i), {
+      target: { value: "NightCl" },
+    });
+    fireEvent.click(screen.getByTestId("contentlist-save"));
+    await waitFor(() => expect(createContentList).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(screen.getByTestId("contentlist-save")).not.toBeDisabled(),
+    );
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(onSaved).not.toHaveBeenCalled();
   });
 
   it("renames an existing content list without changing its type", async () => {

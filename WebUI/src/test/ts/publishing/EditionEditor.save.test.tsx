@@ -17,6 +17,7 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { SessionRedirectError } from "@/api/client";
 import { EditionEditor } from "@/publishing/design/EditionEditor";
 
 const createEdition = vi.fn();
@@ -203,5 +204,29 @@ describe("EditionEditor save", () => {
     expect(await screen.findByRole("alert")).toHaveTextContent(
       "Edition name already exists",
     );
+  });
+
+  it("stays silent on mid-save session expiry so the React Login redirect proceeds (#6092)", async () => {
+    createEdition.mockRejectedValue(new SessionRedirectError());
+    const onSaved = vi.fn();
+    render(
+      <EditionEditor
+        siteId="42"
+        edition={null}
+        sites={[{ name: "S", id: "42" }]}
+        onSaved={onSaved}
+        onCancel={() => undefined}
+      />,
+    );
+    fireEvent.change(screen.getByLabelText(/Name/i), {
+      target: { value: "NightEd" },
+    });
+    fireEvent.click(screen.getByTestId("edition-save"));
+    await waitFor(() => expect(createEdition).toHaveBeenCalled());
+    await waitFor(() =>
+      expect(screen.getByTestId("edition-save")).not.toBeDisabled(),
+    );
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(onSaved).not.toHaveBeenCalled();
   });
 });
