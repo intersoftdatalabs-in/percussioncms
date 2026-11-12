@@ -17,6 +17,7 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
+import { SessionRedirectError } from "@/api/client";
 import { ServerEditor } from "@/publishing/components/ServerEditor";
 
 describe("ServerEditor save", () => {
@@ -80,5 +81,74 @@ describe("ServerEditor save", () => {
     });
     fireEvent.click(screen.getByTestId("publish-server-save"));
     expect(await screen.findByRole("alert")).toHaveTextContent(/Forbidden|403/i);
+  });
+
+  it("preserves edits after a 409 conflict so a second operator can retry (last-write-wins, FR-020)", async () => {
+    const onSave = vi
+      .fn()
+      .mockRejectedValueOnce({
+        status: 409,
+        statusText: "Conflict",
+        body: {
+          message: "Cannot create server because a server named Dup already exists.",
+        },
+      })
+      .mockResolvedValueOnce(undefined);
+    const onDirtyChange = vi.fn();
+    render(
+      <ServerEditor
+        siteId={42}
+        server={null}
+        onSave={onSave}
+        onCancel={vi.fn()}
+        onDirtyChange={onDirtyChange}
+      />,
+    );
+    fireEvent.change(screen.getByLabelText(/Server Name/i), {
+      target: { value: "Dup" },
+    });
+    fireEvent.click(screen.getByTestId("publish-server-save"));
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      /already exists/i,
+    );
+    // Losing edit is not acceptable: the typed value survives the conflict.
+    expect(
+      (screen.getByLabelText(/Server Name/i) as HTMLInputElement).value,
+    ).toBe("Dup");
+    fireEvent.change(screen.getByLabelText(/Server Name/i), {
+      target: { value: "Dup2" },
+    });
+    fireEvent.click(screen.getByTestId("publish-server-save"));
+    await waitFor(() => expect(onSave).toHaveBeenCalledTimes(2));
+    await waitFor(() =>
+      expect(onDirtyChange).toHaveBeenCalledWith(false),
+    );
+  });
+
+  it("stays silent on mid-save session expiry so the React Login redirect proceeds (#6092)", async () => {
+    const onSave = vi.fn().mockRejectedValue(new SessionRedirectError());
+    const onDirtyChange = vi.fn();
+    render(
+      <ServerEditor
+        siteId={42}
+        server={null}
+        onSave={onSave}
+        onCancel={vi.fn()}
+        onDirtyChange={onDirtyChange}
+      />,
+    );
+    fireEvent.change(screen.getByLabelText(/Server Name/i), {
+      target: { value: "NightLocal" },
+    });
+    onDirtyChange.mockClear();
+    fireEvent.click(screen.getByTestId("publish-server-save"));
+    await waitFor(() => expect(onSave).toHaveBeenCalled());
+    // Save settles (button re-enabled) with no spurious generic alert, and
+    // the dirty model is kept so the operator can retry after re-login.
+    await waitFor(() =>
+      expect(screen.getByTestId("publish-server-save")).not.toBeDisabled(),
+    );
+    expect(screen.queryByRole("alert")).toBeNull();
+    expect(onDirtyChange).not.toHaveBeenCalledWith(false);
   });
 });
