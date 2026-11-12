@@ -83,6 +83,16 @@ function consoleOn(page, pageErrors) {
 }
 
 async function stubEditorApis(page, { checkoutStatus, checkoutBody, checkinStatus } = {}) {
+  // Registered first so later specific stubs win. Newer EditorHost load-time
+  // calls (site impact, allowed workflows, path lookup) stay 404-silent for
+  // fake id 42 instead of hitting the QA server log as 400/500 console noise
+  // (same catch-all pattern as editor-host-save-reload.spec.js).
+  await page.route("**/services/**", (route) =>
+    route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+  );
+  await page.route("**/rest/**", (route) =>
+    route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+  );
   const checkoutJson = JSON.stringify(
     checkoutBody ?? {
       EditorItemLockInfo: {
