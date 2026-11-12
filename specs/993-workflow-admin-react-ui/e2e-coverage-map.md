@@ -1,0 +1,62 @@
+# E2E Coverage Map: 993 Workflow Admin (US1–US8)
+
+**Spec**: `specs/993-workflow-admin-react-ui/` (SC-001 — no manual-only verification for P1 stories)
+**Issue**: #6096 — US2–US6 workflow specs were undiscoverable
+**Date**: 2026-11-11
+
+## Story → spec file map
+
+| # | User story (spec.md) | Prio | E2E spec (live) | Status |
+|---|----------------------|------|-----------------|--------|
+| US1 | Manage Workflow Definitions | P1 | `modules/perc-qa-automation/frontend/tests/us1-workflow-definitions.spec.js` | ✅ exists (pre-existing) |
+| US2 | Assign Workflows to Sites and Folders | P1 | same file as US1 (`us1-…`, plan.md maps US1+US2 to it) — shell + create-form covered; **site-assign dialog interaction has no dedicated test** | ⚠️ partial (see note 1) |
+| US3 | Manage Roles | P1 | `tests/us2-roles-management.spec.js` | ✅ restored by #6096 |
+| US4 | Manage Users | P1 | `tests/us3-users-management.spec.js` | ✅ restored by #6096 |
+| US5 | Perform In-Context Item Workflow Transitions | P1 | `tests/us4-item-transitions.spec.js` (React `EditorWorkflowPanel` via editor host) + pre-existing `tests/editor-host-workflow-transitions.spec.js` (trigger mechanics) | ✅ restored by #6096 |
+| US6 | Manage Categories | P2 | `tests/us5-categories-admin.spec.js` | ✅ restored by #6096 (required a product fix, note 2) |
+| US7 | Manage Scheduled Tasks | P2 | `tests/us6-scheduled-tasks.spec.js` | ✅ exists (pre-existing) |
+| US8 | Run System Consistency Check | P3 | `tests/us6-scheduled-tasks.spec.js` (System Tools tab + consistency-checker section) | ✅ exists (pre-existing) |
+
+Run any row surface-filtered in QA mode:
+
+```bash
+python docker/scripts/perc-devctl.py qa-up   # then qa-health
+TEST_CMS_URL=<qa-url> npm run test:surface -- --path tests/us2-roles-management.spec.js
+```
+
+## Note 1 — US2 site-assign dialog (no dedicated E2E yet)
+
+`WorkflowSiteAssign` is reachable only from an existing workflow's editor
+(`open-site-assign-button` renders for saved workflows). The restored specs
+cover the shell/list/form layers; driving the assign dialog needs a saved
+workflow fixture and the async assignment-job polling, i.e. a mutating
+fixture flow. Left as follow-up work rather than a half-proving test.
+
+## Note 2 — Categories tab product fix (#6096)
+
+The Categories tab never loaded: `PATHS.CATEGORY_*` pointed at
+`/services/category/*`, but the CXF server is registered at
+`/categorymanagement` (`sitemanage-beans.xml` → service `@Path("/category")`;
+legacy `perc_path_constants.js`: `CATMGT + "/category/all"`). All five
+constants now carry the `categorymanagement/` prefix, and the `/undefined`
+site suffixes in `CategoriesSection` were dropped in favor of the bare
+`/all` and `/update` endpoints. The `us5-categories-admin` spec proves the
+tab renders, locks, and opens/cancels the add dialog against live H2.
+
+## Note 3 — US5 host clarification
+
+`WorkflowActionsPanel` (US5 Phase-5 component) is currently unmounted — no
+SPA host imports it. The live in-context transition UI is
+`EditorWorkflowPanel` inside `EditorHost` (edit mode); `us4-item-transitions`
+covers it (state, triggers, comment enforcement, ad-hoc assignees,
+view-mode read-only, zero legacy-CE requests). Mounting the standalone
+panel (or removing it if superseded) is follow-up work, not E2E scope.
+
+## Note 4 — numeric filename overlap (not a conflict)
+
+`us2`–`us5` prefixes are also used by an unrelated series
+(`us2-content-browser`, `us3-menus`, `us4-acl`, `us5-search`). Full filenames
+differ, and the `us1-workflow-definitions` / `us1-core-explorer` pair already
+co-exists, so the tasked names were restored verbatim per `tasks.md`
+T022a/T030/T040/T049 and `plan.md`. The `@workflow-admin` tag and the
+`993 USn` describe-block prefix keep the series discoverable.
