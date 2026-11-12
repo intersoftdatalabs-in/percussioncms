@@ -50,64 +50,72 @@ specs/993-workflow-admin-react-ui/
 ### Source Code (affected paths)
 
 ```text
+# As-shipped layout (#3088 unified shell + folded paths — see note below).
+# Planned names that were folded away are marked FOLDED (file never created).
 WebUI/
 ├── src/main/ts/
 │   ├── registry.ts                        # +2 componentRegistry.set() calls
 │   ├── api/paths.ts                       # +workflow, user, role, admin path constants
 │   ├── workflowAdmin/
-│   │   ├── WorkflowAdminShell.tsx         # NEW — main shell (Workflow/Roles/Users/Categories)
-│   │   ├── messages.ts                    # NEW — WF_ADMIN_MSG TMX key constants
+│   │   ├── WorkflowAdminShell.tsx         # SHIPPED as redirect-only stub → AdminShell /admin/* (#3088)
+│   │   ├── messages.ts                    # WF_ADMIN_MSG TMX key constants
 │   │   ├── workflow/
-│   │   │   ├── WorkflowSection.tsx        # NEW — workflow definition list + CRUD
-│   │   │   ├── WorkflowEditor.tsx         # NEW — create/edit workflow + steps
-│   │   │   ├── WorkflowStepList.tsx       # NEW — step ordering + step editor dialog
-│   │   │   └── WorkflowSiteAssign.tsx     # NEW — site/folder assignment dialog + progress
-│   │   ├── roles/
-│   │   │   ├── RolesSection.tsx           # NEW — role list + CRUD
-│   │   │   └── RoleEditor.tsx             # NEW — role form + user dual-list
-│   │   ├── users/
-│   │   │   ├── UsersSection.tsx           # NEW — user list + CRUD
-│   │   │   ├── UserEditor.tsx             # NEW — user form + role assignment
-│   │   │   └── LdapImportDialog.tsx       # NEW — directory search + import
-│   │   └── categories/
-│   │       ├── CategoriesSection.tsx      # NEW — category tree
-│   │       └── CategoryNode.tsx           # NEW — tree node with lock indicator
-│   ├── admin/
-│   │   ├── AdminShell.tsx                 # NEW — main shell (Tasks/Tools)
-│   │   ├── messages.ts                    # NEW — ADMIN_MSG TMX key constants
-│   │   ├── tasks/
-│   │   │   ├── TasksSection.tsx           # NEW — scheduled task list + CRUD
-│   │   │   ├── TaskEditor.tsx             # NEW — task form + schedule config
-│   │   │   ├── TaskLogsSection.tsx        # NEW — task execution log viewer
-│   │   │   └── TaskNotifications.tsx      # NEW — email notification config
+│   │   │   ├── WorkflowSection.tsx        # workflow definition list + CRUD
+│   │   │   ├── WorkflowEditor.tsx         # create/edit workflow + steps
+│   │   │   ├── WorkflowStepList.tsx       # step ordering + step editor dialog
+│   │   │   └── WorkflowSiteAssign.tsx     # site/folder assignment dialog + progress
+│   │   ├── role/                          # FOLDED: planned as roles/ (plural)
+│   │   │   ├── RolesSection.tsx           # role list + CRUD
+│   │   │   ├── RoleEditor.tsx             # role form + user dual-list
+│   │   │   ├── roleLandingOptions.ts      # role landing options
+│   │   │   └── roleUsers.ts               # role membership helpers
+│   │   ├── user/                          # FOLDED: planned as users/ (plural)
+│   │   │   ├── UsersSection.tsx           # user list + CRUD
+│   │   │   ├── UserEditor.tsx             # user form + role assignment
+│   │   │   ├── LdapImportDialog.tsx       # directory search + import
+│   │   │   └── landingOptions.ts          # user landing options
+│   │   └── category/                      # FOLDED: planned as categories/ (plural)
+│   │       └── CategoriesSection.tsx      # category tree (lock rendering in-file)
+│   │           # FOLDED: CategoryNode.tsx never created — no separate tree-node file
+│   ├── admin/                             # unified product shell (#3088): tasks/logs/notifications/tools + workflow/roles/users/categories tabs
+│   │   ├── AdminShell.tsx                 # main shell (all eight tabs)
+│   │   ├── messages.ts                    # ADMIN_MSG TMX key constants
+│   │   ├── TasksSection.tsx               # FOLDED: planned as tasks/TasksSection.tsx — scheduled task list + CRUD (editor in-file)
+│   │   │                                  # FOLDED: tasks/TaskEditor.tsx never created — task form lives in TasksSection
+│   │   ├── TaskLogsSection.tsx            # FOLDED: planned as tasks/TaskLogsSection.tsx — task execution log viewer
+│   │   ├── TaskNotifications.tsx          # FOLDED: planned as tasks/TaskNotifications.tsx — email notification config
+│   │   ├── AdminSectionErrorBoundary.tsx   # per-section error boundary (added beyond plan)
 │   │   └── tools/
-│   │       ├── ToolsSection.tsx           # NEW — system tools nav
-│   │       └── ConsistencyChecker.tsx     # NEW — checker + results + fix action (P3)
+│   │       ├── ToolsSection.tsx           # system tools nav
+│   │       ├── ConsistencyChecker.tsx     # checker + results + fix action (P3)
+│   │       └── SecurityAuditLogViewer.tsx # audit log viewer (added beyond plan)
 │   └── workflowActions/
-│       ├── WorkflowActionsPanel.tsx       # NEW — in-context item transitions panel
-│       ├── TransitionDialog.tsx           # NEW — comment + ad-hoc assignee UI
-│       └── AdhocSearch.tsx               # NEW — user search for ad-hoc assignees
+│       ├── WorkflowActionsPanel.tsx       # in-context item transitions panel
+│       ├── TransitionDialog.tsx           # comment + ad-hoc assignee UI
+│       └── AdhocSearch.tsx                # user search for ad-hoc assignees
 ├── src/test/ts/
 │   ├── workflowAdmin/
-│   │   ├── setup.ts                       # NEW — mockFetch helpers
-│   │   ├── WorkflowAdminShell.test.tsx    # NEW
-│   │   ├── WorkflowSection.test.tsx       # NEW
-│   │   ├── WorkflowEditor.test.tsx        # NEW
-│   │   ├── RolesSection.test.tsx          # NEW
-│   │   ├── UsersSection.test.tsx          # NEW
-│   │   └── CategoriesSection.test.tsx     # NEW
+│   │   │                               # FOLDED: setup.ts never created — fetch mocks are per-test
+│   │   ├── WorkflowAdminShell.test.tsx
+│   │   ├── WorkflowSection.test.tsx    # also covers WorkflowEditor (no separate WorkflowEditor.test.tsx)
+│   │   ├── RolesSection.test.tsx (+ RoleEditor.test.tsx, roleLandingOptions.test.ts, roleUsers.test.ts)
+│   │   ├── UsersSection.test.tsx (+ UserEditor.landing.test.tsx, landingOptions.test.ts)
+│   │   ├── CategoriesSection.test.tsx
+│   │   └── WorkflowSiteAssign.test.tsx
 │   ├── admin/
-│   │   ├── setup.ts                       # NEW
-│   │   ├── AdminShell.test.tsx            # NEW
-│   │   ├── TasksSection.test.tsx          # NEW
-│   │   └── TaskLogsSection.test.tsx       # NEW
+│   │   │                               # FOLDED: setup.ts never created — fetch mocks are per-test
+│   │   ├── AdminShell.test.tsx (+ AdminShell.toolsIsolation.test.tsx, adminPortraitStylesContract.test.ts)
+│   │   ├── TasksSection.test.tsx
+│   │   ├── TaskLogsSection.test.tsx
+│   │   └── ToolsSection.test.tsx (+ ToolsSection.isolation.test.tsx, ConsistencyChecker.test.tsx, SecurityAuditLogViewer.test.tsx)
 │   └── workflowActions/
-│       ├── setup.ts                       # NEW
-│       ├── WorkflowActionsPanel.test.tsx  # NEW
-│       └── TransitionDialog.test.tsx      # NEW
+│       │                               # FOLDED: setup.ts never created
+│       ├── WorkflowActionsPanel.test.tsx
+│       └── TransitionDialog.test.tsx
 └── src/main/webapp/cm/app/
-    ├── adminWorkflowModern.jsp            # NEW — clean replacement JSP for WorkflowAdminShell
-    ├── adminModern.jsp                    # NEW — clean replacement JSP for AdminShell
+    │   # FOLDED: adminWorkflowModern.jsp / adminModern.jsp never created — no per-shell host JSPs.
+    │   # index.jsp is a dispatcher: ?view=workflow → 302 spa.jsp?entry=admin&tab=… (#3088);
+    │   # ?view=admin → 302 spa.jsp?entry=admin[&tab=…]. There is no views.put map.
     ├── adminWorkflow.jsp                  # REMOVE (legacy)
     ├── percWorkflow.jsp                   # REMOVE (legacy)
     ├── percRoles.jsp                      # REMOVE (legacy)
@@ -123,8 +131,8 @@ WebUI/src/main/webapp/ui/activeassembly/workflow/
     └── adhocresults.jsp                   # REMOVE
 
 WebUI/src/main/webapp/cm/app/index.jsp
-    ├── views.put("workflow", ...)         # UPDATE → adminWorkflowModern.jsp
-    └── views.put("admin", ...)            # UPDATE → adminModern.jsp
+    ├── (no views map)                    # dispatcher: ?view=workflow → 302 spa.jsp?entry=admin&tab=… (#3088);
+    └──                                    # ?view=admin → 302 spa.jsp?entry=admin[&tab=…]
 
 modules/perc-i18n/src/main/resources/i18n/CmsUi.tmx
     └── (new keys for workflowAdmin shell)  # ADD new perc.ui.workflowAdmin@* keys
@@ -144,11 +152,11 @@ modules/perc-qa-automation/frontend/tests/
 
 - Add `WorkflowAdminShell` to `registry.ts`
 - Add workflow API path constants to `api/paths.ts`
-- Implement `WorkflowAdminShell` with section state machine (Workflow | Roles | Users | Categories)
+- Implement `WorkflowAdminShell` with section state machine (Workflow | Roles | Users | Categories) — superseded by #3088: shipped as redirect-only stub; the sections live in unified `AdminShell`
 - Implement `WorkflowSection` with workflow list, create/edit/delete workflow
 - Implement `WorkflowEditor` with step list (`WorkflowStepList`) and step editor dialog
 - Implement `WorkflowSiteAssign` dialog with async job progress polling
-- Add `adminWorkflowModern.jsp` and update `index.jsp` view map
+- ~~Add `adminWorkflowModern.jsp` and update `index.jsp` view map~~ — FOLDED (#3088, #6097): no per-shell host JSP was created; `index.jsp` dispatches `?view=workflow` → 302 `spa.jsp?entry=admin&tab=…`
 - Unit tests for all Phase 1 components
 - E2E Playwright specs for US1 and US2
 
@@ -175,8 +183,8 @@ modules/perc-qa-automation/frontend/tests/
 ### Phase 5: AdminShell — Scheduled Tasks (US7)
 
 - Add `AdminShell` to `registry.ts`
-- Implement `TasksSection`, `TaskEditor`, `TaskLogsSection`, `TaskNotifications`
-- Add `adminModern.jsp` and update `index.jsp` view map
+- Implement `TasksSection` (task editor lives in-file; no separate `TaskEditor`), `TaskLogsSection`, `TaskNotifications`
+- ~~Add `adminModern.jsp` and update `index.jsp` view map~~ — FOLDED (#3088, #6097): no per-shell host JSP was created; `index.jsp` dispatches `?view=admin` → 302 `spa.jsp?entry=admin[&tab=…]`
 - Unit tests; E2E Playwright spec for US7
 
 ### Phase 6: System Tools (US8 — P3)

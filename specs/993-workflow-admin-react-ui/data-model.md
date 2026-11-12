@@ -236,6 +236,10 @@ interface TransitionRequest {
 
 ### WorkflowAdminShell State
 
+> **Fold note (#3088, #6097)**: this state model now lives in the unified
+> `AdminShell` (`AdminTab` includes `workflow | roles | users | categories`);
+> `WorkflowAdminShell` ships only as a redirect-only stub.
+
 ```ts
 type WorkflowAdminSection = "workflow" | "roles" | "users" | "categories";
 
