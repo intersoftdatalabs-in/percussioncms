@@ -85,7 +85,14 @@ Documented in [p-trans-out-disposition.md](./research/p-trans-out-disposition.md
 - Remaining work = human QA, product OUT/redesign decisions, and any product-IN implement children  
 - Do not keep epic open solely to track signed OUT rows after QA disposition  
 
-**Current state:** epic stays **open** for the open **human QA** set, ACL cross-epic Partial pointer, and **Missing** Views/Inbox until product disposition (#3102 family).
+**Current state (closeout 2026-11-12, #6111):** epic #2400 **closed
+2026-09-09**; this plan is a frozen research record. Continuation tracker is
+[#4530](https://github.com/intersoftdatalabs-in/percussioncms/issues/4530)
+(open product increments, re-audits, human-QA handoffs). QA states of #3546 /
+#2600 / #2799 / #2797 verified closed — see
+[research/closeout-note-6111.md](./research/closeout-note-6111.md); no
+follow-ups filed. The "remaining-open criteria" below are historical record
+of what kept the epic open before closeout.
 
 ## Test strategy
 
