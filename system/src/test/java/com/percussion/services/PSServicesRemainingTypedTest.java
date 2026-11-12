@@ -73,8 +73,8 @@ class PSServicesRemainingTypedTest {
   void managedLinkOrphanDeleteHql() {
     assertTrue(PSManagedLinkDao.DELETE_ORPHAN_CHILD_HQL.contains("ml.childId NOT IN"));
     assertTrue(PSManagedLinkDao.DELETE_ORPHAN_PARENT_HQL.contains("ml.parentId NOT IN"));
-    assertTrue(PSManagedLinkDao.FIND_BY_PARENT_HQL.contains("parentid = :parentId"));
-    assertTrue(PSManagedLinkDao.FIND_BY_CHILD_HQL.contains("childid = :childId"));
+    assertTrue(PSManagedLinkDao.FIND_BY_PARENT_HQL.contains("parentId = :parentId"));
+    assertTrue(PSManagedLinkDao.FIND_BY_CHILD_HQL.contains("childId = :childId"));
   }
 
   @Test
@@ -82,7 +82,7 @@ class PSServicesRemainingTypedTest {
   void managedLinkParentIdsHql() {
     List<Integer> ids = Arrays.asList(10, 20, 30);
     String hql = PSManagedLinkDao.findByParentIdsHql(ids);
-    assertTrue(hql.startsWith("from PSManagedLink where parentid in ("));
+    assertTrue(hql.startsWith("from PSManagedLink where parentId in ("));
     assertTrue(hql.contains("10,20,30") || hql.contains("10, 20, 30"));
     assertFalse(hql.contains(":"));
   }

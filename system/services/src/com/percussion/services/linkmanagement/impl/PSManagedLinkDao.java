@@ -258,9 +258,9 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
    public static final String DELETE_ORPHAN_PARENT_HQL =
          "DELETE FROM PSManagedLink ml WHERE ml.parentId NOT IN (select m_contentId from PSComponentSummary)";
 
-   public static final String FIND_BY_PARENT_HQL = "from PSManagedLink where parentid = :parentId";
+   public static final String FIND_BY_PARENT_HQL = "from PSManagedLink where parentId = :parentId";
 
-   public static final String FIND_BY_CHILD_HQL = "from PSManagedLink where childid = :childId ";
+   public static final String FIND_BY_CHILD_HQL = "from PSManagedLink where childId = :childId ";
 
    /**
     * Build the parent-id IN HQL. {@code parentIds} must be non-null and
@@ -272,7 +272,7 @@ public class PSManagedLinkDao implements IPSManagedLinkDao
       {
          throw new IllegalArgumentException("parentIds must not be empty");
       }
-      return "from PSManagedLink where parentid in (" + join(parentIds, ",") + ") ";
+      return "from PSManagedLink where parentId in (" + join(parentIds, ",") + ") ";
    }
 
 }
