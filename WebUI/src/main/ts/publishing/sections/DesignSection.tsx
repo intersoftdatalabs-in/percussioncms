@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { fetchSites } from "../../api/home/homeApi";
 import {
   listContentLists,
@@ -31,6 +31,10 @@ import { contentListsAfterSuccessfulGenerator } from "../contentListGenerator";
 import { contentListsAfterSuccessfulUrl } from "../contentListUrl";
 import { storedItemFilterLabel } from "../contentListItemFilter";
 import { editionsAfterSuccessfulComment } from "../editionComment";
+import {
+  filterDesignEditions,
+  type EditionScheduleFilter,
+} from "../editionListFilter";
 import { editionsAfterSuccessfulPriority } from "../editionPriority";
 import {
   buildEditionReorderBody,
@@ -98,6 +102,10 @@ export function DesignSection(): React.ReactElement {
   );
   /** Edition id with an in-flight priority reorder; row buttons stay disabled. */
   const [movingEdition, setMovingEdition] = useState<string | null>(null);
+  /** Operator search + schedule facet for the editions list. */
+  const [editionSearch, setEditionSearch] = useState("");
+  const [editionScheduleFilter, setEditionScheduleFilter] =
+    useState<EditionScheduleFilter>("all");
   const [clEdit, setClEdit] = useState<ContentListSummary | null | "new">(null);
   const [clCopy, setClCopy] = useState<ContentListSummary | null>(null);
   const [clDescribe, setClDescribe] = useState<ContentListSummary | null>(null);
@@ -139,6 +147,17 @@ export function DesignSection(): React.ReactElement {
       .catch(() => setError(message(MSG.PUBLISH_ERROR)))
       .finally(() => setLoading(false));
   }, []);
+
+  /** Editions list after the operator search + schedule facet. */
+  const visibleEditions = useMemo(
+    () =>
+      filterDesignEditions(
+        sortEditionsByPriority(editions),
+        editionSearch,
+        editionScheduleFilter,
+      ),
+    [editions, editionSearch, editionScheduleFilter],
+  );
 
   /**
    * Move one edition up (+1 priority) or down (−1) with a priority-only
@@ -488,6 +507,57 @@ export function DesignSection(): React.ReactElement {
             >
               Add edition
             </button>
+            <label>
+              <span className="sr-only">
+                {message(MSG.PUBLISH.DESIGN.EDITIONS.SEARCH_EDITIONS)}
+              </span>
+              <input
+                type="search"
+                data-testid="design-editions-search"
+                value={editionSearch}
+                onChange={(e) => setEditionSearch(e.target.value)}
+                placeholder={message(
+                  MSG.PUBLISH.DESIGN.EDITIONS.SEARCH_EDITIONS,
+                )}
+                aria-label={message(
+                  MSG.PUBLISH.DESIGN.EDITIONS.SEARCH_EDITIONS,
+                )}
+                style={{ padding: "6px 10px", minWidth: 200 }}
+              />
+            </label>
+            <label>
+              <span className="sr-only">
+                {message(MSG.PUBLISH.DESIGN.EDITIONS.SCHEDULE_FILTER_ARIA)}
+              </span>
+              <select
+                data-testid="design-editions-schedule-filter"
+                value={editionScheduleFilter}
+                onChange={(e) =>
+                  setEditionScheduleFilter(
+                    e.target.value as EditionScheduleFilter,
+                  )
+                }
+                aria-label={message(
+                  MSG.PUBLISH.DESIGN.EDITIONS.SCHEDULE_FILTER_ARIA,
+                )}
+              >
+                <option value="all">
+                  {message(
+                    MSG.PUBLISH.DESIGN.EDITIONS.SCHEDULE_FILTER_ALL,
+                  )}
+                </option>
+                <option value="scheduled">
+                  {message(
+                    MSG.PUBLISH.DESIGN.EDITIONS.SCHEDULE_FILTER_SCHEDULED,
+                  )}
+                </option>
+                <option value="unscheduled">
+                  {message(
+                    MSG.PUBLISH.DESIGN.EDITIONS.SCHEDULE_FILTER_UNSCHEDULED,
+                  )}
+                </option>
+              </select>
+            </label>
           </div>
           {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
           {error && (
@@ -498,8 +568,13 @@ export function DesignSection(): React.ReactElement {
           {!loading && editions.length === 0 && (
             <p style={emptyStyle}>No editions for this site.</p>
           )}
+          {!loading && editions.length > 0 && visibleEditions.length === 0 && (
+            <p style={emptyStyle} data-testid="design-editions-empty-filter">
+              {message(MSG.PUBLISH.DESIGN.EDITIONS.EMPTY_SEARCH_FILTER)}
+            </p>
+          )}
           <ul style={listStyle}>
-            {sortEditionsByPriority(editions).map((e) => (
+            {visibleEditions.map((e) => (
               <li key={e.editionId ?? e.name} style={listItemStyle}>
                 <button
                   type="button"

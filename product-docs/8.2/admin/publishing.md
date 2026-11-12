@@ -986,6 +986,17 @@ comment is described under **Set an edition comment** and does not rewrite the n
 or content-list order. Associating a content list is described below. Copying an edition and
 Runtime start/stop are separate actions.
 
+### Find an edition (Design)
+
+From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
+**Search editions** narrows the site's edition list by name or comment (case-insensitive);
+clearing it restores the full list. The schedule filter next to it keeps **All editions**,
+only **Scheduled** editions (an embargo start or expiry end date is stored), or only
+**Unscheduled** editions. Both controls filter the already-loaded list: they make no extra
+server calls and never change stored editions. When editions exist but nothing matches the
+search or filter, the list shows **No editions match this search or filter. Clear the
+search or filter to see the full list.**
+
 ### Rename a publish edition (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Editions**.
