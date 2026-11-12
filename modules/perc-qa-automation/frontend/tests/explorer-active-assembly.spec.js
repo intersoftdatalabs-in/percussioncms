@@ -121,6 +121,47 @@ test.describe("modern React Active Assembly — preview host", () => {
   );
 
   test(
+    "denied template resolve (HTTP 403) surfaces an error and never renders a preview",
+    { tag: ["@explorer-active-assembly", "@explorer", "@aa-denied"] },
+    async ({ page }) => {
+      const consoleErrors = [];
+      page.on("pageerror", (err) => consoleErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          consoleErrors.push(msg.text());
+        }
+      });
+      await page.route("**/services/actions/find/templates/**", async (route) => {
+        await route.fulfill({
+          status: 403,
+          contentType: "application/json",
+          body: JSON.stringify({ error: "Forbidden" }),
+        });
+      });
+
+      await page.goto(assemblySpaUrl(BASE_URL, "contentId=42&templateId=7"));
+      await page.waitForLoadState("networkidle");
+      await expect(page.locator('[data-testid="assembly-host"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      // FR-006: a denied op must message, not silently stall or render a preview.
+      await expect(page.locator('[data-testid="assembly-error"]')).toBeVisible({
+        timeout: 10_000,
+      });
+      await expect(page.locator('[data-testid="assembly-error"]')).toContainText(
+        /No page or snippet template|Could not load the assembled preview/i,
+      );
+      await expect(page.locator('[data-testid="assembly-preview-frame"]')).toHaveCount(
+        0,
+      );
+      const serious = consoleErrors.filter(
+        (t) => !/favicon|ResizeObserver|net::ERR|Failed to load resource|403 \(Forbidden\)/i.test(t),
+      );
+      expect(serious, `JS console errors: ${serious.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
     "Explorer Active Assembly does not navigate leftover AA HTML",
     { tag: ["@explorer-active-assembly", "@explorer"] },
     async ({ page }) => {
