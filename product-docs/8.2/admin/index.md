@@ -91,6 +91,19 @@ Bookmarks to the retired classic hosts (`adminWorkflow.jsp`, `percWorkflow.jsp`,
 `percRoles.jsp`, `percUsers.jsp`, `percCategories.jsp`) return HTTP 301 to the SPA Admin
 shell (`?view=admin`); the legacy JSP files no longer ship in the 8.2 distribution.
 
+Bookmarks to the retired scheduler-console pages (`ui/admin/ScheduledTask*.jsp`,
+`ui/admin/TaskLogs*.jsp`, `ui/admin/TaskNotification*.jsp`,
+`ui/admin/RemoveConfirmation.jsp`, warning dialogs, and the
+`ui/admin/tools/ConsistencyChecker*.jsp` trio — in either the `.jsp` or the `.faces`
+spelling) also return HTTP 301 to the SPA Admin shell (`?view=admin`). Use the
+**Tasks**, **Logs**, **Notifications**, and **Tools** tabs there: scheduled-task CRUD,
+execution-log list with purge, notification-template editing, and the consistency
+checker (run, reported issues, per-issue fix) all live in the shell. The retired JSP
+files no longer ship in the 8.2 distribution. Still shipped (no React equivalent
+yet): the per-log detail viewer (`TaskDetailLog`), the command console (`console`,
+reachable from the dashboard), the scheduler variant-conversion (`ConvertVariant*`)
+and repair (`RxFix*`) tools.
+
 Each tab should show its list or empty state. If a tab cannot load its data, the rest of
 the Admin shell (title and tab list) stays usable so you can switch tabs or reload —
 you should not see a full-page **Unable to load Admin** / **Unable to load Administration**

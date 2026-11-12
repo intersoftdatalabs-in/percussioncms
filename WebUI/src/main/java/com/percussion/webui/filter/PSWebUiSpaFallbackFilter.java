@@ -184,7 +184,7 @@ public class PSWebUiSpaFallbackFilter implements Filter {
 
   /**
    * 301 Location for retired classic JSP bookmarks (#3587 Architecture, #3473 editAsset, #6095
-   * legacy workflow/admin hosts).
+   * legacy workflow/admin hosts, #6140 scheduler console).
    *
    * <p>The JSP hosts are no longer in the WAR. Bookmarks still land on the SPA via {@link
    * PSLegacyViewRedirect}. Other JSPs return {@code null} (pass through).
@@ -208,6 +208,9 @@ public class PSWebUiSpaFallbackFilter implements Filter {
     if (PSEditorHostRedirect.isRetiredWorkflowAdminJsp(lower)) {
       return PSLegacyViewRedirect.buildLocation("admin", queryString);
     }
+    if (PSEditorHostRedirect.isRetiredSchedulerAdminJsp(lower)) {
+      return PSLegacyViewRedirect.buildLocation("admin", queryString);
+    }
     return null;
   }
 
@@ -227,6 +230,15 @@ public class PSWebUiSpaFallbackFilter implements Filter {
    */
   static boolean isRetiredWorkflowAdminJsp(String lowerPath) {
     return PSEditorHostRedirect.isRetiredWorkflowAdminJsp(lowerPath);
+  }
+
+  /**
+   * True when {@code lowerPath} is a retired scheduler-console bookmark (#6140, FR-002): a
+   * deleted {@code ui/admin} scheduler page or {@code ui/admin/tools} ConsistencyChecker page
+   * in {@code .jsp} or {@code .faces} spelling.
+   */
+  static boolean isRetiredSchedulerAdminJsp(String lowerPath) {
+    return PSEditorHostRedirect.isRetiredSchedulerAdminJsp(lowerPath);
   }
 
   /**

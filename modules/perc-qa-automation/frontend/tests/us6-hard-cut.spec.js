@@ -94,6 +94,22 @@ const SHELLS = [
     expectAdminSpa: true,
   },
   {
+    name: "schedulerTaskList",
+    // #6140 FR-002: retired scheduler-console bookmark → 301 to SPA Admin shell
+    path: "/Rhythmyx/ui/admin/ScheduledTaskList.faces",
+    asserted: true,
+    expectModernShell: false,
+    expectAdminSpa: true,
+  },
+  {
+    name: "schedulerTaskLogs",
+    // #6140 FR-002: retired task-log console bookmark → 301 to SPA Admin shell
+    path: "/Rhythmyx/ui/admin/TaskLogs.faces",
+    asserted: true,
+    expectModernShell: false,
+    expectAdminSpa: true,
+  },
+  {
     name: "users",
     path: "/Rhythmyx/cm/app/users.jsp",
     asserted: true, // T031 complete on 2026-07-19

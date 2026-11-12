@@ -258,6 +258,79 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
     expect(webXml).toContain("<param-value>admin</param-value>");
   });
 
+  it("scheduler-console JSPs are retired; filter+servlet keep bookmark 301 (#6140)", () => {
+    // FR-002 React-only mandate: TasksSection/TaskLogsSection/TaskNotifications/
+    // ToolsSection own these surfaces. Kept (no React equivalent yet): TaskDetailLog,
+    // console, index, AdminAuthentication, tools ConvertVariant/RxFix.
+    const retiredTop = [
+      "ScheduledTask.jsp",
+      "ScheduledTaskList.jsp",
+      "RemoveConfirmation.jsp",
+      "TaskLogs.jsp",
+      "DeleteAllTaskLogWarning.jsp",
+      "NoTaskLogSelectionWarning.jsp",
+      "TaskNotificationEditor.jsp",
+      "TaskNotificationList.jsp",
+    ];
+    const retiredTools = [
+      "ConsistencyChecker.jsp",
+      "ConsistencyCheckerReport.jsp",
+      "ConsistencyCheckerReview.jsp",
+    ];
+    for (const file of retiredTop) {
+      expect(existsSync(resolve(webappRoot, `ui/admin/${file}`)), file).toBe(false);
+    }
+    for (const file of retiredTools) {
+      expect(existsSync(resolve(webappRoot, `ui/admin/tools/${file}`)), file).toBe(false);
+    }
+    // Kept scheduler-console pages remain in the distribution.
+    const kept = [
+      "ui/admin/TaskDetailLog.jsp",
+      "ui/admin/console.jsp",
+      "ui/admin/index.jsp",
+      "ui/admin/AdminAuthentication.jsp",
+      "ui/admin/tools/ConvertVariant.jsp",
+      "ui/admin/tools/ConvertVariantResult.jsp",
+      "ui/admin/tools/RxFix.jsp",
+      "ui/admin/tools/RxFixPreview.jsp",
+    ];
+    for (const rel of kept) {
+      expect(existsSync(resolve(webappRoot, rel)), rel).toBe(true);
+    }
+    const filter = read(
+      resolve(
+        __dirname,
+        "../../../main/java/com/percussion/webui/filter/PSWebUiSpaFallbackFilter.java",
+      ),
+    );
+    expect(filter).toContain("isRetiredSchedulerAdminJsp");
+    const redirect = read(
+      resolve(
+        __dirname,
+        "../../../main/java/com/percussion/webui/util/PSEditorHostRedirect.java",
+      ),
+    );
+    expect(redirect).toContain("isRetiredSchedulerAdminJsp");
+    const webXml = read(resolve(webappRoot, "WEB-INF/web.xml"));
+    expect(webXml).toContain("PSRetiredSchedulerAdminRedirect");
+    for (const file of retiredTop) {
+      expect(webXml).toContain(`/ui/admin/${file}`);
+    }
+    for (const file of retiredTools) {
+      expect(webXml).toContain(`/ui/admin/tools/${file}`);
+    }
+    expect(webXml).toContain("/ui/admin/ScheduledTaskList.faces");
+    expect(webXml).toContain("/ui/admin/tools/ConsistencyChecker.faces");
+    // /Rhythmyx-prefixed spellings: PSDispatcherFilter only strips the prefix for
+    // its resourcePaths (/cm/ but not /ui/), so prefixed bookmarks need exact mappings.
+    expect(webXml).toContain("/Rhythmyx/ui/admin/ScheduledTaskList.faces");
+    expect(webXml).toContain("/Rhythmyx/ui/admin/TaskLogs.jsp");
+    expect(webXml).toContain("/Rhythmyx/ui/admin/tools/ConsistencyChecker.faces");
+    expect(webXml).toContain("<param-value>admin</param-value>");
+    // Filter covers the /ui/admin tree so bypassed bookmarks still 301.
+    expect(webXml).toContain("<url-pattern>/ui/admin/*</url-pattern>");
+  });
+
   it("does not pack retired perc_architecture bundles (#3099)", () => {
     const bundles = resolve(
       __dirname,
