@@ -261,9 +261,15 @@ public class PSWebUiSpaFallbackFilter implements Filter {
     if (ctx.endsWith("/")) {
       ctx = ctx.substring(0, ctx.length() - 1);
     }
-    if (!location.startsWith("/") || location.startsWith(ctx + "/") || location.equals(ctx)) {
+    if (!location.startsWith("/")
+        // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6145,
+        // same as #5898/#5910/#5927) — slashes join the servlet context path and a
+        // root-relative URL Location header, never a filesystem path.
+        || location.startsWith(ctx + "/")
+        || location.equals(ctx)) {
       return location;
     }
+    // mkd-code-review[paths.hardcoded_sep]: URL join, not a filesystem path — see adjudication above (issue #6145).
     return ctx + location;
   }
 
@@ -337,10 +343,14 @@ public class PSWebUiSpaFallbackFilter implements Filter {
       return null;
     }
     String lower = pathWithinContext.toLowerCase(Locale.ROOT);
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6145,
+    // same as #5898/#5910/#5927) — slashes separate URL/webapp path segments for
+    // request-URI matching, never a filesystem path.
+    String retiredApiDirSlash = RETIRED_API_DIR + "/";
     if (lower.equals(RETIRED_API_DIR)
-        || lower.equals(RETIRED_API_DIR + "/")
+        || lower.equals(retiredApiDirSlash)
         || lower.endsWith(RETIRED_API_DIR)
-        || lower.endsWith(RETIRED_API_DIR + "/")) {
+        || lower.endsWith(retiredApiDirSlash)) {
       return RETIRED_API_INDEX;
     }
     return null;
@@ -378,6 +388,9 @@ public class PSWebUiSpaFallbackFilter implements Filter {
 
     String prefix;
     String remainder;
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6145,
+    // same as #5898/#5910/#5927) — slashes separate URL/webapp path segments for
+    // request-URI matching, never a filesystem path.
     if (pathWithinContext.equals(APP_PREFIX) || pathWithinContext.startsWith(APP_PREFIX + "/")) {
       prefix = APP_PREFIX;
       remainder =
@@ -385,6 +398,7 @@ public class PSWebUiSpaFallbackFilter implements Filter {
               ? ""
               : pathWithinContext.substring(APP_PREFIX.length());
     } else if (pathWithinContext.equals(PAGES_PREFIX)
+        // mkd-code-review[paths.hardcoded_sep]: URL prefix join, not a filesystem path — see adjudication above (issue #6145).
         || pathWithinContext.startsWith(PAGES_PREFIX + "/")) {
       prefix = PAGES_PREFIX;
       remainder =

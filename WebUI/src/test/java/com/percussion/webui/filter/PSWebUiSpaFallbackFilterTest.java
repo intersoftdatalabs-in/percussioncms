@@ -282,6 +282,12 @@ public class PSWebUiSpaFallbackFilterTest {
         "/Rhythmyx/cm/app/?view=arch",
         PSWebUiSpaFallbackFilter.withContextPath("/Rhythmyx", "/Rhythmyx/cm/app/?view=arch"));
     assertEquals("/cm/app/?view=arch", PSWebUiSpaFallbackFilter.withContextPath("/", "/cm/app/?view=arch"));
+    // #6145: trailing-slash context still prefixes exactly once; null/empty pass through.
+    assertEquals(
+        "/Rhythmyx/cm/app/?view=arch",
+        PSWebUiSpaFallbackFilter.withContextPath("/Rhythmyx/", "/cm/app/?view=arch"));
+    assertNull(PSWebUiSpaFallbackFilter.withContextPath("/Rhythmyx", null));
+    assertEquals("", PSWebUiSpaFallbackFilter.withContextPath("/Rhythmyx", ""));
     assertTrue(PSWebUiSpaFallbackFilter.isRetiredArchitectureJsp("/rhythmyx/cm/app/sitearchitecture.jsp"));
     assertTrue(
         !PSWebUiSpaFallbackFilter.isRetiredArchitectureJsp("/cm/app/admin.jsp"));
