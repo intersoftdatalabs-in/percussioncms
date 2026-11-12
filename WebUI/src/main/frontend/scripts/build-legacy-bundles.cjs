@@ -132,12 +132,12 @@ const NPM_LIBRARY_MAPPINGS = {
   "jslib/profiles/3x/jquery/plugins/jquery-ui-multiselect-widget/jquery.multiselect.filter.js":
     "jquery-ui-multiselect-widget/src/jquery.multiselect.filter.js",
   // Tree widgets from npm (issue #5662). The vendored
-  // cm/jslib copies (FancyTree 2.38.3 + dead DynaTree 1.1.0) were deleted;
-  // classic finder pages keep loading the stable jslib URLs, served from
-  // these Dependabot-tracked npm dist files via the generated-webui
-  // overlay (STANDALONE_NPM_COPIES) and bundle resolution below.
-  // DynaTree (upstream dead, predecessor of FancyTree) is retired outright:
-  // no app code invoked it, so it has no mapping or standalone entry.
+  // cm/jslib copies (FancyTree 2.38.3 + the dead legacy tree plugin 1.1.0,
+  // predecessor of FancyTree, retired outright) were deleted; classic finder
+  // pages keep loading the stable jslib URLs, served from these
+  // Dependabot-tracked npm dist files via the generated-webui overlay
+  // (STANDALONE_NPM_COPIES) and bundle resolution below. The retired plugin
+  // has no mapping or standalone entry: no app code invoked it.
   "jslib/profiles/3x/jquery/plugins/jquery-fancytree/jquery.fancytree-all.min.js":
     "jquery.fancytree/dist/jquery.fancytree-all.min.js",
   "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.css":
