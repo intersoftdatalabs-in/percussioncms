@@ -99,9 +99,12 @@ spelling) also return HTTP 301 to the SPA Admin shell (`?view=admin`). Use the
 **Tasks**, **Logs**, **Notifications**, and **Tools** tabs there: scheduled-task CRUD,
 execution-log list with purge, notification-template editing, and the consistency
 checker (run, reported issues, per-issue fix) all live in the shell. The retired JSP
-files no longer ship in the 8.2 distribution. Still shipped (no React equivalent
-yet): the per-log detail viewer (`TaskDetailLog`), the command console (`console`,
-reachable from the dashboard), the scheduler variant-conversion (`ConvertVariant*`)
+files no longer ship in the 8.2 distribution. The per-log detail viewer
+(`TaskDetailLog.jsp`) is retired too: expand any row in the **Logs** tab (the **+**
+button) to see the Task Name, Start/End Time, Elapsed (HH:mm:ss), Status, Server,
+and the full detail message — the same fields the old detail page showed. Still
+shipped (no React equivalent yet): the command console (`console`, reachable from
+the dashboard), the scheduler variant-conversion (`ConvertVariant*`)
 and repair (`RxFix*`) tools.
 
 Bookmarks to the retired Active Assembly workflow dialog panes

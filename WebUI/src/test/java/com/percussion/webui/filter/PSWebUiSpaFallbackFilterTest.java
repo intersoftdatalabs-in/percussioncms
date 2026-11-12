@@ -220,11 +220,13 @@ public class PSWebUiSpaFallbackFilterTest {
   public void retiredSchedulerAdminJspsRedirectToAdminView() {
     // #6140 FR-002: deleted ui/admin scheduler pages (+tools ConsistencyChecker trio)
     // land on SPA Admin in both .jsp and .faces spellings; kept pages pass through.
+    // #6160: TaskDetailLog joins the retired set (TaskLogs per-row detail affordance).
     String[] pages = {
       "ScheduledTask.jsp",
       "ScheduledTaskList.jsp",
       "RemoveConfirmation.jsp",
       "TaskLogs.jsp",
+      "TaskDetailLog.jsp",
       "DeleteAllTaskLogWarning.jsp",
       "NoTaskLogSelectionWarning.jsp",
       "TaskNotificationEditor.jsp",
@@ -256,9 +258,8 @@ public class PSWebUiSpaFallbackFilterTest {
               ("/ui/admin/tools/" + tool).toLowerCase()));
     }
     // Kept scheduler-console pages still pass through (null = no redirect).
-    assertNull(
-        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
-            "/ui/admin/TaskDetailLog.faces", null));
+    // #6160: TaskDetailLog retired (see pages[] above); console/index/auth include
+    // and ConvertVariant/RxFix tools stay (no React equivalent yet).
     assertNull(
         PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
             "/ui/admin/console.faces", null));

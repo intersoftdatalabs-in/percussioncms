@@ -260,13 +260,15 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
 
   it("scheduler-console JSPs are retired; filter+servlet keep bookmark 301 (#6140)", () => {
     // FR-002 React-only mandate: TasksSection/TaskLogsSection/TaskNotifications/
-    // ToolsSection own these surfaces. Kept (no React equivalent yet): TaskDetailLog,
-    // console, index, AdminAuthentication, tools ConvertVariant/RxFix.
+    // ToolsSection own these surfaces. #6160: TaskDetailLog retired — the TaskLogs
+    // per-row detail affordance is its React replacement. Kept (no React
+    // equivalent yet): console, index, AdminAuthentication, tools ConvertVariant/RxFix.
     const retiredTop = [
       "ScheduledTask.jsp",
       "ScheduledTaskList.jsp",
       "RemoveConfirmation.jsp",
       "TaskLogs.jsp",
+      "TaskDetailLog.jsp",
       "DeleteAllTaskLogWarning.jsp",
       "NoTaskLogSelectionWarning.jsp",
       "TaskNotificationEditor.jsp",
@@ -285,7 +287,6 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
     }
     // Kept scheduler-console pages remain in the distribution.
     const kept = [
-      "ui/admin/TaskDetailLog.jsp",
       "ui/admin/console.jsp",
       "ui/admin/index.jsp",
       "ui/admin/AdminAuthentication.jsp",
@@ -320,6 +321,7 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
       expect(webXml).toContain(`/ui/admin/tools/${file}`);
     }
     expect(webXml).toContain("/ui/admin/ScheduledTaskList.faces");
+    expect(webXml).toContain("/ui/admin/TaskDetailLog.faces");
     expect(webXml).toContain("/ui/admin/tools/ConsistencyChecker.faces");
     // /Rhythmyx-prefixed spellings: PSDispatcherFilter only strips the prefix for
     // its resourcePaths (/cm/ but not /ui/), so prefixed bookmarks need exact mappings.

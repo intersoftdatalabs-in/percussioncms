@@ -201,9 +201,10 @@
     </servlet-mapping>
     <!-- #6140: retired scheduler-console JSF hosts 301 to SPA Admin shell.
          FR-002 ships React-only admin; TasksSection/TaskLogsSection/
-         TaskNotifications/ToolsSection own these surfaces. Kept: TaskDetailLog,
+         TaskNotifications/ToolsSection own these surfaces. Kept:
          console/index/AdminAuthentication, tools ConvertVariant/RxFix (no React
-         equivalent yet — see #6140 residuals). Both .jsp and .faces spellings
+         equivalent yet — see #6160 residuals; TaskDetailLog retired in #6160
+         via the TaskLogs per-row detail affordance). Both .jsp and .faces spellings
          are mapped: these are JSF views whose live bookmarks are .faces URLs
          (FacesServlet currently disabled; exact mapping wins either way). -->
     <servlet>
@@ -245,6 +246,17 @@
     <servlet-mapping>
         <servlet-name>PSRetiredSchedulerAdminRedirect</servlet-name>
         <url-pattern>/ui/admin/TaskLogs.faces</url-pattern>
+    </servlet-mapping>
+    <!-- #6160: TaskDetailLog retired — the TaskLogs per-row detail affordance
+         (task name / start / end / elapsed / full message) is its React
+         replacement. Same .jsp + .faces bookmark-301 treatment as #6140. -->
+    <servlet-mapping>
+        <servlet-name>PSRetiredSchedulerAdminRedirect</servlet-name>
+        <url-pattern>/ui/admin/TaskDetailLog.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredSchedulerAdminRedirect</servlet-name>
+        <url-pattern>/ui/admin/TaskDetailLog.faces</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>PSRetiredSchedulerAdminRedirect</servlet-name>
@@ -337,6 +349,14 @@
     <servlet-mapping>
         <servlet-name>PSRetiredSchedulerAdminRedirect</servlet-name>
         <url-pattern>/Rhythmyx/ui/admin/TaskLogs.faces</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredSchedulerAdminRedirect</servlet-name>
+        <url-pattern>/Rhythmyx/ui/admin/TaskDetailLog.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredSchedulerAdminRedirect</servlet-name>
+        <url-pattern>/Rhythmyx/ui/admin/TaskDetailLog.faces</url-pattern>
     </servlet-mapping>
     <servlet-mapping>
         <servlet-name>PSRetiredSchedulerAdminRedirect</servlet-name>
