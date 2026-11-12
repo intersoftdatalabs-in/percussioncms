@@ -33,6 +33,7 @@ import {
   toggleHiddenDetailColumn,
 } from "../../../main/ts/contentExplorer/DetailList";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
+import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
 function item(id: string, name: string, type = "percPage"): PSPathItem {
@@ -66,9 +67,9 @@ function listingResponse(rows: PSPathItem[]): Response {
   );
 }
 
-async function renderListing(): Promise<void> {
+async function renderListing(): Promise<{ container: HTMLElement }> {
   mockFetch(async () => listingResponse(ROWS));
-  render(
+  const { container } = render(
     <DetailList
       folderPath="/Sites/Demo"
       selectedItemId={null}
@@ -78,6 +79,7 @@ async function renderListing(): Promise<void> {
   await waitFor(() =>
     expect(screen.getByTestId("detail-row-c-3")).toBeInTheDocument(),
   );
+  return { container };
 }
 
 describe("detail-list column visibility helpers", () => {
@@ -241,5 +243,12 @@ describe("DetailList column visibility rendering", () => {
     expect(document.activeElement?.getAttribute("data-testid")).toBe(
       "detail-row-a-1",
     );
+  });
+
+  it("columns-menu surface has no serious a11y violations", async () => {
+    const { container } = await renderListing();
+    fireEvent.click(screen.getByTestId("detail-columns-toggle"));
+    expect(screen.getByTestId("detail-columns-menu")).toBeInTheDocument();
+    await renderA11yGate(container);
   });
 });
