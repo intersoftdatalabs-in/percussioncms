@@ -134,6 +134,29 @@ The assembler fallback path is removed behind migrated definitions (slice 3, #58
 a legacy definition whose assembler has no registered catalog entry reports `BLOCKED`
 with an unregistered-assembler reason — fix by authoring a registered id, then re-run.
 
+## Assembler catalog diagnostics readback
+
+Operators troubleshooting a modern package that will not load get a readable verdict
+per template with `Java code: PSAssemblerCatalogDiagnostics` — the companion to the
+migration dry-run for the modern-manifest direction. The dry-run reports what blocks
+converting legacy XML; this report diagnoses the `component-package.json` files
+operators already ship: it reads back the registered assembler catalog and checks
+every `templates[]` entry against it. It reads nothing from disk and writes nothing;
+callers supply parsed manifests.
+
+| Status | Meaning | Operator action |
+|--------|---------|-----------------|
+| `OK` | Assembler resolves to a registered product extension path | None; the panel names the resolved path for reference |
+| `BLOCKED` | Assembler cannot load on the modern path; the panel names the reason | Apply the panel's `Fix:` hint (author a registered id), then re-run |
+
+Blank assemblers (no `pageAssembler` default behind migrated definitions), unregistered
+short ids, and unregistered full extension paths (which pass through only on the
+legacy-upgrade emit path) each report `BLOCKED` with a tailored reason and fix hint.
+The legacy `xslAssembler` spelling diagnoses `OK` with a note that it is an alias for
+`legacyAssembler`. The panel renders as Markdown (`Report.toMarkdown()`, catalog
+table plus one row per template) for issue evidence and operator tooling, or plain
+text (`Report.toText()`) for CLI use.
+
 ## Dual-ship vs dual-run (do not mix them up)
 
 | Concept | Layer | Product 8.2 status |
