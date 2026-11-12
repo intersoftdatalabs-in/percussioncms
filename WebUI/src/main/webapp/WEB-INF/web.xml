@@ -394,8 +394,53 @@
         <servlet-name>PSRetiredSchedulerAdminRedirect</servlet-name>
         <url-pattern>/Rhythmyx/ui/admin/tools/ConsistencyCheckerReview.faces</url-pattern>
     </servlet-mapping>
-    
-     
+    <!-- #6139: retired AA workflow dialog-pane JSPs 301 to the SPA editor shell.
+         FR-002 ships React-only content editing; EditorWorkflowPanel (EditorHost
+         edit mode) owns in-context transitions, comment enforcement, and ad-hoc
+         assignees via REST (proven by us4-item-transitions, zero legacy-CE
+         requests). The Dojo WorkflowActions.js dialog that loaded these panes
+         only runs inside sys_command=editrc assembler renders, which the SPA
+         never requests. Dialog-pane fragment URLs are not real bookmarks, but
+         the exact mappings keep any straggler (or crafted editrc-flow request)
+         on a bookmark-safe 301 instead of the CMS 404 page. -->
+    <servlet>
+        <servlet-name>PSRetiredWorkflowDialogsRedirect</servlet-name>
+        <servlet-class>com.percussion.webui.servlet.PSRetiredJspRedirectServlet</servlet-class>
+        <init-param>
+            <param-name>view</param-name>
+            <param-value>editor</param-value>
+        </init-param>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowDialogsRedirect</servlet-name>
+        <url-pattern>/ui/activeassembly/workflow/workflowactions.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowDialogsRedirect</servlet-name>
+        <url-pattern>/ui/activeassembly/workflow/adhocsearch.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowDialogsRedirect</servlet-name>
+        <url-pattern>/ui/activeassembly/workflow/adhocresults.jsp</url-pattern>
+    </servlet-mapping>
+    <!-- #6139: same set with the /Rhythmyx prefix. PSDispatcherFilter only
+         strips the prefix for its resourcePaths (which include /cm/ but not /ui/),
+         so prefixed dialog-pane URLs would otherwise fall through to the CMS
+         404 page instead of the redirect servlet (exact mapping wins). -->
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowDialogsRedirect</servlet-name>
+        <url-pattern>/Rhythmyx/ui/activeassembly/workflow/workflowactions.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowDialogsRedirect</servlet-name>
+        <url-pattern>/Rhythmyx/ui/activeassembly/workflow/adhocsearch.jsp</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSRetiredWorkflowDialogsRedirect</servlet-name>
+        <url-pattern>/Rhythmyx/ui/activeassembly/workflow/adhocresults.jsp</url-pattern>
+    </servlet-mapping>
+
+
     <filter>
         <filter-name>PSDispatchFilter</filter-name>
         <filter-class>com.percussion.servlets.PSDispatcherFilter</filter-class>
@@ -424,6 +469,14 @@
     <filter-mapping>
         <filter-name>PSWebUiSpaFallbackFilter</filter-name>
         <url-pattern>/ui/admin/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
+    <!-- #6139: retired AA workflow dialog panes under
+         /ui/activeassembly/workflow keep 301ing via the filter when the exact
+         servlet mapping is bypassed. Sibling AA pages pass through untouched. -->
+    <filter-mapping>
+        <filter-name>PSWebUiSpaFallbackFilter</filter-name>
+        <url-pattern>/ui/activeassembly/workflow/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
     <!--

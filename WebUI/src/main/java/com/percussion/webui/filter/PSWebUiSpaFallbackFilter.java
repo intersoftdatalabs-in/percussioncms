@@ -184,7 +184,7 @@ public class PSWebUiSpaFallbackFilter implements Filter {
 
   /**
    * 301 Location for retired classic JSP bookmarks (#3587 Architecture, #3473 editAsset, #6095
-   * legacy workflow/admin hosts, #6140 scheduler console).
+   * legacy workflow/admin hosts, #6140 scheduler console, #6139 workflow dialog panes).
    *
    * <p>The JSP hosts are no longer in the WAR. Bookmarks still land on the SPA via {@link
    * PSLegacyViewRedirect}. Other JSPs return {@code null} (pass through).
@@ -210,6 +210,9 @@ public class PSWebUiSpaFallbackFilter implements Filter {
     }
     if (PSEditorHostRedirect.isRetiredSchedulerAdminJsp(lower)) {
       return PSLegacyViewRedirect.buildLocation("admin", queryString);
+    }
+    if (PSEditorHostRedirect.isRetiredWorkflowDialogJsp(lower)) {
+      return PSLegacyViewRedirect.buildLocation("editor", queryString);
     }
     return null;
   }
@@ -239,6 +242,14 @@ public class PSWebUiSpaFallbackFilter implements Filter {
    */
   static boolean isRetiredSchedulerAdminJsp(String lowerPath) {
     return PSEditorHostRedirect.isRetiredSchedulerAdminJsp(lowerPath);
+  }
+
+  /**
+   * True when {@code lowerPath} is a retired workflow dialog-pane bookmark (#6139, FR-002): a
+   * deleted {@code ui/activeassembly/workflow} dialog fragment.
+   */
+  static boolean isRetiredWorkflowDialogJsp(String lowerPath) {
+    return PSEditorHostRedirect.isRetiredWorkflowDialogJsp(lowerPath);
   }
 
   /**

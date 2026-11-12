@@ -139,6 +139,32 @@ public class PSEditorHostRedirectTest {
   }
 
   @Test
+  public void retiredWorkflowDialogJspsMatchActiveAssemblyWorkflowTree() {
+    // #6139 FR-002: three AA workflow dialog-pane fragments retired from
+    // ui/activeassembly/workflow. Sibling UserStatus.jsp / help pages keep passing through.
+    String[] panes = {"workflowactions.jsp", "adhocsearch.jsp", "adhocresults.jsp"};
+    for (String pane : panes) {
+      assertTrue(
+          PSEditorHostRedirect.isRetiredWorkflowDialogJsp(
+              "/ui/activeassembly/workflow/" + pane));
+      assertTrue(
+          PSEditorHostRedirect.isRetiredWorkflowDialogJsp(
+              "/Rhythmyx/ui/activeassembly/workflow/" + pane));
+    }
+    assertFalse(
+        PSEditorHostRedirect.isRetiredWorkflowDialogJsp("/ui/activeassembly/UserStatus.jsp"));
+    assertFalse(
+        PSEditorHostRedirect.isRetiredWorkflowDialogJsp(
+            "/ui/activeassembly/help/aboutaahelp.jsp"));
+    assertFalse(
+        PSEditorHostRedirect.isRetiredWorkflowDialogJsp(
+            "/ui/activeassembly/workflow-workflowactions.jsp"));
+    assertFalse(
+        PSEditorHostRedirect.isRetiredWorkflowDialogJsp("/cm/app/workflowactions.jsp"));
+    assertFalse(PSEditorHostRedirect.isRetiredWorkflowDialogJsp(null));
+  }
+
+  @Test
   public void spaRedirectForwardsLinkbackWarningWithoutLegacySiteHints() {
     String loc =
         PSEditorHostRedirect.buildSpaRedirect(

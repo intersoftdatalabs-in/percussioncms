@@ -331,6 +331,59 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
     expect(webXml).toContain("<url-pattern>/ui/admin/*</url-pattern>");
   });
 
+  it("workflow dialog-pane JSPs are retired; filter+servlet keep editor 301 (#6139)", () => {
+    // FR-002 React-only mandate: EditorWorkflowPanel (EditorHost edit mode) owns
+    // in-context transitions, comment enforcement, and ad-hoc assignees via REST
+    // (us4-item-transitions asserts zero legacy-CE requests). The Dojo
+    // WorkflowActions.js dialog panes are deleted; stragglers 301 to the SPA
+    // editor shell. Sibling UserStatus.jsp / help pages keep shipping.
+    const panes = [
+      "workflowactions.jsp",
+      "adhocsearch.jsp",
+      "adhocresults.jsp",
+    ];
+    for (const file of panes) {
+      expect(
+        existsSync(resolve(webappRoot, `ui/activeassembly/workflow/${file}`)),
+        file,
+      ).toBe(false);
+      expect(
+        existsSync(resolve(__dirname, `../../../../war/app/${file}`)),
+        `war/app/${file}`,
+      ).toBe(false);
+    }
+    for (const rel of [
+      "ui/activeassembly/UserStatus.jsp",
+      "ui/activeassembly/help/aboutaahelp.jsp",
+    ]) {
+      expect(existsSync(resolve(webappRoot, rel)), rel).toBe(true);
+    }
+    const filter = read(
+      resolve(
+        __dirname,
+        "../../../main/java/com/percussion/webui/filter/PSWebUiSpaFallbackFilter.java",
+      ),
+    );
+    expect(filter).toContain("isRetiredWorkflowDialogJsp");
+    const redirect = read(
+      resolve(
+        __dirname,
+        "../../../main/java/com/percussion/webui/util/PSEditorHostRedirect.java",
+      ),
+    );
+    expect(redirect).toContain("isRetiredWorkflowDialogJsp");
+    const webXml = read(resolve(webappRoot, "WEB-INF/web.xml"));
+    expect(webXml).toContain("PSRetiredWorkflowDialogsRedirect");
+    for (const file of panes) {
+      expect(webXml).toContain(`/ui/activeassembly/workflow/${file}`);
+      expect(webXml).toContain(`/Rhythmyx/ui/activeassembly/workflow/${file}`);
+    }
+    expect(webXml).toContain("<param-value>editor</param-value>");
+    // Filter covers the /ui/activeassembly/workflow tree so bypassed bookmarks
+    // still 301 (same belt-and-braces as /ui/admin/* in #6140).
+    expect(webXml).toContain("<url-pattern>/ui/activeassembly/workflow/*</url-pattern>");
+  });
+
   it("does not pack retired perc_architecture bundles (#3099)", () => {
     const bundles = resolve(
       __dirname,
