@@ -55,141 +55,203 @@ export interface ParsedSpaEntry {
 }
 
 /**
+ * Shared field source for the per-entry builders below. The query contract
+ * ({@link parseEntryQuery}) and the path contract ({@link parseClientPath})
+ * populate the same shape: {@code section}/{@code tab} carry the query
+ * params in one case and the second path segment in the other, while
+ * {@code siteFromPath} is only set for path-based architecture URLs.
+ */
+interface EntryFieldSource {
+  section: string | null | undefined;
+  tab: string | null | undefined;
+  params: URLSearchParams;
+  siteFromPath?: string | undefined;
+}
+
+/**
+ * Legacy entry aliases shared by the query and path contracts.
+ */
+function aliasEntry(entryRaw: string): string {
+  if (entryRaw === "widgetbuilder") {
+    return "widget-builder";
+  }
+  if (entryRaw === "arch" || entryRaw === "navigation") {
+    return "architecture";
+  }
+  return entryRaw;
+}
+
+/**
+ * Strip the leading {@code ?} (when present) and split a query string.
+ */
+function toQueryParams(search: string): URLSearchParams {
+  const q = search.startsWith("?") ? search.slice(1) : search;
+  return new URLSearchParams(q);
+}
+
+function buildHomeEntry(src: EntryFieldSource): ParsedSpaEntry {
+  const section = normalizeHomeSection(src.section);
+  return {
+    entry: "home",
+    section,
+    clientPath: section ? `/home/${section}` : "/home",
+  };
+}
+
+function readIds(params: URLSearchParams): {
+  siteId?: string;
+  serverId?: string;
+  itemId?: string;
+} {
+  return {
+    siteId: normalizeId(params.get("siteId")),
+    serverId: normalizeId(params.get("serverId")),
+    itemId: normalizeId(params.get("itemId")),
+  };
+}
+
+function withQueryString(base: string, qs: URLSearchParams): string {
+  const qstr = qs.toString();
+  return qstr ? `${base}?${qstr}` : base;
+}
+
+function buildPublishEntry(src: EntryFieldSource): ParsedSpaEntry {
+  const section = normalizePublishSection(src.section);
+  const { siteId, serverId, itemId } = readIds(src.params);
+  const qs = new URLSearchParams();
+  if (siteId) qs.set("siteId", siteId);
+  if (serverId) qs.set("serverId", serverId);
+  if (itemId) qs.set("itemId", itemId);
+  const base = section ? `/publish/${section}` : "/publish";
+  return { entry: "publish", section, siteId, serverId, itemId, clientPath: withQueryString(base, qs) };
+}
+
+function buildWorkflowEntry(src: EntryFieldSource): ParsedSpaEntry {
+  // #3088: fold legacy workflow entry into unified Admin shell paths
+  const tab = normalizeWorkflowTab(src.tab ?? src.section) ?? "workflow";
+  return {
+    entry: "workflow",
+    tab,
+    clientPath: `/admin/${tab}`,
+  };
+}
+
+function buildAdminEntry(src: EntryFieldSource): ParsedSpaEntry {
+  const tab = normalizeAdminTab(src.tab ?? src.section);
+  return {
+    entry: "admin",
+    tab,
+    clientPath: tab ? `/admin/${tab}` : "/admin",
+  };
+}
+
+function buildDeveloperEntry(src: EntryFieldSource): ParsedSpaEntry {
+  const section = normalizeDeveloperSection(src.section ?? src.tab);
+  return {
+    entry: "developer",
+    section,
+    clientPath: section ? `/developer/${section}` : "/developer",
+  };
+}
+
+function buildDesignEntry(src: EntryFieldSource): ParsedSpaEntry {
+  const section = normalizeDesignSection(src.section ?? src.tab);
+  return {
+    entry: "design",
+    section,
+    clientPath: section ? `/design/${section}` : "/design",
+  };
+}
+
+function buildArchitectureEntry(src: EntryFieldSource): ParsedSpaEntry {
+  // Prefer path segment when site is a simple token; else query site= (#3094)
+  const siteFromPath = normalizeArchitectureSite(src.siteFromPath);
+  const site = siteFromPath ?? normalizeArchitectureSite(src.params.get("site"));
+  if (site) {
+    return {
+      entry: "architecture",
+      site,
+      clientPath: `/architecture/${encodeURIComponent(site)}`,
+    };
+  }
+  return { entry: "architecture", clientPath: "/architecture" };
+}
+
+function buildExplorerEntry(src: EntryFieldSource): ParsedSpaEntry {
+  const path = normalizeExplorerPath(src.params.get("path"));
+  let clientPath = "/explorer";
+  if (path) {
+    clientPath += `?path=${encodeURIComponent(path)}`;
+  }
+  return { entry: "explorer", path, clientPath };
+}
+
+function buildAssemblyEntry(src: EntryFieldSource): ParsedSpaEntry {
+  const contentId = normalizeId(src.params.get("contentId"));
+  const templateId = normalizeId(src.params.get("templateId"));
+  const qs = new URLSearchParams();
+  if (contentId) qs.set("contentId", contentId);
+  if (templateId) qs.set("templateId", templateId);
+  return {
+    entry: "assembly",
+    contentId,
+    templateId,
+    clientPath: withQueryString("/assembly", qs),
+  };
+}
+
+function buildEditorEntry(src: EntryFieldSource): ParsedSpaEntry {
+  const contentId = normalizeId(src.params.get("contentId"));
+  const mode = normalizeId(src.params.get("mode"));
+  const qs = new URLSearchParams();
+  if (contentId) qs.set("contentId", contentId);
+  if (mode) qs.set("mode", mode);
+  return {
+    entry: "editor",
+    contentId,
+    mode,
+    clientPath: withQueryString("/editor", qs),
+  };
+}
+
+/**
+ * Per-entry builders behind both parse entry points. A dispatch table keeps
+ * the entry points flat (no switch) so no single function accumulates the
+ * branching budget of all entries.
+ */
+const ENTRY_BUILDERS: Record<SpaEntry, (src: EntryFieldSource) => ParsedSpaEntry> = {
+  home: buildHomeEntry,
+  publish: buildPublishEntry,
+  workflow: buildWorkflowEntry,
+  admin: buildAdminEntry,
+  "widget-builder": () => ({ entry: "widget-builder", clientPath: "/widget-builder" }),
+  developer: buildDeveloperEntry,
+  design: buildDesignEntry,
+  architecture: buildArchitectureEntry,
+  explorer: buildExplorerEntry,
+  profile: () => ({ entry: "profile", clientPath: "/profile" }),
+  assembly: buildAssemblyEntry,
+  editor: buildEditorEntry,
+  unavailable: () => ({ entry: "unavailable", clientPath: "/unavailable" }),
+};
+
+/**
  * Parse {@code window.location.search} (or a synthetic query string) into an
  * allowlisted SPA entry and client route path.
  */
 export function parseEntryQuery(
   search: string = typeof window !== "undefined" ? window.location.search : "",
 ): ParsedSpaEntry {
-  const q = search.startsWith("?") ? search.slice(1) : search;
-  const params = new URLSearchParams(q);
+  const params = toQueryParams(search);
 
-  let entryRaw = (params.get("entry") || "home").trim().toLowerCase();
-  // Legacy aliases
-  if (entryRaw === "widgetbuilder") {
-    entryRaw = "widget-builder";
-  }
-  if (entryRaw === "arch" || entryRaw === "navigation") {
-    entryRaw = "architecture";
-  }
+  const entryRaw = aliasEntry((params.get("entry") || "home").trim().toLowerCase());
   const entry: SpaEntry = isSpaEntry(entryRaw) ? entryRaw : "home";
 
-  const sectionParam = params.get("section") ?? params.get("initialScreen");
-  const tabParam = params.get("tab");
-  const siteId = normalizeId(params.get("siteId"));
-  const serverId = normalizeId(params.get("serverId"));
-  const itemId = normalizeId(params.get("itemId"));
-  const path = normalizeExplorerPath(params.get("path"));
-  const site = normalizeArchitectureSite(params.get("site"));
-
-  switch (entry) {
-    case "home": {
-      const section = normalizeHomeSection(sectionParam);
-      return {
-        entry,
-        section,
-        clientPath: section ? `/home/${section}` : "/home",
-      };
-    }
-    case "publish": {
-      const section = normalizePublishSection(sectionParam);
-      let clientPath = section ? `/publish/${section}` : "/publish";
-      const qs = new URLSearchParams();
-      if (siteId) qs.set("siteId", siteId);
-      if (serverId) qs.set("serverId", serverId);
-      if (itemId) qs.set("itemId", itemId);
-      const qstr = qs.toString();
-      if (qstr) clientPath += `?${qstr}`;
-      return { entry, section, siteId, serverId, itemId, clientPath };
-    }
-    case "workflow": {
-      // #3088: fold legacy workflow entry into unified Admin shell paths
-      const tab = normalizeWorkflowTab(tabParam ?? sectionParam) ?? "workflow";
-      return {
-        entry,
-        tab,
-        clientPath: `/admin/${tab}`,
-      };
-    }
-    case "admin": {
-      const tab = normalizeAdminTab(tabParam ?? sectionParam);
-      return {
-        entry,
-        tab,
-        clientPath: tab ? `/admin/${tab}` : "/admin",
-      };
-    }
-    case "widget-builder":
-      return { entry, clientPath: "/widget-builder" };
-    case "developer": {
-      const section = normalizeDeveloperSection(sectionParam ?? tabParam);
-      return {
-        entry,
-        section,
-        clientPath: section ? `/developer/${section}` : "/developer",
-      };
-    }
-    case "design": {
-      const section = normalizeDesignSection(sectionParam ?? tabParam);
-      return {
-        entry,
-        section,
-        clientPath: section ? `/design/${section}` : "/design",
-      };
-    }
-    case "architecture": {
-      // Prefer path segment when site is a simple token; else query site=
-      if (site) {
-        return {
-          entry,
-          site,
-          clientPath: `/architecture/${encodeURIComponent(site)}`,
-        };
-      }
-      return { entry, clientPath: "/architecture" };
-    }
-    case "explorer": {
-      let clientPath = "/explorer";
-      if (path) {
-        clientPath += `?path=${encodeURIComponent(path)}`;
-      }
-      return { entry, path, clientPath };
-    }
-    case "profile":
-      return { entry, clientPath: "/profile" };
-    case "assembly": {
-      const contentId = normalizeId(params.get("contentId"));
-      const templateId = normalizeId(params.get("templateId"));
-      const qs = new URLSearchParams();
-      if (contentId) qs.set("contentId", contentId);
-      if (templateId) qs.set("templateId", templateId);
-      const qstr = qs.toString();
-      return {
-        entry,
-        contentId,
-        templateId,
-        clientPath: qstr ? `/assembly?${qstr}` : "/assembly",
-      };
-    }
-    case "editor": {
-      const contentId = normalizeId(params.get("contentId"));
-      const mode = normalizeId(params.get("mode"));
-      const qs = new URLSearchParams();
-      if (contentId) qs.set("contentId", contentId);
-      if (mode) qs.set("mode", mode);
-      const qstr = qs.toString();
-      return {
-        entry,
-        contentId,
-        mode,
-        clientPath: qstr ? `/editor?${qstr}` : "/editor",
-      };
-    }
-    case "unavailable":
-      return { entry, clientPath: "/unavailable" };
-    default:
-      return { entry: "home", clientPath: "/home" };
-  }
+  return ENTRY_BUILDERS[entry]({
+    section: params.get("section") ?? params.get("initialScreen"),
+    tab: params.get("tab"),
+    params,
+  });
 }
 
 /**
@@ -213,6 +275,37 @@ export function toSpaEntryUrl(parsed: ParsedSpaEntry): string {
 }
 
 /**
+ * Split a BrowserRouter client path into its entry segment and the segment
+ * after it, tolerating a missing leading slash and one trailing slash.
+ */
+function splitClientPath(clientPath: string): { entryRaw: string; second?: string } {
+  let pathOnly = clientPath || "/home";
+  if (!pathOnly.startsWith("/")) {
+    pathOnly = `/${pathOnly}`;
+  }
+  // Drop trailing slash except root
+  if (pathOnly.length > 1 && pathOnly.endsWith("/")) {
+    pathOnly = pathOnly.slice(0, -1);
+  }
+  const segments = pathOnly.split("/").filter(Boolean);
+  return { entryRaw: segments[0] || "home", second: segments[1] };
+}
+
+/**
+ * Decode an architecture path segment without letting malformed
+ * {@code %} sequences throw URIError during navigation.
+ */
+function decodePathSegment(second: string | undefined): string | undefined {
+  if (second == null) {
+    return undefined;
+  }
+  try {
+    return decodeURIComponent(second);
+  } catch {
+    return second;
+  }
+}
+/**
  * Parse a BrowserRouter client path (after basename) plus optional search into
  * a {@link ParsedSpaEntry}. Used for mid-session 401 return when the address
  * bar is path-based (PR-9) rather than {@code spa.jsp?entry=…}.
@@ -224,151 +317,17 @@ export function parseClientPath(
   clientPath: string,
   search: string = "",
 ): ParsedSpaEntry {
-  const q = search.startsWith("?") ? search.slice(1) : search;
-  const params = new URLSearchParams(q);
-  const siteId = normalizeId(params.get("siteId"));
-  const serverId = normalizeId(params.get("serverId"));
-  const itemId = normalizeId(params.get("itemId"));
-  const explorerPath = normalizeExplorerPath(params.get("path"));
+  const params = toQueryParams(search);
+  const { entryRaw, second } = splitClientPath(clientPath);
+  const aliased = aliasEntry(entryRaw.toLowerCase());
+  const entry: SpaEntry = isSpaEntry(aliased) ? aliased : "home";
 
-  let pathOnly = clientPath || "/home";
-  if (!pathOnly.startsWith("/")) {
-    pathOnly = `/${pathOnly}`;
-  }
-  // Drop trailing slash except root
-  if (pathOnly.length > 1 && pathOnly.endsWith("/")) {
-    pathOnly = pathOnly.slice(0, -1);
-  }
-  const segments = pathOnly.split("/").filter(Boolean);
-  let entryRaw = (segments[0] || "home").toLowerCase();
-  if (entryRaw === "widgetbuilder") {
-    entryRaw = "widget-builder";
-  }
-  if (entryRaw === "arch" || entryRaw === "navigation") {
-    entryRaw = "architecture";
-  }
-  const entry: SpaEntry = isSpaEntry(entryRaw) ? entryRaw : "home";
-  const second = segments[1];
-
-  switch (entry) {
-    case "home": {
-      const section = normalizeHomeSection(second);
-      return {
-        entry,
-        section,
-        clientPath: section ? `/home/${section}` : "/home",
-      };
-    }
-    case "publish": {
-      const section = normalizePublishSection(second);
-      let cp = section ? `/publish/${section}` : "/publish";
-      const qs = new URLSearchParams();
-      if (siteId) qs.set("siteId", siteId);
-      if (serverId) qs.set("serverId", serverId);
-      if (itemId) qs.set("itemId", itemId);
-      const qstr = qs.toString();
-      if (qstr) cp += `?${qstr}`;
-      return { entry, section, siteId, serverId, itemId, clientPath: cp };
-    }
-    case "workflow": {
-      // Legacy path prefix still parseable; client path is Admin (#3088)
-      const tab = normalizeWorkflowTab(second) ?? "workflow";
-      return {
-        entry,
-        tab,
-        clientPath: `/admin/${tab}`,
-      };
-    }
-    case "admin": {
-      const tab = normalizeAdminTab(second);
-      return {
-        entry,
-        tab,
-        clientPath: tab ? `/admin/${tab}` : "/admin",
-      };
-    }
-    case "widget-builder":
-      return { entry, clientPath: "/widget-builder" };
-    case "design": {
-      const section = normalizeDesignSection(second);
-      return {
-        entry,
-        section,
-        clientPath: section ? `/design/${section}` : "/design",
-      };
-    }
-    case "developer": {
-      const section = normalizeDeveloperSection(second);
-      return {
-        entry,
-        section,
-        clientPath: section ? `/developer/${section}` : "/developer",
-      };
-    }
-    case "architecture": {
-      let pathSegment: string | undefined;
-      if (second != null) {
-        try {
-          pathSegment = decodeURIComponent(second);
-        } catch {
-          // Malformed % sequences must not throw URIError during navigation
-          pathSegment = second;
-        }
-      }
-      const siteFromPath = normalizeArchitectureSite(pathSegment);
-      const siteFromQuery = normalizeArchitectureSite(params.get("site"));
-      const site = siteFromPath ?? siteFromQuery;
-      if (site) {
-        return {
-          entry,
-          site,
-          clientPath: `/architecture/${encodeURIComponent(site)}`,
-        };
-      }
-      return { entry, clientPath: "/architecture" };
-    }
-    case "explorer": {
-      let cp = "/explorer";
-      if (explorerPath) {
-        cp += `?path=${encodeURIComponent(explorerPath)}`;
-      }
-      return { entry, path: explorerPath, clientPath: cp };
-    }
-    case "profile":
-      return { entry, clientPath: "/profile" };
-    case "assembly": {
-      const contentId = normalizeId(params.get("contentId"));
-      const templateId = normalizeId(params.get("templateId"));
-      const qs = new URLSearchParams();
-      if (contentId) qs.set("contentId", contentId);
-      if (templateId) qs.set("templateId", templateId);
-      const qstr = qs.toString();
-      return {
-        entry,
-        contentId,
-        templateId,
-        clientPath: qstr ? `/assembly?${qstr}` : "/assembly",
-      };
-    }
-    case "editor": {
-      const contentId = normalizeId(params.get("contentId"));
-      const mode = normalizeId(params.get("mode"));
-      const qs = new URLSearchParams();
-      if (contentId) qs.set("contentId", contentId);
-      if (mode) qs.set("mode", mode);
-      const qstr = qs.toString();
-      return {
-        entry,
-        contentId,
-        mode,
-        clientPath: qstr ? `/editor?${qstr}` : "/editor",
-      };
-    }
-    case "unavailable":
-      return { entry, clientPath: "/unavailable" };
-    default:
-      return { entry: "home", clientPath: "/home" };
-  }
+  return ENTRY_BUILDERS[entry]({
+    section: second,
+    tab: second,
+    params,
+    siteFromPath: decodePathSegment(second),
+  });
 }
 
 /**
@@ -378,8 +337,7 @@ export function resolveSpaReturnFromLocation(
   pathname: string = typeof window !== "undefined" ? window.location.pathname : "/cm/app/spa.jsp",
   search: string = typeof window !== "undefined" ? window.location.search : "",
 ): string {
-  const q = search.startsWith("?") ? search.slice(1) : search;
-  const params = new URLSearchParams(q);
+  const params = toQueryParams(search);
   if (params.has("entry") || pathname.includes("spa.jsp")) {
     return toSpaEntryUrl(parseEntryQuery(search));
   }
