@@ -946,6 +946,14 @@ rows fit on small screens. Density is display-only: it sends no server request,
 and row selection, sorting, arrow-key navigation, and screen-reader row
 positions work the same in both densities.
 
+**Export current view** — the **Export CSV** button above the detail list
+downloads the rows on screen as a CSV file (built in the browser; no
+extra server request). The file contains the visible columns only, in
+the order shown, with the active sort applied, and covers the loaded
+page only — use the pager to export further pages. Fields with commas,
+quotes, or line breaks are quoted per RFC 4180. The filename starts
+with `explorer-` followed by the open folder name.
+
 **Expand all / collapse all** — the toolbar above the folder tree offers **Expand all**
 and **Collapse all** buttons (keyboard-focusable, announced by name). Expand all opens
 every loaded folder so loaded descendants become visible; folders that have not been
