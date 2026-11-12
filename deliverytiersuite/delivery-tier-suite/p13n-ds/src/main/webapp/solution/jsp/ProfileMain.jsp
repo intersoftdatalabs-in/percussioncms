@@ -5,8 +5,9 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" >
 	<title>Personalized view of: ${previewPageUrl}</title>
 	<link rel="stylesheet" href="${resources}/css/p13nMain.css" type="text/css" media="screen" >
-	<link rel="stylesheet" href="${scripts}/jquery-treeview/treeview.css" type="text/css"
-		media="screen" >
+	<%-- Issue #6117 (audit #5627): jquery-treeview/treeview.css removed with
+	     the vendored lib-js tree (#5668); solution/resources/ has no scripts/
+	     dir, so this link was a 404. Do not re-add without a supported build. --%>
 	<%@ include file="scripts.jsp" %>
 	<script type="text/javascript">
 		$(function() {

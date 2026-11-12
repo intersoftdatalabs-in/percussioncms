@@ -16,18 +16,11 @@ var p13nSelectedNode = null;
 var p13nPreviewPageIsDirty = false;
 
 $(document).ready(function () {
-  $("#SegmentSplitter").splitter({
-    type: "v",
-    initA: true, // use width of A (#LeftPane) from styles
-    accessKey: "|",
-  });
-  // Firefox doesn't fire resize on page elements
-  $(window)
-    .bind("resize", function () {
-      $("#SegmentSplitter").trigger("resize");
-    })
-    .trigger("resize");
-
+  // NOTE (audit #5627 / #6117): the $("#SegmentSplitter").splitter({...})
+  // init plus its resize relay were removed with the vendored jquery-splitter
+  // plugin (#5668). No #SegmentSplitter element exists in the editor markup,
+  // so there is nothing to split; do not re-add a .splitter() call without a
+  // supported plugin build.
   //Bind the menu actions
   $("#p13nMenuNew").click(p13nNewProfile);
   $("#p13nMenuSave").click(p13nSaveProfile);

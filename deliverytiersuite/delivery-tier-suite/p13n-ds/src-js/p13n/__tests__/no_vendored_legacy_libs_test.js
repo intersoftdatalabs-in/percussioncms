@@ -30,6 +30,11 @@
  *
  * <p>Run with:
  *   node deliverytiersuite/delivery-tier-suite/p13n-ds/src-js/p13n/__tests__/no_vendored_legacy_libs_test.js
+ *
+ * <p>Issue #6117 extended the JSP scan beyond solution/jsp/scripts.jsp +
+ * header.jsp to the legacy test pages (pages/*.jsp) and ProfileMain.jsp,
+ * which still referenced the absent jquery-1.2.2.js and the removed
+ * jquery-treeview css after #5668.
  */
 
 "use strict";
@@ -55,6 +60,7 @@ const REMOVED_FILE_PATTERNS = [
 
 const REMOVED_JSP_PATH_FRAGMENTS = [
   "jquery.min.js",
+  "jquery-1.2.2.js",
   "jquery-treeview",
   "jquery-form",
   "jquery-splitter",
@@ -81,7 +87,36 @@ const JSP_FILES = [
     "jsp",
     "header.jsp",
   ),
+  path.join(
+    MODULE_DIR,
+    "src",
+    "main",
+    "webapp",
+    "solution",
+    "jsp",
+    "ProfileMain.jsp",
+  ),
 ];
+
+const LEGACY_TEST_PAGES_DIR = path.join(
+  MODULE_DIR,
+  "src",
+  "main",
+  "webapp",
+  "pages",
+);
+
+function collectScannedJspFiles() {
+  const files = [...JSP_FILES];
+  if (fs.existsSync(LEGACY_TEST_PAGES_DIR)) {
+    for (const entry of fs.readdirSync(LEGACY_TEST_PAGES_DIR)) {
+      if (entry.endsWith(".jsp")) {
+        files.push(path.join(LEGACY_TEST_PAGES_DIR, entry));
+      }
+    }
+  }
+  return files;
+}
 
 function assertRemovedTreeIsGone() {
   for (const name of REMOVED_DIR_NAMES) {
@@ -159,7 +194,7 @@ function assertNoVendoredLegacyLibs() {
 
 function assertNoDanglingJspReferences() {
   const hits = [];
-  for (const jsp of JSP_FILES) {
+  for (const jsp of collectScannedJspFiles()) {
     if (!fs.existsSync(jsp)) {
       continue;
     }

@@ -20,8 +20,6 @@
 <%
 	String ruleItemId = request.getParameter("ruleItemId");
 %>
-<script type="text/javascript" src="<%=request.getContextPath()%>/solution/resources/scripts/jquery-1.2.2.js">
-</script>
 <script type="text/javascript" 
 	src="<%=request.getContextPath()%>/solution/resources/scripts/p13n/perc_p13n_delivery.js">
 </script>
