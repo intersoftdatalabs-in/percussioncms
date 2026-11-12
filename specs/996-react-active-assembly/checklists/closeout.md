@@ -39,6 +39,38 @@ WP1 confirmed the FR-001–006 implementation already matches the spec; the sing
 battery gap found was T009 live coverage (denied 403 messaging had Vitest but no
 Playwright proof). Fix = the new `@aa-denied` test itself. No production code changed.
 
+## R15 — #6106 rich-toolbar ownership decision: OWNED BY 996, DEFERRED (not built)
+
+**Issue**: #6106 (self-parented; no tracking epic — work rode in
+#2400/#3471/#3475/#4530 slices) · **Date**: 2026-11-12
+
+- **Shipped baseline**: scalar contenteditable overlay persists via
+  itemmanagement (#3475 CLOSED); single-HTML-field save on the assembled page
+  (#5296 CLOSED via PR #5307 MERGED).
+- **Gap as filed**: rich-toolbar editing in AA has no owner; plan.md/tasks.md
+  were missing at filing time (R15). **Plan/tasks pointer**: both now exist in
+  this directory — `plan.md` + `tasks.md` (added via #6151), battery + Compare
+  defer recorded via #6154/#6105 (see T012 above). That half of #6106 is
+  satisfied by pointer, no new planning files needed.
+- **Ownership decision**: rich-toolbar editing in AA is **owned by spec 996**,
+  not #5622. #5622 (TipTap epic, OPEN) explicitly scopes out the AA overlay
+  ("Active Assembly contenteditable overlay (#3475 / spec 996) except noting
+  candidate fitness"). Verified 2026-11-12: no toolbar/TipTap/rich surface
+  exists in `WebUI/src/main/ts/assembly/` and no open issue owns an AA
+  toolbar/i18n/a11y slice (search: assembly/rich-toolbar — only #6106 itself).
+- **Rationale for defer**: the plan's rule is *verify before building*. The
+  shipped scalar + HTML-save baseline is verified; a rich toolbar has no
+  requesting slice and no acceptance criteria beyond "decide and record", so
+  building it now would violate the vertical-increment rule. **Defer to a
+  future 996 slice** (toolbar + i18n + a11y for the AA overlay, reusing #5622's
+  TipTap candidate fitness when scheduled).
+- **Revisit trigger**: file a new 996 slice referencing this note when rich AA
+  editing is scheduled. No residual filed — deferral *is* the recorded
+  decision; umbrella #4530 (OPEN) remains the residual tracker per repo
+  convention (umbrellas stay open).
+- **Spec pointer**: `../spec.md` "In scope (later)" rich-overlay bullet now
+  records this ownership + deferral.
+
 ## T014/T016 — Battery evidence
 
 _Note on T016's "#6110 disposition": #6110 ([2400] Phase 3 disposition) is a

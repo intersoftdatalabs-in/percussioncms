@@ -31,7 +31,19 @@ Field editing is **not** invented here. When the Content Editor (`specs/995-reac
 
 ## In scope (later)
 
-- Contenteditable / content-type overlay for **rich** (HTML) assembled fields
+- Contenteditable / content-type overlay for **rich** (HTML) assembled fields —
+  **owned by spec 996, not #5622** (decision #6106, recorded 2026-11-12;
+  evidence `checklists/closeout.md` R15). #5622 (TipTap epic) explicitly
+  excludes the AA overlay ("except noting candidate fitness"), and no AA
+  toolbar/i18n/a11y slice exists: scalar overlay persist is shipped (#3475
+  CLOSED), single-HTML-field save is shipped (#5296/PR #5307), but no
+  rich-toolbar surface exists in `WebUI/src/main/ts/assembly/` (no
+  toolbar/TipTap/rich references as of this decision). Building a toolbar
+  without a requesting slice would violate the vertical-increment rule, so:
+  **defer to a future 996 slice** (toolbar + i18n + a11y for the AA overlay,
+  reusing #5622's TipTap candidate fitness when scheduled). Revisit trigger:
+  file a new 996 slice referencing this note when rich AA editing is
+  scheduled. Residual tracking lives in umbrella #4530 (OPEN).
 - Compare (`sys_Compare`): **deferred — not planned** (decision #6105, recorded
   2026-11-12; evidence `checklists/closeout.md` T012 via #6154). No React
   Compare surface exists — `sys_compare` appears only in the legacy-Data-Flow
