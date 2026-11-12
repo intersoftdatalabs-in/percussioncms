@@ -16,6 +16,8 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { get } from "../../api/client";
+import { parseSiteList } from "../../api/developer/sitesApi";
+import type { SiteDef } from "../../api/developer/types";
 import { PATHS } from "../../api/paths";
 import { message } from "../../i18n/message";
 import { WF_ADMIN_MSG } from "../messages";
@@ -32,6 +34,26 @@ interface SiteItem {
 }
 
 type JobState = "idle" | "inProgress" | "complete" | "failed";
+
+/**
+ * Map parsed site rows onto the dialog's select model. The sitemanage
+ * {@code SiteSummary} rows carry {@code id}/{@code name}/{@code folderPath};
+ * the {@code //Sites/<name>} fallback covers rows without a folder path.
+ */
+export function toSiteItems(rows: SiteDef[]): SiteItem[] {
+  return rows
+    .map((s, index) => {
+      const raw = s as unknown as Record<string, unknown>;
+      const text = (v: unknown): string =>
+        typeof v === "string" ? v.trim() : "";
+      const name = text(s.name);
+      const folderPath =
+        text(raw.folderPath) || (name.length > 0 ? `//Sites/${name}` : "");
+      const id = text(raw.id) || text(raw.siteId) || name || `site-${index}`;
+      return { id, name: name || id, folderPath };
+    })
+    .filter((s) => s.folderPath.length > 0);
+}
 
 export const WorkflowSiteAssign: React.FC<WorkflowSiteAssignProps> = ({
   workflowName,
@@ -50,8 +72,11 @@ export const WorkflowSiteAssign: React.FC<WorkflowSiteAssignProps> = ({
     isMountedRef.current = true;
     const fetchSites = async () => {
       try {
-        const result = await get<SiteItem[]>(PATHS.SITES_ALL);
-        if (isMountedRef.current) setSites(result || []);
+        // SITES_ALL arrives as a Jackson WRAP_ROOT envelope
+        // ({ SiteSummary: [...] }) on the live server, not a bare array —
+        // parseSiteList unwraps both so .map never throws (#6157, cf. #2959).
+        const rows = parseSiteList(await get<unknown>(PATHS.SITES_ALL));
+        if (isMountedRef.current) setSites(toSiteItems(rows));
       } catch {
         if (isMountedRef.current) setSites([]);
       } finally {
