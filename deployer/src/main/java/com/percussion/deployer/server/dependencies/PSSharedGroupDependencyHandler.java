@@ -38,8 +38,6 @@ import com.percussion.design.objectstore.server.PSServerXmlObjectStore;
 import com.percussion.error.PSDeployException;
 import com.percussion.security.PSSecurityToken;
 import com.percussion.services.error.PSNotFoundException;
-import com.percussion.util.PSCollection;
-import com.percussion.utils.collections.PSIteratorUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.File;
 import java.util.ArrayList;
@@ -213,31 +211,63 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
         .iterator();
   }
 
-  /**
-   * Copies the field groups of a shared def into a typed collection.
-   *
-   * <p>{@code PSContentEditorSharedDef.getFieldGroups()} (system module) is still a legacy raw
-   * {@code Iterator}, so the elements are copied through a checked cast instead of the raw {@code
-   * PSCollection(Iterator)} constructor. The element type is {@code PSSharedFieldGroup} (verified
-   * by the casts at the pre-generics use sites).
-   *
-   * @param def the shared def to copy from, may not be {@code null}.
-   * @return a typed collection holding the def's field groups, never {@code null}.
-   */
-  private static PSCollection<PSSharedFieldGroup> typedFieldGroups(PSContentEditorSharedDef def) {
-    PSCollection<PSSharedFieldGroup> groups = new PSCollection<>(PSSharedFieldGroup.class);
-    Iterator<?> it = def.getFieldGroups();
-    while (it.hasNext()) {
-      groups.add((PSSharedFieldGroup) it.next());
-    }
-    return groups;
-  }
-
   // see base class
   @Override
   public void installDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
+    validateInstallArgs(tok, archive, dep, ctx);
+
+    String groupName = dep.getDependencyId();
+    PSDependencyFile groupFile =
+        PSSharedGroupInstallUtils.findSharedGroupXmlFile(archive.getFiles(dep));
+    if (groupFile == null) {
+      Object[] args = {
+        PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_SHARED_GROUP_XML],
+        dep.getObjectType(),
+        dep.getDependencyId(),
+        dep.getDisplayName()
+      };
+      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
+    }
+    Document doc = createXmlDocument(archive.getFileData(groupFile));
+    File origFile = groupFile.getOriginalFile();
+
+    PSSharedFieldGroup group = parseSharedGroup(doc, dep);
+
+    // transform ids and dbms's in the group if necessary
+    PSIdMap idMap = ctx.getCurrentIdMap();
+    if (idMap != null) transformGroup(ctx, group);
+
+    // get the shared def and file to add/replace the group
+    try {
+      PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
+      File[] defFiles = os.getContentEditorSharedDefFiles();
+      PSSharedGroupInstallUtils.SharedGroupDefEntry match =
+          findOriginalFileEntry(os, defFiles, origFile);
+      PSSharedGroupInstallUtils.SharedGroupDefEntry owner =
+          findGroupOwnerEntry(os, defFiles, match, groupName);
+      PSSharedGroupInstallUtils.SharedGroupInstallTarget target =
+          PSSharedGroupInstallUtils.resolveInstallTarget(match, owner, origFile, group);
+
+      target.def().setFieldGroups(target.fieldGroups());
+      os.saveContentEditorSharedDefFile(target.def(), target.file().getName());
+
+      // update log
+      addTransactionLogEntry(
+          dep, ctx, target.file().getName(), PSTransactionSummary.TYPE_FILE, target.action());
+    } catch (Exception e) {
+      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
+    }
+  }
+
+  /**
+   * Validates the {@code installDependencyFiles} arguments.
+   *
+   * @throws IllegalArgumentException if any param is invalid.
+   */
+  private static void validateInstallArgs(
+      PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx) {
     if (tok == null) throw new IllegalArgumentException("tok may not be null");
 
     if (archive == null) throw new IllegalArgumentException("archive may not be null");
@@ -248,33 +278,20 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
       throw new IllegalArgumentException("dep wrong type");
 
     if (ctx == null) throw new IllegalArgumentException("ctx may not be null");
+  }
 
-    String groupName = dep.getDependencyId();
-    Document doc = null;
-    Iterator<PSDependencyFile> files = archive.getFiles(dep);
-    File origFile = null;
-    while (files.hasNext() && doc == null) {
-      PSDependencyFile file = files.next();
-      if (file.getType() == PSDependencyFile.TYPE_SHARED_GROUP_XML) {
-        doc = createXmlDocument(archive.getFileData(file));
-        origFile = file.getOriginalFile();
-      }
-    }
-
-    // must at have the doc
-    if (doc == null) {
-      Object[] args = {
-        PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_SHARED_GROUP_XML],
-        dep.getObjectType(),
-        dep.getDependencyId(),
-        dep.getDisplayName()
-      };
-      throw new PSDeployException(DeploymentErrorCodes.MISSING_DEPENDENCY_FILE, args);
-    }
-
-    PSSharedFieldGroup group = null;
+  /**
+   * Parses the incoming shared group from its archive document.
+   *
+   * @param doc the archive document, assumed not {@code null}.
+   * @param dep the dependency being installed, used for error details.
+   * @return the parsed group, never {@code null}.
+   * @throws PSDeployException if the document does not hold a shared group.
+   */
+  private static PSSharedFieldGroup parseSharedGroup(Document doc, PSDependency dep)
+      throws PSDeployException {
     try {
-      group = new PSSharedFieldGroup(doc.getDocumentElement(), null, null);
+      return new PSSharedFieldGroup(doc.getDocumentElement(), null, null);
     } catch (PSUnknownNodeTypeException e) {
       Object[] args = {
         PSDependencyFile.TYPE_ENUM[PSDependencyFile.TYPE_SHARED_GROUP_XML],
@@ -285,92 +302,58 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
       };
       throw new PSDeployException(DeploymentErrorCodes.INVALID_DEPENDENCY_FILE, args);
     }
+  }
 
-    // transform ids and dbms's in the group if necessary
-    PSIdMap idMap = ctx.getCurrentIdMap();
-    if (idMap != null) transformGroup(ctx, group);
-
-    int transAction = PSTransactionSummary.ACTION_MODIFIED;
-
-    // get the shared def and file to add/replace the group
-    try {
-      // look for original file
-      PSServerXmlObjectStore os = PSServerXmlObjectStore.getInstance();
-      File[] defFiles = os.getContentEditorSharedDefFiles();
-      File defFile = null;
-      PSContentEditorSharedDef tgtDef = null;
-      File matchFile = null;
-      PSContentEditorSharedDef matchDef = null;
-
-      boolean sharedDefExists = true;
-      if (defFiles != null && defFiles.length > 0) {
-        for (int i = 0; i < defFiles.length; i++) {
-          if (defFiles[i].getName().equals(origFile.getName())) {
-            PSContentEditorSharedDef def = os.getContentEditorSharedDef(defFiles[i].getName());
-            matchFile = defFiles[i];
-            matchDef = def;
-            if (def.getSharedGroup(groupName) != null) {
-              defFile = defFiles[i];
-              tgtDef = def;
-            }
-            break;
-          }
-        }
-      } else sharedDefExists = false;
-
-      if (defFile == null && sharedDefExists) {
-        // not in the original file, need to see if in a different one
-        if (getSharedGroup(groupName) != null) {
-          for (int i = 0; i < defFiles.length; i++) {
-            PSContentEditorSharedDef def = os.getContentEditorSharedDef(defFiles[i].getName());
-            if (def.getSharedGroup(groupName) != null) {
-              defFile = defFiles[i];
-              tgtDef = def;
-              break;
-            }
-          }
-        }
+  /**
+   * Finds the def file on the target whose name matches the archive original file.
+   *
+   * @param os the object store, assumed not {@code null}.
+   * @param defFiles the def files on the target, may be {@code null} or empty.
+   * @param origFile the original file from the archive.
+   * @return the matching entry, or {@code null} when the original file is not on the target.
+   * @throws Exception if the matching def cannot be loaded.
+   */
+  private PSSharedGroupInstallUtils.SharedGroupDefEntry findOriginalFileEntry(
+      PSServerXmlObjectStore os, File[] defFiles, File origFile) throws Exception {
+    if (defFiles == null || defFiles.length == 0) return null;
+    String origName = origFile.getName();
+    for (File defFile : defFiles) {
+      if (defFile.getName().equals(origName)) {
+        return new PSSharedGroupInstallUtils.SharedGroupDefEntry(
+            defFile, os.getContentEditorSharedDef(defFile.getName()));
       }
-
-      PSCollection<PSSharedFieldGroup> defCol;
-      if (defFile == null) {
-        // group not found in any existing file, add to original file if
-        // found, or else create one
-        if (matchFile == null) {
-          // create one using original file name
-          defCol = new PSCollection<>(PSIteratorUtils.iterator(group));
-          tgtDef = new PSContentEditorSharedDef(defCol);
-          defFile = origFile;
-          transAction = PSTransactionSummary.ACTION_CREATED;
-        } else {
-          defFile = matchFile;
-          tgtDef = matchDef;
-          defCol = typedFieldGroups(tgtDef);
-          defCol.add(group);
-        }
-      } else {
-        // we have the file with the existing group
-        String fileName = defFile.getName();
-        defCol = typedFieldGroups(tgtDef);
-        for (int i = 0; i < defCol.size(); i++) {
-          PSSharedFieldGroup grp = defCol.get(i);
-          if (group.getName().equals(grp.getName())) {
-            defCol.remove(i);
-            break;
-          }
-        }
-        defCol.add(group);
-      }
-
-      tgtDef.setFieldGroups(defCol);
-      os.saveContentEditorSharedDefFile(tgtDef, defFile.getName());
-
-      // update log
-      addTransactionLogEntry(
-          dep, ctx, defFile.getName(), PSTransactionSummary.TYPE_FILE, transAction);
-    } catch (Exception e) {
-      throw new PSDeployException(DeploymentErrorCodes.UNEXPECTED_ERROR, e.toString());
     }
+    return null;
+  }
+
+  /**
+   * Finds the def entry that already holds the group on the target. The original file wins: when it
+   * holds the group no further scan runs, mirroring the pre-extraction loop break.
+   *
+   * @param os the object store, assumed not {@code null}.
+   * @param defFiles the def files on the target, may be {@code null} or empty.
+   * @param match the original-file entry, or {@code null} when absent.
+   * @param groupName the group name, assumed not {@code null} or empty.
+   * @return the owning entry, or {@code null} when no file holds the group.
+   * @throws Exception if a def cannot be loaded.
+   */
+  private PSSharedGroupInstallUtils.SharedGroupDefEntry findGroupOwnerEntry(
+      PSServerXmlObjectStore os,
+      File[] defFiles,
+      PSSharedGroupInstallUtils.SharedGroupDefEntry match,
+      String groupName)
+      throws Exception {
+    if (match != null && match.def().getSharedGroup(groupName) != null) return match;
+    if (defFiles == null || defFiles.length == 0) return null;
+    // not in the original file, need to see if in a different one
+    if (getSharedGroup(groupName) == null) return null;
+    for (File defFile : defFiles) {
+      PSContentEditorSharedDef def = os.getContentEditorSharedDef(defFile.getName());
+      if (def.getSharedGroup(groupName) != null) {
+        return new PSSharedGroupInstallUtils.SharedGroupDefEntry(defFile, def);
+      }
+    }
+    return null;
   }
 
   // see IPSIdTypeHandler interface
