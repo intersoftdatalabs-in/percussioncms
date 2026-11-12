@@ -33,7 +33,8 @@ import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 
 /**
- * DynaTree retirement gate (issue #5662, parent audit #5627).
+ * DynaTree retirement gate (issue #5662, parent audit #5627; delivery-side
+ * closure issue #6052).
  *
  * <p>The vendored DynaTree 1.1.0 copy was deleted when tree widgets consolidated onto the
  * npm-tracked FancyTree build; every remaining functional reference under product
@@ -43,16 +44,19 @@ import org.junit.jupiter.api.Test;
  *   <li>any {@code psxctl:FileLocation} in widget {@code *.xsl} controls pointing at a
  *       {@code dynatree} path (deleted vendored bytes 404 at runtime);
  *   <li>any {@code .dynatree(} plugin invocation or {@code dynatree.js} / {@code dynatree/} path
- *       reference in shipped {@code *.js} (the plugin global no longer exists).
+ *       reference in shipped {@code *.js} (the plugin global no longer exists);
+ *   <li>any {@code dynatree} entry in the published category-list DTS resources
+ *       ({@code percCategoryList.xml}) — published pages provision FancyTree from the
+ *       {@code web_resources/cm} publish-time copies (issue #6052), so a stale
+ *       {@code jquery-dynatree_*} entry 404s on every collapsible category page;
+ *   <li>any {@code dynatree} selector or path in shipped {@code *.css} (FancyTree renders
+ *       {@code .fancytree-*}, so {@code .dynatree-*} rules never match).
  * </ul>
  *
- * <p>Positive control: the published category widget ({@code category.min.js}) must invoke
- * {@code .fancytree(}, matching its unminified twin {@code category.js}.
- *
- * <p>Out of scope (delivery-side provisioning, tracked separately): the
- * {@code sys__UserDependency--rxconfig/Resources/percCategoryList.xml} DTS resource entries and
- * dead {@code .dynatree-*} CSS selectors in widget stylesheets, which need a live
- * publish-path verification.
+ * <p>Positive controls: the published category widget ({@code category.min.js}) must invoke
+ * {@code .fancytree(}, matching its unminified twin {@code category.js}; the DTS resources
+ * must reference the published FancyTree JS + skin CSS that
+ * {@code installDistributionFiles.xml} copies into {@code web_resources/cm}.
  *
  * <p>Cross-platform: all path construction uses {@link Path#resolve(String)} / {@link Files}.
  */
@@ -163,5 +167,96 @@ class PSDynaTreeRetirementTest {
     Path alt =
         cwd.resolve("src").resolve("main").resolve("resources").resolve("Packages");
     return Files.isDirectory(alt) ? alt : null;
+  }
+
+  @Test
+  void categoryListResources_pointsAtPublishedFancyTree() throws Exception {
+    Path packagesRoot = locatePackagesRoot();
+    assertNotNull(packagesRoot, "Packages root must be visible from perc-packages Surefire");
+
+    Path resources =
+        packagesRoot
+            .resolve("perc.widget.categoryList")
+            .resolve("sys__UserDependency--rxconfig")
+            .resolve("Resources")
+            .resolve("percCategoryList.xml");
+    assertTrue(
+        Files.isRegularFile(resources), "expected DTS resources: " + resources.toAbsolutePath());
+    String xml = Files.readString(resources, StandardCharsets.UTF_8);
+
+    assertTrue(
+        !xml.toLowerCase().contains("dynatree"),
+        "percCategoryList.xml must not reference retired DynaTree (404s on published pages)");
+    assertTrue(
+        xml.contains("id=\"jquery-fancytree_js\"")
+            && xml.contains("/web_resources/cm/jslib/jquery.fancytree.js"),
+        "percCategoryList.xml must provision published FancyTree JS from web_resources/cm");
+    assertTrue(
+        xml.contains("id=\"jquery-fancytree_css\"")
+            && xml.contains("/web_resources/cm/css/fancytree/skin/ui.fancytree.css"),
+        "percCategoryList.xml must provision published FancyTree skin CSS from web_resources/cm");
+  }
+
+  @Test
+  void shippedCss_hasNoDynaTreeSelectors() throws Exception {
+    Path packagesRoot = locatePackagesRoot();
+    assertNotNull(packagesRoot, "Packages root must be visible from perc-packages Surefire");
+
+    List<String> offenders = new ArrayList<>();
+    Files.walkFileTree(
+        packagesRoot,
+        new SimpleFileVisitor<>() {
+          @Override
+          public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
+            if (file.getFileName().toString().endsWith(".css")) {
+              try {
+                String content = Files.readString(file, StandardCharsets.UTF_8);
+                if (content.toLowerCase().contains("dynatree")) {
+                  offenders.add(packagesRoot.relativize(file).toString());
+                }
+              } catch (IOException e) {
+                throw new IllegalStateException("cannot read " + file, e);
+              }
+            }
+            return FileVisitResult.CONTINUE;
+          }
+        });
+
+    // Dead-skin hosts outside Packages (same retirement; FancyTree renders
+    // .fancytree-*, so .dynatree-* rules never match).
+    for (String rel :
+        List.of(
+            "system/cms/content/applications/sys_resources/ApplicationFiles/css/checkboxTree/tree.css",
+            "system/cms/content/applications/sys_resources/ApplicationFiles/css/cmlite.css",
+            "system/cms/content/applications/rx_resources/ApplicationFiles/default_theme/theme.css",
+            "projects/sitemanage/src/test/resources/importer/data/rx_resources/default_theme/theme.css")) {
+      Path css = resolveRepoRoot().resolve(rel);
+      assertTrue(Files.isRegularFile(css), "expected shipped/test CSS at " + css.toAbsolutePath());
+      try {
+        if (Files.readString(css, StandardCharsets.UTF_8).toLowerCase().contains("dynatree")) {
+          offenders.add(rel);
+        }
+      } catch (IOException e) {
+        throw new IllegalStateException("cannot read " + css, e);
+      }
+    }
+
+    assertTrue(
+        offenders.isEmpty(),
+        () -> "retired DynaTree selectors must not reappear in shipped CSS; found: " + offenders);
+  }
+
+  private static Path resolveRepoRoot() {
+    Path cwd = Path.of(System.getProperty("user.dir", ".")).toAbsolutePath().normalize();
+    Path candidate = cwd.resolve("..").resolve("..").normalize();
+    if (Files.isDirectory(candidate.resolve("system"))
+        && Files.isDirectory(candidate.resolve("WebUI"))) {
+      return candidate;
+    }
+    if (Files.isDirectory(cwd.resolve("system")) && Files.isDirectory(cwd.resolve("WebUI"))) {
+      return cwd;
+    }
+    assertNotNull(null, "could not resolve monorepo root (need system/ + WebUI/)");
+    return cwd; // unreachable
   }
 }

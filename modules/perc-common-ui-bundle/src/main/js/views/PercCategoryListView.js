@@ -80,7 +80,7 @@ var isPreviewMode;
                 ".perc-category-list-expanded,.perc-category-list-collapsible",
               )
               .empty();
-            //Destroy previous element of Dynatree.
+            //Destroy previous element of FancyTree.
             currentCategoryList
               .find(".perc-category-list-collapsible")
               .fancytree("destroy");
@@ -163,7 +163,7 @@ var isPreviewMode;
     return ul;
   }
 
-  //Generate the structure for the Collapsible Tree using dynaTree plugin
+  //Generate the structure for the Collapsible Tree using FancyTree plugin
   function createNestedUlLiTreeCollapsible(
     treeNodes,
     parentPath,

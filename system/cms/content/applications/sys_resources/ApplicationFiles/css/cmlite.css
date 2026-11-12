@@ -429,10 +429,6 @@ textarea.perc-rss-disabled {
   color: black;
 }
 
-.perc-hide-node-expander .dynatree-expander {
-  visibility: hidden !important;
-}
-
 /*CMS-8212*/
 .ui-dialog .ui-dialog-titlebar-close span {
   display: inline-block !important;
