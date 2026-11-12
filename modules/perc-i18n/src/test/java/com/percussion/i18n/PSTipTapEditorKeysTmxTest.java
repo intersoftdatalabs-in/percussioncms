@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.Test;
 import org.w3c.dom.Document;
@@ -173,6 +174,50 @@ public class PSTipTapEditorKeysTmxTest {
     }
     assertTrue(
         gaps.isEmpty(), "CmsUi.tmx TipTap keys missing above-floor TUVs: " + gaps);
+  }
+
+  /**
+   * Regression guard for issue #6172: the #6162 back-fill shipped 11 Telugu TipTap segments
+   * containing literal ASCII {@code u200c} (a dropped-backslash ZWNJ escape). Nothing at runtime
+   * unescapes it, so it renders as visible garbage in the editor. Every
+   * {@code perc.ui.editor@} segment in every locale must therefore be free of ASCII
+   * {@code uXXXX} escape artifacts; real non-spacing marks must be stored as real Unicode
+   * (e.g. U+200C ZWNJ, which Telugu requires between a virama-final stem and a
+   * consonant-initial suffix, as in {@code లింక్‌ని}).
+   *
+   * <p>Scoped to TipTap keys only: the wider catalog still carries pre-existing endemic
+   * artifacts tracked separately, so a file-wide guard would fail on out-of-scope segments.
+   */
+  @Test
+  public void tiptapSegments_haveNoAsciiEscapeArtifacts() throws Exception {
+    Path cmsUi = resolveCmsUiTmx();
+    assertNotNull(cmsUi, "CmsUi.tmx not found");
+    Document doc = parse(cmsUi);
+    Pattern asciiEscape = Pattern.compile("u[0-9a-fA-F]{4}");
+    List<String> offenders = new ArrayList<>();
+    NodeList tus = doc.getElementsByTagName("tu");
+    for (int i = 0; i < tus.getLength(); i++) {
+      Element tu = (Element) tus.item(i);
+      String tuid = tu.getAttribute("tuid");
+      if (!tuid.startsWith("perc.ui.editor@")) {
+        continue;
+      }
+      NodeList tuvs = tu.getElementsByTagName("tuv");
+      for (int j = 0; j < tuvs.getLength(); j++) {
+        Element tuv = (Element) tuvs.item(j);
+        String lang = normalizeLang(readXmlLang(tuv));
+        NodeList segs = tuv.getElementsByTagName("seg");
+        for (int k = 0; k < segs.getLength(); k++) {
+          String seg = segs.item(k).getTextContent();
+          if (seg != null && asciiEscape.matcher(seg).find()) {
+            offenders.add(tuid + " [" + lang + "]");
+          }
+        }
+      }
+    }
+    assertTrue(
+        offenders.isEmpty(),
+        "CmsUi.tmx TipTap segments contain ASCII uXXXX escape artifacts: " + offenders);
   }
 
   private static Map<String, Set<String>> loadLangsByTuid(Document doc) {
