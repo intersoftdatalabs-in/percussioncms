@@ -37,6 +37,10 @@ import {
 } from "../api/contentExplorer/slotRelationshipApi";
 import { findChildren } from "../api/contentExplorer/pathApi";
 import type { PSPathItem } from "../api/contentExplorer/types";
+import {
+  canPreviewSnippetRow,
+  openSnippetPreview,
+} from "../contentExplorer/snippetPreview";
 import { parseExplorerContentId } from "../contentExplorer/menuCatalogLoad";
 import { message } from "../i18n/message";
 import {
@@ -99,6 +103,14 @@ export interface EditorRelatedContentPanelProps {
   reserveRelatedWindow?: () => Window | null;
   /** Pathmanagement folder children. Pages and assets fill the item id. */
   listFolder?: (path: string) => Promise<PSPathItem[]>;
+  /**
+   * Optional injection seam: open one related snippet preview in a window.
+   * Defaults to the assembly preview-location lookup + assembler render.
+   */
+  previewSnippet?: (request: {
+    contentId: number;
+    templateId: number;
+  }) => Promise<void>;
 }
 
 function insertMessageKey(reason: ReturnType<typeof relatedInsertErrorReason>): string {
@@ -154,8 +166,7 @@ function removeMessageKey(reason: ReturnType<typeof relatedRemoveErrorReason>): 
   return EDITOR_MSG.RELATED_REMOVE_FAILED;
 }
 
-function handleOpenRelated(
-  rowItemId: string,
+function handleOpenRelated(  rowItemId: string,
   hostMode: EditorHostMode,
   reserveRelatedWindow: () => Window | null,
   openRelatedItem: NonNullable<EditorRelatedContentPanelProps["openRelatedItem"]>,
@@ -179,6 +190,35 @@ function handleOpenRelated(
   );
 }
 
+/**
+ * Open the assembled snippet preview for one related row in a new window.
+ * Rows without a snippet template id have no preview affordance.
+ */
+async function handlePreviewSnippet(
+  row: RelatedContentRow,
+  previewSnippet: NonNullable<
+    EditorRelatedContentPanelProps["previewSnippet"]
+  >,
+  setPreviewBusy: (busy: boolean) => void,
+  setPreviewErrorKey: (key: string | null) => void,
+): Promise<void> {
+  const contentId = Number(row.itemId);
+  const templateId = Number(row.templateId);
+  if (!canPreviewSnippetRow(contentId, templateId)) {
+    setPreviewErrorKey(EDITOR_MSG.RELATED_PREVIEW_FAILED);
+    return;
+  }
+  setPreviewBusy(true);
+  setPreviewErrorKey(null);
+  try {
+    await previewSnippet({ contentId, templateId });
+  } catch {
+    setPreviewErrorKey(EDITOR_MSG.RELATED_PREVIEW_FAILED);
+  } finally {
+    setPreviewBusy(false);
+  }
+}
+
 export function EditorRelatedContentPanel({
   itemId,
   readOnly = false,
@@ -194,6 +234,7 @@ export function EditorRelatedContentPanel({
   openRelatedItem = openEditorHost,
   reserveRelatedWindow = reserveEditorWindow,
   listFolder = findChildren,
+  previewSnippet = openSnippetPreview,
 }: EditorRelatedContentPanelProps): React.ReactElement {
   const [rows, setRows] = useState<RelatedContentRow[]>([]);
   const [choices, setChoices] = useState<InsertSlotChoice[]>([]);
@@ -209,6 +250,8 @@ export function EditorRelatedContentPanel({
   const [removeErrorKey, setRemoveErrorKey] = useState<string | null>(null);
   const [removeDetail, setRemoveDetail] = useState("");
   const [openErrorKey, setOpenErrorKey] = useState<string | null>(null);
+  const [previewBusy, setPreviewBusy] = useState(false);
+  const [previewErrorKey, setPreviewErrorKey] = useState<string | null>(null);
   const [templateRow, setTemplateRow] = useState<RelatedContentRow | null>(null);
   const [templateChoices, setTemplateChoices] = useState<SlotAllowedChoice[]>([]);
   const [pickedTemplate, setPickedTemplate] = useState("");
@@ -751,6 +794,15 @@ export function EditorRelatedContentPanel({
           {message(openErrorKey)}
         </div>
       ) : null}
+      {previewErrorKey ? (
+        <div
+          className={styles.status}
+          role="alert"
+          data-testid="editor-related-preview-error"
+        >
+          {message(previewErrorKey)}
+        </div>
+      ) : null}
       {rows.length > 0 ? (
         <ul className={styles.relatedList} data-testid="editor-related-list">
           {rows.map((row) => (
@@ -778,6 +830,24 @@ export function EditorRelatedContentPanel({
                   }
                 >
                   {message(EDITOR_MSG.RELATED_OPEN)}
+                </button>
+              ) : null}
+              {canPreviewSnippetRow(Number(row.itemId), row.templateId) ? (
+                <button
+                  type="button"
+                  className={styles.button}
+                  data-testid="editor-related-preview"
+                  disabled={previewBusy}
+                  onClick={() =>
+                    void handlePreviewSnippet(
+                      row,
+                      previewSnippet,
+                      setPreviewBusy,
+                      setPreviewErrorKey,
+                    )
+                  }
+                >
+                  {message(EDITOR_MSG.RELATED_PREVIEW)}
                 </button>
               ) : null}
               {!readOnly && canChangeRelatedSnippetTemplate(row) ? (

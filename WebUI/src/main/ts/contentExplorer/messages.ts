@@ -448,6 +448,9 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@This related item was not found (HTTP 404)",
   RELATIONSHIPS_OPEN_FAILED:
     "perc.ui.explorer@Could not open this related item",
+  RELATIONSHIPS_PREVIEW_SNIPPET: "perc.ui.explorer@Preview snippet",
+  RELATIONSHIPS_PREVIEW_SNIPPET_FAILED:
+    "perc.ui.explorer@Could not open the snippet preview",
   RELATIONSHIPS_CHANGE_TEMPLATE: "perc.ui.explorer@Change template",
   RELATIONSHIPS_CHANGE_TEMPLATE_TITLE: "perc.ui.explorer@Change snippet template",
   RELATIONSHIPS_CHANGE_TEMPLATE_LABEL: "perc.ui.explorer@Snippet template",
