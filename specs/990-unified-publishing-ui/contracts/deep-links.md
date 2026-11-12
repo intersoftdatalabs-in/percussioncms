@@ -25,6 +25,11 @@
 
 Allowlist query values in JSP (same XSS discipline as `homeModern.jsp` initialScreen).
 
+> **Planned (tracked in #6215, decision from #6091):** `jobId` (logs section)
+> and `requestId` (status section) deep-link filters to restore the
+> `sys_publishingJobId` / `requestid` fidelity dropped by #1842/#1844.
+> Until then the contract intentionally carries section-level granularity only.
+
 ## Classic URLs to map after cutover
 
 |                          Classic                           |                                                        After cutover                                                         |

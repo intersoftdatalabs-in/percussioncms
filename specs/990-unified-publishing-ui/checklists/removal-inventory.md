@@ -118,7 +118,8 @@ It now `sendRedirect`s to the modern Publishing shell peer
 `publishingShellHref({ section: 'status' })` →
 `{contextPath}/cm/app/?view=publish&section=status` (URL path separators only).
 Demand `requestid` is **not** appended: modern shell deep-link contract has no
-request-id filter. **`web.xml` mapping `/publisher/demandpublishing` is kept.**
+request-id filter. **Follow-up tracked in #6215** (decision from #6091: restore,
+not wontfix). **`web.xml` mapping `/publisher/demandpublishing` is kept.**
 **JSP file delete landed** under #1818 — this rewire had removed the live
 server-side consumer first so DemandPublish.jsp could be deleted safely.
 
@@ -129,7 +130,8 @@ It now targets the modern Publishing shell peer
 `publishingShellHref({ section: 'logs' })` →
 `{protocol}://{host}:{port}{requestRoot}/cm/app/?view=publish&section=logs`.
 Job-id query is **not** appended: modern shell deep-link contract has no job-id
-filter yet (only `section` / optional `siteId` / `serverId`). **JSP file delete
+filter yet (only `section` / optional `siteId` / `serverId`). **Follow-up tracked
+in #6215** (decision from #6091: restore, not wontfix). **JSP file delete
 landed** under #1818 — this rewire had removed the live server-side
 consumer first so JobPubLog.jsp could be deleted safely.
 
