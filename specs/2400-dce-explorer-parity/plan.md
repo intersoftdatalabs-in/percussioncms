@@ -40,11 +40,15 @@ Wire existing Explorer panels into `ContentExplorerShell` so `/cm/app/explorer` 
 
 ## Phase 3 — Action / workflow depth
 
-| Gap | Approach |
-|-----|----------|
-| Allowed workflow transitions | Complete `rest/actions` allowed-transitions path used by menus |
-| Properties dialogs | Folder/item properties parity beyond ACL (#2410) |
-| New content menus | Content-type / template menus already partially on `rest/actions` |
+**Disposition (2026-11-12, #6110): no-gap** — each row mapped to a shipped
+owner; see [research/phase3-disposition.md](./research/phase3-disposition.md).
+No new child issues.
+
+| Gap | Approach | Disposition |
+|-----|----------|-------------|
+| Allowed workflow transitions | Complete `rest/actions` allowed-transitions path used by menus | #2732 (PR #2748 merged; QA #2743 Passed) + #4530 slice #4909 (comment gate, PR #4922 merged) |
+| Properties dialogs | Folder/item properties parity beyond ACL (#2410) | #2410 (PR #2599 merged; QA #2600 Passed; `FolderPropertiesEditor` on shell) + object ACL cross-epic #2274 family |
+| New content menus | Content-type / template menus already partially on `rest/actions` | #4530 slices #4970 (create asset) / #5006 (new copy) / #5007 (promotable) / #5008 (flush cache), all merged |
 
 ## Phase 4 — Advanced / power-user
 
