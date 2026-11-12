@@ -44,10 +44,27 @@ class PSUiDesignWsSaveRoutingTest {
           + " DISPLAYFORMAT INTEGER, MAXIMUMITEMS INTEGER NOT NULL,"
           + " DESCRIPTION VARCHAR(255), CASESENSITIVE INTEGER NOT NULL, VERSION INTEGER NOT NULL)";
 
+  // #6136: ensureSearchRowCurrent also reconciles the child lists, so the
+  // routing tests need the child tables present (empty unless seeded).
+  private static final String CREATE_SEARCHFIELDS_TABLE =
+      "CREATE TABLE PSX_SEARCHFIELDS (SEARCHID INTEGER NOT NULL, FIELDNAME VARCHAR(50) NOT NULL,"
+          + " FIELDLABEL VARCHAR(255) NOT NULL, FIELDTYPE VARCHAR(255) NOT NULL,"
+          + " OPERATOR VARCHAR(50) NOT NULL, FIELDVALUE VARCHAR(2056), SEQUENCE INTEGER,"
+          + " FIELDESCRIPTION VARCHAR(255), EXTOPERATOR VARCHAR(50),"
+          + " PRIMARY KEY (SEARCHID, FIELDNAME))";
+
+  private static final String CREATE_SEARCHPROPERTIES_TABLE =
+      "CREATE TABLE PSX_SEARCHPROPERTIES (PROPERTYID INTEGER NOT NULL,"
+          + " PROPERTYNAME VARCHAR(50) NOT NULL, PROPERTYVALUE VARCHAR(100) NOT NULL,"
+          + " PROPERTYDESCRIPTION VARCHAR(255),"
+          + " PRIMARY KEY (PROPERTYID, PROPERTYNAME, PROPERTYVALUE))";
+
   private Connection openSearchTables() throws Exception {
     Connection conn = DriverManager.getConnection("jdbc:h2:mem:repair" + System.nanoTime());
     try (Statement st = conn.createStatement()) {
       st.execute(CREATE_SEARCHES_TABLE);
+      st.execute(CREATE_SEARCHFIELDS_TABLE);
+      st.execute(CREATE_SEARCHPROPERTIES_TABLE);
     }
     return conn;
   }
@@ -97,6 +114,9 @@ class PSUiDesignWsSaveRoutingTest {
       PSSearch same = repairDomain(4244, "QaSame", "Same label");
       same.setVersion(1);
 
+      // #6136: the first pass inserts the domain's default property rows into
+      // the empty child tables; the second pass is then a true no-op.
+      assertTrue(PSUiDesignWs.ensureSearchRowCurrent(conn, same));
       assertFalse(PSUiDesignWs.ensureSearchRowCurrent(conn, same));
     }
   }
