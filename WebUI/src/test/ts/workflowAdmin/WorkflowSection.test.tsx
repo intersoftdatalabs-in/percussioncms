@@ -23,12 +23,16 @@ import {
 } from "../../../main/ts/workflowAdmin/workflow/WorkflowSection";
 import * as client from "../../../main/ts/api/client";
 
-vi.mock("../../../main/ts/api/client", () => ({
-  get: vi.fn(),
-  post: vi.fn(),
-  put: vi.fn(),
-  del: vi.fn(),
-}));
+vi.mock("../../../main/ts/api/client", async (importOriginal) => {
+  const actual = await importOriginal<typeof client>();
+  return {
+    ...actual,
+    get: vi.fn(),
+    post: vi.fn(),
+    put: vi.fn(),
+    del: vi.fn(),
+  };
+});
 
 function mockGets(workflowPayload: unknown, roles: string[] = ["Editor", "Publisher"]) {
   vi.mocked(client.get).mockImplementation(async (url: string) => {
@@ -214,5 +218,58 @@ describe("WorkflowSection", () => {
         expect(url.includes("role/")).toBe(false);
       }
     }
+  });
+
+  it("blocks deletion of the default workflow without calling delete (US1-AC6)", async () => {
+    mockGets([
+      { name: "Default Workflow", isDefault: true, stagingRoleId: "Editor", steps: [] },
+    ]);
+
+    const alertSpy = vi.fn();
+    window.alert = alertSpy;
+
+    render(<WorkflowSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("delete-wf-Default Workflow")).toBeTruthy();
+    });
+
+    const deleteBtn = screen.getByTestId(
+      "delete-wf-Default Workflow",
+    ) as HTMLButtonElement;
+    // Guard is enforced at render: the button is disabled for the default
+    // workflow, so activation is impossible (React/jsdom suppress click on
+    // disabled buttons — the attempted click below must be a no-op).
+    expect(deleteBtn.disabled).toBe(true);
+
+    fireEvent.click(deleteBtn);
+
+    expect(alertSpy).not.toHaveBeenCalled();
+    expect(client.del).not.toHaveBeenCalled();
+  });
+
+  it("surfaces the server 409 message when delete fails for in-flight items (US1-AC6/FR-019)", async () => {
+    mockGets([
+      { name: "Blog Workflow", isDefault: false, stagingRoleId: "Publisher", steps: [] },
+    ]);
+    vi.mocked(client.del).mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Workflow has items still in-flight" },
+    });
+
+    const alertSpy = vi.fn();
+    window.alert = alertSpy;
+    window.confirm = vi.fn().mockReturnValue(true);
+
+    render(<WorkflowSection />);
+    await waitFor(() => {
+      expect(screen.getByTestId("delete-wf-Blog Workflow")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("delete-wf-Blog Workflow"));
+
+    await waitFor(() => {
+      expect(alertSpy).toHaveBeenCalledWith("Workflow has items still in-flight");
+    });
   });
 });
