@@ -300,4 +300,70 @@ describe("path-based SPA URLs (PR-9)", () => {
   });
 });
 
+describe("parse entry refactor parity (#6113)", () => {
+  it("query and path contracts agree on every entry", () => {
+    const cases: Array<[string, string, string, string]> = [
+      ["?entry=home&section=library", "/home/library", "home", "/home/library"],
+      ["?entry=publish&section=logs&siteId=s1", "/publish/logs?siteId=s1", "publish", "/publish/logs?siteId=s1"],
+      ["?entry=workflow&tab=roles", "/workflow/roles", "workflow", "/admin/roles"],
+      ["?entry=admin&tab=roles", "/admin/roles", "admin", "/admin/roles"],
+      ["?entry=widget-builder", "/widget-builder", "widget-builder", "/widget-builder"],
+      ["?entry=developer&section=pipelines", "/developer/pipelines", "developer", "/developer/pipelines"],
+      ["?entry=design&section=templates", "/design/templates", "design", "/design/templates"],
+      ["?entry=architecture&site=Demo", "/architecture/Demo", "architecture", "/architecture/Demo"],
+      ["?entry=explorer&path=/Sites/demo", "/explorer?path=/Sites/demo", "explorer", "/explorer?path=%2FSites%2Fdemo"],
+      ["?entry=profile", "/profile", "profile", "/profile"],
+      ["?entry=assembly&contentId=42&templateId=7", "/assembly?contentId=42&templateId=7", "assembly", "/assembly?contentId=42&templateId=7"],
+      ["?entry=editor&contentId=42&mode=view", "/editor?contentId=42&mode=view", "editor", "/editor?contentId=42&mode=view"],
+      ["?entry=unavailable", "/unavailable", "unavailable", "/unavailable"],
+    ];
+    for (const [query, path, entry, clientPath] of cases) {
+      const fromQuery = parseEntryQuery(query);
+      const [pathOnly, pathSearch] = path.split("?");
+      const fromPath = parseClientPath(pathOnly, pathSearch ? `?${pathSearch}` : "");
+      expect(fromQuery.entry).toBe(entry);
+      expect(fromQuery.clientPath).toBe(clientPath);
+      expect(fromPath.entry).toBe(entry);
+      expect(fromPath.clientPath).toBe(clientPath);
+    }
+  });
+
+  it("tolerates slash and casing variants in client paths", () => {
+    expect(parseClientPath("/publish/logs/").clientPath).toBe("/publish/logs");
+    expect(parseClientPath("home/library").clientPath).toBe("/home/library");
+    expect(parseClientPath("/PUBLISH/logs").entry).toBe("publish");
+    expect(parseClientPath("/").entry).toBe("home");
+    expect(parseClientPath("").entry).toBe("home");
+  });
+
+  it("trims and lowercases the query entry before aliasing", () => {
+    expect(parseEntryQuery("?entry=%20PUBLISH%20&section=logs").entry).toBe("publish");
+    expect(parseEntryQuery("?entry=WidgetBuilder").entry).toBe("widget-builder");
+    expect(parseEntryQuery("?entry=ARCH").entry).toBe("architecture");
+  });
+
+  it("never throws on malformed architecture path segments", () => {
+    expect(() => parseClientPath("/architecture/100%")).not.toThrow();
+    expect(parseClientPath("/architecture/100%").entry).toBe("architecture");
+  });
+
+  it("prefers the architecture path segment over the query site", () => {
+    expect(parseClientPath("/architecture", "?site=Demo").clientPath).toBe(
+      "/architecture/Demo",
+    );
+    expect(
+      parseClientPath("/architecture/PathSite", "?site=QuerySite").site,
+    ).toBe("PathSite");
+  });
+
+  it("builds id-less assembly/editor/explorer paths", () => {
+    expect(parseClientPath("/assembly").clientPath).toBe("/assembly");
+    expect(parseClientPath("/editor").clientPath).toBe("/editor");
+    expect(parseEntryQuery("?entry=assembly").clientPath).toBe("/assembly");
+    expect(parseEntryQuery("?entry=editor").clientPath).toBe("/editor");
+    expect(parseClientPath("/explorer").clientPath).toBe("/explorer");
+    expect(parseEntryQuery("?entry=explorer").clientPath).toBe("/explorer");
+  });
+});
+
 
