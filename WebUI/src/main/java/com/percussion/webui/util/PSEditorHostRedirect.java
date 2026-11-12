@@ -202,6 +202,26 @@ public final class PSEditorHostRedirect {
   }
 
   /**
+   * True when {@code lowerPath} is a retired Active Assembly workflow dialog-pane JSP (#6139,
+   * FR-002): one of the deleted {@code ui/activeassembly/workflow/} fragments ({@code
+   * workflowactions.jsp}, {@code adhocsearch.jsp}, {@code adhocresults.jsp}). These were Dojo
+   * dialog-pane fragments loaded by the legacy {@code WorkflowActions.js} editrc flow — never
+   * bookmarkable pages (a direct GET without the assembler request context errors) — but the
+   * predicate keeps any straggler on the bookmark-safe SPA-editor 301 instead of the CMS 404.
+   *
+   * @param lowerPath already lower-cased webapp path; may be null
+   * @return true when the path is a deleted workflow dialog-pane JSP
+   */
+  public static boolean isRetiredWorkflowDialogJsp(String lowerPath) {
+    if (lowerPath == null) {
+      return false;
+    }
+    return lowerPath.endsWith("/ui/activeassembly/workflow/workflowactions.jsp")
+        || lowerPath.endsWith("/ui/activeassembly/workflow/adhocsearch.jsp")
+        || lowerPath.endsWith("/ui/activeassembly/workflow/adhocresults.jsp");
+  }
+
+  /**
    * Product-tree JSP bookmark: {@code …/cm/app/<file>} or {@code …/cm/pages/app/<file>}. Uses
    * suffix match so {@code /cm/app-editasset.jsp} is not a false positive.
    */

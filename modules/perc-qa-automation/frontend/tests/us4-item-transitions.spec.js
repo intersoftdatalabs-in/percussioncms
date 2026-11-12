@@ -185,6 +185,11 @@ test.describe("Workflow Administration - In-Context Item Transitions (993 US5)",
         if (
           u.includes("checkoutedit.xml") ||
           u.includes("contenteditorurls.html") ||
+          // #6139: retired AA workflow dialog panes must also see zero requests
+          // (EditorWorkflowPanel transitions via REST, never these JSPs).
+          u.includes("workflowactions.jsp") ||
+          u.includes("adhocsearch.jsp") ||
+          u.includes("adhocresults.jsp") ||
           /view=editor/.test(u)
         ) {
           leftover.push(u);

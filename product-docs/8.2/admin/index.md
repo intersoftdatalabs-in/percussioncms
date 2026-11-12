@@ -104,6 +104,13 @@ yet): the per-log detail viewer (`TaskDetailLog`), the command console (`console
 reachable from the dashboard), the scheduler variant-conversion (`ConvertVariant*`)
 and repair (`RxFix*`) tools.
 
+Bookmarks to the retired Active Assembly workflow dialog panes
+(`ui/activeassembly/workflow/workflowactions.jsp`, `adhocsearch.jsp`,
+`adhocresults.jsp`) return HTTP 301 to the SPA editor shell (`?view=editor`); the
+legacy JSP files no longer ship in the 8.2 distribution. In-context workflow
+transitions — including comment enforcement and ad-hoc assignees — live in the
+editor workflow panel, which transitions through REST, never the retired panes.
+
 Each tab should show its list or empty state. If a tab cannot load its data, the rest of
 the Admin shell (title and tab list) stays usable so you can switch tabs or reload —
 you should not see a full-page **Unable to load Admin** / **Unable to load Administration**

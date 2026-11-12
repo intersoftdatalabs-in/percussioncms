@@ -271,6 +271,34 @@ public class PSWebUiSpaFallbackFilterTest {
   }
 
   @Test
+  public void retiredWorkflowDialogJspsRedirectToEditorView() {
+    // #6139 FR-002: deleted ui/activeassembly/workflow dialog-pane fragments
+    // land on the SPA editor (EditorWorkflowPanel owns in-context transitions);
+    // sibling AA pages pass through.
+    String[] panes = {"workflowactions.jsp", "adhocsearch.jsp", "adhocresults.jsp"};
+    for (String pane : panes) {
+      assertEquals(
+          "/cm/app/?view=editor",
+          PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+              "/ui/activeassembly/workflow/" + pane, null));
+      assertEquals(
+          "/cm/app/?view=editor&sys_contentid=42",
+          PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+              "/Rhythmyx/ui/activeassembly/workflow/" + pane, "sys_contentid=42"));
+      assertTrue(
+          PSWebUiSpaFallbackFilter.isRetiredWorkflowDialogJsp(
+              ("/ui/activeassembly/workflow/" + pane).toLowerCase()));
+    }
+    assertNull(
+        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+            "/ui/activeassembly/UserStatus.jsp", null));
+    assertFalse(
+        PSWebUiSpaFallbackFilter.isRetiredWorkflowDialogJsp(
+            "/ui/activeassembly/userstatus.jsp"));
+    assertFalse(PSWebUiSpaFallbackFilter.isRetiredWorkflowDialogJsp(null));
+  }
+
+  @Test
   public void retiredArchitectureLocationGetsContextPrefix() {
     assertEquals(
         "/Rhythmyx/cm/app/?view=arch",
