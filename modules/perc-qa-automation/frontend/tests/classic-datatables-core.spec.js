@@ -46,9 +46,16 @@ test.describe("DataTables 3.x core swap (issue #6002)", () => {
     { tag: ["@classic-ui", "@ui"] },
     async ({ page }) => {
       test.setTimeout(120_000);
+      // Dashboard carries pre-existing inline noise unrelated to this slice
+      // (dashboard.jsp set_label, I18N.meesage typo in packed admin code —
+      // both untouched by this diff). Gate on datatables-attributed errors
+      // only, mirroring classic-datatables-prune.spec.js.
       const pluginErrors = [];
       page.on("pageerror", (err) => {
-        pluginErrors.push(String((err && err.stack) || err));
+        const stack = String((err && err.stack) || err);
+        if (/jquery-datatables|DataTable/i.test(stack)) {
+          pluginErrors.push(stack);
+        }
       });
       page.on("console", (msg) => {
         if (
@@ -107,23 +114,31 @@ test.describe("DataTables 3.x core swap (issue #6002)", () => {
     { tag: ["@classic-ui", "@ui"] },
     async ({ page }) => {
       test.setTimeout(120_000);
+      // Same pre-existing-noise scoping as the version probe above.
       const pageErrors = [];
-      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("pageerror", (err) => {
+        if (/jquery-datatables|DataTable/i.test(String(err))) {
+          pageErrors.push(String(err));
+        }
+      });
 
       await loginAsAdmin(page);
       await page.goto(`${BASE_URL}/Rhythmyx/cm/app/dashboard.jsp`, {
         waitUntil: "networkidle",
       });
 
+      // Mirrors the real classic shapes: a progress-bar render column with
+      // default sorting (PercPubReports fnRender pattern) plus a custom
+      // order plug-in column with no render (dom-elapsed-time pattern).
+      // NOTE: the custom plug-in reads raw cell text; pairing render with a
+      // custom orderDataType is not a shape classic sources use.
       const result = await page.evaluate(() => {
         const $ = window.jQuery;
         const out = { steps: [] };
-        // Custom order plug-in via the dataTableExt alias, mirroring the
-        // perc-type-string / dom-elapsed-time plug-ins in classic sources.
         $.fn.dataTableExt.afnSortData["e2e-seconds"] = function () {
           const values = [];
           this.api()
-            .column(1, { order: "index" })
+            .column(2, { order: "index" })
             .nodes()
             .map((td) => {
               values.push(Number($(td).text()));
@@ -132,17 +147,17 @@ test.describe("DataTables 3.x core swap (issue #6002)", () => {
         };
         document.body.insertAdjacentHTML(
           "beforeend",
-          `<table id="e2e-dt"><thead><tr><th>Name</th><th>Secs</th></tr></thead><tbody>` +
-            `<tr><td>beta</td><td>30</td></tr>` +
-            `<tr><td>alpha</td><td>10</td></tr>` +
-            `<tr><td>gamma</td><td>20</td></tr>` +
-            `</tbody><tfoot><tr><th></th><th></th></tr></tfoot></table>`,
+          `<table id="e2e-dt"><thead><tr><th>Name</th><th>Load</th><th>Secs</th></tr></thead><tbody>` +
+            `<tr><td>beta</td><td>30</td><td>30</td></tr>` +
+            `<tr><td>alpha</td><td>10</td><td>10</td></tr>` +
+            `<tr><td>gamma</td><td>20</td><td>20</td></tr>` +
+            `</tbody><tfoot><tr><th></th><th></th><th></th></tr></tfoot></table>`,
         );
         const api = $("#e2e-dt").DataTable({
           paging: false,
           searching: false,
           info: false,
-          order: [[1, "asc"]],
+          order: [[2, "asc"]],
           footerCallback(tfoot) {
             $(tfoot).find("th:first").text("3 rows");
           },
@@ -150,19 +165,22 @@ test.describe("DataTables 3.x core swap (issue #6002)", () => {
             { type: "string" },
             {
               type: "num",
-              orderDataType: "e2e-seconds",
               render(data, type) {
-                return type === "display" ? `${data}s` : data;
+                return type === "display"
+                  ? `<div class="e2e-bar" style="width:${data}%">${data}%</div>`
+                  : data;
               },
             },
+            { type: "num", orderDataType: "e2e-seconds" },
           ],
         });
         out.steps.push(`legacyGone:${typeof api.fnGetData === "undefined"}`);
         out.steps.push(`hasRowApi:${typeof api.row === "function"}`);
         out.firstAfterSort = $("#e2e-dt tbody tr:first td:first").text();
         out.footerText = $("#e2e-dt tfoot th:first").text();
+        out.barHtml = $("#e2e-dt tbody tr:first td:nth-child(2)").html();
         // Mutations through the migrated CRUD patterns.
-        const added = api.row.add(["delta", 5]);
+        const added = api.row.add(["delta", 5, 5]);
         api.draw(false);
         out.addedNode = added.node().tagName;
         api.cell($("#e2e-dt tbody tr")[0], 0).data("alpha2");
@@ -186,6 +204,7 @@ test.describe("DataTables 3.x core swap (issue #6002)", () => {
       // Custom order plug-in sorted 10/20/30 ascending by the numeric column.
       expect(result.firstAfterSort).toBe("alpha");
       expect(result.footerText).toBe("3 rows");
+      expect(result.barHtml).toContain("e2e-bar");
       expect(result.addedNode).toBe("TR");
       expect(result.editedFirst).toBe("alpha2");
       expect(result.remaining).toBe(3);
