@@ -60,6 +60,12 @@ import {
 import type { EditorHostMode } from "./editorHostUrl";
 import { saveRelatedSnippetTemplate } from "./editorRelatedTemplate";
 import {
+  canMoveRelatedRowToAnotherSlot,
+  relatedDestinationSlotChoices,
+  saveRelatedSlotMove,
+  type RelatedSlotDestination,
+} from "./editorRelatedSlotMove";
+import {
   RELATED_FOLDER_PICK_ROOT,
   relatedFolderRows,
   type RelatedFolderRow,
@@ -154,6 +160,33 @@ function templateMessageKey(
     return EDITOR_MSG.RELATED_TEMPLATE_NOT_FOUND;
   }
   return EDITOR_MSG.RELATED_TEMPLATE_FAILED;
+}
+
+function slotMoveMessageKey(
+  reason: "bad_request" | "forbidden" | "not_found" | "failed" | "same" | "not_allowed" | "no_template" | "needs_destination" | "not_slot",
+): string {
+  if (reason === "bad_request") {
+    return EDITOR_MSG.RELATED_MOVE_SLOT_BAD_REQUEST;
+  }
+  if (reason === "forbidden") {
+    return EDITOR_MSG.RELATED_MOVE_SLOT_FORBIDDEN;
+  }
+  if (reason === "not_found") {
+    return EDITOR_MSG.RELATED_MOVE_SLOT_NOT_FOUND;
+  }
+  if (reason === "same") {
+    return EDITOR_MSG.RELATED_MOVE_SLOT_SAME;
+  }
+  if (reason === "not_allowed") {
+    return EDITOR_MSG.RELATED_MOVE_SLOT_NOT_ALLOWED;
+  }
+  if (reason === "no_template" || reason === "not_slot") {
+    return EDITOR_MSG.RELATED_MOVE_SLOT_NO_TEMPLATE;
+  }
+  if (reason === "needs_destination") {
+    return EDITOR_MSG.RELATED_MOVE_SLOT_NEEDS;
+  }
+  return EDITOR_MSG.RELATED_MOVE_SLOT_FAILED;
 }
 
 function removeMessageKey(reason: ReturnType<typeof relatedRemoveErrorReason>): string {
@@ -260,6 +293,13 @@ export function EditorRelatedContentPanel({
   const [templateDetail, setTemplateDetail] = useState("");
   const [templateBusy, setTemplateBusy] = useState(false);
   const [templateSaved, setTemplateSaved] = useState(false);
+  const [slotMoveRow, setSlotMoveRow] = useState<RelatedContentRow | null>(null);
+  const [pickedSlot, setPickedSlot] = useState("");
+  const [pageSlots, setPageSlots] = useState<RelatedSlotDestination[]>([]);
+  const [slotMoveBusy, setSlotMoveBusy] = useState(false);
+  const [slotMoveSaved, setSlotMoveSaved] = useState(false);
+  const [slotMoveErrorKey, setSlotMoveErrorKey] = useState<string | null>(null);
+  const [slotMoveDetail, setSlotMoveDetail] = useState("");
   const [pickerOpen, setPickerOpen] = useState(false);
   const [pickerPath, setPickerPath] = useState(RELATED_FOLDER_PICK_ROOT);
   const [pickerRows, setPickerRows] = useState<RelatedFolderRow[]>([]);
@@ -302,6 +342,7 @@ export function EditorRelatedContentPanel({
         if (canvasForbidden && localForbidden) {
           setRows([]);
           setChoices([]);
+          setPageSlots([]);
           setErrorKey(EDITOR_MSG.RELATED_FORBIDDEN);
           return;
         }
@@ -312,6 +353,7 @@ export function EditorRelatedContentPanel({
           const reason = relatedContentErrorReason(canvasSettled.reason);
           setRows([]);
           setChoices([]);
+          setPageSlots([]);
           setErrorKey(
             reason === "forbidden"
               ? EDITOR_MSG.RELATED_FORBIDDEN
@@ -331,6 +373,12 @@ export function EditorRelatedContentPanel({
           localSettled.status === "fulfilled" ? localSettled.value : null;
         const nextChoices = insertSlotChoices(canvas);
         setChoices(nextChoices);
+        setPageSlots(
+          (canvas?.slots ?? []).map((slot) => ({
+            slotId: slot.slotId,
+            label: (slot.label || slot.name || "").trim() || "Slot",
+          })),
+        );
         setSlotId((current) => {
           if (nextChoices.some((c) => String(c.slotId) === current)) {
             return current;
@@ -348,6 +396,7 @@ export function EditorRelatedContentPanel({
         const reason = relatedContentErrorReason(err);
         setRows([]);
         setChoices([]);
+        setPageSlots([]);
         setErrorKey(
           reason === "forbidden"
             ? EDITOR_MSG.RELATED_FORBIDDEN
@@ -541,6 +590,49 @@ export function EditorRelatedContentPanel({
     }
     setTemplateSaved(true);
     setTemplateRow(null);
+    setReloadToken((n) => n + 1);
+  }
+
+  function openSlotMoveDialog(row: RelatedContentRow): void {
+    if (!canMoveRelatedRowToAnotherSlot(row) || readOnly) {
+      return;
+    }
+    setSlotMoveRow(row);
+    setPickedSlot("");
+    setSlotMoveSaved(false);
+    setSlotMoveErrorKey(null);
+    setSlotMoveDetail("");
+  }
+
+  function cancelSlotMoveDialog(): void {
+    setSlotMoveRow(null);
+    setPickedSlot("");
+    setSlotMoveErrorKey(null);
+    setSlotMoveDetail("");
+  }
+
+  async function applySlotMoveDialog(): Promise<void> {
+    if (slotMoveRow == null || slotMoveBusy) {
+      return;
+    }
+    setSlotMoveBusy(true);
+    setSlotMoveErrorKey(null);
+    setSlotMoveDetail("");
+    setSlotMoveSaved(false);
+    const result = await saveRelatedSlotMove({
+      row: slotMoveRow,
+      destinationSlotId: Number(pickedSlot),
+      pageSlotIds: pageSlots.map((slot) => slot.slotId),
+      move: changeSnippetTemplate,
+    });
+    setSlotMoveBusy(false);
+    if (!result.ok) {
+      setSlotMoveErrorKey(slotMoveMessageKey(result.reason));
+      setSlotMoveDetail("");
+      return;
+    }
+    setSlotMoveSaved(true);
+    setSlotMoveRow(null);
     setReloadToken((n) => n + 1);
   }
 
@@ -785,6 +877,21 @@ export function EditorRelatedContentPanel({
           {message(EDITOR_MSG.RELATED_TEMPLATE_SAVED)}
         </div>
       ) : null}
+      {slotMoveSaved ? (
+        <div className={styles.status} data-testid="editor-related-slot-move-saved">
+          {message(EDITOR_MSG.RELATED_MOVE_SLOT_SAVED)}
+        </div>
+      ) : null}
+      {slotMoveErrorKey ? (
+        <div
+          className={styles.status}
+          role="alert"
+          data-testid="editor-related-slot-move-error"
+        >
+          {message(slotMoveErrorKey)}
+          {slotMoveDetail ? ` ${slotMoveDetail}` : ""}
+        </div>
+      ) : null}
       {openErrorKey ? (
         <div
           className={styles.status}
@@ -855,10 +962,21 @@ export function EditorRelatedContentPanel({
                   type="button"
                   className={styles.button}
                   data-testid="editor-related-change-template"
-                  disabled={templateBusy || removingId != null || movingId != null}
+                  disabled={templateBusy || slotMoveBusy || removingId != null || movingId != null}
                   onClick={() => void openTemplateDialog(row)}
                 >
                   {message(EDITOR_MSG.RELATED_CHANGE_TEMPLATE)}
+                </button>
+              ) : null}
+              {!readOnly && canMoveRelatedRowToAnotherSlot(row) ? (
+                <button
+                  type="button"
+                  className={styles.button}
+                  data-testid="editor-related-move-slot"
+                  disabled={templateBusy || slotMoveBusy || removingId != null || movingId != null}
+                  onClick={() => openSlotMoveDialog(row)}
+                >
+                  {message(EDITOR_MSG.RELATED_MOVE_SLOT)}
                 </button>
               ) : null}
               {!readOnly && row.relationshipId != null && row.relationshipId > 0 ? (
@@ -868,7 +986,7 @@ export function EditorRelatedContentPanel({
                     type="button"
                     className={styles.button}
                     data-testid="editor-related-move-up"
-                    disabled={movingId != null || removingId != null}
+                    disabled={movingId != null || removingId != null || slotMoveBusy}
                     onClick={() =>
                       void handleMove(row.relationshipId as number, "UP")
                     }
@@ -885,7 +1003,7 @@ export function EditorRelatedContentPanel({
                     type="button"
                     className={styles.button}
                     data-testid="editor-related-move-down"
-                    disabled={movingId != null || removingId != null}
+                    disabled={movingId != null || removingId != null || slotMoveBusy}
                     onClick={() =>
                       void handleMove(row.relationshipId as number, "DOWN")
                     }
@@ -901,7 +1019,7 @@ export function EditorRelatedContentPanel({
                   type="button"
                   className={styles.button}
                   data-testid="editor-related-remove"
-                  disabled={removingId != null || movingId != null}
+                  disabled={removingId != null || movingId != null || slotMoveBusy}
                   onClick={() => void handleRemove(row.relationshipId as number)}
                 >
                   {message(
@@ -960,6 +1078,54 @@ export function EditorRelatedContentPanel({
             onClick={() => void applyTemplateDialog()}
           >
             {message(EDITOR_MSG.RELATED_TEMPLATE_APPLY)}
+          </button>
+        </div>
+      ) : null}
+      {slotMoveRow ? (
+        <div
+          className={styles.form}
+          role="dialog"
+          aria-modal="true"
+          data-testid="editor-related-slot-move-dialog"
+        >
+          <h3 className={styles.label}>{message(EDITOR_MSG.RELATED_MOVE_SLOT_TITLE)}</h3>
+          <label className={styles.field}>
+            {message(EDITOR_MSG.RELATED_MOVE_SLOT_LABEL)}
+            <select
+              className={styles.input}
+              data-testid="editor-related-slot-move-select"
+              value={pickedSlot}
+              onChange={(e) => setPickedSlot(e.target.value)}
+            >
+              <option value="">
+                {message(EDITOR_MSG.RELATED_MOVE_SLOT_PLACEHOLDER)}
+              </option>
+              {relatedDestinationSlotChoices(
+                Number(slotMoveRow.slotId),
+                pageSlots,
+              ).map((choice) => (
+                <option key={choice.slotId} value={String(choice.slotId)}>
+                  {choice.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <button
+            type="button"
+            className={styles.button}
+            data-testid="editor-related-slot-move-cancel"
+            onClick={cancelSlotMoveDialog}
+          >
+            {message(EDITOR_MSG.RELATED_TEMPLATE_CANCEL)}
+          </button>
+          <button
+            type="button"
+            className={styles.buttonPrimary}
+            data-testid="editor-related-slot-move-apply"
+            disabled={slotMoveBusy}
+            onClick={() => void applySlotMoveDialog()}
+          >
+            {message(EDITOR_MSG.RELATED_MOVE_SLOT_DO)}
           </button>
         </div>
       ) : null}

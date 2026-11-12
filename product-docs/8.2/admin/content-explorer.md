@@ -536,6 +536,22 @@ panel — the list is not treated as updated. Inline local links have no
 does not insert, remove, or reorder the association, and it does not change
 the page template of the open item.
 
+In **Edit** mode each slot row that has an Active Assembly relationship id
+and a snippet template also shows **Move to slot**. That opens the same
+destination-slot picker as Explorer **Move to Slot**: the dialog lists the
+other slots on the page (the row's current slot is not offered). On **Apply**
+the host calls
+`POST /services/assembly/slot-relationships/{relationshipId}/template-slot`
+with the **destination slot** and the row's current snippet template — the
+template stays, only the slot changes. **Cancel** closes the dialog and does
+not post. HTTP **400** (move not allowed), **403** (not allowed), and
+**404** (relationship not found) stay on the related panel — the list is not
+treated as moved. Inline local links and slot rows with no snippet template
+have no **Move to slot** control. **View** and **Promote** do not show it.
+This does not change the snippet template (the separate **Change template**
+control still does that on the same slot) and does not reorder within a
+slot.
+
 **Preview** is available in **View** and **Edit** for the already-open **page**
 or **asset** so authors do not need to bounce to Explorer solely to preview.
 It uses the same assembled preview as Explorer **Preview**: pages open Page
