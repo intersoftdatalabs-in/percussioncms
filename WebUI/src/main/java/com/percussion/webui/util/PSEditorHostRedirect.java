@@ -158,6 +158,50 @@ public final class PSEditorHostRedirect {
   }
 
   /**
+   * True when {@code lowerPath} is a retired scheduler-console JSF bookmark (#6140, FR-002): one
+   * of the deleted {@code ui/admin/*.jsp} scheduler pages ({@code ScheduledTask}, {@code
+   * ScheduledTaskList}, {@code RemoveConfirmation}, {@code TaskLogs}, {@code
+   * DeleteAllTaskLogWarning}, {@code NoTaskLogSelectionWarning}, {@code TaskNotificationEditor},
+   * {@code TaskNotificationList}) or the deleted {@code ui/admin/tools/ConsistencyChecker*}
+   * trio, in either the {@code .jsp} or the {@code .faces} spelling (JSF views bookmark as {@code
+   * .faces}).
+   *
+   * <p>Kept pages ({@code TaskDetailLog}, {@code console}, {@code index}, {@code
+   * AdminAuthentication}, {@code ConvertVariant*}, {@code RxFix*}) return false.
+   *
+   * @param lowerPath already lower-cased webapp path; may be null
+   * @return true when the path is a deleted scheduler-console bookmark
+   */
+  public static boolean isRetiredSchedulerAdminJsp(String lowerPath) {
+    if (lowerPath == null) {
+      return false;
+    }
+    return isRetiredSchedulerAdminFile(lowerPath, "scheduledtask")
+        || isRetiredSchedulerAdminFile(lowerPath, "scheduledtasklist")
+        || isRetiredSchedulerAdminFile(lowerPath, "removeconfirmation")
+        || isRetiredSchedulerAdminFile(lowerPath, "tasklogs")
+        || isRetiredSchedulerAdminFile(lowerPath, "deletealltasklogwarning")
+        || isRetiredSchedulerAdminFile(lowerPath, "notasklogselectionwarning")
+        || isRetiredSchedulerAdminFile(lowerPath, "tasknotificationeditor")
+        || isRetiredSchedulerAdminFile(lowerPath, "tasknotificationlist")
+        || isRetiredSchedulerAdminTool(lowerPath, "consistencychecker")
+        || isRetiredSchedulerAdminTool(lowerPath, "consistencycheckerreport")
+        || isRetiredSchedulerAdminTool(lowerPath, "consistencycheckerreview");
+  }
+
+  /** Scheduler-console bookmark under {@code /ui/admin/} in {@code .jsp}/{@code .faces} form. */
+  private static boolean isRetiredSchedulerAdminFile(String lowerPath, String base) {
+    return lowerPath.endsWith("/ui/admin/" + base + ".jsp")
+        || lowerPath.endsWith("/ui/admin/" + base + ".faces");
+  }
+
+  /** Scheduler-console tool bookmark under {@code /ui/admin/tools/} in both spellings. */
+  private static boolean isRetiredSchedulerAdminTool(String lowerPath, String base) {
+    return lowerPath.endsWith("/ui/admin/tools/" + base + ".jsp")
+        || lowerPath.endsWith("/ui/admin/tools/" + base + ".faces");
+  }
+
+  /**
    * Product-tree JSP bookmark: {@code …/cm/app/<file>} or {@code …/cm/pages/app/<file>}. Uses
    * suffix match so {@code /cm/app-editasset.jsp} is not a false positive.
    */

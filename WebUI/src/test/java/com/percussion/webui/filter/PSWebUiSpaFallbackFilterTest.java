@@ -217,6 +217,60 @@ public class PSWebUiSpaFallbackFilterTest {
   }
 
   @Test
+  public void retiredSchedulerAdminJspsRedirectToAdminView() {
+    // #6140 FR-002: deleted ui/admin scheduler pages (+tools ConsistencyChecker trio)
+    // land on SPA Admin in both .jsp and .faces spellings; kept pages pass through.
+    String[] pages = {
+      "ScheduledTask.jsp",
+      "ScheduledTaskList.jsp",
+      "RemoveConfirmation.jsp",
+      "TaskLogs.jsp",
+      "DeleteAllTaskLogWarning.jsp",
+      "NoTaskLogSelectionWarning.jsp",
+      "TaskNotificationEditor.jsp",
+      "TaskNotificationList.jsp"
+    };
+    for (String page : pages) {
+      assertEquals(
+          "/cm/app/?view=admin",
+          PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+              "/ui/admin/" + page, null));
+      assertEquals(
+          "/cm/app/?view=admin&x=1",
+          PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+              "/Rhythmyx" + "/ui/admin/" + page.replace(".jsp", ".faces"), "x=1"));
+      assertTrue(
+          PSWebUiSpaFallbackFilter.isRetiredSchedulerAdminJsp(
+              ("/ui/admin/" + page).toLowerCase()));
+    }
+    String[] tools = {
+      "ConsistencyChecker.jsp", "ConsistencyCheckerReport.jsp", "ConsistencyCheckerReview.jsp"
+    };
+    for (String tool : tools) {
+      assertEquals(
+          "/cm/app/?view=admin",
+          PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+              "/ui/admin/tools/" + tool, null));
+      assertTrue(
+          PSWebUiSpaFallbackFilter.isRetiredSchedulerAdminJsp(
+              ("/ui/admin/tools/" + tool).toLowerCase()));
+    }
+    // Kept scheduler-console pages still pass through (null = no redirect).
+    assertNull(
+        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+            "/ui/admin/TaskDetailLog.faces", null));
+    assertNull(
+        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+            "/ui/admin/console.faces", null));
+    assertNull(
+        PSWebUiSpaFallbackFilter.buildRetiredJspRedirectLocation(
+            "/ui/admin/tools/RxFix.faces", null));
+    assertFalse(
+        PSWebUiSpaFallbackFilter.isRetiredSchedulerAdminJsp("/ui/admin/console.faces"));
+    assertFalse(PSWebUiSpaFallbackFilter.isRetiredSchedulerAdminJsp(null));
+  }
+
+  @Test
   public void retiredArchitectureLocationGetsContextPrefix() {
     assertEquals(
         "/Rhythmyx/cm/app/?view=arch",

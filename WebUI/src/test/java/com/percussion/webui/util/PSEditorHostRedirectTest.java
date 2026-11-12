@@ -94,6 +94,51 @@ public class PSEditorHostRedirectTest {
   }
 
   @Test
+  public void retiredSchedulerAdminJspsMatchUiAdminTrees() {
+    // #6140 FR-002: eleven scheduler-console hosts retired from ui/admin (+tools),
+    // in both the .jsp and the .faces spelling (JSF views bookmark as .faces).
+    String[] pages = {
+      "scheduledtask",
+      "scheduledtasklist",
+      "removeconfirmation",
+      "tasklogs",
+      "deletealltasklogwarning",
+      "notasklogselectionwarning",
+      "tasknotificationeditor",
+      "tasknotificationlist"
+    };
+    for (String page : pages) {
+      assertTrue(PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/" + page + ".jsp"));
+      assertTrue(
+          PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/" + page + ".faces"));
+      assertTrue(
+          PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/rhythmyx/ui/admin/" + page + ".jsp"));
+    }
+    String[] tools = {"consistencychecker", "consistencycheckerreport", "consistencycheckerreview"};
+    for (String tool : tools) {
+      assertTrue(
+          PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/tools/" + tool + ".jsp"));
+      assertTrue(
+          PSEditorHostRedirect.isRetiredSchedulerAdminJsp(
+              "/ui/admin/tools/" + tool + ".faces"));
+    }
+    // Kept pages still pass through: detail log, command console, index redirect,
+    // auth include, ConvertVariant + RxFix tools (no React equivalent yet).
+    assertFalse(PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/taskdetaillog.jsp"));
+    assertFalse(PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/taskdetaillog.faces"));
+    assertFalse(PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/console.jsp"));
+    assertFalse(PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/console.faces"));
+    assertFalse(PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/index.jsp"));
+    assertFalse(
+        PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/tools/convertvariant.jsp"));
+    assertFalse(PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/tools/rxfix.jsp"));
+    assertFalse(PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/tools/rxfixpreview.jsp"));
+    assertFalse(PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin-scheduledtask.jsp"));
+    assertFalse(PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/cm/app/tasklogs.jsp"));
+    assertFalse(PSEditorHostRedirect.isRetiredSchedulerAdminJsp(null));
+  }
+
+  @Test
   public void spaRedirectForwardsLinkbackWarningWithoutLegacySiteHints() {
     String loc =
         PSEditorHostRedirect.buildSpaRedirect(
