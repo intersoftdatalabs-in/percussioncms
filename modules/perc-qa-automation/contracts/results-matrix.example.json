@@ -1,0 +1,28 @@
+[
+  {
+    "suite": "content-create-matrix",
+    "spec": "tests/content-create-matrix.spec.js",
+    "contentType": "percPage",
+    "label": "page",
+    "cell": "cms-only",
+    "cases": {
+      "createRoundTrip": "pass",
+      "negativeRequired": "pass"
+    },
+    "status": "pass",
+    "updated": "2026-11-12"
+  },
+  {
+    "suite": "content-create-matrix",
+    "spec": "tests/content-create-matrix.spec.js",
+    "contentType": "percFileAsset",
+    "label": "File",
+    "cell": "cms-only",
+    "cases": {
+      "createRoundTrip": "pass",
+      "negativeRequired": "skip"
+    },
+    "status": "skip",
+    "updated": "2026-11-12"
+  }
+]
