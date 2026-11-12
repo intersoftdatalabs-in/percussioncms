@@ -12,8 +12,6 @@
 <style type="text/css">
 	
 </style>
-<script type="text/javascript" src="<%=request.getContextPath()%>/solution/resources/scripts/jquery-1.2.2.js">
-</script>
 
 
 
