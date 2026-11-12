@@ -77,4 +77,57 @@ describe("WorkflowSiteAssign", () => {
       expect(screen.getByTestId("job-status-msg")).toBeTruthy();
     });
   });
+
+  it("parses the live sitemanage SiteSummary envelope without crashing (#6157)", async () => {
+    // Live GET /services/sitemanage/site returns a Jackson WRAP_ROOT envelope
+    // ({ SiteSummary: [...] }), not a bare array. The pre-fix .map on the
+    // raw payload threw and tripped the Admin section error boundary.
+    vi.mocked(client.get).mockImplementation(async (url: string) => {
+      if (url.includes("sitemanage/site")) {
+        return {
+          SiteSummary: [
+            {
+              id: "Corporate_Investments",
+              name: "Corporate_Investments",
+              folderPath: "//Sites/CorporateInvestments",
+            },
+            {
+              id: "Enterprise_Investments",
+              name: "Enterprise_Investments",
+              folderPath: "//Sites/EnterpriseInvestments",
+            },
+          ],
+        };
+      }
+      return {};
+    });
+
+    render(<WorkflowSiteAssign workflowName="Default Workflow" onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("site-select")).toBeTruthy();
+    });
+    const options = screen.getByTestId("site-select").querySelectorAll("option");
+    // Placeholder + the two unwrapped envelope rows.
+    expect(options.length).toEqual(3);
+    expect(screen.queryByTestId("route-error")).toBeNull();
+  });
+
+  it("falls back to //Sites/<name> when a row has no folder path", async () => {
+    vi.mocked(client.get).mockResolvedValue([
+      { name: "BareSite" },
+    ]);
+
+    render(<WorkflowSiteAssign workflowName="Default Workflow" onClose={vi.fn()} />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("site-select")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("site-select"), {
+      target: { value: "//Sites/BareSite" },
+    });
+    expect(
+      (screen.getByTestId("start-assignment-button") as HTMLButtonElement).disabled,
+    ).toBe(false);
+  });
 });

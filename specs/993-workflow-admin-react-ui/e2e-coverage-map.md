@@ -9,7 +9,7 @@
 | # | User story (spec.md) | Prio | E2E spec (live) | Status |
 |---|----------------------|------|-----------------|--------|
 | US1 | Manage Workflow Definitions | P1 | `modules/perc-qa-automation/frontend/tests/us1-workflow-definitions.spec.js` | ✅ exists (pre-existing) |
-| US2 | Assign Workflows to Sites and Folders | P1 | same file as US1 (`us1-…`, plan.md maps US1+US2 to it) — shell + create-form covered; **site-assign dialog interaction has no dedicated test** | ⚠️ partial (see note 1) |
+| US2 | Assign Workflows to Sites and Folders | P1 | `modules/perc-qa-automation/frontend/tests/us2-site-folder-assignment.spec.js` — saved-workflow editor → assign dialog → site select → job start → poll to terminal state (#6157); shell + create-form covered by `us1-workflow-definitions.spec.js` | ✅ exists |
 | US3 | Manage Roles | P1 | `tests/us2-roles-management.spec.js` | ✅ restored by #6096 |
 | US4 | Manage Users | P1 | `tests/us3-users-management.spec.js` | ✅ restored by #6096 |
 | US5 | Perform In-Context Item Workflow Transitions | P1 | `tests/us4-item-transitions.spec.js` (React `EditorWorkflowPanel` via editor host) + pre-existing `tests/editor-host-workflow-transitions.spec.js` (trigger mechanics) | ✅ restored by #6096 |
@@ -24,13 +24,16 @@ python docker/scripts/perc-devctl.py qa-up   # then qa-health
 TEST_CMS_URL=<qa-url> npm run test:surface -- --path tests/us2-roles-management.spec.js
 ```
 
-## Note 1 — US2 site-assign dialog (no dedicated E2E yet)
+## Note 1 — US2 site-assign dialog (#6157, closed)
 
 `WorkflowSiteAssign` is reachable only from an existing workflow's editor
-(`open-site-assign-button` renders for saved workflows). The restored specs
-cover the shell/list/form layers; driving the assign dialog needs a saved
-workflow fixture and the async assignment-job polling, i.e. a mutating
-fixture flow. Left as follow-up work rather than a half-proving test.
+(`open-site-assign-button` renders for saved workflows). Covered by
+`tests/us2-site-folder-assignment.spec.js`: live shell → workflow list →
+saved-workflow editor → dialog, then stubbed dialog services (site catalog,
+job start, two-tick `isInProgress`) prove select → start → poll → terminal
+state without reassigning real folders; a cancel test proves close-without-start.
+The spec self-provisions a uniquely named workflow when the list is empty and
+deletes it afterwards.
 
 ## Note 2 — Categories tab product fix (#6096)
 
