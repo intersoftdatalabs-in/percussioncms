@@ -133,6 +133,7 @@ Non-administrators never see the Admin top-nav item or these configuration surfa
 - [Developer System Def](id:admin-developer-system-def)
 - [Developer Slots](id:admin-developer-slots)
 - [Developer Item Filters](id:admin-developer-item-filters)
+- [Developer Keywords](id:admin-developer-keywords)
 - [Developer Searches](id:admin-developer-searches)
 - [Developer Communities](id:admin-developer-communities)
 - [Developer Roles](id:admin-developer-roles)
