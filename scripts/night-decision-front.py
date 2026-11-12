@@ -33,6 +33,7 @@ import json
 import random
 import re
 import sys
+import time
 from pathlib import Path
 
 FIXES_RE = re.compile(r"(?:fixes|closes|resolves)\s+#(\d+)", re.I)
@@ -40,6 +41,23 @@ ISSUE_HEAD_RE = re.compile(r"issue-(\d+)")
 PARENT_TITLE_RE = re.compile(r"issue\s+(\d+)\s+slice", re.I)
 PARENT_BODY_RE = re.compile(r"parent:\s*#(\d+)", re.I)
 PN_RE = re.compile(r"^p([1-8])$", re.I)
+
+# 2.2.11-draft — gate-hint adjudication: deterministic human-gate language
+# hints on queue rows. Hints are NOT skips (queue composition unchanged);
+# they force a bounded triage gate-audit pass instead of a blind Work walk.
+# Evidence: 2026-11-12 run seated 8/12 human-gated/stale rows as implement
+# (UAT smoke/record, usability study, customer snapshot env, maintainer
+# decision) while prescreen ran fallback_rule_only (no model semantic skips).
+GATE_HINT_PATTERNS: list[tuple[str, "re.Pattern[str]"]] = [
+    ("human_uat", re.compile(
+        r"\bUAT\b|usability stud|operator trial"
+        r"|human (tester|sign-?off|trial|review|confirmation)|wall-clock", re.I)),
+    ("customer_env", re.compile(
+        r"customer.snapshot|customer-like|customer env|snapshot env", re.I)),
+    ("maintainer_decision", re.compile(
+        r"maintainer decision|decision needed|awaiting.*decision", re.I)),
+    ("soak_gate", re.compile(r"\bsoak\b", re.I)),
+]
 # QA handoff tickets are human-owned work and must never be queued as
 # implement rows — matched by routing label AND by title, because a
 # ticket created without labels (observed: #5799-#5801, label-less)
@@ -195,6 +213,57 @@ def is_debt(issue: dict) -> bool:
         return True
     p = priority_of(issue)
     return p in ("p7", "p8")
+
+
+def gate_hint_for(issue: dict) -> str:
+    """Name the first human-gate language hit in title+body, else "".
+
+    Deterministic hint only — triage/host adjudicates live (UAT evidence may
+    have landed since, a "decision needed" may be agent-researchable, etc.).
+    """
+    blob = issue.get("title", "") + "\n" + (issue.get("body") or "")
+    for name, rx in GATE_HINT_PATTERNS:
+        if rx.search(blob):
+            return name
+    return ""
+
+
+# Statuses that mean "a recent run looked at this and made no progress".
+# Note "verified_no*" only: a plain "verified_passing" verdict IS progress.
+NO_PROGRESS_PREFIXES = ("skipped", "blocked", "human_blocked", "verified_no")
+
+
+def recent_no_progress(work_dir: "Path", hours: int = 72) -> set[int]:
+    """Issue numbers with a no-progress verdict in recent work-*.json files.
+
+    Window (~72h ≈ 3 nightly runs) IS the expiry: entries age out so stale
+    blocks get re-probed instead of entombing issues. Fail-open: unreadable
+    or missing files yield an empty set (legacy behavior). Same source the
+    host already mines for --debt-exclude/--debt-seated, extended to ALL
+    classes so product reseats (e.g. verified_no_change re-queued nightly)
+    also trigger triage adjudication instead of burning a Work seat.
+    """
+    out: set[int] = set()
+    try:
+        files = list(work_dir.glob("work-*.json"))
+    except OSError:
+        return out
+    cutoff = time.time() - hours * 3600
+    for f in files:
+        try:
+            if f.stat().st_mtime < cutoff:
+                continue
+            d = json.loads(f.read_text(encoding="utf-8"))
+        except (OSError, ValueError):
+            continue
+        if not isinstance(d, dict):
+            continue
+        if str(d.get("status", "")).startswith(NO_PROGRESS_PREFIXES):
+            try:
+                out.add(int(d.get("issue_number")))
+            except (TypeError, ValueError):
+                continue
+    return out
 
 
 def is_slice_or_residual(issue: dict) -> bool:
@@ -421,6 +490,7 @@ def build_queue(
     debt_seed: int | None = None,
     qa_label: str = "qa task",
     debt_seated: set[int] | None = None,
+    recent_blocked: set[int] | None = None,
 ) -> tuple[list[dict], dict]:
     """Rank one-per-parent queue with RESERVED debt seats (2.2.6-draft).
 
@@ -510,6 +580,8 @@ def build_queue(
                 "issue_number": issue["number"],
                 "title": issue["title"],
                 "disposition": "implement",
+                "gate_hint": gate_hint_for(issue),
+                "reseated": issue["number"] in (recent_blocked or set()),
                 "rationale": "decision-front leftover; one-per-parent; no covering PR",
                 "work_summary": (
                     "PARENT #"
@@ -629,12 +701,14 @@ def run(
     debt_seed: int | None = None,
     qa_label: str = "qa task",
     debt_seated: set[int] | None = None,
+    work_dir: "Path | None" = None,
 ) -> dict:
     issues = [normalize_issue(x) for x in issues_raw]
     prs = [normalize_pr(x) for x in prs_raw]
+    recent_blocked = recent_no_progress(work_dir) if work_dir is not None else set()
     queue, stats = build_queue(
         issues, prs, prescreen, max_issues, low_slots, debt_exclude, debt_seed,
-        qa_label, debt_seated,
+        qa_label, debt_seated, recent_blocked,
     )
     signals = build_signals(issues, prs, self_model_label, cluster_min_prs)
     open_alert_count = count_open_alerts(alerts_raw)
@@ -684,6 +758,8 @@ def run(
         "remaining_notes": notes,
         "close_hints": ",".join("#" + str(n) for n in closes),
         "expand_needed": len(queue) < max_issues,
+        "gate_hints_needed": sum(1 for q in queue if q.get("gate_hint")),
+        "reseats_needed": sum(1 for q in queue if q.get("reseated")),
         **signals,
     }
 
@@ -820,6 +896,7 @@ def main(argv: list[str] | None = None) -> int:
         args.debt_seed,
         str(args.qa_label),
         debt_seated,
+        issues_path.parent,
     )
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

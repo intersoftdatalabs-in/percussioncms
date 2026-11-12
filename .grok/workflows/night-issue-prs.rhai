@@ -1,5 +1,12 @@
 // Overnight / unattended open-issue worker for Percussion CMS.
 // workflow_version: 2.2.10-draft (UNCOMMITTED — human review required per root AGENTS.md)
+// 2.2.11-draft — Gate-hint adjudication: decision-front flags human-gated
+//   language (gate_hint) and recent no-progress reseats (reseated, 72h work
+//   window) on queue rows; a full queue with unadjudicated flags runs ONE
+//   bounded triage gate-audit (keep/replace, no expansion) instead of a blind
+//   Work walk. Observed 2026-11-12: 8/12 queued implement were UAT / usability
+//   / customer-env / maintainer-decision / verified_no_change while prescreen
+//   ran fallback_rule_only.
 // 2.2.10-draft — Complete the turn: Work and Cycle verify run end-to-end in one
 //   turn (gates foreground or polled in-turn); DONE with jobs pending is a defect.
 // 2.2.9-draft — Blocked-with-unfiled-blocker: triage gate-checks before implement;
@@ -724,6 +731,8 @@ let decision_front_schema = #{
         "issues_closed": #{ "type": "integer" },
         "issues_closed_list": #{ "type": "string" },
         "expand_needed": #{ "type": "boolean" },
+        "gate_hints_needed": #{ "type": "integer" },
+        "reseats_needed": #{ "type": "integer" },
         "queue": #{
             "type": "array",
             "maxItems": 12,
@@ -736,6 +745,7 @@ let decision_front_schema = #{
                     "disposition": #{ "type": "string" },
                     "rationale": #{ "type": "string" },
                     "work_summary": #{ "type": "string" },
+                    "gate_hint": #{ "type": "string" },
                     "priority": #{ "type": "string" },
                     "modules": #{ "type": "string" },
                     "slice_title": #{ "type": "string" },
@@ -1118,6 +1128,7 @@ pr_prompt_core += identity_block(coding_tool, coding_tool_version, model_id, "ni
 let inventory = "";
 let decision_front_ok = false;
 let expand_needed = false;
+let triage_audit_needed = false;
 let queue = [];
 let triage_notes = "";
 let triage_followup_needed = false;
@@ -1200,6 +1211,7 @@ if include_decision_front {
                 }
             }
             if dfo.notes != () { triage_notes = as_str(dfo.notes); }
+            if as_int(dfo.gate_hints_needed) > 0 || as_int(dfo.reseats_needed) > 0 { triage_audit_needed = true; }
             log("Decision front: " + as_str(dfo.summary) + " queued=" + queue.len().to_string());
         } else {
             log("Decision front agent failed; falling back to Preflight/Reconcile/Triage.");
@@ -1619,8 +1631,40 @@ if include_pr_followup && (!signals_ok || blocker_pr_count != 0) {
 // ========== Triage ==========
 phase("Triage");
 
-if decision_front_ok && queue.len() >= max_issues {
+if decision_front_ok && queue.len() >= max_issues && !triage_audit_needed {
     log("Skipping Triage agent: decision-front already filled max_issues.");
+} else if decision_front_ok && queue.len() >= max_issues && triage_audit_needed {
+    // 2.2.11-draft — gate-hint adjudication: the queue is full but one or more
+    // rows carry gate_hint (human-gated language) or reseated=true (no-progress
+    // verdict in the recent work-*.json window, computed by the script itself).
+    // Run ONE bounded audit pass — keep/replace only, no expansion, still capped
+    // by max_issues. A blind Work walk over unadjudicated human-gated rows burns
+    // implement seats (observed 2026-11-12: 8/12 queued implement were UAT /
+    // usability / customer-env / maintainer-decision / verified_no_change).
+    log("Triage gate-audit: queue full but adjudication needed; bounded keep/replace pass.");
+    let triage_audit_prompt = "";
+    triage_audit_prompt += "You are the triage gate-audit for Percussion CMS overnight issue work.\n";
+    triage_audit_prompt += "Decision-front filled max_issues, but adjudication is REQUIRED before Work.\n\n";
+    triage_audit_prompt += "READ scratch/decision-front.json (queue rows carry gate_hint / reseated flags)\n";
+    triage_audit_prompt += "and the recent scratch/work-*.json verdicts. For each flagged row, re-check\n";
+    triage_audit_prompt += "the issue LIVE (labels, assignees, body, evidence since the verdict). Keep\n";
+    triage_audit_prompt += "implementable rows; replace gated rows with fresh\n";
+    triage_audit_prompt += "product-first candidates (one-per-parent, unassigned, maintainer-authored,\n";
+    triage_audit_prompt += "agent-safe; debt only into low_slots). Human-only blockers are never filed —\n";
+    triage_audit_prompt += "record human_blocked_by and yield the seat. Write the corrected queue to\n";
+    triage_audit_prompt += "scratch/triage.json (decision-front row schema + disposition/rationale) and\n";
+    triage_audit_prompt += "return kept/skipped/replaced numbers with typed rationales. No expansion,\n";
+    triage_audit_prompt += "no child proposals except replacements, never exceed max_issues.\n";
+    let triage_audit_agent = agent(triage_audit_prompt, #{
+        label: "triage-gate-audit",
+        capability_mode: "all",
+        output_schema: triage_schema,
+    });
+    if triage_audit_agent != () && triage_audit_agent.success {
+        log("Triage gate-audit complete.");
+    } else {
+        log("Triage gate-audit failed; Work claim-checks remain the backstop.");
+    }
 } else if inventory == "" && issue_numbers == () {
     log("Skipping triage: empty preflight inventory.");
     triage_notes = "empty inventory";

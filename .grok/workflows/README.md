@@ -23,7 +23,7 @@ Unattended overnight worker. Specialists spawn only when Preflight (or this-run 
 3. **Preflight** (fallback) — stale **In Progress** cleanup + **compact** issue inventory + skip signals.  
 4. **Reconcile** (fallback) — close issues that are **100% implemented**. Emit `implement_candidates`.  
 5. **PR follow-up PRE** — only if Preflight found merge blockers (conflicts or open review threads).  
-6. **Triage** — skipped when decision-front filled `max_issues`; else inventory + slice create. **Covering PR = OPEN PR only.**  
+6. **Triage** — skipped when decision-front filled `max_issues` **and** no row needs adjudication (`gate_hints_needed == 0` and `reseats_needed == 0`); otherwise one bounded gate-audit pass (keep/replace, no expansion). Full triage when the queue is short; **covering PR = OPEN PR only.**  
 7. **Peer PR review** — other-model PRs: spawn Erlang. Erlang child **MAY APPROVE and squash-merge** if LGTM. Spawn-fail is **not fatal** (host Erlang leftover runs next).  
 8. **Erlang leftover** — only if Preflight `owned_pr_count` is unknown or **> 0**. Host Erlang on owned open MERGEABLE PRs: merge LGTM; if BLOCK (`bugs_found` not empty/`none`), **erlang-fix** then re-review once. Drains covering PRs so Work can fill. **Do not spawn** leftover Erlang, erlang-fix, or re-review when there are zero open PRs or `bugs_found` is `none`.  
 9. **Work** — implement/split only. **`disposition=skip` does not spawn a Work agent**. Implementer runs the Erlang skill CLI itself (no nested agent) before `gh pr create` and must not APPROVE/merge their own PR.  
@@ -113,6 +113,10 @@ Re-seating a gated issue while its blocker has no open issue and no owner burns 
 3. Gates discovered at Work claim time follow the same logic (work files the blocker, returns `blocked`), but the spent seat does not chain same-run.
 
 Fallback Work `disposition=split` still creates exactly 3 **vertical** children and ships **only the first** slice the same turn.
+
+### Gate-hint adjudication (HARD — 2.2.11-draft)
+
+Decision-front is thin and never gate-checks §5C: it emits deterministic **hints** per queue row instead — `gate_hint` (`human_uat` / `customer_env` / `maintainer_decision` / `soak_gate` language in title+body) and `reseated` (no-progress `work-*.json` verdict in the ~72h window: `skipped_*`, `blocked`, `human_blocked_by`, `verified_no_change`). Hints change nothing about queue composition. But a **full queue with unadjudicated hints is not a skip**: Triage runs one bounded gate-audit (keep implementable rows live, replace gated rows product-first, still capped by `max_issues`, no expansion). A blind Work walk over human-gated rows burns implement seats for claim-check `blocked` returns (observed 2026-11-12: 8/12). Work claim-checks remain the backstop, not the plan.
 
 **HARD BAN:** splitting one increment into `REST PR` + `SPA PR` + `Playwright PR`. Change-class companions (REST + sitemanage + WebUI + Playwright + `product-docs`) belong **in the same PR** when that increment needs them. Layer splits duplicate `rest.md`, `sitemanage-beans.xml`, `paths.ts`, `messages.ts`, `DeveloperShell.tsx`, admin/developer indexes, and qa `package.json`, then go **CONFLICTING** (File Explorer #4331 / #4332 / #4333).
 
@@ -466,7 +470,7 @@ Rough agent use (v2.0.3 — specialists are 0 when Preflight says there is nothi
 
 A quiet grok-only night with no blockers, no alerts, and no other-model PRs is **Identity + Preflight + Triage + Work×N + Cycle verify** (if PRs opened). Default 128 is plenty.
 
-**Skip matrix (fail-open):** a specialist runs unless Preflight set `signals_complete=true` **and** that signal is a **known 0**. Missing counts are unknown (`-1`), not zero. CodeQL 403 must omit `open_alert_count` (never write 0). `cluster_recommended` covers `>= cluster_min_prs` **or** `>=2` CONFLICTING on shared paths; missing flag runs cluster. Cycle verify also runs when Security opened mitigation PRs. The TypeSafe pre-screen is **never** part of this matrix — `recommend_skip/source=model` merely re-ranks an issue to `disposition=skip` in Triage, and a missing/`fallback_rule_only` prescreen changes nothing.
+**Skip matrix (fail-open):** a specialist runs unless Preflight set `signals_complete=true` **and** that signal is a **known 0**. A full decision-front queue still runs **one bounded triage gate-audit** when any row carries `gate_hint` (human-gated language) or `reseated` (no-progress verdict in the recent work window) — hints never skip rows themselves; the audit adjudicates live. CodeQL 403 must omit `open_alert_count` (never write 0). `cluster_recommended` covers `>= cluster_min_prs` **or** `>=2` CONFLICTING on shared paths; missing flag runs cluster. Cycle verify also runs when Security opened mitigation PRs. The TypeSafe pre-screen is **never** part of this matrix — `recommend_skip/source=model` merely re-ranks an issue to `disposition=skip` in Triage, and a missing/`fallback_rule_only` prescreen changes nothing.
 
 Pass stamp args from the launcher so Identity does not spawn:
 
