@@ -101,8 +101,8 @@
 |------|------------------------------|
 | Inventory + REST + Explorer locales/create | **Done** (#2428/#2429/#2430) |
 | In-flight + session | **OUT** (this note) — not agent implement |
-| Human QA create-variant / locales list | **Open** #2649 |
-| Agent implement residual | **None** — close #2411 when #2649 is done/dispositioned, **or** leave open only while #2649 is open |
+| Human QA create-variant / locales list | **Closed** #2649 (2026-08-27 reconcile C5/C7; triaged #6108 — fail steps on main) |
+| Agent implement residual | **None** — #2411 is not held open by #2649 (no fresh retest ticket per #6108 triage) |
 
 ---
 

@@ -51,7 +51,7 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Subfolder copy wizard | CE wizards | `SubfolderCopyWizard` on product shell via Content → Subfolder Copy (`content-subfolder-copy`); source prefilled from active/selected folder path | **Present** | #2792 · [PR #2796](https://github.com/intersoftdatalabs-in/percussioncms/pull/2796) (merged) |
 | Dependency viewer | `PSDependencyViewer` | `DependencyViewer` + relationship summary REST mounted in product Explorer shell (View → Dependencies; #2768) | **Present** | #2768 · [PR #2775](https://github.com/intersoftdatalabs-in/percussioncms/pull/2775) (merged) · advanced chrome (phase 4) |
 | IA / relationships view | Managers | `RelationshipsView` on product shell (View → IA Relationships; selected item + REST summary) | **Partial** (merged; original QA Failed closed after id-bind residual — never Present) | #2769 · [PR #2777](https://github.com/intersoftdatalabs-in/percussioncms/pull/2777) (merged) · original QA [#2778](https://github.com/intersoftdatalabs-in/percussioncms/issues/2778) **Failed, closed 2026-08-18** · residual [#3546](https://github.com/intersoftdatalabs-in/percussioncms/issues/3546) via cluster [PR #3557](https://github.com/intersoftdatalabs-in/percussioncms/pull/3557) |
-| Translation workflow | CE translation | **REST Present:** `GET|POST /rest/content-explorer/translations` (#2429 / [PR #2601](https://github.com/intersoftdatalabs-in/percussioncms/pull/2601)). **Explorer UI Present (slice C #2430):** `TranslationsPanel` in `ContentExplorerShell` (locale list + create-variant; Vitest + Playwright `explorer-translations.spec.js`). In-flight queue + content-locale session are intentional **OUT** (signed #2829 — [p-trans-out-disposition.md](../research/p-trans-out-disposition.md)). Inventory: [p-trans-api-inventory.md](../research/p-trans-api-inventory.md). Human QA [#2649](https://github.com/intersoftdatalabs-in/percussioncms/issues/2649). | **Present** (locales + create; OUT rows under Explicit OUT) | #2411 → #2428 / #2429 / #2430 · OUT residual #2829 |
+| Translation workflow | CE translation | **REST Present:** `GET|POST /rest/content-explorer/translations` (#2429 / [PR #2601](https://github.com/intersoftdatalabs-in/percussioncms/pull/2601)). **Explorer UI Present (slice C #2430):** `TranslationsPanel` in `ContentExplorerShell` (locale list + create-variant; Vitest + Playwright `explorer-translations.spec.js`). In-flight queue + content-locale session are intentional **OUT** (signed #2829 — [p-trans-out-disposition.md](../research/p-trans-out-disposition.md)). Inventory: [p-trans-api-inventory.md](../research/p-trans-api-inventory.md). Human QA [#2649](https://github.com/intersoftdatalabs-in/percussioncms/issues/2649) **closed 2026-08-27** (reconcile C5/C7; triage [#6108](https://github.com/intersoftdatalabs-in/percussioncms/issues/6108)): fail steps landed on main — #3545 absorbed, full-GUID GET #3703 / [PR #3725](https://github.com/intersoftdatalabs-in/percussioncms/pull/3725), detail-row GUID ids #3871 / [PR #3910](https://github.com/intersoftdatalabs-in/percussioncms/pull/3910) merged 2026-08-27; H2 Playwright `explorer-translations.spec.js` 4 passed. No fresh human retest; OUT rows stay OUT. | **Present** (locales + create; OUT rows under Explicit OUT) | #2411 → #2428 / #2429 / #2430 · OUT residual #2829 |
 | Workflow transitions in menus | CE workflow | `itemWorkflowApi` + `workflowMenuActions` merge Workflow group into toolbar/context menus; invoke `transitionWithComments` for `workflow-transition:*` triggers | **Present** | #2732 · absorbed [PR #2748](https://github.com/intersoftdatalabs-in/percussioncms/pull/2748) · QA [#2743](https://github.com/intersoftdatalabs-in/percussioncms/issues/2743) |
 
 ## Explicit OUT (for now)
@@ -65,6 +65,14 @@ Legend: **Present** | **Partial** | **Missing** | **OUT**
 | Content-locale session context (path APIs re-issued under content locale) | **OUT** signed #2829 — per-item locale + create-variant sufficient; session model is redesign. Same OUT note. |
 
 ## Implementation notes
+
+### 2026-11-12 Translations Failed-QA triage — Present defended, #2649 closed (#6108)
+
+**This slice:** [#6108](https://github.com/intersoftdatalabs-in/percussioncms/issues/6108) (matrix row 19; QA [#2649](https://github.com/intersoftdatalabs-in/percussioncms/issues/2649)).
+
+#2649 is **closed** (reconcile C5/C7 2026-08-27) and no longer open/Blocked, but it still carries the `QA: Failed` label — so this triage defends the Present row with a note instead of filing a fresh retest ticket. Verify-first on `main` (2026-11-12): every human-Fail step from the 2026-08-21 retests is addressed by merged code — GUID last-segment create-variant #3545 absorbed, full-GUID Translations GET #3703 / [PR #3725](https://github.com/intersoftdatalabs-in/percussioncms/pull/3725) (`translationsApi` documents "do not strip a GUID to its last segment"), Explorer detail-row GUID ids #3871 / [PR #3910](https://github.com/intersoftdatalabs-in/percussioncms/pull/3910) (`data-item-id`), Playwright `explorer-translations.spec.js` incl. the #3703 full-GUID test. In-flight queue + content-locale session stay **OUT** per #2829.
+
+**Do not:** re-open #2649 or the OUT rows from this docs PR; flip the row on a reconcile close alone (the defense cites merged residuals + H2 Playwright evidence, not the close itself).
 
 ### 2026-08-20 Explorer Copy Folder product-route proof (#3647 / #3102)
 
@@ -193,7 +201,7 @@ Operator/QA evidence showed several gap-matrix rows still **Present** while huma
 | Search in ContentBrowser hosts | Host `enableSearch` mount not cited as Failed in #3102; shell search/saved-search already Partial |
 | Reduced create/rename/move/copy/delete | Not in #3102 false-Present table |
 | Clipboard / site-subfolder wizards / dependency / relationships | Not in #3102 false-Present table for this slice (separate open QA may exist; re-audit if Failed) |
-| Translation workflow (locales + create) | Intentional Present + Explicit OUT (#2829); human QA [#2649](https://github.com/intersoftdatalabs-in/percussioncms/issues/2649) Blocked — do not re-open OUT rows here |
+| Translation workflow (locales + create) | Intentional Present + Explicit OUT (#2829); human QA [#2649](https://github.com/intersoftdatalabs-in/percussioncms/issues/2649) **closed 2026-08-27** (fail steps landed via #3545/#3703/#3871; triaged #6108) — do not re-open OUT rows here |
 | Object ACL editor (full) | Already **Partial** cross-epic (#2828) |
 
 **Do not:** close human QA issues from this docs PR; re-implement Explorer chrome; flip back to Present until the linked QA issues pass (or product re-defends with evidence).
@@ -220,7 +228,7 @@ Operator/QA evidence showed several gap-matrix rows still **Present** while huma
 
 - **#2829 residual (docs):** formal product **OUT** for in-flight translation queue + content-locale session under #2411. Research note: [p-trans-out-disposition.md](../research/p-trans-out-disposition.md). Inventory + residual questions updated.
 - **Translation workflow** matrix row flipped **Partial → Present** for in-scope operator surface (item locales + create-variant). OUT capabilities listed under **Explicit OUT** — not silent Partial debt.
-- **No implement** of translation queue / session without product re-open. Human QA for Present surface remains **#2649**.
+- **No implement** of translation queue / session without product re-open. Human QA for Present surface was **#2649** (closed 2026-08-27; triaged #6108 — fail steps on main, OUT rows unchanged).
 - **Epic #2400 remaining-open criteria** documented in the OUT note (human QA set + product OUT; no agent implement spam for OUT rows).
 
 ### 2026-08-10 Present re-confirm after Subfolder/ContentBrowser merges (#2827)
