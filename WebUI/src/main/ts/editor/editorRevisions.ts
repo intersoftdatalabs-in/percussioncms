@@ -133,3 +133,23 @@ export function isEmptyRevisionCompare(
 ): boolean {
   return fields == null || fields.length === 0;
 }
+
+/**
+ * Copy one revision field value into the editor draft (#6080).
+ *
+ * <p>Field-level restore is a local draft edit: the caller saves through the
+ * normal save path, so no server call happens here. A blank name is ignored
+ * and the incoming draft is returned unchanged; otherwise the named field is
+ * set to {@code value} (possibly empty) and the other entries are kept.</p>
+ */
+export function applyRevisionFieldValue(
+  draft: Record<string, string>,
+  name: string,
+  value: string,
+): Record<string, string> {
+  const field = name.trim();
+  if (!field) {
+    return draft;
+  }
+  return { ...draft, [field]: value };
+}

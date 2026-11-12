@@ -16,6 +16,7 @@
 
 import { describe, expect, it } from "vitest";
 import {
+  applyRevisionFieldValue,
   canRestoreFromEditor,
   editorRevisionErrorReason,
   isEmptyRevisionCompare,
@@ -135,5 +136,23 @@ describe("editorRevisions", () => {
     expect(isEmptyRevisionCompare([])).toBe(true);
     expect(isEmptyRevisionCompare(null)).toBe(true);
     expect(isEmptyRevisionCompare([{ length: 1 }])).toBe(false);
+  });
+
+  it("copies one revision field value into the draft and keeps the rest", () => {
+    const draft = { sys_title: "Home", displaytitle: "Welcome" };
+    expect(applyRevisionFieldValue(draft, "sys_title", "Old")).toEqual({
+      sys_title: "Old",
+      displaytitle: "Welcome",
+    });
+    expect(applyRevisionFieldValue(draft, "sys_title", "")).toEqual({
+      sys_title: "",
+      displaytitle: "Welcome",
+    });
+    expect(draft).toEqual({ sys_title: "Home", displaytitle: "Welcome" });
+  });
+
+  it("ignores a blank field name instead of writing a junk draft key", () => {
+    const draft = { sys_title: "Home" };
+    expect(applyRevisionFieldValue(draft, "   ", "Old")).toBe(draft);
   });
 });

@@ -146,6 +146,7 @@ import {
   type ItemRevisionsSummary,
 } from "../api/contentExplorer/itemRevisionsApi";
 import {
+  applyRevisionFieldValue,
   canRestoreFromEditor,
   editorRevisionErrorReason,
   isEmptyRevisionCompare,
@@ -1276,6 +1277,10 @@ export function EditorHost({
   );
   const [compareErrorKey, setCompareErrorKey] = useState<string | null>(null);
   const [compareErrorDetail, setCompareErrorDetail] = useState("");
+  const [compareFieldRestored, setCompareFieldRestored] = useState<string | null>(
+    null,
+  );
+  const [compareFieldUnavailable, setCompareFieldUnavailable] = useState(false);
   const [workflowHistoryOpen, setWorkflowHistoryOpen] = useState(false);
   const [workflowHistoryBusy, setWorkflowHistoryBusy] = useState(false);
   const [workflowHistoryComments, setWorkflowHistoryComments] = useState<
@@ -4112,6 +4117,8 @@ export function EditorHost({
     setRestoreErrorDetail("");
     setRestoreDone(false);
     setCompareResult(null);
+    setCompareFieldRestored(null);
+    setCompareFieldUnavailable(false);
     setCompareErrorKey(null);
     setCompareErrorDetail("");
     if (restoreOpen) {
@@ -4248,6 +4255,8 @@ export function EditorHost({
     }
     const selection = revisionCompareSelection(compareLeft, compareRight);
     setCompareResult(null);
+    setCompareFieldRestored(null);
+    setCompareFieldUnavailable(false);
     if (!selection.ok) {
       setCompareErrorKey(
         selection.reason === "same"
@@ -4280,11 +4289,26 @@ export function EditorHost({
     }
   }
 
+  /**
+   * Field-level restore (#6080): copy one compare row value into the local
+   * draft. Nothing is written until the author saves, so a compare-time
+   * misclick never touches the server and Cancel/close still asks first.
+   */
+  function handleRestoreCompareField(name: string, value: string): void {
+    if (!canEdit) {
+      setCompareFieldRestored(null);
+      setCompareFieldUnavailable(true);
+      return;
+    }
+    setDraft((current) => applyRevisionFieldValue(current, name, value));
+    setCompareFieldUnavailable(false);
+    setCompareFieldRestored(name.trim() ? name.trim() : null);
+  }
+
   async function handleRestoreConfirm(): Promise<void> {
     if (contentId == null) {
       return;
-    }
-    if (!canRestoreFromEditor(mode)) {
+    }    if (!canRestoreFromEditor(mode)) {
       setRestoreErrorKey(EDITOR_MSG.RESTORE_UNAVAILABLE);
       setRestoreErrorDetail("");
       return;
@@ -5495,7 +5519,7 @@ export function EditorHost({
                           <th>{message(EDITOR_MSG.COMPARE_COL_FIELD)}</th>
                           <th>{message(EDITOR_MSG.COMPARE_COL_LEFT)}</th>
                           <th>{message(EDITOR_MSG.COMPARE_COL_RIGHT)}</th>
-                          <th>{message(EDITOR_MSG.RESTORE_REVISION_LABEL)}</th>
+                          <th>{message(EDITOR_MSG.COMPARE_COL_RESTORE)}</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -5509,14 +5533,63 @@ export function EditorHost({
                             <td>{field.leftValue}</td>
                             <td>{field.rightValue}</td>
                             <td>
-                              {field.changed
-                                ? message(EDITOR_MSG.COMPARE_CHANGED)
-                                : message(EDITOR_MSG.COMPARE_UNCHANGED)}
+                              {field.changed ? (
+                                <>
+                                  <span>
+                                    {message(EDITOR_MSG.COMPARE_CHANGED)}
+                                  </span>{" "}
+                                  <button
+                                    type="button"
+                                    data-testid={`editor-compare-use-left-${field.name}`}
+                                    disabled={!canEdit}
+                                    onClick={() =>
+                                      handleRestoreCompareField(
+                                        field.name,
+                                        field.leftValue,
+                                      )
+                                    }
+                                  >
+                                    {message(EDITOR_MSG.COMPARE_USE_LEFT)}
+                                  </button>{" "}
+                                  <button
+                                    type="button"
+                                    data-testid={`editor-compare-use-right-${field.name}`}
+                                    disabled={!canEdit}
+                                    onClick={() =>
+                                      handleRestoreCompareField(
+                                        field.name,
+                                        field.rightValue,
+                                      )
+                                    }
+                                  >
+                                    {message(EDITOR_MSG.COMPARE_USE_RIGHT)}
+                                  </button>
+                                </>
+                              ) : (
+                                message(EDITOR_MSG.COMPARE_UNCHANGED)
+                              )}
                             </td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
+                  ) : null}
+                  {compareFieldRestored ? (
+                    <div
+                      className={styles.status}
+                      data-testid="editor-compare-field-restored"
+                    >
+                      {message(EDITOR_MSG.COMPARE_FIELD_RESTORED)} ({compareFieldRestored})
+                    </div>
+                  ) : null}
+                  {compareFieldUnavailable ? (
+                    <div
+                      className={styles.status}
+                      data-testid="editor-compare-field-unavailable"
+                      role="alert"
+                    >
+                      {message(EDITOR_MSG.COMPARE_FIELD_UNAVAILABLE)}
+                    </div>
                   ) : null}
                 </div>
               </div>
