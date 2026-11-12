@@ -26,7 +26,7 @@ import com.percussion.utils.tools.PSParseFragments;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -103,9 +103,9 @@ public class PSConfigDefGenerator {
   private String getFragment(String objectname, String objecttype, String packagename) {
     String fragment = ms_fragments.get(objecttype.toUpperCase());
     if (fragment == null) return null;
-    fragment = StringUtils.replace(fragment, OBJECT_NAME_TOKEN, objectname);
+    fragment = Strings.CS.replace(fragment, OBJECT_NAME_TOKEN, objectname);
     fragment =
-        StringUtils.replace(fragment, SOLUTION_OBJECT_NAME_TOKEN, packagename + "." + objectname);
+        Strings.CS.replace(fragment, SOLUTION_OBJECT_NAME_TOKEN, packagename + "." + objectname);
     return fragment;
   }
 
