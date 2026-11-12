@@ -22,13 +22,19 @@
 | `section=runtime` | Runtime / Editions                      |
 | `siteId=…`        | Preselect site when listing             |
 | `serverId=…`      | Preselect server when in site workspace |
+| `jobId=…`         | Preselect + open job detail (logs)      |
+| `requestId=…`     | Surface demand request as job (status)  |
 
 Allowlist query values in JSP (same XSS discipline as `homeModern.jsp` initialScreen).
+`jobId` / `requestId` reuse the `mapIdParam` allowlist (`mapJobIdParam` /
+`mapRequestIdParam` wrappers in `deepLinkMap.ts`): alnum/`-`/`_` only, max
+128 chars. Unknown ids degrade to the plain section view — never 500.
 
-> **Planned (tracked in #6215, decision from #6091):** `jobId` (logs section)
-> and `requestId` (status section) deep-link filters to restore the
+> Restored in #6215 (decision from #6091): `jobId` (logs section) and
+> `requestId` (status section) deep-link filters restore the
 > `sys_publishingJobId` / `requestid` fidelity dropped by #1842/#1844.
-> Until then the contract intentionally carries section-level granularity only.
+> Producers: `PSDemandPublishServlet` appends `requestId`;
+> `PSRunEdition.getPublishingLogURL()` appends `jobId`.
 
 ## Classic URLs to map after cutover
 

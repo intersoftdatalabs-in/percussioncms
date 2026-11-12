@@ -135,7 +135,7 @@ public class PSDemandPublishServlet extends HttpServlet
 
       log.info("Demand publishing queued requestId={}; redirecting to modern Publishing status", requestId);
       // Context-relative redirect — URL path separators only (not File.separator)
-      var redirectUrl = buildPublishingStatusRedirectURL(request.getContextPath());
+      var redirectUrl = buildPublishingStatusRedirectURL(request.getContextPath(), requestId);
       resp.sendRedirect(resp.encodeRedirectURL(redirectUrl));
    }
 
@@ -147,10 +147,28 @@ public class PSDemandPublishServlet extends HttpServlet
     * 'status' })} → {@code /cm/app/?view=publish&section=status}. Path assembly uses URL
     * separators only ({@code /}); never OS file separators.
     * <p>
-    * <b>Request id:</b> the modern shell deep-link contract supports {@code section} and
-    * optional {@code siteId}/{@code serverId}, but not a demand {@code requestid} filter.
-    * The legacy JSP progress page attribute is intentionally not carried on the query
-    * string; callers land on the Status section.
+    * <b>Request id:</b> the demand {@code requestid} returned by {@code queueDemandWork} is
+    * appended as {@code &requestId=} (issue #6215 restores the fidelity dropped by #1842).
+    * The modern shell ({@code section=status&requestId=}) surfaces the request as the matching
+    * listed job via {@code mapRequestIdParam} sanitization; unknown ids degrade to the plain
+    * Status list. Non-positive ids are omitted, landing callers on the Status section.
+    *
+    * @param contextPath servlet context path (e.g. {@code /Rhythmyx} or empty); may be
+    *     {@code null}
+    * @param requestId demand-publish request id to surface; {@code <= 0} omits the param
+    * @return context-relative redirect URL, never {@code null}
+    */
+   static String buildPublishingStatusRedirectURL(String contextPath, long requestId)
+   {
+      // URL path elements always use '/'; do not use File.separator
+      String root = contextPath == null ? "" : contextPath;
+      String base = root + PUBLISHING_STATUS_PATH;
+      return requestId > 0 ? base + "&requestId=" + requestId : base;
+   }
+
+   /**
+    * Builds the context-relative redirect target used after a successful demand-publish
+    * queue (no request id — lands on the Status section).
     *
     * @param contextPath servlet context path (e.g. {@code /Rhythmyx} or empty); may be
     *     {@code null}
@@ -158,9 +176,7 @@ public class PSDemandPublishServlet extends HttpServlet
     */
    static String buildPublishingStatusRedirectURL(String contextPath)
    {
-      // URL path elements always use '/'; do not use File.separator
-      String root = contextPath == null ? "" : contextPath;
-      return root + PUBLISHING_STATUS_PATH;
+      return buildPublishingStatusRedirectURL(contextPath, -1L);
    }
 
    /**

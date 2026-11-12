@@ -123,6 +123,10 @@ not wontfix). **`web.xml` mapping `/publisher/demandpublishing` is kept.**
 **JSP file delete landed** under #1818 — this rewire had removed the live
 server-side consumer first so DemandPublish.jsp could be deleted safely.
 
+> **Restored in #6215:** `PSDemandPublishServlet` now appends
+> `&requestId={requestId}` and the shell (`section=status&requestId=`) surfaces
+> the request as the matching job (unknown ids degrade to the Status list).
+
 **RET-06 residual — JobPubLog consumer rewire (issue #1844, 2026-08-04):**
 `system/.../PSRunEdition.getPublishingLogURL()` no longer builds
 `/ui/pubruntime/JobPubLog.faces?sys_publishingJobId=…` (faces stack already gone).
@@ -134,6 +138,10 @@ filter yet (only `section` / optional `siteId` / `serverId`). **Follow-up tracke
 in #6215** (decision from #6091: restore, not wontfix). **JSP file delete
 landed** under #1818 — this rewire had removed the live server-side
 consumer first so JobPubLog.jsp could be deleted safely.
+
+> **Restored in #6215:** `PSRunEdition` now appends `&jobId={m_jobId}` and the
+> shell (`section=logs&jobId=`) preselects and opens the matching job detail
+> (unknown ids degrade to the Logs list).
 
 **Sign-off**: Runtime deep JSPs deleted in #1818 (RET-06 slice C); `index.jsp` redirect retained; non-nav consumers rewired (#1842, #1844).  
 **Tracking issue**: [#1372](https://github.com/intersoftdatalabs-in/percussioncms/issues/1372) · audit [#1817](https://github.com/intersoftdatalabs-in/percussioncms/issues/1817)

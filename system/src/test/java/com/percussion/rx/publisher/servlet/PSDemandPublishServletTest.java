@@ -68,6 +68,24 @@ class PSDemandPublishServletTest {
   }
 
   @Test
+  void buildPublishingStatusRedirectURL_withRequestId_appendsParam() {
+    String url = PSDemandPublishServlet.buildPublishingStatusRedirectURL("/Rhythmyx", 42L);
+
+    assertEquals("/Rhythmyx/cm/app/?view=publish&section=status&requestId=42", url);
+    assertFalse(url.contains("\\"));
+  }
+
+  @Test
+  void buildPublishingStatusRedirectURL_nonPositiveRequestId_omitsParam() {
+    assertEquals(
+        "/cm/app/?view=publish&section=status",
+        PSDemandPublishServlet.buildPublishingStatusRedirectURL("", 0L));
+    assertEquals(
+        "/cm/app/?view=publish&section=status",
+        PSDemandPublishServlet.buildPublishingStatusRedirectURL(null, -1L));
+  }
+
+  @Test
   void publishingStatusPath_constant_matchesItemPublishPathsPeer() {
     assertEquals(
         "/cm/app/?view=publish&section=status", PSDemandPublishServlet.PUBLISHING_STATUS_PATH);

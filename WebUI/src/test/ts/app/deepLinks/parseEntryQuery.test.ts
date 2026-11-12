@@ -62,6 +62,41 @@ describe("parseEntryQuery", () => {
     ).toContain("itemId=42");
   });
 
+  it("forwards publish jobId and requestId for deep links (#6215)", () => {
+    const logs = parseEntryQuery("?entry=publish&section=logs&jobId=77");
+    expect(logs.jobId).toBe("77");
+    expect(logs.clientPath).toContain("/publish/logs");
+    expect(logs.clientPath).toContain("jobId=77");
+    const status = parseEntryQuery(
+      "?entry=publish&section=status&requestId=42",
+    );
+    expect(status.requestId).toBe("42");
+    expect(status.clientPath).toContain("/publish/status");
+    expect(status.clientPath).toContain("requestId=42");
+    expect(
+      parseClientPath("/publish/logs", "?jobId=77").jobId,
+    ).toBe("77");
+    expect(
+      parseClientPath("/publish/status", "?requestId=42").requestId,
+    ).toBe("42");
+    expect(
+      toSpaEntryUrl({
+        entry: "publish",
+        section: "logs",
+        jobId: "77",
+        clientPath: "/publish/logs?jobId=77",
+      }),
+    ).toContain("jobId=77");
+    expect(
+      toSpaEntryUrl({
+        entry: "publish",
+        section: "status",
+        requestId: "42",
+        clientPath: "/publish/status?requestId=42",
+      }),
+    ).toContain("requestId=42");
+  });
+
   it("rejects bad ids", () => {
     const p = parseEntryQuery("?entry=publish&siteId=bad/id");
     expect(p.siteId).toBeUndefined();
@@ -305,6 +340,8 @@ describe("parse entry refactor parity (#6113)", () => {
     const cases: Array<[string, string, string, string]> = [
       ["?entry=home&section=library", "/home/library", "home", "/home/library"],
       ["?entry=publish&section=logs&siteId=s1", "/publish/logs?siteId=s1", "publish", "/publish/logs?siteId=s1"],
+      ["?entry=publish&section=logs&jobId=77", "/publish/logs?jobId=77", "publish", "/publish/logs?jobId=77"],
+      ["?entry=publish&section=status&requestId=42", "/publish/status?requestId=42", "publish", "/publish/status?requestId=42"],
       ["?entry=workflow&tab=roles", "/workflow/roles", "workflow", "/admin/roles"],
       ["?entry=admin&tab=roles", "/admin/roles", "admin", "/admin/roles"],
       ["?entry=widget-builder", "/widget-builder", "widget-builder", "/widget-builder"],

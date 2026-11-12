@@ -61,4 +61,23 @@ describe("publishingShellHref", () => {
       publishingShellHref({ section: "logs", siteId: "9" }),
     ).toContain("siteId=9");
   });
+
+  it("carries jobId and requestId deep-link params (#6215)", () => {
+    expect(
+      publishingShellHref({ section: "logs", jobId: "77" }),
+    ).toContain("jobId=77");
+    expect(
+      publishingShellHref({ section: "status", requestId: "42" }),
+    ).toContain("requestId=42");
+  });
+
+  it("drops unsafe jobId and requestId values", () => {
+    const href = publishingShellHref({
+      section: "logs",
+      jobId: "<script>",
+      requestId: "1/2",
+    });
+    expect(href).not.toContain("jobId=");
+    expect(href).not.toContain("requestId=");
+  });
 });

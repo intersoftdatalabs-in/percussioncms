@@ -35,6 +35,9 @@ export function PublishRoute(): React.ReactElement {
   const siteId = search.get("siteId") ?? undefined;
   const serverId = search.get("serverId") ?? undefined;
   const itemId = search.get("itemId") ?? undefined;
+  // Deep-link job/request ids (sanitized in the shell via mapJobIdParam).
+  const jobId = search.get("jobId") ?? undefined;
+  const requestId = search.get("requestId") ?? undefined;
   // Design section for Admin/Designer (product progressive disclosure)
   const showDesign = isAdmin || isDesigner;
 
@@ -53,6 +56,8 @@ export function PublishRoute(): React.ReactElement {
         siteId={siteId}
         serverId={serverId}
         itemId={itemId}
+        jobId={jobId}
+        requestId={requestId}
         showDesign={showDesign}
       />
     </LazyRouteFrame>

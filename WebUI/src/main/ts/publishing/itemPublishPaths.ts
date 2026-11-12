@@ -16,6 +16,7 @@
  */
 
 import { SERVICES_ROOT } from "../api/paths";
+import { mapIdParam } from "./deepLinkMap";
 
 /**
  * Item-level publish path constants (US6). Remain on sitemanage /publish/* —
@@ -63,6 +64,16 @@ export function publishingShellHref(opts: {
   section?: "status" | "logs" | "sites" | "design" | "runtime";
   siteId?: string;
   serverId?: string;
+  /**
+   * Publishing job to preselect (`section=logs`).
+   * Sanitized with `mapIdParam`; unsafe values are dropped.
+   */
+  jobId?: string;
+  /**
+   * Demand-publish request to surface (`section=status`).
+   * Sanitized with `mapIdParam`; unsafe values are dropped.
+   */
+  requestId?: string;
 }): string {
   const params = new URLSearchParams();
   params.set("view", "publish");
@@ -74,6 +85,14 @@ export function publishingShellHref(opts: {
   }
   if (opts.serverId) {
     params.set("serverId", opts.serverId);
+  }
+  const jobId = mapIdParam(opts.jobId);
+  if (jobId !== "") {
+    params.set("jobId", jobId);
+  }
+  const requestId = mapIdParam(opts.requestId);
+  if (requestId !== "") {
+    params.set("requestId", requestId);
   }
   return `/cm/app/?${params.toString()}`;
 }
