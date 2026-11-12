@@ -202,17 +202,13 @@ function buildResultRow(entry, caseResults, options = {}) {
 }
 
 /**
- * Validates one results-matrix row against the contract. Dependency-free so
- * both Playwright specs and plain {@code node --test} unit tests can use it.
+ * Validates the scalar header of one results-matrix row.
  *
- * @param {unknown} row
- * @returns {string[]} validation errors, empty when the row is valid
+ * @param {object} row
+ * @returns {string[]} validation errors
  */
-function validateResultRow(row) {
+function validateRowHeader(row) {
   const errors = [];
-  if (row == null || typeof row !== "object" || Array.isArray(row)) {
-    return ["row must be an object"];
-  }
   const allowed = ["suite", "spec", "contentType", "label", "cell", "cases", "status", "updated"];
   for (const key of Object.keys(row)) {
     if (!allowed.includes(key)) {
@@ -234,20 +230,45 @@ function validateResultRow(row) {
   if (!MATRIX_CELLS.includes(row.cell)) {
     errors.push(`cell must be one of ${MATRIX_CELLS.join(", ")}`);
   }
-  if (row.cases == null || typeof row.cases !== "object" || Array.isArray(row.cases)) {
-    errors.push("cases must be an object");
-  } else {
-    for (const key of Object.keys(row.cases)) {
-      if (!CASE_NAMES.includes(key)) {
-        errors.push(`unexpected case '${key}'`);
-      }
-    }
-    for (const key of CASE_NAMES) {
-      if (!RESULT_STATUSES.includes(row.cases[key])) {
-        errors.push(`cases.${key} must be one of ${RESULT_STATUSES.join(", ")}`);
-      }
+  return errors;
+}
+
+/**
+ * Validates the per-case block of one results-matrix row.
+ *
+ * @param {unknown} cases
+ * @returns {string[]} validation errors
+ */
+function validateRowCases(cases) {
+  if (cases == null || typeof cases !== "object" || Array.isArray(cases)) {
+    return ["cases must be an object"];
+  }
+  const errors = [];
+  for (const key of Object.keys(cases)) {
+    if (!CASE_NAMES.includes(key)) {
+      errors.push(`unexpected case '${key}'`);
     }
   }
+  for (const key of CASE_NAMES) {
+    if (!RESULT_STATUSES.includes(cases[key])) {
+      errors.push(`cases.${key} must be one of ${RESULT_STATUSES.join(", ")}`);
+    }
+  }
+  return errors;
+}
+
+/**
+ * Validates one results-matrix row against the contract. Dependency-free so
+ * both Playwright specs and plain {@code node --test} unit tests can use it.
+ *
+ * @param {unknown} row
+ * @returns {string[]} validation errors, empty when the row is valid
+ */
+function validateResultRow(row) {
+  if (row == null || typeof row !== "object" || Array.isArray(row)) {
+    return ["row must be an object"];
+  }
+  const errors = [...validateRowHeader(row), ...validateRowCases(row.cases)];
   if (!RESULT_STATUSES.includes(row.status)) {
     errors.push(`status must be one of ${RESULT_STATUSES.join(", ")}`);
   }
