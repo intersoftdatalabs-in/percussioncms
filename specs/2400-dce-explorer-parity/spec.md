@@ -1,6 +1,14 @@
 # Spec: DCE ↔ Explorer functional parity program
 
-**Parent tracking issue:** [#2400](https://github.com/intersoftdatalabs-in/percussioncms/issues/2400)  
+> **CLOSEOUT (2026-11-12, #6111):** parent tracking issue
+> [#2400](https://github.com/intersoftdatalabs-in/percussioncms/issues/2400)
+> **closed 2026-09-09**. This package is a frozen research record — plan new
+> implement work under continuation
+> [#4530](https://github.com/intersoftdatalabs-in/percussioncms/issues/4530),
+> not here. Closeout note + refreshed QA states:
+> [research/closeout-note-6111.md](./research/closeout-note-6111.md).
+
+**Parent tracking issue:** [#2400](https://github.com/intersoftdatalabs-in/percussioncms/issues/2400) *(closed 2026-09-09; continuation [#4530](https://github.com/intersoftdatalabs-in/percussioncms/issues/4530))*  
 **Priority:** p1 (research + product UI backlog)  
 **Related prior art:** `specs/992-react-content-explorer/` (capability matrix, cutover inventory)
 
