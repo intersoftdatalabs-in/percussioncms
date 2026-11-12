@@ -914,6 +914,17 @@ GADGET_DESC_DASHBOARD_CONFIG:
           "perc.ui.publish.design.editions@Could not change the content list order",
         COPY_TO_SITE_HEADING: "perc.ui.publish.design.editions@Copy to site",
         TARGET_SITE: "perc.ui.publish.design.editions@Target site",
+        SEARCH_EDITIONS: "perc.ui.publish.design.editions@Search editions",
+        SCHEDULE_FILTER_ARIA:
+          "perc.ui.publish.design.editions@Filter editions by schedule",
+        SCHEDULE_FILTER_ALL:
+          "perc.ui.publish.design.editions@All editions",
+        SCHEDULE_FILTER_SCHEDULED:
+          "perc.ui.publish.design.editions@Scheduled",
+        SCHEDULE_FILTER_UNSCHEDULED:
+          "perc.ui.publish.design.editions@Unscheduled",
+        EMPTY_SEARCH_FILTER:
+          "perc.ui.publish.design.editions@No editions match this search or filter. Clear the search or filter to see the full list.",
       },
       CONTENT_LISTS: {
         DESCRIPTION: "perc.ui.publish.design.contentLists@Description",
