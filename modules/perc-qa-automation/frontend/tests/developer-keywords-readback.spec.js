@@ -18,17 +18,22 @@
 /**
  * Developer keywords catalog readback (#6045 / parent #1690, slice CD-17).
  *
- * Proves the Keywords content-design catalog renders from the thin-read API
+ * Proves the Keywords content-design catalog renders from the list API
  * in the React shell: the catalog table reads back through
- * GET /services/keywords?includeChoices=false (label, value, choice-count,
- * and description cells), and the keyword detail reads back through
+ * GET /services/keywords?includeChoices=true (label, value, choice-count,
+ * and description cells — the count cell needs the embedded choices, so
+ * the thin `includeChoices=false` variant cannot feed the shell), and the
+ * keyword detail reads back through
  * GET /services/keywords/{idOrValue} (stored label, description, sequence,
  * and choices).
  *
  * Test 1 is zero-write: it opens the packaged Body_Markup row and asserts
- * list + detail readback plus thin-read REST probes for the same row.
+ * list + detail readback plus a thin-read REST parity probe
+ * (`includeChoices=false` lists the same row without per-keyword choice
+ * payload) for the same row.
  * Test 2 creates one keyword through the shell, proves label/description
- * readback in the catalog and detail, then removes it with REST DELETE
+ * readback in the catalog and detail plus the empty saved-choices state,
+ * then removes it with REST DELETE
  * cleanup and proves catalog omission.
  *
  * Readback only, no label/description/sequence/choice mutation; out of
@@ -211,8 +216,9 @@ test.describe("Developer keywords catalog readback (#6045)", () => {
       timeout: 15_000,
     });
 
-    // Thin-read REST probe for the same row: GET /services/keywords
-    // contains it.
+    // Thin-read REST parity probe for the same row: the
+    // `includeChoices=false` variant (which the shell does NOT use for the
+    // catalog — its choice counts would read 0) still lists the row.
     const probe = await inPageJson(
       page,
       "/Rhythmyx/services/keywords?includeChoices=false",
@@ -257,6 +263,27 @@ test.describe("Developer keywords catalog readback (#6045)", () => {
     await expect(
       page.locator('[data-testid="developer-kw-keyword-description-text"]'),
     ).toHaveAttribute("data-keyword-description", PACKAGED_DESCRIPTION);
+
+    // Saved-choices readback in the shell: Body_Markup ships two stored
+    // choices (Text/Text Markup, HTML/HTML Markup) and the detail lists
+    // both with their stored labels.
+    const savedChoices = page.locator(
+      '[data-testid="developer-kw-saved-choices"]',
+    );
+    await expect(savedChoices).toBeVisible({ timeout: 20_000 });
+    await expect(
+      savedChoices.locator('[data-testid="developer-kw-choice"]'),
+    ).toHaveCount(2);
+    await expect(
+      savedChoices.locator(
+        '[data-testid="developer-kw-choice"][data-choice-label="Text"]',
+      ),
+    ).toBeVisible();
+    await expect(
+      savedChoices.locator(
+        '[data-testid="developer-kw-choice"][data-choice-label="HTML"]',
+      ),
+    ).toBeVisible();
 
     assertConsoleClean(pageErrors, consoleErrors);
   });
@@ -309,6 +336,15 @@ test.describe("Developer keywords catalog readback (#6045)", () => {
       description,
     );
     await expect(page.locator('[data-testid="developer-kw-sequence"]')).toHaveValue("7");
+
+    // Saved-choices readback for a choice-less keyword: the detail shows
+    // the empty-choices state instead of a saved-choices list.
+    await expect(
+      page.locator('[data-testid="developer-kw-saved-choices"]'),
+    ).toHaveCount(0);
+    await expect(
+      page.locator('[data-testid="developer-kw-choices-empty"]'),
+    ).toBeVisible({ timeout: 20_000 });
 
     // REST cleanup: resolve the server guid, DELETE the created keyword,
     // then prove catalog omission.

@@ -39,9 +39,12 @@ An empty catalog is a valid **200** with an empty state, not an error.
 
 ## Readback
 
-The catalog table is a thin read: it lists label, value, choice count, and
-description from `GET /services/keywords?includeChoices=false` and carries
-no per-keyword choice payload. Opening a row loads the detail from
+The catalog table is a full-list read: it lists label, value, choice
+count, and description from `GET /services/keywords?includeChoices=true`.
+The shell requests `includeChoices=true` because the choice-count cell
+needs the embedded choices — the thin `includeChoices=false` variant
+carries no per-keyword choice payload, so counts read from it would be 0.
+Opening a row loads the detail from
 `GET /services/keywords/{idOrValue}` (by uuid, numeric id, value, or label)
 and shows the stored label, the stored description, the stored sequence,
 and the saved choices. Packaged keywords such as Body_Markup read back with
@@ -73,8 +76,9 @@ Each field saves only itself: a label save does not send the description,
 sequence, or choices, so those stay. A description save omits choices, so
 stored choices stay, and a blank description clears the keyword description.
 A sequence save sends only the sequence. The new value shows only after
-that save succeeds. **Cancel** does not write. HTTP **400**, **403**, and
-**409** leave the previous value.
+that save succeeds. **Cancel** does not write. HTTP **400** and **403**
+leave the previous value (the keywords service maps duplicate labels to
+**400**; it returns no **409**).
 
 ## Product path — manage one choice
 
@@ -87,8 +91,9 @@ that save succeeds. **Cancel** does not write. HTTP **400**, **403**, and
 Choice writes keep the stored keyword label, description, and sequence and
 send the full choice list with the one change applied. Removing the last
 choice clears the list and does not delete the keyword. A blank choice
-label or value does not write. HTTP **400**, **403**, and **409** leave the
-previous choices.
+label or value does not write. HTTP **400** and **403** leave the
+previous choices (the keywords service returns no **409**; the editor
+still treats one as a failed save).
 
 ## Product path — delete a keyword
 
