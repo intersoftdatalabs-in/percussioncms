@@ -259,6 +259,31 @@ function lifecycleErrMsg(err: unknown, fallback: string): string {
   return panelErrMsg(err, fallback);
 }
 
+export type ResultPageSaveInputs =
+  | { ok: true; resource: string; stylesheetUri: string }
+  | { ok: false; error: string };
+
+/**
+ * Validate the result-page save form without touching component state.
+ * Extracted from `onSaveResultPage` (see issue #6123): keeps the handler
+ * under the complexity gate while `normalizeStylesheetUriInput` remains the
+ * single normalization path shared with #6114.
+ */
+export function resolveResultPageSaveInputs(
+  resourceName: string,
+  resultPageUri: string,
+): ResultPageSaveInputs {
+  const resource = resourceName.trim();
+  if (!resource) {
+    return { ok: false, error: DEV_MSG.PIPE_RESULT_PAGE_RESOURCE_REQUIRED };
+  }
+  const stylesheetUri = normalizeStylesheetUriInput(resultPageUri);
+  if (!stylesheetUri) {
+    return { ok: false, error: DEV_MSG.PIPE_RESULT_PAGE_STYLESHEET_REQUIRED };
+  }
+  return { ok: true, resource, stylesheetUri };
+}
+
 function invokeErrMsg(err: unknown): string {
   if (isApiError(err) && err.status === 403) {
     return DEV_MSG.PIPE_FORBIDDEN;
@@ -1196,17 +1221,27 @@ export function PipelineDetailPanel({
     window.setTimeout(() => URL.revokeObjectURL(objectUrl), 0);
   }
 
+  /** Best-effort IR refresh after a successful persist; never fails the save. */
+  async function refreshIrSilently(): Promise<void> {
+    try {
+      const nextIr = await getPipelineIr(idOrName);
+      if (mountedRef.current) setIr(nextIr);
+    } catch {
+      // persist succeeded; IR refresh is best-effort
+    }
+  }
+
+  function applySavedResultPage(saved: PipelineResultPage): void {
+    if (saved.stylesheetUri) setResultPageUri(saved.stylesheetUri);
+    if (saved.requestExtension) setResultPageExtension(saved.requestExtension);
+    if (saved.mimeType) setResultPageMime(saved.mimeType);
+  }
+
   async function onSaveResultPage(): Promise<void> {
     if (!detail || resultPageInflight.current) return;
-    const resource = resourceName.trim();
-    if (!resource) {
-      setResultPageError(DEV_MSG.PIPE_RESULT_PAGE_RESOURCE_REQUIRED);
-      setResultPageNotice(null);
-      return;
-    }
-    const stylesheetUri = normalizeStylesheetUriInput(resultPageUri);
-    if (!stylesheetUri) {
-      setResultPageError(DEV_MSG.PIPE_RESULT_PAGE_STYLESHEET_REQUIRED);
+    const inputs = resolveResultPageSaveInputs(resourceName, resultPageUri);
+    if (!inputs.ok) {
+      setResultPageError(inputs.error);
       setResultPageNotice(null);
       return;
     }
@@ -1215,23 +1250,16 @@ export function PipelineDetailPanel({
     setResultPageError(null);
     setResultPageNotice(null);
     try {
-      const saved = await putResultPage(idOrName, resource, {
-        stylesheetUri,
+      const saved = await putResultPage(idOrName, inputs.resource, {
+        stylesheetUri: inputs.stylesheetUri,
         requestExtension: resultPageExtension.trim() || ".html",
         mimeType: resultPageMime.trim() || "text/html",
         presentation: "html",
       });
       if (!mountedRef.current) return;
-      if (saved.stylesheetUri) setResultPageUri(saved.stylesheetUri);
-      if (saved.requestExtension) setResultPageExtension(saved.requestExtension);
-      if (saved.mimeType) setResultPageMime(saved.mimeType);
+      applySavedResultPage(saved);
       setResultPageNotice(DEV_MSG.PIPE_RESULT_PAGE_SAVED);
-      try {
-        const nextIr = await getPipelineIr(idOrName);
-        if (mountedRef.current) setIr(nextIr);
-      } catch {
-        // persist succeeded; IR refresh is best-effort
-      }
+      await refreshIrSilently();
     } catch (err: unknown) {
       if (!mountedRef.current) return;
       setResultPageError(lifecycleErrMsg(err, DEV_MSG.PIPE_RESULT_PAGE_SAVE_ERROR));
