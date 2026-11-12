@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { fetchSites } from "../../api/home/homeApi";
 import {
   fetchLogDetails,
@@ -66,12 +66,19 @@ export interface LogsSectionProps {
   itemId?: string;
   onItemIdChange?: (itemId: string) => void;
   onOpenSection?: (section: PublishSection) => void;
+  /**
+   * Publishing job id from the `jobId` deep-link param (already sanitized
+   * by the shell). The section loads once and opens the matching job
+   * details; unknown ids degrade to the plain Logs list — never an error.
+   */
+  initialJobId?: string;
 }
 
 export function LogsSection({
   itemId,
   onItemIdChange,
   onOpenSection,
+  initialJobId,
 }: LogsSectionProps = {}): React.ReactElement {
   const [logs, setLogs] = useState<PublishingLogEntry[]>([]);
   const [sites, setSites] = useState<PublishSiteSummary[]>([]);
@@ -90,6 +97,10 @@ export function LogsSection({
   const [showOnlyFailures, setShowOnlyFailures] = useState(false);
   const [statusFilter, setStatusFilter] = useState<LogStatusFilter>("all");
   const [query, setQuery] = useState("");
+  /** Pending deep-link job id (cleared once resolved or degraded). */
+  const [deepLinkJobId, setDeepLinkJobId] = useState<string | null>(null);
+  /** Deep-link ids already attempted — never retried, never error. */
+  const deepLinkConsumedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     fetchSites()
@@ -166,6 +177,36 @@ export function LogsSection({
       setError(message(MSG.PUBLISH_ERROR));
     }
   }
+
+  useEffect(() => {
+    const id = (initialJobId ?? "").trim();
+    if (id === "" || deepLinkConsumedRef.current.has(id)) {
+      return;
+    }
+    // Deep-link entry: trigger one load so the job row can be resolved.
+    setDeepLinkJobId(id);
+    void load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [initialJobId]);
+
+  useEffect(() => {
+    if (deepLinkJobId == null || deepLinkJobId === "") {
+      return;
+    }
+    if (loading) {
+      return;
+    }
+    const row = logs.find(
+      (log) => String(log.jobId ?? "") === deepLinkJobId,
+    );
+    // Resolve once either way: open the match, or degrade unknown ids to
+    // the plain list (never an error, never a retry loop).
+    deepLinkConsumedRef.current.add(deepLinkJobId);
+    setDeepLinkJobId(null);
+    if (row) {
+      void onDetails(row);
+    }
+  }, [logs, loading, deepLinkJobId]);
 
   async function onPurgeConfirmed(): Promise<void> {
     if (!canPurge([...selected])) {

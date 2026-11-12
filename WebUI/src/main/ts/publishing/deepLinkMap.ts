@@ -93,6 +93,22 @@ export function mapIdParam(raw: string | null | undefined): string {
   return trimmed;
 }
 
+/**
+ * Safe publishing job id from query (`section=logs&jobId=…`).
+ * Same allowlist as {@link mapIdParam} (numeric ids pass; markup is dropped).
+ */
+export function mapJobIdParam(raw: string | null | undefined): string {
+  return mapIdParam(raw);
+}
+
+/**
+ * Safe demand-publish request id from query (`section=status&requestId=…`).
+ * Same allowlist as {@link mapIdParam}.
+ */
+export function mapRequestIdParam(raw: string | null | undefined): string {
+  return mapIdParam(raw);
+}
+
 export function knownSectionAliases(): string[] {
   return Object.keys(SECTION_ALIASES);
 }

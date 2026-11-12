@@ -67,6 +67,22 @@ class PSRunEditionTest {
   }
 
   @Test
+  void buildPublishingLogURL_withJobId_appendsParam() {
+    String url = PSRunEdition.buildPublishingLogURL("http", "cms.example.com", 9992, "", 77L);
+
+    assertEquals(
+        "http://cms.example.com:9992/cm/app/?view=publish&section=logs&jobId=77", url);
+    assertFalse(url.contains("\\"));
+  }
+
+  @Test
+  void buildPublishingLogURL_negativeJobId_omitsParam() {
+    String url = PSRunEdition.buildPublishingLogURL("http", "localhost", 8080, null, -1L);
+
+    assertEquals("http://localhost:8080/cm/app/?view=publish&section=logs", url);
+  }
+
+  @Test
   void buildPublishingLogURL_rejectsBlankProtocolOrHost() {
     assertThrows(
         IllegalArgumentException.class,

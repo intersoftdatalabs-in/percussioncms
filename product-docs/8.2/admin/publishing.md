@@ -2132,6 +2132,15 @@ panel with a blank page. When the server returns no jobs at all, Status still sh
 
 From **Publish** → **Status**, choose a job’s site name. A detail panel shows the job id, site, edition name when the status API includes one, and status. Optional fields that the API omits are left blank. When the job failed (including **Completed with failures**) and the API includes error text, the panel shows that text. The same panel lists that job’s content items from `POST …/sitemanage/pubstatus/details` (the log-details payload). Each row shows the content id and a name or title when the payload includes one (`title`, `name`, or the item file name). An empty item list is **No content items for this job**, not an error. **Open in editor** on a row probes `GET …/itemmanagement/item/fields/{contentId}` and, on success, opens the React content editor (`spa.jsp?entry=editor&contentId=…&mode=edit`). A row with no content id has no **Open in editor** control. HTTP **403** and **404** on the item list stay in the detail panel (the job fields remain; the list is not treated as empty success). The same 403/404 on the editor probe stay in the panel and do not open a blank editor window. A failed job stays on Status for the last day after it leaves the active id set; while the publisher still has the live job, the panel includes that publisher message. **Close** (Back) hides the panel and does **not** stop the job. **Stop** stays on the row for running jobs and still requires confirm.
 
+### Deep links to a job or demand request
+
+Notification emails and demand-publish redirects land on a specific job instead of the generic section:
+
+- `spa.jsp?entry=publish&section=logs&jobId={id}` — **Logs** loads once and opens the matching job detail. This is the link behind `$sys.editionLogUrl` in scheduled-edition completion notifications.
+- `spa.jsp?entry=publish&section=status&requestId={id}` — **Status** preselects the matching current job. This is where demand publish (`/publisher/demandpublishing`) redirects after queuing, so the queued request is surfaced immediately.
+
+Only `section=status|logs` honor these params. Unsafe characters are dropped, and unknown ids show the plain section list — never an error page.
+
 ### Cancel or stop an in-flight publish job
 
 From **Publish** → **Status**, or from a site workspace **Status** list, **Stop** is shown only for jobs whose status is running (not completed, failed, or already stopping). Confirm the dialog. The shell posts `POST …/publishmanagement/servers/stopPublishing/{jobId}`. Success refreshes the Status list. Dismissing the confirm does not call the server. Jobs that are not running have no Stop control. HTTP **403** (forbidden), **404** (unknown job), and **409** (job cannot be stopped — already finished or already stopping) are shown as errors in Status; they are **not** treated as success.

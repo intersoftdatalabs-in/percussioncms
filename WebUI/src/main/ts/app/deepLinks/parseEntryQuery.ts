@@ -43,6 +43,10 @@ export interface ParsedSpaEntry {
   serverId?: string;
   /** Item publishing history lookup (Publish Status/Logs). */
   itemId?: string;
+  /** Publishing job to preselect (Publish Logs, issue #6215). */
+  jobId?: string;
+  /** Demand-publish request to surface (Publish Status, issue #6215). */
+  requestId?: string;
   path?: string;
   /** Architecture site name (path or query; #3094). */
   site?: string;
@@ -102,11 +106,15 @@ function readIds(params: URLSearchParams): {
   siteId?: string;
   serverId?: string;
   itemId?: string;
+  jobId?: string;
+  requestId?: string;
 } {
   return {
     siteId: normalizeId(params.get("siteId")),
     serverId: normalizeId(params.get("serverId")),
     itemId: normalizeId(params.get("itemId")),
+    jobId: normalizeId(params.get("jobId")),
+    requestId: normalizeId(params.get("requestId")),
   };
 }
 
@@ -117,13 +125,15 @@ function withQueryString(base: string, qs: URLSearchParams): string {
 
 function buildPublishEntry(src: EntryFieldSource): ParsedSpaEntry {
   const section = normalizePublishSection(src.section);
-  const { siteId, serverId, itemId } = readIds(src.params);
+  const { siteId, serverId, itemId, jobId, requestId } = readIds(src.params);
   const qs = new URLSearchParams();
   if (siteId) qs.set("siteId", siteId);
   if (serverId) qs.set("serverId", serverId);
   if (itemId) qs.set("itemId", itemId);
+  if (jobId) qs.set("jobId", jobId);
+  if (requestId) qs.set("requestId", requestId);
   const base = section ? `/publish/${section}` : "/publish";
-  return { entry: "publish", section, siteId, serverId, itemId, clientPath: withQueryString(base, qs) };
+  return { entry: "publish", section, siteId, serverId, itemId, jobId, requestId, clientPath: withQueryString(base, qs) };
 }
 
 function buildWorkflowEntry(src: EntryFieldSource): ParsedSpaEntry {
@@ -266,6 +276,8 @@ export function toSpaEntryUrl(parsed: ParsedSpaEntry): string {
   if (parsed.siteId) params.set("siteId", parsed.siteId);
   if (parsed.serverId) params.set("serverId", parsed.serverId);
   if (parsed.itemId) params.set("itemId", parsed.itemId);
+  if (parsed.jobId) params.set("jobId", parsed.jobId);
+  if (parsed.requestId) params.set("requestId", parsed.requestId);
   if (parsed.path) params.set("path", parsed.path);
   if (parsed.site) params.set("site", parsed.site);
   if (parsed.contentId) params.set("contentId", parsed.contentId);

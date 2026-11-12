@@ -226,7 +226,8 @@ public class PSRunEdition implements IPSTask, IPSPublishingJobStatusCallback
             protocol,
             PSServer.getFullyQualifiedHostName(),
             PSServer.getListenerPort(),
-            PSServer.getRequestRoot());
+            PSServer.getRequestRoot(),
+            m_jobId);
    }
 
    /**
@@ -237,11 +238,37 @@ public class PSRunEdition implements IPSTask, IPSPublishingJobStatusCallback
     * 'logs' })} → {@code /cm/app/?view=publish&section=logs}. Host/port/protocol/request-root
     * assembly uses URL path separators only ({@code /}); never OS file separators.
     * <p>
-    * <b>Job id query:</b> the modern shell deep-link contract supports {@code section}, optional
-    * {@code siteId}/{@code serverId}, but not a job-id filter. The legacy
-    * {@code JobPubLog.faces?sys_publishingJobId=} query is intentionally omitted (faces stack
-    * already removed). Callers land on the Logs section; job-level drill-down remains a future
-    * shell enhancement.
+    * <b>Job id query:</b> the publishing job id is appended as {@code &jobId=} (issue #6215
+    * restores the {@code sys_publishingJobId} fidelity dropped by #1844; the legacy
+    * {@code JobPubLog.faces} faces stack stays removed). The modern shell
+    * ({@code section=logs&jobId=}) preselects and opens the matching job detail via
+    * {@code mapJobIdParam} sanitization; unknown ids degrade to the plain Logs list.
+    * Negative ids omit the param and land on the Logs section.
+    *
+    * @param protocol {@code http} or {@code https}, never {@code null} or blank
+    * @param host fully qualified host name, never {@code null} or blank
+    * @param port listener port
+    * @param requestRoot CMS request root (e.g. {@code /Rhythmyx} or empty); may be {@code null}
+    * @param jobId publishing job id to deep-link; negative omits the param
+    * @return absolute URL, never {@code null}
+    */
+   static String buildPublishingLogURL(
+         String protocol, String host, int port, String requestRoot, long jobId)
+   {
+      if (StringUtils.isBlank(protocol))
+         throw new IllegalArgumentException("protocol may not be null or blank");
+      if (StringUtils.isBlank(host))
+         throw new IllegalArgumentException("host may not be null or blank");
+      // URL path elements always use '/'; do not use File.separator
+      String root = requestRoot == null ? "" : requestRoot;
+      String base = protocol + "://" + host + ":" + port + root
+            + "/cm/app/?view=publish&section=logs";
+      return jobId < 0 ? base : base + "&jobId=" + jobId;
+   }
+
+   /**
+    * Builds the absolute publishing-logs deep link without a job id — lands on the Logs
+    * section.
     *
     * @param protocol {@code http} or {@code https}, never {@code null} or blank
     * @param host fully qualified host name, never {@code null} or blank
@@ -252,14 +279,7 @@ public class PSRunEdition implements IPSTask, IPSPublishingJobStatusCallback
    static String buildPublishingLogURL(
          String protocol, String host, int port, String requestRoot)
    {
-      if (StringUtils.isBlank(protocol))
-         throw new IllegalArgumentException("protocol may not be null or blank");
-      if (StringUtils.isBlank(host))
-         throw new IllegalArgumentException("host may not be null or blank");
-      // URL path elements always use '/'; do not use File.separator
-      String root = requestRoot == null ? "" : requestRoot;
-      return protocol + "://" + host + ":" + port + root
-            + "/cm/app/?view=publish&section=logs";
+      return buildPublishingLogURL(protocol, host, port, requestRoot, -1L);
    }
    
    /**

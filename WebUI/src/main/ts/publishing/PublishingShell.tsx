@@ -17,7 +17,7 @@
 
 import React, { useEffect, useMemo, useState } from "react";
 import { message, MSG } from "../i18n/message";
-import { mapIdParam, mapSectionParam } from "./deepLinkMap";
+import { mapIdParam, mapJobIdParam, mapRequestIdParam, mapSectionParam } from "./deepLinkMap";
 import { DirtyFormProvider, useDirtyForm } from "./dirtyFormContext";
 import {
   headerStyle,
@@ -42,6 +42,17 @@ export interface PublishingShellProps {
   serverId?: string;
   /** Item id for history, schedule dates, and site-workspace takedown. */
   itemId?: string;
+  /**
+   * Publishing job to preselect when opening Logs (`jobId` deep-link param).
+   * Sanitized with `mapJobIdParam`; unknown ids degrade to the Logs list.
+   */
+  jobId?: string;
+  /**
+   * Demand-publish request to surface when opening Status (`requestId`
+   * deep-link param). Sanitized with `mapRequestIdParam`; unknown ids
+   * degrade to the Status list.
+   */
+  requestId?: string;
   /**
    * When false, hide Design section (role-aware progressive disclosure).
    * Default true — server does not yet expose a dedicated design role to the shell.
@@ -76,6 +87,8 @@ function PublishingShellInner({
   siteId,
   serverId,
   itemId,
+  jobId,
+  requestId,
   showDesign = true,
 }: PublishingShellProps): React.ReactElement {
   const start = useMemo(() => {
@@ -87,6 +100,8 @@ function PublishingShellInner({
   }, [section, showDesign]);
   const safeSiteId = useMemo(() => mapIdParam(siteId), [siteId]);
   const safeServerId = useMemo(() => mapIdParam(serverId), [serverId]);
+  const safeJobId = useMemo(() => mapJobIdParam(jobId), [jobId]);
+  const safeRequestId = useMemo(() => mapRequestIdParam(requestId), [requestId]);
   const [historyItemId, setHistoryItemId] = useState(() => mapIdParam(itemId));
   const [active, setActive] = useState<PublishSection>(start);
   const [statusJobFocus, setStatusJobFocus] = useState<{
@@ -172,6 +187,7 @@ function PublishingShellInner({
             onOpenSection={navigate}
             focusJob={statusJobFocus}
             onFocusJobClear={() => setStatusJobFocus(null)}
+            initialRequestId={safeRequestId || undefined}
           />
         )}
         {active === "logs" && (
@@ -179,6 +195,7 @@ function PublishingShellInner({
             itemId={historyItemId}
             onItemIdChange={setHistoryItemId}
             onOpenSection={navigate}
+            initialJobId={safeJobId || undefined}
           />
         )}
         {active === "design" && showDesign && <DesignSection />}

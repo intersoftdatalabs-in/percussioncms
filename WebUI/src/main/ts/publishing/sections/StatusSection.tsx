@@ -73,6 +73,13 @@ export interface StatusSectionProps {
    */
   focusJob?: { id: string; token: number } | null;
   onFocusJobClear?: () => void;
+  /**
+   * Demand-publish request id from the `requestId` deep-link param
+   * (already sanitized by the shell). When a job with this id is present in
+   * the loaded list it is preselected; unknown ids degrade to the plain
+   * Status list — never an error.
+   */
+  initialRequestId?: string;
 }
 
 export function StatusSection({
@@ -81,6 +88,7 @@ export function StatusSection({
   onOpenSection,
   focusJob,
   onFocusJobClear,
+  initialRequestId,
 }: StatusSectionProps = {}): React.ReactElement {
   const [jobs, setJobs] = useState<PublishingJob[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -90,6 +98,8 @@ export function StatusSection({
   const [sort, setSort] = useState<StatusSortState>(DEFAULT_SORT);
   const [selectedJobId, setSelectedJobId] = useState<string | null>(null);
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  /** True once a deep-linked request selection was shown or dismissed. */
+  const deepLinkConsumedRef = useRef(false);
 
   const load = useCallback(() => {
     fetchCurrentJobs()
@@ -126,6 +136,23 @@ export function StatusSection({
       setSelectedJobId(id);
     }
   }, [focusJob?.id, focusJob?.token]);
+
+  useEffect(() => {
+    deepLinkConsumedRef.current = false;
+  }, [initialRequestId]);
+
+  useEffect(() => {
+    const id = (initialRequestId ?? "").trim();
+    if (id === "" || deepLinkConsumedRef.current) {
+      return;
+    }
+    // Deep-link only: preselect when the request surfaces as a listed job.
+    // Unknown ids stay on the plain list (degrade, never error).
+    if (jobs.some((job) => String(job.jobId ?? "") === id)) {
+      deepLinkConsumedRef.current = true;
+      setSelectedJobId(id);
+    }
+  }, [initialRequestId, jobs]);
 
   const selectedJob = useMemo(() => {
     if (selectedJobId == null || selectedJobId === "") {
@@ -348,6 +375,7 @@ export function StatusSection({
         <StatusJobDetailPanel
           job={selectedJob}
           onClose={() => {
+            deepLinkConsumedRef.current = true;
             setSelectedJobId(null);
             onFocusJobClear?.();
           }}

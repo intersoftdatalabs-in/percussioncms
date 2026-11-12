@@ -21,6 +21,8 @@ import {
   knownSectionAliases,
   mapClassicPublishingPath,
   mapIdParam,
+  mapJobIdParam,
+  mapRequestIdParam,
   mapSectionParam,
 } from "@/publishing/deepLinkMap";
 
@@ -63,6 +65,18 @@ describe("mapSectionParam history intents", () => {
     expect(mapSectionParam("activejob")).toBe("status");
     expect(mapSectionParam("pubruntime")).toBe("runtime");
     expect(mapSectionParam("publishingdesign")).toBe("design");
+  });
+});
+
+describe("mapJobIdParam and mapRequestIdParam (#6215)", () => {
+  it("reuses the mapIdParam allowlist for deep-link ids", () => {
+    expect(mapJobIdParam("77")).toBe("77");
+    expect(mapRequestIdParam("42")).toBe("42");
+    expect(mapJobIdParam("job-1_2")).toBe("job-1_2");
+    expect(mapJobIdParam("<script>")).toBe("");
+    expect(mapRequestIdParam("1/2")).toBe("");
+    expect(mapJobIdParam(null)).toBe("");
+    expect(mapRequestIdParam(undefined)).toBe("");
   });
 });
 
