@@ -97,11 +97,13 @@ public class PSEditorHostRedirectTest {
   public void retiredSchedulerAdminJspsMatchUiAdminTrees() {
     // #6140 FR-002: eleven scheduler-console hosts retired from ui/admin (+tools),
     // in both the .jsp and the .faces spelling (JSF views bookmark as .faces).
+    // #6160: TaskDetailLog joins the retired set (TaskLogs per-row detail affordance).
     String[] pages = {
       "scheduledtask",
       "scheduledtasklist",
       "removeconfirmation",
       "tasklogs",
+      "taskdetaillog",
       "deletealltasklogwarning",
       "notasklogselectionwarning",
       "tasknotificationeditor",
@@ -122,10 +124,9 @@ public class PSEditorHostRedirectTest {
           PSEditorHostRedirect.isRetiredSchedulerAdminJsp(
               "/ui/admin/tools/" + tool + ".faces"));
     }
-    // Kept pages still pass through: detail log, command console, index redirect,
-    // auth include, ConvertVariant + RxFix tools (no React equivalent yet).
-    assertFalse(PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/taskdetaillog.jsp"));
-    assertFalse(PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/taskdetaillog.faces"));
+    // Kept pages still pass through: command console, index redirect,
+    // auth include, ConvertVariant + RxFix tools (no React equivalent yet, #6160).
+    // TaskDetailLog retired in #6160 (asserted in pages[] above).
     assertFalse(PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/console.jsp"));
     assertFalse(PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/console.faces"));
     assertFalse(PSEditorHostRedirect.isRetiredSchedulerAdminJsp("/ui/admin/index.jsp"));

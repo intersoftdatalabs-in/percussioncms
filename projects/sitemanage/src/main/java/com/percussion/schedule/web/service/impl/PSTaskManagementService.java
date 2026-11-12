@@ -147,8 +147,12 @@ public class PSTaskManagementService {
   @Path("/logs")
   public List<Map<String, Object>> getTaskLogs() {
     try {
+      // #6160: single task-name lookup so per-log serialization does not fan out
+      // into one schedule query per log row; a stale/deleted task simply yields
+      // a null taskName and never fails the listing.
+      Map<String, String> taskNames = loadTaskNames();
       return schedulingService.findAllTaskLogs(100).stream()
-          .map(this::serializeLog)
+          .map(log -> serializeLog(log, taskNames))
           .collect(Collectors.toList());
     } catch (Exception e) {
       throw new WebApplicationException(e, Response.Status.INTERNAL_SERVER_ERROR);
@@ -221,9 +225,34 @@ public class PSTaskManagementService {
   }
 
   private Map<String, Object> serializeLog(PSScheduledTaskLog log) {
+    return serializeLog(log, loadTaskNames());
+  }
+
+  /**
+   * Best-effort task-id to task-name map for log serialization (#6160). Never
+   * throws: a schedule-store failure degrades to an empty map (null taskName)
+   * rather than failing the log listing.
+   */
+  private Map<String, String> loadTaskNames() {
+    try {
+      return schedulingService.findAllSchedules().stream()
+          .filter(task -> task.getId() != null)
+          .collect(
+              Collectors.toMap(
+                  task -> task.getId().toString(), PSScheduledTask::getName, (a, b) -> a));
+    } catch (Exception e) {
+      return Collections.emptyMap();
+    }
+  }
+
+  private Map<String, Object> serializeLog(
+      PSScheduledTaskLog log, Map<String, String> taskNames) {
     Map<String, Object> map = new HashMap<>();
     map.put("id", log.getId().toString());
     map.put("taskId", log.getTaskId().toString());
+    // #6160: per-log detail affordance needs the task name; null when the
+    // owning schedule was deleted after the log row was written.
+    map.put("taskName", taskNames.get(log.getTaskId().toString()));
     map.put("startTime", log.getStartTime() != null ? log.getStartTime().getTime() : null);
     map.put("endTime", log.getEndTime() != null ? log.getEndTime().getTime() : null);
     map.put("success", log.isSuccess());

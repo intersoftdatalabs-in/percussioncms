@@ -47,6 +47,13 @@ export const ADMIN_MSG = {
   STATUS: "perc.ui.admin@Status",
   MESSAGE: "perc.ui.admin@Message",
   SERVER_NAME: "perc.ui.admin@Server Name",
+  /** Per-log detail affordance (#6160: React replacement for TaskDetailLog.jsp). */
+  LOG_START_TIME: "perc.ui.admin@Start Time",
+  LOG_END_TIME: "perc.ui.admin@End Time",
+  LOG_ELAPSED: "perc.ui.admin@Elapsed (HH:mm:ss)",
+  LOG_DETAIL_MESSAGE: "perc.ui.admin@Detail Message",
+  LOG_SHOW_DETAILS: "perc.ui.admin@Show log details",
+  LOG_HIDE_DETAILS: "perc.ui.admin@Hide log details",
   
   NAME_REQUIRED: "perc.ui.admin@Task name is required.",
   CRON_REQUIRED: "perc.ui.admin@Cron expression is required.",

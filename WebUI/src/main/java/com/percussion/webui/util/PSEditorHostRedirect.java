@@ -158,16 +158,17 @@ public final class PSEditorHostRedirect {
   }
 
   /**
-   * True when {@code lowerPath} is a retired scheduler-console JSF bookmark (#6140, FR-002): one
-   * of the deleted {@code ui/admin/*.jsp} scheduler pages ({@code ScheduledTask}, {@code
-   * ScheduledTaskList}, {@code RemoveConfirmation}, {@code TaskLogs}, {@code
+   * True when {@code lowerPath} is a retired scheduler-console JSF bookmark (#6140, #6160,
+   * FR-002): one of the deleted {@code ui/admin/*.jsp} scheduler pages ({@code ScheduledTask},
+   * {@code ScheduledTaskList}, {@code RemoveConfirmation}, {@code TaskLogs}, {@code
    * DeleteAllTaskLogWarning}, {@code NoTaskLogSelectionWarning}, {@code TaskNotificationEditor},
-   * {@code TaskNotificationList}) or the deleted {@code ui/admin/tools/ConsistencyChecker*}
-   * trio, in either the {@code .jsp} or the {@code .faces} spelling (JSF views bookmark as {@code
-   * .faces}).
+   * {@code TaskNotificationList}, {@code TaskDetailLog} — the last replaced by the TaskLogs
+   * per-row detail affordance in #6160) or the deleted {@code
+   * ui/admin/tools/ConsistencyChecker*} trio, in either the {@code .jsp} or the {@code .faces}
+   * spelling (JSF views bookmark as {@code .faces}).
    *
-   * <p>Kept pages ({@code TaskDetailLog}, {@code console}, {@code index}, {@code
-   * AdminAuthentication}, {@code ConvertVariant*}, {@code RxFix*}) return false.
+   * <p>Kept pages ({@code console}, {@code index}, {@code AdminAuthentication}, {@code
+   * ConvertVariant*}, {@code RxFix*}) return false: no React equivalent exists yet (#6160).
    *
    * @param lowerPath already lower-cased webapp path; may be null
    * @return true when the path is a deleted scheduler-console bookmark
@@ -180,6 +181,7 @@ public final class PSEditorHostRedirect {
         || isRetiredSchedulerAdminFile(lowerPath, "scheduledtasklist")
         || isRetiredSchedulerAdminFile(lowerPath, "removeconfirmation")
         || isRetiredSchedulerAdminFile(lowerPath, "tasklogs")
+        || isRetiredSchedulerAdminFile(lowerPath, "taskdetaillog")
         || isRetiredSchedulerAdminFile(lowerPath, "deletealltasklogwarning")
         || isRetiredSchedulerAdminFile(lowerPath, "notasklogselectionwarning")
         || isRetiredSchedulerAdminFile(lowerPath, "tasknotificationeditor")

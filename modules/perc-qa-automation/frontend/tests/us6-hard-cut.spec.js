@@ -110,6 +110,15 @@ const SHELLS = [
     expectAdminSpa: true,
   },
   {
+    name: "schedulerTaskDetailLog",
+    // #6160 FR-002: retired per-log detail bookmark → 301 to SPA Admin shell;
+    // the TaskLogs per-row detail affordance is the React replacement
+    path: "/Rhythmyx/ui/admin/TaskDetailLog.faces",
+    asserted: true,
+    expectModernShell: false,
+    expectAdminSpa: true,
+  },
+  {
     name: "users",
     path: "/Rhythmyx/cm/app/users.jsp",
     asserted: true, // T031 complete on 2026-07-19
