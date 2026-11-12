@@ -38,3 +38,7 @@
 ## Dependencies
 
 Setup → WP0 inventory (blocks everything) → WP1 battery → WP2 gap fixes (only failures) → WP3 closeout.
+
+## Epic traceability (issue #6102)
+
+Each spec bullet maps to exactly one owning epic — see `plan.md` § "Epic ownership map". Summary: bullets 1–9, 10b, 10c, 11 → #4532 (React content editor increments); bullet 10a (rich HTML / TipTap) → #5622 (TinyMCE replacement). Ambiguity decisions D1 (keyword/community → #4532) and D2 (promote form → #4532) are recorded in `plan.md`; #5986 duplicate-triage confusion is resolved (CLOSED 2026-11-11).
