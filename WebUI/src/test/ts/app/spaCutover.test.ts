@@ -379,6 +379,9 @@ describe("PR-5 aggressive index.jsp SPA cutover (retained)", () => {
       expect(webXml).toContain(`/Rhythmyx/ui/activeassembly/workflow/${file}`);
     }
     expect(webXml).toContain("<param-value>editor</param-value>");
+    // Filter covers the /ui/activeassembly/workflow tree so bypassed bookmarks
+    // still 301 (same belt-and-braces as /ui/admin/* in #6140).
+    expect(webXml).toContain("<url-pattern>/ui/activeassembly/workflow/*</url-pattern>");
   });
 
   it("does not pack retired perc_architecture bundles (#3099)", () => {

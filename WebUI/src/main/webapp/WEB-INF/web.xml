@@ -471,6 +471,14 @@
         <url-pattern>/ui/admin/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
     </filter-mapping>
+    <!-- #6139: retired AA workflow dialog panes under
+         /ui/activeassembly/workflow keep 301ing via the filter when the exact
+         servlet mapping is bypassed. Sibling AA pages pass through untouched. -->
+    <filter-mapping>
+        <filter-name>PSWebUiSpaFallbackFilter</filter-name>
+        <url-pattern>/ui/activeassembly/workflow/*</url-pattern>
+        <dispatcher>REQUEST</dispatcher>
+    </filter-mapping>
     <!--
       #5672: retired legacy API-doc viewer directory. The webapp welcome-file
       list only covers index.jsp, so /cm/api/ would 404 despite the static
