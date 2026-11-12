@@ -188,8 +188,8 @@
     sPaginationType: "full_numbers",
     bLengthChange: false,
     bInfo: true,
-    fnDrawCallback: tableRedrawCallback,
-    fnFooterCallback: footerRedrawCallback,
+    drawCallback: tableRedrawCallback,
+    footerCallback: footerRedrawCallback,
     oLanguage: {
       sZeroRecords:
         typeof I18N === "undefined"

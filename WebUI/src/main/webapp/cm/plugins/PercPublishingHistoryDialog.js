@@ -206,7 +206,7 @@
         // if table has no rows show the following error
         oLanguage: { sZeroRecords: "No History Found" },
         // if on first or last page, update the disabled color of the sequential pagination controls
-        fnFooterCallback: function (nFoot, aasData, iStart, iEnd, aiDisplay) {
+        footerCallback: function (nFoot, aasData, iStart, iEnd, aiDisplay) {
           // set them all to their default active color
           $(".first").addClass("perc-active").removeClass("perc-disabled");
           $(".previous").addClass("perc-active").removeClass("perc-disabled");

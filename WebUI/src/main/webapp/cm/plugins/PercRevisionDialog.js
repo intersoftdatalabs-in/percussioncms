@@ -291,7 +291,9 @@
           });
       }
 
-      var table = $("#revisionsTable").dataTable({
+      // DataTables 3.x (issue #6002): DataTable() returns the 1.10+ API
+      // instance (table.$ below is the scoped-selector API, no fn* legacy).
+      var table = $("#revisionsTable").DataTable({
         order: [[0, "desc"]],
         bFilter: false,
         bAutoWidth: false,
@@ -305,7 +307,7 @@
         oLanguage: { sZeroRecords: "No Revisions Found" },
 
         // if on first or last page, update the disabled color of the sequential pagination controls
-        fnFooterCallback: function (nFoot, aasData, iStart, iEnd, aiDisplay) {
+        footerCallback: function (nFoot, aasData, iStart, iEnd, aiDisplay) {
           // set them all to their default active color
           $(".first").addClass("perc-active").removeClass("perc-disabled");
           $(".previous").addClass("perc-active").removeClass("perc-disabled");
