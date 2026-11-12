@@ -144,6 +144,22 @@ const NPM_LIBRARY_MAPPINGS = {
     "jquery.fancytree/dist/skin-win8/ui.fancytree.css",
   "jslib/profiles/3x/jquery/plugins/jquery-fancytree/skin-win8/ui.fancytree.min.css":
     "jquery.fancytree/dist/skin-win8/ui.fancytree.min.css",
+  // DataTables core swap (issue #6002). The vendored DataTables 1.12.1 core
+  // (js/jquery.dataTables.js + css/jquery.dataTables.css) is deleted; the
+  // legacy fn* instance API it provided is gone in the npm datatables.net
+  // 3.x line, so every classic call site was rewritten to the 1.10+ API
+  // (row()/cell()/draw()/destroy(), footerCallback/render). Classic pages
+  // keep loading the stable jslib URLs, served from these Dependabot-tracked
+  // npm dist files via the generated-webui overlay (STANDALONE_NPM_COPIES)
+  // and bundle resolution below. DT3 core ships no CSS, so the stable CSS
+  // URL resolves to the datatables.net-dt default styling (self-contained,
+  // no image assets). Hungarian init options (bPaginate, sType, aoColumns,
+  // oLanguage, fnRender excluded — rewritten) still auto-convert via
+  // hungarianToCamel in the DT3 dist.
+  "jslib/profiles/3x/jquery/plugins/jquery-datatables/js/jquery.dataTables.js":
+    "datatables.net/js/dataTables.js",
+  "jslib/profiles/3x/jquery/plugins/jquery-datatables/css/jquery.dataTables.css":
+    "datatables.net-dt/css/dataTables.dataTables.css",
 };
 
 // List of bundle config files to process
@@ -534,6 +550,19 @@ const STANDALONE_NPM_COPIES = [
   {
     src: "bootstrap/dist/css/bootstrap.min.css",
     dest: "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css",
+    required: true,
+  },
+  // DataTables 3.x core + default styling from npm (issue #6002). The
+  // vendored 1.12.1 copies were deleted, so both entries are required:
+  // without them classic pages 404 where the DT grid used to load.
+  {
+    src: "datatables.net/js/dataTables.js",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-datatables/js/jquery.dataTables.js",
+    required: true,
+  },
+  {
+    src: "datatables.net-dt/css/dataTables.dataTables.css",
+    dest: "jslib/profiles/3x/jquery/plugins/jquery-datatables/css/jquery.dataTables.css",
     required: true,
   },
 ];

@@ -1391,35 +1391,48 @@ describe("classic-UI jQuery plugin cluster from npm (issue #5663)", () => {
 });
 
 /**
- * DataTables dead styling removal + keep-vendored disposition (issue #6002).
+ * DataTables core swap + dead styling removal + keep-vendored (issue #6002).
  *
- * Follow-on for the #5663 plugin cluster: DataTables 1.12.1 core stays
- * vendored for now (the npm datatables.net 3.x line removed the legacy fn*
- * instance API, so the core swap needs a call-site rewrite with live grid
- * parity — deferred, not done here). What this slice does pin:
+ * Follow-on for the #5663 plugin cluster. The unreferenced styling
+ * integrations (bootstrap/bootstrap4/bootstrap5/bulma/foundation/semanticui/
+ * jqueryui + dataTables.dataTables CSS+JS) and the sort_*.png icons were
+ * deleted from all three trees (cm/jslib, cm/vendor/js/legacy, WebUI/war
+ * mirror) and have no npm mapping, no standalone copy, and no bundle line.
  *
- *   1. The unreferenced styling integrations (bootstrap/bootstrap4/
- *      bootstrap5/bulma/foundation/semanticui/jqueryui + dataTables.dataTables
- *      CSS+JS) and the sort_*.png icons (no url() reference in any DT CSS;
- *      DT 1.12 renders sort indicators without them) are deleted from all
- *      three trees (cm/jslib, cm/vendor/js/legacy, WebUI/war mirror) and
- *      have no npm mapping, no standalone copy, and no bundle line.
- *   2. The live core (js/jquery.dataTables.js + css/jquery.dataTables.css)
- *      still exists in all three trees and is still referenced from both
- *      common_js.jsp / common_css.jsp twins (app + pages) and both bundle
- *      configs.
- *   3. Keep-vendored disposition with rationale: jquery-layout (Dalman UI
+ * The DataTables 1.12.1 core (js/jquery.dataTables.js +
+ * css/jquery.dataTables.css) is deleted from all three trees and served from
+ * the Dependabot-tracked npm datatables.net 3.x line at the same stable
+ * jslib URLs (STANDALONE_NPM_COPIES + NPM_LIBRARY_MAPPINGS): the core JS
+ * from datatables.net (whose dist removed the legacy fn* instance API) and
+ * the CSS from datatables.net-dt default styling (DT3 core ships no CSS).
+ * Every classic call site was rewritten to the 1.10+ API (DataTable()
+ * constructor, row()/cell()/draw()/destroy(), footerCallback/render,
+ * this.api().column().nodes() order plug-ins); Hungarian init options still
+ * auto-convert via hungarianToCamel in the DT3 dist. These tests pin:
+ *
+ *   1. Pruned styling: no mapping, no standalone copy, no bundle line, no
+ *      vendored file in any tree.
+ *   2. Core swap: npm mapping + required standalone entry per stable URL,
+ *      bundle/node resolution into node_modules, served bytes identical to
+ *      the npm 3.x dist, vendored 1.12.1 copies gone from all trees, and
+ *      the stable URLs still referenced from both common_js.jsp /
+ *      common_css.jsp twins (app + pages).
+ *   3. No legacy fn* instance call (fnGetData/fnUpdate/fnDraw/fnDestroy/
+ *      fnAddData/fnGetNodes/fnDeleteRow/fnRender/.dataTable(/oApi._fn) in
+ *      any shipped classic call-site source (canonical + legacy twin).
+ *   4. Keep-vendored disposition with rationale: jquery-layout (Dalman UI
  *      Layout 1.6.3, live via common_js.jsp + bundles; npm `jquery-layout`
  *      is a different library by scravy — no upstream), jquery-dropdown
- *      (claviska jqDropdown, live via common includes + bundles; npm
- *      `jquery-dropdown` is a different plugin by techhysahil — no
- *      upstream), jquery-testrunner (Resig/Zaefferer 2009, test-only,
- *      loaded by cm/{,pages/}testing/*.html; no npm upstream — QUnit
- *      precedent). Each stays vendored in all three trees with its live
- *      reference intact.
+ *      (claviska jqDropdown, live; npm `jquery-dropdown` is a different
+ *      plugin by techhysahil — no upstream), jquery-testrunner
+ *      (Resig/Zaefferer 2009, test-only; no npm upstream — QUnit precedent).
+ *      Each stays vendored in all three trees with its live reference
+ *      intact.
  */
 describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => {
   const FRONTEND_ROOT = path.dirname(path.dirname(path.dirname(__dirname)));
+  const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+  const LEGACY_TWIN_ROOT = path.join(WAR_DIR, "app/js/legacy");
   const WEBUI_DIR = path.dirname(path.dirname(path.dirname(FRONTEND_ROOT)));
   const WAR_MIRROR = path.join(WEBUI_DIR, "war");
   const VENDOR_MIRROR = path.join(WAR_DIR, "vendor/js/legacy");
@@ -1449,10 +1462,9 @@ describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => 
     "images/sort_desc_disabled.png",
   ];
 
-  const LIVE_CORE = [
-    "jslib/profiles/3x/jquery/plugins/jquery-datatables/js/jquery.dataTables.js",
-    "jslib/profiles/3x/jquery/plugins/jquery-datatables/css/jquery.dataTables.css",
-  ];
+  // Vendored-file assertions (pruned styling absent, keep-vendored
+  // present) live in the tests below; the npm-served 3.x core is pinned
+  // via mapping + overlay in the core-swap test.
 
   // Keep-vendored (no npm upstream): file must exist + live reference intact.
   const KEPT = [
@@ -1530,15 +1542,56 @@ describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => 
     }
   });
 
-  it("keeps the live DataTables core in all trees with includes + bundle refs", () => {
-    for (const dest of LIVE_CORE) {
+  it("serves the DataTables 3.x core from npm with stable URLs + refs (issue #6002 core swap)", () => {
+    const CORE = [
+      {
+        dest: "jslib/profiles/3x/jquery/plugins/jquery-datatables/js/jquery.dataTables.js",
+        src: "datatables.net/js/dataTables.js",
+        versionRe: /DataTables 3\.1\./,
+      },
+      {
+        dest: "jslib/profiles/3x/jquery/plugins/jquery-datatables/css/jquery.dataTables.css",
+        src: "datatables.net-dt/css/dataTables.dataTables.css",
+        versionRe: /--dt_background-selected/,
+      },
+    ];
+    for (const { dest, src, versionRe } of CORE) {
+      // Bundle resolution maps the stable jslib URL into node_modules.
+      expect(
+        NPM_LIBRARY_MAPPINGS[dest],
+        `no npm mapping for ${dest}`,
+      ).toBe(src);
+      const resolved = resolvePath(dest);
+      const normalized = resolved.split(path.sep).join("/");
+      expect(normalized).toContain("node_modules/");
+      expect(fs.existsSync(resolved), resolved).toBe(true);
+      // Direct loads (common_js.jsp / common_css.jsp + widget HTML) are
+      // served from the generated overlay, pinned required.
+      const entry = STANDALONE_NPM_COPIES.find((e) => e.dest === dest);
+      expect(entry, `missing standalone copy for ${dest}`).toBeDefined();
+      expect(entry.src).toBe(src);
+      expect(entry.required).toBe(true);
+      // The vendored 1.12.1 copies are deleted from all three trees.
       for (const root of TREES) {
         expect(
           fs.existsSync(inTree(root, dest)),
-          `live DT core missing: ${inTree(root, dest)}`,
+          `vendored DT core still present: ${inTree(root, dest)}`,
+        ).toBe(false);
+      }
+      // Served bytes are the Dependabot-tracked npm dist files.
+      if (fs.existsSync(path.join(NODE_MODULES, src))) {
+        syncStandaloneNpmLibraries();
+        const generated = fs.readFileSync(path.join(OUTPUT_DIR, dest));
+        const npmDist = fs.readFileSync(path.join(NODE_MODULES, src));
+        expect(
+          generated.equals(npmDist),
+          `${dest} differs from npm ${src}`,
         ).toBe(true);
+        expect(generated.toString("utf8", 0, 4096)).toMatch(versionRe);
       }
     }
+    // The stable jslib URLs are still referenced from both common_js.jsp /
+    // common_css.jsp twins (app + pages) and both bundle configs.
     for (const includes of [
       "app/includes/common_js.jsp",
       "pages/app/includes/common_js.jsp",
@@ -1556,6 +1609,43 @@ describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => 
       expect(text).toMatch(
         /jquery-datatables\/css\/jquery\.dataTables\.css/,
       );
+    }
+  });
+
+  it("rewrites every legacy fn* DataTables call site to the 1.10+ API (issue #6002 core swap)", () => {
+    // The npm datatables.net 3.x line removed the legacy fn* instance API
+    // (verified absent in the 3.1.5 dist), so no shipped classic source may
+    // still call it. Hungarian init options (bPaginate, sType, aoColumns,
+    // oLanguage, drawCallback excepted — renamed) still auto-convert via
+    // hungarianToCamel in the DT3 dist and are out of scope here.
+    const LEGACY_INSTANCE_RE =
+      /\.(fnGetData|fnGetPosition|fnUpdate|fnDraw|fnDestroy|fnAddData|fnGetNodes|fnDeleteRow|fnClearTable|fnRender)\s*\(|\.dataTable\s*\(|oApi\._fn/;
+    const CALL_SITES = [
+      "widgets/PercInlineEditDataTable.js",
+      "widgets/PercDataTable/PercDataTable.js",
+      "widgets/PercDataTableWrong/PercDataTable.js",
+      "widgets/PercActionDataTable/PercActionDataTable.js",
+      "widgets/PercPageDataTable/PercPageDataTable.js",
+      "widgets/PercFinderListView/PercFinderListView.js",
+      "views/PercRegionCSSHandler.js",
+      "views/PercEditRegionPropertiesDialog.js",
+      "views/PercPubReports.js",
+      "views/PercSiteImpactView.js",
+      "plugins/PercRevisionDialog.js",
+      "plugins/PercPublishingHistoryDialog.js",
+    ];
+    for (const rel of CALL_SITES) {
+      for (const root of [WAR_DIR, LEGACY_TWIN_ROOT]) {
+        const file = path.join(root, rel);
+        if (!fs.existsSync(file)) {
+          continue;
+        }
+        const text = fs.readFileSync(file, "utf8");
+        expect(
+          LEGACY_INSTANCE_RE.test(text),
+          `legacy DataTables API still used in ${file}`,
+        ).toBe(false);
+      }
     }
   });
 

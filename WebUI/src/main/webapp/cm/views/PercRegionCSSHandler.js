@@ -99,7 +99,7 @@
         };
 
         if (oTable) {
-          oTable.fnDestroy();
+          oTable.destroy();
         }
 
         oTable = $.PercInlineEditDataTable.init(
@@ -150,7 +150,7 @@
    */
   function saveRegionCSS(id) {
     var properties = [];
-    var data = oTable.fnGetData();
+    var data = oTable.rows().data().toArray();
     if (data.length === 1 && data[0][0].trim() === "") data.pop();
     if (data.length > 0) {
       for (var i = 0; i < data.length; i++) {

@@ -439,8 +439,8 @@
      * @param newRegionId (string) - the name of the new region (if name field was changed)
      */
     function _saveBaseRegionEditProperties(region, newRegionId) {
-      var dataTableOverrides = oTableOverrides.fnGetData();
-      var dataTableAttributes = oTableAttributes.fnGetData();
+      var dataTableOverrides = oTableOverrides.rows().data().toArray();
+      var dataTableAttributes = oTableAttributes.rows().data().toArray();
 
       var attributes = [];
       for (i = 0; i < dataTableAttributes.length; i++) {
@@ -530,8 +530,8 @@
      * @param newRegionId (string) - the name of the new region (if name field was changed)
      */
     function _saveResponsiveRegionEditProperties(region, newRegionId) {
-      var dataTableOverrides = oTableOverrides.fnGetData();
-      var dataTableAttributes = oTableAttributes.fnGetData();
+      var dataTableOverrides = oTableOverrides.rows().data().toArray();
+      var dataTableAttributes = oTableAttributes.rows().data().toArray();
       var attributes = [];
       for (i = 0; i < dataTableAttributes.length; i++) {
         var name = $(dataTableAttributes[i][0]).text().trim();
@@ -606,7 +606,7 @@
       }
 
       // to fix bug cms#2947 code start here
-      var dataTableAttributes = oTableAttributes.fnGetData();
+      var dataTableAttributes = oTableAttributes.rows().data().toArray();
       var invalidAttributeMessage = "";
       for (i = 0; i < dataTableAttributes.length; i++) {
         var name = $(dataTableAttributes[i][0]).text().trim().toLowerCase();

@@ -53,7 +53,7 @@
     percNewRowDefaultValues: [],
     percShowValuesPlaceholders: false,
     percPlaceHolderValues: [],
-    fnDrawCallback: function () {
+    drawCallback: function () {
       // fix the ellipsis on every draw
       if ($.browser.msie) {
         $(".perc-ellipsis").each(function () {
@@ -191,10 +191,15 @@
     if (config.percNoTableHeaders) {
       table.find("thead").css("display", "none");
     }
-    if (oTable) {
-      oTable.fnDestroy();
+    // DataTables 3.x (issue #6002): the npm datatables.net line removed the
+    // legacy fn* instance API, so this widget uses the 1.10+ API throughout
+    // (DataTable() constructor, row()/cell()/draw()/destroy()). A previous
+    // grid on the same table is destroyed first; callers additionally pass
+    // bDestroy/destroy for re-init safety.
+    if ($.fn.DataTable.isDataTable(table)) {
+      table.DataTable().destroy();
     }
-    var oTable = table.dataTable(config);
+    var oTable = table.DataTable(config);
 
     if (percRows.length == 0) {
       addRow();
@@ -204,7 +209,7 @@
       if (typeof nRow === "undefined" || nCol === "undefined") {
         return;
       }
-      var aData = oTable.fnGetData(nRow);
+      var aData = oTable.row(nRow).data();
       var jqTds = $(">td", nRow);
       $(nRow).addClass("perc-edit-mode");
       var idParts = nCol.id.split("-");
@@ -214,7 +219,7 @@
       if ($.type(config.percPlaceHolderValues[colNumber]) === "string") {
         placeHolderValue = config.percPlaceHolderValues[colNumber];
       } else {
-        var rowNumber = oTable.fnGetPosition(nRow);
+        var rowNumber = oTable.row(nRow).index();
         placeHolderValue = config.percPlaceHolderValues[rowNumber][colNumber];
       }
 
@@ -251,7 +256,7 @@
 
     // Edit Cells
     function editRow(nRow, isOnlyRow) {
-      var aData = oTable.fnGetData(nRow);
+      var aData = oTable.row(nRow).data();
       var jqTds = $(">td", nRow);
       $(nRow).addClass("perc-edit-mode");
       for (var i = 0; i < jqTds.length; i++) {
@@ -263,7 +268,7 @@
         if ($.type(config.percPlaceHolderValues[i]) === "string") {
           placeHolderValue = config.percPlaceHolderValues[i];
         } else {
-          var rowNumber = oTable.fnGetPosition(nRow);
+          var rowNumber = oTable.row(nRow).index();
           placeHolderValue = config.percPlaceHolderValues[rowNumber][i];
         }
         $(table)
@@ -306,15 +311,15 @@
     }
 
     function restoreRow(nRow) {
-      var aData = oTable.fnGetData(nRow);
+      var aData = oTable.row(nRow).data();
       var jqTds = $(">td", nRow);
       var length = jqTds.length;
       if (config.percDeleteRow) length--;
       for (var i = 0, iLen = length; i < iLen; i++) {
-        oTable.fnUpdate("<span>" + aData[i] + "</span>", nRow, i, false);
+        oTable.cell(nRow, i).data("<span>" + aData[i] + "</span>");
       }
 
-      oTable.fnDraw();
+      oTable.draw();
       $(nRow).append(
         '<td><a class="perc-inline-edit-datatable-delete-row" href=""></a></td>',
       );
@@ -333,7 +338,7 @@
         if ($.type(config.percPlaceHolderValues[0]) === "string") {
           placeHolderValue = config.percPlaceHolderValues[0];
         } else {
-          var rowNumber = oTable.fnGetPosition(nRow);
+          var rowNumber = oTable.row(nRow).index();
           placeHolderValue = config.percPlaceHolderValues[rowNumber][0];
         }
         placeHolderClass1 = "perc-placeholder";
@@ -345,26 +350,20 @@
         if ($.type(config.percPlaceHolderValues[1]) === "string") {
           placeHolderValue2 = config.percPlaceHolderValues[1];
         } else {
-          var rowNumber2 = oTable.fnGetPosition(nRow);
+          var rowNumber2 = oTable.row(nRow).index();
           placeHolderValue2 = config.percPlaceHolderValues[rowNumber2][1];
         }
         placeHolderClass2 = "perc-placeholder";
         value2 = placeHolderValue2;
       }
 
-      oTable.fnUpdate(
+      oTable.cell(nRow, 0).data(
         "<span class='" + placeHolderClass1 + "'>" + value1 + "</span>",
-        nRow,
-        0,
-        false,
       );
-      oTable.fnUpdate(
+      oTable.cell(nRow, 1).data(
         "<span class='" + placeHolderClass2 + "'>" + value2 + "</span>",
-        nRow,
-        1,
-        false,
       );
-      oTable.fnDraw();
+      oTable.draw();
       if (config.percDeleteRow) {
         $(nRow).append(
           '<td style="width:10px; max-width:10px"><a style="display:none;" class="perc-inline-edit-datatable-delete-row" href=""></a></td>',
@@ -373,6 +372,19 @@
       var newRowsDefaultValues = defaultConfig.percNewRowDefaultValues;
       if (jqInputs[0].value.trim() === newRowsDefaultValues[0]) {
         deleteRow(nRow);
+      }
+    }
+
+    // Best-effort restoreRow wrapper (DataTables 3.x, issue #6002):
+    // restoreRow may throw when the edited row was detached mid-edit.
+    // Returns false in that case; callers proceed with the grid update
+    // regardless (pre-existing addRow semantics preserved).
+    function tryRestoreRow(nRow) {
+      try {
+        restoreRow(nRow);
+        return true;
+      } catch (e) {
+        return false;
       }
     }
 
@@ -388,20 +400,17 @@
         if ($.type(config.percPlaceHolderValues[colNumber]) === "string") {
           placeHolderValue = config.percPlaceHolderValues[colNumber];
         } else {
-          var rowNumber = oTable.fnGetPosition(nRow);
+          var rowNumber = oTable.row(nRow).index();
           placeHolderValue = config.percPlaceHolderValues[rowNumber][colNumber];
         }
         placeHolderClass = "perc-placeholder";
         value = placeHolderValue;
       }
 
-      oTable.fnUpdate(
+      oTable.cell(nRow, colNumber).data(
         "<span class='perc-placeholder'>" + value + "</span>",
-        nRow,
-        colNumber,
-        false,
       );
-      oTable.fnDraw();
+      oTable.draw();
       $(table).find("td span").on("click", tableCellOnClick);
       var newRowsDefaultValues = defaultConfig.percNewRowDefaultValues;
       if (jqInputs[0].value.trim() === newRowsDefaultValues[0]) {
@@ -427,7 +436,7 @@
 
     function addColIds(nRow) {
       var jqTds = $(">td", nRow);
-      var rowNumber = oTable.fnGetPosition(nRow);
+      var rowNumber = oTable.row(nRow).index();
       for (var i = 0, iLen = jqTds.length; i < iLen; i++) {
         $(jqTds[i]).attr("id", "perc-cell-" + rowNumber + "-" + i);
       }
@@ -437,7 +446,7 @@
       // Add row action
       $("#" + config.percAddRowElementId).on("click", function (e) {
         e.preventDefault();
-        var data = oTable.fnGetData();
+        var data = oTable.rows().data().toArray();
         var value1 = "";
         var value2 = "";
         if (data.length === 0) {
@@ -473,7 +482,7 @@
 
       var nRow = $(this).parents("tr")[0];
       var nCol = $(this).parents("td")[0];
-      if (oTable.fnGetData().length === 1) {
+      if (oTable.rows().data().length === 1) {
         nEditing = nRow;
       }
       if (nEditing === nRow) {
@@ -516,11 +525,7 @@
 
         if (nEditing !== null && nEditing !== nRow) {
           /* Currently editing - but not this row - restore the old before continuing to edit mode */
-          try {
-            restoreRow(nEditing);
-          } catch (ex) {
-            //console.error(ex);
-          }
+          tryRestoreRow(nEditing);
           editCol(nRow, nCol);
           nEditing = nRow;
         } else {
@@ -534,14 +539,14 @@
     function addRow(isOnlyRow) {
       var newRowsDefaultValues = Array.from(config.percNewRowDefaultValues);
 
-      var aiNew = oTable.fnAddData(newRowsDefaultValues);
+      var newRow = oTable.row.add(newRowsDefaultValues);
 
       if (nEditing !== null && nEditing !== nRow) {
-        try {
-          restoreRow(nEditing);
-        } catch (e) {}
+        // Best-effort restore only: a half-edited row must not block addRow.
+        tryRestoreRow(nEditing);
       }
-      var nRow = oTable.fnGetNodes(aiNew[0]);
+      oTable.draw(false);
+      var nRow = newRow.node();
       addColIds(nRow);
       editRow(nRow, isOnlyRow);
       nEditing = nRow;
@@ -559,11 +564,11 @@
     }
 
     function deleteRow(nRow) {
-      oTable.fnDeleteRow(nRow);
-      if (oTable.fnGetData().length === 0) {
+      oTable.row(nRow).remove().draw();
+      if (oTable.rows().data().length === 0) {
         $("#" + config.percAddRowElementId).trigger("click");
-      } else if (oTable.fnGetData().length === 1) {
-        var tableid = $(oTable[0])[0].id;
+      } else if (oTable.rows().data().length === 1) {
+        var tableid = oTable.table().node().id;
         var nr = $("#" + tableid).find("tbody tr");
         var val1 = $(
           $("#" + tableid)

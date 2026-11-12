@@ -25,19 +25,25 @@
   this.utilService = $.PercUtilService;
   var dirtyController = $.PercDirtyController;
   siteName = $.PercNavigationManager.getSiteName();
-  // Custom column sorting for Publishing Log Details Elapsed Time column
+  // Custom column sorting for Publishing Log Details Elapsed Time column.
+  // DataTables 3.x (issue #6002): the removed private row-node internals are
+  // gone, so sort values are read through the public API (the same
+  // this.api().column(...).nodes() shape the perc-type-* plug-ins use).
+  // `this` is the table's API instance (settings.instance.api); values align
+  // to data-index order, matching the legacy aiDisplayMaster alignment.
   $.fn.dataTableExt.afnSortData["dom-elapsed-time"] = function (
-    oSettings,
+    settings,
     iColumn,
   ) {
     var aData = [];
-    $("td:eq(" + iColumn + ")", oSettings.oApi._fnGetTrNodes(oSettings)).each(
-      function () {
-        var data = $(this).text();
-        var dataNum = new Number(data.substring(0, data.indexOf("s")));
+    this.api()
+      .column(iColumn, { order: "index" })
+      .nodes()
+      .map(function (td) {
+        var data = $(td).text();
+        var dataNum = Number(data.substring(0, data.indexOf("s")));
         aData.push(dataNum);
-      },
-    );
+      });
     return aData;
   };
   //Convert milliseconds to HH:MM:SS form
@@ -276,7 +282,7 @@
       $("#perc-publish-current-jobs").html(logString);
       $("#perc-publish-current-jobs")
         .find("table")
-        .dataTable({
+        .DataTable({
           bFilter: false,
           bInfo: false,
           bPaginate: false,
@@ -299,24 +305,21 @@
               sSortDataType: "dom-text",
             },
             {
-              fnRender: function (oObj) {
-                if (oObj.aData[4] > 0) {
-                  var barWdith = oObj.aData[4];
+              // DataTables 3.x (issue #6002): the legacy fnRender callback
+              // shape is removed; render(data, type, row) returns the same
+              // for every orthogonal type, preserving the 1.x sort behavior.
+              render: function (data) {
+                if (data > 0) {
                   return (
                     "<div class = 'perc-que-bar' style = 'width:" +
-                    barWdith +
+                    data +
                     "%'>" +
-                    oObj.aData[4] +
+                    data +
                     "% Completed</div>"
                   );
                 } else {
-                  var barWdith = 0;
                   return (
-                    "<div style = 'width:" +
-                    barWdith +
-                    "%'>" +
-                    oObj.aData[4] +
-                    "</div>"
+                    "<div style = 'width:0%'>" + data + "</div>"
                   );
                 }
               },
@@ -328,7 +331,7 @@
               sSortDataType: "dom-text",
             },
           ],
-          fnDrawCallback: function () {},
+          drawCallback: function () {},
         });
     }
   };
@@ -459,7 +462,7 @@
       /************* Invoking dataTable plugin to make the columns sortable ****************************/
       $("#perc-publish-logs")
         .find("table")
-        .dataTable({
+        .DataTable({
           bFilter: false,
           bInfo: false,
           aaSorting: [[1, "desc"]],
@@ -493,7 +496,7 @@
               bSortable: false,
             },
           ],
-          fnDrawCallback: function () {},
+          drawCallback: function () {},
         });
     }
   };
@@ -648,7 +651,7 @@
       $("#perc-publish-logs-details").html(logString);
       $("#perc-publish-logs-details")
         .find(".perc-identifier-next")
-        .dataTable({
+        .DataTable({
           bFilter: false,
           bInfo: false,
           bPaginate: false,
@@ -671,7 +674,7 @@
               sSortDataType: "dom-text",
             },
           ],
-          fnDrawCallback: function () {},
+          drawCallback: function () {},
         });
     }
   };

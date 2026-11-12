@@ -125,7 +125,7 @@
         percData: percData,
         percRowDblclickCallback: function () {},
         percRowClickCallback: function () {},
-        fnDrawCallback: function (oSettings) {
+        drawCallback: function (oSettings) {
           rootElement.find("table").removeAttr("style");
         },
         bPaginate: false,
@@ -164,7 +164,7 @@
         percColumnWidths: ["*", "300"],
         percVisibleColumns: null,
         bPaginate: false,
-        fnDrawCallback: function (oSettings) {
+        drawCallback: function (oSettings) {
           rootElement.find("table").removeAttr("style");
         },
         percData: percTemplateData,

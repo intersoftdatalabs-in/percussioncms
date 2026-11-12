@@ -44,7 +44,7 @@
     sPaginationType: "full_numbers",
     bLengthChange: false,
     bInfo: true,
-    fnDrawCallback: function () {
+    drawCallback: function () {
       // fix the ellipsis on every draw
       if ($.browser.msie) {
         $(".perc-ellipsis").each(function () {
@@ -53,7 +53,7 @@
       }
     },
     // if on first or last page, update the disabled color of the sequential pagination controls
-    fnFooterCallback: function (nFoot, aasData, iStart, iEnd, aiDisplay) {
+    footerCallback: function (nFoot, aasData, iStart, iEnd, aiDisplay) {
       // set them all to their default active color
       $(".first")
         .addClass("perc-percdatatable-active")
@@ -174,7 +174,10 @@
 
     declareCustomSortingFunctions();
 
-    var oTable = table.dataTable(config);
+    // DataTables 3.x (issue #6002): DataTable() returns the 1.10+ API
+    // instance; the afnSortData plug-ins below use the public
+    // this.api().column(...).nodes() shape (same as PercDataTable.js).
+    var oTable = table.DataTable(config);
 
     // only fix ellipsis in IE
     if ($.browser.msie) {
@@ -226,22 +229,27 @@
   function declareCustomSortingFunctions() {
     // custom column sorting for Change, Views, and Template column
     // checks to see if all data is the same and if so it changes it
-    // so that it is unique to force it to sort in reverse order
-    $.fn.dataTableExt.afnSortData["dom-ptext"] = function (oSettings, iColumn) {
+    // so that it is unique to force it to sort in reverse order.
+    // DataTables 3.x (issue #6002): settings.oApi is gone, so sort values
+    // are read through the public this.api().column(...).nodes() shape in
+    // data-index order (matches the customData[rowIdx] alignment), the same
+    // shape PercDataTable.js uses.
+    $.fn.dataTableExt.afnSortData["dom-ptext"] = function (settings, iColumn) {
       var aData = [];
       var different = false;
       var previous = null;
       var data;
-      $("td:eq(" + iColumn + ")", oSettings.oApi.rows().nodes()).each(
-        function () {
-          data = $(this).text();
+      this.api()
+        .column(iColumn, { order: "index" })
+        .nodes()
+        .map(function (td) {
+          data = $(td).text();
           if (previous != null && previous !== data) different = true;
           previous = data;
           aData.push(data);
-        },
-      );
+        });
       if (!different) {
-        for (let i = 0; i < aData.length; i++) {
+        for (var i = 0; i < aData.length; i++) {
           aData[i] = aData[i] + i;
         }
       }
@@ -249,29 +257,32 @@
     };
 
     // custom column sorting for Page Link column
-    $.fn.dataTableExt.afnSortData["dom-page"] = function (oSettings, iColumn) {
+    $.fn.dataTableExt.afnSortData["dom-page"] = function (settings, iColumn) {
       var aData = [];
-      $("td:eq(" + iColumn + ")", oSettings.oApi.rows(oSettings).nodes()).each(
-        function () {
-          var data = $(this).text();
+      this.api()
+        .column(iColumn, { order: "index" })
+        .nodes()
+        .map(function (td) {
+          var data = $(td).text();
           data = data.substring(0, data.indexOf("/"));
           aData.push(data);
-        },
-      );
+        });
       return aData;
     };
 
     // custom column sorting for date columns
     // changes the seconds so that if the date, minutes and hours are the same
     // it will be forced to sort in reverse order
-    $.fn.dataTableExt.afnSortData["dom-date"] = function (oSettings, iColumn) {
+    $.fn.dataTableExt.afnSortData["dom-date"] = function (settings, iColumn) {
       var aData = [];
       var seconds = 0;
-      $("td:eq(" + iColumn + ")", oSettings.oApi.rows(oSettings).nodes()).each(
-        function () {
+      this.api()
+        .column(iColumn, { order: "index" })
+        .nodes()
+        .map(function (td) {
           var dateTimeArray = Array("", "");
-          dateTimeArray[0] = $(this).find(".top-line").text();
-          dateTimeArray[1] = ("" + $(this).find(".bottom-line").text()).replace(
+          dateTimeArray[0] = $(td).find(".top-line").text();
+          dateTimeArray[1] = ("" + $(td).find(".bottom-line").text()).replace(
             /^(.*?)\s*\(.+$/,
             "$1",
           ); // Get rid of username.
@@ -279,8 +290,7 @@
           var date = new Date(dateString);
           aData.push(new Date(date.setSeconds(seconds)));
           seconds++;
-        },
-      );
+        });
       return aData;
     };
   }
