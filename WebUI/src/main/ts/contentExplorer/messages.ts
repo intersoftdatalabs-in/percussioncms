@@ -531,6 +531,32 @@ export const EXPLORER_MSG = {
   RELATIONSHIPS_LINK_SLOT_FAILED:
     "perc.ui.explorer@Could not link the item into the slot",
   RELATIONSHIPS_LINK_SLOT_SELECT_ROW: "perc.ui.explorer@Select row",
+  RELATIONSHIPS_PASTE_LINK: "perc.ui.explorer@Paste as link",
+  RELATIONSHIPS_PASTE_LINK_DO: "perc.ui.explorer@Paste links into slot",
+  RELATIONSHIPS_PASTE_LINK_TITLE:
+    "perc.ui.explorer@Paste clipboard items as links into this slot",
+  RELATIONSHIPS_PASTE_LINK_SLOT: "perc.ui.explorer@Destination slot",
+  RELATIONSHIPS_PASTE_LINK_ITEMS: "perc.ui.explorer@Items to link",
+  RELATIONSHIPS_PASTE_LINK_TEMPLATE:
+    "perc.ui.explorer@Snippet template for the pasted links",
+  RELATIONSHIPS_PASTE_LINK_DONE:
+    "perc.ui.explorer@Items pasted as links into the slot.",
+  RELATIONSHIPS_PASTE_LINK_FAILED_400:
+    "perc.ui.explorer@The items could not be pasted as links into that slot (HTTP 400)",
+  RELATIONSHIPS_PASTE_LINK_FAILED_403:
+    "perc.ui.explorer@You are not allowed to paste links into that slot (HTTP 403)",
+  RELATIONSHIPS_PASTE_LINK_FAILED_409:
+    "perc.ui.explorer@These items could not be pasted as links into that slot (HTTP 409)",
+  RELATIONSHIPS_PASTE_LINK_EMPTY:
+    "perc.ui.explorer@Copy an item to the clipboard first, then paste it as a link.",
+  RELATIONSHIPS_PASTE_LINK_CUT:
+    "perc.ui.explorer@Cut items cannot be pasted as links. Copy the item first.",
+  RELATIONSHIPS_PASTE_LINK_NOT_SLOT:
+    "perc.ui.explorer@Select a slot before pasting as a link",
+  RELATIONSHIPS_PASTE_LINK_NO_TEMPLATE:
+    "perc.ui.explorer@That slot has no snippet template for pasted links.",
+  RELATIONSHIPS_PASTE_LINK_FAILED:
+    "perc.ui.explorer@Could not paste the items as links into the slot",
   RELATIONSHIPS_CREATE_SLOT: "perc.ui.explorer@Create new item",
   RELATIONSHIPS_CREATE_SLOT_DO: "perc.ui.explorer@Create in slot",
   RELATIONSHIPS_CREATE_SLOT_TITLE:

@@ -4282,6 +4282,16 @@ function ContentExplorerShellInner({
                 path: selection.item!.path,
                 folderPath: selection.folderPath || undefined,
               }}
+              clipboard={{
+                operation: clipboard.operation,
+                contentIds: clipboard.items
+                  .filter((entry) => entry.kind !== "folder")
+                  .map((entry) => parseExplorerContentId(entry.id))
+                  .filter(
+                    (id): id is number =>
+                      typeof id === "number" && Number.isFinite(id) && id > 0,
+                  ),
+              }}
             />
           </section>
         )}
