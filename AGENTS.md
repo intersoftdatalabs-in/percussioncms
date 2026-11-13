@@ -416,6 +416,33 @@ Agent sessions (Kilo, Grok, etc.) often create **full monorepo git worktrees** u
 
 Any time an agent **creates or works inside** a disposable git worktree for a feature/fix branch (not the primary developer checkout).
 
+### One worktree per task (HARD GATE)
+
+Every task that builds, edits, or tests code gets its **own disposable git
+worktree** — never share one worktree between concurrent tasks, and never do
+task work in the primary checkout. A shared worktree lets one task's
+`checkout` / `reset` / `qa-up` clobber another's branch, build, or test cell.
+
+1. **Create** — one worktree + one branch per task, from current upstream:
+   `git worktree add <root>/<slug> -b <task-branch> origin/<base>`
+   (preferred roots: repo-local `.kilo/worktrees/` (gitignored) or the agent
+   host's designated worktree root). Never `-B` onto a branch another
+   worktree already has checked out.
+2. **Guaranteed removal** — the worktree MUST be deleted however the task ends:
+   * **Completion** — remove after PR merge/close (sequence below).
+   * **Cancellation / interruption** — wrap task shells so cleanup runs on
+     every exit path: `trap 'git worktree remove --force <path>' EXIT`
+     (covers Ctrl-C, timeouts, command failure), or the agent platform's
+     session-end / cancellation hook when shells cannot trap it.
+   * **Resumption** — on resume, inventory FIRST (`git worktree list
+     --porcelain`): remove worktrees whose PRs already merged/closed (see
+     prune script), adopt the surviving task worktree only if its work
+     genuinely continues, otherwise recreate fresh from current
+     `origin/<base>` and remove the stale one. Never resume *inside* a
+     foreign live worktree — create your own.
+3. **Evidence** — session summary states `Worktree removed: <path>` or
+   `kept: <path> — reason: …` for every worktree the task created or adopted.
+
 ### Required sequence (end of task)
 
 1. **While the PR is open** — keep the worktree if you still need it for review fixes; do not create additional worktrees for the same branch without removing the old one.
