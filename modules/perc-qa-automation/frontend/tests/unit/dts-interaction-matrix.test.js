@@ -92,8 +92,8 @@ describe("dts-interaction-matrix helpers (#6241)", () => {
       "no-cell skip names the missing env",
     );
     assert.ok(
-      skipServiceDown(DTS_SERVICES[0], "https://dts.example").includes("https://dts.example"),
-      "service-down skip names the probed origin",
+      skipServiceDown(DTS_SERVICES[0], "https://dts.example").includes(DTS_SERVICES[0].csrf),
+      "service-down skip names the probed endpoint",
     );
     assert.ok(
       skipNoFixture(DTS_SERVICES[0], "fixture poll 'x' is not seeded").includes("not seeded"),
