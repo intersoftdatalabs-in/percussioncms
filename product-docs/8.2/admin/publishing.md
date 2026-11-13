@@ -329,6 +329,23 @@ successful save.
 Choosing **Set port** on a Local or FTP server does not change that server's folder or FTP port.
 Host-only save and full server edit (**Edit Server**) stay separate.
 
+### Set the FTPS delivery-server port (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **FTPS**. **Set port** edits only the server port. **Save port** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `port` property. Host, user
+id, and folder stay as they were. The password is not shown and is not sent again.
+
+A blank port is refused on the form (**FTPS port is required**) and is not written. A port that
+is not only digits is refused (**FTPS port must contain only digits**) and is not written.
+**Cancel** does not call the server and keeps the previous port. HTTP **400**, **403**, and
+**409** stay on the form and keep the previous port. The new port is shown only after a
+successful save.
+
+**FTP**, **SFTP**, Amazon S3, database drivers, and a **Local** driver do not use this save.
+Choosing **Set port** on a Local, FTP, or SFTP server does not change that server's folder,
+FTP port, or SFTP port. Host-only save and full server edit (**Edit Server**) stay separate.
+
 ### Set the SFTP delivery-server username (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose

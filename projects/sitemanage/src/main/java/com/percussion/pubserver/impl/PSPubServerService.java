@@ -566,7 +566,7 @@ public class PSPubServerService implements IPSPubServerService {
   }
 
   /**
-   * Port-only and user-id-only PUTs. FTP, SFTP, and database share each body shape; the stored
+   * Port-only and user-id-only PUTs. FTP, SFTP, FTPS, and database share each body shape; the stored
    * driver selects the apply path. Neither may run the full property replace.
    *
    * @return the updater result, or {@code null} when the body is not a port/user-only PUT.
@@ -576,6 +576,7 @@ public class PSPubServerService implements IPSPubServerService {
       throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
     if (PSFtpDeliveryPortUpdate.isPortOnly(pubServerInfo)
         || PSSftpDeliveryPortUpdate.isPortOnly(pubServerInfo)
+        || PSFtpsDeliveryPortUpdate.isPortOnly(pubServerInfo)
         || PSDatabaseDeliveryPortUpdate.isPortOnly(pubServerInfo)) {
       return updateDeliveryPortOnly(siteId, serverId, pubServerInfo);
     }
@@ -882,8 +883,9 @@ public class PSPubServerService implements IPSPubServerService {
   /**
    * Save only the {@code port} property. Does not rename the server or replace the property set.
    * Database drivers use {@link PSDatabaseDeliveryPortUpdate}; SFTP servers use {@link
-   * PSSftpDeliveryPortUpdate}; other drivers use {@link PSFtpDeliveryPortUpdate} (FTP-only;
-   * Local/FTPS/database-driver bodies throw before {@code savePubServer}).
+   * PSSftpDeliveryPortUpdate}; FTPS servers use {@link PSFtpsDeliveryPortUpdate}; other drivers
+   * use {@link PSFtpDeliveryPortUpdate} (FTP-only; Local/database-driver bodies throw before
+   * {@code savePubServer}).
    */
   private PSPublishServerInfo updateDeliveryPortOnly(
       String siteId, String serverId, PSPublishServerInfo pubServerInfo)
@@ -905,6 +907,8 @@ public class PSPubServerService implements IPSPubServerService {
       PSDatabaseDeliveryPortUpdate.apply(server, pubServerInfo);
     } else if ("SFTP".equalsIgnoreCase(driver)) {
       PSSftpDeliveryPortUpdate.apply(server, pubServerInfo);
+    } else if ("FTPS".equalsIgnoreCase(driver)) {
+      PSFtpsDeliveryPortUpdate.apply(server, pubServerInfo);
     } else {
       PSFtpDeliveryPortUpdate.apply(server, pubServerInfo);
     }
