@@ -1676,7 +1676,14 @@ public class FolderAdaptor implements IFolderAdaptor {
         throw new WebApplicationException(
             "Recycled item has no parent folder", Response.Status.CONFLICT);
       }
-      String folderPath = folderPaths.get(0);
+      // Normalize single-slash owner-title paths to repository form before
+      // mirroring; the mirror helper requires '//' paths (#6257).
+      String folderPath = firstRecycledParentPath(item);
+      if (folderPath == null) {
+        throw new WebApplicationException(
+            "Recycled item has no parent folder", Response.Status.CONFLICT);
+      }
+      log.debug("Restoring recycled item {} from recycled parent {}", id, folderPath);
       String pathToCheck = PSFolderHelper.getOppositePath(folderPath);
       boolean valid;
       try {
@@ -1761,7 +1768,14 @@ public class FolderAdaptor implements IFolderAdaptor {
       try {
         if (item.isFolder()) {
           PSDeleteFolderCriteria criteria = new PSDeleteFolderCriteria();
-          String finderPath = StringUtils.defaultString(item.getPath());
+          // Recycled folder summaries carry no finder path; derive it from the
+          // actual recycled parent (the bin path the delete dispatcher routes
+          // to the recycle service). Never purge outside the Recycling root.
+          String finderPath = recyclingFinderPath(firstRecycledParentPath(item), item.getName());
+          if (finderPath == null) {
+            String existing = StringUtils.trimToEmpty(item.getPath());
+            finderPath = existing.startsWith("/Recycling/") ? existing : null;
+          }
           if (StringUtils.isBlank(finderPath)) {
             throw new WebApplicationException(
                 "Recycled folder has no path", Response.Status.CONFLICT);
@@ -1779,7 +1793,18 @@ public class FolderAdaptor implements IFolderAdaptor {
                 "Recycled folder could not be fully purged", Response.Status.CONFLICT);
           }
         } else {
-          folderHelper.removeItem(PSRecycleService.RECYCLING_ROOT, id, true);
+          // Purge against the item's actual recycled parent, not the Recycling root:
+          // recycled items hang off their recycled parent, so removing via
+          // the root id fails containment with 409 (#6257). The summary
+          // reports single-slash owner-title paths; normalize to repository
+          // form first (the containment check itself stays the safety gate).
+          String recycledParent = firstRecycledParentPath(item);
+          if (recycledParent == null) {
+            throw new WebApplicationException(
+                "Recycled item has no parent folder", Response.Status.CONFLICT);
+          }
+          log.debug("Purging recycled item {} under recycled parent {}", id, recycledParent);
+          folderHelper.removeItem(recycledParent, id, true);
         }
       } catch (WebApplicationException e) {
         throw e;
@@ -1944,6 +1969,55 @@ public class FolderAdaptor implements IFolderAdaptor {
       }
       throw new BackendException(e);
     }
+  }
+
+  /**
+   * First recycled parent of a bin row in repository form ({@code //...}), or {@code null}
+   * when the row reports none. Recycled summaries report single-slash owner-title paths;
+   * normalize them the same way pathmanagement maps finder paths (#6257).
+   */
+  static String firstRecycledParentPath(PSPathItem item) {
+    if (item == null) {
+      return null;
+    }
+    List<String> parents = item.getFolderPaths();
+    if (parents == null || parents.isEmpty()) {
+      return null;
+    }
+    String parent = StringUtils.trimToEmpty(parents.get(0));
+    if (parent.isEmpty()) {
+      return null;
+    }
+    return StringUtils.removeEnd(PSPathUtils.getFolderPath(parent), "/");
+  }
+
+  /**
+   * Finder path ({@code /Recycling/...}) that the path dispatcher routes to the recycle
+   * service for purging a recycled folder, or {@code null} when the recycled parent is not
+   * under the Recycling root (never purge outside the bin, #6257).
+   *
+   * @param recycledRepoParent repository parent from {@link #firstRecycledParentPath}, may be
+   *     {@code null}
+   * @param name recycled folder name, may be {@code null}
+   */
+  static String recyclingFinderPath(String recycledRepoParent, String name) {
+    if (StringUtils.isBlank(recycledRepoParent) || StringUtils.isBlank(name)) {
+      return null;
+    }
+    if (!recycledRepoParent.startsWith(PSRecycleService.RECYCLING_ROOT)) {
+      return null;
+    }
+    String rest = recycledRepoParent.substring(PSRecycleService.RECYCLING_ROOT.length());
+    if (!rest.isEmpty() && !rest.startsWith("/")) {
+      return null;
+    }
+    String leaf = StringUtils.trimToEmpty(name);
+    if (leaf.isEmpty() || leaf.contains("/") || leaf.contains("\\")) {
+      return null;
+    }
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6257) —
+    // slashes join the CMS finder path (/Recycling/...), not an OS path.
+    return "/Recycling" + rest + "/" + leaf + "/";
   }
 
   /**
