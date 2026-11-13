@@ -44,6 +44,16 @@ import org.junit.jupiter.api.Test;
  * Jcrop + jquery-color) and #6274 (editor legacy cluster: Interface Elements +
  * jquery-form).
  *
+ * <p>#6274 disposition (this test): the Interface Elements libraries
+ * ({@code iutil.js}/{@code iresizable.js}, upstream dead since 2006, no npm
+ * artifact) are deleted and the first-party glue ({@code
+ * image_editor_general.js}) drives the crop box through jQuery UI
+ * resizable + draggable (npm {@code jquery-ui}, already tracked in WebUI per
+ * #5660) instead; {@code form.js} is byte-synced from npm {@code
+ * jquery-form@4.5.0} via {@code npm run sync} so Dependabot sees the pin.
+ * Nothing in the payload may reference the retired {@code jQuery.iUtil} /
+ * {@code jQuery.iResize} globals anymore.
+ *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * payload, or when a pinned version banner changes, so the inventory can only
  * drift together with an audit update. A migration PR that legitimately
@@ -55,14 +65,12 @@ public class InstallerPayloadVendoredJsAuditTest {
   /** Third-party .js shipped in the installer payload (paths relative to InstallDir).
    * Image-crop cluster migrated to npm in #6273 (Jcrop byte-identical to the
    * npm {@code jcrop-0.9.12} tarball; jquery-color upgraded 2.0pre to npm
-   * 3.0.0); editor-legacy cluster (Interface Elements + jquery-form) is
-   * tracked for #6274. */
+   * 3.0.0); editor-legacy cluster retired in #6274 (Interface Elements
+   * deleted with no npm successor; jquery-form npm-synced to 4.5.0). */
   private static final Set<String> EXPECTED_THIRD_PARTY_JS =
       Set.of(
           "rx_resources/js/jquery.Jcrop.min.js",
           "rx_resources/js/jquery.color.js",
-          "rx_resources/addins/psoimageeditor/js/iutil.js",
-          "rx_resources/addins/psoimageeditor/js/iresizable.js",
           "rx_resources/addins/psoimageeditor/js/form.js");
 
   /** First-party PSO glue in the payload — recorded so additions stand out, not migrated. */
@@ -147,23 +155,77 @@ public class InstallerPayloadVendoredJsAuditTest {
     assertTrue(
         !color.contains("v2.0pre"), "jquery.color 2.0pre must be gone after the #6273 upgrade");
 
-    for (String iface :
+    String form = readPayloadFile(root.resolve("rx_resources/addins/psoimageeditor/js/form.js"));
+    assertTrue(
+        form.contains("version: 4.5.0"), "form.js banner must identify npm jquery-form 4.5.0 (#6274)");
+    assertTrue(
+        form.contains("jquery-form@4.5.0"),
+        "form.js must carry the Percussion npm-provenance banner (#6274)");
+    assertTrue(
+        form.contains("Dual licensed under the LGPL-2.1+ or MIT licenses"),
+        "form.js banner must still record the MIT license option");
+    assertTrue(
+        form.contains("$.fn.ajaxSubmit"),
+        "form.js must still expose the ajaxSubmit submit path used by the editor glue");
+    assertTrue(
+        !form.contains("jQuery.browser"),
+        "npm jquery-form 4.5.0 must not use the removed jQuery.browser API "
+            + "the ~2012 vendored copy relied on");
+  }
+
+  @Test
+  public void interfaceElementsAreRetired() throws IOException {
+    Path root = installDir();
+
+    // The dead-upstream Interface copies must be gone from the payload (#6274).
+    for (String retired :
         List.of(
             "rx_resources/addins/psoimageeditor/js/iutil.js",
             "rx_resources/addins/psoimageeditor/js/iresizable.js")) {
-      String content = readPayloadFile(root.resolve(iface));
       assertTrue(
-          content.contains("Interface Elements for jQuery"),
-          iface + " must still identify as Interface Elements");
-      assertTrue(
-          content.contains("Stefan Petre"), iface + " must still record the upstream author");
+          Files.notExists(root.resolve(retired)),
+          retired + " must stay deleted: Interface Elements has no npm artifact (see #6274)");
     }
 
-    String form = readPayloadFile(root.resolve("rx_resources/addins/psoimageeditor/js/form.js"));
-    assertTrue(
-        form.contains("ajaxSubmit"),
-        "form.js must still be the jQuery Form Plugin (ajaxSubmit identity pin; "
-            + "no version banner exists in-file, see #6274)");
+    // And nothing shipped may bind the retired plugin surface anymore. Block
+    // comments are stripped first so the Interface-to-jQuery-UI mapping note
+    // in image_editor_general.js documents history without tripping the pin;
+    // string literals in these files carry none of the tokens either.
+    Set<String> addinJs =
+        collectPayloadJs(root).stream()
+            .filter(p -> p.startsWith("rx_resources/addins/psoimageeditor/js/"))
+            .collect(Collectors.toCollection(TreeSet::new));
+    assertTrue(!addinJs.isEmpty(), "psoimageeditor addin JS must still ship");
+    for (String rel : addinJs) {
+      String code =
+          readPayloadFile(root.resolve(rel)).replaceAll("(?s)/\\*.*?\\*/", "");
+      for (String token :
+          List.of("jQuery.iUtil", "jQuery.iResize", ".Resizable(", "ResizeConstraint")) {
+        assertTrue(
+            !code.contains(token),
+            rel + " must not reference the retired Interface API (" + token + ", see #6274)");
+      }
+    }
+  }
+
+  @Test
+  public void editorGlueBindsNpmTrackedApis() throws IOException {
+    Path root = installDir();
+
+    // The first-party crop-box glue must drive jQuery UI (npm jquery-ui,
+    // already tracked in WebUI per #5660) now that Interface is retired, and
+    // the async submit path must survive the jquery-form npm swap.
+    String glue =
+        readPayloadFile(root.resolve("rx_resources/addins/psoimageeditor/js/image_editor_general.js"));
+    for (String api :
+        List.of(
+            ".resizable(",
+            ".draggable(",
+            "cropBoxRatio",
+            "setCropBoxConstraint",
+            "ajaxSubmit")) {
+      assertTrue(glue.contains(api), "image_editor_general.js must bind " + api + " (#6274)");
+    }
   }
 
   @Test
@@ -196,6 +258,9 @@ public class InstallerPayloadVendoredJsAuditTest {
     assertTrue(
         pins.contains("\"jquery-color\": \"3.0.0\""),
         "package.json must pin the jquery-color upgrade (3.0.0)");
+    assertTrue(
+        pins.contains("\"jquery-form\": \"4.5.0\""),
+        "package.json must pin the jquery-form npm swap (4.5.0, #6274)");
     assertTrue(
         Files.isRegularFile(moduleDir.resolve("package-lock.json")),
         "package-lock.json must be committed so Dependabot resolves the pins");

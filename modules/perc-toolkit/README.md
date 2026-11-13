@@ -307,3 +307,24 @@ Dependabot-tracked). After any pin change run `npm run sync` in
 `modules/perc-toolkit` to refresh the payload bytes — the
 `InstallerPayloadVendoredJsAuditTest` guard test pins the banners, the pins,
 and the XSL references, so drift fails the module build.
+
+### Editor addin scripts (Interface retired, jquery-form npm-tracked, #6274)
+
+The PSO image-editor addin (`InstallDir/rx_resources/addins/psoimageeditor/js`,
+shipped verbatim into the dist) previously carried two Interface Elements for
+jQuery libraries from 2006 (`iutil.js` / `iresizable.js` — upstream dead since
+2006, no npm artifact). They are deleted; the first-party
+`image_editor_general.js` glue now drives the crop box through jQuery UI
+`resizable` + `draggable` (npm `jquery-ui`, already tracked in WebUI per #5660),
+which the host editor page must load alongside jQuery core. The retired
+`.Resizable()` / `.ResizeConstraint()` / `.ResizableRatio()` calls map 1:1 onto
+the `resizable` `resize` callback (`ui.size` / `ui.position`), a `draggable`
+`drag` callback for box moves, `containment` for the old min/max box, and the
+`aspectRatio` option for the constraint toggle — see the header comment in
+`image_editor_general.js`.
+
+`form.js` (jQuery Form Plugin, `ajaxSubmit` submit path) is byte-synced from
+the `jquery-form@4.5.0` npm package (LGPL-2.1+ OR MIT — MIT option) under its
+historic file name, so deployed editor pages keep working while Dependabot sees
+the pin. The 4.5.0 dist drops the removed `jQuery.browser` API the ~2012
+vendored copy relied on, so it is forward-compatible with modern jQuery.

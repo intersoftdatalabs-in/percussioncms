@@ -4,8 +4,10 @@
  * Syncs the npm-tracked third-party JS shipped in the CMS installer payload.
  *
  * Source of truth: modules/perc-toolkit/package.json pins
- *   (jcrop-0.9.12, jquery-color). Destinations: InstallDir/rx_resources/js,
- *   assembled verbatim into the dist by perc-distribution-tree.
+ *   (jcrop-0.9.12, jquery-color, jquery-form). Destinations:
+ *   InstallDir/rx_resources/js and
+ *   InstallDir/rx_resources/addins/psoimageeditor/js, assembled verbatim into
+ *   the dist by perc-distribution-tree.
  *
  * Usage:
  *   cd modules/perc-toolkit && npm install && npm run sync
@@ -19,13 +21,13 @@ const path = require("path");
 
 const MODULE_DIR = path.dirname(__dirname);
 const NODE_MODULES_DIR = path.join(MODULE_DIR, "node_modules");
-const PAYLOAD_JS_DIR = path.join(
-  MODULE_DIR,
-  "src",
-  "main",
-  "resources",
-  "InstallDir",
+const RESOURCES_DIR = path.join(MODULE_DIR, "src", "main", "resources", "InstallDir");
+const PAYLOAD_JS_DIR = path.join(RESOURCES_DIR, "rx_resources", "js");
+const PAYLOAD_ADDIN_JS_DIR = path.join(
+  RESOURCES_DIR,
   "rx_resources",
+  "addins",
+  "psoimageeditor",
   "js",
 );
 
@@ -37,19 +39,37 @@ const COLOR_PROVENANCE_BANNER = `/*!
  */
 `;
 
+const FORM_PROVENANCE_BANNER = `/*!
+ * Percussion CMS installer payload copy — DO NOT EDIT BY HAND.
+ * Source: npm package \`jquery-form@4.5.0\` (LGPL-2.1+ OR MIT — MIT option), file \`dist/jquery.form.js\`.
+ * Refresh with \`npm run sync\` in modules/perc-toolkit after any pin change.
+ * Issue #6274 (audit #6069, parent epic #5627).
+ */
+`;
+
 // Jcrop ships byte-identical (banner preserved from the npm tarball); the
-// color library gets a provenance banner prepended so the payload records
-// its npm origin. The InstallerPayloadVendoredJsAuditTest pins both banners.
+// color and form libraries get a provenance banner prepended so the payload
+// records their npm origin. The InstallerPayloadVendoredJsAuditTest pins the
+// banners. The payload keeps the historic `form.js` file name so deployed
+// editor pages keep working; only the bytes are now npm-sourced (#6274).
 const COPIES = [
   {
     src: ["jcrop-0.9.12", "js", "jquery.Jcrop.min.js"],
+    dir: PAYLOAD_JS_DIR,
     dest: "jquery.Jcrop.min.js",
     banner: null,
   },
   {
     src: ["jquery-color", "dist", "jquery.color.js"],
+    dir: PAYLOAD_JS_DIR,
     dest: "jquery.color.js",
     banner: COLOR_PROVENANCE_BANNER,
+  },
+  {
+    src: ["jquery-form", "dist", "jquery.form.js"],
+    dir: PAYLOAD_ADDIN_JS_DIR,
+    dest: "form.js",
+    banner: FORM_PROVENANCE_BANNER,
   },
 ];
 
@@ -67,7 +87,7 @@ if (!fs.existsSync(NODE_MODULES_DIR)) {
 let updated = 0;
 for (const copy of COPIES) {
   const src = path.join(NODE_MODULES_DIR, ...copy.src);
-  const dest = path.join(PAYLOAD_JS_DIR, copy.dest);
+  const dest = path.join(copy.dir, copy.dest);
   if (!fs.existsSync(src)) {
     fail(`npm source missing: ${src}. Is the package.json pin installed?`);
   }
