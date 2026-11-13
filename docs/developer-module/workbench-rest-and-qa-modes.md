@@ -110,6 +110,8 @@ Two supported modes. Agents must know which they are in. **Developers/agents do 
 
 Productized entrypoint on `docker/scripts/perc-devctl.py` (cross-platform Python; no shell required). Implements **#1827** slice 1 / **#1927**: CMS on **H2 in Docker**, published URL, no host install.
 
+**Planned (not shipped): published site + DTS cell (#6237).** The default cell is CMS-only: no DTS is deployed and no site is published, so DTS-widget and static-publish output cannot be verified in automation. Spec + slice plan: `specs/2402-qa-dts-publish/` — a future `qa-up --with-dts` mode (CMS H2 + Tomcat DTS, `PUBLISHED_SITE_URL=` / `PUBLISHED_CATEGORY_URL=` / `DTS_URL=` banner, `qa-health` gating both) with per-widget surface specs that skip cleanly until the cell provides the env. Ports are resolved at runtime; never hardcode them.
+
 **Prereq (once per machine / after installer or sitemanage/WebUI SNAPSHOT changes):** rebuild the chain that feeds the installer. The matrix cell **bind-mounts** `modules/perc-distribution-tree/target/perc-distribution-tree.jar`; that jar unpacks **`WebUI/target/perc-web-ui-*.war`** into `Rhythmyx/WEB-INF/lib` (including `sitemanage-*.jar`). Packaging only `perc-distribution-tree` after a sitemanage-only install **does not** pick up a new sitemanage if the WebUI WAR is stale.
 
 **Preferred driver (#2533):** use the portable `perc-devctl` / `qa_rebuild_chain.py` entry point instead of hand-typed `cd` + `mvnw` (wrong order and skipped WebUI were common agent failures). It runs repo-root `mvnw`/`mvnw.cmd` with `shell=False`, prints `PLANNED STEP:` / `RESULT:OK|FAIL` lines, and supports `--dry-run`.
