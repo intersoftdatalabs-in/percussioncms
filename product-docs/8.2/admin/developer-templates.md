@@ -189,6 +189,13 @@ whether the template contains it. Browse is available without a lock. After
    membership unchanged). After **Save**, a subsequent GET of the same template
    must list the assigned slot (assign and remove both persist).
 
+To remove one member with an explicit confirm instead of the checkbox, choose
+**Unassign** on that slot's row while the lock is held, then confirm. The row
+keeps rendering assigned until the server accepts the save; **Cancel** (or
+Escape) closes the dialog and changes nothing. A failed save (**400**, **403**,
+or **409**) keeps the previous mapping, so the slot still renders assigned and
+nothing else is dropped.
+
 Unlocked save is refused (**Save template** stays disabled without a held lock,
 and a stolen lock is **409**). Unknown slot names are **400** (the rest of the
 save is not applied). Non-Admin is **403**. Unknown templates are **404**. Save
@@ -198,7 +205,10 @@ does **not** release the lock. Integrators read and write the same list on
 
 Automated H2 surface coverage lives in
 `modules/perc-qa-automation/frontend/tests/developer-template-slot-assign.spec.js`
-(`npm run test:surface -- --path tests/developer-template-slot-assign.spec.js`).
+(`npm run test:surface -- --path tests/developer-template-slot-assign.spec.js`)
+and
+`modules/perc-qa-automation/frontend/tests/developer-template-slot-unassign.spec.js`
+(`npm run test:surface -- --path tests/developer-template-slot-unassign.spec.js`).
 
 The **assembler** extension name (for example
 `Java/global/percussion/assembly/htmlAssembler`) is **read-only** on this
