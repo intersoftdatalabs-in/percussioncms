@@ -15,21 +15,21 @@ positional text). Parse them and pass to the workflow as described below.
 
 | Key | Type | Default | Meaning |
 |-----|------|---------|---------|
-| `max_issues` | int | `3` | Max items fully processed (capped 1-12) |
+| `max_issues` | int | `3` | Max items fully processed (capped 1-100) |
 | `issue_numbers` | int[] | - | Only these issues (still triaged) |
 | `labels` | string | - | Optional discovery label filter |
 | `repo` | string | `intersoftdatalabs-in/percussioncms` | GitHub repo |
 | `base_branch` | string | `main` | PR base |
 | `prefer_easy` | bool | `false` | Tertiary among same-pN debt only |
-| `low_priority_quota_pct` | int | `0` | % of `max_issues` reserved for p7/p8 (floor pct, min 1 when quota>0) |
+| `low_priority_quota_pct` | int | `20` | 20% debt tax, seated **on top of** `max_issues` (effective queue = `max_issues` product seats + `ceil(max_issues × pct/100)` debt seats, min 1). Pass `0` for a product-only run (`no debt`), or a higher percentage. |
 | `min_debt_slots` | int | `0` | Explicit tech-debt count floor (guarantees ≥N debt seats) |
-| `max_erlang_residuals` | int | `3` | Cap on Erlang preexisting/complexity tech-debt residuals per PR |
+| `max_erlang_residuals` | int | `100` | Cap on Erlang preexisting/complexity tech-debt residuals per PR |
 | `coding_tool` | string | (detect) | Override stamp; empty = `OpenCode` |
 | `coding_tool_version` | string | (detect) | Override stamp; empty = `opencode --version` semver |
 | `model_id` | string | (detect) | Override session slug (`opencode-minimax-m3`) |
 | `include_cycle_verify` | bool | `true` | Maven + H2 Playwright after Security |
 | `cycle_verify_allow_full_playwright` | bool | `false` | If true, Playwright `--allow-full` |
-| `max_cycle_verify_residuals` | int | `8` | Max new Cycle Verify issues per run |
+| `max_cycle_verify_residuals` | int | `100` | Max new Cycle Verify issues per run |
 | `agent_safe_only` | bool | `true` | Skip host-install / secrets / full-suite E2E |
 | `maintainer_authors_only` | bool | `true` | Only registered maintainer authors |
 | `allowed_issue_authors` | string | empty | Extra maintainer logins (comma-sep) |
@@ -39,8 +39,8 @@ positional text). Parse them and pass to the workflow as described below.
 | `include_decision_front` | bool | `true` | Run `scripts/night-decision-front.py` before the Preflight/Reconcile/Triage walks; fall back to those agents when it fails or returns an incomplete signal set |
 | `stale_in_progress_hours` | int | `4` | Hours of inactivity before In Progress cleared |
 | `include_reconcile` | bool | `true` | Close 100%-implemented issues |
-| `max_reconcile_closes` | int | `20` | Max reconcile closes per run |
-| `max_reconcile_inspect` | int | `80` | Max open issues to inspect |
+| `max_reconcile_closes` | int | `100` | Max reconcile closes per run |
+| `max_reconcile_inspect` | int | `100` | Max open issues to inspect |
 | `include_typesafe_prescreen` | bool | `true` | Preflight runs `scripts/typesafe-prescreen.{py,cmd}` → `scratch/prescreen.json`; deterministic label rules stay authoritative, model only adds semantic skip hints at `prescreen_threshold` |
 | `prescreen_threshold` | float | `0.85` | Model skip_safe threshold to recommend a skip; fails open to rule-only |
 | `include_pr_followup` | bool | `true` | Run PR merge-blocker drain PRE + POST |
@@ -210,7 +210,7 @@ Blocker filing (after Triage, before Work — 2.2.9-draft):
 1. For each triage `blocker_proposals` row, dedupe (title search + body-ref
    search). Reuse-and-link on a match; never file a duplicate.
 2. File the rest (unassigned, parent `pN` copied, `Blocked-by: #<blocked>`
-   in the body, operator + `model:*` labels). Counts against the 8-new/run
+   in the body, operator + `model:*` labels). Counts against the 100-new/run
    cap shared with the host sweep.
 3. Replace any `file:blocker:<blocked>:<i>` placeholder in
    `slotted_for_work` with the real issue number so Work picks up the
@@ -229,7 +229,7 @@ Host sweep (Report phase, covers everything Work did not):
    search). Reuse-and-link on a match; never file a duplicate. If the live
    scope check shows the slice already ships on base (merge commits + code
    presence), skip filing and note `already_shipped` instead of filing junk.
-3. File the rest (same labels/body convention as Work). Cap at **8 new
+3. File the rest (same labels/body convention as Work). Cap at **100 new
    issues per run**; beyond that file the 8 most valuable and list the
    deferred remainder in the report.
 4. Never file for items owned by an assignee, human-gated decisions, or
@@ -289,6 +289,17 @@ entombing issues):
    `stats.debt_seed`).
 4. Omission is fail-open (legacy number order), but a debt run without a
    seed re-risks reseating — prefer always passing all three when seats exist.
+
+**Standing debt tax (operator direction 2026-11-13):** every cycle pays a debt
+tax of `low_priority_quota_pct` (default 20%) computed on the requested
+`max_issues`, rounded UP, and seated **ADDITIVELY — the product queue keeps its
+full `max_issues` seats**. Host computes
+`debt_increment = ceil(max_issues × pct/100)` (min 1) and invokes
+`scripts/night-decision-front.py` with
+`--max-issues (max_issues + debt_increment)` plus the quota pct, e.g.
+`max_issues=12` → `--max-issues 15 --low-priority-quota-pct 20` → 12 product +
+3 debt. Override per run: `low_priority_quota_pct=0` ("no debt") or a higher
+percentage; the tax is always on top, never carved out of product seats.
 
 ## Output contract
 

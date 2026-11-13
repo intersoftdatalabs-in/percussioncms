@@ -54,9 +54,9 @@ Every run classifies candidates as **PRODUCT** or **DEBT** before ranking.
 
 | Rule | Behavior |
 |------|----------|
-| **Phase A — product seats** | Fill `priority_slots = max_issues − low_slots` from PRODUCT only, p1 → p6 → Unset. Implement-ready items **and** 3 PR-sized **next-phase slices** of open epics. A prior child PR + assigned QA ticket does **not** finish the parent. **Never** queue p7/p8 while any eligible product item remains. Product overflow must never eat a reserved debt seat |
+| **Phase A — product seats** | Fill `priority_slots = max_issues` from PRODUCT only, p1 → p6 → Unset (debt rides **on top** — product seats never shrink for the tax). Implement-ready items **and** 3 PR-sized **next-phase slices** of open epics. A prior child PR + assigned QA ticket does **not** finish the parent. **Never** queue p7/p8 while any eligible product item remains. Product overflow must never eat a reserved debt seat |
 | **Phase A — QA: Failed** | Not a skip. File or reuse an unassigned implement residual and queue it. Do not work the assigned `qa task` itself |
-| **Phase B — debt seats (RESERVED)** | Fill **`low_slots` only**, where `low_slots = max(floor(max_issues × low_priority_quota_pct / 100) with min 1 when quota>0, min_debt_slots)`. Floor-plus-one: quota>0 on a small `max_issues` still seats ≥1 (max=3, quota=20 → 1; max=10, quota=20 → 2). The explicit **tech-debt count** knob is `min_debt_slots` (e.g. `min_debt_slots=1` guarantees one debt seat regardless of percentage math). Unused `priority_slots` stay **empty**. Default quota=0 + min_debt=0 → no debt seats. Empty queue beats an Xlint night. Report `priority_slots / low_slots / debt_candidates / debt_queued` every run so zero-debt is auditable |
+| **Phase B — debt seats (ADDITIVE tax)** | Fill **`low_slots` only**, where `low_slots = ceil(max_issues × low_priority_quota_pct / 100)` with min 1 when quota>0 (host invokes decision-front with `--max-issues (max_issues + low_slots)` so product keeps its full seats). Ceil: `max_issues=12` at default 20% → 3 debt (queue of 15); small `max_issues=3` → 1. The explicit **tech-debt count** knob is `min_debt_slots` (e.g. `min_debt_slots=1` guarantees one debt seat regardless of percentage math). Unused `priority_slots` stay **empty**. Default quota=20 → the tax is always on; pass quota=0 (`no debt`) for a product-only run. Report `priority_slots / low_slots / debt_candidates / debt_queued` every run so zero-debt is auditable |
 | **Phase B — rotation (2.2.8-draft, cross-tier 2.2.9-draft)** | Lowest-number-first reseats the same blocked debt nightly. Recently-blocked debt (prior no-progress verdicts) sorts **after ALL fresh debt regardless of pN tier** — a blocked p2 yields to a fresh p8 for one cycle (observed: tier-first ordering seated #1820/#1978 a third time while 20 fresh p8s waited). Same-flag ties break by pN, then **randomly** (seeded, `YYYYMMDD`), never lowest-number-first. Rotation **reorders, never starves** the seat |
 | **prefer_easy** | Tertiary **among DEBT items in the same pN** only. Default **false**. Never ranks tech-debt above product. Never a reason to pick p8 in Phase A |
 
@@ -293,21 +293,21 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 
 | Arg | Type | Default | Meaning |
 |-----|------|---------|---------|
-| `max_issues` | int | `3` | Max items fully processed (capped 1-12) |
+| `max_issues` | int | `3` | Max items fully processed (capped 1-100) |
 | `issue_numbers` | int[] | - | Only these issues (still triaged) |
 | `labels` | string | - | Optional label filter for discovery |
 | `repo` | string | `intersoftdatalabs-in/percussioncms` | GitHub repo |
 | `base_branch` | string | `main` | PR base |
 | `prefer_easy` | bool | `false` | After product items in the same pN, prefer smaller debt/bugs. Never outranks product work |
-| `low_priority_quota_pct` | int | `0` | Percent of `max_issues` reserved for p7/p8 only. `0` = product-only (empty queue OK). Floor pct with min 1 when quota>0 — small max still seats ≥1. Unused priority slots never become Xlint |
+| `low_priority_quota_pct` | int | `20` | 20% debt tax seated **on top of** `max_issues` (effective queue = `max_issues` product seats + `ceil(max_issues × pct/100)` debt seats, min 1). Pass `0` (`no debt`) for a product-only run, or a higher percentage. |
 | `min_debt_slots` | int | `0` | Explicit tech-debt count floor — guarantees ≥N debt seats regardless of percentage math |
-| `max_erlang_residuals` | int | `3` | Cap on Erlang preexisting-bug/complexity tech-debt residuals filed per PR (deduped, never blocking) |
+| `max_erlang_residuals` | int | `100` | Cap on Erlang preexisting-bug/complexity tech-debt residuals filed per PR (deduped, never blocking) |
 | `coding_tool` | string | live | Override stamp tool name. Empty = detect (`Grok Build`) |
 | `coding_tool_version` | string | live | Override stamp tool version. Empty = `grok --version` semver (e.g. `1.0.3`) |
 | `model_id` | string | live | Override session model slug. Empty = system identity (`You are Grok 4.6` → `grok-4.6`). Label is `model:<id>` |
 | `include_cycle_verify` | bool | `true` | After Security: Maven + H2 Playwright on this run; failures → next-cycle p1 leads |
 | `cycle_verify_allow_full_playwright` | bool | `false` | If true, Playwright `--allow-full`. Default: golden + login + this-run surfaces |
-| `max_cycle_verify_residuals` | int | `8` | Max **new** Cycle Verify issues per run (0–20). Reuse open residuals when present |
+| `max_cycle_verify_residuals` | int | `100` | Max **new** Cycle Verify issues per run (0–100). Reuse open residuals when present |
 | `agent_safe_only` | bool | `true` | Skip host-install, secrets, multi-RDBMS, full-suite E2E; **allow** H2 QA + `test:surface`. Also hard-skip label **`not safe for agents`** and large multi-locale TMX/matrix/bulk translation jobs |
 | `maintainer_authors_only` | bool | `true` | Only consider issues authored by registered maintainers (push/maintain/admin collaborators + `allowed_issue_authors`) |
 | `allowed_issue_authors` | string | empty | Comma-separated extra GitHub logins always treated as maintainers |
@@ -316,8 +316,8 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | `include_stale_in_progress_cleanup` | bool | `true` | Before PRE/Discover: remove **In Progress** when issue `updatedAt` is older than `stale_in_progress_hours` |
 | `stale_in_progress_hours` | int | `4` | Hours of no issue activity before an In Progress claim is cleared (capped 1–72) |
 | `include_reconcile` | bool | `true` | After Preflight: close 100% implemented open issues (including QA: Failed whose residual landed); emit leftover implement candidates |
-| `max_reconcile_closes` | int | `20` | Max issues to close per reconcile pass (capped 1–40) |
-| `max_reconcile_inspect` | int | `80` | Max open issues to inspect for close vs remaining work (capped 20–120) |
+| `max_reconcile_closes` | int | `100` | Max issues to close per reconcile pass (capped 1–100) |
+| `max_reconcile_inspect` | int | `100` | Max open issues to inspect for close vs remaining work (capped 20–120) |
 | `include_typesafe_prescreen` | bool | `true` | Preflight runs `scripts/typesafe-prescreen.{py,cmd}` → `scratch/prescreen.json`. Deterministic label rules authoritative; model only adds semantic skip / close hints (fail-open) |
 | `prescreen_threshold` | float | `0.85` | Model `skip_safe` threshold to recommend a skip (`recommend_skip/source=model`). Below it the issue stays eligible |
 | `include_pr_followup` | bool | `true` | Run PR merge-blocker drain after stale cleanup (before Discover/Triage) **and** after issue Work |
