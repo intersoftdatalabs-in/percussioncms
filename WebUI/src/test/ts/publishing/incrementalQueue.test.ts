@@ -18,6 +18,7 @@
 import { describe, expect, it } from "vitest";
 import {
   extractQueueItems,
+  filterQueueByApproval,
   hasMorePages,
   isQueueEmpty,
   queueItemId,
@@ -118,5 +119,21 @@ describe("incrementalQueue", () => {
     expect(queueUnapproveFailure({ status: 500, statusText: "Error", body: "" })).toBe(
       "failed",
     );
+  });
+
+  it("filters queue rows by approval facet (#6259)", () => {
+    const rows = [
+      { id: "301", name: "Home", approved: true },
+      { id: "88", title: "About" },
+      { id: "89", title: "Contact", status: "Approved" },
+    ];
+    expect(filterQueueByApproval(rows, "all")).toEqual(rows);
+    expect(filterQueueByApproval(rows, "approved")).toHaveLength(2);
+    expect(filterQueueByApproval(rows, "pending")).toHaveLength(1);
+    expect(filterQueueByApproval(rows, "pending")[0]).toEqual({
+      id: "88",
+      title: "About",
+    });
+    expect(filterQueueByApproval([], "approved")).toEqual([]);
   });
 });

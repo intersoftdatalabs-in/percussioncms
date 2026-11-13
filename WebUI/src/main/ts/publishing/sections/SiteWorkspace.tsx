@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   approveIncrementalQueueItem,
   clearIncrementalQueue,
@@ -103,6 +103,7 @@ import {
 } from "../incrementalApproval";
 import {
   extractQueueItems,
+  filterQueueByApproval,
   isQueueEmpty,
   queueApproveFailure,
   queueItemApproved,
@@ -110,6 +111,7 @@ import {
   queueItemId,
   queueItemLabel,
   queueRemoveFailure,
+  type QueueApprovalFilter,
 } from "../incrementalQueue";
 import { isJobStoppable, mapJobStopError } from "../jobStop";
 import {
@@ -222,6 +224,12 @@ export function SiteWorkspace({
   );
   const [approvedQueueIds, setApprovedQueueIds] = useState<Set<string>>(
     new Set(),
+  );
+  const [queueApprovalFilter, setQueueApprovalFilter] =
+    useState<QueueApprovalFilter>("all");
+  const visibleQueue = useMemo(
+    () => filterQueueByApproval(queuePreview, queueApprovalFilter),
+    [queuePreview, queueApprovalFilter],
   );
   const [relatedPreview, setRelatedPreview] = useState<unknown[]>([]);
   const [selectedRelated, setSelectedRelated] = useState<Set<string>>(
@@ -1051,30 +1059,101 @@ export function SiteWorkspace({
               {message(MSG.PUBLISH_EMPTY_QUEUE)}
             </p>
           ) : (
-            <table style={tableStyle} data-testid="publish-incremental-queue-list">
-              <thead>
-                <tr>
-                  <th style={thStyle}>Id</th>
-                  <th style={thStyle}>Item</th>
-                  <th style={thStyle}>{message(MSG.PUBLISH_APPROVE_QUEUE_ITEM)}</th>
-                  <th style={thStyle}>{message(MSG.PUBLISH_UNAPPROVE_QUEUE_ITEM)}</th>
-                  <th style={thStyle}>{message(MSG.PUBLISH_REMOVE_QUEUE_ITEM)}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {queuePreview.map((item, idx) => {
-                  const id = queueItemId(item);
-                  const label = queueItemLabel(item);
-                  return (
-                    <tr
-                      key={id !== "" ? id : `queue-${idx}`}
-                      data-testid="publish-incremental-queue-row"
-                    >
-                      <td style={tdStyle}>{id !== "" ? id : "—"}</td>
-                      <td style={tdStyle}>{label}</td>
-                      <td style={tdStyle}>
-                        {id !== "" &&
-                          (approvedQueueIds.has(id) || queueItemApproved(item)) && (
+            <>
+              <div style={{ marginBottom: 8 }}>
+                <label>
+                  <span className="sr-only">
+                    {message(
+                      MSG.PUBLISH.SECTIONS.SITE.QUEUE_STATUS_FILTER_ARIA,
+                    )}
+                  </span>
+                  <select
+                    data-testid="publish-incremental-queue-status-filter"
+                    value={queueApprovalFilter}
+                    onChange={(e) =>
+                      setQueueApprovalFilter(
+                        e.target.value as QueueApprovalFilter,
+                      )
+                    }
+                    aria-label={message(
+                      MSG.PUBLISH.SECTIONS.SITE.QUEUE_STATUS_FILTER_ARIA,
+                    )}
+                  >
+                    <option value="all">
+                      {message(
+                        MSG.PUBLISH.SECTIONS.SITE.QUEUE_STATUS_FILTER_ALL,
+                      )}
+                    </option>
+                    <option value="approved">
+                      {message(
+                        MSG.PUBLISH.SECTIONS.SITE.QUEUE_STATUS_FILTER_APPROVED,
+                      )}
+                    </option>
+                    <option value="pending">
+                      {message(
+                        MSG.PUBLISH.SECTIONS.SITE.QUEUE_STATUS_FILTER_PENDING,
+                      )}
+                    </option>
+                  </select>
+                </label>
+              </div>
+              {visibleQueue.length === 0 ? (
+                <p
+                  style={emptyStyle}
+                  data-testid="publish-incremental-queue-empty-filter"
+                >
+                  {message(
+                    MSG.PUBLISH.SECTIONS.SITE.QUEUE_EMPTY_STATUS_FILTER,
+                  )}
+                </p>
+              ) : (
+                <table
+                  style={tableStyle}
+                  data-testid="publish-incremental-queue-list"
+                >
+                <thead>
+                  <tr>
+                    <th style={thStyle}>Id</th>
+                    <th style={thStyle}>Item</th>
+                    <th style={thStyle}>
+                      {message(MSG.PUBLISH.SECTIONS.SITE.QUEUE_STATUS_COLUMN)}
+                    </th>
+                    <th style={thStyle}>{message(MSG.PUBLISH_APPROVE_QUEUE_ITEM)}</th>
+                    <th style={thStyle}>{message(MSG.PUBLISH_UNAPPROVE_QUEUE_ITEM)}</th>
+                    <th style={thStyle}>{message(MSG.PUBLISH_REMOVE_QUEUE_ITEM)}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleQueue.map((item, idx) => {
+                    const id = queueItemId(item);
+                    const label = queueItemLabel(item);
+                    const approved =
+                      id !== "" &&
+                      (approvedQueueIds.has(id) || queueItemApproved(item));
+                    return (
+                      <tr
+                        key={id !== "" ? id : `queue-${idx}`}
+                        data-testid="publish-incremental-queue-row"
+                      >
+                        <td style={tdStyle}>{id !== "" ? id : "—"}</td>
+                        <td style={tdStyle}>{label}</td>
+                        <td style={tdStyle}>
+                          {approved ? (
+                            <span data-testid="publish-incremental-queue-status-approved">
+                              {message(MSG.PUBLISH_QUEUE_APPROVED_BADGE)}
+                            </span>
+                          ) : (
+                            <span data-testid="publish-incremental-queue-status-pending">
+                              {message(
+                                MSG.PUBLISH.SECTIONS.SITE.QUEUE_STATUS_PENDING,
+                              )}
+                            </span>
+                          )}
+                        </td>
+                        <td style={tdStyle}>
+                          {id !== "" &&
+                          (approvedQueueIds.has(id) ||
+                            queueItemApproved(item)) && (
                             <span data-testid="publish-incremental-queue-approved">
                               {message(MSG.PUBLISH_QUEUE_APPROVED_BADGE)}
                             </span>
@@ -1117,8 +1196,10 @@ export function SiteWorkspace({
                     </tr>
                   );
                 })}
-              </tbody>
-            </table>
+                </tbody>
+                </table>
+              )}
+            </>
           )}
 
           {relatedPreview.length > 0 && (

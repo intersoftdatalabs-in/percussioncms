@@ -528,4 +528,80 @@ describe("SiteWorkspace incremental queue list (#4787)", () => {
     });
     expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
   });
+
+  it("filters queue rows by approval status facet without new requests (#6259)", async () => {
+    vi.mocked(publishApi.getIncrementalItems).mockResolvedValue({
+      items: [
+        { id: "301", name: "Home", status: "Approved" },
+        { id: "88", title: "About" },
+      ],
+    });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(2);
+    });
+    expect(
+      screen.getByTestId("publish-incremental-queue-status-filter"),
+    ).toBeTruthy();
+    expect(
+      screen.getByTestId("publish-incremental-queue-status-approved").textContent,
+    ).toMatch(/Approved/i);
+    expect(
+      screen.getByTestId("publish-incremental-queue-status-pending").textContent,
+    ).toMatch(/Pending/i);
+
+    fireEvent.change(
+      screen.getByTestId("publish-incremental-queue-status-filter"),
+      { target: { value: "approved" } },
+    );
+    expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+    expect(
+      screen.getByTestId("publish-incremental-queue-row").textContent,
+    ).toContain("301");
+
+    fireEvent.change(
+      screen.getByTestId("publish-incremental-queue-status-filter"),
+      { target: { value: "pending" } },
+    );
+    expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+    expect(
+      screen.getByTestId("publish-incremental-queue-row").textContent,
+    ).toContain("88");
+
+    fireEvent.change(
+      screen.getByTestId("publish-incremental-queue-status-filter"),
+      { target: { value: "all" } },
+    );
+    expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(2);
+    expect(publishApi.getIncrementalItems).toHaveBeenCalledTimes(1);
+  });
+
+  it("shows an empty-filter message when the facet matches nothing (#6259)", async () => {
+    vi.mocked(publishApi.getIncrementalItems).mockResolvedValue({
+      items: [{ id: "88", title: "About" }],
+    });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+    });
+    fireEvent.change(
+      screen.getByTestId("publish-incremental-queue-status-filter"),
+      { target: { value: "approved" } },
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("publish-incremental-queue-empty-filter"),
+      ).toBeTruthy();
+    });
+    expect(screen.queryByTestId("publish-incremental-queue-list")).toBeNull();
+    expect(publishApi.getIncrementalItems).toHaveBeenCalledTimes(1);
+  });
 });
