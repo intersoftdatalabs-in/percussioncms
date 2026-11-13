@@ -7,6 +7,7 @@ import React from "react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { SessionRedirectError } from "../../../main/ts/api/client";
 import * as contentTypesApi from "../../../main/ts/api/developer/contentTypesApi";
+import * as workflowsApi from "../../../main/ts/api/developer/workflowsApi";
 import * as fieldRulesApi from "../../../main/ts/api/developer/contentTypeFieldRules";
 import * as importExportApi from "../../../main/ts/api/developer/contentTypeImportExport";
 import { catalogColors } from "../../../main/ts/developer/catalogStyles";
@@ -65,6 +66,17 @@ vi.mock("../../../main/ts/api/developer/contentTypeFieldRules", async (importOri
     ...actual,
     getContentTypeFieldRuleExpressions: vi.fn(),
     replaceContentTypeFieldRuleExpressions: vi.fn(),
+  };
+});
+
+// WorkflowAssociationDialog loads the catalog via workflowsApi when the panel
+// does not inject a loader; stub it so dialog round-trips stay isolated.
+vi.mock("../../../main/ts/api/developer/workflowsApi", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/api/developer/workflowsApi")>();
+  return {
+    ...actual,
+    listWorkflows: vi.fn(),
   };
 });
 
@@ -130,6 +142,7 @@ const replaceContentTypeFieldRuleExpressions =
   fieldRulesApi.replaceContentTypeFieldRuleExpressions as ReturnType<typeof vi.fn>;
 const exportContentType = importExportApi.exportContentType as ReturnType<typeof vi.fn>;
 const downloadXmlFile = importExportApi.downloadXmlFile as ReturnType<typeof vi.fn>;
+const listWorkflows = workflowsApi.listWorkflows as ReturnType<typeof vi.fn>;
 
 const emptyItemExits = {
   inputTranslations: [] as Array<{ extension?: string; parameters?: Array<{ value?: string }> }>,
@@ -183,6 +196,7 @@ describe("ContentTypeDetailPanel", () => {
     replaceContentTypeFieldRuleExpressions.mockReset();
     exportContentType.mockReset();
     downloadXmlFile.mockReset();
+    listWorkflows.mockReset();
     exportContentType.mockResolvedValue({
       xml: "<ItemDefData><PSXItemDefSummary name=\"percPage\" /></ItemDefData>",
       filename: "percPage.xml",
@@ -1289,6 +1303,67 @@ describe("ContentTypeDetailPanel", () => {
     fireEvent.click(screen.getByTestId("developer-ct-wf-remove-0"));
     expect(screen.queryByTestId("developer-ct-wf-row-1")).toBeNull();
     expect(screen.getByTestId("developer-ct-wf-row-0").textContent).toContain("Simple Workflow");
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+  });
+
+  it("dialog re-associate restores row text after remove (label is name, #6289)", async () => {
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      // Two server-sorted edges with the default FIRST: removing index 0
+      // and re-associating must restore order, label, and default flag.
+      allowedWorkflows: [
+        { name: "Simple Workflow", label: "Simple Workflow", isDefault: true },
+        { name: "Standard Workflow", label: "Standard Workflow", isDefault: false },
+      ],
+      defaultWorkflow: { name: "Simple Workflow", isDefault: true },
+    });
+    // The catalog description differs from the workflow name on purpose: the
+    // staged edge must keep the server-reported label (the name) so a
+    // remove-then-re-associate round-trip renders identical row text.
+    listWorkflows.mockResolvedValue([
+      { workflowName: "Simple Workflow", workflowDescription: "Review chain for pages" },
+      { workflowName: "Standard Workflow", workflowDescription: "Publish chain" },
+    ]);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-ct-wf-remove-0") as HTMLButtonElement).disabled,
+      ).toBe(false);
+    });
+    const initialRowTexts = [
+      screen.getByTestId("developer-ct-wf-row-0").textContent,
+      screen.getByTestId("developer-ct-wf-row-1").textContent,
+    ];
+    expect(initialRowTexts[0]).toContain("Simple Workflow");
+
+    fireEvent.click(screen.getByTestId("developer-ct-wf-remove-0"));
+    expect(screen.queryByTestId("developer-ct-wf-row-1")).toBeNull();
+    expect(screen.getByTestId("developer-ct-wf-row-0").textContent).toContain(
+      "Standard Workflow",
+    );
+
+    fireEvent.click(screen.getByTestId("developer-ct-wf-browse"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-assoc-dialog")).toBeTruthy();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-wf-assoc-pick-Simple Workflow")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-wf-assoc-pick-Simple Workflow"));
+    expect(
+      (screen.getByTestId("developer-wf-assoc-confirm") as HTMLButtonElement).disabled,
+    ).toBe(false);
+    fireEvent.click(screen.getByTestId("developer-wf-assoc-confirm"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-wf-assoc-dialog")).toBeNull();
+    });
+    // Order, label, and default flag all round-trip: no staged draft remains.
+    expect(screen.getByTestId("developer-ct-wf-row-0").textContent).toBe(initialRowTexts[0]);
+    expect(screen.getByTestId("developer-ct-wf-row-1").textContent).toBe(initialRowTexts[1]);
     expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
   });
 

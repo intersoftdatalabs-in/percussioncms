@@ -46,6 +46,60 @@ export function namedObjectRefsEqual(a: NamedObjectRef[], b: NamedObjectRef[]): 
 }
 
 /**
+ * Draft order for the allowed-workflow edge list. The server GET sorts refs
+ * by label case-insensitively ({@code ContentTypeAdaptor.loadWorkflows});
+ * the draft mirrors that order after every mutation so a
+ * remove-then-re-associate round-trip restores the exact row sequence.
+ */
+export function compareWorkflowRefs(a: NamedObjectRef, b: NamedObjectRef): number {
+  const ka = (a.label || a.name || "").toLowerCase();
+  const kb = (b.label || b.name || "").toLowerCase();
+  if (ka < kb) return -1;
+  if (ka > kb) return 1;
+  return 0;
+}
+
+/** Return a sorted copy of the draft edge list (server GET order). */
+export function sortWorkflowRefs(list: NamedObjectRef[]): NamedObjectRef[] {
+  return [...list].sort(compareWorkflowRefs);
+}
+
+/**
+ * Stage one workflow edge onto the draft in server GET order (#6289).
+ *
+ * The staged label is the workflow name: the server reports label == name
+ * for workflow refs ({@code PSWorkflow.getLabel()} returns the name), so
+ * staging the catalog description instead would make a
+ * remove-then-re-associate round-trip render different row text.
+ *
+ * When the staged name is the persisted default, the default flag is
+ * restored (and cleared on the other rows): {@code removeWorkflow} promotes
+ * the next row when the default edge is removed, so without this step a
+ * remove-then-re-associate round-trip of the default edge would leave the
+ * draft dirty and the save button enabled.
+ */
+export function stageWorkflowRef(
+  prev: NamedObjectRef[],
+  name: string,
+  persistedDefaultName: string | undefined,
+): NamedObjectRef[] {
+  const trimmed = (name || "").trim();
+  if (!trimmed) return prev;
+  if (
+    prev.some((w) => (w.name || "").toLowerCase() === trimmed.toLowerCase())
+  ) {
+    return prev;
+  }
+  const wantsDefault = persistedDefaultName
+    ? trimmed.toLowerCase() === persistedDefaultName.toLowerCase()
+    : prev.length === 0;
+  return sortWorkflowRefs([
+    ...prev.map((w) => (wantsDefault ? { ...w, isDefault: false } : w)),
+    { name: trimmed, label: trimmed, isDefault: wantsDefault },
+  ]);
+}
+
+/**
  * Align isDefault flags with server defaultWorkflow (or first row when missing).
  */
 export function withDefaultWorkflowFlags(

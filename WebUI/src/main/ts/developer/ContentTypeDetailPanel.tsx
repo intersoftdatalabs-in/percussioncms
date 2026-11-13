@@ -78,7 +78,6 @@ import type {
   ContentTypeIcon,
   ContentTypeItemExits,
   NamedObjectRef,
-  WorkflowDef,
 } from "../api/developer/types";
 import {
   choiceCatalogPayloadError,
@@ -96,6 +95,7 @@ import {
   buildAllowedWorkflowsReplaceBody,
   cloneNamedObjectRefs,
   namedObjectRefsEqual,
+  stageWorkflowRef,
   toNamedObjectRefPayload,
   withDefaultWorkflowFlags,
 } from "./contentTypeWorkflows";
@@ -667,8 +667,9 @@ export function ContentTypeDetailPanel({
     detail?.allowedWorkflows,
     detail?.defaultWorkflow,
   );
-  const initialTemplates = cloneNamedObjectRefs(detail?.allowedTemplates);
-  const workflowsDirty = detail != null && !namedObjectRefsEqual(workflows, initialWorkflows);
+  /** Persisted default workflow name: restores the flag on re-associate (#6289). */
+  const persistedDefaultWfName = initialWorkflows.find((w) => w.isDefault)?.name;
+  const initialTemplates = cloneNamedObjectRefs(detail?.allowedTemplates);  const workflowsDirty = detail != null && !namedObjectRefsEqual(workflows, initialWorkflows);
   const templatesDirty = detail != null && !namedObjectRefsEqual(templates, initialTemplates);
   const itemExitsDirty =
     itemExitsLoaded && !contentTypeItemExitsEqual(itemExits, savedItemExits);
@@ -803,10 +804,7 @@ export function ContentTypeDetailPanel({
       setNewWfName("");
       return;
     }
-    setWorkflows((prev) => [
-      ...prev,
-      { name, label: name, isDefault: prev.length === 0 },
-    ]);
+    setWorkflows((prev) => stageWorkflowRef(prev, name, persistedDefaultWfName));
     setNewWfName("");
     setNotice(null);
   }
@@ -822,9 +820,11 @@ export function ContentTypeDetailPanel({
   /**
    * FR §5.5 dialog associate: stage one catalog workflow onto the
    * allowed-workflow edge. Duplicate (case-insensitive) and unlocked picks
-   * are ignored so cancel + failed saves leave edges unchanged.
+   * are ignored so cancel + failed saves leave edges unchanged. Staging
+   * keeps server GET order and restores the persisted default flag so a
+   * remove-then-re-associate round-trip restores the exact edge list (#6289).
    */
-  function associateWorkflow(name: string, def: WorkflowDef) {
+  function associateWorkflow(name: string) {
     if (!heldLock) {
       return;
     }
@@ -836,11 +836,7 @@ export function ContentTypeDetailPanel({
       setWfDialogOpen(false);
       return;
     }
-    const label = (def.workflowDescription || "").trim() || trimmed;
-    setWorkflows((prev) => [
-      ...prev,
-      { name: trimmed, label, isDefault: prev.length === 0 },
-    ]);
+    setWorkflows((prev) => stageWorkflowRef(prev, trimmed, persistedDefaultWfName));
     setWfDialogOpen(false);
     setNotice(null);
   }
