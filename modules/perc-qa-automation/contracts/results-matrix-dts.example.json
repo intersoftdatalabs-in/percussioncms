@@ -1,0 +1,74 @@
+[
+  {
+    "suite": "dts-interaction-matrix",
+    "spec": "tests/dts-interaction-matrix.spec.js",
+    "contentType": "polls",
+    "label": "Polls",
+    "cell": "dts-cell",
+    "cases": {
+      "interact": "skip"
+    },
+    "status": "skip",
+    "updated": "2026-11-13"
+  },
+  {
+    "suite": "dts-interaction-matrix",
+    "spec": "tests/dts-interaction-matrix.spec.js",
+    "contentType": "feeds",
+    "label": "Feeds",
+    "cell": "dts-cell",
+    "cases": {
+      "interact": "skip"
+    },
+    "status": "skip",
+    "updated": "2026-11-13"
+  },
+  {
+    "suite": "dts-interaction-matrix",
+    "spec": "tests/dts-interaction-matrix.spec.js",
+    "contentType": "forms",
+    "label": "Forms",
+    "cell": "dts-cell",
+    "cases": {
+      "interact": "pass"
+    },
+    "status": "pass",
+    "updated": "2026-11-13"
+  },
+  {
+    "suite": "dts-interaction-matrix",
+    "spec": "tests/dts-interaction-matrix.spec.js",
+    "contentType": "comments",
+    "label": "Comments",
+    "cell": "dts-cell",
+    "cases": {
+      "interact": "pass"
+    },
+    "status": "pass",
+    "updated": "2026-11-13"
+  },
+  {
+    "suite": "dts-interaction-matrix",
+    "spec": "tests/dts-interaction-matrix.spec.js",
+    "contentType": "metadata",
+    "label": "Metadata",
+    "cell": "dts-cell",
+    "cases": {
+      "interact": "skip"
+    },
+    "status": "skip",
+    "updated": "2026-11-13"
+  },
+  {
+    "suite": "dts-interaction-matrix",
+    "spec": "tests/dts-interaction-matrix.spec.js",
+    "contentType": "membership",
+    "label": "Membership",
+    "cell": "dts-cell",
+    "cases": {
+      "interact": "skip"
+    },
+    "status": "skip",
+    "updated": "2026-11-13"
+  }
+]

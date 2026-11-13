@@ -710,6 +710,52 @@ edits) **and** the matching `(name, label, kind, marker)` row to
 `WIDGET_FIXTURES` in `qa_publish_fixture.py` (the fixture drift-guard test
 fails until both lists agree).
 
+### DTS dynamic interaction matrix (#6241 / parent #6238)
+
+US3 operator proof that every DTS-backed service answers its round-trip:
+one interaction case per service (polls vote persists, feeds render,
+forms confirm + retrievable, comments appear per moderation rules, metadata
+index reflects published content, membership login round-trips). Static
+shells are US2; green interaction runs need the DTS-providing cell
+(#6237). Without `DTS_BASE_URL` every case skips naming its service (T020);
+with a base URL each case probes liveness (`HEAD <root>/csrf`) and then
+its seeded fixture — unseeded fixtures skip with their own named reason.
+
+| Item | Value |
+|------|--------|
+| Matrix spec | `frontend/tests/dts-interaction-matrix.spec.js` (6 services × 1 case) |
+| Helpers | `frontend/tests/helpers/dts-interaction-matrix.js` (pinned inventory + row builder + validator) |
+| Contract | `contracts/results-matrix.schema.json` (`dts-interaction-matrix` suite, `dts-cell` cell, `interact` case; + `contracts/results-matrix-dts.example.json`) |
+| Unit | `frontend/tests/unit/dts-interaction-matrix.test.js` (no live CMS, no DTS cell) |
+| Tags | `@dts` + `@dts-<service>` per service |
+
+```bash
+cd modules/perc-qa-automation/frontend
+# Needs the DTS-providing cell + seeded interaction fixtures:
+DTS_BASE_URL=https://<dts-cell-origin> \
+  DTS_FIXTURE_POLL=qamatrix-poll DTS_FIXTURE_FORM=qamatrix-form \
+  DTS_FIXTURE_SITE=EnterpriseInvestments DTS_FIXTURE_PAGE=/qamatrix \
+  DTS_FIXTURE_FEED=EnterpriseInvestments/qamatrix-feed/localhost \
+  DTS_FIXTURE_USER=qa-matrix@example.com DTS_FIXTURE_PASSWORD=<secret> \
+  npm run test:surface -- --path tests/dts-interaction-matrix.spec.js
+# Single service:
+  npm run test:surface -- --path tests/dts-interaction-matrix.spec.js --grep "@dts-polls"
+# No DTS cell (skip contract proven, exit 0):
+  npm run test:surface -- --path tests/dts-interaction-matrix.spec.js
+# No live CMS:
+  npm run test:unit
+```
+
+The inventory (`DTS_SERVICES`) is closed: the unit test fails when a US2
+dynamic widget's backing service (plus `metadata`, which has no dedicated
+widget) lacks an interaction entry. Each full matrix run validates all 6
+rows against the schema and writes
+`frontend/test-results/dts-interaction-matrix.json` (gitignored). Fixture
+contract: one seeded resource per service (poll, feed, form, site/page,
+indexed content, account) selectable via `DTS_FIXTURE_*` env. To add a
+DTS-backed service later: append one entry to `DTS_SERVICES` plus its
+`interact<Service>` function (the matrix spec picks it up automatically).
+
 ### Architecture Create section no-skip (#3589 / #3661 / #3672 / parent #3092)
 
 H2 operator proof that **Create section** is enabled on
