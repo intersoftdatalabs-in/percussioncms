@@ -30,8 +30,9 @@ import java.util.List;
  * Port-only update for an FTP delivery server on the existing publish-server PUT.
  *
  * <p>A body that carries only {@code port} must not clear host, user, folder, or password. A blank
- * or non-numeric port does not write. Any driver other than FTP (including Local, FTPS, and SFTP)
- * is rejected before properties change. Passwords are not read or included in the error.
+ * or non-numeric port does not write. Any driver other than FTP (including FTPS, which uses {@link
+ * PSFtpsDeliveryPortUpdate}, Local, and SFTP) is rejected before properties change. Passwords are
+ * not read or included in the error.
  *
  * <p>{@code PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE} is VARCHAR(255).
  */
