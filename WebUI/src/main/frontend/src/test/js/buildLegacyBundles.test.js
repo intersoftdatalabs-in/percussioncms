@@ -496,6 +496,158 @@ describe("classic-UI loader/misc infra from npm (issue #5667)", () => {
 });
 
 /**
+ * Classic-UI QUnit test harness from npm (issue #6068).
+ *
+ * The only consumers are the manual cm/testing + cm/pages/testing runner
+ * pages, which load `../jslib/profiles/3x/libraries/qunit/qunit.js` and
+ * `../css/qunit.css` directly (no minify bundle config references qunit).
+ * The vendored 2.6.2 copies (cm/jslib, the cm/vendor/js/legacy mirror, and
+ * the war/ mirror, plus the stale 1.x-era cm/css copy and the unreferenced
+ * cm/app/css/legacy copy) were deleted. The stable WAR URLs are now served
+ * from the npm 2.6.2 dist (Dependabot-tracked devDep in
+ * frontend/package.json) via syncStandaloneNpmLibraries; the bundle-config
+ * jslib path resolves through NPM_LIBRARY_MAPPINGS. The npm 2.6.2 bytes are
+ * the same QUnit release as the deleted vendored copy (identical
+ * version/date stamp; only prettier reformatting differs), so the runner
+ * pages behave exactly as before. These tests pin:
+ *
+ *   1. The trio is present in STANDALONE_NPM_COPIES and marked required.
+ *   2. Synced bytes are byte-identical to the node_modules dist files and
+ *      the shipped qunit.js carries the 2.6.2 version marker.
+ *   3. The bundle-config jslib qunit.js path resolves into node_modules.
+ *   4. Every deleted vendored copy is gone from all three trees (webapp cm,
+ *      vendor mirror, war mirror) including both css locations.
+ *   5. The runner pages still reference the same stable URLs (refs
+ *      unwired — pages unaffected).
+ */
+describe("classic-UI QUnit test harness from npm (issue #6068)", () => {
+  const FRONTEND_ROOT = path.dirname(
+    path.dirname(path.dirname(__dirname)),
+  );
+  const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+  const WEBAPP_CM = WAR_DIR;
+  const WEBUI_DIR = path.dirname(
+    path.dirname(path.dirname(FRONTEND_ROOT)),
+  );
+
+  const TRIO = [
+    {
+      src: "qunit/qunit/qunit.js",
+      dest: "jslib/profiles/3x/libraries/qunit/qunit.js",
+      versionRe: /QUnit 2\.6\.2/,
+    },
+    {
+      src: "qunit/qunit/qunit.css",
+      dest: "jslib/profiles/3x/libraries/qunit/qunit.css",
+      versionRe: /#qunit-tests/,
+    },
+    {
+      src: "qunit/qunit/qunit.css",
+      dest: "css/qunit.css",
+      versionRe: /#qunit-tests/,
+    },
+  ];
+
+  const DELETED_VENDORED = [
+    [WEBAPP_CM, "jslib/profiles/3x/libraries/qunit/qunit.js"],
+    [WEBAPP_CM, "jslib/profiles/3x/libraries/qunit/qunit.css"],
+    [WEBAPP_CM, "css/qunit.css"],
+    [WEBAPP_CM, "app/css/legacy/qunit.css"],
+    [
+      path.join(WEBAPP_CM, "vendor/js/legacy"),
+      "profiles/3x/libraries/qunit/qunit.js",
+    ],
+    [
+      path.join(WEBAPP_CM, "vendor/js/legacy"),
+      "profiles/3x/libraries/qunit/qunit.css",
+    ],
+  ];
+  const DELETED_WAR_MIRROR = [
+    "jslib/profiles/3x/libraries/qunit/qunit.js",
+    "jslib/profiles/3x/libraries/qunit/qunit.css",
+    "css/qunit.css",
+  ];
+
+  it("pins the required trio in STANDALONE_NPM_COPIES", () => {
+    for (const { src, dest } of TRIO) {
+      const entry = STANDALONE_NPM_COPIES.find((e) => e.dest === dest);
+      expect(entry, `missing standalone copy for ${dest}`).toBeDefined();
+      expect(entry.src).toBe(src);
+      expect(entry.required).toBe(true);
+    }
+  });
+
+  it("syncs trio bytes identical to the npm dist files", () => {
+    const missing = TRIO.map(({ src }) => path.join(NODE_MODULES, src)).filter(
+      (p) => !fs.existsSync(p),
+    );
+    if (missing.length > 0) {
+      // Hermetic CI without frontend node_modules: presence is pinned above.
+      return;
+    }
+    syncStandaloneNpmLibraries();
+    for (const { src, dest, versionRe } of TRIO) {
+      const generated = fs.readFileSync(path.join(OUTPUT_DIR, dest));
+      const npmDist = fs.readFileSync(path.join(NODE_MODULES, src));
+      expect(generated.equals(npmDist), `${dest} differs from npm ${src}`).toBe(
+        true,
+      );
+      expect(generated.toString("utf8", 0, 4096)).toMatch(versionRe);
+      // The deleted vendored copy must not leak back into the source tree.
+      expect(fs.existsSync(path.join(WEBAPP_CM, dest))).toBe(false);
+    }
+    // Pinned to the same release the vendored copy shipped (identical
+    // version/date stamp; formatting-only delta), so runner pages are
+    // unaffected by the sourcing change.
+    const qunitPkg = JSON.parse(
+      fs.readFileSync(path.join(NODE_MODULES, "qunit", "package.json"), "utf8"),
+    );
+    expect(qunitPkg.version).toBe("2.6.2");
+  });
+
+  it("resolves the jslib qunit.js bundle path into node_modules", () => {
+    const dest = "jslib/profiles/3x/libraries/qunit/qunit.js";
+    expect(NPM_LIBRARY_MAPPINGS[dest], `no npm mapping for ${dest}`).toBe(
+      "qunit/qunit/qunit.js",
+    );
+    const resolved = resolvePath(dest);
+    const normalized = resolved.split(path.sep).join("/");
+    expect(normalized).toContain("node_modules/");
+    expect(fs.existsSync(resolved), resolved).toBe(true);
+  });
+
+  it("deleted vendored copies are gone from every tree", () => {
+    for (const [root, rel] of DELETED_VENDORED) {
+      const candidate = path.join(root, rel);
+      expect(
+        fs.existsSync(candidate),
+        `vendored copy must be gone: ${candidate}`,
+      ).toBe(false);
+    }
+    for (const rel of DELETED_WAR_MIRROR) {
+      const candidate = path.join(WEBUI_DIR, "war", rel);
+      expect(
+        fs.existsSync(candidate),
+        `vendored war-mirror copy must be gone: ${candidate}`,
+      ).toBe(false);
+    }
+  });
+
+  it("runner pages keep referencing the stable qunit URLs", () => {
+    // The migration rewires sourcing, not refs: both page trees must still
+    // load the same WAR-relative qunit.js + qunit.css.
+    for (const page of [
+      "testing/test_PercMetadataService.html",
+      "pages/testing/test_PercMetadataService.html",
+    ]) {
+      const html = fs.readFileSync(path.join(WEBAPP_CM, page), "utf8");
+      expect(html).toContain("jslib/profiles/3x/libraries/qunit/qunit.js");
+      expect(html).toContain("../css/qunit.css");
+    }
+  });
+});
+
+/**
  * Classic-UI Handlebars from npm (issue #5666).
  *
  * The vendored classic-UI copies (handlebars-v4.0.12.js — affected by known

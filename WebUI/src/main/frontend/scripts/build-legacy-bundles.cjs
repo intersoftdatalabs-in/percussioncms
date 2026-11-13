@@ -411,6 +411,30 @@ const STANDALONE_NPM_COPIES = [
     required: true,
   },
   {
+    // Classic-UI QUnit test harness (issue #6068): the only consumer is the
+    // manual cm/testing + cm/pages/testing runner pages, which load the
+    // stable jslib URL and cm/css/qunit.css directly. The vendored 2.6.2
+    // copies (jslib, vendor mirror, war snapshot, plus the stale 1.x-era
+    // cm/css copy and the unreferenced cm/app/css/legacy copy) were deleted.
+    // Served from the npm 2.6.2 dist (Dependabot-tracked devDep): the npm
+    // bytes are the same QUnit 2.6.2 release as the deleted vendored copy
+    // (identical version/date stamp; only prettier reformatting differs),
+    // so the runner pages behave exactly as before.
+    src: "qunit/qunit/qunit.js",
+    dest: "jslib/profiles/3x/libraries/qunit/qunit.js",
+    required: true,
+  },
+  {
+    src: "qunit/qunit/qunit.css",
+    dest: "jslib/profiles/3x/libraries/qunit/qunit.css",
+    required: true,
+  },
+  {
+    src: "qunit/qunit/qunit.css",
+    dest: "css/qunit.css",
+    required: true,
+  },
+  {
     // Classic-UI Handlebars (issue #5666): the vulnerable vendored
     // handlebars-v4.0.12.js and the duplicate v4.7.8 copies were deleted.
     // Classic pages keep loading the stable versioned URL, now served from
