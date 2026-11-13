@@ -29,7 +29,7 @@
 
 ## Phase 4: WP2 decisions + builds
 
-- [ ] T011 FR-007: implement #6104 related-content menu parity scope, OR record explicit reduced-scope decision with rationale in #6104 — tracked by #6104 (menu parity); workstream tracked by #6154
+- [x] T011 FR-007: implement #6104 related-content menu parity scope, OR record explicit reduced-scope decision with rationale in #6104 — tracked by #6104 (menu parity); workstream tracked by #6154 (**done 2026-11-13**: reduced-scope decision recorded in #6104 2026-11-12; both deferred slices shipped — #6224 snippet preview via PR #6231, #6225 editor slot picker via PR #6247, both merged to `main`; closeout PR `Fixes #6104`)
 - [x] T012 FR-008: implement Compare add-on, OR record defer decision with rationale in spec closeout — tracked by #6154 (**defer**; see `checklists/closeout.md`)
 - [x] T013 Add `perc-i18n` TMX keys for any new assembly strings (N/A with reason if fallback-only) — tracked by #6154 (**N/A**: no new strings; fallback-only is the repo-wide convention; see `checklists/closeout.md`)
 
