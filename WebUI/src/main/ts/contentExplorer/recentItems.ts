@@ -105,29 +105,29 @@ export function recentItemKey(entry: RecentItem): string | null {
   return null;
 }
 
+function sanitizeText(value: unknown): string {
+  return typeof value === "string" ? value.trim() : "";
+}
+
 function sanitizeEntry(raw: unknown): RecentEntry | null {
   if (raw == null || typeof raw !== "object") {
     return null;
   }
   const candidate = raw as Record<string, unknown>;
-  const id =
-    candidate.id == null || typeof candidate.id !== "string"
-      ? null
-      : candidate.id.trim();
-  const path =
-    typeof candidate.path === "string" ? candidate.path.trim() : "";
+  const id = sanitizeText(candidate.id) || null;
+  const path = sanitizeText(candidate.path);
   if (!id && !path) {
     // Stale entry: nothing to open — dropped, never an error.
     return null;
   }
-  const rawName = typeof candidate.name === "string" ? candidate.name.trim() : "";
+  const rawName = sanitizeText(candidate.name);
   const kind = candidate.kind === "folder" ? "folder" : "item";
   const openedAt =
     typeof candidate.openedAt === "string" && candidate.openedAt
       ? candidate.openedAt
       : new Date(0).toISOString();
   return {
-    id: id || null,
+    id,
     name: rawName || path || id || "",
     path,
     kind,

@@ -625,20 +625,11 @@ export async function defaultCheckRecentItem(entry: RecentItem): Promise<boolean
     if (!path) {
       return false;
     }
-    try {
-      const found = await findItemByPath(path);
-      return hasProbeIdentity(found);
-    } catch (err) {
-      if (isApiError(err) && err.status === 404) {
-        return false;
-      }
-      return true;
-    }
+    return (await probeRecentPath(path)) ?? true;
   }
   if (id) {
     try {
-      const found = await findItemById(id);
-      if (hasProbeIdentity(found)) {
+      if (hasProbeIdentity(await findItemById(id))) {
         return true;
       }
     } catch (err) {
@@ -652,15 +643,7 @@ export async function defaultCheckRecentItem(entry: RecentItem): Promise<boolean
   if (!path) {
     return false;
   }
-  try {
-    const found = await findItemByPath(path);
-    return hasProbeIdentity(found);
-  } catch (err) {
-    if (isApiError(err) && err.status === 404) {
-      return false;
-    }
-    return true;
-  }
+  return (await probeRecentPath(path)) ?? true;
 }
 
 function hasProbeIdentity(found: PSPathItem | null | undefined): boolean {
@@ -668,6 +651,21 @@ function hasProbeIdentity(found: PSPathItem | null | undefined): boolean {
     return false;
   }
   return Boolean((found.path ?? "").trim() || String(found.id ?? "").trim());
+}
+
+/**
+ * Path-read probe: {@code true} exists, {@code false} 404-gone,
+ * {@code null} inconclusive (transient failure — caller keeps the entry).
+ */
+async function probeRecentPath(path: string): Promise<boolean | null> {
+  try {
+    return hasProbeIdentity(await findItemByPath(path));
+  } catch (err) {
+    if (isApiError(err) && err.status === 404) {
+      return false;
+    }
+    return null;
+  }
 }
 
 async function defaultResolveFolderId(
