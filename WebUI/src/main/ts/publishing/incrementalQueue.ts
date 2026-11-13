@@ -74,6 +74,27 @@ export function queueItemApproved(item: unknown): boolean {
   return /approv/i.test(String(raw));
 }
 
+/** Approval facet for the Site workspace incremental-queue list (#6259). */
+export type QueueApprovalFilter = "all" | "approved" | "pending";
+
+/**
+ * Narrow already-loaded queue rows by approval facet. {@code all} returns
+ * the original list. Approval reuses {@link queueItemApproved} so the
+ * facet matches the Approved badge shown on each row.
+ */
+export function filterQueueByApproval(
+  items: unknown[],
+  mode: QueueApprovalFilter,
+): unknown[] {
+  if (mode === "approved") {
+    return items.filter((item) => queueItemApproved(item));
+  }
+  if (mode === "pending") {
+    return items.filter((item) => !queueItemApproved(item));
+  }
+  return items;
+}
+
 /** Normalize queue payload into a stable list of items. */
 export function extractQueueItems(page: IncrementalQueuePage | null | undefined): unknown[] {
   if (page == null) {

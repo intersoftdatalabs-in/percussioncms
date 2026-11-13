@@ -870,6 +870,18 @@ GADGET_DESC_DASHBOARD_CONFIG:
       SITE: {
         SELECT_ALL_ARIA: "perc.ui.publish.sections.site@Select all related items",
         ITEM_HEADING: "perc.ui.publish.sections.site@Item",
+        QUEUE_STATUS_FILTER_ARIA:
+          "perc.ui.publish.sections.site@Filter queue by approval status",
+        QUEUE_STATUS_FILTER_ALL:
+          "perc.ui.publish.sections.site@All items",
+        QUEUE_STATUS_FILTER_APPROVED:
+          "perc.ui.publish.sections.site@Approved only",
+        QUEUE_STATUS_FILTER_PENDING:
+          "perc.ui.publish.sections.site@Pending only",
+        QUEUE_STATUS_COLUMN: "perc.ui.publish.sections.site@Status",
+        QUEUE_STATUS_PENDING: "perc.ui.publish.sections.site@Pending",
+        QUEUE_EMPTY_STATUS_FILTER:
+          "perc.ui.publish.sections.site@No queued items match this filter. Show all items to see the full queue.",
       },
     },
     DESIGN: {
