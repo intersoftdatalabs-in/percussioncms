@@ -2,10 +2,11 @@
   "name": "perc-toolkit-installer-payload-js",
   "version": "8.2.0",
   "private": true,
-  "description": "npm pins for third-party JS shipped in the CMS installer payload (InstallDir/rx_resources/js). Run `npm run sync` after any pin change to refresh payload bytes. See issue #6273 (audit #6069).",
+  "description": "npm pins for third-party JS shipped in the CMS installer payload. Run `npm run sync` after any pin change to refresh payload bytes. Image-crop cluster: issue #6273 (audit #6069). Editor-legacy cluster: issue #6274 (audit #6069).",
   "dependencies": {
     "jcrop-0.9.12": "0.9.12",
-    "jquery-color": "3.0.0"
+    "jquery-color": "3.0.0",
+    "jquery-form": "4.5.0"
   },
   "scripts": {
     "sync": "node scripts/sync-installer-vendored-js.cjs"

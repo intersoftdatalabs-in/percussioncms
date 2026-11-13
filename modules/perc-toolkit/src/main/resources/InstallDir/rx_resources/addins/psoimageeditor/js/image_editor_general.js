@@ -7,6 +7,48 @@
  */
 
 /**
+ *	jQuery UI crop-box helpers.
+ *
+ *	Issue #6274 retired the Interface Elements for jQuery libraries
+ *	(iutil.js/iresizable.js, upstream dead since 2006, no npm artifact) and
+ *	moved the crop-box interaction onto jQuery UI resizable + draggable
+ *	(npm `jquery-ui`, already tracked in WebUI per #5660), which the host
+ *	editor page must load alongside jQuery core and the npm-synced
+ *	`form.js` (jquery-form).
+ *
+ *	Mapping from the retired Interface API:
+ *	- `.Resizable({minWidth, minHeight, maxWidth, maxHeight, ...})` becomes
+ *	  `.resizable({minWidth, minHeight, maxWidth, maxHeight, ...})` with
+ *	  `containment` standing in for the Interface minTop/minLeft/maxRight/
+ *	  maxBottom box (the container is sized to the image, so both keep the
+ *	  crop box inside the image bounds).
+ *	- `dragHandle: true` + `onDrag(x, y)` becomes `.draggable()` with a
+ *	  `drag` callback receiving `ui.position` instead of raw coordinates.
+ *	- `handlers: {se, e, ...}` becomes jQuery UI `handles: {...}` (custom
+ *	  handle selectors are supported by both).
+ *	- `onResize(size, position)` becomes the `resize` callback with
+ *	  `ui.size` / `ui.position`.
+ *	- `.ResizableRatio()` becomes `cropBoxRatio($box)` (height/width,
+ *	  rounded to 4dp, exactly as Interface computed it).
+ *	- `.ResizeConstraint(true/false)` becomes `setCropBoxConstraint($box,
+ *	  onOrOff)` (jQuery UI `aspectRatio` option; a non-true value releases
+ *	  the constraint, matching Interface semantics).
+ */
+function cropBoxRatio($box) {
+  var width = $box.width();
+  var height = $box.height();
+  if (width > 0 && height > 0) {
+    return Math.round((height / width) * 10000) / 10000;
+  }
+  return null;
+}
+
+function setCropBoxConstraint($box, onOrOff) {
+  var ratio = onOrOff === true ? cropBoxRatio($box) : false;
+  $box.resizable("option", "aspectRatio", ratio === null ? false : ratio);
+}
+
+/**
  *	get current selected mode value
  */
 function getModeValue() {
@@ -64,27 +106,16 @@ function enableCrop() {
   topField.val(0);
   leftField.val(0);
   ratioField.val(imageHeight / imageWidth);
-  $(overlay).Resizable({
+  // jQuery UI resizable + draggable (see crop-box helpers above): containment
+  // keeps the crop box inside the image-sized container, matching the retired
+  // Interface minTop/minLeft/maxRight/maxBottom box.
+  $(overlay).resizable({
     minWidth: 30,
     minHeight: 30,
     maxWidth: imageWidth,
     maxHeight: imageHeight,
-    minTop: imageContainerTop,
-    minLeft: imageContainerLeft,
-    maxRight: parseInt(imageWidth) + imageContainerLeft,
-    maxBottom: parseInt(imageHeight) + imageContainerTop,
-    dragHandle: true,
-    onDrag: function (x, y) {
-      this.style.backgroundPosition =
-        "-" +
-        (x - imageContainerLeft) +
-        "px -" +
-        (y - imageContainerTop) +
-        "px";
-      $(topField).val(Math.round(y - imageContainerTop));
-      $(leftField).val(Math.round(x - imageContainerLeft));
-    },
-    handlers: {
+    containment: imageContainer,
+    handles: {
       se: "#resizeSE",
       e: "#resizeE",
       ne: "#resizeNE",
@@ -94,18 +125,31 @@ function enableCrop() {
       sw: "#resizeSW",
       s: "#resizeS",
     },
-    onResize: function (size, position) {
+    resize: function (event, ui) {
       this.style.backgroundPosition =
         "-" +
-        (position.left - imageContainerLeft) +
+        (ui.position.left - imageContainerLeft) +
         "px -" +
-        (position.top - imageContainerTop) +
+        (ui.position.top - imageContainerTop) +
         "px";
-      $(widthField).val(Math.round(size.width));
-      $(heightField).val(Math.round(size.height));
-      $(topField).val(Math.round(position.top - imageContainerTop));
-      $(leftField).val(Math.round(position.left - imageContainerLeft));
-      $("#ratio").val($(overlay).ResizableRatio());
+      $(widthField).val(Math.round(ui.size.width));
+      $(heightField).val(Math.round(ui.size.height));
+      $(topField).val(Math.round(ui.position.top - imageContainerTop));
+      $(leftField).val(Math.round(ui.position.left - imageContainerLeft));
+      $("#ratio").val(cropBoxRatio($(overlay)));
+    },
+  });
+  $(overlay).draggable({
+    containment: imageContainer,
+    drag: function (event, ui) {
+      this.style.backgroundPosition =
+        "-" +
+        (ui.position.left - imageContainerLeft) +
+        "px -" +
+        (ui.position.top - imageContainerTop) +
+        "px";
+      $(topField).val(Math.round(ui.position.top - imageContainerTop));
+      $(leftField).val(Math.round(ui.position.left - imageContainerLeft));
     },
   });
   enableConstraint();
@@ -151,31 +195,28 @@ function enableResize(constraint) {
   $("#height").val($(imageToResize).attr("height"));
   $("#x").val(0);
   $("#y").val(0);
-  $(resizeMe).Resizable({
+  $(resizeMe).resizable({
     minWidth: 50,
     minHeight: 50,
     maxWidth: 2000,
     maxHeight: 2000,
-    minTop: imageContainerTop,
-    minLeft: imageContainerLeft,
-    maxRight: 2000,
-    maxBottom: 2000,
-    handlers: {
+    containment: imageContainer,
+    handles: {
       s: "#resizeS",
       se: "#resizeSE",
       e: "#resizeE",
     },
-    onResize: function (size) {
-      $(imageToResize).attr("height", Math.round(size.height).toString());
-      $(imageToResize).attr("width", Math.round(size.width).toString());
-      $(width).val(Math.round(size.width));
-      $(height).val(Math.round(size.height));
+    resize: function (event, ui) {
+      $(imageToResize).attr("height", Math.round(ui.size.height).toString());
+      $(imageToResize).attr("width", Math.round(ui.size.width).toString());
+      $(width).val(Math.round(ui.size.width));
+      $(height).val(Math.round(ui.size.height));
       $(imageContainer).css("width", $(imageToResize).attr("width") + "px");
       $(imageContainer).css("height", $(imageToResize).attr("height") + "px");
-      $("#ratio").val($(resizeMe).ResizableRatio());
+      $("#ratio").val(cropBoxRatio($(resizeMe)));
     },
   });
-  $(resizeMe).ResizeConstraint(constraint);
+  setCropBoxConstraint($(resizeMe), constraint);
   if (typeof constraint == "boolean" && constraint) {
     $("#resizeS").hide();
     $("#resizeE").hide();
@@ -184,7 +225,7 @@ function enableResize(constraint) {
     $("#resizeE").show();
   }
   $("#resizeSE").show();
-  $("#ratio").val($(resizeMe).ResizableRatio());
+  $("#ratio").val(cropBoxRatio($(resizeMe)));
 }
 
 function enableConstraint() {
@@ -213,7 +254,7 @@ function toggleConstraint() {
   var constraintField = document.getElementById("constraint");
 
   if (document.formAction.constraint.checked) {
-    $("#resizeMe").ResizeConstraint(true);
+    setCropBoxConstraint($("#resizeMe"), true);
     switch (getModeValue()) {
       case "crop":
         $("#resizeSE").show();
@@ -226,7 +267,7 @@ function toggleConstraint() {
         break;
     }
   } else {
-    $("#resizeMe").ResizeConstraint(false);
+    setCropBoxConstraint($("#resizeMe"), false);
     switch (getModeValue()) {
       case "crop":
         ShowHandlers();
