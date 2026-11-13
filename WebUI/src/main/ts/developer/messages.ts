@@ -309,6 +309,14 @@ export const DEV_MSG_KEYS = {
   CT_ASSOC_ADD: "perc.ui.developer@Add",
   CT_ASSOC_REMOVE: "perc.ui.developer@Remove",
   CT_WF_NAME_PLACEHOLDER: "perc.ui.developer@Workflow name",
+  CT_WF_BROWSE: "perc.ui.developer@Browse…",
+  CT_WF_ASSOC_TITLE: "perc.ui.developer@Associate workflow",
+  CT_WF_ASSOC_HINT:
+    "perc.ui.developer@Pick one workflow from the catalog. Confirm stages it for save; cancel changes nothing.",
+  CT_WF_ASSOC_CONFIRM: "perc.ui.developer@Associate",
+  CT_WF_ASSOC_DUP:
+    "perc.ui.developer@Already associated — pick another workflow.",
+  CT_WF_ASSOC_DUP_SHORT: "perc.ui.developer@associated",
   CT_TPL_NAME_PLACEHOLDER: "perc.ui.developer@Template name or GUID (0-10-347)",
   CT_SET_DEFAULT: "perc.ui.developer@Default",
   CT_NONE: "perc.ui.developer@None",

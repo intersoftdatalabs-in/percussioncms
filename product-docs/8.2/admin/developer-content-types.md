@@ -305,16 +305,24 @@ Remove, and the workflow-name field stay **disabled** while status is **Not
 locked**. After **Lock**:
 
 1. Add a workflow by its existing name (for example **Standard Workflow**) and
-   click **Add**, or **Remove** a row. Use **Default** to choose the default
+   click **Add**, click **Browse…** to pick one workflow from the server
+   catalog dialog, or **Remove** a row. Use **Default** to choose the default
    workflow.
 2. Click **Save content type**. The product replaces the allowed-workflow set
    (`PUT /services/contenttypes/{idOrName}/allowedWorkflows`). Save does **not**
    unlock. Reloading the type (or GET detail) lists the new set.
-3. Without a lock, Add / Remove / Save stay **disabled**. The product does
-   **not** steal another user's lock (lock failure is **409**).
+3. Without a lock, Add / Browse / Remove / Save stay **disabled**. The product
+   does **not** steal another user's lock (lock failure is **409**).
 
-This is not a full Workbench workflow picker. The name you add must already
-exist on the server. Template association chrome is a separate surface.
+The **Browse…** dialog lists the workflow catalog with a name filter. **Cancel**
+(or Escape) closes the dialog without staging anything, and picking an already
+associated workflow keeps **Associate** disabled. A failed save (**400** /
+**403** / **409** — for example an unlocked or stolen lock) replaces nothing
+server-side and the panel restores the last-saved workflow set instead of
+showing the rejected draft.
+
+This is not a full Workbench workflow picker. Typed names and dialog picks
+must already exist on the server. Template association chrome is a separate surface.
 
 To associate the **same** content-type ↔ workflow links from the workflow side
 (without holding a content-type lock in the client), use

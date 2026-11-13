@@ -78,6 +78,7 @@ import type {
   ContentTypeIcon,
   ContentTypeItemExits,
   NamedObjectRef,
+  WorkflowDef,
 } from "../api/developer/types";
 import {
   choiceCatalogPayloadError,
@@ -112,6 +113,9 @@ import {
 } from "./ContentTypeFieldRulesSection";
 import { extractRestErrorMessage, isApiError } from "../api/client";
 import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
+import {
+  WorkflowAssociationDialog,
+} from "./WorkflowAssociationDialog";
 import {
   contentTypeDescriptionWrite,
   savedContentTypeDescription,
@@ -381,6 +385,7 @@ export function ContentTypeDetailPanel({
   const [workflows, setWorkflows] = useState<NamedObjectRef[]>([]);
   const [templates, setTemplates] = useState<NamedObjectRef[]>([]);
   const [newWfName, setNewWfName] = useState("");
+  const [wfDialogOpen, setWfDialogOpen] = useState(false);
   const [newTplName, setNewTplName] = useState("");
   const [itemExits, setItemExits] = useState<ContentTypeItemExits>(() =>
     emptyContentTypeItemExits(),
@@ -811,6 +816,32 @@ export function ContentTypeDetailPanel({
       return;
     }
     setWorkflows((prev) => prev.map((w, i) => ({ ...w, isDefault: i === index })));
+    setNotice(null);
+  }
+
+  /**
+   * FR §5.5 dialog associate: stage one catalog workflow onto the
+   * allowed-workflow edge. Duplicate (case-insensitive) and unlocked picks
+   * are ignored so cancel + failed saves leave edges unchanged.
+   */
+  function associateWorkflow(name: string, def: WorkflowDef) {
+    if (!heldLock) {
+      return;
+    }
+    const trimmed = (name || "").trim();
+    if (!trimmed) return;
+    if (
+      workflows.some((w) => (w.name || "").toLowerCase() === trimmed.toLowerCase())
+    ) {
+      setWfDialogOpen(false);
+      return;
+    }
+    const label = (def.workflowDescription || "").trim() || trimmed;
+    setWorkflows((prev) => [
+      ...prev,
+      { name: trimmed, label, isDefault: prev.length === 0 },
+    ]);
+    setWfDialogOpen(false);
     setNotice(null);
   }
 
@@ -1417,9 +1448,20 @@ export function ContentTypeDetailPanel({
               }
             : normalizeDetailLists(workflowSaved);
         } catch (wfErr) {
+          // 400/403/409: the PUT replaced nothing server-side, so restore the
+          // last-saved edge set locally instead of showing a phantom draft.
           if (saved != null) {
             setDetail(saved);
             setEnabled(saved.enabled !== false);
+          }
+          const lastSaved = saved ?? detail;
+          if (lastSaved != null) {
+            setWorkflows(
+              withDefaultWorkflowFlags(
+                lastSaved.allowedWorkflows,
+                lastSaved.defaultWorkflow,
+              ),
+            );
           }
           throw wfErr;
         }
@@ -3093,6 +3135,25 @@ export function ContentTypeDetailPanel({
               </div>
               <button
                 type="button"
+                data-testid="developer-ct-wf-browse"
+                disabled={!canEdit}
+                onClick={(ev) => {
+                  if (!canEdit) {
+                    return;
+                  }
+                  captureDialogOpener(ev.currentTarget);
+                  setWfDialogOpen(true);
+                }}
+                style={{
+                  ...smallBtnStyle,
+                  padding: "8px 12px",
+                  cursor: canEdit ? "pointer" : "not-allowed",
+                }}
+              >
+                {DEV_MSG.CT_WF_BROWSE}
+              </button>
+              <button
+                type="button"
                 data-testid="developer-ct-wf-add"
                 disabled={!canEdit || !newWfName.trim()}
                 onClick={addWorkflow}
@@ -3824,6 +3885,12 @@ export function ContentTypeDetailPanel({
             void handleDelete();
           }
         }}
+      />
+      <WorkflowAssociationDialog
+        open={wfDialogOpen}
+        associatedNames={workflows.map((w) => w.name || "")}
+        onAssociate={associateWorkflow}
+        onCancel={() => setWfDialogOpen(false)}
       />
     </div>
   );
