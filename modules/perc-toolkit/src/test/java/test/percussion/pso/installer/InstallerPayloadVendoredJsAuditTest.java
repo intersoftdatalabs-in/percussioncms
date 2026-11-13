@@ -52,7 +52,11 @@ import org.junit.jupiter.api.Test;
  */
 public class InstallerPayloadVendoredJsAuditTest {
 
-  /** Third-party .js shipped in the installer payload (paths relative to InstallDir). */
+  /** Third-party .js shipped in the installer payload (paths relative to InstallDir).
+   * Image-crop cluster migrated to npm in #6273 (Jcrop byte-identical to the
+   * npm {@code jcrop-0.9.12} tarball; jquery-color upgraded 2.0pre to npm
+   * 3.0.0); editor-legacy cluster (Interface Elements + jquery-form) is
+   * tracked for #6274. */
   private static final Set<String> EXPECTED_THIRD_PARTY_JS =
       Set.of(
           "rx_resources/js/jquery.Jcrop.min.js",
@@ -133,9 +137,15 @@ public class InstallerPayloadVendoredJsAuditTest {
     assertTrue(jcrop.contains("MIT License"), "Jcrop banner must still record the MIT license");
 
     String color = readPayloadFile(root.resolve("rx_resources/js/jquery.color.js"));
-    assertTrue(color.contains("v2.0pre"), "jquery.color banner must still identify v2.0pre");
+    assertTrue(color.contains("v3.0.0"), "jquery.color banner must identify npm v3.0.0 (#6273)");
     assertTrue(
-        color.contains("MIT or GPL"), "jquery.color banner must still record the MIT-or-GPL grant");
+        color.contains("Released under the MIT license"),
+        "jquery.color banner must still record the MIT grant");
+    assertTrue(
+        color.contains("jquery-color@3.0.0"),
+        "jquery.color must carry the Percussion npm-provenance banner (#6273)");
+    assertTrue(
+        !color.contains("v2.0pre"), "jquery.color 2.0pre must be gone after the #6273 upgrade");
 
     for (String iface :
         List.of(
@@ -168,5 +178,97 @@ public class InstallerPayloadVendoredJsAuditTest {
         minified,
         "Only jquery.Jcrop.min.js may ship minified in the installer payload; "
             + "any other *.min.js is an un-audited vendored bundle (see #5627).");
+  }
+
+  @Test
+  public void packageJsonPinsMatchPayload() throws IOException {
+    Path root = installDir();
+    // InstallDir is <module>/src/main/resources/InstallDir in both layouts.
+    Path moduleDir = root.getParent().getParent().getParent().getParent();
+    Path packageJson = moduleDir.resolve("package.json");
+    assertTrue(
+        Files.isRegularFile(packageJson),
+        "modules/perc-toolkit/package.json must exist so Dependabot tracks the payload pins");
+    String pins = readPayloadFile(packageJson);
+    assertTrue(
+        pins.contains("\"jcrop-0.9.12\": \"0.9.12\""),
+        "package.json must pin the exact vendored Jcrop build (0.9.12)");
+    assertTrue(
+        pins.contains("\"jquery-color\": \"3.0.0\""),
+        "package.json must pin the jquery-color upgrade (3.0.0)");
+    assertTrue(
+        Files.isRegularFile(moduleDir.resolve("package-lock.json")),
+        "package-lock.json must be committed so Dependabot resolves the pins");
+  }
+
+  @Test
+  public void imageCropControlRefsResolveToPayload() throws IOException {
+    Path root = installDir();
+    Path xsl =
+        root.resolve("rx_resources/stylesheets/controls/rx_ImageCroppingControl.xsl");
+    assertTrue(Files.isRegularFile(xsl), "rx_ImageCroppingControl.xsl must exist in the payload");
+    String content = readPayloadFile(xsl);
+    Set<String> locations = new TreeSet<>();
+    java.util.regex.Matcher matcher =
+        java.util.regex.Pattern.compile("<psxctl:FileLocation>([^<]+)</psxctl:FileLocation>")
+            .matcher(content);
+    while (matcher.find()) {
+      locations.add(matcher.group(1).trim());
+    }
+    assertTrue(
+        locations.contains("../rx_resources/js/jquery.Jcrop.min.js"),
+        "XSL must keep loading Jcrop; got: " + locations);
+    assertTrue(
+        locations.contains("../rx_resources/js/jquery.color.js"),
+        "XSL must keep loading jquery-color; got: " + locations);
+    assertTrue(
+        locations.contains("../rx_resources/js/cropper_custom.js"),
+        "XSL must keep loading the first-party crop glue; got: " + locations);
+    for (String location : locations) {
+      if (!location.startsWith("../rx_resources/")) {
+        continue;
+      }
+      // FileLocations are runtime refs relative to the rx_resources web
+      // context, not to the XSL file: strip the leading "../" and resolve
+      // against the InstallDir payload root.
+      Path target = root.resolve(location.substring("../".length())).normalize();
+      assertTrue(
+          Files.isRegularFile(target),
+          "XSL FileLocation must resolve to a shipped payload file: " + location);
+    }
+  }
+
+  @Test
+  public void imageCropRendersSelectsAndColorAnimates() throws IOException {
+    Path root = installDir();
+
+    // Jcrop 0.9.x selection API consumed by cropper_custom.js (setSelect /
+    // onSelect / onChange) must survive the npm sync byte-identical.
+    String jcrop = readPayloadFile(root.resolve("rx_resources/js/jquery.Jcrop.min.js"));
+    for (String api : List.of("Jcrop", "setSelect", "onSelect", "onChange")) {
+      assertTrue(jcrop.contains(api), "Jcrop payload must expose the 0.9.x " + api + " API");
+    }
+
+    // jquery-color 3.0.0 must register the color-animation step hooks Jcrop
+    // detects (fx.step.backgroundColor) plus the Color/transition surface the
+    // animated crop-region shading flows through.
+    String color = readPayloadFile(root.resolve("rx_resources/js/jquery.color.js"));
+    for (String api :
+        List.of("jQuery.Color", "jQuery.fx.step", "backgroundColor", "transition")) {
+      assertTrue(color.contains(api), "jquery-color payload must expose " + api);
+    }
+    // Known cosmetic delta of the 2.0pre -> 3.0.0 upgrade: toRgbaString joins
+    // with ", " instead of ",". Valid CSS, tolerated by every color parser in
+    // the lib — pinned here so a future bump changing it is a conscious diff.
+    assertTrue(
+        color.contains("rgba.join( \", \" )") || color.contains("rgba.join(\", \")"),
+        "jquery-color 3.0.0 must serialize with spaced joins (known #6273 delta)");
+
+    // First-party glue must still drive the crop-region contract: Jcrop
+    // binding plus the x/y/w/h JSON fields the control posts back.
+    String glue = readPayloadFile(root.resolve("rx_resources/js/cropper_custom.js"));
+    for (String api : List.of("Jcrop", "setSelect", "_x", "_y", "_w", "_h", "JSON.stringify")) {
+      assertTrue(glue.contains(api), "cropper_custom.js glue must still use " + api);
+    }
   }
 }

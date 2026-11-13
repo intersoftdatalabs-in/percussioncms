@@ -53,6 +53,7 @@ updates:
       - "/modules/perc-common-ui-bundle"
       - "/modules/perc-qa-automation/frontend"
       - "/modules/perc-tinymce"
+      - "/modules/perc-toolkit"
     schedule:
       interval: "weekly"
     # Version updates disabled: only security updates are allowed (issue #5599).
