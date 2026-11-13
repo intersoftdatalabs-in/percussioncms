@@ -628,6 +628,31 @@ export const EDITOR_MSG = {
   RELATED_INSERT_NOT_FOUND:
     "perc.ui.editor@That item or slot was not found.",
   RELATED_INSERT_FAILED: "perc.ui.editor@Could not insert the related item.",
+  RELATED_QUICK_ADD: "perc.ui.editor@New related item",
+  RELATED_QUICK_ADD_TITLE: "perc.ui.editor@Create and attach a related item",
+  RELATED_QUICK_ADD_HINT:
+    "perc.ui.editor@Choose a content type and a folder. The new item is created and attached to the selected slot.",
+  RELATED_QUICK_ADD_TYPE: "perc.ui.editor@Content type",
+  RELATED_QUICK_ADD_TYPES_FAILED:
+    "perc.ui.editor@Could not load the content types.",
+  RELATED_QUICK_ADD_FOLDER: "perc.ui.editor@Folder path",
+  RELATED_QUICK_ADD_NAME: "perc.ui.editor@Name (optional)",
+  RELATED_QUICK_ADD_CREATE: "perc.ui.editor@Create and attach",
+  RELATED_QUICK_ADD_CREATING: "perc.ui.editor@Creating…",
+  RELATED_QUICK_ADD_INCOMPLETE:
+    "perc.ui.editor@Choose a content type and folder path before creating.",
+  RELATED_QUICK_ADD_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to create an item here.",
+  RELATED_QUICK_ADD_NOT_FOUND:
+    "perc.ui.editor@That folder or content type was not found.",
+  RELATED_QUICK_ADD_CONFLICT:
+    "perc.ui.editor@An item with that name already exists in the folder.",
+  RELATED_QUICK_ADD_BAD:
+    "perc.ui.editor@That related item could not be created. Check the content type, folder, and name.",
+  RELATED_QUICK_ADD_ATTACH_FAILED:
+    "perc.ui.editor@The item was created but could not be attached as related.",
+  RELATED_QUICK_ADD_FAILED:
+    "perc.ui.editor@Could not create the related item.",
   RELATED_REMOVE: "perc.ui.editor@Remove",
   RELATED_REMOVING: "perc.ui.editor@Removing…",
   RELATED_REMOVE_FORBIDDEN:

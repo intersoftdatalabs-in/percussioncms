@@ -35,6 +35,8 @@ import {
   type SlotCanvas,
   type SlotRelationship,
 } from "../api/contentExplorer/slotRelationshipApi";
+import type { ContentTypeSummary } from "../api/developer/types";
+import { listContentTypes } from "../api/developer/contentTypesApi";
 import { findChildren } from "../api/contentExplorer/pathApi";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import {
@@ -70,6 +72,15 @@ import {
   relatedFolderRows,
   type RelatedFolderRow,
 } from "./editorRelatedFolderPick";
+import {
+  saveRelatedQuickAdd,
+  type RelatedQuickAddSave,
+} from "./editorRelatedQuickAdd";
+import {
+  createEditorItem,
+  type ItemCreateRequest,
+  type ItemCreateResult,
+} from "./itemCreateApi";
 import {
   closeReservedWindow,
   openEditorHost,
@@ -109,6 +120,15 @@ export interface EditorRelatedContentPanelProps {
   reserveRelatedWindow?: () => Window | null;
   /** Pathmanagement folder children. Pages and assets fill the item id. */
   listFolder?: (path: string) => Promise<PSPathItem[]>;
+  /**
+   * Create the quick-add item.
+   * Defaults to the itemmanagement create POST.
+   */
+  createRelatedItem?: (
+    request: ItemCreateRequest,
+  ) => Promise<ItemCreateResult>;
+  /** Content-type choices for the quick-add dialog. */
+  loadContentTypes?: () => Promise<ContentTypeSummary[]>;
   /**
    * Optional injection seam: open one related snippet preview in a window.
    * Defaults to the assembly preview-location lookup + assembler render.
@@ -189,6 +209,34 @@ function slotMoveMessageKey(
   return EDITOR_MSG.RELATED_MOVE_SLOT_FAILED;
 }
 
+function quickAddMessageKey(result: RelatedQuickAddSave & { ok: false }): string {
+  if (result.reason === "incomplete") {
+    return EDITOR_MSG.RELATED_QUICK_ADD_INCOMPLETE;
+  }
+  if (result.reason === "name_nul") {
+    return EDITOR_MSG.CREATE_NAME_NUL;
+  }
+  if (result.reason === "folder_nul") {
+    return EDITOR_MSG.CREATE_FOLDER_NUL;
+  }
+  if (result.reason === "forbidden") {
+    return EDITOR_MSG.RELATED_QUICK_ADD_FORBIDDEN;
+  }
+  if (result.reason === "not_found") {
+    return EDITOR_MSG.RELATED_QUICK_ADD_NOT_FOUND;
+  }
+  if (result.stage === "attach") {
+    return EDITOR_MSG.RELATED_QUICK_ADD_ATTACH_FAILED;
+  }
+  if (result.reason === "conflict") {
+    return EDITOR_MSG.RELATED_QUICK_ADD_CONFLICT;
+  }
+  if (result.reason === "bad_request") {
+    return EDITOR_MSG.RELATED_QUICK_ADD_BAD;
+  }
+  return EDITOR_MSG.RELATED_QUICK_ADD_FAILED;
+}
+
 function removeMessageKey(reason: ReturnType<typeof relatedRemoveErrorReason>): string {
   if (reason === "forbidden") {
     return EDITOR_MSG.RELATED_REMOVE_FORBIDDEN;
@@ -267,6 +315,8 @@ export function EditorRelatedContentPanel({
   openRelatedItem = openEditorHost,
   reserveRelatedWindow = reserveEditorWindow,
   listFolder = findChildren,
+  createRelatedItem = createEditorItem,
+  loadContentTypes = listContentTypes,
   previewSnippet = openSnippetPreview,
 }: EditorRelatedContentPanelProps): React.ReactElement {
   const [rows, setRows] = useState<RelatedContentRow[]>([]);
@@ -306,6 +356,16 @@ export function EditorRelatedContentPanel({
   const [pickerBusy, setPickerBusy] = useState(false);
   const [pickerErrorKey, setPickerErrorKey] = useState<string | null>(null);
   const [pickedId, setPickedId] = useState<number | null>(null);
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
+  const [quickAddTypes, setQuickAddTypes] = useState<ContentTypeSummary[]>([]);
+  const [quickAddTypesBusy, setQuickAddTypesBusy] = useState(false);
+  const [quickAddTypesError, setQuickAddTypesError] = useState(false);
+  const [quickAddType, setQuickAddType] = useState("");
+  const [quickAddFolder, setQuickAddFolder] = useState("");
+  const [quickAddName, setQuickAddName] = useState("");
+  const [quickAddBusy, setQuickAddBusy] = useState(false);
+  const [quickAddErrorKey, setQuickAddErrorKey] = useState<string | null>(null);
+  const [quickAddDetail, setQuickAddDetail] = useState("");
   const [reloadToken, setReloadToken] = useState(0);
   const [loading, setLoading] = useState(true);
   const [errorKey, setErrorKey] = useState<string | null>(null);
@@ -464,6 +524,73 @@ export function EditorRelatedContentPanel({
     setInsertErrorKey(null);
     setInsertDetail("");
     cancelPicker();
+  }
+
+  async function openQuickAdd(): Promise<void> {
+    setQuickAddOpen(true);
+    setQuickAddErrorKey(null);
+    setQuickAddDetail("");
+    setQuickAddTypesError(false);
+    setQuickAddTypesBusy(true);
+    try {
+      const types = await loadContentTypes();
+      setQuickAddTypes(types);
+      setQuickAddType((current) => {
+        if (current && types.some((t) => t.name === current)) {
+          return current;
+        }
+        return "";
+      });
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setQuickAddTypes([]);
+      setQuickAddTypesError(true);
+    } finally {
+      setQuickAddTypesBusy(false);
+    }
+  }
+
+  function cancelQuickAdd(): void {
+    if (quickAddBusy) {
+      return;
+    }
+    setQuickAddOpen(false);
+    setQuickAddErrorKey(null);
+    setQuickAddDetail("");
+    setQuickAddTypesError(false);
+  }
+
+  async function applyQuickAdd(): Promise<void> {
+    if (quickAddBusy || !selected) {
+      return;
+    }
+    setQuickAddBusy(true);
+    setQuickAddErrorKey(null);
+    setQuickAddDetail("");
+    const ownerId = Number(itemId);
+    const result = await saveRelatedQuickAdd({
+      ownerId,
+      slotId: selected.slotId,
+      templateId: selected.templateId,
+      contentType: quickAddType,
+      folderPath: quickAddFolder,
+      name: quickAddName,
+      create: createRelatedItem,
+      insert: insertRelationship,
+    });
+    setQuickAddBusy(false);
+    if (!result.ok) {
+      setQuickAddErrorKey(quickAddMessageKey(result));
+      setQuickAddDetail("");
+      return;
+    }
+    setQuickAddOpen(false);
+    setQuickAddType("");
+    setQuickAddFolder("");
+    setQuickAddName("");
+    setReloadToken((n) => n + 1);
   }
 
   async function handleInsert(): Promise<void> {
@@ -709,6 +836,15 @@ export function EditorRelatedContentPanel({
                 inserting ? EDITOR_MSG.RELATED_INSERTING : EDITOR_MSG.RELATED_INSERT,
               )}
             </button>
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-related-quick-add"
+              disabled={inserting}
+              onClick={() => void openQuickAdd()}
+            >
+              {message(EDITOR_MSG.RELATED_QUICK_ADD)}
+            </button>
           </div>
           {insertErrorKey ? (
             <div
@@ -817,6 +953,104 @@ export function EditorRelatedContentPanel({
                     ),
                   )}
                 </ul>
+              ) : null}
+            </div>
+          ) : null}
+          {quickAddOpen ? (
+            <div
+              className={styles.form}
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="editor-related-quick-add-title"
+              data-testid="editor-related-quick-add-dialog"
+            >
+              <h3 id="editor-related-quick-add-title" className={styles.label}>
+                {message(EDITOR_MSG.RELATED_QUICK_ADD_TITLE)}
+              </h3>
+              <p className={styles.status}>
+                {message(EDITOR_MSG.RELATED_QUICK_ADD_HINT)}
+              </p>
+              <label className={styles.field}>
+                {message(EDITOR_MSG.RELATED_QUICK_ADD_TYPE)}
+                <select
+                  className={styles.input}
+                  data-testid="editor-related-quick-add-type"
+                  value={quickAddType}
+                  disabled={quickAddBusy || quickAddTypesBusy}
+                  onChange={(e) => setQuickAddType(e.target.value)}
+                >
+                  <option value="">
+                    {message(EDITOR_MSG.RELATED_QUICK_ADD_TYPE)}
+                  </option>
+                  {quickAddTypes.map((t) => (
+                    <option key={t.name} value={t.name}>
+                      {t.label || t.name}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className={styles.field}>
+                {message(EDITOR_MSG.RELATED_QUICK_ADD_FOLDER)}
+                <input
+                  className={styles.input}
+                  data-testid="editor-related-quick-add-folder"
+                  value={quickAddFolder}
+                  disabled={quickAddBusy}
+                  onChange={(e) => setQuickAddFolder(e.target.value)}
+                />
+              </label>
+              <label className={styles.field}>
+                {message(EDITOR_MSG.RELATED_QUICK_ADD_NAME)}
+                <input
+                  className={styles.input}
+                  data-testid="editor-related-quick-add-name"
+                  value={quickAddName}
+                  disabled={quickAddBusy}
+                  onChange={(e) => setQuickAddName(e.target.value)}
+                />
+              </label>
+              <div className={styles.actions}>
+                <button
+                  type="button"
+                  className={styles.button}
+                  data-testid="editor-related-quick-add-cancel"
+                  disabled={quickAddBusy}
+                  onClick={cancelQuickAdd}
+                >
+                  {message(EDITOR_MSG.RELATED_TEMPLATE_CANCEL)}
+                </button>
+                <button
+                  type="button"
+                  className={`${styles.button} ${styles.buttonPrimary}`}
+                  data-testid="editor-related-quick-add-create"
+                  disabled={quickAddBusy || quickAddTypesBusy || quickAddTypesError}
+                  onClick={() => void applyQuickAdd()}
+                >
+                  {message(
+                    quickAddBusy
+                      ? EDITOR_MSG.RELATED_QUICK_ADD_CREATING
+                      : EDITOR_MSG.RELATED_QUICK_ADD_CREATE,
+                  )}
+                </button>
+              </div>
+              {quickAddTypesError ? (
+                <div
+                  className={styles.status}
+                  role="alert"
+                  data-testid="editor-related-quick-add-error"
+                >
+                  {message(EDITOR_MSG.RELATED_QUICK_ADD_TYPES_FAILED)}
+                </div>
+              ) : null}
+              {quickAddErrorKey ? (
+                <div
+                  className={styles.status}
+                  role="alert"
+                  data-testid="editor-related-quick-add-error"
+                >
+                  {message(quickAddErrorKey)}
+                  {quickAddDetail ? ` ${quickAddDetail}` : ""}
+                </div>
               ) : null}
             </div>
           ) : null}

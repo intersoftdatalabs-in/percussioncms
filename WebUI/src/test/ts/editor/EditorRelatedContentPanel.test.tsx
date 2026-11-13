@@ -589,6 +589,174 @@ describe("EditorRelatedContentPanel", () => {
       });
     });
   });
+
+  it("creates a new item from the panel and attaches it as related", async () => {
+    const canvas = {
+      ownerId: 42,
+      templateId: 7,
+      slots: [{ slotId: 9, name: "content", label: "Content", items: [] }],
+    };
+    const attached = {
+      ...canvas,
+      slots: [
+        {
+          slotId: 9,
+          name: "content",
+          label: "Content",
+          items: [
+            {
+              relationshipId: 3,
+              ownerId: 42,
+              dependentId: 77,
+              slotId: 9,
+              templateId: 7,
+              sortRank: 0,
+            },
+          ],
+        },
+      ],
+    };
+    const loadCanvas = vi
+      .fn()
+      .mockResolvedValueOnce(canvas)
+      .mockResolvedValueOnce(attached);
+    const loadContentTypes = vi.fn().mockResolvedValue([
+      { name: "percPage", label: "Page" },
+    ]);
+    const createRelatedItem = vi.fn().mockResolvedValue({
+      itemId: "77",
+      folderPath: "/Sites/Enterprise",
+      name: "New page",
+      contentType: "percPage",
+    });
+    const insertRelationship = vi.fn().mockResolvedValue({
+      relationshipId: 3,
+      ownerId: 42,
+      dependentId: 77,
+      slotId: 9,
+      templateId: 7,
+      sortRank: 0,
+    });
+    render(
+      <EditorRelatedContentPanel
+        itemId="42"
+        loadCanvas={loadCanvas}
+        loadLocal={async () => ({ count: 0, links: [] })}
+        insertRelationship={insertRelationship}
+        createRelatedItem={createRelatedItem}
+        loadContentTypes={loadContentTypes}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-quick-add")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-related-quick-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-quick-add-dialog")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-related-quick-add-type"), {
+      target: { value: "percPage" },
+    });
+    fireEvent.change(screen.getByTestId("editor-related-quick-add-folder"), {
+      target: { value: "/Sites/Enterprise" },
+    });
+    fireEvent.change(screen.getByTestId("editor-related-quick-add-name"), {
+      target: { value: "New page" },
+    });
+    fireEvent.click(screen.getByTestId("editor-related-quick-add-create"));
+    await waitFor(() => {
+      expect(createRelatedItem).toHaveBeenCalledWith({
+        contentType: "percPage",
+        folderPath: "/Sites/Enterprise",
+        name: "New page",
+      });
+    });
+    await waitFor(() => {
+      expect(insertRelationship).toHaveBeenCalledWith({
+        ownerId: 42,
+        dependentId: 77,
+        slotId: 9,
+        templateId: 7,
+      });
+    });
+    await waitFor(() => {
+      expect(screen.queryByTestId("editor-related-quick-add-dialog")).toBeNull();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-item-id").textContent).toBe("77");
+    });
+  });
+
+  it("quick-add create 400 stays on the panel and cancel creates nothing", async () => {
+    const createRelatedItem = vi.fn().mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: {},
+    });
+    const insertRelationship = vi.fn();
+    const loadContentTypes = vi.fn().mockResolvedValue([
+      { name: "percPage", label: "Page" },
+    ]);
+    const { rerender } = render(
+      <EditorRelatedContentPanel
+        itemId="42"
+        loadCanvas={async () => ({
+          ownerId: 42,
+          templateId: 7,
+          slots: [{ slotId: 9, name: "content", label: "Content", items: [] }],
+        })}
+        loadLocal={async () => ({ count: 0, links: [] })}
+        insertRelationship={insertRelationship}
+        createRelatedItem={createRelatedItem}
+        loadContentTypes={loadContentTypes}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-quick-add")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-related-quick-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-quick-add-dialog")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-related-quick-add-type"), {
+      target: { value: "percPage" },
+    });
+    fireEvent.change(screen.getByTestId("editor-related-quick-add-folder"), {
+      target: { value: "/Sites/Enterprise" },
+    });
+    fireEvent.click(screen.getByTestId("editor-related-quick-add-create"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-quick-add-error").textContent).toMatch(
+        /could not be created/i,
+      );
+    });
+    expect(insertRelationship).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("editor-related-item-id")).toBeNull();
+    fireEvent.click(screen.getByTestId("editor-related-quick-add-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("editor-related-quick-add-dialog")).toBeNull();
+    });
+    expect(createRelatedItem).toHaveBeenCalledTimes(1);
+    expect(insertRelationship).not.toHaveBeenCalled();
+    rerender(
+      <EditorRelatedContentPanel
+        itemId="42"
+        readOnly
+        loadCanvas={async () => ({
+          ownerId: 42,
+          templateId: 7,
+          slots: [{ slotId: 9, name: "content", label: "Content", items: [] }],
+        })}
+        loadLocal={async () => ({ count: 0, links: [] })}
+        insertRelationship={insertRelationship}
+        createRelatedItem={createRelatedItem}
+        loadContentTypes={loadContentTypes}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.queryByTestId("editor-related-quick-add")).toBeNull();
+    });
+  });
 });
 
 describe("EditorRelatedContentPanel snippet preview (#6224)", () => {

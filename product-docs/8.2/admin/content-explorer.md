@@ -489,6 +489,20 @@ still posts `POST /services/assembly/slot-relationships` with that id.
 already typed. Folder rows and rows with no content id cannot be used.
 Listing **403** stays in the picker. Typing an id is still allowed.
 
+**New related item** (same insert form) creates a brand-new item and attaches
+it without leaving the editor. Choose the content type and the destination
+folder, optionally give it a name, and **Create and attach**. The host calls
+`POST /services/itemmanagement/item/create` and then
+`POST /services/assembly/slot-relationships` for the new id on the selected
+slot, and reloads the list like a picked insert. **Cancel** closes the dialog
+and creates and attaches nothing. A failed create — an empty type or folder,
+an invalid name or folder, HTTP **400** (not valid for this type or folder),
+**403** (not allowed to create here), or **409** (that name already exists in
+the folder) — stays on the panel as an error: the open item draft is
+untouched and no relation is recorded. When the item is created but the
+attach fails, the panel says so and the new item is left unattached.
+**View** and **Promote** do not show **New related item**.
+
 In **Edit** mode each slot row that has an Active Assembly relationship id shows
 **Remove**. The host calls
 `DELETE /services/assembly/slot-relationships/{relationshipId}` and reloads the
