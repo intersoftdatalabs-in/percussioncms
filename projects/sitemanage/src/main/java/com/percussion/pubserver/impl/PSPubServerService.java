@@ -3387,6 +3387,12 @@ public class PSPubServerService implements IPSPubServerService {
       return null;
     } else {
       PSPubServer currentDefaultServer = getDefaultPubServer(site.getGUID());
+      if (currentDefaultServer == null) {
+        // CMS-only cell (no DTS publish server configured): callers treat a null admin URL
+        // as "no delivery tier" and return empty payloads instead of HTTP 500.
+        log.info("No default publish server configured for site: {}", siteName);
+        return null;
+      }
       String adminUrl = currentDefaultServer.getPublishServer().orElse(null);
       return adminUrl;
     }
