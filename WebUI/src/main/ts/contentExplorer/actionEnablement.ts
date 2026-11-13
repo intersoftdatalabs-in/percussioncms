@@ -63,6 +63,7 @@ import {
   isScheduleActionName,
 } from "./itemScheduleDates";
 import { isFolder } from "./selection";
+import { isRecyclingExplorerPath } from "./folderPath";
 
 /** Where the filtered menu will be rendered. */
 export type ActionSurface = "toolbar" | "contextmenu";
@@ -476,6 +477,76 @@ export const EXPLORER_CHECKIN_ACTION: MenuAction = {
   menuType: "MENUITEM",
 };
 
+/** Injected on a recycled row so right-click restores without the toolbar (#6254). */
+export const EXPLORER_RECYCLE_RESTORE_ACTION: MenuAction = {
+  name: "Restore",
+  label: "Restore",
+  sortRank: 10_070,
+  menuType: "MENUITEM",
+};
+
+/** Injected on a recycled row so right-click purges without the toolbar (#6254). */
+export const EXPLORER_RECYCLE_PURGE_ACTION: MenuAction = {
+  name: "Purge",
+  label: "Purge",
+  sortRank: 10_071,
+  menuType: "MENUITEM",
+};
+
+function recycleActionKey(name: string | undefined | null): string {
+  return (name ?? "").replace(/[\s-]/g, "_").toLowerCase();
+}
+
+/** Catalog / context-menu names for recycled-row Restore. */
+export function isRestoreActionName(name: string | undefined | null): boolean {
+  return recycleActionKey(name) === "restore";
+}
+
+/** Catalog / context-menu names for recycled-row Purge. */
+export function isPurgeActionName(name: string | undefined | null): boolean {
+  return recycleActionKey(name) === "purge";
+}
+
+/**
+ * Row is restorable/purgeable from the context menu when it lives under
+ * Recycling. Pages, assets, and folders all restore via the recycle REST
+ * endpoints, so the publish-kind gate does not apply here (#6254).
+ */
+export function isRecycledRow(
+  selectionItem: PSPathItem | null | undefined,
+): boolean {
+  if (!selectionItem) {
+    return false;
+  }
+  if (!(selectionItem.id ?? "").trim()) {
+    return false;
+  }
+  return isRecyclingExplorerPath(
+    selectionItem.path ?? selectionItem.folderPath ?? "",
+  );
+}
+
+/**
+ * The server menu catalog carries no Restore/Purge leaves, so a recycled
+ * row right-click would offer neither. Inject both client-handled leaves
+ * when the row is recycled; non-recycled rows are untouched (#6254).
+ */
+export function withExplorerRecycleActions(
+  actions: MenuAction[],
+  selectionItem: PSPathItem | null | undefined,
+): MenuAction[] {
+  if (!isRecycledRow(selectionItem)) {
+    return actions;
+  }
+  let next = menuHasMatchingAction(actions, isRestoreActionName)
+    ? actions
+    : [...actions, { ...EXPLORER_RECYCLE_RESTORE_ACTION }];
+  if (!menuHasMatchingAction(next, isPurgeActionName)) {
+    next = [...next, { ...EXPLORER_RECYCLE_PURGE_ACTION }];
+  }
+  return next;
+}
+
 export function withExplorerApproveIncrementalAction(
   actions: MenuAction[],
 ): MenuAction[] {
@@ -830,19 +901,22 @@ export function filterContextMenuActions(
   isAdmin?: boolean,
 ): MenuAction[] {
   return prepareMenuActionTree(
-    withExplorerForceCheckinAction(
-      withExplorerCheckoutActions(
-        withExplorerPublishingHistoryAction(
-          withExplorerClearScheduleAction(
-            withExplorerScheduleAction(
-              withExplorerStagingActions(
-                withExplorerTakedownAction(
-                  filterEnabledMenuActions(actions, {
-                    surface: "contextmenu",
-                    baseHref,
+    withExplorerRecycleActions(
+      withExplorerForceCheckinAction(
+        withExplorerCheckoutActions(
+          withExplorerPublishingHistoryAction(
+            withExplorerClearScheduleAction(
+              withExplorerScheduleAction(
+                withExplorerStagingActions(
+                  withExplorerTakedownAction(
+                    filterEnabledMenuActions(actions, {
+                      surface: "contextmenu",
+                      baseHref,
+                      selectionItem,
+                      isAdmin,
+                    }),
                     selectionItem,
-                    isAdmin,
-                  }),
+                  ),
                   selectionItem,
                 ),
                 selectionItem,
@@ -854,9 +928,9 @@ export function filterContextMenuActions(
           selectionItem,
         ),
         selectionItem,
+        isAdmin,
       ),
       selectionItem,
-      isAdmin,
     ),
   );
 }

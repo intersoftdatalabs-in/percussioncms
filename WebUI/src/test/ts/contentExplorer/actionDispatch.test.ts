@@ -3808,3 +3808,141 @@ describe("actionDispatch", () => {
     }
   });
 });
+
+describe("actionDispatch recycled-row context-menu Restore (#6254)", () => {
+  const recycled = () =>
+    item({
+      name: "old-page",
+      path: "/Recycling/Sites/Demo/old-page",
+      type: "percPage",
+      id: "4242",
+    });
+
+  it("classifies Restore and Purge as rest", () => {
+    expect(classifyAction(action({ name: "Restore" }))).toBe("rest");
+    expect(classifyAction(action({ name: "restore" }))).toBe("rest");
+    expect(classifyAction(action({ name: "Purge" }))).toBe("rest");
+  });
+
+  it("restores the recycled row through onRestore and refreshes", async () => {
+    const onRestore = vi.fn().mockResolvedValue(undefined);
+    const result = await dispatchAction(action({ name: "Restore" }), {
+      item: recycled(),
+      onRestore,
+    });
+    expect(onRestore).toHaveBeenCalledTimes(1);
+    expect(onRestore.mock.calls[0]?.[0]).toMatchObject({ id: "4242" });
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(result.messageKey).toBeUndefined();
+  });
+
+  it("needs an item id before restoring", async () => {
+    const onRestore = vi.fn();
+    const result = await dispatchAction(action({ name: "Restore" }), {
+      item: { ...recycled(), id: "" },
+      onRestore,
+    });
+    expect(onRestore).not.toHaveBeenCalled();
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("maps HTTP 403/404/409 to a named restore failure without refresh", async () => {
+    const expected: Record<number, string> = {
+      403: EXPLORER_MSG.PERMISSION_DENIED,
+      404: EXPLORER_MSG.ACTION_RESTORE_NOT_FOUND,
+      409: EXPLORER_MSG.ACTION_RESTORE_CONFLICT,
+    };
+    for (const status of [403, 404, 409]) {
+      const onRestore = vi.fn().mockRejectedValueOnce({ status, body: {} });
+      const result = await dispatchAction(action({ name: "Restore" }), {
+        item: recycled(),
+        onRestore,
+      });
+      expect(result.kind).toBe("rest");
+      expect(result.messageKey).toBe(expected[status]);
+      expect(result.messageText).toContain("old-page");
+      expect(result.messageText).toContain(`HTTP ${status}`);
+      expect(result.refresh).toBeUndefined();
+      expect(onRestore).toHaveBeenCalledTimes(1);
+    }
+  });
+
+  it("rethrows non-API restore failures to the generic path", async () => {
+    const onRestore = vi.fn().mockRejectedValueOnce(new Error("boom"));
+    await expect(
+      dispatchAction(action({ name: "Restore" }), {
+        item: recycled(),
+        onRestore,
+      }),
+    ).rejects.toThrow("boom");
+  });
+});
+
+describe("actionDispatch recycled-row context-menu Purge (#6254)", () => {
+  const recycled = () =>
+    item({
+      name: "old-page",
+      path: "/Recycling/Sites/Demo/old-page",
+      type: "percPage",
+      id: "4242",
+    });
+
+  it("purges the recycled row through onPurge after confirm and refreshes", async () => {
+    const onPurge = vi.fn().mockResolvedValue(undefined);
+    const result = await dispatchAction(action({ name: "Purge" }), {
+      item: recycled(),
+      onPurge,
+      confirm: () => true,
+    });
+    expect(onPurge).toHaveBeenCalledTimes(1);
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(result.messageKey).toBeUndefined();
+  });
+
+  it("purge cancel purges nothing", async () => {
+    const onPurge = vi.fn();
+    const result = await dispatchAction(action({ name: "Purge" }), {
+      item: recycled(),
+      onPurge,
+      confirm: () => false,
+    });
+    expect(onPurge).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("maps HTTP 403/404/409 to a named purge failure without refresh", async () => {
+    const expected: Record<number, string> = {
+      403: EXPLORER_MSG.PERMISSION_DENIED,
+      404: EXPLORER_MSG.ACTION_PURGE_NOT_FOUND,
+      409: EXPLORER_MSG.ACTION_PURGE_CONFLICT,
+    };
+    for (const status of [403, 404, 409]) {
+      const onPurge = vi.fn().mockRejectedValueOnce({ status, body: {} });
+      const result = await dispatchAction(action({ name: "Purge" }), {
+        item: recycled(),
+        onPurge,
+        confirm: () => true,
+      });
+      expect(result.kind).toBe("rest");
+      expect(result.messageKey).toBe(expected[status]);
+      expect(result.messageText).toContain("old-page");
+      expect(result.messageText).toContain(`HTTP ${status}`);
+      expect(result.refresh).toBeUndefined();
+      expect(onPurge).toHaveBeenCalledTimes(1);
+    }
+  });
+
+  it("keeps asking for an item on a live folder row", async () => {
+    const onPurge = vi.fn();
+    const result = await dispatchAction(action({ name: "Purge" }), {
+      item: item({ name: "News", path: "/Sites/Demo/News", type: "Folder", id: "77" }),
+      onPurge,
+      confirm: () => true,
+    });
+    expect(onPurge).not.toHaveBeenCalled();
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+  });
+});

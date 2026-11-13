@@ -21,10 +21,14 @@ import {
   filterContextMenuActions,
   filterEnabledMenuActions,
   filterToolbarActions,
+  isPurgeActionName,
+  isRecycledRow,
+  isRestoreActionName,
   normalizeMenuActionTree,
   prepareMenuActionTree,
   prepareToolbarActions,
   unwrapMenuActionChildren,
+  withExplorerRecycleActions,
   isActionAllowedOnSurface,
   isToolbarPublishNowHidden,
   isToolbarTakedownHidden,
@@ -876,5 +880,86 @@ describe("canOpenIaRelationships (#3811)", () => {
         category: "FOLDER",
       }),
     ).toBe(false);
+  });
+});
+
+describe("withExplorerRecycleActions (#6254)", () => {
+  const recycledPage: PSPathItem = {
+    id: "42",
+    name: "old-page",
+    path: "/Recycling/Sites/Demo/old-page",
+    type: "percPage",
+    category: "PAGE",
+  };
+  const recycledFolder: PSPathItem = {
+    id: "43",
+    name: "old-assets",
+    path: "/Recycling/Assets/old-assets",
+    type: "Folder",
+    category: "FOLDER",
+  };
+  const livePage: PSPathItem = {
+    id: "44",
+    name: "home",
+    path: "/Sites/Demo/home",
+    type: "percPage",
+    category: "PAGE",
+  };
+
+  it("names recycle matchers", () => {
+    expect(isRestoreActionName("Restore")).toBe(true);
+    expect(isRestoreActionName("restore")).toBe(true);
+    expect(isRestoreActionName("Take_Down")).toBe(false);
+    expect(isPurgeActionName("Purge")).toBe(true);
+    expect(isPurgeActionName("purge")).toBe(true);
+    expect(isPurgeActionName("Restore")).toBe(false);
+  });
+
+  it("detects recycled rows with an id", () => {
+    expect(isRecycledRow(recycledPage)).toBe(true);
+    expect(isRecycledRow(recycledFolder)).toBe(true);
+    expect(isRecycledRow(livePage)).toBe(false);
+    expect(isRecycledRow(null)).toBe(false);
+    expect(isRecycledRow({ ...recycledPage, id: "" })).toBe(false);
+  });
+
+  it("injects Restore + Purge on recycled rows only", () => {
+    expect(withExplorerRecycleActions([], recycledPage).map((a) => a.name)).toEqual([
+      "Restore",
+      "Purge",
+    ]);
+    expect(withExplorerRecycleActions([], recycledFolder).map((a) => a.name)).toEqual([
+      "Restore",
+      "Purge",
+    ]);
+    expect(withExplorerRecycleActions([], livePage)).toEqual([]);
+    expect(withExplorerRecycleActions([leaf({ name: "Edit" })], livePage).map((a) => a.name)).toEqual([
+      "Edit",
+    ]);
+  });
+
+  it("does not duplicate injected or catalog Restore/Purge", () => {
+    const seeded: MenuAction[] = [
+      leaf({ name: "Edit" }),
+      leaf({ name: "Restore" }),
+      leaf({ name: "Purge" }),
+    ];
+    expect(withExplorerRecycleActions(seeded, recycledPage).map((a) => a.name)).toEqual([
+      "Edit",
+      "Restore",
+      "Purge",
+    ]);
+  });
+
+  it("exposes Restore + Purge on the recycled-row context menu", () => {
+    const names = filterContextMenuActions([], BASE, recycledPage).map((a) => a.name);
+    expect(names).toContain("Restore");
+    expect(names).toContain("Purge");
+  });
+
+  it("keeps Restore + Purge off the live-row context menu", () => {
+    const names = filterContextMenuActions([], BASE, livePage).map((a) => a.name);
+    expect(names).not.toContain("Restore");
+    expect(names).not.toContain("Purge");
   });
 });

@@ -1021,6 +1021,14 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
 - **Right-click a selected list row** (Sites, Assets, or a folder with children)
   opens the same catalog as a **nested context menu** — MENU parents stay
   expandable, not a flat list of every child label. Desktop-only actions stay hidden.
+- **Right-click a recycled row** (a page, asset, or folder listed under
+  **Recycling**) also offers **Restore** and **Purge** — the same actions as the
+  reduced-actions toolbar, without requiring toolbar buttons. **Restore** returns
+  the row to its original folder (`PUT /rest/folders/recycle/restore/{guid}`);
+  **Purge** asks for confirm, then permanently deletes it
+  (`DELETE /rest/folders/recycle/{guid}`). HTTP **403**, **404**, or **409**
+  names the row and leaves the list unchanged. A live (non-recycled) row never
+  shows **Restore** or **Purge**.
 - When you select a content item, the shell keeps that cascading tree and may add
   content-type **New** commands under an existing menu. It does not replace the tree with
   a flat list of every allowed command.
