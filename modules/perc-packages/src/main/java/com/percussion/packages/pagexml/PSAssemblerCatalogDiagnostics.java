@@ -21,10 +21,13 @@ import com.percussion.packages.manifest.PSComponentPackageManifest;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Operator troubleshooting diagnostics readback for the template assembler catalog (issue #6081 /
@@ -48,6 +51,12 @@ import java.util.Objects;
  * {@code *.templateDef} upgrade direction: the dry-run reports what blocks converting legacy XML,
  * while this report diagnoses the modern manifests operators already ship. Reads nothing from
  * disk and writes nothing; callers supply parsed manifests.
+ *
+ * <p>After migration, {@link Report#collectStaleCatalogEntries()} finds registered catalog rows
+ * that no diagnosed template resolves to anymore, and {@link
+ * Report#withoutStaleCatalogEntries()} returns the collection pass (pruned catalog, same
+ * per-template verdicts) so operators can retire dead assembler registrations (issue #6267 /
+ * parent #2626).
  */
 public final class PSAssemblerCatalogDiagnostics {
 
@@ -191,6 +200,60 @@ public final class PSAssemblerCatalogDiagnostics {
       return entries.size();
     }
 
+    /** Number of registered catalog rows no diagnosed template resolves to. */
+    public long getStaleCount() {
+      return collectStaleCatalogEntries().size();
+    }
+
+    /**
+     * Garbage-collection scan (issue #6267 / parent #2626): registered catalog rows that no
+     * diagnosed template resolves to anymore, in registration order.
+     *
+     * <p>A row counts as referenced when at least one {@link Status#OK} entry resolves to its
+     * extension path, so case variants and the {@code xslAssembler → legacyAssembler} alias keep
+     * their row. Blocked declarations reference nothing: an unregistered id or full path never
+     * resolves to a catalog row. Reads nothing from disk and writes nothing.
+     *
+     * @return stale catalog rows in registration order (never null, possibly empty)
+     */
+    public List<CatalogEntry> collectStaleCatalogEntries() {
+      Set<String> referenced = new HashSet<>();
+      for (Entry entry : entries) {
+        if (entry.isOk() && entry.getResolvedPath() != null) {
+          referenced.add(entry.getResolvedPath());
+        }
+      }
+      List<CatalogEntry> stale = new ArrayList<>();
+      for (CatalogEntry row : catalog) {
+        if (!referenced.contains(row.getExtensionPath())) {
+          stale.add(row);
+        }
+      }
+      return Collections.unmodifiableList(stale);
+    }
+
+    /**
+     * Garbage-collection pass (issue #6267 / parent #2626): a new report with the stale rows
+     * from {@link #collectStaleCatalogEntries()} removed from the catalog and the same
+     * per-template verdicts, so operators can preview exactly which registrations would be
+     * retired before touching product configuration. Reads nothing from disk and writes nothing.
+     *
+     * @return report with the pruned catalog and unchanged entries (never null)
+     */
+    public Report withoutStaleCatalogEntries() {
+      Set<String> stalePaths = new HashSet<>();
+      for (CatalogEntry stale : collectStaleCatalogEntries()) {
+        stalePaths.add(stale.getExtensionPath());
+      }
+      List<CatalogEntry> kept = new ArrayList<>();
+      for (CatalogEntry row : catalog) {
+        if (!stalePaths.contains(row.getExtensionPath())) {
+          kept.add(row);
+        }
+      }
+      return new Report(kept, entries);
+    }
+
     /** True when every diagnosed template resolves (vacuously true when empty). */
     public boolean isClean() {
       return getBlockedCount() == 0;
@@ -221,7 +284,20 @@ public final class PSAssemblerCatalogDiagnostics {
           .append(getBlockedCount())
           .append(" Total=")
           .append(getTotalCount())
-          .append("\n\n");
+          .append(" Stale=")
+          .append(getStaleCount())
+          .append("\n");
+      List<CatalogEntry> stale = collectStaleCatalogEntries();
+      sb.append("Stale catalog entries (unreferenced by any diagnosed template): ");
+      if (stale.isEmpty()) {
+        sb.append("—\n\n");
+      } else {
+        sb.append(
+                stale.stream()
+                    .map(c -> c.getId() + " -> " + c.getExtensionPath())
+                    .collect(Collectors.joining(", ")))
+            .append("\n\n");
+      }
       sb.append("| Manifest | Template | Declared | Status | Resolves to | Detail |\n");
       sb.append("|---|---|---|---|---|---|\n");
       for (Entry e : entries) {
@@ -255,6 +331,8 @@ public final class PSAssemblerCatalogDiagnostics {
           .append(getBlockedCount())
           .append(" total=")
           .append(getTotalCount())
+          .append(" stale=")
+          .append(getStaleCount())
           .append(" catalog=[")
           .append(String.join(",", catalogIds()))
           .append("]\n");

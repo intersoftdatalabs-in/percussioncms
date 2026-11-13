@@ -185,6 +185,17 @@ exposes `Report#writeTo(Path)`, which persists the per-package status panel as
 Keep that pair with the change record — READY rows are the convert list, BLOCKED rows
 name what to fix first (for example an unregistered assembler).
 
+Diagnose the assembler catalog while you convert: `PSAssemblerCatalogDiagnostics`
+(reads modern manifests, writes nothing) reports every `templates[].assembler` as OK
+with its registered extension path or BLOCKED with the reason plus the fix action.
+After the last template that used a legacy-only assembler is converted, the same
+report's `collectStaleCatalogEntries()` lists registered catalog rows no diagnosed
+template resolves to anymore, and `withoutStaleCatalogEntries()` previews the
+collection pass (pruned catalog, unchanged verdicts) — retire those dead
+registrations instead of leaving them for the next upgrade to trip over. Aliased
+and case-variant spellings (`xslAssembler`, `HTMLASSEMBLER`) still count as
+references, so only truly unreferenced rows are collected.
+
 ### 5. Remove XML only for converted ids
 
 After smoke/parity on the converted definitions:
