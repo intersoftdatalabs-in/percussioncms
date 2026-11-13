@@ -35,11 +35,12 @@
  */
 
 import { Editor } from "@tiptap/core";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { message } from "../../i18n/message";
 import { EDITOR_MSG } from "../messages";
 import { preparePercussionHtml } from "../tiptap/tiptapPercussion";
 import { createTipTapEditorExtensions } from "../tiptap/tiptapSetup";
+import { setTipTapContentWithoutHistory } from "../tiptap/tiptapHistorySync";
 import { sanitizeWordPastedHtml } from "../tiptap/tiptapWordPaste";
 import { TipTapPercussionBar } from "../tiptap/TipTapPercussionBar";
 import { TipTapToolbar } from "../tiptap/TipTapToolbar";
@@ -117,7 +118,18 @@ export function TipTapFieldWidget({
     };
   }, [name]);
 
-  useSyncTipTapEditor(editorRef, { value, readOnly, invalid });
+  // Stable identity: the sync effect must re-run only when `value` changes.
+  // An inline closure would re-run the effect on every render, and content
+  // that never round-trips through the editor (stored NUL #5696, refused
+  // script markup) would sync -> tick -> render -> sync forever.
+  // Stable identity: the sync effect must re-run only when `value` changes.
+  // An inline closure would re-run the effect on every render, and content
+  // that never round-trips through the editor (stored NUL #5696, refused
+  // script markup) would sync -> tick -> render -> sync forever.
+  const bumpToolbarTick = useCallback(() => {
+    setToolbarTick((tick) => tick + 1);
+  }, []);
+  useSyncTipTapEditor(editorRef, { value, readOnly, invalid }, bumpToolbarTick);
 
   return (
     <div
@@ -144,13 +156,16 @@ export function TipTapFieldWidget({
 }
 
 /**
- * Mirror controlled props into a mounted parity editor. `setContent` stays
- * silent (no onUpdate echo), so external saves never loop back through
- * {@code onChange}; the editable/aria flags track their props directly.
+ * Mirror controlled props into a mounted parity editor. External syncs stay
+ * silent (no onUpdate echo, so external saves never loop back through
+ * {@code onChange}) and history-free (#6262: a programmatic setContent used
+ * to push an undo step, so Ctrl+Z after revert/restore resurrected discarded
+ * edits); the editable/aria flags track their props directly.
  */
 function useSyncTipTapEditor(
   editorRef: React.RefObject<Editor | null>,
   state: { value: string; readOnly: boolean; invalid: boolean },
+  onSync?: () => void,
 ): void {
   const { value, readOnly, invalid } = state;
 
@@ -166,13 +181,19 @@ function useSyncTipTapEditor(
     const editor = editorRef.current;
     const prepared = preparePercussionHtml(value);
     if (editor && editor.getHTML() !== prepared) {
-      // Silent by contract: external saves must not echo back through
-      // onChange (the option defaults to noisy in TipTap v3, so spell it
-      // out). A stored NUL stays in the row value so the save-side HTML
-      // gate (#5696) can refuse it instead of being normalized away here.
-      editor.commands.setContent(prepared, { emitUpdate: false });
+      // Silent and history-free by contract (#6262): external saves install
+      // a fresh editor state (no onUpdate echo — the option defaults to noisy
+      // in TipTap v3 setContent, which also has no addToHistory option), and
+      // the undo/redo stacks reset so Ctrl+Z after revert/restore cannot
+      // resurrect discarded edits. A stored NUL stays in the row value so
+      // the save-side HTML gate (#5696) can refuse it instead of being
+      // normalized away here.
+      setTipTapContentWithoutHistory(editor, prepared);
+      // The state swap bypasses dispatch, so the toolbar bump listener
+      // misses it: refresh the disabled state explicitly.
+      onSync?.();
     }
-  }, [editorRef, value]);
+  }, [editorRef, onSync, value]);
 
   useEffect(() => {
     const dom = editorRef.current?.view.dom;
