@@ -22,18 +22,23 @@ Read the canonical spec at:
 
 1. Load the Erlang persona (ERLANG.md + PATTERNS.md) from the path above.
 2. Collect the diff (`gh pr diff <N>` or `git diff origin/main...HEAD`).
-3. **Run** (CLI ≥ 0.1.18) from the PR head checkout:
+3. **Run** (CLI ≥ 0.4.0) from the PR head checkout:
 
    ```bash
-   mkd-code-review analyze --pack percussion --format markdown --gate advisory \
+   mkd-code-review analyze --pack percussion --format markdown --gate advisory --require-llm \
      --git-base origin/main \
-     --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+     --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.openrouter-free.toml
    ```
 
-   Expect `Persona: erlang 0.1.1`, Scope Base/Head set, and Ollama
-   `dev-coder:latest` on `localhost:11434`. Gate on **(in-diff)** bugs
-   only; preexisting rows do not BLOCK. If the models file is missing,
-   omit `--models`. If Ollama is down, keep machine findings.
+   Expect the Erlang persona, Scope Base/Head set, and the OpenRouter
+   `openrouter/free` route. Require a readable profile and a nonempty
+   `OPENROUTER_API_KEY` in the process environment; never print the key or add
+   paid fallbacks. Gate on **(in-diff)** bugs only; preexisting rows do not
+   BLOCK. If the profile/key is missing, configuration cannot be loaded, or
+   the required model returns `llm.error` or an LLM warning, keep machine
+   findings but mark the review BLOCKED (`erlang_llm_unavailable`); do not
+   approve or merge. Deterministic hard-gate failures may still skip inference
+   and must be fixed before retry.
 4. Enforce the strict gate from the persona spec.
 5. **Pre-push local code review:** write the FULL CLI markdown to
    `docs/ai-generated/code-reviews/pr-<N>-erlang.md` and replace the PR body

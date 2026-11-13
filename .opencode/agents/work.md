@@ -132,14 +132,20 @@ this step. Nested headless runs can die on the first shell permission
 2. From the worktree, review the branch diff:
 
    ```bash
-   mkd-code-review analyze --pack percussion --format markdown --gate advisory \
+   mkd-code-review analyze --pack percussion --format markdown --gate advisory --require-llm \
      --git-base "origin/${NIGHT_BASE_BRANCH}" \
-     --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+     --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.openrouter-free.toml
    ```
 
    Scope is the branch diff. Never pass the repo root as `PATHS`.
-3. If the models file is missing, omit `--models` and continue machine-only. If
-   Ollama is down, keep machine findings; do not fail on an LLM warning.
+3. Require the readable OpenRouter profile above and a nonempty
+   `OPENROUTER_API_KEY` in the process environment before running the CLI; never
+   print the key. Use only the configured `openrouter/free` route, with no paid
+   fallback. If the profile/key is missing, configuration cannot be loaded, or
+   the required model returns `llm.error` or an LLM warning, stop with
+   `status=failed` and `blocked=erlang_llm_unavailable`. Keep machine findings
+   in the report, but do not treat an incomplete review as clean. Deterministic
+   hard-gate failures may still skip inference and must be fixed before retry.
 4. Gate on **in-diff** bugs, missing behavioral tests, and non-portable paths
    only. Preexisting rows do not BLOCK.
 5. Write the **full** Markdown report to
