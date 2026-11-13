@@ -78,6 +78,39 @@ npm run test:surface -- --tag golden
   (§ Playwright surface filter + unattended H2 QA). Module README → **Surface filter**.
 - Tear-down: `python docker/scripts/perc-devctl.py qa-down` when the agent started the stack.
 
+### QA cell with DTS: published-site env (shipped #6237)
+
+`qa-up --with-dts` (spec `specs/2402-qa-dts-publish/`) brings up CMS (H2) +
+DTS (Tomcat); the banner prints the cell contract — no hardcoded ports:
+
+```bash
+# After: python docker/scripts/perc-devctl.py qa-up --with-dts
+# Banner prints: QA_DTS_HOST_PORT=<port> DTS_URL=http://127.0.0.1:<port>
+#   PUBLISHED_SITE_URL=<dts-base> PUBLISHED_CATEGORY_URL=<dts-base>/
+# Then deploy the fixture site (repoints PUBLISHED_CATEGORY_URL):
+# python docker/scripts/perc-devctl.py qa-publish-fixture
+PUBLISHED_SITE_URL=<from-banner-or-fixture> \
+  PUBLISHED_CATEGORY_URL=<from-fixture> \
+  DTS_URL=<from-banner> \
+  npm run test:surface -- --path tests/published-site-smoke.spec.js
+```
+
+- **Port resolution (runtime, never hardcoded):** `DTS_HOST_PORT` /
+  `DTS_PORT` env → `docker port` on `perc-matrix-dts-h2` → last `qa-up`
+  log → preferred `9983` when free. Same freeport contract as
+  `TEST_CMS_URL` — do not commit `:9980` / `:9983` literals.
+- **Skip contract:** published specs
+  (`tests/published-site-smoke.spec.js`,
+  `tests/published-category-tree-fancytree.spec.js`, tags `@published` /
+  `@published-site` / `@category-tree` / `@category-expand`) skip cleanly
+  with exit 0 when the env is absent — the default CMS-only cell has no
+  publish path. `qa-health` gates both cells; `qa-down` removes both.
+- **Full-suite default unchanged:** still surface-filtered (`test:surface`
+  refuses the full suite without `--allow-full`) — the DTS cell adds no
+  always-run weight.
+- Dev-mode DTS discovery (`DEV_PERCUSSION_DTS_INSTALL` →
+  `DEV_PERCUSSION_DTS_URL`) is unchanged.
+
 ### QA cell health after start / hot-deploy (HARD)
 
 After `qa-up` **and** after every jar copy or Jetty restart, run:
