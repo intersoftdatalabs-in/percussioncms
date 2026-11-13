@@ -55,6 +55,17 @@ covers it (state, triggers, comment enforcement, ad-hoc assignees,
 view-mode read-only, zero legacy-CE requests). Mounting the standalone
 panel (or removing it if superseded) is follow-up work, not E2E scope.
 
+**Resolution (#6158 — `EditorWorkflowPanel` supersedes, panel removed).**
+The standalone `WorkflowActionsPanel` + `TransitionDialog` + `AdhocSearch`
+trio under `WebUI/src/main/ts/workflowActions/` (with its two unit tests)
+was deleted: zero SPA hosts imported it, and `EditorWorkflowPanel` covers
+the same live surface (state, triggers, comment, ad-hoc assignees, plus
+workflow-change picker and load-error/retry states the standalone panel
+lacked; check-in/out locking lives in `EditorHost` via `editorCheckout`).
+Live coverage is unchanged — `tests/us4-item-transitions.spec.js` +
+`tests/editor-host-workflow-transitions.spec.js` prove the surviving UI.
+No user-visible behavior changed, so no product-docs update.
+
 ## Note 4 — numeric filename overlap (not a conflict)
 
 `us2`–`us5` prefixes are also used by an unrelated series

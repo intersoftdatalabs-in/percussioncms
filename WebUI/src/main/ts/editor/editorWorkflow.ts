@@ -178,7 +178,7 @@ export function canRunEditorTransition(input: {
 
 /**
  * Trimmed unique assignee names in first-seen order. Matches the comma-separated
- * {@code adhocAssignees} query {@code WorkflowActionsPanel} sends (#5163).
+ * {@code adhocAssignees} query the editor in-context transition flow sends (#5163).
  */
 export function normalizeAdhocAssignees(
   raw: readonly string[] | null | undefined,
