@@ -53,6 +53,7 @@ const {
   unwrapSearchDefs,
   catalogSettledSelector,
 } = require("./helpers/explorer-saved-search");
+const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
 /**
  * Collect uncaught page errors for the C5 zero-errors gate.
@@ -375,6 +376,37 @@ test.describe("Explorer saved-search rename/delete (#6075 / #4530)", () => {
       ).toBe(404);
     // Row already deleted: skip afterEach best-effort delete noise.
     tempName = "";
+    expect(pageErrors, `zero JS console errors (${pageErrors.join(" | ")})`).toEqual([]);
+  });
+
+  test("rename and delete dialogs have zero serious a11y violations @saved-search @explorer-saved-search-manage @explorer", async ({
+    page,
+  }) => {
+    const pageErrors = attachPageErrors(page);
+    await openSearchPanel(page);
+    await selectSavedSearch(page, tempName);
+
+    // Rename dialog surface (#6180): axe the open dialog, then cancel.
+    await page.locator(`[data-testid="${TEST_IDS.savedRename}"]`).click();
+    const dialog = page.locator(`[data-testid="${TEST_IDS.manageDialog}"]`);
+    await expect(dialog).toBeVisible();
+    await expectNoSeriousA11yViolations(page, {
+      scope: `[data-testid="${TEST_IDS.manageDialog}"]`,
+    });
+    await page.locator(`[data-testid="${TEST_IDS.manageCancel}"]`).click();
+    await expect(dialog).toBeHidden();
+
+    // Delete dialog surface (#6180): axe the open dialog, then cancel so
+    // the throwaway row survives for afterEach cleanup.
+    await page.locator(`[data-testid="${TEST_IDS.savedDelete}"]`).click();
+    await expect(dialog).toBeVisible();
+    await expect(dialog).toContainText(tempName);
+    await expectNoSeriousA11yViolations(page, {
+      scope: `[data-testid="${TEST_IDS.manageDialog}"]`,
+    });
+    await page.locator(`[data-testid="${TEST_IDS.manageCancel}"]`).click();
+    await expect(dialog).toBeHidden();
+
     expect(pageErrors, `zero JS console errors (${pageErrors.join(" | ")})`).toEqual([]);
   });
 });
