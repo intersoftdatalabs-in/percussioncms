@@ -24,11 +24,12 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implementation for the PSXDisplayMapper DTD in BasicObjects.dtd. */
-public final class PSDisplayMapper extends PSCollectionComponent {
+public final class PSDisplayMapper extends PSCollectionComponent<PSDisplayMapping> {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
@@ -72,8 +73,8 @@ public final class PSDisplayMapper extends PSCollectionComponent {
     PSDisplayMapper copy = (PSDisplayMapper) super.clone();
     copy.removeAllElements();
     for (int i = 0; i < size(); i++) {
-      PSDisplayMapping mapping = (PSDisplayMapping) elementAt(i);
-      copy.add(i, mapping.clone());
+      PSDisplayMapping mapping = elementAt(i);
+      copy.add(i, (PSDisplayMapping) mapping.clone());
     }
     return copy;
   }
@@ -326,7 +327,7 @@ public final class PSDisplayMapper extends PSCollectionComponent {
     String fieldRef = mapping.getFieldRef();
 
     for (int i = 0; i < size(); i++) {
-      PSDisplayMapping m = (PSDisplayMapping) get(i);
+      PSDisplayMapping m = get(i);
       if (m.getFieldRef().equals(fieldRef)) {
         setElementAt(mapping, i);
         return;
@@ -511,7 +512,7 @@ public final class PSDisplayMapper extends PSCollectionComponent {
       PSDisplayMapper targetDisplayMapper,
       boolean mergeDefault,
       Iterator targetDefaultUISet,
-      List fieldExcludes,
+      List<?> fieldExcludes,
       PSDisplayMapper sourceMapper,
       Iterator sourceDefaultUISet,
       boolean mergeChild,
@@ -522,7 +523,7 @@ public final class PSDisplayMapper extends PSCollectionComponent {
      * replacement list and replace the actual mappings.  This is so we don't
      * modify the mapper under the iterator while we walk it.
      */
-    ArrayList replacementMappings = new ArrayList();
+    ArrayList<PSDisplayMapping> replacementMappings = new ArrayList<>();
 
     Iterator mappings = targetDisplayMapper.iterator();
     while (mappings.hasNext()) {
@@ -574,9 +575,9 @@ public final class PSDisplayMapper extends PSCollectionComponent {
     }
 
     // now set all the replacement mappings we've created
-    Iterator i = replacementMappings.iterator();
+    Iterator<PSDisplayMapping> i = replacementMappings.iterator();
     while (i.hasNext()) {
-      PSDisplayMapping tmpMapping = (PSDisplayMapping) i.next();
+      PSDisplayMapping tmpMapping = i.next();
       targetDisplayMapper.replaceMapping(tmpMapping);
     }
   }
@@ -590,11 +591,11 @@ public final class PSDisplayMapper extends PSCollectionComponent {
    * @return A copy of the supplied mapper with the excluded mappings removed, never <code>null
    *     </code>
    */
-  private PSDisplayMapper removeExcludedMappings(PSDisplayMapper mapper, List excludes) {
+  private PSDisplayMapper removeExcludedMappings(PSDisplayMapper mapper, List<?> excludes) {
     PSDisplayMapper newMapper = new PSDisplayMapper(mapper.getFieldSetRef());
-    Iterator mappings = mapper.iterator();
+    Iterator<PSDisplayMapping> mappings = mapper.iterator();
     while (mappings.hasNext()) {
-      PSDisplayMapping mapping = (PSDisplayMapping) mappings.next();
+      PSDisplayMapping mapping = mappings.next();
       if (excludes.contains(mapping.getFieldRef())) continue;
       newMapper.add(mapping);
     }
@@ -624,9 +625,9 @@ public final class PSDisplayMapper extends PSCollectionComponent {
     targetMapper.setId(-1);
 
     // walk the source and merge the mappings
-    Iterator i = sourceMapper.iterator();
+    Iterator<PSDisplayMapping> i = sourceMapper.iterator();
     while (i.hasNext()) {
-      PSDisplayMapping mapping = (PSDisplayMapping) i.next();
+      PSDisplayMapping mapping = i.next();
 
       // add the mapping with merged default values
       PSDisplayMapping tmpMapping = addMapping(targetMapper, sourceDefaultUI, mapping);
@@ -773,20 +774,20 @@ public final class PSDisplayMapper extends PSCollectionComponent {
       Iterator targetDefaultUI)
       throws PSSystemValidationException {
     // build map of source mappings
-    HashMap sourceMappings = new HashMap();
-    Iterator mappings = sourceChildMapper.iterator();
+    Map<String, PSDisplayMapping> sourceMappings = new HashMap<>();
+    Iterator<PSDisplayMapping> mappings = sourceChildMapper.iterator();
     while (mappings.hasNext()) {
-      PSDisplayMapping mapping = (PSDisplayMapping) mappings.next();
+      PSDisplayMapping mapping = mappings.next();
       sourceMappings.put(mapping.getFieldRef(), mapping);
     }
 
     // walk target and merge or add
     mappings = targetChildMapper.iterator();
-    ArrayList replacementMappings = new ArrayList();
+    ArrayList<PSDisplayMapping> replacementMappings = new ArrayList<>();
     while (mappings.hasNext()) {
-      PSDisplayMapping mapping = (PSDisplayMapping) mappings.next();
+      PSDisplayMapping mapping = mappings.next();
       String fieldRef = mapping.getFieldRef();
-      PSDisplayMapping sourceChildMapping = (PSDisplayMapping) sourceMappings.get(fieldRef);
+      PSDisplayMapping sourceChildMapping = sourceMappings.get(fieldRef);
 
       if (sourceChildMapping != null) {
         /* merge with field in target, this will recurse any children
@@ -816,7 +817,7 @@ public final class PSDisplayMapper extends PSCollectionComponent {
     // finally, add mappings from source not already in target
     mappings = sourceMappings.values().iterator();
     while (mappings.hasNext()) {
-      PSDisplayMapping mapping = (PSDisplayMapping) mappings.next();
+      PSDisplayMapping mapping = mappings.next();
       addMapping(resultMapper, sourceDefaultUI, mapping);
     }
     return resultMapper;
@@ -882,9 +883,9 @@ public final class PSDisplayMapper extends PSCollectionComponent {
   private int setMapperIds(int nextId) {
     if (getId() == -1) setId(nextId++);
 
-    Iterator mappings = iterator();
+    Iterator<PSDisplayMapping> mappings = iterator();
     while (mappings.hasNext()) {
-      PSDisplayMapping mapping = (PSDisplayMapping) mappings.next();
+      PSDisplayMapping mapping = mappings.next();
       PSDisplayMapper childMapper = mapping.getDisplayMapper();
       if (childMapper != null) {
         nextId = childMapper.setMapperIds(nextId);
@@ -901,9 +902,9 @@ public final class PSDisplayMapper extends PSCollectionComponent {
    */
   private int getHighestMapperId() {
     int highId = getId();
-    Iterator mappings = iterator();
+    Iterator<PSDisplayMapping> mappings = iterator();
     while (mappings.hasNext()) {
-      PSDisplayMapping mapping = (PSDisplayMapping) mappings.next();
+      PSDisplayMapping mapping = mappings.next();
       PSDisplayMapper childMapper = mapping.getDisplayMapper();
       if (childMapper != null) {
         int childId = childMapper.getHighestMapperId();
@@ -924,7 +925,7 @@ public final class PSDisplayMapper extends PSCollectionComponent {
       PSDisplayMapper localMapper,
       boolean demergeDefault,
       Iterator defaultUISet,
-      List fieldExcludes,
+      List<?> fieldExcludes,
       PSDisplayMapper sourceMapper,
       Iterator sourceDefaultUI,
       boolean demergeChild)
@@ -934,11 +935,11 @@ public final class PSDisplayMapper extends PSCollectionComponent {
      * replacement list and replace the actual mappings.  This is so we don't
      * modify the mapper under the iterator while we walk it.
      */
-    ArrayList replacementMappings = new ArrayList();
+    ArrayList<PSDisplayMapping> replacementMappings = new ArrayList<>();
 
-    Iterator mappings = localMapper.iterator();
+    Iterator<PSDisplayMapping> mappings = localMapper.iterator();
     while (mappings.hasNext()) {
-      PSDisplayMapping mapping = (PSDisplayMapping) mappings.next();
+      PSDisplayMapping mapping = mappings.next();
       String fieldRef = mapping.getFieldRef();
 
       // If it is in the fieldExcludes section, then it might be a local field
@@ -979,9 +980,9 @@ public final class PSDisplayMapper extends PSCollectionComponent {
     }
 
     // now set all the replacement mappings we've created
-    Iterator i = replacementMappings.iterator();
+    Iterator<PSDisplayMapping> i = replacementMappings.iterator();
     while (i.hasNext()) {
-      PSDisplayMapping tmpMapping = (PSDisplayMapping) i.next();
+      PSDisplayMapping tmpMapping = i.next();
       localMapper.replaceMapping(tmpMapping);
     }
   }
@@ -1073,20 +1074,20 @@ public final class PSDisplayMapper extends PSCollectionComponent {
       Iterator targetDefaultUI)
       throws PSSystemValidationException {
     // build map of source mappings
-    HashMap sourceMappings = new HashMap();
-    Iterator mappings = sourceChildMapper.iterator();
+    Map<String, PSDisplayMapping> sourceMappings = new HashMap<>();
+    Iterator<PSDisplayMapping> mappings = sourceChildMapper.iterator();
     while (mappings.hasNext()) {
-      PSDisplayMapping mapping = (PSDisplayMapping) mappings.next();
+      PSDisplayMapping mapping = mappings.next();
       sourceMappings.put(mapping.getFieldRef(), mapping);
     }
 
     // walk target and demerge
     mappings = targetChildMapper.iterator();
-    ArrayList replacementMappings = new ArrayList();
+    ArrayList<PSDisplayMapping> replacementMappings = new ArrayList<>();
     while (mappings.hasNext()) {
-      PSDisplayMapping mapping = (PSDisplayMapping) mappings.next();
+      PSDisplayMapping mapping = mappings.next();
       String fieldRef = mapping.getFieldRef();
-      PSDisplayMapping sourceChildMapping = (PSDisplayMapping) sourceMappings.get(fieldRef);
+      PSDisplayMapping sourceChildMapping = sourceMappings.get(fieldRef);
 
       if (sourceChildMapping != null) {
         /* demerge with field in target, this will recurse any children

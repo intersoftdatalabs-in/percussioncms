@@ -32,7 +32,7 @@ import org.w3c.dom.Element;
  * @version 1.0
  * @since 1.0
  */
-public class PSLiteralSet extends PSCollectionComponent implements IPSReplacementValue {
+public class PSLiteralSet extends PSCollectionComponent<PSLiteral> implements IPSReplacementValue {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
@@ -59,7 +59,7 @@ public class PSLiteralSet extends PSCollectionComponent implements IPSReplacemen
     super(className);
   }
 
-  public PSLiteralSet(Class type) {
+  public PSLiteralSet(Class<? extends PSLiteral> type) {
     super(type);
   }
 

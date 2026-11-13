@@ -766,7 +766,7 @@ public final class PSField extends PSComponent {
   public PSPropertySet getProperties() {
     PSPropertySet propertySet = new PSPropertySet();
     Iterator properties = m_properties.values().iterator();
-    while (properties.hasNext()) propertySet.add(properties.next());
+    while (properties.hasNext()) propertySet.add((PSProperty) properties.next());
 
     return propertySet;
   }

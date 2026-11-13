@@ -27,11 +27,12 @@ import org.w3c.dom.Element;
  * The PSCollectionComponent class implements some of the IPSComponent interface as a convenience to
  * objects extending this class which are also extensions of the collection class.
  *
+ * @param <E> the element type held by this collection component
  * @author Tas Giakouminakis
  * @version 1.0
  * @since 1.0
  */
-public abstract class PSCollectionComponent extends com.percussion.util.PSCollection
+public abstract class PSCollectionComponent<E> extends com.percussion.util.PSCollection<E>
     implements IPSComponent {
 
   /**
@@ -47,7 +48,7 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
    * @param root the element to add the XML objects to
    * @param coll a collection containing IPSComponent objects
    */
-  public static void appendCollectionToXml(Document doc, Element root, PSCollection coll) {
+  public static void appendCollectionToXml(Document doc, Element root, PSCollection<?> coll) {
     if (coll != null) {
       IPSComponent entry;
       int size = coll.size();
@@ -75,7 +76,7 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
    * @param cl the class which this collection's members must be or extend
    * @param initialCapacity the initial capacity of the collection.
    */
-  public PSCollectionComponent(Class cl, int initialCapacity) {
+  public PSCollectionComponent(Class<? extends E> cl, int initialCapacity) {
     super(cl, initialCapacity);
   }
 
@@ -84,7 +85,7 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
    *
    * @param cl the class which this collection's members must be or extend
    */
-  protected PSCollectionComponent(Class cl) {
+  protected PSCollectionComponent(Class<? extends E> cl) {
     super(cl);
   }
 
@@ -112,7 +113,7 @@ public abstract class PSCollectionComponent extends com.percussion.util.PSCollec
    *
    * @param c a valid PSComponent.
    */
-  public void copyFrom(PSCollectionComponent c) {
+  public void copyFrom(PSCollectionComponent<E> c) {
     if (null == c) throw new IllegalArgumentException("invalid object for copy");
     setId(c.getId());
     // copy all elements in supplied collection to this one

@@ -31,7 +31,7 @@ import org.w3c.dom.Element;
  * This class encapsulates a collection of <code>PSProperty</code> objects as a <code>
  * PSCollectionComponent</code>.
  */
-public class PSPropertySet extends PSCollectionComponent {
+public class PSPropertySet extends PSCollectionComponent<PSProperty> {
   /** Constucts an empty property set. */
   public PSPropertySet() {
     super(PSProperty.class);
@@ -190,7 +190,7 @@ public class PSPropertySet extends PSCollectionComponent {
   public Object clone() {
     PSPropertySet clone = new PSPropertySet();
     Iterator iter = iterator();
-    while (iter.hasNext()) clone.add(((PSProperty) iter.next()).clone());
+    while (iter.hasNext()) clone.add((PSProperty) ((PSProperty) iter.next()).clone());
 
     return clone;
   }

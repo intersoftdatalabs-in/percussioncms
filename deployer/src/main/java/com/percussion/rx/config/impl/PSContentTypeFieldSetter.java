@@ -637,9 +637,7 @@ public class PSContentTypeFieldSetter extends PSSimplePropertySetter {
    * @param itemDef the Content Type contains the current field, assumed not <code>null</code>.
    * @param seqValue the sequence value in String format, may not be <code>null</code> or empty.
    */
-  // PSDisplayMapper inherits raw insertElementAt from legacy-raw PSCollectionComponent
-  // (system module); the element type is PSDisplayMapping by construction.
-  @SuppressWarnings("unchecked")
+  // PSDisplayMapper is PSCollectionComponent<PSDisplayMapping>; insertElementAt is checked.
   private void setSequence(PSItemDefinition itemDef, String seqValue) {
     if (StringUtils.isBlank(seqValue))
       throw new IllegalArgumentException("seqVaule may not be null or empty.");

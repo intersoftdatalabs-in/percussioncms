@@ -1623,7 +1623,7 @@ public class PSUpgradePluginRelationship implements IPSUpgradePlugin {
         // get the current properties
         PSPropertySet userProps = new PSPropertySet();
         Iterator<?> props = config.getUserDefProperties();
-        while (props.hasNext()) userProps.add(props.next());
+        while (props.hasNext()) userProps.add((PSProperty) props.next());
 
         // add the missing properties
         for (String propName : missingNames) {

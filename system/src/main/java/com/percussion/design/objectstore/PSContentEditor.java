@@ -421,7 +421,7 @@ public final class PSContentEditor extends PSDataSet {
    * @return the group validation rules (a collection of PSConditionalExit objects), never <code>
    *     null</code>, might be empty.
    */
-  public Iterator getValidationRules() {
+  public Iterator<PSConditionalExit> getValidationRules() {
     return m_validationRules.iterator();
   }
 
@@ -453,7 +453,7 @@ public final class PSContentEditor extends PSDataSet {
    * @return the group input translations (a collection of PSConditionalExit objects), never <code>
    *     null</code> might be empty.
    */
-  public Iterator getInputTranslations() {
+  public Iterator<PSConditionalExit> getInputTranslations() {
     return m_inputTranslations.iterator();
   }
 
@@ -473,7 +473,7 @@ public final class PSContentEditor extends PSDataSet {
    * @return the group output translations (a collection of PSConditionalExit objects), never <code>
    *     null</code> might be empty.
    */
-  public Iterator getOutputTranslations() {
+  public Iterator<PSConditionalExit> getOutputTranslations() {
     return m_outputTranslations.iterator();
   }
 

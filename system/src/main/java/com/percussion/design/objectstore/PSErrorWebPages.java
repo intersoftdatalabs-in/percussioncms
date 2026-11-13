@@ -44,7 +44,7 @@ import org.w3c.dom.Element;
  * @version 1.0
  * @since 1.0
  */
-public class PSErrorWebPages extends PSCollectionComponent {
+public class PSErrorWebPages extends PSCollectionComponent<PSCustomError> {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
@@ -106,7 +106,7 @@ public class PSErrorWebPages extends PSCollectionComponent {
    * @param errPages a valid PSErrorWebPages.
    */
   public void copyFrom(PSErrorWebPages errPages) {
-    copyFrom((PSCollectionComponent) errPages);
+    super.copyFrom(errPages);
     // assume object is valid
     // must use errPages as source (bug id TGIS-4BPTR6)
     m_html = errPages.m_html;

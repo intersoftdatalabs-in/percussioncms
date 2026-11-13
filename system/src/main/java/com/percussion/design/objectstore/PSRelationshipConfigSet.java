@@ -27,7 +27,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** A collection of PSRelationshipConfig objects. */
-public class PSRelationshipConfigSet extends PSCollectionComponent implements IPSConfig {
+public class PSRelationshipConfigSet extends PSCollectionComponent<PSRelationshipConfig> implements IPSConfig {
   /**
    * Construct a Java object from its XML representation.
    *

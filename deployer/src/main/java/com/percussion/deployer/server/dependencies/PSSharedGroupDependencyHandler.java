@@ -93,7 +93,7 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
   public Iterator<PSDependency> getDependencies(PSSecurityToken tok) throws PSDeployException {
     var sharedDef = PSDependencyUtils.getSharedDef();
     List<PSDependency> deps = new ArrayList<>();
-    // PSContentEditorSharedDef.getFieldGroups() is a raw Iterator (system module).
+    // PSContentEditorSharedDef.getFieldGroups() is Iterator<PSSharedFieldGroup> since #6132.
     Iterator<?> groups = sharedDef.getFieldGroups();
     while (groups != null && groups.hasNext()) {
       Object grp = groups.next();
@@ -375,7 +375,7 @@ public class PSSharedGroupDependencyHandler extends PSContentEditorObjectDepende
       List<PSApplicationIDTypeMapping> mappings = new ArrayList<>();
       String groupName = dep.getDependencyId();
       PSSharedFieldGroup sharedGroup = null;
-      // PSContentEditorSharedDef.getFieldGroups() is a raw Iterator (system module).
+      // PSContentEditorSharedDef.getFieldGroups() is Iterator<PSSharedFieldGroup> since #6132.
       Iterator<?> groups = sharedDef.getFieldGroups();
       while (groups.hasNext() && sharedGroup == null) {
         PSSharedFieldGroup test = (PSSharedFieldGroup) groups.next();

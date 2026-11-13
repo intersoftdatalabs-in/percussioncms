@@ -222,8 +222,8 @@ public final class PSContentEditorSystemDef implements IPSDocument {
    *
    * @return The iterator, never <code>null</code>, may be empty.
    */
-  public Iterator getValidationRules() {
-    Iterator results = null;
+  public Iterator<PSConditionalExit> getValidationRules() {
+    Iterator<PSConditionalExit> results = null;
 
     if (m_groupValidations != null) results = m_groupValidations.iterator();
     else {
@@ -240,8 +240,8 @@ public final class PSContentEditorSystemDef implements IPSDocument {
    *
    * @return The iterator, never <code>null</code>, may be empty.
    */
-  public Iterator getInputTranslations() {
-    Iterator results = null;
+  public Iterator<PSConditionalExit> getInputTranslations() {
+    Iterator<PSConditionalExit> results = null;
 
     if (m_inputTranslations != null) results = m_inputTranslations.iterator();
     else {
@@ -258,8 +258,8 @@ public final class PSContentEditorSystemDef implements IPSDocument {
    *
    * @return The iterator, never <code>null</code>, may be empty.
    */
-  public Iterator getOutputTranslations() {
-    Iterator results = null;
+  public Iterator<PSConditionalExit> getOutputTranslations() {
+    Iterator<PSConditionalExit> results = null;
 
     if (m_outputTranslations != null) results = m_outputTranslations.iterator();
     else {

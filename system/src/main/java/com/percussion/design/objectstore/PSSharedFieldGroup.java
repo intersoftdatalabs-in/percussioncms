@@ -186,7 +186,7 @@ public final class PSSharedFieldGroup extends PSComponent {
    *
    * @return the validation rules, never <code>null</code>, might be empty.
    */
-  public Iterator getValidationRules() {
+  public Iterator<PSConditionalExit> getValidationRules() {
     return m_validationRules.iterator();
   }
 
@@ -205,7 +205,7 @@ public final class PSSharedFieldGroup extends PSComponent {
    *
    * @return the input translations, never <code>null</code>, might be empty.
    */
-  public Iterator getInputTranslations() {
+  public Iterator<PSConditionalExit> getInputTranslations() {
     return m_inputTranslations.iterator();
   }
 
@@ -224,7 +224,7 @@ public final class PSSharedFieldGroup extends PSComponent {
    *
    * @return the output translations, never <code>null</code>, might be empty.
    */
-  public Iterator getOutputTranslations() {
+  public Iterator<PSConditionalExit> getOutputTranslations() {
     return m_outputTranslations.iterator();
   }
 

@@ -26,7 +26,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implements the PSXApplyWhen DTD in BasicObjects.dtd. */
-public class PSApplyWhen extends PSCollectionComponent {
+public class PSApplyWhen extends PSCollectionComponent<PSRule> {
   /** Create a new apply when collection (a collection of PSRule objects). */
   public PSApplyWhen() {
     super((new PSRule()).getClass());

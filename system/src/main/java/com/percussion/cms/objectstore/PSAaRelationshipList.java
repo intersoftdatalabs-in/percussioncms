@@ -37,7 +37,7 @@ import org.w3c.dom.Element;
  */
 // REFACTORED: CP-JAVA11
 // Final leaf — Element ctor restores via private fromXmlLoad without subclass this-escape.
-public final class PSAaRelationshipList extends PSCollectionComponent {
+public final class PSAaRelationshipList extends PSCollectionComponent<PSAaRelationship> {
   /** Constructs an empty active assembly relationship list. */
   public PSAaRelationshipList() {
     super(PSAaRelationship.class);
@@ -95,7 +95,9 @@ public final class PSAaRelationshipList extends PSCollectionComponent {
         PSRelationship relationship =
             new PSRelationship(node, parentDoc, parentComponents);
         // Direct list insert — avoid overridable add() during construction (this-escape).
-        super.add(relationship);
+        // Wrap in PSAaRelationship: this list's member class (enforced at compile time
+        // since #6132; previously a raw add() that threw ClassCastException here).
+        super.add(new PSAaRelationship(relationship));
         node = tree.getNextElement(PSRelationship.XML_NODE_NAME, nextFlags);
       }
     } finally {
@@ -113,8 +115,8 @@ public final class PSAaRelationshipList extends PSCollectionComponent {
    * @see java.util.List#get(int) for more details.
    */
   @Override
-  public Object get(int index) {
-    PSAaRelationship rel = (PSAaRelationship) super.get(index);
+  public PSAaRelationship get(int index) {
+    PSAaRelationship rel = super.get(index);
     rel.setProperty(IPSHtmlParameters.SYS_SORTRANK, String.valueOf(index));
     return rel;
   }

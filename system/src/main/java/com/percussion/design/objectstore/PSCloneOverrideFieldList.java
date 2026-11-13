@@ -36,7 +36,7 @@ import org.w3c.dom.NodeList;
  *
  * @author RammohanVangapalli
  */
-public class PSCloneOverrideFieldList extends PSCollectionComponent {
+public class PSCloneOverrideFieldList extends PSCollectionComponent<PSCloneOverrideField> {
 
   private static final Logger log = LogManager.getLogger(PSCloneOverrideFieldList.class);
 
@@ -112,8 +112,8 @@ public class PSCloneOverrideFieldList extends PSCollectionComponent {
    */
   public Object clone() {
     PSCloneOverrideFieldList filedList = new PSCloneOverrideFieldList();
-    Iterator iter = iterator();
-    while (iter.hasNext()) filedList.add(((PSCloneOverrideField) iter.next()).clone());
+    Iterator<PSCloneOverrideField> iter = iterator();
+    while (iter.hasNext()) filedList.add((PSCloneOverrideField) iter.next().clone());
     return filedList;
   }
 

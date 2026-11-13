@@ -81,7 +81,7 @@ public class PSCollectionComponentSerializationTest {
   }
 
   /** Minimal concrete {@link PSCollectionComponent} for Java serialization tests only. */
-  private static final class TestCollectionComponent extends PSCollectionComponent {
+  private static final class TestCollectionComponent extends PSCollectionComponent<String> {
 
     private static final long serialVersionUID = 1L;
 

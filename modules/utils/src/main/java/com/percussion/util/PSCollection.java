@@ -27,10 +27,11 @@ import java.util.Objects;
  * or removed from the collection. All objects in the collection must be of the same class.
  *
  * <p>Parameterized as {@code PSConcurrentList<E>} so a typed collection is {@code List<E>} (and
- * {@code iterator()} is {@code Iterator<E>}). Raw {@code PSCollection} (historical product
- * subclasses such as {@code PSCollectionComponent}) stay a raw list, so covariant {@code
- * iterator()} overrides remain legal. Do not lock the public type to {@code List<Object>} — that
- * makes {@code Iterator<Specific>} incompatible with {@code List.iterator()}.
+ * {@code iterator()} is {@code Iterator<E>}). Raw {@code PSCollection} subclasses stay a raw list,
+ * so covariant {@code iterator()} overrides remain legal. Product collections ({@code
+ * PSCollectionComponent<E>} and its subclasses) bind {@code E} to their member type. Do not lock
+ * the public type to {@code List<Object>} — that makes {@code Iterator<Specific>} incompatible
+ * with {@code List.iterator()}.
  *
  * <p>Runtime membership is still enforced via {@link #m_memberClass}.
  *

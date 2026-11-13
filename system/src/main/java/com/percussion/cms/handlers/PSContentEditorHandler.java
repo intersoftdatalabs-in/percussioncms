@@ -38,6 +38,7 @@ import com.percussion.design.objectstore.PSApplicationFlow;
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSCommandHandlerStylesheets;
 import com.percussion.design.objectstore.PSConditional;
+import com.percussion.design.objectstore.PSConditionalExit;
 import com.percussion.design.objectstore.PSConditionalView;
 import com.percussion.design.objectstore.PSContainerLocator;
 import com.percussion.design.objectstore.PSContentEditor;
@@ -953,7 +954,7 @@ public class PSContentEditorHandler
     if (contentEditor == null) throw new IllegalArgumentException("contentEditor may not be null");
 
     PSValidationRules rules = new PSValidationRules();
-    Iterator ruleWalker;
+    Iterator<PSConditionalExit> ruleWalker;
 
     // Add system validations
     ruleWalker = m_systemDef.getValidationRules();
@@ -995,7 +996,7 @@ public class PSContentEditorHandler
     if (contentEditor == null) throw new IllegalArgumentException("contentEditor may not be null");
 
     PSInputTranslations translations = new PSInputTranslations();
-    Iterator translationWalker;
+    Iterator<PSConditionalExit> translationWalker;
 
     // Add system translations
     translationWalker = m_systemDef.getInputTranslations();
@@ -1039,7 +1040,7 @@ public class PSContentEditorHandler
 
     PSOutputTranslations translations = null;
     translations = new PSOutputTranslations();
-    Iterator translationWalker;
+    Iterator<PSConditionalExit> translationWalker;
 
     // Add system translations
     translationWalker = m_systemDef.getOutputTranslations();

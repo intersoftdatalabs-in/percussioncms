@@ -271,8 +271,6 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
   }
 
   // see base class
-  // Legacy-raw PSRelationshipSet (system module) backs add() with raw PSCollection.add(E).
-  @SuppressWarnings("unchecked")
   public void installDependencyFiles(
       PSSecurityToken tok, PSArchiveHandler archive, PSDependency dep, PSImportCtx ctx)
       throws PSDeployException {
@@ -616,8 +614,6 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
    *     method, assumed not <code>null</code>, may be empty.
    * @throws PSDeployException if there are any errors.
    */
-  // Legacy-raw PSRelationshipSet (system module) backs add() with raw PSCollection.add(E).
-  @SuppressWarnings("unchecked")
   private void processFieldSet(
       PSDependency dep,
       PSImportCtx ctx,
@@ -959,8 +955,6 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
    * @param modifiedSet The set of modified relationships populated by this method, assumed not
    *     <code>null</code>.
    */
-  // Legacy-raw PSRelationshipSet (system module) backs add() with raw PSCollection.add(E).
-  @SuppressWarnings("unchecked")
   private void updateChildInlineProperties(
       List<PSRelationship> modifiedLinks,
       Map<String, String> fieldMap,
@@ -984,8 +978,6 @@ public class PSContentRelationDependencyHandler extends PSIdTypeDependencyHandle
    * @param modifiedSet The set of modified relationships populated by this method, assumed not
    *     <code>null</code>.
    */
-  // Legacy-raw PSRelationshipSet (system module) backs add() with raw PSCollection.add(E).
-  @SuppressWarnings("unchecked")
   private void updateChildInlineProperty(
       PSRelationship mod,
       Map<String, String> fieldMap,
