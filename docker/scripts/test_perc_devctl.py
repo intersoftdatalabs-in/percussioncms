@@ -1181,12 +1181,292 @@ class TestQaDownRealMode(unittest.TestCase):
         )
 
 
+class TestQaWithDts(unittest.TestCase):
+    """Slice 2 of #6237 (spec 2402-qa-dts-publish): ``--with-dts`` bring-up.
+
+    ``qa-up --with-dts`` brings up a Tomcat DTS cell beside CMS,
+    ``qa-health`` dual-gates Jetty + Tomcat, ``qa-down`` removes both.
+    The default (flag absent) path must stay byte-identical.
+    """
+
+    def setUp(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo_root = _stub_repo_root(Path(self.td.name))
+        matrix = self.repo_root / "docker" / "scripts" / "matrix-install-smoke.py"
+        matrix.write_text("# stub\n", encoding="utf-8")
+        self.runner = _CliRunner(self.repo_root)
+        # Do not docker-exec a live cell from unit tests (#2556 log scan).
+        self._slog = unittest.mock.patch.object(
+            pdc, "_docker_read_server_log", return_value=""
+        )
+        self._slog.start()
+        self.addCleanup(self._slog.stop)
+
+    def test_qa_up_default_banner_has_no_dts_contract(self):
+        """AC5 (first half): default qa-up output unchanged by slice 2."""
+        rc, out = self.runner.run(["qa-up", "--timeout-seconds", "60"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-up", out)
+        self.assertIn("TEST_CMS_URL=", out)
+        self.assertNotIn("STEP:qa-up-dts", out)
+        self.assertNotIn("QA_DTS_HOST_PORT=", out)
+        self.assertNotIn("DTS_URL=", out)
+        self.assertNotIn("PUBLISHED_SITE_URL=", out)
+        self.assertNotIn("PUBLISHED_CATEGORY_URL=", out)
+
+    def test_qa_up_with_dts_dry_run_banner(self):
+        rc, out = self.runner.run(
+            ["qa-up", "--with-dts", "--timeout-seconds", "60"]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-up", out)
+        self.assertIn("RESULT:OK STEP:qa-up-dts", out)
+        self.assertRegex(out, r"QA_DTS_HOST_PORT=\d+")
+        self.assertRegex(out, r"DTS_URL=http://127\.0\.0\.1:\d+")
+        self.assertRegex(out, r"PUBLISHED_SITE_URL=http://127\.0\.0\.1:\d+")
+        self.assertRegex(
+            out, r"PUBLISHED_CATEGORY_URL=http://127\.0\.0\.1:\d+/"
+        )
+
+    def test_qa_matrix_up_argv_product_dts(self):
+        argv = pdc._qa_matrix_up_argv(
+            self.repo_root,
+            probe_timeout=120,
+            skip_image_build=False,
+            dry_run=True,
+            product="dts",
+            db="h2",
+        )
+        self.assertIn("--product", argv)
+        self.assertIn("dts", argv)
+        self.assertIn("--db", argv)
+        self.assertIn("h2", argv)
+        self.assertIn("--keep", argv)
+        self.assertNotIn("cms", argv)
+
+    def test_qa_matrix_up_argv_defaults_to_cms(self):
+        argv = pdc._qa_matrix_up_argv(
+            self.repo_root,
+            probe_timeout=120,
+            skip_image_build=False,
+            dry_run=True,
+        )
+        self.assertIn("cms", argv)
+        self.assertNotIn("dts", argv)
+
+    def test_resolve_qa_dts_host_port_prefers_dts_host_port_env(self):
+        os.environ["DTS_HOST_PORT"] = "18081"
+        os.environ["DTS_PORT"] = "18082"
+        self.assertEqual(pdc.resolve_qa_dts_host_port(), 18081)
+
+    def test_resolve_qa_dts_host_port_falls_back_to_dts_port(self):
+        os.environ["DTS_PORT"] = "18082"
+        self.assertEqual(pdc.resolve_qa_dts_host_port(), 18082)
+
+    def test_ensure_qa_dts_host_port_pins_discovery_env(self):
+        port = pdc.ensure_qa_dts_host_port()
+        self.assertEqual(os.environ.get("DTS_HOST_PORT"), str(port))
+        self.assertGreater(port, 0)
+
+    def test_qa_dts_probe_url_is_tomcat_root(self):
+        self.assertEqual(
+            pdc.qa_dts_probe_url(9983), "http://127.0.0.1:9983/"
+        )
+        self.assertEqual(
+            pdc.qa_dts_base_url(9983), "http://127.0.0.1:9983"
+        )
+
+    def test_qa_dts_constants_align_with_matrix(self):
+        self.assertEqual(pdc.QA_DTS_CONTAINER, "perc-matrix-dts-h2")
+        self.assertEqual(pdc.PREFERRED_QA_DTS_HOST_PORT, 9983)
+        self.assertEqual(pdc.QA_DTS_CONTAINER_PORT, 9980)
+
+    def test_parse_qa_up_log_dts_host_port(self):
+        text = "QA_CMS_HOST_PORT=9993\nQA_DTS_HOST_PORT=9983\n"
+        self.assertEqual(pdc.parse_qa_up_log_dts_host_port(text), 9983)
+        # CMS resolver stays on the CMS publish port for a combined log.
+        self.assertEqual(pdc.parse_qa_up_log_host_port(text), 9993)
+
+    def test_qa_health_dry_run_default_has_no_dts(self):
+        rc, out = self.runner.run(["qa-health", "--timeout-seconds", "30"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-health", out)
+        self.assertNotIn("DTS_HTTP", out)
+        self.assertNotIn("DTS_URL", out)
+
+    def test_qa_health_with_dts_dry_run(self):
+        rc, out = self.runner.run(
+            ["qa-health", "--with-dts", "--timeout-seconds", "30"]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-health", out)
+        self.assertIn("DTS_HTTP:200", out)
+        self.assertRegex(out, r"DTS_URL:http://127\.0\.0\.1:\d+/")
+
+    def _live_health_mocks(self, *, dts_present, cms_code=200, dts_code=200):
+        """Patch docker/log probes for hermetic live qa-health runs."""
+        os.environ["QA_CMS_HOST_PORT"] = "19993"
+        os.environ["DTS_HOST_PORT"] = "19983"
+
+        def fake_curl(url, timeout=5.0):
+            return dts_code if url == pdc.qa_dts_probe_url(19983) else cms_code
+
+        patches = [
+            unittest.mock.patch.object(
+                pdc, "_docker_container_present", return_value=dts_present
+            ),
+            unittest.mock.patch.object(pdc, "_curl_status", side_effect=fake_curl),
+            unittest.mock.patch.object(pdc, "_docker_health", return_value="healthy"),
+            unittest.mock.patch.object(
+                pdc, "_docker_logs_tail",
+                return_value="INFO [Server] Started @7879ms\n",
+            ),
+            unittest.mock.patch.object(pdc, "published_qa_cms_host_port", return_value=None),
+            unittest.mock.patch.object(pdc, "published_qa_dts_host_port", return_value=None),
+            unittest.mock.patch.object(pdc.time, "sleep"),
+        ]
+        for p in patches:
+            p.start()
+            self.addCleanup(p.stop)
+
+    def _run_live_health(self, extra):
+        import io
+        from contextlib import redirect_stdout
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = pdc.main(
+                ["--repo-root", str(self.repo_root), "qa-health",
+                 "--timeout-seconds", "10", "--interval-seconds", "10",
+                 *extra]
+            )
+        return rc, buf.getvalue()
+
+    def test_qa_health_with_dts_missing_cell_fails_fast(self):
+        curl = unittest.mock.Mock(return_value=200)
+        with unittest.mock.patch.object(
+            pdc, "_docker_container_present", return_value=False
+        ), unittest.mock.patch.object(
+            pdc, "_curl_status", curl
+        ), unittest.mock.patch.object(
+            pdc.time, "sleep"
+        ):
+            rc, out = self._run_live_health(["--with-dts"])
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("RESULT:FAIL STEP:qa-health", out)
+        self.assertIn("DETAIL:dts_container_missing", out)
+        curl.assert_not_called()
+
+    def test_qa_health_dual_gate_success(self):
+        self._live_health_mocks(dts_present=True)
+        rc, out = self._run_live_health(["--with-dts"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-health", out)
+        self.assertIn("HTTP:200", out)
+        self.assertIn("DTS_HTTP:200", out)
+        self.assertIn("DTS_URL:http://127.0.0.1:19983/", out)
+
+    def test_qa_health_auto_detect_gates_running_dts(self):
+        """Plain qa-health still gates a running DTS cell (no flag)."""
+        self._live_health_mocks(dts_present=True, dts_code=0)
+        rc, out = self._run_live_health([])
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("DTS_HTTP:0", out)
+        self.assertIn("DTS_URL:http://127.0.0.1:19983/", out)
+
+    def test_qa_health_dts_down_blocks_with_dts_flag(self):
+        self._live_health_mocks(dts_present=True, dts_code=0)
+        rc, out = self._run_live_health(["--with-dts"])
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("DTS_HTTP:0", out)
+
+    def test_qa_health_no_dts_cell_no_flag_is_cms_only(self):
+        self._live_health_mocks(dts_present=False)
+        rc, out = self._run_live_health([])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-health", out)
+        self.assertNotIn("DTS_HTTP", out)
+
+    def test_qa_down_default_also_removes_dts(self):
+        captured = []
+
+        def fake_run(argv, *args, **kwargs):
+            captured.append(list(argv))
+            return subprocess.CompletedProcess(
+                args=argv, returncode=0, stdout="", stderr=""
+            )
+
+        import io
+        from contextlib import redirect_stdout
+        buf = io.StringIO()
+        with unittest.mock.patch.object(pdc.subprocess, "run", side_effect=fake_run):
+            with redirect_stdout(buf):
+                rc = pdc.main(["--repo-root", str(self.repo_root), "qa-down"])
+        out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-down", out)
+        self.assertIn("RESULT:OK STEP:qa-down-dts", out)
+        argv_strs = [" ".join(a) for a in captured]
+        self.assertTrue(
+            any(pdc.QA_CMS_CONTAINER in a for a in argv_strs),
+            msg=f"expected CMS rm in {captured!r}",
+        )
+        self.assertTrue(
+            any(pdc.QA_DTS_CONTAINER in a for a in argv_strs),
+            msg=f"expected DTS rm in {captured!r}",
+        )
+
+    def test_qa_down_custom_container_skips_dts(self):
+        captured = []
+
+        def fake_run(argv, *args, **kwargs):
+            captured.append(list(argv))
+            return subprocess.CompletedProcess(
+                args=argv, returncode=0, stdout="", stderr=""
+            )
+
+        import io
+        from contextlib import redirect_stdout
+        buf = io.StringIO()
+        with unittest.mock.patch.object(pdc.subprocess, "run", side_effect=fake_run):
+            with redirect_stdout(buf):
+                rc = pdc.main(
+                    ["--repo-root", str(self.repo_root),
+                     "qa-down", "--container", "some-other-cell"]
+                )
+        out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-down", out)
+        self.assertNotIn("STEP:qa-down-dts", out)
+
+    def test_qa_down_dry_run_default_includes_dts_step(self):
+        rc, out = self.runner.run(["qa-down"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-down", out)
+        self.assertIn("RESULT:OK STEP:qa-down-dts", out)
+        self.assertIn(f"QA_CONTAINER:{pdc.QA_DTS_CONTAINER}", out)
+
+    def test_qa_rebuild_chain_then_qa_up_forwards_with_dts(self):
+        _clear_port_env()
+        rc, out = self.runner.run(
+            ["qa-rebuild-chain", "--skip-tests", "--then-qa-up",
+             "--skip-webui-deploy", "--with-dts"]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-up", out)
+        self.assertIn("RESULT:OK STEP:qa-up-dts", out)
+        self.assertIn("DTS_URL=", out)
+        self.assertIn("PUBLISHED_SITE_URL=", out)
+        self.assertIn("PUBLISHED_CATEGORY_URL=", out)
+
+
 class TestMain(unittest.TestCase):
     def test_main_help(self):
         with self.assertRaises(SystemExit) as cm:
             pdc.main(["--help"])
         self.assertEqual(cm.exception.code, 0)
-
 
 class TestFreeportAndUrlWiring(unittest.TestCase):
     """#2001 — freeport allocator + env override + verify/QA URL wiring."""

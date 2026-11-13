@@ -25,7 +25,10 @@ wrapper (``mvnw`` / ``mvnw.cmd``), ``pathlib.Path``, and
    (``installDistributionFiles.xml`` copies that tree; #4695).
 6. ``modules/perc-common-ui-bundle`` — ``package -DskipTests`` when
    ``perc_common_ui.js`` is missing from ``target/classes`` (#4695).
-7. ``modules/perc-distribution-tree`` — ``clean package -DskipTests``
+7. ``deliverytiersuite/delivery-tier-suite/delivery-tier-distribution`` —
+   ``package -DskipTests`` when ``target/delivery-tier-distribution.jar``
+   is missing (shipped DTS installer for ``qa-up --with-dts``; #6237).
+8. ``modules/perc-distribution-tree`` — ``clean package -DskipTests``
 
 Each step emits a parseable ``RESULT:OK`` / ``RESULT:FAIL`` line. ``--dry-run``
 prints the planned argv + cwd for every step and never invokes Maven.
@@ -82,6 +85,13 @@ COMMON_UI_JS_REL = (
     / "js"
     / "perc_common_ui.js"
 )
+# Shipped DTS installer assembly (maven-assembly ``jar-with-dependencies``,
+# ``finalName`` delivery-tier-distribution) consumed by the ``--with-dts``
+# QA cell (matrix ``dts`` product; spec 2402-qa-dts-publish, #6237).
+DTS_DIST_REL = (
+    Path("deliverytiersuite") / "delivery-tier-suite" / "delivery-tier-distribution"
+)
+DTS_DIST_JAR_NAME = "delivery-tier-distribution.jar"
 
 # Callable matching subprocess.run for tests to inject stubs.
 RunFn = Callable[..., subprocess.CompletedProcess]
@@ -205,6 +215,32 @@ def common_ui_bundle_step() -> ChainStep:
     )
 
 
+def dts_distribution_jar_path(repo_root: Path) -> Path:
+    """Shipped DTS installer jar the ``--with-dts`` QA cell mounts (#6237)."""
+    return (
+        repo_root / DTS_DIST_REL / "target" / DTS_DIST_JAR_NAME
+    ).resolve()
+
+
+def dts_distribution_present(repo_root: Path) -> bool:
+    """True when the DTS installer assembly is already built and non-empty."""
+    path = dts_distribution_jar_path(repo_root)
+    try:
+        return path.is_file() and path.stat().st_size > 0
+    except OSError:
+        return False
+
+
+def dts_distribution_step() -> ChainStep:
+    """Package delivery-tier-distribution so the DTS cell can install (#6237)."""
+    return ChainStep(
+        label="qa-rebuild-dts-distribution",
+        module_rel=DTS_DIST_REL,
+        goals=("package",),
+        extra_args=("-DskipTests",),
+    )
+
+
 def resolve_mvnw(repo_root: Path) -> Path:
     """Return the repo-root Maven wrapper path for this OS.
 
@@ -243,6 +279,7 @@ def plan_chain(
         secure_membership_step(),
         tinymce_step(),
         common_ui_bundle_step(),
+        dts_distribution_step(),
         ChainStep(
             label="qa-rebuild-dist",
             module_rel=Path("modules") / "perc-distribution-tree",
@@ -392,6 +429,13 @@ def run_chain(
                 "common-ui-bundle-present "
                 f"PATH:{common_ui_bundle_js_path(repo_root)}"
             )
+        elif step.label == "qa-rebuild-dts-distribution" and dts_distribution_present(
+            repo_root
+        ):
+            skip_reason = (
+                "dts-distribution-present "
+                f"PATH:{dts_distribution_jar_path(repo_root)}"
+            )
         if skip_reason is not None:
             skip_line = f"SKIP STEP:{step.label} REASON:{skip_reason}"
             print(skip_line)
@@ -469,6 +513,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
             "Run the QA Maven rebuild chain: sitemanage install → "
             "WebUI package → license:aggregate-add-third-party (no -N) → "
             "secure-membership package → perc-tinymce package (#4695) → "
+            "perc-common-ui-bundle package (#4695) → "
+            "delivery-tier-distribution package (#6237) → "
             "perc-distribution-tree package (#2533 / #4420). "
             "Uses repo-root mvnw/mvnw.cmd with shell=False."
         ),
