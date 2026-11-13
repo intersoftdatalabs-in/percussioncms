@@ -37,353 +37,465 @@
    */
   function openDialog(itemId, itemName, itemType, itemMode) {
     //Makes a service call and gets the revisions, passes the createDialog as the callback
-    $.PercRevisionService.getRevisionDetails(itemId, createDialog);
-    var dialog;
-    /**
-     * Creates the dialog and sets the field values from the supplied result.data object.
-     * On dialog open calls the addRevisionRows to add the revision rows.
-     */
-    function createDialog(status, result) {
-      var self = this;
+    var ctx = {
+      itemId: itemId,
+      itemName: itemName,
+      itemType: itemType,
+      itemMode: itemMode,
+      dialog: null,
+      allRevisions: new Map([]),
+      latestRevision: null,
+      itemCount: 0,
+      isRestorable: false,
+      restorableIcon: "restoreInactive.png",
+    };
+    $.PercRevisionService.getRevisionDetails(itemId, function (status, result) {
+      createDialog(status, result, ctx);
+    });
+  } // End open dialog
 
-      if (status === $.PercServiceUtils.STATUS_ERROR) {
-        var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          result.request,
-        );
-        $.perc_utils.alert_dialog({ title: "Error", content: defaultMsg });
-        callback(false);
-        return;
-      }
+  /**
+   * Creates the dialog and sets the field values from the supplied result.data object.
+   * On dialog open calls the addRevisionRows to add the revision rows.
+   */
+  function createDialog(status, result, ctx) {
+    if (status === $.PercServiceUtils.STATUS_ERROR) {
+      showRevisionServiceError(result);
+      callback(false);
+      return;
+    }
+    var dialogHTML = createRevisionTable();
+    ctx.dialog = $(dialogHTML).perc_dialog(
+      buildRevisionDialogConfig(ctx, result),
+    );
+    $("#perc-revisions-container").css("min-height", "350px");
+    $("#revisionsTable_paginate").css("right", "-25px");
+  }
 
-      percDialogObject = {
-        resizable: false,
-        title:
-          I18N.message("perc.ui.revisionDialog.title@Revisions") +
-          ": " +
-          itemName,
-        modal: true,
-        closeOnEscape: false,
-        percButtons: {},
-        id: "perc-revisions-dialog",
-        open: function () {
-          addRevisionRows(result.data);
-        },
-        width: 700,
-        height: 490,
-      };
+  /**
+   * Shows the service error alert for a failed revision details request.
+   */
+  function showRevisionServiceError(result) {
+    var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+      result.request,
+    );
+    $.perc_utils.alert_dialog({ title: "Error", content: defaultMsg });
+  }
 
-      percDialogObject.percButtons.Close = {
-        click: function () {
-          dialog.remove();
-        },
-        id: "perc-revisions-dialog-close",
-      };
+  /**
+   * Builds the perc_dialog configuration object for the revisions dialog.
+   */
+  function buildRevisionDialogConfig(ctx, result) {
+    var percDialogObject = {
+      resizable: false,
+      title:
+        I18N.message("perc.ui.revisionDialog.title@Revisions") +
+        ": " +
+        ctx.itemName,
+      modal: true,
+      closeOnEscape: false,
+      percButtons: {},
+      id: "perc-revisions-dialog",
+      open: function () {
+        addRevisionRows(result.data, ctx);
+      },
+      width: 700,
+      height: 490,
+    };
 
-      var dialogHTML = createRevisionTable();
-      dialog = $(dialogHTML).perc_dialog(percDialogObject);
-      $("#perc-revisions-container").css("min-height", "350px");
-      $("#revisionsTable_paginate").css("right", "-25px");
+    percDialogObject.percButtons.Close = {
+      click: function () {
+        ctx.dialog.remove();
+      },
+      id: "perc-revisions-dialog-close",
+    };
+    return percDialogObject;
+  }
+
+  /**
+   * Creates the revision table html, with wrapper div. Empty tbody is added.
+   * @return revision dialog html.
+   */
+  function createRevisionTable() {
+    return $(
+      "<div class='dataTables_wrapper' style='height: 100%; z-index: 4470;position:relative;' id='perc-revisions-container'>" +
+        "<table id='revisionsTable' style='width:100%'>" +
+        "<thead>" +
+        "<tr>" +
+        "<th style='text-align:left;width:10%' id='perc-header-revision'><span class='col-name'>" +
+        I18N.message("perc.ui.revisionDialog@Revision") +
+        "</span></th>" +
+        "<th style='text-align:left;width:20%' id='perc-header-status'><span class='col-name'>" +
+        I18N.message("perc.ui.revisionDialog@Status") +
+        "</span></th>" +
+        "<th style='text-align:left;width:35%' id='perc-header-last-modified'><span class='col-name'>" +
+        I18N.message("perc.ui.revisionDialog@Last Modified") +
+        "</span></th>" +
+        "<th style='text-align:left;width:20%' id='perc-header-last-modifier'><span class='col-name'>" +
+        I18N.message("perc.ui.revisionDialog@Last Modifier") +
+        "</span></th>" +
+        "<th style='text-align:left;width:15%' id='perc-header-actions'><span class='col-name'>" +
+        I18N.message("perc.ui.revisionDialog@Actions") +
+        "</span></th>" +
+        "</tr>" +
+        "</thead>" +
+        "<tbody></tbody>" +
+        "</table>" +
+        "</div>",
+    );
+  }
+
+  /**
+   * Creates the revision rows html appends them to the tbody element of the table and converts the table into
+   * a datatable by adding the appropriate sort columns and handles the paging link display.
+   * @param revisionData, The revision data is expected to be in the format of
+   * com.percussion.itemmanagement.data.PSRevisions
+   * @param ctx, dialog context carrying the item descriptors and accumulated revision state.
+   */
+  function addRevisionRows(revisionData, ctx) {
+    var revisions = normalizeRevisions(revisionData.RevisionsSummary);
+    ctx.itemCount = revisions.length;
+    ctx.isRestorable = revisionData.RevisionsSummary.restorable;
+    ctx.restorableIcon = ctx.isRestorable
+      ? "restore.png"
+      : "restoreInactive.png";
+    var $tbody = $("#revisionsTable").find("tbody");
+
+    for (var i in revisions) {
+      appendRevisionRow($tbody, revisions[i], ctx);
     }
 
-    /**
-     * Creates the revision table html, with wrapper div. Empty tbody is added.
-     * @return revision dialog html.
-     */
-    function createRevisionTable() {
-      return $(
-        "<div class='dataTables_wrapper' style='height: 100%; z-index: 4470;position:relative;' id='perc-revisions-container'>" +
-          "<table id='revisionsTable' style='width:100%'>" +
-          "<thead>" +
-          "<tr>" +
-          "<th style='text-align:left;width:10%' id='perc-header-revision'><span class='col-name'>" +
-          I18N.message("perc.ui.revisionDialog@Revision") +
-          "</span></th>" +
-          "<th style='text-align:left;width:20%' id='perc-header-status'><span class='col-name'>" +
-          I18N.message("perc.ui.revisionDialog@Status") +
-          "</span></th>" +
-          "<th style='text-align:left;width:35%' id='perc-header-last-modified'><span class='col-name'>" +
-          I18N.message("perc.ui.revisionDialog@Last Modified") +
-          "</span></th>" +
-          "<th style='text-align:left;width:20%' id='perc-header-last-modifier'><span class='col-name'>" +
-          I18N.message("perc.ui.revisionDialog@Last Modifier") +
-          "</span></th>" +
-          "<th style='text-align:left;width:15%' id='perc-header-actions'><span class='col-name'>" +
-          I18N.message("perc.ui.revisionDialog@Actions") +
-          "</span></th>" +
-          "</tr>" +
-          "</thead>" +
-          "<tbody></tbody>" +
-          "</table>" +
-          "</div>",
+    bindRevisionRowHandlers(ctx);
+    bindRowSelection(initRevisionsTable(ctx));
+  }
+
+  /**
+   * Normalizes the revisions payload into an array (single-revision
+   * responses arrive as a lone object instead of an array).
+   */
+  function normalizeRevisions(revSummary) {
+    if (Array.isArray(revSummary.revisions)) {
+      return revSummary.revisions;
+    }
+    return [revSummary.revisions];
+  }
+
+  /**
+   * Builds one revision row, tracks it in the context revision map, and
+   * appends it to the table body.
+   */
+  function appendRevisionRow($tbody, revdata, ctx) {
+    var lastModifiedDate = new Date(revdata.lastModifiedDate);
+    //This timestamp will be used to set the data-order attribute of datatable to sort it as date on basis of timestamp
+    var timeStamp = lastModifiedDate.getTime();
+    var lastModifiedDateParts = $.perc_utils.splitDateTime(
+      revdata.lastModifiedDate,
+    );
+    var revObj = {
+      revId: revdata.revId,
+      status: revdata.status,
+      lastModified:
+        lastModifiedDateParts.date + " " + lastModifiedDateParts.time,
+      modifier: revdata.lastModifier,
+    };
+    ctx.allRevisions.set(revObj.revId, revObj);
+
+    if (ctx.itemCount === revdata.revId) {
+      ctx.latestRevision = revObj;
+    }
+    var $rowHTML = $(buildRevisionRowHtml(revdata, revObj, timeStamp, ctx));
+    $rowHTML.find("td:eq(2)").data("timedate", lastModifiedDate);
+    $tbody.append($rowHTML);
+  }
+
+  /**
+   * Builds the html for a single revision row.
+   */
+  function buildRevisionRowHtml(revdata, revObj, timeStamp, ctx) {
+    return (
+      "<tr>" +
+      "<td style='vertical-align: middle'><div class='data-cell perc-ellipsis'>" +
+      revdata.revId +
+      "</div></td>" +
+      "<td style='vertical-align: middle'><div for='" +
+      revdata.status +
+      "' class='data-cell perc-ellipsis'>" +
+      revdata.status +
+      "</div></td>" +
+      "<td data-order ='" +
+      timeStamp +
+      "' style='vertical-align: middle''><div class='data-cell perc-ellipsis'>" +
+      revObj.lastModified +
+      "</div></td>" +
+      "<td style='vertical-align: middle'><div class='data-cell perc-ellipsis'>" +
+      revdata.lastModifier +
+      "</div></td>" +
+      "<td style='vertical-align: middle'><div class='data-cell perc-ellipsis'>" +
+      buildActionCellHtml(revdata, ctx) +
+      "</div></td>" +
+      "</tr>"
+    );
+  }
+
+  /**
+   * Builds the actions cell: a Latest label for the current revision,
+   * otherwise the preview / compare / restore icons.
+   */
+  function buildActionCellHtml(revdata, ctx) {
+    if (ctx.itemCount === revdata.revId) {
+      return (
+        "<span title='" +
+        I18N.message("perc.ui.revisionDialog.tooltip@LatestRevision") +
+        "'>" +
+        I18N.message("perc.ui.revisionDialog.label@Latest") +
+        "</span>"
       );
     }
+    return (
+      "<img title= '" +
+      I18N.message("perc.ui.revisionDialog.tooltip@PreviewRevision") +
+      "' alt='" +
+      I18N.message("perc.ui.revisionDialog.tooltip@PreviewRevision") +
+      "' revId='" +
+      revdata.revId +
+      "' class='perc-revisions-preview-img' style='vertical-align:middle;margin-right:1px;' src='/cm/images/icons/editor/preview.png' />" +
+      "<img title= '" +
+      I18N.message("perc.ui.revisionDialog.compare@compareRevisions") +
+      "' 'id='compare'  alt='Compare this revision to latest revision' " +
+      "' revId='" +
+      revdata.revId +
+      "' class='perc-revisions-compare-img' style='vertical-align:middle;margin-right:1px;' src='/cm/images/icons/editor/revision-compare.png' />" +
+      "<img title= '" +
+      I18N.message("perc.ui.revisionDialog.tooltip@Restorable") +
+      "' alt='restorableTitle' revId='" +
+      revdata.revId +
+      "' class='perc-revisions-restore-img' style='vertical-align:middle;margin-right:1px;' src='/cm/images/icons/editor/" +
+      ctx.restorableIcon +
+      "'  />"
+    );
+  }
 
-    /**
-     * Creates the revision rows html appends them to the tbody element of the table and converts the table into
-     * a datatable by adding the appropriate sort columns and handles the paging link display.
-     * @param revisionData, The revision data is expected to be in the format of
-     * com.percussion.itemmanagement.data.PSRevisions
-     */
-    function addRevisionRows(revisionData) {
-      var revSummary = revisionData.RevisionsSummary;
-      var revisions = Array.isArray(revSummary.revisions)
-        ? revSummary.revisions
-        : [revSummary.revisions];
-      var itemCount = revisions.length;
-      var isRestorable = revSummary.restorable;
-      var restorableIcon = isRestorable ? "restore.png" : "restoreInactive.png";
-      var restorableTitle = isRestorable
-        ? I18N.message("perc.ui.revisionDialog.tooltip@Restorable")
-        : I18N.message("perc.ui.revisionDialog.tooltip@NotRestorable", [
-            itemType,
-          ]);
-      var $tbody = $("#revisionsTable").find("tbody");
-      var latestRevision;
-      var allRevisions = new Map([]);
+  /**
+   * Binds the compare / preview / hover / restore handlers for the rows.
+   */
+  function bindRevisionRowHandlers(ctx) {
+    bindCompareHandler(ctx);
+    bindPreviewHandler(ctx);
+    bindPreviewHover();
+    //Hanlde restore click events and icon hover events if the item is restorable
+    if (ctx.isRestorable) {
+      bindRestoreHandler(ctx);
+      bindRestoreHover();
+    }
+  }
 
-      for (var i in revisions) {
-        var revdata = revisions[i];
-        var lastModifiedDate = new Date(revdata.lastModifiedDate);
-        var timeStamp = new Date(revdata.lastModifiedDate).getTime(); //This timestamp will be used to set the data-order attribute of datatable to sort it as date on basis of timestamp
-        var lastModifiedDateParts = $.perc_utils.splitDateTime(
-          revdata.lastModifiedDate,
-        );
-        var lastModifiedDateDate = lastModifiedDateParts.date;
-        var lastModifiedDateTime = lastModifiedDateParts.time;
-        var revObj = {};
-
-        revObj.revId = revdata.revId;
-        revObj.status = revdata.status;
-        revObj.lastModified = lastModifiedDateDate + " " + lastModifiedDateTime;
-        revObj.modifier = revdata.lastModifier;
-        allRevisions.set(revObj.revId, revObj);
-
-        var lastCol = "";
-        if (itemCount === revdata.revId) {
-          latestRevision = revObj;
-          lastCol =
-            "<span title='" +
-            I18N.message("perc.ui.revisionDialog.tooltip@LatestRevision") +
-            "'>" +
-            I18N.message("perc.ui.revisionDialog.label@Latest") +
-            "</span>";
-        } else {
-          lastCol =
-            "<img title= '" +
-            I18N.message("perc.ui.revisionDialog.tooltip@PreviewRevision") +
-            "' alt='" +
-            I18N.message("perc.ui.revisionDialog.tooltip@PreviewRevision") +
-            "' revId='" +
-            revdata.revId +
-            "' class='perc-revisions-preview-img' style='vertical-align:middle;margin-right:1px;' src='/cm/images/icons/editor/preview.png' />" +
-            "<img title= '" +
-            I18N.message("perc.ui.revisionDialog.compare@compareRevisions") +
-            "' 'id='compare'  alt='Compare this revision to latest revision' " +
-            "' revId='" +
-            revdata.revId +
-            "' class='perc-revisions-compare-img' style='vertical-align:middle;margin-right:1px;' src='/cm/images/icons/editor/revision-compare.png' />" +
-            "<img title= '" +
-            I18N.message("perc.ui.revisionDialog.tooltip@Restorable") +
-            "' alt='restorableTitle' revId='" +
-            revdata.revId +
-            "' class='perc-revisions-restore-img' style='vertical-align:middle;margin-right:1px;' src='/cm/images/icons/editor/" +
-            restorableIcon +
-            "'  />";
+  /**
+   * Binds the compare-icon clicks (page items only).
+   */
+  function bindCompareHandler(ctx) {
+    $("#revisionsTable")
+      .find(".perc-revisions-compare-img")
+      .on("click", function () {
+        var revId = $(this).attr("revId");
+        if (ctx.itemType === $.PercRevisionDialog.ITEM_TYPE_PAGE) {
+          $.perc_finder().launchPageCompareView(
+            ctx.itemId,
+            ctx.itemName,
+            Number(revId),
+            Number(ctx.latestRevision.revId),
+            ctx.allRevisions,
+          );
         }
-        var $rowHTML = $(
-          "<tr>" +
-            "<td style='vertical-align: middle'><div class='data-cell perc-ellipsis'>" +
-            revdata.revId +
-            "</div></td>" +
-            "<td style='vertical-align: middle'><div for='" +
-            revdata.status +
-            "' class='data-cell perc-ellipsis'>" +
-            revdata.status +
-            "</div></td>" +
-            "<td data-order ='" +
-            timeStamp +
-            "' style='vertical-align: middle''><div class='data-cell perc-ellipsis'>" +
-            revObj.lastModified +
-            "</div></td>" +
-            "<td style='vertical-align: middle'><div class='data-cell perc-ellipsis'>" +
-            revdata.lastModifier +
-            "</div></td>" +
-            "<td style='vertical-align: middle'><div class='data-cell perc-ellipsis'>" +
-            lastCol +
-            "</div></td>" +
-            "</tr>",
-        );
-        $rowHTML.find("td:eq(2)").data("timedate", lastModifiedDate);
-        $tbody.append($rowHTML);
-      }
-      var iType = itemType;
+      });
+  }
 
-      $("#revisionsTable")
-        .find(".perc-revisions-compare-img")
-        .on("click", function () {
-          var revId = $(this).attr("revId");
-          var currRev = $(this).attr("currRevData");
-          if (iType === $.PercRevisionDialog.ITEM_TYPE_PAGE) {
-            $.perc_finder().launchPageCompareView(
-              itemId,
-              itemName,
-              Number(revId),
-              Number(latestRevision.revId),
-              allRevisions,
-            );
-          }
-        });
-      $("#revisionsTable")
-        .find(".perc-revisions-preview-img")
-        .on("click", function () {
-          var revId = $(this).attr("revId");
-          if (iType === $.PercRevisionDialog.ITEM_TYPE_PAGE) {
-            $.perc_finder().launchPagePreview(itemId, revId);
-          } else if (iType === $.PercRevisionDialog.ITEM_TYPE_ASSET) {
-            $.perc_finder().launchAssetPreview(itemId, revId);
-          } else {
-            var eMsg = "Cannot preview unknown type.";
-            $.perc_utils.alert_dialog({ title: "Error", content: eMsg });
-          }
-        });
+  /**
+   * Binds the preview-icon clicks for pages and assets.
+   */
+  function bindPreviewHandler(ctx) {
+    $("#revisionsTable")
+      .find(".perc-revisions-preview-img")
+      .on("click", function () {
+        var revId = $(this).attr("revId");
+        if (ctx.itemType === $.PercRevisionDialog.ITEM_TYPE_PAGE) {
+          $.perc_finder().launchPagePreview(ctx.itemId, revId);
+        } else if (ctx.itemType === $.PercRevisionDialog.ITEM_TYPE_ASSET) {
+          $.perc_finder().launchAssetPreview(ctx.itemId, revId);
+        } else {
+          var eMsg = "Cannot preview unknown type.";
+          $.perc_utils.alert_dialog({ title: "Error", content: eMsg });
+        }
+      });
+  }
 
-      $("#revisionsTable")
-        .find(".perc-revisions-preview-img")
-        .on("mouseenter", function () {
-          $(this).attr("src", "/cm/images/icons/editor/previewOver.png");
-        });
-      $("#revisionsTable")
-        .find(".perc-revisions-preview-img")
-        .on("mouseleave", function () {
-          $(this).attr("src", "/cm/images/icons/editor/preview.png");
-        });
+  /**
+   * Binds the preview-icon hover image swaps.
+   */
+  function bindPreviewHover() {
+    $("#revisionsTable")
+      .find(".perc-revisions-preview-img")
+      .on("mouseenter", function () {
+        $(this).attr("src", "/cm/images/icons/editor/previewOver.png");
+      });
+    $("#revisionsTable")
+      .find(".perc-revisions-preview-img")
+      .on("mouseleave", function () {
+        $(this).attr("src", "/cm/images/icons/editor/preview.png");
+      });
+  }
 
-      //Hanlde restore click events and icon hover events if the item is restorable
-      if (isRestorable) {
-        $("#revisionsTable")
-          .find(".perc-revisions-restore-img")
-          .on("click", function () {
-            var revId = $(this).attr("revId");
-            $.perc_utils.confirm_dialog({
-              title: "Restore Revision",
-              question:
-                "Want to Restore Revision (" + revId + ") as current revision?",
-              success: function () {
-                $.blockUI();
-                $.PercRevisionService.restoreRevision(
-                  itemId,
-                  revId,
-                  afterRestore,
-                );
+  /**
+   * Binds the restore-icon clicks behind a confirm dialog.
+   */
+  function bindRestoreHandler(ctx) {
+    $("#revisionsTable")
+      .find(".perc-revisions-restore-img")
+      .on("click", function () {
+        var revId = $(this).attr("revId");
+        $.perc_utils.confirm_dialog({
+          title: "Restore Revision",
+          question:
+            "Want to Restore Revision (" + revId + ") as current revision?",
+          success: function () {
+            $.blockUI();
+            $.PercRevisionService.restoreRevision(
+              ctx.itemId,
+              revId,
+              function (status, result) {
+                afterRestore(status, result, ctx);
               },
-              cancel: function () {},
-            });
-          });
-        $("#revisionsTable")
-          .find(".perc-revisions-restore-img")
-          .on("mouseenter", function () {
-            $(this).attr("src", "/cm/images/icons/editor/restoreOver.png");
-          });
-        $("#revisionsTable")
-          .find(".perc-revisions-restore-img")
-          .on("mouseleave", function () {
-            $(this).attr("src", "/cm/images/icons/editor/restore.png");
-          });
-      }
-
-      // DataTables 3.x (issue #6002): DataTable() returns the 1.10+ API
-      // instance (table.$ below is the scoped-selector API, no fn* legacy).
-      var table = $("#revisionsTable").DataTable({
-        order: [[0, "desc"]],
-        bFilter: false,
-        bAutoWidth: false,
-        // turn on pagination and use sequential and random access pagination controls
-        bPaginate: true,
-        sPaginationType: "full_numbers",
-        iDisplayLength: 10,
-        bLengthChange: false,
-        bInfo: true,
-        // if table has no rows show the following error
-        oLanguage: { sZeroRecords: "No Revisions Found" },
-
-        // if on first or last page, update the disabled color of the sequential pagination controls
-        footerCallback: function (nFoot, aasData, iStart, iEnd, aiDisplay) {
-          // set them all to their default active color
-          $(".first").addClass("perc-active").removeClass("perc-disabled");
-          $(".previous").addClass("perc-active").removeClass("perc-disabled");
-          $(".next").addClass("perc-active").removeClass("perc-disabled");
-          $(".last").addClass("perc-active").removeClass("perc-disabled");
-          // if on the first page disable First and Previous controls
-          if (iStart === 0) {
-            $(".first").addClass("perc-disabled").removeClass("perc-active");
-            $(".previous").addClass("perc-disabled").removeClass("perc-active");
-          }
-          // if on the last page disable Last and Next controls
-          if (iEnd === itemCount) {
-            $(".next").addClass("perc-disabled").removeClass("perc-active");
-            $(".last").addClass("perc-disabled").removeClass("perc-active");
-          }
-        },
-      });
-
-      $("#revisionsTable tbody").on("click", "tr", function () {
-        if ($(this).hasClass("selected")) {
-          $(this).removeClass("selected");
-        } else {
-          table.$("tr.selected").removeClass("selected");
-          $(this).addClass("selected");
-        }
-      });
-    }
-
-    /**
-     * Call back function that is passed to the $.PercRevisionService.restoreRevision method.
-     * If the status is error, then displays the error. Otherwise closes the dialog and opens the item in edit mode.
-     * The parameters match with the caller $.PercServiceUtils.makeJsonRequest method.
-     */
-    function afterRestore(status, result) {
-      if ($.blockUI) {
-        $.unblockUI();
-      }
-      var self = this;
-
-      if (status === $.PercServiceUtils.STATUS_ERROR) {
-        var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
-          result.request,
-        );
-        $.perc_utils.alert_dialog({
-          title: I18N.message("perc.ui.publish.title@Error"),
-          content: defaultMsg,
+            );
+          },
+          cancel: function () {},
         });
-        return;
-      }
-      dialog.remove();
-      $.PercNavigationManager.setReopenAllowed(true);
-      var item = {
-        id: $.PercNavigationManager.getId(),
-        name: $.PercNavigationManager.getName(),
-        path: $.PercNavigationManager.getPath(),
-      };
-      if (
-        $.PercNavigationManager.getView() ===
-        $.PercNavigationManager.VIEW_EDITOR
-      ) {
-        $.PercNavigationManager.handleOpenPage(item, true);
-      } else if (
-        $.PercNavigationManager.getView() ===
-        $.PercNavigationManager.VIEW_EDIT_ASSET
-      ) {
-        $.PercNavigationManager.handleOpenAsset(item, true);
+      });
+  }
+
+  /**
+   * Binds the restore-icon hover image swaps.
+   */
+  function bindRestoreHover() {
+    $("#revisionsTable")
+      .find(".perc-revisions-restore-img")
+      .on("mouseenter", function () {
+        $(this).attr("src", "/cm/images/icons/editor/restoreOver.png");
+      });
+    $("#revisionsTable")
+      .find(".perc-revisions-restore-img")
+      .on("mouseleave", function () {
+        $(this).attr("src", "/cm/images/icons/editor/restore.png");
+      });
+  }
+
+  /**
+   * Converts the revision table into a DataTable with paging and sorting.
+   * @return the DataTable API instance.
+   */
+  function initRevisionsTable(ctx) {
+    // DataTables 3.x (issue #6002): DataTable() returns the 1.10+ API
+    // instance (table.$ below is the scoped-selector API, no fn* legacy).
+    return $("#revisionsTable").DataTable({
+      order: [[0, "desc"]],
+      bFilter: false,
+      bAutoWidth: false,
+      // turn on pagination and use sequential and random access pagination controls
+      bPaginate: true,
+      sPaginationType: "full_numbers",
+      iDisplayLength: 10,
+      bLengthChange: false,
+      bInfo: true,
+      // if table has no rows show the following error
+      oLanguage: { sZeroRecords: "No Revisions Found" },
+
+      // if on first or last page, update the disabled color of the sequential pagination controls
+      footerCallback: function (nFoot, aasData, iStart, iEnd, aiDisplay) {
+        updatePaginationControls(iStart, iEnd, ctx.itemCount);
+      },
+    });
+  }
+
+  /**
+   * Updates the disabled color of the sequential pagination controls
+   * depending on the current page window.
+   */
+  function updatePaginationControls(iStart, iEnd, itemCount) {
+    // set them all to their default active color
+    $(".first").addClass("perc-active").removeClass("perc-disabled");
+    $(".previous").addClass("perc-active").removeClass("perc-disabled");
+    $(".next").addClass("perc-active").removeClass("perc-disabled");
+    $(".last").addClass("perc-active").removeClass("perc-disabled");
+    // if on the first page disable First and Previous controls
+    if (iStart === 0) {
+      $(".first").addClass("perc-disabled").removeClass("perc-active");
+      $(".previous").addClass("perc-disabled").removeClass("perc-active");
+    }
+    // if on the last page disable Last and Next controls
+    if (iEnd === itemCount) {
+      $(".next").addClass("perc-disabled").removeClass("perc-active");
+      $(".last").addClass("perc-disabled").removeClass("perc-active");
+    }
+  }
+
+  /**
+   * Binds single-row selection toggling on the revision table.
+   */
+  function bindRowSelection(table) {
+    $("#revisionsTable tbody").on("click", "tr", function () {
+      if ($(this).hasClass("selected")) {
+        $(this).removeClass("selected");
       } else {
-        // This should never happen.
-        var eMsg = I18N.message(
-          "perc.ui.revision.dialog@Cannot Open Unknown View",
-        );
-        $.perc_utils.alert_dialog({
-          title: I18N.message("perc.ui.publish.title@Error"),
-          content: eMsg,
-        });
+        table.$("tr.selected").removeClass("selected");
+        $(this).addClass("selected");
       }
+    });
+  }
+
+  /**
+   * Call back function that is passed to the $.PercRevisionService.restoreRevision method.
+   * If the status is error, then displays the error. Otherwise closes the dialog and opens the item in edit mode.
+   * The parameters match with the caller $.PercServiceUtils.makeJsonRequest method.
+   */
+  function afterRestore(status, result, ctx) {
+    if ($.blockUI) {
+      $.unblockUI();
     }
-  } // End open dialog
+
+    if (status === $.PercServiceUtils.STATUS_ERROR) {
+      var defaultMsg = $.PercServiceUtils.extractDefaultErrorMessage(
+        result.request,
+      );
+      $.perc_utils.alert_dialog({
+        title: I18N.message("perc.ui.publish.title@Error"),
+        content: defaultMsg,
+      });
+      return;
+    }
+    ctx.dialog.remove();
+    $.PercNavigationManager.setReopenAllowed(true);
+    var item = {
+      id: $.PercNavigationManager.getId(),
+      name: $.PercNavigationManager.getName(),
+      path: $.PercNavigationManager.getPath(),
+    };
+    if (
+      $.PercNavigationManager.getView() ===
+      $.PercNavigationManager.VIEW_EDITOR
+    ) {
+      $.PercNavigationManager.handleOpenPage(item, true);
+    } else if (
+      $.PercNavigationManager.getView() ===
+      $.PercNavigationManager.VIEW_EDIT_ASSET
+    ) {
+      $.PercNavigationManager.handleOpenAsset(item, true);
+    } else {
+      // This should never happen.
+      var eMsg = I18N.message(
+        "perc.ui.revision.dialog@Cannot Open Unknown View",
+      );
+      $.perc_utils.alert_dialog({
+        title: I18N.message("perc.ui.publish.title@Error"),
+        content: eMsg,
+      });
+    }
+  }
 })(jQuery);
