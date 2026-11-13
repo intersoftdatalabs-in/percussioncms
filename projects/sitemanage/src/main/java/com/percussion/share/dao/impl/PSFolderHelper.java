@@ -700,10 +700,15 @@ public class PSFolderHelper implements IPSFolderHelper {
    * @throws PSValidationException if cannot find the specified folder.
    */
   private PSFolder loadFolder(String id) throws PSValidationException {
+    return loadFolder(id, true);
+  }
+
+  private PSFolder loadFolder(String id, boolean loadTransientData)
+      throws PSValidationException {
     try {
       // loadTransientData=true so community/display-format names are available
       // on the Folder Security / properties panel (#2410 / #2749).
-      PSFolder folder = contentWs.loadFolder(idMapper.getGuid(id), true);
+      PSFolder folder = contentWs.loadFolder(idMapper.getGuid(id), loadTransientData);
       if (folder == null) {
         PSValidationErrorsBuilder builder = validateParameters("findFolderProperties");
         builder
@@ -796,7 +801,7 @@ public class PSFolderHelper implements IPSFolderHelper {
     }
     applyPageMobilePreview(item, siteMgr);
     if (folderId != null) {
-      PSFolderPermission.Access acl = getFolderAccessLevel(folderId);
+      PSFolderPermission.Access acl = getFolderAccessLevel(folderId, isRecyclingRow(item));
       item.setAccessLevel(acl);
     }
     return item;
@@ -838,10 +843,42 @@ public class PSFolderHelper implements IPSFolderHelper {
    * @see com.percussion.share.dao.IPSFolderHelper#getFolderAccessLevel(java.lang.String)
    */
   public PSFolderPermission.Access getFolderAccessLevel(String id) throws PSValidationException {
+    return getFolderAccessLevel(id, false);
+  }
+
+  /**
+   * Folder access level for listing rows. Recycling-bin rows have no live folder path, so the
+   * transient path lookup in {@link IPSContentWs#loadFolder} throws and — escaping the content
+   * service transaction — marks the listing transaction rollback-only before this helper can
+   * catch it (bin listing 500, folder purge/restore 404, #6257). Loading those rows without
+   * transient data keeps their stored ACL while live-folder behavior is unchanged.
+   *
+   * @param id folder id, never blank
+   * @param recycledRow {@code true} when the row lives under the Recycling root
+   */
+  PSFolderPermission.Access getFolderAccessLevel(String id, boolean recycledRow)
+      throws PSValidationException {
     String userName = getUserName();
     List<String> roles = getUserRoles();
-    PSFolder folder = loadFolder(id);
+    PSFolder folder = recycledRow ? loadFolder(id, false) : loadFolder(id);
     return getUserPermission(folder, userName, roles);
+  }
+
+  /**
+   * True when the listing row lives under the Recycling root ({@code
+   * //Folders/$System$/Recycling}). Recycled rows keep their stored ACL but resolve no live
+   * folder path, so callers must avoid transient folder loads for them (#6257).
+   */
+  static boolean isRecyclingRow(PSPathItem item) {
+    if (item == null) {
+      return false;
+    }
+    String folderPath = item.getFolderPath();
+    if (StringUtils.isBlank(folderPath)) {
+      List<String> paths = item.getFolderPaths();
+      folderPath = (paths == null || paths.isEmpty()) ? null : paths.get(0);
+    }
+    return !StringUtils.isBlank(folderPath) && folderPath.startsWith(RECYCLING_ROOT);
   }
 
   /**
