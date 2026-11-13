@@ -185,8 +185,9 @@ public class PSTipTapEditorKeysTmxTest {
    * (e.g. U+200C ZWNJ, which Telugu requires between a virama-final stem and a
    * consonant-initial suffix, as in {@code లింక్‌ని}).
    *
-   * <p>Scoped to TipTap keys only: the wider catalog still carries pre-existing endemic
-   * artifacts tracked separately, so a file-wide guard would fail on out-of-scope segments.
+   * <p>Scoped to TipTap keys only: the wider catalog endemic artifacts were repaired
+   * catalog-wide by issue #6173 (guarded by {@code PSTmxCatalogIntegrityTest}), so this
+   * key-scoped guard remains as the TipTap-specific regression pin.
    */
   @Test
   public void tiptapSegments_haveNoAsciiEscapeArtifacts() throws Exception {
