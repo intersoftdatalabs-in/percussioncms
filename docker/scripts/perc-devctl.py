@@ -929,6 +929,70 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     pqd.add_argument("--dry-run", action="store_true")
 
+    pqpf = sub.add_parser(
+        "qa-publish-fixture",
+        help=(
+            "Stage the QA fixture published site and deploy it into the "
+            "in-cell DTS Tomcat webapps as the `published` context "
+            "(spec 2402-qa-dts-publish slice 3, #6243). Copies the "
+            "publish-time web_resources tree from the CMS cell, writes "
+            "fixture home + category pages, and prints "
+            "PUBLISHED_SITE_URL / PUBLISHED_CATEGORY_URL for Playwright."
+        ),
+    )
+    pqpf.add_argument(
+        "--container",
+        default=QA_DTS_CONTAINER,
+        help=f"DTS cell name (default: {QA_DTS_CONTAINER}).",
+    )
+    pqpf.add_argument(
+        "--cms-container",
+        default=QA_CMS_CONTAINER,
+        help=(
+            "CMS cell name (web_resources source, default: "
+            f"{QA_CMS_CONTAINER})."
+        ),
+    )
+    pqpf.add_argument(
+        "--dts-url",
+        default=None,
+        help=(
+            "DTS base URL (default: DTS_HOST_PORT / DTS_PORT env, else "
+            "docker port on the DTS cell, else last qa-up log, else "
+            f"preferred {PREFERRED_QA_DTS_HOST_PORT} when free)."
+        ),
+    )
+    pqpf.add_argument(
+        "--install-root",
+        default=QA_INSTALL_ROOT,
+        help=(
+            "DTS install root inside the DTS cell "
+            f"(default: {QA_INSTALL_ROOT})."
+        ),
+    )
+    pqpf.add_argument(
+        "--cms-install-root",
+        default=QA_INSTALL_ROOT,
+        help=(
+            "CMS install root inside the CMS cell (web_resources source, "
+            f"default: {QA_INSTALL_ROOT})."
+        ),
+    )
+    pqpf.add_argument(
+        "--staging-dir",
+        default=None,
+        help=(
+            "Host staging dir (default: <repo>/tmp/qa-fixture-published)."
+        ),
+    )
+    pqpf.add_argument(
+        "--timeout-seconds",
+        type=int,
+        default=120,
+        help="Seconds to wait for Tomcat to serve the fixture (default: 120).",
+    )
+    pqpf.add_argument("--dry-run", action="store_true")
+
     pqdw = sub.add_parser(
         "qa-deploy-webui",
         help=(
@@ -2040,9 +2104,9 @@ def _qa_print_endpoint_banner(
     With ``dts_host_port`` (``qa-up --with-dts``, #6237), also emits the
     DTS cell contract from the spec env table (``DTS_URL``,
     ``PUBLISHED_SITE_URL``, ``PUBLISHED_CATEGORY_URL``). Without it the
-    banner is byte-identical to the CMS-only default path. Slice 3
-    repoints ``PUBLISHED_CATEGORY_URL`` at the fixture category page;
-    until then it is the DTS origin root placeholder.
+    banner is byte-identical to the CMS-only default path. ``qa-publish-fixture``
+    (#6243) repoints ``PUBLISHED_CATEGORY_URL`` at the fixture category page;
+    until it runs, the category URL is the DTS origin root placeholder.
     """
     base = qa_cms_base_url(host_port)
     print(f"QA_CMS_HOST_PORT={host_port}")
@@ -2075,8 +2139,9 @@ def _qa_print_endpoint_banner(
     print(f"QA_DTS_HOST_PORT={dts_host_port}")
     print(f"DTS_URL={dts_base}")
     print(f"PUBLISHED_SITE_URL={dts_base}")
-    # Slice-3 placeholder: Tomcat origin root until the fixture edition
-    # publishes the category page served from the in-cell static dir.
+    # Fixture placeholder: Tomcat origin root until `qa-publish-fixture`
+    # (#6243) deploys the staged site and prints the repointed
+    # PUBLISHED_CATEGORY_URL=<site>/published/category.html contract.
     print(f"PUBLISHED_CATEGORY_URL={dts_base}/")
 
 
@@ -2747,6 +2812,206 @@ def cmd_qa_rebuild_chain(
     return rc
 
 
+def _qa_publish_fixture_plan(
+    args: argparse.Namespace, repo_root: Path
+) -> argparse.Namespace:
+    """Resolve qa-publish-fixture paths/URLs from args (pure-ish).
+
+    Port resolution honors ``DTS_HOST_PORT`` / ``DTS_PORT`` env, then the
+    running cell's docker publish port, then the qa-up log, then the
+    preferred freeport (cf. :func:`resolve_qa_dts_health_host_port`).
+    """
+    import qa_publish_fixture as qpf
+
+    if getattr(args, "dts_url", None):
+        dts_base = str(args.dts_url).rstrip("/")
+    else:
+        dts_port, _port_source = resolve_qa_dts_health_host_port(repo_root)
+        dts_base = qa_dts_base_url(dts_port)
+    staging = (
+        Path(args.staging_dir)
+        if getattr(args, "staging_dir", None)
+        else repo_root / "tmp" / "qa-fixture-published"
+    )
+    cms_install = str(getattr(args, "cms_install_root", None) or QA_INSTALL_ROOT)
+    dts_install = str(getattr(args, "install_root", None) or QA_INSTALL_ROOT)
+    return argparse.Namespace(
+        container=args.container or QA_DTS_CONTAINER,
+        cms_container=args.cms_container or QA_CMS_CONTAINER,
+        site_url=qpf.site_base_for(dts_base),
+        category_url=qpf.category_url_for(dts_base),
+        site_dir=staging / "site",
+        pull_dir=staging / ".cms-pull",
+        cms_install=cms_install,
+        context_dest=qpf.fixture_context_dir(
+            f"{dts_install.rstrip('/')}/{qpf.DTS_TOMCAT_WEBAPPS_REL}"
+        ),
+        timeout=int(getattr(args, "timeout_seconds", 120) or 120),
+    )
+
+
+def _qa_publish_fixture_deploy(
+    plan: argparse.Namespace,
+    *,
+    log_dir: Path,
+    repo_root: Path,
+) -> int:
+    """Pull web_resources, stage the fixture, docker-cp it in (guarded).
+
+    Returns an exit code; every failure already printed its RESULT line.
+    """
+    import qa_publish_fixture as qpf
+
+    plan.pull_dir.mkdir(parents=True, exist_ok=True)
+    rc, _log_pull = _run_logged(
+        f"{qpf.STEP_QA_PUBLISH_FIXTURE}-pull",
+        qpf.docker_copy_from_container_argv(
+            plan.cms_container,
+            f"{plan.cms_install.rstrip('/')}/{qpf.CMS_WEB_RESOURCES_DIR}",
+            plan.pull_dir / qpf.CMS_WEB_RESOURCES_DIR,
+        ),
+        log_dir=log_dir,
+        cwd=repo_root,
+        dry_run=False,
+    )
+    if rc != EXIT_OK:
+        return rc
+    try:
+        written = qpf.build_fixture_tree(plan.site_dir, plan.pull_dir)
+    except (FileNotFoundError, FileExistsError) as e:
+        print(
+            f"RESULT:FAIL STEP:{qpf.STEP_QA_PUBLISH_FIXTURE} "
+            f"DETAIL:fixture_stage_failed ERROR:{e}"
+        )
+        return EXIT_SUBPROCESS_FAILED
+    problems = qpf.verify_fixture_tree(plan.site_dir)
+    if problems:
+        print(
+            f"RESULT:FAIL STEP:{qpf.STEP_QA_PUBLISH_FIXTURE} "
+            f"DETAIL:fixture_verify_failed PROBLEMS:{'; '.join(problems)}"
+        )
+        return EXIT_SUBPROCESS_FAILED
+    print(
+        f"QA_DETAIL:fixture staged {len(written)} paths under {plan.site_dir}"
+    )
+    steps = (
+        (
+            f"{qpf.STEP_QA_PUBLISH_FIXTURE}-mkdir",
+            ["docker", "exec", plan.container, "mkdir", "-p", plan.context_dest],
+        ),
+        (
+            f"{qpf.STEP_QA_PUBLISH_FIXTURE}-deploy",
+            ["docker", "cp", f"{plan.site_dir}/.", f"{plan.container}:{plan.context_dest}"],
+        ),
+    )
+    for step_label, argv in steps:
+        rc, _log_path = _run_logged(
+            step_label, argv, log_dir=log_dir, cwd=repo_root, dry_run=False
+        )
+        if rc != EXIT_OK:
+            return rc
+    return EXIT_OK
+
+
+def _qa_publish_fixture_http_verify(
+    site_url: str, category_url: str, timeout: int
+) -> List[str]:
+    """Poll the category page, then assert the spec asset contract.
+
+    Tomcat serves merged ROOT content immediately, but the poll absorbs
+    restart races. Returns failure strings (empty when the site is good).
+    """
+    import time as _time
+
+    import qa_publish_fixture as qpf
+
+    deadline = _time.monotonic() + max(10, timeout)
+    last_code = 0
+    while _time.monotonic() < deadline:
+        last_code = _curl_status(category_url, timeout=5.0)
+        if last_code == 200:
+            break
+        _time.sleep(5)
+    if last_code != 200:
+        return [f"{category_url} :: HTTP {last_code}"]
+    failures = []
+    for url in qpf.expected_asset_urls(site_url):
+        code = _curl_status(url, timeout=5.0)
+        if code != 200:
+            failures.append(f"{url} :: HTTP {code}")
+    for url in qpf.removed_asset_urls(site_url):
+        code = _curl_status(url, timeout=5.0)
+        if code != 404:
+            failures.append(f"{url} :: expected 404, got HTTP {code}")
+    return failures
+
+
+def cmd_qa_publish_fixture(
+    args: argparse.Namespace, paths: tuple[Path, Path, Path]
+) -> int:
+    """Deploy the fixture published site into the in-cell DTS Tomcat.
+
+    Slice 3 of spec 2402-qa-dts-publish (#6243): copies the publish-time
+    ``web_resources`` tree from the running CMS cell, stages the fixture
+    home + category pages beside it, and merges the tree into the DTS
+    ``<install>/Deployment/Server/webapps/ROOT`` webapp where Tomcat's
+    DefaultServlet serves it at the cell origin (site-root semantics —
+    what a real publish emits). Prints the spec env-table contract
+    (``PUBLISHED_SITE_URL`` / ``PUBLISHED_CATEGORY_URL``) pointing at the
+    fixture, repointing the ``qa-up --with-dts`` placeholder at the real
+    category page.
+    """
+    import qa_publish_fixture as qpf
+
+    repo_root, _env_file, _compose_file = paths
+    log_dir = _log_dir(repo_root)
+    if bool(args.dry_run):
+        plan = _qa_publish_fixture_plan(args, repo_root)
+        print(
+            "QA_DETAIL:qa-publish-fixture plan "
+            f"pull {plan.cms_container}:{plan.cms_install}/{qpf.CMS_WEB_RESOURCES_DIR} "
+            f"-> {plan.pull_dir} ; stage {plan.site_dir} ; "
+            f"deploy -> {plan.container}:{plan.context_dest}"
+        )
+        qpf.print_published_contract(plan.site_url, plan.category_url)
+        print(
+            f"RESULT:OK STEP:{qpf.STEP_QA_PUBLISH_FIXTURE} "
+            f"SITE:{plan.site_url} LOG:{_new_log_file(log_dir, qpf.STEP_QA_PUBLISH_FIXTURE)}"
+        )
+        return EXIT_OK
+
+    plan = _qa_publish_fixture_plan(args, repo_root)
+    if not _docker_container_present(plan.container):
+        print(
+            f"RESULT:FAIL STEP:{qpf.STEP_QA_PUBLISH_FIXTURE} "
+            f"DETAIL:dts_container_missing MATCH:{plan.container}"
+        )
+        print(
+            "QA_DETAIL:qa-publish-fixture requires the QA DTS cell; "
+            "bring it up with qa-up --with-dts first (#6243)."
+        )
+        return EXIT_SUBPROCESS_FAILED
+
+    rc = _qa_publish_fixture_deploy(plan, log_dir=log_dir, repo_root=repo_root)
+    if rc != EXIT_OK:
+        return rc
+    failures = _qa_publish_fixture_http_verify(
+        plan.site_url, plan.category_url, plan.timeout
+    )
+    if failures:
+        print(
+            f"RESULT:FAIL STEP:{qpf.STEP_QA_PUBLISH_FIXTURE} "
+            f"DETAIL:fixture_http_verify_failed FAILURES:{'; '.join(failures)}"
+        )
+        return EXIT_SUBPROCESS_FAILED
+    qpf.print_published_contract(plan.site_url, plan.category_url)
+    print(
+        f"RESULT:OK STEP:{qpf.STEP_QA_PUBLISH_FIXTURE} SITE:{plan.site_url} "
+        f"CATEGORY:{plan.category_url}"
+    )
+    return EXIT_OK
+
+
 # ---------------------------------------------------------------------------
 # Dispatch
 # ---------------------------------------------------------------------------
@@ -2767,6 +3032,7 @@ _DISPATCH = {
     "qa-up": cmd_qa_up,
     "qa-health": cmd_qa_health,
     "qa-down": cmd_qa_down,
+    "qa-publish-fixture": cmd_qa_publish_fixture,
     "qa-preflight": cmd_qa_preflight,
     "qa-rebuild-chain": cmd_qa_rebuild_chain,
     "qa-deploy-webui": cmd_qa_deploy_webui,

@@ -172,10 +172,22 @@ test.describe("collapsible category expand on the published page (issue #6189)",
 
       await page.goto(pageUrl, { waitUntil: "networkidle" });
 
+      // FancyTree 2.38 (vendored #6052 bytes) keeps the source list as a
+      // hidden `ul.ui-fancytree-source` and renders the live tree as
+      // `ul.ui-fancytree`; status classes (`fancytree-expanded`,
+      // `fancytree-has-children`) land on the node SPAN, not the LI.
+      // Scope every locator to the rendered tree and to parent (not leaf)
+      // expanders so the click exercises a real collapse→expand.
+      const treeScope = ".perc-category-list-collapsible ul.ui-fancytree";
       // A flat category list has nothing to expand: name the gap instead of
       // failing, so the fixture slice can add a nested category without a
       // spec change.
-      const expander = page.locator(".perc-category-list-collapsible .fancytree-expander").first();
+      const expander = page
+        .locator(
+          `${treeScope} > li > span.fancytree-node.fancytree-has-children`
+            + `:not(.fancytree-expanded) > span.fancytree-expander`,
+        )
+        .first();
       test.skip(
         (await expander.count()) === 0,
         "no expandable category nodes on this fixture page; publish a nested category to exercise expand",
@@ -183,7 +195,7 @@ test.describe("collapsible category expand on the published page (issue #6189)",
       await expander.scrollIntoViewIfNeeded();
       await expander.click();
       const expanded = page.locator(
-        ".perc-category-list-collapsible li.fancytree-has-children.fancytree-expanded",
+        `${treeScope} > li:has(> span.fancytree-node.fancytree-has-children.fancytree-expanded)`,
       );
       await expect(expanded.first(), "expanded node keeps the expanded marker").toBeVisible({
         timeout: 15_000,
