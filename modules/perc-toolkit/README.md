@@ -289,3 +289,21 @@ Then select rx_ImageCroppingControl as the control.  For the field size, set the
 When editing a content item where an image has been uploaded, you should see a croppable image control.
 
 If the image has not yet rendered, you may have to hit save / update to actually upload the image and make it available.
+
+### Third-party scripts (npm-tracked, #6273)
+
+The control loads two third-party scripts from `src/main/resources/InstallDir/rx_resources/js`
+(shipped verbatim into the dist by `perc-distribution-tree`):
+
+- `jquery.Jcrop.min.js` — Jcrop 0.9.12 (MIT), pinned via the `jcrop-0.9.12@0.9.12`
+  npm package. The payload bytes are identical to the npm tarball.
+- `jquery.color.js` — jQuery Color 3.0.0 (MIT), pinned via the `jquery-color`
+  npm package (upgrade from the 2011 2.0pre). Known cosmetic delta: color
+  strings now serialize with `", "` separators (valid CSS, tolerated by every
+  parser in the lib).
+
+Both pins live in `modules/perc-toolkit/package.json` (+ `package-lock.json`,
+Dependabot-tracked). After any pin change run `npm run sync` in
+`modules/perc-toolkit` to refresh the payload bytes — the
+`InstallerPayloadVendoredJsAuditTest` guard test pins the banners, the pins,
+and the XSL references, so drift fails the module build.
