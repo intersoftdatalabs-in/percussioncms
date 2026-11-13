@@ -92,31 +92,44 @@ test.describe("Explorer recent-items quick access (#6256 / #4530)", () => {
       );
       await expect(root.first()).toBeVisible({ timeout: 30_000 });
       await root.first().click();
-      await listReady(page);
-      const folderRow = page.locator(
-        '[data-testid="detail-list"] tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]:not([aria-disabled="true"])',
-      );
-      await expect(folderRow.first()).toBeVisible({ timeout: 20_000 });
-      await folderRow.first().dblclick({ force: true });
-      await listReady(page);
       const shell = page.locator(`[data-testid="${TEST_IDS.shell}"]`);
-      await expect(shell).toHaveAttribute("data-selected-folder-path", /Corporate/);
+      await expect(shell).toHaveAttribute("data-selected-folder-path", /\/Sites\/?$/);
+      // Pin the row by seed name: the /Sites list must have refreshed past
+      // the previous folder's rows before the double-click (#6256 — a stale
+      // first-row dblclick recorded the wrong entry and never browsed).
+      const folderRow = page.locator(
+        '[data-testid="detail-list"] tbody tr[data-item-name="Corporate_Investments"]',
+      );
+      await expect(folderRow).toBeVisible({ timeout: 20_000 });
+      await expect(folderRow).toHaveAttribute("data-row-kind", "folder");
+      await folderRow.dblclick({ force: true });
+      await expect(shell).toHaveAttribute(
+        "data-selected-folder-path",
+        /Corporate_?Investments/,
+        { timeout: 20_000 },
+      );
 
-      const rows = page.locator(`[data-testid="${TEST_IDS.recentRow}"]`);
-      await expect(rows.first()).toBeVisible({ timeout: 10_000 });
-      await expect(rows.first()).toHaveAttribute("data-recent-kind", "folder");
+      const row = page.locator(`[data-testid="${TEST_IDS.recentRow}"]`, {
+        hasText: "Corporate_Investments",
+      });
+      await expect(row).toBeVisible({ timeout: 10_000 });
+      await expect(row).toHaveAttribute("data-recent-kind", "folder");
 
       // Browse away, then re-open from recents — folders browse in place.
       // The shell resolves the canonical folder path on browse, so match
       // the folder family rather than the recorded display string.
       await root.first().click();
+      await expect(shell).toHaveAttribute("data-selected-folder-path", /\/Sites\/?$/);
       await listReady(page);
-      await page.locator(`[data-testid="${TEST_IDS.recentOpen}"]`).first().click();
-      await expect(shell).toHaveAttribute("data-selected-folder-path", /Corporate/, {
+      await row.locator(`[data-testid="${TEST_IDS.recentOpen}"]`).click();
+      await expect(shell).toHaveAttribute("data-selected-folder-path", /Corporate_?Investments/, {
         timeout: 20_000,
       });
       await expectNoSeriousA11yViolations(page, `[data-testid="${TEST_IDS.shell}"]`);
       expect(jsErrors, jsErrors.join("\n")).toEqual([]);
+      // Live Proof (#6305): pass-run capture of the Recent panel with the
+      // re-browsed folder row; committed copy under docs/ai-generated/proofs/.
+      await page.screenshot({ path: "test-results/live-proof-6256-recent-items.png" });
     },
   );
 

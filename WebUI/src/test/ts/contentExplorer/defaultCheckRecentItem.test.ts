@@ -71,44 +71,49 @@ describe("defaultCheckRecentItem (#6256)", () => {
     ).resolves.toBe(true);
   });
 
-  it("keeps an item whose id read succeeds", async () => {
-    itemById.mockResolvedValue({ id: "55", name: "Home", path: "/Sites/Demo/Home" } as never);
+  it("keeps an item whose path read succeeds without touching the id read", async () => {
+    itemByPath.mockResolvedValue({ id: "55", name: "Home", path: "/Sites/Demo/Home" } as never);
     await expect(
       defaultCheckRecentItem({ id: "55", name: "Home", path: "/Sites/Demo/Home", kind: "item" }),
     ).resolves.toBe(true);
-    expect(itemByPath).not.toHaveBeenCalled();
+    // Id read answers unknown ids with HTTP 500 (server ERROR log), so it
+    // never runs when the path probe already decided.
+    expect(itemById).not.toHaveBeenCalled();
   });
 
-  it("drops an item on a 404 id read without a path fallback", async () => {
-    itemById.mockRejectedValueOnce(apiError(404));
+  it("drops an item whose path read 404s without touching the id read", async () => {
+    itemByPath.mockRejectedValueOnce(apiError(404));
     await expect(
       defaultCheckRecentItem({ id: "999", name: "Gone", path: "/Sites/Demo/Gone", kind: "item" }),
     ).resolves.toBe(false);
-    expect(itemByPath).not.toHaveBeenCalled();
+    expect(itemById).not.toHaveBeenCalled();
   });
 
-  it("falls back to the path read when the id read 500s (unknown ids 500, not 404)", async () => {
-    // Unknown id (500) + missing path (404) → dropped.
-    itemById.mockRejectedValueOnce(apiError(500));
-    itemByPath.mockRejectedValueOnce(apiError(404));
-    await expect(
-      defaultCheckRecentItem({
-        id: "99999999-999-999",
-        name: "Deleted item",
-        path: "/Sites/Demo/Deleted",
-        kind: "item",
-      }),
-    ).resolves.toBe(false);
-    // Unknown id (500) + live path (200) → kept, open attempted.
-    itemById.mockRejectedValueOnce(apiError(500));
-    itemByPath.mockResolvedValueOnce({ id: "55", name: "Home", path: "/Sites/Demo/Home" } as never);
+  it("keeps an item whose path read fails inconclusively", async () => {
+    itemByPath.mockRejectedValueOnce(apiError(500));
     await expect(
       defaultCheckRecentItem({ id: "55", name: "Home", path: "/Sites/Demo/Home", kind: "item" }),
     ).resolves.toBe(true);
-    // Id-only entry whose id read fails → dropped (nothing to open by).
-    itemById.mockRejectedValueOnce(apiError(500));
+    expect(itemById).not.toHaveBeenCalled();
+  });
+
+  it("falls back to the id read only for id-only entries (blank path)", async () => {
+    // Id-only entry, id read 200 → kept.
+    itemById.mockResolvedValueOnce({ id: "999", name: "Id only", path: "" } as never);
+    await expect(
+      defaultCheckRecentItem({ id: "999", name: "Id only", path: "", kind: "item" }),
+    ).resolves.toBe(true);
+    expect(itemByPath).not.toHaveBeenCalled();
+    // Id-only entry, id read 404 → dropped.
+    itemById.mockRejectedValueOnce(apiError(404));
     await expect(
       defaultCheckRecentItem({ id: "999", name: "Id only", path: "", kind: "item" }),
     ).resolves.toBe(false);
+    // Id-only entry, id read 500 (unknown ids 500, not 404) → kept:
+    // inconclusive, so the open is still attempted.
+    itemById.mockRejectedValueOnce(apiError(500));
+    await expect(
+      defaultCheckRecentItem({ id: "999", name: "Id only", path: "", kind: "item" }),
+    ).resolves.toBe(true);
   });
 });
