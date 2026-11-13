@@ -35,6 +35,12 @@
  * header.jsp to the legacy test pages (pages/*.jsp) and ProfileMain.jsp,
  * which still referenced the absent jquery-1.2.2.js and the removed
  * jquery-treeview css after #5668.
+ *
+ * <p>Issue #6071 (DTS leg of the #5627 audit) closed out the suite-wide
+ * inventory — zero live third-party vendored .js in the DTS src tree — and
+ * widened this guard from p13n-ds-only to the whole
+ * delivery-tier-suite tree so no sibling service can reintroduce a
+ * vendored copy unnoticed.
  */
 
 "use strict";
@@ -44,6 +50,9 @@ const path = require("path");
 
 // <worktree>/deliverytiersuite/delivery-tier-suite/p13n-ds
 const MODULE_DIR = path.join(__dirname, "..", "..", "..");
+
+// <worktree>/deliverytiersuite/delivery-tier-suite — audit #6071 scope.
+const SUITE_DIR = path.join(MODULE_DIR, "..");
 
 const REMOVED_DIR_NAMES = ["lib-js"];
 
@@ -148,11 +157,7 @@ function walkJsFiles(dir, out) {
   }
 }
 
-function assertNoVendoredLegacyLibs() {
-  const roots = [
-    path.join(MODULE_DIR, "src-js"),
-    path.join(MODULE_DIR, "src", "main"),
-  ];
+function findVendoredHits(roots, relativeTo) {
   const files = [];
   for (const root of roots) {
     walkJsFiles(root, files);
@@ -167,7 +172,7 @@ function assertNoVendoredLegacyLibs() {
       // The guard tests themselves live under src-js/.../__tests__/ and
       // their filenames contain no removed patterns, so any hit here is a
       // reintroduced vendored library.
-      hits.push(path.relative(MODULE_DIR, file));
+      hits.push(path.relative(relativeTo, file));
       continue;
     }
     // Also catch a vendored jQuery by its version banner regardless of
@@ -179,15 +184,58 @@ function assertNoVendoredLegacyLibs() {
         const major = Number(versionMatch[1]);
         const minor = Number(versionMatch[2]);
         if (major < 3 || (major === 3 && minor < 5)) {
-          hits.push(`${path.relative(MODULE_DIR, file)} (jQuery banner v${major}.${minor})`);
+          hits.push(`${path.relative(relativeTo, file)} (jQuery banner v${major}.${minor})`);
         }
       }
     }
   }
+  return hits;
+}
+
+function assertNoVendoredLegacyLibs() {
+  const roots = [
+    path.join(MODULE_DIR, "src-js"),
+    path.join(MODULE_DIR, "src", "main"),
+  ];
+  const hits = findVendoredHits(roots, MODULE_DIR);
   if (hits.length > 0) {
     throw new Error(
       "Vendored legacy client libraries found under p13n-ds:\n  " +
         hits.join("\n  "),
+    );
+  }
+}
+
+function assertNoVendoredLibsSuiteWide() {
+  // Audit #6071: zero live third-party vendored .js in the DTS src tree
+  // (comments/feeds/forms/membership/metadata/polls/secure-membership
+  // carry config/XML only; register holds first-party perc_constants.js;
+  // p13n-ds holds first-party perc_* trackers). Fail if any sibling
+  // service reintroduces a removed library or a lib-js/ tree.
+  const libJsDirs = [];
+  const stack = [SUITE_DIR];
+  while (stack.length > 0) {
+    const dir = stack.pop();
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+      if (entry.name === "node_modules" || entry.name === "target") {
+        continue;
+      }
+      const full = path.join(dir, entry.name);
+      if (entry.isDirectory()) {
+        if (entry.name === "lib-js") {
+          libJsDirs.push(path.relative(SUITE_DIR, full));
+        } else {
+          stack.push(full);
+        }
+      }
+    }
+  }
+  const hits = findVendoredHits([SUITE_DIR], SUITE_DIR);
+  const all = [...libJsDirs.map((d) => `${d}/ (vendored lib-js/ tree)`), ...hits];
+  if (all.length > 0) {
+    throw new Error(
+      "Vendored legacy client libraries found in delivery-tier-suite:\n  " +
+        all.join("\n  "),
     );
   }
 }
@@ -218,6 +266,7 @@ function runAllTests() {
     ["Vendored lib-js/ tree is gone", assertRemovedTreeIsGone],
     ["No vendored legacy libs under p13n-ds", assertNoVendoredLegacyLibs],
     ["No JSP references to removed lib-js paths", assertNoDanglingJspReferences],
+    ["No vendored legacy libs suite-wide (#6071)", assertNoVendoredLibsSuiteWide],
   ];
 
   let passed = 0;
