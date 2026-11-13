@@ -1284,6 +1284,24 @@ From the **View** menu you can also toggle:
   **404**; non-admin callers receive **403**; pasting a folder into itself is
   **409**. Paste is not the reduced-actions Copy destination picker.
 
+## Recent items
+
+**View → Recent** (or the **Recent** button in the view tools) opens the
+**Recent** quick-access panel. It lists the last 10 items you opened in
+Content Explorer — pages, assets, and folders — most recent first. Opening
+an item again moves it to the top; the list is kept per signed-in operator
+in the browser (local storage), so it is not shared across browsers or
+operators and it never calls the server to load.
+
+- A **page or asset** row re-opens the item in the content editor.
+- A **folder** row browses back to that folder in the list.
+- Every row is a button, so Tab reaches it and Enter (or Space) activates
+  it. Each row also has a **Remove from recent items** control; **Clear
+  recent items** empties the whole list.
+- An entry whose item was deleted is dropped from the list when you
+  activate it. The panel says the item is no longer available — it does not
+  show an error.
+
 ## Translations
 
 Open **View → Translations** after selecting a **page or asset** in the list (or use
