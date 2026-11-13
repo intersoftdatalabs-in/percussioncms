@@ -19,6 +19,7 @@ package com.percussion.packages.pagexml;
 
 import com.percussion.packages.manifest.PSComponentPackageManifest;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,7 +48,9 @@ import java.util.Objects;
  * file, what would change (would-be manifest id, template type, assembler, slot / binding counts)
  * and what blocks (parse / compile / validation / parity reason). {@link Report#toMarkdown()}
  * renders the panel as Markdown for operator tooling and issue evidence; {@link Report#toText()}
- * renders a plain-text variant for CLI use.
+ * renders a plain-text variant for CLI use. {@link Report#writeTo(Path)} persists both
+ * renderings under an operator-chosen directory so upgrade dry-runs can be archived and
+ * audited without touching the scanned legacy inputs.
  *
  * <p>Fallback-path removal behind migrated definitions (issue #5864 / parent #2626): the
  * manifest readback resolves the assembler strictly against the registered product catalog, so
@@ -160,6 +163,12 @@ public final class PSPageXmlMigrationDryRun {
 
   /** Per-package dry-run report; the migration status panel. */
   public static final class Report {
+    /** File name used by {@link #writeTo(Path)} for the Markdown panel. */
+    public static final String MARKDOWN_FILE_NAME = "migration-dry-run.md";
+
+    /** File name used by {@link #writeTo(Path)} for the plain-text panel. */
+    public static final String TEXT_FILE_NAME = "migration-dry-run.txt";
+
     private final List<Entry> entries;
 
     private Report(List<Entry> entries) {
@@ -261,6 +270,56 @@ public final class PSPageXmlMigrationDryRun {
 
     private static String singleLine(String value) {
       return value.replace("\r", " ").replace("\n", " ").trim();
+    }
+
+    /**
+     * Persist this report for upgrade-run archival: writes {@link #toMarkdown()} and {@link
+     * #toText()} as {@link #MARKDOWN_FILE_NAME} / {@link #TEXT_FILE_NAME} under {@code
+     * outputDir} (created with parents when missing), then returns both files in write order.
+     * Re-running overwrites the previous pair; the scanned legacy inputs are never touched.
+     *
+     * @param outputDir non-null directory that receives the report pair
+     * @return the two written files, Markdown first (never null)
+     * @throws IOException on directory-creation or write failure
+     */
+    public List<Path> writeTo(Path outputDir) throws IOException {
+      Objects.requireNonNull(outputDir, "outputDir");
+      Files.createDirectories(outputDir);
+      Path markdown = outputDir.resolve(MARKDOWN_FILE_NAME);
+      Path text = outputDir.resolve(TEXT_FILE_NAME);
+      writeMarkdown(markdown);
+      writeText(text);
+      return List.of(markdown, text);
+    }
+
+    /**
+     * Write {@link #toMarkdown()} to {@code file} as UTF-8, creating missing parents.
+     *
+     * @param file non-null destination file
+     * @throws IOException on directory-creation or write failure
+     */
+    public void writeMarkdown(Path file) throws IOException {
+      Objects.requireNonNull(file, "file");
+      writePanel(file, toMarkdown());
+    }
+
+    /**
+     * Write {@link #toText()} to {@code file} as UTF-8, creating missing parents.
+     *
+     * @param file non-null destination file
+     * @throws IOException on directory-creation or write failure
+     */
+    public void writeText(Path file) throws IOException {
+      Objects.requireNonNull(file, "file");
+      writePanel(file, toText());
+    }
+
+    private static void writePanel(Path file, String panel) throws IOException {
+      Path parent = file.toAbsolutePath().getParent();
+      if (parent != null) {
+        Files.createDirectories(parent);
+      }
+      Files.writeString(file, panel, StandardCharsets.UTF_8);
     }
   }
 

@@ -178,6 +178,13 @@ Page templateDef, and Gadget registry fixtures compile through the normalized pa
 (even with the legacy XML still on disk), and an unconverted legacy-only id fails with
 the retired-legacy error naming the compiler upgrade path.
 
+Archive the page templateDef dry-run before you convert: `PSPageXmlMigrationDryRun`
+(simulate parse → compile → manifest readback → install-XML parity, writing nothing)
+exposes `Report#writeTo(Path)`, which persists the per-package status panel as
+`migration-dry-run.md` plus `migration-dry-run.txt` under the directory you choose.
+Keep that pair with the change record — READY rows are the convert list, BLOCKED rows
+name what to fix first (for example an unregistered assembler).
+
 ### 5. Remove XML only for converted ids
 
 After smoke/parity on the converted definitions:
