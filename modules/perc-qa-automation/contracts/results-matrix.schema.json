@@ -1,0 +1,63 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://percussioncms.intsof.com/contracts/results-matrix.schema.json",
+  "title": "Content/widget results-matrix row",
+  "description": "One row per built-in content type (US1, #6239) or per widget (US2/US3 siblings). Rows are built by tests/helpers/content-create-matrix.js buildResultRow and validated by validateResultRow; the Playwright inventory/matrix specs fail when a row does not conform.",
+  "type": "object",
+  "required": ["suite", "spec", "contentType", "label", "cell", "cases", "status", "updated"],
+  "additionalProperties": false,
+  "properties": {
+    "suite": {
+      "type": "string",
+      "const": "content-create-matrix",
+      "description": "Matrix suite that produced the row."
+    },
+    "spec": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Spec file that produced the row, module-relative (e.g. tests/content-create-matrix.spec.js)."
+    },
+    "contentType": {
+      "type": "string",
+      "pattern": "^(perc|rff)[A-Za-z0-9]+$",
+      "description": "Built-in content-type name as listed by GET /services/contenttypes."
+    },
+    "label": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Catalog label for the content type."
+    },
+    "cell": {
+      "type": "string",
+      "enum": ["cms-only"],
+      "description": "QA cell the row was produced on. US1 runs on the CMS-only cell (no DTS dependency)."
+    },
+    "cases": {
+      "type": "object",
+      "required": ["createRoundTrip", "negativeRequired"],
+      "additionalProperties": false,
+      "properties": {
+        "createRoundTrip": {
+          "type": "string",
+          "enum": ["pass", "fail", "skip"],
+          "description": "Create via the editor New-item flow, then save and reopen with values round-tripped."
+        },
+        "negativeRequired": {
+          "type": "string",
+          "enum": ["pass", "fail", "skip"],
+          "description": "Blank required field shows a visible message and persists nothing."
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": ["pass", "fail", "skip"],
+      "description": "Row roll-up: fail wins over skip wins over pass."
+    },
+    "updated": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+      "description": "Row date (YYYY-MM-DD)."
+    }
+  }
+}

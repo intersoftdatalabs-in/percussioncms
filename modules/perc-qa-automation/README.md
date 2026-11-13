@@ -613,6 +613,48 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
   npm run test:surface -- --path tests/editor-host-yesno-required-blank.spec.js
 ```
 
+### Content creation matrix, all built-in types (#6239 / parent #6238)
+
+H2 operator proof (US1, CMS-only cell) that every built-in content type can be
+created end to end: New-item create in the React editor host, then save and
+reopen with values round-tripped, plus a negative case per type (blank
+required field shows a message and persists nothing). CMS REST APIs are
+stubbed per type following the `assembly-*-field` / `editor-host-*` family;
+the cell serves the SPA shell, login, and the live content-type catalog the
+inventory check reads.
+
+| Item | Value |
+|------|--------|
+| Matrix spec | `frontend/tests/content-create-matrix.spec.js` (54 types × 2 cases) |
+| Inventory spec | `frontend/tests/content-create-inventory.spec.js` |
+| Helpers | `frontend/tests/helpers/content-create-matrix.js` (pinned inventory + row builder + validator) |
+| Contract | `contracts/results-matrix.schema.json` (+ `contracts/results-matrix.example.json`) |
+| Unit | `frontend/tests/unit/content-create-matrix.test.js` (no live CMS) |
+| Tags | `@content-create` `@explorer` + `@content-create-<type>` per type |
+
+```bash
+cd modules/perc-qa-automation/frontend
+TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
+  ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+  TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+  npm run test:surface -- --path tests/content-create-matrix.spec.js
+# Single type:
+  npm run test:surface -- --path tests/content-create-matrix.spec.js --grep "percPage:"
+# Inventory (live catalog cross-check + row validation):
+  npm run test:surface -- --path tests/content-create-inventory.spec.js
+# No live CMS:
+  npm run test:unit
+```
+
+The inventory (`BUILT_IN_TYPES`) is closed: the inventory spec fails when a
+pinned type is missing from the live catalog and when the catalog contains a
+creatable type that is neither pinned nor listed in `SYSTEM_EXCLUSIONS`
+(`Folder`, `PSWidgetProperties`, `percPageTemplate`). Each full matrix run
+validates all 54 rows against the schema and writes
+`frontend/test-results/content-create-matrix.json` (gitignored). To add a
+type shipped by the CMS later: append one entry to `BUILT_IN_TYPES` (the
+matrix spec picks it up automatically, two cases, no other edits).
+
 ### Architecture Create section no-skip (#3589 / #3661 / #3672 / parent #3092)
 
 H2 operator proof that **Create section** is enabled on
