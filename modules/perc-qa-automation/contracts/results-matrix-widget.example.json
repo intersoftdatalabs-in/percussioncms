@@ -1,0 +1,26 @@
+[
+  {
+    "suite": "published-widget-matrix",
+    "spec": "tests/published-widget-matrix.spec.js",
+    "contentType": "percCategoryList",
+    "label": "Category List",
+    "cell": "published-site",
+    "cases": {
+      "staticRender": "pass"
+    },
+    "status": "pass",
+    "updated": "2026-11-13"
+  },
+  {
+    "suite": "published-widget-matrix",
+    "spec": "tests/published-widget-matrix.spec.js",
+    "contentType": "percPoll",
+    "label": "Poll",
+    "cell": "published-site",
+    "cases": {
+      "staticRender": "skip"
+    },
+    "status": "skip",
+    "updated": "2026-11-13"
+  }
+]

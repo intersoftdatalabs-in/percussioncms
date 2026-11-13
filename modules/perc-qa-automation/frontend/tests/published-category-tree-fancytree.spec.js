@@ -31,9 +31,14 @@
  * npm-backed WebUI tree, Dependabot-tracked {@code jquery.fancytree}), the
  * deleted DynaTree published paths must stay gone, and the collapsible
  * category list must initialize {@code .fancytree(} with zero script 404s.
+ * Expanding a collapsed node must reveal its child entries (#6189 render
+ * half, #6240 US2). The URL assertions run against any published host;
  * The URL assertions run against any published host; the widget-init half
  * skips unless {@code PUBLISHED_CATEGORY_URL} points at a page rendering a
  * collapsible category list.</p>
+ *
+ * <p>Tags: {@code @published} {@code @category-tree} plus
+ * {@code @category-expand} on the expand case.</p>
  */
 
 const { test, expect } = require("@playwright/test");
@@ -136,6 +141,64 @@ test.describe("Published category-list tree from npm FancyTree (issue #6052)", (
       expect(
         treeErrorStacks,
         `tree JS errors:\n${treeErrorStacks.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
+});
+
+test.describe("collapsible category expand on the published page (issue #6189)", () => {
+  test(
+    "expanding a collapsed node reveals its child entries @published",
+    { tag: ["@published", "@category-tree", "@category-expand"] },
+    async ({ page }) => {
+      test.setTimeout(120_000);
+      const pageUrl = process.env.PUBLISHED_CATEGORY_URL || "";
+      test.skip(
+        !pageUrl,
+        "needs PUBLISHED_CATEGORY_URL=(page rendering a collapsible category list)",
+      );
+
+      const failedRequests = [];
+      page.on("requestfailed", (req) => {
+        if (/fancytree|dynatree|category/i.test(req.url())) {
+          failedRequests.push(`${req.url()} :: ${req.failure()?.errorText}`);
+        }
+      });
+      page.on("response", (resp) => {
+        if (resp.status() >= 400 && /fancytree|dynatree|category/i.test(resp.url())) {
+          failedRequests.push(`${resp.url()} :: HTTP ${resp.status()}`);
+        }
+      });
+
+      await page.goto(pageUrl, { waitUntil: "networkidle" });
+
+      // A flat category list has nothing to expand: name the gap instead of
+      // failing, so the fixture slice can add a nested category without a
+      // spec change.
+      const expander = page.locator(".perc-category-list-collapsible .fancytree-expander").first();
+      test.skip(
+        (await expander.count()) === 0,
+        "no expandable category nodes on this fixture page; publish a nested category to exercise expand",
+      );
+      await expander.scrollIntoViewIfNeeded();
+      await expander.click();
+      const expanded = page.locator(
+        ".perc-category-list-collapsible li.fancytree-has-children.fancytree-expanded",
+      );
+      await expect(expanded.first(), "expanded node keeps the expanded marker").toBeVisible({
+        timeout: 15_000,
+      });
+      const visibleChildren = await expanded
+        .first()
+        .locator("> ul > li")
+        .evaluateAll((items) =>
+          items.filter((item) => window.getComputedStyle(item).display !== "none").length,
+        );
+      expect(visibleChildren, "expanded node reveals at least one child entry").toBeGreaterThan(0);
+
+      expect(
+        failedRequests,
+        `failed category/tree requests:\n${failedRequests.join("\n")}`,
       ).toEqual([]);
     },
   );

@@ -2,14 +2,14 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://percussioncms.intsof.com/contracts/results-matrix.schema.json",
   "title": "Content/widget results-matrix row",
-  "description": "One row per built-in content type (US1, #6239) or per widget (US2/US3 siblings). Rows are built by tests/helpers/content-create-matrix.js buildResultRow and validated by validateResultRow; the Playwright inventory/matrix specs fail when a row does not conform.",
+  "description": "One row per built-in content type (US1, #6239) or per widget (US2 static shell, #6240; US3 dynamic interaction sibling rows reuse the widget suite with interaction cases). Rows are built by tests/helpers/content-create-matrix.js buildResultRow (US1) or tests/helpers/published-widget-matrix.js buildWidgetRow (US2) and validated by the matching validate function; the Playwright inventory/matrix specs fail when a row does not conform.",
   "type": "object",
   "required": ["suite", "spec", "contentType", "label", "cell", "cases", "status", "updated"],
   "additionalProperties": false,
   "properties": {
     "suite": {
       "type": "string",
-      "const": "content-create-matrix",
+      "enum": ["content-create-matrix", "published-widget-matrix"],
       "description": "Matrix suite that produced the row."
     },
     "spec": {
@@ -19,23 +19,26 @@
     },
     "contentType": {
       "type": "string",
-      "pattern": "^(perc|rff)[A-Za-z0-9]+$",
-      "description": "Built-in content-type name as listed by GET /services/contenttypes."
+      "pattern": "^(perc|rff|simple)[A-Za-z0-9]+$",
+      "description": "Built-in content-type name as listed by GET /services/contenttypes (US1), or pinned widget name for the US2 static matrix (simple* covers the legacy simple list widgets)."
     },
     "label": {
       "type": "string",
       "minLength": 1,
-      "description": "Catalog label for the content type."
+      "description": "Catalog label for the content type, or display label for the widget."
     },
     "cell": {
       "type": "string",
-      "enum": ["cms-only"],
-      "description": "QA cell the row was produced on. US1 runs on the CMS-only cell (no DTS dependency)."
+      "enum": ["cms-only", "published-site"],
+      "description": "QA cell the row was produced on. US1 runs on the CMS-only cell (no DTS dependency); US2 runs against the published site (needs the DTS publish path, PUBLISHED_SITE_URL)."
     },
     "cases": {
       "type": "object",
-      "required": ["createRoundTrip", "negativeRequired"],
       "additionalProperties": false,
+      "anyOf": [
+        { "required": ["createRoundTrip", "negativeRequired"] },
+        { "required": ["staticRender"] }
+      ],
       "properties": {
         "createRoundTrip": {
           "type": "string",
@@ -46,6 +49,11 @@
           "type": "string",
           "enum": ["pass", "fail", "skip"],
           "description": "Blank required field shows a visible message and persists nothing."
+        },
+        "staticRender": {
+          "type": "string",
+          "enum": ["pass", "fail", "skip"],
+          "description": "Widget static output renders on its published fixture page with zero missing resources."
         }
       }
     },

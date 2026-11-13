@@ -655,6 +655,54 @@ validates all 54 rows against the schema and writes
 type shipped by the CMS later: append one entry to `BUILT_IN_TYPES` (the
 matrix spec picks it up automatically, two cases, no other edits).
 
+### Published widget static-render matrix (#6240 / parent #6238)
+
+US2 operator proof that every shipped widget type renders its expected static
+output on a published site: one static case per widget asserting the
+template's published hook (body marker, `<head>` marker for meta/link
+widgets, non-empty visible text for passthrough content widgets) with zero
+missing resources. Widgets backed by a DTS service assert their static shell
+here; service interaction is US3 (#6241). The collapsible category-list
+expand case lives in `published-category-tree-fancytree.spec.js` (closes the
+#6189 render half alongside #6236).
+
+| Item | Value |
+|------|--------|
+| Matrix spec | `frontend/tests/published-widget-matrix.spec.js` (45 widgets × 1 case) |
+| Expand spec | `frontend/tests/published-category-tree-fancytree.spec.js` (assets + init + expand) |
+| Helpers | `frontend/tests/helpers/published-widget-matrix.js` (pinned inventory + row builder + validator) |
+| Contract | `contracts/results-matrix.schema.json` (`published-widget-matrix` suite, `published-site` cell, `staticRender` case; + `contracts/results-matrix-widget.example.json`) |
+| Unit | `frontend/tests/unit/published-widget-matrix.test.js` (no live CMS, no published site) |
+| Tags | `@published` `@published-widget` + `@widget-<name>` per widget; `@category-tree` `@category-expand` on expand |
+
+```bash
+cd modules/perc-qa-automation/frontend
+# Needs the in-cell published site + fixture pages (full edition/publish path):
+PUBLISHED_SITE_URL=https://<in-cell-published-site-origin> \
+  PUBLISHED_CATEGORY_URL=https://<site>/<page-with-collapsible-category-list> \
+  npm run test:surface -- --path tests/published-widget-matrix.spec.js
+# Single widget (percCategoryList prefers PUBLISHED_CATEGORY_URL when set):
+  npm run test:surface -- --path tests/published-widget-matrix.spec.js --grep percCategoryList
+# Category expand (named skip without PUBLISHED_CATEGORY_URL):
+  npm run test:surface -- --path tests/published-category-tree-fancytree.spec.js
+# No published site (skip contract proven, exit 0):
+  npm run test:surface -- --path tests/published-widget-matrix.spec.js
+# No live CMS:
+  npm run test:unit
+```
+
+The inventory (`WIDGETS`) is closed: the unit test fails when a shipped
+`widgets/<Name>/templates` directory is neither pinned nor listed in
+`WIDGET_EXCLUSIONS` (`PSWidget_TestProperties`, `percJQueryWidget`,
+`percJQueryUIWidget`) and when a pinned widget has no shipped template. Each
+full matrix run validates all 45 rows against the schema and writes
+`frontend/test-results/published-widget-matrix.json` (gitignored). Fixture
+contract: one page per widget at `/widgets/<WidgetName>.html` on the
+published origin (documents the fixture the DTS publish slice must serve);
+`percCategoryList` additionally honors `PUBLISHED_CATEGORY_URL`. To add a
+widget shipped by the CMS later: append one entry to `WIDGETS` (the matrix
+spec picks it up automatically, no other edits).
+
 ### Architecture Create section no-skip (#3589 / #3661 / #3672 / parent #3092)
 
 H2 operator proof that **Create section** is enabled on
