@@ -626,7 +626,7 @@ public class PSActiveAssemblyProcessorProxy extends PSProcessorProxy {
    * @return <code>true</code> if the sort rank properties for the collection of relationships are
    *     zero-based, <code>false</code> otherwise.
    */
-  public boolean isZeroBased(PSCollectionComponent collection) {
+  public boolean isZeroBased(PSCollectionComponent<?> collection) {
     if (collection == null) {
       throw new IllegalArgumentException("collection may not be null");
     }

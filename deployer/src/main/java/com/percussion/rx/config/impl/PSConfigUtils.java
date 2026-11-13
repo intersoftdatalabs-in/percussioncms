@@ -394,7 +394,7 @@ public class PSConfigUtils {
     if (rule.isExtensionSetRule()) {
       map.put(PROP_TYPE, TYPE_EXTENSION);
       var callSet = rule.getExtensionRules();
-      var call = (PSExtensionCall) callSet.iterator().next();
+      var call = callSet.iterator().next();
       map.putAll(getExtensionCallDef(call, PROP_NAME));
     } else {
       map.put(PROP_TYPE, TYPE_CONDITIONAL);
@@ -463,12 +463,11 @@ public class PSConfigUtils {
   private static PSRule createExtensionRule(String name, List<String> params) {
     var callSet = new PSExtensionCallSet();
     var extCall = createExtensionCall(name, params, "com.percussion.extension.IPSUdfProcessor");
-    // PSExtensionCallSet inherits raw add(E) from legacy-raw PSCollectionComponent (system module).
+    // PSExtensionCallSet is PSCollectionComponent<PSExtensionCall>; add() is checked.
     addToCallSet(callSet, extCall);
     return new PSRule(callSet);
   }
 
-  @SuppressWarnings("unchecked")
   private static void addToCallSet(PSExtensionCallSet callSet, PSExtensionCall extCall) {
     callSet.add(extCall);
   }

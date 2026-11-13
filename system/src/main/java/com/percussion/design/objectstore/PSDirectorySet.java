@@ -33,7 +33,7 @@ import org.w3c.dom.Element;
  * Collection container for <code>PSReference</code> objects which all reference a <code>PSDirectory
  * </code> object.
  */
-public final class PSDirectorySet extends PSCollectionComponent {
+public final class PSDirectorySet extends PSCollectionComponent<PSReference> {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

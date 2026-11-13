@@ -40,7 +40,7 @@ import org.w3c.dom.Element;
  * @version 1.0
  * @since 1.0
  */
-public final class PSDataMapper extends PSCollectionComponent {
+public final class PSDataMapper extends PSCollectionComponent<PSDataMapping> {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
@@ -73,7 +73,7 @@ public final class PSDataMapper extends PSCollectionComponent {
    */
   public void copyFrom(PSDataMapper mapper) {
     m_returnEmptyXml = mapper.m_returnEmptyXml;
-    copyFrom((PSCollectionComponent) mapper);
+    super.copyFrom(mapper);
     // copy our state
   }
 

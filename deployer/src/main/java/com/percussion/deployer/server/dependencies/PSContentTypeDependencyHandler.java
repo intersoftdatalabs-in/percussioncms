@@ -992,7 +992,6 @@ public class PSContentTypeDependencyHandler extends PSContentEditorObjectDepende
             ce.setWorkflowInfo(wfInfo);
           }
 
-          @SuppressWarnings("unchecked")
           List<Integer> wfIds = wfInfo.getWorkflowIds();
           if (!wfIds.contains(defaultWfId)) {
             wfIds.add(defaultWfId);

@@ -115,7 +115,8 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
     m_label = name;
     m_category = CATEGORY_ACTIVE_ASSEMBLY;
 
-    for (PSProperty sysPropDefault : ms_systemDefaults) m_sysProps.add(sysPropDefault.clone());
+    for (PSProperty sysPropDefault : ms_systemDefaults)
+      m_sysProps.add((PSProperty) sysPropDefault.clone());
     resetSysPropMap();
   }
 
@@ -622,7 +623,7 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
     if (props == null) throw new IllegalArgumentException("props may not be null.");
 
     m_userProps.clear();
-    while (props.hasNext()) m_userProps.add(props.next());
+    while (props.hasNext()) m_userProps.add((PSProperty) props.next());
 
     resetUserPropMap();
   }
@@ -1057,7 +1058,7 @@ public class PSRelationshipConfig extends PSComponent implements IPSCatalogSumma
         if (systemDefault.getName().equals(property.getName())) found = true;
       }
 
-      if (!found) properties.add(systemDefault.clone());
+      if (!found) properties.add((PSProperty) systemDefault.clone());
     }
   }
 

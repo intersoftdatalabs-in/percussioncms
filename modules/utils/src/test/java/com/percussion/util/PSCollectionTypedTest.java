@@ -107,9 +107,9 @@ public class PSCollectionTypedTest {
   }
 
   /**
-   * perc-system pattern: raw {@code PSCollection} / {@code PSCollectionComponent} subclasses
-   * override {@code iterator()} to {@code Iterator<Specific>} and pass the set as {@code
-   * Iterable<Specific>}.
+   * perc-system pattern: raw {@code PSCollection} subclasses — and typed {@code
+   * PSCollectionComponent<E>} subclasses such as {@code PSRelationshipSet} — override {@code
+   * iterator()} to {@code Iterator<Specific>} and pass the set as {@code Iterable<Specific>}.
    */
   @Test
   @SuppressWarnings({"rawtypes", "unchecked"})

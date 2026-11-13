@@ -207,7 +207,7 @@ public final class PSWorkflowInfo extends PSComponent {
    * @return a {@link List} of workflow ids as {@link Integer}s. Ownership of the list remains with
    *     this class. Therefore, any changes made to the list will affect this class.
    */
-  public List getWorkflowIds() {
+  public List<Integer> getWorkflowIds() {
     return getValueList();
   }
 

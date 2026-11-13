@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implementation for the PSXInputTranslations DTD in BasicObjects.dtd. */
-public class PSInputTranslations extends PSCollectionComponent {
+public class PSInputTranslations extends PSCollectionComponent<PSConditionalExit> {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
@@ -47,20 +47,6 @@ public class PSInputTranslations extends PSCollectionComponent {
       throws PSUnknownNodeTypeException {
     this();
     fromXml(sourceNode, parentDoc, parentComponents);
-  }
-
-  /**
-   * Performs a shallow copy of the data in the supplied component to this component. Derived
-   * classes should implement this method for their data, calling the base class method first.
-   *
-   * @param c a valid PSDisplayMapper, not <code>null</code>.
-   */
-  public void copyFrom(PSDisplayMapper c) {
-    try {
-      super.copyFrom(c);
-    } catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException(e.getLocalizedMessage());
-    }
   }
 
   /**

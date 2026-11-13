@@ -97,7 +97,7 @@ class SharedFieldsAdaptorTest {
     when(group.getFieldSet()).thenReturn(set);
 
     PSContentEditorSharedDef def = mock(PSContentEditorSharedDef.class);
-    PSCollection coll = new PSCollection(PSSharedFieldGroup.class);
+    PSCollection<PSSharedFieldGroup> coll = new PSCollection<>(PSSharedFieldGroup.class);
     coll.add(group);
     when(def.getFieldGroups()).thenReturn(coll.iterator());
 
@@ -141,7 +141,7 @@ class SharedFieldsAdaptorTest {
     PSSharedFieldGroup group = mock(PSSharedFieldGroup.class);
     when(group.getName()).thenReturn("SharedGroup");
     PSContentEditorSharedDef def = mock(PSContentEditorSharedDef.class);
-    PSCollection coll = new PSCollection(PSSharedFieldGroup.class);
+    PSCollection<PSSharedFieldGroup> coll = new PSCollection<>(PSSharedFieldGroup.class);
     coll.add(group);
     when(def.getFieldGroups()).thenReturn(coll.iterator());
 
@@ -205,7 +205,8 @@ class SharedFieldsAdaptorTest {
   @Test
   void listGroups_usesInjectedLoaderFromDefaultConstructorShape() {
     PSContentEditorSharedDef def = mock(PSContentEditorSharedDef.class);
-    when(def.getFieldGroups()).thenReturn(new PSCollection(PSSharedFieldGroup.class).iterator());
+    when(def.getFieldGroups())
+        .thenReturn(new PSCollection<>(PSSharedFieldGroup.class).iterator());
 
     SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(() -> def);
     assertNotNull(adaptor.listGroups(null));

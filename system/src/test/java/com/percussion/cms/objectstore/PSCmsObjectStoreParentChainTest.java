@@ -83,8 +83,8 @@ public class PSCmsObjectStoreParentChainTest {
 
     PSDependentSet restored = new PSDependentSet(elem, null, parents);
     assertEquals(2, restored.size());
-    assertEquals(11, ((PSDependent) restored.get(0)).getRelationshipId());
-    assertEquals(22, ((PSDependent) restored.get(1)).getRelationshipId());
+    assertEquals(11, restored.get(0).getRelationshipId());
+    assertEquals(22, restored.get(1).getRelationshipId());
     assertEquals(1, parents.size());
     assertSame(sentinel, parents.get(0));
   }

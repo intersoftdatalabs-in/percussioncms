@@ -28,6 +28,7 @@ import com.percussion.data.PSInternalRequestCallException;
 import com.percussion.data.PSUserContextExtractor;
 import com.percussion.design.objectstore.PSContentEditor;
 import com.percussion.design.objectstore.PSContentType;
+import com.percussion.design.objectstore.PSLiteral;
 import com.percussion.design.objectstore.PSLiteralSet;
 import com.percussion.design.objectstore.PSLocator;
 import com.percussion.design.objectstore.PSSystemValidationException;
@@ -262,7 +263,7 @@ public class PSCms {
     try {
       String userName =
           (PSUserContextExtractor.getUserContextInformation(
-                  "User/Name", PSThreadRequestUtils.getPSRequest(), new PSLiteralSet(String.class)))
+                  "User/Name", PSThreadRequestUtils.getPSRequest(), new PSLiteralSet(PSLiteral.class)))
               .toString();
 
       if (userName.equals(IPSConstants.INTERNAL_USER_NAME)) return true;

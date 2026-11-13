@@ -27,14 +27,14 @@ public class PSDataComparisonTest {
 
   @Test
   public void testNumericComparisonsNotEqual() {
-    Long lSmall = new Long(10);
-    Long lBig = new Long(20);
+    Long lSmall = Long.valueOf(10);
+    Long lBig = Long.valueOf(20);
     Integer iSmall = Integer.valueOf(10);
     Integer iBig = Integer.valueOf(20);
     String sSmall = new String("10");
     String sBig = new String("20");
-    Double dSmall = new Double(10);
-    Double dBig = new Double(20);
+    Double dSmall = Double.valueOf(10);
+    Double dBig = Double.valueOf(20);
     BigDecimal bdSmall = new BigDecimal(10);
     BigDecimal bdBig = new BigDecimal(20);
 
@@ -100,12 +100,12 @@ public class PSDataComparisonTest {
 
     Integer i1 = Integer.valueOf(1);
     Integer i2 = Integer.valueOf(0);
-    Long l1 = new Long(1);
-    Long l2 = new Long(0);
+    Long l1 = Long.valueOf(1);
+    Long l2 = Long.valueOf(0);
 
-    Double d1 = new Double(1);
-    Double d2 = new Double(0);
-    Double d3 = new Double(.1);
+    Double d1 = Double.valueOf(1);
+    Double d2 = Double.valueOf(0);
+    Double d3 = Double.valueOf(.1);
 
     String s1 = new String("1");
     String s2 = new String("0");

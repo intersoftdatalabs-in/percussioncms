@@ -452,8 +452,8 @@ public class PSConditionalEvaluatorTest {
 
   @Test
   public void testMakeComparable2Lists() throws Exception {
-    ArrayList left = new ArrayList();
-    ArrayList right = new ArrayList();
+    ArrayList<Object> left = new ArrayList<>();
+    ArrayList<Object> right = new ArrayList<>();
 
     // both empty
     testIsNull(left, right);

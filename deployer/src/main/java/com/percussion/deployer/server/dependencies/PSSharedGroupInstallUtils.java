@@ -188,19 +188,17 @@ public final class PSSharedGroupInstallUtils {
   /**
    * Copies the field groups of a shared def into a typed collection.
    *
-   * <p>{@code PSContentEditorSharedDef.getFieldGroups()} (system module) is still a legacy raw
-   * {@code Iterator}, so the elements are copied through a checked cast instead of the raw {@code
-   * PSCollection(Iterator)} constructor. The element type is {@code PSSharedFieldGroup} (verified
-   * by the casts at the pre-generics use sites).
+   * <p>{@code PSContentEditorSharedDef.getFieldGroups()} (system module) is typed {@code
+   * Iterator<PSSharedFieldGroup>} since #6132, so the elements transfer without a cast.
    *
    * @param def the shared def to copy from, may not be {@code null}.
    * @return a typed collection holding the def's field groups, never {@code null}.
    */
   static PSCollection<PSSharedFieldGroup> typedFieldGroups(PSContentEditorSharedDef def) {
     PSCollection<PSSharedFieldGroup> groups = new PSCollection<>(PSSharedFieldGroup.class);
-    Iterator<?> it = def.getFieldGroups();
+    Iterator<PSSharedFieldGroup> it = def.getFieldGroups();
     while (it.hasNext()) {
-      groups.add((PSSharedFieldGroup) it.next());
+      groups.add(it.next());
     }
     return groups;
   }

@@ -29,7 +29,7 @@ import org.w3c.dom.Element;
  * A collection of PSCloneHandlerConfig objects. It creates or reads documents conforming to the
  * sys_CloneHandlerConfig.dtd.
  */
-public class PSCloneHandlerConfigSet extends PSCollectionComponent implements IPSConfig {
+public class PSCloneHandlerConfigSet extends PSCollectionComponent<PSCloneHandlerConfig> implements IPSConfig {
   /**
    * Construct a Java object from its XML representation.
    *

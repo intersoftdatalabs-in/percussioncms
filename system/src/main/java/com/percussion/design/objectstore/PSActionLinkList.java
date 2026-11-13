@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implementation for the PSXActionLinkList DTD in BasicObjects.dtd. */
-public class PSActionLinkList extends PSCollectionComponent {
+public class PSActionLinkList extends PSCollectionComponent<PSActionLink> {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;
@@ -70,7 +70,7 @@ public class PSActionLinkList extends PSCollectionComponent {
     copy.removeAllElements();
     for (int i = 0; i < size(); i++) {
       PSActionLink action = (PSActionLink) elementAt(i);
-      copy.add(i, action.clone());
+      copy.add(i, (PSActionLink) action.clone());
     }
     return copy;
   }

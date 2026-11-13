@@ -100,7 +100,7 @@ public class PSControlDependencyMapTest {
       } else {
         assertEquals(dependency.getId(), 0);
         dependency.setId(nextDepId++);
-        extList.add(0, dependency.getDependent());
+        extList.add(0, (PSExtensionCall) dependency.getDependent());
       }
     }
     depMap.setControlDependencies(newMapping, newDepList);

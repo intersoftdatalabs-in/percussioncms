@@ -25,7 +25,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implementation for the PSXVisibilityRules DTD in BasicObjects.dtd. */
-public class PSVisibilityRules extends PSCollectionComponent {
+public class PSVisibilityRules extends PSCollectionComponent<PSRule> {
   /** Creates a new collection of PSRule obejcts. */
   public PSVisibilityRules() {
     super((new PSRule()).getClass());

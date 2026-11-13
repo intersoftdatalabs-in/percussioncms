@@ -24,7 +24,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 
 /** Implementation for the PSXValidationRules DTD in BasicObjects.dtd. */
-public class PSValidationRules extends PSCollectionComponent {
+public class PSValidationRules extends PSCollectionComponent<PSConditionalExit> {
 
   /** Serialization id for {@link java.io.Serializable}. */
   private static final long serialVersionUID = 1L;

@@ -110,9 +110,9 @@ public class PSRelationshipConfigSetter extends PSSimplePropertySetter {
     }
   }
 
-  // Field-override configs are String-keyed maps by Spring bean construction, and
-  // PSCloneOverrideFieldList inherits raw add(E) from legacy-raw PSCollectionComponent
-  // (system module).
+  // Field-override configs are String-keyed maps by Spring bean construction (the remaining
+  // unchecked cast below is the Spring-bean propValue cast, not the collection hierarchy:
+  // PSCloneOverrideFieldList is PSCollectionComponent<PSCloneOverrideField> since #6132).
   @SuppressWarnings("unchecked")
   private void setCloneFieldOverrides(PSRelationshipConfig relConfig, Object propValue) {
     if (!(propValue instanceof List))
@@ -181,7 +181,7 @@ public class PSRelationshipConfigSetter extends PSSimplePropertySetter {
     var cfList = relConfig.getCloneOverrideFieldList();
     var iter = cfList.iterator();
     while (iter.hasNext()) {
-      var cf = (PSCloneOverrideField) iter.next();
+      var cf = iter.next();
 
       var cfEntry = new HashMap<String, Object>();
       var name = cf.getName();

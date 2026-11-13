@@ -127,7 +127,7 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
    *
    * @return a collection of PSSharedFieldGroup objects, never <code>null</code>, may be empty.
    */
-  public Iterator getFieldGroups() {
+  public Iterator<PSSharedFieldGroup> getFieldGroups() {
     return m_fieldGroups.iterator();
   }
 
@@ -139,11 +139,11 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
    * @return the shared field corresponding to the file name supplied, never <code>null</code> may
    *     be empty if not found.
    */
-  public PSCollection lookupFieldGroupByFileName(String fileName) {
-    PSCollection fieldGroups = new PSCollection(PSSharedFieldGroup.class);
-    Iterator iter = getFieldGroups();
+  public PSCollection<PSSharedFieldGroup> lookupFieldGroupByFileName(String fileName) {
+    PSCollection<PSSharedFieldGroup> fieldGroups = new PSCollection<>(PSSharedFieldGroup.class);
+    Iterator<PSSharedFieldGroup> iter = getFieldGroups();
     while (iter.hasNext()) {
-      PSSharedFieldGroup g = (PSSharedFieldGroup) iter.next();
+      PSSharedFieldGroup g = iter.next();
       if (g.getFilename().equals(fileName)) fieldGroups.add(g);
     }
     return fieldGroups;
@@ -156,13 +156,13 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
    *
    * @param group shared field group to add or replace. Must not be <code>null</code>.
    */
-  public void setFieldGroupsByFileName(Iterator group) {
+  public void setFieldGroupsByFileName(Iterator<PSSharedFieldGroup> group) {
     if (group == null || !group.hasNext())
       throw new IllegalArgumentException("group must not be null or empty");
 
-    PSSharedFieldGroup first = (PSSharedFieldGroup) group.next();
-    PSCollection g = lookupFieldGroupByFileName(first.getFilename());
-    for (Object psSharedFieldGroup : g) {
+    PSSharedFieldGroup first = group.next();
+    PSCollection<PSSharedFieldGroup> g = lookupFieldGroupByFileName(first.getFilename());
+    for (PSSharedFieldGroup psSharedFieldGroup : g) {
       m_fieldGroups.remove(psSharedFieldGroup);
     }
 
@@ -188,7 +188,7 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
    * @param fieldGroups the new collection of PSSharedFieldGroup objects, never <code>null</code>,
    *     may be empty.
    */
-  public final void setFieldGroups(PSCollection fieldGroups) {
+  public final void setFieldGroups(PSCollection<PSSharedFieldGroup> fieldGroups) {
     if (fieldGroups == null) throw new IllegalArgumentException("the field groups cannot be null");
 
     if (!fieldGroups.getMemberClassName().equals(m_fieldGroups.getMemberClassName()))
@@ -223,9 +223,9 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
     }
 
     PSSharedFieldGroup group = null;
-    Iterator groups = getFieldGroups();
+    Iterator<PSSharedFieldGroup> groups = getFieldGroups();
     while (groups.hasNext() && group == null) {
-      PSSharedFieldGroup test = (PSSharedFieldGroup) groups.next();
+      PSSharedFieldGroup test = groups.next();
       if (groupName.equals(test.getName())) group = test;
     }
 
@@ -336,8 +336,8 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
     Element root = doc.createElement(XML_NODE_NAME);
 
     // OPTIONAL: shared field groups
-    Iterator it = getFieldGroups();
-    while (it.hasNext()) root.appendChild(((IPSComponent) it.next()).toXml(doc));
+    Iterator<PSSharedFieldGroup> it = getFieldGroups();
+    while (it.hasNext()) root.appendChild(it.next().toXml(doc));
 
     // OPTIONAL: stylesheet set
     if (getStylesheetSet() != null) root.appendChild(getStylesheetSet().toXml(doc));
@@ -356,8 +356,8 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
     context.pushParent(this);
     try {
       if (m_fieldGroups != null) {
-        Iterator it = getFieldGroups();
-        while (it.hasNext()) ((IPSComponent) it.next()).validate(context);
+        Iterator<PSSharedFieldGroup> it = getFieldGroups();
+        while (it.hasNext()) it.next().validate(context);
       } else
         context.validationError(this, ObjectStoreErrorCodes.INVALID_CONTENT_EDITOR_SHARED_DEF, null);
     } finally {
@@ -384,9 +384,9 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
     if (fieldExcludes == null) throw new IllegalArgumentException("fieldExcludes may not be null");
 
     if (!fieldExcludes.contains(field.getSubmitName())) {
-      Iterator groups = getFieldGroups();
+      Iterator<PSSharedFieldGroup> groups = getFieldGroups();
       while (groups.hasNext()) {
-        PSSharedFieldGroup group = (PSSharedFieldGroup) groups.next();
+        PSSharedFieldGroup group = groups.next();
         if (groupIncludes.contains(group.getName())
             && group.getFieldSet().contains(field.getSubmitName())) {
           return true;
@@ -412,9 +412,9 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
 
     if (groupIncludes == null) throw new IllegalArgumentException("groupIncludes cannot be null");
 
-    Iterator groups = getFieldGroups();
+    Iterator<PSSharedFieldGroup> groups = getFieldGroups();
     while (groups.hasNext()) {
-      PSSharedFieldGroup group = (PSSharedFieldGroup) groups.next();
+      PSSharedFieldGroup group = groups.next();
       if (groupIncludes.contains(group.getName())
           && group.getFieldSet().getName().equals(set.getName())) return true;
     }
@@ -440,5 +440,6 @@ public final class PSContentEditorSharedDef extends PSComponent implements IPSDo
    * A collection of PSSharedFieldGroup objects, never <code>null</code>, might be empty after
    * construction.
    */
-  private PSCollection m_fieldGroups = new PSCollection(PSSharedFieldGroup.class);
+  private PSCollection<PSSharedFieldGroup> m_fieldGroups =
+      new PSCollection<>(PSSharedFieldGroup.class);
 }

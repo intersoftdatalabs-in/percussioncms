@@ -2508,11 +2508,11 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
         } else if (curAppFlow != null) resultDef.setApplicationFlow(curAppFlow);
 
         // copy field groups
-        Iterator resFields = resultDef.getFieldGroups();
-        PSCollection curFields = new PSCollection(tmpDef.getFieldGroups());
+        Iterator<PSSharedFieldGroup> resFields = resultDef.getFieldGroups();
+        PSCollection<PSSharedFieldGroup> curFields = new PSCollection<>(tmpDef.getFieldGroups());
         if (resFields.hasNext()) {
           if (curFields != null) {
-            PSCollection resFieldColl = new PSCollection(resFields);
+            PSCollection<PSSharedFieldGroup> resFieldColl = new PSCollection<>(resFields);
             resFieldColl.addAll(curFields);
             resultDef.setFieldGroups(resFieldColl);
           }
@@ -2689,20 +2689,20 @@ public class PSServerXmlObjectStore extends PSObjectFactory {
     }
 
     // create the field group mappings
-    Map<String, PSCollection> fieldGroupMappings = new HashMap<>();
+    Map<String, PSCollection<PSSharedFieldGroup>> fieldGroupMappings = new HashMap<>();
 
-    Iterator fieldGroups = def.getFieldGroups();
+    Iterator<PSSharedFieldGroup> fieldGroups = def.getFieldGroups();
     while (fieldGroups.hasNext()) {
-      PSSharedFieldGroup fieldGroup = (PSSharedFieldGroup) fieldGroups.next();
+      PSSharedFieldGroup fieldGroup = fieldGroups.next();
 
       String filename = fieldGroup.getFilename();
       if (StringUtils.isBlank(filename))
         throw new IllegalArgumentException(
             "missing filename in merged shared definition field group");
 
-      PSCollection fieldGroupMapping = fieldGroupMappings.get(filename);
+      PSCollection<PSSharedFieldGroup> fieldGroupMapping = fieldGroupMappings.get(filename);
       if (fieldGroupMapping == null) {
-        fieldGroupMapping = new PSCollection(PSSharedFieldGroup.class);
+        fieldGroupMapping = new PSCollection<>(PSSharedFieldGroup.class);
         fieldGroupMappings.put(filename, fieldGroupMapping);
       }
 
