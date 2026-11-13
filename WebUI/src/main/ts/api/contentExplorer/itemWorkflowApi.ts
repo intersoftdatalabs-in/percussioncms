@@ -20,7 +20,8 @@
  *
  * <p>Provider: {@code PSItemWorkflowService} under
  * {@code /services/itemmanagement/workflow/*}. Mirrors the same surface
- * {@code WorkflowActionsPanel} already uses — no new REST contract.</p>
+ * the editor in-context transition UI ({@code EditorWorkflowPanel} in
+ * {@code EditorHost}) already uses — no new REST contract.</p>
  *
  * <p>{@code PSItemStateTransition} is {@code @XmlRootElement(name =
  * "ItemStateTransition")}. REST {@code JacksonContextResolver} enables
@@ -273,7 +274,7 @@ export async function getItemWorkflowTransitions(
  */
 /**
  * Query string for {@code transitionWithComments}, matching
- * {@code WorkflowActionsPanel.handleTransitionSubmit}: {@code comment} then
+ * the editor in-context transition submit: {@code comment} then
  * comma-separated {@code adhocAssignees}. Omits a param when it is empty.
  */
 export function transitionWithCommentsQuery(
