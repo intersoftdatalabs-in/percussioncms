@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import importlib.util
 import io
+import posixpath
 import unittest
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -160,26 +161,45 @@ class BuildFixtureTreeTest(unittest.TestCase):
 
 
 class DockerArgvTest(unittest.TestCase):
+    """Container-side paths are POSIX by construction (Linux matrix cells).
+
+    They are built with :mod:`posixpath` (never host-``Path`` joins or
+    ``"/"`` literals) so the intent survives Windows checkouts; the
+    ``container:/path`` argv shape is docker CLI protocol, not a host
+    filesystem join.
+    """
+
+    def setUp(self):
+        self.td = TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.root = Path(self.td.name)
+
     def test_cp_into_container_argv(self):
+        host_src = self.root / "staging"
+        container_dest = posixpath.join(posixpath.sep, "some", "dir")
         argv = qpf.docker_cp_into_container_argv(
-            Path("/tmp/staging"), "perc-matrix-dts-h2", "/some/dir"
+            host_src, "perc-matrix-dts-h2", container_dest
         )
         self.assertEqual(
             argv,
-            ["docker", "cp", "/tmp/staging", "perc-matrix-dts-h2:/some/dir"],
+            ["docker", "cp", str(host_src), f"perc-matrix-dts-h2:{container_dest}"],
         )
 
     def test_cp_from_container_argv(self):
+        host_dest = self.root / "x"
+        container_src = posixpath.join(
+            posixpath.sep, "opt", "Percussion", qpf.CMS_WEB_RESOURCES_DIR
+        )
         argv = qpf.docker_copy_from_container_argv(
-            "perc-matrix-cms-h2", "/opt/Percussion/web_resources", Path("/tmp/x")
+            "perc-matrix-cms-h2", container_src, host_dest
         )
         self.assertEqual(
             argv,
             [
                 "docker",
                 "cp",
-                "perc-matrix-cms-h2:/opt/Percussion/web_resources",
-                "/tmp/x",
+                f"perc-matrix-cms-h2:{container_src}",
+                str(host_dest),
             ],
         )
 

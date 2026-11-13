@@ -238,6 +238,25 @@ def build_fixture_tree(staging_dir: Path, cms_install: Path) -> List[str]:
     return written
 
 
+def _category_page_problems(category_file: Path) -> List[str]:
+    """Markup-contract checks for the fixture category page (pure)."""
+    problems = []
+    if not category_file.is_file():
+        return [f"missing fixture page: {FIXTURE_CATEGORY_PAGE}"]
+    text = category_file.read_text(encoding="utf-8")
+    if "perc-category-list-collapsible" not in text:
+        problems.append("category page lacks .perc-category-list-collapsible")
+    # Widget-matrix marker contract (published-widget-matrix.js
+    # percCategoryList entry): the list must sit inside the delivery
+    # `.perc-category-list` container (trailing quote excludes the
+    # `-collapsible`/`-expanded` variants).
+    if 'perc-category-list"' not in text:
+        problems.append("category page lacks .perc-category-list")
+    if ".fancytree(" not in text:
+        problems.append("category page never initializes .fancytree(")
+    return problems
+
+
 def verify_fixture_tree(staging_dir: Path) -> List[str]:
     """Assert a staged tree serves the spec contract (pages + 200s, no 404s).
 
@@ -247,7 +266,7 @@ def verify_fixture_tree(staging_dir: Path) -> List[str]:
     """
     staging = Path(staging_dir)
     problems = []
-    for page in (FIXTURE_HOME_PAGE, FIXTURE_CATEGORY_PAGE):
+    for page in (FIXTURE_HOME_PAGE,):
         if not (staging / page).is_file():
             problems.append(f"missing fixture page: {page}")
     for asset in REQUIRED_PUBLISHED_ASSETS:
@@ -256,19 +275,7 @@ def verify_fixture_tree(staging_dir: Path) -> List[str]:
     for asset in REMOVED_PUBLISHED_ASSETS:
         if (staging / Path(*asset.split("/"))).exists():
             problems.append(f"retired asset resurrected: {asset}")
-    category = staging / FIXTURE_CATEGORY_PAGE
-    if category.is_file():
-        text = category.read_text(encoding="utf-8")
-        if "perc-category-list-collapsible" not in text:
-            problems.append("category page lacks .perc-category-list-collapsible")
-        # Widget-matrix marker contract (published-widget-matrix.js
-        # percCategoryList entry): the list must sit inside the delivery
-        # `.perc-category-list` container (trailing quote excludes the
-        # `-collapsible`/`-expanded` variants).
-        if 'perc-category-list"' not in text:
-            problems.append("category page lacks .perc-category-list")
-        if ".fancytree(" not in text:
-            problems.append("category page never initializes .fancytree(")
+    problems.extend(_category_page_problems(staging / FIXTURE_CATEGORY_PAGE))
     return problems
 
 
