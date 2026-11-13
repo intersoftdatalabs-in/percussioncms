@@ -123,8 +123,9 @@ import {
   isNewItemHostName,
   parseExplorerContentId,
 } from "./menuCatalogLoad";
-import { resolveFolderPathFromSelection } from "./folderPath";
+import { isRecyclingExplorerPath, resolveFolderPathFromSelection } from "./folderPath";
 import { runMultiNewCopy } from "./multiSelectNewCopy";
+import { restoreRecycledItem } from "../api/contentExplorer/folderMutations";
 import { message } from "../i18n/message";
 import { EXPLORER_MSG } from "./messages";
 import {
@@ -243,6 +244,7 @@ export interface ActionDispatchContext {
   onOpen?: (item: PSPathItem) => void;
   onPreview?: (item: PSPathItem) => void | Promise<void>;
   onPurge?: (item: PSPathItem) => Promise<void>;
+  onRestore?: (item: PSPathItem) => Promise<void>;
   onShowTranslations?: () => void;
   onShowItemProperties?: (readOnly: boolean) => void;
   onShowDependencies?: () => void;
@@ -468,6 +470,7 @@ export function classifyAction(action: MenuAction): ActionKind {
   }
   if (
     name === "purge" ||
+    name === "restore" ||
     name === "publish_now" ||
     isTakedownActionName(name) ||
     isStageActionName(name) ||
@@ -2362,8 +2365,52 @@ export async function dispatchAction(
     return { kind: "client" };
   }
 
+  if (name === "restore") {
+    const id = (item?.id ?? "").trim();
+    if (!item || !id) {
+      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    // HTTP 403/404/409 names the row so the operator knows which recycled
+    // item failed; the list is not refreshed and the selection stays (#6254).
+    // Other failures keep the previous generic error path.
+    const restoreLabel =
+      (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
+    try {
+      if (ctx.onRestore) {
+        await ctx.onRestore(item);
+        return { kind: "rest", refresh: true };
+      }
+      await restoreRecycledItem(id);
+      return { kind: "rest", refresh: true };
+    } catch (err: unknown) {
+      if (
+        isApiError(err) &&
+        (err.status === 403 || err.status === 404 || err.status === 409)
+      ) {
+        const key =
+          err.status === 403
+            ? EXPLORER_MSG.PERMISSION_DENIED
+            : err.status === 404
+              ? EXPLORER_MSG.ACTION_RESTORE_NOT_FOUND
+              : EXPLORER_MSG.ACTION_RESTORE_CONFLICT;
+        return {
+          kind: "rest",
+          messageKey: key,
+          messageText: `${message(key)} — ${restoreLabel} (HTTP ${err.status})`,
+        };
+      }
+      throw err;
+    }
+  }
+
   if (name === "purge") {
-    if (!item || isFolder(item)) {
+    const purgeId = (item?.id ?? "").trim();
+    // Folders purge only from Recycling (toolbar parity); a live folder row
+    // keeps the previous "select a content item" outcome (#6254).
+    const recycledPurgeRow =
+      Boolean(purgeId) &&
+      isRecyclingExplorerPath(item?.path ?? item?.folderPath ?? "");
+    if (!item || !purgeId || (!recycledPurgeRow && isFolder(item))) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
     const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
@@ -2373,15 +2420,40 @@ export async function dispatchAction(
     if (!ok) {
       return { kind: "rest" };
     }
-    if (ctx.onPurge) {
-      await ctx.onPurge(item);
+    // HTTP 403/404/409 names the row so the operator knows which recycled
+    // item failed; the list is not refreshed and the selection stays (#6254).
+    // Other failures keep the previous generic error path.
+    const purgeLabel =
+      (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
+    try {
+      if (ctx.onPurge) {
+        await ctx.onPurge(item);
+        return { kind: "rest", refresh: true };
+      }
+      const purged = await purgeSelectedItem(item);
+      if (!purged) {
+        return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+      }
       return { kind: "rest", refresh: true };
+    } catch (err: unknown) {
+      if (
+        isApiError(err) &&
+        (err.status === 403 || err.status === 404 || err.status === 409)
+      ) {
+        const key =
+          err.status === 403
+            ? EXPLORER_MSG.PERMISSION_DENIED
+            : err.status === 404
+              ? EXPLORER_MSG.ACTION_PURGE_NOT_FOUND
+              : EXPLORER_MSG.ACTION_PURGE_CONFLICT;
+        return {
+          kind: "rest",
+          messageKey: key,
+          messageText: `${message(key)} — ${purgeLabel} (HTTP ${err.status})`,
+        };
+      }
+      throw err;
     }
-    const purged = await purgeSelectedItem(item);
-    if (!purged) {
-      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
-    }
-    return { kind: "rest", refresh: true };
   }
 
   if (name === "publish_now") {

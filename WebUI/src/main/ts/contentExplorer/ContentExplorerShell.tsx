@@ -125,6 +125,7 @@ import {
 import {
   filterContextMenuActions,
   filterToolbarActions,
+  isRecycledRow,
   withExplorerApproveIncrementalAction,
 } from "./actionEnablement";
 import { ActionToolbar } from "./ActionToolbar";
@@ -1766,7 +1767,14 @@ function ContentExplorerShellInner({
               ),
             onOpen: handlers.onOpen,
             onPreview: handlers.onPreview,
+            onRestore: handlers.onRestore,
             onPurge: async (item) => {
+              // Recycled rows purge exactly like the toolbar (any id works);
+              // other rows keep the page/asset kind guard (#6254).
+              if (isRecycledRow(item)) {
+                await handlers.onPurge(item);
+                return;
+              }
               const ok = await purgeSelectedItem(item);
               if (!ok) {
                 throw new Error(message(EXPLORER_MSG.ACTION_UNAVAILABLE));
