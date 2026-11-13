@@ -126,6 +126,15 @@ Triggers: WebUI / SPA / product chrome / user-visible browser flows change.
 `Failed startup of context` / `NoClassDefFoundError` — use `qa-health` and
 stop.
 
+**Proof screenshots (absolute URLs only):** when a C5 pass-run capture is
+committed (e.g. under `docs/ai-generated/proofs/`), embed it in the PR body
+as an **absolute** URL —
+`https://github.com/intersoftdatalabs-in/percussioncms/blob/<head-branch>/docs/ai-generated/proofs/<file>.png?raw=true`
+while the PR is open (rewrite to `…/blob/main/…` after merge). GitHub does
+**not** render repo-relative image paths (`docs/…png`) in PR/issue bodies —
+they show as broken images (observed: #6306, #6323). Never use a relative
+path for a PR-body image.
+
 `docker restart perc-matrix-cms-h2` after a jar copy wipes copies. Do not.
 
 ## Cluster build gates (B1–B3, HARD)
