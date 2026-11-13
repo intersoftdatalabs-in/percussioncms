@@ -1330,4 +1330,126 @@ describe("TemplateDetailPanel", () => {
     // Omit preserves: description-only save must not touch slot membership.
     expect("slots" in body).toBe(false);
   });
+
+  it("unassigns one slot via confirm and renders assigned until success (#6067)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      slots: [
+        { name: "target", label: "Target" },
+        { name: "extra", label: "Extra" },
+      ],
+    });
+    listSlotsMock.mockResolvedValue([
+      { name: "target", label: "Target", description: "Main slot" },
+      { name: "extra", label: "Extra", description: "Spare slot" },
+    ]);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-slots-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    const targetCheck = () =>
+      screen.getByTestId("developer-tpl-slot-check-name:target") as HTMLInputElement;
+    expect(targetCheck().checked).toBe(true);
+
+    // Opening the dialog must not unassign: the region still renders assigned.
+    fireEvent.click(screen.getByTestId("developer-tpl-slot-unassign-name:target"));
+    expect(screen.getByTestId("developer-catalog-confirm-dialog")).toBeTruthy();
+    expect(targetCheck().checked).toBe(true);
+
+    // Cancel writes nothing and keeps the mapping.
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-cancel"));
+    expect(screen.queryByTestId("developer-catalog-confirm-dialog")).toBeNull();
+    expect(updateTemplateDetailMock).not.toHaveBeenCalled();
+    expect(targetCheck().checked).toBe(true);
+
+    // Confirm removes only that slot; the other member stays.
+    fireEvent.click(screen.getByTestId("developer-tpl-slot-unassign-name:target"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(updateTemplateDetailMock).toHaveBeenCalled();
+    });
+    const body = updateTemplateDetailMock.mock.calls.at(-1)?.[1] as {
+      slots?: Array<{ name?: string }>;
+    };
+    expect((body.slots ?? []).map((s) => s.name).sort()).toEqual(["extra"]);
+    await waitFor(() => {
+      expect(targetCheck().checked).toBe(false);
+    });
+    expect(
+      (screen.getByTestId("developer-tpl-slot-check-name:extra") as HTMLInputElement).checked,
+    ).toBe(true);
+    expect(screen.getByTestId("developer-tpl-detail-notice").textContent).toMatch(/saved/i);
+  });
+
+  it("keeps the slot mapping when the unassign PUT fails with 409 (#6067)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      slots: [
+        { name: "target", label: "Target" },
+        { name: "extra", label: "Extra" },
+      ],
+    });
+    listSlotsMock.mockResolvedValue([
+      { name: "target", label: "Target", description: "Main slot" },
+      { name: "extra", label: "Extra", description: "Spare slot" },
+    ]);
+    updateTemplateDetailMock.mockRejectedValueOnce({
+      status: 409,
+      statusText: "Conflict",
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-slots-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-slot-unassign-name:target"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-detail-error")).toBeTruthy();
+    });
+    // Dialog closed, error surfaced, mapping untouched: still assigned.
+    expect(screen.queryByTestId("developer-catalog-confirm-dialog")).toBeNull();
+    expect(
+      (screen.getByTestId("developer-tpl-slot-check-name:target") as HTMLInputElement).checked,
+    ).toBe(true);
+  });
+
+  it("restores the slot mapping when a checkbox unassign save fails (#6067)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      ...sampleDetail,
+      slots: [{ name: "target", label: "Target" }],
+    });
+    listSlotsMock.mockResolvedValue([
+      { name: "target", label: "Target", description: "Main slot" },
+    ]);
+    updateTemplateDetailMock.mockRejectedValueOnce({
+      status: 403,
+      statusText: "Forbidden",
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-slots-table")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-tpl-lock"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-lock-status").textContent).toMatch(/Locked by you/i);
+    });
+    const targetCheck = () =>
+      screen.getByTestId("developer-tpl-slot-check-name:target") as HTMLInputElement;
+    fireEvent.click(targetCheck());
+    expect(targetCheck().checked).toBe(false);
+    fireEvent.click(screen.getByTestId("developer-tpl-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-detail-error")).toBeTruthy();
+    });
+    // Failed save restores the server membership instead of rendering unassigned.
+    expect(targetCheck().checked).toBe(true);
+  });
 });

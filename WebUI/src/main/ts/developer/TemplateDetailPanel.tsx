@@ -54,6 +54,7 @@ import {
   SnippetLibraryDialog,
   openSnippetLibrary,
 } from "./SnippetLibraryDialog";
+import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
 import {
   savedTemplateDescription,
   storedTemplateDescription,
@@ -325,6 +326,9 @@ export function TemplateDetailPanel({
   const [sourceEditing, setSourceEditing] = useState(true);
   const [copyFeedback, setCopyFeedback] = useState<"idle" | "ok" | "err">("idle");
   const [snippetOpen, setSnippetOpen] = useState(false);
+  /** Slot key awaiting unassign confirm; the mapping stays until the server succeeds. */
+  const [pendingUnassign, setPendingUnassign] = useState<string | null>(null);
+  const [unassignBusy, setUnassignBusy] = useState(false);
   const [heldLock, setHeldLock] = useState(false);
   const heldLockRef = useRef(false);
   const inflight = useRef(false);
@@ -782,6 +786,150 @@ export function TemplateDetailPanel({
     }
   }
 
+  function slotPayloadFor(keys: Set<string>): TemplateSlotSummary[] {
+    const slotPayload: TemplateSlotSummary[] = [];
+    const seen = new Set<string>();
+    for (const s of allSlots) {
+      const k = slotKey(s);
+      if (!k || !keys.has(k) || seen.has(k)) continue;
+      seen.add(k);
+      slotPayload.push({
+        name: s.name,
+        label: s.label,
+        guid: s.guid,
+      });
+    }
+    // Keep any selected keys not in catalog (orphan names)
+    for (const k of keys) {
+      if (seen.has(k)) continue;
+      if (k.startsWith("name:")) {
+        slotPayload.push({ name: k.slice(5) });
+      } else if (k.startsWith("guid:")) {
+        slotPayload.push({ guid: { stringValue: k.slice(5) } });
+      }
+    }
+    return slotPayload;
+  }
+
+  function templateSavePayload(keys: Set<string>): {
+    label: string;
+    description: string;
+    templateSource: string;
+    bindings?: { executionOrder: number; variable: string; expression: string }[];
+    slots?: TemplateSlotSummary[];
+    associatedContentTypes?: ReturnType<typeof toNamedObjectRefPayload>;
+  } {
+    return {
+      label,
+      description,
+      templateSource: source,
+      ...(bindingsEqual(bindings, initialBindings)
+        ? {}
+        : {
+            bindings: bindings.map((b, i) => ({
+              executionOrder:
+                b.executionOrder != null && b.executionOrder > 0 ? b.executionOrder : i + 1,
+              variable: (b.variable || "").trim(),
+              expression: (b.expression || "").trim(),
+            })),
+          }),
+      ...(slotsEqual(keys, initialSlotKeys) ? {} : { slots: slotPayloadFor(keys) }),
+      ...(namedObjectRefsEqual(contentTypes, initialContentTypes)
+        ? {}
+        : { associatedContentTypes: toNamedObjectRefPayload(contentTypes) }),
+    };
+  }
+
+  function applySavedTemplate(saved: TemplateDetail) {
+    setDetail(saved);
+    setLabel(saved.label || "");
+    setLabelShown(storedTemplateLabel(saved.label));
+    setLabelEditing(false);
+    setLabelDraft("");
+    setLabelError(null);
+    setLabelNotice(null);
+    setDescription(saved.description || "");
+    setDescriptionShown(storedTemplateDescription(saved.description));
+    setDescriptionEditing(false);
+    setDescriptionDraft("");
+    setDescriptionError(null);
+    setDescriptionNotice(null);
+    setSource(asSourceText(saved.templateSource));
+    setBindings(cloneBindings(saved.bindings));
+    setSlotKeys(
+      new Set(
+        asSlotList(saved.slots)
+          .map((s) => slotKey(s))
+          .filter((x) => x.length > 0),
+      ),
+    );
+    setContentTypes(cloneNamedObjectRefs(saved.associatedContentTypes));
+    setCtError(null);
+  }
+
+  function openUnassign(key: string) {
+    if (busy || unassignBusy || !heldLock || detail == null) {
+      return;
+    }
+    setError(null);
+    setNotice(null);
+    setPendingUnassign(key);
+  }
+
+  function cancelUnassign() {
+    if (unassignBusy) return;
+    // Cancel writes nothing: the slot mapping stays as the server stored it.
+    setPendingUnassign(null);
+  }
+
+  async function handleUnassignConfirm() {
+    const key = pendingUnassign;
+    if (!detail || !key || !heldLock) {
+      if (!heldLock && key) {
+        setError(DEV_MSG.TPL_LOCK_REQUIRED);
+      }
+      return;
+    }
+    if (
+      inflight.current ||
+      descriptionInflight.current ||
+      descriptionEditing ||
+      labelInflight.current ||
+      labelEditing ||
+      busy ||
+      unassignBusy
+    ) {
+      return;
+    }
+    const nextKeys = new Set(slotKeys);
+    nextKeys.delete(key);
+    if (slotsEqual(nextKeys, slotKeys)) {
+      setPendingUnassign(null);
+      return;
+    }
+    inflight.current = true;
+    setBusy(true);
+    setUnassignBusy(true);
+    setError(null);
+    setNotice(null);
+    try {
+      const saved = await updateTemplateDetail(idOrName, templateSavePayload(nextKeys));
+      applySavedTemplate(saved);
+      setPendingUnassign(null);
+      setNotice(DEV_MSG.TPL_SAVED);
+      onSaved?.(saved);
+    } catch (err: unknown) {
+      // 400/403/409 keep the mapping: slotKeys untouched, the region still
+      // renders assigned; only the dialog closes with the error surfaced.
+      setPendingUnassign(null);
+      setError(panelErrMsg(err, DEV_MSG.TPL_SAVE_ERROR));
+    } finally {
+      inflight.current = false;
+      setBusy(false);
+      setUnassignBusy(false);
+    }
+  }
+
   async function handleSave() {
     if (!heldLock) {
       setError(DEV_MSG.TPL_LOCK_REQUIRED);
@@ -801,74 +949,14 @@ export function TemplateDetailPanel({
     setError(null);
     setNotice(null);
     try {
-      const slotPayload: TemplateSlotSummary[] = [];
-      const seen = new Set<string>();
-      for (const s of allSlots) {
-        const k = slotKey(s);
-        if (!k || !slotKeys.has(k) || seen.has(k)) continue;
-        seen.add(k);
-        slotPayload.push({
-          name: s.name,
-          label: s.label,
-          guid: s.guid,
-        });
-      }
-      // Keep any selected keys not in catalog (orphan names)
-      for (const k of slotKeys) {
-        if (seen.has(k)) continue;
-        if (k.startsWith("name:")) {
-          slotPayload.push({ name: k.slice(5) });
-        } else if (k.startsWith("guid:")) {
-          slotPayload.push({ guid: { stringValue: k.slice(5) } });
-        }
-      }
-
-      const saved = await updateTemplateDetail(idOrName, {
-        label,
-        description,
-        templateSource: source,
-        ...(bindingsEqual(bindings, initialBindings)
-          ? {}
-          : {
-              bindings: bindings.map((b, i) => ({
-                executionOrder:
-                  b.executionOrder != null && b.executionOrder > 0 ? b.executionOrder : i + 1,
-                variable: (b.variable || "").trim(),
-                expression: (b.expression || "").trim(),
-              })),
-            }),
-        ...(slotsEqual(slotKeys, initialSlotKeys) ? {} : { slots: slotPayload }),
-        ...(namedObjectRefsEqual(contentTypes, initialContentTypes)
-          ? {}
-          : { associatedContentTypes: toNamedObjectRefPayload(contentTypes) }),
-      });
-      setDetail(saved);
-      setLabel(saved.label || "");
-      setLabelShown(storedTemplateLabel(saved.label));
-      setLabelEditing(false);
-      setLabelDraft("");
-      setLabelError(null);
-      setLabelNotice(null);
-      setDescription(saved.description || "");
-      setDescriptionShown(storedTemplateDescription(saved.description));
-      setDescriptionEditing(false);
-      setDescriptionDraft("");
-      setDescriptionError(null);
-      setDescriptionNotice(null);
-      setSource(asSourceText(saved.templateSource));
-      setBindings(cloneBindings(saved.bindings));
-      setSlotKeys(
-        new Set(
-          asSlotList(saved.slots)
-            .map((s) => slotKey(s))
-            .filter((x) => x.length > 0),
-        ),
-      );
-      setContentTypes(cloneNamedObjectRefs(saved.associatedContentTypes));
-      setCtError(null);
+      const saved = await updateTemplateDetail(idOrName, templateSavePayload(slotKeys));
+      applySavedTemplate(saved);
       setNotice(DEV_MSG.TPL_SAVED);
       onSaved?.(saved);
     } catch (err: unknown) {
+      // 400/403/409 keep the slot mapping: restore the server membership so a
+      // failed unassign (or assign) never renders unassigned before success.
+      setSlotKeys(new Set(initialSlotKeys));
       setError(panelErrMsg(err, DEV_MSG.TPL_SAVE_ERROR));
     } finally {
       inflight.current = false;
@@ -1462,6 +1550,7 @@ export function TemplateDetailPanel({
                       <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_MEMBER}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_LABEL}</th>
                       <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_NAME}</th>
+                      <th style={{ padding: "8px" }}>{DEV_MSG.TPL_COL_ACTIONS}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -1486,6 +1575,27 @@ export function TemplateDetailPanel({
                           <td style={{ padding: "8px" }}>{s.label || "—"}</td>
                           <td style={{ padding: "8px", fontFamily: "monospace" }}>
                             {s.name || "—"}
+                          </td>
+                          <td style={{ padding: "8px" }}>
+                            {checked ? (
+                              <button
+                                type="button"
+                                data-testid={`developer-tpl-slot-unassign-${key}`}
+                                disabled={busy || unassignBusy || !heldLock}
+                                onClick={() => openUnassign(key)}
+                                aria-label={`${DEV_MSG.TPL_SLOT_UNASSIGN} ${s.label || s.name || key}`}
+                                style={{
+                                  background: "transparent",
+                                  border: `1px solid ${catalogColors.softBorder}`,
+                                  borderRadius: "4px",
+                                  padding: "4px 8px",
+                                  cursor:
+                                    busy || unassignBusy || !heldLock ? "not-allowed" : "pointer",
+                                }}
+                              >
+                                {DEV_MSG.TPL_SLOT_UNASSIGN}
+                              </button>
+                            ) : null}
                           </td>
                         </tr>
                       );
@@ -1873,6 +1983,17 @@ export function TemplateDetailPanel({
             open={snippetOpen}
             onCancel={() => setSnippetOpen(false)}
             onInsert={(text) => handleInsertSnippet(text)}
+          />
+          <CatalogConfirmDialog
+            open={pendingUnassign != null}
+            busy={unassignBusy}
+            message={
+              pendingUnassign
+                ? `${DEV_MSG.TPL_SLOT_UNASSIGN_CONFIRM} (${pendingUnassign.replace(/^name:|^guid:/, "")})`
+                : ""
+            }
+            onCancel={cancelUnassign}
+            onConfirm={() => void handleUnassignConfirm()}
           />
         </>
       ) : null}

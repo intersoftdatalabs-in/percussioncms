@@ -604,6 +604,9 @@ export const DEV_MSG_KEYS = {
   TPL_EXPRESSION_SHOW_LESS: "perc.ui.developer@Show less",
   TPL_SLOTS: "perc.ui.developer@Slots",
   TPL_SLOTS_HINT: "perc.ui.developer@Check slots contained by this template, then save (full replace).",
+  TPL_SLOT_UNASSIGN: "perc.ui.developer@Unassign",
+  TPL_SLOT_UNASSIGN_CONFIRM:
+    "perc.ui.developer@Remove this slot from the template? The slot stays until the server succeeds. Cancel does not remove.",
   TPL_CT_ASSOC: "perc.ui.developer@Content types",
   TPL_CT_ASSOC_HINT:
     "perc.ui.developer@Content types associated with this template (name and GUID). Lock, then add or remove, then save (full replace). Empty list clears associations.",
