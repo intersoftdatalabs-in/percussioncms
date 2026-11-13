@@ -61,7 +61,6 @@
   function createDialog(status, result, ctx) {
     if (status === $.PercServiceUtils.STATUS_ERROR) {
       showRevisionServiceError(result);
-      callback(false);
       return;
     }
     var dialogHTML = createRevisionTable();
