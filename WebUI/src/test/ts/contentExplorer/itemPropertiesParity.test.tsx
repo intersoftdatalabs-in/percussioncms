@@ -22,6 +22,7 @@
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { ItemPropertiesPanel } from "../../../main/ts/contentExplorer/ItemPropertiesPanel";
+import { renderA11yGate } from "./a11y";
 
 const LOADED = {
   itemPath: "/Sites/Demo/Home",
@@ -45,7 +46,7 @@ function renderPanel(overrides: Record<string, unknown> = {}) {
     savedTitle = body.displayTitle ?? savedTitle;
     return { ...LOADED, displayTitle: savedTitle ?? LOADED.displayTitle };
   });
-  render(
+  const { container } = render(
     <ItemPropertiesPanel
       itemPath="/Sites/Demo/Home"
       itemName="Home"
@@ -55,7 +56,7 @@ function renderPanel(overrides: Record<string, unknown> = {}) {
       {...overrides}
     />,
   );
-  return { load, save };
+  return { container, load, save };
 }
 
 describe("item-properties groups (FR-004)", () => {
@@ -114,5 +115,20 @@ describe("denied edits (FR-009)", () => {
     expect(
       screen.getByTestId("item-properties-shown-display-title-value"),
     ).toHaveTextContent("Home page");
+  });
+});
+
+describe("a11y gate (residual #6179)", () => {
+  it("editable panel surface has no serious a11y violations", async () => {
+    const { container } = renderPanel();
+    expect(await screen.findByTestId("item-properties-general-group")).toBeTruthy();
+    expect(await screen.findByTestId("item-properties-display-group")).toBeTruthy();
+    await renderA11yGate(container);
+  });
+
+  it("read-only panel surface has no serious a11y violations", async () => {
+    const { container } = renderPanel({ canEdit: false });
+    expect(await screen.findByTestId("item-properties-readonly")).toBeTruthy();
+    await renderA11yGate(container);
   });
 });
