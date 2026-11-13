@@ -1628,6 +1628,8 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Column source is invalid. Use a field name without spaces or wildcards.",
   DF_COLUMNS_FORBIDDEN: "perc.ui.developer@Admin role required to change display format columns.",
   DF_COLUMNS_NOT_FOUND: "perc.ui.developer@Display format not found.",
+  DF_COLUMNS_CONFLICT:
+    "perc.ui.developer@Display format changed by another session. Reload the format and try again.",
   DF_COMMUNITIES: "perc.ui.developer@Allowed communities",
   DF_COMMUNITIES_HINT:
     "perc.ui.developer@Restrict this user display format to selected communities. Clearing the list saves all communities (the same state as All communities).",

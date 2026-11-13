@@ -76,7 +76,10 @@ match the current filter"; clearing the box restores the full list.
    order, returns `sortedColumnNames` for the default sort column, and
    `ascendingSort` / `descendingSort` for the format and that column.
    An invalid source or unknown sort column is **400**. A non-Admin session
-   is **403**.
+   is **403**. A save against a format changed by another session is
+   **409** — reload the format and try again. The catalog reloads only
+   after a successful save; a failed save keeps the previous columns on
+   the page.
 5. Open a packaged format such as **By_Author**. The column table is
    read-only (including default sort); add/remove/save controls are not shown.
 

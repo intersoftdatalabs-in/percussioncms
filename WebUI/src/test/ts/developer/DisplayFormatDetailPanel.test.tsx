@@ -619,6 +619,152 @@ describe("DisplayFormatDetailPanel", () => {
     );
   });
 
+  it("surfaces 409 conflict from PUT and does not refresh the catalog", async () => {
+    const userDetail = { ...sampleDetail, name: "qa6063fmt" };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: "display format changed by another session",
+    });
+    const onColumnsSaved = vi.fn();
+    render(
+      <DisplayFormatDetailPanel
+        idOrName="qa6063fmt"
+        onBack={() => undefined}
+        onColumnsSaved={onColumnsSaved}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-column-editor")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-df-column-source"), {
+      target: { value: "sys_contentid" },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-column-add"));
+    fireEvent.click(screen.getByTestId("developer-df-columns-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-df-detail-error").textContent).toContain(
+      DEV_MSG.DF_COLUMNS_CONFLICT,
+    );
+    expect(screen.queryByTestId("developer-df-editor-notice")).toBeNull();
+    expect(onColumnsSaved).not.toHaveBeenCalled();
+  });
+
+  it("removes a column and PUTs the reduced reindexed list", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa6063fmt",
+      label: "User format",
+      columns: [
+        { source: "sys_title", displayName: "Title", position: 0, renderType: "text", width: 200 },
+        {
+          source: "sys_contentid",
+          displayName: "Content id",
+          position: 1,
+          renderType: "text",
+          width: 80,
+        },
+      ],
+    };
+    const savedDetail = {
+      ...userDetail,
+      columns: [
+        { source: "sys_title", displayName: "Title", position: 0, renderType: "text", width: 200 },
+      ],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockResolvedValue(savedDetail);
+    const onColumnsSaved = vi.fn();
+    render(
+      <DisplayFormatDetailPanel
+        idOrName="qa6063fmt"
+        onBack={() => undefined}
+        onColumnsSaved={onColumnsSaved}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-column-remove-1")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-column-remove-1"));
+    fireEvent.click(screen.getByTestId("developer-df-columns-save"));
+    await waitFor(() => {
+      expect(updateDisplayFormat).toHaveBeenCalled();
+    });
+    const [, body] = updateDisplayFormat.mock.calls[0];
+    expect(body.columns.map((c: { source?: string }) => c.source)).toEqual(["sys_title"]);
+    expect(body.columns.map((c: { position?: number }) => c.position)).toEqual([0]);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-editor-notice").textContent).toBe(
+        DEV_MSG.DF_COLUMNS_SAVED,
+      );
+    });
+    expect(onColumnsSaved).toHaveBeenCalledWith(savedDetail);
+  });
+
+  it("reorders columns and PUTs the swapped reindexed list", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa6063fmt",
+      label: "User format",
+      columns: [
+        { source: "sys_title", displayName: "Title", position: 0, renderType: "text", width: 200 },
+        {
+          source: "sys_contentid",
+          displayName: "Content id",
+          position: 1,
+          renderType: "text",
+          width: 80,
+        },
+      ],
+    };
+    const savedDetail = {
+      ...userDetail,
+      columns: [
+        {
+          source: "sys_contentid",
+          displayName: "Content id",
+          position: 0,
+          renderType: "text",
+          width: 80,
+        },
+        { source: "sys_title", displayName: "Title", position: 1, renderType: "text", width: 200 },
+      ],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockResolvedValue(savedDetail);
+    const onColumnsSaved = vi.fn();
+    render(
+      <DisplayFormatDetailPanel
+        idOrName="qa6063fmt"
+        onBack={() => undefined}
+        onColumnsSaved={onColumnsSaved}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-column-down-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-column-down-0"));
+    fireEvent.click(screen.getByTestId("developer-df-columns-save"));
+    await waitFor(() => {
+      expect(updateDisplayFormat).toHaveBeenCalled();
+    });
+    const [, body] = updateDisplayFormat.mock.calls[0];
+    expect(body.columns.map((c: { source?: string }) => c.source)).toEqual([
+      "sys_contentid",
+      "sys_title",
+    ]);
+    expect(body.columns.map((c: { position?: number }) => c.position)).toEqual([0, 1]);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-editor-notice").textContent).toBe(
+        DEV_MSG.DF_COLUMNS_SAVED,
+      );
+    });
+    expect(onColumnsSaved).toHaveBeenCalledWith(savedDetail);
+  });
+
   it("does not mutate a packaged/system format", async () => {
     getDisplayFormatDetail.mockResolvedValue(sampleDetail);
     render(<DisplayFormatDetailPanel idOrName="Default" onBack={() => undefined} />);
