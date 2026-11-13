@@ -410,11 +410,11 @@ Failing this section is a **hard gate** equal to a failing Erlang review: fix, r
 
 ## Git worktree hygiene (HARD GATE)
 
-Agent sessions (Kilo, Grok, etc.) often create **full monorepo git worktrees** under `.kilo/worktrees/`, `.worktrees/`, or `~/.grok/worktrees/`. Each copy is multi‑GB. Leaving them after a PR merges is a common disk-fill failure mode and can slow tooling that walks the tree.
+Agent sessions (Kilo, Grok, OpenCode, etc.) often create **full monorepo git worktrees** under `.kilo/worktrees/`, `.worktrees/`, `~/.grok/worktrees/`, `~/.opencode/worktrees/`, or repo-local `.opencode/worktrees/`. Each copy is multi‑GB. Leaving them after a PR merges is a common disk-fill failure mode (observed: >100 GB from dozens of orphaned `.opencode` worktrees) and can slow tooling that walks the tree.
 
 ### When this applies
 
-Any time an agent **creates or works inside** a disposable git worktree for a feature/fix branch (not the primary developer checkout).
+Any time an agent **creates or works inside** a disposable git worktree for a feature/fix branch (not the primary developer checkout). Cleanup on PR merge/close and at session end is **mandatory, not optional**.
 
 ### Required sequence (end of task)
 
@@ -445,10 +445,16 @@ Any time an agent **creates or works inside** a disposable git worktree for a fe
    scripts\prune-stale-worktrees.bat --apply --force --delete-local-branches
    ```
 
+   The script covers **all** agent roots (Kilo, Grok, OpenCode), repairs stale
+   metadata left by out-of-band deletions (`path missing` rows), and is run
+   automatically by `scripts/opencode-night-issue-prs.py` after sync and after
+   every run (even on failure) unless `--no-cleanup` is passed.
+
 ### Hard bans
 
 * **Do not** leave full-tree agent worktrees behind after PR merge/close “for later.”
-* **Do not** nest dozens of `.kilo/worktrees/*` copies of this monorepo.
+* **Do not** nest dozens of worktree copies of this monorepo under any agent root (`.kilo/worktrees/*`, `~/.opencode/worktrees/*`, …).
+* **Do not** `rm -rf` a worktree directory. Manual deletion frees no git metadata: the entry stays registered, the local branch stays behind, and the next cleanup cannot classify it cleanly. Always `git worktree remove [--force] <path>` (+ `git worktree prune`).
 * **Do not** remove the primary worktree, a worktree with an **open** PR (unless the human ordered it), or the worktree you are currently running in (switch to main first).
 * **Do not** use OS temp for worktrees; prefer repo-local `.kilo/worktrees/` (gitignored) or the agent host’s designated worktree root, then **delete when done**.
 

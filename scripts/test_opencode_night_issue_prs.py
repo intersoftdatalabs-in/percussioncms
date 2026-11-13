@@ -439,8 +439,8 @@ def test_ensure_worktree_sync_from_local_skips_fetch(monkeypatch, tmp_path):
 
     def fake_run(cmd, *args, **kwargs):
         calls.append(list(cmd))
-        # Pretend the worktree exists so we go down the reset branch.
-        if cmd[:2] == ["git", "reset"]:
+        # Pretend the worktree exists so we go down the sync branch.
+        if cmd[:2] == ["git", "checkout"]:
             return subprocess.CompletedProcess(cmd, 0, stdout="", stderr="")
         return real_run(cmd, *args, **kwargs)
 
@@ -452,9 +452,9 @@ def test_ensure_worktree_sync_from_local_skips_fetch(monkeypatch, tmp_path):
 
     fetch_calls = [c for c in calls if c[:2] == ["git", "fetch"]]
     assert fetch_calls == [], f"sync_from_local must skip fetch, but saw: {fetch_calls}"
-    reset_calls = [c for c in calls if c[:2] == ["git", "reset"]]
-    assert reset_calls, "expected a reset call"
-    assert reset_calls[0][-1] == "main", f"sync_from_local must reset to local main, got {reset_calls[0]}"
+    checkout_calls = [c for c in calls if c[:2] == ["git", "checkout"]]
+    assert checkout_calls, "expected a checkout -B call"
+    assert checkout_calls[0][-1] == "main", f"sync_from_local must sync to local main, got {checkout_calls[0]}"
 
 
 def test_sync_from_local_cli_flag(monkeypatch):
@@ -635,3 +635,143 @@ def test_ensure_worktree_missing_agents_local_is_noop(tmp_path):
     mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
     assert not (wt / "AGENTS.local.md").exists()
     assert mod.worktree_exists(wt)
+
+
+def test_ensure_worktree_returns_to_sync_branch(tmp_path):
+    """Regression (disk-fill incident): a prior run may leave the dedicated
+    worktree on a feature branch. ensure_worktree must switch it back to the
+    sync branch at the sync ref — a bare `git reset --hard` would instead
+    move the feature branch pointer."""
+    mod = _load_module()
+    seed = _seed_repo(tmp_path)
+    wt = tmp_path / "wt"
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+
+    # Simulate a Work agent that branched inside the dedicated worktree.
+    subprocess.run(
+        ["git", "-C", str(wt), "checkout", "-b", "fix/issue-9999-leftover"],
+        check=True, shell=False, timeout=10,
+    )
+    branch_before = subprocess.run(
+        ["git", "-C", str(wt), "rev-parse", "--abbrev-ref", "HEAD"],
+        check=True, shell=False, timeout=10, capture_output=True, text=True,
+    ).stdout.strip()
+    assert branch_before == "fix/issue-9999-leftover"
+
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+
+    branch_after = subprocess.run(
+        ["git", "-C", str(wt), "rev-parse", "--abbrev-ref", "HEAD"],
+        check=True, shell=False, timeout=10, capture_output=True, text=True,
+    ).stdout.strip()
+    assert branch_after == mod.COMPONENT, "worktree must be back on the sync branch"
+    head_after = subprocess.run(
+        ["git", "-C", str(wt), "rev-parse", "HEAD"],
+        check=True, shell=False, timeout=10, capture_output=True, text=True,
+    ).stdout.strip()
+    head_main = subprocess.run(
+        ["git", "-C", str(seed), "rev-parse", "main"],
+        check=True, shell=False, timeout=10, capture_output=True, text=True,
+    ).stdout.strip()
+    assert head_after == head_main
+    # The leftover feature branch itself is untouched (no work destroyed).
+    assert subprocess.run(
+        ["git", "-C", str(seed), "rev-parse", "--verify", "fix/issue-9999-leftover"],
+        shell=False, timeout=10, capture_output=True,
+    ).returncode == 0
+
+
+def test_ensure_worktree_stashes_dirty_state(tmp_path):
+    """Uncommitted work is stashed (labeled), never discarded and never
+    carried onto the sync branch."""
+    mod = _load_module()
+    seed = _seed_repo(tmp_path)
+    wt = tmp_path / "wt"
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+
+    subprocess.run(
+        ["git", "-C", str(wt), "checkout", "-b", "fix/issue-9999-leftover"],
+        check=True, shell=False, timeout=10,
+    )
+    (wt / "DIRTY.txt").write_text("uncommitted work\n")
+    subprocess.run(["git", "-C", str(wt), "add", "DIRTY.txt"], check=True, shell=False, timeout=10)
+
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+
+    branch_after = subprocess.run(
+        ["git", "-C", str(wt), "rev-parse", "--abbrev-ref", "HEAD"],
+        check=True, shell=False, timeout=10, capture_output=True, text=True,
+    ).stdout.strip()
+    assert branch_after == mod.COMPONENT
+    assert not (wt / "DIRTY.txt").exists(), "dirty file must not ride onto the sync branch"
+    stash_list = subprocess.run(
+        ["git", "-C", str(wt), "stash", "list"],
+        check=True, shell=False, timeout=10, capture_output=True, text=True,
+    ).stdout
+    assert "night-issue-prs auto-stash" in stash_list, "dirty state must be preserved in the stash"
+
+
+def test_cleanup_flags_default_on():
+    mod = _load_module()
+    args = mod.parse_args([])
+    assert args.cleanup is True
+    assert args.cleanup_include_no_pr is False
+
+
+def test_no_cleanup_disables():
+    mod = _load_module()
+    args = mod.parse_args(["--no-cleanup"])
+    assert args.cleanup is False
+
+
+def test_run_worktree_cleanup_invokes_prune_script(tmp_path, monkeypatch):
+    """run_worktree_cleanup must call the prune script with --apply and
+    never raise, even when the script exits non-zero."""
+    mod = _load_module()
+    calls: list[list[str]] = []
+
+    class _Completed:
+        returncode = 1
+        stdout = ""
+        stderr = "boom"
+
+    def _fake_run(cmd, **kwargs):
+        calls.append(list(cmd))
+        return _Completed()
+
+    monkeypatch.setattr(mod.subprocess, "run", _fake_run)
+    # Must not raise despite the non-zero exit. Use the real repo root so
+    # the prune script resolves; subprocess is faked so nothing executes.
+    mod.run_worktree_cleanup(SCRIPT_DIR.parent, include_no_pr=False)
+    assert len(calls) == 1
+    cmd = calls[0]
+    assert cmd[0] == sys.executable
+    assert cmd[1].endswith("prune-stale-worktrees.py")
+    assert "--apply" in cmd
+    assert "--force" in cmd
+    assert "--delete-local-branches" in cmd
+    assert "--include-no-pr" not in cmd
+
+
+def test_run_worktree_cleanup_include_no_pr_flag(tmp_path, monkeypatch):
+    mod = _load_module()
+    calls: list[list[str]] = []
+
+    class _Completed:
+        returncode = 0
+        stdout = "Keep: 1 Remove: 0"
+        stderr = ""
+
+    def _fake_run(cmd, **kwargs):
+        calls.append(list(cmd))
+        return _Completed()
+
+    monkeypatch.setattr(mod.subprocess, "run", _fake_run)
+    mod.run_worktree_cleanup(SCRIPT_DIR.parent, include_no_pr=True)
+    assert "--include-no-pr" in calls[0]
+
+
+def test_run_worktree_cleanup_missing_script_is_noop(tmp_path):
+    """No prune script present: log and return, never raise."""
+    mod = _load_module()
+    mod.run_worktree_cleanup(tmp_path / "does-not-exist", include_no_pr=False)

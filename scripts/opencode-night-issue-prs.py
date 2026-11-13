@@ -18,9 +18,17 @@ Erlang skill CLI before opening a PR; host/peer phases still spawn the
   (FR-007, FR-008).
 - Worktree default: `<home>/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs`
   Override with `--worktree PATH` or `NIGHT_WORKTREE_PATH` env var.
-- Idempotent: if the worktree is missing, creates `night-issue-prs-main` from
+- Idempotent: if the worktree is missing, creates the sync branch from
   `origin/<base_branch>` and adds a worktree at the default path. Existing
-  worktrees are reused; the script never wipes a dirty tree.
+  worktrees are reused and switched back to the sync branch (a prior
+  run may have left a feature branch checked out); uncommitted state is
+  stashed with a labeled entry first, never discarded and never carried
+  onto the sync branch.
+- Stale-worktree cleanup (HARD GATE, on by default): runs
+  `scripts/prune-stale-worktrees.py --apply --force
+  --delete-local-branches` after sync AND after the run (even on failure),
+  removing worktrees whose branches have MERGED/CLOSED PRs and pruning
+  metadata left by out-of-band deletions. Disable with `--no-cleanup`.
 - Scratch lives under the worktree's `scratch/` directory (path-portable via
   `pathlib.Path`); never writes to `%TEMP%` / `$TMPDIR`.
 - V2 `opencode run` has no `--command` flag. The launcher inlines the
@@ -144,12 +152,17 @@ def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path, sync_from
 
     - **First run** (worktree missing): `git worktree add -B <branch> <ref>`
       creates the branch and the worktree atomically.
-    - **Subsequent runs** (worktree exists): `git -C <worktree> reset --hard
-      <ref>` moves the worktree's HEAD and the underlying branch together.
-      We do NOT use `git branch -f` because git refuses to force-update a
+    - **Subsequent runs** (worktree exists): `git checkout -B <branch>
+      <ref>` switches the worktree back to the sync branch and hard-resets
+      it. A bare `git reset --hard <ref>` is NOT enough: a previous run may
+      have left the worktree sitting on a feature branch (e.g. a Work agent
+      branched inside the dedicated worktree), and resetting without
+      switching would move that feature branch pointer instead of the sync
+      branch. Never use `git branch -f`; git refuses to force-update a
       branch that is currently checked out by a worktree.
 
-    The `--hard` reset discards uncommitted state from a crashed prior run.
+    Uncommitted state is stashed with a labeled entry first — never
+    discarded, never carried onto the sync branch.
 
     After either path, root `AGENTS.local.md` (gitignored, so never carried
     by git itself) is copied into the worktree one way; see
@@ -176,10 +189,42 @@ def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path, sync_from
         )
 
     if worktree_exists(worktree):
-        reset_cmd = ["git", "reset", "--hard", sync_ref]
-        LOGGER.info("syncing worktree to %s: %s", sync_ref, shlex.join(reset_cmd))
+        # A prior run may have left the worktree on a feature branch AND/OR
+        # with uncommitted changes (an interrupted run, or a live session).
+        # Preserve work first: stash dirty state with a labeled entry so
+        # nothing is destroyed or carried onto the sync branch. Then
+        # `checkout -B` both switches back to the sync branch (undoing any
+        # feature branch a prior run left checked out) and resets it to
+        # sync_ref. A bare `git reset --hard <ref>` is NOT enough: it would
+        # move the feature branch pointer instead of the sync branch.
+        # Never use `git branch -f`; git refuses to force-update a branch
+        # that is currently checked out by a worktree.
+        status = subprocess.run(
+            ["git", "status", "--porcelain"],
+            cwd=worktree,
+            shell=False,
+            check=False,
+            timeout=60,
+            capture_output=True,
+            text=True,
+        )
+        if status.returncode == 0 and status.stdout.strip():
+            stash_cmd = [
+                "git", "stash", "push", "-m",
+                f"night-issue-prs auto-stash before sync to {sync_ref}",
+            ]
+            LOGGER.info("stashing uncommitted worktree state: %s", shlex.join(stash_cmd))
+            subprocess.run(
+                stash_cmd,
+                cwd=worktree,
+                shell=False,
+                check=True,
+                timeout=120,
+            )
+        checkout_cmd = ["git", "checkout", "-B", COMPONENT, sync_ref]
+        LOGGER.info("syncing worktree to %s: %s", sync_ref, shlex.join(checkout_cmd))
         subprocess.run(
-            reset_cmd,
+            checkout_cmd,
             cwd=worktree,
             shell=False,
             check=True,
@@ -199,6 +244,55 @@ def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path, sync_from
         timeout=300,
     )
     propagate_agents_local(repo_root, worktree)
+
+
+def run_worktree_cleanup(repo_root: Path, *, include_no_pr: bool = False) -> None:
+    """Remove stale agent worktrees (HARD GATE, best-effort, never raises).
+
+    Runs ``scripts/prune-stale-worktrees.py --apply --force
+    --delete-local-branches`` so worktrees whose branches have MERGED/CLOSED
+    PRs are removed and their local branches deleted. Also repairs stale
+    metadata left by out-of-band deletions (``git worktree prune``).
+
+    Open-PR, locked, main, and current-directory worktrees are always kept
+    by the prune script. Failures (missing ``gh``, no network, git errors)
+    are logged and swallowed: cleanup must never fail a night run.
+    """
+    script = repo_root / "scripts" / "prune-stale-worktrees.py"
+    if not script.is_file():
+        LOGGER.warning("worktree cleanup skipped: %s not found", script)
+        return
+    cmd = [
+        sys.executable,
+        str(script),
+        "--apply",
+        "--force",
+        "--delete-local-branches",
+    ]
+    if include_no_pr:
+        cmd.append("--include-no-pr")
+    LOGGER.info("running worktree cleanup: %s", shlex.join(cmd))
+    try:
+        completed = subprocess.run(
+            cmd,
+            cwd=repo_root,
+            shell=False,
+            check=False,
+            timeout=300,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.SubprocessError) as exc:
+        LOGGER.warning("worktree cleanup failed to start: %s", exc)
+        return
+    if completed.stdout.strip():
+        LOGGER.info("worktree cleanup output:\n%s", completed.stdout.strip())
+    if completed.returncode != 0:
+        LOGGER.warning(
+            "worktree cleanup exited %d: %s",
+            completed.returncode,
+            (completed.stderr or "").strip(),
+        )
 
 
 def propagate_agents_local(repo_root: Path, worktree: Path) -> None:
@@ -390,7 +484,23 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument("--dry-run", action="store_true", help="Print the resolved command and exit without invoking opencode.")
-    parser.add_argument("--no-worktree-create", action="store_true", help="Skip worktree creation; fail if missing.")
+    parser.add_argument(
+        "--no-worktree-create", action="store_true", help="Skip worktree creation; fail if missing.")
+    parser.add_argument(
+        "--cleanup",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "Run stale-worktree cleanup (prune-stale-worktrees.py --apply) "
+            "after sync and again after the run, even on failure "
+            "(default: true). Pass --no-cleanup to skip."
+        ),
+    )
+    parser.add_argument(
+        "--cleanup-include-no-pr",
+        action="store_true",
+        help="Also remove worktrees whose branch has no linked PR during cleanup.",
+    )
     parser.add_argument(
         "--sync-from-local",
         action="store_true",
@@ -459,18 +569,31 @@ def main(argv: list[str] | None = None) -> int:
     else:
         ensure_worktree(worktree, base_branch, repo_root, sync_from_local=args.sync_from_local)
 
+    if args.cleanup:
+        # Start-of-run sweep: remove worktrees left stale by previously
+        # merged/closed PRs before the agent starts branching.
+        run_worktree_cleanup(repo_root, include_no_pr=args.cleanup_include_no_pr)
+
     report.parent.mkdir(parents=True, exist_ok=True)
 
     LOGGER.info("invoking: %s", shlex.join(cmd))
-    completed = subprocess.run(
-        cmd,
-        cwd=worktree,
-        shell=False,
-        check=False,
-        timeout=None,
-        env=env,
-    )
-    return completed.returncode
+    try:
+        completed = subprocess.run(
+            cmd,
+            cwd=worktree,
+            shell=False,
+            check=False,
+            timeout=None,
+            env=env,
+        )
+        returncode = completed.returncode
+    finally:
+        if args.cleanup:
+            # End-of-run sweep (HARD GATE): runs even when the agent run
+            # fails or is interrupted, so merged/closed PR worktrees from
+            # this run are never left behind to accumulate on disk.
+            run_worktree_cleanup(repo_root, include_no_pr=args.cleanup_include_no_pr)
+    return returncode
 
 
 if __name__ == "__main__":

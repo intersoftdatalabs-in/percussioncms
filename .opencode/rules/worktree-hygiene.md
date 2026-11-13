@@ -6,6 +6,10 @@ opencode-hosted overnight worker).
 
 ## Rule (HARD GATE)
 
+Cleanup on PR merge/close and at session end is **mandatory, not optional**.
+(Disk-fill precedent: dozens of orphaned worktrees under the opencode root
+once exceeded 100 GB and had to be deleted by hand.)
+
 When your task used a **git worktree** under `.opencode/worktrees/`:
 
 1. **After the PR is opened or updated** for that worktree’s branch, note the
@@ -24,19 +28,33 @@ When your task used a **git worktree** under `.opencode/worktrees/`:
 3. **Do not** leave full-tree worktrees behind “for later.” Each monorepo
    worktree can be multi‑GB and is a common disk-fill failure mode.
 
-4. **Do not** remove:
+4. **Do not `rm -rf` a worktree directory.** Manual deletion orphans git
+   metadata (the entry stays registered, the local branch stays behind).
+   Always `git worktree remove [--force] <path>` + `git worktree prune`.
+   If a directory was already deleted out-of-band, repair with:
+
+   ```bash
+   python3 scripts/prune-stale-worktrees.py --apply --force --delete-local-branches
+   ```
+
+   (from the primary checkout; the script flags such entries as `MISSING`
+   and prunes them).
+
+5. **Do not** remove:
    - the primary / main worktree
    - a worktree that still has an **open** PR (unless the human ordered cleanup)
    - the worktree you are currently running in (switch to main first)
 
-5. The `scripts/opencode-night-issue-prs.py` launcher owns the dedicated night
+6. The `scripts/opencode-night-issue-prs.py` launcher owns the dedicated night
    worktree at
    `<home>/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs`
    (override via `NIGHT_WORKTREE_PATH` env var or `--worktree`). On each run it
-   creates the path from `origin/<base_branch>` when missing and hard-resets the
-   sync branch `night-issue-prs-main` when present. The opencode `night` plugin
-   only fills `NIGHT_*` defaults and denies banned shell patterns — it does not
-   create worktrees. Treat that path the same as any other disposable worktree —
+   switches the worktree back to the sync branch (`checkout -B`) from
+   `origin/<base_branch>` when missing and hard-syncs it when present, and it
+   runs `scripts/prune-stale-worktrees.py --apply` after sync AND after the
+   run (even on failure) unless `--no-cleanup` is passed. The opencode `night` plugin
+   only fills `NIGHT_*` defaults and denies banned shell patterns — it does
+   not create worktrees. Treat that path the same as any other disposable worktree —
    clean it up when no PR is open against it.
 
 ## Session start (related HARD GATE)

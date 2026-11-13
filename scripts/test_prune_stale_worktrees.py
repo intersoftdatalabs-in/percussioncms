@@ -161,6 +161,120 @@ class TestDecide(unittest.TestCase):
         self.assertEqual(d.action, "keep")
         self.assertIn("current working directory", d.reason)
 
+    def test_decide_missing_path_merged_is_removed(self) -> None:
+        """A worktree directory deleted out-of-band (rm -rf) whose PR is
+        MERGED must be removed (metadata prune), not kept."""
+        wt = m.Worktree(
+            path=Path("/repo/wt-gone"),
+            branch="fix/done",
+            pr_states=["MERGED"],
+            pr_numbers=[42],
+            dirty=False,
+            path_exists=False,
+        )
+        d = m.decide(
+            wt,
+            include_no_pr=False,
+            include_open=False,
+            require_force_for_dirty=True,
+            force=False,
+        )
+        self.assertEqual(d.action, "remove")
+        self.assertIn("missing", d.reason)
+
+    def test_decide_missing_path_open_pr_is_kept(self) -> None:
+        """A missing path with an OPEN PR needs human review before pruning."""
+        wt = m.Worktree(
+            path=Path("/repo/wt-gone"),
+            branch="fix/wip",
+            pr_states=["OPEN"],
+            pr_numbers=[7],
+            path_exists=False,
+        )
+        d = m.decide(
+            wt,
+            include_no_pr=False,
+            include_open=False,
+            require_force_for_dirty=True,
+            force=True,
+        )
+        self.assertEqual(d.action, "keep")
+
+    def test_decide_missing_path_no_pr_needs_flag(self) -> None:
+        wt = m.Worktree(
+            path=Path("/repo/wt-gone"), branch="experiment/x", path_exists=False
+        )
+        d = m.decide(
+            wt,
+            include_no_pr=False,
+            include_open=False,
+            require_force_for_dirty=True,
+            force=False,
+        )
+        self.assertEqual(d.action, "keep")
+        d2 = m.decide(
+            wt,
+            include_no_pr=True,
+            include_open=False,
+            require_force_for_dirty=True,
+            force=False,
+        )
+        self.assertEqual(d2.action, "remove")
+        self.assertIn("missing", d2.reason)
+
+    def test_decide_missing_path_detached_is_removed(self) -> None:
+        wt = m.Worktree(path=Path("/repo/wt-gone"), branch=None, path_exists=False)
+        d = m.decide(
+            wt,
+            include_no_pr=False,
+            include_open=False,
+            require_force_for_dirty=True,
+            force=False,
+        )
+        self.assertEqual(d.action, "remove")
+
+    def test_list_worktrees_detects_missing_path(self) -> None:
+        """list_worktrees must flag entries whose directory was rm -rf'd."""
+        import subprocess
+        import tempfile
+
+        with tempfile.TemporaryDirectory() as tmp:
+            seed = Path(tmp) / "seed"
+            subprocess.run(
+                ["git", "init", "-b", "main", str(seed)],
+                check=True, capture_output=True, timeout=30,
+            )
+            subprocess.run(
+                ["git", "-C", str(seed), "config", "user.email", "ci@example.com"],
+                check=True, capture_output=True, timeout=10,
+            )
+            subprocess.run(
+                ["git", "-C", str(seed), "config", "user.name", "ci"],
+                check=True, capture_output=True, timeout=10,
+            )
+            (seed / "README.md").write_text("hi")
+            subprocess.run(
+                ["git", "-C", str(seed), "add", "README.md"],
+                check=True, capture_output=True, timeout=10,
+            )
+            subprocess.run(
+                ["git", "-C", str(seed), "commit", "-m", "init"],
+                check=True, capture_output=True, timeout=30,
+            )
+            wt_path = Path(tmp) / "wt-gone"
+            subprocess.run(
+                ["git", "-C", str(seed), "worktree", "add", str(wt_path), "-b", "fix/gone"],
+                check=True, capture_output=True, timeout=60,
+            )
+            # Simulate the out-of-band deletion: rm -rf, never git worktree remove.
+            import shutil
+
+            shutil.rmtree(wt_path)
+            rows = m.list_worktrees(seed)
+            gone = [r for r in rows if r.branch == "fix/gone"]
+            self.assertEqual(len(gone), 1)
+            self.assertFalse(gone[0].path_exists)
+
 
 if __name__ == "__main__":
     unittest.main()

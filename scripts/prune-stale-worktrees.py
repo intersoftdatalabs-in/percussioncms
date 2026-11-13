@@ -9,15 +9,23 @@ Cross-platform (Windows / Linux / macOS). Requires:
 
 Why this exists
 ---------------
-Agent sessions (Kilo, Grok, etc.) often create full-tree git worktrees under
-``.kilo/worktrees/``, ``~/.grok/worktrees/``, or similar. Each copy is roughly
-a full checkout and fills disks quickly when left behind after PRs merge.
+Agent sessions (Kilo, Grok, OpenCode, etc.) often create full-tree git
+worktrees under ``.kilo/worktrees/``, ``.worktrees/``,
+``~/.grok/worktrees/``, ``~/.opencode/worktrees/``, or similar. Each copy is
+roughly a full checkout and fills disks quickly when left behind after PRs
+merge.
 
 Default behaviour is **dry-run** (list only). Pass ``--apply`` to remove.
 
 Stale criteria (removable when ``--apply``):
   * Linked branch has a GitHub PR in state MERGED or CLOSED, OR
   * Linked branch has no open PR and ``--include-no-pr`` is set
+
+Manually deleted worktrees (``rm -rf`` instead of ``git worktree remove``)
+leave stale metadata behind: ``git worktree list`` keeps showing a path that
+no longer exists. Such entries are detected (missing path) and repaired with
+``git worktree prune`` when ``--apply`` is passed. Never ``rm -rf`` a
+worktree directory — always ``git worktree remove [--force] <path>``.
 
 Always kept:
   * The primary (main) worktree
@@ -55,6 +63,10 @@ class Worktree:
     dirty: bool = False
     is_main: bool = False
     is_cwd: bool = False
+    # False when the worktree directory was deleted out-of-band (rm -rf
+    # instead of `git worktree remove`). git still reports the entry until
+    # `git worktree prune` drops it.
+    path_exists: bool = True
 
     @property
     def has_open_pr(self) -> bool:
@@ -164,7 +176,13 @@ def list_worktrees(root: Path) -> list[Worktree]:
         # dirty check (best-effort; skip if path missing)
         if resolved.is_dir():
             st = run(["git", "status", "--porcelain"], cwd=resolved)
+            wt.path_exists = True
             wt.dirty = bool(st.stdout.strip()) if st.returncode == 0 else False
+        else:
+            # Directory was removed out-of-band (rm -rf). git still lists
+            # the entry until `git worktree prune` drops it.
+            wt.path_exists = False
+            wt.dirty = False
     return rows
 
 
@@ -225,13 +243,23 @@ def decide(
     if wt.locked:
         return Decision(wt, "keep", "locked worktree")
     if wt.branch is None:
+        if not wt.path_exists:
+            return Decision(wt, "remove", "detached HEAD, path missing; prune metadata")
         return Decision(wt, "keep", "detached HEAD (manual review)")
     if wt.has_open_pr and not include_open:
         nums = ",".join(f"#{n}" for n in wt.pr_numbers) or "?"
+        if not wt.path_exists:
+            return Decision(
+                wt,
+                "keep",
+                f"open PR {nums} but path missing; manual review before pruning",
+            )
         return Decision(wt, "keep", f"open PR {nums}")
     if wt.has_terminal_pr:
         nums = ",".join(f"#{n}" for n in wt.pr_numbers) or "?"
         states = ",".join(sorted(set(wt.pr_states)))
+        if not wt.path_exists:
+            return Decision(wt, "remove", f"PR {nums} is {states}; path missing, prune metadata")
         if wt.dirty and require_force_for_dirty and not force:
             return Decision(
                 wt,
@@ -241,6 +269,12 @@ def decide(
         return Decision(wt, "remove", f"PR {nums} is {states}")
     if wt.no_pr:
         if not include_no_pr:
+            if not wt.path_exists:
+                return Decision(
+                    wt,
+                    "keep",
+                    "path missing, no PR linked; pass --include-no-pr to prune",
+                )
             return Decision(wt, "keep", "no PR linked; pass --include-no-pr to remove")
         if wt.dirty and require_force_for_dirty and not force:
             return Decision(
@@ -248,6 +282,8 @@ def decide(
                 "keep",
                 "no PR, dirty; re-run with --force --include-no-pr",
             )
+        if not wt.path_exists:
+            return Decision(wt, "remove", "no open PR (--include-no-pr); path missing, prune metadata")
         return Decision(wt, "remove", "no open PR (--include-no-pr)")
     # Mixed OPEN+MERGED etc.
     if wt.has_open_pr:
@@ -262,6 +298,21 @@ def remove_worktree(
     force: bool,
     delete_branch: bool,
 ) -> tuple[bool, str]:
+    if not wt.path_exists:
+        # Directory was deleted out-of-band (rm -rf). `git worktree remove`
+        # cannot operate on a missing path, so drop the stale metadata with
+        # `git worktree prune` and optionally delete the local branch.
+        cp = run(["git", "worktree", "prune", "-v"], cwd=root)
+        msg = f"pruned missing worktree {wt.path}"
+        if cp.stdout.strip():
+            msg += f": {cp.stdout.strip()}"
+        if delete_branch and wt.branch:
+            b = run(["git", "branch", "-D", wt.branch], cwd=root)
+            if b.returncode == 0:
+                msg += f"; deleted local branch {wt.branch}"
+            else:
+                msg += f"; branch -D {wt.branch} skipped: {(b.stderr or b.stdout).strip()}"
+        return True, msg
     args = ["git", "worktree", "remove"]
     if force or wt.dirty:
         args.append("--force")
@@ -355,12 +406,13 @@ def main(argv: Optional[list[str]] = None) -> int:
     print(f"Repo root: {root}")
     print(f"Mode: {'APPLY' if args.apply else 'DRY-RUN'}")
     print()
-    print(f"{'ACTION':<8} {'BRANCH':<48} {'DIRTY':<6} REASON")
+    print(f"{'ACTION':<8} {'BRANCH':<48} {'DIRTY':<6} {'PATH':<6} REASON")
     print("-" * 100)
     for d in decisions:
         branch = d.worktree.branch or "(detached)"
         dirty = "yes" if d.worktree.dirty else "no"
-        print(f"{d.action:<8} {branch:<48} {dirty:<6} {d.reason}")
+        exist = "ok" if d.worktree.path_exists else "MISSING"
+        print(f"{d.action:<8} {branch:<48} {dirty:<6} {exist:<6} {d.reason}")
         print(f"         path: {d.worktree.path}")
 
     to_remove = [d for d in decisions if d.action == "remove"]
@@ -373,6 +425,13 @@ def main(argv: Optional[list[str]] = None) -> int:
         return 0
 
     failures = 0
+    if args.apply:
+        # Drop stale metadata first: entries whose directories were deleted
+        # out-of-band (rm -rf) may not even appear in `git worktree list`
+        # output consumed above, but prune clears them from .git/worktrees.
+        pre = run(["git", "worktree", "prune", "-v"], cwd=root)
+        if pre.stdout.strip():
+            print(f"prune: {pre.stdout.strip()}")
     for d in to_remove:
         ok, msg = remove_worktree(
             root,
