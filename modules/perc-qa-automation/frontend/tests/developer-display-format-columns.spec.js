@@ -267,7 +267,17 @@ test.describe("Developer display format columns (#4097 / UI-08)", () => {
 
     const downBtn = page.locator('[data-testid="developer-df-column-down-0"]');
     if (await downBtn.isEnabled()) {
+      const rowSources = () =>
+        page
+          .locator('[data-testid="developer-df-columns-table"] tbody tr')
+          .evaluateAll((rows) =>
+            rows.map((r) => r.getAttribute("data-df-column-source") || ""),
+          );
+      const beforeMove = await rowSources();
+      expect(beforeMove.length).toBeGreaterThanOrEqual(2);
       await downBtn.click();
+      const afterMove = await rowSources();
+      expect(afterMove).toEqual([beforeMove[1], beforeMove[0], ...beforeMove.slice(2)]);
     }
 
     await saveColumnsAndAssertOk(page);

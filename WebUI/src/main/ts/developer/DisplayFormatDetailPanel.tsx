@@ -326,6 +326,7 @@ export function DisplayFormatDetailPanel({
     if (isApiError(err) && err.status === 400) return DEV_MSG.DF_COLUMNS_INVALID_SOURCE;
     if (isApiError(err) && err.status === 403) return DEV_MSG.DF_COLUMNS_FORBIDDEN;
     if (isApiError(err) && err.status === 404) return DEV_MSG.DF_COLUMNS_NOT_FOUND;
+    if (isApiError(err) && err.status === 409) return DEV_MSG.DF_COLUMNS_CONFLICT;
     return DEV_MSG.DF_COLUMNS_SAVE_ERROR;
   }
 
