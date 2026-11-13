@@ -2943,6 +2943,13 @@ def _qa_publish_fixture_http_verify(
         code = _curl_status(url, timeout=5.0)
         if code != 404:
             failures.append(f"{url} :: expected 404, got HTTP {code}")
+    # mkd-code-review[llm.ollama-dev-coder]: adjudicated intentional (issue #6240) —
+    # this loop already asserts `code != 200` (staged pages must serve HTTP 200);
+    # the adjacent `!= 404` loop is the preexisting DynaTree-gone contract.
+    for url in qpf.expected_widget_page_urls(site_url):
+        code = _curl_status(url, timeout=5.0)
+        if code != 200:
+            failures.append(f"{url} :: HTTP {code}")
     return failures
 
 
@@ -2959,7 +2966,8 @@ def cmd_qa_publish_fixture(
     what a real publish emits). Prints the spec env-table contract
     (``PUBLISHED_SITE_URL`` / ``PUBLISHED_CATEGORY_URL``) pointing at the
     fixture, repointing the ``qa-up --with-dts`` placeholder at the real
-    category page.
+    category page. Also stages + verifies one page per pinned US2 widget
+    (``widgets/<WidgetName>.html`` for the #6240 matrix).
     """
     import qa_publish_fixture as qpf
 

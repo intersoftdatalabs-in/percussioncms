@@ -677,9 +677,13 @@ expand case lives in `published-category-tree-fancytree.spec.js` (closes the
 
 ```bash
 cd modules/perc-qa-automation/frontend
-# Needs the in-cell published site + fixture pages (full edition/publish path):
-PUBLISHED_SITE_URL=https://<in-cell-published-site-origin> \
-  PUBLISHED_CATEGORY_URL=https://<site>/<page-with-collapsible-category-list> \
+# Green path: stage the in-cell published site + widget fixture pages,
+# then run the matrix against the printed contract:
+python ../../docker/scripts/perc-devctl.py qa-up --with-dts
+python ../../docker/scripts/perc-devctl.py qa-publish-fixture
+# → PUBLISHED_SITE_URL=http://127.0.0.1:<dts-port>
+# → PUBLISHED_CATEGORY_URL=http://127.0.0.1:<dts-port>/category.html
+PUBLISHED_SITE_URL=<printed> PUBLISHED_CATEGORY_URL=<printed> \
   npm run test:surface -- --path tests/published-widget-matrix.spec.js
 # Single widget (percCategoryList prefers PUBLISHED_CATEGORY_URL when set):
   npm run test:surface -- --path tests/published-widget-matrix.spec.js --grep percCategoryList
@@ -698,10 +702,13 @@ The inventory (`WIDGETS`) is closed: the unit test fails when a shipped
 full matrix run validates all 45 rows against the schema and writes
 `frontend/test-results/published-widget-matrix.json` (gitignored). Fixture
 contract: one page per widget at `/widgets/<WidgetName>.html` on the
-published origin (documents the fixture the DTS publish slice must serve);
-`percCategoryList` additionally honors `PUBLISHED_CATEGORY_URL`. To add a
-widget shipped by the CMS later: append one entry to `WIDGETS` (the matrix
-spec picks it up automatically, no other edits).
+published origin, staged by `docker/scripts/qa_publish_fixture.py`
+(`perc-devctl qa-publish-fixture`); `percCategoryList` additionally honors
+`PUBLISHED_CATEGORY_URL`. To add a widget shipped by the CMS later: append
+one entry to `WIDGETS` (the matrix spec picks it up automatically, no other
+edits) **and** the matching `(name, label, kind, marker)` row to
+`WIDGET_FIXTURES` in `qa_publish_fixture.py` (the fixture drift-guard test
+fails until both lists agree).
 
 ### Architecture Create section no-skip (#3589 / #3661 / #3672 / parent #3092)
 

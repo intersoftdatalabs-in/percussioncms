@@ -1581,6 +1581,56 @@ class TestQaPublishFixture(unittest.TestCase):
         )
         self.assertTrue((staging / "site" / "category.html").is_file())
 
+    def test_widget_page_404_fails_verify(self):
+        """US2 (#6240): an unpublished widget page fails the publish step."""
+        import io
+        from contextlib import redirect_stdout
+        staging = self.repo_root / "tmp" / "qa-fixture-published"
+        pull_web = staging / ".cms-pull" / "web_resources"
+        import qa_publish_fixture as qpf
+
+        for asset in qpf.REQUIRED_PUBLISHED_ASSETS:
+            target = pull_web / Path(*asset.split("/")).relative_to(
+                qpf.CMS_WEB_RESOURCES_DIR
+            )
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text("/* bytes */", encoding="utf-8")
+
+        def fake_run(argv, *args, **kwargs):
+            return subprocess.CompletedProcess(
+                args=argv, returncode=0, stdout="", stderr=""
+            )
+
+        def fake_curl(url, timeout=5.0):
+            if "dynatree" in url:
+                return 404
+            if "/widgets/" in url:
+                return 404
+            return 200
+
+        buf = io.StringIO()
+        with unittest.mock.patch.object(
+            pdc, "_docker_container_present", return_value=True
+        ), unittest.mock.patch.object(
+            pdc.subprocess, "run", side_effect=fake_run
+        ), unittest.mock.patch.object(
+            pdc, "_curl_status", side_effect=fake_curl
+        ), unittest.mock.patch.object(
+            pdc.time, "sleep"
+        ):
+            with redirect_stdout(buf):
+                rc = pdc.main(
+                    ["--repo-root", str(self.repo_root),
+                     "qa-publish-fixture",
+                     "--dts-url", "http://127.0.0.1:19983",
+                     "--timeout-seconds", "10"]
+                )
+        out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("RESULT:FAIL STEP:qa-publish-fixture", out)
+        self.assertIn("DETAIL:fixture_http_verify_failed", out)
+        self.assertIn("/widgets/percArchiveList.html", out)
+
 
 class TestMain(unittest.TestCase):
     def test_main_help(self):

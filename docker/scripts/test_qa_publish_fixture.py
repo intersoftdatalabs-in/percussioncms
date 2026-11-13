@@ -160,6 +160,126 @@ class BuildFixtureTreeTest(unittest.TestCase):
         self.assertTrue(any("retired" in p for p in problems))
 
 
+class WidgetFixturePagesTest(unittest.TestCase):
+    """US2 (#6240): one staged page per pinned matrix widget."""
+
+    def setUp(self):
+        self.td = TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.root = Path(self.td.name)
+
+    def _staged(self) -> Path:
+        cms = _fake_cms_install(self.root / "cms")
+        staging = self.root / "staging"
+        qpf.build_fixture_tree(staging, cms)
+        return staging
+
+    def test_table_matches_js_inventory(self):
+        """Drift guard: the Python table mirrors WIDGETS exactly.
+
+        The JS helper is the matrix's source of truth; this test parses its
+        pinned rows and fails on any name/kind/marker the fixture does not
+        cover (or covers without a matrix case).
+        """
+        import re
+
+        helper = (
+            SCRIPTS.parent.parent
+            / "modules"
+            / "perc-qa-automation"
+            / "frontend"
+            / "tests"
+            / "helpers"
+            / "published-widget-matrix.js"
+        )
+        if not helper.is_file():
+            self.skipTest(f"matrix inventory not checked out: {helper}")
+        row_re = re.compile(
+            r"name:\s*\"([^\"]+)\",\s*label:\s*\"[^\"]*\",\s*"
+            r"kind:\s*\"([^\"]+)\",\s*marker:\s*(\"([^\"]*)\"|'([^']*)'|null)"
+        )
+        parsed = {}
+        for match in row_re.finditer(helper.read_text(encoding="utf-8")):
+            name, kind = match.group(1), match.group(2)
+            marker = match.group(4) if match.group(4) is not None else match.group(5)
+            parsed[name] = (kind, marker)
+        self.assertTrue(parsed, "expected pinned WIDGETS rows in the helper")
+        tabled = {name: (kind, marker) for name, _label, kind, marker in qpf.WIDGET_FIXTURES}
+        self.assertEqual(
+            sorted(tabled),
+            sorted(parsed),
+            "fixture table and matrix inventory pin the same widgets",
+        )
+        for name, (kind, marker) in parsed.items():
+            self.assertEqual(tabled[name], (kind, marker), f"drift for {name}")
+
+    def test_build_writes_every_widget_page(self):
+        staging = self._staged()
+        self.assertEqual(len(qpf.WIDGET_FIXTURES), 45)
+        for name, _label, _kind, _marker in qpf.WIDGET_FIXTURES:
+            page = staging / qpf.WIDGET_FIXTURE_DIR / f"{name}.html"
+            self.assertTrue(page.is_file(), f"missing {page}")
+            text = page.read_text(encoding="utf-8")
+            self.assertNotIn("http://", text, name)
+            self.assertNotIn("https://", text, name)
+
+    def test_widget_pages_carry_their_markers(self):
+        staging = self._staged()
+        self.assertEqual(qpf.verify_fixture_tree(staging), [])
+        # Spot-check each marker shape end to end.
+        by_name = {n: (l, k, m) for n, l, k, m in qpf.WIDGET_FIXTURES}
+        text = (staging / qpf.WIDGET_FIXTURE_DIR / "percImage.html").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("<img", text)
+        self.assertIn("../web_resources/", text)
+        text = (staging / qpf.WIDGET_FIXTURE_DIR / "percLogin.html").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn('id="perc-login-form"', text)
+        text = (staging / qpf.WIDGET_FIXTURE_DIR / "percOpenGraph.html").read_text(
+            encoding="utf-8"
+        )
+        self.assertLess(
+            text.index('property="og:title"'), text.index("</head>"),
+            "head marker must live in <head>",
+        )
+        text = (staging / qpf.WIDGET_FIXTURE_DIR / "percRichText.html").read_text(
+            encoding="utf-8"
+        )
+        _label, _kind, marker = by_name["percRichText"]
+        self.assertIsNone(marker)
+        self.assertTrue(len(text.strip()) > 0)
+
+    def test_verify_reports_missing_widget_page(self):
+        staging = self._staged()
+        (staging / qpf.WIDGET_FIXTURE_DIR / "percPoll.html").unlink()
+        problems = qpf.verify_fixture_tree(staging)
+        self.assertTrue(
+            any("widgets/percPoll.html" in p for p in problems), problems
+        )
+
+    def test_verify_reports_missing_marker(self):
+        staging = self._staged()
+        page = staging / qpf.WIDGET_FIXTURE_DIR / "percTagList.html"
+        page.write_text(
+            "<!DOCTYPE html><html><head><title>x</title></head>"
+            "<body><h1>Tag List</h1></body></html>",
+            encoding="utf-8",
+        )
+        problems = qpf.verify_fixture_tree(staging)
+        self.assertTrue(
+            any("percTagList" in p and "marker" in p for p in problems),
+            problems,
+        )
+
+    def test_unknown_marker_shapes_fail_loudly(self):
+        with self.assertRaises(ValueError):
+            qpf.fixture_widget_html("percFuture", "Future", "static", "div > p")
+        with self.assertRaises(ValueError):
+            qpf.fixture_widget_html("percFuture", "Future", "head", "title")
+
+
 class DockerArgvTest(unittest.TestCase):
     """Container-side paths are POSIX by construction (Linux matrix cells).
 
