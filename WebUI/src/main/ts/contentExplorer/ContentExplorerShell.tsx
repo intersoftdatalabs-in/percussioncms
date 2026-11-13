@@ -91,6 +91,7 @@ import {
 import {
   copyFolderItem,
   deleteFolderItem,
+  findItemById,
   findItemByPath,
   moveFolderItem,
   purgeRecycledItem,
@@ -132,6 +133,18 @@ import { ActionToolbar } from "./ActionToolbar";
 import { ClipboardPanel } from "./clipboard/ClipboardPanel";
 import { EMPTY_CLIPBOARD, applyClipboardAdd } from "./clipboard/model";
 import { toClipboardItem } from "./clipboard/toClipboardItem";
+import { RecentPanel } from "./RecentPanel";
+import {
+  browserRecentStorage,
+  dropRecentItem,
+  loadRecentItems,
+  persistRecentItems,
+  recentItemKey,
+  recordRecentItem,
+  toRecentItem,
+  type RecentEntry,
+  type RecentItem,
+} from "./recentItems";
 import { ContextMenu } from "./ContextMenu";
 import { clampContextMenuPosition } from "./contextMenuPosition";
 import { TemplatePickerDialog } from "./TemplatePickerDialog";
@@ -410,6 +423,14 @@ export interface ContentExplorerShellProps {
    */
   resolveFolderId?: (path: string) => Promise<string | undefined>;
   /**
+   * Test seam: probe whether a recent entry still exists before re-opening
+   * it (#6256). Default uses pathmanagement ({@code findItemById} with a
+   * {@code findItemByPath} fallback — the id endpoint 500s on unknown ids
+   * instead of 404). A 404 drops the entry; other failures keep it and
+   * the open is attempted.
+   */
+  checkRecentItem?: (entry: RecentItem) => Promise<boolean>;
+  /**
    * Test seam: execute a workflow transition. Default uses itemmanagement
    * {@code transitionWithComments}.
    */
@@ -584,6 +605,71 @@ async function defaultLoadDisplayFormats(): Promise<DisplayFormat[]> {
   return listExplorerFolderDisplayFormats();
 }
 
+/**
+ * Default recent-entry existence probe (#6256). Reads pathmanagement with
+ * zero new REST. Folders use the path read (authoritative: 200 exists,
+ * 404 gone). Items use the id read first, with a path fallback: the id
+ * endpoint answers unknown ids with HTTP 500
+ * ({@code IllegalArgumentException: type cannot be null}) instead of 404,
+ * so an id failure alone never drops — only a 404 on the follow-up path
+ * read (or a 404 id read) drops the entry. Any other failure keeps the
+ * entry and the open is still attempted.
+ */
+export async function defaultCheckRecentItem(entry: RecentItem): Promise<boolean> {
+  const id = (entry.id ?? "").trim();
+  const path = (entry.path ?? "").trim();
+  if (!id && !path) {
+    return false;
+  }
+  if (entry.kind === "folder") {
+    if (!path) {
+      return false;
+    }
+    try {
+      const found = await findItemByPath(path);
+      return hasProbeIdentity(found);
+    } catch (err) {
+      if (isApiError(err) && err.status === 404) {
+        return false;
+      }
+      return true;
+    }
+  }
+  if (id) {
+    try {
+      const found = await findItemById(id);
+      if (hasProbeIdentity(found)) {
+        return true;
+      }
+    } catch (err) {
+      if (isApiError(err) && err.status === 404) {
+        return false;
+      }
+      // Fall through to the path read: unknown ids 500 here, so the id
+      // read alone cannot prove absence.
+    }
+  }
+  if (!path) {
+    return false;
+  }
+  try {
+    const found = await findItemByPath(path);
+    return hasProbeIdentity(found);
+  } catch (err) {
+    if (isApiError(err) && err.status === 404) {
+      return false;
+    }
+    return true;
+  }
+}
+
+function hasProbeIdentity(found: PSPathItem | null | undefined): boolean {
+  if (!found) {
+    return false;
+  }
+  return Boolean((found.path ?? "").trim() || String(found.id ?? "").trim());
+}
+
 async function defaultResolveFolderId(
   path: string,
 ): Promise<string | undefined> {
@@ -641,6 +727,7 @@ function ContentExplorerShellInner({
   loadWorkflowMenuActions = defaultLoadWorkflowMenuActions,
   currentUserIdentities: currentUserIdentitiesProp,
   resolveFolderId = defaultResolveFolderId,
+  checkRecentItem,
   runWorkflowTransition = defaultRunWorkflowTransition,
   loadDependencySummary,
   search: searchTransport,
@@ -676,6 +763,31 @@ function ContentExplorerShellInner({
     bootstrap.isAdmin,
     bootstrap.isDesigner,
   ]);
+
+  /**
+   * Recent-items quick access (#6256 / parent #4530). Per-operator
+   * localStorage, capped, client-side only — zero new REST. Folders are
+   * included (browse affordance); activating a deleted entry drops it with
+   * a status notice instead of an error.
+   */
+  const recentUserName = bootstrap.userName ?? null;
+  const [showRecent, setShowRecent] = useState(false);
+  const [recentNotice, setRecentNotice] = useState<string | null>(null);
+  const [recentItems, setRecentItems] = useState<RecentEntry[]>(() =>
+    loadRecentItems(browserRecentStorage(), recentUserName),
+  );
+
+  useEffect(() => {
+    persistRecentItems(browserRecentStorage(), recentUserName, recentItems);
+  }, [recentItems, recentUserName]);
+
+  const recordRecentOpen = useCallback((item: PSPathItem | null | undefined) => {
+    const recent = toRecentItem(item);
+    if (!recent) {
+      return;
+    }
+    setRecentItems((prev) => recordRecentItem(prev, recent));
+  }, []);
 
   // Seed from initialPath so deep-links and the security/properties panel
   // resolve a folder without requiring an extra tree click (#2410).
@@ -1073,6 +1185,8 @@ function ContentExplorerShellInner({
       handleRefreshListAndTree();
     },
     onOpen: (item) => {
+      // Opening an item appends to recents (dedupe, cap, folders included).
+      recordRecentOpen(item);
       if (isFolder(item)) {
         const folderPath =
           resolveExplorerListPath(item, item.path) ?? item.path;
@@ -1903,14 +2017,16 @@ function ContentExplorerShellInner({
   );
 
   const handleSearchOpen = useCallback((result: PSItemProperties) => {
-    openInEditor({
+    const item: PSPathItem = {
       id: result.id != null ? String(result.id) : undefined,
       name: result.name ?? result.title ?? "",
       // PSItemProperties exposes folderPath (parent); id-open when path empty.
       path: result.folderPath ?? "",
       type: result.type,
-    });
-  }, []);
+    };
+    recordRecentOpen(item);
+    openInEditor(item);
+  }, [recordRecentOpen]);
 
   const handleSearchReveal = useCallback((result: PSItemProperties) => {
     const folder = result.folderPath;
@@ -1920,6 +2036,51 @@ function ContentExplorerShellInner({
       setViewRun(null);
       setSelectedViewKey(null);
     }
+  }, []);
+
+  /**
+   * Re-open a recent entry (#6256). The entry is probed first with zero
+   * new REST: a deleted (404) entry is dropped with a status notice — not
+   * an error. Folders browse in place; items re-open in the editor. A
+   * successful re-open moves the entry to the front.
+   */
+  const handleRecentOpen = useCallback(
+    (entry: RecentEntry) => {
+      void (async () => {
+        const check = checkRecentItem ?? defaultCheckRecentItem;
+        let exists = true;
+        try {
+          exists = await check(entry);
+        } catch {
+          exists = true;
+        }
+        if (!exists) {
+          setRecentItems((prev) =>
+            dropRecentItem(prev, recentItemKey(entry)),
+          );
+          setRecentNotice(message(EXPLORER_MSG.RECENT_REMOVED_NOTICE));
+          return;
+        }
+        setRecentNotice(null);
+        handlers.onOpen({
+          id: entry.id ?? undefined,
+          name: entry.name,
+          path: entry.path,
+          type: entry.kind === "folder" ? "folder" : "percPage",
+          leaf: entry.kind !== "folder",
+        });
+      })();
+    },
+    [checkRecentItem, handlers],
+  );
+
+  const handleRecentRemove = useCallback((entry: RecentEntry) => {
+    setRecentItems((prev) => dropRecentItem(prev, recentItemKey(entry)));
+  }, []);
+
+  const handleRecentClear = useCallback(() => {
+    setRecentItems([]);
+    setRecentNotice(null);
   }, []);
 
   const runSelectedView = useCallback(
@@ -2033,6 +2194,7 @@ function ContentExplorerShellInner({
     showSecurity ||
     showItemProperties ||
     showClipboard ||
+    showRecent ||
     showTranslations ||
     showRelationships ||
     showDependencies ||
@@ -3206,6 +3368,9 @@ function ContentExplorerShellInner({
         case "view-clipboard":
           setShowClipboard((v) => !v);
           break;
+        case "view-recent":
+          setShowRecent((v) => !v);
+          break;
         case "help-explorer":
           // Product help site — open in a new tab when available.
           if (typeof window !== "undefined") {
@@ -3329,6 +3494,7 @@ function ContentExplorerShellInner({
             showDependencies={showDependencies}
             hasDependencyItem={hasDependencyItem}
             showClipboard={showClipboard}
+            showRecent={showRecent}
             showSiteCreate={showSiteCreate}
             showSiteCopy={showSiteCopy}
             showSiteRename={showSiteRename}
@@ -3610,6 +3776,18 @@ function ContentExplorerShellInner({
               onClick={handleRefreshListAndTree}
             >
               {message(EXPLORER_MSG.ACTION_REFRESH)}
+            </button>
+            <button
+              type="button"
+              data-testid="explorer-view-tool-recent"
+              aria-pressed={showRecent}
+              aria-expanded={showRecent}
+              aria-controls="explorer-recent-panel"
+              aria-label={message(EXPLORER_MSG.TOGGLE_RECENT_ARIA)}
+              title={message(EXPLORER_MSG.TOGGLE_RECENT_ARIA)}
+              onClick={() => handleMenuBarCommand("view-recent")}
+            >
+              {message(EXPLORER_MSG.RECENT_TITLE)}
             </button>
           </div>
         </div>
@@ -3940,6 +4118,22 @@ function ContentExplorerShellInner({
               setListEpoch((n) => n + 1);
               handleClearClipboard();
             }}
+          />
+        </section>
+      )}
+      {showRecent && (
+        <section
+          id="explorer-recent-panel"
+          style={sidePanelStyle}
+          data-testid="explorer-recent-panel"
+          aria-label={message(EXPLORER_MSG.RECENT_REGION)}
+        >
+          <RecentPanel
+            items={recentItems}
+            notice={recentNotice}
+            onOpen={handleRecentOpen}
+            onRemove={handleRecentRemove}
+            onClear={handleRecentClear}
           />
         </section>
       )}

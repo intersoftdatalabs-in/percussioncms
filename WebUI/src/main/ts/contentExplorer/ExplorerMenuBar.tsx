@@ -45,6 +45,8 @@ export interface ExplorerMenuBarProps {
   /** True when a content item is selected (for deps aria-controls). */
   hasDependencyItem?: boolean;
   showClipboard: boolean;
+  /** Recent quick-access panel open (#6256). */
+  showRecent?: boolean;
   /** Content → Create Site panel open (#3002). */
   showSiteCreate?: boolean;
   /** Content → Site Copy panel open (#2767). */
@@ -143,6 +145,7 @@ function isToggleChecked(
     | "showDependencies"
     | "hasDependencyItem"
     | "showClipboard"
+    | "showRecent"
     | "showSiteCreate"
     | "showSiteCopy"
     | "showSiteRename"
@@ -165,6 +168,8 @@ function isToggleChecked(
       return props.showDependencies;
     case "view-clipboard":
       return props.showClipboard;
+    case "view-recent":
+      return props.showRecent === true;
     case "content-create-site":
       return props.showSiteCreate === true;
     case "content-site-copy":
@@ -218,6 +223,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
     showDependencies,
     hasDependencyItem = false,
     showClipboard,
+    showRecent = false,
     showSiteCreate = false,
     showSiteCopy = false,
     showSiteRename = false,
@@ -359,6 +365,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                           showDependencies,
                           hasDependencyItem,
                           showClipboard,
+                          showRecent,
                           showSiteCreate,
                           showSiteCopy,
                           showSiteRename,
