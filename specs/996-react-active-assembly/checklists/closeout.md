@@ -3,12 +3,27 @@
 **Issue**: #6154 · **Date**: 2026-11-12
 **Inventory**: `checklists/coverage.md` (T003/T004) · **Tasks**: `../tasks.md`
 
-## T011 — FR-007 related-content menu parity: stays with #6104
+## T011 — FR-007 related-content menu parity: SHIPPED via #6104 child slices (2026-11-13)
 
-Not built here. `updaterelateditems.html` has no in-tree React/REST/sitemanage
-implementation (see `coverage.md` T004), and #6104 (OPEN, p3) owns the
-implement-or-recorded-reduced-scope decision. T011 box in `tasks.md` is
-intentionally left unticked; #6104 was not closed by this work.
+Not built under #6154. `updaterelateditems.html` POST-op parity (Arrange move
+up / down / remove) was verified in-tree and the reduced-scope decision was
+recorded in #6104 (2026-11-12 scope comment), deferring two affordances. Both
+deferred slices have since shipped to `main` and their issues are CLOSED:
+
+- #6224 snippet preview — PR #6231 (`fix/issue-6224-related-snippet-preview`):
+  per-row snippet preview on the AA canvas, RelationshipsView, and Editor
+  Related Content panel via `GET /services/assembly/preview-location` +
+  assembler-render popup (`contentExplorer/snippetPreview.ts`,
+  `snippetPreview.test.ts`, Playwright surface 2/2, product-docs
+  `admin/content-explorer.md` **Preview snippet**).
+- #6225 editor slot picker — PR #6247 (`fix/issue-6225-editor-slot-picker`):
+  **Move to slot** in the Editor Related Content panel via existing
+  `POST /services/assembly/slot-relationships/{id}/template-slot`
+  (`editor/editorRelatedSlotMove.ts`, `editorRelatedSlotMove.test.ts`,
+  Playwright surface 2/2, product-docs `admin/content-explorer.md`
+  **Move to slot**).
+
+T011 box in `tasks.md` is ticked; #6104 closeout PR records final verification.
 
 ## T012 — FR-008 Compare decision: DEFER (not built)
 

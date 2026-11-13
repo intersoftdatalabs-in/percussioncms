@@ -82,7 +82,11 @@ Tests: Vitest 400/403/409 suites; Playwright unmatched-template + denied-403
 
 - **FR-007** (`updaterelateditems.html` parity): zero hits for `updaterelateditems`
   in `WebUI/src/main/ts`, `rest/src`, `projects/sitemanage/src`. No hidden
-  implementation. Scope stays with **#6104** (OPEN, p3); T011 is not ticked here.
+  implementation. Parity delivered through #6104: POST-op parity verified
+  in-tree (2026-11-12 scope comment) plus deferred slices #6224 (PR #6231,
+  snippet preview) and #6225 (PR #6247, editor slot picker), both merged to
+  `main`; T011 ticked in `tasks.md`, closeout recorded in
+  `checklists/closeout.md` (2026-11-13).
 - **FR-008** (Compare / `sys_Compare`): only WebUI hit is the legacy blocklist
   entry `sys_compare` in `DATA_FLOW_PATH_MARKERS`
   (`WebUI/src/main/ts/contentExplorer/actionDispatch.ts`) — i.e. explicitly
