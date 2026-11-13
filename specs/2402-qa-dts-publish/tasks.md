@@ -40,21 +40,21 @@
       copies it to `/opt/Percussion/Deployment/Server/published-site`
       and installs per-Host `published-site.xml` / `web_resources.xml`
       descriptors — path-prefix contexts, no `server.xml` edit; hooked
-      into `qa-up --with-dts`; PR #<n>.)
+      into `qa-up --with-dts`; PR #6298.)
 - [x] T015 `published-site-smoke.spec.js` green (not skipped) with zero
       `web_resources` 404s. (2 passed vs the fixture served over the
-      two-context mapping; PR #<n>.)
+      two-context mapping; PR #6298.)
 - [x] T016 `published-category-tree-fancytree.spec.js` green (#6189
       checkbox 1 unblocked); FancyTree bytes from #6052 verified live.
       (3 passed incl. expand; first live run exposed a DynaTree-era
       locator — status classes live on `span.fancytree-node` in 2.x —
       fixed in the spec; real pages also load `jquery-ui.js` first
-      because fancytree asserts `$.ui` at load; PR #<n>.)
+      because fancytree asserts `$.ui` at load; PR #6298.)
 - [x] T017 Surface-run evidence (pass counts, zero console errors, zero
       `server.log` ERROR/FATAL) in PR body. (Console sweep 0/0/0;
       `server.log` N/A — no product server in the fixture-serve loop,
       same constraint as slice 2; cell wiring covered by 118 pytests +
-      dry-run banner; PR #<n>.)
+      dry-run banner; PR #6298.)
 
 ## Slice 4 — DTS widget surfaces (child issue)
 
