@@ -57,6 +57,7 @@ export type ExplorerMenuCommandId =
   | "view-relationships"
   | "view-dependencies"
   | "view-clipboard"
+  | "view-recent"
   | "help-explorer"
   | "help-about";
 
@@ -308,6 +309,13 @@ export function buildExplorerMenuBarGroups(): ReadonlyArray<ExplorerMenuBarGroup
           ariaLabelKey: EXPLORER_MSG.TOGGLE_CLIPBOARD_ARIA,
           testId: "explorer-toggle-clipboard",
           /** Always enabled so empty clipboard can still be viewed (#3544 / #3551). */
+          toggle: true,
+        },
+        {
+          id: "view-recent",
+          labelKey: EXPLORER_MSG.RECENT_TITLE,
+          ariaLabelKey: EXPLORER_MSG.TOGGLE_RECENT_ARIA,
+          testId: "explorer-toggle-recent",
           toggle: true,
         },
       ],

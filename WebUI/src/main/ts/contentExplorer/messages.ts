@@ -740,6 +740,18 @@ export const EXPLORER_MSG = {
   CLIPBOARD_SUMMARY_ADDED_SINGULAR: "perc.ui.explorer@1 item added to clipboard",
   CLIPBOARD_SUMMARY_ADDED_PLURAL:
     "perc.ui.explorer@{count} items added to clipboard",
+  // Recent-items quick access (#6256 / parent #4530). Client-side only
+  // (localStorage, capped, per-operator) — zero new REST.
+  RECENT_TITLE: "perc.ui.explorer@Recent",
+  TOGGLE_RECENT_ARIA: "perc.ui.explorer@Show or hide recent items",
+  RECENT_REGION: "perc.ui.explorer@Recent items",
+  RECENT_EMPTY: "perc.ui.explorer@No recently opened items",
+  RECENT_CLEAR: "perc.ui.explorer@Clear recent items",
+  RECENT_REMOVE: "perc.ui.explorer@Remove from recent items",
+  RECENT_KIND_FOLDER: "perc.ui.explorer@Folder",
+  RECENT_KIND_ITEM: "perc.ui.explorer@Item",
+  RECENT_REMOVED_NOTICE:
+    "perc.ui.explorer@That item is no longer available and was removed from recent items",
   // P-Trans / #2430 — item locales + create-variant (consumes public REST)
   TRANSLATIONS_TITLE: "perc.ui.explorer@Translations",
   TOGGLE_TRANSLATIONS_ARIA: "perc.ui.explorer@Show or hide translations",
