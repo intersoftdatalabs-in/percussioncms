@@ -504,16 +504,18 @@ describe("classic-UI loader/misc infra from npm (issue #5667)", () => {
  * The vendored 2.6.2 copies (cm/jslib, the cm/vendor/js/legacy mirror, and
  * the war/ mirror, plus the stale 1.x-era cm/css copy and the unreferenced
  * cm/app/css/legacy copy) were deleted. The stable WAR URLs are now served
- * from the npm 2.6.2 dist (Dependabot-tracked devDep in
- * frontend/package.json) via syncStandaloneNpmLibraries; the bundle-config
- * jslib path resolves through NPM_LIBRARY_MAPPINGS. The npm 2.6.2 bytes are
- * the same QUnit release as the deleted vendored copy (identical
- * version/date stamp; only prettier reformatting differs), so the runner
- * pages behave exactly as before. These tests pin:
+ * from the npm qunit dist (exact-pinned devDep in frontend/package.json) via
+ * syncStandaloneNpmLibraries; the bundle-config
+ * jslib path resolves through NPM_LIBRARY_MAPPINGS. At migration time the
+ * npm bytes were the same QUnit release as the deleted vendored copy
+ * (identical version/date stamp; only prettier reformatting differs), so the
+ * runner pages behave exactly as before. The pinned devDep version is the
+ * single source of truth for the shipped harness version (issue #6288) —
+ * never a hardcoded literal in this file. These tests pin:
  *
  *   1. The trio is present in STANDALONE_NPM_COPIES and marked required.
  *   2. Synced bytes are byte-identical to the node_modules dist files and
- *      the shipped qunit.js carries the 2.6.2 version marker.
+ *      the shipped qunit.js carries the pinned version marker.
  *   3. The bundle-config jslib qunit.js path resolves into node_modules.
  *   4. Every deleted vendored copy is gone from all three trees (webapp cm,
  *      vendor mirror, war mirror) including both css locations.
@@ -530,11 +532,40 @@ describe("classic-UI QUnit test harness from npm (issue #6068)", () => {
     path.dirname(path.dirname(FRONTEND_ROOT)),
   );
 
+  // Declared qunit devDep pin — the single source of truth for the shipped
+  // harness version (issue #6288: a tip commit bumped the pin 2.6.2 -> 2.26.0
+  // while this file still hardcoded 2.6.2). A leading range prefix is
+  // stripped so "^x.y.z"-style pins still match the QUnit banner stamp.
+  function expectedQunitVersion() {
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
+    );
+    const declared =
+      pkg.devDependencies?.qunit ?? pkg.dependencies?.qunit;
+    if (!declared) {
+      throw new Error(
+        "qunit must be pinned in frontend package.json (issue #6288)",
+      );
+    }
+    return {
+      declared: String(declared),
+      numeric: String(declared).replace(/^[~^>=< ]+/, ""),
+    };
+  }
+
+  function escapeRegExp(s) {
+    return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  const QUNIT_VERSION_RE = new RegExp(
+    `QUnit ${escapeRegExp(expectedQunitVersion().numeric)}`,
+  );
+
   const TRIO = [
     {
       src: "qunit/qunit/qunit.js",
       dest: "jslib/profiles/3x/libraries/qunit/qunit.js",
-      versionRe: /QUnit 2\.6\.2/,
+      versionRe: QUNIT_VERSION_RE,
     },
     {
       src: "qunit/qunit/qunit.css",
@@ -577,6 +608,18 @@ describe("classic-UI QUnit test harness from npm (issue #6068)", () => {
     }
   });
 
+  it("escapes every regex metacharacter in the version pin", () => {
+    expect(escapeRegExp("2.26.0+build")).toBe("2\\.26\\.0\\+build");
+    // The constructed banner pattern matches the literal pin only — a "+"
+    // in the pin must not become a one-or-more quantifier.
+    const re = new RegExp(`QUnit ${escapeRegExp("2.26.0+build")}`);
+    expect("QUnit 2.26.0+build").toMatch(re);
+    expect("QUnit 2.26.00build").not.toMatch(re);
+    expect(QUNIT_VERSION_RE.source).toContain(
+      escapeRegExp(expectedQunitVersion().numeric),
+    );
+  });
+
   it("syncs trio bytes identical to the npm dist files", () => {
     const missing = TRIO.map(({ src }) => path.join(NODE_MODULES, src)).filter(
       (p) => !fs.existsSync(p),
@@ -596,13 +639,22 @@ describe("classic-UI QUnit test harness from npm (issue #6068)", () => {
       // The deleted vendored copy must not leak back into the source tree.
       expect(fs.existsSync(path.join(WEBAPP_CM, dest))).toBe(false);
     }
-    // Pinned to the same release the vendored copy shipped (identical
-    // version/date stamp; formatting-only delta), so runner pages are
-    // unaffected by the sourcing change.
+    // Installed dist must be the declared pin, so runner pages are
+    // unaffected by the sourcing change. Exact pins compare equal; ranged
+    // pins must at least share the declared major.minor line.
     const qunitPkg = JSON.parse(
       fs.readFileSync(path.join(NODE_MODULES, "qunit", "package.json"), "utf8"),
     );
-    expect(qunitPkg.version).toBe("2.6.2");
+    const { declared, numeric } = expectedQunitVersion();
+    if (/^[~^>=<]/.test(declared.trim())) {
+      const line = numeric.split(".").slice(0, 2).join(".");
+      expect(
+        qunitPkg.version.startsWith(`${line}.`),
+        `installed qunit ${qunitPkg.version} is off the declared ${declared} line`,
+      ).toBe(true);
+    } else {
+      expect(qunitPkg.version).toBe(numeric);
+    }
   });
 
   it("resolves the jslib qunit.js bundle path into node_modules", () => {
