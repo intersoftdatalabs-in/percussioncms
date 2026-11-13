@@ -553,8 +553,12 @@ describe("classic-UI QUnit test harness from npm (issue #6068)", () => {
     };
   }
 
+  function escapeRegExp(s) {
+    return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
   const QUNIT_VERSION_RE = new RegExp(
-    `QUnit ${expectedQunitVersion().numeric.replace(/\./g, "\\.")}`,
+    `QUnit ${escapeRegExp(expectedQunitVersion().numeric)}`,
   );
 
   const TRIO = [
@@ -602,6 +606,18 @@ describe("classic-UI QUnit test harness from npm (issue #6068)", () => {
       expect(entry.src).toBe(src);
       expect(entry.required).toBe(true);
     }
+  });
+
+  it("escapes every regex metacharacter in the version pin", () => {
+    expect(escapeRegExp("2.26.0+build")).toBe("2\\.26\\.0\\+build");
+    // The constructed banner pattern matches the literal pin only — a "+"
+    // in the pin must not become a one-or-more quantifier.
+    const re = new RegExp(`QUnit ${escapeRegExp("2.26.0+build")}`);
+    expect("QUnit 2.26.0+build").toMatch(re);
+    expect("QUnit 2.26.00build").not.toMatch(re);
+    expect(QUNIT_VERSION_RE.source).toContain(
+      escapeRegExp(expectedQunitVersion().numeric),
+    );
   });
 
   it("syncs trio bytes identical to the npm dist files", () => {
