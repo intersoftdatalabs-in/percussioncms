@@ -206,6 +206,8 @@ hand off to Human QA.
 - `--skipTests` / `-Dmaven.test.skip` in any Maven build gate.
 - `--force-with-lease` to `main` or `night-issue-prs-main`.
 - Direct push to `main`.
+- Skipping the Report-phase worktree cleanup sweep (HARD GATE).
+- `rm -rf` on a worktree directory (always `git worktree remove [--force]` + `git worktree prune`).
 - Bare-resolving review threads (always inline mitigation + `resolveReviewThread`).
 - Human QA assignment without an independent APPROVE.
 - Approving or merging own-model-only Work PRs (this session's `model:*` and no other operator).
@@ -230,6 +232,9 @@ At the end of the Report phase, write `${NIGHT_REPORT_PATH}` with:
 - PRs opened, follow-up'd, cluster'd
 - Cycle verify status
 - Human QA handoffs
+- Worktree cleanup evidence (HARD — kept vs removed from the
+  `prune-stale-worktrees.py --apply` sweep run in the Report phase; the
+  launcher re-sweeps after exit, but the report is the audit trail)
 - Close audit: for every issue this run closed (via `Fixes #N` or otherwise),
   one line stating which acceptance criterion each PR evidences; reopen with a
   reason comment anything closed without it, and file the missing residual /

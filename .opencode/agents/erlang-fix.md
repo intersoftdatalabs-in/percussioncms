@@ -48,3 +48,8 @@ Print: `ERLANG_FIX_DONE pr=<N> residuals=<urls or none>`
 - Merge or APPROVE.
 - Ignoring a listed hard-gate bug.
 - Opening a second PR for the same issue.
+- Leaving a worktree behind (HARD): do the fix inside the dedicated
+  `$NIGHT_WORKTREE_PATH` when one is assigned; if you created a disposable
+  worktree for the checkout, remove it with
+  `git worktree remove --force <path>` + `git worktree prune` before
+  printing `ERLANG_FIX_DONE`. Never `rm -rf` a worktree directory.

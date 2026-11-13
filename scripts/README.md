@@ -116,7 +116,13 @@ vars actually reach the plugin and the bash tool.
   derives `repo_root` from its own path), outbound network once per run for
   `git fetch origin <base_branch>`.
 - **Worktree hygiene**: see `.opencode/rules/worktree-hygiene.md` for the
-  cleanup contract; the script does **not** auto-remove the worktree.
+  cleanup contract. The launcher auto-runs
+  `scripts/prune-stale-worktrees.py --apply --force
+  --delete-local-branches` after sync and again after the run (even on
+  failure) unless `--no-cleanup` is passed; `--cleanup-include-no-pr` also
+  drops worktrees whose branch has no linked PR. It also switches the
+  dedicated worktree back to the sync branch (`checkout -B`) so a feature
+  branch left checked out by a prior run is never reset in place.
 - **Note**: This is an **operational** script, not part of spec 994. Spec 994
   cross-platform-Python conventions are followed voluntarily (no `shell=True`,
   no hardcoded separators, stdlib-only at runtime, scratch under `./tmp`-equivalent).
@@ -331,9 +337,9 @@ See `src/license/README.md` and `modules/intsof-common-utilities/README.md`.
 
 ### `prune-stale-worktrees.py` / `prune-stale-worktrees.bat`
 
-List or remove **stale git worktrees** left by agent sessions (Kilo / Grok / etc.).
+List or remove **stale git worktrees** left by agent sessions (Kilo / Grok / OpenCode).
 
-- **Purpose**: Free disk after PRs merge. Full monorepo worktrees under `.kilo/worktrees/`, `~/.grok/worktrees/`, etc. fill disks quickly when not cleaned up. Complements root `AGENTS.md` → **Git worktree hygiene (HARD GATE)** and `.kilo/rules/worktree-hygiene.md`.
+- **Purpose**: Free disk after PRs merge. Full monorepo worktrees under `.kilo/worktrees/`, `~/.grok/worktrees/`, `~/.opencode/worktrees/`, etc. fill disks quickly when not cleaned up. Complements root `AGENTS.md` → **Git worktree hygiene (HARD GATE)** and `.opencode/rules/worktree-hygiene.md`.
 - **Usage**:
 
   ```bash
@@ -354,6 +360,7 @@ List or remove **stale git worktrees** left by agent sessions (Kilo / Grok / etc
   scripts\prune-stale-worktrees.bat --apply --force --delete-local-branches
   ```
 - **Keeps**: main worktree, current cwd worktree, locked worktrees, branches with **open** PRs (unless `--include-open`).
+- **Missing paths**: entries whose directory was deleted out-of-band (`rm -rf` instead of `git worktree remove`) are flagged `MISSING`; with `--apply` their stale metadata is pruned via `git worktree prune` (plus `git branch -D` with `--delete-local-branches`). Never `rm -rf` a worktree — always `git worktree remove`.
 - **Prereqs**: `git`; `gh` authenticated (unless `--skip-gh` with `--include-no-pr` only).
 - **Tests**: `python3 -m pytest scripts/test_prune_stale_worktrees.py -v` (or `python3 scripts/test_prune_stale_worktrees.py`).
 

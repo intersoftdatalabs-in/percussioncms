@@ -264,6 +264,15 @@ Record the verdict in the structured output (`close_verdict`: `fixes` /
   the gate: branch, edit, build, and commit ONLY under
   `$NIGHT_WORKTREE_PATH`. A turn that drifts into another checkout
   contaminates foreign branches and PRs with unattributable commits.
+- **Do NOT create additional worktrees.** All Work in a run shares the
+  dedicated `$NIGHT_WORKTREE_PATH` (one feature branch per issue,
+  sequentially). Spawning per-issue worktrees under `~/.opencode/worktrees/`
+  is what filled the disk (>100 GB incident). If you checked out the PR in
+  a disposable worktree outside the dedicated path, remove it with
+  `git worktree remove --force <path>` + `git worktree prune` before
+  emitting `WORK_DONE`.
+- **Never `rm -rf` a worktree directory.** Always `git worktree remove
+  [--force]`.
 - **No `-DskipTests`.** No `-Dmaven.test.skip`. No `--force` (use
   `--force-with-lease` only after rebase).
 - **No `--force-with-lease` to `main` or `night-issue-prs-main`.**

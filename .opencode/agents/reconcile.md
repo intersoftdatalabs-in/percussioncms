@@ -145,7 +145,22 @@ micro-padding entry.
 If the issue has any assignee, leave it open. Humans and other
 in-progress agents own it.
 
-### 6. Cap + write output
+### 6. Worktree cleanup for closed issues (HARD — not optional)
+
+Closing issues is only half the lifecycle: every close above implies a
+merged covering PR, and every merged PR implies a stale worktree still
+sitting on disk. Before writing the output, run the shared sweep from the
+primary checkout and record it:
+
+```bash
+python3 scripts/prune-stale-worktrees.py --apply --force --delete-local-branches
+```
+
+Add a `worktrees_pruned: [<paths removed>]` field to `reconcile.json`.
+Never `rm -rf` a worktree directory — the script uses
+`git worktree remove` and prunes metadata left by out-of-band deletions.
+
+### 7. Cap + write output
 
 Cap closes at `max_reconcile_closes` (default 20). Cap inspect at
 `max_reconcile_inspect` (default 80). Refuse to exceed.

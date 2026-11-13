@@ -50,7 +50,17 @@ gh pr merge <N> --repo <repo> --squash --delete-branch
 # --admin if required-reviews blocks
 ```
 
-If the host sets `allow_erlang_squash_merge=false`, omit the `gh pr merge`
+After a successful merge, remove any disposable worktree you used for the
+PR checkout (HARD — merged PRs must not leave worktrees on disk). From the
+primary checkout (not from inside the disposable worktree):
+
+```bash
+git worktree remove --force <worktree-path>
+git worktree prune
+```
+
+Never `rm -rf` a worktree directory. If the host sets
+`allow_erlang_squash_merge=false`, omit the `gh pr merge`
 step and stop after the review.
 
 ## Block

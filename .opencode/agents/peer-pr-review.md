@@ -115,6 +115,18 @@ clean other-model PR open because GitHub rejected self-APPROVE.
 
 If checks pending/failing: do not merge; comment the reason.
 
+After a successful merge, remove any disposable worktree you used for the
+checkout (HARD — merged PRs must not leave worktrees on disk):
+
+```bash
+# from the primary checkout, not from inside the disposable worktree
+git worktree remove --force <worktree-path>
+git worktree prune
+```
+
+Never `rm -rf` a worktree directory. Record removed paths in
+`scratch/peer-pr-review.json` (`worktrees_removed`).
+
 ### 4. Hard bans
 
 - Never Erlang-review in this agent's own voice — spawn `erlang-review`.

@@ -300,6 +300,19 @@ Write `${NIGHT_REPORT_PATH}` at the end of every run with:
 - PRs opened, PRs follow-up'd, PRs cluster'd
 - Cycle verify status (green / failed / skipped)
 - Human QA handoffs (created / assigned / deferred)
+- **Worktree cleanup evidence (HARD — never skip):** before closing the run,
+  remove every disposable worktree whose PR merged or closed during this run
+  (`git worktree remove --force <path>` + `git worktree prune`, from the
+  primary checkout), then run the shared sweep and record its output:
+
+  ```bash
+  python3 scripts/prune-stale-worktrees.py --apply --force --delete-local-branches
+  git worktree list
+  ```
+
+  Record kept vs removed worktrees in the report. The launcher also sweeps
+  automatically after the run exits, but the in-workflow sweep is the
+  auditable evidence — do not rely on the launcher alone.
 
 Do not commit this file — it's a per-run artifact.
 
@@ -320,6 +333,8 @@ Create labels if missing (`gh label create`).
 - `--skipTests` / `-Dmaven.test.skip` in any Maven build gate.
 - `--force-with-lease` to `main` or `night-issue-prs-main`.
 - Direct push to `main` (PRs only).
+- Skipping the Report-phase worktree cleanup sweep (HARD GATE — merged/closed PR worktrees must be removed in-run, not left for later).
+- `rm -rf` on a worktree directory (always `git worktree remove [--force]` + `git worktree prune`).
 - Approving your own review threads (always inline reply + `resolveReviewThread`).
 - Human QA handoff without an independent APPROVE.
 - Approving or merging your own-model-only Work PRs (same `model:*`, no other operator).
