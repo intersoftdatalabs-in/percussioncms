@@ -607,13 +607,14 @@ async function defaultLoadDisplayFormats(): Promise<DisplayFormat[]> {
 
 /**
  * Default recent-entry existence probe (#6256). Reads pathmanagement with
- * zero new REST. Folders use the path read (authoritative: 200 exists,
- * 404 gone). Items use the id read first, with a path fallback: the id
- * endpoint answers unknown ids with HTTP 500
- * ({@code IllegalArgumentException: type cannot be null}) instead of 404,
- * so an id failure alone never drops — only a 404 on the follow-up path
- * read (or a 404 id read) drops the entry. Any other failure keeps the
- * entry and the open is still attempted.
+ * zero new REST. The path read goes first: a 404 drops the entry and a 200
+ * keeps it, and neither outcome writes a server ERROR log. The id read is
+ * only the fallback for id-only entries (blank path): the id endpoint
+ * answers unknown ids with HTTP 500
+ * ({@code IllegalArgumentException: type cannot be null}) instead of 404 —
+ * and that 500 lands in {@code server.log} as an ERROR — so the id read
+ * must never run when a path probe already decided. A 404 id read drops;
+ * any other id failure keeps the entry and the open is still attempted.
  */
 export async function defaultCheckRecentItem(entry: RecentItem): Promise<boolean> {
   const id = (entry.id ?? "").trim();
@@ -621,29 +622,18 @@ export async function defaultCheckRecentItem(entry: RecentItem): Promise<boolean
   if (!id && !path) {
     return false;
   }
-  if (entry.kind === "folder") {
-    if (!path) {
-      return false;
-    }
+  if (path) {
     return (await probeRecentPath(path)) ?? true;
   }
-  if (id) {
-    try {
-      if (hasProbeIdentity(await findItemById(id))) {
-        return true;
-      }
-    } catch (err) {
-      if (isApiError(err) && err.status === 404) {
-        return false;
-      }
-      // Fall through to the path read: unknown ids 500 here, so the id
-      // read alone cannot prove absence.
+  try {
+    return hasProbeIdentity(await findItemById(id));
+  } catch (err) {
+    if (isApiError(err) && err.status === 404) {
+      return false;
     }
+    // Inconclusive (unknown ids 500 here): keep the entry and attempt open.
+    return true;
   }
-  if (!path) {
-    return false;
-  }
-  return (await probeRecentPath(path)) ?? true;
 }
 
 function hasProbeIdentity(found: PSPathItem | null | undefined): boolean {
