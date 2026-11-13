@@ -274,6 +274,27 @@ modules/perc-qa-automation/
    });
    ```
 
+### Live Proof screenshots (HARD for C5 — DRAFT, uncommitted, needs human review)
+
+Every C5 Live Proof (WebUI/product-chrome surface passing in the H2 QA cell)
+must include at least one proof screenshot of the passing surface:
+
+1. Capture at the assertion point on the **passing** run (not only on failure):
+   ```javascript
+   await page.screenshot({ path: `test-results/live-proof-<issue>-<surface>.png` });
+   ```
+2. Commit the PNG on the PR branch under
+   `docs/ai-generated/proofs/issue-<N>-<slug>.png` (cap ≤3 shots, ≤1MB each)
+   and link it from the PR body `build_evidence` / Live Proof section:
+   `![live proof <surface>](docs/ai-generated/proofs/issue-<N>-<slug>.png)`.
+   Worktree `test-results/` alone does not survive worktree deletion — the
+   committed copy is the auditable proof.
+3. Name the surface (spec path + test title) next to each shot; zero JS console
+   errors and zero related `server.log` ERROR/FATAL still required alongside.
+4. Missing screenshot link → `blocked=missing_build_evidence`, no Human QA
+   handoff (same as missing C5 commands). Exempt: docs-only, non-UI, backend-only
+   (C5 N/A).
+
 ### Test Independence
 
 - Each test should be able to run independently
