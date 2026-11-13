@@ -352,7 +352,10 @@ public class PSActivityService implements IPSActivityService {
           return createActivityChildNodes(path, site.getName());
         }
       }
-      throw new RuntimeException("Cannot find a site for path: " + path);
+      // Fresh/empty install (no matching site, e.g. no published demo site): callers
+      // (Home gadgets) expect an empty list per the interface contract, not HTTP 500.
+      ms_log.info("No site found for activity path: {}; returning empty activity nodes.", path);
+      return Collections.emptyList();
     }
 
     // get all sites

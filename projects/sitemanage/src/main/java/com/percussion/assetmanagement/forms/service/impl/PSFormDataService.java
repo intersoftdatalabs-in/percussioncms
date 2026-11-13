@@ -208,7 +208,9 @@ public class PSFormDataService implements IPSFormDataService {
     try {
       var deliveryServer = findServer(site);
       if (deliveryServer == null) {
-        throw new RuntimeException("Cannot find service of: " + PSDeliveryInfo.SERVICE_FORMS);
+        // CMS-only cell (no DTS forms service): nothing to clear, skip instead of HTTP 500.
+        log.info("Skipping clearFormData for form {} on site {}: no delivery server found.", name, site);
+        return;
       }
       var deliveryClient = new PSDeliveryClient();
       deliveryClient.push(
@@ -231,8 +233,12 @@ public class PSFormDataService implements IPSFormDataService {
       rejectIfBlank("exportFormData", "name", name);
       var deliveryServer = findServer(site);
       if (deliveryServer == null) {
-        throw new WebApplicationException(
-            "Cannot find service of: " + PSDeliveryInfo.SERVICE_FORMS);
+        // CMS-only cell (no DTS forms service): empty export instead of HTTP 500.
+        log.info(
+            "Returning empty form export for form {} on site {}: no delivery server found.",
+            name,
+            site);
+        return "";
       }
       var formPath = createFormNamePath(name);
       var formsData = new ArrayList<String>();
