@@ -29,6 +29,12 @@
  *  @param percData      (string[][]) 2 dimentional array of data. rows of columns
  *  @param percHeaderClasses (string[]) classes to add to each of the headers
  *
+ *  Maintenance note (GH #6197): the former monolithic `init` was decomposed
+ *  into small IIFE-scope helpers threaded on a grid context
+ *  (`{ table, config, columnWidths, headers, percRows, indices, oTable }`).
+ *  Zero behavior change is intended: statement order, DataTables 1.10+ call
+ *  sites, event wiring, and the caller-visible mutations of the config arrays
+ *  are preserved exactly as they were inside `init`.
  */
 (function ($) {
   var nEditing = null;
@@ -74,545 +80,588 @@
 
   function init(container, config, dlgCallbackFunc) {
     nEditing = null;
+    var ctx = createGridContext(container, config);
+    buildGridHeaders(ctx);
+    buildGridRows(ctx);
+    ctx.oTable = createDataTable(ctx);
+    if (ctx.percRows.length == 0) {
+      addRow(ctx);
+    }
+    wireGridEvents(ctx);
+    fixEllipsisForIE(ctx.table);
+    ctx.table.css("width", "inherit");
+    addPlaceHolder(ctx.table);
+    return ctx.oTable;
+  }
 
+  // Shared per-grid state threaded through the helpers below. `oTable` is
+  // assigned once the DataTable instance exists; handlers registered before
+  // that only run on user interaction, i.e. after the assignment.
+  function createGridContext(container, rawConfig) {
     var table = $(container);
-    $("#" + config.percAddRowElementId).off("click");
+    $("#" + rawConfig.percAddRowElementId).off("click");
     $(table).find("td span").off("click");
     $(table).find("td input").off("click").off("focusout");
     $(table).find("a.perc-inline-edit-datatable-delete-row").off("click");
     table.html("");
 
     var columnWidths = [];
-    if (config.percColumnWidths && config.percColumnWidths.length > 0)
-      columnWidths = config.percColumnWidths;
+    if (rawConfig.percColumnWidths && rawConfig.percColumnWidths.length > 0)
+      columnWidths = rawConfig.percColumnWidths;
 
     // merge and override default and custom configurations
-    config = $.extend({}, defaultConfig, config);
+    var config = $.extend({}, defaultConfig, rawConfig);
 
     table.addClass("perc-inline-edit-datatable");
 
-    // create headers
-    var headers = config.percHeaders;
+    return {
+      table: table,
+      config: config,
+      columnWidths: columnWidths,
+      headers: config.percHeaders,
+      percRows: config.percData,
+      indices: 0,
+      oTable: null,
+    };
+  }
 
+  function buildGridHeaders(ctx) {
+    var config = ctx.config;
     if (config.percDeleteRow) {
-      headers.push("");
-      columnWidths.push("10");
+      ctx.headers.push("");
+      ctx.columnWidths.push("10");
       config.percNewRowDefaultValues.push("");
     }
+    ctx.indices = ctx.headers.length;
 
-    var indices = headers.length;
-
-    table.append("<thead><tr>");
-    var tableHeaderRow = table.find("thead tr");
-
-    var headerClasses = config.percHeaderClasses;
-    for (i = 0; i < indices; i++) {
-      var h = i;
-      var header = headers[h];
-      var headerClass = "";
-      var headerWidth = "";
-      if (headerClasses && headerClasses.length > 0)
-        headerClass = headerClasses[h];
-      if (columnWidths && columnWidths.length > 0)
-        headerWidth = columnWidths[i];
+    // create headers
+    ctx.table.append("<thead><tr>");
+    var tableHeaderRow = ctx.table.find("thead tr");
+    for (var i = 0; i < ctx.indices; i++) {
       tableHeaderRow.append(
-        "<th class='perc-datatable-header perc-col-" +
-          i +
-          " " +
-          headerClass +
-          "' style='width:" +
-          headerWidth +
-          "px; max-width:" +
-          headerWidth +
-          "px'><span>" +
-          header +
-          "</span></th>",
+        buildHeaderCell(config.percHeaderClasses, ctx.columnWidths, ctx.headers[i], i),
       );
     }
+  }
 
+  function buildHeaderCell(headerClasses, columnWidths, header, index) {
+    var headerClass = "";
+    if (headerClasses && headerClasses.length > 0)
+      headerClass = headerClasses[index];
+    var headerWidth = widthAt(columnWidths, index);
+    return (
+      "<th class='perc-datatable-header perc-col-" +
+      index +
+      " " +
+      headerClass +
+      "' style='width:" +
+      headerWidth +
+      "px; max-width:" +
+      headerWidth +
+      "px'><span>" +
+      header +
+      "</span></th>"
+    );
+  }
+
+  function widthAt(columnWidths, index) {
+    if (columnWidths && columnWidths.length > 0)
+      return columnWidths[index];
+    return "";
+  }
+
+  function buildGridRows(ctx) {
     // create rows
-    table.append("<tbody>");
-    var percRows = config.percData;
-    var tableBody = table.find("tbody");
+    ctx.table.append("<tbody>");
+    var tableBody = ctx.table.find("tbody");
     tableBody.html("");
-    for (r = 0; r < percRows.length; r++) {
-      var tableRow = $("<tr class='perc-row-" + r + "'>");
-      var percRow = percRows[r];
-      if (config.percDeleteRow) {
-        percRow.rowContent.push(
-          '<a class="perc-inline-edit-datatable-delete-row" href=""></a>',
-        );
-      }
-      for (i = 0; i < indices; i++) {
-        var d = i;
-        var columnWidth = "";
-        if (columnWidths && columnWidths.length > 0)
-          columnWidth = columnWidths[i];
-        var tableData = $(
-          "<td style='width:" +
-            columnWidth +
-            "px; max-width:" +
-            columnWidth +
-            "px' id='perc-cell-" +
-            r +
-            "-" +
-            i +
-            "' class='perc-cell-" +
-            r +
-            "-" +
-            i +
-            "'>",
-        );
-        var data = percRow.rowContent[d];
-        if (data === "" || data === undefined) data = "&nbsp;";
-
-        var placeHolderClass = "";
-        if (config.percShowValuesPlaceholders) {
-          var placeHolderValue = "";
-
-          if ($.type(config.percPlaceHolderValues[i]) === "string") {
-            placeHolderValue = config.percPlaceHolderValues[i];
-          } else {
-            placeHolderValue = config.percPlaceHolderValues[r][i];
-          }
-          if (data.trim() === placeHolderValue) {
-            placeHolderClass = "perc-placeholder";
-          }
-        }
-
-        tableData.append(
-          "<span class='" + placeHolderClass + "'>" + data + "</span>",
-        );
-        tableRow.append(tableData);
-      }
-
-      tableBody.append(tableRow);
+    for (var r = 0; r < ctx.percRows.length; r++) {
+      appendGridRow(ctx, tableBody, ctx.percRows[r], r);
     }
-    if (config.percNoTableHeaders) {
-      table.find("thead").css("display", "none");
+    if (ctx.config.percNoTableHeaders) {
+      ctx.table.find("thead").css("display", "none");
     }
-    // DataTables 3.x (issue #6002): the npm datatables.net line removed the
-    // legacy fn* instance API, so this widget uses the 1.10+ API throughout
-    // (DataTable() constructor, row()/cell()/draw()/destroy()). A previous
-    // grid on the same table is destroyed first; callers additionally pass
-    // bDestroy/destroy for re-init safety.
-    if ($.fn.DataTable.isDataTable(table)) {
-      table.DataTable().destroy();
-    }
-    var oTable = table.DataTable(config);
+  }
 
-    if (percRows.length == 0) {
-      addRow();
-    }
-
-    function editCol(nRow, nCol) {
-      if (typeof nRow === "undefined" || nCol === "undefined") {
-        return;
-      }
-      var aData = oTable.row(nRow).data();
-      var jqTds = $(">td", nRow);
-      $(nRow).addClass("perc-edit-mode");
-      var idParts = nCol.id.split("-");
-      var colNumber = parseInt(idParts.pop());
-      if (!config.percEditableCols[colNumber]) return;
-      var placeHolderValue = "";
-      if ($.type(config.percPlaceHolderValues[colNumber]) === "string") {
-        placeHolderValue = config.percPlaceHolderValues[colNumber];
-      } else {
-        var rowNumber = oTable.row(nRow).index();
-        placeHolderValue = config.percPlaceHolderValues[rowNumber][colNumber];
-      }
-
-      var value = "";
-
-      if ($(aData[colNumber]).length > 0) {
-        value = $(aData[colNumber]).text().trim();
-        if (config.percShowValuesPlaceholders && value === placeHolderValue)
-          value = "";
-      } else {
-        value = aData[colNumber].trim();
-        if (config.percShowValuesPlaceholders && value === placeHolderValue)
-          value = "";
-      }
-      $(nCol)
-        .empty()
-        .append(
-          $("<input/>")
-            .attr("id", "inputEdition" + colNumber)
-            .attr("placeholder", placeHolderValue)
-            .attr("type", "text")
-            .val(value),
-        );
-      $(table).find("td input").on("focusout", tableCellFocusOut);
-      var label = $("<label/>")
-        .addClass("visuallyhidden")
-        .attr("for", "inputEdition" + colNumber)
-        .text("Search:");
-      table.parent().append(label);
-      addPlaceHolder();
-
-      $(nCol).find("input").trigger("focus");
-    }
-
-    // Edit Cells
-    function editRow(nRow, isOnlyRow) {
-      var aData = oTable.row(nRow).data();
-      var jqTds = $(">td", nRow);
-      $(nRow).addClass("perc-edit-mode");
-      for (var i = 0; i < jqTds.length; i++) {
-        //because third column is for delete button.
-        if (i > 1) {
-          break;
-        }
-        var placeHolderValue = "";
-        if ($.type(config.percPlaceHolderValues[i]) === "string") {
-          placeHolderValue = config.percPlaceHolderValues[i];
-        } else {
-          var rowNumber = oTable.row(nRow).index();
-          placeHolderValue = config.percPlaceHolderValues[rowNumber][i];
-        }
-        $(table)
-          .parent()
-          .append(
-            $("<label/>")
-              .addClass("visuallyhidden")
-              .attr("for", "inputEdition" + i)
-              .text("Search:"),
-          );
-        var value = "";
-        if ($(aData[i]).length > 0) {
-          value = $(aData[i]).text().trim();
-          if (config.percShowValuesPlaceholders && value === placeHolderValue)
-            value = "";
-        } else {
-          value = "";
-          if (typeof aData[i] != "undefined") {
-            value = aData[i].trim();
-          }
-
-          if (config.percShowValuesPlaceholders && value === placeHolderValue)
-            value = "";
-        }
-        $(jqTds[i])
-          .empty()
-          .append(
-            $("<input/>")
-              .attr("id", "inputEdition" + i)
-              .attr("placeholder", placeHolderValue)
-              .attr("type", "text")
-              .val(value),
-          );
-      }
-      addPlaceHolder();
-
-      if (!isOnlyRow) {
-        $(jqTds[0]).find("input").trigger("focus");
-      }
-    }
-
-    function restoreRow(nRow) {
-      var aData = oTable.row(nRow).data();
-      var jqTds = $(">td", nRow);
-      var length = jqTds.length;
-      if (config.percDeleteRow) length--;
-      for (var i = 0, iLen = length; i < iLen; i++) {
-        oTable.cell(nRow, i).data("<span>" + aData[i] + "</span>");
-      }
-
-      oTable.draw();
-      $(nRow).append(
-        '<td><a class="perc-inline-edit-datatable-delete-row" href=""></a></td>',
+  function appendGridRow(ctx, tableBody, percRow, rowIndex) {
+    if (ctx.config.percDeleteRow) {
+      percRow.rowContent.push(
+        '<a class="perc-inline-edit-datatable-delete-row" href=""></a>',
       );
     }
-
-    function saveRow(nRow) {
-      var jqInputs = $("input", nRow);
-      var jqTds = $(">td", nRow);
-      $(nRow).removeClass("perc-edit-mode");
-      var value1 = jqInputs[0].value;
-      var placeHolderClass1 = "";
-      var value2 = jqInputs[1].value;
-      var placeHolderClass2 = "";
-      if (config.percShowValuesPlaceholders && value1.trim() === "") {
-        var placeHolderValue = "";
-        if ($.type(config.percPlaceHolderValues[0]) === "string") {
-          placeHolderValue = config.percPlaceHolderValues[0];
-        } else {
-          var rowNumber = oTable.row(nRow).index();
-          placeHolderValue = config.percPlaceHolderValues[rowNumber][0];
-        }
-        placeHolderClass1 = "perc-placeholder";
-        value1 = placeHolderValue;
-      }
-
-      if (config.percShowValuesPlaceholders && value2.trim() === "") {
-        var placeHolderValue2 = "";
-        if ($.type(config.percPlaceHolderValues[1]) === "string") {
-          placeHolderValue2 = config.percPlaceHolderValues[1];
-        } else {
-          var rowNumber2 = oTable.row(nRow).index();
-          placeHolderValue2 = config.percPlaceHolderValues[rowNumber2][1];
-        }
-        placeHolderClass2 = "perc-placeholder";
-        value2 = placeHolderValue2;
-      }
-
-      oTable.cell(nRow, 0).data(
-        "<span class='" + placeHolderClass1 + "'>" + value1 + "</span>",
-      );
-      oTable.cell(nRow, 1).data(
-        "<span class='" + placeHolderClass2 + "'>" + value2 + "</span>",
-      );
-      oTable.draw();
-      if (config.percDeleteRow) {
-        $(nRow).append(
-          '<td style="width:10px; max-width:10px"><a style="display:none;" class="perc-inline-edit-datatable-delete-row" href=""></a></td>',
-        );
-      }
-      var newRowsDefaultValues = defaultConfig.percNewRowDefaultValues;
-      if (jqInputs[0].value.trim() === newRowsDefaultValues[0]) {
-        deleteRow(nRow);
-      }
+    var tableRow = $("<tr class='perc-row-" + rowIndex + "'>");
+    for (var i = 0; i < ctx.indices; i++) {
+      tableRow.append(buildGridCell(ctx, percRow, rowIndex, i));
     }
+    tableBody.append(tableRow);
+  }
 
-    // Best-effort restoreRow wrapper (DataTables 3.x, issue #6002):
-    // restoreRow may throw when the edited row was detached mid-edit.
-    // Returns false in that case; callers proceed with the grid update
-    // regardless (pre-existing addRow semantics preserved).
-    function tryRestoreRow(nRow) {
-      try {
-        restoreRow(nRow);
-        return true;
-      } catch (e) {
-        return false;
-      }
-    }
+  function buildGridCell(ctx, percRow, rowIndex, colIndex) {
+    var columnWidth = widthAt(ctx.columnWidths, colIndex);
+    var tableData = $(
+      "<td style='width:" +
+        columnWidth +
+        "px; max-width:" +
+        columnWidth +
+        "px' id='perc-cell-" +
+        rowIndex +
+        "-" +
+        colIndex +
+        "' class='perc-cell-" +
+        rowIndex +
+        "-" +
+        colIndex +
+        "'>",
+    );
+    var data = percRow.rowContent[colIndex];
+    if (data === "" || data === undefined) data = "&nbsp;";
 
-    function saveCol(nRow, nCol) {
-      var jqInputs = $("input", nCol);
-      $(nRow).removeClass("perc-edit-mode");
-      var idParts = nCol.id.split("-");
-      var colNumber = parseInt(idParts.pop());
-      var value = jqInputs[0].value;
-      var placeHolderClass = "";
-      if (config.percShowValuesPlaceholders && value.trim() === "") {
-        var placeHolderValue = "";
-        if ($.type(config.percPlaceHolderValues[colNumber]) === "string") {
-          placeHolderValue = config.percPlaceHolderValues[colNumber];
-        } else {
-          var rowNumber = oTable.row(nRow).index();
-          placeHolderValue = config.percPlaceHolderValues[rowNumber][colNumber];
-        }
+    var placeHolderClass = "";
+    if (ctx.config.percShowValuesPlaceholders) {
+      var placeHolderValue = placeHolderForCell(ctx.config, rowIndex, colIndex);
+      if (data.trim() === placeHolderValue) {
         placeHolderClass = "perc-placeholder";
-        value = placeHolderValue;
-      }
-
-      oTable.cell(nRow, colNumber).data(
-        "<span class='perc-placeholder'>" + value + "</span>",
-      );
-      oTable.draw();
-      $(table).find("td span").on("click", tableCellOnClick);
-      var newRowsDefaultValues = defaultConfig.percNewRowDefaultValues;
-      if (jqInputs[0].value.trim() === newRowsDefaultValues[0]) {
-        deleteRow(nRow);
-      }
-
-      if (colNumber === 1) {
-        displayDeleteButton(nRow);
       }
     }
 
-    function displayDeleteButton(nRow) {
-      var jqTds = $("td", nRow);
-      if ($(jqTds[1]).find("span").text().trim() !== "") {
-        $(nRow)
-          .find(".perc-inline-edit-datatable-delete-row")
-          .css("display", "block");
-        $(nRow)
-          .find(".perc-inline-edit-datatable-delete-row")
-          .on("click", deleteRowButtonAction);
-      }
-    }
+    tableData.append(
+      "<span class='" + placeHolderClass + "'>" + data + "</span>",
+    );
+    return tableData;
+  }
 
-    function addColIds(nRow) {
-      var jqTds = $(">td", nRow);
-      var rowNumber = oTable.row(nRow).index();
-      for (var i = 0, iLen = jqTds.length; i < iLen; i++) {
-        $(jqTds[i]).attr("id", "perc-cell-" + rowNumber + "-" + i);
-      }
+  function placeHolderForCell(config, rowIndex, colIndex) {
+    if ($.type(config.percPlaceHolderValues[colIndex]) === "string") {
+      return config.percPlaceHolderValues[colIndex];
     }
+    return config.percPlaceHolderValues[rowIndex][colIndex];
+  }
 
-    if (config.percAddRowElementId && config.percAddRowElementId != "") {
+  function resolvePlaceHolderValue(ctx, nRow, colIndex) {
+    return placeHolderForCell(ctx.config, ctx.oTable.row(nRow).index(), colIndex);
+  }
+
+  // DataTables 3.x (issue #6002): the npm datatables.net line removed the
+  // legacy fn* instance API, so this widget uses the 1.10+ API throughout
+  // (DataTable() constructor, row()/cell()/draw()/destroy()). A previous
+  // grid on the same table is destroyed first; callers additionally pass
+  // bDestroy/destroy for re-init safety.
+  function createDataTable(ctx) {
+    if ($.fn.DataTable.isDataTable(ctx.table)) {
+      ctx.table.DataTable().destroy();
+    }
+    return ctx.table.DataTable(ctx.config);
+  }
+
+  function wireGridEvents(ctx) {
+    rebindCellInputs(ctx);
+    rebindCellSpans(ctx);
+    wireAddRowButton(ctx);
+    bindDeleteRowButtons(ctx);
+  }
+
+  function rebindCellInputs(ctx) {
+    $(ctx.table)
+      .find("td input")
+      .on("focusout", function (e) {
+        tableCellFocusOut(ctx, this, e);
+      });
+  }
+
+  function rebindCellSpans(ctx) {
+    $(ctx.table)
+      .find("td span")
+      .on("click", function (e) {
+        tableCellOnClick(ctx, this, e);
+      });
+  }
+
+  function bindDeleteRowButtons(ctx) {
+    $(ctx.table)
+      .find("a.perc-inline-edit-datatable-delete-row")
+      .on("click", function (e) {
+        deleteRowButtonAction(ctx, e);
+      });
+  }
+
+  function rebindDeleteButton(ctx, nRow) {
+    $(nRow)
+      .find(".perc-inline-edit-datatable-delete-row")
+      .on("click", function (e) {
+        deleteRowButtonAction(ctx, e);
+      });
+  }
+
+  function wireAddRowButton(ctx) {
+    if (ctx.config.percAddRowElementId && ctx.config.percAddRowElementId != "") {
       // Add row action
-      $("#" + config.percAddRowElementId).on("click", function (e) {
-        e.preventDefault();
-        var data = oTable.rows().data().toArray();
-        var value1 = "";
-        var value2 = "";
-        if (data.length === 0) {
-          addRow();
-          $(table).find("td input").on("focusout", tableCellFocusOut);
-        } else {
-          if ($(data[0][0]).length > 0) {
-            value1 = $(data[0][0]).text().trim();
-          } else {
-            value1 = data[0][0].trim();
-          }
-          if ($(data[0][1]).length > 0) {
-            value2 = $(data[0][1]).text().trim();
-          } else {
-            value2 = data[0][1].trim();
-          }
-          if (
-            data.length > 1 ||
-            (data.length === 1 && value1 !== "" && value2 !== "")
-          ) {
-            addRow();
-            $(table).find("td input").on("focusout", tableCellFocusOut);
-          }
-        }
+      $("#" + ctx.config.percAddRowElementId).on("click", function (e) {
+        handleAddRowClick(ctx, e);
       });
     }
+  }
 
-    function tableCellFocusOut(e) {
-      $(table).parent().find("label.visuallyhidden-with-placeholder").remove();
-      $(table).parent().find("label.visuallyhidden").remove();
-      e.stopPropagation();
-      e.preventDefault();
+  function handleAddRowClick(ctx, e) {
+    e.preventDefault();
+    var data = ctx.oTable.rows().data().toArray();
+    if (data.length === 0) {
+      addRow(ctx);
+      rebindCellInputs(ctx);
+      return;
+    }
+    var firstRowValues = firstRowCellTexts(data[0]);
+    if (
+      data.length > 1 ||
+      (data.length === 1 && firstRowValues[0] !== "" && firstRowValues[1] !== "")
+    ) {
+      addRow(ctx);
+      rebindCellInputs(ctx);
+    }
+  }
 
-      var nRow = $(this).parents("tr")[0];
-      var nCol = $(this).parents("td")[0];
-      if (oTable.rows().data().length === 1) {
-        nEditing = nRow;
+  function firstRowCellTexts(firstRow) {
+    return [extractCellValue(firstRow[0]), extractCellValue(firstRow[1])];
+  }
+
+  // Reads the trimmed text of a DataTable cell payload, which is either an
+  // HTML fragment (span-wrapped) or a raw string. Throws on undefined input,
+  // exactly like the inline code it replaces.
+  function extractCellValue(cellHtml) {
+    if ($(cellHtml).length > 0) {
+      return $(cellHtml).text().trim();
+    }
+    return cellHtml.trim();
+  }
+
+  // Row-edit variant: tolerates undefined payloads (yields "") like the
+  // original editRow fallback.
+  function extractRowCellValue(cellHtml) {
+    if ($(cellHtml).length > 0) {
+      return $(cellHtml).text().trim();
+    }
+    var value = "";
+    if (typeof cellHtml != "undefined") {
+      value = cellHtml.trim();
+    }
+    return value;
+  }
+
+  function blankIfPlaceHolder(config, value, placeHolderValue) {
+    if (config.percShowValuesPlaceholders && value === placeHolderValue) {
+      return "";
+    }
+    return value;
+  }
+
+  function createCellEditor(colIndex, placeHolderValue, value) {
+    return $("<input/>")
+      .attr("id", "inputEdition" + colIndex)
+      .attr("placeholder", placeHolderValue)
+      .attr("type", "text")
+      .val(value);
+  }
+
+  function appendEditorLabel(table, colIndex) {
+    var label = $("<label/>")
+      .addClass("visuallyhidden")
+      .attr("for", "inputEdition" + colIndex)
+      .text("Search:");
+    $(table).parent().append(label);
+  }
+
+  function editCol(ctx, nRow, nCol) {
+    if (typeof nRow === "undefined" || nCol === "undefined") {
+      return;
+    }
+    var config = ctx.config;
+    var aData = ctx.oTable.row(nRow).data();
+    $(nRow).addClass("perc-edit-mode");
+    var idParts = nCol.id.split("-");
+    var colNumber = parseInt(idParts.pop());
+    if (!config.percEditableCols[colNumber]) return;
+    var placeHolderValue = resolvePlaceHolderValue(ctx, nRow, colNumber);
+    var value = blankIfPlaceHolder(
+      config,
+      extractCellValue(aData[colNumber]),
+      placeHolderValue,
+    );
+    $(nCol).empty().append(createCellEditor(colNumber, placeHolderValue, value));
+    rebindCellInputs(ctx);
+    appendEditorLabel(ctx.table, colNumber);
+    addPlaceHolder(ctx.table);
+
+    $(nCol).find("input").trigger("focus");
+  }
+
+  // Edit Cells
+  function editRow(ctx, nRow, isOnlyRow) {
+    var jqTds = $(">td", nRow);
+    $(nRow).addClass("perc-edit-mode");
+    for (var i = 0; i < jqTds.length; i++) {
+      //because third column is for delete button.
+      if (i > 1) {
+        break;
       }
-      if (nEditing === nRow) {
-        var jqInputs = $("input", nRow);
-        if (jqInputs.length > 1) {
-          saveRow(nEditing);
-        } else {
-          saveCol(nEditing, nCol);
-        }
-        nEditing = null;
+      editRowCell(ctx, nRow, jqTds, i);
+    }
+    addPlaceHolder(ctx.table);
 
-        if (jqInputs.length > 1) {
-          nEditing = nRow;
-          var jqTds = $("td", nRow);
-          var jqSpans = $("span", nRow);
-          if ($(jqTds[0]).find("span").text().trim() !== "") {
-            if ($(jqTds[1]).find("span").text().trim() === "") {
-              editCol(nRow, jqTds[1]);
-            } else {
-              $(nRow)
-                .find(".perc-inline-edit-datatable-delete-row")
-                .css("display", "block");
-            }
-          }
-        }
-      }
+    if (!isOnlyRow) {
+      $(jqTds[0]).find("input").trigger("focus");
+    }
+  }
+
+  function editRowCell(ctx, nRow, jqTds, colIndex) {
+    var placeHolderValue = resolvePlaceHolderValue(ctx, nRow, colIndex);
+    appendEditorLabel(ctx.table, colIndex);
+    var value = blankIfPlaceHolder(
+      ctx.config,
+      extractRowCellValue(ctx.oTable.row(nRow).data()[colIndex]),
+      placeHolderValue,
+    );
+    $(jqTds[colIndex])
+      .empty()
+      .append(createCellEditor(colIndex, placeHolderValue, value));
+  }
+
+  function restoreRow(ctx, nRow) {
+    var oTable = ctx.oTable;
+    var aData = oTable.row(nRow).data();
+    var jqTds = $(">td", nRow);
+    var length = jqTds.length;
+    if (ctx.config.percDeleteRow) length--;
+    for (var i = 0, iLen = length; i < iLen; i++) {
+      oTable.cell(nRow, i).data("<span>" + aData[i] + "</span>");
     }
 
-    $(table).find("td input").on("focusout", tableCellFocusOut);
+    oTable.draw();
+    $(nRow).append(
+      '<td><a class="perc-inline-edit-datatable-delete-row" href=""></a></td>',
+    );
+  }
 
-    $(table).find("td span").on("click", tableCellOnClick);
+  function saveRow(ctx, nRow) {
+    var config = ctx.config;
+    var oTable = ctx.oTable;
+    var jqInputs = $("input", nRow);
+    $(nRow).removeClass("perc-edit-mode");
+    var savedFirst = resolveSavedCellValue(ctx, nRow, 0, jqInputs[0].value);
+    var savedSecond = resolveSavedCellValue(ctx, nRow, 1, jqInputs[1].value);
 
-    function tableCellOnClick(e) {
-      e.stopPropagation();
-      e.preventDefault();
-      if (!$(this).parents("td").hasClass("perc-disabled")) {
-        /* Get the row as a parent of the link that was clicked on */
-        var nRow = $(this).parents("tr")[0];
-        var nCol = $(this).parents("td")[0];
+    oTable.cell(nRow, 0).data(
+      "<span class='" + savedFirst.placeHolderClass + "'>" + savedFirst.value + "</span>",
+    );
+    oTable.cell(nRow, 1).data(
+      "<span class='" + savedSecond.placeHolderClass + "'>" + savedSecond.value + "</span>",
+    );
+    oTable.draw();
+    if (config.percDeleteRow) {
+      $(nRow).append(
+        '<td style="width:10px; max-width:10px"><a style="display:none;" class="perc-inline-edit-datatable-delete-row" href=""></a></td>',
+      );
+    }
+    var newRowsDefaultValues = defaultConfig.percNewRowDefaultValues;
+    if (jqInputs[0].value.trim() === newRowsDefaultValues[0]) {
+      deleteRow(ctx, nRow);
+    }
+  }
 
-        if (nEditing !== null && nEditing !== nRow) {
-          /* Currently editing - but not this row - restore the old before continuing to edit mode */
-          tryRestoreRow(nEditing);
-          editCol(nRow, nCol);
-          nEditing = nRow;
-        } else {
-          /* No edit in progress - let's start one */
-          editCol(nRow, nCol);
-          nEditing = nRow;
-        }
-      }
+  function resolveSavedCellValue(ctx, nRow, colIndex, rawValue) {
+    var saved = { value: rawValue, placeHolderClass: "" };
+    if (ctx.config.percShowValuesPlaceholders && rawValue.trim() === "") {
+      saved.placeHolderClass = "perc-placeholder";
+      saved.value = resolvePlaceHolderValue(ctx, nRow, colIndex);
+    }
+    return saved;
+  }
+
+  // Best-effort restoreRow wrapper (DataTables 3.x, issue #6002):
+  // restoreRow may throw when the edited row was detached mid-edit.
+  // Returns false in that case; callers proceed with the grid update
+  // regardless (pre-existing addRow semantics preserved).
+  function tryRestoreRow(ctx, nRow) {
+    try {
+      restoreRow(ctx, nRow);
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  function saveCol(ctx, nRow, nCol) {
+    var jqInputs = $("input", nCol);
+    $(nRow).removeClass("perc-edit-mode");
+    var idParts = nCol.id.split("-");
+    var colNumber = parseInt(idParts.pop());
+    var saved = resolveSavedCellValue(ctx, nRow, colNumber, jqInputs[0].value);
+
+    oTableCellData(ctx, nRow, colNumber, saved.value);
+    ctx.oTable.draw();
+    rebindCellSpans(ctx);
+    var newRowsDefaultValues = defaultConfig.percNewRowDefaultValues;
+    if (jqInputs[0].value.trim() === newRowsDefaultValues[0]) {
+      deleteRow(ctx, nRow);
     }
 
-    function addRow(isOnlyRow) {
-      var newRowsDefaultValues = Array.from(config.percNewRowDefaultValues);
+    if (colNumber === 1) {
+      displayDeleteButton(ctx, nRow);
+    }
+  }
 
-      var newRow = oTable.row.add(newRowsDefaultValues);
+  // saveCol always rewrites the cell with the placeholder class, matching
+  // the historical inline statement (not the computed saved class).
+  function oTableCellData(ctx, nRow, colNumber, value) {
+    ctx.oTable.cell(nRow, colNumber).data(
+      "<span class='perc-placeholder'>" + value + "</span>",
+    );
+  }
 
-      if (nEditing !== null && nEditing !== nRow) {
-        // Best-effort restore only: a half-edited row must not block addRow.
-        tryRestoreRow(nEditing);
-      }
-      oTable.draw(false);
-      var nRow = newRow.node();
-      addColIds(nRow);
-      editRow(nRow, isOnlyRow);
+  function displayDeleteButton(ctx, nRow) {
+    var jqTds = $("td", nRow);
+    if ($(jqTds[1]).find("span").text().trim() !== "") {
+      $(nRow)
+        .find(".perc-inline-edit-datatable-delete-row")
+        .css("display", "block");
+      rebindDeleteButton(ctx, nRow);
+    }
+  }
+
+  function addColIds(ctx, nRow) {
+    var jqTds = $(">td", nRow);
+    var rowNumber = ctx.oTable.row(nRow).index();
+    for (var i = 0, iLen = jqTds.length; i < iLen; i++) {
+      $(jqTds[i]).attr("id", "perc-cell-" + rowNumber + "-" + i);
+    }
+  }
+
+  function tableCellFocusOut(ctx, input, e) {
+    $(ctx.table).parent().find("label.visuallyhidden-with-placeholder").remove();
+    $(ctx.table).parent().find("label.visuallyhidden").remove();
+    e.stopPropagation();
+    e.preventDefault();
+
+    var nRow = $(input).parents("tr")[0];
+    var nCol = $(input).parents("td")[0];
+    if (ctx.oTable.rows().data().length === 1) {
       nEditing = nRow;
     }
-    // Delete row action
-    $(table)
-      .find("a.perc-inline-edit-datatable-delete-row")
-      .on("click", deleteRowButtonAction);
-
-    function deleteRowButtonAction(e) {
-      e.stopPropagation();
-      e.preventDefault();
-      var nRow = $(e.currentTarget).parents("tr")[0];
-      deleteRow(nRow);
-    }
-
-    function deleteRow(nRow) {
-      oTable.row(nRow).remove().draw();
-      if (oTable.rows().data().length === 0) {
-        $("#" + config.percAddRowElementId).trigger("click");
-      } else if (oTable.rows().data().length === 1) {
-        var tableid = oTable.table().node().id;
-        var nr = $("#" + tableid).find("tbody tr");
-        var val1 = $(
-          $("#" + tableid)
-            .find("tbody tr")
-            .find("td")[0],
-        )
-          .find("span")
-          .text();
-        var val2 = $(
-          $("#" + tableid)
-            .find("tbody tr")
-            .find("td")[1],
-        )
-          .find("span")
-          .text();
-        if (val1.trim() === "" && val2.trim() === "") {
-          deleteRow(nr);
-        }
+    if (nEditing === nRow) {
+      var jqInputs = $("input", nRow);
+      if (jqInputs.length > 1) {
+        saveRow(ctx, nEditing);
+      } else {
+        saveCol(ctx, nEditing, nCol);
       }
+      nEditing = null;
+
+      continueRowEdit(ctx, nRow, jqInputs);
     }
-    function addPlaceHolder() {
-      if (!(
-        "placeholder" in $("<input>")[0] || "placeHolder" in $("<input>")[0]
-      )) {
-        table.find("input[placeholder]").placeHolder({ hideOnFocus: false });
+  }
+
+  function continueRowEdit(ctx, nRow, jqInputs) {
+    if (jqInputs.length <= 1) {
+      return;
+    }
+    nEditing = nRow;
+    var jqTds = $("td", nRow);
+    if ($(jqTds[0]).find("span").text().trim() === "") {
+      return;
+    }
+    if ($(jqTds[1]).find("span").text().trim() === "") {
+      editCol(ctx, nRow, jqTds[1]);
+    } else {
+      $(nRow)
+        .find(".perc-inline-edit-datatable-delete-row")
+        .css("display", "block");
+    }
+  }
+
+  function tableCellOnClick(ctx, cell, e) {
+    e.stopPropagation();
+    e.preventDefault();
+    if (!$(cell).parents("td").hasClass("perc-disabled")) {
+      /* Get the row as a parent of the link that was clicked on */
+      var nRow = $(cell).parents("tr")[0];
+      var nCol = $(cell).parents("td")[0];
+
+      if (nEditing !== null && nEditing !== nRow) {
+        /* Currently editing - but not this row - restore the old before continuing to edit mode */
+        tryRestoreRow(ctx, nEditing);
       }
+      /* No edit in progress (or just restored) - let's start one */
+      editCol(ctx, nRow, nCol);
+      nEditing = nRow;
     }
-    // only fix ellipsis in IE
-    if ($.browser.msie) {
-      // fix text overflow at first
+  }
+
+  function addRow(ctx, isOnlyRow) {
+    var newRowsDefaultValues = Array.from(ctx.config.percNewRowDefaultValues);
+
+    var newRow = ctx.oTable.row.add(newRowsDefaultValues);
+
+    if (nEditing !== null && nEditing !== nRow) {
+      // Best-effort restore only: a half-edited row must not block addRow.
+      tryRestoreRow(ctx, nEditing);
+    }
+    ctx.oTable.draw(false);
+    var nRow = newRow.node();
+    addColIds(ctx, nRow);
+    editRow(ctx, nRow, isOnlyRow);
+    nEditing = nRow;
+  }
+  // Delete row action
+  function deleteRowButtonAction(ctx, e) {
+    e.stopPropagation();
+    e.preventDefault();
+    var nRow = $(e.currentTarget).parents("tr")[0];
+    deleteRow(ctx, nRow);
+  }
+
+  function deleteRow(ctx, nRow) {
+    var oTable = ctx.oTable;
+    oTable.row(nRow).remove().draw();
+    if (oTable.rows().data().length === 0) {
+      $("#" + ctx.config.percAddRowElementId).trigger("click");
+    } else if (oTable.rows().data().length === 1) {
+      pruneLastEmptyRow(ctx);
+    }
+  }
+
+  function pruneLastEmptyRow(ctx) {
+    var tableId = ctx.oTable.table().node().id;
+    var lastRow = $("#" + tableId).find("tbody tr");
+    var cells = $(lastRow).find("td");
+    var val1 = $(cells[0]).find("span").text();
+    var val2 = $(cells[1]).find("span").text();
+    if (val1.trim() === "" && val2.trim() === "") {
+      deleteRow(ctx, lastRow);
+    }
+  }
+
+  function addPlaceHolder(table) {
+    if (!(
+      "placeholder" in $("<input>")[0] || "placeHolder" in $("<input>")[0]
+    )) {
+      table.find("input[placeholder]").placeHolder({ hideOnFocus: false });
+    }
+  }
+
+  // only fix ellipsis in IE
+  function fixEllipsisForIE(table) {
+    if (!$.browser.msie) {
+      return;
+    }
+    // fix text overflow at first
+    $(".perc-ellipsis").each(function () {
+      handleOverflow($(table));
+    });
+
+    // fix text overflow when window resizes
+    $(window).on("resize", function () {
       $(".perc-ellipsis").each(function () {
         handleOverflow($(table));
       });
-
-      // fix text overflow when window resizes
-      $(window).on("resize", function (evt) {
-        $(".perc-ellipsis").each(function () {
-          handleOverflow($(table));
-        });
-      });
-    }
-    table.css("width", "inherit");
-    addPlaceHolder();
-    return oTable;
+    });
   }
 
   function handleOverflow(element) {
