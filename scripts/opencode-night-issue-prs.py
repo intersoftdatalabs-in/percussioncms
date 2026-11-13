@@ -327,9 +327,9 @@ def build_workflow_args(args: argparse.Namespace) -> str:
         "base_branch": args.base_branch,
         "max_prs": args.max_prs,
         "include_pr_followup": bool(args.include_pr_followup),
-        "low_priority_quota_pct": getattr(args, "low_priority_quota_pct", 0),
+        "low_priority_quota_pct": getattr(args, "low_priority_quota_pct", 20),
         "min_debt_slots": getattr(args, "min_debt_slots", 0),
-        "max_erlang_residuals": getattr(args, "max_erlang_residuals", 3),
+        "max_erlang_residuals": getattr(args, "max_erlang_residuals", 100),
         "labels": getattr(args, "labels", ""),
     }
     return json.dumps(payload)
@@ -440,8 +440,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--low-priority-quota-pct",
         type=int,
-        default=0,
-        help="Percent of max_issues reserved for p7/p8 tech-debt (ceil division; default: 0).",
+        default=20,
+        help="Debt tax pct seated on top of max_issues (ceil division; default: 20). Pass 0 for no debt.",
     )
     parser.add_argument(
         "--min-debt-slots",
@@ -452,8 +452,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument(
         "--max-erlang-residuals",
         type=int,
-        default=3,
-        help="Cap on Erlang preexisting/complexity tech-debt residuals per PR (default: 3).",
+        default=100,
+        help="Cap on Erlang preexisting/complexity tech-debt residuals per PR (default: 100).",
     )
     parser.add_argument(
         "--labels",

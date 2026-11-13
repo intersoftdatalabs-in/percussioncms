@@ -128,10 +128,12 @@
 //   prefer_easy       bool   - AFTER product-class items in the same pN tier, prefer smaller
 //                                debt/javadoc/bugs (default false). NEVER ranks tech-debt above
 //                                product work. NEVER a reason to pick p8 during Phase A.
-//   low_priority_quota_pct int - percent of max_issues reserved for p7+p8 labels (default 0).
-//                                Floor-plus-one: quota>0 on small max_issues still yields >=1
-//                                debt seat (max=3, quota=34 → 1). Example max_issues=10,
-//                                quota=20 → 8 priority-pool + 2 low.
+//   low_priority_quota_pct int - 20% debt tax seated ON TOP of max_issues (default 20;
+//                                pass 0 for "no debt", or a higher percentage).
+//                                Host passes --max-issues (max_issues +
+//                                ceil(max_issues*pct/100)) so product keeps its full
+//                                seats. Example max_issues=12 → 15 total,
+//                                12 priority-pool + 3 low.
 //   min_debt_slots int - explicit tech-debt count floor (default 0). When set, guarantees
 //                                at least N debt seats regardless of the percentage math.
 //                                This is the "tech debt count" knob: prefer it over tuning

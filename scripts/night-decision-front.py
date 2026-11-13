@@ -784,8 +784,8 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument(
         "--low-priority-quota-pct",
         type=int,
-        default=0,
-        help="Percent of max_issues reserved for p7/p8 debt (floor pct, min 1 when quota>0).",
+        default=20,
+        help="Debt tax pct seated on top of max_issues (floor pct, min 1 when quota>0; default 20, pass 0 for no debt).",
     )
     p.add_argument(
         "--min-debt-slots",
