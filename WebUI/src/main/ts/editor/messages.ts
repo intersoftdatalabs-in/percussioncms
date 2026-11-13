@@ -586,6 +586,28 @@ export const EDITOR_MSG = {
   RELATED_TEMPLATE_BAD_REQUEST:
     "perc.ui.editor@That snippet template is not allowed for this slot.",
   RELATED_TEMPLATE_SAVED: "perc.ui.editor@Snippet template updated.",
+  RELATED_MOVE_SLOT: "perc.ui.editor@Move to slot",
+  RELATED_MOVE_SLOT_TITLE: "perc.ui.editor@Move to another slot",
+  RELATED_MOVE_SLOT_LABEL: "perc.ui.editor@Destination slot",
+  RELATED_MOVE_SLOT_PLACEHOLDER: "perc.ui.editor@Choose a slot…",
+  RELATED_MOVE_SLOT_DO: "perc.ui.editor@Move to slot",
+  RELATED_MOVE_SLOT_NEEDS:
+    "perc.ui.editor@Choose a destination slot before moving.",
+  RELATED_MOVE_SLOT_SAME:
+    "perc.ui.editor@That item is already in this slot.",
+  RELATED_MOVE_SLOT_NO_TEMPLATE:
+    "perc.ui.editor@That related item has no snippet template to move.",
+  RELATED_MOVE_SLOT_NOT_ALLOWED:
+    "perc.ui.editor@That slot is not on this page.",
+  RELATED_MOVE_SLOT_SAVED: "perc.ui.editor@Related item moved to the slot.",
+  RELATED_MOVE_SLOT_FAILED:
+    "perc.ui.editor@Could not move the related item to the slot.",
+  RELATED_MOVE_SLOT_BAD_REQUEST:
+    "perc.ui.editor@That move is not allowed for this slot.",
+  RELATED_MOVE_SLOT_FORBIDDEN:
+    "perc.ui.editor@You are not allowed to move this related item.",
+  RELATED_MOVE_SLOT_NOT_FOUND:
+    "perc.ui.editor@That related item was not found.",
   RELATED_INSERT: "perc.ui.editor@Insert existing item",
   RELATED_ITEM_ID: "perc.ui.editor@Existing item id",
   RELATED_PICK: "perc.ui.editor@Pick from folder",
