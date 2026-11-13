@@ -18,7 +18,10 @@ QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
   even if HTTP still answers (#2462 / #2423). RESULT lines include
   ``HEALTH:healthy|unhealthy|starting|none`` from ``docker inspect``
   (matrix cell HEALTHCHECK — #2481 residual #2537)
-* ``qa-down`` — destroy the QA cell (frees ports; no multi-GB orphans)
+* ``qa-down`` — destroy the QA cell(s) (frees ports; no multi-GB orphans).
+  Default removes the CMS cell plus the DTS cell when present
+  (``qa-up --with-dts`` companion, #6237); an explicit ``--container``
+  removes only that container.
 * ``qa-preflight`` — rebuild-chain preflight; detect a stale WebUI WAR vs
   a freshly built sitemanage SNAPSHOT (#2486)
 * ``qa-up --skip-image-build`` — fail fast when the cached
@@ -140,12 +143,15 @@ VERIFY_TIMEOUT_SECONDS_DEFAULT = 300
 VERIFY_INTERVAL_SECONDS_DEFAULT = 5
 VERIFY_FIX_TIMEOUT_SECONDS_DEFAULT = 240
 
-# Preferred host ports when free and no env override (single-worktree baseline).
+# Preferred host port when free and no env override (single-worktree baseline).
 # Multi-worktree: set CMS_PORT / DTS_PORT / QA_CMS_HOST_PORT (or leave unset
 # so freeport allocates) — see resolve_host_port / docker/README.md.
 PREFERRED_VERIFY_CMS_HOST_PORT = 9992
 PREFERRED_VERIFY_DTS_HOST_PORT = 9980
 PREFERRED_QA_CMS_HOST_PORT = 9993
+# QA DTS cell baseline mirrors matrix-install-smoke PREFERRED_DTS_HOST_PORT
+# (9983) so ``qa-up --with-dts`` and ``--product dts`` matrix runs agree.
+PREFERRED_QA_DTS_HOST_PORT = 9983
 # Compose DB host publishes (docker-compose.yml ${*_PORT:-…}); #2004.
 PREFERRED_MYSQL_HOST_PORT = 3306
 PREFERRED_POSTGRES_HOST_PORT = 5433
@@ -165,6 +171,15 @@ QA_CMS_CELL_ID = f"{QA_CMS_PRODUCT}-{QA_CMS_DB}"
 QA_CMS_CONTAINER = f"perc-matrix-{QA_CMS_CELL_ID}"
 # In-container Jetty HTTP for the CMS matrix cell (host publish may differ).
 QA_CMS_CONTAINER_PORT = 9992
+# QA DTS cell (Tomcat) for ``qa-up --with-dts`` (spec 2402-qa-dts-publish,
+# #6237). Container id mirrors ``matrix-install-smoke`` dts-h2 cells
+# (``perc-matrix-<product>-<db>``); host port default 9983 matches that
+# script's ``PREFERRED_DTS_HOST_PORT`` so both entry points agree.
+QA_DTS_CONTAINER = "perc-matrix-dts-h2"
+QA_DTS_CONTAINER_PORT = 9980
+QA_DTS_DB = "h2"
+# Tomcat root probe for ``qa-health`` (mirrors matrix ``DTS_PROBE_PATH``).
+QA_DTS_PROBE_PATH = "/"
 # Same default as docker/scripts/hot-deploy-rhythmyx-war-jars.py --dest.
 QA_WAR_JARS_DEST = "/opt/Percussion/jetty/base/webapps/Rhythmyx/WEB-INF/lib"
 # Probe URL path for ``qa-health`` (#2482). The matrix-recommended primary
@@ -377,6 +392,113 @@ def resolve_qa_health_host_port(repo_root: Path) -> tuple[int, str]:
     return resolve_qa_cms_host_port(), "preferred"
 
 
+def published_qa_dts_host_port(
+    container: str = QA_DTS_CONTAINER,
+    *,
+    container_port: int = QA_DTS_CONTAINER_PORT,
+) -> Optional[int]:
+    """Host port currently published for the running QA DTS (Tomcat) cell.
+
+    Thin wrapper over :func:`published_qa_cms_host_port` (generic
+    ``docker port`` parsing); ``None`` when docker is missing, the DTS
+    cell is down, or output is unparseable.
+    """
+    return published_qa_cms_host_port(
+        container, container_port=container_port
+    )
+
+
+# DTS banner lines use distinct tokens (QA_DTS_HOST_PORT / DTS_HOST_PORT /
+# DTS_PORT) so the CMS ``_QA_UP_LOG_PORT_RE`` never matches them and
+# ``resolve_qa_health_host_port`` stays on the CMS publish port.
+_QA_UP_LOG_DTS_PORT_RE = re.compile(
+    r"(?:QA_DTS_HOST_PORT|DTS_HOST_PORT|DTS_PORT|dts publish)\s*[=:]?\s*(\d+)",
+    re.IGNORECASE,
+)
+
+
+def parse_qa_up_log_dts_host_port(text: str) -> Optional[int]:
+    """Parse DTS host publish port from a ``qa-up --with-dts`` log body."""
+    if not text:
+        return None
+    last: Optional[int] = None
+    for m in _QA_UP_LOG_DTS_PORT_RE.finditer(text):
+        try:
+            port = int(m.group(1))
+        except ValueError:
+            continue
+        if 1 <= port <= 65535:
+            last = port
+    return last
+
+
+def latest_qa_up_log_dts_host_port(repo_root: Path) -> Optional[int]:
+    """DTS host port from the newest ``docker/logs/qa-up-*.log``, if any."""
+    log_dir = repo_root / "docker" / "logs"
+    if not log_dir.is_dir():
+        return None
+    candidates = sorted(log_dir.glob("qa-up-*.log"))
+    if not candidates:
+        return None
+    try:
+        text = candidates[-1].read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return None
+    return parse_qa_up_log_dts_host_port(text)
+
+
+def resolve_qa_dts_health_host_port(repo_root: Path) -> tuple[int, str]:
+    """Host port for ``qa-health`` DTS (Tomcat) probing (#6237).
+
+    Order:
+
+    1. ``DTS_HOST_PORT`` / ``DTS_PORT`` env (explicit operator override)
+    2. ``docker port`` on :data:`QA_DTS_CONTAINER`
+    3. Newest ``qa-up-*.log`` DTS host publish line
+    4. :func:`resolve_qa_dts_host_port` (preferred-when-free / freeport)
+
+    Returns ``(port, source)`` where source is ``env``, ``docker``,
+    ``qa-up-log``, or ``preferred``.
+    """
+    for key in ("DTS_HOST_PORT", "DTS_PORT"):
+        raw = os.environ.get(key, "").strip()
+        if raw:
+            try:
+                port = int(raw)
+            except ValueError:
+                continue
+            if 1 <= port <= 65535:
+                return port, "env"
+    published = published_qa_dts_host_port()
+    if published is not None:
+        return published, "docker"
+    logged = latest_qa_up_log_dts_host_port(repo_root)
+    if logged is not None:
+        return logged, "qa-up-log"
+    return resolve_qa_dts_host_port(), "preferred"
+
+
+def _docker_container_present(container_name: str) -> bool:
+    """True when ``docker inspect`` finds ``container_name`` (any state).
+
+    Never raises: missing docker, daemon errors, and unknown containers
+    all map to False so unit tests and fail-fast paths stay hermetic.
+    """
+    if not container_name:
+        return False
+    try:
+        completed = subprocess.run(
+            ["docker", "inspect", container_name],
+            shell=False,
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+    except OSError:
+        return False
+    return completed.returncode == 0
+
+
 def qa_cms_base_url(port: int) -> str:
     """Base URL for the QA CMS cell on the given host port."""
     return f"http://127.0.0.1:{port}"
@@ -394,6 +516,16 @@ def qa_cms_probe_url(port: int) -> str:
     env_override = os.environ.get(QA_CMS_PROBE_PATH_ENV, "").strip()
     path = env_override or QA_CMS_PROBE_PATH
     return f"{qa_cms_base_url(port)}{path}"
+
+
+def qa_dts_base_url(port: int) -> str:
+    """Base URL for the QA DTS (Tomcat) cell on the given host port."""
+    return f"http://127.0.0.1:{port}"
+
+
+def qa_dts_probe_url(port: int) -> str:
+    """Health probe URL for the QA DTS cell (Tomcat root)."""
+    return f"{qa_dts_base_url(port)}{QA_DTS_PROBE_PATH}"
 
 
 def ensure_compose_db_host_ports() -> dict[str, int]:
@@ -443,6 +575,31 @@ def ensure_qa_cms_host_port() -> int:
     os.environ["QA_CMS_HOST_PORT"] = str(port)
     # matrix-install-smoke reads CMS_HOST_PORT / QA_CMS_HOST_PORT for docker -p (#2005).
     os.environ.setdefault("CMS_HOST_PORT", str(port))
+    return port
+
+
+def resolve_qa_dts_host_port() -> int:
+    """Host port for the QA DTS (Tomcat) matrix cell publish mapping.
+
+    Override with ``DTS_HOST_PORT`` or ``DTS_PORT`` (the existing
+    DTS_PORT/freeport convention, #2005); else preferred 9983 when free,
+    else freeport. Exports nothing by itself — callers that start the
+    cell should pin the chosen port via :func:`ensure_qa_dts_host_port`.
+    """
+    return resolve_host_port(
+        "DTS_HOST_PORT",
+        "DTS_PORT",
+        preferred=PREFERRED_QA_DTS_HOST_PORT,
+    )
+
+
+def ensure_qa_dts_host_port() -> int:
+    """Resolve QA DTS host port and pin it for child processes / discovery."""
+    port = resolve_qa_dts_host_port()
+    os.environ["DTS_HOST_PORT"] = str(port)
+    # DTS_PORT doubles as the compose-stack DTS override; setdefault only so
+    # an explicit operator pin for compose is never clobbered (#2005).
+    os.environ.setdefault("DTS_PORT", str(port))
     return port
 
 
@@ -615,6 +772,16 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "in-cell StopJetty/StartJetty (default restarts Jetty)."
         ),
     )
+    pqu.add_argument(
+        "--with-dts",
+        action="store_true",
+        help=(
+            "Also bring up the QA DTS (Tomcat) matrix cell beside CMS "
+            "(spec 2402-qa-dts-publish, #6237). Prints DTS_URL / "
+            "PUBLISHED_SITE_URL / PUBLISHED_CATEGORY_URL in the endpoint "
+            "banner. Default (flag absent) path is unchanged."
+        ),
+    )
     pqu.add_argument("--dry-run", action="store_true")
 
     # --- Rebuild-chain preflight — #2486 / #2532 ---
@@ -698,6 +865,14 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         action="store_true",
         help="With --then-qa-up: pass --skip-image-build to qa-up.",
     )
+    pqrc.add_argument(
+        "--with-dts",
+        action="store_true",
+        help=(
+            "With --then-qa-up: pass --with-dts to qa-up (bring up the "
+            "QA DTS cell too; spec 2402-qa-dts-publish, #6237)."
+        ),
+    )
     pqrc.add_argument("--dry-run", action="store_true")
 
     pqh = sub.add_parser(
@@ -726,6 +901,16 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "Probe URL (default: QA_CMS_HOST_PORT / CMS_HOST_PORT env, else "
             "docker port on perc-matrix-cms-h2, else last qa-up log, else "
             f"preferred {PREFERRED_QA_CMS_HOST_PORT} when free)."
+        ),
+    )
+    pqh.add_argument(
+        "--with-dts",
+        action="store_true",
+        help=(
+            "Require the QA DTS (Tomcat) cell probe alongside CMS "
+            "(spec 2402-qa-dts-publish, #6237). Without the flag, a "
+            "running DTS cell is still gated (auto-detect); the flag "
+            "fails fast when the DTS cell is absent."
         ),
     )
     pqh.add_argument("--dry-run", action="store_true")
@@ -1798,11 +1983,20 @@ def _qa_matrix_up_argv(
     probe_timeout: int,
     skip_image_build: bool,
     dry_run: bool,
+    product: str = QA_CMS_PRODUCT,
+    db: str = QA_CMS_DB,
 ) -> List[str]:
-    """Build argv for matrix-install-smoke CMS+H2 with ``--keep`` (pure).
+    """Build argv for matrix-install-smoke cell with ``--keep`` (pure).
 
-    Uses ``sys.executable`` so Windows/Linux/macOS all invoke the same
+    Defaults to the CMS H2 cell; ``qa-up --with-dts`` passes
+    ``product="dts"`` for the second (Tomcat) cell (#6237). Uses
+    ``sys.executable`` so Windows/Linux/macOS all invoke the same
     interpreter that is running perc-devctl (no hardcoded ``python3``).
+
+    Host ports are pinned into the process env by
+    :func:`ensure_qa_cms_host_port` / :func:`ensure_qa_dts_host_port`
+    before this argv runs, so matrix ``resolve_matrix_host_port`` picks
+    up the same publish port for docker ``-p`` (#2005).
     """
     script = repo_root / "docker" / "scripts" / "matrix-install-smoke.py"
     argv: List[str] = [
@@ -1811,9 +2005,9 @@ def _qa_matrix_up_argv(
         "--repo-root",
         str(repo_root),
         "--product",
-        QA_CMS_PRODUCT,
+        product,
         "--db",
-        QA_CMS_DB,
+        db,
         "--keep",
         "--probe-timeout",
         str(probe_timeout),
@@ -1835,12 +2029,20 @@ def _qa_print_endpoint_banner(
     *,
     admin_password_line: Optional[str] = None,
     password_lines: Optional[List[str]] = None,
+    dts_host_port: Optional[int] = None,
 ) -> None:
     """Emit agent-parseable endpoint + credential guidance after qa-up.
 
     Does not emit RESULT: lines — callers use ``_run_logged`` for that
     contract so agent parsers see a single OK/FAIL per step.
     ``host_port`` is the resolved published host port (env or freeport).
+
+    With ``dts_host_port`` (``qa-up --with-dts``, #6237), also emits the
+    DTS cell contract from the spec env table (``DTS_URL``,
+    ``PUBLISHED_SITE_URL``, ``PUBLISHED_CATEGORY_URL``). Without it the
+    banner is byte-identical to the CMS-only default path. Slice 3
+    repoints ``PUBLISHED_CATEGORY_URL`` at the fixture category page;
+    until then it is the DTS origin root placeholder.
     """
     base = qa_cms_base_url(host_port)
     print(f"QA_CMS_HOST_PORT={host_port}")
@@ -1867,6 +2069,15 @@ def _qa_print_endpoint_banner(
             f"docker exec {QA_CMS_CONTAINER} cat {pwd_path} "
             f"(look for {QA_ADMIN_USERNAME}=…; Editor= and Contributor= too)"
         )
+    if dts_host_port is None:
+        return
+    dts_base = qa_dts_base_url(dts_host_port)
+    print(f"QA_DTS_HOST_PORT={dts_host_port}")
+    print(f"DTS_URL={dts_base}")
+    print(f"PUBLISHED_SITE_URL={dts_base}")
+    # Slice-3 placeholder: Tomcat origin root until the fixture edition
+    # publishes the category page served from the in-cell static dir.
+    print(f"PUBLISHED_CATEGORY_URL={dts_base}/")
 
 
 def _qa_parse_generated_password_env_lines(text: str) -> List[str]:
@@ -1935,6 +2146,11 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     #2481), host HTTP probe, and host ``rhythmyx_ready`` log scan. On success
     prints ``TEST_CMS_URL`` and admin credential guidance for Playwright /
     agents.
+
+    With ``--with-dts`` (spec 2402-qa-dts-publish, #6237), a second
+    matrix run brings up DTS (Tomcat, ``--product dts --db h2 --keep``)
+    beside CMS and the banner additionally prints ``DTS_URL`` /
+    ``PUBLISHED_SITE_URL`` / ``PUBLISHED_CATEGORY_URL``.
 
     Host port is resolved via :func:`ensure_qa_cms_host_port` (env override
     or freeport) and exported as ``QA_CMS_HOST_PORT`` / ``CMS_HOST_PORT`` so
@@ -2006,13 +2222,45 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
         )
         return rc
 
+    # --with-dts (spec 2402-qa-dts-publish, #6237): second silent DTS
+    # install in its own matrix cell (perc-matrix-dts-h2) beside CMS.
+    # Host port follows the DTS_PORT/freeport convention (#2005) and is
+    # pinned before the matrix run so both agree on the publish port.
+    # The default (flag absent) path below is untouched.
+    with_dts = bool(getattr(args, "with_dts", False))
+    dts_host_port: Optional[int] = None
+    if with_dts:
+        dts_host_port = ensure_qa_dts_host_port()
+        dts_argv = _qa_matrix_up_argv(
+            repo_root,
+            probe_timeout=probe_timeout,
+            skip_image_build=skip_image_build,
+            dry_run=dry_run,
+            product="dts",
+            db=QA_DTS_DB,
+        )
+        rc_dts, log_dts = _run_logged(
+            "qa-up-dts",
+            dts_argv,
+            log_dir=log_dir,
+            cwd=repo_root,
+            dry_run=dry_run,
+        )
+        if rc_dts != EXIT_OK:
+            print(
+                f"QA_DETAIL:matrix-install-smoke (dts) failed "
+                f"timeout_seconds={probe_timeout} "
+                f"QA_DTS_HOST_PORT={dts_host_port} LOG:{log_dts}"
+            )
+            return rc_dts
+
     deploy_webui = bool(getattr(args, "then_qa_deploy_webui", False))
     deploy_jars = bool(getattr(args, "then_qa_deploy_war_jars", False)) or (
         deploy_webui and skip_image_build
     )
 
     if dry_run:
-        _qa_print_endpoint_banner(host_port)
+        _qa_print_endpoint_banner(host_port, dts_host_port=dts_host_port)
         rc = EXIT_OK
         if deploy_webui:
             rc = cmd_qa_deploy_webui(
@@ -2043,6 +2291,7 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
         host_port,
         admin_password_line=admin_line,
         password_lines=pwd_lines,
+        dts_host_port=dts_host_port,
     )
     rc = EXIT_OK
     if deploy_webui:
@@ -2078,6 +2327,14 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
       tablefactory — #2556 / perc-doctor check-logs) have no ERROR/FATAL/SEVERE, **and**
     * Docker ``Health.Status`` for the QA cell is ``healthy`` (matrix HEALTHCHECK
       after #2481 — same gate as compose ``verify`` for cms-dts).
+    * When the QA DTS cell is expected (``--with-dts`` or a running
+      ``perc-matrix-dts-h2`` auto-detected — spec 2402-qa-dts-publish,
+      #6237), the Tomcat probe answers with a ready HTTP code too.
+
+    RESULT lines always include ``HEALTH:<status>`` so operators see host
+    log-scan **and** inspect health in one line (#2537 residual of #2481).
+    DTS-gated runs additionally carry ``DTS_HTTP:<code>`` /
+    ``DTS_URL:<url>`` tokens.
 
     RESULT lines always include ``HEALTH:<status>`` so operators see host
     log-scan **and** inspect health in one line (#2537 residual of #2481).
@@ -2100,8 +2357,17 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
     container = QA_CMS_CONTAINER
     max_checks = max(1, timeout // interval) if interval > 0 else 1
     log_file = _new_log_file(log_dir, "qa-health")
+    with_dts_flag = bool(getattr(args, "with_dts", False))
 
     if args.dry_run:
+        dts_host_port: Optional[int] = None
+        dts_port_source = "none"
+        dts_url = ""
+        if with_dts_flag:
+            dts_host_port, dts_port_source = resolve_qa_dts_health_host_port(
+                repo_root
+            )
+            dts_url = qa_dts_probe_url(dts_host_port)
         LOG.info(
             "DRY-RUN: qa-health plan: %d checks x %ds interval against %s "
             "(+ Rhythmyx context + product log scan + docker Health.Status on %s)",
@@ -2120,17 +2386,71 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
                 f"log_scan=rhythmyx_context_fail_markers+server_log_errors\n"
                 f"docker_health=inspect Health.Status\n"
             )
-        print(
-            f"RESULT:OK STEP:qa-health HTTP:200 URL:{url} "
-            f"HEALTH:healthy CONTAINER:{container} LOG:{log_file}"
-        )
+            if with_dts_flag:
+                f.write(
+                    f"dts_url={dts_url}\n"
+                    f"dts_host_port={dts_host_port}\n"
+                    f"dts_port_source={dts_port_source}\n"
+                    f"dts_container={QA_DTS_CONTAINER}\n"
+                )
+        if with_dts_flag:
+            print(
+                f"RESULT:OK STEP:qa-health HTTP:200 DTS_HTTP:200 URL:{url} "
+                f"DTS_URL:{dts_url} "
+                f"HEALTH:healthy CONTAINER:{container} LOG:{log_file}"
+            )
+        else:
+            print(
+                f"RESULT:OK STEP:qa-health HTTP:200 URL:{url} "
+                f"HEALTH:healthy CONTAINER:{container} LOG:{log_file}"
+            )
         return EXIT_OK
 
+    # Dual gate (#6237): an explicitly requested (--with-dts) but absent
+    # DTS cell fails fast instead of burning the probe timeout on a
+    # connection-refused Tomcat URL. A running DTS cell without the flag
+    # is still gated (auto-detect) so `qa-up --with-dts` + plain
+    # `qa-health` covers both legs.
+    dts_present = _docker_container_present(QA_DTS_CONTAINER)
+    if with_dts_flag and not dts_present:
+        with log_file.open("w", encoding="utf-8") as f:
+            f.write("qa-health failed\n")
+            f.write(f"url={url}\n")
+            f.write(f"container={container}\n")
+            f.write(f"dts_container={QA_DTS_CONTAINER}\n")
+            f.write("detail=dts_container_missing\n")
+            f.write(
+                "hint: qa-health --with-dts requires the QA DTS cell; "
+                "bring it up with qa-up --with-dts first (#6237).\n"
+            )
+        print(
+            "RESULT:FAIL STEP:qa-health DETAIL:dts_container_missing "
+            f"MATCH:{QA_DTS_CONTAINER} HTTP:0 HEALTH:unknown "
+            f"URL:{url} CONTAINER:{container} LOG:{log_file}"
+        )
+        return EXIT_SUBPROCESS_FAILED
+    dts_expected = with_dts_flag or dts_present
+    dts_url = ""
+    dts_port_source = "none"
+    dts_host_port = 0
+    if dts_expected:
+        dts_host_port, dts_port_source = resolve_qa_dts_health_host_port(
+            repo_root
+        )
+        dts_url = qa_dts_probe_url(dts_host_port)
+
     last_code = 0
+    last_dts_code = 0
     last_health = "unknown"
     last_detail = "not_checked"
     for check in range(1, max_checks + 1):
         last_code = _curl_status(url, timeout=5.0)
+        last_dts_code = (
+            _curl_status(dts_url, timeout=5.0) if dts_expected else 0
+        )
+        dts_ready = (
+            not dts_expected or last_dts_code in (200, 302, 401, 403)
+        )
         last_health = _docker_health(container)
         logs = _docker_logs_tail(container)
         server_logs = _docker_read_server_log(container)
@@ -2167,8 +2487,9 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
             )
             return EXIT_SUBPROCESS_FAILED
 
-        # HTTP + clean logs + docker healthy (parity with compose verify).
-        if ready and last_health == "healthy":
+        # HTTP + clean logs + docker healthy (parity with compose verify),
+        # plus the Tomcat probe when the DTS cell is expected.
+        if ready and last_health == "healthy" and dts_ready:
             with log_file.open("w", encoding="utf-8") as f:
                 f.write("qa-health success\n")
                 f.write(f"url={url}\n")
@@ -2178,10 +2499,22 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
                 f.write(f"container={container}\n")
                 f.write("rhythmyx_context=ok\n")
                 f.write("server_log=ok\n")
-            print(
-                f"RESULT:OK STEP:qa-health HTTP:{last_code} HEALTH:{last_health} "
-                f"URL:{url} CONTAINER:{container} LOG:{log_file}"
-            )
+                if dts_expected:
+                    f.write(f"dts_url={dts_url}\n")
+                    f.write(f"dts_http={last_dts_code}\n")
+                    f.write(f"dts_port_source={dts_port_source}\n")
+            if dts_expected:
+                print(
+                    f"RESULT:OK STEP:qa-health HTTP:{last_code} "
+                    f"DTS_HTTP:{last_dts_code} HEALTH:{last_health} "
+                    f"URL:{url} DTS_URL:{dts_url} "
+                    f"CONTAINER:{container} LOG:{log_file}"
+                )
+            else:
+                print(
+                    f"RESULT:OK STEP:qa-health HTTP:{last_code} HEALTH:{last_health} "
+                    f"URL:{url} CONTAINER:{container} LOG:{log_file}"
+                )
             return EXIT_OK
 
         time.sleep(interval)
@@ -2204,6 +2537,10 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
         f.write(f"interval_seconds={interval}\n")
         f.write(f"container={container}\n")
         f.write(f"last_detail={last_detail}\n")
+        if dts_expected:
+            f.write(f"dts_url={dts_url}\n")
+            f.write(f"dts_http={last_dts_code}\n")
+            f.write(f"dts_port_source={dts_port_source}\n")
         if final_match:
             f.write(f"match={final_match}\n")
             f.write(
@@ -2229,17 +2566,20 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
                 f"QA_CMS_HOST_PORT={published_now} or qa-health --url "
                 f"{qa_cms_probe_url(published_now)} (#4597).\n"
             )
+    dts_suffix = ""
+    if dts_expected:
+        dts_suffix = f" DTS_HTTP:{last_dts_code} DTS_URL:{dts_url}"
     if final_detail and DETAIL_SERVER_LOG_ERRORS in final_detail:
         print(
             f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_SERVER_LOG_ERRORS} "
             f"MATCH:{final_match} HTTP:{last_code} HEALTH:{last_health} "
-            f"URL:{url} CONTAINER:{container} LOG:{log_file}"
+            f"URL:{url} CONTAINER:{container}{dts_suffix} LOG:{log_file}"
         )
     elif final_match:
         print(
             f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_CONTEXT_FAILED} "
             f"MATCH:{final_match} HTTP:{last_code} HEALTH:{last_health} "
-            f"URL:{url} CONTAINER:{container} LOG:{log_file}"
+            f"URL:{url} CONTAINER:{container}{dts_suffix} LOG:{log_file}"
         )
     else:
         published_now = published_qa_cms_host_port(container)
@@ -2256,7 +2596,7 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
         print(
             f"RESULT:FAIL STEP:qa-health DETAIL:timeout after {timeout}s "
             f"(last_http={last_code} health={last_health}) URL:{url} "
-            f"CONTAINER:{container}{mismatch} LOG:{log_file}"
+            f"CONTAINER:{container}{dts_suffix}{mismatch} LOG:{log_file}"
         )
     return EXIT_SUBPROCESS_FAILED
 
@@ -2267,6 +2607,12 @@ def cmd_qa_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int
     Uses ``docker rm -f`` on the matrix cell. Install lives inside the
     container filesystem (no named multi-GB volume by default), so removing
     the container frees the port and disk used by the cell.
+
+    Default (no ``--container`` override) also removes the QA DTS cell
+    (``qa-up --with-dts`` companion, #6237) best-effort: a missing DTS
+    container is a no-op skip, never a failure, so the CMS-only default
+    path stays green. An explicit ``--container <other>`` removes only
+    that container.
     """
     repo_root, _env_file, _compose_file = paths
     log_dir = _log_dir(repo_root)
@@ -2283,7 +2629,25 @@ def cmd_qa_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int
     print(f"QA_CONTAINER:{container}")
     if rc == EXIT_OK:
         print("QA_DETAIL:removed (ports/disk freed)")
-    return rc
+    if container != QA_CMS_CONTAINER:
+        return rc
+    dts_present = dry_run or _docker_container_present(QA_DTS_CONTAINER)
+    if not dts_present:
+        print(f"QA_CONTAINER:{QA_DTS_CONTAINER}")
+        print("QA_DETAIL:dts-absent-skip (no DTS cell to remove)")
+        return rc
+    rc_dts, _log_dts = _run_logged(
+        "qa-down-dts",
+        _qa_destroy_argv(QA_DTS_CONTAINER),
+        log_dir=log_dir,
+        cwd=repo_root,
+        dry_run=dry_run,
+    )
+    print(f"QA_CONTAINER:{QA_DTS_CONTAINER}")
+    if rc_dts == EXIT_OK:
+        print("QA_DETAIL:dts-removed (ports/disk freed)")
+        return rc
+    return rc_dts
 
 
 def cmd_qa_preflight(
@@ -2364,6 +2728,7 @@ def cmd_qa_rebuild_chain(
             ),
             skip_image_build=bool(getattr(args, "skip_image_build", False)),
             then_qa_deploy_webui=False,
+            with_dts=bool(getattr(args, "with_dts", False)),
         )
         rc = cmd_qa_up(qa_up_args, paths)
         if rc != EXIT_OK:
