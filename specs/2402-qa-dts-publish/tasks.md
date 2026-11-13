@@ -31,16 +31,30 @@
 - [ ] T013 Unit tests (`test_perc_devctl.py`) + default-path no-regression
       evidence in PR body.
 
-## Slice 3 — fixture edition + static serve (child issue)
+## Slice 3 — fixture edition + static serve (child issue, #6243)
 
-- [ ] T014 Fixture publishing server → in-cell DTS; fixture edition
+- [x] T014 Fixture publishing server → in-cell DTS; fixture edition
       publishes to the Tomcat static dir; site registered on a host alias.
-- [ ] T015 `published-site-smoke.spec.js` green (not skipped) with zero
-      `web_resources` 404s.
-- [ ] T016 `published-category-tree-fancytree.spec.js` green (#6189
+      (Shipped: `docker/scripts/qa_fixtures/published-site/` edition
+      output + `publishing-server.json` manifest; `qa-publish-fixture`
+      copies it to `/opt/Percussion/Deployment/Server/published-site`
+      and installs per-Host `published-site.xml` / `web_resources.xml`
+      descriptors — path-prefix contexts, no `server.xml` edit; hooked
+      into `qa-up --with-dts`; PR #<n>.)
+- [x] T015 `published-site-smoke.spec.js` green (not skipped) with zero
+      `web_resources` 404s. (2 passed vs the fixture served over the
+      two-context mapping; PR #<n>.)
+- [x] T016 `published-category-tree-fancytree.spec.js` green (#6189
       checkbox 1 unblocked); FancyTree bytes from #6052 verified live.
-- [ ] T017 Surface-run evidence (pass counts, zero console errors, zero
-      `server.log` ERROR/FATAL) in PR body.
+      (3 passed incl. expand; first live run exposed a DynaTree-era
+      locator — status classes live on `span.fancytree-node` in 2.x —
+      fixed in the spec; real pages also load `jquery-ui.js` first
+      because fancytree asserts `$.ui` at load; PR #<n>.)
+- [x] T017 Surface-run evidence (pass counts, zero console errors, zero
+      `server.log` ERROR/FATAL) in PR body. (Console sweep 0/0/0;
+      `server.log` N/A — no product server in the fixture-serve loop,
+      same constraint as slice 2; cell wiring covered by 118 pytests +
+      dry-run banner; PR #<n>.)
 
 ## Slice 4 — DTS widget surfaces (child issue)
 

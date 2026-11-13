@@ -182,8 +182,12 @@ test.describe("collapsible category expand on the published page (issue #6189)",
       );
       await expander.scrollIntoViewIfNeeded();
       await expander.click();
+      // FancyTree 2.x renders status classes (fancytree-expanded,
+      // fancytree-has-children) on the span.fancytree-node, not the li —
+      // the li only carries fancytree-lastsib (slice 3 #6243: first live
+      // run exposed the DynaTree-era li assumption).
       const expanded = page.locator(
-        ".perc-category-list-collapsible li.fancytree-has-children.fancytree-expanded",
+        ".perc-category-list-collapsible li:has(> span.fancytree-node.fancytree-has-children.fancytree-expanded)",
       );
       await expect(expanded.first(), "expanded node keeps the expanded marker").toBeVisible({
         timeout: 15_000,

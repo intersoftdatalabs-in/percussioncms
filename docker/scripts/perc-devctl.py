@@ -180,6 +180,28 @@ QA_DTS_CONTAINER_PORT = 9980
 QA_DTS_DB = "h2"
 # Tomcat root probe for ``qa-health`` (mirrors matrix ``DTS_PROBE_PATH``).
 QA_DTS_PROBE_PATH = "/"
+# QA fixture published site for ``qa-publish-fixture`` (spec
+# 2402-qa-dts-publish Phase 3, #6237 slice 3). The fixture edition output
+# the publish step copies into the QA DTS cell Tomcat static dir.
+QA_FIXTURE_PUBLISHED_SITE_REL = (
+    Path("docker") / "scripts" / "qa_fixtures" / "published-site"
+)
+QA_FIXTURE_EDITION_DIRNAME = "published-site"
+QA_FIXTURE_CONTEXT_DESCRIPTORS_DIRNAME = "context-descriptors"
+# In-cell Tomcat layout for the DTS install (INSTALL_ROOT is pinned to
+# /opt/Percussion by the matrix run; SERVER_DIR matches
+# TomcatStartup.sh in delivery-tier-distribution).
+QA_DTS_SERVER_DIR = "/opt/Percussion/Deployment/Server"
+QA_DTS_PUBLISHED_DOCBASE = f"{QA_DTS_SERVER_DIR}/published-site"
+QA_DTS_WEB_RESOURCES_DOCBASE = f"{QA_DTS_SERVER_DIR}/published-site/web_resources"
+QA_DTS_CONTEXT_DESCRIPTORS_DIR = f"{QA_DTS_SERVER_DIR}/conf/Catalina/localhost"
+# Served paths: origin-root web_resources (the way real published pages
+# address publish-time assets) + path-prefix published pages (keeps the
+# DTS ROOT app and service webapps untouched; no DNS/hosts entry needed
+# in agent cells — see qa_fixtures/published-site/README.md).
+QA_DTS_PUBLISHED_CONTEXT_PATH = "/published-site"
+QA_DTS_WEB_RESOURCES_CONTEXT_PATH = "/web_resources"
+QA_DTS_PUBLISHED_CATEGORY_REL = "category/"
 # Same default as docker/scripts/hot-deploy-rhythmyx-war-jars.py --dest.
 QA_WAR_JARS_DEST = "/opt/Percussion/jetty/base/webapps/Rhythmyx/WEB-INF/lib"
 # Probe URL path for ``qa-health`` (#2482). The matrix-recommended primary
@@ -526,6 +548,117 @@ def qa_dts_base_url(port: int) -> str:
 def qa_dts_probe_url(port: int) -> str:
     """Health probe URL for the QA DTS cell (Tomcat root)."""
     return f"{qa_dts_base_url(port)}{QA_DTS_PROBE_PATH}"
+
+
+def qa_fixture_published_site_dir(repo_root: Path) -> Path:
+    """Repo path of the fixture edition output (slice 3, #6243).
+
+    Pure path join (``pathlib`` only) so Windows/Linux/macOS agree.
+    """
+    return repo_root / QA_FIXTURE_PUBLISHED_SITE_REL
+
+
+def qa_fixture_required_rel_paths() -> List[str]:
+    """Fixture files the publish step (and surface specs) require.
+
+    Relative to :func:`qa_fixture_published_site_dir`. Covers both
+    published pages plus every ``web_resources`` byte the specs assert
+    200 (FancyTree tree incl. ``loading.gif``); DynaTree copies must stay
+    absent (asserted 404), so they are intentionally not listed here.
+    """
+    return [
+        "publishing-server.json",
+        "context-descriptors/published-site.xml",
+        "context-descriptors/web_resources.xml",
+        f"{QA_FIXTURE_EDITION_DIRNAME}/index.html",
+        f"{QA_FIXTURE_EDITION_DIRNAME}/category/index.html",
+        f"{QA_FIXTURE_EDITION_DIRNAME}/web_resources/cm/jslib/jquery.js",
+        f"{QA_FIXTURE_EDITION_DIRNAME}/web_resources/cm/jslib/jquery-ui.js",
+        f"{QA_FIXTURE_EDITION_DIRNAME}/web_resources/cm/jslib/jquery.fancytree.js",
+        f"{QA_FIXTURE_EDITION_DIRNAME}/web_resources/cm/css/fancytree/skin/ui.fancytree.css",
+        f"{QA_FIXTURE_EDITION_DIRNAME}/web_resources/cm/css/fancytree/skin-win8/loading.gif",
+    ]
+
+
+def qa_fixture_missing_rel_paths(repo_root: Path) -> List[str]:
+    """Required fixture relative paths absent under ``repo_root``.
+
+    Empty means the fixture is complete. Pure filesystem check — no
+    docker, no network — so unit tests and ``qa-publish-fixture`` fail
+    fast with a named list instead of a mid-copy ``docker cp`` error.
+    """
+    base = qa_fixture_published_site_dir(repo_root)
+    return [
+        rel
+        for rel in qa_fixture_required_rel_paths()
+        if not (base / rel).is_file()
+    ]
+
+
+def qa_published_site_urls(dts_base: str) -> tuple[str, str]:
+    """(PUBLISHED_SITE_URL, PUBLISHED_CATEGORY_URL) for a DTS base URL.
+
+    Pure string join — no port resolution — so the banner, the publish
+    step, and unit tests agree on the fixture page addresses.
+    """
+    site = f"{dts_base.rstrip('/')}{QA_DTS_PUBLISHED_CONTEXT_PATH}/"
+    category = f"{site}{QA_DTS_PUBLISHED_CATEGORY_REL}"
+    return site, category
+
+
+def _qa_publish_fixture_mkdir_argv(container: str) -> List[str]:
+    """``docker exec mkdir -p`` argv for the in-cell static dir (pure)."""
+    return [
+        "docker",
+        "exec",
+        container,
+        "mkdir",
+        "-p",
+        QA_DTS_PUBLISHED_DOCBASE,
+        QA_DTS_CONTEXT_DESCRIPTORS_DIR,
+    ]
+
+
+def _qa_publish_fixture_copy_argv(
+    repo_root: Path, container: str
+) -> List[List[str]]:
+    """``docker cp`` argv pairs staging fixture → cell (pure).
+
+    First pair copies the edition output (trailing ``/.`` keeps the
+    directory contents, not the directory itself, at the docBase);
+    the next two install the per-Host context descriptors that serve
+    ``/published-site`` and origin-root ``/web_resources`` without a
+    ``server.xml`` edit or Tomcat restart (``autoDeploy="true"``).
+    """
+    fixture = qa_fixture_published_site_dir(repo_root)
+    descriptors = fixture / QA_FIXTURE_CONTEXT_DESCRIPTORS_DIRNAME
+    # Trailing "/." copies the directory *contents* to the docBase
+    # (docker cp convention). Built with an explicit separator suffix:
+    # pathlib drops a joined "." segment, which would copy the directory
+    # itself instead.
+    edition_contents = (
+        str(fixture / QA_FIXTURE_EDITION_DIRNAME) + os.sep + "."
+    )
+    return [
+        [
+            "docker",
+            "cp",
+            edition_contents,
+            f"{container}:{QA_DTS_PUBLISHED_DOCBASE}/",
+        ],
+        [
+            "docker",
+            "cp",
+            str(descriptors / "published-site.xml"),
+            f"{container}:{QA_DTS_CONTEXT_DESCRIPTORS_DIR}/published-site.xml",
+        ],
+        [
+            "docker",
+            "cp",
+            str(descriptors / "web_resources.xml"),
+            f"{container}:{QA_DTS_CONTEXT_DESCRIPTORS_DIR}/web_resources.xml",
+        ],
+    ]
 
 
 def ensure_compose_db_host_ports() -> dict[str, int]:
@@ -928,6 +1061,23 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help=f"Container name to remove (default: {QA_CMS_CONTAINER}).",
     )
     pqd.add_argument("--dry-run", action="store_true")
+
+    pqpf = sub.add_parser(
+        "qa-publish-fixture",
+        help=(
+            "Copy the fixture edition output into the running QA DTS cell "
+            "Tomcat static dir and register the /published-site + "
+            "/web_resources contexts; prints PUBLISHED_SITE_URL / "
+            "PUBLISHED_CATEGORY_URL (spec 2402-qa-dts-publish Phase 3, "
+            "#6237 slice 3)."
+        ),
+    )
+    pqpf.add_argument(
+        "--container",
+        default=QA_DTS_CONTAINER,
+        help=f"QA DTS cell name (default: {QA_DTS_CONTAINER}).",
+    )
+    pqpf.add_argument("--dry-run", action="store_true")
 
     pqdw = sub.add_parser(
         "qa-deploy-webui",
@@ -2074,10 +2224,12 @@ def _qa_print_endpoint_banner(
     dts_base = qa_dts_base_url(dts_host_port)
     print(f"QA_DTS_HOST_PORT={dts_host_port}")
     print(f"DTS_URL={dts_base}")
-    print(f"PUBLISHED_SITE_URL={dts_base}")
-    # Slice-3 placeholder: Tomcat origin root until the fixture edition
-    # publishes the category page served from the in-cell static dir.
-    print(f"PUBLISHED_CATEGORY_URL={dts_base}/")
+    # Slice 3 (#6243): the fixture edition publishes to the in-cell
+    # Tomcat static dir, so both URLs address the fixture pages served
+    # from the cell (not the Tomcat origin root placeholder).
+    site_url, category_url = qa_published_site_urls(dts_base)
+    print(f"PUBLISHED_SITE_URL={site_url}")
+    print(f"PUBLISHED_CATEGORY_URL={category_url}")
 
 
 def _qa_parse_generated_password_env_lines(text: str) -> List[str]:
@@ -2253,6 +2405,18 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
                 f"QA_DTS_HOST_PORT={dts_host_port} LOG:{log_dts}"
             )
             return rc_dts
+        # Slice 3 (#6243): the fixture edition publishes to the in-cell
+        # Tomcat static dir right after the DTS leg is up, so the banner
+        # URLs below address served fixture pages. The default (flag
+        # absent) path below is untouched.
+        rc_pub = _qa_run_publish_fixture(
+            repo_root,
+            QA_DTS_CONTAINER,
+            log_dir,
+            dry_run=dry_run,
+        )
+        if rc_pub != EXIT_OK:
+            return rc_pub
 
     deploy_webui = bool(getattr(args, "then_qa_deploy_webui", False))
     deploy_jars = bool(getattr(args, "then_qa_deploy_war_jars", False)) or (
@@ -2601,6 +2765,117 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
     return EXIT_SUBPROCESS_FAILED
 
 
+def _qa_run_publish_fixture(
+    repo_root: Path,
+    container: str,
+    log_dir: Path,
+    *,
+    dry_run: bool,
+) -> int:
+    """Stage the fixture edition output into the QA DTS cell (shared core).
+
+    Used by ``qa-publish-fixture`` and the ``qa-up --with-dts`` tail:
+    fail fast when the fixture manifest is incomplete, create the
+    in-cell static dir, ``docker cp`` the edition output plus both
+    context descriptors, then print the served page URLs. ``dry_run``
+    prints the plan (paths + argv) without touching docker.
+    """
+    missing = qa_fixture_missing_rel_paths(repo_root)
+    mkdir_argv = _qa_publish_fixture_mkdir_argv(container)
+    copy_argvs = _qa_publish_fixture_copy_argv(repo_root, container)
+    if dry_run:
+        # Plan only: no docker, no manifest hard-fail (stub repo roots
+        # in unit tests carry no fixture). A real incomplete fixture is
+        # still named so operators see it before the live run fails.
+        print("RESULT:OK STEP:qa-publish-fixture LOG:")
+        print(
+            "QA_DETAIL:publish-fixture-plan "
+            f"CONTAINER:{container} "
+            f"FIXTURE:{qa_fixture_published_site_dir(repo_root)} "
+            f"DOCBASE:{QA_DTS_PUBLISHED_DOCBASE} "
+            f"CONTEXTS:{QA_DTS_CONTEXT_DESCRIPTORS_DIR}/published-site.xml,"
+            f"{QA_DTS_CONTEXT_DESCRIPTORS_DIR}/web_resources.xml"
+        )
+        if missing:
+            print(
+                "QA_DETAIL:fixture-incomplete "
+                f"MISSING:{','.join(missing)}"
+            )
+        return EXIT_OK
+    if missing:
+        print(
+            "RESULT:FAIL STEP:qa-publish-fixture "
+            f"DETAIL:fixture-incomplete MISSING:{','.join(missing)}"
+        )
+        return EXIT_SUBPROCESS_FAILED
+    if not _docker_container_present(container):
+        print(
+            "RESULT:FAIL STEP:qa-publish-fixture DETAIL:dts_container_missing "
+            f"MATCH:{container} "
+            "HINT:bring up the QA DTS cell with qa-up --with-dts first (#6237)."
+        )
+        return EXIT_SUBPROCESS_FAILED
+    rc, log_file = _run_logged(
+        "qa-publish-fixture-mkdir",
+        mkdir_argv,
+        log_dir=log_dir,
+        cwd=repo_root,
+        dry_run=False,
+    )
+    if rc != EXIT_OK:
+        print(
+            f"QA_DETAIL:publish-fixture mkdir failed LOG:{log_file} "
+            f"CONTAINER:{container}"
+        )
+        return rc
+    for index, argv in enumerate(copy_argvs, start=1):
+        rc, log_file = _run_logged(
+            f"qa-publish-fixture-copy-{index}",
+            argv,
+            log_dir=log_dir,
+            cwd=repo_root,
+            dry_run=False,
+        )
+        if rc != EXIT_OK:
+            print(
+                f"QA_DETAIL:publish-fixture copy failed LOG:{log_file} "
+                f"CONTAINER:{container}"
+            )
+            return rc
+    return EXIT_OK
+
+
+def cmd_qa_publish_fixture(
+    args: argparse.Namespace, paths: tuple[Path, Path, Path]
+) -> int:
+    """Publish the fixture edition to the in-cell Tomcat static dir.
+
+    Copies ``qa_fixtures/published-site`` into the running QA DTS cell
+    (``--container``, default ``perc-matrix-dts-h2``) and registers the
+    ``/published-site`` + ``/web_resources`` contexts, then prints
+    ``PUBLISHED_SITE_URL`` / ``PUBLISHED_CATEGORY_URL`` for the surface
+    specs (spec 2402-qa-dts-publish Phase 3, #6237 slice 3 #6243).
+    """
+    repo_root, _env_file, _compose_file = paths
+    log_dir = _log_dir(repo_root)
+    container = getattr(args, "container", None) or QA_DTS_CONTAINER
+    dry_run = bool(args.dry_run)
+    rc = _qa_run_publish_fixture(
+        repo_root, container, log_dir, dry_run=dry_run
+    )
+    if rc != EXIT_OK:
+        return rc
+    dts_host_port, _port_source = resolve_qa_dts_health_host_port(repo_root)
+    site_url, category_url = qa_published_site_urls(
+        qa_dts_base_url(dts_host_port)
+    )
+    print(f"PUBLISHED_SITE_URL={site_url}")
+    print(f"PUBLISHED_CATEGORY_URL={category_url}")
+    # RESULT already emitted by _run_logged (one line per docker call);
+    # the PUBLISHED_* URLs above are the agent-parseable summary.
+    return EXIT_OK
+
+
 def cmd_qa_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     """Destroy the H2 QA CMS cell so ports/disk are freed by default.
 
@@ -2767,6 +3042,7 @@ _DISPATCH = {
     "qa-up": cmd_qa_up,
     "qa-health": cmd_qa_health,
     "qa-down": cmd_qa_down,
+    "qa-publish-fixture": cmd_qa_publish_fixture,
     "qa-preflight": cmd_qa_preflight,
     "qa-rebuild-chain": cmd_qa_rebuild_chain,
     "qa-deploy-webui": cmd_qa_deploy_webui,

@@ -1,0 +1,55 @@
+<!--
+  Copyright (c) 2026 Intersoft Data Labs, Inc.
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+  -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>QA fixture category list (issue #6243)</title>
+<link rel="stylesheet" href="/web_resources/cm/css/fancytree/skin/ui.fancytree.css">
+</head>
+<body>
+<main>
+<h1>Site categories</h1>
+<!--
+  Published category-list widget markup: the delivery bundle view
+  (PercCategoryListView.js) renders .perc-category-list-collapsible and
+  invokes .fancytree(. The nested list below exercises the expand path
+  asserted by published-category-tree-fancytree.spec.js (#6189 checkbox 1):
+  the "News" node starts collapsed with two visible children after expand.
+  -->
+<div class="perc-category-list perc-category-list-collapsible">
+<ul style="display:none">
+<li>News
+<ul>
+<li>Local</li>
+<li>World</li>
+</ul>
+</li>
+<li>Events</li>
+</ul>
+</div>
+<p><a href="/published-site/">Back to the published home page</a></p>
+</main>
+<script src="/web_resources/cm/jslib/jquery.js"></script>
+<script src="/web_resources/cm/jslib/jquery-ui.js"></script>
+<script src="/web_resources/cm/jslib/jquery.fancytree.js"></script>
+<script>
+jQuery(function ($) {
+  $(".perc-category-list-collapsible").fancytree({ selectMode: 1 });
+});
+</script>
+</body>
+</html>

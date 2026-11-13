@@ -1226,10 +1226,15 @@ class TestQaWithDts(unittest.TestCase):
         self.assertIn("RESULT:OK STEP:qa-up-dts", out)
         self.assertRegex(out, r"QA_DTS_HOST_PORT=\d+")
         self.assertRegex(out, r"DTS_URL=http://127\.0\.0\.1:\d+")
-        self.assertRegex(out, r"PUBLISHED_SITE_URL=http://127\.0\.0\.1:\d+")
+        # Slice 3 (#6243): banner addresses the served fixture pages.
         self.assertRegex(
-            out, r"PUBLISHED_CATEGORY_URL=http://127\.0\.0\.1:\d+/"
+            out, r"PUBLISHED_SITE_URL=http://127\.0\.0\.1:\d+/published-site/"
         )
+        self.assertRegex(
+            out,
+            r"PUBLISHED_CATEGORY_URL=http://127\.0\.0\.1:\d+/published-site/category/",
+        )
+        self.assertIn("RESULT:OK STEP:qa-publish-fixture", out)
 
     def test_qa_matrix_up_argv_product_dts(self):
         argv = pdc._qa_matrix_up_argv(
@@ -1458,6 +1463,197 @@ class TestQaWithDts(unittest.TestCase):
         self.assertIn("RESULT:OK STEP:qa-up", out)
         self.assertIn("RESULT:OK STEP:qa-up-dts", out)
         self.assertIn("DTS_URL=", out)
+        self.assertIn("PUBLISHED_SITE_URL=", out)
+        self.assertIn("PUBLISHED_CATEGORY_URL=", out)
+
+
+class TestQaPublishFixture(unittest.TestCase):
+    """Slice 3 (#6243): fixture edition publishes to the in-cell Tomcat."""
+
+    def setUp(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo_root = _stub_repo_root(Path(self.td.name))
+        matrix = self.repo_root / "docker" / "scripts" / "matrix-install-smoke.py"
+        matrix.write_text("# stub\n", encoding="utf-8")
+        self.runner = _CliRunner(self.repo_root)
+
+    @staticmethod
+    def _real_repo_root() -> Path:
+        return Path(pdc.__file__).resolve().parents[2]
+
+    def test_fixture_manifest_complete_in_real_repo(self):
+        """Checked-in fixture covers every byte the specs assert 200."""
+        missing = pdc.qa_fixture_missing_rel_paths(self._real_repo_root())
+        self.assertEqual(missing, [], msg=f"incomplete fixture: {missing}")
+
+    def test_fixture_manifest_names_dynatree_never(self):
+        """Retired DynaTree copies stay absent (specs assert 404)."""
+        for rel in pdc.qa_fixture_required_rel_paths():
+            self.assertNotIn("dynatree", rel.lower())
+
+    def test_fixture_manifest_detects_missing(self):
+        missing = pdc.qa_fixture_missing_rel_paths(self.repo_root)
+        self.assertTrue(missing, msg="stub root must miss the fixture")
+        self.assertIn(
+            f"{pdc.QA_FIXTURE_EDITION_DIRNAME}/index.html", missing
+        )
+
+    def test_published_site_urls_point_at_fixture_pages(self):
+        site, category = pdc.qa_published_site_urls("http://127.0.0.1:9983")
+        self.assertEqual(site, "http://127.0.0.1:9983/published-site/")
+        self.assertEqual(
+            category, "http://127.0.0.1:9983/published-site/category/"
+        )
+
+    def test_publish_mkdir_argv(self):
+        argv = pdc._qa_publish_fixture_mkdir_argv("some-dts-cell")
+        self.assertEqual(
+            argv,
+            [
+                "docker", "exec", "some-dts-cell", "mkdir", "-p",
+                pdc.QA_DTS_PUBLISHED_DOCBASE,
+                pdc.QA_DTS_CONTEXT_DESCRIPTORS_DIR,
+            ],
+        )
+        self.assertTrue(
+            pdc.QA_DTS_PUBLISHED_DOCBASE.startswith(pdc.QA_DTS_SERVER_DIR)
+        )
+
+    def test_publish_copy_argv(self):
+        argvs = pdc._qa_publish_fixture_copy_argv(
+            self.repo_root, "some-dts-cell"
+        )
+        self.assertEqual(len(argvs), 3)
+        edition_src = os.path.join(
+            str(
+                self.repo_root
+                / "docker" / "scripts" / "qa_fixtures" / "published-site"
+                / pdc.QA_FIXTURE_EDITION_DIRNAME
+            ),
+            ".",
+        )
+        self.assertEqual(argvs[0][:2], ["docker", "cp"])
+        self.assertEqual(argvs[0][2], edition_src)
+        self.assertEqual(
+            argvs[0][3], f"some-dts-cell:{pdc.QA_DTS_PUBLISHED_DOCBASE}/"
+        )
+        for argv, name in (
+            (argvs[1], "published-site.xml"),
+            (argvs[2], "web_resources.xml"),
+        ):
+            self.assertEqual(argv[:2], ["docker", "cp"])
+            self.assertTrue(argv[2].endswith(name))
+            self.assertEqual(
+                argv[3],
+                f"some-dts-cell:{pdc.QA_DTS_CONTEXT_DESCRIPTORS_DIR}/{name}",
+            )
+
+    def test_context_descriptors_parse_with_expected_docbases(self):
+        import xml.etree.ElementTree as ET
+
+        base = (
+            self._real_repo_root()
+            / "docker" / "scripts" / "qa_fixtures" / "published-site"
+            / "context-descriptors"
+        )
+        expected = {
+            "published-site.xml": pdc.QA_DTS_PUBLISHED_DOCBASE,
+            "web_resources.xml": pdc.QA_DTS_WEB_RESOURCES_DOCBASE,
+        }
+        for name, doc_base in expected.items():
+            root = ET.parse(str(base / name)).getroot()
+            self.assertEqual(root.tag, "Context")
+            self.assertEqual(root.get("docBase"), doc_base)
+
+    def test_publishing_server_manifest_matches_constants(self):
+        import json
+
+        manifest = json.loads(
+            (
+                self._real_repo_root()
+                / "docker" / "scripts" / "qa_fixtures" / "published-site"
+                / "publishing-server.json"
+            ).read_text(encoding="utf-8")
+        )
+        self.assertEqual(manifest["container"], pdc.QA_DTS_CONTAINER)
+        self.assertEqual(
+            manifest["tomcatServerDir"], pdc.QA_DTS_SERVER_DIR
+        )
+        by_file = {c["contextFile"]: c for c in manifest["contexts"]}
+        self.assertEqual(
+            by_file["published-site.xml"]["path"],
+            pdc.QA_DTS_PUBLISHED_CONTEXT_PATH,
+        )
+        self.assertEqual(
+            by_file["web_resources.xml"]["path"],
+            pdc.QA_DTS_WEB_RESOURCES_CONTEXT_PATH,
+        )
+        self.assertEqual(
+            by_file["web_resources.xml"]["docBase"],
+            pdc.QA_DTS_WEB_RESOURCES_DOCBASE,
+        )
+
+    def test_publish_fixture_dry_run_prints_plan_and_urls(self):
+        rc, out = self.runner.run(["qa-publish-fixture"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-publish-fixture", out)
+        self.assertIn("QA_DETAIL:publish-fixture-plan", out)
+        self.assertIn(pdc.QA_DTS_PUBLISHED_DOCBASE, out)
+        # Stub root carries no fixture: plan still prints, gap is named.
+        self.assertIn("QA_DETAIL:fixture-incomplete", out)
+        self.assertRegex(
+            out, r"PUBLISHED_SITE_URL=http://127\.0\.0\.1:\d+/published-site/"
+        )
+        self.assertRegex(
+            out,
+            r"PUBLISHED_CATEGORY_URL=http://127\.0\.0\.1:\d+/published-site/category/",
+        )
+
+    def test_publish_fixture_fails_fast_when_fixture_incomplete(self):
+        rc, out = self.runner.run(["qa-publish-fixture"], dry_run=False)
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("RESULT:FAIL STEP:qa-publish-fixture", out)
+        self.assertIn("DETAIL:fixture-incomplete", out)
+
+    def test_publish_fixture_fails_fast_when_dts_cell_missing(self):
+        with unittest.mock.patch.object(
+            pdc, "qa_fixture_missing_rel_paths", return_value=[]
+        ), unittest.mock.patch.object(
+            pdc, "_docker_container_present", return_value=False
+        ):
+            rc, out = self.runner.run(["qa-publish-fixture"], dry_run=False)
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("RESULT:FAIL STEP:qa-publish-fixture", out)
+        self.assertIn("DETAIL:dts_container_missing", out)
+
+    def test_publish_fixture_real_run_prints_served_urls(self):
+        logged = []
+
+        def fake_logged(label, argv, **kwargs):
+            logged.append(label)
+            return pdc.EXIT_OK, Path(self.td.name) / "fake.log"
+
+        with unittest.mock.patch.object(
+            pdc, "qa_fixture_missing_rel_paths", return_value=[]
+        ), unittest.mock.patch.object(
+            pdc, "_docker_container_present", return_value=True
+        ), unittest.mock.patch.object(
+            pdc, "_run_logged", side_effect=fake_logged
+        ):
+            rc, out = self.runner.run(["qa-publish-fixture"], dry_run=False)
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertEqual(
+            logged,
+            [
+                "qa-publish-fixture-mkdir",
+                "qa-publish-fixture-copy-1",
+                "qa-publish-fixture-copy-2",
+                "qa-publish-fixture-copy-3",
+            ],
+        )
         self.assertIn("PUBLISHED_SITE_URL=", out)
         self.assertIn("PUBLISHED_CATEGORY_URL=", out)
 

@@ -52,6 +52,13 @@ paths-ignore:
   - "modules/perc-packages/**/jquery.qtip.js"
   - "modules/perc-packages/**/jquery*.js"
   - "modules/perc-toolkit/src/main/resources/InstallDir/**"
+  # QA-cell fixture edition output (spec 2402-qa-dts-publish, #6237 slice 3
+  # #6243): publish-time web_resources bytes copied verbatim from pinned
+  # npm distributables (jquery, jquery-ui, jquery.fancytree) plus static
+  # fixture pages. Not production attack surface; vendor bytes must stay
+  # byte-identical to the published artifacts (license banners intact), so
+  # sink-line suppressions inside them are not an option.
+  - "docker/scripts/qa_fixtures/**"
 
 # Local model pack definitions under .github/codeql/models (for docs / future GHCR).
 # GHA rejects local path packs; do not pass via workflow packs:. Rely on runtime

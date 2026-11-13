@@ -1,0 +1,29 @@
+{
+  "name": "qa-fixture-published",
+  "description": "Fixture publishing server for the --with-dts QA cell (spec specs/2402-qa-dts-publish/, epic #6237, slice 3 #6243). Points at the in-cell DTS host alias; the fixture edition output under published-site/ is what a real edition publish would write to the Tomcat static dir.",
+  "deliveryType": "filesystem",
+  "hostAlias": "localhost",
+  "container": "perc-matrix-dts-h2",
+  "tomcatServerDir": "/opt/Percussion/Deployment/Server",
+  "contexts": [
+    {
+      "contextFile": "published-site.xml",
+      "docBase": "/opt/Percussion/Deployment/Server/published-site",
+      "path": "/published-site",
+      "source": "published-site/index.html + published-site/category/"
+    },
+    {
+      "contextFile": "web_resources.xml",
+      "docBase": "/opt/Percussion/Deployment/Server/published-site/web_resources",
+      "path": "/web_resources",
+      "source": "published-site/web_resources/ (publish-time web_resources tree)"
+    }
+  ],
+  "pages": [
+    { "urlPath": "/published-site/", "fixture": "published-site/index.html" },
+    {
+      "urlPath": "/published-site/category/",
+      "fixture": "published-site/category/index.html"
+    }
+  ]
+}
