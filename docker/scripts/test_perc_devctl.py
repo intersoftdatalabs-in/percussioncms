@@ -1462,6 +1462,126 @@ class TestQaWithDts(unittest.TestCase):
         self.assertIn("PUBLISHED_CATEGORY_URL=", out)
 
 
+class TestQaPublishFixture(unittest.TestCase):
+    """Slice 3 (#6243): fixture publish into the in-cell DTS Tomcat."""
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo_root = _stub_repo_root(Path(self.td.name))
+        matrix = self.repo_root / "docker" / "scripts" / "matrix-install-smoke.py"
+        matrix.write_text("# stub\n", encoding="utf-8")
+        self.runner = _CliRunner(self.repo_root)
+        self._slog = unittest.mock.patch.object(
+            pdc, "_docker_read_server_log", return_value=""
+        )
+        self._slog.start()
+        self.addCleanup(self._slog.stop)
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+
+    def test_dry_run_prints_repointed_contract(self):
+        os.environ["DTS_HOST_PORT"] = "19983"
+        rc, out = self.runner.run(["qa-publish-fixture"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-publish-fixture", out)
+        self.assertIn(
+            "PUBLISHED_SITE_URL=http://127.0.0.1:19983", out
+        )
+        self.assertIn(
+            "PUBLISHED_CATEGORY_URL=http://127.0.0.1:19983/category.html",
+            out,
+        )
+
+    def test_dry_run_default_banner_placeholder_unchanged(self):
+        """AC5: qa-up placeholder still the DTS origin root (slice 3)."""
+        os.environ["DTS_HOST_PORT"] = "19983"
+        rc, out = self.runner.run(["qa-publish-fixture"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        # The publish command repoints; the qa-up banner keeps its root
+        # placeholder (asserted by test_qa_up_with_dts_dry_run_banner).
+        self.assertNotIn("PUBLISHED_CATEGORY_URL=http://127.0.0.1:19983/\n", out)
+
+    def test_missing_dts_cell_fails_fast(self):
+        import io
+        from contextlib import redirect_stdout
+        buf = io.StringIO()
+        with unittest.mock.patch.object(
+            pdc, "_docker_container_present", return_value=False
+        ):
+            with redirect_stdout(buf):
+                rc = pdc.main(
+                    ["--repo-root", str(self.repo_root),
+                     "qa-publish-fixture",
+                     "--dts-url", "http://127.0.0.1:19983",
+                     "--timeout-seconds", "10"]
+                )
+        out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("RESULT:FAIL STEP:qa-publish-fixture", out)
+        self.assertIn("DETAIL:dts_container_missing", out)
+
+    def test_live_deploy_copies_tree_and_verifies_contract(self):
+        import io
+        from contextlib import redirect_stdout
+        # Pre-seed the CMS pull dir (mocked docker cp is a no-op).
+        staging = self.repo_root / "tmp" / "qa-fixture-published"
+        pull_web = staging / ".cms-pull" / "web_resources"
+        import qa_publish_fixture as qpf
+
+        for asset in qpf.REQUIRED_PUBLISHED_ASSETS:
+            target = pull_web / Path(*asset.split("/")).relative_to(
+                qpf.CMS_WEB_RESOURCES_DIR
+            )
+            target.parent.mkdir(parents=True, exist_ok=True)
+            target.write_text("/* bytes */", encoding="utf-8")
+        captured = []
+
+        def fake_run(argv, *args, **kwargs):
+            captured.append(list(argv))
+            return subprocess.CompletedProcess(
+                args=argv, returncode=0, stdout="", stderr=""
+            )
+
+        def fake_curl(url, timeout=5.0):
+            return 404 if "dynatree" in url else 200
+
+        buf = io.StringIO()
+        with unittest.mock.patch.object(
+            pdc, "_docker_container_present", return_value=True
+        ), unittest.mock.patch.object(
+            pdc.subprocess, "run", side_effect=fake_run
+        ), unittest.mock.patch.object(
+            pdc, "_curl_status", side_effect=fake_curl
+        ), unittest.mock.patch.object(
+            pdc.time, "sleep"
+        ):
+            with redirect_stdout(buf):
+                rc = pdc.main(
+                    ["--repo-root", str(self.repo_root),
+                     "qa-publish-fixture",
+                     "--dts-url", "http://127.0.0.1:19983",
+                     "--timeout-seconds", "10"]
+                )
+        out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-publish-fixture", out)
+        self.assertIn(
+            "PUBLISHED_CATEGORY_URL=http://127.0.0.1:19983/category.html",
+            out,
+        )
+        argv_strs = [" ".join(a) for a in captured]
+        self.assertTrue(
+            any("mkdir" in a and "ROOT" in a for a in argv_strs),
+            msg=f"expected ROOT mkdir in {captured!r}",
+        )
+        self.assertTrue(
+            any(a[:2] == ["docker", "cp"] for a in captured),
+            msg=f"expected docker cp in {captured!r}",
+        )
+        self.assertTrue((staging / "site" / "category.html").is_file())
+
+
 class TestMain(unittest.TestCase):
     def test_main_help(self):
         with self.assertRaises(SystemExit) as cm:
