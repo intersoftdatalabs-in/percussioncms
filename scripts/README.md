@@ -511,7 +511,8 @@ Preflight/Reconcile/Triage agents are skipped when the script fills
 
 - **Purpose**: one-per-parent product queue; skip epics, covering OPEN PRs,
   assigned / In Progress / NotSafe / migrated; emit
-  peer-eligible and cluster_recommended skip signals.
+  peer-eligible and cluster_recommended skip signals. `qa task` / `QA (#N)`
+  tickets are ordinary implement candidates when unassigned.
 - **Usage**:
 
   ```bash
@@ -534,8 +535,8 @@ Preflight/Reconcile/Triage agents are skipped when the script fills
   branch; already-shipped issues routed out via merged-PR `Fixes #N` (`--merged-prs`,
   `already_merged_via#PR` — close still gated on evidence);
   at most one implement item per parent; p7/p8 only in `--low-slots`;
-  human-QA handoff tickets excluded by routing label (`--qa-label`, default
-  `qa task`) or `QA (#N)` title backstop (label-less tickets must not eat seats);
+  `qa task` / `QA (#N)` tickets queue as ordinary implement candidates when
+  unassigned (agents do QA work; assigned ones stay out);
   debt rotation is cross-tier exclusion + win-cooldown (`--debt-exclude` /
   `--debt-seated`, windowed host input so entries age out, `--debt-seed` nightly).
 - **Tests**: `python3 scripts/test_night_decision_front.py`

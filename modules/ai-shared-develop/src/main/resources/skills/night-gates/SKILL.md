@@ -1,14 +1,14 @@
 ---
 name: night-gates
 description: >-
-  Build / merge / handoff hard gates for the opencode night-issue-prs workflow
+  Build / merge hard gates for the opencode night-issue-prs workflow
   (mirrors .grok/workflows/night-issue-prs.rhai v2.2.4). Use when a sub-agent
-  opens a PR, clusters PRs, or proposes human-QA handoff, and when the host
-  agent enforces C1–C5 / B1–B3 / Q1–Q8. Skip if you are not running
+  opens a PR or clusters PRs, and when the host
+  agent enforces C1–C5 / B1–B3. Skip if you are not running
   night-issue-prs.
 ---
 
-# night-gates — opencode workflow build / merge / handoff gates
+# night-gates — opencode workflow build / merge gates
 
 ## Read first
 
@@ -22,7 +22,7 @@ description: >-
 
 ## Hard rules
 
-These apply to **every** Work / Cluster / Human-QA step in the workflow. The
+These apply to **every** Work / Cluster step in the workflow. The
 host agent enforces them; sub-agents produce the evidence. This list is the
 distilled opencode subset of the exhaustive hard-bans catalogue in
 `.grok/workflows/README.md` → "Hard bans" (C1–C5 / B1–B3 / hot-path / closing /
@@ -36,7 +36,7 @@ worktree); when in doubt, defer to that source of truth.
    TS. Never hardcode `/` or `\` in filesystem joins.
 3. **Evidence in the PR body.** Every gate references a section of the
    structured PR body the Work sub-agent must populate. A PR without
-   `build_evidence` is **failed** by the host, not human-QA-eligible.
+   `build_evidence` is **failed** by the host.
 4. **Erlang is always a sub-agent** and **MAY APPROVE + squash-merge**
    when LGTM + checks green. Work must spawn Erlang before `gh pr create`
    (`allow_merge=false`). Host Erlang leftover (before Work) and this-run
@@ -100,7 +100,7 @@ Every Work PR body includes the structured sections:
 ```
 
 If any section is missing, host rewrites status to `failed /
-blocked=missing_build_evidence` and skips human-QA handoff.
+blocked=missing_build_evidence`.
 
 ### C5 — UI live proof (HARD for UI)
 
@@ -120,7 +120,7 @@ Triggers: WebUI / SPA / product chrome / user-visible browser flows change.
 5. Record commands + pass counts + console-clean + server.log-clean in
    `build_evidence` / PR body.
 
-**No** human-QA handoff and **no** UI `pr_opened` without C5.
+**No** UI `pr_opened` without C5.
 
 **Never** HTTP-poll `/Rhythmyx/login` after `server.log` shows
 `Failed startup of context` / `NoClassDefFoundError` — use `qa-health` and
@@ -151,35 +151,6 @@ candidate, so it must compile and test **before** it exists.
 **Host fail-close.** If cluster PR is opened without `BUILD SUCCESS` in
 `build_evidence`, host rewrites status to `failed /
 blocked=missing_build_evidence`.
-
-## Human-QA handoff gates (Q1–Q8, HARD)
-
-Apply **after** Cycle verify only. The host never assigns Q1–Q8 work; the
-`human-qa` sub-agent does, and only when all gates pass.
-
-| Gate | Required |
-|------|----------|
-| **Q1** | PR exists, not draft, not superseded, mergeable. |
-| **Q2** | Independent review **APPROVE** (human or peer). Self-review does not count. |
-| **Q3** | Required checks **green** (one snapshot). |
-| **Q4** | C1 Maven clean-install evidence on every changed module. |
-| **Q5** | UI: C5 with **commands** in the PR body (not a self-claim). |
-| **Q6** | Slice complete enough for one QA session (not a fragment while siblings still break). |
-| **Q7** | No overlapping open QA ticket for the same surface. |
-| **Q8** | Cycle verify did **not** fail this PR. If `failed` / `skipped_budget` / agent failed: hand off **nothing**. If `failures_filed`: do not hand off PRs in `build_failures` / `playwright_failures`. If `skipped_disabled`: Q8 N/A (still require Q1–Q7). |
-
-If any gate fails: **no QA issue, no handoff.** Leave the PR open;
-comment `qa_deferred_quality`.
-
-When all gates pass, the `human-qa` sub-agent creates a GitHub issue:
-
-- **Title:** `QA (#N): <what to verify>`
-- **Assignee:** none — never `--assignee`, never a hardcoded login.
-  Route via **label** `${qa_label}` (default `qa task`); humans triage
-  that queue.
-- **Label:** `${qa_label}` (default `qa task`)
-- **Body:** Parent, PR URL(s), **numbered test plan**, pass / fail
-  criteria, out of scope, agent evidence.
 
 ## Cross-platform reminders (HARD)
 

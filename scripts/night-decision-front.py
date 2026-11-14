@@ -57,11 +57,6 @@ GATE_HINT_PATTERNS: list[tuple[str, "re.Pattern[str]"]] = [
         r"maintainer decision|decision needed|awaiting.*decision", re.I)),
     ("soak_gate", re.compile(r"\bsoak\b", re.I)),
 ]
-# QA handoff tickets are human-owned work and must never be queued as
-# implement rows — matched by routing label AND by title, because a
-# ticket created without labels (observed: #5799-#5801, label-less)
-# sails through a label-only check and eats an implement seat.
-QA_TITLE_RE = re.compile(r"^QA\s*\(#\d+", re.I)
 
 THRASH_HINTS = (
     "sitemanage-beans.xml",
@@ -345,18 +340,12 @@ def cluster_recommended(prs: list[dict], min_prs: int) -> bool:
     return False
 
 
-def rule_skip_issue(
-    issue: dict, qa_label: str = "qa task"
-) -> tuple[bool, str]:
+def rule_skip_issue(issue: dict) -> tuple[bool, str]:
     labels = {n.lower() for n in issue["labels"]}
     if "not safe for agents" in labels:
         return True, "not_safe_agents"
     if "in progress" in labels or "in-progress" in labels:
         return True, "in_progress"
-    if qa_label.lower() in labels:
-        return True, "human_qa"
-    if QA_TITLE_RE.match((issue["title"] or "").strip()):
-        return True, "human_qa_title"
     if "migrated" in labels:
         return True, "migrated"
     if issue["assignees"]:
@@ -485,7 +474,6 @@ def build_queue(
     low_slots: int,
     debt_exclude: set[int] | None = None,
     debt_seed: int | None = None,
-    qa_label: str = "qa task",
     debt_seated: set[int] | None = None,
     recent_blocked: set[int] | None = None,
     merged: dict[int, int] | None = None,
@@ -519,7 +507,7 @@ def build_queue(
     skipped = []
     for issue in issues:
         n = issue["number"]
-        skip, kind = rule_skip_issue(issue, qa_label)
+        skip, kind = rule_skip_issue(issue)
         if skip:
             skipped.append((n, kind))
             continue
@@ -690,7 +678,6 @@ def run(
     alerts_raw: list | None = None,
     debt_exclude: set[int] | None = None,
     debt_seed: int | None = None,
-    qa_label: str = "qa task",
     debt_seated: set[int] | None = None,
     work_dir: "Path | None" = None,
     merged_prs_raw: list | None = None,
@@ -701,7 +688,7 @@ def run(
     recent_blocked = recent_no_progress(work_dir) if work_dir is not None else set()
     queue, stats = build_queue(
         issues, prs, max_issues, low_slots, debt_exclude, debt_seed,
-        qa_label, debt_seated, recent_blocked, merged,
+        debt_seated, recent_blocked, merged,
     )
     signals = build_signals(issues, prs, self_model_label, cluster_min_prs)
     open_alert_count = count_open_alerts(alerts_raw)
@@ -795,14 +782,6 @@ def main(argv: list[str] | None = None) -> int:
         help="Explicit tech-debt count floor: guarantees at least N debt seats.",
     )
     p.add_argument("--self-model-label", default="model:grok-4.6")
-    p.add_argument(
-        "--qa-label",
-        default="qa task",
-        help=(
-            "Routing label for human QA handoff tickets. Issues carrying it "
-            "(or a 'QA (#N)' handoff title) are human-owned and never queued."
-        ),
-    )
     p.add_argument("--cluster-min-prs", type=int, default=3)
     p.add_argument(
         "--debt-exclude",
@@ -900,7 +879,6 @@ def main(argv: list[str] | None = None) -> int:
         alerts_raw,
         debt_exclude,
         args.debt_seed,
-        str(args.qa_label),
         debt_seated,
         issues_path.parent,
         merged_prs_raw=merged_prs_raw,

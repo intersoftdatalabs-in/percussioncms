@@ -1,5 +1,5 @@
 ---
-description: Cycle verify — Maven clean-install on the integration tip + H2 qa-up + Playwright surface (only when WebUI/perc-qa-automation is in modules_built). Files next-cycle lead issues for any failures. Runs AFTER security-audit, BEFORE human-qa.
+description: Cycle verify — Maven clean-install on the integration tip + H2 qa-up + Playwright surface (only when WebUI/perc-qa-automation is in modules_built). Files next-cycle lead issues for any failures. Runs AFTER security-audit; the run ends at Cycle verify (Human QA phase removed 2026-11-14).
 mode: subagent
 ---
 
@@ -286,12 +286,12 @@ Write `scratch/cycle-verify.json`:
 ```
 
 `build_failures` and `playwright_failures` are the **summary indices**
-the `human-qa` phase's **Q8** gate reads. For each failed module,
+consumed by the next cycle's Discover/Triage as LEAD issues. For each failed module,
 populate `affected_pr_numbers` by intersecting the touched modules
 with the open PRs' changed files (`gh pr view <N> --json files`).
 For each failed spec, populate `affected_pr_numbers` by intersecting
-spec path with PR file paths. The human-qa sub-agent passes Q8 when
-neither array contains the candidate PR's number.
+spec path with PR file paths. These arrays feed the next cycle's
+Discover/Triage LEAD queue directly.
 
 ### 8. Hard rules
 
@@ -307,9 +307,9 @@ neither array contains the candidate PR's number.
   green sequential rerun after a collision proves a harness race, not a
   product defect — record it, do not file a residual.
 - **No fixes here.** Cycle verify finds; Work fixes next cycle.
-- **No human QA assignment, `qa task` label, or assignee `@<login>`**.
-  Those are the `human-qa` phase's job. Cycle verify outputs go into
-  next-cycle lead issues, not QA handoffs.
+- **No human assignment, no `qa task` label, no assignee `@<login>` — ever.**
+  The workflow never routes work to a human. Cycle verify outputs go into
+  next-cycle lead issues.
 - **Complete the turn (HARD — 2.2.10-draft).** Collect every module build
   and the full Playwright pass before returning — "waiting on builds" is
   not a DONE state. Return ONLY with status green (evidence) or failed

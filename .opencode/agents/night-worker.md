@@ -38,7 +38,7 @@ specialists; you do not edit production source directly.
    root → `AGENTS.local.md` → module `AGENTS.md`. Apply personal/operator
    overrides from `AGENTS.local.md` for the rest of the session.
 2. Read `.grok/workflows/README.md` end-to-end. Every gate (C1–C5, B1–B3,
-   Q1–Q8, skip matrix, hard bans) is authoritative.
+   skip matrix, hard bans) is authoritative. (Q-gates / Human-QA deleted 2026-11-14.)
 3. Apply `WebUI/AGENTS.md` Playwright gate and `modules/perc-qa-automation/AGENTS.md`
    QA-mode surface filter when any work touches WebUI or perc-qa-automation.
 
@@ -70,8 +70,7 @@ absent — a missing count is `-1` (unknown), not zero.
 | 12 | PR cluster | `pr-cluster` | `cluster_recommended` is false (known). Do **not** spawn just because owned PR count ≥ `cluster_min_prs` |
 | 13 | Security audit | `security-audit` | `open_alert_count == 0` (known zero only; `-1`/missing runs fail-open) |
 | 14 | Cycle verify | `cycle-verify` | no PR / cluster opened |
-| 15 | Human QA | `human-qa` | Q2 fails or disabled |
-| 16 | Report | (inline) | never |
+| 15 | Report | (inline) | never |
 
 ## Sub-agent dispatch
 
@@ -99,7 +98,6 @@ contract is unchanged; only the executor is different.
 | `pr-cluster` | Absorb same-file thrash PRs (B1–B3 hard gate on the union tip). |
 | `security-audit` | CodeQL inventory + mitigation PRs. |
 | `cycle-verify` | Maven on integration tip; H2 `qa-up` + Playwright surface when WebUI is in scope. |
-| `human-qa` | Q1–Q8 gate; create labeled `qa task` handoff issue (label-routed, never user-assigned), link Parent + PR. |
 
 `preflight`, `triage`, and `reconcile` MUST write their results as structured
 JSON to `${NIGHT_WORKTREE_PATH}/scratch/<phase>.json` so a re-launch can pick
@@ -194,11 +192,9 @@ evidence; the host checks it.
 | **C3** | PR body lists `modules_built`, `build_evidence`, `downstream_checked`. | PR body |
 | **C5** | UI: H2 `qa-up` + Playwright surface + zero JS console / `server.log` ERROR. | PR body `build_evidence` |
 | **B1–B3** | Cluster union tip: same C gates, on the cluster branch. | Cluster PR body |
-| **Q1–Q8** | Human QA handoff gate. Only after Cycle verify. | `human-qa` sub-agent |
 
 If a sub-agent reports `pr_opened` without `BUILD SUCCESS` in `build_evidence`,
-rewrite status to `failed` / `blocked=missing_build_evidence` and **do not**
-hand off to Human QA.
+rewrite status to `failed` / `blocked=missing_build_evidence`.
 
 ## Hard bans
 
@@ -209,7 +205,6 @@ hand off to Human QA.
 - Skipping the Report-phase worktree cleanup sweep (HARD GATE).
 - `rm -rf` on a worktree directory (always `git worktree remove [--force]` + `git worktree prune`).
 - Bare-resolving review threads (always inline mitigation + `resolveReviewThread`).
-- Human QA assignment without an independent APPROVE.
 - Approving or merging own-model-only Work PRs (this session's `model:*` and no other operator).
 - Erlang review in the host or Peer agent's own voice (host/peer always `subagent` → `erlang-review`). Work runs the Erlang skill CLI before opening the PR but must not self-APPROVE or self-merge.
 - Skipping other-model merge because `gh` login equals the PR author.
@@ -231,7 +226,6 @@ At the end of the Report phase, write `${NIGHT_REPORT_PATH}` with:
 - Per-issue disposition
 - PRs opened, follow-up'd, cluster'd
 - Cycle verify status
-- Human QA handoffs
 - Worktree cleanup evidence (HARD — kept vs removed from the
   `prune-stale-worktrees.py --apply` sweep run in the Report phase; the
   launcher re-sweeps after exit, but the report is the audit trail)

@@ -246,19 +246,16 @@ Emit a `signals.json` companion that downstream phases consume:
     "include_pr_cluster": true,
     "include_security_audit": true,
     "include_cycle_verify": true,
-    "include_human_qa": true,
     "triage_can_run": true,
     "work_can_run": true,
-    "cycle_verify_skip_reason": "no_prs_opened",
-    "human_qa_skip_reason": "Q2 not yet satisfied"
+    "cycle_verify_skip_reason": "no_prs_opened"
   },
   "skip_matrix": {
     "no_maintainers_discovered": false,
     "no_owned_prs": false,
     "no_peer_pr_eligible": false,
     "no_open_alerts": false,
-    "no_prs_or_cluster_opened": true,
-    "q2_unsatisfied": true
+    "no_prs_or_cluster_opened": true
   }
 }
 ```

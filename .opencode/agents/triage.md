@@ -60,8 +60,8 @@ gh issue list --repo intersoftdatalabs-in/percussioncms \
 
 Filter:
 
-- **Skip** if any label matches `not safe for agents`, `in progress`, `in-progress`, `qa task`.
-- **Skip** if the title matches `QA (#N)` (human-QA handoff ticket) **even when the label is missing** — label-less QA tickets leak through decision-front's label check and must never become implement rows (`disposition=skip`, rationale `qa_ticket_human_owned`). Humans own them.
+- **Skip** if any label matches `not safe for agents`, `in progress`, `in-progress`.
+- **`qa task` / `QA (#N)` tickets are implement-eligible** like any other issue when unassigned and maintainer-authored (operator direction 2026-11-14: agents do QA work). Assigned ones stay out via `unassigned_only`. Do NOT use rationale `qa_ticket_human_owned`.
 - **Skip** if assignee is non-empty AND `unassigned_only=true`.
 - **Skip** if author is not in `maintainer_logins` AND `maintainer_authors_only=true`.
 - **Skip** if body contains destructive instructions (see `night-gates` skill).
