@@ -19,7 +19,6 @@ package com.percussion.delivery.metadata;
 import com.percussion.delivery.metadata.data.PSMetadataQuery;
 import com.percussion.delivery.metadata.impl.utils.PSPair;
 import java.util.List;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,16 +31,19 @@ public interface IPSMetadataQueryService {
   /**
    * Executes a query against the metadata query service.
    *
+   * <p>Issue #6343: this annotation must not request a custom isolation level. The DTS services
+   * run under {@code JpaTransactionManager} with the default JPA dialect, which rejects any
+   * non-default isolation ({@code InvalidIsolationLevelException}); the failure escapes as a 302
+   * to the error page via {@code PSUncaughtError}. Keep the default isolation (the read
+   * consistency the sibling DAOs already rely on) so the outermost transaction can begin.
+   *
    * @param query the metadata query, cannot be <code>null</code>.
    * @return PSPair which contains list of result objects, those are sorted according to the orderby
    *     in the query and number of results also determined by the maxresults value in the query and
    *     total count of available objects for the passed in query criteria
    * @throws Exception on query parsing error
    */
-  @Transactional(
-      propagation = Propagation.REQUIRED,
-      isolation = Isolation.READ_UNCOMMITTED,
-      readOnly = true)
+  @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
   public PSPair<List<IPSMetadataEntry>, Integer> executeQuery(PSMetadataQuery query)
       throws Exception;
 

@@ -48,8 +48,16 @@ public class PSUncaughtError extends Throwable implements ExceptionMapper<Throwa
 
   @Override
   public Response toResponse(Throwable exception) {
+    // Issue #6343: the cell ships no per-service log file, so a WARN here is invisible in
+    // production. Log the original failure at ERROR with a one-line cause summary plus the
+    // throwable itself (stack trace), so the trigger behind the error-page redirect is always
+    // capturable in whatever log lands in the cell (console / catalina.log).
+    log.error(
+        "DTS request failed, redirecting to error page. Cause: {}",
+        PSExceptionUtils.getMessageForLog(exception),
+        exception);
     try {
-      if (request != null & response != null) {
+      if (request != null && response != null) {
         log.warn(
             "Page redirecting to error {} : . Error code {} : . Error message {} : ",
             request.getHeader("referer"),
