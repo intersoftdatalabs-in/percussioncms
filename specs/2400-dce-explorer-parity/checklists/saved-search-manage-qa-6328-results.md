@@ -7,7 +7,40 @@ Merged PR under test: #6300
 (`test(qa): manage-dialog a11y gate in explorer-saved-search-manage spec (#6180)`)
 Playwright spec:
 `modules/perc-qa-automation/frontend/tests/explorer-saved-search-manage.spec.js`
-Result: **PASS — agent first-pass green (5 passed, 0 skipped)**
+Result: **CONDITIONAL PASS — automated gates green (5 passed, axe clean,
+keyboard traversal executed); 2 observations below for human sign-off.
+Issue stays open.**
+
+## Keyboard walk (executed 2026-11-14 on the same cell)
+
+Rename Manage dialog opened on a throwaway saved search; Tab × 8 from the
+Rename button, Shift+Tab × 1, then Escape (Playwright `page.keyboard`):
+
+Tab order (activeElement after each Tab):
+
+1. `BUTTON[search-panel-saved-rename]` "Rename saved search"
+2. `BUTTON[search-panel-saved-delete]` "Delete saved search"
+3. `INPUT[search-panel-saved-rename-input]` (prefilled with current label)
+4. `BUTTON[search-panel-saved-rename-save]` "Save name"
+5. `BUTTON[search-panel-saved-manage-cancel]` "Cancel"
+6. → focus leaves the dialog to background page chrome (footer
+   "Intersoft Data Labs" link, `BODY`, nav `Home` link …)
+
+Shift+Tab from the nav link returns one step (symmetric). Dialog chrome:
+`role="dialog" aria-modal="true" aria-label="Rename saved search"`.
+
+Observations for human sign-off (not axe failures — spec stays green):
+
+- **O1 — Escape does not dismiss the dialog** (`escapeClosed: false`;
+  Cancel click closes it and REST confirms the label unchanged). WAI-ARIA
+  dialog guidance recommends Escape-to-dismiss; axe does not fail it.
+- **O2 — focus is not trapped**: after Cancel, Tab continues into the
+  background page chrome behind the `aria-modal` dialog. Sane order, but a
+  strict modal would cycle within the dialog.
+
+Neither observation is a serious a11y violation per the axe
+serious+critical gate; both are recorded here so the human sign-off walk
+can disposition them.
 
 ## Environment
 
@@ -23,7 +56,7 @@ Result: **PASS — agent first-pass green (5 passed, 0 skipped)**
 | # | QA step | Automated equivalent | Result |
 |---|---------|----------------------|--------|
 | 1 | Run `npm run test:surface -- --path tests/explorer-saved-search-manage.spec.js` and confirm 5 passed, zero console errors | 5 passed (10.3s), exit 0; every test asserts `pageErrors` empty (zero `pageerror` / console `error` events in-spec) | PASS |
-| 2 | In the Explorer UI open Saved Search → Manage dialog; keyboard-walk (Tab / Shift+Tab / Escape) and confirm focus order is sane and no serious a11y violations surface | `rename and delete dialogs have zero serious a11y violations`: `expectNoSeriousA11yViolations` (axe, serious+critical) run against the open rename dialog and the open delete dialog; both green. Live-proof screenshot of the open rename dialog committed at `docs/ai-generated/proofs/issue-6328-saved-search-manage.png` shows labelled input + Save name / Cancel buttons | PASS-automated (axe gate green; manual Tab/Shift+Tab/Escape walk NOT executed — pending human sign-off, issue left open) |
+| 2 | In the Explorer UI open Saved Search → Manage dialog; keyboard-walk (Tab / Shift+Tab / Escape) and confirm focus order is sane and no serious a11y violations surface | `rename and delete dialogs have zero serious a11y violations`: `expectNoSeriousA11yViolations` (axe, serious+critical) run against the open rename dialog and the open delete dialog; both green. Live-proof screenshot of the open rename dialog committed at `docs/ai-generated/proofs/issue-6328-saved-search-manage.png` shows labelled input + Save name / Cancel buttons. **Keyboard walk executed** (see section above): Tab order sane through input → Save → Cancel; O1 Escape does not dismiss; O2 focus not trapped | CONDITIONAL PASS (axe green + traversal executed; O1/O2 pending human disposition, issue left open) |
 | 3 | Confirm dialog Cancel/close leaves saved searches unchanged | `rename cancel keeps the row and writes nothing` (REST label unchanged after Cancel) and `delete cancel keeps the row and deletes nothing` (row still in picker + REST after Cancel) | PASS |
 
 Out of scope (per issue): saved-search CRUD behavior itself; non-manage-dialog
