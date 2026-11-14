@@ -19,7 +19,7 @@ Project workflows live here and are invocable by name (e.g. `/night-issue-prs` o
 Unattended overnight worker. Specialists spawn only when Preflight (or this-run results) show work; empty phases do not pay a full agent.
 
 1. **Identity** — live **Grok Build** version (`grok --version`) and **session model** (e.g. `grok-4.6`). Skipped when `coding_tool`, `coding_tool_version`, and `model_id` are all passed as args.  
-2. **Decision front** (2.2.0) — one thin agent runs `scripts/night-decision-front.py`. Emits skip signals, one-per-parent implement queue, covering-PR skips. **Skips** the Preflight/Reconcile/Triage Grok walks when `signals_complete` and the queue is full. Fallback to those agents if the script fails. Does not merge. Does not create new DESIGN_GAPS children (Triage still runs when slots remain). Excludes human-QA handoff tickets (`qa task` label or `QA (#N)` title — label-less tickets leak through a label-only check) so they never eat implement seats. The host feeds `scratch/alerts.json` (`gh api code-scanning/alerts`, open only) via `--alerts` so `open_alert_count` is real; a failed fetch omits the flag → count `-1` (unknown, audit runs fail-open), never faked `0`.  
+2. **Decision front** (2.2.0) — one thin agent runs `scripts/night-decision-front.py`. Emits skip signals, one-per-parent implement queue, covering-PR skips. **Skips** the Preflight/Reconcile/Triage Grok walks when `signals_complete` and the queue is full. Fallback to those agents if the script fails. Does not merge. Does not create new DESIGN_GAPS children (Triage still runs when slots remain). `qa task` / `QA (#N)` tickets queue as ordinary implement candidates when unassigned (operator direction 2026-11-14: agents do QA work). The host feeds `scratch/alerts.json` (`gh api code-scanning/alerts`, open only) via `--alerts` so `open_alert_count` is real; a failed fetch omits the flag → count `-1` (unknown, audit runs fail-open), never faked `0`.  
 3. **Preflight** (fallback) — stale **In Progress** cleanup + **compact** issue inventory + skip signals.  
 4. **Reconcile** (fallback) — close issues that are **100% implemented**. Emit `implement_candidates`.  
 5. **PR follow-up PRE** — only if Preflight found merge blockers (conflicts or open review threads).  
@@ -31,13 +31,10 @@ Unattended overnight worker. Specialists spawn only when Preflight (or this-run 
 11. **PR follow-up POST** — only if this run opened PRs or PRE left blockers. When no leftover blockers, POST touches **this-run PRs only**.  
 12. **PR cluster** — only if Preflight `cluster_recommended` is true, or skip-signals are unknown (fail-open). Do **not** spawn a cluster agent just because `owned_pr_count >= cluster_min_prs`.  
 13. **Security audit** — only if `open_alert_count > 0` (known). Count `-1`/missing (alert fetch failed) runs fail-open — never treat unknown as zero.  
-14. **Cycle verify** — only if a PR or cluster opened. **Maven on the integration tip only** (does not re-install every PR head). **Playwright / qa-up only** when WebUI or `perc-qa-automation` is in `modules_built`.  
-15. **Human QA** — only if an independent APPROVE already exists (Q2 can pass). Erlang squash-merge counts. Work self-review does not.  
-16. **Report** — written in-script to `scratch/night-report.md` (**no report agent**).
+14. **Cycle verify** — only if a PR or cluster opened. **Maven on the integration tip only** (does not re-install every PR head). **Playwright / qa-up only** when WebUI or `perc-qa-automation` is in `modules_built`. The run ends at Cycle verify; no human-handoff phase exists (removed 2026-11-14).
+15. **Report** — written in-script to `scratch/night-report.md` (**no report agent**). Former phase 15 (Human QA) removed 2026-11-14; numbers re-seated.
 
-**Human QA handoff (after Cycle verify, default on):** when a this-run PR is **ready for human QA** *and* cycle verify did not fail it, create a **`qa task`** issue with a numbered **test plan**, routed to the QA queue by **label only** (never assign a GitHub user — no hardcoded login), link Parent + PR. Pause: `include_human_qa: false`.
-
-**Token skip (2.1.0):** Host skip is still fail-open on **unknown** counts (`-1`), but **known zeros** and sentinel `none` strings do not spawn specialists.
+**Token skip (2.1.0):** Host skip is still fail-open on **unknown** counts (`-1`), but **known zeros** and sentinel `none` strings do not spawn specialists. No human-handoff phase exists — Cycle verify failures become next-cycle p1 leads instead.
 
 **Merge policy (2.0.8+):** Goal is **merged bug-free PRs** with **residual issues logged** for leftover scope. Work **opens PRs only** (never APPROVEs or merges its own). **Erlang** (independent sub-agent) **MAY APPROVE and squash-merge** when LGTM + checks green. Hard-gate findings are **fixed on the same PR** (`erlang-fix`) then re-reviewed (one retry). Out-of-scope leftovers become residual GitHub issues — they do not block merge of in-scope work. **Preexisting machine bugs and complexity/cognitive-complexity findings in PR-touched files are never merge blockers, but they are never dropped either:** Erlang files deduped, capped (`max_erlang_residuals`, default 3) `tech-debt` residuals per PR — `p7` for preexisting **bug** rows, `p8` for **complexity/suggestion** rows (`nit` never files) — and records them in `residual_issue_urls` (`bugs_found` stays in-diff only). GitHub same-login APPROVE rejection → COMMENT LGTM + `--admin` merge. Oversized issues become child issues, not mega-PRs.
 
@@ -71,15 +68,15 @@ Learned from **#2700 / #2761**: making `PSComponentSummary` `final` in **system*
 | **C1 — changed modules** | For **each** changed Maven module: standalone `mvnw clean install` from the module dir (includes **testCompile** + tests). **No** `-DskipTests` / `-Dmaven.test.skip`. **No** “when practical.” |
 | **C2 — API shape / reverse-deps** | When a type becomes `final`/`sealed`, or public/protected (or package-visible cross-module) API signatures change: (1) monorepo grep for `extends <Type>` and `new <Type>() {`; (2) standalone clean install on **known reverse-deps** (e.g. system/objectstore → `modules/perc-toolkit`; rest → `projects/sitemanage`). |
 | **C3 — evidence** | Structured Work result + PR body must include `modules_built`, `build_evidence` (commands + BUILD SUCCESS / Tests run: N), and `downstream_checked` (`none` only when C2 did not apply). |
-| **C5 — UI live proof (HARD for UI)** | When WebUI/SPA/product chrome/user-visible browser flows change: (1) `python docker/scripts/perc-devctl.py qa-up` then **`qa-health`** (H2 Docker cell; freeport `TEST_CMS_URL`); (2) deploy **every** C1 `modules_built` jar **and reverse-deps** (if `sitemanage` changed, also `perc-system`) into `webapps/Rhythmyx/WEB-INF/lib/` — not `deploy-jar --target cms` / `jetty/base/lib`; restart Jetty **inside** the cell (do **not** `docker restart`); **`qa-health` again**; (3) run **surface-filtered Playwright** for the feature (`npm run test:surface -- --path …`) and golden smoke when shell/login/explorer is touched; (4) **zero** JS console errors and **zero** related `server.log` ERROR/FATAL during the run; (5) record commands + pass counts + console-clean + server.log-clean in `build_evidence` / PR body. **No** human QA handoff and **no** UI `pr_opened` without C5. Never HTTP-poll `/Rhythmyx/login` after `Failed startup of context`. See `modules/perc-qa-automation/README.md`. |
+| **C5 — UI live proof (HARD for UI)** | When WebUI/SPA/product chrome/user-visible browser flows change: (1) `python docker/scripts/perc-devctl.py qa-up` then **`qa-health`** (H2 Docker cell; freeport `TEST_CMS_URL`); (2) deploy **every** C1 `modules_built` jar **and reverse-deps** (if `sitemanage` changed, also `perc-system`) into `webapps/Rhythmyx/WEB-INF/lib/` — not `deploy-jar --target cms` / `jetty/base/lib`; restart Jetty **inside** the cell (do **not** `docker restart`); **`qa-health` again**; (3) run **surface-filtered Playwright** for the feature (`npm run test:surface -- --path …`) and golden smoke when shell/login/explorer is touched; (4) **zero** JS console errors and **zero** related `server.log` ERROR/FATAL during the run; (5) record commands + pass counts + console-clean + server.log-clean in `build_evidence` / PR body. **No** UI `pr_opened` without C5. Never HTTP-poll `/Rhythmyx/login` after `Failed startup of context`. See `modules/perc-qa-automation/README.md`. |
 
 Hard bans:
 
 * Open PR after only `compile` (without test-compile) or only a single focused unit test class when the module suite is the gate.
 * Claim “install green” without recording the command in `build_evidence`.
 * Treat p8 as exempt from C1–C3 (or C5 for UI).
-* Open a UI PR or create `QA (#N)` after only unit/Vitest green without H2 `qa-up` + Playwright surface pass.
-* Hand off broken UI for humans to discover (C5 is agent live proof; human QA is judgment/UAT after that).
+* Open a UI PR after only unit/Vitest green without H2 `qa-up` + Playwright surface pass.
+* Ship broken UI for humans to discover (C5 agent live proof is the bar for UI PRs).
 * Poll `/Rhythmyx/login` or wait on port-up after `server.log` shows `Failed startup of context` / `NoClassDefFoundError` — use `qa-health` and stop.
 * `docker restart perc-matrix-cms-h2` after a jar copy (reinstalls and wipes copies).
 * Hot-deploy `sitemanage` onto a `--skip-image-build` cell without a matching `perc-system` jar in `WEB-INF/lib`.
@@ -313,43 +310,11 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | `cluster_min_prs` | int | `3` | Min owned open PRs sharing thrash files to open a cluster (2–8) |
 | `include_security_audit` | bool | `true` | After PR cluster: inventory open code-scanning alerts; singleton Security Audit issue + mitigation PRs |
 | `max_security_prs` | int | `3` | Max CodeQL mitigation PRs per Security Audit pass (capped 1–8) |
-| `include_human_qa` | bool | `true` | **After Cycle verify only:** create a QA issue routed by label to the QA queue when Q1–Q8 pass. Work never routes to a human. Pause UAT: `include_human_qa: false` |
-| `qa_label` | string | `qa task` | Routing label for human QA handoff issues (the QA queue; no user assignment) |
+| `include_human_qa` | bool | removed | Removed 2026-11-14: the Human QA handoff phase no longer exists; the workflow never creates QA tickets |
+| `qa_label` | string | removed | Removed 2026-11-14 with the Human QA phase: `qa task` / `QA (#N)` tickets queue as ordinary implement candidates when unassigned. |
 | `max_prs` | int | `6` | Max open PRs per follow-up pass (capped 1-12). Raise on heavy conflict/thread debt nights |
 | `worktree_path` | string | empty | Override dedicated overnight worktree; empty = portable default under home |
 | `sync_branch` | string | `night-issue-prs-main` | Local mirror of `origin/<base_branch>` in the worktree |
-
-### Human QA handoff
-
-**When:** after Cycle verify only, **and** only if Preflight or peer review already sees an independent APPROVE (Q2 can pass). Same-night own-model Work PRs skip this phase. Work, POST, cluster, Security, and Cycle verify **must not** assign any human.
-
-**Handoff means the change is good enough for a human to spend time on.** It is not a dump of night PRs.
-
-`pr_opened` + UI/install is only a **candidate**. Do **not** hand off because the agent could not prove the fix — that is agent failure, not QA intake.
-
-Quality bar (all required before create **or** handoff). Evaluated **after Cycle verify**:
-
-| Gate | Required |
-|------|----------|
-| **Q1** | PR exists, not draft, not superseded, mergeable |
-| **Q2** | Independent review **APPROVE** (human or peer). Self-review does not count |
-| **Q3** | Required checks **green** (one snapshot) |
-| **Q4** | C1 Maven clean-install evidence on every changed module |
-| **Q5** | UI: C5 with **commands** in the PR body (not a self-claim) |
-| **Q6** | Slice complete enough for one QA session (not a fragment while siblings still break) |
-| **Q7** | No overlapping open QA ticket for the same surface |
-| **Q8** | Cycle verify did **not** fail this PR. If cycle verify `failed` / `skipped_budget` / agent failed: hand off **nothing**. If `failures_filed`: do not hand off PRs in `build_failures` / `playwright_failures`. If `skipped_disabled`: Q8 is N/A (still require Q1–Q7) |
-
-If any Q fails: **no QA issue, no handoff.** Leave the PR open; comment `qa_deferred_quality`.
-
-When the bar passes:
-
-1. Create a GitHub issue (avoid duplicates for same parent/PR).
-2. **Title:** `QA (#N): <what to verify>` (peer pattern also uses `QA (#N residual): …`).
-3. **Route by label only:** `qa task` (+ `8.2`, operator labels). No `--assignee`, no hardcoded login, no `@<login>` mention — humans triage the label queue.
-4. **Body:** Parent, PR URL(s), **numbered test plan**, pass/fail criteria, out of scope, agent evidence.
-
-Human QA issues are handoff work (label-queued), not unassigned residual implement slices.
 
 ### Issue lifecycle / close rules (no empty trackers)
 
@@ -362,7 +327,6 @@ Every open issue is either **worked** or **closed**. Merged-but-still-open is a 
 | Unassigned **QA: Failed** whose residual PR (or absorbing cluster) **merged** and the fail steps are addressed | **Close** the QA ticket. Do not keep it open waiting for a retest that never happens. |
 | **QA: Failed** residual merged but **other** fail steps remain | File/queue a **new** implement residual. Do not skip as “residual already filed.” |
 | Assigned **QA: To Be Tested** | Leave it — human owns it. |
-| Candidate for human QA (new this-run PR) | **Work:** record candidacy only — never route to a human. **After Cycle verify:** only if `include_human_qa=true` AND Q1–Q8 pass, create QA issue routed by `qa task` label. |
 | Remaining agent work | File **PR-sized** residual/child issues; parent stays open while children exist |
 | Open children or **open** linked PRs | **Do not close** the parent |
 
@@ -389,7 +353,7 @@ Playbook: `docs/ai-generated/tasks/gh-codeql-alerts/codeql-pr-playbook.md`.
 
 ### Cycle verify (after Security — next-cycle leads)
 
-Runs **after** Security audit and **before** Human QA. This is the quality gate that replaced dumping unready work on humans.
+Runs **after** Security audit as the run's terminal quality gate. This replaced dumping unready work on humans.
 
 | Rule | Behavior |
 |------|----------|
@@ -398,7 +362,7 @@ Runs **after** Security audit and **before** Human QA. This is the quality gate 
 | **Playwright** | Only if `modules_built` includes WebUI or `perc-qa-automation`. Then `perc-devctl qa-up` → `qa-health` → golden + login + this-run surfaces (or `--allow-full` if `cycle_verify_allow_full_playwright`) → **always** `qa-down`. Non-UI nights skip qa-up |
 | **Failures** | Unassigned **p1** issues titled `[night-issues: Cycle Verify] Maven: …` or `… Playwright: …`. Reuse if the same module/spec is already open |
 | **Next cycle** | Discover/Triage treat those titles as **LEAD** — they fill the queue **before** other p1 |
-| **Not** | Human QA handoff, `qa task` labels, or any user assignee |
+| **Never** | Assign any user, or route work to a human (no handoff phase exists) |
 | **Green** | Zero new residuals |
 | **Disable** | `include_cycle_verify: false` |
 
@@ -447,7 +411,6 @@ Rough agent use (v2.0.3 — specialists are 0 when Preflight says there is nothi
 | PR cluster | 0–1 |
 | Security audit | 0–1 |
 | Cycle verify | 0–1 |
-| Human QA | 0–1 |
 | Report | 0 (in-script) |
 
 A quiet grok-only night with no blockers, no alerts, and no other-model PRs is **Identity + Preflight + Triage + Work×N + Cycle verify** (if PRs opened). Default 128 is plenty.

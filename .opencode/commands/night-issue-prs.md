@@ -54,8 +54,8 @@ positional text). Parse them and pass to the workflow as described below.
 | `cluster_min_prs` | int | `3` | Min owned open PRs sharing thrash files |
 | `include_security_audit` | bool | `true` | CodeQL inventory + mitigation PRs |
 | `max_security_prs` | int | `3` | Max CodeQL mitigation PRs per pass |
-| `include_human_qa` | bool | `true` | After Cycle verify only — issue + assign |
-| `qa_label` | string | `qa task` | Routing label for human QA handoff issues (the QA queue; no user assignment) |
+| `include_human_qa` | bool | removed | Removed 2026-11-14 with the Human QA phase; the workflow never creates QA tickets |
+| `qa_label` | string | removed | Removed 2026-11-14 with the Human QA phase: `qa task` / `QA (#N)` tickets are ordinary implement candidates when unassigned. Assigned ones stay out via `unassigned_only`. |
 | `max_prs` | int | `6` | Max open PRs per follow-up pass |
 | `worktree_path` | string | `<home>/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs` | Dedicated worktree |
 | `sync_branch` | string | `night-issue-prs-main` | Local mirror of `origin/<base_branch>` |
@@ -66,7 +66,7 @@ positional text). Parse them and pass to the workflow as described below.
    root → `AGENTS.local.md` → module `AGENTS.md`. Personal/operator overrides
    in `AGENTS.local.md` win for this run.
 2. Read `.grok/workflows/README.md` end-to-end. Every gate (C1–C5, B1–B3,
-   Q1–Q8, skip matrix, hard bans) is authoritative. When in doubt, defer to it.
+   skip matrix, hard bans) is authoritative. When in doubt, defer to it. (The Q-gate / Human-QA section was deleted 2026-11-14; the workflow never creates QA tickets.)
 3. Load the `night-gates` skill from
    `modules/ai-shared-develop/src/main/resources/skills/night-gates/SKILL.md`
    if it exists in this repo; otherwise re-derive gates from
@@ -134,8 +134,7 @@ absent (count `-1` is unknown, not zero).
 | 12 | PR cluster | `pr-cluster` | `cluster_recommended` false (known) |
 | 13 | Security audit | `security-audit` | `open_alert_count == 0` (known zero only; `-1`/missing runs fail-open) |
 | 14 | Cycle verify | `cycle-verify` | no PR / cluster opened |
-| 15 | Human QA | `human-qa` | Q2 fails or `include_human_qa: false` |
-| 16 | Report | (inline) | never |
+| 15 | Report | (inline) | never |
 
 `skip` rows in the triage queue **do not** spawn a `work` sub-agent — record
 the disposition in the parent's `## Agent progress (night-issue-prs)` table
@@ -317,7 +316,6 @@ Write `${NIGHT_REPORT_PATH}` at the end of every run with:
 - Per-issue disposition (implement / split / skip / closed / left_open)
 - PRs opened, PRs follow-up'd, PRs cluster'd
 - Cycle verify status (green / failed / skipped)
-- Human QA handoffs (created / assigned / deferred)
 - **Worktree cleanup evidence (HARD — never skip):** before closing the run,
   remove every disposable worktree whose PR merged or closed during this run
   (`git worktree remove --force <path>` + `git worktree prune`, from the
@@ -354,7 +352,6 @@ Create labels if missing (`gh label create`).
 - Skipping the Report-phase worktree cleanup sweep (HARD GATE — merged/closed PR worktrees must be removed in-run, not left for later).
 - `rm -rf` on a worktree directory (always `git worktree remove [--force]` + `git worktree prune`).
 - Approving your own review threads (always inline reply + `resolveReviewThread`).
-- Human QA handoff without an independent APPROVE.
 - Approving or merging your own-model-only Work PRs (same `model:*`, no other operator).
 - Performing Erlang in the host or Peer agent's own voice (always spawn `erlang-review`). Work runs the Erlang CLI before opening a PR but must not self-APPROVE or self-merge.
 - Skipping other-model merge because GitHub login equals the PR author.

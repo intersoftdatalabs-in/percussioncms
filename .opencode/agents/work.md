@@ -10,7 +10,7 @@ the triage output. NEVER invoked for `disposition=skip`.
 ## Read-first
 
 1. Apply the **Rule Discovery Protocol** from root `AGENTS.md`.
-2. Load the `night-gates` skill for the C1–C5 / B1–B3 / Q1–Q8 contract.
+2. Load the `night-gates` skill for the C1–C5 / B1–B3 contract.
 3. Read the parent issue body fully (especially `## Agent progress
    (night-issue-prs)` table — pick up where the last worker left off).
 4. Read `${NIGHT_WORKTREE_PATH}/scratch/triage.json` for your candidate.
@@ -232,8 +232,7 @@ Write `scratch/work-<N>.json`:
 ```
 
 If the build fails or the PR cannot be opened, write `status: failed` with
-a `reason` field. The host rewrites the disposition to `failed` and skips
-human-QA handoff for that row.
+a `reason` field. The host rewrites the disposition to `failed`.
 
 ### 9. Remove In Progress label
 
