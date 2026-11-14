@@ -32,6 +32,7 @@ vi.mock("../../../main/ts/api/developer/assemblyApi", async (importOriginal) => 
 
 const listCommunities = assemblyApi.listCommunities as ReturnType<typeof vi.fn>;
 const createCommunity = assemblyApi.createCommunity as ReturnType<typeof vi.fn>;
+const deleteCommunity = assemblyApi.deleteCommunity as ReturnType<typeof vi.fn>;
 const getCommunityDetail = assemblyApi.getCommunityDetail as ReturnType<typeof vi.fn>;
 const renameCommunity = assemblyApi.renameCommunity as ReturnType<typeof vi.fn>;
 const updateCommunityDescription = assemblyApi.updateCommunityDescription as ReturnType<
@@ -45,6 +46,7 @@ describe("CommunitiesPanel", () => {
     };
     listCommunities.mockReset();
     createCommunity.mockReset();
+    deleteCommunity.mockReset();
     getCommunityDetail.mockReset();
     renameCommunity.mockReset();
     updateCommunityDescription.mockReset();
@@ -262,6 +264,117 @@ describe("CommunitiesPanel", () => {
     expect(screen.getByTestId("developer-comm-table").textContent).not.toContain(
       "System community",
     );
+  });
+
+  it("drops the catalog row only after delete succeeds (#6064)", async () => {
+    const original = {
+      id: 7,
+      name: "DoomedComm",
+      label: "Doomed Community",
+      description: "",
+      guid: { stringValue: "0-13-7", longValue: 7 },
+    };
+    listCommunities.mockResolvedValueOnce([original]).mockResolvedValue([]);
+    getCommunityDetail.mockResolvedValue({
+      ...original,
+      roleList: [],
+    });
+    deleteCommunity.mockResolvedValue(undefined);
+    render(<CommunitiesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table").textContent).toContain("DoomedComm");
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-open"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-delete")).toBeTruthy();
+    });
+    // Still on detail: the catalog row is not dropped before success.
+    expect(screen.queryByTestId("developer-comm-table")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-comm-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-empty")).toBeTruthy();
+    });
+    expect(deleteCommunity).toHaveBeenCalledWith(original.guid, false);
+    expect(screen.queryByText("DoomedComm")).toBeNull();
+    expect(listCommunities).toHaveBeenCalledTimes(2);
+  });
+
+  it("delete cancel keeps the row and never calls delete (#6064)", async () => {
+    const original = {
+      id: 7,
+      name: "KeptComm",
+      label: "Kept Community",
+      description: "",
+      guid: { stringValue: "0-13-7", longValue: 7 },
+    };
+    listCommunities.mockResolvedValue([original]);
+    getCommunityDetail.mockResolvedValue({
+      ...original,
+      roleList: [],
+    });
+    render(<CommunitiesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table").textContent).toContain("KeptComm");
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-open"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-catalog-confirm-dialog")).toBeNull();
+    });
+    expect(deleteCommunity).not.toHaveBeenCalled();
+    // Still on detail after cancel; catalog keeps the row after back.
+    expect(screen.getByTestId("developer-comm-delete")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("developer-comm-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table").textContent).toContain("KeptComm");
+    });
+    expect(listCommunities).toHaveBeenCalledTimes(1);
+  });
+
+  it("failed delete keeps the row on 409 in-use (#6064)", async () => {
+    const original = {
+      id: 7,
+      name: "BusyComm",
+      label: "Busy Community",
+      description: "",
+      guid: { stringValue: "0-13-7", longValue: 7 },
+    };
+    listCommunities.mockResolvedValue([original]);
+    getCommunityDetail.mockResolvedValue({
+      ...original,
+      roleList: [],
+    });
+    deleteCommunity.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Community has dependencies" },
+    });
+    render(<CommunitiesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table").textContent).toContain("BusyComm");
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-open"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(
+        DEV_MSG.COMM_IN_USE,
+      );
+    });
+    expect(deleteCommunity).toHaveBeenCalledWith(original.guid, false);
+    fireEvent.click(screen.getByTestId("developer-comm-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-table").textContent).toContain("BusyComm");
+    });
+    expect(listCommunities).toHaveBeenCalledTimes(1);
   });
 
   it("shows session-redirect message via panelErrMsg", async () => {

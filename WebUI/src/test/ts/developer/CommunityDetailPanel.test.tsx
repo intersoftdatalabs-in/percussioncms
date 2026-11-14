@@ -550,6 +550,66 @@ describe("CommunityDetailPanel", () => {
     );
   });
 
+  it("delete cancel never calls delete and stays on detail (#6064)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    const onDeleted = vi.fn();
+    render(
+      <CommunityDetailPanel
+        idOrName="Default"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-delete"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-catalog-confirm-dialog")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-catalog-confirm-dialog")).toBeNull();
+    });
+    expect(deleteCommunity).not.toHaveBeenCalled();
+    expect(onDeleted).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-comm-delete")).toBeTruthy();
+    expect(screen.getByTestId("developer-comm-detail-title").textContent).toContain(
+      "Default Community",
+    );
+  });
+
+  it("surfaces 400 on delete and keeps the detail (#6064)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    deleteCommunity.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Cannot delete community" },
+    });
+    const onDeleted = vi.fn();
+    render(
+      <CommunityDetailPanel
+        idOrName="Default"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-detail-error")).toBeTruthy();
+    });
+    expect(deleteCommunity).toHaveBeenCalledWith(sampleDetail.guid, false);
+    expect(screen.getByTestId("developer-comm-detail-error").textContent).toContain(
+      DEV_MSG.COMM_DELETE_ERROR,
+    );
+    expect(onDeleted).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-comm-detail-title")).toBeTruthy();
+  });
+
   it("delete success returns to catalog via onDeleted", async () => {
     getCommunityDetail.mockResolvedValue(sampleDetail);
     deleteCommunity.mockResolvedValue(undefined);
