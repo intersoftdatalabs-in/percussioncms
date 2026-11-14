@@ -250,6 +250,25 @@ If the fetch fails (403/404, no network), **omit `--alerts`** — the script
 emits `open_alert_count: -1` (unknown) and Phase 13 runs fail-open. Never
 write or pass a faked empty list to force a zero.
 
+## Merged-PR feed (Phase 2 → already-merged routing)
+
+Decision-front routes already-shipped issues out deterministically — feed it
+recently merged PRs so it never seats work that already landed (observed
+2026-11-13: 4/18 seats burned on #6241/#5784/#6285/#6280):
+
+```bash
+gh pr list --repo <repo> --state merged --limit 200 \
+  --json number,title,body,headRefName,state > scratch/merged.json
+```
+
+Then pass `--merged-prs scratch/merged.json` to
+`scripts/night-decision-front.py`. Issues named by `Fixes #N` in a merged
+body are skipped as `already_merged_via#PR` (queue routing only — the close
+itself still requires the evidence gate in Reconcile/Report). If the fetch
+fails, omit the flag (fail-open: no merged-PR skips, Work claim-checks remain
+the backstop). A Work `already_merged` return counts as a triage-input defect
+for the run — record it in the report.
+
 ## Debt rotation (Phase 2, every run with debt seats — 2.2.8-draft, cross-tier 2.2.9-draft, cooldown/expiry follow-ons)
 
 Lowest-number-first reseats the same blocked debt nightly — and tier-first

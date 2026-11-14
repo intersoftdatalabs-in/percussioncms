@@ -104,6 +104,24 @@ def test_no_model_skips_without_prescreen():
     assert nums == [1989, 4645]
 
 
+def test_merged_pr_fix_skips_issue_deterministically():
+    # Already-merged check (2026-11-14): a merged PR naming Fixes #N routes
+    # the issue to already_merged_via — no triage judgment involved.
+    issues = [
+        issue(6241, "issue 6238 slice: US3 matrix"),
+        issue(4645, "issue 4532 slice 11: save"),
+    ]
+    merged = [
+        {"number": 6303, "title": "US3 matrix", "body": "Fixes #6241",
+         "headRefName": "fix/x", "state": "MERGED"},
+    ]
+    result = df.run(issues, [], 3, 0, "model:x", 3,
+                     merged_prs_raw=merged)
+    nums = [q["issue_number"] for q in result["queue"]]
+    assert nums == [4645]
+    assert "#6241" not in result["implement_candidates"]
+
+
 def test_cluster_recommended_shared_files():
     prs = [
         {"number": i, "title": "p", "body": "", "headRefName": "x", "state": "OPEN",
@@ -339,6 +357,7 @@ if __name__ == "__main__":
     test_one_per_parent_and_skip_epic()
     test_covering_pr_skips_issue_and_siblings()
     test_no_model_skips_without_prescreen()
+    test_merged_pr_fix_skips_issue_deterministically()
     test_cluster_recommended_shared_files()
     test_cluster_not_recommended_disjoint()
     test_peer_eligible_other_operator()
