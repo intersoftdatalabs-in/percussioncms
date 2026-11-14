@@ -112,10 +112,10 @@ public class PSRecycleService implements IPSRecycleService {
   private static final String NAVON_FIELD_DISPLAYTITLE = "displaytitle";
 
   /** Static constant to represent assets root. */
-  public static final String ASSETS_ROOT = FOLDERS + "/" + SYSTEM + "/" + ASSETS;
+  public static final String ASSETS_ROOT = FOLDERS + "/" + SYSTEM + "/" + ASSETS; // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6359, same as #5898/#5910/#5927/#6325/#6358) — CMS repository path, not an OS path.
 
   /** Static constant to represent the Recycling root. */
-  public static final String RECYCLING_ROOT = FOLDERS + "/" + SYSTEM + "/" + "Recycling";
+  public static final String RECYCLING_ROOT = FOLDERS + "/" + SYSTEM + "/" + "Recycling"; // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6359, same as #5898/#5910/#5927/#6325/#6358) — CMS repository path, not an OS path.
 
   /** Error when calculating a unique item name and path. */
   public static final String UNIQUE_ID_ERROR = "Error finding if item is unique with id: ";
@@ -1016,6 +1016,8 @@ public class PSRecycleService implements IPSRecycleService {
       sb.insert(0, RECYCLING_ROOT);
     }
 
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6359,
+    // same as #5898/#5910/#5927/#6325/#6358) — slash appends the item name to the CMS repository path, not an OS path.
     sb.append("/" + itemName.getValueAsString());
 
     /**
@@ -1099,6 +1101,8 @@ public class PSRecycleService implements IPSRecycleService {
       return sb;
     } else if (currentPath.startsWith("//" + ASSETS)) {
       sb.replace(0, 1, ""); // remove the first slash
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6359,
+      // same as #5898/#5910/#5927/#6325/#6358) — slash joins the CMS repository prefix, not an OS path.
       return sb.insert(0, FOLDERS + "/" + SYSTEM);
     } else if (currentPath.startsWith(ASSETS_ROOT)) {
       int index = currentPath.indexOf("Assets");
