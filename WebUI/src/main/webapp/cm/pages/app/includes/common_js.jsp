@@ -24,7 +24,7 @@
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-jeditable/jquery.jeditable.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-validation/jquery.validate.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-validation/additional-methods.js"></script>
-<script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.bbq.js"></script>
+<script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.deparam.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.cookie.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.tooltip.js"></script>
 <script src="/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.js"></script>

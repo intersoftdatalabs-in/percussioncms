@@ -1876,6 +1876,128 @@ describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => 
 });
 
 /**
+ * jQuery BBQ 1.1 retirement (issue #5663).
+ *
+ * The dead-upstream `jquery.bbq.js` copy (2010, no npm package) is gone from
+ * all three trees. Its only live consumers — `$.deparam.querystring()`
+ * reads in navigation/template/editor flows and
+ * `$.param.querystring(base, params)` URL building in
+ * PercNavigationManager — are served by the first-party
+ * `jquery.deparam.js` shim, which keeps the stable jslib URL wired through
+ * the common_js.jsp twins + minify bundle configs. These tests pin:
+ *
+ *   1. No BBQ file in any of the three trees; the shim present in all three.
+ *   2. Bundle configs + JSP includes reference the shim, never BBQ.
+ *   3. No `$.bbq.*` / fragment / `$.fn` helper callers exist to regress
+ *      (BBQ surface beyond deparam/param-querystring had zero callers).
+ */
+describe("jQuery BBQ retirement, first-party deparam shim (issue #5663)", () => {
+  const FRONTEND_ROOT = path.dirname(
+    path.dirname(path.dirname(__dirname)),
+  );
+  const WEBUI_DIR = path.dirname(
+    path.dirname(path.dirname(FRONTEND_ROOT)),
+  );
+  const WAR_MIRROR = path.join(WEBUI_DIR, "war");
+  const VENDOR_MIRROR = path.join(WAR_DIR, "vendor/js/legacy");
+  const BBQ =
+    "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.bbq.js";
+  const SHIM =
+    "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.deparam.js";
+
+  // The vendor mirror roots at vendor/js/legacy and the war mirror at
+  // war/jslib (no jslib/ segment in either), while WAR_DIR roots at the
+  // jslib/ segment.
+  const WAR_JSLIB_MIRROR = path.join(WAR_MIRROR, "jslib");
+  const TREES = [WAR_DIR, VENDOR_MIRROR, WAR_JSLIB_MIRROR];
+  const inTree = (root, dest) =>
+    root === WAR_DIR
+      ? path.join(root, dest)
+      : path.join(root, dest.replace(/^jslib\//, ""));
+
+  // Mathias Bank getUrlParam 2.1 (2006-2007, dead upstream, zero
+  // references — not even loaded): removed outright with BBQ.
+  const REMOVED_DEAD = [
+    "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.getUrlParam.js",
+  ];
+
+  it("removes the vendored BBQ copy and ships the shim in all three trees", () => {
+    for (const root of TREES) {
+      expect(
+        fs.existsSync(inTree(root, BBQ)),
+        `vendored BBQ copy still present: ${inTree(root, BBQ)}`,
+      ).toBe(false);
+      expect(
+        fs.existsSync(inTree(root, SHIM)),
+        `deparam shim missing: ${inTree(root, SHIM)}`,
+      ).toBe(true);
+    }
+    for (const dead of REMOVED_DEAD) {
+      for (const root of TREES) {
+        expect(
+          fs.existsSync(inTree(root, dead)),
+          `dead retiredjs file still present: ${inTree(root, dead)}`,
+        ).toBe(false);
+      }
+    }
+  });
+
+  it("references the shim, never BBQ, from bundle configs and JSP includes", () => {
+    for (const name of [
+      "common-bundles.json",
+      "common-minuet-bundles.json",
+      "static-bundles.json",
+      "common-ui-bundle.json",
+    ]) {
+      const configPath = path.join(BUNDLE_CONFIG_DIR, name);
+      const text = fs.readFileSync(configPath, "utf8");
+      expect(text, `${name} still references BBQ`).not.toContain("jquery.bbq");
+      if (name !== "static-bundles.json") {
+        expect(text, `${name} missing deparam shim`).toContain(
+          "jquery.deparam.js",
+        );
+      }
+    }
+    for (const ref of [
+      "app/includes/common_js.jsp",
+      "pages/app/includes/common_js.jsp",
+    ]) {
+      const text = fs.readFileSync(path.join(WAR_DIR, ref), "utf8");
+      expect(text, `${ref} still loads BBQ`).not.toContain("jquery.bbq");
+      expect(text, `${ref} missing deparam shim`).toMatch(
+        /jquery-perc-retiredjs\/jquery\.deparam\.js/,
+      );
+    }
+  });
+
+  it("leaves no BBQ-only or getUrlParam API callers behind", () => {
+    const hits = [];
+    const banned =
+      /\$\.bbq\.|jQuery\.bbq|deparam\.fragment|param\.fragment|fn\.querystring|elemUrlAttr|getUrlParam/;
+    const walk = (dir) => {
+      for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name);
+        if (entry.isDirectory()) {
+          if (entry.name !== "vendor") walk(full);
+        } else if (/\.(js|jsp)$/.test(entry.name)) {
+          const text = fs.readFileSync(full, "utf8");
+          if (banned.test(text)) hits.push(full);
+        }
+      }
+    };
+    walk(path.join(WAR_DIR, "app"));
+    walk(path.join(WAR_DIR, "plugins"));
+    walk(path.join(WAR_DIR, "widgets"));
+    walk(path.join(WAR_DIR, "controllers"));
+    walk(path.join(WAR_DIR, "models"));
+    walk(path.join(WAR_DIR, "views"));
+    expect(hits, `dead plugin API callers remain:\n${hits.join("\n")}`).toEqual(
+      [],
+    );
+  });
+});
+
+/**
  * Classic-UI tree widgets from npm (issue #5662).
  *
  * The vendored cm/jslib copies (FancyTree 2.38.3 + dead DynaTree 1.1.0) were
