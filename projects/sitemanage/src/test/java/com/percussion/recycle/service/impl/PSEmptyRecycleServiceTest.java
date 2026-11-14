@@ -213,6 +213,8 @@ class PSEmptyRecycleServiceTest {
     assertTrue(PSEmptyRecycleService.isUnderRecyclingRoot("/Recycling/"));
     assertTrue(PSEmptyRecycleService.isUnderRecyclingRoot("/Recycling/Sites/"));
     assertTrue(PSEmptyRecycleService.isUnderRecyclingRoot("/recycling/assets/"));
+    // Un-normalized input self-normalizes the leading slash before the root check.
+    assertTrue(PSEmptyRecycleService.isUnderRecyclingRoot("Recycling/Sites/"));
     assertFalse(PSEmptyRecycleService.isUnderRecyclingRoot("/Sites/"));
     assertFalse(PSEmptyRecycleService.isUnderRecyclingRoot("/Assets/uploads/"));
     assertFalse(PSEmptyRecycleService.isUnderRecyclingRoot("/"));
@@ -226,6 +228,9 @@ class PSEmptyRecycleServiceTest {
   void normalizeFinderPath_addsSlashes() {
     assertEquals("/Recycling/Sites/", PSEmptyRecycleService.normalizeFinderPath("Recycling/Sites"));
     assertEquals("/Recycling/", PSEmptyRecycleService.normalizeFinderPath("/Recycling"));
+    // Already-normalized finder form is unchanged; stray double-leading slashes collapse.
+    assertEquals("/Recycling/Assets/", PSEmptyRecycleService.normalizeFinderPath("/Recycling/Assets/"));
+    assertEquals("/Recycling/Sites/", PSEmptyRecycleService.normalizeFinderPath("//Recycling/Sites"));
   }
 
   @Test

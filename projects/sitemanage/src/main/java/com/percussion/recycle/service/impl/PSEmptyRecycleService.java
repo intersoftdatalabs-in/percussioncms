@@ -233,10 +233,12 @@ public class PSEmptyRecycleService implements IPSEmptyRecycleService {
   static String normalizeFinderPath(String path) {
     String p = StringUtils.trimToEmpty(path);
     if (!p.startsWith("/")) {
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6358,
+      // same as #5898/#5910/#5927/#6325) — slash builds the CMS finder path, not an OS path.
       p = "/" + p;
     }
     if (!p.endsWith("/")) {
-      p = p + "/";
+      p = p + "/"; // mkd-code-review[paths.hardcoded_sep]: same adjudication as above (issue #6358)
     }
     // Collapse accidental double-leading slashes
     while (p.startsWith("//")) {
@@ -255,6 +257,8 @@ public class PSEmptyRecycleService implements IPSEmptyRecycleService {
     }
     String p = normalizedFinderPath;
     if (!p.startsWith("/")) {
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6358,
+      // same as #5898/#5910/#5927/#6325) — leading "/" keeps the CMS finder form, not an OS path.
       p = "/" + p;
     }
     // Exact root or prefix under /Recycling/
