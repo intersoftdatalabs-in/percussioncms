@@ -95,11 +95,13 @@ class PSEmptyRecycleServiceTest {
   }
 
   @Test
-  void empty_purgesTopLevelFoldersWithShouldPurge() throws Exception {
+  void empty_preservesTopLevelStructureAndPurgesNestedFolders() throws Exception {
     stubAdmin("admin");
-    PSPathItem sites = folderItem("/Recycling/Sites/", "guid-sites");
+    PSPathItem assets = folderItem("/Recycling/Assets/", "guid-assets");
+    PSPathItem nested = folderItem("/Recycling/Assets/zz1/", "guid-zz1");
     when(pathService.findChildren(PSEmptyRecycleService.RECYCLING_FINDER_ROOT))
-        .thenReturn(List.of(sites));
+        .thenReturn(List.of(assets));
+    when(pathService.findChildren("/Recycling/Assets/")).thenReturn(List.of(nested));
     when(pathService.deleteFolder(any())).thenReturn(0);
 
     PSEmptyRecycleResult result = service.emptyRecyclingBin();
@@ -108,14 +110,54 @@ class PSEmptyRecycleServiceTest {
     assertEquals(1, result.getPurgedFolderCount());
     assertEquals(0, result.getUndeletedCount());
 
+    // The structural mirror itself is never deleted — only its contents.
     ArgumentCaptor<PSDeleteFolderCriteria> captor =
         ArgumentCaptor.forClass(PSDeleteFolderCriteria.class);
     verify(pathService).deleteFolder(captor.capture());
     PSDeleteFolderCriteria criteria = captor.getValue();
     assertTrue(criteria.getShouldPurge());
     assertEquals(PSDeleteFolderCriteria.SkipItemsType.YES, criteria.getSkipItems());
-    assertTrue(criteria.getPath().startsWith("/Recycling/"));
-    assertEquals("guid-sites", criteria.getGuid());
+    assertEquals("/Recycling/Assets/zz1/", criteria.getPath());
+    assertEquals("guid-zz1", criteria.getGuid());
+  }
+
+  @Test
+  void empty_preservesEmptyTopLevelStructure() throws Exception {
+    stubAdmin("admin");
+    PSPathItem assets = folderItem("/Recycling/Assets/", "guid-assets");
+    when(pathService.findChildren(PSEmptyRecycleService.RECYCLING_FINDER_ROOT))
+        .thenReturn(List.of(assets));
+    when(pathService.findChildren("/Recycling/Assets/")).thenReturn(Collections.emptyList());
+
+    PSEmptyRecycleResult result = service.emptyRecyclingBin();
+
+    assertFalse(result.isAlreadyEmpty());
+    assertEquals(0, result.getPurgedFolderCount());
+    assertEquals(0, result.getPurgedItemCount());
+    assertEquals(0, result.getUndeletedCount());
+    assertTrue(result.getErrors().isEmpty());
+    verify(pathService, never()).deleteFolder(any());
+    verify(folderHelper, never()).removeItem(any(), any(), any(Boolean.class));
+  }
+
+  @Test
+  void empty_purgesNestedLeafViaActualRecycledParent() throws Exception {
+    stubAdmin("admin");
+    PSPathItem assets = folderItem("/Recycling/Assets/", "guid-assets");
+    PSPathItem leaf = leafItem("/Recycling/Assets/leaf1", "guid-leaf1");
+    leaf.setFolderPaths(List.of("//Folders/$System$/Recycling/Assets/"));
+    when(pathService.findChildren(PSEmptyRecycleService.RECYCLING_FINDER_ROOT))
+        .thenReturn(List.of(assets));
+    when(pathService.findChildren("/Recycling/Assets/")).thenReturn(List.of(leaf));
+
+    PSEmptyRecycleResult result = service.emptyRecyclingBin();
+
+    assertEquals(1, result.getPurgedItemCount());
+    assertEquals(0, result.getPurgedFolderCount());
+    // Nested leaves purge under their actual recycled parent, never the bin root.
+    verify(folderHelper)
+        .removeItem(eq("//Folders/$System$/Recycling/Assets"), eq("guid-leaf1"), eq(true));
+    verify(pathService, never()).deleteFolder(any());
   }
 
   @Test
@@ -151,11 +193,13 @@ class PSEmptyRecycleServiceTest {
   }
 
   @Test
-  void empty_accumulatesUndeletedFromDeleteFolder() throws Exception {
+  void empty_accumulatesUndeletedFromNestedDeleteFolder() throws Exception {
     stubAdmin("admin");
     PSPathItem assets = folderItem("/Recycling/Assets/", "guid-assets");
+    PSPathItem nested = folderItem("/Recycling/Assets/zz1/", "guid-zz1");
     when(pathService.findChildren(PSEmptyRecycleService.RECYCLING_FINDER_ROOT))
         .thenReturn(List.of(assets));
+    when(pathService.findChildren("/Recycling/Assets/")).thenReturn(List.of(nested));
     when(pathService.deleteFolder(any())).thenReturn(3);
 
     PSEmptyRecycleResult result = service.emptyRecyclingBin();
@@ -182,6 +226,26 @@ class PSEmptyRecycleServiceTest {
   void normalizeFinderPath_addsSlashes() {
     assertEquals("/Recycling/Sites/", PSEmptyRecycleService.normalizeFinderPath("Recycling/Sites"));
     assertEquals("/Recycling/", PSEmptyRecycleService.normalizeFinderPath("/Recycling"));
+  }
+
+  @Test
+  void recycledParentOf_returnsActualBinParent() {
+    PSPathItem leaf = leafItem("/Recycling/Assets/leaf1", "guid-leaf1");
+    leaf.setFolderPaths(List.of("//Folders/$System$/Recycling/Assets/"));
+    assertEquals(
+        "//Folders/$System$/Recycling/Assets", PSEmptyRecycleService.recycledParentOf(leaf));
+  }
+
+  @Test
+  void recycledParentOf_fallsBackToRecyclingRoot() {
+    assertEquals(
+        PSRecycleService.RECYCLING_ROOT,
+        PSEmptyRecycleService.recycledParentOf(leafItem("/Recycling/orphan", "guid-x")));
+    assertEquals(PSRecycleService.RECYCLING_ROOT, PSEmptyRecycleService.recycledParentOf(null));
+    PSPathItem outside = leafItem("/Sites/evil", "guid-y");
+    outside.setFolderPaths(List.of("//Sites/Evil"));
+    assertEquals(
+        PSRecycleService.RECYCLING_ROOT, PSEmptyRecycleService.recycledParentOf(outside));
   }
 
   private void stubAdmin(String name) throws Exception {

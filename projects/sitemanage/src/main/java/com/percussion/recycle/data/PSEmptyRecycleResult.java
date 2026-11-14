@@ -24,8 +24,10 @@ import java.util.List;
 /**
  * Summary returned after emptying the Recycling bin.
  *
- * <p>Counts cover top-level children under the Recycling root that were attempted during the bulk
- * purge. {@link #getUndeletedCount()} is the total number of items that could not be permanently
+ * <p>Counts cover recycled folders and items permanently purged during the bulk operation. The
+ * top-level structural children of the Recycling root (the Sites/Assets mirrors) are preserved,
+ * never deleted, and not counted ({@code alreadyEmpty} only reports a bin with no children at
+ * all). {@link #getUndeletedCount()} is the total number of items that could not be permanently
  * purged (permissions, in-use, or errors with skip-on-failure).
  */
 @XmlRootElement(name = "EmptyRecycleResult")
