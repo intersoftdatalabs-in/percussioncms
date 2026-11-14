@@ -34,10 +34,10 @@ import java.util.List;
  * than SFTP (including FTP, FTPS, Local, database drivers, and S3) is rejected before properties
  * change. Passphrases and the private key are not read or included in the error.
  *
- * <p>The SFTP username shares the {@code userid} body shape with the FTP and database
+ * <p>The SFTP username shares the {@code userid} body shape with the FTP, FTPS, and database
  * username-only paths, so the stored driver selects this apply versus {@link
- * PSFtpDeliveryUserUpdate} and {@link PSDatabaseDeliveryUserUpdate} (see {@code
- * PSPubServerService#updateDeliveryUserOnly}).
+ * PSFtpDeliveryUserUpdate}, {@link PSFtpsDeliveryUserUpdate}, and {@link
+ * PSDatabaseDeliveryUserUpdate} (see {@code PSPubServerService#updateDeliveryUserOnly}).
  *
  * <p>{@code PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE} is VARCHAR(255).
  */

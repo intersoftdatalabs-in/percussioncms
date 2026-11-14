@@ -30,8 +30,9 @@ import java.util.List;
  * User-id-only update for an FTP delivery server on the existing publish-server PUT.
  *
  * <p>A body that carries only {@code userid} must not clear host, port, folder, or password. A
- * blank user id does not write. Any driver other than FTP (including Local, FTPS, SFTP, and S3)
- * is rejected before properties change. Passwords are not read or included in the error.
+ * blank user id does not write. Any driver other than FTP (including FTPS, which uses {@link
+ * PSFtpsDeliveryUserUpdate}, Local, SFTP, and S3) is rejected before properties change. Passwords
+ * are not read or included in the error.
  *
  * <p>{@code PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE} is VARCHAR(255).
  */
