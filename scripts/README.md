@@ -504,13 +504,13 @@ Harvest GitHub PR **line review comments** (including closed/merged PRs) from `k
 
 ### `night-decision-front.py` / `night-decision-front.cmd`
 
-Ranks the overnight implement queue from **gh JSON + Jev prescreen hints** (no live
-network in tests). Used by `night-issue-prs` **2.2.0** Decision front so
-Preflight/Reconcile/Triage Grok agents are skipped when the script fills
+Ranks the overnight implement queue from **gh JSON label/title facts** (no live
+network in tests). Used by `night-issue-prs` Decision front so
+Preflight/Reconcile/Triage agents are skipped when the script fills
 `max_issues`.
 
 - **Purpose**: one-per-parent product queue; skip epics, covering OPEN PRs,
-  assigned / In Progress / NotSafe / migrated / Jev `recommend_skip`; emit
+  assigned / In Progress / NotSafe / migrated; emit
   peer-eligible and cluster_recommended skip signals.
 - **Usage**:
 
@@ -518,7 +518,6 @@ Preflight/Reconcile/Triage Grok agents are skipped when the script fills
   python3 scripts/night-decision-front.py \
     --issues scratch/issues-raw.json \
     --prs scratch/prs-open.json \
-    --prescreen scratch/prescreen.json \
     --alerts scratch/alerts.json \
     --out scratch/decision-front.json \
     --max-issues 3
@@ -530,49 +529,13 @@ Preflight/Reconcile/Triage Grok agents are skipped when the script fills
   `open_alert_count` becomes `-1` (unknown, Security audit runs fail-open).
   Never pass a faked empty list — a missing inventory is unknown, not zero.
 
-- **Hard rules in code**: labels beat Jev; covering PR from `Fixes #N` / `issue-N`
+- **Hard rules in code**: deterministic label rules only; covering PR from `Fixes #N` / `issue-N`
   branch; at most one implement item per parent; p7/p8 only in `--low-slots`;
   human-QA handoff tickets excluded by routing label (`--qa-label`, default
   `qa task`) or `QA (#N)` title backstop (label-less tickets must not eat seats);
   debt rotation is cross-tier exclusion + win-cooldown (`--debt-exclude` /
   `--debt-seated`, windowed host input so entries age out, `--debt-seed` nightly).
 - **Tests**: `python3 scripts/test_night_decision_front.py`
-
-### `typesafe-prescreen.py` / `typesafe-prescreen.cmd`
-
-Cheap TypeSafe (`jev`) judgement layer run by the `night-issue-prs` **Preflight**
-phase before the expensive Triage / Work agents. Deterministic first, model as a
-fail-open hint layer.
-
-- **Purpose**: pre-screen the issue backlog and flag (a) semantic skips the label
-  rules cannot see (soak / customer-env / gated / human-sign-off) and
-  (b) reconcile close candidates.
-- **Usage**:
-
-  ```bash
-  python3 scripts/typesafe-prescreen.py \
-    --inventory scratch/issues-raw.json \
-    --out scratch/prescreen.json
-  # Windows:
-  #   scripts\typesafe-prescreen.cmd --inventory scratch\issues-raw.json --out scratch\prescreen.json
-  ```
-
-- **Deterministic layer (authoritative, always runs)**: labels `not safe for
-  agents`, `in progress` / `in-progress`, `qa task`, `migrated`, and any
-  assignee → `rule_skip` + `rule_kind`; `migrated` → `rule_close_candidate`.
-- **Model layer (adds only, never un-skips)**: one batched `noul` call
-  (`TYPESAFE_API_KEY` required) with `skip_safe` / `pr_sized` / `close` per
-  non-rule-skipped issue; `recommend_skip/source=model` needs
-  `skip_safe >= --threshold` (0.85); `recommend_close` needs
-  `close >= --close-threshold` (0.85).
-- **Fail-open**: missing key, API/network failure, or `--dry-run` still writes
-  `--out` with the deterministic layer and `status: fallback_rule_only` /
-  `dry_run`. Exit 0 unless the args/inventory are unusable (exit 2).
-- **Reuse / tests**: `--answers <saved-json>` skips the live call and replays a
-  saved TypeSafe `/systemone` response (`{"model", "answers", "usage"}`).
-- Measured on 44 real issues: $0.0018, ~1s, 4 answers … one batched request.
-  Cost inputs: `INPUT_PRICE_PER_MT = 0.042` ($/M input tokens; output is free).
-- **Tests**: `python3 -m pytest scripts/test_typesafe_prescreen.py -v`
 
 ### `write-preflight.py`
 
@@ -586,7 +549,6 @@ the `night-issue-prs` skipped-preflight path (decision-front
   ```bash
   python3 scripts/write-preflight.py \
     --inventory scratch/issues-raw.json \
-    --prescreen scratch/prescreen.json \
     --decision-front scratch/decision-front.json \
     --alerts scratch/alerts.json \
     --allowed-authors "login1,login2" \

@@ -25,7 +25,7 @@ bytes, blocking every downstream phase.
 ## Behavioral Notes
 
 - Cross-platform Python 3.9+, stdlib only, `pathlib` paths, no `shell`.
-- Offline: reads `scratch/issues-raw.json` (+ optional `prescreen.json`,
+- Offline: reads `scratch/issues-raw.json` (+ optional
   `decision-front.json`, `alerts.json`, `maintainers.txt`); never calls `gh`.
 - Fail-open: every optional input may be missing. A missing alert feed omits
   `open_alert_count` (unknown, NOT zero) per the preflight hard rules.
@@ -42,7 +42,6 @@ bytes, blocking every downstream phase.
 
     python3 scripts/write-preflight.py \
       --inventory scratch/issues-raw.json \
-      --prescreen scratch/prescreen.json \
       --decision-front scratch/decision-front.json \
       --alerts scratch/alerts.json \
       --maintainers scratch/maintainers.txt \
@@ -133,19 +132,6 @@ def _load_maintainers(path: str | None, extra: str) -> list[str]:
     return unique
 
 
-def _prescreen_by_number(prescreen: object | None) -> dict[int, dict]:
-    if not isinstance(prescreen, dict):
-        return {}
-    issues = prescreen.get("issues")
-    if not isinstance(issues, list):
-        return {}
-    table: dict[int, dict] = {}
-    for entry in issues:
-        if isinstance(entry, dict) and isinstance(entry.get("number"), int):
-            table[entry["number"]] = entry
-    return table
-
-
 def _as_int(value: object, default: int = 0) -> int:
     try:
         return int(value)  # type: ignore[arg-type]
@@ -191,7 +177,6 @@ def _author_login(issue: dict) -> str:
 
 def _compact_row(
     issue: dict,
-    prescreen_table: dict[int, dict],
     maintainer_keys: set[str],
     agent_safe_only: bool,
 ) -> dict | None:
@@ -199,8 +184,7 @@ def _compact_row(
         return None
     labels = _labels(issue)
     normed = {_norm(label) for label in labels}
-    rule_kind = prescreen_table.get(issue["number"], {}).get("rule_kind")
-    not_safe = NOT_SAFE_LABEL in normed or rule_kind == "not_safe_agents"
+    not_safe = NOT_SAFE_LABEL in normed
     large_i18n = _is_large_i18n(str(issue.get("title", "")), labels)
     if agent_safe_only and large_i18n:
         not_safe = True
@@ -221,7 +205,6 @@ def _compact_row(
 
 def build_preflight(
     inventory: list,
-    prescreen: object | None,
     decision_front: object | None,
     alerts: object | None,
     maintainers: list[str],
@@ -230,12 +213,11 @@ def build_preflight(
     agent_safe_only: bool,
 ) -> dict:
     """Assemble the canonical Phase 2G preflight document."""
-    prescreen_table = _prescreen_by_number(prescreen)
     maintainer_keys = {login.casefold() for login in maintainers}
 
     compact: list[dict] = []
     for issue in inventory:
-        row = _compact_row(issue, prescreen_table, maintainer_keys, agent_safe_only)
+        row = _compact_row(issue, maintainer_keys, agent_safe_only)
         if row is not None:
             compact.append(row)
 
@@ -283,7 +265,6 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         description="Build canonical scratch/preflight.json from files.",
     )
     parser.add_argument("--inventory", required=True, help="issues-raw.json path.")
-    parser.add_argument("--prescreen", default="", help="prescreen.json path.")
     parser.add_argument(
         "--decision-front", default="", help="decision-front.json path."
     )
@@ -325,7 +306,6 @@ def main(argv: list[str] | None = None) -> int:
 
     document = build_preflight(
         inventory=raw,
-        prescreen=_load_json(args.prescreen),
         decision_front=_load_json(args.decision_front),
         alerts=_load_json(args.alerts),
         maintainers=_load_maintainers(args.maintainers, args.allowed_authors),

@@ -14,11 +14,10 @@
 #
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Deterministic decision-front for night-issue-prs (gh facts + Jev hints).
+"""Deterministic decision-front for night-issue-prs (gh facts only).
 
 Replaces the expensive Preflight / Reconcile / Triage Grok agents when the
-host can rank a queue from JSON. TypeSafe/Jev skip+close hints are optional
-inputs (from typesafe-prescreen.py); they never override labels.
+host can rank a queue from JSON. Skip signals come from labels/titles only.
 
 Fail-open: missing optional files still produce a queue from issues+PRs.
 
@@ -47,7 +46,7 @@ PN_RE = re.compile(r"^p([1-8])$", re.I)
 # they force a bounded triage gate-audit pass instead of a blind Work walk.
 # Evidence: 2026-11-12 run seated 8/12 human-gated/stale rows as implement
 # (UAT smoke/record, usability study, customer snapshot env, maintainer
-# decision) while prescreen ran fallback_rule_only (no model semantic skips).
+# decision).
 GATE_HINT_PATTERNS: list[tuple[str, "re.Pattern[str]"]] = [
     ("human_uat", re.compile(
         r"\bUAT\b|usability stud|operator trial"
@@ -326,24 +325,9 @@ def cluster_recommended(prs: list[dict], min_prs: int) -> bool:
     return False
 
 
-def prescreen_index(prescreen: dict | None) -> dict[int, dict]:
-    out: dict[int, dict] = {}
-    if not prescreen:
-        return out
-    for row in prescreen.get("issues") or []:
-        try:
-            n = int(row["number"])
-        except (KeyError, TypeError, ValueError):
-            continue
-        out[n] = row
-    return out
-
-
 def rule_skip_issue(
-    issue: dict, prescreen_row: dict | None, qa_label: str = "qa task"
+    issue: dict, qa_label: str = "qa task"
 ) -> tuple[bool, str]:
-    if prescreen_row and prescreen_row.get("rule_skip"):
-        return True, str(prescreen_row.get("rule_kind") or "rule")
     labels = {n.lower() for n in issue["labels"]}
     if "not safe for agents" in labels:
         return True, "not_safe_agents"
@@ -358,12 +342,6 @@ def rule_skip_issue(
     if issue["assignees"]:
         return True, "assigned"
     return False, ""
-
-
-def model_skip(prescreen_row: dict | None) -> bool:
-    if not prescreen_row:
-        return False
-    return bool(prescreen_row.get("recommend_skip"))
 
 
 def compute_low_slots(max_issues: int, quota_pct: int, min_debt_slots: int = 0) -> int:
@@ -483,7 +461,6 @@ def order_debt(
 def build_queue(
     issues: list[dict],
     prs: list[dict],
-    prescreen: dict | None,
     max_issues: int,
     low_slots: int,
     debt_exclude: set[int] | None = None,
@@ -507,7 +484,6 @@ def build_queue(
       same-flag ties break by tier, then randomly under --debt-seed.
       Exclusion reorders, never starves.
     """
-    ps = prescreen_index(prescreen)
     covered = covering_map(prs)
     open_prs = [p for p in prs if p["state"] in ("OPEN", "")]
     thrash_busy = any(pr_touches_thrash(p) for p in open_prs)
@@ -522,13 +498,9 @@ def build_queue(
     skipped = []
     for issue in issues:
         n = issue["number"]
-        row = ps.get(n)
-        skip, kind = rule_skip_issue(issue, row, qa_label)
+        skip, kind = rule_skip_issue(issue, qa_label)
         if skip:
             skipped.append((n, kind))
-            continue
-        if model_skip(row):
-            skipped.append((n, "prescreen_model"))
             continue
         if is_epic_title(issue) and not is_slice_or_residual(issue):
             skipped.append((n, "epic"))
@@ -658,13 +630,9 @@ def build_signals(
     }
 
 
-def close_candidates(issues: list[dict], prescreen: dict | None) -> list[int]:
-    ps = prescreen_index(prescreen)
+def close_candidates(issues: list[dict]) -> list[int]:
     out = []
     for issue in issues:
-        row = ps.get(issue["number"])
-        if row and row.get("recommend_close"):
-            out.append(issue["number"])
         labels = {n.lower() for n in issue["labels"]}
         if "migrated" in labels:
             out.append(issue["number"])
@@ -691,7 +659,6 @@ def compact_inventory(issues: list[dict], max_rows: int = 40) -> str:
 def run(
     issues_raw: list,
     prs_raw: list,
-    prescreen: dict | None,
     max_issues: int,
     low_slots: int,
     self_model_label: str,
@@ -707,12 +674,12 @@ def run(
     prs = [normalize_pr(x) for x in prs_raw]
     recent_blocked = recent_no_progress(work_dir) if work_dir is not None else set()
     queue, stats = build_queue(
-        issues, prs, prescreen, max_issues, low_slots, debt_exclude, debt_seed,
+        issues, prs, max_issues, low_slots, debt_exclude, debt_seed,
         qa_label, debt_seated, recent_blocked,
     )
     signals = build_signals(issues, prs, self_model_label, cluster_min_prs)
     open_alert_count = count_open_alerts(alerts_raw)
-    closes = close_candidates(issues, prescreen)
+    closes = close_candidates(issues)
     implement = ",".join("#" + str(q["issue_number"]) for q in queue)
     notes = (
         "decision-front script: queued "
@@ -777,7 +744,6 @@ def main(argv: list[str] | None = None) -> int:
             "the API genuinely returned zero open alerts."
         ),
     )
-    p.add_argument("--prescreen", help="scratch/prescreen.json from typesafe-prescreen")
     p.add_argument("--out", required=True)
     p.add_argument("--max-issues", type=int, default=3)
     p.add_argument("--low-slots", type=int, default=None)
@@ -854,11 +820,6 @@ def main(argv: list[str] | None = None) -> int:
             print("--prs must be a JSON array", file=sys.stderr)
             return 2
         prs_raw = loaded
-    prescreen = None
-    if args.prescreen:
-        ps_path = Path(args.prescreen)
-        if ps_path.is_file():
-            prescreen = _load_json(ps_path)
     alerts_raw = None
     if args.alerts:
         alerts_path = Path(args.alerts)
@@ -886,7 +847,6 @@ def main(argv: list[str] | None = None) -> int:
     result = run(
         issues_raw,
         prs_raw,
-        prescreen,
         max(1, args.max_issues),
         low_slots,
         str(args.self_model_label).lower(),
