@@ -297,6 +297,26 @@ def covering_map(prs: list[dict]) -> dict[int, int]:
     return covered
 
 
+def merged_map(prs: list[dict]) -> dict[int, int]:
+    """Map issue -> merged PR number via Fixes #N (deterministic, no judgment).
+
+    The feed is host-prefiltered (`gh pr list --state merged`); entries still
+    marked OPEN are ignored defensively. A hit routes the issue to
+    `already_merged_via#PR` — reconcile/host verifies acceptance criteria
+    before any close (existing close gate).
+    """
+    merged: dict[int, int] = {}
+    for pr in prs:
+        if pr["state"] == "OPEN":
+            continue
+        blob = pr["title"] + "\n" + pr["body"] + "\n" + pr["head"]
+        for m in FIXES_RE.finditer(blob):
+            merged[int(m.group(1))] = pr["number"]
+        for m in ISSUE_HEAD_RE.finditer(pr["head"]):
+            merged[int(m.group(1))] = pr["number"]
+    return merged
+
+
 def pr_touches_thrash(pr: dict) -> bool:
     for path in pr["files"]:
         for hint in THRASH_HINTS:
@@ -468,6 +488,7 @@ def build_queue(
     qa_label: str = "qa task",
     debt_seated: set[int] | None = None,
     recent_blocked: set[int] | None = None,
+    merged: dict[int, int] | None = None,
 ) -> tuple[list[dict], dict]:
     """Rank one-per-parent queue with RESERVED debt seats (2.2.6-draft).
 
@@ -511,6 +532,9 @@ def build_queue(
         par = parent_of(issue)
         if par in parents_covered or par in covered:
             skipped.append((n, "sibling_covering_pr"))
+            continue
+        if merged and n in merged:
+            skipped.append((n, "already_merged_via#" + str(merged[n])))
             continue
         if thrash_busy and par in parents_covered:
             skipped.append((n, "hot_path_busy"))
@@ -669,13 +693,15 @@ def run(
     qa_label: str = "qa task",
     debt_seated: set[int] | None = None,
     work_dir: "Path | None" = None,
+    merged_prs_raw: list | None = None,
 ) -> dict:
     issues = [normalize_issue(x) for x in issues_raw]
     prs = [normalize_pr(x) for x in prs_raw]
+    merged = merged_map([normalize_pr(x) for x in (merged_prs_raw or [])])
     recent_blocked = recent_no_progress(work_dir) if work_dir is not None else set()
     queue, stats = build_queue(
         issues, prs, max_issues, low_slots, debt_exclude, debt_seed,
-        qa_label, debt_seated, recent_blocked,
+        qa_label, debt_seated, recent_blocked, merged,
     )
     signals = build_signals(issues, prs, self_model_label, cluster_min_prs)
     open_alert_count = count_open_alerts(alerts_raw)
@@ -735,6 +761,15 @@ def main(argv: list[str] | None = None) -> int:
     p = argparse.ArgumentParser(prog="night-decision-front.py")
     p.add_argument("--issues", required=True, help="JSON array of gh issues")
     p.add_argument("--prs", help="JSON array of open PRs (default empty)")
+    p.add_argument(
+        "--merged-prs",
+        help=(
+            "JSON array of MERGED PRs (gh pr list --state merged shape). "
+            "Issues named by Fixes #N in a merged body are routed to "
+            "already_merged_via#PR (close still gated on evidence). "
+            "Omit when the fetch failed (fail-open: no merged-PR skips)."
+        ),
+    )
     p.add_argument(
         "--alerts",
         help=(
@@ -820,6 +855,17 @@ def main(argv: list[str] | None = None) -> int:
             print("--prs must be a JSON array", file=sys.stderr)
             return 2
         prs_raw = loaded
+    merged_prs_raw: list = []
+    if args.merged_prs:
+        mps_path = Path(args.merged_prs)
+        if not mps_path.is_file():
+            print("unreadable --merged-prs", file=sys.stderr)
+            return 2
+        mloaded = _load_json(mps_path)
+        if not isinstance(mloaded, list):
+            print("--merged-prs must be a JSON array", file=sys.stderr)
+            return 2
+        merged_prs_raw = mloaded
     alerts_raw = None
     if args.alerts:
         alerts_path = Path(args.alerts)
@@ -857,6 +903,7 @@ def main(argv: list[str] | None = None) -> int:
         str(args.qa_label),
         debt_seated,
         issues_path.parent,
+        merged_prs_raw=merged_prs_raw,
     )
     out = Path(args.out)
     out.parent.mkdir(parents=True, exist_ok=True)

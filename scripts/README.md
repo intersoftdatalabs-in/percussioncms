@@ -518,6 +518,7 @@ Preflight/Reconcile/Triage agents are skipped when the script fills
   python3 scripts/night-decision-front.py \
     --issues scratch/issues-raw.json \
     --prs scratch/prs-open.json \
+    --merged-prs scratch/merged.json \
     --alerts scratch/alerts.json \
     --out scratch/decision-front.json \
     --max-issues 3
@@ -530,7 +531,9 @@ Preflight/Reconcile/Triage agents are skipped when the script fills
   Never pass a faked empty list — a missing inventory is unknown, not zero.
 
 - **Hard rules in code**: deterministic label rules only; covering PR from `Fixes #N` / `issue-N`
-  branch; at most one implement item per parent; p7/p8 only in `--low-slots`;
+  branch; already-shipped issues routed out via merged-PR `Fixes #N` (`--merged-prs`,
+  `already_merged_via#PR` — close still gated on evidence);
+  at most one implement item per parent; p7/p8 only in `--low-slots`;
   human-QA handoff tickets excluded by routing label (`--qa-label`, default
   `qa task`) or `QA (#N)` title backstop (label-less tickets must not eat seats);
   debt rotation is cross-tier exclusion + win-cooldown (`--debt-exclude` /
