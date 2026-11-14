@@ -116,9 +116,13 @@ export async function renameFolderItem(body: {
 /**
  * Copy a folder via {@code FoldersResource#copyFolder}. Not pathmanagement
  * {@code moveItem} (that DTO cannot carry {@code copy}).
+ *
+ * @returns the created folder name from the Status message
+ * (server-uniquified on conflict, #6255), or {@code null} when the response
+ * carries no name.
  */
-export async function copyFolder(body: PSCopyRequest): Promise<void> {
-  await pathCopyFolder(body);
+export async function copyFolder(body: PSCopyRequest): Promise<string | null> {
+  return pathCopyFolder(body);
 }
 
 /**

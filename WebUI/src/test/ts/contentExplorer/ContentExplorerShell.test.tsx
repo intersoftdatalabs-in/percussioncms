@@ -2090,10 +2090,18 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     ).toBe("true");
   });
 
-  it("copies checked pages to one folder, skips folders, and keeps a partial failure visible (#4855)", async () => {
+  it("copies checked pages and folders to one folder, and keeps a partial failure visible (#4855, #6255)", async () => {
     const copyPosts: string[] = [];
+    const folderCopyPosts: string[] = [];
     mockFetch(async (input, init) => {
       const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("/folders/copy/folder")) {
+        folderCopyPosts.push(String(init?.body ?? ""));
+        return new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
+      }
       if (url.includes("/folders/copy/item")) {
         copyPosts.push(String(init?.body ?? ""));
         const body = String(init?.body ?? "");
@@ -2175,9 +2183,11 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     expect(result.getAttribute("data-outcome")).toBe("partial");
     expect(result.textContent).toContain("SkipMe");
     expect(result.textContent).toContain("Missing");
-    expect(result.textContent).not.toContain("Copied 2 item(s) to /Assets/Dest");
+    expect(result.textContent).toContain("were not rolled back");
     expect(copyPosts.length).toBe(2);
     expect(copyPosts.some((body) => body.includes("SkipMe"))).toBe(false);
+    expect(folderCopyPosts.length).toBe(1);
+    expect(folderCopyPosts.some((body) => body.includes("SkipMe"))).toBe(true);
     await renderA11yGate(container);
   });
 

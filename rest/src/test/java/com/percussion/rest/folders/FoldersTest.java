@@ -399,13 +399,15 @@ public class FoldersTest {
   }
 
   @Test
-  void copyFolder_successReturnsCopiedOk() throws Exception {
+  void copyFolder_successReturnsCreatedName() throws Exception {
     CopyFolderItemRequest req = new CopyFolderItemRequest();
     req.setItemPath("/Assets/src");
     req.setTargetFolderPath("/Assets/dst");
+    when(adaptor.copyFolder(uriInfo.getBaseUri(), "/Assets/src", "/Assets/dst"))
+        .thenReturn("src");
     Status result = resource.copyFolder(req);
     assertEquals(200, result.getStatusCode());
-    assertEquals("Copied OK", result.getMessage());
+    assertEquals("src", result.getMessage());
     verify(adaptor).copyFolder(uriInfo.getBaseUri(), "/Assets/src", "/Assets/dst");
   }
 

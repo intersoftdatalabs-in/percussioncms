@@ -18,8 +18,9 @@
 /**
  * Playwright surface: #4855 / parent #4530 — Content → Copy selected to folder.
  *
- * One confirm copies checked pages/assets into one folder, names skipped
- * folders, and does not report a partial HTTP failure as full success.
+ * One confirm copies checked pages/assets into one folder, deep-copies
+ * checked folders via POST /folders/copy/folder (#6255), and does not
+ * report a partial HTTP failure as full success.
  *
  * Run (QA mode after perc-devctl qa-up):
  * npm run test:surface -- --path tests/explorer-multi-copy.spec.js
@@ -75,7 +76,7 @@ async function checkRow(page, list, name) {
 
 test.describe("Explorer multi-select copy to one folder (#4855)", () => {
   test(
-    "UI: one confirm copies pages, names skipped folders, partial failure stays visible",
+    "UI: one confirm copies pages and folders, partial failure stays visible",
     { tag: TAGS },
     async ({ page, request }) => {
       test.setTimeout(180_000);
@@ -188,9 +189,7 @@ test.describe("Explorer multi-select copy to one folder (#4855)", () => {
         await expect(result).toHaveAttribute("data-outcome", "partial");
         await expect(result).toContainText(folderName);
         await expect(result).toContainText(missName);
-        expect(copyFolderUrls, "folders must not be posted to copy/folder").toEqual(
-          [],
-        );
+        expect(copyFolderUrls.length, "checked folders are deep-copied via copy/folder").toBeGreaterThanOrEqual(1);
         expect(copyItemUrls.length).toBeGreaterThanOrEqual(1);
 
         await expectNoSeriousA11yViolations(page, {

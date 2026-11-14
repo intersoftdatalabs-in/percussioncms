@@ -155,9 +155,10 @@ export const EXPLORER_MSG = {
   MULTI_COPY_PARTIAL:
     "perc.ui.explorer@Copied {count} item(s) to {path}; some copies failed and were not rolled back",
   MULTI_COPY_NONE:
-    "perc.ui.explorer@No pages or assets were copied",
+    "perc.ui.explorer@No checked items were copied",
   MULTI_COPY_SKIPPED: "perc.ui.explorer@Skipped folders: {names}",
   MULTI_COPY_FAILURES: "perc.ui.explorer@Copy failed for: {details}",
+  MULTI_COPY_COPIED: "perc.ui.explorer@Copied: {names}",
   MULTI_MOVE: "perc.ui.explorer@Move selected to folder",
   MULTI_MOVE_SUCCESS:
     "perc.ui.explorer@Moved {count} item(s) to {path}",
