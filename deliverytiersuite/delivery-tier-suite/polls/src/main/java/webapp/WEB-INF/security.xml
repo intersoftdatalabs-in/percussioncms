@@ -17,7 +17,7 @@
     <security:http pattern="/favicon.ico" security='none' />
 
     <security:http create-session="stateless" use-expressions="true" auto-config="true">
-       <security:csrf disabled="${disableCSRFProtection}" token-repository-ref="tokenRepository"/>
+       <security:csrf disabled="${disableCSRFProtection}" token-repository-ref="tokenRepository" request-matcher-ref="requestMatcher"/>
        <security:intercept-url pattern="/**" access="isAuthenticated()" />
        <security:custom-filter position="PRE_AUTH_FILTER"
                                ref="myPreAuthenticationFilter" />

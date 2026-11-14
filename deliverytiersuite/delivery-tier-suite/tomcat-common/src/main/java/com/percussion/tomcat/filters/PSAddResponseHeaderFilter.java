@@ -33,7 +33,6 @@ import java.util.Properties;
 import java.util.concurrent.TimeUnit;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.springframework.http.CacheControl;
 
 /**
  * Servlet filter that adds a {@code Cache-Control} header to responses served from a Percussion web
@@ -41,6 +40,11 @@ import org.springframework.http.CacheControl;
  * WEB-INF/perc-security.properties} when present, falling back to the {@code
  * catalina.base/conf/perc/perc-security.properties} override, and ultimately to a default of {@code
  * 60} seconds when neither file supplies a value.
+ *
+ * <p>The header is built with plain JDK types on purpose: this filter ships in
+ * {@code perc-tomcat-common}, which Tomcat loads from {@code common/lib} (the shared classloader),
+ * so framework classes from a webapp's {@code WEB-INF/lib} (e.g. Spring) are not visible here.
+ * Using them throws {@code ClassNotFoundException} on every request (#6244).</p>
  */
 public class PSAddResponseHeaderFilter implements Filter {
 
@@ -93,9 +97,8 @@ public class PSAddResponseHeaderFilter implements Filter {
         }
       }
 
-      httpResp.setHeader(
-          "Cache-Control",
-          CacheControl.maxAge(cachingAgeTimeValue, cachingAgeTimeUnit).getHeaderValue());
+      var maxAgeSeconds = cachingAgeTimeUnit.toSeconds(cachingAgeTimeValue);
+      httpResp.setHeader("Cache-Control", "max-age=" + maxAgeSeconds);
       chain.doFilter(request, response);
     } else {
       chain.doFilter(request, response);

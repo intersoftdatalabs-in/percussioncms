@@ -9,7 +9,12 @@
       http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
 
-   <context:component-scan base-package="com.percussion.delivery.forms.impl" />
+   <!-- The REST resource below also has an explicit XML bean (with its wiring);
+        excluding it from the scan keeps a single bean definition so the
+        Jersey SpringComponentProvider can bind it (#6244). -->
+   <context:component-scan base-package="com.percussion.delivery.forms.impl">
+     <context:exclude-filter type="assignable" expression="com.percussion.delivery.forms.impl.PSFormRestService" />
+   </context:component-scan>
 
    <bean id="propertyPlaceholderProps"
          class="com.percussion.delivery.utils.spring.PSPropertiesFactoryBean">

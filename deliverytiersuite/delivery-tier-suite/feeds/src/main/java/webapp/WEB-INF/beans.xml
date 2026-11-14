@@ -70,7 +70,12 @@
     <import resource="security.xml" />
 
 
-    <context:component-scan base-package="com.percussion.delivery.feeds.services" />
+    <!-- The REST resource below also has an explicit XML bean (with its wiring);
+         excluding it from the scan keeps a single bean definition so the
+         Jersey SpringComponentProvider can bind it (#6244). -->
+    <context:component-scan base-package="com.percussion.delivery.feeds.services">
+      <context:exclude-filter type="assignable" expression="com.percussion.delivery.feeds.services.PSFeedService" />
+    </context:component-scan>
 
     <tx:annotation-driven transaction-manager="txManager"/>
 

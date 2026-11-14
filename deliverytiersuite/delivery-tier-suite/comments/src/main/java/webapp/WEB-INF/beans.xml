@@ -63,8 +63,15 @@
         <property name="properties" ref="propertyPlaceholderProps" />
     </bean>
 
-    <context:component-scan base-package="com.percussion.delivery.comments.services" />
-    <context:component-scan base-package="com.percussion.delivery.likes.services" />
+    <!-- Both REST resources below also have explicit XML beans (with their
+         wiring); excluding them from the scans keeps a single bean definition
+         each so the Jersey SpringComponentProvider can bind them (#6244). -->
+    <context:component-scan base-package="com.percussion.delivery.comments.services">
+      <context:exclude-filter type="assignable" expression="com.percussion.delivery.comments.services.PSCommentsRestService" />
+    </context:component-scan>
+    <context:component-scan base-package="com.percussion.delivery.likes.services">
+      <context:exclude-filter type="assignable" expression="com.percussion.delivery.likes.services.PSLikesRestService" />
+    </context:component-scan>
 
     <import resource="perc-datasources.xml" />
     <import resource="file:${catalina.home}/conf/perc/*-datasources.xml" />
