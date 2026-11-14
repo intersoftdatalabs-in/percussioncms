@@ -74,7 +74,7 @@ export function classifyEditorControl(
   const control = norm(schema?.control);
   const name = norm(fieldName || schema?.name);
   const dataType = norm(schema?.dataType);
-  const sibling = /_(filename|ext|type|mime|size|width|height)$/.test(name);
+  const sibling = /_(filename|ext|type|mime|size|width|height|alt)$/.test(name);
 
   if (
     name === "sys_communityid" ||

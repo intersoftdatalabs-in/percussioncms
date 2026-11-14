@@ -250,6 +250,7 @@ export const EDITOR_MSG = {
   IMAGE_NUL:
     "perc.ui.editor@That image name contains a character that cannot be saved.",
   IMAGE_NUL_SAVE: "perc.ui.editor@Correct the image fields before saving.",
+  IMAGE_ALT: "perc.ui.editor@Alternative text",
   KEYWORD_EMPTY: "perc.ui.editor@Select a keyword",
   KEYWORD_CLEAR: "perc.ui.editor@Clear keyword",
   KEYWORD_NUL:

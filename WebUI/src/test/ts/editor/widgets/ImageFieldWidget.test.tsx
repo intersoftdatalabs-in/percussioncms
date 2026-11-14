@@ -15,10 +15,13 @@
  * limitations under the License.
  */
 
-import { describe, expect, it } from "vitest";
+import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
+import React from "react";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   collectImageNulFieldErrors,
   imageFieldContainsNul,
+  ImageFieldWidget,
 } from "../../../../main/ts/editor/widgets/ImageFieldWidget";
 
 const NUL = "\u0000";
@@ -67,5 +70,80 @@ describe("collectImageNulFieldErrors", () => {
       MESSAGE,
     );
     expect(errors).toEqual({});
+  });
+});
+
+describe("ImageFieldWidget alternative text", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  const meta = {
+    contentId: "42",
+    field: "img",
+    filename: "hero.png",
+    contentType: "image/png",
+    present: true,
+  };
+
+  it("renders the alt input with a stable test id and label", async () => {
+    const onAlt = vi.fn();
+    render(
+      <ImageFieldWidget
+        itemId="42"
+        name="img"
+        readOnly={false}
+        altValue="A hero at dawn"
+        onAlt={onAlt}
+        loadMeta={async () => meta}
+        onFile={vi.fn()}
+      />,
+    );
+    const alt = (await screen.findByTestId(
+      "editor-image-alt-img",
+    )) as HTMLInputElement;
+    expect(alt.value).toBe("A hero at dawn");
+    expect(alt.getAttribute("aria-label")).toBe("Alternative text");
+    expect(alt.getAttribute("name")).toBe("img_alt");
+    expect(alt.disabled).toBe(false);
+  });
+
+  it("reports alt edits without touching the binary pick", async () => {
+    const onAlt = vi.fn();
+    const onFile = vi.fn();
+    render(
+      <ImageFieldWidget
+        itemId="42"
+        name="img"
+        readOnly={false}
+        altValue=""
+        onAlt={onAlt}
+        loadMeta={async () => meta}
+        onFile={onFile}
+      />,
+    );
+    const alt = await screen.findByTestId("editor-image-alt-img");
+    fireEvent.change(alt, { target: { value: "New alt" } });
+    expect(onAlt).toHaveBeenCalledWith("New alt");
+    expect(onFile).not.toHaveBeenCalled();
+  });
+
+  it("disables the alt input in read-only view mode", async () => {
+    render(
+      <ImageFieldWidget
+        itemId="42"
+        name="img"
+        readOnly
+        altValue="A hero at dawn"
+        onAlt={vi.fn()}
+        loadMeta={async () => meta}
+        onFile={vi.fn()}
+      />,
+    );
+    const alt = (await screen.findByTestId(
+      "editor-image-alt-img",
+    )) as HTMLInputElement;
+    expect(alt.disabled).toBe(true);
+    expect(alt.value).toBe("A hero at dawn");
   });
 });
