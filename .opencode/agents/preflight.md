@@ -147,37 +147,6 @@ Flag each issue per the rhai README "Preflight inventory flags":
 | `InProgress?` | Label `In Progress` / `in progress` (after Phase 2A — these are FRESH claims, not stale). |
 | `Maintainer?` | Author login is in `maintainer_logins` (see Phase 2E). |
 
-### Phase 2D2 — TypeSafe pre-screen (fail-open, never a gate)
-
-Run the pre-screen against the raw inventory just written in Phase 2D
-(cwd = worktree root; `TYPESAFE_API_KEY` optional — without it the
-deterministic layer still runs and `status` is `fallback_rule_only`):
-
-```bash
-python3 scripts/typesafe-prescreen.py \
-  --inventory scratch/issues-raw.json \
-  --out scratch/prescreen.json
-# Windows:
-#   scripts\typesafe-prescreen.cmd --inventory scratch\issues-raw.json --out scratch\prescreen.json
-```
-
-`scratch/prescreen.json` contains per-issue:
-- `rule_skip` / `rule_kind` / `rule_close_candidate` — deterministic label
-  rules (`not safe for agents`, `in progress`, `qa task`, `migrated`,
-  assignees). **Authoritative.**
-- `model.skip_safe` / `pr_sized` / `close` — TypeSafe `jev` answers for
-  every issue the rules did not already skip.
-- `recommend_skip` + `skip_source` (`rule`|`model`) and `recommend_close`.
-
-Hard rules:
-- Deterministic flags in the skip matrix always win; the prescreen **only
-  adds** semantic hints and never un-skips. Do **not** merge `model`
-  skips into the `NotSafe?` flag.
-- If the script is missing, `TYPESAFE_API_KEY` is unset, it exits nonzero,
-  or the network fails: append `"prescreen": {"status": "fallback_rule_only" | "unavailable"}` 
-  to `signals.json` and **continue**. Never invent prescreen numbers.
-- Surface the prescreen in stdout: `prescreen=issues:N rule:N model:N close:N status:X`.
-
 ### Phase 2E — Maintainer discovery (when `maintainer_authors_only=true`)
 
 ```bash

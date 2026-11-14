@@ -13,13 +13,7 @@ issues that are 100% done, file PR-sized residuals for the rest.
 2. Read `.grok/workflows/README.md` → **Issue lifecycle / close rules
    (no empty trackers)** and **Residual issues (no quota phase)**.
 3. Read `scratch/preflight.json` (`issues_compact`, `maintainer_logins`).
-4. Read `scratch/prescreen.json` if it exists — issues with
-   `recommend_close=true` are suggested close candidates from the TypeSafe
-   pre-screen. Treat them as **inputs for inspection only**: each still
-   must pass the C1–C7 gates (merged covering PR / residual landed) below
-   before you close them. Never close on the prescreen hint alone; if the
-   file is `status: fallback_rule_only`, ignore it.
-5. Read `scratch/triage.json` if it exists (for implement leftovers).
+4. Read `scratch/triage.json` if it exists (for implement leftovers).
 
 ## Args (from the host prompt)
 
@@ -27,7 +21,7 @@ issues that are 100% done, file PR-sized residuals for the rest.
 |-----|---------|---------|
 | `repo` | `intersoftdatalabs-in/percussioncms` | GitHub repo. |
 | `base_branch` | `main` | PR base. |
-| `max_reconcile_closes` | `20` | Max issues to close per run (capped 1–40). |
+| `max_reconcile_closes` | `100` | Max issues to close per run. |
 | `max_reconcile_inspect` | `80` | Max open issues to inspect (capped 20–120). |
 | `model_id` | from env | `model:<id>` label for residual issues. |
 | `coding_tool_version` | from env | Co-Authored-By footer. |

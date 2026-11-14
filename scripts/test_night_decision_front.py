@@ -56,7 +56,7 @@ def test_one_per_parent_and_skip_epic():
         issue(4645, "issue 4532 slice 11: EditorHost save"),
         issue(4637, "issue 4530 slice 11: Explorer create folder"),
     ]
-    result = df.run(issues, [], None, 3, 0, "model:grok-4.6", 3)
+    result = df.run(issues, [], 3, 0, "model:grok-4.6", 3)
     nums = [q["issue_number"] for q in result["queue"]]
     assert 4531 not in nums
     assert len(nums) == 3
@@ -83,7 +83,7 @@ def test_covering_pr_skips_issue_and_siblings():
             "files": [],
         }
     ]
-    result = df.run(issues, prs, None, 3, 0, "model:grok-4.6", 3)
+    result = df.run(issues, prs, 3, 0, "model:grok-4.6", 3)
     nums = [q["issue_number"] for q in result["queue"]]
     assert 4648 not in nums
     assert 4649 not in nums
@@ -91,21 +91,17 @@ def test_covering_pr_skips_issue_and_siblings():
     assert result["owned_pr_count"] == 1
 
 
-def test_prescreen_model_skip_and_assigned():
+def test_no_model_skips_without_prescreen():
+    # Jev prescreen removed 2026-11-14: model hints no longer exist.
+    # Deterministic label rules still apply; absent-model issues queue.
     issues = [
         issue(1989, "Live Linux soak", labels=["p2"]),
         issue(4645, "issue 4532 slice 11: save"),
         issue(1, "assigned one", assignees=["vijaya-boddipudi"]),
     ]
-    prescreen = {
-        "issues": [
-            {"number": 1989, "rule_skip": False, "recommend_skip": True},
-            {"number": 4645, "rule_skip": False, "recommend_skip": False},
-        ]
-    }
-    result = df.run(issues, [], prescreen, 3, 0, "model:grok-4.6", 3)
+    result = df.run(issues, [], 3, 0, "model:grok-4.6", 3)
     nums = [q["issue_number"] for q in result["queue"]]
-    assert nums == [4645]
+    assert nums == [1989, 4645]
 
 
 def test_cluster_recommended_shared_files():
@@ -114,7 +110,7 @@ def test_cluster_recommended_shared_files():
          "files": [{"path": "WebUI/src/main/ts/publish/messages.ts"}]}
         for i in (1, 2, 3)
     ]
-    result = df.run([], prs, None, 3, 0, "model:grok-4.6", 3)
+    result = df.run([], prs, 3, 0, "model:grok-4.6", 3)
     assert result["cluster_recommended"] is True
 
 
@@ -127,7 +123,7 @@ def test_cluster_not_recommended_disjoint():
         {"number": 3, "title": "c", "body": "", "state": "OPEN",
          "files": [{"path": "c.ts"}]},
     ]
-    result = df.run([], prs, None, 3, 0, "model:grok-4.6", 3)
+    result = df.run([], prs, 3, 0, "model:grok-4.6", 3)
     assert result["cluster_recommended"] is False
     assert result["owned_pr_count"] == 3
 
@@ -155,7 +151,7 @@ def test_peer_eligible_other_operator():
             "files": [],
         },
     ]
-    result = df.run([], prs, None, 3, 0, "model:grok-4.6", 3)
+    result = df.run([], prs, 3, 0, "model:grok-4.6", 3)
     assert result["peer_eligible_count"] == 1
     assert "#10" in result["peer_eligible_prs"]
 
@@ -175,17 +171,17 @@ def test_alerts_count_open_mixed_shapes():
         raw_alert(100, "java/xss", "error", "dismissed"),
         {"number": 2089, "rule_id": "js/xss-through-dom", "severity": "warning", "state": "open"},
     ]
-    result = df.run([], [], None, 3, 0, "model:grok-4.6", 3, alerts)
+    result = df.run([], [], 3, 0, "model:grok-4.6", 3, alerts)
     assert result["open_alert_count"] == 3
 
 
 def test_alerts_missing_is_unknown_not_zero():
-    result = df.run([], [], None, 3, 0, "model:grok-4.6", 3)
+    result = df.run([], [], 3, 0, "model:grok-4.6", 3)
     assert result["open_alert_count"] == -1
 
 
 def test_alerts_empty_list_is_known_zero():
-    result = df.run([], [], None, 3, 0, "model:grok-4.6", 3, [])
+    result = df.run([], [], 3, 0, "model:grok-4.6", 3, [])
     assert result["open_alert_count"] == 0
 
 
@@ -256,7 +252,7 @@ def test_debt_exclude_reorders_but_never_starves():
         issue(1990, "issue 962 slice 5: fresh debt", labels=["p2", "tech-debt"]),
     ]
     # Excluded low-number debt sorts after fresh debt within the same pN tier.
-    result = df.run(issues, [], None, 2, 2, "model:x", 3, debt_exclude={1820, 1976})
+    result = df.run(issues, [], 2, 2, "model:x", 3, debt_exclude={1820, 1976})
     nums = [q["issue_number"] for q in result["queue"]]
     assert nums[0] == 1990
     assert len(nums) == 2
@@ -264,12 +260,12 @@ def test_debt_exclude_reorders_but_never_starves():
     # debt seat cannot be held forever by a blocked high-tier item while
     # fresh low-tier debt waits (observed: #1978/#1820 seated a third time).
     issues.append(issue(5711, "DCE warnings batch", labels=["p8", "tech-debt"]))
-    result = df.run(issues, [], None, 3, 3, "model:x", 3, debt_exclude={1820, 1976})
+    result = df.run(issues, [], 3, 3, "model:x", 3, debt_exclude={1820, 1976})
     nums = [q["issue_number"] for q in result["queue"]]
     assert nums[:2] == [1990, 5711]
     assert len(nums) == 3
     # All-excluded pool still fills the seat (fail-open, reorder not removal).
-    result = df.run(issues, [], None, 1, 1, "model:x", 3, debt_exclude={1820, 1976, 1990, 5711})
+    result = df.run(issues, [], 1, 1, "model:x", 3, debt_exclude={1820, 1976, 1990, 5711})
     assert len(result["queue"]) == 1
 
 
@@ -280,11 +276,11 @@ def test_debt_seed_randomizes_within_tier_deterministically():
         issue(5713, "DCE warnings c", labels=["p8", "tech-debt"]),
         issue(5721, "DCE warnings d", labels=["p8", "tech-debt"]),
     ]
-    first = [q["issue_number"] for q in df.run(issues, [], None, 4, 4, "model:x", 3, debt_seed=20261108)["queue"]]
-    second = [q["issue_number"] for q in df.run(issues, [], None, 4, 4, "model:x", 3, debt_seed=20261108)["queue"]]
+    first = [q["issue_number"] for q in df.run(issues, [], 4, 4, "model:x", 3, debt_seed=20261108)["queue"]]
+    second = [q["issue_number"] for q in df.run(issues, [], 4, 4, "model:x", 3, debt_seed=20261108)["queue"]]
     assert first == second  # seeded: reproducible
     assert sorted(first) == [5711, 5712, 5713, 5721]
-    legacy = [q["issue_number"] for q in df.run(issues, [], None, 4, 4, "model:x", 3)["queue"]]
+    legacy = [q["issue_number"] for q in df.run(issues, [], 4, 4, "model:x", 3)["queue"]]
     assert legacy == [5711, 5712, 5713, 5721]  # no seed: legacy number order
 
 
@@ -295,18 +291,18 @@ def test_qa_tickets_excluded_by_label_and_title():
     # the title pattern is the backstop.
     unlabeled = issue(5800, "QA (#5782): SFTP passphrase panel", labels=[])
     normal = issue(5761, "issue 4530 slice 138: arrow-key nav")
-    assert df.rule_skip_issue(labeled, None) == (True, "human_qa")
-    assert df.rule_skip_issue(unlabeled, None) == (True, "human_qa_title")
-    assert df.rule_skip_issue(normal, None) == (False, "")
-    result = df.run([labeled, unlabeled, normal], [], None, 3, 0, "model:x", 3)
+    assert df.rule_skip_issue(labeled) == (True, "human_qa")
+    assert df.rule_skip_issue(unlabeled) == (True, "human_qa_title")
+    assert df.rule_skip_issue(normal) == (False, "")
+    result = df.run([labeled, unlabeled, normal], [], 3, 0, "model:x", 3)
     nums = [q["issue_number"] for q in result["queue"]]
     assert 5799 not in nums and 5800 not in nums and 5761 in nums
     # Custom routing label is honored.
     custom = issue(5801, "handoff ticket", labels=["qa-review"])
-    assert df.rule_skip_issue(custom, None, qa_label="qa-review") == (True, "human_qa")
-    assert df.rule_skip_issue(custom, None) == (False, "")
+    assert df.rule_skip_issue(custom, qa_label="qa-review") == (True, "human_qa")
+    assert df.rule_skip_issue(custom) == (False, "")
     # A non-handoff title containing 'qa' elsewhere is NOT skipped.
-    assert df.rule_skip_issue(issue(1, "Adequate coverage for login"), None) == (False, "")
+    assert df.rule_skip_issue(issue(1, "Adequate coverage for login")) == (False, "")
 
 
 def test_debt_seated_cooldown_yields_to_unseated_across_tiers():
@@ -316,19 +312,19 @@ def test_debt_seated_cooldown_yields_to_unseated_across_tiers():
         issue(5793, "ExplorerTree complexity residual", labels=["p8", "tech-debt"]),
         issue(5794, "EditorHost complexity residual", labels=["p8", "tech-debt"]),
     ]
-    result = df.run(issues, [], None, 2, 2, "model:x", 3, debt_seated={5660})
+    result = df.run(issues, [], 2, 2, "model:x", 3, debt_seated={5660})
     nums = [q["issue_number"] for q in result["queue"]]
     assert 5660 not in nums and set(nums) == {5793, 5794}
     # Same call without the cooldown seats the p3 first (tier-first baseline).
-    result = df.run(issues, [], None, 2, 2, "model:x", 3)
+    result = df.run(issues, [], 2, 2, "model:x", 3)
     nums = [q["issue_number"] for q in result["queue"]]
     assert nums[0] == 5660
     # All-seated pool still fills the seat (fail-open, reorder not removal).
-    result = df.run(issues, [], None, 1, 1, "model:x", 3, debt_seated={5660, 5793, 5794})
+    result = df.run(issues, [], 1, 1, "model:x", 3, debt_seated={5660, 5793, 5794})
     assert len(result["queue"]) == 1
     # Seated + excluded combine: excluded p2 still last.
     issues.append(issue(1820, "packaging verification slice", labels=["p2", "tech-debt"]))
-    result = df.run(issues, [], None, 2, 2, "model:x", 3,
+    result = df.run(issues, [], 2, 2, "model:x", 3,
                     debt_exclude={1820}, debt_seated={5660})
     nums = [q["issue_number"] for q in result["queue"]]
     assert nums == [5793, 5794] or nums == [5794, 5793]
@@ -342,7 +338,7 @@ def test_debt_seated_cooldown_yields_to_unseated_across_tiers():
 if __name__ == "__main__":
     test_one_per_parent_and_skip_epic()
     test_covering_pr_skips_issue_and_siblings()
-    test_prescreen_model_skip_and_assigned()
+    test_no_model_skips_without_prescreen()
     test_cluster_recommended_shared_files()
     test_cluster_not_recommended_disjoint()
     test_peer_eligible_other_operator()

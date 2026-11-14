@@ -19,7 +19,7 @@ Project workflows live here and are invocable by name (e.g. `/night-issue-prs` o
 Unattended overnight worker. Specialists spawn only when Preflight (or this-run results) show work; empty phases do not pay a full agent.
 
 1. **Identity** — live **Grok Build** version (`grok --version`) and **session model** (e.g. `grok-4.6`). Skipped when `coding_tool`, `coding_tool_version`, and `model_id` are all passed as args.  
-2. **Decision front** (2.2.0) — one thin agent runs `scripts/night-decision-front.py` (plus optional TypeSafe prescreen). Emits skip signals, one-per-parent implement queue, covering-PR skips, Jev skip hints. **Skips** the Preflight/Reconcile/Triage Grok walks when `signals_complete` and the queue is full. Fallback to those agents if the script fails. Does not merge. Does not create new DESIGN_GAPS children (Triage still runs when slots remain). Excludes human-QA handoff tickets (`qa task` label or `QA (#N)` title — label-less tickets leak through a label-only check) so they never eat implement seats. The host feeds `scratch/alerts.json` (`gh api code-scanning/alerts`, open only) via `--alerts` so `open_alert_count` is real; a failed fetch omits the flag → count `-1` (unknown, audit runs fail-open), never faked `0`.  
+2. **Decision front** (2.2.0) — one thin agent runs `scripts/night-decision-front.py`. Emits skip signals, one-per-parent implement queue, covering-PR skips. **Skips** the Preflight/Reconcile/Triage Grok walks when `signals_complete` and the queue is full. Fallback to those agents if the script fails. Does not merge. Does not create new DESIGN_GAPS children (Triage still runs when slots remain). Excludes human-QA handoff tickets (`qa task` label or `QA (#N)` title — label-less tickets leak through a label-only check) so they never eat implement seats. The host feeds `scratch/alerts.json` (`gh api code-scanning/alerts`, open only) via `--alerts` so `open_alert_count` is real; a failed fetch omits the flag → count `-1` (unknown, audit runs fail-open), never faked `0`.  
 3. **Preflight** (fallback) — stale **In Progress** cleanup + **compact** issue inventory + skip signals.  
 4. **Reconcile** (fallback) — close issues that are **100% implemented**. Emit `implement_candidates`.  
 5. **PR follow-up PRE** — only if Preflight found merge blockers (conflicts or open review threads).  
@@ -37,7 +37,7 @@ Unattended overnight worker. Specialists spawn only when Preflight (or this-run 
 
 **Human QA handoff (after Cycle verify, default on):** when a this-run PR is **ready for human QA** *and* cycle verify did not fail it, create a **`qa task`** issue with a numbered **test plan**, routed to the QA queue by **label only** (never assign a GitHub user — no hardcoded login), link Parent + PR. Pause: `include_human_qa: false`.
 
-**Token skip (2.1.0):** Host skip is still fail-open on **unknown** counts (`-1`), but **known zeros** and sentinel `none` strings do not spawn specialists. Jev prescreen remains hints only.
+**Token skip (2.1.0):** Host skip is still fail-open on **unknown** counts (`-1`), but **known zeros** and sentinel `none` strings do not spawn specialists.
 
 **Merge policy (2.0.8+):** Goal is **merged bug-free PRs** with **residual issues logged** for leftover scope. Work **opens PRs only** (never APPROVEs or merges its own). **Erlang** (independent sub-agent) **MAY APPROVE and squash-merge** when LGTM + checks green. Hard-gate findings are **fixed on the same PR** (`erlang-fix`) then re-reviewed (one retry). Out-of-scope leftovers become residual GitHub issues — they do not block merge of in-scope work. **Preexisting machine bugs and complexity/cognitive-complexity findings in PR-touched files are never merge blockers, but they are never dropped either:** Erlang files deduped, capped (`max_erlang_residuals`, default 3) `tech-debt` residuals per PR — `p7` for preexisting **bug** rows, `p8` for **complexity/suggestion** rows (`nit` never files) — and records them in `residual_issue_urls` (`bugs_found` stays in-diff only). GitHub same-login APPROVE rejection → COMMENT LGTM + `--admin` merge. Oversized issues become child issues, not mega-PRs.
 
@@ -56,7 +56,7 @@ Every run classifies candidates as **PRODUCT** or **DEBT** before ranking.
 |------|----------|
 | **Phase A — product seats** | Fill `priority_slots = max_issues` from PRODUCT only, p1 → p6 → Unset (debt rides **on top** — product seats never shrink for the tax). Implement-ready items **and** 3 PR-sized **next-phase slices** of open epics. A prior child PR + assigned QA ticket does **not** finish the parent. **Never** queue p7/p8 while any eligible product item remains. Product overflow must never eat a reserved debt seat |
 | **Phase A — QA: Failed** | Not a skip. File or reuse an unassigned implement residual and queue it. Do not work the assigned `qa task` itself |
-| **Phase B — debt seats (ADDITIVE tax)** | Fill **`low_slots` only**, where `low_slots = ceil(max_issues × low_priority_quota_pct / 100)` with min 1 when quota>0 (host invokes decision-front with `--max-issues (max_issues + low_slots)` so product keeps its full seats). Ceil: `max_issues=12` at default 20% → 3 debt (queue of 15); small `max_issues=3` → 1. The explicit **tech-debt count** knob is `min_debt_slots` (e.g. `min_debt_slots=1` guarantees one debt seat regardless of percentage math). Unused `priority_slots` stay **empty**. Default quota=20 → the tax is always on; pass quota=0 (`no debt`) for a product-only run. Report `priority_slots / low_slots / debt_candidates / debt_queued` every run so zero-debt is auditable |
+| **Phase B — debt seats (ADDITIVE tax + BACKFILL)** | Fill **`low_slots` first** (`low_slots = ceil(max_issues × low_priority_quota_pct / 100)`, min 1 when quota>0; host invokes decision-front with `--max-issues (max_issues + low_slots)` so product keeps its full seats), **then backfill every seat product left empty** with implement-ready debt (same filters + rotation) up to the effective queue max. Ceil: `max_issues=12` at default 20% → 3 debt (queue of 15); small `max_issues=3` → 1. Seats stay empty only when NO actionable product AND NO actionable debt remains. The explicit **tech-debt count** knob is `min_debt_slots` (e.g. `min_debt_slots=1` guarantees one debt seat regardless of percentage math). Default quota=20 → the tax is always on; pass quota=0 (`no debt`) for a product-only run. Report `priority_slots / low_slots / debt_candidates / debt_queued` every run so zero-debt is auditable |
 | **Phase B — rotation (2.2.8-draft, cross-tier 2.2.9-draft)** | Lowest-number-first reseats the same blocked debt nightly. Recently-blocked debt (prior no-progress verdicts) sorts **after ALL fresh debt regardless of pN tier** — a blocked p2 yields to a fresh p8 for one cycle (observed: tier-first ordering seated #1820/#1978 a third time while 20 fresh p8s waited). Same-flag ties break by pN, then **randomly** (seeded, `YYYYMMDD`), never lowest-number-first. Rotation **reorders, never starves** the seat |
 | **prefer_easy** | Tertiary **among DEBT items in the same pN** only. Default **false**. Never ranks tech-debt above product. Never a reason to pick p8 in Phase A |
 
@@ -172,24 +172,6 @@ Overnight work must not follow issues filed by random users or bots.
 | **InProgress?** | Label **In Progress** / `in progress`. |
 
 Host install, customer env, and human UAT are **capability skips for that issue’s implement row**. They must not starve **3-slice expansion** of a different p1–p6 product epic.
-
-### TypeSafe pre-screen (fail-open — 2.0.9)
-
-Preflight runs a cheap TypeSafe (`jev`) judgement layer before Triage/Work; it is a **hint layer, never a gate**.
-
-| Step | Where | What |
-|------|-------|------|
-| Raw inventory | Preflight PART D | `scratch/issues-raw.json` (JSON array: `number,title,labels,assignees,author,updatedAt`) |
-| Script | -- | `python3 scripts/typesafe-prescreen.py --inventory scratch/issues-raw.json --out scratch/prescreen.json` (Windows: `scripts\typesafe-prescreen.cmd`) |
-| Output | -- | `scratch/prescreen.json` — per issue: `rule_skip` / `rule_kind`, `model.skip_safe|pr_sized|close`, `recommend_skip` (+`skip_source`), `recommend_close`, plus `stats` and `status` |
-
-Rules:
-
-- **Deterministic label layer is authoritative**: `not safe for agents`, In Progress, `qa task`, `migrated`, and any assignee (unassigned-only) skip the issue in the script itself. The model **never un-skips** and is never asked about rule-skipped issues.
-- **Model layer adds only**: semantic skips (soak / customer-env / gated / human-sign-off) at `skip_safe >= prescreen_threshold` (default 0.85) and reconcile close candidates (`recommend_close`). Triage turns `recommend_skip/source=model` into `disposition=skip`; Reconcile treats `recommend_close` as inspection inputs still gated by its C1–C7 rules.
-- **Fail-open**: missing `TYPESAFE_API_KEY`, API/network failure, or a nonzero exit → the script still writes the deterministic layer with `status: fallback_rule_only`; Triage/Reconcile proceed identically. The nightly must **never block** on the pre-screen. Do not invent prescreen numbers when the file is absent.
-- **Cost/latency**: one batched call over the whole scored backlog — measured ~$0.002 and ~1s on 44 issues (44-issue / 176-question = $0.0018; sub-question batching identical accuracy). A single avoided Work spawn (~1M tokens ≈ $3.50) pays for ~1,900 pre-screens.
-- Disable with `include_typesafe_prescreen: false`; tune the model skip bar with `prescreen_threshold`.
 
 ### Primary overnight product (HARD — 2.0.6)
 
@@ -318,8 +300,8 @@ Workers **upsert** the parent body section (`gh issue view` → edit section →
 | `include_reconcile` | bool | `true` | After Preflight: close 100% implemented open issues (including QA: Failed whose residual landed); emit leftover implement candidates |
 | `max_reconcile_closes` | int | `100` | Max issues to close per reconcile pass (capped 1–100) |
 | `max_reconcile_inspect` | int | `100` | Max open issues to inspect for close vs remaining work (capped 20–120) |
-| `include_typesafe_prescreen` | bool | `true` | Preflight runs `scripts/typesafe-prescreen.{py,cmd}` → `scratch/prescreen.json`. Deterministic label rules authoritative; model only adds semantic skip / close hints (fail-open) |
-| `prescreen_threshold` | float | `0.85` | Model `skip_safe` threshold to recommend a skip (`recommend_skip/source=model`). Below it the issue stays eligible |
+| `include_typesafe_prescreen` | bool | removed | Removed 2026-11-14 (Jev out): no pre-screen step; deterministic label rules apply inline |
+| `prescreen_threshold` | float | removed | Removed 2026-11-14 with the pre-screen step |
 | `include_pr_followup` | bool | `true` | Run PR merge-blocker drain after stale cleanup (before Discover/Triage) **and** after issue Work |
 | `include_peer_pr_review` | bool | `true` | After PRE: Erlang sub-agent + APPROVE/merge other-model PRs (dual-label OpenCode eligible) |
 | `include_erlang_review` | bool | `true` | Host Erlang leftover (before Work) + this-run (after Work); Erlang may APPROVE+merge |
@@ -470,7 +452,7 @@ Rough agent use (v2.0.3 — specialists are 0 when Preflight says there is nothi
 
 A quiet grok-only night with no blockers, no alerts, and no other-model PRs is **Identity + Preflight + Triage + Work×N + Cycle verify** (if PRs opened). Default 128 is plenty.
 
-**Skip matrix (fail-open):** a specialist runs unless Preflight set `signals_complete=true` **and** that signal is a **known 0**. A full decision-front queue still runs **one bounded triage gate-audit** when any row carries `gate_hint` (human-gated language) or `reseated` (no-progress verdict in the recent work window) — hints never skip rows themselves; the audit adjudicates live. CodeQL 403 must omit `open_alert_count` (never write 0). `cluster_recommended` covers `>= cluster_min_prs` **or** `>=2` CONFLICTING on shared paths; missing flag runs cluster. Cycle verify also runs when Security opened mitigation PRs. The TypeSafe pre-screen is **never** part of this matrix — `recommend_skip/source=model` merely re-ranks an issue to `disposition=skip` in Triage, and a missing/`fallback_rule_only` prescreen changes nothing.
+**Skip matrix (fail-open):** a specialist runs unless Preflight set `signals_complete=true` **and** that signal is a **known 0**. A full decision-front queue still runs **one bounded triage gate-audit** when any row carries `gate_hint` (human-gated language) or `reseated` (no-progress verdict in the recent work window) — hints never skip rows themselves; the audit adjudicates live. CodeQL 403 must omit `open_alert_count` (never write 0). `cluster_recommended` covers `>= cluster_min_prs` **or** `>=2` CONFLICTING on shared paths; missing flag runs cluster. Cycle verify also runs when Security opened mitigation PRs.
 
 Pass stamp args from the launcher so Identity does not spawn:
 

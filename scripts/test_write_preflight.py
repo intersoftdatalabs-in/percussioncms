@@ -105,21 +105,9 @@ def test_canonical_shape_from_inventory_only(tmp_path: Path) -> None:
     assert doc["stats"]["codeql_alerts"] == -1
 
 
-def test_merges_prescreen_and_alerts(tmp_path: Path) -> None:
+def test_merges_alerts_and_label_flags(tmp_path: Path) -> None:
     inv = tmp_path / "issues-raw.json"
     inv.write_text(json.dumps(_inventory()), encoding="utf-8")
-    prescreen = tmp_path / "prescreen.json"
-    prescreen.write_text(
-        json.dumps(
-            {
-                "issues": [
-                    {"number": 1, "rule_kind": None},
-                    {"number": 2, "rule_kind": "not_safe_agents"},
-                ]
-            }
-        ),
-        encoding="utf-8",
-    )
     alerts = tmp_path / "alerts.json"
     alerts.write_text(
         json.dumps([{"number": 10}, {"number": 11}, {"number": 12}]),
@@ -142,7 +130,6 @@ def test_merges_prescreen_and_alerts(tmp_path: Path) -> None:
     proc = _run(
         [
             "--inventory", str(inv),
-            "--prescreen", str(prescreen),
             "--decision-front", str(decision),
             "--alerts", str(alerts),
             "--allowed-authors", "natechadwick-intsof",

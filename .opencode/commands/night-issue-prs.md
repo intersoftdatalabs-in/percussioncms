@@ -1,5 +1,5 @@
 ---
-description: Launch the night-issue-prs unattended workflow (host = night-worker). Mirrors .grok/workflows/night-issue-prs.rhai v2.2.5 — decision-front; Erlang CLI 0.1.18 --git-base; Work implementers run the Erlang skill CLI before opening a PR; host/peer still spawn erlang-review; full Pre-push local code review in PR body; skip empty specialists; TypeSafe pre-screen fail-open; Erlang MAY APPROVE+squash-merge.
+description: Launch the night-issue-prs unattended workflow (host = night-worker). Mirrors .grok/workflows/night-issue-prs.rhai v2.2.5 — decision-front; Erlang CLI 0.1.18 --git-base; Work implementers run the Erlang skill CLI before opening a PR; host/peer still spawn erlang-review; full Pre-push local code review in PR body; skip empty specialists; Erlang MAY APPROVE+squash-merge.
 agent: night-worker
 ---
 
@@ -41,8 +41,8 @@ positional text). Parse them and pass to the workflow as described below.
 | `include_reconcile` | bool | `true` | Close 100%-implemented issues |
 | `max_reconcile_closes` | int | `100` | Max reconcile closes per run |
 | `max_reconcile_inspect` | int | `100` | Max open issues to inspect |
-| `include_typesafe_prescreen` | bool | `true` | Preflight runs `scripts/typesafe-prescreen.{py,cmd}` → `scratch/prescreen.json`; deterministic label rules stay authoritative, model only adds semantic skip hints at `prescreen_threshold` |
-| `prescreen_threshold` | float | `0.85` | Model skip_safe threshold to recommend a skip; fails open to rule-only |
+| `include_typesafe_prescreen` | bool | removed | Removed 2026-11-14 (Jev out): no pre-screen step exists; deterministic label rules apply inline in Preflight/Triage |
+| `prescreen_threshold` | float | removed | Removed 2026-11-14 with the pre-screen step |
 | `include_pr_followup` | bool | `true` | Run PR merge-blocker drain PRE + POST |
 | `include_peer_pr_review` | bool | `true` | Other-model PRs: Erlang sub-agent then APPROVE+merge |
 | `include_erlang_review` | bool | `true` | Host Erlang leftover + this-run; Erlang MAY APPROVE+merge |
@@ -121,7 +121,7 @@ absent (count `-1` is unknown, not zero).
 |---|-------|-----------|-------------|
 | 1 | Identity | (inline — read env) | stamp args already passed |
 | 2 | Decision front | run `scripts/night-decision-front.py` (thin; fetch `scratch/alerts.json` first, pass `--alerts`; omit the flag on fetch failure → count `-1`, never fake `[]`) | `include_decision_front: false` |
-| 3 | Preflight (fallback) — stale In Progress cleanup + TypeSafe pre-screen | `preflight` | decision-front `signals_complete` (still write `scratch/preflight.json` via `scripts/write-preflight.py` — see below) |
+| 3 | Preflight (fallback) — stale In Progress cleanup | `preflight` | decision-front `signals_complete` (still write `scratch/preflight.json` via `scripts/write-preflight.py` — see below) |
 | 4 | Reconcile (fallback) | `reconcile` | decision-front filled the queue or `include_reconcile: false` |
 | 5 | PR follow-up PRE | `pr-follow-up` | no merge blockers from Preflight |
 | 6 | Triage | `triage` | decision-front filled `max_issues` **with zero unadjudicated flags** (`gate_hints_needed == 0` and `reseats_needed == 0`) |
@@ -164,7 +164,6 @@ exceeds `ARG_MAX` and truncates the file to 0 bytes):
 ```bash
 python3 scripts/write-preflight.py \
   --inventory scratch/issues-raw.json \
-  --prescreen scratch/prescreen.json \
   --decision-front scratch/decision-front.json \
   --alerts scratch/alerts.json \
   --allowed-authors "<extra logins>" \
@@ -235,19 +234,6 @@ Host sweep (Report phase, covers everything Work did not):
 4. Never file for items owned by an assignee, human-gated decisions, or
    `disposition=skip` rows — those stay as report notes, not issues.
 
-## TypeSafe pre-screen (part of Preflight, never a gate)
-
-1. `preflight` writes `scratch/issues-raw.json` (JSON array of kept issues:
-   `number,title,labels,assignees,author,updatedAt`).
-2. Run: `python3 scripts/typesafe-prescreen.py --inventory scratch/issues-raw.json --out scratch/prescreen.json`
-   (Windows: `scripts\typesafe-prescreen.cmd`). Requires `TYPESAFE_API_KEY`
-   for the model layer; without it the script still writes the deterministic
-   rule layer and sets `status: fallback_rule_only`.
-3. `triage` reads `scratch/prescreen.json`: honor `recommend_skip`
-   (`skip_source=model`) as `disposition=skip` / `rationale=prescreen`, and
-   treat `recommend_close` as inputs for the `reconcile` agent. Never un-skip
-   a deterministic rule. If the script is unavailable, proceed without it.
-
 ## CodeQL alerts feed (Phase 2 → Phase 13)
 
 Decision-front cannot see code-scanning alerts on its own — fetch them first:
@@ -289,6 +275,8 @@ entombing issues):
    `stats.debt_seed`).
 4. Omission is fail-open (legacy number order), but a debt run without a
    seed re-risks reseating — prefer always passing all three when seats exist.
+
+**Backfill (operator direction 2026-11-14):** product-first ordering decides WHO gets seats first, never leaves seats empty. If product fills fewer than `max_issues` seats, the remainder backfill with implement-ready debt (same filters: unassigned, maintainer-authored, agent-safe, implement-ready; rotation applies) up to the effective queue max. Seats stay empty only when NO actionable product AND NO actionable debt remains — still audited with typed whys. Example: `max_issues=30`, product fills 8 → up to 28 debt seats (6 reserved + 22 backfill), full queue of 36.
 
 **Standing debt tax (operator direction 2026-11-13):** every cycle pays a debt
 tax of `low_priority_quota_pct` (default 20%) computed on the requested
