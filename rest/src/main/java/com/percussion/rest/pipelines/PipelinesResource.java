@@ -31,6 +31,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -67,7 +68,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(
     name = "Pipelines",
     description =
-        "Data pipeline / XML application design catalog, Admin start/stop, Admin enable/disable, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, nested filter groups, binary resource persist/retrieve, HTML result-page persist, request tracing, and IR execute")
+        "Data pipeline / XML application design catalog, Admin start/stop, Admin enable/disable, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, JDBC datasource backend persist/test, nested filter groups, binary resource persist/retrieve, HTML result-page persist, request tracing, and IR execute")
 public class PipelinesResource {
 
   private final IPipelinesAdaptor adaptor;
@@ -472,6 +473,126 @@ public class PipelinesResource {
       PipelineHttpBackendTank body) {
     try {
       return requireAdaptor().putHttpBackendTank(uriInfo.getBaseUri(), app, resource, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Persist a named allow-listed JDBC datasource backend on a native pipeline resource
+   * (create or update). The connection test runs first and fails closed: a failed test is
+   * named and nothing is persisted. Does not rewrite classic XML Applications.
+   */
+  @PUT
+  @Path("/{app}/resources/{resource}/datasourceBackend")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Persist JDBC datasource backend on a native pipeline resource",
+      description =
+          "Admin only. Saves a named allow-listed JDBC datasource catalog id on native IR"
+              + " (never a JDBC URL). The connection test runs before persist and fails closed"
+              + " — a failed test is named and nothing is saved. Resources already backed by"
+              + " an HTTP tank are 409. Classic XML Applications stay read-only.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Saved",
+            content = @Content(schema = @Schema(implementation = PipelineDatasourceBackend.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid id, adapter, or name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "409", description = "Resource has an HTTP backend tank"),
+        @ApiResponse(responseCode = "502", description = "Datasource connection test failed"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public PipelineDatasourceBackend putDatasourceBackend(
+      @PathParam("app") String app,
+      @PathParam("resource") String resource,
+      PipelineDatasourceBackend body) {
+    try {
+      return requireAdaptor().putDatasourceBackend(uriInfo.getBaseUri(), app, resource, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Remove the named JDBC datasource backend from a native pipeline resource. Resources without
+   * a datasource backend are 404; the HTTP backend tank is never clobbered. Does not rewrite
+   * classic XML Applications.
+   */
+  @DELETE
+  @Path("/{app}/resources/{resource}/datasourceBackend")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Remove JDBC datasource backend from a native pipeline resource",
+      description =
+          "Admin only. Clears the named datasource binding. 404 when the resource has no"
+              + " datasource backend. Classic XML Applications stay read-only.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Removed",
+            content = @Content(schema = @Schema(implementation = PipelineDatasourceBackend.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(
+            responseCode = "404",
+            description = "Application, resource, or backend not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public PipelineDatasourceBackend deleteDatasourceBackend(
+      @PathParam("app") String app, @PathParam("resource") String resource) {
+    try {
+      return requireAdaptor().deleteDatasourceBackend(uriInfo.getBaseUri(), app, resource);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Connection-test a named allow-listed datasource catalog id without persisting anything.
+   * Always 200: the named outcome rides in {@code connectionOk} / {@code connectionMessage}.
+   */
+  @POST
+  @Path("/{app}/resources/{resource}/datasourceBackend/test")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Connection-test a JDBC datasource backend without persisting",
+      description =
+          "Admin only. Opens a JDBC connection for the named allow-listed catalog id and"
+              + " reports the named outcome. Nothing is persisted — never a success record"
+              + " for a failed test. Invalid or non-allow-listed ids are 400.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Test outcome",
+            content = @Content(schema = @Schema(implementation = PipelineDatasourceBackend.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid id or name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public PipelineDatasourceBackend testDatasourceBackend(
+      @PathParam("app") String app,
+      @PathParam("resource") String resource,
+      PipelineDatasourceBackend body) {
+    try {
+      return requireAdaptor().testDatasourceBackend(uriInfo.getBaseUri(), app, resource, body);
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {

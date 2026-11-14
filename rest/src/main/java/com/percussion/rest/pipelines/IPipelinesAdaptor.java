@@ -140,6 +140,34 @@ public interface IPipelinesAdaptor {
   PipelineBinaryPayload retrieveBinary(URI baseUri, String appName, String resourceName);
 
   /**
+   * Admin: persist a named allow-listed JDBC datasource backend on one native pipeline resource
+   * (create or update). The connection test runs first and fails closed: a failed test is named
+   * and nothing is persisted. Classic XML Applications are not mutated.
+   *
+   * @return saved backend with a passing connection test, never {@code null}
+   */
+  PipelineDatasourceBackend putDatasourceBackend(
+      URI baseUri, String appName, String resourceName, PipelineDatasourceBackend backend);
+
+  /**
+   * Admin: remove the named JDBC datasource backend from one native pipeline resource. Resources
+   * without a datasource backend are 404. The HTTP backend tank is never clobbered. Classic XML
+   * Applications are not mutated.
+   *
+   * @return removed backend binding, never {@code null}
+   */
+  PipelineDatasourceBackend deleteDatasourceBackend(URI baseUri, String appName, String resourceName);
+
+  /**
+   * Admin: connection-test one allow-listed datasource catalog id without persisting anything.
+   * Always 200: the named outcome rides in {@code connectionOk} / {@code connectionMessage}.
+   *
+   * @return test outcome, never {@code null}
+   */
+  PipelineDatasourceBackend testDatasourceBackend(
+      URI baseUri, String appName, String resourceName, PipelineDatasourceBackend backend);
+
+  /**
    * Admin: enable or disable request tracing on a native pipeline application. When disabled, the
    * last-trace snapshot is cleared (fail-closed). Classic XML Applications are not mutated.
    *

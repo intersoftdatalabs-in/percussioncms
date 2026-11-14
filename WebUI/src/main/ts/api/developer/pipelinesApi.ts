@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { get, getBinary, post, put } from "../client";
+import { get, getBinary, post, put, del } from "../client";
 import { PATHS } from "../paths";
 import type {
   ApplicationDetail,
@@ -23,6 +23,7 @@ import type {
   ApplicationValidationResult,
   PipelineBinaryBytes,
   PipelineBinaryResource,
+  PipelineDatasourceBackend,
   PipelineEnabledState,
   PipelineExecuteRequest,
   PipelineResultPage,
@@ -325,6 +326,81 @@ export async function putHttpBackendTank(
     wrapPipelineHttpBackendTankForWire(body),
   );
   return unwrapPipelineHttpBackendTank(payload);
+}
+
+/** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineDatasourceBackend}. */
+export const PIPELINE_DATASOURCE_BACKEND_ROOT = "PipelineDatasourceBackend";
+
+export function wrapPipelineDatasourceBackendForWire(
+  body: PipelineDatasourceBackend,
+): { PipelineDatasourceBackend: PipelineDatasourceBackend } {
+  return { [PIPELINE_DATASOURCE_BACKEND_ROOT]: body ?? {} };
+}
+
+export function unwrapPipelineDatasourceBackend(
+  payload: unknown,
+): PipelineDatasourceBackend {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("Datasource backend not found or empty response");
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.PipelineDatasourceBackend ?? root.pipelineDatasourceBackend;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested as PipelineDatasourceBackend;
+  }
+  return root as PipelineDatasourceBackend;
+}
+
+/**
+ * PUT /services/pipelines/{app}/resources/{resource}/datasourceBackend — Admin named JDBC
+ * datasource (create or update). The server connection-tests before persist and fails closed.
+ */
+export async function putDatasourceBackend(
+  app: string,
+  resource: string,
+  body: PipelineDatasourceBackend,
+): Promise<PipelineDatasourceBackend> {
+  const appKey = encodeURIComponent(app);
+  const resourceKey = encodeURIComponent(resource);
+  const payload = await put<unknown>(
+    `${PATHS.PIPELINES}/${appKey}/resources/${resourceKey}/datasourceBackend`,
+    wrapPipelineDatasourceBackendForWire(body),
+  );
+  return unwrapPipelineDatasourceBackend(payload);
+}
+
+/**
+ * DELETE /services/pipelines/{app}/resources/{resource}/datasourceBackend — Admin remove.
+ * 404 when the resource has no datasource backend; the HTTP tank is never clobbered.
+ */
+export async function deleteDatasourceBackend(
+  app: string,
+  resource: string,
+): Promise<PipelineDatasourceBackend> {
+  const appKey = encodeURIComponent(app);
+  const resourceKey = encodeURIComponent(resource);
+  const payload = await del<unknown>(
+    `${PATHS.PIPELINES}/${appKey}/resources/${resourceKey}/datasourceBackend`,
+  );
+  return unwrapPipelineDatasourceBackend(payload);
+}
+
+/**
+ * POST /services/pipelines/{app}/resources/{resource}/datasourceBackend/test — Admin
+ * connection-test without persisting. Always 200 with the named outcome.
+ */
+export async function testDatasourceBackendConnection(
+  app: string,
+  resource: string,
+  body: PipelineDatasourceBackend,
+): Promise<PipelineDatasourceBackend> {
+  const appKey = encodeURIComponent(app);
+  const resourceKey = encodeURIComponent(resource);
+  const payload = await post<unknown>(
+    `${PATHS.PIPELINES}/${appKey}/resources/${resourceKey}/datasourceBackend/test`,
+    wrapPipelineDatasourceBackendForWire(body),
+  );
+  return unwrapPipelineDatasourceBackend(payload);
 }
 
 /** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineWebhookHooks}. */

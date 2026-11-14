@@ -34,6 +34,9 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", async (importOriginal) =>
   openApiDownloadFilename: (app: string, format = "yaml") =>
     `${app}.openapi.${format === "json" ? "json" : "yaml"}`,
   putHttpBackendTank: vi.fn(),
+  putDatasourceBackend: vi.fn(),
+  deleteDatasourceBackend: vi.fn(),
+  testDatasourceBackendConnection: vi.fn(),
   putWebhookHooks: vi.fn(),
   putFilterGroup: vi.fn(),
   putBinaryResource: vi.fn(),
@@ -55,6 +58,12 @@ const getApplicationValidation = pipelinesApi.getApplicationValidation as Return
 const getPipelineIr = pipelinesApi.getPipelineIr as ReturnType<typeof vi.fn>;
 const getPipelineOpenApi = pipelinesApi.getPipelineOpenApi as ReturnType<typeof vi.fn>;
 const putHttpBackendTank = pipelinesApi.putHttpBackendTank as ReturnType<typeof vi.fn>;
+const putDatasourceBackend = pipelinesApi.putDatasourceBackend as ReturnType<typeof vi.fn>;
+const deleteDatasourceBackend = pipelinesApi.deleteDatasourceBackend as ReturnType<
+  typeof vi.fn
+>;
+const testDatasourceBackendConnection =
+  pipelinesApi.testDatasourceBackendConnection as ReturnType<typeof vi.fn>;
 const putWebhookHooks = pipelinesApi.putWebhookHooks as ReturnType<typeof vi.fn>;
 const putFilterGroup = pipelinesApi.putFilterGroup as ReturnType<typeof vi.fn>;
 const putBinaryResource = pipelinesApi.putBinaryResource as ReturnType<typeof vi.fn>;
@@ -118,6 +127,9 @@ describe("PipelineDetailPanel", () => {
     getPipelineIr.mockReset();
     getPipelineOpenApi.mockReset();
     putHttpBackendTank.mockReset();
+    putDatasourceBackend.mockReset();
+    deleteDatasourceBackend.mockReset();
+    testDatasourceBackendConnection.mockReset();
     putWebhookHooks.mockReset();
     putFilterGroup.mockReset();
     putBinaryResource.mockReset();
@@ -133,6 +145,23 @@ describe("PipelineDetailPanel", () => {
       adapterType: "HTTP",
       url: "http://127.0.0.1/pipeline-http-fixture",
       httpMethod: "GET",
+    });
+    putDatasourceBackend.mockResolvedValue({
+      adapterType: "JDBC",
+      datasourceId: "cms",
+      connectionOk: true,
+      connectionMessage: "Datasource connection test succeeded for 'cms'",
+    });
+    testDatasourceBackendConnection.mockResolvedValue({
+      adapterType: "JDBC",
+      datasourceId: "cms",
+      connectionOk: true,
+      connectionMessage: "Datasource connection test succeeded for 'cms'",
+    });
+    deleteDatasourceBackend.mockResolvedValue({
+      adapterType: "JDBC",
+      datasourceId: "cms",
+      connectionMessage: "Datasource backend removed for 'cms'",
     });
     putWebhookHooks.mockResolvedValue({
       preUrl: "http://127.0.0.1/pipeline-webhook-fixture",
@@ -700,6 +729,116 @@ describe("PipelineDetailPanel", () => {
         /loopback/i,
       );
     });
+  });
+
+  it("Admin saves JDBC datasource backend for the selected resource", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-datasource")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-pipe-datasource-id"), {
+      target: { value: "cms" },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-datasource-save"));
+    await waitFor(() => {
+      expect(putDatasourceBackend).toHaveBeenCalledWith("sys_cmpDocuments", "contenteditor", {
+        adapterType: "JDBC",
+        datasourceId: "cms",
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-datasource-notice").textContent).toContain(
+        "cms",
+      );
+    });
+  });
+
+  it("datasource save fail-closes on blank id and named 400", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-datasource-id")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-pipe-datasource-id"), {
+      target: { value: "   " },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-datasource-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-datasource-error").textContent).toBe(
+        DEV_MSG.PIPE_DATASOURCE_ID_REQUIRED,
+      );
+    });
+    expect(putDatasourceBackend).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId("developer-pipe-datasource-id"), {
+      target: { value: "shadow" },
+    });
+    putDatasourceBackend.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "Datasource 'shadow' is not allow-listed" },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-datasource-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-datasource-error").textContent).toMatch(
+        /allow-listed/i,
+      );
+    });
+  });
+
+  it("datasource connection-test surfaces named failure without saving", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-datasource-test")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-pipe-datasource-id"), {
+      target: { value: "cms" },
+    });
+    testDatasourceBackendConnection.mockResolvedValue({
+      adapterType: "JDBC",
+      datasourceId: "cms",
+      connectionOk: false,
+      connectionMessage: "Datasource connection test failed for 'cms'",
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-datasource-test"));
+    await waitFor(() => {
+      expect(testDatasourceBackendConnection).toHaveBeenCalledWith(
+        "sys_cmpDocuments",
+        "contenteditor",
+        { adapterType: "JDBC", datasourceId: "cms" },
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-datasource-error").textContent).toContain(
+        "cms",
+      );
+    });
+    expect(putDatasourceBackend).not.toHaveBeenCalled();
+  });
+
+  it("datasource delete removes the binding and clears the input", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-datasource-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-datasource-delete"));
+    await waitFor(() => {
+      expect(deleteDatasourceBackend).toHaveBeenCalledWith(
+        "sys_cmpDocuments",
+        "contenteditor",
+      );
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-datasource-notice").textContent).toContain(
+        "cms",
+      );
+    });
+    expect(
+      (screen.getByTestId("developer-pipe-datasource-id") as HTMLInputElement).value,
+    ).toBe("");
   });
 
   it("Admin saves webhook hooks for the selected resource", async () => {

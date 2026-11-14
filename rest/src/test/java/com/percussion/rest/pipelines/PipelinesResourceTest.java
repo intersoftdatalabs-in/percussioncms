@@ -330,6 +330,94 @@ public class PipelinesResourceTest {
   }
 
   @Test
+  public void putDatasourceBackendDelegatesToAdaptor() {
+    PipelineDatasourceBackend body = new PipelineDatasourceBackend();
+    body.setAdapterType("JDBC");
+    body.setDatasourceId("cms");
+    when(adaptor.putDatasourceBackend(any(), eq("lookupApp"), eq("DatasetQ"), eq(body)))
+        .thenReturn(body);
+
+    PipelineDatasourceBackend out = resource.putDatasourceBackend("lookupApp", "DatasetQ", body);
+    assertEquals("JDBC", out.getAdapterType());
+    assertEquals("cms", out.getDatasourceId());
+    verify(adaptor).putDatasourceBackend(any(), eq("lookupApp"), eq("DatasetQ"), eq(body));
+  }
+
+  @Test
+  public void putDatasourceBackendMapsIllegalArgumentTo400() {
+    when(adaptor.putDatasourceBackend(any(), eq("app"), eq("res"), any()))
+        .thenThrow(new IllegalArgumentException("not allow-listed"));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.putDatasourceBackend("app", "res", new PipelineDatasourceBackend()));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("not allow-listed", ex.getMessage());
+  }
+
+  @Test
+  public void putDatasourceBackendPropagatesConnectionTest502() {
+    when(adaptor.putDatasourceBackend(any(), eq("app"), eq("res"), any()))
+        .thenThrow(new WebApplicationException("Datasource connection test failed for 'cms'", 502));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.putDatasourceBackend("app", "res", new PipelineDatasourceBackend()));
+    assertEquals(502, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void deleteDatasourceBackendDelegatesToAdaptor() {
+    PipelineDatasourceBackend removed = new PipelineDatasourceBackend();
+    removed.setAdapterType("JDBC");
+    removed.setDatasourceId("cms");
+    when(adaptor.deleteDatasourceBackend(any(), eq("lookupApp"), eq("DatasetQ")))
+        .thenReturn(removed);
+
+    PipelineDatasourceBackend out = resource.deleteDatasourceBackend("lookupApp", "DatasetQ");
+    assertEquals("cms", out.getDatasourceId());
+    verify(adaptor).deleteDatasourceBackend(any(), eq("lookupApp"), eq("DatasetQ"));
+  }
+
+  @Test
+  public void deleteDatasourceBackendPropagates404WhenNoBackend() {
+    when(adaptor.deleteDatasourceBackend(any(), eq("app"), eq("res")))
+        .thenThrow(new WebApplicationException("No datasource backend configured", 404));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.deleteDatasourceBackend("app", "res"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void testDatasourceBackendDelegatesToAdaptor() {
+    PipelineDatasourceBackend body = new PipelineDatasourceBackend();
+    body.setDatasourceId("cms");
+    PipelineDatasourceBackend outcome = new PipelineDatasourceBackend();
+    outcome.setDatasourceId("cms");
+    outcome.setConnectionOk(Boolean.TRUE);
+    when(adaptor.testDatasourceBackend(any(), eq("app"), eq("res"), eq(body))).thenReturn(outcome);
+
+    PipelineDatasourceBackend out = resource.testDatasourceBackend("app", "res", body);
+    assertEquals(Boolean.TRUE, out.getConnectionOk());
+    verify(adaptor).testDatasourceBackend(any(), eq("app"), eq("res"), eq(body));
+  }
+
+  @Test
+  public void datasourceBackendWithoutInjectionFailsWithDiagnostic() {
+    PipelinesResource bare = new PipelinesResource();
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> bare.putDatasourceBackend("app", "res", new PipelineDatasourceBackend()));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertInstanceOf(IllegalStateException.class, ex.getCause());
+  }
+
+  @Test
   public void putWebhookHooksDelegatesToAdaptor() {
     PipelineWebhookHooks body = new PipelineWebhookHooks();
     body.setPreUrl("http://127.0.0.1/pipeline-webhook-fixture");

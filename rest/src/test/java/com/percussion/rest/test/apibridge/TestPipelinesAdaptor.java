@@ -23,6 +23,7 @@ import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import com.percussion.rest.pipelines.PipelineBinaryResource;
+import com.percussion.rest.pipelines.PipelineDatasourceBackend;
 import com.percussion.rest.pipelines.PipelineFilterGroup;
 import com.percussion.rest.pipelines.PipelineResultPage;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
@@ -117,6 +118,43 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
     PipelineHttpBackendTank out = tank != null ? tank : new PipelineHttpBackendTank();
     if (out.getAdapterType() == null) {
       out.setAdapterType("HTTP");
+    }
+    return out;
+  }
+
+  @Override
+  public PipelineDatasourceBackend putDatasourceBackend(
+      URI baseUri, String appName, String resourceName, PipelineDatasourceBackend backend) {
+    PipelineDatasourceBackend out = backend != null ? backend : new PipelineDatasourceBackend();
+    if (out.getAdapterType() == null) {
+      out.setAdapterType("JDBC");
+    }
+    if (out.getConnectionOk() == null) {
+      out.setConnectionOk(Boolean.TRUE);
+    }
+    return out;
+  }
+
+  @Override
+  public PipelineDatasourceBackend deleteDatasourceBackend(
+      URI baseUri, String appName, String resourceName) {
+    PipelineDatasourceBackend out = new PipelineDatasourceBackend();
+    out.setAdapterType("JDBC");
+    return out;
+  }
+
+  @Override
+  public PipelineDatasourceBackend testDatasourceBackend(
+      URI baseUri, String appName, String resourceName, PipelineDatasourceBackend backend) {
+    PipelineDatasourceBackend out = backend != null ? backend : new PipelineDatasourceBackend();
+    if (out.getAdapterType() == null) {
+      out.setAdapterType("JDBC");
+    }
+    if (out.getConnectionOk() == null) {
+      out.setConnectionOk(Boolean.TRUE);
+    }
+    if (out.getConnectionMessage() == null) {
+      out.setConnectionMessage("stub connection test");
     }
     return out;
   }

@@ -497,6 +497,8 @@ export interface PipelineIrBackendTank extends PipelineIrStagePresence {
   /** Loopback or bundled local fixture URL when adapterType is HTTP. */
   url?: string;
   httpMethod?: string;
+  /** Allow-listed JDBC datasource catalog id when adapterType is JDBC. */
+  datasourceId?: string;
 }
 
 /** Body/result for PUT /services/pipelines/{app}/resources/{resource}/backendTank. */
@@ -511,6 +513,20 @@ export interface PipelineWebhookHooks {
   preUrl?: string;
   postUrl?: string;
   httpMethod?: string;
+}
+
+/**
+ * Body/result for PUT/DELETE /services/pipelines/{app}/resources/{resource}/datasourceBackend
+ * and POST .../datasourceBackend/test.
+ */
+export interface PipelineDatasourceBackend {
+  adapterType?: string;
+  /** Allow-listed datasource catalog id (never a JDBC URL). */
+  datasourceId?: string;
+  /** Connection-test outcome; absent when no test ran. */
+  connectionOk?: boolean;
+  /** Named connection-test message. */
+  connectionMessage?: string;
 }
 
 /** Body/result for PUT /services/pipelines/{app}/resources/{resource}/binaryResource. */

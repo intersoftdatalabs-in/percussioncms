@@ -1,7 +1,7 @@
 ---
 id: admin-developer-pipelines
 title: Developer Pipelines
-description: Browse classic XML Applications, Admin start/stop, Admin enable/disable, pipe IR, OpenAPI from resources, HTTP datasource, nested filter groups, webhook hooks, binary resource retrieve, HTML result pages or raw JSON/XML, request tracing, Test invoke, and Problems from Developer Pipelines chrome
+description: Browse classic XML Applications, Admin start/stop, Admin enable/disable, pipe IR, OpenAPI from resources, HTTP datasource, JDBC datasource backend, nested filter groups, webhook hooks, binary resource retrieve, HTML result pages or raw JSON/XML, request tracing, Test invoke, and Problems from Developer Pipelines chrome
 version: "8.2"
 order: 51
 tags: [admin, developer, pipelines]
@@ -44,13 +44,20 @@ The **OpenAPI** section calls `GET /services/pipelines/{idOrName}/openapi`
 **download** an OpenAPI 3 document generated from the application's IR
 resources. It does not publish to an external registry.
 
-**Admins** also get **HTTP datasource**, **nested filter groups**, **HTTP webhook hooks**,
+**Admins** also get **HTTP datasource**, **JDBC datasource backend**, **nested filter groups**, **HTTP webhook hooks**,
 **binary resource**, **result page (HTML)**, **request tracing**, **Test invoke**, and **Problems** on the same detail page:
 
 - **HTTP datasource** sets `adapterType=HTTP` and a **loopback / local fixture
   URL** (default `http://127.0.0.1/pipeline-http-fixture`) on the selected
   resource via `PUT /services/pipelines/{app}/resources/{resource}/backendTank`.
   Cloud hosts, credentials in the URL, and non-http(s) schemes return **400**.
+- **JDBC datasource backend** binds a **named allow-listed datasource id**
+  (for example `cms`; never a JDBC URL) on the selected resource via
+  `PUT /services/pipelines/{app}/resources/{resource}/datasourceBackend`.
+  The server connection-tests before persist: a failed test returns **502**
+  and nothing is saved. `POST …/datasourceBackend/test` tests without
+  persisting; `DELETE …/datasourceBackend` removes the binding (**404** when
+  none). Resources with an HTTP tank return **409**.
 - **HTTP webhook hooks** attach **pre-execute** and **post-execute** HTTP POST
   URLs on the same native resource via
   `PUT /services/pipelines/{app}/resources/{resource}/webhookHooks`. Only
@@ -191,6 +198,24 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
    `PSQueryHandler` / `PSUpdateHandler`. HTTP execute never leaves loopback /
    the bundled local fixture.
 
+## Product path — JDBC datasource backend
+
+1. As **Admin**, open an application detail page.
+2. In **JDBC datasource backend**, enter a **Datasource id** — a named
+   allow-listed catalog token such as `cms` (configured in
+   `server.properties` as `databaseExplorer.allowListedDatasources`). This is
+   never a JDBC URL: raw URLs, credentials, and non-allow-listed ids fail
+   closed with a clear **400** error.
+3. Choose **Test connection** to open a JDBC connection without persisting
+   anything. Success shows the named test notice; a failed test names the
+   datasource and persists **nothing** (never recorded as a success).
+4. Choose **Save datasource backend** to create or update the binding. The
+   server connection-tests before persist and fails closed — a failed test
+   returns **502** and nothing is saved. A resource already backed by an HTTP
+   tank returns **409** (the HTTP tank is never clobbered).
+5. Choose **Remove datasource backend** to clear the binding. Removing a
+   resource with no datasource backend is **404**.
+
 ## Product path — nested filter groups
 
 1. As **Admin**, open an application detail page and enter a **resource** name
@@ -316,7 +341,7 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
 - Catalog and detail omit **hidden** applications from the list contract used by
   this chrome; hidden rows are not started or stopped here.
 - Pipe IR has no graph editor or drag-drop tanks. Admins may persist an HTTP
-  backend tank, nested selector filter groups, HTTP webhook hooks, a binary
+  backend tank, a JDBC datasource backend, nested selector filter groups, HTTP webhook hooks, a binary
   resource, and an HTML result-page binding (native IR overlay) only.
 - Enable/disable ships in this chrome (Admin toolbar toggle + REST below).
   Classic application transfer is XML export/import (above); auxiliary-file
@@ -333,6 +358,8 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-http-execute.spec.js`.
 - Surface-filtered Playwright for webhook hooks save + Test invoke lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-webhook-hooks.spec.js`.
+- Surface-filtered Playwright for JDBC datasource backend write lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-datasource-backend.spec.js`.
 - Surface-filtered Playwright for nested filter groups save + Test invoke lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-nested-filter-groups.spec.js`.
 - Surface-filtered Playwright for binary resource save + retrieve lives under

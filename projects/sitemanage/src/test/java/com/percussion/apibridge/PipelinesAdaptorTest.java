@@ -43,6 +43,7 @@ import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationValidationProblem;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.PipelineBinaryResource;
+import com.percussion.rest.pipelines.PipelineDatasourceBackend;
 import com.percussion.rest.pipelines.PipelineFilterGroup;
 import com.percussion.rest.pipelines.PipelineResultPage;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
@@ -74,6 +75,8 @@ import java.net.URI;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiFunction;
+import java.util.function.BooleanSupplier;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -2469,6 +2472,442 @@ class PipelinesAdaptorTest {
           IllegalArgumentException.class,
           () -> adaptor.importApplication(URI.create("http://localhost/services/"), evilXml));
     }
+  }
+
+  private static PipelinesAdaptor datasourceAdaptor(
+      PSApplicationSummary[] sums,
+      IPSPipelineIrService ir,
+      BiFunction<String, PSSecurityToken, PSApplication> loader,
+      BooleanSupplier admin,
+      java.util.function.Supplier<
+              Map<String, DatabaseExplorerAdaptor.ConfiguredDatasource>>
+          catalog,
+      PipelinesAdaptor.DatasourceConnectionProbe probe) {
+    return new PipelinesAdaptor(
+        tok -> sums,
+        () -> mock(IPSPipelineRuntimeService.class),
+        () -> ir,
+        loader,
+        admin,
+        noopLifecycle(),
+        (name, tok) -> detailNamed(name, true),
+        null,
+        null,
+        catalog,
+        probe);
+  }
+
+  private static java.util.function.Supplier<
+          Map<String, DatabaseExplorerAdaptor.ConfiguredDatasource>>
+      catalogOf(String id, String cmsName) {
+    return () ->
+        Map.of(id, new DatabaseExplorerAdaptor.ConfiguredDatasource(id, id, cmsName, false));
+  }
+
+  private static PipelineIrDocument nativeDocWithHttpTank(String app, String resource) {
+    PipelineIrDocument doc = new PipelineIrDocument();
+    doc.getApp().setName(app);
+    PipelineResourceIr res = new PipelineResourceIr();
+    res.setName(resource);
+    res.setKind(PipelineResourceIr.KIND_QUERY);
+    PipelineStagesIr stages = new PipelineStagesIr();
+    BackendTankStageIr http = new BackendTankStageIr();
+    http.setPresent(true);
+    http.setAdapterType(BackendTankStageIr.ADAPTER_HTTP);
+    http.setUrl(PSPipelineHttpUrl.BUNDLED_FIXTURE_URL);
+    stages.setBackendTank(http);
+    res.setStages(stages);
+    doc.getResources().add(res);
+    return doc;
+  }
+
+  @Test
+  void putDatasourceBackend_requiresAdmin() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        datasourceAdaptor(
+            new PSApplicationSummary[] {sum},
+            mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> false,
+            catalogOf("cms", "cms"),
+            name -> null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineDatasourceBackend body = new PipelineDatasourceBackend();
+      body.setAdapterType("JDBC");
+      body.setDatasourceId("cms");
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putDatasourceBackend(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "items", body));
+      assertEquals(403, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void putDatasourceBackend_rejectsUnsafeId() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        datasourceAdaptor(
+            new PSApplicationSummary[] {sum},
+            mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            catalogOf("cms", "cms"),
+            name -> null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineDatasourceBackend body = new PipelineDatasourceBackend();
+      body.setAdapterType("JDBC");
+      body.setDatasourceId("../evil");
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putDatasourceBackend(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "items", body));
+      assertEquals(400, ex.getResponse().getStatus());
+      assertEquals(DatabaseExplorerAdaptor.INVALID_DATASOURCE, ex.getMessage());
+    }
+  }
+
+  @Test
+  void putDatasourceBackend_rejectsNonAllowListedId() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        datasourceAdaptor(
+            new PSApplicationSummary[] {sum},
+            mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            catalogOf("cms", "cms"),
+            name -> null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineDatasourceBackend body = new PipelineDatasourceBackend();
+      body.setAdapterType("JDBC");
+      body.setDatasourceId("shadow");
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putDatasourceBackend(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "items", body));
+      assertEquals(400, ex.getResponse().getStatus());
+      assertTrue(ex.getMessage().contains("shadow"), ex.getMessage());
+      assertTrue(ex.getMessage().contains("not allow-listed"), ex.getMessage());
+    }
+  }
+
+  @Test
+  void putDatasourceBackend_rejectsNonJdbcAdapter() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        datasourceAdaptor(
+            new PSApplicationSummary[] {sum},
+            mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            catalogOf("cms", "cms"),
+            name -> null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineDatasourceBackend body = new PipelineDatasourceBackend();
+      body.setAdapterType("HTTP");
+      body.setDatasourceId("cms");
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putDatasourceBackend(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "items", body));
+      assertEquals(400, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void putDatasourceBackend_conflictsWithHttpTank() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    when(ir.load("sys_cmpDocuments"))
+        .thenReturn(Optional.of(nativeDocWithHttpTank("sys_cmpDocuments", "items")));
+    PipelinesAdaptor adaptor =
+        datasourceAdaptor(
+            new PSApplicationSummary[] {sum},
+            ir,
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            catalogOf("cms", "cms"),
+            name -> null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineDatasourceBackend body = new PipelineDatasourceBackend();
+      body.setAdapterType("JDBC");
+      body.setDatasourceId("cms");
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putDatasourceBackend(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "items", body));
+      assertEquals(409, ex.getResponse().getStatus());
+      verify(ir, never()).save(any());
+    }
+  }
+
+  @Test
+  void putDatasourceBackend_testFailureNamedAndNotPersisted() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.empty());
+    PipelinesAdaptor adaptor =
+        datasourceAdaptor(
+            new PSApplicationSummary[] {sum},
+            ir,
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            catalogOf("cms", "cms"),
+            name -> "connection refused");
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineDatasourceBackend body = new PipelineDatasourceBackend();
+      body.setAdapterType("JDBC");
+      body.setDatasourceId("cms");
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putDatasourceBackend(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "items", body));
+      assertEquals(502, ex.getResponse().getStatus());
+      assertTrue(ex.getMessage().contains("cms"), ex.getMessage());
+      verify(ir, never()).save(any());
+    }
+  }
+
+  @Test
+  void putDatasourceBackend_savesNativeIrWithoutClassicXmlWrite() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.empty());
+    PipelineIrDocument imported = new PipelineIrDocument();
+    imported.setSource(PipelineIrDocument.SOURCE_CLASSIC_IMPORT);
+    imported.getApp().setName("sys_cmpDocuments");
+    PSApplication app = mock(PSApplication.class);
+    when(ir.importClassicApplication(app)).thenReturn(imported);
+    PipelinesAdaptor adaptor =
+        datasourceAdaptor(
+            new PSApplicationSummary[] {sum},
+            ir,
+            (name, tok) -> app,
+            () -> true,
+            catalogOf("cms", "cms"),
+            name -> null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineDatasourceBackend body = new PipelineDatasourceBackend();
+      body.setAdapterType("JDBC");
+      body.setDatasourceId("cms");
+      PipelineDatasourceBackend saved =
+          adaptor.putDatasourceBackend(
+              URI.create("http://localhost/"), "sys_cmpDocuments", "items", body);
+      assertEquals("JDBC", saved.getAdapterType());
+      assertEquals("cms", saved.getDatasourceId());
+      assertEquals(Boolean.TRUE, saved.getConnectionOk());
+      assertTrue(saved.getConnectionMessage().contains("cms"), saved.getConnectionMessage());
+      ArgumentCaptor<PipelineIrDocument> cap = ArgumentCaptor.forClass(PipelineIrDocument.class);
+      verify(ir).save(cap.capture());
+      PipelineIrDocument persisted = cap.getValue();
+      assertEquals(PipelineIrDocument.SOURCE_NATIVE, persisted.getSource());
+      BackendTankStageIr tank = persisted.findResource("items").getStages().getBackendTank();
+      assertTrue(tank.isDatasourceAdapter());
+      assertEquals("cms", tank.getDatasourceId());
+      assertFalse(tank.isHttpAdapter());
+      verify(app, never()).setName(any());
+    }
+  }
+
+  @Test
+  void deleteDatasourceBackend_requiresAdmin() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        datasourceAdaptor(
+            new PSApplicationSummary[] {sum},
+            mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> false,
+            catalogOf("cms", "cms"),
+            name -> null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.deleteDatasourceBackend(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "items"));
+      assertEquals(403, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void deleteDatasourceBackend_noBackendIs404() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    when(ir.load("sys_cmpDocuments"))
+        .thenReturn(Optional.of(nativeDocWithHttpTank("sys_cmpDocuments", "items")));
+    PipelinesAdaptor adaptor =
+        datasourceAdaptor(
+            new PSApplicationSummary[] {sum},
+            ir,
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            catalogOf("cms", "cms"),
+            name -> null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.deleteDatasourceBackend(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "items"));
+      assertEquals(404, ex.getResponse().getStatus());
+      verify(ir, never()).save(any());
+    }
+  }
+
+  @Test
+  void deleteDatasourceBackend_removesDatasourceBinding() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    PipelineIrDocument doc = new PipelineIrDocument();
+    doc.getApp().setName("sys_cmpDocuments");
+    PipelineResourceIr res = new PipelineResourceIr();
+    res.setName("items");
+    res.setKind(PipelineResourceIr.KIND_QUERY);
+    PipelineStagesIr stages = new PipelineStagesIr();
+    BackendTankStageIr tank = new BackendTankStageIr();
+    tank.setPresent(true);
+    tank.setAdapterType(BackendTankStageIr.ADAPTER_JDBC);
+    tank.setDatasourceId("cms");
+    stages.setBackendTank(tank);
+    res.setStages(stages);
+    doc.getResources().add(res);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.of(doc));
+    PipelinesAdaptor adaptor =
+        datasourceAdaptor(
+            new PSApplicationSummary[] {sum},
+            ir,
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            catalogOf("cms", "cms"),
+            name -> null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineDatasourceBackend removed =
+          adaptor.deleteDatasourceBackend(
+              URI.create("http://localhost/"), "sys_cmpDocuments", "items");
+      assertEquals("cms", removed.getDatasourceId());
+      assertTrue(removed.getConnectionMessage().contains("cms"), removed.getConnectionMessage());
+      ArgumentCaptor<PipelineIrDocument> cap = ArgumentCaptor.forClass(PipelineIrDocument.class);
+      verify(ir).save(cap.capture());
+      BackendTankStageIr persisted =
+          cap.getValue().findResource("items").getStages().getBackendTank();
+      assertNull(persisted.getDatasourceId());
+      assertFalse(persisted.isDatasourceAdapter());
+      assertFalse(persisted.isPresent());
+    }
+  }
+
+  @Test
+  void testDatasourceBackend_reportsNamedOutcomeWithoutPersisting() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    PipelinesAdaptor okAdaptor =
+        datasourceAdaptor(
+            new PSApplicationSummary[] {sum},
+            ir,
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            catalogOf("cms", "cms"),
+            name -> null);
+    PipelinesAdaptor failingAdaptor =
+        datasourceAdaptor(
+            new PSApplicationSummary[] {sum},
+            ir,
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            catalogOf("cms", "cms"),
+            name -> "connection refused");
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineDatasourceBackend body = new PipelineDatasourceBackend();
+      body.setDatasourceId("cms");
+      PipelineDatasourceBackend ok =
+          okAdaptor.testDatasourceBackend(
+              URI.create("http://localhost/"), "sys_cmpDocuments", "items", body);
+      assertEquals(Boolean.TRUE, ok.getConnectionOk());
+      assertEquals("cms", ok.getDatasourceId());
+      assertTrue(ok.getConnectionMessage().contains("cms"), ok.getConnectionMessage());
+
+      PipelineDatasourceBackend failed =
+          failingAdaptor.testDatasourceBackend(
+              URI.create("http://localhost/"), "sys_cmpDocuments", "items", body);
+      assertEquals(Boolean.FALSE, failed.getConnectionOk());
+      assertTrue(failed.getConnectionMessage().contains("cms"), failed.getConnectionMessage());
+      verify(ir, never()).save(any());
+    }
+  }
+
+  @Test
+  void testDatasourceBackend_rejectsUnknownApp() {
+    PipelinesAdaptor adaptor =
+        datasourceAdaptor(
+            new PSApplicationSummary[0],
+            mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            catalogOf("cms", "cms"),
+            name -> null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineDatasourceBackend body = new PipelineDatasourceBackend();
+      body.setDatasourceId("cms");
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.testDatasourceBackend(
+                      URI.create("http://localhost/"), "missing", "items", body));
+      assertEquals(404, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void isDatasourceAdapterType_acceptsJdbcAndSqlOnly() {
+    assertTrue(PipelinesAdaptor.isDatasourceAdapterType("JDBC"));
+    assertTrue(PipelinesAdaptor.isDatasourceAdapterType("jdbc"));
+    assertTrue(PipelinesAdaptor.isDatasourceAdapterType("SQL"));
+    assertFalse(PipelinesAdaptor.isDatasourceAdapterType("HTTP"));
+    assertFalse(PipelinesAdaptor.isDatasourceAdapterType("REST"));
+    assertFalse(PipelinesAdaptor.isDatasourceAdapterType(null));
+    assertFalse(PipelinesAdaptor.isDatasourceAdapterType("  "));
   }
 
 }

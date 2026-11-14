@@ -23,6 +23,11 @@ import {
   wrapPipelineHttpBackendTankForWire,
   unwrapPipelineHttpBackendTank,
   putHttpBackendTank,
+  wrapPipelineDatasourceBackendForWire,
+  unwrapPipelineDatasourceBackend,
+  putDatasourceBackend,
+  deleteDatasourceBackend,
+  testDatasourceBackendConnection,
   wrapPipelineWebhookHooksForWire,
   unwrapPipelineWebhookHooks,
   putWebhookHooks,
@@ -343,6 +348,79 @@ describe("pipelinesApi Slice C HTTP backend tank", () => {
       },
     });
     expect(out.adapterType).toBe("HTTP");
+  });
+});
+
+describe("pipelinesApi datasource backend", () => {
+  it("wraps and unwraps PipelineDatasourceBackend", () => {
+    expect(
+      wrapPipelineDatasourceBackendForWire({
+        adapterType: "JDBC",
+        datasourceId: "cms",
+      }),
+    ).toEqual({
+      PipelineDatasourceBackend: {
+        adapterType: "JDBC",
+        datasourceId: "cms",
+      },
+    });
+    expect(
+      unwrapPipelineDatasourceBackend({
+        PipelineDatasourceBackend: { datasourceId: "cms", connectionOk: true },
+      }).datasourceId,
+    ).toBe("cms");
+    expect(() => unwrapPipelineDatasourceBackend(null)).toThrow();
+  });
+
+  it("putDatasourceBackend PUTs encoded path with WRAP_ROOT body", async () => {
+    const spy = vi.spyOn(client, "put").mockResolvedValue({
+      adapterType: "JDBC",
+      datasourceId: "cms",
+      connectionOk: true,
+    });
+    const out = await putDatasourceBackend("app with spaces", "res/one", {
+      adapterType: "JDBC",
+      datasourceId: "cms",
+    });
+    expect(String(spy.mock.calls[0][0])).toContain(
+      `/pipelines/${encodeURIComponent("app with spaces")}/resources/${encodeURIComponent("res/one")}/datasourceBackend`,
+    );
+    expect(spy.mock.calls[0][1]).toEqual({
+      PipelineDatasourceBackend: {
+        adapterType: "JDBC",
+        datasourceId: "cms",
+      },
+    });
+    expect(out.connectionOk).toBe(true);
+  });
+
+  it("deleteDatasourceBackend DELETEs encoded path", async () => {
+    const spy = vi.spyOn(client, "del").mockResolvedValue({
+      adapterType: "JDBC",
+      datasourceId: "cms",
+    });
+    const out = await deleteDatasourceBackend("app with spaces", "res/one");
+    expect(String(spy.mock.calls[0][0])).toContain(
+      `/pipelines/${encodeURIComponent("app with spaces")}/resources/${encodeURIComponent("res/one")}/datasourceBackend`,
+    );
+    expect(out.datasourceId).toBe("cms");
+  });
+
+  it("testDatasourceBackendConnection POSTs encoded test path", async () => {
+    const spy = vi.spyOn(client, "post").mockResolvedValue({
+      datasourceId: "cms",
+      connectionOk: false,
+      connectionMessage: "Datasource connection test failed for 'cms'",
+    });
+    const out = await testDatasourceBackendConnection("app", "res", {
+      adapterType: "JDBC",
+      datasourceId: "cms",
+    });
+    expect(String(spy.mock.calls[0][0])).toContain(
+      `/pipelines/app/resources/res/datasourceBackend/test`,
+    );
+    expect(out.connectionOk).toBe(false);
+    expect(out.connectionMessage).toContain("cms");
   });
 });
 

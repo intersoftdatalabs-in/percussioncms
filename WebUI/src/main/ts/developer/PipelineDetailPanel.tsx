@@ -19,6 +19,7 @@ import React, { useEffect, useRef, useState } from "react";
 import { useSpaBootstrap } from "../app/bootstrap/BootstrapContext";
 import { isApiError } from "../api/client";
 import {
+  deleteDatasourceBackend,
   executeResource,
   getApplicationDetail,
   getApplicationValidation,
@@ -28,6 +29,7 @@ import {
   normalizeStylesheetUriInput,
   openApiDownloadFilename,
   putBinaryResource,
+  putDatasourceBackend,
   putFilterGroup,
   putResultPage,
   putHttpBackendTank,
@@ -37,6 +39,7 @@ import {
   setApplicationEnabled,
   startApplication,
   stopApplication,
+  testDatasourceBackendConnection,
 } from "../api/developer/pipelinesApi";
 import { downloadXmlFile } from "../api/developer/contentTypeImportExport";
 import {
@@ -373,6 +376,7 @@ function IrResourceCard({
   const joinCount = stages?.backendTank?.joinCount;
   const adapterType = stages?.backendTank?.adapterType;
   const httpUrl = stages?.backendTank?.url;
+  const datasourceId = stages?.backendTank?.datasourceId;
   const resultPages = inspectResultPages(resource);
   const stageLabels = resultPages.length > 0 ? [...present, "resultPages"] : present;
 
@@ -454,6 +458,7 @@ function IrResourceCard({
             <dd style={{ margin: 0, ...monoCell }} data-testid={`developer-pipe-ir-adapter-${index}`}>
               {adapterType}
               {httpUrl ? ` · ${httpUrl}` : ""}
+              {datasourceId ? ` · ds:${datasourceId}` : ""}
             </dd>
           </>
         ) : null}
@@ -629,6 +634,10 @@ export function PipelineDetailPanel({
   const [httpBusy, setHttpBusy] = useState(false);
   const [httpError, setHttpError] = useState<string | null>(null);
   const [httpNotice, setHttpNotice] = useState<string | null>(null);
+  const [dsId, setDsId] = useState("");
+  const [dsBusy, setDsBusy] = useState(false);
+  const [dsError, setDsError] = useState<string | null>(null);
+  const [dsNotice, setDsNotice] = useState<string | null>(null);
   const [webhookPreUrl, setWebhookPreUrl] = useState(
     "http://127.0.0.1/pipeline-webhook-fixture",
   );
@@ -672,6 +681,7 @@ export function PipelineDetailPanel({
   const inflight = useRef(false);
   const invokeInflight = useRef(false);
   const httpInflight = useRef(false);
+  const dsInflight = useRef(false);
   const webhookInflight = useRef(false);
   const filterInflight = useRef(false);
   const binaryInflight = useRef(false);
@@ -704,6 +714,10 @@ export function PipelineDetailPanel({
     setHttpBusy(false);
     setHttpError(null);
     setHttpNotice(null);
+    setDsId("");
+    setDsBusy(false);
+    setDsError(null);
+    setDsNotice(null);
     setWebhookPreUrl("http://127.0.0.1/pipeline-webhook-fixture");
     setWebhookPostUrl("http://127.0.0.1/pipeline-webhook-fixture");
     setWebhookBusy(false);
@@ -741,6 +755,7 @@ export function PipelineDetailPanel({
     inflight.current = false;
     invokeInflight.current = false;
     httpInflight.current = false;
+    dsInflight.current = false;
     webhookInflight.current = false;
     filterInflight.current = false;
     binaryInflight.current = false;
@@ -773,6 +788,12 @@ export function PipelineDetailPanel({
           const named = firstHttp?.name?.trim();
           if (named) {
             setResourceName((current) => current || named);
+          }
+          const firstDs = (doc.resources || []).find(
+            (r) => !!r.stages?.backendTank?.datasourceId?.trim(),
+          );
+          if (firstDs?.stages?.backendTank?.datasourceId) {
+            setDsId(firstDs.stages.backendTank.datasourceId);
           }
           const storedGroup =
             firstHttp?.stages?.selector?.filterGroup ||
@@ -1049,6 +1070,131 @@ export function PipelineDetailPanel({
     } finally {
       httpInflight.current = false;
       if (mountedRef.current) setHttpBusy(false);
+    }
+  }
+
+  async function onSaveDatasourceBackend(): Promise<void> {
+    if (!detail || dsInflight.current) return;
+    const resource = resourceName.trim();
+    if (!resource) {
+      setDsError(DEV_MSG.PIPE_DATASOURCE_RESOURCE_REQUIRED);
+      setDsNotice(null);
+      return;
+    }
+    const id = dsId.trim();
+    if (!id) {
+      setDsError(DEV_MSG.PIPE_DATASOURCE_ID_REQUIRED);
+      setDsNotice(null);
+      return;
+    }
+    dsInflight.current = true;
+    setDsBusy(true);
+    setDsError(null);
+    setDsNotice(null);
+    try {
+      const saved = await putDatasourceBackend(idOrName, resource, {
+        adapterType: "JDBC",
+        datasourceId: id,
+      });
+      if (!mountedRef.current) return;
+      if (saved.datasourceId) setDsId(saved.datasourceId);
+      setDsNotice(
+        saved.connectionMessage && saved.connectionMessage.trim()
+          ? saved.connectionMessage
+          : DEV_MSG.PIPE_DATASOURCE_SAVED,
+      );
+      try {
+        const nextIr = await getPipelineIr(idOrName);
+        if (mountedRef.current) setIr(nextIr);
+      } catch {
+        // persist succeeded; IR refresh is best-effort
+      }
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setDsError(lifecycleErrMsg(err, DEV_MSG.PIPE_DATASOURCE_SAVE_ERROR));
+    } finally {
+      dsInflight.current = false;
+      if (mountedRef.current) setDsBusy(false);
+    }
+  }
+
+  async function onTestDatasourceBackend(): Promise<void> {
+    if (!detail || dsInflight.current) return;
+    const resource = resourceName.trim();
+    if (!resource) {
+      setDsError(DEV_MSG.PIPE_DATASOURCE_RESOURCE_REQUIRED);
+      setDsNotice(null);
+      return;
+    }
+    const id = dsId.trim();
+    if (!id) {
+      setDsError(DEV_MSG.PIPE_DATASOURCE_ID_REQUIRED);
+      setDsNotice(null);
+      return;
+    }
+    dsInflight.current = true;
+    setDsBusy(true);
+    setDsError(null);
+    setDsNotice(null);
+    try {
+      const outcome = await testDatasourceBackendConnection(idOrName, resource, {
+        adapterType: "JDBC",
+        datasourceId: id,
+      });
+      if (!mountedRef.current) return;
+      const message =
+        outcome.connectionMessage && outcome.connectionMessage.trim()
+          ? outcome.connectionMessage
+          : outcome.connectionOk
+            ? DEV_MSG.PIPE_DATASOURCE_TEST_OK
+            : DEV_MSG.PIPE_DATASOURCE_TEST_FAILED;
+      if (outcome.connectionOk) {
+        setDsNotice(message);
+      } else {
+        setDsError(message);
+      }
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setDsError(lifecycleErrMsg(err, DEV_MSG.PIPE_DATASOURCE_TEST_FAILED));
+    } finally {
+      dsInflight.current = false;
+      if (mountedRef.current) setDsBusy(false);
+    }
+  }
+
+  async function onDeleteDatasourceBackend(): Promise<void> {
+    if (!detail || dsInflight.current) return;
+    const resource = resourceName.trim();
+    if (!resource) {
+      setDsError(DEV_MSG.PIPE_DATASOURCE_RESOURCE_REQUIRED);
+      setDsNotice(null);
+      return;
+    }
+    dsInflight.current = true;
+    setDsBusy(true);
+    setDsError(null);
+    setDsNotice(null);
+    try {
+      const removed = await deleteDatasourceBackend(idOrName, resource);
+      if (!mountedRef.current) return;
+      setDsId("");
+      setDsNotice(
+        removed.connectionMessage && removed.connectionMessage.trim()
+          ? removed.connectionMessage
+          : DEV_MSG.PIPE_DATASOURCE_DELETED,
+      );
+      try {
+        const nextIr = await getPipelineIr(idOrName);
+        if (mountedRef.current) setIr(nextIr);
+      } catch {
+        // delete succeeded; IR refresh is best-effort
+      }
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setDsError(lifecycleErrMsg(err, DEV_MSG.PIPE_DATASOURCE_DELETE_ERROR));
+    } finally {
+      dsInflight.current = false;
+      if (mountedRef.current) setDsBusy(false);
     }
   }
 
@@ -1835,6 +1981,80 @@ export function PipelineDetailPanel({
                   style={{ ...errorAlert, marginTop: "12px" }}
                 >
                   {httpError}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
+
+          {isAdmin ? (
+            <section style={{ marginBottom: "16px" }} data-testid="developer-pipe-datasource">
+              <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.PIPE_DATASOURCE}</h3>
+              <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+                {DEV_MSG.PIPE_DATASOURCE_HINT}
+              </p>
+              <div style={{ marginBottom: "12px" }}>
+                <label htmlFor="developer-pipe-datasource-id" style={fieldLabel}>
+                  {DEV_MSG.PIPE_DATASOURCE_ID}
+                </label>
+                <input
+                  id="developer-pipe-datasource-id"
+                  data-testid="developer-pipe-datasource-id"
+                  value={dsId}
+                  onChange={(e) => setDsId(e.target.value)}
+                  disabled={dsBusy}
+                  style={textInput}
+                  placeholder={DEV_MSG.PIPE_DATASOURCE_ID_PLACEHOLDER}
+                  autoComplete="off"
+                />
+              </div>
+              <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
+                <button
+                  type="button"
+                  data-testid="developer-pipe-datasource-save"
+                  aria-label={DEV_MSG.PIPE_DATASOURCE_SAVE}
+                  disabled={dsBusy}
+                  onClick={() => void onSaveDatasourceBackend()}
+                  style={dsBusy ? disabledPrimary : primaryButton}
+                >
+                  {dsBusy ? DEV_MSG.PIPE_DATASOURCE_SAVING : DEV_MSG.PIPE_DATASOURCE_SAVE}
+                </button>
+                <button
+                  type="button"
+                  data-testid="developer-pipe-datasource-test"
+                  aria-label={DEV_MSG.PIPE_DATASOURCE_TEST}
+                  disabled={dsBusy}
+                  onClick={() => void onTestDatasourceBackend()}
+                  style={dsBusy ? disabledPrimary : primaryButton}
+                >
+                  {dsBusy ? DEV_MSG.PIPE_DATASOURCE_TESTING : DEV_MSG.PIPE_DATASOURCE_TEST}
+                </button>
+                <button
+                  type="button"
+                  data-testid="developer-pipe-datasource-delete"
+                  aria-label={DEV_MSG.PIPE_DATASOURCE_DELETE}
+                  disabled={dsBusy}
+                  onClick={() => void onDeleteDatasourceBackend()}
+                  style={dsBusy ? disabledPrimary : primaryButton}
+                >
+                  {dsBusy ? DEV_MSG.PIPE_DATASOURCE_DELETING : DEV_MSG.PIPE_DATASOURCE_DELETE}
+                </button>
+              </div>
+              {dsNotice ? (
+                <div
+                  role="status"
+                  data-testid="developer-pipe-datasource-notice"
+                  style={{ ...successNotice, marginTop: "12px" }}
+                >
+                  {dsNotice}
+                </div>
+              ) : null}
+              {dsError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-pipe-datasource-error"
+                  style={{ ...errorAlert, marginTop: "12px" }}
+                >
+                  {dsError}
                 </div>
               ) : null}
             </section>
