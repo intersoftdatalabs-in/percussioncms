@@ -679,9 +679,9 @@ public class PSPubServerService implements IPSPubServerService {
   }
 
   /**
-   * Folder-only PUT. A blank folder clears only the stored folder. Local, FTP, and SFTP share this
-   * body shape; the stored driver selects Local vs FTP vs SFTP apply. Must not run the full
-   * property replace.
+   * Folder-only PUT. A blank folder clears only the stored folder. Local, FTP, FTPS, and
+   * SFTP share this body shape; the stored driver selects Local vs FTP vs FTPS vs SFTP apply.
+   * Must not run the full property replace.
    *
    * @return the updater result, or {@code null} when the body is not a folder-only PUT.
    */
@@ -690,7 +690,8 @@ public class PSPubServerService implements IPSPubServerService {
       throws PSPubServerServiceException, PSDataServiceException, PSNotFoundException {
     if (PSFtpDeliveryFolderUpdate.isFolderOnly(pubServerInfo)
         || PSLocalDeliveryFolderUpdate.isFolderOnly(pubServerInfo)
-        || PSSftpDeliveryFolderUpdate.isFolderOnly(pubServerInfo)) {
+        || PSSftpDeliveryFolderUpdate.isFolderOnly(pubServerInfo)
+        || PSFtpsDeliveryFolderUpdate.isFolderOnly(pubServerInfo)) {
       return updateDeliveryFolderOnly(siteId, serverId, pubServerInfo);
     }
     return null;
@@ -1244,9 +1245,10 @@ public class PSPubServerService implements IPSPubServerService {
 
   /**
    * Save only the {@code folder} property. Does not rename the server or replace the property
-   * set. A Local driver uses {@link PSLocalDeliveryFolderUpdate}; FTP (and other drivers) use
-   * {@link PSFtpDeliveryFolderUpdate}. A blank folder stores an empty folder. Overlong and
-   * wrong-driver bodies throw before {@code savePubServer}.
+   * set. A Local driver uses {@link PSLocalDeliveryFolderUpdate}; SFTP uses {@link
+   * PSSftpDeliveryFolderUpdate}; FTPS uses {@link PSFtpsDeliveryFolderUpdate}; FTP (and other
+   * drivers) use {@link PSFtpDeliveryFolderUpdate}. A blank folder stores an empty folder.
+   * Overlong and wrong-driver bodies throw before {@code savePubServer}.
    */
   private PSPublishServerInfo updateDeliveryFolderOnly(
       String siteId, String serverId, PSPublishServerInfo pubServerInfo)
@@ -1268,6 +1270,8 @@ public class PSPubServerService implements IPSPubServerService {
       PSLocalDeliveryFolderUpdate.apply(server, pubServerInfo);
     } else if ("SFTP".equalsIgnoreCase(driver)) {
       PSSftpDeliveryFolderUpdate.apply(server, pubServerInfo);
+    } else if ("FTPS".equalsIgnoreCase(driver)) {
+      PSFtpsDeliveryFolderUpdate.apply(server, pubServerInfo);
     } else {
       PSFtpDeliveryFolderUpdate.apply(server, pubServerInfo);
     }
