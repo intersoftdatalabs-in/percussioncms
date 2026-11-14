@@ -80,10 +80,12 @@
 
 ## 5. Smoke after removal
 
-- [ ] Home modern loads (no CUI scripts) — verify on live instance
-- [ ] Widget Builder modern loads when enabled (no packed WB client)
-- [ ] Dashboard / other main nav tabs still work (SC-005)
-- [ ] Disabled WB still inaccessible (SC-006)
+> 2026-11-14 implementer evidence (recorded, not reviewer sign-off): `checklists/t056-smoke-results.md` — H2 QA cell, 12 passed / 1 env-skip (SC-001/002/007); `checklists/t056b-unavailable-results.md` — 6/6 PASS on the moved/unavailable surface; main-nav SC-005 covered by closed #6083.
+
+- [x] Home modern loads (no CUI scripts) — verify on live instance
+- [x] Widget Builder modern loads when enabled (no packed WB client)
+- [x] Dashboard / other main nav tabs still work (SC-005)
+- [x] Disabled WB still inaccessible (SC-006)
 
 ---
 
@@ -93,4 +95,6 @@
 - [x] Section 4 complete for all candidates
 - [x] No classic `home.jsp` / `widgetBuilder.jsp` left as rewrite or redirect stubs
 - [ ] SC-003 considered satisfied for this release — **pending human sign-off**
+
+> 2026-11-14 (#6087 closeout): implementer side complete — §1–§2, §4 verified; §5 smoke recorded in `checklists/t056-smoke-results.md` + `checklists/t056b-unavailable-results.md`. Reviewer name/date + §2a release-gate rows await a human reviewer; this file + the i18n checklist carry the evidence.
 
