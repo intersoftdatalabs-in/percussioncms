@@ -355,7 +355,6 @@ public class PSActivityService implements IPSActivityService {
                       site.getName(), site.getName(), site.getFolderRoot(), PAGE_CONTENT_TYPE))
           .collect(Collectors.toList());
     }
-    }
 
     for (var site : cm1Sites) {
       var folderRoot = site.getFolderRoot();
