@@ -162,7 +162,8 @@ public class PSRecycleService implements IPSRecycleService {
   }
 
   // Create Root Relationship between Site-SiteName for Recycle Folder, if not created yet
-  private void createRootSiteDeleteRelationship(String path) throws PSCmsException {
+  private void createRootSiteDeleteRelationship(String path)
+      throws PSCmsException, PSErrorsException {
 
     if (path == null) {
       return;
@@ -204,6 +205,8 @@ public class PSRecycleService implements IPSRecycleService {
     } else if (path.startsWith(PSRecycleService.RECYCLING_ROOT)) {
       return;
     }
+
+    ensureRecycledBackboneEdgeFor(path);
 
     PSLocator dependent = null;
     // Loop through folders
@@ -257,6 +260,57 @@ public class PSRecycleService implements IPSRecycleService {
         }
       }
     }
+  }
+
+  /**
+   * Re-creates the structural Recycling backbone hop for a recycle path when it is missing (an
+   * earlier empty or any other purge path removed it, #6307). Sites recycles need Recycling
+   * -&gt; Sites; asset recycles need Recycling -&gt; Assets. Without the hop, recycled content
+   * dangles outside the bin tree: invisible in listings, 409/400 on purge/restore.
+   */
+  private void ensureRecycledBackboneEdgeFor(String path)
+      throws PSCmsException, PSErrorsException {
+    if (path.startsWith(PSRecycleService.SITES)) {
+      ensureRecycledBackboneEdge(PSFolder.SYS_SITES_ID);
+    } else if (path.startsWith(PSRecycleService.ASSETS_ROOT)) {
+      ensureRecycledBackboneEdge(PSFolder.SYS_ASSETS_ID);
+    }
+  }
+
+  /**
+   * Re-creates the structural {@code Recycling -&gt; system folder} recycled edge when it is
+   * missing. The edge is seeded at install but any purge that resolves a top-level Recycling
+   * child to its live system folder removes it (empty-recycle did so before #6307), leaving
+   * later recycles dangling outside the bin tree. Creating the edge is idempotent: an existing
+   * recycled edge is left untouched.
+   *
+   * @param systemFolderId {@link PSFolder#SYS_SITES_ID} or {@link PSFolder#SYS_ASSETS_ID}, never
+   *     the Recycling folder itself
+   */
+  void ensureRecycledBackboneEdge(int systemFolderId)
+      throws PSCmsException, PSErrorsException {
+    PSRelationshipConfig config =
+        PSRelationshipCommandHandler.getRelationshipConfig(RECYCLED_TYPE);
+    PSLocator owner = new PSLocator(PSFolder.SYS_RECYCLING_ID, -1);
+    PSLocator dependent = new PSLocator(systemFolderId, -1);
+    PSRelationshipFilter filter = new PSRelationshipFilter();
+    filter.setOwner(owner);
+    filter.setDependent(dependent);
+    List<PSRelationship> existing =
+        PSRelationshipProcessor.getInstance().getRelationshipList(filter);
+    if (existing != null) {
+      for (PSRelationship rel : existing) {
+        if (rel != null
+            && rel.getConfig() != null
+            && config.getName().equals(rel.getConfig().getName())) {
+          return;
+        }
+      }
+    }
+    log.debug(
+        "Recreating missing Recycling backbone edge to system folder: {}", systemFolderId);
+    systemWs.saveRelationships(
+        Collections.singletonList(new PSRelationship(-1, owner, dependent, config)));
   }
 
   @Override

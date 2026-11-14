@@ -42,6 +42,12 @@ import org.springframework.stereotype.Component;
  *
  * <p>Safety: operates solely on finder path {@link #RECYCLING_FINDER_ROOT} which maps to {@link
  * PSRecycleService#RECYCLING_ROOT}. Live Sites/Assets outside Recycling are never targeted.
+ *
+ * <p>Backbone preservation (#6307): the top-level children of the Recycling root are the
+ * structural subtree mirrors (Recycling -&gt; Sites, Recycling -&gt; Assets, seeded at install).
+ * Only their <em>contents</em> are purged; the mirrors themselves are never deleted. Deleting a
+ * mirror resolves to the live system folder and its purge removes the load-bearing recycled edge,
+ * so every later recycle dangles outside the bin tree (invisible, 409/400 on purge/restore).
  */
 @Component("emptyRecycleService")
 @Lazy
@@ -95,36 +101,7 @@ public class PSEmptyRecycleService implements IPSEmptyRecycleService {
     }
 
     for (PSPathItem child : children) {
-      if (child == null || StringUtils.isBlank(child.getPath())) {
-        continue;
-      }
-      // Hard safety: never process paths outside the Recycling finder root
-      String childPath = normalizeFinderPath(child.getPath());
-      if (!isUnderRecyclingRoot(childPath)) {
-        String msg =
-            "Refusing to purge path outside Recycling root: " + sanitizePathForLog(childPath);
-        log.error(msg);
-        result.addError(msg);
-        result.addUndeleted(1);
-        continue;
-      }
-
-      try {
-        if (child.isFolder() || !child.isLeaf()) {
-          purgeFolder(childPath, child.getId(), result);
-        } else {
-          purgeLeaf(child, result);
-        }
-      } catch (Exception e) {
-        String msg =
-            "Failed to purge recycled path "
-                + sanitizePathForLog(childPath)
-                + ": "
-                + PSExceptionUtils.getMessageForLog(e);
-        log.warn(msg, e);
-        result.addError(msg);
-        result.addUndeleted(1);
-      }
+      purgeChild(child, result, true);
     }
 
     log.info(
@@ -161,10 +138,92 @@ public class PSEmptyRecycleService implements IPSEmptyRecycleService {
     result.addUndeleted(undeleted);
   }
 
+  /**
+   * Purges one recycled child. Top-level children ({@code preserveSelf=true}) are the structural
+   * Recycling subtree mirrors: their contents are purged but the mirror itself is preserved (see
+   * the class javadoc). Nested children ({@code preserveSelf=false}) are purged completely,
+   * including the folder itself.
+   */
+  private void purgeChild(PSPathItem child, PSEmptyRecycleResult result, boolean preserveSelf) {
+    if (child == null || StringUtils.isBlank(child.getPath())) {
+      return;
+    }
+    // Hard safety: never process paths outside the Recycling finder root
+    String childPath = normalizeFinderPath(child.getPath());
+    if (!isUnderRecyclingRoot(childPath)) {
+      String msg = "Refusing to purge path outside Recycling root: " + sanitizePathForLog(childPath);
+      log.error(msg);
+      result.addError(msg);
+      result.addUndeleted(1);
+      return;
+    }
+
+    try {
+      if (child.isFolder() || !child.isLeaf()) {
+        if (preserveSelf) {
+          purgeTopLevelFolderContents(childPath, result);
+        } else {
+          purgeFolder(childPath, child.getId(), result);
+        }
+      } else {
+        purgeLeaf(child, result);
+      }
+    } catch (Exception e) {
+      String msg =
+          "Failed to purge recycled path "
+              + sanitizePathForLog(childPath)
+              + ": "
+              + PSExceptionUtils.getMessageForLog(e);
+      log.warn(msg, e);
+      result.addError(msg);
+      result.addUndeleted(1);
+    }
+  }
+
+  /**
+   * Purges everything under a top-level Recycling child (e.g. {@code /Recycling/Assets/}) while
+   * preserving the structural child itself. Deleting the child would resolve to the live system
+   * folder and destroy the load-bearing Recycling -&gt; Sites/Assets recycled edge (#6307).
+   */
+  private void purgeTopLevelFolderContents(String finderPath, PSEmptyRecycleResult result)
+      throws Exception {
+    List<PSPathItem> nested = pathService.findChildren(finderPath);
+    if (nested != null) {
+      for (PSPathItem kid : nested) {
+        purgeChild(kid, result, false);
+      }
+    }
+  }
+
   private void purgeLeaf(PSPathItem child, PSEmptyRecycleResult result) throws Exception {
-    // Permanent purge of a leaf under the system Recycling folder path only.
-    folderHelper.removeItem(PSRecycleService.RECYCLING_ROOT, child.getId(), true);
+    // Permanent purge of a leaf under its actual recycled parent: recycled leaves hang off
+    // their original parent folder, not the Recycling root, so purging via the root id fails
+    // containment (same shape as #6257). Falls back to the Recycling root when the summary
+    // reports no parent.
+    folderHelper.removeItem(recycledParentOf(child), child.getId(), true);
     result.incrementPurgedItems();
+  }
+
+  /**
+   * Repository path of the recycled parent a bin row hangs off (e.g. {@code
+   * //Folders/$System$/Recycling/Assets}), or the Recycling root when the summary reports no
+   * usable parent. Scoped to the bin: parents outside the Recycling root are never returned.
+   */
+  static String recycledParentOf(PSPathItem child) {
+    if (child != null && child.getFolderPaths() != null) {
+      for (String parent : child.getFolderPaths()) {
+        if (StringUtils.isBlank(parent)) {
+          continue;
+        }
+        // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6307) —
+        // slashes strip the CMS repository folder path form, not an OS path.
+        String repo = parent.strip().replaceAll("/+$", "");
+        if (repo.startsWith(PSRecycleService.RECYCLING_ROOT)) {
+          return repo;
+        }
+      }
+    }
+    return PSRecycleService.RECYCLING_ROOT;
   }
 
   /**
