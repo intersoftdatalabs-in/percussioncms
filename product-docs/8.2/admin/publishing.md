@@ -347,6 +347,24 @@ successful save.
 Choosing **Set port** on an FTP or SFTP server does not change that server's folder, FTP port,
 or SFTP port. Host-only save and full server edit (**Edit Server**) stay separate.
 
+### Set the FTPS delivery-server user id (Sites)
+
+From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose
+driver is **FTPS**. **Set user id** edits only the server user id. **Save user id** sends
+`PUT …/publishmanagement/servers/{siteId}/{serverId}` with only the `userid` property. Host,
+port, and folder stay as they were. The passphrase and private key are not shown and are not
+sent again.
+
+A blank user id is refused on the form (**FTPS user id is required**) and is not written. A
+user id longer than 255 characters is refused the same way. **Cancel** does not call the
+server and keeps the previous user id. HTTP **400**, **403**, and **409** stay on the form
+and keep the previous user id. The new user id is shown only after a successful save.
+
+**FTP**, **SFTP**, Amazon S3, database drivers, and a **Local** driver do not use this save.
+Choosing **Set user id** on an FTP or SFTP server does not change that server's folder, FTP
+user id, or SFTP username. Host-only save, port-only save, and full server edit (**Edit
+Server**) stay separate.
+
 ### Set the SFTP delivery-server username (Sites)
 
 From **Publish** (`spa.jsp?entry=publish`), open a site card and select a delivery server whose

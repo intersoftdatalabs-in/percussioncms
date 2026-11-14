@@ -582,6 +582,7 @@ public class PSPubServerService implements IPSPubServerService {
     }
     if (PSFtpDeliveryUserUpdate.isUserOnly(pubServerInfo)
         || PSSftpDeliveryUsernameUpdate.isUsernameOnly(pubServerInfo)
+        || PSFtpsDeliveryUserUpdate.isUserOnly(pubServerInfo)
         || PSDatabaseDeliveryUserUpdate.isUserOnly(pubServerInfo)) {
       return updateDeliveryUserOnly(siteId, serverId, pubServerInfo);
     }
@@ -919,8 +920,9 @@ public class PSPubServerService implements IPSPubServerService {
   /**
    * Save only the {@code userid} property. Does not rename the server or replace the property
    * set. Database drivers use {@link PSDatabaseDeliveryUserUpdate}; SFTP servers use {@link
-   * PSSftpDeliveryUsernameUpdate}; other drivers use {@link PSFtpDeliveryUserUpdate} (FTP-only;
-   * Local/FTPS/database-driver bodies throw before {@code savePubServer}).
+   * PSSftpDeliveryUsernameUpdate}; FTPS servers use {@link PSFtpsDeliveryUserUpdate}; other
+   * drivers use {@link PSFtpDeliveryUserUpdate} (FTP-only; Local/database-driver bodies throw
+   * before {@code savePubServer}).
    */
   private PSPublishServerInfo updateDeliveryUserOnly(
       String siteId, String serverId, PSPublishServerInfo pubServerInfo)
@@ -942,6 +944,8 @@ public class PSPubServerService implements IPSPubServerService {
       PSDatabaseDeliveryUserUpdate.apply(server, pubServerInfo);
     } else if ("SFTP".equalsIgnoreCase(driver)) {
       PSSftpDeliveryUsernameUpdate.apply(server, pubServerInfo);
+    } else if ("FTPS".equalsIgnoreCase(driver)) {
+      PSFtpsDeliveryUserUpdate.apply(server, pubServerInfo);
     } else {
       PSFtpDeliveryUserUpdate.apply(server, pubServerInfo);
     }
