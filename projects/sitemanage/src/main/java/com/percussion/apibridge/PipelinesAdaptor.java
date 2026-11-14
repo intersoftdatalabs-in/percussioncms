@@ -34,13 +34,12 @@ import com.percussion.error.PSNotLockedException;
 import com.percussion.rest.pipelines.ApplicationDataSetSummary;
 import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationExport;
-import com.percussion.rest.pipelines.ApplicationDataSetSummary;
-import com.percussion.rest.pipelines.ApplicationDetail;
 import com.percussion.rest.pipelines.ApplicationSummary;
 import com.percussion.rest.pipelines.ApplicationValidationProblem;
 import com.percussion.rest.pipelines.ApplicationValidationResult;
 import com.percussion.rest.pipelines.IPipelinesAdaptor;
 import com.percussion.rest.pipelines.PipelineBinaryResource;
+import com.percussion.rest.pipelines.PipelineDatasourceBackend;
 import com.percussion.rest.pipelines.PipelineFilterGroup;
 import com.percussion.rest.pipelines.PipelineResultPage;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
@@ -88,12 +87,16 @@ import com.percussion.services.pipeline.model.WhereClauseIr;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.util.PSCollection;
+import com.percussion.utils.jdbc.IPSConnectionInfo;
+import com.percussion.utils.jdbc.PSConnectionHelper;
+import com.percussion.utils.jdbc.PSConnectionInfo;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import jakarta.ws.rs.WebApplicationException;
 import java.io.IOException;
 import java.io.StringReader;
 import java.net.URI;
+import java.sql.Connection;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -151,6 +154,8 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   private final ApplicationDetailLoader detailLoader;
   private final ApplicationValidationOps validationOps;
   private final ApplicationPersistOps persistOps;
+  private final Supplier<Map<String, DatabaseExplorerAdaptor.ConfiguredDatasource>> datasourceCatalog;
+  private final DatasourceConnectionProbe connectionProbe;
 
   /** Injected by Spring in production; unused when {@link #adminChecker} is overridden in tests. */
   @Autowired(required = false)
@@ -312,6 +317,37 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       ApplicationDetailLoader detailLoader,
       ApplicationValidationOps validationOps,
       ApplicationPersistOps persistOps) {
+    this(
+        summaryLoader,
+        runtimeSupplier,
+        irSupplier,
+        applicationLoader,
+        adminChecker,
+        lifecycleOps,
+        detailLoader,
+        validationOps,
+        persistOps,
+        null,
+        null);
+  }
+
+  /**
+   * Canonical constructor with datasource-write collaborators. {@code datasourceCatalog} resolves
+   * allow-listed JDBC catalog ids (defaults to server.properties); {@code connectionProbe} opens
+   * a JDBC connection for the test (defaults to the production datasource manager path).
+   */
+  PipelinesAdaptor(
+      Function<PSSecurityToken, PSApplicationSummary[]> summaryLoader,
+      Supplier<IPSPipelineRuntimeService> runtimeSupplier,
+      Supplier<IPSPipelineIrService> irSupplier,
+      BiFunction<String, PSSecurityToken, PSApplication> applicationLoader,
+      BooleanSupplier adminChecker,
+      ApplicationLifecycleOps lifecycleOps,
+      ApplicationDetailLoader detailLoader,
+      ApplicationValidationOps validationOps,
+      ApplicationPersistOps persistOps,
+      Supplier<Map<String, DatabaseExplorerAdaptor.ConfiguredDatasource>> datasourceCatalog,
+      DatasourceConnectionProbe connectionProbe) {
     this.summaryLoader = summaryLoader;
     this.runtimeSupplier =
         runtimeSupplier != null
@@ -327,6 +363,22 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     this.validationOps =
         validationOps != null ? validationOps : this::validateApplicationFromObjectStore;
     this.persistOps = persistOps != null ? persistOps : new DefaultApplicationPersistOps();
+    this.datasourceCatalog =
+        datasourceCatalog != null
+            ? datasourceCatalog
+            : DatabaseExplorerAdaptor::loadDatasourcesFromServerProperties;
+    this.connectionProbe =
+        connectionProbe != null ? connectionProbe : PipelinesAdaptor::probeDatasourceConnection;
+  }
+
+  /**
+   * JDBC connection probe for a CMS datasource name.
+   *
+   * @return {@code null} when a JDBC connection opens; otherwise a short named failure reason
+   *     (never a JDBC URL or credentials)
+   */
+  interface DatasourceConnectionProbe {
+    String probe(String cmsDatasourceName);
   }
 
   private static PSApplication loadApplicationObject(String name, PSSecurityToken tok) {
@@ -555,6 +607,240 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
         throw new WebApplicationException("Pipeline application or resource not found", 404);
       }
       throw new WebApplicationException(msg, 400);
+    }
+  }
+
+  @Override
+  public PipelineDatasourceBackend putDatasourceBackend(
+      URI baseUri, String appName, String resourceName, PipelineDatasourceBackend backend) {
+    requireAdmin();
+    String app = requireValidApplicationName(appName);
+    String resource = requireValidResourceName(resourceName);
+    if (backend == null) {
+      throw new WebApplicationException("Datasource backend body is required", 400);
+    }
+    if (!isDatasourceAdapterType(backend.getAdapterType())) {
+      throw new WebApplicationException(
+          "adapterType must be JDBC (allow-listed datasource)", 400);
+    }
+    String id =
+        backend.getDatasourceId() != null ? backend.getDatasourceId().trim() : "";
+    DatabaseExplorerAdaptor.ConfiguredDatasource configured = requireAllowListedDatasource(id);
+    // Fail closed: a failed connection test is named and nothing is persisted.
+    String failure = connectionProbe.probe(configured.cmsDatasourceName());
+    if (failure != null) {
+      throw new WebApplicationException(
+          "Datasource connection test failed for '" + id + "'", Response.Status.BAD_GATEWAY);
+    }
+
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline datasource persist");
+    }
+    PSSecurityToken tok = req.getSecurityToken();
+    String name = resolveApplicationName(app, summaryLoader.apply(tok));
+    if (name == null) {
+      throw new WebApplicationException("Application not found", 404);
+    }
+    String safeResource = resource;
+    try {
+      IPSPipelineIrService ir = irSupplier.get();
+      PipelineIrDocument doc = ir.load(name).orElse(null);
+      if (doc == null) {
+        PSApplication appObj = applicationLoader.apply(name, tok);
+        if (appObj != null) {
+          doc = ir.importClassicApplication(appObj);
+        } else {
+          doc = new PipelineIrDocument();
+          doc.getApp().setName(name);
+        }
+      }
+      doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
+      if (doc.getApp() == null || StringUtils.isBlank(doc.getApp().getName())) {
+        doc.getApp().setName(name);
+      }
+      PipelineResourceIr resourceIr = doc.findResource(safeResource);
+      if (resourceIr == null) {
+        resourceIr = new PipelineResourceIr();
+        resourceIr.setName(safeResource);
+        resourceIr.setKind(PipelineResourceIr.KIND_QUERY);
+        doc.getResources().add(resourceIr);
+      }
+      if (resourceIr.getKind() == null
+          || PipelineResourceIr.KIND_UNKNOWN.equals(resourceIr.getKind())) {
+        resourceIr.setKind(PipelineResourceIr.KIND_QUERY);
+      }
+      PipelineStagesIr stages =
+          resourceIr.getStages() != null ? resourceIr.getStages() : new PipelineStagesIr();
+      BackendTankStageIr tank =
+          stages.getBackendTank() != null ? stages.getBackendTank() : new BackendTankStageIr();
+      if (tank.isHttpAdapter()) {
+        throw new WebApplicationException(
+            "Resource already has an HTTP backend tank", Response.Status.CONFLICT);
+      }
+      tank.setPresent(true);
+      tank.setAdapterType(BackendTankStageIr.ADAPTER_JDBC);
+      tank.setDatasourceId(id);
+      stages.setBackendTank(tank);
+      resourceIr.setStages(stages);
+      ir.save(doc);
+
+      PipelineDatasourceBackend saved = new PipelineDatasourceBackend();
+      saved.setAdapterType(tank.getAdapterType());
+      saved.setDatasourceId(tank.getDatasourceId());
+      saved.setConnectionOk(Boolean.TRUE);
+      saved.setConnectionMessage("Datasource connection test succeeded for '" + id + "'");
+      return saved;
+    } catch (PSPipelineIrException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Failed to persist datasource backend";
+      if (isNotFoundMessage(msg)) {
+        throw new WebApplicationException("Pipeline application or resource not found", 404);
+      }
+      throw new WebApplicationException(msg, 400);
+    }
+  }
+
+  @Override
+  public PipelineDatasourceBackend deleteDatasourceBackend(
+      URI baseUri, String appName, String resourceName) {
+    requireAdmin();
+    String app = requireValidApplicationName(appName);
+    String resource = requireValidResourceName(resourceName);
+
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline datasource delete");
+    }
+    PSSecurityToken tok = req.getSecurityToken();
+    String name = resolveApplicationName(app, summaryLoader.apply(tok));
+    if (name == null) {
+      throw new WebApplicationException("Application not found", 404);
+    }
+    String safeResource = resource;
+    try {
+      IPSPipelineIrService ir = irSupplier.get();
+      PipelineIrDocument doc = ir.load(name).orElse(null);
+      if (doc == null) {
+        throw new WebApplicationException("Pipeline application or resource not found", 404);
+      }
+      PipelineResourceIr resourceIr = doc.findResource(safeResource);
+      if (resourceIr == null
+          || resourceIr.getStages() == null
+          || resourceIr.getStages().getBackendTank() == null
+          || !resourceIr.getStages().getBackendTank().isDatasourceAdapter()) {
+        throw new WebApplicationException("No datasource backend configured", 404);
+      }
+      BackendTankStageIr tank = resourceIr.getStages().getBackendTank();
+      String removedId = tank.getDatasourceId();
+      tank.setDatasourceId(null);
+      if (BackendTankStageIr.ADAPTER_JDBC.equalsIgnoreCase(
+          tank.getAdapterType() != null ? tank.getAdapterType().trim() : "")) {
+        tank.setAdapterType(null);
+      }
+      boolean hasTables = tank.getTables() != null && !tank.getTables().isEmpty();
+      boolean hasJoins = tank.getJoins() != null && !tank.getJoins().isEmpty();
+      if (!hasTables && !hasJoins) {
+        tank.setPresent(false);
+      }
+      ir.save(doc);
+
+      PipelineDatasourceBackend removed = new PipelineDatasourceBackend();
+      removed.setAdapterType(BackendTankStageIr.ADAPTER_JDBC);
+      removed.setDatasourceId(removedId);
+      removed.setConnectionMessage("Datasource backend removed for '" + removedId + "'");
+      return removed;
+    } catch (PSPipelineIrException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Failed to remove datasource backend";
+      if (isNotFoundMessage(msg)) {
+        throw new WebApplicationException("Pipeline application or resource not found", 404);
+      }
+      throw new WebApplicationException(msg, 400);
+    }
+  }
+
+  @Override
+  public PipelineDatasourceBackend testDatasourceBackend(
+      URI baseUri, String appName, String resourceName, PipelineDatasourceBackend backend) {
+    requireAdmin();
+    String app = requireValidApplicationName(appName);
+    requireValidResourceName(resourceName);
+    if (backend == null) {
+      throw new WebApplicationException("Datasource backend body is required", 400);
+    }
+    if (backend.getAdapterType() != null && !isDatasourceAdapterType(backend.getAdapterType())) {
+      throw new WebApplicationException(
+          "adapterType must be JDBC (allow-listed datasource)", 400);
+    }
+    String id =
+        backend.getDatasourceId() != null ? backend.getDatasourceId().trim() : "";
+    DatabaseExplorerAdaptor.ConfiguredDatasource configured = requireAllowListedDatasource(id);
+
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline datasource test");
+    }
+    String name = resolveApplicationName(app, summaryLoader.apply(req.getSecurityToken()));
+    if (name == null) {
+      throw new WebApplicationException("Application not found", 404);
+    }
+
+    // Test-only: never persisted.
+    String failure = connectionProbe.probe(configured.cmsDatasourceName());
+    PipelineDatasourceBackend outcome = new PipelineDatasourceBackend();
+    outcome.setAdapterType(BackendTankStageIr.ADAPTER_JDBC);
+    outcome.setDatasourceId(id);
+    if (failure == null) {
+      outcome.setConnectionOk(Boolean.TRUE);
+      outcome.setConnectionMessage("Datasource connection test succeeded for '" + id + "'");
+    } else {
+      outcome.setConnectionOk(Boolean.FALSE);
+      outcome.setConnectionMessage("Datasource connection test failed for '" + id + "'");
+    }
+    return outcome;
+  }
+
+  /** True when {@code adapterType} is JDBC (or SQL) for the datasource write slice. */
+  static boolean isDatasourceAdapterType(String adapterType) {
+    if (adapterType == null || adapterType.isBlank()) {
+      return false;
+    }
+    String n = adapterType.trim().toUpperCase(Locale.ROOT);
+    return BackendTankStageIr.ADAPTER_JDBC.equals(n) || BackendTankStageIr.ADAPTER_SQL.equals(n);
+  }
+
+  /** Resolve an allow-listed catalog id or fail closed with 400 (never echoes URLs). */
+  private DatabaseExplorerAdaptor.ConfiguredDatasource requireAllowListedDatasource(String id) {
+    if (!DatabaseExplorerAdaptor.isSafeCatalogId(id)) {
+      throw new WebApplicationException(DatabaseExplorerAdaptor.INVALID_DATASOURCE, 400);
+    }
+    DatabaseExplorerAdaptor.ConfiguredDatasource configured =
+        datasourceCatalog.get().get(id);
+    if (configured == null) {
+      throw new WebApplicationException("Datasource '" + id + "' is not allow-listed", 400);
+    }
+    return configured;
+  }
+
+  /**
+   * Production JDBC connection probe: opens (and closes) a connection for the CMS datasource
+   * name. The repository token resolves like Database Explorer browse (null info).
+   *
+   * @return {@code null} when a connection opens; otherwise a short named failure reason
+   */
+  private static String probeDatasourceConnection(String cmsDatasourceName) {
+    String name = cmsDatasourceName != null ? cmsDatasourceName : "";
+    IPSConnectionInfo info =
+        DatabaseExplorerAdaptor.REPOSITORY_TOKEN.equalsIgnoreCase(name)
+            ? null
+            : new PSConnectionInfo(name);
+    try (Connection conn = PSConnectionHelper.getDbConnection(info)) {
+      if (conn == null || conn.isClosed()) {
+        return "no connection";
+      }
+      return null;
+    } catch (java.sql.SQLException | javax.naming.NamingException | RuntimeException e) {
+      log.debug("Pipeline datasource connection test failed: {}", e.toString());
+      return e.toString();
     }
   }
 

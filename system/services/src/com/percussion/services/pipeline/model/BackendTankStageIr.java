@@ -31,12 +31,17 @@ import java.util.Objects;
  *
  * <p>Slice C HTTP adapter: {@link #adapterType} {@code HTTP} (or {@code REST}) plus {@link #url}
  * (loopback / local fixture only). Blank adapter type remains SQL.
+ *
+ * <p>Datasource write slice: {@link #adapterType} {@code JDBC} plus {@link #datasourceId} (an
+ * allow-listed catalog id — never a JDBC URL). Execute dispatch is unchanged: datasource tanks
+ * are not HTTP adapters, so the native IR execute path is untouched.
  */
 public class BackendTankStageIr {
 
   public static final String ADAPTER_SQL = "SQL";
   public static final String ADAPTER_HTTP = "HTTP";
   public static final String ADAPTER_REST = "REST";
+  public static final String ADAPTER_JDBC = "JDBC";
 
   private boolean present;
   private List<BackendTableRefIr> tables = new ArrayList<>();
@@ -45,6 +50,14 @@ public class BackendTankStageIr {
   private String adapterType;
   private String url;
   private String httpMethod;
+
+  /**
+   * Allow-listed JDBC datasource catalog id backing this tank (datasource write
+   * slice). Never a JDBC URL or credentials — ids resolve via {@code
+   * databaseExplorer.allowListedDatasources}. Blank when this tank is not
+   * datasource-backed.
+   */
+  private String datasourceId;
 
   public boolean isPresent() {
     return present;
@@ -102,6 +115,14 @@ public class BackendTankStageIr {
     this.httpMethod = httpMethod;
   }
 
+  public String getDatasourceId() {
+    return datasourceId;
+  }
+
+  public void setDatasourceId(String datasourceId) {
+    this.datasourceId = datasourceId;
+  }
+
   /** True when this tank is an HTTP/REST datasource (Slice C). */
   public boolean isHttpAdapter() {
     if (adapterType == null || adapterType.isBlank()) {
@@ -109,6 +130,21 @@ public class BackendTankStageIr {
     }
     String n = adapterType.trim().toUpperCase(Locale.ROOT);
     return ADAPTER_HTTP.equals(n) || ADAPTER_REST.equals(n);
+  }
+
+  /**
+   * True when this tank references a named allow-listed JDBC datasource
+   * (datasource write slice). The id is a catalog token — never a JDBC URL.
+   */
+  public boolean isDatasourceAdapter() {
+    if (datasourceId == null || datasourceId.isBlank()) {
+      return false;
+    }
+    if (adapterType == null || adapterType.isBlank()) {
+      return true;
+    }
+    String n = adapterType.trim().toUpperCase(Locale.ROOT);
+    return ADAPTER_SQL.equals(n) || ADAPTER_JDBC.equals(n);
   }
 
   @Override
@@ -125,11 +161,13 @@ public class BackendTankStageIr {
         && Objects.equals(joins, that.joins)
         && Objects.equals(adapterType, that.adapterType)
         && Objects.equals(url, that.url)
-        && Objects.equals(httpMethod, that.httpMethod);
+        && Objects.equals(httpMethod, that.httpMethod)
+        && Objects.equals(datasourceId, that.datasourceId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(present, tables, joins, joinCount, adapterType, url, httpMethod);
+    return Objects.hash(
+        present, tables, joins, joinCount, adapterType, url, httpMethod, datasourceId);
   }
 }
