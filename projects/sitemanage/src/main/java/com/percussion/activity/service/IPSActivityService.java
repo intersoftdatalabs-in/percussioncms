@@ -48,7 +48,8 @@ public interface IPSActivityService {
 
   /**
    * Gets a site and path pairs for the specified path. The returned list is all sites if the path
-   * is {@code PSPathUtils#SITES_FINDER_ROOT}.
+   * is {@code PSPathUtils#SITES_FINDER_ROOT} (bare {@code /Sites}; the trailing-slash form
+   * {@code /Sites/} is accepted as well).
    *
    * @param path the path in question, must not be blank.
    * @param includeSite {@code true} to include an activity node for the site(s), {@code false}
