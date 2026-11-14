@@ -58,7 +58,7 @@ export const MembershipWidget: React.FC<MembershipWidgetProps> = ({
       setError(
         formatApiError(
           err,
-          "Failed to load membership (delivery membership service may be offline)",
+          message(MSG.DASHBOARD.WIDGETS.MEMBERSHIP.LOAD_FAILED),
         ),
       );
       setUsers([]);
@@ -78,7 +78,9 @@ export const MembershipWidget: React.FC<MembershipWidgetProps> = ({
     return (
       <div style={styles.widget} data-testid="membership-widget">
         <div style={styles.widgetTitle}>{heading}</div>
-        <div style={styles.widgetLoading}>Loading membership...</div>
+        <div style={styles.widgetLoading}>
+          {message(MSG.DASHBOARD.WIDGETS.MEMBERSHIP.LOADING)}
+        </div>
       </div>
     );
   }
@@ -96,7 +98,9 @@ export const MembershipWidget: React.FC<MembershipWidgetProps> = ({
     return (
       <div style={styles.widget} data-testid="membership-widget">
         <div style={styles.widgetTitle}>{heading}</div>
-        <div style={styles.widgetContent}>No sites available.</div>
+        <div style={styles.widgetContent}>
+          {message(MSG.DASHBOARD.WIDGETS.MEMBERSHIP.NO_SITES)}
+        </div>
       </div>
     );
   }
@@ -106,10 +110,18 @@ export const MembershipWidget: React.FC<MembershipWidgetProps> = ({
       <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent} data-testid="membership-list">
         <div style={{ fontSize: "0.85em", color: "#666", marginBottom: "8px" }}>
-          Site: {site} · {users.length} member{users.length === 1 ? "" : "s"}
+          {message(MSG.DASHBOARD.WIDGETS.MEMBERSHIP.SITE)}: {site} ·{" "}
+          {users.length}{" "}
+          {message(
+            users.length === 1
+              ? MSG.DASHBOARD.WIDGETS.MEMBERSHIP.MEMBER_SINGULAR
+              : MSG.DASHBOARD.WIDGETS.MEMBERSHIP.MEMBER_PLURAL,
+          )}
         </div>
         {users.length === 0 ? (
-          <p data-testid="membership-empty">No members for this site.</p>
+          <p data-testid="membership-empty">
+            {message(MSG.DASHBOARD.WIDGETS.MEMBERSHIP.EMPTY)}
+          </p>
         ) : (
           <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
             {users.slice(0, 20).map((u) => (

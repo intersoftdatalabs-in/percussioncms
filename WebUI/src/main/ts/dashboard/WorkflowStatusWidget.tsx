@@ -63,7 +63,12 @@ export const WorkflowStatusWidget: React.FC<WorkflowStatusWidgetProps> = ({
       if (isSessionRedirectError(err)) {
         return;
       }
-      setError(formatApiError(err, "Failed to load pages by status"));
+      setError(
+        formatApiError(
+          err,
+          message(MSG.DASHBOARD.WIDGETS.WORKFLOW.LOAD_FAILED),
+        ),
+      );
       setData(null);
     } finally {
       setIsLoading(false);
@@ -86,7 +91,7 @@ export const WorkflowStatusWidget: React.FC<WorkflowStatusWidgetProps> = ({
           style={styles.widgetLoading}
           data-testid="workflow-status-loading"
         >
-          <p>Loading workflow status...</p>
+          <p>{message(MSG.DASHBOARD.WIDGETS.WORKFLOW.LOADING)}</p>
         </div>
       );
     }
@@ -94,7 +99,9 @@ export const WorkflowStatusWidget: React.FC<WorkflowStatusWidgetProps> = ({
     if (error) {
       return (
         <div style={styles.widgetError} data-testid="workflow-status-error">
-          <p>Error: {error}</p>
+          <p>
+            {message(MSG.ERROR_GENERIC)}: {error}
+          </p>
         </div>
       );
     }
@@ -102,7 +109,7 @@ export const WorkflowStatusWidget: React.FC<WorkflowStatusWidgetProps> = ({
     if (!data || data.buckets.length === 0) {
       return (
         <div style={styles.widgetContent} data-testid="workflow-status-empty">
-          <p>No pages found for this path and workflow.</p>
+          <p>{message(MSG.DASHBOARD.WIDGETS.WORKFLOW.EMPTY)}</p>
           {data ? (
             <p style={{ fontSize: "0.85em", color: "#666" }}>
               {data.path} · {data.workflow}
@@ -115,8 +122,12 @@ export const WorkflowStatusWidget: React.FC<WorkflowStatusWidgetProps> = ({
     return (
       <div style={styles.widgetContent} data-testid="workflow-status-list">
         <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
-          {data.path} · {data.workflow} · {data.totalItems} page
-          {data.totalItems === 1 ? "" : "s"}
+          {data.path} · {data.workflow} · {data.totalItems}{" "}
+          {message(
+            data.totalItems === 1
+              ? MSG.DASHBOARD.WIDGETS.WORKFLOW.COUNT_SINGULAR
+              : MSG.DASHBOARD.WIDGETS.WORKFLOW.COUNT_PLURAL,
+          )}
         </p>
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {data.buckets.map((bucket) => (

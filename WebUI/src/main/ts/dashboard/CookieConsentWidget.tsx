@@ -55,7 +55,7 @@ export const CookieConsentWidget: React.FC<CookieConsentWidgetProps> = ({
       setError(
         formatApiError(
           err,
-          "Failed to load cookie consent totals (delivery tier may be offline)",
+          message(MSG.DASHBOARD.WIDGETS.COOKIE_CONSENT.LOAD_FAILED),
         ),
       );
       setTotals(null);
@@ -75,7 +75,9 @@ export const CookieConsentWidget: React.FC<CookieConsentWidgetProps> = ({
     return (
       <div style={styles.widget} data-testid="cookie-consent-widget">
         <div style={styles.widgetTitle}>{heading}</div>
-        <div style={styles.widgetLoading}>Loading cookie consent...</div>
+        <div style={styles.widgetLoading}>
+          {message(MSG.DASHBOARD.WIDGETS.COOKIE_CONSENT.LOADING)}
+        </div>
       </div>
     );
   }
@@ -94,7 +96,7 @@ export const CookieConsentWidget: React.FC<CookieConsentWidgetProps> = ({
       <div style={styles.widget} data-testid="cookie-consent-widget">
         <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetContent} data-testid="cookie-consent-empty">
-          No cookie consent log entries found.
+          {message(MSG.DASHBOARD.WIDGETS.COOKIE_CONSENT.EMPTY)}
         </div>
       </div>
     );
@@ -105,7 +107,7 @@ export const CookieConsentWidget: React.FC<CookieConsentWidgetProps> = ({
       <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent} data-testid="cookie-consent-list">
         <div style={{ fontWeight: 600, marginBottom: "8px" }}>
-          Total entries:{" "}
+          {message(MSG.DASHBOARD.WIDGETS.COOKIE_CONSENT.TOTAL_ENTRIES)}:{" "}
           <span style={{ color: "#007ea8" }}>{totals.grandTotal}</span>
         </div>
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>

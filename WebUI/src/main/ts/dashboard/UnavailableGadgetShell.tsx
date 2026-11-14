@@ -16,6 +16,7 @@
  */
 
 import React from "react";
+import { message, MSG } from "../i18n/message";
 import { styles } from "./dashboard.styles";
 
 export interface UnavailableGadgetShellProps {
@@ -37,7 +38,9 @@ export const UnavailableGadgetShell: React.FC<UnavailableGadgetShellProps> = ({
   <div style={styles.widget} data-testid={testId}>
     <div style={styles.widgetTitle}>{title}</div>
     <div style={styles.widgetContent}>
-      <p style={{ marginTop: 0, fontWeight: 600 }}>Not available in React Home</p>
+      <p style={{ marginTop: 0, fontWeight: 600 }}>
+        {message(MSG.DASHBOARD.WIDGETS.UNAVAILABLE_GADGET.HEADER)}
+      </p>
       <p style={{ fontSize: "0.9em", color: "#555" }}>{reason}</p>
     </div>
   </div>

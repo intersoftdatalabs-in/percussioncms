@@ -44,7 +44,12 @@ export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
       if (s.siteName) setSiteName(s.siteName);
     } catch (err: unknown) {
       if (isSessionRedirectError(err)) return;
-      setError(formatApiError(err, "Failed to load Siteimprove status"));
+      setError(
+        formatApiError(
+          err,
+          i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.LOAD_FAILED),
+        ),
+      );
       setStatus(null);
     } finally {
       setIsLoading(false);
@@ -60,7 +65,9 @@ export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
 
   const onSaveToken = async () => {
     if (!token.trim() || !siteName.trim()) {
-      setError("Site name and token are required.");
+      setError(
+        i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.VALIDATION_REQUIRED),
+      );
       return;
     }
     try {
@@ -76,12 +83,17 @@ export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
         token: token.trim(),
         siteName: siteName.trim(),
       });
-      setMessage("Token saved (validated by server).");
+      setMessage(i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.SAVED));
       setToken("");
       await load();
     } catch (err: unknown) {
       if (!isSessionRedirectError(err)) {
-        setError(formatApiError(err, "Failed to store Siteimprove token"));
+        setError(
+          formatApiError(
+            err,
+            i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.SAVE_FAILED),
+          ),
+        );
       }
     } finally {
       setBusy(false);
@@ -92,7 +104,9 @@ export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
     return (
       <div style={styles.widget} data-testid="siteimprove-widget">
         <div style={styles.widgetTitle}>{heading}</div>
-        <div style={styles.widgetLoading}>Loading Siteimprove...</div>
+        <div style={styles.widgetLoading}>
+          {i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.LOADING)}
+        </div>
       </div>
     );
   }
@@ -119,30 +133,41 @@ export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
           </div>
         ) : null}
         <div style={{ marginBottom: "8px" }}>
-          <strong>Token on server:</strong>{" "}
+          <strong>
+            {i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.TOKEN_LABEL)}:
+          </strong>{" "}
           {status?.hasToken ? (
             <span style={{ color: "#28a745" }}>
-              Configured
+              {i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.CONFIGURED)}
               {status?.tokenPreview ? ` (${status.tokenPreview})` : ""}
             </span>
           ) : (
-            <span style={{ color: "#dc3545" }}>Not configured</span>
+            <span style={{ color: "#dc3545" }}>
+              {i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.NOT_CONFIGURED)}
+            </span>
           )}
         </div>
         <div style={{ fontSize: "0.9em", marginBottom: 8 }}>
-          <strong>Publish config for {status?.siteName || siteName || "—"}:</strong>{" "}
+          <strong>
+            {i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.PUBLISH_CONFIG_FOR)}{" "}
+            {status?.siteName || siteName || "—"}:
+          </strong>{" "}
           {status?.siteConfigPresent ? (
-            <span style={{ color: "#28a745" }}>Present</span>
+            <span style={{ color: "#28a745" }}>
+              {i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.PRESENT)}
+            </span>
           ) : (
-            <span style={{ color: "#999" }}>None</span>
+            <span style={{ color: "#999" }}>
+              {i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.NONE)}
+            </span>
           )}
         </div>
         <div style={{ borderTop: "1px solid #eee", paddingTop: 10, marginTop: 8 }}>
           <div style={{ fontWeight: 600, fontSize: "0.85em", marginBottom: 6 }}>
-            Store credentials
+            {i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.STORE_CREDENTIALS)}
           </div>
           <label style={{ display: "block", fontSize: "0.8em", marginBottom: 6 }}>
-            Site name
+            {i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.SITE_NAME)}
             <input
               value={siteName}
               onChange={(e) => setSiteName(e.target.value)}
@@ -152,7 +177,7 @@ export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
             />
           </label>
           <label style={{ display: "block", fontSize: "0.8em", marginBottom: 6 }}>
-            API token
+            {i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.API_TOKEN)}
             <input
               type="password"
               value={token}
@@ -170,7 +195,9 @@ export const SiteimproveWidget: React.FC<SiteimproveWidgetProps> = ({
             data-testid="siteimprove-save"
             style={{ padding: "6px 12px" }}
           >
-            {busy ? "Saving…" : "Validate & save token"}
+            {busy
+              ? i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.SAVING) + "…"
+              : i18nMessage(MSG.DASHBOARD.WIDGETS.SITEIMPROVE.SAVE_TOKEN)}
           </button>
         </div>
       </div>

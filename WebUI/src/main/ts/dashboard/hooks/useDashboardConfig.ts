@@ -18,6 +18,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { get, isSessionRedirectError } from "../../api/client";
 import type { ApiError } from "../../api/client";
+import { message, MSG } from "../../i18n/message";
 
 export interface WidgetConfig {
   widgetKey: string;
@@ -179,7 +180,7 @@ export function parseDashboardResponse(
 
 function formatErr(err: unknown): string {
   if (isSessionRedirectError(err)) {
-    return "Session expired";
+    return message(MSG.DASHBOARD.WIDGETS.CONFIG.SESSION_EXPIRED);
   }
   if (err && typeof err === "object" && "status" in err) {
     const api = err as ApiError;
@@ -191,7 +192,7 @@ function formatErr(err: unknown): string {
   if (err instanceof Error) {
     return err.message;
   }
-  return "Failed to load dashboard configuration";
+  return message(MSG.DASHBOARD.WIDGETS.CONFIG.LOAD_FAILED);
 }
 
 /**
@@ -245,7 +246,7 @@ export const useDashboardConfig = (
    */
   const saveConfig = async (newConfig: DashboardConfig) => {
     if (!userId) {
-      throw new Error("User ID is required to save dashboard configuration");
+      throw new Error(message(MSG.DASHBOARD.WIDGETS.CONFIG.SAVE_NEEDS_USER));
     }
     setConfig(newConfig);
   };

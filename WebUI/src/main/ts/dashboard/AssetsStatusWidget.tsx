@@ -60,7 +60,12 @@ export const AssetsStatusWidget: React.FC<AssetsStatusWidgetProps> = ({
       if (isSessionRedirectError(err)) {
         return;
       }
-      setError(formatApiError(err, "Failed to load asset status"));
+      setError(
+        formatApiError(
+          err,
+          message(MSG.DASHBOARD.WIDGETS.ASSETS_STATUS.LOAD_FAILED),
+        ),
+      );
       setData(null);
     } finally {
       setIsLoading(false);
@@ -87,21 +92,23 @@ export const AssetsStatusWidget: React.FC<AssetsStatusWidgetProps> = ({
     if (isLoading) {
       return (
         <div style={styles.widgetLoading} data-testid="assets-status-loading">
-          <p>Loading asset status...</p>
+          <p>{message(MSG.DASHBOARD.WIDGETS.ASSETS_STATUS.LOADING)}</p>
         </div>
       );
     }
     if (error) {
       return (
         <div style={styles.widgetError} data-testid="assets-status-error">
-          <p>Error: {error}</p>
+          <p>
+            {message(MSG.ERROR_GENERIC)}: {error}
+          </p>
         </div>
       );
     }
     if (!data || data.buckets.length === 0) {
       return (
         <div style={styles.widgetContent} data-testid="assets-status-empty">
-          <p>No assets found for this path and workflow.</p>
+          <p>{message(MSG.DASHBOARD.WIDGETS.ASSETS_STATUS.EMPTY)}</p>
           {data ? (
             <p style={{ fontSize: "0.85em", color: "#666" }}>
               {data.path} · {data.workflow}
@@ -115,7 +122,9 @@ export const AssetsStatusWidget: React.FC<AssetsStatusWidgetProps> = ({
     return (
       <div style={styles.widgetContent} data-testid="assets-status-list">
         <div style={{ marginBottom: "8px", fontSize: "0.85em", color: "#666" }}>
-          {data.path} · {data.workflow} · Total: <strong>{total}</strong>
+          {data.path} · {data.workflow} ·{" "}
+          {message(MSG.DASHBOARD.WIDGETS.ASSETS_STATUS.TOTAL)}:{" "}
+          <strong>{total}</strong>
         </div>
         <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
           {data.buckets.map((bucket) => {

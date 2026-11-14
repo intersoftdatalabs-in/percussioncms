@@ -68,7 +68,9 @@ export const BlogsWidget: React.FC<BlogsWidgetProps> = ({
       if (isSessionRedirectError(err)) {
         return;
       }
-      setError(formatApiError(err, "Failed to load blogs"));
+      setError(
+        formatApiError(err, message(MSG.DASHBOARD.WIDGETS.BLOGS.LOAD_FAILED)),
+      );
     } finally {
       setIsLoading(false);
     }
@@ -109,7 +111,9 @@ export const BlogsWidget: React.FC<BlogsWidgetProps> = ({
             cursor: "pointer",
           }}
         >
-          {showCreate ? "Cancel" : "New blog"}
+          {showCreate
+            ? message(MSG.DASHBOARD.WIDGETS.BLOGS.CANCEL)
+            : message(MSG.DASHBOARD.WIDGETS.BLOGS.NEW_BLOG)}
         </button>
       </div>
 
@@ -125,7 +129,7 @@ export const BlogsWidget: React.FC<BlogsWidgetProps> = ({
 
       {isLoading && (
         <div style={styles.widgetLoading} data-testid="blogs-widget-loading">
-          <p>Loading blogs…</p>
+          <p>{message(MSG.DASHBOARD.WIDGETS.BLOGS.LOADING)}…</p>
         </div>
       )}
       {!isLoading && error && (
@@ -136,8 +140,7 @@ export const BlogsWidget: React.FC<BlogsWidgetProps> = ({
       {!isLoading && !error && blogs.length === 0 && (
         <div style={styles.widgetContent} data-testid="blogs-widget-empty">
           <p style={{ margin: "0 0 8px" }}>
-            No blogs yet. Create a blog section to enable Home → Create → Blog
-            Post.
+            {message(MSG.DASHBOARD.WIDGETS.BLOGS.EMPTY)}
           </p>
         </div>
       )}
@@ -164,7 +167,7 @@ export const BlogsWidget: React.FC<BlogsWidgetProps> = ({
           </ul>
           <p style={{ marginTop: 12, fontSize: "0.85rem" }}>
             <button type="button" onClick={openPostCreate}>
-              Create blog post…
+              {message(MSG.DASHBOARD.WIDGETS.BLOGS.CREATE_POST)}…
             </button>
           </p>
         </div>
@@ -209,7 +212,12 @@ function CreateBlogSectionForm({
       })
       .catch((err: unknown) => {
         if (!isSessionRedirectError(err)) {
-          setError(formatApiError(err, "Failed to load sites"));
+          setError(
+            formatApiError(
+              err,
+              message(MSG.DASHBOARD.WIDGETS.BLOGS.LOAD_SITES_FAILED),
+            ),
+          );
         }
       })
       .finally(() => setLoading(false));
@@ -238,7 +246,12 @@ function CreateBlogSectionForm({
       })
       .catch((err: unknown) => {
         if (!isSessionRedirectError(err)) {
-          setError(formatApiError(err, "Failed to load blog templates"));
+          setError(
+            formatApiError(
+              err,
+              message(MSG.DASHBOARD.WIDGETS.BLOGS.LOAD_TEMPLATES_FAILED),
+            ),
+          );
         }
       })
       .finally(() => setTemplatesLoading(false));
@@ -262,7 +275,7 @@ function CreateBlogSectionForm({
     setError(null);
     if (!canCreate || !title.trim() || !urlId.trim()) {
       setError(
-        "Site, title, URL name, and eligible list/post templates are required.",
+        message(MSG.DASHBOARD.WIDGETS.BLOGS.VALIDATION_REQUIRED),
       );
       return;
     }
@@ -288,14 +301,19 @@ function CreateBlogSectionForm({
       if (isSessionRedirectError(err)) {
         return;
       }
-      setError(formatApiError(err, "Could not create blog section"));
+      setError(
+        formatApiError(
+          err,
+          message(MSG.DASHBOARD.WIDGETS.BLOGS.CREATE_FAILED),
+        ),
+      );
     } finally {
       setBusy(false);
     }
   };
 
   if (loading) {
-    return <p style={{ padding: 8 }}>Loading…</p>;
+    return <p style={{ padding: 8 }}>{message(MSG.LOADING)}…</p>;
   }
 
   return (
@@ -311,11 +329,11 @@ function CreateBlogSectionForm({
       }}
     >
       <p style={{ margin: "0 0 8px", fontWeight: 600, fontSize: "0.9rem" }}>
-        Create blog section
+        {message(MSG.DASHBOARD.WIDGETS.BLOGS.CREATE_TITLE)}
       </p>
       {sites.length > 1 && (
         <label style={{ display: "block", marginBottom: 8, fontSize: "0.85rem" }}>
-          Site
+          {message(MSG.DASHBOARD.WIDGETS.BLOGS.FIELD_SITE)}
           <select
             data-testid="blogs-create-site"
             value={site}
@@ -323,7 +341,7 @@ function CreateBlogSectionForm({
             required
             style={{ display: "block", width: "100%", marginTop: 4 }}
           >
-            <option value="">Select…</option>
+            <option value="">{message(MSG.CREATE_SELECT)}…</option>
             {sites.map((s) => (
               <option key={s.name} value={s.name}>
                 {s.name}
@@ -333,7 +351,7 @@ function CreateBlogSectionForm({
         </label>
       )}
       <label style={{ display: "block", marginBottom: 8, fontSize: "0.85rem" }}>
-        Title
+        {message(MSG.CREATE_TITLE)}
         <input
           data-testid="blogs-create-title"
           value={title}
@@ -343,7 +361,7 @@ function CreateBlogSectionForm({
         />
       </label>
       <label style={{ display: "block", marginBottom: 8, fontSize: "0.85rem" }}>
-        URL name
+        {message(MSG.DASHBOARD.WIDGETS.BLOGS.FIELD_URL)}
         <input
           data-testid="blogs-create-url"
           value={urlId}
@@ -354,13 +372,15 @@ function CreateBlogSectionForm({
       </label>
       {templatesLoading && (
         <p style={{ fontSize: "0.85rem", color: "#666" }}>
-          Checking templates for Blog List / Blog Post widgets…
+          {message(MSG.DASHBOARD.WIDGETS.BLOGS.CHECKING_TEMPLATES)}…
         </p>
       )}
       <label style={{ display: "block", marginBottom: 8, fontSize: "0.85rem" }}>
-        Blog list template
+        {message(MSG.DASHBOARD.WIDGETS.BLOGS.LIST_TEMPLATE)}
         <span style={{ display: "block", color: "#666", fontWeight: 400 }}>
-          Must include the <code>{BLOG_LIST_WIDGET_ID}</code> (Blog List) widget
+          {message(MSG.DASHBOARD.WIDGETS.BLOGS.LIST_TEMPLATE_HINT_PRE)}{" "}
+          <code>{BLOG_LIST_WIDGET_ID}</code>{" "}
+          {message(MSG.DASHBOARD.WIDGETS.BLOGS.LIST_TEMPLATE_HINT_POST)}
         </span>
         <select
           data-testid="blogs-create-index-template"
@@ -370,11 +390,11 @@ function CreateBlogSectionForm({
           disabled={!site || templatesLoading || listTemplates.length === 0}
           style={{ display: "block", width: "100%", marginTop: 4 }}
         >
-          <option value="">
-            {listTemplates.length === 0
-              ? "No eligible list templates"
-              : "Select…"}
-          </option>
+            <option value="">
+              {listTemplates.length === 0
+                ? message(MSG.DASHBOARD.WIDGETS.BLOGS.NO_LIST_TEMPLATES)
+                : `${message(MSG.CREATE_SELECT)}…`}
+            </option>
           {listTemplates.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name}
@@ -383,9 +403,11 @@ function CreateBlogSectionForm({
         </select>
       </label>
       <label style={{ display: "block", marginBottom: 8, fontSize: "0.85rem" }}>
-        Blog post template
+        {message(MSG.DASHBOARD.WIDGETS.BLOGS.POST_TEMPLATE)}
         <span style={{ display: "block", color: "#666", fontWeight: 400 }}>
-          Must include the <code>{BLOG_POST_WIDGET_ID}</code> (Blog Post) widget
+          {message(MSG.DASHBOARD.WIDGETS.BLOGS.LIST_TEMPLATE_HINT_PRE)}{" "}
+          <code>{BLOG_POST_WIDGET_ID}</code>{" "}
+          {message(MSG.DASHBOARD.WIDGETS.BLOGS.POST_TEMPLATE_HINT_POST)}
         </span>
         <select
           data-testid="blogs-create-post-template"
@@ -395,11 +417,11 @@ function CreateBlogSectionForm({
           disabled={!site || templatesLoading || postTemplates.length === 0}
           style={{ display: "block", width: "100%", marginTop: 4 }}
         >
-          <option value="">
-            {postTemplates.length === 0
-              ? "No eligible post templates"
-              : "Select…"}
-          </option>
+            <option value="">
+              {postTemplates.length === 0
+                ? message(MSG.DASHBOARD.WIDGETS.BLOGS.NO_POST_TEMPLATES)
+                : `${message(MSG.CREATE_SELECT)}…`}
+            </option>
           {postTemplates.map((t) => (
             <option key={t.id} value={t.id}>
               {t.name}
@@ -414,10 +436,10 @@ function CreateBlogSectionForm({
             data-testid="blogs-create-no-templates"
             style={{ fontSize: "0.85rem", color: "#664d03", background: "#fff8e1", padding: 8 }}
           >
-            A blog needs two existing templates: one with a <strong>Blog List</strong>{" "}
-            widget and one with a <strong>Blog Post</strong> widget. Create those in
-            Design / Templates first (or copy base blog templates onto this site).
-            Server create will then clone them as {"{blog}"}-{"{source}"} templates.
+            {message(MSG.DASHBOARD.WIDGETS.BLOGS.NO_TEMPLATES)}{" "}
+            {message(MSG.DASHBOARD.WIDGETS.BLOGS.NO_TEMPLATES_CLONE_PRE)}{" "}
+            <code>{"{blog}"}-{"{source}"}</code>{" "}
+            {message(MSG.DASHBOARD.WIDGETS.BLOGS.NO_TEMPLATES_CLONE_POST)}
           </p>
         )}
       {error && (
@@ -431,10 +453,12 @@ function CreateBlogSectionForm({
           data-testid="blogs-create-submit"
           disabled={busy || !canCreate}
         >
-          {busy ? "Creating…" : "Create blog"}
+          {busy
+            ? `${message(MSG.DASHBOARD.WIDGETS.BLOGS.CREATING)}…`
+            : message(MSG.DASHBOARD.WIDGETS.BLOGS.CREATE_SUBMIT)}
         </button>
         <button type="button" onClick={onCancel}>
-          Cancel
+          {message(MSG.DASHBOARD.WIDGETS.BLOGS.CANCEL)}
         </button>
       </div>
     </form>

@@ -739,25 +739,91 @@ GADGET_DESC_DASHBOARD_CONFIG:
 
   DASHBOARD: {
     WIDGETS: {
+      ACTIVITY: {
+        LOAD_FAILED: "perc.ui.dashboard.activity@Failed to load content activity",
+        LAST: "perc.ui.dashboard.activity@last",
+        UNIT_DAYS: "perc.ui.dashboard.activity@days",
+        UNIT_WEEKS: "perc.ui.dashboard.activity@weeks",
+        UNIT_MONTHS: "perc.ui.dashboard.activity@months",
+        UNIT_YEARS: "perc.ui.dashboard.activity@years",
+      },
       ASSETS_STATUS: {
         LOADING: "perc.ui.dashboard.modern@Loading asset status",
         EMPTY:
           "perc.ui.dashboard.modern@No assets found for this path and workflow.",
+        LOAD_FAILED: "perc.ui.dashboard.modern@Failed to load asset status",
+        TOTAL: "perc.ui.dashboard.modern@Total",
       },
       BLOGS: {
         NO_TEMPLATES:
           "perc.ui.dashboard.modern@A blog needs two existing templates: one with a Blog List widget and one with a Blog Post widget. Create those in Design / Templates first (or copy base blog templates onto this site).",
+        LOADING: "perc.ui.dashboard.modern@Loading blogs",
+        LOAD_FAILED: "perc.ui.dashboard.modern@Failed to load blogs",
+        NEW_BLOG: "perc.ui.dashboard.modern@New blog",
+        CANCEL: "perc.ui.dashboard.modern@Cancel",
+        EMPTY:
+          "perc.ui.dashboard.modern@No blogs yet. Create a blog section to enable Home → Create → Blog Post.",
+        CREATE_POST: "perc.ui.dashboard.modern@Create blog post",
+        LOAD_SITES_FAILED: "perc.ui.dashboard.modern@Failed to load sites",
+        LOAD_TEMPLATES_FAILED:
+          "perc.ui.dashboard.modern@Failed to load blog templates",
+        VALIDATION_REQUIRED:
+          "perc.ui.dashboard.modern@Site, title, URL name, and eligible list/post templates are required.",
+        CREATE_FAILED:
+          "perc.ui.dashboard.modern@Could not create blog section",
+        CREATE_TITLE: "perc.ui.dashboard.modern@Create blog section",
+        FIELD_SITE: "perc.ui.dashboard.modern@Site",
+        FIELD_URL: "perc.ui.dashboard.modern@URL name",
+        CHECKING_TEMPLATES:
+          "perc.ui.dashboard.modern@Checking templates for Blog List / Blog Post widgets",
+        LIST_TEMPLATE: "perc.ui.dashboard.modern@Blog list template",
+        POST_TEMPLATE: "perc.ui.dashboard.modern@Blog post template",
+        LIST_TEMPLATE_HINT_PRE:
+          "perc.ui.dashboard.modern@Template must contain widget",
+        LIST_TEMPLATE_HINT_POST: "perc.ui.dashboard.modern@(Blog List)",
+        POST_TEMPLATE_HINT_POST: "perc.ui.dashboard.modern@(Blog Post)",
+        NO_LIST_TEMPLATES:
+          "perc.ui.dashboard.modern@No eligible list templates",
+        NO_POST_TEMPLATES:
+          "perc.ui.dashboard.modern@No eligible post templates",
+        NO_TEMPLATES_CLONE_PRE:
+          "perc.ui.dashboard.modern@Server create will then clone them as",
+        NO_TEMPLATES_CLONE_POST: "perc.ui.dashboard.modern@templates.",
+        CREATING: "perc.ui.dashboard.modern@Creating blog",
+        CREATE_SUBMIT: "perc.ui.dashboard.modern@Create blog",
       },
       BULK_UPLOAD: {
         TYPE_FILE: "perc.ui.dashboard.modern@Bulk upload asset type File",
         TYPE_IMAGE: "perc.ui.dashboard.modern@Bulk upload asset type Image",
+        UPLOAD_FAILED: "perc.ui.dashboard.modern@Upload failed",
+        INTRO:
+          "perc.ui.dashboard.modern@Upload files into the Assets tree (classic bulk upload servlet).",
+        FOLDER_LABEL: "perc.ui.dashboard.modern@Folder path",
+        TYPE_LABEL: "perc.ui.dashboard.modern@Asset type",
+        APPROVE_LABEL: "perc.ui.dashboard.modern@Approve on upload",
+        UPLOADING: "perc.ui.dashboard.modern@Uploading",
+        SUCCEEDED: "perc.ui.dashboard.modern@succeeded",
       },
       COMMENTS: {
         LOADING: "perc.ui.dashboard.modern@Loading comments",
         NO_SITES: "perc.ui.dashboard.modern@No sites available.",
+        LOAD_FAILED:
+          "perc.ui.dashboard.modern@Failed to load comments (delivery tier may be offline)",
+        EMPTY_FOR_SITE_PRE:
+          "perc.ui.dashboard.modern@No pages with comments for",
+        SITE: "perc.ui.dashboard.modern@Site",
+        UNNAMED_PAGE: "perc.ui.dashboard.modern@Page",
+        COUNT_COMMENTS: "perc.ui.dashboard.modern@comments",
+        COUNT_NEW: "perc.ui.dashboard.modern@new",
+        COUNT_APPROVED: "perc.ui.dashboard.modern@approved",
       },
       COOKIE_CONSENT: {
         LOADING: "perc.ui.dashboard.modern@Loading cookie consent",
+        LOAD_FAILED:
+          "perc.ui.dashboard.modern@Failed to load cookie consent totals (delivery tier may be offline)",
+        EMPTY:
+          "perc.ui.dashboard.modern@No cookie consent log entries found.",
+        TOTAL_ENTRIES: "perc.ui.dashboard.modern@Total entries",
       },
       EFFECTIVENESS: {
         LOADING: "perc.ui.dashboard.modern@Loading effectiveness",
@@ -767,26 +833,112 @@ GADGET_DESC_DASHBOARD_CONFIG:
           "perc.ui.dashboard.modern@What's Working needs a Google Analytics provider and site profile. Use the Google Setup gadget, then refresh this widget.",
         EMPTY:
           "perc.ui.dashboard.modern@No effectiveness data for this path and duration.",
+        LOAD_FAILED:
+          "perc.ui.dashboard.modern@Failed to load effectiveness metrics",
+        LAST: "perc.ui.dashboard.modern@last",
+        DAYS: "perc.ui.dashboard.modern@days",
       },
       FORMS: {
         LOADING: "perc.ui.dashboard.modern@Loading forms",
         NO_SITES:
           "perc.ui.dashboard.modern@No sites available to load forms.",
+        LOAD_FAILED: "perc.ui.dashboard.modern@Failed to load forms",
+        EMPTY_FOR_SITE_PRE: "perc.ui.dashboard.modern@No forms for site",
+        SITE: "perc.ui.dashboard.modern@Site",
+        FORM_SINGULAR: "perc.ui.dashboard.modern@form",
+        FORM_PLURAL: "perc.ui.dashboard.modern@forms",
+        STATE: "perc.ui.dashboard.modern@State",
+        TOTAL: "perc.ui.dashboard.modern@total",
+        NEW: "perc.ui.dashboard.modern@new",
+      },
+      GLOBAL_VARIABLES: {
+        LOAD_FAILED:
+          "perc.ui.dashboard.modern@Failed to load global variables",
+        LOADING: "perc.ui.dashboard.modern@Loading variables",
+        EMPTY: "perc.ui.dashboard.modern@No variables available",
+        TOTAL: "perc.ui.dashboard.modern@Total variables",
+        MORE: "perc.ui.dashboard.modern@more variables",
+      },
+      GOOGLE_SETUP: {
+        LOAD_FAILED:
+          "perc.ui.dashboard.modern@Failed to load Google Analytics setup",
+        LOADING: "perc.ui.dashboard.modern@Loading Google setup data",
+        UID_REQUIRED:
+          "perc.ui.dashboard.modern@Enter the service account email (user id).",
+        KEY_REQUIRED:
+          "perc.ui.dashboard.modern@Choose a Google service account JSON key file.",
+        TEST_OK:
+          "perc.ui.dashboard.modern@Connection OK. Credentials stored.",
+        TEST_FAILED: "perc.ui.dashboard.modern@Test connection failed",
+        MAPS_SAVED: "perc.ui.dashboard.modern@Site profile mappings saved.",
+        MAPS_FAILED: "perc.ui.dashboard.modern@Failed to save site mappings",
+        CLEARED: "perc.ui.dashboard.modern@Analytics configuration cleared.",
+        CLEAR_FAILED:
+          "perc.ui.dashboard.modern@Failed to clear analytics config",
+        CONFIRM_CLEAR:
+          "perc.ui.dashboard.modern@Remove stored Google Analytics credentials and site profile mappings?",
+        CONFIGURED:
+          "perc.ui.dashboard.modern@Analytics provider configured",
+        NOT_CONFIGURED:
+          "perc.ui.dashboard.modern@Analytics provider not configured",
+        ACCOUNT: "perc.ui.dashboard.modern@Account",
+        EXPLAINER:
+          "perc.ui.dashboard.modern@The Traffic and Effectiveness gadgets use this Google Analytics setup. Upload a service account JSON key, then map each site to a GA profile/view.",
+        CREDENTIALS: "perc.ui.dashboard.modern@Credentials",
+        UID_LABEL: "perc.ui.dashboard.modern@Service account email",
+        KEY_LABEL: "perc.ui.dashboard.modern@JSON key file",
+        TEST_BUTTON: "perc.ui.dashboard.modern@Upload and test connection",
+        WORKING: "perc.ui.dashboard.modern@Working",
+        SITES_HEADING: "perc.ui.dashboard.modern@Site profiles",
+        READY: "perc.ui.dashboard.modern@ready",
+        NO_PROFILE_OPTION: "perc.ui.dashboard.modern@No profile",
+        SAVE_MAPS: "perc.ui.dashboard.modern@Save site mappings",
+        PROFILES_FAILED_HINT:
+          "perc.ui.dashboard.modern@Load profiles failed. Re-upload key or check GA access.",
+        READY_BADGE: "perc.ui.dashboard.modern@Ready",
+        NO_SITES:
+          "perc.ui.dashboard.modern@No sites found to check profile mappings.",
+        CLEAR_BUTTON: "perc.ui.dashboard.modern@Clear analytics config",
+        CLEARING: "perc.ui.dashboard.modern@Clearing analytics config",
       },
       MEMBERSHIP: {
         LOADING: "perc.ui.dashboard.modern@Loading membership",
         NO_SITES: "perc.ui.dashboard.modern@No sites available.",
         EMPTY: "perc.ui.dashboard.modern@No members for this site.",
+        LOAD_FAILED:
+          "perc.ui.dashboard.modern@Failed to load membership (delivery membership service may be offline)",
+        SITE: "perc.ui.dashboard.modern@Site",
+        MEMBER_SINGULAR: "perc.ui.dashboard.modern@member",
+        MEMBER_PLURAL: "perc.ui.dashboard.modern@members",
       },
       PROCESS_MONITOR: {
         LOADING: "perc.ui.dashboard.modern@Loading process monitor",
         EMPTY: "perc.ui.dashboard.modern@No monitors available",
+        LOAD_FAILED: "perc.ui.dashboard.modern@Failed to load process monitor",
       },
       REPORTS: {
         EMPTY: "perc.ui.dashboard.modern@No report data.",
+        LOAD_FAILED: "perc.ui.dashboard.modern@Failed to load report snapshot",
+        LOADING: "perc.ui.dashboard.modern@Loading reports",
+        CARD_SEO: "perc.ui.dashboard.modern@SEO issue pages",
+        CARD_FORMS: "perc.ui.dashboard.modern@Forms (site)",
+        CARD_FORMS_NEW: "perc.ui.dashboard.modern@New form submissions",
+        CARD_COMMENTS: "perc.ui.dashboard.modern@Pages with comments",
+        CARD_ACTIVITY_FOLDERS: "perc.ui.dashboard.modern@Activity folders (30d)",
+        CARD_ACTIVITY_NEW: "perc.ui.dashboard.modern@New items (activity)",
+        SNAPSHOT_FOR: "perc.ui.dashboard.modern@Snapshot for",
+        FOOTER:
+          "perc.ui.dashboard.modern@Open SEO Audit, Form Tracker, Comments, or Activity gadgets for detail. Partial failures (e.g. DTS offline) show as zeros for that metric.",
       },
       SEO: {
         LOADING: "perc.ui.dashboard.modern@Loading SEO audit",
+        LOAD_FAILED: "perc.ui.dashboard.modern@Failed to load non-SEO pages",
+        EMPTY:
+          "perc.ui.dashboard.modern@No non-SEO pages found for the default path and workflow.",
+        COUNT_SINGULAR: "perc.ui.dashboard.modern@page",
+        COUNT_PLURAL: "perc.ui.dashboard.modern@pages",
+        WITH_ISSUES: "perc.ui.dashboard.modern@with SEO issues",
+        SEVERITY: "perc.ui.dashboard.modern@Severity",
       },
       SITEIMPROVE: {
         LOADING: "perc.ui.dashboard.modern@Loading Siteimprove",
@@ -794,15 +946,47 @@ GADGET_DESC_DASHBOARD_CONFIG:
         NOT_CONFIGURED: "perc.ui.dashboard.modern@Not configured",
         PRESENT: "perc.ui.dashboard.modern@Present",
         NONE: "perc.ui.dashboard.modern@None",
+        LOAD_FAILED: "perc.ui.dashboard.modern@Failed to load Siteimprove status",
+        SAVE_FAILED:
+          "perc.ui.dashboard.modern@Failed to store Siteimprove token",
+        VALIDATION_REQUIRED:
+          "perc.ui.dashboard.modern@Site name and token are required.",
+        SAVED: "perc.ui.dashboard.modern@Token saved (validated by server).",
+        CONFIGURED: "perc.ui.dashboard.modern@Configured",
+        PUBLISH_CONFIG_FOR: "perc.ui.dashboard.modern@Publish config for",
+        STORE_CREDENTIALS: "perc.ui.dashboard.modern@Store credentials",
+        SITE_NAME: "perc.ui.dashboard.modern@Site name",
+        API_TOKEN: "perc.ui.dashboard.modern@API token",
+        SAVE_TOKEN: "perc.ui.dashboard.modern@Validate and save token",
+        SAVING: "perc.ui.dashboard.modern@Saving token",
       },
       SITEWIDE_FRAMEWORK: {
         EMPTY: "perc.ui.dashboard.modern@No themes found.",
+        LOAD_FAILED: "perc.ui.dashboard.modern@Failed to load themes",
+        LOADING: "perc.ui.dashboard.modern@Loading themes",
+        INSTALLED_PRE: "perc.ui.dashboard.modern@Installed themes",
+        INSTALLED_POST:
+          "perc.ui.dashboard.modern@Open Design to edit CSS / regions.",
+        OPEN_DESIGN: "perc.ui.dashboard.modern@Open Design",
       },
       TRAFFIC: {
         LOADING: "perc.ui.dashboard.modern@Loading traffic data",
         EMPTY:
           "perc.ui.dashboard.modern@No traffic data for this path and date range.",
         LEGEND_VISITS: "perc.ui.traffic.gadget@Visits",
+        LOAD_FAILED: "perc.ui.dashboard.modern@Failed to load traffic data",
+        GA_ERROR_HINT:
+          "perc.ui.dashboard.modern@Visits require Google Analytics setup. Open the Google Setup gadget and map a profile for this site.",
+        GA_EMPTY_HINT:
+          "perc.ui.dashboard.modern@Google Analytics is not configured. Visit counts may be empty. Use Google Setup to connect a profile.",
+        LEGEND_LIVE_PAGES: "perc.ui.dashboard.modern@Live pages",
+        LEGEND_NEW_PAGES: "perc.ui.dashboard.modern@New pages",
+      },
+      IFRAME: {
+        INVALID_URL:
+          "perc.ui.dashboard.modern@Enter a valid http(s) URL (javascript: and data: are blocked).",
+        LOAD: "perc.ui.dashboard.modern@Load",
+        HINT: "perc.ui.dashboard.modern@Enter an https URL to embed. Saved for this browser session only (http/https only; no CMS embed API).",
       },
       UNAVAILABLE_GADGET: {
         HEADER: "perc.ui.dashboard.modern@Not available in React Home",
@@ -811,6 +995,16 @@ GADGET_DESC_DASHBOARD_CONFIG:
         LOADING: "perc.ui.dashboard.modern@Loading workflow status",
         EMPTY:
           "perc.ui.dashboard.modern@No pages found for this path and workflow.",
+        LOAD_FAILED: "perc.ui.dashboard.modern@Failed to load pages by status",
+        COUNT_SINGULAR: "perc.ui.dashboard.modern@page",
+        COUNT_PLURAL: "perc.ui.dashboard.modern@pages",
+      },
+      CONFIG: {
+        SESSION_EXPIRED: "perc.ui.dashboard.modern@Session expired",
+        LOAD_FAILED:
+          "perc.ui.dashboard.modern@Failed to load dashboard configuration",
+        SAVE_NEEDS_USER:
+          "perc.ui.dashboard.modern@User ID is required to save dashboard configuration",
       },
     },
   },

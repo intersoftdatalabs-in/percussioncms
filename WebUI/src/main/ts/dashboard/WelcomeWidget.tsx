@@ -31,7 +31,7 @@ export interface WelcomeWidgetProps {
 }
 
 export const WelcomeWidget: React.FC<WelcomeWidgetProps> = ({
-  userName = "User",
+  userName = message(MSG.USER_DEFAULT_NAME),
 }) => {
   const now = new Date();
   const hour = now.getHours();

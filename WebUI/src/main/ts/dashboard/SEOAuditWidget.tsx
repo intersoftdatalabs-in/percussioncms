@@ -52,7 +52,9 @@ export const SEOAuditWidget: React.FC<SEOAuditWidgetProps> = ({
       setRows(await fetchNonSeoPages({ severity: "ALL" }));
     } catch (err: unknown) {
       if (isSessionRedirectError(err)) return;
-      setError(formatApiError(err, "Failed to load non-SEO pages"));
+      setError(
+        formatApiError(err, message(MSG.DASHBOARD.WIDGETS.SEO.LOAD_FAILED)),
+      );
       setRows([]);
     } finally {
       setIsLoading(false);
@@ -70,7 +72,9 @@ export const SEOAuditWidget: React.FC<SEOAuditWidgetProps> = ({
     return (
       <div style={styles.widget} data-testid="seo-audit-widget">
         <div style={styles.widgetTitle}>{heading}</div>
-        <div style={styles.widgetLoading}>Loading SEO audit...</div>
+        <div style={styles.widgetLoading}>
+          {message(MSG.DASHBOARD.WIDGETS.SEO.LOADING)}
+        </div>
       </div>
     );
   }
@@ -89,7 +93,7 @@ export const SEOAuditWidget: React.FC<SEOAuditWidgetProps> = ({
       <div style={styles.widget} data-testid="seo-audit-widget">
         <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetContent} data-testid="seo-audit-empty">
-          No non-SEO pages found for the default path and workflow.
+          {message(MSG.DASHBOARD.WIDGETS.SEO.EMPTY)}
         </div>
       </div>
     );
@@ -100,7 +104,13 @@ export const SEOAuditWidget: React.FC<SEOAuditWidgetProps> = ({
       <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent} data-testid="seo-audit-list">
         <div style={{ fontSize: "0.85em", color: "#666", marginBottom: "8px" }}>
-          {rows.length} page{rows.length === 1 ? "" : "s"} with SEO issues
+          {rows.length}{" "}
+          {message(
+            rows.length === 1
+              ? MSG.DASHBOARD.WIDGETS.SEO.COUNT_SINGULAR
+              : MSG.DASHBOARD.WIDGETS.SEO.COUNT_PLURAL,
+          )}{" "}
+          {message(MSG.DASHBOARD.WIDGETS.SEO.WITH_ISSUES)}
         </div>
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {rows.slice(0, 15).map((row) => (
@@ -117,7 +127,7 @@ export const SEOAuditWidget: React.FC<SEOAuditWidgetProps> = ({
               </div>
               <div style={{ fontSize: "0.8em", color: "#666" }}>{row.path}</div>
               <div style={{ fontSize: "0.8em", color: "#c62828" }}>
-                Severity {row.severity}
+                {message(MSG.DASHBOARD.WIDGETS.SEO.SEVERITY)} {row.severity}
                 {row.issues.length > 0
                   ? ` · ${row.issues.slice(0, 3).join(", ")}`
                   : ""}

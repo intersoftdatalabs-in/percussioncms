@@ -98,7 +98,12 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
       if (isSessionRedirectError(err)) {
         return;
       }
-      setError(formatApiError(err, "Failed to load Google Analytics setup"));
+      setError(
+        formatApiError(
+          err,
+          i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.LOAD_FAILED),
+        ),
+      );
       setSummary(null);
     } finally {
       setIsLoading(false);
@@ -116,11 +121,11 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
 
   const onUploadAndTest = async () => {
     if (!uid.trim()) {
-      setError("Enter the service account email (user id).");
+      setError(i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.UID_REQUIRED));
       return;
     }
     if (!keyFile) {
-      setError("Choose a Google service account JSON key file.");
+      setError(i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.KEY_REQUIRED));
       return;
     }
     try {
@@ -128,12 +133,17 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
       setError(null);
       setMessage(null);
       await testAnalyticsConnection(uid.trim(), keyFile, keyFile.name);
-      setMessage("Connection OK — credentials stored.");
+      setMessage(i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.TEST_OK));
       setKeyFile(null);
       await load();
     } catch (err: unknown) {
       if (!isSessionRedirectError(err)) {
-        setError(formatApiError(err, "Test connection failed"));
+        setError(
+          formatApiError(
+            err,
+            i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.TEST_FAILED),
+          ),
+        );
       }
     } finally {
       setBusy(false);
@@ -146,11 +156,16 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
       setError(null);
       setMessage(null);
       await saveAnalyticsSiteMappings(mappings);
-      setMessage("Site profile mappings saved.");
+      setMessage(i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.MAPS_SAVED));
       await load();
     } catch (err: unknown) {
       if (!isSessionRedirectError(err)) {
-        setError(formatApiError(err, "Failed to save site mappings"));
+        setError(
+          formatApiError(
+            err,
+            i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.MAPS_FAILED),
+          ),
+        );
       }
     } finally {
       setBusy(false);
@@ -160,7 +175,7 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
   const onClear = async () => {
     if (
       !window.confirm(
-        "Remove stored Google Analytics credentials and site profile mappings?",
+        i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.CONFIRM_CLEAR),
       )
     ) {
       return;
@@ -172,11 +187,16 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
       await deleteAnalyticsProviderConfig();
       setMappings({});
       setProfiles([]);
-      setMessage("Analytics configuration cleared.");
+      setMessage(i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.CLEARED));
       await load();
     } catch (err: unknown) {
       if (!isSessionRedirectError(err)) {
-        setError(formatApiError(err, "Failed to clear analytics config"));
+        setError(
+          formatApiError(
+            err,
+            i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.CLEAR_FAILED),
+          ),
+        );
       }
     } finally {
       setBusy(false);
@@ -188,7 +208,7 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
       <div style={styles.widget} data-testid="google-setup-widget">
         <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetLoading} data-testid="google-setup-loading">
-          Loading Google setup data...
+          {i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.LOADING)}
         </div>
       </div>
     );
@@ -264,15 +284,18 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
             <div>
               <div style={{ fontSize: "0.85em", fontWeight: 600, color: "#333" }}>
                 {configured
-                  ? "Analytics provider configured"
-                  : "Analytics provider not configured"}
+                  ? i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.CONFIGURED)
+                  : i18nMessage(
+                      MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.NOT_CONFIGURED,
+                    )}
               </div>
               {provider?.userId ? (
                 <div
                   style={{ fontSize: "0.75em", color: "#666" }}
                   data-testid="google-setup-userid"
                 >
-                  Account: {provider.userId}
+                  {i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.ACCOUNT)}:{" "}
+                  {provider.userId}
                 </div>
               ) : null}
             </div>
@@ -288,9 +311,7 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
               borderLeft: "3px solid #007ea8",
             }}
           >
-            Traffic and What&apos;s Working use this Google Analytics setup.
-            Upload a service account JSON key, then map each site to a GA
-            profile/view.
+            {i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.EXPLAINER)}
           </div>
 
           {allowConfigure ? (
@@ -302,10 +323,10 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
               }}
             >
               <div style={{ fontWeight: 600, fontSize: "0.9em", marginBottom: 8 }}>
-                Credentials
+                {i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.CREDENTIALS)}
               </div>
               <label style={fieldStyle}>
-                Service account email
+                {i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.UID_LABEL)}
                 <input
                   type="email"
                   value={uid}
@@ -317,7 +338,7 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
                 />
               </label>
               <label style={fieldStyle}>
-                JSON key file
+                {i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.KEY_LABEL)}
                 <input
                   type="file"
                   accept=".json,application/json"
@@ -336,7 +357,10 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
                 style={btnStyle}
                 data-testid="google-setup-test"
               >
-                {busy ? "Working…" : "Upload & test connection"}
+                {busy
+                  ? i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.WORKING) +
+                    "…"
+                  : i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.TEST_BUTTON)}
               </button>
             </div>
           ) : null}
@@ -351,7 +375,9 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
                   color: "#333",
                 }}
               >
-                Site profiles ({readySites}/{sites.length} ready)
+                {i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.SITES_HEADING)}{" "}
+                ({readySites}/{sites.length}{" "}
+                {i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.READY)})
               </div>
               {allowConfigure && configured ? (
                 <div style={{ marginBottom: 8 }}>
@@ -379,7 +405,13 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
                         }
                         style={inputStyle}
                       >
-                        <option value="">— No profile —</option>
+                        <option value="">
+                        —{" "}
+                        {i18nMessage(
+                          MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.NO_PROFILE_OPTION,
+                        )}{" "}
+                        —
+                      </option>
                         {profiles.map((p) => (
                           <option key={p.key} value={p.key}>
                             {p.label}
@@ -402,11 +434,13 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
                     style={btnStyle}
                     data-testid="google-setup-save-maps"
                   >
-                    Save site mappings
+                    {i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.SAVE_MAPS)}
                   </button>
                   {profiles.length === 0 && configured ? (
                     <span style={{ fontSize: "0.75em", color: "#666" }}>
-                      Load profiles failed — re-upload key or check GA access.
+                      {i18nMessage(
+                        MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.PROFILES_FAILED_HINT,
+                      )}
                     </span>
                   ) : null}
                 </div>
@@ -433,9 +467,13 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
                       >
                         {s.profileConfigured
                           ? s.mapping?.webPropertyId
-                            ? `Ready · ${s.mapping.webPropertyId}`
-                            : "Ready"
-                          : "No profile"}
+                            ? `${i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.READY_BADGE)} · ${s.mapping.webPropertyId}`
+                            : i18nMessage(
+                                MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.READY_BADGE,
+                              )
+                          : i18nMessage(
+                              MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.NO_PROFILE_OPTION,
+                            )}
                       </span>
                     </li>
                   ))}
@@ -444,7 +482,7 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
             </div>
           ) : (
             <div style={{ fontSize: "0.8em", color: "#666" }}>
-              No sites found to check profile mappings.
+              {i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.NO_SITES)}
             </div>
           )}
 
@@ -456,7 +494,10 @@ export const GoogleSetupWidget: React.FC<GoogleSetupWidgetProps> = ({
               data-testid="google-setup-clear"
               style={{ ...btnStyle, color: "#c62828" }}
             >
-              {busy ? "Clearing…" : "Clear analytics config"}
+              {busy
+                ? i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.CLEARING) +
+                  "…"
+                : i18nMessage(MSG.DASHBOARD.WIDGETS.GOOGLE_SETUP.CLEAR_BUTTON)}
             </button>
           ) : null}
         </div>

@@ -67,7 +67,9 @@ export const FormsTrackerWidget: React.FC<FormsTrackerWidgetProps> = ({
       if (isSessionRedirectError(err)) {
         return;
       }
-      setError(formatApiError(err, "Failed to load forms"));
+      setError(
+        formatApiError(err, message(MSG.DASHBOARD.WIDGETS.FORMS.LOAD_FAILED)),
+      );
       setForms([]);
     } finally {
       setIsLoading(false);
@@ -87,35 +89,45 @@ export const FormsTrackerWidget: React.FC<FormsTrackerWidgetProps> = ({
     if (isLoading) {
       return (
         <div style={styles.widgetLoading} data-testid="forms-tracker-loading">
-          <p>Loading forms...</p>
+          <p>{message(MSG.DASHBOARD.WIDGETS.FORMS.LOADING)}</p>
         </div>
       );
     }
     if (error) {
       return (
         <div style={styles.widgetError} data-testid="forms-tracker-error">
-          <p>Error: {error}</p>
+          <p>
+            {message(MSG.ERROR_GENERIC)}: {error}
+          </p>
         </div>
       );
     }
     if (!site) {
       return (
         <div style={styles.widgetContent} data-testid="forms-tracker-empty">
-          <p>No sites available to load forms.</p>
+          <p>{message(MSG.DASHBOARD.WIDGETS.FORMS.NO_SITES)}</p>
         </div>
       );
     }
     if (forms.length === 0) {
       return (
         <div style={styles.widgetContent} data-testid="forms-tracker-empty">
-          <p>No forms for site {site}.</p>
+          <p>
+            {message(MSG.DASHBOARD.WIDGETS.FORMS.EMPTY_FOR_SITE_PRE)} {site}.
+          </p>
         </div>
       );
     }
     return (
       <div style={styles.widgetContent} data-testid="forms-tracker-list">
         <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
-          Site: {site} · {forms.length} form{forms.length === 1 ? "" : "s"}
+          {message(MSG.DASHBOARD.WIDGETS.FORMS.SITE)}: {site} ·{" "}
+          {forms.length}{" "}
+          {message(
+            forms.length === 1
+              ? MSG.DASHBOARD.WIDGETS.FORMS.FORM_SINGULAR
+              : MSG.DASHBOARD.WIDGETS.FORMS.FORM_PLURAL,
+          )}
         </p>
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {forms.map((form) => (
@@ -132,14 +144,20 @@ export const FormsTrackerWidget: React.FC<FormsTrackerWidgetProps> = ({
               <div>
                 <div style={{ fontWeight: 500 }}>{form.title || form.name}</div>
                 <div style={{ fontSize: "0.8em", color: "#666" }}>
-                  {form.state ? `State: ${form.state}` : form.name}
+                  {form.state
+                    ? `${message(MSG.DASHBOARD.WIDGETS.FORMS.STATE)}: ${form.state}`
+                    : form.name}
                 </div>
               </div>
               <div style={{ textAlign: "right", fontSize: "0.85em", color: "#007ea8" }}>
                 <div>
-                  <strong>{form.totalSubmissions}</strong> total
+                  <strong>{form.totalSubmissions}</strong>{" "}
+                  {message(MSG.DASHBOARD.WIDGETS.FORMS.TOTAL)}
                 </div>
-                <div style={{ color: "#666" }}>{form.newSubmissions} new</div>
+                <div style={{ color: "#666" }}>
+                  {form.newSubmissions}{" "}
+                  {message(MSG.DASHBOARD.WIDGETS.FORMS.NEW)}
+                </div>
               </div>
             </li>
           ))}
