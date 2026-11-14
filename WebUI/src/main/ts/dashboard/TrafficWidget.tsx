@@ -80,7 +80,9 @@ export const TrafficWidget: React.FC<TrafficWidgetProps> = ({
       if (isSessionRedirectError(err)) {
         return;
       }
-      setError(formatApiError(err, "Failed to load traffic data"));
+      setError(
+        formatApiError(err, message(MSG.DASHBOARD.WIDGETS.TRAFFIC.LOAD_FAILED)),
+      );
       setResult(null);
     } finally {
       setIsLoading(false);
@@ -100,18 +102,19 @@ export const TrafficWidget: React.FC<TrafficWidgetProps> = ({
     if (isLoading) {
       return (
         <div style={styles.widgetLoading} data-testid="traffic-widget-loading">
-          <p>Loading traffic data...</p>
+          <p>{message(MSG.DASHBOARD.WIDGETS.TRAFFIC.LOADING)}</p>
         </div>
       );
     }
     if (error) {
       return (
         <div style={styles.widgetError} data-testid="traffic-widget-error">
-          <p>Error: {error}</p>
+          <p>
+            {message(MSG.ERROR_GENERIC)}: {error}
+          </p>
           {analyticsOk === false ? (
             <p style={{ fontSize: "0.85em", marginTop: "8px" }}>
-              Visits require Google Analytics setup. Open the Google Setup
-              gadget and map a profile for this site.
+              {message(MSG.DASHBOARD.WIDGETS.TRAFFIC.GA_ERROR_HINT)}
             </p>
           ) : null}
         </div>
@@ -120,7 +123,7 @@ export const TrafficWidget: React.FC<TrafficWidgetProps> = ({
     if (!result || result.points.length === 0) {
       return (
         <div style={styles.widgetContent} data-testid="traffic-widget-empty">
-          <p>No traffic data for this path and date range.</p>
+          <p>{message(MSG.DASHBOARD.WIDGETS.TRAFFIC.EMPTY)}</p>
           {result ? (
             <p style={{ fontSize: "0.85em", color: "#666" }}>
               {result.path} · {result.startDate} – {result.endDate}
@@ -156,8 +159,7 @@ export const TrafficWidget: React.FC<TrafficWidgetProps> = ({
             }}
             data-testid="traffic-analytics-hint"
           >
-            Google Analytics is not configured — visit counts may be empty.
-            Use Google Setup to connect a profile.
+            {message(MSG.DASHBOARD.WIDGETS.TRAFFIC.GA_EMPTY_HINT)}
           </p>
         ) : null}
         <div
@@ -177,7 +179,9 @@ export const TrafficWidget: React.FC<TrafficWidgetProps> = ({
               borderRadius: "4px",
             }}
           >
-            <div style={{ fontSize: "0.75em", color: "#666" }}>Visits</div>
+            <div style={{ fontSize: "0.75em", color: "#666" }}>
+              {message(MSG.DASHBOARD.WIDGETS.TRAFFIC.LEGEND_VISITS)}
+            </div>
             <div style={{ fontSize: "1.25em", fontWeight: 700, color: "#1976d2" }}>
               {result.totalVisits.toLocaleString()}
             </div>
@@ -191,7 +195,9 @@ export const TrafficWidget: React.FC<TrafficWidgetProps> = ({
               borderRadius: "4px",
             }}
           >
-            <div style={{ fontSize: "0.75em", color: "#666" }}>Live pages Σ</div>
+            <div style={{ fontSize: "0.75em", color: "#666" }}>
+              {message(MSG.DASHBOARD.WIDGETS.TRAFFIC.LEGEND_LIVE_PAGES)} Σ
+            </div>
             <div style={{ fontSize: "1.25em", fontWeight: 700, color: "#388e3c" }}>
               {result.totalLivePages.toLocaleString()}
             </div>
@@ -212,21 +218,21 @@ export const TrafficWidget: React.FC<TrafficWidgetProps> = ({
                 type="monotone"
                 dataKey="visits"
                 stroke="#1976d2"
-                name="Visits"
+                name={message(MSG.DASHBOARD.WIDGETS.TRAFFIC.LEGEND_VISITS)}
                 dot={false}
               />
               <Line
                 type="monotone"
                 dataKey="livePages"
                 stroke="#388e3c"
-                name="Live pages"
+                name={message(MSG.DASHBOARD.WIDGETS.TRAFFIC.LEGEND_LIVE_PAGES)}
                 dot={false}
               />
               <Line
                 type="monotone"
                 dataKey="newPages"
                 stroke="#f57c00"
-                name="New pages"
+                name={message(MSG.DASHBOARD.WIDGETS.TRAFFIC.LEGEND_NEW_PAGES)}
                 dot={false}
               />
             </LineChart>

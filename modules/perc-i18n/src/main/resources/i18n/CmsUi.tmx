@@ -26786,6 +26786,430 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.dashboard.welcome@Web Management">
       <tuv xml:lang="en-us"><seg>Web Management</seg></tuv>
     <tuv xml:lang="ar"><seg>إدارة الويب</seg></tuv><tuv xml:lang="bn"><seg>ওয়েব ব্যবস্থাপনা</seg></tuv><tuv xml:lang="de"><seg>Webmanagement</seg></tuv><tuv xml:lang="es"><seg>Gestión Web</seg></tuv><tuv xml:lang="fr"><seg>Gestion Web</seg></tuv><tuv xml:lang="he"><seg>ניהול אתרים</seg></tuv><tuv xml:lang="hi"><seg>वेब प्रबंधन</seg></tuv><tuv xml:lang="it"><seg>Gestione Web</seg></tuv><tuv xml:lang="ja-jp"><seg>ウェブ管理</seg></tuv><tuv xml:lang="nl"><seg>Webbeheer</seg></tuv><tuv xml:lang="pl"><seg>Zarządzanie siecią</seg></tuv><tuv xml:lang="pt"><seg>Gerenciamento Web</seg></tuv><tuv xml:lang="ru"><seg>Веб-управление</seg></tuv><tuv xml:lang="sv"><seg>Webbhantering</seg></tuv><tuv xml:lang="te"><seg>వెబ్ నిర్వహణ</seg></tuv><tuv xml:lang="tr"><seg>Web Yönetimi</seg></tuv><tuv xml:lang="uk"><seg>Веб-менеджмент</seg></tuv><tuv xml:lang="zh-cn"><seg>网页管理</seg></tuv><tuv xml:lang="zh-tw"><seg>网页管理</seg></tuv><tuv xml:lang="lou"><seg>Web Management</seg></tuv><tuv xml:lang="nb"><seg>Nettadministrasjon</seg></tuv></tu>
+    <!-- Issue #6304: dashboard gadget body chrome (loading / empty /
+         form / error fallbacks). en-us source only; non-en locales
+         fall back until translators backfill (residual) -->
+    <tu tuid="perc.ui.dashboard.activity@Failed to load content activity">
+      <tuv xml:lang="en-us"><seg>Failed to load content activity</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.activity@last">
+      <tuv xml:lang="en-us"><seg>last</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.activity@days">
+      <tuv xml:lang="en-us"><seg>days</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.activity@weeks">
+      <tuv xml:lang="en-us"><seg>weeks</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.activity@months">
+      <tuv xml:lang="en-us"><seg>months</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.activity@years">
+      <tuv xml:lang="en-us"><seg>years</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load asset status">
+      <tuv xml:lang="en-us"><seg>Failed to load asset status</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Total">
+      <tuv xml:lang="en-us"><seg>Total</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Loading blogs">
+      <tuv xml:lang="en-us"><seg>Loading blogs</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load blogs">
+      <tuv xml:lang="en-us"><seg>Failed to load blogs</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@New blog">
+      <tuv xml:lang="en-us"><seg>New blog</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Cancel">
+      <tuv xml:lang="en-us"><seg>Cancel</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@No blogs yet. Create a blog section to enable Home → Create → Blog Post.">
+      <tuv xml:lang="en-us"><seg>No blogs yet. Create a blog section to enable Home → Create → Blog Post.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Create blog post">
+      <tuv xml:lang="en-us"><seg>Create blog post</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load sites">
+      <tuv xml:lang="en-us"><seg>Failed to load sites</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load blog templates">
+      <tuv xml:lang="en-us"><seg>Failed to load blog templates</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Site, title, URL name, and eligible list/post templates are required.">
+      <tuv xml:lang="en-us"><seg>Site, title, URL name, and eligible list/post templates are required.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Could not create blog section">
+      <tuv xml:lang="en-us"><seg>Could not create blog section</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Create blog section">
+      <tuv xml:lang="en-us"><seg>Create blog section</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Site">
+      <tuv xml:lang="en-us"><seg>Site</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@URL name">
+      <tuv xml:lang="en-us"><seg>URL name</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Checking templates for Blog List / Blog Post widgets">
+      <tuv xml:lang="en-us"><seg>Checking templates for Blog List / Blog Post widgets</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Blog list template">
+      <tuv xml:lang="en-us"><seg>Blog list template</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Blog post template">
+      <tuv xml:lang="en-us"><seg>Blog post template</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Template must contain widget">
+      <tuv xml:lang="en-us"><seg>Template must contain widget</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@(Blog List)">
+      <tuv xml:lang="en-us"><seg>(Blog List)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@(Blog Post)">
+      <tuv xml:lang="en-us"><seg>(Blog Post)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@No eligible list templates">
+      <tuv xml:lang="en-us"><seg>No eligible list templates</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@No eligible post templates">
+      <tuv xml:lang="en-us"><seg>No eligible post templates</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Server create will then clone them as">
+      <tuv xml:lang="en-us"><seg>Server create will then clone them as</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@templates.">
+      <tuv xml:lang="en-us"><seg>templates.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Creating blog">
+      <tuv xml:lang="en-us"><seg>Creating blog</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Create blog">
+      <tuv xml:lang="en-us"><seg>Create blog</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Upload failed">
+      <tuv xml:lang="en-us"><seg>Upload failed</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Upload files into the Assets tree (classic bulk upload servlet).">
+      <tuv xml:lang="en-us"><seg>Upload files into the Assets tree (classic bulk upload servlet).</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Folder path">
+      <tuv xml:lang="en-us"><seg>Folder path</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Asset type">
+      <tuv xml:lang="en-us"><seg>Asset type</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Approve on upload">
+      <tuv xml:lang="en-us"><seg>Approve on upload</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Uploading">
+      <tuv xml:lang="en-us"><seg>Uploading</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@succeeded">
+      <tuv xml:lang="en-us"><seg>succeeded</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load comments (delivery tier may be offline)">
+      <tuv xml:lang="en-us"><seg>Failed to load comments (delivery tier may be offline)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@No pages with comments for">
+      <tuv xml:lang="en-us"><seg>No pages with comments for</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Page">
+      <tuv xml:lang="en-us"><seg>Page</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@comments">
+      <tuv xml:lang="en-us"><seg>comments</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@new">
+      <tuv xml:lang="en-us"><seg>new</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@approved">
+      <tuv xml:lang="en-us"><seg>approved</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load cookie consent totals (delivery tier may be offline)">
+      <tuv xml:lang="en-us"><seg>Failed to load cookie consent totals (delivery tier may be offline)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@No cookie consent log entries found.">
+      <tuv xml:lang="en-us"><seg>No cookie consent log entries found.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Total entries">
+      <tuv xml:lang="en-us"><seg>Total entries</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load effectiveness metrics">
+      <tuv xml:lang="en-us"><seg>Failed to load effectiveness metrics</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@last">
+      <tuv xml:lang="en-us"><seg>last</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@days">
+      <tuv xml:lang="en-us"><seg>days</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load forms">
+      <tuv xml:lang="en-us"><seg>Failed to load forms</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@No forms for site">
+      <tuv xml:lang="en-us"><seg>No forms for site</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@form">
+      <tuv xml:lang="en-us"><seg>form</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@forms">
+      <tuv xml:lang="en-us"><seg>forms</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@State">
+      <tuv xml:lang="en-us"><seg>State</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@total">
+      <tuv xml:lang="en-us"><seg>total</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load global variables">
+      <tuv xml:lang="en-us"><seg>Failed to load global variables</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Loading variables">
+      <tuv xml:lang="en-us"><seg>Loading variables</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@No variables available">
+      <tuv xml:lang="en-us"><seg>No variables available</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Total variables">
+      <tuv xml:lang="en-us"><seg>Total variables</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@more variables">
+      <tuv xml:lang="en-us"><seg>more variables</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load Google Analytics setup">
+      <tuv xml:lang="en-us"><seg>Failed to load Google Analytics setup</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Loading Google setup data">
+      <tuv xml:lang="en-us"><seg>Loading Google setup data</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Enter the service account email (user id).">
+      <tuv xml:lang="en-us"><seg>Enter the service account email (user id).</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Choose a Google service account JSON key file.">
+      <tuv xml:lang="en-us"><seg>Choose a Google service account JSON key file.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Connection OK. Credentials stored.">
+      <tuv xml:lang="en-us"><seg>Connection OK. Credentials stored.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Test connection failed">
+      <tuv xml:lang="en-us"><seg>Test connection failed</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Site profile mappings saved.">
+      <tuv xml:lang="en-us"><seg>Site profile mappings saved.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to save site mappings">
+      <tuv xml:lang="en-us"><seg>Failed to save site mappings</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Analytics configuration cleared.">
+      <tuv xml:lang="en-us"><seg>Analytics configuration cleared.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to clear analytics config">
+      <tuv xml:lang="en-us"><seg>Failed to clear analytics config</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Remove stored Google Analytics credentials and site profile mappings?">
+      <tuv xml:lang="en-us"><seg>Remove stored Google Analytics credentials and site profile mappings?</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Analytics provider configured">
+      <tuv xml:lang="en-us"><seg>Analytics provider configured</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Analytics provider not configured">
+      <tuv xml:lang="en-us"><seg>Analytics provider not configured</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Account">
+      <tuv xml:lang="en-us"><seg>Account</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@The Traffic and Effectiveness gadgets use this Google Analytics setup. Upload a service account JSON key, then map each site to a GA profile/view.">
+      <tuv xml:lang="en-us"><seg>The Traffic and Effectiveness gadgets use this Google Analytics setup. Upload a service account JSON key, then map each site to a GA profile/view.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Credentials">
+      <tuv xml:lang="en-us"><seg>Credentials</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Service account email">
+      <tuv xml:lang="en-us"><seg>Service account email</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@JSON key file">
+      <tuv xml:lang="en-us"><seg>JSON key file</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Upload and test connection">
+      <tuv xml:lang="en-us"><seg>Upload and test connection</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Working">
+      <tuv xml:lang="en-us"><seg>Working</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Site profiles">
+      <tuv xml:lang="en-us"><seg>Site profiles</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@ready">
+      <tuv xml:lang="en-us"><seg>ready</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@No profile">
+      <tuv xml:lang="en-us"><seg>No profile</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Save site mappings">
+      <tuv xml:lang="en-us"><seg>Save site mappings</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Load profiles failed. Re-upload key or check GA access.">
+      <tuv xml:lang="en-us"><seg>Load profiles failed. Re-upload key or check GA access.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Ready">
+      <tuv xml:lang="en-us"><seg>Ready</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@No sites found to check profile mappings.">
+      <tuv xml:lang="en-us"><seg>No sites found to check profile mappings.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Clear analytics config">
+      <tuv xml:lang="en-us"><seg>Clear analytics config</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Clearing analytics config">
+      <tuv xml:lang="en-us"><seg>Clearing analytics config</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load membership (delivery membership service may be offline)">
+      <tuv xml:lang="en-us"><seg>Failed to load membership (delivery membership service may be offline)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@member">
+      <tuv xml:lang="en-us"><seg>member</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@members">
+      <tuv xml:lang="en-us"><seg>members</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load process monitor">
+      <tuv xml:lang="en-us"><seg>Failed to load process monitor</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load report snapshot">
+      <tuv xml:lang="en-us"><seg>Failed to load report snapshot</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Loading reports">
+      <tuv xml:lang="en-us"><seg>Loading reports</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@SEO issue pages">
+      <tuv xml:lang="en-us"><seg>SEO issue pages</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Forms (site)">
+      <tuv xml:lang="en-us"><seg>Forms (site)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@New form submissions">
+      <tuv xml:lang="en-us"><seg>New form submissions</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Pages with comments">
+      <tuv xml:lang="en-us"><seg>Pages with comments</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Activity folders (30d)">
+      <tuv xml:lang="en-us"><seg>Activity folders (30d)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@New items (activity)">
+      <tuv xml:lang="en-us"><seg>New items (activity)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Snapshot for">
+      <tuv xml:lang="en-us"><seg>Snapshot for</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Open SEO Audit, Form Tracker, Comments, or Activity gadgets for detail. Partial failures (e.g. DTS offline) show as zeros for that metric.">
+      <tuv xml:lang="en-us"><seg>Open SEO Audit, Form Tracker, Comments, or Activity gadgets for detail. Partial failures (e.g. DTS offline) show as zeros for that metric.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load non-SEO pages">
+      <tuv xml:lang="en-us"><seg>Failed to load non-SEO pages</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@No non-SEO pages found for the default path and workflow.">
+      <tuv xml:lang="en-us"><seg>No non-SEO pages found for the default path and workflow.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@page">
+      <tuv xml:lang="en-us"><seg>page</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@pages">
+      <tuv xml:lang="en-us"><seg>pages</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@with SEO issues">
+      <tuv xml:lang="en-us"><seg>with SEO issues</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Severity">
+      <tuv xml:lang="en-us"><seg>Severity</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load Siteimprove status">
+      <tuv xml:lang="en-us"><seg>Failed to load Siteimprove status</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to store Siteimprove token">
+      <tuv xml:lang="en-us"><seg>Failed to store Siteimprove token</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Site name and token are required.">
+      <tuv xml:lang="en-us"><seg>Site name and token are required.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Token saved (validated by server).">
+      <tuv xml:lang="en-us"><seg>Token saved (validated by server).</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Configured">
+      <tuv xml:lang="en-us"><seg>Configured</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Publish config for">
+      <tuv xml:lang="en-us"><seg>Publish config for</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Store credentials">
+      <tuv xml:lang="en-us"><seg>Store credentials</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Site name">
+      <tuv xml:lang="en-us"><seg>Site name</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@API token">
+      <tuv xml:lang="en-us"><seg>API token</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Validate and save token">
+      <tuv xml:lang="en-us"><seg>Validate and save token</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Saving token">
+      <tuv xml:lang="en-us"><seg>Saving token</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load themes">
+      <tuv xml:lang="en-us"><seg>Failed to load themes</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Loading themes">
+      <tuv xml:lang="en-us"><seg>Loading themes</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Installed themes">
+      <tuv xml:lang="en-us"><seg>Installed themes</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Open Design to edit CSS / regions.">
+      <tuv xml:lang="en-us"><seg>Open Design to edit CSS / regions.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Open Design">
+      <tuv xml:lang="en-us"><seg>Open Design</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load traffic data">
+      <tuv xml:lang="en-us"><seg>Failed to load traffic data</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Visits require Google Analytics setup. Open the Google Setup gadget and map a profile for this site.">
+      <tuv xml:lang="en-us"><seg>Visits require Google Analytics setup. Open the Google Setup gadget and map a profile for this site.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Google Analytics is not configured. Visit counts may be empty. Use Google Setup to connect a profile.">
+      <tuv xml:lang="en-us"><seg>Google Analytics is not configured. Visit counts may be empty. Use Google Setup to connect a profile.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Live pages">
+      <tuv xml:lang="en-us"><seg>Live pages</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@New pages">
+      <tuv xml:lang="en-us"><seg>New pages</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Enter a valid http(s) URL (javascript: and data: are blocked).">
+      <tuv xml:lang="en-us"><seg>Enter a valid http(s) URL (javascript: and data: are blocked).</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Load">
+      <tuv xml:lang="en-us"><seg>Load</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Enter an https URL to embed. Saved for this browser session only (http/https only; no CMS embed API).">
+      <tuv xml:lang="en-us"><seg>Enter an https URL to embed. Saved for this browser session only (http/https only; no CMS embed API).</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load pages by status">
+      <tuv xml:lang="en-us"><seg>Failed to load pages by status</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Session expired">
+      <tuv xml:lang="en-us"><seg>Session expired</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Failed to load dashboard configuration">
+      <tuv xml:lang="en-us"><seg>Failed to load dashboard configuration</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@User ID is required to save dashboard configuration">
+      <tuv xml:lang="en-us"><seg>User ID is required to save dashboard configuration</seg></tuv>
+    </tu>
+
     <tu tuid="perc.ui.finder.root@Sites">
       <tuv xml:lang="en-us"><seg>Sites</seg></tuv>
     <tuv xml:lang="ar"><seg>مواقع</seg></tuv><tuv xml:lang="bn"><seg>সাইট</seg></tuv><tuv xml:lang="de"><seg>Websites</seg></tuv><tuv xml:lang="es"><seg>Sitios</seg></tuv><tuv xml:lang="fr"><seg>Sites</seg></tuv><tuv xml:lang="he"><seg>אתרים</seg></tuv><tuv xml:lang="hi"><seg>साइटों</seg></tuv><tuv xml:lang="it"><seg>Siti</seg></tuv><tuv xml:lang="ja-jp"><seg>サイト</seg></tuv><tuv xml:lang="nl"><seg>Sites</seg></tuv><tuv xml:lang="pl"><seg>Witryny</seg></tuv><tuv xml:lang="pt"><seg>Locais</seg></tuv><tuv xml:lang="ru"><seg>Сайты</seg></tuv><tuv xml:lang="sv"><seg>Webbplatser</seg></tuv><tuv xml:lang="te"><seg>సైట్లు</seg></tuv><tuv xml:lang="tr"><seg>Siteler</seg></tuv><tuv xml:lang="uk"><seg>Сайти</seg></tuv><tuv xml:lang="zh-cn"><seg>站点</seg></tuv><tuv xml:lang="zh-tw"><seg>站点</seg></tuv><tuv xml:lang="lou"><seg>Sit-yé</seg></tuv><tuv xml:lang="nb"><seg>Nettsteder</seg></tuv></tu>

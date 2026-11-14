@@ -54,7 +54,12 @@ export const GlobalVariablesWidget: React.FC<GlobalVariablesWidgetProps> = ({
       if (isSessionRedirectError(err)) {
         return;
       }
-      setError(formatApiError(err, "Failed to load global variables"));
+      setError(
+        formatApiError(
+          err,
+          message(MSG.DASHBOARD.WIDGETS.GLOBAL_VARIABLES.LOAD_FAILED),
+        ),
+      );
       setVariables([]);
     } finally {
       setIsLoading(false);
@@ -75,7 +80,7 @@ export const GlobalVariablesWidget: React.FC<GlobalVariablesWidgetProps> = ({
       <div style={styles.widget} data-testid="global-variables-widget">
         <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetLoading} data-testid="global-variables-loading">
-          Loading variables...
+          {message(MSG.DASHBOARD.WIDGETS.GLOBAL_VARIABLES.LOADING)}
         </div>
       </div>
     );
@@ -97,7 +102,7 @@ export const GlobalVariablesWidget: React.FC<GlobalVariablesWidgetProps> = ({
       <div style={styles.widget} data-testid="global-variables-widget">
         <div style={styles.widgetTitle}>{heading}</div>
         <div style={styles.widgetContent} data-testid="global-variables-empty">
-          No variables available
+          {message(MSG.DASHBOARD.WIDGETS.GLOBAL_VARIABLES.EMPTY)}
         </div>
       </div>
     );
@@ -108,7 +113,8 @@ export const GlobalVariablesWidget: React.FC<GlobalVariablesWidgetProps> = ({
       <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent} data-testid="global-variables-list">
         <div style={{ fontSize: "0.85em", fontWeight: 600, marginBottom: "8px" }}>
-          Total Variables: <span style={{ color: "#007ea8" }}>{variables.length}</span>
+          {message(MSG.DASHBOARD.WIDGETS.GLOBAL_VARIABLES.TOTAL)}:{" "}
+          <span style={{ color: "#007ea8" }}>{variables.length}</span>
         </div>
         <div
           style={{
@@ -147,7 +153,8 @@ export const GlobalVariablesWidget: React.FC<GlobalVariablesWidgetProps> = ({
           ))}
           {variables.length > 20 ? (
             <div style={{ fontSize: "0.75em", color: "#999", textAlign: "center" }}>
-              +{variables.length - 20} more variables
+              +{variables.length - 20}{" "}
+              {message(MSG.DASHBOARD.WIDGETS.GLOBAL_VARIABLES.MORE)}
             </div>
           ) : null}
         </div>

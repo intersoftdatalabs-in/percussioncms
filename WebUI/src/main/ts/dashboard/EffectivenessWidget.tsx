@@ -76,7 +76,12 @@ export const EffectivenessWidget: React.FC<EffectivenessWidgetProps> = ({
       if (isSessionRedirectError(err)) {
         return;
       }
-      setError(formatApiError(err, "Failed to load effectiveness metrics"));
+      setError(
+        formatApiError(
+          err,
+          message(MSG.DASHBOARD.WIDGETS.EFFECTIVENESS.LOAD_FAILED),
+        ),
+      );
       setRows([]);
     } finally {
       setIsLoading(false);
@@ -99,7 +104,7 @@ export const EffectivenessWidget: React.FC<EffectivenessWidgetProps> = ({
           style={styles.widgetLoading}
           data-testid="effectiveness-widget-loading"
         >
-          <p>Loading effectiveness...</p>
+          <p>{message(MSG.DASHBOARD.WIDGETS.EFFECTIVENESS.LOADING)}</p>
         </div>
       );
     }
@@ -111,12 +116,10 @@ export const EffectivenessWidget: React.FC<EffectivenessWidgetProps> = ({
           data-testid="effectiveness-widget-needs-analytics"
         >
           <p style={{ fontWeight: 600, marginTop: 0 }}>
-            Google Analytics is not configured
+            {message(MSG.DASHBOARD.WIDGETS.EFFECTIVENESS.NO_ANALYTICS_TITLE)}
           </p>
           <p style={{ fontSize: "0.9em", color: "#555" }}>
-            What&apos;s Working needs a Google Analytics provider and site
-            profile. Use the <strong>Google Setup</strong> gadget, then refresh
-            this widget.
+            {message(MSG.DASHBOARD.WIDGETS.EFFECTIVENESS.NO_ANALYTICS_BODY)}
           </p>
         </div>
       );
@@ -128,7 +131,9 @@ export const EffectivenessWidget: React.FC<EffectivenessWidgetProps> = ({
           style={styles.widgetError}
           data-testid="effectiveness-widget-error"
         >
-          <p>Error: {error}</p>
+          <p>
+            {message(MSG.ERROR_GENERIC)}: {error}
+          </p>
         </div>
       );
     }
@@ -139,10 +144,12 @@ export const EffectivenessWidget: React.FC<EffectivenessWidgetProps> = ({
           style={styles.widgetContent}
           data-testid="effectiveness-widget-empty"
         >
-          <p>No effectiveness data for this path and duration.</p>
+          <p>{message(MSG.DASHBOARD.WIDGETS.EFFECTIVENESS.EMPTY)}</p>
           {path ? (
             <p style={{ fontSize: "0.85em", color: "#666" }}>
-              {path} · last {durationDays} days
+              {path} · {message(MSG.DASHBOARD.WIDGETS.EFFECTIVENESS.LAST)}{" "}
+              {durationDays}{" "}
+              {message(MSG.DASHBOARD.WIDGETS.EFFECTIVENESS.DAYS)}
             </p>
           ) : null}
         </div>
@@ -154,7 +161,8 @@ export const EffectivenessWidget: React.FC<EffectivenessWidgetProps> = ({
     return (
       <div style={styles.widgetContent} data-testid="effectiveness-widget-list">
         <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
-          {path} · last {durationDays} days
+          {path} · {message(MSG.DASHBOARD.WIDGETS.EFFECTIVENESS.LAST)}{" "}
+          {durationDays} {message(MSG.DASHBOARD.WIDGETS.EFFECTIVENESS.DAYS)}
         </p>
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {rows.map((row) => {

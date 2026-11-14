@@ -46,7 +46,12 @@ export const BulkUploadWidget: React.FC<BulkUploadWidgetProps> = ({
       setResults(out);
     } catch (err: unknown) {
       if (!isSessionRedirectError(err)) {
-        setError(formatApiError(err, "Upload failed"));
+      setError(
+        formatApiError(
+          err,
+          message(MSG.DASHBOARD.WIDGETS.BULK_UPLOAD.UPLOAD_FAILED),
+        ),
+      );
       }
     } finally {
       setBusy(false);
@@ -60,10 +65,10 @@ export const BulkUploadWidget: React.FC<BulkUploadWidgetProps> = ({
       <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent}>
         <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
-          Upload files into the Assets tree (classic bulk upload servlet).
+          {message(MSG.DASHBOARD.WIDGETS.BULK_UPLOAD.INTRO)}
         </p>
         <label style={{ display: "block", fontSize: "0.85em", marginBottom: 8 }}>
-          Folder path
+          {message(MSG.DASHBOARD.WIDGETS.BULK_UPLOAD.FOLDER_LABEL)}
           <input
             value={folder}
             onChange={(e) => setFolder(e.target.value)}
@@ -79,7 +84,7 @@ export const BulkUploadWidget: React.FC<BulkUploadWidgetProps> = ({
           />
         </label>
         <label style={{ display: "block", fontSize: "0.85em", marginBottom: 8 }}>
-          Asset type
+          {message(MSG.DASHBOARD.WIDGETS.BULK_UPLOAD.TYPE_LABEL)}
           <select
             value={assetType}
             onChange={(e) => setAssetType(e.target.value as UploadAssetType)}
@@ -87,8 +92,12 @@ export const BulkUploadWidget: React.FC<BulkUploadWidgetProps> = ({
             data-testid="bulk-upload-type"
             style={{ display: "block", marginTop: 4, padding: 6 }}
           >
-            <option value="file">File</option>
-            <option value="image">Image</option>
+            <option value="file">
+              {message(MSG.DASHBOARD.WIDGETS.BULK_UPLOAD.TYPE_FILE)}
+            </option>
+            <option value="image">
+              {message(MSG.DASHBOARD.WIDGETS.BULK_UPLOAD.TYPE_IMAGE)}
+            </option>
           </select>
         </label>
         <label style={{ fontSize: "0.85em", display: "flex", gap: 6, marginBottom: 8 }}>
@@ -98,7 +107,7 @@ export const BulkUploadWidget: React.FC<BulkUploadWidgetProps> = ({
             onChange={(e) => setApprove(e.target.checked)}
             disabled={busy}
           />
-          Approve on upload
+          {message(MSG.DASHBOARD.WIDGETS.BULK_UPLOAD.APPROVE_LABEL)}
         </label>
         <input
           type="file"
@@ -108,7 +117,9 @@ export const BulkUploadWidget: React.FC<BulkUploadWidgetProps> = ({
           onChange={(e) => void onUpload(e.target.files)}
         />
         {busy ? (
-          <p style={{ fontSize: "0.85em" }}>Uploading…</p>
+          <p style={{ fontSize: "0.85em" }}>
+            {message(MSG.DASHBOARD.WIDGETS.BULK_UPLOAD.UPLOADING)}…
+          </p>
         ) : null}
         {error ? (
           <div style={styles.widgetError} data-testid="bulk-upload-error">
@@ -118,7 +129,8 @@ export const BulkUploadWidget: React.FC<BulkUploadWidgetProps> = ({
         {results.length > 0 ? (
           <div data-testid="bulk-upload-results" style={{ marginTop: 12 }}>
             <div style={{ fontSize: "0.85em", fontWeight: 600 }}>
-              {okCount}/{results.length} succeeded
+              {okCount}/{results.length}{" "}
+              {message(MSG.DASHBOARD.WIDGETS.BULK_UPLOAD.SUCCEEDED)}
             </div>
             <ul style={{ listStyle: "none", padding: 0, margin: "8px 0 0" }}>
               {results.map((r) => (

@@ -37,7 +37,9 @@ export const ReportsWidget: React.FC<ReportsWidgetProps> = ({
       setSnap(await fetchReportsHubSnapshot());
     } catch (err: unknown) {
       if (isSessionRedirectError(err)) return;
-      setError(formatApiError(err, "Failed to load report snapshot"));
+      setError(
+        formatApiError(err, message(MSG.DASHBOARD.WIDGETS.REPORTS.LOAD_FAILED)),
+      );
       setSnap(null);
     } finally {
       setIsLoading(false);
@@ -55,7 +57,9 @@ export const ReportsWidget: React.FC<ReportsWidgetProps> = ({
     return (
       <div style={styles.widget} data-testid="reports-widget">
         <div style={styles.widgetTitle}>{heading}</div>
-        <div style={styles.widgetLoading}>Loading reports…</div>
+        <div style={styles.widgetLoading}>
+          {message(MSG.DASHBOARD.WIDGETS.REPORTS.LOADING)}
+        </div>
       </div>
     );
   }
@@ -71,18 +75,32 @@ export const ReportsWidget: React.FC<ReportsWidgetProps> = ({
     return (
       <div style={styles.widget} data-testid="reports-widget">
         <div style={styles.widgetTitle}>{heading}</div>
-        <div style={styles.widgetContent}>No report data.</div>
+        <div style={styles.widgetContent}>
+          {message(MSG.DASHBOARD.WIDGETS.REPORTS.EMPTY)}
+        </div>
       </div>
     );
   }
 
   const cards: Array<{ label: string; value: number | string }> = [
-    { label: "SEO issue pages", value: snap.seoIssuePages },
-    { label: "Forms (site)", value: snap.formsCount },
-    { label: "New form submissions", value: snap.formsNewSubmissions },
-    { label: "Pages with comments", value: snap.pagesWithComments },
-    { label: "Activity folders (30d)", value: snap.activityRows },
-    { label: "New items (activity)", value: snap.activityNewItems },
+    { label: message(MSG.DASHBOARD.WIDGETS.REPORTS.CARD_SEO), value: snap.seoIssuePages },
+    { label: message(MSG.DASHBOARD.WIDGETS.REPORTS.CARD_FORMS), value: snap.formsCount },
+    {
+      label: message(MSG.DASHBOARD.WIDGETS.REPORTS.CARD_FORMS_NEW),
+      value: snap.formsNewSubmissions,
+    },
+    {
+      label: message(MSG.DASHBOARD.WIDGETS.REPORTS.CARD_COMMENTS),
+      value: snap.pagesWithComments,
+    },
+    {
+      label: message(MSG.DASHBOARD.WIDGETS.REPORTS.CARD_ACTIVITY_FOLDERS),
+      value: snap.activityRows,
+    },
+    {
+      label: message(MSG.DASHBOARD.WIDGETS.REPORTS.CARD_ACTIVITY_NEW),
+      value: snap.activityNewItems,
+    },
   ];
 
   return (
@@ -90,7 +108,7 @@ export const ReportsWidget: React.FC<ReportsWidgetProps> = ({
       <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent} data-testid="reports-hub">
         <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
-          Snapshot for {snap.path}
+          {message(MSG.DASHBOARD.WIDGETS.REPORTS.SNAPSHOT_FOR)} {snap.path}
         </p>
         <div
           style={{
@@ -117,9 +135,7 @@ export const ReportsWidget: React.FC<ReportsWidgetProps> = ({
           ))}
         </div>
         <p style={{ fontSize: "0.8em", color: "#666", marginTop: 12 }}>
-          Open SEO Audit, Form Tracker, Comments, or Activity gadgets for
-          detail. Partial failures (e.g. DTS offline) show as zeros for that
-          metric.
+          {message(MSG.DASHBOARD.WIDGETS.REPORTS.FOOTER)}
         </p>
       </div>
     </div>

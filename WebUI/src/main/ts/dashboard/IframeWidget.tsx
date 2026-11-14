@@ -71,7 +71,7 @@ export const IframeWidget: React.FC<IframeWidgetProps> = ({
   const apply = () => {
     const safe = sanitizeEmbedUrl(draft);
     if (!safe) {
-      setError("Enter a valid http(s) URL (javascript: and data: are blocked).");
+      setError(message(MSG.DASHBOARD.WIDGETS.IFRAME.INVALID_URL));
       setActive("");
       try {
         sessionStorage.removeItem(STORAGE_KEY);
@@ -125,7 +125,7 @@ export const IframeWidget: React.FC<IframeWidgetProps> = ({
             data-testid="iframe-src-apply"
             style={{ padding: "6px 12px" }}
           >
-            Load
+            {message(MSG.DASHBOARD.WIDGETS.IFRAME.LOAD)}
           </button>
         </div>
         {error ? (
@@ -149,8 +149,7 @@ export const IframeWidget: React.FC<IframeWidgetProps> = ({
           />
         ) : (
           <p style={{ fontSize: "0.9em", color: "#666", margin: 0 }}>
-            Enter an https URL to embed. Saved for this browser session only
-            (http/https only; no CMS embed API).
+            {message(MSG.DASHBOARD.WIDGETS.IFRAME.HINT)}
           </p>
         )}
       </div>

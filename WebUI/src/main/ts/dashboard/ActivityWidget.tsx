@@ -42,7 +42,21 @@ export interface ActivityWidgetProps {
  *
  * <p>Server: {@code POST /services/activitymanagement/activity/contentactivity}
  * with {@code ContentActivityRequest}. Not a user-action timeline.</p>
+ *
+ * <p>Duration units ({@code days}/{@code weeks}/{@code months}/{@code years})
+ * are API enum values resolved to TMX through
+ * {@code MSG.DASHBOARD.WIDGETS.ACTIVITY.UNIT_*} so the range line localizes.</p>
  */
+const DURATION_UNIT_KEYS: Record<ActivityDurationType, string> = {
+  days: MSG.DASHBOARD.WIDGETS.ACTIVITY.UNIT_DAYS,
+  weeks: MSG.DASHBOARD.WIDGETS.ACTIVITY.UNIT_WEEKS,
+  months: MSG.DASHBOARD.WIDGETS.ACTIVITY.UNIT_MONTHS,
+  years: MSG.DASHBOARD.WIDGETS.ACTIVITY.UNIT_YEARS,
+};
+
+function durationUnitKey(durationType: ActivityDurationType): string {
+  return DURATION_UNIT_KEYS[durationType] ?? durationType;
+}
 export const ActivityWidget: React.FC<ActivityWidgetProps> = ({
   title,
   path: pathProp,
@@ -68,7 +82,12 @@ export const ActivityWidget: React.FC<ActivityWidgetProps> = ({
       if (isSessionRedirectError(err)) {
         return;
       }
-      setError(formatApiError(err, "Failed to load content activity"));
+      setError(
+        formatApiError(
+          err,
+          message(MSG.DASHBOARD.WIDGETS.ACTIVITY.LOAD_FAILED),
+        ),
+      );
       setRows([]);
     } finally {
       setIsLoading(false);
@@ -109,7 +128,9 @@ export const ActivityWidget: React.FC<ActivityWidgetProps> = ({
           <p>{message(MSG.ACTIVITY_EMPTY)}</p>
           {resolvedPath ? (
             <p style={{ fontSize: "0.85em", color: "#666" }}>
-              {message(MSG.ACTIVITY_PATH)}: {resolvedPath} · last {duration} {durationType}
+              {message(MSG.ACTIVITY_PATH)}: {resolvedPath} ·{" "}
+              {message(MSG.DASHBOARD.WIDGETS.ACTIVITY.LAST)} {duration}{" "}
+              {message(durationUnitKey(durationType))}
             </p>
           ) : null}
         </div>
@@ -119,7 +140,8 @@ export const ActivityWidget: React.FC<ActivityWidgetProps> = ({
     return (
       <div style={styles.widgetContent} data-testid="activity-widget-list">
         <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
-          {resolvedPath} · last {duration} {durationType}
+          {resolvedPath} · {message(MSG.DASHBOARD.WIDGETS.ACTIVITY.LAST)}{" "}
+          {duration} {message(durationUnitKey(durationType))}
         </p>
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {rows.map((row, index) => (

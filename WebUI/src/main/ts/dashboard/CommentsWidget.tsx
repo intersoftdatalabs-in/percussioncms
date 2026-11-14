@@ -58,10 +58,7 @@ export const CommentsWidget: React.FC<CommentsWidgetProps> = ({
     } catch (err: unknown) {
       if (isSessionRedirectError(err)) return;
       setError(
-        formatApiError(
-          err,
-          "Failed to load comments (delivery tier may be offline)",
-        ),
+        formatApiError(err, message(MSG.DASHBOARD.WIDGETS.COMMENTS.LOAD_FAILED)),
       );
       setPages([]);
     } finally {
@@ -80,35 +77,40 @@ export const CommentsWidget: React.FC<CommentsWidgetProps> = ({
     if (isLoading) {
       return (
         <div style={styles.widgetLoading} data-testid="comments-widget-loading">
-          <p>Loading comments...</p>
+          <p>{message(MSG.DASHBOARD.WIDGETS.COMMENTS.LOADING)}</p>
         </div>
       );
     }
     if (error) {
       return (
         <div style={styles.widgetError} data-testid="comments-widget-error">
-          <p>Error: {error}</p>
+          <p>
+            {message(MSG.ERROR_GENERIC)}: {error}
+          </p>
         </div>
       );
     }
     if (!site) {
       return (
         <div style={styles.widgetContent} data-testid="comments-widget-empty">
-          <p>No sites available.</p>
+          <p>{message(MSG.DASHBOARD.WIDGETS.COMMENTS.NO_SITES)}</p>
         </div>
       );
     }
     if (pages.length === 0) {
       return (
         <div style={styles.widgetContent} data-testid="comments-widget-empty">
-          <p>No pages with comments for {site}.</p>
+          <p>
+            {message(MSG.DASHBOARD.WIDGETS.COMMENTS.EMPTY_FOR_SITE_PRE)}{" "}
+            {site}.
+          </p>
         </div>
       );
     }
     return (
       <div style={styles.widgetContent} data-testid="comments-widget-list">
         <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
-          Site: {site}
+          {message(MSG.DASHBOARD.WIDGETS.COMMENTS.SITE)}: {site}
         </p>
         <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
           {pages.map((p) => (
@@ -120,11 +122,18 @@ export const CommentsWidget: React.FC<CommentsWidgetProps> = ({
               }}
             >
               <div style={{ fontWeight: 500 }}>
-                {p.pageLinkTitle || p.path || p.pagePath || "Page"}
+                {p.pageLinkTitle ||
+                  p.path ||
+                  p.pagePath ||
+                  message(MSG.DASHBOARD.WIDGETS.COMMENTS.UNNAMED_PAGE)}
               </div>
               <div style={{ fontSize: "0.8em", color: "#666" }}>
-                {p.commentCount} comments · {p.newCount} new · {p.approvedCount}{" "}
-                approved
+                {p.commentCount}{" "}
+                {message(MSG.DASHBOARD.WIDGETS.COMMENTS.COUNT_COMMENTS)} ·{" "}
+                {p.newCount}{" "}
+                {message(MSG.DASHBOARD.WIDGETS.COMMENTS.COUNT_NEW)} ·{" "}
+                {p.approvedCount}{" "}
+                {message(MSG.DASHBOARD.WIDGETS.COMMENTS.COUNT_APPROVED)}
               </div>
             </li>
           ))}

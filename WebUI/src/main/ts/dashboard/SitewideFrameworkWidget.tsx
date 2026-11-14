@@ -37,7 +37,12 @@ export const SitewideFrameworkWidget: React.FC<SitewideFrameworkWidgetProps> = (
       setThemes(await fetchThemeSummaries());
     } catch (err: unknown) {
       if (isSessionRedirectError(err)) return;
-      setError(formatApiError(err, "Failed to load themes"));
+      setError(
+        formatApiError(
+          err,
+          message(MSG.DASHBOARD.WIDGETS.SITEWIDE_FRAMEWORK.LOAD_FAILED),
+        ),
+      );
       setThemes([]);
     } finally {
       setIsLoading(false);
@@ -55,7 +60,9 @@ export const SitewideFrameworkWidget: React.FC<SitewideFrameworkWidgetProps> = (
     return (
       <div style={styles.widget} data-testid="sitewide-framework-widget">
         <div style={styles.widgetTitle}>{heading}</div>
-        <div style={styles.widgetLoading}>Loading themes…</div>
+        <div style={styles.widgetLoading}>
+          {message(MSG.DASHBOARD.WIDGETS.SITEWIDE_FRAMEWORK.LOADING)}
+        </div>
       </div>
     );
   }
@@ -73,10 +80,14 @@ export const SitewideFrameworkWidget: React.FC<SitewideFrameworkWidgetProps> = (
       <div style={styles.widgetTitle}>{heading}</div>
       <div style={styles.widgetContent} data-testid="sitewide-framework-list">
         <p style={{ fontSize: "0.85em", color: "#666", marginTop: 0 }}>
-          Installed themes ({themes.length}). Open Design to edit CSS / regions.
+          {message(MSG.DASHBOARD.WIDGETS.SITEWIDE_FRAMEWORK.INSTALLED_PRE)} (
+          {themes.length}).{" "}
+          {message(MSG.DASHBOARD.WIDGETS.SITEWIDE_FRAMEWORK.INSTALLED_POST)}
         </p>
         {themes.length === 0 ? (
-          <p data-testid="sitewide-framework-empty">No themes found.</p>
+          <p data-testid="sitewide-framework-empty">
+            {message(MSG.DASHBOARD.WIDGETS.SITEWIDE_FRAMEWORK.EMPTY)}
+          </p>
         ) : (
           <ul style={{ listStyle: "none", padding: 0, margin: 0 }}>
             {themes.map((t) => (
@@ -122,7 +133,7 @@ export const SitewideFrameworkWidget: React.FC<SitewideFrameworkWidgetProps> = (
         )}
         <p style={{ fontSize: "0.8em", marginTop: 12 }}>
           <a href="/cm/app/?view=design" style={{ color: "#007ea8" }}>
-            Open Design
+            {message(MSG.DASHBOARD.WIDGETS.SITEWIDE_FRAMEWORK.OPEN_DESIGN)}
           </a>
         </p>
       </div>

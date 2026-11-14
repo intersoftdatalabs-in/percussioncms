@@ -464,6 +464,18 @@ same Admin after a failed save is taken over so a retry can succeed.
    success notice. An unknown locale id is **404**. **Cancel** does not
    write.
 
+## Home dashboard gadgets
+
+**Home → Gadgets** tiles (Activity, Workflow status, Traffic, Blogs, Form
+Tracker, Comments, Cookie Consent, SEO Audit, Google Setup, Membership,
+Reports, and the rest of the dashboard catalog) render their titles,
+loading and empty states, form labels, and error fallbacks through the
+product TMX catalog (`perc.ui.dashboard.*` / `perc.ui.gadgets.*` keys), so
+gadget chrome follows the session locale the same way the rest of Home
+does. When a key has no translation for the session locale yet, the gadget
+shows the English source segment until translators backfill that locale —
+this is the same regional → base → en-us fallback the format profiles use.
+
 ## Limits
 
 - Language string is immutable after create (REST `PUT` rejects a change).

@@ -164,7 +164,7 @@ const DEFAULT_GADGETS: DashboardWidget[] = (() => {
       id,
       name: info?.name ?? id,
       component: info?.component ?? (() => null),
-      props: id === "welcome" ? { userName: "User" } : {},
+      props: id === "welcome" ? { userName: message(MSG.USER_DEFAULT_NAME) } : {},
       position: {
         column: (isLeft ? "left" : "right") as "left" | "right",
         order,

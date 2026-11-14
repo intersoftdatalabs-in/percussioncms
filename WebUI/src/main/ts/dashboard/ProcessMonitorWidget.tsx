@@ -54,7 +54,12 @@ export const ProcessMonitorWidget: React.FC<ProcessMonitorWidgetProps> = ({
       if (isSessionRedirectError(err)) {
         return;
       }
-      setError(formatApiError(err, "Failed to load process monitor"));
+      setError(
+        formatApiError(
+          err,
+          message(MSG.DASHBOARD.WIDGETS.PROCESS_MONITOR.LOAD_FAILED),
+        ),
+      );
       setMonitors([]);
     } finally {
       setIsLoading(false);
@@ -88,21 +93,23 @@ export const ProcessMonitorWidget: React.FC<ProcessMonitorWidgetProps> = ({
     if (isLoading) {
       return (
         <div style={styles.widgetLoading} data-testid="process-monitor-loading">
-          <p>Loading process monitor...</p>
+          <p>{message(MSG.DASHBOARD.WIDGETS.PROCESS_MONITOR.LOADING)}</p>
         </div>
       );
     }
     if (error) {
       return (
         <div style={styles.widgetError} data-testid="process-monitor-error">
-          <p>Error: {error}</p>
+          <p>
+            {message(MSG.ERROR_GENERIC)}: {error}
+          </p>
         </div>
       );
     }
     if (monitors.length === 0) {
       return (
         <div style={styles.widgetContent} data-testid="process-monitor-empty">
-          <p>No monitors available</p>
+          <p>{message(MSG.DASHBOARD.WIDGETS.PROCESS_MONITOR.EMPTY)}</p>
         </div>
       );
     }
