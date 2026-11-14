@@ -46,7 +46,6 @@ import org.hibernate.SessionFactory;
 import org.hibernate.query.Query;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,13 +53,16 @@ import org.springframework.transaction.annotation.Transactional;
  * Spring-managed service that implements {@link IPSMetadataQueryService} and translates raw {@link
  * PSMetadataQuery} expressions into the HQL executed against the DTS metadata database.
  *
+ * <p>Issue #6343: no custom isolation level here (or on the contract methods). The DTS services
+ * run under {@code JpaTransactionManager} with the default JPA dialect, which cannot begin a
+ * transaction with a non-default isolation level; the resulting {@code
+ * InvalidIsolationLevelException} used to surface as a 302 to the error page for every
+ * non-trivial query.
+ *
  * @author erikserating
  */
 @Service
-@Transactional(
-    propagation = Propagation.SUPPORTS,
-    isolation = Isolation.READ_UNCOMMITTED,
-    readOnly = true)
+@Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 public class PSMetadataQueryService implements IPSMetadataQueryService {
   /** Hibernate {@link SessionFactory} injected by Spring; never <code>null</code>. */
   private SessionFactory sessionFactory;
@@ -330,11 +332,21 @@ public class PSMetadataQueryService implements IPSMetadataQueryService {
   /**
    * Executes the supplied metadata query against the indexer database.
    *
+   * <p>Transaction contract (issue #6343): REQUIRED with the default isolation level, matching
+   * {@link IPSMetadataQueryService#executeQuery}. The annotation is repeated here so the
+   * effective attribute is identical under JDK dynamic proxies (interface attribute wins) and
+   * CGLIB class proxies (implementation attribute wins); the class-level SUPPORTS below applies
+   * only to the remaining methods. A non-default isolation level must never be set: the DTS
+   * {@code JpaTransactionManager} uses the default JPA dialect, which rejects custom isolation
+   * with {@code InvalidIsolationLevelException}.
+   *
    * @param query the metadata query to execute; may not be <code>null</code>.
    * @return a pair whose first element is the list of matching entries (never <code>null</code>,
    *     may be empty) and whose second element is the total number of matching rows.
    * @throws Exception if the query fails to execute or to parse.
    */
+  @Override
+  @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
   public PSPair<List<IPSMetadataEntry>, Integer> executeQuery(PSMetadataQuery query)
       throws Exception {
     log.debug("Executing query for metadata entries");
