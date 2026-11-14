@@ -31,9 +31,10 @@ import java.util.List;
  *
  * <p>A body that carries only {@code folder} must not clear host, port, user, or password. A blank
  * folder clears the stored folder because the field is optional. Any driver other than FTP
- * (including Local, FTPS, SFTP, and S3) is rejected before properties change. Passwords are not
- * read or included in the error. The folder value is a remote FTP path and is stored as trimmed
- * text; it is not rewritten with the local filesystem separator.
+ * (including FTPS, which uses {@link PSFtpsDeliveryFolderUpdate}, Local, SFTP, and S3) is
+ * rejected before properties change. Passwords are not read or included in the error. The folder
+ * value is a remote FTP path and is stored as trimmed text; it is not rewritten with the local
+ * filesystem separator.
  *
  * <p>{@code PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE} is VARCHAR(255).
  */
