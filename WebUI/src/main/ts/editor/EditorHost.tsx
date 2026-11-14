@@ -90,6 +90,14 @@ import {
   collectDatetimeNulFieldErrors,
 } from "./dateField";
 import { collectFileNulFieldErrors } from "./fileField";
+import {
+  collectImageAltRequiredFieldErrors,
+  imageAltCurrentValue,
+  imageAltFieldName,
+  imageAltIsDirty,
+  imageAltSaveEntries,
+  managedImageAltNames,
+} from "./imageAlt";
 import { DateFieldWidget } from "./widgets/DateFieldWidget";
 import { TableFieldWidget } from "./widgets/TableFieldWidget";
 import {
@@ -668,6 +676,8 @@ function EditorFieldControl({
   onChange,
   onFile,
   onClear,
+  imageAltValue,
+  onImageAlt,
   loadKeywords,
   onKeywordChoices,
   loadCommunities,
@@ -686,6 +696,12 @@ function EditorFieldControl({
   onChange: (name: string, value: string) => void;
   onFile: (name: string, file: File | null) => void;
   onClear: (name: string, hadStored: boolean) => void;
+  /**
+   * Alternative text for the image row (#6263). Resolved by the host from
+   * the unsaved draft over the stored {@code <name>_alt} sibling value.
+   */
+  imageAltValue?: string;
+  onImageAlt?: (name: string, value: string) => void;
   loadKeywords?: () => Promise<KeywordSummary[]>;
   onKeywordChoices?: (name: string, options: KeywordOption[]) => void;
   loadCommunities?: () => Promise<CommunitySummary[]>;
@@ -742,6 +758,8 @@ function EditorFieldControl({
         itemId={itemId}
         name={row.name}
         readOnly={locked}
+        altValue={imageAltValue ?? ""}
+        onAlt={(value) => onImageAlt?.(row.name, value)}
         loadMeta={loadBinaryMeta}
         downloadBinary={downloadBinary}
         onFile={(file) => onFile(row.name, file)}
@@ -1536,7 +1554,7 @@ export function EditorHost({
     const storedByName = new Map(
       payload.fields.map((field) => [field.name, fieldValueAsString(field.value)]),
     );
-    return mergeEditorRows(
+    const merged = mergeEditorRows(
       {
         ...payload,
         fields: payload.fields.map((f) => ({
@@ -1547,13 +1565,27 @@ export function EditorHost({
         })),
       },
       schema,
-    )
+    ).filter(
+      (row) =>
+        !(
+          isExplorerPageType(payload.contentType) &&
+          row.name.trim().toLowerCase() === "templateid"
+        ),
+    );
+    /**
+     * Alternative-text siblings hide behind their image row (#6263): the
+     * image widget edits {@code <name>_alt} directly, so a stored sibling
+     * text row would duplicate the input. Unpaired siblings keep rendering.
+     */
+    const altNames = new Set(
+      merged
+        .filter((row) => row.kind === "image")
+        .map((row) => imageAltFieldName(row.name)),
+    );
+    return merged
       .filter(
         (row) =>
-          !(
-            isExplorerPageType(payload.contentType) &&
-            row.name.trim().toLowerCase() === "templateid"
-          ),
+          row.kind === "image" || row.kind === "file" || !altNames.has(row.name),
       )
       .map((row) => ({
         ...row,
@@ -1570,16 +1602,25 @@ export function EditorHost({
    */
   const dirtyFieldNames = useMemo(
     () =>
-      new Set(
-        editorDirtyFieldNames(
+      new Set([
+        ...editorDirtyFieldNames(
           payload?.fields,
           draft,
           pendingFiles,
           pendingClears,
           schemaReadOnlyNames,
         ),
-      ),
-    [payload, draft, pendingFiles, pendingClears, schemaReadOnlyNames],
+        // The alt sibling hides behind its image row: the image row carries
+        // the dirty marker for an unsaved alternative-text edit (#6263).
+        ...rows
+          .filter(
+            (row) =>
+              row.kind === "image" &&
+              imageAltIsDirty(payload?.fields, draft, row.name),
+          )
+          .map((row) => row.name),
+      ]),
+    [payload, draft, pendingFiles, pendingClears, schemaReadOnlyNames, rows],
   );
 
   /**
@@ -1694,6 +1735,8 @@ export function EditorHost({
             onChange={setField}
             onFile={setFile}
             onClear={markBinaryClear}
+            imageAltValue={row.kind === "image" ? imageAltFor(row.name) : undefined}
+            onImageAlt={setImageAlt}
             loadKeywords={loadKeywords}
             onKeywordChoices={reportKeywordChoices}
             loadCommunities={loadCommunities}
@@ -1771,6 +1814,29 @@ export function EditorHost({
     }
   }
 
+  function setImageAlt(imageName: string, value: string): void {
+    if (schemaReadOnlyNames.has(imageName)) {
+      return;
+    }
+    setDraft((prev) => ({ ...prev, [imageAltFieldName(imageName)]: value }));
+    setFieldErrors((prev) => {
+      if (!(imageName in prev)) {
+        return prev;
+      }
+      const next = { ...prev };
+      delete next[imageName];
+      return next;
+    });
+  }
+
+  /**
+   * Current alternative text for an image row: the unsaved draft entry over
+   * the stored {@code <name>_alt} sibling value (#6263).
+   */
+  function imageAltFor(imageName: string): string {
+    return imageAltCurrentValue(draft, payload?.fields, imageName);
+  }
+
   function markBinaryClear(name: string, hadStored: boolean): void {
     if (schemaReadOnlyNames.has(name)) {
       return;
@@ -1842,6 +1908,35 @@ export function EditorHost({
             return missing;
           }
           return { ...invalidDates, ...missing };
+        },
+        saveKey: EDITOR_MSG.REQUIRED_SAVE,
+        focusFirst: true,
+      },
+      {
+        collect: () => {
+          const imageNames = rows
+            .filter((row) => row.kind === "image")
+            .map((row) => row.name);
+          // Blank or whitespace-only alt on a required image refuses the
+          // save before the PUT with a named entry on the image row (#6263).
+          // Only content types that define the <name>_alt sibling are gated:
+          // image fields without an alt slot keep their existing behavior.
+          const managed = new Set(
+            managedImageAltNames(imageNames, payload?.fields),
+          );
+          return collectImageAltRequiredFieldErrors(
+            rows
+              .filter((row) => managed.has(row.name))
+              .map((row) => ({
+                name: row.name,
+                kind: row.kind,
+                required: row.required,
+              })),
+            Object.fromEntries(
+              [...managed].map((name) => [name, imageAltFor(name)]),
+            ),
+            message(EDITOR_MSG.FIELD_REQUIRED),
+          );
         },
         saveKey: EDITOR_MSG.REQUIRED_SAVE,
         focusFirst: true,
@@ -2125,13 +2220,26 @@ export function EditorHost({
 
   /**
    * Assembles the fields PUT payload including classic page parity (#5739:
-   * filename trim/dot-strip, allowed template stamp) (#5794: extracted
-   * from handleSave).
+   * filename trim/dot-strip, allowed template stamp) and image alternative
+   * text (#6263: one {@code <name>_alt} entry per editable image row through
+   * the existing fields path) (#5794: extracted from handleSave).
    */
   function buildSaveSubmitFields(source: ItemEditorFields): ItemEditorFields {
+    const imageRows = rows.filter(
+      (row) => row.kind === "image" && !row.readOnly,
+    );
+    const altByImage = Object.fromEntries(
+      imageRows.map((row) => [row.name, imageAltFor(row.name)]),
+    );
     const next: ItemEditorFields = {
       ...source,
-      fields: fieldsForEditorSave(rows),
+      fields: [
+        ...fieldsForEditorSave(rows),
+        ...imageAltSaveEntries(
+          imageRows.map((row) => row.name),
+          altByImage,
+        ),
+      ],
     };
     if (!isExplorerPageType(source.contentType)) {
       return next;

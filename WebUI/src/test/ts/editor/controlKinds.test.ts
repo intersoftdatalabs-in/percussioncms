@@ -76,6 +76,10 @@ describe("classifyEditorControl", () => {
     expect(classifyEditorControl({ control: "sys_EditBox", dataType: "float" }, "rate")).toBe(
       "number",
     );
+    expect(classifyEditorControl({ control: "sys_EditBox" }, "img_alt")).toBe("text");
+    expect(
+      classifyEditorControl({ control: "sys_webImageFX" }, "heroimage_alt"),
+    ).toBe("text");
     expect(classifyEditorControl({ control: "sys_Table" }, "hours")).toBe("table");
     expect(classifyEditorControl({ control: "sys_EditBox", dataType: "table" }, "grid")).toBe(
       "table",

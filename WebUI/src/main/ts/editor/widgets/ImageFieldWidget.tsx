@@ -17,7 +17,11 @@
 
 import React from "react";
 import { fileFieldContainsNul, pickedFileNameContainsNul } from "../fileField";
+import { imageAltFieldName } from "../imageAlt";
 import { FileFieldWidget, type FileFieldWidgetProps } from "./FileFieldWidget";
+import { message } from "../../i18n/message";
+import { EDITOR_MSG } from "../messages";
+import styles from "../EditorHost.module.css";
 
 /**
  * A NUL cannot be stored in item field XML / JDBC text (#5695 / #4532).
@@ -52,8 +56,31 @@ export function collectImageNulFieldErrors(
   return out;
 }
 
+export interface ImageFieldWidgetProps
+  extends Omit<FileFieldWidgetProps, "accept" | "preview"> {
+  /** Alternative text for the image row (#6263). Persisted as `<name>_alt`. */
+  altValue?: string;
+  /** Alternative-text edits. Never fires for the binary pick/clear. */
+  onAlt?: (value: string) => void;
+}
+
 export function ImageFieldWidget(
-  props: Omit<FileFieldWidgetProps, "accept" | "preview">,
+  props: ImageFieldWidgetProps,
 ): React.ReactElement {
-  return <FileFieldWidget {...props} accept="image/*" preview />;
+  const { altValue = "", onAlt, ...binary } = props;
+  return (
+    <>
+      <FileFieldWidget {...binary} accept="image/*" preview />
+      <input
+        className={styles.input}
+        data-testid={`editor-image-alt-${binary.name}`}
+        aria-label={message(EDITOR_MSG.IMAGE_ALT)}
+        type="text"
+        name={imageAltFieldName(binary.name)}
+        value={altValue}
+        disabled={binary.readOnly}
+        onChange={(e) => onAlt?.(e.target.value)}
+      />
+    </>
+  );
 }
