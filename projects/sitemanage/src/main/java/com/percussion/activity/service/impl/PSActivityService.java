@@ -336,19 +336,27 @@ public class PSActivityService implements IPSActivityService {
     var cm1Sites =
         siteMgr.findAllSites().stream()
             .filter(
+                // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6325,
+                // same as #5898/#5910/#5927) — "/.system" joins the CMS repository path, not an OS path.
                 site ->
                     contentWs.getIdByPath(
                             PSPathUtils.getFolderPath(site.getFolderRoot()) + "/.system")
                         != null)
             .collect(Collectors.toList());
 
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6325,
+    // same as #5898/#5910/#5927) — "/" joins the CMS finder root ("/Sites"), not an OS path.
     if (!(PSPathUtils.SITES_FINDER_ROOT + "/").equals(path)) {
       for (var site : cm1Sites) {
         var folderRoot = site.getFolderRoot();
+        // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6325,
+        // same as #5898/#5910/#5927) — folderRoot is a CMS logical path ("//Sites/..."), not an OS path.
         if (path.equals(folderRoot) || ("/" + path).equals(folderRoot)) {
           return createActivityNodesBySite(site, includeSite);
+          // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6325,
+          // same as #5898/#5910/#5927) — trailing "/" joins CMS logical paths, not OS paths.
         } else if ((path + "/").startsWith(folderRoot + "/")
-            || ("/" + path + "/").startsWith(folderRoot + "/")) {
+            || ("/" + path + "/").startsWith(folderRoot + "/")) { // mkd-code-review[paths.hardcoded_sep]: same adjudication as above (issue #6325)
           return createActivityChildNodes(path, site.getName());
         }
       }
@@ -379,6 +387,9 @@ public class PSActivityService implements IPSActivityService {
 
   private List<PSActivityNode> createActivityChildNodes(String path, String siteName) {
     var result = new ArrayList<PSActivityNode>();
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6325,
+    // same as #5898/#5910/#5927) — leading "//" is the CMS repository-root marker; this
+    // normalizes a logical finder path for IPSContentWs, never an OS filesystem path.
     var folderPath = (!path.startsWith("//") ? '/' + path : path);
     var sums = contentWs.findFolderChildren(folderPath, false);
     for (var sum : sums) {
