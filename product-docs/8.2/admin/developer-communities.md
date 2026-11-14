@@ -75,11 +75,14 @@ the current filter"; clearing the box restores the full list.
    the detail text and the catalog description show the stored value (or
    nothing, when cleared). The name and role membership are unchanged.
 9. Open an existing community and click **Delete community**, then confirm
-   in the in-app dialog (not a browser prompt).
-   The catalog no longer lists that name. Delete of a missing community is
-   **404**. A community that is still **in use** (dependencies) is **409**
-   and remains — the SPA does **not** send `ignoredependencies` and does not
-   steal. Non-Admin is **403**.
+   in the in-app dialog (not a browser prompt). **Cancel** closes the dialog
+   without calling the server and the row stays. The catalog drops the row
+   only after the DELETE succeeds. Delete of a missing community is
+   **404**. A malformed delete is **400**. A community that is still **in
+   use** (dependencies) is **409** and remains — the SPA does **not** send
+   `ignoredependencies` and does not steal. Non-Admin is **403**. Those
+   error responses keep the community on the detail panel and in the
+   catalog.
 
 ## Product path — role membership (assign / unassign)
 
