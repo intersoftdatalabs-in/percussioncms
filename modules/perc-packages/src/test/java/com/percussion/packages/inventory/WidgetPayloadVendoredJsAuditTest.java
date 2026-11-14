@@ -47,6 +47,11 @@ import org.junit.jupiter.api.Test;
  * Superfish 1.7.10, plus unknown-version List.js / hoverIntent / supersubs /
  * gcal / qTip / MiniColors copies) with migration follow-on #6319, alongside
  * related follow-ons #6320 (system Bootstrap copies) and #6321 (FontAwesome).
+ * Slice 1 of #6319 refreshed the directory lodash payload to npm 4.17.21 and
+ * the calendarTwo moment payload to npm 2.31.0 (both Dependabot-tracked via
+ * the WebUI frontend manifests, bytes pinned byte-identical to the npm dist
+ * by the frontend parity test); the remaining rows stay vendored and are
+ * tracked in the #6319 leftover residual.
  *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
@@ -166,10 +171,10 @@ class WidgetPayloadVendoredJsAuditTest {
               "<%= meta.version %>"),
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/moment.min.js",
-              "version : 2.13.0"),
+              "version : 2.31.0"),
           Map.entry(
               "perc.widget.directory/sys__UserDependency--web_resources/widgets/directory/js/lodash.min.js",
-              "VERSION=\"4.14.0\""),
+              "\"4.17.21\""),
           Map.entry(
               "perc.widget.imageSlider/sys__UserDependency--web_resources/widgets/imageSlider/js/slick.min.js",
               "Version: 1.9.0"),
