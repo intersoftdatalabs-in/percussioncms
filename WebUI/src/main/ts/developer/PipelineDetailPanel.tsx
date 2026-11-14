@@ -789,12 +789,6 @@ export function PipelineDetailPanel({
           if (named) {
             setResourceName((current) => current || named);
           }
-          const firstDs = (doc.resources || []).find(
-            (r) => !!r.stages?.backendTank?.datasourceId?.trim(),
-          );
-          if (firstDs?.stages?.backendTank?.datasourceId) {
-            setDsId(firstDs.stages.backendTank.datasourceId);
-          }
           const storedGroup =
             firstHttp?.stages?.selector?.filterGroup ||
             (doc.resources || []).find((r) => r.stages?.selector?.filterGroup)?.stages
@@ -824,6 +818,18 @@ export function PipelineDetailPanel({
       mountedRef.current = false;
     };
   }, [idOrName]);
+
+  // Derive the datasource id input from the currently selected resource so the
+  // input never shows a binding that belongs to a different resource. A
+  // selected resource without a datasource backend clears the input.
+  useEffect(() => {
+    const key = resourceName.trim();
+    if (!ir || !key) return;
+    const match = (ir.resources || []).find((r) => (r.name || "").trim() === key);
+    if (!match) return;
+    const stored = match.stages?.backendTank?.datasourceId?.trim() || "";
+    setDsId((current) => (current === stored ? current : stored));
+  }, [ir, resourceName]);
 
   useEffect(() => {
     let cancelled = false;

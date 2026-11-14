@@ -841,6 +841,33 @@ describe("PipelineDetailPanel", () => {
     ).toBe("");
   });
 
+  it("datasource id input derives from the selected resource IR binding", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    getPipelineIr.mockResolvedValue({
+      irVersion: "1.0",
+      source: "NATIVE",
+      resources: [
+        { name: "other", kind: "QUERY", stages: {} },
+        {
+          name: "contenteditor",
+          kind: "QUERY",
+          stages: {
+            backendTank: { present: true, adapterType: "JDBC", datasourceId: "cms" },
+          },
+        },
+      ],
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-datasource-id")).toBeTruthy();
+    });
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-pipe-datasource-id") as HTMLInputElement).value,
+      ).toBe("cms");
+    });
+  });
+
   it("Admin saves webhook hooks for the selected resource", async () => {
     getApplicationDetail.mockResolvedValue(sampleDetail);
     renderDetail(true);
