@@ -49,7 +49,6 @@
           result.request,
         );
         $.perc_utils.alert_dialog({ title: "Error", content: defaultMsg });
-        callback(false);
         return;
       }
       var revSummary = result.data.RevisionsSummary;
