@@ -38,7 +38,10 @@
 
     <beans:bean id="requestMatcher" class="com.percussion.delivery.spring.PSCsrfSecurityRequestMatcher">
         <beans:constructor-arg value="^(GET|HEAD|TRACE|OPTIONS)$" />
-        <beans:constructor-arg value="/comment/list,/comment/moderation/delete,/comment/moderation/defaultModerationState,/comment/moderation/reject,/comment/moderation/approve,/comment/pageswithcomments/,/comment/defaultModerationState,/comment/list,/comment/moderation/,/moderation/asmoderator,/comment/updateOldSiteEntries/,/likes/"/>
+        <!-- /comment/addcomment is the public visitor-facing widget submit path
+             (honeypot + moderation guard it); exempting it matches the openly
+             served forms collect path (#6244). -->
+        <beans:constructor-arg value="/comment/list,/comment/addcomment,/comment/moderation/delete,/comment/moderation/defaultModerationState,/comment/moderation/reject,/comment/moderation/approve,/comment/pageswithcomments/,/comment/defaultModerationState,/comment/list,/comment/moderation/,/moderation/asmoderator,/comment/updateOldSiteEntries/,/likes/"/>
         <beans:constructor-arg value="true"/>
     </beans:bean>
 
