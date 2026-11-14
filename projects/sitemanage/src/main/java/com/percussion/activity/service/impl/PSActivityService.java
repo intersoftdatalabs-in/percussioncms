@@ -342,29 +342,47 @@ public class PSActivityService implements IPSActivityService {
                         != null)
             .collect(Collectors.toList());
 
-    if (!(PSPathUtils.SITES_FINDER_ROOT + "/").equals(path)) {
-      for (var site : cm1Sites) {
-        var folderRoot = site.getFolderRoot();
-        if (path.equals(folderRoot) || ("/" + path).equals(folderRoot)) {
-          return createActivityNodesBySite(site, includeSite);
-        } else if ((path + "/").startsWith(folderRoot + "/")
-            || ("/" + path + "/").startsWith(folderRoot + "/")) {
-          return createActivityChildNodes(path, site.getName());
-        }
-      }
-      // Fresh/empty install (no matching site, e.g. no published demo site): callers
-      // (Home gadgets) expect an empty list per the interface contract, not HTTP 500.
-      ms_log.info("No site found for activity path: {}; returning empty activity nodes.", path);
-      return Collections.emptyList();
+    if (isSitesFinderRoot(path)) {
+      // get all sites
+      return cm1Sites.stream()
+          .map(
+              site ->
+                  new PSActivityNode(
+                      site.getName(), site.getName(), site.getFolderRoot(), PAGE_CONTENT_TYPE))
+          .collect(Collectors.toList());
     }
 
-    // get all sites
-    return cm1Sites.stream()
-        .map(
-            site ->
-                new PSActivityNode(
-                    site.getName(), site.getName(), site.getFolderRoot(), PAGE_CONTENT_TYPE))
-        .collect(Collectors.toList());
+    for (var site : cm1Sites) {
+      var folderRoot = site.getFolderRoot();
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6354,
+      // same as #5898/#5910/#5927) — slashes parse the CMS logical finder path, not an OS path.
+      if (path.equals(folderRoot) || ("/" + path).equals(folderRoot)) {
+        return createActivityNodesBySite(site, includeSite);
+      }
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6354,
+      // same as #5898/#5910/#5927) — slashes parse the CMS logical finder path, not an OS path.
+      if ((path + "/").startsWith(folderRoot + "/")
+          // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6354,
+          // same as #5898/#5910/#5927) — slashes parse the CMS logical finder path, not an OS path.
+          || ("/" + path + "/").startsWith(folderRoot + "/")) {
+        return createActivityChildNodes(path, site.getName());
+      }
+    }
+    // Fresh/empty install (no matching site, e.g. no published demo site): callers
+    // (Home gadgets) expect an empty list per the interface contract, not HTTP 500.
+    ms_log.info("No site found for activity path: {}; returning empty activity nodes.", path);
+    return Collections.emptyList();
+  }
+
+  /**
+   * Canonical sites-finder root is {@code /Sites}; the trailing-slash form {@code /Sites/} is
+   * accepted for compatibility with existing Home gadget callers.
+   */
+  private static boolean isSitesFinderRoot(String path) {
+    return PSPathUtils.SITES_FINDER_ROOT.equals(path)
+        // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6354,
+        // same as #5898/#5910/#5927) — slash is the CMS logical finder-path separator, not an OS path.
+        || (PSPathUtils.SITES_FINDER_ROOT + "/").equals(path);
   }
 
   private List<PSActivityNode> createActivityNodesBySite(IPSSite site, boolean includeSite) {

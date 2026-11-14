@@ -16,8 +16,11 @@
  */
 package com.percussion.activity.service.impl;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.percussion.cms.objectstore.server.PSItemDefManager;
@@ -25,12 +28,15 @@ import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.pagemanagement.dao.IPSResourceDefinitionGroupDao;
 import com.percussion.services.contentmgr.IPSContentMgr;
 import com.percussion.services.guidmgr.IPSGuidManager;
+import com.percussion.services.guidmgr.data.PSLegacyGuid;
 import com.percussion.services.publisher.IPSPublisherService;
+import com.percussion.services.sitemgr.IPSSite;
 import com.percussion.services.sitemgr.IPSSiteManager;
 import com.percussion.services.system.IPSSystemService;
 import com.percussion.share.service.IPSIdMapper;
 import com.percussion.webservices.content.IPSContentWs;
 import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -83,5 +89,35 @@ class PSActivityServiceEmptyCellTest {
 
     assertNotNull(nodes);
     assertTrue(nodes.isEmpty());
+  }
+
+  @Test
+  void createActivityNodesByPaths_bareSitesRoot_returnsAllSites() {
+    stubSingleSite();
+
+    var nodes = activityService.createActivityNodesByPaths("/Sites", true);
+
+    assertNotNull(nodes);
+    assertEquals(1, nodes.size());
+    assertEquals("Demo", nodes.get(0).getName());
+  }
+
+  @Test
+  void createActivityNodesByPaths_trailingSlashSitesRoot_returnsAllSites() {
+    stubSingleSite();
+
+    var nodes = activityService.createActivityNodesByPaths("/Sites/", true);
+
+    assertNotNull(nodes);
+    assertEquals(1, nodes.size());
+    assertEquals("Demo", nodes.get(0).getName());
+  }
+
+  private void stubSingleSite() {
+    IPSSite site = mock(IPSSite.class);
+    when(site.getName()).thenReturn("Demo");
+    when(site.getFolderRoot()).thenReturn("//Sites/Demo");
+    when(siteMgr.findAllSites()).thenReturn(List.of(site));
+    when(contentWs.getIdByPath(anyString())).thenReturn(new PSLegacyGuid(1, 1));
   }
 }
