@@ -9,7 +9,7 @@
         "jslib/profiles/3x/jquery/plugins/jquery-timeago/jquery.timeago.js",
         "jslib/profiles/3x/libraries/momentjs/moment-with-locales.js",
         "jslib/profiles/3x/libraries/momentjs/plugins/moment-jdateformatparser/moment-jdateformatparser.js",
-        "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.bbq.js",
+        "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.deparam.js",
         "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.jfeed.js",
         "../../delivery/common/js/plugins/PercResultsPaging.js",
         "../../delivery/common/js/services/PercPageListService.js",

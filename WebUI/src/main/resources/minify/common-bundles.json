@@ -25,7 +25,7 @@
         "jslib/profiles/3x/jquery/plugins/jquery-jeditable/jquery.jeditable.js",
         "jslib/profiles/3x/jquery/plugins/jquery-validation/jquery.validate.js",
         "jslib/profiles/3x/jquery/plugins/jquery-validation/additional-methods.js",
-        "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.bbq.js",
+        "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.deparam.js",
         "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.cookie.js",
         "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.tooltip.js",
         "jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.autocomplete.js",
