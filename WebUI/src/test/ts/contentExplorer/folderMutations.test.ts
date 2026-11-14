@@ -262,6 +262,48 @@ describe("folderMutations dual-run routing (#3074)", () => {
     expect(body).not.toHaveProperty("sourcePath");
   });
 
+  it("copyFolder returns the created name from the Status message (#6255)", async () => {
+    setRxFolderMutationsFlagOverride(false);
+    mockFetch(async () => {
+      return new Response(JSON.stringify({ message: "Child_1", statusCode: 200 }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await expect(
+      copyFolder({ sourcePath: "/Folders/Child", targetPath: "/Folders/Other" }),
+    ).resolves.toBe("Child_1");
+  });
+
+  it("copyFolder returns null when the Status carries no name (#6255)", async () => {
+    setRxFolderMutationsFlagOverride(false);
+    mockFetch(async () => {
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    await expect(
+      copyFolder({ sourcePath: "/Folders/Child", targetPath: "/Folders/Other" }),
+    ).resolves.toBeNull();
+  });
+
+  it("copyFolder reads the created name from the status envelope (#6255)", async () => {
+    setRxFolderMutationsFlagOverride(false);
+    mockFetch(async () => {
+      return new Response(
+        JSON.stringify({ status: { message: "Child_2", statusCode: 200 } }),
+        {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        },
+      );
+    });
+    await expect(
+      copyFolder({ sourcePath: "/Folders/Child", targetPath: "/Folders/Other" }),
+    ).resolves.toBe("Child_2");
+  });
+
   it("flag on: deleteItem DELETEs by resolved folder id (no pathmanagement)", async () => {
     setRxFolderMutationsFlagOverride(true);
     const calls: Array<{ url: string; method: string }> = [];

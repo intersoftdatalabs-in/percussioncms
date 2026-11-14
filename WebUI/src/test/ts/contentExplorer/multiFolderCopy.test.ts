@@ -44,45 +44,103 @@ const folder = (name: string, path: string): PSPathItem => ({
   leaf: false,
 });
 
-describe("multi-select copy to one folder (#4855)", () => {
-  it("skips folders by name and copies only pages and assets", () => {
+const failCopy = async (): Promise<never> => {
+  throw new Error("must not be called");
+};
+
+describe("multi-select copy to one folder (#6255)", () => {
+  it("partitions folders to the folder copy call and pages to the item call", () => {
     const parts = partitionMultiFolderCopy([
       folder("Section", "/Assets/Section"),
       page("Home", "/Assets/Section/Home"),
       page("Logo", "/Assets/Section/Logo"),
     ]);
-    expect(parts.skippedFolderNames).toEqual(["Section"]);
+    expect(parts.folders.map((item) => item.name)).toEqual(["Section"]);
     expect(parts.copyable.map((item) => item.name)).toEqual(["Home", "Logo"]);
+    expect(parts.missingPath).toEqual([]);
   });
 
-  it("one destination receives every copyable item", async () => {
-    const calls: Array<[string, string]> = [];
+  it("treats rows with no path as failures, not copies", () => {
+    const parts = partitionMultiFolderCopy([
+      { ...page("NoPath", ""), path: "" },
+      { ...folder("NoPathFolder", ""), path: "" },
+    ]);
+    expect(parts.copyable).toEqual([]);
+    expect(parts.folders).toEqual([]);
+    expect(parts.missingPath.map((item) => item.id)).toEqual([
+      "NoPath",
+      "NoPathFolder",
+    ]);
+  });
+
+  it("one destination receives every item and every folder tree", async () => {
+    const itemCalls: Array<[string, string]> = [];
+    const folderCalls: Array<[string, string]> = [];
     const result = await copyCheckedItemsToFolder(
-      [page("Home", "/Assets/Home"), page("Logo", "/Assets/Logo")],
+      [
+        page("Home", "/Assets/Home"),
+        folder("Section", "/Assets/Section"),
+        page("Logo", "/Assets/Logo"),
+      ],
       "/Assets/Dest",
       async (source, target) => {
-        calls.push([source, target]);
+        itemCalls.push([source, target]);
+      },
+      async (source, target) => {
+        folderCalls.push([source, target]);
+        return "Section";
       },
     );
-    expect(calls).toEqual([
+    expect(itemCalls).toEqual([
       ["/Assets/Home", "/Assets/Dest"],
       ["/Assets/Logo", "/Assets/Dest"],
     ]);
+    expect(folderCalls).toEqual([["/Assets/Section/", "/Assets/Dest"]]);
+    expect(result.copiedNames).toEqual(["Home", "Logo", "Section"]);
+    expect(result.failures).toEqual([]);
     expect(result.fullSuccess).toBe(true);
     expect(multiCopyOutcome(result)).toBe("success");
     expect(formatMultiFolderCopyStatus(result, "/Assets/Dest")).toContain(
-      "2",
+      "3",
     );
     expect(formatMultiFolderCopyStatus(result, "/Assets/Dest")).not.toContain(
       message(EXPLORER_MSG.MULTI_COPY_PARTIAL).slice(0, 12),
     );
   });
 
-  it("keeps earlier copies when a later HTTP copy fails", async () => {
+  it("names the created copy when the server uniquifies a conflict", async () => {
+    const result = await copyCheckedItemsToFolder(
+      [folder("Section", "/Assets/Section")],
+      "/Assets/Dest",
+      failCopy,
+      async () => {
+        // Server 200 with getUniqueFolderName: the copy lands uniquified.
+        return "Section_1";
+      },
+    );
+    expect(result.copiedNames).toEqual(["Section_1"]);
+    expect(result.fullSuccess).toBe(true);
+    expect(formatMultiFolderCopyStatus(result, "/Assets/Dest")).toContain(
+      "Section_1",
+    );
+  });
+
+  it("falls back to the source name when the response carries no created name", async () => {
+    const result = await copyCheckedItemsToFolder(
+      [folder("Section", "/Assets/Section")],
+      "/Assets/Dest",
+      failCopy,
+      async () => null,
+    );
+    expect(result.copiedNames).toEqual(["Section"]);
+    expect(result.fullSuccess).toBe(true);
+  });
+
+  it("names per-folder 404 with the folder message and stays partial", async () => {
     const copied: string[] = [];
     const result = await copyCheckedItemsToFolder(
       [
-        folder("SkipMe", "/Assets/SkipMe"),
+        folder("Gone", "/Assets/Gone"),
         page("Ok", "/Assets/Ok"),
         page("Missing", "/Assets/Missing"),
       ],
@@ -93,15 +151,24 @@ describe("multi-select copy to one folder (#4855)", () => {
         }
         copied.push(source);
       },
+      async (source) => {
+        if (source.includes("Gone")) {
+          throw { status: 404, statusText: "Not Found", body: {} };
+        }
+        copied.push(source);
+        return null;
+      },
     );
     expect(copied).toEqual(["/Assets/Ok"]);
     expect(result.copiedNames).toEqual(["Ok"]);
-    expect(result.skippedFolderNames).toEqual(["SkipMe"]);
-    expect(result.failures.map((failure) => failure.name)).toEqual(["Missing"]);
+    expect(result.failures.map((failure) => failure.name)).toEqual([
+      "Missing",
+      "Gone",
+    ]);
     expect(result.fullSuccess).toBe(false);
     expect(multiCopyOutcome(result)).toBe("partial");
     const text = formatMultiFolderCopyStatus(result, "/Assets/Dest");
-    expect(text).toContain("SkipMe");
+    expect(text).toContain("Gone");
     expect(text).toContain("Missing");
     expect(text).toContain("were not rolled back");
     expect(text).not.toBe(
@@ -111,18 +178,35 @@ describe("multi-select copy to one folder (#4855)", () => {
     );
   });
 
-  it("does not report success when every checked row is a folder", async () => {
+  it("names per-folder 403 and 409 without claiming success", async () => {
     const result = await copyCheckedItemsToFolder(
-      [folder("Only", "/Assets/Only")],
+      [folder("Locked", "/Assets/Locked")],
       "/Assets/Dest",
-      async () => {
-        throw new Error("must not copy a folder");
+      failCopy,
+      async (): Promise<string | null> => {
+        throw { status: 403, statusText: "Forbidden", body: {} };
       },
+    );
+    expect(result.copiedNames).toEqual([]);
+    expect(result.failures.map((failure) => failure.name)).toEqual(["Locked"]);
+    expect(result.fullSuccess).toBe(false);
+    expect(multiCopyOutcome(result)).toBe("none");
+    const text = formatMultiFolderCopyStatus(result, "/Assets/Dest");
+    expect(text).toContain("Locked");
+    expect(text).toContain(message(EXPLORER_MSG.MULTI_COPY_NONE));
+  });
+
+  it("does not report success when nothing copied", async () => {
+    const result = await copyCheckedItemsToFolder(
+      [{ ...page("NoPath", ""), path: "" }],
+      "/Assets/Dest",
+      failCopy,
+      failCopy,
     );
     expect(result.fullSuccess).toBe(false);
     expect(multiCopyOutcome(result)).toBe("none");
     expect(formatMultiFolderCopyStatus(result, "/Assets/Dest")).toContain(
-      "Only",
+      "NoPath",
     );
     expect(formatMultiFolderCopyStatus(result, "/Assets/Dest")).toContain(
       message(EXPLORER_MSG.MULTI_COPY_NONE),

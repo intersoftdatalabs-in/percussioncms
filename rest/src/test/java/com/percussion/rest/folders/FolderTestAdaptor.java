@@ -99,8 +99,11 @@ public class FolderTestAdaptor implements IFolderAdaptor {
   }
 
   @Override
-  public void copyFolder(URI baseURI, String folderPath, String targetFolderPath) {
-    // No-op for test adaptor
+  public String copyFolder(URI baseURI, String folderPath, String targetFolderPath) {
+    // No-op for test adaptor: echo the source leaf as the created name.
+    String path = String.valueOf(folderPath).replaceAll("/+$", "");
+    int slash = path.lastIndexOf('/');
+    return slash >= 0 ? path.substring(slash + 1) : path;
   }
 
   @Override

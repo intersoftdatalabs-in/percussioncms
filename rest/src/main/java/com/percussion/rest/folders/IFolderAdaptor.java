@@ -64,8 +64,16 @@ public interface IFolderAdaptor {
   /** Copies a folder item. */
   void copyFolderItem(URI baseURI, String itemPath, String targetFolderPath) throws Exception;
 
-  /** Copies a folder. */
-  void copyFolder(URI baseURI, String folderPath, String targetFolderPath) throws Exception;
+  /**
+   * Copies a folder.
+   *
+   * @return the created folder name. When the destination already holds that
+   *     name the server keeps a uniquified copy ({@code getUniqueFolderName}),
+   *     so callers must use the returned name — not the source name — when
+   *     naming the created copy (#6255).
+   */
+  String copyFolder(URI baseURI, String folderPath, String targetFolderPath)
+      throws Exception;
 
   /** Deletes a folder item. */
   void deleteFolderItem(URI baseURI, String itemPath) throws BackendException;

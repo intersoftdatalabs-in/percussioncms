@@ -17,6 +17,7 @@
 
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
+import { formatCopyFolderError } from "./copyFolderErrors";
 import { formatCopyItemError } from "./copyItemErrors";
 import { EXPLORER_MSG } from "./messages";
 import { isFolder } from "./selection";
@@ -28,12 +29,10 @@ export interface MultiFolderCopyFailure {
 
 export interface MultiFolderCopyResult {
   copiedNames: string[];
-  skippedFolderNames: string[];
   failures: MultiFolderCopyFailure[];
   /**
-   * True only when at least one page or asset copied and none of those
-   * copies failed. Skipped folders do not make a partial HTTP failure look
-   * successful, and a selection of only folders is not success (#4855).
+   * True only when at least one page, asset, or folder copied and none of
+   * those copies failed. A partial HTTP failure is not full success (#6255).
    */
   fullSuccess: boolean;
 }
@@ -48,42 +47,53 @@ function displayName(item: PSPathItem): string {
 }
 
 /**
- * Folders are not copied. Pages, assets, and other non-folder rows with a
- * path are. A non-folder row with no path is a failure, not a skipped folder.
+ * Folders are deep-copied with the folder copy call; pages, assets, and
+ * other non-folder rows with a path use the item copy call. Any row with no
+ * path is a failure, not a skipped folder.
  */
 export function partitionMultiFolderCopy(items: readonly PSPathItem[]): {
   copyable: PSPathItem[];
-  skippedFolderNames: string[];
+  folders: PSPathItem[];
   missingPath: PSPathItem[];
 } {
   const copyable: PSPathItem[] = [];
-  const skippedFolderNames: string[] = [];
+  const folders: PSPathItem[] = [];
   const missingPath: PSPathItem[] = [];
   for (const item of items) {
-    if (isFolder(item)) {
-      skippedFolderNames.push(displayName(item));
-      continue;
-    }
     if (!(item.path || "").trim()) {
       missingPath.push(item);
       continue;
     }
+    if (isFolder(item)) {
+      folders.push(item);
+      continue;
+    }
     copyable.push(item);
   }
-  return { copyable, skippedFolderNames, missingPath };
+  return { copyable, folders, missingPath };
 }
 
 /**
- * Copies each non-folder selection into {@code targetPath} with the existing
- * single-item copy call. Continues after an HTTP failure so earlier copies
- * stay in the destination. Does not copy folders.
+ * Copies each checked row into {@code targetPath}: non-folders with the
+ * single-item copy call, folders with the folder deep-copy call
+ * ({@code POST /folders/copy/folder}, server uniquifies conflicts with
+ * {@code getUniqueFolderName}). Continues after an HTTP failure so earlier
+ * copies stay in the destination. Per-row 400/403/404/409 failures are named
+ * with the folder-aware message for folders, so a partial failure is never
+ * full success. Each copied folder is named with the created (possibly
+ * uniquified) name reported by the folder call; when the response carries no
+ * name the source display name is used.
  */
 export async function copyCheckedItemsToFolder(
   items: readonly PSPathItem[],
   targetPath: string,
   copyOne: (sourcePath: string, targetFolderPath: string) => Promise<void>,
+  copyOneFolder: (
+    sourcePath: string,
+    targetFolderPath: string,
+  ) => Promise<string | null>,
 ): Promise<MultiFolderCopyResult> {
-  const { copyable, skippedFolderNames, missingPath } =
+  const { copyable, folders, missingPath } =
     partitionMultiFolderCopy(items);
   const copiedNames: string[] = [];
   const failures: MultiFolderCopyFailure[] = missingPath.map((item) => ({
@@ -102,9 +112,20 @@ export async function copyCheckedItemsToFolder(
       });
     }
   }
+  for (const item of folders) {
+    try {
+      const created = await copyOneFolder(item.path, target);
+      const createdName = (created ?? "").trim();
+      copiedNames.push(createdName ? createdName : displayName(item));
+    } catch (err) {
+      failures.push({
+        name: displayName(item),
+        message: formatCopyFolderError(err),
+      });
+    }
+  }
   return {
     copiedNames,
-    skippedFolderNames,
     failures,
     fullSuccess: failures.length === 0 && copiedNames.length > 0,
   };
@@ -139,11 +160,11 @@ export function formatMultiFolderCopyStatus(
   } else {
     parts.push(message(EXPLORER_MSG.MULTI_COPY_NONE));
   }
-  if (result.skippedFolderNames.length > 0) {
+  if (result.copiedNames.length > 0) {
     parts.push(
-      message(EXPLORER_MSG.MULTI_COPY_SKIPPED).replace(
+      message(EXPLORER_MSG.MULTI_COPY_COPIED).replace(
         "{names}",
-        result.skippedFolderNames.join(", "),
+        result.copiedNames.join(", "),
       ),
     );
   }

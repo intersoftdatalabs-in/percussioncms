@@ -449,9 +449,36 @@ export async function moveItem(body: PSMoveFolderItem): Promise<void> {
 /**
  * Copy a folder via public REST {@code POST /folders/copy/folder}.
  * {@code PSMoveFolderItem} is move-only — do not invent {@code copy} on it.
+ *
+ * @returns the created folder name from the Status message
+ * (server-uniquified on conflict, #6255), or {@code null} when the response
+ * carries no name. Callers fall back to the source display name.
  */
-export async function copyFolder(body: PSCopyRequest): Promise<void> {
-  await post<void>(PATHS.FOLDERS_COPY_FOLDER, wrapCopyFolderItemRequest(body));
+export async function copyFolder(body: PSCopyRequest): Promise<string | null> {
+  const res = await post<unknown>(
+    PATHS.FOLDERS_COPY_FOLDER,
+    wrapCopyFolderItemRequest(body),
+  );
+  return extractCopyFolderCreatedName(res);
+}
+
+/**
+ * Read the created folder name from the copy/folder Status body. The service
+ * wraps the Status as {@code {"status": {"message", "statusCode"}}}; accept a
+ * bare {@code {"message"}} shape too so mocked transports keep working.
+ */
+function extractCopyFolderCreatedName(res: unknown): string | null {
+  const root = asRecord(res);
+  const candidates = [
+    root?.["message"],
+    asRecord(root?.["status"])?.["message"],
+  ];
+  for (const candidate of candidates) {
+    if (typeof candidate === "string" && candidate.trim()) {
+      return candidate.trim();
+    }
+  }
+  return null;
 }
 
 /**

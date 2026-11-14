@@ -89,6 +89,7 @@ import {
   transitionItem,
 } from "../api/contentExplorer/itemWorkflowApi";
 import {
+  copyFolder,
   copyFolderItem,
   deleteFolderItem,
   findItemById,
@@ -3811,8 +3812,13 @@ function ContentExplorerShellInner({
           onPick={(target) => {
             setMultiCopyOpen(false);
             const items = Array.from(multiSelectedItemsRef.current.values());
-            void copyCheckedItemsToFolder(items, target, (sourcePath, targetPath) =>
-              copyFolderItem({ sourcePath, targetPath }),
+            void copyCheckedItemsToFolder(
+              items,
+              target,
+              (sourcePath, targetPath) =>
+                copyFolderItem({ sourcePath, targetPath }),
+              (sourcePath, targetPath) =>
+                copyFolder({ sourcePath, targetPath }),
             ).then((result) => {
               setMultiCopyStatus({
                 text: formatMultiFolderCopyStatus(result, target),

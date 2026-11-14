@@ -662,7 +662,9 @@ public class FoldersResource {
    * Moves the specified Folder in the CopyFolderItem request to the target path.
    *
    * @param request the request containing source and target folder paths
-   * @return status of the copy operation
+   * @return status of the copy operation. The Status message carries the
+   *     created folder name (server-uniquified when the destination already
+   *     held that name, #6255).
    */
   @POST
   @Path("/copy/folder")
@@ -679,7 +681,9 @@ public class FoldersResource {
         @ApiResponse(responseCode = "409", description = "Destination conflict"),
         @ApiResponse(
             responseCode = "200",
-            description = "Copied OK",
+            description =
+                "Copied OK; the Status message carries the created folder name "
+                    + "(server-uniquified when the destination already held that name, #6255)",
             content = @Content(schema = @Schema(implementation = Status.class))),
         @ApiResponse(responseCode = "500", description = "Error")
       })
@@ -691,9 +695,10 @@ public class FoldersResource {
         throw new WebApplicationException(
             "itemPath and targetFolderPath are required", Response.Status.BAD_REQUEST);
       }
-      folderAdaptor.copyFolder(
-          uriInfo.getBaseUri(), request.getItemPath(), request.getTargetFolderPath());
-      return new Status(200, "Copied OK");
+      String createdName =
+          folderAdaptor.copyFolder(
+              uriInfo.getBaseUri(), request.getItemPath(), request.getTargetFolderPath());
+      return new Status(200, createdName);
     } catch (NotAuthorizedException | FolderNotFoundException e) {
       throw e;
     } catch (NotFoundException nfe) {

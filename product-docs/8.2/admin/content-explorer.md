@@ -743,19 +743,23 @@ destination so the copied folder is listed there. Failures stay on the wizard:
 | 404 | Source or destination folder was not found. The source folder is not deleted |
 | 409 | Destination conflict (for example, copying a folder into itself). The source folder is not deleted |
 
-### Copy selected pages and assets to one folder
+### Copy selected pages, assets, and folders to one folder
 
 **Content → Copy selected to folder** is enabled after you check one or more rows
 in the detail list. One confirm uses the same destination path field as reduced-actions
 **Copy**. Each checked **page, file, or asset** is copied with
-`POST /rest/folders/copy/item` (`CopyFolderItemRequest`). Checked **folders** are
-not copied; Explorer names them in the result (for example `Skipped folders: News`).
+`POST /rest/folders/copy/item` (`CopyFolderItemRequest`). Each checked **folder**
+is deep-copied with `POST /rest/folders/copy/folder`: the server copies the whole
+folder tree and, when the destination already has that name, keeps a
+server-uniquified name instead of failing. The result names the created copies
+(for example `Copied: News, Banner`).
 
 Copies that already succeeded stay in the destination when a later item fails.
-The result is full success only when every page or asset copied. A partial HTTP
-failure (for example **404** on one item) stays on the result as an alert and is
-not reported as full success. A selection that is only folders copies nothing.
-This is not **Move**, not **Site Copy**, not **Subfolder Copy**, and not clipboard paste.
+The result is full success only when every checked row copied. A partial HTTP
+failure (for example **404** on one item, or **403**/**404**/**409** on one folder)
+stays on the result as an alert, naming the failed row, and is not reported as
+full success. **Cancel** copies nothing. This is not **Move**, not **Site Copy**,
+not **Subfolder Copy**, and not clipboard paste.
 
 ### Move selected pages and assets to one folder
 

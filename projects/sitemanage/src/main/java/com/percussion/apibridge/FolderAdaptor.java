@@ -1564,7 +1564,7 @@ public class FolderAdaptor implements IFolderAdaptor {
   }
 
   @Override
-  public void copyFolder(URI baseURI, String folderPath, String targetFolderPath)
+  public String copyFolder(URI baseURI, String folderPath, String targetFolderPath)
       throws BackendException {
     try {
       checkAPIPermission();
@@ -1625,6 +1625,7 @@ public class FolderAdaptor implements IFolderAdaptor {
         throw new BackendException("Failed to copy folder");
       } else {
         log.info("Copied folder:" + folderPath + " to " + targetFolderPath);
+        return folderName;
       }
     } catch (NotAuthorizedException e) {
       throw e;
