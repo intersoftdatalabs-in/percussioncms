@@ -164,102 +164,142 @@ public class PSRecycleService implements IPSRecycleService {
   // Create Root Relationship between Site-SiteName for Recycle Folder, if not created yet
   private void createRootSiteDeleteRelationship(String path)
       throws PSCmsException, PSErrorsException {
-
-    if (path == null) {
+    List<IPSGuid> pathids = resolveRecyclePathIds(path);
+    if (pathids == null) {
       return;
+    }
+    PSRelationshipConfig config =
+        PSRelationshipCommandHandler.getRelationshipConfig(RECYCLED_TYPE);
+    PSRelationshipProcessor relProc = PSRelationshipProcessor.getInstance();
+    RecycleChain chain = seedRecycleChainOwner(path, pathids, config, relProc);
+    if (chain == null) {
+      return;
+    }
+    ensureRecycledBackboneEdgeFor(path);
+    linkRecycleChainEdges(pathids, chain, config, relProc);
+  }
+
+  /** Resolves the folder path ids for a recycle path, or {@code null} when there is nothing to link. */
+  private List<IPSGuid> resolveRecyclePathIds(String path) throws PSCmsException {
+    if (path == null) {
+      return null;
     }
     List<IPSGuid> pathids = contentWs.findPathIds(path);
     if (pathids == null || pathids.size() < 2) {
-      return;
+      return null;
     }
+    return pathids;
+  }
 
-    IPSGuid siteId = null;
-    PSLocator owner = null;
+  /** Mutable owner cursor plus already-matched folders for one recycle mirror-chain pass. */
+  private static final class RecycleChain {
+    private PSLocator owner;
+    private final Map<IPSGuid, Boolean> matchedFolders = new HashMap<>();
+    private final PSRelationshipFilter filter = new PSRelationshipFilter();
+  }
 
-    PSRelationshipConfig config = PSRelationshipCommandHandler.getRelationshipConfig(RECYCLED_TYPE);
-    PSRelationshipProcessor m_relProc = PSRelationshipProcessor.getInstance();
-    PSRelationshipFilter filter = new PSRelationshipFilter();
-    List<PSRelationship> relSet = null;
-    HashMap<IPSGuid, Boolean> matchedFolders = new HashMap<>();
-
+  /**
+   * Seeds the mirror-chain owner from the recycle path root. Returns {@code null} when the path
+   * needs no mirror chain: already under Recycling, or an unrecognized prefix with no live
+   * system root to anchor from (previously fell through and dereferenced a null owner).
+   */
+  private RecycleChain seedRecycleChainOwner(
+      String path,
+      List<IPSGuid> pathids,
+      PSRelationshipConfig config,
+      PSRelationshipProcessor relProc)
+      throws PSCmsException {
+    if (path.startsWith(PSRecycleService.RECYCLING_ROOT)) {
+      return null;
+    }
+    RecycleChain chain = new RecycleChain();
     if (path.startsWith(PSRecycleService.SITES)) {
-      owner = new PSLocator(PSFolder.SYS_SITES_ID, -1);
-      siteId = pathids.get(1);
-
-      filter.setOwner(owner);
-      filter.setCategory(config.getCategory());
-
-      relSet = m_relProc.getRelationshipList(filter);
-      for (PSRelationship rel : relSet) {
-        if (rel.getDependent().getId() == siteId.getUUID() && rel.getConfig().equals(config)) {
-          matchedFolders.putIfAbsent(siteId, true);
-          owner = new PSLocator(siteId.getUUID(), -1);
+      chain.owner = new PSLocator(PSFolder.SYS_SITES_ID, -1);
+      IPSGuid siteId = pathids.get(1);
+      chain.filter.setOwner(chain.owner);
+      chain.filter.setCategory(config.getCategory());
+      for (PSRelationship rel : relProc.getRelationshipList(chain.filter)) {
+        if (rel.getDependent().getId() == siteId.getUUID()
+            && rel.getConfig().equals(config)) {
+          chain.matchedFolders.putIfAbsent(siteId, true);
+          chain.owner = new PSLocator(siteId.getUUID(), -1);
         }
       }
-
     } else if (path.startsWith(PSRecycleService.ASSETS_ROOT)) {
-      owner = new PSLocator(PSFolder.SYS_ASSETS_ID, -1);
-      if (pathids.size() > 3) {
-        siteId = pathids.get(3);
+      chain.owner = new PSLocator(PSFolder.SYS_ASSETS_ID, -1);
+    } else {
+      return null;
+    }
+    return chain;
+  }
+
+  /** System folders never participate in the recycle mirror chain. */
+  private static boolean isSystemFolderId(int id) {
+    return id == PSFolder.SYS_SITES_ID
+        || id == PSFolder.SYS_RECYCLING_ID
+        || id == PSFolder.SYS_SYSTEM_FOLDER_ID
+        || id == PSFolder.SYS_SYSTEM_TEMPLATES_FOLDER_ID
+        || id == PSFolder.SYS_FOLDERS_ID
+        || id == PSFolder.SYS_SYSTEM_USERPROFILES_FOLDER_ID;
+  }
+
+  /** Links each non-system folder in the recycle path to its parent via a recycled edge. */
+  private void linkRecycleChainEdges(
+      List<IPSGuid> pathids,
+      RecycleChain chain,
+      PSRelationshipConfig config,
+      PSRelationshipProcessor relProc)
+      throws PSCmsException, PSErrorsException {
+    for (int i = 0; i < pathids.size(); i++) {
+      IPSGuid folderId = pathids.get(i);
+      if (isSystemFolderId(folderId.getUUID())) {
+        continue;
       }
-    } else if (path.startsWith(PSRecycleService.RECYCLING_ROOT)) {
+      mirrorRecycleEdge(folderId, chain, config, relProc);
+      chain.owner = new PSLocator(folderId.getUUID(), -1);
+    }
+  }
+
+  /** Ensures the recycled edge owner → folder exists, creating it when missing. */
+  private void mirrorRecycleEdge(
+      IPSGuid folderId,
+      RecycleChain chain,
+      PSRelationshipConfig config,
+      PSRelationshipProcessor relProc)
+      throws PSCmsException, PSErrorsException {
+    PSLocator dependent = new PSLocator(folderId.getUUID(), -1);
+    // Can't depend on your self.
+    if (dependent.getId() == chain.owner.getId()) {
       return;
     }
-
-    ensureRecycledBackboneEdgeFor(path);
-
-    PSLocator dependent = null;
-    // Loop through folders
-    for (int i = 0; i < pathids.size(); i++) {
-      int id = pathids.get(i).getUUID();
-      if (id != PSFolder.SYS_SITES_ID
-          && id != PSFolder.SYS_RECYCLING_ID
-          && id != PSFolder.SYS_SYSTEM_FOLDER_ID
-          && id != PSFolder.SYS_SYSTEM_TEMPLATES_FOLDER_ID
-          && id != PSFolder.SYS_FOLDERS_ID
-          && id != PSFolder.SYS_SYSTEM_USERPROFILES_FOLDER_ID) {
-        IPSGuid g = pathids.get(i);
-
-        dependent = new PSLocator(g.getUUID(), -1);
-        // Can't depend on your self.
-        if (dependent.getId() != owner.getId()) {
-
-          filter.setOwner(owner);
-          filter.setDependent(dependent);
-          relSet = m_relProc.getRelationshipList(filter);
-          for (PSRelationship rel : relSet) {
-            int idj = rel.getDependent().getId();
-            if (idj != PSFolder.SYS_SITES_ID
-                && idj != PSFolder.SYS_RECYCLING_ID
-                && idj != PSFolder.SYS_SYSTEM_FOLDER_ID
-                && idj != PSFolder.SYS_SYSTEM_TEMPLATES_FOLDER_ID
-                && idj != PSFolder.SYS_FOLDERS_ID
-                && idj != PSFolder.SYS_SYSTEM_USERPROFILES_FOLDER_ID) {
-              if (idj == g.getUUID() && rel.getConfig().equals(config)) {
-                matchedFolders.putIfAbsent(g, true);
-              }
-            }
-          }
-
-          if (null == matchedFolders.get(g)) {
-            if (owner.getId() != dependent.getId()) {
-              PSRelationship rel = new PSRelationship(-1, owner, dependent, config);
-              systemWs.saveRelationships(Collections.singletonList(rel));
-            } else {
-              log.debug("Tried to link recycled item to itself.");
-            }
-          }
-        }
-        if (owner == null) {
-          owner = new PSLocator(siteId.getUUID(), -1);
-        } else {
-          if (dependent == null) {
-            dependent = new PSLocator(g.getUUID(), -1);
-          }
-          owner = dependent;
-        }
-      }
+    chain.filter.setOwner(chain.owner);
+    chain.filter.setDependent(dependent);
+    if (hasRecycledEdge(relProc.getRelationshipList(chain.filter), folderId, config, chain)) {
+      return;
     }
+    systemWs.saveRelationships(
+        Collections.singletonList(new PSRelationship(-1, chain.owner, dependent, config)));
+  }
+
+  /** Scans existing relationships for a recycled edge to the folder, recording matches. */
+  private static boolean hasRecycledEdge(
+      List<PSRelationship> relSet,
+      IPSGuid folderId,
+      PSRelationshipConfig config,
+      RecycleChain chain) {
+    if (relSet == null) {
+      return false;
+    }
+    for (PSRelationship rel : relSet) {
+      if (isSystemFolderId(rel.getDependent().getId())
+          || rel.getDependent().getId() != folderId.getUUID()
+          || !rel.getConfig().equals(config)) {
+        continue;
+      }
+      chain.matchedFolders.putIfAbsent(folderId, true);
+      return true;
+    }
+    return chain.matchedFolders.get(folderId) != null;
   }
 
   /**
