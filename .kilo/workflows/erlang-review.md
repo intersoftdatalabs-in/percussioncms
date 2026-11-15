@@ -62,7 +62,10 @@ If `$ARGUMENTS` names a branch or path, limit the review accordingly.
      or **non-portable path/file I/O** (Windows vs Unix)
      → Recommendation `request-changes`, Gate **May commit/push: no**
    - Tell the author not to commit or open/update a PR until bugs are fixed
-7. Write the durable report under:
+7. Pipe the report through `python3 scripts/sanitize-erlang-review.py` FIRST
+   (raw CLI stdout embeds home-directory paths, the LLM-provider key env
+   var name, provider route ids, and stray `residual model=` lines — never
+   commit or paste it raw), then write the sanitized output under:
 
    `docs/ai-generated/code-reviews/<ticket-or-branch-slug>-erlang.md`
 

@@ -27,22 +27,30 @@ Read the canonical spec at:
    ```bash
    mkd-code-review analyze --pack percussion --format markdown --gate advisory --require-llm \
      --git-base origin/main \
-     --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.openrouter-free.toml
+     --models <models-dir>/models.openrouter-free.toml
    ```
 
-   Expect the Erlang persona, Scope Base/Head set, and the OpenRouter
-   `openrouter/free` route. Require a readable profile and a nonempty
-   `OPENROUTER_API_KEY` in the process environment; never print the key or add
-   paid fallbacks. Gate on **(in-diff)** bugs only; preexisting rows do not
+   Resolve `<models-dir>` from your local mkd-code-review install (the
+   directory holding `models.openrouter-free.toml`). Never record the
+   absolute filesystem path.
+
+   Expect the Erlang persona, Scope Base/Head set, and the configured
+   LLM route. Require a readable profile and a nonempty LLM-provider key
+   in the process environment; never print the key or name its env var,
+   and never add paid fallbacks. Gate on **(in-diff)** bugs only; preexisting rows do not
    BLOCK. If the profile/key is missing, configuration cannot be loaded, or
    the required model returns `llm.error` or an LLM warning, keep machine
    findings but mark the review BLOCKED (`erlang_llm_unavailable`); do not
    approve or merge. Deterministic hard-gate failures may still skip inference
    and must be fixed before retry.
 4. Enforce the strict gate from the persona spec.
-5. **Pre-push local code review:** write the FULL CLI markdown to
+5. **Pre-push local code review:** pipe the FULL CLI markdown through
+   `scripts/sanitize-erlang-review.py` FIRST (it redacts home-directory
+   paths, the provider key env var name, provider route ids, and stray
+   `residual model=` lines — never commit or paste raw CLI stdout), then
+   write the sanitized output to
    `docs/ai-generated/code-reviews/pr-<N>-erlang.md` and replace the PR body
-   section `## Pre-push local code review` with that report (`gh pr edit
+   section `## Pre-push local code review` with that sanitized report (`gh pr edit
    --body-file`). Do not leave only a two-line LGTM comment.
 
 ## Open PR + LGTM + checks green

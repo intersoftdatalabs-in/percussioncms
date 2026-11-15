@@ -488,6 +488,36 @@ Create a single CMS folder with ≥500 children for the SC-005 perf UAT scenario
 - **Prereqs**: `curl`, network reachability to a running CMS instance with admin credentials.
 - **Tests**: `python3 -m pytest scripts/test_create_large_folder_fixture.py -v`
 
+### `sanitize-erlang-review.py`
+
+Redact operator-machine details from `mkd-code-review` (Erlang) markdown
+**before** it is committed to `docs/ai-generated/code-reviews/` or pasted
+into a GitHub PR body. Raw CLI stdout embeds absolute home-directory paths
+(`Persona source: /home/<user>/...`, `--models /home/<user>/...`,
+worktree paths), the LLM-provider key env var name, provider route/model
+ids (`openrouter-free`, `openrouter/free`), and stray `residual model=...`
+debug lines.
+
+- **Usage**:
+
+  ```bash
+  mkd-code-review analyze --pack percussion --format markdown ... | python3 scripts/sanitize-erlang-review.py > clean.md
+  python3 scripts/sanitize-erlang-review.py --in raw.md --out clean.md
+  # CI gate: fail when a leak is present
+  python3 scripts/sanitize-erlang-review.py --in report.md --check
+  # Bulk-clean the checked-in backlog (one chore PR)
+  python3 scripts/sanitize-erlang-review.py --fix-tree docs/ai-generated/code-reviews
+  ```
+
+- **Replacements**: `/home/<u>` / `/Users/<u>` / `C:\Users\<u>` → `~`;
+  worktree paths → `<worktree>`; any `.../models.<profile>.toml` path →
+  `models.<profile>.toml`; `OPENROUTER_API_KEY` → `<llm-provider-key-env>`;
+  `` `openrouter-free` ``, bare prose mentions, and profile filenames →
+  `<llm-model>`; `llm.openrouter-free` →
+  `llm`; `residual model=...` lines dropped. Generic `llm.error` text is
+  preserved.
+- **Tests**: `python3 -m pytest scripts/test_sanitize_erlang_review.py -v`
+
 ### `erlang-harvest-review-patterns.py`
 
 Harvest GitHub PR **line review comments** (including closed/merged PRs) from `kilo-code-bot[bot]` (and optional other authors), cluster them into generalized themes, write a candidate report, and optionally auto-merge multi-PR themes into Erlang review pattern memory.

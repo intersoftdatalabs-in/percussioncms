@@ -40,7 +40,11 @@ any module `AGENTS.md` for paths you touch.
 7. **Write** the report to
    `docs/ai-generated/code-reviews/<ticket-or-branch-slug>-erlang.md`
    (required on `request-changes` or re-review; recommended on approve for
-   feature work). See `docs/ai-generated/code-reviews/README.md`.
+   feature work). See `docs/ai-generated/code-reviews/README.md`. Pipe the
+   CLI output through `python3 scripts/sanitize-erlang-review.py` FIRST —
+   raw CLI stdout embeds home-directory paths, the LLM-provider key env
+   var name, provider route ids, and stray `residual model=` lines, and
+   must never be committed or pasted raw.
 8. Optionally promote a generalized hard-gate principle into
    `skills/erlang-review/patterns.md` if this review revealed a recurring pattern.
 9. Do **not** implement fixes unless I explicitly ask after the report.
