@@ -26490,6 +26490,25 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.dashboard.modern@user">
       <tuv xml:lang="en-us"><seg>user</seg></tuv>
     <tuv xml:lang="ar"><seg>مستخدم</seg></tuv><tuv xml:lang="bn"><seg>ব্যবহারকারী</seg></tuv><tuv xml:lang="de"><seg>Benutzer</seg></tuv><tuv xml:lang="es"><seg>usuario</seg></tuv><tuv xml:lang="fr"><seg>utilisateur</seg></tuv><tuv xml:lang="hi"><seg>उपयोगकर्ता</seg></tuv><tuv xml:lang="it"><seg>utente</seg></tuv><tuv xml:lang="ja-jp"><seg>ユーザー</seg></tuv><tuv xml:lang="nl"><seg>gebruiker</seg></tuv><tuv xml:lang="pl"><seg>użytkownik</seg></tuv><tuv xml:lang="pt"><seg>usuário</seg></tuv><tuv xml:lang="sv"><seg>användare</seg></tuv><tuv xml:lang="te"><seg>వినియోగదారు</seg></tuv><tuv xml:lang="tr"><seg>kullanıcı</seg></tuv><tuv xml:lang="zh-cn"><seg>用户</seg></tuv><tuv xml:lang="zh-tw"><seg>用户</seg></tuv><tuv xml:lang="ru"><seg>пользователь</seg></tuv><tuv xml:lang="he"><seg>מִשׁתַמֵשׁ</seg></tuv><tuv xml:lang="uk"><seg>користувача</seg></tuv><tuv xml:lang="lou"><seg>Itilizatè</seg></tuv><tuv xml:lang="nb"><seg>bruker</seg></tuv></tu>
+    <!-- Community switcher (UserMenu shell chrome, #6349; en-us source, non-en backfill residual) -->
+    <tu tuid="perc.ui.dashboard.modern@Community">
+      <tuv xml:lang="en-us"><seg>Community</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Switch">
+      <tuv xml:lang="en-us"><seg>Switch</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Switch community">
+      <tuv xml:lang="en-us"><seg>Switch community</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Available communities">
+      <tuv xml:lang="en-us"><seg>Available communities</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Could not switch community.">
+      <tuv xml:lang="en-us"><seg>Could not switch community.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.dashboard.modern@Switching community…">
+      <tuv xml:lang="en-us"><seg>Switching community…</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.dashboard.modern@Activity">
       <tuv xml:lang="en-us"><seg>Activity</seg></tuv>
     <tuv xml:lang="ar"><seg>نشاط</seg></tuv><tuv xml:lang="bn"><seg>কার্যকলাপ</seg></tuv><tuv xml:lang="de"><seg>Aktivität</seg></tuv><tuv xml:lang="es"><seg>Actividad</seg></tuv><tuv xml:lang="fr"><seg>Activité</seg></tuv><tuv xml:lang="hi"><seg>गतिविधि</seg></tuv><tuv xml:lang="it"><seg>Attività</seg></tuv><tuv xml:lang="ja-jp"><seg>活動</seg></tuv><tuv xml:lang="nl"><seg>Activiteit</seg></tuv><tuv xml:lang="pt"><seg>Atividade</seg></tuv><tuv xml:lang="te"><seg>కార్యాచరణ</seg></tuv><tuv xml:lang="zh-cn"><seg>活动</seg></tuv><tuv xml:lang="zh-tw"><seg>活动</seg></tuv><tuv xml:lang="ru"><seg>Активность</seg></tuv><tuv xml:lang="he"><seg>פְּעִילוּת</seg></tuv><tuv xml:lang="uk"><seg>діяльність</seg></tuv><tuv xml:lang="lou"><seg>Activity</seg></tuv><tuv xml:lang="pl"><seg>Działalność</seg></tuv><tuv xml:lang="tr"><seg>Etkinlik</seg></tuv><tuv xml:lang="nb"><seg>Aktivitet</seg></tuv><tuv xml:lang="sv"><seg>Aktivitet</seg></tuv></tu>
