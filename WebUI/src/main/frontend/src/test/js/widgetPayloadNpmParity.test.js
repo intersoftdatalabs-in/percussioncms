@@ -34,10 +34,21 @@
  *      builds — drop-in proof for the published widgets.
  *
  * The remaining #6319 rows (FullCalendar 1.x/2.x, Slick, Foundation,
- * nav superfish/hoverIntent/supersubs, List.js, MiniColors, qTip,
- * gcal/lang-all) stay vendored and are tracked in the #6319 leftover
- * residual — this file must grow a parity block each time another row
- * migrates.
+ * nav hoverIntent/supersubs, List.js, MiniColors, qTip, gcal/lang-all) stay
+ * vendored and are tracked in the #6319 leftover residual — this file must
+ * grow a parity block each time another row migrates.
+ *
+ * Slice 2 migrates the nav-widget superfish pair (`superfish.js` preview
+ * copy + `superfish.min.js` published copy under
+ * `perc.widgets.nav/.../navBar/js`) to the npm superfish 1.7.10 dist —
+ * already Dependabot-tracked via the frontend manifests for the classic-UI
+ * copies since #6016. The published min copy was already byte-identical to
+ * the npm dist; the preview copy is refreshed to the npm dist bytes
+ * (upstream Joel Birch banner restored). Pinned below: byte-identity of
+ * both payload files, the v1.7.10 banners, the manifest range, and the
+ * menu-enhancement behavior the published nav widget consumes
+ * (`percNavBarSnippet.vm` renders `ul.sf-menu`; `navbar.js` drives it
+ * through `$.fn.superfish`).
  */
 
 import { describe, expect, it } from "vitest";
@@ -159,4 +170,124 @@ describe("widget-payload npm refresh parity (issue #6319 slice 1)", () => {
     expect(start.format("D")).toBe("14");
     expect(start.format("YYYY-MM-DD")).toBe("2026-11-14");
   });
+});
+
+const NAV_PAYLOADS = [
+  {
+    // NavBar widget preview copy (percNavBar.xml: superfish_js_preview).
+    payload: path.join(
+      "modules",
+      "perc-packages",
+      "src",
+      "main",
+      "resources",
+      "Packages",
+      "perc.widgets.nav",
+      "sys__UserDependency--web_resources",
+      "widgets",
+      "navBar",
+      "js",
+      "superfish.js",
+    ),
+    npmDist: path.join("superfish", "dist", "js", "superfish.js"),
+    versionRe: /jQuery Superfish Menu Plugin - v1\.7\.10/,
+  },
+  {
+    // NavBar widget published copy (percNavBar.xml: superfish_js).
+    payload: path.join(
+      "modules",
+      "perc-packages",
+      "src",
+      "main",
+      "resources",
+      "Packages",
+      "perc.widgets.nav",
+      "sys__UserDependency--web_resources",
+      "widgets",
+      "navBar",
+      "js",
+      "superfish.min.js",
+    ),
+    npmDist: path.join("superfish", "dist", "js", "superfish.min.js"),
+    versionRe: /Superfish Menu Plugin - v1\.7\.10/,
+  },
+];
+
+function loadSuperfishPayloadAsJqueryPlugin(payloadRelPath) {
+  // The npm superfish dist closes over bare `jQuery` and `window`
+  // (`...})(jQuery, window)`), so expose the jsdom-bound jQuery globally
+  // before evaluating the payload bytes verbatim.
+  const $ = require(path.join(NODE_MODULES, "jquery", "dist", "jquery.js"));
+  globalThis.jQuery = $;
+  window.jQuery = $;
+  const source = fs.readFileSync(path.join(REPO_ROOT, payloadRelPath), "utf8");
+  window.eval(source);
+  return $;
+}
+
+function renderNavMenu(document) {
+  // Mirrors percNavBarSnippet.vm: the widget renders ul.sf-menu with nested
+  // dropdown lists; navbar.js drives it through $.fn.superfish.
+  document.body.innerHTML =
+    '<ul class="sf-menu" id="test-nav">' +
+    '<li><a href="/home">Home</a></li>' +
+    '<li><a href="/sites">Sites</a>' +
+    '<ul><li><a href="/sites/a">Site A</a></li></ul>' +
+    "</li>" +
+    "</ul>";
+  return document.getElementById("test-nav");
+}
+
+describe("widget-payload npm refresh parity (issue #6319 slice 2: superfish)", () => {
+  it("nav payload files exist under the audited Packages tree", () => {
+    for (const { payload } of NAV_PAYLOADS) {
+      expect(
+        fs.existsSync(path.join(REPO_ROOT, payload)),
+        `missing payload: ${payload}`,
+      ).toBe(true);
+    }
+  });
+
+  it("nav payload bytes are byte-identical to the npm superfish dist", () => {
+    for (const { payload, npmDist } of NAV_PAYLOADS) {
+      const shipped = fs.readFileSync(path.join(REPO_ROOT, payload));
+      const dist = fs.readFileSync(path.join(NODE_MODULES, npmDist));
+      expect(
+        shipped.equals(dist),
+        `${payload} drifted from node_modules/${npmDist} — refresh from npm`,
+      ).toBe(true);
+    }
+  });
+
+  it("nav payload bytes carry the v1.7.10 upstream banner", () => {
+    for (const { payload, versionRe } of NAV_PAYLOADS) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
+      expect(content, `${payload} version banner mismatch`).toMatch(versionRe);
+    }
+  });
+
+  it('frontend package.json tracks the superfish range (npm audit visible)', () => {
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
+    );
+    expect(manifest.dependencies["superfish"]).toBe("^1.7.10");
+  });
+
+  it.each(NAV_PAYLOADS.map(({ payload }) => payload))(
+    "published/preview copy %s enhances the nav menu (disableHI, no hoverIntent)",
+    (payloadRelPath) => {
+      const $ = loadSuperfishPayloadAsJqueryPlugin(payloadRelPath);
+      expect(typeof $.fn.superfish).toBe("function");
+      const menu = renderNavMenu(document);
+      // disableHI: the payload ships without hoverIntent on the test page —
+      // same fallback the widget relies on when hoverIntent is absent.
+      $(menu).superfish({ delay: 0, disableHI: true });
+      expect(menu.classList.contains("sf-js-enabled")).toBe(true);
+      const parentAnchor = menu.querySelector('li > a[href="/sites"]');
+      expect(parentAnchor.classList.contains("sf-with-ul")).toBe(true);
+      $(menu).superfish("destroy");
+      expect(menu.classList.contains("sf-js-enabled")).toBe(false);
+      document.body.innerHTML = "";
+    },
+  );
 });
