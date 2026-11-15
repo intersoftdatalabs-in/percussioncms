@@ -70,4 +70,3 @@ None (blocking).
 | `delivery-tier-distribution`     | `../../../mvnw clean install`               | BUILD SUCCESS                                                                                                   |
 | `modules/perc-distribution-tree` | `../../mvnw clean install`                  | BUILD SUCCESS                                                                                                   |
 | `system`                         | `../mvnw clean install -Djavadoc.skip=true` | BUILD SUCCESS                                                                                                   |
-

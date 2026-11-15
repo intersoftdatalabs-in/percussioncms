@@ -8,7 +8,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 2 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -38,4 +38,3 @@ approve
 - Description: Add a comment explaining why the XSS sink is safe.
 - Suggestion: Add a comment above the `requireAdaptor().updateSite(nameOrId, body)` line explaining that the Site DTO is returned directly and no HTML body construction is involved, making it safe from XSS attacks.
 - Status: open
-

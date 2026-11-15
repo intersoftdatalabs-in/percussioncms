@@ -45,4 +45,3 @@ cd rest && ../mvnw clean install
 ## Residual (not this PR)
 
 - Playwright developer-catalog-smoke against live CMS after redeploy remains under parent #1690 / #1695 (and redeploy #1692).
-

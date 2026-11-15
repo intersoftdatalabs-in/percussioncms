@@ -163,4 +163,3 @@ constitution IX: inline reply with mitigation commit hash + run
   follow-up in `perc_delete_page_button.js` /
   `PercActionDataTable.js` / `PercPageView.js` /
   `perc_folderproperties_button.js` / `PercFolderHelper.js`).
-

@@ -147,4 +147,3 @@ phase-3 work) is out of scope for US2.
 - **PR review thread protocol** (Constitution IX): when review comments
   arrive, reply inline AND resolve each thread via the GraphQL mutation
   before merge. Root `AGENTS.md` → "PR Review Comment Resolution".
-

@@ -23,4 +23,3 @@ Client/manager + objectstore generics cleanup; leaf `final` for this-escape; int
 
 ## Residual (file follow-up)
 Maven still caps at 100; after this batch, report is dominated by `PSAppTransformer` rawtypes and remaining hierarchy this-escape (`PSDependency`, `PSDeployableObject`/`Element`, idtype contexts, `PSDependencyHandler` abstract getType in ctor).
-

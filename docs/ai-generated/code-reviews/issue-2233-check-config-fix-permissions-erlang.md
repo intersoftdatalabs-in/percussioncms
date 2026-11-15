@@ -29,7 +29,7 @@ Wiring mirrors `clean-logs`: global `--install-root` / `--dry-run` / `-v`, `Doct
 
 ## Cross-platform path checklist
 
-- [x] No `C:\Users\...` / `/home/...` hardcoding in code or docs (generic `/opt/Percussion`, `C:\Percussion`)
+- [x] No `~` / `~` hardcoding in code or docs (generic `/opt/Percussion`, `C:\Percussion`)
 - [x] Relative config/log/bin paths use forward-slash segment lists resolved with `Path` APIs
 - [x] Containment re-checked before any mode mutation
 - [x] POSIX-only APIs guarded (`supportedFileAttributeViews().contains("posix")` + try/catch `UnsupportedOperationException`)

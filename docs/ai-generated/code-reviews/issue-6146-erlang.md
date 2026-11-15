@@ -9,7 +9,7 @@ Machine analysis found **1** finding(s) (1 suppressed), **0** blocking bug(s).
 - Files: 1 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -32,4 +32,3 @@ _No active issues._
 - `paths.hardcoded_sep` on `deployer/src/main/java/com/percussion/deployer/client/PSDeploymentServerConnection.java:1471` -- *Justification*: : RFC 2046 wire literal (CRLF, quoted disposition (via in_source_mkd)
 
 </details>
-

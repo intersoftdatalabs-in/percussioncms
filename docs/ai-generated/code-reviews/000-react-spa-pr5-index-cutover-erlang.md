@@ -39,4 +39,3 @@ None blocking.
 - Dual-tree lockstep for SPA hosts
 - proxyURL parity on redirects
 - Query-only SPA entry contract (never hash Location)
-

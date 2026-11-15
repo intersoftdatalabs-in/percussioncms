@@ -111,4 +111,3 @@ logic.
   whitespace in `AuditPropertyLoader#loadProperties` (the project uses
   `googleJavaFormat`). All 12 in-scope files remain in scope; no out-of-scope
   changes were introduced.
-

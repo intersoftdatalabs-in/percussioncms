@@ -136,4 +136,3 @@ None.
   and the tests are behavioral, fail-then-pass where it matters, and free of
   `sun.misc.Unsafe` / cross-platform anti-patterns. No follow-up changes required
   before merging.
-

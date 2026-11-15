@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0.
 ## Scope
 
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 - Status: mkd-code-review 0.1.18, pack percussion, --gate advisory, --git-base origin/main
 - PR: https://github.com/intersoftdatalabs-in/percussioncms/pull/4759
 - Base: origin/main
@@ -29,7 +29,7 @@ Machine analysis found **7** finding(s), **0** bug(s).
 - Files: 16 analyzed
 - In-diff: 0 finding(s); preexisting: 7
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -106,4 +106,3 @@ approve
 - Description: Function `copy` cognitive=17 (max 15), cyclomatic=18 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

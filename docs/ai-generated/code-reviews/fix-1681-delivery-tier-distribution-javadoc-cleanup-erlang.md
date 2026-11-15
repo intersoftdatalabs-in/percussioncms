@@ -117,4 +117,3 @@ Result: `BUILD SUCCESS` in ~6 min.
 - **Move the warning suppression to the Maven javadoc-plugin `<quiet>` / `<doclint>` config
   in `pom.xml`** — rejected; the warnings are real documentation gaps, not noise. Fixing the
   docs is the right answer for a public-API consumer.
-

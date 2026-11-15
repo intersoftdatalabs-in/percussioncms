@@ -19,7 +19,7 @@ Machine analysis found **3** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 8 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -58,4 +58,3 @@ approve
 - Description: `uid_map="$(awk … || true)"` treats a missing `awk` or unreadable `uid_map` as empty, which is not equal to `0 0 4294967295`, so the identity-map refuse does not fire. Mapped-root then still requires `id -u` = 0. Host root plus `PERCUSSION_SOAK_NS=1` plus no `awk` would reach `mount`. Unlikely on a real Linux image.
 - Suggestion: If `uid_map` is empty, refuse (fail closed) the same as the identity map.
 - Status: open
-

@@ -40,4 +40,3 @@ N/A — no new filesystem path I/O in production code. SAX factory clears/restor
 
 - Spring JDK proxy cast to concrete class (search/recent rows empty)
 - Soft-fail non-critical extractors so parent pipeline continues
-

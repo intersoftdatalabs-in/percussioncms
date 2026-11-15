@@ -9,7 +9,7 @@ Machine analysis found **4** finding(s), **3** bug(s).
 - Files: 1 analyzed
 - In-diff: 3 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -60,4 +60,3 @@ request-changes
 - Description: Function `_publishItem` cognitive=36 (max 15), cyclomatic=10 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

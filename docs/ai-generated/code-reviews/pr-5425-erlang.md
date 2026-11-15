@@ -19,9 +19,9 @@ limitations under the License.
 ## Scope
 
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 - Status: mkd-code-review 0.1.18, pack percussion, --gate advisory, --git-base origin/main
-- Models: /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+- Models: models.ollama-dev-coder.toml
 - PR: https://github.com/intersoftdatalabs-in/percussioncms/pull/5425
 - Base: origin/main
 - Head reviewed: ddf67cf4d3f884edd65dc9b468fd0b5d93215a90
@@ -41,7 +41,7 @@ Machine analysis found **0** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 4 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

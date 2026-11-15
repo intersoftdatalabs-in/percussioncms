@@ -44,4 +44,3 @@ No blocking bugs or suggestions identified.
 - `npm test`: 6/6 tests passing in the `admin/` folder (including `TasksSection.test.tsx`, `TaskLogsSection.test.tsx`, and `AdminShell.test.tsx`).
 - `i18n`: 100% TMX message coverage (`message(ADMIN_MSG.*)`).
 - `React`: Clean unmount guards `isMountedRef` applied to task, log, and template endpoints.
-

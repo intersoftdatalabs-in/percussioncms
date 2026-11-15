@@ -38,4 +38,3 @@ None (bugs). No missing behavioral tests for new non-trivial logic.
 
 - Prefer real REST contracts from classic CUI (PercPageService) rather than inventing endpoints
 - Partial `vi.mock` of homeApi must spread `importOriginal` so helpers (`isBookmarkableItem`) remain defined
-

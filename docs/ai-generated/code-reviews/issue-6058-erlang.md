@@ -9,7 +9,7 @@ Machine analysis found **1** finding(s), **1** blocking bug(s).
 - Files: 1 analyzed
 - In-diff: 1 finding(s); preexisting: 0
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

@@ -11,8 +11,8 @@ Machine analysis found **8** finding(s), **0** bug(s) in the advisory gate (pree
 - Files: 11 analyzed
 - In-diff: 2 finding(s); preexisting: 6
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
-- Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+- Persona source: ~/.local/share/mkd/agents/erlang
+- Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml`
 
 ## Recommendation
 

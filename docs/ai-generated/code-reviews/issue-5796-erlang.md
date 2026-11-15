@@ -9,7 +9,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Files: 2 analyzed
 - In-diff: 2 finding(s); preexisting: 0
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -39,4 +39,3 @@ approve
 - Description: Function `getLocaleList` cognitive=16 (max 15), cyclomatic=10 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

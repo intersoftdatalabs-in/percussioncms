@@ -5,14 +5,14 @@ Licensed under the Apache License, Version 2.0.
 
 # Erlang review — PR 5511
 
-Independent pre-merge review. Author of the feature is not this review. Persona: erlang 0.1.1. Persona source: /home/nate/.local/share/mkd/agents/erlang.
+Independent pre-merge review. Author of the feature is not this review. Persona: erlang 0.1.1. Persona source: ~/.local/share/mkd/agents/erlang.
 
 Command:
 
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
     --git-base origin/main \
-    --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml \
+    --models models.ollama-dev-coder.toml \
     WebUI/src/main/ts/publishing \
     WebUI/src/test/ts/publishing \
     modules/perc-qa-automation/frontend/tests/publishing/sitesDeliveryServerLocalFolder.spec.js \
@@ -35,7 +35,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Files: 5 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

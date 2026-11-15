@@ -27,4 +27,3 @@ BUG-1 fixed: `PSValidateRepositoryConnection` no longer hard-fails on `Class.for
 
 - `PSValidateRepositoryConnectionTest`: 5 passed
 - `DbInstallConfigResolverTest` + guards + samples + extract + `MainInstallExitCodeTest`: 20 passed
-

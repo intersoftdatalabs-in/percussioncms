@@ -9,7 +9,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Files: 8 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -43,4 +43,3 @@ approve
 ## Pre-push note
 
 Gate is advisory. In-diff bugs: 0. The cognitive-complexity row on `applyFieldOverlay` is preexisting and is not a behavior bug. The Ollama LLM stage failed with CUDA out of memory; that warn does not block. Machine findings do not include a missing behavioral test or a non-portable path. May commit/push: yes.
-

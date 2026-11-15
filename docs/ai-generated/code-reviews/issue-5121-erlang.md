@@ -1,7 +1,7 @@
 # Erlang review — issue 5121
 
 Persona: erlang 0.1.1
-CLI: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+CLI: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml`
 Head at review: `4c202119c9` (`fix/issue-5121-delete-aging-transition`)
 Gate decision: **approve**. Blocking bugs: 0. The preexisting `removeOne` complexity row is out of this slice. The LLM stage failed with a CUDA out-of-memory warning; machine findings were kept. No in-diff behavioral bug, missing test, or non-portable path.
 
@@ -16,7 +16,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Files: 16 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

@@ -37,4 +37,3 @@ None blocking.
 - `cd modules/utils && ../../mvnw clean install` — BUILD SUCCESS (`PSJacksonXmlSerializationHelperTest` 13 tests)
 - `cd system && ../mvnw clean install` — BUILD SUCCESS (`PSKeywordXmlSerializationTest` 6 tests; suite green)
 - Module Spotless apply then check on system; utils Spotless before commit
-

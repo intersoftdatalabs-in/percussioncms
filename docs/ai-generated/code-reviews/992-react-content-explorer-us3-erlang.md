@@ -305,4 +305,3 @@ isResolved } }` query before merging.
   verify) and the US4 ACL work (T058-T064); US3 enumeration is now
   measurable per `sc003-actions-checklist.md` and the new
   `tests/us3-menus.spec.js`.
-

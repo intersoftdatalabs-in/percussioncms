@@ -16,7 +16,7 @@ Machine analysis found **24** finding(s), **0** bug(s).
 - Files: 23 analyzed
 - In-diff: 2 finding(s); preexisting: 22
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -266,4 +266,3 @@ approve
 - Description: Function `emptyRecyclingBin` cognitive=17 (max 15), cyclomatic=14 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

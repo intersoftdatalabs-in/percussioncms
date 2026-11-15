@@ -82,4 +82,3 @@ Do **not** include `shared-common.js` / `shared-common-minuet.js` in the commit.
 ```text
 fix(security): remove reintroduced commons-httpclient 3.1 (Dependabot #81)
 ```
-

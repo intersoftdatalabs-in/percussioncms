@@ -8,9 +8,9 @@ Licensed under the Apache License, Version 2.0.
 ## Scope
 
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 - Tool: mkd-code-review 0.1.18 (`analyze --pack percussion --format markdown --gate advisory --git-base origin/main`)
-- Models: `/home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+- Models: `models.ollama-dev-coder.toml`
 - PR: https://github.com/intersoftdatalabs-in/percussioncms/pull/5290
 - Head: b241f4c9a192ca7b014d08365aa2bf49c6f6a10e
 - Reviewer is independent of the implementer.
@@ -29,7 +29,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Files: 11 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

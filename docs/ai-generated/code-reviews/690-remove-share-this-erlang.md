@@ -27,4 +27,3 @@ None (bugs / missing behavioral tests / non-portable I/O).
 ## Memory patterns hit
 
 - Prefer extending existing registry validation tests when removing widgets.
-

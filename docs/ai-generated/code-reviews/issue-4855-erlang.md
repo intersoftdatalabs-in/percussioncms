@@ -1,7 +1,7 @@
 # Erlang review — issue 4855
 
 Persona: erlang 0.1.1
-Persona source: /home/nate/.local/share/mkd/agents/erlang
+Persona source: ~/.local/share/mkd/agents/erlang
 Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --diff` (origin/main...HEAD, 9 files) with ollama models config.
 
 ## Summary

@@ -8,7 +8,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -38,4 +38,3 @@ approve
 - Description: Comment explaining the change is redundant since it's already clear from the value.
 - Suggestion: Remove the comment or update it to provide additional context if necessary.
 - Status: open
-

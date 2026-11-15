@@ -5,7 +5,7 @@ Command:
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
   --git-base origin/main \
-  --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+  --models models.ollama-dev-coder.toml
 ```
 
 Scope: branch diff vs origin/main (18 files). Gate: advisory. In-diff bugs: 0.
@@ -22,7 +22,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Files: 18 analyzed
 - In-diff: 1 finding(s); preexisting: 0
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

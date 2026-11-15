@@ -1,6 +1,6 @@
 # Pre-push local code review — issue 5269
 
-CLI: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+CLI: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml`
 
 Ollama `ollama-dev-coder` returned HTTP 500 (CUDA out of memory). Machine findings were kept. That LLM warning does not block. In-diff bugs: 0. Preexisting cognitive-complexity suggestion does not block.
 
@@ -15,7 +15,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Files: 10 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

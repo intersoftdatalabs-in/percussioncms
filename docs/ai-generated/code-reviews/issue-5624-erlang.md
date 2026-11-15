@@ -9,7 +9,7 @@ Machine analysis found **29** finding(s), **8** bug(s). LLM skipped (secret_hit)
 - Files: 144 analyzed
 - In-diff: 15 finding(s); preexisting: 14
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -294,4 +294,3 @@ request-changes
 - Description: Function `write` cognitive=26 (max 15), cyclomatic=20 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

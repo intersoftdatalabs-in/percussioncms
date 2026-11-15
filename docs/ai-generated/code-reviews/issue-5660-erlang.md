@@ -9,7 +9,7 @@ Machine analysis found **4** finding(s), **1** bug(s). LLM skipped (hard_pattern
 - Files: 31 analyzed
 - In-diff: 1 finding(s); preexisting: 3
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -60,4 +60,3 @@ request-changes
 - Pattern-id: tests.empty-catch
 - Description: Empty catch block swallows failures (line 6)
 - Status: open
-

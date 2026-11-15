@@ -9,7 +9,7 @@ Machine analysis found **14** finding(s), **0** bug(s).
 - Files: 9 analyzed
 - In-diff: 3 finding(s); preexisting: 11
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -153,4 +153,3 @@ approve
 In-diff complexity rows (`handleTextDirSave`, `savedLocaleTextDir`, `isTextDirOnlyWrite`) match the existing decimal-separator / currency-code dedicated-write peers. They are not behavioral bugs. Tests cover one-field body, blank clear, invalid reject, 400/403/409 non-success, and adaptor merge leaving other format fields. No non-portable path I/O in the diff.
 
 Gate: PASS (0 blocking bugs). Recommendation: approve. May commit/push: yes.
-

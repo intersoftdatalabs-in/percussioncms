@@ -32,4 +32,3 @@ node scripts/verify-sys-resources-js-xss.js  # all passed
 ./mvnw -pl modules/perc-legacy -Dtest=PSAesTest,PSAesCBCDeprecationTest -Dai.integrity.skip=true test
 ./mvnw -pl modules/perc-security-utils -Dtest=SecureStringUtilsSqlInjectionTest -Dai.integrity.skip=true test
 ```
-

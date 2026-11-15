@@ -18,7 +18,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Files: 10 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -55,4 +55,3 @@ approve
 **approve.** In-diff bugs: 0. The preexisting cognitive-complexity row on `DeliveryTypesPanel` is outside the gate. The Ollama failure is a local CUDA allocation error, not a product defect.
 
 Description-only update trims, rejects length over 255 before any field write, clears a blank description, and does not touch name, bean, or the assembly flag. Cancel and HTTP 400/403/409 leave the list row. Vitest and the H2 surface spec exercise that behavior. May merge.
-

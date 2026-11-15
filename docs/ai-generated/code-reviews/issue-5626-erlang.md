@@ -6,7 +6,7 @@ Recommendation: **approve**.
 - Persona: erlang 0.1.1 (`~/.agents/skills/erlang/`, engine `mkd-code-review`)
 - Scope base: `origin/main`
 - Scope head: `555648e2b1` (4 files: war JSP mirror, source.html, bundle-entry comment, Playwright spec)
-- Models: `/home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+- Models: `models.ollama-dev-coder.toml`
   (Ollama `dev-coder` reachable; CLI returned machine-only output at
   `--gate advisory`; independent findings below are the reviewer pass).
   Gate on **in-diff** bugs only.
@@ -23,7 +23,7 @@ Machine analysis found **0** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 2 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

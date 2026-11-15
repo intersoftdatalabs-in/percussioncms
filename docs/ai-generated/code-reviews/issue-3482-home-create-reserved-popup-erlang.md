@@ -8,7 +8,7 @@
 
 - `WebUI/src/main/ts/editor/itemCreateApi.ts` — wrap `{ItemCreateRequest:{…}}`
 - `WebUI/src/main/ts/editor/openEditorHost.ts` — resolve opener-absolute URL, `location.assign` reserved window
-- `WebUI/src/main/ts/home/create/AssetWizard.tsx` — POST create then navigate reserved popup; Open retry
+- `WebUI/src/main/ts~/AssetWizard.tsx` — POST create then navigate reserved popup; Open retry
 - Vitest companions + `tests/home-react-editor.spec.js` Create-asset case
 - `product-docs/8.2/` Home → Create / REST create envelope
 

@@ -26,4 +26,3 @@
 ### Residual follow-up
 
 - Enable `PSObjectSummary` equality RT after catalog/security suppress for `permissions` / `PSUserAccessLevel`.
-

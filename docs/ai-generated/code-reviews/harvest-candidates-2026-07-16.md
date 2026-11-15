@@ -223,4 +223,3 @@ scripts\erlang-harvest-review-patterns.bat --apply
 Review the diff to `patterns.md` before committing. Harvested bullets are
 marked `_(harvested, seen N×)_` so humans can later rewrite them to cleaner
 principles and drop the marker.
-

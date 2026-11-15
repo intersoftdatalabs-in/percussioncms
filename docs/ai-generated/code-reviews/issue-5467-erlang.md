@@ -1,6 +1,6 @@
 # Erlang review — issue 5467 FTP delivery-server port
 
-CLI: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+CLI: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml`
 
 Head at review: `bcce0789d44ced7c60472305b9577885160ae97c`
 
@@ -20,7 +20,7 @@ Machine analysis found **3** finding(s), **0** bug(s).
 - Files: 10 analyzed
 - In-diff: 2 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

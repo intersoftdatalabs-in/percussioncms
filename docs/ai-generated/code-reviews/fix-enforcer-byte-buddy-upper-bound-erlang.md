@@ -20,7 +20,7 @@ Machine analysis found **0** finding(s), **0** bug(s). LLM skipped (machine_only
 - Head: HEAD
 - Files: 1 analyzed (`pom.xml`)
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

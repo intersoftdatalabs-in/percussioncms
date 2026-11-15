@@ -2,7 +2,7 @@
 
 Branch: `fix/issue-5518-locale-decimal-separator`
 Base: `origin/main`
-Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml`
 
 Persona: erlang 0.1.1 (`~/.agents/skills/erlang`)
 
@@ -19,7 +19,7 @@ Machine analysis found **10** finding(s), **0** bug(s).
 - Files: 9 analyzed
 - In-diff: 3 finding(s); preexisting: 7
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

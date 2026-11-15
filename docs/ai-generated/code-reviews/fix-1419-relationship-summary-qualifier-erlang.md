@@ -103,4 +103,3 @@ to document non-obvious Spring wiring decisions.
   → exits 0; `verify-jdbc-drivers` exec printed `OK: 9 JDBC driver JAR(s) verified under jetty/base/lib/jdbc/`
   (the cross-platform Java port from PR #1413 — issue #1403's `.sh` script is no longer
   invoked by the build, the `.bat` shim remains for operators).
-

@@ -7,7 +7,7 @@
 
 ## Summary
 
-PR-7 product lock: gadget utility stays; placement is **Home → gadgets**, not peer SPA `/dashboard`. Reuses `Dashboard` + widget registry with `embedded` compact chrome. TopNav Dashboard → `/home/gadgets`. `?view=dash` and homepage preference “Dashboard” map to `spa.jsp?entry=home&section=gadgets`. Dual-tree index.jsp aligned.
+PR-7 product lock: gadget utility stays; placement is **Home → gadgets**, not peer SPA `/dashboard`. Reuses `Dashboard` + widget registry with `embedded` compact chrome. TopNav Dashboard → `~`. `?view=dash` and homepage preference “Dashboard” map to `spa.jsp?entry=home&section=gadgets`. Dual-tree index.jsp aligned.
 
 ## Gate
 

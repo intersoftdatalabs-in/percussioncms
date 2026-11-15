@@ -9,7 +9,7 @@ Machine analysis found **6** finding(s) (4 suppressed), **0** blocking bug(s).
 - Files: 3 analyzed
 - In-diff: 4 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -35,7 +35,7 @@ approve
 ### Issue 2 -- Severity: suggestion
 
 - File: projects/sitemanage/src/test/java/com/percussion/activity/service/impl/PSActivityServiceEmptyCellTest.java:121
-- Rule: `llm.openrouter-free`
+- Rule: `llm`
 - Tool: `llm`
 - Description: The `contentWs.getIdByPath(anyString())` stub in `stubSingleSite` is never exercised by the all-sites branch of `createActivityNodesByPaths` (that branch only maps `siteMgr.findAllSites()` to `PSActivityNode`). Under Mockito's default STRICT_STUBS this raises UnnecessaryStubbingException and fails both new tests.
 - Suggestion: Remove the `contentWs.getIdByPath` stub from `stubSingleSite`, or make the test class lenient if the stub is needed elsewhere.
@@ -54,4 +54,3 @@ approve
 - `paths.hardcoded_sep` on `projects/sitemanage/src/main/java/com/percussion/activity/service/impl/PSActivityService.java:385` -- *Justification*: : adjudicated intentional (issue #6354, (via in_source_mkd)
 
 </details>
-

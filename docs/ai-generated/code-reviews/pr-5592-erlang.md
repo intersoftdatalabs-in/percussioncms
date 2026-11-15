@@ -28,7 +28,7 @@ Machine analysis found **19** finding(s), **0** bug(s).
 - Files: 16 analyzed
 - In-diff: 4 finding(s); preexisting: 15
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -214,4 +214,3 @@ approve
 - Description: Function `isFirstDayOfWeekOnlyWrite` cognitive=5 (max 15), cyclomatic=17 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

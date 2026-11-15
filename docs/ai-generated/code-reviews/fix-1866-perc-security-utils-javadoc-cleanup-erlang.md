@@ -178,4 +178,3 @@ Counts after the fix:
   annotation** — rejected; the same precedent (PR #1849, PR #1790, PR #1810) places the
   explicit `@param` / `@return` / `@throws` on each method so the warnings are silenced at the
   source rather than at the package level.
-

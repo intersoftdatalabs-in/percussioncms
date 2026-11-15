@@ -8,7 +8,7 @@ PublishingShell secret panel + surface Playwright + product-docs.
 ```bash
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
   --git-base "origin/main" \
-  --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+  --models models.ollama-dev-coder.toml
 ```
 
 ## Full report
@@ -24,7 +24,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Files: 10 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

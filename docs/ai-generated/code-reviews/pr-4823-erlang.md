@@ -18,7 +18,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Files: 9 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -44,7 +44,7 @@ approve
 
 ## Erlang interpretation
 
-Gate counts in-diff bugs only. Preexisting `paths.hardcoded_sep` on `PSSitePublishStatusService.getJobDetails` dummy `/home/section/index.html` is outside this hunk (not an in-diff blocker).
+Gate counts in-diff bugs only. Preexisting `paths.hardcoded_sep` on `PSSitePublishStatusService.getJobDetails` dummy `~/index.html` is outside this hunk (not an in-diff blocker).
 
 Independent read of `5926193d4a` vs `origin/main`:
 

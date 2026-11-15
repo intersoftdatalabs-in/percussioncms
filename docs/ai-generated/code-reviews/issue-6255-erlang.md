@@ -9,7 +9,7 @@ Machine analysis found **22** finding(s) (1 suppressed), **1** blocking bug(s).
 - Files: 16 analyzed
 - In-diff: 0 finding(s); preexisting: 21
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -227,7 +227,7 @@ request-changes
 - File: review
 - Rule: `llm.error`
 - Tool: `llm`
-- Description: model `openrouter-free` failed: response contract: invalid chat response JSON
+- Description: model `<llm-model>` failed: response contract: invalid chat response JSON
 - Status: open
 
 > Tip: To suppress false positives, add `// mkd-code-review[<rule_id>] <reason>` (e.g. `// mkd-code-review[paths.hardcoded_sep] web url join`) or `// codeql[<rule_id>] <reason>` on or above the line, or add an entry in `.mkd-code-review.toml`.
@@ -248,7 +248,7 @@ r happen).
 ### Issue 22 -- Severity: bug
 
 - File: WebUI/src/test/ts/contentExplorer/multiFolderCopy.test.ts:95
-- Rule: `llm.openrouter-free`
+- Rule: `llm`
 - Tool: `llm`
 - Description: The test asserts folderCalls equals [['/Assets/Section/', '/Assets/Dest']] — a trailing slash on the folder source — but the implementation at multiFolderCopy.ts:117 passes item.path unchanged ('/Assets/Section', no trailing slash). The page copies correctly pass the raw path (itemCalls are ['/Assets/Home','/Assets/Dest'] etc.), and the mock records exactly what is passed, so this assertion cannot pass against the current implementation. Test and implementation disagree on the folder source-path format.
 - Suggestion: Align the two: if the folder copy contract requires a trailing slash, normalize the folder path in copyCheckedItemsToFolder (e.g. append '/' or use a path-normalization helper) before calling copyOneFolder; otherwise correct the test assertion to ['/Assets/Section', '/Assets/Dest'].
@@ -257,7 +257,7 @@ r happen).
 ### Issue 23 -- Severity: bug
 
 - File: WebUI/src/main/ts/contentExplorer/multiFolderCopy.ts:19
-- Rule: `llm.openrouter-free`
+- Rule: `llm`
 - Tool: `llm`
 - Description: The diff adds `import { formatCopyFolderError } from './copyFolderErrors'`, but no copyFolderErrors.ts file appears anywhere in the diff (which is noted as possibly truncated). If that module was not created alongside this change, the import fails to resolve and the build breaks; if it does exist it must export formatCopyFolderError(err) that names per-folder 400/403/404/409 failures in the status message.
 - Suggestion: Verify copyFolderErrors.ts exists and exports formatCopyFolderError. If it is absent from this change, create it (mirroring copyItemErrors.ts / formatCopyItemError) so folder-copy errors are formatted for the multi-copy status message.
@@ -273,4 +273,3 @@ r happen).
 - `paths.hardcoded_sep` on `projects/sitemanage/src/main/java/com/percussion/apibridge/FolderAdaptor.java:2021` -- *Justification*: : adjudicated intentional (issue #6257) — (via in_source_mkd)
 
 </details>
-

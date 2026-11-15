@@ -66,4 +66,3 @@ behavioral extractArchive tests and a package `verify` antrun gate.
 | `…/MainDTSPreInstall.java`                   | catch PathValidation.SecurityException  |
 | `…/MainDTSPreInstallExtractArchiveTest.java` | behavioral tests                        |
 | `…/README.md`                                | packaging contract docs                 |
-

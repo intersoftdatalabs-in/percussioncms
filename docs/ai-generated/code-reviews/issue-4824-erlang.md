@@ -9,7 +9,7 @@ Machine analysis found **7356** finding(s), **4470** bug(s). LLM skipped (secret
 - Head: (unspecified)
 - Files: 18439 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -31209,7 +31209,7 @@ request-changes
 
 ### Issue 3191 -- Severity: bug
 
-- File: WebUI/src/main/ts/api/home/homeApi.ts:866
+- File: WebUI/src/main/ts/api~:866
 - Rule: `complexity.cognitive`
 - Tool: `arborist-metrics`
 - Description: Function `normalizeList` cognitive=34 (max 15), cyclomatic=17 (max 15)
@@ -31407,7 +31407,7 @@ request-changes
 
 ### Issue 3213 -- Severity: bug
 
-- File: WebUI/src/main/ts/home/hooks/useBookmarks.ts:66
+- File: WebUI/src/main/ts~/useBookmarks.ts:66
 - Rule: `complexity.cognitive`
 - Tool: `arborist-metrics`
 - Description: Function `useBookmarks` cognitive=41 (max 15), cyclomatic=20 (max 15)
@@ -43557,7 +43557,7 @@ request-changes
 
 ### Issue 4563 -- Severity: suggestion
 
-- File: WebUI/src/main/ts/api/home/homeApi.ts:332
+- File: WebUI/src/main/ts/api~:332
 - Rule: `complexity.cognitive`
 - Tool: `arborist-metrics`
 - Description: Function `unwrapTemplateSummaries` cognitive=16 (max 15), cyclomatic=11 (max 15)
@@ -43566,7 +43566,7 @@ request-changes
 
 ### Issue 4564 -- Severity: suggestion
 
-- File: WebUI/src/main/ts/api/home/homeApi.ts:428
+- File: WebUI/src/main/ts/api~:428
 - Rule: `complexity.cognitive`
 - Tool: `arborist-metrics`
 - Description: Function `extractTemplateWidgetDefinitionIds` cognitive=26 (max 15), cyclomatic=18 (max 15)
@@ -43575,7 +43575,7 @@ request-changes
 
 ### Issue 4565 -- Severity: suggestion
 
-- File: WebUI/src/main/ts/api/home/homeApi.ts:831
+- File: WebUI/src/main/ts/api~:831
 - Rule: `complexity.cognitive`
 - Tool: `arborist-metrics`
 - Description: Function `formatApiError` cognitive=28 (max 15), cyclomatic=24 (max 15)
@@ -44835,7 +44835,7 @@ request-changes
 
 ### Issue 4705 -- Severity: suggestion
 
-- File: WebUI/src/main/ts/home/sections/BookmarksSection.tsx:44
+- File: WebUI/src/main/ts~/BookmarksSection.tsx:44
 - Rule: `complexity.cognitive`
 - Tool: `arborist-metrics`
 - Description: Function `BookmarksSection` cognitive=20 (max 15), cyclomatic=11 (max 15)
@@ -44844,7 +44844,7 @@ request-changes
 
 ### Issue 4706 -- Severity: suggestion
 
-- File: WebUI/src/main/ts/home/sections/LibrarySection.tsx:51
+- File: WebUI/src/main/ts~/LibrarySection.tsx:51
 - Rule: `complexity.cognitive`
 - Tool: `arborist-metrics`
 - Description: Function `LibrarySection` cognitive=17 (max 15), cyclomatic=13 (max 15)
@@ -68700,4 +68700,3 @@ request-changes
 - Description: Function `testLoadHierarchyNodes` cognitive=15 (max 15), cyclomatic=16 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

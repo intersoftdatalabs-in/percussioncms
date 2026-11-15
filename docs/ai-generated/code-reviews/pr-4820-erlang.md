@@ -14,7 +14,7 @@ Machine analysis found **3** finding(s), **0** bug(s).
 - Files: 8 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -53,4 +53,3 @@ approve
 - Description: selectedItems JSDoc still names only Stage (When length is 2 or more, Stage uses one confirm…). Take Down and Remove from Staging already share the field.
 - Suggestion: Name Take Down (and Remove from Staging) in that comment.
 - Status: open
-

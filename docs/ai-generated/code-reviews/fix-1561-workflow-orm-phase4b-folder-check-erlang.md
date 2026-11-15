@@ -138,4 +138,3 @@ None.
 
 > The pre-existing Spotless violations in 29 unrelated files are not introduced
 > by this hot-fix and are not in scope for this Erlang review.
-

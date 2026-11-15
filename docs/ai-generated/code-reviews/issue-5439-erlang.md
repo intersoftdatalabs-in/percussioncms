@@ -2,7 +2,7 @@
 
 Author-reviewer disclosure: the same night-issue-prs session (Grok Build 1.0.60, model grok-4.7) authored this diff and ran `mkd-code-review`. No nested reviewer was spawned. Preexisting rows do not block. The two in-diff findings are `secrets.heuristic` suggestions on fixture passwords in unit tests (`secret-pass` and a Local panel constant). They are not credentials and are not a gate block.
 
-CLI: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+CLI: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml`
 
 ## Summary
 
@@ -15,7 +15,7 @@ Machine analysis found **7** finding(s), **0** bug(s).
 - Files: 16 analyzed
 - In-diff: 2 finding(s); preexisting: 5
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -92,4 +92,3 @@ approve
 - Description: Function `setFolderFlags` cognitive=19 (max 15), cyclomatic=14 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

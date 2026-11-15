@@ -45,4 +45,3 @@ None (bugs / missing behavioral tests / non-portable path I/O).
 
 - Prefer peer test wiring (`packagesToScan`) over fragile CWD-relative config
 - Diagnose first `Failed to load ApplicationContext` cause, not threshold cascade
-

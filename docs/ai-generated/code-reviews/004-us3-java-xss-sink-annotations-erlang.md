@@ -37,4 +37,3 @@ None blocking.
 ./mvnw -pl projects/sitemanage -Dtest=PSSiteDataRestServiceXssTest -Dai.integrity.skip=true test
 # Tests run: 17, Failures: 0
 ```
-

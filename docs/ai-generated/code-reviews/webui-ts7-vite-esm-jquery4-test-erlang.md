@@ -43,4 +43,3 @@ _(none)_
 
 - `cd WebUI/src/main/frontend && npm run build:modern` — SUCCESS (no configLoader warning)
 - `cd WebUI/src/main/frontend && npm test` — 1129 passed
-

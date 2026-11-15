@@ -263,4 +263,3 @@ isResolved } }` query before merging.
   6. `docs(992/us4): tick T058-T064b; P-ACL rows Done in capability-matrix`
 - After this PR lands, the next concrete open tasks are T045f
   (US2 per-host verify-all) and US5 search (T065-T070).
-

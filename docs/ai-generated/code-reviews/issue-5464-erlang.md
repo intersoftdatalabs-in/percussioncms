@@ -5,7 +5,7 @@
 Same-session author and reviewer (night-issue-prs, Grok Build 1.0.60, grok-4.6). The review was not delegated to a nested agent. Machine review command:
 
 ```
-mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml
 ```
 
 Stderr was empty (no LLM warning). Gate used for this run: in-diff bugs, missing behavioral tests, and non-portable paths. Preexisting rows do not block.
@@ -29,7 +29,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Files: 9 analyzed
 - In-diff: 1 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

@@ -9,7 +9,7 @@ Machine analysis found **3** finding(s) (1 suppressed), **0** blocking bug(s).
 - Files: 4 analyzed
 - In-diff: 1 finding(s); preexisting: 2
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -51,4 +51,3 @@ approve
 - `paths.hardcoded_sep` on `projects/sitemanage/src/main/java/com/percussion/activity/service/impl/PSTrafficService.java:309` -- *Justification*: : adjudicated intentional (issue #6399, (via in_source_mkd)
 
 </details>
-

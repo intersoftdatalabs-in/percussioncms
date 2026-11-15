@@ -54,4 +54,3 @@ Product types that implement `javax.jcr.*` interfaces were extended for JSR-283 
 - `system/.../PSProperty`, `PSContentNode`, `PSQuery`, `PSQueryResult`, `PSRow`, `PSNodeDefinition`
 - `PSContentMgr`, `PSTypeConfiguration`, `PSQueryResultUtils`, `PSDbUtils`
 - Tests: `PSValuesTest`, `PSBinaryTest`, `PSQueryJcr20Test`, `PSMockProperty`
-

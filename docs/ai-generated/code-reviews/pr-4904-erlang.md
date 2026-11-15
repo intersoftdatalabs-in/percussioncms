@@ -18,7 +18,7 @@ limitations under the License.
 
 Status: reviewed
 Persona: erlang 0.1.1
-Persona source: /home/nate/.local/share/mkd/agents/erlang
+Persona source: ~/.local/share/mkd/agents/erlang
 Recommendation: approve
 In-diff blocking bugs: 0
 
@@ -35,7 +35,7 @@ Machine analysis found **11** finding(s), **1** bug(s).
 - Files: 12 analyzed
 - In-diff: 2 finding(s); preexisting: 9
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

@@ -8,7 +8,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 4 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -38,4 +38,3 @@ approve
 - Description: The test 'cancel returns without calling create' should include a check for the absence of the new community in the list after cancellation.
 - Suggestion: Add an assertion to verify that the new community is not present in the list after clicking cancel.
 - Status: open
-

@@ -9,7 +9,7 @@ Machine analysis found **278** finding(s), **96** bug(s). LLM skipped (hard_patt
 - Files: 25 analyzed
 - In-diff: 276 finding(s); preexisting: 2
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -2523,4 +2523,3 @@ request-changes
 - Description: Function `installTinymceFacade` cognitive=15 (max 15), cyclomatic=18 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

@@ -4,8 +4,6 @@ Independent Erlang review (did not author the change): **approve**.
 Machine findings: 0 blocking bugs. Gate: may commit/push.
 
 ```text
-residual model=dev-coder:latest id=ollama-dev-coder outcome=started
-residual model=dev-coder:latest id=ollama-dev-coder outcome=completed findings=0
 ## Summary
 
 Machine analysis found **1** finding(s), **0** blocking bug(s).
@@ -17,7 +15,7 @@ Machine analysis found **1** finding(s), **0** blocking bug(s).
 - Files: 14 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

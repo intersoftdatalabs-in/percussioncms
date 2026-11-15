@@ -130,4 +130,3 @@ no tests that assert path strings. **No issues.**
   LDAP size-limit returns `UNKNOWN_ERROR` either way (the size-limit branch
   at `PSUserService.java:1155-1158` throws `PSDirectoryServiceException`
   before any result processing), so observable status is unchanged.
-

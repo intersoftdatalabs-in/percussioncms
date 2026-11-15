@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0.
 ## Scope
 
 - Persona: erlang 0.1.1
-- Persona source: `/home/nate/.local/share/mkd/agents/erlang`
+- Persona source: `~/.local/share/mkd/agents/erlang`
 - Status: mkd-code-review 0.1.18, pack percussion, `--gate advisory`, `--machine-only`
 - Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --diff tmp/issue-4840-working.diff --machine-only`
 - `--git-base origin/main` is empty here (HEAD `68d86eeeff` == `origin/main`; all work uncommitted). Machine pass used a unified diff with `a/`/`b/` prefixes covering tracked edits **and** the untracked Playwright spec.
@@ -48,7 +48,7 @@ Machine analysis found **8** finding(s), **0** bug(s). LLM skipped (machine_only
 - Files: 7 analyzed
 - In-diff: 0 finding(s); preexisting: 8
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

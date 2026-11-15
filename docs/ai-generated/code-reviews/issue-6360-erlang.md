@@ -9,7 +9,7 @@ Machine analysis found **4** finding(s) (4 suppressed), **0** blocking bug(s).
 - Files: 2 analyzed
 - In-diff: 0 finding(s); preexisting: 4
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -35,4 +35,3 @@ _No active issues._
 - `paths.hardcoded_sep` on `projects/sitemanage/src/main/java/com/percussion/recycle/service/impl/PSRecycleService.java:1146` -- *Justification*: : adjudicated intentional (issue #6359, (via in_source_mkd)
 
 </details>
-

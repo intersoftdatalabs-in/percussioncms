@@ -9,7 +9,7 @@ Machine analysis found **4** finding(s), **1** bug(s).
 - Files: 11 analyzed
 - In-diff: 3 finding(s); preexisting: 0
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -60,6 +60,6 @@ request-changes
 
 ## Interpreter (night-issue-prs)
 
-Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml` (no PATHS). Exit 0. 11 files in scope.
+Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml` (no PATHS). Exit 0. 11 files in scope.
 
 The advisory machine bug is `complexity.cognitive` on `updateScheme`, which already sat above the pack threshold before this slice. The new value path is `prepareSchemeParameterValueChange`. Behavioral tests cover success (stored type, sequence, and id stay; other parameters stay), blank and null value, blank and too-long name, empty and two-parameter bodies, a name that is not on the scheme, HTTP 403, duplicate scheme name, and combination with add or remove. No in-diff logic bug, missing behavioral test, or non-portable path. The LLM stage failed on CUDA out of memory (`llm.error`); machine findings were kept. Night gate does not block on the complexity metric. May open the PR.

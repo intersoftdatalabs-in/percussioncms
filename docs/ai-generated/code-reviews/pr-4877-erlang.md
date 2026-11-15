@@ -16,7 +16,7 @@ You may obtain a copy of the License at
 **Head:** `59db999a1e2637f2a5a6c40a29e111b2047d3eab`
 **Base:** `origin/main`
 **Persona:** erlang 0.1.1
-**Persona source:** `/home/nate/.local/share/mkd/agents/erlang`
+**Persona source:** `~/.local/share/mkd/agents/erlang`
 **CLI:** mkd-code-review 0.1.18 (`--pack percussion --gate advisory --git-base origin/main`)
 **Status:** machine review
 
@@ -40,7 +40,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Files: 6 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

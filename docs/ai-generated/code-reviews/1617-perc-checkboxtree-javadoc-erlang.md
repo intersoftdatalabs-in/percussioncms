@@ -65,4 +65,3 @@ None.
   - Javadoc plugin output: `attach-javadocs` produces the `-javadoc.jar` with
     no `MavenReportException`, no `error:` lines, no `warning:` lines.
   - `mvnw.cmd -f modules/perc-checkboxtree/pom.xml spotless:check` → `BUILD SUCCESS`.
-

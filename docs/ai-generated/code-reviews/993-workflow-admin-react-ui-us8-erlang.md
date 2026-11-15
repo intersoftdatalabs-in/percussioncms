@@ -44,4 +44,3 @@ No blocking bugs or suggestions identified.
 - `npm test`: 9/9 tests passing in `admin/` folder (including `ConsistencyChecker.test.tsx`, `AdminShell.test.tsx`, `TasksSection.test.tsx`, and `TaskLogsSection.test.tsx`).
 - `i18n`: TMX message coverage aligned.
 - `React`: Clean unmount guards `isMountedRef` applied to status polling and fix triggers.
-

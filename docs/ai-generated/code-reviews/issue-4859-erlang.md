@@ -26,7 +26,7 @@ The previous Erlang pass **BLOCK**ed because the new Playwright error-path test 
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
     --git-base origin/main \
-    --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+    --models models.ollama-dev-coder.toml
 ```
 
 `--git-base` included all 6 committed files (none omitted). Uncommitted `WebUI/.vitest/` / `WebUI/src/main/frontend/.vitest/` are local cache, not in the review scope. The review file itself is untracked and is the only write in this turn.
@@ -43,7 +43,7 @@ Machine analysis found **0** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 6 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

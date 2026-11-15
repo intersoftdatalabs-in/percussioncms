@@ -27,4 +27,3 @@ Modern Home + Widget Builder React shells still incomplete product-wise (header 
 - Outer-join empty XML shells must not hard-fail catalogs
 - Servlet encodeURL (not encodeUrl) under Jakarta
 - text/plain REST flags must not force JSON.parse
-

@@ -9,7 +9,7 @@ Machine analysis found **3** finding(s) (3 suppressed), **0** blocking bug(s).
 - Files: 2 analyzed
 - In-diff: 3 finding(s); preexisting: 0
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -34,4 +34,3 @@ _No active issues._
 - `paths.hardcoded_sep` on `modules/perc-common-ui-bundle/src/main/js/views/PercCategoryListView.js:218` -- *Justification*: : adjudicated intentional (issue #6195, (via in_source_mkd)
 
 </details>
-

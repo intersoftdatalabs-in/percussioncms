@@ -24,4 +24,3 @@ Host-side Docker operator scripts: extend existing freeport contract (`perc_host
 - Container listen ports and matrix `DB_PORT` stay fixed; cells use Docker DNS.
 - Fixed `container_name` still prevents two simultaneous full stacks on one host; freeport only fixes publish port collisions.
 - Host installer `PERC_DB_PORT` alignment documented in README when MYSQL freeports away from 3306.
-

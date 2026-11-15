@@ -77,4 +77,3 @@ PORTABILITY CHECK:       0 unix-only paths / 0 windows-only paths
 NON_PORTABLE_PATH_DELTA: 0
 FAILS (any):             no
 ```
-

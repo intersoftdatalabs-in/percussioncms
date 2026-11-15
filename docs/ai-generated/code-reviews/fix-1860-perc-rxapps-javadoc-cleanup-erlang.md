@@ -161,4 +161,3 @@ Counts after the fix:
   empty) `perc-rxapps-<version>.jar` plus the tar.gz / zip archives, and downstream modules
   may depend on the jar artifact being present in the Maven repository. A packaging change would
   be out of scope for a javadoc-cleanup PR and would warrant its own issue / verification cycle.
-

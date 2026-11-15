@@ -2,7 +2,7 @@
 
 Branch: `fix/issue-6414-translation-variant-search` → base `main`.
 Tool: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --require-llm
---git-base origin/main --models models.openrouter-free.toml` (persona erlang 0.1.1).
+--git-base origin/main --models models.<llm-model>.toml` (persona erlang 0.1.1).
 
 ## Run history (5 runs, free-route flakiness)
 
@@ -23,8 +23,6 @@ Tool: `mkd-code-review analyze --pack percussion --format markdown --gate adviso
 
 ## Final report (run 5, full text)
 
-residual model=openrouter/free id=openrouter-free outcome=started
-residual model=openrouter/free id=openrouter-free outcome=completed findings=0
 ## Summary
 
 Machine analysis found **0** finding(s), **0** blocking bug(s).
@@ -35,7 +33,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s).
 - Head: HEAD
 - Files: 5 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

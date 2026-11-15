@@ -9,7 +9,7 @@ Machine analysis found **17** finding(s), **0** bug(s).
 - Files: 5 analyzed
 - In-diff: 2 finding(s); preexisting: 14
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -174,4 +174,3 @@ approve
 - Description: model `ollama-dev-coder` failed: http: status 500 Internal Server Error body {"error":{"message":"llama-server process has terminated: exit status 1: cudaMalloc failed: out of memory\nalloc_tensor_range: failed to allocate CUDA0 buffer of size 5064192000\nerror loading model: unable to allocate CUDA0 buffer","type":"api_error","param":null,"code":null}}
 
 - Status: open
-

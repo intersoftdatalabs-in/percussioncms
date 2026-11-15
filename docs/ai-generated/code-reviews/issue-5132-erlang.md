@@ -9,7 +9,7 @@ Machine analysis found **9** finding(s), **1** bug(s).
 - Files: 25 analyzed
 - In-diff: 2 finding(s); preexisting: 6
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -112,4 +112,3 @@ request-changes
 ## Worker gate (night-issue-prs)
 
 Advisory CLI (`--gate advisory`): May commit/push: yes. The in-diff cognitive-complexity row on `saveFolderProperties` (and the suggestion on `canonicalAllowedSites`) is maintainability, not a wrong-behavior bug, a missing behavioral test, or non-portable path I/O. Preexisting `paths.hardcoded_sep` rows are outside the new path logic in this diff. The LLM stage failed with CUDA OOM; machine findings were kept. Those rows do not block this PR.
-

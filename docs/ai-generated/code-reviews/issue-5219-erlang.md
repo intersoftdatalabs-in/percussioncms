@@ -9,7 +9,7 @@ Tracked files were reviewed with:
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
   --git-base origin/main \
-  --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+  --models models.ollama-dev-coder.toml
 ```
 
 That pass analyzed 10 tracked files and reported 0 findings. `--git-base` omits untracked files, so the three new files were added to a unified diff (`a/` / `b/` headers) and reviewed again:
@@ -17,7 +17,7 @@ That pass analyzed 10 tracked files and reported 0 findings. `--git-base` omits 
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
   --diff tmp/issue-5219-review.diff \
-  --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+  --models models.ollama-dev-coder.toml
 ```
 
 The second pass is the scope of record (13 files, including `changeRelationshipTemplate.ts`, its Vitest file, and the Playwright spec). Neither report printed `llm.error`. Both finished on the machine short-circuit (0 findings). Ollama was not required to clear the gate.
@@ -32,7 +32,7 @@ Machine analysis found **0** finding(s), **0** bug(s).
 - Head: working tree on `fix/issue-5219-explorer-snippet-template`
 - Files: 13 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

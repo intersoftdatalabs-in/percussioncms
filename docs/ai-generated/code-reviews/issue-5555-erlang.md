@@ -2,7 +2,7 @@
 
 Persona: erlang 0.1.1  
 CLI: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main`  
-Models: `/home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`  
+Models: `models.ollama-dev-coder.toml`  
 Scope: branch `fix/issue-5555-publishing-oracle-sid` vs `origin/main` (10 files).
 
 ## Summary
@@ -16,7 +16,7 @@ Machine analysis found **3** finding(s), **0** bug(s).
 - Files: 10 analyzed
 - In-diff: 2 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

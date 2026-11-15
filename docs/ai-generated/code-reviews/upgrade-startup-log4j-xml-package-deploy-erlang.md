@@ -22,4 +22,3 @@
 
 - Full Betwixt→Jackson remains #505; this PR is tactical compat only.
 - Other design-object XML using unhyphenated names outside slots may need similar normalizers if found.
-

@@ -8,7 +8,7 @@ Machine analysis found **1** finding(s), **0** blocking bug(s).
 - Head: HEAD
 - Files: 4 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -24,7 +24,7 @@ approve
 ### Issue 1 -- Severity: suggestion
 
 - File: projects/sitemanage/src/main/java/com/percussion/pubserver/impl/PSPubServerService.java:1273
-- Rule: `llm.openrouter-free`
+- Rule: `llm`
 - Tool: `llm`
 - Description: The diff adds a new FTPS branch to the folder-only update dispatch (and a new FtpsDeliveryFolderPanel wired into SiteWorkspace), but no test changes accompany it. Existing folder-only coverage for Local/FTP/SFTP does not exercise the new FTPS path, so the driver-selection behavior (FTPS routed to PSFtpsDeliveryFolderUpdate rather than falling through to PSFtpDeliveryFolderUpdate) and the documented 255-character/blank-folder semantics are unverified.
 - Suggestion: Add a service-level test that issues a folder-only PUT against an FTPS server and asserts PSFtpsDeliveryFolderUpdate is applied (host/port/user/passphrase untouched, blank folder clears, overlong folder rejected), plus a UI test for the new FtpsDeliveryFolderPanel save/cancel/error behavior.

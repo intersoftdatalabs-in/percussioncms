@@ -10,8 +10,8 @@ Machine analysis found **0** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 1 analyzed (`modules/perc-qa-automation/frontend/tests/explorer-new-copy.spec.js`)
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
-- Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+- Persona source: ~/.local/share/mkd/agents/erlang
+- Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml`
 
 ## Recommendation
 

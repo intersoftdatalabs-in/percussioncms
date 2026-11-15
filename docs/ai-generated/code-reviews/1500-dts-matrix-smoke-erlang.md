@@ -67,4 +67,3 @@ BUILD SUCCESS both modules; surefire green on packaging tests.
 
 - Packaging regression after EE11/Tomcat 11 conf tree swap (stock vs Percussion)
 - Nested jar class package path must match digester `className`
-

@@ -1,7 +1,7 @@
 # Erlang review — issue #6089 (docs-only RET-06 reconciliation)
 
 Source: `mkd-code-review analyze --pack percussion --format markdown --gate advisory
---git-base origin/main --models .../models.ollama-dev-coder.toml`
+--git-base origin/main --models models.ollama-dev-coder.toml`
 Branch: `fix/issue-6089-reconcile-1372-ret-06` (2 spec-markdown files, no production code)
 
 ## Summary
@@ -14,7 +14,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s).
 - Head: HEAD
 - Files: 2 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

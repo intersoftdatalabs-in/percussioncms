@@ -35,7 +35,7 @@ Follow-up after Kilo WARNING on PR #3804: `replaceFieldControlProperties` now re
 ### Scope
 
 - Base: `origin/main` (`458f521a6b501f0e2f52ea0e5858db163c460f4c`)
-- Head: `fix/issue-3786-content-type-control-property-values` worktree `C:/Users/Nate/.grok/worktrees/intersoft-workspace-percussioncms/pr-3804` (`a39ad4ba8226fde127412d6d13951ecfb727ac3b`)
+- Head: `fix/issue-3786-content-type-control-property-values` worktree `C:~/.grok/worktrees/intersoft-workspace-percussioncms/pr-3804` (`a39ad4ba8226fde127412d6d13951ecfb727ac3b`)
 - PR: #3804 (GitHub files snapshot still showed pre-fix `363a179`; this pass reviewed the worktree tree, including the unpushed/local follow-up)
 - Files: rest + sitemanage CD-07 surface (adaptor, resource, `IContentTypesAdaptor`, two Spring stubs, resource tests, adaptor tests, product-docs); union verified against CD-09 `itemExits` already on main
 - Prior report: `docs/ai-generated/code-reviews/issue-3786-erlang.md` (this file)

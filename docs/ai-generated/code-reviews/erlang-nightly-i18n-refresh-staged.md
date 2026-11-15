@@ -2,7 +2,7 @@
 
 - **Scope**: re-review of staged working-tree files for branch
   `chore/nightly-i18n-refresh-tooling` (worktree
-  `/home/nate/.kilo/worktrees/nightly-i18n-refresh`). Prior review
+  `~/.kilo/worktrees/nightly-i18n-refresh`). Prior review
   `docs/ai-generated/code-reviews/erlang-nightly-i18n-refresh-pre-pr.md`
   flagged 5 blocking findings; this pass verifies those are fixed and
   identifies any new findings.
@@ -310,4 +310,3 @@ None blocking. The author may commit and open the PR after:
   standard. Recommend addressing Issue 1 before the PR is opened
   to keep the test gate honest on this exact failure mode.
 - **Recommendation**: **approve**; May commit/push: **yes**.
-

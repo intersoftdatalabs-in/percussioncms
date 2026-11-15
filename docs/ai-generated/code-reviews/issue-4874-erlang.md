@@ -26,7 +26,7 @@ Independent review. This session did not author the diff.
 - Branch: `fix/issue-4874-explorer-create-page`
 - Issue: [#4874](https://github.com/intersoftdatalabs-in/percussioncms/issues/4874) — parent #4530 slice 42
 - Persona: erlang 0.1.1
-- Persona source: `/home/nate/.local/share/mkd/agents/erlang`
+- Persona source: `~/.local/share/mkd/agents/erlang`
 - Pattern memory: `modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md` and `~/.local/share/mkd/agents/erlang/PATTERNS.md`
 - Machine pass: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --machine-only --diff` (working tree vs `origin/main`, including the untracked tests). Exit 0. LLM stage skipped. Advisory "May commit/push: yes" agrees with the strict gate below.
 

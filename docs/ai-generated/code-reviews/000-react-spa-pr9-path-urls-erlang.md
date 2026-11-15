@@ -44,4 +44,3 @@ None blocking.
 
 - Java: Tests run: 11 (filter 7 + gadget 4), Failures: 0
 - Vitest: App + deepLinks + auth + spaCutover green after basename handoff fix
-

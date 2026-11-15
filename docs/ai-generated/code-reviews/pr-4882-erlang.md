@@ -31,7 +31,7 @@ Machine analysis found **8** finding(s), **0** bug(s).
 - Files: 15 analyzed
 - In-diff: 1 finding(s); preexisting: 7
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -121,4 +121,3 @@ approve
 - Description: Function `applyPageMobilePreview` cognitive=17 (max 15), cyclomatic=16 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

@@ -6,7 +6,7 @@ Licensed under the Apache License, Version 2.0.
 # Erlang review — PR #5128
 
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 - Status: mkd-code-review 0.1.18, pack percussion, gate advisory
 - Base: origin/main
 - Head: 9f2dd7324c2cd5e0a8b5e6cce43183feaeaf74f3
@@ -27,7 +27,7 @@ Machine analysis found **4** finding(s), **0** bug(s).
 - Files: 17 analyzed
 - In-diff: 0 finding(s); preexisting: 3
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

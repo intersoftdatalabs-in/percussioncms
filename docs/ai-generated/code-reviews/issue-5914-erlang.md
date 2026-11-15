@@ -1,7 +1,7 @@
 # Pre-push local code review — issue #5914
 
 Branch: `fix/issue-5914-form-view-complexity` → `main`
-Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base "origin/main" --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base "origin/main" --models models.ollama-dev-coder.toml`
 Date: 2026-11-09
 
 ## Summary
@@ -14,7 +14,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s).
 - Head: HEAD
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

@@ -9,7 +9,7 @@ Licensed under the Apache License, Version 2.0.
 
 - Persona: erlang 0.1.1
 - Persona source: ~/.local/share/mkd/agents/erlang
-- Tool: mkd-code-review 0.1.18 (`analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`)
+- Tool: mkd-code-review 0.1.18 (`analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml`)
 - PR: https://github.com/intersoftdatalabs-in/percussioncms/pull/5344
 - Head: 4a2697532edb2277a2bb9538e9bdeda0622c95a5
 - Reviewer is independent of the implementer.
@@ -29,7 +29,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 10 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -50,4 +50,3 @@ approve
 - Description: model `ollama-dev-coder` failed: http: status 500 Internal Server Error body {"error":{"message":"llama-server process has terminated: exit status 1: cudaMalloc failed: out of memory\nalloc_tensor_range: failed to allocate CUDA0 buffer of size 5064192000\nerror loading model: unable to allocate CUDA0 buffer","type":"api_error","param":null,"code":null}}
 
 - Status: open
-

@@ -7,7 +7,7 @@
 **Head**: `6d8cce1e67de6aeb859da7c4d7cefc004a4b8f7c`  
 **Prior review head**: `b00558f0f34a5a24d9569df3d43dc7ca480fe712`  
 **Base**: `origin/development`  
-**Worktree**: `/home/nate/projects/percussioncms.worktrees/004-java-path-injection-batch`  
+**Worktree**: `<worktree>`  
 **Intent**: multi-pass `java/path-injection` residual clearance (~14 product files) + consolidated path query-filters + sink-line suppressions; re-review of Erlang gate-close commit
 
 ## Summary

@@ -9,7 +9,7 @@ Machine analysis found **6** finding(s), **0** blocking bug(s).
 - Files: 2 analyzed
 - In-diff: 0 finding(s); preexisting: 6
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -83,4 +83,3 @@ approve
 - Status: open
 
 > Tip: To suppress false positives, add `// mkd-code-review[<rule_id>] <reason>` (e.g. `// mkd-code-review[paths.hardcoded_sep] web url join`) or `// codeql[<rule_id>] <reason>` on or above the line, or add an entry in `.mkd-code-review.toml`.
-

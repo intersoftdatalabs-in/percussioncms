@@ -9,7 +9,7 @@ Machine analysis found **30** finding(s) (2 suppressed), **5** blocking bug(s).
 - Files: 46 analyzed
 - In-diff: 12 finding(s); preexisting: 18
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -343,7 +343,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -371,7 +371,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -399,7 +399,7 @@ Machine analysis found **14** finding(s), **11** blocking bug(s). LLM skipped (m
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -563,7 +563,7 @@ Machine analysis found **1** finding(s), **1** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -601,7 +601,7 @@ Machine analysis found **3** finding(s), **2** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -658,7 +658,7 @@ Machine analysis found **3** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -713,7 +713,7 @@ Machine analysis found **4** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -777,7 +777,7 @@ Machine analysis found **5** finding(s), **1** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -850,7 +850,7 @@ Machine analysis found **1** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -887,7 +887,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -915,7 +915,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -943,7 +943,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -971,7 +971,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -999,7 +999,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -1027,7 +1027,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -1055,7 +1055,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -1083,7 +1083,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -1111,7 +1111,7 @@ Machine analysis found **3** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -1166,7 +1166,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -1194,7 +1194,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -1222,7 +1222,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -1250,7 +1250,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -1278,7 +1278,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -1306,7 +1306,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -1334,7 +1334,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -1362,7 +1362,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -1390,7 +1390,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -1418,7 +1418,7 @@ Machine analysis found **1** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -1455,7 +1455,7 @@ Machine analysis found **1** finding(s), **0** blocking bug(s). LLM skipped (mac
 - Head: (unspecified)
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

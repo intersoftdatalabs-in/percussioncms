@@ -29,7 +29,7 @@ Machine analysis found **3** finding(s), **3** bug(s).
 - Head: HEAD
 - Files: 3 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
