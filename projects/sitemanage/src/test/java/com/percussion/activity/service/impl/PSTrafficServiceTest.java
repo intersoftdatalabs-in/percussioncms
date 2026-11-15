@@ -21,12 +21,16 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.percussion.activity.data.PSContentTraffic;
 import com.percussion.activity.data.PSContentTrafficRequest;
 import com.percussion.activity.service.IPSActivityService;
 import com.percussion.activity.service.IPSTrafficService.PSTrafficServiceException;
+import com.percussion.analytics.error.IPSAnalyticsErrorMessageHandler;
+import com.percussion.analytics.error.PSAnalyticsProviderException;
+import com.percussion.analytics.error.PSAnalyticsProviderException.CAUSETYPE;
 import com.percussion.analytics.service.IPSAnalyticsProviderQueryService;
 import com.percussion.analytics.service.IPSAnalyticsProviderService;
 import com.percussion.pagemanagement.service.IPSPageService;
@@ -120,8 +124,9 @@ class PSTrafficServiceTest {
     PSSiteSummary site = new PSSiteSummary();
     site.setName("Demo");
     site.setId("//Sites/Demo");
+    site.setFolderPath("//Sites/Demo");
     when(siteDataService.findByPath("/Sites/Demo")).thenReturn(site);
-    when(activityService.findPageIdsByPath("/Sites/Demo")).thenReturn(Collections.emptyList());
+    when(activityService.findPageIdsByPath("//Sites/Demo")).thenReturn(Collections.emptyList());
     // dateList is breakdown + end day; 7 calendar days -> 8 buckets before removeLast
     List<Integer> zeros = List.of(0, 0, 0, 0, 0, 0, 0, 0);
     when(activityService.findPublishedItems(ArgumentMatchers.any(), ArgumentMatchers.any()))
@@ -150,8 +155,158 @@ class PSTrafficServiceTest {
     assertEquals(7, traffic.getLivePages().get().size());
   }
 
-  private static PSContentTrafficRequest sampleRequest(String path) {
-    PSContentTrafficRequest request = new PSContentTrafficRequest();
+  @Test
+  void getContentTraffic_analyticsNotConfigured_zeroFillsVisits() throws Exception {
+    // Fresh H2 cell: site resolves but GA was never set up (issue #6399). The dashboard
+    // always requests VISITS; the gadget must degrade instead of HTTP 500.
+    PSSiteSummary site = new PSSiteSummary();
+    site.setName("Corporate_Investments");
+    site.setId("//Sites/Corporate_Investments");
+    site.setFolderPath("//Sites/CorporateInvestments");
+    when(siteDataService.findByPath("/Sites/Corporate_Investments")).thenReturn(site);
+    when(activityService.findPageIdsByPath("//Sites/CorporateInvestments"))
+        .thenReturn(Collections.emptyList());
+    List<Integer> zeros = List.of(0, 0, 0, 0, 0, 0, 0, 0);
+    when(activityService.findPublishedItems(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(zeros);
+    when(activityService.findNewContentActivities(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(zeros);
+    when(activityService.findNumberContentActivities(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any(),
+            ArgumentMatchers.anyString(),
+            ArgumentMatchers.any()))
+        .thenReturn(zeros);
+    when(analyticsService.getVisitsViewsBySite(
+            ArgumentMatchers.anyString(), ArgumentMatchers.any()))
+        .thenThrow(
+            new PSAnalyticsProviderException(
+                "Analytics has not been setup yet.", CAUSETYPE.ANALYTICS_NOT_CONFIG));
+
+    PSContentTrafficRequest request = sampleRequest("/Sites/Corporate_Investments");
+    request.setTrafficRequested(
+        List.of("LIVE_PAGES", "NEW_PAGES", "UPDATED_PAGES", "TAKE_DOWNS", "VISITS"));
+
+    PSContentTraffic traffic = trafficService.getContentTraffic(request);
+
+    assertNotNull(traffic);
+    assertTrue(traffic.getDates().isPresent());
+    assertTrue(traffic.getVisits().isPresent());
+    assertEquals(traffic.getDates().get().size(), traffic.getVisits().get().size());
+    assertTrue(traffic.getVisits().get().stream().allMatch(v -> v == 0));
+    assertTrue(traffic.getNewPages().isPresent());
+    assertEquals(7, traffic.getNewPages().get().size());
+    assertTrue(traffic.getSite().isPresent());
+  }
+
+  @Test
+  void getContentTraffic_subsetRequested_noIndexOutOfBounds() throws Exception {
+    // Any subset of NEW_PAGES/UPDATED_PAGES/TAKE_DOWNS must not 500 on update-totals
+    // math (issue #6399): unrequested series count as zero.
+    PSSiteSummary site = new PSSiteSummary();
+    site.setName("Demo");
+    site.setId("//Sites/Demo");
+    site.setFolderPath("//Sites/Demo");
+    when(siteDataService.findByPath("/Sites/Demo")).thenReturn(site);
+    when(activityService.findPageIdsByPath("//Sites/Demo")).thenReturn(Collections.emptyList());
+    List<Integer> zeros = List.of(0, 0, 0, 0, 0, 0, 0, 0);
+    when(activityService.findNewContentActivities(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(zeros);
+
+    PSContentTrafficRequest request = sampleRequest("/Sites/Demo");
+    request.setTrafficRequested(List.of("NEW_PAGES"));
+
+    PSContentTraffic traffic = trafficService.getContentTraffic(request);
+
+    assertNotNull(traffic);
+    assertTrue(traffic.getUpdateTotals().isPresent());
+    assertEquals(traffic.getDates().get().size(), traffic.getUpdateTotals().get().size());
+    assertTrue(traffic.getUpdateTotals().get().stream().allMatch(v -> v == 0));
+  }
+
+  @Test
+  void getContentTraffic_noProfileForSite_zeroFillsVisits() throws Exception {
+    // Site resolves but has no GA property mapping (NO_PROFILE): same degrade-to-zero
+    // path as analytics-not-configured (issue #6399).
+    PSSiteSummary site = new PSSiteSummary();
+    site.setName("Corporate_Investments");
+    site.setId("//Sites/Corporate_Investments");
+    site.setFolderPath("//Sites/CorporateInvestments");
+    when(siteDataService.findByPath("/Sites/Corporate_Investments")).thenReturn(site);
+    when(activityService.findPageIdsByPath("//Sites/CorporateInvestments"))
+        .thenReturn(Collections.emptyList());
+    List<Integer> zeros = List.of(0, 0, 0, 0, 0, 0, 0, 0);
+    when(activityService.findPublishedItems(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(zeros);
+    when(activityService.findNewContentActivities(ArgumentMatchers.any(), ArgumentMatchers.any()))
+        .thenReturn(zeros);
+    when(activityService.findNumberContentActivities(
+            ArgumentMatchers.any(),
+            ArgumentMatchers.any(),
+            ArgumentMatchers.anyString(),
+            ArgumentMatchers.any()))
+        .thenReturn(zeros);
+    when(analyticsService.getVisitsViewsBySite(
+            ArgumentMatchers.anyString(), ArgumentMatchers.any()))
+        .thenThrow(
+            new PSAnalyticsProviderException(
+                "No property set for site <Corporate_Investments>.", CAUSETYPE.NO_PROFILE));
+
+    PSContentTrafficRequest request = sampleRequest("/Sites/Corporate_Investments");
+    request.setTrafficRequested(
+        List.of("LIVE_PAGES", "NEW_PAGES", "UPDATED_PAGES", "TAKE_DOWNS", "VISITS"));
+
+    PSContentTraffic traffic = trafficService.getContentTraffic(request);
+
+    assertNotNull(traffic);
+    assertTrue(traffic.getVisits().isPresent());
+    assertEquals(traffic.getDates().get().size(), traffic.getVisits().get().size());
+    assertTrue(traffic.getVisits().get().stream().allMatch(v -> v == 0));
+  }
+
+  @Test
+  void getContentTraffic_analyticsAuthFailure_stillThrows() throws Exception {
+    // Safety-critical else branch (issue #6399): real analytics outages (auth, transport)
+    // must stay HTTP 500, not degrade to zeros.
+    PSSiteSummary site = new PSSiteSummary();
+    site.setName("Corporate_Investments");
+    site.setId("//Sites/Corporate_Investments");
+    site.setFolderPath("//Sites/CorporateInvestments");
+    when(siteDataService.findByPath("/Sites/Corporate_Investments")).thenReturn(site);
+    when(analyticsService.getVisitsViewsBySite(
+            ArgumentMatchers.anyString(), ArgumentMatchers.any()))
+        .thenThrow(
+            new PSAnalyticsProviderException(
+                "Authentication error.", CAUSETYPE.AUTHENTICATION_ERROR));
+    IPSAnalyticsErrorMessageHandler errorHandler =
+        org.mockito.Mockito.mock(IPSAnalyticsErrorMessageHandler.class);
+    when(providerService.getErrorMessageHandler()).thenReturn(errorHandler);
+    when(errorHandler.getMessage(ArgumentMatchers.any())).thenReturn("Authentication error.");
+
+    PSContentTrafficRequest request = sampleRequest("/Sites/Corporate_Investments");
+    request.setTrafficRequested(List.of("VISITS"));
+
+    assertThrows(PSTrafficServiceException.class, () -> trafficService.getContentTraffic(request));
+  }
+
+  @Test
+  void getContentTraffic_siteWithoutFolder_usesSlashNormalizedPath() throws Exception {    // Callers (or summaries) without folder metadata still issue a well-formed '//'-rooted
+    // query instead of tripping the legacy "must start with '//'" error (issue #6399).
+    PSSiteSummary site = new PSSiteSummary();
+    site.setName("Demo");
+    site.setId("//Sites/Demo");
+    when(siteDataService.findByPath("/Sites/Demo")).thenReturn(site);
+    when(activityService.findPageIdsByPath("//Sites/Demo")).thenReturn(Collections.emptyList());
+
+    PSContentTrafficRequest request = sampleRequest("/Sites/Demo");
+
+    PSContentTraffic traffic = trafficService.getContentTraffic(request);
+
+    assertNotNull(traffic);
+    verify(activityService).findPageIdsByPath("//Sites/Demo");
+  }
+
+  private static PSContentTrafficRequest sampleRequest(String path) {    PSContentTrafficRequest request = new PSContentTrafficRequest();
     request.setPath(path);
     request.setStartDate("01/01/2024");
     request.setEndDate("01/07/2024");

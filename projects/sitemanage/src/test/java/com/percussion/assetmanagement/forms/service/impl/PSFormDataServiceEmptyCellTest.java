@@ -19,15 +19,25 @@ package com.percussion.assetmanagement.forms.service.impl;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
+import com.percussion.delivery.client.IPSDeliveryClient.PSDeliveryActionOptions;
+import com.percussion.delivery.client.IPSDeliveryClient.PSDeliveryClientException;
+import com.percussion.delivery.client.PSDeliveryClient;
 import com.percussion.delivery.data.PSDeliveryInfo;
 import com.percussion.delivery.service.IPSDeliveryInfoService;
 import com.percussion.pubserver.IPSPubServerService;
+import jakarta.ws.rs.WebApplicationException;
 import java.lang.reflect.Field;
+import java.net.ConnectException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -83,5 +93,60 @@ class PSFormDataServiceEmptyCellTest {
     stubNoDeliveryServer();
 
     assertEquals("", formDataService.exportFormData("Site", "form"));
+  }
+
+  @Test
+  void getAllFormData_unreachableDeliveryServer_returnsEmptyList() throws Exception {
+    // Fresh CMS-only H2 cell: a default delivery record exists but nothing listens
+    // (issue #6399). Gadgets expect an empty payload, not HTTP 500.
+    PSFormDataService spy = spyWithFailingDeliveryClient(new ConnectException("Connection refused"));
+
+    var result = spy.getAllFormData("Site");
+
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
+  }
+
+  @Test
+  void getAllFormData_nonTransportFailure_stillThrows() throws Exception {
+    // Narrowing the catch must not mask real outages (issue #6399): parse/config
+    // failures still surface as HTTP 500.
+    PSFormDataService spy =
+        spyWithFailingDeliveryClient(new PSDeliveryClientException("Error parsing JSON response"));
+
+    assertThrows(WebApplicationException.class, () -> spy.getAllFormData("Site"));
+  }
+
+  @Test
+  void getAllFormData_clientUnreachableMessage_returnsEmptyList() throws Exception {
+    // Production shape on a CMS-only cell (server.log, issue #6399): PSDeliveryClient
+    // throws its "Unable to connect ..." message WITHOUT a cause chain.
+    PSFormDataService spy =
+        spyWithFailingDeliveryClient(
+            new PSDeliveryClientException(
+                "Unable to connect to delivery server at: {}.https://localhost:8443."));
+
+    var result = spy.getAllFormData("Site");
+
+    assertNotNull(result);
+    assertTrue(result.isEmpty());
+  }
+
+  private PSFormDataService spyWithFailingDeliveryClient(Throwable failure) throws Exception {
+    var server = new PSDeliveryInfo("https://localhost:8443");
+    when(pubServerService.getDefaultAdminURL("Site")).thenReturn(null);
+    when(deliveryService.findByService(eq(PSDeliveryInfo.SERVICE_FORMS), isNull(), isNull()))
+        .thenReturn(server);
+
+    PSDeliveryClient deliveryClient = mock(PSDeliveryClient.class);
+    PSDeliveryClientException transportFailure =
+        failure instanceof PSDeliveryClientException dce
+            ? dce
+            : new PSDeliveryClientException(failure);
+    when(deliveryClient.getJsonObject(any(PSDeliveryActionOptions.class)))
+        .thenThrow(transportFailure);
+    PSFormDataService spy = spy(formDataService);
+    doReturn(deliveryClient).when(spy).createDeliveryClient();
+    return spy;
   }
 }

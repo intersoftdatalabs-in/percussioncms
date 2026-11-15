@@ -49,6 +49,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.net.ConnectException;
+import java.net.NoRouteToHostException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+import java.net.http.HttpTimeoutException;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -111,7 +116,7 @@ public class PSFormDataService implements IPSFormDataService {
       procUrl = server.getUrl() + FORM_INFO_URL;
 
       var result = new ArrayList<PSFormSummary>();
-      var deliveryClient = new PSDeliveryClient();
+      var deliveryClient = createDeliveryClient();
       var getJson =
           deliveryClient.getJsonObject(
               new PSDeliveryActionOptions(
@@ -142,6 +147,17 @@ public class PSFormDataService implements IPSFormDataService {
       result.sort(new CompareFormSummary());
       return new PSFormSummaryList(result);
     } catch (Exception e) {
+      if (isDeliveryUnreachable(e)) {
+        // CMS-only cell: a delivery record exists (default https://localhost:8443) but nothing
+        // listens. Home gadgets expect an empty payload, not HTTP 500 (issue #6399). Only
+        // connection-establishment failures degrade; parse/config errors below still become 500
+        // so real outages stay visible.
+        log.warn(
+            "Delivery server unreachable at : {} — returning empty forms list. Error: {}",
+            procUrl,
+            PSExceptionUtils.getMessageForLog(e));
+        return Collections.emptyList();
+      }
       log.warn(
           "Error getting all form data from processor at : {} Error: {}",
           procUrl,
@@ -156,6 +172,39 @@ public class PSFormDataService implements IPSFormDataService {
     public int compare(PSFormSummary s1, PSFormSummary s2) {
       return s1.getName().compareToIgnoreCase(s2.getName());
     }
+  }
+
+  /**
+   * Creates the delivery client for DTS calls. Package-visible seam so empty-cell tests can stub
+   * transport failures without a live delivery tier.
+   */
+  PSDeliveryClient createDeliveryClient() {
+    return new PSDeliveryClient();
+  }
+
+  /**
+   * Whether the failure is a connection-establishment failure against the delivery tier (nothing
+   * listening, unknown host, route or timeout — the CMS-only cell shape). Only these degrade to
+   * empty payloads; anything else (bad payloads, config, auth) still surfaces as HTTP 500.
+   *
+   * <p>Matches both wrapped transport causes and the client's own unreachable message
+   * (thrown without a cause when the JDK HTTP client raises {@link java.io.IOException}).
+   */
+  static boolean isDeliveryUnreachable(Throwable t) {
+    for (var cause = t; cause != null; cause = cause.getCause()) {
+      if (cause instanceof UnknownHostException
+          || cause instanceof ConnectException
+          || cause instanceof NoRouteToHostException
+          || cause instanceof SocketTimeoutException
+          || cause instanceof HttpTimeoutException) {
+        return true;
+      }
+      var message = cause.getMessage();
+      if (message != null && message.startsWith("Unable to connect to delivery server at:")) {
+        return true;
+      }
+    }
+    return false;
   }
 
   @Override

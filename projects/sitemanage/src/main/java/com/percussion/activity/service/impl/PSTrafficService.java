@@ -29,6 +29,7 @@ import com.percussion.activity.service.IPSActivityService;
 import com.percussion.activity.service.IPSTrafficService;
 import com.percussion.analytics.data.IPSAnalyticsQueryResult;
 import com.percussion.analytics.error.PSAnalyticsProviderException;
+import com.percussion.analytics.error.PSAnalyticsProviderException.CAUSETYPE;
 import com.percussion.analytics.service.IPSAnalyticsProviderQueryService;
 import com.percussion.analytics.service.IPSAnalyticsProviderService;
 import com.percussion.pagemanagement.data.PSPage;
@@ -134,7 +135,7 @@ public class PSTrafficService implements IPSTrafficService {
     List<Date> dateList = new ArrayList<>(range.getGranularityBreakdown());
     dateList.add(range.getEnd());
 
-    Collection<Integer> pageIds = activityService.findPageIdsByPath(path);
+    Collection<Integer> pageIds = activityService.findPageIdsByPath(pageLookupPath(siteInfo, path));
 
     if (dataReq.contains(PSTrafficTypeEnum.LIVE_PAGES.toString())) {
       livePages.addAll(activityService.findPublishedItems(pageIds, dateList));
@@ -159,15 +160,29 @@ public class PSTrafficService implements IPSTrafficService {
         visits.addAll(
             createAnalyticsActivity(range, dateList, siteInfo.getName(), request.getUsage()));
       } catch (PSAnalyticsProviderException e) {
-        var errorHandler = providerService.getErrorMessageHandler();
-        throw new PSTrafficServiceException(errorHandler.getMessage(e), e);
+        if (e.getCauseType() == CAUSETYPE.ANALYTICS_NOT_CONFIG
+            || e.getCauseType() == CAUSETYPE.NO_PROFILE) {
+          // Fresh cell or site without a GA mapping: the Home Traffic gadget degrades to a
+          // zero-filled visits series instead of HTTP 500 (issue #6399). Auth/transport
+          // failures below still throw so real outages stay visible.
+          log.warn(
+              "Analytics not configured for site {}; returning zero-filled visits series. Cause:"
+                  + " {}",
+              siteInfo.getName(),
+              PSExceptionUtils.getMessageForLog(e));
+          visits.addAll(Collections.nCopies(dateList.size() - 1, 0));
+        } else {
+          var errorHandler = providerService.getErrorMessageHandler();
+          throw new PSTrafficServiceException(errorHandler.getMessage(e), e);
+        }
       } catch (IPSGenericDao.LoadException e) {
         throw new PSTrafficServiceException(e.getMessage(), e);
       }
     }
 
     for (int i = 0; i < dates.size(); i++) {
-      updateTotals.add(i, newPages.get(i) + pageUpdates.get(i) + takeDowns.get(i));
+      updateTotals.add(
+          i, atOrZero(newPages, i) + atOrZero(pageUpdates, i) + atOrZero(takeDowns, i));
     }
     results.setDates(removeLast(dates));
     results.setPageUpdates(removeLast(pageUpdates));
@@ -272,6 +287,38 @@ public class PSTrafficService implements IPSTrafficService {
       }
     }
     return results;
+  }
+
+  /**
+   * Repository path used for page lookups for a site request.
+   *
+   * <p>The Home dashboard sends the finder-style site-name path ({@code /Sites/<name>}), but JCR
+   * content queries need the repository folder ({@code //Sites/<folder>}); the name and folder
+   * differ (e.g. {@code Corporate_Investments} vs {@code CorporateInvestments}), and the legacy
+   * query engine rejects single-slash paths outright. Prefer the resolved site's folder; fall back
+   * to slash-normalizing the request path so callers without site metadata still issue a
+   * well-formed (possibly empty) query instead of an ERROR + empty (issue #6399).
+   */
+  private static String pageLookupPath(PSSiteSummary siteInfo, String requestPath) {
+    if (siteInfo != null && StringUtils.isNotBlank(siteInfo.getFolderPath())) {
+      return siteInfo.getFolderPath();
+    }
+    if (requestPath != null && requestPath.startsWith("/") && !requestPath.startsWith("//")) {
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6399,
+      // same as #6325/#5898/#5910/#5927) — slashes parse the CMS logical finder path, not an OS path.
+      return "/" + requestPath;
+    }
+    return requestPath;
+  }
+
+  /**
+   * Null-safe indexed read for update-totals math: callers may request any subset of
+   * NEW_PAGES/UPDATED_PAGES/TAKE_DOWNS, and unrequested series stay empty (never {@code null}).
+   * Missing entries count as zero instead of throwing {@code IndexOutOfBoundsException} → HTTP
+   * 500 (issue #6399).
+   */
+  private static int atOrZero(List<Integer> series, int index) {
+    return index < series.size() ? series.get(index) : 0;
   }
 
   /**
