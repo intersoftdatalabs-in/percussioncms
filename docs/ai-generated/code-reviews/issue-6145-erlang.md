@@ -9,7 +9,7 @@ Machine analysis found **5** finding(s) (4 suppressed), **0** blocking bug(s).
 - Files: 2 analyzed
 - In-diff: 4 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -44,4 +44,3 @@ approve
 - `paths.hardcoded_sep` on `WebUI/src/main/java/com/percussion/webui/filter/PSWebUiSpaFallbackFilter.java:402` -- *Justification*: : URL prefix join, not a filesystem path — see adjudication above (issue #6145). (via in_source_mkd)
 
 </details>
-

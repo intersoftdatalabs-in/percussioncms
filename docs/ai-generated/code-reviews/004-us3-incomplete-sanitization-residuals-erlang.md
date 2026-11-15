@@ -48,4 +48,3 @@ Not applicable — no filesystem path construction, no OS temp hardcodes, no pat
 cd WebUI && npm test -- --run src/test/js/percGetDashboardColumn.test.js src/test/js/percIncompleteSanitization.test.js
 # 43 passed
 ```
-

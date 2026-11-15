@@ -27,4 +27,3 @@ Surface-filtered Playwright companion for Developer Workflow → Allowed content
 ## Gate
 
 **PASS** — C5 surface 2/2 green on H2 QA.
-

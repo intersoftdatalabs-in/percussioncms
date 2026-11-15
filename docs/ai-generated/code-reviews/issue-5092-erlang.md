@@ -8,7 +8,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 5 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -35,4 +35,3 @@ approve
 LLM stage returned HTTP 500 (CUDA out of memory loading the model). The task
 keeps machine findings when the model is unavailable. Machine gate: 0 bugs,
 approve, may commit/push. Not treated as a blocking finding.
-

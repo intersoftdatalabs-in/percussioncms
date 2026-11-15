@@ -14,7 +14,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Files: 11 analyzed
 - In-diff: 1 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -44,4 +44,3 @@ approve
 - Description: Function `injectFlushCacheAction` cognitive=27 (max 15), cyclomatic=16 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

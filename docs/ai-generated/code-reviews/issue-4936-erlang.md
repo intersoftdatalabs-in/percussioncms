@@ -8,7 +8,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 5 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -29,4 +29,3 @@ approve
 - Description: The documentation should mention that the 'Open in editor' action is hidden for rows with no content id.
 - Suggestion: Update the documentation to include a note about hiding the 'Open in editor' action for rows without a content id.
 - Status: open
-

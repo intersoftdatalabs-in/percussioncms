@@ -5,7 +5,7 @@ Command:
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
     --git-base origin/main \
-    --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+    --models models.ollama-dev-coder.toml
 ```
 
 Cwd: PR branch `fix/issue-5503-delivery-server-default` at `2ed18d87f90b4a0a95d2b1f3e115261900072116`.
@@ -26,7 +26,7 @@ Independent review found **0 in-diff bugs**. Gate: **PASS**.
 - Files: 14 analyzed
 - In-diff: 1 finding(s); preexisting: 2
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 - Pack: percussion
 - Gate: advisory CLI (in-diff bugs only) plus Erlang strict gate on intent/companions
 

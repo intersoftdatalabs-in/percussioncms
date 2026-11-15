@@ -5,7 +5,7 @@ Command:
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
   --git-base origin/main \
-  --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+  --models models.ollama-dev-coder.toml
 ```
 
 Second run confirmed deterministic (same 4 findings, LLM skipped `secret_hit` both times).
@@ -21,7 +21,7 @@ Machine analysis found **4** finding(s), **3** bug(s). LLM skipped (secret_hit)
 - Files: 10 analyzed
 - In-diff: 3 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

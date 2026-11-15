@@ -9,7 +9,7 @@ Machine analysis found **3** finding(s), **1** bug(s).
 - Files: 1 analyzed
 - In-diff: 1 finding(s); preexisting: 2
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -51,4 +51,3 @@ request-changes
 - Description: Possible non-portable path construction (line 1155)
 - Suggestion: Use Path/PathBuf, path.join, File.separator, or pathSeparator — not literal / or \ joins.
 - Status: open
-

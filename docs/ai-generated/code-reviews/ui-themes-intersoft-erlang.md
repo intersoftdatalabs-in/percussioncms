@@ -28,8 +28,8 @@ Recommendation: **approve** (post-fix).
     `WebUI/src/main/ts/css-modules.d.ts`,
     `WebUI/src/main/webapp/cm/themes/intersoft/brand/{intersoft-logo-horizontal.png,intersoft-mark.png}`,
     `WebUI/src/test/ts/ui-themes/{registry.test.ts,ThemeProvider.test.tsx,intersoft/intersoftTheme.test.ts}`
-  - Modified: `WebUI/src/main/ts/home/HomeShell.tsx`,
-    `WebUI/src/test/ts/home/HomeShell.test.tsx`, `WebUI/README.md`
+  - Modified: `WebUI/src/main/ts~`,
+    `WebUI/src/test/ts~`, `WebUI/README.md`
 - Pre-PR gate: `npx tsc --noEmit` clean, `npx vite build` succeeds
   (CSS 2.01 kB, JS 887 kB), `cd WebUI && ..\mvnw.cmd clean install`
   **BUILD SUCCESS** (4 Java tests, 0 failures, no new warnings).
@@ -144,7 +144,7 @@ approve
 
 ### Issue 6 — Severity: nit (open)
 
-- File: `WebUI/src/main/ts/home/HomeShell.tsx:87-127`
+- File: `WebUI/src/main/ts~:87-127`
 - Description: the JSX indentation after the new `<BrandBar />` /
   `<BrandFooter />` was left uneven during the multi-step edit
   (existing children at column 6, new ones at column 8). Syntactically
@@ -181,7 +181,7 @@ Jetty the same way on Windows and Unix.
 - New: `WebUI/src/test/ts/ui-themes/ThemeProvider.test.tsx`
   (7 cases — provider injection, CSS-var write, override, fallback
   hook, `BrandBar`/`BrandFooter` render)
-- Modified: `WebUI/src/test/ts/home/HomeShell.test.tsx`
+- Modified: `WebUI/src/test/ts~`
   (+1 case — shell is wrapped in `data-perc-theme="intersoft"`
   scope and renders the new chrome)
 - Behavioral coverage: yes. Every assertion exercises
@@ -227,4 +227,3 @@ covered conceptually under "**immutable tokens**" in the
 - May commit/push: **yes** (post-fix).
 - Author should now: create feature branch, commit only the
   theme-related files, open PR against `development`.
-

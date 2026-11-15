@@ -171,4 +171,3 @@ None.
   SC-003 / SC-004 / SC-008; (b) the `python3 -m pytest scripts/test_mvn_env_untouched.py -v`
   output showing 18/18 pass; (c) the GH Actions run URL once green on both
   runners (can be added after first push).
-

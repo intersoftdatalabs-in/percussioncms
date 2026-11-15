@@ -54,4 +54,3 @@ property, structural JUnit coverage, and docs.
 | `…/PercLoggingLog4j2ConfigTest.java`  | Structural contract tests             |
 | `modules/perc-jetty/pom.xml`          | junit + test bindings (packaging=pom) |
 | `README.md` / `AGENTS.md`             | Operator / agent notes                |
-

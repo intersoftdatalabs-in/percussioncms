@@ -224,4 +224,3 @@ documented in `phase4-scope-survey.md` as a Phase 4+ follow-up.
 > The pre-existing `com.percussion.xml.serialization.junit.PSObjectSerializerTest
 > .test02DeSerialization` failure in `system/` is documented in the root `AGENTS.md` as
 > unrelated to this work and is not in the diff for this PR.
-

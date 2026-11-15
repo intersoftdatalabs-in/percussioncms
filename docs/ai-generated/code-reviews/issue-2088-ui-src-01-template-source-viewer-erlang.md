@@ -39,4 +39,3 @@ None at **bug** severity.
 
 - Vitest: `templateSourceViewer.test.ts` (14), `TemplateDetailPanel.test.tsx` (3) — green locally.
 - Playwright: `developer-template-source-viewer.spec.js` — code only; live blocked on CMS/H2 qa-up.
-

@@ -1,6 +1,6 @@
 # Erlang review — issue #5573 (locale first day of week)
 
-Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --diff tmp/issue-5573-erlang.diff --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --diff tmp/issue-5573-erlang.diff --git-base origin/main --models models.ollama-dev-coder.toml`
 
 ## Summary
 
@@ -13,7 +13,7 @@ Machine analysis found **19** finding(s), **0** bug(s).
 - Files: 15 analyzed
 - In-diff: 4 finding(s); preexisting: 15
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -199,4 +199,3 @@ approve
 - Description: Function `isFirstDayOfWeekOnlyWrite` cognitive=5 (max 15), cyclomatic=17 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

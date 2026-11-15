@@ -190,4 +190,3 @@ change. Module test run was scoped to this class only as instructed.
   by two spaces to match the class-member convention used by every other
   test in the file. After the indent fix, re-run spotless + the targeted
   test suite as a sanity check, then commit.
-

@@ -9,7 +9,7 @@ Machine analysis found **2** finding(s), **1** blocking bug(s).
 - Files: 1 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -25,7 +25,7 @@ request-changes
 ### Issue 1 -- Severity: bug
 
 - File: modules/perc-i18n/src/test/java/com/percussion/i18n/PSTmxResourceBundleScanTest.java:177
-- Rule: `llm.openrouter-free`
+- Rule: `llm`
 - Tool: `llm`
 - Description: Test expects key 'perc.ui.dashboard.modern@None' but this key is not added to CmsUi.tmx in the same change. The TMX diff only adds 6 community switcher keys, but the test requires 7 keys including 'None'.
 - Suggestion: Either add 'perc.ui.dashboard.modern@None' to CmsUi.tmx with an en-us translation, or remove it from the required set in the test if it's not needed for the community switcher feature.
@@ -45,7 +45,7 @@ request-changes
 
 ## Adjudication (author, 2026-11-15)
 
-**Issue 1 (`llm.openrouter-free`, "bug", request-changes) is a verified false
+**Issue 1 (`llm`, "bug", request-changes) is a verified false
 positive — does not block.** The reviewer saw only the 6 added `<tu>` hunks
 and concluded the 7th required key `perc.ui.dashboard.modern@None` is absent
 from `CmsUi.tmx`. It is present on `origin/main` (added by merged PR #6346,

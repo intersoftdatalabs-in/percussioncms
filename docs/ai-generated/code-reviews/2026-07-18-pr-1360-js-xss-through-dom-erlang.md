@@ -2,7 +2,7 @@
 
 **Date:** 2026-07-18  
 **Reviewer:** Erlang (strict independent pre-merge)  
-**Worktree:** `/home/nate/projects/percussioncms.worktrees/004-js-xss-through-dom`  
+**Worktree:** `<worktree>`  
 **Branch:** `004/us3-js-xss-through-dom-dom-text`  
 **Head:** `85bf50742802bef8cdb7f1a1c4dcc7785e782e25`  
 **Base:** `origin/development` (`78b1465f9b8b4daeace4c5434cd9d91fff106a5f`)  
@@ -184,4 +184,3 @@ Applied (diff touches tests that resolve filesystem paths; no installer/packagin
 3. Fix Issue 1 (behavioral tests for `safeThumbnailSrc`) and Issue 2 (`suppressions.md` rows) first; re-run Vitest WebUI suite; re-run Erlang.
 4. Durable report: `docs/ai-generated/code-reviews/2026-07-18-pr-1360-js-xss-through-dom-erlang.md`
 5. After code fixes, complete PR thread resolve protocol for remaining CodeQL residual threads.
-

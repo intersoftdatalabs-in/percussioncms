@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0.
 
 # Erlang review — PR 5485
 
-Independent pre-merge review. Author of the feature is not this review. Persona: erlang 0.1.1. Persona source: /home/nate/.local/share/mkd/agents/erlang.
+Independent pre-merge review. Author of the feature is not this review. Persona: erlang 0.1.1. Persona source: ~/.local/share/mkd/agents/erlang.
 
 ## Pre-push local code review
 
@@ -20,7 +20,7 @@ Machine analysis found **3** finding(s), **0** bug(s).
 - Files: 11 analyzed
 - In-diff: 2 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

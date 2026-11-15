@@ -37,4 +37,3 @@ None (hard gate).
 
 - `cd WebUI && npm test -- --run src/test/ts/login src/test/ts/app` → 10 tests, 0 failures
 - `cd system && ../mvnw test -Dtest=PSLoginServletTest` + clean install (see PR body)
-

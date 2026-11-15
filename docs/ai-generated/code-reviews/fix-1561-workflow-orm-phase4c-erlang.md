@@ -81,4 +81,3 @@ Disabled tests will be re-enabled when the Phase 4+ Spring+H2 infrastructure lan
 
 - Phase 4d: `PSExitAddPossibleTransitions{,Ex}` + `PSExitPerformTransition` + `CONTENTADHOCUSERS` writes + `PSConnectionMgr` deletion.
 - Phase 4+: Spring+H2 test infrastructure.
-

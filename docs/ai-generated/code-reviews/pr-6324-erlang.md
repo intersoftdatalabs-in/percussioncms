@@ -3,7 +3,7 @@
 Independent reviewer: **Erlang Shen** (third eye; did not author the change).
 Persona: `erlang 0.1.1` (`~/.agents/skills/erlang/`).
 Engine: `mkd-code-review 0.4.0` — `--pack percussion --format markdown --gate advisory --git-base origin/main`
-with `--models config/models.ollama-dev-coder.toml` (Ollama `dev-coder:latest`, `localhost:11434`).
+with `--models models.ollama-dev-coder.toml` (Ollama `dev-coder:latest`, `localhost:11434`).
 LLM residual stage: `outcome=completed findings=0`.
 Mode: in-diff bugs gate the merge; preexisting rows never block (recorded as residuals instead).
 
@@ -54,7 +54,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s).
 - Head: HEAD
 - Files: 9 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

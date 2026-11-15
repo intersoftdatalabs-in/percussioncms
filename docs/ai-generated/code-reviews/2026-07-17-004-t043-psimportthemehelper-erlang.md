@@ -141,4 +141,3 @@ Fix the external-URL regression and eliminate mutable per-import security state 
 All five v1 blocking findings are resolved. The cross-platform and test-coverage items are resolved by `Path.resolve` chains and the constructor+Mockito harness. Fail-then-pass is established via the signature change. The new `isHttpUrl` helper is correct (case-insensitive, null-safe, defensive). The remaining concerns (silent `catch (Exception)` in `process()`, unused import, no explicit uppercase-scheme test) are nits/suggestions, not blockers.
 
 - **May commit/push**: yes
-

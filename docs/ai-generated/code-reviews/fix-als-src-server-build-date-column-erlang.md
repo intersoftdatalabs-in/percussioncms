@@ -36,4 +36,3 @@ None.
 
 - `cd deployer && ../mvnw -o test -Dtest=PSLogHandlerTest` — Tests run: 2, Failures: 0
 - Pre-PR: `cd deployer && ../mvnw -o clean install` (standalone)
-

@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0.
 ## Scope
 
 - Persona: erlang 0.1.1
-- Persona source: `/home/nate/.local/share/mkd/agents/erlang`
+- Persona source: `~/.local/share/mkd/agents/erlang`
 - Status: mkd-code-review 0.1.18, pack percussion, `--gate advisory`, `--diff` of the uncommitted 1989 slice
 - Issue: https://github.com/intersoftdatalabs-in/percussioncms/issues/1989
 - Branch: `fix/issue-1989-linux-service-namespace-soak` (HEAD `01f7182965`, equals `origin/main`; the slice is uncommitted)
@@ -61,7 +61,7 @@ Machine analysis found **0** finding(s), **0** bug(s).
 - Head: (unspecified)
 - Files: 7 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

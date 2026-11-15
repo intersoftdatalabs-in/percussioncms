@@ -9,7 +9,7 @@ Machine analysis found **5** finding(s), **0** bug(s).
 - Files: 13 analyzed
 - In-diff: 3 finding(s); preexisting: 2
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -67,4 +67,3 @@ approve
 - Description: Function `assignParentFieldSequences` cognitive=22 (max 15), cyclomatic=18 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

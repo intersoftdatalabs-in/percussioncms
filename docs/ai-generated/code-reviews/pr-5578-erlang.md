@@ -22,7 +22,7 @@ Command:
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
     --git-base origin/main \
-    --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+    --models models.ollama-dev-coder.toml
 ```
 
 Cwd: PR head `d778c172e59ab26903a29e54ce83e71fb172405d` (`fix/issue-5559-editor-yesno-nul`).
@@ -41,7 +41,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Files: 10 analyzed
 - In-diff: 0 finding(s); preexisting: 2
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

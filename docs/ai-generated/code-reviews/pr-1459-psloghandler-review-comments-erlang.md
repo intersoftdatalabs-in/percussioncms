@@ -90,4 +90,3 @@ agnostic. **Clean.**
   requires inline mitigation replies on each of the four review threads
   citing the commit hash, **and** `resolveReviewThread` GraphQL mutations.
   Code-only fixes are not merge-ready on GitHub.
-

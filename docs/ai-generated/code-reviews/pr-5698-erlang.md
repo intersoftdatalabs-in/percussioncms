@@ -27,7 +27,7 @@ Machine analysis found **14** finding(s), **4** bug(s). LLM skipped (secret_hit)
 - Files: 13 analyzed
 - In-diff: 12 finding(s); preexisting: 2
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

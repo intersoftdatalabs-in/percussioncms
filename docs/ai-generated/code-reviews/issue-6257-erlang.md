@@ -9,7 +9,7 @@ Machine analysis found **36** finding(s) (1 suppressed), **0** blocking bug(s).
 - Files: 22 analyzed
 - In-diff: 1 finding(s); preexisting: 35
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -378,4 +378,3 @@ approve
 - `paths.hardcoded_sep` on `projects/sitemanage/src/main/java/com/percussion/apibridge/FolderAdaptor.java:2020` -- *Justification*: : adjudicated intentional (issue #6257) — (via in_source_mkd)
 
 </details>
-

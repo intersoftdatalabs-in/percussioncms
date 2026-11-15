@@ -9,7 +9,7 @@ Machine analysis found **3** finding(s), **0** bug(s).
 - Files: 10 analyzed
 - In-diff: 2 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -52,4 +52,3 @@ approve
 ## Intent
 
 Folder-only FTP delivery-server PUT. Host, port, user, and password stay. A blank folder clears the stored folder. An overlong folder does not write. Non-FTP drivers, including Local, are rejected before properties change. Vitest covers cancel, a blank clear, and HTTP 400/403/409. The password strings are test fixtures, the same shape as the host, port, and user slices, and are not logged. The remote folder is stored as trimmed text and is not joined with the local filesystem separator. The cognitive finding is preexisting on `updatePubServer`. No in-diff bugs, missing behavioral tests, or non-portable paths. Gate: PASS (advisory, 0 blocking bugs).
-

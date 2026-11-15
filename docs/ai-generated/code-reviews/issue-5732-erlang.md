@@ -8,7 +8,7 @@ Machine analysis found **3** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 3 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -47,4 +47,3 @@ approve
 - Description: Consider adding tests for the new translation keys to ensure they are correctly localized and used in the application.
 - Suggestion: Write unit tests that verify the translations are displayed correctly in different languages and contexts.
 - Status: open
-

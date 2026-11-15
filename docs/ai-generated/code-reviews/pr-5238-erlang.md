@@ -17,7 +17,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 5 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -45,4 +45,3 @@ approve
 **approve.** In-diff bugs: 0. No preexisting machine bugs. The Ollama failure is a local CUDA allocation error, not a product defect.
 
 `EditorHost` already refuses a blank required date through `collectRequiredFieldErrors` / `isEmptyEditorFieldValue`. This change locks that contract with behavioral Vitest (clear, emptied picker, Close/Cancel, non-blank save, reload) and a surface Playwright spec, and documents it. Optional date clear is unchanged. May merge.
-

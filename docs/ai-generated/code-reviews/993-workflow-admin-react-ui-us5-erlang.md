@@ -48,4 +48,3 @@ No blocking bugs or suggestions identified.
 - `npm test`: 15/15 tests passing (including `WorkflowActionsPanel.test.tsx` and `TransitionDialog.test.tsx`).
 - `i18n`: 100% TMX message coverage.
 - `React`: Clean unmount guard `isMountedRef` applied to state updates in both `WorkflowActionsPanel` and `AdhocSearch`.
-

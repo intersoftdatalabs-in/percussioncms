@@ -11,7 +11,7 @@ Machine analysis found **14** finding(s), **4** bug(s). LLM skipped (secret_hit)
 - Files: 12 analyzed
 - In-diff: 12 finding(s); preexisting: 2
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -181,4 +181,4 @@ request-changes
   layers (sitemanage 7/7, Vitest 10/10, Playwright surface pending at review
   time), no non-portable paths. Report footer says `May commit/push: yes`.
 - Command: `mkd-code-review analyze --pack percussion --format markdown
-  --gate advisory --git-base origin/main --models .../models.ollama-dev-coder.toml`
+  --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml`

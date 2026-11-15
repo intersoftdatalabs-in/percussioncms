@@ -38,4 +38,3 @@ No blocking bugs or suggestions identified.
 - `npm test`: 13/13 tests passing (including `CategoriesSection.test.tsx` and updated `WorkflowAdminShell.test.tsx`).
 - `i18n`: 100% TMX message coverage (`message(WF_ADMIN_MSG.*)`).
 - `React`: Clean unmount guard `isMountedRef` applied to category loading and lock query endpoints to prevent state updates on unmounted components.
-

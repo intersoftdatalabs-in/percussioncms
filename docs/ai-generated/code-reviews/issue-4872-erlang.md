@@ -14,7 +14,7 @@ You may obtain a copy of the License at
 **Branch:** `fix/issue-4872-explorer-multi-checkin`
 **Commit:** `1bf37ab9f6a24179a20aac0687649370c39547df` vs `origin/main` (`abf62074758fc1f5f0cca9c9ee9b91cb09700c92`)
 **Reviewer persona:** erlang 0.1.1
-**Persona source:** `/home/nate/.local/share/mkd/agents/erlang`
+**Persona source:** `~/.local/share/mkd/agents/erlang`
 **Pattern memory:** `~/.agents/skills/erlang/PATTERNS.md`
 **CLI:** `mkd-code-review` 0.1.18
 
@@ -84,7 +84,7 @@ Command (worktree, paths narrowed to the commit; `--git-base origin/main`):
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
   --git-base origin/main \
-  --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml \
+  --models models.ollama-dev-coder.toml \
   WebUI/src/main/ts/contentExplorer/actionDispatch.ts \
   WebUI/src/main/ts/contentExplorer/messages.ts \
   WebUI/src/test/ts/contentExplorer/actionDispatch.test.ts \
@@ -106,7 +106,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Files: 5 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

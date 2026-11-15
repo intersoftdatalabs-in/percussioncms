@@ -32,4 +32,4 @@ _No issues._
   `copyEditionContentLists`, `duplicateEditionContentListLink`) with no behavior change;
   all helper calls stay inside the original try/catch so error mapping is preserved.
 - Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory
-  --git-base "origin/main" --models .../models.ollama-dev-coder.toml`
+  --git-base "origin/main" --models models.ollama-dev-coder.toml`

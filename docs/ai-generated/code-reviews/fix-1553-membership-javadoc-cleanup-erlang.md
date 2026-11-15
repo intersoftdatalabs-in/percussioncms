@@ -87,4 +87,3 @@ Result: **BUILD SUCCESS**. 0 Javadoc errors, 0 Javadoc plugin warnings, 0 Javado
 - 31 Java source files changed in `deliverytiersuite/delivery-tier-suite/membership/src/main/java/**`.
 - Net: +238/--60 Javadoc lines, no logic changes.
 - 2 single-line `@SuppressWarnings("this-escape")` annotations.
-

@@ -105,4 +105,3 @@ a runtime path).
   to honour google-java-format's column rule — the diff stat reflects only the
   in-scope files (8 files, 89 insertions, 5 deletions), and `spotless:check` is
   now clean.
-

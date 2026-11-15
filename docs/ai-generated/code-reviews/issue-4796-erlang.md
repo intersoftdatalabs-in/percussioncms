@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0.
 ## Scope
 
 - Persona: erlang 0.1.1
-- Persona source: `/home/nate/.local/share/mkd/agents/erlang`
+- Persona source: `~/.local/share/mkd/agents/erlang`
 - Status: mkd-code-review 0.1.18, pack percussion, `--gate advisory`, `--diff` of uncommitted 4796 files
 - Issue: https://github.com/intersoftdatalabs-in/percussioncms/issues/4796
 - Branch: `fix/issue-4796-explorer-rename-navon-tx` (HEAD == `origin/main` `33ac3f61b7`; all work is uncommitted)
@@ -42,7 +42,7 @@ Machine analysis found **3** finding(s), **0** bug(s).
 - Files: 3 analyzed
 - In-diff: 1 finding(s); preexisting: 2
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

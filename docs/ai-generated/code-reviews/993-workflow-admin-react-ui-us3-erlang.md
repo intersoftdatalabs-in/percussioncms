@@ -46,4 +46,3 @@ No blocking bugs or suggestions identified.
 - `npm test`: 8/8 tests passing (including `RolesSection.test.tsx` and updated `WorkflowAdminShell.test.tsx`).
 - `i18n`: 100% TMX message coverage (`message(WF_ADMIN_MSG.*)`).
 - `React`: Clean unmount guard `isMountedRef` applied to available-users search.
-

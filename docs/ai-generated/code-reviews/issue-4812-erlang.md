@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0.
 ## Scope
 
 - Persona: erlang 0.1.1
-- Persona source: `/home/nate/.local/share/mkd/agents/erlang`
+- Persona source: `~/.local/share/mkd/agents/erlang`
 - Status: mkd-code-review 0.1.18, pack percussion, `--gate advisory`, `--machine-only`, `--diff` of uncommitted 4812 files vs HEAD
 - Issue: https://github.com/intersoftdatalabs-in/percussioncms/issues/4812 (parent #4530, slice 31: Explorer multi-select Take Down)
 - Branch: `fix/issue-4812-explorer-multi-takedown` (HEAD `66e76f80a1` == `origin/main`; all work is uncommitted)
@@ -50,7 +50,7 @@ Machine analysis found **1** finding(s), **0** bug(s). LLM skipped (machine_only
 - Files: 6 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

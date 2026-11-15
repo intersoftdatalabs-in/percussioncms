@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0.
 ## Scope
 
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 - Status: mkd-code-review 0.1.18, pack percussion, --gate advisory, --git-base origin/main
 - PR: https://github.com/intersoftdatalabs-in/percussioncms/pull/5302
 - Base: origin/main
@@ -31,7 +31,7 @@ Machine analysis found **3** finding(s), **0** bug(s).
 - Files: 16 analyzed
 - In-diff: 1 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -75,4 +75,3 @@ approve
 ## Erlang interpretation
 
 No blocking bugs. `removeOne` cognitive complexity (28) is an in-diff suggestion and matches the existing `addOne` / `clear` control flow; it is not a behavior defect. Preexisting `clear` complexity does not block. REST adaptor, resource, test stub, WebUI graph, Vitest, Playwright, and product-docs companions are present. No rule-file diff and no new filesystem path joins.
-

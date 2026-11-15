@@ -1,6 +1,6 @@
 # Erlang review — issue #5572 (locale currency pattern)
 
-Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml`
 
 ## Summary
 
@@ -13,7 +13,7 @@ Machine analysis found **15** finding(s), **0** bug(s).
 - Files: 5 analyzed
 - In-diff: 3 finding(s); preexisting: 12
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -160,4 +160,3 @@ approve
 - Description: Function `isCurrencyPatternOnlyWrite` cognitive=4 (max 15), cyclomatic=16 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

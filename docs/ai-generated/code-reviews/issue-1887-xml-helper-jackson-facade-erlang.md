@@ -45,4 +45,3 @@ None blocking.
 - Dual-engine rollback property with explicit removal plan
 - Companion golden + round-trip + legacy null-root tests for production path change
 - Keep Betwixt dependency until dedicated removal issue
-

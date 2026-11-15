@@ -2,7 +2,7 @@
 
 Persona: erlang 0.1.1
 Tool: mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main
-Models: /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+Models: models.ollama-dev-coder.toml
 Scope: staged branch diff vs origin/main (8 files), including untracked files after `git add`.
 
 Preexisting suggestion only. In-diff bugs: 0. May commit/push: yes.
@@ -18,7 +18,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Files: 8 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

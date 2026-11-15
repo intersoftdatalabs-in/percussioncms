@@ -46,4 +46,3 @@ No blocking bugs or suggestions identified.
 - `npm test`: 11/11 tests passing (including `UsersSection.test.tsx` and updated `WorkflowAdminShell.test.tsx`).
 - `i18n`: 100% TMX message coverage (`message(WF_ADMIN_MSG.*)`).
 - `React`: Clean unmount guard `isMountedRef` applied to LDAP status check and user search queries to prevent unmounted component state updates.
-

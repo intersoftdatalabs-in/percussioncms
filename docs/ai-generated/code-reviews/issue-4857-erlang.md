@@ -30,7 +30,7 @@ Machine analysis found **0** finding(s), **0** bug(s).
 - Head: working tree (no commits on this branch)
 - Files: 10 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 - Tool: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --fail-on-bug --diff tmp/issue-4857-working-tree.diff --models …/models.ollama-dev-coder.toml`
 - Cross-platform path review: no new filesystem path joins. Recycle targets are CMS folder paths posted to `DELETE /rest/folders/item/{path}` via existing `foldersDeleteItemUrl` segment encoding. Test `folder()` helpers append `/` on CMS paths (URL/REST form, not OS file I/O).
 
@@ -81,7 +81,7 @@ Machine analysis found **0** finding(s), **0** bug(s).
 - Head: (unspecified)
 - Files: 10 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

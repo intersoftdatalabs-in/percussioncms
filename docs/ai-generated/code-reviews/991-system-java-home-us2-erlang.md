@@ -82,4 +82,3 @@ tests for paths.
 - Behavioral tests for the resolve scripts (US5/Polish follow-up): the
   current structural tests are sufficient for CI but a host with a real
   Java 21 install could exercise the full precedence end-to-end.
-

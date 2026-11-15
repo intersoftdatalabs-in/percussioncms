@@ -6,7 +6,7 @@ Recommendation: **approve**.
 - Persona: erlang 0.1.1 (`~/.agents/skills/erlang/`, engine `mkd-code-review 0.1.18`)
 - Scope base: `origin/main`
 - Scope head: `review-5639` (`9a9443da39`)
-- Models: `/home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+- Models: `models.ollama-dev-coder.toml`
   (Ollama `dev-coder` on `localhost:11434`); gate on **in-diff** bugs only.
 
 ## Machine report (verbatim, `mkd-code-review analyze --pack percussion`)
@@ -22,7 +22,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Files: 6 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

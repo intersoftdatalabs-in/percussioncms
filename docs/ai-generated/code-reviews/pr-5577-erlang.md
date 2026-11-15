@@ -22,7 +22,7 @@ Command:
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
     --git-base origin/main \
-    --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+    --models models.ollama-dev-coder.toml
 ```
 
 Cwd: PR head `ab46285756755c6013b4e00e8e6b225897fb6be8` (`fix/issue-5556-mssql-delivery-server-owner`).
@@ -41,7 +41,7 @@ Machine analysis found **3** finding(s), **0** bug(s).
 - Files: 12 analyzed
 - In-diff: 2 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

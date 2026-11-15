@@ -23,7 +23,7 @@ Machine CLI (`scratch/issue-4837-mkd-review.md`) reported **0** findings / **0**
 - Branch: `fix/issue-4837-runtime-message-catalog`
 - Issue: [#4837](https://github.com/intersoftdatalabs-in/percussioncms/issues/4837) — parent #4531 slice 32
 - Persona: erlang 0.1.1
-- Persona source: `/home/nate/.local/share/mkd/agents/erlang`
+- Persona source: `~/.local/share/mkd/agents/erlang`
 - Pattern memory: `modules/ai-shared-develop/src/main/resources/skills/erlang-review/patterns.md` and `~/.local/share/mkd/agents/erlang/PATTERNS.md`
 - Files in diff (6):
 

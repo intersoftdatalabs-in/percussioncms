@@ -168,4 +168,3 @@ AGENTS.md.
   ```
 - Patterns loaded; no prior 002-jdbc-drivers-cleanup report to load
   (fresh fix).
-

@@ -6,7 +6,7 @@
 - Head: fix/issue-5599-dependabot-security-only (cfe77e602e)
 - Files: 2 analyzed (.github/dependabot.yml, docs/ai-generated/code-reviews/issue-5599-erlang.md)
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 - CLI: mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main
 
 ## Summary

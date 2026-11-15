@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0.
 ## Scope
 
 - Persona: erlang 0.1.1
-- Persona source: `/home/nate/.local/share/mkd/agents/erlang`
+- Persona source: `~/.local/share/mkd/agents/erlang`
 - Status: mkd-code-review 0.1.18, pack percussion, `--gate advisory`, `--machine-only`, `--git-base origin/main`
 - Issue: https://github.com/intersoftdatalabs-in/percussioncms/issues/4809
 - Parent: https://github.com/intersoftdatalabs-in/percussioncms/issues/4531
@@ -38,7 +38,7 @@ Machine analysis found **1** finding(s), **0** bug(s). LLM skipped (machine_only
 - Files: 9 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -65,7 +65,7 @@ approve
 
 Gate counts in-diff bugs only. Residual LLM skipped (`--machine-only`).
 
-Preexisting `paths.hardcoded_sep` is dummy `getJobDetails` fixture `setFileLocation("/home/section/index.html")` at line 365. Outside this hunk; not a 4809 path defect.
+Preexisting `paths.hardcoded_sep` is dummy `getJobDetails` fixture `setFileLocation("~/index.html")` at line 365. Outside this hunk; not a 4809 path defect.
 
 Independent review of `e958cdbeed`:
 

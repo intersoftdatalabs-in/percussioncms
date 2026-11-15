@@ -1,6 +1,6 @@
 # Erlang review — issue #5580 (locale measurement system)
 
-CLI: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml` scoped to the branch diff (rest, LocalesAdaptor + tests, developer WebUI, product-docs, Playwright spec). Persona: erlang 0.1.1.
+CLI: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml` scoped to the branch diff (rest, LocalesAdaptor + tests, developer WebUI, product-docs, Playwright spec). Persona: erlang 0.1.1.
 
 ## Summary
 
@@ -13,7 +13,7 @@ Machine analysis found **3** finding(s), **0** bug(s).
 - Files: 3 analyzed
 - In-diff: 2 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

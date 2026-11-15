@@ -56,4 +56,3 @@ _None._
 - `rest`: `RelationshipSummaryResourceTest` 4/4
 - `sitemanage`: `RelationshipSummaryAdaptorTest` 8/8 + `PSRelationshipSummaryServiceTest` 12/12
 - Reactor validate: no cycle (`rest` then `sitemanage`)
-

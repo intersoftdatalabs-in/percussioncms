@@ -1,5 +1,3 @@
-residual model=openrouter/free id=openrouter-free outcome=started
-residual model=openrouter/free id=openrouter-free outcome=completed findings=0
 ## Summary
 
 Machine analysis found **0** finding(s), **0** blocking bug(s).
@@ -10,7 +8,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s).
 - Head: HEAD
 - Files: 1 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

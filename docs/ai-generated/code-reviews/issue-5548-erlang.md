@@ -9,10 +9,10 @@ Machine analysis found **13** finding(s), **0** bug(s).
 - Files: 9 analyzed
 - In-diff: 4 finding(s); preexisting: 9
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 - Pack: percussion
 - Gate: advisory (`--gate advisory --git-base origin/main`)
-- Models: `/home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+- Models: `models.ollama-dev-coder.toml`
 
 ## Recommendation
 

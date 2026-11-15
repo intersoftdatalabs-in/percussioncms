@@ -130,4 +130,3 @@ Counts after the fix:
   subclasses inherit it** -- rejected; javadoc inheritance is not honored by `doclint` for
   warnings about the default constructor (the warning is per-class, not per-inheritance graph),
   so every subclass still needs its own `public NoArgCtor()`.
-

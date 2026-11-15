@@ -14,7 +14,8 @@ Pure tech-debt generics retype of existing dependency handlers (peer of ContentT
 - [x] Signature unit tests lock typed iterator returns
 - [x] Portable paths: N/A (no path I/O changes)
 - [x] Product docs: N/A (no operator-facing change)
-- [x] C2 API shape: override return generics already present on base; no inal/signature blast radius for reverse deps
+- [x] C2 API shape: override return generics already present on base; no 
+inal/signature blast radius for reverse deps
 - [x] Module deployer standalone mvnw clean install BUILD SUCCESS; Tests run: 271, Failures: 0, Errors: 0, Skipped: 19
 
 ## Findings

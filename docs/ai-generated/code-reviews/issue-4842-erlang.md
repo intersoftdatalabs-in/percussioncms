@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0.
 ## Scope
 
 - Persona: erlang 0.1.1
-- Persona source: `/home/nate/.local/share/mkd/agents/erlang`
+- Persona source: `~/.local/share/mkd/agents/erlang`
 - Status: mkd-code-review 0.1.18, pack percussion, `--gate advisory`, `--diff` of the uncommitted 4842 slice
 - Issue: https://github.com/intersoftdatalabs-in/percussioncms/issues/4842
 - Branch: `fix/issue-4842-developer-copy-workflow` (HEAD `68d86eeeff`, no commits ahead of `origin/main`; the slice is uncommitted)
@@ -57,7 +57,7 @@ Machine analysis found **2** finding(s), **1** bug(s).
 - Files: 16 analyzed
 - In-diff: 2 finding(s); preexisting: 0
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

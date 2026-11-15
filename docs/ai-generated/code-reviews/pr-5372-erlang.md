@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0.
 ## Scope
 
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 - Status: mkd-code-review 0.1.18, pack percussion, --gate advisory, --git-base origin/main
 - PR: https://github.com/intersoftdatalabs-in/percussioncms/pull/5372
 - Base: origin/main (e11ffdff2e5552a527d83565445831bba2b57c9d)
@@ -38,7 +38,7 @@ Machine analysis found **3** finding(s), **0** bug(s).
 - Files: 13 analyzed
 - In-diff: 2 finding(s); preexisting: 0
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

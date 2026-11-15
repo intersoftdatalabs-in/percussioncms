@@ -127,4 +127,3 @@ mvnw.cmd spotless:check
   break consumer scripts that use them for parameter-binding smoke tests.
 - **Delete the bare `@author` tag** — rejected; AGENTS.md / project culture keeps `@author`
   tags on legacy classes. We retained it as a secondary line in the new class javadoc.
-

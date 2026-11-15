@@ -9,7 +9,7 @@ Machine analysis found **3** finding(s), **0** bug(s).
 - Files: 11 analyzed
 - In-diff: 1 finding(s); preexisting: 2
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -48,4 +48,3 @@ approve
 - Description: Function `updateSlot` cognitive=24 (max 15), cyclomatic=21 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

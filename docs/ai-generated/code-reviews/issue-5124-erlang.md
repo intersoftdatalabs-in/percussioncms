@@ -2,7 +2,7 @@
 
 Persona: erlang 0.1.1
 Tool: mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main
-Models: /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+Models: models.ollama-dev-coder.toml
 Head: 130292a0e0f33734e9b6671c689d8a16f6585532
 
 ## Summary
@@ -15,7 +15,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 9 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

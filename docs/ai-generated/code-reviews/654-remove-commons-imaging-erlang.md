@@ -28,4 +28,3 @@ None (bugs / missing behavioral tests / non-portable I/O).
 ## Memory patterns hit
 
 - Prefer standard JDK / already-managed libs over alpha third-party deps when equivalent capability exists.
-

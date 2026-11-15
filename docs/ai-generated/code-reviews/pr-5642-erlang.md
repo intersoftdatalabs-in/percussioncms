@@ -3,7 +3,7 @@
 Status: reviewed, machine findings clean (in-diff)
 Persona: erlang 0.1.1 (`~/.agents/skills/erlang/ERLANG.md` + `PATTERNS.md`)
 Reviewer: independent of the Work implementer; no fixes implemented in this turn.
-Ollama: dev-coder via `/home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml` on `localhost:11434`.
+Ollama: dev-coder via `models.ollama-dev-coder.toml` on `localhost:11434`.
 Gate: in-diff bugs only; preexisting rows do not block.
 
 ## Erlang verdict
@@ -61,7 +61,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Files: 7 analyzed
 - In-diff: 0 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

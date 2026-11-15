@@ -75,4 +75,3 @@ approve
   fallback contract.
 
 ## Author is also reviewer (disclosed)
-

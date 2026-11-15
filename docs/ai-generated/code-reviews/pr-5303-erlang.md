@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0.
 ## Scope
 
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 - Status: mkd-code-review 0.1.18, pack percussion, --gate advisory, --git-base origin/main
 - PR: https://github.com/intersoftdatalabs-in/percussioncms/pull/5303
 - Base: origin/main
@@ -30,7 +30,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 6 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -56,4 +56,3 @@ approve
 ## Erlang interpretation
 
 No blocking bugs. `isEmptyEditorFieldValue` treats a cleared image with no replacement file as empty, and `EditorHost.handleSave` runs `collectRequiredFieldErrors` before `clearBinary`, so a required image clear does not delete the stored file. Vitest covers the helper and the host (refuse, cancel, chosen upload). Playwright and `product-docs/8.2/admin/content-explorer.md` are in the diff. No rule-file diff and no new filesystem path joins. The only machine row is the Ollama CUDA failure.
-

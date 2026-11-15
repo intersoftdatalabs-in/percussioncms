@@ -13,4 +13,3 @@
 
 ## Verdict
 PASS — ready to commit/PR.
-

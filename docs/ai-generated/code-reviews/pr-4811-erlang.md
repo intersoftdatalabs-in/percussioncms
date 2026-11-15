@@ -15,7 +15,7 @@ Machine analysis found **5** finding(s), **0** bug(s).
 - Files: 4 analyzed
 - In-diff: 1 finding(s); preexisting: 2
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -74,4 +74,3 @@ approve
 - Description: Inner `TransactionTemplate` cleanup calls `TransactionSynchronizationManager.clear()`, which drops caller `actualTransactionActive`, transaction name, isolation, and read-only flags. The helper restores resources and synchronizations only. Percussion application code does not read those flags; the outer interceptor still holds `DefaultTransactionStatus` and the rebound `EntityManagerHolder`.
 - Suggestion: Snapshot and restore the four TSM characteristics next to the resource map, matching Spring's `SuspendedResourcesHolder`, if later request code after navon save depends on them.
 - Status: open
-

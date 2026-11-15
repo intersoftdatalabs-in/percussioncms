@@ -9,7 +9,7 @@ Machine analysis found **12** finding(s) (7 suppressed), **0** blocking bug(s).
 - Files: 4 analyzed
 - In-diff: 7 finding(s); preexisting: 5
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -83,4 +83,3 @@ approve
 - `paths.hardcoded_sep` on `deployer/src/test/java/com/percussion/deployer/client/PSDeploymentServerConnectionXmlMultipartTest.java:71` -- *Justification*: : separator-family fixture vector proving basename (via in_source_mkd)
 
 </details>
-

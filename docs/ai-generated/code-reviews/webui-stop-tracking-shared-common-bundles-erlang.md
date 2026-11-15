@@ -63,4 +63,3 @@ No hard-gate bugs: portable path APIs, phase-1 fail-on-missing + size floor, and
 | `WebUI/AGENTS.md`                                                | Generated-not-committed contract                    |
 | `.github/codeql/codeql-config.yml`                               | Comment refresh (paths-ignore retained)             |
 | Deletions under `webapp/cm/` + `war/shared-finder.js`            | Stop tracking generated blobs                       |
-

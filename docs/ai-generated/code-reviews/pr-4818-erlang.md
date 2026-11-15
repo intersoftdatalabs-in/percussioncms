@@ -6,7 +6,7 @@ Licensed under the Apache License, Version 2.0.
 # Erlang review — PR 4818
 
 Independent review of `fix/issue-4807-status-failed-jobs` (`985332f17e`) vs `origin/main`.
-Preexisting `paths.hardcoded_sep` on the dummy `/home/section/index.html` in `getJobDetails` is not an in-diff blocker. Cognitive complexity on `buildCurrentJobs` is a suggestion, not a bug. Behavioral tests cover persisted failure, aborted, restart-needed, cancelled/completed exclusion, dedup, and site scope. Playwright companion and product-docs are present.
+Preexisting `paths.hardcoded_sep` on the dummy `~/index.html` in `getJobDetails` is not an in-diff blocker. Cognitive complexity on `buildCurrentJobs` is a suggestion, not a bug. Behavioral tests cover persisted failure, aborted, restart-needed, cancelled/completed exclusion, dedup, and site scope. Playwright companion and product-docs are present.
 
 Gate: PASS. Recommendation: approve. May commit/push: yes.
 
@@ -23,7 +23,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Files: 5 analyzed
 - In-diff: 1 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

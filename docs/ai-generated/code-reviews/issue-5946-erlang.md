@@ -9,7 +9,7 @@ Machine analysis found **5** finding(s) (5 suppressed), **0** blocking bug(s).
 - Files: 3 analyzed
 - In-diff: 5 finding(s); preexisting: 0
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -36,4 +36,3 @@ _No active issues._
 - `patterns.hard_gate` on `modules/perc-qa-automation/frontend/tests/helpers/auth.js:405` -- *Justification*: : adjudicated intentional tests.empty-catch (issue #5946) — best-effort listbox dismiss; rejection means already closed. (via in_source_mkd)
 
 </details>
-

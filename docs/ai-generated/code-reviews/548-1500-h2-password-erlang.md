@@ -175,10 +175,9 @@ system/src/test/java/com/percussion/install/PSGeneratedPasswordsTest.java       
   `JettyDatasourceConfigurationAdapterTest` / `PSJdbcUtilsTest` exist on the baseline;
   not introduced by this change.)
 - Manual cmd.exe reproduction of the unescape (see
-  `C:\Users\Nate\AppData\Local\Temp\kilo\test_real_java_parse.bat`): a `java.properties`
+  `~\AppData\Local\Temp\kilo\test_real_java_parse.bat`): a `java.properties`
   containing `JAVA_HOME=C:\Program Files\Microsoft\jdk-21.0.12.8-hotspot` parses to the
   literal expected path.
 - Manual cmd.exe reproduction of the SHIFT fix: `SHIFT REM comments are bad` in a bat
   file produces `Invalid parameter to SHIFT command`. Removed from
   `resolve-java-home.bat`.
-

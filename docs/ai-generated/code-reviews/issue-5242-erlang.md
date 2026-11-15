@@ -11,7 +11,7 @@ Reviewed the branch diff for Developer add one repeated aging transition
 Command:
 
 ```
-mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml
 ```
 
 CLI: mkd-code-review 0.1.18. Persona: erlang 0.1.1. Gate uses in-diff bugs, missing behavioral tests, and
@@ -38,7 +38,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Files: 19 analyzed
 - In-diff: 1 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

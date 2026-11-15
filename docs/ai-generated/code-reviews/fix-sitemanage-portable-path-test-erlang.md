@@ -14,7 +14,7 @@ intent (a legitimate in-root path is accepted by `getFile`/`getChildren`).
 This is a single-test, test-only change. It replaces a brittle
 `File.getAbsolutePath().startsWith(...)` containment check (which fails on
 Windows when `@TempDir` returns a short-name alias such as
-`C:\Users\VIJAYA~1.BOD\...\junit-XXXX\` while `requireUnderBase` returns the
+`~~1.BOD\...\junit-XXXX\` while `requireUnderBase` returns the
 long-form canonical path) with `Files.isSameFile(target, resolved.toPath())`,
 the canonical portable cross-platform comparison. The test now also uses
 `Path.resolve` + `Files.createDirectories` / `Files.createFile` to create the

@@ -9,7 +9,7 @@ Machine analysis found **11** finding(s), **1** bug(s).
 - Files: 71 analyzed
 - In-diff: 4 finding(s); preexisting: 7
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -126,4 +126,3 @@ request-changes
 - Description: Function `getRxDir` cognitive=26 (max 15), cyclomatic=12 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

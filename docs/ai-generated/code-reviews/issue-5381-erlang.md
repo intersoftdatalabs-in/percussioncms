@@ -9,7 +9,7 @@ Machine analysis found **7** finding(s), **0** bug(s).
 - Files: 12 analyzed
 - In-diff: 1 finding(s); preexisting: 6
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -90,4 +90,3 @@ approve
 - Description: Function `handleDescriptionSave` cognitive=8 (max 15), cyclomatic=17 (max 15)
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
-

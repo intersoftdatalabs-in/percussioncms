@@ -1,6 +1,6 @@
 # Erlang review — issue 5331
 
-CLI: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+CLI: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml`
 
 Reviewed commit: `0c8e095a85` (branch `fix/issue-5331-location-scheme-content-type` vs `origin/main` after rebase onto `e4e352f887`).
 
@@ -17,7 +17,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Files: 9 analyzed
 - In-diff: 1 finding(s); preexisting: 0
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

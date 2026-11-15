@@ -2,7 +2,7 @@
 
 Persona: erlang 0.1.1
 Tool: mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main
-Models file: /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+Models file: models.ollama-dev-coder.toml
 (Ollama `ollama-dev-coder` returned HTTP 500 CUDA OOM. Machine findings kept. Not a gate failure.)
 
 ## Summary
@@ -16,7 +16,7 @@ Machine analysis found **8** finding(s), **0** bug(s).
 - Files: 10 analyzed
 - In-diff: 1 finding(s); preexisting: 6
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

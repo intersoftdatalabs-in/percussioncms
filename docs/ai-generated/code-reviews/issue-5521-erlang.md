@@ -22,7 +22,7 @@ Command:
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
     --git-base origin/main \
-    --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml \
+    --models models.ollama-dev-coder.toml \
     WebUI modules/perc-qa-automation product-docs
 ```
 
@@ -40,7 +40,7 @@ Machine analysis found **6** finding(s), **0** bug(s).
 - Files: 6 analyzed
 - In-diff: 0 finding(s); preexisting: 6
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 - Pack: percussion
 - CLI: mkd-code-review 0.1.18
 - Gate: advisory (in-diff bugs only)

@@ -8,7 +8,7 @@ Licensed under the Apache License, Version 2.0.
 ## Scope
 
 - Persona: erlang 0.1.1
-- Persona source: `/home/nate/.local/share/mkd/agents/erlang`
+- Persona source: `~/.local/share/mkd/agents/erlang`
 - Status: mkd-code-review 0.1.18, pack percussion, `--gate advisory`, `--diff` of uncommitted 4807 files vs HEAD
 - Issue: https://github.com/intersoftdatalabs-in/percussioncms/issues/4807
 - Branch: `fix/issue-4807-status-failed-jobs` (HEAD `e4cf724992` == `origin/main`; all work is uncommitted)
@@ -20,7 +20,7 @@ Licensed under the Apache License, Version 2.0.
 - `--git-base origin/main` is empty here (no commits vs main) and would omit the untracked Playwright spec; analysis used a unified `git diff HEAD` plus `--no-index` for the spec, with `a/` `b/` prefixes (no `c/w` or `1/2` rewrite needed)
 - Memory: `~/.agents/skills/erlang/PATTERNS.md`
 - Hard-block this turn: in-diff bugs, missing behavioral tests, or non-portable path/file I/O in **this** diff only
-- Out of scope: preexisting dummy path `/home/section/index.html` in `getJobDetails`
+- Out of scope: preexisting dummy path `~/index.html` in `getJobDetails`
 
 ## This-diff behavior
 
@@ -47,7 +47,7 @@ Machine analysis found **2** finding(s), **0** bug(s).
 - Files: 4 analyzed
 - In-diff: 1 finding(s); preexisting: 1
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -83,7 +83,7 @@ approve
 
 Gate counts in-diff bugs only. Residual LLM added no extras (no `llm.error`).
 
-Issue 1 is the dummy `setFileLocation("/home/section/index.html")` in `getJobDetails` when `dummyData` is true. It sits on a context line next to the new lookback constants. **Out of scope** for this review (preexisting dummy fixture, not filesystem join on a product path). Do not hard-block on it.
+Issue 1 is the dummy `setFileLocation("~/index.html")` in `getJobDetails` when `dummyData` is true. It sits on a context line next to the new lookback constants. **Out of scope** for this review (preexisting dummy fixture, not filesystem join on a product path). Do not hard-block on it.
 
 In-diff machine hit is cognitive 17 on `buildCurrentJobs` (pack max 15). Maintainability only. Cyclomatic 11 is under the pack cap.
 

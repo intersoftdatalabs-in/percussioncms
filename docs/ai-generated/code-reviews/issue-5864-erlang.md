@@ -8,7 +8,7 @@ Machine analysis found **2** finding(s), **1** bug(s).
 - Head: HEAD
 - Files: 7 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -38,4 +38,3 @@ request-changes
 - Description: Consider adding a note about the impact of assembler fallback removal on migration dry-run reports for operators to understand how to interpret the results.
 - Suggestion: Add a paragraph explaining that unregistered assemblers will now be reported as `BLOCKED` in migration dry-run reports, and suggest that operators ensure all modern manifests use registered assembler IDs.
 - Status: open
-

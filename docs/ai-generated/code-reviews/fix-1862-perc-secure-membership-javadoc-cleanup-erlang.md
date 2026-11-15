@@ -192,4 +192,3 @@ Counts after the fix:
 - **Suppress the implicit-default-constructor warning via a `package-info.java` `@SuppressWarnings`
   annotation** — rejected; the same precedent (PR #1849) places the explicit no-arg constructor
   on each class so the warning is silenced at the source rather than at the package level.
-

@@ -47,4 +47,3 @@ mvnw -Dtest=InteractiveInstallWizardTest,InstallerUserSettingsTest test
 Tests run: 34, Failures: 0, Errors: 0
 BUILD SUCCESS
 ```
-

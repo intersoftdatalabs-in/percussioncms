@@ -17,4 +17,3 @@
 - `cd rest && ../mvnw -Dtest=PipelinesResourceTest test` → Tests run: 4, Failures: 0
 - `cd projects/sitemanage && ../../mvnw -Dai.integrity.skip=true -Dtest=PipelinesAdaptorTest test` → Tests run: 9, Failures: 0  
   (integrity skip: worktree seal drift vs sibling #1595 / system notify map not on this branch)
-

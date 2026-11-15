@@ -114,4 +114,3 @@ Counts after the fix:
   `public` matches the convention used in PR #1849 for `PSPackagesTab` / `PSVisibilityTab` and is
   the only visibility level that suppresses the "use of default constructor, which does not
   provide a comment" javadoc warning.
-

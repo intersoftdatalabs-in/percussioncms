@@ -2,7 +2,7 @@
 
 Persona: erlang 0.1.1
 Tool: mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main
-Models: /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml (LLM layer failed: CUDA out of memory; machine findings kept)
+Models: models.ollama-dev-coder.toml (LLM layer failed: CUDA out of memory; machine findings kept)
 
 ## Summary
 
@@ -15,7 +15,7 @@ Machine analysis found **5** finding(s), **0** bug(s).
 - Files: 6 analyzed
 - In-diff: 0 finding(s); preexisting: 4
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

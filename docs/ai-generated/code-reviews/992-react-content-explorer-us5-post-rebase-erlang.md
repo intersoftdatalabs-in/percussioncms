@@ -188,4 +188,3 @@ These were already present on `development` and on `992-react-content-explorer-u
 - **Recommendation**: **approve**. No blocking findings. May commit/push: **yes**.
 - **Continuity**: Prior reports — `992-react-content-explorer-us5-erlang.md`, `992-react-content-explorer-us5-review-thread-mitigation-erlang.md`, `992-react-content-explorer-us5-secondary-mitigation-erlang.md`.
 - **Next steps**: After push, verify PR #1398 review threads `PRRT_kwDOKZBp3M6ST4mT` and `PRRT_kwDOKZBp3M6SUIdK` are resolved inline (per root AGENTS.md **PR Review Comment Resolution** rule) with mitigation statements pointing at commits `c2794aeede` and `f2a8dde30d`.
-

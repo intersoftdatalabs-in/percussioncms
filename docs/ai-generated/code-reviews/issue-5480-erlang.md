@@ -10,7 +10,7 @@ Explorer item Rename now refuses a U+0000 in the prompt before `POST /rest/folde
 - Head: HEAD
 - Files: 8 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

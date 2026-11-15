@@ -5,11 +5,11 @@ Command (from worktree, branch `fix/issue-6065-locale-catalog-create-delete`):
 ```bash
 mkd-code-review analyze --pack percussion --format markdown --gate advisory --require-llm \
   --git-base "origin/main" \
-  --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.openrouter-free.toml
+  --models models.<llm-model>.toml
 ```
 
 Scope: branch diff only (4 files). Persona erlang 0.1.1.
-`OPENROUTER_API_KEY` sourced from the machine `~/.config/mkd/code-review.env`
+`<llm-provider-key-env>` sourced from the machine `~/.config/mkd/code-review.env`
 (key itself never printed or committed).
 
 ## Completed LLM run (gate basis)
@@ -28,7 +28,7 @@ Scope: Base `origin/main`, Head HEAD, Files: 4 analyzed, In-diff: 1, preexisting
   Refactoring this shared busy-guard is out of scope for #6065. No suppression
   added (no code change on those lines).
 
-### Issue 2 — update-save 409 fallback contradicts contract comment (LLM, openrouter-free)
+### Issue 2 — update-save 409 fallback contradicts contract comment (LLM, <llm-model>)
 
 - The interim `localeSaveFallback` returned generic `LOC_SAVE_ERROR` for an update
   409 without lock/dependency wording, contradicting the inline comment that REST

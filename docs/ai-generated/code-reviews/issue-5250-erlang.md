@@ -1,7 +1,7 @@
 # Erlang review — issue 5250
 
 Persona: erlang 0.1.1
-Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml`
+Command: `mkd-code-review analyze --pack percussion --format markdown --gate advisory --git-base origin/main --models models.ollama-dev-coder.toml`
 Head: 694fd81df310017f1b10667e5d74d74bd15d580b
 Interpretation: the only in-diff finding is a cognitive-complexity suggestion on `updateContext`. It is not a bug, missing behavioral test, or non-portable path. Gate does not block.
 
@@ -16,7 +16,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Files: 9 analyzed
 - In-diff: 1 finding(s); preexisting: 0
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

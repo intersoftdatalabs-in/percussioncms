@@ -173,4 +173,3 @@ installed in `.m2`) is also pre-existing and unrelated to the javadoc changes.
 - [x] Cross-platform path / file I/O: not touched.
 - [x] No new warnings versus baseline.
 - [x] No spotless debt introduced into the PR.
-

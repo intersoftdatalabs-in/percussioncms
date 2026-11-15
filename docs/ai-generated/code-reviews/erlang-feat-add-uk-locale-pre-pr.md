@@ -322,4 +322,3 @@ None — first review of this branch.
   before Hephaestus commits it (root AGENTS.md Human review of agent
   rules). The content change is purely a list update (`uk` /
   `uk-ua` added to the base/regional tables), so the review is short.
-

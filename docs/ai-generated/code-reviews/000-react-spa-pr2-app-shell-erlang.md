@@ -35,4 +35,3 @@ None (hard gate).
 
 - Vitest app/login/bridge: 27 pass
 - WebUI clean install: see PR body
-

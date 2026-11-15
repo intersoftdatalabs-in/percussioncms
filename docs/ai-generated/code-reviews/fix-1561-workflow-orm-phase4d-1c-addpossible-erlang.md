@@ -202,4 +202,3 @@ suite). Build is green, Spotless is clean on in-scope files, and no new warnings
 or raw-JDBC drift is introduced.
 
 > Co-Authored by Kilo 1.x using MiniMax-M3 with agent erlang-code-review.
-

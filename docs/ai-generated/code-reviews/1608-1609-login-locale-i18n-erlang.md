@@ -91,4 +91,3 @@ cd WebUI && ../mvnw clean install
 
 - None new; aligns with prior login i18n work (dynamic TMX re-apply, endonym
   vs viewer localization distinction).
-

@@ -5,7 +5,7 @@ CLI (advisory gate, branch diff vs `origin/main`):
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
   --git-base origin/main \
-  --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+  --models models.ollama-dev-coder.toml
 ```
 
 The Ollama model failed to load (CUDA out of memory). Machine findings were kept. The overnight gate blocks only on in-diff bugs, missing behavioral tests, and non-portable paths. Blocking bugs: 0. May commit/push: yes.
@@ -20,7 +20,7 @@ Machine analysis found **1** finding(s), **0** bug(s).
 - Head: HEAD
 - Files: 24 analyzed
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 

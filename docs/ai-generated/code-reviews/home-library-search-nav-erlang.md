@@ -21,4 +21,3 @@ None (bugs). Cross-platform path checklist: N/A (CMS logical paths, not OS files
 
 - Vitest: filenameUtils, LibrarySection, SearchSection, HomeShell — pass
 - `cd WebUI && ../mvnw clean install` — required before PR
-

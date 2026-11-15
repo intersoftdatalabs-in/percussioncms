@@ -30,4 +30,3 @@ N/A — npm metadata and TypeScript ambient module only.
 
 - `tsc --noEmit` from `WebUI/src/main/frontend` (exit 0 after fix)
 - Vite build previously resolved the package when present under `frontend/node_modules`
-

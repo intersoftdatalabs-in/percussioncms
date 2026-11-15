@@ -110,4 +110,3 @@ construction.
 - Per AGENTS.md "Pre-PR Maven verification (HARD GATE)", the build was run
   with `-pl deliverytiersuite/delivery-tier-suite/feeds -am` to include
   upstream dependencies (not a full reactor).
-

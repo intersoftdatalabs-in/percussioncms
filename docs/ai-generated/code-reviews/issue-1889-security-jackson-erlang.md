@@ -17,4 +17,3 @@
 ## Residual
 
 - Betwixt `idref` permission sharing in package ACL XML not expanded under Jackson — residual #1899.
-

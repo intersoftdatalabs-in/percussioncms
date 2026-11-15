@@ -1,7 +1,7 @@
 # Erlang review — issue 5361
 
 Persona: erlang 0.1.1
-Persona source: /home/nate/.local/share/mkd/agents/erlang
+Persona source: ~/.local/share/mkd/agents/erlang
 Author-reviewer: same night-issue-prs session (disclosed). The LLM stage did not run; machine findings are the gate.
 
 ## Summary
@@ -15,7 +15,7 @@ Machine analysis found **3** finding(s), **0** bug(s).
 - Files: 11 analyzed
 - In-diff: 2 finding(s); preexisting: 0
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
@@ -73,7 +73,7 @@ approve
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
   --git-base origin/main \
-  --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+  --models models.ollama-dev-coder.toml
 ```
 
 Second run after `git add` of the four new files. Files analyzed: 11. Exit 0.
