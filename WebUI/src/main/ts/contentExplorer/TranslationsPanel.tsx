@@ -24,7 +24,7 @@
  * status UI.</p>
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { listLocales } from "../api/developer/localesApi";
 import type { LocaleSummary } from "../api/developer/types";
 import {
@@ -115,6 +115,38 @@ export function translationsVariantsItemKey(itemId: string): string {
   return itemId.trim();
 }
 
+/**
+ * Case-insensitive substring filter for the variants table (#6414, parent
+ * #4532). Matches locale code, role (code and display label), and content
+ * id. NUL-safe: NUL characters are stripped from the query, so a pasted
+ * NUL can never match or throw — an empty query returns every row.
+ */
+export function filterTranslationVariants(
+  variants: ReadonlyArray<TranslationVariant>,
+  query: string,
+  roleDisplay: (role: string | null | undefined) => string = (role) =>
+    role ?? "",
+): TranslationVariant[] {
+  const needle = String(query ?? "")
+    .split(String.fromCharCode(0)).join("")
+    .trim()
+    .toLowerCase();
+  if (!needle) {
+    return [...variants];
+  }
+  return variants.filter((variant) => {
+    const haystack = [
+      variant.locale ?? "",
+      variant.role ?? "",
+      roleDisplay(variant.role),
+      variant.contentId != null ? String(variant.contentId) : "",
+    ]
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(needle);
+  });
+}
+
 function roleLabel(role: string | null | undefined): string {
   if (role === "source") {
     return message(EXPLORER_MSG.TRANSLATIONS_ROLE_SOURCE);
@@ -150,6 +182,18 @@ export function TranslationsPanel(
   const [createForbidden, setCreateForbidden] = useState(false);
   const [createSuccess, setCreateSuccess] = useState<string | null>(null);
   const [reloadToken, setReloadToken] = useState(0);
+  const [variantFilter, setVariantFilter] = useState("");
+  /**
+   * Item the create notices belong to (#6414, parent #4532). The load effect
+   * refreshes the list after a successful create (reload token bump); that
+   * refresh must not wipe the just-set success notice before it is read.
+   * Clearing on a new create attempt lives in {@code handleCreate} (it
+   * resets both notices when a submit starts); this guard only handles the
+   * load side, and only wipes on an actual item change. The variant filter
+   * resets here too (and after a successful create) so a carried-over
+   * query cannot hide the new item's rows behind a no-match state.
+   */
+  const createNoticeItemRef = useRef(itemId);
 
   useEffect(() => {
     let alive = true;
@@ -162,8 +206,14 @@ export function TranslationsPanel(
     // (unit tests / direct mounts). Create-variant POST uses numeric ids.
     const variantsKey = translationsVariantsItemKey(itemId);
     setState({ kind: "loading" });
-    setCreateError(null);
-    setCreateSuccess(null);
+    if (createNoticeItemRef.current !== itemId) {
+      createNoticeItemRef.current = itemId;
+      setCreateError(null);
+      setCreateSuccess(null);
+      // A carried-over filter could hide every variant of the new item
+      // behind a confusing no-match state (#6414).
+      setVariantFilter("");
+    }
     loadVariants(variantsKey)
       .then((data) => {
         if (!alive) return;
@@ -226,6 +276,11 @@ export function TranslationsPanel(
   const currentLocale =
     state.kind === "ok" ? (state.data.locale ?? null) : null;
 
+  const visibleVariants = useMemo(
+    () => filterTranslationVariants(variants, variantFilter, roleLabel),
+    [variants, variantFilter],
+  );
+
   const targets: TranslationLocaleOption[] = useMemo(
     () => availableTargetLocales(catalog, variants, currentLocale),
     [catalog, variants, currentLocale],
@@ -269,6 +324,9 @@ export function TranslationsPanel(
             ),
       );
       setSelectedLocales(new Set());
+      // Show the refreshed list (including the new copy) instead of keeping
+      // a filter that could hide it behind a no-match state (#6414).
+      setVariantFilter("");
       setReloadToken((n) => n + 1);
       onCreated?.(result);
     } catch (err: unknown) {
@@ -409,28 +467,63 @@ export function TranslationsPanel(
             {message(EXPLORER_MSG.TRANSLATIONS_VARIANTS_EMPTY)}
           </p>
         ) : (
-          <table
-            data-testid="translations-variants-table"
-            style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}
-          >
-            <thead>
-              <tr>
-                <th scope="col" style={{ textAlign: "left", padding: 4 }}>
-                  {message(EXPLORER_MSG.TRANSLATIONS_COL_LOCALE)}
-                </th>
-                <th scope="col" style={{ textAlign: "left", padding: 4 }}>
-                  {message(EXPLORER_MSG.TRANSLATIONS_COL_ROLE)}
-                </th>
-                <th scope="col" style={{ textAlign: "left", padding: 4 }}>
-                  {message(EXPLORER_MSG.TRANSLATIONS_COL_CONTENT_ID)}
-                </th>
-                <th scope="col" style={{ textAlign: "left", padding: 4 }}>
-                  {message(EXPLORER_MSG.TRANSLATIONS_COL_OPEN)}
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {variants.map((v) => (
+          <>
+            <div style={{ marginBottom: 8 }}>
+              <label
+                htmlFor="translations-variants-search"
+                style={{
+                  display: "block",
+                  fontSize: 13,
+                  marginBottom: 4,
+                  color: PANEL_SECONDARY_TEXT,
+                }}
+              >
+                {message(EXPLORER_MSG.TRANSLATIONS_VARIANTS_SEARCH_LABEL)}
+              </label>
+              <input
+                id="translations-variants-search"
+                data-testid="translations-variants-search"
+                type="search"
+                value={variantFilter}
+                placeholder={message(
+                  EXPLORER_MSG.TRANSLATIONS_VARIANTS_SEARCH_PLACEHOLDER,
+                )}
+                onChange={(e) => setVariantFilter(e.target.value)}
+                style={{
+                  width: "100%",
+                  maxWidth: 320,
+                  fontSize: 13,
+                  padding: "4px 8px",
+                }}
+              />
+            </div>
+            {visibleVariants.length === 0 ? (
+              <p data-testid="translations-variants-no-match" role="status">
+                {message(EXPLORER_MSG.TRANSLATIONS_VARIANTS_NO_MATCH)}
+              </p>
+            ) : (
+              <table
+                data-testid="translations-variants-table"
+                style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}
+              >
+                <thead>
+                  <tr>
+                    <th scope="col" style={{ textAlign: "left", padding: 4 }}>
+                      {message(EXPLORER_MSG.TRANSLATIONS_COL_LOCALE)}
+                    </th>
+                    <th scope="col" style={{ textAlign: "left", padding: 4 }}>
+                      {message(EXPLORER_MSG.TRANSLATIONS_COL_ROLE)}
+                    </th>
+                    <th scope="col" style={{ textAlign: "left", padding: 4 }}>
+                      {message(EXPLORER_MSG.TRANSLATIONS_COL_CONTENT_ID)}
+                    </th>
+                    <th scope="col" style={{ textAlign: "left", padding: 4 }}>
+                      {message(EXPLORER_MSG.TRANSLATIONS_COL_OPEN)}
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {visibleVariants.map((v) => (
                 <tr
                   key={`${v.contentId}-${v.locale ?? ""}-${v.role ?? ""}`}
                   data-testid={`translations-variant-row-${v.contentId}`}
@@ -456,6 +549,8 @@ export function TranslationsPanel(
               ))}
             </tbody>
           </table>
+            )}
+          </>
         )}
       </div>
 

@@ -766,6 +766,12 @@ export const EXPLORER_MSG = {
   TRANSLATIONS_VARIANTS_HEADING: "perc.ui.explorer@Locale variants",
   TRANSLATIONS_VARIANTS_EMPTY:
     "perc.ui.explorer@No related translation variants",
+  TRANSLATIONS_VARIANTS_SEARCH_LABEL:
+    "perc.ui.explorer@Filter locale variants",
+  TRANSLATIONS_VARIANTS_SEARCH_PLACEHOLDER:
+    "perc.ui.explorer@Filter by locale, role, or content id",
+  TRANSLATIONS_VARIANTS_NO_MATCH:
+    "perc.ui.explorer@No locale variants match this filter",
   TRANSLATIONS_COL_LOCALE: "perc.ui.explorer@Locale",
   TRANSLATIONS_COL_ROLE: "perc.ui.explorer@Role",
   TRANSLATIONS_COL_CONTENT_ID: "perc.ui.explorer@Content id",
