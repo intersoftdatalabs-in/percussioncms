@@ -15,8 +15,15 @@ The Erlang persona spec moved to the canonical install at
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
     --git-base origin/main \
-    --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+    --models <models-dir>/models.ollama-dev-coder.toml
 ```
+
+Resolve `<models-dir>` from your local mkd-code-review install. Never record
+the absolute filesystem path.
+
+Pipe the report through `python3 scripts/sanitize-erlang-review.py` before
+writing it down or pasting it anywhere (raw CLI stdout embeds
+home-directory paths and provider ids — never commit or paste it raw).
 
 Read the persona there:
 
@@ -32,7 +39,7 @@ Percussion CMS git identity: `Nate Chadwick
 
 Reports carry `## Scope → Persona: erlang <version>` automatically.
 
-Paste the full CLI markdown into the PR body under **Pre-push local code review**
+Paste the sanitized CLI markdown into the PR body under **Pre-push local code review**
 and write `docs/ai-generated/code-reviews/pr-<N>-erlang.md`.
 
 This stub exists only so the Java classpath resource lookup at

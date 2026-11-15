@@ -36,10 +36,11 @@
 //   Do not spawn a nested Erlang agent or `grok --prompt-file`. Nested headless
 //   Grok dies on the first shell permission (erlang_not_spawned) and blocks the PR.
 //   Host Erlang leftover/peer phases still spawn their own reviewer.
-// 2.2.4 — Erlang pastes FULL mkd-code-review markdown into the PR body
-//   section "## Pre-push local code review" and writes
+// 2.2.4 — Erlang pastes SANITIZED mkd-code-review markdown
+//   (via scripts/sanitize-erlang-review.py — never raw CLI stdout) into the
+//   PR body section "## Pre-push local code review" and writes
 //   docs/ai-generated/code-reviews/pr-<N>-erlang.md (durable). Comment
-//   LGTM may stay short; the PR body holds the CLI report.
+//   LGTM may stay short; the PR body holds the sanitized CLI report.
 // 2.2.3 — Erlang CLI 0.1.18+ diff-aware: --git-base origin/main (Gitea
 //   mkd-code-review#25 / #24). In-diff findings only gate/short-circuit.
 //   Pack thresholds (percussion 15). Residual LLM on hunks.
@@ -421,9 +422,10 @@ fn erlang_gate_text(repo, base_branch, allow_merge, scope_note) {
     p += "REVIEW LOOP (R1 onward):\n";
     p += "  checkout the PR head -> load persona -> run:\n";
     p += "  mkd-code-review analyze --pack percussion --format markdown --gate advisory\n";
-    p += "  --git-base origin/main --models\n";
-    p += "  /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml\n";
-    p += "  (optional extra PATHS only to further narrow; never the repo root).\n";
+    p += "  --git-base origin/main --models <models-dir>/models.ollama-dev-coder.toml\n";
+    p += "  (resolve <models-dir> from the local mkd-code-review install; never\n";
+    p += "  record the absolute filesystem path; optional extra PATHS only to\n";
+    p += "  further narrow; never the repo root).\n";
     p += "CLI must be mkd-code-review >= 0.1.18 (diff-aware; Gitea mkd-code-review#25).\n";
     p += "Report header must show Persona: erlang 0.1.1 and Persona source:\n";
     p += "~/.local/share/mkd/agents/erlang. Scope Base/Head must be set.\n";
@@ -450,14 +452,18 @@ fn erlang_gate_text(repo, base_branch, allow_merge, scope_note) {
     p += "'Status: cli-unavailable, manual review' in the report header.\n";
     p += "\n";
     p += "PRE-PUSH LOCAL CODE REVIEW (required, not a two-line LGTM):\n";
-    p += "  Capture the FULL `analyze --format markdown` stdout.\n";
-    p += "  1) Write it to docs/ai-generated/code-reviews/pr-<N>-erlang.md on the PR\n";
+    p += "  Pipe the `analyze --format markdown` stdout through\n";
+    p += "  `python3 scripts/sanitize-erlang-review.py` FIRST (raw CLI output\n";
+    p += "  embeds home-directory paths, the LLM-provider key env var name,\n";
+    p += "  provider route ids, and stray `residual model=` lines — never\n";
+    p += "  commit or paste it raw).\n";
+    p += "  1) Write the SANITIZED markdown to docs/ai-generated/code-reviews/pr-<N>-erlang.md on the PR\n";
     p += "     branch (commit+push if the PR is still open; Intersoft 2026 header).\n";
     p += "  2) Put the same markdown in the PR body under heading\n";
     p += "     '## Pre-push local code review' (replace the template placeholder;\n";
     p += "     keep Summary / Test plan / Checklist). Use gh pr view --json body,\n";
     p += "     then gh pr edit --body-file. Do not drop other sections.\n";
-    p += "  3) COMMENT may summarize; the PR body section must be the full CLI report.\n";
+    p += "  3) COMMENT may summarize; the PR body section must be the sanitized CLI report.\n";
     p += "\n";
     p += "Hard gates (BLOCK merge): bugs, missing behavioral tests, non-portable paths,\n";
     p += "change-class companions, wrong-type test fakes, security/data-loss, unapproved rule diffs.\n";
@@ -2553,14 +2559,18 @@ for item in queue {
             work_prompt += "   Read modules/ai-shared-develop/src/main/resources/skills/erlang-review/SKILL.md\n";
             work_prompt += "   (pointer) and ~/.agents/skills/erlang/ERLANG.md, then run in this worktree:\n";
             work_prompt += "   mkd-code-review analyze --pack percussion --format markdown --gate advisory\n";
-            work_prompt += "   --git-base origin/main --models\n";
-            work_prompt += "   /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml\n";
+            work_prompt += "   --git-base origin/main --models <models-dir>/models.ollama-dev-coder.toml\n";
+            work_prompt += "   (resolve <models-dir> from the local mkd-code-review install; never\n";
+            work_prompt += "   record the absolute filesystem path).\n";
             work_prompt += "   Scope is the branch diff. Do not pass the repo root as PATHS.\n";
             work_prompt += "   If the models file is missing, omit --models and continue machine-only.\n";
             work_prompt += "   If Ollama is down, keep machine findings; do not fail the review for an llm warn.\n";
             work_prompt += "   Gate on in-diff bugs, missing behavioral tests, and non-portable paths only.\n";
             work_prompt += "   Preexisting rows do not BLOCK. If the gate BLOCKs: fix, re-run the CLI, do not open the PR.\n";
-            work_prompt += "   Write the FULL markdown to docs/ai-generated/code-reviews/issue-<N>-erlang.md\n";
+            work_prompt += "   Pipe the FULL markdown through `python3 scripts/sanitize-erlang-review.py`\n";
+            work_prompt += "   FIRST (raw CLI stdout embeds home-directory paths and provider ids —\n";
+            work_prompt += "   never commit or paste it raw). Write the SANITIZED markdown to\n";
+            work_prompt += "   docs/ai-generated/code-reviews/issue-<N>-erlang.md\n";
             work_prompt += "   and commit it on the branch before gh pr create. Also paste it into the PR body\n";
             work_prompt += "   under '## Pre-push local code review'.\n";
             work_prompt += "   If mkd-code-review is not on PATH: status=failed blocked=erlang_cli_unavailable.\n";

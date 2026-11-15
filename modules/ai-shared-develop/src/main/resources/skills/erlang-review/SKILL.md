@@ -14,9 +14,17 @@ The Erlang review skill moved to the canonical install at
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
     --git-base origin/main \
-    --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.ollama-dev-coder.toml
+    --models <models-dir>/models.ollama-dev-coder.toml
+```
 
-Paste the full markdown report into the PR body under **Pre-push local code review**
+Resolve `<models-dir>` from your local mkd-code-review install. Never record
+the absolute filesystem path.
+
+Pipe the report through `python3 scripts/sanitize-erlang-review.py` before
+writing it down or pasting it anywhere (raw CLI stdout embeds
+home-directory paths and provider ids — never commit or paste it raw).
+
+Paste the sanitized markdown report into the PR body under **Pre-push local code review**
 and write `docs/ai-generated/code-reviews/pr-<N>-erlang.md`.
 ```
 

@@ -134,13 +134,17 @@ this step. Nested headless runs can die on the first shell permission
    ```bash
    mkd-code-review analyze --pack percussion --format markdown --gate advisory --require-llm \
      --git-base "origin/${NIGHT_BASE_BRANCH}" \
-     --models /home/nate/workspaces/mkd-workspace/mkd-code-review/config/models.openrouter-free.toml
+     --models <models-dir>/models.openrouter-free.toml
    ```
 
+   Resolve `<models-dir>` from your local mkd-code-review install (the
+   directory holding `models.openrouter-free.toml`). Never record the
+   absolute filesystem path.
+
    Scope is the branch diff. Never pass the repo root as `PATHS`.
-3. Require the readable OpenRouter profile above and a nonempty
-   `OPENROUTER_API_KEY` in the process environment before running the CLI; never
-   print the key. Use only the configured `openrouter/free` route, with no paid
+3. Require the readable provider profile above and a nonempty
+   LLM-provider key in the process environment before running the CLI; never
+   print the key or name its env var. Use only the configured route, with no paid
    fallback. If the profile/key is missing, configuration cannot be loaded, or
    the required model returns `llm.error` or an LLM warning, stop with
    `status=failed` and `blocked=erlang_llm_unavailable`. Keep machine findings
@@ -148,9 +152,13 @@ this step. Nested headless runs can die on the first shell permission
    hard-gate failures may still skip inference and must be fixed before retry.
 4. Gate on **in-diff** bugs, missing behavioral tests, and non-portable paths
    only. Preexisting rows do not BLOCK.
-5. Write the **full** Markdown report to
+5. Pipe the FULL Markdown report through
+   `python3 scripts/sanitize-erlang-review.py` FIRST (redacts home-directory
+   paths, the provider key env var name, provider route ids, and stray
+   `residual model=` lines — never commit or paste raw CLI stdout). Write the
+   **sanitized** output to
    `docs/ai-generated/code-reviews/issue-<N>-erlang.md` and commit it on the
-   branch. Paste the same Markdown into the PR body under
+   branch. Paste the same sanitized Markdown into the PR body under
    `## Pre-push local code review`.
 6. If the gate BLOCKs: fix the findings, re-run the CLI, and do not open the
    PR until it is clean.
