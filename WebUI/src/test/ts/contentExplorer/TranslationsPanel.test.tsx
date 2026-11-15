@@ -22,6 +22,7 @@ import {
   TranslationNotFoundError,
 } from "../../../main/ts/api/contentExplorer/translationsApi";
 import {
+  filterTranslationVariants,
   TranslationsPanel,
   translationsVariantsItemKey,
 } from "../../../main/ts/contentExplorer/TranslationsPanel";
@@ -419,5 +420,248 @@ describe("translationsVariantsItemKey", () => {
     );
     expect(translationsVariantsItemKey(" 551 ")).toBe("551");
     expect(translationsVariantsItemKey("1-101-708")).toBe("1-101-708");
+  });
+});
+
+describe("filterTranslationVariants", () => {
+  const ROWS = [
+    { contentId: 42, locale: "en-us", role: "source" },
+    { contentId: 900, locale: "fr-fr", role: "translation" },
+    { contentId: 901, locale: "de-de", role: "translation" },
+  ];
+
+  it("returns every row for an empty query", () => {
+    expect(filterTranslationVariants(ROWS, "")).toHaveLength(3);
+    expect(filterTranslationVariants(ROWS, "   ")).toHaveLength(3);
+  });
+
+  it("matches locale code case-insensitively", () => {
+    expect(
+      filterTranslationVariants(ROWS, "FR-fr").map((row) => row.contentId),
+    ).toEqual([900]);
+  });
+
+  it("matches role code and display label", () => {
+    expect(
+      filterTranslationVariants(ROWS, "source").map((row) => row.contentId),
+    ).toEqual([42]);
+    expect(
+      filterTranslationVariants(ROWS, "Translation", (role) =>
+        role === "translation" ? "Translation" : (role ?? ""),
+      ).map((row) => row.contentId),
+    ).toEqual([900, 901]);
+  });
+
+  it("matches content id substring", () => {
+    expect(
+      filterTranslationVariants(ROWS, "90").map((row) => row.contentId),
+    ).toEqual([900, 901]);
+  });
+
+  it("strips NUL characters instead of matching or throwing", () => {
+    const nul = String.fromCharCode(0);
+    expect(
+      filterTranslationVariants(ROWS, `${nul}fr-fr${nul}`).map(
+        (row) => row.contentId,
+      ),
+    ).toEqual([900]);
+    expect(filterTranslationVariants(ROWS, nul)).toHaveLength(3);
+  });
+});
+
+describe("TranslationsPanel variant search (#6414)", () => {
+  async function renderReady() {
+    render(
+      <TranslationsPanel
+        itemId="42"
+        itemLabel="Home"
+        loadVariants={async () => ({
+          itemId: 42,
+          locale: "en-us",
+          variants: [
+            { contentId: 42, locale: "en-us", role: "source" },
+            { contentId: 900, locale: "fr-fr", role: "translation" },
+            { contentId: 901, locale: "de-de", role: "translation" },
+          ],
+        })}
+        loadLocaleCatalog={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("translations-panel")).toHaveAttribute(
+        "data-testid-state",
+        "ok",
+      ),
+    );
+  }
+
+  it("filters rows by typed locale and restores on clear", async () => {
+    await renderReady();
+    const search = screen.getByTestId("translations-variants-search");
+    expect(screen.getByTestId("translations-variant-row-42")).toBeTruthy();
+    expect(screen.getByTestId("translations-variant-row-900")).toBeTruthy();
+    fireEvent.change(search, { target: { value: "fr" } });
+    expect(
+      screen.queryByTestId("translations-variant-row-42"),
+    ).toBeNull();
+    expect(screen.getByTestId("translations-variant-row-900")).toBeTruthy();
+    expect(
+      screen.queryByTestId("translations-variant-row-901"),
+    ).toBeNull();
+    fireEvent.change(search, { target: { value: "" } });
+    expect(screen.getByTestId("translations-variant-row-42")).toBeTruthy();
+    expect(screen.getByTestId("translations-variant-row-901")).toBeTruthy();
+  });
+
+  it("shows a distinct no-match state instead of the table", async () => {
+    await renderReady();
+    fireEvent.change(screen.getByTestId("translations-variants-search"), {
+      target: { value: "xx-no-such-locale" },
+    });
+    expect(
+      screen.getByTestId("translations-variants-no-match"),
+    ).toBeTruthy();
+    expect(screen.queryByTestId("translations-variants-table")).toBeNull();
+    expect(
+      screen.queryByTestId("translations-variants-empty"),
+    ).toBeNull();
+  });
+
+  it("keeps the create success notice across its own list reload, clears on item change", async () => {
+    const loadVariants = vi.fn(async () => SAMPLE_VARIANTS);
+    const createVariants = vi.fn(async () => ({
+      created: [
+        {
+          contentId: 901,
+          locale: "de-de",
+          role: "translation",
+          sourceContentId: 335,
+        },
+      ],
+    }));
+    const view = render(
+      <TranslationsPanel
+        itemId="335"
+        loadVariants={loadVariants}
+        loadLocaleCatalog={async () => CATALOG}
+        createVariants={createVariants}
+      />,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("translations-locale-option-de-de"),
+      ).toBeInTheDocument(),
+    );
+    const reloadsBefore = loadVariants.mock.calls.length;
+    fireEvent.click(screen.getByTestId("translations-locale-option-de-de"));
+    fireEvent.click(screen.getByTestId("translations-create-submit"));
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("translations-create-success"),
+      ).toBeInTheDocument(),
+    );
+    // The success-triggered reload ran, and the notice survived it.
+    await waitFor(() =>
+      expect(loadVariants.mock.calls.length).toBeGreaterThan(reloadsBefore),
+    );
+    expect(screen.getByTestId("translations-create-success")).toBeInTheDocument();
+    expect(screen.getByTestId("translations-variant-row-335")).toBeTruthy();
+    // Loading a different item clears the stale notice.
+    view.rerender(
+      <TranslationsPanel
+        itemId="999"
+        loadVariants={loadVariants}
+        loadLocaleCatalog={async () => CATALOG}
+        createVariants={createVariants}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.queryByTestId("translations-create-success")).toBeNull(),
+    );
+  });
+
+  it("resets the variant filter on item change and after a successful create", async () => {
+    const loadVariants = vi.fn(async () => SAMPLE_VARIANTS);
+    const createVariants = vi.fn(async () => ({
+      created: [
+        {
+          contentId: 901,
+          locale: "de-de",
+          role: "translation",
+          sourceContentId: 335,
+        },
+      ],
+    }));
+    const view = render(
+      <TranslationsPanel
+        itemId="335"
+        loadVariants={loadVariants}
+        loadLocaleCatalog={async () => CATALOG}
+        createVariants={createVariants}
+      />,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("translations-locale-option-de-de"),
+      ).toBeInTheDocument(),
+    );
+    // A filter that hides a row does not survive an item change.
+    fireEvent.change(screen.getByTestId("translations-variants-search"), {
+      target: { value: "fr" },
+    });
+    expect(screen.queryByTestId("translations-variant-row-335")).toBeNull();
+    view.rerender(
+      <TranslationsPanel
+        itemId="999"
+        loadVariants={loadVariants}
+        loadLocaleCatalog={async () => CATALOG}
+        createVariants={createVariants}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("translations-variant-row-335")).toBeTruthy(),
+    );
+    expect(screen.getByTestId("translations-variants-search")).toHaveValue("");
+    // A successful create clears the filter so the new copy is visible.
+    fireEvent.change(screen.getByTestId("translations-variants-search"), {
+      target: { value: "fr" },
+    });
+    expect(screen.queryByTestId("translations-variant-row-335")).toBeNull();
+    fireEvent.click(screen.getByTestId("translations-locale-option-de-de"));
+    fireEvent.click(screen.getByTestId("translations-create-submit"));
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("translations-create-success"),
+      ).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("translations-variants-search")).toHaveValue("");
+    expect(screen.getByTestId("translations-variant-row-335")).toBeTruthy();
+  });
+
+  it("passes the zero serious/critical axe-core gate with search", async () => {    const { container } = render(
+      <TranslationsPanel
+        itemId="42"
+        itemLabel="Home"
+        loadVariants={async () => ({
+          itemId: 42,
+          locale: "en-us",
+          variants: [
+            { contentId: 42, locale: "en-us", role: "source" },
+            { contentId: 900, locale: "fr-fr", role: "translation" },
+          ],
+        })}
+        loadLocaleCatalog={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("translations-panel")).toHaveAttribute(
+        "data-testid-state",
+        "ok",
+      ),
+    );
+    fireEvent.change(screen.getByTestId("translations-variants-search"), {
+      target: { value: "fr" },
+    });
+    await renderA11yGate(container);
   });
 });

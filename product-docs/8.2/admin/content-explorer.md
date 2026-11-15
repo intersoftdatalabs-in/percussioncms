@@ -1319,6 +1319,10 @@ variant in the editor?** to open that existing locale copy in the React editor
 window. Explorer checks the variant (`GET /services/itemmanagement/item/fields/{id}`)
 before navigating. HTTP **403** and **404** stay in the translations panel and are
 not a successful open. A **folder** is not opened as a translation variant.
+A **Filter locale variants** search box above the table narrows rows by locale code,
+role, or content id as you type; a filter with no matches shows a no-match state
+instead of the table, and clearing the filter restores every row. Creating a new
+variant keeps its success notice while the list reloads to include the new copy.
 Create-variant maps HTTP **403** (not allowed), **404**
 (source item missing), and **409** (that locale copy already exists). Explorer list rows identify items with a Percussion content id. Page and asset
 rows expose that id as a GUID (`host-type-uuid`, for example `16777215-101-551`) on
