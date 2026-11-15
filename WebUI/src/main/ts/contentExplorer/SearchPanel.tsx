@@ -41,7 +41,7 @@
  * </ul>
  */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   searchExtended,
   type PSItemProperties,
@@ -60,6 +60,11 @@ import type {
   SearchExecuteResult,
 } from "../api/developer/types";
 import { formatApiError } from "../api/client";
+import {
+  captureDialogOpener,
+  useDialogEscape,
+  useDialogFocusTrap,
+} from "../architecture/useDialogEscape";
 import { message } from "../i18n/message";
 import { EXPLORER_MSG } from "./messages";
 import { toRepositorySearchFolderPath } from "./folderPath";
@@ -725,7 +730,10 @@ function SavedSearchPicker(props: {
         type="button"
         data-testid="search-panel-saved-rename"
         disabled={manageDisabled}
-        onClick={onRename}
+        onClick={(e) => {
+          captureDialogOpener(e.currentTarget);
+          onRename();
+        }}
         title={
           selectedIsCustom
             ? message(EXPLORER_MSG.SEARCH_SAVED_CUSTOM_UNSUPPORTED)
@@ -738,7 +746,10 @@ function SavedSearchPicker(props: {
         type="button"
         data-testid="search-panel-saved-delete"
         disabled={manageDisabled}
-        onClick={onDelete}
+        onClick={(e) => {
+          captureDialogOpener(e.currentTarget);
+          onDelete();
+        }}
         title={
           selectedIsCustom
             ? message(EXPLORER_MSG.SEARCH_SAVED_CUSTOM_UNSUPPORTED)
@@ -755,6 +766,10 @@ function SavedSearchPicker(props: {
  * Rename / delete dialog for the selected saved search (#6075).
  * Rename edits the display label (PUT); delete confirms before DELETE.
  * Cancel closes without transport. Errors stay on the dialog; rows are kept.
+ *
+ * <p>#6398 a11y: Escape dismisses (unless a save/delete is in flight),
+ * Tab/Shift+Tab stay inside the dialog, and focus returns to the
+ * Rename/Delete opener on close — peer of ContentTypePickerDialog.</p>
  */
 function ManageSavedSearchDialog(props: {
   mode: ManageMode | null;
@@ -778,12 +793,19 @@ function ManageSavedSearchDialog(props: {
     onConfirmDelete,
     onClose,
   } = props;
+  const open = mode != null;
+  const rootRef = useRef<HTMLDivElement>(null);
+  // Escape dismisses (busy-guarded) + focus returns to the opener (#6398).
+  useDialogEscape(open, busy, onClose);
+  // Tab cycles inside; first control takes focus on open (#6398).
+  useDialogFocusTrap(open, rootRef);
   if (mode == null) {
     return <></>;
   }
   const renameSaveDisabled = busy || renameDraft.trim().length === 0;
   return (
     <div
+      ref={rootRef}
       role="dialog"
       aria-modal="true"
       aria-label={

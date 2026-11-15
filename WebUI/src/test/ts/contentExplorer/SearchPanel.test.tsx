@@ -1021,5 +1021,111 @@ describe("SearchPanel", () => {
       ).toBeTruthy();
       await renderA11yGate(container);
     });
+
+    it("Escape dismisses the rename dialog with no transport and returns focus (#6398)", async () => {
+      const renameSavedSearch = vi.fn();
+      render(
+        <SearchPanel
+          listSavedSearches={readyManageable()}
+          renameSavedSearch={renameSavedSearch}
+          deleteSavedSearch={vi.fn()}
+        />,
+      );
+      await selectManageableRow();
+      const renameBtn = screen.getByTestId(
+        "search-panel-saved-rename",
+      ) as HTMLButtonElement;
+      renameBtn.focus();
+      fireEvent.click(renameBtn);
+      expect(
+        screen.getByTestId("search-panel-saved-manage-dialog"),
+      ).toBeTruthy();
+      fireEvent.keyDown(window, { key: "Escape" });
+      expect(renameSavedSearch).not.toHaveBeenCalled();
+      expect(
+        screen.queryByTestId("search-panel-saved-manage-dialog"),
+      ).toBeNull();
+      expect(document.activeElement).toBe(renameBtn);
+    });
+
+    it("Escape dismisses the delete dialog with no transport and returns focus (#6398)", async () => {
+      const deleteSavedSearch = vi.fn();
+      render(
+        <SearchPanel
+          listSavedSearches={readyManageable()}
+          renameSavedSearch={vi.fn()}
+          deleteSavedSearch={deleteSavedSearch}
+        />,
+      );
+      await selectManageableRow();
+      const deleteBtn = screen.getByTestId(
+        "search-panel-saved-delete",
+      ) as HTMLButtonElement;
+      deleteBtn.focus();
+      fireEvent.click(deleteBtn);
+      const dialog = screen.getByTestId("search-panel-saved-manage-dialog");
+      expect(dialog).toBeTruthy();
+      // Delete mode autofocuses the first control (confirm).
+      expect(document.activeElement).toBe(
+        screen.getByTestId("search-panel-saved-delete-confirm"),
+      );
+      fireEvent.keyDown(window, { key: "Escape" });
+      expect(deleteSavedSearch).not.toHaveBeenCalled();
+      expect(
+        screen.queryByTestId("search-panel-saved-manage-dialog"),
+      ).toBeNull();
+      expect(document.activeElement).toBe(deleteBtn);
+    });
+
+    it("moves focus into the rename dialog and traps Tab inside (#6398)", async () => {
+      render(
+        <SearchPanel
+          listSavedSearches={readyManageable()}
+          renameSavedSearch={vi.fn()}
+          deleteSavedSearch={vi.fn()}
+        />,
+      );
+      await selectManageableRow();
+      fireEvent.click(screen.getByTestId("search-panel-saved-rename"));
+      const dialog = screen.getByTestId("search-panel-saved-manage-dialog");
+      const input = screen.getByTestId("search-panel-saved-rename-input");
+      const cancel = screen.getByTestId("search-panel-saved-manage-cancel");
+      // First control takes focus on open.
+      expect(document.activeElement).toBe(input);
+      // Shift+Tab on first wraps to last.
+      fireEvent.keyDown(input, { key: "Tab", shiftKey: true });
+      expect(document.activeElement).toBe(cancel);
+      // Tab on last wraps to first.
+      fireEvent.keyDown(cancel, { key: "Tab" });
+      expect(document.activeElement).toBe(input);
+      expect(dialog.contains(document.activeElement)).toBe(true);
+    });
+
+    it("Escape while a rename is in flight keeps the dialog open (#6398)", async () => {
+      const renameSavedSearch = vi
+        .fn()
+        .mockReturnValue(new Promise(() => {}));
+      render(
+        <SearchPanel
+          listSavedSearches={readyManageable()}
+          renameSavedSearch={renameSavedSearch}
+          deleteSavedSearch={vi.fn()}
+        />,
+      );
+      await selectManageableRow();
+      fireEvent.click(screen.getByTestId("search-panel-saved-rename"));
+      fireEvent.change(
+        screen.getByTestId("search-panel-saved-rename-input"),
+        { target: { value: "PAGES!" } },
+      );
+      fireEvent.click(screen.getByTestId("search-panel-saved-rename-save"));
+      await waitFor(() => {
+        expect(renameSavedSearch).toHaveBeenCalledTimes(1);
+      });
+      fireEvent.keyDown(window, { key: "Escape" });
+      expect(
+        screen.getByTestId("search-panel-saved-manage-dialog"),
+      ).toBeTruthy();
+    });
   });
 });
