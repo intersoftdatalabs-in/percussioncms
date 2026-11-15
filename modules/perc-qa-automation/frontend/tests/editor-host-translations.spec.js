@@ -106,6 +106,46 @@ async function stubApis(page, { variantsStatus = 200, createStatus = 200 } = {})
       body: JSON.stringify({ ItemStateTransition: { transitionTriggers: [] } }),
     }),
   );
+  // Background host chrome outside this slice: workflow picker, breadcrumb
+  // path, and related-content canvas. Quiet 200s keep the console-clean gate
+  // deterministic on a fresh-H2 cell where fake ids 900/901 have no live rows
+  // (same shapes as editor-host-translations-search.spec.js, #6414).
+  const quiet = { status: 200, contentType: "application/json", body: "{}" };
+  await page.route("**/services/itemmanagement/workflow/allowedWorkflows/**", (route) =>
+    route.fulfill(quiet),
+  );
+  await page.route("**/pathmanagement/path/item/id/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        PathItem: { id: "42", name: "Home", path: "//Sites/Demo/Home", type: "page" },
+      }),
+    }),
+  );
+  await page.route("**/services/assembly/slot-relationships/canvas**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ownerId: 42, templateId: 7, slots: [] }),
+    }),
+  );
+  await page.route("**/itemmanagement/item/siteimpact/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ pages: [], templates: [] }),
+    }),
+  );
+  // Template picker catalogs (site + read-only library): empty on this
+  // fresh-H2 cell where the Demo site has no loadable templates.
+  const emptyList = { status: 200, contentType: "application/json", body: "[]" };
+  await page.route("**/sitemanage/sitetemplates/templates/**", (route) =>
+    route.fulfill(emptyList),
+  );
+  await page.route("**/pagemanagement/template/summary/all/readonly**", (route) =>
+    route.fulfill(emptyList),
+  );
   await page.route("**/services/locales", (route) => {
     if (route.request().method() !== "GET") {
       return route.continue();
@@ -177,6 +217,9 @@ test.describe("EditorHost translation variants @editor @editor-translations", ()
     await expect(page.getByTestId(TEST_IDS.panel)).toBeVisible();
     await page.getByTestId(TEST_IDS.open900).click();
     await expect(page.getByTestId(TEST_IDS.contentId)).toContainText("900");
+    await page.screenshot({
+      path: "test-results/live-proof-6436-translations-open-900.png",
+    });
     expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
   });
 
@@ -188,6 +231,9 @@ test.describe("EditorHost translation variants @editor @editor-translations", ()
     await page.getByTestId(TEST_IDS.localeDe).click();
     await page.getByTestId(TEST_IDS.create).click();
     await expect(page.getByTestId(TEST_IDS.contentId)).toContainText("901");
+    await page.screenshot({
+      path: "test-results/live-proof-6436-translations-create-901.png",
+    });
     expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
   });
 
