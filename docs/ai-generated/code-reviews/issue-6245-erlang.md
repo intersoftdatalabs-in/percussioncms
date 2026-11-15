@@ -1,6 +1,6 @@
 ## Summary
 
-Machine analysis found **0** finding(s), **0** blocking bug(s).
+Machine analysis found **1** finding(s), **1** blocking bug(s).
 
 ## Scope
 
@@ -12,13 +12,21 @@ Machine analysis found **0** finding(s), **0** blocking bug(s).
 
 ## Recommendation
 
-approve
+request-changes
 
 ## Gate
 
-- Blocking bugs: 0
+- Blocking bugs: 1
 - May commit/push: yes
 
 ## Issues
 
-_No issues._
+### Issue 1 -- Severity: bug
+
+- File: review
+- Rule: `llm.error`
+- Tool: `llm`
+- Description: model `<llm-model>` failed: config: missing env <llm-provider-key-env> (for OpenRouter set <llm-provider-key-env> from https://openrouter.ai/keys)
+- Status: open
+
+> Tip: To suppress false positives, add `// mkd-code-review[<rule_id>] <reason>` (e.g. `// mkd-code-review[paths.hardcoded_sep] web url join`) or `// codeql[<rule_id>] <reason>` on or above the line, or add an entry in `.mkd-code-review.toml`.

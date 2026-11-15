@@ -19,42 +19,42 @@
 
 ## Slice 2 — cell DTS bring-up (child issue)
 
-- [ ] T009 `qa_rebuild_chain.py` packages `delivery-tier-distribution.jar`
+- [x] T009 `qa_rebuild_chain.py` packages `delivery-tier-distribution.jar`
       (`RESULT:OK/FAIL`, `--dry-run`-safe, `pathlib` joins).
-- [ ] T010 Matrix cell performs second silent DTS install beside
+- [x] T010 Matrix cell performs second silent DTS install beside
       `/opt/Percussion`; `StartTomcat.sh start`; `DTS_PORT`/freeport
       pinning (#2005 convention).
-- [ ] T011 `qa-up --with-dts` flag + endpoint banner
+- [x] T011 `qa-up --with-dts` flag + endpoint banner
       (`PUBLISHED_SITE_URL=`, `PUBLISHED_CATEGORY_URL=`, `DTS_URL=`);
       default path unchanged.
-- [ ] T012 `qa-health` gates Jetty + Tomcat; `qa-down` tears both down.
-- [ ] T013 Unit tests (`test_perc_devctl.py`) + default-path no-regression
+- [x] T012 `qa-health` gates Jetty + Tomcat; `qa-down` tears both down.
+- [x] T013 Unit tests (`test_perc_devctl.py`) + default-path no-regression
       evidence in PR body.
 
 ## Slice 3 — fixture edition + static serve (child issue)
 
-- [ ] T014 Fixture publishing server → in-cell DTS; fixture edition
+- [x] T014 Fixture publishing server → in-cell DTS; fixture edition
       publishes to the Tomcat static dir; site registered on a host alias.
-- [ ] T015 `published-site-smoke.spec.js` green (not skipped) with zero
+- [x] T015 `published-site-smoke.spec.js` green (not skipped) with zero
       `web_resources` 404s.
-- [ ] T016 `published-category-tree-fancytree.spec.js` green (#6189
+- [x] T016 `published-category-tree-fancytree.spec.js` green (#6189
       checkbox 1 unblocked); FancyTree bytes from #6052 verified live.
-- [ ] T017 Surface-run evidence (pass counts, zero console errors, zero
+- [x] T017 Surface-run evidence (pass counts, zero console errors, zero
       `server.log` ERROR/FATAL) in PR body.
 
 ## Slice 4 — DTS widget surfaces (child issue)
 
-- [ ] T018 One published page per widget class: poll, feed, metadata,
+- [x] T018 One published page per widget class: poll, feed, metadata,
       form, comments.
-- [ ] T019 One surface spec per class (`PUBLISHED_SITE_URL`/`DTS_URL`
+- [x] T019 One surface spec per class (`PUBLISHED_SITE_URL`/`DTS_URL`
       skip contract); green against the `--with-dts` cell.
-- [ ] T020 Evidence per class in PR body.
+- [x] T020 Evidence per class in PR body.
 
 ## Slice 5 — docs + closeout (child issue)
 
-- [ ] T021 Workbench §2 documents the shipped mode (replaces roadmap
+- [x] T021 Workbench §2 documents the shipped mode (replaces roadmap
       pointer); qa-automation `AGENTS.md` documents new env vars; no
       hardcoded ports.
-- [ ] T022 Full-suite default still surface-filtered.
+- [x] T022 Full-suite default still surface-filtered.
 - [ ] T023 Epic closeout with AC1–AC5 evidence; `Fixes #6237` only when
       every box is met.
