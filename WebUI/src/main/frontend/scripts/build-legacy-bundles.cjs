@@ -69,6 +69,19 @@ const NPM_LIBRARY_MAPPINGS = {
     "bootstrap/dist/css/bootstrap.css",
   "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css":
     "bootstrap/dist/css/bootstrap.min.css",
+  // FontAwesome from npm (issue #6321, audit #5627): the vendored
+  // cm/jslib copy was a CSS/JS VERSION MISMATCH (all.css 5.6.1 vs
+  // fontawesome-all.js + v4-shims.js 5.3.1 — icons could silently miss)
+  // and the JS pair had zero in-repo consumers (no bundle config or
+  // page loads fontawesome-all.js / v4-shims.js; classic pages load only
+  // all.css and use FA5-native `fas fa-*` classes). The single npm
+  // 5.15.4 (5.x-final, exact-pinned: 6.x renames the `Font Awesome 5`
+  // font families the widget CSS references) serves the consumed
+  // all.css + webfonts via the generated-webui overlay; the unreferenced
+  // 5.3.1 JS pair is retired outright with no mapping (Backgrid
+  // precedent, issue #5664).
+  "jslib/profiles/3x/libraries/fontawesome/css/all.css":
+    "@fortawesome/fontawesome-free/css/all.css",
   "jslib/profiles/3x/libraries/bowser/es5.js": "bowser/es5.js",
   "jslib/profiles/3x/libraries/handlebars/handlebars-v4.7.8.js":
     "handlebars/dist/handlebars.js",
@@ -574,6 +587,92 @@ const STANDALONE_NPM_COPIES = [
   {
     src: "bootstrap/dist/css/bootstrap.min.css",
     dest: "jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css",
+    required: true,
+  },
+  // FontAwesome 5.15.4 from npm (issue #6321). Classic pages
+  // (dashboard/editTemplate/importTemplate/pageNotFound/users/webmgt.jsp
+  // plus PercMobilePreview.js) load all.css from this stable jslib URL,
+  // whose `../webfonts/` relative refs resolve against the sibling
+  // webfont copies below. The vendored 5.6.1/5.3.1 trees were deleted,
+  // so every entry is required.
+  {
+    src: "@fortawesome/fontawesome-free/css/all.css",
+    dest: "jslib/profiles/3x/libraries/fontawesome/css/all.css",
+    required: true,
+  },
+  {
+    src: "@fortawesome/fontawesome-free/webfonts/fa-brands-400.eot",
+    dest: "jslib/profiles/3x/libraries/fontawesome/webfonts/fa-brands-400.eot",
+    required: true,
+  },
+  {
+    src: "@fortawesome/fontawesome-free/webfonts/fa-brands-400.svg",
+    dest: "jslib/profiles/3x/libraries/fontawesome/webfonts/fa-brands-400.svg",
+    required: true,
+  },
+  {
+    src: "@fortawesome/fontawesome-free/webfonts/fa-brands-400.ttf",
+    dest: "jslib/profiles/3x/libraries/fontawesome/webfonts/fa-brands-400.ttf",
+    required: true,
+  },
+  {
+    src: "@fortawesome/fontawesome-free/webfonts/fa-brands-400.woff",
+    dest: "jslib/profiles/3x/libraries/fontawesome/webfonts/fa-brands-400.woff",
+    required: true,
+  },
+  {
+    src: "@fortawesome/fontawesome-free/webfonts/fa-brands-400.woff2",
+    dest: "jslib/profiles/3x/libraries/fontawesome/webfonts/fa-brands-400.woff2",
+    required: true,
+  },
+  {
+    src: "@fortawesome/fontawesome-free/webfonts/fa-regular-400.eot",
+    dest: "jslib/profiles/3x/libraries/fontawesome/webfonts/fa-regular-400.eot",
+    required: true,
+  },
+  {
+    src: "@fortawesome/fontawesome-free/webfonts/fa-regular-400.svg",
+    dest: "jslib/profiles/3x/libraries/fontawesome/webfonts/fa-regular-400.svg",
+    required: true,
+  },
+  {
+    src: "@fortawesome/fontawesome-free/webfonts/fa-regular-400.ttf",
+    dest: "jslib/profiles/3x/libraries/fontawesome/webfonts/fa-regular-400.ttf",
+    required: true,
+  },
+  {
+    src: "@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff",
+    dest: "jslib/profiles/3x/libraries/fontawesome/webfonts/fa-regular-400.woff",
+    required: true,
+  },
+  {
+    src: "@fortawesome/fontawesome-free/webfonts/fa-regular-400.woff2",
+    dest: "jslib/profiles/3x/libraries/fontawesome/webfonts/fa-regular-400.woff2",
+    required: true,
+  },
+  {
+    src: "@fortawesome/fontawesome-free/webfonts/fa-solid-900.eot",
+    dest: "jslib/profiles/3x/libraries/fontawesome/webfonts/fa-solid-900.eot",
+    required: true,
+  },
+  {
+    src: "@fortawesome/fontawesome-free/webfonts/fa-solid-900.svg",
+    dest: "jslib/profiles/3x/libraries/fontawesome/webfonts/fa-solid-900.svg",
+    required: true,
+  },
+  {
+    src: "@fortawesome/fontawesome-free/webfonts/fa-solid-900.ttf",
+    dest: "jslib/profiles/3x/libraries/fontawesome/webfonts/fa-solid-900.ttf",
+    required: true,
+  },
+  {
+    src: "@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff",
+    dest: "jslib/profiles/3x/libraries/fontawesome/webfonts/fa-solid-900.woff",
+    required: true,
+  },
+  {
+    src: "@fortawesome/fontawesome-free/webfonts/fa-solid-900.woff2",
+    dest: "jslib/profiles/3x/libraries/fontawesome/webfonts/fa-solid-900.woff2",
     required: true,
   },
   // DataTables 3.x core + default styling from npm (issue #6002). The

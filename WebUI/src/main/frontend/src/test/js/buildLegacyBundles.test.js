@@ -2259,3 +2259,264 @@ describe("classic-UI Bootstrap 5 from npm (issue #5661)", () => {
     }
   });
 });
+
+/**
+ * Classic-UI FontAwesome from npm (issue #6321, audit #5627).
+ *
+ * The vendored trees (cm/jslib, the cm/vendor/js/legacy mirror, and the
+ * war/ mirror) carried a CSS/JS VERSION MISMATCH — all.css 5.6.1 versus
+ * fontawesome-all.js + v4-shims.js 5.3.1 — so icons could silently miss,
+ * and the CC-BY-4.0 webfonts shipped with no explicit redistribution nod.
+ * The single npm 5.15.4 (5.x-final, exact-pinned in frontend package.json:
+ * 6.x renames the `Font Awesome 5` font families the delivery widget CSS
+ * references) is now the only FontAwesome source. Classic pages
+ * (dashboard/editTemplate/importTemplate/pageNotFound/users/webmgt.jsp in
+ * both cm/app and cm/pages/app, plus PercMobilePreview.js) load only
+ * all.css at the stable versionless jslib URL and use FA5-native
+ * `fas fa-*` classes, so the `.css` + `../webfonts/` sibling layout is
+ * preserved by the generated-webui overlay. The vendored JS pair had zero
+ * in-repo consumers (no bundle config or page loads it) and the npm 5.15.4
+ * dist no longer ships a `fontawesome-all.js` bundle, so it is retired
+ * outright with no mapping (Backgrid precedent, issue #5664). These tests
+ * pin:
+ *
+ *   1. The exact npm pin is the single source of truth for the shipped
+ *      version (read from package.json, never hardcoded here).
+ *   2. The consumed all.css jslib path resolves into node_modules
+ *      (NPM_LIBRARY_MAPPINGS).
+ *   3. all.css + all 15 webfonts are present in STANDALONE_NPM_COPIES and
+ *      marked required.
+ *   4. Synced bytes are byte-identical to the npm dist files and carry
+ *      the single 5.15.4 banner (neither the deleted 5.6.1 CSS nor the
+ *      deleted 5.3.1 JS banner may leak back in).
+ *   5. The retired JS pair has no mapping and no standalone entry.
+ *   6. Every deleted vendored copy is gone from all three source trees.
+ *   7. The JSP consumers still reference the same stable URL (refs
+ *      unwired — pages unaffected).
+ */
+describe("classic-UI FontAwesome from npm (issue #6321)", () => {
+  const FRONTEND_ROOT = path.dirname(
+    path.dirname(path.dirname(__dirname)),
+  );
+  const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
+  const WEBAPP_CM = WAR_DIR;
+  const WEBUI_DIR = path.dirname(
+    path.dirname(path.dirname(FRONTEND_ROOT)),
+  );
+  const REPO_ROOT = path.dirname(WEBUI_DIR);
+
+  // Declared npm pin — the single source of truth for the shipped
+  // FontAwesome version (same discipline as the QUnit pin, issue #6288).
+  // Exact-pinned (no ^/~): 5.x is final and 6.x renames font families.
+  function expectedFontAwesomeVersion() {
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
+    );
+    const declared =
+      pkg.dependencies?.["@fortawesome/fontawesome-free"] ??
+      pkg.devDependencies?.["@fortawesome/fontawesome-free"];
+    if (!declared) {
+      throw new Error(
+        "@fortawesome/fontawesome-free must be pinned in frontend package.json (issue #6321)",
+      );
+    }
+    return {
+      declared: String(declared),
+      numeric: String(declared).replace(/^[~^>=< ]+/, ""),
+    };
+  }
+
+  function escapeRegExp(s) {
+    return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  }
+
+  const FA_VERSION = expectedFontAwesomeVersion().numeric;
+  const FA_BANNER_RE = new RegExp(
+    `Font Awesome Free ${escapeRegExp(FA_VERSION)}`,
+  );
+  const STALE_BANNERS = [/Font Awesome Free 5\.6\.1/, /Font Awesome Free 5\.3\.1/];
+
+  const FA_CSS = {
+    src: "@fortawesome/fontawesome-free/css/all.css",
+    dest: "jslib/profiles/3x/libraries/fontawesome/css/all.css",
+  };
+
+  const WEBFONT_FAMILIES = ["fa-brands-400", "fa-regular-400", "fa-solid-900"];
+  const WEBFONT_EXTS = ["eot", "svg", "ttf", "woff", "woff2"];
+  const FA_WEBFONTS = WEBFONT_FAMILIES.flatMap((family) =>
+    WEBFONT_EXTS.map((ext) => ({
+      src: `@fortawesome/fontawesome-free/webfonts/${family}.${ext}`,
+      dest: `jslib/profiles/3x/libraries/fontawesome/webfonts/${family}.${ext}`,
+    })),
+  );
+
+  const FA_STANDALONE = [FA_CSS, ...FA_WEBFONTS];
+
+  // The retired 5.3.1 JS pair: zero in-repo consumers, no npm 5.15.4
+  // `fontawesome-all.js` counterpart — must stay unmapped.
+  const RETIRED_JS = [
+    "jslib/profiles/3x/libraries/fontawesome/js/fontawesome-all.js",
+    "jslib/profiles/3x/libraries/fontawesome/js/v4-shims.js",
+  ];
+
+  const DELETED_VENDORED = [
+    "jslib/profiles/3x/libraries/fontawesome/css/all.css",
+    "jslib/profiles/3x/libraries/fontawesome/js/fontawesome-all.js",
+    "jslib/profiles/3x/libraries/fontawesome/js/v4-shims.js",
+    ...FA_WEBFONTS.map((w) => w.dest),
+  ];
+
+  const FA_JSP_CONSUMERS = [
+    "app/dashboard.jsp",
+    "app/editTemplate.jsp",
+    "app/importTemplate.jsp",
+    "app/pageNotFound.jsp",
+    "app/users.jsp",
+    "app/webmgt.jsp",
+    "pages/app/dashboard.jsp",
+    "pages/app/editTemplate.jsp",
+    "pages/app/importTemplate.jsp",
+    "pages/app/pageNotFound.jsp",
+    "pages/app/users.jsp",
+    "pages/app/webmgt.jsp",
+  ];
+  const FA_STABLE_URL =
+    "/cm/jslib/profiles/3x/libraries/fontawesome/css/all.css";
+
+  it("declares a single exact-pinned FontAwesome 5.x version", () => {
+    const { declared, numeric } = expectedFontAwesomeVersion();
+    expect(declared, "FontAwesome pin must be exact (6.x renames font families)").toBe(numeric);
+    // 5.x-final: 6.x renames the `Font Awesome 5` font families the
+    // delivery widget CSS references, so the major line is pinned here
+    // (the full version still comes only from package.json above).
+    expect(numeric.split(".")[0]).toBe("5");
+  });
+
+  it("resolves the consumed all.css jslib path into node_modules", () => {
+    expect(
+      NPM_LIBRARY_MAPPINGS[FA_CSS.dest],
+      `no npm mapping for ${FA_CSS.dest}`,
+    ).toBe(FA_CSS.src);
+    const resolved = resolvePath(FA_CSS.dest);
+    const normalized = resolved.split(path.sep).join("/");
+    expect(normalized).toContain("node_modules/");
+    expect(fs.existsSync(resolved), resolved).toBe(true);
+  });
+
+  it("pins all.css plus all 15 webfonts in STANDALONE_NPM_COPIES as required", () => {
+    expect(FA_WEBFONTS).toHaveLength(15);
+    for (const { src, dest } of FA_STANDALONE) {
+      const entry = STANDALONE_NPM_COPIES.find((e) => e.dest === dest);
+      expect(entry, `missing standalone copy for ${dest}`).toBeDefined();
+      expect(entry.src).toBe(src);
+      expect(entry.required).toBe(true);
+    }
+  });
+
+  it("syncs FontAwesome bytes identical to the npm dist files, single version", () => {
+    const missing = FA_STANDALONE.map(({ src }) =>
+      path.join(NODE_MODULES, src),
+    ).filter((p) => !fs.existsSync(p));
+    if (missing.length > 0) {
+      // Hermetic CI without frontend node_modules: presence is pinned above.
+      return;
+    }
+    syncStandaloneNpmLibraries();
+    for (const { src, dest } of FA_STANDALONE) {
+      const generated = fs.readFileSync(path.join(OUTPUT_DIR, dest));
+      const npmDist = fs.readFileSync(path.join(NODE_MODULES, src));
+      expect(generated.equals(npmDist), `${dest} differs from npm ${src}`).toBe(
+        true,
+      );
+      // The deleted vendored copy must not leak back into the source tree.
+      expect(fs.existsSync(path.join(WAR_DIR, dest))).toBe(false);
+    }
+    // Version-mismatch gone: one banner only — neither deleted banner.
+    const css = fs.readFileSync(path.join(OUTPUT_DIR, FA_CSS.dest), "utf8");
+    expect(css.slice(0, 4096)).toMatch(FA_BANNER_RE);
+    for (const stale of STALE_BANNERS) {
+      expect(css, `stale vendored banner leaked back: ${stale}`).not.toMatch(
+        stale,
+      );
+    }
+  });
+
+  it("leaves the retired JS pair with no mapping and no standalone entry", () => {
+    for (const dest of RETIRED_JS) {
+      expect(
+        NPM_LIBRARY_MAPPINGS[dest],
+        `${dest} must have no npm mapping`,
+      ).toBeUndefined();
+      expect(
+        STANDALONE_NPM_COPIES.some((e) => e.dest === dest),
+        `${dest} must have no standalone copy`,
+      ).toBe(false);
+    }
+    const bundled = ["common-bundles.json", "common-minuet-bundles.json", "static-bundles.json"]
+      .map((f) => fs.readFileSync(path.join(BUNDLE_CONFIG_DIR, f), "utf8"))
+      .join("\n");
+    expect(bundled).not.toMatch(/fontawesome-all|v4-shims/);
+  });
+
+  it("deleted vendored FontAwesome copies are gone from every source tree", () => {
+    for (const rel of DELETED_VENDORED) {
+      expect(
+        fs.existsSync(path.join(WEBAPP_CM, rel)),
+        `deleted vendored file still present: ${rel}`,
+      ).toBe(false);
+      expect(
+        fs.existsSync(
+          path.join(WEBAPP_CM, "vendor/js/legacy", rel.replace(/^jslib\//, "")),
+        ),
+        `deleted vendor-mirror file still present: ${rel}`,
+      ).toBe(false);
+    }
+    expect(
+      fs.existsSync(path.join(WEBAPP_CM, "vendor/js/legacy/profiles/3x/libraries/fontawesome")),
+      "deleted vendor-mirror fontawesome tree still present",
+    ).toBe(false);
+    // war/ overlay mirror deleted too (tracked legacy duplicate tree).
+    expect(
+      fs.existsSync(
+        path.join(WEBUI_DIR, "war/jslib/profiles/3x/libraries/fontawesome"),
+      ),
+      "deleted war-mirror fontawesome tree still present",
+    ).toBe(false);
+  });
+
+  it("JSP consumers keep loading the stable versionless all.css URL", () => {
+    for (const rel of FA_JSP_CONSUMERS) {
+      const file = path.join(WEBAPP_CM, rel);
+      expect(fs.existsSync(file), `consumer JSP missing: ${rel}`).toBe(true);
+      const html = fs.readFileSync(file, "utf8");
+      expect(
+        html.includes(FA_STABLE_URL),
+        `${rel} no longer loads the stable npm-served all.css`,
+      ).toBe(true);
+      expect(
+        html,
+        `${rel} references the retired vendored JS pair`,
+      ).not.toMatch(/fontawesome-all|v4-shims/);
+    }
+    // PercMobilePreview.js builds the preview-iframe document with the
+    // same stable URL (concatenated onto safeBase) and renders FA5-native
+    // `fas` icons inside it — refs unwired, preview unaffected.
+    const previewJs = path.join(
+      REPO_ROOT,
+      "system/cms/content/applications/sys_resources/ApplicationFiles/mobilepreview/js/PercMobilePreview.js",
+    );
+    expect(
+      fs.existsSync(previewJs),
+      "mobile preview consumer missing",
+    ).toBe(true);
+    const preview = fs.readFileSync(previewJs, "utf8");
+    expect(
+      preview.includes("libraries/fontawesome/css/all.css"),
+      "PercMobilePreview.js no longer loads the stable npm-served all.css",
+    ).toBe(true);
+    expect(
+      preview,
+      "PercMobilePreview.js references the retired vendored JS pair",
+    ).not.toMatch(/fontawesome-all|v4-shims/);
+  });
+});
