@@ -51,6 +51,15 @@ paths-ignore:
   - "deliverytiersuite/delivery-tier-suite/**/src-js/**"
   - "modules/perc-packages/**/jquery.qtip.js"
   - "modules/perc-packages/**/jquery*.js"
+  # Widget-payload npm-dist mirrors (issue #6409, residual of PR #6404).
+  # moment.min.js / lodash.min.js are byte-identical to npm dist (pinned by
+  # WebUI/src/main/frontend/src/test/js/widgetPayloadNpmParity.test.js);
+  # complexity/empty-catch findings on minified upstream single-letter
+  # functions can never be fixed in-slice, and inline suppressions would
+  # break the byte-identity parity pin. mkd-code-review inherits these
+  # paths-ignore entries automatically. Perc-written product sources stay
+  # scanned.
+  - "modules/perc-packages/**/sys__UserDependency--web_resources/**/js/*.min.js"
   - "modules/perc-toolkit/src/main/resources/InstallDir/**"
 
 # Local model pack definitions under .github/codeql/models (for docs / future GHCR).
