@@ -13,10 +13,11 @@
       rel="stylesheet"
     />
 
-    <!-- Bootstrap CSS -->
+    <!-- Bootstrap CSS (npm-tracked Bootstrap 5, issue #6320; the orphan
+         rx_resources 4.0.0 copy is retired) -->
     <link
       rel="stylesheet"
-      href="/Rhythmyx/rx_resources/css/bootstrap/4.0.0/bootstrap.min.css"
+      href="/Rhythmyx/cm/jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css"
     />
 
     <title>Percussion Error Page</title>
@@ -39,6 +40,17 @@
       .btn.focus,
       .btn:focus {
         box-shadow: none;
+      }
+
+      /* Bootstrap 4 to 5 compat (issue #6320): btn-block and text-left
+         were removed in Bootstrap 5; keep the error-page layout exact. */
+      .btn-block {
+        display: block;
+        width: 100%;
+      }
+
+      .text-left {
+        text-align: left !important;
       }
 
       .perc-btn {

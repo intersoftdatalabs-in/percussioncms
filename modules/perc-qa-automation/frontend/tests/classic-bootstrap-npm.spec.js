@@ -148,4 +148,67 @@ test.describe("Classic-UI Bootstrap 5 from npm (issue #5661)", () => {
 
   // #6095 FR-002: legacy adminWorkflow.jsp host retired (301 to SPA Admin);
   // classic Bootstrap page-load coverage remains on dashboard.jsp above.
+
+  test(
+    "branded 404 page loads npm Bootstrap 5 CSS, never the retired 4.0.0 copy @ui",
+    { tag: ["@classic-ui", "@ui"] },
+    async ({ page }) => {
+      // Issue #6320: the orphan rx_resources Bootstrap 4.0.0 CSS copy is
+      // retired; ui/default-error.html now loads the npm Bootstrap 5 CSS at
+      // the stable versionless jslib URL (same overlay as NPM_SERVED above).
+      test.setTimeout(120_000);
+      const styleRefusals = [];
+      const failedRequests = [];
+      // The sibling rx_resources googleFonts_opensans.css link 404s in the
+      // CMS-only QA cell (rx_resources app unmapped — same environmental
+      // noise the t056b spec filters); only Bootstrap refusals fail here.
+      page.on("console", (msg) => {
+        if (
+          msg.type() === "error" &&
+          /refused to apply style/i.test(msg.text()) &&
+          /bootstrap/i.test(msg.text())
+        ) {
+          styleRefusals.push(msg.text());
+        }
+      });
+      page.on("requestfailed", (req) => {
+        if (req.url().includes("/cm/jslib/")) {
+          failedRequests.push(`${req.url()} :: ${req.failure()?.errorText}`);
+        }
+      });
+      page.on("response", (resp) => {
+        if (resp.status() >= 400 && resp.url().includes("/cm/jslib/")) {
+          failedRequests.push(`${resp.url()} :: HTTP ${resp.status()}`);
+        }
+      });
+
+      await loginAsAdmin(page);
+      const response = await page.goto(
+        `${BASE_URL}/Rhythmyx/cm/app/home.jsp?issue=6320&ts=${Date.now()}`,
+        { waitUntil: "domcontentloaded" },
+      );
+      expect(response && response.status(), "deleted entry status").toBe(404);
+      const heading = page.getByRole("heading").first();
+      await expect(heading).toBeVisible({ timeout: 30_000 });
+      expect(
+        ((await heading.textContent()) || "").replace(/\u00a0/g, " "),
+        "branded 404 heading",
+      ).toMatch(/cannot be found/i);
+
+      const css = await page.request.get(
+        `${BASE_URL}/Rhythmyx/cm/jslib/profiles/3x/libraries/bootstrap/css/bootstrap.min.css`,
+      );
+      expect(css.status(), "npm Bootstrap CSS status on 404 page").toBe(200);
+      expect(await css.text(), "npm CSS banner").toMatch(/Bootstrap\s+v5\./);
+
+      expect(
+        failedRequests,
+        `failed jslib requests:\n${failedRequests.join("\n")}`,
+      ).toEqual([]);
+      expect(
+        styleRefusals,
+        `stylesheet refusals:\n${styleRefusals.join("\n")}`,
+      ).toEqual([]);
+    },
+  );
 });

@@ -175,11 +175,11 @@ test.describe("Unavailable message UAT T056b (FR-013 / #6084)", () => {
         expect(await exits.count(), `branded 404 exits for ${jsp}`).toBeGreaterThan(0);
         const bodyText = ((await page.locator("body").textContent()) || "").trim();
         expect(bodyText.length, `non-blank 404 body for ${jsp}`).toBeGreaterThan(0);
-        // Sub-resource 404 probes (favicon/asset) and the error page's own
-        // missing stylesheets (bootstrap 4.0.0 is not shipped in the CMS-only
-        // QA cell install — "Refused to apply style … MIME type text/html")
-        // are environmental noise on the server error page; only hard
-        // page-errors fail this sample.
+        // Sub-resource 404 probes (favicon/asset) are environmental noise
+        // on the server error page; only hard page-errors fail this sample.
+        // (Issue #6320 retired the old bootstrap-4.0.0 stylesheet carve-out:
+        // the error page now loads npm Bootstrap 5 from the webapp itself,
+        // covered by tests/classic-bootstrap-npm.spec.js.)
         const hardErrors = consoleErrors.filter(
           (t) =>
             !/favicon|404|net::ERR|Failed to load resource|Refused to apply style|MIME type/i.test(
