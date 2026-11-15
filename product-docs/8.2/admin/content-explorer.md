@@ -1337,6 +1337,12 @@ A **Filter locale variants** search box above the table narrows rows by locale c
 role, or content id as you type; a filter with no matches shows a no-match state
 instead of the table, and clearing the filter restores every row. Creating a new
 variant keeps its success notice while the list reloads to include the new copy.
+The create form has its own **Filter target locales** search above the target
+checkboxes: typing narrows the list by language name or code
+(case-insensitive), a filter with no matches names that filter instead of the
+checkboxes, and **Create variants** stays disabled until at least one locale is
+checked. Clearing the search restores every target without dropping checked
+locales, and the search clears after a successful create.
 Create-variant maps HTTP **403** (not allowed), **404**
 (source item missing), and **409** (that locale copy already exists). Explorer list rows identify items with a Percussion content id. Page and asset
 rows expose that id as a GUID (`host-type-uuid`, for example `16777215-101-551`) on
