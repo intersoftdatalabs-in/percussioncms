@@ -95,6 +95,45 @@ export function filterQueueByApproval(
   return items;
 }
 
+/** Normalize a payload slot to a list: arrays pass through, single objects wrap. */
+function asItemList(value: unknown): unknown[] | null {
+  if (Array.isArray(value)) {
+    return value;
+  }
+  if (value && typeof value === "object") {
+    return [value];
+  }
+  return null;
+}
+
+/** Product path list shape: { PagedItemList: { childrenInPage: [...] } }. */
+function extractPagedItemList(
+  root: Record<string, unknown>,
+): unknown[] | null {
+  const paged = root.PagedItemList;
+  if (!paged || typeof paged !== "object") {
+    return null;
+  }
+  return asItemList((paged as Record<string, unknown>).childrenInPage);
+}
+
+const LEGACY_QUEUE_KEYS = [
+  "SitePublishItem",
+  "contentItems",
+  "results",
+  "items",
+] as const;
+
+function extractLegacyKey(root: Record<string, unknown>): unknown[] | null {
+  for (const key of LEGACY_QUEUE_KEYS) {
+    const list = asItemList(root[key]);
+    if (list) {
+      return list;
+    }
+  }
+  return null;
+}
+
 /** Normalize queue payload into a stable list of items. */
 export function extractQueueItems(page: IncrementalQueuePage | null | undefined): unknown[] {
   if (page == null) {
@@ -104,30 +143,14 @@ export function extractQueueItems(page: IncrementalQueuePage | null | undefined)
     return page.items;
   }
   const root = page as Record<string, unknown>;
-  // Product path list shape: { PagedItemList: { childrenInPage: [...] } }
-  const paged = root.PagedItemList;
-  if (paged && typeof paged === "object") {
-    const children = (paged as Record<string, unknown>).childrenInPage;
-    if (Array.isArray(children)) {
-      return children;
-    }
-    if (children && typeof children === "object") {
-      return [children];
-    }
+  const paged = extractPagedItemList(root);
+  if (paged) {
+    return paged;
   }
   if (Array.isArray(root.childrenInPage)) {
     return root.childrenInPage;
   }
-  for (const key of ["SitePublishItem", "contentItems", "results", "items"]) {
-    const v = root[key];
-    if (Array.isArray(v)) {
-      return v;
-    }
-    if (v && typeof v === "object") {
-      return [v];
-    }
-  }
-  return [];
+  return extractLegacyKey(root) ?? [];
 }
 
 export function isQueueEmpty(page: IncrementalQueuePage | null | undefined): boolean {
