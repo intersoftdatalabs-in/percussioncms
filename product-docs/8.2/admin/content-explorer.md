@@ -863,6 +863,17 @@ The spec soft-skips only when `GET /services/views` has no Inbox design view. If
 in the catalog, the Explorer leaf must run execute (`200`) and show rows or an empty
 state — a missing results region is a product defect, not a skip.
 
+### Views catalog loading and empty groups
+
+While the Views catalog (`GET /services/views`) is loading, the Views tree shows a
+polite loading row ("Loading views"). If the load fails, the tree shows the error with
+**Retry** instead of rows.
+
+Expanding a group that has no views (for example **Community Content** on a server
+whose catalog has no community views) shows a quiet empty row — "No views in this
+group" — instead of blank space. **My Content** always lists **Inbox**, so it never
+shows the empty row. Collapsing the group hides the row again.
+
 ### View results pages
 
 Selecting any Views leaf (Inbox, Outbox, All Content, or another catalog view) loads the
