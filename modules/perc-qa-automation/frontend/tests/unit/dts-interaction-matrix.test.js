@@ -41,6 +41,8 @@ const {
   skipNoFixture,
   DTS_SERVICES,
   tagForService,
+  dtsContextUrl,
+  dtsServiceUrl,
   fixtureValue,
   buildInteractionRow,
   validateInteractionRow,
@@ -62,9 +64,21 @@ describe("dts-interaction-matrix helpers (#6241)", () => {
     assert.equal(DTS_SERVICES.length, 6);
     const names = DTS_SERVICES.map((entry) => entry.name);
     assert.equal(new Set(names).size, names.length);
+    // Deployment contexts are the Tomcat war names: the services are
+    // addressed through <origin>/<context><root>, never bare-origin
+    // roots (see #6342).
+    const expectedContexts = {
+      polls: "perc-polls-services",
+      feeds: "feeds",
+      forms: "perc-form-processor",
+      comments: "perc-comments-services",
+      metadata: "perc-metadata-services",
+      membership: "perc-membership-services",
+    };
     for (const entry of DTS_SERVICES) {
       assert.match(entry.name, /^(polls|feeds|forms|comments|metadata|membership)$/, `${entry.name} name`);
       assert.ok(entry.label.length > 0, `${entry.name} label`);
+      assert.equal(entry.context, expectedContexts[entry.name], `${entry.name} deployment context`);
       assert.ok(entry.root.startsWith("/"), `${entry.name} root`);
       assert.equal(entry.csrf, `${entry.root}/csrf`, `${entry.name} csrf probe`);
       assert.ok(entry.fixtureEnv.startsWith("DTS_FIXTURE_"), `${entry.name} fixture env`);
@@ -92,8 +106,16 @@ describe("dts-interaction-matrix helpers (#6241)", () => {
       "no-cell skip names the missing env",
     );
     assert.ok(
-      skipServiceDown(DTS_SERVICES[0], "https://dts.example").includes(DTS_SERVICES[0].csrf),
-      "service-down skip names the probed endpoint",
+      skipServiceDown(DTS_SERVICES[0], "https://dts.example/perc-polls-services/polls/csrf").includes(
+        "https://dts.example/perc-polls-services/polls/csrf",
+      ),
+      "service-down skip names the full context-prefixed probe URL",
+    );
+    assert.ok(
+      skipServiceDown(DTS_SERVICES[0], "https://dts.example/perc-polls-services/polls/csrf").includes(
+        "perc-polls-services/polls",
+      ),
+      "service-down skip names the deployment context plus root",
     );
     assert.ok(
       skipNoFixture(DTS_SERVICES[0], "fixture poll 'x' is not seeded").includes("not seeded"),
@@ -116,6 +138,49 @@ describe("dts-interaction-matrix helpers (#6241)", () => {
       } else {
         process.env.DTS_BASE_URL = saved;
       }
+    }
+  });
+
+  it("builds deployment-context service URLs, never bare-origin roots", () => {
+    const origin = new URL("https://dts.example");
+    for (const entry of DTS_SERVICES) {
+      assert.equal(
+        dtsContextUrl(origin, entry),
+        `https://dts.example/${entry.context}`,
+        `${entry.name} context URL`,
+      );
+      assert.equal(
+        dtsServiceUrl(origin, entry),
+        `https://dts.example/${entry.context}${entry.root}`,
+        `${entry.name} service URL`,
+      );
+      assert.equal(
+        `${dtsContextUrl(origin, entry)}${entry.csrf}`,
+        `https://dts.example/${entry.context}${entry.root}/csrf`,
+        `${entry.name} liveness probe URL`,
+      );
+    }
+    // Same deployment reality as the slice-4 US2 surface helper: the five
+    // services shared by both matrices pin identical contexts and roots.
+    const surfaces = require("../helpers/published-widget-surfaces");
+    const surfaceNameFor = {
+      polls: "poll",
+      feeds: "feed",
+      forms: "form",
+      comments: "comments",
+      metadata: "metadata",
+    };
+    for (const shared of ["polls", "feeds", "forms", "comments", "metadata"]) {
+      const entry = DTS_SERVICES.find((candidate) => candidate.name === shared);
+      const surface = surfaces.SURFACES.find((candidate) => candidate.name === surfaceNameFor[shared]);
+      assert.ok(surface, `slice-4 helper covers ${shared}`);
+      assert.equal(entry.context, surface.context, `${shared} context matches slice-4`);
+      assert.equal(entry.root, surface.root, `${shared} root matches slice-4`);
+      assert.equal(
+        dtsServiceUrl(origin, entry),
+        surfaces.dtsServiceUrl(origin, surface),
+        `${shared} service URL matches slice-4 builder`,
+      );
     }
   });
 
@@ -188,6 +253,8 @@ describe("dts-interaction-matrix helpers (#6241)", () => {
   it("is referenced by the matrix spec for every pinned service", () => {
     const spec = fs.readFileSync(path.join(FRONTEND_DIR, "dts-interaction-matrix.spec.js"), "utf8");
     assert.ok(spec.includes("DTS_SERVICES.forEach"), "data-driven over the pinned inventory");
+    assert.ok(spec.includes("dtsServiceUrl"), "spec probes through the deployment context");
+    assert.ok(!spec.includes("originOf"), "no bare-origin probes remain");
     assert.ok(spec.includes("vote persists") || spec.includes("interaction"), "interaction case declared");
     assert.ok(spec.includes("dts-interaction-matrix.json"), "matrix artifact written");
     assert.ok(spec.includes("DTS_BASE_URL"), "skip contract declared");

@@ -32,9 +32,14 @@
  * {@code test-results/dts-interaction-matrix.json}. Two-level skip contract:
  * without {@code DTS_BASE_URL} every case skips naming its service (T020,
  * green on the CMS-only cell); with a base URL each case probes liveness
- * ({@code HEAD <root>/csrf}) and then its seeded fixture — an unseeded
+ * ({@code HEAD <context><root>/csrf}) and then its seeded fixture — an unseeded
  * fixture skips with its own named reason instead of failing, so the #6237
  * cell turns cases green one fixture at a time.</p>
+ *
+ * <p>{@code DTS_BASE_URL} is the DTS Tomcat origin only: every probe is
+ * addressed through the service's deployment context (war name) plus its
+ * JAX-RS root via {@code dtsServiceUrl}, mirroring how the published
+ * widgets call the services — never bare-origin roots (see #6342).</p>
  *
  * <p>Run (needs the DTS-providing cell + seeded interaction fixtures):
  * {@code DTS_BASE_URL=https://<dts-cell-origin>
@@ -59,6 +64,8 @@ const {
   skipNoFixture,
   tagForService,
   dtsBaseUrl,
+  dtsContextUrl,
+  dtsServiceUrl,
   fixtureValue,
   buildInteractionRow,
   validateInteractionRow,
@@ -70,24 +77,20 @@ function recordCase(entry) {
   caseOutcomes.set(entry.name, "pass");
 }
 
-function originOf(base) {
-  return base.origin;
-}
-
 async function probeLiveness(request, base, entry) {
-  const url = `${originOf(base)}${entry.csrf}`;
+  const url = `${dtsContextUrl(base, entry)}${entry.csrf}`;
   let response = null;
   try {
     response = await request.head(url);
   } catch (error) {
     test.skip(
       true,
-      skipServiceDown(entry, `${originOf(base)} (unreachable: ${String((error && error.message) || error).slice(0, 120)})`),
+      skipServiceDown(entry, `${url} (unreachable: ${String((error && error.message) || error).slice(0, 120)})`),
     );
   }
   test.skip(
     !response.ok(),
-    skipServiceDown(entry, originOf(base)),
+    skipServiceDown(entry, url),
   );
   return response;
 }
@@ -101,8 +104,9 @@ async function readJson(response) {
 }
 
 async function interactPolls(request, base, entry) {
+  const svc = dtsServiceUrl(base, entry);
   const pollName = fixtureValue(entry);
-  const pollUrl = `${originOf(base)}/polls/${encodeURIComponent(pollName)}`;
+  const pollUrl = `${svc}/${encodeURIComponent(pollName)}`;
   const read = await request.get(pollUrl);
   test.skip(
     read.status() !== 200,
@@ -124,7 +128,7 @@ async function interactPolls(request, base, entry) {
   const before = result.totalVotes;
   const voted = { ...(choices || {}) };
   voted[choice] = (voted[choice] || 0) + 1;
-  const save = await request.post(`${originOf(base)}/polls/save`, {
+  const save = await request.post(`${svc}/save`, {
     data: {
       pollName: result.pollName || pollName,
       pollQuestion: result.pollQuestion,
@@ -145,8 +149,9 @@ async function interactPolls(request, base, entry) {
 }
 
 async function interactFeeds(request, base, entry) {
+  const svc = dtsServiceUrl(base, entry);
   const feedPath = fixtureValue(entry);
-  const feedUrl = `${originOf(base)}/rss/${feedPath}`;
+  const feedUrl = `${svc}/${feedPath}`;
   const read = await request.get(feedUrl, { headers: { Accept: "text/xml" } });
   test.skip(
     read.status() !== 200,
@@ -166,15 +171,16 @@ async function interactFeeds(request, base, entry) {
 }
 
 async function interactForms(request, base, entry) {
+  const svc = dtsServiceUrl(base, entry);
   const formName = fixtureValue(entry);
-  const cmsUrl = `${originOf(base)}/forms/form/cms/${encodeURIComponent(formName)}`;
+  const cmsUrl = `${svc}/form/cms/${encodeURIComponent(formName)}`;
   const read = await request.get(cmsUrl);
   test.skip(
     read.status() !== 200,
     skipNoFixture(entry, `GET /forms/form/cms/${formName} answered HTTP ${read.status()}`),
   );
   const marker = `qamatrix-${Date.now()}`;
-  const collect = await request.post(`${originOf(base)}/forms/form/collect`, {
+  const collect = await request.post(`${svc}/form/collect`, {
     form: {
       action: "submit",
       formName,
@@ -199,10 +205,11 @@ async function interactForms(request, base, entry) {
 }
 
 async function interactComments(request, base, entry) {
+  const svc = dtsServiceUrl(base, entry);
   const site = fixtureValue(entry);
   const page = process.env.DTS_FIXTURE_PAGE || "/qamatrix";
   const stateRead = await request.get(
-    `${originOf(base)}/comment/defaultModerationState/${encodeURIComponent(site)}`,
+    `${svc}/defaultModerationState/${encodeURIComponent(site)}`,
   );
   test.skip(
     stateRead.status() !== 200,
@@ -210,7 +217,7 @@ async function interactComments(request, base, entry) {
   );
   const defaultState = (await stateRead.text()).trim();
   const marker = `qamatrix-${Date.now()}`;
-  const add = await request.post(`${originOf(base)}/comment/addcomment`, {
+  const add = await request.post(`${svc}/addcomment`, {
     form: {
       action: "add",
       username: "qa-matrix",
@@ -226,7 +233,7 @@ async function interactComments(request, base, entry) {
     add.ok(),
     `comments: posting to '${site}${page}' must be accepted (HTTP ${add.status()})`,
   ).toBe(true);
-  const list = await request.post(`${originOf(base)}/comment/list`, {
+  const list = await request.post(`${svc}/list`, {
     data: { site, pagepath: page, maxResults: 25, startIndex: 0 },
   });
   expect(list.ok(), `comments: listing '${site}${page}' must stay readable`).toBe(true);
@@ -248,8 +255,9 @@ async function interactComments(request, base, entry) {
 }
 
 async function interactMetadata(request, base, entry) {
+  const svc = dtsServiceUrl(base, entry);
   const site = fixtureValue(entry);
-  const query = await request.post(`${originOf(base)}/metadata/get`, {
+  const query = await request.post(`${svc}/get`, {
     data: { criteria: [`site:${site}`], maxResults: 5, startIndex: 0 },
   });
   test.skip(
@@ -269,6 +277,7 @@ async function interactMetadata(request, base, entry) {
 }
 
 async function interactMembership(request, base, entry) {
+  const svc = dtsServiceUrl(base, entry);
   const email = fixtureValue(entry);
   test.skip(
     !email,
@@ -279,7 +288,7 @@ async function interactMembership(request, base, entry) {
     !password,
     skipNoFixture(entry, `DTS_FIXTURE_PASSWORD is not configured for '${email}'`),
   );
-  const login = await request.post(`${originOf(base)}/membership/login`, {
+  const login = await request.post(`${svc}/login`, {
     data: { email, password },
   });
   test.skip(
@@ -291,7 +300,7 @@ async function interactMembership(request, base, entry) {
   const sessionId =
     loginBody && typeof loginBody.sessionId === "string" ? loginBody.sessionId : "";
   expect(sessionId.length > 0, "membership: login must carry a session id").toBe(true);
-  const whoami = await request.post(`${originOf(base)}/membership/session`, {
+  const whoami = await request.post(`${svc}/session`, {
     data: { sessionId },
   });
   expect(whoami.ok(), "membership: session lookup must succeed").toBe(true);
@@ -300,7 +309,7 @@ async function interactMembership(request, base, entry) {
     whoamiBody.toLowerCase().includes(email.toLowerCase()),
     "membership: session lookup must resolve the fixture account",
   ).toBe(true);
-  const logout = await request.post(`${originOf(base)}/membership/logout`, {
+  const logout = await request.post(`${svc}/logout`, {
     data: { sessionId },
   });
   expect(logout.ok(), "membership: logout must succeed").toBe(true);
