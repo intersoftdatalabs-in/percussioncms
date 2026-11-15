@@ -121,4 +121,46 @@ describe("ViewsCatalogTree (#3116)", () => {
     expect(screen.getByTestId("explorer-views-inbox-icon")).toBeInTheDocument();
     await renderA11yGate(container);
   });
+
+  it("renders a group empty row when an expanded group has no leaves (#6418)", async () => {
+    const { container } = render(
+      <ViewsCatalogTree listViews={async () => []} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-views-group-2")).toBeInTheDocument();
+    });
+    // Group 1 keeps the Inbox leaf (#3240): no empty row there.
+    expect(
+      screen.queryByTestId("explorer-views-group-1-empty"),
+    ).toBeNull();
+    fireEvent.click(screen.getByTestId("explorer-views-group-2-row"));
+    const empty = screen.getByTestId("explorer-views-group-2-empty");
+    expect(empty).toHaveAttribute("role", "status");
+    expect(empty.textContent).toContain("No views in this group");
+    expect(screen.getByTestId("explorer-views-group-2")).toContainElement(
+      empty,
+    );
+    // Collapsing the group hides the empty row again.
+    fireEvent.click(screen.getByTestId("explorer-views-group-2-row"));
+    expect(
+      screen.queryByTestId("explorer-views-group-2-empty"),
+    ).toBeNull();
+    await renderA11yGate(container);
+  });
+
+  it("shows the loading indicator while the catalog promise is pending (#6418)", async () => {
+    let resolveCatalog!: (views: ViewDef[]) => void;
+    const pending = new Promise<ViewDef[]>((resolve) => {
+      resolveCatalog = resolve;
+    });
+    render(<ViewsCatalogTree listViews={() => pending} />);
+    const loading = screen.getByTestId("explorer-views-loading");
+    expect(loading).toHaveAttribute("role", "status");
+    expect(loading.textContent).toContain("Loading views");
+    resolveCatalog([]);
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-views-group-1")).toBeInTheDocument();
+    });
+    expect(screen.queryByTestId("explorer-views-loading")).toBeNull();
+  });
 });

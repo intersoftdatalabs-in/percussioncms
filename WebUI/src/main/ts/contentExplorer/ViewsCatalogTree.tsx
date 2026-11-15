@@ -272,6 +272,19 @@ export function ViewsCatalogTree({
                       </div>
                     );
                   })}
+                {open && children.length === 0 && (
+                  <div
+                    role="status"
+                    data-testid={`explorer-views-group-${cat}-empty`}
+                    style={nodeRowStyle(false, 2)}
+                  >
+                    <span
+                      style={{ ...nodeLabelStyle, color: "#555", fontStyle: "italic" }}
+                    >
+                      {message(EXPLORER_MSG.VIEWS_GROUP_EMPTY)}
+                    </span>
+                  </div>
+                )}
               </div>
             );
           })}
