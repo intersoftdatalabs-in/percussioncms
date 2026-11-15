@@ -52,9 +52,23 @@ import org.xml.sax.InputSource;
  * perc.ui.profile.modern@Saving…} was registered twice with identical content (runtime
  * resolution is last-wins, so the duplicate was order-fragile).
  *
- * <p>Sibling dropped-backslash artifacts ({@code u200b}, {@code u003d}, {@code u200e}) are
- * intentionally out of scope here — they span many locales, need per-site adjudication,
- * and are tracked in the #6173 follow-up residual.
+ * <p>Sibling dropped-backslash artifacts ({@code u200b}, {@code u003d}, {@code u200e})
+ * were intentionally out of scope there — they span many locales and needed per-site
+ * adjudication (tracked in the #6173 follow-up residual, issue #6276). They are now
+ * repaired by issue #6276 and guarded below:
+ *
+ * <ul>
+ *   <li>{@code u003d} (243 sites): every site sat in an {@code =} position (HTML
+ *       attribute assignments such as {@code hrefu003d}, or diagnostic {@code key=value}
+ *       renderings such as {@code contentidu003d{0}}), verified against the
+ *       {@code en-us} pivot of each affected TU — replaced with {@code =}.</li>
+ *   <li>{@code u200b} (62 occurrences in 31 segments, always doubled): every run sat
+ *       at a word boundary where a space already precedes it (Latin/Cyrillic/Hebrew)
+ *       or inside CJK/katakana runs that take no space — i.e. a zero-width space was
+ *       never genuine here — so the runs were deleted.</li>
+ *   <li>{@code u200e} (1 site, Hebrew): genuine left-to-right-mark bidi anchor before
+ *       {@code .xml} in right-to-left text — replaced with real U+200E.</li>
+ * </ul>
  */
 public class PSTmxCatalogIntegrityTest {
 
@@ -95,6 +109,81 @@ public class PSTmxCatalogIntegrityTest {
     assertTrue(
         offenders.isEmpty(),
         "TMX catalog segments contain ASCII u200c escape artifacts: " + offenders);
+  }
+
+  /**
+   * Regression guard for issue #6276: no segment in any canonical bundle may contain
+   * literal ASCII {@code u200b}. The 62 audited occurrences were garbage at
+   * word-boundary / CJK positions (never a genuine zero-width space) and were deleted.
+   * Real zero-width spaces, if ever genuinely needed, must be stored as real
+   * Unicode (U+200B).
+   */
+  @Test
+  public void catalogSegments_haveNoAsciiU200bArtifacts() throws Exception {
+    List<String> offenders = collectArtifactOffenders("u200b");
+    assertTrue(
+        offenders.isEmpty(),
+        "TMX catalog segments contain ASCII u200b escape artifacts: " + offenders);
+  }
+
+  /**
+   * Regression guard for issue #6276: no segment in any canonical bundle may contain
+   * literal ASCII {@code u003d}. The 243 audited occurrences all sat in {@code =}
+   * positions (verified against the {@code en-us} pivot) and were replaced with
+   * {@code =}.
+   */
+  @Test
+  public void catalogSegments_haveNoAsciiU003dArtifacts() throws Exception {
+    List<String> offenders = collectArtifactOffenders("u003d");
+    assertTrue(
+        offenders.isEmpty(),
+        "TMX catalog segments contain ASCII u003d escape artifacts: " + offenders);
+  }
+
+  /**
+   * Regression guard for issue #6276: no segment in any canonical bundle may contain
+   * literal ASCII {@code u200e}. The single audited occurrence (Hebrew bidi anchor
+   * before {@code .xml}) was replaced with real U+200E.
+   */
+  @Test
+  public void catalogSegments_haveNoAsciiU200eArtifacts() throws Exception {
+    List<String> offenders = collectArtifactOffenders("u200e");
+    assertTrue(
+        offenders.isEmpty(),
+        "TMX catalog segments contain ASCII u200e escape artifacts: " + offenders);
+  }
+
+  /**
+   * Scan every {@code <seg>} in every canonical bundle for one exact ASCII escape
+   * literal. The match is deliberately an exact literal, never a general
+   * {@code u[0-9a-fA-F]{4}} pattern: the naive pattern false-positives on ordinary
+   * words (e.g. Spanish "bloqueada", "categorías").
+   */
+  private static List<String> collectArtifactOffenders(String asciiEscape) throws Exception {
+    List<String> offenders = new ArrayList<>();
+    for (String name : CATALOG_FILES) {
+      Path f = resolveCatalogTmx(name);
+      assertNotNull(f, name + " not found");
+      Document doc = parse(f);
+      NodeList tus = doc.getElementsByTagName("tu");
+      for (int i = 0; i < tus.getLength(); i++) {
+        Element tu = (Element) tus.item(i);
+        String tuid = tu.getAttribute("tuid");
+        NodeList tuvs = tu.getElementsByTagName("tuv");
+        for (int j = 0; j < tuvs.getLength(); j++) {
+          Element tuv = (Element) tuvs.item(j);
+          String lang = normalizeLang(readXmlLang(tuv));
+          NodeList segs = tuv.getElementsByTagName("seg");
+          for (int k = 0; k < segs.getLength(); k++) {
+            String seg = segs.item(k).getTextContent();
+            if (seg != null && seg.contains(asciiEscape)) {
+              offenders.add(name + " :: " + tuid + " [" + lang + "]");
+            }
+          }
+        }
+      }
+    }
+    return offenders;
   }
 
   /**
