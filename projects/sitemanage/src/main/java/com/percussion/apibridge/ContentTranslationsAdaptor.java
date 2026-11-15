@@ -22,6 +22,7 @@ import com.percussion.cms.objectstore.PSCoreItem;
 import com.percussion.cms.objectstore.PSItemField;
 import com.percussion.cms.objectstore.PSRelationshipFilter;
 import com.percussion.design.objectstore.PSLocator;
+import com.percussion.i18n.PSI18nUtils;
 import com.percussion.rest.translations.CreateTranslationsRequest;
 import com.percussion.rest.translations.CreateTranslationsResult;
 import com.percussion.rest.translations.IContentTranslationsAdaptor;
@@ -191,7 +192,11 @@ public class ContentTranslationsAdaptor implements IContentTranslationsAdaptor {
 
     ItemTranslationVariants out = new ItemTranslationVariants();
     out.setItemId(contentId);
-    out.setLocale(sourceSummary.getLocale());
+    // PSComponentSummary promises a non-blank locale (default DEFAULT_LANG), but
+    // Hibernate materializes a NULL CONTENTSTATUS.LOCALE column as null — the H2
+    // seed path hits this and the editor rendered a bare "Unknown" (#6386).
+    // Normalize at the façade boundary so REST never emits a blank locale.
+    out.setLocale(normalizeLocale(sourceSummary.getLocale()));
 
     List<TranslationVariant> variants = new ArrayList<>();
     variants.add(fromSummary(sourceSummary, ROLE_SOURCE, null));
@@ -331,12 +336,22 @@ public class ContentTranslationsAdaptor implements IContentTranslationsAdaptor {
           v.setRevision(cur);
         }
       }
-      v.setLocale(readLocaleField(item));
+      v.setLocale(normalizeLocale(readLocaleField(item)));
       v.setRole(ROLE_TRANSLATION);
       v.setSourceContentId(singleSource);
       out.add(v);
     }
     return out;
+  }
+
+  /**
+   * Façade-level locale contract for #6386: the translations REST surface never emits a blank
+   * locale. Blank (null/empty/whitespace — the H2 seed path where CONTENTSTATUS.LOCALE is NULL)
+   * falls back to the system default language, matching {@code PSComponentSummary}'s own
+   * "never null or empty, default DEFAULT_LANG" contract.
+   */
+  static String normalizeLocale(String locale) {
+    return StringUtils.defaultIfBlank(locale, PSI18nUtils.DEFAULT_LANG).trim();
   }
 
   static String readLocaleField(PSCoreItem item) {
@@ -362,7 +377,7 @@ public class ContentTranslationsAdaptor implements IContentTranslationsAdaptor {
       PSComponentSummary summary, String role, Long sourceContentId) {
     TranslationVariant v = new TranslationVariant();
     v.setContentId(summary.getContentId());
-    v.setLocale(summary.getLocale());
+    v.setLocale(normalizeLocale(summary.getLocale()));
     v.setRole(role);
     v.setSourceContentId(sourceContentId);
     if (summary.getCurrentLocator() != null) {

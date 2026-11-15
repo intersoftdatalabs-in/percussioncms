@@ -78,6 +78,27 @@ describe("TranslationsPanel", () => {
     expect(screen.getByTestId("translations-inflight-note")).toBeTruthy();
   });
 
+  it("shows the real locale code in the editor chrome, never a bare unknown (#6386)", async () => {
+    render(
+      <TranslationsPanel
+        itemId="42"
+        itemLabel="Content 42"
+        loadVariants={async () => SAMPLE_VARIANTS}
+        loadLocaleCatalog={async () => CATALOG}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("translations-panel")).toHaveAttribute(
+        "data-testid-state",
+        "ok",
+      ),
+    );
+    const value = screen.getByTestId("translations-current-locale-value");
+    // Real locale code shape (for example en-us), not the Unknown fallback.
+    expect(value.textContent ?? "").toMatch(/^[a-z]{2,3}(-[a-z]{2,})+$/i);
+    expect(value.textContent).not.toMatch(/unknown/i);
+  });
+
   it("shows only locales not already present as create targets", async () => {
     render(
       <TranslationsPanel
