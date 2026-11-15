@@ -19,8 +19,10 @@ package com.percussion.webui.gadget.servlets;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
@@ -304,6 +306,61 @@ public final class GadgetRegistry {
     return type != null ? type : "Custom";
   }
 
+  /**
+   * Loads gadget id → TMX display-name key from the modern catalog (issue #6348).
+   *
+   * <p>The {@code name}/{@code group} wire shape is unchanged: {@link #loadGadgetTypeMap()} and
+   * {@link #getGadgetType(String)} behave exactly as before. This map lets server-side callers
+   * hand the SPA the same TMX key the React {@code gadgetsCatalog.ts} resolves per locale,
+   * instead of the English {@code name} fallback.
+   *
+   * @return unmodifiable map of gadget id → TMX key (entries without a key are omitted);
+   *     empty if the modern catalog is missing or unreadable
+   */
+  public static Map<String, String> loadGadgetNameKeyMap() {
+    return loadGadgetNameKeyMap(CATALOG_RESOURCE);
+  }
+
+  /**
+   * Gadget id → TMX display-name key load with an explicit classpath resource. Package-visible
+   * for unit tests that inject missing-catalog paths.
+   *
+   * @param catalogResource classpath resource for modern JSON (may be null → empty result)
+   * @return unmodifiable map (empty if modern fails)
+   */
+  static Map<String, String> loadGadgetNameKeyMap(String catalogResource) {
+    if (catalogResource == null || catalogResource.isBlank()) {
+      return Collections.emptyMap();
+    }
+    try (InputStream in = openClasspath(catalogResource)) {
+      if (in == null) {
+        log.debug("Modern gadget catalog not on classpath: {}", catalogResource);
+        return Collections.emptyMap();
+      }
+      return parseCatalogNameKeyMap(in);
+    } catch (Exception e) {
+      log.warn(
+          "Failed to load gadget name keys from {}: {}",
+          catalogResource,
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      return Collections.emptyMap();
+    }
+  }
+
+  /**
+   * TMX display-name key for a gadget id, or null when the catalog has no key for it.
+   *
+   * @param gadgetId gadget id from the catalog (e.g. "PercBlogsGadget")
+   * @return TMX key, or null if unknown
+   */
+  public static String getGadgetNameKey(String gadgetId) {
+    if (gadgetId == null || gadgetId.isBlank()) {
+      return null;
+    }
+    return loadGadgetNameKeyMap().get(gadgetId);
+  }
+
   private static Map<String, String> tryLoadCatalog(String resource) {
     try (InputStream in = openClasspath(resource)) {
       if (in == null) {
@@ -334,6 +391,48 @@ public final class GadgetRegistry {
    */
   static Map<String, String> parseCatalogJson(InputStream in) throws Exception {
     Map<String, String> gadTypeMap = new LinkedHashMap<>();
+    for (Map<String, String> gadget : parseGadgetObjects(in)) {
+      String name = gadget.get("name");
+      String group = gadget.get("group");
+      if (name != null && !name.isBlank() && group != null && !group.isBlank()) {
+        gadTypeMap.put(name, group);
+      }
+    }
+    return Collections.unmodifiableMap(gadTypeMap);
+  }
+
+  /**
+   * Parse modern {@code gadget-catalog.json} into id → TMX display-name key map. Package-visible
+   * for unit tests. Entries without a {@code nameKey} are omitted; the {@code name}/{@code
+   * group} shape parsed by {@link #parseCatalogJson} is untouched.
+   *
+   * @param in non-null JSON stream
+   * @return unmodifiable map (empty if no keyed gadgets)
+   * @throws Exception on I/O or JSON errors
+   */
+  static Map<String, String> parseCatalogNameKeyMap(InputStream in) throws Exception {
+    Map<String, String> nameKeyMap = new LinkedHashMap<>();
+    for (Map<String, String> gadget : parseGadgetObjects(in)) {
+      String id = gadget.get("id");
+      String nameKey = gadget.get("nameKey");
+      if (id != null && !id.isBlank() && nameKey != null && !nameKey.isBlank()) {
+        nameKeyMap.put(id, nameKey);
+      }
+    }
+    return Collections.unmodifiableMap(nameKeyMap);
+  }
+
+  /**
+   * Reads the {@code gadgets} array of a modern {@code gadget-catalog.json} document into one
+   * string-field map per entry. Non-scalar values are skipped; unknown fields are kept so
+   * callers project only what they need.
+   *
+   * @param in non-null JSON stream
+   * @return gadget entries in document order (never null)
+   * @throws Exception on I/O or JSON errors
+   */
+  private static List<Map<String, String>> parseGadgetObjects(InputStream in) throws Exception {
+    List<Map<String, String>> gadgets = new ArrayList<>();
     try (JsonParser p = JSON_FACTORY.createParser(in)) {
       while (p.nextToken() != null) {
         if (p.currentToken() == JsonToken.PROPERTY_NAME && "gadgets".equals(p.currentName())) {
@@ -341,28 +440,33 @@ public final class GadgetRegistry {
             break;
           }
           while (p.nextToken() == JsonToken.START_OBJECT) {
-            String name = null;
-            String group = null;
-            while (p.nextToken() != JsonToken.END_OBJECT) {
-              String field = p.currentName();
-              p.nextToken();
-              if ("name".equals(field)) {
-                name = p.getValueAsString();
-              } else if ("group".equals(field)) {
-                group = p.getValueAsString();
-              } else {
-                p.skipChildren();
-              }
-            }
-            if (name != null && !name.isBlank() && group != null && !group.isBlank()) {
-              gadTypeMap.put(name, group);
-            }
+            gadgets.add(readStringFields(p));
           }
           break;
         }
       }
     }
-    return Collections.unmodifiableMap(gadTypeMap);
+    return gadgets;
+  }
+
+  /**
+   * Reads one {@code START_OBJECT} (parser positioned on it) into a string-field map.
+   *
+   * @param p non-null parser positioned at {@code START_OBJECT}
+   * @return scalar field name → text value (never null)
+   * @throws Exception on I/O or JSON errors
+   */
+  private static Map<String, String> readStringFields(JsonParser p) throws Exception {
+    Map<String, String> fields = new LinkedHashMap<>();
+    while (p.nextToken() != JsonToken.END_OBJECT) {
+      String field = p.currentName();
+      if (p.nextToken().isScalarValue()) {
+        fields.put(field, p.getValueAsString());
+      } else {
+        p.skipChildren();
+      }
+    }
+    return fields;
   }
 
   /**

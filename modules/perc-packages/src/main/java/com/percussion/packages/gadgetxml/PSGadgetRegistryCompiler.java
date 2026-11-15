@@ -52,6 +52,49 @@ public final class PSGadgetRegistryCompiler {
   /** Catalog kind for dashboard gadgets (see component-package-manifest.md). */
   public static final String CATALOG_KIND_GADGET = "gadget";
 
+  /**
+   * Product gadget id → TMX display-name key (issue #6348). Keys mirror the React {@code
+   * gadgetsCatalog.ts} {@code nameKey} values so the served {@code gadget-catalog.json} and the
+   * SPA catalog resolve the same localized name per locale; the JSON {@code name} stays the
+   * English fallback. Customer/legacy ids absent here compile with a null {@code nameKey}
+   * (English-only) rather than failing.
+   */
+  private static final Map<String, String> GADGET_NAME_KEYS = Map.ofEntries(
+      Map.entry("cm1_welcome_gadget", "perc.ui.gadgets.welcome@WELCOME"),
+      Map.entry("perc_workflow_status_gadget", "perc.ui.gadgets.workflowStatus@PAGES BY STATUS"),
+      Map.entry("perc_activity_gadget", "perc.ui.dashboard.modern@Activity"),
+      Map.entry("PercProcessorMonitorGadget", "perc.ui.gadgets.processmonitor@Process Monitor"),
+      Map.entry("perc_effectiveness_gadget", "perc.ui.dashboard.modern@What's Working"),
+      Map.entry("PercAssetStatusGadget", "perc.ui.asset.status.gadget@ASSETS BY STATUS"),
+      Map.entry("perc_bulk_file_upload_gadget", "perc.ui.gadget.bulkUpload@Bulk Upload"),
+      Map.entry("perc_reports_gadget", "perc.ui.dashboard.modern@Reports"),
+      Map.entry("perc_traffic_gadget", "perc.ui.traffic.gadget@TRAFFIC"),
+      Map.entry("PercBlogsGadget", "perc.ui.dashboard.modern@Blogs"),
+      Map.entry("perc_comments_gadget", "perc.ui.gadgets.comments@COMMENTS"),
+      Map.entry("PercFormTrackerGadget", "perc.ui.dashboard.modern@Form Tracker"),
+      Map.entry("perc_cookie_consent_gadget", "perc.ui.gadgets.cookieConsent@COOKIE CONSENT"),
+      Map.entry("perc_seo_gadget", "perc.ui.gadgets.seo@SEO AUDIT"),
+      Map.entry("perc_google_setup_gadget", "perc.ui.dashboard.modern@Google Setup"),
+      Map.entry("perc_membership_gadget", "perc.ui.gadgets.membership@MEMBERSHIP"),
+      Map.entry("perc_site_improve_gadget", "perc.ui.site.improve.gadget@SITEIMPROVE"),
+      Map.entry("perc_iframe_gadget", "perc.ui.dashboard.modern@External Content"),
+      Map.entry("PercGlobalVariablesGadget", "perc.ui.global.variables.gadget@Global Variables"),
+      Map.entry("PercSiteFrameworkGadget", "perc.ui.gadgets.sitewideFramework@Sitewide Framework"),
+      Map.entry("PercWidgetConfigGadget", "perc.ui.dashboard.modern@Dashboard Configuration"));
+
+  /**
+   * TMX display-name key for a product gadget id, or null when the id has no known catalog key.
+   *
+   * @param gadgetId gadget id (may be null → null)
+   * @return TMX key, or null for unknown ids
+   */
+  static String nameKeyFor(String gadgetId) {
+    if (gadgetId == null) {
+      return null;
+    }
+    return GADGET_NAME_KEYS.get(gadgetId);
+  }
+
   private PSGadgetRegistryCompiler() {
     // utility
   }
@@ -120,6 +163,7 @@ public final class PSGadgetRegistryCompiler {
       PSGadgetCatalog.Entry entry = new PSGadgetCatalog.Entry();
       entry.setId(id);
       entry.setName(src.getName());
+      entry.setNameKey(nameKeyFor(id));
       entry.setGroup(src.getGroup());
       entry.setBaseUri(src.getBaseUri());
       entry.setLegacyDefinitionFile(src.getLegacyDefinitionFile());
