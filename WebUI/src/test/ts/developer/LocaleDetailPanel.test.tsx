@@ -256,6 +256,78 @@ describe("LocaleDetailPanel", () => {
     expect(onSaved).not.toHaveBeenCalled();
   });
 
+  it("surfaces Admin 403 on create with a named message", async () => {
+    createLocale.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "Admin role required" },
+    });
+    const onSaved = vi.fn();
+    render(<LocaleDetailPanel idOrLang={null} onBack={() => undefined} onSaved={onSaved} />);
+    fireEvent.change(screen.getByTestId("developer-loc-language"), {
+      target: { value: "xx-qa6065" },
+    });
+    fireEvent.change(screen.getByTestId("developer-loc-label"), {
+      target: { value: "QA 6065" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-loc-detail-error").textContent).toContain(
+      DEV_MSG.LOC_FORBIDDEN,
+    );
+    expect(onSaved).not.toHaveBeenCalled();
+  });
+
+  it("surfaces lock-conflict 409 on create with a named message", async () => {
+    createLocale.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Could not save locale; design lock required" },
+    });
+    const onSaved = vi.fn();
+    render(<LocaleDetailPanel idOrLang={null} onBack={() => undefined} onSaved={onSaved} />);
+    fireEvent.change(screen.getByTestId("developer-loc-language"), {
+      target: { value: "xx-qa6065" },
+    });
+    fireEvent.change(screen.getByTestId("developer-loc-label"), {
+      target: { value: "QA 6065" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-loc-detail-error").textContent).toContain(
+      DEV_MSG.LOC_LOCKED,
+    );
+    expect(onSaved).not.toHaveBeenCalled();
+  });
+
+  it("surfaces dependency-conflict 409 on create with a named message", async () => {
+    createLocale.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Locale has dependents" },
+    });
+    const onSaved = vi.fn();
+    render(<LocaleDetailPanel idOrLang={null} onBack={() => undefined} onSaved={onSaved} />);
+    fireEvent.change(screen.getByTestId("developer-loc-language"), {
+      target: { value: "xx-qa6065" },
+    });
+    fireEvent.change(screen.getByTestId("developer-loc-label"), {
+      target: { value: "QA 6065" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-loc-detail-error").textContent).toContain(
+      DEV_MSG.LOC_LOCKED,
+    );
+    expect(onSaved).not.toHaveBeenCalled();
+  });
+
   it("does not POST create twice when save is clicked twice", async () => {
     let resolveCreate: (value: typeof sampleDetail) => void = () => undefined;
     createLocale.mockImplementation(
@@ -414,6 +486,69 @@ describe("LocaleDetailPanel", () => {
     expect(body.format).toBeUndefined();
   });
 
+  it("names lock 409 on update and keeps the previous label", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Could not save locale; design lock required" },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-save")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-loc-detail-error").textContent).toContain(
+      DEV_MSG.LOC_LOCKED,
+    );
+    expect(updateLocale).toHaveBeenCalled();
+  });
+
+  it("names lock 409 on update even without lock wording in the body", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Conflict" },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-save")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-loc-detail-error").textContent).toContain(
+      DEV_MSG.LOC_LOCKED,
+    );
+    expect(updateLocale).toHaveBeenCalled();
+  });
+
+  it("names Admin 403 on update", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    updateLocale.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "Admin role required" },
+    });
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-save")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-loc-detail-error").textContent).toContain(
+      DEV_MSG.LOC_FORBIDDEN,
+    );
+    expect(updateLocale).toHaveBeenCalled();
+  });
+
   it("deletes after confirm and omits delete chrome in create mode", async () => {
     getLocaleDetail.mockResolvedValue(sampleDetail);
     deleteLocale.mockResolvedValue(undefined);
@@ -430,6 +565,107 @@ describe("LocaleDetailPanel", () => {
       expect(onDeleted).toHaveBeenCalled();
     });
     expect(deleteLocale).toHaveBeenCalledWith("en-us");
+  });
+
+  it("names Admin 403 on delete and stays on the detail", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    deleteLocale.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "Admin role required" },
+    });
+    const onDeleted = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onDeleted={onDeleted} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-loc-detail-error").textContent).toContain(
+      DEV_MSG.LOC_FORBIDDEN,
+    );
+    // Still on detail; the locale was not deleted.
+    expect(screen.getByTestId("developer-loc-delete")).toBeTruthy();
+    expect(onDeleted).not.toHaveBeenCalled();
+  });
+
+  it("names lock 409 on delete and keeps the row", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    deleteLocale.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Locale has dependents" },
+    });
+    const onDeleted = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onDeleted={onDeleted} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-loc-detail-error").textContent).toContain(
+      DEV_MSG.LOC_LOCKED,
+    );
+    expect(screen.getByTestId("developer-loc-delete")).toBeTruthy();
+    expect(onDeleted).not.toHaveBeenCalled();
+  });
+
+  it("names missing 404 on delete and keeps the row", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    deleteLocale.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: { message: "Locale not found" },
+    });
+    const onDeleted = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onDeleted={onDeleted} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-delete"));
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-detail-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-loc-detail-error").textContent).toContain(
+      DEV_MSG.LOC_MISSING,
+    );
+    expect(screen.getByTestId("developer-loc-delete")).toBeTruthy();
+    expect(onDeleted).not.toHaveBeenCalled();
+  });
+
+  it("cancel on the delete confirm does not call delete", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    const onDeleted = vi.fn();
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onDeleted={onDeleted} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-delete"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-catalog-confirm-dialog")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-catalog-confirm-dialog")).toBeNull();
+    });
+    expect(deleteLocale).not.toHaveBeenCalled();
+    expect(onDeleted).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-loc-delete")).toBeTruthy();
   });
 
   it("does not show delete on create", () => {

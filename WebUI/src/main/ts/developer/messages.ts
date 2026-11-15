@@ -1314,6 +1314,10 @@ export const DEV_MSG_KEYS = {
   LOC_SAVED: "perc.ui.developer@Locale saved.",
   LOC_DELETED: "perc.ui.developer@Locale deleted.",
   LOC_DUPLICATE: "perc.ui.developer@A locale with this language already exists.",
+  LOC_FORBIDDEN: "perc.ui.developer@Admin role required.",
+  LOC_LOCKED:
+    "perc.ui.developer@Locale is locked or has dependents and was not changed. Dependencies were not ignored.",
+  LOC_MISSING: "perc.ui.developer@Locale was not found.",
   LOC_COL_LANG: "perc.ui.developer@Language",
   LOC_COL_LABEL: "perc.ui.developer@Label",
   LOC_COL_STATUS: "perc.ui.developer@Status",

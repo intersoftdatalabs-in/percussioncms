@@ -17,7 +17,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { captureDialogOpener } from "../architecture/useDialogEscape";
-import { isApiError } from "../api/client";
+import { extractRestErrorMessage, isApiError } from "../api/client";
 import {
   createLocale,
   deleteLocale,
@@ -640,6 +640,51 @@ export function LocaleDetailPanel({
     if (isApiError(err) && err.status === 403) return LOC_STATUS_MSG.FORBIDDEN;
     if (isApiError(err) && err.status === 409) return LOC_STATUS_MSG.CONFLICT;
     return LOC_STATUS_MSG.ERROR;
+  }
+
+  /**
+   * Catalog create/delete failure naming (#6065): Admin 403, lock/dependency
+   * 409, and duplicate-language 409 each surface a named message (peer:
+   * CommunityDetailPanel createFallback/deleteFallback). A create 409 whose
+   * server body names a lock/dependency conflict is a lock, otherwise it is
+   * a duplicate language string (mirrors the REST mapWriteFailure heuristic).
+   */
+  /** True when the server body names a design lock or dependency conflict. */
+  function mentionsLockOrDependents(err: { body?: unknown; statusText?: string }): boolean {
+    const raw = `${extractRestErrorMessage(err.body) || ""} ${err.statusText || ""}`;
+    const lower = raw.toLowerCase();
+    return lower.includes("lock") || lower.includes("depend");
+  }
+
+  function localeWriteConflictFallback(err: unknown): string {
+    if (!isApiError(err)) {
+      return DEV_MSG.LOC_DUPLICATE;
+    }
+    if (mentionsLockOrDependents(err)) {
+      return DEV_MSG.LOC_LOCKED;
+    }
+    return DEV_MSG.LOC_DUPLICATE;
+  }
+
+  function localeSaveFallback(err: unknown, isNew: boolean): string {
+    if (!isApiError(err)) return DEV_MSG.LOC_SAVE_ERROR;
+    if (err.status === 403) return DEV_MSG.LOC_FORBIDDEN;
+    if (err.status === 409) {
+      // REST contract: every update 409 is a design lock or dependency
+      // conflict, so name it directly. A create 409 without lock/dependency
+      // wording is a duplicate language string.
+      if (!isNew) return DEV_MSG.LOC_LOCKED;
+      return localeWriteConflictFallback(err);
+    }
+    return DEV_MSG.LOC_SAVE_ERROR;
+  }
+
+  function localeDeleteFallback(err: unknown): string {
+    if (!isApiError(err)) return DEV_MSG.LOC_DELETE_ERROR;
+    if (err.status === 403) return DEV_MSG.LOC_FORBIDDEN;
+    if (err.status === 409) return DEV_MSG.LOC_LOCKED;
+    if (err.status === 404) return DEV_MSG.LOC_MISSING;
+    return DEV_MSG.LOC_DELETE_ERROR;
   }
 
   function dedicatedWriteBlocked(): boolean {
@@ -2669,11 +2714,7 @@ calendarEditing ||
       setNotice(DEV_MSG.LOC_SAVED);
       onSaved?.(saved);
     } catch (err: unknown) {
-      const fallback =
-        isApiError(err) && err.status === 409 && isNew
-          ? DEV_MSG.LOC_DUPLICATE
-          : DEV_MSG.LOC_SAVE_ERROR;
-      setError(panelErrMsg(err, fallback));
+      setError(panelErrMsg(err, localeSaveFallback(err, isNew)));
     } finally {
       inflight.current = false;
       setBusy(false);
@@ -2698,7 +2739,7 @@ calendarEditing ||
       setNotice(DEV_MSG.LOC_DELETED);
       onDeleted?.();
     } catch (err: unknown) {
-      setError(panelErrMsg(err, DEV_MSG.LOC_DELETE_ERROR));
+      setError(panelErrMsg(err, localeDeleteFallback(err)));
     } finally {
       inflight.current = false;
       setBusy(false);
