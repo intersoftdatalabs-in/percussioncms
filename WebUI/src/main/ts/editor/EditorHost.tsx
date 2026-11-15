@@ -1047,7 +1047,9 @@ export function EditorHost({
   loadContentTypes = listContentTypes,
   createItem = createEditorItem,
   loadTranslationVariants = listItemTranslationVariants,
-  loadTranslationLocales = listLocales,
+  // Translation targets only: system-only locales are excluded server-side;
+  // TranslationsPanel additionally skips contentUsable === false rows (#6387).
+  loadTranslationLocales = () => listLocales({ contentUsableOnly: true }),
   createTranslationVariants = createTranslations,
   loadTemplates = loadPageTemplates,
   changeTemplate = changePageTemplate,

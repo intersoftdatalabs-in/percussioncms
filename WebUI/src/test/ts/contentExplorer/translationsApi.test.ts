@@ -189,6 +189,19 @@ describe("availableTargetLocales", () => {
     expect(targets[0].label).toBe("German");
   });
 
+  it("excludes system-only locales from translation targets", () => {
+    const targets = availableTargetLocales(
+      [
+        { languageString: "en-us", label: "English", contentUsable: true },
+        { languageString: "sys-only", label: "System", contentUsable: false },
+        { languageString: "de-de", label: "German" },
+      ],
+      [],
+      null,
+    );
+    expect(targets.map((t) => t.languageString)).toEqual(["en-us", "de-de"]);
+  });
+
   it("dedupes catalog rows case-insensitively", () => {
     const targets = availableTargetLocales(
       [

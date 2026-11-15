@@ -19,6 +19,7 @@ package com.percussion.rest.locales;
 
 import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -26,12 +27,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
+import jakarta.ws.rs.DefaultValue;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
@@ -105,7 +108,9 @@ public class LocalesResource {
   @Operation(
       summary = "List CMS locales",
       description =
-          "Lists CMS locales (language string, label, status, base flag). Auto-translation"
+          "Lists CMS locales (language string, label, status, base flag, content-usable flag)."
+              + " contentUsableOnly=true restricts to translation targets (system-only locales"
+              + " excluded). Auto-translation"
               + " settings are GET/PUT /locales/auto-translations.",
       responses = {
         @ApiResponse(
@@ -117,8 +122,15 @@ public class LocalesResource {
         @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
-  public List<LocaleSummary> listLocales() {
+  public List<LocaleSummary> listLocales(
+      @Parameter(description = "Exclude system-only locales (translation targets only)")
+          @QueryParam("contentUsableOnly")
+          @DefaultValue("false")
+          boolean contentUsableOnly) {
     try {
+      if (contentUsableOnly) {
+        return requireAdaptor().listContentUsableLocales(uriInfo.getBaseUri());
+      }
       return requireAdaptor().listLocales(uriInfo.getBaseUri());
     } catch (WebApplicationException e) {
       throw e;
@@ -227,11 +239,13 @@ public class LocalesResource {
   @Operation(
       summary = "Update CMS locale",
       description =
-          "Admin. Updates label, description, status, and/or baseLocale by language string or"
+          "Admin. Updates label, description, status, baseLocale, and/or contentUsable by language string or"
               + " numeric id. languageString is immutable. A label-only body updates the label"
               + " and leaves omitted description, status, baseLocale, and format unchanged. A"
               + " blank or whitespace label is not a write. A status-only body updates enabled"
               + " status (active or inactive) and leaves omitted label, description, baseLocale,"
+              + " contentUsable, and format unchanged. A contentUsable-only body updates the"
+              + " usable-for-content flag and leaves omitted label, description, status, baseLocale,"
               + " and format unchanged. Invalid status is 400. A date-pattern-only format body"
               + " (datePattern only, hasFormatProfile omitted) updates the date pattern and"
               + " leaves other format fields unchanged. A blank datePattern clears that pattern."

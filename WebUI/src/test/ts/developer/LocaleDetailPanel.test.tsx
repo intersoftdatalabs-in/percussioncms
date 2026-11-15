@@ -390,6 +390,39 @@ describe("LocaleDetailPanel", () => {
     );
   });
 
+  it("sends contentUsable false when the usable-for-content box is cleared", async () => {
+    getLocaleDetail.mockResolvedValue({ ...sampleDetail, contentUsable: true });
+    updateLocale.mockResolvedValue({ ...sampleDetail, contentUsable: false });
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onSaved={() => undefined} />,
+    );
+    const box = (await screen.findByTestId(
+      "developer-loc-content-usable",
+    )) as HTMLInputElement;
+    expect(box.checked).toBe(true);
+    fireEvent.click(box);
+    fireEvent.click(screen.getByTestId("developer-loc-save"));
+    await waitFor(() => {
+      expect(updateLocale).toHaveBeenCalled();
+    });
+    expect(updateLocale.mock.calls[0][1]).toEqual(
+      expect.objectContaining({ contentUsable: false }),
+    );
+  });
+
+  it("defaults the usable-for-content box to checked for pre-flag payloads", async () => {
+    const { contentUsable: _dropped, ...preFlag } = sampleDetail;
+    void _dropped;
+    getLocaleDetail.mockResolvedValue(preFlag);
+    render(
+      <LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} onSaved={() => undefined} />,
+    );
+    const box = (await screen.findByTestId(
+      "developer-loc-content-usable",
+    )) as HTMLInputElement;
+    expect(box.checked).toBe(true);
+  });
+
   it("saves label changes on an existing locale", async () => {
     getLocaleDetail.mockResolvedValue(sampleDetail);
     updateLocale.mockResolvedValue({

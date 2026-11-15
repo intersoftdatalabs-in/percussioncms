@@ -3087,6 +3087,13 @@
                 <allowsnull>yes</allowsnull>
                 <defaultvalue>0</defaultvalue>
             </column>
+            <!-- 1 = locale may hold content (default, preserves pre-flag behavior); 0 = system-only, excluded from translation target lists -->
+            <column name="CONTENTUSABLE">
+                <jdbctype>INTEGER</jdbctype>
+                <size/>
+                <allowsnull>yes</allowsnull>
+                <defaultvalue>1</defaultvalue>
+            </column>
             <column name="VERSION">
                 <jdbctype>INTEGER</jdbctype>
                 <size/>

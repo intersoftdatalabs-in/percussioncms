@@ -75,7 +75,7 @@ public class LocalesResourceTest {
     s.setHasFormatProfile(true);
     when(adaptor.listLocales(any())).thenReturn(List.of(s));
 
-    List<LocaleSummary> out = resource.listLocales();
+    List<LocaleSummary> out = resource.listLocales(false);
     assertEquals(1, out.size());
     assertEquals("en-us", out.get(0).getLanguageString());
     assertEquals(Boolean.TRUE, out.get(0).getHasFormatProfile());
@@ -86,7 +86,65 @@ public class LocalesResourceTest {
   @Test
   public void listLocalesEmpty() {
     when(adaptor.listLocales(any())).thenReturn(List.of());
-    assertTrue(resource.listLocales().isEmpty());
+    assertTrue(resource.listLocales(false).isEmpty());
+  }
+
+  @Test
+  public void listLocalesContentUsableOnlyDelegates() {
+    LocaleSummary s = new LocaleSummary();
+    s.setLanguageString("en-us");
+    s.setContentUsable(true);
+    when(adaptor.listContentUsableLocales(any())).thenReturn(List.of(s));
+
+    List<LocaleSummary> out = resource.listLocales(true);
+    assertEquals(1, out.size());
+    assertEquals("en-us", out.get(0).getLanguageString());
+    verify(adaptor).listContentUsableLocales(any());
+    verify(adaptor, never()).listLocales(any());
+    verify(mockLog, never()).error(any(String.class), any(), any(), any());
+  }
+
+  @Test
+  public void listContentUsableDefaultFiltersSystemOnly() {
+    LocaleSummary usable = new LocaleSummary();
+    usable.setLanguageString("en-us");
+    usable.setContentUsable(true);
+    LocaleSummary legacy = new LocaleSummary();
+    legacy.setLanguageString("de-de");
+    LocaleSummary sysOnly = new LocaleSummary();
+    sysOnly.setLanguageString("sys-only");
+    sysOnly.setContentUsable(false);
+
+    ILocalesAdaptor stub =
+        new ILocalesAdaptor() {
+          @Override
+          public List<LocaleSummary> listLocales(URI baseUri) {
+            return List.of(usable, legacy, sysOnly);
+          }
+
+          @Override
+          public LocaleDetail getLocale(URI baseUri, String idOrLang) {
+            return null;
+          }
+
+          @Override
+          public LocaleDetail createLocale(URI baseUri, LocaleDetail body) {
+            return null;
+          }
+
+          @Override
+          public LocaleDetail updateLocale(URI baseUri, String idOrLang, LocaleDetail body) {
+            return null;
+          }
+
+          @Override
+          public void deleteLocale(URI baseUri, String idOrLang) {}
+        };
+
+    List<LocaleSummary> out = stub.listContentUsableLocales(null);
+    assertEquals(2, out.size());
+    assertEquals("en-us", out.get(0).getLanguageString());
+    assertEquals("de-de", out.get(1).getLanguageString());
   }
 
   @Test
@@ -95,7 +153,7 @@ public class LocalesResourceTest {
     when(adaptor.listLocales(any())).thenThrow(boom);
 
     WebApplicationException ex =
-        assertThrows(WebApplicationException.class, () -> resource.listLocales());
+        assertThrows(WebApplicationException.class, () -> resource.listLocales(false));
     assertEquals(500, ex.getResponse().getStatus());
     assertSame(boom, ex.getCause());
     verify(mockLog)
@@ -131,7 +189,7 @@ public class LocalesResourceTest {
   public void missingAdaptorReturnsServiceUnavailableOnList() {
     LocalesResource bare = newLocalesResourceWithoutAdaptor();
     WebApplicationException ex =
-        assertThrows(WebApplicationException.class, bare::listLocales);
+        assertThrows(WebApplicationException.class, () -> bare.listLocales(false));
     assertEquals(503, ex.getResponse().getStatus());
     // Misconfiguration path must not log as unexpected failure
     verify(mockLog, never()).error(any(String.class), any(), any(), any());

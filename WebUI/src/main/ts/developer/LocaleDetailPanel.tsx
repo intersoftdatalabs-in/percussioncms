@@ -333,6 +333,9 @@ export function LocaleDetailPanel({
   const [statusBusy, setStatusBusy] = useState(false);
   const [status, setStatus] = useState("active");
   const [baseLocale, setBaseLocale] = useState(false);
+  // Usable-for-content flag (#6387). Absent on pre-flag payloads counts as
+  // usable, matching the server default.
+  const [contentUsable, setContentUsable] = useState(true);
   const [storeFormat, setStoreFormat] = useState(false);
   const [fmt, setFmt] = useState<LocaleFormatSummary>(emptyFormat);
   const [error, setError] = useState<string | null>(null);
@@ -456,6 +459,7 @@ export function LocaleDetailPanel({
         setStatusError(null);
         setStatusNotice(null);
         setBaseLocale(Boolean(d.baseLocale));
+        setContentUsable(d.contentUsable !== false);
         setStoreFormat(Boolean(d.hasFormatProfile) || Boolean(d.format));
         setFmt(formatFromDetail(d));
         setLoading(false);
@@ -514,6 +518,7 @@ export function LocaleDetailPanel({
       description,
       status,
       baseLocale,
+      contentUsable,
     };
     if (isNew) {
       body.languageString = normalizeLanguageString(language);
@@ -2686,6 +2691,7 @@ calendarEditing ||
     setStatusError(null);
     setStatusNotice(null);
     setBaseLocale(Boolean(saved.baseLocale));
+    setContentUsable(saved.contentUsable !== false);
     setStoreFormat(Boolean(saved.hasFormatProfile) || Boolean(saved.format));
     setFmt(formatFromDetail(saved));
   }
@@ -3250,6 +3256,26 @@ calendarEditing ||
               onChange={(e) => setBaseLocale(e.target.checked)}
             />
             <label htmlFor="loc-base">{DEV_MSG.LOC_FORM_BASE}</label>
+          </div>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              marginBottom: "12px",
+            }}
+          >
+            <input
+              id="loc-content-usable"
+              type="checkbox"
+              data-testid="developer-loc-content-usable"
+              checked={contentUsable}
+              disabled={busy}
+              onChange={(e) => setContentUsable(e.target.checked)}
+            />
+            <label htmlFor="loc-content-usable">
+              {DEV_MSG.LOC_FORM_CONTENT_USABLE}
+            </label>
           </div>
 
           <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginBottom: "16px" }}>

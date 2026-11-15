@@ -735,6 +735,12 @@ export interface LocaleSummary {
   status?: string;
   /** RXLOCALE.ISBASE — language-only / base locale. */
   baseLocale?: boolean;
+  /**
+   * RXLOCALE.CONTENTUSABLE — locale may hold content. System-only locales
+   * ({@code false}) are excluded from translation target lists. Absent
+   * (pre-flag payloads) means usable.
+   */
+  contentUsable?: boolean;
   /** Exact RXLOCALEFORMAT row present for this language string. */
   hasFormatProfile?: boolean;
 }

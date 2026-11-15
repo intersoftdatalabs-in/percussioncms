@@ -37,6 +37,7 @@ export type LocaleWriteBody = Pick<
   | "description"
   | "status"
   | "baseLocale"
+  | "contentUsable"
   | "hasFormatProfile"
   | "format"
 >;
@@ -99,9 +100,15 @@ export function isLocaleWriteReady(opts: {
   return true;
 }
 
-/** GET /services/locales */
-export async function listLocales(): Promise<LocaleSummary[]> {
-  const payload = await get<unknown>(PATHS.LOCALES);
+/** GET /services/locales — pass contentUsableOnly for translation targets. */
+export async function listLocales(opts?: {
+  contentUsableOnly?: boolean;
+}): Promise<LocaleSummary[]> {
+  const url =
+    opts?.contentUsableOnly === true
+      ? `${PATHS.LOCALES}?contentUsableOnly=true`
+      : PATHS.LOCALES;
+  const payload = await get<unknown>(url);
   return asArray<LocaleSummary>(payload);
 }
 

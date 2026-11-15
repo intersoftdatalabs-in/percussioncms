@@ -79,7 +79,9 @@ async function defaultLoadVariants(
 }
 
 async function defaultLoadLocaleCatalog(): Promise<LocaleSummary[]> {
-  return listLocales();
+  // Translation targets only: system-only locales are excluded server-side;
+  // availableTargetLocales additionally skips contentUsable === false rows.
+  return listLocales({ contentUsableOnly: true });
 }
 
 async function defaultCreateVariants(body: {
