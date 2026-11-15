@@ -83,29 +83,7 @@ public class PSTmxCatalogIntegrityTest {
    */
   @Test
   public void catalogSegments_haveNoAsciiU200cArtifacts() throws Exception {
-    List<String> offenders = new ArrayList<>();
-    for (String name : CATALOG_FILES) {
-      Path f = resolveCatalogTmx(name);
-      assertNotNull(f, name + " not found");
-      Document doc = parse(f);
-      NodeList tus = doc.getElementsByTagName("tu");
-      for (int i = 0; i < tus.getLength(); i++) {
-        Element tu = (Element) tus.item(i);
-        String tuid = tu.getAttribute("tuid");
-        NodeList tuvs = tu.getElementsByTagName("tuv");
-        for (int j = 0; j < tuvs.getLength(); j++) {
-          Element tuv = (Element) tuvs.item(j);
-          String lang = normalizeLang(readXmlLang(tuv));
-          NodeList segs = tuv.getElementsByTagName("seg");
-          for (int k = 0; k < segs.getLength(); k++) {
-            String seg = segs.item(k).getTextContent();
-            if (seg != null && seg.contains("u200c")) {
-              offenders.add(name + " :: " + tuid + " [" + lang + "]");
-            }
-          }
-        }
-      }
-    }
+    List<String> offenders = collectArtifactOffenders("u200c");
     assertTrue(
         offenders.isEmpty(),
         "TMX catalog segments contain ASCII u200c escape artifacts: " + offenders);
@@ -167,23 +145,35 @@ public class PSTmxCatalogIntegrityTest {
       Document doc = parse(f);
       NodeList tus = doc.getElementsByTagName("tu");
       for (int i = 0; i < tus.getLength(); i++) {
-        Element tu = (Element) tus.item(i);
-        String tuid = tu.getAttribute("tuid");
-        NodeList tuvs = tu.getElementsByTagName("tuv");
-        for (int j = 0; j < tuvs.getLength(); j++) {
-          Element tuv = (Element) tuvs.item(j);
-          String lang = normalizeLang(readXmlLang(tuv));
-          NodeList segs = tuv.getElementsByTagName("seg");
-          for (int k = 0; k < segs.getLength(); k++) {
-            String seg = segs.item(k).getTextContent();
-            if (seg != null && seg.contains(asciiEscape)) {
-              offenders.add(name + " :: " + tuid + " [" + lang + "]");
-            }
-          }
-        }
+        collectTuOffenders((Element) tus.item(i), name, asciiEscape, offenders);
       }
     }
     return offenders;
+  }
+
+  /**
+    * Scan one {@code <tu>} element's {@code <tuv>/<seg>} children for one exact
+    * ASCII escape substring via {@code String.contains} — deliberately a literal
+    * substring match, never a general {@code u[0-9a-fA-F]{4}} regex (which
+    * false-positives on ordinary words; see {@code collectArtifactOffenders}).
+    * Records {@code <file> :: <tuid> [<lang>]} for each hit. Extracted so the
+    * per-file scanners stay within the cognitive-complexity budget (issue #6410).
+    */
+  private static void collectTuOffenders(
+      Element tu, String fileName, String asciiEscape, List<String> offenders) {
+    String tuid = tu.getAttribute("tuid");
+    NodeList tuvs = tu.getElementsByTagName("tuv");
+    for (int j = 0; j < tuvs.getLength(); j++) {
+      Element tuv = (Element) tuvs.item(j);
+      String lang = normalizeLang(readXmlLang(tuv));
+      NodeList segs = tuv.getElementsByTagName("seg");
+      for (int k = 0; k < segs.getLength(); k++) {
+        String seg = segs.item(k).getTextContent();
+        if (seg != null && seg.contains(asciiEscape)) {
+          offenders.add(fileName + " :: " + tuid + " [" + lang + "]");
+        }
+      }
+    }
   }
 
   /**
