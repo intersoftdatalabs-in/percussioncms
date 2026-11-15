@@ -15,6 +15,7 @@
     "lint": "eslint ../ts"
   },
   "dependencies": {
+    "@fortawesome/fontawesome-free": "5.15.4",
     "@mkd/language": "file:../../../vendor/mkd-language",
     "@popperjs/core": "^2.11.8",
     "@tiptap/core": "3.33.0",
