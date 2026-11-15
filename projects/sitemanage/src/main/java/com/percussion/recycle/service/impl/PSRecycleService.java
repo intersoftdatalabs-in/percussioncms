@@ -980,30 +980,55 @@ public class PSRecycleService implements IPSRecycleService {
    */
   private void renameIfRequired(IPSGuid guid, String originalRelTypeName, boolean folder)
       throws PSErrorResultsException, PSCmsException {
-    List<PSCoreItem> items =
-        contentWs.loadItems(
-            Collections.singletonList(guid), false, false, false, true, false, originalRelTypeName);
-
-    if (items == null || items.isEmpty()) {
+    RenameTarget target = loadRenameTarget(guid, originalRelTypeName);
+    if (target == null) {
       return;
     }
-
-    PSCoreItem coreItem = items.get(0);
-    List<String> paths = coreItem.getFolderPaths();
-    if (paths == null || paths.isEmpty()) {
-      return;
-    }
-    String folderPaths = paths.get(0);
+    String folderPaths = target.folderPath();
     log.debug("Folder paths for the loaded item are: {}", folderPaths);
     if (!checkValidPathPrefix(folderPaths)) {
       return;
     }
+    boolean isRecycledType = folderPaths.startsWith(RECYCLING_ROOT);
+    StringBuilder destination = buildDestinationPath(target.item(), folderPaths, isRecycledType);
+    ensureUniqueDestination(destination, isRecycledType, target.item().getContentId());
+    persistRenameIfChanged(guid, target.item(), destination, originalRelTypeName, folder);
+  }
+
+  /** Item plus its first folder path, fetched once for a rename check. */
+  private record RenameTarget(PSCoreItem item, String folderPath) {}
+
+  /**
+   * Loads the item that may need a rename, returning <code>null</code> when there is nothing to
+   * check (item missing, no folder paths). The folder path is read once here so callers never
+   * re-fetch it.
+   */
+  private RenameTarget loadRenameTarget(IPSGuid guid, String originalRelTypeName)
+      throws PSErrorResultsException, PSCmsException {
+    List<PSCoreItem> items =
+        contentWs.loadItems(
+            Collections.singletonList(guid), false, false, false, true, false, originalRelTypeName);
+    if (items == null || items.isEmpty()) {
+      return null;
+    }
+    PSCoreItem coreItem = items.get(0);
+    List<String> paths = coreItem.getFolderPaths();
+    if (paths == null || paths.isEmpty()) {
+      return null;
+    }
+    return new RenameTarget(coreItem, paths.get(0));
+  }
+
+  /**
+   * Maps the item's current folder path to the destination path in the other tree: items under
+   * Recycling resolve back under Sites/Assets, items elsewhere resolve under the Recycling root.
+   */
+  private StringBuilder buildDestinationPath(
+      PSCoreItem coreItem, String folderPaths, boolean isRecycledType) throws PSCmsException {
     StringBuilder sb = new StringBuilder();
     IPSFieldValue itemName = coreItem.getFieldByName("sys_title").getValue();
-    boolean isRecycledType = folderPaths.startsWith(RECYCLING_ROOT);
-
     if (isRecycledType) {
-      // we strip off recycling from prefix
+      // we strip recycling from prefix
       sb.append(folderPaths.replaceFirst("//Folders/\\$System\\$/Recycling", ""));
       sb.insert(0, "/");
       sb = attachPathPrefix(sb);
@@ -1015,66 +1040,92 @@ public class PSRecycleService implements IPSRecycleService {
       }
       sb.insert(0, RECYCLING_ROOT);
     }
-
     // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6359,
     // same as #5898/#5910/#5927/#6325/#6358) — slash appends the item name to the CMS repository path, not an OS path.
     sb.append("/" + itemName.getValueAsString());
+    return sb;
+  }
 
-    /**
-     * This code renames the name of the item being restored/recycled -- appending -1, -2 to the
-     * file name, etc. There were issues with this when checking against folders, etc. For example,
-     * if a folder is moved to the bin and a new folder with same path is created. When this occurs,
-     * recycling an item would update the item's parent folders to have a recycled relationship.
-     * Since the new folder being recycled has a different content id it was allowed to create the
-     * new recycled relationship for the folder with the same name and caused issues in the UI. E.G.
-     * the path would display '2 items' but only 1 was displayed due to filtering of items with same
-     * name. this code would need to be fixed and the logic updated.
-     */
-    int idToCheck = getItemIdFromPath(sb.toString(), !isRecycledType ? RECYCLED_TYPE : FOLDER_TYPE);
-
+  /**
+   * This code renames the name of the item being restored/recycled -- appending -1, -2 to the file
+   * name, etc. There were issues with this when checking against folders, etc. For example, if a
+   * folder is moved to the bin and a new folder with same path is created. When this occurs,
+   * recycling an item would update the item's parent folders to have a recycled relationship. Since
+   * the new folder being recycled has a different content id it was allowed to create the new
+   * recycled relationship for the folder with the same name and caused issues in the UI. E.G. the
+   * path would display '2 items' but only 1 was displayed due to filtering of items with same name.
+   * this code would need to be fixed and the logic updated.
+   */
+  private void ensureUniqueDestination(StringBuilder sb, boolean isRecycledType, int contentId) {
+    String checkType = isRecycledType ? FOLDER_TYPE : RECYCLED_TYPE;
+    int idToCheck = getItemIdFromPath(sb.toString(), checkType);
     int counter = 1;
-    while (idToCheck != -1 && idToCheck != coreItem.getContentId()) {
-      if (counter > 1) {
-        int index = sb.lastIndexOf("-");
-        sb.replace(index, sb.length(), "");
-        sb.append("-" + counter);
-      } else {
-        sb.append("-" + counter);
-      }
+    while (idToCheck != -1 && idToCheck != contentId) {
+      appendRenameSuffix(sb, counter);
       log.debug("Checking for item: {} to see if it exists for rename.", sb.toString());
-      idToCheck = getItemIdFromPath(sb.toString(), !isRecycledType ? RECYCLED_TYPE : FOLDER_TYPE);
+      idToCheck = getItemIdFromPath(sb.toString(), checkType);
       counter++;
     }
-    String relationshipTypeName = originalRelTypeName;
-    if (RECYCLED_TYPE.equals(originalRelTypeName)) {
-      relationshipTypeName = FOLDER_TYPE;
-    } else {
-      relationshipTypeName = RECYCLED_TYPE;
-    }
+  }
 
-    int indexOfName = sb.lastIndexOf("/");
-    String newName = sb.substring(indexOfName + 1);
-    String newPath = sb.substring(0, indexOfName);
-    if (!newName.equalsIgnoreCase(itemName.getValueAsString())) {
+  /** Appends the next numeric rename suffix, replacing the previous one when present. */
+  private void appendRenameSuffix(StringBuilder sb, int counter) {
+    if (counter > 1) {
+      int index = sb.lastIndexOf("-");
+      sb.replace(index, sb.length(), "");
+      sb.append("-" + counter);
+    } else {
+      sb.append("-" + counter);
+    }
+  }
+
+  /** Persists the computed destination name when it differs from the item's current title. */
+  private void persistRenameIfChanged(
+      IPSGuid guid,
+      PSCoreItem coreItem,
+      StringBuilder destination,
+      String originalRelTypeName,
+      boolean folder)
+      throws PSErrorResultsException, PSCmsException {
+    int indexOfName = destination.lastIndexOf("/");
+    String newName = destination.substring(indexOfName + 1);
+    String newPath = destination.substring(0, indexOfName);
+    log.debug("Computed rename destination path: {}", newPath);
+    if (!newName.equalsIgnoreCase(coreItem.getFieldByName("sys_title").getValue().getValueAsString())) {
       log.debug("The item will need to be saved as its path or name have changed.");
-      if (!folder) {
-        contentWs.prepareForEdit(guid);
-        if (!items.isEmpty()
-            && items.get(0).getItemDefinition().getName().equalsIgnoreCase("percFileAsset")) {
-          items = contentWs.loadItems(Collections.singletonList(guid), true, true, false, false);
-        } else {
-          items = contentWs.loadItems(Collections.singletonList(guid), false, false, false, false);
-        }
-        coreItem = items.get(0);
-      }
-      coreItem.setTextField("sys_title", newName);
+      PSCoreItem itemToSave = reloadForRename(guid, folder, coreItem);
+      itemToSave.setTextField("sys_title", newName);
       if (folder) {
-        renameFolder(coreItem, guid, originalRelTypeName);
+        renameFolder(itemToSave, guid, originalRelTypeName);
       } else {
         contentWs.saveItems(
-            Arrays.asList(coreItem), false, false, (IPSGuid) null, relationshipTypeName);
+            Arrays.asList(itemToSave), false, false, (IPSGuid) null, swapRelationshipType(originalRelTypeName));
       }
     }
+  }
+
+  /** Reloads the item for edit before a rename; file assets need the full load variant. */
+  private PSCoreItem reloadForRename(IPSGuid guid, boolean folder, PSCoreItem coreItem)
+      throws PSErrorResultsException, PSCmsException {
+    if (folder) {
+      return coreItem;
+    }
+    contentWs.prepareForEdit(guid);
+    List<PSCoreItem> items;
+    if (coreItem.getItemDefinition().getName().equalsIgnoreCase("percFileAsset")) {
+      items = contentWs.loadItems(Collections.singletonList(guid), true, true, false, false);
+    } else {
+      items = contentWs.loadItems(Collections.singletonList(guid), false, false, false, false);
+    }
+    return items.get(0);
+  }
+
+  /** Swaps the relationship type to the destination tree's type. */
+  private String swapRelationshipType(String originalRelTypeName) {
+    if (RECYCLED_TYPE.equals(originalRelTypeName)) {
+      return FOLDER_TYPE;
+    }
+    return RECYCLED_TYPE;
   }
 
   public static boolean checkValidPathPrefix(String sb) throws IllegalArgumentException {
