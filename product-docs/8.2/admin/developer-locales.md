@@ -391,8 +391,11 @@ the catalog no longer lists that language string.
    string is valid. Optional: description, status (`active` / `inactive`), and
    **Base locale**.
 4. Click **Save**. A duplicate language string is **409** and the editor shows
-   that the locale already exists. After a successful create, the language
-   field is read-only.
+   that the locale already exists. A **409** whose server message names a
+   design lock or remaining dependents shows that the locale is locked or
+   has dependents instead. A non-Admin write is **403** and the editor shows
+   that the Admin role is required. **Cancel** does not save.
+   After a successful create, the language field is read-only.
 5. Change the label (or description / status / base flag) and **Save** again.
 6. To store a format profile, check **Store format profile**, fill date /
    time / number / currency / text-direction fields, and **Save**. GET then
@@ -400,9 +403,12 @@ the catalog no longer lists that language string.
    format profile** and **Save** to **remove** the `RXLOCALEFORMAT` row.
    An invalid date/time/currency pattern is **400**.
 7. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
-   The catalog no longer lists that language.
-   Delete of a missing locale is **404**. A locale with remaining dependents
-   is **409**.
+   **Cancel** closes the dialog without calling the server and the row stays.
+   The catalog drops the row only after the delete succeeds.
+   Delete of a missing locale is **404** and the editor shows that the locale
+   was not found. A non-Admin delete is **403** (Admin role required).
+   A design lock or remaining dependents is **409** (locked or has
+   dependents); the detail stays open so the row can be retried later.
 
 The singleton **auto-translation** set (locale × content-type rows) is Admin
 **GET/PUT** `/services/locales/auto-translations`. **GET** returns every
