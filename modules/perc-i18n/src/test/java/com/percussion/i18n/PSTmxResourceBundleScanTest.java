@@ -158,6 +158,61 @@ public class PSTmxResourceBundleScanTest {
   }
 
   /**
+   * Community-switcher shell chrome (#6349) under {@code perc.ui.dashboard.modern@} must ship
+   * with at least the {@code en-us} source so the top-nav community switcher no longer renders
+   * the raw English fallback when the session locale is translated. Non-English backfill is a
+   * translator residual (see #6347 for the dashboard batch) and is intentionally not pinned
+   * here — only the en-us source presence and non-blank content.
+   */
+  @Test
+  public void cmsUi_userCommunityKeys_haveEnUsSource() throws Exception {
+    Path cmsUi = resolveCmsUiTmx();
+    assertNotNull(cmsUi, "CmsUi.tmx not found (cwd=" + Paths.get("").toAbsolutePath() + ")");
+    assertTrue(Files.isRegularFile(cmsUi), "CmsUi.tmx not a regular file: " + cmsUi);
+
+    Set<String> required =
+        Set.of(
+            // @None already ships with a full locale matrix via PR #6346 — pinned, not re-added.
+            "perc.ui.dashboard.modern@None",
+            "perc.ui.dashboard.modern@Community",
+            "perc.ui.dashboard.modern@Switch",
+            "perc.ui.dashboard.modern@Switch community",
+            "perc.ui.dashboard.modern@Available communities",
+            "perc.ui.dashboard.modern@Could not switch community.",
+            "perc.ui.dashboard.modern@Switching community…");
+
+    Document doc = parse(cmsUi);
+    NodeList tus = doc.getElementsByTagName("tu");
+    Set<String> found = new LinkedHashSet<>();
+    for (int i = 0; i < tus.getLength(); i++) {
+      Element tu = (Element) tus.item(i);
+      String tuid = tu.getAttribute("tuid");
+      if (!required.contains(tuid)) {
+        continue;
+      }
+      found.add(tuid);
+      String enSeg = null;
+      NodeList tuvs = tu.getElementsByTagName("tuv");
+      for (int j = 0; j < tuvs.getLength(); j++) {
+        Element tuv = (Element) tuvs.item(j);
+        if (!"en-us".equals(normalizeLangAttr(readXmlLang(tuv)))) {
+          continue;
+        }
+        NodeList segs = tuv.getElementsByTagName("seg");
+        if (segs.getLength() == 0) {
+          continue;
+        }
+        enSeg = segs.item(0).getTextContent();
+      }
+      assertNotNull(enSeg, "empty en-us seg for: " + tuid);
+      assertFalse(enSeg.isBlank(), "blank en-us seg for: " + tuid);
+    }
+    Set<String> missing = new LinkedHashSet<>(required);
+    missing.removeAll(found);
+    assertTrue(missing.isEmpty(), "CmsUi.tmx missing community switcher keys: " + missing);
+  }
+
+  /**
    * Residual Home dashboard body / modal / description keys (GH-1852) under {@code
    * perc.ui.dashboard.modern@}, {@code welcome@}, and {@code activity@} must ship with at least
    * {@code en-us} and base {@code de} so non-English locales do not fall back to English for gadget
