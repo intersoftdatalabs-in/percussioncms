@@ -93,10 +93,20 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-beans</artifactId>
         </dependency>
-        <!-- Logging -->
+        <!-- Logging (#6376): each DTS webapp bundles its own provider
+             (api + core) so Log4j Core self-initializes from the embedded
+             WEB-INF/classes/log4j2.xml and creates the per-service
+             ${catalina.base}/logs/<service>.log file. log4j-web is
+             deliberately absent: 2.x registers only a javax.servlet
+             initializer, inert on the Tomcat 11 (Jakarta) runtime, so it
+             cannot honor the log4jConfiguration context-param here. -->
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
         </dependency>
         <dependency>
             <groupId>com.zaxxer</groupId>
