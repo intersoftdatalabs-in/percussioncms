@@ -37,9 +37,10 @@ operator-machine details that must not ship in the repo or on the forge:
 - Home-directory collapse (Unix, macOS, and Windows home prefixes) is
   deliberately generic: it redacts ANY username, not just the current
   operator's.
-- Provider token collapse is exact-match (``openrouter-free``,
-  ``openrouter/free``, ``OPENROUTER_API_KEY``); generic ``llm.error`` /
-  ``llm warn`` text is preserved.
+- Provider token collapse is exact-match (``openrouter-free`` incl. bare
+  prose mentions and profile filenames, ``openrouter/free``,
+  ``OPENROUTER_API_KEY``); generic ``llm.error`` / ``llm warn`` text is
+  preserved.
 """
 from __future__ import annotations
 
@@ -67,6 +68,7 @@ MODELS_PATH = re.compile(r"(?:[\w.~][\w.~/#\\-]*/)?models\.([\w][\w.\-]*)\.toml"
 OPENROUTER_KEY = "OPENROUTER_API_KEY"
 OPENROUTER_ROUTE = "openrouter/free"
 OPENROUTER_ID = "openrouter-free"
+BARE_PROVIDER_ID = re.compile(r"\bopenrouter-free\b")
 
 LEAK_PATTERNS = (
     # mkd-code-review[paths.hardcoded_sep]: regex matches foreign markdown text
@@ -93,9 +95,7 @@ def sanitize_text(text: str) -> str:
     text = text.replace(OPENROUTER_KEY, "<llm-provider-key-env>")
     text = text.replace(OPENROUTER_ROUTE, "<llm-model>")
     text = re.sub(r"\bllm\." + re.escape(OPENROUTER_ID) + r"\b", "llm", text)
-    text = re.sub(
-        r"(`)"+ re.escape(OPENROUTER_ID) + r"(`)", r"\1<llm-model>\2", text
-    )
+    text = BARE_PROVIDER_ID.sub("<llm-model>", text)
     if text and not text.endswith("\n"):
         text += "\n"
     return text

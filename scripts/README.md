@@ -512,7 +512,8 @@ debug lines.
 - **Replacements**: `/home/<u>` / `/Users/<u>` / `C:\Users\<u>` → `~`;
   worktree paths → `<worktree>`; any `.../models.<profile>.toml` path →
   `models.<profile>.toml`; `OPENROUTER_API_KEY` → `<llm-provider-key-env>`;
-  `` `openrouter-free` `` → `` `<llm-model>` ``; `llm.openrouter-free` →
+  `` `openrouter-free` ``, bare prose mentions, and profile filenames →
+  `<llm-model>`; `llm.openrouter-free` →
   `llm`; `residual model=...` lines dropped. Generic `llm.error` text is
   preserved.
 - **Tests**: `python3 -m pytest scripts/test_sanitize_erlang_review.py -v`

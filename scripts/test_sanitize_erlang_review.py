@@ -61,7 +61,7 @@ class SanitizeTests(unittest.TestCase):
         # mkd-code-review[paths.hardcoded_sep]: redactor fixture data;
         # foreign text path, not a filesystem join.
         self.assertNotIn("/home/nate", out)
-        self.assertIn("models.openrouter-free.toml", out)
+        self.assertIn("models.<llm-model>.toml", out)
 
     def test_env_var_name_redacted(self) -> None:
         out = sanitize_erlang_review.sanitize_text(
@@ -70,15 +70,19 @@ class SanitizeTests(unittest.TestCase):
         self.assertNotIn("OPENROUTER_API_KEY", out)
 
     def test_provider_ids_redacted_rule_kept_generic(self) -> None:
+        # mkd-code-review[paths.hardcoded_sep]: redactor fixture data;
+        # foreign text path, not a filesystem join.
         out = sanitize_erlang_review.sanitize_text(
             "- Rule: `llm.openrouter-free`\n"
             "- Description: model `openrouter-free` failed\n"
+            "(LLM, openrouter-free) via models.openrouter-free.toml\n"
             "residual model=openrouter/free id=openrouter-free outcome=started\n"
         )
         self.assertNotIn("openrouter-free", out)
         self.assertNotIn("openrouter/free", out)
         self.assertNotIn("residual model=", out)
         self.assertIn("- Rule: `llm`", out)
+        self.assertIn("models.<llm-model>.toml", out)
 
     def test_windows_home_redacted(self) -> None:
         out = sanitize_erlang_review.sanitize_text(
