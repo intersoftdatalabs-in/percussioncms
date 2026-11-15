@@ -409,4 +409,60 @@ test.describe("Explorer saved-search rename/delete (#6075 / #4530)", () => {
 
     expect(pageErrors, `zero JS console errors (${pageErrors.join(" | ")})`).toEqual([]);
   });
+
+  test("rename dialog keyboard walk: autofocus, trap, Escape, return-focus (#6398) @saved-search @explorer-saved-search-manage @explorer", async ({
+    page,
+  }) => {
+    const pageErrors = attachPageErrors(page);
+    await openSearchPanel(page);
+    await selectSavedSearch(page, tempName);
+
+    const dialog = page.locator(`[data-testid="${TEST_IDS.manageDialog}"]`);
+    const renameInput = page.locator(`[data-testid="${TEST_IDS.renameInput}"]`);
+    const cancelBtn = page.locator(`[data-testid="${TEST_IDS.manageCancel}"]`);
+    const renameBtn = page.locator(`[data-testid="${TEST_IDS.savedRename}"]`);
+
+    await renameBtn.click();
+    await expect(dialog).toBeVisible();
+
+    // Live proof: dialog open on the absolute CMS URL (#6398 C5).
+    await page.screenshot({
+      path: "test-results/live-proof-6398-manage-dialog.png",
+    });
+
+    // O1 fixed: autofocus lands on the first control (rename input) and
+    // Tab cycles inside the dialog — Shift+Tab from first wraps to last.
+    await expect(renameInput).toBeFocused();
+    await page.keyboard.press("Shift+Tab");
+    await expect(cancelBtn).toBeFocused();
+    // Tab from last wraps to first; focus never leaves the dialog.
+    await page.keyboard.press("Tab");
+    await expect(renameInput).toBeFocused();
+    for (let i = 0; i < 4; i += 1) {
+      await page.keyboard.press("Tab");
+      const outside = await dialog.evaluate((root) => {
+        const active = document.activeElement;
+        return !active || !root.contains(active);
+      });
+      expect(outside, "Tab must stay inside the manage dialog").toBe(false);
+    }
+
+    // O1 fixed: Escape dismisses with no transport and focus returns to
+    // the Rename opener.
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(renameBtn).toBeFocused();
+    await expect(
+      page.locator(`[data-testid="${TEST_IDS.manageNotice}"]`),
+    ).toBeHidden();
+
+    // Delete dialog: Escape also dismisses and returns focus.
+    await page.locator(`[data-testid="${TEST_IDS.savedDelete}"]`).click();
+    await expect(dialog).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(page.locator(`[data-testid="${TEST_IDS.savedDelete}"]`)).toBeFocused();
+
+    expect(pageErrors, `zero JS console errors (${pageErrors.join(" | ")})`).toEqual([]);
+  });
 });

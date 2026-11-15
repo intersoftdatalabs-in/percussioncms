@@ -920,6 +920,9 @@ When the panel is open you can:
    the label changes), and **Delete saved search** asks for confirmation before
    removing the row (`DELETE /services/searches/{idOrName}`, 204 on success).
    **Cancel** on either dialog calls no transport and leaves the catalog untouched.
+   **Escape** dismisses either dialog the same way (except while a rename or
+   delete request is in flight). While a dialog is open, **Tab** stays inside
+   it, and on close focus returns to the **Rename** / **Delete** button.
    A blank rename is refused before the PUT. HTTP **400**, **403**, or **409**
    on rename, and HTTP **400**, **403**, **404**, or **409** on delete, stay on
    the dialog — they are not success and no row is lost or dropped. Custom URL
