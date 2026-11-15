@@ -180,6 +180,41 @@ class PSGadgetRegistryCompilerTest {
         Exception.class, () -> PSComponentPackageManifestValidator.validate(m));
   }
 
+  @Test
+  void compileProductRegistry_emitsTmxNameKeys() throws Exception {
+    PSGadgetRegistryModel model = parseClasspath(FIXTURE_REGISTRY, "GadgetRegistry.xml");
+    PSGadgetRegistryCompileResult result =
+        PSGadgetRegistryCompiler.compile(model, PRODUCT_VERSION);
+
+    // Issue #6348: every product gadget id resolves to the same TMX key the React
+    // gadgetsCatalog.ts uses, while the English name stays the wire fallback.
+    for (PSGadgetCatalog.Entry entry : result.getCatalog().getGadgets()) {
+      assertNotNull(entry.getNameKey(), "missing TMX nameKey for gadget id=" + entry.getId());
+    }
+    assertEquals(
+        "perc.ui.gadgets.welcome@WELCOME",
+        findEntry(result.getCatalog(), "cm1_welcome_gadget").getNameKey());
+    assertEquals(
+        "perc.ui.dashboard.modern@Blogs",
+        findEntry(result.getCatalog(), "PercBlogsGadget").getNameKey());
+    assertEquals(
+        "Welcome", findEntry(result.getCatalog(), "cm1_welcome_gadget").getName(),
+        "English name stays the wire fallback");
+  }
+
+  @Test
+  void nameKeyFor_unknownIdIsNull() {
+    assertEquals(null, PSGadgetRegistryCompiler.nameKeyFor("customer_gadget_xyz"));
+    assertEquals(null, PSGadgetRegistryCompiler.nameKeyFor(null));
+  }
+
+  private static PSGadgetCatalog.Entry findEntry(PSGadgetCatalog catalog, String id) {
+    return catalog.getGadgets().stream()
+        .filter(e -> id.equals(e.getId()))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("missing catalog entry id=" + id));
+  }
+
   private static PSGadgetRegistryModel parseClasspath(String resource, String sourceFileName)
       throws Exception {
     String xml = readClasspath(resource);

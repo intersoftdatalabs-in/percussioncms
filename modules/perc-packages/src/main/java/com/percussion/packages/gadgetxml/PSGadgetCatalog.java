@@ -117,6 +117,14 @@ public final class PSGadgetCatalog {
   public static final class Entry {
     private String id;
     private String name;
+    /**
+     * TMX resource key for the localized display name (issue #6348), e.g. {@code
+     * "perc.ui.dashboard.modern@Blogs"}. Mirrors the React {@code gadgetsCatalog.ts} {@code
+     * nameKey} for the same gadget; {@link #name} stays the English fallback so existing
+     * {@code name}/{@code group} consumers see no wire-shape change. Null when the gadget id
+     * has no known catalog key (customer/legacy ids compile without one).
+     */
+    private String nameKey;
     private String group;
     private String baseUri;
     /** Legacy OpenSocial definition file name (upgrade-input only; product no longer ships XML). */
@@ -139,6 +147,14 @@ public final class PSGadgetCatalog {
 
     public void setName(String name) {
       this.name = name;
+    }
+
+    public String getNameKey() {
+      return nameKey;
+    }
+
+    public void setNameKey(String nameKey) {
+      this.nameKey = nameKey;
     }
 
     public String getGroup() {
@@ -192,6 +208,7 @@ public final class PSGadgetCatalog {
       return deprecated == that.deprecated
           && Objects.equals(id, that.id)
           && Objects.equals(name, that.name)
+          && Objects.equals(nameKey, that.nameKey)
           && Objects.equals(group, that.group)
           && Objects.equals(baseUri, that.baseUri)
           && Objects.equals(legacyDefinitionFile, that.legacyDefinitionFile)
@@ -201,7 +218,7 @@ public final class PSGadgetCatalog {
     @Override
     public int hashCode() {
       return Objects.hash(
-          id, name, group, baseUri, legacyDefinitionFile, deprecated, componentPackageRef);
+          id, name, nameKey, group, baseUri, legacyDefinitionFile, deprecated, componentPackageRef);
     }
   }
 }

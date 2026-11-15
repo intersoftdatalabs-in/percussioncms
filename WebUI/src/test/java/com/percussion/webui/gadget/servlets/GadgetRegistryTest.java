@@ -228,4 +228,86 @@ public class GadgetRegistryTest {
         "shipped gadget-catalog.json must be on the WebUI classpath",
         GadgetRegistry.class.getClassLoader().getResource(GadgetRegistry.CATALOG_RESOURCE) != null);
   }
+
+  /**
+   * Issue #6348: the shipped catalog carries a TMX {@code nameKey} per gadget id so the served
+   * registry and the React {@code gadgetsCatalog.ts} resolve the same localized name. The
+   * English {@code name}/{@code group} wire shape is unchanged (existing type-map tests above
+   * still pin it).
+   */
+  @Test
+  public void nameKeyMapCoversEveryShippedGadget() {
+    Map<String, String> keys = GadgetRegistry.loadGadgetNameKeyMap();
+    Map<String, String> types = GadgetRegistry.loadGadgetTypeMap();
+    assertEquals(
+        "every catalog gadget must carry a TMX name key", types.size(), keys.size());
+    // Full pin: a typo'd key in the served copy (the copy GadgetRegistry actually reads)
+    // must fail here, not just disagree with the compiled catalog at runtime.
+    Map<String, String> expected =
+        Map.ofEntries(
+            Map.entry("cm1_welcome_gadget", "perc.ui.gadgets.welcome@WELCOME"),
+            Map.entry(
+                "perc_workflow_status_gadget", "perc.ui.gadgets.workflowStatus@PAGES BY STATUS"),
+            Map.entry("perc_activity_gadget", "perc.ui.dashboard.modern@Activity"),
+            Map.entry(
+                "PercProcessorMonitorGadget", "perc.ui.gadgets.processmonitor@Process Monitor"),
+            Map.entry("perc_effectiveness_gadget", "perc.ui.dashboard.modern@What's Working"),
+            Map.entry("PercAssetStatusGadget", "perc.ui.asset.status.gadget@ASSETS BY STATUS"),
+            Map.entry("perc_bulk_file_upload_gadget", "perc.ui.gadget.bulkUpload@Bulk Upload"),
+            Map.entry("perc_reports_gadget", "perc.ui.dashboard.modern@Reports"),
+            Map.entry("perc_traffic_gadget", "perc.ui.traffic.gadget@TRAFFIC"),
+            Map.entry("PercBlogsGadget", "perc.ui.dashboard.modern@Blogs"),
+            Map.entry("perc_comments_gadget", "perc.ui.gadgets.comments@COMMENTS"),
+            Map.entry("PercFormTrackerGadget", "perc.ui.dashboard.modern@Form Tracker"),
+            Map.entry("perc_cookie_consent_gadget", "perc.ui.gadgets.cookieConsent@COOKIE CONSENT"),
+            Map.entry("perc_seo_gadget", "perc.ui.gadgets.seo@SEO AUDIT"),
+            Map.entry("perc_google_setup_gadget", "perc.ui.dashboard.modern@Google Setup"),
+            Map.entry("perc_membership_gadget", "perc.ui.gadgets.membership@MEMBERSHIP"),
+            Map.entry("perc_site_improve_gadget", "perc.ui.site.improve.gadget@SITEIMPROVE"),
+            Map.entry("perc_iframe_gadget", "perc.ui.dashboard.modern@External Content"),
+            Map.entry(
+                "PercGlobalVariablesGadget", "perc.ui.global.variables.gadget@Global Variables"),
+            Map.entry(
+                "PercSiteFrameworkGadget", "perc.ui.gadgets.sitewideFramework@Sitewide Framework"),
+            Map.entry(
+                "PercWidgetConfigGadget", "perc.ui.dashboard.modern@Dashboard Configuration"));
+    assertEquals(expected, keys);
+  }
+
+  @Test
+  public void getGadgetNameKeyResolvesKnownIds() {
+    assertEquals(
+        "perc.ui.gadgets.welcome@WELCOME", GadgetRegistry.getGadgetNameKey("cm1_welcome_gadget"));
+    assertEquals(
+        "perc.ui.gadgets.cookieConsent@COOKIE CONSENT",
+        GadgetRegistry.getGadgetNameKey("perc_cookie_consent_gadget"));
+  }
+
+  @Test
+  public void getGadgetNameKeyNullForUnknownOrBlank() {
+    assertEquals(null, GadgetRegistry.getGadgetNameKey("Not A Real Gadget"));
+    assertEquals(null, GadgetRegistry.getGadgetNameKey(null));
+    assertEquals(null, GadgetRegistry.getGadgetNameKey("   "));
+  }
+
+  @Test
+  public void nameKeyMapEmptyWhenCatalogMissing() {
+    Map<String, String> keys =
+        GadgetRegistry.loadGadgetNameKeyMap(
+            "com/percussion/webui/gadget/servlets/does-not-exist-catalog.json");
+    assertTrue(keys.isEmpty());
+  }
+
+  @Test
+  public void parseCatalogNameKeyMapOmitsUnkeyedEntries() throws Exception {
+    String json =
+        "{\"gadgets\":["
+            + "{\"id\":\"known\",\"name\":\"Known\",\"nameKey\":\"some.key@Known\",\"group\":\"Percussion\"},"
+            + "{\"id\":\"legacy\",\"name\":\"Legacy\",\"group\":\"Deprecated\"}]}";
+    Map<String, String> keys =
+        GadgetRegistry.parseCatalogNameKeyMap(
+            new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)));
+    assertEquals(1, keys.size());
+    assertEquals("some.key@Known", keys.get("known"));
+  }
 }

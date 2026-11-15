@@ -476,6 +476,14 @@ does. When a key has no translation for the session locale yet, the gadget
 shows the English source segment until translators backfill that locale —
 this is the same regional → base → en-us fallback the format profiles use.
 
+The Java-served gadget registry (`gadget-catalog.json`, consumed through
+`GadgetRegistry`) carries the same TMX `nameKey` per gadget id that the
+Home catalog resolves, so both registries agree on the localized name per
+locale. The served `name` stays the English fallback: existing consumers
+that read `name`/`group` see no wire change, and new consumers should
+resolve `nameKey` through the TMX catalog instead of displaying `name`
+directly.
+
 ## Limits
 
 - Language string is immutable after create (REST `PUT` rejects a change).
