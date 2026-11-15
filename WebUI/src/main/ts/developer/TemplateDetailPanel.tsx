@@ -700,6 +700,42 @@ export function TemplateDetailPanel({
     return TPL_DESC_MSG.ERROR;
   }
 
+  function canSaveDescription(): boolean {
+    return !!(
+      detail &&
+      descriptionEditing &&
+      heldLock &&
+      !descriptionBusy &&
+      !descriptionInflight.current &&
+      !labelInflight.current &&
+      !labelEditing &&
+      !inflight.current &&
+      !busy
+    );
+  }
+
+  function needsDescriptionLockNotice(): boolean {
+    return !heldLock && descriptionEditing && !descriptionBusy && !labelEditing;
+  }
+
+  function applySavedDescription(baseline: TemplateDetail, accepted: string): void {
+    const nextDetail: TemplateDetail = { ...baseline, description: accepted };
+    setDetail(nextDetail);
+    setDescription(accepted);
+    setDescriptionShown(accepted);
+    setDescriptionEditing(false);
+    setDescriptionDraft("");
+    setDescriptionNotice(accepted ? TPL_DESC_MSG.SAVED : TPL_DESC_MSG.CLEARED);
+    onSaved?.(nextDetail);
+  }
+
+  function revertDescriptionSave(previousShown: string, message: string): void {
+    setDescription(previousShown);
+    setDescriptionShown(previousShown);
+    setDescriptionError(message);
+    setDescriptionNotice(null);
+  }
+
   function startDescriptionEdit(): void {
     if (
       !detail ||
@@ -727,18 +763,8 @@ export function TemplateDetailPanel({
   }
 
   async function handleDescriptionSave(): Promise<void> {
-    if (
-      !detail ||
-      !descriptionEditing ||
-      !heldLock ||
-      descriptionBusy ||
-      descriptionInflight.current ||
-      labelInflight.current ||
-      labelEditing ||
-      inflight.current ||
-      busy
-    ) {
-      if (!heldLock && descriptionEditing && !descriptionBusy && !labelEditing) {
+    if (!detail || !canSaveDescription()) {
+      if (needsDescriptionLockNotice()) {
         setDescriptionError(DEV_MSG.TPL_LOCK_REQUIRED);
       }
       return;
@@ -760,25 +786,12 @@ export function TemplateDetailPanel({
       const saved = await updateTemplateDetail(idOrName, sent);
       const accepted = savedTemplateDescription(sent, detail, saved);
       if (accepted == null) {
-        setDescription(previousShown);
-        setDescriptionShown(previousShown);
-        setDescriptionError(TPL_DESC_MSG.ERROR);
-        setDescriptionNotice(null);
+        revertDescriptionSave(previousShown, TPL_DESC_MSG.ERROR);
         return;
       }
-      const nextDetail: TemplateDetail = { ...detail, description: accepted };
-      setDetail(nextDetail);
-      setDescription(accepted);
-      setDescriptionShown(accepted);
-      setDescriptionEditing(false);
-      setDescriptionDraft("");
-      setDescriptionNotice(accepted ? TPL_DESC_MSG.SAVED : TPL_DESC_MSG.CLEARED);
-      onSaved?.(nextDetail);
+      applySavedDescription(detail, accepted);
     } catch (err: unknown) {
-      setDescription(previousShown);
-      setDescriptionShown(previousShown);
-      setDescriptionError(panelErrMsg(err, descriptionSaveFallback(err)));
-      setDescriptionNotice(null);
+      revertDescriptionSave(previousShown, panelErrMsg(err, descriptionSaveFallback(err)));
     } finally {
       descriptionInflight.current = false;
       setDescriptionBusy(false);
