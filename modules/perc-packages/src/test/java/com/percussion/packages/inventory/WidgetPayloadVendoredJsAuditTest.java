@@ -53,6 +53,15 @@ import org.junit.jupiter.api.Test;
  * by the frontend parity test); the remaining rows stay vendored and are
  * tracked in the #6319 leftover residual.
  *
+ * <p>Slice 2 of #6319 migrated the nav-widget superfish pair to the npm
+ * superfish 1.7.10 dist (already Dependabot-tracked via the frontend
+ * manifests for the classic-UI copies since #6016): the published
+ * {@code superfish.min.js} was already byte-identical to the npm dist, and
+ * the preview {@code superfish.js} was refreshed to the npm dist bytes,
+ * restoring the upstream Joel Birch banner in place of the prepended
+ * Percussion header. The nav hoverIntent/supersubs rows stay vendored and
+ * are tracked in the #6319 leftover residual.
+ *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
  * inventory can only drift together with an audit update. A migration PR that
@@ -178,6 +187,9 @@ class WidgetPayloadVendoredJsAuditTest {
           Map.entry(
               "perc.widget.imageSlider/sys__UserDependency--web_resources/widgets/imageSlider/js/slick.min.js",
               "Version: 1.9.0"),
+          Map.entry(
+              "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/superfish.js",
+              "jQuery Superfish Menu Plugin - v1.7.10"),
           Map.entry(
               "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/superfish.min.js",
               "Superfish Menu Plugin - v1.7.10"));
