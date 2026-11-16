@@ -1102,6 +1102,22 @@ GADGET_DESC_DASHBOARD_CONFIG:
         QUEUE_STATUS_PENDING: "perc.ui.publish.sections.site@Pending",
         QUEUE_EMPTY_STATUS_FILTER:
           "perc.ui.publish.sections.site@No queued items match this filter. Show all items to see the full queue.",
+        QUEUE_PRESET_FILTER_ARIA:
+          "perc.ui.publish.sections.site@Filter queue by preset: my items, failed, or scheduled",
+        QUEUE_PRESET_FILTER_ALL:
+          "perc.ui.publish.sections.site@All presets",
+        QUEUE_PRESET_FILTER_MINE:
+          "perc.ui.publish.sections.site@My items",
+        QUEUE_PRESET_FILTER_FAILED:
+          "perc.ui.publish.sections.site@Failed only",
+        QUEUE_PRESET_FILTER_SCHEDULED:
+          "perc.ui.publish.sections.site@Scheduled only",
+        QUEUE_PRESET_REMEMBERED_TITLE:
+          "perc.ui.publish.sections.site@Your preset choice is remembered on this browser",
+        QUEUE_PRESET_COUNT:
+          "perc.ui.publish.sections.site@Showing {0} of {1} queued items",
+        QUEUE_PRESET_MINE_UNKNOWN:
+          "perc.ui.publish.sections.site@Your sign-in name is unavailable, so My items is empty. Choose another preset to see the queue.",
       },
     },
     DESIGN: {

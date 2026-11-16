@@ -78,6 +78,18 @@ export function queueItemApproved(item: unknown): boolean {
 export type QueueApprovalFilter = "all" | "approved" | "pending";
 
 /**
+ * Preset facet for the Site workspace incremental-queue list (#6471).
+ * {@code mine} keeps rows owned by the signed-in operator, {@code failed}
+ * keeps rows carrying a failure marker, {@code scheduled} keeps rows with a
+ * scheduled publish date. {@code all} returns the original list.
+ */
+export type QueuePresetFilter = "all" | "mine" | "failed" | "scheduled";
+
+/** {@code localStorage} key for the persisted queue preset preference. */
+export const QUEUE_PRESET_PREFERENCE_KEY =
+  "perc.ui.publish.queuePresetFilter";
+
+/**
  * Narrow already-loaded queue rows by approval facet. {@code all} returns
  * the original list. Approval reuses {@link queueItemApproved} so the
  * facet matches the Approved badge shown on each row.
@@ -93,6 +105,202 @@ export function filterQueueByApproval(
     return items.filter((item) => !queueItemApproved(item));
   }
   return items;
+}
+
+/** Owner-like fields consulted by the {@code mine} preset, in priority order. */
+const QUEUE_OWNER_KEYS = [
+  "owner",
+  "ownerName",
+  "createdBy",
+  "creator",
+  "creatorName",
+  "author",
+  "authorName",
+  "checkedOutBy",
+  "lastModifiedBy",
+  "modifiedBy",
+] as const;
+
+/** Status-like fields consulted by the {@code failed} preset. */
+const QUEUE_STATUS_KEYS = [
+  "status",
+  "jobStatus",
+  "stateName",
+  "workflowState",
+  "lastResult",
+  "result",
+] as const;
+
+/** Date-like fields consulted by the {@code scheduled} preset. */
+const QUEUE_SCHEDULE_DATE_KEYS = [
+  "scheduledDate",
+  "scheduleDate",
+  "publishDate",
+  "publishStartDate",
+  "startDate",
+  "embargoDate",
+  "goLiveDate",
+] as const;
+
+function queueTextField(item: unknown, keys: readonly string[]): string {
+  if (item == null || typeof item !== "object") {
+    return "";
+  }
+  const obj = item as Record<string, unknown>;
+  for (const key of keys) {
+    const raw = obj[key];
+    if (typeof raw === "string" && raw.trim() !== "") {
+      return raw.trim();
+    }
+    if (typeof raw === "number" && Number.isFinite(raw)) {
+      return String(raw);
+    }
+  }
+  return "";
+}
+
+/**
+ * Operator name recorded on a queue row (owner, creator, author, checkout
+ * holder, or last modifier). Empty when the row carries no owner-like field.
+ */
+export function queueItemOwner(item: unknown): string {
+  return queueTextField(item, QUEUE_OWNER_KEYS);
+}
+
+/**
+ * Whether a queue row carries a failure marker: a literal
+ * {@code failed} flag or {@code fail} in a status-like field.
+ */
+export function queueItemFailed(item: unknown): boolean {
+  if (item != null && typeof item === "object") {
+    const raw = (item as Record<string, unknown>).failed;
+    if (typeof raw === "boolean") {
+      return raw;
+    }
+  }
+  return /fail/i.test(queueTextField(item, QUEUE_STATUS_KEYS));
+}
+
+/**
+ * Whether a queue row carries a scheduled publish date (a stored value in
+ * a date-like field) or {@code schedul} in a status-like field.
+ */
+export function queueItemScheduled(item: unknown): boolean {
+  if (queueTextField(item, QUEUE_SCHEDULE_DATE_KEYS) !== "") {
+    return true;
+  }
+  return /schedul/i.test(queueTextField(item, QUEUE_STATUS_KEYS));
+}
+
+/** Whether a value is a valid queue preset filter (persisted or selected). */
+export function isQueuePresetFilter(value: unknown): value is QueuePresetFilter {
+  return (
+    value === "all" ||
+    value === "mine" ||
+    value === "failed" ||
+    value === "scheduled"
+  );
+}
+
+/**
+ * Narrow already-loaded queue rows by preset facet. {@code all} returns the
+ * original list. {@code mine} keeps rows whose owner matches
+ * {@code currentUser} (case-insensitive); a blank operator name matches
+ * nothing so the facet never invents ownership.
+ */
+export function filterQueueByPreset(
+  items: unknown[],
+  mode: QueuePresetFilter,
+  currentUser?: string | null,
+): unknown[] {
+  if (mode === "failed") {
+    return items.filter((item) => queueItemFailed(item));
+  }
+  if (mode === "scheduled") {
+    return items.filter((item) => queueItemScheduled(item));
+  }
+  if (mode === "mine") {
+    const me = (currentUser ?? "").trim().toLowerCase();
+    if (!me) {
+      return [];
+    }
+    return items.filter(
+      (item) => queueItemOwner(item).toLowerCase() === me,
+    );
+  }
+  return items;
+}
+
+/** Minimal {@code localStorage}-shaped store for the preset preference. */
+export interface QueuePresetStorage {
+  getItem(key: string): string | null;
+  setItem(key: string, value: string): void;
+}
+
+/** Browser {@code localStorage} adapter; {@code null} off-browser or denied. */
+export function browserQueuePresetStorage(): QueuePresetStorage | null {
+  try {
+    if (typeof window === "undefined" || window.localStorage == null) {
+      return null;
+    }
+    const ls = window.localStorage;
+    return {
+      getItem: (key) => ls.getItem(key),
+      setItem: (key, value) => ls.setItem(key, value),
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Read the persisted queue preset preference. Unknown, blank, or unreadable
+ * values fall back to {@code all} so a stale preference never hides the queue.
+ */
+export function readQueuePresetPreference(
+  storage?: QueuePresetStorage | null,
+): QueuePresetFilter {
+  const store = storage ?? browserQueuePresetStorage();
+  if (!store) {
+    return "all";
+  }
+  try {
+    const raw = store.getItem(QUEUE_PRESET_PREFERENCE_KEY);
+    return isQueuePresetFilter(raw) ? raw : "all";
+  } catch {
+    return "all";
+  }
+}
+
+/**
+ * Persist the queue preset preference. Storage failures (private mode,
+ * denied access) are swallowed — the facet still works for the session.
+ */
+export function writeQueuePresetPreference(
+  mode: QueuePresetFilter,
+  storage?: QueuePresetStorage | null,
+): void {
+  const store = storage ?? browserQueuePresetStorage();
+  if (!store) {
+    return;
+  }
+  try {
+    store.setItem(QUEUE_PRESET_PREFERENCE_KEY, mode);
+  } catch {
+    // Session-only facet; persistence is best-effort.
+  }
+}
+
+/**
+ * Fill {@code {0}} (shown) and {@code {1}} (total) in a preset-count template.
+ * Pure so Vitest can cover it without the TMX catalog.
+ */
+export function formatPresetCount(
+  template: string,
+  shown: number,
+  total: number,
+): string {
+  return template.split("{0}").join(String(shown)).split("{1}").join(String(total));
 }
 
 /** Normalize a payload slot to a list: arrays pass through, single objects wrap. */

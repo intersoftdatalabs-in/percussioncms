@@ -38,6 +38,7 @@ import {
   updateServer,
 } from "../../api/publishing/serversApi";
 import { fetchCurrentJobsForSite } from "../../api/publishing/statusApi";
+import { getCurrentUserBasic } from "../../api/user/userCurrentApi";
 import { message, MSG } from "../../i18n/message";
 import { buildDeliveryServerCopy } from "../deliveryServerCopy";
 import { mapDeliveryServerCopyError } from "../deliveryServerSaveErrors";
@@ -107,6 +108,8 @@ import {
 import {
   extractQueueItems,
   filterQueueByApproval,
+  filterQueueByPreset,
+  formatPresetCount,
   isQueueEmpty,
   queueApproveFailure,
   queueItemApproved,
@@ -114,7 +117,10 @@ import {
   queueItemId,
   queueItemLabel,
   queueRemoveFailure,
+  readQueuePresetPreference,
+  writeQueuePresetPreference,
   type QueueApprovalFilter,
+  type QueuePresetFilter,
 } from "../incrementalQueue";
 import { isJobStoppable, mapJobStopError } from "../jobStop";
 import {
@@ -230,10 +236,57 @@ export function SiteWorkspace({
   );
   const [queueApprovalFilter, setQueueApprovalFilter] =
     useState<QueueApprovalFilter>("all");
-  const visibleQueue = useMemo(
-    () => filterQueueByApproval(queuePreview, queueApprovalFilter),
-    [queuePreview, queueApprovalFilter],
+  // Preset preference is restored from this browser (persisted) and written
+  // back on every change, so the queue reopens on the operator's preset.
+  const [queuePresetFilter, setQueuePresetFilter] = useState<QueuePresetFilter>(
+    () => readQueuePresetPreference(),
   );
+  // Signed-in operator name for the "mine" preset. Fetched lazily only when
+  // the preset needs it, so the workspace opens with zero new REST otherwise.
+  const [queuePresetUser, setQueuePresetUser] = useState<string | null>(null);
+  const [queuePresetUserUnknown, setQueuePresetUserUnknown] = useState(false);
+  const visibleQueue = useMemo(
+    () =>
+      filterQueueByPreset(
+        filterQueueByApproval(queuePreview, queueApprovalFilter),
+        queuePresetFilter,
+        queuePresetUser,
+      ),
+    [queuePreview, queueApprovalFilter, queuePresetFilter, queuePresetUser],
+  );
+
+  useEffect(() => {
+    if (queuePresetFilter !== "mine" || queuePresetUser != null) {
+      return;
+    }
+    let cancelled = false;
+    getCurrentUserBasic()
+      .then((user) => {
+        if (cancelled) {
+          return;
+        }
+        const name = (user.name ?? "").trim();
+        setQueuePresetUser(name === "" ? "" : name);
+        setQueuePresetUserUnknown(name === "");
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setQueuePresetUser("");
+          setQueuePresetUserUnknown(true);
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [queuePresetFilter, queuePresetUser]);
+
+  function onQueuePresetChange(mode: QueuePresetFilter): void {
+    setQueuePresetFilter(mode);
+    writeQueuePresetPreference(mode);
+    if (mode !== "mine") {
+      setQueuePresetUserUnknown(false);
+    }
+  }
   const [relatedPreview, setRelatedPreview] = useState<unknown[]>([]);
   const [selectedRelated, setSelectedRelated] = useState<Set<string>>(
     new Set(),
@@ -1101,8 +1154,76 @@ export function SiteWorkspace({
                       )}
                     </option>
                   </select>
+                </label>{" "}
+                <label>
+                  <span className="sr-only">
+                    {message(
+                      MSG.PUBLISH.SECTIONS.SITE.QUEUE_PRESET_FILTER_ARIA,
+                    )}
+                  </span>
+                  <select
+                    data-testid="publish-incremental-queue-preset-filter"
+                    value={queuePresetFilter}
+                    onChange={(e) =>
+                      onQueuePresetChange(
+                        e.target.value as QueuePresetFilter,
+                      )
+                    }
+                    aria-label={message(
+                      MSG.PUBLISH.SECTIONS.SITE.QUEUE_PRESET_FILTER_ARIA,
+                    )}
+                    title={message(
+                      MSG.PUBLISH.SECTIONS.SITE.QUEUE_PRESET_REMEMBERED_TITLE,
+                    )}
+                  >
+                    <option value="all">
+                      {message(
+                        MSG.PUBLISH.SECTIONS.SITE.QUEUE_PRESET_FILTER_ALL,
+                      )}
+                    </option>
+                    <option value="mine">
+                      {message(
+                        MSG.PUBLISH.SECTIONS.SITE.QUEUE_PRESET_FILTER_MINE,
+                      )}
+                    </option>
+                    <option value="failed">
+                      {message(
+                        MSG.PUBLISH.SECTIONS.SITE.QUEUE_PRESET_FILTER_FAILED,
+                      )}
+                    </option>
+                    <option value="scheduled">
+                      {message(
+                        MSG.PUBLISH.SECTIONS.SITE.QUEUE_PRESET_FILTER_SCHEDULED,
+                      )}
+                    </option>
+                  </select>
                 </label>
+                <span
+                  style={{
+                    marginLeft: 8,
+                    fontSize: "0.85rem",
+                    color: "#666",
+                  }}
+                  role="status"
+                  data-testid="publish-incremental-queue-preset-count"
+                >
+                  {formatPresetCount(
+                    message(MSG.PUBLISH.SECTIONS.SITE.QUEUE_PRESET_COUNT),
+                    visibleQueue.length,
+                    queuePreview.length,
+                  )}
+                </span>
               </div>
+              {queuePresetFilter === "mine" && queuePresetUserUnknown && (
+                <p
+                  style={emptyStyle}
+                  data-testid="publish-incremental-queue-preset-mine-unknown"
+                >
+                  {message(
+                    MSG.PUBLISH.SECTIONS.SITE.QUEUE_PRESET_MINE_UNKNOWN,
+                  )}
+                </p>
+              )}
               {visibleQueue.length === 0 ? (
                 <p
                   style={emptyStyle}

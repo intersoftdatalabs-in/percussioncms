@@ -16,9 +16,10 @@
  */
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { DirtyFormProvider } from "@/publishing/dirtyFormContext";
 import { SiteWorkspace } from "@/publishing/sections/SiteWorkspace";
+import { QUEUE_PRESET_PREFERENCE_KEY } from "@/publishing/incrementalQueue";
 
 vi.mock("@/api/publishing/publishApi", () => ({
   publishSite: vi.fn(),
@@ -55,6 +56,10 @@ vi.mock("@/api/publishing/statusApi", () => ({
   fetchCurrentJobsForSite: vi.fn().mockResolvedValue([]),
 }));
 
+vi.mock("@/api/user/userCurrentApi", () => ({
+  getCurrentUserBasic: vi.fn().mockResolvedValue({ name: "Admin", email: "" }),
+}));
+
 const publishApi = await import("@/api/publishing/publishApi");
 
 function renderWorkspace(): void {
@@ -70,7 +75,12 @@ function renderWorkspace(): void {
 }
 
 describe("SiteWorkspace incremental queue list (#4787)", () => {
+  beforeEach(() => {
+    window.localStorage.removeItem(QUEUE_PRESET_PREFERENCE_KEY);
+  });
+
   afterEach(() => {
+    window.localStorage.removeItem(QUEUE_PRESET_PREFERENCE_KEY);
     vi.restoreAllMocks();
     vi.mocked(publishApi.getIncrementalItems).mockReset();
     vi.mocked(publishApi.getIncrementalRelatedItems).mockReset();
@@ -603,5 +613,141 @@ describe("SiteWorkspace incremental queue list (#4787)", () => {
     });
     expect(screen.queryByTestId("publish-incremental-queue-list")).toBeNull();
     expect(publishApi.getIncrementalItems).toHaveBeenCalledTimes(1);
+  });
+
+  it("narrows rows by mine failed scheduled presets with a result count (#6471)", async () => {
+    const userCurrentApi = await import("@/api/user/userCurrentApi");
+    vi.mocked(userCurrentApi.getCurrentUserBasic).mockResolvedValue({
+      name: "Admin",
+      email: "",
+    });
+    vi.mocked(publishApi.getIncrementalItems).mockResolvedValue({
+      items: [
+        { id: "301", name: "Home", owner: "Admin", status: "Approved" },
+        { id: "88", title: "About", createdBy: "editor1", status: "Failed" },
+        {
+          id: "89",
+          title: "Contact",
+          owner: "Admin",
+          scheduledDate: "2026-11-20",
+        },
+      ],
+    });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(3);
+    });
+    const preset = screen.getByTestId("publish-incremental-queue-preset-filter");
+    expect(preset.textContent).toMatch(/My items/i);
+    expect(
+      screen.getByTestId("publish-incremental-queue-preset-count").textContent,
+    ).toMatch(/3 of 3/);
+
+    fireEvent.change(preset, { target: { value: "failed" } });
+    expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+    expect(
+      screen.getByTestId("publish-incremental-queue-row").textContent,
+    ).toContain("88");
+    expect(
+      screen.getByTestId("publish-incremental-queue-preset-count").textContent,
+    ).toMatch(/1 of 3/);
+
+    fireEvent.change(preset, { target: { value: "scheduled" } });
+    expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+    expect(
+      screen.getByTestId("publish-incremental-queue-row").textContent,
+    ).toContain("89");
+
+    fireEvent.change(preset, { target: { value: "mine" } });
+    await waitFor(() => {
+      expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(2);
+    });
+    expect(publishApi.getIncrementalItems).toHaveBeenCalledTimes(1);
+  });
+
+  it("persists the preset choice and restores it on mount (#6471)", async () => {
+    vi.mocked(publishApi.getIncrementalItems).mockResolvedValue({
+      items: [{ id: "301", name: "Home" }],
+    });
+    const { unmount } = render(
+      <DirtyFormProvider>
+        <SiteWorkspace
+          site={{ name: "MySite", siteId: 42 }}
+          initialServerId="7"
+          onBack={vi.fn()}
+        />
+      </DirtyFormProvider>,
+    );
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+    });
+    fireEvent.change(
+      screen.getByTestId("publish-incremental-queue-preset-filter"),
+      { target: { value: "failed" } },
+    );
+    expect(window.localStorage.getItem(QUEUE_PRESET_PREFERENCE_KEY)).toBe(
+      "failed",
+    );
+    unmount();
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    // The restored "failed" preset is already active: the plain row is
+    // filtered out and the select still offers the persisted value.
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("publish-incremental-queue-empty-filter"),
+      ).toBeTruthy();
+    });
+    expect(
+      (screen.getByTestId(
+        "publish-incremental-queue-preset-filter",
+      ) as HTMLSelectElement).value,
+    ).toBe("failed");
+    fireEvent.change(
+      screen.getByTestId("publish-incremental-queue-preset-filter"),
+      { target: { value: "all" } },
+    );
+    await waitFor(() => {
+      expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+    });
+  });
+
+  it("explains an empty mine preset when the sign-in name is unknown (#6471)", async () => {
+    const userCurrentApi = await import("@/api/user/userCurrentApi");
+    vi.mocked(userCurrentApi.getCurrentUserBasic).mockRejectedValue(
+      new Error("denied"),
+    );
+    vi.mocked(publishApi.getIncrementalItems).mockResolvedValue({
+      items: [{ id: "301", name: "Home", owner: "Admin" }],
+    });
+    renderWorkspace();
+    await waitFor(() => {
+      expect(screen.getByText("FTP-Prod")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("publish-incremental-preview-btn"));
+    await waitFor(() => {
+      expect(screen.getAllByTestId("publish-incremental-queue-row")).toHaveLength(1);
+    });
+    fireEvent.change(
+      screen.getByTestId("publish-incremental-queue-preset-filter"),
+      { target: { value: "mine" } },
+    );
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("publish-incremental-queue-preset-mine-unknown"),
+      ).toBeTruthy();
+    });
+    expect(screen.queryAllByTestId("publish-incremental-queue-row")).toHaveLength(0);
   });
 });
