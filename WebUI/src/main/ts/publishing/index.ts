@@ -32,6 +32,19 @@ export {
   spaItemScheduleHref,
 } from "./itemScheduleDates";
 export {
+  clearScheduleDatesBatch,
+  formatScheduleBatchDetail,
+  loadScheduleDatesBatch,
+  parseScheduleItemIds,
+  saveScheduleDatesBatch,
+} from "./itemScheduleBatch";
+export type {
+  ScheduleBatchFailure,
+  ScheduleBatchLoadReport,
+  ScheduleBatchLoaded,
+  ScheduleBatchReport,
+} from "./itemScheduleBatch";
+export {
   itemTakedownShellHref,
   mapTakedownKind,
   pathItemForTakedown,

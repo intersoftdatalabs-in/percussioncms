@@ -21,8 +21,6 @@ import {
   saveItemScheduleDates,
 } from "../../api/publishing/itemScheduleDatesApi";
 import {
-  formatApiError,
-  isApiError,
   isSessionRedirectError,
 } from "../../api/client";
 import {
@@ -33,6 +31,15 @@ import {
 import { message, MSG } from "../../i18n/message";
 import { mapIdParam } from "../deepLinkMap";
 import {
+  clearScheduleDatesBatch,
+  formatScheduleBatchDetail,
+  loadScheduleDatesBatch,
+  parseScheduleItemIds,
+  saveScheduleDatesBatch,
+  scheduleBatchFailureMessage,
+  type ScheduleBatchFailure,
+} from "../itemScheduleBatch";
+import {
   errorStyle,
   formRowStyle,
   primaryButtonStyle,
@@ -41,34 +48,42 @@ import {
 
 const COMMENT_MAX = 500;
 
+function fill(template: string, vars: Record<string, string>): string {
+  let out = template;
+  for (const [name, value] of Object.entries(vars)) {
+    out = out.split(`{${name}}`).join(value);
+  }
+  return out;
+}
+
+export interface ScheduleBatchRow {
+  id: string;
+  ok: boolean;
+  detail: string;
+}
+
+function rowsFromReport(
+  saved: readonly string[],
+  failures: readonly ScheduleBatchFailure[],
+  okText: string,
+): ScheduleBatchRow[] {
+  const rows: ScheduleBatchRow[] = saved.map((id) => ({
+    id,
+    ok: true,
+    detail: okText,
+  }));
+  for (const failure of failures) {
+    rows.push({ id: failure.id, ok: false, detail: failure.message });
+  }
+  return rows;
+}
 export interface ItemScheduleDatesPanelProps {
   itemId?: string;
   onItemIdChange?: (itemId: string) => void;
 }
 
 function scheduleErrorMessage(err: unknown): string {
-  if (isApiError(err)) {
-    if (err.status === 403) {
-      return formatApiError(err, message(MSG.PUBLISH_SCHEDULE_FORBIDDEN));
-    }
-    if (err.status === 400) {
-      return formatApiError(err, message(MSG.PUBLISH_SCHEDULE_INVALID));
-    }
-    if (err.status === 409) {
-      return formatApiError(err, message(MSG.PUBLISH_SCHEDULE_CONFLICT));
-    }
-  }
-  const text = formatApiError(err, message(MSG.PUBLISH_ERROR));
-  if (/\bFORBIDDEN\b/i.test(text)) {
-    return message(MSG.PUBLISH_SCHEDULE_FORBIDDEN);
-  }
-  if (/\bBADCONFIG\b/i.test(text)) {
-    return message(MSG.PUBLISH_SCHEDULE_INVALID);
-  }
-  if (/\bINVALID\b/i.test(text)) {
-    return message(MSG.PUBLISH_SCHEDULE_INVALID);
-  }
-  return text;
+  return scheduleBatchFailureMessage(err);
 }
 
 export function ItemScheduleDatesPanel({
@@ -86,19 +101,23 @@ export function ItemScheduleDatesPanel({
   const [clearing, setClearing] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [report, setReport] = useState<ScheduleBatchRow[] | null>(null);
+  const [reportTotal, setReportTotal] = useState(0);
 
   useEffect(() => {
     setInputId(itemId ?? "");
   }, [itemId]);
 
   const load = useCallback(async (rawId: string) => {
-    const safe = mapIdParam(rawId);
-    if (!safe) {
+    const ids = parseScheduleItemIds(rawId);
+    if (ids.length === 0) {
       setLoadedId("");
       setStartLocal("");
       setEndLocal("");
       setComments("");
       setSuccess(null);
+      setReport(null);
+      setReportTotal(0);
       setError(
         rawId.trim()
           ? message(MSG.PUBLISH_ITEM_HISTORY_INVALID_ID)
@@ -106,9 +125,56 @@ export function ItemScheduleDatesPanel({
       );
       return;
     }
+    if (ids.length === 1) {
+      await loadSingle(ids[0]);
+      return;
+    }
     setLoading(true);
     setError(null);
     setSuccess(null);
+    setReport(null);
+    setReportTotal(ids.length);
+    setConfirmingClear(false);
+    setLoadedId(ids[0]);
+    try {
+      const batch = await loadScheduleDatesBatch(ids);
+      const first = batch.loaded[0];
+      if (first) {
+        setStartLocal(serverDateToDatetimeLocal(first.dates.startDate));
+        setEndLocal(serverDateToDatetimeLocal(first.dates.endDate));
+        setComments(first.dates.comments ?? "");
+      } else {
+        setStartLocal("");
+        setEndLocal("");
+        setComments("");
+      }
+      setReport(
+        rowsFromReport(
+          batch.loaded.map((row) => row.id),
+          batch.failures,
+          message(MSG.PUBLISH_SCHEDULE_BATCH_ITEM_OK),
+        ),
+      );
+      if (batch.failures.length > 0) {
+        setError(
+          fill(message(MSG.PUBLISH_SCHEDULE_BATCH_LOAD_PARTIAL), {
+            loaded: String(batch.loaded.length),
+            total: String(batch.total),
+            detail: formatScheduleBatchDetail(batch.failures),
+          }),
+        );
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const loadSingle = useCallback(async (safe: string) => {
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    setReport(null);
+    setReportTotal(0);
     setConfirmingClear(false);
     setLoadedId(safe);
     try {
@@ -138,16 +204,31 @@ export function ItemScheduleDatesPanel({
 
   function onLookup(e: React.FormEvent): void {
     e.preventDefault();
-    const next = mapIdParam(inputId) || inputId.trim();
+    const ids = parseScheduleItemIds(inputId);
+    if (ids.length > 1) {
+      // Keep the whole list in the box: propagating one id would echo back
+      // through the shared workspace itemId prop and clobber the rest.
+      void load(ids.join(","));
+      return;
+    }
+    const next = ids[0] ?? mapIdParam(inputId) ?? inputId.trim();
     onItemIdChange?.(mapIdParam(next) || next);
-    void load(next);
+    void load(ids.length > 0 ? ids.join(",") : next);
   }
 
   async function onSave(e: React.FormEvent): Promise<void> {
     e.preventDefault();
-    const safe = mapIdParam(inputId) || loadedId;
-    if (!safe) {
+    const ids = parseScheduleItemIds(inputId);
+    if (ids.length === 0) {
+      const fallback = mapIdParam(loadedId);
+      if (fallback) {
+        ids.push(fallback);
+      }
+    }
+    if (ids.length === 0) {
       setError(message(MSG.PUBLISH_ITEM_HISTORY_NEED_ID));
+      setReport(null);
+      setReportTotal(0);
       return;
     }
     const startDate = datetimeLocalToServerDate(startLocal);
@@ -156,11 +237,24 @@ export function ItemScheduleDatesPanel({
     if (rangeError) {
       setError(message(rangeError));
       setSuccess(null);
+      setReport(null);
+      setReportTotal(0);
       return;
     }
+    if (ids.length > 1) {
+      await saveBatch(ids, {
+        startDate,
+        endDate,
+        comments: comments.trim().slice(0, COMMENT_MAX),
+      });
+      return;
+    }
+    const safe = ids[0];
     setSaving(true);
     setError(null);
     setSuccess(null);
+    setReport(null);
+    setReportTotal(0);
     try {
       const savedComments = comments.trim().slice(0, COMMENT_MAX);
       await saveItemScheduleDates({
@@ -189,16 +283,128 @@ export function ItemScheduleDatesPanel({
     }
   }
 
-  async function onClear(e: React.FormEvent): Promise<void> {
-    e.preventDefault();
-    const safe = mapIdParam(inputId) || loadedId;
-    if (!safe) {
-      setError(message(MSG.PUBLISH_ITEM_HISTORY_NEED_ID));
-      return;
+  async function saveBatch(
+    ids: string[],
+    dates: { startDate: string; endDate: string; comments: string },
+  ): Promise<void> {
+    setSaving(true);
+    setError(null);
+    setSuccess(null);
+    setReport(null);
+    setReportTotal(ids.length);
+    try {
+      const batch = await saveScheduleDatesBatch(ids, dates);
+      setReport(
+        rowsFromReport(
+          batch.saved,
+          batch.failures,
+          message(MSG.PUBLISH_SCHEDULE_BATCH_ITEM_OK),
+        ),
+      );
+      setLoadedId(ids[0]);
+      setConfirmingClear(false);
+      if (batch.failures.length === 0) {
+        setSuccess(
+          fill(message(MSG.PUBLISH_SCHEDULE_BATCH_SAVED), {
+            total: String(batch.total),
+          }),
+        );
+      } else {
+        setSuccess(null);
+        setError(
+          fill(message(MSG.PUBLISH_SCHEDULE_BATCH_PARTIAL), {
+            saved: String(batch.saved.length),
+            total: String(batch.total),
+            detail: formatScheduleBatchDetail(batch.failures),
+          }),
+        );
+      }
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setError(scheduleErrorMessage(err));
+    } finally {
+      setSaving(false);
     }
+  }
+
+  async function clearBatch(ids: string[]): Promise<void> {
     setClearing(true);
     setError(null);
     setSuccess(null);
+    setReport(null);
+    setReportTotal(ids.length);
+    try {
+      const batch = await clearScheduleDatesBatch(
+        ids,
+        message(MSG.PUBLISH_SCHEDULE_INVALID),
+      );
+      setReport(
+        rowsFromReport(
+          batch.saved,
+          batch.failures,
+          message(MSG.PUBLISH_SCHEDULE_BATCH_ITEM_OK),
+        ),
+      );
+      const first = batch.saved[0] ?? batch.failures[0]?.id ?? ids[0];
+      const reloaded = await fetchItemScheduleDates(first);
+      setStartLocal(serverDateToDatetimeLocal(reloaded.startDate));
+      setEndLocal(serverDateToDatetimeLocal(reloaded.endDate));
+      setComments("");
+      setLoadedId(ids[0]);
+      if (batch.failures.length === 0) {
+        setConfirmingClear(false);
+        setSuccess(
+          fill(message(MSG.PUBLISH_SCHEDULE_BATCH_CLEARED), {
+            total: String(batch.total),
+          }),
+        );
+      } else {
+        setSuccess(null);
+        setError(
+          fill(message(MSG.PUBLISH_SCHEDULE_BATCH_CLEAR_PARTIAL), {
+            saved: String(batch.saved.length),
+            total: String(batch.total),
+            detail: formatScheduleBatchDetail(batch.failures),
+          }),
+        );
+      }
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setError(scheduleErrorMessage(err));
+    } finally {
+      setClearing(false);
+    }
+  }
+
+  async function onClear(e: React.FormEvent): Promise<void> {
+    e.preventDefault();
+    const ids = parseScheduleItemIds(inputId);
+    if (ids.length === 0) {
+      const fallback = mapIdParam(loadedId);
+      if (fallback) {
+        ids.push(fallback);
+      }
+    }
+    if (ids.length === 0) {
+      setError(message(MSG.PUBLISH_ITEM_HISTORY_NEED_ID));
+      setReport(null);
+      setReportTotal(0);
+      return;
+    }
+    if (ids.length > 1) {
+      await clearBatch(ids);
+      return;
+    }
+    const safe = ids[0];
+    setClearing(true);
+    setError(null);
+    setSuccess(null);
+    setReport(null);
+    setReportTotal(0);
     try {
       // Empty dates clear the stored schedule through the existing route.
       await saveItemScheduleDates({
@@ -249,7 +455,8 @@ export function ItemScheduleDatesPanel({
         {message(MSG.PUBLISH_SCHEDULE)}
       </h2>
       <p style={{ margin: "0 0 12px", fontSize: "0.85rem", color: "#555" }}>
-        {message(MSG.PUBLISH_SCHEDULE_HINT)}
+        {message(MSG.PUBLISH_SCHEDULE_HINT)}{" "}
+        {message(MSG.PUBLISH_SCHEDULE_IDS_HINT)}
       </p>
       <form onSubmit={onLookup} style={toolbarStyle}>
         <div style={{ ...formRowStyle, marginBottom: 0, maxWidth: 280 }}>
@@ -341,13 +548,16 @@ export function ItemScheduleDatesPanel({
             data-testid="item-schedule-clear-submit"
             disabled={loading || saving || clearing}
             onClick={() => {
-              const safe = mapIdParam(inputId) || loadedId;
-              if (!safe) {
+              const ids = parseScheduleItemIds(inputId);
+              const fallback = ids.length > 0 ? ids : [mapIdParam(loadedId)];
+              if (!fallback[0]) {
                 setError(message(MSG.PUBLISH_ITEM_HISTORY_NEED_ID));
                 return;
               }
               setError(null);
               setSuccess(null);
+              setReport(null);
+              setReportTotal(ids.length > 1 ? ids.length : 0);
               setConfirmingClear(true);
             }}
           >
@@ -358,7 +568,11 @@ export function ItemScheduleDatesPanel({
       {confirmingClear && (
         <div data-testid="item-schedule-clear-confirm" style={{ marginTop: 12 }}>
           <p style={{ margin: "0 0 8px", fontSize: 13 }}>
-            {message(MSG.PUBLISH_SCHEDULE_CLEAR_CONFIRM)}
+            {reportTotal > 1
+              ? fill(message(MSG.PUBLISH_SCHEDULE_CLEAR_CONFIRM_MULTI), {
+                  total: String(reportTotal),
+                })
+              : message(MSG.PUBLISH_SCHEDULE_CLEAR_CONFIRM)}
           </p>
           <form onSubmit={(e) => void onClear(e)}>
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
@@ -381,6 +595,24 @@ export function ItemScheduleDatesPanel({
             </div>
           </form>
         </div>
+      )}
+      {report && report.length > 0 && (
+        <ul
+          data-testid="item-schedule-batch-report"
+          aria-label={message(MSG.PUBLISH_SCHEDULE)}
+          style={{ margin: "12px 0 0", paddingLeft: 18, fontSize: 13 }}
+        >
+          {report.map((row) => (
+            <li
+              key={row.id}
+              data-testid={`item-schedule-batch-item-${row.id}`}
+            >
+              <span>{row.id}</span>
+              {": "}
+              <span>{row.detail}</span>
+            </li>
+          ))}
+        </ul>
       )}
       {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
       {error && (

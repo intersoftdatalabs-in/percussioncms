@@ -42,6 +42,8 @@ const TEST_IDS = Object.freeze({
   clearCancel: "item-schedule-clear-cancel",
   success: "item-schedule-success",
   error: "item-schedule-error",
+  batchReport: "item-schedule-batch-report",
+  batchItemPrefix: "item-schedule-batch-item-",
 });
 
 function publishingSitesUrl(baseUrl) {
