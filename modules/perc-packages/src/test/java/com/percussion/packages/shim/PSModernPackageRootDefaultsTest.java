@@ -111,7 +111,7 @@ class PSModernPackageRootDefaultsTest {
 
     // Selection integration: modern wins when root is discovered
     PSDefinitionSourceSelection selection =
-        PSLegacyDefinitionXmlShim.selectDefinition("simplePageAutoList", roots, null, null);
+        PSLegacyDefinitionXmlShim.selectDefinition("simplePageAutoList", roots, null);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, selection.getKind());
   }
 
@@ -134,7 +134,7 @@ class PSModernPackageRootDefaultsTest {
     PSDefinitionSourceNotFoundException ex =
         assertThrows(
             PSDefinitionSourceNotFoundException.class,
-            () -> PSLegacyDefinitionXmlShim.selectDefinition("customerOnly", roots, null, null));
+            () -> PSLegacyDefinitionXmlShim.selectDefinition("customerOnly", roots, null));
     assertEquals("customerOnly", ex.getDefinitionId());
     assertTrue(ex.getMessage().contains("retired"), ex.getMessage());
   }
@@ -163,7 +163,7 @@ class PSModernPackageRootDefaultsTest {
     assertTrue(hasBaseWidgets, "expected perc.baseWidgets among " + roots);
 
     PSDefinitionSourceSelection selection =
-        PSLegacyDefinitionXmlShim.selectDefinition("percSimpleText", roots, null, null);
+        PSLegacyDefinitionXmlShim.selectDefinition("percSimpleText", roots, null);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, selection.getKind());
   }
 

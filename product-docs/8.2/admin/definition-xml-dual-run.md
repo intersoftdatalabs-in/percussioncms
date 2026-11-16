@@ -31,7 +31,7 @@ XML that remains after upgrade.
 | Posture | What it means in 8.2 |
 |---------|----------------------|
 | **Modern first** | If `component-package.json` is present for a definition id, the CMS uses the modern package. Co-located legacy XML is **not** preferred. |
-| **Legacy XML no longer loads (retired)** | If modern is **absent**, the id fails with a clear retired-legacy error — legacy Widget / Page definition XML on disk is **not** loaded, even when present. Convert it with the compiler path below. |
+| **Legacy XML no longer loads (retired)** | If modern is **absent**, the id fails with a clear retired-legacy error — legacy Widget / Page definition XML on disk is **not** loaded, even when present (the Widget load-path remnants were removed #6440, the Page load-path remnants #6446). Convert it with the compiler path below. |
 | **Neither is an error** | Missing both modern and XML fails with a clear error naming the definition id. There is no silent default. |
 | **Product packages** | Shipped product widgets and page layouts already author modern packages. Native page install is **not** the same as removing dual-run. See [Product page packages](id:developer-page-packages). |
 | **Shim retired** | The runtime dual-run fallback was hard-disabled (#2852). Do **not** reintroduce a legacy fallback to “keep XML working” — convert the XML instead. |

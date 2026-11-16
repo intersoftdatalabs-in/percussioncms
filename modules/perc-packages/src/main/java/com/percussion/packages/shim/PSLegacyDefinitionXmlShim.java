@@ -47,11 +47,12 @@ import java.util.Optional;
  *       compiler upgrade path.
  * </ol>
  *
- * <p>The legacy Widget / Page / Gadget definition-XML fallback branches were removed here. Upgrade
- * inputs are unaffected: the {@code PSWidgetXml*} / page / gadget <strong>compilers</strong> still
- * read legacy XML as upgrade input and emit modern manifests. The Gadget WebUI dual-load ({@code
- * GadgetRegistry} modern catalog vs legacy registry XML) is a separate surface with its own
- * focused residual — it is not rewired by this change.
+ * <p>The legacy Widget (#6440) and Page (#6446) definition-XML fallback branches were removed
+ * here; only the retired Gadget diagnostic probe remains (owned by sibling slice #6447).
+ * Upgrade inputs are unaffected: the {@code PSWidgetXml*} / page / gadget <strong>compilers</strong>
+ * still read legacy XML as upgrade input and emit modern manifests. The Gadget WebUI dual-load
+ * ({@code GadgetRegistry} modern catalog vs legacy registry XML) is a separate surface with its
+ * own focused residual — it is not rewired by this change.
  *
  * <p>Dual-run policy and exit criteria: {@code
  * docs/ai-generated/tasks/template-assembler-normalization/dual-run-legacy-definition-xml-shim.md}.
@@ -86,13 +87,12 @@ public final class PSLegacyDefinitionXmlShim {
   /**
    * Pure modern-only selection from presence flags (unit-testable without I/O). Modern wins; any
    * legacy-only combination throws because the legacy fallback is retired (#2852) and the
-   * Widget legacy path is removed (#6440).
+   * Widget (#6440) and Page (#6446) legacy paths are removed.
    *
    * @param definitionId optional id for error messages (may be {@code null})
    * @param modernPresent modern {@code component-package.json} (or equivalent) present
-   * @param legacyPageXmlPresent at least one Page definition XML present (retired; presence
+   * @param legacyGadgetXmlPresent at least one Gadget definition XML present (retired; presence
    *     only enriches the error message, never selects)
-   * @param legacyGadgetXmlPresent at least one Gadget definition XML present (retired; same)
    * @return selected kind (always {@link PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE})
    * @throws PSDefinitionSourceNotFoundException if modern is absent (including when retired legacy
    *     XML is present)
@@ -100,7 +100,6 @@ public final class PSLegacyDefinitionXmlShim {
   public static PSDefinitionSourceSelection selectByPresence(
       String definitionId,
       boolean modernPresent,
-      boolean legacyPageXmlPresent,
       boolean legacyGadgetXmlPresent)
       throws PSDefinitionSourceNotFoundException {
     if (modernPresent) {
@@ -108,7 +107,7 @@ public final class PSLegacyDefinitionXmlShim {
           PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, definitionId, null);
     }
     throw retiredNotFound(definitionId, legacyProbeHint(
-        legacyPageXmlPresent, legacyGadgetXmlPresent, null));
+        legacyGadgetXmlPresent, null));
   }
 
   /**
@@ -162,14 +161,14 @@ public final class PSLegacyDefinitionXmlShim {
    * whose manifest sibling folder name matches, wins — as does a dual-ship {@code
    * widgets/<definitionId>/component-package.json} nested manifest (#2831). Otherwise throws
    * {@link PSDefinitionSourceNotFoundException} with a clear operator-facing message. The legacy
-   * {@code legacyPagesDir} / {@code legacyGadgetsDir} parameters are retained for diagnostics
-   * (retired Page / Gadget XML is named in the error, never loaded) until sibling slices remove
-   * them; the retired Widget XML probe was removed with {@code LEGACY_WIDGET_XML} (#6440), so
-   * Widget leftovers on disk are ignored outright.
+   * {@code legacyGadgetsDir} parameter is retained for diagnostics (retired Gadget XML is named
+   * in the error, never loaded) until sibling slice #6447 removes it; the retired Widget XML
+   * probe was removed with {@code LEGACY_WIDGET_XML} (#6440) and the retired Page XML probe was
+   * removed with {@code LEGACY_PAGE_XML} (#6446), so Widget and Page leftovers on disk are
+   * ignored outright.
    *
    * @param definitionId widget / page / gadget definition id (non-empty)
    * @param modernPackageRoots zero or more package directories that may hold modern manifests
-   * @param legacyPagesDir retired pages definition directory (may be null; diagnostics only)
    * @param legacyGadgetsDir retired gadgets definition directory (may be null; diagnostics only)
    * @return selection with primary path
    * @throws PSDefinitionSourceNotFoundException if no modern source exists
@@ -177,7 +176,6 @@ public final class PSLegacyDefinitionXmlShim {
   public static PSDefinitionSourceSelection selectDefinition(
       String definitionId,
       List<Path> modernPackageRoots,
-      Path legacyPagesDir,
       Path legacyGadgetsDir)
       throws PSDefinitionSourceNotFoundException {
     if (definitionId == null || definitionId.isBlank()) {
@@ -192,14 +190,10 @@ public final class PSLegacyDefinitionXmlShim {
           PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, definitionId, modern.get());
     }
 
-    Path retiredPageXml = findLegacyXmlFile(legacyPagesDir, definitionId);
     Path retiredGadgetXml = findLegacyXmlFile(legacyGadgetsDir, definitionId);
 
     List<String> searched = new ArrayList<>();
     searched.add("modern package roots (" + roots.size() + ") for " + MODERN_MANIFEST_FILE_NAME);
-    if (legacyPagesDir != null) {
-      searched.add(legacyPagesDir.toAbsolutePath().normalize() + " / " + definitionId + ".xml");
-    }
     if (legacyGadgetsDir != null) {
       searched.add(legacyGadgetsDir.toAbsolutePath().normalize() + " / " + definitionId + ".xml");
     }
@@ -210,8 +204,7 @@ public final class PSLegacyDefinitionXmlShim {
         .append("'. Searched: ")
         .append(String.join("; ", searched))
         .append(".");
-    Path retired =
-        retiredPageXml != null ? retiredPageXml : retiredGadgetXml;
+    Path retired = retiredGadgetXml;
     if (retired != null) {
       detail
           .append(" Retired legacy definition XML is present at ")
@@ -351,20 +344,11 @@ public final class PSLegacyDefinitionXmlShim {
   /**
    * Diagnostic hint naming retired legacy material under a package root (never loaded). Empty
    * string when no retired XML is present. The Widget XML probe was removed with {@code
-   * LEGACY_WIDGET_XML} (#6440); Page / Gadget probes remain until sibling slices remove them.
+   * LEGACY_WIDGET_XML} (#6440) and the Page XML probe was removed with {@code LEGACY_PAGE_XML}
+   * (#6446); the Gadget probe remains until sibling slice #6447 removes it.
    */
   private static String legacyProbeHintForRoot(Path root) {
     try {
-      Optional<Path> pageXml = findFirstRetiredXml(root.resolve("rxconfig").resolve("Pages"));
-      if (pageXml.isEmpty()) {
-        pageXml =
-            findFirstRetiredXml(root.resolve("sys__UserDependency--rxconfig").resolve("Pages"));
-      }
-      if (pageXml.isPresent()) {
-        return " Retired legacy Page XML is present at "
-            + pageXml.get()
-            + " but is no longer loaded (#2852).";
-      }
       Optional<Path> gadgetXml =
           findFirstRetiredXml(root.resolve("rxconfig").resolve("Gadgets"));
       if (gadgetXml.isEmpty()) {
@@ -384,20 +368,12 @@ public final class PSLegacyDefinitionXmlShim {
   }
 
   private static String legacyProbeHint(
-      boolean legacyPageXmlPresent,
       boolean legacyGadgetXmlPresent,
       Path retiredPath) {
     StringBuilder hint = new StringBuilder();
-    if (legacyPageXmlPresent || legacyGadgetXmlPresent) {
+    if (legacyGadgetXmlPresent) {
       hint.append(" Retired legacy definition XML is present (");
-      String sep = "";
-      if (legacyPageXmlPresent) {
-        hint.append(sep).append("Page");
-        sep = "/";
-      }
-      if (legacyGadgetXmlPresent) {
-        hint.append(sep).append("Gadget");
-      }
+      hint.append("Gadget");
       hint.append(") but is no longer loaded (#2852).");
     }
     if (retiredPath != null) {
@@ -419,7 +395,7 @@ public final class PSLegacyDefinitionXmlShim {
             + ": modern component package ("
             + MODERN_MANIFEST_FILE_NAME
             + ") is required; the legacy definition-XML fallback is retired"
-            + " (#2852; Widget legacy path removed #6440).";
+            + " (#2852; Widget legacy path removed #6440; Page legacy path removed #6446).";
     String message = detail == null || detail.isBlank() ? base : base + " " + detail;
     return new PSDefinitionSourceNotFoundException(definitionId, message);
   }
