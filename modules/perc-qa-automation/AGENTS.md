@@ -93,6 +93,10 @@ PUBLISHED_SITE_URL=<from-banner-or-fixture> \
   PUBLISHED_CATEGORY_URL=<from-fixture> \
   DTS_URL=<from-banner> \
   npm run test:surface -- --path tests/published-site-smoke.spec.js
+# Service ERROR retrievable from a stable in-cell path (#6376):
+# docker exec perc-matrix-dts-h2 tail -n 200 \
+#   /opt/Percussion/Deployment/Server/logs/polls.log
+# (comments|feeds|forms|membership|metadata|polls).log per service.
 ```
 
 - **Port resolution (runtime, never hardcoded):** `DTS_HOST_PORT` /

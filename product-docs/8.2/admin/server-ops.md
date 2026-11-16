@@ -29,6 +29,16 @@ Primary server logs live under the install’s Jetty base, commonly:
 
 - `jetty/base/logs/` (server and application logs)
 
+Delivery Tier (DTS) services each write their own log file under the Tomcat
+base, so a failing widget (poll, feed, metadata, form, comments, membership)
+can be diagnosed without tailing console output:
+
+- `Deployment/Server/logs/<service>.log` — one file per service, e.g.
+  `polls.log`, `metadata.log`, `comments.log`, `feeds.log`, `forms.log`,
+  `membership.log`
+- `Deployment/Server/logs/catalina.log` / `localhost.log` — container-level
+  Tomcat output (startup, connector, deployment messages)
+
 When filing bugs, attach relevant log excerpts (not secrets) and note CMS version from
 `Version.properties` or the About dialog.
 

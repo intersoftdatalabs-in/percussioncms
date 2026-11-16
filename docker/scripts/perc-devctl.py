@@ -2143,6 +2143,18 @@ def _qa_print_endpoint_banner(
     # (#6243) deploys the staged site and prints the repointed
     # PUBLISHED_CATEGORY_URL=<site>/published/category.html contract.
     print(f"PUBLISHED_CATEGORY_URL={dts_base}/")
+    # Per-service DTS logs (#6376): each service WAR bundles its own Log4j
+    # provider and writes ${catalina.base}/logs/<service>.log in the cell,
+    # so a service ERROR is retrievable from a stable in-cell path without
+    # tailing stdout. CMS-only default path above stays byte-identical.
+    print(
+        f"DTS_LOGS=docker exec {QA_DTS_CONTAINER} ls "
+        f"{QA_INSTALL_ROOT}/Deployment/Server/logs"
+    )
+    print(
+        "DTS_LOG_FILES=comments.log feeds.log forms.log "
+        "membership.log metadata.log polls.log"
+    )
 
 
 def _qa_parse_generated_password_env_lines(text: str) -> List[str]:

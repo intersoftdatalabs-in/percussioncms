@@ -1216,6 +1216,8 @@ class TestQaWithDts(unittest.TestCase):
         self.assertNotIn("DTS_URL=", out)
         self.assertNotIn("PUBLISHED_SITE_URL=", out)
         self.assertNotIn("PUBLISHED_CATEGORY_URL=", out)
+        self.assertNotIn("DTS_LOGS=", out)
+        self.assertNotIn("DTS_LOG_FILES=", out)
 
     def test_qa_up_with_dts_dry_run_banner(self):
         rc, out = self.runner.run(
@@ -1229,6 +1231,16 @@ class TestQaWithDts(unittest.TestCase):
         self.assertRegex(out, r"PUBLISHED_SITE_URL=http://127\.0\.0\.1:\d+")
         self.assertRegex(
             out, r"PUBLISHED_CATEGORY_URL=http://127\.0\.0\.1:\d+/"
+        )
+        self.assertRegex(
+            out,
+            r"DTS_LOGS=docker exec perc-matrix-dts-h2 ls "
+            r"/opt/Percussion/Deployment/Server/logs",
+        )
+        self.assertIn(
+            "DTS_LOG_FILES=comments.log feeds.log forms.log "
+            "membership.log metadata.log polls.log",
+            out,
         )
 
     def test_qa_matrix_up_argv_product_dts(self):
