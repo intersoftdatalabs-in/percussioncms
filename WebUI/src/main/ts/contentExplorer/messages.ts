@@ -1086,6 +1086,23 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@No folder path is available to copy",
   COPY_FOLDER_PATH_FAILED:
     "perc.ui.explorer@Could not copy the folder path",
+  BREADCRUMB_ARIA: "perc.ui.explorer@Folder location",
+  BREADCRUMB_HOME: "perc.ui.explorer@Content root",
+  BREADCRUMB_HOME_ARIA:
+    "perc.ui.explorer@Open the content root folder",
+  BREADCRUMB_OVERFLOW_ARIA:
+    "perc.ui.explorer@Show the hidden folder names",
+  BREADCRUMB_OVERFLOW_ARIA_WITH_NAMES:
+    "perc.ui.explorer@Show the hidden folder names: {names}",
+  BREADCRUMB_COPY_LINK: "perc.ui.explorer@Copy folder link",
+  BREADCRUMB_COPY_LINK_ARIA:
+    "perc.ui.explorer@Copy folder link to the clipboard for the current folder",
+  BREADCRUMB_LINK_COPIED:
+    "perc.ui.explorer@Folder link copied to the clipboard",
+  BREADCRUMB_LINK_EMPTY:
+    "perc.ui.explorer@No folder link is available to copy",
+  BREADCRUMB_LINK_FAILED:
+    "perc.ui.explorer@Could not copy the folder link",
   SET_WORKFLOW: "perc.ui.explorer@Set workflow",
   SET_WORKFLOW_ARIA:
     "perc.ui.explorer@Set the workflow on the selected pages and assets",

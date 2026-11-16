@@ -268,6 +268,7 @@ import {
   toDetailDisplayFormat,
 } from "./displayFormatMap";
 import { ExplorerMenuBar } from "./ExplorerMenuBar";
+import { ExplorerBreadcrumb } from "./ExplorerBreadcrumb";
 import {
   ExplorerTree,
   normalizeExplorerTreePathKey,
@@ -1494,6 +1495,22 @@ function ContentExplorerShellInner({
     },
     [onFolderActivated],
   );
+
+  /**
+   * Breadcrumb wayfinding navigation (#6468 / parent #4530). Crumb paths
+   * are already shell browse paths (ancestors of the open folder), so the
+   * selection resets directly like a tree activation without a fresh
+   * site-browse resolve.
+   */
+  const handleBreadcrumbNavigate = useCallback((path: string) => {
+    setSelection({ folderPath: path, item: null });
+    setMultiSelectedIds(new Set<string>());
+    setMultiSelectedItems(new Map<string, PSPathItem>());
+    setContextMenu(null);
+    setViewRun(null);
+    setSelectedViewKey(null);
+    setShowSubfolderCopy(false);
+  }, []);
 
   const handleSelectItem = useCallback((item: PSPathItem) => {
     const bound = bindExplorerPathItemId(item);
@@ -3496,6 +3513,10 @@ function ContentExplorerShellInner({
             displayFormatLoadError={displayFormatLoadError}
             onSelectFormat={setSelectedFormatKey}
             onCommand={handleMenuBarCommand}
+          />
+          <ExplorerBreadcrumb
+            folderPath={selection.folderPath}
+            onNavigate={handleBreadcrumbNavigate}
           />
           {folderPathCopyNotice ? (
             <div
