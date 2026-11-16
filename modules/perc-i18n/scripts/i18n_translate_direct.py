@@ -450,10 +450,15 @@ class TmxFile:
         inserted = 0
         out = []
         pos = 0
-        tu_pattern = re.compile(r'<tu\s+tuid="([^"]+)"[^>]*>.*?</tu>', re.DOTALL)
+        # Tuids containing a double quote are single-quoted in raw TMX
+        # (e.g. tuid='...Delete section "{0}"?...'); accept both styles.
+        tu_pattern = re.compile(
+            r"<tu\s+tuid=(?:\"([^\"]+)\"|'([^']+)')[^>]*>.*?</tu>", re.DOTALL
+        )
         for m in tu_pattern.finditer(self.text):
             # ElementTree / list_missing keys are entity-decoded; raw attrs are not.
-            tuid = html.unescape(m.group(1))
+            raw = m.group(1) if m.group(1) is not None else m.group(2)
+            tuid = html.unescape(raw)
             if tuid not in translations:
                 continue
             tu_text = m.group(0)
@@ -481,9 +486,13 @@ class TmxFile:
         replaced = 0
         out = []
         pos = 0
-        tu_pattern = re.compile(r'<tu\s+tuid="([^"]+)"[^>]*>.*?</tu>', re.DOTALL)
+        # Accept single-quoted tuids (see inject).
+        tu_pattern = re.compile(
+            r"<tu\s+tuid=(?:\"([^\"]+)\"|'([^']+)')[^>]*>.*?</tu>", re.DOTALL
+        )
         for m in tu_pattern.finditer(self.text):
-            tuid = html.unescape(m.group(1))
+            raw = m.group(1) if m.group(1) is not None else m.group(2)
+            tuid = html.unescape(raw)
             if tuid not in translations:
                 continue
             tu_text = m.group(0)

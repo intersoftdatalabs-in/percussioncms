@@ -712,9 +712,15 @@ class TmxFile:
     def list_en(self) -> list[tuple[str, str]]:
         """Return [(tuid, en_seg)] for all TUs with en-us."""
         root_items: list[tuple[str, str]] = []
-        for m in re.finditer(r'<tu\s+tuid="([^"]+)"[^>]*>(.*?)</tu>', self.text, re.DOTALL):
-            tuid = html.unescape(m.group(1))
-            body = m.group(2)
+        # Accept single-quoted tuids holding double quotes (e.g. "{0}").
+        for m in re.finditer(
+            r"<tu\s+tuid=(?:\"([^\"]+)\"|'([^']+)')[^>]*>(.*?)</tu>",
+            self.text,
+            re.DOTALL,
+        ):
+            raw = m.group(1) if m.group(1) is not None else m.group(2)
+            tuid = html.unescape(raw)
+            body = m.group(3)
             en_m = re.search(
                 rf'<tuv\s+xml:lang="{SOURCE}"><seg>(.*?)</seg></tuv>', body, re.DOTALL
             )
@@ -726,9 +732,13 @@ class TmxFile:
         inserted = 0
         out: list[str] = []
         pos = 0
-        tu_pattern = re.compile(r'<tu\s+tuid="([^"]+)"[^>]*>.*?</tu>', re.DOTALL)
+        # Accept single-quoted tuids (see list_en).
+        tu_pattern = re.compile(
+            r"<tu\s+tuid=(?:\"([^\"]+)\"|'([^']+)')[^>]*>.*?</tu>", re.DOTALL
+        )
         for m in tu_pattern.finditer(self.text):
-            tuid = html.unescape(m.group(1))
+            raw = m.group(1) if m.group(1) is not None else m.group(2)
+            tuid = html.unescape(raw)
             if tuid not in translations:
                 continue
             tu_text = m.group(0)
