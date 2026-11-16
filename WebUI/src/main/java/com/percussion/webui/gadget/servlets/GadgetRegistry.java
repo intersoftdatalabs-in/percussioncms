@@ -17,7 +17,6 @@
 package com.percussion.webui.gadget.servlets;
 
 import com.percussion.security.error.PSExceptionUtils;
-import com.percussion.xml.PSXmlDocumentBuilder;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,9 +27,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
 import tools.jackson.core.JsonParser;
 import tools.jackson.core.JsonToken;
 import tools.jackson.core.json.JsonFactory;
@@ -426,35 +422,5 @@ public final class GadgetRegistry {
       }
     }
     return fields;
-  }
-
-  /**
-   * Parse legacy {@code GadgetRegistry.xml} into name → group map. Package-visible for unit tests.
-   * Retained as a pure XML→map parser for upgrade/tooling use (e.g. {@code
-   * PSGadgetRegistryCompiler} parity, owned by the LEGACY_GADGET_XML residual slice); the
-   * single-load production path never calls it (#5810 retired the fallback, #6440 removed the
-   * dual-load selection).
-   *
-   * @param in non-null XML stream
-   * @return unmodifiable map (empty if no gadgets)
-   * @throws Exception on I/O or XML errors
-   */
-  static Map<String, String> parseRegistryXml(InputStream in) throws Exception {
-    Map<String, String> gadTypeMap = new LinkedHashMap<>();
-    Document doc = PSXmlDocumentBuilder.createXmlDocument(in, false);
-    NodeList groupElems = doc.getElementsByTagName("group");
-    for (int i = 0; i < groupElems.getLength(); i++) {
-      Element groupElem = (Element) groupElems.item(i);
-      String groupName = groupElem.getAttribute("name");
-      NodeList gadgetElems = groupElem.getElementsByTagName("gadget");
-      for (int j = 0; j < gadgetElems.getLength(); j++) {
-        Element gadgetElem = (Element) gadgetElems.item(j);
-        String gdgName = gadgetElem.getAttribute("name");
-        if (gdgName != null && !gdgName.isBlank()) {
-          gadTypeMap.put(gdgName, groupName);
-        }
-      }
-    }
-    return Collections.unmodifiableMap(gadTypeMap);
   }
 }

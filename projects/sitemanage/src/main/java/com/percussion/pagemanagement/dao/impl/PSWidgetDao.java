@@ -160,7 +160,7 @@ public class PSWidgetDao
     for (String id : data.widgetDefinitionsMap.keySet()) {
       try {
         PSDefinitionSourceSelection selection =
-            PSLegacyDefinitionXmlShim.selectDefinition(id, modernRoots, null);
+            PSLegacyDefinitionXmlShim.selectDefinition(id, modernRoots);
         kinds.put(id, selection.getKind());
         last = selection.getKind();
         modernCount++;
@@ -211,7 +211,7 @@ public class PSWidgetDao
       throws PSDefinitionSourceNotFoundException {
     PSDefinitionSourceSelection selection =
         PSLegacyDefinitionXmlShim.selectDefinition(
-            definitionId, modernPackageRoots, null);
+            definitionId, modernPackageRoots);
     lastSelectionKind.set(selection.getKind());
     modernSelectionCount.incrementAndGet();
     log.debug(

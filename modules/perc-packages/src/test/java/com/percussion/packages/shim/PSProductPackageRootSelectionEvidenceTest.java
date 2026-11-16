@@ -118,7 +118,7 @@ class PSProductPackageRootSelectionEvidenceTest {
     Set<String> modernPackages = new HashSet<>();
     for (PSProductPackageRootSelectionEvidence.RootFinding f : report.roots()) {
       if (f.kind() == PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE) {
-        assertFalse(PSLegacyDefinitionXmlShim.wouldUseLegacyShim(f.packageRoot()), f.packageDirName());
+        assertFalse(f.wouldUseLegacyShim(), f.packageDirName());
         modernPackages.add(f.packageDirName());
       }
       if (f.waived()) {

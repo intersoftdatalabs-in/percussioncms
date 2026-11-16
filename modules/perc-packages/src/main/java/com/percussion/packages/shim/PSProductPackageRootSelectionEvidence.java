@@ -262,7 +262,7 @@ public final class PSProductPackageRootSelectionEvidence {
       try {
         PSDefinitionSourceSelection sel =
             PSLegacyDefinitionXmlShim.selectDefinition(
-                id, roots, null);
+                id, roots);
         findings.add(new DefinitionFinding(id, sel.getKind(), isWaived));
       } catch (PSDefinitionSourceNotFoundException e) {
         findings.add(new DefinitionFinding(id, null, isWaived));
