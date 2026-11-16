@@ -119,15 +119,17 @@ def repair_text(
     """
     repaired_segments = 0
     problems: list[str] = []
-    tu_pattern = re.compile(r'(<tu\s+tuid="(?P<tuid>[^"]+)"[^>]*>.*?</tu>)',
-                            re.DOTALL)
+    # Accept single-quoted tuids holding double quotes (e.g. "{0}").
+    tu_pattern = re.compile(
+        r'(<tu\s+tuid=(?:"(?P<tuid_d>[^"]+)"|\'(?P<tuid_s>[^\']+)\')[^>]*>.*?</tu>)',
+        re.DOTALL)
     tuv_pattern = re.compile(
         r'<tuv\s+xml:lang="(?P<lang>[^"]+)">(?P<body>.*?)</tuv>', re.DOTALL)
 
     def fix_tu(m: re.Match[str]) -> str:
         nonlocal repaired_segments
         tu_text = m.group(0)
-        tuid = m.group('tuid')
+        tuid = m.group('tuid_d') if m.group('tuid_d') is not None else m.group('tuid_s')
 
         def fix_tuv(tm: re.Match[str]) -> str:
             nonlocal repaired_segments

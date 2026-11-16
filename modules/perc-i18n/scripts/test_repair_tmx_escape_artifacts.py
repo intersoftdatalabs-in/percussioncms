@@ -87,6 +87,18 @@ class RepairTextTest(unittest.TestCase):
         self.assertIn('u200c', new_text)
         self.assertNotIn('u200b', new_text)
 
+    def test_single_quoted_tuid_is_repaired(self) -> None:
+        tmx = ('<?xml version="1.0" encoding="UTF-8"?><tmx version="1.4">'
+               '<body>'
+               '<tu tuid=\'k3@Delete "{0}"?\'><tuv xml:lang="en-us">'
+               '<seg>Delete "{0}"?</seg></tuv>'
+               '<tuv xml:lang="te"><seg>పాస్u200cవర్డ్ "{0}"</seg></tuv></tu>'
+               '</body></tmx>')
+        new_text, count, problems = repair.repair_text(tmx, 'te')
+        self.assertEqual(count, 1)
+        self.assertEqual(problems, [])
+        self.assertIn('<seg>పాస్' + '\u200c' + 'వర్డ్ "{0}"</seg>', new_text)
+
     def test_dry_run_leaves_file_and_cache_alone(self) -> None:
         with tempfile.TemporaryDirectory() as tmp:
             tmx = Path(tmp) / 'CmsUi.tmx'

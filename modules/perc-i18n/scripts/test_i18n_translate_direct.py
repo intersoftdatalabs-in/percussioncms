@@ -365,6 +365,49 @@ class TmxInjectTest(unittest.TestCase):
             self.assertEqual(n, 1)
             self.assertIn("<seg>Avanzado &gt;&gt;</seg>", tmx.text)
 
+    def test_inject_single_quoted_tuid(self):
+        """Tuids containing double quotes are single-quoted in raw TMX."""
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "sample.tmx"
+            p.write_text(
+                '<?xml version="1.0" encoding="UTF-8"?>\n'
+                "<tmx version=\"1.4\"><header></header><body>"
+                "<tu tuid='arch@Delete section \"{0}\"?'>"
+                '<tuv xml:lang="en-us"><seg>Delete section "{0}"?</seg></tuv>'
+                "</tu>"
+                "</body></tmx>\n",
+                encoding="utf-8",
+            )
+            tmx = itd.TmxFile(p)
+            missing = tmx.list_missing("es")
+            self.assertEqual(
+                missing, [('arch@Delete section "{0}"?', 'Delete section "{0}"?')]
+            )
+            inserted = tmx.inject("es", {'arch@Delete section "{0}"?': 'Eliminar "{0}"?'})
+            self.assertEqual(inserted, 1)
+            self.assertIn('<seg>Eliminar "{0}"?</seg>', tmx.text)
+
+    def test_replace_single_quoted_tuid(self):
+        """replace_translation also matches single-quoted tuids."""
+        with tempfile.TemporaryDirectory() as d:
+            p = Path(d) / "sample.tmx"
+            p.write_text(
+                '<?xml version="1.0" encoding="UTF-8"?>\n'
+                "<tmx version=\"1.4\"><header></header><body>"
+                "<tu tuid='arch@Delete section \"{0}\"?'>"
+                '<tuv xml:lang="en-us"><seg>Delete section "{0}"?</seg></tuv>'
+                '<tuv xml:lang="es"><seg>Delete section "{0}"?</seg></tuv>'
+                "</tu>"
+                "</body></tmx>\n",
+                encoding="utf-8",
+            )
+            tmx = itd.TmxFile(p)
+            n = tmx.replace_translation(
+                "es", {'arch@Delete section "{0}"?': 'Eliminar "{0}"?'}
+            )
+            self.assertEqual(n, 1)
+            self.assertIn('<seg>Eliminar "{0}"?</seg>', tmx.text)
+
     def test_list_existing_includes_padded_and_empty(self):
         with tempfile.TemporaryDirectory() as d:
             p = Path(d) / "sample.tmx"
