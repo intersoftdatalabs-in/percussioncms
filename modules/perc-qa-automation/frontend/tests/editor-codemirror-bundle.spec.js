@@ -16,7 +16,7 @@
  */
 
 /**
- * Classic CodeMirror bundle regression (issues #5626, #5784).
+ * Classic CodeMirror bundle regression (issues #5626, #5784, #6362).
  *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor}</p>
  *
@@ -68,6 +68,19 @@ const TEMPLATE_JSP_MIRRORS = [
   "WebUI/src/main/webapp/cm/pages/app/includes/template/editTemplate_js.jsp",
   "WebUI/war/app/includes/template/editTemplate_js.jsp",
 ];
+
+// Issue #6362 (slice 2/3 — "no exceptions"): classic content/page-edit
+// dialogs beyond the template editor render code editing through the
+// sys_TextArea control in sys_Templates.xsl, which loads the same
+// TinyMCE-independent npm bundle via FileDescriptors. Pin it statically
+// like the JSP mirrors so a re-point at the removed per-file layout or the
+// legacy TinyMCE-hosted path fails fast without a live CMS.
+const SYS_TEMPLATES_XSL =
+  "system/cms/content/applications/sys_resources/ApplicationFiles/stylesheets/sys_Templates.xsl";
+const SYS_TEMPLATES_BUNDLE_JS =
+  "<psxctl:FileLocation>/sys_resources/codemirror/codemirror/codemirror.bundle.js</psxctl:FileLocation>";
+const SYS_TEMPLATES_BUNDLE_CSS =
+  "<psxctl:FileLocation>/sys_resources/codemirror/codemirror/codemirror.bundle.css</psxctl:FileLocation>";
 
 function codemirrorLoaderLines(jspPath) {
   const text = fs
@@ -259,6 +272,41 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
       }
       expect(loaders[1]).toEqual(loaders[0]);
       expect(loaders[2]).toEqual(loaders[0]);
+    },
+  );
+
+  test(
+    "sys_TextArea code-editor control loads the same npm bundle",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async () => {
+      // No live CMS needed: static pin for issue #6362 (slice 2/3). The
+      // sys_TextArea code-editor is the remaining classic page-edit dialog
+      // surface; its CodeMirror lines must name the npm bundle
+      // FileDescriptors and nothing else serving CodeMirror.
+      const lines = codemirrorLoaderLines(SYS_TEMPLATES_XSL);
+      expect(
+        lines.length,
+        `${SYS_TEMPLATES_XSL} must embed a CodeMirror loader block`,
+      ).toBeGreaterThan(0);
+      const trimmed = lines.map((line) => line.trim());
+      expect(
+        trimmed,
+        `${SYS_TEMPLATES_XSL} must load the npm bundle script`,
+      ).toContain(SYS_TEMPLATES_BUNDLE_JS);
+      expect(
+        trimmed,
+        `${SYS_TEMPLATES_XSL} must load the npm bundle stylesheet`,
+      ).toContain(SYS_TEMPLATES_BUNDLE_CSS);
+      for (const line of lines) {
+        expect(
+          line,
+          `${SYS_TEMPLATES_XSL} must not reference the removed per-file layout: ${line}`,
+        ).not.toMatch(/codemirror\/(lib|mode|addon|keymap|theme)\//);
+        expect(
+          line,
+          `${SYS_TEMPLATES_XSL} must not reference the legacy TinyMCE-hosted bundle path: ${line}`,
+        ).not.toMatch(/sys_resources\/tinymce\//);
+      }
     },
   );
 
