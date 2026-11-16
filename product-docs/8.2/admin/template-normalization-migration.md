@@ -58,6 +58,27 @@ short manifest assembler ids:
 Normalization only renames the assembler id in the manifest. Existing **Legacy / XSL**
 templates keep running — see [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler).
 
+## Assembler fallback order
+
+When a template loads, the assembler is resolved in this order:
+
+1. A registered short id (`pageAssembler`, `pageVariantAssembler`, `velocityAssembler`,
+   `htmlAssembler`, `markdownAssembler`, `legacyAssembler`, `dispatchAssembler`,
+   `resourceAssembler`, `pageDatabaseAssembler`, `binaryAssembler`) resolves to the
+   product extension path. Matching ignores case, and `xslAssembler` counts as
+   `legacyAssembler`.
+2. A **blank or mistyped** assembler on a modern manifest fails fast — the template
+   does not silently fall back to the page assembler. The assembler catalog
+   diagnostics report names the exact problem and fix per template.
+3. During **upgrade only**, legacy definition XML keeps the lenient rules: a blank
+   assembler compiles to the page assembler, full extension paths pass through, and
+   unregistered short ids gain the product extension prefix so site-local custom
+   assemblers still compile. Modern manifests must name a registered id.
+
+If a template will not load after conversion, check the `assembler` value first: it
+is the most common migration blocker, and the diagnostics report tells you the
+registered id to author.
+
 ## Sample 1 — widget definition XML to component package
 
 Before (legacy `rxconfig/Widgets/percSimpleText.xml`, trimmed):
