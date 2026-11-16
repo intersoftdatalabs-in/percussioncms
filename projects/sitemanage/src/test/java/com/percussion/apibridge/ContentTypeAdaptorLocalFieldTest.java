@@ -52,6 +52,7 @@ import com.percussion.utils.request.PSRequestInfoBase;
 import com.percussion.webservices.IPSWebserviceErrors;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSErrorsException;
+import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.system.IPSSystemDesignWs;
 import jakarta.ws.rs.WebApplicationException;
@@ -290,6 +291,25 @@ class ContentTypeAdaptorLocalFieldTest {
         assertThrows(IllegalStateException.class, () -> adaptor.addLocalField(null, "311", body));
     assertTrue(ex.getMessage().contains("database constraint violated"), ex.getMessage());
     assertTrue(ex.getMessage().contains("Failed to save new local field"), ex.getMessage());
+  }
+
+  @Test
+  void addLocalField_saveLockConflictIsLockException() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubDefinition();
+    stubLockedLoad(def);
+    PSErrorsException saveFailed = new PSErrorsException();
+    saveFailed.addError(
+        guid, new PSLockErrorException(1, "is not locked", "stack", "Admin", 12));
+    doThrow(saveFailed)
+        .when(designWs)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    ContentTypeField body = new ContentTypeField();
+    body.setName("rx_note");
+    ContentTypeDesignLockException ex =
+        assertThrows(
+            ContentTypeDesignLockException.class, () -> adaptor.addLocalField(null, "311", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("lock"), ex.getMessage());
   }
 
   @Test

@@ -1871,11 +1871,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     if (body == null) {
       throw new IllegalArgumentException("body is required");
     }
-    String fieldName = validateFieldName(body.getName());
-    if (StringUtils.isNotBlank(body.getFieldType())
-        && !"local".equalsIgnoreCase(body.getFieldType().trim())) {
-      throw new IllegalArgumentException("Only local fields can be created");
-    }
+    String fieldName = requireLocalFieldName(body);
     String trimmed = idOrName.trim();
     if (trimmed.contains("*")) {
       throw new IllegalArgumentException("idOrName must not contain wildcards");
@@ -1884,53 +1880,79 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     String session = currentSession();
     String user = currentUser();
     try {
-      IPSGuid ctGuid = resolveExistingContentTypeGuid(trimmed);
-      if (ctGuid == null) {
+      PSItemDefinition def =
+          loadLockedDefinitionOrNull(trimmed, "Could not add content type field", session, user);
+      if (def == null) {
         return null;
       }
-      requireHeldLock(ctGuid, "Could not add content type field");
-      List<PSItemDefinition> locked;
+      requireNoLocalFieldConflict(def, fieldName);
+      createLocalField(def, body);
       try {
-        locked =
-            designSvc.loadContentTypes(
-                Collections.singletonList(ctGuid), true, false, session, user);
-      } catch (PSErrorResultsException e) {
-        throw lockConflict(e, "Could not add content type field");
-      }
-      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
-        return null;
-      }
-      PSItemDefinition def = locked.get(0);
-      if (findField(def, fieldName) != null) {
-        throw new WebApplicationException("Field already exists: " + fieldName, 409);
-      }
-      PSField created = addPersistableLocalField(def, body);
-      // ALTER before CE re-init: saveContentTypes → PSContentTypeHelper.saveContentType
-      // starts the editor app, which catalogs backend columns.
-      ensureLocalFieldBackendColumn(def, created);
-      try {
-        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+        saveLockedDefinition(def, "Could not add content type field", session, user);
       } catch (PSErrorsException e) {
-        if (hasLockError(e.getErrors())) {
-          throw lockConflict(e, "Could not add content type field");
-        }
-        String details = formatSaveErrors(e);
-        log.error("Failed to save new local field for {}: {}", idOrName, details, e);
-        if (isValidationSaveFailure(e)) {
-          throw new IllegalArgumentException("Could not add local field: " + details, e);
-        }
-        throw new IllegalStateException("Failed to save new local field: " + details, e);
+        throwAddLocalFieldSaveFailure(e, idOrName);
       }
       PSItemDefinition reloaded = reloadItemDef(trimmed);
       return reloaded != null ? toDetail(reloaded) : toDetail(def);
-    } catch (IllegalStateException
+    } catch (ContentTypeDesignLockException
         | IllegalArgumentException
         | WebApplicationException e) {
+      throw e;
+    } catch (IllegalStateException e) {
+      // Already carries an actionable detail (for example the enriched
+      // save-failure message below); do not blanket-rewrap it.
       throw e;
     } catch (Exception e) {
       log.error("Failed to add local field for {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to add local field", e);
     }
+  }
+
+  /**
+   * Validate the requested local-field name and kind. Extracted from {@link #addLocalField}
+   * (#6520 complexity budget).
+   */
+  private static String requireLocalFieldName(ContentTypeField body) {
+    String fieldName = validateFieldName(body.getName());
+    if (StringUtils.isNotBlank(body.getFieldType())
+        && !"local".equalsIgnoreCase(body.getFieldType().trim())) {
+      throw new IllegalArgumentException("Only local fields can be created");
+    }
+    return fieldName;
+  }
+
+  /**
+   * Reject a duplicate local-field name with 409. Extracted from {@link #addLocalField} (#6520
+   * complexity budget).
+   */
+  private void requireNoLocalFieldConflict(PSItemDefinition def, String fieldName) {
+    if (findField(def, fieldName) != null) {
+      throw new WebApplicationException("Field already exists: " + fieldName, 409);
+    }
+  }
+
+  /**
+   * Append the persistable field and ensure its backend column before save. Extracted from
+   * {@link #addLocalField} (#6520 complexity budget).
+   */
+  private void createLocalField(PSItemDefinition def, ContentTypeField body) {
+    PSField created = addPersistableLocalField(def, body);
+    // ALTER before CE re-init: saveContentTypes → PSContentTypeHelper.saveContentType
+    // starts the editor app, which catalogs backend columns.
+    ensureLocalFieldBackendColumn(def, created);
+  }
+
+  /**
+   * Log and translate a failed local-field save: validation failures are 400, the rest 500.
+   * Never returns normally. Extracted from {@link #addLocalField} (#6520 complexity budget).
+   */
+  private void throwAddLocalFieldSaveFailure(PSErrorsException e, String idOrName) {
+    String details = formatSaveErrors(e);
+    log.error("Failed to save new local field for {}: {}", idOrName, details, e);
+    if (isValidationSaveFailure(e)) {
+      throw new IllegalArgumentException("Could not add local field: " + details, e);
+    }
+    throw new IllegalStateException("Failed to save new local field: " + details, e);
   }
 
   @Override
