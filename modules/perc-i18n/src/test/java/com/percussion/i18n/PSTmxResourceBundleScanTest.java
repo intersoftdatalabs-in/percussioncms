@@ -24,8 +24,10 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilderFactory;
@@ -119,42 +121,68 @@ public class PSTmxResourceBundleScanTest {
         continue;
       }
       found.add(tuid);
-      Set<String> langs = new LinkedHashSet<>();
-      String enSeg = null;
-      String hiSeg = null;
-      NodeList tuvs = tu.getElementsByTagName("tuv");
-      for (int j = 0; j < tuvs.getLength(); j++) {
-        Element tuv = (Element) tuvs.item(j);
-        String lang = normalizeLangAttr(readXmlLang(tuv));
-        if (lang.isEmpty()) {
-          continue;
-        }
-        langs.add(lang);
-        NodeList segs = tuv.getElementsByTagName("seg");
-        if (segs.getLength() == 0) {
-          continue;
-        }
-        String seg = segs.item(0).getTextContent();
-        if ("en-us".equals(lang)) {
-          enSeg = seg;
-        } else if ("hi".equals(lang)) {
-          hiSeg = seg;
-        }
-      }
-      assertTrue(langs.contains("en-us"), tuid + " missing en-us");
-      assertTrue(langs.contains("hi"), tuid + " missing hi (base for hi-in)");
-      assertNotNull(enSeg, tuid + " en-us seg null");
-      assertFalse(enSeg.isBlank(), tuid + " en-us seg blank");
-      assertNotNull(hiSeg, tuid + " hi seg null");
-      assertFalse(hiSeg.isBlank(), tuid + " hi seg blank");
-      assertFalse(
-          enSeg.equals(hiSeg),
-          tuid + " hi must differ from en-us for localized shell chrome, got: " + hiSeg);
+      assertShellChromeTuHasEnUsAndHindi(tuid, tu);
     }
     assertTrue(
         found.containsAll(required),
         "CmsUi.tmx missing shell chrome TUs: "
             + required.stream().filter(k -> !found.contains(k)).toList());
+  }
+
+  /**
+   * Per-{@code <tu>} segment snapshot: normalized {@code tuv} langs seen plus the first
+   * {@code <seg>} text per lang (last {@code tuv} wins on repeats, matching the
+   * inline-scan semantics this replaces). Extracted so the shell-chrome scanner
+   * stays within the cognitive-complexity budget (issue #6433).
+   */
+  private static final class TuSegments {
+    final Set<String> langs = new LinkedHashSet<>();
+    final Map<String, String> segByLang = new LinkedHashMap<>();
+  }
+
+  /**
+   * Scan one shell-chrome {@code <tu>} element's {@code <tuv>/<seg>} children
+   * into a {@link TuSegments} snapshot. A lang is recorded even when its {@code
+   * tuv} carries no {@code <seg>}, so missing-segment assertions still fire on
+   * the snapshot exactly as they did on the inline scan.
+   */
+  private static TuSegments collectTuSegments(Element tu) {
+    TuSegments snapshot = new TuSegments();
+    NodeList tuvs = tu.getElementsByTagName("tuv");
+    for (int j = 0; j < tuvs.getLength(); j++) {
+      Element tuv = (Element) tuvs.item(j);
+      String lang = normalizeLangAttr(readXmlLang(tuv));
+      if (lang.isEmpty()) {
+        continue;
+      }
+      snapshot.langs.add(lang);
+      NodeList segs = tuv.getElementsByTagName("seg");
+      if (segs.getLength() == 0) {
+        continue;
+      }
+      snapshot.segByLang.put(lang, segs.item(0).getTextContent());
+    }
+    return snapshot;
+  }
+
+  /**
+   * Assert one shell-chrome {@code <tu>} ships non-blank {@code en-us} and base
+   * {@code hi} segments that differ (Hindi login must not fall back to English
+   * chrome, GH-1841).
+   */
+  private static void assertShellChromeTuHasEnUsAndHindi(String tuid, Element tu) {
+    TuSegments snapshot = collectTuSegments(tu);
+    assertTrue(snapshot.langs.contains("en-us"), tuid + " missing en-us");
+    assertTrue(snapshot.langs.contains("hi"), tuid + " missing hi (base for hi-in)");
+    String enSeg = snapshot.segByLang.get("en-us");
+    String hiSeg = snapshot.segByLang.get("hi");
+    assertNotNull(enSeg, tuid + " en-us seg null");
+    assertFalse(enSeg.isBlank(), tuid + " en-us seg blank");
+    assertNotNull(hiSeg, tuid + " hi seg null");
+    assertFalse(hiSeg.isBlank(), tuid + " hi seg blank");
+    assertFalse(
+        enSeg.equals(hiSeg),
+        tuid + " hi must differ from en-us for localized shell chrome, got: " + hiSeg);
   }
 
   /**
