@@ -92,6 +92,12 @@ Lookup chain: regional → base → `en-us`. Format profiles live in
 regional sibling exists (e.g. `es` is hidden while `es-es` is active;
 `ar` is shown while no `ar-*` exists). Default when unset: **`en-us`**.
 
+**Content-usable:** `RXLOCALE.CONTENTUSABLE=1` (default) means content may
+exist in the locale; `0` marks a system-only locale excluded from translation
+target lists (`PSLocaleContentUsability`, `GET /locales?contentUsableOnly=true`,
+Content Explorer Translations create-variant options). Toggle it from
+Developer → Locales; the admin catalog always shows every locale.
+
 Locale tags are normalized to BCP-47 lowercase hyphen form by
 `PSTmxResourceBundle.normalizeLang(...)`. Per-locale sibling TMX
 files (e.g. `de_DE.tmx`) are no longer supported; all translations

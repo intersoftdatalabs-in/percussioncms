@@ -594,6 +594,18 @@ public class PSLocaleHandler implements IPSActionHandler {
       isBase = "1";
     }
     colList.add(new PSJdbcColumnData(COL_IS_BASE, isBase));
+    // Preserve the content-usable flag on replace; new rows default to usable (1) so
+    // existing behavior is preserved for locales created before the flag existed.
+    String contentUsable = "1";
+    if (exists && rowData != null) {
+      PSJdbcColumnData existingUsable = rowData.getColumn(COL_CONTENT_USABLE);
+      if (existingUsable != null
+          && existingUsable.getValue() != null
+          && !existingUsable.getValue().isEmpty()) {
+        contentUsable = existingUsable.getValue();
+      }
+    }
+    colList.add(new PSJdbcColumnData(COL_CONTENT_USABLE, contentUsable));
     rowList.add(new PSJdbcRowData(colList.iterator(), PSJdbcRowData.ACTION_REPLACE));
 
     // save it
@@ -763,6 +775,12 @@ public class PSLocaleHandler implements IPSActionHandler {
 
   /** Constant for the name of the ISBASE column (1 = language-only / base locale). */
   public static final String COL_IS_BASE = "ISBASE";
+
+  /**
+   * Constant for the name of the CONTENTUSABLE column (1 = locale may hold content, the
+   * default; 0 = system-only locale excluded from translation target lists).
+   */
+  public static final String COL_CONTENT_USABLE = "CONTENTUSABLE";
 
   /**
    * Constant for the name of the LOCALEID column in the repository table containing locale

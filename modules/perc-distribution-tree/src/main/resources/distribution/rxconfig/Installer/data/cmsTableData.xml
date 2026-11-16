@@ -12092,6 +12092,7 @@
             <column name="DESCRIPTION">Arabic language (generic base locale)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12102,6 +12103,7 @@
             <column name="DESCRIPTION">English language used in United States of America</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12112,6 +12114,7 @@
             <column name="DESCRIPTION">Bengali language (generic, no region)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12122,6 +12125,7 @@
             <column name="DESCRIPTION">English language used in United Kingdom</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12132,6 +12136,7 @@
             <column name="DESCRIPTION">German language (generic base locale)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12142,6 +12147,7 @@
             <column name="DESCRIPTION">German language used in Germany</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12152,6 +12158,7 @@
             <column name="DESCRIPTION">German language used in Austria</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12162,6 +12169,7 @@
             <column name="DESCRIPTION">German language used in Switzerland</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12172,6 +12180,7 @@
             <column name="DESCRIPTION">German language used in Liechtenstein</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12182,6 +12191,7 @@
             <column name="DESCRIPTION">German language used in Luxembourg</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12192,6 +12202,7 @@
             <column name="DESCRIPTION">General Spanish language locale (covers all es-* variants)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12202,6 +12213,7 @@
             <column name="DESCRIPTION">Spanish language used in Chile</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12212,6 +12224,7 @@
             <column name="DESCRIPTION">Spanish language used in Spain (canonical Castilian)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12222,6 +12235,7 @@
             <column name="DESCRIPTION">Spanish language used in Mexico</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12232,6 +12246,7 @@
             <column name="DESCRIPTION">Spanish language used in Colombia</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12242,6 +12257,7 @@
             <column name="DESCRIPTION">Spanish language used in Argentina</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12252,6 +12268,7 @@
             <column name="DESCRIPTION">Spanish language used in Venezuela</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12262,6 +12279,7 @@
             <column name="DESCRIPTION">Spanish language used in Peru</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12272,6 +12290,7 @@
             <column name="DESCRIPTION">Spanish language used in Ecuador</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12282,6 +12301,7 @@
             <column name="DESCRIPTION">French language (generic base locale)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12292,6 +12312,7 @@
             <column name="DESCRIPTION">Spanish language used in Costa Rica</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12302,6 +12323,7 @@
             <column name="DESCRIPTION">Spanish language used in Panama</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12312,6 +12334,7 @@
             <column name="DESCRIPTION">French language used in Canada</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12322,6 +12345,7 @@
             <column name="DESCRIPTION">Spanish language used in Uruguay</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12332,6 +12356,7 @@
             <column name="DESCRIPTION">French language used in France</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12342,6 +12367,7 @@
             <column name="DESCRIPTION">Spanish language used in Bolivia</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12352,6 +12378,7 @@
             <column name="DESCRIPTION">French language used in Switzerland</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12362,6 +12389,7 @@
             <column name="DESCRIPTION">Spanish language used in El Salvador</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12372,6 +12400,7 @@
             <column name="DESCRIPTION">French language used in Luxembourg</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12382,6 +12411,7 @@
             <column name="DESCRIPTION">Spanish language used in Honduras</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12392,6 +12422,7 @@
             <column name="DESCRIPTION">French language used in Belgium</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12402,6 +12433,7 @@
             <column name="DESCRIPTION">Cajun / Louisiana French language</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12412,6 +12444,7 @@
             <column name="DESCRIPTION">Spanish language used in Nicaragua</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12422,6 +12455,7 @@
             <column name="DESCRIPTION">Louisiana Creole language (base)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12432,6 +12466,7 @@
             <column name="DESCRIPTION">Spanish language used in Puerto Rico</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12442,6 +12477,7 @@
             <column name="DESCRIPTION">Hebrew language (generic base locale)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12452,6 +12488,7 @@
             <column name="DESCRIPTION">Hebrew language used in Israel (canonical regional form)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12462,6 +12499,7 @@
             <column name="DESCRIPTION">Hindi language (generic, no region)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12472,6 +12510,7 @@
             <column name="DESCRIPTION">Hindi language used in India (canonical regional form)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12482,6 +12521,7 @@
             <column name="DESCRIPTION">Italian language (generic base locale)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12492,6 +12532,7 @@
             <column name="DESCRIPTION">Italian language used in Italy</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12502,6 +12543,7 @@
             <column name="DESCRIPTION">Italian language used in Switzerland</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12512,6 +12554,7 @@
             <column name="DESCRIPTION">Japanese language used in Japan</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12522,6 +12565,7 @@
             <column name="DESCRIPTION">Dutch language (generic base locale)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12532,6 +12576,7 @@
             <column name="DESCRIPTION">Dutch language used in Netherlands</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12542,6 +12587,7 @@
             <column name="DESCRIPTION">Dutch language used in Belgium</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12552,6 +12598,7 @@
             <column name="DESCRIPTION">Portuguese language (generic base locale)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12562,6 +12609,7 @@
             <column name="DESCRIPTION">Portuguese language used in Brazil</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12572,6 +12620,7 @@
             <column name="DESCRIPTION">Portuguese language used in Portugal</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12582,6 +12631,7 @@
             <column name="DESCRIPTION">Polish language (generic base locale)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12592,6 +12642,7 @@
             <column name="DESCRIPTION">Russian language (generic base locale)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12602,6 +12653,7 @@
             <column name="DESCRIPTION">Swedish language (generic base locale)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12612,6 +12664,7 @@
             <column name="DESCRIPTION">Turkish language (generic base locale)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12622,6 +12675,7 @@
             <column name="DESCRIPTION">Turkish language used in Turkey</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12632,6 +12686,7 @@
             <column name="DESCRIPTION">Ukrainian language (generic base locale)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12642,6 +12697,7 @@
             <column name="DESCRIPTION">Ukrainian language used in Ukraine</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12652,6 +12708,7 @@
             <column name="DESCRIPTION">Telugu language (generic base locale)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12662,6 +12719,7 @@
             <column name="DESCRIPTION">Simplified Chinese used in China</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="i">
@@ -12672,6 +12730,7 @@
             <column name="DESCRIPTION">Traditional Chinese used in Taiwan</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">0</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <!-- Upgrade existing installs: ensure base flags on es/hi -->
@@ -12683,6 +12742,7 @@
             <column name="DESCRIPTION">General Spanish language locale (covers all es-* variants)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
         <row onTableCreateOnly="no" action="u">
@@ -12693,6 +12753,7 @@
             <column name="DESCRIPTION">Hindi language (generic, no region)</column>
             <column name="STATUS">1</column>
             <column name="ISBASE">1</column>
+            <column name="CONTENTUSABLE">1</column>
             <column name="VERSION">0</column>
         </row>
     </table>

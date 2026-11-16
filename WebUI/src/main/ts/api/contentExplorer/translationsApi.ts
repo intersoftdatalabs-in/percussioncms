@@ -168,10 +168,17 @@ export async function createTranslations(
 /**
  * Filter the CMS locale catalog to locales not already present among variants.
  *
- * <p>Pure helper for create-variant UI (unit-tested).</p>
+ * <p>System-only locales ({@code contentUsable === false}) are never translation
+ * targets, even when the catalog was loaded without the server-side
+ * {@code contentUsableOnly} filter. Absent flags (pre-flag payloads) count as
+ * usable. Pure helper for create-variant UI (unit-tested).</p>
  */
 export function availableTargetLocales(
-  catalog: ReadonlyArray<{ languageString?: string | null; label?: string | null }>,
+  catalog: ReadonlyArray<{
+    languageString?: string | null;
+    label?: string | null;
+    contentUsable?: boolean | null;
+  }>,
   variants: ReadonlyArray<TranslationVariant>,
   currentLocale?: string | null,
 ): TranslationLocaleOption[] {
@@ -187,6 +194,7 @@ export function availableTargetLocales(
   const out: TranslationLocaleOption[] = [];
   const seen = new Set<string>();
   for (const row of catalog) {
+    if (row.contentUsable === false) continue;
     const lang = (row.languageString ?? "").trim();
     if (!lang) continue;
     const key = lang.toLowerCase();

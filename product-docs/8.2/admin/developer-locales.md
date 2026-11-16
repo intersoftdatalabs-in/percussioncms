@@ -1,7 +1,7 @@
 ---
 id: admin-developer-locales
 title: Developer Locales
-description: Create, save, and delete CMS locales, set a label, description, enabled status, date pattern, time pattern, date-time pattern, decimal separator, grouping separator, currency code, currency pattern, text direction, first day of week, or measurement system, default timezone, edit format profiles, and edit the auto-translation set from Developer Locales chrome
+description: Create, save, and delete CMS locales, set a label, description, enabled status, content-usable flag, date pattern, time pattern, date-time pattern, decimal separator, grouping separator, currency code, currency pattern, text direction, first day of week, or measurement system, default timezone, edit format profiles, and edit the auto-translation set from Developer Locales chrome
 version: "8.2"
 order: 43
 tags: [admin, developer, locales]
@@ -10,9 +10,21 @@ tags: [admin, developer, locales]
 # Developer Locales
 
 **Developer → Locales** lists CMS locale definitions (language string, label,
-status, base-locale flag, and whether an exact format profile exists). Admins
-can **create**, **save**, and **delete** a locale from this chrome. The
-language string is required on create and **cannot be renamed** later.
+status, base-locale flag, usable-for-content flag, and whether an exact format
+profile exists). Admins can **create**, **save**, and **delete** a locale
+from this chrome. The language string is required on create and **cannot be
+renamed** later.
+
+**Set locale usable for content** on an existing locale saves the flag only.
+The update sends `contentUsable` and does not send the language string, label,
+description, enabled status, or format profile, so those stay. The language
+string is immutable. When the flag is cleared, the locale is system-only: it
+stays in the admin catalog but is excluded from translation target lists
+(`GET /services/locales?contentUsableOnly=true` and the Content Explorer
+Translations create-variant options). New locales default to usable; existing
+locales keep current behavior (usable) until an admin clears the flag.
+**Cancel** does not write. HTTP 400, 403, and 409 are not success and leave
+the previous flag.
 
 **Set locale label** on an existing locale saves the label only. The
 update does not send the language string, description, enabled status, or
@@ -517,7 +529,8 @@ The chrome calls:
 
 | Action | Request |
 |--------|---------|
-| List | `GET /services/locales` |
+| List | `GET /services/locales` (`?contentUsableOnly=true` lists translation targets only) |
+| Set usable for content | `PUT /services/locales/{idOrLang}` (`contentUsable` only; language, label, description, enabled status, and format are omitted and stay) |
 | Load | `GET /services/locales/{idOrLang}` |
 | Create | `POST /services/locales` (`languageString` and `label` required) |
 | Save | `PUT /services/locales/{idOrLang}` (language immutable; optional `format` / `hasFormatProfile`) |

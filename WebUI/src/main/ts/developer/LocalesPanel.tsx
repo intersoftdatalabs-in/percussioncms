@@ -175,6 +175,7 @@ export function LocalesPanel(): React.ReactElement {
             DEV_MSG.LOC_COL_LABEL,
             DEV_MSG.LOC_COL_STATUS,
             DEV_MSG.LOC_COL_BASE,
+            DEV_MSG.LOC_COL_CONTENT_USABLE,
             DEV_MSG.LOC_COL_FORMAT,
             DEV_MSG.LOC_COL_DESCRIPTION,
           ]}
@@ -221,6 +222,7 @@ export function LocalesPanel(): React.ReactElement {
                   : loc.baseLocale
                     ? DEV_MSG.YES
                     : DEV_MSG.NO,
+                loc.contentUsable === false ? DEV_MSG.NO : DEV_MSG.YES,
                 loc.hasFormatProfile ? DEV_MSG.LOC_FORMAT_YES : DEV_MSG.LOC_FORMAT_NO,
                 <span
                   key="d"

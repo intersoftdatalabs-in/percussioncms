@@ -147,6 +147,15 @@ describe("localesApi write paths", () => {
     expect(String(fetchMock.mock.calls[0][0])).toContain(`${PATHS.LOCALES}/fr-ca`);
   });
 
+  it("requests translation targets with contentUsableOnly", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ LocaleSummary: [{ languageString: "en-us", contentUsable: true }] }),
+    );
+    const list = await listLocales({ contentUsableOnly: true });
+    expect(list).toEqual([{ languageString: "en-us", contentUsable: true }]);
+    expect(String(fetchMock.mock.calls[0][0])).toContain("contentUsableOnly=true");
+  });
+
   it("lists locales from GET /services/locales", async () => {
     fetchMock.mockResolvedValueOnce(
       jsonResponse({ LocaleSummary: [{ languageString: "en-us", label: "English" }] }),

@@ -169,6 +169,46 @@ public class PSLocaleTest {
     assertTrue(!noBase.isBaseLocale());
   }
 
+  @Test
+  public void testContentUsableXmlAndRow() throws Exception {
+    PSLocale sys = new PSLocale("sys-only", "System only", null, PSLocale.STATUS_ACTIVE);
+    assertTrue(sys.isContentUsable(), "new locales default to content-usable");
+    sys.setContentUsable(false);
+    assertTrue(!sys.isContentUsable());
+
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = sys.toXml(doc);
+    PSLocale fromXml = new PSLocale(el);
+    assertTrue(!fromXml.isContentUsable());
+    assertEquals("sys-only", fromXml.getLanguageString());
+
+    // Missing contentUsable attribute defaults to usable (pre-flag exports)
+    doc = PSXmlDocumentBuilder.createXmlDocument();
+    el = new PSLocale("en-us", "english", null, PSLocale.STATUS_ACTIVE).toXml(doc);
+    el.removeAttribute("contentUsable");
+    assertTrue(new PSLocale(el).isContentUsable());
+
+    List cols = new ArrayList();
+    cols.add(new PSJdbcColumnData("LANGUAGESTRING", "sys-only"));
+    cols.add(new PSJdbcColumnData("DISPLAYNAME", "System only"));
+    cols.add(new PSJdbcColumnData("DESCRIPTION", null));
+    cols.add(new PSJdbcColumnData("STATUS", "1"));
+    cols.add(new PSJdbcColumnData("CONTENTUSABLE", "0"));
+    PSLocale fromRow =
+        new PSLocale(new PSJdbcRowData(cols.iterator(), PSJdbcRowData.ACTION_INSERT));
+    assertTrue(!fromRow.isContentUsable());
+
+    // Missing CONTENTUSABLE column defaults to usable (pre-migration rows)
+    List colsNoFlag = new ArrayList();
+    colsNoFlag.add(new PSJdbcColumnData("LANGUAGESTRING", "en-us"));
+    colsNoFlag.add(new PSJdbcColumnData("DISPLAYNAME", "English"));
+    colsNoFlag.add(new PSJdbcColumnData("DESCRIPTION", null));
+    colsNoFlag.add(new PSJdbcColumnData("STATUS", "1"));
+    PSLocale noFlag =
+        new PSLocale(new PSJdbcRowData(colsNoFlag.iterator(), PSJdbcRowData.ACTION_INSERT));
+    assertTrue(noFlag.isContentUsable());
+  }
+
   /**
    * Test the construction of a <code>PSLocale</code> from its member data. See the constructor of
    * this object for parameter information.

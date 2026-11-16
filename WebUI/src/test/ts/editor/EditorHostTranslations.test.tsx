@@ -20,6 +20,7 @@ import React from "react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { TranslationAuthError, TranslationConflictError } from "../../../main/ts/api/contentExplorer/translationsApi";
+import * as localesApi from "../../../main/ts/api/developer/localesApi";
 import { EditorHost } from "../../../main/ts/editor/EditorHost";
 import type { ItemEditorFields } from "../../../main/ts/editor/itemFieldsApi";
 
@@ -63,6 +64,54 @@ function renderHost(
     </MemoryRouter>,
   );
 }
+
+describe("EditorHost translation targets default to the content-usable slice (#6387)", () => {
+  afterEach(() => {
+    cleanup();
+    vi.restoreAllMocks();
+  });
+
+  it("requests contentUsableOnly locales and hides system-only rows", async () => {
+    const listLocales = vi.spyOn(localesApi, "listLocales").mockResolvedValue([
+      { languageString: "fr-fr", label: "French", contentUsable: true },
+      { languageString: "sys-only", label: "System only", contentUsable: false },
+      { languageString: "de-de", label: "German" },
+    ]);
+    render(
+      <MemoryRouter initialEntries={["/editor?contentId=42&mode=edit"]}>
+        <Routes>
+          <Route
+            path="/editor"
+            element={
+              <EditorHost
+                loadFields={async (id) => fieldsFor(id)}
+                checkout={async () => undefined}
+                loadType={async () => ({
+                  fields: [{ name: "sys_title", label: "Title" }],
+                })}
+                loadTransitions={async () => ({ transitionTriggers: [] })}
+                loadContentTypes={async () => []}
+                loadTranslationVariants={async () => ({
+                  itemId: 42,
+                  locale: "en-us",
+                  variants: [
+                    { contentId: 42, locale: "en-us", role: "source" },
+                  ],
+                })}
+              />
+            }
+          />
+        </Routes>
+      </MemoryRouter>,
+    );
+    expect(await screen.findByTestId("translations-locale-option-fr-fr")).toBeTruthy();
+    expect(await screen.findByTestId("translations-locale-option-de-de")).toBeTruthy();
+    expect(
+      screen.queryByTestId("translations-locale-option-sys-only"),
+    ).toBeNull();
+    expect(listLocales).toHaveBeenCalledWith({ contentUsableOnly: true });
+  });
+});
 
 describe("EditorHost translation variants (#4816)", () => {
   afterEach(() => {

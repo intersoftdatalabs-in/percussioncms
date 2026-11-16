@@ -81,7 +81,7 @@ describe("LocalesPanel", () => {
     cleanup();
   });
 
-  it("renders catalog with base and format flags", async () => {
+  it("renders catalog with base, content-usable, and format flags", async () => {
     listMock.mockResolvedValue([
       {
         id: 1,
@@ -89,6 +89,7 @@ describe("LocalesPanel", () => {
         label: "English",
         status: "active",
         baseLocale: false,
+        contentUsable: true,
         hasFormatProfile: true,
       },
       {
@@ -97,6 +98,16 @@ describe("LocalesPanel", () => {
         label: "Arabic",
         status: "active",
         baseLocale: true,
+        contentUsable: true,
+        hasFormatProfile: false,
+      },
+      {
+        id: 3,
+        languageString: "sys-only",
+        label: "System only",
+        status: "active",
+        baseLocale: false,
+        contentUsable: false,
         hasFormatProfile: false,
       },
     ]);
@@ -106,6 +117,8 @@ describe("LocalesPanel", () => {
     });
     expect(screen.getByText("en-us")).toBeTruthy();
     expect(screen.getByText("ar")).toBeTruthy();
+    expect(screen.getByText("sys-only")).toBeTruthy();
+    expect(screen.getAllByText(DEV_MSG.LOC_COL_CONTENT_USABLE).length).toBeGreaterThan(0);
     expect(screen.getByTestId("developer-loc-new")).toBeTruthy();
     expect(screen.getByTestId("developer-at-open")).toBeTruthy();
   });

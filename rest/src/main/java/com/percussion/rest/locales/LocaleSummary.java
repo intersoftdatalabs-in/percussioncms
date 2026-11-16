@@ -39,6 +39,13 @@ public class LocaleSummary {
   private Boolean baseLocale;
 
   /**
+   * True when the locale may hold content. System-only locales ({@code false}) are excluded
+   * from translation target lists ({@code GET /locales?contentUsableOnly=true}) but remain
+   * visible in the admin catalog. Absent on pre-flag payloads means usable.
+   */
+  private Boolean contentUsable;
+
+  /**
    * True when an RXLOCALEFORMAT row exists for this language string (exact key). Format resolution
    * may still fall back without a row.
    */
@@ -92,6 +99,14 @@ public class LocaleSummary {
 
   public void setBaseLocale(Boolean baseLocale) {
     this.baseLocale = baseLocale;
+  }
+
+  public Boolean getContentUsable() {
+    return contentUsable;
+  }
+
+  public void setContentUsable(Boolean contentUsable) {
+    this.contentUsable = contentUsable;
   }
 
   public Boolean getHasFormatProfile() {

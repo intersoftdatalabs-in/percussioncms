@@ -2436,6 +2436,15 @@
       <tuv xml:lang="te"><seg>స్థానిక స్థావరం</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>当地基地</seg></tuv>
     <tuv xml:lang="ru"><seg>Местная база</seg></tuv><tuv xml:lang="he"><seg>בסיס מקומי</seg></tuv><tuv xml:lang="uk"><seg>Місцева база</seg></tuv><tuv xml:lang="lou"><seg>Base locale</seg></tuv><tuv xml:lang="pl"><seg>Lokalna baza</seg></tuv><tuv xml:lang="tr"><seg>Yerel taban</seg></tuv><tuv xml:lang="de"><seg>Lokale Basis</seg></tuv><tuv xml:lang="zh-cn"><seg>当地基地</seg></tuv><tuv xml:lang="ja-jp"><seg>現地拠点</seg></tuv><tuv xml:lang="nb"><seg>Lokal base</seg></tuv><tuv xml:lang="pt"><seg>Base local</seg></tuv><tuv xml:lang="sv"><seg>Lokal bas</seg></tuv></tu>
+    <tu tuid="perc.ui.developer@Usable for content">
+      <tuv xml:lang="en-us"><seg>Usable for content</seg></tuv>
+      <tuv xml:lang="es"><seg>Utilizable para contenido</seg></tuv>
+      <tuv xml:lang="fr"><seg>Utilisable pour le contenu</seg></tuv>
+      <tuv xml:lang="de"><seg>Für Inhalte verwendbar</seg></tuv>
+      <tuv xml:lang="it"><seg>Utilizzabile per i contenuti</seg></tuv>
+      <tuv xml:lang="nl"><seg>Bruikbaar voor inhoud</seg></tuv>
+      <tuv xml:lang="pt"><seg>Utilizável para conteúdo</seg></tuv>
+    <tuv xml:lang="sv"><seg>Användbar för innehåll</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Format profile">
       <tuv xml:lang="en-us"><seg>Format profile</seg></tuv>
       <tuv xml:lang="ar"><seg>تنسيق الملف الشخصي</seg></tuv>

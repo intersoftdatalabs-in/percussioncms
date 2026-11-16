@@ -50,6 +50,7 @@ class LocalesAdaptorTest {
     when(en.getDescription()).thenReturn("US English");
     when(en.getStatus()).thenReturn(PSLocale.STATUS_ACTIVE);
     when(en.isBaseLocale()).thenReturn(false);
+    when(en.isContentUsable()).thenReturn(true);
 
     PSLocale ar = mock(PSLocale.class);
     when(ar.getLocaleId()).thenReturn(2);
@@ -58,9 +59,12 @@ class LocalesAdaptorTest {
     when(ar.getDescription()).thenReturn(null);
     when(ar.getStatus()).thenReturn(PSLocale.STATUS_ACTIVE);
     when(ar.isBaseLocale()).thenReturn(true);
+    when(ar.isContentUsable()).thenReturn(false);
 
     List<LocaleSummary> out = LocalesAdaptor.mapSummaries(List.of(en, ar), Set.of("en-us"));
     assertEquals(2, out.size());
+    assertEquals(Boolean.FALSE, out.get(0).getContentUsable());
+    assertEquals(Boolean.TRUE, out.get(1).getContentUsable());
     assertEquals("ar", out.get(0).getLanguageString());
     assertEquals(Boolean.TRUE, out.get(0).getBaseLocale());
     assertEquals(Boolean.FALSE, out.get(0).getHasFormatProfile());
@@ -78,6 +82,7 @@ class LocalesAdaptorTest {
     when(en.getDescription()).thenReturn("desc");
     when(en.getStatus()).thenReturn(PSLocale.STATUS_ACTIVE);
     when(en.isBaseLocale()).thenReturn(false);
+    when(en.isContentUsable()).thenReturn(false);
 
     PSLocaleFormat fmt = mock(PSLocaleFormat.class);
     when(fmt.getLanguageString()).thenReturn("en-us");
@@ -87,6 +92,7 @@ class LocalesAdaptorTest {
 
     LocaleDetail d = LocalesAdaptor.toDetail(en, fmt);
     assertEquals("en-us", d.getLanguageString());
+    assertEquals(Boolean.FALSE, d.getContentUsable());
     assertEquals(Boolean.TRUE, d.getHasFormatProfile());
     assertNotNull(d.getFormat());
     assertEquals("ltr", d.getFormat().getTextDir());
@@ -239,6 +245,23 @@ class LocalesAdaptorTest {
     assertEquals("English", loc.getDisplayName());
     assertEquals("US English", loc.getDescription());
     assertEquals(PSLocale.STATUS_INACTIVE, loc.getStatus());
+  }
+
+  @Test
+  void applyWritableFields_contentUsableOnlyLeavesOtherFields() {
+    PSLocale loc = new PSLocale("en-us", "English", "US English", PSLocale.STATUS_ACTIVE);
+    assertTrue(loc.isContentUsable(), "precondition: new locales default to usable");
+    LocaleDetail body = new LocaleDetail();
+    body.setContentUsable(false);
+    LocalesAdaptor.applyWritableFields(loc, body, true);
+    assertFalse(loc.isContentUsable());
+    assertEquals("English", loc.getDisplayName());
+    assertEquals("US English", loc.getDescription());
+    assertEquals(PSLocale.STATUS_ACTIVE, loc.getStatus());
+
+    LocaleDetail nullBody = new LocaleDetail();
+    LocalesAdaptor.applyWritableFields(loc, nullBody, true);
+    assertFalse(loc.isContentUsable(), "null flag leaves the stored value");
   }
 
   @Test

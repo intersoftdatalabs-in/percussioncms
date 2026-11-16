@@ -26,6 +26,23 @@ public interface ILocalesAdaptor {
   List<LocaleSummary> listLocales(URI baseUri);
 
   /**
+   * List CMS locales usable for content (translation targets). System-only locales ({@code
+   * contentUsable=false}) are excluded; pre-flag payloads (absent flag) count as usable.
+   *
+   * <p>Default implementation filters {@link #listLocales(URI)} so existing adaptors keep
+   * working; production adaptors may filter closer to the data.
+   */
+  default List<LocaleSummary> listContentUsableLocales(URI baseUri) {
+    List<LocaleSummary> all = listLocales(baseUri);
+    if (all == null) {
+      return List.of();
+    }
+    return all.stream()
+        .filter(s -> s != null && s.getContentUsable() != Boolean.FALSE)
+        .toList();
+  }
+
+  /**
    * Load one locale by language string (e.g. {@code en-us}) or numeric locale id.
    *
    * @return detail, or {@code null} when not found / unsafe key
@@ -40,8 +57,8 @@ public interface ILocalesAdaptor {
 
   /**
    * Update an existing locale by language string or numeric id. Language string is immutable. A
-   * label-only body updates the label; omitted description, status, baseLocale, and format stay. A
-   * blank or whitespace label is not a write. A status-only body updates enabled status ({@code
+   * label-only body updates the label; omitted description, status, baseLocale, contentUsable,
+   * and format stay. A blank or whitespace label is not a write. A status-only body updates enabled status ({@code
    * active} / {@code inactive}); omitted label, description, baseLocale, and format stay. A
    * date-pattern-only {@code format} updates {@code datePattern}; omitted format fields stay. A
    * blank {@code datePattern} clears that pattern. A time-pattern-only {@code format} updates

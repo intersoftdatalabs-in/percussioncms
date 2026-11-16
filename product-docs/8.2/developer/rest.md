@@ -297,10 +297,10 @@ design lock released on save).
 
 | Method | Path | Purpose |
 |--------|------|---------|
-| `GET` | `/services/locales` | List CMS locales (language string, label, status, base flag) |
+| `GET` | `/services/locales` | List CMS locales (language string, label, status, base flag, content-usable flag). `?contentUsableOnly=true` restricts to translation targets (active, content-usable locales only) |
 | `GET` | `/services/locales/{idOrLang}` | Load one locale by language string (e.g. `en-us`) or numeric locale id |
 | `POST` | `/services/locales` | **Admin.** Create a locale (`languageString` and `label` required; optional description, status, `baseLocale`, format profile) |
-| `PUT` | `/services/locales/{idOrLang}` | **Admin.** Update label / description / status / `baseLocale` and optional format profile. `languageString` is immutable |
+| `PUT` | `/services/locales/{idOrLang}` | **Admin.** Update label / description / status / `baseLocale` / `contentUsable` and optional format profile. `languageString` is immutable |
 | `DELETE` | `/services/locales/{idOrLang}` | **Admin.** Delete a locale (`204` on success) |
 | `GET` | `/services/locales/auto-translations` | **Admin.** Load the singleton auto-translation set (locale × content type, plus workflow and community). Returns every existing `PSX_AUTOTRANSLATION` row (not an empty list when rows exist). |
 | `PUT` | `/services/locales/auto-translations` | **Admin.** Replace the auto-translation set. Empty list (`[]`) **clears** all rows. Same-user leftover design locks are stolen so a retry after a failed save can succeed; another user's lock is **409** (not **500**). |

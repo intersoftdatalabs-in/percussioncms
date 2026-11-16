@@ -149,6 +149,21 @@ public class PSLocale implements IPSCatalogSummary {
         m_isBase = IS_BASE_FALSE;
       }
     }
+
+    // Optional for backward-compatible row shapes; missing / invalid => usable,
+    // preserving current behavior for pre-migration rows.
+    m_contentUsable = CONTENT_USABLE_TRUE;
+    PSJdbcColumnData usableCol = rowData.getColumn(PSLocaleHandler.COL_CONTENT_USABLE);
+    if (usableCol != null && usableCol.getValue() != null && !usableCol.getValue().isEmpty()) {
+      try {
+        m_contentUsable =
+            Integer.parseInt(usableCol.getValue().trim()) == CONTENT_USABLE_FALSE
+                ? CONTENT_USABLE_FALSE
+                : CONTENT_USABLE_TRUE;
+      } catch (NumberFormatException e) {
+        m_contentUsable = CONTENT_USABLE_TRUE;
+      }
+    }
   }
 
   /**
@@ -250,6 +265,27 @@ public class PSLocale implements IPSCatalogSummary {
   }
 
   /**
+   * Whether this locale may hold content. Locales not flagged usable are system-only and must
+   * be excluded from translation target lists; see {@link PSLocaleContentUsability}.
+   *
+   * <p>Defaults to usable when the backing value is absent (pre-migration rows, missing {@code
+   * CONTENTUSABLE} column) so existing installs preserve current behavior.
+   *
+   * @return <code>true</code> when content may exist in this locale.
+   */
+  public boolean isContentUsable() {
+    return m_contentUsable == null
+        || m_contentUsable.intValue() == CONTENT_USABLE_TRUE;
+  }
+
+  /**
+   * @param contentUsable <code>true</code> to allow content in this locale.
+   */
+  public void setContentUsable(boolean contentUsable) {
+    m_contentUsable = contentUsable ? CONTENT_USABLE_TRUE : CONTENT_USABLE_FALSE;
+  }
+
+  /**
    * Serializes this object's state to its XML representation. Format is:
    *
    * <pre><code>
@@ -259,6 +295,7 @@ public class PSLocale implements IPSCatalogSummary {
    *       displayName CDATA #REQUIRED
    *       status CDATA #REQUIRED
    *       isBase CDATA #IMPLIED
+   *       contentUsable CDATA #IMPLIED
    *    >
    *    &lt;ELEMENT Description (#PCDATA)>
    * </code></pre>
@@ -275,6 +312,7 @@ public class PSLocale implements IPSCatalogSummary {
     root.setAttribute(ATTR_DISPLAY_NAME, m_displayName);
     root.setAttribute(ATTR_STATUS, STATUS_ENUM[m_status]);
     root.setAttribute(ATTR_IS_BASE, isBaseLocale() ? "true" : "false");
+    root.setAttribute(ATTR_CONTENT_USABLE, isContentUsable() ? "true" : "false");
     if (m_version != null) root.setAttribute(ATTR_VERSION, m_version.toString());
 
     if (m_description != null)
@@ -334,6 +372,17 @@ public class PSLocale implements IPSCatalogSummary {
                 || isBase.equals("1")
                 || isBase.equalsIgnoreCase("yes"));
     m_isBase = base ? IS_BASE_TRUE : IS_BASE_FALSE;
+
+    // Optional attribute for backward-compatible XML; default true (usable) so
+    // pre-flag exports keep current behavior.
+    String usable = source.getAttribute(ATTR_CONTENT_USABLE);
+    boolean contentUsable =
+        usable == null
+            || usable.isEmpty()
+            || usable.equalsIgnoreCase("true")
+            || usable.equals("1")
+            || usable.equalsIgnoreCase("yes");
+    m_contentUsable = contentUsable ? CONTENT_USABLE_TRUE : CONTENT_USABLE_FALSE;
   }
 
   /**
@@ -472,6 +521,12 @@ public class PSLocale implements IPSCatalogSummary {
   /** Integer column value meaning this row is not a base locale. */
   public static final int IS_BASE_FALSE = 0;
 
+  /** Integer column value meaning content may exist in this locale (default). */
+  public static final int CONTENT_USABLE_TRUE = 1;
+
+  /** Integer column value meaning this locale is system-only (no content). */
+  public static final int CONTENT_USABLE_FALSE = 0;
+
   /**
    * Enumeration of status strings, uses the <code>STATUS_xxx</code> constant value as an index into
    * the array to retrieve its corresponding string representation. This must be maintained if a new
@@ -531,6 +586,15 @@ public class PSLocale implements IPSCatalogSummary {
   @Column(name = "ISBASE")
   private Integer m_isBase = IS_BASE_FALSE;
 
+  /**
+   * Whether content may exist in this locale ({@link #CONTENT_USABLE_TRUE} / {@link
+   * #CONTENT_USABLE_FALSE}). Defaults to usable. Not part of {@link #equals(Object)} — language
+   * string remains identity for catalog equality.
+   */
+  @Basic
+  @Column(name = "CONTENTUSABLE")
+  private Integer m_contentUsable = CONTENT_USABLE_TRUE;
+
   @Version
   @Column(name = "VERSION")
   private Integer m_version = null;
@@ -546,6 +610,7 @@ public class PSLocale implements IPSCatalogSummary {
   private static final String ATTR_STATUS = "status";
   private static final String ATTR_VERSION = "version";
   private static final String ATTR_IS_BASE = "isBase";
+  private static final String ATTR_CONTENT_USABLE = "contentUsable";
 
   // private constants to specify column names expected in the row data when
   // constructing from the repository

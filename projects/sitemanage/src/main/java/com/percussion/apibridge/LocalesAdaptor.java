@@ -17,6 +17,7 @@
 package com.percussion.apibridge;
 
 import com.percussion.i18n.PSLocale;
+import com.percussion.i18n.PSLocaleContentUsability;
 import com.percussion.i18n.PSLocaleFormat;
 import com.percussion.rest.locales.ILocalesAdaptor;
 import com.percussion.rest.locales.LocaleDesignLockException;
@@ -178,6 +179,23 @@ public class LocalesAdaptor implements ILocalesAdaptor {
       return mapSummaries(loadAllLocalesViaDesignWs(), formatLangs);
     } catch (RuntimeException e) {
       log.warn("Failed to list CMS locales via content design WS", e);
+      throw e;
+    }
+  }
+
+  /**
+   * Translation targets: filter at the entity level (active + content-usable) before mapping
+   * so pre-flag rows default to usable via {@link PSLocale#isContentUsable()}.
+   */
+  @Override
+  public List<LocaleSummary> listContentUsableLocales(URI baseUri) {
+    try {
+      Set<String> formatLangs = safeFormatIndex();
+      return mapSummaries(
+          PSLocaleContentUsability.forTranslationTargets(loadAllLocalesViaDesignWs()),
+          formatLangs);
+    } catch (RuntimeException e) {
+      log.warn("Failed to list content-usable CMS locales via content design WS", e);
       throw e;
     }
   }
@@ -1412,7 +1430,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
 
   /**
    * Applies omitted-field-safe updates. A blank or whitespace label is not a write. Null
-   * description, status, and baseLocale leave the stored values. A status-only body (status
+   * description, status, baseLocale, and contentUsable leave the stored values. A status-only body (status
    * present, label/description/format omitted) updates enabled status only. {@code allowLabel} is
    * false on create because {@code createLocales} already set the display name.
    */
@@ -1431,6 +1449,9 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     }
     if (body.getBaseLocale() != null) {
       loc.setBaseLocale(body.getBaseLocale());
+    }
+    if (body.getContentUsable() != null) {
+      loc.setContentUsable(body.getContentUsable());
     }
   }
 
@@ -1635,6 +1656,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     s.setDescription(loc.getDescription());
     s.setStatus(mapStatus(loc.getStatus()));
     s.setBaseLocale(loc.isBaseLocale());
+    s.setContentUsable(loc.isContentUsable());
     String lang = normalizeLanguageString(loc.getLanguageString());
     s.setHasFormatProfile(lang != null && formatLangs.contains(lang));
     return s;
@@ -1648,6 +1670,7 @@ public class LocalesAdaptor implements ILocalesAdaptor {
     d.setDescription(loc.getDescription());
     d.setStatus(mapStatus(loc.getStatus()));
     d.setBaseLocale(loc.isBaseLocale());
+    d.setContentUsable(loc.isContentUsable());
     d.setFormat(toFormatSummary(format));
     d.setHasFormatProfile(format != null);
     d.setDesignGaps(new ArrayList<>(DESIGN_GAPS));
