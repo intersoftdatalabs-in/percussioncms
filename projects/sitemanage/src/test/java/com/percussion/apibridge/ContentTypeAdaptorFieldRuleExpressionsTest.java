@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -55,6 +56,10 @@ import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.util.PSCollection;
 import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfoBase;
+import com.percussion.webservices.PSErrorException;
+import com.percussion.webservices.PSErrorResultsException;
+import com.percussion.webservices.PSErrorsException;
+import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.system.IPSSystemDesignWs;
 import jakarta.ws.rs.WebApplicationException;
@@ -447,6 +452,73 @@ class ContentTypeAdaptorFieldRuleExpressionsTest {
         () ->
             adaptor.replaceFieldRuleExpressions(
                 null, "311", "sys_title", new ContentTypeFieldRuleExpressions()));
+  }
+
+  @Test
+  void put_blankAndWildcardArgs_areBadRequest() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> adaptor.replaceFieldRuleExpressions(null, "  ", "sys_title", emptyBody()));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> adaptor.replaceFieldRuleExpressions(null, "311", "  ", emptyBody()));
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> adaptor.replaceFieldRuleExpressions(null, "31*", "sys_title", emptyBody()));
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void put_lockedLoadFailure_isLockConflict() throws Exception {
+    stubHeldLock();
+    stubDefinition();
+    PSErrorResultsException loadFailure = new PSErrorResultsException();
+    loadFailure.addError(
+        guid, new PSLockErrorException(1, "LOCK_EXTENSION_INVALID_SESSION", "stack", "Admin", 12));
+    when(designWs.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenThrow(loadFailure);
+    ContentTypeDesignLockException ex =
+        assertThrows(
+            ContentTypeDesignLockException.class,
+            () -> adaptor.replaceFieldRuleExpressions(null, "311", "sys_title", emptyBody()));
+    assertTrue(
+        ex.getMessage().contains("Could not save field rule expressions"), ex.getMessage());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void put_saveLockConflict_isLockConflict() throws Exception {
+    stubHeldLock();
+    stubDefinition();
+    PSErrorsException locked = new PSErrorsException();
+    locked.addError(
+        guid, new PSLockErrorException(1, "LOCK_EXTENSION_INVALID_SESSION", "stack", "Admin", 12));
+    doThrow(locked)
+        .when(designWs)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    ContentTypeDesignLockException ex =
+        assertThrows(
+            ContentTypeDesignLockException.class,
+            () -> adaptor.replaceFieldRuleExpressions(null, "311", "sys_title", emptyBody()));
+    assertTrue(
+        ex.getMessage().contains("Could not save field rule expressions"), ex.getMessage());
+  }
+
+  @Test
+  void put_saveFailure_isIllegalState() throws Exception {
+    stubHeldLock();
+    stubDefinition();
+    PSErrorsException saveFailure = new PSErrorsException();
+    saveFailure.addError(guid, new PSErrorException("SAVE_FAILED save failed: boom"));
+    doThrow(saveFailure)
+        .when(designWs)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    IllegalStateException ex =
+        assertThrows(
+            IllegalStateException.class,
+            () -> adaptor.replaceFieldRuleExpressions(null, "311", "sys_title", emptyBody()));
+    assertTrue(
+        ex.getMessage().contains("Failed to replace field rule expressions"), ex.getMessage());
   }
 
   @Test
