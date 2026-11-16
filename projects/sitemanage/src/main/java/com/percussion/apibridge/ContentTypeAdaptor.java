@@ -1744,7 +1744,17 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         return null;
       }
       PSItemDefinition def = locked.get(0);
-      PSField target = requireField(def, field, false);
+      PSField target = findField(def, field);
+      if (target == null) {
+        // System/shared fields are exposed by GET (merged from the SystemDef/shared group
+        // into the running definition) but the locked stored definition may not carry a
+        // field entry for them (e.g. sys_title, #6460). Materialize a per-type entry from
+        // the running definition so the PUT writes to the same field GET reads.
+        target = materializeRuntimeField(def, trimmed, field);
+      }
+      if (target == null) {
+        throw new WebApplicationException("Unknown field: " + field, 404);
+      }
       applyFieldRuleExpressions(target, body);
       try {
         designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
@@ -3827,6 +3837,122 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         if (field != null) {
           return field;
         }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Materialize a runtime-merged field (system/shared, e.g. {@code sys_title}) into a locked
+   * stored definition so field-rule PUT writes to the same field GET reads (#6460).
+   *
+   * <p>The running definition ({@link #resolveItemDef}) merges SystemDef/shared-group fields
+   * that the stored definition does not carry, so detail GET and rule-expression GET expose
+   * them while the locked definition used by PUT does not. The materialized entry is a copy
+   * of the running field (same type and rules baseline); saving the locked definition then
+   * persists a per-type override, matching Workbench semantics.
+   *
+   * @param lockedDef the locked stored definition being saved, never {@code null}
+   * @param idOrName content-type name used to resolve the running definition
+   * @param fieldName field to materialize
+   * @return the existing or materialized field, or {@code null} when the running definition
+   *     does not know the field either (caller maps to 404)
+   */
+  private PSField materializeRuntimeField(
+      PSItemDefinition lockedDef, String idOrName, String fieldName) {
+    if (lockedDef == null || StringUtils.isBlank(idOrName) || StringUtils.isBlank(fieldName)) {
+      return null;
+    }
+    PSItemDefinition cached;
+    try {
+      cached = resolveItemDef(idOrName);
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for field materialization: {}", idOrName);
+      return null;
+    }
+    if (cached == null || findField(cached, fieldName) == null) {
+      return null;
+    }
+    PSFieldSet lockedParent = lockedDef.getFieldSet();
+    if (lockedParent == null) {
+      return null;
+    }
+    PSFieldSet targetSet = findMaterializationSlot(cached, lockedDef, lockedParent, fieldName);
+    if (targetSet == null) {
+      return null;
+    }
+    PSField existing = directMember(targetSet, fieldName);
+    if (existing != null) {
+      // A stored entry exists but findFieldByName(false) skips it (system-mod-only flags);
+      // use it as-is instead of duplicating the slot.
+      return existing;
+    }
+    PSField source = findField(cached, fieldName);
+    PSField copy = new PSField(source.getType(), fieldName, null);
+    copy.copyFrom(source);
+    targetSet.add(copy);
+    return copy;
+  }
+
+  /** True when {@code set} directly contains a field with the given submit name. */
+  private static boolean isDirectMember(PSFieldSet set, String fieldName) {
+    return directMember(set, fieldName) != null;
+  }
+
+  /**
+   * Pick the locked-definition slot mirroring the running definition's layout: a direct
+   * parent member stays on the parent; a direct member of a complex child goes to the
+   * same-named locked child. Deeper nesting has no exact slot — returns {@code null}
+   * (caller leaves it unknown, 404).
+   */
+  private static PSFieldSet findMaterializationSlot(
+      PSItemDefinition cached, PSItemDefinition lockedDef, PSFieldSet lockedParent,
+      String fieldName) {
+    if (cached == null || lockedDef == null || lockedParent == null) {
+      return null;
+    }
+    if (isDirectMember(cached.getFieldSet(), fieldName)) {
+      return lockedParent;
+    }
+    if (cached.getComplexChildren() == null) {
+      return null;
+    }
+    for (PSFieldSet cachedChild : cached.getComplexChildren()) {
+      if (cachedChild == null
+          || StringUtils.isBlank(cachedChild.getName())
+          || !isDirectMember(cachedChild, fieldName)) {
+        continue;
+      }
+      return findComplexChild(lockedDef, cachedChild.getName());
+    }
+    return null;
+  }
+
+  /** Direct (non-recursive) member lookup, case-insensitive like findFieldByName. */
+  private static PSField directMember(PSFieldSet set, String fieldName) {
+    if (set == null || StringUtils.isBlank(fieldName)) {
+      return null;
+    }
+    for (Iterator<?> it = set.getEveryField(); it.hasNext(); ) {
+      Object member = it.next();
+      if (member instanceof PSField candidate
+          && fieldName.equalsIgnoreCase(candidate.getSubmitName())) {
+        return candidate;
+      }
+    }
+    return null;
+  }
+
+  /** Find a locked complex child by name, or {@code null} when the stored def lacks it. */
+  private static PSFieldSet findComplexChild(PSItemDefinition def, String childName) {
+    if (def == null
+        || StringUtils.isBlank(childName)
+        || def.getComplexChildren() == null) {
+      return null;
+    }
+    for (PSFieldSet child : def.getComplexChildren()) {
+      if (child != null && childName.equalsIgnoreCase(child.getName())) {
+        return child;
       }
     }
     return null;

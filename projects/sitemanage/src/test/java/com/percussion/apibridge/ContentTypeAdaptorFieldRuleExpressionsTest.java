@@ -304,6 +304,49 @@ class ContentTypeAdaptorFieldRuleExpressionsTest {
   }
 
   @Test
+  void put_materializesRuntimeSystemField_missingFromLockedDef() throws Exception {
+    stubHeldLock();
+    // Running (cached) definition exposes sys_title merged from the SystemDef; the locked
+    // stored definition does not carry it (#6460). PUT must materialize and persist.
+    PSField runtimeField = new PSField(PSField.TYPE_SYSTEM, "sys_title", null);
+
+    PSFieldSet cachedParent = mock(PSFieldSet.class);
+    when(cachedParent.findFieldByName("sys_title", false)).thenReturn(runtimeField);
+    when(cachedParent.getEveryField()).thenAnswer(inv -> List.of(runtimeField).iterator());
+    PSItemDefinition cachedDef = mock(PSItemDefinition.class);
+    when(cachedDef.getFieldSet()).thenReturn(cachedParent);
+    when(cachedDef.getComplexChildren()).thenReturn(List.of());
+
+    PSFieldSet lockedParent = mock(PSFieldSet.class);
+    when(lockedParent.findFieldByName("sys_title", false)).thenReturn(null);
+    when(lockedParent.getEveryField()).thenAnswer(inv -> List.of().iterator());
+    PSItemDefinition lockedDef = mock(PSItemDefinition.class);
+    when(lockedDef.getFieldSet()).thenReturn(lockedParent);
+    when(lockedDef.getComplexChildren()).thenReturn(List.of());
+
+    when(itemDefManager.getItemDef(eq(311L), eq(PSItemDefManager.COMMUNITY_ANY)))
+        .thenReturn(cachedDef, lockedDef);
+    when(designWs.loadContentTypes(anyList(), eq(false), eq(false), any(), any()))
+        .thenReturn(List.of(lockedDef));
+    when(designWs.loadContentTypes(anyList(), eq(true), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(lockedDef));
+
+    ContentTypeFieldRuleExpressions body = emptyBody();
+    ContentTypeFieldRule rule = new ContentTypeFieldRule();
+    rule.setType(ContentTypeFieldRule.TYPE_CONDITIONAL);
+    rule.setConditionals(List.of(new ContentTypeFieldConditional("sys_title", "<>", "")));
+    body.setValidation(List.of(rule));
+
+    ContentTypeFieldRuleExpressions out =
+        adaptor.replaceFieldRuleExpressions(null, "311", "sys_title", body);
+
+    verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    verify(lockedParent).add(any(PSField.class));
+    assertEquals("sys_title", out.getFieldName());
+    assertEquals(1, out.getValidation().size());
+  }
+
+  @Test
   void put_writesApplyWhenAndClears() throws Exception {
     stubHeldLock();
     stubDefinition();
