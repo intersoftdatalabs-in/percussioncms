@@ -421,6 +421,40 @@ describe("LocaleDetailPanel", () => {
     );
   });
 
+  it("blocks other field edits while a label save is in flight (#6434)", async () => {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    let releaseLabelSave!: (saved: unknown) => void;
+    updateLocale.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          releaseLabelSave = resolve as (saved: unknown) => void;
+        }),
+    );
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-label-input"), {
+      target: { value: "Blocked Gate" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-save"));
+    await waitFor(() => {
+      expect(updateLocale).toHaveBeenCalledTimes(1);
+    });
+    // Label write still in flight: the grouped write gate must hold, so the
+    // description editor must not open.
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-edit"));
+    expect(screen.queryByTestId("developer-loc-set-description-editor")).toBeNull();
+    releaseLabelSave({ ...sampleDetail, label: "Blocked Gate" });
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-loc-set-label-editor")).toBeNull();
+    });
+    // Gate released: description editing opens again.
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-edit"));
+    expect(screen.getByTestId("developer-loc-set-description-editor")).toBeTruthy();
+  });
+
   it("saves format profile fields on the locale PUT", async () => {
     getLocaleDetail.mockResolvedValue({
       ...sampleDetail,

@@ -687,42 +687,67 @@ export function LocaleDetailPanel({
     return DEV_MSG.LOC_DELETE_ERROR;
   }
 
+  /**
+   * Write-gate helpers (#6434): dedicatedWriteBlocked previously chained
+   * every per-field busy/inflight flag in one boolean expression
+   * (cyclomatic 34, over budget). Each field now folds its busy flag and
+   * inflight ref through fieldWriteBlocked, and fields roll up into small
+   * groups so every function stays under budget. No behavior change.
+   */
+  function fieldWriteBlocked(flag: boolean, ref: { current: boolean }): boolean {
+    return flag || ref.current;
+  }
+
+  function textFieldsBlocked(): boolean {
+    return (
+      fieldWriteBlocked(labelBusy, labelInflight) ||
+      fieldWriteBlocked(descriptionBusy, descriptionInflight)
+    );
+  }
+
+  function patternFieldsBlocked(): boolean {
+    return (
+      fieldWriteBlocked(datePatternBusy, datePatternInflight) ||
+      fieldWriteBlocked(timePatternBusy, timePatternInflight) ||
+      fieldWriteBlocked(dateTimePatternBusy, dateTimePatternInflight)
+    );
+  }
+
+  function currencyFieldsBlocked(): boolean {
+    return (
+      fieldWriteBlocked(decimalSepBusy, decimalSepInflight) ||
+      fieldWriteBlocked(groupingSepBusy, groupingSepInflight) ||
+      fieldWriteBlocked(currencyCodeBusy, currencyCodeInflight) ||
+      fieldWriteBlocked(currencyPatternBusy, currencyPatternInflight)
+    );
+  }
+
+  function regionalFieldsBlocked(): boolean {
+    return (
+      fieldWriteBlocked(textDirBusy, textDirInflight) ||
+      fieldWriteBlocked(firstDayBusy, firstDayInflight) ||
+      fieldWriteBlocked(measurementBusy, measurementInflight) ||
+      fieldWriteBlocked(defaultTzBusy, defaultTzInflight)
+    );
+  }
+
+  function systemFieldsBlocked(): boolean {
+    return (
+      fieldWriteBlocked(numberingSystemBusy, numberingSystemInflight) ||
+      fieldWriteBlocked(calendarBusy, calendarInflight) ||
+      fieldWriteBlocked(statusBusy, statusInflight)
+    );
+  }
+
   function dedicatedWriteBlocked(): boolean {
     return (
       busy ||
-      labelBusy ||
-      descriptionBusy ||
-      datePatternBusy ||
-      timePatternBusy ||
-      dateTimePatternBusy ||
-      decimalSepBusy ||
-      groupingSepBusy ||
-      currencyCodeBusy ||
-      currencyPatternBusy ||
-      textDirBusy ||
-      firstDayBusy ||
-      measurementBusy ||
-      defaultTzBusy ||
-      numberingSystemBusy ||
-      calendarBusy ||
-      statusBusy ||
-      labelInflight.current ||
-      descriptionInflight.current ||
-      datePatternInflight.current ||
-      timePatternInflight.current ||
-      dateTimePatternInflight.current ||
-      decimalSepInflight.current ||
-      groupingSepInflight.current ||
-      currencyCodeInflight.current ||
-      currencyPatternInflight.current ||
-      textDirInflight.current ||
-      firstDayInflight.current ||
-      measurementInflight.current ||
-      defaultTzInflight.current ||
-      numberingSystemInflight.current ||
-      calendarInflight.current ||
-      statusInflight.current ||
-      inflight.current
+      inflight.current ||
+      textFieldsBlocked() ||
+      patternFieldsBlocked() ||
+      currencyFieldsBlocked() ||
+      regionalFieldsBlocked() ||
+      systemFieldsBlocked()
     );
   }
 
