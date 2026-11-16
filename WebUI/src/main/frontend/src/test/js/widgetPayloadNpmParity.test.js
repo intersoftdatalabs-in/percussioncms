@@ -64,6 +64,7 @@ import { describe, expect, it } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
 import { createRequire } from "node:module";
+import { Script } from "node:vm";
 import { fileURLToPath } from "node:url";
 
 const require = createRequire(import.meta.url);
@@ -454,6 +455,153 @@ describe("widget-payload npm refresh parity (issue #6319 slice 3: list.js)", () 
       expect(directoryList.visibleItems).toHaveLength(3);
     } finally {
       document.body.innerHTML = "";
+    }
+  });
+});
+
+const FULLCALENDAR_BASE = path.join(
+  "modules",
+  "perc-packages",
+  "src",
+  "main",
+  "resources",
+  "Packages",
+  "perc.widget.calendar",
+  "sys__UserDependency--web_resources",
+  "widgets",
+  "calendarTwo",
+  "js",
+);
+
+// CalendarTwo fullcalendar pair (percCalendarTwo.xml: fullcalendar-js,
+// gcal-js, lang-all-js). Slice 5 of #6502 rebases the pair onto the npm
+// fullcalendar@2.9.1 dist with the two Percussion mods re-applied (see the
+// percCalendarTwoSnippet.vm contract comment): reportEvents resolves the
+// per-widget Perc.events deferred, and month-view computeRange reads
+// Perc.range instead of the stock hard-coded 6. Byte-identity with the npm
+// dist is impossible for a fork, so this block reconstructs the expected
+// payload from the installed dist plus the documented patches and pins the
+// reconstruction byte-identical — any silent mod loss or drift fails loudly.
+const FULLCALENDAR_NONMIN_PATCHES = [
+  ["<%= meta.title %> v<%= meta.version %>", "FullCalendar v2.9.1"],
+  ["<%= meta.homepage %>", "http://fullcalendar.io/"],
+  ["<%= meta.copyright %>", "2016 Adam Shaw"],
+  [
+    '\tevents = _events;\n\t\trenderEvents();',
+    '\tevents = _events;\n\t\tvar target = element[0]["id"];\n' +
+      "\t\tPerc.events[target].resolve(_events);\n\t\trenderEvents();",
+  ],
+  [
+    "range.end.add(6 - rowCnt, 'weeks');",
+    "range.end.add(Perc.range - rowCnt, 'weeks');",
+  ],
+];
+
+// The stock .min.js dist already ships the expanded banner; only the two
+// mod hunks are re-applied (same mangled scope as the stock min: `y` is
+// nested in the Qa calendar constructor, so the element parameter `c` is
+// in scope at the reportEvents patch site).
+const FULLCALENDAR_MIN_PATCHES = [
+  [
+    "function y(a){ia=a,v()}",
+    "function y(a){ia=a;var target=c[0].id;Perc.events[target].resolve(a),v()}",
+  ],
+  ['6-b,"weeks")', 'Perc.range-b,"weeks")'],
+];
+
+const FULLCALENDAR_PAYLOADS = [
+  {
+    // Published/preview copy (percCalendarTwo.xml: fullcalendar-js). The
+    // non-min dist also carries an unexpanded version:"<%= meta.version %>"
+    // wart that ships in fullcalendar@2.9.1 upstream — preserved verbatim.
+    payload: path.join(FULLCALENDAR_BASE, "fullcalendar.js"),
+    npmDist: path.join("fullcalendar", "dist", "fullcalendar.js"),
+    patches: FULLCALENDAR_NONMIN_PATCHES,
+  },
+  {
+    payload: path.join(FULLCALENDAR_BASE, "fullcalendar.min.js"),
+    npmDist: path.join("fullcalendar", "dist", "fullcalendar.min.js"),
+    patches: FULLCALENDAR_MIN_PATCHES,
+  },
+];
+
+function rebaseFullcalendarFromNpmDist(npmDistRelPath, patches) {
+  // The repo normalizes *.js to LF on commit (.gitattributes `*.js text`),
+  // so the reconstruction normalizes the stock dist the same way before
+  // patching; the payloads stay LF-verbatim and platform-stable.
+  let expected = fs
+    .readFileSync(path.join(NODE_MODULES, npmDistRelPath), "utf8")
+    .replace(/\r\n/g, "\n");
+  for (const [from, to] of patches) {
+    const occurrences = expected.split(from).length - 1;
+    expect(
+      occurrences,
+      `rebase patch site not unique in node_modules/${npmDistRelPath}: ${from.slice(0, 60)}`,
+    ).toBe(1);
+    expected = expected.split(from).join(to);
+  }
+  return expected;
+}
+
+describe("widget-payload npm refresh parity (issue #6502 slice 5: fullcalendar)", () => {
+  it("calendarTwo fullcalendar pair exists under the audited Packages tree", () => {
+    for (const { payload } of FULLCALENDAR_PAYLOADS) {
+      expect(
+        fs.existsSync(path.join(REPO_ROOT, payload)),
+        `missing payload: ${payload}`,
+      ).toBe(true);
+    }
+  });
+
+  it("calendarTwo fullcalendar pair equals stock 2.9.1 dist plus the two Percussion mods", () => {
+    for (const { payload, npmDist, patches } of FULLCALENDAR_PAYLOADS) {
+      const shipped = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
+      const expected = rebaseFullcalendarFromNpmDist(npmDist, patches);
+      expect(
+        shipped === expected,
+        `${payload} is not stock node_modules/${npmDist} plus the documented ` +
+          "Percussion mods — re-apply the slice-5 rebase, do not hand-edit",
+      ).toBe(true);
+    }
+  });
+
+  it("installed fullcalendar dist is 2.9.1 and payloads carry the expanded banner", () => {
+    const installed = JSON.parse(
+      fs.readFileSync(
+        path.join(NODE_MODULES, "fullcalendar", "package.json"),
+        "utf8",
+      ),
+    );
+    expect(installed.version).toBe("2.9.1");
+    for (const { payload } of FULLCALENDAR_PAYLOADS) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
+      expect(content).toMatch(/FullCalendar v2\.9\.1/);
+      expect(content).toMatch(/Perc\.events/);
+      expect(content).toMatch(/Perc\.range/);
+    }
+    // The rebase fixes the published min copy: it previously shipped a
+    // different uglify mangling with an unexpanded version field.
+    const minified = fs.readFileSync(
+      path.join(REPO_ROOT, FULLCALENDAR_BASE, "fullcalendar.min.js"),
+      "utf8",
+    );
+    expect(minified).toMatch(/version:"2\.9\.1"/);
+    expect(minified).not.toMatch(/<%= meta\./);
+  });
+
+  it("frontend manifests pin fullcalendar to 2.9.1 (npm audit visible)", () => {
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
+    );
+    // Exact pin (not a caret): the payload is the 2.9.1 dist plus the
+    // Percussion mods, and later majors rewrite the API and the bundle.
+    expect(manifest.dependencies["fullcalendar"]).toBe("2.9.1");
+  });
+
+  it("rebased calendarTwo fullcalendar pair parses as valid JavaScript", () => {
+    for (const { payload } of FULLCALENDAR_PAYLOADS) {
+      const source = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
+      expect(() => new Script(source), `${payload} failed to parse`).not.toThrow();
     }
   });
 });
