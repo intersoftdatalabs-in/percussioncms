@@ -525,95 +525,215 @@ public class PSLocaleHandler implements IPSActionHandler {
       int status,
       boolean overwrite)
       throws SQLException, PSJdbcTableFactoryException {
+    validateSaveLocaleArgs(languageString, displayName);
+
+    if (desc == null) desc = "";
+
+    // see if it already exists
+    PSJdbcTableData tableData = getTableData(conn, dbmsDef, dataTypeMap, languageString);
+    PSJdbcRowData rowData = findExistingLocaleRow(tableData);
+    boolean exists = rowData != null;
+
+    // if already exists and overwite == false, we're done
+    if (exists && !overwrite) return false;
+
+    String[] systemIds = resolveLocaleSystemIds(conn, exists, rowData);
+    String isBase = resolveIsBaseValue(exists, rowData, languageString);
+    String contentUsable = resolveContentUsableValue(exists, rowData);
+    PSJdbcRowData newRow =
+        buildLocaleRow(
+            systemIds[0],
+            languageString,
+            displayName,
+            desc,
+            systemIds[1],
+            String.valueOf(status),
+            isBase,
+            contentUsable);
+
+    // save it
+    return persistLocaleRow(conn, dbmsDef, dataTypeMap, newRow);
+  }
+
+  /**
+   * Validates the user-supplied arguments of {@link #saveLocale}.
+   *
+   * @param languageString The language string, may not be <code>null</code> or empty.
+   * @param displayName The display name, may not be <code>null</code> or empty.
+   * @throws IllegalArgumentException if any param is invalid.
+   */
+  static void validateSaveLocaleArgs(String languageString, String displayName) {
     if (languageString == null || languageString.trim().length() == 0)
       throw new IllegalArgumentException("languageString may not be null or empty");
 
     if (displayName == null || displayName.trim().length() == 0)
       throw new IllegalArgumentException("displayName may not be null or empty");
+  }
 
-    if (desc == null) desc = "";
+  /**
+   * Finds the existing locale row in the supplied table data, if any.
+   *
+   * @param tableData The table data looked up for the locale, may be <code>null</code>.
+   * @return The first row, or <code>null</code> when the locale does not exist yet.
+   */
+  private static PSJdbcRowData findExistingLocaleRow(PSJdbcTableData tableData) {
+    if (tableData == null) return null;
 
-    boolean saved = false;
-    boolean exists = false;
-    // see if it already exists
-    PSJdbcRowData rowData = null;
-    PSJdbcTableData tableData = getTableData(conn, dbmsDef, dataTypeMap, languageString);
-    if (tableData != null) {
-      Iterator<?> rows = tableData.getRows();
-      if (rows.hasNext()) {
-        rowData = (PSJdbcRowData) rows.next();
-        exists = true;
-      }
-    }
+    Iterator<PSJdbcRowData> rows = tableData.getRows();
+    if (rows.hasNext()) return rows.next();
 
-    // if already exists and overwite == false, we're done
-    if (exists && !overwrite) return saved;
+    return null;
+  }
 
-    // if not, generate id and sortorder
-    String localeId = "1";
-    String sortOrder = "1";
+  /**
+   * Resolves the LOCALEID/SORTORDER pair for the row being saved. New locales get generated system
+   * values; replaced locales keep their existing ids.
+   *
+   * @param conn SQL connection to the repository, assumed not <code>null</code>.
+   * @param exists <code>true</code> when the locale already exists.
+   * @param rowData The existing row, may be <code>null</code> when the locale is new.
+   * @return A two element array holding the locale id followed by the sort order, never <code>
+   *     null</code>.
+   * @throws SQLException If there are any errors generating system ids.
+   */
+  private static String[] resolveLocaleSystemIds(
+      Connection conn, boolean exists, PSJdbcRowData rowData) throws SQLException {
     if (!exists) {
       int[] sysCols = generateSystemColumnValues(conn);
-      localeId = String.valueOf(sysCols[0]);
-      sortOrder = String.valueOf(sysCols[1]);
-    } else {
-      // get existing ids
-      PSJdbcColumnData col;
-
-      col = rowData.getColumn(COL_LOCALE_ID);
-      if (col != null) localeId = col.getValue();
-
-      col = rowData.getColumn(COL_SORT_ORDER);
-      if (col != null) sortOrder = col.getValue();
+      return new String[] {String.valueOf(sysCols[0]), String.valueOf(sysCols[1])};
     }
 
-    // build the new row with replace action
-    List<PSJdbcRowData> rowList = new ArrayList<>();
+    return new String[] {
+      existingColumnValue(rowData, COL_LOCALE_ID, "1"),
+      existingColumnValue(rowData, COL_SORT_ORDER, "1")
+    };
+  }
+
+  /**
+   * Reads a column value from an existing row, falling back when the column is absent.
+   *
+   * @param rowData The existing row, may be <code>null</code>.
+   * @param columnName The column to read, assumed not <code>null</code>.
+   * @param fallback The value to use when the column is absent.
+   * @return The column value or the fallback, may be <code>null</code> only when the column holds
+   *     <code>null</code>.
+   */
+  private static String existingColumnValue(
+      PSJdbcRowData rowData, String columnName, String fallback) {
+    if (rowData == null) return fallback;
+
+    PSJdbcColumnData col = rowData.getColumn(columnName);
+    return (col != null) ? col.getValue() : fallback;
+  }
+
+  /**
+   * Reads a column value from an existing row, falling back when the column is absent, <code>null
+   * </code>, or empty.
+   *
+   * @param rowData The existing row, may be <code>null</code>.
+   * @param columnName The column to read, assumed not <code>null</code>.
+   * @param fallback The value to use when no usable value is stored.
+   * @return The stored value or the fallback, never <code>null</code> or empty when the fallback
+   *     is non-empty.
+   */
+  private static String preservedColumnValue(
+      PSJdbcRowData rowData, String columnName, String fallback) {
+    String value = existingColumnValue(rowData, columnName, null);
+    return (value != null && !value.isEmpty()) ? value : fallback;
+  }
+
+  /**
+   * Resolves the ISBASE flag for the row being saved. Replaced locales preserve their stored flag;
+   * new language-only codes (es, hi, ar) default to base, everything else defaults to non-base.
+   * Integer 1 = base / language-only (see RXLOCALE.ISBASE). Avoid referencing system.PSLocale here
+   * (would create a module cycle).
+   *
+   * @param exists <code>true</code> when the locale already exists.
+   * @param rowData The existing row, may be <code>null</code> when the locale is new.
+   * @param languageString The language string being saved, may be <code>null</code> for new rows.
+   * @return The flag value, never <code>null</code>.
+   */
+  static String resolveIsBaseValue(
+      boolean exists, PSJdbcRowData rowData, String languageString) {
+    if (exists) return preservedColumnValue(rowData, COL_IS_BASE, "0");
+
+    return isLanguageOnlyCode(languageString) ? "1" : "0";
+  }
+
+  /**
+   * Checks whether the supplied language string is a language-only code (no region suffix).
+   *
+   * @param languageString The language string, may be <code>null</code>.
+   * @return <code>true</code> for codes such as {@code es} that contain neither {@code -} nor
+   *     {@code _}.
+   */
+  static boolean isLanguageOnlyCode(String languageString) {
+    return languageString != null
+        && !languageString.contains("-")
+        && !languageString.contains("_");
+  }
+
+  /**
+   * Resolves the CONTENTUSABLE flag for the row being saved. Replaced locales preserve their
+   * stored flag; new rows default to usable (1) so behavior is preserved for locales created before
+   * the flag existed.
+   *
+   * @param exists <code>true</code> when the locale already exists.
+   * @param rowData The existing row, may be <code>null</code> when the locale is new.
+   * @return The flag value, never <code>null</code>.
+   */
+  static String resolveContentUsableValue(boolean exists, PSJdbcRowData rowData) {
+    if (!exists) return "1";
+
+    return preservedColumnValue(rowData, COL_CONTENT_USABLE, "1");
+  }
+
+  /**
+   * Builds the replacement row for the locale being saved.
+   *
+   * @return The new row with replace action, never <code>null</code>.
+   */
+  private static PSJdbcRowData buildLocaleRow(
+      String localeId,
+      String languageString,
+      String displayName,
+      String desc,
+      String sortOrder,
+      String status,
+      String isBase,
+      String contentUsable) {
     List<PSJdbcColumnData> colList = new ArrayList<>();
     colList.add(new PSJdbcColumnData(COL_LOCALE_ID, localeId));
     colList.add(new PSJdbcColumnData(COL_LANGUAGE_STRING, languageString));
     colList.add(new PSJdbcColumnData(COL_DISPLAY_NAME, displayName));
     colList.add(new PSJdbcColumnData(COL_DESCRIPTION, desc));
     colList.add(new PSJdbcColumnData(COL_SORT_ORDER, sortOrder));
-    colList.add(new PSJdbcColumnData(COL_STATUS, String.valueOf(status)));
-    // Preserve base flag on replace when the row already exists; new rows default to non-base.
-    // Integer 1 = base / language-only (see RXLOCALE.ISBASE). Avoid referencing system.PSLocale
-    // here (would create a module cycle).
-    String isBase = "0";
-    if (exists && rowData != null) {
-      PSJdbcColumnData existingBase = rowData.getColumn(COL_IS_BASE);
-      if (existingBase != null
-          && existingBase.getValue() != null
-          && !existingBase.getValue().isEmpty()) {
-        isBase = existingBase.getValue();
-      }
-    } else if (languageString != null
-        && !languageString.contains("-")
-        && !languageString.contains("_")) {
-      // Language-only codes (es, hi, ar) default to base when newly created.
-      isBase = "1";
-    }
+    colList.add(new PSJdbcColumnData(COL_STATUS, status));
     colList.add(new PSJdbcColumnData(COL_IS_BASE, isBase));
-    // Preserve the content-usable flag on replace; new rows default to usable (1) so
-    // existing behavior is preserved for locales created before the flag existed.
-    String contentUsable = "1";
-    if (exists && rowData != null) {
-      PSJdbcColumnData existingUsable = rowData.getColumn(COL_CONTENT_USABLE);
-      if (existingUsable != null
-          && existingUsable.getValue() != null
-          && !existingUsable.getValue().isEmpty()) {
-        contentUsable = existingUsable.getValue();
-      }
-    }
     colList.add(new PSJdbcColumnData(COL_CONTENT_USABLE, contentUsable));
-    rowList.add(new PSJdbcRowData(colList.iterator(), PSJdbcRowData.ACTION_REPLACE));
+    return new PSJdbcRowData(colList.iterator(), PSJdbcRowData.ACTION_REPLACE);
+  }
 
-    // save it
+  /**
+   * Persists the supplied replacement row to the locale table.
+   *
+   * @return <code>true</code> when the locale is saved.
+   * @throws PSJdbcTableFactoryException if there are any other errors.
+   */
+  private static boolean persistLocaleRow(
+      Connection conn,
+      PSJdbcDbmsDef dbmsDef,
+      PSJdbcDataTypeMap dataTypeMap,
+      PSJdbcRowData newRow)
+      throws PSJdbcTableFactoryException {
+    List<PSJdbcRowData> rowList = new ArrayList<>();
+    rowList.add(newRow);
+
     PSJdbcTableSchema schema = getTableSchema(conn, dbmsDef, dataTypeMap);
     schema.setTableData(new PSJdbcTableData(schema.getName(), rowList.iterator()));
     try {
       PSJdbcTableFactory.processTable(conn, dbmsDef, schema, null, false);
-      saved = true;
+      return true;
     } finally {
       // clear the tabledata if we can
       try {
@@ -622,8 +742,6 @@ public class PSLocaleHandler implements IPSActionHandler {
         log.error(PSExceptionUtils.getMessageForLog(e));
       }
     }
-
-    return saved;
   }
 
   /**
