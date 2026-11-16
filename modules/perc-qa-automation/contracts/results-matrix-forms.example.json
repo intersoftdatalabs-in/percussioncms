@@ -1,0 +1,16 @@
+[
+  {
+    "suite": "forms-confirmation-matrix",
+    "spec": "tests/forms-confirmation-matrix.spec.js",
+    "contentType": "forms",
+    "label": "Forms",
+    "cell": "dts-cell",
+    "cases": {
+      "submitConfirm": "skip",
+      "summariesRetrievable": "skip",
+      "csvRetrievable": "skip"
+    },
+    "status": "skip",
+    "updated": "2026-11-16"
+  }
+]
