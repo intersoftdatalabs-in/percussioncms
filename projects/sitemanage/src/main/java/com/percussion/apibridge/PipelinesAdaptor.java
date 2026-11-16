@@ -1602,6 +1602,47 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   }
 
   @Override
+  public boolean deleteApplication(URI baseUri, String idOrName) {
+    // baseUri reserved for HATEOAS link building (interface contract)
+    requireAdmin();
+    if (StringUtils.isBlank(idOrName) || !isSafeApplicationName(idOrName.trim())) {
+      throw new WebApplicationException("Invalid pipeline application name", 400);
+    }
+    ResolvedApp resolved = resolveForLifecycle(idOrName);
+    if (resolved == null) {
+      return false;
+    }
+    if (resolved.summary.isHidden()) {
+      throw new WebApplicationException(HIDDEN_NOT_ALLOWED, Response.Status.BAD_REQUEST);
+    }
+    // Fail closed while running: the operator stops the application first — no surprise
+    // shutdown bundled into the delete.
+    if (lifecycleOps.isActive(resolved.name)) {
+      throw new WebApplicationException(
+          "Stop the application before deleting it", Response.Status.CONFLICT);
+    }
+    try {
+      persistOps.deleteApplication(resolved.name, resolved.token);
+    } catch (WebApplicationException | IllegalStateException e) {
+      throw e;
+    } catch (PSNotFoundException e) {
+      return false;
+    } catch (PSLockedException | PSNotLockedException | PSNonUniqueException e) {
+      // Held design lock: conflict, never a lock steal.
+      throw new WebApplicationException(
+          "Application design is locked by another session", Response.Status.CONFLICT);
+    } catch (PSAuthorizationException e) {
+      throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
+    } catch (RuntimeException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to delete pipeline application {}", resolved.name, e);
+      throw new IllegalStateException("Failed to delete pipeline application", e);
+    }
+    return true;
+  }
+
+  @Override
   public ApplicationValidationResult getValidation(URI baseUri, String idOrName) {
     requireAdmin();
     ResolvedApp resolved = resolveForLifecycle(idOrName);
@@ -2190,6 +2231,17 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
         throws Exception {
       throw new UnsupportedOperationException("saveEnabledFlag not implemented");
     }
+
+    /**
+     * Delete an existing classic application with a caller-held lock. Default throws: production
+     * supplies the object-store lock/delete/release path (peer {@code
+     * PSServerXmlObjectStore#deleteApplication}). Implementations throw {@link
+     * com.percussion.error.PSNotFoundException} when the application does not exist so the
+     * adaptor maps it to 404.
+     */
+    default void deleteApplication(String name, PSSecurityToken token) throws Exception {
+      throw new UnsupportedOperationException("deleteApplication not implemented");
+    }
   }
 
   private static final class DefaultApplicationLifecycleOps implements ApplicationLifecycleOps {
@@ -2262,6 +2314,34 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
           store.releaseApplicationLock(lockId, name);
         } catch (RuntimeException e) {
           log.warn("Failed to release enable/disable lock for {}", name, e);
+        }
+      }
+    }
+
+    @Override
+    public void deleteApplication(String name, PSSecurityToken tok) throws Exception {
+      String session = currentSession();
+      String user = currentUser();
+      if (StringUtils.isBlank(session) || StringUtils.isBlank(user)) {
+        throw new WebApplicationException(
+            "session and user are required to delete the application",
+            Response.Status.CONFLICT);
+      }
+      IPSLockerId lockId = new PSXmlObjectStoreLockerId(user, true, session);
+      PSServerXmlObjectStore store = PSServerXmlObjectStore.getInstance();
+      // Acquire-only: a held lock surfaces as PSLockedException (409), never an override.
+      store.getApplicationLock(lockId, name, 30);
+      try {
+        boolean deleted = store.deleteApplication(name, lockId, tok);
+        if (!deleted) {
+          // Resolved from the catalog but gone from the object store (rename/remove race).
+          throw new PSNotFoundException("Pipeline application not found: " + name);
+        }
+      } finally {
+        try {
+          store.releaseApplicationLock(lockId, name);
+        } catch (RuntimeException e) {
+          log.warn("Failed to release delete lock for {}", name, e);
         }
       }
     }

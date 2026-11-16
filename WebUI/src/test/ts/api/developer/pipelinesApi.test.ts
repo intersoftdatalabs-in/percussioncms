@@ -47,6 +47,7 @@ import {
   unwrapPipelineRequestTrace,
   putTracing,
   getLastTrace,
+  deletePipelineApplication,
   setApplicationEnabled,
   withoutStalePipelineEnabledGap,
   wrapPipelineEnabledStateForWire,
@@ -196,6 +197,14 @@ describe("pipelinesApi Slice B lifecycle", () => {
     expect(wrapPipelineEnabledStateForWire({ enabled: true })).toEqual({
       PipelineEnabledState: { enabled: true },
     });
+  });
+
+  it("deletePipelineApplication DELETEs the encoded application path", async () => {
+    const spy = vi.spyOn(client, "del").mockResolvedValue(undefined);
+    await deletePipelineApplication("app with spaces");
+    expect(spy).toHaveBeenCalledWith(
+      `${PATHS.PIPELINES}/${encodeURIComponent("app with spaces")}`,
+    );
   });
   it("getPipelineIr GETs /ir with encoded idOrName", async () => {
     const doc = {

@@ -20,6 +20,7 @@ import { useSpaBootstrap } from "../app/bootstrap/BootstrapContext";
 import { isApiError } from "../api/client";
 import {
   deleteDatasourceBackend,
+  deletePipelineApplication,
   executeResource,
   getApplicationDetail,
   getApplicationValidation,
@@ -75,6 +76,8 @@ import {
 } from "./catalogStyles";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
+import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
+import { captureDialogOpener } from "../architecture/useDialogEscape";
 
 const DEFAULT_INVOKE_BODY = '{\n  "params": {}\n}\n';
 
@@ -260,6 +263,20 @@ function lifecycleErrMsg(err: unknown, fallback: string): string {
     return DEV_MSG.PIPE_FORBIDDEN;
   }
   return panelErrMsg(err, fallback);
+}
+
+function deleteErrMsg(err: unknown): string {
+  if (isApiError(err) && err.status === 403) {
+    return DEV_MSG.PIPE_DELETE_FORBIDDEN;
+  }
+  if (isApiError(err) && err.status === 404) {
+    return panelErrMsg(err, DEV_MSG.PIPE_DELETE_NOT_FOUND);
+  }
+  return panelErrMsg(err, DEV_MSG.PIPE_DELETE_ERROR);
+}
+
+function canDelete(detail: ApplicationDetail | null): boolean {
+  return detail != null && detail.hidden !== true;
 }
 
 export type ResultPageSaveInputs =
@@ -608,9 +625,12 @@ type ProblemsState =
 export function PipelineDetailPanel({
   idOrName,
   onBack,
+  onDeleted,
 }: {
   idOrName: string;
   onBack: () => void;
+  /** Optional catalog-sync hook: drops the deleted row without a refetch. */
+  onDeleted?: (name: string) => void;
 }): React.ReactElement {
   const { isAdmin } = useSpaBootstrap();
   const [detail, setDetail] = useState<ApplicationDetail | null>(null);
@@ -620,6 +640,8 @@ export function PipelineDetailPanel({
   const [busy, setBusy] = useState(false);
   const [lifecycleAction, setLifecycleAction] = useState<"start" | "stop" | "enable" | "disable" | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [resourceName, setResourceName] = useState("");
   const [invokeBody, setInvokeBody] = useState(DEFAULT_INVOKE_BODY);
   const [invokeBusy, setInvokeBusy] = useState(false);
@@ -698,6 +720,8 @@ export function PipelineDetailPanel({
     setNotice(null);
     setBusy(false);
     setLifecycleAction(null);
+    setDeleteConfirmOpen(false);
+    setDeleting(false);
     setExporting(false);
     setResourceName("");
     setInvokeBody(DEFAULT_INVOKE_BODY);
@@ -989,6 +1013,42 @@ export function PipelineDetailPanel({
       if (mountedRef.current) {
         setBusy(false);
         setLifecycleAction(null);
+      }
+    }
+  }
+
+  function requestDelete(ev: React.MouseEvent<HTMLElement>): void {
+    if (!detail || inflight.current || !canDelete(detail)) return;
+    captureDialogOpener(ev.currentTarget);
+    setDeleteConfirmOpen(true);
+  }
+
+  async function handleDelete(): Promise<void> {
+    if (!detail || inflight.current || !canDelete(detail)) return;
+    const name = detail.name || idOrName;
+    setDeleteConfirmOpen(false);
+    inflight.current = true;
+    setBusy(true);
+    setDeleting(true);
+    setActionError(null);
+    setNotice(null);
+    try {
+      await deletePipelineApplication(idOrName);
+      if (!mountedRef.current) return;
+      setNotice(DEV_MSG.PIPE_DELETED);
+      if (onDeleted) {
+        onDeleted(name);
+      } else {
+        onBack();
+      }
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setActionError(deleteErrMsg(err));
+    } finally {
+      inflight.current = false;
+      if (mountedRef.current) {
+        setBusy(false);
+        setDeleting(false);
       }
     }
   }
@@ -1605,6 +1665,7 @@ export function PipelineDetailPanel({
   const enableEnabled = detail != null && !busy && canEnable(detail);
   const disableEnabled = detail != null && !busy && canDisable(detail);
   const exportEnabled = detail != null && !busy && canExport(detail);
+  const deleteEnabled = detail != null && !busy && canDelete(detail);
   // Keep Invoke clickable when resource is blank so client validation can surface.
   const invokeEnabled = detail != null && !invokeBusy;
   const dataSetNames = (detail?.dataSets || [])
@@ -1743,8 +1804,27 @@ export function PipelineDetailPanel({
               >
                 {exporting ? DEV_MSG.PIPE_EXPORTING : DEV_MSG.PIPE_EXPORT}
               </button>
+              <button
+                type="button"
+                data-testid="developer-pipe-delete"
+                aria-label={DEV_MSG.PIPE_DELETE}
+                title={deleteEnabled ? DEV_MSG.PIPE_DELETE : DEV_MSG.PIPE_DELETE_DISABLED_HINT}
+                disabled={!deleteEnabled}
+                onClick={requestDelete}
+                style={deleteEnabled ? secondaryButton : disabledSecondary}
+              >
+                {deleting ? DEV_MSG.PIPE_DELETING : DEV_MSG.PIPE_DELETE}
+              </button>
             </div>
           ) : null}
+
+          <CatalogConfirmDialog
+            open={deleteConfirmOpen}
+            busy={busy}
+            message={DEV_MSG.PIPE_DELETE_CONFIRM}
+            onCancel={() => setDeleteConfirmOpen(false)}
+            onConfirm={() => void handleDelete()}
+          />
 
           {notice ? (
             <div role="status" data-testid="developer-pipe-lifecycle-notice" style={successNotice}>

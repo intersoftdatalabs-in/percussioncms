@@ -257,7 +257,17 @@ export function PipelinesPanel(): React.ReactElement {
 
   if (selected) {
     return (
-      <PipelineDetailPanel idOrName={selected} onBack={() => setSelected(null)} />
+      <PipelineDetailPanel
+        idOrName={selected}
+        onBack={() => setSelected(null)}
+        onDeleted={(name) => {
+          // Row drops only after a successful delete — no refetch, no optimistic removal.
+          setItems((prev) =>
+            prev == null ? prev : prev.filter((row) => row.name !== name),
+          );
+          setSelected(null);
+        }}
+      />
     );
   }
 

@@ -177,6 +177,16 @@ export async function setApplicationEnabled(
   return unwrapApplicationDetail(payload);
 }
 
+/**
+ * DELETE /services/pipelines/{idOrName} — Admin delete (#6463, APP-08).
+ * 204 on success (no body). Named failures: 400 hidden/invalid, 403 non-Admin,
+ * 404 unknown, 409 running (stop first) or design lock held.
+ */
+export async function deletePipelineApplication(idOrName: string): Promise<void> {
+  const key = encodeURIComponent(idOrName);
+  await del<unknown>(`${PATHS.PIPELINES}/${key}`);
+}
+
 /** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineEnabledState}. */
 export const PIPELINE_ENABLED_STATE_ROOT = "PipelineEnabledState";
 

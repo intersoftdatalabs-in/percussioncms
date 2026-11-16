@@ -45,6 +45,7 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", async (importOriginal) =>
   putTracing: vi.fn(),
   getTracing: vi.fn(),
   getLastTrace: vi.fn(),
+  deletePipelineApplication: vi.fn(),
 }));
 
 const getApplicationDetail = pipelinesApi.getApplicationDetail as ReturnType<typeof vi.fn>;
@@ -73,6 +74,9 @@ const retrieveBinaryResource = pipelinesApi.retrieveBinaryResource as ReturnType
 const putResultPage = pipelinesApi.putResultPage as ReturnType<typeof vi.fn>;
 const putTracing = pipelinesApi.putTracing as ReturnType<typeof vi.fn>;
 const getLastTrace = pipelinesApi.getLastTrace as ReturnType<typeof vi.fn>;
+const deletePipelineApplication = pipelinesApi.deletePipelineApplication as ReturnType<
+  typeof vi.fn
+>;
 
 const sampleDetail = {
   id: 1,
@@ -113,6 +117,28 @@ function renderDetail(isAdmin = true) {
   );
 }
 
+function renderDetailWithDeleted(isAdmin = true, onDeleted?: (name: string) => void) {
+  return render(
+    <BootstrapProvider
+      value={{
+        userName: isAdmin ? "admin" : "editor",
+        locale: "en-us",
+        entry: "developer",
+        isAdmin,
+        isDesigner: true,
+        isWidgetBuilderActive: false,
+        allowExternalAvatarFetch: true,
+      }}
+    >
+      <PipelineDetailPanel
+        idOrName="sys_cmpDocuments"
+        onBack={() => undefined}
+        onDeleted={onDeleted}
+      />
+    </BootstrapProvider>,
+  );
+}
+
 describe("PipelineDetailPanel", () => {
   beforeEach(() => {
     (window as unknown as { I18N?: { message: (k: string) => string } }).I18N = {
@@ -137,6 +163,7 @@ describe("PipelineDetailPanel", () => {
     putResultPage.mockReset();
     putTracing.mockReset();
     getLastTrace.mockReset();
+    deletePipelineApplication.mockReset();
     getPipelineIr.mockResolvedValue({ irVersion: "1.0", source: "NATIVE", resources: [] });
     getPipelineOpenApi.mockResolvedValue(
       'openapi: "3.0.3"\npaths:\n  /pipelines/sys_cmpDocuments/resources/contenteditor/execute:\n',
@@ -182,6 +209,7 @@ describe("PipelineDetailPanel", () => {
       mimeType: "text/html",
     });
     putTracing.mockResolvedValue({ enabled: true });
+    deletePipelineApplication.mockResolvedValue(undefined);
     getLastTrace.mockRejectedValue({
       status: 404,
       statusText: "Not Found",
@@ -1513,5 +1541,121 @@ describe("PipelineDetailPanel", () => {
     });
     expect(screen.queryByTestId("developer-pipe-lifecycle")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-export")).toBeNull();
+  });
+
+  it("Admin deletes with confirm and notifies onDeleted", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    const onDeleted = vi.fn();
+    renderDetailWithDeleted(true, onDeleted);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-delete"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-catalog-confirm-dialog")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-catalog-confirm-body").textContent).toBe(
+      DEV_MSG.PIPE_DELETE_CONFIRM,
+    );
+    // Cancel writes nothing.
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-catalog-confirm-dialog")).toBeNull();
+    });
+    expect(deletePipelineApplication).not.toHaveBeenCalled();
+    expect(onDeleted).not.toHaveBeenCalled();
+    // Confirm deletes and reports the catalog name.
+    fireEvent.click(screen.getByTestId("developer-pipe-delete"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-catalog-confirm-dialog")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(deletePipelineApplication).toHaveBeenCalledWith("sys_cmpDocuments");
+    });
+    await waitFor(() => {
+      expect(onDeleted).toHaveBeenCalledWith("sys_cmpDocuments");
+    });
+  });
+
+  it("shows PIPE_DELETE_FORBIDDEN on 403 delete", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    deletePipelineApplication.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: null,
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-delete"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-catalog-confirm-dialog")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-lifecycle-error").textContent).toBe(
+        DEV_MSG.PIPE_DELETE_FORBIDDEN,
+      );
+    });
+    expect(deletePipelineApplication).toHaveBeenCalledWith("sys_cmpDocuments");
+  });
+
+  it("shows named running error on 409 delete", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    deletePipelineApplication.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: { message: "Stop the application before deleting it" },
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-delete"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-catalog-confirm-dialog")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("developer-pipe-lifecycle-error").textContent,
+      ).toContain("Stop the application before deleting it");
+    });
+  });
+
+  it("shows not-found error on 404 delete", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    deletePipelineApplication.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: null,
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-delete")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-delete"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-catalog-confirm-dialog")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-catalog-confirm-submit"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("developer-pipe-lifecycle-error").textContent,
+      ).toContain(DEV_MSG.PIPE_DELETE_NOT_FOUND);
+    });
+  });
+
+  it("disables Delete while the application is hidden", async () => {
+    getApplicationDetail.mockResolvedValue({ ...sampleDetail, hidden: true });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-detail-title")).toBeTruthy();
+    });
+    const deleteBtn = screen.getByTestId("developer-pipe-delete");
+    expect((deleteBtn as HTMLButtonElement).disabled).toBe(true);
+    expect(deleteBtn.getAttribute("title")).toBe(DEV_MSG.PIPE_DELETE_DISABLED_HINT);
   });
 });

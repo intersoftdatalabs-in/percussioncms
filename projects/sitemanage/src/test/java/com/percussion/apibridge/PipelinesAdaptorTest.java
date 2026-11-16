@@ -836,8 +836,7 @@ class PipelinesAdaptorTest {
   }
 
   @Test
-  void setApplicationEnabled_mapsValidationFailureTo400() throws Exception {
-    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+  void setApplicationEnabled_mapsValidationFailureTo400() throws Exception {    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
     PSApplication app = mock(PSApplication.class);
     when(app.isEnabled()).thenReturn(false);
     PipelinesAdaptor.ApplicationPersistOps persistOps =
@@ -859,6 +858,211 @@ class PipelinesAdaptorTest {
                   adaptor.setApplicationEnabled(
                       URI.create("http://localhost/services/"), "sys_cmpDocuments", true));
       assertEquals(400, ex.getResponse().getStatus());
+    }
+  }
+
+  private static PipelinesAdaptor deleteAdaptor(
+      PSApplicationSummary[] sums,
+      boolean active,
+      PipelinesAdaptor.ApplicationPersistOps persistOps) {
+    PipelinesAdaptor.ApplicationLifecycleOps lifecycle =
+        new PipelinesAdaptor.ApplicationLifecycleOps() {
+          @Override
+          public boolean isActive(String appName) {
+            return active;
+          }
+
+          @Override
+          public void start(String appName) {}
+
+          @Override
+          public boolean stop(String appName) {
+            return false;
+          }
+        };
+    return new PipelinesAdaptor(
+        tok -> sums,
+        () -> mock(IPSPipelineRuntimeService.class),
+        () -> mock(IPSPipelineIrService.class),
+        (name, tok) -> mock(PSApplication.class),
+        () -> true,
+        lifecycle,
+        (name, tok) -> detailNamed(name, false),
+        null,
+        persistOps);
+  }
+
+  @Test
+  void deleteApplication_requiresAdmin() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> false,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () -> adaptor.deleteApplication(URI.create("http://localhost/"), "sys_cmpDocuments"));
+      assertEquals(403, ex.getResponse().getStatus());
+      assertEquals(PipelinesAdaptor.ADMIN_REQUIRED, ex.getMessage());
+    }
+  }
+
+  @Test
+  void deleteApplication_rejectsHidden() {
+    PSApplicationSummary hidden = summary(1, "hiddenApp", "h", true, "r", false, true);
+    PipelinesAdaptor adaptor =
+        deleteAdaptor(
+            new PSApplicationSummary[] {hidden},
+            false,
+            mock(PipelinesAdaptor.ApplicationPersistOps.class));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () -> adaptor.deleteApplication(URI.create("http://localhost/"), "hiddenApp"));
+      assertEquals(400, ex.getResponse().getStatus());
+      assertEquals(PipelinesAdaptor.HIDDEN_NOT_ALLOWED, ex.getMessage());
+    }
+  }
+
+  @Test
+  void deleteApplication_unknownReturnsFalse() {
+    PipelinesAdaptor adaptor =
+        deleteAdaptor(
+            new PSApplicationSummary[0],
+            false,
+            mock(PipelinesAdaptor.ApplicationPersistOps.class));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      assertFalse(adaptor.deleteApplication(URI.create("http://localhost/"), "missing"));
+    }
+  }
+
+  @Test
+  void deleteApplication_invalidNameIs400() {
+    PipelinesAdaptor adaptor =
+        deleteAdaptor(
+            new PSApplicationSummary[0],
+            false,
+            mock(PipelinesAdaptor.ApplicationPersistOps.class));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () -> adaptor.deleteApplication(URI.create("http://localhost/"), "a/b"));
+      assertEquals(400, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void deleteApplication_deletesStoppedApp() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor.ApplicationPersistOps persistOps =
+        mock(PipelinesAdaptor.ApplicationPersistOps.class);
+    PipelinesAdaptor adaptor =
+        deleteAdaptor(new PSApplicationSummary[] {sum}, false, persistOps);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      assertTrue(
+          adaptor.deleteApplication(URI.create("http://localhost/"), "sys_cmpDocuments"));
+      verify(persistOps).deleteApplication(eq("sys_cmpDocuments"), any());
+    }
+  }
+
+  @Test
+  void deleteApplication_runningIs409() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor.ApplicationPersistOps persistOps =
+        mock(PipelinesAdaptor.ApplicationPersistOps.class);
+    PipelinesAdaptor adaptor =
+        deleteAdaptor(new PSApplicationSummary[] {sum}, true, persistOps);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () -> adaptor.deleteApplication(URI.create("http://localhost/"), "sys_cmpDocuments"));
+      assertEquals(409, ex.getResponse().getStatus());
+      assertEquals("Stop the application before deleting it", ex.getMessage());
+      verify(persistOps, never()).deleteApplication(anyString(), any());
+    }
+  }
+
+  @Test
+  void deleteApplication_mapsLockConflictTo409() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor.ApplicationPersistOps persistOps =
+        mock(PipelinesAdaptor.ApplicationPersistOps.class);
+    org.mockito.Mockito.doThrow(
+            new com.percussion.design.objectstore.PSLockedException(1, "sys_cmpDocuments"))
+        .when(persistOps)
+        .deleteApplication(eq("sys_cmpDocuments"), any());
+    PipelinesAdaptor adaptor =
+        deleteAdaptor(new PSApplicationSummary[] {sum}, false, persistOps);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () -> adaptor.deleteApplication(URI.create("http://localhost/"), "sys_cmpDocuments"));
+      assertEquals(409, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void deleteApplication_missingMapsToFalse() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor.ApplicationPersistOps persistOps =
+        mock(PipelinesAdaptor.ApplicationPersistOps.class);
+    org.mockito.Mockito.doThrow(
+            new com.percussion.error.PSNotFoundException("Pipeline application not found"))
+        .when(persistOps)
+        .deleteApplication(eq("sys_cmpDocuments"), any());
+    PipelinesAdaptor adaptor =
+        deleteAdaptor(new PSApplicationSummary[] {sum}, false, persistOps);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      assertFalse(
+          adaptor.deleteApplication(URI.create("http://localhost/"), "sys_cmpDocuments"));
+    }
+  }
+
+  @Test
+  void deleteApplication_mapsAuthzTo403() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor.ApplicationPersistOps persistOps =
+        mock(PipelinesAdaptor.ApplicationPersistOps.class);
+    org.mockito.Mockito.doThrow(
+            new com.percussion.security.PSAuthorizationException("delete application", "sys_cmpDocuments", "s"))
+        .when(persistOps)
+        .deleteApplication(eq("sys_cmpDocuments"), any());
+    PipelinesAdaptor adaptor =
+        deleteAdaptor(new PSApplicationSummary[] {sum}, false, persistOps);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () -> adaptor.deleteApplication(URI.create("http://localhost/"), "sys_cmpDocuments"));
+      assertEquals(403, ex.getResponse().getStatus());
+      assertEquals(PipelinesAdaptor.ADMIN_REQUIRED, ex.getMessage());
     }
   }
 

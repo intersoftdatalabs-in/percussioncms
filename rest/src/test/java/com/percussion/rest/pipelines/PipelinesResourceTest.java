@@ -735,6 +735,47 @@ public class PipelinesResourceTest {
   }
 
   @Test
+  public void deleteApplicationReturnsNoContentOnSuccess() {
+    when(adaptor.deleteApplication(any(), eq("sys_foo"))).thenReturn(true);
+
+    Response out = resource.deleteApplication("sys_foo");
+
+    assertEquals(204, out.getStatus());
+    verify(adaptor).deleteApplication(any(), eq("sys_foo"));
+  }
+
+  @Test
+  public void deleteApplicationNotFound() {
+    when(adaptor.deleteApplication(any(), eq("missing"))).thenReturn(false);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteApplication("missing"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Application not found", ex.getMessage());
+  }
+
+  @Test
+  public void deleteApplicationRethrowsNamedFailures() {
+    when(adaptor.deleteApplication(any(), eq("running")))
+        .thenThrow(new WebApplicationException("Stop the application before deleting it", 409));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteApplication("running"));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertEquals("Stop the application before deleting it", ex.getMessage());
+  }
+
+  @Test
+  public void deleteApplicationRethrowsForbidden() {
+    when(adaptor.deleteApplication(any(), eq("sys_foo")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.deleteApplication("sys_foo"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void setApplicationEnabledRethrowsWebApplicationException() {
     when(adaptor.setApplicationEnabled(any(), eq("sys_foo"), eq(true)))
         .thenThrow(new WebApplicationException("Admin role required", 403));
