@@ -38,8 +38,8 @@ import org.junit.jupiter.api.io.TempDir;
  * Runtime H2-shape M2 evidence: {@link PSWidgetDao} with blank {@code
  * widgetDao.modernPackageRoots} + product classpath materialize must select {@link
  * PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE} for every product widget (#3583 / #3738 /
- * #2852 / parent #2632). Retired-legacy ids without a modern manifest fail clearly instead of
- * selecting legacy; legacy counters stay {@code 0}.
+ * #2852 / parent #2632; Widget legacy path removed #6440). Retired-legacy ids without a modern
+ * manifest fail clearly instead of selecting legacy; the legacy counters/keys are gone.
  */
 class PSWidgetDaoProductH2ZeroLegacySelectionTest {
 
@@ -110,13 +110,11 @@ class PSWidgetDaoProductH2ZeroLegacySelectionTest {
         "unexpected LEGACY_* on non-waived product widgets: " + unexpectedLegacy);
 
     PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyDefinitions(
-        roots,
-        widgetsDir,
-        productIds,
-        PSProductPackageRootSelectionEvidence.currentWaivedDefinitionIds());
+        roots, productIds, PSProductPackageRootSelectionEvidence.currentWaivedDefinitionIds());
 
-    // Modern-only (#2852): a customer-only id with no modern manifest fails clearly
-    // instead of selecting LEGACY_WIDGET_XML.
+    // Modern-only (#2852; Widget legacy path removed #6440): a customer-only id with no modern
+    // manifest fails clearly
+    // instead of selecting any legacy kind (LEGACY_WIDGET_XML was removed).
     PSDefinitionSourceNotFoundException customerEx =
         assertThrows(
             PSDefinitionSourceNotFoundException.class,
@@ -133,11 +131,11 @@ class PSWidgetDaoProductH2ZeroLegacySelectionTest {
     }
 
     assertEquals(productIds.size(), dao.getModernSelectionCount());
-    assertEquals(0L, dao.getLegacySelectionCount(), dao.formatSelectionMetricsSummary());
+    assertEquals(productIds.size(), dao.getTotalSelectionCount());
     assertEquals(0L, unexpectedLegacy.size());
 
     String summary = dao.formatSelectionMetricsSummary();
-    assertTrue(summary.contains("legacyWidgetXml=0"), summary);
+    assertFalse(summary.contains("legacyWidgetXml"), summary);
     assertTrue(summary.contains("modern=" + productIds.size()), summary);
   }
 

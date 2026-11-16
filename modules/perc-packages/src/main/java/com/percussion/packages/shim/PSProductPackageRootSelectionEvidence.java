@@ -41,9 +41,9 @@ import java.util.stream.Collectors;
  * <p>Walks product package roots (or an H2-style {@code Packages/Modern} install tree) and records
  * {@link PSLegacyDefinitionXmlShim} selection. Non-waived widget packages must report {@code
  * wouldUseLegacyShim == false} / {@link PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE}. Unexpected
- * {@code LEGACY_*} on a non-waived product widget fails the harness. {@code perc.Test} may still
- * select {@link PSDefinitionSourceKind#LEGACY_WIDGET_XML} while it remains on the Widget G4 waive
- * list; after that waiver is dropped (#3736) it must be modern-first like other product packages.
+ * {@code LEGACY_*} on a non-waived product widget fails the harness. The Widget legacy path was
+ * removed (#6440): {@code LEGACY_WIDGET_XML} no longer exists, so a root with only retired
+ * Widget XML resolves to a {@code null} kind (unresolvable) — never to a legacy kind.
  * The dual-run fallback itself is <strong>retired</strong> (#2852): selection is modern-only, so
  * {@code LEGACY_*} can no longer be produced — a root with only retired legacy XML resolves to a
  * {@code null} kind (unresolvable), never to a legacy kind. Ship-path reappearance of product
@@ -109,7 +109,7 @@ public final class PSProductPackageRootSelectionEvidence {
   }
 
   /**
-   * One definition-id selection against modern roots + optional install Widgets XML.
+   * One definition-id selection against modern roots (Widget legacy path removed #6440).
    *
    * @param definitionId widget definition id
    * @param kind selected kind, or {@code null} when no modern source exists (including
@@ -235,11 +235,10 @@ public final class PSProductPackageRootSelectionEvidence {
 
   /**
    * Modern-only {@link PSLegacyDefinitionXmlShim#selectDefinition} for each id against modern roots
-   * and optional install Widgets XML (H2/runtime shape, #2852). Ids without a modern manifest
+   * (#2852; Widget legacy path removed #6440). Ids without a modern manifest
    * resolve to a {@code null} kind (unresolvable) — retired legacy XML is never selected.
    *
    * @param modernPackageRoots modern package roots (may be empty)
-   * @param legacyWidgetsDir install {@code rxconfig/Widgets} (may be {@code null})
    * @param definitionIds widget ids to classify
    * @param waivedDefinitionIds ids allowed to select {@code LEGACY_*} (typically {@code
    *     PSWidget_TestProperties})
@@ -247,7 +246,6 @@ public final class PSProductPackageRootSelectionEvidence {
    */
   public static Report scanDefinitionSelection(
       List<Path> modernPackageRoots,
-      Path legacyWidgetsDir,
       Collection<String> definitionIds,
       Set<String> waivedDefinitionIds) {
     Objects.requireNonNull(definitionIds, "definitionIds");
@@ -264,7 +262,7 @@ public final class PSProductPackageRootSelectionEvidence {
       try {
         PSDefinitionSourceSelection sel =
             PSLegacyDefinitionXmlShim.selectDefinition(
-                id, roots, legacyWidgetsDir, null, null);
+                id, roots, null, null);
         findings.add(new DefinitionFinding(id, sel.getKind(), isWaived));
       } catch (PSDefinitionSourceNotFoundException e) {
         findings.add(new DefinitionFinding(id, null, isWaived));
@@ -355,19 +353,17 @@ public final class PSProductPackageRootSelectionEvidence {
    * Fail-fast: non-waived definition ids must not select {@code LEGACY_*}.
    *
    * @param modernPackageRoots modern roots
-   * @param legacyWidgetsDir optional install Widgets dir
    * @param definitionIds ids to classify
    * @param waivedDefinitionIds waived ids
    * @throws IllegalStateException when unexpected legacy selection is present
    */
   public static void assertNoUnexpectedLegacyDefinitions(
       List<Path> modernPackageRoots,
-      Path legacyWidgetsDir,
       Collection<String> definitionIds,
       Set<String> waivedDefinitionIds) {
     Report report =
         scanDefinitionSelection(
-            modernPackageRoots, legacyWidgetsDir, definitionIds, waivedDefinitionIds);
+            modernPackageRoots, definitionIds, waivedDefinitionIds);
     throwIfUnclean(report, "definition-id dual-run selection");
   }
 
@@ -437,7 +433,7 @@ public final class PSProductPackageRootSelectionEvidence {
    * Product/H2 {@code perc.Test} selection must match the current Widget waive list (#3738).
    *
    * <ul>
-   *   <li>Waived: residual may select {@link PSDefinitionSourceKind#LEGACY_WIDGET_XML}
+   *   <li>Waived: residual is unresolvable (null kind) under modern-only selection
    *   <li>Waiver dropped: {@code perc.Test} must be modern-first if present; no waived-legacy roots
    * </ul>
    *

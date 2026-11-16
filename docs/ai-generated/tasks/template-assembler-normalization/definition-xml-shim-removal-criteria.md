@@ -53,6 +53,8 @@ Re-verify against current `main` before any removal PR. Counts below were taken 
 
 **Snapshot 2026-11-08 (#5810 gadget residual — modern-only retirement):** `GadgetRegistry.loadGadgetTypeMap()` rewired to modern `gadget-catalog.json` only; modern absent/empty/unreadable yields empty map + ERROR (retired `GadgetRegistry.xml` never loaded, kept on classpath unreferenced). Signatures stable (`Source.LEGACY_REGISTRY_XML`, `REGISTRY_RESOURCE`, snapshot/summary keys retained for QA telemetry; legacy reads 0). Pure `parseRegistryXml` parser retained for upgrade/tooling parity with kept compilers. Modern-only unit tests (`GadgetRegistryTest` + `GadgetRegistrySelectionMetricsHarnessTest`); standalone `WebUI` clean install green (count in PR body); this doc + dual-run doc + product-docs dual-run page updated to retired.
 
+**Snapshot 2026-11-16 (slice #6440 — `LEGACY_WIDGET_XML` load path + `GadgetRegistry` dual-load fallback removed):** gate flipped since #2852 closed. `PSDefinitionSourceKind.LEGACY_WIDGET_XML` deleted; `PSLegacyDefinitionXmlShim.selectByPresence` / `selectDefinition` / `legacyProbeHint*` no longer take or probe a Widget XML path (Page / Gadget diagnostic probes retained for sibling slices); `PSWidgetDao` no longer passes a Widgets dir and its legacy counters / `legacyWidgetXml` snapshot key / summary field are removed (snapshot keys now `modern`, `total`); `GadgetRegistry` is single-load only (`Source.LEGACY_REGISTRY_XML`, `REGISTRY_RESOURCE`, two-arg overload, legacy counters / snapshot key removed; `parseRegistryXml` kept as the gadget-XML pure parser for the LEGACY_GADGET_XML residual slice). Regression evidence: `PSLegacyDefinitionXmlShimTest` asserts no `LEGACY_WIDGET_*` kind exists and the retired error names no widget file; `GadgetRegistryTest` asserts `Source` has exactly 2 values. Builds: `cd modules/perc-packages && ../../mvnw clean install` → BUILD SUCCESS, Tests run: 295, Failures: 0; `cd projects/sitemanage && ../../mvnw clean install` → BUILD SUCCESS, Tests run: 4351, Failures: 0; `cd WebUI && ../mvnw clean install` → Java tests 83/83 green, vitest 9021 passed with 3 pre-existing `widgetPayloadNpmParity` failures verified identical on pristine `origin/main` (environmental, #6319 area, untouched by this slice). Out of scope (sibling slices): `LEGACY_PAGE_XML` removal, `LEGACY_GADGET_XML` + shim-removal closeout.
+
 ---
 
 ## 1. Metrics (must all pass)
@@ -77,7 +79,7 @@ Re-verify against current `main` before any removal PR. Counts below were taken 
 | Metric | Pass condition | How to measure |
 |--------|----------------|----------------|
 | Legacy selection rate | `wouldUseLegacyShim(packageRoot) == false` for all product package roots in install/staging | Unit / integration probe using `PSLegacyDefinitionXmlShim.wouldUseLegacyShim` |
-| Runtime selection kind | No production log/metric for `LEGACY_WIDGET_XML` / `LEGACY_PAGE_XML` / `LEGACY_GADGET_XML` over agreed window (see time-box), **or** remaining hits are **explicitly waived** with owner + sunset date | Log field or counter on selection kind when DAO wiring is complete |
+| Runtime selection kind | No production log/metric for `LEGACY_PAGE_XML` / `LEGACY_GADGET_XML` over agreed window (see time-box), **or** remaining hits are **explicitly waived** with owner + sunset date (`LEGACY_WIDGET_XML` structurally removed #6440 — no log/metric can name it) | Log field or counter on selection kind when DAO wiring is complete |
 | Widget DAO path | Production widget load no longer depends solely on `${rxdeploydir}/rxconfig/Widgets/*.xml` for product widgets | Code + install smoke |
 | Gadget registry dual-load | WebUI `GadgetRegistry` last load source is modern catalog in product installs (legacy XML only for waived customer cases) | `GadgetRegistry.getLastLoadSource()` / `getLastLoadEntryCount()` / INFO metrics / tests |
 
@@ -125,13 +127,13 @@ Use these **CI-assertable** probes and log fields when collecting Phase 5 M2 evi
 
 | Probe | API / surface | What it proves |
 |-------|---------------|----------------|
-| Last kind | `getLastSelectionKind()` | Most recent modern vs `LEGACY_WIDGET_XML` selection |
+| Last kind | `getLastSelectionKind()` | Most recent selection (always `MODERN_COMPONENT_PACKAGE` after #6440; no `LEGACY_WIDGET_XML` kind remains) |
 | Per-id poll map | `getSelectionKindsById()` | Kind for every id on last repository poll |
-| Cumulative counters | `getModernSelectionCount()` / `getLegacySelectionCount()` / `getTotalSelectionCount()` | Process-lifetime modern vs legacy rate |
-| Snapshot map | `getSelectionMetricsSnapshot()` keys `modern`, `legacyWidgetXml`, `total` | Stable map for tests / support dumps |
+| Cumulative counters | `getModernSelectionCount()` / `getTotalSelectionCount()` (legacy counters removed #6440) | Process-lifetime modern selection rate |
+| Snapshot map | `getSelectionMetricsSnapshot()` keys `modern`, `total` (`legacyWidgetXml` removed #6440) | Stable map for tests / support dumps |
 | Ops one-liner | `formatSelectionMetricsSummary()` | Log-friendly dump without new admin UI |
 | Reset (tests/probes) | `resetSelectionMetrics()` | Isolate a measurement window |
-| INFO log | `Widget definition dual-run selection: modern=…, legacyWidgetXml=…, …, cumulativeModern=…, cumulativeLegacy=…` | Runtime operators |
+| INFO log | `Widget definition single-source selection: modern=…, total=…, cumulativeModern=…` (#6440; was `dual-run … legacyWidgetXml=…`) | Runtime operators |
 
 **CI harness tests (must stay green):**
 
@@ -142,9 +144,9 @@ Use these **CI-assertable** probes and log fields when collecting Phase 5 M2 evi
 ..\..\mvnw.cmd clean install
 ```
 
-- `com.percussion.pagemanagement.dao.PSWidgetDaoTest` — modern preferred, legacy fallback, neither throws, poll kinds (#3024)
+- `com.percussion.pagemanagement.dao.PSWidgetDaoTest` — modern preferred, retired-legacy throws (names no widget file, counts nothing), neither throws, poll kinds (#3024 / #6440)
 - `com.percussion.pagemanagement.dao.PSWidgetDaoSelectionMetricsHarnessTest` — counters, snapshot, summary, reset, mixed select+poll (#3131)
-- `com.percussion.pagemanagement.dao.PSWidgetDaoProductH2ZeroLegacySelectionTest` — H2 blank-property defaults + classpath materialize; zero unexpected `LEGACY_WIDGET_XML` on non-waived product stems; customer-only stays legacy (#3583); `perc.Test` dual-mode (#3738)
+- `com.percussion.pagemanagement.dao.PSWidgetDaoProductH2ZeroLegacySelectionTest` — H2 blank-property defaults + classpath materialize; every non-waived product stem selects `MODERN_COMPONENT_PACKAGE`; customer-only ids are unresolvable (null kind), never legacy (#3583 / #6440)
 
 ```text
 # from modules/perc-packages (repo-root mvnw)
@@ -155,19 +157,19 @@ Use these **CI-assertable** probes and log fields when collecting Phase 5 M2 evi
 
 - `com.percussion.packages.shim.PSProductPackageRootSelectionEvidence` / `PSProductPackageRootSelectionEvidenceTest` — product `Packages/` roots + H2 `Packages/Modern` materialize: `wouldUseLegacyShim == false` / kind MODERN for product widget packages; fails if dummy LEGACY_* is introduced; waive list **empty** after #3736 (was empty-or-`perc.Test` on #3738)
 
-**M2 pass signal (widget path):** over the agreed window, `legacyWidgetXml` / `getLegacySelectionCount()` is **0** (or waived list with owner + sunset), and product widgets select `MODERN_COMPONENT_PACKAGE` when modern roots are configured. **#3583** makes the product/H2 *selection* half of that signal CI-assertable; it does **not** close the live time-box or M3.
+**M2 pass signal (widget path):** structural after #6440 — no `LEGACY_WIDGET_XML` kind exists and no widget-XML probe remains, so the rate is zero by construction; product widgets select `MODERN_COMPONENT_PACKAGE` when modern roots are configured, and retired-legacy ids throw a retired-error. **#3583** makes the product/H2 *selection* half of that signal CI-assertable; it does **not** close the live time-box or M3. (Historical: `legacyWidgetXml` / `getLegacySelectionCount()` reads pre-removal.)
 
 #### Gadget registry (`WebUI` — `GadgetRegistry`)
 
 | Probe | API / surface | What it proves |
 |-------|---------------|----------------|
-| Last source | `getLastLoadSource()` | `MODERN_CATALOG` / `LEGACY_REGISTRY_XML` / `NONE` |
+| Last source | `getLastLoadSource()` | `MODERN_CATALOG` / `NONE` (`LEGACY_REGISTRY_XML` removed #6440) |
 | Last entries | `getLastLoadEntryCount()` | Size of last load map |
-| Cumulative counters | `getModernLoadCount()` / `getLegacyLoadCount()` / `getNoneLoadCount()` / `getTotalLoadCount()` | Process-lifetime load rate (legacy always 0 after #5810) |
-| Snapshot map | `getSelectionMetricsSnapshot()` keys `modern`, `legacyRegistryXml`, `none`, `total` | Stable map for tests / support dumps |
+| Cumulative counters | `getModernLoadCount()` / `getNoneLoadCount()` / `getTotalLoadCount()` (legacy counters removed #6440) | Process-lifetime load rate |
+| Snapshot map | `getSelectionMetricsSnapshot()` keys `modern`, `none`, `total` (`legacyRegistryXml` removed #6440) | Stable map for tests / support dumps |
 | Ops one-liner | `formatSelectionMetricsSummary()` | Log-friendly dump |
 | Reset (tests/probes) | `resetSelectionMetrics()` | Isolate a measurement window |
-| INFO log | `Gadget registry dual-load selection: modern=…, legacyRegistryXml=…, none=…, entries=…, source=…, cumulativeModern=…, …` | Runtime operators |
+| INFO log | `Gadget registry single-load selection: modern=…, none=…, entries=…, source=…, cumulativeModern=…` (#6440; was `dual-load … legacyRegistryXml=…`) | Runtime operators |
 
 **CI harness tests (must stay green):**
 
@@ -178,17 +180,17 @@ Use these **CI-assertable** probes and log fields when collecting Phase 5 M2 evi
 ..\mvnw.cmd clean install
 ```
 
-- `com.percussion.webui.gadget.servlets.GadgetRegistryTest` — modern-only load + edges (#3025 / #5810)
-- `com.percussion.webui.gadget.servlets.GadgetRegistrySelectionMetricsHarnessTest` — counters, snapshot, summary, reset (#3131)
+- `com.percussion.webui.gadget.servlets.GadgetRegistryTest` — single-load + edges, `Source` enum has no legacy value (#3025 / #5810 / #6440)
+- `com.percussion.webui.gadget.servlets.GadgetRegistrySelectionMetricsHarnessTest` — counters, snapshot, summary, reset (#3131 / #6440)
 
-**M2 pass signal (gadget path):** product installs report `lastSource=MODERN_CATALOG` and `legacyRegistryXml` cumulative **0**. Retired structural-zero via #5810 (no waived classpaths needed — the fallback is gone).
+**M2 pass signal (gadget path):** product installs report `lastSource=MODERN_CATALOG`. Structural-zero since #5810, selection remnants removed by #6440 (no legacy source, counter, or snapshot key remains; no waived classpaths needed — the fallback is gone).
 
 #### Support / operator collection recipe
 
 1. Run the module Surefire classes above in CI or a local clean install (both modules).
-2. On a live/QA CMS after widget/gadget traffic: capture INFO lines containing `dual-run selection` / `dual-load selection`, or call `formatSelectionMetricsSummary()` from a support probe / debugger.
+2. On a live/QA CMS after widget/gadget traffic: capture INFO lines containing `single-source selection` / `single-load selection` (pre-#6440 logs say `dual-run selection` / `dual-load selection`), or call `formatSelectionMetricsSummary()` from a support probe / debugger.
 3. Attach counter snapshots (or log excerpts) to the removal residual (#2852) when claiming M2.
-4. **Hard ban:** do not delete the shim or legacy fallback based only on product classpath modern preference without the zero-legacy rate evidence above.
+4. **Hard ban:** do not delete the remaining Page / Gadget probes or the shim itself based only on product classpath modern preference without the zero-legacy rate evidence above (widget path needs none — it is structurally removed by #6440).
 
 ### M3 — Customer upgrade window closed (or accepted residual)
 
@@ -283,7 +285,7 @@ Widget path remains PASS (#3026). Broader G4 wording (Widgets/Pages/Gadgets) is 
 | Type / file | Role | Dual-run? |
 |-------------|------|-----------|
 | `…/shim/PSLegacyDefinitionXmlShim.java` | Modern-preferred selection (`selectByPresence`, `selectForPackageRoot`, `selectDefinition`, `wouldUseLegacyShim`) | **Yes** — canonical policy |
-| `…/shim/PSDefinitionSourceKind.java` | `MODERN_COMPONENT_PACKAGE`, `LEGACY_WIDGET_XML`, `LEGACY_PAGE_XML`, `LEGACY_GADGET_XML` | Yes |
+| `…/shim/PSDefinitionSourceKind.java` | `MODERN_COMPONENT_PACKAGE`, `LEGACY_PAGE_XML`, `LEGACY_GADGET_XML` (`LEGACY_WIDGET_XML` removed #6440) | Yes |
 | `…/shim/PSDefinitionSourceSelection.java` | Selection result + `isLegacyXml()` | Yes |
 | `…/shim/PSDefinitionSourceNotFoundException.java` | Neither modern nor legacy | Yes |
 | `…/shim/PSLegacyDefinitionXmlShimTest.java` | Unit coverage for selection | Test only |
@@ -312,7 +314,7 @@ Javadoc-only alignment references:
 | Widget XML compilers | `…/widgetxml/PSWidgetXml*` | Upgrade-input compilers; keep after runtime shim exit | **No** (upgrade input OK) |
 | Page dual-ship / native | `…/pagexml/PSPageXmlDualShip`, `PSPageXmlNativeInstall`, `PSPageXmlInstallPolicy` | **Product ship path native-only** (#3951); native is the policy default (#3949); DualShip class still present; dual-ship is explicit opt-in and fail-closed in package-build (#3950) | Separate checklist ([dual-ship-page-template-retirement.md](./dual-ship-page-template-retirement.md)) — **not** shim deletion |
 | Gadget catalog ship | `modules/perc-packages/.../catalogs/gadgets/gadget-catalog.json` | Modern catalog present | Preferred path |
-| Gadget WebUI dual-load | `WebUI/.../GadgetRegistry.java` (modern catalog → legacy `GadgetRegistry.xml`) | **Live** dual-load; INFO metrics + `getLastLoadSource()` / `getLastLoadEntryCount()` (#3025) | Related dual-run; keep legacy fallback until M2/M3 + #2852 removal criteria; product installs already prefer modern |
+| Gadget WebUI dual-load | `WebUI/.../GadgetRegistry.java` (modern catalog only) | **Removed** single-load (#6440; was live dual-load #3025, retired #5810); INFO metrics + `getLastLoadSource()` / `getLastLoadEntryCount()` use `modern` / `none` only; `parseRegistryXml` kept as gadget-XML pure parser | Related dual-run; `LEGACY_GADGET_XML` residual slice owns the parser; product installs already prefer modern |
 | Gadget registry compiler | `…/gadgetxml/PSGadgetRegistry*` | Upgrade-input / build | Keep as compiler |
 | Component package manifest | `…/manifest/PSComponentPackageManifest*` | Modern ship format | Keep |
 
@@ -322,13 +324,13 @@ From repo root (PowerShell-friendly; adjust path tools as needed):
 
 ```text
 # Selection API + kinds
-rg -n "PSLegacyDefinitionXmlShim|PSDefinitionSourceKind|wouldUseLegacyShim|LEGACY_WIDGET_XML|LEGACY_PAGE_XML|LEGACY_GADGET_XML" --glob "*.java"
+rg -n "PSLegacyDefinitionXmlShim|PSDefinitionSourceKind|wouldUseLegacyShim|LEGACY_PAGE_XML|LEGACY_GADGET_XML" --glob "*.java"
 
 # Widget XML install surface
 rg -n "rxconfig/Widgets|rxconfig\\\\Widgets" --glob "*.java"
 
 # Gadget dual-load
-rg -n "LEGACY_REGISTRY_XML|gadget-catalog.json|GadgetRegistry.xml" --glob "*.{java,ts,tsx}"
+rg -n "gadget-catalog.json|GadgetRegistry.xml" --glob "*.{java,ts,tsx}"
 
 # Product package Widget XML residual count
 # (PowerShell) Get-ChildItem modules\perc-packages\src\main\resources\Packages -Recurse -Filter *.xml |
