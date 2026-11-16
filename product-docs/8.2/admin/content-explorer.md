@@ -911,7 +911,10 @@ When the panel is open you can:
    parent folder. A query that contains a NUL (U+0000) is refused **before**
    the search POST: the panel stays open with an error, and a reload does not
    show a NUL result set. Closing Search (view-tools, **View → Search**, or
-   **Content → Search**) does not run the query. HTTP **400**, **403**, and
+   **Content → Search**) does not run the query. **Escape** in the query input
+   clears the query without running a search: the panel stays open with focus
+   in the input, and the emptied input disables Submit so an empty query never
+   executes. HTTP **400**, **403**, and
    **409** after Submit are not treated as a successful results page.
 3. Pick a **saved / design search** from the catalog (when the server exposes one) and run it.
    The picker includes CX **searches and views**. The default **All** view (`View_All`) is
@@ -921,7 +924,11 @@ When the panel is open you can:
    search allows). When a real folder such as `/Sites` is selected, the run is scoped to
    that folder. A **custom URL search** (`CustomSearch`) runs through the same saved-search
    action: matching items, or an empty results page when the URL returns no rows. HTTP 403
-   and HTTP 404 stay on the error panel (Retry is available). Leaving the picker on
+   and HTTP 404 stay on the error panel (Retry is available). After a saved search
+   runs, focus moves to the results region so keyboard users land on the rows; the
+   query input stays above as the path back. When an execute fails after rows were
+   already shown, the error names the HTTP status and the prior rows stay on screen;
+   a failure on the first load shows only the error. Leaving the picker on
    “Select a saved search…” does not call execute. Custom URL **views** in this list are
    not run here — open them from the Views tree. Their Run button stays disabled.
 4. Manage a **saved / design search** from the same picker (Admin role required —
