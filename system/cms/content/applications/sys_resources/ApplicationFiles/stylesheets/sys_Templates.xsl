@@ -1421,8 +1421,6 @@ onchange    %Script;       #IMPLIED
       </psxctl:AssociatedFileList>
    </psxctl:ControlMeta>
    <xsl:template match="Control[@name='sys_TextArea']" mode="psxcontrol">
-      <div class="perc-codeeditor-legend">
-      </div>
       <textarea id="{@paramName}" name="{@paramName}" wrap="soft">
          <xsl:if test="@accessKey!=''">
             <xsl:attribute name="accesskey"><xsl:call-template name="getaccesskey"><xsl:with-param name="label" select="preceding-sibling::DisplayLabel"/><xsl:with-param name="sourceType" select="preceding-sibling::DisplayLabel/@sourceType"/><xsl:with-param name="paramName" select="@paramName"/><xsl:with-param name="accessKey" select="@accessKey"/></xsl:call-template></xsl:attribute>
@@ -1469,6 +1467,9 @@ onchange    %Script;       #IMPLIED
          </xsl:choose>
       </xsl:variable>
       <xsl:if test="$codeeditor = 'yes'">
+         <div class="perc-codeeditor-legend">
+            <span>Find: Ctrl-F (Mac: Cmd-F) | Find next: Ctrl-G (Mac: Cmd-G) | Find previous: Shift-Ctrl-G (Mac: Shift-Cmd-G) | Replace: Shift-Ctrl-F (Mac: Cmd-Alt-F) | Replace all: Shift-Ctrl-R (Mac: Shift-Cmd-Alt-F)</span>
+         </div>
          <script>
             var editor = CodeMirror.fromTextArea(document.getElementById('<xsl:value-of select="@paramName" />'), {
             mode: 'htmlmixed',
