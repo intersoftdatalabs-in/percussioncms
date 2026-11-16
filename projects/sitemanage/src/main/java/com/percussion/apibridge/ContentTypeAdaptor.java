@@ -1716,73 +1716,21 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   public ContentTypeFieldRuleExpressions replaceFieldRuleExpressions(
       URI baseUri, String idOrName, String fieldName, ContentTypeFieldRuleExpressions body) {
     requireAdmin();
-    if (StringUtils.isBlank(idOrName)) {
-      throw new IllegalArgumentException("idOrName is required");
-    }
-    if (StringUtils.isBlank(fieldName)) {
-      throw new IllegalArgumentException("fieldName is required");
-    }
-    if (body == null
-        || body.getValidation() == null
-        || body.getVisibility() == null
-        || body.getInputTranslation() == null
-        || body.getOutputTranslation() == null) {
-      throw new IllegalArgumentException(
-          "validation, visibility, inputTranslation, and outputTranslation are required");
-    }
-    String trimmed = idOrName.trim();
-    if (trimmed.contains("*")) {
-      throw new IllegalArgumentException("idOrName must not contain wildcards");
-    }
-    String field = fieldName.trim();
+    String trimmed = requireRuleTypeName(idOrName);
+    String field = requireRuleFieldName(fieldName);
+    requireRuleBody(body);
     String session = currentSession();
     String user = currentUser();
     requireSessionUserForLock();
     try {
-      IPSGuid ctGuid = resolveExistingContentTypeGuid(trimmed);
-      if (ctGuid == null) {
+      PSItemDefinition def = loadLockedRuleDefinition(trimmed, session, user);
+      if (def == null) {
         return null;
       }
-      requireHeldLock(ctGuid);
-      List<PSItemDefinition> locked;
-      try {
-        locked =
-            designSvc.loadContentTypes(
-                Collections.singletonList(ctGuid), true, false, session, user);
-      } catch (PSErrorResultsException e) {
-        throw lockConflict(e, "Could not save field rule expressions");
-      }
-      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
-        return null;
-      }
-      PSItemDefinition def = locked.get(0);
-      PSField target = findField(def, field);
-      if (target == null) {
-        // System/shared fields are exposed by GET (merged from the SystemDef/shared group
-        // into the running definition) but the locked stored definition may not carry a
-        // field entry for them (e.g. sys_title, #6460). Materialize a per-type entry from
-        // the running definition so the PUT writes to the same field GET reads.
-        target = materializeRuntimeField(def, trimmed, field);
-      }
-      if (target == null) {
-        throw new WebApplicationException("Unknown field: " + field, 404);
-      }
+      PSField target = resolveRuleTargetField(def, trimmed, field);
       applyFieldRuleExpressions(target, body);
-      try {
-        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
-      } catch (PSErrorsException e) {
-        if (hasLockError(e.getErrors())) {
-          throw lockConflict(e, "Could not save field rule expressions");
-        }
-        log.error("Failed to save field rule expressions for {}: {}", idOrName, e.getMessage(), e);
-        throw new IllegalStateException("Failed to save field rule expressions", e);
-      }
-      PSItemDefinition reloaded = reloadItemDef(trimmed);
-      PSField after = reloaded != null ? findField(reloaded, field) : null;
-      if (after == null) {
-        after = target;
-      }
-      return toFieldRuleExpressions(field, after);
+      saveRuleDefinition(def, idOrName, session, user);
+      return toFieldRuleExpressions(field, savedRuleField(target, trimmed, field));
     } catch (ContentTypeDesignLockException
         | IllegalArgumentException
         | WebApplicationException e) {
@@ -1791,6 +1739,127 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       log.error("Failed to replace field rule expressions for {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to replace field rule expressions", e);
     }
+  }
+
+  /**
+   * Validate the content-type reference for a field-rule PUT. Returns the trimmed name.
+   * Extracted from {@link #replaceFieldRuleExpressions} (#6504 complexity budget).
+   */
+  private static String requireRuleTypeName(String idOrName) {
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    return trimmed;
+  }
+
+  /**
+   * Validate the field name for a field-rule PUT. Returns the trimmed name. Extracted from
+   * {@link #replaceFieldRuleExpressions} (#6504 complexity budget).
+   */
+  private static String requireRuleFieldName(String fieldName) {
+    if (StringUtils.isBlank(fieldName)) {
+      throw new IllegalArgumentException("fieldName is required");
+    }
+    return fieldName.trim();
+  }
+
+  /**
+   * Validate the rule-expression body for a field-rule PUT. All four sections are required;
+   * empty lists clear the corresponding rules. Extracted from
+   * {@link #replaceFieldRuleExpressions} (#6504 complexity budget).
+   */
+  private static void requireRuleBody(ContentTypeFieldRuleExpressions body) {
+    if (body == null
+        || body.getValidation() == null
+        || body.getVisibility() == null
+        || body.getInputTranslation() == null
+        || body.getOutputTranslation() == null) {
+      throw new IllegalArgumentException(
+          "validation, visibility, inputTranslation, and outputTranslation are required");
+    }
+  }
+
+  /**
+   * Load the locked stored definition for a field-rule PUT, or {@code null} when the content
+   * type does not resolve. Lock conflicts surface as {@link ContentTypeDesignLockException}.
+   * Extracted from {@link #replaceFieldRuleExpressions} (#6504 complexity budget).
+   */
+  private PSItemDefinition loadLockedRuleDefinition(String trimmed, String session, String user) {
+    IPSGuid ctGuid = resolveExistingContentTypeGuid(trimmed);
+    if (ctGuid == null) {
+      return null;
+    }
+    requireHeldLock(ctGuid);
+    List<PSItemDefinition> locked;
+    try {
+      locked =
+          designSvc.loadContentTypes(
+              Collections.singletonList(ctGuid), true, false, session, user);
+    } catch (PSErrorResultsException e) {
+      throw lockConflict(e, "Could not save field rule expressions");
+    }
+    if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+      return null;
+    }
+    return locked.get(0);
+  }
+
+  /**
+   * Resolve the rule target on the locked definition, materializing runtime-merged system/shared
+   * fields (e.g. {@code sys_title}, #6460) so PUT writes to the same field GET reads. Unknown
+   * fields are 404. Extracted from {@link #replaceFieldRuleExpressions} (#6504 complexity
+   * budget).
+   */
+  private PSField resolveRuleTargetField(PSItemDefinition def, String trimmed, String field) {
+    PSField target = findField(def, field);
+    if (target == null) {
+      // System/shared fields are exposed by GET (merged from the SystemDef/shared group
+      // into the running definition) but the locked stored definition may not carry a
+      // field entry for them (e.g. sys_title, #6460). Materialize a per-type entry from
+      // the running definition so the PUT writes to the same field GET reads.
+      target = materializeRuntimeField(def, trimmed, field);
+    }
+    if (target == null) {
+      throw new WebApplicationException("Unknown field: " + field, 404);
+    }
+    return target;
+  }
+
+  /**
+   * Persist a locked definition mutated by a field-rule PUT. Lock errors surface as {@link
+   * ContentTypeDesignLockException}; other save failures keep the original log + {@link
+   * IllegalStateException} mapping. Extracted from {@link #replaceFieldRuleExpressions} (#6504
+   * complexity budget).
+   */
+  private void saveRuleDefinition(
+      PSItemDefinition def, String idOrName, String session, String user) {
+    try {
+      designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+    } catch (PSErrorsException e) {
+      if (hasLockError(e.getErrors())) {
+        throw lockConflict(e, "Could not save field rule expressions");
+      }
+      log.error("Failed to save field rule expressions for {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to save field rule expressions", e);
+    }
+  }
+
+  /**
+   * Re-read the saved field for a field-rule PUT response, falling back to the locked target
+   * when the item-def cache has not caught up yet. Extracted from {@link
+   * #replaceFieldRuleExpressions} (#6504 complexity budget).
+   */
+  private PSField savedRuleField(PSField target, String trimmed, String field) {
+    PSItemDefinition reloaded = reloadItemDef(trimmed);
+    PSField after = reloaded != null ? findField(reloaded, field) : null;
+    if (after == null) {
+      after = target;
+    }
+    return after;
   }
 
   @Override
