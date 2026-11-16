@@ -267,6 +267,8 @@ public class PSTrafficService implements IPSTrafficService {
     for (String pageId : activityIds) {
       try {
         PSPathItem pathItem = folderHelper.findItemById(pageId);
+        // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6457,
+        // same as #6399/#6325/#5898/#5910/#5927) — slash joins the CMS logical finder path, not an OS path.
         String itemPath = pathItem.getFolderPaths().get(0) + "/" + pathItem.getName();
         String finderPath = PSPathUtils.getFinderPath(itemPath);
         PSItemProperties itemProp = pathService.findItemProperties(finderPath);
