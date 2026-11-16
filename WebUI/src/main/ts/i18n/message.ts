@@ -559,6 +559,17 @@ export const MSG = {
   PUBLISH_TAKEDOWN_SUBMIT: "perc.ui.publish.modern@Take down",
   PUBLISH_TAKEDOWN_SUCCESS: "perc.ui.publish.modern@Take down started.",
   PUBLISH_TAKEDOWN_NONE: "perc.ui.publish.modern@No linked pages.",
+  PUBLISH_TAKEDOWN_IDS_HINT:
+    "perc.ui.publish.modern@Separate multiple item ids with commas or spaces to take them down together",
+  PUBLISH_TAKEDOWN_BATCH_DONE:
+    "perc.ui.publish.modern@Take down started for all {total} items",
+  PUBLISH_TAKEDOWN_BATCH_PARTIAL:
+    "perc.ui.publish.modern@Taken down {saved} of {total}: {detail}",
+  PUBLISH_TAKEDOWN_BATCH_REVIEW_PARTIAL:
+    "perc.ui.publish.modern@Reviewed {loaded} of {total}: {detail}",
+  PUBLISH_TAKEDOWN_BATCH_ITEM_OK: "perc.ui.publish.modern@taken down",
+  PUBLISH_TAKEDOWN_BATCH_CONFIRM:
+    "perc.ui.publish.modern@Take down these {total} items? Linked pages are listed per item.",
   PUBLISH_STAGE: "perc.ui.publish.title@Stage / Remove From Staging",
   PUBLISH_STAGE_HINT:
     "perc.ui.publish.modern@Stage or remove from staging a page or asset from this site workspace.",

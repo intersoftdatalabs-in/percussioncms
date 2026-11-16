@@ -45,6 +45,19 @@ export type {
   ScheduleBatchReport,
 } from "./itemScheduleBatch";
 export {
+  formatTakedownBatchDetail,
+  parseTakedownItemIds,
+  reviewTakedownBatch,
+  runTakedownBatch,
+  takedownBatchFailureMessage,
+} from "./itemTakedownBatch";
+export type {
+  TakedownBatchFailure,
+  TakedownBatchReport,
+  TakedownBatchReviewedItem,
+  TakedownBatchReviewReport,
+} from "./itemTakedownBatch";
+export {
   itemTakedownShellHref,
   mapTakedownKind,
   pathItemForTakedown,
