@@ -25,24 +25,26 @@ Read the canonical spec at:
 3. **Run** (CLI ≥ 0.4.0) from the PR head checkout:
 
    ```bash
-   mkd-code-review analyze --pack percussion --format markdown --gate advisory --require-llm \
+   mkd-code-review analyze --pack percussion --format markdown --gate advisory \
      --git-base origin/main \
-     --models <models-dir>/models.openrouter-free.toml
+     --models <models-dir>/models.ollama-dev-coder.toml
    ```
 
    Resolve `<models-dir>` from your local mkd-code-review install (the
-   directory holding `models.openrouter-free.toml`). Never record the
+   directory holding `models.ollama-dev-coder.toml`). Never record the
    absolute filesystem path.
 
-   Expect the Erlang persona, Scope Base/Head set, and the configured
-   LLM route. Require a readable profile and a nonempty LLM-provider key
-   in the process environment; never print the key or name its env var,
-   and never add paid fallbacks. Gate on **(in-diff)** bugs only; preexisting rows do not
-   BLOCK. If the profile/key is missing, configuration cannot be loaded, or
-   the required model returns `llm.error` or an LLM warning, keep machine
-   findings but mark the review BLOCKED (`erlang_llm_unavailable`); do not
-   approve or merge. Deterministic hard-gate failures may still skip inference
-   and must be fixed before retry.
+   Expect the Erlang persona, Scope Base/Head set, and the local Ollama
+   route (no `--require-llm`; never print any provider key or name its env
+   var, and never add paid fallbacks). BLOCK on real **in-diff** bugs only;
+   preexisting rows do not BLOCK. An unavailable LLM stage (`llm.error` or
+   an LLM warning, e.g. Ollama down) is recorded in the report and disclosed
+   in the PR body — it is not a merge block when in-diff machine findings
+   are 0 (host decides; a machine-only result short-circuits as clean under
+   the same condition). Deterministic hard-gate failures may still skip
+   inference and must be fixed before retry. OpenRouter
+   (`models.openrouter-free.toml`) is an opt-in alternative only when its
+   provider key is already present; never require it.
 4. Enforce the strict gate from the persona spec.
 5. **Pre-push local code review:** pipe the FULL CLI markdown through
    `scripts/sanitize-erlang-review.py` FIRST (it redacts home-directory
