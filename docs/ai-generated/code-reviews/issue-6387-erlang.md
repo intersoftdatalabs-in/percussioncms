@@ -1,23 +1,23 @@
 ## Summary
 
-Machine analysis found **7** finding(s), **1** blocking bug(s).
+Machine analysis found **6** finding(s), **0** blocking bug(s).
 
 ## Scope
 
 - Base: origin/main
 - Head: HEAD
-- Files: 27 analyzed
+- Files: 30 analyzed
 - In-diff: 0 finding(s); preexisting: 6
 - Persona: erlang 0.1.1
-- Persona source: /home/nate/.local/share/mkd/agents/erlang
+- Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
-request-changes
+approve
 
 ## Gate
 
-- Blocking bugs: 1
+- Blocking bugs: 0
 - May commit/push: yes
 
 ## Issues
@@ -70,15 +70,7 @@ request-changes
 - Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
 - Status: open
 
-### Issue 6 -- Severity: bug
-
-- File: review
-- Rule: `llm.error`
-- Tool: `llm`
-- Description: model `openrouter-free` failed: config: missing env OPENROUTER_API_KEY (for OpenRouter set OPENROUTER_API_KEY from https://openrouter.ai/keys)
-- Status: open
-
-### Issue 7 -- Severity: suggestion
+### Issue 6 -- Severity: suggestion
 
 - File: system/src/main/java/com/percussion/i18n/PSLocale.java:332 (preexisting)
 - Rule: `complexity.cognitive`
@@ -88,4 +80,3 @@ request-changes
 - Status: open
 
 > Tip: To suppress false positives, add `// mkd-code-review[<rule_id>] <reason>` (e.g. `// mkd-code-review[paths.hardcoded_sep] web url join`) or `// codeql[<rule_id>] <reason>` on or above the line, or add an entry in `.mkd-code-review.toml`.
-
