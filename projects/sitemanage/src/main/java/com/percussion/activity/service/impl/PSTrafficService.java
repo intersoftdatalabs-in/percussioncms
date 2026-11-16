@@ -99,12 +99,7 @@ public class PSTrafficService implements IPSTrafficService {
     PSContentTraffic results = new PSContentTraffic();
     FastDateFormat df = FastDateFormat.getInstance("MM/dd/yyyy");
     List<String> dates = new ArrayList<>();
-    List<Integer> updateTotals = new ArrayList<>();
-    List<Integer> newPages = new ArrayList<>();
-    List<Integer> pageUpdates = new ArrayList<>();
-    List<Integer> takeDowns = new ArrayList<>();
-    List<Integer> livePages = new ArrayList<>();
-    List<Integer> visits = new ArrayList<>();
+    TrafficSeries series = new TrafficSeries();
 
     PSSiteSummary siteInfo;
     try {
@@ -137,64 +132,111 @@ public class PSTrafficService implements IPSTrafficService {
 
     Collection<Integer> pageIds = activityService.findPageIdsByPath(pageLookupPath(siteInfo, path));
 
+    collectActivitySeries(dataReq, pageIds, dateList, series);
+    collectVisits(dataReq, range, dateList, siteInfo, request, series);
+    assembleContentTraffic(results, siteInfo, dates, series);
+
+    return results;
+  }
+
+  /** Mutable per-series accumulators for one {@link #getContentTraffic} call (issue #6435). */
+  private static final class TrafficSeries {
+    final List<Integer> newPages = new ArrayList<>();
+    final List<Integer> pageUpdates = new ArrayList<>();
+    final List<Integer> takeDowns = new ArrayList<>();
+    final List<Integer> livePages = new ArrayList<>();
+    final List<Integer> visits = new ArrayList<>();
+  }
+
+  /**
+   * Fills the CMS-activity series (live / new / updated / takedown counts). Extracted from {@link
+   * #getContentTraffic} to keep that method's cognitive complexity within the gate (issue #6435);
+   * ordering is load-bearing — the UPDATED_PAGES block reads {@code series.newPages}.
+   */
+  private void collectActivitySeries(
+      List<String> dataReq, Collection<Integer> pageIds, List<Date> dateList, TrafficSeries series) {
     if (dataReq.contains(PSTrafficTypeEnum.LIVE_PAGES.toString())) {
-      livePages.addAll(activityService.findPublishedItems(pageIds, dateList));
+      series.livePages.addAll(activityService.findPublishedItems(pageIds, dateList));
     }
     if (dataReq.contains(PSTrafficTypeEnum.NEW_PAGES.toString())) {
-      newPages.addAll(activityService.findNewContentActivities(pageIds, dateList));
+      series.newPages.addAll(activityService.findNewContentActivities(pageIds, dateList));
     }
     if (dataReq.contains(PSTrafficTypeEnum.UPDATED_PAGES.toString())) {
       List<Integer> activity =
           activityService.findNumberContentActivities(pageIds, dateList, WF_STATE_LIVE, null);
       for (int i = 0; i < activity.size(); i++) {
-        pageUpdates.add(i, activity.get(i) - newPages.get(i));
+        series.pageUpdates.add(i, activity.get(i) - series.newPages.get(i));
       }
     }
     if (dataReq.contains(PSTrafficTypeEnum.TAKE_DOWNS.toString())) {
-      takeDowns.addAll(
+      series.takeDowns.addAll(
           activityService.findNumberContentActivities(
               pageIds, dateList, WF_STATE_ARCHIVE, WF_TAKE_DOWN_TRANSITION));
     }
-    if (dataReq.contains(PSTrafficTypeEnum.VISITS.toString())) {
-      try {
-        visits.addAll(
-            createAnalyticsActivity(range, dateList, siteInfo.getName(), request.getUsage()));
-      } catch (PSAnalyticsProviderException e) {
-        if (e.getCauseType() == CAUSETYPE.ANALYTICS_NOT_CONFIG
-            || e.getCauseType() == CAUSETYPE.NO_PROFILE) {
-          // Fresh cell or site without a GA mapping: the Home Traffic gadget degrades to a
-          // zero-filled visits series instead of HTTP 500 (issue #6399). Auth/transport
-          // failures below still throw so real outages stay visible.
-          log.warn(
-              "Analytics not configured for site {}; returning zero-filled visits series. Cause:"
-                  + " {}",
-              siteInfo.getName(),
-              PSExceptionUtils.getMessageForLog(e));
-          visits.addAll(Collections.nCopies(dateList.size() - 1, 0));
-        } else {
-          var errorHandler = providerService.getErrorMessageHandler();
-          throw new PSTrafficServiceException(errorHandler.getMessage(e), e);
-        }
-      } catch (IPSGenericDao.LoadException e) {
-        throw new PSTrafficServiceException(e.getMessage(), e);
-      }
-    }
+  }
 
+  /**
+   * Fills the analytics visits series, degrading to zeros when analytics is not configured (issue
+   * #6399). Extracted from {@link #getContentTraffic} for complexity gate (issue #6435).
+   */
+  private void collectVisits(
+      List<String> dataReq,
+      PSDateRange range,
+      List<Date> dateList,
+      PSSiteSummary siteInfo,
+      PSContentTrafficRequest request,
+      TrafficSeries series)
+      throws PSTrafficServiceException, PSValidationException {
+    if (!dataReq.contains(PSTrafficTypeEnum.VISITS.toString())) {
+      return;
+    }
+    try {
+      series.visits.addAll(
+          createAnalyticsActivity(range, dateList, siteInfo.getName(), request.getUsage()));
+    } catch (PSAnalyticsProviderException e) {
+      if (e.getCauseType() == CAUSETYPE.ANALYTICS_NOT_CONFIG
+          || e.getCauseType() == CAUSETYPE.NO_PROFILE) {
+        // Fresh cell or site without a GA mapping: the Home Traffic gadget degrades to a
+        // zero-filled visits series instead of HTTP 500 (issue #6399). Auth/transport
+        // failures below still throw so real outages stay visible.
+        log.warn(
+            "Analytics not configured for site {}; returning zero-filled visits series. Cause:"
+                + " {}",
+            siteInfo.getName(),
+            PSExceptionUtils.getMessageForLog(e));
+        series.visits.addAll(Collections.nCopies(dateList.size() - 1, 0));
+      } else {
+        var errorHandler = providerService.getErrorMessageHandler();
+        throw new PSTrafficServiceException(errorHandler.getMessage(e), e);
+      }
+    } catch (IPSGenericDao.LoadException e) {
+      throw new PSTrafficServiceException(e.getMessage(), e);
+    }
+  }
+
+  /**
+   * Combines the collected series into update totals and stamps them onto the result payload.
+   * Extracted from {@link #getContentTraffic} for complexity gate (issue #6435).
+   */
+  private void assembleContentTraffic(
+      PSContentTraffic results, PSSiteSummary siteInfo, List<String> dates, TrafficSeries series) {
+    List<Integer> updateTotals = new ArrayList<>();
     for (int i = 0; i < dates.size(); i++) {
       updateTotals.add(
-          i, atOrZero(newPages, i) + atOrZero(pageUpdates, i) + atOrZero(takeDowns, i));
+          i,
+          atOrZero(series.newPages, i)
+              + atOrZero(series.pageUpdates, i)
+              + atOrZero(series.takeDowns, i));
     }
     results.setDates(removeLast(dates));
-    results.setPageUpdates(removeLast(pageUpdates));
-    results.setNewPages(removeLast(newPages));
-    results.setLivePages(removeLast(livePages));
-    results.setTakeDowns(removeLast(takeDowns));
-    results.setVisits(removeLast(visits));
+    results.setPageUpdates(removeLast(series.pageUpdates));
+    results.setNewPages(removeLast(series.newPages));
+    results.setLivePages(removeLast(series.livePages));
+    results.setTakeDowns(removeLast(series.takeDowns));
+    results.setVisits(removeLast(series.visits));
     results.setUpdateTotals(removeLast(updateTotals));
     results.setSite(siteInfo.getName());
     results.setSiteId(siteInfo.getId());
-
-    return results;
   }
 
   @Override
