@@ -28,6 +28,14 @@
  * `codemirror-unpack` Ant allow-list 1:1, so every runtime consumer keeps
  * working without API changes.
  *
+ * Issue #6466 adds the `lint` addon plus a dependency-free HTML tag-balance
+ * validator (`findPercTemplateHtmlIssues` in `codemirror-helpers.mjs`,
+ * registered here as the lint helper for the htmlmixed/xml/html modes
+ * and exposed as
+ * `CodeMirror.percValidateTemplateHtml`): the `sys_TextArea` code-editor
+ * control enables `lint: true` so unbalanced markup renders gutter markers
+ * before the author saves the template metadata dialog.
+ *
  * CodeMirror 5 is imported for its side effects: the core exposes the global
  * `CodeMirror` object and each mode/addon self-registers on it. The bundle
  * is built with esbuild `format: "iife"` and no `globalName` (see
@@ -47,11 +55,25 @@ import "codemirror/addon/search/searchcursor.js";
 import "codemirror/addon/search/search.js";
 import "codemirror/addon/selection/active-line.js";
 import "codemirror/addon/display/fullscreen.js";
+import "codemirror/addon/lint/lint.js";
 import "codemirror/lib/codemirror.css";
 import "codemirror/addon/dialog/dialog.css";
 import "codemirror/addon/display/fullscreen.css";
-import { unwrapCodeMirror } from "./codemirror-helpers.mjs";
+import "codemirror/addon/lint/lint.css";
+import {
+  findPercTemplateHtmlIssues,
+  registerPercTemplateHtmlLint,
+  unwrapCodeMirror,
+} from "./codemirror-helpers.mjs";
 
 // Legacy consumers (editTemplate_js.jsp, sys_Templates.xsl code editors)
 // read the global `CodeMirror` constructor.
 globalThis.CodeMirror = unwrapCodeMirror(CodeMirrorModule);
+
+// Issue #6466: dependency-free tag-balance validator for the template
+// editor source-view. Registered as the lint helper for the htmlmixed/xml/html
+// modes the source-view can resolve (see PERC_TEMPLATE_HTML_LINT_MODES), so
+// `lint: true` renders gutter markers before save; also exposed on the
+// global for console debugging and Playwright assertions.
+globalThis.CodeMirror.percValidateTemplateHtml = findPercTemplateHtmlIssues;
+registerPercTemplateHtmlLint(globalThis.CodeMirror);
