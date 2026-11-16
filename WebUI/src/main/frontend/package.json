@@ -47,6 +47,7 @@
     "jquery-validation": "^1.21.0",
     "jquery.fancytree": "^2.38.3",
     "js-cookie": "^3.0.8",
+    "list.js": "1.2.0",
     "lodash": "^4.18.1",
     "moment": "^2.31.0",
     "moment-jdateformatparser": "^1.2.1",

@@ -22,7 +22,8 @@
  * payloads under `modules/perc-packages/.../Packages` install verbatim onto
  * every CMS and publish to live sites. Slice 1 replaces the vendored
  * lodash 4.14.0 (known prototype-pollution CVE class) and moment 2.13.0
- * with the npm dist builds (lodash 4.17.21, moment 2.31.0), both
+ * with the npm dist builds (lodash 4.18.1 — refreshed from 4.17.21 as a
+ * Dependabot #6411 follow-on — and moment 2.31.0), both
  * Dependabot-tracked via the frontend manifests. These tests pin:
  *
  *   1. The payload bytes are byte-identical to the node_modules dist files.
@@ -34,9 +35,17 @@
  *      builds — drop-in proof for the published widgets.
  *
  * The remaining #6319 rows (FullCalendar 1.x/2.x, Slick, Foundation,
- * nav hoverIntent/supersubs, List.js, MiniColors, qTip, gcal/lang-all) stay
+ * nav hoverIntent/supersubs, MiniColors, qTip, gcal/lang-all) stay
  * vendored and are tracked in the #6319 leftover residual — this file must
  * grow a parity block each time another row migrates.
+ *
+ * Slice 3 migrates the directory-widget `list.min.js` to the npm list.js
+ * 1.2.0 dist (byte-identical to the payload; Dependabot-tracked via the
+ * frontend manifests with an exact 1.2.0 pin because a caret range would
+ * float to 1.5.0, whose dist bytes differ). Pinned below: byte-identity
+ * of the payload file, the installed dist version, the manifest pin, and
+ * the directory-widget List behavior (`new List` + `filter`/`search`
+ * over `perc-person-*` value names, as driven by `perc-directory.js`).
  *
  * Slice 2 migrates the nav-widget superfish pair (`superfish.js` preview
  * copy + `superfish.min.js` published copy under
@@ -87,7 +96,7 @@ const PAYLOADS = [
       "lodash.min.js",
     ),
     npmDist: path.join("lodash", "lodash.min.js"),
-    versionRe: /4\.17\.21/,
+    versionRe: /4\.18\.1/,
   },
   {
     // CalendarTwo snippet script tag (percCalendarTwoSnippet.vm).
@@ -137,14 +146,14 @@ describe("widget-payload npm refresh parity (issue #6319 slice 1)", () => {
       expect(content, `${payload} version banner mismatch`).toMatch(versionRe);
     }
     const lodash = require(path.join(NODE_MODULES, "lodash", "lodash.min.js"));
-    expect(lodash.VERSION).toBe("4.17.21");
+    expect(lodash.VERSION).toBe("4.18.1");
   });
 
   it("frontend package.json tracks both ranges (npm audit visible)", () => {
     const manifest = JSON.parse(
       fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
     );
-    expect(manifest.dependencies["lodash"]).toBe("^4.17.21");
+    expect(manifest.dependencies["lodash"]).toBe("^4.18.1");
     expect(manifest.dependencies["moment"]).toBe("^2.31.0");
   });
 
@@ -290,4 +299,161 @@ describe("widget-payload npm refresh parity (issue #6319 slice 2: superfish)", (
       document.body.innerHTML = "";
     },
   );
+});
+
+const LIST_PAYLOAD = path.join(
+  "modules",
+  "perc-packages",
+  "src",
+  "main",
+  "resources",
+  "Packages",
+  "perc.widget.directory",
+  "sys__UserDependency--web_resources",
+  "widgets",
+  "directory",
+  "js",
+  "list.min.js",
+);
+// Directory widget published copy (percDirectory.xml: list_min_js). The
+// payload is the npm list.js 1.2.0 dist build, verbatim.
+const LIST_NPM_DIST = path.join("list.js", "dist", "list.min.js");
+
+function loadListPayload() {
+  // The list.js browserify bundle assigns the global `List` when evaluated
+  // in a browser-like scope, so evaluate the payload bytes verbatim (same
+  // pattern as the superfish loader above) rather than the npm main entry.
+  const source = fs.readFileSync(path.join(REPO_ROOT, LIST_PAYLOAD), "utf8");
+  window.eval(source);
+  expect(typeof window.List).toBe("function");
+  return window.List;
+}
+
+function renderDirectoryList(document) {
+  // Mirrors perc-directory.js: `new List("percDirectoryList",
+  // { valueNames: [...] })` over person rows, then `.filter(...)` /
+  // `.search(...)` for the alpha/department filters.
+  document.body.innerHTML =
+    '<div id="percDirectoryList">' +
+    '<input class="search" />' +
+    '<ul class="list">' +
+    '<li><span class="perc-person-first-name"></span> ' +
+    '<span class="perc-person-last-name"></span> ' +
+    '<span class="perc-person-org"></span></li>' +
+    "</ul>" +
+    "</div>";
+  return document.getElementById("percDirectoryList");
+}
+
+const DIRECTORY_VALUE_NAMES = [
+  "perc-person-first-name",
+  "perc-person-last-name",
+  "perc-person-org",
+];
+
+function seedDirectoryList(List, document) {
+  renderDirectoryList(document);
+  const directoryList = new List("percDirectoryList", {
+    valueNames: DIRECTORY_VALUE_NAMES,
+  });
+  // The markup template row parses as an initial (blank) item; clear it so
+  // the list holds exactly the seeded rows (supported clear/add pattern).
+  directoryList.clear();
+  directoryList.add({
+    "perc-person-first-name": "Acme",
+    "perc-person-last-name": "Anderson",
+    "perc-person-org": "Globex",
+  });
+  directoryList.add({
+    "perc-person-first-name": "Initech",
+    "perc-person-last-name": "Bolton",
+    "perc-person-org": "Initech",
+  });
+  directoryList.add({
+    "perc-person-first-name": "Umbrella",
+    "perc-person-last-name": "Anderson",
+    "perc-person-org": "Umbrella",
+  });
+  return directoryList;
+}
+
+describe("widget-payload npm refresh parity (issue #6319 slice 3: list.js)", () => {
+  it("directory payload file exists under the audited Packages tree", () => {
+    expect(fs.existsSync(path.join(REPO_ROOT, LIST_PAYLOAD))).toBe(true);
+  });
+
+  it("directory payload bytes are byte-identical to the npm list.js dist", () => {
+    const shipped = fs.readFileSync(path.join(REPO_ROOT, LIST_PAYLOAD));
+    const dist = fs.readFileSync(path.join(NODE_MODULES, LIST_NPM_DIST));
+    expect(
+      shipped.equals(dist),
+      `${LIST_PAYLOAD} drifted from node_modules/${LIST_NPM_DIST} — refresh from npm`,
+    ).toBe(true);
+  });
+
+  it("installed list.js dist is 1.2.0 and payload carries the List marker", () => {
+    const installed = JSON.parse(
+      fs.readFileSync(
+        path.join(NODE_MODULES, "list.js", "package.json"),
+        "utf8",
+      ),
+    );
+    expect(installed.version).toBe("1.2.0");
+    const content = fs.readFileSync(path.join(REPO_ROOT, LIST_PAYLOAD), "utf8");
+    expect(content).toMatch(/valueNames/);
+  });
+
+  it('frontend manifests pin list.js to 1.2.0 (npm audit visible)', () => {
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
+    );
+    // Exact pin (not a caret): the payload is the 1.2.0 dist and a caret
+    // range would float to 1.5.0+, whose dist bytes differ.
+    expect(manifest.dependencies["list.js"]).toBe("1.2.0");
+  });
+
+  it("List constructor indexes person rows with perc-person-* values", () => {
+    const List = loadListPayload();
+    const directoryList = seedDirectoryList(List, document);
+    try {
+      expect(directoryList.items).toHaveLength(3);
+      const values = directoryList.items[0].values();
+      expect(values["perc-person-first-name"]).toBe("Acme");
+      expect(values["perc-person-last-name"]).toBe("Anderson");
+    } finally {
+      document.body.innerHTML = "";
+    }
+  });
+
+  it("List filter narrows rows like the directory alpha filter", () => {
+    const List = loadListPayload();
+    const directoryList = seedDirectoryList(List, document);
+    try {
+      // Mirrors perc-directory.js: keep rows whose last name starts letter.
+      directoryList.filter(
+        (item) => item.values()["perc-person-last-name"].charAt(0) === "A",
+      );
+      expect(directoryList.visibleItems).toHaveLength(2);
+      directoryList.filter();
+      expect(directoryList.visibleItems).toHaveLength(3);
+    } finally {
+      document.body.innerHTML = "";
+    }
+  });
+
+  it("List search narrows rows like the directory search box", () => {
+    const List = loadListPayload();
+    const directoryList = seedDirectoryList(List, document);
+    try {
+      directoryList.search("Initech");
+      expect(directoryList.visibleItems).toHaveLength(1);
+      expect(
+        directoryList.visibleItems[0].values()["perc-person-first-name"],
+      ).toBe("Initech");
+      directoryList.search();
+      expect(directoryList.visibleItems).toHaveLength(3);
+    } finally {
+      document.body.innerHTML = "";
+    }
+  });
 });
