@@ -41,6 +41,11 @@ const TEST_IDS = Object.freeze({
   submit: "item-takedown-submit",
   success: "item-takedown-success",
   error: "item-takedown-error",
+  batchGroupPrefix: "item-takedown-batch-item-",
+  batchLinkedPrefix: "item-takedown-batch-linked-",
+  batchLinkedEmptyPrefix: "item-takedown-batch-linked-empty-",
+  batchReport: "item-takedown-batch-report",
+  batchReportItemPrefix: "item-takedown-batch-report-item-",
 });
 
 function publishingSitesUrl(baseUrl) {

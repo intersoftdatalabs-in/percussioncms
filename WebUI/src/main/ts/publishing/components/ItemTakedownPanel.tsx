@@ -31,6 +31,12 @@ import {
 import { message, MSG } from "../../i18n/message";
 import { mapIdParam } from "../deepLinkMap";
 import {
+  formatTakedownBatchDetail,
+  parseTakedownItemIds,
+  reviewTakedownBatch,
+  runTakedownBatch,
+} from "../itemTakedownBatch";
+import {
   mapTakedownKind,
   pathItemForTakedown,
   type TakedownKind,
@@ -41,6 +47,36 @@ import {
   primaryButtonStyle,
   toolbarStyle,
 } from "../publishing.styles";
+
+function fill(template: string, vars: Record<string, string>): string {
+  let out = template;
+  for (const [name, value] of Object.entries(vars)) {
+    out = out.split(`{${name}}`).join(value);
+  }
+  return out;
+}
+
+export interface TakedownBatchRow {
+  id: string;
+  ok: boolean;
+  detail: string;
+}
+
+function rowsFromReport(
+  takenDown: readonly string[],
+  failures: readonly { id: string; message: string }[],
+  okText: string,
+): TakedownBatchRow[] {
+  const rows: TakedownBatchRow[] = takenDown.map((id) => ({
+    id,
+    ok: true,
+    detail: okText,
+  }));
+  for (const failure of failures) {
+    rows.push({ id: failure.id, ok: false, detail: failure.message });
+  }
+  return rows;
+}
 
 export interface ItemTakedownPanelProps {
   itemId?: string;
@@ -86,6 +122,11 @@ export function ItemTakedownPanel({
   const [kind, setKind] = useState<TakedownKind>("page");
   const [linked, setLinked] = useState<LinkedPageForTakedown[]>([]);
   const [reviewed, setReviewed] = useState(false);
+  const [multiIds, setMultiIds] = useState<string[]>([]);
+  const [multiLinked, setMultiLinked] = useState<
+    Record<string, LinkedPageForTakedown[]>
+  >({});
+  const [report, setReport] = useState<TakedownBatchRow[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,10 +137,13 @@ export function ItemTakedownPanel({
   }, [itemId]);
 
   const review = useCallback(async (rawId: string) => {
-    const safe = mapIdParam(rawId);
-    if (!safe) {
+    const ids = parseTakedownItemIds(rawId);
+    if (ids.length === 0) {
       setLinked([]);
       setReviewed(false);
+      setMultiIds([]);
+      setMultiLinked({});
+      setReport(null);
       setSuccess(null);
       setError(
         rawId.trim()
@@ -108,6 +152,14 @@ export function ItemTakedownPanel({
       );
       return;
     }
+    if (ids.length > 1) {
+      await reviewBatch(ids);
+      return;
+    }
+    const safe = ids[0];
+    setMultiIds([]);
+    setMultiLinked({});
+    setReport(null);
     setLoading(true);
     setError(null);
     setSuccess(null);
@@ -116,6 +168,35 @@ export function ItemTakedownPanel({
       const pages = await loadLinkedPagesForTakedown(safe);
       setLinked(pages);
       setReviewed(true);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const reviewBatch = useCallback(async (ids: string[]) => {
+    setLoading(true);
+    setError(null);
+    setSuccess(null);
+    setReport(null);
+    setLinked([]);
+    try {
+      const batch = await reviewTakedownBatch(ids);
+      const byId: Record<string, LinkedPageForTakedown[]> = {};
+      for (const row of batch.reviewed) {
+        byId[row.id] = row.linked;
+      }
+      setMultiIds(ids);
+      setMultiLinked(byId);
+      setReviewed(true);
+      if (batch.failures.length > 0) {
+        setError(
+          fill(message(MSG.PUBLISH_TAKEDOWN_BATCH_REVIEW_PARTIAL), {
+            loaded: String(batch.reviewed.length),
+            total: String(batch.total),
+            detail: formatTakedownBatchDetail(batch.failures),
+          }),
+        );
+      }
     } finally {
       setLoading(false);
     }
@@ -130,13 +211,69 @@ export function ItemTakedownPanel({
 
   function onLookup(e: React.FormEvent): void {
     e.preventDefault();
+    const ids = parseTakedownItemIds(inputId);
+    if (ids.length > 1) {
+      // Keep the whole list in the box: propagating one id would echo back
+      // through the shared workspace itemId prop and clobber the rest.
+      void review(ids.join(","));
+      return;
+    }
     const next = mapIdParam(inputId) || inputId.trim();
     onItemIdChange?.(mapIdParam(next) || next);
     void review(next);
   }
 
+  async function runBatch(ids: string[]): Promise<void> {
+    setSubmitting(true);
+    setError(null);
+    setSuccess(null);
+    setReport(null);
+    try {
+      const batch = await runTakedownBatch(ids, kind, multiLinked);
+      setReport(
+        rowsFromReport(
+          batch.takenDown,
+          batch.failures,
+          message(MSG.PUBLISH_TAKEDOWN_BATCH_ITEM_OK),
+        ),
+      );
+      if (batch.failures.length === 0) {
+        setSuccess(
+          fill(message(MSG.PUBLISH_TAKEDOWN_BATCH_DONE), {
+            total: String(batch.total),
+          }),
+        );
+      } else {
+        setSuccess(null);
+        setError(
+          fill(message(MSG.PUBLISH_TAKEDOWN_BATCH_PARTIAL), {
+            saved: String(batch.takenDown.length),
+            total: String(batch.total),
+            detail: formatTakedownBatchDetail(batch.failures),
+          }),
+        );
+      }
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setError(takedownErrorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   async function onTakeDown(e: React.FormEvent): Promise<void> {
     e.preventDefault();
+    const ids = parseTakedownItemIds(inputId);
+    if (ids.length > 1) {
+      if (multiIds.join(",") !== ids.join(",")) {
+        await review(ids.join(","));
+        return;
+      }
+      await runBatch(ids);
+      return;
+    }
     const safe = mapIdParam(inputId) || mapIdParam(itemId);
     if (!safe) {
       setError(message(MSG.PUBLISH_ITEM_HISTORY_NEED_ID));
@@ -192,7 +329,8 @@ export function ItemTakedownPanel({
         {message(MSG.PUBLISH_TAKEDOWN)}
       </h2>
       <p style={{ margin: "0 0 12px", fontSize: "0.85rem", color: "#555" }}>
-        {message(MSG.PUBLISH_TAKEDOWN_HINT)}
+        {message(MSG.PUBLISH_TAKEDOWN_HINT)}{" "}
+        {message(MSG.PUBLISH_TAKEDOWN_IDS_HINT)}
       </p>
       <form onSubmit={onLookup} style={toolbarStyle}>
         <div style={{ ...formRowStyle, marginBottom: 0, maxWidth: 280 }}>
@@ -206,6 +344,7 @@ export function ItemTakedownPanel({
             onChange={(e) => {
               setInputId(e.target.value);
               setReviewed(false);
+              setMultiIds([]);
               setSuccess(null);
             }}
             data-testid="item-takedown-id"
@@ -251,7 +390,57 @@ export function ItemTakedownPanel({
           {message(MSG.PUBLISH_TAKEDOWN_LOAD)}
         </button>
       </form>
-      {reviewed && (
+      {reviewed && multiIds.length > 1 && (
+        <div data-testid="item-takedown-confirm" style={{ marginTop: 12 }}>
+          <p style={{ margin: "0 0 8px", fontSize: 13 }}>
+            {fill(message(MSG.PUBLISH_TAKEDOWN_BATCH_CONFIRM), {
+              total: String(multiIds.length),
+            })}
+          </p>
+          {multiIds.map((id) => {
+            const paths = linkedPagePathsForConfirm(multiLinked[id] ?? []);
+            return (
+              <div
+                key={id}
+                data-testid={`item-takedown-batch-item-${id}`}
+                style={{ marginBottom: 8 }}
+              >
+                <p style={{ margin: "0 0 4px", fontSize: 13 }}>
+                  <strong>{id}</strong>
+                </p>
+                {paths.length > 0 ? (
+                  <ul
+                    data-testid={`item-takedown-batch-linked-${id}`}
+                    style={{ margin: "0 0 4px", paddingLeft: 18 }}
+                  >
+                    {paths.map((path) => (
+                      <li key={path}>{path}</li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p
+                    data-testid={`item-takedown-batch-linked-empty-${id}`}
+                    style={{ fontSize: 13, margin: "0 0 4px" }}
+                  >
+                    {message(MSG.PUBLISH_TAKEDOWN_NONE)}
+                  </p>
+                )}
+              </div>
+            );
+          })}
+          <form onSubmit={(e) => void onTakeDown(e)}>
+            <button
+              type="submit"
+              style={primaryButtonStyle}
+              data-testid="item-takedown-submit"
+              disabled={loading || submitting}
+            >
+              {message(MSG.PUBLISH_TAKEDOWN_SUBMIT)}
+            </button>
+          </form>
+        </div>
+      )}
+      {reviewed && multiIds.length <= 1 && (
         <div data-testid="item-takedown-confirm" style={{ marginTop: 12 }}>
           <p style={{ margin: "0 0 8px", fontSize: 13, whiteSpace: "pre-wrap" }}>
             {formatTakedownConfirmBody(linked)}
@@ -278,6 +467,24 @@ export function ItemTakedownPanel({
             </button>
           </form>
         </div>
+      )}
+      {report && report.length > 0 && (
+        <ul
+          data-testid="item-takedown-batch-report"
+          aria-label={message(MSG.PUBLISH_TAKEDOWN)}
+          style={{ margin: "12px 0 0", paddingLeft: 18, fontSize: 13 }}
+        >
+          {report.map((row) => (
+            <li
+              key={row.id}
+              data-testid={`item-takedown-batch-report-item-${row.id}`}
+            >
+              <span>{row.id}</span>
+              {": "}
+              <span>{row.detail}</span>
+            </li>
+          ))}
+        </ul>
       )}
       {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
       {error && (
