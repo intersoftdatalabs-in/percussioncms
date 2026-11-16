@@ -2484,41 +2484,59 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       return;
     }
     for (ContentTypeField patch : fields) {
-      if (patch == null || StringUtils.isBlank(patch.getName())) {
-        continue;
-      }
-      PSField field = findField(def, patch.getName());
-      if (field == null) {
-        // System-mod fields are listed on GET (getAllFields) but findFieldByName(false)
-        // skips them. Sequence-only patches still reorder the display mapping.
-        if (isSequenceOnlyPatch(patch)) {
-          continue;
-        }
-        throw new WebApplicationException("Unknown field: " + patch.getName(), 404);
-      }
-      if (patch.getLabel() != null) {
-        applyLocalFieldDisplayLabel(def, field, patch.getLabel());
-      }
-      if (patch.getSearchable() != null) {
-        field.setUserSearchable(patch.getSearchable());
-      }
-      if (StringUtils.isNotBlank(patch.getOccurrence())) {
-        Integer dim = occurrenceFromApi(patch.getOccurrence());
-        if (dim == null) {
-          throw new IllegalArgumentException(
-              "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence());
-        }
-        try {
-          field.setOccurrenceDimension(dim, null);
-        } catch (PSSystemValidationException e) {
-          throw new IllegalArgumentException(
-              "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence(), e);
-        }
-      } else if (patch.getRequired() != null) {
-        applyLocalFieldRequired(field, patch.getRequired());
-      }
+      applySingleFieldUpdate(def, patch);
     }
     applyFieldOrder(def, fields);
+  }
+
+  /**
+   * Apply one PUT detail field patch (label, searchable, occurrence/required). Unknown fields
+   * are 404 unless the patch only sets display {@code sequence}.
+   */
+  private static void applySingleFieldUpdate(PSItemDefinition def, ContentTypeField patch) {
+    if (patch == null || StringUtils.isBlank(patch.getName())) {
+      return;
+    }
+    PSField field = findField(def, patch.getName());
+    if (field == null) {
+      // System-mod fields are listed on GET (getAllFields) but findFieldByName(false)
+      // skips them. Sequence-only patches still reorder the display mapping.
+      if (isSequenceOnlyPatch(patch)) {
+        return;
+      }
+      throw new WebApplicationException("Unknown field: " + patch.getName(), 404);
+    }
+    if (patch.getLabel() != null) {
+      applyLocalFieldDisplayLabel(def, field, patch.getLabel());
+    }
+    if (patch.getSearchable() != null) {
+      field.setUserSearchable(patch.getSearchable());
+    }
+    applyFieldOccurrenceOrRequired(field, patch);
+  }
+
+  /** Occurrence wins when present; otherwise a required flag patch applies on its own. */
+  private static void applyFieldOccurrenceOrRequired(PSField field, ContentTypeField patch) {
+    if (StringUtils.isNotBlank(patch.getOccurrence())) {
+      applyFieldOccurrence(field, patch);
+    } else if (patch.getRequired() != null) {
+      applyLocalFieldRequired(field, patch.getRequired());
+    }
+  }
+
+  /** Parse an occurrence patch and store its dimension. Unparseable values are 400. */
+  private static void applyFieldOccurrence(PSField field, ContentTypeField patch) {
+    Integer dim = occurrenceFromApi(patch.getOccurrence());
+    if (dim == null) {
+      throw new IllegalArgumentException(
+          "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence());
+    }
+    try {
+      field.setOccurrenceDimension(dim, null);
+    } catch (PSSystemValidationException e) {
+      throw new IllegalArgumentException(
+          "Invalid occurrence for field " + patch.getName() + ": " + patch.getOccurrence(), e);
+    }
   }
 
   /** True when the patch only sets display {@code sequence} (parent or child set). */
@@ -2678,6 +2696,15 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     if (mapper == null || fields == null || fields.isEmpty()) {
       return;
     }
+    Map<String, ContentTypeField> parents = collectParentRows(fields);
+    if (!stampParentSequences(mapper, parents)) {
+      return;
+    }
+    reorderParentRowsBySequence(fields);
+  }
+
+  /** Parent-set rows (blank {@code fieldSet}) keyed by name. */
+  private static Map<String, ContentTypeField> collectParentRows(List<ContentTypeField> fields) {
     Map<String, ContentTypeField> parents = new HashMap<>();
     for (ContentTypeField field : fields) {
       if (field == null
@@ -2687,6 +2714,15 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
       parents.put(field.getName(), field);
     }
+    return parents;
+  }
+
+  /**
+   * Stamp {@code sequence} on parent rows from display-mapper order. Returns whether any row
+   * was stamped.
+   */
+  private static boolean stampParentSequences(
+      PSDisplayMapper mapper, Map<String, ContentTypeField> parents) {
     int sequence = 0;
     boolean any = false;
     for (int i = 0; i < mapper.size(); i++) {
@@ -2701,9 +2737,14 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       field.setSequence(sequence++);
       any = true;
     }
-    if (!any) {
-      return;
-    }
+    return any;
+  }
+
+  /**
+   * Re-sort rows in place: stamped parents by sequence, then unstamped parents, then the
+   * remaining (child-set) rows.
+   */
+  private static void reorderParentRowsBySequence(List<ContentTypeField> fields) {
     List<ContentTypeField> ordered = new ArrayList<>();
     List<ContentTypeField> unmappedParents = new ArrayList<>();
     List<ContentTypeField> others = new ArrayList<>();
@@ -2784,6 +2825,23 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       PSItemDefinition def,
       Map<String, PSDisplayMapper> mappersBySet,
       List<ContentTypeField> fields) {
+    Map<String, List<ContentTypeField>> rowsBySet = groupChildRowsBySet(fields);
+    boolean any = false;
+    for (Map.Entry<String, List<ContentTypeField>> rows : rowsBySet.entrySet()) {
+      PSDisplayMapper nested = resolveNestedMapper(def, mappersBySet, rows.getKey());
+      if (nested == null) {
+        continue;
+      }
+      if (stampRowsFromMapper(nested, rows.getValue())) {
+        any = true;
+      }
+    }
+    return any;
+  }
+
+  /** Child rows grouped by their {@code fieldSet} name (case preserved for lookup). */
+  private static Map<String, List<ContentTypeField>> groupChildRowsBySet(
+      List<ContentTypeField> fields) {
     Map<String, List<ContentTypeField>> rowsBySet = new LinkedHashMap<>();
     for (ContentTypeField field : fields) {
       if (field == null
@@ -2793,32 +2851,45 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
       rowsBySet.computeIfAbsent(field.getFieldSet(), key -> new ArrayList<>()).add(field);
     }
+    return rowsBySet;
+  }
+
+  /**
+   * Nested mapper for a set name: exact match first, then a case-insensitive fallback against
+   * the canonical child names. {@code null} when the set has no resolvable nested mapper.
+   */
+  private static PSDisplayMapper resolveNestedMapper(
+      PSItemDefinition def, Map<String, PSDisplayMapper> mappersBySet, String setName) {
+    PSDisplayMapper nested = mappersBySet.get(setName);
+    if (nested == null && def != null) {
+      nested = findNestedMapperIgnoreCase(def, mappersBySet, setName);
+    }
+    return nested;
+  }
+
+  /**
+   * Stamp {@code sequence} on rows from nested display-mapper order. Returns whether any row
+   * was stamped.
+   */
+  private static boolean stampRowsFromMapper(
+      PSDisplayMapper nested, List<ContentTypeField> rows) {
+    Map<String, ContentTypeField> byName = new HashMap<>();
+    for (ContentTypeField row : rows) {
+      byName.put(row.getName(), row);
+    }
+    int sequence = 0;
     boolean any = false;
-    for (Map.Entry<String, List<ContentTypeField>> rows : rowsBySet.entrySet()) {
-      PSDisplayMapper nested = mappersBySet.get(rows.getKey());
-      if (nested == null && def != null) {
-        nested = findNestedMapperIgnoreCase(def, mappersBySet, rows.getKey());
-      }
-      if (nested == null) {
+    for (int i = 0; i < nested.size(); i++) {
+      Object entry = nested.get(i);
+      if (!(entry instanceof PSDisplayMapping mapping)) {
         continue;
       }
-      Map<String, ContentTypeField> byName = new HashMap<>();
-      for (ContentTypeField row : rows.getValue()) {
-        byName.put(row.getName(), row);
+      ContentTypeField row = byName.get(mapping.getFieldRef());
+      if (row == null) {
+        continue;
       }
-      int sequence = 0;
-      for (int i = 0; i < nested.size(); i++) {
-        Object entry = nested.get(i);
-        if (!(entry instanceof PSDisplayMapping mapping)) {
-          continue;
-        }
-        ContentTypeField row = byName.get(mapping.getFieldRef());
-        if (row == null) {
-          continue;
-        }
-        row.setSequence(sequence++);
-        any = true;
-      }
+      row.setSequence(sequence++);
+      any = true;
     }
     return any;
   }
