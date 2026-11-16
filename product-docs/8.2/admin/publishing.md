@@ -2506,6 +2506,32 @@ forms service (`perc-form-processor`), not to the CMS content store:
    install, not the CMS Admin login. Over plain HTTP the service redirects
    to its HTTPS port first, so the DTS HTTPS endpoint must be reachable.
 
+## Membership registration and login (DTS)
+
+When a published site uses the login widget, visitor accounts live in
+the DTS membership service (`perc-membership-services`), not in the CMS
+users/roles store:
+
+1. A visitor registers through `POST /membership/user` with an email,
+   a password, and `confirmationRequired: false`. A successful
+   registration answers `PSMembershipResult` status `SUCCESS` and issues
+   a session id for the new account. An account that already exists
+   answers `MEMBER_EXISTS`; a cell with open registration disabled
+   answers `AUTH_FAILED`.
+2. A returning visitor logs in through `POST /membership/login` with
+   the same email and password. A successful login answers status
+   `SUCCESS` with a session id. The session resolves the account
+   through `POST /membership/session` (`{ "sessionId": "..." }`) —
+   the lookup answer names the logged-in account.
+3. Logging out through `POST /membership/logout` destroys the session:
+   a later session lookup for the same session id no longer resolves
+   the account. A lookup that still names the account after logout
+   means the session was not closed.
+4. A login that fails right after a successful registration usually
+   means the cell forces account confirmation before first login even
+   when the register call asked for none — confirm the account (or
+   relax the confirmation policy on the cell) and retry.
+
 ## Failure modes to watch
 
 - Missing template/variant or broken relationship links
@@ -2514,6 +2540,9 @@ forms service (`perc-form-processor`), not to the CMS content store:
 - DTS connectivity issues that surface as broken dynamic widgets on an otherwise static site
 - Form submits that never reach the success page, or retrieval URLs that
   answer `401`/`403` — see "Forms submissions: confirm and retrieve (DTS)" above
+- Membership logins that fail right after a successful registration, or
+  session lookups that still resolve an account after logout — see
+  "Membership registration and login (DTS)" above
 
 ## Related
 
