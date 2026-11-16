@@ -395,6 +395,58 @@ class ContentTranslationsAdaptorTest {
   }
 
   @Test
+  void listBlankSummaryLocaleFallsBackToDefaultLang() {
+    // #6386: H2 seed rows with NULL CONTENTSTATUS.LOCALE materialize as null via
+    // Hibernate; the façade must still report a real locale code, never blank.
+    when(idMapper.getLocator(any(IPSGuid.class))).thenReturn(new PSLocator(100, 1));
+
+    PSComponentSummary source = mock(PSComponentSummary.class);
+    when(source.getContentId()).thenReturn(100);
+    when(source.getLocale()).thenReturn(null);
+    when(source.getCurrentLocator()).thenReturn(new PSLocator(100, 1));
+    when(objectMgr.loadComponentSummary(100)).thenReturn(source);
+
+    PSLegacyGuid depGuid = new PSLegacyGuid(200L);
+    when(systemWs.findDependents(any(IPSGuid.class), any(PSRelationshipFilter.class)))
+        .thenReturn(List.of(depGuid));
+
+    PSComponentSummary dep = mock(PSComponentSummary.class);
+    when(dep.getContentId()).thenReturn(200);
+    when(dep.getLocale()).thenReturn("  ");
+    when(dep.getCurrentLocator()).thenReturn(new PSLocator(200, 1));
+    when(objectMgr.loadComponentSummary(200)).thenReturn(dep);
+
+    ItemTranslationVariants out =
+        adaptor.listItemVariants(URI.create("http://localhost/rest"), "100");
+
+    assertEquals("en-us", out.getLocale());
+    assertEquals(2, out.getVariants().size());
+    assertEquals("en-us", out.getVariants().get(0).getLocale());
+    assertEquals("en-us", out.getVariants().get(1).getLocale());
+  }
+
+  @Test
+  void normalizeLocaleTrimsAndDefaultsBlank() {
+    assertEquals("en-us", ContentTranslationsAdaptor.normalizeLocale(null));
+    assertEquals("en-us", ContentTranslationsAdaptor.normalizeLocale("   "));
+    assertEquals("fr-fr", ContentTranslationsAdaptor.normalizeLocale("  fr-fr  "));
+  }
+
+  @Test
+  void mapCreatedFallsBackToDefaultLangOnBlankSysLang() {
+    PSCoreItem item = mock(PSCoreItem.class);
+    when(item.getContentId()).thenReturn(901);
+    when(item.getRevision()).thenReturn(1);
+    when(item.getFieldByName("sys_lang")).thenReturn(null);
+
+    List<TranslationVariant> out =
+        ContentTranslationsAdaptor.mapCreated(List.of(item), List.of(42L));
+
+    assertEquals(1, out.size());
+    assertEquals("en-us", out.get(0).getLocale());
+  }
+
+  @Test
   void readLocaleFieldLogsWarnAndReturnsNullOnException() {
     PSCoreItem item = mock(PSCoreItem.class);
     when(item.getContentId()).thenReturn(42);

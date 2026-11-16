@@ -32,6 +32,9 @@ const TYPE_DETAIL = {
   ContentTypeDetail: {
     name: "percPage",
     fields: [{ name: "sys_title", label: "Title", control: "sys_EditBox" }],
+    // Content-type templates keep the preview-template control off the site
+    // template service, so the spec never depends on the cell seed (#6386).
+    allowedTemplates: [{ name: "7", label: "Home Page" }],
   },
 };
 
@@ -146,6 +149,9 @@ async function stubApis(page, { variantsStatus = 200, createStatus = 200 } = {})
   await page.route("**/pagemanagement/template/summary/all/readonly**", (route) =>
     route.fulfill(emptyList),
   );
+  // Hermetic host chrome for the #6386 locale-readout test is registered
+  // locally in that test, below, so this shared helper stays merge-compatible
+  // with the #6442 quiet-stubs slice above.
   await page.route("**/services/locales", (route) => {
     if (route.request().method() !== "GET") {
       return route.continue();
@@ -220,6 +226,57 @@ test.describe("EditorHost translation variants @editor @editor-translations", ()
     await page.screenshot({
       path: "test-results/live-proof-6436-translations-open-900.png",
     });
+    expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
+  });
+
+  test("shows the real locale code in the editor chrome, never Unknown (#6386)", async ({
+    page,
+  }) => {
+    const consoleErrors = watchConsole(page);
+    await loginAsAdmin(page);
+    await stubApis(page);
+    // Hermetic host chrome (#6386): these editor panels hit the network
+    // outside the translations surface. Registered here (after stubApis, so
+    // they win route matching) so the readout test does not depend on seed
+    // item 42 existing in the QA cell. Kept local to this test so the shared
+    // stubApis helper stays merge-compatible with the #6436 quiet-stubs slice.
+    await page.route("**/services/pathmanagement/path/item/id/**", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({
+          PathItem: { id: "", name: "Home", path: "//Sites/Home", type: "page" },
+        }),
+      }),
+    );
+    await page.route(
+      "**/services/itemmanagement/workflow/allowedWorkflows/**",
+      (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemWorkflowChoices: {
+              itemId: "42",
+              currentWorkflowId: "4",
+              choices: [{ id: "4", name: "Local" }],
+            },
+          }),
+        }),
+    );
+    await page.route("**/services/assembly/slot-relationships/**", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ ownerId: 42, templateId: 7, slots: [] }),
+      }),
+    );
+    await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+    await expect(page.getByTestId(TEST_IDS.panel)).toBeVisible();
+    const readout = page.getByTestId(TEST_IDS.currentLocale);
+    await expect(readout).toBeVisible();
+    await expect(readout).toHaveText(/^[a-z]{2,3}(-[a-z]{2,})+$/i);
+    await expect(readout).not.toHaveText(/unknown/i);
     expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
   });
 

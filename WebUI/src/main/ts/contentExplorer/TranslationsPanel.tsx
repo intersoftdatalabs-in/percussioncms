@@ -501,10 +501,29 @@ export function TranslationsPanel(
 
       <div
         data-testid="translations-current-locale"
-        style={{ marginBottom: 12 }}
+        style={{
+          marginBottom: 12,
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          flexWrap: "wrap",
+        }}
       >
         <strong>{message(EXPLORER_MSG.TRANSLATIONS_CURRENT_LOCALE)}: </strong>
-        <span data-testid="translations-current-locale-value">
+        <span
+          data-testid="translations-current-locale-value"
+          style={{
+            display: "inline-block",
+            padding: "2px 10px",
+            borderRadius: 999,
+            border: "1px solid #cbd5e1",
+            background: "#f1f5f9",
+            color: PANEL_TEXT,
+            fontSize: 13,
+            fontWeight: 600,
+            letterSpacing: "0.02em",
+          }}
+        >
           {currentLocale && currentLocale.trim()
             ? currentLocale
             : message(EXPLORER_MSG.TRANSLATIONS_LOCALE_UNKNOWN)}

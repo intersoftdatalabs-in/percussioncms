@@ -33,6 +33,7 @@ const TEST_IDS = Object.freeze({
   localeDe: "translations-locale-option-de-de",
   create: "translations-create-submit",
   createError: "translations-create-error",
+  currentLocale: "translations-current-locale-value",
 });
 
 module.exports = { TEST_IDS, editorSpaUrl };

@@ -1330,7 +1330,10 @@ an authorized user **Create variants** for catalog locales the item does not alr
 have. Each variant row includes **Open locale copy**. Confirm **Open this translation
 variant in the editor?** to open that existing locale copy in the React editor
 (`spa.jsp?entry=editor`). **Cancel**, or a row with no variant, does not open a
-window. Explorer checks the variant (`GET /services/itemmanagement/item/fields/{id}`)
+window. The **current locale** readout always shows the item’s real locale code
+(for example `en-us`). When the item has no stored locale value (as on some
+seeded content), the REST façade reports the system default locale instead of a
+blank value, so the editor never shows a bare unknown. Explorer checks the variant (`GET /services/itemmanagement/item/fields/{id}`)
 before navigating. HTTP **403** and **404** stay in the translations panel and are
 not a successful open. A **folder** is not opened as a translation variant.
 A **Filter locale variants** search box above the table narrows rows by locale code,
