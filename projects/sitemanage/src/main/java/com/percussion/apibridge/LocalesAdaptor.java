@@ -178,7 +178,8 @@ public class LocalesAdaptor implements ILocalesAdaptor {
       Set<String> formatLangs = safeFormatIndex();
       return mapSummaries(loadAllLocalesViaDesignWs(), formatLangs);
     } catch (RuntimeException e) {
-      log.warn("Failed to list CMS locales via content design WS", e);      throw e;
+      log.warn("Failed to list CMS locales via content design WS", e);
+      throw e;
     }
   }
 
