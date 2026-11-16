@@ -100,7 +100,7 @@ describe("EditorHost autosave draft recovery (#6076)", () => {
     expect(screen.queryByTestId("editor-autosave-notice")).toBeNull();
   });
 
-  it("discard drops the stored draft and keeps the loaded values", async () => {
+  it("discard asks to confirm naming the item; cancel keeps the draft and notice", async () => {
     writeAutosavedEditorDraft(localStorage, "42", { sys_title: "Stale draft" }, 1);
     const saveFields = vi.fn();
     renderEdit({ saveFields });
@@ -110,11 +110,62 @@ describe("EditorHost autosave draft recovery (#6076)", () => {
     });
     fireEvent.click(screen.getByTestId("editor-autosave-discard"));
     await waitFor(() => {
+      expect(screen.getByTestId("editor-autosave-discard-confirm")).toBeTruthy();
+    });
+    // Confirm step names the open item and leaves storage untouched.
+    expect(screen.getByTestId("editor-autosave-notice").textContent).toContain(
+      "Home",
+    );
+    expect(localStorage.getItem(editorAutosaveKey("42"))).not.toBeNull();
+    expect(saveFields).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("editor-autosave-discard-cancel"));
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("editor-autosave-discard-confirm"),
+      ).toBeNull();
+    });
+    // Cancelling keeps the notice and the stored draft: still offered.
+    expect(screen.getByTestId("editor-autosave-notice")).toBeTruthy();
+    expect(screen.getByTestId("editor-autosave-restore")).toBeTruthy();
+    expect(localStorage.getItem(editorAutosaveKey("42"))).not.toBeNull();
+    expect(saveFields).not.toHaveBeenCalled();
+    // A later reload still offers restore for the kept draft.
+    cleanup();
+    renderEdit({ saveFields });
+    await loadedTitle();
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-autosave-notice")).toBeTruthy();
+    });
+    expect(saveFields).not.toHaveBeenCalled();
+  });
+
+  it("confirming discard clears the draft, keeps loaded values, and shows a dismissible banner", async () => {
+    writeAutosavedEditorDraft(localStorage, "42", { sys_title: "Stale draft" }, 1);
+    const saveFields = vi.fn();
+    renderEdit({ saveFields });
+    await loadedTitle();
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-autosave-notice")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-autosave-discard"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-autosave-discard-confirm")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-autosave-discard-confirm"));
+    await waitFor(() => {
       expect(screen.queryByTestId("editor-autosave-notice")).toBeNull();
     });
     expect(
       (screen.getByTestId("editor-field-sys_title") as HTMLInputElement).value,
     ).toBe("Home");
+    expect(localStorage.getItem(editorAutosaveKey("42"))).toBeNull();
+    expect(saveFields).not.toHaveBeenCalled();
+    // Dismissed state confirms the discard until closed.
+    expect(screen.getByTestId("editor-autosave-dismissed")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("editor-autosave-dismissed-close"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("editor-autosave-dismissed")).toBeNull();
+    });
     expect(localStorage.getItem(editorAutosaveKey("42"))).toBeNull();
     expect(saveFields).not.toHaveBeenCalled();
   });

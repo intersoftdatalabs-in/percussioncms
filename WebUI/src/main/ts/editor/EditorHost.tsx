@@ -1128,6 +1128,18 @@ export function EditorHost({
    */
   const [autosaveNotice, setAutosaveNotice] =
     useState<AutosavedEditorDraft | null>(null);
+  /**
+   * Discard confirm step (#6416). The first Discard click only arms this
+   * flag — storage is untouched until the confirm button fires, so a
+   * mis-click (or Cancel) keeps the stored draft and the notice.
+   */
+  const [autosaveDiscardConfirm, setAutosaveDiscardConfirm] = useState(false);
+  /**
+   * Post-discard dismissed state (#6416). The stored draft is gone, so the
+   * recovery notice cannot return; this banner confirms the discard until
+   * the operator dismisses it or the item reloads.
+   */
+  const [autosaveDiscarded, setAutosaveDiscarded] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const keywordChoicesRef = useRef<Record<string, KeywordOption[]>>({});
   const reportKeywordChoices = (name: string, options: KeywordOption[]): void => {
@@ -1430,8 +1442,12 @@ export function EditorHost({
               ? stored
               : null,
           );
+          setAutosaveDiscardConfirm(false);
+          setAutosaveDiscarded(false);
         } else {
           setAutosaveNotice(null);
+          setAutosaveDiscardConfirm(false);
+          setAutosaveDiscarded(false);
         }
         if (fields.contentType) {
           try {
@@ -2489,6 +2505,8 @@ export function EditorHost({
       );
       clearAutosavedEditorDraft(browserAutosaveStorage(), itemId);
       setAutosaveNotice(null);
+      setAutosaveDiscardConfirm(false);
+      setAutosaveDiscarded(false);
       setSaved(true);
       await refreshPayloadAfterSave(itemId);
     } catch (err) {
@@ -3529,21 +3547,52 @@ export function EditorHost({
     setDiscardEpoch((epoch) => epoch + 1);
     focusInvalidRef.current = null;
     setFieldErrors({});
+    setAutosaveDiscardConfirm(false);
     setAutosaveNotice(null);
   }
 
   /**
-   * Autosave recovery (#6076). Discard drops the stored pre-reload edit and
-   * keeps the freshly loaded values; it never writes to the server.
+   * Autosave recovery (#6416). Discard is two-step: the first click only
+   * arms the inline confirm; nothing is cleared until the operator
+   * confirms. Cancelling (or a mis-click elsewhere) keeps the stored
+   * draft, so a later reload still offers restore.
    */
   function handleDiscardAutosave(): void {
+    setAutosaveDiscardConfirm(true);
+  }
+
+  /**
+   * Autosave recovery (#6416). Confirmed discard drops the stored
+   * pre-reload edit and keeps the freshly loaded values; it never writes
+   * to the server. The recovery notice cannot return (storage is empty),
+   * so a dismissed-state banner confirms the discard instead.
+   */
+  function handleConfirmDiscardAutosave(): void {
     if (contentId != null) {
       clearAutosavedEditorDraft(
         browserAutosaveStorage(),
         String(contentId),
       );
     }
+    setAutosaveDiscardConfirm(false);
     setAutosaveNotice(null);
+    setAutosaveDiscarded(true);
+  }
+
+  /**
+   * Autosave recovery (#6416). Cancelling the discard confirm keeps the
+   * notice and the stored draft untouched.
+   */
+  function handleCancelDiscardAutosave(): void {
+    setAutosaveDiscardConfirm(false);
+  }
+
+  /**
+   * Autosave recovery (#6416). Dismiss the post-discard banner; the draft
+   * stays cleared and the loaded values stay in the form.
+   */
+  function handleDismissAutosaveDiscarded(): void {
+    setAutosaveDiscarded(false);
   }
 
   function allowLeave(): boolean {
@@ -4495,10 +4544,22 @@ export function EditorHost({
   );
   const showRevert = canEdit && canRevertFromEditor(mode, draftDirty);
   /**
+   * Item name for the autosave discard confirm (#6416). Falls back to the
+   * content id when the payload has no display name yet.
+   */
+  const autosaveItemName =
+    (payload?.name ?? "").trim() || (contentId != null ? String(contentId) : "");
+  /**
    * Autosave mirror (#6076): while the form is dirty in Edit mode the text
    * draft is mirrored to localStorage so a reload can offer recovery. A
    * clean form clears the entry so a revert or save never resurfaces a
    * stale banner. Binary picks are not serializable and stay out.
+   *
+   * <p>(#6416) While the recovery notice (or its discard confirm) is still
+   * offered the entry is left alone: the form is clean by definition right
+   * after a reload, and clearing here would destroy the very draft the
+   * notice offers — cancelling the discard confirm must keep a later
+   * reload able to offer restore.</p>
    */
   useEffect(() => {
     if (contentId == null || payload == null || !canEdit) {
@@ -4512,10 +4573,10 @@ export function EditorHost({
         draft,
         visibleEditorRevision(payload.revision),
       );
-    } else {
+    } else if (autosaveNotice == null && !autosaveDiscarded) {
       clearAutosavedEditorDraft(browserAutosaveStorage(), itemId);
     }
-  }, [contentId, payload, draft, draftDirty, canEdit]);
+  }, [contentId, payload, draft, draftDirty, canEdit, autosaveNotice, autosaveDiscarded]);
   const checkoutOwner = (
     restLockUser ||
     lockUser ||
@@ -5278,24 +5339,83 @@ export function EditorHost({
                 role="status"
                 data-testid="editor-autosave-notice"
               >
-                {message(EDITOR_MSG.AUTOSAVE_NOTICE)}
-                <div className={styles.actions}>
-                  <button
-                    type="button"
-                    className={styles.button}
-                    data-testid="editor-autosave-restore"
-                    onClick={handleRestoreAutosave}
-                  >
-                    {message(EDITOR_MSG.AUTOSAVE_RESTORE)}
-                  </button>
-                  <button
-                    type="button"
-                    className={styles.button}
-                    data-testid="editor-autosave-discard"
-                    onClick={handleDiscardAutosave}
-                  >
-                    {message(EDITOR_MSG.AUTOSAVE_DISCARD)}
-                  </button>
+                <div className={styles.noticeRow}>
+                  <span className={styles.noticeText}>
+                    {autosaveDiscardConfirm
+                      ? message(EDITOR_MSG.AUTOSAVE_DISCARD_CONFIRM)
+                      : message(EDITOR_MSG.AUTOSAVE_NOTICE)}
+                    {autosaveDiscardConfirm && autosaveItemName ? (
+                      <>
+                        {" “"}
+                        {autosaveItemName}
+                        {"”"}
+                      </>
+                    ) : null}
+                  </span>
+                  <div className={styles.actions}>
+                    {autosaveDiscardConfirm ? (
+                      <>
+                        <button
+                          type="button"
+                          className={`${styles.button} ${styles.buttonPrimary}`}
+                          data-testid="editor-autosave-discard-confirm"
+                          onClick={handleConfirmDiscardAutosave}
+                        >
+                          {message(EDITOR_MSG.AUTOSAVE_DISCARD_CONFIRM_BUTTON)}
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.button}
+                          data-testid="editor-autosave-discard-cancel"
+                          onClick={handleCancelDiscardAutosave}
+                        >
+                          {message(EDITOR_MSG.AUTOSAVE_DISCARD_KEEP)}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          type="button"
+                          className={styles.button}
+                          data-testid="editor-autosave-restore"
+                          onClick={handleRestoreAutosave}
+                        >
+                          {message(EDITOR_MSG.AUTOSAVE_RESTORE)}
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.button}
+                          data-testid="editor-autosave-discard"
+                          onClick={handleDiscardAutosave}
+                        >
+                          {message(EDITOR_MSG.AUTOSAVE_DISCARD)}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            ) : null}
+            {autosaveDiscarded && canEdit ? (
+              <div
+                className={styles.status}
+                role="status"
+                data-testid="editor-autosave-dismissed"
+              >
+                <div className={styles.noticeRow}>
+                  <span className={styles.noticeText}>
+                    {message(EDITOR_MSG.AUTOSAVE_DISCARDED)}
+                  </span>
+                  <div className={styles.actions}>
+                    <button
+                      type="button"
+                      className={styles.button}
+                      data-testid="editor-autosave-dismissed-close"
+                      onClick={handleDismissAutosaveDiscarded}
+                    >
+                      {message(EDITOR_MSG.AUTOSAVE_DISCARDED_DISMISS)}
+                    </button>
+                  </div>
                 </div>
               </div>
             ) : null}
