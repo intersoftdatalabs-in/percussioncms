@@ -86,6 +86,25 @@ function runCommand(
   apply(editor.chain().focus());
 }
 
+/**
+ * Collapse the selection to a caret at its trailing edge (#5932).
+ *
+ * <p>Dialog apply paths (link address entry) restore the pre-dialog range
+ * through {@code focus()} and then close the popover. Leaving that range in
+ * place lets a fast follow-up Enter run against a stale ProseMirror
+ * selection: {@code splitListItem} deletes the range before splitting, so
+ * the list item loses its text. Collapsing here dispatches a transaction,
+ * so editor state and the DOM caret reconcile synchronously and later
+ * keystrokes can never observe the closed dialog's range. TinyMCE's link
+ * dialog likewise leaves a caret, not a selection.</p>
+ */
+function collapseSelectionToCaret(editor: Editor): void {
+  const { empty, to } = editor.state.selection;
+  if (!empty) {
+    editor.commands.setTextSelection(to);
+  }
+}
+
 interface ToolButtonProps {
   action: string;
   name: string;
@@ -145,6 +164,7 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
     if (!href) {
       // Empty address removes the link, like the TinyMCE link dialog.
       editor.chain().focus().unsetLink().run();
+      collapseSelectionToCaret(editor);
       setLinkOpen(false);
       return;
     }
@@ -153,6 +173,7 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
       return;
     }
     editor.chain().focus().setLink({ href }).run();
+    collapseSelectionToCaret(editor);
     setLinkOpen(false);
   };
 
