@@ -197,6 +197,138 @@ function contentTypeFields(detail: ContentTypeDetail | null | undefined): Conten
   return normalizeContentTypeFields(detail?.fields);
 }
 
+type ContentTypeFieldPatch = {
+  name: string;
+  fieldSet?: string;
+  searchable?: boolean;
+  required?: boolean;
+  label?: string;
+  sequence?: number;
+};
+
+function findInitialFieldDraft(
+  initialDrafts: Record<string, FieldDraft>,
+  name: string,
+): FieldDraft | undefined {
+  return Object.values(initialDrafts).find((i) => i.name === name);
+}
+
+function isFieldDraftPatchNeeded(
+  draft: FieldDraft,
+  initial: FieldDraft | undefined,
+): boolean {
+  if (!initial) {
+    return true;
+  }
+  return (
+    initial.searchable !== draft.searchable ||
+    initial.required !== draft.required ||
+    (draft.local && initial.label !== draft.label)
+  );
+}
+
+function toContentTypeFieldPatch(
+  draft: FieldDraft,
+  initial: FieldDraft | undefined,
+): ContentTypeFieldPatch {
+  const patch: ContentTypeFieldPatch = {
+    name: draft.name,
+    searchable: draft.searchable,
+    required: draft.required,
+  };
+  if (draft.fieldSet) {
+    patch.fieldSet = draft.fieldSet;
+  }
+  if (draft.local && initial && initial.label !== draft.label) {
+    patch.label = draft.label.trim();
+  }
+  return patch;
+}
+
+function buildBaseContentTypeFieldPatches(
+  fieldDrafts: Record<string, FieldDraft>,
+  initialDrafts: Record<string, FieldDraft>,
+): ContentTypeFieldPatch[] {
+  const patches: ContentTypeFieldPatch[] = [];
+  for (const draft of Object.values(fieldDrafts)) {
+    const initial = findInitialFieldDraft(initialDrafts, draft.name);
+    if (!isFieldDraftPatchNeeded(draft, initial)) {
+      continue;
+    }
+    patches.push(toContentTypeFieldPatch(draft, initial));
+  }
+  return patches;
+}
+
+function fieldPatchOrderKey(set: string | undefined, name: string): string {
+  return `${set || ""}:${name}`;
+}
+
+function applyParentFieldOrderSequences(
+  patches: ContentTypeFieldPatch[],
+  byKey: Map<string, ContentTypeFieldPatch>,
+  fieldOrder: string[],
+): void {
+  fieldOrder.forEach((name, index) => {
+    const key = fieldPatchOrderKey(undefined, name);
+    const existing = byKey.get(key);
+    if (existing && !existing.fieldSet) {
+      existing.sequence = index;
+      return;
+    }
+    const patch: ContentTypeFieldPatch = { name, sequence: index };
+    patches.push(patch);
+    byKey.set(key, patch);
+  });
+}
+
+function applyChildFieldOrderSequences(
+  patches: ContentTypeFieldPatch[],
+  byKey: Map<string, ContentTypeFieldPatch>,
+  childFieldOrders: Record<string, string[]>,
+): void {
+  Object.entries(childFieldOrders).forEach(([setName, names]) => {
+    names.forEach((name, index) => {
+      const key = fieldPatchOrderKey(setName, name);
+      const existing = byKey.get(key);
+      if (existing) {
+        existing.sequence = index;
+        existing.fieldSet = setName;
+        return;
+      }
+      const patch: ContentTypeFieldPatch = { name, fieldSet: setName, sequence: index };
+      patches.push(patch);
+      byKey.set(key, patch);
+    });
+  });
+}
+
+function applyContentTypeFieldOrderSequences(
+  patches: ContentTypeFieldPatch[],
+  fieldOrder: string[],
+  childFieldOrders: Record<string, string[]>,
+): void {
+  const byKey = new Map<string, ContentTypeFieldPatch>(
+    patches.map((p): [string, ContentTypeFieldPatch] => [fieldPatchOrderKey(p.fieldSet, p.name), p]),
+  );
+  applyParentFieldOrderSequences(patches, byKey, fieldOrder);
+  applyChildFieldOrderSequences(patches, byKey, childFieldOrders);
+}
+
+function contentTypeItemExitsSaveFlags(
+  current: ContentTypeItemExits,
+  saved: ContentTypeItemExits,
+): { includePipeExits: boolean; includeMaxErrors: boolean } {
+  return {
+    includePipeExits:
+      !itemExitListsEqual(current.preExits, saved.preExits) ||
+      !itemExitListsEqual(current.postExits, saved.postExits),
+    includeMaxErrors:
+      (current.maxErrorsToStopValidation ?? null) !==
+      (saved.maxErrorsToStopValidation ?? null),
+  };
+}
+
 function parentFieldOrder(fields: ContentTypeFieldSummary[]): string[] {
   const names: string[] = [];
   for (const f of fields) {
@@ -1364,34 +1496,378 @@ export function ContentTypeDetailPanel({
     }
   }
 
-  async function handleSave() {
-    if (!heldLockRef.current) {
-      setError(DEV_MSG.CT_LOCK_REQUIRED);
+  type ContentTypeSaveProgress = {
+    saved: ContentTypeDetail | null;
+    workflowSaved: ContentTypeDetail | undefined;
+    saveFallback: string;
+  };
+
+  type ContentTypeSavePrecheck =
+    | { ready: true; current: ContentTypeDetail; enabledDirty: boolean; bulkNeeded: boolean }
+    | { ready: false };
+
+  function restoreSavedContentTypeCore(saved: ContentTypeDetail | null): void {
+    if (saved == null) {
       return;
     }
-    if (detail == null) {
+    setDetail(saved);
+    setEnabled(saved.enabled !== false);
+  }
+
+  function restoreSavedContentTypeWorkflows(source: ContentTypeDetail | null): void {
+    if (source == null) {
       return;
+    }
+    setWorkflows(withDefaultWorkflowFlags(source.allowedWorkflows, source.defaultWorkflow));
+  }
+
+  function hasBlankLocalFieldLabel(): boolean {
+    return Object.values(fieldDrafts).some((d) => {
+      const initial = findInitialFieldDraft(initialDrafts, d.name);
+      return Boolean(d.local && initial && initial.label !== d.label && !d.label.trim());
+    });
+  }
+
+  function choiceCatalogSaveError(): string | null {
+    if (!choicesDirty) {
+      return null;
+    }
+    const payloadErr = choiceCatalogPayloadError(choiceCatalog);
+    if (payloadErr === "local-entries") {
+      return DEV_MSG.CT_CHOICES_INVALID_LOCAL;
+    }
+    if (payloadErr === "global-id") {
+      return DEV_MSG.CT_CHOICES_INVALID_GLOBAL;
+    }
+    if (payloadErr === "lookup-href") {
+      return DEV_MSG.CT_CHOICES_INVALID_LOOKUP;
+    }
+    if (payloadErr === "table") {
+      return DEV_MSG.CT_CHOICES_INVALID_TABLE;
+    }
+    return null;
+  }
+
+  function isBulkSaveNeeded(current: ContentTypeDetail): boolean {
+    return (
+      label !== (current.label || "") ||
+      description !== (current.description || "") ||
+      fieldsDirty ||
+      orderDirty
+    );
+  }
+
+  function hasPendingSaveWork(enabledDirty: boolean, bulkNeeded: boolean): boolean {
+    return (
+      enabledDirty ||
+      searchIndexingDirty ||
+      workflowsDirty ||
+      templatesDirty ||
+      bulkNeeded ||
+      itemExitsDirty ||
+      controlSectionDirty ||
+      fieldRulesDirty ||
+      iconDirty
+    );
+  }
+
+  function runSavePrechecks(): ContentTypeSavePrecheck {
+    if (!heldLockRef.current) {
+      setError(DEV_MSG.CT_LOCK_REQUIRED);
+      return { ready: false };
+    }
+    const current = detail;
+    if (current == null) {
+      return { ready: false };
     }
     if (iconDirty) {
       try {
         contentTypeIconPutBody(iconSource, iconValue);
       } catch (pre) {
         setError(panelErrMsg(pre, DEV_MSG.CT_SAVE_ERROR));
-        return;
+        return { ready: false };
       }
     }
-    const enabledDirty = enabled !== (detail.enabled !== false);
-    const bulkNeeded =
-      label !== (detail.label || "") ||
-      description !== (detail.description || "") ||
-      fieldsDirty ||
-      orderDirty;
+    const enabledDirty = enabled !== (current.enabled !== false);
+    const bulkNeeded = isBulkSaveNeeded(current);
+    if (!hasPendingSaveWork(enabledDirty, bulkNeeded)) {
+      return { ready: false };
+    }
+    if (hasBlankLocalFieldLabel()) {
+      setError(DEV_MSG.CT_FIELD_LABEL_BLANK);
+      return { ready: false };
+    }
+    const catalogError = choiceCatalogSaveError();
+    if (catalogError != null) {
+      setError(catalogError);
+      return { ready: false };
+    }
+    return { ready: true, current, enabledDirty, bulkNeeded };
+  }
+
+  async function saveContentTypeEnabledSection(
+    progress: ContentTypeSaveProgress,
+    enabledDirty: boolean,
+  ): Promise<void> {
+    if (!enabledDirty) {
+      return;
+    }
+    // Enabled PUT first so a failed enable/disable cannot leave bulk fields persisted
+    // (CD-13 two-call save; no shared rollback).
+    progress.saved = normalizeDetailLists(
+      await setContentTypeEnabled(activeKeyRef.current, enabled),
+    );
+  }
+
+  async function saveContentTypeSearchIndexingSection(
+    progress: ContentTypeSaveProgress,
+    current: ContentTypeDetail,
+  ): Promise<void> {
+    if (!searchIndexingDirty) {
+      return;
+    }
+    try {
+      const si = await setContentTypeSearchIndexing(
+        activeKeyRef.current,
+        searchIndexing,
+      );
+      const on = si.searchIndexing !== false;
+      setSearchIndexing(on);
+      setSavedSearchIndexing(on);
+      if (progress.saved == null) {
+        progress.saved = normalizeDetailLists(current);
+      }
+    } catch (siErr) {
+      setSearchIndexing(savedSearchIndexing);
+      setSavedSearchIndexing(savedSearchIndexing);
+      restoreSavedContentTypeCore(progress.saved);
+      progress.saveFallback = DEV_MSG.CT_SI_SAVE_ERROR;
+      throw siErr;
+    }
+  }
+
+  async function saveContentTypeIconSection(
+    progress: ContentTypeSaveProgress,
+    current: ContentTypeDetail,
+  ): Promise<void> {
+    if (!iconDirty) {
+      return;
+    }
+    try {
+      const iconSaved = await setContentTypeIcon(
+        activeKeyRef.current,
+        iconSource,
+        iconValue,
+      );
+      const applied = applyIconEnvelope(iconSaved);
+      setIconSource(applied.source);
+      setIconValue(applied.value);
+      setSavedIcon(
+        applied.source === CONTENT_TYPE_ICON_NONE
+          ? emptyIcon()
+          : { source: applied.source, value: applied.value },
+      );
+      setIconError(null);
+      if (progress.saved == null) {
+        progress.saved = normalizeDetailLists(current);
+      }
+    } catch (iconErr) {
+      restoreSavedContentTypeCore(progress.saved);
+      throw iconErr;
+    }
+  }
+
+  async function saveContentTypeWorkflowsSection(
+    progress: ContentTypeSaveProgress,
+    current: ContentTypeDetail,
+  ): Promise<void> {
+    if (!workflowsDirty) {
+      return;
+    }
+    try {
+      const workflowSaved = await setContentTypeAllowedWorkflows(
+        activeKeyRef.current,
+        buildAllowedWorkflowsReplaceBody(workflows),
+      );
+      progress.workflowSaved = workflowSaved;
+      progress.saved = progress.saved
+        ? {
+            ...normalizeDetailLists(workflowSaved),
+            enabled: progress.saved.enabled,
+          }
+        : normalizeDetailLists(workflowSaved);
+    } catch (wfErr) {
+      // 400/403/409: the PUT replaced nothing server-side, so restore the
+      // last-saved edge set locally instead of showing a phantom draft.
+      restoreSavedContentTypeCore(progress.saved);
+      restoreSavedContentTypeWorkflows(progress.saved ?? current);
+      throw wfErr;
+    }
+  }
+
+  async function saveContentTypeBulkSection(
+    progress: ContentTypeSaveProgress,
+    bulkNeeded: boolean,
+    fieldPatches: ContentTypeFieldPatch[],
+  ): Promise<void> {
+    if (!bulkNeeded) {
+      return;
+    }
+    const body: ContentTypeUpdateBody = {
+      label,
+      description,
+      fields: fieldPatches,
+    };
+    try {
+      const bulkSaved = normalizeDetailLists(
+        await updateContentTypeDetail(activeKeyRef.current, body),
+      );
+      progress.saved = {
+        ...bulkSaved,
+        enabled: progress.saved?.enabled ?? bulkSaved.enabled,
+        allowedWorkflows: progress.workflowSaved?.allowedWorkflows ?? bulkSaved.allowedWorkflows,
+        defaultWorkflow: progress.workflowSaved?.defaultWorkflow ?? bulkSaved.defaultWorkflow,
+      };
+    } catch (bulkErr) {
+      restoreSavedContentTypeCore(progress.saved);
+      if (progress.saved != null) {
+        restoreSavedContentTypeWorkflows(progress.saved);
+      }
+      throw bulkErr;
+    }
+  }
+
+  async function saveContentTypeTemplatesSection(
+    progress: ContentTypeSaveProgress,
+    current: ContentTypeDetail,
+  ): Promise<void> {
+    if (!templatesDirty) {
+      return;
+    }
+    try {
+      await replaceContentTypeAllowedTemplates(
+        activeKeyRef.current,
+        toNamedObjectRefPayload(templates),
+      );
+      const listed = await getContentTypeAllowedTemplates(activeKeyRef.current);
+      progress.saved =
+        progress.saved != null
+          ? { ...progress.saved, allowedTemplates: listed }
+          : { ...normalizeDetailLists(current), allowedTemplates: listed };
+    } catch (tplErr) {
+      restoreSavedContentTypeCore(progress.saved);
+      if (progress.saved != null) {
+        restoreSavedContentTypeWorkflows(progress.saved);
+      }
+      throw tplErr;
+    }
+  }
+
+  async function saveContentTypeItemExitsSection(
+    progress: ContentTypeSaveProgress,
+    current: ContentTypeDetail,
+  ): Promise<void> {
+    if (!itemExitsDirty) {
+      return;
+    }
+    try {
+      const flags = contentTypeItemExitsSaveFlags(itemExits, savedItemExits);
+      const exitsSaved = await replaceContentTypeItemExits(
+        activeKeyRef.current,
+        itemExits,
+        flags.includePipeExits,
+        flags.includeMaxErrors,
+      );
+      const cloned = cloneContentTypeItemExits(exitsSaved);
+      setItemExits(cloned);
+      setSavedItemExits(cloneContentTypeItemExits(cloned));
+      if (progress.saved == null) {
+        progress.saved = normalizeDetailLists(current);
+      }
+    } catch (ieErr) {
+      restoreSavedContentTypeCore(progress.saved);
+      if (progress.saved != null) {
+        restoreSavedContentTypeWorkflows(progress.saved);
+        if (progress.saved.allowedTemplates) {
+          setTemplates(cloneNamedObjectRefs(progress.saved.allowedTemplates));
+        }
+      }
+      throw ieErr;
+    }
+  }
+
+  async function saveContentTypeControlSection(
+    progress: ContentTypeSaveProgress,
+    current: ContentTypeDetail,
+  ): Promise<void> {
+    if (!controlSectionDirty) {
+      return;
+    }
+    const field = selectedFieldName.trim();
+    try {
+      const replaced = choicesDirty
+        ? await replaceFieldControlProperties(
+            activeKeyRef.current,
+            field,
+            toControlPropertyPayload(controlProps),
+            toChoiceCatalogPayload(choiceCatalog),
+          )
+        : await replaceFieldControlProperties(
+            activeKeyRef.current,
+            field,
+            toControlPropertyPayload(controlProps),
+          );
+      const listed = await getFieldControlProperties(activeKeyRef.current, field);
+      const nextProps = cloneControlProperties(
+        listed.properties ?? replaced.properties,
+      );
+      setControlProps(nextProps);
+      setControlPropsInitial(cloneControlProperties(nextProps));
+      setControlName(listed.control || replaced.control || controlName);
+      const nextChoices = cloneChoiceCatalog(listed.choices ?? replaced.choices);
+      setChoiceCatalog(nextChoices);
+      setChoiceCatalogInitial(cloneChoiceCatalog(nextChoices));
+      if (progress.saved == null) {
+        progress.saved = normalizeDetailLists(current);
+      }
+    } catch (cpErr) {
+      restoreSavedContentTypeCore(progress.saved);
+      if (progress.saved != null) {
+        restoreSavedContentTypeWorkflows(progress.saved);
+        setTemplates(cloneNamedObjectRefs(progress.saved.allowedTemplates));
+      }
+      throw cpErr;
+    }
+  }
+
+  async function saveContentTypeFieldRulesSection(
+    progress: ContentTypeSaveProgress,
+    current: ContentTypeDetail,
+  ): Promise<void> {
+    if (!fieldRulesDirty) {
+      return;
+    }
+    try {
+      await fieldRulesRef.current?.save();
+      if (progress.saved == null) {
+        progress.saved = normalizeDetailLists(current);
+      }
+    } catch (frErr) {
+      restoreSavedContentTypeCore(progress.saved);
+      if (progress.saved != null) {
+        restoreSavedContentTypeWorkflows(progress.saved);
+        setTemplates(cloneNamedObjectRefs(progress.saved.allowedTemplates));
+      }
+      throw frErr;
+    }
+  }
+
+  function finalizeContentTypeSave(
+    progress: ContentTypeSaveProgress,
+    current: ContentTypeDetail,
+  ): void {
     if (
-      !enabledDirty &&
-      !searchIndexingDirty &&
-      !workflowsDirty &&
-      !templatesDirty &&
-      !bulkNeeded &&
+      progress.saved == null &&
       !itemExitsDirty &&
       !controlSectionDirty &&
       !fieldRulesDirty &&
@@ -1399,370 +1875,56 @@ export function ContentTypeDetailPanel({
     ) {
       return;
     }
-    const blankLocalLabel = Object.values(fieldDrafts).some((d) => {
-      const initial = Object.values(initialDrafts).find((i) => i.name === d.name);
-      return Boolean(d.local && initial && initial.label !== d.label && !d.label.trim());
-    });
-    if (blankLocalLabel) {
-      setError(DEV_MSG.CT_FIELD_LABEL_BLANK);
+    const afterSave = progress.saved ?? normalizeDetailLists(current);
+    const normalized = normalizeDetailLists(afterSave);
+    setDetail(normalized);
+    setLabel(asContentTypeText(normalized.label));
+    setLabelShown(shownContentTypeLabel(normalized.label, normalized.name));
+    setDescription(asContentTypeText(normalized.description));
+    setDescriptionShown(storedContentTypeDescription(asContentTypeText(normalized.description)));
+    setEnabled(normalized.enabled !== false);
+    setFieldDrafts(toDrafts(normalized.fields));
+    setWorkflows(
+      withDefaultWorkflowFlags(normalized.allowedWorkflows, normalized.defaultWorkflow),
+    );
+    setTemplates(cloneNamedObjectRefs(normalized.allowedTemplates));
+    setNotice(DEV_MSG.CT_SAVED);
+  }
+
+  async function handleSave() {
+    const pre = runSavePrechecks();
+    if (!pre.ready) {
       return;
-    }
-    if (choicesDirty) {
-      const payloadErr = choiceCatalogPayloadError(choiceCatalog);
-      if (payloadErr === "local-entries") {
-        setError(DEV_MSG.CT_CHOICES_INVALID_LOCAL);
-        return;
-      }
-      if (payloadErr === "global-id") {
-        setError(DEV_MSG.CT_CHOICES_INVALID_GLOBAL);
-        return;
-      }
-      if (payloadErr === "lookup-href") {
-        setError(DEV_MSG.CT_CHOICES_INVALID_LOOKUP);
-        return;
-      }
-      if (payloadErr === "table") {
-        setError(DEV_MSG.CT_CHOICES_INVALID_TABLE);
-        return;
-      }
     }
     setBusy(true);
     setError(null);
     setNotice(null);
-    let saveFallback = DEV_MSG.CT_SAVE_ERROR;
+    const progress: ContentTypeSaveProgress = {
+      saved: null,
+      workflowSaved: undefined,
+      saveFallback: DEV_MSG.CT_SAVE_ERROR,
+    };
     try {
-      const fieldPatches: Array<{
-      name: string;
-      fieldSet?: string;
-      searchable?: boolean;
-      required?: boolean;
-      label?: string;
-      sequence?: number;
-    }> = Object.values(fieldDrafts)
-      .filter((d) => {
-        const initial = Object.values(initialDrafts).find((i) => i.name === d.name);
-        return (
-          !initial ||
-          initial.searchable !== d.searchable ||
-          initial.required !== d.required ||
-          (d.local && initial.label !== d.label)
-        );
-      })
-      .map((d) => {
-        const initial = Object.values(initialDrafts).find((i) => i.name === d.name);
-        const patch: {
-          name: string;
-          fieldSet?: string;
-          searchable?: boolean;
-          required?: boolean;
-          label?: string;
-          sequence?: number;
-        } = {
-          name: d.name,
-          searchable: d.searchable,
-          required: d.required,
-        };
-        if (d.fieldSet) {
-          patch.fieldSet = d.fieldSet;
-        }
-        if (d.local && initial && initial.label !== d.label) {
-          patch.label = d.label.trim();
-        }
-        return patch;
-      });
-    if (orderDirty) {
-      const orderKey = (set: string | undefined, name: string): string =>
-        `${set || ""}:${name}`;
-      const byKey = new Map(fieldPatches.map((p) => [orderKey(p.fieldSet, p.name), p]));
-      fieldOrder.forEach((name, index) => {
-        const key = orderKey(undefined, name);
-        const existing = byKey.get(key);
-        if (existing && !existing.fieldSet) {
-          existing.sequence = index;
-          return;
-        }
-        const patch = { name, sequence: index };
-        fieldPatches.push(patch);
-        byKey.set(key, patch);
-      });
-      Object.entries(childFieldOrders).forEach(([setName, names]) => {
-        names.forEach((name, index) => {
-          const key = orderKey(setName, name);
-          const existing = byKey.get(key);
-          if (existing) {
-            existing.sequence = index;
-            existing.fieldSet = setName;
-            return;
-          }
-          const patch = { name, fieldSet: setName, sequence: index };
-          fieldPatches.push(patch);
-          byKey.set(key, patch);
-        });
-      });
-    }
-
-      let saved: ContentTypeDetail | null = null;
-      let workflowSaved: ContentTypeDetail | undefined;
-      // Enabled PUT first so a failed enable/disable cannot leave bulk fields persisted
-      // (CD-13 two-call save; no shared rollback).
-      if (enabledDirty) {
-        saved = normalizeDetailLists(
-          await setContentTypeEnabled(activeKeyRef.current, enabled),
-        );
+      const fieldPatches = buildBaseContentTypeFieldPatches(fieldDrafts, initialDrafts);
+      if (orderDirty) {
+        applyContentTypeFieldOrderSequences(fieldPatches, fieldOrder, childFieldOrders);
       }
-      if (searchIndexingDirty) {
-        try {
-          const si = await setContentTypeSearchIndexing(
-            activeKeyRef.current,
-            searchIndexing,
-          );
-          const on = si.searchIndexing !== false;
-          setSearchIndexing(on);
-          setSavedSearchIndexing(on);
-          if (saved == null) {
-            saved = normalizeDetailLists(detail);
-          }
-        } catch (siErr) {
-          setSearchIndexing(savedSearchIndexing);
-          setSavedSearchIndexing(savedSearchIndexing);
-          if (saved != null) {
-            setDetail(saved);
-            setEnabled(saved.enabled !== false);
-          }
-          saveFallback = DEV_MSG.CT_SI_SAVE_ERROR;
-          throw siErr;
-        }
-      }
-      if (iconDirty) {
-        try {
-          const iconSaved = await setContentTypeIcon(
-            activeKeyRef.current,
-            iconSource,
-            iconValue,
-          );
-          const applied = applyIconEnvelope(iconSaved);
-          setIconSource(applied.source);
-          setIconValue(applied.value);
-          setSavedIcon(
-            applied.source === CONTENT_TYPE_ICON_NONE
-              ? emptyIcon()
-              : { source: applied.source, value: applied.value },
-          );
-          setIconError(null);
-          if (saved == null) {
-            saved = normalizeDetailLists(detail);
-          }
-        } catch (iconErr) {
-          if (saved != null) {
-            setDetail(saved);
-            setEnabled(saved.enabled !== false);
-          }
-          throw iconErr;
-        }
-      }
-      if (workflowsDirty) {
-        try {
-          workflowSaved = await setContentTypeAllowedWorkflows(
-            activeKeyRef.current,
-            buildAllowedWorkflowsReplaceBody(workflows),
-          );
-          saved = saved
-            ? {
-                ...normalizeDetailLists(workflowSaved),
-                enabled: saved.enabled,
-              }
-            : normalizeDetailLists(workflowSaved);
-        } catch (wfErr) {
-          // 400/403/409: the PUT replaced nothing server-side, so restore the
-          // last-saved edge set locally instead of showing a phantom draft.
-          if (saved != null) {
-            setDetail(saved);
-            setEnabled(saved.enabled !== false);
-          }
-          const lastSaved = saved ?? detail;
-          if (lastSaved != null) {
-            setWorkflows(
-              withDefaultWorkflowFlags(
-                lastSaved.allowedWorkflows,
-                lastSaved.defaultWorkflow,
-              ),
-            );
-          }
-          throw wfErr;
-        }
-      }
-      if (bulkNeeded) {
-        const body: ContentTypeUpdateBody = {
-          label,
-          description,
-          fields: fieldPatches,
-        };
-        try {
-          const bulkSaved = normalizeDetailLists(
-            await updateContentTypeDetail(activeKeyRef.current, body),
-          );
-          saved = {
-            ...bulkSaved,
-            enabled: saved?.enabled ?? bulkSaved.enabled,
-            allowedWorkflows: workflowSaved?.allowedWorkflows ?? bulkSaved.allowedWorkflows,
-            defaultWorkflow: workflowSaved?.defaultWorkflow ?? bulkSaved.defaultWorkflow,
-          };
-        } catch (bulkErr) {
-          if (saved != null) {
-            setDetail(saved);
-            setEnabled(saved.enabled !== false);
-            setWorkflows(
-              withDefaultWorkflowFlags(saved.allowedWorkflows, saved.defaultWorkflow),
-            );
-          }
-          throw bulkErr;
-        }
-      }
-      if (templatesDirty) {
-        try {
-          await replaceContentTypeAllowedTemplates(
-            activeKeyRef.current,
-            toNamedObjectRefPayload(templates),
-          );
-          const listed = await getContentTypeAllowedTemplates(activeKeyRef.current);
-          saved =
-            saved != null
-              ? { ...saved, allowedTemplates: listed }
-              : { ...normalizeDetailLists(detail), allowedTemplates: listed };
-        } catch (tplErr) {
-          if (saved != null) {
-            setDetail(saved);
-            setEnabled(saved.enabled !== false);
-            setWorkflows(
-              withDefaultWorkflowFlags(saved.allowedWorkflows, saved.defaultWorkflow),
-            );
-          }
-          throw tplErr;
-        }
-      }
-      if (itemExitsDirty) {
-        try {
-          const includePipeExits =
-            !itemExitListsEqual(itemExits.preExits, savedItemExits.preExits) ||
-            !itemExitListsEqual(itemExits.postExits, savedItemExits.postExits);
-          const includeMaxErrors =
-            (itemExits.maxErrorsToStopValidation ?? null) !==
-            (savedItemExits.maxErrorsToStopValidation ?? null);
-          const exitsSaved = await replaceContentTypeItemExits(
-            activeKeyRef.current,
-            itemExits,
-            includePipeExits,
-            includeMaxErrors,
-          );
-          const cloned = cloneContentTypeItemExits(exitsSaved);
-          setItemExits(cloned);
-          setSavedItemExits(cloneContentTypeItemExits(cloned));
-          if (saved == null) {
-            saved = normalizeDetailLists(detail);
-          }
-        } catch (ieErr) {
-          if (saved != null) {
-            setDetail(saved);
-            setEnabled(saved.enabled !== false);
-            setWorkflows(
-              withDefaultWorkflowFlags(saved.allowedWorkflows, saved.defaultWorkflow),
-            );
-            if (saved.allowedTemplates) {
-              setTemplates(cloneNamedObjectRefs(saved.allowedTemplates));
-            }
-          }
-          throw ieErr;
-        }
-      }
-      if (controlSectionDirty) {
-        const field = selectedFieldName.trim();
-        try {
-          const replaced = choicesDirty
-            ? await replaceFieldControlProperties(
-                activeKeyRef.current,
-                field,
-                toControlPropertyPayload(controlProps),
-                toChoiceCatalogPayload(choiceCatalog),
-              )
-            : await replaceFieldControlProperties(
-                activeKeyRef.current,
-                field,
-                toControlPropertyPayload(controlProps),
-              );
-          const listed = await getFieldControlProperties(activeKeyRef.current, field);
-          const nextProps = cloneControlProperties(
-            listed.properties ?? replaced.properties,
-          );
-          setControlProps(nextProps);
-          setControlPropsInitial(cloneControlProperties(nextProps));
-          setControlName(listed.control || replaced.control || controlName);
-          const nextChoices = cloneChoiceCatalog(listed.choices ?? replaced.choices);
-          setChoiceCatalog(nextChoices);
-          setChoiceCatalogInitial(cloneChoiceCatalog(nextChoices));
-          if (saved == null) {
-            saved = normalizeDetailLists(detail);
-          }
-        } catch (cpErr) {
-          if (saved != null) {
-            setDetail(saved);
-            setEnabled(saved.enabled !== false);
-            setWorkflows(
-              withDefaultWorkflowFlags(saved.allowedWorkflows, saved.defaultWorkflow),
-            );
-            setTemplates(cloneNamedObjectRefs(saved.allowedTemplates));
-          }
-          throw cpErr;
-        }
-      }
-      if (fieldRulesDirty) {
-        try {
-          await fieldRulesRef.current?.save();
-          if (saved == null) {
-            saved = normalizeDetailLists(detail);
-          }
-        } catch (frErr) {
-          if (saved != null) {
-            setDetail(saved);
-            setEnabled(saved.enabled !== false);
-            setWorkflows(
-              withDefaultWorkflowFlags(saved.allowedWorkflows, saved.defaultWorkflow),
-            );
-            setTemplates(cloneNamedObjectRefs(saved.allowedTemplates));
-          }
-          throw frErr;
-        }
-      }
-      if (
-        saved == null &&
-        !itemExitsDirty &&
-        !controlSectionDirty &&
-        !fieldRulesDirty &&
-        !iconDirty
-      ) {
-        return;
-      }
-      if (saved == null) {
-        saved = normalizeDetailLists(detail);
-      }
-      const normalized = normalizeDetailLists(saved);
-      setDetail(normalized);
-      setLabel(asContentTypeText(normalized.label));
-      setLabelShown(shownContentTypeLabel(normalized.label, normalized.name));
-      setDescription(asContentTypeText(normalized.description));
-      setDescriptionShown(storedContentTypeDescription(asContentTypeText(normalized.description)));
-      setEnabled(normalized.enabled !== false);
-      setFieldDrafts(toDrafts(normalized.fields));
-      setWorkflows(
-        withDefaultWorkflowFlags(normalized.allowedWorkflows, normalized.defaultWorkflow),
-      );
-      setTemplates(cloneNamedObjectRefs(normalized.allowedTemplates));
-      setNotice(DEV_MSG.CT_SAVED);
+      await saveContentTypeEnabledSection(progress, pre.enabledDirty);
+      await saveContentTypeSearchIndexingSection(progress, pre.current);
+      await saveContentTypeIconSection(progress, pre.current);
+      await saveContentTypeWorkflowsSection(progress, pre.current);
+      await saveContentTypeBulkSection(progress, pre.bulkNeeded, fieldPatches);
+      await saveContentTypeTemplatesSection(progress, pre.current);
+      await saveContentTypeItemExitsSection(progress, pre.current);
+      await saveContentTypeControlSection(progress, pre.current);
+      await saveContentTypeFieldRulesSection(progress, pre.current);
+      finalizeContentTypeSave(progress, pre.current);
     } catch (err: unknown) {
       if (isApiError(err) && err.status === 409) {
         heldLockRef.current = false;
         setHeldLock(false);
       }
-      setError(panelErrMsg(err, saveFallback));
+      setError(panelErrMsg(err, progress.saveFallback));
     } finally {
       setBusy(false);
     }
