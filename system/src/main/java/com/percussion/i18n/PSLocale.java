@@ -339,50 +339,92 @@ public class PSLocale implements IPSCatalogSummary {
 
     m_languageString = getRequiredAttribute(source, ATTR_LANGUAGE_STRING);
     m_displayName = getRequiredAttribute(source, ATTR_DISPLAY_NAME);
+    m_status = parseStatusAttribute(source);
+    m_version = parseVersionAttribute(source);
+    m_description = parseDescriptionElement(source);
+    m_isBase = parseIsBaseAttribute(source);
+    m_contentUsable = parseContentUsableAttribute(source);
+  }
+
+  /**
+   * Parses the required status attribute, mapping the status string to its
+   * <code>STATUS_xxx</code> value.
+   *
+   * @param source The root element, assumed not <code>null</code>.
+   * @return The status, one of the <code>STATUS_xxx</code> values.
+   * @throws PSUnknownNodeTypeException if the status is missing or invalid.
+   */
+  private int parseStatusAttribute(Element source) throws PSUnknownNodeTypeException {
     String status = getRequiredAttribute(source, ATTR_STATUS);
-    m_status = STATUS_UNDEFINED;
     for (int i = 0; i < STATUS_ENUM.length; i++) {
       if (STATUS_ENUM[i].equalsIgnoreCase(status)) {
-        m_status = i;
-        break;
+        return i;
       }
     }
 
-    if (!validateStatus(m_status)) {
-      Object[] args = {source.getTagName(), ATTR_STATUS, status};
-      throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
-    }
+    Object[] args = {source.getTagName(), ATTR_STATUS, status};
+    throw new PSUnknownNodeTypeException(ObjectStoreErrorCodes.XML_ELEMENT_INVALID_ATTR, args);
+  }
 
-    m_version = null;
+  /**
+   * Parses the optional version attribute.
+   *
+   * @param source The root element, assumed not <code>null</code>.
+   * @return The version, or <code>null</code> when absent.
+   */
+  private Integer parseVersionAttribute(Element source) throws PSUnknownNodeTypeException {
     int version = PSXMLDomUtil.checkAttributeInt(source, ATTR_VERSION, false);
-    if (version != -1) m_version = version;
+    return version == -1 ? null : version;
+  }
 
-    m_description = null;
+  /**
+   * Parses the optional description child element.
+   *
+   * @param source The root element, assumed not <code>null</code>.
+   * @return The description, or <code>null</code> when absent.
+   */
+  private String parseDescriptionElement(Element source) {
     PSXmlTreeWalker tree = new PSXmlTreeWalker(source);
     Element descEl = tree.getNextElement(EL_DESCRIPTION, PSXmlTreeWalker.GET_NEXT_ALLOW_CHILDREN);
-    if (descEl != null) {
-      m_description = PSXmlTreeWalker.getElementData(descEl);
-    }
+    return descEl == null ? null : PSXmlTreeWalker.getElementData(descEl);
+  }
 
-    // Optional attribute for backward-compatible XML; default false.
-    String isBase = source.getAttribute(ATTR_IS_BASE);
-    boolean base =
-        isBase != null
-            && (isBase.equalsIgnoreCase("true")
-                || isBase.equals("1")
-                || isBase.equalsIgnoreCase("yes"));
-    m_isBase = base ? IS_BASE_TRUE : IS_BASE_FALSE;
+  /**
+   * Parses the optional base-locale attribute for backward-compatible XML; defaults to non-base.
+   *
+   * @param source The root element, assumed not <code>null</code>.
+   * @return {@link #IS_BASE_TRUE} when flagged, else {@link #IS_BASE_FALSE}.
+   */
+  private Integer parseIsBaseAttribute(Element source) {
+    return isAffirmativeFlag(source.getAttribute(ATTR_IS_BASE)) ? IS_BASE_TRUE : IS_BASE_FALSE;
+  }
 
-    // Optional attribute for backward-compatible XML; default true (usable) so
-    // pre-flag exports keep current behavior.
+  /**
+   * Parses the optional content-usable attribute for backward-compatible XML; defaults to usable so
+   * pre-flag exports keep current behavior.
+   *
+   * @param source The root element, assumed not <code>null</code>.
+   * @return {@link #CONTENT_USABLE_TRUE} when flagged or absent, else {@link
+   *     #CONTENT_USABLE_FALSE}.
+   */
+  private Integer parseContentUsableAttribute(Element source) {
     String usable = source.getAttribute(ATTR_CONTENT_USABLE);
-    boolean contentUsable =
-        usable == null
-            || usable.isEmpty()
-            || usable.equalsIgnoreCase("true")
-            || usable.equals("1")
-            || usable.equalsIgnoreCase("yes");
-    m_contentUsable = contentUsable ? CONTENT_USABLE_TRUE : CONTENT_USABLE_FALSE;
+    if (usable == null || usable.isEmpty()) {
+      return CONTENT_USABLE_TRUE;
+    }
+    return isAffirmativeFlag(usable) ? CONTENT_USABLE_TRUE : CONTENT_USABLE_FALSE;
+  }
+
+  /**
+   * Checks an optional boolean-style XML attribute value ( {@code true} / {@code 1} / {@code yes},
+   * case-insensitive where applicable).
+   *
+   * @param value The raw attribute value, may be <code>null</code>.
+   * @return <code>true</code> when the value is an affirmative flag.
+   */
+  private static boolean isAffirmativeFlag(String value) {
+    return value != null
+        && (value.equalsIgnoreCase("true") || value.equals("1") || value.equalsIgnoreCase("yes"));
   }
 
   /**

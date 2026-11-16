@@ -18,7 +18,12 @@
 package com.percussion.i18n;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.percussion.design.objectstore.PSUnknownNodeTypeException;
 
 import com.percussion.tablefactory.PSJdbcColumnData;
 import com.percussion.tablefactory.PSJdbcRowData;
@@ -228,6 +233,103 @@ public class PSLocaleTest {
     return success;
   }
 
+  @Test
+  public void testFromXmlStatusVariants() throws Exception {
+    // Status matching is case-insensitive
+    assertEquals(PSLocale.STATUS_ACTIVE, statusFromXml("Active"));
+    assertEquals(PSLocale.STATUS_ACTIVE, statusFromXml("ACTIVE"));
+    assertEquals(PSLocale.STATUS_INACTIVE, statusFromXml("inactive"));
+    assertEquals(PSLocale.STATUS_INACTIVE, statusFromXml("INACTIVE"));
+
+    // Unknown status value is rejected
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element badStatus =
+        new PSLocale("en-us", "english", null, PSLocale.STATUS_ACTIVE).toXml(doc);
+    badStatus.setAttribute("status", "bogus");
+    assertThrows(PSUnknownNodeTypeException.class, () -> new PSLocale(badStatus));
+
+    // Missing required attribute is rejected
+    Element missingAttr =
+        new PSLocale("en-us", "english", null, PSLocale.STATUS_ACTIVE).toXml(doc);
+    missingAttr.removeAttribute("languageString");
+    assertThrows(PSUnknownNodeTypeException.class, () -> new PSLocale(missingAttr));
+
+    // Wrong node name is rejected
+    Element wrong = doc.createElement("PSXWrong");
+    assertThrows(PSUnknownNodeTypeException.class, () -> new PSLocale(wrong));
+
+    // Null source is rejected
+    assertThrows(IllegalArgumentException.class, () -> new PSLocale((Element) null));
+  }
+
+  @Test
+  public void testFromXmlFlagLexicalVariants() throws Exception {
+    String[] truthy = {"true", "TRUE", "1", "yes", "YES"};
+    String[] falsy = {"false", "0", "no", "bogus"};
+
+    for (String raw : truthy) {
+      assertTrue(flagFromXml(raw, null).isBaseLocale(), "isBase=" + raw);
+      assertTrue(flagFromXml(null, raw).isContentUsable(), "contentUsable=" + raw);
+    }
+    for (String raw : falsy) {
+      assertFalse(flagFromXml(raw, null).isBaseLocale(), "isBase=" + raw);
+      assertFalse(flagFromXml(null, raw).isContentUsable(), "contentUsable=" + raw);
+    }
+
+    // Empty isBase is not affirmative; empty contentUsable keeps the usable default
+    PSLocale emptyFlags = flagFromXml("", "");
+    assertFalse(emptyFlags.isBaseLocale());
+    assertTrue(emptyFlags.isContentUsable());
+
+    // Missing attributes fall back to the backward-compatible defaults
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = new PSLocale("en-us", "english", null, PSLocale.STATUS_ACTIVE).toXml(doc);
+    el.removeAttribute("isBase");
+    el.removeAttribute("contentUsable");
+    PSLocale missing = new PSLocale(el);
+    assertFalse(missing.isBaseLocale());
+    assertTrue(missing.isContentUsable());
+  }
+
+  @Test
+  public void testFromXmlVersionAndDescription() throws Exception {
+    PSLocale withVersion = new PSLocale("en-us", "english", "desc", PSLocale.STATUS_ACTIVE);
+    withVersion.setVersion(7);
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    PSLocale roundTrip = new PSLocale(withVersion.toXml(doc));
+    assertEquals(Integer.valueOf(7), roundTrip.getVersion());
+    assertEquals("desc", roundTrip.getDescription());
+
+    // Absent version and description stay null
+    PSLocale plain = new PSLocale("en-us", "english", null, PSLocale.STATUS_ACTIVE);
+    PSLocale plainTrip = new PSLocale(plain.toXml(PSXmlDocumentBuilder.createXmlDocument()));
+    assertNull(plainTrip.getVersion());
+    assertNull(plainTrip.getDescription());
+  }
+
+  private int statusFromXml(String status) throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = new PSLocale("en-us", "english", null, PSLocale.STATUS_ACTIVE).toXml(doc);
+    el.setAttribute("status", status);
+    return new PSLocale(el).getStatus();
+  }
+
+  private PSLocale flagFromXml(String isBase, String contentUsable) throws Exception {
+    Document doc = PSXmlDocumentBuilder.createXmlDocument();
+    Element el = new PSLocale("en-us", "english", null, PSLocale.STATUS_ACTIVE).toXml(doc);
+    if (isBase == null) {
+      el.removeAttribute("isBase");
+    } else {
+      el.setAttribute("isBase", isBase);
+    }
+    if (contentUsable == null) {
+      el.removeAttribute("contentUsable");
+    } else {
+      el.setAttribute("contentUsable", contentUsable);
+    }
+    return new PSLocale(el);
+  }
+
   /**
    * Test the construction of a <code>PSLocale</code> from a <code>PSJdbcRowData</code>. See the
    * constructor of this object for parameter information.
@@ -235,8 +337,7 @@ public class PSLocaleTest {
    * @return <code>true</code> if the construction using the supplied params does not throw any
    *     exceptions, <code>false</code> otherwise.
    */
-  private boolean checkRowDataCtor(PSJdbcRowData rowData) {
-    boolean success = true;
+  private boolean checkRowDataCtor(PSJdbcRowData rowData) {    boolean success = true;
     try {
       new PSLocale(rowData);
     } catch (Exception e) {
