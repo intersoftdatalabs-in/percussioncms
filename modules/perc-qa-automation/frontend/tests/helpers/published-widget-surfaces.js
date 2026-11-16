@@ -113,7 +113,7 @@ const SURFACES = Object.freeze([
     csrf: "/rss/csrf",
     tag: "@surface-feed",
     interaction:
-      "feed endpoint serves the fixture probe from the live service",
+      "feed endpoint serves seeded entries from the live index (unseeded names keep the error-page contract)",
   }),
   Object.freeze({
     name: "metadata",
