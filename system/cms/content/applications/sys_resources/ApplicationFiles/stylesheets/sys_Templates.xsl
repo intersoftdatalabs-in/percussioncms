@@ -1468,13 +1468,15 @@ onchange    %Script;       #IMPLIED
       </xsl:variable>
       <xsl:if test="$codeeditor = 'yes'">
          <div class="perc-codeeditor-legend">
-            <span>Find: Ctrl-F (Mac: Cmd-F) | Find next: Ctrl-G (Mac: Cmd-G) | Find previous: Shift-Ctrl-G (Mac: Shift-Cmd-G) | Replace: Shift-Ctrl-F (Mac: Cmd-Alt-F) | Replace all: Shift-Ctrl-R (Mac: Shift-Cmd-Alt-F)</span>
+            <span>Find: Ctrl-F (Mac: Cmd-F) | Find next: Ctrl-G (Mac: Cmd-G) | Find previous: Shift-Ctrl-G (Mac: Shift-Cmd-G) | Replace: Shift-Ctrl-F (Mac: Cmd-Alt-F) | Replace all: Shift-Ctrl-R (Mac: Shift-Cmd-Alt-F) | Validation: unbalanced tags are flagged in the gutter before save - red error, yellow warning; hover a marker for details</span>
          </div>
          <script>
             var editor = CodeMirror.fromTextArea(document.getElementById('<xsl:value-of select="@paramName" />'), {
             mode: 'htmlmixed',
             theme: 'default',
             lineNumbers: true,
+            gutters: ["CodeMirror-linenumbers", "CodeMirror-lint-markers"],
+            lint: true,
             lineWrapping: true,
             indentUnit: 2,
             tabSize: 2,

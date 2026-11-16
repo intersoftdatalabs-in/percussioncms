@@ -41,6 +41,14 @@
  * the line-number gutter, finds/replaces through the search addon, and opens
  * the find dialog.</p>
  *
+ * <p>Issue #6466 (template editor source-view syntax validation markers
+ * before save): the {@code sys_TextArea} code-editor enables the lint addon
+ * ({@code lint: true} with the {@code CodeMirror-lint-markers} gutter kept
+ * alongside line numbers) backed by the dependency-free tag-balance
+ * validator the npm bundle registers as the {@code htmlmixed} lint helper.
+ * Unbalanced markup renders gutter markers (red error / yellow warning)
+ * before the author saves, with the legend documenting the markers.</p>
+ *
  * <p>Issue #6363 locks the migration at the manifest level (no live CMS):
  * no {@code org.webjars.npm:codemirror} in any {@code pom.xml}, no
  * {@code codemirror-unpack} build step, no {@code codemirror.version}
@@ -308,6 +316,111 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
   );
 
   test(
+    "template editor source-view flags unbalanced markup before save",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      // Live proof for issue #6466 on the served npm bundle: the
+      // dependency-free tag-balance validator flags unbalanced markup with
+      // lint gutter markers (red error / yellow warning) before save, and
+      // balanced markup renders no markers.
+      test.setTimeout(60_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          pageErrors.push(msg.text());
+        }
+      });
+
+      await loginAsAdmin(page);
+      await page.addScriptTag({ url: `${BASE_URL}${BUNDLE_JS}` });
+      await page.addStyleTag({ url: `${BASE_URL}${BUNDLE_CSS}` });
+
+      // The bundle exposes the validator on the CodeMirror global:
+      // unbalanced markup reports the unclosed tag plus the mismatch,
+      // balanced markup reports nothing.
+      const unit = await page.evaluate(() => ({
+        bad: window.CodeMirror.percValidateTemplateHtml(
+          "<div><p>Head code</div>",
+        ),
+        good: window.CodeMirror.percValidateTemplateHtml(
+          '<div class="a"><br><p>ok</p></div>',
+        ),
+      }));
+      expect(unit.bad.length).toBe(2);
+      expect(unit.bad.map((finding) => finding.severity)).toEqual([
+        "warning",
+        "error",
+      ]);
+      expect(unit.bad[0].message).toContain("<p>");
+      expect(unit.bad[1].message).toContain("</div>");
+      expect(unit.good).toEqual([]);
+
+      // Render an editor exactly like the sys_TextArea code-editor control
+      // (same mode, gutters, and lint option as sys_Templates.xsl).
+      await page.evaluate(() => {
+        document.body.innerHTML =
+          "<h1>Template validation live proof (#6466)</h1>" +
+          '<textarea id="cm-validate"><div><p>Head code</div></textarea>';
+        window.__cmValidate = window.CodeMirror.fromTextArea(
+          document.getElementById("cm-validate"),
+          {
+            mode: "htmlmixed",
+            lineNumbers: true,
+            gutters: ["CodeMirror-linenumbers", "CodeMirror-lint-markers"],
+            lint: true,
+            matchBrackets: true,
+            styleActiveLine: true,
+          },
+        );
+      });
+      // The lint addon validates the initial content synchronously, so the
+      // markers are present before any edit — i.e. visible before save.
+      await page.waitForSelector(
+        ".CodeMirror-lint-marker-error, .CodeMirror-lint-marker-warning",
+        { timeout: 10_000 },
+      );
+      const flagged = await page.evaluate(() => ({
+        gutters: document.querySelectorAll(".CodeMirror-lint-markers").length,
+        errors: document.querySelectorAll(".CodeMirror-lint-marker-error")
+          .length,
+        warnings: document.querySelectorAll(
+          ".CodeMirror-lint-marker-warning",
+        ).length,
+      }));
+      expect(
+        flagged.gutters,
+        "lint-markers gutter must render (#6466)",
+      ).toBeGreaterThan(0);
+      expect(
+        flagged.errors + flagged.warnings,
+        "unbalanced markup must render markers before save (#6466)",
+      ).toBeGreaterThan(0);
+
+      // Balanced markup clears every marker (change lint is debounced, so
+      // wait for the markers to drain rather than sleeping a fixed delay).
+      await page.evaluate(() =>
+        window.__cmValidate.setValue("<div><p>Head code</p></div>"),
+      );
+      await page.waitForFunction(
+        () =>
+          !document.querySelector(
+            ".CodeMirror-lint-marker-error, .CodeMirror-lint-marker-warning",
+          ),
+        null,
+        { timeout: 10_000 },
+      );
+      await page.screenshot({
+        path: "test-results/live-proof-6466-template-validation.png",
+      });
+
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
+    },
+  );
+
+  test(
     "classic template JSP mirrors load the same npm bundle",
     { tag: ["@explorer-content-editor", "@editor"] },
     async () => {
@@ -424,6 +537,69 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
         branch,
         `${SYS_TEMPLATES_XSL} code editor must keep line numbers on (#6465)`,
       ).toContain("lineNumbers: true");
+    },
+  );
+
+  test(
+    "sys_TextArea code editor enables validation markers before save",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async () => {
+      // No live CMS needed: static pin for issue #6466. The template
+      // editor source-view (sys_TextArea with codeeditor=yes) turns the
+      // lint addon on (`lint: true`) with a gutter pair that keeps the
+      // line numbers and adds the lint-markers gutter, so unbalanced
+      // markup renders markers before the author saves. The legend must
+      // document the markers (copy clarity: what the colors mean and that
+      // hovering shows details).
+      const text = fs
+        .readFileSync(path.join(REPO_ROOT, SYS_TEMPLATES_XSL), "utf8")
+        .replace(/\r\n/g, "\n");
+      const codeeditorStart = text.indexOf('$codeeditor = \'yes\'');
+      expect(
+        codeeditorStart,
+        `${SYS_TEMPLATES_XSL} must keep the codeeditor branch`,
+      ).toBeGreaterThan(-1);
+      const scriptStart = text.indexOf("fromTextArea", codeeditorStart);
+      expect(
+        scriptStart,
+        `${SYS_TEMPLATES_XSL} code editor must create a CodeMirror instance`,
+      ).toBeGreaterThan(-1);
+      const scriptBlock = text.slice(scriptStart, scriptStart + 1200);
+      expect(
+        scriptBlock,
+        `${SYS_TEMPLATES_XSL} code editor must enable lint for pre-save validation (#6466)`,
+      ).toContain("lint: true");
+      const guttersAt = scriptBlock.indexOf("gutters:");
+      expect(
+        guttersAt,
+        `${SYS_TEMPLATES_XSL} code editor must declare lint gutters (#6466)`,
+      ).toBeGreaterThan(-1);
+      const guttersBlock = scriptBlock.slice(guttersAt, guttersAt + 200);
+      expect(
+        guttersBlock,
+        `${SYS_TEMPLATES_XSL} code editor must keep line numbers alongside lint markers (#6466)`,
+      ).toContain("CodeMirror-linenumbers");
+      expect(
+        guttersBlock,
+        `${SYS_TEMPLATES_XSL} code editor must render the lint-markers gutter (#6466)`,
+      ).toContain("CodeMirror-lint-markers");
+      const legendAt = text.indexOf("perc-codeeditor-legend", codeeditorStart);
+      expect(
+        legendAt,
+        `${SYS_TEMPLATES_XSL} must keep the code-editor legend`,
+      ).toBeGreaterThan(-1);
+      const legendBlock = text.slice(legendAt, legendAt + 1400);
+      for (const hint of [
+        "Validation",
+        "unbalanced",
+        "before save",
+        "hover",
+      ]) {
+        expect(
+          legendBlock,
+          `${SYS_TEMPLATES_XSL} legend must document validation markers (#6466)`,
+        ).toContain(hint);
+      }
     },
   );
 

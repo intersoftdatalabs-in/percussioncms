@@ -32,8 +32,10 @@
  *    esbuild CJS/ESM interop nesting the entry can observe, so
  *    `window.CodeMirror` keeps working for the legacy consumers.
  * 3. The entry wires the dialog + search + searchcursor addons the template
- *    editor source-view find/replace needs (issue #6465), and the marker
- *    list the build sanity-check enforces names the dialog addon.
+ *    editor source-view find/replace needs (issue #6465), the lint addon plus
+ *    the dependency-free tag-balance validator the pre-save validation
+ *    markers need (issue #6466), and the marker list the build sanity-check
+ *    enforces names the dialog and lint addons.
  */
 
 import { createRequire } from "module";
@@ -42,6 +44,9 @@ import { join } from "node:path";
 import { describe, it, expect } from "vitest";
 import {
   unwrapCodeMirror,
+  findPercTemplateHtmlIssues,
+  registerPercTemplateHtmlLint,
+  PERC_TEMPLATE_HTML_LINT_MODES,
   CODEMIRROR_BUNDLE_MARKERS,
   CODEMIRROR_PINNED_MAJOR,
 } from "../../../build-scripts/codemirror-helpers.mjs";
@@ -61,6 +66,8 @@ describe("codemirror npm dependency line", () => {
       "searchcursor",
       "matchBrackets",
       "openDialog",
+      "CodeMirror-lint-markers",
+      "percValidateTemplateHtml",
     ]);
   });
 
@@ -88,6 +95,38 @@ describe("codemirror npm dependency line", () => {
         `bundle entry must import ${addon} for find/replace`,
       ).toBe(true);
     }
+  });
+
+  it("wires the validation lint addon into the bundle entry", () => {
+    // Issue #6466: the template editor source-view flags unbalanced markup
+    // with gutter markers before save. The bundle must ship the CodeMirror 5
+    // lint addon (gutter + styles) and register the dependency-free
+    // tag-balance validator as the htmlmixed lint helper, exposed on the
+    // global for debugging and Playwright assertions. A dropped import fails
+    // here before the browser ever loads the bundle.
+    const entryPath = join(
+      process.cwd(),
+      "build-scripts",
+      "codemirror-bundle-entry.js",
+    );
+    const entry = readFileSync(entryPath, "utf8");
+    for (const addon of [
+      "codemirror/addon/lint/lint.js",
+      "codemirror/addon/lint/lint.css",
+    ]) {
+      expect(
+        entry.includes(addon),
+        `bundle entry must import ${addon} for validation markers`,
+      ).toBe(true);
+    }
+    expect(
+      entry.includes("registerPercTemplateHtmlLint("),
+      "bundle entry must register the template HTML lint helper (#6466)",
+    ).toBe(true);
+    expect(
+      entry.includes("percValidateTemplateHtml"),
+      "bundle entry must expose the validator on the CodeMirror global (#6466)",
+    ).toBe(true);
   });
 });
 
@@ -117,5 +156,161 @@ describe("unwrapCodeMirror", () => {
   it("passes through nullish records without throwing", () => {
     expect(unwrapCodeMirror(null)).toBeNull();
     expect(unwrapCodeMirror(undefined)).toBeUndefined();
+  });
+});
+
+describe("findPercTemplateHtmlIssues", () => {
+  it("reports nothing for balanced markup fragments", () => {
+    expect(
+      findPercTemplateHtmlIssues(
+        '<meta charset="utf-8">\n<link rel="stylesheet" href="/a.css">\n<div class="head"><script src="/b.js"></script></div>',
+      ),
+    ).toEqual([]);
+  });
+
+  it("reports nothing for empty and plain-text content", () => {
+    expect(findPercTemplateHtmlIssues("")).toEqual([]);
+    expect(findPercTemplateHtmlIssues("Just words, no tags.")).toEqual([]);
+    expect(
+      findPercTemplateHtmlIssues("#if($a > $b) $x.key #end"),
+    ).toEqual([]);
+  });
+
+  it("flags an unclosed tag at end of input as a warning with its position", () => {
+    const found = findPercTemplateHtmlIssues("<div>\n<p>oops");
+    expect(found).toHaveLength(2);
+    expect(found[0]).toMatchObject({
+      from: { line: 0, ch: 0 },
+      severity: "warning",
+    });
+    expect(found[0].message).toContain("<div>");
+    expect(found[1]).toMatchObject({
+      from: { line: 1, ch: 0 },
+      severity: "warning",
+    });
+    expect(found[1].message).toContain("<p>");
+  });
+
+  it("flags a mismatched closing tag as an error", () => {
+    const found = findPercTemplateHtmlIssues("<div><span></div>");
+    expect(found).toHaveLength(2);
+    const [unclosed, mismatch] = found;
+    expect(unclosed.severity).toBe("warning");
+    expect(unclosed.message).toContain("<span>");
+    expect(mismatch.severity).toBe("error");
+    expect(mismatch.from).toEqual({ line: 0, ch: 11 });
+    expect(mismatch.message).toContain("</div>");
+  });
+
+  it("flags a stray closing tag with no open tag as an error", () => {
+    const found = findPercTemplateHtmlIssues("<p>hi</p></p>");
+    expect(found).toHaveLength(1);
+    expect(found[0].severity).toBe("error");
+    expect(found[0].message).toContain("Stray closing tag");
+    expect(found[0].from).toEqual({ line: 0, ch: 9 });
+    expect(found[0].to).toEqual({ line: 0, ch: 13 });
+  });
+
+  it("ignores void elements, self-closing tags, comments, and doctypes", () => {
+    expect(
+      findPercTemplateHtmlIssues(
+        '<!DOCTYPE html>\n<!-- <div> not a tag -->\n<br><hr/><img src="a.png"><input type="text">',
+      ),
+    ).toEqual([]);
+  });
+
+  it("ignores script and style element content, but matches their tags", () => {
+    expect(
+      findPercTemplateHtmlIssues(
+        '<script>if (a < b && c > d) { x("</div>"); }</script>',
+      ),
+    ).toEqual([]);
+    const found = findPercTemplateHtmlIssues("<script>var x = 1;</style>");
+    expect(found).toHaveLength(1);
+    expect(found[0].severity).toBe("warning");
+    expect(found[0].message).toContain("Unclosed <script>");
+  });
+
+  it("does not end a tag on > inside quoted attributes or parens", () => {
+    expect(
+      findPercTemplateHtmlIssues('<div title="a>b" data-x=\'c>d\'>ok</div>'),
+    ).toEqual([]);
+    expect(
+      findPercTemplateHtmlIssues("<div #if($a > $b)>ok</div>"),
+    ).toEqual([]);
+  });
+
+  it("matches tags case-insensitively", () => {
+    expect(
+      findPercTemplateHtmlIssues("<DIV><P>hi</p></div>"),
+    ).toEqual([]);
+  });
+
+  it("flags an unterminated comment instead of swallowing the rest", () => {
+    const found = findPercTemplateHtmlIssues("<div>ok</div><!-- never ends");
+    expect(found).toHaveLength(1);
+    expect(found[0].severity).toBe("error");
+    expect(found[0].message).toContain("comment");
+    expect(found[0].from).toEqual({ line: 0, ch: 13 });
+  });
+
+  it("treats CRLF as single line breaks for Windows-edited templates", () => {
+    const found = findPercTemplateHtmlIssues("<div>\r\n<p>oops");
+    expect(found).toHaveLength(2);
+    expect(found[1].from).toEqual({ line: 1, ch: 0 });
+  });
+
+  it("sorts annotations by position", () => {
+    const found = findPercTemplateHtmlIssues("<u>\n<b>x</b>\n<i>y");
+    expect(found).toHaveLength(2);
+    expect(found[0].from).toEqual({ line: 0, ch: 0 });
+    expect(found[0].message).toContain("<u>");
+    expect(found[1].from).toEqual({ line: 2, ch: 0 });
+    expect(found[1].message).toContain("<i>");
+  });
+});
+
+describe("registerPercTemplateHtmlLint", () => {
+  function fakeCodeMirror() {
+    const registrations = {};
+    return {
+      registrations,
+      Pos: (line, ch) => ({ line, ch }),
+      registerHelper: (type, mode, helper) => {
+        registrations[`${type}:${mode}`] = helper;
+      },
+    };
+  }
+
+  it("registers the htmlmixed lint helper mapping to the validator", () => {
+    const fake = fakeCodeMirror();
+    expect(registerPercTemplateHtmlLint(fake)).toBe(true);
+    // The lint addon resolves helpers through getModeAt(Pos(0, 0)), which
+    // returns the inner xml mode for markup-led content, so the validator
+    // must answer under every mode name the source-view can resolve.
+    expect(Object.keys(fake.registrations).sort()).toEqual(
+      [...PERC_TEMPLATE_HTML_LINT_MODES].map((mode) => `lint:${mode}`).sort(),
+    );
+    const helper = fake.registrations["lint:xml"];
+    expect(typeof helper).toBe("function");
+    const annotations = helper("<div><p>x</div>", {}, null);
+    expect(annotations).toHaveLength(2);
+    expect(annotations[0]).toMatchObject({
+      from: { line: 0, ch: 5 },
+      severity: "warning",
+    });
+    expect(annotations[0].message).toContain("<p>");
+    expect(annotations[1]).toMatchObject({
+      from: { line: 0, ch: 9 },
+      severity: "error",
+    });
+  });
+
+  it("returns false without a helper registry", () => {
+    expect(registerPercTemplateHtmlLint(null)).toBe(false);
+    expect(registerPercTemplateHtmlLint({})).toBe(false);
+    expect(
+      registerPercTemplateHtmlLint({ registerHelper: () => {} }),
+    ).toBe(false);
   });
 });
