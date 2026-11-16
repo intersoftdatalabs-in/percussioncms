@@ -35,33 +35,39 @@ import org.junit.jupiter.api.io.TempDir;
  *
  * <p>Policy: modern component package required; legacy Widget/Page/Gadget XML never selected —
  * modern-absent (even with retired legacy present) fails with a clear {@link
- * PSDefinitionSourceNotFoundException} (no silent invent, no legacy load). The Widget (#6440)
- * and Page (#6446) legacy probes are removed (on-disk Widget/Page XML is inert and unnamed);
- * only the retired Gadget probe remains (sibling slice #6447).
+ * PSDefinitionSourceNotFoundException} (no silent invent, no legacy load). The Widget (#6440),
+ * Page (#6446), and Gadget (#6447) legacy probes are removed (on-disk legacy XML of any
+ * retired kind is inert and unnamed).
  */
 class PSLegacyDefinitionXmlShimTest {
 
   @TempDir Path tempDir;
 
   @Test
-  void selectByPresence_prefersModernEvenWhenLegacyAlsoPresent() throws Exception {
+  void selectByPresence_prefersModern() throws Exception {
     PSDefinitionSourceSelection s =
-        PSLegacyDefinitionXmlShim.selectByPresence("percSimpleText", true, true);
+        PSLegacyDefinitionXmlShim.selectByPresence("percSimpleText", true);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, s.getKind());
     assertTrue(s.isModern());
     assertFalse(s.isLegacyXml());
   }
 
   @Test
-  void selectByPresence_legacyOnlyThrowsRetiredError() {
-    // Page legacy path removed (#6446): only the Gadget presence flag remains — the retired
-    // error names "(Gadget)", never a Page branch.
+  void selectByPresence_modernAbsentThrowsRetiredErrorWithoutLegacyProbe() {
+    // Gadget legacy path removed (#6447): there is no legacy presence flag anymore — a
+    // modern-absent selection fails with the retired error that names no legacy file, and
+    // no LEGACY_* kind exists to select.
     PSDefinitionSourceNotFoundException ex =
         assertThrows(
             PSDefinitionSourceNotFoundException.class,
-            () -> PSLegacyDefinitionXmlShim.selectByPresence("w1", false, true));
+            () -> PSLegacyDefinitionXmlShim.selectByPresence("w1", false));
     assertRetiredMessage(ex, "w1");
-    assertTrue(ex.getMessage().contains("(Gadget)"), ex.getMessage());
+    assertFalse(ex.getMessage().contains("w1.xml"), ex.getMessage());
+    for (PSDefinitionSourceKind kind : PSDefinitionSourceKind.values()) {
+      assertFalse(
+          kind.name().startsWith("LEGACY_"),
+          "no LEGACY_* kind may remain: " + kind);
+    }
   }
 
   @Test
@@ -70,7 +76,7 @@ class PSLegacyDefinitionXmlShimTest {
         assertThrows(
             PSDefinitionSourceNotFoundException.class,
             () ->
-                PSLegacyDefinitionXmlShim.selectByPresence("missingWidget", false, false));
+                PSLegacyDefinitionXmlShim.selectByPresence("missingWidget", false));
     assertEquals("missingWidget", ex.getDefinitionId());
     assertTrue(ex.getMessage().contains("component-package.json"));
     assertTrue(ex.getMessage().contains("legacy"));
@@ -113,7 +119,6 @@ class PSLegacyDefinitionXmlShimTest {
     assertFalse(
         ex.getMessage().contains("percSimpleText.xml"),
         "removed widget hint must not name the retired file: " + ex.getMessage());
-    assertFalse(PSLegacyDefinitionXmlShim.wouldUseLegacyShim(pkg));
   }
 
   @Test
@@ -134,7 +139,7 @@ class PSLegacyDefinitionXmlShimTest {
     PSDefinitionSourceSelection s = PSLegacyDefinitionXmlShim.selectForPackageRoot(pkg);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, s.getKind());
     assertEquals(manifest, s.getPrimaryPath().orElseThrow());
-    assertFalse(PSLegacyDefinitionXmlShim.wouldUseLegacyShim(pkg));
+    assertFalse(s.isLegacyXml());
   }
 
   @Test
@@ -161,7 +166,6 @@ class PSLegacyDefinitionXmlShimTest {
             PSDefinitionSourceNotFoundException.class,
             () -> PSLegacyDefinitionXmlShim.selectForPackageRoot(pkg));
     assertTrue(ex.getMessage().contains(PSLegacyDefinitionXmlShim.MODERN_MANIFEST_FILE_NAME));
-    assertFalse(PSLegacyDefinitionXmlShim.wouldUseLegacyShim(pkg));
   }
 
   @Test
@@ -172,7 +176,7 @@ class PSLegacyDefinitionXmlShimTest {
     Files.writeString(manifest, "{}", StandardCharsets.UTF_8);
 
     PSDefinitionSourceSelection s =
-        PSLegacyDefinitionXmlShim.selectDefinition("percSimpleText", List.of(modernRoot), null);
+        PSLegacyDefinitionXmlShim.selectDefinition("percSimpleText", List.of(modernRoot));
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, s.getKind());
     assertEquals(manifest, s.getPrimaryPath().orElseThrow());
   }
@@ -188,7 +192,7 @@ class PSLegacyDefinitionXmlShimTest {
     PSDefinitionSourceNotFoundException ex =
         assertThrows(
             PSDefinitionSourceNotFoundException.class,
-            () -> PSLegacyDefinitionXmlShim.selectDefinition("percRawHtml", List.of(), null));
+            () -> PSLegacyDefinitionXmlShim.selectDefinition("percRawHtml", List.of()));
     assertEquals("percRawHtml", ex.getDefinitionId());
     assertRetiredMessage(ex, "percRawHtml");
     assertFalse(
@@ -212,7 +216,7 @@ class PSLegacyDefinitionXmlShimTest {
     PSDefinitionSourceNotFoundException ex =
         assertThrows(
             PSDefinitionSourceNotFoundException.class,
-            () -> PSLegacyDefinitionXmlShim.selectDefinition("homeMeta", List.of(), null));
+            () -> PSLegacyDefinitionXmlShim.selectDefinition("homeMeta", List.of()));
     assertEquals("homeMeta", ex.getDefinitionId());
     assertRetiredMessage(ex, "homeMeta");
     assertFalse(
@@ -231,7 +235,7 @@ class PSLegacyDefinitionXmlShimTest {
         assertThrows(
             PSDefinitionSourceNotFoundException.class,
             () ->
-                PSLegacyDefinitionXmlShim.selectDefinition("noSuchWidget", List.of(), null));
+                PSLegacyDefinitionXmlShim.selectDefinition("noSuchWidget", List.of()));
     assertEquals("noSuchWidget", ex.getDefinitionId());
     String msg = ex.getMessage();
     assertTrue(msg.contains("noSuchWidget"));
@@ -243,32 +247,32 @@ class PSLegacyDefinitionXmlShimTest {
   void selectDefinition_blankIdRejected() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> PSLegacyDefinitionXmlShim.selectDefinition("  ", List.of(), null));
+        () -> PSLegacyDefinitionXmlShim.selectDefinition("  ", List.of()));
   }
 
   @Test
-  void selectDefinition_gadgetOnlyThrowsRetiredError() throws Exception {
+  void selectDefinition_legacyGadgetOnlyThrowsRetiredErrorWithoutGadgetProbe() throws Exception {
+    // Gadget legacy path removed (#6447): on-disk Gadget XML is not even probed — the retired
+    // error names no gadget file and no LEGACY_GADGET_XML kind exists to select.
     Path gadgets = tempDir.resolve("Gadgets");
     Files.createDirectories(gadgets);
     Files.writeString(gadgets.resolve("myGadget.xml"), "<Module/>", StandardCharsets.UTF_8);
 
-    PSDefinitionSourceNotFoundException gadgetEx =
+    PSDefinitionSourceNotFoundException ex =
         assertThrows(
             PSDefinitionSourceNotFoundException.class,
             () ->
-                PSLegacyDefinitionXmlShim.selectDefinition("myGadget", List.of(), gadgets));
-    assertRetiredMessage(gadgetEx, "myGadget");
-  }
-
-  @Test
-  void wouldUseLegacyShim_alwaysFalseAfterRetirement() throws Exception {
-    Path pkg = tempDir.resolve("legacyProbe");
-    Path widgets = pkg.resolve("rxconfig").resolve("Widgets");
-    Files.createDirectories(widgets);
-    Files.writeString(widgets.resolve("w.xml"), "<Widget/>", StandardCharsets.UTF_8);
-
-    assertFalse(PSLegacyDefinitionXmlShim.wouldUseLegacyShim(pkg));
-    assertFalse(PSLegacyDefinitionXmlShim.wouldUseLegacyShim(tempDir.resolve("missing")));
+                PSLegacyDefinitionXmlShim.selectDefinition("myGadget", List.of()));
+    assertEquals("myGadget", ex.getDefinitionId());
+    assertRetiredMessage(ex, "myGadget");
+    assertFalse(
+        ex.getMessage().contains("myGadget.xml"),
+        "removed gadget probe must not name the retired file: " + ex.getMessage());
+    for (PSDefinitionSourceKind kind : PSDefinitionSourceKind.values()) {
+      assertFalse(
+          kind.name().contains("GADGET"),
+          "no LEGACY_GADGET_* kind may remain: " + kind);
+    }
   }
 
   private static void assertRetiredMessage(

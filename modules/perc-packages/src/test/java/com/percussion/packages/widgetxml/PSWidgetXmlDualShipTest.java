@@ -179,8 +179,7 @@ class PSWidgetXmlDualShipTest {
       // Shim: package root with modern widgets/ prefers modern over legacy XML.
       PSDefinitionSourceSelection sel = PSLegacyDefinitionXmlShim.selectForPackageRoot(product);
       assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, sel.getKind(), pkgName);
-      assertFalse(
-          PSLegacyDefinitionXmlShim.wouldUseLegacyShim(product),
+      assertFalse(sel.isLegacyXml(),
           pkgName + " modern roots should win selection without dual-ship XML");
 
       packagesWithModern++;
@@ -218,7 +217,7 @@ class PSWidgetXmlDualShipTest {
 
     // The co-located retired Widget XML stays on disk but is never probed (#6440).
     PSDefinitionSourceSelection s =
-        PSLegacyDefinitionXmlShim.selectDefinition("percSimpleText", List.of(pkg), null);
+        PSLegacyDefinitionXmlShim.selectDefinition("percSimpleText", List.of(pkg));
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, s.getKind());
     assertEquals(manifest, s.getPrimaryPath().orElseThrow());
   }
@@ -326,8 +325,7 @@ class PSWidgetXmlDualShipTest {
 
       PSDefinitionSourceSelection sel = PSLegacyDefinitionXmlShim.selectForPackageRoot(product);
       assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, sel.getKind(), pkgName);
-      assertFalse(
-          PSLegacyDefinitionXmlShim.wouldUseLegacyShim(product),
+      assertFalse(sel.isLegacyXml(),
           pkgName + " modern roots should win selection without dual-ship XML");
 
       packagesWithModern++;
@@ -462,8 +460,7 @@ class PSWidgetXmlDualShipTest {
 
       PSDefinitionSourceSelection sel = PSLegacyDefinitionXmlShim.selectForPackageRoot(product);
       assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, sel.getKind(), pkgName);
-      assertFalse(
-          PSLegacyDefinitionXmlShim.wouldUseLegacyShim(product),
+      assertFalse(sel.isLegacyXml(),
           pkgName + " modern-only package should not require legacy shim");
 
       packagesWithModern++;
@@ -534,8 +531,7 @@ class PSWidgetXmlDualShipTest {
 
     PSDefinitionSourceSelection sel = PSLegacyDefinitionXmlShim.selectForPackageRoot(product);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, sel.getKind(), pkgName);
-    assertFalse(
-        PSLegacyDefinitionXmlShim.wouldUseLegacyShim(product),
+    assertFalse(sel.isLegacyXml(),
         "perc.Test modern-only package should not require legacy shim");
   }
 

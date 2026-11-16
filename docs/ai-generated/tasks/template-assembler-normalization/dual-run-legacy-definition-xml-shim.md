@@ -21,8 +21,8 @@ This document is the **operator policy** for that window. Selection logic is imp
 Hard order for a package root or definition id (**retired to modern-only** via #2852, 2026-11-08):
 
 1. **Modern required** — if `component-package.json` is present (Component Package Manifest, schema v1.0), use the modern package. Do **not** prefer co-located legacy XML when modern exists.
-2. **Legacy XML fallback — RETIRED** — modern-absent no longer loads legacy Widget / Page / Gadget definition XML. Retired XML present on disk is named in the failure message (with the compiler upgrade path) but never loaded. (Widget probe removed #6440; Page probe removed #6446 — on-disk Widget/Page XML is inert and unnamed.)
-3. **Otherwise** — fail with a clear error naming the definition id and expected locations (modern manifest; retired legacy `rxconfig/Widgets|Pages|Gadgets` / package staging — only the Gadgets dir is still probed, #6447). Do not invent a silent default.
+2. **Legacy XML fallback — RETIRED** — modern-absent no longer loads legacy Widget / Page / Gadget definition XML. Retired XML present on disk is inert: it is neither probed nor named in the failure message (the compiler upgrade path is named instead). (Widget probe removed #6440; Page probe removed #6446; Gadget probe removed #6447 — no legacy probe of any kind remains.)
+3. **Otherwise** — fail with a clear error naming the definition id and expected locations (modern manifest). Do not invent a silent default.
 
 ```text
                     ┌─────────────────────────┐
@@ -46,14 +46,14 @@ Hard order for a package root or definition id (**retired to modern-only** via #
 | Widget definitions (install) | `${rxdeploydir}/rxconfig/Widgets/*.xml` via `PSWidgetDao` (`projects/sitemanage/.../dao/impl/PSWidgetDao`) | Loads install Widget XML by file id; modern-only selection via `PSLegacyDefinitionXmlShim` (#2852) | Require modern: `widgetDao.modernPackageRoots` must have a matching `component-package.json`; **defaults (#3130):** blank property → `${rxdeploydir}/Packages/Modern` (+ classpath materialize); selection kind test-visible; XML content remains install wire format |
 | Package source trees | `modules/perc-packages/src/main/resources/Packages/<pkg>/` | Ships product `.ppkg` content including `sys__UserDependency--rxconfig/Widgets/*.xml` | Product conversion (#2751+) emits modern manifest; batch A dual-ships modern `widgets/<stem>/` (#2831) while install XML remains; product source of truth moves off XML (ADR-004) |
 | Package staging Widgets | `sys__UserDependency--rxconfig/Widgets/` or `rxconfig/Widgets/` under a package root | Upgrade-input / deploy layout | Shim package-root API resolves either layout |
-| Gadget registry | `WebUI/.../GadgetRegistry` single-load (`gadget-catalog.json`; dual-load fallback removed #6440 after the #5810 retirement) | Product ships modern catalog; modern absent yields empty map + ERROR (no silent legacy load) | Single-load (#2788 / #5810 / #6440); INFO metrics + `getLastLoadSource()` / `getLastLoadEntryCount()` (#3025); `legacyRegistryXml` key removed |
-| Page meta / definition XML | Site/page storage dialects | Composition authoring legacy | Product layout packages (`perc.baseTemplates`, `perc.responsiveTemplates`) author modern `pages/` (#2786); native package install stages archive `TemplateDef-N/` without dual-ship roots (#2806). The shim no longer probes `rxconfig/Pages` — the Page XML load path was removed (#6446); `LEGACY_GADGET_XML` is the only remaining retired probe (sibling slice #6447) |
+| Gadget registry | `WebUI/.../GadgetRegistry` single-load (`gadget-catalog.json`; dual-load fallback removed #6440 after the #5810 retirement; legacy `GadgetRegistry.xml` parser removed #6447) | Product ships modern catalog; modern absent yields empty map + ERROR (no silent legacy load) | Single-load (#2788 / #5810 / #6440 / #6447); INFO metrics + `getLastLoadSource()` / `getLastLoadEntryCount()` (#3025); `legacyRegistryXml` key removed |
+| Page meta / definition XML | Site/page storage dialects | Composition authoring legacy | Product layout packages (`perc.baseTemplates`, `perc.responsiveTemplates`) author modern `pages/` (#2786); native package install stages archive `TemplateDef-N/` without dual-ship roots (#2806). The Page XML load path was removed (#6446); the last remaining retired probe (Gadget, `LEGACY_GADGET_XML`) was removed by the shim-removal closeout (#6447) — no legacy probe of any kind remains |
 
 **Selection API (no Spring wiring required for unit use):**
 
-- `PSLegacyDefinitionXmlShim.selectByPresence(...)` — pure flags (tests / metrics)
+- `PSLegacyDefinitionXmlShim.selectByPresence(definitionId, modernPresent)` — pure flags (tests / metrics)
 - `PSLegacyDefinitionXmlShim.selectForPackageRoot(Path)` — package directory
-- `PSLegacyDefinitionXmlShim.selectDefinition(id, modernRoots, gadgetsDir)` — modern-only by id (Widget probe removed #6440; Page probe removed #6446)
+- `PSLegacyDefinitionXmlShim.selectDefinition(id, modernRoots)` — modern-only by id (Widget probe removed #6440; Page probe removed #6446; Gadget probe + `LEGACY_GADGET_XML` kind removed #6447; retired `wouldUseLegacyShim` probe removed #6447)
 - **Production wire (#3024 / #3130):** `PSWidgetDao.selectDefinitionSource(id)` and poll-time `recordSelectionKinds` call `selectDefinition`; Spring `widgetDao.modernPackageRoots` (`File.pathSeparator` list) **or blank → product defaults** via `PSModernPackageRootDefaults` (`Packages/Modern` under `${rxdeploydir}`, classpath materialize when empty); `getLastSelectionKind()` / `getSelectionKindsById()` for tests and support.
 
 ## Time box / deprecation
@@ -70,7 +70,7 @@ Hard order for a package root or definition id (**retired to modern-only** via #
 1. Do **not** add new product features that **require** definition XML.
 2. Widget Builder / Design tools write **modern** format only (ADR-004).
 3. Compilers (#2751) read XML as **upgrade input** only — not as ship format.
-4. Log or metric `wouldUseLegacyShim` / selection kind when wiring is complete so Phase 5 has exit data.
+4. Log or metric selection kind (`PSDefinitionSourceKind`, always `MODERN_COMPONENT_PACKAGE`) when wiring is complete so Phase 5 has exit data. (Historical: the retired `wouldUseLegacyShim` always-false probe was removed #6447; the M2 evidence record keeps its own `wouldUseLegacyShim` field for the report shape.)
 
 ## Operator dual-run checklist
 
@@ -120,7 +120,7 @@ M2 becomes **PASS** only when **all** hold (document on #2852 when claiming):
 3. Gadget product path reports modern catalog with **no** production dependence on legacy selection (`LEGACY_REGISTRY_XML` removed #6440 after the #5810 retirement).
 4. Evidence is attached (log excerpts and/or counter snapshots) — not chat assertion alone.
 
-Historical note: the shim stayed until #2852 retired it (2026-11-08); the gadget fallback stayed until #5810 retired it; the Widget legacy path and gadget dual-load selection were removed by #6440; the Page legacy path was removed by #6446 (Gadget probe remains for sibling slice #6447).
+Historical note: the shim stayed until #2852 retired it (2026-11-08); the gadget fallback stayed until #5810 retired it; the Widget legacy path and gadget dual-load selection were removed by #6440; the Page legacy path was removed by #6446; the Gadget legacy path (`LEGACY_GADGET_XML` kind, gadget probes, `parseRegistryXml`, retired `wouldUseLegacyShim` probe) was removed by the shim-removal closeout #6447 — no legacy probe of any kind remains.
 
 ### H2 `qa-up` (docker / local QA)
 

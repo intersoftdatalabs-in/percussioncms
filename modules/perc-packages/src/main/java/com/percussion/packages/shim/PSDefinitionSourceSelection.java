@@ -23,7 +23,7 @@ import java.util.Optional;
 
 /**
  * Result of {@link PSLegacyDefinitionXmlShim} selection: which source kind won and the primary path
- * used for that decision (manifest file, XML file, or package root).
+ * used for that decision (manifest file or package root).
  */
 public final class PSDefinitionSourceSelection {
 
@@ -36,7 +36,7 @@ public final class PSDefinitionSourceSelection {
    *
    * @param kind selected source kind (required)
    * @param definitionId optional definition or package id
-   * @param primaryPath optional primary path (manifest or XML); may be {@code null} for pure
+   * @param primaryPath optional primary path (manifest); may be {@code null} for pure
    *     presence-based selection
    */
   public PSDefinitionSourceSelection(
@@ -65,8 +65,8 @@ public final class PSDefinitionSourceSelection {
   }
 
   /**
-   * Primary filesystem path for the selected source (e.g. {@code component-package.json} or a
-   * Widget XML file). May be empty only for pure presence-based selection without paths.
+   * Primary filesystem path for the selected source (e.g. {@code component-package.json}).
+   * May be empty only for pure presence-based selection without paths.
    *
    * @return optional primary path
    */
@@ -84,9 +84,12 @@ public final class PSDefinitionSourceSelection {
   }
 
   /**
-   * Whether a legacy Widget/Page/Gadget XML source was selected.
+   * Whether a legacy Widget/Page/Gadget XML source was selected. No {@code LEGACY_*} kind
+   * remains (Widget removed #6440, Page #6446, Gadget #6447), so a selection result is never
+   * legacy — this always returns {@code false} and is retained for API stability with the
+   * M2 evidence callers.
    *
-   * @return {@code true} when legacy XML
+   * @return {@code false} always
    */
   public boolean isLegacyXml() {
     return !isModern();

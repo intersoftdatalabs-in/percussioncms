@@ -28,7 +28,8 @@ import org.junit.Test;
 /**
  * Regression for v8.1.7 PR #722 / #885: Percussion + Deprecated groups. Issue #2788 / #3025
  * single-load: {@code gadget-catalog.json} is the sole runtime source (dual-load fallback
- * removed #6440) — modern absent/empty/unreadable yields an empty map with source NONE.
+ * removed #6440; legacy {@code GadgetRegistry.xml} parser removed #6447) — modern
+ * absent/empty/unreadable yields an empty map with source NONE.
  */
 public class GadgetRegistryTest {
 
@@ -65,8 +66,9 @@ public class GadgetRegistryTest {
 
   @Test
   public void singleLoadSourceEnumHasNoLegacyValue() {
-    // Registry evidence (#6440): the dual-load fallback is removed, so no legacy source can
-    // ever be produced — the enum carries exactly the modern and none states.
+    // Registry evidence (#6440, closeout #6447): the dual-load fallback is removed and the
+    // legacy GadgetRegistry.xml parser is deleted, so no legacy source can ever be
+    // produced — the enum carries exactly the modern and none states.
     assertEquals(2, GadgetRegistry.Source.values().length);
   }
 
@@ -166,30 +168,6 @@ public class GadgetRegistryTest {
     assertEquals("Percussion", map.get("Welcome"));
     assertEquals("Deprecated", map.get("Activity"));
     assertFalse(map.containsKey("NoGroup"));
-  }
-
-  @Test
-  public void parseRegistryXmlBuildsNameToGroupMap() throws Exception {
-    // Retained pure-parser coverage: parseRegistryXml stays available for upgrade/tooling use
-    // (LEGACY_GADGET_XML residual slice owns it) even though the single-load production path
-    // never calls it (#5810 / #6440).
-    String xml =
-        """
-        <?xml version="1.0" encoding="UTF-8"?>
-        <gadgets>
-          <group name="Percussion">
-            <gadget name="Welcome" baseuri="/cm/gadgets/repository/cm1_welcome_gadget" file="x.xml"/>
-          </group>
-          <group name="Deprecated">
-            <gadget name="Activity" baseuri="/cm/gadgets/repository/perc_activity_gadget" file="y.xml"/>
-          </group>
-        </gadgets>
-        """;
-    Map<String, String> map =
-        GadgetRegistry.parseRegistryXml(
-            new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)));
-    assertEquals("Percussion", map.get("Welcome"));
-    assertEquals("Deprecated", map.get("Activity"));
   }
 
   /**
