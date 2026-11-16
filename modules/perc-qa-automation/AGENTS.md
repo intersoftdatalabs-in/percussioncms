@@ -104,7 +104,12 @@ PUBLISHED_SITE_URL=<from-banner-or-fixture> \
   `tests/published-category-tree-fancytree.spec.js`, tags `@published` /
   `@published-site` / `@category-tree` / `@category-expand`) skip cleanly
   with exit 0 when the env is absent — the default CMS-only cell has no
-  publish path. `qa-health` gates both cells; `qa-down` removes both.
+  publish path. Per-widget DTS-service surfaces
+  (`tests/published-widget-*.spec.js`: poll, feed, metadata, form,
+  comments) follow the same contract on `PUBLISHED_SITE_URL` / `DTS_URL`;
+  seed steps additionally skip by name on auth-gated paths (401/403/302)
+  until #6375 provisions cell deliverymanager credentials.
+  `qa-health` gates both cells; `qa-down` removes both.
 - **Full-suite default unchanged:** still surface-filtered (`test:surface`
   refuses the full suite without `--allow-full`) — the DTS cell adds no
   always-run weight.
