@@ -237,13 +237,14 @@ describe("dts-interaction-matrix helpers (#6241)", () => {
       "http://127.0.0.1:9983/perc-membership-services/membership",
     );
     // The service-down skip names the context-prefixed endpoint the probe
-    // actually hits, not the origin root.
-    assert.ok(
-      skipServiceDown(byName.get("polls"), "https://dts.example").includes(
-        "https://dts.example/perc-polls-services/polls/csrf",
-      ),
-      "service-down skip names the probed context endpoint",
-    );
+    // actually hits, not the origin root. Parsed as a URL with exact
+    // origin + pathname comparison (never a substring check).
+    const downReason = skipServiceDown(byName.get("polls"), "https://dts.example");
+    const probedAt = /no liveness answer at (\S+);/.exec(downReason);
+    assert.ok(probedAt, "service-down skip names the probed endpoint");
+    const probedUrl = new URL(probedAt[1]);
+    assert.equal(probedUrl.origin, "https://dts.example");
+    assert.equal(probedUrl.pathname, "/perc-polls-services/polls/csrf");
   });
 
   it("is referenced by the matrix spec for every pinned service", () => {
