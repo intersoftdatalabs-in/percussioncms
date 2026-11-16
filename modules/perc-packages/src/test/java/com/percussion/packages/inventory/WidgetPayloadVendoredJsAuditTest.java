@@ -87,6 +87,27 @@ import org.junit.jupiter.api.Test;
  * FullCalendar 1.6.7 is absent from npm. Replace-or-drop decisions and
  * legal flags move to the remainder follow-on #6502; #6403 stays open.
  *
+ * <p>Slice 5 (issue #6502) rebases the calendarTwo fullcalendar pair onto
+ * the npm {@code fullcalendar@2.9.1} dist (exact pin in both WebUI frontend
+ * manifests, so Dependabot watches the base version) with the two
+ * documented Percussion mods re-applied: {@code reportEvents} resolves the
+ * per-widget {@code Perc.events} deferred consumed by
+ * {@code percCalendarTwoSnippet.vm}, and month-view {@code computeRange}
+ * uses {@code Perc.range} (6 for calendar layout, 52 for list layout) in
+ * place of the stock hard-coded 6. Both payload files are byte-identical
+ * to the stock dist apart from the banner expansion and those two hunks,
+ * as reconstructed by the frontend vitest parity test. The rebase also
+ * fixes two inherited warts: the published {@code .min.js} previously
+ * carried a different uglify mangling than the stock dist with an
+ * unexpanded {@code version:"<%= meta.version %>"} field (now
+ * {@code "2.9.1"}), and the preview {@code .js} was a prettier
+ * reformatting rather than the upstream bundle. The
+ * {@code version:"<%= meta.version %>"} wart inside the non-min stock
+ * dist itself is preserved verbatim (it ships in {@code fullcalendar@2.9.1}
+ * upstream). The calendarTwo gcal + lang-all rows stay vendored — their
+ * payload bytes match no 2.9.1 dist file — and move to the #6502
+ * follow-on residual.
+ *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
  * inventory can only drift together with an audit update. A migration PR that
@@ -202,7 +223,7 @@ class WidgetPayloadVendoredJsAuditTest {
               "FullCalendar v2.9.1"),
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/fullcalendar.min.js",
-              "<%= meta.version %>"),
+              "FullCalendar v2.9.1"),
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/moment.min.js",
               "version : 2.31.0"),
@@ -328,5 +349,30 @@ class WidgetPayloadVendoredJsAuditTest {
             .collect(Collectors.toCollection(TreeSet::new));
     assertTrue(unlistedMin.isEmpty(),
         "New minified (vendored) bundle in widget payloads — audit it under #5627: " + unlistedMin);
+  }
+
+  @Test
+  void calendarTwoFullcalendarCarriesPercussionMods() throws IOException {
+    Path root = packagesRoot();
+    List<String> rebasedPair =
+        List.of(
+            "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/fullcalendar.js",
+            "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/fullcalendar.min.js");
+    Map<String, String> missing = new LinkedHashMap<>();
+    for (String rel : rebasedPair) {
+      String content = Files.readString(root.resolve(rel), StandardCharsets.UTF_8);
+      // Slice 5 (#6502) rebase: the reportEvents mod resolves the per-widget
+      // Perc.events deferred consumed by percCalendarTwoSnippet.vm, and the
+      // month-view computeRange mod reads Perc.range instead of hard-coded 6.
+      for (String marker : List.of("Perc.events", ".resolve(", "Perc.range")) {
+        if (!content.contains(marker)) {
+          missing.put(rel, marker);
+        }
+      }
+      assertTrue(!content.contains("<%= meta.title %>"),
+          rel + " still ships an unexpanded meta banner — rebase from fullcalendar@2.9.1");
+    }
+    assertTrue(missing.isEmpty(),
+        "Percussion fork mods missing from rebased calendarTwo fullcalendar pair: " + missing);
   }
 }
