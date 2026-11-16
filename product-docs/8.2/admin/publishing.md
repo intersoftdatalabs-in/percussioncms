@@ -2483,12 +2483,37 @@ the **Publish** shell instead. Upgrades automatically remove the stale
 `publishing-faces-config.xml` left under `WEB-INF/` by older installs; no
 operator step is needed.
 
+## Forms submissions: confirm and retrieve (DTS)
+
+When a published site uses the form widget, submissions flow to the DTS
+forms service (`perc-form-processor`), not to the CMS content store:
+
+1. A visitor submits the form. The service accepts the entry and answers
+   the success redirect (`/success.html` under the forms service path) —
+   a submit that does not land on the success page was rejected (spam
+   filter, missing form name, or service error) and nothing was stored.
+2. An operator retrieves submissions through the admin surface, which
+   requires the `deliverymanager` role:
+   - `GET /forms/form/cms/{formName}` — per-form summaries (`totalForms`
+     and `exportedForms` counts). The count increments by one per accepted
+     submit, so comparing the count before and after a test submit confirms
+     the entry landed.
+   - `GET /forms/form/cms/list` — summaries for every collected form.
+   - `GET /forms/form/cms/{formName}/{file}.csv` — CSV export of the
+     submitted entries (exporting marks the entries exported).
+3. A `401`/`403` on the retrieval URLs means the caller lacks the
+   `deliverymanager` role — use the DTS credentials provisioned for the
+   install, not the CMS Admin login. Over plain HTTP the service redirects
+   to its HTTPS port first, so the DTS HTTPS endpoint must be reachable.
+
 ## Failure modes to watch
 
 - Missing template/variant or broken relationship links
 - File permission errors on delivery paths
 - Partial publish after mid-job failure (re-run after fixing root cause)
 - DTS connectivity issues that surface as broken dynamic widgets on an otherwise static site
+- Form submits that never reach the success page, or retrieval URLs that
+  answer `401`/`403` — see "Forms submissions: confirm and retrieve (DTS)" above
 
 ## Related
 
