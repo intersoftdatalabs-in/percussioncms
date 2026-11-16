@@ -118,7 +118,17 @@ type Status =
   | { kind: "idle"; query: string }
   | { kind: "loading"; query: string }
   | { kind: "ready"; query: string; results: PSSearchResults }
-  | { kind: "error"; query: string; message: string }
+  | {
+      kind: "error";
+      query: string;
+      message: string;
+      /**
+       * Rows that were on screen when this execute failed (#6420).
+       * A failed execute names the failure but keeps prior rows;
+       * unset when the failure is the first load.
+       */
+      retained?: PSSearchResults;
+    }
   | { kind: "invalid"; query: string; message: string };
 
 type CatalogStatus =
@@ -365,6 +375,27 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
   const [selectedSaved, setSelectedSaved] = useState("");
   const [lastRun, setLastRun] = useState<LastRun | null>(null);
   const [catalogEpoch, setCatalogEpoch] = useState(0);
+  const resultsRef = useRef<HTMLUListElement>(null);
+  /** Last successful result set so a failed execute keeps prior rows (#6420). */
+  const lastResultsRef = useRef<PSSearchResults | null>(null);
+  /**
+   * Focus the results region once the pending saved-search execute lands
+   * (#6420). Free-text submit keeps focus in the query input; only the
+   * saved-search round-trip moves focus, and only on success.
+   */
+  const focusResultsPendingRef = useRef(false);
+
+  useEffect(() => {
+    if (status.kind === "ready") {
+      lastResultsRef.current = status.results;
+      if (focusResultsPendingRef.current) {
+        focusResultsPendingRef.current = false;
+        resultsRef.current?.focus();
+      }
+    } else if (status.kind === "error") {
+      focusResultsPendingRef.current = false;
+    }
+  }, [status]);
 
   useEffect(() => {
     setDraft(initialQuery);
@@ -446,6 +477,7 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
         kind: "error",
         query: trimmed,
         message: formatApiError(err, message(EXPLORER_MSG.SEARCH_ERROR)),
+        retained: lastResultsRef.current ?? undefined,
       });
     }
   }
@@ -457,6 +489,7 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
     }
     const display = (label || key).trim();
     setLastRun({ mode: "saved", idOrName: key, label: display });
+    focusResultsPendingRef.current = true;
     setStatus({ kind: "loading", query: display });
     try {
       const request: SearchExecuteRequest = {
@@ -470,10 +503,12 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
       const results = toSearchResults(raw);
       setStatus({ kind: "ready", query: display, results });
     } catch (err: unknown) {
+      focusResultsPendingRef.current = false;
       setStatus({
         kind: "error",
         query: display,
         message: formatApiError(err, message(EXPLORER_MSG.SEARCH_ERROR)),
+        retained: lastResultsRef.current ?? undefined,
       });
     }
   }
@@ -481,6 +516,20 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
   function handleSubmit(e: React.FormEvent<HTMLFormElement>): void {
     e.preventDefault();
     void runSearch(draft);
+  }
+
+  /**
+   * Escape-to-clear on the query input (#6420): clears the draft, stays on
+   * the panel, and issues no POST. The cleared draft ("") is NUL-free by
+   * construction and leaves Submit disabled, so an empty query never
+   * executes. Focus stays in the input — no focus loss to body.
+   */
+  function handleQueryKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key !== "Escape") {
+      return;
+    }
+    e.preventDefault();
+    setDraft("");
   }
 
   function handleRunSaved(): void {
@@ -539,6 +588,8 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
           placeholder={message(EXPLORER_MSG.SEARCH_PLACEHOLDER)}
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
+          onKeyDown={handleQueryKeyDown}
+          aria-keyshortcuts="Escape"
           style={{ flex: 1, padding: "4px 8px" }}
         />
         <button
@@ -594,6 +645,7 @@ export function SearchPanel(props: SearchPanelProps): React.JSX.Element {
 
       <SearchStatusView
         status={status}
+        resultsRef={resultsRef}
         onOpen={onOpen}
         onReveal={onReveal}
         onRetry={handleRetry}
@@ -893,6 +945,13 @@ function ManageSavedSearchDialog(props: {
 
 function SearchStatusView(props: {
   status: Status;
+  /**
+   * Focus target for the results region after a saved-search execute
+   * (#6420). The parent moves focus here on success so keyboard and
+   * screen-reader users land on the rows; the query input stays mounted
+   * above with its default visible focus ring as the return path.
+   */
+  resultsRef?: React.RefObject<HTMLUListElement | null>;
   onOpen?: (r: PSItemProperties) => void;
   onReveal?: (r: PSItemProperties) => void;
   /** Re-issues the failed search. Optional to keep the helper pure; the
@@ -905,7 +964,7 @@ function SearchStatusView(props: {
    */
   onRetry?: () => void;
 }): React.JSX.Element {
-  const { status, onOpen, onReveal, onRetry } = props;
+  const { status, resultsRef, onOpen, onReveal, onRetry } = props;
   if (status.kind === "loading") {
     return (
       <p
@@ -926,20 +985,33 @@ function SearchStatusView(props: {
     );
   }
   if (status.kind === "error") {
+    const retained = status.retained;
+    const hasRetained =
+      retained != null && retained.children.length > 0;
     return (
-      <div role="alert" style={{ color: "#a00", marginTop: 8 }}>
-        <p data-testid="search-panel-error">
-          {message(EXPLORER_MSG.SEARCH_ERROR)}: {status.message}
-        </p>
-        <button
-          type="button"
-          data-testid="search-panel-retry"
-          disabled={!onRetry}
-          onClick={() => onRetry?.()}
-        >
-          {message(EXPLORER_MSG.RETRY)}
-        </button>
-      </div>
+      <>
+        <div role="alert" style={{ color: "#a00", marginTop: 8 }}>
+          <p data-testid="search-panel-error">
+            {message(EXPLORER_MSG.SEARCH_ERROR)}: {status.message}
+          </p>
+          <button
+            type="button"
+            data-testid="search-panel-retry"
+            disabled={!onRetry}
+            onClick={() => onRetry?.()}
+          >
+            {message(EXPLORER_MSG.RETRY)}
+          </button>
+        </div>
+        {hasRetained ? (
+          <SearchResultRows
+            query={status.query}
+            results={retained}
+            onOpen={onOpen}
+            onReveal={onReveal}
+          />
+        ) : null}
+      </>
     );
   }
   if (status.kind === "ready") {
@@ -956,50 +1028,77 @@ function SearchStatusView(props: {
       );
     }
     return (
-      <ul
-        data-testid="search-panel-results"
-        style={{ listStyle: "none", padding: 0, margin: "8px 0 0 0" }}
-        aria-label={`Search results for "${status.query}"`}
-      >
-        {status.results.children.map((r, idx) => (
-          <li
-            key={`${r.id ?? r.title ?? "row"}-${idx}`}
-            data-testid="search-panel-result-row"
-            data-item-type={r.type ?? ""}
-            style={{
-              display: "flex",
-              gap: 8,
-              alignItems: "center",
-              borderBottom: "1px solid #eee",
-              padding: "4px 0",
-            }}
-          >
-            <span style={{ flex: 1 }} data-mkd-lang-ignore="1">
-              <strong>{r.title ?? r.name ?? r.id}</strong>
-              <small style={{ marginLeft: 6, color: "#595959" }}>
-                {r.folderPath ?? r.type}
-              </small>
-            </span>
-            <button
-              type="button"
-              data-testid={`search-panel-open-${r.id ?? idx}`}
-              onClick={() => onOpen?.(r)}
-              disabled={!onOpen}
-            >
-              {message(EXPLORER_MSG.SEARCH_OPEN)}
-            </button>
-            <button
-              type="button"
-              data-testid={`search-panel-reveal-${r.id ?? idx}`}
-              onClick={() => onReveal?.(r)}
-              disabled={!onReveal}
-            >
-              {message(EXPLORER_MSG.SEARCH_REVEAL)}
-            </button>
-          </li>
-        ))}
-      </ul>
+      <SearchResultRows
+        query={status.query}
+        results={status.results}
+        listRef={resultsRef}
+        onOpen={onOpen}
+        onReveal={onReveal}
+      />
     );
   }
   return <></>;
+}
+
+/**
+ * Shared results list for the ready state and for rows retained under a
+ * later execute failure (#6420). The list is programmatically focusable
+ * (`tabIndex={-1}`) so the parent can move focus here after a saved-search
+ * execute without inserting it into the Tab order twice.
+ */
+function SearchResultRows(props: {
+  query: string;
+  results: PSSearchResults;
+  listRef?: React.RefObject<HTMLUListElement | null>;
+  onOpen?: (r: PSItemProperties) => void;
+  onReveal?: (r: PSItemProperties) => void;
+}): React.JSX.Element {
+  const { query, results, listRef, onOpen, onReveal } = props;
+  return (
+    <ul
+      ref={listRef}
+      tabIndex={-1}
+      data-testid="search-panel-results"
+      style={{ listStyle: "none", padding: 0, margin: "8px 0 0 0" }}
+      aria-label={`Search results for "${query}"`}
+    >
+      {results.children.map((r, idx) => (
+        <li
+          key={`${r.id ?? r.title ?? "row"}-${idx}`}
+          data-testid="search-panel-result-row"
+          data-item-type={r.type ?? ""}
+          style={{
+            display: "flex",
+            gap: 8,
+            alignItems: "center",
+            borderBottom: "1px solid #eee",
+            padding: "4px 0",
+          }}
+        >
+          <span style={{ flex: 1 }} data-mkd-lang-ignore="1">
+            <strong>{r.title ?? r.name ?? r.id}</strong>
+            <small style={{ marginLeft: 6, color: "#595959" }}>
+              {r.folderPath ?? r.type}
+            </small>
+          </span>
+          <button
+            type="button"
+            data-testid={`search-panel-open-${r.id ?? idx}`}
+            onClick={() => onOpen?.(r)}
+            disabled={!onOpen}
+          >
+            {message(EXPLORER_MSG.SEARCH_OPEN)}
+          </button>
+          <button
+            type="button"
+            data-testid={`search-panel-reveal-${r.id ?? idx}`}
+            onClick={() => onReveal?.(r)}
+            disabled={!onReveal}
+          >
+            {message(EXPLORER_MSG.SEARCH_REVEAL)}
+          </button>
+        </li>
+      ))}
+    </ul>
+  );
 }

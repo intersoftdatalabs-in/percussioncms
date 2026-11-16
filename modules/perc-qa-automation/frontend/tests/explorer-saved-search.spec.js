@@ -54,6 +54,7 @@ const {
   BASE_URL,
   adminBasicAuthHeaders,
 } = require("./helpers/auth");
+const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 const {
   TEST_IDS,
   explorerEntryUrl,
@@ -150,6 +151,159 @@ test.describe("Explorer saved-search picker (#2507 / #2409)", () => {
         page.locator(`[data-testid="${TEST_IDS.savedRetry}"]`),
       ).toBeVisible();
     }
+  });
+
+  test("Escape in the query input clears the draft without executing (#6420) @saved-search @explorer-saved-search @explorer", async ({
+    page,
+  }) => {
+    const pageErrors = attachPageErrors(page);
+    const url = explorerEntryUrl(BASE_URL);
+    await page.goto(url, { waitUntil: "networkidle" });
+
+    await expect(
+      page.locator(`[data-testid="${TEST_IDS.shell}"]`),
+    ).toBeVisible({ timeout: 20_000 });
+    // #2731: search toggle lives under View menu dropdown.
+    await page.locator(`[data-testid="${TEST_IDS.menuView}"]`).click();
+    await page.locator(`[data-testid="${TEST_IDS.toggleSearch}"]`).click();
+    const panel = page.locator(`[data-testid="${TEST_IDS.searchPanel}"]`);
+    await expect(panel).toBeVisible({ timeout: 10_000 });
+
+    const input = page.locator(`[data-testid="${TEST_IDS.searchInput}"]`);
+    const submit = page.locator(`[data-testid="${TEST_IDS.searchSubmit}"]`);
+    await expect(input).toBeVisible();
+    await input.fill("Welcome");
+    await expect(submit).toBeEnabled();
+    await input.press("Escape");
+    // Cleared, stays on the panel, Submit disabled so nothing can execute.
+    await expect(input).toHaveValue("");
+    await expect(submit).toBeDisabled();
+    await expect(panel).toBeVisible();
+    // Focus stays in the input — never lost to body.
+    await expect(input).toBeFocused();
+    const activeTag = await page.evaluate(
+      () => document.activeElement && document.activeElement.tagName,
+    );
+    expect(activeTag).not.toBe("BODY");
+    // No result churn from a clear: neither loading nor error appears.
+    await expect(
+      page.locator(`[data-testid="${TEST_IDS.resultsLoading}"]`),
+    ).toHaveCount(0);
+    await expect(
+      page.locator(`[data-testid="${TEST_IDS.resultsError}"]`),
+    ).toHaveCount(0);
+    await expectNoSeriousA11yViolations(page, {
+      scope: `[data-testid="${TEST_IDS.searchPanelHost}"]`,
+    });
+    expect(pageErrors, "uncaught pageerror on Escape-to-clear").toEqual([]);
+  });
+
+  test("saved-search execute moves focus to the results region (#6420) @saved-search @explorer-saved-search", async ({
+    page,
+    request,
+  }) => {
+    const pageErrors = attachPageErrors(page);
+    const headers = adminBasicAuthHeaders();
+    const catalogUrl = searchesCatalogUrl(BASE_URL, { includeViews: true });
+    let restBody = null;
+    try {
+      const res = await request.get(catalogUrl, {
+        headers: { ...headers, Accept: "application/json" },
+      });
+      if (res.ok()) {
+        restBody = await res.json().catch(() => null);
+      }
+    } catch (e) {
+      restBody = null;
+    }
+    const runnable = pickRunnableSavedSearch(restBody);
+    const defs = unwrapSearchDefs(restBody);
+    const onlyCustom =
+      defs.length > 0 && defs.every((d) => isCustomUrlSearch(d));
+
+    const url = explorerEntryUrl(BASE_URL);
+    await page.goto(url, { waitUntil: "networkidle" });
+    await expect(
+      page.locator(`[data-testid="${TEST_IDS.shell}"]`),
+    ).toBeVisible({ timeout: 20_000 });
+    await page.locator(`[data-testid="${TEST_IDS.menuView}"]`).click();
+    await page.locator(`[data-testid="${TEST_IDS.toggleSearch}"]`).click();
+    await expect(
+      page.locator(`[data-testid="${TEST_IDS.searchPanel}"]`),
+    ).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator(catalogSettledSelector()).first()).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const picker = page.locator(`[data-testid="${TEST_IDS.savedPicker}"]`);
+    const pickerVisible = await picker.isVisible().catch(() => false);
+    const select = page.locator(`[data-testid="${TEST_IDS.savedSelect}"]`);
+    const selectOptions = pickerVisible
+      ? await select.locator("option").evaluateAll((opts) =>
+          opts.map((o) => ({
+            value: /** @type {HTMLOptionElement} */ (o).value,
+            text: String(/** @type {HTMLOptionElement} */ (o).textContent || ""),
+          })),
+        )
+      : [];
+    const uiRunnable = pickRunnableSelectOption(selectOptions);
+    const optionCount = selectOptions.filter((o) => String(o.value || "").trim())
+      .length;
+
+    if (
+      shouldSkipMissingRunnableSearch({
+        runnable,
+        pickerVisible,
+        optionCount,
+        hasRunnableOption: Boolean(uiRunnable),
+        onlyCustom,
+        catalogEmpty: defs.length === 0 && !pickerVisible,
+      })
+    ) {
+      test.skip(
+        true,
+        noRunnableSearchSkipMessage({
+          empty: defs.length === 0,
+          onlyCustom,
+          pickerVisible,
+        }),
+      );
+      return;
+    }
+
+    expect(
+      pickerVisible,
+      "catalog has a runnable search so SearchPanel picker must be visible (#3576)",
+    ).toBe(true);
+    const optionValues = selectOptions
+      .map((o) => String(o.value || "").trim())
+      .filter(Boolean);
+    const keyToPick =
+      runnable && optionValues.includes(runnable.key)
+        ? runnable.key
+        : uiRunnable
+          ? uiRunnable.value
+          : optionValues[0];
+    await select.selectOption(keyToPick);
+    const runBtn = page.locator(`[data-testid="${TEST_IDS.savedRun}"]`);
+    await expect(runBtn).toBeEnabled({ timeout: 5_000 });
+    await runBtn.click();
+
+    const results = page.locator(`[data-testid="${TEST_IDS.resultsList}"]`);
+    await expect(results).toBeVisible({ timeout: 30_000 });
+    // Focus return is sane: the results region takes focus, not body.
+    await expect(results).toBeFocused();
+    const activeTag = await page.evaluate(
+      () => document.activeElement && document.activeElement.tagName,
+    );
+    expect(activeTag).not.toBe("BODY");
+    // The query input stays mounted and enabled as the focus path back.
+    const input = page.locator(`[data-testid="${TEST_IDS.searchInput}"]`);
+    await expect(input).toBeVisible();
+    await expect(input).toBeEnabled();
+    expect(pageErrors, "uncaught pageerror on execute focus return").toEqual(
+      [],
+    );
   });
 
   test("pick known saved search and assert results / empty / error region @saved-search @explorer-saved-search", async ({

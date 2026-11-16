@@ -21,6 +21,8 @@ const TEST_IDS = Object.freeze({
   toggleSearch: "explorer-toggle-search",
   searchPanelHost: "explorer-search-panel",
   searchPanel: "search-panel",
+  searchInput: "search-panel-input",
+  searchSubmit: "search-panel-submit",
   savedLoading: "search-panel-saved-loading",
   savedError: "search-panel-saved-error",
   savedRetry: "search-panel-saved-retry",

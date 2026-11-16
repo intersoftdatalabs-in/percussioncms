@@ -1128,4 +1128,239 @@ describe("SearchPanel", () => {
       ).toBeTruthy();
     });
   });
+
+  describe("saved-search execute round-trip (#6420)", () => {
+    async function selectSavedRow(value = "My Pages") {
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-select")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("search-panel-saved-select"), {
+        target: { value },
+      });
+    }
+
+    it("Escape in the query input clears the draft with no POST and keeps focus", async () => {
+      const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
+      const { container } = render(
+        <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
+      });
+      const input = screen.getByTestId(
+        "search-panel-input",
+      ) as HTMLInputElement;
+      fireEvent.change(input, { target: { value: "Welcome" } });
+      expect(input.value).toBe("Welcome");
+      input.focus();
+      fireEvent.keyDown(input, { key: "Escape" });
+      expect(input.value).toBe("");
+      // No POST, stays on the panel, focus is not lost to body.
+      expect(search).not.toHaveBeenCalled();
+      expect(screen.getByTestId("search-panel")).toBeTruthy();
+      expect(document.activeElement).toBe(input);
+      // An emptied draft disables Submit, so it cannot execute.
+      expect(
+        (screen.getByTestId("search-panel-submit") as HTMLButtonElement)
+          .disabled,
+      ).toBe(true);
+      await renderA11yGate(container);
+    });
+
+    it("Escape clears a NUL-containing draft without POST (#6420)", async () => {
+      const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
+      render(
+        <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
+      });
+      const input = screen.getByTestId(
+        "search-panel-input",
+      ) as HTMLInputElement;
+      fireEvent.change(input, { target: { value: "bad\u0000query" } });
+      fireEvent.keyDown(input, { key: "Escape" });
+      expect(input.value).toBe("");
+      expect(search).not.toHaveBeenCalled();
+      expect(screen.getByTestId("search-panel")).toBeTruthy();
+      expect(screen.queryByTestId("search-panel-query-error")).toBeNull();
+      expect(screen.queryByTestId("search-panel-results")).toBeNull();
+    });
+
+    it("Escape then Submit does not execute an empty query (#6420)", async () => {
+      const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
+      render(
+        <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
+      });
+      const input = screen.getByTestId("search-panel-input");
+      fireEvent.change(input, { target: { value: "Welcome" } });
+      fireEvent.keyDown(input, { key: "Escape" });
+      fireEvent.click(screen.getByTestId("search-panel-submit"));
+      expect(search).not.toHaveBeenCalled();
+      expect(screen.queryByTestId("search-panel-loading")).toBeNull();
+      expect(screen.queryByTestId("search-panel-results")).toBeNull();
+      expect(screen.queryByTestId("search-panel-error")).toBeNull();
+    });
+
+    it("a non-Escape key leaves the draft alone (#6420)", async () => {
+      const search = vi.fn().mockResolvedValue(makeResults(ONE_ROW));
+      render(
+        <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
+      });
+      const input = screen.getByTestId(
+        "search-panel-input",
+      ) as HTMLInputElement;
+      fireEvent.change(input, { target: { value: "Welcome" } });
+      fireEvent.keyDown(input, { key: "Enter" });
+      expect(input.value).toBe("Welcome");
+      expect(search).not.toHaveBeenCalled();
+    });
+
+    it("saved-search execute renders results and moves focus to the results region", async () => {
+      const executeSavedSearch = vi.fn().mockResolvedValue({
+        children: ONE_ROW,
+        totalCount: 1,
+        startIndex: 1,
+        searchName: "My Pages",
+      });
+      const { container } = render(
+        <SearchPanel
+          listSavedSearches={readyCatalog()}
+          executeSavedSearch={executeSavedSearch}
+        />,
+      );
+      await selectSavedRow();
+      fireEvent.click(screen.getByTestId("search-panel-saved-run"));
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-results")).toBeTruthy();
+      });
+      expect(executeSavedSearch).toHaveBeenCalledTimes(1);
+      // Focus return is sane: the results region takes focus, not body.
+      expect(document.activeElement).toBe(
+        screen.getByTestId("search-panel-results"),
+      );
+      expect(document.activeElement?.tagName).not.toBe("BODY");
+      // The query input stays mounted as the visible focus path back.
+      const input = screen.getByTestId(
+        "search-panel-input",
+      ) as HTMLInputElement;
+      expect(input.disabled).toBe(false);
+      input.focus();
+      expect(document.activeElement).toBe(input);
+      await renderA11yGate(container);
+    });
+
+    it.each([400, 403, 404])(
+      "execute HTTP %i names the failure and keeps prior rows",
+      async (httpStatus) => {
+        const executeSavedSearch = vi
+          .fn()
+          .mockResolvedValueOnce({
+            children: ONE_ROW,
+            totalCount: 1,
+            startIndex: 1,
+            searchName: "My Pages",
+          })
+          .mockRejectedValueOnce({
+            status: httpStatus,
+            statusText: "Refused",
+            body: null,
+          });
+        const { container } = render(
+          <SearchPanel
+            listSavedSearches={readyCatalog()}
+            executeSavedSearch={executeSavedSearch}
+          />,
+        );
+        await selectSavedRow();
+        fireEvent.click(screen.getByTestId("search-panel-saved-run"));
+        await waitFor(() => {
+          expect(screen.getByTestId("search-panel-results")).toBeTruthy();
+        });
+        expect(
+          screen.getAllByTestId("search-panel-result-row"),
+        ).toHaveLength(1);
+        // Second execute fails: the error names the status and the prior
+        // row stays on screen with Retry available.
+        fireEvent.click(screen.getByTestId("search-panel-saved-run"));
+        await waitFor(() => {
+          expect(
+            screen.getByTestId("search-panel-error").textContent,
+          ).toMatch(new RegExp(`HTTP ${httpStatus}`));
+        });
+        expect(screen.getByTestId("search-panel-retry")).toBeTruthy();
+        expect(
+          screen.getAllByTestId("search-panel-result-row"),
+        ).toHaveLength(1);
+        expect(screen.getByTestId("search-panel-results")).toBeTruthy();
+        await renderA11yGate(container);
+      },
+    );
+
+    it("free-text error keeps prior rows with Retry (#6420)", async () => {
+      let attempt = 0;
+      const search = vi.fn().mockImplementation(() => {
+        attempt += 1;
+        if (attempt === 2) {
+          return Promise.reject({ status: 403, statusText: "Forbidden", body: null });
+        }
+        return Promise.resolve(makeResults(ONE_ROW));
+      });
+      render(
+        <SearchPanel search={search} listSavedSearches={emptyCatalog()} />,
+      );
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-saved-empty")).toBeTruthy();
+      });
+      const input = screen.getByTestId("search-panel-input");
+      fireEvent.change(input, { target: { value: "Welcome" } });
+      fireEvent.click(screen.getByTestId("search-panel-submit"));
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-results")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("search-panel-submit"));
+      await waitFor(() => {
+        expect(screen.getByTestId("search-panel-error")).toBeTruthy();
+      });
+      expect(
+        screen.getByTestId("search-panel-error").textContent,
+      ).toMatch(/HTTP 403/);
+      expect(
+        screen.getAllByTestId("search-panel-result-row"),
+      ).toHaveLength(1);
+      fireEvent.click(screen.getByTestId("search-panel-retry"));
+      await waitFor(() => {
+        expect(screen.queryByTestId("search-panel-error")).toBeNull();
+      });
+    });
+
+    it("execute failure with no prior rows shows only the error (#6420)", async () => {
+      const executeSavedSearch = vi.fn().mockRejectedValue({
+        status: 404,
+        statusText: "Not Found",
+        body: null,
+      });
+      render(
+        <SearchPanel
+          listSavedSearches={readyCatalog()}
+          executeSavedSearch={executeSavedSearch}
+        />,
+      );
+      await selectSavedRow();
+      fireEvent.click(screen.getByTestId("search-panel-saved-run"));
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("search-panel-error").textContent,
+        ).toMatch(/HTTP 404/);
+      });
+      expect(screen.queryByTestId("search-panel-results")).toBeNull();
+      expect(screen.queryByTestId("search-panel-result-row")).toBeNull();
+    });
+  });
 });
