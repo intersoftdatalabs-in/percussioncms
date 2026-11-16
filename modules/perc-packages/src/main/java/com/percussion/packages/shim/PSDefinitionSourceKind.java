@@ -21,19 +21,13 @@ package com.percussion.packages.shim;
  * Source kind chosen by definition selection (ADR-004 / issue #2752).
  *
  * <p><strong>Modern required</strong>: selection resolves {@link
- * #MODERN_COMPONENT_PACKAGE} only. The legacy Widget definition-XML fallback was retired
- * (#2852) and removed (#6440), and the legacy Page definition-XML fallback was removed
- * (#6446) — the {@code LEGACY_WIDGET_XML} and {@code LEGACY_PAGE_XML} constants are gone. The
- * legacy Gadget definition-XML fallback is likewise retired (never produced by {@code
- * PSLegacyDefinitionXmlShim} anymore); its constant is retained for metrics / dashboard
- * compatibility until sibling slice #6447 removes it (counter reads {@code 0}).
- * Product packages must not depend on any legacy path.
+ * #MODERN_COMPONENT_PACKAGE} only. All legacy definition-XML fallbacks are removed — the
+ * Widget fallback was retired (#2852) and removed (#6440), the Page fallback was removed
+ * (#6446), and the Gadget fallback was removed (#6447). No {@code LEGACY_*} constant
+ * remains. Product packages must not depend on any legacy path.
  */
 public enum PSDefinitionSourceKind {
 
   /** Modern ship format: {@code component-package.json} (Component Package Manifest). */
-  MODERN_COMPONENT_PACKAGE,
-
-  /** Legacy per-gadget OpenSocial-style definition XML. */
-  LEGACY_GADGET_XML
+  MODERN_COMPONENT_PACKAGE
 }

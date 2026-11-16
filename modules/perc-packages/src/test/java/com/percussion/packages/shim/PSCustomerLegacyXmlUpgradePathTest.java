@@ -93,7 +93,7 @@ class PSCustomerLegacyXmlUpgradePathTest {
     // The retired Widget XML leftover stays on disk but is never probed (#6440).
     PSDefinitionSourceSelection selection =
         PSLegacyDefinitionXmlShim.selectDefinition(
-            WIDGET_DEFINITION_ID, List.of(packageRoot), null);
+            WIDGET_DEFINITION_ID, List.of(packageRoot));
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, selection.getKind());
     assertTrue(selection.isModern());
     assertEquals(manifestPath, selection.getPrimaryPath().orElseThrow());
@@ -117,7 +117,7 @@ class PSCustomerLegacyXmlUpgradePathTest {
     PSComponentPackageManifestIo.write(manifest, manifestPath);
 
     PSDefinitionSourceSelection selection =
-        PSLegacyDefinitionXmlShim.selectDefinition(PAGE_DEFINITION_ID, List.of(modernDir), null);
+        PSLegacyDefinitionXmlShim.selectDefinition(PAGE_DEFINITION_ID, List.of(modernDir));
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, selection.getKind());
     assertTrue(selection.isModern());
     assertEquals(manifestPath, selection.getPrimaryPath().orElseThrow());
@@ -143,14 +143,13 @@ class PSCustomerLegacyXmlUpgradePathTest {
 
     PSDefinitionSourceSelection selection =
         PSLegacyDefinitionXmlShim.selectDefinition(
-            GADGET_DEFINITION_ID, List.of(modernDir), null);
+            GADGET_DEFINITION_ID, List.of(modernDir));
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, selection.getKind());
     assertTrue(selection.isModern());
     assertEquals(manifestPath, selection.getPrimaryPath().orElseThrow());
   }
 
   @Test
-  @SuppressWarnings("deprecation") // pins wouldUseLegacyShim == false after retirement (#2852)
   void legacyOnlyCustomerXml_throwsRetiredErrorNamingCompilerUpgradePath() throws Exception {
     Path legacyWidgetsDir = tempDir.resolve("legacyWidgets");
     Files.createDirectories(legacyWidgetsDir);
@@ -166,14 +165,13 @@ class PSCustomerLegacyXmlUpgradePathTest {
             PSDefinitionSourceNotFoundException.class,
             () ->
                 PSLegacyDefinitionXmlShim.selectDefinition(
-                    WIDGET_DEFINITION_ID, List.of(), null));
+                    WIDGET_DEFINITION_ID, List.of()));
     assertTrue(
         ex.getMessage().contains("compiler"),
         "retired error must point at the compiler upgrade path: " + ex.getMessage());
     assertFalse(
         ex.getMessage().contains(WIDGET_DEFINITION_ID + ".xml"),
         "removed widget probe must not name the retired file: " + ex.getMessage());
-    assertFalse(PSLegacyDefinitionXmlShim.wouldUseLegacyShim(tempDir));
   }
 
   private static PSWidgetXmlModel parseWidgetFixture(String resource, String fileName)
