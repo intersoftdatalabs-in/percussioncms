@@ -35,7 +35,7 @@ XML that remains after upgrade.
 | **Neither is an error** | Missing both modern and XML fails with a clear error naming the definition id. There is no silent default. |
 | **Product packages** | Shipped product widgets and page layouts already author modern packages. Native page install is **not** the same as removing dual-run. See [Product page packages](id:developer-page-packages). |
 | **Shim retired** | The runtime dual-run fallback was hard-disabled (#2852). Do **not** reintroduce a legacy fallback to “keep XML working” — convert the XML instead. |
-| **Gadget registry** | Gadget `GadgetRegistry.xml` fallback was a **separate surface** and is retired (#5810): the dashboard gadget map loads the modern catalog only, and a missing catalog yields an empty map with a clear error. Do not reintroduce it. |
+| **Gadget registry** | Gadget `GadgetRegistry.xml` fallback was a **separate surface** and is retired (#5810); the dual-load selection remnants were removed (#6440): the dashboard gadget map loads the modern catalog only, and a missing catalog yields an empty map with a clear error. Do not reintroduce it. |
 
 **Honest product messaging:**
 
@@ -164,8 +164,8 @@ New widgets and templates created in the product UI already skip Widget definiti
 | Check | Pass signal |
 |-------|-------------|
 | Page / widget that uses the converted id | Edit and preview work on a non-production site |
-| Widget dual-run log | INFO `Widget definition dual-run selection: modern=…, legacyWidgetXml=…` — converted ids resolve modern; `legacyWidgetXml` stays `0` (retired, never selected) |
-| Gadget load | INFO `Gadget registry dual-load selection: … source=…` — product classpath `MODERN_CATALOG`; the gadget XML fallback is retired (#5810), `legacyRegistryXml` always `0` |
+| Widget single-source log | INFO `Widget definition single-source selection: modern=…, total=…` — converted ids resolve modern (the Widget `legacyWidgetXml` field was removed with the legacy path, #6440) |
+| Gadget load | INFO `Gadget registry single-load selection: … source=…` — product classpath `MODERN_CATALOG`; the legacy `legacyRegistryXml` field was removed with the dual-load fallback (#6440) |
 | Neither | No mass `PSDefinitionSourceNotFoundException` / “expected modern vs legacy” errors for ids you converted |
 
 Modern present **and** old XML still on disk is expected during conversion: selection

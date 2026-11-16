@@ -40,8 +40,8 @@ import org.junit.jupiter.api.io.TempDir;
  * PSWidgetDao} (#3131 / #2852 / parent #2632).
  *
  * <p>Drives the modern path and asserts cumulative counters, snapshot map, and ops summary string
- * — so M2 evidence is not only INFO logs. Legacy counters/keys are retained for dashboard
- * compatibility and must read {@code 0}; retired-legacy ids fail clearly instead of counting.
+ * — so M2 evidence is not only INFO logs. The Widget legacy counters/keys were removed with the
+ * legacy path (#6440); retired-legacy ids fail clearly instead of counting.
  */
 class PSWidgetDaoSelectionMetricsHarnessTest {
 
@@ -95,7 +95,6 @@ class PSWidgetDaoSelectionMetricsHarnessTest {
         dao.selectDefinitionSource(modernId).getKind());
 
     assertEquals(2L, dao.getModernSelectionCount());
-    assertEquals(0L, dao.getLegacySelectionCount());
     assertEquals(2L, dao.getTotalSelectionCount());
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, dao.getLastSelectionKind());
   }
@@ -114,7 +113,6 @@ class PSWidgetDaoSelectionMetricsHarnessTest {
     // Retired-legacy id stays unclassified under modern-only selection.
     assertFalse(kinds.containsKey("wLegacy"), "retired id must not be classified: " + kinds);
     assertEquals(1L, dao.getModernSelectionCount());
-    assertEquals(0L, dao.getLegacySelectionCount());
     assertEquals(1L, dao.getTotalSelectionCount());
 
     // Direct selects accumulate independently of poll (poll may no-op when files unchanged).
@@ -123,25 +121,25 @@ class PSWidgetDaoSelectionMetricsHarnessTest {
         PSDefinitionSourceNotFoundException.class,
         () -> dao.selectDefinitionSource("wLegacy"));
     assertEquals(2L, dao.getModernSelectionCount());
-    assertEquals(0L, dao.getLegacySelectionCount());
     assertEquals(2L, dao.getTotalSelectionCount());
   }
 
   @Test
-  void snapshotAndSummary_exposeModernLegacyTotalAndLastKind() throws Exception {
+  void snapshotAndSummary_exposeModernTotalAndLastKind() throws Exception {
     writeWidgetXml("snapModern");
     Path modernRoot = writeModernPackageRoot("snapModern");
     dao.setModernPackageRoots(List.of(modernRoot));
     dao.selectDefinitionSource("snapModern");
 
     Map<String, Long> snap = dao.getSelectionMetricsSnapshot();
+    assertEquals(2, snap.size(), "snapshot carries modern + total only: " + snap);
     assertEquals(1L, snap.get("modern"));
-    assertEquals(0L, snap.get("legacyWidgetXml"));
     assertEquals(1L, snap.get("total"));
 
     String summary = dao.formatSelectionMetricsSummary();
+    assertTrue(summary.contains("single-source"), summary);
     assertTrue(summary.contains("modern=1"), summary);
-    assertTrue(summary.contains("legacyWidgetXml=0"), summary);
+    assertFalse(summary.contains("legacyWidgetXml"), summary);
     assertTrue(summary.contains("total=1"), summary);
     assertTrue(summary.contains("lastKind=MODERN_COMPONENT_PACKAGE"), summary);
   }
@@ -158,7 +156,6 @@ class PSWidgetDaoSelectionMetricsHarnessTest {
     dao.resetSelectionMetrics();
 
     assertEquals(0L, dao.getModernSelectionCount());
-    assertEquals(0L, dao.getLegacySelectionCount());
     assertEquals(0L, dao.getTotalSelectionCount());
     assertEquals(null, dao.getLastSelectionKind());
     assertTrue(dao.getSelectionKindsById().isEmpty());
@@ -178,13 +175,12 @@ class PSWidgetDaoSelectionMetricsHarnessTest {
 
     // 1 select + 1 poll classification
     assertEquals(2L, dao.getModernSelectionCount());
-    assertEquals(0L, dao.getLegacySelectionCount());
     assertEquals(
         PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE,
         dao.getSelectionKindsById().get(id));
     String summary = dao.formatSelectionMetricsSummary();
     assertTrue(summary.contains("modern=2"), summary);
-    assertTrue(summary.contains("legacyWidgetXml=0"), summary);
+    assertFalse(summary.contains("legacyWidgetXml"), summary);
   }
 
   private Path writeWidgetXml(String id) throws Exception {

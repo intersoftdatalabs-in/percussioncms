@@ -216,13 +216,9 @@ class PSWidgetXmlDualShipTest {
     Files.createDirectories(widgetsXml);
     Files.writeString(widgetsXml.resolve("percSimpleText.xml"), "<Widget/>", StandardCharsets.UTF_8);
 
+    // The co-located retired Widget XML stays on disk but is never probed (#6440).
     PSDefinitionSourceSelection s =
-        PSLegacyDefinitionXmlShim.selectDefinition(
-            "percSimpleText",
-            List.of(pkg),
-            widgetsXml,
-            null,
-            null);
+        PSLegacyDefinitionXmlShim.selectDefinition("percSimpleText", List.of(pkg), null, null);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, s.getKind());
     assertEquals(manifest, s.getPrimaryPath().orElseThrow());
   }

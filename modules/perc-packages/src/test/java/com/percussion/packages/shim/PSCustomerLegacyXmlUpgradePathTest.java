@@ -90,9 +90,10 @@ class PSCustomerLegacyXmlUpgradePathTest {
         readFixture(WIDGET_FIXTURE),
         StandardCharsets.UTF_8);
 
+    // The retired Widget XML leftover stays on disk but is never probed (#6440).
     PSDefinitionSourceSelection selection =
         PSLegacyDefinitionXmlShim.selectDefinition(
-            WIDGET_DEFINITION_ID, List.of(packageRoot), legacyWidgetsDir, null, null);
+            WIDGET_DEFINITION_ID, List.of(packageRoot), null, null);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, selection.getKind());
     assertTrue(selection.isModern());
     assertEquals(manifestPath, selection.getPrimaryPath().orElseThrow());
@@ -116,8 +117,7 @@ class PSCustomerLegacyXmlUpgradePathTest {
     PSComponentPackageManifestIo.write(manifest, manifestPath);
 
     PSDefinitionSourceSelection selection =
-        PSLegacyDefinitionXmlShim.selectDefinition(
-            PAGE_DEFINITION_ID, List.of(modernDir), null, null, null);
+        PSLegacyDefinitionXmlShim.selectDefinition(PAGE_DEFINITION_ID, List.of(modernDir), null, null);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, selection.getKind());
     assertTrue(selection.isModern());
     assertEquals(manifestPath, selection.getPrimaryPath().orElseThrow());
@@ -143,7 +143,7 @@ class PSCustomerLegacyXmlUpgradePathTest {
 
     PSDefinitionSourceSelection selection =
         PSLegacyDefinitionXmlShim.selectDefinition(
-            GADGET_DEFINITION_ID, List.of(modernDir), null, null, null);
+            GADGET_DEFINITION_ID, List.of(modernDir), null, null);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, selection.getKind());
     assertTrue(selection.isModern());
     assertEquals(manifestPath, selection.getPrimaryPath().orElseThrow());
@@ -159,18 +159,20 @@ class PSCustomerLegacyXmlUpgradePathTest {
         readFixture(WIDGET_FIXTURE),
         StandardCharsets.UTF_8);
 
+    // Widget legacy path removed (#6440): the on-disk Widget XML is inert (never probed, never
+    // named) — the retired error points at the compiler upgrade path instead.
     PSDefinitionSourceNotFoundException ex =
         assertThrows(
             PSDefinitionSourceNotFoundException.class,
             () ->
                 PSLegacyDefinitionXmlShim.selectDefinition(
-                    WIDGET_DEFINITION_ID, List.of(), legacyWidgetsDir, null, null));
+                    WIDGET_DEFINITION_ID, List.of(), null, null));
     assertTrue(
         ex.getMessage().contains("compiler"),
         "retired error must point at the compiler upgrade path: " + ex.getMessage());
-    assertTrue(
+    assertFalse(
         ex.getMessage().contains(WIDGET_DEFINITION_ID + ".xml"),
-        "retired error must name the retired file: " + ex.getMessage());
+        "removed widget probe must not name the retired file: " + ex.getMessage());
     assertFalse(PSLegacyDefinitionXmlShim.wouldUseLegacyShim(tempDir));
   }
 

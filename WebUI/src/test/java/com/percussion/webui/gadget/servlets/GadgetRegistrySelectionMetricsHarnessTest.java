@@ -25,12 +25,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 /**
- * CI-assertable modern-only load selection <strong>metrics evidence harness</strong> for {@link
- * GadgetRegistry} (#3131 / parent #2630; #5810 retired the legacy fallback).
+ * CI-assertable modern-only single-load selection <strong>metrics evidence harness</strong> for
+ * {@link GadgetRegistry} (#3131 / parent #2630; #5810 retired the legacy fallback, #6440 removed
+ * the dual-load selection).
  *
  * <p>Drives modern and none paths and asserts cumulative counters, snapshot map, and ops summary
- * string. Metric keys and log format are unchanged from the dual-load era for QA telemetry
- * compatibility; the {@code legacyRegistryXml} counter always reads {@code 0}.
+ * string. The retired {@code legacyRegistryXml} counter/key is gone.
  */
 public class GadgetRegistrySelectionMetricsHarnessTest {
 
@@ -48,36 +48,30 @@ public class GadgetRegistrySelectionMetricsHarnessTest {
     assertFalse(map.isEmpty());
     assertEquals(GadgetRegistry.Source.MODERN_CATALOG, GadgetRegistry.getLastLoadSource());
     assertEquals(1L, GadgetRegistry.getModernLoadCount());
-    assertEquals(0L, GadgetRegistry.getLegacyLoadCount());
     assertEquals(0L, GadgetRegistry.getNoneLoadCount());
     assertEquals(1L, GadgetRegistry.getTotalLoadCount());
     assertEquals(map.size(), GadgetRegistry.getLastLoadEntryCount());
   }
 
   @Test
-  public void modernOnly_countsNoneWhenModernAbsent_despiteLegacyRegistryPresent() {
-    // #5810: legacy registry present but retired — records NONE, never LEGACY_REGISTRY_XML.
+  public void modernOnly_countsNoneWhenModernAbsent() {
+    // Single-load (#6440): absent modern catalog records NONE — there is no legacy source.
     Map<String, String> map =
         GadgetRegistry.loadGadgetTypeMap(
-            "com/percussion/webui/gadget/servlets/does-not-exist-catalog.json",
-            GadgetRegistry.REGISTRY_RESOURCE);
+            "com/percussion/webui/gadget/servlets/does-not-exist-catalog.json");
     assertTrue(map.isEmpty());
     assertEquals(GadgetRegistry.Source.NONE, GadgetRegistry.getLastLoadSource());
     assertEquals(0L, GadgetRegistry.getModernLoadCount());
-    assertEquals(0L, GadgetRegistry.getLegacyLoadCount());
     assertEquals(1L, GadgetRegistry.getNoneLoadCount());
   }
 
   @Test
   public void modernOnly_incrementsNoneCounterWhenBothMissing() {
     Map<String, String> map =
-        GadgetRegistry.loadGadgetTypeMap(
-            "com/percussion/webui/gadget/servlets/missing-a.json",
-            "com/percussion/webui/gadget/servlets/missing-b.xml");
+        GadgetRegistry.loadGadgetTypeMap("com/percussion/webui/gadget/servlets/missing-a.json");
     assertTrue(map.isEmpty());
     assertEquals(GadgetRegistry.Source.NONE, GadgetRegistry.getLastLoadSource());
     assertEquals(0L, GadgetRegistry.getModernLoadCount());
-    assertEquals(0L, GadgetRegistry.getLegacyLoadCount());
     assertEquals(1L, GadgetRegistry.getNoneLoadCount());
   }
 
@@ -85,16 +79,12 @@ public class GadgetRegistrySelectionMetricsHarnessTest {
   public void successiveLoads_accumulateModernAndNoneWithZeroLegacy() {
     GadgetRegistry.loadGadgetTypeMap(); // modern
     GadgetRegistry.loadGadgetTypeMap(
-        "com/percussion/webui/gadget/servlets/does-not-exist-catalog.json",
-        GadgetRegistry.REGISTRY_RESOURCE); // none (legacy retired)
-    GadgetRegistry.loadGadgetTypeMap(EMPTY_CATALOG_RESOURCE, GadgetRegistry.REGISTRY_RESOURCE);
-    // empty modern is none (no legacy fallback)
+        "com/percussion/webui/gadget/servlets/does-not-exist-catalog.json"); // none
+    GadgetRegistry.loadGadgetTypeMap(EMPTY_CATALOG_RESOURCE); // empty modern is none
     GadgetRegistry.loadGadgetTypeMap(
-        "com/percussion/webui/gadget/servlets/missing-a.json",
-        "com/percussion/webui/gadget/servlets/missing-b.xml"); // none
+        "com/percussion/webui/gadget/servlets/missing-a.json"); // none
 
     assertEquals(1L, GadgetRegistry.getModernLoadCount());
-    assertEquals(0L, GadgetRegistry.getLegacyLoadCount());
     assertEquals(3L, GadgetRegistry.getNoneLoadCount());
     assertEquals(4L, GadgetRegistry.getTotalLoadCount());
     assertEquals(GadgetRegistry.Source.NONE, GadgetRegistry.getLastLoadSource());
@@ -104,18 +94,18 @@ public class GadgetRegistrySelectionMetricsHarnessTest {
   public void snapshotAndSummary_exposeCountersAndLastSource() {
     GadgetRegistry.loadGadgetTypeMap();
     GadgetRegistry.loadGadgetTypeMap(
-        "com/percussion/webui/gadget/servlets/does-not-exist-catalog.json",
-        GadgetRegistry.REGISTRY_RESOURCE);
+        "com/percussion/webui/gadget/servlets/does-not-exist-catalog.json");
 
     Map<String, Long> snap = GadgetRegistry.getSelectionMetricsSnapshot();
+    assertEquals("snapshot carries modern + none + total only: " + snap, Integer.valueOf(3), Integer.valueOf(snap.size()));
     assertEquals(Long.valueOf(1L), snap.get("modern"));
-    assertEquals(Long.valueOf(0L), snap.get("legacyRegistryXml"));
     assertEquals(Long.valueOf(1L), snap.get("none"));
     assertEquals(Long.valueOf(2L), snap.get("total"));
 
     String summary = GadgetRegistry.formatSelectionMetricsSummary();
+    assertTrue(summary, summary.contains("single-load"));
     assertTrue(summary, summary.contains("modern=1"));
-    assertTrue(summary, summary.contains("legacyRegistryXml=0"));
+    assertFalse(summary, summary.contains("legacyRegistryXml"));
     assertTrue(summary, summary.contains("none=1"));
     assertTrue(summary, summary.contains("total=2"));
     assertTrue(summary, summary.contains("lastSource=NONE"));
@@ -129,7 +119,6 @@ public class GadgetRegistrySelectionMetricsHarnessTest {
     GadgetRegistry.resetSelectionMetrics();
 
     assertEquals(0L, GadgetRegistry.getModernLoadCount());
-    assertEquals(0L, GadgetRegistry.getLegacyLoadCount());
     assertEquals(0L, GadgetRegistry.getNoneLoadCount());
     assertEquals(0L, GadgetRegistry.getTotalLoadCount());
     assertEquals(GadgetRegistry.Source.NONE, GadgetRegistry.getLastLoadSource());
@@ -137,14 +126,11 @@ public class GadgetRegistrySelectionMetricsHarnessTest {
   }
 
   @Test
-  public void modernLoadIgnoresLegacyRegistryResource_countsAsModernOnly() {
-    // Product classpath still carries both resources; modern-only load reports modern.
-    Map<String, String> map =
-        GadgetRegistry.loadGadgetTypeMap(
-            GadgetRegistry.CATALOG_RESOURCE, GadgetRegistry.REGISTRY_RESOURCE);
+  public void modernLoadFromDefaultCatalog_countsAsModernOnly() {
+    // Single-load (#6440): the default load reads the modern catalog only.
+    Map<String, String> map = GadgetRegistry.loadGadgetTypeMap(GadgetRegistry.CATALOG_RESOURCE);
     assertFalse(map.isEmpty());
     assertEquals(GadgetRegistry.Source.MODERN_CATALOG, GadgetRegistry.getLastLoadSource());
     assertEquals(1L, GadgetRegistry.getModernLoadCount());
-    assertEquals(0L, GadgetRegistry.getLegacyLoadCount());
   }
 }

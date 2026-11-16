@@ -111,8 +111,7 @@ class PSModernPackageRootDefaultsTest {
 
     // Selection integration: modern wins when root is discovered
     PSDefinitionSourceSelection selection =
-        PSLegacyDefinitionXmlShim.selectDefinition(
-            "simplePageAutoList", roots, null, null, null);
+        PSLegacyDefinitionXmlShim.selectDefinition("simplePageAutoList", roots, null, null);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, selection.getKind());
   }
 
@@ -130,13 +129,12 @@ class PSModernPackageRootDefaultsTest {
     Path xml = widgets.resolve("customerOnly.xml");
     Files.writeString(xml, "<Widget/>", StandardCharsets.UTF_8);
 
-    // Modern-only (#2852): retired legacy XML is never selected, even when present.
+    // Modern-only (#2852; Widget legacy path removed #6440): retired Widget XML on disk is
+    // inert — never selected, never probed.
     PSDefinitionSourceNotFoundException ex =
         assertThrows(
             PSDefinitionSourceNotFoundException.class,
-            () ->
-                PSLegacyDefinitionXmlShim.selectDefinition(
-                    "customerOnly", roots, widgets, null, null));
+            () -> PSLegacyDefinitionXmlShim.selectDefinition("customerOnly", roots, null, null));
     assertEquals("customerOnly", ex.getDefinitionId());
     assertTrue(ex.getMessage().contains("retired"), ex.getMessage());
   }
@@ -165,8 +163,7 @@ class PSModernPackageRootDefaultsTest {
     assertTrue(hasBaseWidgets, "expected perc.baseWidgets among " + roots);
 
     PSDefinitionSourceSelection selection =
-        PSLegacyDefinitionXmlShim.selectDefinition(
-            "percSimpleText", roots, null, null, null);
+        PSLegacyDefinitionXmlShim.selectDefinition("percSimpleText", roots, null, null);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, selection.getKind());
   }
 

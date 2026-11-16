@@ -46,14 +46,14 @@ Hard order for a package root or definition id (**retired to modern-only** via #
 | Widget definitions (install) | `${rxdeploydir}/rxconfig/Widgets/*.xml` via `PSWidgetDao` (`projects/sitemanage/.../dao/impl/PSWidgetDao`) | Loads install Widget XML by file id; modern-only selection via `PSLegacyDefinitionXmlShim` (#2852) | Require modern: `widgetDao.modernPackageRoots` must have a matching `component-package.json`; **defaults (#3130):** blank property → `${rxdeploydir}/Packages/Modern` (+ classpath materialize); selection kind test-visible; XML content remains install wire format |
 | Package source trees | `modules/perc-packages/src/main/resources/Packages/<pkg>/` | Ships product `.ppkg` content including `sys__UserDependency--rxconfig/Widgets/*.xml` | Product conversion (#2751+) emits modern manifest; batch A dual-ships modern `widgets/<stem>/` (#2831) while install XML remains; product source of truth moves off XML (ADR-004) |
 | Package staging Widgets | `sys__UserDependency--rxconfig/Widgets/` or `rxconfig/Widgets/` under a package root | Upgrade-input / deploy layout | Shim package-root API resolves either layout |
-| Gadget registry | `WebUI/.../GadgetRegistry` modern-only load (`gadget-catalog.json`; legacy `GadgetRegistry.xml` fallback retired via [#5810](https://github.com/intersoftdatalabs-in/percussioncms/issues/5810)) | Product ships modern catalog; modern absent yields empty map + ERROR (no silent legacy load) | Modern-only (#2788 / #5810); INFO metrics + `getLastLoadSource()` / `getLastLoadEntryCount()` (#3025); `legacyRegistryXml` key retained, always 0 |
+| Gadget registry | `WebUI/.../GadgetRegistry` single-load (`gadget-catalog.json`; dual-load fallback removed #6440 after the #5810 retirement) | Product ships modern catalog; modern absent yields empty map + ERROR (no silent legacy load) | Single-load (#2788 / #5810 / #6440); INFO metrics + `getLastLoadSource()` / `getLastLoadEntryCount()` (#3025); `legacyRegistryXml` key removed |
 | Page meta / definition XML | Site/page storage dialects | Composition authoring legacy | Product layout packages (`perc.baseTemplates`, `perc.responsiveTemplates`) author modern `pages/` (#2786); native package install stages archive `TemplateDef-N/` without dual-ship roots (#2806). Shim recognizes `rxconfig/Pages` if present for customer defs |
 
 **Selection API (no Spring wiring required for unit use):**
 
 - `PSLegacyDefinitionXmlShim.selectByPresence(...)` — pure flags (tests / metrics)
 - `PSLegacyDefinitionXmlShim.selectForPackageRoot(Path)` — package directory
-- `PSLegacyDefinitionXmlShim.selectDefinition(id, modernRoots, widgetsDir, pagesDir, gadgetsDir)` — dual-run by id
+- `PSLegacyDefinitionXmlShim.selectDefinition(id, modernRoots, pagesDir, gadgetsDir)` — modern-only by id (Widget probe removed #6440)
 - **Production wire (#3024 / #3130):** `PSWidgetDao.selectDefinitionSource(id)` and poll-time `recordSelectionKinds` call `selectDefinition`; Spring `widgetDao.modernPackageRoots` (`File.pathSeparator` list) **or blank → product defaults** via `PSModernPackageRootDefaults` (`Packages/Modern` under `${rxdeploydir}`, classpath materialize when empty); `getLastSelectionKind()` / `getSelectionKindsById()` for tests and support.
 
 ## Time box / deprecation
@@ -100,14 +100,14 @@ The shim fallback and the gadget legacy fallback were retired; the conditions be
 
 | Surface | Log / API | How to interpret |
 |---------|-----------|------------------|
-| Widgets | INFO `Widget definition dual-run selection: modern=N, legacyWidgetXml=M, total=T` (+ cumulative fields after #3131) | After a repository poll: `M > 0` means at least some loaded ids classified as legacy (expected when modern roots empty or customer-only XML). `N` rises when modern package roots match ids. |
+| Widgets | INFO `Widget definition single-source selection: modern=N, total=T` (+ cumulative field after #3131; #6440 removed the `dual-run … legacyWidgetXml=M` shape) | After a repository poll: every classified id is modern (`N` rises when modern package roots match ids); unclassified ids (no modern manifest) log a clear warn. |
 | Widgets | `PSWidgetDao.getLastSelectionKind()` / `getSelectionKindsById()` | Last single selection / per-id map — use from tests or support probes |
-| Widgets | `PSWidgetDao.getModernPackageRoots()` | Empty ⇒ expect legacy kinds for install Widgets XML on disk (or missing modern tree) |
-| Widgets | `getSelectionMetricsSnapshot()` / `formatSelectionMetricsSummary()` / cumulative counters (#3131) | Process-lifetime modern vs legacy rate |
+| Widgets | `PSWidgetDao.getModernPackageRoots()` | Empty ⇒ install Widgets XML ids stay unclassified (no modern manifest; retired-legacy error on direct select) |
+| Widgets | `getSelectionMetricsSnapshot()` / `formatSelectionMetricsSummary()` / cumulative counters (#3131; legacy counters/keys removed #6440) | Process-lifetime modern rate |
 | Product / H2 roots | `PSProductPackageRootSelectionEvidence` + Surefire (#3583) | `wouldUseLegacyShim == false` / kind MODERN for non-waived widget packages; unexpected `LEGACY_*` fails CI |
-| Gadgets | INFO `Gadget registry dual-load selection: modern=…, legacyRegistryXml=…, none=…, entries=…, source=…` (format unchanged) | Product classpath shows modern; `legacyRegistryXml` always 0 after #5810 |
+| Gadgets | INFO `Gadget registry single-load selection: modern=…, none=…, entries=…, source=…` (#6440 removed the `dual-load … legacyRegistryXml=…` shape) | Product classpath shows modern |
 | Gadgets | `GadgetRegistry.getLastLoadSource()` / `getLastLoadEntryCount()` | Diagnostics / unit tests |
-| Gadgets | cumulative counters + `formatSelectionMetricsSummary()` (#3131) | Process-lifetime load rate (legacy counter always 0 after #5810) |
+| Gadgets | cumulative counters + `formatSelectionMetricsSummary()` (#3131; legacy counter/key removed #6440) | Process-lifetime load rate |
 
 See criteria § **How to measure M2** for CI harness tests.
 
@@ -116,11 +116,11 @@ See criteria § **How to measure M2** for CI harness tests.
 M2 becomes **PASS** only when **all** hold (document on #2852 when claiming):
 
 1. Product / QA installs have modern roots available (explicit property **or** product defaults from #3130).
-2. Over the agreed time-box, widget `legacyWidgetXml` rate is **0** (or an explicit waiver list with owner + sunset date).
-3. Gadget product path reports modern catalog with **no** production dependence on `LEGACY_REGISTRY_XML` (retired #5810; legacy counter always 0).
+2. Widget legacy rate is structurally **0** after #6440 (no `LEGACY_WIDGET_XML` kind or probe remains; historical: `legacyWidgetXml` rate 0 or waived with owner + sunset).
+3. Gadget product path reports modern catalog with **no** production dependence on legacy selection (`LEGACY_REGISTRY_XML` removed #6440 after the #5810 retirement).
 4. Evidence is attached (log excerpts and/or counter snapshots) — not chat assertion alone.
 
-Historical note: the shim stayed until #2852 retired it (2026-11-08); the gadget fallback stayed until #5810 retired it.
+Historical note: the shim stayed until #2852 retired it (2026-11-08); the gadget fallback stayed until #5810 retired it; the Widget legacy path and gadget dual-load selection were removed by #6440 (Page / Gadget probes remain for sibling slices).
 
 ### H2 `qa-up` (docker / local QA)
 
@@ -129,8 +129,8 @@ Historical note: the shim stayed until #2852 retired it (2026-11-08); the gadget
 | 1 | Bring up CMS via project H2 `qa-up` / docker compose path used by the team | Server starts; widgets load |
 | 2 | Confirm install Widgets dir exists (`${rxdeploydir}/rxconfig/Widgets`) | Product widgets present as install wire XML (materialized) |
 | 3 | With #3130 defaults: leave `widgetDao.modernPackageRoots` blank (discovers `Packages/Modern` + classpath materialize) **or** set an explicit path-separator list for a custom tree | `getModernPackageRoots()` non-empty when modern tree present |
-| 4 | Exercise widget list / page edit that loads definitions (poll triggers `recordSelectionKinds`) | INFO line appears with `modern=` / `legacyWidgetXml=` |
-| 5 | Open dashboard (gadget type map load) | INFO gadget load line; product classpath `source=MODERN_CATALOG` (legacy retired #5810) |
+| 4 | Exercise widget list / page edit that loads definitions (poll triggers `recordSelectionKinds`) | INFO `single-source selection` line appears with `modern=` / `total=` |
+| 5 | Open dashboard (gadget type map load) | INFO `single-load selection` line; product classpath `source=MODERN_CATALOG` (dual-load selection removed #6440) |
 | 6 | Capture log excerpts / `formatSelectionMetricsSummary()` for any M2 discussion | Attach to #2852 only when claiming zero-legacy — do **not** open deletion work from PARTIAL metrics |
 
 ### Product install (full installer / upgrade)
@@ -151,7 +151,7 @@ Historical note: the shim stayed until #2852 retired it (2026-11-08); the gadget
 | `widgetDao.modernPackageRoots` | `File.pathSeparator`-separated paths. **Blank default** → `PSModernPackageRootDefaults` discovers `${rxdeploydir}/Packages/Modern` (+ classpath materialize when empty). Explicit list still overrides. |
 | Widgets repository | `${rxdeploydir}/rxconfig/Widgets` (existing DAO repository directory) |
 | Gadget modern resource | Classpath `com/percussion/webui/gadget/servlets/gadget-catalog.json` |
-| Gadget legacy resource | Classpath `…/GadgetRegistry.xml` (retired fallback via #5810; never loaded — kept on classpath, **do not reintroduce** as a load path) |
+| Gadget legacy resource | Classpath `…/GadgetRegistry.xml` (retired fallback via #5810, unreferenced since #6440 removed `REGISTRY_RESOURCE`; never loaded — kept on classpath, **do not reintroduce** as a load path) |
 
 ### Product / H2 default modern roots (#3130)
 

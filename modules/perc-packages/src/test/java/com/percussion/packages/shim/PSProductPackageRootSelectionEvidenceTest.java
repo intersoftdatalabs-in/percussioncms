@@ -161,7 +161,7 @@ class PSProductPackageRootSelectionEvidenceTest {
       }
     }
     PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyDefinitions(
-        modernRoots, null, modernIds, Set.of());
+        modernRoots, modernIds, Set.of());
   }
 
   @Test
@@ -215,12 +215,11 @@ class PSProductPackageRootSelectionEvidenceTest {
         "<Widget id=\"customerOnlyXml\"/>",
         StandardCharsets.UTF_8);
 
-    PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyDefinitions(
-        roots, widgetsDir, ids, Set.of());
+    PSProductPackageRootSelectionEvidence.assertNoUnexpectedLegacyDefinitions(roots, ids, Set.of());
 
     PSProductPackageRootSelectionEvidence.Report defs =
         PSProductPackageRootSelectionEvidence.scanDefinitionSelection(
-            roots, widgetsDir, List.of("customerOnlyXml"), Set.of());
+            roots, List.of("customerOnlyXml"), Set.of());
     assertEquals(1, defs.definitions().size());
     assertEquals(null, defs.definitions().get(0).kind());
     assertFalse(defs.definitions().get(0).isUnexpectedLegacy());
@@ -383,21 +382,16 @@ class PSProductPackageRootSelectionEvidenceTest {
   }
 
   @Test
-  void scanDefinitionSelection_waivedLegacyOnlyIdResolvesNullKindButStaysClean() {
+  void scanDefinitionSelection_waivedLegacyOnlyIdResolvesNullKindButStaysClean() throws Exception {
+    // Widget legacy path removed (#6440): on-disk Widget XML is inert — the id is unresolvable
+    // (null kind) and the report stays clean, with no widget probe in the selection path.
     Path widgets = tempDir.resolve("Widgets");
-    try {
-      Files.createDirectories(widgets);
-      Files.writeString(
-          widgets.resolve("PSWidget_TestProperties.xml"), "<Widget/>", StandardCharsets.UTF_8);
-    } catch (Exception e) {
-      throw new AssertionError(e);
-    }
+    Files.createDirectories(widgets);
+    Files.writeString(
+        widgets.resolve("PSWidget_TestProperties.xml"), "<Widget/>", StandardCharsets.UTF_8);
     PSProductPackageRootSelectionEvidence.Report report =
         PSProductPackageRootSelectionEvidence.scanDefinitionSelection(
-            List.of(),
-            widgets,
-            List.of("PSWidget_TestProperties"),
-            Set.of("PSWidget_TestProperties"));
+            List.of(), List.of("PSWidget_TestProperties"), Set.of("PSWidget_TestProperties"));
     assertTrue(report.isClean());
     // Modern-only (#2852): even a waived id without a modern manifest is unresolvable (null
     // kind) — retired legacy XML is never selected.

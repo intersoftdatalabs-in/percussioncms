@@ -51,12 +51,13 @@ import org.springframework.stereotype.Component;
  * Loads widget definitions from install {@code rxconfig/Widgets} (install Widget definition XML
  * wire format, materialised from modern packages by package-build emitters).
  *
- * <p><strong>Modern-only selection (ADR-004 / #2852 / parent #2632; dual-run retired):</strong>
- * each loaded definition id is classified via {@link PSLegacyDefinitionXmlShim#selectDefinition}
- * against modern package roots, and the shim is now modern-only — {@link
- * PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE} when a Component Package Manifest is present
- * for that id, otherwise a clear {@link PSDefinitionSourceNotFoundException} (retired legacy XML
- * is never selected). Selection kind is test-visible and logged for Phase 5 exit metrics.
+ * <p><strong>Modern-only selection (ADR-004 / #2852 / parent #2632; Widget legacy path removed
+ * #6440):</strong> each loaded definition id is classified via {@link
+ * PSLegacyDefinitionXmlShim#selectDefinition} against modern package roots, and the shim is now
+ * modern-only — {@link PSDefinitionSourceKind#MODERN_COMPONENT_PACKAGE} when a Component Package
+ * Manifest is present for that id, otherwise a clear {@link PSDefinitionSourceNotFoundException}
+ * (retired legacy is never selected). Selection kind is test-visible and logged. Install Widget
+ * XML on disk is content only — it is never probed as a selection source.
  *
  * <p><strong>Default modern roots (#3130):</strong> when Spring property {@code
  * widgetDao.modernPackageRoots} is blank, roots are resolved from {@link
@@ -69,11 +70,11 @@ import org.springframework.stereotype.Component;
  * each id; ids without a modern manifest are logged clearly and left unclassified (no legacy
  * fallback).
  *
- * <p><strong>Metrics compat (#3131 / #3583 / #3738 / QA #5808):</strong> cumulative modern /
- * legacy selection counters ({@link #getModernSelectionCount()}, {@link
- * #getLegacySelectionCount()}), per-poll kinds, and {@link #formatSelectionMetricsSummary()} keep
- * their keys and log format; legacy counts read {@code 0} after retirement. Reset with {@link
- * #resetSelectionMetrics()} in tests / probes only. Product/H2 zero-legacy-selection: {@code
+ * <p><strong>Metrics (#3131 / #3583 / #3738 / QA #5808; Widget legacy counters removed
+ * #6440):</strong> cumulative modern selections ({@link #getModernSelectionCount()}), per-poll
+ * kinds, and {@link #formatSelectionMetricsSummary()} keep their keys and log format minus the
+ * retired {@code legacyWidgetXml} field. Reset with {@link #resetSelectionMetrics()} in tests /
+ * probes only. Product/H2 zero-legacy-selection: {@code
  * PSProductPackageRootSelectionEvidence} plus {@code PSWidgetDaoProductH2ZeroLegacySelectionTest}
  * assert {@code MODERN_COMPONENT_PACKAGE} for product widgets.
  *
@@ -108,12 +109,6 @@ public class PSWidgetDao
    * {@link #selectDefinitionSource(String)} and by each id classified during repository poll.
    */
   private final AtomicLong modernSelectionCount = new AtomicLong();
-
-  /**
-   * Cumulative legacy Widget-XML fallback selections (process lifetime of this bean). Same
-   * increment points as {@link #modernSelectionCount}.
-   */
-  private final AtomicLong legacySelectionCount = new AtomicLong();
 
   /** Modern package roots consulted for modern-only selection (empty = ids fail clearly until roots are configured). */
   private volatile List<Path> modernPackageRoots = List.of();
@@ -158,34 +153,28 @@ public class PSWidgetDao
    * @param data loaded widget definitions (non-null)
    */
   private void recordSelectionKinds(PSWidgetDefinitionData data) {
-    Path widgetsDir = resolveWidgetsDir();
     List<Path> modernRoots = modernPackageRoots;
     Map<String, PSDefinitionSourceKind> kinds = new LinkedHashMap<>();
     PSDefinitionSourceKind last = null;
     int modernCount = 0;
-    int legacyCount = 0;
     for (String id : data.widgetDefinitionsMap.keySet()) {
       try {
         PSDefinitionSourceSelection selection =
-            PSLegacyDefinitionXmlShim.selectDefinition(
-                id, modernRoots, widgetsDir, null, null);
+            PSLegacyDefinitionXmlShim.selectDefinition(id, modernRoots, null, null);
         kinds.put(id, selection.getKind());
         last = selection.getKind();
-        if (selection.isModern()) {
-          modernCount++;
-        } else {
-          legacyCount++;
-        }
+        modernCount++;
         if (log.isDebugEnabled()) {
           log.debug(
-              "Widget definition dual-run source id={} kind={} path={}",
+              "Widget definition single-source id={} kind={} path={}",
               id,
               selection.getKind(),
               selection.getPrimaryPath().map(Path::toString).orElse(""));
         }
       } catch (PSDefinitionSourceNotFoundException e) {
-        // Modern-only selection (#2852): the id has no modern manifest, so it stays
-        // unclassified. The failure is logged clearly (retired legacy is never selected).
+        // Modern-only selection (#2852; Widget legacy path removed #6440): the id has no
+        // modern manifest, so it stays unclassified. The failure is logged clearly
+        // (retired legacy is never selected).
         log.warn(
             "Widget definition has no modern component package for loaded id '{}': {}",
             id,
@@ -199,24 +188,19 @@ public class PSWidgetDao
     if (modernCount > 0) {
       modernSelectionCount.addAndGet(modernCount);
     }
-    if (legacyCount > 0) {
-      legacySelectionCount.addAndGet(legacyCount);
-    }
     if (!kinds.isEmpty()) {
       log.info(
-          "Widget definition dual-run selection: modern={}, legacyWidgetXml={}, total={}, cumulativeModern={}, cumulativeLegacy={}",
+          "Widget definition single-source selection: modern={}, total={}, cumulativeModern={}",
           modernCount,
-          legacyCount,
           kinds.size(),
-          modernSelectionCount.get(),
-          legacySelectionCount.get());
+          modernSelectionCount.get());
     }
   }
 
   /**
-   * Modern-only selection for a single definition id (#2852). Updates {@link
-   * #getLastSelectionKind()}. Fails clearly when no modern package is present (retired legacy XML
-   * is never loaded; nothing is invented).
+   * Modern-only selection for a single definition id (#2852; Widget legacy path removed #6440).
+   * Updates {@link #getLastSelectionKind()}. Fails clearly when no modern package is present
+   * (retired legacy XML is never loaded; nothing is invented).
    *
    * @param definitionId non-blank widget definition id
    * @return selection result (never null; always modern)
@@ -227,14 +211,9 @@ public class PSWidgetDao
       throws PSDefinitionSourceNotFoundException {
     PSDefinitionSourceSelection selection =
         PSLegacyDefinitionXmlShim.selectDefinition(
-            definitionId, modernPackageRoots, resolveWidgetsDir(), null, null);
+            definitionId, modernPackageRoots, null, null);
     lastSelectionKind.set(selection.getKind());
-    if (selection.isModern()) {
-      modernSelectionCount.incrementAndGet();
-    } else {
-      // Legacy widget / page / gadget XML kinds all count as non-modern dual-run hits.
-      legacySelectionCount.incrementAndGet();
-    }
+    modernSelectionCount.incrementAndGet();
     log.debug(
         "Widget selectDefinitionSource id={} kind={}", definitionId, selection.getKind());
     return selection;
@@ -270,47 +249,33 @@ public class PSWidgetDao
   }
 
   /**
-   * Cumulative count of legacy Widget-XML (or other non-modern) selections since construction or
-   * last {@link #resetSelectionMetrics()}. Always {@code 0} after the #2852 retirement (legacy is
-   * never selected); kept for metrics-API compatibility with M2 QA tracking (#5808).
-   *
-   * @return non-negative count
-   */
-  public long getLegacySelectionCount() {
-    return legacySelectionCount.get();
-  }
-
-  /**
-   * Total dual-run selections counted ({@link #getModernSelectionCount()} + {@link
-   * #getLegacySelectionCount()}).
+   * Total modern-only selections counted ({@link #getModernSelectionCount()}).
    *
    * @return non-negative count
    */
   public long getTotalSelectionCount() {
-    return modernSelectionCount.get() + legacySelectionCount.get();
+    return modernSelectionCount.get();
   }
 
   /**
    * Snapshot of cumulative modern-only selection counters for CI assertions and support probes.
    *
-   * <p>Keys: {@code modern}, {@code legacyWidgetXml}, {@code total}. Never null. The {@code
-   * legacyWidgetXml} key is retained for dashboard compatibility and reads {@code 0} (#2852).
+   * <p>Keys: {@code modern}, {@code total}. Never null. The retired {@code legacyWidgetXml}
+   * key was removed with the Widget legacy path (#6440).
    *
    * @return unmodifiable map of counter name → value
    */
   public Map<String, Long> getSelectionMetricsSnapshot() {
     long modern = modernSelectionCount.get();
-    long legacy = legacySelectionCount.get();
     Map<String, Long> snap = new LinkedHashMap<>(4);
     snap.put("modern", modern);
-    snap.put("legacyWidgetXml", legacy);
-    snap.put("total", modern + legacy);
+    snap.put("total", modern);
     return Collections.unmodifiableMap(snap);
   }
 
   /**
    * Single-line ops / log summary of modern-only selection metrics (parity with INFO poll line and
-   * WebUI {@code GadgetRegistry} dual-load summary; format unchanged for #5808 telemetry).
+   * WebUI {@code GadgetRegistry} single-load summary).
    *
    * @return never blank
    */
@@ -318,9 +283,8 @@ public class PSWidgetDao
     Map<String, Long> snap = getSelectionMetricsSnapshot();
     PSDefinitionSourceKind last = lastSelectionKind.get();
     return String.format(
-        "Widget definition dual-run selection metrics: modern=%d, legacyWidgetXml=%d, total=%d, lastKind=%s, lastPollIds=%d",
+        "Widget definition single-source selection metrics: modern=%d, total=%d, lastKind=%s, lastPollIds=%d",
         snap.get("modern"),
-        snap.get("legacyWidgetXml"),
         snap.get("total"),
         last != null ? last.name() : "none",
         selectionKindsById.get().size());
@@ -332,13 +296,12 @@ public class PSWidgetDao
    */
   public void resetSelectionMetrics() {
     modernSelectionCount.set(0L);
-    legacySelectionCount.set(0L);
     lastSelectionKind.set(null);
     selectionKindsById.set(Map.of());
   }
 
   /**
-   * Modern package roots used for dual-run selection (directories that may contain {@code
+   * Modern package roots used for modern-only selection (directories that may contain {@code
    * component-package.json} or nested {@code widgets/&lt;id&gt;/component-package.json}).
    *
    * @return unmodifiable list (never null)
@@ -348,7 +311,7 @@ public class PSWidgetDao
   }
 
   /**
-   * Sets modern package roots for dual-run selection (programmatic / tests). Disables product
+   * Sets modern package roots for modern-only selection (programmatic / tests). Disables product
    * default re-apply until a new Spring property is injected.
    *
    * @param roots package root directories; {@code null} or empty means modern-only selection
@@ -423,7 +386,7 @@ public class PSWidgetDao
                     .normalize()
                 : null;
         log.info(
-            "Widget dual-run modern package roots ({}): defaultDir={}, resolvedRoots={}, count={}",
+            "Widget modern-only package roots ({}): defaultDir={}, resolvedRoots={}, count={}",
             modernPackageRootsProperty == null || modernPackageRootsProperty.isBlank()
                 ? "product-default"
                 : "explicit",
@@ -439,14 +402,6 @@ public class PSWidgetDao
           e);
       this.modernPackageRoots = List.of();
     }
-  }
-
-  private Path resolveWidgetsDir() {
-    String dir = getRepositoryDirectory();
-    if (dir == null || dir.isBlank()) {
-      return null;
-    }
-    return Path.of(dir).toAbsolutePath().normalize();
   }
 
   @Override

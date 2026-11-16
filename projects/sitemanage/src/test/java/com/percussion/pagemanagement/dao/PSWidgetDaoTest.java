@@ -107,15 +107,20 @@ class PSWidgetDaoTest {
 
     dao.setModernPackageRoots(List.of());
 
-    // Modern-only (#2852): retired legacy XML is never selected.
+    // Modern-only (#2852; Widget legacy path removed #6440): retired Widget XML on disk is
+    // inert — never probed, never named, never counted.
     PSDefinitionSourceNotFoundException ex =
         assertThrows(
             PSDefinitionSourceNotFoundException.class, () -> dao.selectDefinitionSource(id));
     assertEquals(id, ex.getDefinitionId());
     String msg = ex.getMessage();
     assertTrue(msg.contains("retired"), msg);
-    assertTrue(msg.contains("percRawHtml.xml"), msg);
-    assertEquals(0L, dao.getLegacySelectionCount());
+    assertFalse(
+        msg.contains("percRawHtml.xml"),
+        "removed widget probe must not name the retired file: " + msg);
+    // The retired throw counts nothing: no modern selection, no legacy counter to consult.
+    assertEquals(0L, dao.getTotalSelectionCount());
+    assertEquals(0L, dao.getModernSelectionCount());
   }
 
   @Test
@@ -171,7 +176,7 @@ class PSWidgetDaoTest {
     assertNotNull(dao.find(id));
     assertFalse(dao.getSelectionKindsById().containsKey(id));
     assertEquals(0L, dao.getModernSelectionCount());
-    assertEquals(0L, dao.getLegacySelectionCount());
+    assertEquals(0L, dao.getTotalSelectionCount());
   }
 
   @Test
