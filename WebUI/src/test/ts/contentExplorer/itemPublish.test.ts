@@ -27,6 +27,7 @@ vi.mock("../../../main/ts/api/contentExplorer/pathApi", async (importOriginal) =
 });
 
 import {
+  buildBulkStageRows,
   formatTakedownConfirmBody,
   isPublishingHistoryActionName,
   isRemoveFromStagingActionName,
@@ -978,5 +979,68 @@ describe("removeFromStagingSelectedItem", () => {
     expect(isRemoveFromStagingActionName("unstage")).toBe(true);
     expect(isRemoveFromStagingActionName("Stage")).toBe(false);
     expect(isRemoveFromStagingActionName("Take_Down")).toBe(false);
+  });
+});
+
+describe("buildBulkStageRows (#6469)", () => {
+  it("orders rows by selection with ok, failed, and skipped outcomes", () => {
+    const rows = buildBulkStageRows(
+      [
+        item({ id: "42", name: "Home" }),
+        item({ id: "43", name: "About" }),
+        item({
+          id: "7",
+          name: "News",
+          path: "/Sites/Demo/News",
+          type: "folder",
+          leaf: false,
+        }),
+        item({
+          id: "77",
+          name: "base",
+          path: "/Design/Templates/base",
+          type: "percTemplate",
+        }),
+      ],
+      {
+        okIds: ["42"],
+        skippedFolders: ["News"],
+        skippedOther: ["base"],
+        failures: [
+          { id: "43", name: "About", status: 409, message: "HTTP 409" },
+        ],
+      },
+    );
+    expect(rows).toEqual([
+      { name: "Home", outcome: "ok" },
+      { name: "About", outcome: "failed", detail: "HTTP 409" },
+      { name: "News", outcome: "skipped-folder" },
+      { name: "base", outcome: "skipped-other" },
+    ]);
+  });
+
+  it("falls back to the failure message when no HTTP status was recorded", () => {
+    const rows = buildBulkStageRows([item({ id: "42", name: "Home" })], {
+      okIds: [],
+      skippedFolders: [],
+      skippedOther: [],
+      failures: [{ id: "42", name: "Home", message: "not staged" }],
+    });
+    expect(rows).toEqual([
+      { name: "Home", outcome: "failed", detail: "not staged" },
+    ]);
+  });
+
+  it("appends failures that name no selected row instead of dropping them", () => {
+    const rows = buildBulkStageRows([item({ id: "42", name: "Home" })], {
+      okIds: ["42"],
+      skippedFolders: [],
+      skippedOther: [],
+      failures: [{ id: "99", name: "logo", status: 403, message: "HTTP 403" }],
+    });
+    expect(rows).toEqual([
+      { name: "Home", outcome: "ok" },
+      { name: "logo", outcome: "failed", detail: "HTTP 403" },
+    ]);
   });
 });

@@ -987,6 +987,136 @@ export function describeRemoveFromStagingBatch(
   return parts.join(" ");
 }
 
+/** One row of the bulk stage/unstage per-item report (#6469, parent #4530). */
+export type BulkStageRowOutcome =
+  | "ok"
+  | "failed"
+  | "skipped-folder"
+  | "skipped-other";
+
+export interface BulkStageRow {
+  name: string;
+  outcome: BulkStageRowOutcome;
+  detail?: string;
+}
+
+/**
+ * Batch shape the per-item report consumes. Both {@link StageBatchResult}
+ * (via {@code stagedIds}) and {@link RemoveFromStagingBatchResult} (via
+ * {@code removedIds}) map onto it at the call site.
+ */
+export interface BulkStageReportInput {
+  okIds: string[];
+  skippedFolders: string[];
+  skippedOther: string[];
+  failures: StageItemFailure[];
+}
+
+/**
+ * Build the per-item report rows for a bulk stage/unstage run (#6469).
+ * Rows follow the selection order; failures that name no selected row are
+ * appended so no outcome is dropped silently.
+ */
+export function buildBulkStageRows(
+  items: readonly PSPathItem[],
+  result: BulkStageReportInput,
+): BulkStageRow[] {
+  const ok = new Set(
+    result.okIds.map((id) => (id ?? "").trim()).filter((id) => id !== ""),
+  );
+  const failures = indexBulkStageFailures(result.failures);
+  const folders = new Set(result.skippedFolders);
+  const other = new Set(result.skippedOther);
+  const rows: BulkStageRow[] = [];
+  const seen = new Set<string>();
+  for (const item of items) {
+    const id = (item.id ?? "").trim();
+    const key = id || `name:${stageItemLabel(item)}`;
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    const row = bulkStageRowForSelection(item, ok, failures, folders, other);
+    if (row) {
+      rows.push(row);
+    }
+  }
+  appendUnselectedFailures(items, result.failures, failures, rows);
+  return rows;
+}
+
+/** First failure wins per id so duplicate reports do not double-count. */
+function indexBulkStageFailures(
+  failures: readonly StageItemFailure[],
+): Map<string, StageItemFailure> {
+  const byId = new Map<string, StageItemFailure>();
+  for (const failure of failures) {
+    const id = (failure.id ?? "").trim();
+    if (id && !byId.has(id)) {
+      byId.set(id, failure);
+    }
+  }
+  return byId;
+}
+
+function failedBulkStageRow(
+  failure: StageItemFailure,
+  fallback: string,
+): BulkStageRow {
+  return {
+    name: failure.name || fallback,
+    outcome: "failed",
+    detail:
+      failure.status != null
+        ? `HTTP ${failure.status}`
+        : failure.message || undefined,
+  };
+}
+
+/** Null when the row was neither staged nor named anywhere in the result. */
+function bulkStageRowForSelection(
+  item: PSPathItem,
+  ok: ReadonlySet<string>,
+  failures: ReadonlyMap<string, StageItemFailure>,
+  folders: ReadonlySet<string>,
+  other: ReadonlySet<string>,
+): BulkStageRow | null {
+  const id = (item.id ?? "").trim();
+  const label = stageItemLabel(item);
+  const failure = id ? failures.get(id) : undefined;
+  if (failure) {
+    return failedBulkStageRow(failure, label);
+  }
+  if (id && ok.has(id)) {
+    return { name: label, outcome: "ok" };
+  }
+  if (folders.has(label)) {
+    return { name: label, outcome: "skipped-folder" };
+  }
+  if (other.has(label)) {
+    return { name: label, outcome: "skipped-other" };
+  }
+  return null;
+}
+
+function appendUnselectedFailures(
+  items: readonly PSPathItem[],
+  failures: readonly StageItemFailure[],
+  indexed: ReadonlyMap<string, StageItemFailure>,
+  rows: BulkStageRow[],
+): void {
+  for (const failure of failures) {
+    const id = (failure.id ?? "").trim();
+    if (!id || indexed.get(id) !== failure) {
+      continue;
+    }
+    const known = items.some((item) => (item.id ?? "").trim() === id);
+    if (!known) {
+      rows.push(failedBulkStageRow(failure, id));
+    }
+  }
+}
+
 /**
  * Remove pages and assets that are direct children of a folder from
  * staging. Nested folders are skipped (unstage those folders
