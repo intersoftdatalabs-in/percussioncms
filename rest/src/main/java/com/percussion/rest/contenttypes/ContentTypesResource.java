@@ -1105,6 +1105,10 @@ public class ContentTypesResource {
   static String contentDispositionAttachment(String filename) {
     return "attachment; filename=\""
         + asciiFilenameFallback(filename)
+        // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6525) —
+        // RFC 6266 wire literal: the backslash is the Java escape for the quoted-filename
+        // delimiter, not a filesystem path join; byte-identical on all platforms by protocol
+        // (same class as the #5825/#5875 protocol-level filename documentation above).
         + "\"; filename*=UTF-8''"
         + rfc5987Encode(filename);
   }
