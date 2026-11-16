@@ -45,7 +45,10 @@ describe("SiteDescriptionPanel", () => {
       description: "After hours",
     });
     const { unmount } = render(<SiteDescriptionPanel siteName="NightlySite" />);
-    expect(await screen.findByTestId("publish-site-description")).toHaveTextContent("Before");
+    // The testid is present on first paint with placeholder "—"; wait for GET.
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-site-description")).toHaveTextContent("Before");
+    });
     fireEvent.click(screen.getByTestId("publish-site-description-edit"));
     fireEvent.change(screen.getByTestId("publish-site-description-input"), {
       target: { value: "  After hours  " },
@@ -57,19 +60,31 @@ describe("SiteDescriptionPanel", () => {
         description: "After hours",
       });
     });
-    expect(screen.getByTestId("publish-site-description")).toHaveTextContent("After hours");
+    // PUT resolution and the React commit that follows land on separate
+    // ticks; under full-suite contention the commit can lag the mock-call
+    // observation, so retry the text assertion instead of reading once.
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-site-description")).toHaveTextContent(
+        "After hours",
+      );
+    });
     expect(screen.getByTestId("publish-site-description-saved")).toBeTruthy();
     expect(screen.queryByTestId("publish-site-description-form")).toBeNull();
 
     unmount();
+    getSiteMock.mockReset();
     getSiteMock.mockResolvedValue({
       name: "NightlySite",
       description: "After hours",
     });
     render(<SiteDescriptionPanel siteName="NightlySite" />);
-    expect(await screen.findByTestId("publish-site-description")).toHaveTextContent(
-      "After hours",
-    );
+    // Remount paints "—" until GET resolves; findByTestId would match too early.
+    await waitFor(() => {
+      expect(getSiteMock).toHaveBeenCalledWith("NightlySite");
+      expect(screen.getByTestId("publish-site-description")).toHaveTextContent(
+        "After hours",
+      );
+    });
   });
 
   it("does not PUT on cancel or when the text is unchanged", async () => {
