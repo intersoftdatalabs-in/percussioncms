@@ -218,7 +218,7 @@ class PSWidgetXmlDualShipTest {
 
     // The co-located retired Widget XML stays on disk but is never probed (#6440).
     PSDefinitionSourceSelection s =
-        PSLegacyDefinitionXmlShim.selectDefinition("percSimpleText", List.of(pkg), null, null);
+        PSLegacyDefinitionXmlShim.selectDefinition("percSimpleText", List.of(pkg), null);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, s.getKind());
     assertEquals(manifest, s.getPrimaryPath().orElseThrow());
   }

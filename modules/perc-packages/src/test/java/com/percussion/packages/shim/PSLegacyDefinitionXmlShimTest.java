@@ -35,7 +35,9 @@ import org.junit.jupiter.api.io.TempDir;
  *
  * <p>Policy: modern component package required; legacy Widget/Page/Gadget XML never selected —
  * modern-absent (even with retired legacy present) fails with a clear {@link
- * PSDefinitionSourceNotFoundException} (no silent invent, no legacy load).
+ * PSDefinitionSourceNotFoundException} (no silent invent, no legacy load). The Widget (#6440)
+ * and Page (#6446) legacy probes are removed (on-disk Widget/Page XML is inert and unnamed);
+ * only the retired Gadget probe remains (sibling slice #6447).
  */
 class PSLegacyDefinitionXmlShimTest {
 
@@ -44,7 +46,7 @@ class PSLegacyDefinitionXmlShimTest {
   @Test
   void selectByPresence_prefersModernEvenWhenLegacyAlsoPresent() throws Exception {
     PSDefinitionSourceSelection s =
-        PSLegacyDefinitionXmlShim.selectByPresence("percSimpleText", true, true, true);
+        PSLegacyDefinitionXmlShim.selectByPresence("percSimpleText", true, true);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, s.getKind());
     assertTrue(s.isModern());
     assertFalse(s.isLegacyXml());
@@ -52,27 +54,14 @@ class PSLegacyDefinitionXmlShimTest {
 
   @Test
   void selectByPresence_legacyOnlyThrowsRetiredError() {
+    // Page legacy path removed (#6446): only the Gadget presence flag remains — the retired
+    // error names "(Gadget)", never a Page branch.
     PSDefinitionSourceNotFoundException ex =
         assertThrows(
             PSDefinitionSourceNotFoundException.class,
-            () -> PSLegacyDefinitionXmlShim.selectByPresence("w1", false, true, true));
+            () -> PSLegacyDefinitionXmlShim.selectByPresence("w1", false, true));
     assertRetiredMessage(ex, "w1");
-    assertTrue(ex.getMessage().contains("Page"), ex.getMessage());
-  }
-
-  @Test
-  void selectByPresence_pageOrGadgetOnlyThrowsRetiredError() {
-    PSDefinitionSourceNotFoundException pageEx =
-        assertThrows(
-            PSDefinitionSourceNotFoundException.class,
-            () -> PSLegacyDefinitionXmlShim.selectByPresence("p1", false, true, true));
-    assertRetiredMessage(pageEx, "p1");
-
-    PSDefinitionSourceNotFoundException gadgetEx =
-        assertThrows(
-            PSDefinitionSourceNotFoundException.class,
-            () -> PSLegacyDefinitionXmlShim.selectByPresence("g1", false, false, true));
-    assertRetiredMessage(gadgetEx, "g1");
+    assertTrue(ex.getMessage().contains("(Gadget)"), ex.getMessage());
   }
 
   @Test
@@ -81,7 +70,7 @@ class PSLegacyDefinitionXmlShimTest {
         assertThrows(
             PSDefinitionSourceNotFoundException.class,
             () ->
-                PSLegacyDefinitionXmlShim.selectByPresence("missingWidget", false, false, false));
+                PSLegacyDefinitionXmlShim.selectByPresence("missingWidget", false, false));
     assertEquals("missingWidget", ex.getDefinitionId());
     assertTrue(ex.getMessage().contains("component-package.json"));
     assertTrue(ex.getMessage().contains("legacy"));
@@ -183,7 +172,7 @@ class PSLegacyDefinitionXmlShimTest {
     Files.writeString(manifest, "{}", StandardCharsets.UTF_8);
 
     PSDefinitionSourceSelection s =
-        PSLegacyDefinitionXmlShim.selectDefinition("percSimpleText", List.of(modernRoot), null, null);
+        PSLegacyDefinitionXmlShim.selectDefinition("percSimpleText", List.of(modernRoot), null);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, s.getKind());
     assertEquals(manifest, s.getPrimaryPath().orElseThrow());
   }
@@ -199,7 +188,7 @@ class PSLegacyDefinitionXmlShimTest {
     PSDefinitionSourceNotFoundException ex =
         assertThrows(
             PSDefinitionSourceNotFoundException.class,
-            () -> PSLegacyDefinitionXmlShim.selectDefinition("percRawHtml", List.of(), null, null));
+            () -> PSLegacyDefinitionXmlShim.selectDefinition("percRawHtml", List.of(), null));
     assertEquals("percRawHtml", ex.getDefinitionId());
     assertRetiredMessage(ex, "percRawHtml");
     assertFalse(
@@ -213,12 +202,36 @@ class PSLegacyDefinitionXmlShimTest {
   }
 
   @Test
+  void selectDefinition_legacyPageOnlyThrowsRetiredErrorWithoutPageProbe() throws Exception {
+    // Page legacy path removed (#6446): on-disk Page XML is not even probed — the retired
+    // error names no page file and no LEGACY_PAGE_XML kind exists to select.
+    Path pages = tempDir.resolve("rxconfig").resolve("Pages");
+    Files.createDirectories(pages);
+    Files.writeString(pages.resolve("homeMeta.xml"), "<Page/>", StandardCharsets.UTF_8);
+
+    PSDefinitionSourceNotFoundException ex =
+        assertThrows(
+            PSDefinitionSourceNotFoundException.class,
+            () -> PSLegacyDefinitionXmlShim.selectDefinition("homeMeta", List.of(), null));
+    assertEquals("homeMeta", ex.getDefinitionId());
+    assertRetiredMessage(ex, "homeMeta");
+    assertFalse(
+        ex.getMessage().contains("homeMeta.xml"),
+        "removed page probe must not name the retired file: " + ex.getMessage());
+    for (PSDefinitionSourceKind kind : PSDefinitionSourceKind.values()) {
+      assertFalse(
+          kind.name().contains("PAGE"),
+          "no LEGACY_PAGE_* kind may remain: " + kind);
+    }
+  }
+
+  @Test
   void selectDefinition_neitherThrowsOperatorFacingMessage() {
     PSDefinitionSourceNotFoundException ex =
         assertThrows(
             PSDefinitionSourceNotFoundException.class,
             () ->
-                PSLegacyDefinitionXmlShim.selectDefinition("noSuchWidget", List.of(), null, null));
+                PSLegacyDefinitionXmlShim.selectDefinition("noSuchWidget", List.of(), null));
     assertEquals("noSuchWidget", ex.getDefinitionId());
     String msg = ex.getMessage();
     assertTrue(msg.contains("noSuchWidget"));
@@ -230,22 +243,11 @@ class PSLegacyDefinitionXmlShimTest {
   void selectDefinition_blankIdRejected() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> PSLegacyDefinitionXmlShim.selectDefinition("  ", List.of(), null, null));
+        () -> PSLegacyDefinitionXmlShim.selectDefinition("  ", List.of(), null));
   }
 
   @Test
-  void selectDefinition_pageOrGadgetOnlyThrowsRetiredError() throws Exception {
-    Path pages = tempDir.resolve("Pages");
-    Files.createDirectories(pages);
-    Files.writeString(pages.resolve("homeMeta.xml"), "<Page/>", StandardCharsets.UTF_8);
-
-    PSDefinitionSourceNotFoundException pageEx =
-        assertThrows(
-            PSDefinitionSourceNotFoundException.class,
-            () ->
-                PSLegacyDefinitionXmlShim.selectDefinition("homeMeta", List.of(), pages, null));
-    assertRetiredMessage(pageEx, "homeMeta");
-
+  void selectDefinition_gadgetOnlyThrowsRetiredError() throws Exception {
     Path gadgets = tempDir.resolve("Gadgets");
     Files.createDirectories(gadgets);
     Files.writeString(gadgets.resolve("myGadget.xml"), "<Module/>", StandardCharsets.UTF_8);
@@ -254,7 +256,7 @@ class PSLegacyDefinitionXmlShimTest {
         assertThrows(
             PSDefinitionSourceNotFoundException.class,
             () ->
-                PSLegacyDefinitionXmlShim.selectDefinition("myGadget", List.of(), null, gadgets));
+                PSLegacyDefinitionXmlShim.selectDefinition("myGadget", List.of(), gadgets));
     assertRetiredMessage(gadgetEx, "myGadget");
   }
 

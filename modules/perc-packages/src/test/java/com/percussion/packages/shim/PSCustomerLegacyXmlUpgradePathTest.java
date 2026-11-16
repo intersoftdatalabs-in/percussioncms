@@ -93,7 +93,7 @@ class PSCustomerLegacyXmlUpgradePathTest {
     // The retired Widget XML leftover stays on disk but is never probed (#6440).
     PSDefinitionSourceSelection selection =
         PSLegacyDefinitionXmlShim.selectDefinition(
-            WIDGET_DEFINITION_ID, List.of(packageRoot), null, null);
+            WIDGET_DEFINITION_ID, List.of(packageRoot), null);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, selection.getKind());
     assertTrue(selection.isModern());
     assertEquals(manifestPath, selection.getPrimaryPath().orElseThrow());
@@ -117,7 +117,7 @@ class PSCustomerLegacyXmlUpgradePathTest {
     PSComponentPackageManifestIo.write(manifest, manifestPath);
 
     PSDefinitionSourceSelection selection =
-        PSLegacyDefinitionXmlShim.selectDefinition(PAGE_DEFINITION_ID, List.of(modernDir), null, null);
+        PSLegacyDefinitionXmlShim.selectDefinition(PAGE_DEFINITION_ID, List.of(modernDir), null);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, selection.getKind());
     assertTrue(selection.isModern());
     assertEquals(manifestPath, selection.getPrimaryPath().orElseThrow());
@@ -143,7 +143,7 @@ class PSCustomerLegacyXmlUpgradePathTest {
 
     PSDefinitionSourceSelection selection =
         PSLegacyDefinitionXmlShim.selectDefinition(
-            GADGET_DEFINITION_ID, List.of(modernDir), null, null);
+            GADGET_DEFINITION_ID, List.of(modernDir), null);
     assertEquals(PSDefinitionSourceKind.MODERN_COMPONENT_PACKAGE, selection.getKind());
     assertTrue(selection.isModern());
     assertEquals(manifestPath, selection.getPrimaryPath().orElseThrow());
@@ -166,7 +166,7 @@ class PSCustomerLegacyXmlUpgradePathTest {
             PSDefinitionSourceNotFoundException.class,
             () ->
                 PSLegacyDefinitionXmlShim.selectDefinition(
-                    WIDGET_DEFINITION_ID, List.of(), null, null));
+                    WIDGET_DEFINITION_ID, List.of(), null));
     assertTrue(
         ex.getMessage().contains("compiler"),
         "retired error must point at the compiler upgrade path: " + ex.getMessage());
