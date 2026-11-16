@@ -396,6 +396,46 @@ public class SharedFieldsResource {
     }
   }
 
+  @GET
+  @Path("/{group}/fields/{fieldName}/usage")
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "List content types using a shared field",
+      description =
+          "Where-used inspector for one shared field (Developer module). Admin only. No design"
+              + " lock is acquired. usedBy is name-sorted and empty when no content type"
+              + " includes the field. A content type counts as using the field when it"
+              + " carries the field display mapping and the field is not in the"
+              + " shared-field excludes.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "OK",
+            content = @Content(schema = @Schema(implementation = SharedFieldUsage.class))),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Group or field not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public SharedFieldUsage getFieldUsage(
+      @PathParam("group") String group, @PathParam("fieldName") String fieldName) {
+    try {
+      SharedFieldUsage out = requireAdaptor().getFieldUsage(uriInfo.getBaseUri(), group, fieldName);
+      if (out == null) {
+        throw new WebApplicationException("Shared field group not found", 404);
+      }
+      return out;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (SharedFieldNotFoundException e) {
+      throw new WebApplicationException(
+          e.getMessage() != null ? e.getMessage() : "Shared field not found", 404);
+    } catch (RuntimeException e) {
+      throw new WebApplicationException(e, 500);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   /**
    * Map adaptor write failures to HTTP status. Lock conflicts are always 409 via {@link
    * SharedFieldDesignLockException}.

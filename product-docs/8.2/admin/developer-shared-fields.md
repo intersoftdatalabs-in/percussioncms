@@ -41,6 +41,22 @@ back in the detail (title, name, filename) and as a new catalog row showing
 that filename; removing it is `DELETE /services/sharedfields/{name}`
 (`204` on success), after which the catalog no longer lists that name.
 
+## Where used
+
+The detail **Where used** section lists, for the selected field, every
+content type that includes it (name-sorted), backed by
+`GET /services/sharedfields/{group}/fields/{field}/usage`. The count next to
+the field name tells whether the field is shared into any content type; an
+unused field shows that no content type includes it instead of a table.
+A content type counts when it carries the field display mapping and the
+field is not excluded from that type (the same present-means-included rule
+the content-type **Detach** flow uses). The lookup is read-only: it acquires
+no design lock, needs no held lock, and performs no writes.
+
+A shared field that is in use cannot be assumed safe to delete or rename:
+open each listed content type and **Detach** (or keep) the field there
+first. Unknown group or field is **404**; non-Admin callers receive **403**.
+
 ## Product path — create, save, delete a group
 
 1. Sign in as **Admin** (write calls require the Admin role).
@@ -99,6 +115,7 @@ The chrome calls:
 | Delete field | `DELETE /services/sharedfields/{name}/fields/{fieldName}` (`204` on success) |
 | Load control properties | `GET /services/sharedfields/{name}/fields/{fieldName}/controlProperties` (no lock) |
 | Save control properties | `PUT /services/sharedfields/{name}/fields/{fieldName}/controlProperties` (request lock released on save; wrap root `SharedFieldControlProperties`; omit `choices` to leave unchanged; `choices.type` `none` clears) |
+| Where used | `GET /services/sharedfields/{group}/fields/{field}/usage` (read-only; name-sorted `usedBy`, empty when unused; unknown group/field `404`) |
 
 Writes lock the shared definition for the request and release it on save.
 

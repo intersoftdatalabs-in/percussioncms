@@ -22,6 +22,7 @@ import com.percussion.rest.sharedfields.SharedFieldControlProperties;
 import com.percussion.rest.sharedfields.SharedFieldGroupDetail;
 import com.percussion.rest.sharedfields.SharedFieldGroupSummary;
 import com.percussion.rest.sharedfields.SharedFieldSummary;
+import com.percussion.rest.sharedfields.SharedFieldUsage;
 import java.net.URI;
 import java.util.List;
 import org.springframework.context.annotation.Lazy;
@@ -83,6 +84,11 @@ public class TestSharedFieldsAdaptor implements ISharedFieldsAdaptor {
   @Override
   public SharedFieldControlProperties replaceFieldControlProperties(
       URI baseUri, String idOrName, String fieldName, SharedFieldControlProperties body) {
+    return null;
+  }
+
+  @Override
+  public SharedFieldUsage getFieldUsage(URI baseUri, String groupName, String fieldName) {
     return null;
   }
 }

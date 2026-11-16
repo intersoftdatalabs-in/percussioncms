@@ -29,6 +29,8 @@ import type {
   SharedFieldGroupDetail,
   SharedFieldGroupSummary,
   SharedFieldSummary,
+  SharedFieldUsage,
+  SharedFieldUsageEntry,
 } from "./types";
 
 /** Writable fields for POST/PUT /services/sharedfields. Fields catalog is not written here. */
@@ -48,6 +50,9 @@ export const SHARED_FIELD_ROOT = "SharedField";
 
 /** Jackson {@code WRAP_ROOT_VALUE} root for {@code SharedFieldControlProperties}. */
 export const SHARED_FIELD_CONTROL_PROPERTIES_ROOT = "SharedFieldControlProperties";
+
+/** Jackson {@code SharedFieldUsage} root for GET .../fields/{field}/usage. */
+export const SHARED_FIELD_USAGE_ROOT = "SharedFieldUsage";
 
 /** Writable add-field body on POST /services/sharedfields/{name}/fields. */
 export type SharedFieldWriteBody = Pick<
@@ -337,6 +342,49 @@ export async function getSharedFieldControlProperties(
  * Admin. Request lock is acquired and released on save. Empty properties
  * clears. Omit {@code choices} to leave the catalog unchanged.
  */
+/**
+ * Flatten GET {@code .../fields/{field}/usage} JSON.
+ *
+ * <p>Handles WRAP_ROOT {@code SharedFieldUsage}, a flat body, and JAXB
+ * one-item {@code usedBy} envelopes. {@code usedBy} is always an array
+ * (empty when no content type includes the field).
+ */
+export function unwrapSharedFieldUsage(payload: unknown): SharedFieldUsage {
+  const root = asRecord(payload);
+  if (!root) {
+    return { usedBy: [] };
+  }
+  const nested = asRecord(root[SHARED_FIELD_USAGE_ROOT] ?? root.sharedFieldUsage);
+  const body = nested ?? root;
+  const out: SharedFieldUsage = { usedBy: [] };
+  if (typeof body.groupName === "string") {
+    out.groupName = body.groupName;
+  }
+  if (typeof body.fieldName === "string") {
+    out.fieldName = body.fieldName;
+  }
+  out.usedBy = asJacksonArray<SharedFieldUsageEntry>(
+    (body as Record<string, unknown>).usedBy,
+    ["SharedFieldUsageEntry", "sharedFieldUsageEntry", "usedBy"],
+    (o) => "contentTypeName" in o || "contentTypeId" in o,
+  );
+  return out;
+}
+
+/**
+ * GET /services/sharedfields/{group}/fields/{fieldName}/usage — Admin.
+ * Name-sorted content types including the field; empty when unused.
+ */
+export async function getSharedFieldUsage(
+  groupName: string,
+  fieldName: string,
+): Promise<SharedFieldUsage> {
+  const payload = await get<unknown>(
+    nestedFieldUrl(groupName, `${encodeURIComponent(fieldName)}/usage`),
+  );
+  return unwrapSharedFieldUsage(payload);
+}
+
 export async function replaceSharedFieldControlProperties(
   groupName: string,
   fieldName: string,

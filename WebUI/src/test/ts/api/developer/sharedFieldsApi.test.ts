@@ -9,6 +9,7 @@ import {
   deleteSharedField,
   deleteSharedFieldGroup,
   getSharedFieldControlProperties,
+  getSharedFieldUsage,
   isSharedFieldAddReady,
   isSharedFieldGroupWriteReady,
   isValidFilename,
@@ -19,6 +20,7 @@ import {
   replaceSharedFieldControlProperties,
   unwrapSharedFieldControlProperties,
   unwrapSharedFieldGroupDetail,
+  unwrapSharedFieldUsage,
   updateSharedFieldGroup,
   wrapSharedFieldControlPropertiesForWire,
   wrapSharedFieldForWire,
@@ -314,5 +316,37 @@ describe("sharedFieldsApi write paths", () => {
         properties: [{ name: "width", value: "640" }],
       },
     });
+  });
+
+  it("GETs where-used list from /services/sharedfields/{group}/fields/{field}/usage", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        SharedFieldUsage: {
+          groupName: "shared",
+          fieldName: "rx_note",
+          usedBy: [{ contentTypeName: "percPage", contentTypeId: 311 }],
+        },
+      }),
+    );
+    const out = await getSharedFieldUsage("shared", "rx_note");
+    expect(out.fieldName).toBe("rx_note");
+    expect(out.usedBy?.[0]?.contentTypeName).toBe("percPage");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.SHARED_FIELDS}/shared/fields/rx_note/usage`,
+    );
+  });
+
+  it("unwraps flat and empty where-used bodies to an empty list", () => {
+    expect(unwrapSharedFieldUsage(null)).toEqual({ usedBy: [] });
+    expect(unwrapSharedFieldUsage({ groupName: "shared", fieldName: "rx_note" })).toEqual({
+      groupName: "shared",
+      fieldName: "rx_note",
+      usedBy: [],
+    });
+    expect(
+      unwrapSharedFieldUsage({
+        SharedFieldUsage: { groupName: "shared", fieldName: "rx_note", usedBy: [] },
+      }),
+    ).toEqual({ groupName: "shared", fieldName: "rx_note", usedBy: [] });
   });
 });
