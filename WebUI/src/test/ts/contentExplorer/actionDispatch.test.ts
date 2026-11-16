@@ -2471,21 +2471,128 @@ describe("actionDispatch", () => {
     expect(result.messageText ?? "").toMatch(/Folders are not staged: Sites, News/);
   });
 
-  it("Stage on a Sites folder asks for a content item", async () => {
-    const onStage = vi.fn();
-    const result = await dispatchAction(action({ name: "Stage" }), {
-      item: item({
-        id: "1",
-        name: "Sites",
-        path: "/Sites",
+  it("Stage on a folder confirms then stages direct page and asset children", async () => {
+    findChildren.mockResolvedValue([
+      item({ id: "42", name: "Home" }),
+      item({
+        id: "8",
+        name: "Nested",
+        path: "/Sites/Demo/News/Nested",
         type: "folder",
         leaf: false,
       }),
-      onStage,
+      item({
+        id: "99",
+        name: "logo",
+        path: "/Assets/logo.png",
+        type: "percImageAsset",
+      }),
+    ]);
+    vi.spyOn(global, "fetch").mockImplementation(
+      async () =>
+        new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+    );
+    const confirm = vi.fn().mockReturnValue(true);
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+      confirm,
+    });
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(String(confirm.mock.calls[0]?.[0] ?? "")).toContain(
+      "Stage the pages and assets in this folder",
+    );
+    expect(findChildren).toHaveBeenCalledWith("/Sites/Demo/News");
+    expect(result.refresh).toBe(true);
+    expect(result.messageText ?? "").toMatch(/Folders are not staged: Nested/);
+    const urls = vi.mocked(global.fetch).mock.calls.map((call) => String(call[0]));
+    expect(urls.some((url) => url.includes("/page/staging/42"))).toBe(true);
+    expect(urls.some((url) => url.includes("/resource/staging/99"))).toBe(true);
+    expect(urls.some((url) => url.includes("/staging/8"))).toBe(false);
+  });
+
+  it("folder Stage cancel lists nothing and stages nothing", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+      confirm: () => false,
+    });
+    expect(findChildren).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("folder Stage preflight failure does not refresh", async () => {
+    findChildren.mockResolvedValue([item({ id: "42", name: "Home" })]);
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ status: "FORBIDDEN" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
       confirm: () => true,
     });
-    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
-    expect(onStage).not.toHaveBeenCalled();
+    expect(result.refresh).toBe(false);
+    expect(result.messageText ?? "").toMatch(/FORBIDDEN/);
+    expect(result.messageKey).toBe(EXPLORER_MSG.STAGE_BATCH_INCOMPLETE);
+  });
+
+  it("Stage on a folder without a path asks for a folder and lists nothing", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item({
+        id: "7",
+        name: "News",
+        path: "",
+        type: "folder",
+        leaf: false,
+      }),
+      confirm: () => true,
+    });
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_FOLDER);
+    expect(findChildren).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("empty folder Stage does not pretend a job started", async () => {
+    findChildren.mockResolvedValue([]);
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+      confirm: () => true,
+    });
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageKey).toBe(EXPLORER_MSG.STAGE_FOLDER_EMPTY);
   });
 
   it("Stage on a template stays unavailable", async () => {
@@ -2648,24 +2755,121 @@ describe("actionDispatch", () => {
     expect(result.refresh).toBeUndefined();
   });
 
-  it("Remove from Staging on a Sites folder asks for a content item", async () => {
-    const onRemoveFromStaging = vi.fn();
+  it("Remove from Staging on a folder confirms then unstages direct children", async () => {
+    findChildren.mockResolvedValue([
+      item({ id: "42", name: "Home" }),
+      item({
+        id: "8",
+        name: "Nested",
+        path: "/Sites/Demo/News/Nested",
+        type: "folder",
+        leaf: false,
+      }),
+      item({
+        id: "99",
+        name: "logo",
+        path: "/Assets/logo.png",
+        type: "percImageAsset",
+      }),
+    ]);
+    vi.spyOn(global, "fetch").mockImplementation(
+      async () =>
+        new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+    );
+    const confirm = vi.fn().mockReturnValue(true);
     const result = await dispatchAction(
       action({ name: "Remove_from_Staging" }),
       {
         item: item({
-          id: "1",
-          name: "Sites",
-          path: "/Sites",
+          id: "7",
+          name: "News",
+          path: "/Sites/Demo/News",
           type: "folder",
           leaf: false,
         }),
-        onRemoveFromStaging,
+        confirm,
+      },
+    );
+    expect(confirm).toHaveBeenCalledTimes(1);
+    expect(String(confirm.mock.calls[0]?.[0] ?? "")).toContain(
+      "Remove the pages and assets in this folder from staging",
+    );
+    expect(findChildren).toHaveBeenCalledWith("/Sites/Demo/News");
+    expect(result.refresh).toBe(true);
+    expect(result.messageText ?? "").toMatch(
+      /Folders are not removed from staging: Nested/,
+    );
+    const urls = vi.mocked(global.fetch).mock.calls.map((call) => String(call[0]));
+    expect(urls.some((url) => url.includes("/takedown/page/staging/42"))).toBe(true);
+    expect(urls.some((url) => url.includes("/takedown/resource/staging/99"))).toBe(
+      true,
+    );
+    expect(urls.some((url) => url.includes("/staging/8"))).toBe(false);
+  });
+
+  it("folder Remove from Staging cancel lists nothing and removes nothing", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const result = await dispatchAction(
+      action({ name: "Remove_from_Staging" }),
+      {
+        item: item({
+          id: "7",
+          name: "News",
+          path: "/Sites/Demo/News",
+          type: "folder",
+          leaf: false,
+        }),
+        confirm: () => false,
+      },
+    );
+    expect(findChildren).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("Remove from Staging on a folder without a path asks for a folder and lists nothing", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const result = await dispatchAction(
+      action({ name: "Remove_from_Staging" }),
+      {
+        item: item({
+          id: "7",
+          name: "News",
+          path: "",
+          type: "folder",
+          leaf: false,
+        }),
         confirm: () => true,
       },
     );
-    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
-    expect(onRemoveFromStaging).not.toHaveBeenCalled();
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_FOLDER);
+    expect(findChildren).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("empty folder Remove from Staging does not pretend a job started", async () => {
+    findChildren.mockResolvedValue([]);
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const result = await dispatchAction(
+      action({ name: "Remove_from_Staging" }),
+      {
+        item: item({
+          id: "7",
+          name: "News",
+          path: "/Sites/Demo/News",
+          type: "folder",
+          leaf: false,
+        }),
+        confirm: () => true,
+      },
+    );
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageKey).toBe(EXPLORER_MSG.UNSTAGE_FOLDER_EMPTY);
   });
 
   it("classifies Schedule as rest", () => {

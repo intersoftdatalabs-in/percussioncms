@@ -306,7 +306,24 @@ export function isToolbarTakedownHidden(
 }
 
 /**
- * Stage / Remove from Staging are item-scoped like Publish Now.
+ * Stage / Remove from Staging are item-scoped like Publish Now. A selected
+ * folder with a path stages (or unstages) its direct page/asset children
+ * instead (#6419, parent #4530).
+ */
+export function isStageFolderTarget(
+  selectionItem: PSPathItem | null | undefined,
+): boolean {
+  return Boolean(
+    selectionItem &&
+      isFolder(selectionItem) &&
+      (selectionItem.path ?? "").trim(),
+  );
+}
+
+/**
+ * Stage / Remove from Staging are item-scoped like Publish Now. A folder
+ * with a path stays visible: confirm then stage (or unstage) that
+ * folder's direct children (#6419).
  */
 export function isToolbarStageHidden(
   action: MenuAction,
@@ -316,6 +333,9 @@ export function isToolbarStageHidden(
     !isStageActionName(action.name) &&
     !isRemoveFromStagingActionName(action.name)
   ) {
+    return false;
+  }
+  if (isStageFolderTarget(selectionItem)) {
     return false;
   }
   return resolvePublishKind(selectionItem ?? null) === "none";
@@ -620,12 +640,22 @@ export function withExplorerTakedownAction(
 
 /**
  * CX catalogs omit Finder Stage / Remove from Staging. Inject both when
- * the selection is a page or asset.
+ * the selection is a page or asset, or a folder whose direct children
+ * can be staged (#6419).
  */
 export function withExplorerStagingActions(
   actions: MenuAction[],
   selectionItem: PSPathItem | null | undefined,
 ): MenuAction[] {
+  if (isStageFolderTarget(selectionItem)) {
+    let next = menuHasMatchingAction(actions, isStageActionName)
+      ? actions
+      : [...actions, { ...EXPLORER_STAGE_ACTION }];
+    if (!menuHasMatchingAction(next, isRemoveFromStagingActionName)) {
+      next = [...next, { ...EXPLORER_REMOVE_FROM_STAGING_ACTION }];
+    }
+    return next;
+  }
   return injectPublishItemAction(
     injectPublishItemAction(
       actions,

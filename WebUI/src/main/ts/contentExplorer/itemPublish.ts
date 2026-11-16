@@ -793,6 +793,63 @@ export function describeStageBatch(result: StageBatchResult): string | undefined
 }
 
 /**
+ * Stage pages and assets that are direct children of a folder. Nested
+ * folders are skipped (stage those folders separately). An empty folder
+ * stages nothing. Application-level preflight failures are recorded and
+ * do not count as staged (#6419, parent #4530).
+ */
+export async function stageSelectedFolder(
+  folder: PSPathItem,
+): Promise<StageBatchResult> {
+  const path = normalizeCmsPath(folder.path ?? "");
+  if (!isFolder(folder) || !path) {
+    return {
+      stagedIds: [],
+      skippedFolders: [],
+      skippedOther: [],
+      failures: [],
+    };
+  }
+  const children = await findChildren(path);
+  const stagedIds: string[] = [];
+  const skippedFolders: string[] = [];
+  const skippedOther: string[] = [];
+  const failures: StageItemFailure[] = [];
+  const seen = new Set<string>();
+  for (const child of children) {
+    const id = (child.id ?? "").trim();
+    const key = id || `name:${stageItemLabel(child)}`;
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    if (isFolder(child)) {
+      skippedFolders.push(stageItemLabel(child));
+      continue;
+    }
+    if (!id || resolvePublishKind(child) === "none") {
+      skippedOther.push(stageItemLabel(child));
+      continue;
+    }
+    try {
+      const staged = await stageSelectedItem(child);
+      if (!staged) {
+        failures.push({
+          id,
+          name: stageItemLabel(child),
+          message: "not staged",
+        });
+      } else {
+        stagedIds.push(id);
+      }
+    } catch (err: unknown) {
+      failures.push(failureFromStage(child, err));
+    }
+  }
+  return { stagedIds, skippedFolders, skippedOther, failures };
+}
+
+/**
  * Remove a page or asset from staging. Other types return false so the
  * dispatcher can show that the action is not available.
  *
@@ -928,4 +985,62 @@ export function describeRemoveFromStagingBatch(
     return undefined;
   }
   return parts.join(" ");
+}
+
+/**
+ * Remove pages and assets that are direct children of a folder from
+ * staging. Nested folders are skipped (unstage those folders
+ * separately). An empty folder removes nothing. Application-level
+ * preflight failures are recorded and do not count as removed (#6419,
+ * parent #4530).
+ */
+export async function removeFromStagingSelectedFolder(
+  folder: PSPathItem,
+): Promise<RemoveFromStagingBatchResult> {
+  const path = normalizeCmsPath(folder.path ?? "");
+  if (!isFolder(folder) || !path) {
+    return {
+      removedIds: [],
+      skippedFolders: [],
+      skippedOther: [],
+      failures: [],
+    };
+  }
+  const children = await findChildren(path);
+  const removedIds: string[] = [];
+  const skippedFolders: string[] = [];
+  const skippedOther: string[] = [];
+  const failures: StageItemFailure[] = [];
+  const seen = new Set<string>();
+  for (const child of children) {
+    const id = (child.id ?? "").trim();
+    const key = id || `name:${stageItemLabel(child)}`;
+    if (seen.has(key)) {
+      continue;
+    }
+    seen.add(key);
+    if (isFolder(child)) {
+      skippedFolders.push(stageItemLabel(child));
+      continue;
+    }
+    if (!id || resolvePublishKind(child) === "none") {
+      skippedOther.push(stageItemLabel(child));
+      continue;
+    }
+    try {
+      const removed = await removeFromStagingSelectedItem(child);
+      if (!removed) {
+        failures.push({
+          id,
+          name: stageItemLabel(child),
+          message: "not removed",
+        });
+      } else {
+        removedIds.push(id);
+      }
+    } catch (err: unknown) {
+      failures.push(failureFromRemove(child, err));
+    }
+  }
+  return { removedIds, skippedFolders, skippedOther, failures };
 }
