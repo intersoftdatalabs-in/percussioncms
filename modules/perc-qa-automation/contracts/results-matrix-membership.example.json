@@ -1,0 +1,16 @@
+[
+  {
+    "suite": "membership-registration-matrix",
+    "spec": "tests/membership-registration-matrix.spec.js",
+    "contentType": "membership",
+    "label": "Membership",
+    "cell": "dts-cell",
+    "cases": {
+      "registerCreates": "skip",
+      "loginRoundTrip": "skip",
+      "logoutCloses": "skip"
+    },
+    "status": "skip",
+    "updated": "2026-11-16"
+  }
+]
