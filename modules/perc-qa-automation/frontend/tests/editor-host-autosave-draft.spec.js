@@ -18,6 +18,11 @@
 /**
  * React Content Editor host — autosave draft recovery notice after reload (#6076).
  *
+ * <p>Discard is two-step (#6416): the first click arms an inline confirm
+ * naming the item; only the confirm clears the stored draft, and cancelling
+ * keeps the notice plus the draft. A dismissed-state banner confirms the
+ * discard.</p>
+ *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor}</p>
  *
  * <p>Run (QA mode after {@code perc-devctl qa-up}):
@@ -199,7 +204,7 @@ test.describe("React Content Editor autosave draft recovery", () => {
   );
 
   test(
-    "discard drops the stored draft and a reload stays silent",
+    "discard confirms first; cancel keeps the draft, confirm drops it and a reload stays silent",
     { tag: ["@explorer-content-editor", "@editor"] },
     async ({ page }) => {
       const pageErrors = [];
@@ -215,14 +220,40 @@ test.describe("React Content Editor autosave draft recovery", () => {
       await expect(page.getByTestId("editor-autosave-notice")).toBeVisible({
         timeout: 20_000,
       });
+      // First click only arms the confirm step naming the item; nothing clears.
       await page.getByTestId("editor-autosave-discard").click();
+      await expect(
+        page.getByTestId("editor-autosave-discard-confirm"),
+      ).toBeVisible();
+      await expect(page.getByTestId("editor-autosave-notice")).toContainText(
+        SERVER_TITLE,
+      );
+      expect(store.puts).toEqual([]);
+      let stored = await page.evaluate((key) => window.localStorage.getItem(key), AUTOSAVE_KEY);
+      expect(stored).not.toBeNull();
+      // Cancelling keeps the notice and the stored draft.
+      await page.getByTestId("editor-autosave-discard-cancel").click();
+      await expect(
+        page.getByTestId("editor-autosave-discard-confirm"),
+      ).toHaveCount(0);
+      await expect(page.getByTestId("editor-autosave-notice")).toBeVisible();
+      await expect(page.getByTestId("editor-autosave-restore")).toBeVisible();
+      // Confirming drops the stored draft, keeps loaded values, never PUTs.
+      await page.getByTestId("editor-autosave-discard").click();
+      await expect(
+        page.getByTestId("editor-autosave-discard-confirm"),
+      ).toBeVisible();
+      await page.getByTestId("editor-autosave-discard-confirm").click();
       await expect(page.getByTestId("editor-autosave-notice")).toHaveCount(0);
+      await expect(page.getByTestId("editor-autosave-dismissed")).toBeVisible();
       await expect(page.getByTestId("editor-field-sys_title")).toHaveValue(
         SERVER_TITLE,
       );
       expect(store.puts).toEqual([]);
-      const stored = await page.evaluate((key) => window.localStorage.getItem(key), AUTOSAVE_KEY);
+      stored = await page.evaluate((key) => window.localStorage.getItem(key), AUTOSAVE_KEY);
       expect(stored).toBeNull();
+      await page.getByTestId("editor-autosave-dismissed-close").click();
+      await expect(page.getByTestId("editor-autosave-dismissed")).toHaveCount(0);
       await page.goto(editorEntryUrl());
       await expect(page.getByTestId("editor-field-sys_title")).toHaveValue(
         SERVER_TITLE,

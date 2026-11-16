@@ -40,6 +40,13 @@ export const EDITOR_MSG = {
     "perc.ui.editor@An unsaved draft from before the reload is available. Restore it or discard it — restoring never overwrites the saved item until you save.",
   AUTOSAVE_RESTORE: "perc.ui.editor@Restore draft",
   AUTOSAVE_DISCARD: "perc.ui.editor@Discard draft",
+  AUTOSAVE_DISCARD_CONFIRM:
+    "perc.ui.editor@Discard the unsaved draft? This cannot be undone.",
+  AUTOSAVE_DISCARD_CONFIRM_BUTTON: "perc.ui.editor@Yes, discard draft",
+  AUTOSAVE_DISCARD_KEEP: "perc.ui.editor@Keep draft",
+  AUTOSAVE_DISCARDED:
+    "perc.ui.editor@Unsaved draft discarded. The form keeps the saved values.",
+  AUTOSAVE_DISCARDED_DISMISS: "perc.ui.editor@Dismiss",
   SAVE_RELOAD_FAILED:
     "perc.ui.editor@Saved, but the latest values could not be reloaded. Retry the load to see the current values.",
   FIELD_REQUIRED: "perc.ui.editor@This field is required.",
