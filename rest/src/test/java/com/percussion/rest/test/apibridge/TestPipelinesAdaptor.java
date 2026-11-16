@@ -108,6 +108,11 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
   }
 
   @Override
+  public boolean deleteApplication(URI baseUri, String idOrName) {
+    return false;
+  }
+
+  @Override
   public ApplicationValidationResult getValidation(URI baseUri, String idOrName) {
     return null;
   }

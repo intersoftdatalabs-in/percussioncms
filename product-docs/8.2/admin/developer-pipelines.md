@@ -1,7 +1,7 @@
 ---
 id: admin-developer-pipelines
 title: Developer Pipelines
-description: Browse classic XML Applications, Admin start/stop, Admin enable/disable, pipe IR, OpenAPI from resources, HTTP datasource, JDBC datasource backend, nested filter groups, webhook hooks, binary resource retrieve, HTML result pages or raw JSON/XML, request tracing, Test invoke, and Problems from Developer Pipelines chrome
+description: Browse classic XML Applications, Admin start/stop, Admin enable/disable, Admin delete, pipe IR, OpenAPI from resources, HTTP datasource, JDBC datasource backend, nested filter groups, webhook hooks, binary resource retrieve, HTML result pages or raw JSON/XML, request tracing, Test invoke, and Problems from Developer Pipelines chrome
 version: "8.2"
 order: 51
 tags: [admin, developer, pipelines]
@@ -17,12 +17,15 @@ imported **result pages**) so operators can inspect structure without the Swing
 E2Designer.
 
 **Admins** can **Start** or **Stop** a non-hidden application from the detail
-toolbar, and can **Enable** or **Disable** it via the same toolbar. Those
+toolbar, **Enable** or **Disable** it via the same toolbar, and **Delete** it
+(with confirm) from the same toolbar. Those
 actions peer the server console `start application` /
-`stop application` commands and the classic save-with-`setEnabled` behavior,
+`stop application` commands, the classic save-with-`setEnabled` behavior, and
+the classic `delete application` behavior,
 calling Admin REST `POST /services/pipelines/{idOrName}/start`,
-`POST /services/pipelines/{idOrName}/stop`, and
-`PUT /services/pipelines/{idOrName}/enabled`. Disabling a running application
+`POST /services/pipelines/{idOrName}/stop`,
+`PUT /services/pipelines/{idOrName}/enabled`, and
+`DELETE /services/pipelines/{idOrName}`. Disabling a running application
 stops it on save; enabling starts it on save. Non-Admin sessions do not see the
 lifecycle controls.
 
@@ -336,6 +339,20 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
    `<` `>` `|`). Malformed XML is **400**.
 4. Non-Admin callers on either REST path receive **403**.
 
+## Product path — delete application
+
+1. As **Admin**, open the application detail from **Developer → Pipelines**.
+2. Use **Delete** in the lifecycle toolbar (disabled while the application is
+   **hidden**), then confirm. **Cancel** writes nothing and keeps the detail
+   open.
+3. On confirm the chrome calls `DELETE /services/pipelines/{idOrName}`.
+   Success is **204**: the catalog row drops without a refetch and the
+   application, its files, and its virtual directory are gone.
+4. A **running** application is rejected with **409** — **Stop** it first,
+   then delete. A design lock held by another session is also **409** (the
+   delete never steals a lock). Hidden applications are **400**, unknown
+   applications **404**, non-Admin callers **403**.
+
 ## Limits
 
 - Catalog and detail omit **hidden** applications from the list contract used by
@@ -378,6 +395,9 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
   OpenAPI execute paths on empty-IR first-catalog rows).
 - Surface-filtered Playwright for classic XML export + duplicate-import 409 lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-import-export.spec.js`.
+- Surface-filtered Playwright for application delete (import copy, cancel keeps
+  row, confirm drops row + GET 404) lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-delete.spec.js`.
 
 ## REST
 
@@ -390,6 +410,7 @@ The chrome calls:
 | Start | `POST /services/pipelines/{idOrName}/start` (**Admin**) |
 | Stop | `POST /services/pipelines/{idOrName}/stop` (**Admin**) |
 | Enable / Disable | `PUT /services/pipelines/{idOrName}/enabled` (**Admin**; `{enabled:boolean}`; disabling a running app stops it, enabling starts it) |
+| Delete | `DELETE /services/pipelines/{idOrName}` (**Admin**; **204**; running is **409**, stop first) |
 | Pipe IR | `GET /services/pipelines/{idOrName}/ir` |
 | OpenAPI | `GET /services/pipelines/{idOrName}/openapi` (`format=yaml` default, or `json`) |
 | HTTP tank | `PUT /services/pipelines/{app}/resources/{resource}/backendTank` (**Admin**) |

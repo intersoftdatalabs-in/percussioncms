@@ -1077,6 +1077,21 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@Export is unavailable while the application is hidden.",
   PIPE_IMPORT_EXPORT_FORBIDDEN:
     "perc.ui.developer@Admin role is required to import or export pipeline applications.",
+  PIPE_DELETE: "perc.ui.developer@Delete",
+  PIPE_DELETING: "perc.ui.developer@Deleting…",
+  PIPE_DELETED: "perc.ui.developer@Pipeline application deleted.",
+  PIPE_DELETE_ERROR: "perc.ui.developer@Could not delete pipeline application.",
+  PIPE_DELETE_NOT_FOUND: "perc.ui.developer@Pipeline application not found.",
+  PIPE_DELETE_FORBIDDEN:
+    "perc.ui.developer@Admin role is required to delete pipeline applications.",
+  PIPE_DELETE_RUNNING:
+    "perc.ui.developer@Stop the running application before deleting it.",
+  PIPE_DELETE_LOCKED:
+    "perc.ui.developer@Application design is locked by another session.",
+  PIPE_DELETE_CONFIRM:
+    "perc.ui.developer@Delete this pipeline application and its files? This cannot be undone.",
+  PIPE_DELETE_DISABLED_HINT:
+    "perc.ui.developer@Delete is unavailable while the application is hidden.",
   PIPE_IMPORT_SECTION: "perc.ui.developer@Import application XML",
   PIPE_IMPORT_HINT:
     "perc.ui.developer@Admin create-only import of PSXApplication design XML. Duplicate names are rejected; nothing is overwritten.",

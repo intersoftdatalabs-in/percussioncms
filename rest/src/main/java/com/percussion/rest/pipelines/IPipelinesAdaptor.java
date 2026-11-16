@@ -224,6 +224,19 @@ public interface IPipelinesAdaptor {
   ApplicationDetail setApplicationEnabled(URI baseUri, String idOrName, boolean enabled);
 
   /**
+   * Admin: delete a non-hidden classic XML Application (peer {@code
+   * PSServerXmlObjectStore#deleteApplication}). Caller-held design lock, released after the
+   * delete; never steals another holder's lock. A running application is 409 (stop it first);
+   * hidden applications are 400.
+   *
+   * @param baseUri request base URI (reserved for HATEOAS)
+   * @param idOrName application numeric id or name
+   * @return {@code true} when the application was deleted, {@code false} when not found / not
+   *     visible
+   */
+  boolean deleteApplication(URI baseUri, String idOrName);
+
+  /**
    * Admin: run design-time validation / problems for a non-hidden classic XML Application (peer
    * {@code PSValidatorAdapter#validateApplication}).
    *

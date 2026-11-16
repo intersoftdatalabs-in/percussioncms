@@ -53,7 +53,7 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
- * Catalog of classic XML Applications (pipeline packages), Admin start/stop, validation/problems,
+ * Catalog of classic XML Applications (pipeline packages), Admin start/stop, Admin delete, validation/problems,
  * read-only Pipeline IR, OpenAPI from resources, and thin IR execute.
  *
  * <p>Registered via {@link PSSiteManageBean} like sibling catalog resources ({@code Keywords},
@@ -68,7 +68,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(
     name = "Pipelines",
     description =
-        "Data pipeline / XML application design catalog, Admin start/stop, Admin enable/disable, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, JDBC datasource backend persist/test, nested filter groups, binary resource persist/retrieve, HTML result-page persist, request tracing, and IR execute")
+        "Data pipeline / XML application design catalog, Admin start/stop, Admin enable/disable, Admin delete, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, JDBC datasource backend persist/test, nested filter groups, binary resource persist/retrieve, HTML result-page persist, request tracing, and IR execute")
 public class PipelinesResource {
 
   private final IPipelinesAdaptor adaptor;
@@ -263,6 +263,45 @@ public class PipelinesResource {
         throw new WebApplicationException("Application not found", 404);
       }
       return detail;
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Delete a non-hidden classic XML Application. A running application is 409 (stop it first);
+   * hidden applications are 400. Row drops only after success; cancel writes nothing.
+   */
+  @DELETE
+  @Path("/{idOrName}")
+  @Operation(
+      summary = "Delete a pipeline application",
+      description =
+          "Admin only. Deletes the classic application, its files, and its virtual directory"
+              + " via the object store with a caller-held design lock (released after the"
+              + " delete, never stolen). Running applications are 409 — stop first. Hidden"
+              + " applications are 400.",
+      responses = {
+        @ApiResponse(responseCode = "204", description = "Deleted"),
+        @ApiResponse(responseCode = "400", description = "Hidden or invalid name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Running application (stop first) or design lock held"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public Response deleteApplication(@PathParam("idOrName") String idOrName) {
+    try {
+      boolean deleted = requireAdaptor().deleteApplication(uriInfo.getBaseUri(), idOrName);
+      if (!deleted) {
+        throw new WebApplicationException("Application not found", 404);
+      }
+      return Response.noContent().build();
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {
