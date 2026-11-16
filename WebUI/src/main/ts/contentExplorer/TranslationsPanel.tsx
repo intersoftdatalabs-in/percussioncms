@@ -149,6 +149,33 @@ export function filterTranslationVariants(
   });
 }
 
+/**
+ * Case-insensitive substring filter for the create-variant target-locale
+ * checkboxes (#6415, parent #4532). Matches the locale code and the display
+ * label. NUL-safe: NUL characters are stripped from the query, so a pasted
+ * NUL can never match or throw — an empty query returns every target.
+ * Selection lives outside the filter, so narrowing, clearing, or
+ * no-matching never drops already-checked locales.
+ */
+export function filterTargetLocales(
+  targets: ReadonlyArray<TranslationLocaleOption>,
+  query: string,
+): TranslationLocaleOption[] {
+  const needle = String(query ?? "")
+    .split(String.fromCharCode(0)).join("")
+    .trim()
+    .toLowerCase();
+  if (!needle) {
+    return [...targets];
+  }
+  return targets.filter((target) => {
+    const haystack = [target.languageString ?? "", target.label ?? ""]
+      .join(" ")
+      .toLowerCase();
+    return haystack.includes(needle);
+  });
+}
+
 function roleLabel(role: string | null | undefined): string {
   if (role === "source") {
     return message(EXPLORER_MSG.TRANSLATIONS_ROLE_SOURCE);
@@ -186,6 +213,15 @@ export function TranslationsPanel(
   const [reloadToken, setReloadToken] = useState(0);
   const [variantFilter, setVariantFilter] = useState("");
   /**
+   * Create-form target-locale search (#6415, parent #4532). Narrowing the
+   * list never drops the selection (checked codes live in
+   * {@code selectedLocales}); clearing restores every target. Reset on item
+   * change and after a successful create for the same reason the variant
+   * filter resets — a stale query could hide the new copy's locale or
+   * confuse the next item's empty create form.
+   */
+  const [targetLocaleFilter, setTargetLocaleFilter] = useState("");
+  /**
    * Item the create notices belong to (#6414, parent #4532). The load effect
    * refreshes the list after a successful create (reload token bump); that
    * refresh must not wipe the just-set success notice before it is read.
@@ -213,8 +249,10 @@ export function TranslationsPanel(
       setCreateError(null);
       setCreateSuccess(null);
       // A carried-over filter could hide every variant of the new item
-      // behind a confusing no-match state (#6414).
+      // behind a confusing no-match state (#6414). The target-locale
+      // search resets for the same reason (#6415).
       setVariantFilter("");
+      setTargetLocaleFilter("");
     }
     loadVariants(variantsKey)
       .then((data) => {
@@ -288,6 +326,16 @@ export function TranslationsPanel(
     [catalog, variants, currentLocale],
   );
 
+  const visibleTargets = useMemo(
+    () => filterTargetLocales(targets, targetLocaleFilter),
+    [targets, targetLocaleFilter],
+  );
+  /** Trimmed query for the zero-match state so it names the filter (#6415). */
+  const targetLocaleNeedle = targetLocaleFilter
+    .split(String.fromCharCode(0))
+    .join("")
+    .trim();
+
   const toggleLocale = useCallback((lang: string, next: boolean) => {
     setSelectedLocales((prev) => {
       const copy = new Set(prev);
@@ -327,8 +375,11 @@ export function TranslationsPanel(
       );
       setSelectedLocales(new Set());
       // Show the refreshed list (including the new copy) instead of keeping
-      // a filter that could hide it behind a no-match state (#6414).
+      // a filter that could hide it behind a no-match state (#6414). The
+      // target-locale search clears too so the next create starts unfiltered
+      // (#6415).
       setVariantFilter("");
+      setTargetLocaleFilter("");
       setReloadToken((n) => n + 1);
       onCreated?.(result);
     } catch (err: unknown) {
@@ -577,6 +628,42 @@ export function TranslationsPanel(
           </p>
         ) : (
           <>
+            <div style={{ marginBottom: 8 }}>
+              <label
+                htmlFor="translations-target-locales-search"
+                style={{
+                  display: "block",
+                  fontSize: 13,
+                  marginBottom: 4,
+                  color: PANEL_SECONDARY_TEXT,
+                }}
+              >
+                {message(EXPLORER_MSG.TRANSLATIONS_TARGET_LOCALES_SEARCH_LABEL)}
+              </label>
+              <input
+                id="translations-target-locales-search"
+                data-testid="translations-target-locales-search"
+                type="search"
+                value={targetLocaleFilter}
+                placeholder={message(
+                  EXPLORER_MSG.TRANSLATIONS_TARGET_LOCALES_SEARCH_PLACEHOLDER,
+                )}
+                onChange={(e) => setTargetLocaleFilter(e.target.value)}
+                style={{
+                  width: "100%",
+                  maxWidth: 320,
+                  fontSize: 13,
+                  padding: "4px 8px",
+                }}
+              />
+            </div>
+            {visibleTargets.length === 0 ? (
+              <p data-testid="translations-target-locales-no-match" role="status">
+                {message(
+                  EXPLORER_MSG.TRANSLATIONS_TARGET_LOCALES_NO_MATCH,
+                ).replace("{filter}", targetLocaleNeedle)}
+              </p>
+            ) : (
             <fieldset
               data-testid="translations-locale-options"
               style={{ border: "none", margin: 0, padding: 0 }}
@@ -594,7 +681,7 @@ export function TranslationsPanel(
                   gap: 8,
                 }}
               >
-                {targets.map((t) => {
+                {visibleTargets.map((t) => {
                   const checked = selectedLocales.has(t.languageString);
                   return (
                     <li key={t.languageString}>
@@ -627,6 +714,7 @@ export function TranslationsPanel(
                 })}
               </ul>
             </fieldset>
+            )}
             <button
               type="button"
               data-testid="translations-create-submit"

@@ -22,6 +22,7 @@ import {
   TranslationNotFoundError,
 } from "../../../main/ts/api/contentExplorer/translationsApi";
 import {
+  filterTargetLocales,
   filterTranslationVariants,
   TranslationsPanel,
   translationsVariantsItemKey,
@@ -661,6 +662,167 @@ describe("TranslationsPanel variant search (#6414)", () => {
     );
     fireEvent.change(screen.getByTestId("translations-variants-search"), {
       target: { value: "fr" },
+    });
+    await renderA11yGate(container);
+  });
+});
+
+describe("filterTargetLocales (#6415)", () => {
+  const TARGETS = [
+    { languageString: "fr-fr", label: "French" },
+    { languageString: "de-de", label: "German" },
+    { languageString: "es-es", label: "Spanish" },
+  ];
+
+  it("matches label or code, case-insensitively", () => {
+    expect(
+      filterTargetLocales(TARGETS, "ger").map((t) => t.languageString),
+    ).toEqual(["de-de"]);
+    expect(
+      filterTargetLocales(TARGETS, "FR-").map((t) => t.languageString),
+    ).toEqual(["fr-fr"]);
+    expect(filterTargetLocales(TARGETS, "-es").map((t) => t.languageString))
+      .toEqual(["es-es"]);
+  });
+
+  it("returns every target on an empty query", () => {
+    expect(filterTargetLocales(TARGETS, "")).toHaveLength(3);
+    expect(filterTargetLocales(TARGETS, "   ")).toHaveLength(3);
+  });
+
+  it("strips NUL characters instead of matching or throwing", () => {
+    const nul = String.fromCharCode(0);
+    expect(
+      filterTargetLocales(TARGETS, `${nul}spanish${nul}`).map(
+        (t) => t.languageString,
+      ),
+    ).toEqual(["es-es"]);
+    expect(filterTargetLocales(TARGETS, nul)).toHaveLength(3);
+  });
+});
+
+describe("TranslationsPanel target-locale search (#6415)", () => {
+  const SOURCE_ONLY = {
+    itemId: 42,
+    locale: "en-us",
+    variants: [{ contentId: 42, locale: "en-us", role: "source" }],
+  };
+  const BIG_CATALOG = [
+    { languageString: "en-us", label: "English (US)" },
+    { languageString: "fr-fr", label: "French" },
+    { languageString: "de-de", label: "German" },
+    { languageString: "es-es", label: "Spanish" },
+  ];
+
+  async function renderCreatable(createVariants?: ReturnType<typeof vi.fn>) {
+    render(
+      <TranslationsPanel
+        itemId="42"
+        itemLabel="Home"
+        loadVariants={async () => SOURCE_ONLY}
+        loadLocaleCatalog={async () => BIG_CATALOG}
+        createVariants={createVariants}
+      />,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("translations-locale-option-de-de"),
+      ).toBeInTheDocument(),
+    );
+  }
+
+  it("filters target checkboxes and restores the full list on clear", async () => {
+    await renderCreatable();
+    const search = screen.getByTestId("translations-target-locales-search");
+    expect(screen.getByTestId("translations-locale-option-fr-fr")).toBeTruthy();
+    fireEvent.change(search, { target: { value: "ger" } });
+    expect(
+      screen.queryByTestId("translations-locale-option-fr-fr"),
+    ).toBeNull();
+    expect(screen.getByTestId("translations-locale-option-de-de")).toBeTruthy();
+    expect(
+      screen.queryByTestId("translations-target-locales-no-match"),
+    ).toBeNull();
+    fireEvent.change(search, { target: { value: "" } });
+    expect(screen.getByTestId("translations-locale-option-fr-fr")).toBeTruthy();
+    expect(screen.getByTestId("translations-locale-option-es-es")).toBeTruthy();
+  });
+
+  it("names the filter in the zero-match state and keeps submit disabled", async () => {
+    await renderCreatable();
+    fireEvent.change(screen.getByTestId("translations-target-locales-search"), {
+      target: { value: "xx-no-such-locale" },
+    });
+    const noMatch = screen.getByTestId("translations-target-locales-no-match");
+    expect(noMatch).toBeTruthy();
+    expect(noMatch).toHaveTextContent("xx-no-such-locale");
+    expect(
+      screen.queryByTestId("translations-locale-options"),
+    ).toBeNull();
+    expect(screen.getByTestId("translations-create-submit")).toBeDisabled();
+  });
+
+  it("keeps the selection across filter changes and posts it", async () => {
+    const createVariants = vi.fn(async () => ({ created: [] }));
+    await renderCreatable(createVariants);
+    // Select while filtered, then clear — the check stays checked.
+    fireEvent.change(screen.getByTestId("translations-target-locales-search"), {
+      target: { value: "ger" },
+    });
+    fireEvent.click(screen.getByTestId("translations-locale-option-de-de"));
+    fireEvent.change(screen.getByTestId("translations-target-locales-search"), {
+      target: { value: "" },
+    });
+    expect(
+      screen.getByTestId("translations-locale-option-de-de"),
+    ).toBeChecked();
+    expect(screen.getByTestId("translations-create-submit")).not.toBeDisabled();
+    fireEvent.click(screen.getByTestId("translations-create-submit"));
+    await waitFor(() => expect(createVariants).toHaveBeenCalledTimes(1));
+    expect(createVariants).toHaveBeenCalledWith({
+      itemIds: [42],
+      locales: ["de-de"],
+    });
+  });
+
+  it("resets the target search after a successful create", async () => {
+    const createVariants = vi.fn(async () => ({
+      created: [
+        { contentId: 901, locale: "de-de", role: "translation" },
+      ],
+    }));
+    await renderCreatable(createVariants);
+    fireEvent.change(screen.getByTestId("translations-target-locales-search"), {
+      target: { value: "ger" },
+    });
+    fireEvent.click(screen.getByTestId("translations-locale-option-de-de"));
+    fireEvent.click(screen.getByTestId("translations-create-submit"));
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("translations-create-success"),
+      ).toBeInTheDocument(),
+    );
+    expect(
+      screen.getByTestId("translations-target-locales-search"),
+    ).toHaveValue("");
+  });
+
+  it("passes the zero serious/critical axe-core gate with target search", async () => {
+    const { container } = render(
+      <TranslationsPanel
+        itemId="42"
+        itemLabel="Home"
+        loadVariants={async () => SOURCE_ONLY}
+        loadLocaleCatalog={async () => BIG_CATALOG}
+      />,
+    );
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("translations-locale-option-de-de"),
+      ).toBeInTheDocument(),
+    );
+    fireEvent.change(screen.getByTestId("translations-target-locales-search"), {
+      target: { value: "ger" },
     });
     await renderA11yGate(container);
   });

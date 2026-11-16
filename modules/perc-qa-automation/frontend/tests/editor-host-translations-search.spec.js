@@ -16,12 +16,17 @@
  */
 
 /**
- * EditorHost translation-variant list search filter (#6414, parent #4532).
+ * EditorHost translation-variant list search filter (#6414, parent #4532)
+ * and create-form target-locale search (#6415, parent #4532).
  *
  * <p>The shared Translations panel variants table gains a locale search input:
  * typing narrows rows by locale, role, or content id; a filter with no matches
  * shows a distinct no-match state instead of the table; clearing restores
- * every row. Tags: {@code @editor} {@code @editor-translations}</p>
+ * every row. The create form gains a target-locale search that narrows the
+ * locale checkboxes by name or code (case-insensitive, NUL-safe); a filter
+ * with no matches names the filter, submit stays disabled until a locale is
+ * selected, and clearing restores the list while keeping the selection.
+ * Tags: {@code @editor} {@code @editor-translations}</p>
  *
  * <p>Run (QA mode after {@code perc-devctl qa-up}):
  * {@code npm run test:surface -- --path tests/editor-host-translations-search.spec.js}</p>
@@ -64,7 +69,12 @@ function variantsFor() {
   };
 }
 
-async function stubApis(page) {
+async function stubApis(page, { catalog = null } = {}) {
+  const locales = catalog ?? [
+    { languageString: "en-us", label: "English" },
+    { languageString: "fr-fr", label: "French" },
+    { languageString: "de-de", label: "German" },
+  ];
   await page.route("**/services/contenttypes/**", (route) =>
     route.fulfill({
       status: 200,
@@ -140,11 +150,7 @@ async function stubApis(page) {
     return route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify([
-        { languageString: "en-us", label: "English" },
-        { languageString: "fr-fr", label: "French" },
-        { languageString: "de-de", label: "German" },
-      ]),
+      body: JSON.stringify(locales),
     });
   });
   await page.route("**/rest/content-explorer/translations/**", (route) => {
@@ -155,6 +161,35 @@ async function stubApis(page) {
       status: 200,
       contentType: "application/json",
       body: JSON.stringify(variantsFor()),
+    });
+  });
+}
+
+/**
+ * Create-flow stubs for the #6415 target-locale search: a wider catalog so
+ * the create form has targets (variants already cover en/fr/de), plus a
+ * POST that reports one created es-es copy (id 902) so the host opens it.
+ */
+const CREATE_CATALOG = [
+  { languageString: "en-us", label: "English" },
+  { languageString: "fr-fr", label: "French" },
+  { languageString: "de-de", label: "German" },
+  { languageString: "es-es", label: "Spanish" },
+  { languageString: "it-it", label: "Italian" },
+];
+
+async function stubCreateApis(page) {
+  await stubApis(page, { catalog: CREATE_CATALOG });
+  await page.route("**/rest/content-explorer/translations", (route) => {
+    if (route.request().method() !== "POST") {
+      return route.fallback();
+    }
+    return route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        created: [{ contentId: 902, locale: "es-es", role: "translation" }],
+      }),
     });
   });
 }
@@ -184,6 +219,20 @@ async function openPanel(page) {
     "data-testid-state",
     "ok",
   );
+}
+
+async function openCreatablePanel(page) {
+  await loginAsAdmin(page);
+  await stubCreateApis(page);
+  await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+  await expect(page.getByTestId(TEST_IDS.host)).toBeVisible();
+  await expect(page.getByTestId(TEST_IDS.panel)).toHaveAttribute(
+    "data-testid-state",
+    "ok",
+  );
+  await expect(
+    page.getByTestId("translations-locale-option-es-es"),
+  ).toBeVisible();
 }
 
 test.describe("EditorHost translation variant search @editor @editor-translations", () => {
@@ -226,6 +275,75 @@ test.describe("EditorHost translation variant search @editor @editor-translation
     await expect(page.getByTestId("translations-variant-row-901")).toBeVisible();
     await page.screenshot({
       path: "test-results/live-proof-6414-translations-search.png",
+    });
+    await expectNoSeriousA11yViolations(page, {
+      scope: '[data-testid="translations-panel"]',
+    });
+    expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
+  });
+});
+
+test.describe("EditorHost translation target-locale search @editor @editor-translations", () => {
+  test("filters target checkboxes by name or code, restores on clear", async ({
+    page,
+  }) => {
+    const consoleErrors = watchConsole(page);
+    await openCreatablePanel(page);
+    const search = page.getByTestId("translations-target-locales-search");
+    await expect(search).toBeVisible();
+    await expect(
+      page.getByTestId("translations-locale-option-es-es"),
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("translations-locale-option-it-it"),
+    ).toBeVisible();
+    await search.fill("span");
+    await expect(
+      page.getByTestId("translations-locale-option-es-es"),
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("translations-locale-option-it-it"),
+    ).toHaveCount(0);
+    await expect(
+      page.getByTestId("translations-target-locales-no-match"),
+    ).toHaveCount(0);
+    await search.fill("");
+    await expect(
+      page.getByTestId("translations-locale-option-es-es"),
+    ).toBeVisible();
+    await expect(
+      page.getByTestId("translations-locale-option-it-it"),
+    ).toBeVisible();
+    expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
+  });
+
+  test("names the filter at zero matches; selection survives clear; create posts", async ({
+    page,
+  }) => {
+    const consoleErrors = watchConsole(page);
+    await openCreatablePanel(page);
+    const search = page.getByTestId("translations-target-locales-search");
+    const submit = page.getByTestId(TEST_IDS.create);
+    await search.fill("xx-no-such-locale");
+    const noMatch = page.getByTestId("translations-target-locales-no-match");
+    await expect(noMatch).toBeVisible();
+    await expect(noMatch).toContainText("xx-no-such-locale");
+    await expect(
+      page.getByTestId("translations-locale-options"),
+    ).toHaveCount(0);
+    await expect(submit).toBeDisabled();
+    // Select from the filtered view, clear, keep the check, submit.
+    await search.fill("span");
+    await page.getByTestId("translations-locale-option-es-es").check();
+    await search.fill("");
+    await expect(
+      page.getByTestId("translations-locale-option-es-es"),
+    ).toBeChecked();
+    await expect(submit).toBeEnabled();
+    await submit.click();
+    await expect(page.getByTestId(TEST_IDS.contentId)).toContainText("902");
+    await page.screenshot({
+      path: "test-results/live-proof-6415-target-locale-search.png",
     });
     await expectNoSeriousA11yViolations(page, {
       scope: '[data-testid="translations-panel"]',

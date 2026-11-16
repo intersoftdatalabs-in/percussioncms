@@ -779,6 +779,12 @@ export const EXPLORER_MSG = {
   TRANSLATIONS_ROLE_TRANSLATION: "perc.ui.explorer@Translation",
   TRANSLATIONS_CREATE_HEADING: "perc.ui.explorer@Create translation variant",
   TRANSLATIONS_TARGET_LOCALES: "perc.ui.explorer@Target locales",
+  TRANSLATIONS_TARGET_LOCALES_SEARCH_LABEL:
+    "perc.ui.explorer@Filter target locales",
+  TRANSLATIONS_TARGET_LOCALES_SEARCH_PLACEHOLDER:
+    "perc.ui.explorer@Filter by language name or code",
+  TRANSLATIONS_TARGET_LOCALES_NO_MATCH:
+    'perc.ui.explorer@No target locales match "{filter}"',
   TRANSLATIONS_NO_TARGET_LOCALES:
     "perc.ui.explorer@No additional target locales available",
   TRANSLATIONS_CREATE_ACTION: "perc.ui.explorer@Create variants",
