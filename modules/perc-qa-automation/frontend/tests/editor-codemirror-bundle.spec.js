@@ -281,7 +281,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
         // the sweep — only live build elements count.
         const text = fs
           .readFileSync(pomPath, "utf8")
-          .replace(/<!--[\s\S]*?-->/g, "");
+          .replace(/<!--[\s\S]*?-->/g, ""); // codeql[js/incomplete-multi-character-sanitization]
         expect(
           /<artifactId>\s*codemirror\s*<\/artifactId>/.test(text),
           `${rel} must not declare a codemirror Maven artifact (WebJar removed)`,
