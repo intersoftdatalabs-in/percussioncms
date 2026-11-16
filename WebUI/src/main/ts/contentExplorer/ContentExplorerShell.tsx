@@ -283,6 +283,7 @@ import { EXPLORER_MSG } from "./messages";
 import { CopyDestinationPickerDialog } from "./CopyDestinationPickerDialog";
 import { MoveDestinationPickerDialog } from "./MoveDestinationPickerDialog";
 import { PurgeConfirmDialog } from "./PurgeConfirmDialog";
+import { BulkStageDialog } from "./BulkStageDialog";
 import { RecycleConfirmDialog } from "./RecycleConfirmDialog";
 import { RestoreConfirmDialog } from "./RestoreConfirmDialog";
 import {
@@ -1140,6 +1141,16 @@ function ContentExplorerShellInner({
     text: string;
     outcome: MultiSelectRestoreOutcome;
   } | null>(null);
+  /**
+   * Bulk Stage / Remove-from-Staging dialog request (#6469). Resolved by
+   * the dialog; dispatch refreshes the list when the report ran with
+   * staged/removed rows.
+   */
+  const [bulkStageRequest, setBulkStageRequest] = useState<{
+    mode: "stage" | "unstage";
+    items: PSPathItem[];
+    resolve: (outcome: { ran: boolean; refresh: boolean } | null) => void;
+  } | null>(null);
   const [clipboard, setClipboardState] = useState<Clipboard>(EMPTY_CLIPBOARD);
   const [clipboardMode, setClipboardMode] = useState<"copy" | "cut">("copy");
   /** Folder content id for security/properties (resolved from selection or path). */
@@ -1714,6 +1725,36 @@ function ContentExplorerShellInner({
     [],
   );
 
+  const confirmBulkStage = useCallback(
+    (args: { mode: "stage" | "unstage"; items: readonly PSPathItem[] }) => {
+      return new Promise<{ ran: boolean; refresh: boolean } | null>(
+        (resolve) => {
+          const previous = bulkStageRequest;
+          setBulkStageRequest({
+            mode: args.mode,
+            items: Array.from(args.items),
+            resolve,
+          });
+          if (previous) {
+            previous.resolve(null);
+          }
+        },
+      );
+    },
+    [bulkStageRequest],
+  );
+
+  const finishBulkStage = useCallback(
+    (outcome: { ran: boolean; refresh: boolean }) => {
+      const current = bulkStageRequest;
+      setBulkStageRequest(null);
+      if (current) {
+        current.resolve(outcome);
+      }
+    },
+    [bulkStageRequest],
+  );
+
   const confirmClearScheduledDates = useCallback((item: PSPathItem) => {
     return new Promise<boolean>((resolve) => {
       const previous = clearScheduleResolveRef.current;
@@ -1901,6 +1942,7 @@ function ContentExplorerShellInner({
               }
             },
             confirm: (body) => window.confirm(message(body)),
+            confirmBulkStage,
             runWorkflow: runWorkflowTransition,
             onShowTranslations: () => setShowTranslations(true),
             onShowItemProperties: (readOnly) => {
@@ -2007,6 +2049,7 @@ function ContentExplorerShellInner({
       pickContentType,
       pickScheduleDates,
       confirmClearScheduledDates,
+      confirmBulkStage,
       promptCheckinComment,
       loadContentTypes,
       slot,
@@ -3966,6 +4009,13 @@ function ContentExplorerShellInner({
             );
           }}
           onCancel={() => setMultiPurgeOpen(false)}
+        />
+      ) : null}
+      {bulkStageRequest ? (
+        <BulkStageDialog
+          mode={bulkStageRequest.mode}
+          items={bulkStageRequest.items}
+          onDone={finishBulkStage}
         />
       ) : null}
       {multiRestoreStatus ? (

@@ -281,6 +281,16 @@ export interface ActionDispatchContext {
   onTakedown?: (item: PSPathItem) => Promise<void>;
   onStage?: (item: PSPathItem) => Promise<void>;
   /**
+   * Bulk Stage / Remove-from-Staging confirm dialog with per-item reporting
+   * (#6469). The shell opens {@code BulkStageDialog} and resolves with the
+   * outcome; null means the operator cancelled before anything ran. When
+   * absent, dispatch keeps the legacy {@code confirm} + banner flow.
+   */
+  confirmBulkStage?: (args: {
+    mode: "stage" | "unstage";
+    items: readonly PSPathItem[];
+  }) => Promise<{ ran: boolean; refresh: boolean } | null>;
+  /**
    * Checkbox multi-selection. When length is 2 or more, Publish now,
    * Stage, Take Down, Remove from Staging, Check Out, workflow
    * transitions, Copy URL, and New Copy use one action for every eligible
@@ -1455,6 +1465,13 @@ async function stageMultiSelection(
   ctx: ActionDispatchContext,
   items: readonly PSPathItem[],
 ): Promise<ActionDispatchResult> {
+  if (ctx.confirmBulkStage) {
+    const outcome = await ctx.confirmBulkStage({ mode: "stage", items });
+    if (outcome == null || !outcome.ran) {
+      return { kind: "rest" };
+    }
+    return { kind: "rest", refresh: outcome.refresh };
+  }
   const plan = partitionStageSelection(items);
   if (plan.eligible.length === 0) {
     const noted = describeStageBatch({
@@ -1534,6 +1551,13 @@ async function removeFromStagingMultiSelection(
   ctx: ActionDispatchContext,
   items: readonly PSPathItem[],
 ): Promise<ActionDispatchResult> {
+  if (ctx.confirmBulkStage) {
+    const outcome = await ctx.confirmBulkStage({ mode: "unstage", items });
+    if (outcome == null || !outcome.ran) {
+      return { kind: "rest" };
+    }
+    return { kind: "rest", refresh: outcome.refresh };
+  }
   const plan = partitionStageSelection(items);
   if (plan.eligible.length === 0) {
     const noted = describeRemoveFromStagingBatch({

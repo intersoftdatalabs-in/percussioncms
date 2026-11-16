@@ -1026,6 +1026,34 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Remove the pages and assets in this folder from staging? Nested folders are not included.",
   UNSTAGE_FOLDER_EMPTY:
     "perc.ui.explorer@This folder has no pages or assets to remove from staging.",
+  BULK_STAGE_TITLE: "perc.ui.explorer@Stage selected items",
+  BULK_UNSTAGE_TITLE: "perc.ui.explorer@Remove selected items from staging",
+  BULK_STAGE_ITEMS_LABEL: "perc.ui.explorer@Items to stage:",
+  BULK_UNSTAGE_ITEMS_LABEL: "perc.ui.explorer@Items to remove from staging:",
+  BULK_STAGE_CONFIRM_BUTTON:
+    "perc.ui.explorer@Stage {count} items",
+  BULK_UNSTAGE_CONFIRM_BUTTON:
+    "perc.ui.explorer@Remove {count} items from staging",
+  BULK_STAGE_RUNNING:
+    "perc.ui.explorer@Staging {count} items…",
+  BULK_UNSTAGE_RUNNING:
+    "perc.ui.explorer@Removing {count} items from staging…",
+  BULK_STAGE_REPORT_TITLE: "perc.ui.explorer@Staging results",
+  BULK_UNSTAGE_REPORT_TITLE:
+    "perc.ui.explorer@Remove from staging results",
+  BULK_STAGE_SUMMARY:
+    "perc.ui.explorer@{ok} staged, {skipped} skipped, {failed} failed.",
+  BULK_UNSTAGE_SUMMARY:
+    "perc.ui.explorer@{ok} removed from staging, {skipped} skipped, {failed} failed.",
+  BULK_STAGE_ROW_OK: "perc.ui.explorer@Staged",
+  BULK_UNSTAGE_ROW_OK: "perc.ui.explorer@Removed from staging",
+  BULK_STAGE_ROW_FAILED: "perc.ui.explorer@Failed",
+  BULK_STAGE_ROW_SKIPPED_FOLDER: "perc.ui.explorer@Skipped — folder",
+  BULK_STAGE_ROW_SKIPPED_OTHER:
+    "perc.ui.explorer@Skipped — not a page or asset",
+  BULK_STAGE_CLOSE: "perc.ui.explorer@Close",
+  BULK_STAGE_REPORT_EMPTY:
+    "perc.ui.explorer@No items were processed.",
   CONFIRM_SCHEDULE:
     "perc.ui.explorer@Save schedule publish dates for this item?",
   CONFIRM_SCHEDULE_MULTI:

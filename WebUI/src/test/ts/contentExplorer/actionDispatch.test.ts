@@ -2471,6 +2471,78 @@ describe("actionDispatch", () => {
     expect(result.messageText ?? "").toMatch(/Folders are not staged: Sites, News/);
   });
 
+  it("multi-select Stage uses the bulk dialog hook when provided (#6469)", async () => {
+    const onStage = vi.fn();
+    const confirm = vi.fn();
+    const confirmBulkStage = vi
+      .fn()
+      .mockResolvedValue({ ran: true, refresh: true });
+    const selected = [
+      item({ id: "42", name: "Home" }),
+      item({ id: "43", name: "About" }),
+    ];
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item({ id: "42", name: "Home" }),
+      selectedItems: selected,
+      onStage,
+      confirm,
+      confirmBulkStage,
+    });
+    expect(confirmBulkStage).toHaveBeenCalledTimes(1);
+    expect(confirmBulkStage.mock.calls[0]?.[0]).toEqual({
+      mode: "stage",
+      items: selected,
+    });
+    expect(confirm).not.toHaveBeenCalled();
+    expect(onStage).not.toHaveBeenCalled();
+    expect(result.refresh).toBe(true);
+    expect(result.messageText).toBeUndefined();
+  });
+
+  it("multi-select Stage dialog cancel runs nothing and keeps no banner (#6469)", async () => {
+    const onStage = vi.fn();
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item({ id: "42", name: "Home" }),
+      selectedItems: [
+        item({ id: "42", name: "Home" }),
+        item({ id: "43", name: "About" }),
+      ],
+      onStage,
+      confirmBulkStage: vi.fn().mockResolvedValue(null),
+    });
+    expect(onStage).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText).toBeUndefined();
+  });
+
+  it("multi-select Remove from Staging uses the bulk dialog hook (#6469)", async () => {
+    const onRemove = vi.fn();
+    const confirmBulkStage = vi
+      .fn()
+      .mockResolvedValue({ ran: true, refresh: false });
+    const selected = [
+      item({ id: "42", name: "Home" }),
+      item({ id: "43", name: "About" }),
+    ];
+    const result = await dispatchAction(
+      action({ name: "Remove_from_Staging" }),
+      {
+        item: item({ id: "42", name: "Home" }),
+        selectedItems: selected,
+        onRemoveFromStaging: onRemove,
+        confirmBulkStage,
+      },
+    );
+    expect(confirmBulkStage).toHaveBeenCalledTimes(1);
+    expect(confirmBulkStage.mock.calls[0]?.[0]).toEqual({
+      mode: "unstage",
+      items: selected,
+    });
+    expect(onRemove).not.toHaveBeenCalled();
+    expect(result.refresh).toBe(false);
+    expect(result.messageText).toBeUndefined();
+  });
+
   it("Stage on a folder confirms then stages direct page and asset children", async () => {
     findChildren.mockResolvedValue([
       item({ id: "42", name: "Home" }),
