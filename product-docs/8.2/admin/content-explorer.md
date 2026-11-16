@@ -305,7 +305,8 @@ saved with a newer revision. Reload and try again.** — 409 is not treated as
 success. Validation errors (empty required fields, HTTP **400**) stay on the
 form as before. When the save is blocked with invalid fields, the
 host also shows one error summary above the form listing each invalid field;
-choosing a summary entry moves focus to that field row. HTTP **400** and
+choosing a summary entry moves focus to that field row — for rich-text rows
+focus lands inside the editor body, not on the row label or toolbar. HTTP **400** and
 **403** errors the host maps onto named fields appear in that summary too.
 A successful save clears the summary. After a successful fields PUT the host
 reloads the item (`GET /services/itemmanagement/item/fields/{id}`) so the
@@ -356,7 +357,8 @@ panel is shown in **Edit** mode only.  **Required** fields (content-type
 `GET /services/contenttypes/{type}`) show a marker on the field row. Saving with
 an empty required field keeps the form on screen and shows an inline error on
 that row — the host does not PUT a partial save. Keyboard focus moves to the
-first invalid row (form order) and that row is scrolled into view. The inline
+first invalid row (form order) and that row is scrolled into view — on a
+rich-text row focus lands inside the editor body. The inline
 error text stays. A successful save does not move focus. HTTP **400** from
 `PUT /services/itemmanagement/item/fields/{id}` is mapped onto the named field
 when the error body includes that field (`errorData`, `field`, `fieldName`, or a

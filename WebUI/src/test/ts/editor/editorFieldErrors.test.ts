@@ -15,12 +15,13 @@
  * limitations under the License.
  */
 
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
 import {
   collectFieldErrorSummaryEntries,
   collectInvalidDateFieldErrors,
   collectRequiredFieldErrors,
   firstInvalidEditorFieldName,
+  focusInvalidEditorField,
   isEmptyEditorFieldValue,
   mapSaveApiErrorToFieldErrors,
 } from "../../../main/ts/editor/editorFieldErrors";
@@ -431,5 +432,78 @@ describe("collectFieldErrorSummaryEntries", () => {
         message: "Quantity cannot be blank",
       },
     ]);
+  });
+});
+
+describe("focusInvalidEditorField", () => {
+  afterEach(() => {
+    document.body.innerHTML = "";
+  });
+
+  function addRow(name: string, inner: string): HTMLElement {
+    const row = document.createElement("label");
+    row.setAttribute("data-testid", `editor-field-row-${name}`);
+    row.innerHTML = inner;
+    document.body.appendChild(row);
+    return row;
+  }
+
+  it("returns false when the named row is not in the document", () => {
+    expect(focusInvalidEditorField("missing")).toBe(false);
+    expect(focusInvalidEditorField("")).toBe(false);
+  });
+
+  it("focuses the labelable control in a text row", () => {
+    addRow("sys_title", '<input data-testid="editor-field-sys_title" />');
+    expect(focusInvalidEditorField("sys_title")).toBe(true);
+    expect(document.activeElement?.getAttribute("data-testid")).toBe(
+      "editor-field-sys_title",
+    );
+  });
+
+  it("focuses the contenteditable host in a rich-text row (#6474)", () => {
+    addRow(
+      "body",
+      '<div data-testid="editor-tiptap-body"><div class="tiptap ProseMirror" contenteditable="true"></div></div>',
+    );
+    expect(focusInvalidEditorField("body")).toBe(true);
+    const editable = document.querySelector(
+      '[data-testid="editor-tiptap-body"] [contenteditable="true"]',
+    );
+    expect(document.activeElement).toBe(editable);
+  });
+
+  it("prefers the field control over toolbar chrome in a TipTap row", () => {
+    addRow(
+      "body",
+      '<div><select data-testid="tiptap-style-body"><option value="p">P</option></select>' +
+        '<button type="button">Bold</button></div><div class="tiptap ProseMirror" contenteditable="true" data-testid="editor-field-body"></div>',
+    );
+    expect(focusInvalidEditorField("body")).toBe(true);
+    expect(document.activeElement?.getAttribute("data-testid")).toBe(
+      "editor-field-body",
+    );
+  });
+
+  it("prefers the labelable control over rich-text chrome in the same row", () => {
+    addRow(
+      "body",
+      '<button type="button">Bold</button><div class="tiptap ProseMirror" contenteditable="true"></div><input data-testid="editor-field-body" />',
+    );
+    expect(focusInvalidEditorField("body")).toBe(true);
+    expect(document.activeElement?.getAttribute("data-testid")).toBe(
+      "editor-field-body",
+    );
+  });
+
+  it("lands in the editable body rather than on toolbar buttons", () => {
+    addRow(
+      "body",
+      '<div><button type="button">Bold</button><button type="button">Italic</button></div><div class="tiptap ProseMirror" contenteditable="true"></div>',
+    );
+    expect(focusInvalidEditorField("body")).toBe(true);
+    expect(document.activeElement?.classList.contains("ProseMirror")).toBe(
+      true,
+    );
   });
 });
