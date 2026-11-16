@@ -33,7 +33,7 @@ const ITEM_FIELDS = {
     contentId: "42",
     contentType: "percPage",
     name: "Home",
-    checkoutUser: "",
+    checkoutUser: "admin",
     fields: [{ name: "sys_title", value: "Home" }],
   },
 };
@@ -74,6 +74,12 @@ const COMPARE = {
           rightValue: "Home",
           changed: true,
         },
+        {
+          name: "displaytitle",
+          leftValue: "Same",
+          rightValue: "Same",
+          changed: false,
+        },
       ],
     },
   },
@@ -93,18 +99,18 @@ function consoleOn(page, pageErrors) {
       return;
     }
     const text = msg.text();
-    if (
-      /Failed to load resource: the server responded with a status of (403|404)/.test(
-        text,
-      )
-    ) {
+    // The stubbed cell leaves newer host auxiliary endpoints unstubbed, so
+    // the bare H2 CMS answers 400/500 for those background loads. Those
+    // resource-load failures are harness noise, not product errors (same
+    // filter as the merged field-error-summary jump spec).
+    if (/Failed to load resource/.test(text)) {
       return;
     }
     pageErrors.push(text);
   });
 }
 
-async function stubEditor(page, { compareStatus = 200, compareBody = COMPARE, revisionsBody = REVISIONS } = {}) {
+async function stubEditor(page, { compareStatus = 200, compareBody = COMPARE, revisionsBody = REVISIONS, compareDelayMs = 0 } = {}) {
   await page.route("**/rest/editor/items/**/checkout", (route) =>
     route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
   );
@@ -145,15 +151,22 @@ async function stubEditor(page, { compareStatus = 200, compareBody = COMPARE, re
       body: JSON.stringify(revisionsBody),
     }),
   );
-  await page.route("**/services/itemmanagement/item/compare/**", (route) =>
-    route.fulfill({
-      status: compareStatus,
-      contentType: "application/json",
-      body: JSON.stringify(
-        compareStatus >= 400 ? { message: "compare failed" } : compareBody,
-      ),
-    }),
-  );
+  await page.route("**/services/itemmanagement/item/compare/**", (route) => {
+    const fulfill = () =>
+      route.fulfill({
+        status: compareStatus,
+        contentType: "application/json",
+        body: JSON.stringify(
+          compareStatus >= 400 ? { message: "compare failed" } : compareBody,
+        ),
+      });
+    if (compareDelayMs > 0) {
+      return new Promise((resolve) => {
+        setTimeout(() => resolve(fulfill()), compareDelayMs);
+      });
+    }
+    return fulfill();
+  });
 }
 
 test.describe("React Content Editor compare two revisions", () => {
@@ -235,6 +248,40 @@ test.describe("React Content Editor compare two revisions", () => {
       await expect(page.getByTestId("editor-compare-need-two")).toBeVisible();
       await expect(page.getByTestId("editor-compare-table")).toHaveCount(0);
       expect(pageErrors, pageErrors.join("\n")).toEqual([]);
+    },
+  );
+
+  test(
+    "loading status, changed-only filter, and revision-named restore notice",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      consoleOn(page, pageErrors);
+      await stubEditor(page, { compareDelayMs: 800 });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.getByTestId("editor-form")).toBeVisible();
+      await page.getByTestId("editor-restore-toggle").click();
+      await expect(page.getByTestId("editor-compare-left")).toBeVisible();
+      await page.getByTestId("editor-compare-run").click();
+      await expect(page.getByTestId("editor-compare-loading")).toBeVisible();
+      await expect(page.getByTestId("editor-compare-table")).toBeVisible();
+      await expect(page.getByTestId("editor-compare-loading")).toHaveCount(0);
+      await expect(
+        page.getByTestId("editor-compare-row-displaytitle"),
+      ).toBeVisible();
+      await page.getByTestId("editor-compare-changed-only").check();
+      await expect(
+        page.getByTestId("editor-compare-row-displaytitle"),
+      ).toHaveCount(0);
+      await expect(
+        page.getByTestId("editor-compare-row-sys_title"),
+      ).toBeVisible();
+      await page.getByTestId("editor-compare-use-left-sys_title").click();
+      await expect(
+        page.getByTestId("editor-compare-field-restored"),
+      ).toContainText(/sys_title.*revision #4/);
+      expect(pageErrors, pageErrors.join("\n")).toEqual([]);
+      await expectNoSeriousA11yViolations(page);
     },
   );
 });

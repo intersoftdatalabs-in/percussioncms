@@ -127,6 +127,34 @@ export function revisionCompareSelection(
   return { ok: true, left: a, right: b };
 }
 
+/**
+ * A field value copied from a compare row into the draft (#6475).
+ *
+ * <p>The notice names the source revision, not just the field, so authors can
+ * tell after the click whether the older or the newer value landed in the
+ * draft. Nothing is written until the author saves.</p>
+ */
+export interface RestoredCompareField {
+  field: string;
+  revId: number;
+}
+
+/**
+ * Display string for a field-level restore notice (e.g.
+ * {@code "sys_title (revision #4)"}). Falls back to the bare field name when
+ * the revision id is not a positive number.
+ */
+export function describeRestoredCompareField(
+  field: string,
+  revId: number,
+): string {
+  const name = field.trim();
+  if (Number.isFinite(revId) && revId > 0) {
+    return `${name} (revision #${revId})`;
+  }
+  return name;
+}
+
 /** Server returned a compare with no field rows — show empty, not a fabricated diff. */
 export function isEmptyRevisionCompare(
   fields: { length: number } | null | undefined,

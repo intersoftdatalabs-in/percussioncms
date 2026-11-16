@@ -18,6 +18,7 @@ import { describe, expect, it } from "vitest";
 import {
   applyRevisionFieldValue,
   canRestoreFromEditor,
+  describeRestoredCompareField,
   editorRevisionErrorReason,
   isEmptyRevisionCompare,
   parseRevisionId,
@@ -154,5 +155,15 @@ describe("editorRevisions", () => {
   it("ignores a blank field name instead of writing a junk draft key", () => {
     const draft = { sys_title: "Home" };
     expect(applyRevisionFieldValue(draft, "   ", "Old")).toBe(draft);
+  });
+
+  it("names the source revision in a field-restored notice", () => {
+    expect(describeRestoredCompareField("sys_title", 4)).toBe(
+      "sys_title (revision #4)",
+    );
+    expect(describeRestoredCompareField("  sys_title  ", 5)).toBe(
+      "sys_title (revision #5)",
+    );
+    expect(describeRestoredCompareField("sys_title", 0)).toBe("sys_title");
   });
 });

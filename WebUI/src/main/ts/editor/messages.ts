@@ -565,6 +565,7 @@ export const EDITOR_MSG = {
   COMPARE_COL_RIGHT: "perc.ui.editor@Newer value",
   COMPARE_CHANGED: "perc.ui.editor@Changed",
   COMPARE_UNCHANGED: "perc.ui.editor@Unchanged",
+  COMPARE_CHANGED_ONLY: "perc.ui.editor@Show changed fields only",
   COMPARE_COL_RESTORE: "perc.ui.editor@Restore",
   COMPARE_USE_LEFT: "perc.ui.editor@Use older value",
   COMPARE_USE_RIGHT: "perc.ui.editor@Use newer value",

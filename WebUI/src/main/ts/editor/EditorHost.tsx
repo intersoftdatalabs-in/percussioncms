@@ -156,12 +156,14 @@ import {
 import {
   applyRevisionFieldValue,
   canRestoreFromEditor,
+  describeRestoredCompareField,
   editorRevisionErrorReason,
   isEmptyRevisionCompare,
   parseRevisionId,
   restoreRevisionConfirmBody,
   revisionCompareSelection,
   summarizeRevisionRow,
+  type RestoredCompareField,
 } from "./editorRevisions";
 import {
   canViewWorkflowHistoryFromEditor,
@@ -1309,10 +1311,13 @@ export function EditorHost({
   );
   const [compareErrorKey, setCompareErrorKey] = useState<string | null>(null);
   const [compareErrorDetail, setCompareErrorDetail] = useState("");
-  const [compareFieldRestored, setCompareFieldRestored] = useState<string | null>(
-    null,
-  );
+  const [compareFieldRestored, setCompareFieldRestored] =
+    useState<RestoredCompareField | null>(null);
   const [compareFieldUnavailable, setCompareFieldUnavailable] = useState(false);
+  /** Diff legibility (#6475): hide unchanged rows so authors scan only edits. */
+  const [compareChangedOnly, setCompareChangedOnly] = useState(false);
+  const compareResultsRef = useRef<HTMLDivElement | null>(null);
+  const compareRestoredRef = useRef<HTMLDivElement | null>(null);
   const [workflowHistoryOpen, setWorkflowHistoryOpen] = useState(false);
   const [workflowHistoryBusy, setWorkflowHistoryBusy] = useState(false);
   const [workflowHistoryComments, setWorkflowHistoryComments] = useState<
@@ -4449,20 +4454,44 @@ export function EditorHost({
   }
 
   /**
-   * Field-level restore (#6080): copy one compare row value into the local
-   * draft. Nothing is written until the author saves, so a compare-time
-   * misclick never touches the server and Cancel/close still asks first.
+   * Field-level restore (#6080, #6475): copy one compare row value into the
+   * local draft. Nothing is written until the author saves, so a compare-time
+   * misclick never touches the server and Cancel/close still asks first. The
+   * stored notice names the source revision so the author can tell afterwards
+   * whether the older or the newer value landed in the draft.
    */
-  function handleRestoreCompareField(name: string, value: string): void {
+  function handleRestoreCompareField(
+    name: string,
+    value: string,
+    revId: number,
+  ): void {
     if (!canEdit) {
       setCompareFieldRestored(null);
       setCompareFieldUnavailable(true);
       return;
     }
+    const field = name.trim();
     setDraft((current) => applyRevisionFieldValue(current, name, value));
     setCompareFieldUnavailable(false);
-    setCompareFieldRestored(name.trim() ? name.trim() : null);
+    setCompareFieldRestored(field ? { field, revId } : null);
   }
+
+  /**
+   * Focus the compare results when a new diff arrives, and the restore
+   * notice when a field value lands in the draft (#6475). Authors using a
+   * screen reader or keyboard land on what just changed instead of staying
+   * on the Run button. Errors already use role="alert" and keep focus.
+   */
+  useEffect(() => {
+    if (compareResult != null) {
+      compareResultsRef.current?.focus();
+    }
+  }, [compareResult]);
+  useEffect(() => {
+    if (compareFieldRestored != null) {
+      compareRestoredRef.current?.focus();
+    }
+  }, [compareFieldRestored]);
 
   async function handleRestoreConfirm(): Promise<void> {
     if (contentId == null) {
@@ -5724,6 +5753,15 @@ export function EditorHost({
                       </div>
                     </>
                   )}
+                  {compareBusy ? (
+                    <div
+                      className={styles.status}
+                      role="status"
+                      data-testid="editor-compare-loading"
+                    >
+                      {message(EDITOR_MSG.COMPARING)}
+                    </div>
+                  ) : null}
                   {compareErrorKey ? (
                     <div
                       className={styles.status}
@@ -5734,15 +5772,32 @@ export function EditorHost({
                       {compareErrorDetail ? ` ${compareErrorDetail}` : ""}
                     </div>
                   ) : null}
-                  {compareResult && isEmptyRevisionCompare(compareResult.fields) ? (
+                  {compareResult ? (
+                    <div
+                      ref={compareResultsRef}
+                      tabIndex={-1}
+                      data-testid="editor-compare-results"
+                    >
+                    {isEmptyRevisionCompare(compareResult.fields) ? (
                     <div
                       className={styles.status}
                       data-testid="editor-compare-empty"
                     >
                       {message(EDITOR_MSG.COMPARE_EMPTY)}
                     </div>
-                  ) : null}
-                  {compareResult && !isEmptyRevisionCompare(compareResult.fields) ? (
+                    ) : (
+                    <>
+                    <label className={styles.field}>
+                      <input
+                        type="checkbox"
+                        data-testid="editor-compare-changed-only"
+                        checked={compareChangedOnly}
+                        onChange={(e) =>
+                          setCompareChangedOnly(e.target.checked)
+                        }
+                      />{" "}
+                      {message(EDITOR_MSG.COMPARE_CHANGED_ONLY)}
+                    </label>
                     <table data-testid="editor-compare-table">
                       <thead>
                         <tr>
@@ -5753,63 +5808,79 @@ export function EditorHost({
                         </tr>
                       </thead>
                       <tbody>
-                        {compareResult.fields.map((field) => (
-                          <tr
-                            key={field.name}
-                            data-testid={`editor-compare-row-${field.name}`}
-                            data-changed={field.changed ? "true" : "false"}
-                          >
-                            <td>{field.name}</td>
-                            <td>{field.leftValue}</td>
-                            <td>{field.rightValue}</td>
-                            <td>
-                              {field.changed ? (
-                                <>
-                                  <span>
-                                    {message(EDITOR_MSG.COMPARE_CHANGED)}
-                                  </span>{" "}
-                                  <button
-                                    type="button"
-                                    data-testid={`editor-compare-use-left-${field.name}`}
-                                    disabled={!canEdit}
-                                    onClick={() =>
-                                      handleRestoreCompareField(
-                                        field.name,
-                                        field.leftValue,
-                                      )
-                                    }
-                                  >
-                                    {message(EDITOR_MSG.COMPARE_USE_LEFT)}
-                                  </button>{" "}
-                                  <button
-                                    type="button"
-                                    data-testid={`editor-compare-use-right-${field.name}`}
-                                    disabled={!canEdit}
-                                    onClick={() =>
-                                      handleRestoreCompareField(
-                                        field.name,
-                                        field.rightValue,
-                                      )
-                                    }
-                                  >
-                                    {message(EDITOR_MSG.COMPARE_USE_RIGHT)}
-                                  </button>
-                                </>
-                              ) : (
-                                message(EDITOR_MSG.COMPARE_UNCHANGED)
-                              )}
-                            </td>
-                          </tr>
-                        ))}
+                        {compareResult.fields
+                          .filter(
+                            (field) => !compareChangedOnly || field.changed,
+                          )
+                          .map((field) => (
+                            <tr
+                              key={field.name}
+                              data-testid={`editor-compare-row-${field.name}`}
+                              data-changed={field.changed ? "true" : "false"}
+                            >
+                              <td>{field.name}</td>
+                              <td>{field.leftValue}</td>
+                              <td>{field.rightValue}</td>
+                              <td>
+                                {field.changed ? (
+                                  <>
+                                    <span>
+                                      {message(EDITOR_MSG.COMPARE_CHANGED)}
+                                    </span>{" "}
+                                    <button
+                                      type="button"
+                                      data-testid={`editor-compare-use-left-${field.name}`}
+                                      disabled={!canEdit}
+                                      onClick={() =>
+                                        handleRestoreCompareField(
+                                          field.name,
+                                          field.leftValue,
+                                          compareResult.rev1,
+                                        )
+                                      }
+                                    >
+                                      {message(EDITOR_MSG.COMPARE_USE_LEFT)}
+                                    </button>{" "}
+                                    <button
+                                      type="button"
+                                      data-testid={`editor-compare-use-right-${field.name}`}
+                                      disabled={!canEdit}
+                                      onClick={() =>
+                                        handleRestoreCompareField(
+                                          field.name,
+                                          field.rightValue,
+                                          compareResult.rev2,
+                                        )
+                                      }
+                                    >
+                                      {message(EDITOR_MSG.COMPARE_USE_RIGHT)}
+                                    </button>
+                                  </>
+                                ) : (
+                                  message(EDITOR_MSG.COMPARE_UNCHANGED)
+                                )}
+                              </td>
+                            </tr>
+                          ))}
                       </tbody>
                     </table>
+                    </>
+                    )}
+                    </div>
                   ) : null}
                   {compareFieldRestored ? (
                     <div
+                      ref={compareRestoredRef}
+                      tabIndex={-1}
                       className={styles.status}
+                      role="status"
                       data-testid="editor-compare-field-restored"
                     >
-                      {message(EDITOR_MSG.COMPARE_FIELD_RESTORED)} ({compareFieldRestored})
+                      {message(EDITOR_MSG.COMPARE_FIELD_RESTORED)}{" "}
+                      {describeRestoredCompareField(
+                        compareFieldRestored.field,
+                        compareFieldRestored.revId,
+                      )}
                     </div>
                   ) : null}
                   {compareFieldUnavailable ? (
