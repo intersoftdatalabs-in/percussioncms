@@ -328,7 +328,7 @@ describe("filterEnabledMenuActions", () => {
         path: "/Sites",
         type: "folder",
       }).map((a) => a.name),
-    ).toEqual(["open", "Publish_Now"]);
+    ).toEqual(["open", "Publish_Now", "Stage", "Remove_from_Staging"]);
     expect(
       filterToolbarActions(actions, BASE, {
         id: "42",
@@ -355,7 +355,7 @@ describe("filterEnabledMenuActions", () => {
     ).toBe(true);
   });
 
-  it("shows context-menu Publish Now for a folder and a page (#4945)", () => {
+  it("shows context-menu Publish Now and Stage children for a folder and a page (#4945, #6419)", () => {
     const actions: MenuAction[] = [
       leaf({ name: "open" }),
       leaf({ name: "Publish_Now", label: "Publish Now" }),
@@ -376,7 +376,7 @@ describe("filterEnabledMenuActions", () => {
     };
     expect(
       filterContextMenuActions(actions, BASE, folder).map((a) => a.name),
-    ).toEqual(["open", "Publish_Now"]);
+    ).toEqual(["open", "Publish_Now", "Stage", "Remove_from_Staging"]);
     expect(
       filterContextMenuActions(actions, BASE, page).map((a) => a.name),
     ).toEqual([
@@ -408,7 +408,7 @@ describe("filterEnabledMenuActions", () => {
         path: "/Sites",
         type: "folder",
       }).map((a) => a.name),
-    ).toEqual(["open", "Publish_Now"]);
+    ).toEqual(["open", "Publish_Now", "Stage", "Remove_from_Staging"]);
     expect(
       filterToolbarActions(actions, BASE, {
         id: "42",
@@ -483,7 +483,7 @@ describe("filterEnabledMenuActions", () => {
     ).not.toContain("Force_Checkin");
   });
 
-  it("injects Stage and Remove from Staging for a page and hides them for folders (#4546)", () => {
+  it("injects Stage and Remove from Staging for a page and a folder (#4546, #6419)", () => {
     const actions: MenuAction[] = [
       leaf({ name: "open" }),
       leaf({ name: "Publish_Now", label: "Publish Now" }),
@@ -498,7 +498,7 @@ describe("filterEnabledMenuActions", () => {
         path: "/Sites",
         type: "folder",
       }).map((a) => a.name),
-    ).toEqual(["open", "Publish_Now"]);
+    ).toEqual(["open", "Publish_Now", "Stage", "Remove_from_Staging"]);
     expect(
       filterToolbarActions(actions, BASE, {
         id: "42",
@@ -526,6 +526,13 @@ describe("filterEnabledMenuActions", () => {
         id: "1",
         name: "Sites",
         path: "/Sites",
+        type: "folder",
+      }),
+    ).toBe(false);
+    expect(
+      isToolbarStageHidden(leaf({ name: "Stage" }), {
+        id: "9",
+        name: "NoPath",
         type: "folder",
       }),
     ).toBe(true);
@@ -583,7 +590,7 @@ describe("filterEnabledMenuActions", () => {
         path: "/Sites",
         type: "folder",
       }).map((a) => a.name),
-    ).toEqual(["open", "Publish_Now"]);
+    ).toEqual(["open", "Publish_Now", "Stage", "Remove_from_Staging"]);
     expect(
       filterToolbarActions(actions, BASE, {
         id: "42",
@@ -796,7 +803,7 @@ describe("filterEnabledMenuActions", () => {
         path: "/Sites",
         type: "folder",
       }).map((a) => a.name),
-    ).toEqual(["open"]);
+    ).toEqual(["open", "Stage", "Remove_from_Staging"]);
     expect(
       filterToolbarActions(actions, BASE, {
         id: "42",

@@ -62,6 +62,7 @@ import {
   publishSelectedItem,
   publishSelectedItems,
   describePublishBatch,
+  removeFromStagingSelectedFolder,
   removeFromStagingSelectedItem,
   removeFromStagingSelectedItems,
   resolvePublishKind,
@@ -69,6 +70,7 @@ import {
   describeStageBatch,
   describeTakedownBatch,
   partitionStageSelection,
+  stageSelectedFolder,
   stageSelectedItem,
   stageSelectedItems,
   type PublishBatchResult,
@@ -1205,6 +1207,88 @@ async function publishFolderSelection(
       ? EXPLORER_MSG.PUBLISH_BATCH_INCOMPLETE
       : messageText
         ? EXPLORER_MSG.PUBLISH_SKIPPED_FOLDERS
+        : undefined,
+  };
+}
+
+async function stageFolderSelection(
+  ctx: ActionDispatchContext,
+  folder: PSPathItem,
+): Promise<ActionDispatchResult> {
+  const path = (folder.path ?? "").trim();
+  if (!path) {
+    return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_FOLDER };
+  }
+  const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(
+    EXPLORER_MSG.CONFIRM_STAGE_FOLDER,
+  );
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  const result = await stageSelectedFolder(folder);
+  const nothing =
+    result.stagedIds.length === 0 &&
+    result.failures.length === 0 &&
+    result.skippedFolders.length === 0 &&
+    result.skippedOther.length === 0;
+  if (nothing) {
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.STAGE_FOLDER_EMPTY,
+      messageText: message(EXPLORER_MSG.STAGE_FOLDER_EMPTY),
+    };
+  }
+  const messageText = describeStageBatch(result);
+  const incomplete = result.failures.length > 0;
+  return {
+    kind: "rest",
+    refresh: result.stagedIds.length > 0,
+    messageText,
+    messageKey: incomplete
+      ? EXPLORER_MSG.STAGE_BATCH_INCOMPLETE
+      : messageText
+        ? EXPLORER_MSG.STAGE_SKIPPED_FOLDERS
+        : undefined,
+  };
+}
+
+async function removeFromStagingFolderSelection(
+  ctx: ActionDispatchContext,
+  folder: PSPathItem,
+): Promise<ActionDispatchResult> {
+  const path = (folder.path ?? "").trim();
+  if (!path) {
+    return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_FOLDER };
+  }
+  const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(
+    EXPLORER_MSG.CONFIRM_UNSTAGE_FOLDER,
+  );
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  const result = await removeFromStagingSelectedFolder(folder);
+  const nothing =
+    result.removedIds.length === 0 &&
+    result.failures.length === 0 &&
+    result.skippedFolders.length === 0 &&
+    result.skippedOther.length === 0;
+  if (nothing) {
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.UNSTAGE_FOLDER_EMPTY,
+      messageText: message(EXPLORER_MSG.UNSTAGE_FOLDER_EMPTY),
+    };
+  }
+  const messageText = describeRemoveFromStagingBatch(result);
+  const incomplete = result.failures.length > 0;
+  return {
+    kind: "rest",
+    refresh: result.removedIds.length > 0,
+    messageText,
+    messageKey: incomplete
+      ? EXPLORER_MSG.UNSTAGE_BATCH_INCOMPLETE
+      : messageText
+        ? EXPLORER_MSG.UNSTAGE_SKIPPED_FOLDERS
         : undefined,
   };
 }
@@ -2540,8 +2624,11 @@ export async function dispatchAction(
     if (multi.length >= 2) {
       return stageMultiSelection(ctx, multi);
     }
-    if (!item || isFolder(item)) {
+    if (!item) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    if (isFolder(item)) {
+      return stageFolderSelection(ctx, item);
     }
     const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
       EXPLORER_MSG.CONFIRM_STAGE,
@@ -2590,8 +2677,11 @@ export async function dispatchAction(
     if (multi.length >= 2) {
       return removeFromStagingMultiSelection(ctx, multi);
     }
-    if (!item || isFolder(item)) {
+    if (!item) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+    }
+    if (isFolder(item)) {
+      return removeFromStagingFolderSelection(ctx, item);
     }
     const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
       EXPLORER_MSG.CONFIRM_REMOVE_FROM_STAGING,

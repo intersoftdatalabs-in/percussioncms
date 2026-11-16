@@ -39,9 +39,11 @@ import {
   publishSelectedFolder,
   publishSelectedItem,
   publishSelectedItems,
+  removeFromStagingSelectedFolder,
   removeFromStagingSelectedItem,
   removeFromStagingSelectedItems,
   resolvePublishKind,
+  stageSelectedFolder,
   stageSelectedItem,
   stageSelectedItems,
   takedownSelectedItem,
@@ -294,6 +296,195 @@ describe("publishSelectedItem", () => {
     expect(text).toMatch(/Folders are not published: News/);
     expect(text).toMatch(/About \(HTTP 403\)/);
     expect(text).toMatch(/Not every selected item was published/);
+  });
+});
+
+describe("stageSelectedFolder", () => {
+  it("stages direct children of a folder and skips nested folders", async () => {
+    findChildren.mockResolvedValue([
+      item({ id: "42", name: "Home" }),
+      item({
+        id: "8",
+        name: "Nested",
+        path: "/Sites/Demo/News/Nested",
+        type: "folder",
+        leaf: false,
+      }),
+      item({
+        id: "77",
+        name: "base",
+        path: "/Design/Templates/base",
+        type: "percTemplate",
+        category: "template",
+      }),
+      item({
+        id: "99",
+        name: "logo",
+        path: "/Assets/logo.png",
+        type: "percImageAsset",
+      }),
+    ]);
+    vi.spyOn(global, "fetch").mockImplementation(
+      async () =>
+        new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+    );
+    const result = await stageSelectedFolder(
+      item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+    );
+    expect(findChildren).toHaveBeenCalledWith("/Sites/Demo/News");
+    expect(result.stagedIds).toEqual(["42", "99"]);
+    expect(result.skippedFolders).toEqual(["Nested"]);
+    expect(result.skippedOther).toEqual(["base"]);
+    const urls = vi.mocked(global.fetch).mock.calls.map((call) => String(call[0]));
+    expect(urls.some((url) => url.includes("/page/staging/42"))).toBe(true);
+    expect(urls.some((url) => url.includes("/resource/staging/99"))).toBe(true);
+  });
+
+  it("records FORBIDDEN on a folder child and does not count it staged", async () => {
+    findChildren.mockResolvedValue([item({ id: "42", name: "Home" })]);
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response(JSON.stringify({ status: "BADCONFIG" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const result = await stageSelectedFolder(
+      item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+    );
+    expect(result.stagedIds).toEqual([]);
+    expect(result.failures[0]?.message).toMatch(/BADCONFIG/);
+  });
+
+  it("records an HTTP 404 child failure by name without stopping the batch", async () => {
+    findChildren.mockResolvedValue([
+      item({ id: "42", name: "Home" }),
+      item({ id: "43", name: "About" }),
+    ]);
+    vi.spyOn(global, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes("/staging/43")) {
+        return new Response("missing", { status: 404, statusText: "Not Found" });
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    const result = await stageSelectedFolder(
+      item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+    );
+    expect(result.stagedIds).toEqual(["42"]);
+    expect(result.failures).toEqual([
+      expect.objectContaining({ id: "43", name: "About", status: 404 }),
+    ]);
+  });
+
+  it("does not list children for a non-folder", async () => {
+    const result = await stageSelectedFolder(item());
+    expect(findChildren).not.toHaveBeenCalled();
+    expect(result.stagedIds).toEqual([]);
+  });
+});
+
+describe("removeFromStagingSelectedFolder", () => {
+  it("removes direct children of a folder and skips nested folders", async () => {
+    findChildren.mockResolvedValue([
+      item({ id: "42", name: "Home" }),
+      item({
+        id: "8",
+        name: "Nested",
+        path: "/Sites/Demo/News/Nested",
+        type: "folder",
+        leaf: false,
+      }),
+      item({
+        id: "99",
+        name: "logo",
+        path: "/Assets/logo.png",
+        type: "percImageAsset",
+      }),
+    ]);
+    vi.spyOn(global, "fetch").mockImplementation(
+      async () =>
+        new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+    );
+    const result = await removeFromStagingSelectedFolder(
+      item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+    );
+    expect(findChildren).toHaveBeenCalledWith("/Sites/Demo/News");
+    expect(result.removedIds).toEqual(["42", "99"]);
+    expect(result.skippedFolders).toEqual(["Nested"]);
+    const urls = vi.mocked(global.fetch).mock.calls.map((call) => String(call[0]));
+    expect(urls.some((url) => url.includes("/takedown/page/staging/42"))).toBe(true);
+    expect(
+      urls.some((url) => url.includes("/takedown/resource/staging/99")),
+    ).toBe(true);
+  });
+
+  it("records an HTTP 409 child failure by name without stopping the batch", async () => {
+    findChildren.mockResolvedValue([
+      item({ id: "42", name: "Home" }),
+      item({ id: "43", name: "About" }),
+    ]);
+    vi.spyOn(global, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes("/staging/43")) {
+        return new Response("locked", { status: 409, statusText: "Conflict" });
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    const result = await removeFromStagingSelectedFolder(
+      item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+    );
+    expect(result.removedIds).toEqual(["42"]);
+    expect(result.failures).toEqual([
+      expect.objectContaining({ id: "43", name: "About", status: 409 }),
+    ]);
+  });
+
+  it("does not list children for a non-folder", async () => {
+    const result = await removeFromStagingSelectedFolder(item());
+    expect(findChildren).not.toHaveBeenCalled();
+    expect(result.removedIds).toEqual([]);
   });
 });
 

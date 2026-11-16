@@ -998,6 +998,10 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Nothing in the selection can be staged. Folders are not staged.",
   STAGE_FAILED:
     "perc.ui.explorer@Stage failed: {detail}",
+  CONFIRM_STAGE_FOLDER:
+    "perc.ui.explorer@Stage the pages and assets in this folder now? Nested folders are not included.",
+  STAGE_FOLDER_EMPTY:
+    "perc.ui.explorer@This folder has no pages or assets to stage.",
   CONFIRM_REMOVE_FROM_STAGING:
     "perc.ui.explorer@Remove this item from staging?",
   CONFIRM_REMOVE_FROM_STAGING_MULTI:
@@ -1012,6 +1016,10 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Nothing in the selection can be removed from staging. Folders are not removed.",
   UNSTAGE_FAILED:
     "perc.ui.explorer@Remove from staging failed: {detail}",
+  CONFIRM_UNSTAGE_FOLDER:
+    "perc.ui.explorer@Remove the pages and assets in this folder from staging? Nested folders are not included.",
+  UNSTAGE_FOLDER_EMPTY:
+    "perc.ui.explorer@This folder has no pages or assets to remove from staging.",
   CONFIRM_SCHEDULE:
     "perc.ui.explorer@Save schedule publish dates for this item?",
   CONFIRM_SCHEDULE_MULTI:
