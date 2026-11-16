@@ -60,7 +60,8 @@ import org.junit.jupiter.api.Test;
  * the preview {@code superfish.js} was refreshed to the npm dist bytes,
  * restoring the upstream Joel Birch banner in place of the prepended
  * Percussion header. The nav hoverIntent/supersubs rows stay vendored and
- * are tracked in the #6319 leftover residual.
+ * are tracked in the #6319 leftover residual (supersubs is dropped by
+ * #6403 slice 7 below; hoverIntent stays).
  *
  * <p>Slice 3 of #6319 migrated the directory-widget {@code list.min.js} to
  * the npm list.js 1.2.0 dist (byte-identical to the payload;
@@ -108,6 +109,22 @@ import org.junit.jupiter.api.Test;
  * payload bytes match no 2.9.1 dist file — and move to the #6502
  * follow-on residual.
  *
+ * <p>Slice 7 (issue #6403) drops the nav-widget supersubs pair
+ * ({@code supersubs.js} preview copy + {@code supersubs.min.js} published
+ * copy). Version archaeology closed the byte-identity path: npm
+ * {@code supersubs} is an unrelated Pi extension, so no Dependabot-tracked
+ * dist exists. A repo-wide caller search found zero {@code .supersubs(}
+ * invocations — {@code navbar.js} drives the menu only through
+ * {@code $.fn.superfish}, and neither snippet template references the
+ * plugin — and both copies are pure plugin definitions with no load-time
+ * side effects, so removal is behavior-preserving. The
+ * {@code percNavBar.xml} preview/publish entries and the
+ * {@code psx_archiveInfo.xml} / {@code psx_archiveManifest.xml} dependency
+ * entries are removed in the same change. The nav hoverIntent pair stays
+ * vendored: superfish consumes it at runtime ({@code $.fn.hoverIntent &&
+ * !o.disableHI}), npm {@code hoverintent} 2.x is the incompatible vanilla
+ * rewrite, and the payload cut matches no {@code jquery-hoverintent} dist.
+ *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
  * inventory can only drift together with an audit update. A migration PR that
@@ -154,9 +171,7 @@ class WidgetPayloadVendoredJsAuditTest {
           "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/hoverIntent.js",
           "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/hoverIntent.min.js",
           "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/superfish.js",
-          "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/superfish.min.js",
-          "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/supersubs.js",
-          "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/supersubs.min.js");
+          "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/superfish.min.js");
 
   /** First-party Percussion JS in the audited payloads — recorded so additions stand out. */
   private static final Set<String> EXPECTED_FIRST_PARTY_JS =
@@ -265,13 +280,7 @@ class WidgetPayloadVendoredJsAuditTest {
               "handlerIn, handlerOut"),
           Map.entry(
               "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/hoverIntent.min.js",
-              "hoverIntent_t"),
-          Map.entry(
-              "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/supersubs.js",
-              "fn.supersubs.defaults"),
-          Map.entry(
-              "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/supersubs.min.js",
-              "menu-fontsize"));
+              "hoverIntent_t"));
 
   private static Path packagesRoot() {
     List<Path> candidates =

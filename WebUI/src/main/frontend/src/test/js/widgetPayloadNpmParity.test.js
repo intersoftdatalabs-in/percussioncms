@@ -35,8 +35,10 @@
  *      builds — drop-in proof for the published widgets.
  *
  * The remaining #6319 rows (FullCalendar 1.x/2.x, Slick, Foundation,
- * nav hoverIntent/supersubs, MiniColors, qTip, gcal/lang-all) stay
- * vendored and are tracked in the #6319 leftover residual — this file must
+ * nav hoverIntent, MiniColors, qTip, gcal/lang-all) stay
+ * vendored and are tracked in the #6319 leftover residual (#6403 slice 7
+ * dropped the dead nav supersubs pair — zero callers — with its
+ * percNavBar.xml + archive-manifest references); this file must
  * grow a parity block each time another row migrates.
  *
  * Slice 3 migrates the directory-widget `list.min.js` to the npm list.js
