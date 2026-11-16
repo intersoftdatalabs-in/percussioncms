@@ -442,7 +442,7 @@ class ContentTypeAdaptorLocalFieldTest {
   }
 
   @Test
-  void applyParentFieldOrder_swapsParentMappingsAndLeavesOthers() {
+  void applyFieldOrder_swapsParentMappingsAndLeavesOthers() {
     PSItemDefinition def = stubDefinition();
     ContentTypeField first = new ContentTypeField();
     first.setName("rx_a");
@@ -457,7 +457,7 @@ class ContentTypeAdaptorLocalFieldTest {
     ContentTypeField moveB = new ContentTypeField();
     moveB.setName("rx_b");
     moveB.setSequence(0);
-    ContentTypeAdaptor.applyParentFieldOrder(def, List.of(moveA, moveB));
+    ContentTypeAdaptor.applyFieldOrder(def, List.of(moveA, moveB));
     assertEquals("rx_b", ((PSDisplayMapping) mapper.get(0)).getFieldRef());
     assertEquals("rx_a", ((PSDisplayMapping) mapper.get(1)).getFieldRef());
     List<ContentTypeField> rows = new ArrayList<>();
@@ -470,17 +470,114 @@ class ContentTypeAdaptorLocalFieldTest {
   }
 
   @Test
-  void applyParentFieldOrder_childSequenceIs400() {
+  void ensureChildFieldSet_marksContainerWithTableControl() {
+    PSItemDefinition def = stubDefinition();
+    PSDisplayMapper parentMapper = def.getDisplayMapper("percPage");
+    PSFieldSet parent = def.getFieldSet();
+    ContentTypeAdaptor.ensureChildFieldSet(def, parent, parentMapper, "kid");
+    PSDisplayMapping container = ContentTypeAdaptor.findDisplayMapping(parentMapper, "kid");
+    assertNotNull(container, "container mapping materialized");
+    assertNotNull(container.getUISet(), "container UI set present");
+    assertNotNull(container.getUISet().getControl(), "container control present");
+    assertEquals("sys_Table", container.getUISet().getControl().getName());
+    // Backfill: a container left without a control gets sys_Table on re-ensure.
+    container.getUISet().setControl(null);
+    ContentTypeAdaptor.ensureChildFieldSet(def, parent, parentMapper, "kid");
+    assertNotNull(container.getUISet().getControl(), "container control backfilled");
+    assertEquals("sys_Table", container.getUISet().getControl().getName());
+    // Nested mapper id is unique (root template mappers start at id 0; a
+    // colliding id breaks id-based nested lookup at editor-app init).
+    assertTrue(parentMapper.getId() != container.getDisplayMapper().getId());
+    assertTrue(container.getDisplayMapper().getId() >= 1);
+  }
+
+  @Test
+  void applyFieldOrder_swapsChildMappingsInNestedMapperAndLeavesParent() {
+    PSItemDefinition def = stubDefinitionWithChild("kid");
+    PSDisplayMapper parentMapper = def.getDisplayMapper("percPage");
+    PSDisplayMapper nested = nestedMapperOf(def, parentMapper, "kid");
+    int parentSize = parentMapper.size();
+    ContentTypeField moveA = new ContentTypeField();
+    moveA.setName("rx_ka");
+    moveA.setFieldSet("kid");
+    moveA.setSequence(1);
+    ContentTypeField moveB = new ContentTypeField();
+    moveB.setName("rx_kb");
+    moveB.setFieldSet("kid");
+    moveB.setSequence(0);
+    ContentTypeAdaptor.applyFieldOrder(def, List.of(moveA, moveB));
+    assertEquals("rx_kb", ((PSDisplayMapping) nested.get(0)).getFieldRef());
+    assertEquals("rx_ka", ((PSDisplayMapping) nested.get(1)).getFieldRef());
+    // Parent mapper untouched: same size, first entries still parent fields.
+    assertEquals(parentSize, parentMapper.size());
+    assertEquals("rx_pa", ((PSDisplayMapping) parentMapper.get(0)).getFieldRef());
+    assertEquals("rx_pb", ((PSDisplayMapping) parentMapper.get(1)).getFieldRef());
+  }
+
+  @Test
+  void applyFieldOrder_unknownChildSetIs400() {
     PSItemDefinition def = stubDefinition();
     ContentTypeField child = new ContentTypeField();
-    child.setName("rx_child");
-    child.setFieldSet("childset");
+    child.setName("rx_ka");
+    child.setFieldSet("nosuchset");
     child.setSequence(0);
     IllegalArgumentException ex =
         assertThrows(
             IllegalArgumentException.class,
-            () -> ContentTypeAdaptor.applyParentFieldOrder(def, List.of(child)));
-    assertTrue(ex.getMessage().contains("Child field-set"));
+            () -> ContentTypeAdaptor.applyFieldOrder(def, List.of(child)));
+    assertTrue(ex.getMessage().contains("Unknown child field set"), ex.getMessage());
+  }
+
+  @Test
+  void applyFieldOrder_duplicateChildSequenceIs400() {
+    PSItemDefinition def = stubDefinitionWithChild("kid");
+    ContentTypeField moveA = new ContentTypeField();
+    moveA.setName("rx_ka");
+    moveA.setFieldSet("kid");
+    moveA.setSequence(0);
+    ContentTypeField moveB = new ContentTypeField();
+    moveB.setName("rx_kb");
+    moveB.setFieldSet("kid");
+    moveB.setSequence(0);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> ContentTypeAdaptor.applyFieldOrder(def, List.of(moveA, moveB)));
+  }
+
+  @Test
+  void assignChildFieldSequences_stampsNestedOrderAndSortsRows() {
+    PSItemDefinition def = stubDefinitionWithChild("kid");
+    PSDisplayMapper nested = nestedMapperOf(def, def.getDisplayMapper("percPage"), "kid");
+    List<ContentTypeField> rows = new ArrayList<>();
+    rows.add(fieldNamed("rx_pa"));
+    rows.add(childFieldNamed("kid", "rx_kb"));
+    rows.add(childFieldNamed("kid", "rx_ka"));
+    ContentTypeAdaptor.assignChildFieldSequences(def, rows);
+    ContentTypeField ka = rows.get(1);
+    ContentTypeField kb = rows.get(2);
+    assertEquals("kid", ka.getFieldSet());
+    assertEquals(0, ka.getSequence());
+    assertEquals("kid", kb.getFieldSet());
+    assertEquals(1, kb.getSequence());
+    // Swap nested order, re-stamp: sequences follow the mapper, not the add order.
+    ContentTypeField moveA = new ContentTypeField();
+    moveA.setName("rx_ka");
+    moveA.setFieldSet("kid");
+    moveA.setSequence(1);
+    ContentTypeField moveB = new ContentTypeField();
+    moveB.setName("rx_kb");
+    moveB.setFieldSet("kid");
+    moveB.setSequence(0);
+    ContentTypeAdaptor.applyFieldOrder(def, List.of(moveA, moveB));
+    for (ContentTypeField row : rows) {
+      row.setSequence(null);
+    }
+    ContentTypeAdaptor.assignChildFieldSequences(def, rows);
+    assertEquals("rx_kb", rows.get(1).getName());
+    assertEquals(Integer.valueOf(0), rows.get(1).getSequence());
+    assertEquals("rx_ka", rows.get(2).getName());
+    assertEquals(Integer.valueOf(1), rows.get(2).getSequence());
+    assertEquals(2, nested.size());
   }
 
   @Test
@@ -505,7 +602,7 @@ class ContentTypeAdaptorLocalFieldTest {
   }
 
   @Test
-  void applyParentFieldOrder_duplicateSequenceIs400() {
+  void applyFieldOrder_duplicateSequenceIs400() {
     PSItemDefinition def = stubDefinition();
     ContentTypeField first = new ContentTypeField();
     first.setName("rx_a");
@@ -521,13 +618,54 @@ class ContentTypeAdaptorLocalFieldTest {
     moveB.setSequence(0);
     assertThrows(
         IllegalArgumentException.class,
-        () -> ContentTypeAdaptor.applyParentFieldOrder(def, List.of(moveA, moveB)));
+        () -> ContentTypeAdaptor.applyFieldOrder(def, List.of(moveA, moveB)));
   }
 
   private static ContentTypeField fieldNamed(String name) {
     ContentTypeField field = new ContentTypeField();
     field.setName(name);
     return field;
+  }
+
+  private static ContentTypeField childFieldNamed(String fieldSet, String name) {
+    ContentTypeField field = new ContentTypeField();
+    field.setName(name);
+    field.setFieldSet(fieldSet);
+    return field;
+  }
+
+  private static PSDisplayMapper nestedMapperOf(
+      PSItemDefinition def, PSDisplayMapper parentMapper, String childName) {
+    PSFieldSet parent = def.getFieldSet();
+    assertTrue(parent.get(childName) instanceof PSFieldSet, "child set materialized");
+    PSFieldSet child = (PSFieldSet) parent.get(childName);
+    PSDisplayMapper nested = ContentTypeAdaptor.mapperForFieldSet(def, parentMapper, child);
+    assertNotNull(nested, "nested display mapper resolved");
+    return nested;
+  }
+
+  private PSItemDefinition stubDefinitionWithChild(String childName) {
+    PSItemDefinition def = stubDefinition();
+    PSDisplayMapper parentMapper = def.getDisplayMapper("percPage");
+    PSFieldSet parent = def.getFieldSet();
+    ContentTypeField pa = new ContentTypeField();
+    pa.setName("rx_pa");
+    ContentTypeField pb = new ContentTypeField();
+    pb.setName("rx_pb");
+    ContentTypeAdaptor.addPersistableLocalField(def, pa);
+    ContentTypeAdaptor.addPersistableLocalField(def, pb);
+    PSFieldSet child =
+        ContentTypeAdaptor.ensureChildFieldSet(def, parent, parentMapper, childName);
+    when(def.getComplexChildren()).thenReturn(List.of(child));
+    ContentTypeField ka = new ContentTypeField();
+    ka.setName("rx_ka");
+    ka.setFieldSet(childName);
+    ContentTypeField kb = new ContentTypeField();
+    kb.setName("rx_kb");
+    kb.setFieldSet(childName);
+    ContentTypeAdaptor.addPersistableLocalField(def, ka);
+    ContentTypeAdaptor.addPersistableLocalField(def, kb);
+    return def;
   }
 
   private PSItemDefinition stubDefinition() {

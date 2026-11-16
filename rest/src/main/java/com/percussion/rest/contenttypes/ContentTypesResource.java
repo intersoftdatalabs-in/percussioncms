@@ -1169,7 +1169,8 @@ public class ContentTypesResource {
               + " (POST .../lock). Locks expire after 30 minutes; a PUT after expiry returns 409"
               + " and the client must re-lock. The save load extends a still-valid lock (it does"
               + " not release). Applies mutable fields (label, description, enabled, per-field"
-              + " searchable/occurrence, local field display labels, allowedWorkflows +"
+              + " searchable/occurrence, local field display labels, parent and child field-set"
+              + " display order via fields[].sequence, allowedWorkflows +"
               + " defaultWorkflow, allowedTemplates)"
               + " and saves without releasing the lock (POST .../unlock). Association lists:"
               + " omit/null = leave unchanged; non-null list = full replace (empty clears"
@@ -1192,7 +1193,8 @@ public class ContentTypesResource {
             responseCode = "400",
             description =
                 "Invalid input (blank local field display label, label write on"
-                    + " system/shared field, or child field-set sequence)"),
+                    + " system/shared field, unknown child field set, or duplicate"
+                    + " field sequence)"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(
             responseCode = "404",

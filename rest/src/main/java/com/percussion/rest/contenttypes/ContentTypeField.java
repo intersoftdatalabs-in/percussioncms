@@ -130,9 +130,11 @@ public class ContentTypeField {
 
   @Schema(
       description =
-          "Zero-based order among parent display mappings. GET returns it when a mapping"
-              + " exists. PUT detail (held lock) reorders parent fields when any sequence is"
-              + " set. Child field-set sequence is 400. Omitted leaves order unchanged.")
+          "Zero-based order among the field's own set: parent display mappings when fieldSet"
+              + " is blank, otherwise the named complex child's nested display mappings. GET"
+              + " returns it when a mapping exists. PUT detail (held lock) reorders when any"
+              + " sequence is set; child patches require fieldSet. Omitted leaves order"
+              + " unchanged.")
   private Integer sequence;
 
   public ContentTypeField() {}

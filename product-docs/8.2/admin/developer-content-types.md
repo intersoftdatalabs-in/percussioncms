@@ -486,7 +486,8 @@ flag.
 
 The Fields table lists parent fields in display order (`sequence` on GET).
 **System** and **shared** labels stay read-only. **Move up** / **Move down**
-reorder parent fields only. Child field-set rows have no move controls.
+reorder parent fields only. Child field-set rows have per-set move controls
+(see below).
 
 1. Click **Lock**.
 2. Move a parent field. **Reset order** restores the last loaded order and does
@@ -494,13 +495,31 @@ reorder parent fields only. Child field-set rows have no move controls.
 3. Click **Save content type**. The product writes `fields[].sequence` on
    `PUT /services/contenttypes/{idOrName}` and does **not** unlock. Reopen or
    GET shows the new order.
-4. A child field-set sequence is **400**. Unknown field is **404**. Unlocked or
-   another user's lock is **409**. Non-Admin is **403**. The error stays on the
-   panel; unsaved order is not cleared by that error.
+4. Unknown field is **404**. Unlocked or another user's lock is **409**.
+   Non-Admin is **403**. The error stays on the panel; unsaved order is not
+   cleared by that error.
 5. Without a lock, Move up / Move down / Reset order stay **disabled**.
 
-This is not the full Workbench field editor. Child field-set reorder is a later
-slice. Include of system/shared fields is a separate control on this page.
+### Child field-set order (after lock)
+
+Fields that belong to a named complex child set render under that set in the
+Fields table in display order (`sequence` on GET within the set). **Move up** /
+**Move down** on a child row reorder that field inside its own set only; other
+sets and parent fields are untouched.
+
+1. Click **Lock**.
+2. Move a child field within its set. **Reset order** restores the last loaded
+   parent and child orders and does not call save.
+3. Click **Save content type**. The product writes `fields[].sequence` together
+   with `fields[].fieldSet` on `PUT /services/contenttypes/{idOrName}` and
+   does **not** unlock. Reopen or GET shows the new order.
+4. An unknown child set is **400**. Unknown field is **404**. Unlocked or
+   another user's lock is **409**. Non-Admin is **403**. The error stays on the
+   panel; unsaved order is not cleared by that error.
+5. Without a lock, child Move up / Move down stay **disabled**.
+
+This is not the full Workbench field editor. Include of system/shared fields
+is a separate control on this page.
 
 ### Item-level exits (after lock)
 
