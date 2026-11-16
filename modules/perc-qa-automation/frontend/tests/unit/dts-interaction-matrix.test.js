@@ -41,6 +41,8 @@ const {
   skipNoFixture,
   DTS_SERVICES,
   tagForService,
+  dtsContextUrl,
+  dtsServiceUrl,
   fixtureValue,
   buildInteractionRow,
   validateInteractionRow,
@@ -65,12 +67,28 @@ describe("dts-interaction-matrix helpers (#6241)", () => {
     for (const entry of DTS_SERVICES) {
       assert.match(entry.name, /^(polls|feeds|forms|comments|metadata|membership)$/, `${entry.name} name`);
       assert.ok(entry.label.length > 0, `${entry.name} label`);
+      // Deployment context (war name) pins where Tomcat serves the
+      // service — the matrix must not probe the DTS origin root (#6342).
+      assert.ok(entry.context.length > 0, `${entry.name} context`);
       assert.ok(entry.root.startsWith("/"), `${entry.name} root`);
       assert.equal(entry.csrf, `${entry.root}/csrf`, `${entry.name} csrf probe`);
       assert.ok(entry.fixtureEnv.startsWith("DTS_FIXTURE_"), `${entry.name} fixture env`);
       assert.ok(entry.interaction.length > 0, `${entry.name} interaction`);
       assert.ok(tagForService(entry.name).startsWith("@dts-"), "per-service tag");
     }
+    // Contexts mirror the deployed war names (finalName in each DTS
+    // service pom; feeds ships as feeds.war).
+    assert.deepEqual(
+      Object.fromEntries(DTS_SERVICES.map((entry) => [entry.name, entry.context])),
+      {
+        polls: "perc-polls-services",
+        feeds: "feeds",
+        forms: "perc-form-processor",
+        comments: "perc-comments-services",
+        metadata: "perc-metadata-services",
+        membership: "perc-membership-services",
+      },
+    );
     // Every US2 dynamic widget's backing service has an interaction case,
     // plus metadata (auto-list/indexing, no dedicated widget).
     const widgetMatrix = require("../helpers/published-widget-matrix");
@@ -185,12 +203,57 @@ describe("dts-interaction-matrix helpers (#6241)", () => {
     }
   });
 
+  it("builds service URLs through the deployment context path (#6342)", () => {
+    const dts = new URL("http://127.0.0.1:9983/");
+    const byName = new Map(DTS_SERVICES.map((entry) => [entry.name, entry]));
+    // Same shape as published-widget-surfaces dtsServiceUrl: origin +
+    // context (war name) + JAX-RS root, never the origin root.
+    assert.equal(
+      dtsContextUrl(dts, byName.get("polls")),
+      "http://127.0.0.1:9983/perc-polls-services",
+    );
+    assert.equal(
+      dtsServiceUrl(dts, byName.get("polls")),
+      "http://127.0.0.1:9983/perc-polls-services/polls",
+    );
+    assert.equal(
+      dtsServiceUrl(dts, byName.get("feeds")),
+      "http://127.0.0.1:9983/feeds/rss",
+    );
+    assert.equal(
+      dtsServiceUrl(dts, byName.get("forms")),
+      "http://127.0.0.1:9983/perc-form-processor/forms",
+    );
+    assert.equal(
+      dtsServiceUrl(dts, byName.get("comments")),
+      "http://127.0.0.1:9983/perc-comments-services/comment",
+    );
+    assert.equal(
+      dtsServiceUrl(dts, byName.get("metadata")),
+      "http://127.0.0.1:9983/perc-metadata-services/metadata",
+    );
+    assert.equal(
+      dtsServiceUrl(dts, byName.get("membership")),
+      "http://127.0.0.1:9983/perc-membership-services/membership",
+    );
+    // The service-down skip names the context-prefixed endpoint the probe
+    // actually hits, not the origin root. Parsed as a URL with exact
+    // origin + pathname comparison (never a substring check).
+    const downReason = skipServiceDown(byName.get("polls"), "https://dts.example");
+    const probedAt = /no liveness answer at (\S+);/.exec(downReason);
+    assert.ok(probedAt, "service-down skip names the probed endpoint");
+    const probedUrl = new URL(probedAt[1]);
+    assert.equal(probedUrl.origin, "https://dts.example");
+    assert.equal(probedUrl.pathname, "/perc-polls-services/polls/csrf");
+  });
+
   it("is referenced by the matrix spec for every pinned service", () => {
     const spec = fs.readFileSync(path.join(FRONTEND_DIR, "dts-interaction-matrix.spec.js"), "utf8");
     assert.ok(spec.includes("DTS_SERVICES.forEach"), "data-driven over the pinned inventory");
     assert.ok(spec.includes("vote persists") || spec.includes("interaction"), "interaction case declared");
     assert.ok(spec.includes("dts-interaction-matrix.json"), "matrix artifact written");
     assert.ok(spec.includes("DTS_BASE_URL"), "skip contract declared");
+    assert.ok(spec.includes("dtsServiceUrl"), "interactions run through the deployment context (#6342)");
     for (const entry of DTS_SERVICES) {
       assert.ok(
         spec.includes(`interact${entry.name[0].toUpperCase()}${entry.name.slice(1)}`),
