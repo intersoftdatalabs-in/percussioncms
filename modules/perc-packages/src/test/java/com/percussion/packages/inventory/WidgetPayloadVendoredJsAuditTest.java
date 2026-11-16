@@ -73,6 +73,20 @@ import org.junit.jupiter.api.Test;
  * banner; byte-identity with the npm dist is enforced by the frontend
  * vitest parity test.
  *
+ * <p>Slice 4 of #6403 pins stable markers for every remaining
+ * unknown-version row (nav hoverIntent/supersubs pairs, MiniColors twins,
+ * qTip twins, calendarTwo gcal + lang-all), so silent swaps fail loudly.
+ * Slice 4 verified each leftover against the npm registry and found no
+ * byte-identity migration: the calendarTwo fullcalendar pair carries
+ * Percussion mods ({@code reportEvents}/{@code Perc.range}/{@code
+ * computeRange}) and the stock {@code fullcalendar@2.9.1} dist ships
+ * unexpanded {@code <%= meta.* %>} banners; {@code slick-carousel} has no
+ * 1.9.0; npm {@code hoverintent} is the incompatible vanilla rewrite;
+ * npm {@code supersubs} is unrelated; MiniColors matches no published
+ * dist (provenance unclear); qTip is v1-era EOL; Foundation is 4.x EOL;
+ * FullCalendar 1.6.7 is absent from npm. Replace-or-drop decisions and
+ * legal flags move to the remainder follow-on #6502; #6403 stays open.
+ *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
  * inventory can only drift together with an audit update. A migration PR that
@@ -206,7 +220,37 @@ class WidgetPayloadVendoredJsAuditTest {
               "jQuery Superfish Menu Plugin - v1.7.10"),
           Map.entry(
               "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/superfish.min.js",
-              "Superfish Menu Plugin - v1.7.10"));
+              "Superfish Menu Plugin - v1.7.10"),
+          Map.entry(
+              "perc.widget.calendar/SupportFile-rx_resources/widgets/percCalendarTwo/js/jquery.minicolors.js",
+              "minicolors = {"),
+          Map.entry(
+              "perc.widget.calendar/sys__UserDependency--rx_resources/widgets/percCalendarTwo/js/jquery.minicolors.js",
+              "minicolors = {"),
+          Map.entry(
+              "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendar/js/jquery.qtip.js",
+              "NO_TOOLTIP_PRESENT"),
+          Map.entry(
+              "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/jquery.qtip.js",
+              "NO_TOOLTIP_PRESENT"),
+          Map.entry(
+              "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/gcal.js",
+              "googleCalendarId"),
+          Map.entry(
+              "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/lang-all.js",
+              "fullCalendar.datepickerLang"),
+          Map.entry(
+              "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/hoverIntent.js",
+              "handlerIn, handlerOut"),
+          Map.entry(
+              "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/hoverIntent.min.js",
+              "hoverIntent_t"),
+          Map.entry(
+              "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/supersubs.js",
+              "fn.supersubs.defaults"),
+          Map.entry(
+              "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/supersubs.min.js",
+              "menu-fontsize"));
 
   private static Path packagesRoot() {
     List<Path> candidates =
