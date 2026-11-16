@@ -581,6 +581,57 @@ class ContentTypeAdaptorLocalFieldTest {
   }
 
   @Test
+  void assignParentFieldSequences_unmappedAndChildRowsSortLast() {
+    PSDisplayMapper mapper = new PSDisplayMapper("percPage");
+    mapper.add(new PSDisplayMapping("rx_b", new PSUISet()));
+    mapper.add(new PSDisplayMapping("rx_a", new PSUISet()));
+    List<ContentTypeField> rows = new ArrayList<>();
+    rows.add(childFieldNamed("kid", "rx_kc"));
+    rows.add(fieldNamed("rx_u"));
+    rows.add(fieldNamed("rx_a"));
+    rows.add(fieldNamed("rx_b"));
+    ContentTypeAdaptor.assignParentFieldSequences(mapper, rows);
+    assertEquals(4, rows.size());
+    assertEquals("rx_b", rows.get(0).getName());
+    assertEquals(0, rows.get(0).getSequence());
+    assertEquals("rx_a", rows.get(1).getName());
+    assertEquals(1, rows.get(1).getSequence());
+    assertEquals("rx_u", rows.get(2).getName());
+    assertNull(rows.get(2).getSequence());
+    assertEquals("rx_kc", rows.get(3).getName());
+    assertEquals("kid", rows.get(3).getFieldSet());
+  }
+
+  @Test
+  void assignChildFieldSequences_matchesSetNameIgnoringCase() {
+    PSItemDefinition def = stubDefinitionWithChild("kid");
+    List<ContentTypeField> rows = new ArrayList<>();
+    rows.add(childFieldNamed("KID", "rx_kb"));
+    rows.add(childFieldNamed("KID", "rx_ka"));
+    ContentTypeAdaptor.assignChildFieldSequences(def, rows);
+    assertEquals("rx_ka", rows.get(0).getName());
+    assertEquals(Integer.valueOf(0), rows.get(0).getSequence());
+    assertEquals("rx_kb", rows.get(1).getName());
+    assertEquals(Integer.valueOf(1), rows.get(1).getSequence());
+  }
+
+  @Test
+  void update_unknownNonSequenceFieldIs404() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubDefinition();
+    stubLockedLoad(def);
+    ContentTypeField ghost = new ContentTypeField();
+    ghost.setName("no_such_field");
+    ghost.setLabel("Ghost:");
+    ContentTypeDetail detail = new ContentTypeDetail();
+    detail.setFields(List.of(ghost));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> adaptor.updateContentType(null, "311", detail));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
   void update_sequenceOnlySystemFieldDoesNot404() throws Exception {
     stubHeldLock();
     PSItemDefinition def = stubDefinition();
