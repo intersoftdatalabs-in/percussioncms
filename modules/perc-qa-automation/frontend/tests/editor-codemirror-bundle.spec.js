@@ -32,7 +32,13 @@
  * the same global CodeMirror 5 API the consumers use
  * ({@code fromTextArea}/{@code getValue}, {@code htmlmixed} mode, search and
  * fullscreen addons), and must edit HTML in a real browser. The old
- * per-file WebJar layout ({@code codemirror/lib/...}) must be gone.</p>
+ * per-file WebJar layout ({@code codemirror/lib/...}) must be gone.
+ *
+ * <p>Issue #6363 locks the migration at the manifest level (no live CMS):
+ * no {@code org.webjars.npm:codemirror} in any {@code pom.xml}, no
+ * {@code codemirror-unpack} build step, no {@code codemirror.version}
+ * property, and {@code codemirror} declared + lockfile-tracked in both npm
+ * manifests.</p></p>
  */
 
 const { test, expect } = require("@playwright/test");
@@ -68,6 +74,38 @@ function codemirrorLoaderLines(jspPath) {
     .readFileSync(path.join(REPO_ROOT, jspPath), "utf8")
     .replace(/\r\n/g, "\n");
   return text.split("\n").filter((line) => /codemirror/i.test(line));
+}
+
+// Issue #6363 (slice 3/3): the WebJar + Ant-unpack removal and the root-POM
+// freeze lift are build-manifest facts. This pins the manifests the migration
+// owns so a re-introduced WebJar, unpack step, version property, or dropped
+// npm dependency fails fast without a live CMS. Kept to the migration-owned
+// manifests plus a repo-wide pom sweep (skipping build-output and VCS dirs).
+const NPM_TRACKED_MANIFESTS = [
+  "modules/perc-tinymce/package.json",
+  "modules/perc-common-ui-bundle/package.json",
+];
+const POM_SWEEP_SKIP_DIRS = new Set([
+  ".git",
+  "node_modules",
+  "target",
+  "test-results",
+  "playwright-report",
+]);
+
+function collectPomPaths(dir) {
+  const found = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      if (POM_SWEEP_SKIP_DIRS.has(entry.name)) {
+        continue;
+      }
+      found.push(...collectPomPaths(path.join(dir, entry.name)));
+    } else if (entry.isFile() && entry.name === "pom.xml") {
+      found.push(path.join(dir, entry.name));
+    }
+  }
+  return found;
 }
 
 test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
@@ -164,6 +202,23 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
       expect(roundTrip.lines).toBe(1);
       expect(roundTrip.mode).toBe("htmlmixed");
 
+      // C5 live proof (issue #6363): render a visible editor from the served
+      // npm bundle and capture the passing surface.
+      await page.addStyleTag({ url: `${BASE_URL}${BUNDLE_CSS}` });
+      await page.evaluate(() => {
+        document.body.innerHTML =
+          '<h1>CodeMirror npm bundle live proof (#6363)</h1>' +
+          '<textarea id="cm-proof"><p>Hello <b>World</b></p></textarea>';
+        const proof = window.CodeMirror.fromTextArea(
+          document.getElementById("cm-proof"),
+          { mode: "htmlmixed", lineNumbers: true },
+        );
+        proof.setValue("<p>npm bundle live proof</p>");
+      });
+      await page.screenshot({
+        path: "test-results/live-proof-6363-codemirror-bundle.png",
+      });
+
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual(
         [],
       );
@@ -204,6 +259,66 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
       }
       expect(loaders[1]).toEqual(loaders[0]);
       expect(loaders[2]).toEqual(loaders[0]);
+    },
+  );
+
+  test(
+    "CodeMirror stays npm-tracked: no WebJar, no unpack, no version freeze",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async () => {
+      // No live CMS needed: static build-manifest lock for issue #6363
+      // acceptance (no `codemirror` WebJar reference in any pom.xml, no
+      // `codemirror-unpack` in the build, freeze lifted, npm-tracked).
+      const pomPaths = collectPomPaths(REPO_ROOT);
+      expect(
+        pomPaths.length,
+        "repo-wide pom sweep must find module poms",
+      ).toBeGreaterThan(0);
+      for (const pomPath of pomPaths) {
+        const rel = path.relative(REPO_ROOT, pomPath);
+        // Strip XML comments: migration history notes (e.g. "no WebJar",
+        // "no codemirror-unpack step") live in comments and must not trip
+        // the sweep — only live build elements count.
+        const text = fs
+          .readFileSync(pomPath, "utf8")
+          .replace(/<!--[\s\S]*?-->/g, "");
+        expect(
+          /<artifactId>\s*codemirror\s*<\/artifactId>/.test(text),
+          `${rel} must not declare a codemirror Maven artifact (WebJar removed)`,
+        ).toBe(false);
+        expect(
+          text.includes("codemirror-unpack"),
+          `${rel} must not contain a codemirror-unpack build step`,
+        ).toBe(false);
+        expect(
+          /codemirror\.version/.test(text),
+          `${rel} must not pin a codemirror.version property (freeze lifted)`,
+        ).toBe(false);
+      }
+      // `codemirror` stays a standard npm dependency (Dependabot-visible via
+      // .github/dependabot.yml `/modules/perc-tinymce` +
+      // `/modules/perc-common-ui-bundle` entries) with a lockfile entry, so
+      // `npm ls codemirror` / `npm audit` resolve the tracked version.
+      for (const manifestRel of NPM_TRACKED_MANIFESTS) {
+        const manifestPath = path.join(REPO_ROOT, manifestRel);
+        const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+        const version =
+          manifest.dependencies && manifest.dependencies.codemirror;
+        expect(
+          typeof version === "string" && version.length > 0,
+          `${manifestRel} must declare dependencies.codemirror`,
+        ).toBe(true);
+        const lockPath = path.join(path.dirname(manifestPath), "package-lock.json");
+        const lock = JSON.parse(fs.readFileSync(lockPath, "utf8"));
+        const packages = lock.packages || {};
+        expect(
+          Object.prototype.hasOwnProperty.call(
+            packages,
+            "node_modules/codemirror",
+          ),
+          `${path.relative(REPO_ROOT, lockPath)} must track node_modules/codemirror`,
+        ).toBe(true);
+      }
     },
   );
 });
