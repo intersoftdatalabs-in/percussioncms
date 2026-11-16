@@ -143,6 +143,42 @@ describe("TipTapToolbar", () => {
     }
   });
 
+  it("collapses the selection after applying a link (#5932)", () => {
+    const editor = makeEditor();
+    try {
+      render(<TipTapToolbar editor={editor} name="text" />);
+      editor.commands.selectAll();
+      expect(editor.state.selection.empty).toBe(false);
+      fireEvent.click(screen.getByTestId("tiptap-link-text"));
+      const input = screen.getByTestId("tiptap-link-url-text") as HTMLInputElement;
+      fireEvent.change(input, { target: { value: "https://example.com/x" } });
+      fireEvent.click(screen.getByTestId("tiptap-link-apply-text"));
+      // A leftover range here lets a fast follow-up Enter run
+      // splitListItem against the stale selection and delete the list
+      // item; the caret must settle synchronously on apply.
+      expect(editor.state.selection.empty).toBe(true);
+      expect(editor.getHTML()).toContain('<a href="https://example.com/x">Hello</a>');
+    } finally {
+      editor.destroy();
+    }
+  });
+
+  it("collapses the selection after removing a link with an empty address", () => {
+    const editor = makeEditor('<p><a href="https://example.com/x">Hello</a></p>');
+    try {
+      render(<TipTapToolbar editor={editor} name="text" />);
+      editor.commands.selectAll();
+      fireEvent.click(screen.getByTestId("tiptap-link-text"));
+      const input = screen.getByTestId("tiptap-link-url-text") as HTMLInputElement;
+      fireEvent.change(input, { target: { value: "  " } });
+      fireEvent.click(screen.getByTestId("tiptap-link-apply-text"));
+      expect(editor.state.selection.empty).toBe(true);
+      expect(editor.getHTML()).not.toContain("<a");
+    } finally {
+      editor.destroy();
+    }
+  });
+
   it("inserts a table and removes a row", () => {
     const editor = makeEditor();
     try {
