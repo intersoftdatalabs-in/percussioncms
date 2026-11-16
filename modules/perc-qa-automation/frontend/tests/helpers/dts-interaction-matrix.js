@@ -79,16 +79,19 @@ function skipNoDts(entry) {
 /**
  * Skip reason when the DTS origin answers but the service root does not.
  * A 401/403 still counts as "served" (the service is up, the caller lacks
- * the role); only unreachable / 404 probes land here.
+ * the role); only unreachable / 404 probes land here. The probed endpoint
+ * is the deployment context path (war name) plus the JAX-RS root — the
+ * services are served under Tomcat contexts (see {@link DTS_SERVICES}),
+ * not at the DTS origin root.
  *
- * @param {{ name: string, label: string, root: string }} entry service entry
+ * @param {{ name: string, label: string, context: string, root: string, csrf: string }} entry service entry
  * @param {string} baseUrl DTS origin that was probed
  * @returns {string}
  */
 function skipServiceDown(entry, baseUrl) {
   return (
     `service ${entry.name} (${entry.label}): no liveness answer at ` +
-    `${baseUrl}${entry.csrf}; the DTS cell does not serve ${entry.root} yet (#6237)`
+    `${baseUrl}/${entry.context}${entry.csrf}; the DTS cell does not serve ${entry.context}${entry.root} yet (#6237)`
   );
 }
 
@@ -112,16 +115,26 @@ function skipNoFixture(entry, detail) {
 /**
  * One entry per DTS-backed service.
  *
- * <p>{@code root} is the JAX-RS root; {@code csrf} the {@code HEAD}
- * liveness probe. {@code fixtureEnv} names the env var selecting the
- * seeded fixture resource (with {@code fixtureDefault}); {@code widget}
- * names the US2 dynamic widget that surfaces this service ({@code null}
- * for metadata, which has no dedicated widget).</p>
+ * <p>{@code context} is the DTS Tomcat context path (the war name —
+ * {@code finalName} in each
+ * {@code deliverytiersuite/delivery-tier-suite/<service>/pom.xml};
+ * {@code feeds} ships as {@code feeds.war}, the rest as
+ * {@code perc-<service>-services.war}). {@code root} is the JAX-RS root;
+ * {@code csrf} the {@code HEAD} liveness probe. The published widgets
+ * address the services through the full context path (see the widget JS,
+ * e.g. the form widget posts to
+ * {@code <base>/perc-form-processor/forms/form/collect/}), so the
+ * interaction cases do the same via {@link dtsServiceUrl};
+ * {@code fixtureEnv} names the env var selecting the seeded fixture
+ * resource (with {@code fixtureDefault}); {@code widget} names the US2
+ * dynamic widget that surfaces this service ({@code null} for metadata,
+ * which has no dedicated widget).</p>
  */
 const DTS_SERVICES = Object.freeze([
   Object.freeze({
     name: "polls",
     label: "Polls",
+    context: "perc-polls-services",
     root: "/polls",
     csrf: "/polls/csrf",
     fixtureEnv: "DTS_FIXTURE_POLL",
@@ -132,6 +145,7 @@ const DTS_SERVICES = Object.freeze([
   Object.freeze({
     name: "feeds",
     label: "Feeds",
+    context: "feeds",
     root: "/rss",
     csrf: "/rss/csrf",
     fixtureEnv: "DTS_FIXTURE_FEED",
@@ -142,6 +156,7 @@ const DTS_SERVICES = Object.freeze([
   Object.freeze({
     name: "forms",
     label: "Forms",
+    context: "perc-form-processor",
     root: "/forms",
     csrf: "/forms/csrf",
     fixtureEnv: "DTS_FIXTURE_FORM",
@@ -152,6 +167,7 @@ const DTS_SERVICES = Object.freeze([
   Object.freeze({
     name: "comments",
     label: "Comments",
+    context: "perc-comments-services",
     root: "/comment",
     csrf: "/comment/csrf",
     fixtureEnv: "DTS_FIXTURE_SITE",
@@ -162,6 +178,7 @@ const DTS_SERVICES = Object.freeze([
   Object.freeze({
     name: "metadata",
     label: "Metadata",
+    context: "perc-metadata-services",
     root: "/metadata",
     csrf: "/metadata/csrf",
     fixtureEnv: "DTS_FIXTURE_SITE",
@@ -172,6 +189,7 @@ const DTS_SERVICES = Object.freeze([
   Object.freeze({
     name: "membership",
     label: "Membership",
+    context: "perc-membership-services",
     root: "/membership",
     csrf: "/membership/csrf",
     fixtureEnv: "DTS_FIXTURE_USER",
@@ -199,6 +217,34 @@ function dtsBaseUrl() {
     return null;
   }
   return new URL(baseUrl);
+}
+
+/**
+ * Deployment context URL for the service's interaction case: the DTS
+ * origin plus the deployment context path (war name), without the JAX-RS
+ * root. Same shape as
+ * {@code tests/helpers/published-widget-surfaces.js#dtsContextUrl}.
+ *
+ * @param {URL} dtsOrigin DTS-providing cell origin from {@link dtsBaseUrl}
+ * @param {{ context: string }} entry service entry
+ * @returns {string} context URL (no trailing slash)
+ */
+function dtsContextUrl(dtsOrigin, entry) {
+  return `${dtsOrigin.origin}/${entry.context}`;
+}
+
+/**
+ * Service base URL for the service's interaction case: the DTS origin
+ * plus the deployment context path (war name) plus the JAX-RS root,
+ * mirroring how the published widgets address the services. Same shape
+ * as {@code tests/helpers/published-widget-surfaces.js#dtsServiceUrl}.
+ *
+ * @param {URL} dtsOrigin DTS-providing cell origin from {@link dtsBaseUrl}
+ * @param {{ context: string, root: string }} entry service entry
+ * @returns {string} service base URL (no trailing slash)
+ */
+function dtsServiceUrl(dtsOrigin, entry) {
+  return `${dtsContextUrl(dtsOrigin, entry)}${entry.root}`;
 }
 
 /**
@@ -338,6 +384,8 @@ module.exports = {
   DTS_SERVICES,
   tagForService,
   dtsBaseUrl,
+  dtsContextUrl,
+  dtsServiceUrl,
   fixtureValue,
   buildInteractionRow,
   validateInteractionRow,
