@@ -62,6 +62,17 @@ import org.junit.jupiter.api.Test;
  * Percussion header. The nav hoverIntent/supersubs rows stay vendored and
  * are tracked in the #6319 leftover residual.
  *
+ * <p>Slice 3 of #6319 migrated the directory-widget {@code list.min.js} to
+ * the npm list.js 1.2.0 dist (byte-identical to the payload;
+ * Dependabot-tracked via the WebUI frontend manifests with an exact 1.2.0
+ * pin, since a caret range would float to 1.5.0+ whose dist bytes differ),
+ * and refreshed the directory lodash payload to the npm 4.18.1 dist as a
+ * Dependabot #6411 follow-on (the manifests had already moved to ^4.18.1).
+ * The list banner pin below carries a stable List.js API marker
+ * ({@code valueNames}) because the 1.2.0 minified dist ships no version
+ * banner; byte-identity with the npm dist is enforced by the frontend
+ * vitest parity test.
+ *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
  * inventory can only drift together with an audit update. A migration PR that
@@ -182,8 +193,11 @@ class WidgetPayloadVendoredJsAuditTest {
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/moment.min.js",
               "version : 2.31.0"),
           Map.entry(
+              "perc.widget.directory/sys__UserDependency--web_resources/widgets/directory/js/list.min.js",
+              "valueNames"),
+          Map.entry(
               "perc.widget.directory/sys__UserDependency--web_resources/widgets/directory/js/lodash.min.js",
-              "\"4.17.21\""),
+              "\"4.18.1\""),
           Map.entry(
               "perc.widget.imageSlider/sys__UserDependency--web_resources/widgets/imageSlider/js/slick.min.js",
               "Version: 1.9.0"),
