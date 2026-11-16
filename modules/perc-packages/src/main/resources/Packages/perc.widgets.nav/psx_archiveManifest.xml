@@ -39,13 +39,6 @@
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
 	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--web__resources_widgets_navBar_js_supersubs-js">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>e:\DevEnv\Installs\5315Patch\web_resources\widgets\navBar\js\supersubs.js</RxFile>
-			<ArchiveFile>sys__UserDependency--web__resources_widgets_navBar_js_supersubs-js\supersubs.js</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
 		DependencyKey="sys__UserDependency--rxconfig_Resources_percNavBar-xml">
 		<PSXDependencyFile fileType="SUPPORT_FILE">
 			<RxFile>e:\DevEnv\Installs\5315Patch\rxconfig\Resources\percNavBar.xml</RxFile>
@@ -78,13 +71,6 @@
 		<PSXDependencyFile fileType="SUPPORT_FILE">
 			<RxFile>e:\DevEnv\Installs\5315Patch\web_resources\widgets\navBar\changelog.txt</RxFile>
 			<ArchiveFile>sys__UserDependency--web__resources_widgets_navBar_changelog-txt\changelog.txt</ArchiveFile>
-		</PSXDependencyFile>
-	</PSXDepFilesIdTypes>
-	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--web__resources_widgets_navBar_js_supersubs-min-js">
-		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>e:\DevEnv\Installs\5315Patch\web_resources\widgets\navBar\js\supersubs.min.js</RxFile>
-			<ArchiveFile>sys__UserDependency--web__resources_widgets_navBar_js_supersubs-min-js\supersubs.min.js</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
 	<PSXDepFilesIdTypes
