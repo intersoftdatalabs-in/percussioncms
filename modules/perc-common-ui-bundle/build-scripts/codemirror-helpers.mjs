@@ -60,12 +60,15 @@ export function unwrapCodeMirror(moduleRecord) {
 /**
  * Markers the built `codemirror.bundle.js` must contain. They prove the
  * htmlmixed mode plus the search/matchbrackets addons the classic consumers
- * rely on survived tree-shaking/minification.
+ * rely on survived tree-shaking/minification. `openDialog` pins the dialog
+ * addon the find/replace commands (`find`, `replace`, `replaceAll`) render
+ * through (issue #6465: template editor source-view find/replace).
  */
 export const CODEMIRROR_BUNDLE_MARKERS = [
   "htmlmixed",
   "searchcursor",
   "matchBrackets",
+  "openDialog",
 ];
 
 /**

@@ -22,7 +22,7 @@
  * code-editor control (`sys_Templates.xsl`) load
  * `/sys_resources/codemirror/codemirror/codemirror.bundle.js` built by
  * `build-scripts/bundle-codemirror.mjs` from the `codemirror` npm package.
- * These tests pin the two halves of that contract that a plain build would
+ * These tests pin the three halves of that contract that a plain build would
  * only catch at runtime on a live CMS:
  *
  * 1. The bundled dependency stays on the CodeMirror 5 line until issue #5701
@@ -31,9 +31,14 @@
  * 2. `unwrapCodeMirror` recovers the constructor through every level of
  *    esbuild CJS/ESM interop nesting the entry can observe, so
  *    `window.CodeMirror` keeps working for the legacy consumers.
+ * 3. The entry wires the dialog + search + searchcursor addons the template
+ *    editor source-view find/replace needs (issue #6465), and the marker
+ *    list the build sanity-check enforces names the dialog addon.
  */
 
 import { createRequire } from "module";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
 import { describe, it, expect } from "vitest";
 import {
   unwrapCodeMirror,
@@ -55,7 +60,34 @@ describe("codemirror npm dependency line", () => {
       "htmlmixed",
       "searchcursor",
       "matchBrackets",
+      "openDialog",
     ]);
+  });
+
+  it("wires the find/replace addons into the bundle entry", () => {
+    // Issue #6465: the template editor source-view find/replace (Ctrl-F /
+    // replace dialog) needs the dialog addon (renders the prompt) plus the
+    // search + searchcursor addons (define the commands). The bundle build
+    // only checks minified markers, so pin the entry wiring itself: a
+    // dropped import fails here before the browser ever loads the bundle.
+    // Vitest (npm or the Maven frontend plugin) always runs with the module
+    // directory as cwd; `join` keeps the resolution portable (Windows/Unix).
+    const entryPath = join(
+      process.cwd(),
+      "build-scripts",
+      "codemirror-bundle-entry.js",
+    );
+    const entry = readFileSync(entryPath, "utf8");
+    for (const addon of [
+      "codemirror/addon/dialog/dialog.js",
+      "codemirror/addon/search/search.js",
+      "codemirror/addon/search/searchcursor.js",
+    ]) {
+      expect(
+        entry.includes(addon),
+        `bundle entry must import ${addon} for find/replace`,
+      ).toBe(true);
+    }
   });
 });
 

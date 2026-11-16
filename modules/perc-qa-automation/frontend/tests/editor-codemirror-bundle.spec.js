@@ -34,6 +34,13 @@
  * fullscreen addons), and must edit HTML in a real browser. The old
  * per-file WebJar layout ({@code codemirror/lib/...}) must be gone.
  *
+ * <p>Issue #6465 (template editor source-view find/replace + line numbers):
+ * the {@code sys_TextArea} code-editor renders a shortcut legend
+ * ({@code .perc-codeeditor-legend}) for find/replace and keeps
+ * {@code lineNumbers: true}; the live test proves the served bundle renders
+ * the line-number gutter, finds/replaces through the search addon, and opens
+ * the find dialog.</p>
+ *
  * <p>Issue #6363 locks the migration at the manifest level (no live CMS):
  * no {@code org.webjars.npm:codemirror} in any {@code pom.xml}, no
  * {@code codemirror-unpack} build step, no {@code codemirror.version}
@@ -215,19 +222,81 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
       expect(roundTrip.lines).toBe(1);
       expect(roundTrip.mode).toBe("htmlmixed");
 
-      // C5 live proof (issue #6363): render a visible editor from the served
-      // npm bundle and capture the passing surface.
+      // C5 live proof (issues #6363, #6465): render a visible editor from the
+      // served npm bundle and capture the passing surface. Issue #6465
+      // proves the template editor source-view contract on the served
+      // bundle: the line-number gutter renders, the search addon finds and
+      // replaces, and the find dialog opens.
       await page.addStyleTag({ url: `${BASE_URL}${BUNDLE_CSS}` });
-      await page.evaluate(() => {
+      const sourceView = await page.evaluate(() => {
         document.body.innerHTML =
-          '<h1>CodeMirror npm bundle live proof (#6363)</h1>' +
+          "<h1>CodeMirror npm bundle live proof (#6363, #6465)</h1>" +
           '<textarea id="cm-proof"><p>Hello <b>World</b></p></textarea>';
         const proof = window.CodeMirror.fromTextArea(
           document.getElementById("cm-proof"),
-          { mode: "htmlmixed", lineNumbers: true },
+          {
+            mode: "htmlmixed",
+            lineNumbers: true,
+            matchBrackets: true,
+            styleActiveLine: true,
+          },
         );
-        proof.setValue("<p>npm bundle live proof</p>");
+        proof.setValue("<p>Hello <b>World</b></p>\n<p>Second line</p>");
+        // Line numbers: CM5 renders one .CodeMirror-linenumber marker per
+        // visible line (in the gutter wrapper layer, not inside
+        // .CodeMirror-gutters, which only reserves the gutter width).
+        const guttersPresent =
+          document.querySelectorAll(".CodeMirror-gutters").length > 0;
+        const gutterMarkers = document.querySelectorAll(
+          ".CodeMirror-linenumber",
+        ).length;
+        // Find: the search addon locates "World" on the first line.
+        const cursor = proof.getSearchCursor("World");
+        const found = cursor.findNext();
+        const foundAt = found
+          ? { line: cursor.from().line, ch: cursor.from().ch }
+          : null;
+        // Replace: the searchcursor machinery swaps the match in place.
+        if (found) {
+          cursor.replace("npm bundle");
+        }
+        const replaced = proof.getValue();
+        // Find dialog: execCommand("find") renders the search prompt.
+        proof.execCommand("find");
+        const dialogOpen =
+          document.querySelectorAll(".CodeMirror-dialog").length > 0;
+        return {
+          lines: proof.lineCount(),
+          guttersPresent,
+          gutterMarkers,
+          found,
+          foundAt,
+          replaced,
+          dialogOpen,
+        };
       });
+      expect(sourceView.lines).toBe(2);
+      expect(
+        sourceView.guttersPresent,
+        "line-number gutter layer must render (#6465)",
+      ).toBe(true);
+      expect(
+        sourceView.gutterMarkers,
+        "line-number gutter must render one marker per line (#6465)",
+      ).toBe(2);
+      expect(
+        sourceView.found,
+        "search addon must find 'World' (#6465)",
+      ).toBe(true);
+      expect(sourceView.foundAt).toEqual({ line: 0, ch: 12 });
+      expect(sourceView.replaced).toBe(
+        "<p>Hello <b>npm bundle</b></p>\n<p>Second line</p>",
+      );
+      expect(
+        sourceView.dialogOpen,
+        "find dialog must open (#6465)",
+      ).toBe(true);
+      expect(await page.locator(".CodeMirror-dialog").isVisible()).toBe(true);
       await page.screenshot({
         path: "test-results/live-proof-6363-codemirror-bundle.png",
       });
@@ -307,6 +376,54 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
           `${SYS_TEMPLATES_XSL} must not reference the legacy TinyMCE-hosted bundle path: ${line}`,
         ).not.toMatch(/sys_resources\/tinymce\//);
       }
+    },
+  );
+
+  test(
+    "sys_TextArea code editor shows find/replace legend and line numbers",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async () => {
+      // No live CMS needed: static pin for issue #6465. The template
+      // editor source-view (sys_TextArea with codeeditor=yes) keeps
+      // lineNumbers on and renders a shortcut legend so authors can
+      // discover find/replace (the bundle ships the dialog + search
+      // addons; see the live test). The legend must live inside the
+      // codeeditor branch so plain textareas stay chrome-free.
+      const text = fs
+        .readFileSync(path.join(REPO_ROOT, SYS_TEMPLATES_XSL), "utf8")
+        .replace(/\r\n/g, "\n");
+      const codeeditorStart = text.indexOf('$codeeditor = \'yes\'');
+      expect(
+        codeeditorStart,
+        `${SYS_TEMPLATES_XSL} must keep the codeeditor branch`,
+      ).toBeGreaterThan(-1);
+      const branch = text.slice(codeeditorStart);
+      const legendAt = branch.indexOf("perc-codeeditor-legend");
+      expect(
+        legendAt,
+        `${SYS_TEMPLATES_XSL} must render the find/replace legend for code editors (#6465)`,
+      ).toBeGreaterThan(-1);
+      const legendBlock = branch.slice(legendAt, legendAt + 800);
+      for (const hint of [
+        "Ctrl-F",
+        "Ctrl-G",
+        "Shift-Ctrl-F",
+        "Shift-Ctrl-R",
+        "Cmd-F",
+      ]) {
+        expect(
+          legendBlock,
+          `${SYS_TEMPLATES_XSL} legend must name the ${hint} shortcut (#6465)`,
+        ).toContain(hint);
+      }
+      expect(
+        legendBlock,
+        `${SYS_TEMPLATES_XSL} legend must not be an empty placeholder (#6465)`,
+      ).not.toMatch(/perc-codeeditor-legend">\s*<\/div>/);
+      expect(
+        branch,
+        `${SYS_TEMPLATES_XSL} code editor must keep line numbers on (#6465)`,
+      ).toContain("lineNumbers: true");
     },
   );
 
