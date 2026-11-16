@@ -25,6 +25,7 @@ vi.mock("../../../main/ts/api/developer/sharedFieldsApi", async (importOriginal)
     deleteSharedField: vi.fn(),
     getSharedFieldControlProperties: vi.fn(),
     replaceSharedFieldControlProperties: vi.fn(),
+    getSharedFieldUsage: vi.fn(),
   };
 });
 
@@ -46,6 +47,9 @@ const getSharedFieldControlProperties =
   sharedFieldsApi.getSharedFieldControlProperties as ReturnType<typeof vi.fn>;
 const replaceSharedFieldControlProperties =
   sharedFieldsApi.replaceSharedFieldControlProperties as ReturnType<typeof vi.fn>;
+const getSharedFieldUsage = sharedFieldsApi.getSharedFieldUsage as ReturnType<
+  typeof vi.fn
+>;
 
 const sampleDetail = {
   name: "shared",
@@ -76,6 +80,8 @@ describe("SharedFieldGroupDetailPanel", () => {
     deleteSharedField.mockReset();
     getSharedFieldControlProperties.mockReset();
     replaceSharedFieldControlProperties.mockReset();
+    getSharedFieldUsage.mockReset();
+    getSharedFieldUsage.mockResolvedValue({ usedBy: [] });
     getSharedFieldControlProperties.mockResolvedValue({
       fieldName: "rx_title",
       control: "sys_EditBox",
@@ -537,5 +543,47 @@ describe("SharedFieldGroupDetailPanel", () => {
       properties: [{ name: "height", value: "200" }],
       choices: { type: "none" },
     });
+  });
+
+  it("lists content types using the selected field", async () => {
+    getSharedFieldGroupDetail.mockResolvedValue(sampleDetail);
+    getSharedFieldUsage.mockResolvedValue({
+      groupName: "shared",
+      fieldName: "rx_title",
+      usedBy: [{ contentTypeName: "percPage", contentTypeId: 311 }],
+    });
+    render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-usage-table")).toBeTruthy();
+    });
+    expect(getSharedFieldUsage).toHaveBeenCalledWith("shared", "rx_title");
+    expect(screen.getByTestId("developer-sf-usage-row-0")).toBeTruthy();
+    expect(screen.getByTestId("developer-sf-usage-row-0").textContent).toContain("percPage");
+  });
+
+  it("shows the empty where-used state when no content type includes the field", async () => {
+    getSharedFieldGroupDetail.mockResolvedValue(sampleDetail);
+    getSharedFieldUsage.mockResolvedValue({
+      groupName: "shared",
+      fieldName: "rx_title",
+      usedBy: [],
+    });
+    render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-usage-empty")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-sf-usage-empty").textContent).toBe(
+      DEV_MSG.SF_USAGE_EMPTY,
+    );
+  });
+
+  it("shows the where-used error without hiding the fields table", async () => {
+    getSharedFieldGroupDetail.mockResolvedValue(sampleDetail);
+    getSharedFieldUsage.mockRejectedValue(new Error("store down"));
+    render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-usage-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-sf-fields-table")).toBeTruthy();
   });
 });

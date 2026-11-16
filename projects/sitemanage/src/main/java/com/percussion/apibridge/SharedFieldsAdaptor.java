@@ -17,10 +17,12 @@
 
 package com.percussion.apibridge;
 
+import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.design.objectstore.PSBackEndColumn;
 import com.percussion.design.objectstore.PSBackEndCredential;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.design.objectstore.PSContainerLocator;
+import com.percussion.design.objectstore.PSContentEditorMapper;
 import com.percussion.design.objectstore.PSContentEditorSharedDef;
 import com.percussion.design.objectstore.PSControlRef;
 import com.percussion.design.objectstore.PSDisplayMapper;
@@ -45,13 +47,18 @@ import com.percussion.rest.sharedfields.SharedFieldGroupDetail;
 import com.percussion.rest.sharedfields.SharedFieldGroupSummary;
 import com.percussion.rest.sharedfields.SharedFieldNotFoundException;
 import com.percussion.rest.sharedfields.SharedFieldSummary;
+import com.percussion.rest.sharedfields.SharedFieldUsage;
+import com.percussion.rest.sharedfields.SharedFieldUsageEntry;
+import com.percussion.services.catalog.IPSCatalogSummary;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.service.IPSUserService;
 import com.percussion.util.PSCollection;
+import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfo;
 import com.percussion.webservices.PSErrorException;
+import com.percussion.webservices.PSErrorResultsException;
 import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import com.percussion.webservices.content.PSContentWsLocator;
@@ -831,6 +838,122 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
    * @param notFoundIsDeleteStyle {@code true} throws {@link SharedFieldNotFoundException} (PUT);
    *     {@code false} throws HTTP 404 (GET)
    */
+  @Override
+  public SharedFieldUsage getFieldUsage(URI baseUri, String groupName, String fieldName) {
+    requireAdmin();
+    requireDesignWs();
+    if (!isSafeGroupName(groupName) || !isSafeGroupName(fieldName)) {
+      return null;
+    }
+    PSContentEditorSharedDef def = loadSharedDef();
+    PSSharedFieldGroup group = findGroup(def, groupName.trim());
+    if (group == null) {
+      throw new SharedFieldNotFoundException("Shared field group not found");
+    }
+    PSField field =
+        group.getFieldSet() != null
+            ? group.getFieldSet().findFieldByName(fieldName.trim(), false)
+            : null;
+    if (field == null || StringUtils.isBlank(field.getSubmitName())) {
+      throw new SharedFieldNotFoundException("Shared field not found");
+    }
+    String simple = field.getSubmitName();
+    // baseUri reserved for HATEOAS
+    List<SharedFieldUsageEntry> usedBy = findContentTypeUsages(simple);
+    SharedFieldUsage out = new SharedFieldUsage();
+    out.setGroupName(group.getName());
+    out.setFieldName(simple);
+    out.setUsedBy(usedBy);
+    return out;
+  }
+
+  /**
+   * Read-only where-used scan. Loads every content type without a lock in one batch and keeps
+   * the types whose stored definition carries the field display mapping without a shared-field
+   * exclude — the same present-means-included rule detach uses ({@link
+   * ContentTypeAdaptor#isSharedFieldExcluded}). A same-named local field shadows the include
+   * (include 409s on that collision), so it is not counted as usage.
+   */
+  private List<SharedFieldUsageEntry> findContentTypeUsages(String fieldName) {
+    List<IPSGuid> guids = usageCandidateGuids();
+    List<PSItemDefinition> defs = loadUsageCandidates(guids);
+    List<SharedFieldUsageEntry> out = new ArrayList<>();
+    if (defs != null) {
+      for (PSItemDefinition def : defs) {
+        if (usesSharedField(def, fieldName)) {
+          out.add(new SharedFieldUsageEntry(def.getName(), def.getTypeId()));
+        }
+      }
+    }
+    out.sort(
+        Comparator.comparing(
+            SharedFieldUsageEntry::getContentTypeName, Comparator.nullsLast(String.CASE_INSENSITIVE_ORDER)));
+    return out;
+  }
+
+  /** Content type guids as usage candidates, skipping summaries without a guid. */
+  private List<IPSGuid> usageCandidateGuids() {
+    List<IPSGuid> guids = new ArrayList<>();
+    List<IPSCatalogSummary> summaries;
+    try {
+      summaries = designWs.findContentTypes("*");
+    } catch (RuntimeException e) {
+      log.error("Failed to list content types for shared field usage", e);
+      throw new IllegalStateException("Failed to list content types", e);
+    }
+    if (summaries == null) {
+      return guids;
+    }
+    for (IPSCatalogSummary summary : summaries) {
+      if (summary != null && summary.getGUID() != null) {
+        guids.add(summary.getGUID());
+      }
+    }
+    return guids;
+  }
+
+  /** Read-only batch load of usage candidates. No design lock is acquired. */
+  private List<PSItemDefinition> loadUsageCandidates(List<IPSGuid> guids) {
+    if (guids.isEmpty()) {
+      return List.of();
+    }
+    try {
+      return designWs.loadContentTypes(guids, false, false, currentSession(), currentUser());
+    } catch (PSErrorResultsException e) {
+      log.error("Failed to load content types for shared field usage", e);
+      throw new IllegalStateException("Failed to load content types", e);
+    }
+  }
+
+  /**
+   * Package-visible for unit tests. True when the stored content type definition includes the
+   * shared field: display mapping present, not in the shared-field excludes, and not shadowed by
+   * a same-named local field.
+   */
+  static boolean usesSharedField(PSItemDefinition def, String fieldName) {
+    if (def == null || StringUtils.isBlank(fieldName)) {
+      return false;
+    }
+    String simple = fieldName.trim();
+    PSContentEditorMapper mapper;
+    try {
+      mapper = ContentTypeAdaptor.contentEditorMapperOf(def);
+    } catch (RuntimeException e) {
+      // Types without an editor mapper cannot carry shared includes.
+      return false;
+    }
+    if (mapper != null && ContentTypeAdaptor.isSharedFieldExcluded(mapper, simple)) {
+      return false;
+    }
+    PSField field = ContentTypeAdaptor.findField(def, simple);
+    if (field != null && field.getType() == PSField.TYPE_LOCAL) {
+      return false;
+    }
+    return ContentTypeAdaptor.findDisplayMapping(
+            ContentTypeAdaptor.displayMapperOfStatic(def), simple)
+        != null;
+  }
+
   private PSDisplayMapping requireFieldMapping(
       PSSharedFieldGroup group, String fieldName, boolean notFoundIsDeleteStyle) {
     PSField field =

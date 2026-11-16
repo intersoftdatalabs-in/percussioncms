@@ -814,6 +814,22 @@ export interface SharedFieldGroupDetail {
   designGaps?: string[];
 }
 
+/** One content type row from GET {@code /services/sharedfields/{group}/fields/{field}/usage}. */
+export interface SharedFieldUsageEntry {
+  contentTypeName?: string;
+  contentTypeId?: number;
+}
+
+/**
+ * Where-used list for one shared field. {@code usedBy} is name-sorted and
+ * empty when no content type includes the field.
+ */
+export interface SharedFieldUsage {
+  groupName?: string;
+  fieldName?: string;
+  usedBy?: SharedFieldUsageEntry[];
+}
+
 /**
  * Jackson {@code SharedFieldControlProperties} body for CD-15
  * GET/PUT {@code /services/sharedfields/{group}/fields/{field}/controlProperties}.

@@ -31,6 +31,7 @@ import {
   deleteSharedFieldGroup,
   getSharedFieldControlProperties,
   getSharedFieldGroupDetail,
+  getSharedFieldUsage,
   isSharedFieldAddReady,
   isSharedFieldGroupWriteReady,
   normalizeGroupName,
@@ -42,6 +43,7 @@ import type {
   ContentTypeChoiceCatalog,
   ContentTypeControlProperty,
   SharedFieldGroupDetail,
+  SharedFieldUsage,
 } from "../api/developer/types";
 import {
   catalogColors,
@@ -151,6 +153,9 @@ export function SharedFieldGroupDetailPanel({
     useState<ContentTypeChoiceCatalog | null>(null);
   const [controlPropsLoading, setControlPropsLoading] = useState(false);
   const [controlPropsError, setControlPropsError] = useState<string | null>(null);
+  const [usage, setUsage] = useState<SharedFieldUsage | null>(null);
+  const [usageLoading, setUsageLoading] = useState(false);
+  const [usageError, setUsageError] = useState<string | null>(null);
   const [newPropName, setNewPropName] = useState("");
   const [newPropValue, setNewPropValue] = useState("");
   const inflight = useRef(false);
@@ -254,6 +259,33 @@ export function SharedFieldGroupDetailPanel({
       })
       .finally(() => {
         if (!cancelled) setControlPropsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isNew, writeKey, selectedFieldName]);
+
+  useEffect(() => {
+    if (isNew || !writeKey || !selectedFieldName) {
+      setUsage(null);
+      setUsageError(null);
+      setUsageLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setUsageLoading(true);
+    setUsageError(null);
+    getSharedFieldUsage(writeKey, selectedFieldName)
+      .then((loaded) => {
+        if (cancelled) return;
+        setUsage(loaded);
+        setUsageLoading(false);
+      })
+      .catch((e: unknown) => {
+        if (cancelled) return;
+        setUsage(null);
+        setUsageLoading(false);
+        setUsageError(panelErrMsg(e, DEV_MSG.SF_USAGE_ERROR));
       });
     return () => {
       cancelled = true;
@@ -780,6 +812,87 @@ export function SharedFieldGroupDetailPanel({
                     </table>
                   </div>
                 )}
+              </section>
+
+              <section
+                data-testid="developer-sf-usage"
+                style={{
+                  marginBottom: "16px",
+                  padding: "12px",
+                  border: `1px solid ${catalogColors.headerBorder}`,
+                  borderRadius: "4px",
+                }}
+              >
+                <h3 style={{ fontSize: "1rem", marginTop: 0 }}>{DEV_MSG.SF_USAGE}</h3>
+                <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+                  {DEV_MSG.SF_USAGE_HINT}
+                </p>
+                <p
+                  data-testid="developer-sf-usage-field"
+                  style={{ fontFamily: "monospace", fontSize: "0.9rem" }}
+                >
+                  {DEV_MSG.SF_USAGE_FIELD}: {selectedFieldName}
+                  {!usageLoading && !usageError && usage?.usedBy
+                    ? usage.usedBy.length === 1
+                      ? ` — ${DEV_MSG.SF_USAGE_COUNT_SINGULAR}`
+                      : ` — ${usage.usedBy.length} ${DEV_MSG.SF_USAGE_COUNT_PLURAL}`
+                    : null}
+                </p>
+                {usageLoading ? (
+                  <p data-testid="developer-sf-usage-loading" style={{ color: catalogColors.muted }}>
+                    {DEV_MSG.SF_USAGE_LOADING}
+                  </p>
+                ) : null}
+                {usageError ? (
+                  <p
+                    role="status"
+                    data-testid="developer-sf-usage-error"
+                    style={{ color: catalogColors.error }}
+                  >
+                    {usageError}
+                  </p>
+                ) : null}
+                {!usageLoading && !usageError && usage?.usedBy?.length === 0 ? (
+                  <p style={{ color: catalogColors.empty }} data-testid="developer-sf-usage-empty">
+                    {DEV_MSG.SF_USAGE_EMPTY}
+                  </p>
+                ) : null}
+                {!usageLoading && !usageError && (usage?.usedBy?.length || 0) > 0 ? (
+                  <div style={{ overflowX: "auto" }}>
+                    <table
+                      data-testid="developer-sf-usage-table"
+                      style={{
+                        width: "100%",
+                        borderCollapse: "collapse",
+                        fontSize: "0.9rem",
+                      }}
+                    >
+                      <thead>
+                        <tr style={tableHeaderRow}>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.SF_USAGE_COL_TYPE}</th>
+                          <th style={{ padding: "8px" }}>{DEV_MSG.SF_USAGE_COL_ID}</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {(usage?.usedBy || []).map((entry, i) => (
+                          <tr
+                            key={entry.contentTypeName || `u-${i}`}
+                            data-testid={`developer-sf-usage-row-${i}`}
+                            data-ct-name={entry.contentTypeName || undefined}
+                            style={tableRow}
+                          >
+                            <td style={{ padding: "8px", fontFamily: "monospace" }}>
+                              {entry.contentTypeName || "—"}
+                            </td>
+                            <td style={{ padding: "8px" }}>
+                              {entry.contentTypeId != null ? entry.contentTypeId : "—"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : null}
               </section>
 
               <section

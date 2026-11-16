@@ -586,4 +586,73 @@ public class SharedFieldsResourceTest {
             () -> resource.replaceFieldControlProperties("shared", "nope", body));
     assertEquals(404, ex.getResponse().getStatus());
   }
+
+  @Test
+  public void getFieldUsageDelegatesToAdaptor() {
+    SharedFieldUsage usage = new SharedFieldUsage();
+    usage.setGroupName("shared");
+    usage.setFieldName("rx_note");
+    usage.setUsedBy(List.of(new SharedFieldUsageEntry("percPage", 311)));
+    when(adaptor.getFieldUsage(any(), eq("shared"), eq("rx_note"))).thenReturn(usage);
+
+    SharedFieldUsage out = resource.getFieldUsage("shared", "rx_note");
+
+    assertEquals("shared", out.getGroupName());
+    assertEquals("rx_note", out.getFieldName());
+    assertEquals(1, out.getUsedBy().size());
+    assertEquals("percPage", out.getUsedBy().get(0).getContentTypeName());
+    verify(adaptor).getFieldUsage(any(), eq("shared"), eq("rx_note"));
+  }
+
+  @Test
+  public void getFieldUsageEmptyListReadsBack() {
+    SharedFieldUsage usage = new SharedFieldUsage();
+    usage.setGroupName("shared");
+    usage.setFieldName("rx_note");
+    usage.setUsedBy(List.of());
+    when(adaptor.getFieldUsage(any(), eq("shared"), eq("rx_note"))).thenReturn(usage);
+
+    assertEquals(0, resource.getFieldUsage("shared", "rx_note").getUsedBy().size());
+  }
+
+  @Test
+  public void getFieldUsageGroupNotFoundIsGeneric404() {
+    when(adaptor.getFieldUsage(any(), eq("missing"), eq("rx_note"))).thenReturn(null);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getFieldUsage("missing", "rx_note"));
+    assertEquals(404, ex.getResponse().getStatus());
+    assertEquals("Shared field group not found", ex.getMessage());
+  }
+
+  @Test
+  public void getFieldUsageFieldNotFoundIs404() {
+    when(adaptor.getFieldUsage(any(), eq("shared"), eq("nope")))
+        .thenThrow(new SharedFieldNotFoundException("Shared field not found"));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getFieldUsage("shared", "nope"));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getFieldUsageForbiddenWhenNotAdmin() {
+    when(adaptor.getFieldUsage(any(), eq("shared"), eq("rx_note")))
+        .thenThrow(new WebApplicationException("Admin role required", 403));
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getFieldUsage("shared", "rx_note"));
+    assertEquals(403, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void getFieldUsageWrapsUnexpectedFailuresAs500() {
+    IllegalStateException boom = new IllegalStateException("object store down");
+    when(adaptor.getFieldUsage(any(), eq("shared"), eq("rx_note"))).thenThrow(boom);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.getFieldUsage("shared", "rx_note"));
+    assertEquals(500, ex.getResponse().getStatus());
+    assertSame(boom, ex.getCause());
+  }
 }

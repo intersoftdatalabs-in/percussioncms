@@ -26,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.doThrow;
@@ -34,9 +35,12 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.percussion.cms.objectstore.PSItemDefinition;
 import com.percussion.design.objectstore.PSChoices;
+import com.percussion.design.objectstore.PSContentEditorMapper;
 import com.percussion.design.objectstore.PSContentEditorSharedDef;
 import com.percussion.design.objectstore.PSControlRef;
+import com.percussion.design.objectstore.PSDisplayMapper;
 import com.percussion.design.objectstore.PSDisplayMapping;
 import com.percussion.design.objectstore.PSDisplayText;
 import com.percussion.design.objectstore.PSEntry;
@@ -45,6 +49,8 @@ import com.percussion.design.objectstore.PSFieldSet;
 import com.percussion.design.objectstore.PSParam;
 import com.percussion.design.objectstore.PSSharedFieldGroup;
 import com.percussion.design.objectstore.PSTextLiteral;
+import com.percussion.design.objectstore.PSUIDefinition;
+import com.percussion.design.objectstore.PSUISet;
 import com.percussion.rest.contenttypes.ContentTypeChoiceCatalog;
 import com.percussion.rest.contenttypes.ContentTypeChoiceEntry;
 import com.percussion.rest.contenttypes.ContentTypeControlProperty;
@@ -54,12 +60,18 @@ import com.percussion.rest.sharedfields.SharedFieldGroupDetail;
 import com.percussion.rest.sharedfields.SharedFieldGroupSummary;
 import com.percussion.rest.sharedfields.SharedFieldNotFoundException;
 import com.percussion.rest.sharedfields.SharedFieldSummary;
+import com.percussion.rest.sharedfields.SharedFieldUsage;
+import com.percussion.services.catalog.IPSCatalogSummary;
+import com.percussion.services.catalog.PSTypeEnum;
+import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.util.PSCollection;
+import com.percussion.utils.guid.IPSGuid;
 import com.percussion.utils.request.PSRequestInfoBase;
 import com.percussion.webservices.PSErrorException;
 import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import jakarta.ws.rs.WebApplicationException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -1046,6 +1058,177 @@ class SharedFieldsAdaptorTest {
             IllegalArgumentException.class,
             () -> adaptor.replaceFieldControlProperties(null, "shared", "  ", body));
     assertTrue(blankField.getMessage().contains("name is required"));
+  }
+
+  @Test
+  void getFieldUsage_listsUsingTypesNameSorted() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    when(designWs.loadContentEditorSharedDef(false, false, "test-session", "Admin"))
+        .thenReturn(sharedDefWithField("shared", "rx_note"));
+    IPSGuid guidB = new PSGuid(PSTypeEnum.NODEDEF, 312L);
+    IPSGuid guidA = new PSGuid(PSTypeEnum.NODEDEF, 311L);
+    IPSCatalogSummary summaryB = summaryWithGuid(guidB);
+    IPSCatalogSummary summaryA = summaryWithGuid(guidA);
+    when(designWs.findContentTypes("*")).thenReturn(List.of(summaryB, summaryA));
+    PSItemDefinition typeB = stubTypeUsing("percBlog", 312, "rx_note", false, false);
+    PSItemDefinition typeA = stubTypeUsing("percPage", 311, "rx_note", false, false);
+    List<PSItemDefinition> loaded = List.of(typeB, typeA);
+    when(designWs.loadContentTypes(anyList(), eq(false), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(loaded);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+
+    SharedFieldUsage out = adaptor.getFieldUsage(null, "shared", "rx_note");
+
+    assertEquals("shared", out.getGroupName());
+    assertEquals("rx_note", out.getFieldName());
+    assertEquals(2, out.getUsedBy().size());
+    assertEquals("percBlog", out.getUsedBy().get(0).getContentTypeName());
+    assertEquals(312, out.getUsedBy().get(0).getContentTypeId());
+    assertEquals("percPage", out.getUsedBy().get(1).getContentTypeName());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void getFieldUsage_emptyWhenNoTypeUsesField() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    when(designWs.loadContentEditorSharedDef(false, false, "test-session", "Admin"))
+        .thenReturn(sharedDefWithField("shared", "rx_note"));
+    IPSCatalogSummary summary = summaryWithGuid(new PSGuid(PSTypeEnum.NODEDEF, 311L));
+    when(designWs.findContentTypes("*")).thenReturn(List.of(summary));
+    PSItemDefinition unused = stubTypeUsing("percPage", 311, "other_field", false, false);
+    when(designWs.loadContentTypes(anyList(), eq(false), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(unused));
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+
+    SharedFieldUsage out = adaptor.getFieldUsage(null, "shared", "rx_note");
+
+    assertNotNull(out.getUsedBy());
+    assertTrue(out.getUsedBy().isEmpty());
+  }
+
+  @Test
+  void getFieldUsage_excludedAndShadowedTypesAreNotUsage() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    when(designWs.loadContentEditorSharedDef(false, false, "test-session", "Admin"))
+        .thenReturn(sharedDefWithField("shared", "rx_note"));
+    IPSCatalogSummary summary311 = summaryWithGuid(new PSGuid(PSTypeEnum.NODEDEF, 311L));
+    IPSCatalogSummary summary312 = summaryWithGuid(new PSGuid(PSTypeEnum.NODEDEF, 312L));
+    IPSCatalogSummary summary313 = summaryWithGuid(new PSGuid(PSTypeEnum.NODEDEF, 313L));
+    when(designWs.findContentTypes("*"))
+        .thenReturn(List.of(summary311, summary312, summary313));
+    PSItemDefinition excluded = stubTypeUsing("percExcluded", 311, "rx_note", true, false);
+    PSItemDefinition shadowed = stubTypeUsing("percShadow", 312, "rx_note", false, true);
+    PSItemDefinition user = stubTypeUsing("percPage", 313, "rx_note", false, false);
+    List<PSItemDefinition> loadedThree = List.of(excluded, shadowed, user);
+    when(designWs.loadContentTypes(anyList(), eq(false), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(loadedThree);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+
+    SharedFieldUsage out = adaptor.getFieldUsage(null, "shared", "rx_note");
+
+    assertEquals(1, out.getUsedBy().size());
+    assertEquals("percPage", out.getUsedBy().get(0).getContentTypeName());
+  }
+
+  @Test
+  void getFieldUsage_unknownGroupOrFieldIs404() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    when(designWs.loadContentEditorSharedDef(false, false, "test-session", "Admin"))
+        .thenReturn(sharedDefWithField("shared", "rx_note"));
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+
+    assertThrows(
+        SharedFieldNotFoundException.class, () -> adaptor.getFieldUsage(null, "missing", "rx_note"));
+    assertThrows(
+        SharedFieldNotFoundException.class, () -> adaptor.getFieldUsage(null, "shared", "nope"));
+  }
+
+  @Test
+  void getFieldUsage_unsafeNameReturnsNull() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+
+    assertNull(adaptor.getFieldUsage(null, "../shared", "rx_note"));
+    assertNull(adaptor.getFieldUsage(null, "shared", "../rx_note"));
+    verify(designWs, never()).findContentTypes(any());
+  }
+
+  @Test
+  void getFieldUsage_forbiddenWhenNotAdmin() {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    SharedFieldsAdaptor denied = new SharedFieldsAdaptor(designWs, () -> false);
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> denied.getFieldUsage(null, "shared", "rx_note"));
+    assertEquals(403, ex.getResponse().getStatus());
+    verify(designWs, never()).findContentTypes(any());
+  }
+
+  @Test
+  void getFieldUsage_findFailureIs500() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    when(designWs.loadContentEditorSharedDef(false, false, "test-session", "Admin"))
+        .thenReturn(sharedDefWithField("shared", "rx_note"));
+    when(designWs.findContentTypes("*")).thenThrow(new IllegalStateException("store down"));
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+
+    assertThrows(IllegalStateException.class, () -> adaptor.getFieldUsage(null, "shared", "rx_note"));
+  }
+
+  @Test
+  void usesSharedField_nullAndBlankAreFalse() {
+    assertFalse(SharedFieldsAdaptor.usesSharedField(null, "rx_note"));
+  }
+
+  private static PSContentEditorSharedDef sharedDefWithField(String groupName, String fieldName) {
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup(groupName, groupName + ".xml");
+    SharedFieldSummary body = new SharedFieldSummary();
+    body.setName(fieldName);
+    SharedFieldsAdaptor.addPersistableField(group, body);
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(group);
+    return def;
+  }
+
+  private static IPSCatalogSummary summaryWithGuid(IPSGuid guid) {
+    IPSCatalogSummary summary = mock(IPSCatalogSummary.class);
+    when(summary.getGUID()).thenReturn(guid);
+    return summary;
+  }
+
+  /**
+   * Stored content type definition stub. The type uses {@code field} when it carries the display
+   * mapping without an exclude; {@code excluded} adds the shared-field exclude and {@code
+   * localShadow} adds a same-named local field entry.
+   */
+  @SuppressWarnings("unchecked")
+  private static PSItemDefinition stubTypeUsing(
+      String typeName, int typeId, String field, boolean excluded, boolean localShadow) {
+    PSFieldSet parent = new PSFieldSet(typeName);
+    if (localShadow) {
+      parent.add(new PSField(PSField.TYPE_LOCAL, field, null));
+    }
+    PSDisplayMapper display = new PSDisplayMapper(typeName);
+    PSUISet ui = new PSUISet();
+    ui.setLabel(new PSDisplayText(field + ":"));
+    display.add(new PSDisplayMapping(field, ui));
+    PSContentEditorMapper mapper =
+        new PSContentEditorMapper(
+            new ArrayList<>(), new ArrayList<>(List.of("shared")), parent,
+            new PSUIDefinition(display));
+    mapper.setSharedFieldExcludes(new ArrayList<>());
+    if (excluded) {
+      ContentTypeAdaptor.addSharedFieldExclude(mapper, field);
+    }
+    PSItemDefinition def = mock(PSItemDefinition.class);
+    when(def.getName()).thenReturn(typeName);
+    when(def.getTypeId()).thenReturn(typeId);
+    when(def.getFieldSet()).thenReturn(parent);
+    when(def.getComplexChildren()).thenReturn(List.of());
+    when(def.getDisplayMapper(typeName)).thenReturn(display);
+    when(def.getContentEditorMapper()).thenReturn(mapper);
+    return def;
   }
 
   private static PSSharedFieldGroup groupWithControlAndChoices(String groupName, String fieldName) {

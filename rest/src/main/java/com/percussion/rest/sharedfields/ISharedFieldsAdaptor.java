@@ -133,4 +133,14 @@ public interface ISharedFieldsAdaptor {
    */
   SharedFieldControlProperties replaceFieldControlProperties(
       URI baseUri, String idOrName, String fieldName, SharedFieldControlProperties body);
+
+  /**
+   * Where-used list for one shared field: every content type that includes the field. Admin only.
+   * No design lock is acquired (read-only scan of stored definitions).
+   *
+   * @return usage with {@code usedBy} name-sorted, or {@code null} when the group name is unsafe
+   * @throws SharedFieldNotFoundException when the group or field does not exist
+   * @throws jakarta.ws.rs.WebApplicationException {@code 403} when the caller is not Admin
+   */
+  SharedFieldUsage getFieldUsage(URI baseUri, String groupName, String fieldName);
 }
