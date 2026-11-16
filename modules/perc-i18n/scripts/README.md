@@ -20,6 +20,8 @@ hand-maintained Python/shell scripts.
 | `test_i18n_translate_direct.py`   | Unit tests for the direct `trans` variant (no `trans` required).                                                                                   |
 | `test_i18n_cache.py`              | Unit tests for cache load/save, legacy migrate, and conflict union.                                                                                |
 | `test_resolve_tmx_conflicts.py`   | Unit tests for TMX merge-conflict resolver.                                                                                                        |
+| `repair_tmx_escape_artifacts.py`  | One-shot repair for ASCII escape artifacts (`u200c`/`u200b`) the engines embed in new segments; applies the #6173/#6276 rules, syncs the cache. |
+| `test_repair_tmx_escape_artifacts.py` | Unit tests for the escape-artifact repair (no network required).                                              |
 
 ## Louisiana Creole (`lou`) draft seed
 
@@ -212,6 +214,34 @@ end-to-end smoke test, but the build gate does not depend on it.
   (Windows defaults to cp1252 otherwise).
 - **Line endings**: the script preserves whatever line endings are in
   the source TMX; it does not rewrite `\r\n` ↔ `\n`.
+
+## Repairing translation escape artifacts (`repair_tmx_escape_artifacts.py`)
+
+Translation engines sometimes embed dropped-backslash escapes as literal ASCII
+(`u200c` in Telugu, `u200b` in Portuguese) in freshly translated segments.
+Nothing at runtime unescapes them, so they render as visible garbage and the
+`perc-i18n` integrity canaries (`PSTmxCatalogIntegrityTest`,
+`PSTipTapEditorKeysTmxTest`) fail the module build. Repair follows the
+audited precedent of issues #6173 / #6276 — it is deterministic, not
+hand-translation:
+
+* `u200c` in `te` segments sitting immediately after a virama (U+0C4D) is
+  replaced with a real U+200C. Any other position is left in place and
+  reported for human adjudication (nonzero exit).
+* Doubled `u200b` runs are deleted (a zero-width space was never genuine at
+  the audited word-boundary / CJK positions).
+
+```bash
+# Preview only
+python3 modules/perc-i18n/scripts/repair_tmx_escape_artifacts.py --dry-run
+
+# Repair all canonical TMX files and sync the shared cache
+python3 modules/perc-i18n/scripts/repair_tmx_escape_artifacts.py
+```
+
+The script rewrites the matching entries in the checked-in
+`scripts/cache/i18n_translate.json` so cache and TMX stay in sync, and never
+touches `en-us` source segments.
 
 ## Resolving TMX merge conflicts (`resolve_tmx_conflicts.py`)
 
