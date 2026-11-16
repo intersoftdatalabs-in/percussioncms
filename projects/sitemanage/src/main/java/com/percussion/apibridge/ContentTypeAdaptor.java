@@ -143,6 +143,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -165,6 +166,14 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   static final long DESIGN_LOCK_MINUTES = PSObjectLock.LOCK_INTERVAL / 60_000L;
 
   static final String DEFAULT_TEXT_CONTROL = "sys_EditBox";
+  /**
+   * Container control for a complex-child display mapping. Workbench authors {@code sys_Table}
+   * on the set container (see {@code rxs_cetest3.xml}: {@code <FieldRef>child_1</FieldRef>} →
+   * {@code sys_Table} + nested {@code DisplayMapper}); editor-app init
+   * ({@code PSDisplayFieldBuilder}) NPEs when the container control is null, so REST-created
+   * child sets must carry it or design save fails.
+   */
+  static final String COMPLEX_CHILD_CONTAINER_CONTROL = "sys_Table";
 
   private static final int MAX_FIELD_NAME_LENGTH = 50;
 
@@ -729,6 +738,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
     }
     assignParentFieldSequences(displayMapperOfStatic(def), fields);
+    assignChildFieldSequences(def, fields);
     detail.setFields(fields);
     detail.setChildFieldSets(childSets);
 
@@ -797,8 +807,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
             "Local field create/delete: POST/DELETE /contenttypes/{idOrName}/fields"
                 + " (held lock). Optional fieldSet names an existing child or creates a named"
                 + " complex child. Include system/shared: POST .../fields/include (CD-04)."
-                + " Parent field order: fields[].sequence on PUT detail (held lock)."
-                + " Child field-set order remains Workbench"));
+                + " Parent field order: fields[].sequence on PUT detail (held lock). Child"
+                + " field-set order: fields[].sequence plus fieldSet on PUT detail (held lock);"
+                + " the Developer editor Fields table ships per-set Move up / Move down plus"
+                + " save."));
     gaps.add(
         DesignGap.of(
             "CT_SHARED_FIELD_INCLUSION",
@@ -2437,10 +2449,10 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         applyLocalFieldRequired(field, patch.getRequired());
       }
     }
-    applyParentFieldOrder(def, fields);
+    applyFieldOrder(def, fields);
   }
 
-  /** True when the patch only sets parent display {@code sequence}. */
+  /** True when the patch only sets display {@code sequence} (parent or child set). */
   static boolean isSequenceOnlyPatch(ContentTypeField patch) {
     return patch != null
         && patch.getSequence() != null
@@ -2451,23 +2463,44 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   /**
-   * Reorder parent display mappings. {@code sequence} is the zero-based index among parent field
-   * mappings (not child field sets). Omitted sequence leaves order unchanged. Child {@code
-   * fieldSet} plus sequence is 400.
+   * Reorder display mappings from PUT detail {@code sequence} patches. {@code sequence} is the
+   * zero-based index among the field's own set: blank {@code fieldSet} (or the parent set name)
+   * reorders the root mapper; a named complex child {@code fieldSet} reorders that child's nested
+   * display mapper. Omitted sequence leaves order unchanged. Unknown child field set is 400;
+   * fields without a mapping in the target set are 400.
    */
-  @SuppressWarnings("unchecked")
-  static void applyParentFieldOrder(PSItemDefinition def, List<ContentTypeField> fields) {
+  static void applyFieldOrder(PSItemDefinition def, List<ContentTypeField> fields) {
     if (fields == null || fields.isEmpty()) {
       return;
     }
-    Map<String, Integer> wanted = new HashMap<>();
+    Map<String, Map<String, Integer>> wantedBySet = collectOrderGroups(def, fields);
+    if (wantedBySet.isEmpty()) {
+      return;
+    }
+    PSDisplayMapper parentMapper = displayMapperOfStatic(def);
+    if (parentMapper == null) {
+      throw new IllegalArgumentException("Content type has no display mapper");
+    }
+    for (Map.Entry<String, Map<String, Integer>> group : wantedBySet.entrySet()) {
+      PSDisplayMapper mapper =
+          group.getKey().isEmpty()
+              ? parentMapper
+              : nestedMapperForChildSet(def, parentMapper, group.getKey());
+      reorderMappings(mapper, group.getValue());
+    }
+  }
+
+  /**
+   * Group sequence patches by set ({@code ""} = parent, otherwise the canonical complex-child
+   * set name), validating names, signs, and duplicates. Package-visible for unit tests.
+   */
+  static Map<String, Map<String, Integer>> collectOrderGroups(
+      PSItemDefinition def, List<ContentTypeField> fields) {
+    // "" key = parent group; otherwise the canonical complex-child set name.
+    Map<String, Map<String, Integer>> wantedBySet = new LinkedHashMap<>();
     for (ContentTypeField patch : fields) {
       if (patch == null || patch.getSequence() == null) {
         continue;
-      }
-      if (StringUtils.isNotBlank(patch.getFieldSet())) {
-        throw new IllegalArgumentException(
-            "Child field-set order is not writable: " + patch.getName());
       }
       if (StringUtils.isBlank(patch.getName())) {
         continue;
@@ -2475,22 +2508,71 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       if (patch.getSequence() < 0) {
         throw new IllegalArgumentException("Field sequence must be >= 0: " + patch.getName());
       }
+      String setKey = orderGroupKey(def, patch.getFieldSet(), patch.getName());
+      Map<String, Integer> wanted = wantedBySet.computeIfAbsent(setKey, key -> new HashMap<>());
       if (wanted.put(patch.getName(), patch.getSequence()) != null) {
         throw new IllegalArgumentException("Duplicate field in order: " + patch.getName());
       }
     }
-    if (wanted.isEmpty()) {
-      return;
+    return wantedBySet;
+  }
+
+  /**
+   * Resolve the order group for one sequence patch: {@code ""} for the parent set (blank {@code
+   * fieldSet} or the parent set name), otherwise the canonical complex-child set name. Unknown
+   * child set is 400.
+   */
+  static String orderGroupKey(PSItemDefinition def, String fieldSet, String fieldName) {
+    if (StringUtils.isBlank(fieldSet)) {
+      return "";
     }
+    PSFieldSet parent = def != null ? def.getFieldSet() : null;
+    if (parent != null
+        && (fieldSet.equalsIgnoreCase(parent.getName()) || "parent".equalsIgnoreCase(fieldSet))) {
+      return "";
+    }
+    PSFieldSet child = findComplexChild(def, fieldSet);
+    if (child == null) {
+      throw new IllegalArgumentException(
+          "Unknown child field set for field order: " + fieldSet + " (" + fieldName + ")");
+    }
+    return child.getName();
+  }
+
+  /**
+   * Resolve the nested display mapper holding one complex child's field mappings. No silent
+   * fallback to the parent mapper: reordering against the wrong mapper would scramble parent
+   * order, so a child set without a nested mapper is 400.
+   */
+  static PSDisplayMapper nestedMapperForChildSet(
+      PSItemDefinition def, PSDisplayMapper parentMapper, String childSetName) {
+    try {
+      PSDisplayMapper named =
+          def != null ? def.getDisplayMapper(childSetName) : null;
+      if (named != null) {
+        return named;
+      }
+    } catch (RuntimeException ignore) {
+      // mocked defs may not implement getDisplayMapper
+    }
+    if (parentMapper != null) {
+      PSDisplayMapping container = findDisplayMapping(parentMapper, childSetName);
+      if (container != null && container.getDisplayMapper() != null) {
+        return container.getDisplayMapper();
+      }
+    }
+    throw new IllegalArgumentException(
+        "Child field set has no display mapper: " + childSetName);
+  }
+
+  /** Slot-swap reorder of one display mapper for one order group. */
+  @SuppressWarnings("unchecked")
+  static void reorderMappings(PSDisplayMapper mapper, Map<String, Integer> wanted) {
     java.util.Set<Integer> seen = new HashSet<>();
     for (Integer sequence : wanted.values()) {
       if (!seen.add(sequence)) {
         throw new IllegalArgumentException("Duplicate field sequence: " + sequence);
       }
-    }
-    PSDisplayMapper mapper = displayMapperOfStatic(def);
-    if (mapper == null) {
-      throw new IllegalArgumentException("Content type has no display mapper");
     }
     List<Integer> slots = new ArrayList<>();
     List<PSDisplayMapping> mappings = new ArrayList<>();
@@ -2507,7 +2589,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     if (mappings.isEmpty()) {
       throw new IllegalArgumentException("Field has no display mapping for the requested order");
     }
-    // Parent rows without a top-level mapping (unmapped or nested) are not reorderable.
+    // Rows without a mapping in this set (unmapped or nested elsewhere) are not reorderable.
     Map<String, Integer> order = wanted;
     if (mappings.size() != wanted.size()) {
       order = new HashMap<>();
@@ -2572,6 +2654,142 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     fields.addAll(ordered);
     fields.addAll(unmappedParents);
     fields.addAll(others);
+  }
+
+  /**
+   * Stamp child-field {@code sequence} from each complex child's nested display-mapper order and
+   * sort child rows by set then sequence (unmapped rows last within their set). Lenient: a child
+   * set without a resolvable nested mapper keeps its rows unstamped rather than failing GET.
+   * Package-visible for unit tests.
+   */
+  static void assignChildFieldSequences(PSItemDefinition def, List<ContentTypeField> fields) {
+    if (def == null || fields == null || fields.isEmpty()) {
+      return;
+    }
+    PSDisplayMapper parentMapper = displayMapperOfStatic(def);
+    if (parentMapper == null) {
+      return;
+    }
+    Map<String, PSDisplayMapper> mappersBySet = childNestedMappers(def, parentMapper);
+    if (mappersBySet.isEmpty()) {
+      return;
+    }
+    if (!stampChildSequences(def, mappersBySet, fields)) {
+      return;
+    }
+    sortChildRowsBySet(fields);
+  }
+
+  /**
+   * Nested display mappers keyed by canonical complex-child set name. Lenient: a child set
+   * without a resolvable nested mapper is skipped so GET never fails on mapper resolution.
+   * Package-visible for unit tests.
+   */
+  static Map<String, PSDisplayMapper> childNestedMappers(
+      PSItemDefinition def, PSDisplayMapper parentMapper) {
+    Map<String, PSDisplayMapper> mappersBySet = new LinkedHashMap<>();
+    List<PSFieldSet> children = def != null ? def.getComplexChildren() : null;
+    if (children == null || children.isEmpty()) {
+      return mappersBySet;
+    }
+    for (PSFieldSet child : children) {
+      if (child == null || StringUtils.isBlank(child.getName())) {
+        continue;
+      }
+      try {
+        mappersBySet.put(
+            child.getName(), nestedMapperForChildSet(def, parentMapper, child.getName()));
+      } catch (IllegalArgumentException skip) {
+        // GET stays lenient: unstamped rows sort last within their set.
+      }
+    }
+    return mappersBySet;
+  }
+
+  /**
+   * Stamp child-row {@code sequence} from nested display-mapper order. Rows whose set name
+   * differs in case from the canonical child name still match. Returns whether any row was
+   * stamped. Package-visible for unit tests.
+   */
+  static boolean stampChildSequences(
+      PSItemDefinition def,
+      Map<String, PSDisplayMapper> mappersBySet,
+      List<ContentTypeField> fields) {
+    Map<String, List<ContentTypeField>> rowsBySet = new LinkedHashMap<>();
+    for (ContentTypeField field : fields) {
+      if (field == null
+          || StringUtils.isBlank(field.getName())
+          || StringUtils.isBlank(field.getFieldSet())) {
+        continue;
+      }
+      rowsBySet.computeIfAbsent(field.getFieldSet(), key -> new ArrayList<>()).add(field);
+    }
+    boolean any = false;
+    for (Map.Entry<String, List<ContentTypeField>> rows : rowsBySet.entrySet()) {
+      PSDisplayMapper nested = mappersBySet.get(rows.getKey());
+      if (nested == null && def != null) {
+        nested = findNestedMapperIgnoreCase(def, mappersBySet, rows.getKey());
+      }
+      if (nested == null) {
+        continue;
+      }
+      Map<String, ContentTypeField> byName = new HashMap<>();
+      for (ContentTypeField row : rows.getValue()) {
+        byName.put(row.getName(), row);
+      }
+      int sequence = 0;
+      for (int i = 0; i < nested.size(); i++) {
+        Object entry = nested.get(i);
+        if (!(entry instanceof PSDisplayMapping mapping)) {
+          continue;
+        }
+        ContentTypeField row = byName.get(mapping.getFieldRef());
+        if (row == null) {
+          continue;
+        }
+        row.setSequence(sequence++);
+        any = true;
+      }
+    }
+    return any;
+  }
+
+  /** Nested mapper for a set name that differs in case from the canonical child name. */
+  static PSDisplayMapper findNestedMapperIgnoreCase(
+      PSItemDefinition def, Map<String, PSDisplayMapper> mappersBySet, String setName) {
+    List<PSFieldSet> children = def.getComplexChildren();
+    if (children == null) {
+      return null;
+    }
+    for (PSFieldSet child : children) {
+      if (child != null && setName.equalsIgnoreCase(child.getName())) {
+        return mappersBySet.get(child.getName());
+      }
+    }
+    return null;
+  }
+
+  /** Sort child rows after the non-child rows by set then sequence (unstamped last). */
+  static void sortChildRowsBySet(List<ContentTypeField> fields) {
+    List<ContentTypeField> nonChild = new ArrayList<>();
+    List<ContentTypeField> childRows = new ArrayList<>();
+    for (ContentTypeField field : fields) {
+      if (field != null && StringUtils.isNotBlank(field.getFieldSet())) {
+        childRows.add(field);
+      } else {
+        nonChild.add(field);
+      }
+    }
+    childRows.sort(
+        Comparator.comparing(
+                (ContentTypeField f) ->
+                    f.getFieldSet() != null ? f.getFieldSet().toLowerCase() : "",
+                String.CASE_INSENSITIVE_ORDER)
+            .thenComparing(
+                f -> f.getSequence() == null ? Integer.MAX_VALUE : f.getSequence()));
+    fields.clear();
+    fields.addAll(nonChild);
+    fields.addAll(childRows);
   }
 
   /**
@@ -4227,6 +4445,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     String name = validateFieldName(fieldSetName);
     Object existing = parent.get(name);
     if (existing instanceof PSFieldSet fs) {
+      backfillChildContainerControl(parentMapper, fs.getName());
       return fs;
     }
     Iterator<?> names = parent.getNames();
@@ -4235,6 +4454,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       if (n instanceof String key
           && name.equalsIgnoreCase(key)
           && parent.get(key) instanceof PSFieldSet fs) {
+        backfillChildContainerControl(parentMapper, fs.getName());
         return fs;
       }
     }
@@ -4242,6 +4462,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     if (children != null) {
       for (PSFieldSet child : children) {
         if (child != null && name.equalsIgnoreCase(child.getName())) {
+          backfillChildContainerControl(parentMapper, child.getName());
           return child;
         }
       }
@@ -4254,6 +4475,21 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     return child;
   }
 
+  /**
+   * Null-tolerant container-control backfill for already-materialized child sets. Creation still
+   * requires a mapper (see {@link #appendChildDisplayMapper}).
+   */
+  static void backfillChildContainerControl(
+      PSDisplayMapper parentMapper, String fieldSetName) {
+    if (parentMapper == null || StringUtils.isBlank(fieldSetName)) {
+      return;
+    }
+    PSDisplayMapping container = findDisplayMapping(parentMapper, fieldSetName);
+    if (container != null && container.getDisplayMapper() != null) {
+      ensureChildContainerControl(container);
+    }
+  }
+
   static void appendChildDisplayMapper(PSDisplayMapper parentMapper, String fieldSetName) {
     if (parentMapper == null) {
       throw new IllegalArgumentException("Content type has no display mapper");
@@ -4261,16 +4497,71 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     PSDisplayMapping existing = findDisplayMapping(parentMapper, fieldSetName);
     if (existing != null) {
       if (existing.getDisplayMapper() == null) {
-        existing.setDisplayMapper(new PSDisplayMapper(fieldSetName));
+        existing.setDisplayMapper(newChildDisplayMapper(parentMapper, fieldSetName));
       }
+      ensureChildContainerControl(existing);
       return;
     }
     PSUISet uiSet = new PSUISet();
     uiSet.setLabel(new PSDisplayText(fieldSetName + ":"));
     uiSet.setErrorLabel(new PSDisplayText(fieldSetName + ":"));
+    uiSet.setControl(new PSControlRef(COMPLEX_CHILD_CONTAINER_CONTROL));
     PSDisplayMapping mapping = new PSDisplayMapping(fieldSetName, uiSet);
-    mapping.setDisplayMapper(new PSDisplayMapper(fieldSetName));
+    mapping.setDisplayMapper(newChildDisplayMapper(parentMapper, fieldSetName));
     parentMapper.add(mapping);
+  }
+
+  /**
+   * New nested display mapper for a complex-child set with a unique id. The default id collides
+   * with the root mapper ({@code sys_Default.xml} roots at {@code id="0"}), which breaks
+   * id-based nested lookup at editor-app init ("Found invalid fieldset &lt;main_editor&gt;").
+   * Package-visible for unit tests.
+   */
+  static PSDisplayMapper newChildDisplayMapper(
+      PSDisplayMapper parentMapper, String fieldSetName) {
+    PSDisplayMapper nested = new PSDisplayMapper(fieldSetName);
+    nested.setId(nextDisplayMapperId(parentMapper));
+    return nested;
+  }
+
+  /** One past the highest display-mapper id in the tree (root + nested). Minimum 1. */
+  static int nextDisplayMapperId(PSDisplayMapper root) {
+    return Math.max(highestDisplayMapperId(root), 0) + 1;
+  }
+
+  /** Highest display-mapper id in the tree (root + nested). Package-visible for unit tests. */
+  static int highestDisplayMapperId(PSDisplayMapper root) {
+    if (root == null) {
+      return 0;
+    }
+    int high = root.getId();
+    for (Iterator<?> it = root.iterator(); it.hasNext(); ) {
+      Object entry = it.next();
+      if (entry instanceof PSDisplayMapping mapping && mapping.getDisplayMapper() != null) {
+        int childHigh = highestDisplayMapperId(mapping.getDisplayMapper());
+        high = Math.max(high, childHigh);
+      }
+    }
+    return high;
+  }
+
+  /**
+   * Backfill the {@code sys_Table} container control on a complex-child mapping whose UI set
+   * has none (e.g. child sets created by older REST before the container control shipped).
+   * Package-visible for unit tests.
+   */
+  static void ensureChildContainerControl(PSDisplayMapping container) {
+    if (container == null) {
+      return;
+    }
+    PSUISet uiSet = container.getUISet();
+    if (uiSet == null) {
+      return;
+    }
+    if (uiSet.getControl() == null
+        || StringUtils.isBlank(uiSet.getControl().getName())) {
+      uiSet.setControl(new PSControlRef(COMPLEX_CHILD_CONTAINER_CONTROL));
+    }
   }
 
   static PSDisplayMapper mapperForFieldSet(

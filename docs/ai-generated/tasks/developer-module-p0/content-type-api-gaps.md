@@ -111,6 +111,9 @@ with a held design lock released on save). Empty list clears. Admin 403; unknown
 8. ~~Include system/shared fields~~ **Done CD-04 REST** (`POST /contenttypes/{id}/fields/include`, Admin 403, held lock 409, origin stays system/shared, #3985) + ~~detach~~ (`DELETE .../fields/include/{fieldName}`). ~~SPA field picker~~ **Done** (include picker + Detach confirm #5716; detach #5814)
 9. Templates/slots design editors
 10. CD-18 remainder: SPA locale / auto-translation editor (REST locale CRUD #3959; REST auto-translation set #3981)
+11. ~~Child field-set display order~~ **Done** (PUT detail `fieldSet` + `sequence` reorders the
+    child nested display mapper, held lock; GET stamps per-set `sequence`; SPA per-set
+    Move up / Move down + save, #6464). Parent order was #4921.
 
 ## Client behavior
 

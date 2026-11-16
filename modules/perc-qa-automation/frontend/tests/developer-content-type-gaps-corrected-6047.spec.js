@@ -177,12 +177,14 @@ test.describe("Developer content-type corrected gap claims (#6047)", () => {
     expect(gapsText, "no stale read-only apply-when claim").not.toContain(
       "apply-when on field validation is read-only",
     );
-    // The one true "remains Workbench" remainder (child field-set order,
-    // CT_FIELD_CREATE_DELETE) still renders — proof the list is live, and
-    // out of scope for this slice.
+    // CT_FIELD_CREATE_DELETE now states child field-set order is writable
+    // (PUT detail fieldSet + sequence; #6464) — no "remains Workbench" remainder.
     await expect(
       gaps.locator('li[data-gap-code="CT_FIELD_CREATE_DELETE"]'),
-    ).toContainText("Child field-set order remains Workbench");
+    ).toContainText("plus fieldSet on PUT detail");
+    await expect(
+      gaps.locator('li[data-gap-code="CT_FIELD_CREATE_DELETE"]'),
+    ).not.toContainText("remains Workbench");
 
     // Thin-read REST probe for the same row: server designGaps carry the
     // corrected messages.

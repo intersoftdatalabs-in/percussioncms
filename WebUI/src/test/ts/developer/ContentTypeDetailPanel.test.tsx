@@ -3334,6 +3334,84 @@ describe("ContentTypeDetailPanel", () => {
     expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
   });
 
+  it("reorders child field-set fields on save with fieldSet sequences (#6464)", async () => {
+    const fields = [
+      { name: "rx_body", fieldType: "local", label: "Body:", searchable: true },
+      {
+        name: "rx_ka",
+        fieldType: "local",
+        fieldSet: "kid",
+        label: "Ka:",
+        searchable: true,
+        sequence: 0,
+      },
+      {
+        name: "rx_kb",
+        fieldType: "local",
+        fieldSet: "kid",
+        label: "Kb:",
+        searchable: true,
+        sequence: 1,
+      },
+    ];
+    getContentTypeDetail.mockResolvedValue({
+      ...sampleDetail,
+      fields,
+      childFieldSets: ["kid"],
+    });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-ct-child-field-down-rx_ka") as HTMLButtonElement).disabled,
+      ).toBe(true);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-ct-child-field-down-rx_ka") as HTMLButtonElement).disabled,
+      ).toBe(false);
+    });
+    const names = () =>
+      screen
+        .getAllByTestId("developer-ct-field-row")
+        .map((row) => row.getAttribute("data-field-name"));
+    expect(names()).toEqual(["rx_body", "rx_ka", "rx_kb"]);
+    fireEvent.click(screen.getByTestId("developer-ct-child-field-down-rx_ka"));
+    expect(names()).toEqual(["rx_body", "rx_kb", "rx_ka"]);
+    fireEvent.click(screen.getByTestId("developer-ct-field-order-reset"));
+    expect(names()).toEqual(["rx_body", "rx_ka", "rx_kb"]);
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    fireEvent.click(screen.getByTestId("developer-ct-child-field-down-rx_ka"));
+    updateContentTypeDetail.mockImplementation(async (_id, body) => ({
+      ...sampleDetail,
+      fields: [
+        { name: "rx_body", fieldType: "local", label: "Body:", sequence: 0 },
+        { name: "rx_kb", fieldType: "local", fieldSet: "kid", label: "Kb:", sequence: 0 },
+        { name: "rx_ka", fieldType: "local", fieldSet: "kid", label: "Ka:", sequence: 1 },
+      ],
+      childFieldSets: ["kid"],
+      label: body.label,
+      description: body.description,
+    }));
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(updateContentTypeDetail).toHaveBeenCalled();
+    });
+    const body = updateContentTypeDetail.mock.calls[0][1] as {
+      fields: Array<{ name: string; fieldSet?: string; sequence?: number }>;
+    };
+    const byName = Object.fromEntries(body.fields.map((f) => [f.name, f]));
+    expect(byName.rx_kb.sequence).toBe(0);
+    expect(byName.rx_kb.fieldSet).toBe("kid");
+    expect(byName.rx_ka.sequence).toBe(1);
+    expect(byName.rx_ka.fieldSet).toBe("kid");
+    expect(byName.rx_body.sequence).toBe(0);
+    expect(byName.rx_body.fieldSet).toBeUndefined();
+    await waitFor(() => {
+      expect(names()).toEqual(["rx_body", "rx_kb", "rx_ka"]);
+    });
+  });
+
   it("sets the description only after success and leaves label and enabled (#5433)", async () => {
     getContentTypeDetail.mockResolvedValue({
       ...sampleDetail,
