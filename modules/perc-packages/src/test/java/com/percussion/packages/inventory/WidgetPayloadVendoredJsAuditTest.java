@@ -109,6 +109,21 @@ import org.junit.jupiter.api.Test;
  * payload bytes match no 2.9.1 dist file — and move to the #6502
  * follow-on residual.
  *
+ * <p>Slice 6 (issue #6522) migrates those calendarTwo gcal + lang-all
+ * payloads to the npm {@code fullcalendar@2.9.1} dists (exact pin already
+ * in both WebUI frontend manifests from slice 5, so Dependabot still
+ * watches the base version). Version archaeology showed the old payloads
+ * were differently-minified builds of the same 2.9.1 sources: same
+ * 56-locale set with only minifier-artifact diffs (trailing-semicolon
+ * elision, comma-expression parens). Both payload files are now
+ * byte-identical to the stock dists, as enforced by the frontend vitest
+ * parity test; the stock gcal banner ships the unexpanded
+ * {@code <%= meta.* %>} wart verbatim (comment-only, inert: same
+ * precedent as the slice-5 non-min version wart). The remaining #6522
+ * rows (v1 calendar widget, slick, nav hoverIntent/supersubs, MiniColors
+ * twins, qTip twins, Foundation 4.x) stay vendored pending
+ * replace-or-drop decisions or legal sign-off.
+ *
  * <p>Slice 7 (issue #6403) drops the nav-widget supersubs pair
  * ({@code supersubs.js} preview copy + {@code supersubs.min.js} published
  * copy). Version archaeology closed the byte-identity path: npm
