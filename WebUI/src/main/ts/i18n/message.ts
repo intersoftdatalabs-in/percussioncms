@@ -526,6 +526,21 @@ export const MSG = {
     "perc.ui.publish.modern@Clear the start and end publish dates on this item?",
   PUBLISH_SCHEDULE_CLEAR_CANCEL: "perc.ui.publish.modern@Cancel",
   PUBLISH_SCHEDULE_CLEARED: "perc.ui.publish.modern@Scheduled dates cleared",
+  PUBLISH_SCHEDULE_IDS_HINT:
+    "perc.ui.publish.modern@Separate multiple item ids with commas or spaces to schedule them together",
+  PUBLISH_SCHEDULE_BATCH_SAVED:
+    "perc.ui.publish.modern@Schedule dates saved for all {total} items",
+  PUBLISH_SCHEDULE_BATCH_PARTIAL:
+    "perc.ui.publish.modern@Saved {saved} of {total}: {detail}",
+  PUBLISH_SCHEDULE_BATCH_CLEARED:
+    "perc.ui.publish.modern@Scheduled dates cleared for all {total} items",
+  PUBLISH_SCHEDULE_BATCH_CLEAR_PARTIAL:
+    "perc.ui.publish.modern@Cleared {saved} of {total}: {detail}",
+  PUBLISH_SCHEDULE_BATCH_LOAD_PARTIAL:
+    "perc.ui.publish.modern@Loaded {loaded} of {total}: {detail}",
+  PUBLISH_SCHEDULE_BATCH_ITEM_OK: "perc.ui.publish.modern@saved",
+  PUBLISH_SCHEDULE_CLEAR_CONFIRM_MULTI:
+    "perc.ui.publish.modern@Clear the start and end publish dates on these {total} items?",
   PUBLISH_NOW: "perc.ui.publish.title@Publish Now",
   PUBLISH_NOW_HINT:
     "perc.ui.publish.modern@Publish a selected page or asset now from this site workspace.",

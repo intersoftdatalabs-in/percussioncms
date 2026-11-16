@@ -313,4 +313,188 @@ describe("ItemScheduleDatesPanel", () => {
     });
     expect(screen.queryByTestId("item-schedule-success")).toBeNull();
   });
+
+  it("saves one date set to several ids and reports every row", async () => {
+    fetchDates.mockImplementation(async (id: string) => ({
+      itemId: id,
+      startDate: "",
+      endDate: "",
+      comments: "",
+    }));
+    saveDates.mockResolvedValue();
+    render(<ItemScheduleDatesPanel />);
+    fireEvent.change(screen.getByTestId("item-schedule-id"), {
+      target: { value: "42, 43" },
+    });
+    fireEvent.change(screen.getByTestId("item-schedule-start"), {
+      target: { value: "2026-09-18T09:00" },
+    });
+    fireEvent.click(screen.getByTestId("item-schedule-save"));
+    await waitFor(() => {
+      expect(saveDates).toHaveBeenCalledTimes(2);
+    });
+    expect(saveDates).toHaveBeenNthCalledWith(1, {
+      itemId: "42",
+      startDate: "09/18/2026 09:00 am",
+      endDate: "",
+      comments: "",
+    });
+    expect(saveDates).toHaveBeenNthCalledWith(2, {
+      itemId: "43",
+      startDate: "09/18/2026 09:00 am",
+      endDate: "",
+      comments: "",
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-success").textContent).toMatch(
+        /all 2 items/i,
+      );
+    });
+    expect(
+      screen.getByTestId("item-schedule-batch-report"),
+    ).toBeTruthy();
+    expect(
+      screen.getByTestId("item-schedule-batch-item-42").textContent,
+    ).toMatch(/saved/i);
+    expect(
+      screen.getByTestId("item-schedule-batch-item-43").textContent,
+    ).toMatch(/saved/i);
+  });
+
+  it("a per-item save failure keeps the other row and names the failure", async () => {
+    fetchDates.mockImplementation(async (id: string) => ({
+      itemId: id,
+      startDate: "",
+      endDate: "",
+      comments: "",
+    }));
+    saveDates.mockImplementation(async (dated: { itemId: string }) => {
+      if (dated.itemId === "43") {
+        throw {
+          status: 403,
+          statusText: "Forbidden",
+          body: { message: "User demo is editing this page." },
+        };
+      }
+    });
+    render(<ItemScheduleDatesPanel />);
+    fireEvent.change(screen.getByTestId("item-schedule-id"), {
+      target: { value: "42 43" },
+    });
+    fireEvent.change(screen.getByTestId("item-schedule-start"), {
+      target: { value: "2026-09-18T09:00" },
+    });
+    fireEvent.click(screen.getByTestId("item-schedule-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-error").textContent).toMatch(
+        /Saved 1 of 2/i,
+      );
+    });
+    expect(screen.getByTestId("item-schedule-error").textContent).toMatch(
+      /43 \(User demo is editing this page\.\)/,
+    );
+    expect(
+      screen.getByTestId("item-schedule-batch-item-42").textContent,
+    ).toMatch(/saved/i);
+    expect(screen.queryByTestId("item-schedule-success")).toBeNull();
+  });
+
+  it("loading several ids fills from the first success and names load failures", async () => {
+    fetchDates.mockImplementation(async (id: string) => {
+      if (id === "42") {
+        throw { status: 404, statusText: "Not Found", body: {} };
+      }
+      return {
+        itemId: id,
+        startDate: "09/18/2026 09:00 am",
+        endDate: "",
+        comments: "",
+      };
+    });
+    render(<ItemScheduleDatesPanel />);
+    fireEvent.change(screen.getByTestId("item-schedule-id"), {
+      target: { value: "42,43" },
+    });
+    fireEvent.click(screen.getByTestId("item-schedule-load"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-error").textContent).toMatch(
+        /Loaded 1 of 2/i,
+      );
+    });
+    expect(screen.getByTestId("item-schedule-start")).toHaveValue(
+      "2026-09-18T09:00",
+    );
+    expect(
+      screen.getByTestId("item-schedule-batch-item-42").textContent,
+    ).toMatch(/42: Load failed/);
+  });
+
+  it("clearing several ids reports per-item results", async () => {
+    fetchDates.mockImplementation(async (id: string) => ({
+      itemId: id,
+      startDate: "",
+      endDate: "",
+      comments: "",
+    }));
+    saveDates.mockResolvedValue();
+    render(<ItemScheduleDatesPanel />);
+    fireEvent.change(screen.getByTestId("item-schedule-id"), {
+      target: { value: "42, 43" },
+    });
+    fireEvent.click(screen.getByTestId("item-schedule-clear-submit"));
+    expect(
+      screen.getByTestId("item-schedule-clear-confirm").textContent,
+    ).toMatch(/these 2 items/i);
+    fireEvent.click(screen.getByTestId("item-schedule-clear-yes"));
+    await waitFor(() => {
+      expect(saveDates).toHaveBeenCalledTimes(2);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-success").textContent).toMatch(
+        /cleared for all 2 items/i,
+      );
+    });
+    expect(
+      screen.getByTestId("item-schedule-batch-report"),
+    ).toBeTruthy();
+  });
+
+  it("looking up several ids keeps the list and does not reselect the shell item", async () => {
+    fetchDates.mockImplementation(async (id: string) => ({
+      itemId: id,
+      startDate: "",
+      endDate: "",
+      comments: "",
+    }));
+    const onItemIdChange = vi.fn();
+    render(<ItemScheduleDatesPanel onItemIdChange={onItemIdChange} />);
+    fireEvent.change(screen.getByTestId("item-schedule-id"), {
+      target: { value: "42, 43" },
+    });
+    fireEvent.click(screen.getByTestId("item-schedule-load"));
+    await waitFor(() => {
+      expect(fetchDates).toHaveBeenCalledTimes(2);
+    });
+    expect(onItemIdChange).not.toHaveBeenCalled();
+    expect(screen.getByTestId("item-schedule-id")).toHaveValue("42, 43");
+  });
+
+  it("looking up one id still reselects the shell item", async () => {
+    fetchDates.mockResolvedValue({
+      itemId: "42",
+      startDate: "",
+      endDate: "",
+      comments: "",
+    });
+    const onItemIdChange = vi.fn();
+    render(<ItemScheduleDatesPanel onItemIdChange={onItemIdChange} />);
+    fireEvent.change(screen.getByTestId("item-schedule-id"), {
+      target: { value: "42" },
+    });
+    fireEvent.click(screen.getByTestId("item-schedule-load"));
+    await waitFor(() => {
+      expect(fetchDates).toHaveBeenCalledWith("42");
+    });
+    expect(onItemIdChange).toHaveBeenCalledWith("42");
+  });
 });
