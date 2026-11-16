@@ -4,7 +4,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s).
 
 ## Scope
 
-- Base: 258629416e88ac8dd23ba0dd6b46f85a38157403
+- Base: origin/main
 - Head: HEAD
 - Files: 4 analyzed
 - Persona: erlang 0.1.1
