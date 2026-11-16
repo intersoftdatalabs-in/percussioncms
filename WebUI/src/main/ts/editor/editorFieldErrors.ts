@@ -122,6 +122,21 @@ export function firstInvalidEditorFieldName(
 const FOCUSABLE_IN_ROW =
   "input:not([type='hidden']):not([disabled]), textarea:not([disabled]), select:not([disabled])";
 
+/**
+ * Rich-text (TipTap/ProseMirror) rows render a contenteditable host instead
+ * of a labelable control, so the input-first selector above never matches.
+ * Toolbar chrome is deliberately excluded from the row fallback: the style
+ * <select> must not win over the editable body.
+ */
+const EDITABLE_IN_ROW = '[contenteditable="true"]';
+
+function isFieldTarget(el: Element | null): el is HTMLElement {
+  return (
+    el instanceof HTMLElement &&
+    (el.matches(FOCUSABLE_IN_ROW) || el.matches(EDITABLE_IN_ROW))
+  );
+}
+
 function cssAttrEscape(value: string): string {
   if (typeof CSS !== "undefined" && typeof CSS.escape === "function") {
     return CSS.escape(value);
@@ -131,7 +146,12 @@ function cssAttrEscape(value: string): string {
 
 /**
  * Focus the first editable control in the named editor row and scroll it into view.
- * Returns false when the row is not in the document (caller may retry after paint).
+ * The field's own control (`editor-field-<name>`) wins when it is itself
+ * focusable — inline inputs/selects and the rich-text editable body carry that
+ * testid, while toolbar chrome (style <select>, formatting buttons) does not.
+ * Otherwise the first labelable control in the row wins, then the rich-text
+ * contenteditable host (#6474). Returns false when the row is not in the
+ * document (caller may retry after paint).
  */
 export function focusInvalidEditorField(fieldName: string): boolean {
   if (typeof document === "undefined" || !fieldName) {
@@ -143,7 +163,13 @@ export function focusInvalidEditorField(fieldName: string): boolean {
   if (!(row instanceof HTMLElement)) {
     return false;
   }
-  const found = row.querySelector(FOCUSABLE_IN_ROW);
+  const own = document.querySelector(
+    `[data-testid="editor-field-${cssAttrEscape(fieldName)}"]`,
+  );
+  const found =
+    (isFieldTarget(own) ? own : null) ??
+    row.querySelector(FOCUSABLE_IN_ROW) ??
+    row.querySelector(EDITABLE_IN_ROW);
   const target = found instanceof HTMLElement ? found : row;
   target.focus();
   if (typeof target.scrollIntoView === "function") {
