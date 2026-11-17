@@ -18,6 +18,7 @@ import { describe, expect, it } from "vitest";
 import {
   applyRevisionFieldValue,
   canRestoreFromEditor,
+  computeWordDiff,
   describeRestoredCompareField,
   editorRevisionErrorReason,
   isEmptyRevisionCompare,
@@ -165,5 +166,32 @@ describe("editorRevisions", () => {
       "sys_title (revision #5)",
     );
     expect(describeRestoredCompareField("sys_title", 0)).toBe("sys_title");
+  });
+
+  it("marks added and removed words in a changed compare cell", () => {
+    expect(
+      computeWordDiff("The old title here", "The new title here"),
+    ).toEqual([
+      { text: "The ", kind: "same" },
+      { text: "old", kind: "removed" },
+      { text: "new", kind: "added" },
+      { text: " title here", kind: "same" },
+    ]);
+  });
+
+  it("treats equal values as one unchanged run and empty as no segments", () => {
+    expect(computeWordDiff("Same", "Same")).toEqual([
+      { text: "Same", kind: "same" },
+    ]);
+    expect(computeWordDiff("", "")).toEqual([]);
+  });
+
+  it("covers whole-value add and remove without fabricating shared words", () => {
+    expect(computeWordDiff("", "Home")).toEqual([
+      { text: "Home", kind: "added" },
+    ]);
+    expect(computeWordDiff("Old", "")).toEqual([
+      { text: "Old", kind: "removed" },
+    ]);
   });
 });

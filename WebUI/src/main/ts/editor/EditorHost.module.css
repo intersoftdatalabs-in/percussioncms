@@ -108,6 +108,23 @@
   color: #334155;
 }
 
+/** Word-level compare diff (#6533): additions read on green, removals on red. */
+.compareAdded {
+  background: #dcfce7;
+  color: #14532d;
+  text-decoration: none;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
+.compareRemoved {
+  background: #fee2e2;
+  color: #7f1d1d;
+  text-decoration: line-through;
+  border-radius: 2px;
+  padding: 0 1px;
+}
+
 .noticeRow {
   display: flex;
   align-items: flex-start;

@@ -85,6 +85,30 @@ const COMPARE = {
   },
 };
 
+const COMPARE_WORD_DIFF = {
+  ItemRevisionCompare: {
+    itemId: "42",
+    rev1: 4,
+    rev2: 5,
+    fields: {
+      ItemRevisionFieldDiff: [
+        {
+          name: "sys_title",
+          leftValue: "The old title",
+          rightValue: "The new title",
+          changed: true,
+        },
+        {
+          name: "displaytitle",
+          leftValue: "Same",
+          rightValue: "Same",
+          changed: false,
+        },
+      ],
+    },
+  },
+};
+
 const TYPE = {
   ContentTypeDetail: {
     name: "percPage",
@@ -150,6 +174,26 @@ async function stubEditor(page, { compareStatus = 200, compareBody = COMPARE, re
       contentType: "application/json",
       body: JSON.stringify(revisionsBody),
     }),
+  );
+  // The host loads publish schedule dates on mount; stub them so the fake
+  // content id never hits the real cell (server.log ERROR, #6533).
+  await page.route("**/services/itemmanagement/item/getitemdates/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ itemId: "42", startDate: "", endDate: "", comments: "" }),
+    }),
+  );
+  // The host loads the content-type workflow catalog on mount; stub it for
+  // the same reason (bare-cell 404 logs server-side otherwise).
+  await page.route(
+    "**/services/itemmanagement/workflow/allowedWorkflows/**",
+    (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ itemId: "42", choices: [] }),
+      }),
   );
   await page.route("**/services/itemmanagement/item/compare/**", (route) => {
     const fulfill = () =>
@@ -280,6 +324,47 @@ test.describe("React Content Editor compare two revisions", () => {
       await expect(
         page.getByTestId("editor-compare-field-restored"),
       ).toContainText(/sys_title.*revision #4/);
+      expect(pageErrors, pageErrors.join("\n")).toEqual([]);
+      await expectNoSeriousA11yViolations(page);
+    },
+  );
+
+  test(
+    "changed cells mark added and removed words with a keyboard toggle",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      consoleOn(page, pageErrors);
+      await stubEditor(page, { compareBody: COMPARE_WORD_DIFF });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.getByTestId("editor-form")).toBeVisible();
+      await page.getByTestId("editor-restore-toggle").click();
+      await expect(page.getByTestId("editor-compare-left")).toBeVisible();
+      await page.getByTestId("editor-compare-run").click();
+      const older = page.getByTestId("editor-compare-word-left-sys_title");
+      const newer = page.getByTestId("editor-compare-word-right-sys_title");
+      await expect(older).toContainText("The old title");
+      await expect(older.locator("del")).toContainText("old");
+      await expect(older.locator("ins")).toHaveCount(0);
+      await expect(newer).toContainText("The new title");
+      await expect(newer.locator("ins")).toContainText("new");
+      await expect(newer.locator("del")).toHaveCount(0);
+      await expect(page.getByTestId("editor-compare-results")).toHaveAttribute(
+        "aria-live",
+        "polite",
+      );
+      const toggle = page.getByTestId("editor-compare-word-diff");
+      await expect(toggle).toBeChecked();
+      await toggle.focus();
+      await expect(toggle).toBeFocused();
+      await page.keyboard.press("Space");
+      await expect(toggle).not.toBeChecked();
+      await expect(older).toHaveCount(0);
+      await expect(
+        page.getByTestId("editor-compare-row-sys_title"),
+      ).toContainText("The old title");
+      await toggle.check();
+      await expect(older.locator("del")).toContainText("old");
       expect(pageErrors, pageErrors.join("\n")).toEqual([]);
       await expectNoSeriousA11yViolations(page);
     },

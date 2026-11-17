@@ -156,6 +156,7 @@ import {
 import {
   applyRevisionFieldValue,
   canRestoreFromEditor,
+  computeWordDiff,
   describeRestoredCompareField,
   editorRevisionErrorReason,
   isEmptyRevisionCompare,
@@ -164,6 +165,7 @@ import {
   revisionCompareSelection,
   summarizeRevisionRow,
   type RestoredCompareField,
+  type WordDiffSegment,
 } from "./editorRevisions";
 import {
   canViewWorkflowHistoryFromEditor,
@@ -363,6 +365,44 @@ import {
 import { PromoteForm } from "./widgets/PromoteForm";
 
 export { mergeEditorRows } from "./controlKinds";
+
+/**
+ * Render one compare cell with word-level inline diff spans (#6533).
+ *
+ * <p>The older cell keeps {@code same + removed} segments (removals in
+ * {@code <del>}), the newer cell keeps {@code same + added} segments
+ * (additions in {@code <ins>}). Unchanged text renders as a plain span so
+ * screen readers read the cell value without markup noise.</p>
+ */
+export function renderWordDiffCell(
+  segments: WordDiffSegment[],
+  side: "older" | "newer",
+): React.ReactNode {
+  const keep: Record<WordDiffSegment["kind"], boolean> = {
+    same: true,
+    removed: side === "older",
+    added: side === "newer",
+  };
+  return (
+    <>
+      {segments
+        .filter((segment) => keep[segment.kind])
+        .map((segment, index) =>
+          segment.kind === "same" ? (
+            <span key={index}>{segment.text}</span>
+          ) : side === "older" ? (
+            <del key={index} className={styles.compareRemoved}>
+              {segment.text}
+            </del>
+          ) : (
+            <ins key={index} className={styles.compareAdded}>
+              {segment.text}
+            </ins>
+          ),
+        )}
+    </>
+  );
+}
 
 /** Coerce item-field JSON so controlled inputs never receive a number. */
 export function fieldValueAsString(value: unknown): string {
@@ -1331,6 +1371,8 @@ export function EditorHost({
   const [compareFieldUnavailable, setCompareFieldUnavailable] = useState(false);
   /** Diff legibility (#6475): hide unchanged rows so authors scan only edits. */
   const [compareChangedOnly, setCompareChangedOnly] = useState(false);
+  /** Word-level inline diff within changed cells (#6533), on by default. */
+  const [compareWordDiff, setCompareWordDiff] = useState(true);
   const compareResultsRef = useRef<HTMLDivElement | null>(null);
   const compareRestoredRef = useRef<HTMLDivElement | null>(null);
   const [workflowHistoryOpen, setWorkflowHistoryOpen] = useState(false);
@@ -5992,6 +6034,9 @@ export function EditorHost({
                     <div
                       ref={compareResultsRef}
                       tabIndex={-1}
+                      role="region"
+                      aria-label={message(EDITOR_MSG.COMPARE)}
+                      aria-live="polite"
                       data-testid="editor-compare-results"
                     >
                     {isEmptyRevisionCompare(compareResult.fields) ? (
@@ -6014,6 +6059,15 @@ export function EditorHost({
                       />{" "}
                       {message(EDITOR_MSG.COMPARE_CHANGED_ONLY)}
                     </label>
+                    <label className={styles.field}>
+                      <input
+                        type="checkbox"
+                        data-testid="editor-compare-word-diff"
+                        checked={compareWordDiff}
+                        onChange={(e) => setCompareWordDiff(e.target.checked)}
+                      />{" "}
+                      {message(EDITOR_MSG.COMPARE_WORD_DIFF)}
+                    </label>
                     <table data-testid="editor-compare-table">
                       <thead>
                         <tr>
@@ -6028,15 +6082,43 @@ export function EditorHost({
                           .filter(
                             (field) => !compareChangedOnly || field.changed,
                           )
-                          .map((field) => (
-                            <tr
-                              key={field.name}
-                              data-testid={`editor-compare-row-${field.name}`}
-                              data-changed={field.changed ? "true" : "false"}
-                            >
-                              <td>{field.name}</td>
-                              <td>{field.leftValue}</td>
-                              <td>{field.rightValue}</td>
+                          .map((field) => {
+                            const segments =
+                              compareWordDiff && field.changed
+                                ? computeWordDiff(
+                                    field.leftValue,
+                                    field.rightValue,
+                                  )
+                                : null;
+                            return (
+                              <tr
+                                key={field.name}
+                                data-testid={`editor-compare-row-${field.name}`}
+                                data-changed={field.changed ? "true" : "false"}
+                              >
+                                <td>{field.name}</td>
+                                <td>
+                                  {segments ? (
+                                    <span
+                                      data-testid={`editor-compare-word-left-${field.name}`}
+                                    >
+                                      {renderWordDiffCell(segments, "older")}
+                                    </span>
+                                  ) : (
+                                    field.leftValue
+                                  )}
+                                </td>
+                                <td>
+                                  {segments ? (
+                                    <span
+                                      data-testid={`editor-compare-word-right-${field.name}`}
+                                    >
+                                      {renderWordDiffCell(segments, "newer")}
+                                    </span>
+                                  ) : (
+                                    field.rightValue
+                                  )}
+                                </td>
                               <td>
                                 {field.changed ? (
                                   <>
@@ -6077,7 +6159,8 @@ export function EditorHost({
                                 )}
                               </td>
                             </tr>
-                          ))}
+                            );
+                          })}
                       </tbody>
                     </table>
                     </>
