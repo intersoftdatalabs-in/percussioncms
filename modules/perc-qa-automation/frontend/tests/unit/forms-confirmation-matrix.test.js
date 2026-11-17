@@ -228,6 +228,18 @@ describe("forms-confirmation-matrix helpers (#6482)", () => {
     }
     assert.ok(spec.includes("submit confirms"), "submit-confirm case declared");
     assert.ok(
+      spec.includes("must answer 200 (HTTP "),
+      "summaries-200 failure names the received status",
+    );
+    assert.ok(
+      spec.includes("before=${beforeTotal}, after=${afterTotal}"),
+      "missing-entry failure carries before/after totals",
+    );
+    assert.ok(
+      spec.includes("marker=${marker}"),
+      "csv-entry failure names the missing probe marker",
+    );
+    assert.ok(
       spec.includes("summaries count increments"),
       "summaries-retrievable case declared",
     );

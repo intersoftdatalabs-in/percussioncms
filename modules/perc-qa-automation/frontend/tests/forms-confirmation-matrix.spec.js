@@ -177,7 +177,10 @@ async function readSummaries(request, svc, formName) {
       ),
     };
   }
-  expect(read.ok(), `forms: summaries for '${formName}' must answer 200`).toBe(true);
+  expect(
+    read.ok(),
+    `forms: summaries for '${formName}' must answer 200 (HTTP ${read.status()})`,
+  ).toBe(true);
   return { body: await readJson(read) };
 }
 
@@ -273,7 +276,7 @@ test.describe("forms confirmation matrix", () => {
       const afterTotal = summariesTotal(after.body, formName);
       expect(
         afterTotal,
-        `forms: summaries for '${formName}' must report the submitted entry`,
+        `forms: summaries for '${formName}' must report the submitted entry (before=${beforeTotal}, after=${afterTotal})`,
       ).not.toBeNull();
       expect(
         afterTotal,
@@ -334,7 +337,7 @@ test.describe("forms confirmation matrix", () => {
       const text = await csv.text();
       expect(
         text.includes(marker),
-        `forms: CSV export for '${formName}' must contain the submitted entry`,
+        `forms: CSV export for '${formName}' must contain the submitted entry (marker=${marker})`,
       ).toBe(true);
       recordCase(CASE_CSV);
     },
