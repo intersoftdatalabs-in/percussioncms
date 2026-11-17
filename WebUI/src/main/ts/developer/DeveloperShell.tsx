@@ -22,6 +22,7 @@ import {
   type DeveloperSection,
 } from "../app/deepLinks/allowlists";
 import { ActionMenusPanel } from "./ActionMenusPanel";
+import { ApiKeysPanel } from "./ApiKeysPanel";
 import { CommunitiesPanel } from "./CommunitiesPanel";
 import { CommunityVisibilityNavigatorPanel } from "./CommunityVisibilityNavigatorPanel";
 import { ContentTypesPanel } from "./ContentTypesPanel";
@@ -83,6 +84,7 @@ const SECTION_LABEL: Record<DeveloperSection, string> = {
   sites: DEV_MSG.TAB_SITES,
   communities: DEV_MSG.TAB_COMMUNITIES,
   roles: DEV_MSG.TAB_ROLES,
+  "api-keys": DEV_MSG.TAB_API_KEYS,
   "community-visibility": DEV_MSG.TAB_COMMUNITY_VISIBILITY,
   pipelines: DEV_MSG.TAB_PIPELINES,
   preferences: DEV_MSG.TAB_PREFERENCES,
@@ -233,6 +235,8 @@ export const DeveloperShell: React.FC<DeveloperShellProps> = ({
             <CommunitiesPanel />
           ) : active === "roles" ? (
             <RolesPanel />
+          ) : active === "api-keys" ? (
+            <ApiKeysPanel />
           ) : active === "community-visibility" ? (
             <CommunityVisibilityNavigatorPanel />
           ) : active === "pipelines" ? (

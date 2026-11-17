@@ -116,6 +116,7 @@ export const DEV_MSG_KEYS = {
   TAB_SITES: "perc.ui.developer@Sites",
   TAB_COMMUNITIES: "perc.ui.developer@Communities",
   TAB_ROLES: "perc.ui.developer@Roles",
+  TAB_API_KEYS: "perc.ui.developer@API Keys",
   TAB_COMMUNITY_VISIBILITY: "perc.ui.developer@Community Visibility",
   TAB_PIPELINES: "perc.ui.developer@Pipelines",
   TAB_PREFERENCES: "perc.ui.developer@Preferences",
@@ -1018,6 +1019,38 @@ export const DEV_MSG_KEYS = {
     "perc.ui.developer@You need the Admin role to view users on this role.",
   ROLES_MEMBERS_NOT_FOUND:
     "perc.ui.developer@That role was not found. No users are shown.",
+  API_KEYS_LOADING: "perc.ui.developer@Loading API key scopes...",
+  API_KEYS_EMPTY: "perc.ui.developer@No API keys registered yet.",
+  API_KEYS_EMPTY_HINT:
+    "perc.ui.developer@Name a key below, pick a least-privilege preset, then Save scopes. The key appears only after the server accepts the save.",
+  API_KEYS_ERROR: "perc.ui.developer@Could not load API key scopes.",
+  API_KEYS_FORBIDDEN:
+    "perc.ui.developer@You need the Admin role to view API key scopes.",
+  API_KEYS_HINT:
+    "perc.ui.developer@Pick a key to edit its scope set. Presets select the smallest set for the job; custom combinations are allowed and labelled Custom. The row updates only after the server accepts the save.",
+  API_KEYS_COL_NAME: "perc.ui.developer@Key name",
+  API_KEYS_COL_SCOPES: "perc.ui.developer@Scopes",
+  API_KEYS_COL_PRESET: "perc.ui.developer@Preset",
+  API_KEYS_NEW_TITLE: "perc.ui.developer@New API key",
+  API_KEYS_NEW_NAME: "perc.ui.developer@Key name",
+  API_KEYS_NEW_LABEL: "perc.ui.developer@Label (optional)",
+  API_KEYS_NEW_SAVE: "perc.ui.developer@Save scopes",
+  API_KEYS_NEW_CANCEL: "perc.ui.developer@Cancel",
+  API_KEYS_NAME_REQUIRED:
+    "perc.ui.developer@Enter a key name: a letter, then letters, digits, dash, underscore, or dot. A blank or unsafe name is not sent to the server.",
+  API_KEYS_EDIT_SCOPES: "perc.ui.developer@Scopes",
+  API_KEYS_EDIT_PRESET: "perc.ui.developer@Least-privilege preset",
+  API_KEYS_PRESET_CUSTOM: "perc.ui.developer@Custom",
+  API_KEYS_SAVE: "perc.ui.developer@Save scopes",
+  API_KEYS_RESET: "perc.ui.developer@Reset",
+  API_KEYS_DIRTY: "perc.ui.developer@Unsaved scope changes.",
+  API_KEYS_SAVED: "perc.ui.developer@API key scopes saved.",
+  API_KEYS_SAVE_ERROR: "perc.ui.developer@Could not save the API key scopes.",
+  API_KEYS_SAVE_FORBIDDEN:
+    "perc.ui.developer@You need the Admin role to save API key scopes.",
+  API_KEYS_SAVE_INVALID: "perc.ui.developer@The scopes were not saved.",
+  API_KEYS_SAVE_NOT_FOUND:
+    "perc.ui.developer@That key was not found. The scopes were not saved.",
   CVN_LOADING: "perc.ui.developer@Loading community visibility navigator...",
   CVN_EMPTY: "perc.ui.developer@No communities returned for the visibility navigator.",
   CVN_ERROR: "perc.ui.developer@Could not load communities for the visibility navigator.",
