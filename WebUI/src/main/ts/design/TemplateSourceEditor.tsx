@@ -42,9 +42,14 @@ import {
   tableRow,
 } from "../developer/catalogStyles";
 import { AssemblerPicker } from "./AssemblerPicker";
-import { isValidAssemblerValue } from "./assemblerOptions";
 import { DeleteTemplateDialog } from "./DeleteTemplateDialog";
 import { DESIGN_MSG } from "./messages";
+import {
+  mergeSlotPutRowError,
+  precheckSaveInputs,
+  serverSlotErrorForRows,
+  withRefreshedSlotBaselines,
+} from "./templateSave";
 import {
   dirtySlotSaves,
   slotRowsDirty,
@@ -55,12 +60,7 @@ import {
   bindingsEqual,
   cloneBindings,
   normalizeBindingsForSave,
-  validateBindings,
 } from "./templateBindings";
-import {
-  slotRowIndexesForServerError,
-  validateSlotRows,
-} from "./slotMappingValidation";
 import {
   clearTemplateAssemblyStale,
   markTemplateAssemblySaved,
@@ -229,33 +229,98 @@ export function TemplateSourceEditor({
     setValidationError(null);
   }
 
-  async function handleSave() {
-    if (!isValidAssemblerValue(assembler)) {
-      setValidationError("Assembler is required");
-      setError(null);
-      setNotice(null);
-      return;
-    }
-    const vErr = validateBindings(bindings);
-    if (vErr) {
-      setValidationError(vErr);
-      setError(null);
-      setNotice(null);
-      return;
-    }
-    const slotIssues = validateSlotRows(slotRows);
-    if (slotIssues.length > 0) {
-      const byIndex: Array<string | null> = slotRows.map(() => null);
-      for (const issue of slotIssues) {
-        if (byIndex[issue.index] == null) {
-          byIndex[issue.index] = issue.message;
-        }
+  /**
+   * Persist dirty slot rows; stops at the first failure (#6477 partial save).
+   * Returns the failed key + banner message, or null when all PUTs applied.
+   */
+  async function persistSlotPuts(
+    slotPuts: ReturnType<typeof dirtySlotSaves>,
+  ): Promise<{ key: string; message: string } | null> {
+    for (const put of slotPuts) {
+      try {
+        await updateSlotDetail(put.key, {
+          slotLayout: put.slotLayout,
+          slotStyles: put.slotStyles,
+        });
+      } catch (slotErr: unknown) {
+        return {
+          key: put.key,
+          message: editorErrMsg(slotErr, DESIGN_MSG.EDITOR_SLOT_SAVE_ERROR),
+        };
       }
-      setSlotRowErrors(byIndex);
-      const first = slotIssues[0].message;
-      setValidationError(
-        slotIssues.length === 1 ? first : `${slotIssues.length} slot rows need attention: ${first}`,
+    }
+    return null;
+  }
+
+  /** Resync editor state from a saved template + mark assembly stale (#6478). */
+  function applySavedTemplate(
+    saved: TemplateDetail,
+    slotPuts: ReturnType<typeof dirtySlotSaves>,
+  ): void {
+    setDetail(saved);
+    setSource(saved.templateSource || "");
+    setBindings(cloneBindings(saved.bindings));
+    setAssembler((saved.assembler || "").trim());
+    // Refresh slot baselines after successful puts
+    setSlotRows((prev) => withRefreshedSlotBaselines(prev, slotPuts));
+    setNotice(DESIGN_MSG.EDITOR_SAVED);
+    // Saved in this session but items not republished: published output is
+    // stale until the next publish (#6478).
+    markTemplateAssemblySaved(saved.name || detail?.name || idOrName);
+    setSessionStale("saved");
+  }
+
+  /**
+   * Keep a template save whose slot PUT failed: banner + inline row error,
+   * then re-sync template state so slots can retry (#6477).
+   */
+  function applyPartialSlotSave(
+    saved: TemplateDetail,
+    failedKey: string,
+    slotMessage: string,
+  ): void {
+    setError(slotMessage);
+    // Surface the failure inline on the offending slot row (#6477) so
+    // the user sees which mapping failed, not just the banner.
+    const rowIndex = slotRows.findIndex((r) => r.key === failedKey);
+    if (rowIndex >= 0) {
+      setSlotRowErrors((prev) =>
+        mergeSlotPutRowError(prev, slotRows.length, rowIndex, slotMessage),
       );
+    }
+    // Keep template save; re-sync template state so slots can retry.
+    // The template itself persisted: published output is stale until
+    // items are republished (#6478).
+    markTemplateAssemblySaved(saved.name || detail?.name || idOrName);
+    setSessionStale("saved");
+    setDetail(saved);
+    setSource(saved.templateSource || "");
+    setBindings(cloneBindings(saved.bindings));
+    setAssembler((saved.assembler || "").trim());
+  }
+
+  /** Map a failed template PUT onto slot rows + banner (#6477). */
+  function applyServerSaveError(err: unknown): void {
+    // Map server slot-mapping 400s (slots[i] ...) back onto the offending
+    // rows inline (#6477); the banner keeps the full server message.
+    const { indexes, serverMessage } = serverSlotErrorForRows(slotRows, err);
+    if (indexes.length > 0) {
+      const rowMessage =
+        serverMessage || editorErrMsg(err, DESIGN_MSG.EDITOR_SAVE_ERROR);
+      setSlotRowErrors(
+        slotRows.map((_, j) => (indexes.includes(j) ? rowMessage : null)),
+      );
+    }
+    setError(editorErrMsg(err, DESIGN_MSG.EDITOR_SAVE_ERROR));
+  }
+
+  async function handleSave() {
+    const precheck = precheckSaveInputs(assembler, bindings, slotRows);
+    if (!precheck.ok) {
+      setValidationError(precheck.validationError);
+      if (precheck.rowErrors != null) {
+        setSlotRowErrors(precheck.rowErrors);
+      }
       setError(null);
       setNotice(null);
       return;
@@ -276,84 +341,14 @@ export function TemplateSourceEditor({
       });
 
       const slotPuts = dirtySlotSaves(slotRows);
-      for (const put of slotPuts) {
-        try {
-          await updateSlotDetail(put.key, {
-            slotLayout: put.slotLayout,
-            slotStyles: put.slotStyles,
-          });
-        } catch (slotErr: unknown) {
-          const slotMessage = editorErrMsg(slotErr, DESIGN_MSG.EDITOR_SLOT_SAVE_ERROR);
-          setError(slotMessage);
-          // Surface the failure inline on the offending slot row (#6477) so
-          // the user sees which mapping failed, not just the banner.
-          const rowIndex = slotRows.findIndex((r) => r.key === put.key);
-          if (rowIndex >= 0) {
-            setSlotRowErrors((prev) => {
-              const next: Array<string | null> = slotRows.map(() => null);
-              for (let j = 0; j < next.length && j < prev.length; j++) {
-                const prior: string | null | undefined = prev[j];
-                if (prior) {
-                  next[j] = prior;
-                }
-              }
-              next[rowIndex] = slotMessage;
-              return next;
-            });
-          }
-          // Keep template save; re-sync template state so slots can retry.
-          // The template itself persisted: published output is stale until
-          // items are republished (#6478).
-          markTemplateAssemblySaved(saved.name || detail?.name || idOrName);
-          setSessionStale("saved");
-          setDetail(saved);
-          setSource(saved.templateSource || "");
-          setBindings(cloneBindings(saved.bindings));
-          setAssembler((saved.assembler || "").trim());
-          setBusy(false);
-          return;
-        }
+      const slotFailure = await persistSlotPuts(slotPuts);
+      if (slotFailure != null) {
+        applyPartialSlotSave(saved, slotFailure.key, slotFailure.message);
+        return;
       }
-
-      setDetail(saved);
-      setSource(saved.templateSource || "");
-      setBindings(cloneBindings(saved.bindings));
-      setAssembler((saved.assembler || "").trim());
-      // Refresh slot baselines after successful puts
-      setSlotRows((prev) =>
-        prev.map((r) => {
-          const put = slotPuts.find((p) => p.key === r.key);
-          if (!put) return r;
-          return {
-            ...r,
-            initialLayout: { ...r.layout },
-            initialStyles: { ...r.styles },
-          };
-        }),
-      );
-      setNotice(DESIGN_MSG.EDITOR_SAVED);
-      // Saved in this session but items not republished: published output is
-      // stale until the next publish (#6478).
-      markTemplateAssemblySaved(saved.name || detail?.name || idOrName);
-      setSessionStale("saved");
+      applySavedTemplate(saved, slotPuts);
     } catch (err: unknown) {
-      // Map server slot-mapping 400s (slots[i] ...) back onto the offending
-      // rows inline (#6477); the banner keeps the full server message.
-      const serverMessage = isApiError(err)
-        ? extractRestErrorMessage(err.body)
-        : undefined;
-      const indexes = slotRowIndexesForServerError(
-        slotRows,
-        serverMessage ?? null,
-      );
-      if (indexes.length > 0) {
-        const rowMessage =
-          serverMessage || editorErrMsg(err, DESIGN_MSG.EDITOR_SAVE_ERROR);
-        setSlotRowErrors(
-          slotRows.map((_, j) => (indexes.includes(j) ? rowMessage : null)),
-        );
-      }
-      setError(editorErrMsg(err, DESIGN_MSG.EDITOR_SAVE_ERROR));
+      applyServerSaveError(err);
     } finally {
       if (acquiredLock) {
         try {
