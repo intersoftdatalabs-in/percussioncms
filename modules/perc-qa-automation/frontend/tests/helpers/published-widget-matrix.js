@@ -303,6 +303,68 @@ function schemaPathFor(moduleDir) {
   return path.join(String(moduleDir), "contracts", SCHEMA_FILE);
 }
 
+/**
+ * Subscribes page-noise collectors: page errors, failed requests, HTTP
+ * error responses, and JS console errors. Returns the live arrays the
+ * caller asserts with {@link assertQuiet}.
+ *
+ * <p>Mirrors {@code published-widget-surfaces.js} (US3) so the static shell
+ * upholds the same quiet contract: a published page that logs console
+ * errors is not "quiet" even when every resource resolves.</p>
+ *
+ * @param {import("@playwright/test").Page} page Playwright page
+ * @returns {{ pageErrors: string[], failedRequests: string[], consoleErrors: string[] }}
+ */
+function watchNoise(page) {
+  const pageErrors = [];
+  const failedRequests = [];
+  const consoleErrors = [];
+  page.on("pageerror", (err) =>
+    pageErrors.push(String((err && err.stack) || err)),
+  );
+  page.on("requestfailed", (req) => {
+    failedRequests.push(`${req.url()} :: ${req.failure()?.errorText}`);
+  });
+  page.on("response", (resp) => {
+    if (resp.status() >= 400) {
+      failedRequests.push(`${resp.url()} :: HTTP ${resp.status()}`);
+    }
+  });
+  page.on("console", (msg) => {
+    if (msg.type() === "error") {
+      consoleErrors.push(`${msg.location().url} :: ${msg.text()}`);
+    }
+  });
+  return { pageErrors, failedRequests, consoleErrors };
+}
+
+/**
+ * Fails the case when the published fixture page left noise behind
+ * (missing resources, page errors, JS console errors). Favicon misses are
+ * ignored — the static fixture ships no icon.
+ *
+ * @param {{ name: string }} entry widget inventory entry
+ * @param {{ pageErrors: string[], failedRequests: string[], consoleErrors: string[] }} noise
+ * @param {import("@playwright/test").Expect} expect Playwright expect
+ */
+function assertQuiet(entry, noise, expect) {
+  const seriousFailures = noise.failedRequests.filter(
+    (text) => !/favicon\.ico/i.test(text),
+  );
+  expect(
+    seriousFailures,
+    `${entry.name}: missing published resources:\n${seriousFailures.join("\n")}`,
+  ).toEqual([]);
+  expect(
+    noise.pageErrors,
+    `${entry.name}: page errors:\n${noise.pageErrors.join("\n")}`,
+  ).toEqual([]);
+  expect(
+    noise.consoleErrors,
+    `${entry.name}: JS console errors:\n${noise.consoleErrors.join("\n")}`,
+  ).toEqual([]);
+}
+
 module.exports = {
   MATRIX_SUITE,
   MATRIX_SPEC,
@@ -323,5 +385,7 @@ module.exports = {
   publishedSiteUrl,
   buildWidgetRow,
   validateWidgetRow,
+  watchNoise,
+  assertQuiet,
   schemaPathFor,
 };
