@@ -2553,6 +2553,10 @@ users/roles store:
    means the cell forces account confirmation before first login even
    when the register call asked for none — confirm the account (or
    relax the confirmation policy on the cell) and retry.
+5. A liveness check runs first: `HEAD /membership/csrf` must answer on
+   the membership deployment context. When the service is unreachable
+   the checks skip (the cell serves no membership service) instead of
+   failing.
 
 ## Comments moderation: approve/reject round-trip (DTS)
 

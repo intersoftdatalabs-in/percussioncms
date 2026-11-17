@@ -17,10 +17,11 @@
 
 /**
  * Closed inventory + results-matrix row helpers for the US3 membership
- * registration matrix (#6484 / parent #6238): prove the register/login
- * round-trip against the in-cell DTS membership service — a fresh visitor
- * account registers, logs in with the same credentials, resolves through
- * the session lookup, and closes on logout.
+ * registration matrix (#6559 / parent #6241, proved #6484 / parent
+ * #6238): prove the register/login round-trip against the in-cell DTS
+ * membership service — a fresh visitor account registers, logs in with
+ * the same credentials, resolves through the session lookup, and closes
+ * on logout.
  *
  * <p>Three pinned cases, one row:</p>
  * <ul>
@@ -116,7 +117,7 @@ function skipNoRegistration(detail) {
     `membership registration (Membership): ${detail}; ` +
     `the cell must serve open registration with confirmationRequired=false ` +
     `(no forced account confirmation) on the DTS membership service ` +
-    `to turn these cases green (parent #6238)`
+    `to turn these cases green (parent #6241)`
   );
 }
 
