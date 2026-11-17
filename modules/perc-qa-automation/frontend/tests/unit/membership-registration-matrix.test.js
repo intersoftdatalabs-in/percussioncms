@@ -17,8 +17,8 @@
 
 /**
  * Unit tests for the US3 membership registration matrix inventory + row
- * helpers (#6484). No live CMS, no DTS cell, and no seeded fixtures
- * required: {@code npm run test:unit}.
+ * helpers (#6559 / parent #6241, proved #6484). No live CMS, no DTS cell,
+ * and no seeded fixtures required: {@code npm run test:unit}.
  */
 
 "use strict";
@@ -59,7 +59,7 @@ function goodRow() {
   );
 }
 
-describe("membership-registration-matrix helpers (#6484)", () => {
+describe("membership-registration-matrix helpers (#6559)", () => {
   it("pins a closed inventory: the membership service with three round-trip cases", () => {
     assert.deepEqual(CASE_NAMES, [CASE_REGISTER, CASE_LOGIN, CASE_LOGOUT]);
     assert.equal(MEMBERSHIP_ENTRY.name, "membership");

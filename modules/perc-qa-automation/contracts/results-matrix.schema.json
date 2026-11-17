@@ -2,7 +2,7 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://percussioncms.intsof.com/contracts/results-matrix.schema.json",
   "title": "Content/widget results-matrix row",
-  "description": "One row per built-in content type (US1, #6239) or per widget (US2 static shell, #6240) or per DTS service (US3 interaction, #6241) or per forms confirmation case set (US3 forms matrix, #6482) or per membership registration case set (US3 membership matrix, #6484) or per comments moderation case set (US3 moderation matrix, #6485) or per polls vote case set (US3 polls matrix, #6241). Rows are built by tests/helpers/content-create-matrix.js buildResultRow (US1), tests/helpers/published-widget-matrix.js buildWidgetRow (US2), tests/helpers/dts-interaction-matrix.js buildInteractionRow (US3), tests/helpers/forms-confirmation-matrix.js buildConfirmationRow (US3 forms), tests/helpers/membership-registration-matrix.js buildRegistrationRow (US3 membership), tests/helpers/comments-moderation-matrix.js buildModerationRow (US3 moderation), or tests/helpers/polls-vote-matrix.js buildVoteRow (US3 polls) and validated by the matching validate function; the Playwright inventory/matrix specs fail when a row does not conform.",
+  "description": "One row per built-in content type (US1, #6239) or per widget (US2 static shell, #6240) or per DTS service (US3 interaction, #6241) or per forms confirmation case set (US3 forms matrix, #6482) or per membership registration case set (US3 membership matrix, #6559 / parent #6241, proved #6484) or per comments moderation case set (US3 moderation matrix, #6485) or per polls vote case set (US3 polls matrix, #6241). Rows are built by tests/helpers/content-create-matrix.js buildResultRow (US1), tests/helpers/published-widget-matrix.js buildWidgetRow (US2), tests/helpers/dts-interaction-matrix.js buildInteractionRow (US3), tests/helpers/forms-confirmation-matrix.js buildConfirmationRow (US3 forms), tests/helpers/membership-registration-matrix.js buildRegistrationRow (US3 membership), tests/helpers/comments-moderation-matrix.js buildModerationRow (US3 moderation), or tests/helpers/polls-vote-matrix.js buildVoteRow (US3 polls) and validated by the matching validate function; the Playwright inventory/matrix specs fail when a row does not conform.",
   "type": "object",
   "required": ["suite", "spec", "contentType", "label", "cell", "cases", "status", "updated"],
   "additionalProperties": false,
@@ -83,17 +83,17 @@
         "registerCreates": {
           "type": "string",
           "enum": ["pass", "fail", "skip"],
-          "description": "Membership registration matrix (#6484): a self-seeded probe account registers (POST /membership/user) with SUCCESS and an issued session id."
+          "description": "Membership registration matrix (#6559): a self-seeded probe account registers (POST /membership/user) with SUCCESS and an issued session id."
         },
         "loginRoundTrip": {
           "type": "string",
           "enum": ["pass", "fail", "skip"],
-          "description": "Membership registration matrix (#6484): the freshly registered credentials log in (POST /membership/login) and resolve through the session lookup (POST /membership/session)."
+          "description": "Membership registration matrix (#6559): the freshly registered credentials log in (POST /membership/login) and resolve through the session lookup (POST /membership/session)."
         },
         "logoutCloses": {
           "type": "string",
           "enum": ["pass", "fail", "skip"],
-          "description": "Membership registration matrix (#6484): logout (POST /membership/logout) succeeds and the session lookup no longer resolves the account."
+          "description": "Membership registration matrix (#6559): logout (POST /membership/logout) succeeds and the session lookup no longer resolves the account."
         },
         "rejectHides": {
           "type": "string",
