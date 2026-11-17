@@ -116,6 +116,36 @@ const TYPE = {
   },
 };
 
+const COMPARE_TWO_CHANGES = {
+  ItemRevisionCompare: {
+    itemId: "42",
+    rev1: 4,
+    rev2: 5,
+    fields: {
+      ItemRevisionFieldDiff: [
+        {
+          name: "sys_title",
+          leftValue: "Old title",
+          rightValue: "Home",
+          changed: true,
+        },
+        {
+          name: "displaytitle",
+          leftValue: "Same",
+          rightValue: "Same",
+          changed: false,
+        },
+        {
+          name: "body",
+          leftValue: "Old body",
+          rightValue: "New body",
+          changed: true,
+        },
+      ],
+    },
+  },
+};
+
 function consoleOn(page, pageErrors) {
   page.on("pageerror", (err) => pageErrors.push(String(err)));
   page.on("console", (msg) => {
@@ -365,6 +395,49 @@ test.describe("React Content Editor compare two revisions", () => {
       ).toContainText("The old title");
       await toggle.check();
       await expect(older.locator("del")).toContainText("old");
+      expect(pageErrors, pageErrors.join("\n")).toEqual([]);
+      await expectNoSeriousA11yViolations(page);
+    },
+  );
+
+  test(
+    "previous/next change steps focus with a live Change X of Y status",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      consoleOn(page, pageErrors);
+      await stubEditor(page, { compareBody: COMPARE_TWO_CHANGES });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.getByTestId("editor-form")).toBeVisible();
+      await page.getByTestId("editor-restore-toggle").click();
+      await expect(page.getByTestId("editor-compare-left")).toBeVisible();
+      await expect(page.getByTestId("editor-compare-toolbar")).toHaveAttribute(
+        "role",
+        "toolbar",
+      );
+      await page.getByTestId("editor-compare-run").click();
+      await expect(page.getByTestId("editor-compare-table")).toBeVisible();
+      const status = page.getByTestId("editor-compare-nav-status");
+      await expect(status).toContainText("Change 1 of 2: sys_title");
+      const prev = page.getByTestId("editor-compare-prev-change");
+      const next = page.getByTestId("editor-compare-next-change");
+      await expect(prev).toBeDisabled();
+      await expect(next).toBeEnabled();
+      await next.focus();
+      await expect(next).toBeFocused();
+      await page.keyboard.press("Enter");
+      await expect(status).toContainText("Change 2 of 2: body");
+      await expect(page.getByTestId("editor-compare-row-body")).toBeFocused();
+      await expect(next).toBeDisabled();
+      await prev.focus();
+      await page.keyboard.press("Space");
+      await expect(status).toContainText("Change 1 of 2: sys_title");
+      await expect(
+        page.getByTestId("editor-compare-row-sys_title"),
+      ).toBeFocused();
+      await page.screenshot({
+        path: "test-results/live-proof-6597-revision-compare-nav.png",
+      });
       expect(pageErrors, pageErrors.join("\n")).toEqual([]);
       await expectNoSeriousA11yViolations(page);
     },

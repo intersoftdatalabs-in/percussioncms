@@ -163,6 +163,41 @@ export function isEmptyRevisionCompare(
 }
 
 /**
+ * Names of the changed rows in a revision compare, in table order (#6597).
+ *
+ * <p>Diff navigation (Previous/Next change) steps through exactly these rows
+ * so the live status can announce {@code Change X of Y}. Unchanged rows are
+ * never navigation stops, whether or not the changed-only filter hides them.</p>
+ */
+export function changedCompareFieldNames(
+  fields: readonly { name: string; changed: boolean }[] | null | undefined,
+): string[] {
+  if (fields == null) {
+    return [];
+  }
+  return fields.filter((field) => field.changed).map((field) => field.name);
+}
+
+/**
+ * Fill the compare navigation status template (e.g.
+ * {@code "Change {0} of {1}: {2}"} with a 0-based index, the changed-row
+ * total, and the current field name). Mirrors
+ * {@link formatDelegationNotice} in {@code editorWorkflow.ts}: the template
+ * comes from {@code message()}, the substitution is pure and unit-tested.
+ */
+export function formatCompareNavStatus(
+  template: string,
+  index: number,
+  total: number,
+  field: string,
+): string {
+  return String(template ?? "")
+    .replace("{0}", String(index + 1))
+    .replace("{1}", String(total))
+    .replace("{2}", field);
+}
+
+/**
  * One word-level segment of a revision compare cell (#6533).
  *
  * <p>{@code same} text appears in both revisions; {@code removed} text appears

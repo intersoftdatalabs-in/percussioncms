@@ -156,9 +156,11 @@ import {
 import {
   applyRevisionFieldValue,
   canRestoreFromEditor,
+  changedCompareFieldNames,
   computeWordDiff,
   describeRestoredCompareField,
   editorRevisionErrorReason,
+  formatCompareNavStatus,
   isEmptyRevisionCompare,
   parseRevisionId,
   restoreRevisionConfirmBody,
@@ -1373,6 +1375,9 @@ export function EditorHost({
   const [compareChangedOnly, setCompareChangedOnly] = useState(false);
   /** Word-level inline diff within changed cells (#6533), on by default. */
   const [compareWordDiff, setCompareWordDiff] = useState(true);
+  /** Diff navigation position over the changed compare rows (#6597). */
+  const [compareNavIndex, setCompareNavIndex] = useState(0);
+  const compareRowRefs = useRef(new Map<string, HTMLTableRowElement>());
   const compareResultsRef = useRef<HTMLDivElement | null>(null);
   const compareRestoredRef = useRef<HTMLDivElement | null>(null);
   const [workflowHistoryOpen, setWorkflowHistoryOpen] = useState(false);
@@ -4601,6 +4606,7 @@ export function EditorHost({
     }
     const selection = revisionCompareSelection(compareLeft, compareRight);
     setCompareResult(null);
+    setCompareNavIndex(0);
     setCompareFieldRestored(null);
     setCompareFieldUnavailable(false);
     if (!selection.ok) {
@@ -4622,6 +4628,7 @@ export function EditorHost({
         selection.right,
       );
       setCompareResult(result);
+      setCompareNavIndex(0);
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
@@ -4657,6 +4664,28 @@ export function EditorHost({
     setCompareFieldUnavailable(false);
     setCompareFieldRestored(field ? { field, revId } : null);
   }
+
+  /**
+   * Step keyboard/screen-reader focus through the changed compare rows
+   * (#6597). The live status announces "Change X of Y: field" on every
+   * step; the buttons clamp at the ends instead of wrapping so the
+   * position stays predictable. Unchanged rows are never stops.
+   */
+  function handleCompareNav(delta: 1 | -1): void {
+    const names = changedCompareFieldNames(compareResult?.fields);
+    if (names.length === 0) {
+      return;
+    }
+    const next = Math.min(
+      Math.max(compareNavIndex + delta, 0),
+      names.length - 1,
+    );
+    setCompareNavIndex(next);
+    compareRowRefs.current.get(names[next])?.focus();
+  }
+
+  /** Changed compare rows in table order — the diff navigation stops (#6597). */
+  const changedCompareNames = changedCompareFieldNames(compareResult?.fields);
 
   /**
    * Focus the compare results when a new diff arrives, and the restore
@@ -5943,7 +5972,12 @@ export function EditorHost({
                       {message(EDITOR_MSG.COMPARE_NEED_TWO)}
                     </div>
                   ) : (
-                    <>
+                    <div
+                      role="toolbar"
+                      aria-label={message(EDITOR_MSG.COMPARE_TOOLBAR_LABEL)}
+                      data-testid="editor-compare-toolbar"
+                      className={styles.compareToolbar}
+                    >
                       <label className={styles.field}>
                         <span className={styles.label}>
                           {message(EDITOR_MSG.COMPARE_FROM)}
@@ -5957,6 +5991,7 @@ export function EditorHost({
                               e.target.value ? Number(e.target.value) : "",
                             );
                             setCompareResult(null);
+                            setCompareNavIndex(0);
                             setCompareErrorKey(null);
                           }}
                         >
@@ -5980,6 +6015,7 @@ export function EditorHost({
                               e.target.value ? Number(e.target.value) : "",
                             );
                             setCompareResult(null);
+                            setCompareNavIndex(0);
                             setCompareErrorKey(null);
                           }}
                         >
@@ -6009,7 +6045,7 @@ export function EditorHost({
                           )}
                         </button>
                       </div>
-                    </>
+                    </div>
                   )}
                   {compareBusy ? (
                     <div
@@ -6068,6 +6104,52 @@ export function EditorHost({
                       />{" "}
                       {message(EDITOR_MSG.COMPARE_WORD_DIFF)}
                     </label>
+                    {changedCompareNames.length > 0 ? (
+                      <div
+                        className={styles.actions}
+                        data-testid="editor-compare-nav"
+                      >
+                        <button
+                          type="button"
+                          className={styles.button}
+                          data-testid="editor-compare-prev-change"
+                          disabled={compareNavIndex <= 0}
+                          onClick={() => handleCompareNav(-1)}
+                        >
+                          {message(EDITOR_MSG.COMPARE_PREV_CHANGE)}
+                        </button>
+                        <button
+                          type="button"
+                          className={styles.button}
+                          data-testid="editor-compare-next-change"
+                          disabled={
+                            compareNavIndex >= changedCompareNames.length - 1
+                          }
+                          onClick={() => handleCompareNav(1)}
+                        >
+                          {message(EDITOR_MSG.COMPARE_NEXT_CHANGE)}
+                        </button>
+                        <span
+                          role="status"
+                          data-testid="editor-compare-nav-status"
+                        >
+                          {formatCompareNavStatus(
+                            message(EDITOR_MSG.COMPARE_NAV_STATUS),
+                            Math.min(
+                              compareNavIndex,
+                              changedCompareNames.length - 1,
+                            ),
+                            changedCompareNames.length,
+                            changedCompareNames[
+                              Math.min(
+                                compareNavIndex,
+                                changedCompareNames.length - 1,
+                              )
+                            ] ?? "",
+                          )}
+                        </span>
+                      </div>
+                    ) : null}
                     <table data-testid="editor-compare-table">
                       <thead>
                         <tr>
@@ -6093,6 +6175,20 @@ export function EditorHost({
                             return (
                               <tr
                                 key={field.name}
+                                ref={(row) => {
+                                  if (row) {
+                                    compareRowRefs.current.set(
+                                      field.name,
+                                      row,
+                                    );
+                                  } else {
+                                    compareRowRefs.current.delete(field.name);
+                                  }
+                                }}
+                                tabIndex={field.changed ? -1 : undefined}
+                                className={
+                                  field.changed ? styles.compareRow : undefined
+                                }
                                 data-testid={`editor-compare-row-${field.name}`}
                                 data-changed={field.changed ? "true" : "false"}
                               >
