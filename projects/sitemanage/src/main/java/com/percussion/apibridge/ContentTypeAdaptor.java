@@ -4426,7 +4426,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
     PSDisplayMapper parentMapper = displayMapperOfStatic(def);
     PSFieldSet target = ensureChildFieldSet(def, parent, parentMapper, body.getFieldSet());
-    PSBackEndTable table = tableForFieldSet(def, target);
+    PSBackEndTable table = tableForTargetFieldSet(def, parent, target);
     PSField field = newPersistableLocalField(table, fieldName, body);
     target.add(field);
     applyOccurrenceOrRequired(field, body);
@@ -4446,7 +4446,24 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     String column = columnNameOf(field);
     String dataType = StringUtils.defaultIfBlank(field.getDataType(), PSField.DT_TEXT);
     String dataFormat = field.getDataFormat();
+    if (isComplexChildField(def, field)) {
+      // Child table (CONTENTID/REVISIONID parent link + SYSID/SORTRANK keys) must exist
+      // before saveContentTypes re-inits the content editor application (#6509).
+      localFieldColumnSchema.ensureChildTable(tableName, column, dataType, dataFormat);
+      return;
+    }
     localFieldColumnSchema.ensureColumn(tableName, column, dataType, dataFormat);
+  }
+
+  /**
+   * {@code true} when the field lives in a complex-child set. Package-visible for unit tests.
+   */
+  static boolean isComplexChildField(PSItemDefinition def, PSField field) {
+    if (def == null || field == null || StringUtils.isBlank(field.getSubmitName())) {
+      return false;
+    }
+    PSFieldSet containing = findContainingFieldSet(def, field.getSubmitName());
+    return containing != null && containing.getType() == PSFieldSet.TYPE_COMPLEX_CHILD;
   }
 
   static PSBackEndTable tableForLocalField(PSItemDefinition def, PSField field) {
@@ -4810,7 +4827,157 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     return false;
   }
 
+  /**
+   * Backend table for a field target. A named complex child keeps its own table ({@code
+   * <parent>_<child>}, Folder {@code acl} → {@code PSX_OBJECTACL} style); a brand-new set with
+   * no local fields yet has none, so provision one and wire the CE pipe {@code PSTableRef}
+   * before {@code saveContentTypes} catalogs {@code SYSID}/{@code SORTRANK} (#6509).
+   * Package-visible for unit tests.
+   */
+  static PSBackEndTable tableForTargetFieldSet(
+      PSItemDefinition def, PSFieldSet parent, PSFieldSet target) {
+    if (target != null
+        && parent != null
+        && target != parent
+        && target.getType() == PSFieldSet.TYPE_COMPLEX_CHILD) {
+      PSBackEndTable existing = firstLocalFieldTable(target);
+      if (existing != null) {
+        return existing;
+      }
+      return provisionChildBackendTable(def, parent, target);
+    }
+    return tableForFieldSet(def, target);
+  }
+
+  /**
+   * Provision the backend table for a brand-new complex-child set ({@code <parent>_<child>}),
+   * reusing the CE pipe {@code TableRef} name when the pipe already references the table, and
+   * wiring a {@code PSTableRef} into each pipe {@code TableSet} otherwise. The physical DDL runs
+   * later in {@link #ensureLocalFieldBackendColumn} before design save. Package-visible for unit
+   * tests.
+   */
+  static PSBackEndTable provisionChildBackendTable(
+      PSItemDefinition def, PSFieldSet parent, PSFieldSet child) {
+    String parentAlias = parentTableAlias(def, parent);
+    String tableName = childTableNameFor(parentAlias, child.getName());
+    String canonical = existingChildTableRefName(def, tableName);
+    ensureChildTableRef(def, canonical);
+    PSBackEndTable table = new PSBackEndTable(canonical);
+    table.setTable(canonical);
+    return table;
+  }
+
+  /**
+   * Parent table alias for child-table naming; falls back to the upper-cased content-type name
+   * when the definition has no local table yet. Package-visible for unit tests.
+   */
+  static String parentTableAlias(PSItemDefinition def, PSFieldSet parent) {
+    PSBackEndTable table = tableForLocalFields(def);
+    if (table != null && StringUtils.isNotBlank(table.getAlias())) {
+      return table.getAlias();
+    }
+    String name = parent != null ? parent.getName() : (def != null ? def.getName() : null);
+    return columnNameForField(StringUtils.defaultIfBlank(name, "CONTENTTYPE"));
+  }
+
+  /**
+   * Child table naming convention ({@code CT_TESTWEBSERVICES} + {@code child_1} → {@code
+   * CT_TESTWEBSERVICES_CHILD_1}). Package-visible for unit tests.
+   */
+  static String childTableNameFor(String parentTableAlias, String childSetName) {
+    if (StringUtils.isBlank(parentTableAlias)) {
+      throw new IllegalArgumentException("parent table is required");
+    }
+    if (StringUtils.isBlank(childSetName)) {
+      throw new IllegalArgumentException("child field set is required");
+    }
+    return columnNameForField(parentTableAlias.trim() + "_" + childSetName.trim());
+  }
+
+  /**
+   * Pipe {@code TableRef} physical name matching the child table (case-insensitive on name or
+   * alias); the requested name when the pipe references nothing yet. Null-safe for unit-test
+   * doubles without a content editor. Package-visible for unit tests.
+   */
+  static String existingChildTableRefName(PSItemDefinition def, String tableName) {
+    for (PSTableSet set : pipeTableSets(def)) {
+      java.util.Iterator<?> refs = set.getTableRefs();
+      while (refs.hasNext()) {
+        Object next = refs.next();
+        if (next instanceof PSTableRef ref
+            && (tableName.equalsIgnoreCase(ref.getName())
+                || tableName.equalsIgnoreCase(ref.getAlias()))) {
+          return ref.getName();
+        }
+      }
+    }
+    return tableName;
+  }
+
+  /**
+   * Wire the child table into each CE pipe {@code TableSet} unless already referenced
+   * (case-insensitive on name or alias). The in-memory pipe locator is saved as the CE dataset,
+   * so this is what persists the child table into the design. No-op without a pipe locator
+   * (unit-test doubles). Package-visible for unit tests.
+   */
+  static void ensureChildTableRef(PSItemDefinition def, String tableName) {
+    if (StringUtils.isBlank(tableName)) {
+      throw new IllegalArgumentException("child table is required");
+    }
+    for (PSTableSet set : pipeTableSets(def)) {
+      boolean present = false;
+      java.util.Iterator<?> refs = set.getTableRefs();
+      while (refs.hasNext()) {
+        Object next = refs.next();
+        if (next instanceof PSTableRef ref
+            && (tableName.equalsIgnoreCase(ref.getName())
+                || tableName.equalsIgnoreCase(ref.getAlias()))) {
+          present = true;
+          break;
+        }
+      }
+      if (!present) {
+        set.addTableRef(new PSTableRef(tableName, tableName));
+      }
+    }
+  }
+
+  /**
+   * CE pipe {@code TableSet}s of the definition; empty when there is no content editor, pipe, or
+   * locator (unit-test doubles). Package-visible for unit tests.
+   */
+  static List<PSTableSet> pipeTableSets(PSItemDefinition def) {
+    List<PSTableSet> sets = new ArrayList<>();
+    if (def == null
+        || def.getContentEditor() == null
+        || !(def.getContentEditor().getPipe() instanceof PSContentEditorPipe pipe)
+        || pipe.getLocator() == null) {
+      return sets;
+    }
+    java.util.Iterator<?> it = pipe.getLocator().getTableSets();
+    while (it.hasNext()) {
+      Object next = it.next();
+      if (next instanceof PSTableSet set) {
+        sets.add(set);
+      }
+    }
+    return sets;
+  }
+
   static PSBackEndTable tableForFieldSet(PSItemDefinition def, PSFieldSet fieldSet) {
+    PSBackEndTable table = firstLocalFieldTable(fieldSet);
+    if (table != null) {
+      return table;
+    }
+    return tableForLocalFields(def);
+  }
+
+  /**
+   * First backend table referenced by a local field locator in the set; {@code null} when the
+   * set has no persistable local fields yet (brand-new child set). Package-visible for unit
+   * tests.
+   */
+  static PSBackEndTable firstLocalFieldTable(PSFieldSet fieldSet) {
     if (fieldSet != null) {
       PSField[] all = fieldSet.getAllFields();
       if (all != null) {
@@ -4825,7 +4992,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         }
       }
     }
-    return tableForLocalFields(def);
+    return null;
   }
 
   static PSBackEndTable tableForLocalFields(PSItemDefinition def) {

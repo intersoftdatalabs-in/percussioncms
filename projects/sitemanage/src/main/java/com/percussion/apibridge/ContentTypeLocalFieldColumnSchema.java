@@ -45,6 +45,24 @@ interface ContentTypeLocalFieldColumnSchema {
     ensureColumn(tableName, textColumn, "text", "50");
   }
 
+  /**
+   * Create the complex-child backend table when it is missing, then ensure the field column
+   * exists. The child table carries the parent link ({@code CONTENTID}, {@code REVISIONID}) plus
+   * the child row keys ({@code SYSID}, {@code SORTRANK}) that the content-editor insert/update
+   * plans catalog at application start; without them design save fails with {@code no such column
+   * SYSID}. Idempotent when the table and column already exist. Default delegates to {@link
+   * #ensureColumn} for test doubles.
+   *
+   * @param tableName backend child table (typically {@code <parent>_<child>})
+   * @param columnName column (typically the upper-cased field name)
+   * @param fieldDataType field data type ({@code text}, {@code integer}, …)
+   * @param dataFormat optional size for text columns (for example {@code 50})
+   */
+  default void ensureChildTable(
+      String tableName, String columnName, String fieldDataType, String dataFormat) {
+    ensureColumn(tableName, columnName, fieldDataType, dataFormat);
+  }
+
   /** Test double that performs no DDL. */
   static ContentTypeLocalFieldColumnSchema noop() {
     return (tableName, columnName, fieldDataType, dataFormat) -> {

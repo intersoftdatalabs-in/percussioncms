@@ -201,6 +201,67 @@ final class JdbcContentTypeLocalFieldColumnSchema implements ContentTypeLocalFie
         + ")";
   }
 
+  @Override
+  public void ensureChildTable(
+      String tableName, String columnName, String fieldDataType, String dataFormat) {
+    String table = requireIdent(tableName, "table");
+    String column = requireIdent(columnName, "column");
+    withConnection(
+        conn -> {
+          if (!tableExists(conn, table)) {
+            String type = nativeType(conn, fieldDataType, dataFormat);
+            String product = databaseProduct(conn);
+            String sql =
+                createChildTableSql(
+                    product, tableRef(conn, table), column, type, isSqlServer(product, conn));
+            log.info("Creating complex-child table: {}", sql);
+            try (Statement st = conn.createStatement()) {
+              st.execute(sql);
+            }
+            flushTableMetaData(conn, table);
+          }
+        });
+    ensureColumn(table, column, fieldDataType, dataFormat);
+  }
+
+  /**
+   * Child DDL sibling of {@link #createContentTableSql}: the parent link ({@code CONTENTID},
+   * {@code REVISIONID}) plus the child row keys ({@code SYSID} primary row id, {@code SORTRANK}
+   * sequence rank) that the content-editor modify plans catalog at application start, then the
+   * first field column. Package-visible for unit tests.
+   */
+  static String createChildTableSql(
+      String product, String tableSql, String column, String columnType, boolean sqlServer) {
+    if (isOracle(product == null ? "" : product)) {
+      return "CREATE TABLE "
+          + tableSql
+          + " (CONTENTID NUMBER(10) NOT NULL, REVISIONID NUMBER(10) NOT NULL, "
+          + "SYSID NUMBER(10) NOT NULL, SORTRANK NUMBER(10), "
+          + column
+          + " "
+          + columnType
+          + ")";
+    }
+    if (sqlServer) {
+      return "CREATE TABLE "
+          + tableSql
+          + " (CONTENTID INT NOT NULL, REVISIONID INT NOT NULL, "
+          + "SYSID INT NOT NULL, SORTRANK INT NULL, "
+          + column
+          + " "
+          + columnType
+          + " NULL)";
+    }
+    return "CREATE TABLE "
+        + tableSql
+        + " (CONTENTID INTEGER NOT NULL, REVISIONID INTEGER NOT NULL, "
+        + "SYSID INTEGER NOT NULL, SORTRANK INTEGER, "
+        + column
+        + " "
+        + columnType
+        + ")";
+  }
+
   static boolean tableExists(Connection conn, String table) throws SQLException {
     DatabaseMetaData md = conn.getMetaData();
     String catalog = conn.getCatalog();
