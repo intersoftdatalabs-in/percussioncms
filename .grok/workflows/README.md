@@ -509,8 +509,13 @@ Runs when `include_pr_cluster` is true (**independent of** `include_pr_followup`
 
 ### Safety model
 
-- Sequential implementers (shared workspace)  
-- Work proves the assigned worktree first (`git rev-parse --show-toplevel` === worktree path) and aborts otherwise — branching/editing/building anywhere else contaminates foreign branches and PRs  
+- Sequential implementers by default (shared workspace). **Parallel pilot
+  (2.2.12-draft, operator-approved):** up to `max_parallel_work` concurrent
+  Work agents (default 1; pilot 2) **iff** shards are module-disjoint, each
+  agent gets a host-assigned shard worktree (removed + pruned before DONE),
+  no two in-flight PRs touch shared thrash files, and the QA cell is
+  serialized unless per-agent cells were provisioned
+- Work proves the assigned worktree first (`git rev-parse --show-toplevel` === assigned worktree path) and aborts otherwise — branching/editing/building anywhere else contaminates foreign branches and PRs  
 - Fresh branch per issue from `origin/<base_branch>` **unless** absorbing into an existing same-parent OPEN PR  
 - Never a second owned PR on the same parent or on occupied thrash files the same run  
 - No merge, no direct push to `main`  

@@ -57,6 +57,7 @@ positional text). Parse them and pass to the workflow as described below.
 | `include_human_qa` | bool | removed | Removed 2026-11-14 with the Human QA phase; the workflow never creates QA tickets |
 | `qa_label` | string | removed | Removed 2026-11-14 with the Human QA phase: `qa task` / `QA (#N)` tickets are ordinary implement candidates when unassigned. Assigned ones stay out via `unassigned_only`. |
 | `max_prs` | int | `6` | Max open PRs per follow-up pass |
+| `max_parallel_work` | int | `1` | Max concurrent Work agents (pilot 2.2.12-draft: 1 = sequential solo; 2 = pilot with module-disjoint shards, shard worktrees, thrash guard, serialized QA cell) |
 | `worktree_path` | string | `<home>/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs` | Dedicated worktree |
 | `sync_branch` | string | `night-issue-prs-main` | Local mirror of `origin/<base_branch>` |
 
