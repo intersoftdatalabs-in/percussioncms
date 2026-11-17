@@ -737,13 +737,13 @@ public class PSMetadataRestService extends PSAbstractRestService implements IPSM
   }
 
   @Override
-  public String getVersion() {
+  public String getHealth() {
 
-    String version = super.getVersion();
+    String health = super.getHealth();
 
-    log.info("getVersion() from PSMetadataRestService ... {}", version);
+    log.info("getHealth() from PSMetadataRestService ... {}", health);
 
-    return version;
+    return health;
   }
 
   @Override

@@ -716,13 +716,13 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
   }
 
   @Override
-  public String getVersion() {
+  public String getHealth() {
 
-    String version = super.getVersion();
+    String health = super.getHealth();
 
-    PSFeedService.log.debug("getVersion() from PSFeedService... {}", version);
+    PSFeedService.log.debug("getHealth() from PSFeedService... {}", health);
 
-    return version;
+    return health;
   }
 
   /**

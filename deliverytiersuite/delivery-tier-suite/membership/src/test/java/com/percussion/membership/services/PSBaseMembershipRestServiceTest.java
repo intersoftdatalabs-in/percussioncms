@@ -19,7 +19,6 @@ package com.percussion.membership.services;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import com.percussion.delivery.services.PSAbstractRestService;
-import com.percussion.delivery.utils.PSVersionHelper;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
@@ -48,18 +47,11 @@ public class PSBaseMembershipRestServiceTest extends JerseyTest {
   }
 
   @Test
-  public void testGetRestVersion() {
-    Response response = target("/membership/version").request(MediaType.APPLICATION_JSON).get();
+  public void testGetRestHealth() {
+    Response response = target("/membership/health").request(MediaType.APPLICATION_JSON).get();
     assertNotNull(response);
     Assertions.assertEquals(200, response.getStatus());
-    Assertions.assertEquals(testGetVersion(), response.readEntity(String.class));
-  }
-
-  private String testGetVersion() {
-    String version = PSVersionHelper.getVersion(this.getClass());
-    assertNotNull(version);
-    System.out.print(version);
-    return version;
+    Assertions.assertEquals("OK", response.readEntity(String.class));
   }
 
   @Path("/membership")

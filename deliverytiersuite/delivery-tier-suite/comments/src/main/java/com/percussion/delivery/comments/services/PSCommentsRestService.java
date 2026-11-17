@@ -600,13 +600,13 @@ public class PSCommentsRestService extends PSAbstractRestService implements IPSC
   }
 
   @Override
-  public String getVersion() {
+  public String getHealth() {
 
-    String version = super.getVersion();
+    String health = super.getHealth();
 
-    PSCommentsRestService.log.info("getVersion() from PSCommentsRestService ...{}", version);
+    PSCommentsRestService.log.info("getHealth() from PSCommentsRestService ...{}", health);
 
-    return version;
+    return health;
   }
 
   @DELETE

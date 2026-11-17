@@ -23,7 +23,6 @@ import com.percussion.delivery.multitenant.PSTenantSecurityFilter;
 import com.percussion.delivery.test.utils.FakeRegistrant;
 import com.percussion.delivery.test.utils.PSFakeDataGenerator;
 import com.percussion.delivery.test.utils.spring.PSConfigurableApplicationContext;
-import com.percussion.delivery.utils.PSVersionHelper;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -220,23 +219,16 @@ public abstract class PSCommentsRestServiceBaseTest extends JerseyTest {
 
   @Test
   @org.junit.jupiter.api.Disabled
-  public void testGetRestVersion() {
+  public void testGetRestHealth() {
 
     Client client = ClientBuilder.newClient();
-    WebTarget webTarget = client.target("/comment/version");
+    WebTarget webTarget = client.target("/comment/health");
     Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
     Response response = invocationBuilder.get();
 
     assertNotNull(response);
     Assertions.assertEquals(200, response.getStatus());
-    Assertions.assertEquals(testGetVersion(), response.getEntity());
-  }
-
-  private String testGetVersion() {
-    String version = PSVersionHelper.getVersion(this.getClass());
-    assertNotNull(version);
-    System.out.print(version);
-    return version;
+    Assertions.assertEquals("OK", response.readEntity(String.class));
   }
 
   @Override

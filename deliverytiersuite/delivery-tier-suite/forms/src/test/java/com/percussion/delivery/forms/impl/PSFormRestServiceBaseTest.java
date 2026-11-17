@@ -19,7 +19,6 @@ package com.percussion.delivery.forms.impl;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.delivery.services.PSAbstractRestService;
-import com.percussion.delivery.utils.PSVersionHelper;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
@@ -47,18 +46,11 @@ public class PSFormRestServiceBaseTest extends JerseyTest {
   }
 
   @Test
-  public void testGetRestVersion() {
-    Response response = target("/forms/version").request(MediaType.APPLICATION_JSON).get();
+  public void testGetRestHealth() {
+    Response response = target("/forms/health").request(MediaType.APPLICATION_JSON).get();
     assertNotNull(response);
     Assertions.assertEquals(200, response.getStatus());
-    Assertions.assertEquals(testGetVersion(), response.readEntity(String.class));
-  }
-
-  private String testGetVersion() {
-    String version = PSVersionHelper.getVersion(this.getClass());
-    assertNotNull(version);
-    System.out.print(version);
-    return version;
+    Assertions.assertEquals("OK", response.readEntity(String.class));
   }
 
   @Test

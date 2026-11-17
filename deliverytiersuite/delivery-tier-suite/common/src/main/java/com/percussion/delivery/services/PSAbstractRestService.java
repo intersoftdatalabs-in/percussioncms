@@ -16,7 +16,6 @@
  */
 package com.percussion.delivery.services;
 
-import com.percussion.delivery.utils.PSVersionHelper;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.Response;
 import org.apache.logging.log4j.LogManager;
@@ -36,19 +35,18 @@ public abstract class PSAbstractRestService implements IPSRestService {
   private final Logger log = LogManager.getLogger(this.getClass());
 
   /**
-   * Looks up the version of this service as published in {@code build.properties}.
+   * Health check for the service. Returns a fixed {@code OK} payload and never discloses the
+   * deployed product version (version disclosure is a security concern, see issue #6612).
    *
-   * @return the deployed version string, never <code>null</code>.
-   * @see com.percussion.delivery.services.IPSRestService#getVersion()
+   * @return the string {@code OK}, never <code>null</code>.
+   * @see com.percussion.delivery.services.IPSRestService#getHealth()
    */
   @Override
-  public String getVersion() {
+  public String getHealth() {
     try {
-      log.info(
-          "Version from PSAbstractRestService.class : {}",
-          PSVersionHelper.getVersion(this.getClass()));
+      log.info("Health check from PSAbstractRestService.class : OK");
 
-      return PSVersionHelper.getVersion(this.getClass());
+      return "OK";
 
     } catch (Exception e) {
       throw new WebApplicationException(e, Response.serverError().build());

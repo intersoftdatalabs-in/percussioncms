@@ -17,7 +17,6 @@
 package com.percussion.delivery.feeds.services;
 
 import com.percussion.delivery.feeds.PSFeedsApplication;
-import com.percussion.delivery.utils.PSVersionHelper;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Invocation;
@@ -113,22 +112,15 @@ public abstract class PSFeedServiceTestsBase extends JerseyTest {
 
   @Test
   @Disabled("Crazy class version error")
-  public void testGetRestVersion() {
+  public void testGetRestHealth() {
 
     Client client = ClientBuilder.newClient();
-    WebTarget webTarget = client.target("/rss/version");
+    WebTarget webTarget = client.target("/rss/health");
     Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
     Response response = invocationBuilder.get();
 
     Assertions.assertNotNull(response);
     Assertions.assertEquals(200, response.getStatus());
-    Assertions.assertEquals(testGetVersion(), response.getEntity());
-  }
-
-  private String testGetVersion() {
-    String version = PSVersionHelper.getVersion(this.getClass());
-    Assertions.assertNotNull(version);
-    System.out.print(version);
-    return version;
+    Assertions.assertEquals("OK", response.readEntity(String.class));
   }
 }

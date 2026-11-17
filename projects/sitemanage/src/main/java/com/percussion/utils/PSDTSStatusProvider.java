@@ -46,14 +46,14 @@ public class PSDTSStatusProvider implements IPSDTSStatusProvider {
 
   private final String serverRoot;
   private final Map<String, String> externalServices =
-      Map.of("perc-polls-services", "/perc-polls-services/polls/version");
+      Map.of("perc-polls-services", "/perc-polls-services/polls/health");
   private final Map<String, String> services =
       Map.of(
-          PSDeliveryInfo.SERVICE_FEEDS, "/feeds/rss/version",
-          PSDeliveryInfo.SERVICE_INDEXER, "/perc-metadata-services/metadata/version",
-          PSDeliveryInfo.SERVICE_COMMENTS, "/perc-comments-services/comment/version",
-          PSDeliveryInfo.SERVICE_FORMS, "perc-form-processor/form/version",
-          PSDeliveryInfo.SERVICE_MEMBERSHIP, "/perc-membership-services/membership/version");
+          PSDeliveryInfo.SERVICE_FEEDS, "/feeds/rss/health",
+          PSDeliveryInfo.SERVICE_INDEXER, "/perc-metadata-services/metadata/health",
+          PSDeliveryInfo.SERVICE_COMMENTS, "/perc-comments-services/comment/health",
+          PSDeliveryInfo.SERVICE_FORMS, "perc-form-processor/form/health",
+          PSDeliveryInfo.SERVICE_MEMBERSHIP, "/perc-membership-services/membership/health");
 
   private final IPSDeliveryInfoService deliveryService;
   private final PSDeliveryClient deliveryClient;
@@ -105,7 +105,7 @@ public class PSDTSStatusProvider implements IPSDTSStatusProvider {
    * Gets the status of the specified service.
    *
    * @param service Name of service
-   * @param serviceURL URL from service to /version (ping URL)
+   * @param serviceURL URL from service to /health (ping URL)
    * @return PSPair where first represents status and second is response message
    */
   private PSPair<TaskStatus, String> getServiceStatus(String service, String serviceURL) {

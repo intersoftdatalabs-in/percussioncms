@@ -28,21 +28,22 @@ import jakarta.ws.rs.core.Response;
 /**
  * Defines an interface that should be implemented by all public Rest services.
  *
- * <p>The interface defines common methods for things like retrieving the current version of a
- * service that are intended to be consistent between services.
+ * <p>The interface defines common methods for things like a health check ping for a service
+ * that are intended to be consistent between services.
  *
  * @author natechadwick
  */
 public interface IPSRestService {
 
   /**
-   * Returns the currently deployed version of the service.
+   * Health check for the service. Returns a fixed {@code OK} payload and never discloses the
+   * deployed product version (version disclosure is a security concern, see issue #6612).
    *
-   * @return the deployed version string, never <code>null</code>.
+   * @return the string {@code OK}, never <code>null</code>.
    */
   @GET
-  @Path("/version")
-  public String getVersion();
+  @Path("/health")
+  public String getHealth();
 
   /**
    * The purpose of this method is to fix behavior in the DTS db after a site is renamed in CM1.
