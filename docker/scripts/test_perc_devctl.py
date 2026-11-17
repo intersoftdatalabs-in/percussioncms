@@ -95,7 +95,7 @@ class _CliRunner:
         # ``--dry-run`` is a per-subcommand arg, not a top-level one.
         # Insert it right after the subcommand name. The subcommand is at
         # index 2 (``--repo-root`` and its value occupy indices 0,1).
-        no_dry_run_cmds = {"logs-path", "inspect-install", "show-generated-passwords"}
+        no_dry_run_cmds = {"logs-path", "inspect-install", "show-generated-passwords"}  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6569, precedent #6341) - subcommand-name literal, no secret value.
         if (
             dry_run
             and "--dry-run" not in argv
@@ -886,14 +886,14 @@ class TestQaHelpers(unittest.TestCase):
     def test_parse_generated_password_env_lines_includes_editor(self):
         """qa-up must emit EDITOR_PASSWORD (distinct from Admin) (#4585)."""
         lines = pdc._qa_parse_generated_password_env_lines(
-            "Admin=admin-secret\nEditor=editor-secret\nContributor=c-secret\n"
+            "Admin=admin-secret\nEditor=editor-secret\nContributor=c-secret\n"  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6569, precedent #6341) - test-only placeholder input, never a live credential.
         )
         self.assertEqual(
             lines,
             [
-                "ADMIN_PASSWORD=admin-secret",
-                "EDITOR_PASSWORD=editor-secret",
-                "CONTRIBUTOR_PASSWORD=c-secret",
+                "ADMIN_PASSWORD=admin-secret",  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6569, precedent #6341) - test-only placeholder output, never a live credential.
+                "EDITOR_PASSWORD=editor-secret",  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6569, precedent #6341) - test-only placeholder output, never a live credential.
+                "CONTRIBUTOR_PASSWORD=c-secret",  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6569, precedent #6341) - test-only placeholder output, never a live credential.
             ],
         )
 
