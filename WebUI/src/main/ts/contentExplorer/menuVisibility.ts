@@ -273,11 +273,129 @@ function stateText(value: string | null | undefined): string {
   return (value ?? "").trim();
 }
 
+function hidesOnPublishableType(
+  values: string[],
+  state: ExplorerMenuVisibilityState,
+): boolean {
+  return (
+    stateText(state.publishableType) !== "" &&
+    values.some((value) => equalsFold(value, stateText(state.publishableType)))
+  );
+}
+
+function hidesOnCommunity(
+  values: string[],
+  state: ExplorerMenuVisibilityState,
+): boolean {
+  return (
+    state.communityId != null &&
+    state.communityId !== "" &&
+    values.some((value) => value === String(state.communityId))
+  );
+}
+
+function hidesOnLocale(
+  values: string[],
+  state: ExplorerMenuVisibilityState,
+): boolean {
+  return (
+    stateText(state.locale) !== "" &&
+    values.some((value) => equalsFold(value, stateText(state.locale)))
+  );
+}
+
+function hidesOnClientContext(
+  values: string[],
+  state: ExplorerMenuVisibilityState,
+): boolean {
+  return (
+    stateText(state.clientContext) !== "" &&
+    values.some((value) => equalsFold(value, stateText(state.clientContext)))
+  );
+}
+
+function hidesOnContentType(
+  values: string[],
+  state: ExplorerMenuVisibilityState,
+): boolean {
+  return values.some((value) => numericEquals(value, state.contentTypeId));
+}
+
+function hidesOnObjectType(
+  values: string[],
+  state: ExplorerMenuVisibilityState,
+): boolean {
+  return values.some((value) => numericEquals(value, state.objectType));
+}
+
+function hidesOnAssignmentType(
+  values: string[],
+  state: ExplorerMenuVisibilityState,
+): boolean {
+  return values.some((value) => numericEquals(value, state.assignmentType));
+}
+
+function hidesOnWorkflow(
+  values: string[],
+  state: ExplorerMenuVisibilityState,
+): boolean {
+  return values.some((value) => numericEquals(value, state.workflowId));
+}
+
+function hidesOnFolderSecurity(
+  values: string[],
+  state: ExplorerMenuVisibilityState,
+): boolean {
+  return hidesOnAccessBand(values, state.accessLevel);
+}
+
+function hidesOnCheckoutStatusRule(
+  values: string[],
+  state: ExplorerMenuVisibilityState,
+): boolean {
+  return hidesOnCheckoutStatus(values, state.checkoutStatus);
+}
+
+function hidesOnRolesRule(
+  values: string[],
+  state: ExplorerMenuVisibilityState,
+): boolean {
+  return hidesOnRoles(values, state.userRoles);
+}
+
+type VisibilityHideRule = (
+  values: string[],
+  state: ExplorerMenuVisibilityState,
+) => boolean;
+
+/**
+ * One hide-rule per Workbench context id, mirroring the
+ * {@code PSActionVisibilityChecker#checkObjectState} /
+ * {@code #checkGlobalState} branches. A table (not a switch) keeps the
+ * 11 server arms side by side so a new id is one row, not one more
+ * nesting level.
+ */
+const VISIBILITY_HIDE_RULES: Readonly<
+  Record<string, VisibilityHideRule>
+> = {
+  [VISIBILITY_CONTEXT_CHECKOUT_STATUS]: hidesOnCheckoutStatusRule,
+  [VISIBILITY_CONTEXT_PUBLISHABLE_TYPE]: hidesOnPublishableType,
+  [VISIBILITY_CONTEXT_COMMUNITY]: hidesOnCommunity,
+  [VISIBILITY_CONTEXT_ROLES]: hidesOnRolesRule,
+  [VISIBILITY_CONTEXT_LOCALES]: hidesOnLocale,
+  [VISIBILITY_CONTEXT_CLIENT_CONTEXT]: hidesOnClientContext,
+  [VISIBILITY_CONTEXT_CONTENT_TYPE]: hidesOnContentType,
+  [VISIBILITY_CONTEXT_OBJECT_TYPE]: hidesOnObjectType,
+  [VISIBILITY_CONTEXT_ASSIGNMENT_TYPE]: hidesOnAssignmentType,
+  [VISIBILITY_CONTEXT_WORKFLOWS]: hidesOnWorkflow,
+  [VISIBILITY_CONTEXT_FOLDER_SECURITY]: hidesOnFolderSecurity,
+};
+
 /**
  * Hide-on-match for one normalized context id, mirroring
- * {@code PSActionVisibilityChecker#checkObjectState} /
- * {@code #checkGlobalState}. Returns {@code true} when the listed
- * values match the current state — i.e. the action must be hidden.
+ * {@code PSActionVisibilityChecker}. Returns {@code true} when the
+ * listed values match the current state — i.e. the action must be
+ * hidden. Unknown ids stay permissive.
  */
 function contextHidesAction(
   contextId: string,
@@ -287,53 +405,7 @@ function contextHidesAction(
   if (values.length === 0) {
     return false;
   }
-  switch (contextId) {
-    case VISIBILITY_CONTEXT_CHECKOUT_STATUS:
-      return hidesOnCheckoutStatus(values, state.checkoutStatus);
-    case VISIBILITY_CONTEXT_PUBLISHABLE_TYPE:
-      return (
-        stateText(state.publishableType) !== "" &&
-        values.some((value) =>
-          equalsFold(value, stateText(state.publishableType)),
-        )
-      );
-    case VISIBILITY_CONTEXT_COMMUNITY:
-      return (
-        state.communityId != null &&
-        state.communityId !== "" &&
-        values.some((value) => value === String(state.communityId))
-      );
-    case VISIBILITY_CONTEXT_ROLES:
-      return hidesOnRoles(values, state.userRoles);
-    case VISIBILITY_CONTEXT_LOCALES:
-      return (
-        stateText(state.locale) !== "" &&
-        values.some((value) => equalsFold(value, stateText(state.locale)))
-      );
-    case VISIBILITY_CONTEXT_CLIENT_CONTEXT:
-      return (
-        stateText(state.clientContext) !== "" &&
-        values.some((value) =>
-          equalsFold(value, stateText(state.clientContext)),
-        )
-      );
-    case VISIBILITY_CONTEXT_CONTENT_TYPE:
-      return values.some((value) =>
-        numericEquals(value, state.contentTypeId),
-      );
-    case VISIBILITY_CONTEXT_OBJECT_TYPE:
-      return values.some((value) => numericEquals(value, state.objectType));
-    case VISIBILITY_CONTEXT_ASSIGNMENT_TYPE:
-      return values.some((value) =>
-        numericEquals(value, state.assignmentType),
-      );
-    case VISIBILITY_CONTEXT_WORKFLOWS:
-      return values.some((value) => numericEquals(value, state.workflowId));
-    case VISIBILITY_CONTEXT_FOLDER_SECURITY:
-      return hidesOnAccessBand(values, state.accessLevel);
-    default:
-      return false;
-  }
+  return VISIBILITY_HIDE_RULES[contextId]?.(values, state) ?? false;
 }
 
 export interface VisibilityMenuShape {
