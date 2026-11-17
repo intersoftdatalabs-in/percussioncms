@@ -549,6 +549,16 @@ export const MSG = {
   PUBLISH_NOW_SUBMIT: "perc.ui.publish.title@Publish Now",
   PUBLISH_NOW_SUCCESS: "perc.ui.publish.modern@Publish now started.",
   PUBLISH_NOW_NOT_FOUND: "perc.ui.publish.modern@Item not found",
+  PUBLISH_NOW_IDS_HINT:
+    "perc.ui.publish.modern@Separate multiple item ids with commas or spaces to publish them together",
+  PUBLISH_NOW_BATCH_CONFIRM:
+    "perc.ui.publish.modern@Publish these {total} items now?",
+  PUBLISH_NOW_BATCH_DONE:
+    "perc.ui.publish.modern@Publish now started for all {total} items",
+  PUBLISH_NOW_BATCH_PARTIAL:
+    "perc.ui.publish.modern@Published {saved} of {total}: {detail}",
+  PUBLISH_NOW_BATCH_ITEM_OK: "perc.ui.publish.modern@publish started",
+  PUBLISH_NOW_RETRY_FAILED: "perc.ui.publish.modern@Retry failed",
   PUBLISH_TAKEDOWN: "perc.ui.publish.title@Remove From Site",
   PUBLISH_TAKEDOWN_HINT:
     "perc.ui.publish.modern@Take down (unpublish) a page or asset from this site workspace.",
