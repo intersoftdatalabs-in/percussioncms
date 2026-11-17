@@ -1469,6 +1469,12 @@ onchange    %Script;       #IMPLIED
       <xsl:if test="$codeeditor = 'yes'">
          <div class="perc-codeeditor-legend">
             <span>Find: Ctrl-F (Mac: Cmd-F) | Find next: Ctrl-G (Mac: Cmd-G) | Find previous: Shift-Ctrl-G (Mac: Shift-Cmd-G) | Replace: Shift-Ctrl-F (Mac: Cmd-Alt-F) | Replace all: Shift-Ctrl-R (Mac: Shift-Cmd-Alt-F) | Validation: unbalanced tags are flagged in the gutter before save - red error, yellow warning; hover a marker for details</span>
+            <span class="perc-codeeditor-display-prefs">
+               <button type="button" data-perc-codeeditor-theme-toggle="{@paramName}" aria-pressed="false" aria-label="Toggle dark mode for the code editor" onclick="percCodeEditorToggleTheme('{@paramName}')">Dark mode</button>
+               <button type="button" data-perc-codeeditor-font-decrease="{@paramName}" aria-label="Decrease code editor font size" onclick="percCodeEditorStepFontSize('{@paramName}', -1)">A-</button>
+               <span data-perc-codeeditor-font-size="{@paramName}" aria-live="polite">13px</span>
+               <button type="button" data-perc-codeeditor-font-increase="{@paramName}" aria-label="Increase code editor font size" onclick="percCodeEditorStepFontSize('{@paramName}', 1)">A+</button>
+            </span>
          </div>
          <script>
             var editor = CodeMirror.fromTextArea(document.getElementById('<xsl:value-of select="@paramName" />'), {
@@ -1488,6 +1494,85 @@ onchange    %Script;       #IMPLIED
             autocorrect: true,
             autofocus: true,
             screenReaderLabel: 'HTML Source Code Editor'});
+            window.percCodeEditorInstances = window.percCodeEditorInstances || {};
+            function percCodeEditorSyncPrefsUi(fieldId) {
+               var entry = window.percCodeEditorInstances[fieldId];
+               if (entry === undefined || entry === null) {
+                  return;
+               }
+               var isDark = entry.prefs.theme === 'material-darker';
+               var themeButton = document.querySelector('[data-perc-codeeditor-theme-toggle="' + fieldId + '"]');
+               if (themeButton) {
+                  themeButton.setAttribute('aria-pressed', isDark ? 'true' : 'false');
+               }
+               var sizeLabel = document.querySelector('[data-perc-codeeditor-font-size="' + fieldId + '"]');
+               if (sizeLabel) {
+                  sizeLabel.textContent = entry.prefs.fontSize + 'px';
+               }
+               var decreaseButton = document.querySelector('[data-perc-codeeditor-font-decrease="' + fieldId + '"]');
+               if (decreaseButton) {
+                  decreaseButton.disabled = entry.prefs.fontSize === 11;
+               }
+               var increaseButton = document.querySelector('[data-perc-codeeditor-font-increase="' + fieldId + '"]');
+               if (increaseButton) {
+                  increaseButton.disabled = entry.prefs.fontSize === 24;
+               }
+            }
+            function percCodeEditorToggleTheme(fieldId) {
+               var entry = window.percCodeEditorInstances[fieldId];
+               if (entry === undefined || entry === null) {
+                  return;
+               }
+               var api = CodeMirror.percCodeEditorPrefs;
+               if (api === undefined || api === null) {
+                  return;
+               }
+               var next = api.toggleTheme(entry.prefs);
+               entry.prefs = next;
+               api.apply(entry.editor, next);
+               try {
+                  api.write(window.localStorage, next);
+               } catch (writeError) {
+                  entry.writeFailed = true;
+               }
+               percCodeEditorSyncPrefsUi(fieldId);
+            }
+            function percCodeEditorStepFontSize(fieldId, delta) {
+               var entry = window.percCodeEditorInstances[fieldId];
+               if (entry === undefined || entry === null) {
+                  return;
+               }
+               var api = CodeMirror.percCodeEditorPrefs;
+               if (api === undefined || api === null) {
+                  return;
+               }
+               var next = { theme: entry.prefs.theme, fontSize: api.stepFontSize(entry.prefs.fontSize, delta) };
+               entry.prefs = next;
+               api.apply(entry.editor, next);
+               try {
+                  api.write(window.localStorage, next);
+               } catch (writeError) {
+                  entry.writeFailed = true;
+               }
+               percCodeEditorSyncPrefsUi(fieldId);
+            }
+            (function () {
+               var fieldId = '<xsl:value-of select="@paramName" />';
+               var api = CodeMirror.percCodeEditorPrefs;
+               if (api === undefined || api === null) {
+                  return;
+               }
+               var store = null;
+               try {
+                  store = window.localStorage;
+               } catch (storageError) {
+                  store = null;
+               }
+               var prefs = api.read(store);
+               api.apply(editor, prefs);
+               window.percCodeEditorInstances[fieldId] = { editor: editor, prefs: prefs };
+               percCodeEditorSyncPrefsUi(fieldId);
+            })();
          </script>
       </xsl:if>
    </xsl:template>

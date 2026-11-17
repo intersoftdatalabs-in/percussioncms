@@ -49,6 +49,15 @@
  * Unbalanced markup renders gutter markers (red error / yellow warning)
  * before the author saves, with the legend documenting the markers.</p>
  *
+ * <p>Issue #6467 (template editor source-view dark-mode + font-size prefs
+ * persisted): the {@code sys_TextArea} code-editor legend grows a display
+ * toolbar — a dark-mode toggle button ({@code aria-pressed}) and font-size
+ * steppers with a live size readout — backed by the
+ * {@code CodeMirror.percCodeEditorPrefs} namespace the npm bundle exposes
+ * (dark {@code material-darker} theme CSS ships inside the bundle). Choices
+ * persist in {@code localStorage} under one shared key and are re-applied on
+ * dialog init; missing or corrupt storage degrades to the light default.</p>
+ *
  * <p>Issue #6363 locks the migration at the manifest level (no live CMS):
  * no {@code org.webjars.npm:codemirror} in any {@code pom.xml}, no
  * {@code codemirror-unpack} build step, no {@code codemirror.version}
@@ -421,6 +430,136 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
   );
 
   test(
+    "template editor source-view persists dark-mode and font-size prefs",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      // Live proof for issue #6467 on the served npm bundle: the
+      // percCodeEditorPrefs namespace defaults to light/13px, applies the
+      // dark theme (visibly dark background) plus a larger font, and
+      // round-trips through localStorage so a reload restores the author
+      // choice. The dark theme CSS ships inside the served bundle CSS.
+      test.setTimeout(90_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          pageErrors.push(msg.text());
+        }
+      });
+
+      await loginAsAdmin(page);
+
+      // The served bundle CSS carries the dark theme (no extra request).
+      const cssResponse = await page.request.get(`${BASE_URL}${BUNDLE_CSS}`);
+      expect(cssResponse.ok(), `bundle CSS not served: ${BUNDLE_CSS}`).toBe(
+        true,
+      );
+      const cssText = await cssResponse.text();
+      expect(
+        cssText.includes("cm-s-material-darker"),
+        "served bundle CSS must ship the dark theme (#6467)",
+      ).toBe(true);
+
+      await page.addScriptTag({ url: `${BASE_URL}${BUNDLE_JS}` });
+      await page.addStyleTag({ url: `${BASE_URL}${BUNDLE_CSS}` });
+
+      // Fresh profile: defaults are light theme at 13px.
+      const defaults = await page.evaluate(() => ({
+        shape: Object.keys(
+          window.CodeMirror.percCodeEditorPrefs || {},
+        ).sort(),
+        stored: window.CodeMirror.percCodeEditorPrefs.read(),
+      }));
+      expect(defaults.shape).toEqual(
+        expect.arrayContaining([
+          "apply",
+          "defaults",
+          "read",
+          "stepFontSize",
+          "storageKey",
+          "themes",
+          "toggleTheme",
+          "write",
+        ]),
+      );
+      expect(defaults.stored).toEqual({ theme: "default", fontSize: 13 });
+
+      // Apply dark + larger text exactly like sys_Templates.xsl dialog init.
+      const applied = await page.evaluate(() => {
+        document.body.innerHTML =
+          "<h1>Display prefs live proof (#6467)</h1>" +
+          '<textarea id="cm-prefs"><p>Hello</p></textarea>';
+        const editor = window.CodeMirror.fromTextArea(
+          document.getElementById("cm-prefs"),
+          { mode: "htmlmixed", lineNumbers: true, theme: "default" },
+        );
+        const prefs = { theme: "material-darker", fontSize: 18 };
+        window.CodeMirror.percCodeEditorPrefs.apply(editor, prefs);
+        const wrapper = editor.getWrapperElement();
+        const background = window.getComputedStyle(
+          wrapper.querySelector(".CodeMirror-code, .CodeMirror"),
+        ).backgroundColor;
+        return {
+          theme: editor.getOption("theme"),
+          fontSize: wrapper.style.fontSize,
+          background,
+        };
+      });
+      expect(applied.theme).toBe("material-darker");
+      expect(applied.fontSize).toBe("18px");
+      // material-darker background is #212121: every channel stays dark.
+      const channels = applied.background
+        .match(/[\d.]+/g)
+        .slice(0, 3)
+        .map(Number);
+      expect(
+        channels.every((channel) => channel < 80),
+        `dark theme background must read dark, got ${applied.background} (#6467)`,
+      ).toBe(true);
+
+      // Persist, reload, and prove the stored choice restores.
+      await page.evaluate(() =>
+        window.CodeMirror.percCodeEditorPrefs.write(window.localStorage, {
+          theme: "material-darker",
+          fontSize: 20,
+        }),
+      );
+      await page.reload();
+      await page.addScriptTag({ url: `${BASE_URL}${BUNDLE_JS}` });
+      const restored = await page.evaluate(() => {
+        const prefs = window.CodeMirror.percCodeEditorPrefs.read(
+          window.localStorage,
+        );
+        document.body.innerHTML =
+          '<textarea id="cm-restored"><p>Hello</p></textarea>';
+        const editor = window.CodeMirror.fromTextArea(
+          document.getElementById("cm-restored"),
+          { mode: "htmlmixed", lineNumbers: true, theme: "default" },
+        );
+        window.CodeMirror.percCodeEditorPrefs.apply(editor, prefs);
+        return {
+          prefs,
+          theme: editor.getOption("theme"),
+          fontSize: editor.getWrapperElement().style.fontSize,
+        };
+      });
+      expect(restored.prefs).toEqual({
+        theme: "material-darker",
+        fontSize: 20,
+      });
+      expect(restored.theme).toBe("material-darker");
+      expect(restored.fontSize).toBe("20px");
+      await page.screenshot({
+        path: "test-results/live-proof-6467-template-prefs.png",
+      });
+
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
+    },
+  );
+
+  test(
     "classic template JSP mirrors load the same npm bundle",
     { tag: ["@explorer-content-editor", "@editor"] },
     async () => {
@@ -600,6 +739,54 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
           `${SYS_TEMPLATES_XSL} legend must document validation markers (#6466)`,
         ).toContain(hint);
       }
+    },
+  );
+
+  test(
+    "sys_TextArea code editor offers persisted dark-mode and font-size prefs",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async () => {
+      // No live CMS needed: static pin for issue #6467. The template
+      // editor source-view (sys_TextArea with codeeditor=yes) renders a
+      // display toolbar next to the shortcut legend: a dark-mode toggle
+      // button with pressed state plus font-size steppers with a live
+      // readout, all delegating to the CodeMirror.percCodeEditorPrefs
+      // namespace the npm bundle exposes and persisting through
+      // localStorage. The toolbar must live inside the codeeditor branch
+      // so plain textareas stay chrome-free.
+      const text = fs
+        .readFileSync(path.join(REPO_ROOT, SYS_TEMPLATES_XSL), "utf8")
+        .replace(/\r\n/g, "\n");
+      const codeeditorStart = text.indexOf('$codeeditor = \'yes\'');
+      expect(
+        codeeditorStart,
+        `${SYS_TEMPLATES_XSL} must keep the codeeditor branch`,
+      ).toBeGreaterThan(-1);
+      const branch = text.slice(codeeditorStart);
+      for (const pin of [
+        "data-perc-codeeditor-theme-toggle",
+        "data-perc-codeeditor-font-decrease",
+        "data-perc-codeeditor-font-increase",
+        "data-perc-codeeditor-font-size",
+        "aria-pressed",
+        "aria-live",
+        "Dark mode",
+        "percCodeEditorPrefs",
+        "material-darker",
+        "localStorage",
+        "percCodeEditorToggleTheme",
+        "percCodeEditorStepFontSize",
+      ]) {
+        expect(
+          branch,
+          `${SYS_TEMPLATES_XSL} code editor must wire the display prefs toolbar (#6467): ${pin}`,
+        ).toContain(pin);
+      }
+      const legendAt = branch.indexOf("perc-codeeditor-display-prefs");
+      expect(
+        legendAt,
+        `${SYS_TEMPLATES_XSL} must render the display prefs toolbar for code editors (#6467)`,
+      ).toBeGreaterThan(-1);
     },
   );
 

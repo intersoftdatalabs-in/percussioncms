@@ -36,6 +36,12 @@
  * control enables `lint: true` so unbalanced markup renders gutter markers
  * before the author saves the template metadata dialog.
  *
+ * Issue #6467 adds the persisted display preferences: the `material-darker`
+ * theme CSS plus the `percCodeEditorPrefs` namespace (`read` / `write` /
+ * `apply` / `stepFontSize` / `toggleTheme` over the helpers) so the
+ * `sys_TextArea` toolbar can offer a dark-mode toggle and font-size
+ * steppers whose choices survive reloads via localStorage.
+ *
  * CodeMirror 5 is imported for its side effects: the core exposes the global
  * `CodeMirror` object and each mode/addon self-registers on it. The bundle
  * is built with esbuild `format: "iife"` and no `globalName` (see
@@ -60,10 +66,22 @@ import "codemirror/lib/codemirror.css";
 import "codemirror/addon/dialog/dialog.css";
 import "codemirror/addon/display/fullscreen.css";
 import "codemirror/addon/lint/lint.css";
+// Issue #6467: dark theme for the persisted dark-mode preference. Bundled
+// into codemirror.bundle.css so switching themes needs no extra request.
+import "codemirror/theme/material-darker.css";
 import {
+  PERC_CODEEDITOR_FONT_SIZE_DEFAULT,
+  PERC_CODEEDITOR_PREFS_KEY,
+  PERC_CODEEDITOR_THEMES,
+  applyPercCodeEditorPrefs,
+  defaultPercCodeEditorPrefs,
   findPercTemplateHtmlIssues,
+  nextPercCodeEditorFontSize,
+  readPercCodeEditorPrefs,
   registerPercTemplateHtmlLint,
+  togglePercCodeEditorTheme,
   unwrapCodeMirror,
+  writePercCodeEditorPrefs,
 } from "./codemirror-helpers.mjs";
 
 // Legacy consumers (editTemplate_js.jsp, sys_Templates.xsl code editors)
@@ -77,3 +95,28 @@ globalThis.CodeMirror = unwrapCodeMirror(CodeMirrorModule);
 // global for console debugging and Playwright assertions.
 globalThis.CodeMirror.percValidateTemplateHtml = findPercTemplateHtmlIssues;
 registerPercTemplateHtmlLint(globalThis.CodeMirror);
+
+// Issue #6467: persisted display preferences for the template editor
+// source-view toolbar (dark-mode toggle + font-size steppers in
+// sys_Templates.xsl). The namespace delegates to the pure helpers so the
+// dialog init stays a thin wiring layer; `storage` defaults to the page's
+// localStorage and every helper degrades to defaults on failure.
+globalThis.CodeMirror.percCodeEditorPrefs = {
+  storageKey: PERC_CODEEDITOR_PREFS_KEY,
+  themes: PERC_CODEEDITOR_THEMES,
+  defaultFontSize: PERC_CODEEDITOR_FONT_SIZE_DEFAULT,
+  defaults: defaultPercCodeEditorPrefs(),
+  read: (storage) =>
+    readPercCodeEditorPrefs(
+      storage === undefined ? globalThis.localStorage : storage,
+    ),
+  write: (storage, prefs) =>
+    writePercCodeEditorPrefs(
+      storage === undefined ? globalThis.localStorage : storage,
+      prefs,
+    ),
+  apply: (editor, prefs) => applyPercCodeEditorPrefs(editor, prefs),
+  stepFontSize: (current, delta) =>
+    nextPercCodeEditorFontSize(current, delta),
+  toggleTheme: (prefs) => togglePercCodeEditorTheme(prefs),
+};
