@@ -168,6 +168,9 @@ day-to-day Explorer stay on pathmanagement (flag **off**).
 
 The **Server actions** toolbar and the item **context menu** use the same catalog
 (`GET /services/actions/find`, plus type and **template** menus for the selected item).
+Toolbar buttons show the familiar **icon + label** affordance: each action renders a
+theme-aware glyph next to its text label (decorative only — accessible names, keyboard
+handling, and empty/error text-first chrome are unchanged).
 
 | Action | What happens |
 |--------|----------------|

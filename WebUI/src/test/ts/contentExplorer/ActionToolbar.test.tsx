@@ -18,6 +18,11 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { MenuAction } from "../../../main/ts/api/contentExplorer/types";
 import { ActionToolbar } from "../../../main/ts/contentExplorer/ActionToolbar";
+import {
+  ActionIcon,
+  normalizeActionKey,
+  resolveActionIcon,
+} from "../../../main/ts/contentExplorer/actionIcons";
 import { renderA11yGate } from "./a11y";
 
 const ACTIONS: MenuAction[] = [
@@ -244,6 +249,20 @@ describe("ActionToolbar", () => {
     ).toBeTruthy();
   });
 
+  it("passes the zero serious/critical axe-core gate (icon+label populated state)", async () => {
+    const { container } = render(
+      <ActionToolbar
+        actions={[
+          { name: "Open", label: "Open", sortRank: 0, menuType: "MENUITEM" },
+          { name: "Checkout", label: "Check out", sortRank: 1, menuType: "MENUITEM" },
+          { name: "Publish_Now", label: "Publish now", sortRank: 2, menuType: "MENUITEM" },
+        ]}
+        ariaLabel="Item actions"
+      />,
+    );
+    await renderA11yGate(container);
+  });
+
   it("renders cascading Workflow children as a labeled group (#2732)", () => {
     const onInvoke = vi.fn();
     const actions: MenuAction[] = [
@@ -269,5 +288,161 @@ describe("ActionToolbar", () => {
       "workflow-transition:Submit",
       expect.objectContaining({ label: "Submit" }),
     );
+  });
+
+  it("renders icon+label affordances for mapped actions (#6515)", () => {
+    const { container } = render(<ActionToolbar actions={ACTIONS} />);
+    // Labels stay (i18n/a11y unchanged); each mapped button gains one
+    // decorative, aria-hidden icon next to its label.
+    for (const action of ACTIONS) {
+      const button = screen.getByTestId(`action-toolbar-item-${action.name}`);
+      expect(button.textContent).toContain(action.label);
+      const icon = button.querySelector('[data-testid="action-toolbar-icon"]');
+      expect(icon, `${action.name} renders an icon`).toBeTruthy();
+      expect(icon?.querySelector("svg")).toBeTruthy();
+    }
+    // No icon escapes the button chrome.
+    expect(
+      container.querySelectorAll('[data-testid="action-toolbar-icon"]').length,
+    ).toBe(ACTIONS.length);
+  });
+
+  it("keeps labels when the action has no icon mapping (#6515)", () => {
+    const unmapped: MenuAction[] = [
+      {
+        name: "lifecycle_analysis",
+        label: "Lifecycle analysis",
+        sortRank: 0,
+        menuType: "MENUITEM",
+      },
+    ];
+    render(<ActionToolbar actions={unmapped} />);
+    const button = screen.getByTestId("action-toolbar-item-lifecycle_analysis");
+    expect(button.textContent).toContain("Lifecycle analysis");
+    expect(
+      button.querySelector('[data-testid="action-toolbar-icon"]'),
+    ).toBeNull();
+  });
+
+  it("renders icons inside MENU dropdown children and the Workflow group (#6515)", () => {
+    const nested: MenuAction[] = [
+      {
+        name: "Paste",
+        label: "Paste",
+        sortRank: 0,
+        menuType: "MENU",
+        children: [
+          {
+            name: "Paste_As_Link",
+            label: "Paste as Link",
+            sortRank: 0,
+            menuType: "MENUITEM",
+          },
+        ],
+      },
+      {
+        name: "workflow",
+        label: "Workflow",
+        sortRank: 9000,
+        menuType: "MENU",
+        children: [
+          {
+            name: "workflow-transition:Approve",
+            label: "Approve",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ],
+      },
+    ];
+    render(<ActionToolbar actions={nested} />);
+    // MENU parent carries its own icon next to the label + caret.
+    const parent = screen.getByTestId("action-toolbar-item-Paste");
+    expect(parent.querySelector('[data-testid="action-toolbar-icon"]')).toBeTruthy();
+    fireEvent.click(parent);
+    const child = screen.getByTestId("action-toolbar-item-Paste_As_Link");
+    expect(child.querySelector('[data-testid="action-toolbar-icon"]')).toBeTruthy();
+    const transition = screen.getByTestId(
+      "action-toolbar-item-workflow-transition:Approve",
+    );
+    expect(
+      transition.querySelector('[data-testid="action-toolbar-icon"]'),
+    ).toBeTruthy();
+  });
+
+  it("shows a keyboard focus ring on icon buttons (#6515)", () => {
+    render(<ActionToolbar actions={ACTIONS} />);
+    const button = screen.getByTestId(
+      "action-toolbar-item-open",
+    ) as HTMLElement;
+    fireEvent.focus(button);
+    expect(button.style.outline).toBe("2px solid #2563eb");
+    fireEvent.blur(button);
+    expect(button.style.outline).toBe("");
+  });
+});
+
+describe("actionIcons", () => {
+  it("normalizes server names with separators and case", () => {
+    expect(normalizeActionKey("workflow-transition:Submit")).toBe(
+      "workflowtransitionsubmit",
+    );
+    expect(normalizeActionKey("Paste_As_Link")).toBe("pasteaslink");
+    expect(normalizeActionKey(" Arrange_MoveUpLeft ")).toBe(
+      "arrangemoveupleft",
+    );
+  });
+
+  it("maps the highest-traffic toolbar actions", () => {
+    expect(resolveActionIcon("Open")).toBe("open");
+    expect(resolveActionIcon("Preview")).toBe("preview");
+    expect(resolveActionIcon("Edit")).toBe("edit");
+    expect(resolveActionIcon("New_Folder")).toBe("folder");
+    expect(resolveActionIcon("New_Page")).toBe("page");
+    expect(resolveActionIcon("New_Asset")).toBe("asset");
+    expect(resolveActionIcon("Checkout")).toBe("checkout");
+    expect(resolveActionIcon("Checkin")).toBe("checkin");
+    expect(resolveActionIcon("Force_Checkin")).toBe("checkin");
+    expect(resolveActionIcon("Publish_Now")).toBe("publish");
+    expect(resolveActionIcon("Take_Down")).toBe("takedown");
+    expect(resolveActionIcon("Stage")).toBe("stage");
+    expect(resolveActionIcon("Remove_From_Staging")).toBe("unstage");
+    expect(resolveActionIcon("Schedule")).toBe("schedule");
+    expect(resolveActionIcon("Rename")).toBe("rename");
+    expect(resolveActionIcon("Delete")).toBe("delete");
+    expect(resolveActionIcon("Restore")).toBe("restore");
+    expect(resolveActionIcon("Purge")).toBe("purge");
+    expect(resolveActionIcon("Empty_Recycle_Bin")).toBe("empty");
+    expect(resolveActionIcon("Refresh")).toBe("refresh");
+    expect(resolveActionIcon("Search")).toBe("search");
+    expect(resolveActionIcon("Revisions")).toBe("revisions");
+    expect(resolveActionIcon("Promotable_Version")).toBe("promote");
+    expect(resolveActionIcon("New_Copy")).toBe("newcopy");
+    expect(resolveActionIcon("Folder_Security")).toBe("security");
+    expect(resolveActionIcon("Translations")).toBe("lang");
+    expect(resolveActionIcon("Relationships")).toBe("relationships");
+  });
+
+  it("maps MENU parents and workflow triggers by prefix", () => {
+    expect(resolveActionIcon("Paste")).toBe("clipboard");
+    expect(resolveActionIcon("Arrange")).toBe("move");
+    expect(resolveActionIcon("Create")).toBe("new");
+    expect(resolveActionIcon("workflow-transition:Submit")).toBe("transition");
+    expect(resolveActionIcon("Workflow_NewVersion")).toBe("workflow");
+  });
+
+  it("returns null for long-tail actions so buttons stay label-only", () => {
+    expect(resolveActionIcon("lifecycle_analysis")).toBeNull();
+    expect(resolveActionIcon("")).toBeNull();
+    expect(resolveActionIcon("!!!")).toBeNull();
+  });
+
+  it("ActionIcon renders an aria-hidden svg for mapped names only", () => {
+    const { container, rerender } = render(<ActionIcon name="Open" />);
+    const svg = container.querySelector("svg");
+    expect(svg).toBeTruthy();
+    expect(svg?.getAttribute("aria-hidden")).toBe("true");
+    rerender(<ActionIcon name="lifecycle_analysis" />);
+    expect(container.querySelector("svg")).toBeNull();
   });
 });

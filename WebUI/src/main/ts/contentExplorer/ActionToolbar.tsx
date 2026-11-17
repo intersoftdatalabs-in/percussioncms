@@ -28,6 +28,11 @@
  * invokable. Activation always goes to {@link ActionToolbarProps.onInvoke};
  * the host dispatcher executes REST / React handlers.</p>
  *
+ * <p>Buttons render the DCE-familiar <strong>icon + label</strong> affordance
+ * (#6515): each mapped action shows an inline SVG glyph from
+ * {@code actionIcons} next to its label. Labels, {@code aria-label}s, and
+ * keyboard handling are unchanged; unmapped actions stay label-only.</p>
+ *
  * <p>Toolbar refreshes when the {@link ActionToolbarProps.actions} prop
  * changes (e.g. on selection change the parent fetches the allowed
  * actions via {@code GET /actions/find} (plus merged type menus) and
@@ -37,6 +42,7 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import type { MenuAction } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
+import { ActionIcon } from "./actionIcons";
 import {
   prepareToolbarActions,
   unwrapMenuActionChildren,
@@ -62,11 +68,36 @@ const toolbarStyle: React.CSSProperties = {
 };
 
 const buttonStyle: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
   padding: "4px 10px",
   border: "1px solid #ccc",
   background: "#fafafa",
   cursor: "pointer",
 };
+
+const menuItemStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  width: "100%",
+  textAlign: "left",
+  padding: "6px 12px",
+  border: "none",
+  background: "transparent",
+  cursor: "pointer",
+  font: "inherit",
+};
+
+/** Keyboard focus ring for icon+label buttons (#6515 polish). */
+function applyFocusRing(e: React.FocusEvent<HTMLElement>): void {
+  e.currentTarget.style.outline = "2px solid #2563eb";
+  e.currentTarget.style.outlineOffset = "1px";
+}
+
+function clearFocusRing(e: React.FocusEvent<HTMLElement>): void {
+  e.currentTarget.style.outline = "";
+  e.currentTarget.style.outlineOffset = "";
+}
 
 const dropdownStyle: React.CSSProperties = {
   position: "absolute",
@@ -80,17 +111,6 @@ const dropdownStyle: React.CSSProperties = {
   background: "#fff",
   border: "1px solid #bbb",
   boxShadow: "0 2px 8px rgba(0,0,0,0.12)",
-};
-
-const menuItemStyle: React.CSSProperties = {
-  display: "block",
-  width: "100%",
-  textAlign: "left",
-  padding: "6px 12px",
-  border: "none",
-  background: "transparent",
-  cursor: "pointer",
-  font: "inherit",
 };
 
 const groupStyle: React.CSSProperties = {
@@ -210,8 +230,11 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                     aria-label={c.label}
                     title={c.description ?? c.label}
                     onClick={() => activate(c, a, onInvoke)}
+                    onFocus={applyFocusRing}
+                    onBlur={clearFocusRing}
                     style={buttonStyle}
                   >
+                    <ActionIcon name={c.name} />
                     {c.label}
                   </button>
                 ))}
@@ -247,8 +270,11 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                       );
                     }
                   }}
+                  onFocus={applyFocusRing}
+                  onBlur={clearFocusRing}
                   style={buttonStyle}
                 >
+                  <ActionIcon name={a.name} />
                   {a.label}
                   <span aria-hidden="true"> ▾</span>
                 </button>
@@ -280,7 +306,10 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                               setOpenMenu(null);
                             }
                           }}
+                          onFocus={applyFocusRing}
+                          onBlur={clearFocusRing}
                         >
+                          <ActionIcon name={child.name} />
                           {child.label}
                         </button>
                       </li>
@@ -298,8 +327,11 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
               aria-label={a.label}
               title={a.description ?? a.label}
               onClick={() => activate(a, undefined, onInvoke)}
+              onFocus={applyFocusRing}
+              onBlur={clearFocusRing}
               style={buttonStyle}
             >
+              <ActionIcon name={a.name} />
               {a.label}
             </button>
           );
