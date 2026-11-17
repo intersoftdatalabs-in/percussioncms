@@ -127,6 +127,9 @@ test.describe("Explorer status bar DCE parity (#6517 / #4530)", () => {
         scope: '[data-testid="content-explorer-shell"]',
       });
       expect(jsErrors, jsErrors.join("\n")).toEqual([]);
+      // Live Proof (#6517): pass-run capture of the Explorer with the
+      // status bar footer; committed copy under docs/ai-generated/proofs/.
+      await page.screenshot({ path: "test-results/live-proof-6517-status-bar.png" });
     },
   );
 
@@ -199,6 +202,64 @@ test.describe("Explorer status bar DCE parity (#6517 / #4530)", () => {
       await expect(operation).toContainText(
         /FORBIDDEN|licensing|Publication stopped/i,
       );
+
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="content-explorer-shell"]',
+      });
+      expect(jsErrors, jsErrors.join("\n")).toEqual([]);
+    },
+  );
+
+  test(
+    "UI: Workbench multi-select visibility shapes the toolbar",
+    { tag: TAGS },
+    async ({ page }) => {
+      test.setTimeout(120_000);
+      const jsErrors = await openExplorer(page);
+      const shell = await openSitesFolder(page);
+
+      const firstFolder = page.locator(
+        '[data-testid^="detail-row-"][data-row-kind="folder"]',
+      ).first();
+      await expect(firstFolder).toBeVisible({ timeout: 20_000 });
+      await firstFolder.dblclick();
+      await expect(shell).not.toHaveAttribute(
+        "data-selected-folder-path",
+        "/Sites",
+        { timeout: 15_000 },
+      );
+
+      // Single selection: both the single-only and the multi-capable
+      // actions render (live catalog: Open_Folder_Ref declares
+      // SupportsMultiSelect=no, Publish_Now declares yes).
+      const itemRows = page.locator(
+        '[data-testid^="detail-row-"][data-row-kind="item"]',
+      );
+      await expect(itemRows.first()).toBeVisible({ timeout: 20_000 });
+      const firstId = await itemRows.nth(0).getAttribute("data-item-id");
+      const secondId = await itemRows.nth(1).getAttribute("data-item-id");
+      await itemRows.nth(0).click();
+      await expect(shell).toHaveAttribute("data-selected-item-id", firstId, {
+        timeout: 10_000,
+      });
+      const singleOnly = page.locator(
+        '[data-testid="action-toolbar-item-Open_Folder_Ref"]',
+      );
+      const multiCapable = page.locator(
+        '[data-testid="action-toolbar-item-Publish_Now"]',
+      );
+      await expect(singleOnly).toBeVisible({ timeout: 15_000 });
+      await expect(multiCapable).toBeVisible({ timeout: 15_000 });
+
+      // Checking a second row hides the single-only action while the
+      // multi-capable action stays — the Workbench rule in effect.
+      await page.locator(`[data-testid="detail-select-${firstId}"]`).check();
+      await page.locator(`[data-testid="detail-select-${secondId}"]`).check();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.selection}"]`),
+      ).toContainText(/2 items selected/i, { timeout: 10_000 });
+      await expect(singleOnly).toHaveCount(0, { timeout: 15_000 });
+      await expect(multiCapable).toBeVisible({ timeout: 15_000 });
 
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="content-explorer-shell"]',
