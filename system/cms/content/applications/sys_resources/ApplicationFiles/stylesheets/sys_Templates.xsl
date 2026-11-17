@@ -1401,8 +1401,8 @@ onchange    %Script;       #IMPLIED
             <psxctl:DefaultValue>no</psxctl:DefaultValue>
          </psxctl:Param>
          <psxctl:Param name="codeeditor_mode" datatype="String" paramtype="generic">
-            <psxctl:Description>This parameter specifies the language or mode that the text editor should used when it is used as a code editor. Supported modes: html</psxctl:Description>
-            <psxctl:DefaultValue>html</psxctl:DefaultValue>
+            <psxctl:Description>This parameter specifies the language or mode that the text editor should used when it is used as a code editor. Supported modes: htmlmixed (default), xml; html is accepted as an alias of htmlmixed. Any other value falls back to htmlmixed so pre-save validation markers keep working.</psxctl:Description>
+            <psxctl:DefaultValue>htmlmixed</psxctl:DefaultValue>
          </psxctl:Param>
       </psxctl:ParamList>
       <psxctl:AssociatedFileList>
@@ -1466,9 +1466,23 @@ onchange    %Script;       #IMPLIED
             </xsl:otherwise>
          </xsl:choose>
       </xsl:variable>
+      <!-- Issue #6528: the codeeditor_mode param used to be dead (the editor
+         hardcoded htmlmixed). Only modes the npm bundle registers a lint
+         helper for may ship (see PERC_TEMPLATE_HTML_LINT_MODES in
+         codemirror-helpers.mjs): htmlmixed and xml. The historic
+         documented value "html" is accepted as an alias of htmlmixed
+         (bare "html" does not resolve to a CodeMirror mode and would lose
+         validation); anything else falls back to htmlmixed. -->
+      <xsl:variable name="codeeditor_effective_mode">
+         <xsl:choose>
+            <xsl:when test="$codeeditor_mode = 'xml'">xml</xsl:when>
+            <xsl:otherwise>htmlmixed</xsl:otherwise>
+         </xsl:choose>
+      </xsl:variable>
       <xsl:if test="$codeeditor = 'yes'">
-         <div class="perc-codeeditor-legend">
+         <div class="perc-codeeditor-legend" data-perc-codeeditor-mode="{$codeeditor_effective_mode}">
             <span>Find: Ctrl-F (Mac: Cmd-F) | Find next: Ctrl-G (Mac: Cmd-G) | Find previous: Shift-Ctrl-G (Mac: Shift-Cmd-G) | Replace: Shift-Ctrl-F (Mac: Cmd-Alt-F) | Replace all: Shift-Ctrl-R (Mac: Shift-Cmd-Alt-F) | Validation: unbalanced tags are flagged in the gutter before save - red error, yellow warning; hover a marker for details</span>
+            <span class="perc-codeeditor-mode" data-perc-codeeditor-mode-badge="{@paramName}">Mode: <xsl:value-of select="$codeeditor_effective_mode"/></span>
             <span class="perc-codeeditor-display-prefs">
                <button type="button" data-perc-codeeditor-theme-toggle="{@paramName}" aria-pressed="false" aria-label="Toggle dark mode for the code editor" onclick="percCodeEditorToggleTheme('{@paramName}')">Dark mode</button>
                <button type="button" data-perc-codeeditor-font-decrease="{@paramName}" aria-label="Decrease code editor font size" onclick="percCodeEditorStepFontSize('{@paramName}', -1)">A-</button>
@@ -1478,7 +1492,7 @@ onchange    %Script;       #IMPLIED
          </div>
          <script>
             var editor = CodeMirror.fromTextArea(document.getElementById('<xsl:value-of select="@paramName" />'), {
-            mode: 'htmlmixed',
+            mode: '<xsl:value-of select="$codeeditor_effective_mode" />',
             theme: 'default',
             lineNumbers: true,
             gutters: ["CodeMirror-linenumbers", "CodeMirror-lint-markers"],
