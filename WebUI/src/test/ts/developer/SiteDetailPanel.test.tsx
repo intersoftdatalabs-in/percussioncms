@@ -179,12 +179,17 @@ describe("SiteDetailPanel", () => {
       workflowName: "Simple Workflow",
     });
     render(<SiteDetailPanel site={sampleSite} onBack={() => undefined} />);
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-site-workflow")).toBeTruthy();
-    });
+    // Wait for the async workflow options to load before interacting: a
+    // change event for a value with no matching <option> resolves to "" in
+    // jsdom, which drops workflowName from the save payload (#6572 — flaked
+    // under full-suite Maven CPU contention when the options lost the race).
+    await screen.findByRole("option", { name: "Simple Workflow" });
     fireEvent.change(screen.getByTestId("developer-site-workflow"), {
       target: { value: "Simple Workflow" },
     });
+    expect(
+      (screen.getByTestId("developer-site-workflow") as HTMLSelectElement).value,
+    ).toBe("Simple Workflow");
     fireEvent.click(screen.getByTestId("developer-site-save"));
     await waitFor(() => {
       expect(updateSite).toHaveBeenCalledWith(
