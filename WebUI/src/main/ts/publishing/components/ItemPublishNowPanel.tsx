@@ -25,6 +25,11 @@ import { publishSelectedItem } from "../../contentExplorer/itemPublish";
 import { message, MSG } from "../../i18n/message";
 import { mapIdParam } from "../deepLinkMap";
 import {
+  formatPublishNowBatchDetail,
+  parsePublishNowItemIds,
+  runPublishNowBatch,
+} from "../itemPublishNowBatch";
+import {
   mapPublishNowKind,
   pathItemForPublishNow,
   type PublishNowKind,
@@ -35,6 +40,36 @@ import {
   primaryButtonStyle,
   toolbarStyle,
 } from "../publishing.styles";
+
+function fill(template: string, vars: Record<string, string>): string {
+  let out = template;
+  for (const [name, value] of Object.entries(vars)) {
+    out = out.split(`{${name}}`).join(value);
+  }
+  return out;
+}
+
+export interface PublishNowBatchRow {
+  id: string;
+  ok: boolean;
+  detail: string;
+}
+
+function rowsFromReport(
+  published: readonly string[],
+  failures: readonly { id: string; message: string }[],
+  okText: string,
+): PublishNowBatchRow[] {
+  const rows: PublishNowBatchRow[] = published.map((id) => ({
+    id,
+    ok: true,
+    detail: okText,
+  }));
+  for (const failure of failures) {
+    rows.push({ id: failure.id, ok: false, detail: failure.message });
+  }
+  return rows;
+}
 
 export interface ItemPublishNowPanelProps {
   itemId?: string;
@@ -81,6 +116,9 @@ export function ItemPublishNowPanel({
   const [inputId, setInputId] = useState(itemId ?? "");
   const [kind, setKind] = useState<PublishNowKind>("page");
   const [reviewed, setReviewed] = useState(false);
+  const [multiIds, setMultiIds] = useState<string[]>([]);
+  const [failedIds, setFailedIds] = useState<string[]>([]);
+  const [report, setReport] = useState<PublishNowBatchRow[] | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -88,11 +126,29 @@ export function ItemPublishNowPanel({
   useEffect(() => {
     setInputId(itemId ?? "");
     setReviewed(false);
+    setMultiIds([]);
+    setFailedIds([]);
+    setReport(null);
     setSuccess(null);
   }, [itemId]);
 
   function onReview(e: React.FormEvent): void {
     e.preventDefault();
+    const ids = parsePublishNowItemIds(inputId);
+    if (ids.length > 1) {
+      // Keep the whole list in the box: propagating one id would echo back
+      // through the shared workspace itemId prop and clobber the rest.
+      setMultiIds(ids);
+      setFailedIds([]);
+      setReport(null);
+      setError(null);
+      setSuccess(null);
+      setReviewed(true);
+      return;
+    }
+    setMultiIds([]);
+    setFailedIds([]);
+    setReport(null);
     const next = mapIdParam(inputId) || inputId.trim();
     onItemIdChange?.(mapIdParam(next) || next);
     const safe = mapIdParam(next);
@@ -111,8 +167,81 @@ export function ItemPublishNowPanel({
     setReviewed(true);
   }
 
+  /** Merge one run into the visible per-item report; retried ids flip. */
+  function mergeReport(
+    previous: PublishNowBatchRow[] | null,
+    published: readonly string[],
+    failures: readonly { id: string; message: string }[],
+  ): PublishNowBatchRow[] {
+    const next = new Map<string, PublishNowBatchRow>();
+    for (const row of previous ?? []) {
+      next.set(row.id, row);
+    }
+    for (const row of rowsFromReport(
+      published,
+      failures,
+      message(MSG.PUBLISH_NOW_BATCH_ITEM_OK),
+    )) {
+      next.set(row.id, row);
+    }
+    return [...next.values()];
+  }
+
+  async function runBatch(ids: string[]): Promise<void> {
+    setSubmitting(true);
+    setError(null);
+    setSuccess(null);
+    try {
+      const batch = await runPublishNowBatch(ids, kind);
+      setReport((previous) =>
+        mergeReport(previous, batch.published, batch.failures),
+      );
+      if (batch.failures.length === 0) {
+        setFailedIds([]);
+        setSuccess(
+          fill(message(MSG.PUBLISH_NOW_BATCH_DONE), {
+            total: String(batch.total),
+          }),
+        );
+      } else {
+        setFailedIds(batch.failures.map((failure) => failure.id));
+        setError(
+          fill(message(MSG.PUBLISH_NOW_BATCH_PARTIAL), {
+            saved: String(batch.published.length),
+            total: String(batch.total),
+            detail: formatPublishNowBatchDetail(batch.failures),
+          }),
+        );
+      }
+      if (batch.published.length > 0) {
+        onPublished?.();
+      }
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setError(publishNowErrorMessage(err));
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
   async function onPublish(e: React.FormEvent): Promise<void> {
     e.preventDefault();
+    const ids = parsePublishNowItemIds(inputId);
+    if (ids.length > 1) {
+      if (multiIds.join(",") !== ids.join(",")) {
+        setMultiIds(ids);
+        setFailedIds([]);
+        setReport(null);
+        setReviewed(true);
+        setError(null);
+        setSuccess(null);
+        return;
+      }
+      await runBatch(ids);
+      return;
+    }
     const safe = mapIdParam(inputId) || mapIdParam(itemId);
     if (!safe) {
       setError(message(MSG.PUBLISH_ITEM_HISTORY_NEED_ID));
@@ -129,9 +258,11 @@ export function ItemPublishNowPanel({
     try {
       const ok = await publishSelectedItem(pathItemForPublishNow(safe, kind));
       if (!ok) {
+        setFailedIds([safe]);
         setError(message(MSG.PUBLISH_ERROR));
         return;
       }
+      setFailedIds([]);
       onItemIdChange?.(safe);
       setSuccess(message(MSG.PUBLISH_NOW_SUCCESS));
       onPublished?.();
@@ -139,6 +270,7 @@ export function ItemPublishNowPanel({
       if (isSessionRedirectError(err)) {
         return;
       }
+      setFailedIds([safe]);
       setError(publishNowErrorMessage(err));
     } finally {
       setSubmitting(false);
@@ -164,7 +296,8 @@ export function ItemPublishNowPanel({
         {message(MSG.PUBLISH_NOW)}
       </h2>
       <p style={{ margin: "0 0 12px", fontSize: "0.85rem", color: "#555" }}>
-        {message(MSG.PUBLISH_NOW_HINT)}
+        {message(MSG.PUBLISH_NOW_HINT)}{" "}
+        {message(MSG.PUBLISH_NOW_IDS_HINT)}
       </p>
       <form onSubmit={onReview} style={toolbarStyle}>
         <div style={{ ...formRowStyle, marginBottom: 0, maxWidth: 280 }}>
@@ -178,6 +311,9 @@ export function ItemPublishNowPanel({
             onChange={(e) => {
               setInputId(e.target.value);
               setReviewed(false);
+              setMultiIds([]);
+              setFailedIds([]);
+              setReport(null);
               setSuccess(null);
             }}
             data-testid="item-publish-now-id"
@@ -223,7 +359,33 @@ export function ItemPublishNowPanel({
           {message(MSG.PUBLISH_NOW_REVIEW)}
         </button>
       </form>
-      {reviewed && (
+      {reviewed && multiIds.length > 1 && (
+        <div data-testid="item-publish-now-confirm" style={{ marginTop: 12 }}>
+          <p style={{ margin: "0 0 8px", fontSize: 13 }}>
+            {fill(message(MSG.PUBLISH_NOW_BATCH_CONFIRM), {
+              total: String(multiIds.length),
+            })}
+          </p>
+          <ul style={{ margin: "0 0 8px", paddingLeft: 18, fontSize: 13 }}>
+            {multiIds.map((id) => (
+              <li key={id} data-testid={`item-publish-now-batch-item-${id}`}>
+                {id}
+              </li>
+            ))}
+          </ul>
+          <form onSubmit={(e) => void onPublish(e)}>
+            <button
+              type="submit"
+              style={primaryButtonStyle}
+              data-testid="item-publish-now-submit"
+              disabled={submitting}
+            >
+              {message(MSG.PUBLISH_NOW_SUBMIT)}
+            </button>
+          </form>
+        </div>
+      )}
+      {reviewed && multiIds.length <= 1 && (
         <div data-testid="item-publish-now-confirm" style={{ marginTop: 12 }}>
           <p style={{ margin: "0 0 8px", fontSize: 13 }}>
             {message(MSG.PUBLISH_NOW_CONFIRM)}
@@ -239,6 +401,39 @@ export function ItemPublishNowPanel({
             </button>
           </form>
         </div>
+      )}
+      {failedIds.length > 0 && !submitting && (
+        <div style={{ marginTop: 12 }}>
+          <button
+            type="button"
+            style={primaryButtonStyle}
+            data-testid="item-publish-now-retry"
+            onClick={() => void runBatch(failedIds)}
+          >
+            {message(MSG.PUBLISH_NOW_RETRY_FAILED)}
+          </button>
+        </div>
+      )}
+      {report && report.length > 0 && (
+        <ul
+          data-testid="item-publish-now-batch-report"
+          aria-label={message(MSG.PUBLISH_NOW)}
+          style={{ margin: "12px 0 0", paddingLeft: 18, fontSize: 13 }}
+        >
+          {report.map((row) => (
+            <li
+              key={row.id}
+              data-testid={`item-publish-now-batch-report-item-${row.id}`}
+            >
+              <span>{row.id}</span>
+              {": "}
+              <span>{row.detail}</span>
+            </li>
+          ))}
+        </ul>
+      )}
+      {submitting && (
+        <p data-testid="item-publish-now-loading">{message(MSG.PUBLISH_LOADING)}</p>
       )}
       {error && (
         <p style={errorStyle} role="alert" data-testid="item-publish-now-error">
