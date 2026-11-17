@@ -163,6 +163,139 @@ export function isEmptyRevisionCompare(
 }
 
 /**
+ * One word-level segment of a revision compare cell (#6533).
+ *
+ * <p>{@code same} text appears in both revisions; {@code removed} text appears
+ * only in the older value; {@code added} text appears only in the newer value.
+ * Callers render the older cell from {@code same + removed} segments and the
+ * newer cell from {@code same + added} segments so long text fields read as an
+ * inline diff instead of two full values to eyeball.</p>
+ */
+export interface WordDiffSegment {
+  text: string;
+  kind: "same" | "removed" | "added";
+}
+
+/** Token cap so pathological multi-megabyte fields fall back to plain text. */
+const WORD_DIFF_TOKEN_CAP = 2000;
+
+/** Split into word/whitespace tokens so spacing survives the render. */
+export function splitWordDiffTokens(value: string): string[] {
+  return value.split(/(\s+)/).filter((part) => part.length > 0);
+}
+
+/**
+ * Word-level diff of two compare cell values (#6533).
+ *
+ * <p>Tokenizes on whitespace (keeping the whitespace) and aligns tokens with a
+ * longest-common-subsequence pass. Adjacent same-kind tokens are merged so the
+ * render is a short run of {@code <span>}/{@code <ins>}/{@code <del>} nodes.
+ * Returns a single {@code same} segment when the values are equal, and falls
+ * back to whole-value removed+added when either side exceeds the token cap.</p>
+ */
+export function computeWordDiff(
+  left: string,
+  right: string,
+): WordDiffSegment[] {
+  const older = left ?? "";
+  const newer = right ?? "";
+  if (older === newer) {
+    return older ? [{ text: older, kind: "same" }] : [];
+  }
+  const leftTokens = splitWordDiffTokens(older);
+  const rightTokens = splitWordDiffTokens(newer);
+  if (leftTokens.length + rightTokens.length > WORD_DIFF_TOKEN_CAP) {
+    return wholeValueWordDiff(older, newer);
+  }
+  const table = buildWordDiffTable(leftTokens, rightTokens);
+  return mergeWordDiffSegments(
+    traceWordDiff(table, leftTokens, rightTokens),
+  );
+}
+
+/** Whole-value fallback when tokenized fields exceed the diff cap. */
+function wholeValueWordDiff(
+  older: string,
+  newer: string,
+): WordDiffSegment[] {
+  const fallback: WordDiffSegment[] = [];
+  if (older) {
+    fallback.push({ text: older, kind: "removed" });
+  }
+  if (newer) {
+    fallback.push({ text: newer, kind: "added" });
+  }
+  return fallback;
+}
+
+/** Suffix-length LCS table over the two token lists. */
+function buildWordDiffTable(
+  leftTokens: string[],
+  rightTokens: string[],
+): { table: Uint32Array; cols: number } {
+  const cols = rightTokens.length + 1;
+  const table = new Uint32Array((leftTokens.length + 1) * cols);
+  for (let i = leftTokens.length - 1; i >= 0; i -= 1) {
+    for (let j = rightTokens.length - 1; j >= 0; j -= 1) {
+      table[i * cols + j] =
+        leftTokens[i] === rightTokens[j]
+          ? table[(i + 1) * cols + (j + 1)] + 1
+          : Math.max(table[(i + 1) * cols + j], table[i * cols + (j + 1)]);
+    }
+  }
+  return { table, cols };
+}
+
+/** Walk the LCS table back into unmerged same/removed/added segments. */
+function traceWordDiff(
+  { table, cols }: { table: Uint32Array; cols: number },
+  leftTokens: string[],
+  rightTokens: string[],
+): WordDiffSegment[] {
+  const raw: WordDiffSegment[] = [];
+  let i = 0;
+  let j = 0;
+  while (i < leftTokens.length && j < rightTokens.length) {
+    if (leftTokens[i] === rightTokens[j]) {
+      raw.push({ text: leftTokens[i], kind: "same" });
+      i += 1;
+      j += 1;
+    } else if (table[(i + 1) * cols + j] >= table[i * cols + (j + 1)]) {
+      raw.push({ text: leftTokens[i], kind: "removed" });
+      i += 1;
+    } else {
+      raw.push({ text: rightTokens[j], kind: "added" });
+      j += 1;
+    }
+  }
+  while (i < leftTokens.length) {
+    raw.push({ text: leftTokens[i], kind: "removed" });
+    i += 1;
+  }
+  while (j < rightTokens.length) {
+    raw.push({ text: rightTokens[j], kind: "added" });
+    j += 1;
+  }
+  return raw;
+}
+
+/** Merge adjacent same-kind segments so the render stays a short run. */
+function mergeWordDiffSegments(
+  raw: WordDiffSegment[],
+): WordDiffSegment[] {
+  const merged: WordDiffSegment[] = [];
+  for (const segment of raw) {
+    const last = merged[merged.length - 1];
+    if (last != null && last.kind === segment.kind) {
+      last.text += segment.text;
+    } else {
+      merged.push({ ...segment });
+    }
+  }
+  return merged;
+}
+
+/**
  * Copy one revision field value into the editor draft (#6080).
  *
  * <p>Field-level restore is a local draft edit: the caller saves through the

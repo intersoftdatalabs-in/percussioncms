@@ -580,6 +580,7 @@ export const EDITOR_MSG = {
   COMPARE_COL_RESTORE: "perc.ui.editor@Restore",
   COMPARE_USE_LEFT: "perc.ui.editor@Use older value",
   COMPARE_USE_RIGHT: "perc.ui.editor@Use newer value",
+  COMPARE_WORD_DIFF: "perc.ui.editor@Show word-level changes",
   COMPARE_FIELD_RESTORED:
     "perc.ui.editor@Field value copied into the draft. Save to keep it.",
   COMPARE_FIELD_UNAVAILABLE:

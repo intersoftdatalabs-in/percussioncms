@@ -192,4 +192,76 @@ describe("EditorHost revision compare view polish", () => {
       );
     });
   });
+
+  it("marks added and removed words inside changed cells", async () => {
+    renderHost({
+      compareRevisions: vi.fn().mockResolvedValue({
+        itemId: "42",
+        rev1: 4,
+        rev2: 5,
+        fields: [
+          {
+            name: "sys_title",
+            leftValue: "The old title",
+            rightValue: "The new title",
+            changed: true,
+          },
+        ],
+      }),
+    });
+    await openComparePanel();
+    fireEvent.click(screen.getByTestId("editor-compare-run"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("editor-compare-word-left-sys_title"),
+      ).toBeTruthy();
+    });
+    const older = screen.getByTestId("editor-compare-word-left-sys_title");
+    const newer = screen.getByTestId("editor-compare-word-right-sys_title");
+    expect(older.querySelector("del")?.textContent).toBe("old");
+    expect(older.querySelector("ins")).toBeNull();
+    expect(newer.querySelector("ins")?.textContent).toBe("new");
+    expect(newer.querySelector("del")).toBeNull();
+    expect(older.textContent).toMatch(/The old title/);
+    expect(newer.textContent).toMatch(/The new title/);
+  });
+
+  it("word-diff toggle is keyboard-focusable and falls back to plain values", async () => {
+    renderHost();
+    await openComparePanel();
+    fireEvent.click(screen.getByTestId("editor-compare-run"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
+    });
+    const toggle = screen.getByTestId("editor-compare-word-diff");
+    expect(toggle).toHaveProperty("checked", true);
+    expect(
+      screen.queryByTestId("editor-compare-word-left-sys_title"),
+    ).toBeTruthy();
+    toggle.focus();
+    expect(document.activeElement).toBe(toggle);
+    fireEvent.click(document.activeElement as HTMLElement);
+    expect(
+      screen.queryByTestId("editor-compare-word-left-sys_title"),
+    ).toBeNull();
+    expect(
+      screen.getByTestId("editor-compare-row-sys_title").textContent,
+    ).toMatch(/Old/);
+    fireEvent.click(screen.getByTestId("editor-compare-word-diff"));
+    expect(
+      screen.getByTestId("editor-compare-word-left-sys_title"),
+    ).toBeTruthy();
+  });
+
+  it("announces compare results through a live region", async () => {
+    renderHost();
+    await openComparePanel();
+    fireEvent.click(screen.getByTestId("editor-compare-run"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
+    });
+    const results = screen.getByTestId("editor-compare-results");
+    expect(results).toHaveProperty("role", "region");
+    expect(results.getAttribute("aria-live")).toBe("polite");
+  });
 });
