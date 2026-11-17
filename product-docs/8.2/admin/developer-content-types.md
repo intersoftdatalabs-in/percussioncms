@@ -48,7 +48,10 @@ here (**400**). Include an existing system or shared field with
 `POST /services/contenttypes/{idOrName}/fields/include` (JSON `name` and
 `fieldType` `system` or `shared`; origin is not copied as local). Duplicate
 include is **409**; unknown catalog field is **404**. Optional `fieldSet` on
-local create targets or creates a named child field set.
+local create targets or creates a named child field set: the first field in a
+new set provisions its own backend table (`<PARENT>_<SET>`, with `SYSID` /
+`SORTRANK` keys plus the `CONTENTID` / `REVISIONID` parent link) and the
+content-editor table wiring, so design save succeeds on the new set.
 Shared field
 **files** are a separate design object: Admin-only `GET /services/sharedfields` and
 `GET /services/sharedfields/{idOrName}` (catalog), plus
