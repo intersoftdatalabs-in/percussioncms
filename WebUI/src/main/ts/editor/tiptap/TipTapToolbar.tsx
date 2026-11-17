@@ -27,10 +27,22 @@
  * <p>Buttons keep editor focus (and the selection) with a mousedown guard:
  * without it the click would move focus to the button and list/link/table
  * commands would apply to a collapsed caret instead of the selection.</p>
+ *
+ * <p>Keyboard contract (#6588, WAI-APG toolbar pattern): the toolbar keeps
+ * a single tab stop via roving tabindex — Left/Right/Home/End move across
+ * enabled controls, Enter/Space activate natively. The link editor is a
+ * labelled dialog: opening moves focus to the address field and Escape
+ * closes it returning focus to the Link button.</p>
  */
 
 import type { ChainedCommands, Editor } from "@tiptap/core";
-import React, { useState } from "react";
+import React, {
+  createContext,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { message } from "../../i18n/message";
 import { EDITOR_MSG } from "../messages";
 import styles from "../EditorHost.module.css";
@@ -105,6 +117,19 @@ function collapseSelectionToCaret(editor: Editor): void {
   }
 }
 
+/**
+ * Roving-tabindex slot shared by the toolbar root and its buttons (#6588).
+ * {@code null} outside a toolbar provider (e.g. standalone
+ * {@code TipTapToolButton} use in {@code TipTapPercussionBar}), where every
+ * button keeps the legacy always-tabbable behavior.
+ */
+interface RovingSlot {
+  roving: string;
+  adopt: (action: string) => void;
+}
+
+const RovingContext = createContext<RovingSlot | null>(null);
+
 interface ToolButtonProps {
   action: string;
   name: string;
@@ -113,6 +138,19 @@ interface ToolButtonProps {
   pressed?: boolean;
   disabled?: boolean;
   onPress: () => void;
+  /**
+   * Explicit tab order override. Ignored inside a roving provider, where
+   * the slot decides ({@code 0} for the active control, {@code -1} for the
+   * rest). Defaults to 0 so non-provider callers are unaffected.
+   */
+  tabIndex?: number;
+  /** Reports focus so the toolbar can move the roving slot (provider only). */
+  onFocusControl?: () => void;
+  /** Forwarded to the underlying button (focus return, dialog triggers). */
+  buttonRef?: React.Ref<HTMLButtonElement>;
+  /** Dialog-trigger wiring (link editor): expanded state + controlled id. */
+  ariaExpanded?: boolean;
+  ariaControls?: string;
 }
 
 function ToolButton({
@@ -123,16 +161,31 @@ function ToolButton({
   pressed = false,
   disabled = false,
   onPress,
+  tabIndex = 0,
+  onFocusControl,
+  buttonRef,
+  ariaExpanded,
+  ariaControls,
 }: ToolButtonProps): React.ReactElement {
+  const roving = useContext(RovingContext);
+  const resolvedTabIndex = roving ? (roving.roving === action ? 0 : -1) : tabIndex;
+  const resolvedOnFocus = roving
+    ? () => roving.adopt(action)
+    : onFocusControl;
   return (
     <button
       type="button"
+      ref={buttonRef}
       className={`${styles.tiptapTool} ${pressed ? styles.tiptapToolActive : ""}`}
       data-testid={`tiptap-${action}-${name}`}
       aria-pressed={pressed}
+      tabIndex={resolvedTabIndex}
+      aria-expanded={ariaExpanded}
+      aria-controls={ariaControls}
       disabled={disabled}
       // Keep the editor selection: focusing the button would collapse it.
       onMouseDown={(e) => e.preventDefault()}
+      onFocus={resolvedOnFocus}
       onClick={onPress}
     >
       {/* Glyph is visual only; the accessible name comes from the
@@ -143,10 +196,144 @@ function ToolButton({
   );
 }
 
+/**
+ * Toolbar control order for roving tabindex (#6588, WAI-APG toolbar
+ * pattern). The style {@code select} participates as the {@code "style"}
+ * slot between underline and align-left; every entry maps to the
+ * {@code tiptap-<action>-<name>} test id.
+ */
+const CONTROL_ORDER = [
+  "undo",
+  "redo",
+  "bold",
+  "italic",
+  "underline",
+  "style",
+  "align-left",
+  "align-center",
+  "align-right",
+  "align-justify",
+  "bullist",
+  "numlist",
+  "outdent",
+  "indent",
+  "link",
+  "unlink",
+  "code-inline",
+  "code-block",
+  "table-insert",
+  "table-add-row",
+  "table-remove-row",
+  "table-add-col",
+  "table-remove-col",
+  "table-delete",
+] as const;
+
+type ControlAction = (typeof CONTROL_ORDER)[number];
+
 export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.ReactElement {
   const [linkOpen, setLinkOpen] = useState(false);
   const [linkUrl, setLinkUrl] = useState("");
   const [linkError, setLinkError] = useState(false);
+  const toolbarRef = useRef<HTMLDivElement | null>(null);
+  const linkButtonRef = useRef<HTMLButtonElement | null>(null);
+  const linkInputRef = useRef<HTMLInputElement | null>(null);
+  /**
+   * Roving-tabindex slot (#6588): exactly one toolbar control is in the Tab
+   * order at a time (WAI-APG toolbar pattern — ~25 tab stops collapse to
+   * one). Arrow keys move focus and the slot together; focusing any
+   * control directly (mouse, test, programmatic) adopts it as the slot.
+   */
+  const [rovingAction, setRovingAction] = useState<string>("undo");
+  const linkEditorId = `tiptap-link-editor-${name}`;
+
+  // Opening the link editor moves focus into the address field (dialog
+  // contract); the input mounts with the dialog so an effect covers it.
+  useEffect(() => {
+    if (linkOpen) {
+      linkInputRef.current?.focus();
+    }
+  }, [linkOpen]);
+
+  const closeLinkEditorAndRefocus = (): void => {
+    setLinkOpen(false);
+    // Escape returns focus to the invoking Link button (dialog contract).
+    linkButtonRef.current?.focus();
+  };
+
+  const focusControl = (action: ControlAction): void => {
+    const root = toolbarRef.current;
+    if (!root) {
+      return;
+    }
+    const el = root.querySelector<HTMLElement>(
+      `[data-testid="tiptap-${action}-${CSS.escape(name)}"]`,
+    );
+    el?.focus();
+  };
+
+  /**
+   * WAI-APG toolbar keys: Left/Right move across enabled controls (disabled
+   * controls are skipped), Home/End jump to the first/last enabled control.
+   * Up/Down are deliberately untouched so the style select keeps its native
+   * option navigation. The roving slot follows focus so the next Tab lands
+   * back on the last-used control.
+   */
+  const onToolbarKeyDown = (e: React.KeyboardEvent): void => {
+    if (
+      e.key !== "ArrowRight" &&
+      e.key !== "ArrowLeft" &&
+      e.key !== "Home" &&
+      e.key !== "End"
+    ) {
+      return;
+    }
+    const root = toolbarRef.current;
+    if (!root) {
+      return;
+    }
+    // The link editor dialog lives inside the toolbar root: text caret keys
+    // (Left/Right/Home/End in the address field) must keep their native
+    // behavior and never move toolbar focus. Escape there is handled by the
+    // dialog itself.
+    const target = e.target as HTMLElement | null;
+    if (target && target.closest('[role="dialog"]') !== null) {
+      return;
+    }
+    const enabled = CONTROL_ORDER.filter((action) => {
+      const el = root.querySelector<HTMLButtonElement | HTMLSelectElement>(
+        `[data-testid="tiptap-${action}-${CSS.escape(name)}"]`,
+      );
+      return el !== null && !el.disabled;
+    });
+    if (enabled.length === 0) {
+      return;
+    }
+    const active = document.activeElement;
+    let index = enabled.findIndex((action) => {
+      const el = root.querySelector<HTMLElement>(
+        `[data-testid="tiptap-${action}-${CSS.escape(name)}"]`,
+      );
+      return el === active;
+    });
+    if (e.key === "Home") {
+      index = 0;
+    } else if (e.key === "End") {
+      index = enabled.length - 1;
+    } else if (index === -1) {
+      // Focus is outside the toolbar (e.g. the editor): arrows enter at
+      // the nearer end instead of hijacking editor caret keys.
+      index = e.key === "ArrowLeft" ? enabled.length - 1 : 0;
+    } else {
+      index =
+        (index + (e.key === "ArrowRight" ? 1 : -1) + enabled.length) %
+        enabled.length;
+    }
+    e.preventDefault();
+    const next = enabled[index];
+    setRovingAction(next);
+    focusControl(next);
+  };
 
   const openLinkEditor = (): void => {
     const current =
@@ -206,11 +393,16 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
   const linkActive = editor?.isActive("link") ?? false;
 
   return (
+    <RovingContext.Provider
+      value={{ roving: rovingAction, adopt: setRovingAction }}
+    >
     <div
+      ref={toolbarRef}
       role="toolbar"
       aria-label={message(EDITOR_MSG.TIPTAP_TOOLBAR)}
       data-testid={`editor-tiptap-toolbar-${name}`}
       className={styles.tiptapToolbar}
+      onKeyDown={onToolbarKeyDown}
     >
       <span role="group" className={styles.tiptapToolGroup}>
         <ToolButton
@@ -266,7 +458,9 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
           className={styles.tiptapStyleSelect}
           value={styleValue}
           disabled={!editor}
+          tabIndex={rovingAction === "style" ? 0 : -1}
           onMouseDown={(e) => e.preventDefault()}
+          onFocus={() => setRovingAction("style")}
           onChange={(e) => applyStyle(e.target.value as HeadingValue)}
         >
           <option value="p">{message(EDITOR_MSG.TIPTAP_STYLE_PARAGRAPH)}</option>
@@ -357,6 +551,9 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
           visible="🔗"
           pressed={linkActive}
           disabled={!editor}
+          buttonRef={linkButtonRef}
+          ariaExpanded={linkOpen}
+          ariaControls={linkEditorId}
           onPress={openLinkEditor}
         />
         <ToolButton
@@ -441,8 +638,22 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
         />
       </span>
       {linkOpen ? (
-        <span role="group" className={styles.tiptapLinkEditor}>
+        <span
+          role="dialog"
+          aria-label={message(EDITOR_MSG.TIPTAP_LINK)}
+          id={linkEditorId}
+          className={styles.tiptapLinkEditor}
+          // Escape anywhere in the dialog closes it and returns focus to
+          // the invoking Link button (#6588 dialog contract).
+          onKeyDown={(e) => {
+            if (e.key === "Escape") {
+              e.stopPropagation();
+              closeLinkEditorAndRefocus();
+            }
+          }}
+        >
           <input
+            ref={linkInputRef}
             data-testid={`tiptap-link-url-${name}`}
             aria-label={message(EDITOR_MSG.TIPTAP_LINK_URL)}
             className={styles.tiptapLinkInput}
@@ -456,8 +667,6 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
               if (e.key === "Enter") {
                 e.preventDefault();
                 applyLink();
-              } else if (e.key === "Escape") {
-                setLinkOpen(false);
               }
             }}
           />
@@ -475,7 +684,7 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
             data-testid={`tiptap-link-close-${name}`}
             className={styles.tiptapLinkApply}
             onMouseDown={(e) => e.preventDefault()}
-            onClick={() => setLinkOpen(false)}
+            onClick={closeLinkEditorAndRefocus}
           >
             <span aria-hidden="true">✕</span>
             <span className={styles.tiptapSrOnly}>
@@ -490,6 +699,7 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
         </span>
       ) : null}
     </div>
+    </RovingContext.Provider>
   );
 }
 
