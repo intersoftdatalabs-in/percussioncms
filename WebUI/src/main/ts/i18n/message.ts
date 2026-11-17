@@ -407,6 +407,18 @@ export const MSG = {
     "perc.ui.publish.modern@Could not export the site publish history",
   PUBLISH_SITE_HISTORY_EXPORT_EMPTY:
     "perc.ui.publish.modern@No visible history rows to export for this site",
+  PUBLISH_SITE_HISTORY_FILTER_DAYS: "perc.ui.publish.modern@Days",
+  PUBLISH_SITE_HISTORY_FILTER_SHOW: "perc.ui.publish.modern@Show",
+  PUBLISH_SITE_HISTORY_FILTER_STATUS: "perc.ui.publish.modern@Status",
+  PUBLISH_SITE_HISTORY_FILTER_SEARCH: "perc.ui.publish.modern@Search",
+  PUBLISH_SITE_HISTORY_STATUS_ALL: "perc.ui.publish.modern@All",
+  PUBLISH_SITE_HISTORY_STATUS_FAILED: "perc.ui.publish.modern@Failed",
+  PUBLISH_SITE_HISTORY_STATUS_SUCCESS: "perc.ui.publish.modern@Success",
+  PUBLISH_SITE_HISTORY_SEARCH_PLACEHOLDER:
+    "perc.ui.publish.modern@Server, job, status",
+  PUBLISH_SITE_HISTORY_FAILURES_ONLY:
+    "perc.ui.publish.modern@Failures only (server)",
+  PUBLISH_SITE_HISTORY_TABLE_JOB: "perc.ui.publish.modern@Job",
   PUBLISH_EMPTY_QUEUE: "perc.ui.publish.incrementalPreview@No items queued for incremental",
   PUBLISH_REMOVE_QUEUE_ITEM: "perc.ui.publish.modern@Remove from queue",
   PUBLISH_CONFIRM_REMOVE_QUEUE_ITEM:

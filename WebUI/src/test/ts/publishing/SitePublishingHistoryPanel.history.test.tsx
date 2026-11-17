@@ -200,6 +200,37 @@ describe("SitePublishingHistoryPanel (#6473)", () => {
     await renderA11yGate(container);
   });
 
+  it("renders filter/table labels through i18n keys, not hardcoded chrome (#6608)", async () => {
+    render(<SitePublishingHistoryPanel siteId={42} siteName="FastForward" />);
+    await waitFor(() => {
+      expect(screen.getAllByTestId("publish-site-history-row")).toHaveLength(2);
+    });
+    const filters = screen.getByTestId("publish-site-history-filters");
+    for (const label of ["Days", "Show", "Status", "Search"]) {
+      expect(filters.textContent).toContain(label);
+    }
+    expect(screen.getByTestId("publish-site-history-status")).toHaveTextContent(
+      "All",
+    );
+    const statusOptions = Array.from(
+      screen
+        .getByTestId("publish-site-history-status")
+        .querySelectorAll("option"),
+    ).map((o) => o.textContent);
+    expect(statusOptions).toEqual(["All", "Failed", "Success"]);
+    expect(screen.getByTestId("publish-site-history-query")).toHaveAttribute(
+      "placeholder",
+      "Server, job, status",
+    );
+    expect(filters.textContent).toContain("Failures only (server)");
+    const headers = Array.from(
+      screen
+        .getByTestId("publish-site-history-table")
+        .querySelectorAll("th"),
+    ).map((h) => h.textContent);
+    expect(headers[0]).toBe("Job");
+  });
+
   it("renders the empty state with zero serious/critical a11y violations (#6595)", async () => {
     fetchPublishingLogs.mockResolvedValue([]);
     const { container } = render(

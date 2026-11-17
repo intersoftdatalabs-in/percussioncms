@@ -27,6 +27,12 @@
  * with no visible rows names the export-empty error instead of
  * downloading an empty file.
  *
+ * i18n keys (#6608, parent #4531): filter labels (Days / Show / Status /
+ * Search), status options (All / Failed / Success), the search
+ * placeholder, the failures-only label, and the Job table header resolve
+ * through `PUBLISH_SITE_HISTORY_*` message keys backed by en-us-only
+ * `CmsUi.tmx` TUs — no hardcoded English chrome remains on this panel.
+ *
  * Tags: @publishing-site-history @publish
  *
  * Run (QA mode after perc-devctl qa-up):
@@ -223,6 +229,40 @@ test.describe("Site workspace publishing history audit (#6473)", () => {
     await expect(
       page.getByTestId("publish-site-history-table"),
     ).toHaveCount(0);
+    expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
+  });
+
+  test(`filter and table labels resolve through i18n keys (#6608) ${TAGS.join(" ")}`, async ({
+    page,
+  }) => {
+    const consoleErrors = trackConsole(page);
+    await stubSiteApis(page, HISTORY_ROWS);
+    await openFirstSiteWorkspace(page);
+
+    const filters = page.getByTestId("publish-site-history-filters");
+    for (const label of ["Days", "Show", "Status", "Search"]) {
+      await expect(filters).toContainText(label);
+    }
+    await expect(
+      page.getByTestId("publish-site-history-status"),
+    ).toContainText("All");
+    await expect(
+      page.getByTestId("publish-site-history-status"),
+    ).toContainText("Failed");
+    await expect(
+      page.getByTestId("publish-site-history-status"),
+    ).toContainText("Success");
+    await expect(page.getByTestId("publish-site-history-query")).toHaveAttribute(
+      "placeholder",
+      "Server, job, status",
+    );
+    await expect(filters).toContainText("Failures only (server)");
+    const headers = page.getByTestId("publish-site-history-table").locator("th");
+    await expect(headers.nth(0)).toContainText("Job");
+
+    await page.screenshot({
+      path: "test-results/live-proof-6608-site-history-i18n.png",
+    });
     expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
   });
 
