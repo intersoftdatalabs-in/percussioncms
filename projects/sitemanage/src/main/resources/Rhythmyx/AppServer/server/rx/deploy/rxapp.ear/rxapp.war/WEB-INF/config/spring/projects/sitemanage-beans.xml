@@ -125,6 +125,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restAuditLogResource" />
             <!-- AS-09 / #4307: Velocity tools + snippet catalog (missing → CXF 404) -->
             <ref bean="restVelocityResource" />
+            <!-- #6481 Developer API key scope editor (missing → CXF 404) -->
+            <ref bean="restApiKeysResource" />
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
             <entry key="json" value="application/json" />

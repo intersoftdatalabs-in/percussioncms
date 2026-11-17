@@ -720,6 +720,10 @@ export const PATHS = {
   get PREFERENCES() {
     return `${SERVICES_ROOT}/preferences`;
   },
+  /** Developer API key scope registry (#6481): catalog, presets, and per-key assignments. */
+  get API_KEYS() {
+    return `${SERVICES_ROOT}/developer/apikeys`;
+  },
 
   /** Workflow management (workflowmanagement) — Feature 993 / SY-04 browse */
   get WORKFLOWS() {
