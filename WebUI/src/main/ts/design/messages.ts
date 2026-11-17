@@ -126,6 +126,13 @@ const KEYS = {
   EDITOR_SLOT_ORIENTATION_H: "perc.ui.design.modern@horizontal",
   EDITOR_SLOT_ORIENTATION_V: "perc.ui.design.modern@vertical",
   EDITOR_SLOT_ORIENTATION_NONE: "perc.ui.design.modern@(default)",
+  STALE_BANNER_UNSAVED:
+    "perc.ui.design.modern@Unsaved template changes — published pages still use the previously assembled output. Save, then republish items to refresh them.",
+  STALE_BANNER_SAVED:
+    "perc.ui.design.modern@Template saved in this session — previously published pages still show the old assembly until items are republished.",
+  STALE_BANNER_DISMISS: "perc.ui.design.modern@Dismiss",
+  STALE_BANNER_DISMISS_ARIA:
+    "perc.ui.design.modern@Dismiss stale-assembly warning for {0}",
   SESSION_REDIRECT: "perc.ui.design.modern@Session expired — sign in again.",
   NONE: "perc.ui.design.modern@—",
 } as const;

@@ -297,6 +297,27 @@ The visual layout editor may still open residual classic hosts (`editTemplate.js
 related upgrade-only JSPs) until those flows are signed off on the SPA. Bookmarks to the
 **list** still land on the SPA.
 
+### Stale-assembly warning banner
+
+Changing a template's assembler, source, bindings, or slot layout/styles makes the
+previously published output **stale**: pages assembled earlier still show the old
+output until items are republished. The SPA tracks templates changed in the current
+browser session and warns in two places:
+
+- **Template editor** — while assembly-affecting edits are unsaved, a banner warns
+  that published pages still use the previously assembled output. After **Save**, the
+  banner stays until items are republished (dismiss it once the republish is done).
+- **Publish Now** (Publish → Sites → site workspace) — at publish time a banner lists
+  every template changed in this session: `unsaved changes` (publishing now assembles
+  from the last saved template — save the template first) or `changed in this session`
+  (republish items to refresh their assembled output). Dismiss a row once its items
+  are republished.
+
+The tracking is session-local to the browser (no server round-trip): it does not know
+which items use which template, so dismissing is the operator's acknowledgment, not
+an automatic republish check. Navigating between Design and Publish keeps the list;
+clearing browser storage or signing out drops it.
+
 ## Related
 
 - [XSL and legacyAssembler support](id:admin-xsl-legacy-assembler) — 8.2 XSL support statement and migration cookbook

@@ -61,6 +61,13 @@ import {
   slotRowIndexesForServerError,
   validateSlotRows,
 } from "./slotMappingValidation";
+import {
+  clearTemplateAssemblyStale,
+  markTemplateAssemblySaved,
+  markTemplateAssemblyUnsaved,
+  staleAssemblyStateFor,
+  type StaleAssemblyState,
+} from "./staleAssembly";
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
@@ -133,6 +140,11 @@ export function TemplateSourceEditor({
   const [assembler, setAssembler] = useState("");
   const [slotRows, setSlotRows] = useState<SlotEditorRow[]>([]);
   const [slotRowErrors, setSlotRowErrors] = useState<Array<string | null>>([]);
+  // Session stale-assembly mark for this template (saved-but-unpublished).
+  // Unsaved dirtiness is derived below; both states share one banner.
+  const [sessionStale, setSessionStale] = useState<StaleAssemblyState | null>(
+    null,
+  );
 
   const onSlotRowsChange = useCallback((rows: SlotEditorRow[]) => {
     setSlotRows(rows);
@@ -175,6 +187,22 @@ export function TemplateSourceEditor({
       assembler !== initialAssembler ||
       !bindingsEqual(bindings, initialBindings) ||
       slotRowsDirty(slotRows));
+  const templateKey = detail?.name || idOrName;
+
+  // While assembly-affecting edits are dirty, the published output is stale
+  // until the next save + republish (#6478). The session mark lets the
+  // Publish Now panel warn at publish time even after navigating away.
+  useEffect(() => {
+    if (detail != null && dirty) {
+      markTemplateAssemblyUnsaved(templateKey);
+    }
+  }, [detail, dirty, templateKey]);
+
+  // A freshly loaded template picks up a pending session mark (saved in this
+  // session but not yet republished); switching templates resets the banner.
+  useEffect(() => {
+    setSessionStale(staleAssemblyStateFor(templateKey));
+  }, [templateKey, detail?.templateId]);
 
   function updateBinding(index: number, patch: Partial<TemplateBindingSummary>) {
     setBindings((prev) => prev.map((b, i) => (i === index ? { ...b, ...patch } : b)));
@@ -274,6 +302,10 @@ export function TemplateSourceEditor({
             });
           }
           // Keep template save; re-sync template state so slots can retry.
+          // The template itself persisted: published output is stale until
+          // items are republished (#6478).
+          markTemplateAssemblySaved(saved.name || detail?.name || idOrName);
+          setSessionStale("saved");
           setDetail(saved);
           setSource(saved.templateSource || "");
           setBindings(cloneBindings(saved.bindings));
@@ -300,6 +332,10 @@ export function TemplateSourceEditor({
         }),
       );
       setNotice(DESIGN_MSG.EDITOR_SAVED);
+      // Saved in this session but items not republished: published output is
+      // stale until the next publish (#6478).
+      markTemplateAssemblySaved(saved.name || detail?.name || idOrName);
+      setSessionStale("saved");
     } catch (err: unknown) {
       // Map server slot-mapping 400s (slots[i] ...) back onto the offending
       // rows inline (#6477); the banner keeps the full server message.
@@ -351,6 +387,13 @@ export function TemplateSourceEditor({
 
   const deleteLabel = detail?.label || detail?.name || idOrName;
 
+  const showStaleBanner = detail != null && (dirty || sessionStale != null);
+
+  function dismissStaleBanner(): void {
+    clearTemplateAssemblyStale(templateKey);
+    setSessionStale(null);
+  }
+
   return (
     <div data-testid="design-tpl-editor">
       <button
@@ -388,6 +431,45 @@ export function TemplateSourceEditor({
           style={{ color: "#276749", marginBottom: "8px" }}
         >
           {notice}
+        </div>
+      ) : null}
+      {showStaleBanner ? (
+        <div
+          role="alert"
+          data-testid="design-tpl-editor-stale-assembly"
+          style={{
+            border: `1px solid ${catalogColors.accent}`,
+            borderRadius: "4px",
+            padding: "8px 12px",
+            marginBottom: "8px",
+            background: "#fffbeb",
+          }}
+        >
+          <span>
+            {dirty
+              ? DESIGN_MSG.STALE_BANNER_UNSAVED
+              : DESIGN_MSG.STALE_BANNER_SAVED}
+          </span>
+          {!dirty ? (
+            <button
+              type="button"
+              data-testid="design-tpl-editor-stale-dismiss"
+              aria-label={DESIGN_MSG.STALE_BANNER_DISMISS_ARIA.split("{0}").join(
+                templateKey,
+              )}
+              onClick={dismissStaleBanner}
+              style={{
+                marginLeft: "12px",
+                background: "transparent",
+                border: `1px solid ${catalogColors.softBorder}`,
+                borderRadius: "4px",
+                padding: "4px 8px",
+                cursor: "pointer",
+              }}
+            >
+              {DESIGN_MSG.STALE_BANNER_DISMISS}
+            </button>
+          ) : null}
         </div>
       ) : null}
 

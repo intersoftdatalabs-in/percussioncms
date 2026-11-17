@@ -21,6 +21,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import * as assemblyApi from "../../../main/ts/api/developer/assemblyApi";
 import { TemplateSourceEditor } from "../../../main/ts/design/TemplateSourceEditor";
 import { DESIGN_MSG } from "../../../main/ts/design/messages";
+import { STALE_ASSEMBLY_STORAGE_KEY } from "../../../main/ts/design/staleAssembly";
 
 vi.mock("../../../main/ts/api/developer/assemblyApi", () => ({
   getTemplateDetail: vi.fn(),
@@ -231,6 +232,59 @@ describe("TemplateSourceEditor (#2809)", () => {
     expect(screen.getByTestId("design-tpl-editor-error").textContent).toContain(
       "slots[0] not found: main",
     );
+  });
+
+  it("warns about stale assembly while edits are dirty (#6478)", async () => {
+    window.localStorage.clear();
+    render(<TemplateSourceEditor idOrName="site.base" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-editor-source-edit")).toBeTruthy();
+    });
+    expect(
+      screen.queryByTestId("design-tpl-editor-stale-assembly"),
+    ).toBeNull();
+    fireEvent.change(screen.getByTestId("design-tpl-editor-source-edit"), {
+      target: { value: "#footer()\n" },
+    });
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("design-tpl-editor-stale-assembly"),
+      ).toBeTruthy();
+    });
+    expect(
+      screen.getByTestId("design-tpl-editor-stale-assembly").textContent,
+    ).toBe(DESIGN_MSG.STALE_BANNER_UNSAVED);
+    expect(
+      window.localStorage.getItem(STALE_ASSEMBLY_STORAGE_KEY),
+    ).toContain("site.base");
+    expect(updateTemplateDetail).not.toHaveBeenCalled();
+  });
+
+  it("keeps a saved-but-unpublished banner until dismissed (#6478)", async () => {
+    window.localStorage.clear();
+    render(<TemplateSourceEditor idOrName="site.base" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-editor-source-edit")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("design-tpl-editor-source-edit"), {
+      target: { value: "#footer()\n" },
+    });
+    fireEvent.click(screen.getByTestId("design-tpl-editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-editor-notice")).toBeTruthy();
+    });
+    expect(
+      screen.getByTestId("design-tpl-editor-stale-assembly").textContent,
+    ).toContain(DESIGN_MSG.STALE_BANNER_SAVED);
+    fireEvent.click(screen.getByTestId("design-tpl-editor-stale-dismiss"));
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("design-tpl-editor-stale-assembly"),
+      ).toBeNull();
+    });
+    expect(
+      window.localStorage.getItem(STALE_ASSEMBLY_STORAGE_KEY) ?? "",
+    ).not.toContain("site.base");
   });
 
   it("deletes from the editor after confirm", async () => {
