@@ -170,20 +170,20 @@ export const EXPLORER_MSG = {
   MULTI_MOVE_FAILURES: "perc.ui.explorer@Move failed for: {details}",
   MULTI_RECYCLE: "perc.ui.explorer@Recycle selected",
   MULTI_RECYCLE_CONFIRM:
-    "perc.ui.explorer@Recycle the checked pages and assets? Folders in the selection are skipped.",
+    "perc.ui.explorer@Recycle the checked items? Folders in the selection are skipped.",
   MULTI_RECYCLE_SUCCESS: "perc.ui.explorer@Recycled {count} item(s)",
   MULTI_RECYCLE_PARTIAL:
     "perc.ui.explorer@Recycled {count} item(s); some recycles failed and were not rolled back",
-  MULTI_RECYCLE_NONE: "perc.ui.explorer@No pages or assets were recycled",
+  MULTI_RECYCLE_NONE: "perc.ui.explorer@No items were recycled",
   MULTI_RECYCLE_SKIPPED: "perc.ui.explorer@Skipped folders: {names}",
   MULTI_RECYCLE_FAILURES: "perc.ui.explorer@Recycle failed for: {details}",
   MULTI_PURGE: "perc.ui.explorer@Purge selected",
   MULTI_PURGE_CONFIRM:
-    "perc.ui.explorer@Permanently purge the selected recycled pages and assets? This cannot be undone.",
+    "perc.ui.explorer@Permanently purge the selected recycled items? This cannot be undone.",
   MULTI_PURGE_SUCCESS: "perc.ui.explorer@Purged {count} item(s)",
   MULTI_PURGE_PARTIAL:
     "perc.ui.explorer@Purged {count} item(s); the rest of the selection was not purged",
-  MULTI_PURGE_NONE: "perc.ui.explorer@No pages or assets were purged",
+  MULTI_PURGE_NONE: "perc.ui.explorer@No items were purged",
   MULTI_PURGE_SKIPPED: "perc.ui.explorer@Skipped folders: {names}",
   MULTI_PURGE_FAILURES: "perc.ui.explorer@Purge failed for: {details}",
   MULTI_RESTORE: "perc.ui.explorer@Restore selected",

@@ -99,4 +99,20 @@ describe("openInEditor (#3330)", () => {
     expect(dest).not.toContain("view=editor");
     expect(dest).not.toContain("editAsset.jsp");
   });
+
+  it("opens the React editor host for a Rhythmyx custom-type item (#6514)", () => {
+    const openSpy = vi.fn();
+    vi.spyOn(window, "open").mockImplementation(openSpy);
+    openInEditor({
+      id: "99",
+      name: "CustomArticle",
+      path: "/Sites/Demo/CustomArticle",
+      type: "MyCustomArticle",
+    });
+    expect(openSpy).toHaveBeenCalled();
+    const dest = String(openSpy.mock.calls[0]?.[0] ?? "");
+    expect(dest).toContain("entry=editor");
+    expect(dest).toContain("contentId=99");
+    expect(dest).not.toContain("view=editor");
+  });
 });

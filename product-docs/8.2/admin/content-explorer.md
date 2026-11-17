@@ -799,31 +799,32 @@ not reported as full success. A selection that is only folders moves nothing.
 This is not single-item **Move** of a folder, not **Copy selected to folder**,
 and not clipboard cut-and-paste.
 
-### Recycle selected pages and assets
+### Recycle selected items
 
 **Content → Recycle selected** is enabled after you check one or more rows in
-the detail list. One confirm recycles each checked **page, file, or asset** with
+the detail list. One confirm recycles each checked **item** — a page, file,
+asset, or custom content-type item — with
 public REST `DELETE /rest/folders/item/{path}` (the same call as single-item
 **Delete** for non-folders). Checked **folders** are not recycled; Explorer names
 them in the result (for example `Skipped folders: News`). Folder recycle stays
 on reduced-actions **Delete** (`POST …/path/deleteFolder`).
 
 Items that already recycled stay in the bin when a later item fails. The result
-is full success only when every page or asset recycled. A partial HTTP failure
+is full success only when every item recycled. A partial HTTP failure
 (for example **404** on one item) stays on the result as an alert and is not
 reported as full success. A selection that is only folders recycles nothing.
 This is not **Empty recycle bin**, not **Purge selected**, and not multi-select copy or move.
 
-### Purge selected pages and assets in Recycling
+### Purge selected items in Recycling
 
 **Content → Purge selected** (and the reduced-actions **Purge** button when two or
 more Recycling rows are checked) asks once, then permanently purges each checked
-**page or asset** with `DELETE /rest/folders/recycle/{guid}` — the same call as
+**item** — a page, asset, file, or custom content-type item — with `DELETE /rest/folders/recycle/{guid}` — the same call as
 single-item **Purge**. **Cancel** purges nothing. Checked **folders** are not
 purged; Explorer names them in the result (for example `Skipped folders: News`).
 
 Items that already purged stay gone when a later item fails. The result is full
-success only when every checked page or asset was purged and no folder was
+success only when every checked item was purged and no folder was
 selected. HTTP **403**, **404**, or **409** on one item stays on the result as
 an alert and is not reported as if the whole selection was purged. A selection
 that is only folders purges nothing. This is not **Empty recycle bin** and not
@@ -845,6 +846,18 @@ full success only when every checked row was restored. HTTP **403**, **404**, or
 not-found, or name-in-use message) and is not reported as if the whole selection
 was restored. A row with no recycled GUID is named as not found and is not a
 successful restore. This is not **Purge selected** and not **Empty recycle bin**.
+
+### Custom content-type items (generic Items)
+
+An upgraded Rhythmyx site may have no Pages or Assets — only Items of custom
+content types, snippets, or legacy types. Those rows still list: the detail
+list shows them as item rows (not folder rows) with the content-type name in
+the **Type** column, and keyboard **Enter** (or double-click) opens the row in
+the React Content Editor, the same host pages and assets use. The recycle and
+purge confirms name **items**, so custom-type rows are covered by the same
+wording. Publish Now, Stage, Take Down, Schedule, and Publishing History stay
+scoped to pages and assets; custom-type rows are skipped there with an honest
+"not pages or assets" note instead of failing silently.
 
 ### Empty the recycle bin
 
