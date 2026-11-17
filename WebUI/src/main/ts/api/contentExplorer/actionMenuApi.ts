@@ -374,6 +374,8 @@ function mapSingleActionMenu(menu: ActionMenu): MenuAction {
     sortRank: menu.sortRank,
     menuType: menu.menuType,
     parameters: menu.parameters,
+    visibilityContexts: menu.visibilityContexts,
+    uiContexts: menu.uiContexts,
   };
   if (menu.id != null) {
     result.id = menu.id;

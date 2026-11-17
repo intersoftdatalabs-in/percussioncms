@@ -269,6 +269,11 @@ import {
 } from "./displayFormatMap";
 import { ExplorerMenuBar } from "./ExplorerMenuBar";
 import { ExplorerBreadcrumb } from "./ExplorerBreadcrumb";
+import { ExplorerStatusBar } from "./ExplorerStatusBar";
+import {
+  type ExplorerMenuVisibilityState,
+  filterMenuActionsByVisibility,
+} from "./menuVisibility";
 import {
   ExplorerTree,
   normalizeExplorerTreePathKey,
@@ -1062,6 +1067,22 @@ function ContentExplorerShellInner({
   const [flushCacheStatus, setFlushCacheStatus] = useState<string | null>(
     null,
   );
+  /**
+   * Status bar operation feed (#6517). The dispatch funnel already
+   * funnels every menu outcome through {@code flushCacheStatus}
+   * (success text) and {@code actionInvokeError} (failure text), so
+   * the footer mirrors the same strings the header banners show —
+   * no second source of truth.
+   */
+  const statusBarOperation = useMemo(
+    () =>
+      actionInvokeError != null
+        ? { kind: "error" as const, text: actionInvokeError }
+        : flushCacheStatus != null
+          ? { kind: "success" as const, text: flushCacheStatus }
+          : null,
+    [actionInvokeError, flushCacheStatus],
+  );
   const [contextMenu, setContextMenu] = useState<ContextMenuState>(null);
   const [slotPickerOpen, setSlotPickerOpen] = useState(false);
   const slotPickerRef = useRef<SlotDependentPickerSession | null>(null);
@@ -1114,8 +1135,38 @@ function ContentExplorerShellInner({
   const [multiSelectedItems, setMultiSelectedItems] = useState<
     ReadonlyMap<string, PSPathItem>
   >(() => new Map<string, PSPathItem>());
+  /**
+   * Folder row count for the status bar (#6517). Fed by
+   * {@code DetailList#onRowCountChange}; null while nothing is loaded.
+   */
+  const [folderRowCount, setFolderRowCount] = useState<number | null>(null);
   const multiSelectedItemsRef = useRef(multiSelectedItems);
   multiSelectedItemsRef.current = multiSelectedItems;
+  /**
+   * Workbench visibility environment for menu filtering (#6517).
+   * Only client-known facts are supplied; everything else stays
+   * {@code undefined} so the evaluator stays permissive (see
+   * {@code menuVisibility}). Checkout status, content-type/workflow
+   * ids, community, and client-context tokens are not on
+   * {@code PSPathItem}, so those rules cannot hide menus yet — a
+   * documented server gap, not a silent ignore.
+   */
+  const menuVisibilityState = useMemo<ExplorerMenuVisibilityState>(
+    () => ({
+      multiSelected: multiSelectedIds.size > 1,
+      userName: bootstrap.userName,
+      userRoles: currentUserIdentities,
+      locale: bootstrap.locale,
+      accessLevel: selection.item?.accessLevel ?? undefined,
+    }),
+    [
+      multiSelectedIds,
+      bootstrap.userName,
+      bootstrap.locale,
+      currentUserIdentities,
+      selection.item,
+    ],
+  );
   const [multiCopyOpen, setMultiCopyOpen] = useState(false);
   const [multiCopyStatus, setMultiCopyStatus] = useState<{
     text: string;
@@ -1406,10 +1457,16 @@ function ContentExplorerShellInner({
         if (cancelled) return;
         // Toolbar surface: drop desktop-only URLs and CONTEXTMENU roots (#2849).
         const merged = mergeWorkflowMenuActions(base ?? [], workflow);
+        // Workbench visibility first (#6517): configured hide-rules shape
+        // the toolbar before surface/enablement filtering does.
+        const visible = filterMenuActionsByVisibility(
+          merged,
+          menuVisibilityState,
+        );
         setMenuActions(
           withExplorerApproveIncrementalAction(
             filterToolbarActions(
-              merged,
+              visible,
               undefined,
               selection.item,
               bootstrap.isAdmin === true,
@@ -1443,6 +1500,7 @@ function ContentExplorerShellInner({
     loadWorkflowMenuActions,
     listEpoch,
     bootstrap.isAdmin,
+    menuVisibilityState,
   ]);
 
   const selectedFormat = useMemo(() => {
@@ -1634,6 +1692,12 @@ function ContentExplorerShellInner({
           if (requestId !== contextMenuRequestIdRef.current) return;
           // Context-menu surface: keep CONTEXTMENU roots; drop desktop-only (#2849).
           const merged = mergeWorkflowMenuActions(base ?? [], workflow);
+          // Workbench visibility shapes the popup the same way it shapes
+          // the toolbar (#6517); the right-clicked row supplies access.
+          const visible = filterMenuActionsByVisibility(merged, {
+            ...menuVisibilityState,
+            accessLevel: item.accessLevel ?? undefined,
+          });
           const pos = clampContextMenuPosition(clientX, clientY, {
             width: window.innerWidth,
             height: window.innerHeight,
@@ -1641,7 +1705,7 @@ function ContentExplorerShellInner({
           setContextMenu({
             actions: withExplorerApproveIncrementalAction(
               filterContextMenuActions(
-                merged,
+                visible,
                 undefined,
                 item,
                 bootstrap.isAdmin === true,
@@ -1664,7 +1728,7 @@ function ContentExplorerShellInner({
         }
       })();
     },
-    [loadMenuActions, loadWorkflowMenuActions, bootstrap.isAdmin],
+    [loadMenuActions, loadWorkflowMenuActions, bootstrap.isAdmin, menuVisibilityState],
   );
 
   const pickContentType = useCallback((types: ContentTypeChoice[]) => {
@@ -3523,7 +3587,20 @@ function ContentExplorerShellInner({
 
   return (
     <div
-      style={hasOpenSidePanel ? shellStyleWithPanels : shellStyle}
+      style={
+        hasOpenSidePanel
+          ? {
+              ...shellStyleWithPanels,
+              gridTemplateRows: "auto auto 1fr auto",
+              gridTemplateAreas:
+                '"header header" "panels panels" "tree list" "status status"',
+            }
+          : {
+              ...shellStyle,
+              gridTemplateRows: "auto 1fr auto",
+              gridTemplateAreas: '"header header" "tree list" "status status"',
+            }
+      }
       role="application"
       aria-label={message(EXPLORER_MSG.TITLE)}
       data-testid="content-explorer-shell"
@@ -4123,6 +4200,7 @@ function ContentExplorerShellInner({
           folderDisplayFormats={savedFolderDisplayFormats}
           folderAllowedSites={savedFolderAllowedSites}
           itemWorkflows={savedItemWorkflows}
+          onRowCountChange={setFolderRowCount}
         />
       )}
       {hasOpenSidePanel ? (
@@ -4646,6 +4724,18 @@ function ContentExplorerShellInner({
         )}
       </div>
       ) : null}
+      <ExplorerStatusBar
+        multiSelectedCount={multiSelectedIds.size}
+        hasSingleSelection={selection.item != null}
+        selectedItemLabel={
+          selection.item?.title ?? selection.item?.name ?? null
+        }
+        folderPath={selection.folderPath}
+        folderItemCount={viewRun ? null : folderRowCount}
+        userName={bootstrap.userName}
+        isAdmin={bootstrap.isAdmin === true}
+        lastOperation={statusBarOperation}
+      />
       {contextMenu && (
         <div
           style={{
