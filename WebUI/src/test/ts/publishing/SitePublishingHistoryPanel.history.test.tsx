@@ -17,6 +17,7 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { renderA11yGate } from "../contentExplorer/a11y";
 import { SitePublishingHistoryPanel } from "@/publishing/components/SitePublishingHistoryPanel";
 
 const fetchPublishingLogs = vi.fn();
@@ -133,5 +134,80 @@ describe("SitePublishingHistoryPanel (#6473)", () => {
     await waitFor(() => {
       expect(fetchPublishingLogs).toHaveBeenCalledTimes(2);
     });
+  });
+
+  it("shows a reload CTA on the truly-empty state (#6595)", async () => {
+    fetchPublishingLogs.mockResolvedValue([]);
+    render(<SitePublishingHistoryPanel siteId={42} siteName="FastForward" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-site-history-empty")).toBeTruthy();
+    });
+    const cta = screen.getByTestId("publish-site-history-empty-reload");
+    expect(cta).toHaveTextContent("Reload history");
+    fireEvent.click(cta);
+    await waitFor(() => {
+      expect(fetchPublishingLogs).toHaveBeenCalledTimes(2);
+    });
+  });
+
+  it("shows filtered-empty copy when filters hide every loaded row (#6595)", async () => {
+    render(<SitePublishingHistoryPanel siteId={42} siteName="FastForward" />);
+    await waitFor(() => {
+      expect(screen.getAllByTestId("publish-site-history-row")).toHaveLength(2);
+    });
+    fireEvent.change(screen.getByTestId("publish-site-history-query"), {
+      target: { value: "no-such-server-zzz" },
+    });
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("publish-site-history-empty-filtered"),
+      ).toBeTruthy();
+    });
+    expect(screen.queryByTestId("publish-site-history-empty")).toBeNull();
+    expect(screen.queryByTestId("publish-site-history-table")).toBeNull();
+    expect(
+      screen.getByTestId("publish-site-history-empty-filtered"),
+    ).toHaveTextContent("No history rows match the current filters");
+  });
+
+  it("names the export-empty error instead of downloading zero rows (#6595)", async () => {
+    render(<SitePublishingHistoryPanel siteId={42} siteName="FastForward" />);
+    await waitFor(() => {
+      expect(screen.getAllByTestId("publish-site-history-row")).toHaveLength(2);
+    });
+    fireEvent.change(screen.getByTestId("publish-site-history-status"), {
+      target: { value: "success" },
+    });
+    fireEvent.change(screen.getByTestId("publish-site-history-query"), {
+      target: { value: "no-such-server-zzz" },
+    });
+    fireEvent.click(screen.getByTestId("publish-site-history-export"));
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-site-history-export-error")).toHaveTextContent(
+        "No visible history rows to export for this site",
+      );
+    });
+    expect(downloadPublishingLogsCsv).not.toHaveBeenCalled();
+  });
+
+  it("renders with zero serious/critical a11y violations (#6595)", async () => {
+    const { container } = render(
+      <SitePublishingHistoryPanel siteId={42} siteName="FastForward" />,
+    );
+    await waitFor(() => {
+      expect(screen.getAllByTestId("publish-site-history-row")).toHaveLength(2);
+    });
+    await renderA11yGate(container);
+  });
+
+  it("renders the empty state with zero serious/critical a11y violations (#6595)", async () => {
+    fetchPublishingLogs.mockResolvedValue([]);
+    const { container } = render(
+      <SitePublishingHistoryPanel siteId={42} siteName="FastForward" />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("publish-site-history-empty")).toBeTruthy();
+    });
+    await renderA11yGate(container);
   });
 });
