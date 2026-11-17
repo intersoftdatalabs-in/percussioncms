@@ -22,8 +22,14 @@ import tools.jackson.databind.annotation.JsonDeserialize;
 
 /** A transfer class for feed descriptors and connection info. */
 public class PSFeedDescriptors {
+  // Concrete content type (not the IPSFeedDescriptor interface): the
+  // JacksonXmlBindJsonProvider mapper (Jackson 3) does not honor
+  // interface content-type annotations, so an interface-typed list
+  // fails to deserialize with "Cannot construct instance of
+  // IPSFeedDescriptor" (slice 8, #6341). Callers needing the interface
+  // view adapt at the call site.
   @JsonDeserialize(as = ArrayList.class, contentAs = PSFeedDescriptor.class)
-  private List<IPSFeedDescriptor> descriptors = new ArrayList<>();
+  private List<PSFeedDescriptor> descriptors = new ArrayList<>();
 
   private String serviceUrl;
   private String serviceUser;
@@ -41,7 +47,7 @@ public class PSFeedDescriptors {
    *
    * @return the descriptors
    */
-  public List<IPSFeedDescriptor> getDescriptors() {
+  public List<PSFeedDescriptor> getDescriptors() {
     return descriptors;
   }
 
@@ -50,7 +56,7 @@ public class PSFeedDescriptors {
    *
    * @param descriptors the descriptors to set
    */
-  public void setDescriptors(List<IPSFeedDescriptor> descriptors) {
+  public void setDescriptors(List<PSFeedDescriptor> descriptors) {
     this.descriptors = descriptors;
   }
 

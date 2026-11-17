@@ -38,7 +38,10 @@
  * case skips without {@code DTS_URL}. With both set (the
  * {@code qa-up --with-dts} banner prints both) every case runs green
  * against the in-cell DTS — interactions self-seed with unique per-run
- * markers, so no pre-seeded DTS fixtures are required.</p>
+ * markers, so no pre-seeded DTS fixtures are required — except the feed
+ * entries case, which consumes the cell-seeded {@link FEED_FIXTURE}
+ * (seeded by {@code qa-seed-widget-fixtures}, #6341) and skips by name
+ * when the fixture is absent.</p>
  *
  * <p>URL paths below use {@code /} (web origins, not OS file paths).</p>
  */
@@ -113,7 +116,9 @@ const SURFACES = Object.freeze([
     csrf: "/rss/csrf",
     tag: "@surface-feed",
     interaction:
-      "feed endpoint serves seeded entries from the live index (unseeded names keep the error-page contract)",
+      "feed endpoint serves seeded entries from the live index " +
+      "(cell-seeded fixture via qa-seed-widget-fixtures; " +
+      "unseeded names keep the error-page contract)",
   }),
   Object.freeze({
     name: "metadata",
@@ -155,6 +160,40 @@ const SURFACES = Object.freeze([
       "comment appears per moderation rules: addcomment accepted, list follows the default state",
   }),
 ]);
+
+/**
+ * Feed entries fixture contract (#6341, parent #6237).
+ *
+ * <p>The cell-side seeder
+ * ({@code docker/scripts/qa_seed_widget_fixtures.py},
+ * {@code qa-seed-widget-fixtures}) provisions a known deliverymanager
+ * password into the in-cell DTS {@code tomcat-users.xml} and seeds this
+ * exact descriptor plus index rows over container-local HTTPS, so the
+ * feed entries spec asserts with no credentials in the spec file. The
+ * Python seeder mirrors these literals;
+ * {@code docker/scripts/test_qa_seed_widget_fixtures.py::FeedFixtureParityTest}
+ * fails on drift.</p>
+ */
+const FEED_FIXTURE = Object.freeze({
+  site: "qacell",
+  name: "qasurface-fixture",
+  title: "QA surface fixture feed",
+  description:
+    "Disposable QA-cell fixture feed for the published RSS surface (#6341).",
+  link: "http://localhost/qacell",
+  entries: Object.freeze([
+    Object.freeze({
+      path: "/qacell/surface-fixture-1.html",
+      title: "QA surface fixture item 1",
+      abstract: "QA surface fixture probe item 1 (#6341).",
+    }),
+    Object.freeze({
+      path: "/qacell/surface-fixture-2.html",
+      title: "QA surface fixture item 2",
+      abstract: "QA surface fixture probe item 2 (#6341).",
+    }),
+  ]),
+});
 
 /**
  * @param {string} name surface name
@@ -287,6 +326,7 @@ module.exports = {
   SKIP_NO_DTS,
   skipNoFixture,
   SURFACES,
+  FEED_FIXTURE,
   tagForSurface,
   publishedSiteUrl,
   dtsBaseUrl,

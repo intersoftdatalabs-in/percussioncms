@@ -1644,6 +1644,48 @@ class TestQaPublishFixture(unittest.TestCase):
         self.assertIn("/widgets/percArchiveList.html", out)
 
 
+class TestQaSeedWidgetFixtures(unittest.TestCase):
+    """Slice 8 (#6341): dry-run plan + missing-cell fail fast."""
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo_root = _stub_repo_root(Path(self.td.name))
+        matrix = self.repo_root / "docker" / "scripts" / "matrix-install-smoke.py"
+        matrix.write_text("# stub\n", encoding="utf-8")
+        self.runner = _CliRunner(self.repo_root)
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+
+    def test_dry_run_prints_plan(self):
+        os.environ["DTS_HOST_PORT"] = "19983"
+        rc, out = self.runner.run(["qa-seed-widget-fixtures"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-seed-widget-fixtures", out)
+        self.assertIn("DRYRUN:1", out)
+        self.assertIn("feed=qacell/qasurface-fixture", out)
+        self.assertNotIn("qacell-delivery-dev-only", out)
+
+    def test_missing_dts_cell_fails_fast(self):
+        import io
+        from contextlib import redirect_stdout
+        buf = io.StringIO()
+        with unittest.mock.patch.object(
+            pdc, "_docker_container_present", return_value=False
+        ):
+            with redirect_stdout(buf):
+                rc = pdc.main(
+                    ["--repo-root", str(self.repo_root),
+                     "qa-seed-widget-fixtures",
+                     "--dts-url", "http://127.0.0.1:19983",
+                     "--timeout-seconds", "10"]
+                )
+        out = buf.getvalue()
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("RESULT:FAIL STEP:qa-seed-widget-fixtures", out)
+        self.assertIn("DETAIL:dts_container_missing", out)
+
+
 class TestMain(unittest.TestCase):
     def test_main_help(self):
         with self.assertRaises(SystemExit) as cm:
