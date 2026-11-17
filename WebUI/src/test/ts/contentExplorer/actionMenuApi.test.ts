@@ -229,6 +229,33 @@ describe("mapActionMenusToMenuActions", () => {
     expect(mapActionMenusToMenuActions([])).toEqual([]);
   });
 
+  it("normalizes single-dict wire lists to arrays (#6517)", () => {
+    // The H2 seed serves one-entry properties / visibilityContexts /
+    // parameters as dicts; array consumers must never see the dict.
+    const menus = [
+      makeMenu({
+        name: "create-new-item",
+        properties: {
+          actionId: 42,
+          name: "SupportsMultiSelect",
+          value: "no",
+        } as never,
+        visibilityContexts: {
+          description: "Hide for Read Access",
+          name: 11,
+          value: "Read",
+        } as never,
+      }),
+    ];
+    const [action] = mapActionMenusToMenuActions(menus);
+    expect(action.properties).toEqual([
+      { actionId: 42, name: "SupportsMultiSelect", value: "no" },
+    ]);
+    expect(action.visibilityContexts).toEqual([
+      { description: "Hide for Read Access", name: 11, value: "Read" },
+    ]);
+  });
+
   it("does not mutate the input menus array (sortRank-based sort is in place of a copy)", () => {
     const original: ActionMenu[] = [
       makeMenu({ name: "rename", sortRank: 20 }),

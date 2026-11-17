@@ -80,13 +80,33 @@ const VISIBILITY_CONTEXT_ALIASES: Readonly<Record<string, string>> = {
 };
 
 /**
+ * Normalize a wire list that Jackson may serialize as a single object
+ * when it holds one entry. The H2 seed serves single
+ * {@code visibilityContexts}, {@code properties}, and
+ * {@code parameters} entries as dicts ({@code "properties": {...}}),
+ * which plain {@code for..of} cannot iterate (#6517).
+ */
+export function asWireArray<T>(value: T | readonly T[] | null | undefined): T[] {
+  if (value == null) {
+    return [];
+  }
+  return (
+    Array.isArray(value) ? [...value] : [value]
+  ) as T[];
+}
+
+/**
  * Normalize a wire visibility-context name to its numeric id. Accepts the
- * numeric ids ({@code "1"}–{@code "11"}) and the Workbench alias
- * spellings. Returns {@code null} for blank or unknown names.
+ * numeric ids ({@code 1}–{@code 11}, string or number — the H2 seed
+ * serves numbers) and the Workbench alias spellings. Returns {@code null}
+ * for blank or unknown names.
  */
 export function normalizeVisibilityContextName(
   raw: unknown,
 ): string | null {
+  if (typeof raw === "number" && Number.isInteger(raw)) {
+    return raw >= 1 && raw <= 11 ? String(raw) : null;
+  }
   if (typeof raw !== "string") {
     return null;
   }
@@ -136,12 +156,12 @@ export function visibilityContextValues(
 export const MULTI_SELECT_PROPERTY_NAME = "SupportsMultiSelect";
 
 function menuSupportsMultiSelect(menu: {
-  properties?: ReadonlyArray<{ name?: string; value?: string }> | null;
+  properties?:
+    | ReadonlyArray<{ name?: string; value?: string }>
+    | { name?: string; value?: string }
+    | null;
 }): boolean {
-  const props = menu.properties;
-  if (!props) {
-    return false;
-  }
+  const props = asWireArray(menu.properties);
   for (const prop of props) {
     if (
       typeof prop?.name === "string" &&
@@ -409,9 +429,18 @@ function contextHidesAction(
 }
 
 export interface VisibilityMenuShape {
-  visibilityContexts?: ReadonlyArray<ActionMenuVisibilityContext> | null;
-  uiContexts?: ReadonlyArray<ActionMenuModeUIContext> | null;
-  properties?: ReadonlyArray<{ name?: string; value?: string }> | null;
+  visibilityContexts?:
+    | ReadonlyArray<ActionMenuVisibilityContext>
+    | ActionMenuVisibilityContext
+    | null;
+  uiContexts?:
+    | ReadonlyArray<ActionMenuModeUIContext>
+    | ActionMenuModeUIContext
+    | null;
+  properties?:
+    | ReadonlyArray<{ name?: string; value?: string }>
+    | { name?: string; value?: string }
+    | null;
 }
 
 /**
@@ -433,7 +462,7 @@ export function isMenuVisibleByVisibilityContexts(
     // hide actions that do not declare multi support.
     return false;
   }
-  const contexts = menu.visibilityContexts ?? [];
+  const contexts = asWireArray(menu.visibilityContexts);
   for (const entry of contexts) {
     const contextId = normalizeVisibilityContextName(
       (entry as unknown as Record<string, unknown>)?.name,
@@ -456,14 +485,15 @@ export function isMenuVisibleByVisibilityContexts(
  * their visible children. Pure: does not mutate the input.
  */
 export function filterMenuActionsByVisibility(
-  menus: MenuAction[] | null | undefined,
+  menus: MenuAction[] | MenuAction | null | undefined,
   state: ExplorerMenuVisibilityState,
 ): MenuAction[] {
-  if (menus == null || menus.length === 0) {
+  const list = asWireArray(menus);
+  if (list.length === 0) {
     return [];
   }
   const out: MenuAction[] = [];
-  for (const menu of menus) {
+  for (const menu of list) {
     if (menu == null || !menu.name) {
       continue;
     }

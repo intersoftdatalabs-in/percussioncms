@@ -27,6 +27,7 @@
 import { describe, expect, it } from "vitest";
 import type { MenuAction } from "../../../main/ts/api/contentExplorer/types";
 import {
+  asWireArray,
   filterMenuActionsByVisibility,
   isMenuVisibleByVisibilityContexts,
   normalizeVisibilityContextName,
@@ -57,6 +58,15 @@ function menu(
 
 const EMPTY_STATE: ExplorerMenuVisibilityState = {};
 
+describe("asWireArray", () => {
+  it("wraps single wire dicts and passes arrays through", () => {
+    expect(asWireArray(null)).toEqual([]);
+    expect(asWireArray(undefined)).toEqual([]);
+    expect(asWireArray([{ name: "6" }])).toEqual([{ name: "6" }]);
+    expect(asWireArray({ name: "6" } as never)).toEqual([{ name: "6" }]);
+  });
+});
+
 describe("normalizeVisibilityContextName", () => {
   it("accepts numeric ids 1-11", () => {
     expect(normalizeVisibilityContextName("6")).toBe(
@@ -79,6 +89,17 @@ describe("normalizeVisibilityContextName", () => {
     );
   });
 
+  it("accepts numeric wire ids (the H2 seed serves numbers)", () => {
+    expect(normalizeVisibilityContextName(6)).toBe(
+      VISIBILITY_CONTEXT_CHECKOUT_STATUS,
+    );
+    expect(normalizeVisibilityContextName(11)).toBe(
+      VISIBILITY_CONTEXT_FOLDER_SECURITY,
+    );
+    expect(normalizeVisibilityContextName(12)).toBeNull();
+    expect(normalizeVisibilityContextName(0)).toBeNull();
+  });
+
   it("returns null for blank, unknown, and non-string names", () => {
     expect(normalizeVisibilityContextName("")).toBeNull();
     expect(normalizeVisibilityContextName("nonsense")).toBeNull();
@@ -94,7 +115,10 @@ describe("visibilityContextValues", () => {
     ).toEqual(["Checked Out"]);
   });
 
-  it("drops blanks and stringifies numbers", () => {
+  it("stringifies numeric values and drops blanks", () => {
+    expect(
+      visibilityContextValues({ name: 1, value: 2 } as never),
+    ).toEqual(["2"]);
     expect(
       visibilityContextValues({ name: "3", value: "  " } as never),
     ).toEqual([]);
@@ -249,6 +273,45 @@ describe("isMenuVisibleByVisibilityContexts", () => {
     ).toBe(true);
     // Unknown band: permissive.
     expect(isMenuVisibleByVisibilityContexts(action, EMPTY_STATE)).toBe(true);
+  });
+
+  it("evaluates single-dict wire shapes (H2 seed serves dicts)", () => {
+    // Live shape: {"name": 6, "value": "Checked Out", ...} as one object.
+    const action = menu("Edit", {
+      visibilityContexts: {
+        description: "Hide Edit action for Reader.",
+        name: 6,
+        value: "Checked Out",
+      } as never,
+    });
+    expect(
+      isMenuVisibleByVisibilityContexts(action, {
+        checkoutStatus: "Checked Out",
+      }),
+    ).toBe(false);
+    expect(
+      isMenuVisibleByVisibilityContexts(action, {
+        checkoutStatus: "Checked Out By Me",
+      }),
+    ).toBe(true);
+  });
+
+  it("reads dict properties for the multi-select rule", () => {
+    const single = menu("Take Down", {
+      properties: {
+        name: "SupportsMultiSelect",
+        value: "no",
+      } as never,
+    });
+    expect(
+      isMenuVisibleByVisibilityContexts(single, { multiSelected: true }),
+    ).toBe(false);
+    const multi = menu("Stage", {
+      properties: { name: "SupportsMultiSelect", value: "YES" } as never,
+    });
+    expect(
+      isMenuVisibleByVisibilityContexts(multi, { multiSelected: true }),
+    ).toBe(true);
   });
 
   it("never hides on uiContexts alone (server gap stays permissive)", () => {
