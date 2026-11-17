@@ -35,7 +35,11 @@
  * whose extractor seed is auth-gated or CONFIDENTIAL-redirected skips
  * the seeding cases with a named reason instead of failing. Each
  * Playwright case seeds its own probe row under the fixed probe site
- * so cases stay independent under parallel workers.</p>
+ * so cases stay independent under parallel workers. Seed and cleanup
+ * ride the supported extractor contract (helpers {@code entryUrl} +
+ * {@code entryPayload}: {@code value} shape, double-slash entry URLs
+ * — the {@code stringvalue} / single-slash forms silently drop or
+ * litter rows, #6557).</p>
  *
  * <p>Run (needs the DTS-providing cell):
  * {@code DTS_BASE_URL=https://<dts-cell-origin>
@@ -59,6 +63,7 @@ const {
   dtsContextUrl,
   dtsServiceUrl,
   indexerServiceUrl,
+  entryUrl,
   deliveryAuthHeader,
   probeEntry,
   entryPayload,
@@ -126,12 +131,15 @@ async function querySite(request, svc) {
  * CONFIDENTIAL-redirected seed) and failing on any other rejection.
  * NOTE: the extractor resource lives at the context-level
  * {@code /indexer} root, not under the {@code /metadata} JAX-RS root
- * used by the query endpoints.
+ * used by the query endpoints. The entry URL keeps the page path's
+ * leading slash (double slash, {@link entryUrl}): the single-slash
+ * form binds a slashless {@code pagePath} and DELETEs nothing while
+ * answering 204, so seeded rows would linger (#6557 trap 2).
  *
  * @returns {Promise<boolean>} true when the seed landed (never skips)
  */
 async function seedProbe(request, indexerSvc, entry) {
-  const seed = await request.post(`${indexerSvc}/entry${entry.path}`, {
+  const seed = await request.post(entryUrl(indexerSvc, entry.path), {
     maxRedirects: 0,
     headers: deliveryAuthHeader(),
     data: entryPayload(entry),
@@ -156,7 +164,11 @@ async function seedProbe(request, indexerSvc, entry) {
 }
 
 async function removeProbe(request, indexerSvc, entry) {
-  const cleanup = await request.delete(`${indexerSvc}/entry${entry.path}`, {
+  // Double slash via entryUrl (#6557 trap 2): the DAO matches pagepath
+  // verbatim including the leading slash, and the {pagePath:.*} binding
+  // only preserves it with the doubled slash. The single-slash form
+  // deletes nothing while answering 204.
+  const cleanup = await request.delete(entryUrl(indexerSvc, entry.path), {
     maxRedirects: 0,
     headers: deliveryAuthHeader(),
   });
