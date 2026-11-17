@@ -1,0 +1,1 @@
+{"descriptors": [{"name": "qasurface-fixture", "site": "qacell", "description": "d", "link": "http://localhost/qacell", "title": "t", "query": "{}", "type": "RSS"}], "serviceUrl": "https://localhost:8443/perc-metadata-services/metadata/get", "serviceUser": "qasurface", "servicePass": "qasurface", "servicePassEncrypted": false, "site": "qacell"}

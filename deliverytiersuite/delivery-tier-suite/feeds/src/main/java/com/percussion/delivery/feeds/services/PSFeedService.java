@@ -516,7 +516,7 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
       PSFeedService.log.debug("Descriptors that will be deleted are : {} ", deletes);
     }
 
-    this.feedDao.saveDescriptors(descriptors.getDescriptors());
+    this.feedDao.saveDescriptors(new ArrayList<>(descriptors.getDescriptors()));
 
     // Remove feed descriptors for feeds that no longer exist
     this.feedDao.deleteDescriptors(deletes);

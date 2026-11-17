@@ -993,6 +993,77 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     pqpf.add_argument("--dry-run", action="store_true")
 
+    pqsf = sub.add_parser(
+        "qa-seed-widget-fixtures",
+        help=(
+            "Seed the QA DTS cell's widget fixtures: provision a known "
+            "deliverymanager password into the cell tomcat-users.xml, "
+            "PUT the published feed fixture descriptor and index rows over "
+            "container-local HTTPS, and verify the feed serves entries "
+            "(spec 2402-qa-dts-publish slice 8, #6341). The credential "
+            "stays in this fixture step — specs assert the seeded feed "
+            "with no auth."
+        ),
+    )
+    pqsf.add_argument(
+        "--container",
+        default=QA_DTS_CONTAINER,
+        help=f"DTS cell name (default: {QA_DTS_CONTAINER}).",
+    )
+    pqsf.add_argument(
+        "--install-root",
+        default=QA_INSTALL_ROOT,
+        help=(
+            "DTS install root inside the DTS cell "
+            f"(default: {QA_INSTALL_ROOT})."
+        ),
+    )
+    pqsf.add_argument(
+        "--staging-dir",
+        default=None,
+        help="Host staging dir (default: <repo>/tmp/qa-seed-widget-fixtures).",
+    )
+    pqsf.add_argument(
+        "--https-port",
+        type=int,
+        default=8443,
+        help=(
+            "In-cell DTS HTTPS port (default: 8443, the shipped "
+            "https.port; container-local, never published)."
+        ),
+    )
+    pqsf.add_argument(
+        "--delivery-user",
+        default="ps_manager",
+        help="Deliverymanager login to provision (default: ps_manager).",
+    )
+    pqsf.add_argument(
+        "--delivery-password",
+        default=None,
+        help=(
+            "Deliverymanager password to provision (default: fresh random "
+            "value per seed; override with DTS_DELIVERY_PASSWORD env when "
+            "an operator needs to reproduce the seed by hand — never commit "
+            "a real secret)."
+        ),
+    )
+    pqsf.add_argument(
+        "--dts-url",
+        default=None,
+        help=(
+            "Host-visible DTS base URL for the feed verify GET (default: "
+            "DTS_HOST_PORT / DTS_PORT env, else docker port on the DTS "
+            "cell, else last qa-up log, else preferred 9983 when free)."
+        ),
+    )
+    pqsf.add_argument(
+        "--timeout-seconds",
+        type=int,
+        default=240,
+        help="Seconds to wait for the credential to take (default: 240).",
+    )
+    pqsf.add_argument("--dry-run", action="store_true")
+
     pqdw = sub.add_parser(
         "qa-deploy-webui",
         help=(
@@ -2965,6 +3036,43 @@ def _qa_publish_fixture_http_verify(
     return failures
 
 
+def _qa_seed_widget_fixtures_plan(
+    args: argparse.Namespace, repo_root: Path
+) -> argparse.Namespace:
+    """Resolve qa-seed-widget-fixtures settings from args (pure-ish).
+
+    Host DTS base follows the fixture-plan port resolution
+    (``DTS_HOST_PORT`` / ``DTS_PORT`` env, then the running cell's docker
+    publish port, then the qa-up log, then the preferred freeport).
+    The delivery password comes from ``--delivery-password`` (else the
+    flow falls back to ``DTS_DELIVERY_PASSWORD`` env, else a fresh random
+    value per seed) — it never reaches specs or logs, only the cell realm
+    file.
+    """
+    import qa_seed_widget_fixtures as qswf
+
+    if getattr(args, "dts_url", None):
+        dts_base = str(args.dts_url).rstrip("/")
+    else:
+        dts_port, _port_source = resolve_qa_dts_health_host_port(repo_root)
+        dts_base = qa_dts_base_url(dts_port)
+    staging = (
+        Path(args.staging_dir)
+        if getattr(args, "staging_dir", None)
+        else repo_root / "tmp" / "qa-seed-widget-fixtures"
+    )
+    return qswf.SeedPlan(
+        container=args.container or QA_DTS_CONTAINER,
+        install_root=str(getattr(args, "install_root", None) or QA_INSTALL_ROOT),
+        https_port=int(getattr(args, "https_port", None) or 8443),
+        delivery_user=str(getattr(args, "delivery_user", None) or qswf.DELIVERY_USER_DEFAULT),
+        delivery_password=getattr(args, "delivery_password", None),
+        dts_http_base=dts_base,
+        staging_dir=staging,
+        auth_poll_total=float(getattr(args, "timeout_seconds", None) or 240),
+    )
+
+
 def cmd_qa_publish_fixture(
     args: argparse.Namespace, paths: tuple[Path, Path, Path]
 ) -> int:
@@ -3032,6 +3140,67 @@ def cmd_qa_publish_fixture(
     return EXIT_OK
 
 
+def cmd_qa_seed_widget_fixtures(
+    args: argparse.Namespace, paths: tuple[Path, Path, Path]
+) -> int:
+    """Seed the QA DTS cell's widget fixtures (slice 8, #6341).
+
+    Provisions a known deliverymanager password into the cell's
+    ``tomcat-users.xml``, PUTs the published feed fixture descriptor and
+    POSTs the fixture index rows over container-local HTTPS, then
+    verifies the feed serves the entries from the host. Prints the spec
+    contract (``DTS_URL`` + the fixture feed URL) for Playwright.
+    The password never reaches stdout, logs, or specs.
+    """
+    import qa_seed_widget_fixtures as qswf
+
+    repo_root, _env_file, _compose_file = paths
+    if bool(args.dry_run):
+        plan = _qa_seed_widget_fixtures_plan(args, repo_root)
+        print(f"QA_DETAIL:qa-seed-widget-fixtures plan {qswf.describe_plan(plan)}")
+        print(
+            "QA_DETAIL:qa-seed-widget-fixtures opens the feed entries "
+            "assertion: run the feed surface spec with DTS_URL against "
+            "the seeded cell."
+        )
+        print(
+            f"RESULT:OK STEP:{qswf.STEP_QA_SEED_WIDGET_FIXTURES} DRYRUN:1"
+        )
+        return EXIT_OK
+
+    plan = _qa_seed_widget_fixtures_plan(args, repo_root)
+    if not _docker_container_present(plan.container):
+        print(
+            f"RESULT:FAIL STEP:{qswf.STEP_QA_SEED_WIDGET_FIXTURES} "
+            f"DETAIL:dts_container_missing MATCH:{plan.container}"
+        )
+        print(
+            "QA_DETAIL:qa-seed-widget-fixtures requires the QA DTS cell; "
+            "bring it up with qa-up --with-dts first (#6237)."
+        )
+        return EXIT_SUBPROCESS_FAILED
+
+    result = qswf.run_seed_feed_flow(plan)
+    if not result.ok:
+        print(
+            f"RESULT:FAIL STEP:{qswf.STEP_QA_SEED_WIDGET_FIXTURES} "
+            f"DETAIL:{result.detail} ATTEMPTS:{result.attempts}"
+        )
+        return EXIT_SUBPROCESS_FAILED
+    print(
+        f"QA_DETAIL:seeded {qswf.FEED_SITE}/{qswf.FEED_NAME} "
+        f"attempts={result.attempts} restarted_tomcat={result.restarted_tomcat}"
+    )
+    print(
+        f"QA_DETAIL:feed entries assertion: DTS_URL=<banner> "
+        f"npm run test:surface -- --path tests/published-widget-feed.spec.js"
+    )
+    print(
+        f"RESULT:OK STEP:{qswf.STEP_QA_SEED_WIDGET_FIXTURES} FEED:{result.feed_url}"
+    )
+    return EXIT_OK
+
+
 # ---------------------------------------------------------------------------
 # Dispatch
 # ---------------------------------------------------------------------------
@@ -3053,6 +3222,7 @@ _DISPATCH = {
     "qa-health": cmd_qa_health,
     "qa-down": cmd_qa_down,
     "qa-publish-fixture": cmd_qa_publish_fixture,
+    "qa-seed-widget-fixtures": cmd_qa_seed_widget_fixtures,
     "qa-preflight": cmd_qa_preflight,
     "qa-rebuild-chain": cmd_qa_rebuild_chain,
     "qa-deploy-webui": cmd_qa_deploy_webui,

@@ -32,6 +32,7 @@ const {
   SKIP_NO_DTS,
   skipNoFixture,
   SURFACES,
+  FEED_FIXTURE,
   tagForSurface,
   publishedSiteUrl,
   dtsBaseUrl,
@@ -204,6 +205,23 @@ describe("published-widget-surfaces helpers (#6244)", () => {
       dtsServiceUrl(dts, byName.get("comments")),
       "http://127.0.0.1:9983/perc-comments-services/comment",
     );
+  });
+
+  it("pins the feed fixture contract consumed by the entries case (#6341)", () => {
+    assert.equal(FEED_FIXTURE.site, "qacell");
+    assert.equal(FEED_FIXTURE.name, "qasurface-fixture");
+    assert.ok(FEED_FIXTURE.title.length > 0);
+    assert.ok(FEED_FIXTURE.description.length > 0);
+    assert.ok(FEED_FIXTURE.link.length > 0);
+    assert.equal(FEED_FIXTURE.entries.length, 2);
+    const paths = FEED_FIXTURE.entries.map((item) => item.path);
+    assert.equal(new Set(paths).size, 2);
+    for (const item of FEED_FIXTURE.entries) {
+      assert.ok(item.path.startsWith("/qacell/"));
+      assert.ok(item.title.length > 0);
+      assert.ok(item.abstract.length > 0);
+    }
+    assert.ok(Object.isFrozen(FEED_FIXTURE));
   });
 
   it("names the missing env in both skip reasons", () => {
