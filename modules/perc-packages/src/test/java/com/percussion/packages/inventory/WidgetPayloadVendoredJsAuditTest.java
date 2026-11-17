@@ -140,6 +140,22 @@ import org.junit.jupiter.api.Test;
  * !o.disableHI}), npm {@code hoverintent} 2.x is the incompatible vanilla
  * rewrite, and the payload cut matches no {@code jquery-hoverintent} dist.
  *
+ * <p>Slice 8 (issue #6403) migrates the imageSlider-widget
+ * {@code slick.min.js} to the npm {@code slick-carousel@2.0.0} dist
+ * (exact pin in the frontend manifest, so Dependabot watches it).
+ * Version archaeology: the payload banner said 1.9.0, but 1.9.0 was never
+ * published to npm (the registry holds 1.8.1 then 2.0.0) - the 1.9.0 cut
+ * came from the archived GitHub tag, invisible to Dependabot. The 1.8.1
+ * and 2.0.0 dists carry identical widget-facing APIs (same defaults keys,
+ * same Slick.prototype methods; 2.0.0 only modernizes the
+ * page-visibility detection and internals), so tracking latest 2.0.0 is a
+ * safe upgrade for the snippet's option set (fade/arrows/dots/infinite/
+ * slidesToShow/slidesToScroll/autoplay/speed/responsive/asNavFor/
+ * centerMode/focusOnSelect). The 2.0.0 dist ships no version banner, so
+ * the pin below uses the stable {@code slick-initialized} runtime marker;
+ * byte-identity with the npm dist is enforced by the frontend vitest
+ * parity test.
+ *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
  * inventory can only drift together with an audit update. A migration PR that
@@ -265,7 +281,7 @@ class WidgetPayloadVendoredJsAuditTest {
               "\"4.18.1\""),
           Map.entry(
               "perc.widget.imageSlider/sys__UserDependency--web_resources/widgets/imageSlider/js/slick.min.js",
-              "Version: 1.9.0"),
+              "slick-initialized"),
           Map.entry(
               "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/superfish.js",
               "jQuery Superfish Menu Plugin - v1.7.10"),

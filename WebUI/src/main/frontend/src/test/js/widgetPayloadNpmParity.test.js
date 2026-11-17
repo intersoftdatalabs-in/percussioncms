@@ -41,10 +41,11 @@
  * the calendarTwo gcal + lang-all companions to the npm
  * fullcalendar@2.9.1 dists below; slice 7 (issue #6403) dropped the dead
  * nav supersubs pair — zero callers — with its percNavBar.xml +
- * archive-manifest references. The rest of the #6522 rows (v1 calendar
- * widget, slick, nav hoverIntent, MiniColors twins, qTip twins,
- * Foundation 4.x) stay vendored pending replace-or-drop decisions or
- * legal sign-off.
+ * archive-manifest references. Slice 8 (issue #6403) migrates the
+ * imageSlider `slick.min.js` to the npm slick-carousel@2.0.0 dist below.
+ * The rest of the #6522 rows (v1 calendar widget, nav hoverIntent,
+ * MiniColors twins, qTip twins, Foundation 4.x) stay vendored pending
+ * replace-or-drop decisions or legal sign-off.
  *
  * Slice 3 migrates the directory-widget `list.min.js` to the npm list.js
  * 1.2.0 dist (byte-identical to the payload; Dependabot-tracked via the
@@ -805,5 +806,196 @@ describe("widget-payload npm refresh parity (issue #6522 slice 6: calendarTwo gc
     expect(langs["zh-cn"].buttonText.month).toBe("月");
     expect(langs["de"].eventLimitText(3)).toBe("+ weitere 3");
     expect(langs["fr"].buttonText.today).toBe("Aujourd'hui");
+  });
+});
+
+const SLICK_BASE = path.join(
+  "modules",
+  "perc-packages",
+  "src",
+  "main",
+  "resources",
+  "Packages",
+  "perc.widget.imageSlider",
+  "sys__UserDependency--web_resources",
+  "widgets",
+  "imageSlider",
+  "js",
+);
+
+// ImageSlider slick (percImageSlider.xml: slick_js). Slice 8 of #6403
+// replaces the GitHub-tag 1.9.0 cut (never published to npm, so invisible
+// to Dependabot) with the npm slick-carousel@2.0.0 dist bytes verbatim
+// (exact pin in the frontend manifest, so Dependabot watches it).
+// Version archaeology showed the 1.8.1 and 2.0.0 dists carry identical
+// widget-facing APIs (same Slick defaults keys and prototype methods;
+// 2.0.0 only modernizes page-visibility detection and internals), so
+// tracking latest 2.0.0 is a safe upgrade for the snippet's option set
+// (fade/arrows/dots/infinite/slidesToShow/slidesToScroll/autoplay/speed/
+// responsive/asNavFor/centerMode/focusOnSelect). The 2.0.0 dist ships no
+// version banner, so the marker below pins the stable
+// `slick-initialized` runtime class; byte-identity is pinned here.
+const SLICK_PAYLOAD = path.join(SLICK_BASE, "slick.min.js");
+const SLICK_NPM_DIST = path.join("slick-carousel", "slick", "slick.min.js");
+
+function loadSlickPayloadAsJqueryPlugin() {
+  // The UMD dist closes over bare `jQuery`, so expose the jsdom-bound
+  // jQuery globally before evaluating the payload bytes verbatim (same
+  // pattern as the superfish loader above).
+  const $ = require(path.join(NODE_MODULES, "jquery", "dist", "jquery.js"));
+  globalThis.jQuery = $;
+  window.jQuery = $;
+  const source = fs.readFileSync(path.join(REPO_ROOT, SLICK_PAYLOAD), "utf8");
+  window.eval(source);
+  return $;
+}
+
+function renderImageSlider(document, id, slideCount) {
+  // Mirrors percImageSliderSnippet.vm: a `.perc-image-slider` container
+  // whose `.perc-slide-outer-container` children become slides; the
+  // snippet calls `.slick({...})` with the widget options on ready.
+  const slides = [];
+  for (let i = 0; i < slideCount; i++) {
+    slides.push(
+      `<div class="perc-slide-outer-container"><img src="/img/${i}.png" /></div>`,
+    );
+  }
+  document.body.innerHTML =
+    `<div class="perc-image-slider ${id}">` + slides.join("") + "</div>";
+  return document.querySelector(`.${id}`);
+}
+
+describe("widget-payload npm refresh parity (issue #6403 slice 8: slick)", () => {
+  it("imageSlider slick payload exists under the audited Packages tree", () => {
+    expect(fs.existsSync(path.join(REPO_ROOT, SLICK_PAYLOAD))).toBe(true);
+  });
+
+  it("imageSlider slick payload bytes are byte-identical to the npm slick-carousel dist", () => {
+    const shipped = fs.readFileSync(path.join(REPO_ROOT, SLICK_PAYLOAD));
+    const dist = fs.readFileSync(path.join(NODE_MODULES, SLICK_NPM_DIST));
+    expect(
+      shipped.equals(dist),
+      `${SLICK_PAYLOAD} drifted from node_modules/${SLICK_NPM_DIST} — refresh from npm`,
+    ).toBe(true);
+  });
+
+  it("imageSlider slick payload carries the stable runtime marker (no 1.9.0 banner)", () => {
+    const content = fs.readFileSync(path.join(REPO_ROOT, SLICK_PAYLOAD), "utf8");
+    // The 2.0.0 dist ships no version banner; pin the runtime class the
+    // widget CSS and snippet rely on instead.
+    expect(content).toContain("slick-initialized");
+    expect(content).not.toContain("Version: 1.9.0");
+    const installed = JSON.parse(
+      fs.readFileSync(
+        path.join(NODE_MODULES, "slick-carousel", "package.json"),
+        "utf8",
+      ),
+    );
+    expect(installed.version).toBe("2.0.0");
+  });
+
+  it("frontend manifest pins slick-carousel to 2.0.0 (npm audit visible)", () => {
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
+    );
+    // Exact pin (not a caret): the payload is the 2.0.0 dist and the
+    // upstream repo is archived, so floating would silently swap bytes.
+    expect(manifest.dependencies["slick-carousel"]).toBe("2.0.0");
+  });
+
+  it("slick initializes the slider markup like the widget snippet (fade + dots + arrows)", () => {
+    const $ = loadSlickPayloadAsJqueryPlugin();
+    expect(typeof $.fn.slick).toBe("function");
+    const slider = renderImageSlider(document, "slider-main", 3);
+    try {
+      // Mirrors the snippet defaults: fade layout with arrows + dots.
+      $(slider).slick({
+        fade: true,
+        arrows: true,
+        dots: true,
+        infinite: true,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+        autoplay: false,
+        speed: 500,
+      });
+      expect(slider.classList.contains("slick-initialized")).toBe(true);
+      expect(slider.classList.contains("slick-slider")).toBe(true);
+      // Dots + arrows render like the published widget chrome.
+      expect(document.querySelectorAll(".slick-dots li").length).toBe(3);
+      expect(
+        document.querySelectorAll(".slick-prev, .slick-next").length,
+      ).toBe(2);
+      expect($(slider).slick("slickCurrentSlide")).toBe(0);
+      $(slider).slick("unslick");
+      expect(slider.classList.contains("slick-initialized")).toBe(false);
+    } finally {
+      document.body.innerHTML = "";
+    }
+  });
+
+  it("slick asNavFor pairs the nav strip like the navigation layout", () => {
+    const $ = loadSlickPayloadAsJqueryPlugin();
+    const main = renderImageSlider(document, "slider-nav-main", 4);
+    document.body.innerHTML +=
+      '<div class="perc-image-slider slider-nav-strip">' +
+      "<div></div><div></div><div></div><div></div>" +
+      "</div>";
+    const strip = document.querySelector(".slider-nav-strip");
+    try {
+      // Mirrors the snippet navigation layout: main + thumbnail strip.
+      $(main).slick({
+        asNavFor: ".slider-nav-strip",
+        fade: false,
+        arrows: false,
+        dots: false,
+        infinite: true,
+        slidesToShow: 1,
+        slidesToScroll: 1,
+      });
+      $(strip).slick({
+        asNavFor: ".slider-nav-main",
+        centerMode: true,
+        focusOnSelect: true,
+        arrows: true,
+        dots: true,
+        infinite: true,
+        slidesToShow: 3,
+        slidesToScroll: 1,
+      });
+      expect(main.classList.contains("slick-initialized")).toBe(true);
+      expect(strip.classList.contains("slick-initialized")).toBe(true);
+      $(main).slick("unslick");
+      $(strip).slick("unslick");
+    } finally {
+      document.body.innerHTML = "";
+    }
+  });
+
+  it("slick responsive settings accept the widget breakpoints", () => {
+    const $ = loadSlickPayloadAsJqueryPlugin();
+    const slider = renderImageSlider(document, "slider-responsive", 5);
+    try {
+      // Mirrors the snippet responsive block (tablet/mobile breakpoints
+      // with slidesToShow/slidesToScroll overrides).
+      $(slider).slick({
+        arrows: true,
+        dots: true,
+        infinite: true,
+        slidesToShow: 3,
+        slidesToScroll: 1,
+        responsive: [
+          { breakpoint: 1024, settings: { slidesToShow: 2, slidesToScroll: 1 } },
+          { breakpoint: 600, settings: { slidesToShow: 1, slidesToScroll: 1 } },
+        ],
+      });
+      expect(slider.classList.contains("slick-initialized")).toBe(true);
+      const instance = $(slider).slick("getSlick");
+      expect(instance.options.slidesToShow).toBe(3);
+      expect(instance.options.responsive).toHaveLength(2);
+      $(slider).slick("unslick");
+    } finally {
+      document.body.innerHTML = "";
+    }
   });
 });
