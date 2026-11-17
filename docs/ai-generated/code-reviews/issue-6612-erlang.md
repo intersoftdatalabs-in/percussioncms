@@ -47,7 +47,7 @@ request-changes
 - File: review
 - Rule: `llm.error`
 - Tool: `llm`
-- Description: model `<llm-model>` failed: config: missing env <llm-provider-key-env> (for OpenRouter set <llm-provider-key-env> from https://openrouter.ai/keys)
+- Description: model `ollama-dev-coder` failed: response contract: finding location is outside the provided diff
 - Status: open
 
 > Tip: To suppress false positives, add `// mkd-code-review[<rule_id>] <reason>` (e.g. `// mkd-code-review[paths.hardcoded_sep] web url join`) or `// codeql[<rule_id>] <reason>` on or above the line, or add an entry in `.mkd-code-review.toml`.
