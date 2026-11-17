@@ -2,14 +2,14 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://percussioncms.intsof.com/contracts/results-matrix.schema.json",
   "title": "Content/widget results-matrix row",
-  "description": "One row per built-in content type (US1, #6239) or per widget (US2 static shell, #6240) or per DTS service (US3 interaction, #6241) or per forms confirmation case set (US3 forms matrix, #6482) or per membership registration case set (US3 membership matrix, #6559 / parent #6241, proved #6484) or per comments moderation case set (US3 moderation matrix, #6485) or per polls vote case set (US3 polls matrix, #6241). Rows are built by tests/helpers/content-create-matrix.js buildResultRow (US1), tests/helpers/published-widget-matrix.js buildWidgetRow (US2), tests/helpers/dts-interaction-matrix.js buildInteractionRow (US3), tests/helpers/forms-confirmation-matrix.js buildConfirmationRow (US3 forms), tests/helpers/membership-registration-matrix.js buildRegistrationRow (US3 membership), tests/helpers/comments-moderation-matrix.js buildModerationRow (US3 moderation), or tests/helpers/polls-vote-matrix.js buildVoteRow (US3 polls) and validated by the matching validate function; the Playwright inventory/matrix specs fail when a row does not conform.",
+  "description": "One row per built-in content type (US1, #6239) or per widget (US2 static shell, #6240) or per DTS service (US3 interaction, #6241) or per forms confirmation case set (US3 forms matrix, #6482) or per membership registration case set (US3 membership matrix, #6559 / parent #6241, proved #6484) or per comments moderation case set (US3 moderation matrix, #6485) or per polls vote case set (US3 polls matrix, #6241) or per feeds entries case set (US3 feeds matrix, #6560 / parent #6241) or per metadata index-search case set (US3 metadata matrix, #6560 / parent #6241). Rows are built by tests/helpers/content-create-matrix.js buildResultRow (US1), tests/helpers/published-widget-matrix.js buildWidgetRow (US2), tests/helpers/dts-interaction-matrix.js buildInteractionRow (US3), tests/helpers/forms-confirmation-matrix.js buildConfirmationRow (US3 forms), tests/helpers/membership-registration-matrix.js buildRegistrationRow (US3 membership), tests/helpers/comments-moderation-matrix.js buildModerationRow (US3 moderation), or tests/helpers/polls-vote-matrix.js buildVoteRow (US3 polls), tests/helpers/feeds-entries-matrix.js buildEntriesRow (US3 feeds), or tests/helpers/metadata-index-matrix.js buildIndexRow (US3 metadata) and validated by the matching validate function; the Playwright inventory/matrix specs fail when a row does not conform.",
   "type": "object",
   "required": ["suite", "spec", "contentType", "label", "cell", "cases", "status", "updated"],
   "additionalProperties": false,
   "properties": {
     "suite": {
       "type": "string",
-      "enum": ["content-create-matrix", "published-widget-matrix", "dts-interaction-matrix", "forms-confirmation-matrix", "membership-registration-matrix", "comments-moderation-matrix", "polls-vote-matrix"],
+      "enum": ["content-create-matrix", "published-widget-matrix", "dts-interaction-matrix", "forms-confirmation-matrix", "membership-registration-matrix", "comments-moderation-matrix", "polls-vote-matrix", "feeds-entries-matrix", "metadata-index-matrix"],
       "description": "Matrix suite that produced the row."
     },
     "spec": {
@@ -42,7 +42,9 @@
         { "required": ["submitConfirm", "summariesRetrievable", "csvRetrievable"] },
         { "required": ["registerCreates", "loginRoundTrip", "logoutCloses"] },
         { "required": ["submitAccepted", "approvePublishes", "rejectHides"] },
-        { "required": ["voteCreates", "votePersists", "resultsByQuestion"] }
+        { "required": ["voteCreates", "votePersists", "resultsByQuestion"] },
+        { "required": ["descriptorCreates", "entriesServe", "unseededRedirects"] },
+        { "required": ["indexQueryAnswers", "seededEntryRetrievable", "cleanupRemoves"] }
       ],
       "properties": {
         "createRoundTrip": {
@@ -114,6 +116,36 @@
           "type": "string",
           "enum": ["pass", "fail", "skip"],
           "description": "Polls vote matrix (#6241): the question read (GET /polls/question/{pollQuestion}) answers SUCCESS with the same totals and voted choice as the named read."
+        },
+        "descriptorCreates": {
+          "type": "string",
+          "enum": ["pass", "fail", "skip"],
+          "description": "Feeds entries matrix (#6560): a self-seeded probe descriptor is created (PUT /rss/descriptors) with 2xx for a fresh probe site."
+        },
+        "entriesServe": {
+          "type": "string",
+          "enum": ["pass", "fail", "skip"],
+          "description": "Feeds entries matrix (#6560): the generated feed (GET /rss/{site}/{feed}/localhost) answers 200 text/xml carrying the probe descriptor title plus both seeded entries."
+        },
+        "unseededRedirects": {
+          "type": "string",
+          "enum": ["pass", "fail", "skip"],
+          "description": "Feeds entries matrix (#6560): a feed URL for a name that was never seeded answers 302 to the feeds error page (the documented unseeded-name outcome)."
+        },
+        "indexQueryAnswers": {
+          "type": "string",
+          "enum": ["pass", "fail", "skip"],
+          "description": "Metadata index matrix (#6560): the index query (POST /metadata/get) answers 200 with a result list shape."
+        },
+        "seededEntryRetrievable": {
+          "type": "string",
+          "enum": ["pass", "fail", "skip"],
+          "description": "Metadata index matrix (#6560): a self-seeded probe index row is contained in the re-queried results, then removed."
+        },
+        "cleanupRemoves": {
+          "type": "string",
+          "enum": ["pass", "fail", "skip"],
+          "description": "Metadata index matrix (#6560): a seeded-then-removed probe row no longer appears in the re-queried results."
         }
       }
     },

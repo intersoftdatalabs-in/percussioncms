@@ -1,0 +1,16 @@
+[
+  {
+    "suite": "metadata-index-matrix",
+    "spec": "tests/metadata-index-matrix.spec.js",
+    "contentType": "metadata",
+    "label": "Metadata",
+    "cell": "dts-cell",
+    "cases": {
+      "indexQueryAnswers": "skip",
+      "seededEntryRetrievable": "skip",
+      "cleanupRemoves": "skip"
+    },
+    "status": "skip",
+    "updated": "2026-11-17"
+  }
+]

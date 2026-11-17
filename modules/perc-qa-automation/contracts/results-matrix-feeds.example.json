@@ -1,0 +1,16 @@
+[
+  {
+    "suite": "feeds-entries-matrix",
+    "spec": "tests/feeds-entries-matrix.spec.js",
+    "contentType": "feeds",
+    "label": "Feeds",
+    "cell": "dts-cell",
+    "cases": {
+      "descriptorCreates": "skip",
+      "entriesServe": "skip",
+      "unseededRedirects": "skip"
+    },
+    "status": "skip",
+    "updated": "2026-11-17"
+  }
+]
