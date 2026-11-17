@@ -572,6 +572,14 @@ export const MSG = {
     "perc.ui.publish.modern@Published {saved} of {total}: {detail}",
   PUBLISH_NOW_BATCH_ITEM_OK: "perc.ui.publish.modern@publish started",
   PUBLISH_NOW_RETRY_FAILED: "perc.ui.publish.modern@Retry failed",
+  PUBLISH_NOW_STALE_TITLE: "perc.ui.publish.modern@Template changes pending",
+  PUBLISH_NOW_STALE_UNSAVED:
+    "perc.ui.publish.modern@Template {0} has unsaved changes — publishing now assembles from the last saved template.",
+  PUBLISH_NOW_STALE_SAVED:
+    "perc.ui.publish.modern@Template {0} changed in this session — republish items to refresh their assembled output.",
+  PUBLISH_NOW_STALE_DISMISS: "perc.ui.publish.modern@Dismiss",
+  PUBLISH_NOW_STALE_DISMISS_ARIA:
+    "perc.ui.publish.modern@Dismiss stale-assembly warning for {0}",
   PUBLISH_TAKEDOWN: "perc.ui.publish.title@Remove From Site",
   PUBLISH_TAKEDOWN_HINT:
     "perc.ui.publish.modern@Take down (unpublish) a page or asset from this site workspace.",

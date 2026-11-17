@@ -25,6 +25,11 @@ import { publishSelectedItem } from "../../contentExplorer/itemPublish";
 import { message, MSG } from "../../i18n/message";
 import { mapIdParam } from "../deepLinkMap";
 import {
+  clearTemplateAssemblyStale,
+  listStaleAssemblyTemplates,
+  type StaleAssemblyEntry,
+} from "../../design/staleAssembly";
+import {
   formatPublishNowBatchDetail,
   parsePublishNowItemIds,
   runPublishNowBatch,
@@ -122,6 +127,21 @@ export function ItemPublishNowPanel({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  // Templates changed in this Design session whose items may still show the
+  // old assembly until republished (#6478). Reloaded whenever the panel
+  // re-reviews so marks made in another tab/shell appear at publish time.
+  const [staleTemplates, setStaleTemplates] = useState<StaleAssemblyEntry[]>(
+    () => listStaleAssemblyTemplates(),
+  );
+
+  function refreshStaleTemplates(): void {
+    setStaleTemplates(listStaleAssemblyTemplates());
+  }
+
+  function dismissStaleTemplate(name: string): void {
+    clearTemplateAssemblyStale(name);
+    setStaleTemplates(listStaleAssemblyTemplates());
+  }
 
   useEffect(() => {
     setInputId(itemId ?? "");
@@ -134,6 +154,7 @@ export function ItemPublishNowPanel({
 
   function onReview(e: React.FormEvent): void {
     e.preventDefault();
+    refreshStaleTemplates();
     const ids = parsePublishNowItemIds(inputId);
     if (ids.length > 1) {
       // Keep the whole list in the box: propagating one id would echo back
@@ -299,6 +320,62 @@ export function ItemPublishNowPanel({
         {message(MSG.PUBLISH_NOW_HINT)}{" "}
         {message(MSG.PUBLISH_NOW_IDS_HINT)}
       </p>
+      {staleTemplates.length > 0 && (
+        <div
+          role="alert"
+          data-testid="item-publish-now-stale"
+          aria-label={message(MSG.PUBLISH_NOW_STALE_TITLE)}
+          style={{
+            margin: "0 0 12px",
+            padding: "8px 12px",
+            fontSize: "0.85rem",
+            border: "1px solid #d69e2e",
+            borderRadius: 6,
+            background: "#fffff0",
+          }}
+        >
+          <strong>{message(MSG.PUBLISH_NOW_STALE_TITLE)}</strong>
+          <ul style={{ margin: "8px 0 0", paddingLeft: 18 }}>
+            {staleTemplates.map((entry, index) => (
+              <li
+                key={entry.name}
+                data-testid="item-publish-now-stale-row"
+                data-state={entry.state}
+              >
+                <span>
+                  {fill(
+                    message(
+                      entry.state === "unsaved"
+                        ? MSG.PUBLISH_NOW_STALE_UNSAVED
+                        : MSG.PUBLISH_NOW_STALE_SAVED,
+                    ),
+                    { 0: entry.name },
+                  )}
+                </span>{" "}
+                <button
+                  type="button"
+                  data-testid={`item-publish-now-stale-dismiss-${index}`}
+                  aria-label={fill(
+                    message(MSG.PUBLISH_NOW_STALE_DISMISS_ARIA),
+                    { 0: entry.name },
+                  )}
+                  onClick={() => dismissStaleTemplate(entry.name)}
+                  style={{
+                    background: "transparent",
+                    border: "1px solid #ccc",
+                    borderRadius: 4,
+                    padding: "2px 8px",
+                    cursor: "pointer",
+                    fontSize: "0.8rem",
+                  }}
+                >
+                  {message(MSG.PUBLISH_NOW_STALE_DISMISS)}
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
       <form onSubmit={onReview} style={toolbarStyle}>
         <div style={{ ...formRowStyle, marginBottom: 0, maxWidth: 280 }}>
           <label htmlFor="item-publish-now-id">
