@@ -211,6 +211,20 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Could not empty the recycle bin (one or more items could not be purged)",
   CONFIRM_EMPTY_RECYCLE:
     "perc.ui.explorer@Permanently empty the recycle bin? This cannot be undone.",
+  EMPTY_RECYCLE_CONFIRM_COUNT:
+    "perc.ui.explorer@Permanently delete {count} item(s) from the recycle bin? This cannot be undone.",
+  EMPTY_RECYCLE_LOADING:
+    "perc.ui.explorer@Loading the recycle bin contents…",
+  EMPTY_RECYCLE_BIN_EMPTY:
+    "perc.ui.explorer@The recycle bin is already empty — there is nothing to delete.",
+  EMPTY_RECYCLE_LOAD_FAILED:
+    "perc.ui.explorer@Could not load the recycle bin contents.",
+  EMPTY_RECYCLE_REMOVED:
+    "perc.ui.explorer@Removed {count} item(s) from the recycle bin: {names}",
+  EMPTY_RECYCLE_ROW_REMOVED: "perc.ui.explorer@Removed",
+  EMPTY_RECYCLE_AND_MORE: "perc.ui.explorer@…and {count} more",
+  CONFIRM_RESTORE_SINGLE:
+    "perc.ui.explorer@Restore this recycled item to its original folder?",
   ACTION_PURGE: "perc.ui.explorer@Purge",
   ACTION_PURGE_NOT_FOUND:
     "perc.ui.explorer@The recycled item was not found",

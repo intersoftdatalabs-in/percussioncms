@@ -16,10 +16,12 @@
  */
 
 /**
- * Explorer empty recycle bin (#4762 / parent #4530).
+ * Explorer empty recycle bin (#4762 / #6470 / parent #4530).
  *
- * Confirms the bin, maps a forced HTTP 409 as an error (row stays), then
- * empties for real and expects the seeded name to leave the list.
+ * Confirms in the React dialog (which lists the bin contents), maps a forced
+ * HTTP 409 as an error on the dialog report (row stays), then empties for
+ * real, checks the per-item report names the seeded folder, and expects the
+ * seeded name to leave the list.
  */
 
 const { test, expect } = require("@playwright/test");
@@ -32,6 +34,9 @@ const {
   probePathmanagementContext,
   createNamedFolder,
   recycleFolder,
+  listFolderChildren,
+  findNamedPathItem,
+  extractPathItemGuid,
   contextDownFailureMessage,
 } = require("./helpers/folder-recycle-smoke");
 const {
@@ -62,7 +67,56 @@ test.describe("Explorer empty recycle bin (#4762)", () => {
         name: `qa4762empty${Date.now()}`,
       });
       expect(seeded && seeded.name, "seed folder").toBeTruthy();
+      if (!seeded.guid) {
+        const assets = await listFolderChildren(request, BASE_URL, headers, "Assets");
+        const live = findNamedPathItem(assets, seeded.name);
+        seeded.guid = extractPathItemGuid(live);
+        if (live && live.path) {
+          seeded.path = String(live.path);
+        }
+      }
+      expect(seeded.guid, "seed folder guid").toBeTruthy();
       await recycleFolder(request, BASE_URL, headers, seeded);
+
+      // H2 QA bin listings can 500 (rollback-only); stub the Recycling
+      // listing with the seeded row so the dialog lists it deterministically.
+      let showRecycled = true;
+      await page.route("**/pathmanagement/path/**", async (route) => {
+        const url = route.request().url();
+        if (
+          !/Recycling/i.test(url) ||
+          route.request().method() !== "GET" ||
+          !/\/(?:folder|paginatedFolder)\//i.test(url)
+        ) {
+          await route.continue();
+          return;
+        }
+        const kids = showRecycled
+          ? [
+              {
+                id: seeded.guid,
+                name: seeded.name,
+                path: `/Recycling/Assets/${seeded.name}`,
+                folderPath: "//Folders/$System$/Recycling/Assets",
+                type: "Folder",
+                leaf: false,
+                accessLevel: "WRITE",
+              },
+            ]
+          : [];
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            PathItem: kids,
+            PagedItemList: {
+              childrenInPage: kids,
+              childrenCount: kids.length,
+              startIndex: 0,
+            },
+          }),
+        });
+      });
 
       await loginAsAdmin(page);
       await page.goto(modernExplorerUrl(BASE_URL), {
@@ -81,11 +135,8 @@ test.describe("Explorer empty recycle bin (#4762)", () => {
         }
       }
       expect(clicked, "Recycling tree node").toBeTruthy();
-      const nameLoc = page.getByText(seeded.name, { exact: true });
-      const sawName = await nameLoc
-        .first()
-        .isVisible()
-        .catch(() => false);
+      const seedRow = page.getByTestId(`detail-row-${seeded.guid}`);
+      await expect(seedRow).toBeVisible({ timeout: 20_000 });
 
       const emptyBtn = page.getByTestId("action-empty-recycle");
       await expect(emptyBtn).toBeEnabled();
@@ -97,16 +148,18 @@ test.describe("Explorer empty recycle bin (#4762)", () => {
           body: "conflict",
         }),
       );
-      page.once("dialog", (dialog) => dialog.accept());
       await emptyBtn.click();
-      await expect(page.getByRole("alert")).toContainText(/could not empty/i, {
-        timeout: 20_000,
-      });
-      if (sawName) {
-        await expect(nameLoc.first()).toBeVisible();
-      } else {
-        await expect(page.getByText(/No items in this folder/i)).toBeVisible();
-      }
+      await expect(page.getByTestId("explorer-empty-recycle-list")).toContainText(
+        seeded.name,
+        { timeout: 20_000 },
+      );
+      await page.getByTestId("explorer-empty-recycle-ok").click();
+      await expect(page.getByTestId("explorer-empty-recycle-report")).toContainText(
+        /could not empty/i,
+        { timeout: 20_000 },
+      );
+      await page.getByTestId("explorer-empty-recycle-close").click();
+      await expect(seedRow).toBeVisible();
       await page.unroute("**/folders/recycle/empty");
 
       const emptied = page.waitForResponse(
@@ -116,10 +169,27 @@ test.describe("Explorer empty recycle bin (#4762)", () => {
           res.status() === 200,
         { timeout: 60_000 },
       );
-      page.once("dialog", (dialog) => dialog.accept());
+      page.on("request", (req) => {
+        if (
+          req.method() === "POST" &&
+          req.url().includes("/folders/recycle/empty")
+        ) {
+          showRecycled = false;
+        }
+      });
       await emptyBtn.click();
+      await page.getByTestId("explorer-empty-recycle-list").waitFor({
+        timeout: 20_000,
+      });
+      await page.getByTestId("explorer-empty-recycle-ok").click();
       await emptied;
-      await expect(nameLoc).toHaveCount(0, { timeout: 30_000 });
+      const report = page.getByTestId("explorer-empty-recycle-report");
+      await expect(report).toContainText(/Removed 1 item\(s\)/, {
+        timeout: 30_000,
+      });
+      await expect(report).toContainText(seeded.name, { timeout: 10_000 });
+      await page.getByTestId("explorer-empty-recycle-close").click();
+      await expect(seedRow).toHaveCount(0, { timeout: 30_000 });
       await expect(page.getByText(/No items in this folder/i)).toBeVisible({
         timeout: 30_000,
       });
