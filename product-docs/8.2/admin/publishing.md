@@ -2534,6 +2534,41 @@ users/roles store:
    when the register call asked for none — confirm the account (or
    relax the confirmation policy on the cell) and retry.
 
+## Comments moderation: approve/reject round-trip (DTS)
+
+When a published site uses the comments widget, visitor comments live
+in the DTS comments service (`perc-comments-services`), not in the CMS
+content store. New comments are held for moderation until a moderator
+approves them:
+
+1. A visitor submits through `POST /comment/addcomment` (form fields
+   `action`, `username`, `site`, `pagepath`, `email`, `text`, `title`).
+   The open surface accepts the submit and queues the comment — it
+   answers HTTP success even when the comment stays hidden from the
+   public list. A submit that is immediately publicly visible means the
+   site auto-approves; otherwise the comment waits in the moderation
+   queue.
+2. A moderator lists the queue through
+   `POST /comment/moderation/asmoderator` with a criteria body
+   (`{ "site": "...", "pagepath": "...", "maxResults": 25,
+   "startIndex": 0 }`). The queue answers the queued entries with
+   their ids — this and every `/comment/moderation/*` path requires
+   HTTP BASIC credentials in the `deliverymanager` role (the DTS
+   credentials provisioned for the install, not the CMS Admin login).
+3. Approving through `PUT /comment/moderation/approve` with
+   `{ "comments": ["<id>", ...] }` publishes the entries: a later
+   `POST /comment/list` with the same site/page criteria names the
+   approved comment. An approved comment that stays unlisted means the
+   approve did not land — re-check the ids against the queue.
+4. Rejecting through `PUT /comment/moderation/reject` with the same
+   id body hides the entries again: the public list no longer names
+   them. A rejected comment that stays listed means the reject did
+   not land.
+5. A `401`/`403` on any `/comment/moderation/*` path means the caller
+   lacks the `deliverymanager` role. Over plain HTTP the service
+   redirects to its HTTPS port first, so the DTS HTTPS endpoint must
+   be reachable before the gated surface can be read or written.
+
 ## Failure modes to watch
 
 - Missing template/variant or broken relationship links
@@ -2545,6 +2580,8 @@ users/roles store:
 - Membership logins that fail right after a successful registration, or
   session lookups that still resolve an account after logout — see
   "Membership registration and login (DTS)" above
+- Approved comments that stay unlisted, or rejected comments that stay
+  listed — see "Comments moderation: approve/reject round-trip (DTS)" above
 
 ## Related
 
