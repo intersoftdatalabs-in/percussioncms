@@ -94,10 +94,16 @@ function fieldGrid(): React.CSSProperties {
 export function TemplateSlotsPanel({
   slots,
   disabled,
+  rowErrors,
   onRowsChange,
 }: {
   slots: TemplateSlotSummary[] | undefined;
   disabled?: boolean;
+  /**
+   * Inline per-row mapping/validation errors aligned by row index (#6477).
+   * Rendered under the matching slot card; load errors keep their own slot.
+   */
+  rowErrors?: ReadonlyArray<string | null | undefined>;
   /** Called when drafts load or user edits (parent tracks dirty + save). */
   onRowsChange: (rows: SlotEditorRow[]) => void;
 }): React.ReactElement {
@@ -226,7 +232,12 @@ export function TemplateSlotsPanel({
       ) : null}
 
       {!loading &&
-        rows.map((row, i) => (
+        rows.map((row, i) => {
+          const rowError: string | null | undefined = rowErrors?.[i];
+          const describedBy = rowError
+            ? `design-tpl-slot-validation-msg-${i}`
+            : undefined;
+          return (
           <div
             key={row.key}
             data-testid={`design-tpl-slot-card-${i}`}
@@ -247,6 +258,16 @@ export function TemplateSlotsPanel({
                 {row.loadError}
               </div>
             ) : null}
+            {rowErrors?.[i] ? (
+              <div
+                role="alert"
+                id={`design-tpl-slot-validation-msg-${i}`}
+                data-testid={`design-tpl-slot-validation-${i}`}
+                style={{ color: catalogColors.error, marginTop: 6 }}
+              >
+                {rowErrors[i]}
+              </div>
+            ) : null}
 
             <div style={{ marginTop: 10 }}>
               <div style={{ fontSize: "0.9rem", color: catalogColors.muted }}>
@@ -263,6 +284,8 @@ export function TemplateSlotsPanel({
                     style={inputStyle}
                     value={row.layout.orientation}
                     disabled={disabled || Boolean(row.loadError)}
+                    aria-invalid={rowError ? true : undefined}
+                    aria-describedby={describedBy}
                     onChange={(e) => patchLayout(i, "orientation", e.target.value)}
                   >
                     <option value="">{DESIGN_MSG.EDITOR_SLOT_ORIENTATION_NONE}</option>
@@ -280,6 +303,8 @@ export function TemplateSlotsPanel({
                     style={inputStyle}
                     value={row.layout.columns}
                     disabled={disabled || Boolean(row.loadError)}
+                    aria-invalid={rowError ? true : undefined}
+                    aria-describedby={describedBy}
                     onChange={(e) => patchLayout(i, "columns", e.target.value)}
                   />
                 </div>
@@ -293,6 +318,8 @@ export function TemplateSlotsPanel({
                     style={inputStyle}
                     value={row.layout.maxItems}
                     disabled={disabled || Boolean(row.loadError)}
+                    aria-invalid={rowError ? true : undefined}
+                    aria-describedby={describedBy}
                     onChange={(e) => patchLayout(i, "maxItems", e.target.value)}
                   />
                 </div>
@@ -359,7 +386,8 @@ export function TemplateSlotsPanel({
               </div>
             </div>
           </div>
-        ))}
+          );
+        })}
     </section>
   );
 }

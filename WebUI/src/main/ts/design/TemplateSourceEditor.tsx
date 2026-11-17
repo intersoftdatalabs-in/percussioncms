@@ -57,6 +57,10 @@ import {
   normalizeBindingsForSave,
   validateBindings,
 } from "./templateBindings";
+import {
+  slotRowIndexesForServerError,
+  validateSlotRows,
+} from "./slotMappingValidation";
 
 const inputStyle: React.CSSProperties = {
   padding: "8px",
@@ -128,9 +132,12 @@ export function TemplateSourceEditor({
   const [bindings, setBindings] = useState<TemplateBindingSummary[]>([]);
   const [assembler, setAssembler] = useState("");
   const [slotRows, setSlotRows] = useState<SlotEditorRow[]>([]);
+  const [slotRowErrors, setSlotRowErrors] = useState<Array<string | null>>([]);
 
   const onSlotRowsChange = useCallback((rows: SlotEditorRow[]) => {
     setSlotRows(rows);
+    // Drafts changed: prior inline mapping errors are stale while the user edits.
+    setSlotRowErrors([]);
   }, []);
 
   useEffect(() => {
@@ -208,9 +215,27 @@ export function TemplateSourceEditor({
       setNotice(null);
       return;
     }
+    const slotIssues = validateSlotRows(slotRows);
+    if (slotIssues.length > 0) {
+      const byIndex: Array<string | null> = slotRows.map(() => null);
+      for (const issue of slotIssues) {
+        if (byIndex[issue.index] == null) {
+          byIndex[issue.index] = issue.message;
+        }
+      }
+      setSlotRowErrors(byIndex);
+      const first = slotIssues[0].message;
+      setValidationError(
+        slotIssues.length === 1 ? first : `${slotIssues.length} slot rows need attention: ${first}`,
+      );
+      setError(null);
+      setNotice(null);
+      return;
+    }
     setBusy(true);
     setError(null);
     setValidationError(null);
+    setSlotRowErrors([]);
     setNotice(null);
     let acquiredLock = false;
     try {
@@ -230,7 +255,24 @@ export function TemplateSourceEditor({
             slotStyles: put.slotStyles,
           });
         } catch (slotErr: unknown) {
-          setError(editorErrMsg(slotErr, DESIGN_MSG.EDITOR_SLOT_SAVE_ERROR));
+          const slotMessage = editorErrMsg(slotErr, DESIGN_MSG.EDITOR_SLOT_SAVE_ERROR);
+          setError(slotMessage);
+          // Surface the failure inline on the offending slot row (#6477) so
+          // the user sees which mapping failed, not just the banner.
+          const rowIndex = slotRows.findIndex((r) => r.key === put.key);
+          if (rowIndex >= 0) {
+            setSlotRowErrors((prev) => {
+              const next: Array<string | null> = slotRows.map(() => null);
+              for (let j = 0; j < next.length && j < prev.length; j++) {
+                const prior: string | null | undefined = prev[j];
+                if (prior) {
+                  next[j] = prior;
+                }
+              }
+              next[rowIndex] = slotMessage;
+              return next;
+            });
+          }
           // Keep template save; re-sync template state so slots can retry.
           setDetail(saved);
           setSource(saved.templateSource || "");
@@ -259,6 +301,22 @@ export function TemplateSourceEditor({
       );
       setNotice(DESIGN_MSG.EDITOR_SAVED);
     } catch (err: unknown) {
+      // Map server slot-mapping 400s (slots[i] ...) back onto the offending
+      // rows inline (#6477); the banner keeps the full server message.
+      const serverMessage = isApiError(err)
+        ? extractRestErrorMessage(err.body)
+        : undefined;
+      const indexes = slotRowIndexesForServerError(
+        slotRows,
+        serverMessage ?? null,
+      );
+      if (indexes.length > 0) {
+        const rowMessage =
+          serverMessage || editorErrMsg(err, DESIGN_MSG.EDITOR_SAVE_ERROR);
+        setSlotRowErrors(
+          slotRows.map((_, j) => (indexes.includes(j) ? rowMessage : null)),
+        );
+      }
       setError(editorErrMsg(err, DESIGN_MSG.EDITOR_SAVE_ERROR));
     } finally {
       if (acquiredLock) {
@@ -381,6 +439,7 @@ export function TemplateSourceEditor({
           <TemplateSlotsPanel
             slots={detail.slots}
             disabled={busy}
+            rowErrors={slotRowErrors}
             onRowsChange={onSlotRowsChange}
           />
 

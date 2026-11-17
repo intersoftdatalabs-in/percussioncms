@@ -29,6 +29,7 @@ import {
   type ContentTypeLockSummary,
 } from "./contentTypesApi";
 import {
+  asJacksonArray,
   normalizeSlotAssociations,
   normalizeSlotDesignGaps,
   normalizeSlotStringMap,
@@ -42,10 +43,14 @@ import type {
   CommunitySummary,
   CommunityVisibility,
   CommunityVisibleObject,
+  DesignGapWire,
+  NamedObjectRef,
   RestGuid,
   SlotDetail,
   SlotSummary,
+  TemplateBindingSummary,
   TemplateDetail,
+  TemplateSlotSummary,
   TemplateSummary,
 } from "./types";
 
@@ -87,11 +92,47 @@ function asRecord(value: unknown): Record<string, unknown> | null {
  * Normalize a templates GET/PUT response to a flat {@link TemplateDetail}.
  *
  * <p>Prefers {@code { "TemplateDetail": { … } }}; also accepts a flat body
- * (unit tests / proxies that already unwrapped).
+ * (unit tests / proxies that already unwrapped). Single-element collections
+ * ({@code slots}, {@code bindings}, …) may arrive as a bare object instead of
+ * an array (observed #6477: a one-slot template rendered "Slots 0"); they are
+ * normalized to arrays here so every consumer sees the same shape.
  */
 function normalizeTemplateDetail(body: TemplateDetail): TemplateDetail {
   const catalog = resolveTemplateObjectGuid(body);
-  return normalizeDesignObjectGuid(body, catalog);
+  const normalized = normalizeDesignObjectGuid(body, catalog);
+  return {
+    ...normalized,
+    bindings: asJacksonArray<TemplateBindingSummary>(
+      normalized.bindings,
+      [],
+      (o) => "variable" in o || "expression" in o || "executionOrder" in o,
+    ),
+    slots: asJacksonArray<TemplateSlotSummary>(
+      normalized.slots,
+      [],
+      (o) => "name" in o || "label" in o || "guid" in o,
+    ),
+    associatedContentTypes: asJacksonArray<NamedObjectRef>(
+      normalized.associatedContentTypes,
+      [],
+      (o) => "name" in o || "guid" in o || "id" in o,
+    ),
+    designGaps: normalizeDesignGapWireList(normalized.designGaps),
+  };
+}
+
+/**
+ * Template-level design gaps: array, single object, or single legacy string.
+ */
+function normalizeDesignGapWireList(raw: unknown): DesignGapWire[] {
+  if (typeof raw === "string") {
+    return raw.trim() ? [raw] : [];
+  }
+  return asJacksonArray<DesignGapWire>(
+    raw,
+    [],
+    (o) => "code" in o || "message" in o,
+  );
 }
 
 export function unwrapTemplateDetail(payload: unknown): TemplateDetail {
