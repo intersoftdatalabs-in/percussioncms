@@ -217,6 +217,62 @@ function numericEquals(raw: string, candidate: string | number | null | undefine
   return left === right;
 }
 
+function hidesOnCheckoutStatus(
+  values: string[],
+  status: string | null | undefined,
+): boolean {
+  const current = (status ?? "").trim();
+  if (!current) {
+    return false;
+  }
+  return values.some(
+    (value) =>
+      equalsFold(value, current) ||
+      (equalsFold(value, "myself") &&
+        equalsFold(current, "Checked Out By Me")) ||
+      (equalsFold(value, "someoneelse") &&
+        equalsFold(current, "Checked Out")),
+  );
+}
+
+function hidesOnRoles(
+  values: string[],
+  userRoles: ReadonlyArray<string> | undefined,
+): boolean {
+  // Server hides when the listed values contain ALL of the user's roles.
+  // Without a known role list the client cannot evaluate.
+  const roles = (userRoles ?? [])
+    .map((role) => (typeof role === "string" ? role.trim() : ""))
+    .filter((role) => role.length > 0);
+  if (roles.length === 0) {
+    return false;
+  }
+  const listed = new Set(values.map((value) => value.toLowerCase()));
+  return roles.every((role) => listed.has(role.toLowerCase()));
+}
+
+function hidesOnAccessBand(
+  values: string[],
+  accessLevel: ExplorerMenuVisibilityState["accessLevel"],
+): boolean {
+  // Coarse client approximation of the server bitmask check: hide when
+  // the row's access band ranks below the listed value's band.
+  const current = accessLevel
+    ? (ACCESS_RANK[accessLevel.toLowerCase()] ?? 0)
+    : 0;
+  if (current === 0) {
+    return false;
+  }
+  return values.some((value) => {
+    const required = ACCESS_RANK[value.trim().toLowerCase()] ?? 0;
+    return required > 0 && current < required;
+  });
+}
+
+function stateText(value: string | null | undefined): string {
+  return (value ?? "").trim();
+}
+
 /**
  * Hide-on-match for one normalized context id, mirroring
  * {@code PSActionVisibilityChecker#checkObjectState} /
@@ -232,61 +288,35 @@ function contextHidesAction(
     return false;
   }
   switch (contextId) {
-    case VISIBILITY_CONTEXT_CHECKOUT_STATUS: {
-      // Server hides on match, with legacy MySelf/SomeOneElse aliases.
-      const status = (state.checkoutStatus ?? "").trim();
-      if (!status) {
-        return false;
-      }
-      return values.some(
-        (value) =>
-          equalsFold(value, status) ||
-          (equalsFold(value, "myself") &&
-            equalsFold(status, "Checked Out By Me")) ||
-          (equalsFold(value, "someoneelse") &&
-            equalsFold(status, "Checked Out")),
+    case VISIBILITY_CONTEXT_CHECKOUT_STATUS:
+      return hidesOnCheckoutStatus(values, state.checkoutStatus);
+    case VISIBILITY_CONTEXT_PUBLISHABLE_TYPE:
+      return (
+        stateText(state.publishableType) !== "" &&
+        values.some((value) =>
+          equalsFold(value, stateText(state.publishableType)),
+        )
       );
-    }
-    case VISIBILITY_CONTEXT_PUBLISHABLE_TYPE: {
-      const publishable = (state.publishableType ?? "").trim();
-      if (!publishable) {
-        return false;
-      }
-      return values.some((value) => equalsFold(value, publishable));
-    }
-    case VISIBILITY_CONTEXT_COMMUNITY: {
-      if (state.communityId == null || state.communityId === "") {
-        return false;
-      }
-      const community = String(state.communityId);
-      return values.some((value) => value === community);
-    }
-    case VISIBILITY_CONTEXT_ROLES: {
-      // Server hides when the listed values contain ALL of the user's
-      // roles. Without a known role list the client cannot evaluate.
-      const roles = (state.userRoles ?? [])
-        .map((role) => (typeof role === "string" ? role.trim() : ""))
-        .filter((role) => role.length > 0);
-      if (roles.length === 0) {
-        return false;
-      }
-      const listed = new Set(values.map((value) => value.toLowerCase()));
-      return roles.every((role) => listed.has(role.toLowerCase()));
-    }
-    case VISIBILITY_CONTEXT_LOCALES: {
-      const locale = (state.locale ?? "").trim();
-      if (!locale) {
-        return false;
-      }
-      return values.some((value) => equalsFold(value, locale));
-    }
-    case VISIBILITY_CONTEXT_CLIENT_CONTEXT: {
-      const clientContext = (state.clientContext ?? "").trim();
-      if (!clientContext) {
-        return false;
-      }
-      return values.some((value) => equalsFold(value, clientContext));
-    }
+    case VISIBILITY_CONTEXT_COMMUNITY:
+      return (
+        state.communityId != null &&
+        state.communityId !== "" &&
+        values.some((value) => value === String(state.communityId))
+      );
+    case VISIBILITY_CONTEXT_ROLES:
+      return hidesOnRoles(values, state.userRoles);
+    case VISIBILITY_CONTEXT_LOCALES:
+      return (
+        stateText(state.locale) !== "" &&
+        values.some((value) => equalsFold(value, stateText(state.locale)))
+      );
+    case VISIBILITY_CONTEXT_CLIENT_CONTEXT:
+      return (
+        stateText(state.clientContext) !== "" &&
+        values.some((value) =>
+          equalsFold(value, stateText(state.clientContext)),
+        )
+      );
     case VISIBILITY_CONTEXT_CONTENT_TYPE:
       return values.some((value) =>
         numericEquals(value, state.contentTypeId),
@@ -299,20 +329,8 @@ function contextHidesAction(
       );
     case VISIBILITY_CONTEXT_WORKFLOWS:
       return values.some((value) => numericEquals(value, state.workflowId));
-    case VISIBILITY_CONTEXT_FOLDER_SECURITY: {
-      // Coarse client approximation of the server bitmask check: hide
-      // when the row's access band ranks below the listed value's band.
-      const current = state.accessLevel
-        ? (ACCESS_RANK[state.accessLevel.toLowerCase()] ?? 0)
-        : 0;
-      if (current === 0) {
-        return false;
-      }
-      return values.some((value) => {
-        const required = ACCESS_RANK[value.trim().toLowerCase()] ?? 0;
-        return required > 0 && current < required;
-      });
-    }
+    case VISIBILITY_CONTEXT_FOLDER_SECURITY:
+      return hidesOnAccessBand(values, state.accessLevel);
     default:
       return false;
   }
