@@ -21,6 +21,7 @@ import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { EditorHost } from "../../../main/ts/editor/EditorHost";
 import type { ItemEditorFields } from "../../../main/ts/editor/itemFieldsApi";
+import { renderA11yGate } from "../contentExplorer/a11y";
 
 const fields: ItemEditorFields = {
   contentId: "42",
@@ -263,5 +264,81 @@ describe("EditorHost revision compare view polish", () => {
     const results = screen.getByTestId("editor-compare-results");
     expect(results).toHaveProperty("role", "region");
     expect(results.getAttribute("aria-live")).toBe("polite");
+  });
+
+  it("exposes the compare controls as a labelled toolbar", async () => {
+    renderHost();
+    await openComparePanel();
+    const toolbar = screen.getByTestId("editor-compare-toolbar");
+    expect(toolbar).toHaveProperty("role", "toolbar");
+    expect(toolbar.getAttribute("aria-label")).toMatch(/controls/i);
+  });
+
+  it("steps focus through changed rows with a live Change X of Y status", async () => {
+    renderHost({
+      compareRevisions: vi.fn().mockResolvedValue({
+        itemId: "42",
+        rev1: 4,
+        rev2: 5,
+        fields: [
+          {
+            name: "sys_title",
+            leftValue: "Old",
+            rightValue: "Home",
+            changed: true,
+          },
+          {
+            name: "displaytitle",
+            leftValue: "Same",
+            rightValue: "Same",
+            changed: false,
+          },
+          {
+            name: "body",
+            leftValue: "Old body",
+            rightValue: "New body",
+            changed: true,
+          },
+        ],
+      }),
+    });
+    await openComparePanel();
+    fireEvent.click(screen.getByTestId("editor-compare-run"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
+    });
+    const status = screen.getByTestId("editor-compare-nav-status");
+    expect(status).toHaveProperty("role", "status");
+    expect(status.textContent).toBe("Change 1 of 2: sys_title");
+    const prev = screen.getByTestId("editor-compare-prev-change");
+    const next = screen.getByTestId("editor-compare-next-change");
+    expect(prev).toHaveProperty("disabled", true);
+    expect(next).toHaveProperty("disabled", false);
+    fireEvent.click(next);
+    await waitFor(() => {
+      expect(status.textContent).toBe("Change 2 of 2: body");
+    });
+    expect(document.activeElement).toBe(
+      screen.getByTestId("editor-compare-row-body"),
+    );
+    expect(next).toHaveProperty("disabled", true);
+    expect(prev).toHaveProperty("disabled", false);
+    fireEvent.click(prev);
+    await waitFor(() => {
+      expect(status.textContent).toBe("Change 1 of 2: sys_title");
+    });
+    expect(document.activeElement).toBe(
+      screen.getByTestId("editor-compare-row-sys_title"),
+    );
+  });
+
+  it("passes the axe gate on the compare surface", async () => {
+    renderHost();
+    await openComparePanel();
+    fireEvent.click(screen.getByTestId("editor-compare-run"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
+    });
+    await renderA11yGate(screen.getByTestId("editor-compare"));
   });
 });

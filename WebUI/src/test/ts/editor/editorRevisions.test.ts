@@ -18,9 +18,11 @@ import { describe, expect, it } from "vitest";
 import {
   applyRevisionFieldValue,
   canRestoreFromEditor,
+  changedCompareFieldNames,
   computeWordDiff,
   describeRestoredCompareField,
   editorRevisionErrorReason,
+  formatCompareNavStatus,
   isEmptyRevisionCompare,
   parseRevisionId,
   restoreRevisionConfirmBody,
@@ -166,6 +168,27 @@ describe("editorRevisions", () => {
       "sys_title (revision #5)",
     );
     expect(describeRestoredCompareField("sys_title", 0)).toBe("sys_title");
+  });
+
+  it("steps diff navigation through changed rows in table order", () => {
+    const fields = [
+      { name: "sys_title", changed: true },
+      { name: "displaytitle", changed: false },
+      { name: "body", changed: true },
+    ];
+    expect(changedCompareFieldNames(fields)).toEqual(["sys_title", "body"]);
+    expect(changedCompareFieldNames([])).toEqual([]);
+    expect(changedCompareFieldNames(null)).toEqual([]);
+    expect(changedCompareFieldNames(undefined)).toEqual([]);
+  });
+
+  it("announces the navigation position as Change X of Y", () => {
+    expect(
+      formatCompareNavStatus("Change {0} of {1}: {2}", 0, 2, "sys_title"),
+    ).toBe("Change 1 of 2: sys_title");
+    expect(formatCompareNavStatus("Change {0} of {1}: {2}", 1, 2, "body")).toBe(
+      "Change 2 of 2: body",
+    );
   });
 
   it("marks added and removed words in a changed compare cell", () => {

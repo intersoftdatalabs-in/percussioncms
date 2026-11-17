@@ -108,6 +108,12 @@
   color: #334155;
 }
 
+/** Compare toolbar (#6597): From/To selects + Compare keep the grid rhythm. */
+.compareToolbar {
+  display: grid;
+  gap: 0.9rem;
+}
+
 /** Word-level compare diff (#6533): additions read on green, removals on red. */
 .compareAdded {
   background: #dcfce7;
@@ -123,6 +129,12 @@
   text-decoration: line-through;
   border-radius: 2px;
   padding: 0 1px;
+}
+
+/** Diff navigation stop (#6597): keyboard focus on the stepped-to row stays visible. */
+.compareRow:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: -2px;
 }
 
 .noticeRow {
