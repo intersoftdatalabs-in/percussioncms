@@ -1,0 +1,16 @@
+[
+  {
+    "suite": "polls-vote-matrix",
+    "spec": "tests/polls-vote-matrix.spec.js",
+    "contentType": "polls",
+    "label": "Polls",
+    "cell": "dts-cell",
+    "cases": {
+      "voteCreates": "skip",
+      "votePersists": "skip",
+      "resultsByQuestion": "skip"
+    },
+    "status": "skip",
+    "updated": "2026-11-17"
+  }
+]

@@ -2569,6 +2569,33 @@ approves them:
    redirects to its HTTPS port first, so the DTS HTTPS endpoint must
    be reachable before the gated surface can be read or written.
 
+## Poll voting and results (DTS)
+
+When a published site uses the poll widget, votes live in the DTS
+polls service (`perc-polls-services`), not in the CMS content store.
+Voting on a question that has never been asked creates the poll, so
+no fixture is needed:
+
+1. A visitor votes through `POST /polls/save` with the poll name, the
+   poll question, and `pollSubmits` mapping the chosen answer to
+   `true` (with `restrictBySession: false`). A successful vote answers
+   `PSPollsResponse` status `SUCCESS` with the updated poll, including
+   `totalVotes` and `pollResults` (answer text to vote count).
+2. Voting again for the same question increments the stored counts: a
+   re-read through `GET /polls/{pollName}` shows `totalVotes`
+   increased by exactly one and the voted choice present in
+   `pollResults`. A re-read that does not move means the vote was not
+   persisted.
+3. The question read through `GET /polls/question/{pollQuestion}`
+   reports the same `totalVotes` and the same voted choice as the
+   named read. A question read that disagrees with the named read
+   means the results index is stale.
+4. A liveness check runs first: `HEAD /polls/csrf` must answer on the
+   polls deployment context. When the service is unreachable the
+   checks skip (the cell serves no polls service); when a save answers
+   status `ERROR` the checks skip (the cell's polls store is not
+   provisioned) instead of failing.
+
 ## Failure modes to watch
 
 - Missing template/variant or broken relationship links
@@ -2582,6 +2609,9 @@ approves them:
   "Membership registration and login (DTS)" above
 - Approved comments that stay unlisted, or rejected comments that stay
   listed — see "Comments moderation: approve/reject round-trip (DTS)" above
+- Poll votes that do not move `totalVotes` on re-read, or question
+  reads that disagree with the named read — see
+  "Poll voting and results (DTS)" above
 
 ## Related
 

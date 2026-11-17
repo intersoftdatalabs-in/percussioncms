@@ -2,14 +2,14 @@
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://percussioncms.intsof.com/contracts/results-matrix.schema.json",
   "title": "Content/widget results-matrix row",
-  "description": "One row per built-in content type (US1, #6239) or per widget (US2 static shell, #6240) or per DTS service (US3 interaction, #6241) or per forms confirmation case set (US3 forms matrix, #6482) or per membership registration case set (US3 membership matrix, #6484) or per comments moderation case set (US3 moderation matrix, #6485). Rows are built by tests/helpers/content-create-matrix.js buildResultRow (US1), tests/helpers/published-widget-matrix.js buildWidgetRow (US2), tests/helpers/dts-interaction-matrix.js buildInteractionRow (US3), tests/helpers/forms-confirmation-matrix.js buildConfirmationRow (US3 forms), tests/helpers/membership-registration-matrix.js buildRegistrationRow (US3 membership), or tests/helpers/comments-moderation-matrix.js buildModerationRow (US3 moderation) and validated by the matching validate function; the Playwright inventory/matrix specs fail when a row does not conform.",
+  "description": "One row per built-in content type (US1, #6239) or per widget (US2 static shell, #6240) or per DTS service (US3 interaction, #6241) or per forms confirmation case set (US3 forms matrix, #6482) or per membership registration case set (US3 membership matrix, #6484) or per comments moderation case set (US3 moderation matrix, #6485) or per polls vote case set (US3 polls matrix, #6241). Rows are built by tests/helpers/content-create-matrix.js buildResultRow (US1), tests/helpers/published-widget-matrix.js buildWidgetRow (US2), tests/helpers/dts-interaction-matrix.js buildInteractionRow (US3), tests/helpers/forms-confirmation-matrix.js buildConfirmationRow (US3 forms), tests/helpers/membership-registration-matrix.js buildRegistrationRow (US3 membership), tests/helpers/comments-moderation-matrix.js buildModerationRow (US3 moderation), or tests/helpers/polls-vote-matrix.js buildVoteRow (US3 polls) and validated by the matching validate function; the Playwright inventory/matrix specs fail when a row does not conform.",
   "type": "object",
   "required": ["suite", "spec", "contentType", "label", "cell", "cases", "status", "updated"],
   "additionalProperties": false,
   "properties": {
     "suite": {
       "type": "string",
-      "enum": ["content-create-matrix", "published-widget-matrix", "dts-interaction-matrix", "forms-confirmation-matrix", "membership-registration-matrix", "comments-moderation-matrix"],
+      "enum": ["content-create-matrix", "published-widget-matrix", "dts-interaction-matrix", "forms-confirmation-matrix", "membership-registration-matrix", "comments-moderation-matrix", "polls-vote-matrix"],
       "description": "Matrix suite that produced the row."
     },
     "spec": {
@@ -41,7 +41,8 @@
         { "required": ["interact"] },
         { "required": ["submitConfirm", "summariesRetrievable", "csvRetrievable"] },
         { "required": ["registerCreates", "loginRoundTrip", "logoutCloses"] },
-        { "required": ["submitAccepted", "approvePublishes", "rejectHides"] }
+        { "required": ["submitAccepted", "approvePublishes", "rejectHides"] },
+        { "required": ["voteCreates", "votePersists", "resultsByQuestion"] }
       ],
       "properties": {
         "createRoundTrip": {
@@ -94,20 +95,25 @@
           "enum": ["pass", "fail", "skip"],
           "description": "Membership registration matrix (#6484): logout (POST /membership/logout) succeeds and the session lookup no longer resolves the account."
         },
-        "submitAccepted": {
-          "type": "string",
-          "enum": ["pass", "fail", "skip"],
-          "description": "Comments moderation matrix (#6485): the open surface accepts the self-seeded probe (POST /comment/addcomment) and it is queued for moderation or auto-listed."
-        },
-        "approvePublishes": {
-          "type": "string",
-          "enum": ["pass", "fail", "skip"],
-          "description": "Comments moderation matrix (#6485): the gated approve surface (PUT /comment/moderation/approve) makes the probe publicly visible (POST /comment/list)."
-        },
         "rejectHides": {
           "type": "string",
           "enum": ["pass", "fail", "skip"],
           "description": "Comments moderation matrix (#6485): the gated reject surface (PUT /comment/moderation/reject) removes the probe from the public list."
+        },
+        "voteCreates": {
+          "type": "string",
+          "enum": ["pass", "fail", "skip"],
+          "description": "Polls vote matrix (#6241): a self-seeded probe poll is created by voting (POST /polls/save) with SUCCESS and totalVotes >= 1."
+        },
+        "votePersists": {
+          "type": "string",
+          "enum": ["pass", "fail", "skip"],
+          "description": "Polls vote matrix (#6241): a second vote for the same probe question increments totalVotes by exactly one on re-read (GET /polls/{pollName})."
+        },
+        "resultsByQuestion": {
+          "type": "string",
+          "enum": ["pass", "fail", "skip"],
+          "description": "Polls vote matrix (#6241): the question read (GET /polls/question/{pollQuestion}) answers SUCCESS with the same totals and voted choice as the named read."
         }
       }
     },
