@@ -16,6 +16,8 @@
 
 /**
  * Developer Content Types copy (#4893 / parent #1690).
+ * Clone deep-copy confirm slice (#6480): name validation, duplicate 409,
+ * Folder 400, scope disclosure, cancel-without-post, and successful copy.
  *
  *   npm run test:surface -- --path tests/developer-content-type-copy.spec.js
  */
@@ -70,6 +72,16 @@ function assertConsoleClean(pageErrors, consoleErrors) {
   ).toEqual([]);
 }
 
+async function contentTypeStatus(page, typeName) {
+  return page.evaluate(async (name) => {
+    const res = await fetch(
+      `/Rhythmyx/services/contenttypes/${encodeURIComponent(name)}`,
+      { credentials: "same-origin", headers: { Accept: "application/json" } },
+    );
+    return res.status;
+  }, typeName);
+}
+
 async function deleteContentType(page, typeName) {
   return page.evaluate(async (name) => {
     const headers = { Accept: "application/json" };
@@ -93,7 +105,7 @@ async function deleteContentType(page, typeName) {
   }, typeName);
 }
 
-test.describe("Developer content type copy (#4893)", () => {
+test.describe("Developer content type copy (#4893, clone confirm #6480)", () => {
   test("copy asks for a name, rejects duplicate and Folder, lists the copy", async ({
     page,
   }) => {
@@ -123,16 +135,45 @@ test.describe("Developer content type copy (#4893)", () => {
     await expect(pageCopy).toBeVisible({ timeout: 20_000 });
     await pageCopy.click();
     const nameInput = page.locator('[data-testid="developer-ct-copy-name"]');
-    const submit = page.locator('[data-testid="developer-ct-copy-submit"]');
-    await expect(submit).toBeDisabled();
+    const review = page.locator('[data-testid="developer-ct-copy-review"]');
+    await expect(review).toBeDisabled();
     await nameInput.fill("bad name");
-    await expect(submit).toBeDisabled();
+    await expect(review).toBeDisabled();
     await nameInput.fill("percPage");
-    await expect(submit).toBeEnabled();
+    await expect(review).toBeEnabled();
+    // Deep-copy scope is disclosed before anything is posted (#6480).
+    await expect(page.locator('[data-testid="developer-ct-copy-scope"]')).toContainText(
+      /Deep copy/i,
+    );
+    await review.click();
+    const confirm = page.locator('[data-testid="developer-ct-copy-confirm"]');
+    await expect(confirm).toBeVisible({ timeout: 20_000 });
+    await expect(confirm).toContainText(/percPage/);
+    await expect(
+      page.locator('[data-testid="developer-ct-copy-scope"]'),
+    ).toContainText(/Deep copy/i);
+    const submit = page.locator('[data-testid="developer-ct-copy-submit"]');
     await submit.click();
     const dup = page.locator('[data-testid="developer-ct-copy-error"]');
     await expect(dup).toBeVisible({ timeout: 20_000 });
     await expect(dup).toContainText(/already exists|409/i);
+
+    // Cancel from the confirm step dismisses without posting: the typed name
+    // never materializes as a content type (#6480).
+    const cancelName = `percQaCancel${stamp}`;
+    await page.locator('[data-testid="developer-ct-copy-name"]').fill(cancelName);
+    await page.locator('[data-testid="developer-ct-copy-review"]').click();
+    await expect(
+      page.locator('[data-testid="developer-ct-copy-confirm"]'),
+    ).toBeVisible({ timeout: 20_000 });
+    await page.locator('[data-testid="developer-ct-copy-cancel"]').click();
+    await expect(
+      page.locator('[data-testid="developer-ct-copy-confirm"]'),
+    ).toBeHidden({ timeout: 20_000 });
+    await expect(page.locator('[data-testid="developer-ct-copy-form"]')).toBeHidden({
+      timeout: 20_000,
+    });
+    expect(await contentTypeStatus(page, cancelName)).toBe(404);
 
     const folderCopy = page.locator(
       '[data-testid="developer-ct-copy"][data-ct-name="Folder"]',
@@ -140,6 +181,10 @@ test.describe("Developer content type copy (#4893)", () => {
     if ((await folderCopy.count()) > 0) {
       await folderCopy.click();
       await page.locator('[data-testid="developer-ct-copy-name"]').fill("FolderCopyQa");
+      await page.locator('[data-testid="developer-ct-copy-review"]').click();
+      await expect(
+        page.locator('[data-testid="developer-ct-copy-confirm"]'),
+      ).toBeVisible({ timeout: 20_000 });
       await page.locator('[data-testid="developer-ct-copy-submit"]').click();
       const sysErr = page.locator('[data-testid="developer-ct-copy-error"]');
       await expect(sysErr).toBeVisible({ timeout: 20_000 });
@@ -150,6 +195,13 @@ test.describe("Developer content type copy (#4893)", () => {
       .locator(`[data-testid="developer-ct-copy"][data-ct-name="${sourceName}"]`)
       .click();
     await page.locator('[data-testid="developer-ct-copy-name"]').fill(copyName);
+    await page.locator('[data-testid="developer-ct-copy-review"]').click();
+    await expect(page.locator('[data-testid="developer-ct-copy-confirm"]')).toBeVisible({
+      timeout: 20_000,
+    });
+    await expect(page.locator('[data-testid="developer-ct-copy-confirm"]')).toContainText(
+      new RegExp(copyName),
+    );
     await page.locator('[data-testid="developer-ct-copy-submit"]').click();
     await expect(page.locator('[data-testid="developer-ct-detail"]')).toBeVisible({
       timeout: 30_000,

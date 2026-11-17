@@ -33,6 +33,7 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     getContentTypeAllowedTemplates: vi.fn().mockResolvedValue([]),
     getFieldControlProperties: vi.fn().mockResolvedValue({ properties: [] }),
     createContentType: vi.fn(),
+    copyContentType: vi.fn(),
     deleteContentType: vi.fn(),
     lockContentType: vi.fn().mockResolvedValue({ locker: "Admin", remainingTime: 30 }),
     unlockContentType: vi.fn().mockResolvedValue(undefined),
@@ -73,6 +74,7 @@ vi.mock("../../../main/ts/developer/ObjectAclSection", () => ({
 
 const listContentTypes = contentTypesApi.listContentTypes as ReturnType<typeof vi.fn>;
 const createContentType = contentTypesApi.createContentType as ReturnType<typeof vi.fn>;
+const copyContentType = contentTypesApi.copyContentType as ReturnType<typeof vi.fn>;
 const getContentTypeDetail = contentTypesApi.getContentTypeDetail as ReturnType<typeof vi.fn>;
 
 describe("ContentTypesPanel", () => {
@@ -83,6 +85,7 @@ describe("ContentTypesPanel", () => {
     sessionStorage.clear();
     listContentTypes.mockReset();
     createContentType.mockReset();
+    copyContentType.mockReset();
   });
 
   it("lists content types on success", async () => {
@@ -391,5 +394,152 @@ describe("ContentTypesPanel", () => {
     });
     expect(screen.getByTestId("developer-ct-import-file")).toBeTruthy();
     expect(screen.getByTestId("developer-ct-import-submit")).toBeTruthy();
+  });
+
+  async function openCopyForm() {
+    listContentTypes.mockResolvedValue([
+      {
+        name: "percPage",
+        label: "Page",
+        guid: { stringValue: "0-2-301" },
+      },
+    ]);
+    render(<ContentTypesPanel />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-copy")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-copy"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-copy-form")).toBeTruthy();
+    });
+  }
+
+  it("review step discloses deep-copy scope before posting (#6480)", async () => {
+    await openCopyForm();
+    expect(screen.getByTestId("developer-ct-copy-review")).toBeDisabled();
+    expect(screen.getByTestId("developer-ct-copy-scope").textContent).toContain(
+      "Deep copy",
+    );
+    fireEvent.change(screen.getByTestId("developer-ct-copy-name"), {
+      target: { value: "bad name" },
+    });
+    expect(screen.getByTestId("developer-ct-copy-review")).toBeDisabled();
+    fireEvent.change(screen.getByTestId("developer-ct-copy-name"), {
+      target: { value: "percPageCopy" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-copy-review"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-copy-confirm")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-copy-confirm").textContent).toContain(
+      "percPageCopy",
+    );
+    expect(screen.getByTestId("developer-ct-copy-scope").textContent).toContain(
+      "Deep copy",
+    );
+    expect(copyContentType).not.toHaveBeenCalled();
+  });
+
+  it("cancel dismisses the clone without posting (#6480)", async () => {
+    await openCopyForm();
+    fireEvent.change(screen.getByTestId("developer-ct-copy-name"), {
+      target: { value: "percPageCopy" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-copy-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-ct-copy-form")).toBeNull();
+    });
+    expect(copyContentType).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ct-table").textContent).toContain("percPage");
+  });
+
+  it("back returns to the name step without posting (#6480)", async () => {
+    await openCopyForm();
+    fireEvent.change(screen.getByTestId("developer-ct-copy-name"), {
+      target: { value: "percPageCopy" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-copy-review"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-copy-confirm")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-copy-back"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-copy-form")).toBeTruthy();
+    });
+    expect(
+      (screen.getByTestId("developer-ct-copy-name") as HTMLInputElement).value,
+    ).toBe("percPageCopy");
+    expect(copyContentType).not.toHaveBeenCalled();
+  });
+
+  it("cancel from the confirm step dismisses without posting (#6480)", async () => {
+    await openCopyForm();
+    fireEvent.change(screen.getByTestId("developer-ct-copy-name"), {
+      target: { value: "percPageCopy" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-copy-review"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-copy-confirm")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-copy-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-ct-copy-confirm")).toBeNull();
+    });
+    expect(screen.queryByTestId("developer-ct-copy-form")).toBeNull();
+    expect(copyContentType).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-ct-table").textContent).toContain("percPage");
+  });
+
+  it("confirm posts the clone and opens the new detail (#6480)", async () => {
+    copyContentType.mockResolvedValue({
+      name: "percPageCopy",
+      label: "Page Copy",
+      guid: { stringValue: "0-2-302" },
+    });
+    await openCopyForm();
+    fireEvent.change(screen.getByTestId("developer-ct-copy-name"), {
+      target: { value: "percPageCopy" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-copy-review"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-copy-confirm")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-copy-submit"));
+    await waitFor(() => {
+      expect(copyContentType).toHaveBeenCalledWith("percPage", "percPageCopy");
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail")).toBeTruthy();
+    });
+  });
+
+  it("failed clone keeps the name step with a named error and no new row (#6480)", async () => {
+    copyContentType.mockRejectedValue({
+      status: 409,
+      statusText: "Conflict",
+      body: null,
+    });
+    await openCopyForm();
+    fireEvent.change(screen.getByTestId("developer-ct-copy-name"), {
+      target: { value: "percPage" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-copy-review"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-copy-confirm")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-copy-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-copy-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-copy-error").textContent).toBe(
+      `${DEV_MSG.CT_COPY_ERROR} (409)`,
+    );
+    // Back at the name step with the typed name preserved; no detail opened.
+    expect(screen.getByTestId("developer-ct-copy-form")).toBeTruthy();
+    expect(
+      (screen.getByTestId("developer-ct-copy-name") as HTMLInputElement).value,
+    ).toBe("percPage");
+    expect(screen.queryByTestId("developer-ct-detail")).toBeNull();
+    expect(screen.getByTestId("developer-ct-table").textContent).toContain("percPage");
   });
 });
