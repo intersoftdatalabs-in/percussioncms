@@ -161,6 +161,20 @@ test.describe("Explorer status bar DCE parity (#6517 / #4530)", () => {
       ).toBeVisible({ timeout: 30_000 });
       const shell = await openSitesFolder(page);
 
+      // Drill into the first real subfolder: /Sites itself holds only
+      // folders in the H2 seed. All ids below are live seed rows, so no
+      // follow-up call logs a server ERROR.
+      const firstFolder = page.locator(
+        '[data-testid^="detail-row-"][data-row-kind="folder"]',
+      ).first();
+      await expect(firstFolder).toBeVisible({ timeout: 20_000 });
+      await firstFolder.dblclick();
+      await expect(shell).not.toHaveAttribute(
+        "data-selected-folder-path",
+        "/Sites",
+        { timeout: 15_000 },
+      );
+
       const firstRow = page.locator(
         '[data-testid^="detail-row-"][data-row-kind="item"]',
       ).first();
