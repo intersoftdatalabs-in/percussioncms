@@ -215,3 +215,39 @@ describe("getTemplateDetail / updateTemplateDetail wire binding (#3039)", () => 
     expect(init.method).toBe("DELETE");
   });
 });
+
+describe("normalizeTemplateDetail single-element collections (#6477)", () => {
+  it("wraps a bare single slot object into an array", () => {
+    const flat = unwrapTemplateDetail({
+      [TEMPLATE_DETAIL_ROOT]: {
+        name: "perc.base.plain",
+        slots: { name: "main", label: "Main" },
+      },
+    });
+    expect(flat.slots).toEqual([{ name: "main", label: "Main" }]);
+  });
+
+  it("wraps a bare single binding object into an array", () => {
+    const flat = unwrapTemplateDetail({
+      [TEMPLATE_DETAIL_ROOT]: {
+        name: "perc.base.plain",
+        bindings: { executionOrder: 1, variable: "$x", expression: "1" },
+      },
+    });
+    expect(flat.bindings).toEqual([
+      { executionOrder: 1, variable: "$x", expression: "1" },
+    ]);
+  });
+
+  it("keeps arrays and missing collections intact", () => {
+    const flat = unwrapTemplateDetail({
+      [TEMPLATE_DETAIL_ROOT]: {
+        name: "perc.base.plain",
+        slots: [{ name: "main" }, { name: "sidebar" }],
+      },
+    });
+    expect(flat.slots).toHaveLength(2);
+    expect(flat.bindings).toEqual([]);
+    expect(flat.associatedContentTypes).toEqual([]);
+  });
+});

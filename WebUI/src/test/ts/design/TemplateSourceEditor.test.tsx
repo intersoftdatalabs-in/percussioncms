@@ -40,6 +40,9 @@ const updateTemplateDetail = assemblyApi.updateTemplateDetail as ReturnType<
 >;
 const deleteTemplate = assemblyApi.deleteTemplate as ReturnType<typeof vi.fn>;
 const getSlotDetail = assemblyApi.getSlotDetail as ReturnType<typeof vi.fn>;
+const updateSlotDetail = assemblyApi.updateSlotDetail as ReturnType<
+  typeof vi.fn
+>;
 
 const baseDetail = {
   templateId: 11,
@@ -69,6 +72,8 @@ describe("TemplateSourceEditor (#2809)", () => {
       slotLayout: { schemaVersion: 1 },
       slotStyles: { schemaVersion: 1 },
     });
+    updateSlotDetail.mockReset();
+    updateSlotDetail.mockResolvedValue({ name: "main" });
     getTemplateDetail.mockResolvedValue({ ...baseDetail });
     updateTemplateDetail.mockImplementation(async (_id, body) => ({
       ...baseDetail,
@@ -154,6 +159,78 @@ describe("TemplateSourceEditor (#2809)", () => {
     );
     fireEvent.click(screen.getByTestId("design-tpl-editor-back"));
     expect(onBack).toHaveBeenCalled();
+  });
+
+  it("blocks save on invalid slot columns with an inline row error", async () => {
+    render(<TemplateSourceEditor idOrName="site.base" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-slot-card-0")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("design-tpl-slot-columns-0"), {
+      target: { value: "two" },
+    });
+    const saveBtn = screen.getByTestId("design-tpl-editor-save") as HTMLButtonElement;
+    expect(saveBtn.disabled).toBe(false);
+    fireEvent.click(saveBtn);
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-editor-validation")).toBeTruthy();
+    });
+    expect(screen.getByTestId("design-tpl-editor-validation").textContent).toMatch(
+      /slots\[0\]\.columns/,
+    );
+    expect(screen.getByTestId("design-tpl-slot-validation-0").textContent).toMatch(
+      /non-negative whole number/,
+    );
+    expect(updateTemplateDetail).not.toHaveBeenCalled();
+    expect(updateSlotDetail).not.toHaveBeenCalled();
+  });
+
+  it("surfaces slot PUT failures inline on the failing row", async () => {
+    updateSlotDetail.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "columns invalid" },
+    });
+    render(<TemplateSourceEditor idOrName="site.base" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-slot-card-0")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("design-tpl-slot-rootclass-0"), {
+      target: { value: "qa-row" },
+    });
+    fireEvent.click(screen.getByTestId("design-tpl-editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-slot-validation-0")).toBeTruthy();
+    });
+    expect(screen.getByTestId("design-tpl-slot-validation-0").textContent).toContain(
+      "columns invalid",
+    );
+    expect(screen.getByTestId("design-tpl-editor-error")).toBeTruthy();
+  });
+
+  it("maps server slots[i] template errors back onto the row", async () => {
+    updateTemplateDetail.mockRejectedValue({
+      status: 400,
+      statusText: "Bad Request",
+      body: { message: "slots[0] not found: main" },
+    });
+    render(<TemplateSourceEditor idOrName="site.base" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-slot-card-0")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("design-tpl-editor-source-edit"), {
+      target: { value: "#footer()\n" },
+    });
+    fireEvent.click(screen.getByTestId("design-tpl-editor-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("design-tpl-slot-validation-0")).toBeTruthy();
+    });
+    expect(screen.getByTestId("design-tpl-slot-validation-0").textContent).toContain(
+      "slots[0] not found: main",
+    );
+    expect(screen.getByTestId("design-tpl-editor-error").textContent).toContain(
+      "slots[0] not found: main",
+    );
   });
 
   it("deletes from the editor after confirm", async () => {

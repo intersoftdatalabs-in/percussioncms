@@ -272,6 +272,24 @@ releases it (unlocked or stolen lock is **409**). Success and validation errors 
 the editor. Use **Templates** to return to the library. **Delete** on the editor asks
 for confirmation, then returns you to the refreshed library.
 
+### Slot-mapping validation errors
+
+Before the PUT, the editor validates each mapped slot row and reports problems
+**inline on the offending slot card** (the card is marked invalid and linked to the
+message) plus a summary banner:
+
+- **Columns** and **Max items** must be empty or non-negative whole numbers
+  (for example `2`, not `two` or `-1`).
+- **Orientation** must be empty (default), `horizontal`, or `vertical`.
+- Every row must resolve to a known slot — a renamed or deleted slot fails the
+  load with its own inline error and is skipped at save time.
+
+Server-side mapping failures (for example `slots[0] not found: main` when a slot
+was removed after the editor loaded, or a slot PUT rejected while saving layout /
+styles) are mapped back onto the same row inline; unrelated failures stay on the
+editor banner. Fix the highlighted rows and save again — valid rows are not
+re-sent.
+
 For the built-in **Velocity snippet library** (AS-09 insert into source), use
 **Developer → Templates** — see [Developer Templates](id:admin-developer-templates).
 
