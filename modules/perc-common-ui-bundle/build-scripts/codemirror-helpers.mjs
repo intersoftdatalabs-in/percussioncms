@@ -67,7 +67,10 @@ export function unwrapCodeMirror(moduleRecord) {
  * source-view validation renders through, and `percValidateTemplateHtml`
  * pins the dependency-free tag-balance validator the entry registers as the
  * htmlmixed/xml/html lint helper (issue #6466: syntax validation markers
- * before save).
+ * before save). `percCodeEditorPrefs` pins the persisted dark-mode +
+ * font-size preference namespace the template editor source-view toolbar
+ * reads and writes (issue #6467), and `material-darker` pins the dark theme
+ * the preference namespace can switch the editor to.
  */
 export const CODEMIRROR_BUNDLE_MARKERS = [
   "htmlmixed",
@@ -76,6 +79,8 @@ export const CODEMIRROR_BUNDLE_MARKERS = [
   "openDialog",
   "CodeMirror-lint-markers",
   "percValidateTemplateHtml",
+  "percCodeEditorPrefs",
+  "material-darker",
 ];
 
 /**
@@ -582,4 +587,232 @@ export function registerPercTemplateHtmlLint(CodeMirror) {
     CodeMirror.registerHelper("lint", mode, getAnnotations);
   }
   return true;
+}
+
+/**
+ * localStorage key the template editor source-view persists its display
+ * preferences under (issue #6467). One shared key for every `sys_TextArea`
+ * code editor: the preference is the author's, not the field's.
+ */
+export const PERC_CODEEDITOR_PREFS_KEY = "perc.codeeditor.prefs";
+
+/**
+ * Theme names the source-view preference can switch between. `light` is the
+ * CodeMirror 5 stock `default` theme; `dark` is the `material-darker` theme
+ * shipped inside the npm bundle (imported by the bundle entry so no extra
+ * request is needed). Only these two names are ever applied: anything else
+ * read back from storage normalizes to `light`.
+ */
+export const PERC_CODEEDITOR_THEMES = {
+  light: "default",
+  dark: "material-darker",
+};
+
+/**
+ * Font-size bounds (px) for the source-view preference. The editor default
+ * is 13px; the steppers move 1px at a time and clamp here so the text can
+ * neither vanish nor blow out the dialog layout.
+ */
+export const PERC_CODEEDITOR_FONT_SIZE_DEFAULT = 13;
+export const PERC_CODEEDITOR_FONT_SIZE_MIN = 11;
+export const PERC_CODEEDITOR_FONT_SIZE_MAX = 24;
+export const PERC_CODEEDITOR_FONT_SIZE_STEP = 1;
+
+/**
+ * Normalizes a stored theme value to a theme the bundle ships. Unknown,
+ * empty, or non-string values fall back to the light theme so a corrupt
+ * preference can never leave the editor theme-less.
+ *
+ * @param {*} value the stored theme name.
+ * @returns {string} `material-darker` for the dark theme, else `default`.
+ */
+export function normalizePercCodeEditorTheme(value) {
+  if (value === PERC_CODEEDITOR_THEMES.dark) {
+    return PERC_CODEEDITOR_THEMES.dark;
+  }
+  return PERC_CODEEDITOR_THEMES.light;
+}
+
+/**
+ * Clamps a stored font size into the supported range. Non-numeric, empty,
+ * or out-of-range values fall back to the editor default so a corrupt
+ * preference can never shrink the text away or blow out the dialog.
+ *
+ * @param {*} value the stored font size (px).
+ * @returns {number} an integer within [MIN, MAX].
+ */
+export function clampPercCodeEditorFontSize(value) {
+  // Only numbers and non-blank numeric strings count: Number("") and
+  // Number([]) both coerce to 0, which would silently shrink the editor to
+  // the minimum instead of falling back to the default.
+  if (typeof value === "string") {
+    if (value.trim() === "") {
+      return PERC_CODEEDITOR_FONT_SIZE_DEFAULT;
+    }
+  } else if (typeof value !== "number") {
+    return PERC_CODEEDITOR_FONT_SIZE_DEFAULT;
+  }
+  const parsed = Number(value);
+  if (!Number.isFinite(parsed)) {
+    return PERC_CODEEDITOR_FONT_SIZE_DEFAULT;
+  }
+  const rounded = Math.round(parsed);
+  if (rounded < PERC_CODEEDITOR_FONT_SIZE_MIN) {
+    return PERC_CODEEDITOR_FONT_SIZE_MIN;
+  }
+  if (rounded > PERC_CODEEDITOR_FONT_SIZE_MAX) {
+    return PERC_CODEEDITOR_FONT_SIZE_MAX;
+  }
+  return rounded;
+}
+
+/**
+ * The preferences a first-time author gets: light theme, default size.
+ *
+ * @returns {{theme:string,fontSize:number}} a fresh defaults object.
+ */
+export function defaultPercCodeEditorPrefs() {
+  return {
+    theme: PERC_CODEEDITOR_THEMES.light,
+    fontSize: PERC_CODEEDITOR_FONT_SIZE_DEFAULT,
+  };
+}
+
+/**
+ * Reads the persisted source-view preferences. Never throws and never
+ * returns a partial object: missing storage (private mode / disabled
+ * cookies), a storage read that throws, absent data, or unparseable JSON
+ * all fall back to the defaults, with each field normalized independently
+ * so one corrupt field does not discard the other.
+ *
+ * @param {*} storage a `localStorage`-like with `getItem`, or nullish.
+ * @returns {{theme:string,fontSize:number}} the effective preferences.
+ */
+export function readPercCodeEditorPrefs(storage) {
+  const prefs = defaultPercCodeEditorPrefs();
+  if (!storage || typeof storage.getItem !== "function") {
+    return prefs;
+  }
+  let raw = null;
+  try {
+    raw = storage.getItem(PERC_CODEEDITOR_PREFS_KEY);
+  } catch (ignored) {
+    return prefs;
+  }
+  if (raw === null || raw === undefined || raw === "") {
+    return prefs;
+  }
+  let parsed = null;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (ignored) {
+    return prefs;
+  }
+  if (parsed === null || typeof parsed !== "object") {
+    return prefs;
+  }
+  return {
+    theme: normalizePercCodeEditorTheme(parsed.theme),
+    fontSize: clampPercCodeEditorFontSize(parsed.fontSize),
+  };
+}
+
+/**
+ * Persists the source-view preferences. Normalizes before writing so only
+ * valid values ever reach storage. Never throws: a full or unavailable
+ * store reports failure through the return value instead.
+ *
+ * @param {*} storage a `localStorage`-like with `setItem`, or nullish.
+ * @param {{theme:string,fontSize:number}} prefs the preferences to store.
+ * @returns {boolean} true when the write succeeded.
+ */
+export function writePercCodeEditorPrefs(storage, prefs) {
+  if (!storage || typeof storage.setItem !== "function") {
+    return false;
+  }
+  const safe = prefs === null || typeof prefs !== "object" ? {} : prefs;
+  try {
+    storage.setItem(
+      PERC_CODEEDITOR_PREFS_KEY,
+      JSON.stringify({
+        theme: normalizePercCodeEditorTheme(safe.theme),
+        fontSize: clampPercCodeEditorFontSize(safe.fontSize),
+      }),
+    );
+    return true;
+  } catch (ignored) {
+    return false;
+  }
+}
+
+/**
+ * Steps the editor font size by one increment, clamped to the supported
+ * range. Pure: the toolbar calls this, then writes + applies the result.
+ *
+ * @param {*} current the current size (px); garbage means the default.
+ * @param {number} delta +1 to grow, -1 to shrink (any number works).
+ * @returns {number} the next size within [MIN, MAX].
+ */
+export function nextPercCodeEditorFontSize(current, delta) {
+  const step = Number(delta);
+  const base = clampPercCodeEditorFontSize(current);
+  if (!Number.isFinite(step) || step === 0) {
+    return base;
+  }
+  return clampPercCodeEditorFontSize(
+    base + Math.sign(step) * PERC_CODEEDITOR_FONT_SIZE_STEP,
+  );
+}
+
+/**
+ * Flips the theme preference light <-> dark, keeping the font size.
+ *
+ * @param {{theme:string,fontSize:number}} prefs the current preferences.
+ * @returns {{theme:string,fontSize:number}} the toggled preferences.
+ */
+export function togglePercCodeEditorTheme(prefs) {
+  const safe = prefs === null || typeof prefs !== "object" ? {} : prefs;
+  return {
+    theme:
+      normalizePercCodeEditorTheme(safe.theme) ===
+      PERC_CODEEDITOR_THEMES.dark
+        ? PERC_CODEEDITOR_THEMES.light
+        : PERC_CODEEDITOR_THEMES.dark,
+    fontSize: clampPercCodeEditorFontSize(safe.fontSize),
+  };
+}
+
+/**
+ * Applies preferences to a live CodeMirror 5 instance: switches the theme
+ * option and sets the wrapper font size, then refreshes so the new metrics
+ * take effect. Defensive: a nullish editor, a missing `setOption`, or a
+ * throwing instance reports failure instead of breaking dialog init — the
+ * editor stays usable on its defaults.
+ *
+ * @param {*} editor the CodeMirror instance (or a test double with
+ *   `setOption`/`getWrapperElement`/`refresh`).
+ * @param {{theme:string,fontSize:number}} prefs the preferences to apply.
+ * @returns {boolean} true when the theme + size were applied.
+ */
+export function applyPercCodeEditorPrefs(editor, prefs) {
+  if (!editor || typeof editor.setOption !== "function") {
+    return false;
+  }
+  const safe = prefs === null || typeof prefs !== "object" ? {} : prefs;
+  try {
+    editor.setOption("theme", normalizePercCodeEditorTheme(safe.theme));
+    const size = clampPercCodeEditorFontSize(safe.fontSize);
+    if (typeof editor.getWrapperElement === "function") {
+      const wrapper = editor.getWrapperElement();
+      if (wrapper && wrapper.style) {
+        wrapper.style.fontSize = `${size}px`;
+      }
+    }
+    if (typeof editor.refresh === "function") {
+      editor.refresh();
+    }
+    return true;
+  } catch (ignored) {
+    return false;
+  }
 }

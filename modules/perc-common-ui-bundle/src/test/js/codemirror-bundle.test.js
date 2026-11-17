@@ -36,6 +36,10 @@
  *    the dependency-free tag-balance validator the pre-save validation
  *    markers need (issue #6466), and the marker list the build sanity-check
  *    enforces names the dialog and lint addons.
+ * 4. The entry wires the persisted display preferences the source-view
+ *    toolbar needs (issue #6467): the dark theme CSS plus the
+ *    `percCodeEditorPrefs` read/write/apply/step/toggle namespace, with
+ *    storage-failure-tolerant helpers that degrade to defaults.
  */
 
 import { createRequire } from "module";
@@ -49,6 +53,19 @@ import {
   PERC_TEMPLATE_HTML_LINT_MODES,
   CODEMIRROR_BUNDLE_MARKERS,
   CODEMIRROR_PINNED_MAJOR,
+  PERC_CODEEDITOR_PREFS_KEY,
+  PERC_CODEEDITOR_THEMES,
+  PERC_CODEEDITOR_FONT_SIZE_DEFAULT,
+  PERC_CODEEDITOR_FONT_SIZE_MIN,
+  PERC_CODEEDITOR_FONT_SIZE_MAX,
+  normalizePercCodeEditorTheme,
+  clampPercCodeEditorFontSize,
+  defaultPercCodeEditorPrefs,
+  readPercCodeEditorPrefs,
+  writePercCodeEditorPrefs,
+  nextPercCodeEditorFontSize,
+  togglePercCodeEditorTheme,
+  applyPercCodeEditorPrefs,
 } from "../../../build-scripts/codemirror-helpers.mjs";
 
 const require = createRequire(import.meta.url);
@@ -68,6 +85,8 @@ describe("codemirror npm dependency line", () => {
       "openDialog",
       "CodeMirror-lint-markers",
       "percValidateTemplateHtml",
+      "percCodeEditorPrefs",
+      "material-darker",
     ]);
   });
 
@@ -127,6 +146,39 @@ describe("codemirror npm dependency line", () => {
       entry.includes("percValidateTemplateHtml"),
       "bundle entry must expose the validator on the CodeMirror global (#6466)",
     ).toBe(true);
+  });
+
+  it("wires the persisted display preferences into the bundle entry", () => {
+    // Issue #6467: the template editor source-view toolbar (dark-mode
+    // toggle + font-size steppers in sys_Templates.xsl) reads
+    // `CodeMirror.percCodeEditorPrefs`. The bundle must ship the dark theme
+    // CSS and expose the prefs namespace, or the toolbar degrades to a dead
+    // control at runtime. A dropped import fails here first.
+    const entryPath = join(
+      process.cwd(),
+      "build-scripts",
+      "codemirror-bundle-entry.js",
+    );
+    const entry = readFileSync(entryPath, "utf8");
+    expect(
+      entry.includes("codemirror/theme/material-darker.css"),
+      "bundle entry must import the dark theme CSS (#6467)",
+    ).toBe(true);
+    expect(
+      entry.includes("percCodeEditorPrefs"),
+      "bundle entry must expose the prefs namespace on the CodeMirror global (#6467)",
+    ).toBe(true);
+    for (const helper of [
+      "readPercCodeEditorPrefs(",
+      "writePercCodeEditorPrefs(",
+      "applyPercCodeEditorPrefs(",
+      "togglePercCodeEditorTheme(",
+    ]) {
+      expect(
+        entry.includes(helper),
+        `bundle entry must delegate to ${helper} (#6467)`,
+      ).toBe(true);
+    }
   });
 });
 
@@ -312,5 +364,322 @@ describe("registerPercTemplateHtmlLint", () => {
     expect(
       registerPercTemplateHtmlLint({ registerHelper: () => {} }),
     ).toBe(false);
+  });
+});
+
+describe("percCodeEditorPrefs storage key and themes", () => {
+  it("uses one stable storage key for every code editor", () => {
+    // The preference is the author's, not the field's: every sys_TextArea
+    // code editor reads the same key.
+    expect(PERC_CODEEDITOR_PREFS_KEY).toBe("perc.codeeditor.prefs");
+  });
+
+  it("ships exactly the light and dark themes", () => {
+    expect(PERC_CODEEDITOR_THEMES).toEqual({
+      light: "default",
+      dark: "material-darker",
+    });
+  });
+
+  it("keeps the font-size bounds sane", () => {
+    expect(PERC_CODEEDITOR_FONT_SIZE_MIN).toBeLessThan(
+      PERC_CODEEDITOR_FONT_SIZE_DEFAULT,
+    );
+    expect(PERC_CODEEDITOR_FONT_SIZE_DEFAULT).toBeLessThan(
+      PERC_CODEEDITOR_FONT_SIZE_MAX,
+    );
+  });
+});
+
+describe("normalizePercCodeEditorTheme", () => {
+  it("keeps the dark theme name", () => {
+    expect(normalizePercCodeEditorTheme("material-darker")).toBe(
+      "material-darker",
+    );
+  });
+
+  it("falls back to light for anything else", () => {
+    expect(normalizePercCodeEditorTheme("default")).toBe("default");
+    for (const bad of ["monokai", "", null, undefined, 42, {}, []]) {
+      expect(normalizePercCodeEditorTheme(bad)).toBe("default");
+    }
+  });
+});
+
+describe("clampPercCodeEditorFontSize", () => {
+  it("keeps in-range sizes, rounding halves of a pixel", () => {
+    expect(clampPercCodeEditorFontSize(13)).toBe(13);
+    expect(clampPercCodeEditorFontSize("16")).toBe(16);
+    expect(clampPercCodeEditorFontSize(12.4)).toBe(12);
+  });
+
+  it("clamps out-of-range sizes to the bounds", () => {
+    expect(clampPercCodeEditorFontSize(1)).toBe(
+      PERC_CODEEDITOR_FONT_SIZE_MIN,
+    );
+    expect(clampPercCodeEditorFontSize(100)).toBe(
+      PERC_CODEEDITOR_FONT_SIZE_MAX,
+    );
+  });
+
+  it("falls back to the default for garbage", () => {
+    for (const bad of ["", "big", null, undefined, NaN, {}, []]) {
+      expect(clampPercCodeEditorFontSize(bad)).toBe(
+        PERC_CODEEDITOR_FONT_SIZE_DEFAULT,
+      );
+    }
+  });
+});
+
+describe("defaultPercCodeEditorPrefs", () => {
+  it("is light theme at the default size", () => {
+    expect(defaultPercCodeEditorPrefs()).toEqual({
+      theme: "default",
+      fontSize: PERC_CODEEDITOR_FONT_SIZE_DEFAULT,
+    });
+  });
+
+  it("returns a fresh object per call", () => {
+    expect(defaultPercCodeEditorPrefs()).not.toBe(
+      defaultPercCodeEditorPrefs(),
+    );
+  });
+});
+
+function memoryStorage(initial) {
+  const store = { ...(initial || {}) };
+  return {
+    getItem: (key) =>
+      Object.prototype.hasOwnProperty.call(store, key) ? store[key] : null,
+    setItem: (key, value) => {
+      store[key] = String(value);
+    },
+  };
+}
+
+describe("readPercCodeEditorPrefs", () => {
+  it("reads a stored theme and size", () => {
+    const storage = memoryStorage({
+      [PERC_CODEEDITOR_PREFS_KEY]: JSON.stringify({
+        theme: "material-darker",
+        fontSize: 18,
+      }),
+    });
+    expect(readPercCodeEditorPrefs(storage)).toEqual({
+      theme: "material-darker",
+      fontSize: 18,
+    });
+  });
+
+  it("falls back to defaults when storage is missing or empty", () => {
+    const defaults = defaultPercCodeEditorPrefs();
+    expect(readPercCodeEditorPrefs(null)).toEqual(defaults);
+    expect(readPercCodeEditorPrefs(undefined)).toEqual(defaults);
+    expect(readPercCodeEditorPrefs({})).toEqual(defaults);
+    expect(
+      readPercCodeEditorPrefs(memoryStorage({})),
+    ).toEqual(defaults);
+    expect(
+      readPercCodeEditorPrefs(
+        memoryStorage({ [PERC_CODEEDITOR_PREFS_KEY]: "" }),
+      ),
+    ).toEqual(defaults);
+  });
+
+  it("falls back to defaults when storage throws or holds garbage", () => {
+    const defaults = defaultPercCodeEditorPrefs();
+    const throwing = {
+      getItem: () => {
+        throw new Error("denied");
+      },
+    };
+    expect(readPercCodeEditorPrefs(throwing)).toEqual(defaults);
+    for (const raw of ["{nope", "[1,2", "42", '"str"', "null"]) {
+      expect(
+        readPercCodeEditorPrefs(
+          memoryStorage({ [PERC_CODEEDITOR_PREFS_KEY]: raw }),
+        ),
+      ).toEqual(defaults);
+    }
+  });
+
+  it("normalizes each field independently", () => {
+    // One corrupt field must not discard the other.
+    expect(
+      readPercCodeEditorPrefs(
+        memoryStorage({
+          [PERC_CODEEDITOR_PREFS_KEY]: JSON.stringify({
+            theme: "material-darker",
+            fontSize: "huge",
+          }),
+        }),
+      ),
+    ).toEqual({
+      theme: "material-darker",
+      fontSize: PERC_CODEEDITOR_FONT_SIZE_DEFAULT,
+    });
+    expect(
+      readPercCodeEditorPrefs(
+        memoryStorage({
+          [PERC_CODEEDITOR_PREFS_KEY]: JSON.stringify({
+            theme: "monokai",
+            fontSize: 20,
+          }),
+        }),
+      ),
+    ).toEqual({ theme: "default", fontSize: 20 });
+  });
+});
+
+describe("writePercCodeEditorPrefs", () => {
+  it("round-trips through storage", () => {
+    const storage = memoryStorage();
+    expect(
+      writePercCodeEditorPrefs(storage, {
+        theme: "material-darker",
+        fontSize: 18,
+      }),
+    ).toBe(true);
+    expect(readPercCodeEditorPrefs(storage)).toEqual({
+      theme: "material-darker",
+      fontSize: 18,
+    });
+  });
+
+  it("normalizes before writing so only valid values persist", () => {
+    const storage = memoryStorage();
+    expect(
+      writePercCodeEditorPrefs(storage, { theme: "monokai", fontSize: 99 }),
+    ).toBe(true);
+    expect(readPercCodeEditorPrefs(storage)).toEqual({
+      theme: "default",
+      fontSize: PERC_CODEEDITOR_FONT_SIZE_MAX,
+    });
+  });
+
+  it("reports failure instead of throwing", () => {
+    expect(writePercCodeEditorPrefs(null, { theme: "default" })).toBe(false);
+    expect(writePercCodeEditorPrefs({}, { theme: "default" })).toBe(false);
+    const throwing = {
+      setItem: () => {
+        throw new Error("quota exceeded");
+      },
+    };
+    expect(
+      writePercCodeEditorPrefs(throwing, { theme: "default", fontSize: 13 }),
+    ).toBe(false);
+  });
+});
+
+describe("nextPercCodeEditorFontSize", () => {
+  it("steps by one pixel within the bounds", () => {
+    expect(nextPercCodeEditorFontSize(13, 1)).toBe(14);
+    expect(nextPercCodeEditorFontSize(13, -1)).toBe(12);
+  });
+
+  it("clamps at the bounds", () => {
+    expect(
+      nextPercCodeEditorFontSize(PERC_CODEEDITOR_FONT_SIZE_MIN, -1),
+    ).toBe(PERC_CODEEDITOR_FONT_SIZE_MIN);
+    expect(
+      nextPercCodeEditorFontSize(PERC_CODEEDITOR_FONT_SIZE_MAX, 1),
+    ).toBe(PERC_CODEEDITOR_FONT_SIZE_MAX);
+  });
+
+  it("treats garbage current and zero delta as the base size", () => {
+    expect(nextPercCodeEditorFontSize("huge", 1)).toBe(
+      PERC_CODEEDITOR_FONT_SIZE_DEFAULT + 1,
+    );
+    expect(nextPercCodeEditorFontSize(13, 0)).toBe(13);
+    expect(nextPercCodeEditorFontSize(13, NaN)).toBe(13);
+  });
+});
+
+describe("togglePercCodeEditorTheme", () => {
+  it("flips light to dark and back, keeping the size", () => {
+    expect(
+      togglePercCodeEditorTheme({ theme: "default", fontSize: 18 }),
+    ).toEqual({ theme: "material-darker", fontSize: 18 });
+    expect(
+      togglePercCodeEditorTheme({ theme: "material-darker", fontSize: 18 }),
+    ).toEqual({ theme: "default", fontSize: 18 });
+  });
+
+  it("treats garbage as light and still flips to dark", () => {
+    expect(togglePercCodeEditorTheme(null)).toEqual({
+      theme: "material-darker",
+      fontSize: PERC_CODEEDITOR_FONT_SIZE_DEFAULT,
+    });
+    expect(
+      togglePercCodeEditorTheme({ theme: "monokai", fontSize: 99 }),
+    ).toEqual({
+      theme: "material-darker",
+      fontSize: PERC_CODEEDITOR_FONT_SIZE_MAX,
+    });
+  });
+});
+
+function fakeEditor() {
+  const options = {};
+  return {
+    options,
+    wrapperStyle: {},
+    refreshed: 0,
+    setOption: (name, value) => {
+      options[name] = value;
+    },
+    getWrapperElement: function () {
+      return { style: this.wrapperStyle };
+    },
+    refresh: function () {
+      this.refreshed += 1;
+    },
+  };
+}
+
+describe("applyPercCodeEditorPrefs", () => {
+  it("sets the theme option, wrapper size, and refreshes", () => {
+    const editor = fakeEditor();
+    expect(
+      applyPercCodeEditorPrefs(editor, {
+        theme: "material-darker",
+        fontSize: 18,
+      }),
+    ).toBe(true);
+    expect(editor.options.theme).toBe("material-darker");
+    expect(editor.wrapperStyle.fontSize).toBe("18px");
+    expect(editor.refreshed).toBe(1);
+  });
+
+  it("normalizes garbage prefs to light/default", () => {
+    const editor = fakeEditor();
+    expect(applyPercCodeEditorPrefs(editor, null)).toBe(true);
+    expect(editor.options.theme).toBe("default");
+    expect(editor.wrapperStyle.fontSize).toBe(
+      `${PERC_CODEEDITOR_FONT_SIZE_DEFAULT}px`,
+    );
+  });
+
+  it("reports failure for a missing or throwing editor", () => {
+    expect(applyPercCodeEditorPrefs(null, {})).toBe(false);
+    expect(applyPercCodeEditorPrefs({}, {})).toBe(false);
+    expect(
+      applyPercCodeEditorPrefs(
+        {
+          setOption: () => {
+            throw new Error("dead");
+          },
+        },
+        {},
+      ),
+    ).toBe(false);
+  });
+
+  it("applies the theme even without a wrapper or refresh", () => {
+    const bare = { options: {}, setOption(name, value) { this.options[name] = value; } };
+    expect(
+      applyPercCodeEditorPrefs(bare, { theme: "default", fontSize: 13 }),
+    ).toBe(true);
+    expect(bare.options.theme).toBe("default");
   });
 });
