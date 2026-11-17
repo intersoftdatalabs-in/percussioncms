@@ -59,6 +59,14 @@ def _load():
 pdc = _load()
 
 
+# Portable stand-in jar path for host-executed dry-run argv tests.
+# ``tempfile.gettempdir()`` resolves to the platform temp dir (``/tmp``
+# on Linux/macOS, ``%TEMP%`` on Windows) so these argv literals stay
+# green on windows-latest CI (residual #6570, parent #6341). The file
+# need not exist: dry-run/argv tests never touch the filesystem.
+_FOO_JAR = str(Path(tempfile.gettempdir()) / "foo.jar")
+
+
 def _stub_repo_root(td_path: Path) -> Path:
     """Build a synthetic repo layout: docker/scripts/, docker/logs/,
     scripts/install-cms-dev.py, mvnw.
@@ -383,7 +391,7 @@ class TestSubcommandDryRun(unittest.TestCase):
 
     def test_deploy_jar_dry_run(self):
         rc, out = self.runner.run([
-            "deploy-jar", "--jar", "/tmp/foo.jar", "--target", "cms", "--restart",
+            "deploy-jar", "--jar", _FOO_JAR, "--target", "cms", "--restart",
         ])
         self.assertEqual(rc, pdc.EXIT_OK)
         self.assertIn("RESULT:OK STEP:deploy-jar", out)
@@ -483,7 +491,7 @@ class TestSubcommandDryRun(unittest.TestCase):
 
     def test_verify_fix_dry_run(self):
         rc, out = self.runner.run([
-            "verify-fix", "--jar", "/tmp/foo.jar", "--restart", "--timeout-seconds", "120",
+            "verify-fix", "--jar", _FOO_JAR, "--restart", "--timeout-seconds", "120",
         ])
         self.assertEqual(rc, pdc.EXIT_OK)
         self.assertIn("RESULT:OK STEP:verify-fix", out)
@@ -655,7 +663,7 @@ class TestVerifyFixRealMode(unittest.TestCase):
                 rc = pdc.main([
                     "--repo-root", str(self.repo_root),
                     "verify-fix",
-                    "--jar", "/tmp/foo.jar",
+                    "--jar", _FOO_JAR,
                     "--timeout-seconds", "5",
                 ])
             out = buf.getvalue()
@@ -692,7 +700,7 @@ class TestVerifyFixRealMode(unittest.TestCase):
                 rc = pdc.main([
                     "--repo-root", str(self.repo_root),
                     "verify-fix",
-                    "--jar", "/tmp/foo.jar",
+                    "--jar", _FOO_JAR,
                     "--timeout-seconds", "5",
                 ])
             out = buf.getvalue()
@@ -729,7 +737,7 @@ class TestVerifyFixRealMode(unittest.TestCase):
                 rc = pdc.main([
                     "--repo-root", str(self.repo_root),
                     "verify-fix",
-                    "--jar", "/tmp/foo.jar",
+                    "--jar", _FOO_JAR,
                     "--timeout-seconds", "5",
                 ])
             out = buf.getvalue()
@@ -813,7 +821,7 @@ class TestQaHelpers(unittest.TestCase):
         """Image with a HEALTHCHECK Test array reports ok (#2484)."""
         completed = unittest.mock.Mock(
             returncode=0,
-            stdout='{"Test":["CMD-SHELL","/usr/local/bin/rhythmyx_healthcheck.py"],'
+            stdout='{"Test":["CMD-SHELL","/usr/local/bin/rhythmyx_healthcheck.py"],'  # mkd-code-review[paths.hardcoded_sep]: adjudicated (issue #6570, parent #6341) - container-internal HEALTHCHECK path in mocked docker-inspect JSON, never a host path.
                    '"Interval":30000000000}',
         )
         runner = unittest.mock.Mock(return_value=completed)
