@@ -26020,6 +26020,16 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Could not export the site publish history">
       <tuv xml:lang="en-us"><seg>Could not export the site publish history</seg></tuv>
     </tu>
+    <!-- #6595: publish-history audit polish — filtered-empty + export-empty copy. en-us only. -->
+    <tu tuid="perc.ui.publish.modern@No history rows match the current filters">
+      <tuv xml:lang="en-us"><seg>No history rows match the current filters</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Adjust the status or search filters to see more rows">
+      <tuv xml:lang="en-us"><seg>Adjust the status or search filters to see more rows</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@No visible history rows to export for this site">
+      <tuv xml:lang="en-us"><seg>No visible history rows to export for this site</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.publish.modern@Publish Forbidden">
       <tuv xml:lang="en-us"><seg>You are not allowed to publish.</seg></tuv>
       <tuv xml:lang="ar"><seg>غير مسموح لك بالنشر.</seg></tuv>

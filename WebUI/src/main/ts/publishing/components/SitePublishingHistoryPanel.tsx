@@ -110,6 +110,10 @@ export function SitePublishingHistoryPanel({
 
   function onExport(): void {
     setExportError(null);
+    if (visibleLogs.length === 0) {
+      setExportError(message(MSG.PUBLISH_SITE_HISTORY_EXPORT_EMPTY));
+      return;
+    }
     try {
       const csv = buildPublishingLogsCsv(visibleLogs);
       downloadPublishingLogsCsv(csv, siteHistoryExportFilename(siteName));
@@ -248,11 +252,21 @@ export function SitePublishingHistoryPanel({
           {exportError}
         </p>
       )}
-      {!loading && !error && visibleLogs.length === 0 && (
+      {!loading && !error && visibleLogs.length === 0 && logs.length === 0 && (
         <EmptyState
           testId="publish-site-history-empty"
           title={message(MSG.PUBLISH_SITE_HISTORY_EMPTY)}
           nextAction={message(MSG.PUBLISH_SITE_HISTORY_EMPTY_HINT)}
+          actionLabel={message(MSG.PUBLISH_SITE_HISTORY_REFRESH)}
+          onAction={() => void load()}
+          actionTestId="publish-site-history-empty-reload"
+        />
+      )}
+      {!loading && !error && visibleLogs.length === 0 && logs.length > 0 && (
+        <EmptyState
+          testId="publish-site-history-empty-filtered"
+          title={message(MSG.PUBLISH_SITE_HISTORY_EMPTY_FILTERED)}
+          nextAction={message(MSG.PUBLISH_SITE_HISTORY_EMPTY_FILTERED_HINT)}
         />
       )}
 

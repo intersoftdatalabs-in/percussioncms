@@ -22,6 +22,11 @@
  * that site id); status/search narrow the loaded rows client-side and
  * Export downloads only the visible rows as publish-history-<site>.csv.
  *
+ * Polish (#6595): the truly-empty state carries a Reload history CTA,
+ * filter-narrowed-to-zero shows distinct filtered-empty copy, and Export
+ * with no visible rows names the export-empty error instead of
+ * downloading an empty file.
+ *
  * Tags: @publishing-site-history @publish
  *
  * Run (QA mode after perc-devctl qa-up):
@@ -175,6 +180,74 @@ test.describe("Site workspace publishing history audit (#6473)", () => {
     await expect(
       page.getByTestId("publish-site-history-count"),
     ).toContainText("Showing 0 of 0 history rows");
+    expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
+  });
+
+  test(`empty state offers a reload CTA that re-reads history ${TAGS.join(" ")}`, async ({
+    page,
+  }) => {
+    const consoleErrors = trackConsole(page);
+    await stubSiteApis(page, []);
+    await openFirstSiteWorkspace(page);
+
+    const reload = page.getByTestId("publish-site-history-empty-reload");
+    await expect(reload).toBeVisible({ timeout: 15000 });
+    await expect(reload).toContainText("Reload history");
+    await reload.click();
+    await expect(
+      page.getByTestId("publish-site-history-empty"),
+    ).toBeVisible({ timeout: 15000 });
+    expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
+  });
+
+  test(`filters that hide every row show filtered-empty copy, not the run-a-publish hint ${TAGS.join(" ")}`, async ({
+    page,
+  }) => {
+    const consoleErrors = trackConsole(page);
+    await stubSiteApis(page, HISTORY_ROWS);
+    await openFirstSiteWorkspace(page);
+
+    await expect(
+      page.getByTestId("publish-site-history-row"),
+    ).toHaveCount(2);
+    await page.getByTestId("publish-site-history-query").fill("no-such-server-zzz");
+    await expect(
+      page.getByTestId("publish-site-history-empty-filtered"),
+    ).toBeVisible({ timeout: 15000 });
+    await expect(
+      page.getByTestId("publish-site-history-empty-filtered"),
+    ).toContainText("No history rows match the current filters");
+    await expect(
+      page.getByTestId("publish-site-history-empty"),
+    ).toHaveCount(0);
+    await expect(
+      page.getByTestId("publish-site-history-table"),
+    ).toHaveCount(0);
+    expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
+  });
+
+  test(`export with no visible rows names the export-empty error, no download ${TAGS.join(" ")}`, async ({
+    page,
+  }) => {
+    const consoleErrors = trackConsole(page);
+    await stubSiteApis(page, HISTORY_ROWS);
+    await openFirstSiteWorkspace(page);
+
+    await expect(
+      page.getByTestId("publish-site-history-row"),
+    ).toHaveCount(2);
+    await page.getByTestId("publish-site-history-query").fill("no-such-server-zzz");
+    await expect(
+      page.getByTestId("publish-site-history-empty-filtered"),
+    ).toBeVisible({ timeout: 15000 });
+    await page.getByTestId("publish-site-history-export").click();
+    await expect(
+      page.getByTestId("publish-site-history-export-error"),
+    ).toContainText("No visible history rows to export");
+
+    await page.screenshot({
+      path: "test-results/live-proof-6595-site-history-polish.png",
+    });
     expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
   });
 });

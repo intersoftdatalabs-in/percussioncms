@@ -397,10 +397,16 @@ export const MSG = {
     "perc.ui.publish.modern@No publish history for this site yet",
   PUBLISH_SITE_HISTORY_EMPTY_HINT:
     "perc.ui.publish.modern@Run a publish for this site, then reload history",
+  PUBLISH_SITE_HISTORY_EMPTY_FILTERED:
+    "perc.ui.publish.modern@No history rows match the current filters",
+  PUBLISH_SITE_HISTORY_EMPTY_FILTERED_HINT:
+    "perc.ui.publish.modern@Adjust the status or search filters to see more rows",
   PUBLISH_SITE_HISTORY_ERROR:
     "perc.ui.publish.modern@Could not load publish history for this site",
   PUBLISH_SITE_HISTORY_EXPORT_FAILED:
     "perc.ui.publish.modern@Could not export the site publish history",
+  PUBLISH_SITE_HISTORY_EXPORT_EMPTY:
+    "perc.ui.publish.modern@No visible history rows to export for this site",
   PUBLISH_EMPTY_QUEUE: "perc.ui.publish.incrementalPreview@No items queued for incremental",
   PUBLISH_REMOVE_QUEUE_ITEM: "perc.ui.publish.modern@Remove from queue",
   PUBLISH_CONFIRM_REMOVE_QUEUE_ITEM:
