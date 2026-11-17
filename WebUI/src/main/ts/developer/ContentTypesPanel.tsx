@@ -86,6 +86,7 @@ export function ContentTypesPanel(): React.ReactElement {
   const [selected, setSelected] = useState<SelectedContentType | "new" | null>(null);
   const [copyOf, setCopyOf] = useState<string | null>(null);
   const [copyName, setCopyName] = useState("");
+  const [copyReview, setCopyReview] = useState<string | null>(null);
   const [copyError, setCopyError] = useState<string | null>(null);
   const [copying, setCopying] = useState(false);
   const mountedRef = useRef(true);
@@ -137,20 +138,42 @@ export function ContentTypesPanel(): React.ReactElement {
     void reload();
   }
 
-  async function submitCopy(): Promise<void> {
+  function resetCopy(): void {
+    setCopyOf(null);
+    setCopyName("");
+    setCopyReview(null);
+    setCopyError(null);
+  }
+
+  /**
+   * Step 1 of clone: a valid new name advances to the deep-copy confirm step.
+   * Nothing is posted until the confirm step submits.
+   */
+  function requestCopyReview(): void {
     if (!copyOf || !isValidContentTypeName(copyName) || copying) {
+      return;
+    }
+    setCopyError(null);
+    setCopyReview(copyName.trim());
+  }
+
+  async function submitCopy(): Promise<void> {
+    const target = copyReview ?? copyName.trim();
+    if (!copyOf || !isValidContentTypeName(target) || copying) {
       return;
     }
     setCopying(true);
     setCopyError(null);
     try {
-      const detail = await copyContentType(copyOf, copyName.trim());
+      const detail = await copyContentType(copyOf, target);
       if (!mountedRef.current) return;
-      setCopyOf(null);
-      setCopyName("");
+      resetCopy();
       handleCreated(detail);
     } catch (err: unknown) {
       if (!mountedRef.current) return;
+      // Back to the name step with the typed name preserved; the catalog row
+      // is unchanged because the POST never created the type.
+      setCopyReview(null);
       setCopyError(panelErrMsg(err, DEV_MSG.CT_COPY_ERROR));
     } finally {
       if (mountedRef.current) {
@@ -239,11 +262,60 @@ export function ContentTypesPanel(): React.ReactElement {
       </div>
       <ContentTypeImportWizard onImported={() => void reload()} />
       {copyOf ? (
+        copyReview != null ? (
+          <div
+            data-testid="developer-ct-copy-confirm"
+            style={{
+              display: "flex",
+              gap: "8px",
+              alignItems: "center",
+              flexWrap: "wrap",
+              marginBottom: "12px",
+            }}
+          >
+            <span>
+              {DEV_MSG.CT_COPY_CONFIRM_TITLE}: <code>{copyOf}</code> →{" "}
+              <code>{copyReview}</code>?
+            </span>
+            <span data-testid="developer-ct-copy-scope" style={mutedCell}>
+              {DEV_MSG.CT_COPY_SCOPE}
+            </span>
+            <button
+              type="button"
+              data-testid="developer-ct-copy-submit"
+              disabled={copying}
+              onClick={() => void submitCopy()}
+            >
+              {copying ? DEV_MSG.CT_COPYING : DEV_MSG.CT_COPY_SUBMIT}
+            </button>
+            <button
+              type="button"
+              data-testid="developer-ct-copy-back"
+              disabled={copying}
+              onClick={() => setCopyReview(null)}
+            >
+              {DEV_MSG.CT_COPY_BACK}
+            </button>
+            <button
+              type="button"
+              data-testid="developer-ct-copy-cancel"
+              disabled={copying}
+              onClick={resetCopy}
+            >
+              {DEV_MSG.CT_COPY_CANCEL}
+            </button>
+            {copyError ? (
+              <span data-testid="developer-ct-copy-error" role="alert">
+                {copyError}
+              </span>
+            ) : null}
+          </div>
+        ) : (
         <form
           data-testid="developer-ct-copy-form"
           onSubmit={(event) => {
             event.preventDefault();
-            void submitCopy();
+            requestCopyReview();
           }}
           style={{
             display: "flex",
@@ -267,10 +339,18 @@ export function ContentTypesPanel(): React.ReactElement {
           </label>
           <button
             type="submit"
-            data-testid="developer-ct-copy-submit"
+            data-testid="developer-ct-copy-review"
             disabled={copying || !isValidContentTypeName(copyName)}
           >
-            {copying ? DEV_MSG.CT_COPYING : DEV_MSG.CT_COPY_SUBMIT}
+            {DEV_MSG.CT_COPY_REVIEW}
+          </button>
+          <button
+            type="button"
+            data-testid="developer-ct-copy-cancel"
+            disabled={copying}
+            onClick={resetCopy}
+          >
+            {DEV_MSG.CT_COPY_CANCEL}
           </button>
           {copyError ? (
             <span data-testid="developer-ct-copy-error" role="alert">
@@ -279,7 +359,11 @@ export function ContentTypesPanel(): React.ReactElement {
           ) : (
             <span style={mutedCell}>{DEV_MSG.CT_COPY_HINT}</span>
           )}
+          <span data-testid="developer-ct-copy-scope" style={mutedCell}>
+            {DEV_MSG.CT_COPY_SCOPE}
+          </span>
         </form>
+        )
       ) : null}
       {error ? (
         <>
@@ -372,6 +456,7 @@ export function ContentTypesPanel(): React.ReactElement {
                   onClick={() => {
                     setCopyOf(openKey);
                     setCopyName("");
+                    setCopyReview(null);
                     setCopyError(null);
                   }}
                 >

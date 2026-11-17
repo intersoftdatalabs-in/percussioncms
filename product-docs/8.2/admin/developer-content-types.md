@@ -157,13 +157,18 @@ source is not locked or changed.
 2. Open **Developer → Content types**.
 3. Click **Copy** on the source row.
 4. Enter a unique **New name** (letters, digits, underscore, and period; no
-   spaces) and click **Copy content type**. The product calls
+   spaces) and click **Review clone**. The panel discloses the deep-copy
+   scope: fields, field sets, controls, choices, item exits, and type
+   settings move to the new name, and the source is not locked or changed.
+5. Confirm the clone (**Clone content type**) or go **Back** to edit the name.
+   **Cancel** dismisses the clone at either step without calling REST — the
+   typed name never materializes as a type. The product calls
    `POST /services/contenttypes/{idOrName}/copy` (Jackson root
-   `ContentTypeName`) and opens the new type.
-5. **Back to list** shows the copy in the catalog.
-6. A duplicate name is **409**. An illegal name (blank, spaces, wildcard)
+   `ContentTypeName`) only after confirm, and opens the new type.
+6. **Back to list** shows the copy in the catalog.
+7. A duplicate name is **409**. An illegal name (blank, spaces, wildcard)
    cannot be submitted; if REST rejects it the status is **400**.
-7. **Folder** and Managed Navigation system types (**percNavon** /
+8. **Folder** and Managed Navigation system types (**percNavon** /
    **percNavTree** / **percNavImage** and their `rff*` aliases) cannot be
    copied. The product returns **400** with a message that the system content
    type cannot be copied. Non-Admin callers are **403**. Unknown sources are

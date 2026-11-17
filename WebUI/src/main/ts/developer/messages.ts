@@ -193,6 +193,12 @@ export const DEV_MSG_KEYS = {
   CT_COPY_ERROR: "perc.ui.developer@Could not copy content type.",
   CT_COPY_HINT:
     "perc.ui.developer@Creates a distinct content type with the same fields. Folder and navigation system types cannot be copied.",
+  CT_COPY_SCOPE:
+    "perc.ui.developer@Deep copy: fields, field sets, controls, choices, item exits, and type settings move to the new name. The source is not locked or changed.",
+  CT_COPY_REVIEW: "perc.ui.developer@Review clone",
+  CT_COPY_CANCEL: "perc.ui.developer@Cancel",
+  CT_COPY_BACK: "perc.ui.developer@Back",
+  CT_COPY_CONFIRM_TITLE: "perc.ui.developer@Confirm clone",
   CT_RENAME: "perc.ui.developer@Rename content type",
   CT_RENAMED: "perc.ui.developer@Content type renamed.",
   CT_RENAME_ERROR: "perc.ui.developer@Could not rename content type.",
