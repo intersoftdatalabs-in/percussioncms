@@ -2410,6 +2410,23 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 - `spa.jsp?entry=publish&section=sites&siteId={siteId}&itemId={id}`
 - Path form: `/cm/app/publish/sites?siteId={siteId}&itemId={id}`
 
+## Publish history audit for a site (Publishing site workspace)
+
+From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, then a site). Below the current-job list, the **Publish history** audit view shows recent publish jobs for that site (`POST /services/sitemanage/pubstatus/logs` with the workspace site id). The scope is pinned to the open site — there is no site picker on this panel.
+
+1. Sign in as an operator who can open Publish.
+2. Open **Publish → Sites** and select a site (or deep-link `section=sites` with `siteId`).
+3. Scroll to **Publish history**. The panel loads the recent jobs for the site automatically.
+4. Narrow the loaded rows with **Days** (3 / 5 / 10), **Show** (20 / 30 / 50), **Status** (**All** / **Failed** / **Success**), the **Search** box (server, job, status), or **Failures only (server)**. **Reload history** re-reads the site logs with the current Days / Show / failures-only settings.
+5. Choose **Export** to download the visible rows as `publish-history-<site>.csv` (same Job / Site / Server / Status columns as the Logs export, formula-injection neutralized).
+
+**Empty and error states:** A site with no recent jobs shows **No publish history for this site yet** with a hint to run a publish and reload — not a table. A failed logs request shows **Could not load publish history for this site** and no rows. A failed download shows **Could not export the site publish history**. The **Showing {visible} of {total} history rows** count reports the filter result. This view is read-only: purge and job retry stay on **Logs** / **Status**.
+
+**Deep links:**
+
+- `spa.jsp?entry=publish&section=sites&siteId={siteId}`
+- Path form: `/cm/app/publish/sites?siteId={siteId}`
+
 ## Take down from the Publishing site workspace
 
 From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, then a site). The **Remove From Site** panel takes down (unpublishes) a page or asset using the same sitemanage paths as Content Explorer and classic Finder (`GET /services/sitemanage/publish/takedown/page/{id}` or `/resource/{id}`; `PUT` of the linked-page list when that list is non-empty). Take down does **not** delete the CMS content item. Linked pages come from `GET /services/itemmanagement/item/findLinkedItems/{id}` and are listed on confirm (up to ten). A failed linked-item lookup still proceeds with the confirm (classic Finder).

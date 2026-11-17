@@ -58,6 +58,7 @@ vi.mock("@/api/publishing/serversApi", () => ({
 
 vi.mock("@/api/publishing/statusApi", () => ({
   fetchCurrentJobsForSite: vi.fn().mockResolvedValue([]),
+  fetchPublishingLogs: vi.fn().mockResolvedValue([]),
 }));
 
 vi.mock("@/api/publishing/itemScheduleDatesApi", () => ({
