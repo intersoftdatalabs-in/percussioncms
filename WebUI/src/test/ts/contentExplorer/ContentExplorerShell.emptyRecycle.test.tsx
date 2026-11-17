@@ -17,7 +17,7 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactElement } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapContext";
 import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
 import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentExplorerShell";
@@ -48,9 +48,8 @@ const RECYCLED = {
   leaf: true,
 };
 
-describe("ContentExplorerShell empty recycle bin (#4762)", () => {
-  it("confirms, POSTs empty, then reloads an empty list", async () => {
-    vi.spyOn(window, "confirm").mockReturnValue(true);
+describe("ContentExplorerShell empty recycle bin (#6470)", () => {
+  it("confirms in the dialog, POSTs empty, then reloads an empty list", async () => {
     let emptied = false;
     const emptyUrls: string[] = [];
     mockFetch(async (input) => {
@@ -97,16 +96,23 @@ describe("ContentExplorerShell empty recycle bin (#4762)", () => {
     expect(emptyBtn).toBeEnabled();
     fireEvent.click(emptyBtn);
 
+    // The confirm dialog lists the bin contents (#6470).
+    const list = await screen.findByTestId("explorer-empty-recycle-list");
+    expect(list).toHaveTextContent(/qa4762/);
+    fireEvent.click(screen.getByTestId("explorer-empty-recycle-ok"));
+    const report = await screen.findByTestId("explorer-empty-recycle-report");
+    expect(report).toHaveTextContent(/Removed 1 item\(s\)/);
+
     await waitFor(() => {
       expect(emptyUrls.length).toBeGreaterThan(0);
     });
+    fireEvent.click(screen.getByTestId("explorer-empty-recycle-close"));
     await waitFor(() => {
       expect(screen.queryByTestId("detail-row-1-101-9")).not.toBeInTheDocument();
     });
   });
 
   it("keeps the list when empty returns 409", async () => {
-    vi.spyOn(window, "confirm").mockReturnValue(true);
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
       if (url.includes("/folders/recycle/empty")) {
@@ -142,11 +148,11 @@ describe("ContentExplorerShell empty recycle bin (#4762)", () => {
 
     expect(await screen.findByTestId("detail-row-1-101-9")).toBeInTheDocument();
     fireEvent.click(await screen.findByTestId("action-empty-recycle"));
-    await waitFor(() => {
-      expect(
-        screen.getAllByText(/could not empty the recycle bin/i).length,
-      ).toBeGreaterThan(0);
-    });
+    await screen.findByTestId("explorer-empty-recycle-list");
+    fireEvent.click(screen.getByTestId("explorer-empty-recycle-ok"));
+    const report = await screen.findByTestId("explorer-empty-recycle-report");
+    expect(report.textContent?.toLowerCase()).toContain("could not empty");
+    fireEvent.click(screen.getByTestId("explorer-empty-recycle-close"));
     expect(screen.getByTestId("detail-row-1-101-9")).toBeInTheDocument();
   });
 });

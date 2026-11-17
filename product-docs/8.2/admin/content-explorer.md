@@ -820,7 +820,9 @@ that is only folders purges nothing. This is not **Empty recycle bin** and not
 two or more Recycling rows are checked) asks once, then restores each checked
 **page, asset, or folder** with `PUT /rest/folders/recycle/restore/{guid}` — the
 same call as single-item **Restore**. Each item returns to its original folder.
-**Cancel** restores nothing.
+**Cancel** restores nothing. Single-item **Restore** also asks once and names the
+recycled row, so the operator can verify the round-trip target before
+confirming; **Cancel** restores nothing and leaves the selection in place.
 
 Items that already restored stay restored when a later item fails. The result is
 full success only when every checked row was restored. HTTP **403**, **404**, or
@@ -828,6 +830,21 @@ full success only when every checked row was restored. HTTP **403**, **404**, or
 not-found, or name-in-use message) and is not reported as if the whole selection
 was restored. A row with no recycled GUID is named as not found and is not a
 successful restore. This is not **Purge selected** and not **Empty recycle bin**.
+
+### Empty the recycle bin
+
+The reduced-actions **Empty recycle bin** button (enabled on the **Recycling**
+folder) opens a confirm dialog instead of a browser prompt. The dialog loads the
+bin contents first — including items filed under the bin mirrors
+(`Recycling/Assets`, `Recycling/Sites`) — while loading it shows a loading
+status, when the bin is already empty it says so and the confirm control stays
+disabled, and when the list fails to load it shows an error with **Retry**.
+Otherwise the dialog names each item that will be permanently deleted
+(`POST /rest/folders/recycle/empty`). **Cancel** deletes nothing. After the call
+the dialog reports each removed item with summary counts (for example
+`Removed 2 item(s): News, Banner`); HTTP **403**, **404**, or **409** stays on the
+report as a named error and is not reported as a successful empty. This is not
+**Purge selected** and not **Recycle selected**.
 
 ## Views → My Content → Inbox
 

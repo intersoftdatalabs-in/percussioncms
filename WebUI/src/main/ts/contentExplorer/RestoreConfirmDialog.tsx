@@ -26,12 +26,19 @@ const FOCUSABLE =
 export interface RestoreConfirmDialogProps {
   onConfirm: () => void;
   onCancel: () => void;
+  /**
+   * Single-item restore names the recycled row so the operator can verify
+   * the round-trip target before confirming (#6470). Absent keeps the
+   * multi-select confirm text.
+   */
+  itemName?: string;
 }
 
 /** One confirm for Content → Restore selected (#4884). */
 export function RestoreConfirmDialog({
   onConfirm,
   onCancel,
+  itemName,
 }: RestoreConfirmDialogProps): React.ReactElement {
   const rootRef = useRef<HTMLDivElement>(null);
   const okRef = useRef<HTMLButtonElement>(null);
@@ -107,7 +114,9 @@ export function RestoreConfirmDialog({
           {message(EXPLORER_MSG.ACTION_RESTORE)}
         </h2>
         <p style={{ margin: "0 0 16px", fontSize: 14 }}>
-          {message(EXPLORER_MSG.MULTI_RESTORE_CONFIRM)}
+          {itemName
+            ? `${message(EXPLORER_MSG.CONFIRM_RESTORE_SINGLE)} ${itemName}`
+            : message(EXPLORER_MSG.MULTI_RESTORE_CONFIRM)}
         </p>
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
           <button

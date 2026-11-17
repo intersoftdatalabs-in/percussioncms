@@ -452,6 +452,17 @@ test.describe("modern Content Explorer UI recycle / restore companion", () => {
         branch = chooseRestoreOrEmptyBranch({ pathEligible, restoreEnabled });
         if (branch === "restore") {
           await control.locator.click();
+          // The reduced-actions Restore button confirms naming the recycled
+          // row (#6470); server-action toolbar items restore directly.
+          const restoreDialog = page.getByTestId("explorer-restore-confirm");
+          const sawDialog = await restoreDialog
+            .waitFor({ timeout: 10_000 })
+            .then(() => true)
+            .catch(() => false);
+          if (sawDialog) {
+            await expect(restoreDialog).toContainText(created.name);
+            await page.getByTestId("explorer-restore-ok").click();
+          }
           await expect
             .poll(() => restoreCalls.length > 0, { timeout: 30_000 })
             .toBe(true);

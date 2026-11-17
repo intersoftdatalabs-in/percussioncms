@@ -41,7 +41,9 @@ import { isRecyclingExplorerPath } from "./folderPath";
 import { formatMoveItemError } from "./moveItemErrors";
 import { CreateAssetDialog } from "./CreateAssetDialog";
 import { CreatePageDialog } from "./CreatePageDialog";
+import { EmptyRecycleDialog } from "./EmptyRecycleDialog";
 import { FolderRenameDialog } from "./FolderRenameDialog";
+import { RestoreConfirmDialog } from "./RestoreConfirmDialog";
 import { formatCreateAssetError } from "./createAssetErrors";
 import { formatCreateFolderError } from "./createFolderErrors";
 import { formatCreatePageError } from "./createPageErrors";
@@ -130,7 +132,7 @@ export interface ReducedActionHandlers {
    * (#4883). Absent hosts keep single-item purge.
    */
   onPurgeChecked?: () => void;
-  /** Permanently empty the open recycle bin after confirm (#4762). */
+  /** Permanently empty the open recycle bin via the confirm dialog (#6470). */
   onEmptyRecycle: () => Promise<void>;
   /**
    * Optional prompt helper (defaults to {@link window.prompt} / confirm).
@@ -170,6 +172,11 @@ export interface ReducedActionsProps {
    * is ignored.
    */
   siblingFolderNames?: readonly string[];
+  /**
+   * Loads the open recycle bin for the empty confirm dialog. Defaults to
+   * the production listing; tests inject a stub.
+   */
+  loadRecycleBin?: () => Promise<PSPathItem[]>;
 }
 
 const defaultPrompt = (msg: string, def?: string): string | null => {
@@ -191,6 +198,7 @@ export function ReducedActions({
   onError,
   checkedItems,
   siblingFolderNames,
+  loadRecycleBin,
 }: ReducedActionsProps): React.ReactElement {
   const [pending, setPending] = useState<ReducedActionKey | null>(null);
   const [copyPickerItem, setCopyPickerItem] = useState<PSPathItem | null>(null);
@@ -198,6 +206,10 @@ export function ReducedActions({
   const [createAssetOpen, setCreateAssetOpen] = useState(false);
   const [renameFolderItem, setRenameFolderItem] = useState<PSPathItem | null>(null);
   const [movePickerItem, setMovePickerItem] = useState<PSPathItem | null>(null);
+  /** Single-item recycle-bin restore pending confirm (#6470). */
+  const [restoreItem, setRestoreItem] = useState<PSPathItem | null>(null);
+  /** Empty-recycle-bin confirm dialog open flag (#6470). */
+  const [emptyRecycleOpen, setEmptyRecycleOpen] = useState(false);
 
   const itemWrite = canWrite(item) || canAdmin(item);
   const folderWrite = canWrite(folder) || canAdmin(folder);
@@ -343,8 +355,10 @@ export function ReducedActions({
       return;
     }
     if (!item) return;
-    void runItemAction("restore", () => handlers.onRestore(item));
-  }, [handlers, item, multiRestore, runItemAction]);
+    // Single-item restore confirms naming the recycled row (#6470);
+    // multi-select restore keeps the shell-owned confirm dialog.
+    setRestoreItem(item);
+  }, [handlers, item, multiRestore]);
 
   const multiPurge =
     (checkedItems?.length ?? 0) >= 2 &&
@@ -369,11 +383,10 @@ export function ReducedActions({
   }, [handlers, item, multiPurge, runItemAction]);
 
   const handleEmptyRecycle = useCallback(() => {
-    const confirm = handlers.confirm ?? defaultConfirm;
-    const ok = confirm(message(EXPLORER_MSG.CONFIRM_EMPTY_RECYCLE));
-    if (!ok) return;
-    void runItemAction("emptyRecycle", () => handlers.onEmptyRecycle());
-  }, [handlers, runItemAction]);
+    // Emptying is permanent: the confirm dialog lists the bin contents
+    // (loading / empty / error states) and reports each removed item (#6470).
+    setEmptyRecycleOpen(true);
+  }, []);
 
   const restoreEligible =
     multiRestore ||
@@ -580,6 +593,28 @@ export function ReducedActions({
             void runItemAction("move", () => handlers.onMove(source, target));
           }}
           onCancel={() => setMovePickerItem(null)}
+        />
+      ) : null}
+      {restoreItem ? (
+        <RestoreConfirmDialog
+          itemName={
+            (restoreItem.name ?? restoreItem.path ?? restoreItem.id ?? "").trim() ||
+            undefined
+          }
+          onConfirm={() => {
+            const target = restoreItem;
+            setRestoreItem(null);
+            void runItemAction("restore", () => handlers.onRestore(target));
+          }}
+          onCancel={() => setRestoreItem(null)}
+        />
+      ) : null}
+      {emptyRecycleOpen ? (
+        <EmptyRecycleDialog
+          binPath={folder?.path ?? "/Recycling"}
+          loadBin={loadRecycleBin}
+          runEmpty={() => handlers.onEmptyRecycle()}
+          onDone={() => setEmptyRecycleOpen(false)}
         />
       ) : null}
     </div>

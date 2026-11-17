@@ -48,8 +48,8 @@ const RECYCLED = {
   leaf: true,
 };
 
-describe("ContentExplorerShell recycle restore (#4700)", () => {
-  it("PUTs recycle restore then refreshes the list", async () => {
+describe("ContentExplorerShell recycle restore (#6470)", () => {
+  it("confirms naming the row, PUTs recycle restore then refreshes the list", async () => {
     let restored = false;
     const restoreUrls: string[] = [];
     mockFetch(async (input) => {
@@ -97,6 +97,11 @@ describe("ContentExplorerShell recycle restore (#4700)", () => {
     const restoreBtn = await screen.findByTestId("action-restore");
     expect(restoreBtn).toBeEnabled();
     fireEvent.click(restoreBtn);
+
+    // Single-item restore confirms naming the recycled row (#6470).
+    const dialog = await screen.findByTestId("explorer-restore-confirm");
+    expect(dialog).toHaveTextContent(/qa4700/);
+    fireEvent.click(screen.getByTestId("explorer-restore-ok"));
 
     await waitFor(() => {
       expect(restoreUrls.length).toBeGreaterThan(0);

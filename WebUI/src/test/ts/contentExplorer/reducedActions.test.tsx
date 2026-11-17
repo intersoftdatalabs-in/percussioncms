@@ -252,9 +252,42 @@ describe("ReducedActions", () => {
     const restore = screen.getByTestId("action-restore");
     expect(restore).toBeEnabled();
     fireEvent.click(restore);
+    // Single-item restore confirms naming the recycled row (#6470).
+    const dialog = await screen.findByTestId("explorer-restore-confirm");
+    expect(dialog).toHaveTextContent(/qa4700/);
+    fireEvent.click(screen.getByTestId("explorer-restore-ok"));
     await waitFor(() => expect(calls.onRestore).toHaveLength(1));
     expect(calls.onRestore[0]).toMatchObject({ id: "1-101-9" });
     expect(screen.getByTestId("action-purge")).toBeEnabled();
+  });
+
+  it("does not restore when the single-item confirm is cancelled (#6470)", async () => {
+    const { handlers, calls } = makeHandlers();
+    render(
+      <ReducedActions
+        item={{
+          id: "1-101-9",
+          path: "/Recycling/Assets/qa4700",
+          name: "qa4700",
+          type: "percSimpleTextAsset",
+          accessLevel: "WRITE",
+          leaf: true,
+        }}
+        folder={{
+          id: "bin",
+          path: "/Recycling",
+          name: "Recycling",
+          type: "folder",
+          accessLevel: "ADMIN",
+        }}
+        handlers={handlers}
+        onError={() => undefined}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("action-restore"));
+    await screen.findByTestId("explorer-restore-confirm");
+    fireEvent.click(screen.getByTestId("explorer-restore-cancel"));
+    expect(calls.onRestore).toHaveLength(0);
   });
 
   it("purges one recycled item only after confirm (#4763)", async () => {
@@ -1148,9 +1181,8 @@ describe("ReducedActions", () => {
     expect(urls.at(-1)).toContain("/rest/folders/recycle/restore/1-101-9");
   });
 
-  it("enables Empty recycle bin on a Recycling folder and confirms (#4762)", async () => {
+  it("enables Empty recycle bin on a Recycling folder and confirms (#6470)", async () => {
     const { handlers, calls } = makeHandlers();
-    handlers.confirm = () => true;
     render(
       <ReducedActions
         item={null}
@@ -1162,17 +1194,29 @@ describe("ReducedActions", () => {
           accessLevel: "WRITE",
         }}
         handlers={handlers}
+        loadRecycleBin={async () => [
+          {
+            id: "1-101-9",
+            path: "/Recycling/qa6470",
+            name: "qa6470",
+            type: "percSimpleTextAsset",
+          },
+        ]}
       />,
     );
     const btn = screen.getByTestId("action-empty-recycle");
     expect(btn).toBeEnabled();
     fireEvent.click(btn);
+    // The confirm dialog lists the bin contents (#6470).
+    const list = await screen.findByTestId("explorer-empty-recycle-list");
+    expect(list).toHaveTextContent(/qa6470/);
+    fireEvent.click(screen.getByTestId("explorer-empty-recycle-ok"));
     await waitFor(() => expect(calls.onEmptyRecycle).toHaveLength(1));
+    await screen.findByTestId("explorer-empty-recycle-report");
   });
 
-  it("does not empty the bin when confirm is cancelled (#4762)", async () => {
+  it("does not empty the bin when confirm is cancelled (#6470)", async () => {
     const { handlers, calls } = makeHandlers();
-    handlers.confirm = () => false;
     render(
       <ReducedActions
         item={null}
@@ -1183,9 +1227,19 @@ describe("ReducedActions", () => {
           type: "folder",
         }}
         handlers={handlers}
+        loadRecycleBin={async () => [
+          {
+            id: "1-101-9",
+            path: "/Recycling/qa6470",
+            name: "qa6470",
+            type: "percSimpleTextAsset",
+          },
+        ]}
       />,
     );
     fireEvent.click(screen.getByTestId("action-empty-recycle"));
+    await screen.findByTestId("explorer-empty-recycle-list");
+    fireEvent.click(screen.getByTestId("explorer-empty-recycle-cancel"));
     expect(calls.onEmptyRecycle).toHaveLength(0);
   });
 
@@ -1203,8 +1257,7 @@ describe("ReducedActions", () => {
     expect(urls.at(-1)).toContain("/rest/folders/recycle/empty");
   });
 
-  it("maps empty-bin 409 to an error and does not swallow it (#4762)", async () => {
-    const errors: string[] = [];
+  it("names the empty-bin 409 on the dialog report and does not swallow it (#6470)", async () => {
     const handlers = defaultReducedActionHandlers();
     mockFetch(async () =>
       new Response("conflict", { status: 409, statusText: "Conflict" }),
@@ -1218,13 +1271,23 @@ describe("ReducedActions", () => {
           name: "Recycling",
           type: "folder",
         }}
-        handlers={{ ...handlers, confirm: () => true }}
-        onError={(msg) => errors.push(msg)}
+        handlers={handlers}
+        loadRecycleBin={async () => [
+          {
+            id: "1-101-9",
+            path: "/Recycling/qa6470",
+            name: "qa6470",
+            type: "percSimpleTextAsset",
+          },
+        ]}
+        onError={() => undefined}
       />,
     );
     fireEvent.click(screen.getByTestId("action-empty-recycle"));
-    await waitFor(() => expect(errors.length).toBe(1));
-    expect(errors[0].toLowerCase()).toContain("could not empty");
+    await screen.findByTestId("explorer-empty-recycle-list");
+    fireEvent.click(screen.getByTestId("explorer-empty-recycle-ok"));
+    const report = await screen.findByTestId("explorer-empty-recycle-report");
+    expect(report.textContent?.toLowerCase()).toContain("could not empty");
   });
 
   it("passes the zero serious/critical axe-core gate (admin item)", () => {
