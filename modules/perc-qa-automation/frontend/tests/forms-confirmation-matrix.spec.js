@@ -45,7 +45,9 @@
  * {@code DTS_BASE_URL} every case skips with the named reason. To turn the
  * retrieval cases green the cell must serve the admin surface — override
  * the shipped DTS development credentials when the cell provisions its own:
- * {@code DTS_DELIVERY_USER=<user> DTS_DELIVERY_PASSWORD=<secret>}.</p>
+ * {@code DTS_DELIVERY_USER=<user> DTS_DELIVERY_PASSWORD=<secret>} (both
+ * provisions — known seed credentials plus host-reachable DTS HTTPS — are
+ * owned by the cell provisioning issue #6375).</p>
  */
 
 const fs = require("node:fs");
@@ -64,6 +66,7 @@ const {
   dtsServiceUrl,
   deliveryAuthHeader,
   probeFormName,
+  retrievalDetail,
   buildConfirmationRow,
   validateConfirmationRow,
 } = require("./helpers/forms-confirmation-matrix");
@@ -166,7 +169,11 @@ async function readSummaries(request, svc, formName) {
   if (!read.ok() && [401, 403, 302].includes(read.status())) {
     return {
       skipped: skipNoRetrieval(
-        `GET /forms/form/cms/${formName} answered HTTP ${read.status()}`,
+        retrievalDetail(
+          `/forms/form/cms/${formName}`,
+          read.status(),
+          read.headers().location || null,
+        ),
       ),
     };
   }
@@ -308,7 +315,11 @@ test.describe("forms confirmation matrix", () => {
       test.skip(
         !csv.ok() && [401, 403, 302].includes(csv.status()),
         skipNoRetrieval(
-          `GET /forms/form/cms/${formName} export answered HTTP ${csv.status()}`,
+          retrievalDetail(
+            `/forms/form/cms/${formName} export`,
+            csv.status(),
+            csv.headers().location || null,
+          ),
         ),
       );
       expect(
