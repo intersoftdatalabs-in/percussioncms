@@ -58,6 +58,16 @@
  * persist in {@code localStorage} under one shared key and are re-applied on
  * dialog init; missing or corrupt storage degrades to the light default.</p>
  *
+ * <p>Issue #6528 (sys_TextArea codeeditor_mode takes effect): the dead
+ * {@code codeeditor_mode} param is wired into the {@code fromTextArea} mode
+ * through an allow-list ({@code xml} passes through, {@code html} stays an
+ * alias of the {@code htmlmixed} default, anything else falls back) so every
+ * shipped mode keeps a registered lint helper and pre-save validation keeps
+ * working; the legend shows the effective mode
+ * ({@code data-perc-codeeditor-mode}). The live test renders unbalanced
+ * markup in every effective mode with the exact sys_Templates options and
+ * asserts gutter markers appear.</p>
+ *
  * <p>Issue #6363 locks the migration at the manifest level (no live CMS):
  * no {@code org.webjars.npm:codemirror} in any {@code pom.xml}, no
  * {@code codemirror-unpack} build step, no {@code codemirror.version}
@@ -430,6 +440,79 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
   );
 
   test(
+    "template editor source-view flags unbalanced markup in every shipped mode",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      // Live proof for issue #6528 on the served npm bundle: the
+      // codeeditor_mode allow-list in sys_Templates.xsl only ships modes
+      // with a registered lint helper (htmlmixed + xml, with html aliased
+      // to htmlmixed). Render unbalanced markup in each effective mode
+      // with the exact sys_TextArea options (mode, gutters, lint) and
+      // assert gutter markers appear before save for every one.
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          pageErrors.push(msg.text());
+        }
+      });
+
+      await loginAsAdmin(page);
+      await page.addScriptTag({ url: `${BASE_URL}${BUNDLE_JS}` });
+      await page.addStyleTag({ url: `${BASE_URL}${BUNDLE_CSS}` });
+
+      const flagged = await page.evaluate(() => {
+        const modes = ["htmlmixed", "xml"];
+        const result = {};
+        document.body.innerHTML =
+          "<h1>Template validation per shipped mode (#6528)</h1>" +
+          '<textarea id="cm-mode-htmlmixed"><div><p>Head code</div></textarea>' +
+          '<textarea id="cm-mode-xml"><div><p>Head code</div></textarea>';
+        for (const mode of modes) {
+          const editor = window.CodeMirror.fromTextArea(
+            document.getElementById(`cm-mode-${mode}`),
+            {
+              mode,
+              lineNumbers: true,
+              gutters: ["CodeMirror-linenumbers", "CodeMirror-lint-markers"],
+              lint: true,
+              matchBrackets: true,
+              styleActiveLine: true,
+            },
+          );
+          const wrapper = editor.getWrapperElement();
+          result[mode] = {
+            option: editor.getOption("mode"),
+            errors: wrapper.querySelectorAll(".CodeMirror-lint-marker-error")
+              .length,
+            warnings: wrapper.querySelectorAll(
+              ".CodeMirror-lint-marker-warning",
+            ).length,
+          };
+        }
+        return result;
+      });
+      for (const mode of ["htmlmixed", "xml"]) {
+        expect(
+          flagged[mode].option,
+          `editor must run in the requested ${mode} mode (#6528)`,
+        ).toBe(mode);
+        expect(
+          flagged[mode].errors + flagged[mode].warnings,
+          `unbalanced markup in ${mode} mode must render markers before save (#6528)`,
+        ).toBeGreaterThan(0);
+      }
+      await page.screenshot({
+        path: "test-results/live-proof-6528-template-modes.png",
+      });
+
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
+    },
+  );
+
+  test(
     "template editor source-view persists dark-mode and font-size prefs",
     { tag: ["@explorer-content-editor", "@editor"] },
     async ({ page }) => {
@@ -739,6 +822,72 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
           `${SYS_TEMPLATES_XSL} legend must document validation markers (#6466)`,
         ).toContain(hint);
       }
+    },
+  );
+
+  test(
+    "sys_TextArea codeeditor_mode takes effect with a lint-safe fallback",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async () => {
+      // No live CMS needed: static pin for issue #6528. The codeeditor_mode
+      // param used to be dead (read into $codeeditor_mode but never
+      // referenced while fromTextArea hardcoded htmlmixed). The wiring must
+      // (a) feed an allow-listed effective mode into fromTextArea, (b) pass
+      // xml through while aliasing the historic "html" value (bare "html"
+      // does not resolve to a CodeMirror mode and would silently lose the
+      // #6466 lint helper) and falling back to htmlmixed otherwise, and
+      // (c) expose the effective mode on the legend for authors and tests.
+      const text = fs
+        .readFileSync(path.join(REPO_ROOT, SYS_TEMPLATES_XSL), "utf8")
+        .replace(/\r\n/g, "\n");
+      const codeeditorStart = text.indexOf('$codeeditor = \'yes\'');
+      expect(
+        codeeditorStart,
+        `${SYS_TEMPLATES_XSL} must keep the codeeditor branch`,
+      ).toBeGreaterThan(-1);
+      const branch = text.slice(codeeditorStart);
+      expect(
+        branch,
+        `${SYS_TEMPLATES_XSL} must resolve an effective editor mode (#6528)`,
+      ).toContain("codeeditor_effective_mode");
+      const scriptStart = branch.indexOf("fromTextArea");
+      expect(
+        scriptStart,
+        `${SYS_TEMPLATES_XSL} code editor must create a CodeMirror instance`,
+      ).toBeGreaterThan(-1);
+      const scriptBlock = branch.slice(scriptStart, scriptStart + 1200);
+      expect(
+        scriptBlock,
+        `${SYS_TEMPLATES_XSL} must wire codeeditor_mode into the editor mode (#6528)`,
+      ).toContain("mode: '<xsl:value-of select=\"$codeeditor_effective_mode\" />'");
+      expect(
+        scriptBlock,
+        `${SYS_TEMPLATES_XSL} must not hardcode the editor mode (#6528)`,
+      ).not.toContain("mode: 'htmlmixed'");
+      const effectiveAt = text.indexOf(
+        '<xsl:variable name="codeeditor_effective_mode">',
+      );
+      expect(
+        effectiveAt,
+        `${SYS_TEMPLATES_XSL} must resolve an effective editor mode (#6528)`,
+      ).toBeGreaterThan(-1);
+      const effectiveBlock = text.slice(effectiveAt, effectiveAt + 1200);
+      expect(
+        effectiveBlock,
+        `${SYS_TEMPLATES_XSL} must pass xml through (#6528)`,
+      ).toMatch(/\$codeeditor_mode\s*=\s*'xml'/);
+      expect(
+        effectiveBlock,
+        `${SYS_TEMPLATES_XSL} must fall back to htmlmixed for unknown modes (#6528)`,
+      ).toContain("<xsl:otherwise>htmlmixed</xsl:otherwise>");
+      expect(
+        branch,
+        `${SYS_TEMPLATES_XSL} legend must expose the effective mode (#6528)`,
+      ).toContain('data-perc-codeeditor-mode="{$codeeditor_effective_mode}"');
+      expect(
+        branch,
+        `${SYS_TEMPLATES_XSL} legend must show a mode badge (#6528)`,
+      ).toContain("data-perc-codeeditor-mode-badge");
     },
   );
 
