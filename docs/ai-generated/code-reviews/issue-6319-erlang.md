@@ -432,3 +432,60 @@ single-letter minified functions). They are **verified false positives**:
   machine-only); no LLM-identified in-diff defect exists to address.
 
 Gate: PASS with adjudicated dist-blob FPs. No author-code defect outstanding.
+
+---
+
+# Slice 10 re-review (lightbox2@2.10.0 rebase, 2026-11-17, branch fix/issue-6319-lightbox-npm)
+
+## Summary
+
+Machine analysis found **3** finding(s), **0** blocking bug(s).
+
+## Scope
+
+- Base: origin/main
+- Head: HEAD
+- Files: 47 analyzed
+- In-diff: 0 finding(s); preexisting: 3
+- Persona: erlang 0.1.1
+- Persona source: ~/.local/share/mkd/agents/erlang
+
+## Recommendation
+
+approve
+
+## Gate
+
+- Blocking bugs: 0
+- May commit/push: yes
+
+## Issues
+
+### Issue 1 -- Severity: bug
+
+- File: projects/sitemanage/src/main/resources/Rhythmyx/AppServer/server/rx/deploy/rxapp.ear/rxapp.war/WEB-INF/config/spring/projects/sitemanage-beans.xml:1442 (preexisting)
+- Rule: `secrets.heuristic`
+- Tool: `secrets.heuristic`
+- Description: Possible secret or credential material (line 1442)
+- Suggestion: Remove secrets from source; use env, vault, or mkd-secrets.
+- Status: open
+
+### Issue 2 -- Severity: bug
+
+- File: WebUI/src/main/ts/design/TemplateSourceEditor.tsx:204 (preexisting)
+- Rule: `complexity.cognitive`
+- Tool: `arborist-metrics`
+- Description: Function `handleSave` cognitive=37 (max 15), cyclomatic=25 (max 15)
+- Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
+- Status: open
+
+### Issue 3 -- Severity: suggestion
+
+- File: deliverytiersuite/delivery-tier-suite/feeds/src/main/java/com/percussion/delivery/feeds/services/PSFeedService.java:535 (preexisting)
+- Rule: `complexity.cognitive`
+- Tool: `arborist-metrics`
+- Description: Function `generateFeed` cognitive=19 (max 15), cyclomatic=14 (max 15)
+- Suggestion: Extract helpers, reduce nesting, use guard clauses (see CODE_STANDARDS).
+- Status: open
+
+> Tip: To suppress false positives, add `// mkd-code-review[<rule_id>] <reason>` (e.g. `// mkd-code-review[paths.hardcoded_sep] web url join`) or `// codeql[<rule_id>] <reason>` on or above the line, or add an entry in `.mkd-code-review.toml`.

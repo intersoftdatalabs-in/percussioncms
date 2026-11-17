@@ -180,6 +180,30 @@ import org.junit.jupiter.api.Test;
  * Foundation 4.x) stay vendored pending replace-or-drop decisions or
  * legal sign-off.
  *
+ * <p>Slice 10 (issue #6319) migrates the image-widget
+ * {@code lightbox.js} to the npm {@code lightbox2@2.10.0} dist (exact pin
+ * in the frontend manifest, so Dependabot watches it). Version archaeology
+ * showed the payload was a prettier-reformatted cut of stock 2.10.0 carrying
+ * two Percussion mods: the CodeQL js/xss-through-dom (#1441) selector
+ * hardening (exact-attr-match {@code .filter()} instead of interpolating
+ * {@code data-lightbox}/{@code rel} values into selector strings — the
+ * snippet renders {@code data-lightbox="<assetId>"} so the hardening is
+ * load-bearing) and — accidentally — dead {@code $.proxy} wrappers that
+ * broke resize-overlay and keyboard navigation versus stock. The rebased
+ * payload is byte-identical to the stock dist apart from the two
+ * documented #1441 hunks plus one adjudicated empty-catch suppression
+ * comment on the upstream touch-probe (upstream banner restored,
+ * Percussion header dropped, working {@code $.proxy} handlers restored),
+ * as reconstructed by the frontend vitest parity test. The image-widget
+ * {@code jquery.imageAssetControl.js} twins are recorded first-party, and
+ * the audited package set grows to include {@code perc.widgets.image} —
+ * the first payload package outside the original #6319 inventory, proving
+ * the audit sweep continues. Remaining #6319 rows (v1 calendar widget,
+ * nav hoverIntent, MiniColors twins, Foundation 4.x) stay vendored pending
+ * replace-or-drop decisions or legal sign-off; the unaudited-package
+ * sweep follow-ons (PageAutoList {@code date.js}, further rows) move to
+ * residuals.
+ *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
  * inventory can only drift together with an audit update. A migration PR that
@@ -204,6 +228,7 @@ class WidgetPayloadVendoredJsAuditTest {
           "perc.widget.login",
           "perc.widget.poll",
           "perc.widget.registration",
+          "perc.widgets.image",
           "perc.widgets.nav");
 
   /** Third-party .js shipped in the audited widget payloads (paths relative to Packages root). */
@@ -223,6 +248,7 @@ class WidgetPayloadVendoredJsAuditTest {
           "perc.widget.directory/sys__UserDependency--web_resources/widgets/directory/js/list.min.js",
           "perc.widget.directory/sys__UserDependency--web_resources/widgets/directory/js/lodash.min.js",
           "perc.widget.imageSlider/sys__UserDependency--web_resources/widgets/imageSlider/js/slick.min.js",
+          "perc.widgets.image/sys__UserDependency--web_resources/widgets/image/lightbox/lightbox.js",
           "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/hoverIntent.js",
           "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/hoverIntent.min.js",
           "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/superfish.js",
@@ -269,6 +295,8 @@ class WidgetPayloadVendoredJsAuditTest {
           "perc.widget.poll/sys__UserDependency--web_resources/widgets/percPoll/js/percPoll.min.js",
           "perc.widget.registration/sys__UserDependency--web_resources/widgets/registration/js/registrationform.js",
           "perc.widget.registration/sys__UserDependency--web_resources/widgets/registration/js/registrationform.min.js",
+          "perc.widgets.image/SupportFile-rx_resources/widgets/image/js/jquery.imageAssetControl.js",
+          "perc.widgets.image/sys__UserDependency--rx_resources/widgets/image/js/jquery.imageAssetControl.js",
           "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/navbar.js",
           "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/navbar.min.js");
 
@@ -306,6 +334,9 @@ class WidgetPayloadVendoredJsAuditTest {
           Map.entry(
               "perc.widget.imageSlider/sys__UserDependency--web_resources/widgets/imageSlider/js/slick.min.js",
               "slick-initialized"),
+          Map.entry(
+              "perc.widgets.image/sys__UserDependency--web_resources/widgets/image/lightbox/lightbox.js",
+              "Lightbox v2.10.0"),
           Map.entry(
               "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/superfish.js",
               "jQuery Superfish Menu Plugin - v1.7.10"),
@@ -413,6 +444,35 @@ class WidgetPayloadVendoredJsAuditTest {
             .collect(Collectors.toCollection(TreeSet::new));
     assertTrue(unlistedMin.isEmpty(),
         "New minified (vendored) bundle in widget payloads — audit it under #5627: " + unlistedMin);
+  }
+
+  @Test
+  void imageLightboxCarriesXssHardening() throws IOException {
+    Path root = packagesRoot();
+    String rel =
+        "perc.widgets.image/sys__UserDependency--web_resources/widgets/image/lightbox/lightbox.js";
+    String content = Files.readString(root.resolve(rel), StandardCharsets.UTF_8);
+    // Slice 10 (#6319) rebase: the payload is the stock lightbox2@2.10.0
+    // dist with only the two documented #1441 selector-hardening hunks
+    // plus the adjudicated empty-catch suppression comment.
+    for (String marker :
+        List.of(
+            "Lightbox v2.10.0",
+            "CodeQL js/xss-through-dom (#1441)",
+            "return $(this).attr('data-lightbox') === dataLightboxValue;",
+            "return $(this).attr('rel') === relValue;",
+            "mkd-code-review[tests.empty-catch]",
+            "$.proxy(this.sizeOverlay, this)",
+            "$.proxy(this.keyboardAction, this)")) {
+      assertTrue(
+          content.contains(marker), rel + " missing rebased-mod marker: " + marker);
+    }
+    // The interpolation sinks the #1441 mod removed must not come back,
+    // and the fork's prepended Percussion header stays dropped (upstream
+    // banner restored, same precedent as the superfish/qTip slices).
+    for (String sink : List.of("[data-lightbox=\"' +", "[rel=\"' +", "Copyright 1999-2023 Percussion")) {
+      assertTrue(!content.contains(sink), rel + " still ships removed pattern: " + sink);
+    }
   }
 
   @Test
