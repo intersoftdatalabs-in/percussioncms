@@ -336,16 +336,14 @@
       event['allDay'] = false;
       if(event.summary !='' && event.summary != null && event.summary != 'undefined') {
       element.qtip({
-      content: event.summary,
-      style: {
-      name: 'light', // Inherit from preset style,
-      tip: true
-      },
+      content: { text: event.summary },
       position: {
-      corner: {
-      tooltip: 'bottomMiddle', // Use the corner...
-      target: 'topMiddle' // ...and opposite corner
-      }
+      my: 'bottom center',
+      at: 'top center'
+      },
+      style: {
+      classes: 'qtip-light',
+      tip: { corner: true }
       }
       });
       }

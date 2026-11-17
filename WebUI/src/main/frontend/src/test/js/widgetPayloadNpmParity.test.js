@@ -43,8 +43,10 @@
  * nav supersubs pair — zero callers — with its percNavBar.xml +
  * archive-manifest references. Slice 8 (issue #6403) migrates the
  * imageSlider `slick.min.js` to the npm slick-carousel@2.0.0 dist below.
- * The rest of the #6522 rows (v1 calendar widget, nav hoverIntent,
- * MiniColors twins, qTip twins, Foundation 4.x) stay vendored pending
+ * Slice 9 (issue #6522) migrates the calendar qTip twins below to the npm
+ * qtip2@3.0.3 dist with the two snippet call sites moved to the qTip2
+ * options shape. The rest of the #6522 rows (v1 calendar widget,
+ * nav hoverIntent, MiniColors twins, Foundation 4.x) stay vendored pending
  * replace-or-drop decisions or legal sign-off.
  *
  * Slice 3 migrates the directory-widget `list.min.js` to the npm list.js
@@ -850,6 +852,68 @@ function loadSlickPayloadAsJqueryPlugin() {
   return $;
 }
 
+const QTIP_PAYLOADS = [
+  {
+    // Calendar (v1) widget published copy (percCalendar.xml: qitp_js).
+    payload: path.join(
+      "modules",
+      "perc-packages",
+      "src",
+      "main",
+      "resources",
+      "Packages",
+      "perc.widget.calendar",
+      "sys__UserDependency--web_resources",
+      "widgets",
+      "calendar",
+      "js",
+      "jquery.qtip.js",
+    ),
+    npmDist: path.join("qtip2", "dist", "jquery.qtip.js"),
+    versionRe: /qTip2 - Pretty powerful tooltips - v3\.0\.3/,
+  },
+  {
+    // CalendarTwo (v2) widget published copy (percCalendarTwo.xml:
+    // jquery-qtip-js).
+    payload: path.join(
+      "modules",
+      "perc-packages",
+      "src",
+      "main",
+      "resources",
+      "Packages",
+      "perc.widget.calendar",
+      "sys__UserDependency--web_resources",
+      "widgets",
+      "calendarTwo",
+      "js",
+      "jquery.qtip.js",
+    ),
+    npmDist: path.join("qtip2", "dist", "jquery.qtip.js"),
+    versionRe: /qTip2 - Pretty powerful tooltips - v3\.0\.3/,
+  },
+];
+
+function loadQtipPayloadAsJqueryPlugin(payloadRelPath) {
+  // The stock qtip2 dist closes over bare `jQuery`, and calls
+  // `jQuery.type`, which the harness jQuery 4 removed. Published calendar
+  // pages run the CMS jQuery + the shipped jquery-migrate (the retired
+  // twins likewise required migrate-era `jQuery.browser`), so the harness
+  // loads the already-declared jquery-migrate dep first to match.
+  const $ = require(path.join(NODE_MODULES, "jquery", "dist", "jquery.js"));
+  require(path.join(
+    NODE_MODULES,
+    "jquery-migrate",
+    "dist",
+    "jquery-migrate.js",
+  ));
+  globalThis.jQuery = $;
+  window.jQuery = $;
+  const source = fs.readFileSync(path.join(REPO_ROOT, payloadRelPath), "utf8");
+  window.eval(source);
+  return $;
+}
+
 function renderImageSlider(document, id, slideCount) {
   // Mirrors percImageSliderSnippet.vm: a `.perc-image-slider` container
   // whose `.perc-slide-outer-container` children become slides; the
@@ -998,4 +1062,65 @@ describe("widget-payload npm refresh parity (issue #6403 slice 8: slick)", () =>
       document.body.innerHTML = "";
     }
   });
+});
+
+describe("widget-payload npm refresh parity (issue #6522 slice 9: qTip)", () => {
+  it("calendar qTip payload files exist under the audited Packages tree", () => {
+    for (const { payload } of QTIP_PAYLOADS) {
+      expect(
+        fs.existsSync(path.join(REPO_ROOT, payload)),
+        `missing payload: ${payload}`,
+      ).toBe(true);
+    }
+  });
+
+  it("calendar qTip payload bytes are byte-identical to the npm qtip2 dist", () => {
+    for (const { payload, npmDist } of QTIP_PAYLOADS) {
+      const shipped = fs.readFileSync(path.join(REPO_ROOT, payload));
+      const dist = fs.readFileSync(path.join(NODE_MODULES, npmDist));
+      expect(
+        shipped.equals(dist),
+        `${payload} drifted from node_modules/${npmDist} — refresh from npm`,
+      ).toBe(true);
+    }
+  });
+
+  it("calendar qTip payload bytes carry the v3.0.3 upstream banner", () => {
+    for (const { payload, versionRe } of QTIP_PAYLOADS) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
+      expect(content, `${payload} version banner mismatch`).toMatch(versionRe);
+    }
+  });
+
+  it("frontend package.json tracks the qtip2 exact pin (npm audit visible)", () => {
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
+    );
+    // Exact pin (not a caret): 3.0.3 is the final upstream dist and the
+    // payloads are byte-identical to it.
+    expect(manifest.dependencies["qtip2"]).toBe("3.0.3");
+  });
+
+  it.each(QTIP_PAYLOADS.map(({ payload }) => payload))(
+    "published copy %s renders the snippet summary tooltip shape",
+    (payloadRelPath) => {
+      const $ = loadQtipPayloadAsJqueryPlugin(payloadRelPath);
+      expect(typeof $.fn.qtip).toBe("function");
+      // Mirrors the eventRender summary-tooltip call in
+      // percCalendarSnippet.vm / percCalendarTwoSnippet.vm (qTip2 shape).
+      document.body.innerHTML = '<div id="cal-event">Event</div>';
+      const element = $("#cal-event");
+      const result = element.qtip({
+        content: { text: "Page summary <b>html</b>" },
+        position: { my: "bottom center", at: "top center" },
+        style: { classes: "qtip-light", tip: { corner: true } },
+      });
+      expect(result.length).toBe(element.length);
+      const api = element.qtip("api");
+      expect(api && typeof api.get).toBe("function");
+      expect(api.get("content.text")).toBe("Page summary <b>html</b>");
+      expect(api.get("position.my")).toBe("bottom center");
+      document.body.innerHTML = "";
+    },
+  );
 });

@@ -156,6 +156,30 @@ import org.junit.jupiter.api.Test;
  * byte-identity with the npm dist is enforced by the frontend vitest
  * parity test.
  *
+ * <p>Slice 9 (issue #6522) migrates the calendar-widget qTip twins
+ * ({@code calendar/js/jquery.qtip.js} qTip1-era non-minified cut with a
+ * prepended Percussion header, plus the {@code calendarTwo} twin, a
+ * differently-minified qTip2-era cut) to the npm {@code qtip2@3.0.3}
+ * full dist (exact pin in the frontend manifest, so Dependabot watches
+ * it). qTip2 is the direct upstream successor of the qTip1 API the two
+ * calendar snippets consume, and 3.0.3 is its final published dist
+ * (MIT-licensed). Both twins are now byte-identical to the stock dist
+ * (same identical-twin precedent as the MiniColors pair). The two
+ * snippet call sites ({@code percCalendarSnippet.vm} and
+ * {@code percCalendarTwoSnippet.vm} {@code eventRender} summary
+ * tooltips) move from the qTip1 options shape ({@code content} string,
+ * {@code style.name}/{@code position.corner}) to the qTip2 shape
+ * ({@code content.text}, {@code position.my/at},
+ * {@code style.classes: 'qtip-light'}), preserving the anchored
+ * bottom-middle summary tooltip. The qTip2 dist calls
+ * {@code jQuery.type}, removed from the harness jQuery 4 but present on
+ * published pages via the shipped {@code jquery-migrate} (the retired
+ * twin likewise required migrate-era {@code jQuery.browser}), so the
+ * frontend parity test loads migrate before the payload. Remaining #6522
+ * rows (v1 calendar widget, nav hoverIntent, MiniColors twins,
+ * Foundation 4.x) stay vendored pending replace-or-drop decisions or
+ * legal sign-off.
+ *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
  * inventory can only drift together with an audit update. A migration PR that
@@ -296,10 +320,10 @@ class WidgetPayloadVendoredJsAuditTest {
               "minicolors = {"),
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendar/js/jquery.qtip.js",
-              "NO_TOOLTIP_PRESENT"),
+              "qTip2 - Pretty powerful tooltips - v3.0.3"),
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/jquery.qtip.js",
-              "NO_TOOLTIP_PRESENT"),
+              "qTip2 - Pretty powerful tooltips - v3.0.3"),
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/gcal.js",
               "googleCalendarId"),
