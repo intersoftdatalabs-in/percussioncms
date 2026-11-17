@@ -19,6 +19,11 @@
  * slice 1: status bar (selection/folder counts, operation feedback,
  * user/context readout) + Workbench visibility wiring regression.
  *
+ * The spec uses only real H2 seed rows (no fake content ids) so the run
+ * leaves no server.log ERROR/FATAL behind. The only stub is the publish
+ * endpoint response in the failure-feed test (fulfilled in-page, the
+ * server is never hit).
+ *
  * Tags: @explorer-status-bar @explorer @smoke
  *
  * npm run test:surface -- --path tests/explorer-status-bar.spec.js
@@ -32,44 +37,11 @@ const {
   explorerStatusBarUrl,
   isKnownExplorerStatusBarConsoleNoise,
 } = require("./helpers/explorer-status-bar");
+const {
+  sitesTreeRootLocator,
+} = require("./helpers/explorer-sites-list-create");
 
 const TAGS = ["@explorer-status-bar", "@explorer", "@smoke"];
-
-function stubFolderList(page) {
-  return page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
-    await route.fulfill({
-      status: 200,
-      contentType: "application/json",
-      body: JSON.stringify({
-        PagedItemList: {
-          childrenInPage: [
-            {
-              id: "42",
-              name: "Home",
-              title: "Home Page",
-              path: "/Sites/Demo/Home",
-              type: "percPage",
-              category: "page",
-              accessLevel: "WRITE",
-              leaf: true,
-            },
-            {
-              id: "43",
-              name: "About",
-              path: "/Sites/Demo/About",
-              type: "percPage",
-              category: "page",
-              accessLevel: "WRITE",
-              leaf: true,
-            },
-          ],
-          childrenCount: 2,
-          startIndex: 0,
-        },
-      }),
-    });
-  });
-}
 
 async function openExplorer(page) {
   const jsErrors = [];
@@ -83,7 +55,6 @@ async function openExplorer(page) {
     }
   });
   await loginAsAdmin(page);
-  await stubFolderList(page);
   await page.goto(explorerStatusBarUrl(BASE_URL), {
     waitUntil: "domcontentloaded",
   });
@@ -93,6 +64,17 @@ async function openExplorer(page) {
   return jsErrors;
 }
 
+async function openSitesFolder(page) {
+  const sites = sitesTreeRootLocator(page);
+  await expect(sites.first()).toBeVisible({ timeout: 30_000 });
+  await sites.first().click();
+  const shell = page.locator(`[data-testid="${TEST_IDS.shell}"]`);
+  await expect(shell).toHaveAttribute("data-selected-folder-path", /Sites/, {
+    timeout: 15_000,
+  });
+  return shell;
+}
+
 test.describe("Explorer status bar DCE parity (#6517 / #4530)", () => {
   test(
     "UI: status bar names the open folder, row counts, selection, and user",
@@ -100,14 +82,18 @@ test.describe("Explorer status bar DCE parity (#6517 / #4530)", () => {
     async ({ page }) => {
       test.setTimeout(120_000);
       const jsErrors = await openExplorer(page);
+      const shell = await openSitesFolder(page);
 
       const bar = page.locator(`[data-testid="${TEST_IDS.statusBar}"]`);
       await expect(bar).toBeVisible({ timeout: 15_000 });
       await expect(bar).toHaveAttribute("role", "contentinfo");
 
-      // Folder segment: stubbed list reports two rows for the open folder.
+      // Folder segment names the open folder with its live row count.
       const folder = page.locator(`[data-testid="${TEST_IDS.folder}"]`);
-      await expect(folder).toContainText(/2 items in/i, { timeout: 15_000 });
+      await expect(folder).toContainText(/\/Sites/, { timeout: 15_000 });
+      await expect(folder).toContainText(/items in|No items in/, {
+        timeout: 15_000,
+      });
 
       // No selection yet: idle selection + idle operation states.
       await expect(
@@ -125,20 +111,17 @@ test.describe("Explorer status bar DCE parity (#6517 / #4530)", () => {
         page.locator(`[data-testid="${TEST_IDS.context}"]`),
       ).toContainText(/Signed in as/i);
 
-      // Selecting a row renames the selection segment without moving focus.
-      const itemRow = page.locator(
-        '[data-testid="detail-row-42"][data-row-kind="item"]',
-      );
-      await expect(itemRow).toBeVisible({ timeout: 20_000 });
-      await itemRow.click();
-      await expect(
-        page.locator(
-          '[data-testid="content-explorer-shell"][data-selected-item-id="42"]',
-        ),
-      ).toBeVisible({ timeout: 10_000 });
+      // Selecting a real row renames the selection segment.
+      const firstRow = page.locator('[data-testid^="detail-row-"]').first();
+      await expect(firstRow).toBeVisible({ timeout: 20_000 });
+      const rowId = await firstRow.getAttribute("data-item-id");
+      await firstRow.click();
+      await expect(shell).toHaveAttribute("data-selected-item-id", rowId, {
+        timeout: 10_000,
+      });
       await expect(
         page.locator(`[data-testid="${TEST_IDS.selection}"]`),
-      ).toContainText(/Home Page|1 item selected/i);
+      ).toContainText(/Selected:|1 item selected/i);
 
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="content-explorer-shell"]',
@@ -158,7 +141,8 @@ test.describe("Explorer status bar DCE parity (#6517 / #4530)", () => {
         void dialog.accept();
       });
       await loginAsAdmin(page);
-      await stubFolderList(page);
+      // Fulfilled in-page: the CMS server is never hit, so no
+      // server.log entries are produced by this failure path.
       await page.route("**/services/sitemanage/publish/**", async (route) => {
         await route.fulfill({
           status: 200,
@@ -175,12 +159,17 @@ test.describe("Explorer status bar DCE parity (#6517 / #4530)", () => {
       await expect(
         page.locator(`[data-testid="${TEST_IDS.shell}"]`),
       ).toBeVisible({ timeout: 30_000 });
+      const shell = await openSitesFolder(page);
 
-      const itemRow = page.locator(
-        '[data-testid="detail-row-42"][data-row-kind="item"]',
-      );
-      await expect(itemRow).toBeVisible({ timeout: 20_000 });
-      await itemRow.click();
+      const firstRow = page.locator(
+        '[data-testid^="detail-row-"][data-row-kind="item"]',
+      ).first();
+      await expect(firstRow).toBeVisible({ timeout: 20_000 });
+      const rowId = await firstRow.getAttribute("data-item-id");
+      await firstRow.click();
+      await expect(shell).toHaveAttribute("data-selected-item-id", rowId, {
+        timeout: 10_000,
+      });
       const publishNow = page.locator(
         '[data-testid="action-toolbar-item-Publish_Now"], [data-testid="action-toolbar-item-publish_now"]',
       );
