@@ -441,6 +441,63 @@ class ContentTypeAdaptorLocalFieldTest {
   }
 
   @Test
+  void deleteLocalField_saveLockConflictIsLockException() throws Exception {
+    stubHeldLock();
+    PSItemDefinition def = stubDefinition();
+    ContentTypeField existing = new ContentTypeField();
+    existing.setName("rx_note");
+    ContentTypeAdaptor.addPersistableLocalField(def, existing);
+    stubLockedLoad(def);
+    PSErrorsException saveFailed = new PSErrorsException();
+    saveFailed.addError(
+        guid, new PSLockErrorException(1, "is not locked", "stack", "Admin", 12));
+    doThrow(saveFailed)
+        .when(designWs)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+
+    ContentTypeDesignLockException ex =
+        assertThrows(
+            ContentTypeDesignLockException.class,
+            () -> adaptor.deleteLocalField(null, "311", "rx_note"));
+    assertTrue(ex.getMessage().toLowerCase().contains("lock"), ex.getMessage());
+  }
+
+  @Test
+  void deleteLocalField_blankIdOrNameIs400() {
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.deleteLocalField(null, "  ", "rx_note"));
+    assertTrue(ex.getMessage().contains("idOrName is required"), ex.getMessage());
+  }
+
+  @Test
+  void deleteLocalField_wildcardIdOrNameIs400() {
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.deleteLocalField(null, "31*", "rx_note"));
+    assertTrue(ex.getMessage().contains("wildcards"), ex.getMessage());
+  }
+
+  @Test
+  void deleteLocalField_blankFieldNameIs400() {
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.deleteLocalField(null, "311", "  "));
+    assertTrue(ex.getMessage().contains("fieldName is required"), ex.getMessage());
+  }
+
+  @Test
+  void deleteLocalField_pathTraversalFieldIs404() {
+    for (String traversal : new String[] {"../rx_note", "a/b", "a\\b"}) {
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () -> adaptor.deleteLocalField(null, "311", traversal));
+      assertEquals(404, ex.getResponse().getStatus(), traversal);
+    }
+  }
+
+  @Test
   void validateFieldName_rejectsPathAndLeadingDigit() {
     assertThrows(IllegalArgumentException.class, () -> ContentTypeAdaptor.validateFieldName("../x"));
     assertThrows(IllegalArgumentException.class, () -> ContentTypeAdaptor.validateFieldName("1abc"));

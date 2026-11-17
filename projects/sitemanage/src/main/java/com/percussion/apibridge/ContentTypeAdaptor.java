@@ -1958,56 +1958,25 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
   @Override
   public Boolean deleteLocalField(URI baseUri, String idOrName, String fieldName) {
     requireAdmin();
-    if (StringUtils.isBlank(idOrName)) {
-      throw new IllegalArgumentException("idOrName is required");
-    }
-    if (StringUtils.isBlank(fieldName)) {
-      throw new IllegalArgumentException("fieldName is required");
-    }
-    String trimmed = idOrName.trim();
-    if (trimmed.contains("*")) {
-      throw new IllegalArgumentException("idOrName must not contain wildcards");
-    }
-    String field = fieldName.trim();
-    if (field.contains("..") || field.indexOf('/') >= 0 || field.indexOf('\\') >= 0) {
-      throw new WebApplicationException("Unknown field: " + field, 404);
-    }
+    String trimmed = requireDeleteTarget(idOrName);
+    String field = requireDeleteFieldName(fieldName);
     requireSessionUserForLock();
     String session = currentSession();
     String user = currentUser();
     try {
-      IPSGuid ctGuid = resolveExistingContentTypeGuid(trimmed);
-      if (ctGuid == null) {
+      PSItemDefinition def =
+          loadLockedDefinitionOrNull(
+              trimmed, "Could not delete content type field", session, user);
+      if (def == null) {
         return null;
       }
-      requireHeldLock(ctGuid, "Could not delete content type field");
-      List<PSItemDefinition> locked;
-      try {
-        locked =
-            designSvc.loadContentTypes(
-                Collections.singletonList(ctGuid), true, false, session, user);
-      } catch (PSErrorResultsException e) {
-        throw lockConflict(e, "Could not delete content type field");
-      }
-      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
-        return null;
-      }
-      PSItemDefinition def = locked.get(0);
       if (!removeLocalFieldAndMapping(def, field)) {
         throw new WebApplicationException("Unknown field: " + field, 404);
       }
       try {
-        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+        saveLockedDefinition(def, "Could not delete content type field", session, user);
       } catch (PSErrorsException e) {
-        if (hasLockError(e.getErrors())) {
-          throw lockConflict(e, "Could not delete content type field");
-        }
-        String details = formatSaveErrors(e);
-        log.error("Failed to save local field delete for {}: {}", idOrName, details, e);
-        if (isValidationSaveFailure(e)) {
-          throw new IllegalArgumentException("Could not delete local field: " + details, e);
-        }
-        throw new IllegalStateException("Failed to save local field delete: " + details, e);
+        throwDeleteLocalFieldSaveFailure(e, idOrName);
       }
       return Boolean.TRUE;
     } catch (IllegalStateException
@@ -2018,6 +1987,50 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       log.error("Failed to delete local field for {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to delete local field", e);
     }
+  }
+
+  /**
+   * Validate the delete target id. Extracted from {@link #deleteLocalField} (#6542 complexity
+   * budget).
+   */
+  private static String requireDeleteTarget(String idOrName) {
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    return trimmed;
+  }
+
+  /**
+   * Validate the delete field name, rejecting path traversal with 404. Extracted from {@link
+   * #deleteLocalField} (#6542 complexity budget).
+   */
+  private static String requireDeleteFieldName(String fieldName) {
+    if (StringUtils.isBlank(fieldName)) {
+      throw new IllegalArgumentException("fieldName is required");
+    }
+    String field = fieldName.trim();
+    if (field.contains("..") || field.indexOf('/') >= 0 || field.indexOf('\\') >= 0) {
+      throw new WebApplicationException("Unknown field: " + field, 404);
+    }
+    return field;
+  }
+
+  /**
+   * Log and translate a failed local-field delete save: validation failures are 400, the rest
+   * 500. Lock errors are already mapped by {@link #saveLockedDefinition}. Never returns normally.
+   * Extracted from {@link #deleteLocalField} (#6542 complexity budget).
+   */
+  private void throwDeleteLocalFieldSaveFailure(PSErrorsException e, String idOrName) {
+    String details = formatSaveErrors(e);
+    log.error("Failed to save local field delete for {}: {}", idOrName, details, e);
+    if (isValidationSaveFailure(e)) {
+      throw new IllegalArgumentException("Could not delete local field: " + details, e);
+    }
+    throw new IllegalStateException("Failed to save local field delete: " + details, e);
   }
 
   @Override
