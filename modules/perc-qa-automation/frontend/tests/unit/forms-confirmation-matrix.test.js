@@ -44,6 +44,7 @@ const {
   dtsServiceUrl,
   deliveryAuthHeader,
   probeFormName,
+  retrievalDetail,
   buildConfirmationRow,
   validateConfirmationRow,
 } = require("../helpers/forms-confirmation-matrix");
@@ -79,6 +80,31 @@ describe("forms-confirmation-matrix helpers (#6482)", () => {
         "DTS_DELIVERY_USER",
       ),
       "retrieval skip names the credential gap",
+    );
+    assert.ok(
+      skipNoRetrieval("GET /forms/form/cms/qaconfirm-1 answered HTTP 302").includes(
+        "#6375",
+      ),
+      "retrieval skip points at the cell provisioning owner",
+    );
+  });
+
+  it("formats retrieval probe details with the redirect target when present (#6375)", () => {
+    // A 302 skip must carry the CONFIDENTIAL redirect target so the skip
+    // itself proves the redirect points at a container-local HTTPS port.
+    assert.equal(
+      retrievalDetail(
+        "/forms/form/cms/qaconfirm-1",
+        302,
+        "https://127.0.0.1:8443/perc-form-processor/forms/form/cms/qaconfirm-1",
+      ),
+      "GET /forms/form/cms/qaconfirm-1 answered HTTP 302 " +
+        "(location https://127.0.0.1:8443/perc-form-processor/forms/form/cms/qaconfirm-1)",
+    );
+    // Non-redirect statuses carry no location clause.
+    assert.equal(
+      retrievalDetail("/forms/form/cms/qaconfirm-1", 401),
+      "GET /forms/form/cms/qaconfirm-1 answered HTTP 401",
     );
   });
 

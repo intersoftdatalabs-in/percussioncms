@@ -103,7 +103,14 @@ function skipServiceDown(baseUrl) {
  * cell. The summaries/export endpoints are {@code deliverymanager}-gated
  * (BASIC, {@code CONFIDENTIAL}), so plain-HTTP cells without provisioned
  * credentials — or without a reachable DTS HTTPS port for the
- * {@code CONFIDENTIAL} redirect — skip here instead of failing.
+ * {@code CONFIDENTIAL} redirect — skip here instead of failing. Both
+ * provisions (known seed credentials plus host-reachable DTS HTTPS) are
+ * owned by the cell provisioning issue #6375; verified live 2026-11-17 on
+ * the stock {@code qa-up --with-dts} cell, which answers the gated reads
+ * with HTTP 302 to its container-local {@code https://<cell>:8443} port
+ * while its install-time {@code ps_manager} password differs from the
+ * shipped development default — so host-side retrieval stays
+ * named-skipped until #6375 lands.
  *
  * @param {string} detail what was probed and what the cell answered
  * @returns {string}
@@ -113,8 +120,26 @@ function skipNoRetrieval(detail) {
     `forms confirmation (Forms): ${detail}; ` +
     `the admin retrieval surface is deliverymanager-gated — provision ` +
     `DTS_DELIVERY_USER / DTS_DELIVERY_PASSWORD and a reachable DTS HTTPS ` +
-    `port on the DTS cell (parent #6238) to turn these cases green`
+    `port on the DTS cell (#6375) to turn these cases green`
   );
+}
+
+/**
+ * Builds the probe detail embedded in a retrieval skip so the skip names
+ * what the cell answered, including the {@code CONFIDENTIAL} redirect
+ * target when the cell answered 302 — the target proves whether the
+ * redirect points at a container-local HTTPS port the host runner cannot
+ * reach. Pure string formatting (no Playwright objects) so plain
+ * {@code node --test} unit tests cover it.
+ *
+ * @param {string} probedPath request path that was probed
+ * @param {number} status HTTP status the cell answered
+ * @param {string|null} [location] redirect target the cell advertised, if any
+ * @returns {string}
+ */
+function retrievalDetail(probedPath, status, location = null) {
+  const at = location ? ` (location ${location})` : "";
+  return `GET ${probedPath} answered HTTP ${status}${at}`;
 }
 
 /**
@@ -342,6 +367,7 @@ module.exports = {
   dtsServiceUrl,
   deliveryAuthHeader,
   probeFormName,
+  retrievalDetail,
   buildConfirmationRow,
   validateConfirmationRow,
   schemaPathFor,
