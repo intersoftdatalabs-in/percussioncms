@@ -49,6 +49,7 @@ import { ItemScheduleDatesPanel } from "../components/ItemScheduleDatesPanel";
 import { ItemStagePanel } from "../components/ItemStagePanel";
 import { ItemStagedStatusPanel } from "../components/ItemStagedStatusPanel";
 import { ItemTakedownPanel } from "../components/ItemTakedownPanel";
+import { SitePublishingHistoryPanel } from "../components/SitePublishingHistoryPanel";
 import { CopySitePanel } from "../components/CopySitePanel";
 import { DeleteSitePanel } from "../components/DeleteSitePanel";
 import { RenameSitePanel } from "../components/RenameSitePanel";
@@ -1413,6 +1414,8 @@ export function SiteWorkspace({
           </ul>
         )}
       </div>
+
+      <SitePublishingHistoryPanel siteId={siteId} siteName={siteName} />
     </div>
   );
 }

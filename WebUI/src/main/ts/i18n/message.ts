@@ -388,6 +388,19 @@ export const MSG = {
   PUBLISH_EMPTY_SERVERS: "perc.ui.publish.modern@No Servers",
   PUBLISH_EMPTY_JOBS: "perc.ui.publish.modern@No Active Jobs",
   PUBLISH_EMPTY_LOGS: "perc.ui.publish.modern@No Logs",
+  PUBLISH_SITE_HISTORY: "perc.ui.publish.modern@Publish history",
+  PUBLISH_SITE_HISTORY_HINT:
+    "perc.ui.publish.modern@Recent publish jobs for this site",
+  PUBLISH_SITE_HISTORY_REFRESH: "perc.ui.publish.modern@Reload history",
+  PUBLISH_SITE_HISTORY_EXPORT: "perc.ui.publish.modern@Export",
+  PUBLISH_SITE_HISTORY_EMPTY:
+    "perc.ui.publish.modern@No publish history for this site yet",
+  PUBLISH_SITE_HISTORY_EMPTY_HINT:
+    "perc.ui.publish.modern@Run a publish for this site, then reload history",
+  PUBLISH_SITE_HISTORY_ERROR:
+    "perc.ui.publish.modern@Could not load publish history for this site",
+  PUBLISH_SITE_HISTORY_EXPORT_FAILED:
+    "perc.ui.publish.modern@Could not export the site publish history",
   PUBLISH_EMPTY_QUEUE: "perc.ui.publish.incrementalPreview@No items queued for incremental",
   PUBLISH_REMOVE_QUEUE_ITEM: "perc.ui.publish.modern@Remove from queue",
   PUBLISH_CONFIRM_REMOVE_QUEUE_ITEM:

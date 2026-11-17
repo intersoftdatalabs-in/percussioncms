@@ -53,6 +53,7 @@ vi.mock("@/api/publishing/statusApi", () => ({
   fetchCurrentJobsForSite: vi.fn().mockResolvedValue([
     { jobId: 4242, status: "running", serverName: "FTP-Prod" },
   ]),
+  fetchPublishingLogs: vi.fn().mockResolvedValue([]),
 }));
 
 const publishApi = await import("@/api/publishing/publishApi");

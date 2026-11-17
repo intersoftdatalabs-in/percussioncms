@@ -25995,6 +25995,31 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
       <tuv xml:lang="zh-cn"><seg>没有发布日志与当前过滤器匹配。</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>没有发布日志与当前过滤器匹配。</seg></tuv>
     <tuv xml:lang="ru"><seg>Ни один журнал публикации не соответствует текущим фильтрам.</seg></tuv><tuv xml:lang="he"><seg>אין יומני פרסום תואמים למסננים הנוכחיים.</seg></tuv><tuv xml:lang="uk"><seg>Журнали публікації не відповідають поточним фільтрам.</seg></tuv><tuv xml:lang="lou"><seg>Non publishing logs match la aktwèl filters.</seg></tuv><tuv xml:lang="pl"><seg>Żadne dzienniki publikacji nie pasują do bieżących filtrów.</seg></tuv><tuv xml:lang="tr"><seg>Geçerli filtrelerle eşleşen yayınlama günlüğü yok.</seg></tuv><tuv xml:lang="nb"><seg>Ingen publiseringslogger samsvarer med gjeldende filtre.</seg></tuv><tuv xml:lang="sv"><seg>Inga publiceringsloggar matchar de aktuella filtren.</seg></tuv></tu>
+    <!-- #6473: Site workspace publish history audit view. en-us only. -->
+    <tu tuid="perc.ui.publish.modern@Publish history">
+      <tuv xml:lang="en-us"><seg>Publish history</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Recent publish jobs for this site">
+      <tuv xml:lang="en-us"><seg>Recent publish jobs for this site</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Reload history">
+      <tuv xml:lang="en-us"><seg>Reload history</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Export">
+      <tuv xml:lang="en-us"><seg>Export</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@No publish history for this site yet">
+      <tuv xml:lang="en-us"><seg>No publish history for this site yet</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Run a publish for this site, then reload history">
+      <tuv xml:lang="en-us"><seg>Run a publish for this site, then reload history</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Could not load publish history for this site">
+      <tuv xml:lang="en-us"><seg>Could not load publish history for this site</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Could not export the site publish history">
+      <tuv xml:lang="en-us"><seg>Could not export the site publish history</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.publish.modern@Publish Forbidden">
       <tuv xml:lang="en-us"><seg>You are not allowed to publish.</seg></tuv>
       <tuv xml:lang="ar"><seg>غير مسموح لك بالنشر.</seg></tuv>
