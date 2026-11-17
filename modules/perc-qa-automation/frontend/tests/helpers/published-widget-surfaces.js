@@ -41,7 +41,11 @@
  * markers, so no pre-seeded DTS fixtures are required — except the feed
  * entries case, which consumes the cell-seeded {@link FEED_FIXTURE}
  * (seeded by {@code qa-seed-widget-fixtures}, #6341) and skips by name
- * when the fixture is absent.</p>
+ * when the fixture is absent, and the metadata extractor seed, which is
+ * CONFIDENTIAL: it self-seeds over the published DTS HTTPS origin
+ * ({@link dtsHttpsBaseUrl}, #6375) with the provisioned deliverymanager
+ * credential and skips by name ({@code 401/403/302}) until the cell
+ * provides both.</p>
  *
  * <p>URL paths below use {@code /} (web origins, not OS file paths).</p>
  */
@@ -59,6 +63,17 @@ const SKIP_NO_SITE =
 const SKIP_NO_DTS =
   "needs DTS_URL=(in-cell DTS origin from the qa-up --with-dts banner); " +
   "default H2 QA cell serves no DTS services (#6237)";
+
+/**
+ * Skip reason when the cell serves no DTS HTTPS origin (default H2 QA cell
+ * and pre-#6375 cells). The metadata extractor seed path is CONFIDENTIAL,
+ * so host-side self-seed specs need the published HTTPS origin from the
+ * {@code qa-up --with-dts} banner ({@code DTS_HTTPS_URL}).
+ */
+const SKIP_NO_DTS_HTTPS =
+  "needs DTS_HTTPS_URL=(in-cell DTS HTTPS origin from the qa-up --with-dts banner) " +
+  "or DTS_HTTPS_HOST_PORT=(published host port for the in-cell 8443); " +
+  "plain-HTTP seeds 302 to the unpublished HTTPS port (#6375)";
 
 /**
  * Skip reason when the interaction fixture cannot be established against
@@ -228,6 +243,31 @@ function dtsBaseUrl() {
 }
 
 /**
+ * In-cell DTS HTTPS origin for CONFIDENTIAL seed paths (metadata
+ * extractor, #6375), or null when the cell publishes no HTTPS origin.
+ * Resolution mirrors the freeport contract: explicit
+ * {@code DTS_HTTPS_URL} wins, else {@code DTS_HTTPS_HOST_PORT} /
+ * {@code DTS_HTTPS_PORT} build {@code https://127.0.0.1:<port>} — the
+ * same loopback convention as {@link dtsBaseUrl}. The cell TLS identity
+ * is shipped/self-signed, so callers must allow the untrusted chain
+ * (Playwright {@code ignoreHTTPSErrors} / {@code curl -k}).
+ *
+ * @returns {URL|null} in-cell DTS HTTPS origin for host-side seeds
+ */
+function dtsHttpsBaseUrl() {
+  const explicit = process.env.DTS_HTTPS_URL || "";
+  if (explicit) {
+    return new URL(explicit);
+  }
+  const port =
+    process.env.DTS_HTTPS_HOST_PORT || process.env.DTS_HTTPS_PORT || "";
+  if (!port) {
+    return null;
+  }
+  return new URL(`https://127.0.0.1:${port}`);
+}
+
+/**
  * @param {URL} siteOrigin published site origin from {@link publishedSiteUrl}
  * @param {{ fixture: string }} entry surface entry
  * @returns {string} fixture page URL for the surface's shell case
@@ -324,12 +364,14 @@ module.exports = {
   SURFACE_SUITE,
   SKIP_NO_SITE,
   SKIP_NO_DTS,
+  SKIP_NO_DTS_HTTPS,
   skipNoFixture,
   SURFACES,
   FEED_FIXTURE,
   tagForSurface,
   publishedSiteUrl,
   dtsBaseUrl,
+  dtsHttpsBaseUrl,
   fixturePageUrl,
   dtsContextUrl,
   dtsServiceUrl,

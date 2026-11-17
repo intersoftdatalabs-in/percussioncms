@@ -134,6 +134,13 @@ PREFERRED_CMS_HOST_PORT = 9993
 PREFERRED_DTS_HOST_PORT = 9983
 CMS_HOST_PORT = PREFERRED_CMS_HOST_PORT  # preferred baseline (not a pinned bind)
 DTS_HOST_PORT = PREFERRED_DTS_HOST_PORT
+# In-cell DTS Tomcat HTTPS listen port (``https.port`` in
+# ``conf/perc/perc-catalina.properties``) and the preferred host publish
+# for it. ``qa-up --with-dts`` publishes this mapping so host-side seeds
+# can reach the CONFIDENTIAL extractor over HTTPS (spec
+# 2402-qa-dts-publish, #6375); the probe/health path stays plain HTTP.
+DTS_CONTAINER_HTTPS_PORT = 8443
+PREFERRED_DTS_HTTPS_HOST_PORT = 8443
 CMS_PROBE_PATH = "/Rhythmyx/login"
 DTS_PROBE_PATH = "/"
 
@@ -596,6 +603,41 @@ def ensure_matrix_host_port(product: str) -> int:
     return port
 
 
+def resolve_matrix_dts_https_host_port() -> int:
+    """Resolve published host port for the DTS cell HTTPS mapping.
+
+    Resolution order (via :func:`resolve_host_port`):
+
+      1. ``DTS_HTTPS_HOST_PORT`` or ``DTS_HTTPS_PORT`` env (integer;
+         ``qa-up --with-dts`` pins the same keys so both entry points
+         agree on the publish port, #6375)
+      2. Preferred :data:`PREFERRED_DTS_HTTPS_HOST_PORT` (8443) when free
+      3. Ephemeral freeport
+
+    Does not pin env by itself — use
+    :func:`ensure_matrix_dts_https_host_port` when the chosen port should
+    be visible to child processes / operators.
+    """
+    return resolve_host_port(
+        "DTS_HTTPS_HOST_PORT",
+        "DTS_HTTPS_PORT",
+        preferred=PREFERRED_DTS_HTTPS_HOST_PORT,
+    )
+
+
+def ensure_matrix_dts_https_host_port() -> int:
+    """Resolve the DTS HTTPS host publish port and pin the discovery env.
+
+    Pins ``DTS_HTTPS_HOST_PORT`` (and ``DTS_HTTPS_PORT`` when unset, so
+    ``qa-seed-widget-fixtures``-era single-key readers agree) for
+    operators / Playwright.
+    """
+    port = resolve_matrix_dts_https_host_port()
+    os.environ["DTS_HTTPS_HOST_PORT"] = str(port)
+    os.environ.setdefault("DTS_HTTPS_PORT", str(port))
+    return port
+
+
 def resolve_compose_db_host_port(db_type: str) -> int:
     """Resolve published host port for a compose external DB (env or freeport).
 
@@ -658,8 +700,17 @@ def build_docker_run_argv(
     network: str,
     db_meta: Dict[str, str],
     keep: bool,
+    https_host_port: Optional[int] = None,
 ) -> List[str]:
-    """Build ``docker run`` argv for one cell (pure; unit-tested)."""
+    """Build ``docker run`` argv for one cell (pure; unit-tested).
+
+    ``https_host_port`` publishes the in-cell DTS Tomcat HTTPS listen
+    port (:data:`DTS_CONTAINER_HTTPS_PORT`) on the given host port, so
+    host-side automation can reach CONFIDENTIAL seed paths (spec
+    2402-qa-dts-publish, #6375). It applies to ``dts`` cells only and
+    defaults to ``None`` — CMS cells and callers that do not pass it get
+    byte-identical argv to before.
+    """
     container_port = 9992 if product == "cms" else 9980
     # Jetty/Tomcat defaults inside install; we publish host_port → container_port.
     # If product listen port differs post-install, probe still uses host_port.
@@ -673,21 +724,29 @@ def build_docker_run_argv(
         network,
         "-p",
         f"{host_port}:{container_port}",
-        "-v",
-        f"{installer_jar_host.resolve()}:/installer/installer.jar:ro",
-        "-e",
-        f"PRODUCT={product}",
-        "-e",
-        "INSTALLER_JAR=/installer/installer.jar",
-        "-e",
-        "INSTALL_ROOT=/opt/Percussion",
-        "-e",
-        f"DB_TYPE={db_type}",
-        "-e",
-        "SILENT=true",
-        "-e",
-        "KEEP_ALIVE=true",
     ]
+    if https_host_port is not None and product == "dts":
+        # DTS HTTPS publish for host-side CONFIDENTIAL seeds (#6375).
+        # CMS cells ignore the parameter so their argv stays byte-identical.
+        argv.extend(["-p", f"{https_host_port}:{DTS_CONTAINER_HTTPS_PORT}"])
+    argv.extend(
+        [
+            "-v",
+            f"{installer_jar_host.resolve()}:/installer/installer.jar:ro",
+            "-e",
+            f"PRODUCT={product}",
+            "-e",
+            "INSTALLER_JAR=/installer/installer.jar",
+            "-e",
+            "INSTALL_ROOT=/opt/Percussion",
+            "-e",
+            f"DB_TYPE={db_type}",
+            "-e",
+            "SILENT=true",
+            "-e",
+            "KEEP_ALIVE=true",
+        ]
+    )
     if db_type not in ("h2", "derby"):
         argv.extend(
             [
@@ -1320,6 +1379,18 @@ def run_cell(
         host_port,
         probe_url,
     )
+    # DTS cells additionally publish the in-cell Tomcat HTTPS port so
+    # host-side automation can seed CONFIDENTIAL paths (#6375). The env
+    # pin keeps the banner / Playwright / seeder on the same port (#2005).
+    https_host_port: Optional[int] = None
+    if cell.product == "dts":
+        https_host_port = ensure_matrix_dts_https_host_port()
+        LOG.info(
+            "Cell %s host publish %s → in-cell HTTPS %s",
+            cell.cell_id,
+            https_host_port,
+            DTS_CONTAINER_HTTPS_PORT,
+        )
     cell_log = log_dir / f"matrix-{cell.cell_id}-{_ts()}.log"
     db_meta = dict(db_services[cell.db_type])
 
@@ -1376,6 +1447,7 @@ def run_cell(
         network=MATRIX_NETWORK,
         db_meta=db_meta,
         keep=keep,
+        https_host_port=https_host_port,
     )
     try:
         _run(run_argv, dry_run=dry_run, check=not dry_run)

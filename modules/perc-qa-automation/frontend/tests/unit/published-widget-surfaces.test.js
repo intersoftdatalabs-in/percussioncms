@@ -30,12 +30,14 @@ const {
   SURFACE_SUITE,
   SKIP_NO_SITE,
   SKIP_NO_DTS,
+  SKIP_NO_DTS_HTTPS,
   skipNoFixture,
   SURFACES,
   FEED_FIXTURE,
   tagForSurface,
   publishedSiteUrl,
   dtsBaseUrl,
+  dtsHttpsBaseUrl,
   fixturePageUrl,
   dtsContextUrl,
   dtsServiceUrl,
@@ -165,6 +167,33 @@ describe("published-widget-surfaces helpers (#6244)", () => {
     });
   });
 
+  it("reads the DTS HTTPS origin from DTS_HTTPS_URL, else the host port (#6375)", () => {
+    withEnv("DTS_HTTPS_URL", undefined, () => {
+      withEnv("DTS_HTTPS_HOST_PORT", undefined, () => {
+        withEnv("DTS_HTTPS_PORT", undefined, () => {
+          assert.equal(dtsHttpsBaseUrl(), null);
+        });
+      });
+    });
+    withEnv("DTS_HTTPS_URL", undefined, () => {
+      withEnv("DTS_HTTPS_HOST_PORT", "18443", () => {
+        assert.equal(dtsHttpsBaseUrl().origin, "https://127.0.0.1:18443");
+      });
+    });
+    withEnv("DTS_HTTPS_URL", undefined, () => {
+      withEnv("DTS_HTTPS_HOST_PORT", undefined, () => {
+        withEnv("DTS_HTTPS_PORT", "18444", () => {
+          assert.equal(dtsHttpsBaseUrl().origin, "https://127.0.0.1:18444");
+        });
+      });
+    });
+    withEnv("DTS_HTTPS_HOST_PORT", "18445", () => {
+      withEnv("DTS_HTTPS_URL", "https://cell:18446/", () => {
+        assert.equal(dtsHttpsBaseUrl().origin, "https://cell:18446");
+      });
+    });
+  });
+
   it("builds widget fixture page URLs under the staged widgets dir", () => {
     const site = new URL("https://published-cell:8443/");
     const poll = SURFACES.find((entry) => entry.name === "poll");
@@ -227,6 +256,8 @@ describe("published-widget-surfaces helpers (#6244)", () => {
   it("names the missing env in both skip reasons", () => {
     assert.ok(SKIP_NO_SITE.includes("PUBLISHED_SITE_URL"));
     assert.ok(SKIP_NO_DTS.includes("DTS_URL"));
+    assert.ok(SKIP_NO_DTS_HTTPS.includes("DTS_HTTPS_URL"));
+    assert.ok(SKIP_NO_DTS_HTTPS.includes("DTS_HTTPS_HOST_PORT"));
     const reason = skipNoFixture(SURFACES[0], "probe detail");
     assert.ok(reason.includes("poll"));
     assert.ok(reason.includes("probe detail"));

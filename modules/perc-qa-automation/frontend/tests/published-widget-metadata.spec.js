@@ -27,21 +27,39 @@
  * path, not the default H2 QA cell):
  * {@code PUBLISHED_SITE_URL=https://<in-cell-published-site-origin>
  * DTS_URL=https://<in-cell-dts-origin>
+ * DTS_HTTPS_URL=https://<in-cell-dts-https-origin>
+ * DTS_DELIVERY_USER=ps_manager DTS_DELIVERY_PASSWORD=<from-seeder>
  * npm run test:surface -- --path tests/published-widget-metadata.spec.js}
  * from {@code modules/perc-qa-automation/frontend}. Without
  * {@code PUBLISHED_SITE_URL} the shell case skips; without
- * {@code DTS_URL} the interaction case skips.</p>
+ * {@code DTS_URL} the interaction case skips; without
+ * {@code DTS_HTTPS_URL} the extractor seed block skips.</p>
+ *
+ * <p>Seed contract (parent #6237, residuals #6343 / #6375 / #6557): the
+ * extractor seed runs over the published DTS HTTPS origin
+ * ({@code qa-up --with-dts} publishes the in-cell 8443, banner
+ * {@code DTS_HTTPS_URL}) with the deliverymanager credential provisioned
+ * by {@code qa-seed-widget-fixtures --delivery-password} (exported as
+ * {@code DTS_DELIVERY_PASSWORD}). Property values ride on
+ * {@code value}, never {@code stringvalue} — the live services
+ * deserialize through {@code JacksonXmlBindJsonProvider}, under which
+ * {@code PSMetadataProperty.setStringvalue} is {@code @XmlTransient} and
+ * a {@code stringvalue} field is silently dropped (#6557 trap 1). Entry
+ * URLs keep the page path's leading slash (double slash): single-slash
+ * deletes match nothing while answering 204, so seeded rows would linger
+ * (#6557 trap 2, same contract as the seeder's {@code entry_url}).</p>
  */
 
-const { test, expect } = require("@playwright/test");
+const { test, expect, request: baseRequest } = require("@playwright/test");
 const {
   SURFACES,
   SKIP_NO_SITE,
   SKIP_NO_DTS,
+  SKIP_NO_DTS_HTTPS,
   publishedSiteUrl,
   dtsBaseUrl,
+  dtsHttpsBaseUrl,
   fixturePageUrl,
-  dtsContextUrl,
   dtsServiceUrl,
   watchNoise,
   assertQuiet,
@@ -52,13 +70,12 @@ const entry = SURFACES.find((surface) => surface.name === "metadata");
 /**
  * BASIC credentials for the role-protected DTS indexer endpoints (the
  * context-level `/indexer/entry/...` extractor surface, `deliverymanager`
- * role). Defaults are the shipped DTS development defaults (see
- * `delivery-tier-distribution/src/main/resources/etc/dts-realm.properties`
- * and the installed `conf/tomcat-users.xml`); override with env when the
- * cell provisions its own. Note the shipped `web.xml` marks the extractor
- * `CONFIDENTIAL`, so plain-HTTP cells answer the seed with a redirect to the
- * (usually unpublished) HTTPS port and the seed block skips by name — see the
- * residual linked from #6343 for cell provisioning of the seed path.
+ * role). The effective credential is the one provisioned by
+ * `qa-seed-widget-fixtures --delivery-password` (exported as
+ * `DTS_DELIVERY_USER` / `DTS_DELIVERY_PASSWORD`); the shipped
+ * `tomcat-users.xml` carries a digest nobody can present, so the legacy
+ * default below only ever 401s into the named skip (residuals #6343 /
+ * #6375). Never commit a real secret here — read it from the env.
  */
 function deliveryAuthHeader() {
   const user = process.env.DTS_DELIVERY_USER || "ps_manager";
@@ -177,16 +194,42 @@ test.describe("published metadata widget surface", () => {
       // /metadata JAX-RS root used by the query endpoints above.
       const stamp = Date.now();
       const seedPath = `/qacell/surface-${stamp}.html`;
-      const indexerSvc = `${dtsContextUrl(base, entry)}/indexer`;
-      // maxRedirects: 0 keeps a CONFIDENTIAL-redirect (plain-HTTP cell) or a
-      // refused HTTPS port as a plain response so the skip below engages;
-      // following the redirect would throw instead of skipping.
+      // The extractor is CONFIDENTIAL, so the seed runs over the published
+      // DTS HTTPS origin (qa-up --with-dts publishes the in-cell 8443,
+      // banner DTS_HTTPS_URL, #6375). The cell TLS identity is
+      // shipped/self-signed, hence a dedicated request context with the
+      // untrusted chain allowed. Skip cleanly when the cell publishes no
+      // HTTPS origin, or when the origin never answers (pre-#6375 cell).
+      const httpsBase = dtsHttpsBaseUrl();
+      test.skip(!httpsBase, SKIP_NO_DTS_HTTPS);
+      const httpsRequest = await baseRequest.newContext({
+        ignoreHTTPSErrors: true,
+      });
+      const indexerSvc = `${httpsBase.origin}/${entry.context}/indexer`;
+      // maxRedirects: 0 keeps a misconfigured-HTTPS answer as a plain
+      // response so the skip below engages; following the redirect would
+      // throw instead of skipping.
       // The seed/assert/cleanup sequence runs in try/finally so a failed
-      // assertion never leaves the seeded row behind in the cell.
+      // assertion never leaves the seeded row behind in the cell, and the
+      // HTTPS context is always disposed.
       let seed = null;
       let cleanupDone = false;
       try {
-        seed = await request.post(`${indexerSvc}/entry${seedPath}`, {
+        let httpsAnswered = false;
+        try {
+          await httpsRequest.get(`${httpsBase.origin}/`, {
+            maxRedirects: 0,
+          });
+          httpsAnswered = true;
+        } catch {
+          httpsAnswered = false;
+        }
+        test.skip(
+          !httpsAnswered,
+          `${SKIP_NO_DTS_HTTPS} (no answer at '${httpsBase.origin}/'; ` +
+            `the cell predates the qa-up --with-dts HTTPS publish, #6375)`,
+        );
+        seed = await httpsRequest.post(`${indexerSvc}/entry${seedPath}`, {
           maxRedirects: 0,
           headers: deliveryAuthHeader(),
           data: {
@@ -196,22 +239,27 @@ test.describe("published metadata widget surface", () => {
             linktext: `QA surface probe ${stamp}`,
             type: "page",
             site: seedSite,
+            // value shape, never stringvalue: the live services drop
+            // stringvalue silently (@XmlTransient, #6557 trap 1 — the
+            // seeder's index_entry_payload documents the same contract).
             properties: [
-              { name: "dcterms:title", stringvalue: `QA surface probe ${stamp}` },
+              { name: "dcterms:title", value: `QA surface probe ${stamp}` },
+              { name: "dcterms:abstract", value: `QA surface probe ${stamp}` },
             ],
           },
         });
-        // Skip only for the known cell limitations (auth-gated or redirected
-        // seed); any other failure (5xx, 404, …) means the seed path itself
-        // is broken and must fail the test.
+        // Skip only for the known cell limitations (no provisioned
+        // credential, or a pre-#6375 cell answering over this origin);
+        // any other failure (5xx, 404, …) means the seed path itself is
+        // broken and must fail the test.
         test.skip(
           !seed.ok() && [401, 403, 302].includes(seed.status()),
           `surface metadata (index seeding): the cell rejected the seeded entry ` +
             `'${seedPath}' (HTTP ${seed.status()}); the shipped extractor is ` +
-            `CONFIDENTIAL + deliverymanager-gated, so plain-HTTP cells without ` +
-            `provisioned DTS deliverymanager credentials (DTS_DELIVERY_USER / ` +
-            `DTS_DELIVERY_PASSWORD) and a reachable DTS HTTPS port cannot seed ` +
-            `(parent #6237, residual from #6343)`,
+            `CONFIDENTIAL + deliverymanager-gated, so seed first with ` +
+            `qa-seed-widget-fixtures --delivery-password and export ` +
+            `DTS_DELIVERY_USER / DTS_DELIVERY_PASSWORD plus DTS_HTTPS_URL ` +
+            `from the qa-up --with-dts banner (parent #6237, #6375)`,
         );
         expect(
           seed.ok(),
@@ -239,10 +287,18 @@ test.describe("published metadata widget surface", () => {
           `metadata: the index query must contain the seeded entry '${seedPath}'`,
         ).toBe(true);
 
-        const cleanup = await request.delete(`${indexerSvc}/entry${seedPath}`, {
-          maxRedirects: 0,
-          headers: deliveryAuthHeader(),
-        });
+        // Double slash after entry/: the DAO matches pagepath verbatim
+        // including the leading slash, and the {pagePath:.*} parameter only
+        // preserves it with the doubled slash (entry//qacell/...). The
+        // single-slash form deletes nothing while answering 204 — the
+        // silent-litter trap (#6557 trap 2, same as the seeder cleanup).
+        const cleanup = await httpsRequest.delete(
+          `${indexerSvc}/entry/${seedPath}`,
+          {
+            maxRedirects: 0,
+            headers: deliveryAuthHeader(),
+          },
+        );
         expect(
           cleanup.ok(),
           `metadata: removing the seeded entry '${seedPath}' must be accepted (HTTP ${cleanup.status()})`,
@@ -252,8 +308,8 @@ test.describe("published metadata widget surface", () => {
         // Best-effort removal when the assertions above did not finish it;
         // never masks the original failure (no assertions here).
         if (seed && seed.ok() && !cleanupDone) {
-          const leftover = await request
-            .delete(`${indexerSvc}/entry${seedPath}`, {
+          const leftover = await httpsRequest
+            .delete(`${indexerSvc}/entry/${seedPath}`, {
               maxRedirects: 0,
               headers: deliveryAuthHeader(),
             })
@@ -273,6 +329,7 @@ test.describe("published metadata widget surface", () => {
             );
           }
         }
+        await httpsRequest.dispose();
       }
     },
   );
