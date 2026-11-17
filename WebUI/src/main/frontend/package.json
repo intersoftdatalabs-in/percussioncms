@@ -53,6 +53,7 @@
     "moment": "^2.31.0",
     "moment-jdateformatparser": "^1.2.1",
     "mousetrap": "^1.6.5",
+    "qtip2": "3.0.3",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-router": "^8.5.1",
