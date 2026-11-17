@@ -220,6 +220,8 @@ import {
 import { ScheduleDatesDialog } from "../contentExplorer/ScheduleDatesDialog";
 import type { ItemScheduleDates } from "../contentExplorer/itemScheduleDates";
 import { EditorClearScheduleDialog } from "./EditorClearScheduleDialog";
+import { EditorApproveRejectDialog } from "./EditorApproveRejectDialog";
+import type { EditorApproveRejectAction } from "./EditorApproveRejectDialog";
 import { EditorIncrementalApproveDialog } from "./EditorIncrementalApproveDialog";
 import { EditorPublishNowDialog } from "./EditorPublishNowDialog";
 import { EditorIncrementalRemoveDialog } from "./EditorIncrementalRemoveDialog";
@@ -286,6 +288,7 @@ import {
   normalizeAdhocAssignees,
   resolveCommentRequiredTriggers,
   triggerRequiresAssignees,
+  triggerRequiresComment,
   uniqueTransitionTriggers,
   workflowCommentContainsNul,
 } from "./editorWorkflow";
@@ -326,6 +329,7 @@ import {
   withPageFilenameField,
 } from "./editorPageMetadata";
 import { EditorWorkflowAssigneeDialog } from "./EditorWorkflowAssigneeDialog";
+import { resolveApproveRejectTriggers } from "./editorApproveReject";
 import { EditorScheduledTransitionsPanel } from "./EditorScheduledTransitionsPanel";
 import { EditorWorkflowHistoryPanel } from "./EditorWorkflowHistoryPanel";
 import { EditorWorkflowPanel } from "./EditorWorkflowPanel";
@@ -1237,6 +1241,17 @@ export function EditorHost({
   const [incrementalRemoveError, setIncrementalRemoveError] = useState<
     string | null
   >(null);
+  const [approveReject, setApproveReject] = useState<{
+    action: EditorApproveRejectAction;
+    trigger: string;
+  } | null>(null);
+  const [approveRejectComment, setApproveRejectComment] = useState("");
+  const [approveRejectBusy, setApproveRejectBusy] = useState(false);
+  const [approveRejectError, setApproveRejectError] = useState<string | null>(
+    null,
+  );
+  const [approveRejectDone, setApproveRejectDone] =
+    useState<EditorApproveRejectAction | null>(null);
   const [stageBusy, setStageBusy] = useState(false);
   const [stageDone, setStageDone] = useState(false);
   const [stageErrorKey, setStageErrorKey] = useState<string | null>(null);
@@ -2681,6 +2696,28 @@ export function EditorHost({
     serverCommentRequiredTriggers,
   );
 
+  /**
+   * Reload {@code getTransitions} lists after a successful transition. The
+   * panel run and the quick Approve/Reject bar (#6483) share this so both
+   * surfaces show the post-transition triggers and state.
+   */
+  async function reloadWorkflowLists(itemId: string): Promise<void> {
+    const trans = await loadTransitions(itemId);
+    setWorkflowTriggers(uniqueTransitionTriggers(trans.transitionTriggers));
+    setWorkflowState(trans.stateName ?? "");
+    setServerCommentRequiredTriggers(
+      trans.commentRequiredTriggers == null
+        ? null
+        : uniqueTransitionTriggers(trans.commentRequiredTriggers),
+    );
+    setAssigneeRequiredTriggers(
+      uniqueTransitionTriggers(trans.assigneeRequiredTriggers),
+    );
+    // Transitions demonstrably load now; drop any earlier panel notice.
+    setWorkflowLoadErrorKey(null);
+    setWorkflowLoadErrorDetail("");
+  }
+
   async function runEditorTransition(
     trigger: string,
     assignees: readonly string[],
@@ -2717,20 +2754,7 @@ export function EditorHost({
         } catch {
           // Transition already succeeded; stay on the host without a second checkout.
         }
-        const trans = await loadTransitions(itemId);
-        setWorkflowTriggers(uniqueTransitionTriggers(trans.transitionTriggers));
-        setWorkflowState(trans.stateName ?? "");
-        setServerCommentRequiredTriggers(
-          trans.commentRequiredTriggers == null
-            ? null
-            : uniqueTransitionTriggers(trans.commentRequiredTriggers),
-        );
-        setAssigneeRequiredTriggers(
-          uniqueTransitionTriggers(trans.assigneeRequiredTriggers),
-        );
-        // Transitions demonstrably load now; drop any earlier panel notice.
-        setWorkflowLoadErrorKey(null);
-        setWorkflowLoadErrorDetail("");
+        await reloadWorkflowLists(itemId);
       }
       setWorkflowDone(true);
       setWorkflowDelegatedTo(names);
@@ -2824,6 +2848,118 @@ export function EditorHost({
     setWorkflowErrorDetail("");
   }
 
+  /**
+   * Quick Approve/Reject action bar (#6483). Opens the comment confirm for
+   * the resolved allowlisted trigger instead of scrolling to the panel.
+   */
+  function handleOpenApproveReject(
+    action: EditorApproveRejectAction,
+    trigger: string,
+  ): void {
+    if (
+      contentId == null ||
+      mode !== "edit" ||
+      approveRejectBusy ||
+      workflowAssigneeDialog != null ||
+      publishOpen ||
+      incrementalApproveOpen ||
+      incrementalUnapproveOpen ||
+      incrementalRemoveOpen
+    ) {
+      return;
+    }
+    setApproveRejectDone(null);
+    setApproveRejectError(null);
+    setApproveRejectComment("");
+    setApproveReject({ action, trigger });
+  }
+
+  function handleCancelApproveReject(): void {
+    if (approveRejectBusy) {
+      return;
+    }
+    setApproveReject(null);
+    setApproveRejectComment("");
+    setApproveRejectError(null);
+  }
+
+  /**
+   * Quick-bar confirm (#6483). Gates and error text mirror the panel run
+   * (comment-required, NUL, 400/403/409 named, never success on failure),
+   * but notices stay on the quick dialog so the panel is untouched. An
+   * assignee-gated trigger carries the typed comment into the panel flow
+   * and reuses the existing assignee confirm instead of running here.
+   */
+  async function handleConfirmApproveReject(): Promise<void> {
+    const current = approveReject;
+    if (
+      contentId == null ||
+      current == null ||
+      approveRejectBusy ||
+      mode !== "edit"
+    ) {
+      return;
+    }
+    const gate = canRunEditorTransition({
+      mode,
+      trigger: current.trigger,
+      allowed: workflowTriggers,
+      comment: approveRejectComment,
+      commentRequiredTriggers: effectiveCommentRequiredTriggers,
+    });
+    if (!gate.ok) {
+      setApproveRejectDone(null);
+      setApproveRejectError(message(workflowErrorFor(gate.reason)));
+      return;
+    }
+    if (triggerRequiresAssignees(current.trigger, assigneeRequiredTriggers)) {
+      setWorkflowComment(approveRejectComment);
+      setApproveReject(null);
+      setApproveRejectComment("");
+      setApproveRejectError(null);
+      setWorkflowDone(false);
+      setWorkflowErrorKey(null);
+      setWorkflowErrorDetail("");
+      setWorkflowAssigneeDialog(current.trigger);
+      return;
+    }
+    const itemId = String(contentId);
+    const comment = approveRejectComment.trim();
+    setApproveRejectBusy(true);
+    setApproveRejectDone(null);
+    setApproveRejectError(null);
+    try {
+      await runTransition(
+        itemId,
+        current.trigger,
+        comment.length > 0 ? comment : undefined,
+      );
+      if (!readOnly) {
+        try {
+          await checkout(itemId);
+        } catch {
+          // Transition already succeeded; stay on the host.
+        }
+        await reloadWorkflowLists(itemId);
+      }
+      setApproveReject(null);
+      setApproveRejectComment("");
+      setApproveRejectDone(current.action);
+    } catch (err) {
+      if (!isSessionRedirectError(err)) {
+        const status = isApiError(err) ? err.status : undefined;
+        setApproveRejectError(
+          `${message(workflowHttpErrorKey(status))} ${formatApiError(
+            err,
+            message(EDITOR_MSG.WORKFLOW_FAILED),
+          )}`.trim(),
+        );
+      }
+    } finally {
+      setApproveRejectBusy(false);
+    }
+  }
+
   function workflowChangeErrorFor(reason: string): string {
     if (reason === "blank") {
       return EDITOR_MSG.WORKFLOW_CHANGE_EMPTY;
@@ -2890,7 +3026,8 @@ export function EditorHost({
       publishBusy ||
       incrementalApproveOpen ||
       incrementalUnapproveOpen ||
-      incrementalRemoveOpen
+      incrementalRemoveOpen ||
+      approveReject != null
     ) {
       return;
     }
@@ -3086,7 +3223,8 @@ export function EditorHost({
       mode !== "edit" ||
       publishOpen ||
       incrementalUnapproveOpen ||
-      incrementalRemoveOpen
+      incrementalRemoveOpen ||
+      approveReject != null
     ) {
       return;
     }
@@ -3142,7 +3280,8 @@ export function EditorHost({
       mode !== "edit" ||
       publishOpen ||
       incrementalApproveOpen ||
-      incrementalRemoveOpen
+      incrementalRemoveOpen ||
+      approveReject != null
     ) {
       return;
     }
@@ -3198,7 +3337,8 @@ export function EditorHost({
       mode !== "edit" ||
       publishOpen ||
       incrementalApproveOpen ||
-      incrementalUnapproveOpen
+      incrementalUnapproveOpen ||
+      approveReject != null
     ) {
       return;
     }
@@ -4626,6 +4766,13 @@ export function EditorHost({
   const showPublish = canPublishFromEditor(mode, publishKind);
   const showIncrementalApprove =
     mode === "edit" && contentId != null && payload != null;
+  const approveRejectTriggers = resolveApproveRejectTriggers(workflowTriggers);
+  const showApproveRejectBar =
+    mode === "edit" &&
+    contentId != null &&
+    payload != null &&
+    (approveRejectTriggers.approve != null ||
+      approveRejectTriggers.reject != null);
   const showStage = canStageFromEditor(mode, publishKind);
   const showRemoveFromStaging = canRemoveFromStagingFromEditor(mode, publishKind);
   const showTakedown = canTakedownFromEditor(mode, publishKind);
@@ -4713,6 +4860,15 @@ export function EditorHost({
               {formatDelegationNotice(
                 message(EDITOR_MSG.WORKFLOW_DELEGATED),
                 workflowDelegatedTo,
+              )}
+            </span>
+          ) : null}
+          {approveRejectDone != null ? (
+            <span className={styles.meta} data-testid="editor-approve-reject-done">
+              {message(
+                approveRejectDone === "approve"
+                  ? EDITOR_MSG.APPROVE_REJECT_DONE_APPROVE
+                  : EDITOR_MSG.APPROVE_REJECT_DONE_REJECT,
               )}
             </span>
           ) : null}
@@ -4918,6 +5074,66 @@ export function EditorHost({
                   : EDITOR_MSG.REMOVE_INCREMENTAL,
               )}
             </button>
+          ) : null}
+          {showApproveRejectBar ? (
+            <span data-testid="editor-approve-reject-bar">
+              {approveRejectTriggers.approve != null ? (
+                <button
+                  type="button"
+                  className={styles.button}
+                  data-testid="editor-approve-quick"
+                  data-trigger={approveRejectTriggers.approve}
+                  disabled={
+                    approveRejectBusy ||
+                    workflowBusy ||
+                    saving ||
+                    loading ||
+                    payload == null ||
+                    publishOpen ||
+                    incrementalApproveOpen ||
+                    incrementalUnapproveOpen ||
+                    incrementalRemoveOpen ||
+                    workflowAssigneeDialog != null
+                  }
+                  onClick={() =>
+                    handleOpenApproveReject(
+                      "approve",
+                      approveRejectTriggers.approve as string,
+                    )
+                  }
+                >
+                  {message(EDITOR_MSG.APPROVE_REJECT_APPROVE)}
+                </button>
+              ) : null}
+              {approveRejectTriggers.reject != null ? (
+                <button
+                  type="button"
+                  className={styles.button}
+                  data-testid="editor-reject-quick"
+                  data-trigger={approveRejectTriggers.reject}
+                  disabled={
+                    approveRejectBusy ||
+                    workflowBusy ||
+                    saving ||
+                    loading ||
+                    payload == null ||
+                    publishOpen ||
+                    incrementalApproveOpen ||
+                    incrementalUnapproveOpen ||
+                    incrementalRemoveOpen ||
+                    workflowAssigneeDialog != null
+                  }
+                  onClick={() =>
+                    handleOpenApproveReject(
+                      "reject",
+                      approveRejectTriggers.reject as string,
+                    )
+                  }
+                >
+                  {message(EDITOR_MSG.APPROVE_REJECT_REJECT)}
+                </button>
+              ) : null}
+            </span>
           ) : null}
           {showStage ? (
             <button
@@ -6193,6 +6409,24 @@ export function EditorHost({
           }}
           onConfirm={() => {
             void handleConfirmIncrementalRemove();
+          }}
+        />
+      ) : null}
+      {approveReject ? (
+        <EditorApproveRejectDialog
+          action={approveReject.action}
+          trigger={approveReject.trigger}
+          comment={approveRejectComment}
+          onCommentChange={setApproveRejectComment}
+          commentRequired={triggerRequiresComment(
+            approveReject.trigger,
+            effectiveCommentRequiredTriggers,
+          )}
+          busy={approveRejectBusy}
+          serverError={approveRejectError}
+          onCancel={handleCancelApproveReject}
+          onConfirm={() => {
+            void handleConfirmApproveReject();
           }}
         />
       ) : null}

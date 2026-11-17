@@ -409,7 +409,22 @@ fails to load, the **Workflow** region shows a load notice with **Retry**
 instead of the empty hint, so a load failure is not mistaken for "no
 transitions allowed". **Retry** reloads the same item's lists; a repeated
 failure keeps the notice instead of claiming the triggers loaded, and a
-successful reload clears it and shows the triggers.
+successful reload clears it and shows the triggers. In **Edit** mode the
+header also shows a quick **Approve** / **Reject** bar when the loaded
+allowlist names those transitions — one click opens a comment dialog that
+runs the same `transitionWithComments` route as the region buttons without
+scrolling to them. **Reject** (and any trigger the workflow marks
+comment-required, including a comment-required **Approve**) blocks **Approve**
+/ **Reject** until the dialog comment is filled; a NUL comment never runs.
+**Cancel** calls nothing. A blank comment on an optional-comment **Approve**
+still runs. HTTP **400**, **403**, and **409** stay on the dialog as an error
+and are not success; the dialog stays open so the comment can be fixed.
+Success closes the dialog and shows **Item approved** / **Item rejected** in
+the header, then reloads the transition list like a region run. A trigger
+that needs ad-hoc assignees carries the typed comment into the region flow
+and opens the assignee confirm instead of running from the dialog. When the
+allowlist names neither an Approve-style nor a reject-style trigger, the bar
+is hidden rather than showing dead buttons.
 
 In **Edit** mode the host also shows **Publish now** for the already-open **page** or
 **asset** so authors do not need to bounce to Explorer solely to publish. **Publish now**
