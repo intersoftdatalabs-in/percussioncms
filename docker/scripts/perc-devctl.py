@@ -178,6 +178,13 @@ QA_CMS_CONTAINER_PORT = 9992
 QA_DTS_CONTAINER = "perc-matrix-dts-h2"
 QA_DTS_CONTAINER_PORT = 9980
 QA_DTS_DB = "h2"
+# In-cell DTS Tomcat HTTPS listen port (``https.port`` in
+# ``conf/perc/perc-catalina.properties``) and the preferred host publish
+# for it. ``qa-up --with-dts`` publishes the mapping so host-side seeds
+# can reach the CONFIDENTIAL extractor over HTTPS (spec
+# 2402-qa-dts-publish, #6375); probes stay plain HTTP.
+QA_DTS_CONTAINER_HTTPS_PORT = 8443
+PREFERRED_QA_DTS_HTTPS_HOST_PORT = 8443
 # Tomcat root probe for ``qa-health`` (mirrors matrix ``DTS_PROBE_PATH``).
 QA_DTS_PROBE_PATH = "/"
 # Same default as docker/scripts/hot-deploy-rhythmyx-war-jars.py --dest.
@@ -523,6 +530,16 @@ def qa_dts_base_url(port: int) -> str:
     return f"http://127.0.0.1:{port}"
 
 
+def qa_dts_https_base_url(port: int) -> str:
+    """HTTPS base URL for the QA DTS cell on the given host HTTPS port.
+
+    Serves the CONFIDENTIAL paths (metadata extractor seed, #6375); the
+    cell uses its shipped TLS identity, so host callers must allow the
+    untrusted chain (Playwright ``ignoreHTTPSErrors`` / ``curl -k``).
+    """
+    return f"https://127.0.0.1:{port}"
+
+
 def qa_dts_probe_url(port: int) -> str:
     """Health probe URL for the QA DTS cell (Tomcat root)."""
     return f"{qa_dts_base_url(port)}{QA_DTS_PROBE_PATH}"
@@ -600,6 +617,34 @@ def ensure_qa_dts_host_port() -> int:
     # DTS_PORT doubles as the compose-stack DTS override; setdefault only so
     # an explicit operator pin for compose is never clobbered (#2005).
     os.environ.setdefault("DTS_PORT", str(port))
+    return port
+
+
+def resolve_qa_dts_https_host_port() -> int:
+    """Host port for the QA DTS cell HTTPS publish mapping.
+
+    Override with ``DTS_HTTPS_HOST_PORT`` or ``DTS_HTTPS_PORT`` (mirrors
+    the HTTP ``DTS_HOST_PORT`` / ``DTS_PORT`` convention, #2005); else
+    preferred 8443 when free, else freeport. The in-cell listen port is
+    fixed (:data:`QA_DTS_CONTAINER_HTTPS_PORT`). Exports nothing by
+    itself — callers that start the cell pin via
+    :func:`ensure_qa_dts_https_host_port` so the matrix run publishes the
+    same mapping (#6375).
+    """
+    return resolve_host_port(
+        "DTS_HTTPS_HOST_PORT",
+        "DTS_HTTPS_PORT",
+        preferred=PREFERRED_QA_DTS_HTTPS_HOST_PORT,
+    )
+
+
+def ensure_qa_dts_https_host_port() -> int:
+    """Resolve QA DTS HTTPS host port and pin it for child processes."""
+    port = resolve_qa_dts_https_host_port()
+    os.environ["DTS_HTTPS_HOST_PORT"] = str(port)
+    # ``DTS_HTTPS_PORT`` mirrors the HTTP ``DTS_PORT`` doubling; setdefault
+    # only so an explicit operator pin is never clobbered (#2005).
+    os.environ.setdefault("DTS_HTTPS_PORT", str(port))
     return port
 
 
@@ -1029,7 +1074,9 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         default=8443,
         help=(
             "In-cell DTS HTTPS port (default: 8443, the shipped "
-            "https.port; container-local, never published)."
+            "https.port; container-local for the seed curls, and published "
+            "on QA_DTS_HTTPS_HOST_PORT by qa-up --with-dts for host-side "
+            "seeds (#6375)."
         ),
     )
     pqsf.add_argument(
@@ -2165,6 +2212,7 @@ def _qa_print_endpoint_banner(
     admin_password_line: Optional[str] = None,
     password_lines: Optional[List[str]] = None,
     dts_host_port: Optional[int] = None,
+    dts_https_host_port: Optional[int] = None,
 ) -> None:
     """Emit agent-parseable endpoint + credential guidance after qa-up.
 
@@ -2178,6 +2226,9 @@ def _qa_print_endpoint_banner(
     banner is byte-identical to the CMS-only default path. ``qa-publish-fixture``
     (#6243) repoints ``PUBLISHED_CATEGORY_URL`` at the fixture category page;
     until it runs, the category URL is the DTS origin root placeholder.
+    With ``dts_https_host_port`` (#6375), also emits the published DTS
+    HTTPS origin (``DTS_HTTPS_URL``) plus the seed-provisioning guidance
+    for the CONFIDENTIAL extractor paths — no secrets are printed.
     """
     base = qa_cms_base_url(host_port)
     print(f"QA_CMS_HOST_PORT={host_port}")
@@ -2210,6 +2261,22 @@ def _qa_print_endpoint_banner(
     print(f"QA_DTS_HOST_PORT={dts_host_port}")
     print(f"DTS_URL={dts_base}")
     print(f"PUBLISHED_SITE_URL={dts_base}")
+    if dts_https_host_port is not None:
+        # Published DTS HTTPS origin for CONFIDENTIAL seed paths (#6375):
+        # the metadata extractor answers plain-HTTP seeds with a 302 to
+        # the unpublished HTTPS port, so host-side self-seed specs use
+        # this origin (cell TLS identity is shipped/self-signed — callers
+        # must allow the untrusted chain). The credential itself stays in
+        # qa-seed-widget-fixtures / DTS_DELIVERY_PASSWORD, never the banner.
+        dts_https_base = qa_dts_https_base_url(dts_https_host_port)
+        print(f"QA_DTS_HTTPS_HOST_PORT={dts_https_host_port}")
+        print(f"DTS_HTTPS_URL={dts_https_base}")
+        print(
+            "DTS_DELIVERY_AUTH=provision with "
+            "python docker/scripts/perc-devctl.py qa-seed-widget-fixtures "
+            "--delivery-password <secret> then export DTS_DELIVERY_PASSWORD "
+            "for host-side seeds (parent #6237, #6375)"
+        )
     # Fixture placeholder: Tomcat origin root until `qa-publish-fixture`
     # (#6243) deploys the staged site and prints the repointed
     # PUBLISHED_CATEGORY_URL=<site>/published/category.html contract.
@@ -2377,8 +2444,13 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     # The default (flag absent) path below is untouched.
     with_dts = bool(getattr(args, "with_dts", False))
     dts_host_port: Optional[int] = None
+    dts_https_host_port: Optional[int] = None
     if with_dts:
         dts_host_port = ensure_qa_dts_host_port()
+        # Pin the HTTPS publish port too, before the matrix run, so
+        # matrix-install-smoke publishes the same mapping the banner
+        # prints (#6375; mirrors the HTTP pin above).
+        dts_https_host_port = ensure_qa_dts_https_host_port()
         dts_argv = _qa_matrix_up_argv(
             repo_root,
             probe_timeout=probe_timeout,
@@ -2408,7 +2480,11 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     )
 
     if dry_run:
-        _qa_print_endpoint_banner(host_port, dts_host_port=dts_host_port)
+        _qa_print_endpoint_banner(
+            host_port,
+            dts_host_port=dts_host_port,
+            dts_https_host_port=dts_https_host_port,
+        )
         rc = EXIT_OK
         if deploy_webui:
             rc = cmd_qa_deploy_webui(
@@ -2440,6 +2516,7 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
         admin_password_line=admin_line,
         password_lines=pwd_lines,
         dts_host_port=dts_host_port,
+        dts_https_host_port=dts_https_host_port,
     )
     rc = EXIT_OK
     if deploy_webui:

@@ -101,7 +101,11 @@ PUBLISHED_SITE_URL=<from-banner-or-fixture> \
 
 - **Port resolution (runtime, never hardcoded):** `DTS_HOST_PORT` /
   `DTS_PORT` env → `docker port` on `perc-matrix-dts-h2` → last `qa-up`
-  log → preferred `9983` when free. Same freeport contract as
+  log → preferred `9983` when free. Same freeport contract for HTTPS:
+  `DTS_HTTPS_URL` (explicit) else `DTS_HTTPS_HOST_PORT` /
+  `DTS_HTTPS_PORT` → `https://127.0.0.1:<port>`; `qa-up --with-dts`
+  publishes the in-cell 8443 there and prints both in the banner
+  (`QA_DTS_HTTPS_HOST_PORT=` / `DTS_HTTPS_URL=`, #6375). Same freeport contract as
   `TEST_CMS_URL` — do not commit `:9980` / `:9983` literals.
 - **Skip contract:** published specs
   (`tests/published-site-smoke.spec.js`,
@@ -113,9 +117,14 @@ PUBLISHED_SITE_URL=<from-banner-or-fixture> \
   comments) follow the same contract on `PUBLISHED_SITE_URL` / `DTS_URL`.
   The feed entries case additionally needs the seeded fixture
   (`python docker/scripts/perc-devctl.py qa-seed-widget-fixtures`, #6341)
-  and skips by name without it; the remaining seed steps additionally
-  skip by name on auth-gated paths (401/403/302) until #6375 provisions
-  cell deliverymanager credentials.
+  and skips by name without it. The metadata extractor seed block
+  additionally needs the published DTS HTTPS origin (`DTS_HTTPS_URL`) plus
+  the provisioned deliverymanager credential (`DTS_DELIVERY_USER` /
+  `DTS_DELIVERY_PASSWORD` from `qa-seed-widget-fixtures
+  --delivery-password`) and skips by name on `401/403/302` or an
+  unreachable HTTPS origin until the cell provides both (#6375); seed
+  payloads use the `value` property shape and double-slash DELETEs
+  (`entry//qacell/…`), never `stringvalue` / single-slash (#6557).
   `qa-health` gates both cells; `qa-down` removes both.
 - **Full-suite default unchanged:** still surface-filtered (`test:surface`
   refuses the full suite without `--allow-full`) — the DTS cell adds no
