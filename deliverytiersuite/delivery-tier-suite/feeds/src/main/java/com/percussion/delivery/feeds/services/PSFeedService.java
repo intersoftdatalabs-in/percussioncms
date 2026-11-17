@@ -63,6 +63,7 @@ import java.net.URI;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashSet;
@@ -79,6 +80,7 @@ import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -180,8 +182,11 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
   /** The feed data access object, initialized in the ctor. Never <code>null</code> after that. */
   private IPSFeedDao feedDao;
 
+  /** Date pattern for feed item publish dates (package-visible for unit tests). */
+  static final String FEED_DATE_PATTERN = "yyyy-MM-dd'T'HH:mm:ss";
+
   /** 2011-01-21T09:36:05 */
-  FastDateFormat dateFormat = FastDateFormat.getInstance("yyyy-MM-dd'T'HH:mm:ss");
+  FastDateFormat dateFormat = FastDateFormat.getInstance(FEED_DATE_PATTERN);
 
   /**
    * Spring constructor that wires the feed DAO and HTTP client.
@@ -606,28 +611,26 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
           hostName.filter(StringUtils::isNotBlank).orElse(PSFeedGenerator.getHost(desc.getLink()));
 
       int len = data.length();
+      int skipped = 0;
       for (int i = 0; i < len; i++) {
-        JSONObject obj = data.getJSONObject(i);
-        JSONObject props = obj.getJSONObject("properties");
-        PSFeedItem item = new PSFeedItem();
-        String folder = obj.getString("folder");
-        String pagename = obj.getString("name");
-        item.setLink(protocol + host + folder + pagename);
-        if (props.has(PROP_TITLE)) item.setTitle(props.getString(PROP_TITLE));
-        if (props.has(PROP_DESCRIPTION)) {
-          String sitePrefix = protocol + host;
-          String replacedHtml =
-              this.replaceRelativeLinks(props.getString(PROP_DESCRIPTION), sitePrefix);
-          item.setDescription(replacedHtml);
+        try {
+          Optional<PSFeedItem> mapped = toFeedItem(data.getJSONObject(i), protocol, host);
+          if (mapped.isPresent()) {
+            items.add(mapped.get());
+          } else {
+            skipped++;
+          }
+        } catch (Exception e) {
+          // One malformed row must never fail the whole feed (issue #6556).
+          skipped++;
+          PSFeedService.log.warn(
+              "Skipping malformed feed index row {}: {}", i, PSExceptionUtils.getMessageForLog(e));
+          PSFeedService.log.debug(PSExceptionUtils.getDebugMessageForLog(e));
         }
-        if (props.has(PROP_PUBDATE)) {
-          TimeZone tz = TimeZone.getDefault();
-          if (props.has(PROP_CONTENTPOSTDATETZ))
-            tz = TimeZone.getTimeZone(props.getString(PROP_CONTENTPOSTDATETZ));
-          FastDateFormat tzFmt = FastDateFormat.getInstance(this.dateFormat.getPattern(), tz);
-          item.setPublishDate(tzFmt.parse(props.getString(PROP_PUBDATE)));
-        }
-        items.add(item);
+      }
+      if (skipped > 0) {
+        PSFeedService.log.warn(
+            "Skipped {} of {} feed index rows (missing title or malformed).", skipped, len);
       }
       feed = generator.makeFeedContent(desc, host, items);
 
@@ -723,13 +726,89 @@ public class PSFeedService extends PSAbstractRestService implements IPSFeedsRest
   }
 
   /**
+   * Maps a single metadata index row to a feed item.
+   *
+   * <p>Rows with a missing, JSON-null, or blank {@code dcterms:title} are skipped (issue #6556):
+   * stale index rows without a title must not 500 every consumer of the feed. This method never
+   * returns an item without a title; callers add only present values to the feed.
+   *
+   * <p>Package-visible for unit tests.
+   *
+   * @param row a single entry of the metadata {@code results} array, never <code>null</code>
+   * @param protocol the link scheme prefix (e.g. {@code https://}), never <code>null</code>
+   * @param host the feed host used to build item links, never <code>null</code>
+   * @return the mapped item, or {@link Optional#empty()} when the row must be skipped
+   * @throws JSONException when required structural fields are absent or mistyped
+   * @throws ParseException when the publish date cannot be parsed
+   */
+  static Optional<PSFeedItem> toFeedItem(JSONObject row, String protocol, String host)
+      throws JSONException, ParseException {
+    JSONObject props = row.getJSONObject("properties");
+    String title = optString(props, PROP_TITLE);
+    if (title == null) {
+      PSFeedService.log.warn(
+          "Skipping feed index row without a title (name='{}', folder='{}').",
+          row.optString("name", null),
+          row.optString("folder", null));
+      return Optional.empty();
+    }
+    String folder = row.optString("folder", null);
+    String pagename = row.optString("name", null);
+    if (StringUtils.isBlank(folder) || StringUtils.isBlank(pagename)) {
+      PSFeedService.log.warn(
+          "Skipping feed index row '{}' without a folder/name link target.", title);
+      return Optional.empty();
+    }
+    PSFeedItem item = new PSFeedItem();
+    item.setLink(protocol + host + folder + pagename);
+    item.setTitle(title);
+    String description = optString(props, PROP_DESCRIPTION);
+    if (description != null) {
+      item.setDescription(replaceRelativeLinks(description, protocol + host));
+    }
+    String pubDate = optString(props, PROP_PUBDATE);
+    if (pubDate != null) {
+      TimeZone tz = TimeZone.getDefault();
+      String tzId = optString(props, PROP_CONTENTPOSTDATETZ);
+      if (tzId != null) {
+        tz = TimeZone.getTimeZone(tzId);
+      }
+      FastDateFormat tzFmt = FastDateFormat.getInstance(FEED_DATE_PATTERN, tz);
+      item.setPublishDate(tzFmt.parse(pubDate));
+    }
+    return Optional.of(item);
+  }
+
+  /**
+   * Reads an optional string property, tolerating missing keys and explicit JSON nulls.
+   *
+   * <p>{@link JSONObject#has(String)} returns {@code true} for keys mapped to {@link
+   * JSONObject#NULL}, so a bare {@code has} guard still throws on {@code getString} (issue #6556).
+   * Blank values are normalized to {@code null} so title checks treat {@code ""} like a missing
+   * title.
+   *
+   * <p>Package-visible for unit tests.
+   *
+   * @param props the properties object, may be <code>null</code>
+   * @param key the property key, never <code>null</code>
+   * @return the trimmed value, or <code>null</code> when missing, JSON-null, or blank
+   */
+  static String optString(JSONObject props, String key) {
+    if (props == null || !props.has(key) || props.isNull(key)) {
+      return null;
+    }
+    String value = props.optString(key, null);
+    return StringUtils.isBlank(value) ? null : value;
+  }
+
+  /**
    * Parses the page summary of each rss post if present. This is required as all inline links are
    * currently relative and external feed applications may be required to use fully qualified URLs.
    *
    * @param html the source html to parse
    * @return a String with
    */
-  private String replaceRelativeLinks(String html, String sitePrefix) {
+  private static String replaceRelativeLinks(String html, String sitePrefix) {
     Document doc = Jsoup.parse(html);
     Elements elms = doc.select("img[src]");
     for (Element elm : elms) {
