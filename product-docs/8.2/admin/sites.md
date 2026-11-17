@@ -110,7 +110,9 @@ public list is empty or unreadable, the catalog also consults `GET /sitemanage/s
 2. Open **Developer** → **Sites** (SPA entry `spa.jsp?entry=developer&section=sites`).
 3. Confirm the catalog table shows site **name**, **description**, **base URL**, and flags.
 4. Choose a row to open **Site detail** (URL defaults, object GUID, Virtual Site source,
-   and **Object ACL**).
+   and **Object ACL**). The **Workflow** row shows **Loading workflows...** (the select
+   is disabled with `aria-busy`) until the workflow options resolve; a failed fetch
+   shows **Could not load workflows** instead and re-enables the select.
 
 The **Object ACL** section on Site detail uses the site GUID from the catalog payload
 (`guid.stringValue`, or `hostId-type-uuid` when `stringValue` is omitted). When a GUID

@@ -171,6 +171,46 @@ describe("SiteDetailPanel", () => {
     );
   });
 
+  it("shows a loading state until workflow options resolve (#6574)", async () => {
+    let resolveList!: (rows: { workflowName: string }[]) => void;
+    listWorkflows.mockImplementationOnce(
+      () =>
+        new Promise<{ workflowName: string }[]>((resolve) => {
+          resolveList = resolve;
+        }),
+    );
+    render(<SiteDetailPanel site={sampleSite} onBack={() => undefined} />);
+    const select = screen.getByTestId("developer-site-workflow") as HTMLSelectElement;
+    expect(select.disabled).toBe(true);
+    expect(select.getAttribute("aria-busy")).toBe("true");
+    expect(select.getAttribute("aria-describedby")).toBe(
+      "developer-site-workflow-loading",
+    );
+    const loading = screen.getByTestId("developer-site-workflow-loading");
+    expect(loading.getAttribute("role")).toBe("status");
+    expect(loading.textContent).toContain(DEV_MSG.SITE_WF_LOADING);
+    resolveList([{ workflowName: "Default Workflow" }]);
+    await screen.findByRole("option", { name: "Default Workflow" });
+    expect(
+      (screen.getByTestId("developer-site-workflow") as HTMLSelectElement).disabled,
+    ).toBe(false);
+    expect(screen.queryByTestId("developer-site-workflow-loading")).toBeNull();
+  });
+
+  it("clears the loading state and shows the error when workflows fail (#6574)", async () => {
+    listWorkflows.mockRejectedValueOnce(new Error("boom"));
+    render(<SiteDetailPanel site={sampleSite} onBack={() => undefined} />);
+    expect(screen.getByTestId("developer-site-workflow-loading")).toBeTruthy();
+    await screen.findByTestId("developer-site-workflow-error");
+    expect(screen.queryByTestId("developer-site-workflow-loading")).toBeNull();
+    expect(
+      screen.getByTestId("developer-site-workflow-error").textContent,
+    ).toContain(DEV_MSG.SITE_WF_LOAD_ERROR);
+    expect(
+      (screen.getByTestId("developer-site-workflow") as HTMLSelectElement).disabled,
+    ).toBe(false);
+  });
+
   it("saves a chosen workflow and shows it after reload payload", async () => {
     updateSite.mockResolvedValue({
       name: "Corporate",
