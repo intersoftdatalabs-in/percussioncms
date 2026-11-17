@@ -103,4 +103,52 @@ test.describe("Developer site workflow (#4892)", () => {
     });
     guards.assertClean();
   });
+
+  test("Workflow row shows a loading state while options fetch (#6574)", async ({
+    page,
+  }) => {
+    test.setTimeout(180_000);
+    const guards = attachConsoleGuards(page);
+    await loginAsAdmin(page);
+    // Hold the workflows metadata response so the loading state is observable
+    // even on a fast local CMS.
+    let releaseMetadata = () => undefined;
+    const gate = new Promise((resolve) => {
+      releaseMetadata = resolve;
+    });
+    await page.route(
+      "**/services/workflowmanagement/workflows/metadata",
+      async (route) => {
+        await gate;
+        await route.continue();
+      },
+    );
+    await page.goto(developerSitesUrl(), { waitUntil: "networkidle" });
+    await expect(page.locator('[data-testid="tab-developer-sites"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const row = page.locator('[data-testid^="developer-site-row-"]').first();
+    await expect(row).toBeVisible({ timeout: 20_000 });
+    await row.locator('[data-testid="developer-site-open"]').click();
+    await expect(page.locator('[data-testid="developer-site-detail"]')).toBeVisible({
+      timeout: 20_000,
+    });
+
+    const select = page.locator('[data-testid="developer-site-workflow"]');
+    await expect(
+      page.locator('[data-testid="developer-site-workflow-loading"]'),
+    ).toBeVisible({ timeout: 20_000 });
+    await expect(select).toBeDisabled();
+    await expect(select).toHaveAttribute("aria-busy", "true");
+
+    releaseMetadata();
+    await expect(select.locator("option")).not.toHaveCount(1, { timeout: 20_000 });
+    await expect(
+      page.locator('[data-testid="developer-site-workflow-loading"]'),
+    ).toHaveCount(0);
+    await expect(select).toBeEnabled();
+    await page.unroute("**/services/workflowmanagement/workflows/metadata");
+    guards.assertClean();
+  });
 });

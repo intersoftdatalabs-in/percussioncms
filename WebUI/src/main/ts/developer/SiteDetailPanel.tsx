@@ -58,6 +58,7 @@ export function SiteDetailPanel({
   const [baseUrl, setBaseUrl] = useState(site.baseUrl || "");
   const [workflowName, setWorkflowName] = useState(site.workflowName || "");
   const [workflowOptions, setWorkflowOptions] = useState<string[]>([]);
+  const [workflowLoading, setWorkflowLoading] = useState(true);
   const [workflowLoadError, setWorkflowLoadError] = useState<string | null>(null);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveNotice, setSaveNotice] = useState<string | null>(null);
@@ -73,6 +74,7 @@ export function SiteDetailPanel({
 
   useEffect(() => {
     let cancelled = false;
+    setWorkflowLoading(true);
     setWorkflowLoadError(null);
     listWorkflows()
       .then((rows) => {
@@ -81,9 +83,12 @@ export function SiteDetailPanel({
           .map((row) => (row.workflowName || "").trim())
           .filter((name) => name.length > 0);
         setWorkflowOptions(Array.from(new Set(names)));
+        setWorkflowLoading(false);
       })
       .catch(() => {
-        if (!cancelled) setWorkflowLoadError(DEV_MSG.SITE_WF_LOAD_ERROR);
+        if (cancelled) return;
+        setWorkflowLoadError(DEV_MSG.SITE_WF_LOAD_ERROR);
+        setWorkflowLoading(false);
       });
     return () => {
       cancelled = true;
@@ -228,8 +233,12 @@ export function SiteDetailPanel({
               data-testid="developer-site-workflow"
               style={inputStyle}
               value={workflowName}
-              disabled={saveBusy || deleteBusy}
+              disabled={saveBusy || deleteBusy || workflowLoading}
               aria-label={DEV_MSG.SITE_COL_WORKFLOW}
+              aria-busy={workflowLoading || undefined}
+              aria-describedby={
+                workflowLoading ? "developer-site-workflow-loading" : undefined
+              }
               onChange={(e) => setWorkflowName(e.target.value)}
             >
               <option value="">{DEV_MSG.SITE_WF_PLACEHOLDER}</option>
@@ -242,6 +251,15 @@ export function SiteDetailPanel({
                 </option>
               ))}
             </select>
+            {workflowLoading ? (
+              <div
+                id="developer-site-workflow-loading"
+                role="status"
+                data-testid="developer-site-workflow-loading"
+              >
+                {DEV_MSG.SITE_WF_LOADING}
+              </div>
+            ) : null}
             {workflowLoadError ? (
               <div data-testid="developer-site-workflow-error">{workflowLoadError}</div>
             ) : null}
