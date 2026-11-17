@@ -219,13 +219,18 @@ public class SharedFieldsResource {
       description =
           "Admin. Removes the group from the content-editor shared definition and saves via"
               + " IPSContentDesignWs.saveContentEditorSharedDef (releases the request lock)."
-              + " Missing group is 404; lock held by another user is 409.",
+              + " Refused with 409 while content types still include the group (detach it from"
+              + " those types first). Missing group is 404; lock held by another user is 409.",
       responses = {
         @ApiResponse(responseCode = "204", description = "Deleted"),
         @ApiResponse(responseCode = "400", description = "Invalid name"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(responseCode = "404", description = "Group not found"),
-        @ApiResponse(responseCode = "409", description = "Shared def locked by another user"),
+        @ApiResponse(
+            responseCode = "409",
+            description =
+                "Shared def locked by another user, or the group is still included by content"
+                    + " types"),
         @ApiResponse(responseCode = "500", description = "Error")
       })
   public Response deleteGroup(@PathParam("name") String name) {

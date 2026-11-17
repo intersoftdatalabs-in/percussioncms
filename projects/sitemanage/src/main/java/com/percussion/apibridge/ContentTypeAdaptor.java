@@ -2063,10 +2063,24 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
           || findDisplayMapping(displayMapperOfStatic(def), simpleName) != null) {
         throw new WebApplicationException("Field already included: " + simpleName, 409);
       }
+      PSContentEditorMapper editorMapper = contentEditorMapperOf(def);
+      ArrayList<String> includesBefore = copyStringList(editorMapper.getSharedFieldIncludes());
+      ArrayList<String> sharedExcludesBefore =
+          copyStringList(editorMapper.getSharedFieldExcludes());
+      ArrayList<String> systemExcludesBefore =
+          copyStringList(editorMapper.getSystemFieldExcludes());
       includeRequestedField(def, origin, requestedName, simpleName, body, session, user);
       try {
         saveLockedDefinition(def, "Could not include content type field", session, user);
       } catch (PSErrorsException e) {
+        rollbackFailedInclude(
+            def,
+            simpleName,
+            includesBefore,
+            sharedExcludesBefore,
+            systemExcludesBefore,
+            session,
+            user);
         throwIncludeSaveFailure(e, idOrName);
       }
       PSItemDefinition reloaded = reloadItemDef(trimmed);
@@ -2166,6 +2180,41 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
             ? "Failed to save included field: " + saveDetail
             : "Failed to save included field",
         e);
+  }
+
+  /**
+   * Best-effort rollback of a failed include (#6536). A failed application save can still leave
+   * the group include persisted on the saved content editor, orphaning later type saves; restore
+   * the pre-include mapper lists, drop the appended display mapping (and the typed field entry
+   * the system path adds), and re-save. A failed rollback only warns — the caller still reports
+   * the original save error.
+   */
+  private void rollbackFailedInclude(
+      PSItemDefinition def,
+      String fieldName,
+      ArrayList<String> includesBefore,
+      ArrayList<String> sharedExcludesBefore,
+      ArrayList<String> systemExcludesBefore,
+      String session,
+      String user) {
+    try {
+      PSContentEditorMapper mapper = contentEditorMapperOf(def);
+      mapper.setSharedFieldIncludes(new ArrayList<>(includesBefore));
+      mapper.setSharedFieldExcludes(new ArrayList<>(sharedExcludesBefore));
+      mapper.setSystemFieldExcludes(new ArrayList<>(systemExcludesBefore));
+      PSDisplayMapper display = displayMapperOfStatic(def);
+      if (display != null) {
+        removeDisplayMapping(display, fieldName);
+      }
+      if (findField(def, fieldName) != null) {
+        removeFieldFromSet(def, fieldName);
+      }
+      saveLockedDefinition(
+          def, "Could not roll back failed content type field include", session, user);
+    } catch (Exception rollbackErr) {
+      log.warn(
+          "Failed to roll back failed content type field include for {}", fieldName, rollbackErr);
+    }
   }
 
   @Override
@@ -5097,6 +5146,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       if (sharedGroup == null) {
         throw new IllegalArgumentException("shared field group is required");
       }
+      requireIncludeReadyGroup(sharedGroup);
       ensureSharedGroupIncluded(mapper, sharedGroup);
     }
     removeFieldFromExcludes(mapper, fieldName, type);
@@ -5119,6 +5169,27 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       return mapper;
     } catch (RuntimeException e) {
       throw new IllegalArgumentException("Content type has no editor mapper", e);
+    }
+  }
+
+  /**
+   * Reject includes of groups the content-type save validator would refuse. The merged-mapper
+   * validation ({@code CE_INVALID_SHARED_FIELDSET_TYPE}) throws on groups whose field set is a
+   * parent fieldset, and the failed save leaves the group include persisted on the saved
+   * application (#6536). REST-created groups are include-ready (child field set); this guard names
+   * the shape problem for older or foreign groups instead of 500ing. Package-visible for unit
+   * tests.
+   */
+  static void requireIncludeReadyGroup(PSSharedFieldGroup group) {
+    PSFieldSet set = group != null ? group.getFieldSet() : null;
+    if (set == null || set.getType() == PSFieldSet.TYPE_PARENT) {
+      String name = group != null ? group.getName() : null;
+      throw new IllegalArgumentException(
+          "Shared field group '"
+              + name
+              + "' cannot be included: its field set is a parent fieldset, but included"
+              + " groups must use a child field set."
+              + " Recreate the group (POST /services/sharedfields) to repair it");
     }
   }
 

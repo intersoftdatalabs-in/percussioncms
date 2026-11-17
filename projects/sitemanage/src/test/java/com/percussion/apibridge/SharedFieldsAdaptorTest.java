@@ -72,6 +72,7 @@ import com.percussion.webservices.PSLockErrorException;
 import com.percussion.webservices.content.IPSContentDesignWs;
 import jakarta.ws.rs.WebApplicationException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -303,7 +304,8 @@ class SharedFieldsAdaptorTest {
     assertEquals(0, out.getFields().size());
     ArgumentCaptor<PSContentEditorSharedDef> saved =
         ArgumentCaptor.forClass(PSContentEditorSharedDef.class);
-    verify(designWs).saveContentEditorSharedDef(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
+    verify(designWs)
+        .saveContentEditorSharedDef(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
     assertNotNull(SharedFieldsAdaptor.findGroup(saved.getValue(), "custom"));
   }
 
@@ -511,7 +513,8 @@ class SharedFieldsAdaptorTest {
 
     ArgumentCaptor<PSContentEditorSharedDef> saved =
         ArgumentCaptor.forClass(PSContentEditorSharedDef.class);
-    verify(designWs).saveContentEditorSharedDef(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
+    verify(designWs)
+        .saveContentEditorSharedDef(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
     assertNull(SharedFieldsAdaptor.findGroup(saved.getValue(), "shared"));
   }
 
@@ -570,6 +573,93 @@ class SharedFieldsAdaptorTest {
     org.w3c.dom.Element xml = group.toXml(doc);
     assertEquals("custom", xml.getAttribute("name"));
     assertEquals("custom.xml", xml.getAttribute("filename"));
+  }
+
+  @Test
+  void newEmptyGroup_usesIncludeReadyChildFieldSet() {
+    // #6536: REST-created groups must match the packaged child shape or the
+    // content-type save validator (CE_INVALID_SHARED_FIELDSET_TYPE) 500s the include.
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup("custom", "custom.xml");
+    assertNotNull(group.getFieldSet());
+    assertEquals(PSFieldSet.TYPE_MULTI_PROPERTY_SIMPLE_CHILD, group.getFieldSet().getType());
+    assertEquals(PSFieldSet.REPEATABILITY_ONE_OR_MORE, group.getFieldSet().getRepeatability());
+    assertFalse(group.getFieldSet().isSequencingSupported());
+    assertEquals("custom", group.getUIDefinition().getDisplayMapper().getFieldSetRef());
+  }
+
+  @Test
+  void deleteGroup_409WhenContentTypeStillIncludesGroup() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup("shared", "shared.xml");
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(group);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
+    IPSCatalogSummary includerSummary = summaryWithGuid(new PSGuid(PSTypeEnum.NODEDEF, 311L));
+    when(designWs.findContentTypes("*")).thenReturn(List.of(includerSummary));
+    PSItemDefinition includer = stubTypeIncluding("percPage", 311, "shared");
+    when(designWs.loadContentTypes(anyList(), eq(false), eq(false), eq("test-session"), eq("Admin")))
+        .thenReturn(List.of(includer));
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> adaptor.deleteGroup(null, "shared"));
+    assertEquals(409, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("shared"), ex.getMessage());
+    assertTrue(ex.getMessage().contains("percPage"), ex.getMessage());
+    assertNotNull(SharedFieldsAdaptor.findGroup(def, "shared"));
+  }
+
+  @Test
+  void deleteGroup_succeedsWhenNothingIncludesGroup() throws Exception {
+    IPSContentDesignWs designWs = mock(IPSContentDesignWs.class);
+    PSSharedFieldGroup group = SharedFieldsAdaptor.newEmptyGroup("shared", "shared.xml");
+    PSContentEditorSharedDef def = new PSContentEditorSharedDef();
+    def.addFieldGroup(group);
+    when(designWs.loadContentEditorSharedDef(true, false, "test-session", "Admin")).thenReturn(def);
+    when(designWs.findContentTypes("*")).thenReturn(List.of());
+    SharedFieldsAdaptor adaptor = new SharedFieldsAdaptor(designWs, () -> true);
+
+    adaptor.deleteGroup(null, "shared");
+
+    ArgumentCaptor<PSContentEditorSharedDef> saved =
+        ArgumentCaptor.forClass(PSContentEditorSharedDef.class);
+    verify(designWs)
+        .saveContentEditorSharedDef(saved.capture(), eq(true), eq("test-session"), eq("Admin"));
+    assertNull(SharedFieldsAdaptor.findGroup(saved.getValue(), "shared"));
+  }
+
+  @Test
+  void groupIncluders_matchesCaseInsensitiveAndSkipsMapperless() {
+    PSItemDefinition includer = stubTypeIncluding("percPage", 311, "Shared");
+    PSItemDefinition other = stubTypeIncluding("percBlog", 312, "other");
+    PSItemDefinition mapperless = mock(PSItemDefinition.class);
+    when(mapperless.getName()).thenReturn("percBroken");
+    when(mapperless.getContentEditorMapper()).thenReturn(null);
+    List<String> out =
+        SharedFieldsAdaptor.groupIncluders(
+            Arrays.asList(includer, null, other, mapperless), "shared");
+    assertEquals(List.of("percPage"), out);
+    assertTrue(SharedFieldsAdaptor.groupIncluders(null, "shared").isEmpty());
+    assertTrue(SharedFieldsAdaptor.groupIncluders(List.of(includer), " ").isEmpty());
+  }
+
+  /**
+   * Stored content type definition stub whose editor mapper includes {@code groupName}. Mirrors
+   * {@link #stubTypeUsing} but carries a group include instead of field usage.
+   */
+  private static PSItemDefinition stubTypeIncluding(String typeName, int typeId, String groupName) {
+    PSFieldSet parent = new PSFieldSet(typeName);
+    PSDisplayMapper display = new PSDisplayMapper(typeName);
+    PSContentEditorMapper mapper =
+        new PSContentEditorMapper(
+            new ArrayList<>(), new ArrayList<>(List.of(groupName)), parent,
+            new PSUIDefinition(display));
+    mapper.setSharedFieldExcludes(new ArrayList<>());
+    PSItemDefinition def = mock(PSItemDefinition.class);
+    when(def.getName()).thenReturn(typeName);
+    when(def.getTypeId()).thenReturn(typeId);
+    when(def.getContentEditorMapper()).thenReturn(mapper);
+    return def;
   }
 
   @Test

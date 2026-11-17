@@ -73,7 +73,9 @@ first. Unknown group or field is **404**; non-Admin callers receive **403**.
    filename (or rename) and save again.
 5. Click **Delete** and confirm in the in-app dialog (not a browser prompt).
    The catalog no longer lists that group.
-   Delete of a missing group is **404**.
+   Delete of a missing group is **404**. Delete is refused with **409**
+   while content types still include the group — open each including type
+   and **Detach** (or remove the type) first, then delete the group.
 
 ## Product path — nested fields and control properties
 
@@ -110,7 +112,7 @@ The chrome calls:
 | Load | `GET /services/sharedfields/{name}` |
 | Create | `POST /services/sharedfields` (`name` required; unique, no spaces) |
 | Save | `PUT /services/sharedfields/{name}` (filename and optional rename) |
-| Delete | `DELETE /services/sharedfields/{name}` (`204` on success) |
+| Delete | `DELETE /services/sharedfields/{name}` (`204` on success; `409` while content types still include the group) |
 | Add field | `POST /services/sharedfields/{name}/fields` (`name` required; wrap root `SharedField`) |
 | Delete field | `DELETE /services/sharedfields/{name}/fields/{fieldName}` (`204` on success) |
 | Load control properties | `GET /services/sharedfields/{name}/fields/{fieldName}/controlProperties` (no lock) |
