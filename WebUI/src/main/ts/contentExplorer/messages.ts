@@ -914,15 +914,13 @@ export const EXPLORER_MSG = {
   CONFIRM_PUBLISH_NOW:
     "perc.ui.explorer@Publish this item now?",
   CONFIRM_PUBLISH_FOLDER:
-    "perc.ui.explorer@Publish the pages and assets in this folder now? Other item types and nested folders are not included.",
+    "perc.ui.explorer@Publish the items in this folder now? Nested folders are not included.",
   PUBLISH_FOLDER_EMPTY:
-    "perc.ui.explorer@This folder has no pages or assets to publish.",
+    "perc.ui.explorer@This folder has no items to publish.",
   CONFIRM_PUBLISH_NOW_MULTI:
     "perc.ui.explorer@Publish {count} selected items now? Folders in the selection are not published.",
   PUBLISH_SKIPPED_FOLDERS:
     "perc.ui.explorer@Folders are not published: {names}",
-  PUBLISH_SKIPPED_OTHER:
-    "perc.ui.explorer@These selected items are not pages or assets and were not published: {names}",
   PUBLISH_BATCH_INCOMPLETE:
     "perc.ui.explorer@Not every selected item was published. {detail}",
   PUBLISH_NOTHING_ELIGIBLE:
@@ -933,8 +931,6 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Force check-in {count} selected items? Other users will lose their checkout. Folders in the selection are not force checked in.",
   FORCE_CHECKIN_SKIPPED_FOLDERS:
     "perc.ui.explorer@Folders are not force checked in: {names}",
-  FORCE_CHECKIN_SKIPPED_OTHER:
-    "perc.ui.explorer@These selected items are not pages or assets and were not force checked in: {names}",
   FORCE_CHECKIN_BATCH_INCOMPLETE:
     "perc.ui.explorer@Not every selected item was force checked in. {detail}",
   FORCE_CHECKIN_NOTHING_ELIGIBLE:
@@ -960,8 +956,6 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Check out {count} selected items? Folders in the selection are not checked out.",
   CHECKOUT_SKIPPED_FOLDERS:
     "perc.ui.explorer@Folders are not checked out: {names}",
-  CHECKOUT_SKIPPED_OTHER:
-    "perc.ui.explorer@These selected items are not pages or assets and were not checked out: {names}",
   CHECKOUT_BATCH_INCOMPLETE:
     "perc.ui.explorer@Not every selected item was checked out. {detail}",
   CHECKOUT_NOTHING_ELIGIBLE:
@@ -982,8 +976,6 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Check in {count} selected items? Folders in the selection are not checked in.",
   CHECKIN_SKIPPED_FOLDERS:
     "perc.ui.explorer@Folders are not checked in: {names}",
-  CHECKIN_SKIPPED_OTHER:
-    "perc.ui.explorer@These selected items are not pages or assets and were not checked in: {names}",
   CHECKIN_BATCH_INCOMPLETE:
     "perc.ui.explorer@Not every selected item was checked in. {detail}",
   CHECKIN_NOTHING_ELIGIBLE:
@@ -996,8 +988,6 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Take down {count} selected items from their sites? Folders in the selection are not taken down.",
   TAKEDOWN_SKIPPED_FOLDERS:
     "perc.ui.explorer@Folders are not taken down: {names}",
-  TAKEDOWN_SKIPPED_OTHER:
-    "perc.ui.explorer@These selected items are not pages or assets and were not taken down: {names}",
   TAKEDOWN_BATCH_INCOMPLETE:
     "perc.ui.explorer@Not every selected item was taken down. {detail}",
   TAKEDOWN_NOTHING_ELIGIBLE:
@@ -1010,8 +1000,6 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Stage {count} selected items to the staging server? Folders in the selection are not staged.",
   STAGE_SKIPPED_FOLDERS:
     "perc.ui.explorer@Folders are not staged: {names}",
-  STAGE_SKIPPED_OTHER:
-    "perc.ui.explorer@These selected items are not pages or assets and were not staged: {names}",
   STAGE_BATCH_INCOMPLETE:
     "perc.ui.explorer@Not every selected item was staged. {detail}",
   STAGE_NOTHING_ELIGIBLE:
@@ -1019,17 +1007,15 @@ export const EXPLORER_MSG = {
   STAGE_FAILED:
     "perc.ui.explorer@Stage failed: {detail}",
   CONFIRM_STAGE_FOLDER:
-    "perc.ui.explorer@Stage the pages and assets in this folder now? Other item types and nested folders are not included.",
+    "perc.ui.explorer@Stage the items in this folder now? Nested folders are not included.",
   STAGE_FOLDER_EMPTY:
-    "perc.ui.explorer@This folder has no pages or assets to stage.",
+    "perc.ui.explorer@This folder has no items to stage.",
   CONFIRM_REMOVE_FROM_STAGING:
     "perc.ui.explorer@Remove this item from staging?",
   CONFIRM_REMOVE_FROM_STAGING_MULTI:
     "perc.ui.explorer@Remove {count} selected items from staging? Folders in the selection are not removed.",
   UNSTAGE_SKIPPED_FOLDERS:
     "perc.ui.explorer@Folders are not removed from staging: {names}",
-  UNSTAGE_SKIPPED_OTHER:
-    "perc.ui.explorer@These selected items are not pages or assets and were not removed from staging: {names}",
   UNSTAGE_BATCH_INCOMPLETE:
     "perc.ui.explorer@Not every selected item was removed from staging. {detail}",
   UNSTAGE_NOTHING_ELIGIBLE:
@@ -1037,9 +1023,9 @@ export const EXPLORER_MSG = {
   UNSTAGE_FAILED:
     "perc.ui.explorer@Remove from staging failed: {detail}",
   CONFIRM_UNSTAGE_FOLDER:
-    "perc.ui.explorer@Remove the pages and assets in this folder from staging? Other item types and nested folders are not included.",
+    "perc.ui.explorer@Remove the items in this folder from staging? Nested folders are not included.",
   UNSTAGE_FOLDER_EMPTY:
-    "perc.ui.explorer@This folder has no pages or assets to remove from staging.",
+    "perc.ui.explorer@This folder has no items to remove from staging.",
   BULK_STAGE_TITLE: "perc.ui.explorer@Stage selected items",
   BULK_UNSTAGE_TITLE: "perc.ui.explorer@Remove selected items from staging",
   BULK_STAGE_ITEMS_LABEL: "perc.ui.explorer@Items to stage:",
@@ -1063,17 +1049,15 @@ export const EXPLORER_MSG = {
   BULK_UNSTAGE_ROW_OK: "perc.ui.explorer@Removed from staging",
   BULK_STAGE_ROW_FAILED: "perc.ui.explorer@Failed",
   BULK_STAGE_ROW_SKIPPED_FOLDER: "perc.ui.explorer@Skipped — folder",
-  BULK_STAGE_ROW_SKIPPED_OTHER:
-    "perc.ui.explorer@Skipped — not a page or asset",
   BULK_STAGE_CLOSE: "perc.ui.explorer@Close",
   BULK_STAGE_REPORT_EMPTY:
     "perc.ui.explorer@No items were processed.",
   CONFIRM_SCHEDULE:
     "perc.ui.explorer@Save schedule publish dates for this item?",
   CONFIRM_SCHEDULE_MULTI:
-    "perc.ui.explorer@Save the same schedule publish dates for every selected page and asset? Folders are skipped.",
+    "perc.ui.explorer@Save the same schedule publish dates for every selected item? Folders are skipped.",
   SCHEDULE_MULTI_HINT:
-    "perc.ui.explorer@These dates apply to every selected page and asset. Folders are skipped.",
+    "perc.ui.explorer@These dates apply to every selected item. Folders are skipped.",
   SCHEDULE_PARTIAL:
     "perc.ui.explorer@Schedule was not saved for every selected item.",
   SCHEDULE_FAILED: "perc.ui.explorer@Schedule failed: {detail}",
@@ -1096,9 +1080,9 @@ export const EXPLORER_MSG = {
   CLEAR_SCHEDULE_CURRENT: "perc.ui.explorer@Current dates",
   CLEAR_SCHEDULE_NONE: "perc.ui.explorer@This item has no scheduled dates.",
   CLEAR_SCHEDULE_SINGLE:
-    "perc.ui.explorer@Clear scheduled dates applies to one selected page or asset.",
+    "perc.ui.explorer@Clear scheduled dates applies to one selected item.",
   CONFIRM_CLEAR_SCHEDULE_MULTI:
-    "perc.ui.explorer@Clear start and end publish dates on {count} selected pages and assets? Folders in the selection are not cleared.",
+    "perc.ui.explorer@Clear start and end publish dates on {count} selected items? Folders in the selection are not cleared.",
   CLEAR_SCHEDULE_SKIPPED_FOLDERS:
     "perc.ui.explorer@Folders are not cleared: {names}",
   CLEAR_SCHEDULE_PARTIAL:
@@ -1628,8 +1612,6 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Create a new copy of {count} selected items in the same folder? Folders in the selection are not copied.",
   NEW_COPY_SKIPPED_FOLDERS:
     "perc.ui.explorer@Folders are not copied: {names}",
-  NEW_COPY_SKIPPED_OTHER:
-    "perc.ui.explorer@These selected items are not pages or assets and were not copied: {names}",
   NEW_COPY_BATCH_INCOMPLETE:
     "perc.ui.explorer@Not every selected item got a new copy. {detail}",
   NEW_COPY_NOTHING_ELIGIBLE:

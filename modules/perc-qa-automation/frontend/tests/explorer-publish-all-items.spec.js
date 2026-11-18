@@ -16,20 +16,21 @@
  */
 
 /**
- * Explorer generic items stay publish-gated (#6580 / parent #4530).
+ * Explorer publish submits Pages, Assets, and generic Items alike
+ * (#6580 reversal / parent #4530).
  *
- * Custom-type rows that live outside /Sites and /Assets (no page/asset
- * token) deliberately stay {@code "none"} from {@code resolvePublishKind}:
- * the demand endpoints are page|resource addressed, so there is no generic
- * publish contract server-side. The surface must therefore hide the publish
- * family for those rows and report them as skipped-other (never silently
- * dropped) when a folder publishes around them.
+ * Owner direction: Folder Publish Now submits EVERY child with an id —
+ * like the ondemand/publish-now generator, which takes any numeric
+ * content ids — and a single custom-type row is never hidden. Generic
+ * Items ride the page endpoint; the engine accepts or rejects each row
+ * with a named error instead of a pre-skip. There is no skipped-other
+ * separation anywhere in the flow.
  *
  * Route-mocked like {@code explorer-folder-publish-now.spec.js}: the mocked
- * child row pins the non-Sites/Assets branch with an outside path.
+ * child row pins a non-Sites/Assets generic with an outside path.
  *
  * Run (QA mode after {@code perc-devctl qa-up}):
- * {@code npm run test:surface -- --path tests/explorer-generic-publish-gated.spec.js}
+ * {@code npm run test:surface -- --path tests/explorer-publish-all-items.spec.js}
  * from {@code modules/perc-qa-automation/frontend}.</p>
  */
 
@@ -71,6 +72,7 @@ const CHILDREN_LISTING = {
       },
       {
         // Generic custom-type row outside /Sites and /Assets (#6580).
+        // First-class item: submitted via the page endpoint like pages.
         id: "9001999",
         name: "PromoSnippet",
         path: "/ContentLib/PromoSnippet",
@@ -102,7 +104,6 @@ const CHILDREN = {
       category: "page",
     },
     {
-      // Generic custom-type row outside /Sites and /Assets (#6580).
       id: "9001999",
       name: "PromoSnippet",
       path: "/ContentLib/PromoSnippet",
@@ -151,13 +152,14 @@ function relatedConsoleErrors(consoleErrors) {
 
 /**
  * @param {import('@playwright/test').Page} page
- * @param {{ children?: object }} [opts]
+ * @param {{ children?: object, genericStatus?: number }} [opts]
  */
-async function installGenericGatedRoutes(page, opts = {}) {
+async function installAllItemsRoutes(page, opts = {}) {
   const children = opts.children ?? CHILDREN;
+  const genericStatus = opts.genericStatus ?? 200;
   /** @type {string[]} */
   const published = [];
-  // Item-scoped panel chrome is not the gating SUT: keep the checkout-owner
+  // Item-scoped panel chrome is not the submit SUT: keep the checkout-owner
   // panel and the Change-Template menu quiet for mocked rows so the live
   // cell logs no fixture-artifact ERRORs (real generic rows carry numeric
   // Rhythmyx ids that resolve server-side).
@@ -200,7 +202,12 @@ async function installGenericGatedRoutes(page, opts = {}) {
     });
   });
   await page.route("**/services/sitemanage/publish/page/**", async (route) => {
-    published.push(route.request().url());
+    const url = route.request().url();
+    published.push(url);
+    if (url.includes("9001999")) {
+      await route.fulfill({ status: genericStatus, body: genericStatus === 200 ? "{}" : "denied" });
+      return;
+    }
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -239,18 +246,23 @@ async function openFolder(page) {
   ).toBeVisible({ timeout: 10_000 });
 }
 
-test.describe("Explorer generic items stay publish-gated (#6580)", () => {
+test.describe("Explorer publish submits all items (#6580 reversal)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(90_000);
     await loginAsAdmin(page);
   });
 
   test(
-    "generic row hides the publish family but stays keyboard-focusable",
-    { tag: ["@explorer", "@explorer-publish", "@explorer-generic-gated"] },
+    "generic row shows the publish family and publishes like any item",
+    { tags: ["@explorer", "@explorer-publish", "@explorer-all-items"] },
     async ({ page }) => {
       const { pageErrors, consoleErrors } = trackJsErrors(page);
-      await installGenericGatedRoutes(page);
+      const dialogs = [];
+      page.on("dialog", (dialog) => {
+        dialogs.push(dialog.message());
+        void dialog.accept();
+      });
+      const { published } = await installAllItemsRoutes(page);
       await openFolder(page);
 
       // Open the folder so the detail list shows its children (#6514).
@@ -266,21 +278,31 @@ test.describe("Explorer generic items stay publish-gated (#6580)", () => {
         ),
       ).toBeVisible({ timeout: 10_000 });
 
-      // The publish family stays hidden for the generic selection.
-      await expect(
-        page.locator(
-          '[data-testid="action-toolbar-item-Publish_Now"], [data-testid="action-toolbar-item-publish_now"]',
-        ),
-      ).toHaveCount(0);
+      // The publish family is visible for the generic selection — nothing
+      // stays hidden for a custom-type row.
+      const publishNowVisible = page.locator(
+        '[data-testid="action-toolbar-item-Publish_Now"], [data-testid="action-toolbar-item-publish_now"]',
+      );
+      await expect(publishNowVisible.first()).toBeVisible({ timeout: 10_000 });
       await expect(
         page.locator('[data-testid="action-toolbar-item-Take_Down"]'),
-      ).toHaveCount(0);
+      ).toHaveCount(1);
       await expect(
         page.locator('[data-testid="action-toolbar-item-Schedule"]'),
-      ).toHaveCount(0);
+      ).toHaveCount(1);
       await expect(
         page.locator('[data-testid="action-toolbar-item-Publishing_History"]'),
-      ).toHaveCount(0);
+      ).toHaveCount(1);
+
+      // Single generic Publish Now submits via the page endpoint.
+      const publishNow = page.locator(
+        '[data-testid="action-toolbar-item-Publish_Now"], [data-testid="action-toolbar-item-publish_now"]',
+      );
+      await publishNow.first().click();
+      await expect.poll(() => published.length).toBe(1);
+      expect(
+        published.some((url) => url.includes("/publish/page/9001999")),
+      ).toBe(true);
 
       // Keyboard parity: the generic row stays in the roving tabindex.
       await genericRow.focus();
@@ -298,36 +320,46 @@ test.describe("Explorer generic items stay publish-gated (#6580)", () => {
   );
 
   test(
-    "folder publish confirm scopes other types and skips the generic row honestly",
-    { tag: ["@explorer", "@explorer-publish", "@explorer-generic-gated"] },
+    "folder publish submits page and generic children with no type segregation",
+    { tags: ["@explorer", "@explorer-publish", "@explorer-all-items"] },
     async ({ page }) => {
       const { pageErrors, consoleErrors } = trackJsErrors(page);
+      const dialogs = [];
       page.on("dialog", (dialog) => {
-        expect(dialog.message()).toMatch(
-          /Other item types and nested folders are not included/i,
-        );
+        dialogs.push(dialog.message());
         void dialog.accept();
       });
-      const { published } = await installGenericGatedRoutes(page);
+      const { published } = await installAllItemsRoutes(page);
       await openFolder(page);
       const publishNow = page.locator(
         '[data-testid="action-toolbar-item-Publish_Now"], [data-testid="action-toolbar-item-publish_now"]',
       );
       await expect(publishNow.first()).toBeVisible({ timeout: 15_000 });
       await publishNow.first().click();
-      const banner = page.locator(
-        '[data-testid="explorer-server-actions-error"]',
+      // Folder confirm is type-neutral: items publish, nested folders do not.
+      expect(dialogs.some((text) => /Publish the items in this folder now/i.test(text))).toBe(
+        true,
       );
-      await expect(banner).toContainText(/PromoSnippet/i, { timeout: 10_000 });
-      await expect(banner).toContainText(/not pages or assets/i);
-      await banner.screenshot({
-        path: "test-results/live-proof-6580-publish-gated.png",
-      });
-      await expect.poll(() => published.length).toBe(1);
+      expect(dialogs.some((text) => /Other item types/i.test(text))).toBe(
+        false,
+      );
+      await expect.poll(() => published.length).toBe(2);
       expect(published.some((url) => url.includes("/publish/page/42"))).toBe(
         true,
       );
-      expect(published.some((url) => url.includes("9001999"))).toBe(false);
+      expect(
+        published.some((url) => url.includes("/publish/page/9001999")),
+      ).toBe(true);
+      const banner = page.locator(
+        '[data-testid="explorer-server-actions-error"]',
+      );
+      // Only the nested folder is skipped — never a second-class row.
+      await expect(banner).toContainText(/Nested/i, { timeout: 10_000 });
+      await expect(banner).not.toContainText(/not pages or assets/i);
+      await expect(banner).not.toContainText(/PromoSnippet/i);
+      await banner.screenshot({
+        path: "test-results/live-proof-6580-publish-all-items.png",
+      });
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="content-explorer-shell"]',
       });
@@ -340,14 +372,50 @@ test.describe("Explorer generic items stay publish-gated (#6580)", () => {
   );
 
   test(
-    "empty folder publish keeps the no-pages-or-assets empty state",
-    { tag: ["@explorer", "@explorer-publish", "@explorer-generic-gated"] },
+    "engine rejection of a generic row is a named failure, not a pre-skip",
+    { tags: ["@explorer", "@explorer-publish", "@explorer-all-items"] },
     async ({ page }) => {
       const { pageErrors, consoleErrors } = trackJsErrors(page);
       page.on("dialog", (dialog) => {
         void dialog.accept();
       });
-      await installGenericGatedRoutes(page, { children: { PathItem: [] } });
+      const { published } = await installAllItemsRoutes(page, {
+        genericStatus: 403,
+      });
+      await openFolder(page);
+      const publishNow = page.locator(
+        '[data-testid="action-toolbar-item-Publish_Now"], [data-testid="action-toolbar-item-publish_now"]',
+      );
+      await expect(publishNow.first()).toBeVisible({ timeout: 15_000 });
+      await publishNow.first().click();
+      await expect.poll(() => published.length).toBe(2);
+      const banner = page.locator(
+        '[data-testid="explorer-server-actions-error"]',
+      );
+      await expect(banner).toContainText(/PromoSnippet \(HTTP 403\)/i, {
+        timeout: 10_000,
+      });
+      await expect(banner).toContainText(/Not every selected item was published/i);
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="content-explorer-shell"]',
+      });
+      const relatedConsole = relatedConsoleErrors(consoleErrors);
+      expect(
+        [...pageErrors, ...relatedConsole],
+        [...pageErrors, ...relatedConsole].join(" | "),
+      ).toEqual([]);
+    },
+  );
+
+  test(
+    "empty folder publish keeps the type-neutral empty state",
+    { tags: ["@explorer", "@explorer-publish", "@explorer-all-items"] },
+    async ({ page }) => {
+      const { pageErrors, consoleErrors } = trackJsErrors(page);
+      page.on("dialog", (dialog) => {
+        void dialog.accept();
+      });
+      await installAllItemsRoutes(page, { children: { PathItem: [] } });
       await openFolder(page);
       const publishNow = page.locator(
         '[data-testid="action-toolbar-item-Publish_Now"], [data-testid="action-toolbar-item-publish_now"]',
@@ -356,7 +424,7 @@ test.describe("Explorer generic items stay publish-gated (#6580)", () => {
       await publishNow.first().click();
       await expect(
         page.locator('[data-testid="explorer-server-actions-error"]'),
-      ).toContainText(/no pages or assets to publish/i, { timeout: 10_000 });
+      ).toContainText(/no items to publish/i, { timeout: 10_000 });
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="content-explorer-shell"]',
       });

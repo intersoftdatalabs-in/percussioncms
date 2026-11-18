@@ -205,7 +205,7 @@ describe("ScheduleDatesDialog", () => {
       />,
     );
     expect(screen.getByTestId("explorer-schedule-multi")).toHaveTextContent(
-      /every selected page and asset/i,
+      /every selected item/i,
     );
     await renderA11yGate(container);
   });

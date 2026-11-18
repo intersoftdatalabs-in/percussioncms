@@ -69,14 +69,16 @@ function outcomeText(row: BulkStageRow, mode: BulkStageMode): string {
   if (row.outcome === "skipped-folder") {
     return message(EXPLORER_MSG.BULK_STAGE_ROW_SKIPPED_FOLDER);
   }
-  return message(EXPLORER_MSG.BULK_STAGE_ROW_SKIPPED_OTHER);
+  return message(EXPLORER_MSG.BULK_STAGE_ROW_FAILED);
 }
 
 /**
  * Bulk Stage / Remove-from-Staging confirm with per-item reporting (#6469).
- * One confirm lists every eligible page/asset, then the report names each
- * row outcome (staged/removed, failed with HTTP reason, skipped folders)
+ * One confirm lists every selected item, then the report names each row
+ * outcome (staged/removed, failed with HTTP reason, skipped folders)
  * with summary counts — replacing the transient banner for this flow.
+ * Pages, Assets, and generic Items submit alike; only folders are
+ * skipped (stage those folders separately).
  */
 export function BulkStageDialog({
   mode,
@@ -154,13 +156,12 @@ export function BulkStageDialog({
         okIds = batch.removedIds;
         failures = batch.failures;
       }
-      // The batch only saw the eligible rows; the plan's skips belong in
-      // the same report so no selected row goes unmentioned.
+      // The batch only saw the eligible rows; the plan's folder skips
+      // belong in the same report so no selected row goes unmentioned.
       setRows(
         buildBulkStageRows(items, {
           okIds,
           skippedFolders: plan.skippedFolders,
-          skippedOther: plan.skippedOther,
           failures,
         }),
       );
@@ -169,7 +170,6 @@ export function BulkStageDialog({
         buildBulkStageRows(items, {
           okIds: [],
           skippedFolders: plan.skippedFolders,
-          skippedOther: plan.skippedOther,
           failures: eligible.map((item) => ({
             id: (item.id ?? "").trim(),
             name: (item.name ?? item.path ?? item.id ?? "item").trim() || "item",
@@ -367,18 +367,6 @@ export function BulkStageDialog({
                     ? EXPLORER_MSG.STAGE_SKIPPED_FOLDERS
                     : EXPLORER_MSG.UNSTAGE_SKIPPED_FOLDERS,
                 ).replace("{names}", plan.skippedFolders.join(", "))}
-              </p>
-            ) : null}
-            {plan.skippedOther.length > 0 ? (
-              <p
-                data-testid="explorer-bulk-stage-skipped-other"
-                style={{ fontSize: 12, margin: "0 0 4px", color: "#475569" }}
-              >
-                {message(
-                  mode === "stage"
-                    ? EXPLORER_MSG.STAGE_SKIPPED_OTHER
-                    : EXPLORER_MSG.UNSTAGE_SKIPPED_OTHER,
-                ).replace("{names}", plan.skippedOther.join(", "))}
               </p>
             ) : null}
             {busy ? (

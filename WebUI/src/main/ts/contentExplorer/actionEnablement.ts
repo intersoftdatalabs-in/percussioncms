@@ -56,7 +56,6 @@ import {
   isRemoveFromStagingActionName,
   isStageActionName,
   isTakedownActionName,
-  resolvePublishKind,
 } from "./itemPublish";
 import {
   isClearScheduledDatesActionName,
@@ -76,10 +75,10 @@ export interface ActionEnablementContext {
   surface: ActionSurface;
   /**
    * Currently selected detail-list item, or {@code null} when only a folder
-   * is active. Toolbar and context-menu Publish Now are hidden until a
-   * page/asset is selected so a Sites-folder click cannot claim published
+   * is active. Toolbar and context-menu Publish Now are hidden until an
+   * item is selected so a Sites-folder click cannot claim published
    * (#3467). Take Down, Stage, Remove from Staging, Schedule, and
-   * Publishing History follow the same kind rules (#4533 / #4546 /
+   * Publishing History follow the same item rules (#4533 / #4546 /
    * #4547 / #4559).
    */
   selectionItem?: PSPathItem | null;
@@ -270,9 +269,11 @@ function actionNameKey(name: string | undefined | null): string {
 }
 
 /**
- * Publish Now stays hidden with no selection and for non-page/non-asset
- * types (#3467). A folder with a path is publishable: confirm then
- * demand-publishes that folder's pages and assets (#4945).
+ * Publish Now is available for any selected item — Pages, Assets, and
+ * generic Items alike (#6580 reversal: submit all, let the engine accept
+ * or reject). A folder with a path is publishable: confirm then
+ * demand-publish that folder's children (#4945). Hidden only with no
+ * selection (or a path-less folder).
  */
 export function isToolbarPublishNowHidden(
   action: MenuAction,
@@ -288,12 +289,13 @@ export function isToolbarPublishNowHidden(
   ) {
     return false;
   }
-  return resolvePublishKind(selectionItem ?? null) === "none";
+  return !selectionItem || isFolder(selectionItem);
 }
 
 /**
- * Take Down is item-scoped like Publish Now. Folder catalogs must not
- * look unpublishable-from-Sites (#4533).
+ * Take Down is item-scoped like Publish Now. Any selected item can be
+ * taken down (the engine accepts or rejects); folders stay hidden.
+ * Folder catalogs must not look unpublishable-from-Sites (#4533).
  */
 export function isToolbarTakedownHidden(
   action: MenuAction,
@@ -302,7 +304,7 @@ export function isToolbarTakedownHidden(
   if (!isTakedownActionName(action.name)) {
     return false;
   }
-  return resolvePublishKind(selectionItem ?? null) === "none";
+  return !selectionItem || isFolder(selectionItem);
 }
 
 /**
@@ -321,9 +323,9 @@ export function isStageFolderTarget(
 }
 
 /**
- * Stage / Remove from Staging are item-scoped like Publish Now. A folder
- * with a path stays visible: confirm then stage (or unstage) that
- * folder's direct children (#6419).
+ * Stage / Remove from Staging are item-scoped like Publish Now — any
+ * selected item submits. A folder with a path stays visible: confirm
+ * then stage (or unstage) that folder's direct children (#6419).
  */
 export function isToolbarStageHidden(
   action: MenuAction,
@@ -338,11 +340,12 @@ export function isToolbarStageHidden(
   if (isStageFolderTarget(selectionItem)) {
     return false;
   }
-  return resolvePublishKind(selectionItem ?? null) === "none";
+  return !selectionItem || isFolder(selectionItem);
 }
 
 /**
- * Schedule is item-scoped like Publish Now.
+ * Schedule is item-scoped like Publish Now — any selected item can
+ * carry schedule dates.
  */
 export function isToolbarScheduleHidden(
   action: MenuAction,
@@ -351,12 +354,12 @@ export function isToolbarScheduleHidden(
   if (!isScheduleActionName(action.name)) {
     return false;
   }
-  return resolvePublishKind(selectionItem ?? null) === "none";
+  return !selectionItem || isFolder(selectionItem);
 }
 
 /**
  * Clear scheduled dates is item-scoped like Schedule. A folder highlight
- * stays hidden. Two or more checked pages still run one clear.
+ * stays hidden. Two or more checked items still run one clear.
  */
 export function isToolbarClearScheduleHidden(
   action: MenuAction,
@@ -365,7 +368,7 @@ export function isToolbarClearScheduleHidden(
   if (!isClearScheduledDatesActionName(action.name)) {
     return false;
   }
-  return resolvePublishKind(selectionItem ?? null) === "none";
+  return !selectionItem || isFolder(selectionItem);
 }
 
 /**
@@ -378,7 +381,7 @@ export function isToolbarPublishingHistoryHidden(
   if (!isPublishingHistoryActionName(action.name)) {
     return false;
   }
-  return resolvePublishKind(selectionItem ?? null) === "none";
+  return !selectionItem || isFolder(selectionItem);
 }
 
 export function isToolbarForceCheckinHidden(
@@ -388,7 +391,7 @@ export function isToolbarForceCheckinHidden(
   if (!isForceCheckinActionName(action.name)) {
     return false;
   }
-  return resolvePublishKind(selectionItem ?? null) === "none";
+  return !selectionItem || isFolder(selectionItem);
 }
 
 export function isToolbarCheckoutHidden(
@@ -398,10 +401,10 @@ export function isToolbarCheckoutHidden(
   if (!isCheckoutActionName(action.name) && !isCheckinActionName(action.name)) {
     return false;
   }
-  return resolvePublishKind(selectionItem ?? null) === "none";
+  return !selectionItem || isFolder(selectionItem);
 }
 
-/** Injected when CX catalog has no Take Down leaf for a page/asset. */
+/** Injected when CX catalog has no Take Down leaf for the selected item. */
 export const EXPLORER_TAKEDOWN_ACTION: MenuAction = {
   name: "Take_Down",
   label: "Take Down",
@@ -409,7 +412,7 @@ export const EXPLORER_TAKEDOWN_ACTION: MenuAction = {
   menuType: "MENUITEM",
 };
 
-/** Injected when CX catalog has no Stage leaf for a page/asset. */
+/** Injected when CX catalog has no Stage leaf for the selected item. */
 export const EXPLORER_STAGE_ACTION: MenuAction = {
   name: "Stage",
   label: "Stage",
@@ -433,7 +436,7 @@ export const EXPLORER_SCHEDULE_ACTION: MenuAction = {
   menuType: "MENUITEM",
 };
 
-/** Injected clear of both dates for one page or asset (#4968). */
+/** Injected clear of both dates for one item (#4968). */
 export const EXPLORER_CLEAR_SCHEDULE_ACTION: MenuAction = {
   name: "Clear_Scheduled_Dates",
   label: "Clear scheduled dates",
@@ -613,7 +616,7 @@ function injectPublishItemAction(
   match: (name: string | undefined) => boolean,
   injected: MenuAction,
 ): MenuAction[] {
-  if (resolvePublishKind(selectionItem ?? null) === "none") {
+  if (!selectionItem || isFolder(selectionItem)) {
     return actions;
   }
   if (menuHasMatchingAction(actions, match)) {
@@ -624,7 +627,7 @@ function injectPublishItemAction(
 
 /**
  * CX {@code /actions/find} lists Publish Now, not Finder Take Down.
- * Inject a client-handled leaf when the selection is a page or asset.
+ * Inject a client-handled leaf for any selected item (folders excluded).
  */
 export function withExplorerTakedownAction(
   actions: MenuAction[],
@@ -639,9 +642,9 @@ export function withExplorerTakedownAction(
 }
 
 /**
- * CX catalogs omit Finder Stage / Remove from Staging. Inject both when
- * the selection is a page or asset, or a folder whose direct children
- * can be staged (#6419).
+ * CX catalogs omit Finder Stage / Remove from Staging. Inject both for
+ * any selected item, or a folder whose direct children can be staged
+ * (#6419).
  */
 export function withExplorerStagingActions(
   actions: MenuAction[],
@@ -670,8 +673,7 @@ export function withExplorerStagingActions(
 }
 
 /**
- * CX catalogs omit Finder Schedule. Inject when the selection is a page
- * or asset.
+ * CX catalogs omit Finder Schedule. Inject for any selected item.
  */
 export function withExplorerScheduleAction(
   actions: MenuAction[],
@@ -698,8 +700,8 @@ export function withExplorerClearScheduleAction(
 }
 
 /**
- * CX catalogs omit Finder Publishing History. Inject when the selection
- * is a page or asset.
+ * CX catalogs omit Finder Publishing History. Inject for any selected
+ * item.
  */
 export function withExplorerPublishingHistoryAction(
   actions: MenuAction[],
@@ -714,8 +716,8 @@ export function withExplorerPublishingHistoryAction(
 }
 
 /**
- * Admin force check-in — only when the session is Admin and a page/asset
- * is selected. Non-Admin catalogs stay unchanged.
+ * Admin force check-in — only when the session is Admin and an item is
+ * selected. Non-Admin catalogs stay unchanged.
  */
 export function withExplorerForceCheckinAction(
   actions: MenuAction[],
@@ -734,8 +736,8 @@ export function withExplorerForceCheckinAction(
 }
 
 /**
- * Check-out / check-in of the selected page or asset (#4699). Hidden when
- * the selection is not a page or asset (not applicable).
+ * Check-out / check-in of the selected item (#4699). Hidden when there
+ * is no selected item (not applicable).
  */
 export function withExplorerCheckoutActions(
   actions: MenuAction[],

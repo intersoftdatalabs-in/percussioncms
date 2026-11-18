@@ -866,31 +866,33 @@ list shows them as item rows (not folder rows) with the content-type name in
 the **Type** column, and keyboard **Enter** (or double-click) opens the row in
 the React Content Editor, the same host pages and assets use. The recycle and
 purge confirms name **items**, so custom-type rows are covered by the same
-wording. Publish Now, Stage, Take Down, Schedule, and Publishing History stay
-scoped to pages and assets; custom-type rows are skipped there with an honest
-"not pages or assets" note instead of failing silently.
+wording. Publish Now, Stage, Take Down, Schedule, and Publishing History
+submit those rows like pages and assets: Folder **Publish Now** attempts
+every child with an id (nested folders publish separately), and the engine
+accepts or rejects each row with a named error instead of pre-skipping it.
 
-#### Publish family stays page/asset-gated for generic Items
+#### Publish family submits Pages, Assets, and generic Items alike
 
-The demand-publish endpoints are page/resource addressed
-(`…/publish/page|resource/{id}`, staging, takedown, schedule dates,
-`…/item/pubhistory`), and there is no generic-item publish contract
-server-side. A custom-type row that lives outside **Sites** and **Assets**
-therefore keeps the publish family hidden: **Publish Now**, **Stage**,
-**Remove from Staging**, **Take Down**, **Schedule**, **Clear scheduled
-dates**, **Publishing History**, checkout, check-in, and force check-in do
-not appear for that selection (a custom-type row filed *under* Sites keeps
-the page heuristic — it is site content the page endpoint can serve).
+The demand-publish submitters pick the page- vs resource-addressed
+endpoint (`…/publish/page|resource/{id}`, staging, takedown, schedule dates,
+`…/item/pubhistory`) from the row, defaulting generic Items to the page
+endpoint — the same all-children submit the ondemand/publish-now generator
+performs server-side. A custom-type row therefore keeps the full publish
+family visible: **Publish Now**, **Stage**, **Remove from Staging**,
+**Take Down**, **Schedule**, **Clear scheduled dates**, **Publishing
+History**, checkout, check-in, and force check-in all appear for that
+selection and submit the row id; a rejection comes back as a named
+per-item error (for example `PromoSnippet (HTTP 403)`), never a silent
+drop.
 
-Folder and multi-select runs publish or stage around those rows and name
-them. **Publish the pages and assets in this folder now?** continues with
-*Other item types and nested folders are not included*, and the result names
-each skipped row (for example `These selected items are not pages or assets
-and were not published: PromoSnippet`). The bulk stage dialog confirm lists
-skipped rows the same way before anything runs, and a folder with nothing
-publishable keeps the *This folder has no pages or assets to publish*
-empty state. This is not recycle/purge/open (which cover generic Items) and
-not a silent drop.
+Folder and multi-select runs submit every child with an id and name the
+outcome per row. **Publish the items in this folder now?** continues with
+*Nested folders are not included*, and the result names each row the
+engine rejected. The bulk stage dialog confirm lists every selected item
+before anything runs, and a folder with nothing to publish keeps the
+*This folder has no items to publish* empty state. This is not
+recycle/purge/open (which cover generic Items the same way) and not a
+silent drop.
 
 ### Empty the recycle bin
 

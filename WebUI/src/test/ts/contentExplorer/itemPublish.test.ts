@@ -104,8 +104,14 @@ describe("publishSelectedItem", () => {
     expect(fetchSpy).not.toHaveBeenCalled();
   });
 
-  it("returns false for non-page/non-asset types that preview would call page", async () => {
-    const fetchSpy = vi.spyOn(global, "fetch");
+  it("submits non-page/non-asset rows via the page endpoint and lets the engine decide", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(
+      async () =>
+        new Response("{}", {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+    );
     const template = item({
       name: "base",
       path: "/Design/Templates/base",
@@ -119,11 +125,15 @@ describe("publishSelectedItem", () => {
       type: "percExternalLink",
       id: "88",
     });
+    // Endpoint affinity stays none, but that is never an availability gate:
+    // generics ride the page endpoint and the engine accepts or rejects.
     expect(resolvePublishKind(template)).toBe("none");
     expect(resolvePublishKind(link)).toBe("none");
-    expect(await publishSelectedItem(template)).toBe(false);
-    expect(await publishSelectedItem(link)).toBe(false);
-    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(await publishSelectedItem(template)).toBe(true);
+    expect(await publishSelectedItem(link)).toBe(true);
+    const urls = vi.mocked(global.fetch).mock.calls.map((call) => String(call[0]));
+    expect(urls.some((url) => url.includes("/publish/page/77"))).toBe(true);
+    expect(urls.some((url) => url.includes("/publish/page/88"))).toBe(true);
   });
 
   it("throws when the publish GET returns 403 or 500", async () => {
@@ -221,11 +231,12 @@ describe("publishSelectedItem", () => {
       }),
     );
     expect(findChildren).toHaveBeenCalledWith("/Sites/Demo/News");
-    expect(result.publishedIds).toEqual(["42", "99"]);
+    expect(result.publishedIds).toEqual(["42", "77", "99"]);
     expect(result.skippedFolders).toEqual(["Nested"]);
-    expect(result.skippedOther).toEqual(["base"]);
+    expect(result.failures).toEqual([]);
     const urls = vi.mocked(global.fetch).mock.calls.map((call) => String(call[0]));
     expect(urls.some((url) => url.includes("/publish/page/42"))).toBe(true);
+    expect(urls.some((url) => url.includes("/publish/page/77"))).toBe(true);
     expect(urls.some((url) => url.includes("/publish/resource/99"))).toBe(true);
   });
 
@@ -343,11 +354,12 @@ describe("stageSelectedFolder", () => {
       }),
     );
     expect(findChildren).toHaveBeenCalledWith("/Sites/Demo/News");
-    expect(result.stagedIds).toEqual(["42", "99"]);
+    expect(result.stagedIds).toEqual(["42", "77", "99"]);
     expect(result.skippedFolders).toEqual(["Nested"]);
-    expect(result.skippedOther).toEqual(["base"]);
+    expect(result.failures).toEqual([]);
     const urls = vi.mocked(global.fetch).mock.calls.map((call) => String(call[0]));
     expect(urls.some((url) => url.includes("/page/staging/42"))).toBe(true);
+    expect(urls.some((url) => url.includes("/page/staging/77"))).toBe(true);
     expect(urls.some((url) => url.includes("/resource/staging/99"))).toBe(true);
   });
 
@@ -572,8 +584,13 @@ describe("takedownSelectedItem", () => {
     expect(JSON.parse(String(req?.[1]?.body ?? "[]"))).toEqual(linked);
   });
 
-  it("returns false for folders and non-page types", async () => {
-    const fetchSpy = vi.spyOn(global, "fetch");
+  it("returns false for folders but submits other rows for the engine to decide", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
     expect(
       await takedownSelectedItem(
         item({
@@ -594,8 +611,10 @@ describe("takedownSelectedItem", () => {
           id: "77",
         }),
       ),
-    ).toBe(false);
-    expect(fetchSpy).not.toHaveBeenCalled();
+    ).toBe(true);
+    expect(
+      String(vi.mocked(global.fetch).mock.calls[0]?.[0] ?? ""),
+    ).toContain("takedown/page/77");
   });
 
   it("throws on HTTP 200 unwrapped FORBIDDEN instead of returning true", async () => {
@@ -673,16 +692,15 @@ describe("takedownSelectedItem", () => {
         category: "template",
       }),
     ]);
-    expect(result.takenDownIds).toEqual(["42"]);
+    expect(result.takenDownIds).toEqual(["42", "77"]);
     expect(result.skippedFolders).toEqual(["News"]);
-    expect(result.skippedOther).toEqual(["base"]);
     expect(result.failures).toEqual([
       expect.objectContaining({ id: "43", name: "About", status: 403 }),
     ]);
     const urls = global.fetch.mock.calls.map((call) => String(call[0]));
     expect(urls.some((url) => url.includes("takedown/page/42"))).toBe(true);
     expect(urls.some((url) => url.includes("takedown/page/43"))).toBe(true);
-    expect(urls.some((url) => url.includes("takedown/page/7"))).toBe(false);
+    expect(urls.some((url) => url.endsWith("takedown/page/7"))).toBe(false);
     expect(urls.some((url) => url.includes("/staging/"))).toBe(false);
   });
 });
@@ -767,8 +785,13 @@ describe("stageSelectedItem", () => {
     );
   });
 
-  it("returns false for folders and non-page types", async () => {
-    const fetchSpy = vi.spyOn(global, "fetch");
+  it("returns false for folders but submits other rows for the engine to decide", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
     expect(
       await stageSelectedItem(
         item({
@@ -789,8 +812,10 @@ describe("stageSelectedItem", () => {
           id: "77",
         }),
       ),
-    ).toBe(false);
-    expect(fetchSpy).not.toHaveBeenCalled();
+    ).toBe(true);
+    expect(
+      String(vi.mocked(global.fetch).mock.calls[0]?.[0] ?? ""),
+    ).toContain("/page/staging/77");
   });
 
   it("throws on HTTP 200 unwrapped FORBIDDEN instead of returning true", async () => {
@@ -861,16 +886,15 @@ describe("stageSelectedItem", () => {
         category: "template",
       }),
     ]);
-    expect(result.stagedIds).toEqual(["42"]);
+    expect(result.stagedIds).toEqual(["42", "77"]);
     expect(result.skippedFolders).toEqual(["News"]);
-    expect(result.skippedOther).toEqual(["base"]);
     expect(result.failures).toEqual([
       expect.objectContaining({ id: "43", name: "About", status: 403 }),
     ]);
     const urls = global.fetch.mock.calls.map((call) => String(call[0]));
     expect(urls.some((url) => url.includes("/staging/42"))).toBe(true);
     expect(urls.some((url) => url.includes("/staging/43"))).toBe(true);
-    expect(urls.some((url) => url.includes("/staging/7"))).toBe(false);
+    expect(urls.some((url) => /\/staging\/7$/.test(url))).toBe(false);
   });
 
   it("recognizes Stage action name variants", () => {
@@ -990,9 +1014,8 @@ describe("removeFromStagingSelectedItem", () => {
         category: "template",
       }),
     ]);
-    expect(result.removedIds).toEqual(["42"]);
+    expect(result.removedIds).toEqual(["42", "77"]);
     expect(result.skippedFolders).toEqual(["News"]);
-    expect(result.skippedOther).toEqual(["base"]);
     expect(result.failures).toEqual([
       expect.objectContaining({ id: "43", name: "About", status: 409 }),
     ]);
@@ -1003,7 +1026,7 @@ describe("removeFromStagingSelectedItem", () => {
     expect(urls.some((url) => url.includes("takedown/page/staging/43"))).toBe(
       true,
     );
-    expect(urls.some((url) => url.includes("/staging/7"))).toBe(false);
+    expect(urls.some((url) => /\/staging\/7$/.test(url))).toBe(false);
   });
 
   it("recognizes Remove from Staging action name variants", () => {
@@ -1036,9 +1059,8 @@ describe("buildBulkStageRows (#6469)", () => {
         }),
       ],
       {
-        okIds: ["42"],
+        okIds: ["42", "77"],
         skippedFolders: ["News"],
-        skippedOther: ["base"],
         failures: [
           { id: "43", name: "About", status: 409, message: "HTTP 409" },
         ],
@@ -1048,7 +1070,21 @@ describe("buildBulkStageRows (#6469)", () => {
       { name: "Home", outcome: "ok" },
       { name: "About", outcome: "failed", detail: "HTTP 409" },
       { name: "News", outcome: "skipped-folder" },
-      { name: "base", outcome: "skipped-other" },
+      { name: "base", outcome: "ok" },
+    ]);
+  });
+
+  it("matches id-less failures to their row by name instead of dropping them", () => {
+    const rows = buildBulkStageRows(
+      [item({ id: "", name: "Orphan", path: "/Misc/orphan" })],
+      {
+        okIds: [],
+        skippedFolders: [],
+        failures: [{ id: "", name: "Orphan", message: "missing content id" }],
+      },
+    );
+    expect(rows).toEqual([
+      { name: "Orphan", outcome: "failed", detail: "missing content id" },
     ]);
   });
 
@@ -1056,7 +1092,6 @@ describe("buildBulkStageRows (#6469)", () => {
     const rows = buildBulkStageRows([item({ id: "42", name: "Home" })], {
       okIds: [],
       skippedFolders: [],
-      skippedOther: [],
       failures: [{ id: "42", name: "Home", message: "not staged" }],
     });
     expect(rows).toEqual([
@@ -1068,7 +1103,6 @@ describe("buildBulkStageRows (#6469)", () => {
     const rows = buildBulkStageRows([item({ id: "42", name: "Home" })], {
       okIds: ["42"],
       skippedFolders: [],
-      skippedOther: [],
       failures: [{ id: "99", name: "logo", status: 403, message: "HTTP 403" }],
     });
     expect(rows).toEqual([

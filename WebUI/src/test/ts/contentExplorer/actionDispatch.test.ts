@@ -1448,7 +1448,7 @@ describe("actionDispatch", () => {
     });
     expect(confirm).toHaveBeenCalledTimes(1);
     expect(String(confirm.mock.calls[0]?.[0] ?? "")).toContain(
-      "Publish the pages and assets in this folder",
+      "Publish the items in this folder",
     );
     expect(findChildren).toHaveBeenCalledWith("/Sites/Demo/News");
     expect(result.refresh).toBe(true);
@@ -2593,9 +2593,11 @@ describe("actionDispatch", () => {
     expect(result.refresh).toBe(true);
   });
 
-  it("single Stage on a template keeps the legacy unavailable flow (#6530)", async () => {
+  it("single Stage on a template opens the bulk confirm like any item (#6580 reversal)", async () => {
     const confirm = vi.fn().mockReturnValue(true);
-    const confirmBulkStage = vi.fn();
+    const confirmBulkStage = vi
+      .fn()
+      .mockResolvedValue({ ran: true, refresh: true });
     const result = await dispatchAction(action({ name: "Stage" }), {
       item: item({
         path: "/Design/Templates/base",
@@ -2606,9 +2608,14 @@ describe("actionDispatch", () => {
       confirm,
       confirmBulkStage,
     });
-    expect(confirmBulkStage).not.toHaveBeenCalled();
-    expect(result.kind).toBe("unavailable");
-    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
+    expect(confirmBulkStage).toHaveBeenCalledWith({
+      mode: "stage",
+      items: [
+        expect.objectContaining({ id: "77", name: "page" }),
+      ],
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
   });
 
   it("single Remove from Staging uses the bulk dialog hook (#6530)", async () => {
@@ -2830,7 +2837,7 @@ describe("actionDispatch", () => {
     });
     expect(confirm).toHaveBeenCalledTimes(1);
     expect(String(confirm.mock.calls[0]?.[0] ?? "")).toContain(
-      "Stage the pages and assets in this folder",
+      "Stage the items in this folder",
     );
     expect(findChildren).toHaveBeenCalledWith("/Sites/Demo/News");
     expect(result.refresh).toBe(true);
@@ -2917,7 +2924,13 @@ describe("actionDispatch", () => {
     expect(result.messageKey).toBe(EXPLORER_MSG.STAGE_FOLDER_EMPTY);
   });
 
-  it("Stage on a template stays unavailable", async () => {
+  it("Stage on a template submits via the page endpoint like any item", async () => {
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
     const result = await dispatchAction(action({ name: "Stage" }), {
       item: item({
         path: "/Design/Templates/base",
@@ -2927,8 +2940,11 @@ describe("actionDispatch", () => {
       }),
       confirm: () => true,
     });
-    expect(result.kind).toBe("unavailable");
-    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(String(global.fetch.mock.calls[0]?.[0] ?? "")).toContain(
+      "/page/staging/77",
+    );
   });
 
   it("Remove from Staging confirms then unstages", async () => {
@@ -3117,7 +3133,7 @@ describe("actionDispatch", () => {
     );
     expect(confirm).toHaveBeenCalledTimes(1);
     expect(String(confirm.mock.calls[0]?.[0] ?? "")).toContain(
-      "Remove the pages and assets in this folder from staging",
+      "Remove the items in this folder from staging",
     );
     expect(findChildren).toHaveBeenCalledWith("/Sites/Demo/News");
     expect(result.refresh).toBe(true);
@@ -3577,7 +3593,22 @@ describe("actionDispatch", () => {
     expect(result.messageText).toMatch(/403|forbidden/i);
   });
 
-  it("Schedule on a template stays unavailable", async () => {
+  it("Schedule on a template submits like any item", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(async (input) => {
+      const url = String(input);
+      if (url.includes("getitemdates")) {
+        return new Response(
+          JSON.stringify({
+            ItemDates: { itemId: "77", startDate: "", endDate: "", comments: "" },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response(JSON.stringify({ status: "SUCCESS" }), {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
     const result = await dispatchAction(action({ name: "Schedule" }), {
       item: item({
         path: "/Design/Templates/base",
@@ -3586,9 +3617,15 @@ describe("actionDispatch", () => {
         id: "77",
       }),
       confirm: () => true,
+      pickScheduleDates: async () => ({
+        itemId: "77",
+        startDate: "09/18/2026 09:00 am",
+        endDate: "",
+        comments: "",
+      }),
     });
-    expect(result.kind).toBe("unavailable");
-    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
   });
 
   it("classifies Publishing History as client", () => {
@@ -3625,7 +3662,7 @@ describe("actionDispatch", () => {
     expect(onShowPublishingHistory).not.toHaveBeenCalled();
   });
 
-  it("Publishing History on a template stays unavailable", async () => {
+  it("Publishing History on a template opens the history dialog like any item", async () => {
     const onShowPublishingHistory = vi.fn();
     const result = await dispatchAction(
       action({ name: "pubhistory" }),
@@ -3639,9 +3676,8 @@ describe("actionDispatch", () => {
         onShowPublishingHistory,
       },
     );
-    expect(result.kind).toBe("unavailable");
-    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
-    expect(onShowPublishingHistory).not.toHaveBeenCalled();
+    expect(result.kind).toBe("client");
+    expect(onShowPublishingHistory).toHaveBeenCalled();
   });
 
   it("dispatch workflow-transition runs the trigger", async () => {

@@ -50,7 +50,6 @@ import {
   publishSelectedItems,
   removeFromStagingSelectedItem,
   resolvePublishKind,
-  stageSelectedFolder,
   stageSelectedItem,
   takedownSelectedItem,
 } from "../../../main/ts/contentExplorer/itemPublish";
@@ -64,22 +63,19 @@ import type { BulkStageReportInput } from "../../../main/ts/contentExplorer/item
 import { renderA11yGate } from "./a11y";
 
 /**
- * Publish-family gating for generic custom-type items (#6580, parent #4530).
+ * All-items submit for generic custom-type Items (#6580 reversal, parent
+ * #4530).
  *
- * Rhythmyx upgrade rows that are neither pages nor assets (custom content
- * types, snippets, legacy types) deliberately stay {@code "none"} from
- * {@link resolvePublishKind}: the demand endpoints are page|resource
- * addressed, so Publish Now, stage / remove-from-staging, Take Down,
- * schedule / clear-schedule, Publishing History, and checkout / check-in /
- * force check-in stay hidden, single-item calls return false without fetch,
- * and folder / multi-select paths report those rows as skipped-other with
- * honest copy instead of failing silently.
+ * Owner direction: Folder Publish Now submits EVERY child with an id (like
+ * the ondemand/publish-now generator, which takes any numeric content
+ * ids); a single custom-type row is never hidden — Pages, Assets, and
+ * Items are all 1st-class entities, so the client submits and the engine
+ * accepts or rejects with a named error. {@link resolvePublishKind} stays
+ * an endpoint-affinity classifier (generic rows are still {@code "none"})
+ * but nothing in the publish family gates availability on it.
  */
 
 function generic(overrides: Partial<PSPathItem> = {}): PSPathItem {
-  // Generics in the #6580 sense live outside /Sites and /Assets with no
-  // page/asset token. Custom-type rows under /Sites keep the page heuristic
-  // (asserted below) — they are site content the page endpoint can serve.
   return {
     id: "g-9",
     path: "/ContentLib/PromoSnippet",
@@ -120,33 +116,31 @@ const TOOLBAR_FAMILY = [
   "Force_Checkin",
 ];
 
+/** Fresh JSON `{}` response per fetch — Response bodies are one-shot. */
+function mockOkJson(): void {
+  vi.spyOn(global, "fetch").mockImplementation(
+    async () =>
+      new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+  );
+}
+
 afterEach(() => {
   findChildren.mockReset();
   vi.restoreAllMocks();
 });
 
-describe("generic publish gating (#6580)", () => {
-  it("resolvePublishKind stays none for generic custom-type rows", () => {
+describe("publish all-items submit (#6580 reversal)", () => {
+  it("resolvePublishKind stays an endpoint classifier; none is never an availability gate", () => {
+    // Generic custom-type rows keep no endpoint affinity…
     expect(resolvePublishKind(generic())).toBe("none");
+    // …while site rows (even custom types under /Sites) keep the page
+    // heuristic and asset rows keep the asset kind.
     expect(
-      resolvePublishKind(
-        generic({ type: "rffSnippet", path: "/Snippets/promo" }),
-      ),
-    ).toBe("none");
-    expect(
-      resolvePublishKind(
-        generic({ type: "UnknownThing", path: "/Misc/thing" }),
-      ),
-    ).toBe("none");
-    expect(resolvePublishKind(generic({ id: "" }))).toBe("none");
-    // Boundary: a custom-type row filed under /Sites keeps the page
-    // heuristic — site content the page endpoint can serve.
-    expect(
-      resolvePublishKind(
-        generic({ path: "/Sites/Demo/PromoSnippet" }),
-      ),
+      resolvePublishKind(generic({ path: "/Sites/Demo/PromoSnippet" })),
     ).toBe("page");
-    // Pages and assets keep their kinds.
     expect(resolvePublishKind(page())).toBe("page");
     expect(
       resolvePublishKind(
@@ -160,16 +154,21 @@ describe("generic publish gating (#6580)", () => {
     ).toBe("asset");
   });
 
-  it("single-item publish/stage/takedown/unstage return false without fetch", async () => {
-    const fetchSpy = vi.spyOn(global, "fetch");
-    expect(await publishSelectedItem(generic())).toBe(false);
-    expect(await stageSelectedItem(generic())).toBe(false);
-    expect(await takedownSelectedItem(generic())).toBe(false);
-    expect(await removeFromStagingSelectedItem(generic())).toBe(false);
-    expect(fetchSpy).not.toHaveBeenCalled();
+  it("single-item publish/stage/takedown/unstage submit generics via the page endpoint", async () => {
+    mockOkJson();
+    expect(await publishSelectedItem(generic())).toBe(true);
+    expect(await stageSelectedItem(generic())).toBe(true);
+    expect(await takedownSelectedItem(generic())).toBe(true);
+    expect(await removeFromStagingSelectedItem(generic())).toBe(true);
+    const urls = vi
+      .mocked(global.fetch)
+      .mock.calls.map((call) => String(call[0]));
+    expect(urls.some((url) => url.includes("/publish/page/g-9"))).toBe(true);
+    expect(urls.some((url) => url.includes("/page/staging/g-9"))).toBe(true);
+    expect(urls.some((url) => url.includes("/takedown/page/g-9"))).toBe(true);
   });
 
-  it("folder publish routes generic children to skippedOther, not failures", async () => {
+  it("folder publish submits every child with an id; only folders and id-less rows skip", async () => {
     findChildren.mockResolvedValue([
       page({ id: "42", name: "Home" }),
       generic({ id: "g-9", name: "PromoSnippet" }),
@@ -180,12 +179,34 @@ describe("generic publish gating (#6580)", () => {
         type: "folder",
         leaf: false,
       } as PSPathItem,
+      generic({ id: "", name: "Orphan" }),
     ]);
+    mockOkJson();
+    const folder = {
+      id: "7",
+      name: "News",
+      path: "/Sites/Demo/News",
+      type: "folder",
+      leaf: false,
+    } as PSPathItem;
+    const result = await publishSelectedFolder(folder);
+    expect(result.publishedIds).toEqual(["42", "g-9"]);
+    expect(result.skippedFolders).toEqual(["Nested"]);
+    expect(result.failures).toEqual([
+      expect.objectContaining({ name: "Orphan", message: "missing content id" }),
+    ]);
+    const urls = String(
+      (global.fetch as unknown as { mock: { calls: unknown[][] } }).mock.calls.map(
+        (call) => String(call[0]),
+      ),
+    );
+    expect(urls).toContain("g-9");
+  });
+
+  it("engine rejections become named failures, not pre-skips", async () => {
+    findChildren.mockResolvedValue([generic()]);
     vi.spyOn(global, "fetch").mockResolvedValue(
-      new Response("{}", {
-        status: 200,
-        headers: { "Content-Type": "application/json" },
-      }),
+      new Response("denied", { status: 403, statusText: "Forbidden" }),
     );
     const folder = {
       id: "7",
@@ -195,56 +216,38 @@ describe("generic publish gating (#6580)", () => {
       leaf: false,
     } as PSPathItem;
     const result = await publishSelectedFolder(folder);
-    expect(result.publishedIds).toEqual(["42"]);
-    expect(result.skippedOther).toEqual(["PromoSnippet"]);
-    expect(result.skippedFolders).toEqual(["Nested"]);
-    expect(result.failures).toEqual([]);
-    const urls = String(
-      (global.fetch as unknown as { mock: { calls: unknown[][] } }).mock.calls.map(
-        (call) => String(call[0]),
-      ),
-    );
-    expect(urls).not.toContain("g-9");
+    expect(result.publishedIds).toEqual([]);
+    expect(result.failures).toEqual([
+      expect.objectContaining({
+        id: "g-9",
+        name: "PromoSnippet",
+        status: 403,
+      }),
+    ]);
   });
 
-  it("stage folder and multi-select keep generics out of the eligible set", async () => {
-    findChildren.mockResolvedValue([generic()]);
-    const folder = {
-      id: "7",
-      name: "News",
-      path: "/Sites/Demo/News",
-      type: "folder",
-      leaf: false,
-    } as PSPathItem;
-    const staged = await stageSelectedFolder(folder);
-    expect(staged.stagedIds).toEqual([]);
-    expect(staged.skippedOther).toEqual(["PromoSnippet"]);
+  it("multi-select and schedule targets include generic rows", async () => {
+    mockOkJson();
+    const multi = await publishSelectedItems([page(), generic()]);
+    expect(multi.publishedIds).toEqual(["42", "g-9"]);
+    expect(multi.failures).toEqual([]);
 
     const plan = partitionStageSelection([page(), generic()]);
-    expect(plan.eligible.map((row) => row.id)).toEqual(["42"]);
-    expect(plan.skippedOther).toEqual(["PromoSnippet"]);
+    expect(plan.eligible.map((row) => row.id)).toEqual(["42", "g-9"]);
+    expect(plan.skippedFolders).toEqual([]);
+    expect("skippedOther" in plan).toBe(false);
 
-    const multi = await publishSelectedItems([generic()]);
-    expect(multi.publishedIds).toEqual([]);
-    expect(multi.skippedOther).toEqual(["PromoSnippet"]);
+    expect(
+      publishableScheduleTargets([page(), generic()]).map((row) => row.id),
+    ).toEqual(["42", "g-9"]);
   });
 
-  it("schedule targets exclude generic rows", () => {
-    expect(publishableScheduleTargets([page(), generic()]).map((row) => row.id)).toEqual([
-      "42",
-    ]);
-    expect(publishableScheduleTargets([generic()])).toEqual([]);
-  });
-
-  it("toolbar hides the publish family for a generic selection", () => {
+  it("toolbar shows the publish family for a generic selection", () => {
     const actions = TOOLBAR_FAMILY.map(toolbarAction);
-    const hidden = filterToolbarActions(actions, undefined, generic(), true);
-    expect(hidden).toEqual([]);
-    const visible = filterToolbarActions(actions, undefined, page(), true);
-    expect(visible.length).toBeGreaterThan(0);
-  });
-
-  it("toolbar hidden helpers agree per action for generic vs page", () => {
+    const visible = filterToolbarActions(actions, undefined, generic(), true);
+    expect(visible.map((row) => row.name).sort()).toEqual(
+      [...TOOLBAR_FAMILY].sort(),
+    );
     const helpers = [
       isToolbarPublishNowHidden,
       isToolbarTakedownHidden,
@@ -266,64 +269,77 @@ describe("generic publish gating (#6580)", () => {
       "Force_Checkin",
     ];
     helpers.forEach((helper, index) => {
-      expect(helper(toolbarAction(names[index]), generic())).toBe(true);
-      expect(helper(toolbarAction(names[index]), page())).toBe(false);
+      expect(helper(toolbarAction(names[index]), generic())).toBe(false);
+      expect(helper(toolbarAction(names[index]), undefined)).toBe(true);
     });
   });
 
-  it("dispatch keeps history/schedule/checkout unavailable for generics", async () => {
+  it("dispatch submits history and checkout for generics instead of unavailable", async () => {
+    mockOkJson();
     const onShowPublishingHistory = vi.fn();
     const history = await dispatchAction(
       toolbarAction("Publishing_History"),
       { item: generic(), onShowPublishingHistory },
     );
-    expect(history.kind).toBe("unavailable");
-    expect(history.messageKey).toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
-    expect(onShowPublishingHistory).not.toHaveBeenCalled();
-
-    const scheduled = await dispatchAction(toolbarAction("Schedule"), {
-      item: generic(),
-      selectedItems: [generic()],
-    });
-    expect(scheduled.kind).toBe("unavailable");
+    expect(history.kind).not.toBe("unavailable");
+    expect(onShowPublishingHistory).toHaveBeenCalledWith(generic());
 
     const checkout = await dispatchAction(toolbarAction("Check_Out"), {
       item: generic(),
     });
-    expect(checkout.kind).toBe("unavailable");
-    expect(checkout.messageKey).toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
+    expect(checkout.kind).not.toBe("unavailable");
+
+    const scheduled = await dispatchAction(toolbarAction("Schedule"), {
+      item: generic(),
+      confirm: () => true,
+      pickScheduleDates: async () => ({
+        itemId: "g-9",
+        startDate: "09/18/2026 09:00 am",
+        endDate: "",
+        comments: "",
+      }),
+    });
+    expect(scheduled.kind).not.toBe("unavailable");
   });
 
-  it("folder confirm copy explicitly scopes other item types", () => {
+  it("folder confirm copy is type-neutral and names no second-class rows", () => {
     expect(message(EXPLORER_MSG.CONFIRM_PUBLISH_FOLDER)).toMatch(
-      /Other item types and nested folders are not included/i,
+      /Publish the items in this folder now/i,
     );
-    expect(message(EXPLORER_MSG.CONFIRM_STAGE_FOLDER)).toMatch(
-      /Other item types and nested folders are not included/i,
+    expect(message(EXPLORER_MSG.CONFIRM_PUBLISH_FOLDER)).toMatch(
+      /Nested folders are not included/i,
     );
-    expect(message(EXPLORER_MSG.CONFIRM_UNSTAGE_FOLDER)).toMatch(
-      /Other item types and nested folders are not included/i,
+    expect(message(EXPLORER_MSG.CONFIRM_PUBLISH_FOLDER)).not.toMatch(
+      /Other item types/i,
+    );
+    expect(message(EXPLORER_MSG.CONFIRM_STAGE_FOLDER)).not.toMatch(
+      /Other item types/i,
+    );
+    expect(message(EXPLORER_MSG.CONFIRM_UNSTAGE_FOLDER)).not.toMatch(
+      /Other item types/i,
     );
     expect(message(EXPLORER_MSG.PUBLISH_FOLDER_EMPTY)).toMatch(
-      /no pages or assets to publish/i,
+      /no items to publish/i,
     );
-    expect(message(EXPLORER_MSG.PUBLISH_SKIPPED_OTHER)).toMatch(
-      /not pages or assets/i,
-    );
+    expect(
+      (EXPLORER_MSG as Record<string, string>).PUBLISH_SKIPPED_OTHER,
+    ).toBeUndefined();
+    expect(
+      (EXPLORER_MSG as Record<string, string>).STAGE_SKIPPED_OTHER,
+    ).toBeUndefined();
+    expect(
+      (EXPLORER_MSG as Record<string, string>).UNSTAGE_SKIPPED_OTHER,
+    ).toBeUndefined();
   });
 
-  it("bulk stage report names a skipped generic row honestly (a11y gated)", async () => {
+  it("bulk stage report treats a generic row as first-class (a11y gated)", async () => {
     const rows = buildBulkStageRows([page(), generic()], {
-      okIds: ["42"],
+      okIds: ["42", "g-9"],
       skippedFolders: [],
-      skippedOther: ["PromoSnippet"],
       failures: [],
     } satisfies BulkStageReportInput);
     expect(rows).toHaveLength(2);
-    expect(rows[1]).toMatchObject({
-      name: "PromoSnippet",
-      outcome: "skipped-other",
-    });
+    expect(rows[1]).toMatchObject({ name: "PromoSnippet", outcome: "ok" });
     const runBatch = vi.fn();
     const onDone = vi.fn();
     const { container } = render(
@@ -335,11 +351,11 @@ describe("generic publish gating (#6580)", () => {
       />,
     );
     expect(
-      screen.getByTestId("explorer-bulk-stage-skipped-other"),
-    ).toHaveTextContent(/PromoSnippet/);
-    expect(
-      screen.getByTestId("explorer-bulk-stage-skipped-other"),
-    ).toHaveTextContent(/not pages or assets/i);
+      screen.queryByTestId("explorer-bulk-stage-skipped-other"),
+    ).toBeNull();
+    expect(screen.getByTestId("explorer-bulk-stage-items")).toHaveTextContent(
+      /PromoSnippet/,
+    );
     await renderA11yGate(container);
   });
 });
