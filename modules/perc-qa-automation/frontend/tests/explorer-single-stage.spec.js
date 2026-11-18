@@ -71,6 +71,18 @@ const LISTING = {
   },
 };
 
+const NEWS_CHILDREN = {
+  PathItem: [
+    {
+      id: "44",
+      name: "Story1",
+      path: "/Sites/Demo/News/Story1",
+      type: "percPage",
+      category: "page",
+    },
+  ],
+};
+
 /**
  * @param {import('@playwright/test').Page} page
  */
