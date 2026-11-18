@@ -86,6 +86,12 @@ export function ContentListUrlPanel({
     }
   }
 
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape" && !saving) {
+      onCancel();
+    }
+  }
+
   return (
     <div data-testid="contentlist-url-form">
       <h3>Legacy content list URL</h3>
@@ -117,7 +123,9 @@ export function ContentListUrlPanel({
           id="contentlist-url-input"
           data-testid="contentlist-url-input"
           value={url}
+          autoFocus
           onChange={(e) => setUrl(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
       </div>
       {error && (

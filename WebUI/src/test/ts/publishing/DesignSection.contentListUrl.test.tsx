@@ -305,4 +305,21 @@ describe("DesignSection content list legacy URL", () => {
       "sys_Search",
     );
   });
+
+  it("focuses the URL input when the form opens", async () => {
+    await openUrl();
+    expect(screen.getByTestId("contentlist-url-input")).toHaveFocus();
+  });
+
+  it("Escape cancels without calling save", async () => {
+    await openUrl();
+    fireEvent.change(screen.getByLabelText("Legacy URL"), {
+      target: { value: "/Rhythmyx/not-saved" },
+    });
+    fireEvent.keyDown(screen.getByLabelText("Legacy URL"), { key: "Escape" });
+    expect(await screen.findByTestId("design-content-list-source-8")).toHaveTextContent(
+      "/Rhythmyx/legacyList",
+    );
+    expect(updateContentList).not.toHaveBeenCalled();
+  });
 });
