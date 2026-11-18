@@ -758,7 +758,7 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     # show-generated-passwords
     sub.add_parser(
         "show-generated-passwords",
-        help="Capture generated passwords file from running container.",
+        help="Capture generated passwords file from running container.",  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6568, precedent #6569/#6341) - help-text vocabulary, no secret value.
     )
 
     # --- QA mode (H2 Docker, no host install) — #1827 slice 1 / #1927 ---
@@ -2357,6 +2357,7 @@ def _qa_fetch_generated_password_env_lines(container_name: str) -> List[str]:
 
 
 def _qa_fetch_admin_password(container_name: str) -> Optional[str]:
+    # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6568, precedent #6569/#6341) - QA env-parsing helper; password vocabulary in docstring/key names only, value read live from the cell file, never hardcoded.
     """Best-effort read of Admin=… from generated passwords in the QA cell.
 
     Returns a line ``ADMIN_PASSWORD=<value>`` or None if unavailable.
