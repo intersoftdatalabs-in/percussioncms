@@ -82,6 +82,33 @@ describe("validateSlotRows (#6477)", () => {
     ]);
   });
 
+  it("reports every problem on one row in field order", () => {
+    const issues = validateSlotRows([
+      row({
+        layout: {
+          ...emptyLayoutDraft(),
+          orientation: "diagonal",
+          columns: "two",
+          maxItems: "-1",
+        },
+      }),
+    ]);
+    expect(issues).toEqual([
+      {
+        index: 0,
+        message: "slots[0].orientation must be horizontal, vertical, or empty",
+      },
+      {
+        index: 0,
+        message: "slots[0].columns must be a non-negative whole number",
+      },
+      {
+        index: 0,
+        message: "slots[0].maxItems must be a non-negative whole number",
+      },
+    ]);
+  });
+
   it("skips rows that failed to load (inline load error already shown)", () => {
     expect(
       validateSlotRows([row({ loadError: "Could not load slot details." })]),
