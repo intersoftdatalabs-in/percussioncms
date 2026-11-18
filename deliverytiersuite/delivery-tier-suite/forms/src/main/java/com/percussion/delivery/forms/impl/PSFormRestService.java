@@ -538,6 +538,9 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
         }
       }
 
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6642,
+      // same as #5898/#5910/#5927/#6145) — slashes build a sendRedirect URL path,
+      // never a filesystem path (servlet URLs always use '/').
       successRedirect = successRedirect.startsWith("/") ? successRedirect : "/" + successRedirect;
 
       // Check if the success redirect url is absolute or not - if absolute - just redirect there.
@@ -786,6 +789,9 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
         urlErrorPage = redirect;
       }
 
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6642,
+      // same as #5898/#5910/#5927/#6145) — slashes build a sendRedirect URL path,
+      // never a filesystem path (servlet URLs always use '/').
       urlErrorPage = urlErrorPage.startsWith("/") ? urlErrorPage : "/" + urlErrorPage;
       resp.sendRedirect(hostRedirect + urlErrorPage);
     } else {
