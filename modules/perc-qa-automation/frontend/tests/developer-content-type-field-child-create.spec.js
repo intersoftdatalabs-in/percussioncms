@@ -149,12 +149,11 @@ test.describe("Developer content type child field-set create (#6509)", () => {
         detail.json ||
         {};
       const fields = detailBody.fields || [];
-      // NOTE: GET detail lists complex-child fields twice (a pre-existing
-      // duplication, Folder-reproducible: once parent-flat, once with the set
-      // name). Assert on the canonical child row.
-      const kidField = fields.find(
-        (f) => f.name === "rx_kid_note" && f.fieldSet === "kid",
-      );
+      // GET detail lists each field exactly once: parent rows carry no
+      // fieldSet, complex-child rows carry the set name (#6600).
+      const kidRows = fields.filter((f) => f.name === "rx_kid_note");
+      expect(kidRows, "new child field appears exactly once in GET detail").toHaveLength(1);
+      const kidField = kidRows[0];
       expect(kidField, "new child field visible in GET detail").toBeTruthy();
       expect(kidField.fieldSet, "field reports the new child set").toBe("kid");
 

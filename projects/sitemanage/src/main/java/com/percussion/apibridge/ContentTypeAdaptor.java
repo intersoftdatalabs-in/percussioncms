@@ -729,7 +729,7 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
 
     PSFieldSet parentFs = def.getFieldSet();
     if (parentFs != null) {
-      addFieldsFromSet(parentFs, null, controlByField, controlPropsByField, fields);
+      addDirectFieldsFromSet(parentFs, null, controlByField, controlPropsByField, fields);
       for (PSFieldSet child : def.getComplexChildren()) {
         if (child != null && StringUtils.isNotBlank(child.getName())) {
           childSets.add(child.getName());
@@ -3205,49 +3205,85 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       return;
     }
     for (PSField field : all) {
-      if (field == null || StringUtils.isBlank(field.getSubmitName())) {
-        continue;
-      }
-      ContentTypeField f = new ContentTypeField();
-      f.setName(field.getSubmitName());
-      f.setDataType(field.getDataType());
-      f.setFieldType(mapFieldOrigin(field.getType()));
-      f.setSearchable(field.isUserSearchable());
-      f.setFieldSet(fieldSetName);
-      f.setControl(controlByField.get(field.getSubmitName()));
-      // label: fall back to name when display mapping label not resolved
-      f.setLabel(
-          controlByField.containsKey(field.getSubmitName() + ":label")
-              ? controlByField.get(field.getSubmitName() + ":label")
-              : field.getSubmitName());
-      int occurrence = field.getOccurrenceDimension(null);
-      f.setRequired(
-          occurrence == PSField.OCCURRENCE_DIMENSION_REQUIRED
-              || occurrence == PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE);
-      f.setOccurrence(mapOccurrence(occurrence));
-      f.setReadOnly(field.isReadOnly());
-      f.setHasValidation(field.hasValidationRules());
-      f.setHasVisibilityRules(
-          field.getVisibilityRules() != null && !field.getVisibilityRules().isEmpty());
-      f.setHasInputTranslation(hasTranslation(field.getInputTranslation()));
-      f.setHasOutputTranslation(hasTranslation(field.getOutputTranslation()));
-      f.setValidationExpression(summarizeValidationRules(field.getValidationRules()));
-      f.setVisibilityExpression(summarizeVisibilityRules(field.getVisibilityRules()));
-      f.setInputTranslationExpression(summarizeTranslation(field.getInputTranslation()));
-      f.setOutputTranslationExpression(summarizeTranslation(field.getOutputTranslation()));
-      List<ContentTypeControlProperty> props = controlPropsByField.get(field.getSubmitName());
-      if (props != null && !props.isEmpty()) {
-        f.setControlProperties(List.copyOf(props));
-        List<String> names = new ArrayList<>(props.size());
-        for (ContentTypeControlProperty p : props) {
-          if (p != null && StringUtils.isNotBlank(p.getName())) {
-            names.add(p.getName());
-          }
-        }
-        f.setControlPropertyNames(names);
-      }
-      out.add(f);
+      addField(field, fieldSetName, controlByField, controlPropsByField, out);
     }
+  }
+
+  /**
+   * Parent-pass field rows for {@link #toDetail}: only the direct {@code PSField} members of the
+   * parent set. {@link PSFieldSet#getAllFields()} recurses into contained complex-child sets, so
+   * using it for the parent pass lists every child field twice (once parent-flat, once with the
+   * set name from the child loop). The child loop stays the single source of child rows (#6600).
+   */
+  private void addDirectFieldsFromSet(
+      PSFieldSet fieldSet,
+      String fieldSetName,
+      Map<String, String> controlByField,
+      Map<String, List<ContentTypeControlProperty>> controlPropsByField,
+      List<ContentTypeField> out) {
+    if (fieldSet == null) {
+      return;
+    }
+    Iterator<?> direct = fieldSet.getAll();
+    if (direct == null) {
+      return;
+    }
+    for (Iterator<?> it = direct; it.hasNext(); ) {
+      Object member = it.next();
+      if (member instanceof PSField field) {
+        addField(field, fieldSetName, controlByField, controlPropsByField, out);
+      }
+    }
+  }
+
+  private void addField(
+      PSField field,
+      String fieldSetName,
+      Map<String, String> controlByField,
+      Map<String, List<ContentTypeControlProperty>> controlPropsByField,
+      List<ContentTypeField> out) {
+    if (field == null || StringUtils.isBlank(field.getSubmitName())) {
+      return;
+    }
+    ContentTypeField f = new ContentTypeField();
+    f.setName(field.getSubmitName());
+    f.setDataType(field.getDataType());
+    f.setFieldType(mapFieldOrigin(field.getType()));
+    f.setSearchable(field.isUserSearchable());
+    f.setFieldSet(fieldSetName);
+    f.setControl(controlByField.get(field.getSubmitName()));
+    // label: fall back to name when display mapping label not resolved
+    f.setLabel(
+        controlByField.containsKey(field.getSubmitName() + ":label")
+            ? controlByField.get(field.getSubmitName() + ":label")
+            : field.getSubmitName());
+    int occurrence = field.getOccurrenceDimension(null);
+    f.setRequired(
+        occurrence == PSField.OCCURRENCE_DIMENSION_REQUIRED
+            || occurrence == PSField.OCCURRENCE_DIMENSION_ONE_OR_MORE);
+    f.setOccurrence(mapOccurrence(occurrence));
+    f.setReadOnly(field.isReadOnly());
+    f.setHasValidation(field.hasValidationRules());
+    f.setHasVisibilityRules(
+        field.getVisibilityRules() != null && !field.getVisibilityRules().isEmpty());
+    f.setHasInputTranslation(hasTranslation(field.getInputTranslation()));
+    f.setHasOutputTranslation(hasTranslation(field.getOutputTranslation()));
+    f.setValidationExpression(summarizeValidationRules(field.getValidationRules()));
+    f.setVisibilityExpression(summarizeVisibilityRules(field.getVisibilityRules()));
+    f.setInputTranslationExpression(summarizeTranslation(field.getInputTranslation()));
+    f.setOutputTranslationExpression(summarizeTranslation(field.getOutputTranslation()));
+    List<ContentTypeControlProperty> props = controlPropsByField.get(field.getSubmitName());
+    if (props != null && !props.isEmpty()) {
+      f.setControlProperties(List.copyOf(props));
+      List<String> names = new ArrayList<>(props.size());
+      for (ContentTypeControlProperty p : props) {
+        if (p != null && StringUtils.isNotBlank(p.getName())) {
+          names.add(p.getName());
+        }
+      }
+      f.setControlPropertyNames(names);
+    }
+    out.add(f);
   }
 
   private static String mapFieldOrigin(int type) {

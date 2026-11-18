@@ -1130,7 +1130,9 @@ open Object ACL). Clients must not assume a bare array or call `.map` on the
 raw object.
 
 List and detail JSON list fields (`fields`, `childFieldSets`, `allowedWorkflows`,
-`allowedTemplates`, `designGaps`) are arrays. Some Jackson/JAXB envelopes
+`allowedTemplates`, `designGaps`) are arrays. GET detail lists each field
+exactly once: parent rows carry no `fieldSet`, complex-child rows carry their
+set name (and the set is named in `childFieldSets`). Some Jackson/JAXB envelopes
 historically serialize a one-item list as a single object, a
 `{ NamedObjectRef: … }` / `{ ContentTypeField: … }` / `{ DesignGap: … }` wrapper,
 or an empty-collection bean (`{ "empty": false }`). **Developer → Content Types**
