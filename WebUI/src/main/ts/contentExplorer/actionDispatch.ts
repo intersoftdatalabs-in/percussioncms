@@ -69,6 +69,7 @@ import {
   describeRemoveFromStagingBatch,
   describeStageBatch,
   describeTakedownBatch,
+  listStageFolderChildren,
   partitionStageSelection,
   stageSelectedFolder,
   stageSelectedItem,
@@ -285,6 +286,9 @@ export interface ActionDispatchContext {
    * (#6469). The shell opens {@code BulkStageDialog} and resolves with the
    * outcome; null means the operator cancelled before anything ran. When
    * absent, dispatch keeps the legacy {@code confirm} + banner flow.
+   * Multi-select (#6469) plus single-item and folder-children selections
+   * (#6530) route through this dialog so every stage flow shares the same
+   * confirm list + per-item outcomes + summary chrome.
    */
   confirmBulkStage?: (args: {
     mode: "stage" | "unstage";
@@ -1229,6 +1233,24 @@ async function stageFolderSelection(
   if (!path) {
     return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_FOLDER };
   }
+  // Same dialog/report chrome as multi-select (#6530): the dialog lists the
+  // direct children and reports each row outcome. An empty folder keeps the
+  // legacy empty message instead of opening an empty dialog.
+  if (ctx.confirmBulkStage) {
+    const children = await listStageFolderChildren(folder);
+    if (children.length === 0) {
+      return {
+        kind: "rest",
+        messageKey: EXPLORER_MSG.STAGE_FOLDER_EMPTY,
+        messageText: message(EXPLORER_MSG.STAGE_FOLDER_EMPTY),
+      };
+    }
+    const outcome = await ctx.confirmBulkStage({ mode: "stage", items: children });
+    if (outcome == null || !outcome.ran) {
+      return { kind: "rest" };
+    }
+    return { kind: "rest", refresh: outcome.refresh };
+  }
   const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(
     EXPLORER_MSG.CONFIRM_STAGE_FOLDER,
   );
@@ -1269,6 +1291,27 @@ async function removeFromStagingFolderSelection(
   const path = (folder.path ?? "").trim();
   if (!path) {
     return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_FOLDER };
+  }
+  // Same dialog/report chrome as multi-select (#6530): the dialog lists the
+  // direct children and reports each row outcome. An empty folder keeps the
+  // legacy empty message instead of opening an empty dialog.
+  if (ctx.confirmBulkStage) {
+    const children = await listStageFolderChildren(folder);
+    if (children.length === 0) {
+      return {
+        kind: "rest",
+        messageKey: EXPLORER_MSG.UNSTAGE_FOLDER_EMPTY,
+        messageText: message(EXPLORER_MSG.UNSTAGE_FOLDER_EMPTY),
+      };
+    }
+    const outcome = await ctx.confirmBulkStage({
+      mode: "unstage",
+      items: children,
+    });
+    if (outcome == null || !outcome.ran) {
+      return { kind: "rest" };
+    }
+    return { kind: "rest", refresh: outcome.refresh };
   }
   const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(
     EXPLORER_MSG.CONFIRM_UNSTAGE_FOLDER,
@@ -2654,6 +2697,23 @@ export async function dispatchAction(
     if (isFolder(item)) {
       return stageFolderSelection(ctx, item);
     }
+    // Single item shares the bulk dialog chrome (#6530) so the confirm list
+    // + per-item report match multi-select. Ineligible rows (templates) and
+    // injected onStage hooks keep the legacy confirm + banner flow.
+    if (
+      ctx.confirmBulkStage &&
+      !ctx.onStage &&
+      partitionStageSelection([item]).eligible.length === 1
+    ) {
+      const outcome = await ctx.confirmBulkStage({
+        mode: "stage",
+        items: [item],
+      });
+      if (outcome == null || !outcome.ran) {
+        return { kind: "rest" };
+      }
+      return { kind: "rest", refresh: outcome.refresh };
+    }
     const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
       EXPLORER_MSG.CONFIRM_STAGE,
     );
@@ -2706,6 +2766,24 @@ export async function dispatchAction(
     }
     if (isFolder(item)) {
       return removeFromStagingFolderSelection(ctx, item);
+    }
+    // Single item shares the bulk dialog chrome (#6530) so the confirm list
+    // + per-item report match multi-select. Ineligible rows (templates) and
+    // injected onRemoveFromStaging hooks keep the legacy confirm + banner
+    // flow.
+    if (
+      ctx.confirmBulkStage &&
+      !ctx.onRemoveFromStaging &&
+      partitionStageSelection([item]).eligible.length === 1
+    ) {
+      const outcome = await ctx.confirmBulkStage({
+        mode: "unstage",
+        items: [item],
+      });
+      if (outcome == null || !outcome.ran) {
+        return { kind: "rest" };
+      }
+      return { kind: "rest", refresh: outcome.refresh };
     }
     const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
       EXPLORER_MSG.CONFIRM_REMOVE_FROM_STAGING,

@@ -793,6 +793,23 @@ export function describeStageBatch(result: StageBatchResult): string | undefined
 }
 
 /**
+ * Direct children of a folder for the Stage / Remove-from-Staging confirm
+ * dialog (#6530, parent #4530). Guards mirror {@code stageSelectedFolder}:
+ * not a folder (or no path) resolves to no children so dispatch keeps the
+ * legacy "select a folder" / empty-folder messaging. The dialog partitions
+ * the children itself (nested folders skipped, per-item report).
+ */
+export async function listStageFolderChildren(
+  folder: PSPathItem,
+): Promise<PSPathItem[]> {
+  const path = normalizeCmsPath(folder.path ?? "");
+  if (!isFolder(folder) || !path) {
+    return [];
+  }
+  return findChildren(path);
+}
+
+/**
  * Stage pages and assets that are direct children of a folder. Nested
  * folders are skipped (stage those folders separately). An empty folder
  * stages nothing. Application-level preflight failures are recorded and

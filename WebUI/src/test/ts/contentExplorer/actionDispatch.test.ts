@@ -2543,6 +2543,256 @@ describe("actionDispatch", () => {
     expect(result.messageText).toBeUndefined();
   });
 
+  it("single Stage uses the bulk dialog hook when provided (#6530)", async () => {
+    const confirm = vi.fn();
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const confirmBulkStage = vi
+      .fn()
+      .mockResolvedValue({ ran: true, refresh: true });
+    const single = item({ id: "42", name: "Home" });
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: single,
+      confirm,
+      confirmBulkStage,
+    });
+    expect(confirmBulkStage).toHaveBeenCalledTimes(1);
+    expect(confirmBulkStage.mock.calls[0]?.[0]).toEqual({
+      mode: "stage",
+      items: [single],
+    });
+    expect(confirm).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.refresh).toBe(true);
+    expect(result.messageText).toBeUndefined();
+  });
+
+  it("single Stage dialog cancel stages nothing (#6530)", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item({ id: "42", name: "Home" }),
+      confirmBulkStage: vi.fn().mockResolvedValue(null),
+    });
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText).toBeUndefined();
+  });
+
+  it("single Stage with an onStage hook keeps the legacy confirm flow (#6530)", async () => {
+    const onStage = vi.fn().mockResolvedValue(undefined);
+    const confirm = vi.fn().mockReturnValue(true);
+    const confirmBulkStage = vi.fn();
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item(),
+      onStage,
+      confirm,
+      confirmBulkStage,
+    });
+    expect(confirmBulkStage).not.toHaveBeenCalled();
+    expect(confirm).toHaveBeenCalledWith(EXPLORER_MSG.CONFIRM_STAGE);
+    expect(onStage).toHaveBeenCalled();
+    expect(result.refresh).toBe(true);
+  });
+
+  it("single Stage on a template keeps the legacy unavailable flow (#6530)", async () => {
+    const confirm = vi.fn().mockReturnValue(true);
+    const confirmBulkStage = vi.fn();
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item({
+        path: "/Design/Templates/base",
+        type: "percTemplate",
+        category: "template",
+        id: "77",
+      }),
+      confirm,
+      confirmBulkStage,
+    });
+    expect(confirmBulkStage).not.toHaveBeenCalled();
+    expect(result.kind).toBe("unavailable");
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
+  });
+
+  it("single Remove from Staging uses the bulk dialog hook (#6530)", async () => {
+    const confirm = vi.fn();
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const confirmBulkStage = vi
+      .fn()
+      .mockResolvedValue({ ran: true, refresh: true });
+    const single = item({ id: "42", name: "Home" });
+    const result = await dispatchAction(
+      action({ name: "Remove_from_Staging" }),
+      {
+        item: single,
+        confirm,
+        confirmBulkStage,
+      },
+    );
+    expect(confirmBulkStage).toHaveBeenCalledTimes(1);
+    expect(confirmBulkStage.mock.calls[0]?.[0]).toEqual({
+      mode: "unstage",
+      items: [single],
+    });
+    expect(confirm).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.refresh).toBe(true);
+    expect(result.messageText).toBeUndefined();
+  });
+
+  it("single Remove from Staging dialog cancel removes nothing (#6530)", async () => {
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const result = await dispatchAction(
+      action({ name: "Remove_from_Staging" }),
+      {
+        item: item({ id: "42", name: "Home" }),
+        confirmBulkStage: vi.fn().mockResolvedValue(null),
+      },
+    );
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText).toBeUndefined();
+  });
+
+  it("Stage on a folder opens the bulk dialog with direct children (#6530)", async () => {
+    const children = [
+      item({ id: "42", name: "Home" }),
+      item({
+        id: "8",
+        name: "Nested",
+        path: "/Sites/Demo/News/Nested",
+        type: "folder",
+        leaf: false,
+      }),
+      item({
+        id: "99",
+        name: "logo",
+        path: "/Assets/logo.png",
+        type: "percImageAsset",
+      }),
+    ];
+    findChildren.mockResolvedValue(children);
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const confirm = vi.fn();
+    const confirmBulkStage = vi
+      .fn()
+      .mockResolvedValue({ ran: true, refresh: true });
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+      confirm,
+      confirmBulkStage,
+    });
+    expect(confirmBulkStage).toHaveBeenCalledTimes(1);
+    expect(confirmBulkStage.mock.calls[0]?.[0]).toEqual({
+      mode: "stage",
+      items: children,
+    });
+    expect(confirm).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.refresh).toBe(true);
+    expect(result.messageText).toBeUndefined();
+  });
+
+  it("Stage on an empty folder keeps the empty message without the dialog (#6530)", async () => {
+    findChildren.mockResolvedValue([]);
+    const confirmBulkStage = vi.fn();
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+      confirmBulkStage,
+    });
+    expect(confirmBulkStage).not.toHaveBeenCalled();
+    expect(result.messageKey).toBe(EXPLORER_MSG.STAGE_FOLDER_EMPTY);
+  });
+
+  it("Stage on a folder dialog cancel stages nothing (#6530)", async () => {
+    findChildren.mockResolvedValue([item({ id: "42", name: "Home" })]);
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const result = await dispatchAction(action({ name: "Stage" }), {
+      item: item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+      confirmBulkStage: vi.fn().mockResolvedValue(null),
+    });
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+    expect(result.messageText).toBeUndefined();
+  });
+
+  it("Remove from Staging on a folder opens the bulk dialog with direct children (#6530)", async () => {
+    const children = [
+      item({ id: "42", name: "Home" }),
+      item({
+        id: "8",
+        name: "Nested",
+        path: "/Sites/Demo/News/Nested",
+        type: "folder",
+        leaf: false,
+      }),
+    ];
+    findChildren.mockResolvedValue(children);
+    const fetchSpy = vi.spyOn(global, "fetch");
+    const confirm = vi.fn();
+    const confirmBulkStage = vi
+      .fn()
+      .mockResolvedValue({ ran: true, refresh: true });
+    const result = await dispatchAction(
+      action({ name: "Remove_from_Staging" }),
+      {
+        item: item({
+          id: "7",
+          name: "News",
+          path: "/Sites/Demo/News",
+          type: "folder",
+          leaf: false,
+        }),
+        confirm,
+        confirmBulkStage,
+      },
+    );
+    expect(confirmBulkStage).toHaveBeenCalledTimes(1);
+    expect(confirmBulkStage.mock.calls[0]?.[0]).toEqual({
+      mode: "unstage",
+      items: children,
+    });
+    expect(confirm).not.toHaveBeenCalled();
+    expect(fetchSpy).not.toHaveBeenCalled();
+    expect(result.refresh).toBe(true);
+    expect(result.messageText).toBeUndefined();
+  });
+
+  it("Remove from Staging on an empty folder keeps the empty message (#6530)", async () => {
+    findChildren.mockResolvedValue([]);
+    const confirmBulkStage = vi.fn();
+    const result = await dispatchAction(
+      action({ name: "Remove_from_Staging" }),
+      {
+        item: item({
+          id: "7",
+          name: "News",
+          path: "/Sites/Demo/News",
+          type: "folder",
+          leaf: false,
+        }),
+        confirmBulkStage,
+      },
+    );
+    expect(confirmBulkStage).not.toHaveBeenCalled();
+    expect(result.messageKey).toBe(EXPLORER_MSG.UNSTAGE_FOLDER_EMPTY);
+  });
+
   it("Stage on a folder confirms then stages direct page and asset children", async () => {
     findChildren.mockResolvedValue([
       item({ id: "42", name: "Home" }),
