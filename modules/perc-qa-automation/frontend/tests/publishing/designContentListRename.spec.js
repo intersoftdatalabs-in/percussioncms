@@ -53,6 +53,11 @@ async function createContentList(page, name) {
   await page.getByTestId("design-add-content-list").click();
   await expect(page.getByTestId("contentlist-editor")).toBeVisible();
   await page.locator("#cl-name").fill(name);
+  // #6644: a list with no generator/expander/filter classifies as legacy, and
+  // since #5403 the server 400s a legacy PUT with an empty URL. Keep the
+  // helper modern (same as designContentListItemFilter.spec.js) so the rename
+  // PUT omits url and stays focused on name-only behavior.
+  await page.locator("#cl-gen").fill("sys_Search");
   await page.getByTestId("contentlist-save").click();
   await expect(page.getByTestId("contentlist-editor")).toBeHidden({
     timeout: 20000,
