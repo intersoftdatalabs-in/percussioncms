@@ -52,6 +52,17 @@ function typeToken(item: PSPathItem): string {
  * <p>Unlike {@code resolvePreviewKind}, templates, links, and other non-page /
  * non-asset items with an id stay {@code "none"}. Preview's permissive
  * fallback would send those to {@code /publish/page/{id}}.</p>
+ *
+ * <p>Generic custom-type items (Rhythmyx Items that live outside
+ * {@code /Sites} and {@code /Assets} with no page/asset token) deliberately
+ * stay {@code "none"} (#6580, parent #4530). The demand endpoints are
+ * page|resource addressed ({@code …/publish/page|resource/{id}},
+ * {@code …/staging}, takedown, schedule dates, {@code …/item/pubhistory});
+ * there is no generic-item publish contract server-side, so the publish
+ * family (Publish Now, stage / remove-from-staging, Take Down, schedule /
+ * clear-schedule, Publishing History, checkout / check-in / force check-in)
+ * stays page/asset-gated and the folder + multi-select paths report those
+ * rows as skipped-other instead of failing silently.</p>
  */
 export function resolvePublishKind(
   item: PSPathItem | null | undefined,

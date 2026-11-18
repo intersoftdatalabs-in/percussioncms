@@ -369,6 +369,18 @@ export function BulkStageDialog({
                 ).replace("{names}", plan.skippedFolders.join(", "))}
               </p>
             ) : null}
+            {plan.skippedOther.length > 0 ? (
+              <p
+                data-testid="explorer-bulk-stage-skipped-other"
+                style={{ fontSize: 12, margin: "0 0 4px", color: "#475569" }}
+              >
+                {message(
+                  mode === "stage"
+                    ? EXPLORER_MSG.STAGE_SKIPPED_OTHER
+                    : EXPLORER_MSG.UNSTAGE_SKIPPED_OTHER,
+                ).replace("{names}", plan.skippedOther.join(", "))}
+              </p>
+            ) : null}
             {busy ? (
               <p
                 role="status"

@@ -914,7 +914,7 @@ export const EXPLORER_MSG = {
   CONFIRM_PUBLISH_NOW:
     "perc.ui.explorer@Publish this item now?",
   CONFIRM_PUBLISH_FOLDER:
-    "perc.ui.explorer@Publish the pages and assets in this folder now? Nested folders are not included.",
+    "perc.ui.explorer@Publish the pages and assets in this folder now? Other item types and nested folders are not included.",
   PUBLISH_FOLDER_EMPTY:
     "perc.ui.explorer@This folder has no pages or assets to publish.",
   CONFIRM_PUBLISH_NOW_MULTI:
@@ -1019,7 +1019,7 @@ export const EXPLORER_MSG = {
   STAGE_FAILED:
     "perc.ui.explorer@Stage failed: {detail}",
   CONFIRM_STAGE_FOLDER:
-    "perc.ui.explorer@Stage the pages and assets in this folder now? Nested folders are not included.",
+    "perc.ui.explorer@Stage the pages and assets in this folder now? Other item types and nested folders are not included.",
   STAGE_FOLDER_EMPTY:
     "perc.ui.explorer@This folder has no pages or assets to stage.",
   CONFIRM_REMOVE_FROM_STAGING:
@@ -1037,7 +1037,7 @@ export const EXPLORER_MSG = {
   UNSTAGE_FAILED:
     "perc.ui.explorer@Remove from staging failed: {detail}",
   CONFIRM_UNSTAGE_FOLDER:
-    "perc.ui.explorer@Remove the pages and assets in this folder from staging? Nested folders are not included.",
+    "perc.ui.explorer@Remove the pages and assets in this folder from staging? Other item types and nested folders are not included.",
   UNSTAGE_FOLDER_EMPTY:
     "perc.ui.explorer@This folder has no pages or assets to remove from staging.",
   BULK_STAGE_TITLE: "perc.ui.explorer@Stage selected items",

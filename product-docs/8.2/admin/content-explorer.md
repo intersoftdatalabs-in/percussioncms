@@ -870,6 +870,28 @@ wording. Publish Now, Stage, Take Down, Schedule, and Publishing History stay
 scoped to pages and assets; custom-type rows are skipped there with an honest
 "not pages or assets" note instead of failing silently.
 
+#### Publish family stays page/asset-gated for generic Items
+
+The demand-publish endpoints are page/resource addressed
+(`…/publish/page|resource/{id}`, staging, takedown, schedule dates,
+`…/item/pubhistory`), and there is no generic-item publish contract
+server-side. A custom-type row that lives outside **Sites** and **Assets**
+therefore keeps the publish family hidden: **Publish Now**, **Stage**,
+**Remove from Staging**, **Take Down**, **Schedule**, **Clear scheduled
+dates**, **Publishing History**, checkout, check-in, and force check-in do
+not appear for that selection (a custom-type row filed *under* Sites keeps
+the page heuristic — it is site content the page endpoint can serve).
+
+Folder and multi-select runs publish or stage around those rows and name
+them. **Publish the pages and assets in this folder now?** continues with
+*Other item types and nested folders are not included*, and the result names
+each skipped row (for example `These selected items are not pages or assets
+and were not published: PromoSnippet`). The bulk stage dialog confirm lists
+skipped rows the same way before anything runs, and a folder with nothing
+publishable keeps the *This folder has no pages or assets to publish*
+empty state. This is not recycle/purge/open (which cover generic Items) and
+not a silent drop.
+
 ### Empty the recycle bin
 
 The reduced-actions **Empty recycle bin** button (enabled on the **Recycling**
