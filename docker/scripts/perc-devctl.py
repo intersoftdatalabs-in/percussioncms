@@ -2229,6 +2229,13 @@ def _qa_print_endpoint_banner(
     With ``dts_https_host_port`` (#6375), also emits the published DTS
     HTTPS origin (``DTS_HTTPS_URL``) plus the seed-provisioning guidance
     for the CONFIDENTIAL extractor paths — no secrets are printed.
+
+    The in-cell generated-passwords file is authoritative (#6610): banner
+    ``ADMIN_PASSWORD_*`` values are a best-effort snapshot and may lag the
+    server's asynchronous first-boot rotation of the legacy demo passwords,
+    so the banner always prints the ``QA_PASSWORD_SOURCE`` refresh command
+    (or the fetch guidance when the read yielded nothing) next to the
+    values.
     """
     base = qa_cms_base_url(host_port)
     print(f"QA_CMS_HOST_PORT={host_port}")
@@ -2247,13 +2254,23 @@ def _qa_print_endpoint_banner(
     elif admin_password_line:
         print(admin_password_line)
         emitted = True
-    if not emitted:
-        # URL path inside container always uses '/'; not a host filesystem path.
-        pwd_path = f"{QA_INSTALL_ROOT}/{QA_PASSWORDS_REL}"
+    # URL path inside container always uses '/'; not a host filesystem path.
+    pwd_path = f"{QA_INSTALL_ROOT}/{QA_PASSWORDS_REL}"
+    if emitted:
+        # The file is authoritative (#6610); banner values may lag the
+        # server's async first-boot rotation, so always print the refresh
+        # command next to the snapshot values.
+        print(
+            f"QA_PASSWORD_SOURCE=docker exec {QA_CMS_CONTAINER} cat {pwd_path} "
+            "(authoritative; banner ADMIN_PASSWORD_* values are best-effort "
+            "and may lag first-boot rotation — re-export if login fails)"
+        )
+    else:
         print(
             "ADMIN_PASSWORD: fetch with "
             f"docker exec {QA_CMS_CONTAINER} cat {pwd_path} "
-            f"(look for {QA_ADMIN_USERNAME}=…; Editor= and Contributor= too)"
+            f"(authoritative; look for {QA_ADMIN_USERNAME}=…; Editor= and "
+            "Contributor= too)"
         )
     if dts_host_port is None:
         return

@@ -905,6 +905,36 @@ class TestQaHelpers(unittest.TestCase):
             ],
         )
 
+    def test_qa_banner_prints_authoritative_source_with_values(self):
+        """Banner pairs emitted values with the authoritative refresh cmd (#6610)."""
+        import io
+        from contextlib import redirect_stdout
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            pdc._qa_print_endpoint_banner(
+                9993,
+                password_lines=[
+                    "ADMIN_PASSWORD=unit-test-placeholder",  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6610, precedent #6569) - test-only placeholder output, never a live credential.
+                    "EDITOR_PASSWORD=unit-test-placeholder",  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6610, precedent #6569) - test-only placeholder output, never a live credential.
+                ],
+            )
+        out = buf.getvalue()
+        self.assertIn("ADMIN_PASSWORD=unit-test-placeholder", out)  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6610, precedent #6569) - test-only placeholder assertion, never a live credential.
+        self.assertIn("QA_PASSWORD_SOURCE=docker exec", out)  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6610) - banner label assertion, no credential value.
+        self.assertIn("authoritative", out)
+
+    def test_qa_banner_prints_authoritative_source_without_values(self):
+        """Empty fetch still points at the authoritative in-cell file (#6610)."""
+        import io
+        from contextlib import redirect_stdout
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            pdc._qa_print_endpoint_banner(9993)
+        out = buf.getvalue()
+        self.assertIn("ADMIN_PASSWORD: fetch with", out)
+        self.assertIn("docker exec", out)
+        self.assertIn("authoritative", out)
+
     def test_qa_preferred_port_and_container_constants(self):
         """Preferred baseline aligns with matrix-install-smoke CMS host port."""
         self.assertEqual(pdc.PREFERRED_QA_CMS_HOST_PORT, 9993)
