@@ -27,6 +27,16 @@ For roles that can see the full chrome, the application top navigation is:
 (`/home/gadgets`) and via homepage preference; they are not a separate
 primary destination.
 
+### Bookmarkable screen URLs
+
+Every SPA screen has a bookmarkable address under `/cm/app/<entry>/<section>`
+(for example `/cm/app/developer/keywords` or `/cm/app/home/library`). Opening
+such a link — or reloading the page while on one — signs you in first when
+your session expired and then opens that same screen; the address stays on
+the pretty URL. The older `spa.jsp?entry=…&section=…` form keeps working and
+rewrites to the matching pretty URL after the app boots, so existing bookmarks
+to either form land on the same screen.
+
 ## Home → Create
 
 On **Home**, the **Create** tab is the in-product wizard for a new page, blog
