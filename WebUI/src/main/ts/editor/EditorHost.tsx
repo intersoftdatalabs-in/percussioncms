@@ -296,6 +296,7 @@ import {
   uniqueTransitionTriggers,
   workflowCommentContainsNul,
   focusWorkflowComment,
+  focusWorkflowTrigger,
 } from "./editorWorkflow";
 import {
   createEditorItem,
@@ -1214,6 +1215,16 @@ export function EditorHost({
   const [workflowAssigneeDialog, setWorkflowAssigneeDialog] = useState<string | null>(
     null,
   );
+  /**
+   * Deferred focus target after the assignee dialog closes (#6632). The
+   * panel stays disabled while the modal is open, so focus moves in an
+   * effect after the close re-enables it: the comment box when the pending
+   * trigger is comment-gated with a blank/NUL comment, else the trigger
+   * button that opened the dialog.
+   */
+  const [assigneeCancelFocus, setAssigneeCancelFocus] = useState<
+    { kind: "comment" } | { kind: "trigger"; trigger: string } | null
+  >(null);
   const [workflowErrorKey, setWorkflowErrorKey] = useState<string | null>(null);
   const [workflowErrorDetail, setWorkflowErrorDetail] = useState("");
   /**
@@ -2897,10 +2908,53 @@ export function EditorHost({
     if (workflowBusy) {
       return;
     }
+    const trigger = workflowAssigneeDialog;
     setWorkflowAssigneeDialog(null);
+    if (
+      trigger != null &&
+      triggerRequiresComment(trigger, effectiveCommentRequiredTriggers) &&
+      (workflowComment.trim().length === 0 ||
+        workflowCommentContainsNul(workflowComment))
+    ) {
+      // Comment-gate failure outlives the modal (#6632): keep the message
+      // on the panel (it was suppressed while the dialog was open). The
+      // close effect below lands focus where the fix happens.
+      setWorkflowDone(false);
+      setWorkflowErrorDetail("");
+      setWorkflowErrorKey(
+        workflowErrorFor(
+          workflowCommentContainsNul(workflowComment) ? "nul" : "comment",
+        ),
+      );
+      setAssigneeCancelFocus({ kind: "comment" });
+      return;
+    }
     setWorkflowErrorKey(null);
     setWorkflowErrorDetail("");
+    // Return focus to the trigger that opened the dialog (#6632). The
+    // close effect runs after the panel re-enables.
+    setAssigneeCancelFocus(
+      trigger != null ? { kind: "trigger", trigger } : null,
+    );
   }
+
+  /**
+   * Assignee-dialog close focus (#6632). Runs after the close re-renders
+   * with the panel re-enabled (controls stay disabled while the modal is
+   * open): the comment box for a comment-gate failure, otherwise the
+   * trigger button that opened the dialog.
+   */
+  useEffect(() => {
+    if (assigneeCancelFocus == null || workflowAssigneeDialog != null) {
+      return;
+    }
+    if (assigneeCancelFocus.kind === "comment") {
+      focusWorkflowComment();
+    } else {
+      focusWorkflowTrigger(assigneeCancelFocus.trigger);
+    }
+    setAssigneeCancelFocus(null);
+  }, [assigneeCancelFocus, workflowAssigneeDialog]);
 
   /**
    * Quick Approve/Reject action bar (#6483). Opens the comment confirm for

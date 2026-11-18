@@ -128,32 +128,54 @@ export function EditorWorkflowPanel({
         )
       ) : (
         <div className={styles.workflowActions} data-testid="editor-workflow-actions">
-          {triggers.map((trigger) => (
-            <button
-              key={trigger}
-              type="button"
-              className={styles.button}
-              data-testid={`editor-workflow-trigger-${trigger}`}
-              data-comment-required={
-                triggerRequiresComment(trigger, commentRequiredTriggers)
-                  ? "true"
-                  : "false"
-              }
-              data-assignees-required={
-                triggerRequiresAssignees(trigger, assigneeRequiredTriggers)
-                  ? "true"
-                  : "false"
-              }
-              disabled={busy}
-              onClick={() => onTransition(trigger)}
-            >
-              {trigger}
-            </button>
-          ))}
+          {triggers.map((trigger) => {
+            const commentRequired = triggerRequiresComment(
+              trigger,
+              commentRequiredTriggers,
+            );
+            return (
+              <button
+                key={trigger}
+                type="button"
+                className={styles.button}
+                data-testid={`editor-workflow-trigger-${trigger}`}
+                data-comment-required={
+                  commentRequired ? "true" : "false"
+                }
+                data-assignees-required={
+                  triggerRequiresAssignees(trigger, assigneeRequiredTriggers)
+                    ? "true"
+                    : "false"
+                }
+                // Comment-required triggers announce where the comment goes
+                // (#6632): the visible suffix keeps the affordance in the
+                // accessible name while describedby points at the comment box.
+                aria-describedby={
+                  commentRequired
+                    ? "editor-workflow-comment-label"
+                    : undefined
+                }
+                disabled={busy}
+                onClick={() => onTransition(trigger)}
+              >
+                {trigger}
+                {commentRequired ? (
+                  <span
+                    className={styles.meta}
+                    data-testid={`editor-workflow-trigger-${trigger}-requires-comment`}
+                  >
+                    {` (${message(EDITOR_MSG.WORKFLOW_TRIGGER_REQUIRES_COMMENT)})`}
+                  </span>
+                ) : null}
+              </button>
+            );
+          })}
         </div>
       )}
       <label className={styles.field}>
-        <span className={styles.label}>{message(EDITOR_MSG.WORKFLOW_COMMENT)}</span>
+        <span className={styles.label} id="editor-workflow-comment-label">
+          {message(EDITOR_MSG.WORKFLOW_COMMENT)}
+        </span>
         <textarea
           className={styles.textarea}
           data-testid="editor-workflow-comment"
