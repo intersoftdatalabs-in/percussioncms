@@ -392,6 +392,9 @@ test.describe("React Content Editor compare two revisions", () => {
       await expect(newerTitle).toContainText("gray");
       await expect(newerTitle.locator("ins")).toContainText("a");
       await expect(newerTitle.locator("del")).toHaveCount(0);
+      await page.getByTestId("editor-compare-table").screenshot({
+        path: "test-results/live-proof-6533-word-refine.png",
+      });
       await expect(page.getByTestId("editor-compare-results")).toHaveAttribute(
         "aria-live",
         "polite",
