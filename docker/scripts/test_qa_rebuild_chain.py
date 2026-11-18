@@ -442,6 +442,219 @@ class TestRealModeStubbed(unittest.TestCase):
         self.assertIn("RESULT:FAIL STEP:qa-rebuild-chain", buf.getvalue())
 
 
+class TestSkipReasonForStep(unittest.TestCase):
+    """Extracted skip dispatch (#6648): one reason per prebuilt output."""
+
+    def setUp(self):
+        self.layout = _RepoLayout()
+        self.addCleanup(self.layout.cleanup)
+
+    def _step(self, label):
+        return qa_rebuild_chain.ChainStep(
+            label=label, module_rel=Path("."), goals=("package",)
+        )
+
+    def test_unknown_label_never_skips(self):
+        step = self._step("qa-rebuild-sitemanage")
+        self.assertIsNone(
+            qa_rebuild_chain.skip_reason_for_step(step, self.layout.root)
+        )
+
+    def test_license_inventory_reason_roundtrip(self):
+        step = self._step("qa-rebuild-license-inventory")
+        self.assertIsNone(
+            qa_rebuild_chain.skip_reason_for_step(step, self.layout.root)
+        )
+        inv = qa_rebuild_chain.maven_inventory_path(self.layout.root)
+        inv.parent.mkdir(parents=True, exist_ok=True)
+        inv.write_text("Apache License, Version 2.0\n", encoding="utf-8")
+        reason = qa_rebuild_chain.skip_reason_for_step(step, self.layout.root)
+        self.assertIsNotNone(reason)
+        assert reason is not None
+        self.assertIn("inventory-present", reason)
+
+    def test_secure_membership_reason_roundtrip(self):
+        step = self._step("qa-rebuild-secure-membership")
+        self.assertIsNone(
+            qa_rebuild_chain.skip_reason_for_step(step, self.layout.root)
+        )
+        dep = qa_rebuild_chain.secure_membership_dependency_dir(self.layout.root)
+        dep.mkdir(parents=True, exist_ok=True)
+        (dep / "runtime.jar").write_bytes(b"stub")
+        classes = (
+            self.layout.root
+            / qa_rebuild_chain.SECURE_MEMBERSHIP_REL
+            / "target"
+            / "classes"
+        )
+        classes.mkdir(parents=True, exist_ok=True)
+        reason = qa_rebuild_chain.skip_reason_for_step(step, self.layout.root)
+        self.assertIsNotNone(reason)
+        assert reason is not None
+        self.assertIn("secure-membership-deps-present", reason)
+
+    def test_common_ui_bundle_reason_roundtrip(self):
+        step = self._step("qa-rebuild-common-ui-bundle")
+        self.assertIsNone(
+            qa_rebuild_chain.skip_reason_for_step(step, self.layout.root)
+        )
+        js = qa_rebuild_chain.common_ui_bundle_js_path(self.layout.root)
+        js.parent.mkdir(parents=True, exist_ok=True)
+        js.write_text("// stub bundle\n", encoding="utf-8")
+        reason = qa_rebuild_chain.skip_reason_for_step(step, self.layout.root)
+        self.assertIsNotNone(reason)
+        assert reason is not None
+        self.assertIn("common-ui-bundle-present", reason)
+
+    def test_dts_distribution_reason_roundtrip(self):
+        step = self._step("qa-rebuild-dts-distribution")
+        self.assertIsNone(
+            qa_rebuild_chain.skip_reason_for_step(step, self.layout.root)
+        )
+        jar = qa_rebuild_chain.dts_distribution_jar_path(self.layout.root)
+        jar.parent.mkdir(parents=True, exist_ok=True)
+        jar.write_bytes(b"fake-installer-bytes")
+        reason = qa_rebuild_chain.skip_reason_for_step(step, self.layout.root)
+        self.assertIsNotNone(reason)
+        assert reason is not None
+        self.assertIn("dts-distribution-present", reason)
+
+
+class TestLicenseArgvBanned(unittest.TestCase):
+    """Extracted ``-N`` guard (#4420) for the license-inventory step."""
+
+    def test_banned_flags_detected(self):
+        step = qa_rebuild_chain.license_inventory_step()
+        mvnw = Path("/repo/mvnw")
+        self.assertTrue(
+            qa_rebuild_chain._license_argv_banned(
+                step, [*step.argv(mvnw), "-N"]
+            )
+        )
+        self.assertTrue(
+            qa_rebuild_chain._license_argv_banned(
+                step, [*step.argv(mvnw), "--non-recursive"]
+            )
+        )
+
+    def test_clean_license_argv_allowed(self):
+        step = qa_rebuild_chain.license_inventory_step()
+        self.assertFalse(
+            qa_rebuild_chain._license_argv_banned(
+                step, step.argv(Path("/repo/mvnw"))
+            )
+        )
+
+    def test_other_steps_ignore_non_recursive(self):
+        step = qa_rebuild_chain.secure_membership_step()
+        self.assertFalse(
+            qa_rebuild_chain._license_argv_banned(step, ["mvnw", "-N"])
+        )
+
+
+class TestPrepareStepLog(unittest.TestCase):
+    def test_none_dir_yields_none_path(self):
+        self.assertIsNone(
+            qa_rebuild_chain._prepare_step_log(None, "qa-rebuild-dist", 0)
+        )
+
+    def test_creates_numbered_log_path(self):
+        with tempfile.TemporaryDirectory() as td:
+            log_dir = Path(td) / "logs"
+            path = qa_rebuild_chain._prepare_step_log(
+                log_dir, "qa-rebuild-dist", 6
+            )
+            self.assertIsNotNone(path)
+            assert path is not None
+            self.assertEqual(path, log_dir / "qa-rebuild-dist-6.log")
+            self.assertTrue(log_dir.is_dir())
+
+
+class TestChainStepGuards(unittest.TestCase):
+    """Per-step guard paths through the decomposed processor (#6648)."""
+
+    def setUp(self):
+        self.layout = _RepoLayout()
+        self.addCleanup(self.layout.cleanup)
+
+    def test_banned_license_step_fails_fast(self):
+        step = qa_rebuild_chain.ChainStep(
+            label="qa-rebuild-license-inventory",
+            module_rel=Path("."),
+            goals=(qa_rebuild_chain.LICENSE_AGGREGATE_GOAL,),
+            extra_args=("-N",),
+        )
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            cont = qa_rebuild_chain._process_chain_step(
+                step=step,
+                index=0,
+                repo_root=self.layout.root,
+                mvnw=self.layout.root / "mvnw",
+                log_dir=None,
+                dry_run=False,
+                runner=_FakeRun(),
+                timeout_seconds=None,
+            )
+        self.assertFalse(cont)
+        self.assertIn(
+            "RESULT:FAIL STEP:qa-rebuild-license-inventory", buf.getvalue()
+        )
+
+    def test_missing_module_dir_fails_fast(self):
+        step = qa_rebuild_chain.ChainStep(
+            label="qa-rebuild-sitemanage",
+            module_rel=Path("projects") / "no-such-module",
+            goals=("clean", "install"),
+        )
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            cont = qa_rebuild_chain._process_chain_step(
+                step=step,
+                index=0,
+                repo_root=self.layout.root,
+                mvnw=self.layout.root / "mvnw",
+                log_dir=None,
+                dry_run=False,
+                runner=_FakeRun(),
+                timeout_seconds=None,
+            )
+        self.assertFalse(cont)
+        self.assertIn("RESULT:FAIL STEP:qa-rebuild-sitemanage", buf.getvalue())
+
+    def test_runner_timeout_fails_chain(self):
+        def _timeout(argv, **kwargs):  # noqa: ANN001, ANN202
+            raise subprocess.TimeoutExpired(cmd=argv, timeout=30)
+
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = qa_rebuild_chain.run_chain(
+                self.layout.root,
+                dry_run=False,
+                run_fn=_timeout,
+            )
+        out = buf.getvalue()
+        self.assertEqual(rc, qa_rebuild_chain.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("RESULT:FAIL STEP:qa-rebuild-sitemanage", out)
+        self.assertIn("RESULT:FAIL STEP:qa-rebuild-chain", out)
+
+    def test_runner_oserror_fails_chain(self):
+        def _missing(argv, **kwargs):  # noqa: ANN001, ANN202
+            raise OSError("unit-test missing binary")
+
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = qa_rebuild_chain.run_chain(
+                self.layout.root,
+                dry_run=False,
+                run_fn=_missing,
+            )
+        out = buf.getvalue()
+        self.assertEqual(rc, qa_rebuild_chain.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("RESULT:FAIL STEP:qa-rebuild-sitemanage", out)
+        self.assertIn("RESULT:FAIL STEP:qa-rebuild-chain", out)
+
+
 class TestMainCli(unittest.TestCase):
     def setUp(self):
         self.layout = _RepoLayout()
