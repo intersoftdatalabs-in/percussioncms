@@ -51,7 +51,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterable, List, Optional, Sequence
+from typing import Callable, List, Optional, Sequence
 
 LOG = logging.getLogger("qa_rebuild_chain")
 
