@@ -92,5 +92,5 @@ issue **#1941** and the broader cleanup sweep tracked by **#1909**.
 
 - `modules/ai-shared-develop/` — developer-only AI resources (skills, prompts, agents) used by AI coding agents while working on the Percussion CMS source tree. Built into a JAR; not shipped to end users.
 - `modules/perc-distribution-tree/` — the installer that copies this module's resources into `<InstallDir>/sys_resources/ai-tools/`.
-- `modules/perc-tinymce/` — the only other module currently using the `sys_resources` / `rx_resources` overlay pattern; reference it for additional conventions.
+- `modules/perc-common-ui-bundle/` — the other module currently using the `sys_resources` / `rx_resources` overlay pattern (TinyMCE-independent CodeMirror bundle); reference it for additional conventions.
 

@@ -76,12 +76,13 @@ EXIT_ARTIFACT_MISSING = 5
 #   - WEBUI       :pl :CMLite-WebUI
 #   - REST        :pl :rest
 #   - SiteManage  :pl :sitemanage
-#   - Jars        :pl :perc-system,:sitemanage,:rest,:CMLite-WebUI,:perc-tinymce
+#   - Jars        :pl :perc-system,:perc-auditlog,:sitemanage,:rest,:CMLite-WebUI
+#     (the :perc-tinymce selector retired with modules/perc-tinymce in #5734).
 MODULE_BUILD: dict[str, str] = {
     "webui": ":CMLite-WebUI",
     "rest": ":rest",
     "sitemanage": ":sitemanage",
-    "jars": ":perc-system,:perc-auditlog,:sitemanage,:rest,:CMLite-WebUI,:perc-tinymce",
+    "jars": ":perc-system,:perc-auditlog,:sitemanage,:rest,:CMLite-WebUI",
 }
 
 
@@ -136,12 +137,6 @@ MODULE_COPIES: dict[str, List[CopySpec]] = {
         CopySpec(
             source_root_rel="projects/sitemanage/target",
             source_glob="sitemanage-*.jar",
-            destination_rel="jetty/base/webapps/Rhythmyx/WEB-INF/lib",
-            recursive=False,
-        ),
-        CopySpec(
-            source_root_rel="modules/perc-tinymce/target",
-            source_glob="perc-tinymce-*.jar",
             destination_rel="jetty/base/webapps/Rhythmyx/WEB-INF/lib",
             recursive=False,
         ),

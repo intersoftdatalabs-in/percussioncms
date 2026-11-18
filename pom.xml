@@ -38,7 +38,6 @@
         <module>system</module>
         <module>modules/perc-service-wrapper</module>
         <module>rest</module>
-        <module>modules/perc-tinymce</module>
         <module>modules/perc-toolkit</module>
         <module>modules/perc-taxonomy</module>
         <module>deployer</module>
@@ -94,8 +93,10 @@
         <!-- Closure Compiler is used by minify-maven-plugin. Pin to a specific build date version. -->
         <closure.compiler.version>v20260112</closure.compiler.version>
         <!-- CodeMirror 5.x (MIT-licensed) is consumed as a standard npm dependency
-             (`codemirror` in modules/perc-tinymce/package.json, bundled by esbuild
-             into the TinyMCE codemirror plugin at build time — issue #5626).
+             (`codemirror` in modules/perc-common-ui-bundle/package.json, bundled
+             by esbuild into the TinyMCE-independent /sys_resources/codemirror/
+             bundle — issues #5626, #5784; the TinyMCE-hosted copy retired with
+             modules/perc-tinymce in #5734).
              It is intentionally NOT a Maven WebJar anymore, so there is no
              codemirror.version property here. A future move to the CodeMirror 6
              `@codemirror/*` API is a behavior change owned by the TipTap epic
@@ -329,11 +330,14 @@
              dependencyManagement; archive handling uses commons-compress
              (${commons.compress.version}). -->
         <tika.version>3.3.2</tika.version>
-        <!-- TinyMCE 6.8.x is the last series under the MIT license. -->
-        <!-- TinyMCE 7+ switched to GPL-2.0-or-later, which is incompatible -->
-        <!-- with this project's Apache 2.0 license for distribution. -->
-        <!-- Do NOT upgrade past 6.8.x without a legal review. -->
-        <tinymce.version>6.8.6</tinymce.version>
+        <!-- TinyMCE 6.8.x was the last series under the MIT license (TinyMCE 7+
+             switched to GPL-2.0-or-later, incompatible with this project's
+             Apache 2.0 license for distribution). The TinyMCE 6.8.6 vendor
+             tree, its Maven WebJar pin, and this version property retired
+             with modules/perc-tinymce in #5734: the React editor is TipTap-only
+             and the TinyMCE-independent CodeMirror bundle ships from
+             modules/perc-common-ui-bundle. Do NOT re-add a tinymce.version
+             property (or a TinyMCE WebJar) without a legal review. -->
         <twelvemonkeys.version>3.15.3</twelvemonkeys.version>
         <velocity.tools.version>3.1</velocity.tools.version>
         <velocity.version>2.4.1</velocity.version>
@@ -462,13 +466,11 @@
                     </exclusion>
                 </exclusions>
             </dependency>
-            <dependency>
-                <groupId>org.webjars.npm</groupId>
-                <artifactId>tinymce</artifactId>
-                <version>${tinymce.version}</version>
-            </dependency>
+            <!-- The org.webjars.npm:tinymce pin retired with modules/perc-tinymce
+                 in #5734 (TinyMCE 6.8.6 vendor tree removed; see tinymce note
+                 in <properties>). Do NOT re-add a TinyMCE WebJar. -->
             <!-- No org.webjars.npm:codemirror entry: CodeMirror is npm-managed
-                 (modules/perc-tinymce/package.json, issue #5626). -->
+                 (modules/perc-common-ui-bundle/package.json, issue #5626). -->
             <dependency>
                 <groupId>org.mockito</groupId>
                 <artifactId>mockito-core</artifactId>

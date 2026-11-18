@@ -99,7 +99,6 @@ class TestRunModuleDryRun(unittest.TestCase):
         #     WebUI/target/CMLite-WebUI-1.0.0-SNAPSHOT/  (dir for recursive)
         #     rest/target/rest-1.0.0-SNAPSHOT.jar
         #     projects/sitemanage/target/sitemanage-1.0.0-SNAPSHOT.jar
-        #     modules/perc-tinymce/target/perc-tinymce-1.0.0-SNAPSHOT.jar
         #     modules/perc-auditlog/target/audit-log-1.0.0-SNAPSHOT.jar
         #     system/target/CMLite-Main-1.0.0-SNAPSHOT.jar
         #     modules/perc-distribution-tree/target/classes/distribution/jetty/StartJetty.bat
@@ -109,7 +108,6 @@ class TestRunModuleDryRun(unittest.TestCase):
         (webui_target / "index.html").write_text("<html/>", encoding="utf-8")
         _make_fake_artifact(self.repo_root / "rest" / "target", "rest")
         _make_fake_artifact(self.repo_root / "projects" / "sitemanage" / "target", "sitemanage")
-        _make_fake_artifact(self.repo_root / "modules" / "perc-tinymce" / "target", "perc-tinymce")
         _make_fake_artifact(self.repo_root / "modules" / "perc-auditlog" / "target", "audit-log")
         _make_fake_artifact(self.repo_root / "system" / "target", "CMLite-Main")
         # Jetty start script — must exist for the no-dry-run path; for
@@ -201,12 +199,12 @@ class TestRunModuleDryRun(unittest.TestCase):
     def test_dry_run_jars_copies_multiple_artifacts(self):
         rc, log = self._run_with_logs(module="jars")
         self.assertEqual(rc, au.EXIT_OK)
-        # Fix #6: jars build selector now includes :perc-auditlog (six modules)
-        self.assertIn("-pl :perc-system,:perc-auditlog,:sitemanage,:rest,:CMLite-WebUI,:perc-tinymce", log)
-        # All six artifact names must appear in the copy list
+        # Fix #6: jars build selector now includes :perc-auditlog (five modules;
+        # :perc-tinymce retired with modules/perc-tinymce in #5734)
+        self.assertIn("-pl :perc-system,:perc-auditlog,:sitemanage,:rest,:CMLite-WebUI", log)
+        # All five artifact names must appear in the copy list
         for glob in (
             "sitemanage-*.jar",
-            "perc-tinymce-*.jar",
             "audit-log-*.jar",
             "rest-*.jar",
             "CMLite-Main-*.jar",

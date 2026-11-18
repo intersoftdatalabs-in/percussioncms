@@ -61,7 +61,7 @@ Create still saves the page under the site's repository folder
 (`spa.jsp?entry=editor`). The finder SITENAME (`Corporate_Investments`) is
 not a separate create ACL; the server maps it to the repository folder.
 
-File, image, and TinyMCE HTML widgets save from that editor (binary PUT for
+File, image, and HTML widgets save from that editor (binary PUT for
 file/image; `PUT /services/itemmanagement/item/fields/{id}` for HTML). HTTP 400
 on HTML is mapped onto the field; **View** stays read-only.
 

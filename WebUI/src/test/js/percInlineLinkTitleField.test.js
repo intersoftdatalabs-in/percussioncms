@@ -19,15 +19,20 @@
  *
  * Covers:
  *   - PercPathService.getInlineRenderLink titleField query wiring (dual tree)
- *   - TinyMCE option registration + getInlineLinkTitleField trim/empty peers
- *     (percadvlink / percadvimage / rxinline source contract)
+ *   - inlineLinkTitleField trim/empty peers (pure functions below)
+ *   - Legacy TinyMCE plugin removal guard (#5734): the retired
+ *     percadvlink / percadvimage / rxinline plugin sources must stay deleted
+ *   - sys_Templates.xsl frozen-control wiring (the deprecated sys_tinymce
+ *     control still declares InlineLinkTitleField until classic editing
+ *     retires; asserted here so neither a silent re-migration nor a dropped
+ *     wiring regresses)
  *
  * Server resolve/fallback is covered by PSInlineLinkTitleResolverTest +
  * PSRenderLinkServiceInlineTitleTest. Playwright residual lives under
  * modules/perc-qa-automation (bug-2243-inline-link-title-field.spec.js).
  */
 
-import { readFileSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import { resolve, dirname } from "path";
 import { fileURLToPath } from "url";
 import jquery from "jquery";
@@ -52,29 +57,15 @@ const PATH_SERVICE_COPIES = [
   },
 ];
 
-const TINYMCE_PLUGINS = [
-  {
-    name: "percadvlink",
-    path: resolve(
-      REPO_ROOT,
-      "modules/perc-tinymce/src/main/resources/META-INF/resources/sys_resources/tinymce/plugins/percadvlink/plugin.js",
-    ),
-  },
-  {
-    name: "percadvimage",
-    path: resolve(
-      REPO_ROOT,
-      "modules/perc-tinymce/src/main/resources/META-INF/resources/sys_resources/tinymce/plugins/percadvimage/plugin.js",
-    ),
-  },
-  {
-    name: "rxinline",
-    path: resolve(
-      REPO_ROOT,
-      "modules/perc-tinymce/src/main/resources/META-INF/resources/sys_resources/tinymce/plugins/rxinline/plugin.js",
-    ),
-  },
-];
+const TINYMCE_PLUGIN_DIR = resolve(
+  REPO_ROOT,
+  "modules/perc-tinymce/src/main/resources/META-INF/resources/sys_resources/tinymce/plugins",
+);
+
+// Retired TinyMCE plugin sources (deleted with modules/perc-tinymce in
+// #5734; the TipTap ports from #5652 carry the behavior forward). The removal
+// guard below pins the deletion so a re-vendored copy fails fast.
+const RETIRED_TINYMCE_PLUGINS = ["percadvlink", "percadvimage", "rxinline"];
 
 const RENDER_LINK_PREVIEW =
   "/Rhythmyx/services/pagemanagement/renderlink/preview";
@@ -216,7 +207,7 @@ function installPathService(sourcePath) {
   return factory($, $);
 }
 
-describe("normalizeInlineLinkTitleField (TinyMCE option peer)", () => {
+describe("normalizeInlineLinkTitleField (legacy TinyMCE option peer)", () => {
   it("returns empty for null/undefined", () => {
     expect(normalizeInlineLinkTitleField(null)).toBe("");
     expect(normalizeInlineLinkTitleField(undefined)).toBe("");
@@ -371,32 +362,17 @@ describe.each(PATH_SERVICE_COPIES)(
   },
 );
 
-describe("TinyMCE plugin source contract (inlineLinkTitleField)", () => {
-  for (const plugin of TINYMCE_PLUGINS) {
-    it(`${plugin.name} registers inlineLinkTitleField with empty default`, () => {
-      const src = readFileSync(plugin.path, "utf8");
-      expect(src).toContain('inlineLinkTitleField"');
-      expect(src).toMatch(/options\.register\s*\(\s*["']inlineLinkTitleField["']/);
-      // Empty default = product type defaults at resolve time
-      expect(src).toMatch(/default:\s*["']["']/);
+describe("Retired TinyMCE plugin removal guard (#5734)", () => {
+  for (const name of RETIRED_TINYMCE_PLUGINS) {
+    it(`${name} plugin source stays deleted with modules/perc-tinymce`, () => {
+      expect(
+        existsSync(resolve(TINYMCE_PLUGIN_DIR, name, "plugin.js")),
+        `${name}/plugin.js must not be re-vendored after #5734`,
+      ).toBe(false);
     });
   }
 
-  it("percadvlink and percadvimage define getInlineLinkTitleField and pass it to getInlineRenderLink", () => {
-    for (const name of ["percadvlink", "percadvimage"]) {
-      const plugin = TINYMCE_PLUGINS.find((p) => p.name === name);
-      const src = readFileSync(plugin.path, "utf8");
-      expect(src).toContain("function getInlineLinkTitleField");
-      expect(src).toMatch(
-        /options\.get\s*\(\s*["']inlineLinkTitleField["']\s*\)/,
-      );
-      expect(src).toContain("getInlineLinkTitleField()");
-      // Pass-through to path service (3rd arg)
-      expect(src).toMatch(/getInlineRenderLink\s*\(/);
-    }
-  });
-
-  it("sys_Templates.xsl wires InlineLinkTitleField into TinyMCE init", () => {
+  it("sys_Templates.xsl keeps the frozen InlineLinkTitleField wiring", () => {
     const xsl = readFileSync(
       resolve(
         REPO_ROOT,

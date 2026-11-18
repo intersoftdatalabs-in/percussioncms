@@ -145,11 +145,6 @@
         </dependency>
         <dependency>
             <groupId>com.percussion</groupId>
-            <artifactId>perc-tinymce</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.percussion</groupId>
             <artifactId>perc-common-ui-bundle</artifactId>
             <version>${project.parent.version}</version>
         </dependency>

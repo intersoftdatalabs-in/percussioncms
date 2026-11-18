@@ -143,34 +143,11 @@
 			</fileset>
 		</copy>
 
-		<!-- TinyMCE config. ANT <copy> fails when fileset dir is missing
-			(#4695). perc-tinymce must be packaged first so
-			target/classes/META-INF/resources/{rx,sys}_resources exist
-			(qa-rebuild-chain qa-rebuild-tinymce). -->
-		<fail
-			message="perc-tinymce rx_resources missing under target/classes; run qa-rebuild-chain (qa-rebuild-tinymce) or package modules/perc-tinymce before perc-distribution-tree (#4695).">
-			<condition>
-				<not>
-					<available
-						file="${basedir}/../perc-tinymce/target/classes/META-INF/resources/rx_resources"
-						type="dir" />
-				</not>
-			</condition>
-		</fail>
-		<copy todir="${assembly-directory}/rx_resources"
-			overwrite="false" verbose="true">
-			<fileset
-				dir="${basedir}/../perc-tinymce/target/classes/META-INF/resources/rx_resources">
-			</fileset>
-		</copy>
-
-		<!-- TinyMCE config -->
-		<copy todir="${assembly-directory}/sys_resources"
-			overwrite="true" verbose="true" force="true">
-			<fileset
-				dir="${basedir}/../perc-tinymce/target/classes/META-INF/resources/sys_resources">
-			</fileset>
-		</copy>
+		<!-- TinyMCE vendor trees retired with modules/perc-tinymce (#5734):
+			no rx_resources/tinymce or sys_resources/tinymce ships anymore, so
+			the #4695 fail-guard and both ANT copies are gone. The
+			TinyMCE-independent CodeMirror bundle still ships from
+			modules/perc-common-ui-bundle (see its own copy block below). -->
 
 		<!-- AI tools (skills, prompts, instructions, future plugins) staged into
 			the install. sys_resources/ai-tools/ is replaced on every upgrade. rx_resources/ai-tools/

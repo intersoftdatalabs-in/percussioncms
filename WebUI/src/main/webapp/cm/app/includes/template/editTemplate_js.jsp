@@ -59,8 +59,8 @@
 
 <%--  CodeMirror 5, npm-managed + esbuild-bundled. Built from the `codemirror`
       npm package by modules/perc-common-ui-bundle (issue #5784; relocated
-      from modules/perc-tinymce so the bundle survives the perc-tinymce
-      packaging removal in #5734); exposes the same global `CodeMirror` API
-      the template editor uses (fromTextArea/getValue). --%>
+      from the retired modules/perc-tinymce so the bundle survived the
+      perc-tinymce packaging removal in #5734); exposes the same global
+      `CodeMirror` API the template editor uses (fromTextArea/getValue). --%>
 <script src="/sys_resources/codemirror/codemirror/codemirror.bundle.js"></script>
 <link rel="stylesheet" href="/sys_resources/codemirror/codemirror/codemirror.bundle.css" />

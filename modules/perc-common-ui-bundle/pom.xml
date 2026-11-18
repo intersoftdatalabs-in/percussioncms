@@ -52,7 +52,7 @@
                 <groupId>com.github.eirslett</groupId>
                 <artifactId>frontend-maven-plugin</artifactId>
                 <configuration>
-                    <!-- Use the same Node version as the rest of the project (perc-tinymce). -->
+                    <!-- Use the same Node version as the rest of the project. -->
                     <nodeVersion>v22.22.0</nodeVersion>
                     <workingDirectory>${project.basedir}</workingDirectory>
                     <!-- Node binaries are cached once in the local Maven repo. -->
@@ -100,8 +100,9 @@
                         <!-- CodeMirror 5 npm bundle for the classic template
                              editor + sys_TextArea code-editor control
                              (issue #5784). Served from the TinyMCE-independent
-                             path /sys_resources/codemirror/codemirror/ so it
-                             survives the perc-tinymce removal (#5734). -->
+                             path /sys_resources/codemirror/codemirror/ (the
+                             TinyMCE-hosted copy retired with modules/perc-tinymce
+                             in #5734). -->
                         <id>bundle-codemirror</id>
                         <goals>
                             <goal>npm</goal>

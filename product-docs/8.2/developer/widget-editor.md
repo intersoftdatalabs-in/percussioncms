@@ -28,8 +28,8 @@ Each widget package carries, under
 The widget controls (`formWidgetControl`, `commentsFormWidgetControl`) load
 these three scripts from `rx_resources`, which publishes with the site.
 There is no `sys_resources/tinymce` dependency left in either package, so
-published forms and comment forms keep working after the CMS TinyMCE bundle
-is retired.
+published forms and comment forms keep working now that the CMS TinyMCE bundle
+is removed (#5734).
 
 ## Customizing per site (`TinymceConfig.js`)
 

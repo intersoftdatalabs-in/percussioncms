@@ -96,8 +96,8 @@ developer QA rather than one-off container recipes.
 
 H2 QA cells (`perc-devctl qa-up`) bind-mount `modules/perc-distribution-tree/target/perc-distribution-tree.jar`.
 Rebuild that jar with `perc-devctl qa-rebuild-chain` (or `--dist-only` when WAR SNAPSHOTs are already fresh).
-The chain packages **TinyMCE** (`modules/perc-tinymce`) before the dist tree so installer copy of
-`rx_resources` / `sys_resources` does not fail on a missing `target/classes` directory. If
+The TinyMCE 6.8.6 vendor module (`modules/perc-tinymce`) was removed in #5734, so the
+dist tree no longer ships `rx_resources/tinymce` or `sys_resources/tinymce`. If
 `qa-up` reports a missing or empty dist jar, run `qa-rebuild-chain` first, then `qa-health`.
 
 ## First verification checklist
