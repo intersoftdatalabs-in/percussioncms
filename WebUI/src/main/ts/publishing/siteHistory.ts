@@ -22,6 +22,8 @@
  * the visible rows through the shared Logs CSV builder.
  */
 
+import { message, MSG } from "../i18n/message";
+
 export const SITE_HISTORY_CSV_PREFIX = "publish-history";
 
 export const SITE_HISTORY_FALLBACK_SLUG = "site";
@@ -51,10 +53,18 @@ export function siteHistoryExportFilename(siteName: unknown): string {
   return `${SITE_HISTORY_CSV_PREFIX}-${slugifySiteName(siteName)}.csv`;
 }
 
-/** "Showing {visible} of {total} history rows" for the audit count line. */
+/**
+ * Audit count line via {@code PUBLISH_SITE_HISTORY_COUNT} ({0}=visible,
+ * {1}=total). Placeholders are substituted after the TMX resolve — the
+ * same convention as the security audit page summary — so the English
+ * key fallback and a translated template with reordered placeholders
+ * both render the counts.
+ */
 export function describeSiteHistoryCount(
   visible: number,
   total: number,
 ): string {
-  return `Showing ${visible} of ${total} history rows`;
+  return message(MSG.PUBLISH_SITE_HISTORY_COUNT)
+    .replace("{0}", String(visible))
+    .replace("{1}", String(total));
 }

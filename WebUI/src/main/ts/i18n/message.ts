@@ -407,6 +407,9 @@ export const MSG = {
     "perc.ui.publish.modern@Could not export the site publish history",
   PUBLISH_SITE_HISTORY_EXPORT_EMPTY:
     "perc.ui.publish.modern@No visible history rows to export for this site",
+  /** Args: {0}=visible rows, {1}=total rows */
+  PUBLISH_SITE_HISTORY_COUNT:
+    "perc.ui.publish.modern@Showing {0} of {1} history rows",
   PUBLISH_SITE_HISTORY_FILTER_DAYS: "perc.ui.publish.modern@Days",
   PUBLISH_SITE_HISTORY_FILTER_SHOW: "perc.ui.publish.modern@Show",
   PUBLISH_SITE_HISTORY_FILTER_STATUS: "perc.ui.publish.modern@Status",

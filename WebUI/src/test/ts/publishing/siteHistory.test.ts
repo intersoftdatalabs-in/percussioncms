@@ -15,7 +15,11 @@
  * limitations under the License.
  */
 
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it } from "vitest";
+import {
+  __resetMessageTrackingForTests,
+  MSG,
+} from "@/i18n/message";
 import {
   describeSiteHistoryCount,
   siteHistoryExportFilename,
@@ -60,8 +64,34 @@ describe("siteHistoryExportFilename", () => {
 });
 
 describe("describeSiteHistoryCount", () => {
+  afterEach(() => {
+    delete (window as { I18N?: unknown }).I18N;
+    __resetMessageTrackingForTests();
+  });
+
   it("reports visible of total rows", () => {
     expect(describeSiteHistoryCount(1, 3)).toBe("Showing 1 of 3 history rows");
     expect(describeSiteHistoryCount(0, 0)).toBe("Showing 0 of 0 history rows");
+  });
+
+  it("substitutes a translated template with reordered placeholders", () => {
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N =
+      {
+        message: (k: string) =>
+          k === MSG.PUBLISH_SITE_HISTORY_COUNT
+            ? "Verlauf: {1} gesamt, {0} sichtbar"
+            : k,
+      };
+    expect(describeSiteHistoryCount(1, 3)).toBe(
+      "Verlauf: 3 gesamt, 1 sichtbar",
+    );
+  });
+
+  it("falls back to English when the catalog echoes the key", () => {
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N =
+      {
+        message: (k: string) => k,
+      };
+    expect(describeSiteHistoryCount(2, 5)).toBe("Showing 2 of 5 history rows");
   });
 });
