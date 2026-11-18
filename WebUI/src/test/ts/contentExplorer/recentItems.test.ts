@@ -159,8 +159,9 @@ describe("recentItems store (#6256)", () => {
         name: "Home",
         path: "/Sites/Demo/Home",
         type: "percPage",
+        category: "PAGE",
       }),
-    ).toMatchObject({ kind: "item", name: "Home" });
+    ).toMatchObject({ kind: "page", name: "Home", contentType: null });
     expect(
       toRecentItem({
         id: "16777215-101-703",
@@ -169,9 +170,48 @@ describe("recentItems store (#6256)", () => {
         type: "folder",
       }),
     ).toMatchObject({ kind: "folder" });
+    // Stock assets keep their own kind (#6581).
+    expect(
+      toRecentItem({
+        id: "16777215-101-704",
+        name: "hero.png",
+        path: "/Assets/hero.png",
+        type: "rffImage",
+        category: "ASSET",
+      }),
+    ).toMatchObject({ kind: "asset", name: "hero.png" });
+    // Generic custom-type rows keep the item kind plus their server
+    // content type so re-open restores the row's type (#6581).
+    expect(
+      toRecentItem({
+        id: "16777215-101-705",
+        name: "Press release",
+        path: "/Sites/Demo/Press",
+        type: "myPressRelease",
+        category: "RESOURCE",
+      }),
+    ).toMatchObject({
+      kind: "item",
+      name: "Press release",
+      contentType: "myPressRelease",
+    });
     expect(toRecentItem(null)).toBeNull();
     expect(
       toRecentItem({ id: undefined, name: "", path: "  " }),
     ).toBeNull();
+  });
+
+  it("round-trips page/asset/item kinds and drops unknown kinds to item", () => {
+    const storage = memoryStorage({
+      [recentStorageKey("Admin")]: JSON.stringify([
+        entry({ kind: "page" }),
+        entry({ kind: "asset", id: "2", path: "/Assets/a" }),
+        entry({ kind: "item", id: "3", path: "/Sites/x", contentType: "myType" }),
+        entry({ kind: "bogus" as unknown as RecentEntry["kind"], id: "4", path: "/Sites/y" }),
+      ]),
+    });
+    const loaded = loadRecentItems(storage, "Admin");
+    expect(loaded.map((e) => e.kind)).toEqual(["page", "asset", "item", "item"]);
+    expect(loaded[2]?.contentType).toBe("myType");
   });
 });

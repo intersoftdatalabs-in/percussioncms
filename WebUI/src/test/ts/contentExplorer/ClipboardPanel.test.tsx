@@ -76,7 +76,8 @@ describe("ClipboardPanel", () => {
     const rows = screen.getAllByTestId("clipboard-item-row");
     expect(rows).toHaveLength(2);
     expect(rows[0]?.textContent).toContain("/Sites/CorporateInvestments");
-    expect(rows[0]?.textContent).toContain("(folder)");
+    expect(rows[0]?.textContent).toContain("(Folder)");
+    expect(rows[0]).toHaveAttribute("data-clipboard-kind", "folder");
   });
 
   it("renders the clipboard panel with size 0 when empty", () => {
@@ -237,6 +238,34 @@ describe("ClipboardPanel", () => {
       expect(onClipboardChange).toHaveBeenCalledWith(EMPTY_CLIPBOARD);
     });
     expect(screen.getByTestId("clipboard-summary")).toBeTruthy();
+  });
+
+  it("renders localized kind badges incl. generic items (#6581)", async () => {
+    const rows: ClipboardItem[] = [
+      { id: "p-1", path: "/Sites/Demo/Home", kind: "page", name: "Home" },
+      { id: "a-1", path: "/Assets/hero.png", kind: "asset", name: "hero.png" },
+      { id: "g-1", path: "/Sites/Demo/Press", kind: "item", name: "Press release" },
+    ];
+    const { container } = render(
+      <ClipboardPanel
+        clipboard={makeCb(rows)}
+        onClipboardChange={() => {}}
+        items={rows}
+        mode="copy"
+        onModeChange={() => {}}
+      />,
+    );
+    const rendered = screen.getAllByTestId("clipboard-item-row");
+    expect(rendered).toHaveLength(3);
+    expect(rendered[0]).toHaveAttribute("data-clipboard-kind", "page");
+    expect(rendered[1]).toHaveAttribute("data-clipboard-kind", "asset");
+    expect(rendered[2]).toHaveAttribute("data-clipboard-kind", "item");
+    expect(rendered[0]?.textContent).toContain("(Page)");
+    expect(rendered[1]?.textContent).toContain("(Asset)");
+    // Generic custom-type items no longer masquerade as pages.
+    expect(rendered[2]?.textContent).toContain("(Item)");
+    expect(rendered[2]?.textContent).not.toContain("(Page)");
+    await renderA11yGate(container);
   });
 
   it("passes the zero serious/critical axe-core gate (empty state)", async () => {

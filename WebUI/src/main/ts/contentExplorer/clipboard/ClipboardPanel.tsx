@@ -48,6 +48,24 @@ import {
 } from "./model";
 import { EXPLORER_MSG } from "../messages";
 
+/**
+ * Localized kind badge for a clipboard row. Generic custom-type items
+ * render as "Item" (#6581) so the panel no longer calls them pages.
+ */
+export function clipboardKindLabel(kind: ClipboardItem["kind"]): string {
+  switch (kind) {
+    case "folder":
+      return message(EXPLORER_MSG.CLIPBOARD_KIND_FOLDER);
+    case "page":
+      return message(EXPLORER_MSG.CLIPBOARD_KIND_PAGE);
+    case "asset":
+      return message(EXPLORER_MSG.CLIPBOARD_KIND_ASSET);
+    case "item":
+    default:
+      return message(EXPLORER_MSG.CLIPBOARD_KIND_ITEM);
+  }
+}
+
 export interface ClipboardPanelProps {
   /** Current clipboard state (host-controlled). */
   clipboard: Clipboard;
@@ -73,8 +91,7 @@ export interface ClipboardPanelProps {
   className?: string;
 }
 
-export function ClipboardPanel(props: ClipboardPanelProps): React.JSX.Element {
-  const {
+export function ClipboardPanel(props: ClipboardPanelProps): React.JSX.Element {  const {
     clipboard,
     onClipboardChange,
     items,
@@ -213,11 +230,15 @@ export function ClipboardPanel(props: ClipboardPanelProps): React.JSX.Element {
           <li
             key={`${it.path}-${idx}`}
             data-testid="clipboard-item-row"
+            data-clipboard-kind={it.kind}
             style={{ padding: "2px 0" }}
           >
             <code style={{ fontFamily: "monospace" }}>{it.path}</code>
-            <small style={{ marginLeft: 6, color: "#767676" }}>
-              ({it.kind})
+            <small
+              style={{ marginLeft: 6, color: "#767676" }}
+              title={it.name && it.name !== it.path ? it.name : undefined}
+            >
+              ({clipboardKindLabel(it.kind)})
             </small>
           </li>
         ))}

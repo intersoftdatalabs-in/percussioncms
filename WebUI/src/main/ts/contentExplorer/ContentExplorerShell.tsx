@@ -2154,8 +2154,10 @@ function ContentExplorerShellInner({
   /**
    * Re-open a recent entry (#6256). The entry is probed first with zero
    * new REST: a deleted (404) entry is dropped with a status notice — not
-   * an error. Folders browse in place; items re-open in the editor. A
-   * successful re-open moves the entry to the front.
+   * an error. Folders browse in place; items re-open in the editor. The
+   * entry's own kind is restored — generic custom-type items re-open with
+   * their recorded content type instead of defaulting to percPage (#6581).
+   * A successful re-open moves the entry to the front.
    */
   const handleRecentOpen = useCallback(
     (entry: RecentEntry) => {
@@ -2175,11 +2177,19 @@ function ContentExplorerShellInner({
           return;
         }
         setRecentNotice(null);
+        const reopenType =
+          entry.kind === "folder"
+            ? "folder"
+            : entry.kind === "asset"
+              ? "percAsset"
+              : entry.kind === "item"
+                ? entry.contentType?.trim() || "percPage"
+                : "percPage";
         handlers.onOpen({
           id: entry.id ?? undefined,
           name: entry.name,
           path: entry.path,
-          type: entry.kind === "folder" ? "folder" : "percPage",
+          type: reopenType,
           leaf: entry.kind !== "folder",
         });
       })();

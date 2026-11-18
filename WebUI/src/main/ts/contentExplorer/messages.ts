@@ -259,6 +259,12 @@ export const EXPLORER_MSG = {
   CLIPBOARD_EMPTY: "perc.ui.explorer@Clipboard is empty",
   CLIPBOARD_PASTE_TARGET_REQUIRED:
     "perc.ui.explorer@Select a destination folder before pasting",
+  // Clipboard row kind badges (#6581 / parent #4530). Generic custom-type
+  // items render as "Item" so the panel no longer calls them pages.
+  CLIPBOARD_KIND_FOLDER: "perc.ui.explorer@Folder",
+  CLIPBOARD_KIND_PAGE: "perc.ui.explorer@Page",
+  CLIPBOARD_KIND_ASSET: "perc.ui.explorer@Asset",
+  CLIPBOARD_KIND_ITEM: "perc.ui.explorer@Item",
 
   WIZARD_NEXT: "perc.ui.explorer@Next",
   WIZARD_BACK: "perc.ui.explorer@Back",
@@ -764,6 +770,8 @@ export const EXPLORER_MSG = {
   RECENT_CLEAR: "perc.ui.explorer@Clear recent items",
   RECENT_REMOVE: "perc.ui.explorer@Remove from recent items",
   RECENT_KIND_FOLDER: "perc.ui.explorer@Folder",
+  RECENT_KIND_PAGE: "perc.ui.explorer@Page",
+  RECENT_KIND_ASSET: "perc.ui.explorer@Asset",
   RECENT_KIND_ITEM: "perc.ui.explorer@Item",
   RECENT_REMOVED_NOTICE:
     "perc.ui.explorer@That item is no longer available and was removed from recent items",
