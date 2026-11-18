@@ -337,4 +337,36 @@ test.describe("PublishingShell Design legacy content list URL", () => {
     );
     expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
   });
+
+  test("keyboard: input is focused on open and Escape cancels without saving", async ({
+    page,
+  }) => {
+    const kbErrors = trackJsErrors(page);
+    const putBodies = [];
+    page.on("request", (req) => {
+      if (contentListUpdatePut(req.url(), req.method())) {
+        putBodies.push(req.postData() || "");
+      }
+    });
+
+    await openContentLists(page);
+    const stamp = Date.now().toString().slice(-8);
+    const name = `ClKb${stamp}`;
+    const url = `/Rhythmyx/night-kb-${stamp}`;
+    await createLegacyList(page, name, "keyboard path", url);
+
+    await sourceRow(page, name)
+      .locator("[data-testid^='design-content-list-url-']")
+      .click();
+    await expect(page.getByTestId("contentlist-url-form")).toBeVisible();
+    await expect(page.locator("#contentlist-url-input")).toBeFocused();
+    await page.locator("#contentlist-url-input").fill("/Rhythmyx/will-not-save");
+    await page.locator("#contentlist-url-input").press("Escape");
+    await expect(page.getByTestId("contentlist-url-form")).toBeHidden();
+    await expect(
+      sourceRow(page, name).locator("[data-testid^='design-content-list-source-']"),
+    ).toHaveText(url);
+    expect(putBodies).toEqual([]);
+    expect(kbErrors, `console/page errors: ${kbErrors.join("\n")}`).toEqual([]);
+  });
 });
