@@ -85,6 +85,12 @@ export function ContentListDescriptionPanel({
     }
   }
 
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape" && !saving) {
+      onCancel();
+    }
+  }
+
   return (
     <div data-testid="contentlist-description-form">
       <h3>Content list description</h3>
@@ -116,7 +122,9 @@ export function ContentListDescriptionPanel({
           id="contentlist-description-input"
           data-testid="contentlist-description-input"
           value={description}
+          autoFocus
           onChange={(e) => setDescription(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
       </div>
       {error && (

@@ -329,4 +329,36 @@ test.describe("PublishingShell Design content list generator", () => {
     );
     expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
   });
+
+  test("keyboard: input is focused on open and Escape cancels without saving", async ({
+    page,
+  }) => {
+    const kbErrors = trackJsErrors(page);
+    const putBodies = [];
+    page.on("request", (req) => {
+      if (contentListUpdatePut(req.url(), req.method())) {
+        putBodies.push(req.postData() || "");
+      }
+    });
+
+    await openContentLists(page);
+    const stamp = Date.now().toString().slice(-8);
+    const name = `ClGenKb${stamp}`;
+    const description = `Gen kb ${stamp}`;
+    await createModernList(page, name, description);
+
+    await sourceRow(page, name)
+      .locator("[data-testid^='design-content-list-generator-']")
+      .click();
+    await expect(page.getByTestId("contentlist-generator-form")).toBeVisible();
+    await expect(page.locator("#contentlist-generator-input")).toBeFocused();
+    await page.locator("#contentlist-generator-input").fill("sys_WillNotSave");
+    await page.locator("#contentlist-generator-input").press("Escape");
+    await expect(page.getByTestId("contentlist-generator-form")).toBeHidden();
+    await expect(
+      sourceRow(page, name).locator("[data-testid^='design-content-list-source-']"),
+    ).toHaveText(GENERATOR);
+    expect(putBodies).toEqual([]);
+    expect(kbErrors, `console/page errors: ${kbErrors.join("\n")}`).toEqual([]);
+  });
 });

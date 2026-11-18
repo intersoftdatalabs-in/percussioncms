@@ -338,4 +338,21 @@ describe("DesignSection content list description", () => {
       "public",
     );
   });
+
+  it("focuses the Description input when the form opens", async () => {
+    await openDescribe();
+    expect(screen.getByTestId("contentlist-description-input")).toHaveFocus();
+  });
+
+  it("Escape cancels without calling save", async () => {
+    await openDescribe();
+    fireEvent.change(screen.getByLabelText("Description"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByLabelText("Description"), { key: "Escape" });
+    expect(
+      await screen.findByTestId("design-content-list-description-5"),
+    ).toHaveTextContent("old notes");
+    expect(updateContentList).not.toHaveBeenCalled();
+  });
 });

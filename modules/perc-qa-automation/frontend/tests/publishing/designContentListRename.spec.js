@@ -195,4 +195,41 @@ test.describe("PublishingShell Design content-list rename", () => {
     ).toHaveCount(1);
     expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
   });
+
+  test("keyboard: name is focused on open and Escape cancels without saving", async ({
+    page,
+  }) => {
+    const kbErrors = [];
+    page.on("pageerror", (err) => kbErrors.push(String(err)));
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        kbErrors.push(msg.text());
+      }
+    });
+    const putBodies = [];
+    page.on("request", (req) => {
+      if (contentListPut(req.url(), req.method())) {
+        putBodies.push(req.postData() || "");
+      }
+    });
+
+    const stamp = Date.now();
+    const original = `NightClKb-${stamp}`;
+
+    await openDesignContentLists(page);
+    await createContentList(page, original);
+
+    await page.getByRole("button", { name: original, exact: true }).click();
+    await expect(page.getByTestId("contentlist-editor")).toBeVisible();
+    await expect(page.locator("#cl-name")).toBeFocused();
+    await page.locator("#cl-name").press("Escape");
+    await expect(page.getByTestId("contentlist-editor")).toBeHidden({
+      timeout: 10000,
+    });
+    await expect(
+      page.getByRole("button", { name: original, exact: true }),
+    ).toBeVisible();
+    expect(putBodies).toEqual([]);
+    expect(kbErrors, `console/page errors: ${kbErrors.join("\n")}`).toEqual([]);
+  });
 });

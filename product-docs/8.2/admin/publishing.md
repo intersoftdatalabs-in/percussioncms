@@ -1279,7 +1279,8 @@ From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then 
 Open one existing content list (not **Add content list**). Change **Name** and **Save**.
 That sends `PUT …/sitemanage/publishingdesign/contentlists/{contentListId}`. **Content lists**
 keeps the previous name until the save succeeds, then shows the new name. **Back** does not call
-the server. A blank name is rejected in the editor and does not call the server. HTTP **409**
+the server. The **Name** field is focused when the editor opens; **Escape** closes the editor
+without saving (with unsaved edits the shell asks to discard first). A blank name is rejected in the editor and does not call the server. HTTP **409**
 (that name already exists) stays in the editor and leaves the previous name on **Content lists**.
 Changing only the description still saves and does not rename the list. The list type is unchanged.
 Copying a content list is described below.
@@ -1295,6 +1296,8 @@ From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then 
 description, generator, legacy URL, expander, item filter, edition type, content-list type, and
 generator and expander parameters. The source name and id stay the same. The new name appears
 under **Content lists** only after that call succeeds. **Cancel** does not call the server.
+The **new name** field is focused when the form opens; **Escape** closes the form without
+copying (with an edited name the shell asks to discard first).
 
 A blank name, or a name longer than 100 characters, is rejected in the form and does not call the
 server. HTTP **400** (name missing or too long, or the source id is missing), **403** (not Admin
@@ -1313,7 +1316,8 @@ Choose one, or **No item filter** to clear it, then **Save**. That sends
 filter's **name** (numeric uuids are not unique across hosts), or to an empty string when clearing.
 The **Saved item filter** line and the text next
 to the content list stay on the previous filter until that save succeeds and the list reloads.
-**Back** does not call the server.
+**Back** does not call the server. **Escape** on the **Name** field or the **Item filter** list
+closes the editor without saving (with unsaved edits the shell asks to discard first).
 
 A blank name is rejected in the editor and does not call the server. An unknown filter is
 **400** (**Unknown item filter**). HTTP **400**, **403** (not Admin or Designer), and **409**
@@ -1337,7 +1341,8 @@ description.
 
 **Content lists** keeps the previous description until that update succeeds, then shows the new
 description (or none, when cleared) with the same name, type, generator or legacy URL, and item
-filter. **Cancel** closes the form and does not call the server. A description longer than 255
+filter. **Cancel** closes the form and does not call the server. The **Description** field is
+focused when the form opens; **Escape** closes the form without saving. A description longer than 255
 characters (`RXCONTENTLIST.DESCRIPTION`) is rejected in the form and does not call the server.
 
 HTTP **400** (description longer than 255 characters), **403** (not Admin or Designer), and
@@ -1359,7 +1364,8 @@ the server leaves those stored.
 
 **Content lists** keeps the previous generator until that update succeeds, then shows the new
 generator with the same name, description, type, and item filter. **Cancel** closes the form and
-does not call the server. A blank generator is rejected in the form and does not call the server
+does not call the server. The **Generator** field is focused when the form opens; **Escape**
+closes the form without saving. A blank generator is rejected in the form and does not call the server
 (clearing the generator would make a list with no expander and no item filter look legacy). A
 generator longer than 256 characters (`RXCONTENTLIST.GENERATOR`) is also rejected in the form and
 does not call the server.
@@ -1385,7 +1391,8 @@ server leaves a missing name and description stored, so those values are not res
 
 **Content lists** keeps the previous URL until that update succeeds, then shows the new URL with
 the same name, description, type, and item filter. **Cancel** closes the form and does not call
-the server. A blank URL is rejected in the form and does not call the server (a blank URL does
+the server. The **Legacy URL** field is focused when the form opens; **Escape** closes the form
+without saving. A blank URL is rejected in the form and does not call the server (a blank URL does
 not clear the stored URL). A URL longer than 2100 characters (`RXCONTENTLIST.URL`) is also
 rejected in the form and does not call the server.
 
@@ -1405,7 +1412,8 @@ Open an existing content list (not **Add content list**). **Delete** asks for co
 (**Delete this design object? This cannot be undone.**). Confirm calls
 `DELETE …/sitemanage/publishingdesign/contentlists/{contentListId}`. On success the editor
 closes and that content list is gone from **Content lists**. Cancel does not call the server
-and leaves the list unchanged.
+and leaves the list unchanged. The browser confirmation dialog takes focus when it opens and
+**Escape** (or Cancel) dismisses it without deleting.
 
 A content list that is still associated with an edition is not deleted. Remove that association
 first. This action does not remove an edition association and does not delete the edition.

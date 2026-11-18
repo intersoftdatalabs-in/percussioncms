@@ -162,6 +162,14 @@ export function ContentListEditor({
     onCancel();
   }
 
+  function handleKeyDown(
+    e: React.KeyboardEvent<HTMLInputElement | HTMLSelectElement>,
+  ): void {
+    if (e.key === "Escape") {
+      handleCancel();
+    }
+  }
+
   async function handleDelete(): Promise<void> {
     if (!contentList?.contentListId) {
       return;
@@ -195,10 +203,12 @@ export function ContentListEditor({
         <input
           id="cl-name"
           value={name}
+          autoFocus
           onChange={(e) => {
             setName(e.target.value);
             setDirty(true);
           }}
+          onKeyDown={handleKeyDown}
         />
       </div>
       <div style={formRowStyle}>
@@ -269,6 +279,7 @@ export function ContentListEditor({
               setItemFilterId(e.target.value);
               setDirty(true);
             }}
+            onKeyDown={handleKeyDown}
           >
             <option value="">{NO_ITEM_FILTER_LABEL}</option>
             {filterOptions(itemFilterId, filterChoices, contentList).map((choice) => (
