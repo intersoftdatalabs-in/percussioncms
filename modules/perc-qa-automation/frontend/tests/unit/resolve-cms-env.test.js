@@ -180,12 +180,25 @@ describe("resolveRolePassword", () => {
     assert.equal(r.source, "qa-cell");
   });
 
-  it("keeps ADMIN_PASSWORD env over QA cell for Admin", () => {
+  // mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6610, precedent #4585) - test-only placeholder, never a live credential.
+  it("prefers QA cell Admin password over stale ADMIN_PASSWORD env (#6610)", () => {
+    const r = resolveRolePassword(
+      "Admin",
+      { TEST_CMS_URL: "http://127.0.0.1:1", ADMIN_PASSWORD: "stale-banner" },
+      {},
+      { Admin: "from-cell" },
+    );
+    assert.equal(r.password, "from-cell");
+    assert.equal(r.source, "qa-cell");
+  });
+
+  // mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6610, precedent #4585) - test-only placeholder, never a live credential.
+  it("falls back to ADMIN_PASSWORD env when QA cell lacks Admin", () => {
     const r = resolveRolePassword(
       "Admin",
       { TEST_CMS_URL: "http://127.0.0.1:1", ADMIN_PASSWORD: "from-env" },
       {},
-      { Admin: "from-cell" },
+      { Editor: "cell-editor-secret" },
     );
     assert.equal(r.password, "from-env");
     assert.equal(r.source, "ADMIN_PASSWORD");

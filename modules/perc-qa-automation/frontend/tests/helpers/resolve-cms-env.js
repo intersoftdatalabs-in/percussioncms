@@ -166,11 +166,13 @@ function parseGeneratedPasswordsText(text) {
  * Resolve a role password.
  *
  * Precedence:
- *   1. Explicit {@code ROLE_PASSWORD} env (always wins for Admin).
- *   2. QA H2 cell map (generated passwords) for Editor / Contributor when
- *      {@code hasQaModeUrlEnv} — those accounts get distinct random secrets
- *      from Admin; a stale {@code EDITOR_PASSWORD} in .env is ignored when
- *      the cell map is present (#4585).
+ *   1. QA H2 cell map (generated passwords) when {@code hasQaModeUrlEnv} —
+ *      the in-cell file is authoritative (#6610): banner snapshots and
+ *      {@code *_PASSWORD} env values may lag first-boot rotation of the
+ *      legacy demo passwords, so a live cell read wins for every role
+ *      (extends the #4585 Editor/Contributor rule to Admin). Override a
+ *      hand-changed cell password with {@code QA_GENERATED_PASSWORDS_TEXT}.
+ *   2. Explicit {@code ROLE_PASSWORD} env.
  *   3. Host-install map.
  *   4. Missing.
  *
@@ -193,9 +195,9 @@ function resolveRolePassword(
   const fromEnv = trimNonEmpty(env[envKey]);
   const fromCell = trimNonEmpty(qaCellPasswords[role]);
   const qaMode = hasQaModeUrlEnv(env);
-  const nonAdminQa = qaMode && role !== "Admin" && fromCell;
+  const cellQa = qaMode && fromCell;
 
-  if (nonAdminQa) {
+  if (cellQa) {
     return { password: fromCell, source: "qa-cell" };
   }
   if (fromEnv) {
