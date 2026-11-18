@@ -29,17 +29,57 @@
  * <p>Run (QA mode after {@code perc-devctl qa-up}):
  * {@code npm run test:surface -- --path tests/content-create-inventory.spec.js}
  * from {@code modules/perc-qa-automation/frontend}.</p>
+ *
+ * <p>Provisioning-aware skip contract (mirrors the matrix spec and the US3
+ * matrices): {@code beforeEach} probes {@code GET <BASE_URL>/Rhythmyx/login}
+ * once per worker before {@code loginAsAdmin}. An unprovisioned or
+ * unreachable CMS-only cell skips every case by name (provisioning tracked
+ * by parent #6238) instead of failing at login.</p>
  */
 
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { loginAsAdmin, BASE_URL, BASE_URL_SOURCE } = require("./helpers/auth");
 const {
   BUILT_IN_TYPES,
   SYSTEM_EXCLUSIONS,
   INVENTORY_SPEC,
   buildResultRow,
+  cmsLivenessUrl,
+  skipNoCmsCell,
   validateResultRow,
 } = require("./helpers/content-create-matrix");
+
+// Cell liveness is probed once per worker and cached (see the matrix spec).
+let cmsLiveness = null;
+
+/**
+ * Skips the calling case with the named provisioning reason when the
+ * CMS-only cell cannot serve the inventory check; otherwise returns.
+ *
+ * @param {import("@playwright/test").APIRequestContext} request
+ */
+async function ensureCmsCell(request) {
+  if (!cmsLiveness) {
+    cmsLiveness = (async () => {
+      try {
+        const probe = await request.get(cmsLivenessUrl(BASE_URL), {
+          timeout: 15_000,
+        });
+        if (!probe.ok()) {
+          return { ok: false, detail: `liveness answered HTTP ${probe.status()}` };
+        }
+        return { ok: true, detail: "" };
+      } catch (error) {
+        return {
+          ok: false,
+          detail: `probe unreachable (${String((error && error.message) || error).slice(0, 120)})`,
+        };
+      }
+    })();
+  }
+  const result = await cmsLiveness;
+  test.skip(!result.ok, skipNoCmsCell(BASE_URL, BASE_URL_SOURCE, result.detail));
+}
 
 async function liveCatalogNames(page) {
   return page.evaluate(async () => {
@@ -63,8 +103,9 @@ async function liveCatalogNames(page) {
 }
 
 test.describe("content creation inventory", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, request }) => {
     test.setTimeout(90_000);
+    await ensureCmsCell(request);
     await loginAsAdmin(page);
   });
 

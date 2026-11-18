@@ -35,8 +35,11 @@ const {
   CASE_NAMES,
   BUILT_IN_TYPES,
   SYSTEM_EXCLUSIONS,
+  CMS_LIVENESS_PATH,
   buildResultRow,
+  cmsLivenessUrl,
   sampleValueFor,
+  skipNoCmsCell,
   statusForCases,
   tagForType,
   validateResultRow,
@@ -139,5 +142,74 @@ describe("content-create-matrix helpers (#6239)", () => {
     assert.ok(spec.includes("blank required field shows a message"), "negative case declared");
     assert.ok(spec.includes("creates, saves and reopens"), "round-trip case declared");
     assert.ok(spec.includes("content-create-matrix.json"), "matrix artifact written");
+  });
+
+  it("probes CMS liveness at the login path and skips by name without a cell (#6615)", () => {
+    assert.equal(CMS_LIVENESS_PATH, "/Rhythmyx/login");
+    assert.equal(
+      cmsLivenessUrl("http://127.0.0.1:9993"),
+      "http://127.0.0.1:9993/Rhythmyx/login",
+    );
+    assert.equal(
+      cmsLivenessUrl("http://127.0.0.1:9993/"),
+      "http://127.0.0.1:9993/Rhythmyx/login",
+      "trailing slash stripped",
+    );
+    const reason = skipNoCmsCell(
+      "http://127.0.0.1:9992",
+      "DEV_FALLBACK",
+      "probe unreachable (connect ECONNREFUSED)",
+    );
+    assert.ok(reason.includes("content-create"), "names the suite");
+    assert.ok(
+      reason.includes("http://127.0.0.1:9992/Rhythmyx/login"),
+      "names the probed URL",
+    );
+    assert.ok(reason.includes("source=DEV_FALLBACK"), "names the URL source");
+    assert.ok(
+      reason.includes("probe unreachable (connect ECONNREFUSED)"),
+      "names the probe detail",
+    );
+    assert.ok(reason.includes("perc-devctl qa-up"), "names the cell remediation");
+    assert.ok(reason.includes("#6238"), "tracks provisioning at the parent");
+    const bare = skipNoCmsCell("http://127.0.0.1:9992", "TEST_CMS_URL");
+    assert.ok(
+      bare.includes("liveness answered") || bare.includes("no CMS-only cell"),
+      "usable without a probe detail",
+    );
+    assert.ok(!bare.includes("undefined"), "no undefined leak without detail");
+  });
+
+  it("wires the provisioning-aware skip and self-diagnosing assertions into both specs (#6615)", () => {
+    for (const file of ["content-create-matrix.spec.js", "content-create-inventory.spec.js"]) {
+      const spec = fs.readFileSync(path.join(FRONTEND_DIR, file), "utf8");
+      assert.ok(spec.includes("skipNoCmsCell"), `${file} skips by name without a cell`);
+      assert.ok(spec.includes("ensureCmsCell"), `${file} probes before login`);
+      assert.ok(spec.includes("cmsLivenessUrl"), `${file} probes the login path`);
+      assert.ok(
+        spec.includes("skipNoCmsCell(BASE_URL, BASE_URL_SOURCE,"),
+        `${file} reports the probe with its base URL and source`,
+      );
+    }
+    const matrix = fs.readFileSync(
+      path.join(FRONTEND_DIR, "content-create-matrix.spec.js"),
+      "utf8",
+    );
+    assert.ok(
+      matrix.includes("must reach the create API"),
+      "create count names the received count",
+    );
+    assert.ok(
+      matrix.includes("must carry the picked type (received="),
+      "create type names the received type",
+    );
+    assert.ok(
+      matrix.includes("field PUTs=${fieldPuts.length}"),
+      "save names the received PUT counts",
+    );
+    assert.ok(
+      matrix.includes("stray field PUTs="),
+      "negative case names the offending PUTs",
+    );
   });
 });

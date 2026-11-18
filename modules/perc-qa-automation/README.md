@@ -646,6 +646,18 @@ TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
   npm run test:unit
 ```
 
+Provisioning-aware skip contract (#6615, mirrors the US3 matrices):
+`beforeEach` in both specs probes `GET <BASE_URL>/Rhythmyx/login` once per
+worker before `loginAsAdmin`. An unprovisioned or unreachable CMS-only cell
+skips every case by name (`content-create: no CMS-only cell liveness answer
+at …; bring up the cell with perc-devctl qa-up … (parent #6238)`) instead
+of failing 108 logins — a cell-less run exits 0 with a schema-valid
+all-skip `content-create-matrix.json`. Failure assertions are
+self-diagnosing: they name the received create count, the received
+type/folder, the field-PUT counts/URLs, and the entry behind every quiet
+(pageerror/console) failure, so a red case explains itself without a
+rerun.
+
 The inventory (`BUILT_IN_TYPES`) is closed: the inventory spec fails when a
 pinned type is missing from the live catalog and when the catalog contains a
 creatable type that is neither pinned nor listed in `SYSTEM_EXCLUSIONS`

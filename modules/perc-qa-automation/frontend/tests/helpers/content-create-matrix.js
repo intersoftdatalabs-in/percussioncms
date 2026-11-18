@@ -279,6 +279,43 @@ function validateResultRow(row) {
 }
 
 /**
+ * CMS login path the matrix liveness probe reads. A live CMS-only cell
+ * answers it with HTTP 200; it needs no credentials, so the probe can run
+ * before {@code loginAsAdmin} and skip with a named reason when the cell
+ * is not provisioned instead of failing 108 logins.
+ */
+const CMS_LIVENESS_PATH = "/Rhythmyx/login";
+
+/**
+ * @param {string} baseUrl CMS origin under test
+ * @returns {string} absolute liveness probe URL (web origin, not a file path)
+ */
+function cmsLivenessUrl(baseUrl) {
+  return `${String(baseUrl).replace(/\/+$/, "")}${CMS_LIVENESS_PATH}`;
+}
+
+/**
+ * Skip reason when the CMS-only cell answers no liveness probe. Mirrors
+ * the US3 {@code skipServiceDown} family: the matrix needs the cell for
+ * the SPA shell, login, and the live catalog, so an unprovisioned or
+ * unreachable cell skips by name (provisioning tracked by parent #6238)
+ * instead of failing every case at login.
+ *
+ * @param {string} baseUrl CMS origin that was probed
+ * @param {string} source how the base URL resolved (TEST_CMS_URL, fallback, ...)
+ * @param {string} [detail] what the probe saw (unreachable message, HTTP status)
+ * @returns {string}
+ */
+function skipNoCmsCell(baseUrl, source, detail) {
+  const probed = detail ? ` (${detail})` : "";
+  return (
+    `content-create: no CMS-only cell liveness answer at ${cmsLivenessUrl(baseUrl)} ` +
+    `(source=${source})${probed}; bring up the cell with perc-devctl qa-up and ` +
+    `rerun with its TEST_CMS_URL (parent #6238) to turn these cases green`
+  );
+}
+
+/**
  * @param {string} moduleDir module root (has {@code contracts/} and {@code frontend/})
  * @returns {string} absolute path of the results-matrix JSON schema
  */
@@ -301,6 +338,9 @@ module.exports = {
   SITE_FOLDER,
   SYSTEM_EXCLUSIONS,
   BUILT_IN_TYPES,
+  CMS_LIVENESS_PATH,
+  cmsLivenessUrl,
+  skipNoCmsCell,
   sampleValueFor,
   tagForType,
   statusForCases,
