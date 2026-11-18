@@ -21,6 +21,7 @@ import {
   canChangeEditorWorkflow,
   canRunEditorTransition,
   confirmEditorAssignees,
+  focusWorkflowComment,
   formatDelegatedAssigneeList,
   formatDelegationNotice,
   workflowCommentContainsNul,
@@ -274,6 +275,22 @@ describe("editorWorkflow (#4539)", () => {
       "Delegated to .",
     );
     expect(formatDelegationNotice("Done.", ["alice"])).toBe("Done.");
+  });
+
+  it("focusWorkflowComment focuses the panel comment box (#4554)", () => {
+    document.body.innerHTML =
+      '<textarea data-testid="editor-workflow-comment"></textarea>';
+    const box = document.querySelector(
+      '[data-testid="editor-workflow-comment"]',
+    ) as HTMLElement;
+    expect(focusWorkflowComment()).toBe(true);
+    expect(document.activeElement).toBe(box);
+    document.body.innerHTML = "";
+  });
+
+  it("focusWorkflowComment returns false when the comment box is absent (#4554)", () => {
+    document.body.innerHTML = "";
+    expect(focusWorkflowComment()).toBe(false);
   });
 
   it("canChangeEditorWorkflow accepts only a different listed id", () => {

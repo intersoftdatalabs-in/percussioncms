@@ -10335,6 +10335,11 @@ describe("EditorHost workflow transitions (#4539)", () => {
       );
     });
     expect(runTransition).not.toHaveBeenCalled();
+    // Keyboard path (#4554): the block moves focus to the comment box so
+    // keyboard / screen-reader users land where the fix happens.
+    expect(document.activeElement).toBe(
+      screen.getByTestId("editor-workflow-comment"),
+    );
     fireEvent.change(screen.getByTestId("editor-workflow-comment"), {
       target: { value: "needs work" },
     });

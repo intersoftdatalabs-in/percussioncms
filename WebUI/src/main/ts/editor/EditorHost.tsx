@@ -295,6 +295,7 @@ import {
   triggerRequiresComment,
   uniqueTransitionTriggers,
   workflowCommentContainsNul,
+  focusWorkflowComment,
 } from "./editorWorkflow";
 import {
   createEditorItem,
@@ -2833,6 +2834,12 @@ export function EditorHost({
       setWorkflowDone(false);
       setWorkflowErrorDetail("");
       setWorkflowErrorKey(workflowErrorFor(gate.reason));
+      if (gate.reason === "comment" || gate.reason === "nul") {
+        // No dialog is open on this path (guarded above), so focusing the
+        // panel comment box is safe. handleAssigneeConfirm deliberately
+        // skips this: its modal stays open above the panel.
+        focusWorkflowComment();
+      }
       return;
     }
     const step = editorAssigneeStep({

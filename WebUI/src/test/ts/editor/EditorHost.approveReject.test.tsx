@@ -119,6 +119,10 @@ describe("EditorHost quick Approve/Reject bar (#6483)", () => {
     expect(
       screen.getByTestId("editor-approve-reject-comment"),
     ).toBeTruthy();
+    // Keyboard path (#4554): the dialog opens with focus in the comment box.
+    expect(document.activeElement).toBe(
+      screen.getByTestId("editor-approve-reject-comment"),
+    );
     expect(screen.getByTestId("editor-approve-reject-required")).toBeTruthy();
     expect(
       (screen.getByTestId("editor-approve-reject-confirm") as HTMLButtonElement)

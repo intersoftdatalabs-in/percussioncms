@@ -89,6 +89,38 @@ async function stubEditorApis(page, transitionCalls) {
       body: JSON.stringify(TRANSITIONS),
     }),
   );
+  // Isolation stubs: unrelated panels on the same host hit these for the
+  // fictional item id in a fresh H2 cell (404/400/500 console noise that
+  // fails the zero-console-error gate even though the surface is green;
+  // peer: editor-host-approve-reject.spec.js).
+  await page.route("**/rest/content-explorer/translations/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({}),
+    }),
+  );
+  await page.route("**/services/itemmanagement/workflow/allowedWorkflows/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({}),
+    }),
+  );
+  await page.route("**/services/pathmanagement/path/item/id/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({}),
+    }),
+  );
+  await page.route("**/services/assembly/slot-relationships/canvas**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ slots: [] }),
+    }),
+  );
   await page.route(
     "**/services/itemmanagement/workflow/transitionWithComments/**",
     async (route) => {
@@ -141,12 +173,22 @@ test.describe("React Content Editor workflow transitions", () => {
       await expect(page.locator(`[data-testid="${triggerTestId("Submit")}"]`)).toBeVisible();
       await expect(page.locator(`[data-testid="${triggerTestId("Reject")}"]`)).toBeVisible();
       await expect(page.locator(`[data-testid="${triggerTestId("Approve")}"]`)).toHaveCount(0);
+      // Hermetic load path: the transitions + choices loads both succeed off
+      // stubs, so no panel load notice may appear.
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.workflowLoadError}"]`),
+      ).toHaveCount(0);
 
       await page.locator(`[data-testid="${triggerTestId("Reject")}"]`).click();
       await expect(page.locator(`[data-testid="${TEST_IDS.error}"]`)).toContainText(
         /Enter a comment/i,
       );
       expect(transitionCalls).toEqual([]);
+      // Keyboard path (#4554): the comment-required block moves focus to the
+      // comment box so keyboard users land where the fix happens.
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.comment}"]`),
+      ).toBeFocused();
 
       await page.locator(`[data-testid="${TEST_IDS.comment}"]`).fill("needs work");
       await page.locator(`[data-testid="${triggerTestId("Reject")}"]`).click();
@@ -156,6 +198,9 @@ test.describe("React Content Editor workflow transitions", () => {
       expect(parsed.comment).toBe("needs work");
       expect(isTransitionWithCommentsUrl(transitionCalls[0])).toBe(true);
       await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toBeVisible();
+      await page.screenshot({
+        path: `test-results/live-proof-4554-workflow-transitions.png`,
+      });
       expect(leftover, `leftover CE requested: ${leftover.join(" ")}`).toEqual([]);
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       await expectNoSeriousA11yViolations(page, {
