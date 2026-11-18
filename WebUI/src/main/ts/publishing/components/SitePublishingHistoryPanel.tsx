@@ -141,7 +141,9 @@ export function SitePublishingHistoryPanel({
         data-testid="publish-site-history-filters"
       >
         <div style={{ ...formRowStyle, marginBottom: 0, maxWidth: 120 }}>
-          <label htmlFor="site-history-days">Days</label>
+          <label htmlFor="site-history-days">
+            {message(MSG.PUBLISH_SITE_HISTORY_FILTER_DAYS)}
+          </label>
           <select
             id="site-history-days"
             value={days}
@@ -156,7 +158,9 @@ export function SitePublishingHistoryPanel({
           </select>
         </div>
         <div style={{ ...formRowStyle, marginBottom: 0, maxWidth: 120 }}>
-          <label htmlFor="site-history-max">Show</label>
+          <label htmlFor="site-history-max">
+            {message(MSG.PUBLISH_SITE_HISTORY_FILTER_SHOW)}
+          </label>
           <select
             id="site-history-max"
             value={maxcount}
@@ -171,7 +175,9 @@ export function SitePublishingHistoryPanel({
           </select>
         </div>
         <div style={{ ...formRowStyle, marginBottom: 0, maxWidth: 140 }}>
-          <label htmlFor="site-history-status">Status</label>
+          <label htmlFor="site-history-status">
+            {message(MSG.PUBLISH_SITE_HISTORY_FILTER_STATUS)}
+          </label>
           <select
             id="site-history-status"
             value={statusFilter}
@@ -180,19 +186,27 @@ export function SitePublishingHistoryPanel({
             }
             data-testid="publish-site-history-status"
           >
-            <option value="all">All</option>
-            <option value="failed">Failed</option>
-            <option value="success">Success</option>
+            <option value="all">
+              {message(MSG.PUBLISH_SITE_HISTORY_STATUS_ALL)}
+            </option>
+            <option value="failed">
+              {message(MSG.PUBLISH_SITE_HISTORY_STATUS_FAILED)}
+            </option>
+            <option value="success">
+              {message(MSG.PUBLISH_SITE_HISTORY_STATUS_SUCCESS)}
+            </option>
           </select>
         </div>
         <div style={{ ...formRowStyle, marginBottom: 0, maxWidth: 220 }}>
-          <label htmlFor="site-history-query">Search</label>
+          <label htmlFor="site-history-query">
+            {message(MSG.PUBLISH_SITE_HISTORY_FILTER_SEARCH)}
+          </label>
           <input
             id="site-history-query"
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Server, job, status"
+            placeholder={message(MSG.PUBLISH_SITE_HISTORY_SEARCH_PLACEHOLDER)}
             data-testid="publish-site-history-query"
           />
         </div>
@@ -207,7 +221,7 @@ export function SitePublishingHistoryPanel({
             onChange={(e) => setShowOnlyFailures(e.target.checked)}
             data-testid="publish-site-history-failures"
           />{" "}
-          Failures only (server)
+          {message(MSG.PUBLISH_SITE_HISTORY_FAILURES_ONLY)}
         </label>
       </div>
 
@@ -233,6 +247,7 @@ export function SitePublishingHistoryPanel({
       <p
         style={{ fontSize: "0.85rem", color: "#555" }}
         data-testid="publish-site-history-count"
+        aria-live="polite"
       >
         {describeSiteHistoryCount(visibleLogs.length, logs.length)}
       </p>
@@ -274,9 +289,15 @@ export function SitePublishingHistoryPanel({
         <table style={tableStyle} data-testid="publish-site-history-table">
           <thead>
             <tr>
-              <th style={thStyle}>Job</th>
-              <th style={thStyle}>{message(MSG.PUBLISH_SELECT_SERVER)}</th>
-              <th style={thStyle}>{message(MSG.PUBLISH_SECTION_STATUS)}</th>
+              <th style={thStyle} scope="col">
+                {message(MSG.PUBLISH_SITE_HISTORY_TABLE_JOB)}
+              </th>
+              <th style={thStyle} scope="col">
+                {message(MSG.PUBLISH_SELECT_SERVER)}
+              </th>
+              <th style={thStyle} scope="col">
+                {message(MSG.PUBLISH_SECTION_STATUS)}
+              </th>
             </tr>
           </thead>
           <tbody>

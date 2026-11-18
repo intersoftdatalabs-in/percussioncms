@@ -26030,6 +26030,37 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@No visible history rows to export for this site">
       <tuv xml:lang="en-us"><seg>No visible history rows to export for this site</seg></tuv>
     </tu>
+    <!-- #6608: publish-history filter / table labels as i18n keys. en-us only. -->
+    <tu tuid="perc.ui.publish.modern@Days">
+      <tuv xml:lang="en-us"><seg>Days</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Show">
+      <tuv xml:lang="en-us"><seg>Show</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Status">
+      <tuv xml:lang="en-us"><seg>Status</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Search">
+      <tuv xml:lang="en-us"><seg>Search</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@All">
+      <tuv xml:lang="en-us"><seg>All</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Failed">
+      <tuv xml:lang="en-us"><seg>Failed</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Success">
+      <tuv xml:lang="en-us"><seg>Success</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Server, job, status">
+      <tuv xml:lang="en-us"><seg>Server, job, status</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Failures only (server)">
+      <tuv xml:lang="en-us"><seg>Failures only (server)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Job">
+      <tuv xml:lang="en-us"><seg>Job</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.publish.modern@Publish Forbidden">
       <tuv xml:lang="en-us"><seg>You are not allowed to publish.</seg></tuv>
       <tuv xml:lang="ar"><seg>غير مسموح لك بالنشر.</seg></tuv>
