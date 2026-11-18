@@ -162,6 +162,29 @@ class StartupWarnHygieneTest {
         "jvm.ini must not reference the removed rxconfig/esapi directory");
   }
 
+  /**
+   * GH-6664 / CVE-2026-114938: jvm.ini disables HotSpot Base64 intrinsics as defense-in-depth
+   * without platform-specific -XX:UseAVX or diagnostic-only -XX:DisableIntrinsic flags.
+   */
+  @Test
+  void jvmIniDisablesBase64IntrinsicsForCve2026114938() throws Exception {
+    String jvmActive = stripComments(read(file("defaults", "start.d", "jvm.ini")));
+    List<String> lines = List.of(jvmActive.split("\n"));
+    int execIdx = lines.indexOf("--exec");
+    int flagIdx = lines.indexOf("-XX:-UseBASE64Intrinsics");
+    assertTrue(execIdx >= 0, "jvm.ini must declare --exec");
+    assertTrue(
+        flagIdx > execIdx,
+        "jvm.ini must set -XX:-UseBASE64Intrinsics on its own line under --exec");
+    assertFalse(
+        jvmActive.contains("-XX:UseAVX="),
+        "jvm.ini must not set -XX:UseAVX= (causes JVM startup failure on ARM64)");
+    assertFalse(
+        jvmActive.contains("-XX:DisableIntrinsic=")
+            && !jvmActive.contains("-XX:+UnlockDiagnosticVMOptions"),
+        "jvm.ini must not set -XX:DisableIntrinsic= without -XX:+UnlockDiagnosticVMOptions");
+  }
+
   /** GH-1486: ShutdownService configuration (not STOP.PORT ShutdownMonitor on server). */
   @Test
   void shutdownIniConfiguresShutdownService() throws Exception {

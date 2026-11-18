@@ -53,6 +53,10 @@ class DtsJavaHomeScriptTest {
       Path.of("src", "main", "rootFiles", "DTSProductionService.bat");
   private static final Path STAGING_BAT =
       Path.of("src", "main", "rootFiles", "DTSStagingService.bat");
+  private static final Path SETENV_SH =
+      Path.of("src", "main", "tomcat11", "bin", "setenv.sh");
+  private static final Path SETENV_BAT =
+      Path.of("src", "main", "tomcat11", "bin", "setenv.bat");
 
   @Test
   void dtsResolverShMirrorsJettyContract() throws Exception {
@@ -362,5 +366,43 @@ class DtsJavaHomeScriptTest {
     assertFalse(
         sh.contains("(source \"$RESOLVER\""),
         "DTSStagingService.sh must not wrap the resolver in a subshell");
+  }
+
+  /**
+   * GH-6664 / CVE-2026-114938: all DTS launch and service install paths disable HotSpot Base64
+   * intrinsics by default without platform-specific -XX:UseAVX or diagnostic -XX:DisableIntrinsic
+   * flags.
+   */
+  @Test
+  void dtsScriptsDisableBase64IntrinsicsForCve2026114938() throws Exception {
+    for (Path p :
+        List.of(
+            SETENV_SH,
+            SETENV_BAT,
+            TOMCAT_START_SH,
+            TOMCAT_START_BAT,
+            PROD_SH,
+            STAGING_SH,
+            PROD_BAT,
+            STAGING_BAT)) {
+      assertTrue(Files.isRegularFile(p), () -> "missing " + p.toAbsolutePath());
+      String content = Files.readString(p, StandardCharsets.UTF_8);
+      assertTrue(
+          content.contains("-XX:-UseBASE64Intrinsics"),
+          p.getFileName() + " must pass -XX:-UseBASE64Intrinsics for CVE-2026-114938");
+      assertFalse(
+          content.contains("-XX:UseAVX="),
+          p.getFileName() + " must not set -XX:UseAVX= (causes JVM startup failure on ARM64)");
+      assertFalse(
+          content.contains("-XX:DisableIntrinsic="),
+          p.getFileName() + " must not set diagnostic -XX:DisableIntrinsic= without unlocking");
+    }
+    for (Path serviceSh : List.of(PROD_SH, STAGING_SH)) {
+      String sh = Files.readString(serviceSh, StandardCharsets.UTF_8);
+      assertTrue(
+          sh.contains("CATALINA_OPTS=-XX:-UseBASE64Intrinsics"),
+          serviceSh.getFileName()
+              + " must write EnvironmentFile-safe CATALINA_OPTS=-XX:-UseBASE64Intrinsics");
+    }
   }
 }

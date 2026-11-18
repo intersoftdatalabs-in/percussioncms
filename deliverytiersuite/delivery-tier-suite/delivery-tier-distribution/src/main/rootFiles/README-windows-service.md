@@ -74,6 +74,22 @@ The installers therefore set:
 Do not point `java.util.logging.config.file` at the Log4j2 XML (that property is
 for JUL properties files only).
 
+## JVM security defaults (CVE-2026-114938)
+
+Because Windows services run in Procrun `--StartMode jvm` (which bypasses
+`setenv.bat`), `DTSProductionService.bat` and `DTSStagingService.bat` pass
+`-XX:-UseBASE64Intrinsics` directly in Procrun `++JvmOptions` as defense-in-depth
+against **CVE-2026-114938** (GH-6664) on unpatched JDK 21 runtimes
+(`< 21.0.13.1`).
+
+For existing Windows services installed before this change, append the option in
+place without reinstalling, then restart the service:
+
+```bat
+tomcat11.exe //US//PercussionProductionDTS ++JvmOptions "-XX:-UseBASE64Intrinsics"
+tomcat11.exe //US//PercussionStagingDTS ++JvmOptions "-XX:-UseBASE64Intrinsics"
+```
+
 ## Related
 
 * Linux: `README-systemd.md`, `DTSProductionService.sh` / `DTSStagingService.sh`

@@ -135,7 +135,7 @@ REM Note: java.endorsed.dirs property is not supported on Java 9+ (fatal on 21);
 rem Issue #938: align with setenv.bat / Linux Log4j JUL bridge. Do not use ClassLoaderLogManager
 rem with java.util.logging.config.file against log4j2-tomcat.xml (that is Log4j2 XML, not JUL).
 rem Re-apply catalina.log stdout/stderr so a re-run of install stays consistent.
-"%EXECUTABLE%" //US//%SERVICE_NAME% --LogPath="%CATALINA_BASE%\logs" --StdOutput="%CATALINA_BASE%\logs\catalina.log" --StdError="%CATALINA_BASE%\logs\catalina.log" ++JvmOptions "-Djava.net.preferIPv4Stack=true;-Djava.net.preferIPv4Addresses=true;-Djava.io.tmpdir=%CATALINA_BASE%\temp;-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager;-Dlog4j.configurationFile=%CATALINA_BASE%\log4j2\conf\log4j2-tomcat.xml;-Dorg.apache.logging.log4j.jul.Log4jLogger.level=OFF;-Dfile.encoding=UTF-8;-Dperc.h2.data.home=%CATALINA_HOME%\h2data" --JvmMs 128 --JvmMx 1024
+"%EXECUTABLE%" //US//%SERVICE_NAME% --LogPath="%CATALINA_BASE%\logs" --StdOutput="%CATALINA_BASE%\logs\catalina.log" --StdError="%CATALINA_BASE%\logs\catalina.log" ++JvmOptions "-Djava.net.preferIPv4Stack=true;-Djava.net.preferIPv4Addresses=true;-Djava.io.tmpdir=%CATALINA_BASE%\temp;-Djava.util.logging.manager=org.apache.logging.log4j.jul.LogManager;-Dlog4j.configurationFile=%CATALINA_BASE%\log4j2\conf\log4j2-tomcat.xml;-Dorg.apache.logging.log4j.jul.Log4jLogger.level=OFF;-Dfile.encoding=UTF-8;-Dperc.h2.data.home=%CATALINA_HOME%\h2data;-XX:-UseBASE64Intrinsics" --JvmMs 128 --JvmMx 1024
 echo The service '%SERVICE_NAME%' has been installed.
 echo Application/console log: %CATALINA_BASE%\logs\catalina.log
 
