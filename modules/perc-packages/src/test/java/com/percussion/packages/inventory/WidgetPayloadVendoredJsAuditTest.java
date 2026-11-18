@@ -171,7 +171,9 @@ import org.junit.jupiter.api.Test;
  * {@code style.name}/{@code position.corner}) to the qTip2 shape
  * ({@code content.text}, {@code position.my/at},
  * {@code style.classes: 'qtip-light'}), preserving the anchored
- * bottom-middle summary tooltip. The qTip2 dist calls
+ * bottom-middle summary tooltip. (Slice 12 / issue #6564 later drops the
+ * v1 widget and its snippet, leaving the {@code percCalendarTwoSnippet.vm}
+ * call site.) The qTip2 dist calls
  * {@code jQuery.type}, removed from the harness jQuery 4 but present on
  * published pages via the shipped {@code jquery-migrate} (the retired
  * twin likewise required migrate-era {@code jQuery.browser}), so the
@@ -223,6 +225,25 @@ import org.junit.jupiter.api.Test;
   * migration issue is filed; the banner pin below
   * ({@code jQuery UI - v1.14.2}) fails loudly if the payload copy ever
   * drifts from the tracked npm line.
+ *
+ * <p>Slice 12 (issue #6564, parent #6522 remainder) drops the v1
+ * {@code percCalendar} widget (FullCalendar 1.6.7, EOL, no 1.x on npm) per
+ * the recorded maintainer Drop decision: the {@code widgets/percCalendar}
+ * component, the {@code web_resources/widgets/calendar} + {@code
+ * rx_resources/widgets/calendar} payload trees, the {@code
+ * rxconfig/Resources/percCalendar.xml} resource file, and their
+ * {@code psx_archiveInfo.xml} / {@code psx_archiveManifest.xml} entries
+ * are removed. The shared {@code percCalendarAsset} content-type defs stay
+ * (still consumed by {@code percCalendarTwo}); expected sets and banner
+ * pins drop only the two v1 rows. MiniColors stays vendored under the
+ * recorded MIT-ok ruling: upstream {@code jquery-minicolors} is
+ * MIT-licensed (npm {@code license: MIT}, {@code @license:
+ * http://opensource.org/licenses/MIT} banner), so no GPL code ships; the
+ * twins match no published npm dist (the registry holds only 2.1.10, which
+ * lacks the {@code swatches}/{@code keywords} surface the
+ * {@code percCalendarTwo} editor consumes), so byte-identical npm-tracking
+ * is impossible and the pair stays pinned as documented vendored code,
+ * same precedent as the nav hoverIntent row.
  *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
@@ -276,8 +297,6 @@ class WidgetPayloadVendoredJsAuditTest {
           "perc.responsiveTemplates/sys__UserDependency--web_resources/cm/foundation/js/foundation.min.js",
           "perc.widget.calendar/SupportFile-rx_resources/widgets/percCalendarTwo/js/jquery.minicolors.js",
           "perc.widget.calendar/sys__UserDependency--rx_resources/widgets/percCalendarTwo/js/jquery.minicolors.js",
-          "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendar/js/fullcalendar.min.js",
-          "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendar/js/jquery.qtip.js",
           "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/fullcalendar.js",
           "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/fullcalendar.min.js",
           "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/gcal.js",
@@ -374,9 +393,6 @@ class WidgetPayloadVendoredJsAuditTest {
               "perc.responsiveTemplates/sys__UserDependency--web_resources/cm/foundation/js/foundation.min.js",
               "Foundation Responsive Library"),
           Map.entry(
-              "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendar/js/fullcalendar.min.js",
-              "FullCalendar v1.6.7"),
-          Map.entry(
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/fullcalendar.js",
               "FullCalendar v2.9.1"),
           Map.entry(
@@ -409,9 +425,6 @@ class WidgetPayloadVendoredJsAuditTest {
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--rx_resources/widgets/percCalendarTwo/js/jquery.minicolors.js",
               "minicolors = {"),
-          Map.entry(
-              "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendar/js/jquery.qtip.js",
-              "qTip2 - Pretty powerful tooltips - v3.0.3"),
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/jquery.qtip.js",
               "qTip2 - Pretty powerful tooltips - v3.0.3"),

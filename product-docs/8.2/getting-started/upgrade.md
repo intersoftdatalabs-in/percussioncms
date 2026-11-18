@@ -97,6 +97,16 @@ Cookbook: [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run).
 Do not confuse this with retired **dual-ship** page `*.templateDef` files — see
 [Product page packages](id:developer-page-packages).
 
+## Retired product widgets
+
+- **Legacy Calendar widget (`percCalendar`) removed.** The FullCalendar
+  1.6.7-based Calendar widget is retired and no longer installs or appears
+  in the widget catalog. Pages that used it should switch to
+  **Calendar 2.0** (`percCalendarTwo`), which renders the same
+  `percCalendarAsset` items on the supported FullCalendar 2.x line. The
+  shared calendar content type, its editor controls, and all Calendar 2.0
+  payload files are unchanged.
+
 ## Post-upgrade smoke tests
 
 - [ ] Login and role-based navigation work.
