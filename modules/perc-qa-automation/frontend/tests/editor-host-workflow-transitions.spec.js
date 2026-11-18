@@ -173,6 +173,23 @@ test.describe("React Content Editor workflow transitions", () => {
       await expect(page.locator(`[data-testid="${triggerTestId("Submit")}"]`)).toBeVisible();
       await expect(page.locator(`[data-testid="${triggerTestId("Reject")}"]`)).toBeVisible();
       await expect(page.locator(`[data-testid="${triggerTestId("Approve")}"]`)).toHaveCount(0);
+      // Visible comment-required affordance (#6632): a sighted keyboard
+      // user sees which trigger needs a comment before clicking it, and the
+      // button exposes the comment label via aria-describedby.
+      await expect(
+        page.locator(`[data-testid="${triggerTestId("Reject")}-requires-comment"]`),
+      ).toContainText(/requires comment/i);
+      await expect(
+        page.locator(`[data-testid="${triggerTestId("Reject")}"]`),
+      ).toHaveAttribute("aria-describedby", "editor-workflow-comment-label");
+      await expect(
+        page.locator(`[data-testid="${triggerTestId("Submit")}-requires-comment"]`),
+      ).toHaveCount(0);
+      await page
+        .locator('[data-testid="editor-workflow-actions"]')
+        .screenshot({
+          path: `test-results/live-proof-6632-workflow-comment-affordance.png`,
+        });
       // Hermetic load path: the transitions + choices loads both succeed off
       // stubs, so no panel load notice may appear.
       await expect(

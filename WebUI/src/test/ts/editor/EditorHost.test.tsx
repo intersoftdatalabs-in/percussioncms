@@ -10385,6 +10385,107 @@ describe("EditorHost workflow transitions (#4539)", () => {
     });
   });
 
+  it("marks comment-required triggers with a visible affordance before click (#6632)", async () => {
+    const runTransition = vi.fn().mockResolvedValue({});
+    renderEdit({ runTransition });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-trigger-Reject")).toBeTruthy();
+    });
+    const rejectButton = screen.getByTestId("editor-workflow-trigger-Reject");
+    expect(rejectButton.textContent).toMatch(/requires comment/i);
+    expect(
+      screen.getByTestId("editor-workflow-trigger-Reject-requires-comment")
+        .textContent,
+    ).toMatch(/requires comment/i);
+    expect(rejectButton.getAttribute("aria-describedby")).toBe(
+      "editor-workflow-comment-label",
+    );
+    expect(
+      screen.queryByTestId("editor-workflow-trigger-Submit-requires-comment"),
+    ).toBeNull();
+    expect(
+      screen.getByTestId("editor-workflow-trigger-Submit").getAttribute(
+        "aria-describedby",
+      ),
+    ).toBeNull();
+  });
+
+  it("returns focus to the trigger button on assignee-dialog cancel (#6632)", async () => {
+    const runTransition = vi.fn().mockResolvedValue({});
+    renderEdit({
+      runTransition,
+      loadTransitions: async () => ({
+        stateName: "Draft",
+        transitionTriggers: ["Submit"],
+        assigneeRequiredTriggers: ["Submit"],
+      }),
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-trigger-Submit")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-workflow-comment"), {
+      target: { value: "ok" },
+    });
+    fireEvent.change(screen.getByTestId("editor-workflow-assignee-input"), {
+      target: { value: "cara" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-assignee-add"));
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-assignee-dialog")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-assignee-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("editor-workflow-assignee-dialog")).toBeNull();
+    });
+    expect(runTransition).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(
+      screen.getByTestId("editor-workflow-trigger-Submit"),
+    );
+  });
+
+  it("keeps the comment-gate message and focuses the comment box on dialog cancel (#6632)", async () => {
+    const runTransition = vi.fn().mockResolvedValue({});
+    renderEdit({
+      runTransition,
+      commentRequiredTriggers: ["Submit"],
+      loadTransitions: async () => ({
+        stateName: "Draft",
+        transitionTriggers: ["Submit"],
+        assigneeRequiredTriggers: ["Submit"],
+      }),
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-trigger-Submit")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("editor-workflow-comment"), {
+      target: { value: "ok" },
+    });
+    fireEvent.change(screen.getByTestId("editor-workflow-assignee-input"), {
+      target: { value: "cara" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-assignee-add"));
+    fireEvent.click(screen.getByTestId("editor-workflow-trigger-Submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-assignee-dialog")).toBeTruthy();
+    });
+    // The panel comment box is disabled while the modal is open; the change
+    // simulates the comment going stale behind the dialog.
+    fireEvent.change(screen.getByTestId("editor-workflow-comment"), {
+      target: { value: "" },
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-assignee-cancel"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-error").textContent).toMatch(
+        /Enter a comment/i,
+      );
+    });
+    expect(runTransition).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(
+      screen.getByTestId("editor-workflow-comment"),
+    );
+  });
+
   it("does not run a trigger that is not in the allowlist", async () => {    const runTransition = vi.fn().mockResolvedValue({});
     renderEdit({
       runTransition,

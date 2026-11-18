@@ -165,6 +165,42 @@ export function focusWorkflowComment(): boolean {
 }
 
 /**
+ * Escape a value for use inside a double-quoted attribute selector.
+ * Mirrors {@code cssAttrEscape} in editorFieldErrors; prefers
+ * {@code CSS.escape} and falls back to backslash-escaping quotes.
+ */
+function cssAttrEscape(value: string): string {
+  if (typeof CSS !== "undefined" && typeof CSS.escape === "function") {
+    return CSS.escape(value);
+  }
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+}
+
+/**
+ * Return keyboard focus to the named workflow trigger button (#6632).
+ * The assignee-dialog cancel path lands here so focus never drops to the
+ * document body when the modal unmounts; the comment-gate branch instead
+ * keeps {@code focusWorkflowComment}. Returns false when the button is not
+ * in the document.
+ */
+export function focusWorkflowTrigger(trigger: string): boolean {
+  if (typeof document === "undefined" || !trigger) {
+    return false;
+  }
+  const el = document.querySelector(
+    `[data-testid="editor-workflow-trigger-${cssAttrEscape(trigger)}"]`,
+  );
+  if (!(el instanceof HTMLElement)) {
+    return false;
+  }
+  el.focus();
+  if (typeof el.scrollIntoView === "function") {
+    el.scrollIntoView({ block: "nearest" });
+  }
+  return true;
+}
+
+/**
  * Whether the editor host may invoke {@code transitionWithComments}.
  *
  * <p>View / promote stay read-only. Triggers not in the loaded allowlist
