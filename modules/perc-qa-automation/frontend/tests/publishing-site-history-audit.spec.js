@@ -33,6 +33,11 @@
  * through `PUBLISH_SITE_HISTORY_*` message keys backed by en-us-only
  * `CmsUi.tmx` TUs — no hardcoded English chrome remains on this panel.
  *
+ * Parameterized count (#6622, parent #4531): the Showing-count line
+ * resolves through `PUBLISH_SITE_HISTORY_COUNT` (`{0}`=visible,
+ * `{1}`=total) with post-resolve substitution, so a translated template
+ * with reordered placeholders still renders the counts.
+ *
  * Tags: @publishing-site-history @publish
  *
  * Run (QA mode after perc-devctl qa-up):
@@ -262,6 +267,46 @@ test.describe("Site workspace publishing history audit (#6473)", () => {
 
     await page.screenshot({
       path: "test-results/live-proof-6608-site-history-i18n.png",
+    });
+    expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
+  });
+
+  test(`count line resolves through the parameterized i18n key (#6622) ${TAGS.join(" ")}`, async ({
+    page,
+  }) => {
+    const consoleErrors = trackConsole(page);
+    // Session-locale stand-in: the count key maps to a reordered template
+    // while every other key echoes back (untranslated), exactly like the
+    // tmx.jsp?mode=js bundle. The stub ignores the args array, so the UI
+    // must substitute {0}/{1} after the resolve for the counts to render.
+    const catalogJson = JSON.stringify({
+      "perc.ui.publish.modern@Showing {0} of {1} history rows":
+        "Verlauf: {1} gesamt, {0} sichtbar",
+    }).replace(/</g, "\\u003c");
+    await page.route("**/tmx/tmx.jsp*", (route) =>
+      route.fulfill({
+        status: 200,
+        contentType: "text/javascript; charset=UTF-8",
+        body: `window.I18N = { message: function (k) { var d = ${catalogJson}; return Object.prototype.hasOwnProperty.call(d, k) ? d[k] : k; } };`,
+      }),
+    );
+    await stubSiteApis(page, HISTORY_ROWS);
+    await openFirstSiteWorkspace(page);
+
+    await expect(page.getByTestId("publish-site-history-row")).toHaveCount(
+      2,
+    );
+    await expect(
+      page.getByTestId("publish-site-history-count"),
+    ).toContainText("Verlauf: 2 gesamt, 2 sichtbar");
+
+    await page.getByTestId("publish-site-history-status").selectOption("failed");
+    await expect(
+      page.getByTestId("publish-site-history-count"),
+    ).toContainText("Verlauf: 2 gesamt, 1 sichtbar");
+
+    await page.screenshot({
+      path: "test-results/live-proof-6622-site-history-count-i18n.png",
     });
     expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
   });
