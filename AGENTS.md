@@ -713,7 +713,6 @@ A list of child modules in this repository. Each bullet contains: Module name �
 - **perc-system** — `./system` — The core CMS module representing Rhythmyx functionality.  Contains the core XML application server and content managenent implementation.
 - **perc-service-wrapper** — `./modules/perc-service-wrapper` — CMS/DTS process start/stop jar (`PSServiceWrapper`). Packaged into CMS and DTS distributions; **live** on classic Linux SysV/init.d service install (`system/release/installer/Linux/percussion-service.sh` + `install-service.sh`). Not the modern Jetty systemd path (`modules/perc-jetty` dual-ship, GH-962/#1978); do not remove until init.d deprecation (GH-1976).
 - **rest** — `./rest` — Public REST API (JAX-RS resources, wire DTOs, `IXxxAdaptor` interfaces). **Must not** depend on `sitemanage` (reactor cycle). See `rest/AGENTS.md`. Workbench-replacement REST + **dev/QA test modes**: `docs/developer-module/workbench-rest-and-qa-modes.md`.
-- **perc-tinymce** — `./modules/perc-tinymce` — Packaging module for the TinyMCE rich text editor used in the CMS ui to edit content.
 - **perc-toolkit** — `./modules/perc-toolkit` — Legacy module containing
 - **perc-taxonomy** — `./modules/perc-taxonomy` — Legacy Rhythmyx module that provides taxonomy services for CMS content.
 - **perc-deployer** — `./deployer` — Core module that contains the component packaging and package management implementation used by the CMS.
