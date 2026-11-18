@@ -34,7 +34,9 @@
  */
 
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { loginAsAdmin, BASE_URL, adminBasicAuthHeaders } =
+  require("./helpers/auth");
+const { isKnownExplorerSitesConsoleNoise } = require("./helpers/explorer-copy-item");
 const { explorerSpaUrl } = require("./helpers/explorer-menu-bar");
 const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 
@@ -56,6 +58,40 @@ const LISTING = {
   },
 };
 
+const CHILDREN_LISTING = {
+  PagedItemList: {
+    childrenInPage: [
+      {
+        id: "42",
+        name: "Home",
+        path: "/Sites/Demo/News/Home",
+        type: "percPage",
+        category: "page",
+        leaf: true,
+      },
+      {
+        // Generic custom-type row outside /Sites and /Assets (#6580).
+        id: "9001999",
+        name: "PromoSnippet",
+        path: "/ContentLib/PromoSnippet",
+        type: "MyCustomArticle",
+        category: "item",
+        leaf: true,
+      },
+      {
+        id: "8",
+        name: "Nested",
+        path: "/Sites/Demo/News/Nested",
+        type: "folder",
+        category: "folder",
+        leaf: false,
+      },
+    ],
+    childrenCount: 3,
+    startIndex: 0,
+  },
+};
+
 const CHILDREN = {
   PathItem: [
     {
@@ -67,7 +103,7 @@ const CHILDREN = {
     },
     {
       // Generic custom-type row outside /Sites and /Assets (#6580).
-      id: "g-9",
+      id: "9001999",
       name: "PromoSnippet",
       path: "/ContentLib/PromoSnippet",
       type: "MyCustomArticle",
@@ -86,6 +122,34 @@ const CHILDREN = {
 };
 
 /**
+ * Track uncaught page errors (never filtered) and console errors (known
+ * Explorer Sites resource noise filtered, same precedent as
+ * explorer-generic-content-items.spec.js) for the C5 zero-noise assertion.
+ *
+ * @param {import('@playwright/test').Page} page
+ * @returns {{ pageErrors: string[], consoleErrors: string[] }}
+ */
+function trackJsErrors(page) {
+  const pageErrors = [];
+  const consoleErrors = [];
+  page.on("pageerror", (err) => pageErrors.push(String(err)));
+  page.on("console", (msg) => {
+    if (msg.type() === "error") consoleErrors.push(msg.text());
+  });
+  return { pageErrors, consoleErrors };
+}
+
+/**
+ * @param {string[]} consoleErrors
+ * @returns {string[]}
+ */
+function relatedConsoleErrors(consoleErrors) {
+  return consoleErrors.filter(
+    (text) => !isKnownExplorerSitesConsoleNoise(text),
+  );
+}
+
+/**
  * @param {import('@playwright/test').Page} page
  * @param {{ children?: object }} [opts]
  */
@@ -93,11 +157,39 @@ async function installGenericGatedRoutes(page, opts = {}) {
   const children = opts.children ?? CHILDREN;
   /** @type {string[]} */
   const published = [];
-  await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
+  // Item-scoped panel chrome is not the gating SUT: keep the checkout-owner
+  // panel and the Change-Template menu quiet for mocked rows so the live
+  // cell logs no fixture-artifact ERRORs (real generic rows carry numeric
+  // Rhythmyx ids that resolve server-side).
+  await page.route("**/editor/items/*/checkout-owner**", async (route) => {
     await route.fulfill({
       status: 200,
       contentType: "application/json",
-      body: JSON.stringify(LISTING),
+      body: "{}",
+    });
+  });
+  await page.route("**/actions/find/templates/**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ActionMenuList: { ActionMenu: [] } }),
+    });
+  });
+  await page.route("**/itemmanagement/workflow/getTransitions/**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({ ItemStateTransition: { transitionTriggers: [] } }),
+    });
+  });
+  await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {    const url = route.request().url();
+    const inNews =
+      url.includes(encodeURIComponent("/Sites/Demo/News")) ||
+      url.includes("/Sites/Demo/News");
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify(inNews ? CHILDREN_LISTING : LISTING),
     });
   });
   await page.route("**/pathmanagement/path/folder/**", async (route) => {
@@ -157,18 +249,20 @@ test.describe("Explorer generic items stay publish-gated (#6580)", () => {
     "generic row hides the publish family but stays keyboard-focusable",
     { tag: ["@explorer", "@explorer-publish", "@explorer-generic-gated"] },
     async ({ page }) => {
-      const pageErrors = [];
-      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      const { pageErrors, consoleErrors } = trackJsErrors(page);
       await installGenericGatedRoutes(page);
       await openFolder(page);
 
-      const genericRow = page.locator('[data-testid="detail-row-g-9"]');
+      // Open the folder so the detail list shows its children (#6514).
+      await page.locator('[data-testid="action-open"]').click();
+      await page.waitForLoadState("networkidle").catch(() => undefined);
+      const genericRow = page.locator('[data-testid="detail-row-9001999"]');
       await expect(genericRow).toBeVisible({ timeout: 20_000 });
       await expect(genericRow).toHaveAttribute("data-row-kind", "item");
       await genericRow.click();
       await expect(
         page.locator(
-          '[data-testid="content-explorer-shell"][data-selected-item-id="g-9"]',
+          '[data-testid="content-explorer-shell"][data-selected-item-id="9001999"]',
         ),
       ).toBeVisible({ timeout: 10_000 });
 
@@ -195,7 +289,11 @@ test.describe("Explorer generic items stay publish-gated (#6580)", () => {
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="content-explorer-shell"]',
       });
-      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
+      const relatedConsole = relatedConsoleErrors(consoleErrors);
+      expect(
+        [...pageErrors, ...relatedConsole],
+        [...pageErrors, ...relatedConsole].join(" | "),
+      ).toEqual([]);
     },
   );
 
@@ -203,8 +301,7 @@ test.describe("Explorer generic items stay publish-gated (#6580)", () => {
     "folder publish confirm scopes other types and skips the generic row honestly",
     { tag: ["@explorer", "@explorer-publish", "@explorer-generic-gated"] },
     async ({ page }) => {
-      const pageErrors = [];
-      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      const { pageErrors, consoleErrors } = trackJsErrors(page);
       page.on("dialog", (dialog) => {
         expect(dialog.message()).toMatch(
           /Other item types and nested folders are not included/i,
@@ -223,15 +320,22 @@ test.describe("Explorer generic items stay publish-gated (#6580)", () => {
       );
       await expect(banner).toContainText(/PromoSnippet/i, { timeout: 10_000 });
       await expect(banner).toContainText(/not pages or assets/i);
+      await banner.screenshot({
+        path: "test-results/live-proof-6580-publish-gated.png",
+      });
       await expect.poll(() => published.length).toBe(1);
       expect(published.some((url) => url.includes("/publish/page/42"))).toBe(
         true,
       );
-      expect(published.some((url) => url.includes("g-9"))).toBe(false);
+      expect(published.some((url) => url.includes("9001999"))).toBe(false);
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="content-explorer-shell"]',
       });
-      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
+      const relatedConsole = relatedConsoleErrors(consoleErrors);
+      expect(
+        [...pageErrors, ...relatedConsole],
+        [...pageErrors, ...relatedConsole].join(" | "),
+      ).toEqual([]);
     },
   );
 
@@ -239,8 +343,7 @@ test.describe("Explorer generic items stay publish-gated (#6580)", () => {
     "empty folder publish keeps the no-pages-or-assets empty state",
     { tag: ["@explorer", "@explorer-publish", "@explorer-generic-gated"] },
     async ({ page }) => {
-      const pageErrors = [];
-      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      const { pageErrors, consoleErrors } = trackJsErrors(page);
       page.on("dialog", (dialog) => {
         void dialog.accept();
       });
@@ -257,7 +360,11 @@ test.describe("Explorer generic items stay publish-gated (#6580)", () => {
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="content-explorer-shell"]',
       });
-      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
+      const relatedConsole = relatedConsoleErrors(consoleErrors);
+      expect(
+        [...pageErrors, ...relatedConsole],
+        [...pageErrors, ...relatedConsole].join(" | "),
+      ).toEqual([]);
     },
   );
 });
