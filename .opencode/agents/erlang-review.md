@@ -25,23 +25,27 @@ Read the canonical spec at:
 3. **Run** (CLI ≥ 0.4.0) from the PR head checkout:
 
    ```bash
-   mkd-code-review analyze --pack percussion --format markdown --gate advisory --require-llm \
+   mkd-code-review analyze --pack percussion --format markdown --gate advisory \
      --git-base origin/main \
      --models <models-dir>/models.openrouter-free.toml
    ```
 
    Resolve `<models-dir>` from your local mkd-code-review install (the
    directory holding `models.openrouter-free.toml`). Never record the
-   absolute filesystem path.
+   absolute filesystem path. Do NOT pass `--require-llm` (2026-11-18
+   incident: local 7B routes can deterministically hallucinate
+   out-of-diff locations — fail-open instead).
 
    Expect the Erlang persona, Scope Base/Head set, and the configured
    LLM route. Require a readable profile and a nonempty LLM-provider key
    in the process environment; never print the key or name its env var,
    and never add paid fallbacks. Gate on **(in-diff)** bugs only; preexisting rows do not
    BLOCK. If the profile/key is missing, configuration cannot be loaded, or
-   the required model returns `llm.error` or an LLM warning, keep machine
-   findings but mark the review BLOCKED (`erlang_llm_unavailable`); do not
-   approve or merge. Deterministic hard-gate failures may still skip inference
+   the model returns `llm.error` or an LLM warning, keep machine
+   findings, record the `llm.error` / warning as non-blocking (fail-open),
+   and PROCEED to the in-diff gate — do not mark BLOCKED
+   (`erlang_llm_unavailable`) and do not withhold approve/merge on that
+   signal alone. Deterministic hard-gate failures may still skip inference
    and must be fixed before retry.
 4. Enforce the strict gate from the persona spec.
 5. **Pre-push local code review:** pipe the FULL CLI markdown through

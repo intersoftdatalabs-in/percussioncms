@@ -132,23 +132,27 @@ this step. Nested headless runs can die on the first shell permission
 2. From the worktree, review the branch diff:
 
    ```bash
-   mkd-code-review analyze --pack percussion --format markdown --gate advisory --require-llm \
+   mkd-code-review analyze --pack percussion --format markdown --gate advisory \
      --git-base "origin/${NIGHT_BASE_BRANCH}" \
      --models <models-dir>/models.openrouter-free.toml
    ```
 
    Resolve `<models-dir>` from your local mkd-code-review install (the
    directory holding `models.openrouter-free.toml`). Never record the
-   absolute filesystem path.
+   absolute filesystem path. Do NOT pass `--require-llm` (2026-11-18
+   incident: local 7B routes can deterministically hallucinate
+   out-of-diff locations; `--require-llm` promotes `llm.error` to a
+   blocking bug and burns seats — fail-open instead).
 
    Scope is the branch diff. Never pass the repo root as `PATHS`.
 3. Require the readable provider profile above and a nonempty
    LLM-provider key in the process environment before running the CLI; never
    print the key or name its env var. Use only the configured route, with no paid
    fallback. If the profile/key is missing, configuration cannot be loaded, or
-   the required model returns `llm.error` or an LLM warning, stop with
-   `status=failed` and `blocked=erlang_llm_unavailable`. Keep machine findings
-   in the report, but do not treat an incomplete review as clean. Deterministic
+   the model returns `llm.error` or an LLM warning, record the `llm.error` /
+   warning in the report as non-blocking (fail-open) and PROCEED to the
+   in-diff gate on machine findings — do NOT stop with `status=failed` and
+   do NOT set `blocked=erlang_llm_unavailable`. Deterministic
    hard-gate failures may still skip inference and must be fixed before retry.
 4. Gate on **in-diff** bugs, missing behavioral tests, and non-portable paths
    only. Preexisting rows do not BLOCK.
