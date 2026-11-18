@@ -421,6 +421,12 @@ export function DisplayFormatDetailPanel({
     setDescriptionError(null);
   }
 
+  function handleDescriptionKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelDescriptionEdit();
+    }
+  }
+
   async function handleDescriptionSave(): Promise<void> {
     if (
       isNew ||
@@ -1023,7 +1029,9 @@ export function DisplayFormatDetailPanel({
                     style={inputStyle}
                     value={descriptionDraft}
                     disabled={descriptionBusy}
+                    autoFocus
                     onChange={(e) => setDescriptionDraft(e.target.value)}
+                    onKeyDown={handleDescriptionKeyDown}
                   />
                   <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
                     <button

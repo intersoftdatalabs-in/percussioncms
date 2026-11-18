@@ -1240,4 +1240,48 @@ describe("DisplayFormatDetailPanel", () => {
       "Folder list",
     );
   });
+
+  it("focuses the description input when the editor opens", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa5381fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [{ source: "sys_title", displayName: "Title", position: 0 }],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    render(<DisplayFormatDetailPanel idOrName="qa5381fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-description-edit"));
+    expect(screen.getByTestId("developer-df-set-description-input")).toHaveFocus();
+  });
+
+  it("Escape cancels the description edit without calling save", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa5381fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [{ source: "sys_title", displayName: "Title", position: 0 }],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    render(<DisplayFormatDetailPanel idOrName="qa5381fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-df-set-description-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-df-set-description-editor")).toBeNull();
+    expect(updateDisplayFormat).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-df-set-description-text").getAttribute("data-df-description")).toBe(
+      "Folder list",
+    );
+  });
 });
