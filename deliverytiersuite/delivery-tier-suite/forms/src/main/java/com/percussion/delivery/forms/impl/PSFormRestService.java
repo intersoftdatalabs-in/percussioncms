@@ -795,13 +795,13 @@ public class PSFormRestService extends PSAbstractRestService implements IPSFormR
   }
 
   @Override
-  public String getVersion() {
+  public String getHealth() {
 
-    String version = super.getVersion();
+    String health = super.getHealth();
 
-    log.info("getVersion() from PSFormRestService ...{}", version);
+    log.info("getHealth() from PSFormRestService ...{}", health);
 
-    return version;
+    return health;
   }
 
   /** {@inheritDoc} */

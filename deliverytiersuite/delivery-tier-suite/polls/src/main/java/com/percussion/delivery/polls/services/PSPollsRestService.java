@@ -200,14 +200,15 @@ public class PSPollsRestService extends PSAbstractRestService implements IPSPoll
   }
 
   /**
-   * Returns the polls module's reported version, logging it on the way through.
+   * Returns the polls module's health status, logging it on the way through.
    *
-   * @return the polls module version string.
+   * @return the string {@code OK}.
    */
-  public String getVersion() {
-    var version = super.getVersion();
-    log.info("getVersion() from PSPollsRestService ...{}", version);
-    return version;
+  @Override
+  public String getHealth() {
+    var health = super.getHealth();
+    log.info("getHealth() from PSPollsRestService ...{}", health);
+    return health;
   }
 
   /** {@inheritDoc} */

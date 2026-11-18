@@ -505,13 +505,13 @@ public class PSMembershipRestService extends PSAbstractRestService
   }
 
   @Override
-  public String getVersion() {
+  public String getHealth() {
 
-    String version = super.getVersion();
+    String health = super.getHealth();
 
-    log.info("getVersion() from PSMembershipRestService ...{}", version);
+    log.info("getHealth() from PSMembershipRestService ...{}", health);
 
-    return version;
+    return health;
   }
 
   @DELETE

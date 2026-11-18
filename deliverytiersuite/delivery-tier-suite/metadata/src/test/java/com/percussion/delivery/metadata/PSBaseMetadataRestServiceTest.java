@@ -19,7 +19,6 @@ package com.percussion.delivery.metadata;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.delivery.services.PSAbstractRestService;
-import com.percussion.delivery.utils.PSVersionHelper;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.MediaType;
@@ -55,20 +54,11 @@ public class PSBaseMetadataRestServiceTest extends JerseyTest {
   }
 
   @Test
-  public void testGetRestVersion() {
-    Response response = target("membership/version").request(MediaType.TEXT_PLAIN).get();
+  public void testGetRestHealth() {
+    Response response = target("membership/health").request(MediaType.TEXT_PLAIN).get();
 
     assertNotNull(response);
     assertEquals(200, response.getStatus());
-    String version_string = PSVersionHelper.getVersion(this.getClass());
-    assertNotNull(version_string);
-    assertEquals(version_string, response.readEntity(String.class));
-  }
-
-  @Test
-  public void testGetVersion() {
-    String version = PSVersionHelper.getVersion(this.getClass());
-    assertNotNull(version);
-    System.out.print(version);
+    assertEquals("OK", response.readEntity(String.class));
   }
 }
