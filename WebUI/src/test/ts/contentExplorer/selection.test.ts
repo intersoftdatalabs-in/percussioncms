@@ -23,6 +23,7 @@ import {
   explorerMultiSelectKey,
   isAssetContentType,
   isFolder,
+  isPageContentType,
   isPageOrAssetContentType,
   sameExplorerItemId,
 } from "../../../main/ts/contentExplorer/selection";
@@ -392,6 +393,75 @@ describe("isAssetContentType (#3552 review)", () => {
     expect(
       isAssetContentType({
         id: "c-3",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "customAsset",
+        category: "ASSET",
+      }),
+    ).toBe(false);
+  });
+});
+
+describe("isPageContentType (#6581)", () => {
+  it("treats stock page types and page categories as pages", () => {
+    expect(
+      isPageContentType({
+        id: "p-1",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "percPage",
+        category: "PAGE",
+      }),
+    ).toBe(true);
+    expect(
+      isPageContentType({
+        id: "p-2",
+        name: "Landing",
+        path: "/Sites/Demo/Landing",
+        type: "customLanding",
+        category: "LANDING_PAGE",
+      }),
+    ).toBe(true);
+    expect(
+      isPageContentType({
+        id: "p-3",
+        name: "Brief",
+        path: "/Sites/Demo/Brief",
+        type: "rffBrief",
+      }),
+    ).toBe(true);
+  });
+
+  it("does not treat folders, assets, or custom types as pages", () => {
+    expect(
+      isPageContentType({
+        id: "f-1",
+        name: "Demo",
+        path: "/Sites/Demo/",
+        type: "folder",
+      }),
+    ).toBe(false);
+    expect(
+      isPageContentType({
+        id: "a-1",
+        name: "hero.png",
+        path: "/Assets/hero.png",
+        type: "rffImage",
+        category: "ASSET",
+      }),
+    ).toBe(false);
+    expect(
+      isPageContentType({
+        id: "c-1",
+        name: "Press release",
+        path: "/Sites/Demo/Press",
+        type: "myPressRelease",
+        category: "RESOURCE",
+      }),
+    ).toBe(false);
+    expect(
+      isPageContentType({
+        id: "c-2",
         name: "Home",
         path: "/Sites/Demo/Home",
         type: "customAsset",

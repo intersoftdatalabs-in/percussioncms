@@ -27,10 +27,14 @@
 
 import type { ClipboardItem, PSPathItem } from "../../api/contentExplorer/types";
 import { firstNonBlank } from "../firstNonBlank";
-import { isAssetContentType, isFolder } from "../selection";
+import { isAssetContentType, isFolder, isPageContentType } from "../selection";
 
 /**
  * Convert a selected Explorer row into clipboard state.
+ *
+ * <p>Custom (non-stock) content types map to {@code kind: "item"}, not
+ * {@code "page"} (#6581) — transport treats them like pages, but the
+ * model no longer lies about what they are.</p>
  *
  * @return {@code null} only when the row has no stable id, path, or name
  */
@@ -42,7 +46,9 @@ export function toClipboardItem(item: PSPathItem): ClipboardItem | null {
     ? "folder"
     : isAssetContentType(item)
       ? "asset"
-      : "page";
+      : isPageContentType(item)
+        ? "page"
+        : "item";
   return {
     id,
     path,

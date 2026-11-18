@@ -92,4 +92,40 @@ describe("RecentPanel (#6256)", () => {
     expect(status).toHaveAttribute("role", "status");
     expect(status).toHaveTextContent("no longer available");
   });
+
+  it("labels page, asset, and generic item kinds distinctly (#6581)", async () => {
+    const page: RecentEntry = {
+      ...ITEM,
+      id: "16777215-101-551",
+      name: "Home",
+      path: "/Sites/Demo/Home",
+      kind: "page",
+    };
+    const asset: RecentEntry = {
+      ...ITEM,
+      id: "16777215-101-552",
+      name: "hero.png",
+      path: "/Assets/hero.png",
+      kind: "asset",
+    };
+    const generic: RecentEntry = {
+      ...ITEM,
+      id: "16777215-101-553",
+      name: "Press release",
+      path: "/Sites/Demo/Press",
+      kind: "item",
+      contentType: "myPressRelease",
+    };
+    const { container } = renderPanel({ items: [page, asset, generic] });
+    const rows = screen.getAllByTestId("recent-item-row");
+    expect(rows).toHaveLength(3);
+    expect(rows[0]).toHaveAttribute("data-recent-kind", "page");
+    expect(rows[1]).toHaveAttribute("data-recent-kind", "asset");
+    expect(rows[2]).toHaveAttribute("data-recent-kind", "item");
+    const openers = screen.getAllByTestId("recent-item-open");
+    expect(openers[0]).toHaveAttribute("aria-label", "Home (Page)");
+    expect(openers[1]).toHaveAttribute("aria-label", "hero.png (Asset)");
+    expect(openers[2]).toHaveAttribute("aria-label", "Press release (Item)");
+    await renderA11yGate(container);
+  });
 });

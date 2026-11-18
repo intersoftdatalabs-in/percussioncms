@@ -1431,9 +1431,11 @@ From the **View** menu you can also toggle:
   **View → Clipboard** again after Add — that hides the already-open panel.
   Select the destination folder in the tree or list, then **Paste** on the
   clipboard panel. Paste copies (or cuts) each clipboard item **into that
-  destination** using public REST `POST /rest/folders/copy/item` (pages and
-  assets), `POST /rest/folders/copy/folder` (folders), or the matching
-  `move/item` / `move/folder` endpoints for Cut. Missing destination is HTTP
+  destination** using public REST `POST /rest/folders/copy/item` (pages,
+  assets, and generic custom-type items), `POST /rest/folders/copy/folder`
+  (folders), or the matching `move/item` / `move/folder` endpoints for Cut.
+  The panel labels each staged row Folder, Page, Asset, or Item — rows of
+  custom content types are Items, not Pages. Missing destination is HTTP
   **404**; non-admin callers receive **403**; pasting a folder into itself is
   **409**. Paste is not the reduced-actions Copy destination picker.
 
@@ -1441,12 +1443,15 @@ From the **View** menu you can also toggle:
 
 **View → Recent** (or the **Recent** button in the view tools) opens the
 **Recent** quick-access panel. It lists the last 10 items you opened in
-Content Explorer — pages, assets, and folders — most recent first. Opening
+Content Explorer — pages, assets, generic custom-type items, and folders —
+most recent first. Opening
 an item again moves it to the top; the list is kept per signed-in operator
 in the browser (local storage), so it is not shared across browsers or
 operators and it never calls the server to load.
 
 - A **page or asset** row re-opens the item in the content editor.
+- A generic **item** row (a custom content type) re-opens in the editor
+  with that row's own content type.
 - A **folder** row browses back to that folder in the list.
 - Every row is a button, so Tab reaches it and Enter (or Space) activates
   it. Each row also has a **Remove from recent items** control; **Clear

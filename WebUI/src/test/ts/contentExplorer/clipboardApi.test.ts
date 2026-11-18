@@ -29,6 +29,9 @@ function page(id = "p-1"): ClipboardItem {
 function folder(id = "f-1"): ClipboardItem {
   return { id, path: "/Sites/" + id, kind: "folder" };
 }
+function genericItem(id = "g-1"): ClipboardItem {
+  return { id, path: "/Sites/Foo/" + id, kind: "item" };
+}
 
 const DEST = "/Assets/dst";
 
@@ -77,6 +80,33 @@ describe("pasteClipboardItems", () => {
         targetFolderPath: DEST,
       },
     });
+  });
+
+  it("POSTs copy/item for a generic item kind into the destination (#6581)", async () => {
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response("", { status: 200 }),
+    );
+    const summary = await pasteClipboardItems([genericItem()], "copy", DEST);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const [url, init] = fetchMock.mock.calls[0] ?? [];
+    expect(String(url)).toContain("/folders/copy/item");
+    const posted = JSON.parse(String(init?.body ?? "{}")) as Record<string, unknown>;
+    expect(posted).toEqual({
+      CopyFolderItemRequest: {
+        itemPath: "/Sites/Foo/g-1",
+        targetFolderPath: DEST,
+      },
+    });
+    expect(summary.results[0]?.ok).toBe(true);
+  });
+
+  it("POSTs move/item for a generic item cut into the destination (#6581)", async () => {
+    const fetchMock = vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response("", { status: 200 }),
+    );
+    await pasteClipboardItems([genericItem("g-2")], "cut", DEST);
+    const [url] = fetchMock.mock.calls[0] ?? [];
+    expect(String(url)).toContain("/folders/move/item");
   });
 
   it("uses the provided custom transport and aggregates per-item outcomes", async () => {

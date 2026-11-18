@@ -108,7 +108,7 @@ describe("Explorer recent-items quick access (#6256)", () => {
       expect(screen.getByTestId("recent-panel")).toBeInTheDocument(),
     );
     const row = screen.getByTestId("recent-item-row");
-    expect(row).toHaveAttribute("data-recent-kind", "item");
+    expect(row).toHaveAttribute("data-recent-kind", "page");
     expect(row).toHaveAttribute("data-recent-key", `id:${PAGE_ID}`);
     // Activating the row re-opens the item (probe passes, editor opens).
     onOpenItem.mockClear();
@@ -116,6 +116,58 @@ describe("Explorer recent-items quick access (#6256)", () => {
     await waitFor(() => expect(onOpenItem).toHaveBeenCalled());
     const reopened = onOpenItem.mock.calls[0][0] as { id?: string };
     expect(reopened.id).toBe(PAGE_ID);
+    await renderA11yGate(container);
+  });
+
+  it("records a custom-type row as a generic item and re-opens its own type (#6581)", async () => {
+    const customId = "16777215-101-705";
+    stubList([
+      {
+        id: customId,
+        name: "Press release",
+        path: "/Sites/Demo/Press",
+        type: "myPressRelease",
+        category: "RESOURCE",
+        leaf: true,
+      },
+    ]);
+    const onOpenItem = vi.fn();
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        onOpenItem={onOpenItem}
+        checkRecentItem={async () => true}
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId(`detail-row-${customId}`)).toBeInTheDocument(),
+    );
+    fireEvent.doubleClick(screen.getByTestId(`detail-row-${customId}`));
+    await waitFor(() => expect(onOpenItem).toHaveBeenCalled());
+    const stored = JSON.parse(
+      window.localStorage.getItem(recentStorageKey("Admin")) ?? "[]",
+    );
+    expect(stored).toHaveLength(1);
+    expect(stored[0]).toMatchObject({
+      kind: "item",
+      contentType: "myPressRelease",
+    });
+    openRecent();
+    await waitFor(() =>
+      expect(screen.getByTestId("recent-panel")).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("recent-item-row")).toHaveAttribute(
+      "data-recent-kind",
+      "item",
+    );
+    // Re-open restores the row's own content type, not percPage.
+    onOpenItem.mockClear();
+    fireEvent.click(screen.getByTestId("recent-item-open"));
+    await waitFor(() => expect(onOpenItem).toHaveBeenCalled());
+    const reopened = onOpenItem.mock.calls[0][0] as { type?: string };
+    expect(reopened.type).toBe("myPressRelease");
     await renderA11yGate(container);
   });
 

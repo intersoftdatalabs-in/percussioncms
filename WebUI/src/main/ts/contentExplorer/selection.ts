@@ -205,6 +205,28 @@ export function isAssetContentType(item: PSPathItem | null): boolean {
 }
 
 /**
+ * True when the row is a stock page, not a generic custom-type item.
+ *
+ * <p>Stock pages ({@code percPage} / {@code Page} / landing pages and the
+ * FastForward page family in {@link PAGE_TYPE_KEYS}) keep
+ * {@code ClipboardItem.kind === "page"}. Any other non-folder, non-asset
+ * workflowed row — customer content types, FastForward extras outside the
+ * page family — is a generic {@code "item"} (#6581), so the clipboard
+ * model no longer calls custom types pages.</p>
+ */
+export function isPageContentType(item: PSPathItem | null): boolean {
+  if (!item || isFolder(item)) {
+    return false;
+  }
+  const type = (item.type ?? "").trim().toLowerCase();
+  const category = (item.category ?? "").trim().toLowerCase();
+  if (category === "page" || category === "landing_page") {
+    return true;
+  }
+  return PAGE_TYPE_KEYS.has(type);
+}
+
+/**
  * Stable multi-select map key. Prefer content id, then path. Do not fall
  * back to {@code name} — two "Home" rows without id/path would collide.
  *
