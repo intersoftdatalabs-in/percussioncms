@@ -46,6 +46,7 @@ const {
   dtsContextUrl,
   dtsServiceUrl,
   indexerServiceUrl,
+  entryUrl,
   deliveryAuthHeader,
   probeEntry,
   entryPayload,
@@ -117,6 +118,19 @@ describe("metadata-index-matrix helpers (#6560)", () => {
     assert.equal(titles.length, 1);
     assert.equal(titles[0].value, entry.title);
     assert.ok(!("stringvalue" in titles[0]), "no stringvalue field (silently dropped live)");
+  });
+
+  it("builds double-slash entry URLs so DELETEs remove the row (#6557 trap 2)", () => {
+    const indexerSvc = "https://dts.example/perc-metadata-services/indexer";
+    const entry = probeEntry(1763260000000);
+    // The page path keeps its leading slash: /entry/ + /qamatrix-… =
+    // the doubled slash the {pagePath:.*} binding needs to preserve it.
+    // The single-slash form binds a slashless path and DELETEs nothing
+    // while answering 204, so seeded rows linger.
+    assert.equal(
+      entryUrl(indexerSvc, entry.path),
+      `${indexerSvc}/entry//qamatrix-index/matrix-1763260000000.html`,
+    );
   });
 
   it("builds the site-scoped index query with an explicit quoted criterion", () => {
@@ -225,7 +239,8 @@ describe("metadata-index-matrix helpers (#6560)", () => {
     assert.ok(spec.includes("metadata-index-matrix.json"), "matrix artifact written");
     assert.ok(spec.includes("DTS_BASE_URL"), "skip contract declared");
     assert.ok(spec.includes("dtsServiceUrl"), "cases run through the deployment context (#6342)");
-    assert.ok(spec.includes("/indexer/entry"), "extractor seed surface named");
+    assert.ok(spec.includes("entryUrl("), "seed and cleanup ride the double-slash entry contract (#6557)");
+    assert.ok(!spec.includes("/entry${"), "no single-slash entry URL (silent-litter trap, #6557)");
     for (const name of ["CASE_QUERY", "CASE_SEEDED", "CASE_CLEANUP"]) {
       assert.ok(spec.includes(name), `spec implements the ${name} case`);
     }

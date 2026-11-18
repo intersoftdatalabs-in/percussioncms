@@ -37,7 +37,11 @@
  * skips the seeding cases with a named reason instead of failing. Each
  * Playwright case seeds its own probe descriptor under a unique site
  * so cases stay independent under parallel workers (the descriptor PUT
- * scopes writes per site).</p>
+ * scopes writes per site). Index-row seed and cleanup ride the
+ * supported extractor contract (helpers {@code entryUrl} +
+ * {@code indexEntryPayload}: {@code value} shape, double-slash entry
+ * URLs — the {@code stringvalue} / single-slash forms silently drop or
+ * litter rows, #6557).</p>
  *
  * <p>Run (needs the DTS-providing cell):
  * {@code DTS_BASE_URL=https://<dts-cell-origin>
@@ -61,6 +65,7 @@ const {
   dtsContextUrl,
   dtsServiceUrl,
   indexerServiceUrl,
+  entryUrl,
   deliveryAuthHeader,
   probeFeed,
   descriptorPayload,
@@ -113,6 +118,10 @@ async function readJson(response) {
  * cell limitations (auth-gated or CONFIDENTIAL-redirected writes) and
  * failing on any other rejection. Removal of the index rows stays with
  * the caller (try/finally) so the cell never keeps probe rows behind.
+ * Entry URLs keep the page path's leading slash (double slash,
+ * {@link entryUrl}): the single-slash form binds a slashless
+ * {@code pagePath} and DELETEs nothing while answering 204, so seeded
+ * rows would linger (#6557 trap 2).
  */
 async function seedProbe(request, svc, indexerSvc, feed) {
   const put = await request.put(`${svc}/descriptors`, {
@@ -138,7 +147,7 @@ async function seedProbe(request, svc, indexerSvc, feed) {
   ).toBe(true);
 
   for (const entry of feed.entries) {
-    const seed = await request.post(`${indexerSvc}/entry${entry.path}`, {
+    const seed = await request.post(entryUrl(indexerSvc, entry.path), {
       maxRedirects: 0,
       headers: deliveryAuthHeader(),
       data: indexEntryPayload(entry, feed.site),
@@ -163,12 +172,13 @@ async function seedProbe(request, svc, indexerSvc, feed) {
  * assertion that already ran — no assertions inside). The probe
  * descriptor has no single-delete endpoint and remains against its
  * emptied query; the unique probe site keeps that residue invisible
- * to every other test.
+ * to every other test. The row DELETEs go through {@link entryUrl}
+ * (double slash, #6557 trap 2) so they actually remove the rows.
  */
 async function removeProbeRows(request, indexerSvc, feed) {
   for (const entry of feed.entries) {
     const cleanup = await request
-      .delete(`${indexerSvc}/entry${entry.path}`, {
+      .delete(entryUrl(indexerSvc, entry.path), {
         maxRedirects: 0,
         headers: deliveryAuthHeader(),
       })

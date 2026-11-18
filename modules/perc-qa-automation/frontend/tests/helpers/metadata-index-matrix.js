@@ -197,6 +197,27 @@ function indexerServiceUrl(dtsOrigin) {
 }
 
 /**
+ * Extractor entry URL for one probe page path: the indexer root plus
+ * {@code /entry/} plus the page path with its leading slash kept, so
+ * the request line carries the double slash
+ * ({@code /indexer/entry//qamatrix-index/...}). The extractor binds
+ * {@code /entry/{pagePath:.*}} and the DAO matches {@code pagepath}
+ * verbatim including the leading slash, so the single-slash form
+ * ({@code /indexer/entry/qamatrix-index/...}) binds a slashless path
+ * and DELETEs nothing while answering 204 — the silent-litter trap
+ * (#6557 trap 2). The single choke point keeps seed and cleanup on the
+ * supported contract (same as
+ * {@code docker/scripts/qa_seed_widget_fixtures.py#entry_url}).
+ *
+ * @param {string} indexerSvc indexer service root from {@link indexerServiceUrl}
+ * @param {string} pagePath probe page path with its leading slash (see {@link probeEntry})
+ * @returns {string} entry URL with the doubled slash
+ */
+function entryUrl(indexerSvc, pagePath) {
+  return `${indexerSvc}/entry/${pagePath}`;
+}
+
+/**
  * BASIC credentials for the role-protected DTS extractor endpoints
  * (the context-level {@code /indexer/entry/...} surface,
  * {@code deliverymanager} role). Defaults are the shipped DTS
@@ -429,6 +450,7 @@ module.exports = {
   dtsContextUrl,
   dtsServiceUrl,
   indexerServiceUrl,
+  entryUrl,
   deliveryAuthHeader,
   probeEntry,
   entryPayload,
