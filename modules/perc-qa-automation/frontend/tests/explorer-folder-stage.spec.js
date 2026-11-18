@@ -16,9 +16,15 @@
 
 /**
  * Explorer Stage / Remove from Staging for a selected folder (#6419 /
- * parent #4530).
+ * parent #4530; dialog parity #6530).
  *
- * <p>Run (QA mode after {@code perc-devctl qa-up}):
+ * <p>Folder-children Stage / Remove-from-Staging routes through the same
+ * BulkStageDialog chrome as multi-select (#6469): the dialog lists the
+ * direct children, runs the batch, and reports every row outcome with a
+ * summary — replacing the native confirm plus the transient Server-actions
+ * banner.</p>
+ *
+ * <p>Run (QA mode after {@code perc-devctl.py qa-up}):
  * {@code npm run test:surface -- --path tests/explorer-folder-stage.spec.js}
  * from {@code modules/perc-qa-automation/frontend}.</p>
  */
@@ -167,32 +173,52 @@ test.describe("Explorer folder Stage / Remove from Staging", () => {
   });
 
   test(
-    "one confirm stages pages and assets in the folder",
+    "folder Stage dialog lists children and reports every row",
     { tag: ["@explorer", "@explorer-staging", "@explorer-folder-stage"] },
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        expect(dialog.message()).toMatch(/Stage the pages and assets in this folder/i);
-        void dialog.accept();
-      });
       const { staged, unstaged, listed } = await installFolderStageRoutes(page);
       await openFolder(page);
       const stage = page.locator('[data-testid="action-toolbar-item-Stage"]');
       await expect(stage).toBeVisible({ timeout: 15_000 });
       await stage.click();
+      const dialog = page.locator('[data-testid="explorer-bulk-stage-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
       await expect(
-        page.locator('[data-testid="explorer-server-actions-error"]'),
-      ).toContainText(/Folders are not staged: Nested/i, { timeout: 10_000 });
+        page.locator('[data-testid="explorer-bulk-stage-items"]'),
+      ).toContainText(/Home/);
+      await expect(
+        page.locator('[data-testid="explorer-bulk-stage-items"]'),
+      ).toContainText(/logo/);
+      await expect(
+        page.locator('[data-testid="explorer-bulk-stage-skipped"]'),
+      ).toContainText(/Nested/i);
+      await page.locator('[data-testid="explorer-bulk-stage-confirm"]').click();
+      await expect(
+        page.locator('[data-testid="explorer-bulk-stage-summary"]'),
+      ).toContainText(/2 staged, 1 skipped, 0 failed/i, { timeout: 10_000 });
+      const rows = page.locator(
+        '[data-testid="explorer-bulk-stage-report-row"]',
+      );
+      await expect(rows).toHaveCount(3);
+      await expect(rows.nth(0)).toContainText(/Home.*Staged/i);
+      await expect(rows.nth(1)).toContainText(/logo.*Staged/i);
+      await expect(rows.nth(2)).toContainText(/Nested/i);
       await expect.poll(() => staged.length).toBe(2);
       expect(staged.some((url) => url.includes("/page/staging/42"))).toBe(true);
       expect(staged.some((url) => url.includes("/resource/staging/99"))).toBe(true);
       expect(unstaged).toEqual([]);
       expect(listed.length).toBeGreaterThan(0);
+      await page.locator('[data-testid="explorer-bulk-stage-close"]').click();
+      await expect(dialog).toHaveCount(0);
       await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
         "data-list-epoch",
         "1",
       );
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toHaveCount(0);
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="content-explorer-shell"]',
       });
@@ -204,17 +230,11 @@ test.describe("Explorer folder Stage / Remove from Staging", () => {
   );
 
   test(
-    "one confirm removes pages and assets in the folder from staging",
+    "folder Remove from Staging dialog lists children and reports every row",
     { tag: ["@explorer", "@explorer-staging", "@explorer-folder-stage"] },
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        expect(dialog.message()).toMatch(
-          /Remove the pages and assets in this folder from staging/i,
-        );
-        void dialog.accept();
-      });
       const { staged, unstaged } = await installFolderStageRoutes(page);
       await openFolder(page);
       const unstage = page.locator(
@@ -222,11 +242,24 @@ test.describe("Explorer folder Stage / Remove from Staging", () => {
       );
       await expect(unstage).toBeVisible({ timeout: 15_000 });
       await unstage.click();
+      const dialog = page.locator('[data-testid="explorer-bulk-stage-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
       await expect(
-        page.locator('[data-testid="explorer-server-actions-error"]'),
-      ).toContainText(/Folders are not removed from staging: Nested/i, {
+        page.locator('[data-testid="explorer-bulk-stage-items"]'),
+      ).toContainText(/Home/);
+      await page.locator('[data-testid="explorer-bulk-stage-confirm"]').click();
+      await expect(
+        page.locator('[data-testid="explorer-bulk-stage-summary"]'),
+      ).toContainText(/2 removed from staging, 1 skipped, 0 failed/i, {
         timeout: 10_000,
       });
+      const rows = page.locator(
+        '[data-testid="explorer-bulk-stage-report-row"]',
+      );
+      await expect(rows).toHaveCount(3);
+      await expect(rows.nth(0)).toContainText(/Home.*Removed from staging/i);
+      await expect(rows.nth(1)).toContainText(/logo.*Removed from staging/i);
+      await expect(rows.nth(2)).toContainText(/Nested/i);
       await expect.poll(() => unstaged.length).toBe(2);
       expect(
         unstaged.some((url) => url.includes("/takedown/page/staging/42")),
@@ -235,56 +268,80 @@ test.describe("Explorer folder Stage / Remove from Staging", () => {
         unstaged.some((url) => url.includes("/takedown/resource/staging/99")),
       ).toBe(true);
       expect(staged).toEqual([]);
+      await page.locator('[data-testid="explorer-bulk-stage-close"]').click();
+      await expect(dialog).toHaveCount(0);
       await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
         "data-list-epoch",
         "1",
       );
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toHaveCount(0);
       expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
     },
   );
 
   test(
-    "cancel stages nothing",
+    "folder dialog cancel stages nothing",
     { tag: ["@explorer", "@explorer-staging", "@explorer-folder-stage"] },
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        void dialog.dismiss();
-      });
       const { staged, unstaged, listed } = await installFolderStageRoutes(page);
       await openFolder(page);
       await page.locator('[data-testid="action-toolbar-item-Stage"]').click();
+      const dialog = page.locator('[data-testid="explorer-bulk-stage-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await page.locator('[data-testid="explorer-bulk-stage-cancel"]').click();
+      await expect(dialog).toHaveCount(0);
       await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
         "data-list-epoch",
         "0",
       );
       expect(staged).toEqual([]);
       expect(unstaged).toEqual([]);
-      expect(listed.some((url) => url.includes("News"))).toBe(false);
+      // The dialog confirm list needs the children up front (#6530).
+      expect(listed.some((url) => url.includes("News"))).toBe(true);
       expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
     },
   );
 
   test(
-    "HTTP 403 on a folder child names the item and does not refresh",
+    "HTTP 403 on a folder child is reported per row in the dialog",
     { tag: ["@explorer", "@explorer-staging", "@explorer-folder-stage"] },
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        void dialog.accept();
-      });
       const { staged } = await installFolderStageRoutes(page, { homeStatus: 403 });
       await openFolder(page);
       await page.locator('[data-testid="action-toolbar-item-Stage"]').click();
-      const error = page.locator('[data-testid="explorer-server-actions-error"]');
-      await expect(error).toBeVisible({ timeout: 10_000 });
-      await expect(error).toContainText(/Home \(HTTP 403\)/i);
-      await expect(error).toContainText(/Not every selected item was staged/i);
+      const dialog = page.locator('[data-testid="explorer-bulk-stage-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await page.locator('[data-testid="explorer-bulk-stage-confirm"]').click();
+      const summary = page.locator(
+        '[data-testid="explorer-bulk-stage-summary"]',
+      );
+      await expect(summary).toContainText(/1 staged, 1 skipped, 1 failed/i, {
+        timeout: 10_000,
+      });
+      const rows = page.locator(
+        '[data-testid="explorer-bulk-stage-report-row"]',
+      );
+      await expect(rows.nth(0)).toContainText(/Home.*HTTP 403/i);
+      await expect(rows.nth(1)).toContainText(/logo.*Staged/i);
       await expect.poll(() => staged.length).toBe(2);
       expect(staged.some((url) => url.includes("/page/staging/42"))).toBe(true);
       expect(staged.some((url) => url.includes("/resource/staging/99"))).toBe(true);
+      await page.locator('[data-testid="explorer-bulk-stage-close"]').click();
+      await expect(dialog).toHaveCount(0);
+      // One child staged, so the list refreshes.
+      await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
+        "data-list-epoch",
+        "1",
+      );
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toHaveCount(0);
       expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
     },
   );

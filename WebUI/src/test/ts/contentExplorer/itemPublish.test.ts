@@ -34,6 +34,7 @@ import {
   isStageActionName,
   isTakedownActionName,
   linkedPagePathsForConfirm,
+  listStageFolderChildren,
   loadLinkedPagesForTakedown,
   parseLinkedPagesForTakedown,
   describePublishBatch,
@@ -405,6 +406,38 @@ describe("stageSelectedFolder", () => {
     const result = await stageSelectedFolder(item());
     expect(findChildren).not.toHaveBeenCalled();
     expect(result.stagedIds).toEqual([]);
+  });
+});
+
+describe("listStageFolderChildren (#6530)", () => {
+  it("returns direct children for a folder", async () => {
+    const children = [item({ id: "42", name: "Home" })];
+    findChildren.mockResolvedValue(children);
+    const result = await listStageFolderChildren(
+      item({
+        id: "7",
+        name: "News",
+        path: "/Sites/Demo/News",
+        type: "folder",
+        leaf: false,
+      }),
+    );
+    expect(findChildren).toHaveBeenCalledWith("/Sites/Demo/News");
+    expect(result).toEqual(children);
+  });
+
+  it("returns no children for a non-folder without listing", async () => {
+    expect(await listStageFolderChildren(item())).toEqual([]);
+    expect(findChildren).not.toHaveBeenCalled();
+  });
+
+  it("returns no children when the folder has no path", async () => {
+    expect(
+      await listStageFolderChildren(
+        item({ path: "  ", type: "folder", leaf: false }),
+      ),
+    ).toEqual([]);
+    expect(findChildren).not.toHaveBeenCalled();
   });
 });
 

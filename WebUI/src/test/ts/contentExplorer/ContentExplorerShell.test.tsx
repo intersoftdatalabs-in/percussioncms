@@ -670,7 +670,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
-  it("Stage HTTP 200 FORBIDDEN mounts server-actions error (#4546)", async () => {
+  it("Stage HTTP 200 FORBIDDEN reports the failed row in the dialog (#4546, dialog #6530)", async () => {
     const fetchSpy = mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
       if (url.includes("/publish/page/staging/") || url.includes("/publish/resource/staging/")) {
@@ -742,11 +742,31 @@ describe("ContentExplorerShell product composition (#2400)", () => {
 
     fireEvent.click(screen.getByTestId("action-toolbar-item-Stage"));
 
+    // Single-item Stage shares the bulk dialog chrome (#6530): the
+    // application-level failure lands in the per-row report, not the
+    // transient Server-actions banner.
     await waitFor(() => {
       expect(
-        screen.getByTestId("explorer-server-actions-error"),
-      ).toHaveTextContent(/FORBIDDEN|licensing|Publication stopped/i);
+        screen.getByTestId("explorer-bulk-stage-dialog"),
+      ).toBeInTheDocument();
     });
+    expect(screen.getByTestId("explorer-bulk-stage-items")).toHaveTextContent(
+      /Home/,
+    );
+    fireEvent.click(screen.getByTestId("explorer-bulk-stage-confirm"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-bulk-stage-summary"),
+      ).toHaveTextContent(/0 staged, 0 skipped, 1 failed/i);
+    });
+    expect(
+      screen.getByTestId("explorer-bulk-stage-report"),
+    ).toHaveTextContent(/Home.*Failed.*licensing/i);
+    expect(
+      screen.queryByTestId("explorer-server-actions-error"),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("explorer-bulk-stage-close"));
     expect(
       fetchSpy.mock.calls.some((call) =>
         String(call[0] ?? "").includes("sitemanage/publish/page/staging/"),
@@ -760,7 +780,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
-  it("Remove from Staging HTTP 200 NOSTAGING_SERVERS mounts server-actions error (#4546)", async () => {
+  it("Remove from Staging HTTP 200 NOSTAGING_SERVERS reports the failed row in the dialog (#4546, dialog #6530)", async () => {
     const fetchSpy = mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;
       if (url.includes("/takedown/page/staging/") || url.includes("/takedown/resource/staging/")) {
@@ -830,11 +850,31 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       screen.getByTestId("action-toolbar-item-Remove_from_Staging"),
     );
 
+    // Single-item Remove from Staging shares the bulk dialog chrome
+    // (#6530): the application-level failure lands in the per-row report,
+    // not the transient Server-actions banner.
     await waitFor(() => {
       expect(
-        screen.getByTestId("explorer-server-actions-error"),
-      ).toHaveTextContent(/No staging servers|NOSTAGING_SERVERS/i);
+        screen.getByTestId("explorer-bulk-stage-dialog"),
+      ).toBeInTheDocument();
     });
+    expect(screen.getByTestId("explorer-bulk-stage-items")).toHaveTextContent(
+      /Home/,
+    );
+    fireEvent.click(screen.getByTestId("explorer-bulk-stage-confirm"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-bulk-stage-summary"),
+      ).toHaveTextContent(/0 removed from staging, 0 skipped, 1 failed/i);
+    });
+    expect(
+      screen.getByTestId("explorer-bulk-stage-report"),
+    ).toHaveTextContent(/Home.*Failed.*No staging servers/i);
+    expect(
+      screen.queryByTestId("explorer-server-actions-error"),
+    ).not.toBeInTheDocument();
+    fireEvent.click(screen.getByTestId("explorer-bulk-stage-close"));
     expect(
       fetchSpy.mock.calls.some((call) =>
         String(call[0] ?? "").includes(
