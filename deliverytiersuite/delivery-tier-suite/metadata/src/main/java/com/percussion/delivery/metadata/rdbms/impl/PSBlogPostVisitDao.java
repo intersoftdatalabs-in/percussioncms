@@ -39,7 +39,6 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
@@ -99,7 +98,11 @@ public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
     throw new UnsupportedOperationException();
   }
 
-  @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+  // Issue #6375 (parent #6237): the shipped DTS JpaTransactionManager uses the
+  // default JPA dialect, which refuses to begin a transaction with any custom
+  // isolation level (InvalidIsolationLevelException, same root cause as #6343 /
+  // #6374 on the query path). Rely on the datasource default instead.
+  @Transactional
   public void save(Collection<IPSBlogPostVisit> visits) {
     Validate.notNull(visits, "visits cannot be null");
     if (visits.isEmpty()) return;
@@ -127,13 +130,13 @@ public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
     }
   }
 
-  @Transactional(isolation = Isolation.READ_UNCOMMITTED)
+  @Transactional
   public void save(IPSBlogPostVisit visit) {
     Collection<IPSBlogPostVisit> visits = Collections.singletonList(visit);
     save(visits);
   }
 
-  @Transactional(isolation = Isolation.READ_UNCOMMITTED, readOnly = true)
+  @Transactional(readOnly = true)
   public List<String> getTopVisitedPages(
       String sectionPath, int days, int limit, String sortOrder) {
     Session session = getSession();
@@ -175,7 +178,7 @@ public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
     return session.createQuery(criteriaQuery).setMaxResults(limit).getResultList();
   }
 
-  @Transactional(isolation = Isolation.READ_UNCOMMITTED, readOnly = true)
+  @Transactional(readOnly = true)
   public List<PSDbBlogPostVisit> findBlogPostVisit(String pagepath) {
     Validate.notEmpty(pagepath, "pagepath cannot be null nor empty");
 
@@ -196,7 +199,7 @@ public class PSBlogPostVisitDao implements IPSBlogPostVisitDao {
    * @param date the exact hit date to match; may be {@code null}.
    * @return the matching visit, or {@code null} if none was found.
    */
-  @Transactional(isolation = Isolation.READ_UNCOMMITTED, readOnly = true)
+  @Transactional(readOnly = true)
   public PSDbBlogPostVisit findBlogPostVisitByDate(String pagepath, LocalDate date) {
     Validate.notEmpty(pagepath, "pagepath cannot be null nor empty");
 
