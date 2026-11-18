@@ -19,7 +19,8 @@
  * Playwright surface: #6462 / parent #4531 — take down (unpublish) several
  * item ids from the PublishingShell site workspace with one confirm and a
  * per-item report (a per-item 403 is a named failure, not full success;
- * review alone writes nothing).
+ * review alone writes nothing). #6677 adds a Retry failed run that takes
+ * down only the failed ids and flips their rows.
  *
  * Tags: @publishing-item-takedown-batch @publish @smoke
  *
@@ -160,7 +161,7 @@ function trackConsoleErrors(page) {
   return consoleErrors;
 }
 
-test.describe("PublishingShell multi-item takedown (#6462)", () => {
+test.describe("PublishingShell multi-item takedown (#6462, retry #6677)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(90_000);
     await loginAsAdmin(page);
@@ -218,11 +219,11 @@ test.describe("PublishingShell multi-item takedown (#6462)", () => {
     expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
   });
 
-  test(`a per-item 403 is named and keeps the taken-down row ${TAGS.join(" ")}`, async ({
+  test(`a per-item 403 is named and retry takes down only the failed id ${TAGS.join(" ")}`, async ({
     page,
   }) => {
     const consoleErrors = trackConsoleErrors(page);
-    await stubBatchApis(page, {
+    const state = await stubBatchApis(page, {
       failIds: { [SECOND_ID]: "User demo is editing this page." },
     });
 
@@ -245,6 +246,34 @@ test.describe("PublishingShell multi-item takedown (#6462)", () => {
       panel.getByTestId(`${TEST_IDS.batchReportItemPrefix}${FIRST_ID}`),
     ).toContainText(/taken down/i);
     await expect(panel.getByTestId(TEST_IDS.success)).toHaveCount(0);
+    await expect(panel.getByTestId(TEST_IDS.retry)).toBeVisible();
+
+    // The retry run takes down only the failed id; the row flips to taken down.
+    await page.unroute("**/sitemanage/publish/takedown/**");
+    const retryCalls = [];
+    await page.route("**/sitemanage/publish/takedown/**", async (route) => {
+      retryCalls.push(takedownIdFromUrl(route.request().url()));
+      await route.fulfill({
+        status: 200,
+        contentType: "application/json",
+        body: JSON.stringify({ status: "Success" }),
+      });
+    });
+    const before = state.takedownCalls.length;
+    await panel.getByTestId(TEST_IDS.retry).click();
+    await expect(panel.getByTestId(TEST_IDS.success)).toContainText(
+      /all 1 items/i,
+      { timeout: 15000 },
+    );
+    expect(retryCalls).toEqual([SECOND_ID]);
+    expect(state.takedownCalls.length).toBe(before);
+    await expect(
+      panel.getByTestId(`${TEST_IDS.batchReportItemPrefix}${SECOND_ID}`),
+    ).toContainText(/taken down/i);
+    await expect(panel.getByTestId(TEST_IDS.retry)).toHaveCount(0);
+    await page.screenshot({
+      path: "test-results/live-proof-6677-takedown-retry.png",
+    });
     expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
   });
 });

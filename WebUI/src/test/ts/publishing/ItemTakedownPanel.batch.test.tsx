@@ -96,7 +96,7 @@ describe("ItemTakedownPanel batch", () => {
     ).toContain("taken down");
   });
 
-  it("names a per-item failure instead of reporting full success", async () => {
+  it("names a per-item failure and offers retry for the failed id", async () => {
     getMock.mockResolvedValue({ ArrayList: [] });
     takeDown
       .mockResolvedValueOnce(true)
@@ -113,6 +113,56 @@ describe("ItemTakedownPanel batch", () => {
     expect(screen.getByTestId("item-takedown-error").textContent).toContain(
       "43 (Publish Forbidden (HTTP 403 Forbidden))",
     );
+    expect(screen.getByTestId("item-takedown-retry")).toBeTruthy();
+  });
+
+  it("retry takes down only the failed ids and clears the button", async () => {
+    getMock.mockResolvedValue({ ArrayList: [] });
+    takeDown
+      .mockResolvedValueOnce(true)
+      .mockRejectedValueOnce({ status: 409, statusText: "Conflict", body: null });
+    await reviewBatch("42,43");
+    fireEvent.click(screen.getByTestId("item-takedown-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-retry")).toBeTruthy();
+    });
+    expect(takeDown).toHaveBeenCalledTimes(2);
+    takeDown.mockReset();
+    takeDown.mockResolvedValue(true);
+    fireEvent.click(screen.getByTestId("item-takedown-retry"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-success")).toBeTruthy();
+    });
+    expect(takeDown).toHaveBeenCalledTimes(1);
+    expect(takeDown.mock.calls[0]?.[0]).toMatchObject({ id: "43" });
+    expect(
+      screen.getByTestId("item-takedown-batch-report-item-43").textContent,
+    ).toContain("taken down");
+    expect(screen.queryByTestId("item-takedown-retry")).toBeNull();
+  });
+
+  it("retry on a single failed takedown resubmits the same item", async () => {
+    getMock.mockResolvedValue({ ArrayList: [] });
+    takeDown.mockRejectedValueOnce({
+      status: 404,
+      statusText: "Not Found",
+      body: null,
+    });
+    render(<ItemTakedownPanel itemId="42" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-submit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("item-takedown-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-retry")).toBeTruthy();
+    });
+    takeDown.mockReset();
+    takeDown.mockResolvedValue(true);
+    fireEvent.click(screen.getByTestId("item-takedown-retry"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-success")).toBeTruthy();
+    });
+    expect(takeDown).toHaveBeenCalledTimes(1);
   });
 
   it("keeps a multi-id lookup out of the shared workspace item", async () => {

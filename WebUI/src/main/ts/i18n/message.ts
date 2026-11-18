@@ -620,6 +620,7 @@ export const MSG = {
   PUBLISH_TAKEDOWN_BATCH_REVIEW_PARTIAL:
     "perc.ui.publish.modern@Reviewed {loaded} of {total}: {detail}",
   PUBLISH_TAKEDOWN_BATCH_ITEM_OK: "perc.ui.publish.modern@taken down",
+  PUBLISH_TAKEDOWN_RETRY_FAILED: "perc.ui.publish.modern@Retry failed",
   PUBLISH_TAKEDOWN_BATCH_CONFIRM:
     "perc.ui.publish.modern@Take down these {total} items? Linked pages are listed per item.",
   PUBLISH_STAGE: "perc.ui.publish.title@Stage / Remove From Staging",
