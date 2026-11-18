@@ -193,6 +193,8 @@ test.describe("React Content Editor quick Approve/Reject bar", () => {
 
       await page.locator(`[data-testid="${APPROVE}"]`).click();
       await expect(page.locator(`[data-testid="${DIALOG}"]`)).toBeVisible();
+      // Keyboard path (#4554): the dialog opens with focus in the comment box.
+      await expect(page.locator(`[data-testid="${COMMENT}"]`)).toBeFocused();
       await expect(
         page.locator(`[data-testid="${REQUIRED}"]`),
       ).toHaveCount(0);
@@ -236,6 +238,8 @@ test.describe("React Content Editor quick Approve/Reject bar", () => {
       });
       await page.locator(`[data-testid="${REJECT}"]`).click();
       await expect(page.locator(`[data-testid="${DIALOG}"]`)).toBeVisible();
+      // Keyboard path (#4554): the dialog opens with focus in the comment box.
+      await expect(page.locator(`[data-testid="${COMMENT}"]`)).toBeFocused();
       await expect(page.locator(`[data-testid="${REQUIRED}"]`)).toBeVisible();
       await expect(page.locator(`[data-testid="${CONFIRM}"]`)).toBeDisabled();
       expect(transitionCalls).toEqual([]);

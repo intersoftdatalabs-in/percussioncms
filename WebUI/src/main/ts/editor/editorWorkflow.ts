@@ -140,6 +140,31 @@ export function workflowCommentContainsNul(
 }
 
 /**
+ * Move keyboard focus to the workflow comment box and scroll it into view
+ * (#4554). Comment-gate blocks (missing or NUL comment) otherwise leave
+ * focus on the trigger button while the fix lives in the comment field;
+ * this mirrors {@code focusInvalidEditorField} for required-field errors.
+ * Returns false when the comment box is not in the document (caller keeps
+ * the alert notice as the fallback).
+ */
+export function focusWorkflowComment(): boolean {
+  if (typeof document === "undefined") {
+    return false;
+  }
+  const el = document.querySelector(
+    '[data-testid="editor-workflow-comment"]',
+  );
+  if (!(el instanceof HTMLElement)) {
+    return false;
+  }
+  el.focus();
+  if (typeof el.scrollIntoView === "function") {
+    el.scrollIntoView({ block: "nearest" });
+  }
+  return true;
+}
+
+/**
  * Whether the editor host may invoke {@code transitionWithComments}.
  *
  * <p>View / promote stay read-only. Triggers not in the loaded allowlist

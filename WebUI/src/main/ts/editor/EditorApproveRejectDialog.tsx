@@ -123,6 +123,7 @@ export function EditorApproveRejectDialog({
           value={comment}
           disabled={busy}
           rows={3}
+          autoFocus
           style={{ width: "100%", fontSize: 13 }}
           onChange={(e) => onCommentChange(e.target.value)}
         />
