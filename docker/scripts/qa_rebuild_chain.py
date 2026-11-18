@@ -51,7 +51,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Callable, Iterable, List, Optional, Sequence
+from typing import Callable, List, Optional, Sequence
 
 LOG = logging.getLogger("qa_rebuild_chain")
 
@@ -298,6 +298,234 @@ def _print_result(ok: bool, label: str, log_path: Optional[Path] = None) -> None
     print(f"RESULT:{status} STEP:{label}{log_part}")
 
 
+def _prepare_step_log(
+    log_dir: Optional[Path], step_label: str, index: int
+) -> Optional[Path]:
+    """Create the ``<log_dir>/<step_label>-<index>.log`` path (mkdir -p)."""
+    if log_dir is None:
+        return None
+    log_dir.mkdir(parents=True, exist_ok=True)
+    return log_dir / f"{step_label}-{index}.log"
+
+
+def _write_log_lines(log_path: Optional[Path], lines: Sequence[str]) -> None:
+    """Write short planned/skip lines to a step log; no-op without a log."""
+    if log_path is None:
+        return
+    with log_path.open("w", encoding="utf-8") as fh:
+        for line in lines:
+            fh.write(line + "\n")
+
+
+def _fail_step(label: str, log_path: Optional[Path], message: str) -> None:
+    """Report a failed step: stderr message plus a ``RESULT:FAIL`` line."""
+    print(message, file=sys.stderr)
+    _print_result(False, label, log_path)
+
+
+def _license_argv_banned(step: ChainStep, argv: Sequence[str]) -> bool:
+    """True when the license-inventory step would run with ``-N`` (#4420)."""
+    return step.label == "qa-rebuild-license-inventory" and bool(
+        {"-N", "--non-recursive"}.intersection(argv)
+    )
+
+
+def _report_missing_mvnw(mvnw: Path) -> None:
+    """Report a missing repo-root Maven wrapper before any step runs."""
+    print(
+        f"ERROR: Maven wrapper not found at {mvnw} "
+        f"(expected mvnw / mvnw.cmd at repo root)",
+        file=sys.stderr,
+    )
+    _print_result(False, "qa-rebuild-chain")
+
+
+# (label, present-check, reason-format) for steps the chain may skip when
+# their outputs already exist. Table-driven so a new skippable step does
+# not grow branch complexity in the per-step processor.
+_SKIP_CHECKS: tuple[
+    tuple[str, Callable[[Path], bool], Callable[[Path], str]], ...
+] = (
+    (
+        "qa-rebuild-license-inventory",
+        maven_inventory_present,
+        lambda root: f"inventory-present PATH:{maven_inventory_path(root)}",
+    ),
+    (
+        "qa-rebuild-secure-membership",
+        secure_membership_deps_present,
+        lambda root: (
+            "secure-membership-deps-present "
+            f"PATH:{secure_membership_dependency_dir(root)}"
+        ),
+    ),
+    (
+        "qa-rebuild-common-ui-bundle",
+        common_ui_bundle_present,
+        lambda root: (
+            "common-ui-bundle-present " f"PATH:{common_ui_bundle_js_path(root)}"
+        ),
+    ),
+    (
+        "qa-rebuild-dts-distribution",
+        dts_distribution_present,
+        lambda root: (
+            "dts-distribution-present "
+            f"PATH:{dts_distribution_jar_path(root)}"
+        ),
+    ),
+)
+
+
+def skip_reason_for_step(step: ChainStep, repo_root: Path) -> Optional[str]:
+    """Return the SKIP reason when a step's outputs already exist, else None."""
+    for label, present, reason in _SKIP_CHECKS:
+        if step.label == label and present(repo_root):
+            return reason(repo_root)
+    return None
+
+
+def _report_step_skip(
+    step: ChainStep, planned: str, log_path: Optional[Path], skip_reason: str
+) -> None:
+    """Report a skipped step: SKIP line plus a ``RESULT:OK`` line."""
+    skip_line = f"SKIP STEP:{step.label} REASON:{skip_reason}"
+    print(skip_line)
+    LOG.info(skip_line)
+    _write_log_lines(log_path, [planned, skip_line])
+    _print_result(True, step.label, log_path)
+
+
+def _report_dry_run_step(
+    step: ChainStep, planned: str, log_path: Optional[Path]
+) -> None:
+    """Report a dry-run step: short planned log plus a ``RESULT:OK`` line."""
+    _write_log_lines(log_path, [planned])
+    _print_result(True, step.label, log_path)
+
+
+def _invoke_maven_runner(
+    runner: RunFn,
+    argv: Sequence[str],
+    cwd: Path,
+    log_path: Optional[Path],
+    timeout_seconds: Optional[int],
+) -> subprocess.CompletedProcess:
+    """Invoke Maven for one step; the log variant tees stdout+stderr to disk."""
+    if log_path is not None:
+        with log_path.open("w", encoding="utf-8") as fh:
+            return runner(
+                list(argv),
+                cwd=str(cwd),
+                shell=False,
+                check=False,
+                stdout=fh,
+                stderr=subprocess.STDOUT,
+                timeout=timeout_seconds,
+            )
+    return runner(
+        list(argv),
+        cwd=str(cwd),
+        shell=False,
+        check=False,
+        timeout=timeout_seconds,
+    )
+
+
+def _execute_real_step(
+    *,
+    runner: RunFn,
+    step: ChainStep,
+    cwd: Path,
+    argv: Sequence[str],
+    log_path: Optional[Path],
+    timeout_seconds: Optional[int],
+) -> bool:
+    """Run one non-skipped Maven step. Returns True on success (reported)."""
+    LOG.info("Running: %s (cwd=%s)", " ".join(argv), cwd)
+    try:
+        completed = _invoke_maven_runner(
+            runner, argv, cwd, log_path, timeout_seconds
+        )
+    except subprocess.TimeoutExpired:
+        _fail_step(
+            step.label,
+            log_path,
+            f"ERROR: step {step.label} timed out after {timeout_seconds}s",
+        )
+        return False
+    except OSError as exc:
+        _fail_step(
+            step.label,
+            log_path,
+            f"ERROR: failed to start Maven for {step.label}: {exc}",
+        )
+        return False
+    if completed.returncode != 0:
+        _fail_step(
+            step.label,
+            log_path,
+            f"ERROR: step {step.label} exited {completed.returncode}",
+        )
+        return False
+    _print_result(True, step.label, log_path)
+    return True
+
+
+def _process_chain_step(
+    *,
+    step: ChainStep,
+    index: int,
+    repo_root: Path,
+    mvnw: Path,
+    log_dir: Optional[Path],
+    dry_run: bool,
+    runner: RunFn,
+    timeout_seconds: Optional[int],
+) -> bool:
+    """Process one chain step (announce -> guard -> dry-run/skip/run).
+
+    Returns True when the chain may continue, False on failure (already
+    reported via ``RESULT:FAIL``).
+    """
+    planned = _format_planned(step, repo_root, mvnw)
+    print(planned)
+    LOG.info(planned)
+    cwd = step.cwd(repo_root)
+    argv = step.argv(mvnw)
+    log_path = _prepare_step_log(log_dir, step.label, index)
+    if _license_argv_banned(step, argv):
+        _fail_step(
+            step.label,
+            log_path,
+            "ERROR: license aggregate must not use -N / --non-recursive "
+            "(empty root POM; THIRD-PARTY-MAVEN.txt is never written)",
+        )
+        return False
+    if dry_run:
+        _report_dry_run_step(step, planned, log_path)
+        return True
+    if not cwd.is_dir():
+        _fail_step(
+            step.label,
+            log_path,
+            f"ERROR: module directory missing for {step.label}: {cwd}",
+        )
+        return False
+    skip_reason = skip_reason_for_step(step, repo_root)
+    if skip_reason is not None:
+        _report_step_skip(step, planned, log_path, skip_reason)
+        return True
+    return _execute_real_step(
+        runner=runner,
+        step=step,
+        cwd=cwd,
+        argv=argv,
+        log_path=log_path,
+        timeout_seconds=timeout_seconds,
+    )
+
+
 def run_chain(
     repo_root: Path,
     *,
@@ -324,139 +552,23 @@ def run_chain(
     runner = run_fn or subprocess.run
 
     if not dry_run and not mvnw.is_file():
-        print(
-            f"ERROR: Maven wrapper not found at {mvnw} "
-            f"(expected mvnw / mvnw.cmd at repo root)",
-            file=sys.stderr,
-        )
-        _print_result(False, "qa-rebuild-chain")
+        _report_missing_mvnw(mvnw)
         return EXIT_INVOCATION
 
     overall_ok = True
     for index, step in enumerate(steps):
-        planned = _format_planned(step, repo_root, mvnw)
-        print(planned)
-        LOG.info(planned)
-
-        cwd = step.cwd(repo_root)
-        argv = step.argv(mvnw)
-        log_path: Optional[Path] = None
-        if log_dir is not None:
-            log_dir.mkdir(parents=True, exist_ok=True)
-            log_path = log_dir / f"{step.label}-{index}.log"
-
-        if step.label == "qa-rebuild-license-inventory":
-            banned = {"-N", "--non-recursive"}
-            if banned.intersection(argv):
-                print(
-                    "ERROR: license aggregate must not use -N / --non-recursive "
-                    "(empty root POM; THIRD-PARTY-MAVEN.txt is never written)",
-                    file=sys.stderr,
-                )
-                _print_result(False, step.label, log_path)
-                overall_ok = False
-                break
-
-        if dry_run:
-            if log_path is not None:
-                with log_path.open("w", encoding="utf-8") as fh:
-                    fh.write(planned + "\n")
-            _print_result(True, step.label, log_path)
-            continue
-
-        if not cwd.is_dir():
-            print(
-                f"ERROR: module directory missing for {step.label}: {cwd}",
-                file=sys.stderr,
-            )
-            _print_result(False, step.label, log_path)
+        if not _process_chain_step(
+            step=step,
+            index=index,
+            repo_root=repo_root,
+            mvnw=mvnw,
+            log_dir=log_dir,
+            dry_run=dry_run,
+            runner=runner,
+            timeout_seconds=timeout_seconds,
+        ):
             overall_ok = False
             break
-
-        skip_reason: Optional[str] = None
-        if step.label == "qa-rebuild-license-inventory" and maven_inventory_present(
-            repo_root
-        ):
-            skip_reason = (
-                f"inventory-present PATH:{maven_inventory_path(repo_root)}"
-            )
-        elif step.label == "qa-rebuild-secure-membership" and secure_membership_deps_present(
-            repo_root
-        ):
-            skip_reason = (
-                "secure-membership-deps-present "
-                f"PATH:{secure_membership_dependency_dir(repo_root)}"
-            )
-        elif step.label == "qa-rebuild-common-ui-bundle" and common_ui_bundle_present(
-            repo_root
-        ):
-            skip_reason = (
-                "common-ui-bundle-present "
-                f"PATH:{common_ui_bundle_js_path(repo_root)}"
-            )
-        elif step.label == "qa-rebuild-dts-distribution" and dts_distribution_present(
-            repo_root
-        ):
-            skip_reason = (
-                "dts-distribution-present "
-                f"PATH:{dts_distribution_jar_path(repo_root)}"
-            )
-        if skip_reason is not None:
-            skip_line = f"SKIP STEP:{step.label} REASON:{skip_reason}"
-            print(skip_line)
-            LOG.info(skip_line)
-            if log_path is not None:
-                with log_path.open("w", encoding="utf-8") as fh:
-                    fh.write(planned + "\n")
-                    fh.write(skip_line + "\n")
-            _print_result(True, step.label, log_path)
-            continue
-
-        LOG.info("Running: %s (cwd=%s)", " ".join(argv), cwd)
-        try:
-            if log_path is not None:
-                with log_path.open("w", encoding="utf-8") as fh:
-                    completed = runner(
-                        list(argv),
-                        cwd=str(cwd),
-                        shell=False,
-                        check=False,
-                        stdout=fh,
-                        stderr=subprocess.STDOUT,
-                        timeout=timeout_seconds,
-                    )
-            else:
-                completed = runner(
-                    list(argv),
-                    cwd=str(cwd),
-                    shell=False,
-                    check=False,
-                    timeout=timeout_seconds,
-                )
-        except subprocess.TimeoutExpired:
-            print(
-                f"ERROR: step {step.label} timed out after {timeout_seconds}s",
-                file=sys.stderr,
-            )
-            _print_result(False, step.label, log_path)
-            overall_ok = False
-            break
-        except OSError as exc:
-            print(f"ERROR: failed to start Maven for {step.label}: {exc}", file=sys.stderr)
-            _print_result(False, step.label, log_path)
-            overall_ok = False
-            break
-
-        if completed.returncode != 0:
-            print(
-                f"ERROR: step {step.label} exited {completed.returncode}",
-                file=sys.stderr,
-            )
-            _print_result(False, step.label, log_path)
-            overall_ok = False
-            break
-
-        _print_result(True, step.label, log_path)
 
     chain_label = "qa-rebuild-chain"
     if overall_ok:
