@@ -36,12 +36,22 @@
  * {@code npm run test:surface -- --path tests/content-create-matrix.spec.js}
  * from {@code modules/perc-qa-automation/frontend}. Single type:
  * {@code npm run test:surface -- --path tests/content-create-matrix.spec.js --grep percPage}.</p>
+ *
+ * <p>Provisioning-aware skip contract (mirrors the US3 matrices): the cell
+ * serves the SPA shell, login, and the live catalog, so {@code beforeEach}
+ * probes {@code GET <BASE_URL>/Rhythmyx/login} once per worker before
+ * {@code loginAsAdmin}. An unprovisioned or unreachable cell skips every
+ * case by name (provisioning tracked by parent #6238) instead of failing
+ * 108 logins; a cell-less run still exits 0 with a schema-valid all-skip
+ * matrix. Failure assertions name the received values (create counts, the
+ * received type/folder, PUT counts/URLs) so a red case is self-diagnosing
+ * without re-running.</p>
  */
 
 const fs = require("node:fs");
 const path = require("node:path");
 const { test, expect } = require("@playwright/test");
-const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { loginAsAdmin, BASE_URL, BASE_URL_SOURCE } = require("./helpers/auth");
 const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 const {
   TEST_IDS: CREATE_IDS,
@@ -58,12 +68,49 @@ const {
   CASE_CREATE,
   CASE_NEGATIVE,
   buildResultRow,
+  cmsLivenessUrl,
   sampleValueFor,
+  skipNoCmsCell,
   tagForType,
   validateResultRow,
 } = require("./helpers/content-create-matrix");
 
 const caseOutcomes = new Map();
+
+// Cell liveness is probed once per worker and cached: the first case pays
+// one cheap GET, the remaining 107 reuse the verdict. qa-health (not this
+// probe) is the readiness gate for a warming cell — a probe that lands
+// mid-startup skips that worker's cases by name instead of hanging them.
+let cmsLiveness = null;
+
+/**
+ * Skips the calling case with the named provisioning reason when the
+ * CMS-only cell cannot serve the matrix; otherwise returns silently.
+ *
+ * @param {import("@playwright/test").APIRequestContext} request
+ */
+async function ensureCmsCell(request) {
+  if (!cmsLiveness) {
+    cmsLiveness = (async () => {
+      try {
+        const probe = await request.get(cmsLivenessUrl(BASE_URL), {
+          timeout: 15_000,
+        });
+        if (!probe.ok()) {
+          return { ok: false, detail: `liveness answered HTTP ${probe.status()}` };
+        }
+        return { ok: true, detail: "" };
+      } catch (error) {
+        return {
+          ok: false,
+          detail: `probe unreachable (${String((error && error.message) || error).slice(0, 120)})`,
+        };
+      }
+    })();
+  }
+  const result = await cmsLiveness;
+  test.skip(!result.ok, skipNoCmsCell(BASE_URL, BASE_URL_SOURCE, result.detail));
+}
 
 function recordCase(entry, caseKey) {
   const current = caseOutcomes.get(entry.name) || {};
@@ -282,15 +329,18 @@ function watchNoise(page) {
   return { pageErrors, consoleErrors };
 }
 
-function assertQuiet(pageErrors, consoleErrors) {
-  expect(pageErrors, `pageerror: ${pageErrors.join(" | ")}`).toEqual([]);
+function assertQuiet(entry, pageErrors, consoleErrors) {
+  expect(pageErrors, `${entry.name}: page errors: ${pageErrors.join(" | ")}`).toEqual([]);
   const serious = consoleErrors.filter(
     (text) =>
       !/favicon|ResizeObserver|net::ERR|404 \(Not Found\)|status of 400|status of 403|status of 409/i.test(
         text,
       ),
   );
-  expect(serious, `JS console errors: ${serious.join(" | ")}`).toEqual([]);
+  expect(
+    serious,
+    `${entry.name}: JS console errors: ${serious.join(" | ")} (suppressed favicon/ResizeObserver/net::ERR/4xx SPA noise)`,
+  ).toEqual([]);
 }
 
 function editorUrl(contentId) {
@@ -298,8 +348,9 @@ function editorUrl(contentId) {
 }
 
 test.describe("content creation matrix", () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({ page, request }) => {
     test.setTimeout(90_000);
+    await ensureCmsCell(request);
     await loginAsAdmin(page);
   });
 
@@ -357,9 +408,19 @@ test.describe("content creation matrix", () => {
         await expect(page.getByTestId(CREATE_IDS.contentId)).toContainText(contentId, {
           timeout: 15_000,
         });
-        expect(creates.length).toBeGreaterThan(0);
-        expect(creates[creates.length - 1].contentType).toBe(entry.name);
-        expect(creates[creates.length - 1].folderPath).toBe(entry.folder);
+        const lastCreate = creates[creates.length - 1];
+        expect(
+          creates.length,
+          `${entry.name}: New-item submit must reach the create API (create calls=${creates.length})`,
+        ).toBeGreaterThan(0);
+        expect(
+          lastCreate && lastCreate.contentType,
+          `${entry.name}: create must carry the picked type (received=${lastCreate && lastCreate.contentType})`,
+        ).toBe(entry.name);
+        expect(
+          lastCreate && lastCreate.folderPath,
+          `${entry.name}: create must carry the picked folder (received=${lastCreate && lastCreate.folderPath})`,
+        ).toBe(entry.folder);
 
         await page.goto(editorUrl(contentId));
         await expect(page.locator(`[data-testid="${FIELD_IDS.host}"]`)).toBeVisible({
@@ -372,7 +433,10 @@ test.describe("content creation matrix", () => {
         await page.locator(`[data-testid="${FIELD_IDS.save}"]`).click();
         await expect.poll(() => puts.length, { timeout: 15_000 }).toBeGreaterThan(0);
         const fieldPuts = puts.filter((url) => isItemFieldsPutUrl(url));
-        expect(fieldPuts.length).toBeGreaterThan(0);
+        expect(
+          fieldPuts.length,
+          `${entry.name}: save must PUT item fields (field PUTs=${fieldPuts.length} of ${puts.length} PUTs: ${puts.join(" | ")})`,
+        ).toBeGreaterThan(0);
         await expect(page.locator(`[data-testid="${FIELD_IDS.saved}"]`)).toBeVisible({
           timeout: 15_000,
         });
@@ -388,7 +452,7 @@ test.describe("content creation matrix", () => {
         await expectNoSeriousA11yViolations(page, {
           scope: `[data-testid="${FIELD_IDS.host}"]`,
         });
-        assertQuiet(pageErrors, consoleErrors);
+        assertQuiet(entry, pageErrors, consoleErrors);
         recordCase(entry, CASE_CREATE);
       },
     );
@@ -417,7 +481,11 @@ test.describe("content creation matrix", () => {
           /required fields before saving/i,
           { timeout: 10_000 },
         );
-        expect(puts.filter((url) => isItemFieldsPutUrl(url))).toEqual([]);
+        const strayPuts = puts.filter((url) => isItemFieldsPutUrl(url));
+        expect(
+          strayPuts,
+          `${entry.name}: blank required field must persist nothing (stray field PUTs=${strayPuts.join(" | ")})`,
+        ).toEqual([]);
 
         await page.goto(editorUrl(contentId));
         await expect(page.locator(`[data-testid="${FIELD_IDS.form}"]`)).toBeVisible({
@@ -427,7 +495,7 @@ test.describe("content creation matrix", () => {
           page.locator(`[data-testid="editor-field-${entry.negativeField}"]`),
         ).toHaveValue("", { timeout: 15_000 });
 
-        assertQuiet(pageErrors, consoleErrors);
+        assertQuiet(entry, pageErrors, consoleErrors);
         recordCase(entry, CASE_NEGATIVE);
       },
     );
