@@ -1697,11 +1697,16 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     try {
       persistOps.saveNewApplication(parsed, tok);
     } catch (WebApplicationException | IllegalStateException e) {
-      throw e;
+      // A late server-init failure (e.g. design files the create-only import cannot supply)
+      // can leave the catalog row behind — roll it back, then map a missing-file chain to a
+      // named 400 so the import fails closed instead of 500 + partial create.
+      rollbackPartialImport(name, tok);
+      throw mapImportSaveFailure(e, name);
     } catch (PSNonUniqueException | PSLockedException e) {
       // Request-root in use or a held design lock: conflict, never an overwrite (no replace).
       throw new WebApplicationException("Application already exists: " + name, 409);
     } catch (PSSystemValidationException e) {
+      rollbackPartialImport(name, tok);
       String msg =
           StringUtils.isNotBlank(e.getMessage())
               ? e.getMessage()
@@ -1710,8 +1715,10 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     } catch (PSAuthorizationException e) {
       throw new WebApplicationException(ADMIN_REQUIRED, Response.Status.FORBIDDEN);
     } catch (RuntimeException e) {
-      throw e;
+      rollbackPartialImport(name, tok);
+      throw mapImportSaveFailure(e, name);
     } catch (Exception e) {
+      rollbackPartialImport(name, tok);
       log.error("Failed to import pipeline application {}", name, e);
       throw new IllegalStateException("Failed to import pipeline application", e);
     }
@@ -1803,6 +1810,87 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       if (sum != null && name.equalsIgnoreCase(StringUtils.defaultString(sum.getName()))) {
         throw new WebApplicationException("Application already exists: " + name, 409);
       }
+    }
+  }
+
+  /**
+   * Maps a late {@code saveNewApplication} failure to the import contract. A missing design-file
+   * chain (server init throws {@code IllegalArgumentException("file does not exist: ...")} when
+   * the fresh application directory lacks files the design XML references; auxiliary-file transfer
+   * is not part of this API) is a named 400 — the import can never succeed as-is. Anything else
+   * propagates unchanged.
+   */
+  static RuntimeException mapImportSaveFailure(RuntimeException e, String name) {
+    String missing = findMissingDesignFileDetail(e);
+    if (missing == null) {
+      return e;
+    }
+    return new WebApplicationException(
+        "Cannot import pipeline application '"
+            + name
+            + "': the design references files that are not present ("
+            + missing
+            + "). Auxiliary-file transfer is not supported by POST /pipelines/import.",
+        Response.Status.BAD_REQUEST);
+  }
+
+  /**
+   * Walks the cause chain for a missing design-file signal: a {@link PSSystemValidationException}
+   * (validation/init path) or the {@code "file does not exist: ..."} {@link
+   * IllegalArgumentException} the server throws while initializing the fresh application
+   * directory. Returns the detail to name in the 400, or {@code null} when the failure is
+   * unrelated.
+   */
+  static String findMissingDesignFileDetail(Throwable t) {
+    for (Throwable cur = t; cur != null; cur = cur.getCause()) {
+      if (cur instanceof PSSystemValidationException) {
+        return StringUtils.isNotBlank(cur.getMessage())
+            ? cur.getMessage()
+            : "the application failed server initialization";
+      }
+      if (cur instanceof IllegalArgumentException
+          && cur.getMessage() != null
+          && cur.getMessage().contains("file does not exist")) {
+        return cur.getMessage();
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Best-effort rollback of a partial create: when the failed save already added the catalog row,
+   * delete it so a retry is not a spurious 409 (and the catalog never shows a broken row). Never
+   * throws — rollback problems are logged and the original failure propagates.
+   */
+  private void rollbackPartialImport(String name, PSSecurityToken tok) {
+    PSApplicationSummary[] sums;
+    try {
+      sums = summaryLoader.apply(tok);
+    } catch (RuntimeException e) {
+      log.warn(
+          "Failed to re-read application catalog while rolling back pipeline import {}", name, e);
+      return;
+    }
+    boolean partial = false;
+    if (sums != null) {
+      for (PSApplicationSummary sum : sums) {
+        if (sum != null && name.equalsIgnoreCase(StringUtils.defaultString(sum.getName()))) {
+          partial = true;
+          break;
+        }
+      }
+    }
+    if (!partial) {
+      return;
+    }
+    try {
+      persistOps.deleteApplication(name, tok);
+    } catch (UnsupportedOperationException e) {
+      log.warn("Rollback of partial pipeline import {} is not supported by the persist layer", name);
+    } catch (RuntimeException e) {
+      log.warn("Failed to roll back partial pipeline import {}", name, e);
+    } catch (Exception e) {
+      log.warn("Failed to roll back partial pipeline import {}", name, e);
     }
   }
 

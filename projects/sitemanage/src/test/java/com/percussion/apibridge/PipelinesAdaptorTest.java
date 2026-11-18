@@ -2678,6 +2678,167 @@ class PipelinesAdaptorTest {
     }
   }
 
+  private static PipelinesAdaptor rollbackAdaptor(
+      boolean[] persisted,
+      boolean[] deleted,
+      boolean markPersisted,
+      Exception saveFailure,
+      Exception deleteFailure,
+      PSApplicationSummary partial) {
+    PipelinesAdaptor.ApplicationPersistOps persistOps =
+        new PipelinesAdaptor.ApplicationPersistOps() {
+          @Override
+          public void saveNewApplication(PSApplication app, PSSecurityToken token)
+              throws Exception {
+            // The object store adds the catalog row, then server init fails on the fresh
+            // application directory. markPersisted=false models a failure before any row.
+            persisted[0] = markPersisted;
+            throw saveFailure;
+          }
+
+          @Override
+          public void deleteApplication(String name, PSSecurityToken token) throws Exception {
+            deleted[0] = true;
+            if (deleteFailure != null) {
+              throw deleteFailure;
+            }
+          }
+        };
+    return new PipelinesAdaptor(
+        tok ->
+            persisted[0]
+                ? new PSApplicationSummary[] {partial}
+                : new PSApplicationSummary[0],
+        () -> mock(IPSPipelineRuntimeService.class),
+        () -> mock(IPSPipelineIrService.class),
+        (name, tok) -> null,
+        () -> true,
+        noopLifecycle(),
+        (name, tok) -> detailNamed(name, false),
+        null,
+        persistOps);
+  }
+
+  @Test
+  void importApplication_missingDesignFileIs400AndRollsBackPartialRow() {
+    PSApplicationSummary partial =
+        summary(9915, "pw_import_probe", "docs", true, "r", false, false);
+    boolean[] persisted = {false};
+    boolean[] deleted = {false};
+    PipelinesAdaptor adaptor =
+        rollbackAdaptor(
+            persisted,
+            deleted,
+            true,
+            new IllegalStateException(
+                "Failed to import pipeline application",
+                new IllegalArgumentException(
+                    "file does not exist: /rx/ObjectStore/pw_import_probe/blank.dtd")),
+            null,
+            partial);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.importApplication(
+                      URI.create("http://localhost/services/"), MINIMAL_APP_XML));
+      assertEquals(400, ex.getResponse().getStatus());
+      assertTrue(ex.getMessage().contains("pw_import_probe"), "400 names the application");
+      assertTrue(ex.getMessage().contains("blank.dtd"), "400 names the missing file");
+      assertTrue(deleted[0], "partial catalog row must be rolled back");
+    }
+  }
+
+  @Test
+  void importApplication_validationFailureIs400AndRollsBackPartialRow() {
+    PSApplicationSummary partial =
+        summary(9915, "pw_import_probe", "docs", true, "r", false, false);
+    boolean[] persisted = {false};
+    boolean[] deleted = {false};
+    PipelinesAdaptor adaptor =
+        rollbackAdaptor(
+            persisted,
+            deleted,
+            true,
+            new com.percussion.design.objectstore.PSSystemValidationException(
+                1, "Application failed validation"),
+            null,
+            partial);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.importApplication(
+                      URI.create("http://localhost/services/"), MINIMAL_APP_XML));
+      assertEquals(400, ex.getResponse().getStatus());
+      assertTrue(deleted[0], "partial catalog row must be rolled back");
+    }
+  }
+
+  @Test
+  void importApplication_unrelatedSaveFailurePropagatesWithoutDelete() {
+    boolean[] persisted = {false};
+    boolean[] deleted = {false};
+    PipelinesAdaptor adaptor =
+        rollbackAdaptor(
+            persisted,
+            deleted,
+            false,
+            new IllegalStateException("boom"),
+            null,
+            summary(9915, "pw_import_probe", "docs", true, "r", false, false));
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      IllegalStateException ex =
+          assertThrows(
+              IllegalStateException.class,
+              () ->
+                  adaptor.importApplication(
+                      URI.create("http://localhost/services/"), MINIMAL_APP_XML));
+      assertEquals("boom", ex.getMessage());
+      // No partial row ever appeared, so no delete is attempted.
+      assertFalse(deleted[0]);
+    }
+  }
+
+  @Test
+  void importApplication_rollbackFailureStillReportsOriginal400() {
+    PSApplicationSummary partial =
+        summary(9915, "pw_import_probe", "docs", true, "r", false, false);
+    boolean[] persisted = {false};
+    boolean[] deleted = {false};
+    PipelinesAdaptor adaptor =
+        rollbackAdaptor(
+            persisted,
+            deleted,
+            true,
+            new IllegalStateException(
+                "Failed to import pipeline application",
+                new IllegalArgumentException("file does not exist: blank.dtd")),
+            new RuntimeException("lock gone"),
+            partial);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.importApplication(
+                      URI.create("http://localhost/services/"), MINIMAL_APP_XML));
+      assertEquals(400, ex.getResponse().getStatus());
+      assertTrue(ex.getMessage().contains("pw_import_probe"));
+      assertTrue(deleted[0], "rollback must be attempted even when it fails");
+    }
+  }
+
   private static PipelinesAdaptor datasourceAdaptor(
       PSApplicationSummary[] sums,
       IPSPipelineIrService ir,

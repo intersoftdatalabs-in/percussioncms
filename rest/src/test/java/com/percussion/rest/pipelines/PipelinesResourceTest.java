@@ -1036,6 +1036,23 @@ public class PipelinesResourceTest {
   }
 
   @Test
+  public void importApplicationMissingFileMapsTo400() {
+    when(adaptor.importApplication(any(), any()))
+        .thenThrow(
+            new WebApplicationException(
+                "Cannot import pipeline application 'pw_probe': the design references files"
+                    + " that are not present (file does not exist: blank.dtd). Auxiliary-file"
+                    + " transfer is not supported by POST /pipelines/import.",
+                400));
+
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class, () -> resource.importApplication("<PSXApplication/>"));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertTrue(ex.getMessage().contains("blank.dtd"));
+  }
+
+  @Test
   public void exportFilenameSanitizesSeparators() {
     assertEquals("sys_foo.xml", PipelinesResource.exportFilename("sys_foo"));
     assertEquals("a_b.xml", PipelinesResource.exportFilename("a/b"));
