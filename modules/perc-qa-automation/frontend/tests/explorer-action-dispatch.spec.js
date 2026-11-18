@@ -262,7 +262,7 @@ test.describe("modern React Content Explorer — action dispatch", () => {
   );
 
   test(
-    "Stage HTTP 200 FORBIDDEN shows an error and does not treat it as staged",
+    "Stage HTTP 200 FORBIDDEN reports the row as failed in the stage dialog and does not refresh",
     { tag: ["@explorer-action-dispatch", "@explorer", "@explorer-staging"] },
     async ({ page }) => {
       test.setTimeout(90_000);
@@ -270,9 +270,10 @@ test.describe("modern React Content Explorer — action dispatch", () => {
       page.on("pageerror", (err) => {
         pageErrors.push(String(err));
       });
-      page.on("dialog", (dialog) => {
-        void dialog.accept();
-      });
+      // No native confirm anymore: single-item Stage shares the bulk
+      // dialog chrome (#6530). Dismissing a dialog that never opens
+      // would hang the run, so there is no page.on("dialog") handler.
+      const staged = [];
       await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
         await route.fulfill({
           status: 200,
@@ -297,6 +298,7 @@ test.describe("modern React Content Explorer — action dispatch", () => {
         });
       });
       await page.route("**/services/sitemanage/publish/page/staging/**", async (route) => {
+        staged.push(route.request().url());
         await route.fulfill({
           status: 200,
           contentType: "application/json",
@@ -309,6 +311,7 @@ test.describe("modern React Content Explorer — action dispatch", () => {
       await page.route(
         "**/services/sitemanage/publish/resource/staging/**",
         async (route) => {
+          staged.push(route.request().url());
           await route.fulfill({
             status: 200,
             contentType: "application/json",
@@ -344,12 +347,40 @@ test.describe("modern React Content Explorer — action dispatch", () => {
       const stage = page.locator('[data-testid="action-toolbar-item-Stage"]');
       await expect(stage).toBeVisible({ timeout: 15_000 });
       await stage.click();
+      const dialog = page.locator('[data-testid="explorer-bulk-stage-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await expect(dialog).toHaveAttribute("data-mode", "stage");
+      await expect(
+        page.locator('[data-testid="explorer-bulk-stage-items"]'),
+      ).toContainText(/Home/);
+      await expect(
+        page.locator('[data-testid="explorer-bulk-stage-confirm"]'),
+      ).toBeFocused();
+      await page.locator('[data-testid="explorer-bulk-stage-confirm"]').click();
+      await expect(
+        page.locator('[data-testid="explorer-bulk-stage-summary"]'),
+      ).toContainText(/0 staged, 0 skipped, 1 failed/i, { timeout: 10_000 });
+      const rows = page.locator(
+        '[data-testid="explorer-bulk-stage-report-row"]',
+      );
+      await expect(rows).toHaveCount(1);
+      await expect(rows.nth(0)).toHaveAttribute("data-outcome", "failed");
+      await expect(rows.nth(0)).toContainText(/Home/);
+      await expect(rows.nth(0)).toContainText(
+        /FORBIDDEN|licensing|Publication stopped/i,
+      );
+      expect(staged.some((url) => url.includes("/page/staging/42"))).toBe(true);
+      await page.locator('[data-testid="explorer-bulk-stage-close"]').click();
+      await expect(dialog).toHaveCount(0);
+      // FORBIDDEN staged nothing, so the list must not refresh as if a
+      // job started and no success banner may appear.
+      await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
+        "data-list-epoch",
+        "0",
+      );
       await expect(
         page.locator('[data-testid="explorer-server-actions-error"]'),
-      ).toBeVisible({ timeout: 10_000 });
-      await expect(
-        page.locator('[data-testid="explorer-server-actions-error"]'),
-      ).toContainText(/FORBIDDEN|licensing|Publication stopped/i);
+      ).toHaveCount(0);
       await expect(
         page.getByRole("alert").filter({ hasText: /Select a content item first/i }),
       ).toHaveCount(0);
@@ -360,7 +391,7 @@ test.describe("modern React Content Explorer — action dispatch", () => {
   );
 
   test(
-    "Remove from Staging HTTP 200 NOSTAGING_SERVERS shows an error and does not treat it as unstaged",
+    "Remove from Staging HTTP 200 NOSTAGING_SERVERS on an asset reports the row as failed in the dialog and does not refresh",
     { tag: ["@explorer-action-dispatch", "@explorer", "@explorer-staging"] },
     async ({ page }) => {
       test.setTimeout(90_000);
@@ -368,9 +399,9 @@ test.describe("modern React Content Explorer — action dispatch", () => {
       page.on("pageerror", (err) => {
         pageErrors.push(String(err));
       });
-      page.on("dialog", (dialog) => {
-        void dialog.accept();
-      });
+      // No native confirm anymore: single-item Remove from Staging shares
+      // the bulk dialog chrome (#6530), so there is no page.on("dialog").
+      const unstaged = [];
       await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
         await route.fulfill({
           status: 200,
@@ -387,42 +418,42 @@ test.describe("modern React Content Explorer — action dispatch", () => {
                   accessLevel: "WRITE",
                   leaf: true,
                 },
+                {
+                  id: "44",
+                  name: "Logo",
+                  path: "/Assets/Demo/Logo",
+                  type: "percImageAsset",
+                  category: "asset",
+                  accessLevel: "WRITE",
+                  leaf: true,
+                },
               ],
-              childrenCount: 1,
+              childrenCount: 2,
               startIndex: 0,
             },
           }),
         });
       });
+      const unstageForbidden = async (route) => {
+        unstaged.push(route.request().url());
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            SitePublishResponse: {
+              status: "NOSTAGING_SERVERS",
+              warningMessage: "No staging servers are configured.",
+            },
+          }),
+        });
+      };
       await page.route(
         "**/services/sitemanage/publish/takedown/page/staging/**",
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              SitePublishResponse: {
-                status: "NOSTAGING_SERVERS",
-                warningMessage: "No staging servers are configured.",
-              },
-            }),
-          });
-        },
+        unstageForbidden,
       );
       await page.route(
         "**/services/sitemanage/publish/takedown/resource/staging/**",
-        async (route) => {
-          await route.fulfill({
-            status: 200,
-            contentType: "application/json",
-            body: JSON.stringify({
-              SitePublishResponse: {
-                status: "NOSTAGING_SERVERS",
-                warningMessage: "No staging servers are configured.",
-              },
-            }),
-          });
-        },
+        unstageForbidden,
       );
 
       await page.goto(explorerSpaUrl(BASE_URL));
@@ -435,14 +466,14 @@ test.describe("modern React Content Explorer — action dispatch", () => {
         page.locator('[data-testid="action-toolbar-item-Remove_from_Staging"]'),
       ).toHaveCount(0);
 
-      const itemRow = page.locator(
-        '[data-testid="detail-row-42"][data-row-kind="item"]',
+      const assetRow = page.locator(
+        '[data-testid="detail-row-44"][data-row-kind="item"]',
       );
-      await expect(itemRow).toBeVisible({ timeout: 20_000 });
-      await itemRow.click();
+      await expect(assetRow).toBeVisible({ timeout: 20_000 });
+      await assetRow.click();
       await expect(
         page.locator(
-          '[data-testid="content-explorer-shell"][data-selected-item-id="42"]',
+          '[data-testid="content-explorer-shell"][data-selected-item-id="44"]',
         ),
       ).toBeVisible({ timeout: 10_000 });
 
@@ -451,12 +482,45 @@ test.describe("modern React Content Explorer — action dispatch", () => {
       );
       await expect(unstage).toBeVisible({ timeout: 15_000 });
       await unstage.click();
+      const dialog = page.locator('[data-testid="explorer-bulk-stage-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await expect(dialog).toHaveAttribute("data-mode", "unstage");
+      await expect(
+        page.locator('[data-testid="explorer-bulk-stage-items"]'),
+      ).toContainText(/Logo/);
+      await expect(
+        page.locator('[data-testid="explorer-bulk-stage-confirm"]'),
+      ).toBeFocused();
+      await page.locator('[data-testid="explorer-bulk-stage-confirm"]').click();
+      await expect(
+        page.locator('[data-testid="explorer-bulk-stage-summary"]'),
+      ).toContainText(/0 removed from staging, 0 skipped, 1 failed/i, {
+        timeout: 10_000,
+      });
+      const rows = page.locator(
+        '[data-testid="explorer-bulk-stage-report-row"]',
+      );
+      await expect(rows).toHaveCount(1);
+      await expect(rows.nth(0)).toHaveAttribute("data-outcome", "failed");
+      await expect(rows.nth(0)).toContainText(/Logo/);
+      await expect(rows.nth(0)).toContainText(/No staging servers|NOSTAGING_SERVERS/i);
+      // The asset rides the resource endpoint (QA plan step 7); the page
+      // endpoint must stay untouched.
+      expect(unstaged.some((url) => url.includes("/takedown/resource/staging/44"))).toBe(
+        true,
+      );
+      expect(unstaged.some((url) => url.includes("/takedown/page/staging"))).toBe(false);
+      await page.locator('[data-testid="explorer-bulk-stage-close"]').click();
+      await expect(dialog).toHaveCount(0);
+      // NOSTAGING_SERVERS removed nothing, so the list must not refresh
+      // as if the job started and no success banner may appear.
+      await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
+        "data-list-epoch",
+        "0",
+      );
       await expect(
         page.locator('[data-testid="explorer-server-actions-error"]'),
-      ).toBeVisible({ timeout: 10_000 });
-      await expect(
-        page.locator('[data-testid="explorer-server-actions-error"]'),
-      ).toContainText(/No staging servers|NOSTAGING_SERVERS/i);
+      ).toHaveCount(0);
       await expect(
         page.getByRole("alert").filter({ hasText: /Select a content item first/i }),
       ).toHaveCount(0);
@@ -680,7 +744,7 @@ test.describe("modern React Content Explorer — action dispatch", () => {
         timeout: 10_000,
       });
       expect(posted.sort()).toEqual(["42", "43"]);
-      expect(confirms.some((text) => /every selected page and asset/i.test(text))).toBe(
+      expect(confirms.some((text) => /every selected item/i.test(text))).toBe(
         true,
       );
       expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual([]);
