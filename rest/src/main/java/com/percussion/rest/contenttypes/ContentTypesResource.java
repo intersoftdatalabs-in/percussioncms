@@ -1937,13 +1937,17 @@ public class ContentTypesResource {
               + " release the lock. Does not steal another user's lock. Origin stays system or"
               + " shared (the field is not copied as local). Body name is required. fieldType"
               + " must be system or shared. Duplicate include is 409. Unknown catalog field is"
-              + " 404. Missing type is 404. Local field create remains POST .../fields (CD-03).",
+              + " 404. A shared group whose field set is a parent fieldset is 400 (recreate the"
+              + " group via POST /services/sharedfields). Missing type is 404. Local field create"
+              + " remains POST .../fields (CD-03).",
       responses = {
         @ApiResponse(
             responseCode = "200",
             description = "Field included (lock is still held)",
             content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
-        @ApiResponse(responseCode = "400", description = "Invalid name or fieldType"),
+        @ApiResponse(
+            responseCode = "400",
+            description = "Invalid name or fieldType, or the shared group is not include-ready"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(
             responseCode = "404",

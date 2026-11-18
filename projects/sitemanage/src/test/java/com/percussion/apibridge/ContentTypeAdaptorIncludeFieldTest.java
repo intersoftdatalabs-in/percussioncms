@@ -30,6 +30,7 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -187,6 +188,101 @@ class ContentTypeAdaptorIncludeFieldTest {
         stub.parent.findFieldByName("displaytitle"),
         "shared fields materialize from the included group, not the type fieldset");
     assertTrue(containsIgnoreCase(stub.mapper.getSharedFieldIncludes(), "shared"));
+  }
+
+  @Test
+  void includeSystemOrSharedField_parentTypeGroupIs400() {
+    StubType stub = stubType(List.of(), List.of(), List.of());
+    PSFieldSet parentSet = new PSFieldSet("shared");
+    PSSharedFieldGroup group = new PSSharedFieldGroup("shared", "shared.xml");
+    group.setFieldSet(parentSet);
+    group.setUIDefinition(new PSUIDefinition(new PSDisplayMapper("shared")));
+    PSDisplayMapping source = mapping("displaytitle", "Display title:");
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () ->
+                ContentTypeAdaptor.includeSystemOrSharedField(
+                    stub.def, "displaytitle", PSField.TYPE_SHARED, source, group, null));
+    assertTrue(ex.getMessage().contains("shared"), ex.getMessage());
+    assertTrue(ex.getMessage().toLowerCase().contains("parent"), ex.getMessage());
+    assertFalse(containsIgnoreCase(stub.mapper.getSharedFieldIncludes(), "shared"));
+  }
+
+  @Test
+  void includeField_parentTypeGroupIs400AndNeverSaves() throws Exception {
+    stubHeldLock();
+    StubType stub = stubType(List.of(), List.of(), List.of());
+    stubLockedLoad(stub.def);
+    PSContentEditorSharedDef sharedDef = new PSContentEditorSharedDef();
+    PSFieldSet parentSet = new PSFieldSet("shared");
+    parentSet.add(new PSField(PSField.TYPE_SHARED, "displaytitle", null));
+    PSSharedFieldGroup group = new PSSharedFieldGroup("shared", "shared.xml");
+    group.setFieldSet(parentSet);
+    group.setUIDefinition(new PSUIDefinition(new PSDisplayMapper("shared")));
+    sharedDef.addFieldGroup(group);
+    when(designWs.loadContentEditorSharedDef(false, false, "test-session", "Admin"))
+        .thenReturn(sharedDef);
+    ContentTypeField body = new ContentTypeField();
+    body.setName("displaytitle");
+    body.setFieldType("shared");
+    IllegalArgumentException ex =
+        assertThrows(IllegalArgumentException.class, () -> adaptor.includeField(null, "311", body));
+    assertTrue(ex.getMessage().contains("shared"), ex.getMessage());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+    assertFalse(containsIgnoreCase(stub.mapper.getSharedFieldIncludes(), "shared"));
+  }
+
+  @Test
+  void includeField_saveFailureRollsBackSharedGroupInclude() throws Exception {
+    stubHeldLock();
+    StubType stub = stubType(List.of(), List.of(), List.of());
+    stubLockedLoad(stub.def);
+    stubSharedDef("shared", "displaytitle", "body");
+    PSErrorsException saveFailure = new PSErrorsException();
+    saveFailure.addError(guid, new PSErrorException("SAVE_FAILED save failed: boom"));
+    doThrow(saveFailure)
+        .doNothing()
+        .when(designWs)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    ContentTypeField body = new ContentTypeField();
+    body.setName("displaytitle");
+    body.setFieldType("shared");
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.includeField(null, "311", body));
+    assertTrue(ex.getMessage().contains("boom"), ex.getMessage());
+    // Rollback re-saves the restored definition, so the poisoned include never persists.
+    verify(designWs, times(2))
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    assertFalse(containsIgnoreCase(stub.mapper.getSharedFieldIncludes(), "shared"));
+    assertFalse(containsIgnoreCase(stub.mapper.getSharedFieldExcludes(), "body"));
+    assertFalse(containsIgnoreCase(stub.mapper.getSharedFieldExcludes(), "displaytitle"));
+    assertNull(ContentTypeAdaptor.findDisplayMapping(stub.display, "displaytitle"));
+  }
+
+  @Test
+  void includeField_saveFailureRollsBackSystemInclude() throws Exception {
+    stubHeldLock();
+    StubType stub = stubType(List.of("sys_title"), List.of(), List.of());
+    stubLockedLoad(stub.def);
+    stubSystemDef("sys_title");
+    PSErrorsException saveFailure = new PSErrorsException();
+    saveFailure.addError(guid, new PSErrorException("SAVE_FAILED save failed: boom"));
+    doThrow(saveFailure)
+        .doNothing()
+        .when(designWs)
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    ContentTypeField body = new ContentTypeField();
+    body.setName("sys_title");
+    body.setFieldType("system");
+    IllegalStateException ex =
+        assertThrows(IllegalStateException.class, () -> adaptor.includeField(null, "311", body));
+    assertTrue(ex.getMessage().contains("boom"), ex.getMessage());
+    verify(designWs, times(2))
+        .saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    assertTrue(containsIgnoreCase(stub.mapper.getSystemFieldExcludes(), "sys_title"));
+    assertNull(stub.parent.findFieldByName("sys_title", false));
+    assertNull(ContentTypeAdaptor.findDisplayMapping(stub.display, "sys_title"));
   }
 
   @Test
@@ -385,6 +481,7 @@ class ContentTypeAdaptorIncludeFieldTest {
   @SuppressWarnings("unchecked")
   private static PSSharedFieldGroup sharedGroup(String groupName, String... fieldNames) {
     PSFieldSet set = new PSFieldSet(groupName);
+    set.setType(PSFieldSet.TYPE_MULTI_PROPERTY_SIMPLE_CHILD);
     PSDisplayMapper display = new PSDisplayMapper(groupName);
     for (String name : fieldNames) {
       set.add(new PSField(PSField.TYPE_SHARED, name, null));

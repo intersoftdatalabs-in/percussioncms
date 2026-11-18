@@ -23,6 +23,7 @@ import com.percussion.design.objectstore.PSBackEndCredential;
 import com.percussion.design.objectstore.PSBackEndTable;
 import com.percussion.design.objectstore.PSContainerLocator;
 import com.percussion.design.objectstore.PSContentEditorMapper;
+import com.percussion.design.objectstore.PSContentEditorMapper;
 import com.percussion.design.objectstore.PSContentEditorSharedDef;
 import com.percussion.design.objectstore.PSControlRef;
 import com.percussion.design.objectstore.PSDisplayMapper;
@@ -310,6 +311,11 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
   /**
    * Persistable empty group: locator + empty field set + empty display mapper. Fields are added
    * with {@link #addPersistableField}.
+   *
+   * <p>The field set uses the packaged group shape ({@code multiPropertySimpleChild}, one-or-more,
+   * no sequencing) so REST-created groups are include-ready: the content-type save validator
+   * ({@code CE_INVALID_SHARED_FIELDSET_TYPE}) rejects includes of groups whose field set is a
+   * parent fieldset (#6536).
    */
   static PSSharedFieldGroup newEmptyGroup(String name, String filename) {
     PSBackEndCredential cred = new PSBackEndCredential("contentCredential");
@@ -321,6 +327,9 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
     tsCol.add(ts);
     PSContainerLocator loc = new PSContainerLocator(tsCol);
     PSFieldSet fs = new PSFieldSet(name);
+    fs.setType(PSFieldSet.TYPE_MULTI_PROPERTY_SIMPLE_CHILD);
+    fs.setRepeatability(PSFieldSet.REPEATABILITY_ONE_OR_MORE);
+    fs.setSequencingSupported(false);
     PSDisplayMapper mapper = new PSDisplayMapper(name);
     PSUIDefinition ui = new PSUIDefinition(mapper);
     PSSharedFieldGroup group = new PSSharedFieldGroup(name, loc, fs, ui);
@@ -717,9 +726,73 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
           if (group == null) {
             throw new SharedFieldNotFoundException("Shared field group not found");
           }
+          List<String> includers = findGroupIncluders(name.trim());
+          if (!includers.isEmpty()) {
+            throw new WebApplicationException(
+                "Shared field group '"
+                    + name.trim()
+                    + "' is still included by content type(s): "
+                    + String.join(", ", includers)
+                    + ". Detach it from those types first",
+                409);
+          }
           def.removeFieldGroup(group);
           return null;
         });
+  }
+
+  /**
+   * Content type names whose editor mapper still includes the named shared group. Read-only batch
+   * scan (same candidate loading as the field where-used scan). Skipped when there is no design
+   * web service (unit-test supplier constructor) — production always has one ({@link
+   * #requireDesignWs} runs before every delete).
+   */
+  private List<String> findGroupIncluders(String groupName) {
+    if (designWs == null) {
+      return List.of();
+    }
+    List<IPSGuid> guids = usageCandidateGuids();
+    List<PSItemDefinition> defs = loadUsageCandidates(guids);
+    return groupIncluders(defs, groupName);
+  }
+
+  /**
+   * Pure group-include scan over loaded content type definitions. Package-visible for unit tests.
+   *
+   * @return sorted names of the definitions whose editor mapper includes {@code groupName}
+   *     (case-insensitive), never {@code null}.
+   */
+  static List<String> groupIncluders(List<PSItemDefinition> defs, String groupName) {
+    List<String> includers = new ArrayList<>();
+    if (defs == null || StringUtils.isBlank(groupName)) {
+      return includers;
+    }
+    String wanted = groupName.trim();
+    for (PSItemDefinition def : defs) {
+      if (def == null) {
+        continue;
+      }
+      PSContentEditorMapper mapper;
+      try {
+        mapper = ContentTypeAdaptor.contentEditorMapperOf(def);
+      } catch (RuntimeException e) {
+        // Types without an editor mapper cannot carry shared includes.
+        continue;
+      }
+      if (mapper == null) {
+        continue;
+      }
+      Iterator<?> includes = mapper.getSharedFieldIncludes();
+      while (includes != null && includes.hasNext()) {
+        Object o = includes.next();
+        if (o != null && wanted.equalsIgnoreCase(o.toString())) {
+          includers.add(def.getName());
+          break;
+        }
+      }
+    }
+    includers.sort(String.CASE_INSENSITIVE_ORDER);
+    return includers;
   }
 
   @Override

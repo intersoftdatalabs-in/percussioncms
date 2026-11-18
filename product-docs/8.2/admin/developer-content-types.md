@@ -398,7 +398,12 @@ After **Lock**:
    `fieldType` `shared`. The other fields, the type label, and the type
    description stay unchanged.
 2. Duplicate include is **409**; the lock is still held. Unknown catalog
-   field is **404**. An invalid origin is **400**.
+   field is **404**. An invalid origin is **400**. A shared group whose
+   field set is a parent fieldset (groups created before 8.2 REST
+   provisioning matched the packaged child shape) is **400** naming the
+   group — recreate the group, then include again. A failed include never
+   leaves the group include on the type: the save is rolled back before
+   the error is reported.
 3. If the held lock is missing (for example it expired), the include is
    **409**, the detail reports the lock lost (**Not locked**), and no
    success is claimed. Lock again and retry.
