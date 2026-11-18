@@ -203,6 +203,26 @@ import org.junit.jupiter.api.Test;
  * replace-or-drop decisions or legal sign-off; the unaudited-package
  * sweep follow-ons (PageAutoList {@code date.js}, further rows) move to
  * residuals.
+  *
+  * <p>Slice 11 (parent audit #5627 close-out sweep) extends the guard to
+  * every remaining payload package that ships {@code .js} so the whole
+  * {@code Packages} tree is now pinned: {@code perc.Baseline},
+  * {@code perc.CategoryDropDownControl}, {@code perc.ImageAutoListWidget},
+  * {@code perc.PageAutoListWidget}, {@code perc.baseWidgets},
+  * {@code perc.defaultLanguage}, {@code perc.widget.blogIndexPage},
+  * {@code perc.widget.cookieConsent}, {@code perc.widget.fileAutoList},
+  * {@code perc.widget.secureLogin}, {@code perc.widget.socialButtons} and
+  * {@code perc.widget.taglist}. The sweep found no new vendored
+  * third-party code: 21 of the 22 newly pinned files are first-party
+  * Percussion sources (Apache headers), and the one third-party file -
+  * the {@code perc.baseWidgets} published {@code cm/jslib/jquery-ui.js} -
+  * is byte-identical to the npm {@code jquery-ui@1.14.2} minified dist
+  * refreshed by #5660 and already Dependabot-tracked via the WebUI
+  * frontend manifests (the {@code .js} filename carrying minified bytes is
+  * a pre-existing published-name quirk, out of scope to rename). No new
+  * migration issue is filed; the banner pin below
+  * ({@code jQuery UI - v1.14.2}) fails loudly if the payload copy ever
+  * drifts from the tracked npm line.
  *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
@@ -215,10 +235,28 @@ import org.junit.jupiter.api.Test;
  */
 class WidgetPayloadVendoredJsAuditTest {
 
-  /** Widget packages covered by the #6319 audit (paths relative to Packages root). */
+  /**
+   * Widget packages covered by the audit (paths relative to Packages root).
+   *
+   * <p>Original #6319 set plus every remaining {@code .js}-shipping package
+   * added by the #5627 close-out sweep (slice 11) - the whole payload tree
+   * is now pinned.
+   */
   private static final Set<String> AUDITED_PACKAGES =
       Set.of(
+          "perc.Baseline",
+          "perc.CategoryDropDownControl",
+          "perc.ImageAutoListWidget",
+          "perc.PageAutoListWidget",
+          "perc.baseWidgets",
+          "perc.defaultLanguage",
           "perc.responsiveTemplates",
+          "perc.widget.blogIndexPage",
+          "perc.widget.cookieConsent",
+          "perc.widget.fileAutoList",
+          "perc.widget.secureLogin",
+          "perc.widget.socialButtons",
+          "perc.widget.taglist",
           "perc.widget.calendar",
           "perc.widget.categoryList",
           "perc.widget.commentForm",
@@ -234,6 +272,7 @@ class WidgetPayloadVendoredJsAuditTest {
   /** Third-party .js shipped in the audited widget payloads (paths relative to Packages root). */
   private static final Set<String> EXPECTED_THIRD_PARTY_JS =
       Set.of(
+          "perc.baseWidgets/sys__UserDependency--web_resources/cm/jslib/jquery-ui.js",
           "perc.responsiveTemplates/sys__UserDependency--web_resources/cm/foundation/js/foundation.min.js",
           "perc.widget.calendar/SupportFile-rx_resources/widgets/percCalendarTwo/js/jquery.minicolors.js",
           "perc.widget.calendar/sys__UserDependency--rx_resources/widgets/percCalendarTwo/js/jquery.minicolors.js",
@@ -257,6 +296,18 @@ class WidgetPayloadVendoredJsAuditTest {
   /** First-party Percussion JS in the audited payloads — recorded so additions stand out. */
   private static final Set<String> EXPECTED_FIRST_PARTY_JS =
       Set.of(
+          "perc.Baseline/SupportFile-rx_resources/controls/percQueryControl/js/percQueryControl.js",
+          "perc.Baseline/SupportFile-rx_resources/js/percTagListControl.js",
+          "perc.CategoryDropDownControl/SupportFile-rx_resources/widgets/categoryDropDown/js/categoryDropdown.js",
+          "perc.ImageAutoListWidget/SupportFile-rx_resources/widgets/imageAutoList/js/jquery.imageAutoList.js",
+          "perc.ImageAutoListWidget/sys__UserDependency--rx_resources/widgets/imageAutoList/js/jquery.imageAutoList.js",
+          "perc.PageAutoListWidget/SupportFile-rx_resources/widgets/pageAutoList/js/jquery.pageAutoList.js",
+          "perc.PageAutoListWidget/sys__UserDependency--rx_resources/widgets/pageAutoList/js/jquery.pageAutoList.js",
+          "perc.defaultLanguage/SupportFile-rx_resources/widgets/percDefaultLang/js/percDefaultLang.js",
+          "perc.defaultLanguage/SupportFile-rx_resources/widgets/percLocalLang/js/percLocalLang.js",
+          "perc.defaultLanguage/sys__UserDependency--rx_resources/widgets/percDefaultLang/js/percDefaultLang.js",
+          "perc.defaultLanguage/sys__UserDependency--rx_resources/widgets/percLocalLang/js/percLocalLang.js",
+          "perc.widget.blogIndexPage/SupportFile-rx_resources/widgets/blogIndexPage/js/jquery.blogIndexPage.js",
           "perc.widget.calendar/SupportFile-rx_resources/widgets/percCalendarTwo/js/percCalendarTwo.js",
           "perc.widget.calendar/sys__UserDependency--rx_resources/widgets/percCalendarTwo/js/percCalendarTwo.js",
           "perc.widget.categoryList/SupportFile-rx_resources/widgets/categoryList/js/categoryListWidget.js",
@@ -279,6 +330,9 @@ class WidgetPayloadVendoredJsAuditTest {
           "perc.widget.directory/sys__UserDependency--rx_resources/widgets/percOrganization/js/percOrganization.js",
           "perc.widget.directory/sys__UserDependency--rx_resources/widgets/percPerson/js/percPerson.js",
           "perc.widget.directory/sys__UserDependency--web_resources/widgets/directory/js/perc-directory.js",
+          "perc.widget.cookieConsent/sys__UserDependency--web_resources/widgets/cookieConsent/js/cookie-consent.js",
+          "perc.widget.fileAutoList/SupportFile-rx_resources/controls/percResourceAutoListControl/js/jquery.resourceAutoList.js",
+          "perc.widget.fileAutoList/sys__UserDependency--rx_resources/controls/percResourceAutoListControl/js/jquery.resourceAutoList.js",
           "perc.widget.form/SupportFile-rx_resources/widgets/form/js/PercFormController.js",
           "perc.widget.form/SupportFile-rx_resources/widgets/form/js/PercFormView.js",
           "perc.widget.form/SupportFile-rx_resources/widgets/form/js/PercWidgetEditor.js",
@@ -295,6 +349,12 @@ class WidgetPayloadVendoredJsAuditTest {
           "perc.widget.poll/sys__UserDependency--web_resources/widgets/percPoll/js/percPoll.min.js",
           "perc.widget.registration/sys__UserDependency--web_resources/widgets/registration/js/registrationform.js",
           "perc.widget.registration/sys__UserDependency--web_resources/widgets/registration/js/registrationform.min.js",
+          "perc.widget.secureLogin/sys__UserDependency--rx_resources/widgets/percSecureLogin/js/percSecureLogin.js",
+          "perc.widget.socialButtons/SupportFile-rx_resources/widgets/percSocialButtons/js/percSocialButtons.js",
+          "perc.widget.socialButtons/sys__UserDependency--rx_resources/widgets/percSocialButtons/js/percSocialButtons.js",
+          "perc.widget.socialButtons/sys__UserDependency--web_resources/widgets/socialButtons/js/percSocialButtons.js",
+          "perc.widget.taglist/SupportFile-rx_resources/widgets/tagList/js/jquery.tagList.js",
+          "perc.widget.taglist/sys__UserDependency--rx_resources/widgets/tagList/js/jquery.tagList.js",
           "perc.widgets.image/SupportFile-rx_resources/widgets/image/js/jquery.imageAssetControl.js",
           "perc.widgets.image/sys__UserDependency--rx_resources/widgets/image/js/jquery.imageAssetControl.js",
           "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/navbar.js",
@@ -366,7 +426,10 @@ class WidgetPayloadVendoredJsAuditTest {
               "handlerIn, handlerOut"),
           Map.entry(
               "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/hoverIntent.min.js",
-              "hoverIntent_t"));
+              "hoverIntent_t"),
+          Map.entry(
+              "perc.baseWidgets/sys__UserDependency--web_resources/cm/jslib/jquery-ui.js",
+              "jQuery UI - v1.14.2"));
 
   private static Path packagesRoot() {
     List<Path> candidates =
@@ -413,7 +476,7 @@ class WidgetPayloadVendoredJsAuditTest {
     Set<String> actual = collectAuditedJs(root);
     assertEquals(new TreeSet<>(EXPECTED_JS_FILES), actual,
         "Widget-payload JS inventory drifted from the #6319 audit — "
-            + "update the expected sets and file/refresh the migration issues (#6319/#6320/#6321).");
+            + "update the expected sets and file/refresh the migration issues (#5627/#6319/#6320/#6321).");
   }
 
   @Test
