@@ -39,6 +39,7 @@ const TEST_IDS = Object.freeze({
   linked: "item-takedown-linked",
   linkedEmpty: "item-takedown-linked-empty",
   submit: "item-takedown-submit",
+  retry: "item-takedown-retry",
   success: "item-takedown-success",
   error: "item-takedown-error",
   batchGroupPrefix: "item-takedown-batch-item-",
