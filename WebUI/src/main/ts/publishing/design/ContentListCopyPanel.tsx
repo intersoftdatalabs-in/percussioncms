@@ -65,6 +65,12 @@ export function ContentListCopyPanel({
     onCancel();
   }
 
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      handleCancel();
+    }
+  }
+
   async function handleCopy(): Promise<void> {
     if (!source.contentListId || saving) {
       return;
@@ -99,10 +105,12 @@ export function ContentListCopyPanel({
         <input
           id="contentlist-copy-name"
           value={name}
+          autoFocus
           onChange={(e) => {
             setName(e.target.value);
             setDirty(true);
           }}
+          onKeyDown={handleKeyDown}
         />
       </div>
       {error && (

@@ -221,4 +221,53 @@ test.describe("PublishingShell Design content-list copy", () => {
     ).toHaveCount(1);
     expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
   });
+
+  test("keyboard: new-name input is focused on open and Escape discards without copying", async ({
+    page,
+  }) => {
+    const kbErrors = [];
+    page.on("pageerror", (err) => kbErrors.push(String(err)));
+    page.on("console", (msg) => {
+      if (msg.type() !== "error") {
+        return;
+      }
+      const text = msg.text();
+      if (/status of 409/.test(text)) {
+        return;
+      }
+      kbErrors.push(text);
+    });
+    const copyBodies = [];
+    page.on("request", (req) => {
+      if (contentListCopyPost(req.url(), req.method())) {
+        copyBodies.push(req.postData() || "");
+      }
+    });
+
+    const stamp = Date.now();
+    const original = `NightClKb-${stamp}`;
+
+    await openDesignContentLists(page);
+    await createContentList(page, original);
+    const source = await sourceCopyButton(page, original);
+
+    await source.copy.click();
+    await expect(page.getByTestId("contentlist-copy")).toBeVisible();
+    await expect(page.locator("#contentlist-copy-name")).toBeFocused();
+    await page.locator("#contentlist-copy-name").fill(`${original} kb`);
+    page.once("dialog", async (dialog) => {
+      expect(dialog.type()).toBe("confirm");
+      await dialog.accept();
+    });
+    await page.locator("#contentlist-copy-name").press("Escape");
+    await expect(page.getByTestId("contentlist-copy")).toBeHidden({
+      timeout: 10000,
+    });
+    await expect(page.getByTestId(source.testId)).toHaveText(original);
+    await expect(
+      page.getByRole("button", { name: `${original} kb`, exact: true }),
+    ).toHaveCount(0);
+    expect(copyBodies).toEqual([]);
+    expect(kbErrors, `console/page errors: ${kbErrors.join("\n")}`).toEqual([]);
+  });
 });

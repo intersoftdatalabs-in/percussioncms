@@ -84,6 +84,12 @@ export function ContentListGeneratorPanel({
     }
   }
 
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape" && !saving) {
+      onCancel();
+    }
+  }
+
   return (
     <div data-testid="contentlist-generator-form">
       <h3>Content list generator</h3>
@@ -117,7 +123,9 @@ export function ContentListGeneratorPanel({
           id="contentlist-generator-input"
           data-testid="contentlist-generator-input"
           value={generator}
+          autoFocus
           onChange={(e) => setGenerator(e.target.value)}
+          onKeyDown={handleKeyDown}
         />
       </div>
       {error && (

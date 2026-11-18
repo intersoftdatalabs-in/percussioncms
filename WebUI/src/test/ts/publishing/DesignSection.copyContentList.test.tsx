@@ -179,4 +179,22 @@ describe("DesignSection copy content list", () => {
     expect(listContentLists).toHaveBeenCalledTimes(1);
     expect(updateContentList).not.toHaveBeenCalled();
   });
+
+  it("focuses the new-name input when the form opens", async () => {
+    await openCopy();
+    expect(screen.getByLabelText(/New name/i)).toHaveFocus();
+  });
+
+  it("Escape cancels without calling copy", async () => {
+    await openCopy();
+    fireEvent.change(screen.getByLabelText(/New name/i), {
+      target: { value: "WillNotCopy" },
+    });
+    fireEvent.keyDown(screen.getByLabelText(/New name/i), { key: "Escape" });
+    expect(await screen.findByTestId("design-content-list-5")).toHaveTextContent(
+      "NightCl",
+    );
+    expect(copyContentList).not.toHaveBeenCalled();
+    expect(updateContentList).not.toHaveBeenCalled();
+  });
 });

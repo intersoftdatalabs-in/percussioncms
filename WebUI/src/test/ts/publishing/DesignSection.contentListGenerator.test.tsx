@@ -314,4 +314,21 @@ describe("DesignSection content list generator", () => {
       "/Rhythmyx/legacyList",
     );
   });
+
+  it("focuses the Generator input when the form opens", async () => {
+    await openGenerator();
+    expect(screen.getByTestId("contentlist-generator-input")).toHaveFocus();
+  });
+
+  it("Escape cancels without calling save", async () => {
+    await openGenerator();
+    fireEvent.change(screen.getByLabelText("Generator"), {
+      target: { value: "sys_NotSaved" },
+    });
+    fireEvent.keyDown(screen.getByLabelText("Generator"), { key: "Escape" });
+    expect(await screen.findByTestId("design-content-list-source-5")).toHaveTextContent(
+      "sys_Search",
+    );
+    expect(updateContentList).not.toHaveBeenCalled();
+  });
 });

@@ -168,4 +168,21 @@ describe("DesignSection rename content list", () => {
       "NightCl",
     );
   });
+
+  it("focuses the Name input when the editor opens", async () => {
+    await openList();
+    expect(screen.getByLabelText(/Name/i)).toHaveFocus();
+  });
+
+  it("Escape cancels the rename without calling save", async () => {
+    await openList();
+    fireEvent.change(screen.getByLabelText(/Name/i), {
+      target: { value: "Nope" },
+    });
+    fireEvent.keyDown(screen.getByLabelText(/Name/i), { key: "Escape" });
+    expect(updateContentList).not.toHaveBeenCalled();
+    expect(await screen.findByTestId("design-content-list-5")).toHaveTextContent(
+      "NightCl",
+    );
+  });
 });

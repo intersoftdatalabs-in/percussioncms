@@ -252,4 +252,34 @@ test.describe("PublishingShell Design content-list item filter", () => {
     await stubPut(403, "Admin or Designer role required");
     expect(jsErrors, `console/page errors: ${jsErrors.join("\n")}`).toEqual([]);
   });
+
+  test("keyboard: Escape on the item filter select cancels without saving", async ({
+    page,
+  }) => {
+    const kbErrors = trackJsErrors(page);
+    const putBodies = [];
+    page.on("request", (req) => {
+      if (contentListPut(req.url(), req.method())) {
+        putBodies.push(req.postData() || "");
+      }
+    });
+
+    const stamp = Date.now();
+    const name = `NightFiltKb-${stamp}`;
+    await openDesignContentLists(page);
+    await createContentList(page, name);
+
+    await page.getByRole("button", { name, exact: true }).click();
+    await expect(page.getByTestId("contentlist-editor")).toBeVisible();
+    await expect(page.locator("#cl-item-filter")).toBeEnabled({ timeout: 20000 });
+    await page.locator("#cl-item-filter").press("Escape");
+    await expect(page.getByTestId("contentlist-editor")).toBeHidden({
+      timeout: 10000,
+    });
+    await expect(
+      page.getByRole("button", { name, exact: true }),
+    ).toBeVisible();
+    expect(putBodies).toEqual([]);
+    expect(kbErrors, `console/page errors: ${kbErrors.join("\n")}`).toEqual([]);
+  });
 });

@@ -167,4 +167,18 @@ describe("DesignSection item filter", () => {
     );
     expect(listContentLists).toHaveBeenCalledTimes(1);
   });
+
+  it("Escape on the item filter select cancels without calling save", async () => {
+    await openList();
+    fireEvent.change(screen.getByTestId("contentlist-item-filter"), {
+      target: { value: "2" },
+    });
+    fireEvent.keyDown(screen.getByTestId("contentlist-item-filter"), {
+      key: "Escape",
+    });
+    expect(updateContentList).not.toHaveBeenCalled();
+    expect(await screen.findByTestId("design-content-list-filter-5")).toHaveTextContent(
+      "public",
+    );
+  });
 });
