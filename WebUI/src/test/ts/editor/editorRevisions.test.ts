@@ -25,6 +25,7 @@ import {
   formatCompareNavStatus,
   isEmptyRevisionCompare,
   parseRevisionId,
+  refineWordSubstitution,
   restoreRevisionConfirmBody,
   revisionCompareSelection,
   summarizeRevisionRow,
@@ -215,6 +216,52 @@ describe("editorRevisions", () => {
     ]);
     expect(computeWordDiff("Old", "")).toEqual([
       { text: "Old", kind: "removed" },
+    ]);
+  });
+
+  it("refines single-word substitutions to the changed characters", () => {
+    expect(computeWordDiff("grey", "gray")).toEqual([
+      { text: "gr", kind: "same" },
+      { text: "e", kind: "removed" },
+      { text: "a", kind: "added" },
+      { text: "y", kind: "same" },
+    ]);
+  });
+
+  it("leaves a pure intra-word insertion as one addition", () => {
+    expect(computeWordDiff("color", "colour")).toEqual([
+      { text: "colo", kind: "same" },
+      { text: "u", kind: "added" },
+      { text: "r", kind: "same" },
+    ]);
+  });
+
+  it("keeps multi-word substitutions at word level", () => {
+    expect(computeWordDiff("old title", "new title")).toEqual([
+      { text: "old", kind: "removed" },
+      { text: "new", kind: "added" },
+      { text: " title", kind: "same" },
+    ]);
+  });
+
+  it("refineWordSubstitution keeps whitespace and long pairs word-level", () => {
+    expect(refineWordSubstitution("old title", "new heading")).toEqual([
+      { text: "old title", kind: "removed" },
+      { text: "new heading", kind: "added" },
+    ]);
+    expect(refineWordSubstitution("  ", " ")).toEqual([
+      { text: "  ", kind: "removed" },
+      { text: " ", kind: "added" },
+    ]);
+    const longOld = "x".repeat(65);
+    const longNew = `y${"x".repeat(64)}`;
+    expect(refineWordSubstitution(longOld, longNew)).toEqual([
+      { text: longOld, kind: "removed" },
+      { text: longNew, kind: "added" },
+    ]);
+    expect(refineWordSubstitution("", "gray")).toEqual([
+      { text: "", kind: "removed" },
+      { text: "gray", kind: "added" },
     ]);
   });
 });

@@ -219,14 +219,20 @@ export function splitWordDiffTokens(value: string): string[] {
   return value.split(/(\s+)/).filter((part) => part.length > 0);
 }
 
+/** Longest single token eligible for intra-word refinement (#6533). */
+const WORD_SUBSTITUTION_CHAR_CAP = 64;
+
 /**
  * Word-level diff of two compare cell values (#6533).
  *
  * <p>Tokenizes on whitespace (keeping the whitespace) and aligns tokens with a
  * longest-common-subsequence pass. Adjacent same-kind tokens are merged so the
  * render is a short run of {@code <span>}/{@code <ins>}/{@code <del>} nodes.
- * Returns a single {@code same} segment when the values are equal, and falls
- * back to whole-value removed+added when either side exceeds the token cap.</p>
+ * Single-word substitutions are refined to the changed characters
+ * ({@link refineWordSubstitution}) so typo fixes read as one marked letter
+ * instead of a whole marked word. Returns a single {@code same} segment when
+ * the values are equal, and falls back to whole-value removed+added when
+ * either side exceeds the token cap.</p>
  */
 export function computeWordDiff(
   left: string,
@@ -244,7 +250,7 @@ export function computeWordDiff(
   }
   const table = buildWordDiffTable(leftTokens, rightTokens);
   return mergeWordDiffSegments(
-    traceWordDiff(table, leftTokens, rightTokens),
+    refineSubstitutionPairs(traceWordDiff(table, leftTokens, rightTokens)),
   );
 }
 
@@ -328,6 +334,71 @@ function mergeWordDiffSegments(
     }
   }
   return merged;
+}
+
+/**
+ * Refine adjacent removed+added pairs to the changed characters (#6533).
+ *
+ * <p>Each pair is one word-level substitution (for example {@code "old"} vs
+ * {@code "new"}); pairs that qualify as single words are re-diffed at
+ * character level so {@code "grey"} vs {@code "gray"} marks just the
+ * {@code "e"}/{@code "a"}. A second merge pass coalesces the boundary runs
+ * the refinement can split (for example the {@code same} tail).</p>
+ */
+function refineSubstitutionPairs(
+  segments: WordDiffSegment[],
+): WordDiffSegment[] {
+  const refined: WordDiffSegment[] = [];
+  let i = 0;
+  while (i < segments.length) {
+    const current = segments[i];
+    const next = segments[i + 1];
+    if (current.kind === "removed" && next?.kind === "added") {
+      refined.push(...refineWordSubstitution(current.text, next.text));
+      i += 2;
+    } else {
+      refined.push(current);
+      i += 1;
+    }
+  }
+  return refined;
+}
+
+/** A substitution pair refines only when both sides are one short word. */
+function isRefinableSubstitution(removed: string, added: string): boolean {
+  if (!removed || !added) {
+    return false;
+  }
+  if (
+    removed.length > WORD_SUBSTITUTION_CHAR_CAP ||
+    added.length > WORD_SUBSTITUTION_CHAR_CAP
+  ) {
+    return false;
+  }
+  return !/\s/.test(removed) && !/\s/.test(added);
+}
+
+/**
+ * Character-level diff of one word-level substitution pair (#6533).
+ *
+ * <p>Reuses the token LCS over code points (`Array.from`, so astral symbols
+ * stay intact). Multi-word pairs and over-long single tokens keep their
+ * word-level removed+added marks instead of a noisy character scatter.</p>
+ */
+export function refineWordSubstitution(
+  removed: string,
+  added: string,
+): WordDiffSegment[] {
+  if (!isRefinableSubstitution(removed, added)) {
+    return [
+      { text: removed, kind: "removed" },
+      { text: added, kind: "added" },
+    ];
+  }
+  const leftChars = Array.from(removed);
+  const rightChars = Array.from(added);
+  const { table, cols } = buildWordDiffTable(leftChars, rightChars);
+  return mergeWordDiffSegments(traceWordDiff({ table, cols }, leftChars, rightChars));
 }
 
 /**

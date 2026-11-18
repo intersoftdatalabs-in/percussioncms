@@ -227,6 +227,39 @@ describe("EditorHost revision compare view polish", () => {
     expect(newer.textContent).toMatch(/The new title/);
   });
 
+  it("refines single-word substitutions to the changed characters", async () => {
+    renderHost({
+      compareRevisions: vi.fn().mockResolvedValue({
+        itemId: "42",
+        rev1: 4,
+        rev2: 5,
+        fields: [
+          {
+            name: "sys_title",
+            leftValue: "grey",
+            rightValue: "gray",
+            changed: true,
+          },
+        ],
+      }),
+    });
+    await openComparePanel();
+    fireEvent.click(screen.getByTestId("editor-compare-run"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("editor-compare-word-left-sys_title"),
+      ).toBeTruthy();
+    });
+    const older = screen.getByTestId("editor-compare-word-left-sys_title");
+    const newer = screen.getByTestId("editor-compare-word-right-sys_title");
+    expect(older.querySelector("del")?.textContent).toBe("e");
+    expect(older.querySelector("ins")).toBeNull();
+    expect(newer.querySelector("ins")?.textContent).toBe("a");
+    expect(newer.querySelector("del")).toBeNull();
+    expect(older.textContent).toBe("grey");
+    expect(newer.textContent).toBe("gray");
+  });
+
   it("word-diff toggle is keyboard-focusable and falls back to plain values", async () => {
     renderHost();
     await openComparePanel();
