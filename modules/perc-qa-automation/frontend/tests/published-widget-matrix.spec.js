@@ -19,7 +19,10 @@
  * US2 published-widget static-render matrix (#6240 / parent #6238): every
  * pinned widget type gets one static case asserting its expected visible
  * (or {@code <head>}) output on a published fixture page with zero missing
- * resources.
+ * resources, zero page errors, and zero JS console errors (the quiet
+ * contract is shared with US3 via
+ * {@code tests/helpers/published-widget-matrix.js}: {@code watchNoise} /
+ * {@code assertQuiet}).
  *
  * <p>Tags: {@code @published} {@code @published-widget} plus one
  * {@code @widget-<name>} tag per widget.</p>
@@ -58,6 +61,8 @@ const {
   publishedSiteUrl,
   buildWidgetRow,
   validateWidgetRow,
+  watchNoise,
+  assertQuiet,
 } = require("./helpers/published-widget-matrix");
 
 const caseOutcomes = new Map();
@@ -74,35 +79,6 @@ function fixtureUrlForEntry(site, entry) {
     }
   }
   return fixtureUrlFor(site, entry);
-}
-
-function watchNoise(page, hosts) {
-  const pageErrors = [];
-  const failedRequests = [];
-  page.on("pageerror", (err) => pageErrors.push(String((err && err.stack) || err)));
-  page.on("requestfailed", (req) => {
-    failedRequests.push(`${req.url()} :: ${req.failure()?.errorText}`);
-  });
-  page.on("response", (resp) => {
-    if (resp.status() >= 400) {
-      failedRequests.push(`${resp.url()} :: HTTP ${resp.status()}`);
-    }
-  });
-  return { pageErrors, failedRequests, hosts };
-}
-
-function assertQuiet(entry, pageErrors, failedRequests) {
-  const seriousFailures = failedRequests.filter(
-    (text) => !/favicon\.ico/i.test(text),
-  );
-  expect(
-    seriousFailures,
-    `${entry.name}: missing published resources:\n${seriousFailures.join("\n")}`,
-  ).toEqual([]);
-  expect(
-    pageErrors,
-    `${entry.name}: page errors:\n${pageErrors.join("\n")}`,
-  ).toEqual([]);
 }
 
 test.describe("published widget static-render matrix", () => {
@@ -152,7 +128,7 @@ test.describe("published widget static-render matrix", () => {
         );
         expect(probe.status(), `expected 200 for ${entry.name} fixture ${pageUrl}`).toBe(200);
 
-        const { pageErrors, failedRequests } = watchNoise(page);
+        const noise = watchNoise(page);
         await page.goto(pageUrl, { waitUntil: "networkidle" });
 
         if (entry.marker) {
@@ -179,7 +155,7 @@ test.describe("published widget static-render matrix", () => {
           ).toBeGreaterThan(0);
         }
 
-        assertQuiet(entry, pageErrors, failedRequests);
+        assertQuiet(entry, noise, expect);
         recordCase(entry);
       },
     );

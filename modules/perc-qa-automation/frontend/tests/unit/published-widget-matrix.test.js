@@ -44,6 +44,8 @@ const {
   fixtureUrlFor,
   buildWidgetRow,
   validateWidgetRow,
+  watchNoise,
+  assertQuiet,
 } = require("../helpers/published-widget-matrix");
 
 const MODULE_DIR = path.join(__dirname, "..", "..", "..");
@@ -64,6 +66,31 @@ function goodRow() {
     { [CASE_STATIC]: "pass" },
     { spec: MATRIX_SPEC, updated: "2026-11-13" },
   );
+}
+
+/** Minimal Playwright-page stub: captures `on` handlers for replay. */
+function stubPage() {
+  const handlers = {};
+  return {
+    handlers,
+    on(event, fn) {
+      handlers[event] = handlers[event] || [];
+      handlers[event].push(fn);
+    },
+  };
+}
+
+/** Playwright-expect stub: throws when the received value is non-empty. */
+function stubExpect() {
+  return (received, message) => ({
+    toEqual(expected) {
+      assert.deepEqual(
+        received,
+        expected,
+        `${message} (received ${JSON.stringify(received)})`,
+      );
+    },
+  });
 }
 
 function templateDirsOnDisk() {
@@ -227,5 +254,60 @@ describe("published-widget-matrix helpers (#6240)", () => {
     assert.ok(spec.includes("zero missing resources"), "static case declared");
     assert.ok(spec.includes("published-widget-matrix.json"), "matrix artifact written");
     assert.ok(spec.includes("PUBLISHED_SITE_URL"), "skip contract declared");
+    assert.ok(spec.includes("watchNoise"), "spec uses the shared noise collectors");
+    assert.ok(spec.includes("assertQuiet"), "spec uses the shared quiet assertion");
+  });
+
+  it("passes a quiet page and fails a noisy one", () => {
+    const page = stubPage();
+    const noise = watchNoise(page);
+    assert.deepEqual(Object.keys(noise).sort(), [
+      "consoleErrors",
+      "failedRequests",
+      "pageErrors",
+    ]);
+    assertQuiet(WIDGETS[0], noise, stubExpect());
+
+    const errored = stubPage();
+    const badPage = watchNoise(errored);
+    errored.handlers.pageerror.forEach((fn) => fn(new Error("boom")));
+    assert.throws(() => assertQuiet(WIDGETS[0], badPage, stubExpect()));
+
+    const failed = stubPage();
+    const badRequests = watchNoise(failed);
+    failed.handlers.requestfailed.forEach((fn) =>
+      fn({ url: () => "https://x/widgets/percPoll.html", failure: () => ({ errorText: "reset" }) }),
+    );
+    assert.throws(() => assertQuiet(WIDGETS[0], badRequests, stubExpect()));
+
+    const httpError = stubPage();
+    const badStatus = watchNoise(httpError);
+    httpError.handlers.response.forEach((fn) =>
+      fn({ url: () => "https://x/widgets/percPoll.html", status: () => 500 }),
+    );
+    assert.throws(() => assertQuiet(WIDGETS[0], badStatus, stubExpect()));
+
+    const consoleNoisy = stubPage();
+    const badConsole = watchNoise(consoleNoisy);
+    consoleNoisy.handlers.console.forEach((fn) =>
+      fn({ type: () => "error", location: () => ({ url: "https://x/app.js" }), text: () => "bang" }),
+    );
+    assert.throws(() => assertQuiet(WIDGETS[0], badConsole, stubExpect()));
+
+    const consoleQuiet = stubPage();
+    const okConsole = watchNoise(consoleQuiet);
+    consoleQuiet.handlers.console.forEach((fn) =>
+      fn({ type: () => "log", location: () => ({ url: "https://x/app.js" }), text: () => "hello" }),
+    );
+    assertQuiet(WIDGETS[0], okConsole, stubExpect());
+  });
+
+  it("ignores favicon misses (the static fixture ships no icon)", () => {
+    const page = stubPage();
+    const noise = watchNoise(page);
+    page.handlers.requestfailed.forEach((fn) =>
+      fn({ url: () => "https://x/favicon.ico", failure: () => ({ errorText: "reset" }) }),
+    );
+    assertQuiet(WIDGETS[0], noise, stubExpect());
   });
 });
