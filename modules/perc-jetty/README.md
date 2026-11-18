@@ -102,3 +102,16 @@ them as `jetty.shutdown.port` / `jetty.shutdown.key`; `StopJetty` still uses
 `-DSTOP.PORT` / `-DSTOP.KEY` as **client** parameters for `start.jar --stop`.
 
 Unit tests: `src/test/java/com/percussion/jetty/StartupWarnHygieneTest.java`
+
+## JVM security defaults (CVE-2026-114938)
+
+`src/main/jetty/defaults/start.d/jvm.ini` sets `-XX:-UseBASE64Intrinsics` under
+`--exec` (GH-6664) as defense-in-depth against **CVE-2026-114938** for hosts
+running unpatched JDK 21 runtimes (`< 21.0.13.1`) on x86-64 CPUs with AVX-512
+VBMI. The flag is a standard product option and is safe on both x86-64 and
+ARM64. Once the host JDK is upgraded to `21.0.13.1+`, operators who want
+hardware-accelerated Base64 decoding back can add `-XX:+UseBASE64Intrinsics`
+below `--exec` in `jetty/base/start.d/jvm.ini`.
+
+Unit tests: `StartupWarnHygieneTest#jvmIniDisablesBase64IntrinsicsForCve2026114938` in
+`src/test/java/com/percussion/jetty/StartupWarnHygieneTest.java`.

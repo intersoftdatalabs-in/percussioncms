@@ -15,7 +15,7 @@ and installer guidance for the exact build you are deploying.
 ## Before you upgrade
 
 1. **Inventory** current CMS and DTS versions, OS, JDK, and database platform.
-2. **Read** the target release notes for breaking changes, property renames, and required JDK level (**JDK 21** for 8.2).
+2. **Read** the target release notes for breaking changes, property renames, and required JDK level (**JDK 21** for 8.2; prefer **JDK `21.0.13.1` or later** such as Eclipse Temurin `21.0.13.1+2` for **CVE-2026-114938**).
 3. **Back up**:
    - Install tree configuration (Jetty base, `rxconfig`, server properties, custom extensions)
    - Database(s)
@@ -38,7 +38,7 @@ and installer guidance for the exact build you are deploying.
 3. Take final backups.
 4. Run the **8.2 installer** in upgrade/update mode for the existing install root (or follow the package-specific silent upgrade flags).
 5. Allow schema / tablefactory and package install steps to complete; capture logs.
-6. Re-apply environment-specific configuration only when the installer does not preserve it (custom ports, reverse proxy headers, TLS keystores, external auth).
+6. Re-apply environment-specific configuration only when the installer does not preserve it (custom ports, reverse proxy headers, TLS keystores, external auth). If upgrading an existing **DTS** install whose `Deployment/Server/bin/setenv.*` scripts or Windows Procrun service registration (`PercussionProductionDTS` / `PercussionStagingDTS`) were preserved across upgrades, verify `-XX:-UseBASE64Intrinsics` is active as described in [Server operations](id:admin-server-ops).
 7. Start services; run smoke tests (login, open Site, edit page, publish sample, DTS widgets if used).
 8. Monitor logs for extension load failures and missing resources.
 

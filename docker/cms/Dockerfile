@@ -10,6 +10,9 @@ RUN apt-get update \
 
 WORKDIR /opt/Percussion
 
+# CVE-2026-114938 (GH-6664): defense-in-depth if cached base image precedes Temurin 21.0.13.1+2.
+ENV JDK_JAVA_OPTIONS="-XX:-UseBASE64Intrinsics"
+
 COPY docker/entrypoint/install-update.py /usr/local/bin/install-update.py
 COPY docker/scripts/rhythmyx_ready.py /usr/local/lib/perc/rhythmyx_ready.py
 COPY docker/scripts/rhythmyx_healthcheck.py /usr/local/bin/rhythmyx_healthcheck.py
