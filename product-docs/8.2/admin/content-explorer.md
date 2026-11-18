@@ -26,6 +26,7 @@ and assets without launching Desktop Content Explorer (DCE). Open it from the SP
 | **Views catalog** | System **Views** category under the left tree (My / Community / All / Other Content) |
 | **Views → My Content → Inbox** | Assignment list (not a top-level Explorer root — see below) |
 | **Context menu** | Right-click an item or folder row for the same catalog filtered for the popup surface |
+| **Status bar** | Always-visible footer under the list: selection count, folder item count, last-operation feedback, and the signed-in user (see **Status bar and DCE chrome-model parity**) |
 
 **Approve for incremental** is always on the server-actions toolbar. It asks
 **Approve this page or asset onto the incremental publish queue?** Confirm posts
@@ -1156,6 +1157,46 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
 
 Selecting a server action either navigates to a product-safe same-origin URL or refreshes the
 list after a client-handled command (for example a workflow transition).
+
+## Status bar and DCE chrome-model parity
+
+Desktop Content Explorer drove its chrome (main menu bar, toolbars, status bar,
+action menus) from the UI content in context, configurable in Workbench. The
+modern shell mirrors that model element by element:
+
+| DCE chrome | Modern shell |
+|------------|--------------|
+| Main menu bar (Content / View / Help) | **Menu bar** region (`ContentExplorerMenu.xml` mirrored in `menuBarModel.ts`) |
+| Action toolbar | **Reduced actions** + **Server actions** labeled toolbar rows; DCE-familiar icon+label affordance |
+| Status bar (selection counts, folder/item counts, operation feedback, user/context readout) | **Status bar** footer under the list |
+| Context-sensitive action menus (`ActionMenuVisibilityContext` / `uiContexts`) | Evaluated client-side before the toolbar and context menu render (see below) |
+
+The **status bar** always renders under the folder list:
+
+- **Selection** — `N items selected` while rows are checked, `Selected: <name>`
+  for one active row, `No selection` otherwise.
+- **Folder** — `<count> items in <path>` for the open folder, `No items in
+  <path>` for an empty folder, `Loading items for <path>` while the list
+  loads, `No folder open` when nothing is open.
+- **Operation** — the outcome of the last menu command (`role="status"`,
+  announced politely): success text or the same named HTTP **400** / **403**
+  / **404** / **409** error the header banner shows; `Ready` when nothing
+  has run yet.
+- **User** — `Signed in as <user>`, with an `(Admin)` marker for admin
+  sessions.
+
+**Workbench visibility rules are honored.** Each server action may carry
+visibility contexts (Workbench numeric ids `1`–`11` or alias spellings such
+as `checkoutStatus`, `roles`, `locales`) whose listed values *hide* the
+action when they match the current environment — the same hide-on-match
+semantics DCE used. The shell evaluates the rules it can resolve (checked
+row count vs multi-select support, user roles, session locale, community,
+row access band) and hides matching actions from **both** the toolbar and
+the right-click menu, including whole cascade parents whose every child is
+hidden. Rules the shell cannot resolve yet (checkout status, content-type /
+workflow ids, per-mode UI contexts — that detail is not on the list rows)
+stay permissive: the action remains visible, exactly as before this change.
+Those gaps are tracked as server follow-ons, not silent ignores.
 
 ## Folder security
 

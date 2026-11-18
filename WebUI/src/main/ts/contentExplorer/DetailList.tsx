@@ -657,6 +657,12 @@ export interface DetailListProps {
     string,
     { allowedSites: string; allowedSiteNames: string; cleared: boolean }
   >;
+  /**
+   * Fires when the loaded row count changes ({@code null} while no
+   * folder is open or the list has not loaded). Feeds the Explorer
+   * status bar folder count (#6517) without lifting list state.
+   */
+  onRowCountChange?: (count: number | null) => void;
 }
 
 export function DetailList({
@@ -678,6 +684,7 @@ export function DetailList({
   folderWorkflows,
   folderDisplayFormats,
   folderAllowedSites,
+  onRowCountChange,
 }: DetailListProps): React.ReactElement {
   const [page, setPage] = useState(0);
   const [data, setData] = useState<PSPagedResult | null>(null);
@@ -820,6 +827,19 @@ export function DetailList({
   const totalPages = totalCount
     ? Math.max(1, Math.ceil(totalCount / PAGE_SIZE))
     : null;
+
+  // Status bar feed (#6517): report the folder row count (server total
+  // when present, loaded rows otherwise; null while nothing is loaded).
+  useEffect(() => {
+    if (!onRowCountChange) {
+      return;
+    }
+    if (data == null) {
+      onRowCountChange(null);
+      return;
+    }
+    onRowCountChange(data.totalCount ?? data.children.length);
+  }, [data, onRowCountChange]);
 
   const goPrev = useCallback(() => {
     setPage((p) => Math.max(0, p - 1));

@@ -1145,6 +1145,30 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@No folder link is available to copy",
   BREADCRUMB_LINK_FAILED:
     "perc.ui.explorer@Could not copy the folder link",
+  /** Status bar footer (#6517): DCE chrome parity region. */
+  STATUS_BAR_ARIA: "perc.ui.explorer@Explorer status",
+  STATUS_BAR_SELECTED_MULTI:
+    "perc.ui.explorer@{count} items selected",
+  STATUS_BAR_SELECTED_SINGLE:
+    "perc.ui.explorer@1 item selected",
+  STATUS_BAR_SELECTED_SINGLE_NAMED:
+    "perc.ui.explorer@Selected: {name}",
+  STATUS_BAR_SELECTED_NONE:
+    "perc.ui.explorer@No selection",
+  STATUS_BAR_FOLDER_COUNT:
+    "perc.ui.explorer@{count} items in {path}",
+  STATUS_BAR_FOLDER_EMPTY:
+    "perc.ui.explorer@No items in {path}",
+  STATUS_BAR_FOLDER_LOADING:
+    "perc.ui.explorer@Loading items for {path}",
+  STATUS_BAR_FOLDER_NONE:
+    "perc.ui.explorer@No folder open",
+  STATUS_BAR_USER: "perc.ui.explorer@Signed in as {user}",
+  STATUS_BAR_USER_ADMIN:
+    "perc.ui.explorer@Signed in as {user} (Admin)",
+  STATUS_BAR_USER_UNKNOWN: "perc.ui.explorer@unknown user",
+  STATUS_BAR_OPERATION_IDLE:
+    "perc.ui.explorer@Ready",
   SET_WORKFLOW: "perc.ui.explorer@Set workflow",
   SET_WORKFLOW_ARIA:
     "perc.ui.explorer@Set the workflow on the selected pages and assets",

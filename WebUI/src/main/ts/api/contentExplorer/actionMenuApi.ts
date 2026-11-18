@@ -201,6 +201,19 @@ export async function findAllowedTemplateMenus(
 // ---------- Client-side mapping ----------
 
 /**
+ * Jackson serializes a one-entry wire list as a single object. The H2
+ * seed serves single {@code parameters}, {@code properties},
+ * {@code visibilityContexts}, and {@code uiContexts} entries as dicts,
+ * which array consumers cannot iterate (#6517).
+ */
+function asDtoWireArray<T>(value: T | T[] | null | undefined): T[] | undefined {
+  if (value == null) {
+    return undefined;
+  }
+  return Array.isArray(value) ? value : [value];
+}
+
+/**
  * Wraps the {@link ActionMenu[]} envelope from the rest layer's
  * {@code find*()} responses into a client {@link MenuAction[]} for
  * the UI (US3 T053 / T054).
@@ -373,7 +386,10 @@ function mapSingleActionMenu(menu: ActionMenu): MenuAction {
     handler: menu.handler,
     sortRank: menu.sortRank,
     menuType: menu.menuType,
-    parameters: menu.parameters,
+    parameters: asDtoWireArray(menu.parameters),
+    properties: asDtoWireArray(menu.properties),
+    visibilityContexts: asDtoWireArray(menu.visibilityContexts),
+    uiContexts: asDtoWireArray(menu.uiContexts),
   };
   if (menu.id != null) {
     result.id = menu.id;

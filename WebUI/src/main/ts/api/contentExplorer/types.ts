@@ -524,10 +524,12 @@ export interface ActionMenu {
    * or an {@link ActionMenuListEnvelope} object.
    */
   children?: ActionMenuListEnvelope | ActionMenu[];
-  parameters?: ActionMenuParameter[];
-  visibilityContexts?: ActionMenuVisibilityContext[];
-  uiContexts?: ActionMenuModeUIContext[];
-  properties?: ActionMenuProperty[];
+  parameters?: ActionMenuParameter[] | ActionMenuParameter;
+  visibilityContexts?:
+    | ActionMenuVisibilityContext[]
+    | ActionMenuVisibilityContext;
+  uiContexts?: ActionMenuModeUIContext[] | ActionMenuModeUIContext;
+  properties?: ActionMenuProperty[] | ActionMenuProperty;
 }
 
 /**
@@ -565,8 +567,27 @@ export interface MenuAction {
    */
   parentName?: string;
   parameters?: ActionMenuParameter[];
+  /**
+   * Server action properties carried from the wire (#6517). Includes
+   * {@code SupportsMultiSelect} ({@code PSAction.PROP_MUTLI_SELECT}),
+   * which decides whether the action survives multi-row checks.
+   */
+  properties?: ActionMenuProperty[];
   /** Empty unless the parent has cascading children. */
   children?: MenuAction[];
+  /**
+   * Workbench visibility contexts carried from the wire (#6517). The
+   * shell evaluates these client-side via
+   * {@code menuVisibility#isMenuVisibleByVisibilityContexts} so
+   * Workbench rules shape the React menus the way they shaped DCE.
+   */
+  visibilityContexts?: ActionMenuVisibilityContext[];
+  /**
+   * Workbench per-mode UI contexts carried from the wire (#6517).
+   * Documented but not enforced client-side: the client cannot resolve
+   * Workbench mode ids (server gap, see operator docs).
+   */
+  uiContexts?: ActionMenuModeUIContext[];
   /**
    * Workflow child only: server says this trigger requires a non-blank comment
    * before {@code transitionWithComments} (#4723).
