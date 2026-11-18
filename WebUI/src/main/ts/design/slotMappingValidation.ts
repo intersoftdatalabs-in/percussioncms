@@ -47,6 +47,44 @@ function isBlank(value: string | null | undefined): boolean {
   return (value || "").trim().length === 0;
 }
 
+function validateOrientation(index: number, value: string): SlotRowIssue | null {
+  const orientation = (value || "").trim();
+  if (ALLOWED_ORIENTATIONS.has(orientation)) {
+    return null;
+  }
+  return {
+    index,
+    message: `slots[${index}].orientation must be horizontal, vertical, or empty`,
+  };
+}
+
+function validateNonNegativeInt(
+  index: number,
+  field: "columns" | "maxItems",
+  value: string,
+): SlotRowIssue | null {
+  const trimmed = (value || "").trim();
+  if (!trimmed || NON_NEGATIVE_INT_RE.test(trimmed)) {
+    return null;
+  }
+  return {
+    index,
+    message: `slots[${index}].${field} must be a non-negative whole number`,
+  };
+}
+
+function validateMappedRow(row: SlotEditorRow, index: number): SlotRowIssue[] {
+  if (row.loadError) {
+    return [];
+  }
+  const maybeIssues = [
+    validateOrientation(index, row.layout.orientation),
+    validateNonNegativeInt(index, "columns", row.layout.columns),
+    validateNonNegativeInt(index, "maxItems", row.layout.maxItems),
+  ];
+  return maybeIssues.filter((issue): issue is SlotRowIssue => issue !== null);
+}
+
 /**
  * Client-side validation for loaded slot-mapping rows.
  *
@@ -62,30 +100,7 @@ export function validateSlotRows(rows: SlotEditorRow[]): SlotRowIssue[] {
       issues.push({ index: i, message: `slots[${i}] is not mapped to a known slot` });
       continue;
     }
-    if (row.loadError) {
-      continue;
-    }
-    const orientation = (row.layout.orientation || "").trim();
-    if (!ALLOWED_ORIENTATIONS.has(orientation)) {
-      issues.push({
-        index: i,
-        message: `slots[${i}].orientation must be horizontal, vertical, or empty`,
-      });
-    }
-    const columns = (row.layout.columns || "").trim();
-    if (columns && !NON_NEGATIVE_INT_RE.test(columns)) {
-      issues.push({
-        index: i,
-        message: `slots[${i}].columns must be a non-negative whole number`,
-      });
-    }
-    const maxItems = (row.layout.maxItems || "").trim();
-    if (maxItems && !NON_NEGATIVE_INT_RE.test(maxItems)) {
-      issues.push({
-        index: i,
-        message: `slots[${i}].maxItems must be a non-negative whole number`,
-      });
-    }
+    issues.push(...validateMappedRow(row, i));
   }
   return issues;
 }
