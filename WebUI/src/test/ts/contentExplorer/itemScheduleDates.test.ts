@@ -233,7 +233,7 @@ describe("get/set schedule dates", () => {
     ).rejects.toThrow("INVALID");
   });
 
-  it("writes the same dates to each page and skips folders", async () => {
+  it("writes the same dates to pages, assets, and generic items, skipping folders", async () => {
     const bodies: unknown[] = [];
     vi.spyOn(global, "fetch").mockImplementation(async (_url, init) => {
       bodies.push(JSON.parse(String(init?.body ?? "{}")));
@@ -263,12 +263,18 @@ describe("get/set schedule dates", () => {
       type: "percAsset",
       category: "asset",
     });
-    expect(publishableScheduleTargets([folder, page, page, asset]).map((r) => r.id)).toEqual([
-      "42",
-      "43",
-    ]);
-    const batch = await scheduleSelectedItems([folder, page, asset], dates);
-    expect(batch.saved).toBe(2);
+    const generic = item({
+      id: "9001999",
+      name: "PromoSnippet",
+      path: "/ContentLib/PromoSnippet",
+      type: "MyCustomArticle",
+      category: "item",
+    });
+    expect(
+      publishableScheduleTargets([folder, page, page, asset, generic]).map((r) => r.id),
+    ).toEqual(["42", "43", "9001999"]);
+    const batch = await scheduleSelectedItems([folder, page, asset, generic], dates);
+    expect(batch.saved).toBe(3);
     expect(batch.skipped).toBe(1);
     expect(batch.failures).toEqual([]);
     expect(bodies).toEqual([
@@ -283,6 +289,14 @@ describe("get/set schedule dates", () => {
       {
         ItemDates: {
           itemId: "43",
+          startDate: dates.startDate,
+          endDate: "",
+          comments: "batch",
+        },
+      },
+      {
+        ItemDates: {
+          itemId: "9001999",
           startDate: dates.startDate,
           endDate: "",
           comments: "batch",

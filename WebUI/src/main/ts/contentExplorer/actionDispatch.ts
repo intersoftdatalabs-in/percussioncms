@@ -849,7 +849,6 @@ function checkoutItemLabel(item: PSPathItem): string {
 
 function describeCheckoutBatch(result: {
   skippedFolders: string[];
-  skippedOther: string[];
   failures: CheckoutBatchFailure[];
 }): string | undefined {
   const parts: string[] = [];
@@ -858,13 +857,6 @@ function describeCheckoutBatch(result: {
       message(EXPLORER_MSG.CHECKOUT_SKIPPED_FOLDERS)
         .split("{names}")
         .join(result.skippedFolders.join(", ")),
-    );
-  }
-  if (result.skippedOther.length > 0) {
-    parts.push(
-      message(EXPLORER_MSG.CHECKOUT_SKIPPED_OTHER)
-        .split("{names}")
-        .join(result.skippedOther.join(", ")),
     );
   }
   if (result.failures.length > 0) {
@@ -895,7 +887,6 @@ interface CheckinBatchFailure {
 
 function describeCheckinBatch(result: {
   skippedFolders: string[];
-  skippedOther: string[];
   failures: CheckinBatchFailure[];
 }): string | undefined {
   const parts: string[] = [];
@@ -904,13 +895,6 @@ function describeCheckinBatch(result: {
       message(EXPLORER_MSG.CHECKIN_SKIPPED_FOLDERS)
         .split("{names}")
         .join(result.skippedFolders.join(", ")),
-    );
-  }
-  if (result.skippedOther.length > 0) {
-    parts.push(
-      message(EXPLORER_MSG.CHECKIN_SKIPPED_OTHER)
-        .split("{names}")
-        .join(result.skippedOther.join(", ")),
     );
   }
   if (result.failures.length > 0) {
@@ -941,7 +925,6 @@ interface ForceCheckinBatchFailure {
 
 function describeForceCheckinBatch(result: {
   skippedFolders: string[];
-  skippedOther: string[];
   failures: ForceCheckinBatchFailure[];
 }): string | undefined {
   const parts: string[] = [];
@@ -950,13 +933,6 @@ function describeForceCheckinBatch(result: {
       message(EXPLORER_MSG.FORCE_CHECKIN_SKIPPED_FOLDERS)
         .split("{names}")
         .join(result.skippedFolders.join(", ")),
-    );
-  }
-  if (result.skippedOther.length > 0) {
-    parts.push(
-      message(EXPLORER_MSG.FORCE_CHECKIN_SKIPPED_OTHER)
-        .split("{names}")
-        .join(result.skippedOther.join(", ")),
     );
   }
   if (result.failures.length > 0) {
@@ -980,7 +956,7 @@ function describeForceCheckinBatch(result: {
 }
 
 /**
- * Admin force check-in of every eligible page/asset. One confirm.
+ * Admin force check-in of every selected item. One confirm.
  * Folders are skipped. HTTP failures are named; the rest still run.
  */
 async function forceCheckinMultiSelection(
@@ -991,7 +967,6 @@ async function forceCheckinMultiSelection(
   if (plan.eligible.length === 0) {
     const noted = describeForceCheckinBatch({
       skippedFolders: plan.skippedFolders,
-      skippedOther: plan.skippedOther,
       failures: [],
     });
     return {
@@ -1032,7 +1007,6 @@ async function forceCheckinMultiSelection(
   }
   const messageText = describeForceCheckinBatch({
     skippedFolders: plan.skippedFolders,
-    skippedOther: plan.skippedOther,
     failures,
   });
   const incomplete = failures.length > 0;
@@ -1049,7 +1023,7 @@ async function forceCheckinMultiSelection(
 }
 
 /**
- * Check in every eligible page/asset. Folders are skipped. A 403 or 409
+ * Check in every selected item. Folders are skipped. A 403 or 409
  * on one item is named and the rest of the selection still runs.
  */
 async function checkinMultiSelection(
@@ -1060,7 +1034,6 @@ async function checkinMultiSelection(
   if (plan.eligible.length === 0) {
     const noted = describeCheckinBatch({
       skippedFolders: plan.skippedFolders,
-      skippedOther: plan.skippedOther,
       failures: [],
     });
     return {
@@ -1100,7 +1073,6 @@ async function checkinMultiSelection(
   }
   const messageText = describeCheckinBatch({
     skippedFolders: plan.skippedFolders,
-    skippedOther: plan.skippedOther,
     failures,
   });
   const incomplete = failures.length > 0;
@@ -1117,7 +1089,7 @@ async function checkinMultiSelection(
 }
 
 /**
- * Check out every eligible page/asset. Folders are skipped. A 403 or 409
+ * Check out every selected item. Folders are skipped. A 403 or 409
  * on one item is named and the rest of the selection still runs.
  */
 async function checkoutMultiSelection(
@@ -1128,7 +1100,6 @@ async function checkoutMultiSelection(
   if (plan.eligible.length === 0) {
     const noted = describeCheckoutBatch({
       skippedFolders: plan.skippedFolders,
-      skippedOther: plan.skippedOther,
       failures: [],
     });
     return {
@@ -1168,7 +1139,6 @@ async function checkoutMultiSelection(
   }
   const messageText = describeCheckoutBatch({
     skippedFolders: plan.skippedFolders,
-    skippedOther: plan.skippedOther,
     failures,
   });
   const incomplete = failures.length > 0;
@@ -1202,8 +1172,7 @@ async function publishFolderSelection(
   const nothing =
     result.publishedIds.length === 0 &&
     result.failures.length === 0 &&
-    result.skippedFolders.length === 0 &&
-    result.skippedOther.length === 0;
+    result.skippedFolders.length === 0;
   if (nothing) {
     return {
       kind: "rest",
@@ -1261,8 +1230,7 @@ async function stageFolderSelection(
   const nothing =
     result.stagedIds.length === 0 &&
     result.failures.length === 0 &&
-    result.skippedFolders.length === 0 &&
-    result.skippedOther.length === 0;
+    result.skippedFolders.length === 0;
   if (nothing) {
     return {
       kind: "rest",
@@ -1323,8 +1291,7 @@ async function removeFromStagingFolderSelection(
   const nothing =
     result.removedIds.length === 0 &&
     result.failures.length === 0 &&
-    result.skippedFolders.length === 0 &&
-    result.skippedOther.length === 0;
+    result.skippedFolders.length === 0;
   if (nothing) {
     return {
       kind: "rest",
@@ -1355,7 +1322,6 @@ async function publishMultiSelection(
     const noted = describePublishBatch({
       publishedIds: [],
       skippedFolders: plan.skippedFolders,
-      skippedOther: plan.skippedOther,
       failures: [],
     });
     return {
@@ -1420,7 +1386,6 @@ async function runPublishBatch(
   return {
     publishedIds,
     skippedFolders: plan.skippedFolders,
-    skippedOther: plan.skippedOther,
     failures,
   };
 }
@@ -1434,7 +1399,6 @@ async function takedownMultiSelection(
     const noted = describeTakedownBatch({
       takenDownIds: [],
       skippedFolders: plan.skippedFolders,
-      skippedOther: plan.skippedOther,
       failures: [],
     });
     return {
@@ -1499,7 +1463,6 @@ async function runTakedownBatch(
   return {
     takenDownIds,
     skippedFolders: plan.skippedFolders,
-    skippedOther: plan.skippedOther,
     failures,
   };
 }
@@ -1520,7 +1483,6 @@ async function stageMultiSelection(
     const noted = describeStageBatch({
       stagedIds: [],
       skippedFolders: plan.skippedFolders,
-      skippedOther: plan.skippedOther,
       failures: [],
     });
     return {
@@ -1585,7 +1547,6 @@ async function runStageBatch(
   return {
     stagedIds,
     skippedFolders: plan.skippedFolders,
-    skippedOther: plan.skippedOther,
     failures,
   };
 }
@@ -1606,7 +1567,6 @@ async function removeFromStagingMultiSelection(
     const noted = describeRemoveFromStagingBatch({
       removedIds: [],
       skippedFolders: plan.skippedFolders,
-      skippedOther: plan.skippedOther,
       failures: [],
     });
     return {
@@ -1672,7 +1632,6 @@ async function runRemoveFromStagingBatch(
   return {
     removedIds,
     skippedFolders: plan.skippedFolders,
-    skippedOther: plan.skippedOther,
     failures,
   };
 }
@@ -2126,9 +2085,6 @@ export async function dispatchAction(
   if (isPublishingHistoryActionName(name)) {
     if (!item || isFolder(item)) {
       return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
-    }
-    if (resolvePublishKind(item) === "none") {
-      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
     }
     ctx.onShowPublishingHistory?.(item);
     return { kind: "client" };
@@ -2698,8 +2654,8 @@ export async function dispatchAction(
       return stageFolderSelection(ctx, item);
     }
     // Single item shares the bulk dialog chrome (#6530) so the confirm list
-    // + per-item report match multi-select. Ineligible rows (templates) and
-    // injected onStage hooks keep the legacy confirm + banner flow.
+    // + per-item report match multi-select. Injected onStage hooks keep
+    // the legacy confirm + banner flow.
     if (
       ctx.confirmBulkStage &&
       !ctx.onStage &&
@@ -2768,9 +2724,8 @@ export async function dispatchAction(
       return removeFromStagingFolderSelection(ctx, item);
     }
     // Single item shares the bulk dialog chrome (#6530) so the confirm list
-    // + per-item report match multi-select. Ineligible rows (templates) and
-    // injected onRemoveFromStaging hooks keep the legacy confirm + banner
-    // flow.
+    // + per-item report match multi-select. Injected onRemoveFromStaging
+    // hooks keep the legacy confirm + banner flow.
     if (
       ctx.confirmBulkStage &&
       !ctx.onRemoveFromStaging &&
@@ -2832,7 +2787,7 @@ export async function dispatchAction(
     const multi = checked.length >= 2;
     const targets = multi
       ? publishableScheduleTargets(checked)
-      : item && resolvePublishKind(item) !== "none"
+      : item && !isFolder(item) && (item.id ?? "").trim()
         ? [item]
         : [];
     if (targets.length === 0) {
@@ -2948,7 +2903,7 @@ export async function dispatchAction(
         messageKey: described.messageKey,
       };
     }
-    if (!item || isFolder(item) || resolvePublishKind(item) === "none") {
+    if (!item || isFolder(item) || !(item.id ?? "").trim()) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
     if (ctx.confirmClearScheduledDates) {
@@ -2981,9 +2936,6 @@ export async function dispatchAction(
     if (!item || isFolder(item) || !item.id) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
-    if (resolvePublishKind(item) === "none") {
-      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
-    }
     try {
       await checkOutItem(String(item.id));
     } catch (err: unknown) {
@@ -3007,9 +2959,6 @@ export async function dispatchAction(
     }
     if (!item || isFolder(item) || !item.id) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
-    }
-    if (resolvePublishKind(item) === "none") {
-      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
     }
     const entered = await promptSingleCheckinComment(ctx);
     if (entered == null) {
@@ -3045,9 +2994,6 @@ export async function dispatchAction(
     }
     if (!item || isFolder(item) || !item.id) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
-    }
-    if (resolvePublishKind(item) === "none") {
-      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
     }
     const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
       EXPLORER_MSG.CONFIRM_FORCE_CHECKIN,

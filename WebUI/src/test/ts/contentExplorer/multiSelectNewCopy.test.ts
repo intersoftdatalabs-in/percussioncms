@@ -98,7 +98,7 @@ describe("multiSelectNewCopy", () => {
     expect(result.messageKey).toBeUndefined();
   });
 
-  it("names folders and copies nothing when no page or asset is checked", async () => {
+  it("names folders and copies nothing when no item is checked", async () => {
     const copyOne = vi.fn();
     const result = await runMultiNewCopy({
       items: [folder(), folder({ id: "8", name: "Blog", path: "/Sites/Demo/Blog/" })],
