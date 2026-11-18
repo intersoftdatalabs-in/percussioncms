@@ -100,9 +100,9 @@ const COMPARE_WORD_DIFF = {
         },
         {
           name: "displaytitle",
-          leftValue: "Same",
-          rightValue: "Same",
-          changed: false,
+          leftValue: "grey",
+          rightValue: "gray",
+          changed: true,
         },
       ],
     },
@@ -379,6 +379,22 @@ test.describe("React Content Editor compare two revisions", () => {
       await expect(newer).toContainText("The new title");
       await expect(newer.locator("ins")).toContainText("new");
       await expect(newer.locator("del")).toHaveCount(0);
+      // Single-word substitution refines to the changed characters (#6533).
+      const olderTitle = page.getByTestId(
+        "editor-compare-word-left-displaytitle",
+      );
+      const newerTitle = page.getByTestId(
+        "editor-compare-word-right-displaytitle",
+      );
+      await expect(olderTitle).toContainText("grey");
+      await expect(olderTitle.locator("del")).toContainText("e");
+      await expect(olderTitle.locator("ins")).toHaveCount(0);
+      await expect(newerTitle).toContainText("gray");
+      await expect(newerTitle.locator("ins")).toContainText("a");
+      await expect(newerTitle.locator("del")).toHaveCount(0);
+      await page.getByTestId("editor-compare-table").screenshot({
+        path: "test-results/live-proof-6533-word-refine.png",
+      });
       await expect(page.getByTestId("editor-compare-results")).toHaveAttribute(
         "aria-live",
         "polite",
