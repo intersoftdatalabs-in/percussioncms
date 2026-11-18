@@ -90,18 +90,9 @@ python3 modules/perc-distribution-tree/scripts/api-update.py --module webui --dr
 
 **Tests**: `python3 -m pytest modules/perc-distribution-tree/scripts/test_api_update.py -v`
 
-## update-tinymce.py
-
-Cross-platform Python port of `UpdateTinyMCE.bat`. Syncs TinyMCE asset sources from `modules/perc-tinymce/src/main/tinymce/` into the packaged-resources directory `modules/perc-tinymce/src/main/resources/tinymce/` so the next `mvn package` rebuild picks them up.
-
-**Invocation**:
-
-```sh
-python3 modules/perc-distribution-tree/scripts/update-tinymce.py
-python3 modules/perc-distribution-tree/scripts/update-tinymce.py --source /custom/tinymce --target /custom/tinymce-resources
-```
-
-**Tests**: `python3 -m pytest modules/perc-distribution-tree/scripts/test_update_tinymce.py -v`
+> **Retired in #5734**: `update-tinymce.py` (+ `test_update_tinymce.py`) synced
+> TinyMCE asset sources into `modules/perc-tinymce`. That module (and the
+> TinyMCE 6.8.6 vendor tree) is deleted, so the sync script is gone too.
 
 ## Adding a script here
 

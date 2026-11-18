@@ -52,7 +52,6 @@ updates:
       - "/WebUI/src/main/frontend"
       - "/modules/perc-common-ui-bundle"
       - "/modules/perc-qa-automation/frontend"
-      - "/modules/perc-tinymce"
       - "/modules/perc-toolkit"
     schedule:
       interval: "weekly"

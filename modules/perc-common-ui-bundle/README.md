@@ -21,8 +21,8 @@ Maven `bundle-codemirror` execution) bundles the `codemirror` npm package
 into `target/classes/META-INF/resources/sys_resources/codemirror/codemirror/`
 (`codemirror.bundle.js` + `codemirror.bundle.css`). The classic template
 editor (`editTemplate_js.jsp` mirrors) and the `sys_TextArea` code-editor
-control (`sys_Templates.xsl`) load this TinyMCE-independent path, so they
-survive the `perc-tinymce` packaging removal (#5734). Contract tests:
+control (`sys_Templates.xsl`) load this TinyMCE-independent path, which survived
+the `perc-tinymce` packaging removal (#5734). Contract tests:
 `src/test/js/codemirror-bundle.test.js` (pinned major line + entry
 unwrapping); live coverage:
 `modules/perc-qa-automation/frontend/tests/editor-codemirror-bundle.spec.js`.

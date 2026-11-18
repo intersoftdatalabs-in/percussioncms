@@ -21,9 +21,10 @@
  * The TipTap-native source view is a plain textarea (PR #5688) — the SPA
  * tree takes no {@code codemirror} / {@code @codemirror/*} npm dependency
  * and no CodeMirror module import. The CodeMirror 5 esbuild bundle
- * ({@code modules/perc-tinymce}, {@code codemirror.bundle.*}) exists only
- * for the TinyMCE {@code codemirror} plugin + classic dialogs until the
- * packaging slice (#5734) deletes them; it must never leak into
+ * (`codemirror.bundle.*`, built by {@code modules/perc-common-ui-bundle})
+ * exists only for the classic template/page-edit dialogs until the CM5
+ * detach slice (#5746) retires it; the TinyMCE-hosted copy retired with
+ * `modules/perc-tinymce` in #5734. It must never leak into
  * {@code src/main/ts}.
  *
  * Prose mentions of "CodeMirror" in comments are allowed; module imports,

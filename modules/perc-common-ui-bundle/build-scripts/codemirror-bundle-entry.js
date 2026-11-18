@@ -23,8 +23,8 @@
  * (`sys_Templates.xsl`) need out of the `codemirror` npm package so esbuild
  * can ship them as a single `codemirror.bundle.js` + `codemirror.bundle.css`
  * pair served from `/sys_resources/codemirror/codemirror/` — outside the
- * `sys_resources/tinymce` tree, so the bundle survives the `perc-tinymce`
- * packaging removal (#5734). The file set mirrors the previous
+ * retired `sys_resources/tinymce` tree (removed with `modules/perc-tinymce`
+ * in #5734). The file set mirrors the previous
  * `codemirror-unpack` Ant allow-list 1:1, so every runtime consumer keeps
  * working without API changes.
  *

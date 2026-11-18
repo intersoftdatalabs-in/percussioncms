@@ -18,7 +18,7 @@ Instructions for developers building Percussion CMS 8.2 from this monorepo.
 | **JDK 21** | `JAVA_HOME` must point at JDK 21 |
 | **Maven wrapper** | Use repo-root `mvnw` / `mvnw.cmd` (do not require a global Maven version fight) |
 | **Git** | Clone `intersoftdatalabs-in/percussioncms` |
-| **Node.js** | Required for WebUI / TinyMCE-related modules when those modules are built |
+| **Node.js** | Required for WebUI / Node-based modules (WebUI frontend, `perc-common-ui-bundle`) when those modules are built |
 | **Windows long paths** | Enable long path support when building Node-heavy modules on Windows |
 
 ## Full reactor build

@@ -24,11 +24,9 @@
  *
  * Relocated here from `modules/perc-tinymce` (issue #5626 origin) so the
  * bundle is served from the TinyMCE-independent path
- * `/sys_resources/codemirror/codemirror/` and survives the `perc-tinymce`
- * packaging removal (#5734). Until #5734 lands, `modules/perc-tinymce` keeps
- * building the same file set under its legacy
- * `sys_resources/tinymce/plugins/codemirror/codemirror/` path as a fallback;
- * consumers point at the new path.
+ * `/sys_resources/codemirror/codemirror/`; the `perc-tinymce` module and its
+ * legacy `sys_resources/tinymce/plugins/codemirror/codemirror/` fallback path
+ * retired in #5734 — all consumers point at the new path.
  *
  * Source: node_modules/codemirror/** (via codemirror-bundle-entry.js)
  * Output: target/classes/META-INF/resources/sys_resources/codemirror/codemirror/

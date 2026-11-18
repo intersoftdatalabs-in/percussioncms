@@ -83,9 +83,10 @@ const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
 const PLUGIN_BASE = "/Rhythmyx/sys_resources/codemirror/codemirror";
 const BUNDLE_JS = `${PLUGIN_BASE}/codemirror.bundle.js`;
 const BUNDLE_CSS = `${PLUGIN_BASE}/codemirror.bundle.css`;
-// Old per-file WebJar layout (removed by #5626) under the legacy
-// TinyMCE-hosted base (kept serving the bundle until #5734 deletes
-// modules/perc-tinymce; #5784 consumers no longer point at it).
+// Old per-file WebJar layout (removed by #5626) under the retired
+// TinyMCE-hosted base (deleted with modules/perc-tinymce in #5734;
+// #5784 consumers never pointed at it). Kept as a named constant so the
+// live test below can assert the path now 404s.
 const LEGACY_TINYMCE_BASE =
   "/Rhythmyx/sys_resources/tinymce/plugins/codemirror/codemirror";
 const LEGACY_LIB = `${LEGACY_TINYMCE_BASE}/lib/codemirror.js`;
@@ -94,8 +95,8 @@ const LEGACY_LIB = `${LEGACY_TINYMCE_BASE}/lib/codemirror.js`;
 // `WebUI/war` tree is a dual-ship mirror of `WebUI/src/main/webapp` for
 // these residual dialogs: every copy must load the same TinyMCE-independent
 // npm bundle (#5784), never the removed per-file WebJar layout (#5626) and
-// never the legacy TinyMCE-hosted bundle path (kept only as a fallback until
-// #5734 deletes modules/perc-tinymce).
+// never the retired TinyMCE-hosted bundle path (deleted with
+// modules/perc-tinymce in #5734).
 const REPO_ROOT = path.join(__dirname, "..", "..", "..", "..");
 const TEMPLATE_JSP_MIRRORS = [
   "WebUI/src/main/webapp/cm/app/includes/template/editTemplate_js.jsp",
@@ -128,8 +129,9 @@ function codemirrorLoaderLines(jspPath) {
 // owns so a re-introduced WebJar, unpack step, version property, or dropped
 // npm dependency fails fast without a live CMS. Kept to the migration-owned
 // manifests plus a repo-wide pom sweep (skipping build-output and VCS dirs).
+// (The `modules/perc-tinymce` manifest retired with that module in #5734,
+// so only the TinyMCE-independent bundle manifest remains.)
 const NPM_TRACKED_MANIFESTS = [
-  "modules/perc-tinymce/package.json",
   "modules/perc-common-ui-bundle/package.json",
 ];
 const POM_SWEEP_SKIP_DIRS = new Set([
@@ -973,9 +975,10 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
         ).toBe(false);
       }
       // `codemirror` stays a standard npm dependency (Dependabot-visible via
-      // .github/dependabot.yml `/modules/perc-tinymce` +
-      // `/modules/perc-common-ui-bundle` entries) with a lockfile entry, so
-      // `npm ls codemirror` / `npm audit` resolve the tracked version.
+      // the .github/dependabot.yml `/modules/perc-common-ui-bundle` entry;
+      // the `/modules/perc-tinymce` entry retired with that module in #5734)
+      // with a lockfile entry, so `npm ls codemirror` / `npm audit` resolve
+      // the tracked version.
       for (const manifestRel of NPM_TRACKED_MANIFESTS) {
         const manifestPath = path.join(REPO_ROOT, manifestRel);
         const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));

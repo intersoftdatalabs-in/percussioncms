@@ -751,6 +751,8 @@
 			inheritrefs="true" />
 		<antcall target="backupTinymceRxresources" inheritall="true"
 			inheritrefs="true" />
+		<antcall target="removeRetiredTinymceShippedTree" inheritall="true"
+			inheritrefs="true" />
 		<echo>Upgrade Done...Update Version.properties</echo>
 		<copy file="${install.src}/Version.properties"
 			tofile="${install.dir}/Version.properties" overwrite="true"
@@ -950,6 +952,15 @@
 				<exclude name="**/customer_config_override.json" />
 			</fileset>
 		</delete>
+	</target>
+	<target name="removeRetiredTinymceShippedTree">
+		<!-- #5734: modules/perc-tinymce (TinyMCE 6.8.6 vendor tree) retired,
+			so upgraded installs must not keep the stale shipped tree that a
+			fresh install no longer contains. Customer overrides under
+			rx_resources/tinymce are curated by backupTinymceRxresources above
+			and are intentionally left alone here. -->
+		<delete dir="${install.dir}/sys_resources/tinymce" failonerror="false"
+			quiet="true" />
 	</target>
 	<target name="deleteOldEXEFiles">
 		<echo>Deleting old 7.3.2 exe files...</echo>

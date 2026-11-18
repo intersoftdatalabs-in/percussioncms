@@ -1,6 +1,6 @@
 # Windows Build Guide for Percussion CMS
 
-This guide provides Windows-specific instructions and troubleshooting for building Percussion CMS from source, particularly for modules that use Node.js-based build tools like `perc-tinymce`.
+This guide provides Windows-specific instructions and troubleshooting for building Percussion CMS from source, particularly for modules that use Node.js-based build tools like `perc-common-ui-bundle`.
 
 ## Prerequisites
 
@@ -11,7 +11,7 @@ This guide provides Windows-specific instructions and troubleshooting for buildi
 
 ## Critical: Enable Long Path Support (Windows 10/11)
 
-**This is essential for modules with Node.js builds like `perc-tinymce`.**
+**This is essential for modules with Node.js builds like `perc-common-ui-bundle`.**
 
 Windows has a 260-character path limitation that can cause build failures when npm installs deeply nested node_modules. Node.js projects (especially with v20+) often exceed this limit.
 
@@ -72,14 +72,14 @@ mvnw.cmd clean install
 
 ### Build Specific Modules
 
-For modules with Node.js dependencies (like `perc-tinymce`):
+For modules with Node.js dependencies (like `perc-common-ui-bundle`):
 
 ```cmd
-mvnw.cmd clean install -pl modules/perc-tinymce -am
+mvnw.cmd clean install -pl modules/perc-common-ui-bundle -am
 ```
 
 Parameters:
-- `-pl modules/perc-tinymce` — Build only this module
+- `-pl modules/perc-common-ui-bundle` — Build only this module
 - `-am` — Auto-include upstream dependencies
 
 ## Troubleshooting Windows Builds
@@ -89,7 +89,7 @@ Parameters:
 **Symptoms:**
 
 ```
-[ERROR] Failed to execute goal com.github.eirslett:frontend-maven-plugin:1.15.1:npm (npm-install) on project perc-tinymce
+[ERROR] Failed to execute goal com.github.eirslett:frontend-maven-plugin:1.15.1:npm (npm-install) on project perc-common-ui-bundle
 [ERROR] org.apache.commons.exec.ExecuteException: Process exited with an error: 1 (Exit value: 1)
 ```
 
@@ -108,7 +108,7 @@ npm cache clean --force
 Then retry the build:
 
 ```cmd
-mvnw.cmd clean install -pl modules/perc-tinymce -am
+mvnw.cmd clean install -pl modules/perc-common-ui-bundle -am
 ```
 
 #### Solution C: Run Build with More Verbose Output
@@ -116,7 +116,7 @@ mvnw.cmd clean install -pl modules/perc-tinymce -am
 Get detailed error information:
 
 ```cmd
-mvnw.cmd clean install -pl modules/perc-tinymce -am -X > build-debug.log 2>&1
+mvnw.cmd clean install -pl modules/perc-common-ui-bundle -am -X > build-debug.log 2>&1
 ```
 
 Search the log for the actual npm error near these markers:
@@ -162,7 +162,7 @@ rmdir /s %USERPROFILE%\.m2\frontend
 Then retry:
 
 ```cmd
-mvnw.cmd clean install -pl modules/perc-tinymce -am
+mvnw.cmd clean install -pl modules/perc-common-ui-bundle -am
 ```
 
 #### Manual Node.js Installation (Fallback)
@@ -191,7 +191,7 @@ Verify the registry setting was applied and was successful:
 3. Retry the build:
 
    ```cmd
-   mvnw.cmd clean install -pl modules/perc-tinymce -am
+   mvnw.cmd clean install -pl modules/perc-common-ui-bundle -am
    ```
 
 ### Issue 4: Port Already in Use (If Running Tests)
@@ -221,7 +221,7 @@ Then retry the build.
 3. **Build only what you need**:
 
    ```cmd
-   mvnw.cmd clean install -pl modules/perc-tinymce -am -DskipTests
+   mvnw.cmd clean install -pl modules/perc-common-ui-bundle -am -DskipTests
    ```
 
 ## Windows PowerShell vs Command Prompt
@@ -256,7 +256,7 @@ If you encounter issues not covered here:
 ## Additional Resources
 
 - [Percussion CMS README.md](README.md) — General build setup
-- [perc-tinymce README.md](modules/perc-tinymce/README.md) — Node.js-specific build info
+- [perc-common-ui-bundle README.md](modules/perc-common-ui-bundle/README.md) — Node.js-specific build info
 - [Microsoft Registry Documentation](https://learn.microsoft.com/en-us/windows/win32/fileio/naming-a-file)
 - [Node.js Windows Issues](https://github.com/nodejs/node/issues)
 - [npm Windows Troubleshooting](https://docs.npmjs.com/cli/v10/configuring-npm/folders)
