@@ -122,6 +122,18 @@ public class PSTipTapEditorKeysTmxTest {
       "HTML source",
       "Fill in the required fields.");
 
+  /** Toolbar group names for issue #6589: every parity group carries a translated name. */
+  private static final List<String> GROUP_ENGLISH =
+      List.of(
+          "History",
+          "Text formatting",
+          "Style",
+          "Text alignment",
+          "Lists",
+          "Links",
+          "Code",
+          "Tables");
+
   /** Expected {@code perc.ui.editor@...} suffixes for the #5900 content-picker lookup. */
   private static final List<String> PICKER_ENGLISH_5900 =
       List.of(
@@ -140,6 +152,7 @@ public class PSTipTapEditorKeysTmxTest {
   @Test
   public void tiptapToolbarAndDialogKeys_areRegisteredWithEnglish() throws Exception {
     assertKeysRegistered(loadEnSegsByTuid(), EXPECTED_ENGLISH);
+    assertKeysRegistered(loadEnSegsByTuid(), GROUP_ENGLISH);
     // No exact-size pin: later editor slices may register further perc.ui.editor keys.
   }
 
@@ -163,7 +176,9 @@ public class PSTipTapEditorKeysTmxTest {
     assertNotNull(cmsUi, "CmsUi.tmx not found");
     Map<String, Set<String>> langsByTuid = loadLangsByTuid(parse(cmsUi));
     List<String> gaps = new ArrayList<>();
-    for (String en : EXPECTED_ENGLISH) {
+    List<String> allToolbarKeys = new ArrayList<>(EXPECTED_ENGLISH);
+    allToolbarKeys.addAll(GROUP_ENGLISH);
+    for (String en : allToolbarKeys) {
       String tuid = "perc.ui.editor@" + en;
       Set<String> langs = langsByTuid.getOrDefault(tuid, Set.of());
       for (String loc : ABOVE_FLOOR_LOCALES) {

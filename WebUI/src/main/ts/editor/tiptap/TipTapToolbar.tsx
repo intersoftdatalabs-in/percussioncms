@@ -120,15 +120,20 @@ function collapseSelectionToCaret(editor: Editor): void {
 /**
  * Roving-tabindex slot shared by the toolbar root and its buttons (#6588).
  * {@code null} outside a toolbar provider (e.g. standalone
- * {@code TipTapToolButton} use in {@code TipTapPercussionBar}), where every
- * button keeps the legacy always-tabbable behavior.
+ * {@code TipTapToolButton} use), where every button keeps the legacy
+ * always-tabbable behavior.
+ *
+ * <p>Exported so the Percussion plugin bar (#6589) joins the same APG
+ * contract with its own slot: each toolbar keeps exactly one tab stop, so
+ * Tab enters each editor toolbar exactly once.</p>
  */
 interface RovingSlot {
   roving: string;
   adopt: (action: string) => void;
 }
 
-const RovingContext = createContext<RovingSlot | null>(null);
+export const TipTapRovingContext = createContext<RovingSlot | null>(null);
+const RovingContext = TipTapRovingContext;
 
 interface ToolButtonProps {
   action: string;
@@ -404,7 +409,7 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
       className={styles.tiptapToolbar}
       onKeyDown={onToolbarKeyDown}
     >
-      <span role="group" className={styles.tiptapToolGroup}>
+      <span role="group" aria-label={message(EDITOR_MSG.TIPTAP_GROUP_HISTORY)} className={styles.tiptapToolGroup}>
         <ToolButton
           action="undo"
           name={name}
@@ -422,7 +427,7 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
           onPress={() => runCommand(editor, (c) => c.redo().run())}
         />
       </span>
-      <span role="group" className={styles.tiptapToolGroup}>
+      <span role="group" aria-label={message(EDITOR_MSG.TIPTAP_GROUP_FORMATTING)} className={styles.tiptapToolGroup}>
         <ToolButton
           action="bold"
           name={name}
@@ -451,7 +456,7 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
           onPress={() => runCommand(editor, (c) => c.toggleUnderline().run())}
         />
       </span>
-      <span role="group" className={styles.tiptapToolGroup}>
+      <span role="group" aria-label={message(EDITOR_MSG.TIPTAP_GROUP_STYLE)} className={styles.tiptapToolGroup}>
         <select
           data-testid={`tiptap-style-${name}`}
           aria-label={message(EDITOR_MSG.TIPTAP_STYLE)}
@@ -469,7 +474,7 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
           <option value="h3">H3</option>
         </select>
       </span>
-      <span role="group" className={styles.tiptapToolGroup}>
+      <span role="group" aria-label={message(EDITOR_MSG.TIPTAP_GROUP_ALIGNMENT)} className={styles.tiptapToolGroup}>
         <ToolButton
           action="align-left"
           name={name}
@@ -507,7 +512,7 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
           onPress={() => applyAlign("justify")}
         />
       </span>
-      <span role="group" className={styles.tiptapToolGroup}>
+      <span role="group" aria-label={message(EDITOR_MSG.TIPTAP_GROUP_LISTS)} className={styles.tiptapToolGroup}>
         <ToolButton
           action="bullist"
           name={name}
@@ -543,7 +548,7 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
           onPress={() => runCommand(editor, (c) => c.sinkListItem("listItem").run())}
         />
       </span>
-      <span role="group" className={styles.tiptapToolGroup}>
+      <span role="group" aria-label={message(EDITOR_MSG.TIPTAP_GROUP_LINKS)} className={styles.tiptapToolGroup}>
         <ToolButton
           action="link"
           name={name}
@@ -565,7 +570,7 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
           onPress={() => runCommand(editor, (c) => c.unsetLink().run())}
         />
       </span>
-      <span role="group" className={styles.tiptapToolGroup}>
+      <span role="group" aria-label={message(EDITOR_MSG.TIPTAP_GROUP_CODE)} className={styles.tiptapToolGroup}>
         <ToolButton
           action="code-inline"
           name={name}
@@ -585,7 +590,7 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
           onPress={() => runCommand(editor, (c) => c.toggleCodeBlock().run())}
         />
       </span>
-      <span role="group" className={styles.tiptapToolGroup}>
+      <span role="group" aria-label={message(EDITOR_MSG.TIPTAP_GROUP_TABLES)} className={styles.tiptapToolGroup}>
         <ToolButton
           action="table-insert"
           name={name}

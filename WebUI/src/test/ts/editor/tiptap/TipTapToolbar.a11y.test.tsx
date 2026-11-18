@@ -108,6 +108,34 @@ describe("TipTapToolbar a11y evidence (#6588)", () => {
     }
   });
 
+  it("names every parity toolbar group with a translated label", () => {
+    const editor = makeEditor();
+    try {
+      const { container } = render(
+        <TipTapToolbar editor={editor} name="text" />,
+      );
+      const groups = Array.from(
+        container.querySelectorAll(
+          '[data-testid="editor-tiptap-toolbar-text"] > [role="group"]',
+        ),
+      );
+      expect(groups).toHaveLength(8);
+      const names = groups.map((g) => g.getAttribute("aria-label"));
+      expect(names).toEqual([
+        "History",
+        "Text formatting",
+        "Style",
+        "Text alignment",
+        "Lists",
+        "Links",
+        "Code",
+        "Tables",
+      ]);
+    } finally {
+      editor.destroy();
+    }
+  });
+
   it("moves focus with arrows and skips disabled controls", () => {
     const editor = makeEditor();
     try {
