@@ -28,8 +28,8 @@ import java.util.Locale;
 import java.util.Objects;
 
 /**
- * Compiles page layout packages from product package source trees (e.g. {@code perc.baseTemplates},
- * {@code perc.responsiveTemplates}).
+ * Compiles page layout packages from product package source trees (e.g. {@code perc.baseTemplates}).
+ * The retired {@code perc.responsiveTemplates} package was dropped in 8.2 (issue #6654).
  *
  * <p><strong>Authoring preference (ADR-004 / #2786):</strong> modern {@code pages/&lt;id&gt;/}
  * component packages. Falls back to root-level {@code *.templateDef} for upgrade-input / dual-run

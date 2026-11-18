@@ -107,6 +107,20 @@ Do not confuse this with retired **dual-ship** page `*.templateDef` files — se
   shared calendar content type, its editor controls, and all Calendar 2.0
   payload files are unchanged.
 
+- **Responsive base templates (`perc.resp.*`) removed.** The
+  `perc.responsiveTemplates` package (Banded / Basic / plain, Foundation
+  4.x) no longer installs and is dropped from all installer package
+  lists. Sites already upgraded keep their existing `perc.resp.*`
+  template definitions as ordinary templates — they are simply no
+  longer refreshed by the installer. Published pages lose the
+  system-emitted Foundation 4.x includes
+  (`/web_resources/cm/foundation/js/foundation.min.js`,
+  `foundation.min.css`, `normalize.css`) and the responsive viewport
+  meta tag; add your own responsive framework (Foundation 6 via npm is
+  recommended) or the viewport tag to the affected templates if you
+  still need them. The `overrideSystemFoundation` site flag is now a
+  no-op for rendering and is tracked for cleanup separately.
+
 ## Post-upgrade smoke tests
 
 - [ ] Login and role-based navigation work.

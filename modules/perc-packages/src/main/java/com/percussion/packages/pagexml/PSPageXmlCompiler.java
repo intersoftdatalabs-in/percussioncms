@@ -36,8 +36,8 @@ import java.util.Objects;
  * Compiles legacy Page / assembly {@code *.templateDef} XML into a modern {@link
  * PSComponentPackageManifest} plus template source artifacts (Phase 3 / ADR-004 / issue #2770).
  *
- * <p><strong>Scope:</strong> product page layout templates (e.g. {@code perc.baseTemplates}, {@code
- * perc.responsiveTemplates}) and Baseline system assembly templates ({@code perc.page}, dispatchers,
+ * <p><strong>Scope:</strong> product page layout templates (e.g. {@code perc.baseTemplates})
+ * and Baseline system assembly templates ({@code perc.page}, dispatchers,
  * resource, widget). Region holes become slots; assembler extension short-names map to the Component
  * Package Manifest assembler field; Velocity body is the canonical template source. Dual-ship also
  * preserves mime type, publish-when, and location suffix when present.

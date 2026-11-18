@@ -46,7 +46,6 @@ class PSPageDefinitionXmlInventoryTest {
     assertEquals(Set.of(), PSPageDefinitionXmlInventory.WAIVED_PACKAGE_DIRS);
     assertFalse(PSPageDefinitionXmlInventory.isWaivedPackage("perc.Test"));
     assertFalse(PSPageDefinitionXmlInventory.isWaivedPackage("perc.baseTemplates"));
-    assertFalse(PSPageDefinitionXmlInventory.isWaivedPackage("perc.responsiveTemplates"));
     assertFalse(PSPageDefinitionXmlInventory.isWaivedPackage(null));
     assertFalse(PSPageDefinitionXmlInventory.isWaivedPackage(""));
   }
@@ -156,15 +155,15 @@ class PSPageDefinitionXmlInventoryTest {
   @Test
   void tempTree_rxconfigShipPath_isAlsoInventoried() throws Exception {
     Path packages = tempDir.resolve("Packages");
-    Path pages = packages.resolve("perc.responsiveTemplates").resolve("rxconfig").resolve("Pages");
+    Path pages = packages.resolve("perc.syntheticPages").resolve("rxconfig").resolve("Pages");
     Files.createDirectories(pages);
-    Files.writeString(pages.resolve("percRespPlain.xml"), "<Page/>", StandardCharsets.UTF_8);
+    Files.writeString(pages.resolve("percSyntheticPlain.xml"), "<Page/>", StandardCharsets.UTF_8);
 
     PSDefinitionXmlShipPathInventory.Report report = PSPageDefinitionXmlInventory.scan(packages);
     assertFalse(report.isClean());
     assertEquals(1, report.nonWaived().size());
-    assertEquals("perc.responsiveTemplates", report.nonWaived().get(0).packageDirName());
-    assertEquals("percRespPlain.xml", report.nonWaived().get(0).xmlPath().getFileName().toString());
+    assertEquals("perc.syntheticPages", report.nonWaived().get(0).packageDirName());
+    assertEquals("percSyntheticPlain.xml", report.nonWaived().get(0).xmlPath().getFileName().toString());
   }
 
   @Test

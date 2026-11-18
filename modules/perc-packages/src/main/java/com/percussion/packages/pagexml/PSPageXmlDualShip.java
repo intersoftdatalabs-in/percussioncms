@@ -43,7 +43,8 @@ import java.util.regex.Pattern;
  *
  * <p><strong>Authoring truth:</strong> {@code pages/&lt;templateId&gt;/component-package.json} plus
  * template sources under the product package tree (e.g. {@code perc.baseTemplates}, {@code
- * perc.responsiveTemplates}, {@code perc.Baseline} system assembly templates).
+ * perc.Baseline} system assembly templates; the retired {@code perc.responsiveTemplates}
+ * package was dropped in 8.2, issue #6654).
  *
  * <p><strong>Install path:</strong> production package-build uses {@link PSPageXmlNativeInstall} to
  * stage archive {@code TemplateDef-N/} folders (native default as of #3949; issue #3950). {@link

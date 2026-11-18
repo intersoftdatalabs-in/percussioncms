@@ -17,15 +17,14 @@ maintain dual-ship root `*.templateDef` files for those packages.
 
 ## What you get on 8.2
 
-Product packages such as `perc.baseTemplates`, `perc.responsiveTemplates`, and
-`perc.Baseline` are authored as modern `pages/<id>/component-package.json` plus template
+Product packages such as `perc.baseTemplates` and `perc.Baseline` are
+authored as modern `pages/<id>/component-package.json` plus template
 sources (Velocity / assembler). At **package-build** time the CMS stages assembly-template
 XML into the `.ppkg` archive (`TemplateDef-N/`) so deployer install is unchanged.
 
 | Package | Native install |
 |---------|----------------|
 | `perc.baseTemplates` | `package-install.properties` → `page.installMode=native` |
-| `perc.responsiveTemplates` | `page.installMode=native` |
 | `perc.Baseline` (system templates) | `page.installMode=native` (stable GUIDs on a **fresh** 8.2 host — see [Design templates](id:admin-design-templates)) |
 | File / image leftover binary TemplateDefs | Converted to modern `pages/` with native install |
 

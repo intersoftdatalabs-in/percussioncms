@@ -245,6 +245,19 @@ import org.junit.jupiter.api.Test;
  * is impossible and the pair stays pinned as documented vendored code,
  * same precedent as the nav hoverIntent row.
  *
+ * <p>Slice 13 (issue #6654, parent #6522) drops the
+ * {@code perc.responsiveTemplates} package (Foundation 4.x, 2013, EOL) per
+ * the recorded maintainer Drop decision: the {@code pages/perc.resp.*}
+ * sources, the {@code web_resources/cm/foundation} payload tree (JS + CSS),
+ * the template thumbnails, and their {@code psx_archiveInfo.xml} entries
+ * are removed, alongside the package's five installer-list rows. The
+ * {@code sys_assembly.vm} {@code perc.resp} foundation/normalize include
+ * blocks (plus the viewport meta they carried) are removed in the same
+ * change, so published pages no longer emit
+ * {@code /web_resources/cm/foundation} references. Expected sets and
+ * banner pins drop the package and its single Foundation row; no other
+ * audited package ships foundation bytes.
+ *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
  * inventory can only drift together with an audit update. A migration PR that
@@ -271,7 +284,6 @@ class WidgetPayloadVendoredJsAuditTest {
           "perc.PageAutoListWidget",
           "perc.baseWidgets",
           "perc.defaultLanguage",
-          "perc.responsiveTemplates",
           "perc.widget.blogIndexPage",
           "perc.widget.cookieConsent",
           "perc.widget.fileAutoList",
@@ -294,7 +306,6 @@ class WidgetPayloadVendoredJsAuditTest {
   private static final Set<String> EXPECTED_THIRD_PARTY_JS =
       Set.of(
           "perc.baseWidgets/sys__UserDependency--web_resources/cm/jslib/jquery-ui.js",
-          "perc.responsiveTemplates/sys__UserDependency--web_resources/cm/foundation/js/foundation.min.js",
           "perc.widget.calendar/SupportFile-rx_resources/widgets/percCalendarTwo/js/jquery.minicolors.js",
           "perc.widget.calendar/sys__UserDependency--rx_resources/widgets/percCalendarTwo/js/jquery.minicolors.js",
           "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/fullcalendar.js",
@@ -389,9 +400,6 @@ class WidgetPayloadVendoredJsAuditTest {
    */
   private static final Map<String, String> EXPECTED_VERSION_BANNERS =
       Map.ofEntries(
-          Map.entry(
-              "perc.responsiveTemplates/sys__UserDependency--web_resources/cm/foundation/js/foundation.min.js",
-              "Foundation Responsive Library"),
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/fullcalendar.js",
               "FullCalendar v2.9.1"),

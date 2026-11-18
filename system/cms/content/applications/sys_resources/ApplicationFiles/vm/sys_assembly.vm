@@ -649,7 +649,6 @@ $__style
 
 #suppressCatalogedLinks()##
 #addMobilePreviewToolbar()##
-#addResponsiveResources()##
     <meta name='pageid' content="$perc.page.id" />
 </head>
 <body>
@@ -687,13 +686,6 @@ display:none;
 #macro(perc_templateFooter)##
 #print_jquery("beforeBodyClose")##
 #print_jqueryUI("beforeBodyClose")##
-#if ($perc.template.sourceTemplateName.startsWith("perc.resp") && $perc.linkContext.site.overrideSystemFoundation==false)##
-#if($perc.linkContext.mode == "PUBLISH")##
-<script defer src='/web_resources/cm/foundation/js/foundation.min.js'></script>
-#else##
-<script defer src='/Rhythmyx/web_resources/cm/foundation/js/foundation.min.js'></script>
-#end##
-#end##
 #perc_displayText($rx.pageutils.processFrameworkContent("$!perc.linkContext.site.siteBeforeBodyCloseContent"))##
 #perc_displayText("$!perc.page.beforeBodyCloseContent")##
 #perc_displayText("$!perc.template.beforeBodyCloseContent")##
@@ -790,22 +782,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
 #if($perc.isEditMode())##
 #else##
 <script src="/Rhythmyx/sys_resources/mobilepreview/js/PercMobilePreview.js" defer></script>
-#end##
-#end##
-#end##
-
-
-##Adds responsive template resources, if the source template name starts with perc.resp. string.
-#macro(addResponsiveResources)##
-## Skip this section if override system foundation is enabled ##
-#if ($perc.template.sourceTemplateName.startsWith("perc.resp") && $perc.linkContext.site.overrideSystemFoundation==false)##
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-#if($perc.linkContext.mode == "PUBLISH")##
-<link rel="stylesheet" href="/web_resources/cm/foundation/css/foundation.min.css">
-<link rel="stylesheet" href="/web_resources/cm/foundation/css/normalize.css">
-#else##
-<link rel="stylesheet" href="/Rhythmyx/web_resources/cm/foundation/css/foundation.min.css">
-<link rel="stylesheet" href="/Rhythmyx/web_resources/cm/foundation/css/normalize.css">
 #end##
 #end##
 #end##
