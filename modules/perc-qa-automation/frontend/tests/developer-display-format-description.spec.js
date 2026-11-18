@@ -370,4 +370,43 @@ test.describe("Developer set a display format description (#5381)", () => {
 
     assertClean(consoleErrors, pageErrors);
   });
+
+  test("keyboard: input is focused on open and Escape cancels without saving", async ({
+    page,
+  }) => {
+    const { consoleErrors, pageErrors } = attachConsole(page);
+    const updateUrls = [];
+    const deleteUrls = [];
+    page.on("request", (request) => {
+      if (isDisplayFormatWrite(request)) {
+        updateUrls.push(request.url());
+      }
+      if (isDisplayFormatDelete(request)) {
+        deleteUrls.push(request.url());
+      }
+    });
+
+    await openDisplayFormats(page);
+    const formatName = uniqueDisplayFormatName("qa5381kb");
+    await createDisplayFormat(page, formatName);
+
+    const writesBeforeKeyboard = updateUrls.length;
+    await page.locator('[data-testid="developer-df-set-description-edit"]').click();
+    const descriptionInput = page.locator('[data-testid="developer-df-set-description-input"]');
+    await expect(descriptionInput).toBeFocused();
+    await descriptionInput.fill("will-not-save");
+    await descriptionInput.press("Escape");
+    await expect(descriptionInput).toHaveCount(0);
+    expect(updateUrls.length, "Escape must not update the format").toBe(writesBeforeKeyboard);
+    expect(deleteUrls, "Escape must not delete the format").toEqual([]);
+    await expect(descriptionText(page)).toHaveAttribute("data-df-description", "Folder list");
+
+    const deleted = page.waitForResponse((response) => isDisplayFormatDelete(response.request()));
+    await page.locator('[data-testid="developer-df-delete"]').click();
+    await page.locator('[data-testid="developer-catalog-confirm-submit"]').click();
+    const deleteResponse = await deleted;
+    expect(deleteResponse.status()).toBe(204);
+
+    assertClean(consoleErrors, pageErrors);
+  });
 });
