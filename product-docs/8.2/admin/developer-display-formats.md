@@ -109,9 +109,10 @@ and the surface pass in
 1. Open an existing display format. Detail shows the stored label and **Set
    display format label**. The label on the page is the stored value. Typing a
    new label does not change that text until save succeeds.
-2. Click **Set display format label**. Enter the new label, or leave it blank.
-   **Cancel** closes the editor and does not call the server. Saving the same
-   label does not call the server.
+2. Click **Set display format label**. The input is focused on open. Enter the
+    new label, or leave it blank. **Cancel** (or **Escape**) closes the editor
+    and does not call the server. Saving the same
+    label does not call the server.
 3. Click **Save label**. The request is
    `PUT /services/displayformats/{name}` with the label only. The name stays
    the catalog key. The description, columns, and allowed communities are

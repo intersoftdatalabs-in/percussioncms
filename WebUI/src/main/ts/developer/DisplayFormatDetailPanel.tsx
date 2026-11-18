@@ -523,6 +523,12 @@ export function DisplayFormatDetailPanel({
     setLabelError(null);
   }
 
+  function handleLabelKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelLabelEdit();
+    }
+  }
+
   async function handleLabelSave(): Promise<void> {
     if (
       isNew ||
@@ -928,7 +934,9 @@ export function DisplayFormatDetailPanel({
                     style={inputStyle}
                     value={labelDraft}
                     disabled={labelBusy}
+                    autoFocus
                     onChange={(e) => setLabelDraft(e.target.value)}
+                    onKeyDown={handleLabelKeyDown}
                   />
                   <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
                     <button

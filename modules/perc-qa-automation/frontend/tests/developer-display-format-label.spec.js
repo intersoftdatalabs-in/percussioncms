@@ -344,4 +344,44 @@ test.describe("Developer set a display format label (#5432)", () => {
 
     assertClean(consoleErrors, pageErrors);
   });
+
+  test("keyboard: input is focused on open and Escape cancels without saving", async ({
+    page,
+  }) => {
+    const { consoleErrors, pageErrors } = attachConsole(page);
+    const updateUrls = [];
+    const deleteUrls = [];
+    page.on("request", (request) => {
+      if (isDisplayFormatWrite(request)) {
+        updateUrls.push(request.url());
+      }
+      if (isDisplayFormatDelete(request)) {
+        deleteUrls.push(request.url());
+      }
+    });
+
+    await openDisplayFormats(page);
+    const formatName = uniqueDisplayFormatName("qa6630kb");
+    await createDisplayFormat(page, formatName);
+
+    const writesBeforeKeyboard = updateUrls.length;
+    await page.locator('[data-testid="developer-df-set-label-edit"]').click();
+    const labelInput = page.locator('[data-testid="developer-df-set-label-input"]');
+    await expect(labelInput).toBeFocused();
+    await page.screenshot({ path: "test-results/live-proof-6630-df-set-label-keyboard.png" });
+    await labelInput.fill("will-not-save");
+    await labelInput.press("Escape");
+    await expect(labelInput).toHaveCount(0);
+    expect(updateUrls.length, "Escape must not update the format").toBe(writesBeforeKeyboard);
+    expect(deleteUrls, "Escape must not delete the format").toEqual([]);
+    await expect(labelText(page)).toHaveAttribute("data-df-label", `${formatName} label`);
+
+    const deleted = page.waitForResponse((response) => isDisplayFormatDelete(response.request()));
+    await page.locator('[data-testid="developer-df-delete"]').click();
+    await page.locator('[data-testid="developer-catalog-confirm-submit"]').click();
+    const deleteResponse = await deleted;
+    expect(deleteResponse.status()).toBe(204);
+
+    assertClean(consoleErrors, pageErrors);
+  });
 });

@@ -1284,4 +1284,48 @@ describe("DisplayFormatDetailPanel", () => {
       "Folder list",
     );
   });
+
+  it("focuses the label input when the editor opens", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa6630fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [{ source: "sys_title", displayName: "Title", position: 0 }],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    render(<DisplayFormatDetailPanel idOrName="qa6630fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-label-edit"));
+    expect(screen.getByTestId("developer-df-set-label-input")).toHaveFocus();
+  });
+
+  it("Escape cancels the label edit without calling save", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa6630fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [{ source: "sys_title", displayName: "Title", position: 0 }],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    render(<DisplayFormatDetailPanel idOrName="qa6630fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-df-set-label-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-df-set-label-editor")).toBeNull();
+    expect(updateDisplayFormat).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-df-set-label-text").getAttribute("data-df-label")).toBe(
+      "QA format",
+    );
+  });
 });
