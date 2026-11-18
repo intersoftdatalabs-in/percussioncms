@@ -210,42 +210,6 @@ class PSPageXmlNativeInstallTest {
   }
 
   @Test
-  void productResponsiveTemplates_nativeInstallMode() throws Exception {
-    Path product = locatePackage("perc.responsiveTemplates");
-    if (product == null) {
-      System.err.println(
-          "WARN: perc.responsiveTemplates not found; skipping native product test");
-      return;
-    }
-
-    assertEquals(PSPageXmlInstallMode.NATIVE, PSPageXmlInstallPolicy.resolve(product));
-
-    Path staging = tempDir.resolve("resp-native-src");
-    Path archive = tempDir.resolve("resp-native-archive");
-    copyTree(product, staging);
-    Files.createDirectories(archive);
-
-    int written = PSPageXmlNativeInstall.stageArchiveTemplateDefs(staging, archive);
-    assertEquals(3, written);
-
-    // GUID map keys are lower-cased (same as dual-ship); on-disk templateDef keeps product case.
-    Map<String, String> guids = PSPageXmlDualShip.loadGuidsFromMapping(staging);
-    // GUID map keys are Locale.ROOT lowercase (mixed-case product ids).
-    assertEquals("0-4-597", guids.get("perc.resp.banded"));
-    assertEquals("0-4-599", guids.get("perc.resp.basic"));
-    assertEquals("0-4-627", guids.get("perc.resp.plain"));
-    assertTrue(
-        Files.isRegularFile(
-            archive.resolve("TemplateDef-597").resolve("perc.resp.Banded.templateDef")));
-    assertTrue(
-        Files.isRegularFile(
-            archive.resolve("TemplateDef-599").resolve("perc.resp.Basic.templateDef")));
-    assertTrue(
-        Files.isRegularFile(
-            archive.resolve("TemplateDef-627").resolve("perc.resp.plain.templateDef")));
-  }
-
-  @Test
   void missingMapping_failsFast() throws Exception {
     Path packageDir = tempDir.resolve("missing-map");
     Files.createDirectories(packageDir);

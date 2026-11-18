@@ -303,38 +303,6 @@ class PSPageXmlDualShipTest {
   }
 
   @Test
-  void productResponsiveTemplates_modernAuthoring_dualShipInstallParity() throws Exception {
-    Path product = locatePackage("perc.responsiveTemplates");
-    if (product == null) {
-      System.err.println(
-          "WARN: perc.responsiveTemplates not found; skipping product dual-ship test");
-      return;
-    }
-
-    assertTrue(PSPageXmlDualShip.hasModernPageSources(product));
-    assertTrue(PSPageXmlPackageCompiler.listTemplateDefs(product).isEmpty());
-
-    List<PSPageXmlCompileResult> modern = PSPageXmlPackageCompiler.compilePackage(product);
-    assertEquals(3, modern.size(), "responsive ships Banded/Basic/plain");
-
-    Path staging = tempDir.resolve("perc.responsiveTemplates-copy");
-    copyTree(product, staging);
-    int written = PSPageXmlDualShip.materializeInstallTemplateDefs(staging);
-    assertEquals(3, written);
-
-    Map<String, String> guids = PSPageXmlDualShip.loadGuidsFromMapping(staging);
-    assertEquals("0-4-597", guids.get("perc.resp.banded"));
-    assertEquals("0-4-599", guids.get("perc.resp.basic"));
-    assertEquals("0-4-627", guids.get("perc.resp.plain"));
-
-    for (PSPageXmlCompileResult r : modern) {
-      String id = r.getManifest().getId();
-      assertTrue(Files.isRegularFile(staging.resolve(id + ".templateDef")));
-      assertTrue(Boolean.TRUE.equals(r.getManifest().getCatalog().getResponsive()));
-    }
-  }
-
-  @Test
   void productBaseline_modernAuthoring_dualShipInstallParity() throws Exception {
     Path product = locatePackage("perc.Baseline");
     if (product == null) {

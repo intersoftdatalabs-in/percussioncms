@@ -102,7 +102,7 @@ class PSDualShipPageTemplateDefInventoryTest {
   void productNativePagePackages_areNotDualShipEmitters() throws Exception {
     Path packagesRoot = locatePackagesRoot();
     assertNotNull(packagesRoot);
-    for (String pkg : List.of("perc.baseTemplates", "perc.responsiveTemplates", "perc.Baseline")) {
+    for (String pkg : List.of("perc.baseTemplates", "perc.Baseline")) {
       Path dir = packagesRoot.resolve(pkg);
       assertTrue(Files.isDirectory(dir), () -> "missing product package " + pkg);
       assertTrue(PSPageXmlDualShip.hasModernPageSources(dir), pkg + " must have modern pages/");
@@ -226,8 +226,8 @@ class PSDualShipPageTemplateDefInventoryTest {
   @Test
   void tempTree_explicitDualShipProperty_failsGate() throws Exception {
     Path packages = tempDir.resolve("Packages");
-    Path pkg = packages.resolve("perc.responsiveTemplates");
-    writeModernPage(pkg, "perc.resp.plain");
+    Path pkg = packages.resolve("perc.syntheticDualShip");
+    writeModernPage(pkg, "perc.synthetic.plain");
     Files.writeString(
         pkg.resolve(PSPageXmlInstallPolicy.PACKAGE_INSTALL_PROPS),
         PSPageXmlInstallPolicy.PROP_PAGE_INSTALL_MODE + "=dual-ship\n",
@@ -236,7 +236,7 @@ class PSDualShipPageTemplateDefInventoryTest {
     PSDualShipPageTemplateDefInventory.Report report =
         PSDualShipPageTemplateDefInventory.scan(packages);
     assertFalse(report.isClean());
-    assertEquals("perc.responsiveTemplates", report.nonWaived().get(0).packageDirName());
+    assertEquals("perc.syntheticDualShip", report.nonWaived().get(0).packageDirName());
   }
 
   @Test

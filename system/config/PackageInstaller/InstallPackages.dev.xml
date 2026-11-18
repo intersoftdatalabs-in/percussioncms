@@ -5,10 +5,6 @@
 		<status>PENDING</status>
 	</PackageFileEntry>
 	<PackageFileEntry>
-		<packageName>perc.responsiveTemplates</packageName>
-		<status>PENDING</status>
-	</PackageFileEntry>
-	<PackageFileEntry>
 		<packageName>perc.workflow</packageName>
 		<status>PENDING</status>
 	</PackageFileEntry>
