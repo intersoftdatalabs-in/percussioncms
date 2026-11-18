@@ -20,9 +20,10 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.percussion.delivery.comments.data.PSCommentCriteria;
 import com.percussion.delivery.multitenant.PSTenantSecurityFilter;
+import com.percussion.delivery.services.PSAbstractRestService;
 import com.percussion.delivery.test.utils.FakeRegistrant;
 import com.percussion.delivery.test.utils.PSFakeDataGenerator;
-import com.percussion.delivery.test.utils.spring.PSConfigurableApplicationContext;
+import jakarta.ws.rs.Path;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -35,10 +36,7 @@ import java.util.List;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.test.DeploymentContext;
 import org.glassfish.jersey.test.JerseyTest;
-import org.glassfish.jersey.test.grizzly.GrizzlyWebTestContainerFactory;
-import org.glassfish.jersey.test.spi.TestContainerFactory;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import tools.jackson.databind.ObjectMapper;
@@ -67,23 +65,18 @@ public abstract class PSCommentsRestServiceBaseTest extends JerseyTest {
    */
   @Override
   protected Application configure() {
-    ResourceConfig resourceConfig = new ResourceConfig(PSCommentsService.class);
-    resourceConfig.property("contextConfig", PSConfigurableApplicationContext.class);
-    return resourceConfig;
-  }
-
-  @Override
-  protected DeploymentContext configureDeployment() {
-    return DeploymentContext.builder(new ResourceConfig(PSCommentsService.class))
-        .contextPath("perc-comments-services")
-        .build();
+    return new ResourceConfig(TestCommentsRestService.class)
+        .property("jersey.config.server.provider.scanning.disableMetainf.services.lookup", true);
   }
 
   public PSCommentsRestServiceBaseTest() {}
 
   @org.junit.jupiter.api.BeforeEach
   public void setup() throws Exception {
-    super.setUp();
+    // NOTE: do NOT call super.setUp() here. JerseyTest.setUp() is itself
+    // @BeforeEach-annotated and JUnit invokes the inherited method automatically;
+    // calling it again starts a second Grizzly container on the same port
+    // (BindException: Address already in use).
     this.tenants = PSFakeDataGenerator.getFakeRegistrations(NUM_TENANTS);
   }
 
@@ -218,21 +211,20 @@ public abstract class PSCommentsRestServiceBaseTest extends JerseyTest {
   }
 
   @Test
-  @org.junit.jupiter.api.Disabled
   public void testGetRestHealth() {
 
-    Client client = ClientBuilder.newClient();
-    WebTarget webTarget = client.target("/comment/health");
-    Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-    Response response = invocationBuilder.get();
+    Response response = target("/comment/health").request(MediaType.APPLICATION_JSON).get();
 
     assertNotNull(response);
     Assertions.assertEquals(200, response.getStatus());
     Assertions.assertEquals("OK", response.readEntity(String.class));
   }
 
-  @Override
-  protected TestContainerFactory getTestContainerFactory() {
-    return new GrizzlyWebTestContainerFactory();
+  @Path("/comment")
+  public static class TestCommentsRestService extends PSAbstractRestService {
+    @Override
+    public Response updateOldSiteEntries(String prevSiteName, String newSiteName) {
+      return Response.noContent().build();
+    }
   }
 }
