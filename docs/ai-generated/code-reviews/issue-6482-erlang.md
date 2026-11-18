@@ -98,3 +98,37 @@ _No issues._
 
 - Spec-only polish on top of merged #6516 + #6583: the summaries-200 assertion now names the received HTTP status (mirrors the CSV assertion), the missing-entry assertion carries before/after totals, and the CSV-marker assertion names the missing probe marker.
 - No matrix behavior change: CMS-only cell still 3 named skips exit 0; live --with-dts green/skip profile unchanged (submit green, retrieval named-skipped to #6375).
+
+---
+
+## Re-review 2026-11-18 (follow-up: README operator section for the forms confirmation matrix)
+
+## Summary
+
+Machine analysis found **0** finding(s), **0** blocking bug(s).
+
+## Scope
+
+- Base: origin/main
+- Head: HEAD
+- Files: 1 analyzed
+- Persona: erlang 0.1.1
+- Persona source: ~/.local/share/mkd/agents/erlang
+
+## Recommendation
+
+approve
+
+## Gate
+
+- Blocking bugs: 0
+- May commit/push: yes
+
+## Issues
+
+_No issues._
+
+## Notes
+
+- Docs-only follow-up on top of merged #6516 + #6583 + #6606: new `### Forms confirmation matrix` operator section in `modules/perc-qa-automation/README.md` (spec/helpers/contract/unit/tags table, CMS-only skip proof, --with-dts green path with deliverymanager overrides, three-level skip contract, self-seeding + closed-inventory notes), mirroring the US1/US2/US3 README sections.
+- No matrix behavior change: forms unit 9/9 pass; CMS-only surface 3 named skips exit 0 with schema-valid all-skip artifact; live --with-dts green/skip profile unchanged (submit green, retrieval named-skipped to #6375).
