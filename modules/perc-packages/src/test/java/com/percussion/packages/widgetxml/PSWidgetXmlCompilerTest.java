@@ -554,11 +554,11 @@ class PSWidgetXmlCompilerTest {
 
     List<PSWidgetXmlCompileResult> results =
         PSWidgetXmlPackageCompiler.compileResidualProductPackages(packagesRoot);
-    // blog(1)+calendar(2)+directory(4)+social(1)+form(1)+poll(1)+login(1)+rss(1)+iframe(1)=13
+    // blog(1)+calendar(1)+directory(4)+social(1)+form(1)+poll(1)+login(1)+rss(1)+iframe(1)=12
     assertEquals(
-        13,
+        12,
         results.size(),
-        "residual #2789 batch should compile blog, calendar×2, directory×4, social, form, poll,"
+        "residual #2789 batch should compile blog, calendar×1, directory×4, social, form, poll,"
             + " login, rss, iframe");
 
     Map<String, PSWidgetXmlCompileResult> byId =
@@ -568,7 +568,6 @@ class PSWidgetXmlCompilerTest {
     for (String id :
         List.of(
             "percBlogPost",
-            "percCalendar",
             "percCalendarTwo",
             "percDepartment",
             "percDirectory",
@@ -611,7 +610,6 @@ class PSWidgetXmlCompilerTest {
     for (String stem :
         List.of(
             "percBlogPost",
-            "percCalendar",
             "percCalendarTwo",
             "percDepartment",
             "percDirectory",

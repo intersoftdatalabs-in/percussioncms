@@ -47,7 +47,12 @@
  * qtip2@3.0.3 dist with the two snippet call sites moved to the qTip2
  * options shape. The rest of the #6522 rows (v1 calendar widget,
  * nav hoverIntent, MiniColors twins, Foundation 4.x) stay vendored pending
- * replace-or-drop decisions or legal sign-off.
+ * replace-or-drop decisions or legal sign-off. Slice 12 (issue #6564)
+ * drops the v1 percCalendar widget per the recorded maintainer Drop
+ * decision — its qTip copy and snippet call site are gone, so the parity
+ * block below covers the calendarTwo copy only. MiniColors stays vendored
+ * under the recorded MIT-ok ruling (upstream is MIT-licensed; no published
+ * npm dist matches the payload's swatches/keywords surface).
  *
  * Slice 3 migrates the directory-widget `list.min.js` to the npm list.js
  * 1.2.0 dist (byte-identical to the payload; Dependabot-tracked via the
@@ -868,27 +873,9 @@ function loadSlickPayloadAsJqueryPlugin() {
 
 const QTIP_PAYLOADS = [
   {
-    // Calendar (v1) widget published copy (percCalendar.xml: qitp_js).
-    payload: path.join(
-      "modules",
-      "perc-packages",
-      "src",
-      "main",
-      "resources",
-      "Packages",
-      "perc.widget.calendar",
-      "sys__UserDependency--web_resources",
-      "widgets",
-      "calendar",
-      "js",
-      "jquery.qtip.js",
-    ),
-    npmDist: path.join("qtip2", "dist", "jquery.qtip.js"),
-    versionRe: /qTip2 - Pretty powerful tooltips - v3\.0\.3/,
-  },
-  {
     // CalendarTwo (v2) widget published copy (percCalendarTwo.xml:
-    // jquery-qtip-js).
+    // jquery-qtip-js). The v1 calendar copy was dropped with the v1
+    // percCalendar widget (issue #6564) — qTip2 remains for v2 only.
     payload: path.join(
       "modules",
       "perc-packages",
@@ -1121,7 +1108,8 @@ describe("widget-payload npm refresh parity (issue #6522 slice 9: qTip)", () => 
       const $ = loadQtipPayloadAsJqueryPlugin(payloadRelPath);
       expect(typeof $.fn.qtip).toBe("function");
       // Mirrors the eventRender summary-tooltip call in
-      // percCalendarSnippet.vm / percCalendarTwoSnippet.vm (qTip2 shape).
+      // percCalendarTwoSnippet.vm (qTip2 shape; the v1 percCalendarSnippet.vm
+      // was dropped with the v1 widget in issue #6564).
       document.body.innerHTML = '<div id="cal-event">Event</div>';
       const element = $("#cal-event");
       const result = element.qtip({
