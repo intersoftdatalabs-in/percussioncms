@@ -21,6 +21,8 @@ import static com.percussion.webservices.PSWebserviceUtils.getUserRoles;
 import com.intsof.percussioncms.auditlog.AuditContext;
 import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.intsof.percussioncms.auditlog.codes.UserManagementErrorCodes;
+import com.percussion.rest.auth.AdminRecoveryRequest;
+import com.percussion.rest.auth.AdminRecoveryResponse;
 import com.percussion.rest.auth.AuthAccountReadinessItem;
 import com.percussion.rest.auth.AuthAccountReadinessSummary;
 import com.percussion.rest.auth.AuthInfraCheck;
@@ -39,12 +41,15 @@ import com.percussion.services.auth.readiness.IPSAuthReadinessService;
 import com.percussion.services.auth.readiness.PSAuthCheckStatus;
 import com.percussion.services.auth.readiness.PSAuthInfraCheck;
 import com.percussion.services.auth.readiness.PSAuthInfraReport;
+import com.percussion.services.auth.recovery.IPSAccountRecoveryService;
+import com.percussion.services.auth.recovery.PSAdminRecoveryIssueResult;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
 import com.percussion.user.data.PSUser;
 import com.percussion.user.data.PSUserList;
 import com.percussion.user.data.PSUserProviderType;
 import com.percussion.user.service.IPSUserService;
+import jakarta.servlet.http.HttpSession;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -85,25 +90,32 @@ public class AuthReadinessAdaptor implements IAuthReadinessAdaptor {
   private final IPSAuthMailService authMailService;
   private final IPSAuthSecurityDao authSecurityDao;
   private final IPSUserService userService;
+  private final IPSAccountRecoveryService accountRecoveryService;
   private final Supplier<List<String>> userRolesSupplier;
   private final Supplier<String> currentUserSupplier;
+  private final Supplier<HttpSession> sessionSupplier;
+  private final Supplier<String> clientIpSupplier;
 
   @Autowired
   public AuthReadinessAdaptor(
       IPSAuthReadinessService readinessService,
       IPSAuthMailService authMailService,
       IPSAuthSecurityDao authSecurityDao,
-      IPSUserService userService) {
+      IPSUserService userService,
+      IPSAccountRecoveryService accountRecoveryService) {
     this(
         readinessService,
         authMailService,
         authSecurityDao,
         userService,
+        accountRecoveryService,
         () -> getUserRoles(),
-        () -> getUserName());
+        () -> getUserName(),
+        AuthMfaAdaptor::resolveCurrentSession,
+        AuthMfaAdaptor::resolveCurrentClientIp);
   }
 
-  /** Package-visible constructor for isolated unit tests. */
+  /** Package-visible constructor for isolated M1 unit tests. */
   AuthReadinessAdaptor(
       IPSAuthReadinessService readinessService,
       IPSAuthMailService authMailService,
@@ -111,12 +123,38 @@ public class AuthReadinessAdaptor implements IAuthReadinessAdaptor {
       IPSUserService userService,
       Supplier<List<String>> userRolesSupplier,
       Supplier<String> currentUserSupplier) {
+    this(
+        readinessService,
+        authMailService,
+        authSecurityDao,
+        userService,
+        null,
+        userRolesSupplier,
+        currentUserSupplier,
+        AuthMfaAdaptor::resolveCurrentSession,
+        AuthMfaAdaptor::resolveCurrentClientIp);
+  }
+
+  /** Package-visible constructor for isolated M5 unit tests (including break-glass recovery). */
+  AuthReadinessAdaptor(
+      IPSAuthReadinessService readinessService,
+      IPSAuthMailService authMailService,
+      IPSAuthSecurityDao authSecurityDao,
+      IPSUserService userService,
+      IPSAccountRecoveryService accountRecoveryService,
+      Supplier<List<String>> userRolesSupplier,
+      Supplier<String> currentUserSupplier,
+      Supplier<HttpSession> sessionSupplier,
+      Supplier<String> clientIpSupplier) {
     this.readinessService = Objects.requireNonNull(readinessService, "readinessService");
     this.authMailService = Objects.requireNonNull(authMailService, "authMailService");
     this.authSecurityDao = Objects.requireNonNull(authSecurityDao, "authSecurityDao");
     this.userService = Objects.requireNonNull(userService, "userService");
+    this.accountRecoveryService = accountRecoveryService;
     this.userRolesSupplier = Objects.requireNonNull(userRolesSupplier, "userRolesSupplier");
     this.currentUserSupplier = Objects.requireNonNull(currentUserSupplier, "currentUserSupplier");
+    this.sessionSupplier = Objects.requireNonNull(sessionSupplier, "sessionSupplier");
+    this.clientIpSupplier = Objects.requireNonNull(clientIpSupplier, "clientIpSupplier");
   }
 
   @Override
@@ -190,6 +228,43 @@ public class AuthReadinessAdaptor implements IAuthReadinessAdaptor {
       auditMailTest(actor, recipient, AuditOutcome.FAILURE);
       return new AuthMailTestResult(false, recipient, cfg.getSource().name(), ex.getMessage());
     }
+  }
+
+  @Override
+  public AdminRecoveryResponse initiateAdminRecovery(AdminRecoveryRequest request) {
+    requireAdmin();
+    if (request == null || StringUtils.isBlank(request.getTargetUserName())) {
+      throw new IllegalArgumentException("targetUserName is required");
+    }
+    String cleanTarget = request.getTargetUserName().trim();
+    PSUser targetUser;
+    try {
+      targetUser = userService.find(cleanTarget);
+    } catch (PSDataServiceException ex) {
+      throw new IllegalArgumentException("Target user not found: " + cleanTarget, ex);
+    }
+    if (targetUser == null || StringUtils.isBlank(targetUser.getName())) {
+      throw new IllegalArgumentException("Target user not found: " + cleanTarget);
+    }
+    if (accountRecoveryService == null) {
+      throw new IllegalStateException("Account recovery service is unavailable");
+    }
+    String adminActor = StringUtils.defaultIfBlank(currentUserSupplier.get(), "Admin");
+    PSAdminRecoveryIssueResult issued =
+        accountRecoveryService.issueAdminBreakGlassRecovery(
+            adminActor,
+            targetUser.getName(),
+            request.getVerificationNote(),
+            request.isResetImmediately(),
+            clientIpSupplier.get(),
+            sessionSupplier.get());
+    return new AdminRecoveryResponse(
+        issued.issued(),
+        issued.userName(),
+        issued.recoveryMode(),
+        issued.delivery(),
+        issued.expiresAt(),
+        issued.message());
   }
 
   private void requireAdmin() {

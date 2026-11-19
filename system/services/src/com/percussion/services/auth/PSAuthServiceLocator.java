@@ -26,6 +26,7 @@ import com.percussion.services.auth.mfa.IPSTotpService;
 import com.percussion.services.auth.policy.IPSAuthPolicyService;
 import com.percussion.services.auth.ratelimit.IPSAuthRateLimiter;
 import com.percussion.services.auth.readiness.IPSAuthReadinessService;
+import com.percussion.services.auth.recovery.IPSAccountRecoveryService;
 import com.percussion.services.auth.token.IPSAuthTokenService;
 
 /** Service locator for authentication, MFA, mail, and readiness Spring beans. */
@@ -84,5 +85,10 @@ public final class PSAuthServiceLocator extends PSBaseServiceLocator {
   public static IPSPasskeyService getPasskeyService()
       throws PSMissingBeanConfigurationException {
     return (IPSPasskeyService) getBean("sys_passkeyService");
+  }
+
+  public static IPSAccountRecoveryService getAccountRecoveryService()
+      throws PSMissingBeanConfigurationException {
+    return (IPSAccountRecoveryService) getBean("sys_accountRecoveryService");
   }
 }

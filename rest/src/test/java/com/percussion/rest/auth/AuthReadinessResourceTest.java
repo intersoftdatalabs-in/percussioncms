@@ -25,6 +25,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.percussion.rest.JacksonContextResolver;
+import com.percussion.services.auth.mfa.PSStepUpRequiredException;
 import jakarta.ws.rs.WebApplicationException;
 import java.time.Instant;
 import java.util.List;
@@ -145,5 +146,45 @@ class AuthReadinessResourceTest {
         mapper.writeValueAsString(
             new AuthMailTestResult(true, "admin@example.com", "SERVER_PROPERTIES", "Sent"));
     assertTrue(treeMapper.readTree(resultJson).has("AuthMailTestResult"));
+  }
+
+  @Test
+  void initiateAdminRecoveryDelegatesAndMapsHttpStatuses() {
+    IAuthReadinessAdaptor adaptor = mock(IAuthReadinessAdaptor.class);
+    AdminRecoveryRequest req =
+        new AdminRecoveryRequest("editor1", "Verified via video call #101", false);
+    AdminRecoveryResponse ok =
+        new AdminRecoveryResponse(
+            true,
+            "editor1",
+            "RECOVERY_LINK",
+            "EMAIL",
+            "2026-11-19T03:00:00Z",
+            "Sent");
+    when(adaptor.initiateAdminRecovery(req)).thenReturn(ok);
+
+    AuthReadinessResource resource = new AuthReadinessResource(adaptor);
+    assertSame(ok, resource.initiateAdminRecovery(req));
+
+    WebApplicationException exNull =
+        assertThrows(WebApplicationException.class, () -> resource.initiateAdminRecovery(null));
+    assertEquals(400, exNull.getResponse().getStatus());
+
+    doThrow(new PSStepUpRequiredException("Step-up required"))
+        .when(adaptor)
+        .initiateAdminRecovery(req);
+    WebApplicationException ex428 =
+        assertThrows(WebApplicationException.class, () -> resource.initiateAdminRecovery(req));
+    assertEquals(428, ex428.getResponse().getStatus());
+
+    doThrow(new SecurityException("Admin role required")).when(adaptor).initiateAdminRecovery(req);
+    WebApplicationException ex403 =
+        assertThrows(WebApplicationException.class, () -> resource.initiateAdminRecovery(req));
+    assertEquals(403, ex403.getResponse().getStatus());
+
+    doThrow(new IllegalStateException("No verified email")).when(adaptor).initiateAdminRecovery(req);
+    WebApplicationException ex409 =
+        assertThrows(WebApplicationException.class, () -> resource.initiateAdminRecovery(req));
+    assertEquals(409, ex409.getResponse().getStatus());
   }
 }

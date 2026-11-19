@@ -235,6 +235,87 @@ public final class PSSystemAuditLogger {
         clientIp(request));
   }
 
+  public static void passwordResetEvent(
+      HttpServletRequest request, String username, String activity, AuditOutcome outcome) {
+    passwordResetEvent(username, activity, clientIp(request), outcome, context(request, nullToEmpty(username)));
+  }
+
+  public static void passwordResetEvent(
+      String username, String activity, String sourceIp, AuditOutcome outcome) {
+    String actor = nullToEmpty(username);
+    AuditContext ctx =
+        AuditContext.builder().actor(actor).sourceIp(nullToEmpty(sourceIp)).build();
+    passwordResetEvent(actor, activity, sourceIp, outcome, ctx);
+  }
+
+  private static void passwordResetEvent(
+      String username,
+      String activity,
+      String sourceIp,
+      AuditOutcome outcome,
+      AuditContext ctx) {
+    String actor = nullToEmpty(username);
+    log(
+        AuthenticationErrorCodes.PASSWORD_RESET_EVENT,
+        ctx,
+        outcome != null ? outcome : AuditOutcome.SUCCESS,
+        actor,
+        nullToEmpty(activity),
+        nullToEmpty(sourceIp));
+  }
+
+  public static void adminRecoveryEvent(
+      HttpServletRequest request,
+      String actorAdmin,
+      String targetUser,
+      String activity,
+      AuditOutcome outcome) {
+    String actor = nullToEmpty(actorAdmin);
+    String target = nullToEmpty(targetUser);
+    AuditContext ctx =
+        AuditContext.builder()
+            .actor(actor)
+            .target(target)
+            .sourceIp(clientIp(request))
+            .sourceHost(sourceHost(request))
+            .build();
+    adminRecoveryEvent(actor, target, activity, clientIp(request), outcome, ctx);
+  }
+
+  public static void adminRecoveryEvent(
+      String actorAdmin,
+      String targetUser,
+      String activity,
+      String sourceIp,
+      AuditOutcome outcome) {
+    String actor = nullToEmpty(actorAdmin);
+    String target = nullToEmpty(targetUser);
+    AuditContext ctx =
+        AuditContext.builder()
+            .actor(actor)
+            .target(target)
+            .sourceIp(nullToEmpty(sourceIp))
+            .build();
+    adminRecoveryEvent(actor, target, activity, sourceIp, outcome, ctx);
+  }
+
+  private static void adminRecoveryEvent(
+      String actorAdmin,
+      String targetUser,
+      String activity,
+      String sourceIp,
+      AuditOutcome outcome,
+      AuditContext ctx) {
+    log(
+        AuthenticationErrorCodes.ADMIN_RECOVERY_EVENT,
+        ctx,
+        outcome != null ? outcome : AuditOutcome.SUCCESS,
+        nullToEmpty(actorAdmin),
+        nullToEmpty(targetUser),
+        nullToEmpty(activity),
+        nullToEmpty(sourceIp));
+  }
+
   /** Content create / update / delete / recycle / schedule dual-write. */
   public static void content(
       ContentErrorCodes code,

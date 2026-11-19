@@ -161,3 +161,18 @@ export interface PasskeyRegisterFinishResponse {
   recoveryCodes: string[];
   message: string;
 }
+
+export interface AdminRecoveryRequest {
+  targetUserName: string;
+  verificationNote: string;
+  resetImmediately: boolean;
+}
+
+export interface AdminRecoveryResponse {
+  issued: boolean;
+  targetUserName: string;
+  recoveryMode: string;
+  delivery: string;
+  expiresAt: string;
+  message: string;
+}

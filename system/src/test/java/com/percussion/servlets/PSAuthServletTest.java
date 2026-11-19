@@ -34,6 +34,10 @@ import com.percussion.services.auth.mfa.PSPasskeyOptions;
 import com.percussion.services.auth.mfa.PSTotpConfirmOutcome;
 import com.percussion.services.auth.mfa.PSTotpEnrollmentStart;
 import com.percussion.services.auth.ratelimit.PSAuthRateLimitException;
+import com.percussion.services.auth.recovery.IPSAccountRecoveryService;
+import com.percussion.services.auth.recovery.PSAdminRecoveryRedeemResult;
+import com.percussion.services.auth.recovery.PSForgotPasswordResult;
+import com.percussion.services.auth.recovery.PSPasswordResetResult;
 import jakarta.servlet.http.Cookie;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -50,6 +54,7 @@ class PSAuthServletTest {
 
   private IPSAccountSecurityService accountService;
   private IPSMfaService mfaService;
+  private IPSAccountRecoveryService recoveryService;
   private PSAuthCsrfGuard csrfGuard;
   private PSAuthServlet servlet;
 
@@ -57,10 +62,11 @@ class PSAuthServletTest {
   void setUp() {
     accountService = mock(IPSAccountSecurityService.class);
     mfaService = mock(IPSMfaService.class);
+    recoveryService = mock(IPSAccountRecoveryService.class);
     csrfGuard = new PSAuthCsrfGuard(Properties::new);
     servlet =
         new PSAuthServlet(
-            accountService, mfaService, csrfGuard, (req, res, sub, locale) -> req);
+            accountService, mfaService, recoveryService, csrfGuard, (req, res, sub, locale) -> req);
   }
 
   @Test
@@ -403,5 +409,100 @@ class PSAuthServletTest {
     assertEquals(200, setupFinishRes.getStatus());
     assertTrue(setupFinishRes.getContentAsString().contains("\"enrolled\":true"));
     assertTrue(setupFinishRes.getContentAsString().contains("AAAAA-BBBBB"));
+  }
+
+  @Test
+  void forgotResetPasswordAndAdminRecoveryGetAndPostRoutesEnforceCsrfAndDelegate()
+      throws Exception {
+    when(recoveryService.resolvePasswordMinLength()).thenReturn(14);
+
+    MockHttpServletRequest getForgot = new MockHttpServletRequest("GET", "/auth/forgot-password");
+    getForgot.setPathInfo("/forgot-password");
+    servlet.doGet(getForgot, new MockHttpServletResponse());
+    assertEquals("forgot-password", getForgot.getAttribute(PSAuthServlet.ATTR_VIEW));
+    String csrf = (String) getForgot.getAttribute(PSAuthServlet.ATTR_CSRF_TOKEN);
+
+    when(recoveryService.requestPasswordReset("alice", "127.0.0.1"))
+        .thenReturn(new PSForgotPasswordResult(true, "Generic ack"));
+    MockHttpServletRequest postForgot = new MockHttpServletRequest("POST", "/auth/forgot-password");
+    postForgot.setPathInfo("/forgot-password");
+    postForgot.setSession(getForgot.getSession());
+    postForgot.setRemoteAddr("127.0.0.1");
+    postForgot.addHeader(PSAuthCsrfGuard.HEADER_NAME, csrf);
+    postForgot.setContentType("application/json");
+    postForgot.setContent("{\"identifier\":\"alice\"}".getBytes(StandardCharsets.UTF_8));
+    MockHttpServletResponse forgotRes = new MockHttpServletResponse();
+    servlet.doPost(postForgot, forgotRes);
+    assertEquals(200, forgotRes.getStatus());
+    assertTrue(forgotRes.getContentAsString().contains("\"accepted\":true"));
+
+    MockHttpServletRequest getReset = new MockHttpServletRequest("GET", "/auth/reset-password");
+    getReset.setPathInfo("/reset-password");
+    getReset.setParameter("token", "reset-tok-1");
+    servlet.doGet(getReset, new MockHttpServletResponse());
+    assertEquals("reset-password", getReset.getAttribute(PSAuthServlet.ATTR_VIEW));
+    assertEquals("reset-tok-1", getReset.getAttribute(PSAuthServlet.ATTR_TOKEN));
+    assertTrue(
+        String.valueOf(getReset.getAttribute(PSAuthServlet.ATTR_BOOTSTRAP_JSON))
+            .contains("\"passwordMinLength\":14"));
+    verify(recoveryService, never()).completePasswordReset(anyString(), anyString(), anyString());
+
+    when(recoveryService.completePasswordReset("reset-tok-1", "NewValidPassword12!", "127.0.0.1"))
+        .thenReturn(
+            new PSPasswordResetResult(true, PSPasswordResetResult.STATUS_RESET, "Updated"));
+    MockHttpServletRequest postReset = new MockHttpServletRequest("POST", "/auth/reset-password");
+    postReset.setPathInfo("/reset-password");
+    postReset.setSession(getForgot.getSession());
+    postReset.setRemoteAddr("127.0.0.1");
+    postReset.addHeader(PSAuthCsrfGuard.HEADER_NAME, csrf);
+    postReset.setContentType("application/json");
+    postReset.setContent(
+        "{\"token\":\"reset-tok-1\",\"newPassword\":\"NewValidPassword12!\"}"
+            .getBytes(StandardCharsets.UTF_8));
+    MockHttpServletResponse resetRes = new MockHttpServletResponse();
+    servlet.doPost(postReset, resetRes);
+    assertEquals(200, resetRes.getStatus());
+    assertTrue(resetRes.getContentAsString().contains("\"reset\":true"));
+
+    when(recoveryService.completePasswordReset("bad", "short", "127.0.0.1"))
+        .thenReturn(
+            new PSPasswordResetResult(
+                false, PSPasswordResetResult.STATUS_PASSWORD_POLICY_VIOLATION, "Too short"));
+    MockHttpServletRequest badReset = new MockHttpServletRequest("POST", "/auth/reset-password");
+    badReset.setPathInfo("/reset-password");
+    badReset.setSession(getForgot.getSession());
+    badReset.setRemoteAddr("127.0.0.1");
+    badReset.addHeader(PSAuthCsrfGuard.HEADER_NAME, csrf);
+    badReset.setContentType("application/json");
+    badReset.setContent(
+        "{\"token\":\"bad\",\"newPassword\":\"short\"}".getBytes(StandardCharsets.UTF_8));
+    MockHttpServletResponse badResetRes = new MockHttpServletResponse();
+    servlet.doPost(badReset, badResetRes);
+    assertEquals(400, badResetRes.getStatus());
+
+    MockHttpServletRequest getBg = new MockHttpServletRequest("GET", "/auth/admin-recovery");
+    getBg.setPathInfo("/admin-recovery");
+    getBg.setParameter("token", "bg-tok-1");
+    servlet.doGet(getBg, new MockHttpServletResponse());
+    assertEquals("admin-recovery", getBg.getAttribute(PSAuthServlet.ATTR_VIEW));
+    assertEquals("bg-tok-1", getBg.getAttribute(PSAuthServlet.ATTR_TOKEN));
+
+    when(recoveryService.redeemAdminBreakGlass("bg-tok-1", "127.0.0.1"))
+        .thenReturn(
+            new PSAdminRecoveryRedeemResult(
+                true, PSAdminRecoveryRedeemResult.STATUS_REDEEMED, "Cleared"));
+    MockHttpServletRequest postBg = new MockHttpServletRequest("POST", "/auth/admin-recovery");
+    postBg.setPathInfo("/admin-recovery");
+    postBg.setContextPath("/Rhythmyx");
+    postBg.setSession(getForgot.getSession());
+    postBg.setRemoteAddr("127.0.0.1");
+    postBg.addHeader(PSAuthCsrfGuard.HEADER_NAME, csrf);
+    postBg.setContentType("application/json");
+    postBg.setContent("{\"token\":\"bg-tok-1\"}".getBytes(StandardCharsets.UTF_8));
+    MockHttpServletResponse bgRes = new MockHttpServletResponse();
+    servlet.doPost(postBg, bgRes);
+    assertEquals(200, bgRes.getStatus());
+    assertTrue(bgRes.getContentAsString().contains("\"redeemed\":true"));
+    assertTrue(bgRes.getContentAsString().contains("\"/Rhythmyx/login\""));
   }
 }

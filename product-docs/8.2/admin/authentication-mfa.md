@@ -41,6 +41,8 @@ Authentication and recovery settings live in `rxconfig/Server/server.properties`
 | `auth.directory.trustEmailVerified` | `false` | Trust directory-synced emails as pre-verified (defaults `false`; directory email changes clear verification when false). |
 | `auth.rateLimit.forgotUsernamePerIpPerHour` | `15` | Hourly Forgot Username request limit per client IP (returns HTTP `429` above threshold). |
 | `auth.rateLimit.forgotUsernamePerEmailPerHour` | `5` | Hourly Forgot Username lookup limit per normalized email address (silently returns generic acknowledgment). |
+| `auth.rateLimit.passwordResetPerIpPerHour` | `15` | Hourly Forgot Password request limit per client IP (returns HTTP `429` above threshold). |
+| `auth.rateLimit.passwordResetPerAccountPerHour` | `5` | Hourly Forgot Password request limit per normalized account identifier (silently returns generic acknowledgment). |
 | `auth.rateLimit.emailVerifyResendPerUserPerHour` | `5` | Hourly verification link issuance limit per user account. |
 | `auth.rateLimit.mfaVerifyPerIpPerMinute` | `20` | Per-minute MFA challenge/step-up limit per client IP (returns HTTP `429`). |
 | `auth.rateLimit.mfaVerifyPerUserPerMinute` | `10` | Per-minute MFA challenge/step-up limit per user account (returns HTTP `429`). |
@@ -163,7 +165,43 @@ Authenticated users query and manage TOTP, passkeys, and recovery codes through:
 
 ## Audit logging & secret redaction
 
-Authentication and MFA security events record structured entries under `AuthenticationErrorCodes` (`1005`–`1016`, including MFA challenge success/failure, lockouts, factor enrollment/removal, recovery code consumption/regeneration, policy blocks, and session version invalidations). `AuditRedactor` automatically scrubs `otpauth://` URIs, Base32 shared secrets, recovery codes, and verification query parameters before writing audit logs.
+Authentication and MFA security events record structured entries under `AuthenticationErrorCodes` (`1005`–`1016`, including MFA challenge success/failure, lockouts, factor enrollment/removal, recovery code consumption/regeneration, policy blocks, password resets, admin break-glass recoveries, and session version invalidations). `AuditRedactor` automatically scrubs `otpauth://` URIs, Base32 shared secrets, recovery codes, and verification query parameters before writing audit logs.
+
+## Password policy and constant-time verification
+
+Percussion CMS enforces a shared password policy across internal user creation, admin password updates, self-service password changes (**My profile → Security**), and password reset (`/auth/reset-password`):
+
+- **Length requirements (`auth.password.minLength`):** Defaults to `12` characters and is clamped to the allowed range `8`–`150` with a maximum length of `150` characters. Admins see the active minimum in **Admin → System Tools → Auth & MFA Readiness**, and reset screens read the effective bounds from server configuration.
+- **Constant-time password digest comparison:** Internal password verification compares PBKDF2-HMAC-SHA512 password digests using constant-time byte comparison (`MessageDigest.isEqual`) with malformed Base64 and minimum-length guards.
+- **Multi-session revocation:** Self-service password changes and resets increment the account's `SESSION_VERSION` in `PSX_ACCOUNT_SECURITY` and invalidate existing sessions for that user via `PSUserSessionManager` while keeping the active self-service session current when changing a password from **My profile → Security**.
+
+## Forgot Password and self-service password reset
+
+The sign-in page provides a **Forgot password?** link (`/auth/forgot-password`):
+
+- **Enumeration-safe lookup & directory guidance:** Submitting a username or verified email address via `POST /auth/forgot-password` always returns the same generic acknowledgment regardless of whether the account exists or holds a verified email. If the matched account is directory/SSO-managed with a verified email, Percussion sends identity-provider guidance instead of a local password reset token.
+- **Scanner-safe confirmation flow:** `GET /auth/reset-password?token=...` renders the new-password form without consuming the token, protecting links from email security scanners. `POST /auth/reset-password` validates the submitted password against the active password policy **before** atomically consuming the single-use hashed reset token, updates the internal password, invalidates existing sessions via `SESSION_VERSION`, preserves enrolled MFA factors (so password resets never bypass MFA), and logs `PASSWORD_RESET_EVENT` (`1015`).
+
+## Admin break-glass MFA recovery and last-administrator lockout runbook
+
+Administrators can assist locked-out human accounts from **Admin → System Tools → Auth & MFA Readiness → Break-glass MFA recovery** or `POST /services/auth/admin/recovery` (`AdminRecoveryRequest` / `AdminRecoveryResponse`):
+
+- **Mandatory guardrails:** Only users in the `Admin` role can initiate recovery, administrators cannot self-recover, MFA-enrolled admins must have a current step-up verification within `auth.mfa.stepUpWindowMinutes` (REST returns HTTP `428` `STEP_UP_REQUIRED` and prompts inline before retrying), and every request requires an identity verification note of at least `10` characters recorded under `ADMIN_RECOVERY_EVENT` (`1016`).
+- **Recovery link vs. immediate MFA reset:**
+  - **Emailed recovery link (default):** Sends a scanner-safe confirmation link (`/auth/admin-recovery?token=...`, TTL `auth.token.adminBreakGlassTtlMinutes`, default `60` minutes) to the user's verified email address. Clicking **Confirm MFA recovery** on the confirmation page (`POST /auth/admin-recovery`) clears TOTP, passkeys, and recovery codes, increments `SESSION_VERSION`, and ends existing sessions.
+  - **Immediate reset (`resetImmediately=true`):** Immediately removes the target user's TOTP, passkey, and recovery code credentials and bumps `SESSION_VERSION` without waiting for email link redemption (useful when the user also lost access to their verified inbox). Users whose policy requires MFA are guided through `/auth/setup` on their next sign-in.
+
+### Last-administrator MFA lockout runbook
+
+If **every** account with the `Admin` role has lost access to all enrolled authenticators, passkeys, and offline recovery codes:
+
+1. **Confirm authorization and maintenance window** on the CMS application server host before touching server configuration or database tables.
+2. **Release MFA enforcement for recovery:**
+   - Either set `auth.mfa.mode=optional` (or remove the locked-out administrator from `auth.mfa.requiredCohorts`) in `rxconfig/Server/server.properties`, **or**
+   - Using authorized database maintenance tooling, remove only the locked-out administrator's credential rows from `PSX_MFA_TOTP`, `PSX_MFA_PASSKEY`, and `PSX_MFA_RECOVERY_CODE` and increment `SESSION_VERSION` for that user in `PSX_ACCOUNT_SECURITY`, capturing an internal change/audit ticket.
+3. **Restart the CMS server** (`PercussionServer`) if `server.properties` was modified so configuration changes take effect.
+4. **Sign in as the recovered administrator**, immediately enroll a fresh TOTP authenticator or passkey under **My profile → Security**, record the newly generated one-time recovery codes offline, and ensure a second break-glass administrator account also has enrolled MFA and offline recovery codes.
+5. **Restore strict policy:** Revert `auth.mfa.mode` (for example `required` or `cohort`) in `rxconfig/Server/server.properties`, restart `PercussionServer` if changed, and verify readiness under **Admin → System Tools → Auth & MFA Readiness**.
 
 ## Running the Admin Auth & MFA Readiness check
 

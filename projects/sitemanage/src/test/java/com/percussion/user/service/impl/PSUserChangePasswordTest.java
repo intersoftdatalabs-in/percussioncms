@@ -97,11 +97,11 @@ class PSUserChangePasswordTest {
     PSCurrentUser current = internalCurrent("Admin", "admin@example.com");
     doReturn(current).when(userService).getCurrentUser();
     when(userLoginDao.find("Admin")).thenReturn(login("Admin"));
-    when(passwordFilter.encrypt("new-secret")).thenReturn("hashed-secret");
+    when(passwordFilter.encrypt("NewValidSecret12!")).thenReturn("hashed-secret");
     when(userLoginDao.save(any(PSUserLogin.class)))
         .thenAnswer(invocation -> invocation.getArgument(0));
 
-    PSUser request = requestUser("Admin", "new-secret");
+    PSUser request = requestUser("Admin", "NewValidSecret12!");
     PSUser result = userService.changePassword(request);
 
     assertNotNull(result, "null entity becomes HTTP 500 from CXF JSON/XML writers");
@@ -124,8 +124,24 @@ class PSUserChangePasswordTest {
 
     String json = PSSerializerUtils.getJsonFromObject(result);
     assertTrue(json.contains("Admin"), json);
-    assertFalse(json.contains("new-secret"), "response must not echo the new password");
+    assertFalse(json.contains("NewValidSecret12!"), "response must not echo the new password");
     assertFalse(json.contains("hashed-secret"), "response must not include the stored hash");
+  }
+
+  @Test
+  @DisplayName("rejects passwords shorter than policy minimum or longer than 150 characters")
+  void enforcesPasswordPolicyBoundsOnChange() throws Exception {
+    PSCurrentUser current = internalCurrent("Admin", "admin@example.com");
+    doReturn(current).when(userService).getCurrentUser();
+    when(userLoginDao.find("Admin")).thenReturn(login("Admin"));
+
+    assertThrows(
+        PSValidationException.class,
+        () -> userService.changePassword(requestUser("Admin", "a".repeat(11))));
+    assertThrows(
+        PSValidationException.class,
+        () -> userService.changePassword(requestUser("Admin", "a".repeat(151))));
+    verify(userLoginDao, never()).save(any(PSUserLogin.class));
   }
 
   @Test
@@ -153,7 +169,7 @@ class PSUserChangePasswordTest {
 
     assertThrows(
         PSValidationException.class,
-        () -> userService.changePassword(requestUser("editor1", "new-secret")));
+        () -> userService.changePassword(requestUser("editor1", "NewValidSecret12!")));
     verify(userLoginDao, never()).save(any(PSUserLogin.class));
   }
 
@@ -164,7 +180,7 @@ class PSUserChangePasswordTest {
 
     assertThrows(
         PSValidationException.class,
-        () -> userService.changePassword(requestUser("ldap.user", "new-secret")));
+        () -> userService.changePassword(requestUser("ldap.user", "NewValidSecret12!")));
     verify(userLoginDao, never()).save(any(PSUserLogin.class));
     verify(userService, never()).getCurrentUser();
   }
@@ -181,7 +197,7 @@ class PSUserChangePasswordTest {
 
     assertThrows(
         IPSGenericDao.SaveException.class,
-        () -> userService.changePassword(requestUser("Admin", "new-secret")));
+        () -> userService.changePassword(requestUser("Admin", "NewValidSecret12!")));
   }
 
   private static PSUser requestUser(String name, String password) {

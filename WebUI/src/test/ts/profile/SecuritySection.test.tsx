@@ -69,7 +69,7 @@ describe("validatePasswordChange", () => {
   });
 
   it("requires confirm match", () => {
-    const r = validatePasswordChange("abcdef", "abcdeg", labels);
+    const r = validatePasswordChange("abcdefghijkl", "abcdefghijkm", labels);
     expect(r.ok).toBe(false);
     if (!r.ok) {
       expect(r.fields.confirmPassword).toBe(labels.mismatch);
@@ -77,7 +77,7 @@ describe("validatePasswordChange", () => {
   });
 
   it("accepts valid matching password", () => {
-    const r = validatePasswordChange("abcdef", "abcdef", labels);
+    const r = validatePasswordChange("abcdefghijkl", "abcdefghijkl", labels);
     expect(r.ok).toBe(true);
   });
 });
@@ -165,11 +165,11 @@ describe("SecuritySection", () => {
     expect(changePassword).not.toHaveBeenCalled();
 
     fireEvent.change(screen.getByTestId("perc-profile-security-new-password"), {
-      target: { value: "abcdef" },
+      target: { value: "abcdefghijkl" },
     });
     fireEvent.change(
       screen.getByTestId("perc-profile-security-confirm-password"),
-      { target: { value: "abcdeg" } },
+      { target: { value: "abcdefghijkm" } },
     );
     fireEvent.click(screen.getByTestId("perc-profile-security-submit"));
 
@@ -181,6 +181,22 @@ describe("SecuritySection", () => {
     expect(
       screen.getByTestId("perc-profile-security-confirm-password"),
     ).toHaveAttribute("aria-invalid", "true");
+    expect(changePassword).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId("perc-profile-security-new-password"), {
+      target: { value: "a".repeat(151) },
+    });
+    fireEvent.change(
+      screen.getByTestId("perc-profile-security-confirm-password"),
+      { target: { value: "a".repeat(151) } },
+    );
+    fireEvent.click(screen.getByTestId("perc-profile-security-submit"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-security-new-error").textContent,
+      ).toMatch(/150/);
+    });
     expect(changePassword).not.toHaveBeenCalled();
   });
 
@@ -199,18 +215,18 @@ describe("SecuritySection", () => {
     });
 
     fireEvent.change(screen.getByTestId("perc-profile-security-new-password"), {
-      target: { value: "newpass1" },
+      target: { value: "NewValidPass12!" },
     });
     fireEvent.change(
       screen.getByTestId("perc-profile-security-confirm-password"),
-      { target: { value: "newpass1" } },
+      { target: { value: "NewValidPass12!" } },
     );
     fireEvent.click(screen.getByTestId("perc-profile-security-submit"));
 
     await waitFor(() => {
       expect(changePassword).toHaveBeenCalledWith({
         name: "Admin",
-        password: "newpass1",
+        password: "NewValidPass12!",
         email: "admin@example.com",
         roles: ["Admin"],
       });
@@ -251,11 +267,11 @@ describe("SecuritySection", () => {
     });
 
     fireEvent.change(screen.getByTestId("perc-profile-security-new-password"), {
-      target: { value: "newpass1" },
+      target: { value: "NewValidPass12!" },
     });
     fireEvent.change(
       screen.getByTestId("perc-profile-security-confirm-password"),
-      { target: { value: "newpass1" } },
+      { target: { value: "NewValidPass12!" } },
     );
     fireEvent.click(screen.getByTestId("perc-profile-security-submit"));
 

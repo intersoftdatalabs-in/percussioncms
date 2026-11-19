@@ -25,6 +25,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
+import com.percussion.rest.auth.AdminRecoveryRequest;
+import com.percussion.rest.auth.AdminRecoveryResponse;
 import com.percussion.rest.auth.AuthAccountReadinessItem;
 import com.percussion.rest.auth.AuthMailTestRequest;
 import com.percussion.rest.auth.AuthMailTestResult;
@@ -35,14 +37,18 @@ import com.percussion.services.auth.mail.IPSAuthMailService;
 import com.percussion.services.auth.mail.PSAuthMailConfig;
 import com.percussion.services.auth.mail.PSAuthMailConfig.ConfigSource;
 import com.percussion.services.auth.mail.PSAuthMailException;
+import com.percussion.services.auth.mfa.PSStepUpRequiredException;
 import com.percussion.services.auth.readiness.IPSAuthReadinessService;
 import com.percussion.services.auth.readiness.PSAuthCheckStatus;
 import com.percussion.services.auth.readiness.PSAuthInfraCheck;
 import com.percussion.services.auth.readiness.PSAuthInfraReport;
+import com.percussion.services.auth.recovery.IPSAccountRecoveryService;
+import com.percussion.services.auth.recovery.PSAdminRecoveryIssueResult;
 import com.percussion.user.data.PSUser;
 import com.percussion.user.data.PSUserList;
 import com.percussion.user.data.PSUserProviderType;
 import com.percussion.user.service.IPSUserService;
+import jakarta.servlet.http.HttpSession;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -205,5 +211,80 @@ class AuthReadinessAdaptorTest {
     AuthMailTestResult fail = adaptor.sendTestEmail(new AuthMailTestRequest("ops@example.com"));
     assertFalse(fail.isSent());
     assertTrue(fail.getMessage().contains("SMTP timeout"));
+  }
+
+  @Test
+  void initiateAdminRecoveryEnforcesAdminTargetLookupAndStepUp() throws Exception {
+    IPSAuthReadinessService readiness = mock(IPSAuthReadinessService.class);
+    IPSAuthMailService mail = mock(IPSAuthMailService.class);
+    IPSAuthSecurityDao dao = mock(IPSAuthSecurityDao.class);
+    IPSUserService users = mock(IPSUserService.class);
+    IPSAccountRecoveryService recovery = mock(IPSAccountRecoveryService.class);
+    HttpSession session = mock(HttpSession.class);
+
+    AuthReadinessAdaptor nonAdmin =
+        new AuthReadinessAdaptor(
+            readiness,
+            mail,
+            dao,
+            users,
+            recovery,
+            () -> List.of("Editor"),
+            () -> "editor1",
+            () -> session,
+            () -> "10.0.0.1");
+    assertThrows(
+        SecurityException.class,
+        () ->
+            nonAdmin.initiateAdminRecovery(
+                new AdminRecoveryRequest("alice", "Verified via video call #1", false)));
+
+    AuthReadinessAdaptor admin =
+        new AuthReadinessAdaptor(
+            readiness,
+            mail,
+            dao,
+            users,
+            recovery,
+            () -> List.of("Admin"),
+            () -> "admin1",
+            () -> session,
+            () -> "10.0.0.1");
+
+    when(users.find("missing")).thenReturn(null);
+    assertThrows(
+        IllegalArgumentException.class,
+        () ->
+            admin.initiateAdminRecovery(
+                new AdminRecoveryRequest("missing", "Verified via video call #1", false)));
+
+    when(users.find("alice"))
+        .thenReturn(makeUser("alice", PSUserProviderType.INTERNAL, "alice@example.com"));
+    when(recovery.issueAdminBreakGlassRecovery(
+            "admin1", "alice", "Verified via video call #1", false, "10.0.0.1", session))
+        .thenReturn(
+            new PSAdminRecoveryIssueResult(
+                true,
+                "alice",
+                PSAdminRecoveryIssueResult.MODE_RECOVERY_LINK,
+                PSAdminRecoveryIssueResult.DELIVERY_EMAIL,
+                "2026-11-19T03:00:00Z",
+                "Sent"));
+    AdminRecoveryResponse ok =
+        admin.initiateAdminRecovery(
+            new AdminRecoveryRequest("alice", "Verified via video call #1", false));
+    assertTrue(ok.isIssued());
+    assertEquals("alice", ok.getTargetUserName());
+    assertEquals("RECOVERY_LINK", ok.getRecoveryMode());
+
+    doThrow(new PSStepUpRequiredException("Step-up required"))
+        .when(recovery)
+        .issueAdminBreakGlassRecovery(
+            "admin1", "alice", "Verified via video call #1", true, "10.0.0.1", session);
+    assertThrows(
+        PSStepUpRequiredException.class,
+        () ->
+            admin.initiateAdminRecovery(
+                new AdminRecoveryRequest("alice", "Verified via video call #1", true)));
   }
 }

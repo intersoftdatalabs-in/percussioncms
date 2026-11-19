@@ -15,6 +15,7 @@
  */
 package com.percussion.rest.auth;
 
+import com.percussion.services.auth.mfa.PSStepUpRequiredException;
 import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -29,6 +30,8 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.Map;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -129,6 +132,59 @@ public class AuthReadinessResource {
     } catch (Exception e) {
       log.error("Failed to dispatch test auth email", e);
       throw new WebApplicationException("Failed to dispatch test auth email", e, 500);
+    }
+  }
+
+  @POST
+  @Path("/recovery")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(
+      summary = "Initiate audited Administrator break-glass MFA recovery for an account",
+      description =
+          "Requires Admin role, recent Admin step-up MFA, and a verification note. Issues a"
+              + " short-lived break-glass link or executes immediate MFA factor reset.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Break-glass recovery initiated",
+            content = @Content(schema = @Schema(implementation = AdminRecoveryResponse.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid recovery request"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "409", description = "Missing verified email or mail config"),
+        @ApiResponse(responseCode = "428", description = "Recent Admin step-up MFA required"),
+        @ApiResponse(responseCode = "503", description = "Adaptor not configured"),
+        @ApiResponse(responseCode = "500", description = "Server error")
+      })
+  public AdminRecoveryResponse initiateAdminRecovery(AdminRecoveryRequest request) {
+    try {
+      if (request == null) {
+        throw new IllegalArgumentException("AdminRecoveryRequest body is required");
+      }
+      return requireAdaptor().initiateAdminRecovery(request);
+    } catch (PSStepUpRequiredException e) {
+      Response resp =
+          Response.status(428)
+              .type(MediaType.APPLICATION_JSON)
+              .entity(
+                  Map.of(
+                      "error",
+                      "STEP_UP_REQUIRED",
+                      "message",
+                      StringUtils.defaultString(e.getMessage())))
+              .build();
+      throw new WebApplicationException(e, resp);
+    } catch (SecurityException e) {
+      throw new WebApplicationException(e.getMessage(), e, Response.Status.FORBIDDEN);
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), e, Response.Status.BAD_REQUEST);
+    } catch (IllegalStateException e) {
+      throw new WebApplicationException(e.getMessage(), e, Response.Status.CONFLICT);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (Exception e) {
+      log.error("Failed to initiate admin break-glass recovery", e);
+      throw new WebApplicationException("Failed to initiate admin break-glass recovery", e, 500);
     }
   }
 

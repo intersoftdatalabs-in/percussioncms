@@ -18,13 +18,18 @@ import React, { useCallback, useEffect, useState } from "react";
 import {
   AuthReadinessForbiddenError,
   fetchAuthReadinessReport,
+  initiateAdminRecovery,
+  isStepUpRequiredError,
   sendAuthMailTest,
+  StepUpRequiredError,
+  type AdminRecoveryResponse,
   type AuthCheckStatus,
   type AuthMailTestResult,
   type AuthReadinessReport,
 } from "../../api/auth";
 import { formatApiError, isSessionRedirectError } from "../../api/client";
 import { message } from "../../i18n/message";
+import { InlineStepUpPrompt } from "../../profile/InlineStepUpPrompt";
 import { ADMIN_MSG } from "../messages";
 
 const ISSUE_FILTER_OPTIONS = [
@@ -78,6 +83,14 @@ export const AuthReadinessPanel: React.FC = () => {
   const [mailTestResult, setMailTestResult] = useState<AuthMailTestResult | null>(null);
   const [mailTestError, setMailTestError] = useState<string | null>(null);
 
+  const [recoveryTarget, setRecoveryTarget] = useState<string>("");
+  const [recoveryNote, setRecoveryNote] = useState<string>("");
+  const [resetImmediately, setResetImmediately] = useState<boolean>(false);
+  const [sendingRecovery, setSendingRecovery] = useState<boolean>(false);
+  const [recoveryResult, setRecoveryResult] = useState<AdminRecoveryResponse | null>(null);
+  const [recoveryError, setRecoveryError] = useState<string | null>(null);
+  const [recoveryStepUpOpen, setRecoveryStepUpOpen] = useState<boolean>(false);
+
   const loadReport = useCallback(async () => {
     setLoading(true);
     setError(null);
@@ -124,6 +137,55 @@ export const AuthReadinessPanel: React.FC = () => {
     } finally {
       setSendingTest(false);
     }
+  };
+
+  const executeAdminRecovery = async (): Promise<void> => {
+    const cleanTarget = recoveryTarget.trim();
+    const cleanNote = recoveryNote.trim();
+    if (!cleanTarget) {
+      setRecoveryError("Target username is required.");
+      setRecoveryResult(null);
+      return;
+    }
+    if (cleanNote.length < 10) {
+      setRecoveryError("Enter an identity verification note (at least 10 characters).");
+      setRecoveryResult(null);
+      return;
+    }
+    setSendingRecovery(true);
+    setRecoveryError(null);
+    setRecoveryResult(null);
+    try {
+      const res = await initiateAdminRecovery({
+        targetUserName: cleanTarget,
+        verificationNote: cleanNote,
+        resetImmediately,
+      });
+      setRecoveryResult(res);
+      setRecoveryNote("");
+      await loadReport();
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      if (err instanceof StepUpRequiredError || isStepUpRequiredError(err)) {
+        setRecoveryStepUpOpen(true);
+      } else {
+        setRecoveryError(formatApiError(err, message(ADMIN_MSG.ERROR_GENERIC)));
+      }
+    } finally {
+      setSendingRecovery(false);
+    }
+  };
+
+  const onSubmitRecovery = async (e: React.FormEvent): Promise<void> => {
+    e.preventDefault();
+    await executeAdminRecovery();
+  };
+
+  const onRecoveryStepUpVerified = async (): Promise<void> => {
+    setRecoveryStepUpOpen(false);
+    await executeAdminRecovery();
   };
 
   const filteredIssues = (report?.accountIssues ?? []).filter((item) =>
@@ -373,6 +435,7 @@ export const AuthReadinessPanel: React.FC = () => {
                     <th style={thStyle}>{message(ADMIN_MSG.AUTH_READINESS_COL_VERIFIED)}</th>
                     <th style={thStyle}>{message(ADMIN_MSG.AUTH_READINESS_COL_FACTORS)}</th>
                     <th style={thStyle}>{message(ADMIN_MSG.AUTH_READINESS_COL_ISSUES)}</th>
+                    <th style={thStyle}>{message(ADMIN_MSG.AUTH_READINESS_COL_ACTIONS)}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -389,10 +452,161 @@ export const AuthReadinessPanel: React.FC = () => {
                         TOTP: {item.totpCount} / Passkey: {item.passkeyCount}
                       </td>
                       <td style={tdStyle}>{item.issues.join(", ")}</td>
+                      <td style={tdStyle}>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setRecoveryTarget(item.userName);
+                            setRecoveryError(null);
+                            setRecoveryResult(null);
+                          }}
+                          data-testid={`auth-account-recover-${item.userName}`}
+                          style={secondaryButtonStyle}
+                        >
+                          {message(ADMIN_MSG.AUTH_READINESS_RECOVER_BTN)}
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
+            )}
+          </section>
+
+          <section
+            data-testid="auth-admin-recovery-section"
+            style={{
+              marginTop: 24,
+              padding: 14,
+              background: "#f8fafc",
+              borderRadius: 6,
+              border: "1px solid #e2e8f0",
+            }}
+          >
+            <h3 style={{ margin: "0 0 4px", fontSize: 16 }}>
+              {message(ADMIN_MSG.AUTH_RECOVERY_TITLE)}
+            </h3>
+            <p style={{ margin: "0 0 12px", color: "#64748b", fontSize: 13 }}>
+              {message(ADMIN_MSG.AUTH_RECOVERY_DESC)}
+            </p>
+            <form
+              data-testid="auth-admin-recovery-form"
+              onSubmit={(e) => void onSubmitRecovery(e)}
+              style={{ display: "flex", flexDirection: "column", gap: 10 }}
+            >
+              <div style={{ display: "flex", flexWrap: "wrap", gap: 12 }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                  <label
+                    htmlFor="auth-admin-recovery-user"
+                    style={{ fontSize: 12, fontWeight: 600 }}
+                  >
+                    {message(ADMIN_MSG.AUTH_RECOVERY_TARGET_LABEL)}
+                  </label>
+                  <input
+                    id="auth-admin-recovery-user"
+                    type="text"
+                    value={recoveryTarget}
+                    onChange={(e) => setRecoveryTarget(e.target.value)}
+                    disabled={sendingRecovery}
+                    data-testid="auth-admin-recovery-user"
+                    style={{
+                      padding: "6px 10px",
+                      borderRadius: 4,
+                      border: "1px solid #cbd5e1",
+                      minWidth: 200,
+                    }}
+                  />
+                </div>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 4,
+                    flex: "1 1 320px",
+                  }}
+                >
+                  <label
+                    htmlFor="auth-admin-recovery-note"
+                    style={{ fontSize: 12, fontWeight: 600 }}
+                  >
+                    {message(ADMIN_MSG.AUTH_RECOVERY_NOTE_LABEL)}
+                  </label>
+                  <input
+                    id="auth-admin-recovery-note"
+                    type="text"
+                    value={recoveryNote}
+                    onChange={(e) => setRecoveryNote(e.target.value)}
+                    placeholder={message(ADMIN_MSG.AUTH_RECOVERY_NOTE_PLACEHOLDER)}
+                    disabled={sendingRecovery}
+                    data-testid="auth-admin-recovery-note"
+                    style={{
+                      padding: "6px 10px",
+                      borderRadius: 4,
+                      border: "1px solid #cbd5e1",
+                      width: "100%",
+                    }}
+                  />
+                </div>
+              </div>
+
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  fontSize: 13,
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={resetImmediately}
+                  onChange={(e) => setResetImmediately(e.target.checked)}
+                  disabled={sendingRecovery}
+                  data-testid="auth-admin-recovery-immediate"
+                />
+                <span>{message(ADMIN_MSG.AUTH_RECOVERY_IMMEDIATE_LABEL)}</span>
+              </label>
+
+              <div>
+                <button
+                  type="submit"
+                  disabled={sendingRecovery}
+                  data-testid="auth-admin-recovery-submit"
+                  style={buttonStyle}
+                >
+                  {sendingRecovery
+                    ? message(ADMIN_MSG.AUTH_RECOVERY_SUBMITTING)
+                    : message(ADMIN_MSG.AUTH_RECOVERY_SUBMIT)}
+                </button>
+              </div>
+            </form>
+
+            {recoveryStepUpOpen && (
+              <InlineStepUpPrompt
+                testIdPrefix="auth-admin-recovery-stepup"
+                onVerified={onRecoveryStepUpVerified}
+                onCancel={() => setRecoveryStepUpOpen(false)}
+              />
+            )}
+
+            {recoveryError && (
+              <div
+                role="alert"
+                data-testid="auth-admin-recovery-error"
+                style={{ marginTop: 8, color: "#991b1b", fontSize: 13 }}
+              >
+                {recoveryError}
+              </div>
+            )}
+
+            {recoveryResult && (
+              <div
+                role="status"
+                data-testid="auth-admin-recovery-status"
+                style={{ marginTop: 8, color: "#166534", fontSize: 13 }}
+              >
+                {recoveryResult.message} ({recoveryResult.recoveryMode})
+              </div>
             )}
           </section>
         </>
@@ -425,6 +639,17 @@ const buttonStyle: React.CSSProperties = {
   backgroundColor: "#0284c7",
   color: "#ffffff",
   fontWeight: 600,
+  cursor: "pointer",
+};
+
+const secondaryButtonStyle: React.CSSProperties = {
+  padding: "4px 10px",
+  borderRadius: 4,
+  border: "1px solid #cbd5e1",
+  backgroundColor: "#ffffff",
+  color: "#0f172a",
+  fontWeight: 600,
+  fontSize: 12,
   cursor: "pointer",
 };
 

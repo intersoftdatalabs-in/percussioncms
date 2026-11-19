@@ -147,4 +147,18 @@ export const ADMIN_MSG = {
   AUTH_READINESS_COL_VERIFIED: "perc.ui.admin.authreadiness@Verified",
   AUTH_READINESS_COL_FACTORS: "perc.ui.admin.authreadiness@MFA factors",
   AUTH_READINESS_COL_ISSUES: "perc.ui.admin.authreadiness@Issues",
+  AUTH_READINESS_COL_ACTIONS: "perc.ui.admin.authreadiness@Actions",
+  AUTH_READINESS_RECOVER_BTN: "perc.ui.admin.authreadiness@Recover MFA",
+  AUTH_RECOVERY_TITLE: "perc.ui.admin.authreadiness@Break-glass MFA recovery",
+  AUTH_RECOVERY_DESC:
+    "perc.ui.admin.authreadiness@Assist a user who lost all authenticators and recovery codes after confirming their identity out-of-band. Every action is written to the security audit log and invalidates active sessions upon reset.",
+  AUTH_RECOVERY_TARGET_LABEL: "perc.ui.admin.authreadiness@Target username",
+  AUTH_RECOVERY_NOTE_LABEL:
+    "perc.ui.admin.authreadiness@Identity verification note (min 10 chars)",
+  AUTH_RECOVERY_NOTE_PLACEHOLDER:
+    "perc.ui.admin.authreadiness@e.g. Verified via video call and manager approval ticket #1234",
+  AUTH_RECOVERY_IMMEDIATE_LABEL:
+    "perc.ui.admin.authreadiness@Reset MFA factors immediately without sending email link",
+  AUTH_RECOVERY_SUBMIT: "perc.ui.admin.authreadiness@Initiate break-glass recovery",
+  AUTH_RECOVERY_SUBMITTING: "perc.ui.admin.authreadiness@Processing recovery…",
 } as const;

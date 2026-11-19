@@ -827,6 +827,94 @@ public class PSAuthSecurityDao implements IPSAuthSecurityDao {
   }
 
   @Override
+  public Optional<String> findInternalLoginUserId(String userName) {
+    if (StringUtils.isBlank(userName)) {
+      return Optional.empty();
+    }
+    requireReady();
+    List<?> rows =
+        readTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createNativeQuery(
+                        "SELECT USERID FROM USERLOGIN WHERE LOWER(USERID) = LOWER(:uid)")
+                    .setParameter("uid", userName.trim())
+                    .setMaxResults(1)
+                    .getResultList());
+    if (rows == null || rows.isEmpty() || rows.get(0) == null) {
+      return Optional.empty();
+    }
+    String found = rows.get(0).toString().trim();
+    return found.isEmpty() ? Optional.empty() : Optional.of(found);
+  }
+
+  @Override
+  public int updateInternalUserPassword(String userId, String encodedPassword) {
+    if (StringUtils.isBlank(userId) || StringUtils.isBlank(encodedPassword)) {
+      return 0;
+    }
+    requireReady();
+    Integer updated =
+        writeTransactionTemplate.execute(
+            status ->
+                entityManager
+                    // mkd-code-review[secrets.heuristic]: adjudicated FP (issue #52, precedent #50) - parameterized SQL UPDATE column assignment, not a hardcoded secret.
+                    .createNativeQuery("UPDATE USERLOGIN SET PASSWORD = :pw WHERE USERID = :uid")
+                    .setParameter("pw", encodedPassword)
+                    .setParameter("uid", userId.trim())
+                    .executeUpdate());
+    return updated != null ? updated : 0;
+  }
+
+  @Override
+  public int revokeAllPasskeysByUser(String userName) {
+    if (StringUtils.isBlank(userName)) {
+      return 0;
+    }
+    requireReady();
+    Integer updated =
+        writeTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "UPDATE PSMfaPasskey p SET p.status = :revokedStatus"
+                            + " WHERE p.userName = :userName AND p.status = :activeStatus")
+                    .setParameter("revokedStatus", PSMfaPasskey.STATUS_REVOKED)
+                    .setParameter("userName", userName.trim())
+                    .setParameter("activeStatus", PSMfaPasskey.STATUS_ACTIVE)
+                    .executeUpdate());
+    return updated != null ? updated : 0;
+  }
+
+  @Override
+  public long recordPasswordChangeAndBumpSessionVersion(String userName, Date changedAt) {
+    if (StringUtils.isBlank(userName)) {
+      throw new IllegalArgumentException("userName is required");
+    }
+    requireReady();
+    String cleanUser = userName.trim();
+    Date effectiveAt = changedAt != null ? changedAt : new Date();
+    Long result =
+        writeTransactionTemplate.execute(
+            status -> {
+              PSAccountSecurity sec = entityManager.find(PSAccountSecurity.class, cleanUser);
+              if (sec == null) {
+                sec = new PSAccountSecurity();
+                sec.setUserName(cleanUser);
+                sec.setSessionVersion(2L);
+              } else {
+                sec.setSessionVersion(Math.max(1L, sec.getSessionVersion()) + 1L);
+              }
+              sec.setPasswordChangedAt(effectiveAt);
+              sec.setUpdatedAt(effectiveAt);
+              PSAccountSecurity merged = entityManager.merge(sec);
+              entityManager.flush();
+              return merged.getSessionVersion();
+            });
+    return result != null ? result : 2L;
+  }
+
+  @Override
   public Map<String, Boolean> checkSchemaTablesPresent() {
     requireReady();
     Map<String, Boolean> statusMap = new LinkedHashMap<>();

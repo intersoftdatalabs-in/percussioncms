@@ -978,4 +978,8 @@ export const PATHS = {
   get AUTH_MFA_STEP_UP_PASSKEY_VERIFY() {
     return `${SERVICES_ROOT}/auth/mfa/step-up/passkey/verify`;
   },
+  /** Administrator break-glass MFA recovery endpoint (Milestone 5). */
+  get AUTH_ADMIN_RECOVERY() {
+    return `${SERVICES_ROOT}/auth/admin/recovery`;
+  },
 } as const;

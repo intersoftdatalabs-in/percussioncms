@@ -107,6 +107,12 @@ describe("LoginPage", () => {
       "perc.ui.login.modern@Forgot username?",
     );
 
+    const forgotPwLink = screen.getByTestId("perc-login-forgot-password");
+    expect(forgotPwLink.getAttribute("href")).toBe("/auth/forgot-password");
+    expect(forgotPwLink.getAttribute("data-i18n-key")).toBe(
+      "perc.ui.login.modern@Forgot password?",
+    );
+
     const csrf = screen.getByTestId("perc-login-csrf") as HTMLInputElement;
     expect(csrf.name).toBe("OWASP_CSRFTOKEN");
     expect(csrf.value).toBe("test-csrf-token");

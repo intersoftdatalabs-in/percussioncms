@@ -20,7 +20,10 @@ import {
   AUTH_READINESS_REPORT_ROOT,
   AuthReadinessForbiddenError,
   fetchAuthReadinessReport,
+  initiateAdminRecovery,
   sendAuthMailTest,
+  StepUpRequiredError,
+  unwrapAdminRecoveryResponse,
   unwrapAuthMailTestResult,
   unwrapAuthReadinessReport,
 } from "../../../../main/ts/api/auth/authReadinessApi";
@@ -155,5 +158,56 @@ describe("authReadinessApi", () => {
     });
     expect(flat.sent).toBe(false);
     expect(flat.message).toBe("No SMTP host");
+  });
+
+  it("wraps AdminRecoveryRequest, unwraps AdminRecoveryResponse, and maps 428 to StepUpRequiredError", async () => {
+    vi.mocked(client.post).mockResolvedValueOnce({
+      AdminRecoveryResponse: {
+        issued: true,
+        targetUserName: "alice",
+        recoveryMode: "RECOVERY_LINK",
+        delivery: "EMAIL",
+        expiresAt: "2026-11-19T03:00:00Z",
+        message: "Break-glass link sent",
+      },
+    });
+
+    const ok = await initiateAdminRecovery({
+      targetUserName: " alice ",
+      verificationNote: " Verified via ticket #99 ",
+      resetImmediately: false,
+    });
+    expect(ok.issued).toBe(true);
+    expect(ok.recoveryMode).toBe("RECOVERY_LINK");
+    expect(client.post).toHaveBeenCalledWith(expect.stringContaining("/auth/admin/recovery"), {
+      AdminRecoveryRequest: {
+        targetUserName: "alice",
+        verificationNote: "Verified via ticket #99",
+        resetImmediately: false,
+      },
+    });
+
+    const unwrapped = unwrapAdminRecoveryResponse({
+      issued: true,
+      targetUserName: "bob",
+      recoveryMode: "IMMEDIATE_MFA_RESET",
+      delivery: "DIRECT",
+      expiresAt: "",
+      message: "Reset immediately",
+    });
+    expect(unwrapped.recoveryMode).toBe("IMMEDIATE_MFA_RESET");
+
+    vi.mocked(client.post).mockRejectedValueOnce({
+      status: 428,
+      statusText: "Precondition Required",
+      body: { error: "STEP_UP_REQUIRED", message: "Confirm two-step verification." },
+    });
+    await expect(
+      initiateAdminRecovery({
+        targetUserName: "alice",
+        verificationNote: "Verified ticket #99",
+        resetImmediately: true,
+      }),
+    ).rejects.toBeInstanceOf(StepUpRequiredError);
   });
 });

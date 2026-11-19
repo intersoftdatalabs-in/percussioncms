@@ -52,6 +52,8 @@ export const PROFILE_MSG = {
   PW_REQUIRED: "perc.ui.profile.modern@Enter a password.",
   PW_TOO_SHORT:
     "perc.ui.profile.modern@Password must be at least {0} characters.",
+  PW_TOO_LONG:
+    "perc.ui.profile.modern@Password must be at most {0} characters.",
   PW_MISMATCH: "perc.ui.profile.modern@Passwords do not match.",
   PW_SUBMIT: "perc.ui.profile.modern@Change password",
   PW_SAVING: "perc.ui.profile.modern@Updating password…",

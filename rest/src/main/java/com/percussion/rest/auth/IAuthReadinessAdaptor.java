@@ -21,4 +21,6 @@ public interface IAuthReadinessAdaptor {
   AuthReadinessReport getReadinessReport();
 
   AuthMailTestResult sendTestEmail(AuthMailTestRequest request);
+
+  AdminRecoveryResponse initiateAdminRecovery(AdminRecoveryRequest request);
 }

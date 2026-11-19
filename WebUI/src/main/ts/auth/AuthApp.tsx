@@ -17,9 +17,12 @@
 import React, { useEffect } from "react";
 import { BrandFooter } from "../ui-themes/components";
 import { ThemeProvider, useTheme } from "../ui-themes/ThemeProvider";
+import { AdminRecoveryPage } from "./AdminRecoveryPage";
+import { ForgotPasswordPage } from "./ForgotPasswordPage";
 import { ForgotUsernamePage } from "./ForgotUsernamePage";
 import { MfaChallengePage } from "./MfaChallengePage";
 import { MfaSetupPage } from "./MfaSetupPage";
+import { ResetPasswordPage } from "./ResetPasswordPage";
 import { VerifyEmailPage } from "./VerifyEmailPage";
 import type { AuthBootstrap, AuthView, MfaBootstrapState } from "./types";
 import styles from "./AuthApp.module.css";
@@ -29,6 +32,9 @@ const AUTH_BOOTSTRAP_ID = "perc-auth-bootstrap";
 const VALID_VIEWS: ReadonlySet<string> = new Set([
   "verify-email",
   "forgot-username",
+  "forgot-password",
+  "reset-password",
+  "admin-recovery",
   "mfa-challenge",
   "mfa-setup",
 ]);
@@ -37,26 +43,44 @@ function resolveAuthView(raw: string): AuthView {
   return VALID_VIEWS.has(raw) ? (raw as AuthView) : "forgot-username";
 }
 
-function parseMfaState(rawJson: string): MfaBootstrapState | undefined {
+function parseAuxBootstrapState(rawJson: string): {
+  mfaState?: MfaBootstrapState;
+  passwordMinLength?: number;
+  passwordMaxLength?: number;
+} {
   if (!rawJson.trim()) {
-    return undefined;
+    return {};
   }
   try {
     const parsed = JSON.parse(rawJson);
     if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
       const rec = parsed as Record<string, unknown>;
-      return {
-        hasValidTx: Boolean(rec.hasValidTx),
-        txType: typeof rec.txType === "string" ? rec.txType : "",
-        totpAvailable: Boolean(rec.totpAvailable),
-        passkeyAvailable: Boolean(rec.passkeyAvailable),
-        recoveryCodeAvailable: Boolean(rec.recoveryCodeAvailable),
-      };
+      const mfaState: MfaBootstrapState | undefined =
+        "hasValidTx" in rec || "txType" in rec
+          ? {
+              hasValidTx: Boolean(rec.hasValidTx),
+              txType: typeof rec.txType === "string" ? rec.txType : "",
+              totpAvailable: Boolean(rec.totpAvailable),
+              passkeyAvailable: Boolean(rec.passkeyAvailable),
+              recoveryCodeAvailable: Boolean(rec.recoveryCodeAvailable),
+            }
+          : undefined;
+      const passwordMinLength =
+        typeof rec.passwordMinLength === "number" &&
+        Number.isFinite(rec.passwordMinLength)
+          ? rec.passwordMinLength
+          : undefined;
+      const passwordMaxLength =
+        typeof rec.passwordMaxLength === "number" &&
+        Number.isFinite(rec.passwordMaxLength)
+          ? rec.passwordMaxLength
+          : undefined;
+      return { mfaState, passwordMinLength, passwordMaxLength };
     }
   } catch {
     console.error("[PercModernUI] Failed to parse #perc-auth-bootstrap mfaStateJson");
   }
-  return undefined;
+  return {};
 }
 
 function readStringField(
@@ -99,7 +123,17 @@ export function readAuthBootstrap(): AuthBootstrap {
   const view: AuthView = resolveAuthView(rawView);
   const csrf = resolveCsrfFromHolder(parsed);
   const rawDir = readStringField(parsed, "textDir", "ltr");
-  const mfaState = parseMfaState(readStringField(parsed, "mfaStateJson"));
+  const aux = parseAuxBootstrapState(readStringField(parsed, "mfaStateJson"));
+  const passwordMinLength =
+    typeof parsed.passwordMinLength === "number" &&
+    Number.isFinite(parsed.passwordMinLength)
+      ? parsed.passwordMinLength
+      : aux.passwordMinLength;
+  const passwordMaxLength =
+    typeof parsed.passwordMaxLength === "number" &&
+    Number.isFinite(parsed.passwordMaxLength)
+      ? parsed.passwordMaxLength
+      : aux.passwordMaxLength;
 
   return {
     view,
@@ -110,7 +144,9 @@ export function readAuthBootstrap(): AuthBootstrap {
     contextPath: readStringField(parsed, "contextPath"),
     locale: readStringField(parsed, "locale", "en-us"),
     textDir: rawDir === "rtl" ? "rtl" : "ltr",
-    mfaState,
+    mfaState: aux.mfaState,
+    passwordMinLength,
+    passwordMaxLength,
   };
 }
 
@@ -122,6 +158,12 @@ function renderAuthView(bootstrap: AuthBootstrap): React.ReactElement {
   switch (bootstrap.view) {
     case "verify-email":
       return <VerifyEmailPage bootstrap={bootstrap} />;
+    case "forgot-password":
+      return <ForgotPasswordPage bootstrap={bootstrap} />;
+    case "reset-password":
+      return <ResetPasswordPage bootstrap={bootstrap} />;
+    case "admin-recovery":
+      return <AdminRecoveryPage bootstrap={bootstrap} />;
     case "mfa-challenge":
       return <MfaChallengePage bootstrap={bootstrap} />;
     case "mfa-setup":

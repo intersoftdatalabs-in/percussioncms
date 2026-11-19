@@ -16,7 +16,10 @@
 
 import { get, isApiError, post } from "../client";
 import { PATHS } from "../paths";
+import { isStepUpRequiredError } from "./authMfaApi";
 import type {
+  AdminRecoveryRequest,
+  AdminRecoveryResponse,
   AuthAccountReadinessItem,
   AuthAccountReadinessSummary,
   AuthCheckStatus,
@@ -29,12 +32,23 @@ export const AUTH_READINESS_REPORT_ROOT = "AuthReadinessReport";
 export const AUTH_INFRA_CHECK_ROOT = "AuthInfraCheck";
 export const AUTH_ACCOUNT_READINESS_ITEM_ROOT = "AuthAccountReadinessItem";
 export const AUTH_MAIL_TEST_RESULT_ROOT = "AuthMailTestResult";
+export const ADMIN_RECOVERY_RESPONSE_ROOT = "AdminRecoveryResponse";
 
 export class AuthReadinessForbiddenError extends Error {
   readonly status = 403;
   constructor(message = "Admin role required to access auth readiness") {
     super(message);
     this.name = "AuthReadinessForbiddenError";
+  }
+}
+
+export class StepUpRequiredError extends Error {
+  readonly status = 428;
+  constructor(
+    message = "Confirm two-step verification before completing this action.",
+  ) {
+    super(message);
+    this.name = "StepUpRequiredError";
   }
 }
 
@@ -237,6 +251,58 @@ export async function sendAuthMailTest(recipient: string): Promise<AuthMailTestR
     });
     return unwrapAuthMailTestResult(payload);
   } catch (err) {
+    rethrowIfForbidden(err);
+  }
+}
+
+export function unwrapAdminRecoveryResponse(
+  payload: unknown,
+): AdminRecoveryResponse {
+  const root = asRecord(payload) ?? {};
+  const wrapped = asRecord(
+    root[ADMIN_RECOVERY_RESPONSE_ROOT] ?? root.adminRecoveryResponse,
+  );
+  const body =
+    wrapped && ("issued" in wrapped || "recoveryMode" in wrapped) ? wrapped : root;
+  return {
+    issued: Boolean(body.issued),
+    targetUserName: asString(body.targetUserName),
+    recoveryMode: asString(body.recoveryMode),
+    delivery: asString(body.delivery),
+    expiresAt: asString(body.expiresAt),
+    message: asString(body.message),
+  };
+}
+
+export async function initiateAdminRecovery(
+  request: AdminRecoveryRequest,
+): Promise<AdminRecoveryResponse> {
+  const cleanTarget = (request.targetUserName ?? "").trim();
+  const cleanNote = (request.verificationNote ?? "").trim();
+  if (!cleanTarget) {
+    throw new Error("Target user name is required");
+  }
+  if (!cleanNote) {
+    throw new Error("Verification note is required");
+  }
+  try {
+    const payload = await post<unknown>(PATHS.AUTH_ADMIN_RECOVERY, {
+      AdminRecoveryRequest: {
+        targetUserName: cleanTarget,
+        verificationNote: cleanNote,
+        resetImmediately: Boolean(request.resetImmediately),
+      },
+    });
+    return unwrapAdminRecoveryResponse(payload);
+  } catch (err) {
+    if (isStepUpRequiredError(err)) {
+      const rec = asRecord((err as { body?: unknown }).body);
+      const msg =
+        rec && typeof rec.message === "string" && rec.message.trim()
+          ? rec.message
+          : undefined;
+      throw new StepUpRequiredError(msg);
+    }
     rethrowIfForbidden(err);
   }
 }

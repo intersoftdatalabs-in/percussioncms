@@ -137,7 +137,16 @@
 
 .recoveryRow {
   margin-top: 0.9rem;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.recoverySep {
+  color: var(--color-text-muted, #64748b);
+  font-size: 0.875rem;
 }
 
 .recoveryLink {

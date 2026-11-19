@@ -26,6 +26,7 @@ import {
 } from "../api/user/userProfileApi";
 import {
   changeMyPassword,
+  MAX_PASSWORD_LENGTH,
   MIN_PASSWORD_LENGTH,
   validatePasswordChange,
 } from "../api/user/userPasswordApi";
@@ -138,6 +139,10 @@ export function SecuritySection({
       tooShort: message(PROFILE_MSG.PW_TOO_SHORT).replace(
         "{0}",
         String(MIN_PASSWORD_LENGTH),
+      ),
+      tooLong: message(PROFILE_MSG.PW_TOO_LONG).replace(
+        "{0}",
+        String(MAX_PASSWORD_LENGTH),
       ),
       mismatch: message(PROFILE_MSG.PW_MISMATCH),
     });

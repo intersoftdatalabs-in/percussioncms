@@ -67,6 +67,9 @@
         case "mfa-challenge" -> "Percussion CMS — Two-Step Verification";
         case "mfa-setup" -> "Percussion CMS — Set Up Two-Step Verification";
         case "verify-email" -> "Percussion CMS — Confirm Email";
+        case "forgot-password" -> "Percussion CMS — Forgot Password";
+        case "reset-password" -> "Percussion CMS — Reset Password";
+        case "admin-recovery" -> "Percussion CMS — Break-Glass Recovery";
         default -> "Percussion CMS — Account";
     };
 

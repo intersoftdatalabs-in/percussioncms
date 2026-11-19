@@ -312,3 +312,9 @@
   color: #ffffff;
   border-color: var(--color-primary, #4a6aa3);
 }
+
+.hint {
+  margin: 0.3rem 0 0;
+  font-size: 0.82rem;
+  color: var(--color-text-muted, #5b6478);
+}

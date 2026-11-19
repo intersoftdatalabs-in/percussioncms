@@ -286,6 +286,12 @@
 			<entry key="auth.rateLimit.mfaVerifyPerIpPerMinute" default="20" />
 			<entry key="auth.rateLimit.mfaVerifyPerUserPerMinute" default="10" />
 			<entry key="auth.webauthn.userVerification" default="preferred" />
+			<!--
+			// mkd-code-review[secrets.heuristic]: adjudicated FP (issue #52, precedent #50) - Ant propertyfile numeric rate-limit key name, not a secret. -->
+			<entry key="auth.rateLimit.passwordResetPerIpPerHour" default="15" />
+			<!--
+			// mkd-code-review[secrets.heuristic]: adjudicated FP (issue #52, precedent #50) - Ant propertyfile numeric rate-limit key name, not a secret. -->
+			<entry key="auth.rateLimit.passwordResetPerAccountPerHour" default="5" />
 
 
 			<!-- Properties to remove if present -->

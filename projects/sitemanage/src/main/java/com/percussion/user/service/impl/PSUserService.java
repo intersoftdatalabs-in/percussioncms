@@ -53,6 +53,7 @@ import com.percussion.security.IPSTypedPrincipal;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSPasswordHandler;
+import com.percussion.security.PSPasswordPolicyValidator;
 import com.percussion.security.PSSecurityCatalogException;
 import com.percussion.security.PSSecurityException;
 import com.percussion.security.PSSecurityProvider;
@@ -61,6 +62,8 @@ import com.percussion.security.SecureStringUtils;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
+import com.percussion.services.auth.IPSAuthSecurityDao;
+import com.percussion.services.auth.PSAuthServiceLocator;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidUtils;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
@@ -115,6 +118,8 @@ import com.percussion.utils.service.impl.PSUtilityService;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.security.IPSSecurityWs;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -135,6 +140,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -142,6 +148,7 @@ import java.util.List;
 // Java 11 Optional
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -840,6 +847,14 @@ public class PSUserService implements IPSUserService {
           .throwIfInvalid();
     }
 
+    Optional<String> policyViolation =
+        PSPasswordPolicyValidator.validate(user.getPassword(), resolvePasswordMinLength());
+    if (policyViolation.isPresent()) {
+      PSParameterValidationUtils.validateParameters("changePassword")
+          .rejectField("password", policyViolation.get(), "***")
+          .throwIfInvalid();
+    }
+
     PSUserLogin login = new PSUserLogin();
     login.setUserid(userName);
     String cryptPW =
@@ -848,6 +863,7 @@ public class PSUserService implements IPSUserService {
             : passwordFilter.encrypt(user.getPassword());
     login.setPassword(cryptPW);
     userLoginDao.save(login);
+    bumpSessionVersionForPasswordChange(userName);
 
     try {
       PSSystemAuditLogger.userUpdate(
@@ -864,6 +880,37 @@ public class PSUserService implements IPSUserService {
     // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
     // not HTML body (alert #755)
     return rvalue; // codeql[java/xss]
+  }
+
+  private int resolvePasswordMinLength() {
+    try {
+      return PSPasswordPolicyValidator.resolveMinLength(PSServer.getServerProps());
+    } catch (RuntimeException ex) {
+      return PSPasswordPolicyValidator.DEFAULT_MIN_LENGTH;
+    }
+  }
+
+  private void bumpSessionVersionForPasswordChange(String userName) {
+    try {
+      IPSAuthSecurityDao dao = PSAuthServiceLocator.getAuthSecurityDao();
+      if (dao == null) {
+        return;
+      }
+      long nextVersion = dao.recordPasswordChangeAndBumpSessionVersion(userName, new Date());
+      HttpServletRequest req = currentServletRequest();
+      HttpSession sess = req != null ? req.getSession(false) : null;
+      if (sess != null) {
+        sess.setAttribute(PSSecurityFilter.ATTR_SESSION_VERSION, nextVersion);
+      }
+      PSRequest psReq = PSSecurityFilter.getCurrentRequest();
+      if (psReq != null && psReq.getUserSession() != null) {
+        psReq.getUserSession().setSessionVersion(nextVersion);
+      }
+    } catch (RuntimeException ex) {
+      log.debug(
+          "Session version increment skipped during changePassword (no Spring auth DAO): {}",
+          ex.getMessage());
+    }
   }
 
   /**
@@ -2058,6 +2105,7 @@ public class PSUserService implements IPSUserService {
         }
 
         validateEmailPolicy(user, e);
+        validatePasswordPolicy(user, e);
 
         for (String rl : user.getRoles()) {
           if (!PSCollectionUtils.containsIgnoringCase(allRoles, rl)) {
@@ -2152,6 +2200,24 @@ public class PSUserService implements IPSUserService {
       if (requiresEmail) {
         e.rejectValue("email", "user.emailRequired", "A valid email address is required.");
       }
+    }
+
+    private void validatePasswordPolicy(PSUser user, PSBeanValidationException e) {
+      if (accountSecurityService != null
+          && accountSecurityService.isSystemServiceUser(user.getName())) {
+        return;
+      }
+      boolean validateOnCreate = isCreateUser;
+      boolean validateOnInternalUpdate =
+          !isCreateUser
+              && user.getProviderType() == PSUserProviderType.INTERNAL
+              && StringUtils.isNotBlank(user.getPassword());
+      if (!validateOnCreate && !validateOnInternalUpdate) {
+        return;
+      }
+      Optional<String> violation =
+          PSPasswordPolicyValidator.validate(user.getPassword(), resolvePasswordMinLength());
+      violation.ifPresent(msg -> e.rejectValue("password", "user.password.policy", msg));
     }
   }
 }

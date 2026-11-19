@@ -355,6 +355,50 @@ class PSUserAccountProfileTest {
               PSValidationException.class, () -> userService.doValidation(serviceUser, true));
       assertFalse(ex.getValidationErrors().getFieldErrors().stream().anyMatch(err -> "email".equals(err.getField())));
     }
+
+    @Test
+    void enforcesSharedPasswordPolicyOnCreateAndInternalUpdate() throws Exception {
+      when(backEndRoleMgr.getRhythmyxRoles())
+          .thenReturn(new java.util.ArrayList<>(List.of("Editor", "Admin")));
+
+      PSUser shortPwCreate = new PSUser();
+      shortPwCreate.setName("EditorShort");
+      shortPwCreate.setPassword("ShortPw12!");
+      shortPwCreate.setEmail("short@example.com");
+      shortPwCreate.setRoles(List.of("Editor"));
+
+      PSValidationException shortEx =
+          assertThrows(
+              PSValidationException.class, () -> userService.doValidation(shortPwCreate, true));
+      assertTrue(
+          shortEx.getValidationErrors().getFieldErrors().stream()
+              .anyMatch(err -> "password".equals(err.getField())));
+
+      PSUser validCreate = new PSUser();
+      validCreate.setName("EditorValid");
+      validCreate.setPassword("ValidPassword12!");
+      validCreate.setEmail("valid@example.com");
+      validCreate.setRoles(List.of("Editor"));
+      userService.doValidation(validCreate, true);
+
+      doReturn("Admin").when(userService).getCurrentUserName();
+      PSUser blankPwInternalUpdate = new PSUser();
+      blankPwInternalUpdate.setName("EditorValid");
+      blankPwInternalUpdate.setProviderType(PSUserProviderType.INTERNAL);
+      blankPwInternalUpdate.setPassword("");
+      blankPwInternalUpdate.setEmail("valid@example.com");
+      blankPwInternalUpdate.setRoles(List.of("Editor"));
+      userService.doValidation(blankPwInternalUpdate, false);
+
+      PSUser tooLongUpdate = new PSUser();
+      tooLongUpdate.setName("EditorValid");
+      tooLongUpdate.setProviderType(PSUserProviderType.INTERNAL);
+      tooLongUpdate.setPassword("a".repeat(151));
+      tooLongUpdate.setEmail("valid@example.com");
+      tooLongUpdate.setRoles(List.of("Editor"));
+      assertThrows(
+          PSValidationException.class, () -> userService.doValidation(tooLongUpdate, false));
+    }
   }
 
   private static PSCurrentUser internalUser(String name, String email) {

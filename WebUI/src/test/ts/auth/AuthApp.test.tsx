@@ -510,4 +510,128 @@ describe("AuthApp", () => {
       );
     });
   });
+
+  it("handles forgot-password, reset-password, and admin-recovery views with CSRF and policy checks", async () => {
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.endsWith("/forgot-password")) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () =>
+            JSON.stringify({
+              accepted: true,
+              message: "If an eligible account matches, reset instructions were sent.",
+            }),
+        };
+      }
+      if (url.endsWith("/reset-password")) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () =>
+            JSON.stringify({
+              reset: true,
+              status: "RESET",
+              message: "Password updated and active sessions signed out.",
+            }),
+        };
+      }
+      if (url.endsWith("/admin-recovery")) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () =>
+            JSON.stringify({
+              redeemed: true,
+              status: "REDEEMED",
+              loginUrl: "/Rhythmyx/login",
+              message: "MFA factors cleared.",
+            }),
+        };
+      }
+      throw new Error(`Unexpected fetch URL: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const r1 = render(
+      <AuthApp
+        bootstrap={makeBootstrap({
+          view: "forgot-password",
+          token: "",
+        })}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("perc-auth-forgot-password-identifier"), {
+      target: { value: "alice" },
+    });
+    fireEvent.click(screen.getByTestId("perc-auth-forgot-password-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-auth-forgot-password-status").textContent).toContain(
+        "reset instructions were sent",
+      );
+    });
+    r1.unmount();
+
+    const r2 = render(
+      <AuthApp
+        bootstrap={makeBootstrap({
+          view: "reset-password",
+          token: "reset-tok-123",
+          passwordMinLength: 12,
+          passwordMaxLength: 150,
+        })}
+      />,
+    );
+    fireEvent.change(screen.getByTestId("perc-auth-reset-password-new"), {
+      target: { value: "tooShort1!" },
+    });
+    fireEvent.change(screen.getByTestId("perc-auth-reset-password-confirm"), {
+      target: { value: "tooShort1!" },
+    });
+    fireEvent.click(screen.getByTestId("perc-auth-reset-password-submit"));
+    expect(screen.getByTestId("perc-auth-reset-password-error").textContent).toContain("12");
+
+    fireEvent.change(screen.getByTestId("perc-auth-reset-password-new"), {
+      target: { value: "StrongNewPassword12!" },
+    });
+    fireEvent.change(screen.getByTestId("perc-auth-reset-password-confirm"), {
+      target: { value: "StrongNewPassword12!" },
+    });
+    fireEvent.click(screen.getByTestId("perc-auth-reset-password-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-auth-reset-password-success").textContent).toContain(
+        "Password updated",
+      );
+    });
+    r2.unmount();
+
+    const rMissing = render(
+      <AuthApp
+        bootstrap={makeBootstrap({
+          view: "admin-recovery",
+          token: "",
+        })}
+      />,
+    );
+    expect(screen.getByTestId("perc-auth-admin-recovery-missing-token")).toBeDefined();
+    rMissing.unmount();
+
+    render(
+      <AuthApp
+        bootstrap={makeBootstrap({
+          view: "admin-recovery",
+          token: "bg-tok-9",
+        })}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("perc-auth-admin-recovery-confirm"));
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-auth-admin-recovery-success").textContent).toContain(
+        "MFA factors cleared",
+      );
+    });
+    expect(screen.getByTestId("perc-auth-back-to-login").getAttribute("href")).toBe(
+      "/Rhythmyx/login",
+    );
+  });
 });

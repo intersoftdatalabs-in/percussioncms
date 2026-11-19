@@ -332,4 +332,38 @@ class PSAuthSecurityDaoTest {
     assertEquals(1, dao.revokePasskey("pk-1", "alice"));
     assertEquals(0, dao.renamePasskey(" ", "alice", "New"));
   }
+
+  @Test
+  void recoveryDaoOperationsQueryUserLoginRevokePasskeysAndRecordPasswordChange() {
+    EntityManager em = mock(EntityManager.class);
+    Query nativeQuery = mock(Query.class);
+    Query jpqlQuery = mock(Query.class);
+    when(em.createNativeQuery(anyString())).thenReturn(nativeQuery);
+    when(nativeQuery.setParameter(anyString(), any())).thenReturn(nativeQuery);
+    when(nativeQuery.setMaxResults(1)).thenReturn(nativeQuery);
+    when(nativeQuery.getResultList()).thenReturn(List.of("Alice"));
+    when(nativeQuery.executeUpdate()).thenReturn(1);
+
+    when(em.createQuery(anyString())).thenReturn(jpqlQuery);
+    when(jpqlQuery.setParameter(anyString(), any())).thenReturn(jpqlQuery);
+    when(jpqlQuery.executeUpdate()).thenReturn(2);
+
+    PSAccountSecurity existing = new PSAccountSecurity();
+    existing.setUserName("Alice");
+    existing.setSessionVersion(5L);
+    when(em.find(PSAccountSecurity.class, "Alice")).thenReturn(existing);
+    when(em.merge(any(PSAccountSecurity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+    PSAuthSecurityDao dao = createDao(em);
+    assertEquals(Optional.of("Alice"), dao.findInternalLoginUserId("alice"));
+    assertEquals(Optional.empty(), dao.findInternalLoginUserId(" "));
+    assertEquals(1, dao.updateInternalUserPassword("Alice", "hashed-pw"));
+    assertEquals(0, dao.updateInternalUserPassword(" ", "hashed-pw"));
+    assertEquals(2, dao.revokeAllPasskeysByUser("Alice"));
+
+    Date changedAt = new Date(1_763_480_000_000L);
+    assertEquals(6L, dao.recordPasswordChangeAndBumpSessionVersion("Alice", changedAt));
+    assertEquals(changedAt, existing.getPasswordChangedAt());
+    assertEquals(2L, dao.recordPasswordChangeAndBumpSessionVersion("newuser", changedAt));
+  }
 }

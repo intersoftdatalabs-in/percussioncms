@@ -19,7 +19,11 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { AuthReadinessPanel } from "../../../main/ts/admin/tools/AuthReadinessPanel";
 import * as api from "../../../main/ts/api/auth/authReadinessApi";
-import { AuthReadinessForbiddenError } from "../../../main/ts/api/auth/authReadinessApi";
+import * as mfaApi from "../../../main/ts/api/auth/authMfaApi";
+import {
+  AuthReadinessForbiddenError,
+  StepUpRequiredError,
+} from "../../../main/ts/api/auth/authReadinessApi";
 import type { AuthReadinessReport } from "../../../main/ts/api/auth/types";
 
 vi.mock("../../../main/ts/api/auth/authReadinessApi", async () => {
@@ -30,6 +34,17 @@ vi.mock("../../../main/ts/api/auth/authReadinessApi", async () => {
     ...actual,
     fetchAuthReadinessReport: vi.fn(),
     sendAuthMailTest: vi.fn(),
+    initiateAdminRecovery: vi.fn(),
+  };
+});
+
+vi.mock("../../../main/ts/api/auth/authMfaApi", async () => {
+  const actual = await vi.importActual<
+    typeof import("../../../main/ts/api/auth/authMfaApi")
+  >("../../../main/ts/api/auth/authMfaApi");
+  return {
+    ...actual,
+    verifyMfaStepUp: vi.fn(),
   };
 });
 
@@ -165,5 +180,65 @@ describe("AuthReadinessPanel", () => {
     expect(screen.getByTestId("auth-readiness-error").textContent).toMatch(
       /admin/i,
     );
+  });
+
+  it("initiates admin break-glass recovery with inline step-up retry", async () => {
+    vi.mocked(api.fetchAuthReadinessReport).mockResolvedValue(sampleReport());
+    vi.mocked(api.initiateAdminRecovery)
+      .mockRejectedValueOnce(new StepUpRequiredError())
+      .mockResolvedValueOnce({
+        targetUserName: "alice",
+        recoveryMode: "LINK_SENT",
+        linkSent: true,
+        mfaReset: false,
+        message: "Recovery link sent to alice's verified email.",
+      });
+    vi.mocked(mfaApi.verifyMfaStepUp).mockResolvedValue({
+      verified: true,
+      expiresAtEpochMs: 1795065000000,
+      message: "Step-up verification succeeded.",
+    });
+
+    render(<AuthReadinessPanel />);
+
+    await waitFor(() => {
+      expect(screen.getByTestId("auth-account-recover-alice")).toBeDefined();
+    });
+
+    fireEvent.click(screen.getByTestId("auth-account-recover-alice"));
+    const userInput = screen.getByTestId(
+      "auth-admin-recovery-user",
+    ) as HTMLInputElement;
+    expect(userInput.value).toBe("alice");
+
+    fireEvent.change(screen.getByTestId("auth-admin-recovery-note"), {
+      target: { value: "Verified identity on support call #4421" },
+    });
+    fireEvent.click(screen.getByTestId("auth-admin-recovery-submit"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("auth-admin-recovery-stepup-input"),
+      ).toBeDefined();
+    });
+
+    fireEvent.change(screen.getByTestId("auth-admin-recovery-stepup-input"), {
+      target: { value: "123456" },
+    });
+    fireEvent.click(screen.getByTestId("auth-admin-recovery-stepup-submit"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("auth-admin-recovery-status").textContent,
+      ).toContain("LINK_SENT");
+    });
+
+    expect(mfaApi.verifyMfaStepUp).toHaveBeenCalledWith("123456", false);
+    expect(api.initiateAdminRecovery).toHaveBeenCalledTimes(2);
+    expect(api.initiateAdminRecovery).toHaveBeenCalledWith({
+      targetUserName: "alice",
+      verificationNote: "Verified identity on support call #4421",
+      resetImmediately: false,
+    });
   });
 });

@@ -114,5 +114,13 @@ public interface IPSAuthSecurityDao {
       boolean backupState,
       Date lastUsedAt);
 
+  Optional<String> findInternalLoginUserId(String userName);
+
+  int updateInternalUserPassword(String userId, String encodedPassword);
+
+  int revokeAllPasskeysByUser(String userName);
+
+  long recordPasswordChangeAndBumpSessionVersion(String userName, Date changedAt);
+
   Map<String, Boolean> checkSchemaTablesPresent();
 }

@@ -16,7 +16,12 @@
  */
 
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { changeMyPassword } from "../../../main/ts/api/user/userPasswordApi";
+import {
+  changeMyPassword,
+  MAX_PASSWORD_LENGTH,
+  MIN_PASSWORD_LENGTH,
+  validatePasswordChange,
+} from "../../../main/ts/api/user/userPasswordApi";
 import { PATHS } from "../../../main/ts/api/paths";
 import * as client from "../../../main/ts/api/client";
 
@@ -78,5 +83,28 @@ describe("userPasswordApi.changeMyPassword", () => {
       changeMyPassword({ name: "Admin", password: "" }),
     ).rejects.toThrow(/Password is required/i);
     expect(putSpy).not.toHaveBeenCalled();
+  });
+
+  it("enforces default 12..150 character bounds in validatePasswordChange", () => {
+    const labels = {
+      required: "Required",
+      tooShort: "Too short",
+      tooLong: "Too long",
+      mismatch: "Mismatch",
+    };
+    expect(MIN_PASSWORD_LENGTH).toBe(12);
+    expect(MAX_PASSWORD_LENGTH).toBe(150);
+    expect(
+      validatePasswordChange("elevenchars", "elevenchars", labels),
+    ).toEqual({ ok: false, fields: { newPassword: "Too short" } });
+    expect(
+      validatePasswordChange("twelvechars1", "twelvechars1", labels),
+    ).toEqual({ ok: true });
+    expect(
+      validatePasswordChange("a".repeat(150), "a".repeat(150), labels),
+    ).toEqual({ ok: true });
+    expect(
+      validatePasswordChange("a".repeat(151), "a".repeat(151), labels),
+    ).toEqual({ ok: false, fields: { newPassword: "Too long" } });
   });
 });

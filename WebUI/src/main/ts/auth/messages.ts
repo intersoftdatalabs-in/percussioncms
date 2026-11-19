@@ -88,4 +88,48 @@ export const AUTH_MSG = {
   MFA_SETUP_PASSKEY_PLACEHOLDER: "perc.ui.auth.modern@e.g. Work Laptop or YubiKey",
   MFA_SETUP_PASSKEY_BTN: "perc.ui.auth.modern@Register passkey",
   MFA_SETUP_PASSKEY_BUSY: "perc.ui.auth.modern@Follow your browser prompt…",
+
+  // Forgot password, reset password, and admin break-glass recovery (Milestone 5)
+  FORGOT_PW_TITLE: "perc.ui.auth.modern@Forgot your password?",
+  FORGOT_PW_SUBTITLE:
+    "perc.ui.auth.modern@Enter your username or verified email address. If eligible, we will email instructions to its verified email address.",
+  FORGOT_PW_IDENTIFIER_LABEL:
+    "perc.ui.auth.modern@Username or verified email address",
+  FORGOT_PW_IDENTIFIER_REQUIRED:
+    "perc.ui.auth.modern@Enter your username or email address.",
+  FORGOT_PW_SUBMIT: "perc.ui.auth.modern@Send reset instructions",
+  FORGOT_PW_SUBMITTING: "perc.ui.auth.modern@Sending…",
+  FORGOT_PW_GENERIC_ERROR:
+    "perc.ui.auth.modern@Unable to submit your request. Please try again later.",
+
+  RESET_PW_TITLE: "perc.ui.auth.modern@Reset your password",
+  RESET_PW_SUBTITLE:
+    "perc.ui.auth.modern@Choose a new password for your account. Enrolled two-step verification methods stay active.",
+  RESET_PW_MISSING_TOKEN:
+    "perc.ui.auth.modern@No password reset token was provided in this link.",
+  RESET_PW_NEW_LABEL: "perc.ui.auth.modern@New password",
+  RESET_PW_CONFIRM_LABEL: "perc.ui.auth.modern@Confirm new password",
+  RESET_PW_LENGTH_HINT:
+    "perc.ui.auth.modern@Use {0} to {1} characters.",
+  RESET_PW_REQUIRED: "perc.ui.auth.modern@Enter a new password.",
+  RESET_PW_TOO_SHORT:
+    "perc.ui.auth.modern@Password must be at least {0} characters long.",
+  RESET_PW_TOO_LONG:
+    "perc.ui.auth.modern@Password must be at most {0} characters long.",
+  RESET_PW_MISMATCH: "perc.ui.auth.modern@Passwords do not match.",
+  RESET_PW_SUBMIT: "perc.ui.auth.modern@Reset password",
+  RESET_PW_SUBMITTING: "perc.ui.auth.modern@Resetting password…",
+  RESET_PW_GENERIC_ERROR:
+    "perc.ui.auth.modern@Unable to reset your password. Request a new link and try again.",
+
+  ADMIN_REC_TITLE: "perc.ui.auth.modern@Administrator MFA recovery",
+  ADMIN_REC_SUBTITLE:
+    "perc.ui.auth.modern@Confirm resetting your enrolled two-step verification methods. All active sessions will be signed out and you must re-enroll MFA at your next sign-in.",
+  ADMIN_REC_MISSING_TOKEN:
+    "perc.ui.auth.modern@No break-glass recovery token was provided in this link.",
+  ADMIN_REC_CONFIRM_BTN:
+    "perc.ui.auth.modern@Confirm break-glass MFA reset",
+  ADMIN_REC_CONFIRMING: "perc.ui.auth.modern@Resetting MFA factors…",
+  ADMIN_REC_GENERIC_ERROR:
+    "perc.ui.auth.modern@This recovery link is invalid or has expired.",
 } as const;

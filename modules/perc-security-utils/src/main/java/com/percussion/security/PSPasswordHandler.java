@@ -18,6 +18,7 @@
 package com.percussion.security;
 
 import com.percussion.security.error.PSExceptionUtils;
+import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.spec.InvalidKeySpecException;
@@ -137,14 +138,23 @@ public class PSPasswordHandler {
   public static boolean checkHashedPassword(String password, String encodedPw)
       throws PSEncryptionException {
 
-    if (password == null || encodedPw == null)
+    if (password == null || encodedPw == null) {
       throw new IllegalArgumentException("All input parameters must have a value.");
-    byte[] hashedPwWithSalt = Base64.getDecoder().decode(encodedPw);
+    }
+    final byte[] hashedPwWithSalt;
+    try {
+      hashedPwWithSalt = Base64.getDecoder().decode(encodedPw);
+    } catch (IllegalArgumentException e) {
+      return false;
+    }
+    if (hashedPwWithSalt.length <= DEFAULT_SALT_SIZE) {
+      return false;
+    }
     byte[] ogSalt =
         ArrayUtils.subarray(
             hashedPwWithSalt, hashedPwWithSalt.length - DEFAULT_SALT_SIZE, hashedPwWithSalt.length);
     byte[] newPwWithSalt = getHashedPasswordBytes(password, ogSalt);
 
-    return Base64.getEncoder().encodeToString(newPwWithSalt).equals(encodedPw);
+    return MessageDigest.isEqual(newPwWithSalt, hashedPwWithSalt);
   }
 }

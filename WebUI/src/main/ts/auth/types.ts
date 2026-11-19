@@ -17,6 +17,9 @@
 export type AuthView =
   | "verify-email"
   | "forgot-username"
+  | "forgot-password"
+  | "reset-password"
+  | "admin-recovery"
   | "mfa-challenge"
   | "mfa-setup";
 
@@ -38,6 +41,8 @@ export interface AuthBootstrap {
   locale: string;
   textDir: "ltr" | "rtl";
   mfaState?: MfaBootstrapState;
+  passwordMinLength?: number;
+  passwordMaxLength?: number;
 }
 
 export interface VerifyEmailResponse {
@@ -78,4 +83,22 @@ export interface TotpSetupConfirmResponse {
 export interface AuthCancelResponse {
   cancelled: boolean;
   loginUrl: string;
+}
+
+export interface ForgotPasswordResponse {
+  accepted: boolean;
+  message: string;
+}
+
+export interface ResetPasswordResponse {
+  reset: boolean;
+  status: string;
+  message: string;
+}
+
+export interface AdminRecoveryRedeemResponse {
+  redeemed: boolean;
+  status: string;
+  loginUrl: string;
+  message: string;
 }

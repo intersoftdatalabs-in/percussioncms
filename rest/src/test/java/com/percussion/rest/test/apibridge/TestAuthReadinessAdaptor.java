@@ -15,6 +15,8 @@
  */
 package com.percussion.rest.test.apibridge;
 
+import com.percussion.rest.auth.AdminRecoveryRequest;
+import com.percussion.rest.auth.AdminRecoveryResponse;
 import com.percussion.rest.auth.AuthAccountReadinessSummary;
 import com.percussion.rest.auth.AuthMailTestRequest;
 import com.percussion.rest.auth.AuthMailTestResult;
@@ -47,5 +49,18 @@ public class TestAuthReadinessAdaptor implements IAuthReadinessAdaptor {
   public AuthMailTestResult sendTestEmail(AuthMailTestRequest request) {
     String recipient = request != null ? request.getRecipient() : "";
     return new AuthMailTestResult(true, recipient, "TEST_STUB", "Test stub OK");
+  }
+
+  @Override
+  public AdminRecoveryResponse initiateAdminRecovery(AdminRecoveryRequest request) {
+    String target = request != null ? request.getTargetUserName() : "";
+    boolean immediate = request != null && request.isResetImmediately();
+    return new AdminRecoveryResponse(
+        true,
+        target,
+        immediate ? "IMMEDIATE_MFA_RESET" : "RECOVERY_LINK",
+        immediate ? "DIRECT" : "EMAIL",
+        "",
+        "Test stub OK");
   }
 }

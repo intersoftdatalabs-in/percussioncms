@@ -15,6 +15,7 @@
  */
 package com.percussion.servlets;
 
+import com.percussion.security.PSPasswordPolicyValidator;
 import com.percussion.security.PSRoleEntry;
 import com.percussion.security.PSUserEntry;
 import com.percussion.server.PSServer;
@@ -31,6 +32,10 @@ import com.percussion.services.auth.mfa.PSPasskeyOptions;
 import com.percussion.services.auth.mfa.PSTotpConfirmOutcome;
 import com.percussion.services.auth.mfa.PSTotpEnrollmentStart;
 import com.percussion.services.auth.ratelimit.PSAuthRateLimitException;
+import com.percussion.services.auth.recovery.IPSAccountRecoveryService;
+import com.percussion.services.auth.recovery.PSAdminRecoveryRedeemResult;
+import com.percussion.services.auth.recovery.PSForgotPasswordResult;
+import com.percussion.services.auth.recovery.PSPasswordResetResult;
 import com.percussion.services.security.PSJaasUtils;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
@@ -74,6 +79,9 @@ public class PSAuthServlet extends HttpServlet {
 
   private static final String PATH_VERIFY_EMAIL = "/verify-email";
   private static final String PATH_FORGOT_USERNAME = "/forgot-username";
+  private static final String PATH_FORGOT_PASSWORD = "/forgot-password";
+  private static final String PATH_RESET_PASSWORD = "/reset-password";
+  private static final String PATH_ADMIN_RECOVERY = "/admin-recovery";
   private static final String PATH_CHALLENGE = "/challenge";
   private static final String PATH_CHALLENGE_TOTP = "/challenge/totp";
   private static final String PATH_CHALLENGE_RECOVERY = "/challenge/recovery-code";
@@ -101,12 +109,14 @@ public class PSAuthServlet extends HttpServlet {
 
   private final transient IPSAccountSecurityService accountSecurityService;
   private final transient IPSMfaService mfaService;
+  private final transient IPSAccountRecoveryService accountRecoveryService;
   private final transient PSAuthCsrfGuard csrfGuard;
   private final transient SessionFinalizer sessionFinalizer;
 
   public PSAuthServlet() {
     this.accountSecurityService = null;
     this.mfaService = null;
+    this.accountRecoveryService = null;
     this.csrfGuard = new PSAuthCsrfGuard();
     this.sessionFinalizer = PSSecurityFilter::finalizeAuthenticatedSession;
   }
@@ -116,6 +126,7 @@ public class PSAuthServlet extends HttpServlet {
     this.accountSecurityService =
         Objects.requireNonNull(accountSecurityService, "accountSecurityService");
     this.mfaService = null;
+    this.accountRecoveryService = null;
     this.csrfGuard = Objects.requireNonNull(csrfGuard, "csrfGuard");
     this.sessionFinalizer = PSSecurityFilter::finalizeAuthenticatedSession;
   }
@@ -128,6 +139,22 @@ public class PSAuthServlet extends HttpServlet {
       SessionFinalizer sessionFinalizer) {
     this.accountSecurityService = accountSecurityService;
     this.mfaService = Objects.requireNonNull(mfaService, "mfaService");
+    this.accountRecoveryService = null;
+    this.csrfGuard = Objects.requireNonNull(csrfGuard, "csrfGuard");
+    this.sessionFinalizer = Objects.requireNonNull(sessionFinalizer, "sessionFinalizer");
+  }
+
+  /** Package-visible constructor for isolated M5 recovery tests. */
+  PSAuthServlet(
+      IPSAccountSecurityService accountSecurityService,
+      IPSMfaService mfaService,
+      IPSAccountRecoveryService accountRecoveryService,
+      PSAuthCsrfGuard csrfGuard,
+      SessionFinalizer sessionFinalizer) {
+    this.accountSecurityService = accountSecurityService;
+    this.mfaService = Objects.requireNonNull(mfaService, "mfaService");
+    this.accountRecoveryService =
+        Objects.requireNonNull(accountRecoveryService, "accountRecoveryService");
     this.csrfGuard = Objects.requireNonNull(csrfGuard, "csrfGuard");
     this.sessionFinalizer = Objects.requireNonNull(sessionFinalizer, "sessionFinalizer");
   }
@@ -144,7 +171,11 @@ public class PSAuthServlet extends HttpServlet {
     }
 
     String token =
-        PATH_VERIFY_EMAIL.equals(subPath) ? StringUtils.trimToEmpty(request.getParameter("token")) : "";
+        (PATH_VERIFY_EMAIL.equals(subPath)
+                || PATH_RESET_PASSWORD.equals(subPath)
+                || PATH_ADMIN_RECOVERY.equals(subPath))
+            ? StringUtils.trimToEmpty(request.getParameter("token"))
+            : "";
     String bootstrapJson = buildGetBootstrapJson(request, subPath);
     String csrfToken = csrfGuard.ensureSessionToken(request);
 
@@ -192,6 +223,12 @@ public class PSAuthServlet extends HttpServlet {
       case PATH_VERIFY_EMAIL -> handleVerifyEmailPost(params.get("token"), response);
       case PATH_FORGOT_USERNAME ->
           handleForgotUsernamePost(params.get("email"), resolveClientIp(request), response);
+      case PATH_FORGOT_PASSWORD ->
+          handleForgotPasswordPost(params, resolveClientIp(request), response);
+      case PATH_RESET_PASSWORD ->
+          handleResetPasswordPost(params, resolveClientIp(request), response);
+      case PATH_ADMIN_RECOVERY ->
+          handleAdminRecoveryPost(request, params, resolveClientIp(request), response);
       case PATH_CHALLENGE_TOTP ->
           handleChallengePost(request, response, params.get("code"), false);
       case PATH_CHALLENGE_RECOVERY ->
@@ -214,6 +251,9 @@ public class PSAuthServlet extends HttpServlet {
     return switch (subPath) {
       case PATH_VERIFY_EMAIL -> "verify-email";
       case PATH_FORGOT_USERNAME -> "forgot-username";
+      case PATH_FORGOT_PASSWORD -> "forgot-password";
+      case PATH_RESET_PASSWORD -> "reset-password";
+      case PATH_ADMIN_RECOVERY -> "admin-recovery";
       case PATH_CHALLENGE -> "mfa-challenge";
       case PATH_SETUP -> "mfa-setup";
       default -> null;
@@ -221,6 +261,17 @@ public class PSAuthServlet extends HttpServlet {
   }
 
   private String buildGetBootstrapJson(HttpServletRequest request, String subPath) {
+    if (PATH_RESET_PASSWORD.equals(subPath)) {
+      int minLen = resolveAccountRecoveryService().resolvePasswordMinLength();
+      int effectiveMin =
+          minLen >= PSPasswordPolicyValidator.MIN_ALLOWED_LENGTH
+              ? minLen
+              : PSPasswordPolicyValidator.DEFAULT_MIN_LENGTH;
+      Map<String, Object> pwPolicy = new LinkedHashMap<>();
+      pwPolicy.put("passwordMinLength", effectiveMin);
+      pwPolicy.put("passwordMaxLength", PSPasswordPolicyValidator.MAX_ALLOWED_LENGTH);
+      return JSON.writeValueAsString(pwPolicy);
+    }
     if (!PATH_CHALLENGE.equals(subPath) && !PATH_SETUP.equals(subPath)) {
       return "{}";
     }
@@ -255,6 +306,72 @@ public class PSAuthServlet extends HttpServlet {
       body.put("accepted", result.accepted());
       body.put("message", result.message());
       writeJson(response, HttpServletResponse.SC_OK, body);
+    } catch (PSAuthRateLimitException ex) {
+      writeErrorJson(response, 429, "RATE_LIMITED", ex.getMessage());
+    }
+  }
+
+  private void handleForgotPasswordPost(
+      Map<String, String> params, String clientIp, HttpServletResponse response)
+      throws IOException {
+    String identifier =
+        StringUtils.firstNonBlank(
+            params.get("identifier"), params.get("email"), params.get("username"));
+    try {
+      PSForgotPasswordResult result =
+          resolveAccountRecoveryService().requestPasswordReset(identifier, clientIp);
+      Map<String, Object> body = new LinkedHashMap<>();
+      body.put("accepted", result.accepted());
+      body.put("message", result.message());
+      writeJson(response, HttpServletResponse.SC_OK, body);
+    } catch (PSAuthRateLimitException ex) {
+      writeErrorJson(response, 429, "RATE_LIMITED", ex.getMessage());
+    }
+  }
+
+  private void handleResetPasswordPost(
+      Map<String, String> params, String clientIp, HttpServletResponse response)
+      throws IOException {
+    try {
+      PSPasswordResetResult result =
+          resolveAccountRecoveryService()
+              .completePasswordReset(params.get("token"), params.get("newPassword"), clientIp);
+      int status = result.reset() ? HttpServletResponse.SC_OK : HttpServletResponse.SC_BAD_REQUEST;
+      Map<String, Object> body = new LinkedHashMap<>();
+      body.put("reset", result.reset());
+      body.put("status", result.status());
+      if (!result.reset()) {
+        body.put("error", result.status());
+      }
+      body.put("message", result.message());
+      writeJson(response, status, body);
+    } catch (PSAuthRateLimitException ex) {
+      writeErrorJson(response, 429, "RATE_LIMITED", ex.getMessage());
+    }
+  }
+
+  private void handleAdminRecoveryPost(
+      HttpServletRequest request,
+      Map<String, String> params,
+      String clientIp,
+      HttpServletResponse response)
+      throws IOException {
+    try {
+      PSAdminRecoveryRedeemResult result =
+          resolveAccountRecoveryService().redeemAdminBreakGlass(params.get("token"), clientIp);
+      int status =
+          result.redeemed() ? HttpServletResponse.SC_OK : HttpServletResponse.SC_BAD_REQUEST;
+      String ctxPath = StringUtils.trimToEmpty(request.getContextPath());
+      String loginUrl = ctxPath.isEmpty() ? "/login" : ctxPath + "/login";
+      Map<String, Object> body = new LinkedHashMap<>();
+      body.put("redeemed", result.redeemed());
+      body.put("status", result.status());
+      body.put("loginUrl", loginUrl);
+      if (!result.redeemed()) {
+        body.put("error", result.status());
+      }
+      body.put("message", result.message());
+      writeJson(response, status, body);
     } catch (PSAuthRateLimitException ex) {
       writeErrorJson(response, 429, "RATE_LIMITED", ex.getMessage());
     }
@@ -657,6 +774,12 @@ public class PSAuthServlet extends HttpServlet {
     return mfaService != null ? mfaService : PSAuthServiceLocator.getMfaService();
   }
 
+  private IPSAccountRecoveryService resolveAccountRecoveryService() {
+    return accountRecoveryService != null
+        ? accountRecoveryService
+        : PSAuthServiceLocator.getAccountRecoveryService();
+  }
+
   private Map<String, String> parseRequestPayload(HttpServletRequest request) throws IOException {
     Map<String, String> out = new LinkedHashMap<>();
     String contentType = StringUtils.trimToEmpty(request.getContentType()).toLowerCase();
@@ -665,6 +788,9 @@ public class PSAuthServlet extends HttpServlet {
     }
     copyParamIfPresent(request, out, "token");
     copyParamIfPresent(request, out, "email");
+    copyParamIfPresent(request, out, "identifier");
+    copyParamIfPresent(request, out, "username");
+    copyParamIfPresent(request, out, "newPassword");
     copyParamIfPresent(request, out, "code");
     copyParamIfPresent(request, out, "totpId");
     copyParamIfPresent(request, out, "label");
