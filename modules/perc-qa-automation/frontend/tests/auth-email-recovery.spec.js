@@ -94,4 +94,29 @@ test.describe("Verified Email & Forgot Username @auth @recovery", () => {
       page.getByTestId("perc-profile-email-verification"),
     ).toBeVisible({ timeout: 15_000 });
   });
+
+  test("Authenticated Admin sees email edit and verification controls with zero uncaught page errors", async ({
+    page,
+  }) => {
+    const pageErrors = [];
+    page.on("pageerror", (err) => {
+      pageErrors.push(err && err.message ? err.message : String(err));
+    });
+
+    await loginAsAdmin(page);
+    await page.goto(
+      `${BASE_URL}/Rhythmyx/cm/app/spa.jsp?entry=profile&_=${Date.now()}`,
+      { waitUntil: "domcontentloaded" },
+    );
+
+    await expect(page.getByTestId("perc-profile-account")).toBeVisible({
+      timeout: 30_000,
+    });
+    await expect(
+      page.getByTestId("perc-profile-email-verification"),
+    ).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId("perc-profile-account-email")).toBeVisible();
+    await expect(page.getByTestId("perc-profile-account-save")).toBeVisible();
+    expect(pageErrors).toEqual([]);
+  });
 });

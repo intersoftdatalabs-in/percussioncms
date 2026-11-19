@@ -159,8 +159,8 @@ test.describe("Profile security password @profile @password @security @smoke", (
     );
 
     // Mismatch
-    await newPw.fill("abcdef");
-    await confirm.fill("abcdeg");
+    await newPw.fill("abcdefghijkl");
+    await confirm.fill("abcdefghijkm");
     await submit.click();
     await expect(
       page.getByTestId("perc-profile-security-confirm-error"),

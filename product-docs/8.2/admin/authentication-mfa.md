@@ -213,6 +213,25 @@ If **every** account with the `Admin` role has lost access to all enrolled authe
    `DUPLICATE_EMAIL`, `UNVERIFIED_EMAIL`, `NO_MFA_ENROLLED`) and resolve email hygiene before
    moving `auth.mfa.mode` to `required`.
 
+## Pilot cohort rollout and audited rollback procedure
+
+Move deployments from optional mode to universal enforcement in controlled stages so existing automation and un-onboarded editors are never locked out unexpectedly:
+
+1. **Stage 0 — Baseline & remediation (`auth.mfa.mode=optional`):**
+   - Verify synchronous SMTP test delivery, canonical HTTPS `auth.publicBaseUrl`, valid `auth.webauthn.rpId` / `allowedOrigins`, and identical **Cluster key fingerprint** values across all CMS cluster nodes.
+   - Remediate `MISSING_EMAIL`, `MALFORMED_EMAIL`, `DUPLICATE_EMAIL`, and `UNVERIFIED_EMAIL` accounts in **Admin → System Tools → Auth & MFA Readiness**.
+   - Tag unattended publishing/integration accounts under `NON_INTERACTIVE_SERVICE` (`PSX_ACCOUNT_SECURITY.ACCOUNT_POLICY`), keeping human operators on `INTERACTIVE_MFA_REQUIRED` (or `SSO_EXTERNAL_MFA` only where upstream IdP MFA is guaranteed).
+   - Ensure **at least two** administrator accounts have enrolled MFA and stored offline recovery codes before turning on enforcement.
+2. **Stage 1 — Pilot cohort enforcement (`auth.mfa.mode=cohort`):**
+   - Set `auth.mfa.mode=cohort` and `auth.mfa.requiredCohorts=<cohort-or-role-list>` in `rxconfig/Server/server.properties` (matches case-insensitively against `PSX_ACCOUNT_SECURITY.MFA_ENFORCEMENT_COHORT`, CMS role names such as `Admin`, or explicit usernames).
+   - Restart `PercussionServer` and validate interactive browser sign-in (`/auth/setup` mandatory enrollment for unenrolled pilot users, `/auth/challenge` TOTP + passkey + recovery code sign-in for enrolled users), inline step-up (`428`), `HTTP 403` denial of Basic Auth / `sys_use_basic_auth` and SOAP password-only logins for enforced human accounts, and **Admin break-glass recovery**.
+3. **Stage 2 — Global interactive enforcement (`auth.mfa.mode=required`):**
+   - Once pilot cohorts reach `PASS` readiness coverage and support procedures are validated, set `auth.mfa.mode=required` in `rxconfig/Server/server.properties` and restart `PercussionServer`.
+4. **Non-destructive rollback (`optional`, `disabled`, or `off`):**
+   - Setting `auth.mfa.mode=optional` lets unenrolled users sign in normally while **keeping MFA active for users who already enrolled**.
+   - Setting `auth.mfa.mode=disabled` (or `off`) suspends interactive MFA challenges and re-allows non-interactive Basic/SOAP channels temporarily during an emergency **without deleting** `PSX_MFA_TOTP`, `PSX_MFA_PASSKEY`, or `PSX_MFA_RECOVERY_CODE` rows.
+   - Restart `PercussionServer` after changing `server.properties`, review `PSX_SYSTEM_AUDIT_LOG` (`AuthenticationErrorCodes` `1005`–`1016`) to investigate any incident, and restore `cohort` or `required` once remediated.
+
 ## Related
 
 - [Users, roles & security](id:admin-users-roles)

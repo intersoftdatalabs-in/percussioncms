@@ -39,6 +39,7 @@ public class PSAuthPolicyService implements IPSAuthPolicyService {
   public static final String PROP_MFA_MODE = "auth.mfa.mode";
   public static final String PROP_REQUIRED_COHORTS = "auth.mfa.requiredCohorts";
 
+  public static final String MODE_OFF = "off";
   public static final String MODE_DISABLED = "disabled";
   public static final String MODE_OPTIONAL = "optional";
   public static final String MODE_COHORT = "cohort";
@@ -70,7 +71,8 @@ public class PSAuthPolicyService implements IPSAuthPolicyService {
     Properties props = safeProps(serverPropsSupplier.get());
     String raw = StringUtils.trimToEmpty(props.getProperty(PROP_MFA_MODE)).toLowerCase(Locale.ROOT);
     return switch (raw) {
-      case MODE_DISABLED, MODE_OPTIONAL, MODE_COHORT, MODE_REQUIRED -> raw;
+      case MODE_OFF, MODE_DISABLED -> MODE_DISABLED;
+      case MODE_OPTIONAL, MODE_COHORT, MODE_REQUIRED -> raw;
       default -> MODE_OPTIONAL;
     };
   }

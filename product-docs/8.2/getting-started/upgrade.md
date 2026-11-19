@@ -105,6 +105,7 @@ Do not confuse this with retired **dual-ship** page `*.templateDef` files — se
 - [ ] Publish to a non-production location succeeds.
 - [ ] REST health / authenticated sample call succeeds if you integrate headlessly.
 - [ ] DTS endpoints used by the site respond as before.
+- [ ] Open **Admin → System Tools → Auth & MFA Readiness** to verify transactional auth mail, `auth.publicBaseUrl`, cluster `.key` fingerprint parity, and account email readiness before enabling cohort or required MFA (see [Authentication, MFA, and Recovery Readiness](id:admin-authentication-mfa)).
 
 ## Rollback notes
 

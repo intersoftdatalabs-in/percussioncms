@@ -1893,6 +1893,12 @@ public class PSSecurityFilter implements Filter {
     if (rxSession == null)
       throw new LoginException("The supplied request does not contain a valid rhythmyx session.");
 
+    String sessionUser = rxSession.getRealAuthenticatedUserEntry();
+    if (!isSessionVersionValid(request, request.getSession(false), rxSession, sessionUser)) {
+      PSUserSessionManager.releaseUserSession(rxSession);
+      throw new LoginException("The supplied rhythmyx session is no longer valid.");
+    }
+
     updateHttpSession(request, rxSession);
   }
 

@@ -89,4 +89,77 @@ class PSAuthPolicyServiceTest {
         PSLoginPolicyDecision.ALLOW_DIRECT_SESSION,
         policy.evaluateInteractiveLogin("svc_pub", List.of("Admin"), false));
   }
+
+  @Test
+  void rollbackOffAndDisabledModesBypassMfaAndAllowNonInteractiveChannels() {
+    IPSAuthSecurityDao dao = mock(IPSAuthSecurityDao.class);
+    IPSAccountSecurityService acct = mock(IPSAccountSecurityService.class);
+    Properties props = new Properties();
+    PSAuthPolicyService policy = new PSAuthPolicyService(dao, acct, () -> props);
+
+    when(dao.findActiveTotpByUser("alice")).thenReturn(List.of(new PSMfaTotp()));
+    when(dao.findAccountSecurity("alice")).thenReturn(Optional.of(new PSAccountSecurity()));
+
+    for (String rollbackMode : List.of("off", "disabled")) {
+      props.setProperty(PSAuthPolicyService.PROP_MFA_MODE, rollbackMode);
+      assertEquals(PSAuthPolicyService.MODE_DISABLED, policy.getEffectiveMode());
+      assertFalse(policy.isMfaRequiredForUser("alice", List.of("Admin")));
+      assertEquals(
+          PSLoginPolicyDecision.ALLOW_DIRECT_SESSION,
+          policy.evaluateInteractiveLogin("alice", List.of("Admin"), false));
+      assertTrue(
+          policy.isNonInteractivePasswordChannelAllowed("alice", List.of("Admin"), "BASIC_AUTH"));
+    }
+  }
+
+  @Test
+  void cohortMatchingExternalSsoPolicyAndFallbackModeWorkAccurately() {
+    IPSAuthSecurityDao dao = mock(IPSAuthSecurityDao.class);
+    IPSAccountSecurityService acct = mock(IPSAccountSecurityService.class);
+    Properties props = new Properties();
+    PSAuthPolicyService policy = new PSAuthPolicyService(dao, acct, () -> props);
+
+    PSAccountSecurity pilotUser = new PSAccountSecurity();
+    pilotUser.setUserName("pilot.user");
+    pilotUser.setMfaEnforcementCohort("pilot");
+    when(dao.findAccountSecurity("pilot.user")).thenReturn(Optional.of(pilotUser));
+
+    PSAccountSecurity ssoUser = new PSAccountSecurity();
+    ssoUser.setUserName("sso.user");
+    ssoUser.setAccountPolicy(PSAccountSecurity.POLICY_SSO_EXTERNAL_MFA);
+    when(dao.findAccountSecurity("sso.user")).thenReturn(Optional.of(ssoUser));
+
+    PSAccountSecurity externalInteractive = new PSAccountSecurity();
+    externalInteractive.setUserName("sso.int");
+    externalInteractive.setAccountPolicy(PSAccountSecurity.POLICY_INTERACTIVE_MFA_REQUIRED);
+    when(dao.findAccountSecurity("sso.int")).thenReturn(Optional.of(externalInteractive));
+
+    // Unknown/blank mode falls back safely to optional
+    props.setProperty(PSAuthPolicyService.PROP_MFA_MODE, "unexpected-value");
+    assertEquals(PSAuthPolicyService.MODE_OPTIONAL, policy.getEffectiveMode());
+    props.remove(PSAuthPolicyService.PROP_MFA_MODE);
+    assertEquals(PSAuthPolicyService.MODE_OPTIONAL, policy.getEffectiveMode());
+
+    // Cohort matching covers account cohort (case-insensitive), role, and explicit username
+    props.setProperty(PSAuthPolicyService.PROP_MFA_MODE, "cohort");
+    props.setProperty(PSAuthPolicyService.PROP_REQUIRED_COHORTS, " Pilot , Admin , bob ");
+    assertTrue(policy.isMfaRequiredForUser("pilot.user", List.of("Author")));
+    assertTrue(policy.isMfaRequiredForUser("role.user", List.of("admin")));
+    assertTrue(policy.isMfaRequiredForUser("bob", List.of("Author")));
+    assertFalse(policy.isMfaRequiredForUser("outside", List.of("Author")));
+    assertEquals(
+        PSLoginPolicyDecision.ALLOW_DIRECT_SESSION,
+        policy.evaluateInteractiveLogin("outside", List.of("Author"), false));
+    assertTrue(
+        policy.isNonInteractivePasswordChannelAllowed("outside", List.of("Author"), "BASIC_AUTH"));
+
+    // SSO_EXTERNAL_MFA allows direct external SSO even under required mode
+    props.setProperty(PSAuthPolicyService.PROP_MFA_MODE, "required");
+    assertEquals(
+        PSLoginPolicyDecision.ALLOW_DIRECT_SESSION,
+        policy.evaluateInteractiveLogin("sso.user", List.of("Editor"), true));
+    assertEquals(
+        PSLoginPolicyDecision.REQUIRE_MFA_ENROLLMENT,
+        policy.evaluateInteractiveLogin("sso.int", List.of("Editor"), true));
+  }
 }
