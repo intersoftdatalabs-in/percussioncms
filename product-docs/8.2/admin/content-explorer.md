@@ -180,6 +180,34 @@ context-menu state stay label-only; the empty text uses the same i18n key as the
 toolbar empty text (`perc.ui.explorer@No actions`), so it is locale-resolved
 instead of hardcoded English.
 
+### Classic DCE icon vocabulary (retire-or-map)
+
+The classic Desktop Content Explorer shipped 84 icon files for its tree,
+child-table, and applet chrome. Every one either has a modern glyph above or
+is explicitly retired with a text or chrome replacement — nothing user-visible
+was dropped silently:
+
+- **Kept as icon + label**: folders, items, inbox, my/community content, all
+  content, refresh, sites, views, saved and ad-hoc searches, relationships,
+  slots.
+- **Generic glyph, distinction kept elsewhere**: marked folders (selection
+  highlight), site subfolders (site name in the tree label), design-time items
+  (render as generic items).
+- **Retired to text or built-in chrome**: checkout-state badges (now the
+  checkout-owner name), assignee and ACL avatars (names as text), the Parent
+  up-level node and path separators (now the breadcrumb bar), tree
+  expand/collapse and column-sort bitmaps (now disclosure controls and sort
+  headers), the Admin badge (now an `(Admin)` status-bar marker), applet
+  splash/About/update artwork (Help menu and SPA loading states), and the
+  generic Missing/None/Other placeholders (locale-resolved empty and error
+  text). The Outbox view has no modern equivalent.
+- **Expand-state variants** keep no separate artwork: open versus collapsed is
+  carried by the tree disclosure control and the open/closed folder glyph.
+
+The full per-icon table is maintained with the icon pipeline in the product
+codebase for implementers; operators only need the rule above: if an action or
+row has no glyph, its label or surrounding chrome already says what it is.
+
 | Action | What happens |
 |--------|----------------|
 | **Mobile preview** | **Content → Mobile preview** opens a mobile preview of the selected **page** in a new window. A page with a content id opens Page Management render with the mobile flag (`GET /services/pagemanagement/render/page/{id}?percmobilepreview=true`). A page under **Sites** with no id opens the assembled site-path preview with `percmobilepreview=true` (path segments percent-encoded). **Close** the window and the Explorer selection stays on that page — the list does not refresh. The status line shows **Mobile preview opened** only after the window opens. With no row selected, Explorer shows **Select a page to open mobile preview** and does not open a window. A **folder** shows **Folders do not open a mobile preview** and the folder name. An **asset**, or any item that is not a page, shows **Mobile preview is only available for a page** and that item's name. A page with no preview target shows **This page has no mobile preview target**. If the browser blocks the window, Explorer shows **Could not open the mobile preview window** and does not claim the preview opened. This is not toolbar **Preview** (desktop). Desktop Preview still opens page render **without** `percmobilepreview=true`, or a site-path URL with `percmobilepreview=false`, and still previews **assets**. It is not assembler preview and not the Content Editor. |
