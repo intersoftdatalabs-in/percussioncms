@@ -46,13 +46,19 @@
  * Slice 9 (issue #6522) migrates the calendar qTip twins below to the npm
  * qtip2@3.0.3 dist with the two snippet call sites moved to the qTip2
  * options shape. The rest of the #6522 rows (v1 calendar widget,
- * nav hoverIntent, MiniColors twins, Foundation 4.x) stay vendored pending
+ * nav hoverIntent, Foundation 4.x) stay vendored pending
  * replace-or-drop decisions or legal sign-off. Slice 12 (issue #6564)
  * drops the v1 percCalendar widget per the recorded maintainer Drop
  * decision — its qTip copy and snippet call site are gone, so the parity
- * block below covers the calendarTwo copy only. MiniColors stays vendored
- * under the recorded MIT-ok ruling (upstream is MIT-licensed; no published
- * npm dist matches the payload's swatches/keywords surface).
+ * block below covers the calendarTwo copy only. Slice 14 (issue #6686)
+ * migrates the MiniColors twins to the npm
+ * @claviska/jquery-minicolors@2.2.4 dist (same author's continuation
+ * line — the unscoped registry holds only 2.1.10, which predates the
+ * swatches/keywords surface) plus the documented jQuery 4 trim patch:
+ * the payload JS twins differ from stock 2.2.4 in exactly the two
+ * `$.trim(a.toLowerCase())` → `a.toLowerCase().trim()` hunks (`$.trim`
+ * was removed in jQuery 4, which the WebUI ships), pinned below by
+ * stock-plus-patch reconstruction rather than byte-identity.
  *
  * Slice 14 (issue #6689, parent #6522, spike #6655 follow-on) carries
  * the nav hoverIntent bytes (classic briancherne 1.x, MIT-licensed) under
@@ -1762,4 +1768,375 @@ describe("widget-payload hover-intent shim (issue #6689)", () => {
     }
     expect(errors).toEqual([]);
   });
+});
+
+const MINICOLORS_PAYLOADS = [
+  {
+    // CalendarTwo editor preview copy (percGoogleCalendarControl.xsl:
+    // jquery.minicolors.js FileDescriptor, rx_resources). The editor
+    // percCalendarTwo.js drives background/text color inputs through
+    // $.fn.minicolors with the swatches/keywords option surface below.
+    payload: path.join(
+      "modules",
+      "perc-packages",
+      "src",
+      "main",
+      "resources",
+      "Packages",
+      "perc.widget.calendar",
+      "SupportFile-rx_resources",
+      "widgets",
+      "percCalendarTwo",
+      "js",
+      "jquery.minicolors.js",
+    ),
+    npmDist: path.join(
+      "@claviska",
+      "jquery-minicolors",
+      "jquery.minicolors.js",
+    ),
+    versionRe: /jQuery MiniColors/,
+  },
+  {
+    // CalendarTwo editor published copy (sys__UserDependency--rx_resources
+    // twin, byte-identical by the same-twin precedent as the retired
+    // calendar qTip pair).
+    payload: path.join(
+      "modules",
+      "perc-packages",
+      "src",
+      "main",
+      "resources",
+      "Packages",
+      "perc.widget.calendar",
+      "sys__UserDependency--rx_resources",
+      "widgets",
+      "percCalendarTwo",
+      "js",
+      "jquery.minicolors.js",
+    ),
+    npmDist: path.join(
+      "@claviska",
+      "jquery-minicolors",
+      "jquery.minicolors.js",
+    ),
+    versionRe: /jQuery MiniColors/,
+  },
+];
+
+const MINICOLORS_CSS_PAYLOADS = [
+  {
+    // Editor preview sprite stylesheet (percGoogleCalendarControl.xsl:
+    // jquery.minicolors.css FileDescriptor, rx_resources). Stock 2.2.4
+    // inlines the sprite as a data URI (no jquery.minicolors.png ships in
+    // the payload), so the rebased copy stays byte-identical with no png.
+    payload: path.join(
+      "modules",
+      "perc-packages",
+      "src",
+      "main",
+      "resources",
+      "Packages",
+      "perc.widget.calendar",
+      "SupportFile-rx_resources",
+      "widgets",
+      "percCalendarTwo",
+      "css",
+      "jquery.minicolors.css",
+    ),
+    npmDist: path.join(
+      "@claviska",
+      "jquery-minicolors",
+      "jquery.minicolors.css",
+    ),
+  },
+  {
+    // Editor published stylesheet twin (sys__UserDependency--rx_resources).
+    payload: path.join(
+      "modules",
+      "perc-packages",
+      "src",
+      "main",
+      "resources",
+      "Packages",
+      "perc.widget.calendar",
+      "sys__UserDependency--rx_resources",
+      "widgets",
+      "percCalendarTwo",
+      "css",
+      "jquery.minicolors.css",
+    ),
+    npmDist: path.join(
+      "@claviska",
+      "jquery-minicolors",
+      "jquery.minicolors.css",
+    ),
+  },
+];
+
+// Documented jQuery 4 patch carried by the payload JS twins (issue
+// #6686): `$.trim` was removed in jQuery 4 (WebUI ships jquery ^4.0.0),
+// so any picker initialized with non-empty `keywords` threw
+// `$.trim is not a function` on stock 2.2.4. The payload restores the
+// pre-rebase Percussion fix — native `String.trim` — in exactly the two
+// keyword paths (init + updateFromInput). Reconstruction pins both the
+// stock bytes and the patch: any silent mod loss or drift fails loudly.
+const MINICOLORS_JQUERY4_TRIM_PATCH = {
+  stock: "$.trim(a.toLowerCase())",
+  patched: "a.toLowerCase().trim()",
+  occurrences: 2,
+};
+
+function stockMinicolorsWithJquery4TrimPatch(distSource, distLabel) {
+  const seen =
+    distSource.split(MINICOLORS_JQUERY4_TRIM_PATCH.stock).length - 1;
+  expect(
+    seen,
+    `${distLabel} no longer carries the expected ` +
+      `${MINICOLORS_JQUERY4_TRIM_PATCH.occurrences}x patched keyword ` +
+      `paths — re-verify against the published 2.2.4 tarball`,
+  ).toBe(MINICOLORS_JQUERY4_TRIM_PATCH.occurrences);
+  return distSource
+    .split(MINICOLORS_JQUERY4_TRIM_PATCH.stock)
+    .join(MINICOLORS_JQUERY4_TRIM_PATCH.patched);
+}
+
+function loadMinicolorsPayloadAsJqueryPlugin(payloadRelPath) {
+  // The UMD dist closes over bare `jQuery` (browser-globals branch under
+  // `window.eval`), so expose the jsdom-bound jQuery globally before
+  // evaluating the payload bytes verbatim (same pattern as the
+  // superfish/slick loaders above). No jquery-migrate needed: the payload
+  // carries the documented jQuery 4 trim patch (native
+  // `a.toLowerCase().trim()` in the two keyword paths — `$.trim` was
+  // removed in jQuery 4, which the WebUI ships), so the only other
+  // jQuery-removed APIs (jQuery.type/browser/live/size) are absent and the
+  // stock 2.2.4 remainder runs unmodified.
+  const $ = require(path.join(NODE_MODULES, "jquery", "dist", "jquery.js"));
+  globalThis.jQuery = $;
+  window.jQuery = $;
+  const source = fs.readFileSync(path.join(REPO_ROOT, payloadRelPath), "utf8");
+  window.eval(source);
+  return $;
+}
+
+function renderCalendarColorInput(document, id, value) {
+  // Mirrors percGoogleCalendarControl.xsl: the editor row carries text
+  // inputs with data-control="hue" and preset brand values; the first
+  // percCalendarTwo.js init reads data-* attrs (data-swatches /
+  // data-keywords when present) into the minicolors option surface.
+  document.body.innerHTML =
+    `<input id="${id}" class="perc-google-calendar-background-color" ` +
+    `data-control="hue" value="${value}" type="text">`;
+  return document.getElementById(id);
+}
+
+describe("widget-payload npm refresh parity (issue #6686: minicolors)", () => {
+  it("calendarTwo editor MiniColors payload files exist under the audited Packages tree", () => {
+    for (const { payload } of [...MINICOLORS_PAYLOADS, ...MINICOLORS_CSS_PAYLOADS]) {
+      expect(
+        fs.existsSync(path.join(REPO_ROOT, payload)),
+        `missing payload: ${payload}`,
+      ).toBe(true);
+    }
+  });
+
+  it("calendarTwo editor MiniColors payload CSS bytes are byte-identical to the npm @claviska/jquery-minicolors dist", () => {
+    for (const { payload, npmDist } of MINICOLORS_CSS_PAYLOADS) {
+      const shipped = fs.readFileSync(path.join(REPO_ROOT, payload));
+      const dist = fs.readFileSync(path.join(NODE_MODULES, npmDist));
+      expect(
+        shipped.equals(dist),
+        `${payload} drifted from node_modules/${npmDist} — refresh from npm`,
+      ).toBe(true);
+    }
+  });
+
+  it("calendarTwo editor MiniColors payload JS bytes equal stock 2.2.4 plus the documented jQuery 4 trim patch", () => {
+    for (const { payload, npmDist } of MINICOLORS_PAYLOADS) {
+      const shipped = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
+      const dist = fs.readFileSync(path.join(NODE_MODULES, npmDist), "utf8");
+      const expected = stockMinicolorsWithJquery4TrimPatch(
+        dist,
+        `node_modules/${npmDist}`,
+      );
+      expect(
+        shipped === expected,
+        `${payload} is not stock node_modules/${npmDist} plus the ` +
+          `documented jQuery 4 trim patch (exactly ` +
+          `${MINICOLORS_JQUERY4_TRIM_PATCH.occurrences}x ` +
+          `"${MINICOLORS_JQUERY4_TRIM_PATCH.stock}" → ` +
+          `"${MINICOLORS_JQUERY4_TRIM_PATCH.patched}") — refresh from npm ` +
+          `and re-apply the patch`,
+      ).toBe(true);
+    }
+  });
+
+  it("calendarTwo editor MiniColors payload bytes carry the upstream MIT banner", () => {
+    for (const { payload, versionRe } of MINICOLORS_PAYLOADS) {
+      const content = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
+      expect(content, `${payload} version banner mismatch`).toMatch(versionRe);
+      expect(content).toMatch(/opensource\.org\/licenses\/MIT/);
+      // The fork's prepended Percussion header is dropped (upstream banner
+      // restored, same precedent as the superfish/qTip/lightbox slices).
+      expect(content).not.toContain("Copyright 1999-2023 Percussion");
+    }
+    // The editor stylesheet twin keeps the stock data-URI sprite (no
+    // jquery.minicolors.png ships in the payload), so no png is required.
+    for (const { payload } of MINICOLORS_CSS_PAYLOADS) {
+      const css = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
+      expect(css).toContain("data:image/png;base64,");
+      expect(
+        fs.existsSync(
+          path.join(
+            REPO_ROOT,
+            "modules",
+            "perc-packages",
+            "src",
+            "main",
+            "resources",
+            "Packages",
+            "perc.widget.calendar",
+            "SupportFile-rx_resources",
+            "widgets",
+            "percCalendarTwo",
+            "css",
+            "jquery.minicolors.png",
+          ),
+        ),
+        "unexpected jquery.minicolors.png — the rebased CSS inlines the sprite",
+      ).toBe(false);
+    }
+  });
+
+  it("frontend package.json tracks the @claviska/jquery-minicolors exact pin (npm audit visible)", () => {
+    const manifest = JSON.parse(
+      fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
+    );
+    // Exact pin (not a caret): the payloads are the 2.2.4 dist plus the
+    // documented jQuery 4 trim patch, and 2.2.4 is the closest published
+    // ancestor of the retired vendored cut (the registry's unscoped 2.1.10
+    // lacks the swatches/keywords surface the editor consumes). Dependabot proposes 2.2.5+ through the
+    // normal update flow; the 2.2.4 -> 2.3.6 delta (removed 7-swatch cap,
+    // named swatches, dropped data-URI sprite) needs its own editor-parity
+    // slice when taken.
+    expect(manifest.dependencies["@claviska/jquery-minicolors"]).toBe("2.2.4");
+    const installed = JSON.parse(
+      fs.readFileSync(
+        path.join(
+          NODE_MODULES,
+          "@claviska",
+          "jquery-minicolors",
+          "package.json",
+        ),
+        "utf8",
+      ),
+    );
+    expect(installed.version).toBe("2.2.4");
+    expect(installed.license).toBe("MIT");
+  });
+
+  it.each(MINICOLORS_PAYLOADS.map(({ payload }) => payload))(
+    "editor copy %s exposes the swatches/keywords option surface",
+    (payloadRelPath) => {
+      const $ = loadMinicolorsPayloadAsJqueryPlugin(payloadRelPath);
+      expect(typeof $.fn.minicolors).toBe("function");
+      // The percCalendarTwo.js editor surface: control/format/keywords /
+      // letterCase/position/swatches/change/theme all present in defaults.
+      for (const key of [
+        "control",
+        "format",
+        "keywords",
+        "letterCase",
+        "position",
+        "swatches",
+        "change",
+        "theme",
+      ]) {
+        expect(
+          Object.prototype.hasOwnProperty.call($.minicolors.defaults, key),
+          `$.minicolors.defaults missing editor-consumed option: ${key}`,
+        ).toBe(true);
+      }
+      document.body.innerHTML = "";
+    },
+  );
+
+  it.each(MINICOLORS_PAYLOADS.map(({ payload }) => payload))(
+    "editor copy %s renders swatches and persists the picked color",
+    (payloadRelPath) => {
+      const $ = loadMinicolorsPayloadAsJqueryPlugin(payloadRelPath);
+      renderCalendarColorInput(document, "perc-google-calendar-background-color", "#3a87ad");
+      const changes = [];
+      // Mirrors the first percCalendarTwo.js init (data-* driven options
+      // with swatches + change callback persisting the picked color).
+      const element = $("#perc-google-calendar-background-color").minicolors({
+        control: "hue",
+        defaultValue: "",
+        format: "hex",
+        keywords: "",
+        inline: false,
+        letterCase: "lowercase",
+        opacity: false,
+        position: "top left",
+        swatches: ["#ff0000", "#00ff00", "#0000ff"],
+        change: function (hex) {
+          changes.push(hex);
+        },
+        theme: "default",
+      });
+      expect(element.length).toBe(1);
+      expect(element.minicolors("value")).toBe("#3a87ad");
+      const swatchNodes = document.querySelectorAll(
+        ".minicolors-swatches .minicolors-swatch",
+      );
+      expect(swatchNodes.length).toBe(3);
+      // Picking a swatch writes the input value and fires change (the
+      // editor persists the value into the widget JSON on save).
+      swatchNodes[1].click();
+      expect(
+        document.getElementById("perc-google-calendar-background-color").value,
+      ).toBe("#00ff00");
+      expect(changes).toContain("#00ff00");
+      // Programmatic set round-trips through the value getter.
+      element.minicolors("value", "#ff0000");
+      expect(element.minicolors("value")).toBe("#ff0000");
+      document.body.innerHTML = "";
+    },
+  );
+
+  it.each(MINICOLORS_PAYLOADS.map(({ payload }) => payload))(
+    "editor copy %s initializes with non-empty keywords under jQuery 4 (native trim patch)",
+    (payloadRelPath) => {
+      const $ = loadMinicolorsPayloadAsJqueryPlugin(payloadRelPath);
+      // Simulate the production pages: CMS jQuery 4 WITHOUT jquery-migrate
+      // (an earlier block in this file loads migrate, which restores
+      // $.trim — delete it so this test proves the payload survives its
+      // absence; stock 2.2.4 throws `$.trim is not a function` here).
+      delete $.trim;
+      expect(typeof $.trim).toBe("undefined");
+      renderCalendarColorInput(document, "perc-keywords-input", "transparent");
+      const element = $("#perc-keywords-input").minicolors({
+        control: "hue",
+        defaultValue: "",
+        format: "hex",
+        keywords: "transparent, initial",
+        inline: false,
+        letterCase: "lowercase",
+        opacity: false,
+        position: "top left",
+        swatches: [],
+        change: function () {},
+        theme: "default",
+      });
+      expect(element.length).toBe(1);
+      // Both patched lines executed: init parsed the keywords (keyword
+      // value kept instead of falling back to defaultValue)...
+      expect(element.minicolors("value")).toBe("transparent");
+      // ...and the blur/updateFromInput path re-parses them without
+      // throwing (`$.trim is not a function` on stock 2.2.4).
+      $("#perc-keywords-input").trigger("blur");
+      expect(element.minicolors("value")).toBe("transparent");
+      document.body.innerHTML = "";
+    },
+  );
 });
