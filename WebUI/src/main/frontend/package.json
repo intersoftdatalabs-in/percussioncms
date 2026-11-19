@@ -15,7 +15,7 @@
     "lint": "eslint ../ts"
   },
   "dependencies": {
-    "@claviska/jquery-minicolors": "2.2.4",
+    "@claviska/jquery-minicolors": "2.3.6",
     "@fortawesome/fontawesome-free": "5.15.4",
     "@mkd/language": "file:../../../vendor/mkd-language",
     "@popperjs/core": "^2.11.8",
