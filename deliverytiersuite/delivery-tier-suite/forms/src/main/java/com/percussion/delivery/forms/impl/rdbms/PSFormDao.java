@@ -29,16 +29,20 @@ import java.util.List;
 import java.util.Map;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Session;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * JPA-backed implementation of {@link IPSFormDao} that lives in the RDBMS micro-service. All data
- * access runs inside a single Spring-managed read-committed transaction so that reads observe a
- * consistent view of the {@code PSFormData} table.
+ * access runs inside a single Spring-managed transaction so that reads observe a consistent view
+ * of the {@code PSFormData} table.
+ *
+ * <p>Issue #6670 (parent #6237): no custom isolation level here. The shipped DTS
+ * {@code JpaTransactionManager} uses the default JPA dialect, which refuses to begin a
+ * transaction with a custom isolation level ({@code InvalidIsolationLevelException}, same root
+ * cause as #6343 / #6375). Rely on the datasource default instead.
  */
-@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+@Transactional(propagation = Propagation.REQUIRED)
 public class PSFormDao implements IPSFormDao {
 
   /**

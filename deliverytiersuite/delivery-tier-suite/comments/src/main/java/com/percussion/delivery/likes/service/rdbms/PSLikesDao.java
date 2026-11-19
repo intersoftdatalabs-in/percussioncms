@@ -32,17 +32,21 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
  * RDBMS-backed implementation of {@link IPSLikesDao}. Performs all likes persistence through
  * Hibernate against the delivery tier database.
+ *
+ * <p>Issue #6670 (parent #6237): no custom isolation level here. The shipped DTS
+ * {@code JpaTransactionManager} uses the default JPA dialect, which refuses to begin a
+ * transaction with a custom isolation level ({@code InvalidIsolationLevelException}, same root
+ * cause as #6343 / #6375). Rely on the datasource default instead.
  */
 @Repository
 @Scope("singleton")
-@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+@Transactional(propagation = Propagation.REQUIRED)
 public class PSLikesDao implements IPSLikesDao {
 
   /** Hibernate session factory used by this DAO. */
