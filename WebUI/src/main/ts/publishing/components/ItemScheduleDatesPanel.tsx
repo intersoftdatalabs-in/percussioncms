@@ -96,7 +96,7 @@ function mergeRows(
 }
 
 /** Which batch op left failures behind for the retry button. */
-type ScheduleFailedOp = "save" | "clear";
+type ScheduleFailedOp = "save" | "clear" | "load";
 
 export interface ItemScheduleDatesPanelProps {
   itemId?: string;
@@ -164,33 +164,7 @@ export function ItemScheduleDatesPanel({
     setConfirmingClear(false);
     setLoadedId(ids[0]);
     try {
-      const batch = await loadScheduleDatesBatch(ids);
-      const first = batch.loaded[0];
-      if (first) {
-        setStartLocal(serverDateToDatetimeLocal(first.dates.startDate));
-        setEndLocal(serverDateToDatetimeLocal(first.dates.endDate));
-        setComments(first.dates.comments ?? "");
-      } else {
-        setStartLocal("");
-        setEndLocal("");
-        setComments("");
-      }
-      setReport(
-        rowsFromReport(
-          batch.loaded.map((row) => row.id),
-          batch.failures,
-          message(MSG.PUBLISH_SCHEDULE_BATCH_ITEM_OK),
-        ),
-      );
-      if (batch.failures.length > 0) {
-        setError(
-          fill(message(MSG.PUBLISH_SCHEDULE_BATCH_LOAD_PARTIAL), {
-            loaded: String(batch.loaded.length),
-            total: String(batch.total),
-            detail: formatScheduleBatchDetail(batch.failures),
-          }),
-        );
-      }
+      await loadBatch(ids);
     } finally {
       setLoading(false);
     }
@@ -316,6 +290,69 @@ export function ItemScheduleDatesPanel({
     }
   }
 
+  /**
+   * Load every id; a per-item load failure never stops the rest.
+   *
+   * The initial lookup fills the edit form from the first loaded item.
+   * Retries pass `{ fillForm: false }` so they only merge report rows and
+   * refresh failed/success state — never clobbering the user's in-progress
+   * form values or the currently loaded id.
+   */
+  async function loadBatch(
+    ids: string[],
+    options?: { fillForm?: boolean },
+  ): Promise<void> {
+    const fillForm = options?.fillForm ?? true;
+    setError(null);
+    setSuccess(null);
+    setReportTotal(ids.length);
+    const batch = await loadScheduleDatesBatch(ids);
+    if (fillForm) {
+      const first = batch.loaded[0];
+      if (first) {
+        setStartLocal(serverDateToDatetimeLocal(first.dates.startDate));
+        setEndLocal(serverDateToDatetimeLocal(first.dates.endDate));
+        setComments(first.dates.comments ?? "");
+      } else {
+        setStartLocal("");
+        setEndLocal("");
+        setComments("");
+      }
+    }
+    setReport((previous) =>
+      mergeRows(
+        previous,
+        batch.loaded.map((row) => row.id),
+        batch.failures,
+        message(MSG.PUBLISH_SCHEDULE_BATCH_ITEM_OK),
+      ),
+    );
+    if (fillForm) {
+      setLoadedId(ids[0]);
+    }
+    setConfirmingClear(false);
+    if (batch.failures.length === 0) {
+      setFailedIds([]);
+      setFailedOp(null);
+      setSuccess(
+        fill(message(MSG.PUBLISH_SCHEDULE_BATCH_LOADED), {
+          total: String(batch.total),
+        }),
+      );
+    } else {
+      setFailedIds(batch.failures.map((failure) => failure.id));
+      setFailedOp("load");
+      setSuccess(null);
+      setError(
+        fill(message(MSG.PUBLISH_SCHEDULE_BATCH_LOAD_PARTIAL), {
+          loaded: String(batch.loaded.length),
+          total: String(batch.total),
+          detail: formatScheduleBatchDetail(batch.failures),
+        }),
+      );
+    }
+  }
+
   async function saveBatch(
     ids: string[],
     dates: { startDate: string; endDate: string; comments: string },
@@ -424,6 +461,15 @@ export function ItemScheduleDatesPanel({
   async function onRetry(): Promise<void> {
     const ids = failedIds;
     if (ids.length === 0 || failedOp === null) {
+      return;
+    }
+    if (failedOp === "load") {
+      setLoading(true);
+      try {
+        await loadBatch(ids, { fillForm: false });
+      } finally {
+        setLoading(false);
+      }
       return;
     }
     if (failedOp === "clear") {
@@ -671,7 +717,7 @@ export function ItemScheduleDatesPanel({
           </form>
         </div>
       )}
-      {failedIds.length > 0 && !saving && !clearing && (
+      {failedIds.length > 0 && !loading && !saving && !clearing && (
         <button
           type="button"
           style={{ ...primaryButtonStyle, marginTop: 12 }}
