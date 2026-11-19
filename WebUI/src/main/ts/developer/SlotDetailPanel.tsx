@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { extractRestErrorMessage, isApiError } from "../api/client";
 import {
@@ -232,6 +232,10 @@ export function SlotDetailPanel({
   const descriptionInflight = useRef(false);
   const labelInflight = useRef(false);
   const heldLockRef = useRef(false);
+  const labelEditButtonRef = useRef<HTMLButtonElement | null>(null);
+  const descriptionEditButtonRef = useRef<HTMLButtonElement | null>(null);
+  const labelWasEditingRef = useRef(false);
+  const descriptionWasEditingRef = useRef(false);
 
   useEffect(() => {
     if (idOrName == null) {
@@ -284,6 +288,31 @@ export function SlotDetailPanel({
       cancelled = true;
     };
   }, [idOrName]);
+
+  // #6733: when an inline set-label / set-description editor closes (Escape,
+  // Cancel, or save), the input unmounts and focus would fall back to
+  // <body>. Return focus to the invoking edit button so keyboard and
+  // screen-reader users keep their place on the page. Layout effect (same
+  // as useDialogEscape) so focus lands before paint with no body flash.
+  useLayoutEffect(() => {
+    if (labelWasEditingRef.current && !labelEditing) {
+      const btn = labelEditButtonRef.current;
+      if (btn && !btn.disabled && typeof btn.focus === "function") {
+        btn.focus();
+      }
+    }
+    labelWasEditingRef.current = labelEditing;
+  }, [labelEditing]);
+
+  useLayoutEffect(() => {
+    if (descriptionWasEditingRef.current && !descriptionEditing) {
+      const btn = descriptionEditButtonRef.current;
+      if (btn && !btn.disabled && typeof btn.focus === "function") {
+        btn.focus();
+      }
+    }
+    descriptionWasEditingRef.current = descriptionEditing;
+  }, [descriptionEditing]);
 
   const writeKey = createdKey || idOrName || name.trim();
   const initialAssocs = cloneAssociations(detail?.associations);
@@ -932,7 +961,11 @@ export function SlotDetailPanel({
                   </div>
                 ) : null}
                 {labelNotice ? (
-                  <div data-testid="developer-slot-set-label-notice" style={{ color: "#276749" }}>
+                  <div
+                    role="status"
+                    data-testid="developer-slot-set-label-notice"
+                    style={{ color: "#276749" }}
+                  >
                     {labelNotice}
                   </div>
                 ) : null}
@@ -987,6 +1020,7 @@ export function SlotDetailPanel({
                 ) : (
                   <button
                     type="button"
+                    ref={labelEditButtonRef}
                     data-testid="developer-slot-set-label-edit"
                     aria-label={SLOT_LABEL_MSG.ACTION}
                     disabled={busy || labelBusy || descriptionEditing || descriptionBusy}
@@ -1045,6 +1079,7 @@ export function SlotDetailPanel({
                 ) : null}
                 {descriptionNotice ? (
                   <div
+                    role="status"
                     data-testid="developer-slot-set-description-notice"
                     style={{ color: "#276749" }}
                   >
@@ -1102,6 +1137,7 @@ export function SlotDetailPanel({
                 ) : (
                   <button
                     type="button"
+                    ref={descriptionEditButtonRef}
                     data-testid="developer-slot-set-description-edit"
                     aria-label={SLOT_DESC_MSG.ACTION}
                     disabled={busy || descriptionBusy || labelEditing || labelBusy}

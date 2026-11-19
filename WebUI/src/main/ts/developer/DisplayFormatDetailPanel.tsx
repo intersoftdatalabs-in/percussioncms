@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { isApiError } from "../api/client";
 import { listCommunities } from "../api/developer/assemblyApi";
@@ -164,6 +164,10 @@ export function DisplayFormatDetailPanel({
   const inflight = useRef(false);
   const descriptionInflight = useRef(false);
   const labelInflight = useRef(false);
+  const labelEditButtonRef = useRef<HTMLButtonElement | null>(null);
+  const descriptionEditButtonRef = useRef<HTMLButtonElement | null>(null);
+  const labelWasEditingRef = useRef(false);
+  const descriptionWasEditingRef = useRef(false);
 
   useEffect(() => {
     if (idOrName == null) {
@@ -227,6 +231,31 @@ export function DisplayFormatDetailPanel({
     setSortSource(SYS_TITLE_SOURCE);
     setAddSource(catalogFieldsNotInUse(seeded)[0]?.source || "");
   }, [idOrName]);
+
+  // #6733: when an inline set-label / set-description editor closes (Escape,
+  // Cancel, or save), the input unmounts and focus would fall back to
+  // <body>. Return focus to the invoking edit button so keyboard and
+  // screen-reader users keep their place on the page. Layout effect (same
+  // as useDialogEscape) so focus lands before paint with no body flash.
+  useLayoutEffect(() => {
+    if (labelWasEditingRef.current && !labelEditing) {
+      const btn = labelEditButtonRef.current;
+      if (btn && !btn.disabled && typeof btn.focus === "function") {
+        btn.focus();
+      }
+    }
+    labelWasEditingRef.current = labelEditing;
+  }, [labelEditing]);
+
+  useLayoutEffect(() => {
+    if (descriptionWasEditingRef.current && !descriptionEditing) {
+      const btn = descriptionEditButtonRef.current;
+      if (btn && !btn.disabled && typeof btn.focus === "function") {
+        btn.focus();
+      }
+    }
+    descriptionWasEditingRef.current = descriptionEditing;
+  }, [descriptionEditing]);
 
   const loadedName = normalizeDisplayFormatName(detail?.name || detail?.internalName || idOrName || "");
   const loadedLabel = detail?.label || detail?.displayName || "";
@@ -934,7 +963,7 @@ export function DisplayFormatDetailPanel({
                 </div>
               ) : null}
               {labelNotice ? (
-                <div data-testid="developer-df-set-label-notice" style={{ color: "#276749" }}>
+                <div role="status" data-testid="developer-df-set-label-notice" style={{ color: "#276749" }}>
                   {labelNotice}
                 </div>
               ) : null}
@@ -989,6 +1018,7 @@ export function DisplayFormatDetailPanel({
               ) : (
                 <button
                   type="button"
+                  ref={labelEditButtonRef}
                   data-testid="developer-df-set-label-edit"
                   aria-label={DF_LABEL_MSG.ACTION}
                   disabled={busy || labelBusy}
@@ -1035,6 +1065,7 @@ export function DisplayFormatDetailPanel({
               ) : null}
               {descriptionNotice ? (
                 <div
+                  role="status"
                   data-testid="developer-df-set-description-notice"
                   style={{ color: "#276749" }}
                 >
@@ -1092,6 +1123,7 @@ export function DisplayFormatDetailPanel({
               ) : (
                 <button
                   type="button"
+                  ref={descriptionEditButtonRef}
                   data-testid="developer-df-set-description-edit"
                   aria-label={DF_DESC_MSG.ACTION}
                   disabled={busy || descriptionBusy}

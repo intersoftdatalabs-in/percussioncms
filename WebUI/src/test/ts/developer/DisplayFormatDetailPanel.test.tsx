@@ -1328,4 +1328,155 @@ describe("DisplayFormatDetailPanel", () => {
       "QA format",
     );
   });
+
+  it("returns focus to the label edit button after Escape (#6733)", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa6630fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [{ source: "sys_title", displayName: "Title", position: 0 }],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    render(<DisplayFormatDetailPanel idOrName="qa6630fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-df-set-label-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-df-set-label-editor")).toBeNull();
+    expect(screen.getByTestId("developer-df-set-label-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the label edit button after Cancel (#6733)", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa6630fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [{ source: "sys_title", displayName: "Title", position: 0 }],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    render(<DisplayFormatDetailPanel idOrName="qa6630fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-label-cancel"));
+    expect(updateDisplayFormat).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-df-set-label-editor")).toBeNull();
+    expect(screen.getByTestId("developer-df-set-label-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the label edit button after save (#6733)", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa6630fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [{ source: "sys_title", displayName: "Title", position: 0 }],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockResolvedValue({ ...userDetail, label: "note", displayName: "note" });
+    render(<DisplayFormatDetailPanel idOrName="qa6630fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-label-input"), {
+      target: { value: " note " },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-label-save"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-df-set-label-editor")).toBeNull();
+    });
+    expect(updateDisplayFormat).toHaveBeenCalledWith("qa6630fmt", { label: "note" });
+    expect(screen.getByTestId("developer-df-set-label-edit")).toHaveFocus();
+    expect(screen.getByTestId("developer-df-set-label-notice")).toHaveAttribute("role", "status");
+  });
+
+  it("returns focus to the description edit button after Escape (#6733)", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa6630fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [{ source: "sys_title", displayName: "Title", position: 0 }],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    render(<DisplayFormatDetailPanel idOrName="qa6630fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-df-set-description-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-df-set-description-editor")).toBeNull();
+    expect(screen.getByTestId("developer-df-set-description-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the description edit button after Cancel (#6733)", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa6630fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [{ source: "sys_title", displayName: "Title", position: 0 }],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    render(<DisplayFormatDetailPanel idOrName="qa6630fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-description-cancel"));
+    expect(updateDisplayFormat).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-df-set-description-editor")).toBeNull();
+    expect(screen.getByTestId("developer-df-set-description-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the description edit button after save (#6733)", async () => {
+    const userDetail = {
+      ...sampleDetail,
+      name: "qa6630fmt",
+      label: "QA format",
+      description: "Folder list",
+      columns: [{ source: "sys_title", displayName: "Title", position: 0 }],
+    };
+    getDisplayFormatDetail.mockResolvedValue(userDetail);
+    updateDisplayFormat.mockResolvedValue({ ...userDetail, description: "note" });
+    render(<DisplayFormatDetailPanel idOrName="qa6630fmt" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-df-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-df-set-description-input"), {
+      target: { value: " note " },
+    });
+    fireEvent.click(screen.getByTestId("developer-df-set-description-save"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-df-set-description-editor")).toBeNull();
+    });
+    expect(updateDisplayFormat).toHaveBeenCalledWith("qa6630fmt", { description: "note" });
+    expect(screen.getByTestId("developer-df-set-description-edit")).toHaveFocus();
+    expect(screen.getByTestId("developer-df-set-description-notice")).toHaveAttribute(
+      "role",
+      "status",
+    );
+  });
 });
