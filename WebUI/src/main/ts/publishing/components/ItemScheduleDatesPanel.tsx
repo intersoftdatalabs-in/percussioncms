@@ -290,21 +290,34 @@ export function ItemScheduleDatesPanel({
     }
   }
 
-  /** Load every id; a per-item load failure never stops the rest. */
-  async function loadBatch(ids: string[]): Promise<void> {
+  /**
+   * Load every id; a per-item load failure never stops the rest.
+   *
+   * The initial lookup fills the edit form from the first loaded item.
+   * Retries pass `{ fillForm: false }` so they only merge report rows and
+   * refresh failed/success state — never clobbering the user's in-progress
+   * form values or the currently loaded id.
+   */
+  async function loadBatch(
+    ids: string[],
+    options?: { fillForm?: boolean },
+  ): Promise<void> {
+    const fillForm = options?.fillForm ?? true;
     setError(null);
     setSuccess(null);
     setReportTotal(ids.length);
     const batch = await loadScheduleDatesBatch(ids);
-    const first = batch.loaded[0];
-    if (first) {
-      setStartLocal(serverDateToDatetimeLocal(first.dates.startDate));
-      setEndLocal(serverDateToDatetimeLocal(first.dates.endDate));
-      setComments(first.dates.comments ?? "");
-    } else {
-      setStartLocal("");
-      setEndLocal("");
-      setComments("");
+    if (fillForm) {
+      const first = batch.loaded[0];
+      if (first) {
+        setStartLocal(serverDateToDatetimeLocal(first.dates.startDate));
+        setEndLocal(serverDateToDatetimeLocal(first.dates.endDate));
+        setComments(first.dates.comments ?? "");
+      } else {
+        setStartLocal("");
+        setEndLocal("");
+        setComments("");
+      }
     }
     setReport((previous) =>
       mergeRows(
@@ -314,7 +327,9 @@ export function ItemScheduleDatesPanel({
         message(MSG.PUBLISH_SCHEDULE_BATCH_ITEM_OK),
       ),
     );
-    setLoadedId(ids[0]);
+    if (fillForm) {
+      setLoadedId(ids[0]);
+    }
     setConfirmingClear(false);
     if (batch.failures.length === 0) {
       setFailedIds([]);
@@ -451,7 +466,7 @@ export function ItemScheduleDatesPanel({
     if (failedOp === "load") {
       setLoading(true);
       try {
-        await loadBatch(ids);
+        await loadBatch(ids, { fillForm: false });
       } finally {
         setLoading(false);
       }

@@ -683,6 +683,52 @@ describe("ItemScheduleDatesPanel", () => {
     ).toMatch(/saved/i);
   });
 
+  it("retrying a partial batch load keeps the user's form values", async () => {
+    let failedOnce = false;
+    fetchDates.mockImplementation(async (id: string) => {
+      if (id === "43" && !failedOnce) {
+        failedOnce = true;
+        throw { status: 404, statusText: "Not Found", body: {} };
+      }
+      return {
+        itemId: id,
+        startDate: "09/18/2026 09:00 am",
+        endDate: "",
+        comments: id === "42" ? "from-42" : "from-43",
+      };
+    });
+    render(<ItemScheduleDatesPanel />);
+    fireEvent.change(screen.getByTestId("item-schedule-id"), {
+      target: { value: "42, 43" },
+    });
+    fireEvent.click(screen.getByTestId("item-schedule-load"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-error").textContent).toMatch(
+        /Loaded 1 of 2/i,
+      );
+    });
+    expect(screen.getByTestId("item-schedule-comments")).toHaveValue("from-42");
+    // The user edits the form before retrying the failed item.
+    fireEvent.change(screen.getByTestId("item-schedule-comments"), {
+      target: { value: "user-edit" },
+    });
+    expect(screen.getByTestId("item-schedule-retry")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("item-schedule-retry"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-success").textContent).toMatch(
+        /loaded for all 1 items/i,
+      );
+    });
+    expect(screen.queryByTestId("item-schedule-retry")).toBeNull();
+    // The retried item's stored dates must not clobber the form.
+    expect(screen.getByTestId("item-schedule-comments")).toHaveValue(
+      "user-edit",
+    );
+    expect(screen.getByTestId("item-schedule-start")).toHaveValue(
+      "2026-09-18T09:00",
+    );
+  });
+
   it("a full batch load reports success with no retry", async () => {
     fetchDates.mockImplementation(async (id: string) => ({
       itemId: id,
