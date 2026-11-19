@@ -26,32 +26,96 @@
     } else if ($(".perc-google-calendar-readonly").length > 0) {
       $.googleCalendarSetup().renderReadOnly();
     }
+  });
 
-    $(
-      "#perc-google-calendar-background-color, #perc-google-calendar-text-color",
-    ).minicolors({
-      control: $(this).attr("data-control") || "hue",
-      defaultValue: $(this).attr("data-defaultValue") || "",
-      format: $(this).attr("data-format") || "hex",
-      keywords: $(this).attr("data-keywords") || "",
-      inline: $(this).attr("data-inline") === "true",
-      letterCase: $(this).attr("data-letterCase") || "lowercase",
-      opacity: $(this).attr("data-opacity"),
-      position: $(this).attr("data-position") || "top left",
-      swatches: $(this).attr("data-swatches")
-        ? $(this).attr("data-swatches").split("|")
+  /**
+   * Builds the MiniColors options for one calendar color input from that
+   * input's own data-* attributes (issue #6723). The pre-#6723 init read
+   * the attributes off $(document) inside the ready handler, so every
+   * picker silently fell back to defaults.
+   * @param {jQuery} $input the color input to read options from.
+   * @returns {Object} the MiniColors option shape the editor consumes.
+   */
+  function calendarColorPickerOptions($input) {
+    return {
+      control: $input.attr("data-control") || "hue",
+      defaultValue: $input.attr("data-defaultValue") || "",
+      format: $input.attr("data-format") || "hex",
+      keywords: $input.attr("data-keywords") || "",
+      inline: $input.attr("data-inline") === "true",
+      letterCase: $input.attr("data-letterCase") || "lowercase",
+      opacity: $input.attr("data-opacity"),
+      position: $input.attr("data-position") || "top left",
+      swatches: $input.attr("data-swatches")
+        ? $input.attr("data-swatches").split("|")
         : [],
       change: function (hex, opacity) {
-        var log;
-        try {
-          log = hex ? hex : "transparent";
-          if (opacity) log += ", " + opacity;
+        // Never let picker logging break the editor: console may be
+        // absent on published pages, so guard instead of try/catch
+        // (issue #6723; mkd-code-review tests.empty-catch).
+        var log = hex ? hex : "transparent";
+        if (opacity) log += ", " + opacity;
+        if (typeof console !== "undefined" && typeof console.log === "function") {
           console.log(log);
-        } catch (e) {}
+        }
       },
       theme: "default",
-    });
-  });
+    };
+  }
+
+  /**
+   * Initializes MiniColors pickers for every calendar color input in scope.
+   * Scoped by class (never by id): the template row carries no ids, so each
+   * cloned row owns an independent picker (issue #6723).
+   * @param {jQuery} $container element containing editor rows to initialize.
+   */
+  function initCalendarColorPickers($container) {
+    // The container may be the editor table (init all data rows) or a
+    // single fresh row (init just that row): .find() only sees
+    // descendants, so include the container itself when it is an input.
+    // The hidden template row is always skipped — it must stay a bare
+    // template with no picker state for clones to inherit.
+    var $inputs = $container
+      .find(
+        ".perc-google-calendar-background-color," +
+          " .perc-google-calendar-text-color",
+      )
+      .add(
+        $container.filter(
+          ".perc-google-calendar-background-color," +
+            " .perc-google-calendar-text-color",
+        ),
+      );
+    $inputs
+      .filter(function () {
+        return $(this).closest("tr.hide").length === 0;
+      })
+      .each(function () {
+        var $input = $(this);
+        if ($input.data("minicolors-initialized")) {
+          return;
+        }
+        $input.minicolors(calendarColorPickerOptions($input));
+      });
+  }
+
+  /**
+   * Clones the hidden template row into a fresh editor row (issue #6723).
+   * Cloned without data/events so no MiniColors state leaks from the
+   * template; ids are stripped defensively so added rows can never
+   * duplicate an element id even if the markup regresses.
+   * @param {jQuery} $table the editor table carrying the tr.hide template.
+   * @returns {jQuery} the unattached fresh row.
+   */
+  function cloneCalendarRow($table) {
+    var $clone = $table
+      .find("tr.hide")
+      .first()
+      .clone(false)
+      .removeClass("hide table-line");
+    $clone.removeAttr("id").find("[id]").removeAttr("id");
+    return $clone;
+  }
 
   $.googleCalendarSetup = function () {
     var googleCalendarSetupApi = {
@@ -90,10 +154,7 @@
       if (data != null) {
         var $table = $("#perc-google-calendar-setup-editor");
         for (var i = 0; i < data.config.length; i++) {
-          var $clone = $table
-            .find("tr.hide")
-            .clone(true)
-            .removeClass("hide table-line");
+          var $clone = cloneCalendarRow($table);
 
           $clone
             .find(".perc-google-calendar-name")
@@ -113,6 +174,9 @@
 
           $table.find("table").append($clone);
         }
+        // Values are set before init so each restored row's picker opens
+        // on that row's saved color (issue #6723).
+        initCalendarColorPickers($table);
       }
       _attachEvents();
     }
@@ -130,24 +194,27 @@
       );
 
       //Widget behavioral events
-      $(".perc-table-remove").on("click", function () {
+      // Row buttons use delegation on the table: rows added later via the
+      // + button own no copied handlers (clone(false), issue #6723), so
+      // direct binding would leave added rows without remove/up/down.
+      $table.on("click", ".perc-table-remove", function () {
         $(this).parents("tr").detach();
       });
 
       $(".perc-table-add").on("click", function () {
-        var $clone = $table
-          .find("tr.hide")
-          .clone(true)
-          .removeClass("hide table-line");
+        var $clone = cloneCalendarRow($table);
         $table.find("table").append($clone);
 
-        $(
-          "#perc-google-calendar-background-color, #perc-google-calendar-text-color",
-        ).minicolors({
-          hide: function () {
-            console.log("Hide event triggered!");
-          },
-        });
+        // Each added row gets an independent working picker (issue #6723).
+        initCalendarColorPickers($clone);
+        // Keyboard polish: land in the new row's first field. The native
+        // method (not jQuery .trigger("focus")) transfers focus reliably
+        // when called from inside a click dispatch.
+        var $nameInput = $clone.find(".perc-google-calendar-name");
+        var nameInput = $nameInput.get(0);
+        if (nameInput && typeof nameInput.focus === "function") {
+          nameInput.focus();
+        }
       });
 
       $(".perc-toggle-help").on("click", function () {
@@ -166,13 +233,13 @@
         }
       });
 
-      $(".perc-table-up").on("click", function () {
+      $table.on("click", ".perc-table-up", function () {
         var $row = $(this).parents("tr");
         if ($row.index() === 1) return; // Don't go above the header
         $row.prev().before($row.get(0));
       });
 
-      $(".perc-table-down").on("click", function () {
+      $table.on("click", ".perc-table-down", function () {
         var $row = $(this).parents("tr");
         $row.next().after($row.get(0));
       });

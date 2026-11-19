@@ -720,6 +720,30 @@
 													</PSXDeployableObject>
 													<PSXDeployableObject>
 														<PSXDependency autoDep="no" autoExpand="yes"
+															dependencyId="rx_resources/widgets/percCalendarTwo/css/jquery.minicolors.png"
+															dependencyType="Shared"
+															displayName="jquery.minicolors.png" isAssociation="no"
+															isIncluded="yes" objectType="SupportFile"
+															objectTypeName="Support File" supportsIdMapping="no"
+															supportsIdTypes="no" supportsParentId="no"
+															supportsUserDependencies="no">
+															<Dependencies>
+																<PSXDeployableObject>
+																	<PSXDependency autoDep="no"
+																		autoExpand="yes" dependencyId="rx_resources"
+																		dependencyType="System" displayName="rx_resources"
+																		isAssociation="yes" isIncluded="no"
+																		objectType="Application" objectTypeName="Application"
+																		supportsIdMapping="no" supportsIdTypes="no"
+																		supportsParentId="no" supportsUserDependencies="no" />
+																	<RequiredClasses />
+																</PSXDeployableObject>
+															</Dependencies>
+														</PSXDependency>
+														<RequiredClasses />
+													</PSXDeployableObject>
+													<PSXDeployableObject>
+														<PSXDependency autoDep="no" autoExpand="yes"
 															dependencyId="rx_resources/widgets/percCalendarTwo/css/percCalendarTwo.css"
 															dependencyType="Shared" displayName="percCalendarTwo.css"
 															isAssociation="no" isIncluded="yes"
@@ -1047,6 +1071,24 @@
 									<PSXDependency autoDep="no" autoExpand="yes"
 										dependencyId="rx_resources/widgets/percCalendarTwo/css/jquery.minicolors.css"
 										dependencyType="User" displayName="jquery.minicolors.css"
+										isAssociation="no" isIncluded="yes"
+										objectType="sys_UserDependency"
+										objectTypeName="User Dependency" supportsIdMapping="no"
+										supportsIdTypes="no" supportsParentId="no"
+										supportsUserDependencies="no">
+										<Dependencies />
+									</PSXDependency>
+									<RequiredClasses />
+								</PSXDeployableObject>
+							</PSXUserDependency>
+							<PSXUserDependency
+								parentId="sys_UserDependency"
+								parentKey="Custom-sys_UserDependency" parentType="Custom"
+								path="rx_resources/widgets/percCalendarTwo/css/jquery.minicolors.png">
+								<PSXDeployableObject>
+									<PSXDependency autoDep="no" autoExpand="yes"
+										dependencyId="rx_resources/widgets/percCalendarTwo/css/jquery.minicolors.png"
+										dependencyType="User" displayName="jquery.minicolors.png"
 										isAssociation="no" isIncluded="yes"
 										objectType="sys_UserDependency"
 										objectTypeName="User Dependency" supportsIdMapping="no"
