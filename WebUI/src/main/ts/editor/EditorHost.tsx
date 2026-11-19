@@ -157,9 +157,12 @@ import {
   applyRevisionFieldValue,
   canRestoreFromEditor,
   changedCompareFieldNames,
+  collapseWordDiffCell,
+  collapsedWordDiffHiddenWords,
   computeWordDiff,
   describeRestoredCompareField,
   editorRevisionErrorReason,
+  formatCollapsedWordDiffCount,
   formatCompareNavStatus,
   isEmptyRevisionCompare,
   parseRevisionId,
@@ -404,6 +407,86 @@ export function renderWordDiffCell(
             </ins>
           ),
         )}
+    </>
+  );
+}
+
+/**
+ * One compare cell with collapsible unchanged runs (#6672).
+ *
+ * <p>Long unchanged stretches collapse to an ellipsis with the hidden word
+ * count; one toggle per cell expands them again. The open/closed state is
+ * component state keyed by the caller (revision pair + field + side), so a
+ * parent re-render keeps the author's choice while a new compare starts
+ * collapsed. The toggle is a native button ({@code aria-expanded}), and
+ * {@code Escape} collapses an open cell without moving focus — the toggle
+ * itself stays mounted. Cells with no collapsed run render exactly what
+ * {@link renderWordDiffCell} renders, with no toggle.</p>
+ */
+function CollapsibleWordDiffCell({
+  segments,
+  side,
+  fieldName,
+}: {
+  segments: WordDiffSegment[];
+  side: "older" | "newer";
+  fieldName: string;
+}): React.ReactNode {
+  const [expanded, setExpanded] = useState(false);
+  const parts = collapseWordDiffCell(segments, side);
+  const hidden = collapsedWordDiffHiddenWords(parts);
+  const testSide = side === "older" ? "left" : "right";
+  if (hidden === 0) {
+    return renderWordDiffCell(segments, side);
+  }
+  return (
+    <>
+      {expanded ? (
+        renderWordDiffCell(segments, side)
+      ) : (
+        <>
+          {parts.map((part, index) =>
+            part.collapsed ? (
+              <span
+                key={index}
+                aria-hidden="true"
+                className={styles.compareEllipsis}
+              >
+                …
+              </span>
+            ) : part.kind === "same" ? (
+              <span key={index}>{part.text}</span>
+            ) : side === "older" ? (
+              <del key={index} className={styles.compareRemoved}>
+                {part.text}
+              </del>
+            ) : (
+              <ins key={index} className={styles.compareAdded}>
+                {part.text}
+              </ins>
+            ),
+          )}
+        </>
+      )}{" "}
+      <button
+        type="button"
+        className={styles.compareCellToggle}
+        data-testid={`editor-compare-cell-toggle-${testSide}-${fieldName}`}
+        aria-expanded={expanded}
+        onClick={() => setExpanded((open) => !open)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && expanded) {
+            setExpanded(false);
+          }
+        }}
+      >
+        {expanded
+          ? message(EDITOR_MSG.COMPARE_CELL_COLLAPSE)
+          : formatCollapsedWordDiffCount(
+              message(EDITOR_MSG.COMPARE_CELL_EXPAND),
+              hidden,
+            )}
+      </button>
     </>
   );
 }
@@ -6259,7 +6342,12 @@ export function EditorHost({
                                     <span
                                       data-testid={`editor-compare-word-left-${field.name}`}
                                     >
-                                      {renderWordDiffCell(segments, "older")}
+                                      <CollapsibleWordDiffCell
+                                        key={`${compareResult.rev1}:${compareResult.rev2}:${field.name}:older`}
+                                        segments={segments}
+                                        side="older"
+                                        fieldName={field.name}
+                                      />
                                     </span>
                                   ) : (
                                     field.leftValue
@@ -6270,7 +6358,12 @@ export function EditorHost({
                                     <span
                                       data-testid={`editor-compare-word-right-${field.name}`}
                                     >
-                                      {renderWordDiffCell(segments, "newer")}
+                                      <CollapsibleWordDiffCell
+                                        key={`${compareResult.rev1}:${compareResult.rev2}:${field.name}:newer`}
+                                        segments={segments}
+                                        side="newer"
+                                        fieldName={field.name}
+                                      />
                                     </span>
                                   ) : (
                                     field.rightValue

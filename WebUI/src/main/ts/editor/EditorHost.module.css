@@ -137,6 +137,27 @@
   outline-offset: -2px;
 }
 
+/** Collapsed unchanged runs in compare cells (#6672): ellipsis + toggle. */
+.compareEllipsis {
+  color: #64748b;
+  padding: 0 2px;
+}
+
+.compareCellToggle {
+  background: none;
+  border: none;
+  padding: 0 0 0 4px;
+  color: #1d4ed8;
+  text-decoration: underline;
+  cursor: pointer;
+  font: inherit;
+}
+
+.compareCellToggle:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 1px;
+}
+
 .noticeRow {
   display: flex;
   align-items: flex-start;

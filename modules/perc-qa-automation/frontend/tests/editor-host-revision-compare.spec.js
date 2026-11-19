@@ -146,6 +146,33 @@ const COMPARE_TWO_CHANGES = {
   },
 };
 
+// Long unchanged runs around one changed word (#6672): thirty context words
+// on each side keep eight words per edge and hide twenty-two per gap, so each
+// cell toggle names 44 hidden words.
+function longCompareValue(changedWord) {
+  const pad = (from) =>
+    Array.from({ length: 30 }, (_, i) => `word${from + i}`).join(" ");
+  return `${pad(0)} ${changedWord} ${pad(30)}`;
+}
+
+const COMPARE_LONG_BODY = {
+  ItemRevisionCompare: {
+    itemId: "42",
+    rev1: 4,
+    rev2: 5,
+    fields: {
+      ItemRevisionFieldDiff: [
+        {
+          name: "body",
+          leftValue: longCompareValue("old"),
+          rightValue: longCompareValue("new"),
+          changed: true,
+        },
+      ],
+    },
+  },
+};
+
 function consoleOn(page, pageErrors) {
   page.on("pageerror", (err) => pageErrors.push(String(err)));
   page.on("console", (msg) => {
@@ -453,6 +480,54 @@ test.describe("React Content Editor compare two revisions", () => {
       ).toBeFocused();
       await page.screenshot({
         path: "test-results/live-proof-6597-revision-compare-nav.png",
+      });
+      expect(pageErrors, pageErrors.join("\n")).toEqual([]);
+      await expectNoSeriousA11yViolations(page);
+    },
+  );
+
+  test(
+    "long unchanged runs collapse behind a per-cell toggle",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      consoleOn(page, pageErrors);
+      await stubEditor(page, { compareBody: COMPARE_LONG_BODY });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.getByTestId("editor-form")).toBeVisible();
+      await page.getByTestId("editor-restore-toggle").click();
+      await expect(page.getByTestId("editor-compare-left")).toBeVisible();
+      await page.getByTestId("editor-compare-run").click();
+      await expect(page.getByTestId("editor-compare-table")).toBeVisible();
+      const older = page.getByTestId("editor-compare-word-left-body");
+      const toggle = page.getByTestId("editor-compare-cell-toggle-left-body");
+      // Thirty unchanged words per edge keep eight and hide twenty-two each.
+      await expect(toggle).toHaveAttribute("aria-expanded", "false");
+      await expect(toggle).toContainText("Show 44 unchanged words");
+      await expect(older).toContainText("…");
+      await expect(older).not.toContainText("word0");
+      await expect(older).toContainText("word29");
+      await toggle.focus();
+      await expect(toggle).toBeFocused();
+      await page.keyboard.press("Space");
+      await expect(toggle).toHaveAttribute("aria-expanded", "true");
+      await expect(toggle).toContainText("Show less");
+      await expect(older).toContainText("word0");
+      await expect(older.locator("del")).toContainText("old");
+      await page.keyboard.press("Escape");
+      await expect(toggle).toHaveAttribute("aria-expanded", "false");
+      await expect(toggle).toBeFocused();
+      await expect(older).not.toContainText("word0");
+      await expect(toggle).toContainText("Show 44 unchanged words");
+      const newerToggle = page.getByTestId(
+        "editor-compare-cell-toggle-right-body",
+      );
+      await expect(newerToggle).toHaveAttribute("aria-expanded", "false");
+      await expect(
+        page.getByTestId("editor-compare-word-right-body"),
+      ).toContainText("…");
+      await page.getByTestId("editor-compare-table").screenshot({
+        path: "test-results/live-proof-6672-revision-compare-collapse.png",
       });
       expect(pageErrors, pageErrors.join("\n")).toEqual([]);
       await expectNoSeriousA11yViolations(page);
