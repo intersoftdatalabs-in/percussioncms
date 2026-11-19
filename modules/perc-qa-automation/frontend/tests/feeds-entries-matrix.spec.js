@@ -29,7 +29,8 @@
  * validates it against
  * {@code contracts/results-matrix.schema.json}, and writes it to
  * {@code test-results/feeds-entries-matrix.json}. Three-level skip
- * contract: without {@code DTS_BASE_URL} every case skips naming the
+ * contract: without {@code DTS_BASE_URL} (or its {@code DTS_URL} banner
+ * alias) every case skips naming the
  * cell (#6237, green on the CMS-only cell); with a base URL each case
  * probes liveness ({@code HEAD <context>/rss/csrf} — the service lives
  * under its Tomcat deployment context, issue #6342); writer calls
@@ -48,13 +49,14 @@
  * litter rows, #6557).</p>
  *
  * <p>Run (needs the DTS-providing cell):
- * {@code DTS_BASE_URL=http://<dts-cell-origin>
+ * {@code DTS_BASE_URL=http://<dts-cell-origin> (or the
+ * {@code DTS_URL} banner alias)
  * DTS_HTTPS_URL=https://<dts-cell-origin>:<https-port>
  * DTS_DELIVERY_USER=<deliverymanager-user>
  * DTS_DELIVERY_PASSWORD=<deliverymanager-password>
  * npm run test:surface -- --path tests/feeds-entries-matrix.spec.js}
  * from {@code modules/perc-qa-automation/frontend}. Without
- * {@code DTS_BASE_URL} every case skips with the named reason.</p>
+ * {@code DTS_BASE_URL} (or {@code DTS_URL}) every case skips with the named reason.</p>
  */
 
 const fs = require("node:fs");
@@ -66,14 +68,13 @@ const {
   CASE_ENTRIES,
   CASE_UNSEEDED,
   SKIP_NO_DTS_BASE,
-  SKIP_NO_DTS_HTTPS,
   skipServiceDown,
   skipUnprovisioned,
   dtsBaseUrl,
   dtsContextUrl,
   dtsServiceUrl,
   indexerServiceUrl,
-  dtsHttpsBaseUrl,
+  openDtsHttpsContext,
   entryUrl,
   deliveryAuthHeader,
   probeFeed,
@@ -124,11 +125,12 @@ async function readJson(response) {
  * HTTPS writer context for the CONFIDENTIAL writer paths (the
  * descriptor PUT plus the index seed and cleanup): the writers answer
  * plain-HTTP calls with a 302 to the in-cell HTTPS port, so seeding
- * rides the published DTS HTTPS origin (see
- * {@code dtsHttpsBaseUrl}, #6375) through an untrusted-chain-allowed
- * context — the cell TLS identity is shipped/self-signed. Skips by
- * name when the cell publishes no HTTPS origin or the origin never
- * answers (default H2 QA cell, pre-#6375 cell).
+ * rides the published DTS HTTPS origin (shared
+ * {@code tests/helpers/dts-cell.js#openDtsHttpsContext}, #6375) through
+ * an untrusted-chain-allowed context — the cell TLS identity is
+ * shipped/self-signed. Skips by name when the cell publishes no HTTPS
+ * origin or the origin never answers (default H2 QA cell, pre-#6375
+ * cell).
  *
  * <p>The caller disposes the returned context (try/finally) so a
  * passing run leaves no request state behind.</p>
@@ -136,27 +138,9 @@ async function readJson(response) {
  * @returns {Promise<{ httpsBase: URL, httpsRequest: object }>} HTTPS origin + context
  */
 async function httpsWriterContext() {
-  const httpsBase = dtsHttpsBaseUrl();
-  test.skip(!httpsBase, `feeds entries (Feeds): ${SKIP_NO_DTS_HTTPS}`);
-  const httpsRequest = await baseRequest.newContext({
-    ignoreHTTPSErrors: true,
+  return openDtsHttpsContext(test, baseRequest, {
+    label: "feeds entries (Feeds)",
   });
-  let answered = false;
-  try {
-    // maxRedirects: 0 keeps a misconfigured-HTTPS answer as a plain
-    // response so the skip below engages; following the redirect would
-    // throw instead of skipping.
-    await httpsRequest.get(`${httpsBase.origin}/`, { maxRedirects: 0 });
-    answered = true;
-  } catch {
-    answered = false;
-  }
-  test.skip(
-    !answered,
-    `feeds entries (Feeds): ${SKIP_NO_DTS_HTTPS} (no answer at ` +
-      `'${httpsBase.origin}/'; the cell predates the qa-up --with-dts HTTPS publish, #6375)`,
-  );
-  return { httpsBase, httpsRequest };
 }
 
 /**
