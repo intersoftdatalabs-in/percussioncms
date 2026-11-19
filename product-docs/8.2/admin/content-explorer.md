@@ -171,7 +171,14 @@ The **Server actions** toolbar and the item **context menu** use the same catalo
 (`GET /services/actions/find`, plus type and **template** menus for the selected item).
 Toolbar buttons show the familiar **icon + label** affordance: each action renders a
 theme-aware glyph next to its text label (decorative only — accessible names, keyboard
-handling, and empty/error text-first chrome are unchanged).
+handling, and empty/error text-first chrome are unchanged). The **menu bar**
+(Content / View / Help dropdowns) and the row **context menu** share that same icon
+vocabulary, so a server action looks identical in the toolbar and the context menu;
+menu-bar shell commands (search, security, clipboard, refresh, help, site/folder
+operations) each carry their own matching glyph. Unmapped commands and the empty
+context-menu state stay label-only; the empty text uses the same i18n key as the
+toolbar empty text (`perc.ui.explorer@No actions`), so it is locale-resolved
+instead of hardcoded English.
 
 | Action | What happens |
 |--------|----------------|
@@ -1210,8 +1217,8 @@ modern shell mirrors that model element by element:
 
 | DCE chrome | Modern shell |
 |------------|--------------|
-| Main menu bar (Content / View / Help) | **Menu bar** region (`ContentExplorerMenu.xml` mirrored in `menuBarModel.ts`) |
-| Action toolbar | **Reduced actions** + **Server actions** labeled toolbar rows; DCE-familiar icon+label affordance |
+| Main menu bar (Content / View / Help) | **Menu bar** region (`ContentExplorerMenu.xml` mirrored in `menuBarModel.ts`); dropdown items carry matching shell-command glyphs |
+| Action toolbar | **Reduced actions** + **Server actions** labeled toolbar rows; DCE-familiar icon+label affordance, shared with the row context menu |
 | Status bar (selection counts, folder/item counts, operation feedback, user/context readout) | **Status bar** footer under the list |
 | Context-sensitive action menus (`ActionMenuVisibilityContext` / `uiContexts`) | Evaluated client-side before the toolbar and context menu render (see below) |
 

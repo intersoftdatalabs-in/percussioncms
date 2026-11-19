@@ -260,4 +260,108 @@ describe("ContextMenu", () => {
     expect(screen.getByTestId("context-menu-submenu-View")).toBeTruthy();
     expect(screen.getByTestId("context-menu-item-View_Properties")).toBeTruthy();
   });
+
+  it("renders icon+label for mapped actions and label-only for unmapped (#6603)", () => {
+    render(
+      <ContextMenu
+        actions={[
+          ...ACTIONS,
+          {
+            name: "lifecycle_analysis",
+            label: "Lifecycle analysis",
+            sortRank: 30,
+            menuType: "MENUITEM",
+          },
+        ]}
+      />,
+    );
+    // Mapped actions render exactly one decorative, aria-hidden icon and
+    // keep their visible label.
+    for (const action of ACTIONS) {
+      const item = screen.getByTestId(`context-menu-item-${action.name}`);
+      expect(item.textContent).toContain(action.label);
+      const icons = item.querySelectorAll(
+        '[data-testid="context-menu-icon"]',
+      );
+      expect(icons.length, `${action.name} renders one icon`).toBe(1);
+      const svg = icons[0]?.querySelector("svg");
+      expect(svg).toBeTruthy();
+      expect(svg?.getAttribute("aria-hidden")).toBe("true");
+    }
+    // Unmapped actions stay label-only (text-first clarity).
+    const unmapped = screen.getByTestId(
+      "context-menu-item-lifecycle_analysis",
+    );
+    expect(unmapped.textContent).toContain("Lifecycle analysis");
+    expect(
+      unmapped.querySelector('[data-testid="context-menu-icon"]'),
+    ).toBeNull();
+  });
+
+  it("renders icons on cascade pivots and submenu children (#6603)", () => {
+    const nested: MenuAction[] = [
+      {
+        name: "Paste",
+        label: "Paste",
+        sortRank: 0,
+        menuType: "MENU",
+        children: [
+          {
+            name: "Paste_As_Link",
+            label: "Paste as Link",
+            sortRank: 0,
+            menuType: "MENUITEM",
+          },
+        ],
+      },
+    ];
+    render(<ContextMenu actions={nested} />);
+    const pivot = screen.getByTestId("context-menu-item-Paste");
+    expect(
+      pivot.querySelector('[data-testid="context-menu-icon"]'),
+    ).toBeTruthy();
+    fireEvent.click(pivot);
+    const child = screen.getByTestId("context-menu-item-Paste_As_Link");
+    expect(
+      child.querySelector('[data-testid="context-menu-icon"]'),
+    ).toBeTruthy();
+    expect(child.textContent).toContain("Paste as Link");
+  });
+
+  it("empty state stays text-only with no icons (#6603)", () => {
+    render(<ContextMenu actions={[]} />);
+    const empty = screen.getByTestId("context-menu-empty");
+    // Same i18n key as the toolbar empty text (locale-resolved, not
+    // hardcoded English) — and still text-first with no icon.
+    expect(empty.textContent).toMatch(/no actions/i);
+    expect(
+      empty.querySelector('[data-testid="context-menu-icon"]'),
+    ).toBeNull();
+  });
+
+  it("passes the axe-core gate with icons and an open submenu (#6603)", async () => {
+    const { baseElement } = render(
+      <ContextMenu
+        actions={[
+          ...ACTIONS,
+          {
+            name: "Paste",
+            label: "Paste",
+            sortRank: 40,
+            menuType: "MENU",
+            children: [
+              {
+                name: "Paste_As_Link",
+                label: "Paste as Link",
+                sortRank: 0,
+                menuType: "MENUITEM",
+              },
+            ],
+          },
+        ]}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("context-menu-item-Paste"));
+    await renderA11yGate(baseElement);
+  });
 });
