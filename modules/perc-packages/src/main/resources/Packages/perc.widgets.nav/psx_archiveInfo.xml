@@ -76,11 +76,11 @@
 							<PSXUserDependency
 								parentId="sys_UserDependency"
 								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="web_resources/widgets/navBar/js/hoverIntent.js">
+								path="web_resources/widgets/navBar/js/perc-hover-intent.js">
 								<PSXDeployableObject>
 									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="web_resources/widgets/navBar/js/hoverIntent.js"
-										dependencyType="User" displayName="hoverIntent.js"
+										dependencyId="web_resources/widgets/navBar/js/perc-hover-intent.js"
+										dependencyType="User" displayName="perc-hover-intent.js"
 										isAssociation="no" isIncluded="yes"
 										objectType="sys_UserDependency"
 										objectTypeName="User Dependency" supportsIdMapping="no"
@@ -94,11 +94,11 @@
 							<PSXUserDependency
 								parentId="sys_UserDependency"
 								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="web_resources/widgets/navBar/js/hoverIntent.min.js">
+								path="web_resources/widgets/navBar/js/perc-hover-intent.min.js">
 								<PSXDeployableObject>
 									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="web_resources/widgets/navBar/js/hoverIntent.min.js"
-										dependencyType="User" displayName="hoverIntent.min.js"
+										dependencyId="web_resources/widgets/navBar/js/perc-hover-intent.min.js"
+										dependencyType="User" displayName="perc-hover-intent.min.js"
 										isAssociation="no" isIncluded="yes"
 										objectType="sys_UserDependency"
 										objectTypeName="User Dependency" supportsIdMapping="no"

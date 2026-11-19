@@ -25,10 +25,10 @@
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
 	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--web__resources_widgets_navBar_js_hoverIntent-min-js">
+		DependencyKey="sys__UserDependency--web__resources_widgets_navBar_js_perc--hover--intent-min-js">
 		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>e:\DevEnv\Installs\5315Patch\web_resources\widgets\navBar\js\hoverIntent.min.js</RxFile>
-			<ArchiveFile>sys__UserDependency--web__resources_widgets_navBar_js_hoverIntent-min-js\hoverIntent.min.js</ArchiveFile>
+			<RxFile>e:\DevEnv\Installs\5315Patch\web_resources\widgets\navBar\js\perc-hover-intent.min.js</RxFile>
+			<ArchiveFile>sys__UserDependency--web__resources_widgets_navBar_js_perc--hover--intent-min-js\perc-hover-intent.min.js</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
 	<PSXDepFilesIdTypes
@@ -53,10 +53,10 @@
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
 	<PSXDepFilesIdTypes
-		DependencyKey="sys__UserDependency--web__resources_widgets_navBar_js_hoverIntent-js">
+		DependencyKey="sys__UserDependency--web__resources_widgets_navBar_js_perc--hover--intent-js">
 		<PSXDependencyFile fileType="SUPPORT_FILE">
-			<RxFile>e:\DevEnv\Installs\5315Patch\web_resources\widgets\navBar\js\hoverIntent.js</RxFile>
-			<ArchiveFile>sys__UserDependency--web__resources_widgets_navBar_js_hoverIntent-js\hoverIntent.js</ArchiveFile>
+			<RxFile>e:\DevEnv\Installs\5315Patch\web_resources\widgets\navBar\js\perc-hover-intent.js</RxFile>
+			<ArchiveFile>sys__UserDependency--web__resources_widgets_navBar_js_perc--hover--intent-js\perc-hover-intent.js</ArchiveFile>
 		</PSXDependencyFile>
 	</PSXDepFilesIdTypes>
 	<PSXDepFilesIdTypes

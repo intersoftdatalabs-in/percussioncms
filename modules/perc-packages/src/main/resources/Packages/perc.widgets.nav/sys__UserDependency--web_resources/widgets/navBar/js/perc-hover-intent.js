@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,6 +13,30 @@
  *
  * See the License for the specific language governing permissions and
  * limitations under the License.
+ */
+
+/**
+ * Percussion hover-intent shim (first-party $.fn.hoverIntent).
+ *
+ * Replaces the vendored classic briancherne jQuery hoverIntent plugin
+ * (unmaintained 1.x line, no npm equivalent — issue #6655 spike verdict)
+ * with the identical `$.fn.hoverIntent` contract that superfish 1.7.10
+ * consumes at runtime (`$.fn.hoverIntent && !o.disableHI` in
+ * `applyHandlers`). superfish.js and navbar.js stay untouched; only the
+ * payload references move to this file (preview) and its minified publish
+ * twin (perc-hover-intent.min.js).
+ *
+ * Contract (same as the retired plugin):
+ *   - `$(...).hoverIntent(handlerIn, handlerOut, selector)` — the form
+ *     superfish uses with its `li:has(...)` targets.
+ *   - `$(...).hoverIntent(handlerIn, handlerOut)` — direct binding.
+ *   - `$(...).hoverIntent({over, out, interval, sensitivity, timeout, ...})`.
+ *   - Defaults: interval 100ms, sensitivity 7px, timeout 0ms.
+ *   - `over` fires only once the pointer slows below the sensitivity
+ *     threshold, so fast diagonal pass-through never opens a submenu;
+ *     `out` fires `timeout` ms after mouseleave while hovering.
+ *   - All listeners use the `.hoverIntent` namespace so superfish
+ *     `destroy` (`off('.hoverIntent')`) keeps working unchanged.
  */
 (function ($) {
   $.fn.hoverIntent = function (handlerIn, handlerOut, selector) {
@@ -41,7 +65,7 @@
 
     // instantiate variables
     // cX, cY = current X and Y position of mouse, updated by mousemove event
-    // pX, pY = previous X and Y position of mouse, set by mouseover and polling interval
+    // pX, pY = previous X and Y position of mouse, set by mouseenter and polling interval
     var cX, cY, pX, pY;
 
     // A private function for getting mouse position
@@ -80,7 +104,7 @@
     // A private function for handling mouse 'hovering'
     var handleHover = function (e) {
       // copy objects to be passed into t (required for event object to be passed in IE)
-      var ev = jQuery.extend({}, e);
+      var ev = $.extend({}, e);
       var ob = this;
 
       // cancel hoverIntent timer if it exists
@@ -89,14 +113,14 @@
       }
 
       // if e.type == "mouseenter"
-      if (e.type == "mouseenter") {
+      if (e.type === "mouseenter") {
         // set "previous" X and Y position based on initial entry point
         pX = ev.pageX;
         pY = ev.pageY;
         // update "current" X and Y position based on mousemove
         $(ob).on("mousemove.hoverIntent", track);
         // start polling interval (self-calling timeout) to compare mouse coordinates over time
-        if (ob.hoverIntent_s != 1) {
+        if (ob.hoverIntent_s !== 1) {
           ob.hoverIntent_t = setTimeout(function () {
             compare(ev, ob);
           }, cfg.interval);
@@ -107,7 +131,7 @@
         // unbind expensive mousemove event
         $(ob).off("mousemove.hoverIntent", track);
         // if hoverIntent state is true, then call the mouseOut function after the specified delay
-        if (ob.hoverIntent_s == 1) {
+        if (ob.hoverIntent_s === 1) {
           ob.hoverIntent_t = setTimeout(function () {
             delay(ev, ob);
           }, cfg.timeout);

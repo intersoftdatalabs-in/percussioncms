@@ -54,6 +54,13 @@
  * under the recorded MIT-ok ruling (upstream is MIT-licensed; no published
  * npm dist matches the payload's swatches/keywords surface).
  *
+ * Slice 14 (issue #6689, parent #6522, spike #6655 follow-on) replaces
+ * the nav hoverIntent pair below with a first-party `perc-hover-intent`
+ * shim carrying the same `$.fn.hoverIntent`
+ * interval/sensitivity/timeout contract superfish consumes, so superfish
+ * and `navbar.js` stay byte-identical: hoverIntent leaves the
+ * stay-vendored list while MiniColors stays under the MIT-ok ruling.
+ *
  * Slice 3 migrates the directory-widget `list.min.js` to the npm list.js
  * 1.2.0 dist (byte-identical to the payload; Dependabot-tracked via the
  * frontend manifests with an exact 1.2.0 pin because a caret range would
@@ -1369,5 +1376,351 @@ describe("widget-payload npm refresh parity (issue #6319 slice 10: lightbox)", (
     lightbox.sizeOverlay = original;
     lightbox.end();
     renderImageAnchors($);
+  });
+});
+
+const HOVER_INTENT_SHIM_PAYLOADS = [
+  {
+    // NavBar widget preview copy (percNavBar.xml: hover_intent_preview).
+    payload: path.join(
+      "modules",
+      "perc-packages",
+      "src",
+      "main",
+      "resources",
+      "Packages",
+      "perc.widgets.nav",
+      "sys__UserDependency--web_resources",
+      "widgets",
+      "navBar",
+      "js",
+      "perc-hover-intent.js",
+    ),
+    marker: "Percussion hover-intent shim",
+  },
+  {
+    // NavBar widget published copy (percNavBar.xml: hover_intent).
+    payload: path.join(
+      "modules",
+      "perc-packages",
+      "src",
+      "main",
+      "resources",
+      "Packages",
+      "perc.widgets.nav",
+      "sys__UserDependency--web_resources",
+      "widgets",
+      "navBar",
+      "js",
+      "perc-hover-intent.min.js",
+    ),
+    marker: "Percussion hover-intent shim",
+  },
+];
+
+// NavBar widget retired pair (issue #6689): deleted in the same change that
+// adds the shim above — pin the deletion so the bytes cannot come back.
+const HOVER_INTENT_RETIRED = [
+  path.join(
+    "modules",
+    "perc-packages",
+    "src",
+    "main",
+    "resources",
+    "Packages",
+    "perc.widgets.nav",
+    "sys__UserDependency--web_resources",
+    "widgets",
+    "navBar",
+    "js",
+    "hoverIntent.js",
+  ),
+  path.join(
+    "modules",
+    "perc-packages",
+    "src",
+    "main",
+    "resources",
+    "Packages",
+    "perc.widgets.nav",
+    "sys__UserDependency--web_resources",
+    "widgets",
+    "navBar",
+    "js",
+    "hoverIntent.min.js",
+  ),
+];
+
+function loadHoverIntentShim(payloadRelPath) {
+  // Same verbatim-eval harness pattern as the superfish loader above: the
+  // shim closes over bare `jQuery`, so expose the jsdom-bound jQuery
+  // globally before evaluating the payload bytes.
+  const $ = require(path.join(NODE_MODULES, "jquery", "dist", "jquery.js"));
+  globalThis.jQuery = $;
+  window.jQuery = $;
+  window.eval(fs.readFileSync(path.join(REPO_ROOT, payloadRelPath), "utf8"));
+  expect(typeof $.fn.hoverIntent).toBe("function");
+  return $;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function hoverIntentHarness($, document) {
+  // Mirrors a single superfish target: the shim keeps per-element state, so
+  // one target per render keeps the open/close counters unambiguous.
+  document.body.innerHTML = '<div id="hover-target"></div>';
+  const el = document.getElementById("hover-target");
+  const calls = { over: 0, out: 0 };
+  $(el).hoverIntent(
+    () => {
+      calls.over += 1;
+    },
+    () => {
+      calls.out += 1;
+    },
+  );
+  return { el, calls };
+}
+
+function hoverAt($, el, x, y) {
+  $(el).trigger($.Event("mouseenter", { pageX: x, pageY: y }));
+}
+
+function hoverMove($, el, x, y) {
+  $(el).trigger($.Event("mousemove", { pageX: x, pageY: y }));
+}
+
+function hoverLeave($, el) {
+  $(el).trigger("mouseleave");
+}
+
+describe("widget-payload first-party hover-intent shim (issue #6689)", () => {
+  it("shim payload pair exists and the vendored hoverIntent pair is gone", () => {
+    for (const { payload } of HOVER_INTENT_SHIM_PAYLOADS) {
+      expect(
+        fs.existsSync(path.join(REPO_ROOT, payload)),
+        `missing payload: ${payload}`,
+      ).toBe(true);
+    }
+    for (const retired of HOVER_INTENT_RETIRED) {
+      expect(
+        fs.existsSync(path.join(REPO_ROOT, retired)),
+        `retired payload still ships: ${retired}`,
+      ).toBe(false);
+    }
+  });
+
+  it.each(HOVER_INTENT_SHIM_PAYLOADS.map(({ payload }) => payload))(
+    "shim copy %s parses and carries the first-party banner",
+    (payloadRelPath) => {
+      const source = fs.readFileSync(
+        path.join(REPO_ROOT, payloadRelPath),
+        "utf8",
+      );
+      expect(source).toContain("Percussion hover-intent shim");
+      expect(
+        () => new Script(source),
+        `${payloadRelPath} failed to parse`,
+      ).not.toThrow();
+      loadHoverIntentShim(payloadRelPath);
+      document.body.innerHTML = "";
+    },
+  );
+
+  it.each(HOVER_INTENT_SHIM_PAYLOADS.map(({ payload }) => payload))(
+    "shim copy %s: slow intent opens and mouseleave closes",
+    async (payloadRelPath) => {
+      const $ = loadHoverIntentShim(payloadRelPath);
+      const { el, calls } = hoverIntentHarness($, document);
+      try {
+        // Slow intent: enter then drift a few pixels — opens after one
+        // 100ms interval (delta 3 < sensitivity 7).
+        hoverAt($, el, 10, 10);
+        hoverMove($, el, 12, 11);
+        await sleep(180);
+        expect(calls.over).toBe(1);
+        // Mouseleave after the open closes on the next tick (timeout 0).
+        hoverLeave($, el);
+        await sleep(80);
+        expect(calls.out).toBe(1);
+      } finally {
+        document.body.innerHTML = "";
+      }
+    },
+  );
+
+  it.each(HOVER_INTENT_SHIM_PAYLOADS.map(({ payload }) => payload))(
+    "shim copy %s: fast pass-through does not open until the pointer rests",
+    async (payloadRelPath) => {
+      const $ = loadHoverIntentShim(payloadRelPath);
+      const { el, calls } = hoverIntentHarness($, document);
+      try {
+        // Diagonal traversal: keep the pointer moving faster than the 7px
+        // sensitivity window across several 100ms intervals.
+        hoverAt($, el, 0, 0);
+        for (let step = 1; step <= 6; step += 1) {
+          hoverMove($, el, step * 60, step * 60);
+          await sleep(60);
+        }
+        expect(calls.over).toBe(0);
+        // Pointer rests: the next interval sees no movement and opens.
+        await sleep(200);
+        expect(calls.over).toBe(1);
+      } finally {
+        document.body.innerHTML = "";
+      }
+    },
+  );
+
+  it.each(HOVER_INTENT_SHIM_PAYLOADS.map(({ payload }) => payload))(
+    "shim copy %s: leave without hover never closes",
+    async (payloadRelPath) => {
+      const $ = loadHoverIntentShim(payloadRelPath);
+      const { el, calls } = hoverIntentHarness($, document);
+      try {
+        hoverLeave($, el);
+        await sleep(160);
+        expect(calls.over).toBe(0);
+        expect(calls.out).toBe(0);
+      } finally {
+        document.body.innerHTML = "";
+      }
+    },
+  );
+
+  it.each(HOVER_INTENT_SHIM_PAYLOADS.map(({ payload }) => payload))(
+    "shim copy %s: object form honors custom interval/sensitivity/timeout",
+    async (payloadRelPath) => {
+      const $ = loadHoverIntentShim(payloadRelPath);
+      document.body.innerHTML = '<div id="hover-custom"></div>';
+      const el = document.getElementById("hover-custom");
+      const calls = { over: 0, out: 0 };
+      try {
+        $(el).hoverIntent({
+          over: () => {
+            calls.over += 1;
+          },
+          out: () => {
+            calls.out += 1;
+          },
+          interval: 20,
+          sensitivity: 1000,
+          timeout: 120,
+        });
+        hoverAt($, el, 0, 0);
+        hoverMove($, el, 5, 5);
+        await sleep(80);
+        expect(calls.over).toBe(1);
+        hoverLeave($, el);
+        await sleep(40);
+        expect(calls.out).toBe(0);
+        await sleep(160);
+        expect(calls.out).toBe(1);
+      } finally {
+        document.body.innerHTML = "";
+      }
+    },
+  );
+
+  it("shim keeps superfish open/close/focus/destroy behavior (preview copies)", async () => {
+    // Load the payload superfish (no disableHI) plus the preview shim on the
+    // shared harness jQuery — the same combination navbar.js drives on
+    // published pages.
+    const $ = loadSuperfishPayloadAsJqueryPlugin(NAV_PAYLOADS[0].payload);
+    window.eval(
+      fs.readFileSync(
+        path.join(REPO_ROOT, HOVER_INTENT_SHIM_PAYLOADS[0].payload),
+        "utf8",
+      ),
+    );
+    expect(typeof $.fn.hoverIntent).toBe("function");
+    // Published-widget smoke: the open/close sequence below must run with
+    // zero console errors.
+    const errors = [];
+    const originalError = console.error;
+    console.error = (...args) => {
+      errors.push(args.map(String).join(" "));
+    };
+    try {
+      const menu = renderNavMenu(document);
+      // Mirror navbar.js (shorter close delay keeps the test fast).
+      $(menu).superfish({
+        pathClass: "current",
+        autoArrows: false,
+        delay: 50,
+        pathLevels: 0,
+      });
+      const parentItem = menu
+        .querySelector('li > a[href="/sites"]')
+        .parentElement;
+      const anchor = parentItem.querySelector('a[href="/sites"]');
+
+      // Slow mouse intent opens the submenu through the shim.
+      parentItem.dispatchEvent(
+        new window.MouseEvent("mouseover", {
+          bubbles: true,
+          cancelable: true,
+          clientX: 10,
+          clientY: 10,
+        }),
+      );
+      parentItem.dispatchEvent(
+        new window.MouseEvent("mousemove", {
+          bubbles: true,
+          cancelable: true,
+          clientX: 11,
+          clientY: 11,
+        }),
+      );
+      await sleep(220);
+      expect(parentItem.classList.contains("sfHover")).toBe(true);
+
+      // Mouseleave closes after the superfish delay (shim timeout path).
+      parentItem.dispatchEvent(
+        new window.MouseEvent("mouseout", {
+          bubbles: true,
+          cancelable: true,
+        }),
+      );
+      await sleep(220);
+      expect(parentItem.classList.contains("sfHover")).toBe(false);
+
+      // Keyboard focus path is independent of the shim and still works.
+      anchor.dispatchEvent(new window.FocusEvent("focusin", { bubbles: true }));
+      expect(parentItem.classList.contains("sfHover")).toBe(true);
+      anchor.dispatchEvent(
+        new window.FocusEvent("focusout", { bubbles: true }),
+      );
+      await sleep(220);
+      expect(parentItem.classList.contains("sfHover")).toBe(false);
+
+      // Destroy removes the shim branch: re-hovering stays closed.
+      $(menu).superfish("destroy");
+      expect(menu.classList.contains("sf-js-enabled")).toBe(false);
+      parentItem.dispatchEvent(
+        new window.MouseEvent("mouseover", {
+          bubbles: true,
+          cancelable: true,
+          clientX: 10,
+          clientY: 10,
+        }),
+      );
+      parentItem.dispatchEvent(
+        new window.MouseEvent("mousemove", {
+          bubbles: true,
+          cancelable: true,
+          clientX: 11,
+          clientY: 11,
+        }),
+      );
+      await sleep(220);
+      expect(parentItem.classList.contains("sfHover")).toBe(false);
+    } finally {
+      console.error = originalError;
+      document.body.innerHTML = "";
+    }
+    expect(errors).toEqual([]);
   });
 });
