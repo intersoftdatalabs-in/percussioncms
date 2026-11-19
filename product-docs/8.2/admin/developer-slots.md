@@ -62,6 +62,8 @@ current filter"; clearing the box restores the full list.
 2. Click **Set slot label**, edit the text, and click **Save label**. The
    request is `PUT /services/slots/{idOrName}` with `label` only. Reload shows
    that label. The name, description, slot type, and finder are unchanged.
+   The input autofocuses when the editor opens; **Escape** cancels without
+   saving, same as **Cancel**.
 3. A blank label clears the stored label and does not clear the name. The
    catalog then shows the name as the label. The same label is not written.
 4. Click **Cancel** before save to keep the previous label. Cancel does not
@@ -76,7 +78,8 @@ current filter"; clearing the box restores the full list.
 2. Click **Set slot description**, edit the text, and click **Save
    description**. The request is `PUT /services/slots/{idOrName}` with
    `description` only. Reload shows that description. The name, label, slot
-   type, and finder are unchanged.
+   type, and finder are unchanged. The input autofocuses when the editor
+   opens; **Escape** cancels without saving, same as **Cancel**.
 3. A blank description clears the stored description. The same description is
    not written.
 4. Click **Cancel** before save to keep the previous description. Cancel does

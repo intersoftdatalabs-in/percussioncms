@@ -1244,4 +1244,64 @@ describe("SlotDetailPanel", () => {
     );
     expect(screen.queryByTestId("developer-slot-set-label-notice")).toBeNull();
   });
+
+  it("focuses the label input when the editor opens", async () => {
+    getSlotDetail.mockResolvedValue(sampleDetail);
+    render(<SlotDetailPanel idOrName="rffList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-edit"));
+    expect(screen.getByTestId("developer-slot-set-label-input")).toHaveFocus();
+  });
+
+  it("Escape cancels the label edit without calling save", async () => {
+    getSlotDetail.mockResolvedValue(sampleDetail);
+    render(<SlotDetailPanel idOrName="rffList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-slot-set-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-slot-set-label-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-slot-set-label-editor")).toBeNull();
+    expect(updateSlotDetail).not.toHaveBeenCalled();
+    expect(screen.getByTestId("developer-slot-set-label-text").getAttribute("data-slot-label")).toBe(
+      "List",
+    );
+  });
+
+  it("focuses the description input when the editor opens", async () => {
+    getSlotDetail.mockResolvedValue(sampleDetail);
+    render(<SlotDetailPanel idOrName="rffList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-description-edit"));
+    expect(screen.getByTestId("developer-slot-set-description-input")).toHaveFocus();
+  });
+
+  it("Escape cancels the description edit without calling save", async () => {
+    getSlotDetail.mockResolvedValue(sampleDetail);
+    render(<SlotDetailPanel idOrName="rffList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-slot-set-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-slot-set-description-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-slot-set-description-editor")).toBeNull();
+    expect(updateSlotDetail).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-slot-set-description-text").getAttribute("data-slot-description"),
+    ).toBe("List slot");
+  });
 });
