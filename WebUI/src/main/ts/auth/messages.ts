@@ -35,4 +35,44 @@ export const AUTH_MSG = {
     "perc.ui.auth.modern@Enter a valid email address.",
   FORGOT_USERNAME_GENERIC_ERROR:
     "perc.ui.auth.modern@Unable to process your request right now. Try again shortly.",
+  MFA_CHALLENGE_TITLE: "perc.ui.auth.modern@Two-step verification",
+  MFA_CHALLENGE_SUBTITLE:
+    "perc.ui.auth.modern@Enter the 6-digit code from your authenticator app to finish signing in.",
+  MFA_CHALLENGE_RECOVERY_SUBTITLE:
+    "perc.ui.auth.modern@Enter one of your single-use recovery codes to finish signing in.",
+  MFA_CHALLENGE_TOTP_LABEL: "perc.ui.auth.modern@Verification code",
+  MFA_CHALLENGE_RECOVERY_LABEL: "perc.ui.auth.modern@Recovery code",
+  MFA_CHALLENGE_SUBMIT: "perc.ui.auth.modern@Verify and sign in",
+  MFA_CHALLENGE_SUBMITTING: "perc.ui.auth.modern@Verifying…",
+  MFA_CHALLENGE_USE_RECOVERY: "perc.ui.auth.modern@Use a recovery code instead",
+  MFA_CHALLENGE_USE_TOTP:
+    "perc.ui.auth.modern@Use an authenticator code instead",
+  MFA_CHALLENGE_EXPIRED:
+    "perc.ui.auth.modern@Your verification session has expired or is invalid. Return to sign in to try again.",
+  MFA_CHALLENGE_CODE_REQUIRED:
+    "perc.ui.auth.modern@Enter a verification code.",
+  MFA_CHALLENGE_GENERIC_ERROR:
+    "perc.ui.auth.modern@Verification failed. Check your code and try again.",
+  MFA_CANCEL: "perc.ui.auth.modern@Cancel sign-in",
+  MFA_SETUP_TITLE:
+    "perc.ui.auth.modern@Set up two-step verification",
+  MFA_SETUP_SUBTITLE:
+    "perc.ui.auth.modern@Your organization requires two-step verification. Scan the QR code with your authenticator app, then enter a 6-digit code.",
+  MFA_SETUP_EXPIRED:
+    "perc.ui.auth.modern@Your setup session has expired or is invalid. Return to sign in to start again.",
+  MFA_SETUP_LOADING: "perc.ui.auth.modern@Preparing authenticator setup…",
+  MFA_SETUP_RETRY: "perc.ui.auth.modern@Try again",
+  MFA_SETUP_MANUAL_LABEL: "perc.ui.auth.modern@Manual setup key",
+  MFA_SETUP_COPY_KEY: "perc.ui.auth.modern@Copy setup key",
+  MFA_SETUP_COPIED: "perc.ui.auth.modern@Copied",
+  MFA_SETUP_CODE_LABEL: "perc.ui.auth.modern@6-digit verification code",
+  MFA_SETUP_CONFIRM: "perc.ui.auth.modern@Verify and activate",
+  MFA_SETUP_CONFIRMING: "perc.ui.auth.modern@Activating…",
+  MFA_SETUP_RECOVERY_TITLE:
+    "perc.ui.auth.modern@Save your recovery codes",
+  MFA_SETUP_RECOVERY_BODY:
+    "perc.ui.auth.modern@Save these single-use recovery codes in a safe place. Each code works once if you lose access to your authenticator app.",
+  MFA_SETUP_COPY_CODES: "perc.ui.auth.modern@Copy recovery codes",
+  MFA_SETUP_DOWNLOAD_CODES: "perc.ui.auth.modern@Download (.txt)",
+  MFA_SETUP_CONTINUE: "perc.ui.auth.modern@Continue to Percussion CMS",
 } as const;

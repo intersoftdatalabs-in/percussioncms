@@ -42,6 +42,7 @@ public class PSAuthCsrfGuard {
   public static final String SESSION_ATTR = "perc.auth.csrfToken";
   public static final String HEADER_NAME = "X-Perc-Auth-Csrf";
   public static final String PARAM_NAME = "authCsrfToken";
+  public static final String PROP_WEBAUTHN_ALLOWED_ORIGINS = "auth.webauthn.allowedOrigins";
 
   private static final int TOKEN_BYTES = 32;
   private static final Set<String> ALLOWED_FETCH_SITES = Set.of("same-origin", "same-site", "none");
@@ -117,18 +118,32 @@ public class PSAuthCsrfGuard {
     return StringUtils.trimToNull(request.getHeader("Referer"));
   }
 
-  private Set<String> collectAllowedOrigins(HttpServletRequest request) {
+  public Set<String> collectAllowedOrigins(HttpServletRequest request) {
     Set<String> allowed = new LinkedHashSet<>();
-    addNormalizedOrigin(allowed, requestOrigin(request));
+    if (request != null) {
+      addNormalizedOrigin(allowed, requestOrigin(request));
+    }
 
     Properties props = safeProps(serverPropsSupplier.get());
     addNormalizedOrigin(
         allowed, props.getProperty(PSAccountSecurityService.PROP_PUBLIC_BASE_URL));
+    addCommaSeparatedOrigins(allowed, props.getProperty(PROP_WEBAUTHN_ALLOWED_ORIGINS));
 
-    if (PSServer.getServerProps() != null && PSServer.isRequestBehindProxy(request)) {
+    if (request != null
+        && PSServer.getServerProps() != null
+        && PSServer.isRequestBehindProxy(request)) {
       addNormalizedOrigin(allowed, PSServer.getProxyURL(request, false));
     }
     return allowed;
+  }
+
+  private static void addCommaSeparatedOrigins(Set<String> target, String rawCsv) {
+    if (StringUtils.isBlank(rawCsv)) {
+      return;
+    }
+    for (String part : rawCsv.split(",")) {
+      addNormalizedOrigin(target, part);
+    }
   }
 
   private static String requestOrigin(HttpServletRequest request) {
@@ -148,7 +163,7 @@ public class PSAuthCsrfGuard {
     }
   }
 
-  static String normalizeOrigin(String rawUrl) {
+  public static String normalizeOrigin(String rawUrl) {
     if (StringUtils.isBlank(rawUrl)) {
       return null;
     }

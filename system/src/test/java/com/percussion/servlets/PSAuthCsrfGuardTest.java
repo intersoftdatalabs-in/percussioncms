@@ -86,4 +86,26 @@ class PSAuthCsrfGuardTest {
     badCsrf.addHeader(PSAuthCsrfGuard.HEADER_NAME, "wrong-token");
     assertFalse(guard.validatePostRequest(badCsrf));
   }
+
+  @Test
+  void acceptsConfiguredWebAuthnAllowedOriginsCsv() {
+    Properties props = new Properties();
+    props.setProperty(
+        PSAuthCsrfGuard.PROP_WEBAUTHN_ALLOWED_ORIGINS,
+        "https://author.example.com:8443, https://cms.example.com");
+    PSAuthCsrfGuard guard = new PSAuthCsrfGuard(() -> props);
+
+    MockHttpServletRequest baseGet = new MockHttpServletRequest("GET", "/auth/challenge");
+    String token = guard.ensureSessionToken(baseGet);
+
+    MockHttpServletRequest allowedOriginPost = new MockHttpServletRequest("POST", "/auth/challenge/totp");
+    allowedOriginPost.setSession(baseGet.getSession());
+    allowedOriginPost.setScheme("http");
+    allowedOriginPost.setServerName("127.0.0.1");
+    allowedOriginPost.setServerPort(9992);
+    allowedOriginPost.addHeader("Origin", "https://author.example.com:8443");
+    allowedOriginPost.addHeader(PSAuthCsrfGuard.HEADER_NAME, token);
+
+    assertTrue(guard.validatePostRequest(allowedOriginPost));
+  }
 }

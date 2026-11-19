@@ -20,6 +20,7 @@ import com.percussion.services.auth.data.PSAccountSecurity;
 import com.percussion.services.auth.data.PSAuthLoginTx;
 import com.percussion.services.auth.data.PSAuthToken;
 import com.percussion.services.auth.data.PSMfaPasskey;
+import com.percussion.services.auth.data.PSMfaRecoveryCode;
 import com.percussion.services.auth.data.PSMfaTotp;
 import com.percussion.system.utils.PSBaseBean;
 import jakarta.persistence.EntityManager;
@@ -418,6 +419,71 @@ public class PSAuthSecurityDao implements IPSAuthSecurityDao {
   }
 
   @Override
+  public int consumeLoginTxAtomically(String txId, String expectedType, Date now) {
+    if (StringUtils.isBlank(txId) || StringUtils.isBlank(expectedType) || now == null) {
+      return 0;
+    }
+    requireReady();
+    Integer updated =
+        writeTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "UPDATE PSAuthLoginTx t SET t.state = :verifiedState"
+                            + " WHERE t.txId = :txId AND t.txType = :txType"
+                            + " AND t.state = :pendingState AND t.expiresAt > :now")
+                    .setParameter("verifiedState", PSAuthLoginTx.STATE_VERIFIED)
+                    .setParameter("txId", txId.trim())
+                    .setParameter("txType", expectedType.trim())
+                    .setParameter("pendingState", PSAuthLoginTx.STATE_PENDING)
+                    .setParameter("now", now)
+                    .executeUpdate());
+    return updated != null ? updated : 0;
+  }
+
+  @Override
+  public int incrementLoginTxAttemptsAtomically(String txId, int maxAttempts, Date now) {
+    if (StringUtils.isBlank(txId) || maxAttempts <= 0 || now == null) {
+      return 0;
+    }
+    requireReady();
+    Integer updated =
+        writeTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "UPDATE PSAuthLoginTx t SET t.attemptCount = t.attemptCount + 1"
+                            + " WHERE t.txId = :txId AND t.state = :pendingState"
+                            + " AND t.expiresAt > :now AND t.attemptCount < :maxAttempts")
+                    .setParameter("txId", txId.trim())
+                    .setParameter("pendingState", PSAuthLoginTx.STATE_PENDING)
+                    .setParameter("now", now)
+                    .setParameter("maxAttempts", maxAttempts)
+                    .executeUpdate());
+    return updated != null ? updated : 0;
+  }
+
+  @Override
+  public int cancelLoginTx(String txId) {
+    if (StringUtils.isBlank(txId)) {
+      return 0;
+    }
+    requireReady();
+    Integer updated =
+        writeTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "UPDATE PSAuthLoginTx t SET t.state = :cancelledState"
+                            + " WHERE t.txId = :txId AND t.state = :pendingState")
+                    .setParameter("cancelledState", PSAuthLoginTx.STATE_CANCELLED)
+                    .setParameter("txId", txId.trim())
+                    .setParameter("pendingState", PSAuthLoginTx.STATE_PENDING)
+                    .executeUpdate());
+    return updated != null ? updated : 0;
+  }
+
+  @Override
   public int purgeExpiredLoginTx(Instant cutoff) {
     Objects.requireNonNull(cutoff, "cutoff");
     requireReady();
@@ -429,6 +495,204 @@ public class PSAuthSecurityDao implements IPSAuthSecurityDao {
                     .setParameter("cutoff", Date.from(cutoff))
                     .executeUpdate());
     return deleted != null ? deleted : 0;
+  }
+
+  @Override
+  public PSMfaTotp saveTotp(PSMfaTotp totp) {
+    Objects.requireNonNull(totp, "totp");
+    if (StringUtils.isBlank(totp.getTotpId()) || StringUtils.isBlank(totp.getUserName())) {
+      throw new IllegalArgumentException("totpId and userName are required");
+    }
+    requireReady();
+    return writeTransactionTemplate.execute(
+        status -> {
+          PSMfaTotp merged = entityManager.merge(totp);
+          entityManager.flush();
+          return merged;
+        });
+  }
+
+  @Override
+  public Optional<PSMfaTotp> findTotpById(String totpId) {
+    if (StringUtils.isBlank(totpId)) {
+      return Optional.empty();
+    }
+    requireReady();
+    return Optional.ofNullable(
+        readTransactionTemplate.execute(
+            status -> entityManager.find(PSMfaTotp.class, totpId.trim())));
+  }
+
+  @Override
+  public List<PSMfaTotp> findTotpByUserAndStatus(String userName, String status) {
+    if (StringUtils.isBlank(userName) || StringUtils.isBlank(status)) {
+      return List.of();
+    }
+    requireReady();
+    List<PSMfaTotp> rows =
+        readTransactionTemplate.execute(
+            tx ->
+                entityManager
+                    .createQuery(
+                        "SELECT t FROM PSMfaTotp t WHERE t.userName = :userName"
+                            + " AND t.status = :status ORDER BY t.createdAt",
+                        PSMfaTotp.class)
+                    .setParameter("userName", userName.trim())
+                    .setParameter("status", status.trim())
+                    .getResultList());
+    return rows != null ? rows : List.of();
+  }
+
+  @Override
+  public int advanceTotpLastUsedStepAtomically(String totpId, long newStep, Date usedAt) {
+    if (StringUtils.isBlank(totpId) || newStep < 0 || usedAt == null) {
+      return 0;
+    }
+    requireReady();
+    Integer updated =
+        writeTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "UPDATE PSMfaTotp t SET t.lastUsedStep = :newStep, t.lastUsedAt = :usedAt"
+                            + " WHERE t.totpId = :totpId AND t.status = :activeStatus"
+                            + " AND (t.lastUsedStep IS NULL OR t.lastUsedStep < :newStep)")
+                    .setParameter("newStep", newStep)
+                    .setParameter("usedAt", usedAt)
+                    .setParameter("totpId", totpId.trim())
+                    .setParameter("activeStatus", PSMfaTotp.STATUS_ACTIVE)
+                    .executeUpdate());
+    return updated != null ? updated : 0;
+  }
+
+  @Override
+  public int revokeTotpByUser(String userName, String currentStatus) {
+    if (StringUtils.isBlank(userName) || StringUtils.isBlank(currentStatus)) {
+      return 0;
+    }
+    requireReady();
+    Integer updated =
+        writeTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "UPDATE PSMfaTotp t SET t.status = :revokedStatus"
+                            + " WHERE t.userName = :userName AND t.status = :currentStatus")
+                    .setParameter("revokedStatus", PSMfaTotp.STATUS_REVOKED)
+                    .setParameter("userName", userName.trim())
+                    .setParameter("currentStatus", currentStatus.trim())
+                    .executeUpdate());
+    return updated != null ? updated : 0;
+  }
+
+  @Override
+  public void saveRecoveryCodes(List<PSMfaRecoveryCode> codes) {
+    if (codes == null || codes.isEmpty()) {
+      return;
+    }
+    requireReady();
+    writeTransactionTemplate.executeWithoutResult(
+        status -> {
+          for (PSMfaRecoveryCode code : codes) {
+            entityManager.merge(code);
+          }
+          entityManager.flush();
+        });
+  }
+
+  @Override
+  public List<PSMfaRecoveryCode> findUnusedRecoveryCodesByUser(String userName) {
+    if (StringUtils.isBlank(userName)) {
+      return List.of();
+    }
+    requireReady();
+    List<PSMfaRecoveryCode> rows =
+        readTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "SELECT c FROM PSMfaRecoveryCode c WHERE c.userName = :userName"
+                            + " AND c.usedAt IS NULL ORDER BY c.createdAt",
+                        PSMfaRecoveryCode.class)
+                    .setParameter("userName", userName.trim())
+                    .getResultList());
+    return rows != null ? rows : List.of();
+  }
+
+  @Override
+  public int consumeRecoveryCodeAtomically(String codeId, Date usedAt) {
+    if (StringUtils.isBlank(codeId) || usedAt == null) {
+      return 0;
+    }
+    requireReady();
+    Integer updated =
+        writeTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "UPDATE PSMfaRecoveryCode c SET c.usedAt = :usedAt"
+                            + " WHERE c.codeId = :codeId AND c.usedAt IS NULL")
+                    .setParameter("usedAt", usedAt)
+                    .setParameter("codeId", codeId.trim())
+                    .executeUpdate());
+    return updated != null ? updated : 0;
+  }
+
+  @Override
+  public int invalidateUnusedRecoveryCodesByUser(String userName, Date usedAt) {
+    if (StringUtils.isBlank(userName) || usedAt == null) {
+      return 0;
+    }
+    requireReady();
+    Integer updated =
+        writeTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "UPDATE PSMfaRecoveryCode c SET c.usedAt = :usedAt"
+                            + " WHERE c.userName = :userName AND c.usedAt IS NULL")
+                    .setParameter("usedAt", usedAt)
+                    .setParameter("userName", userName.trim())
+                    .executeUpdate());
+    return updated != null ? updated : 0;
+  }
+
+  @Override
+  public long findSessionVersion(String userName) {
+    if (StringUtils.isBlank(userName)) {
+      return 1L;
+    }
+    requireReady();
+    PSAccountSecurity sec =
+        readTransactionTemplate.execute(
+            status -> entityManager.find(PSAccountSecurity.class, userName.trim()));
+    return sec != null && sec.getSessionVersion() > 0 ? sec.getSessionVersion() : 1L;
+  }
+
+  @Override
+  public long incrementSessionVersion(String userName) {
+    if (StringUtils.isBlank(userName)) {
+      throw new IllegalArgumentException("userName is required");
+    }
+    requireReady();
+    String cleanUser = userName.trim();
+    Long result =
+        writeTransactionTemplate.execute(
+            status -> {
+              PSAccountSecurity sec = entityManager.find(PSAccountSecurity.class, cleanUser);
+              if (sec == null) {
+                sec = new PSAccountSecurity();
+                sec.setUserName(cleanUser);
+                sec.setSessionVersion(2L);
+              } else {
+                sec.setSessionVersion(Math.max(1L, sec.getSessionVersion()) + 1L);
+              }
+              sec.setUpdatedAt(new Date());
+              PSAccountSecurity merged = entityManager.merge(sec);
+              entityManager.flush();
+              return merged.getSessionVersion();
+            });
+    return result != null ? result : 2L;
   }
 
   @Override

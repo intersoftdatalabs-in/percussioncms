@@ -26,6 +26,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.percussion.rest.JacksonContextResolver;
+import com.percussion.services.auth.mfa.PSStepUpRequiredException;
 import com.percussion.services.auth.ratelimit.PSAuthRateLimitException;
 import jakarta.ws.rs.WebApplicationException;
 import java.time.Instant;
@@ -77,6 +78,15 @@ class AuthProfileResourceTest {
     assertEquals(
         429,
         assertThrows(WebApplicationException.class, resource::resendMyEmailVerification)
+            .getResponse()
+            .getStatus());
+
+    doThrow(new PSStepUpRequiredException("Step-up required"))
+        .when(adaptor)
+        .requestMyEmailChange(req);
+    assertEquals(
+        428,
+        assertThrows(WebApplicationException.class, () -> resource.requestMyEmailChange(req))
             .getResponse()
             .getStatus());
 

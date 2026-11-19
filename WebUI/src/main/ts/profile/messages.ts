@@ -177,4 +177,52 @@ export const PROFILE_MSG = {
     "perc.ui.profile.modern@Enter a valid email address, or use your primary account email.",
   AVATAR_ARIA: "perc.ui.profile.modern@Avatar for {0}",
   AVATAR_DEFAULT_NAME: "perc.ui.profile.modern@user",
+
+  // MFA & Step-Up security controls (Milestone 3)
+  MFA_TITLE: "perc.ui.profile.modern@Two-step verification (MFA)",
+  MFA_SUBTITLE:
+    "perc.ui.profile.modern@Protect your account with an authenticator app and single-use recovery codes.",
+  MFA_LOADING: "perc.ui.profile.modern@Loading two-step verification status…",
+  MFA_UNAVAILABLE:
+    "perc.ui.profile.modern@Two-step verification settings are currently unavailable.",
+  MFA_RETRY: "perc.ui.profile.modern@Retry MFA check",
+  MFA_TOTP_ENABLED: "perc.ui.profile.modern@Authenticator app: Active",
+  MFA_TOTP_DISABLED:
+    "perc.ui.profile.modern@Authenticator app: Not configured",
+  MFA_PASSKEYS_COUNT: "perc.ui.profile.modern@Registered passkeys: {0}",
+  MFA_CODES_REMAINING: "perc.ui.profile.modern@Unused recovery codes: {0}",
+  MFA_ENROLL_START: "perc.ui.profile.modern@Set up authenticator app",
+  MFA_MANUAL_KEY_LABEL: "perc.ui.profile.modern@Manual setup key",
+  MFA_COPY_KEY: "perc.ui.profile.modern@Copy key",
+  MFA_COPIED: "perc.ui.profile.modern@Copied",
+  MFA_CODE_LABEL: "perc.ui.profile.modern@6-digit verification code",
+  MFA_ENROLL_CONFIRM: "perc.ui.profile.modern@Verify and enable",
+  MFA_ENROLL_CANCEL: "perc.ui.profile.modern@Cancel setup",
+  MFA_DISABLE: "perc.ui.profile.modern@Disable authenticator app",
+  MFA_DISABLED_SUCCESS:
+    "perc.ui.profile.modern@Authenticator app has been disabled.",
+  MFA_ENROLLED_SUCCESS:
+    "perc.ui.profile.modern@Authenticator app is now active.",
+  MFA_LAST_FACTOR_HINT:
+    "perc.ui.profile.modern@Two-step verification is required for your account. Add another factor before removing your authenticator app.",
+  MFA_REGEN_CODES: "perc.ui.profile.modern@Regenerate recovery codes",
+  MFA_RECOVERY_TITLE:
+    "perc.ui.profile.modern@Save these single-use recovery codes",
+  MFA_RECOVERY_BODY:
+    "perc.ui.profile.modern@Each code works once if you lose access to your authenticator app.",
+  MFA_COPY_CODES: "perc.ui.profile.modern@Copy recovery codes",
+  MFA_DOWNLOAD_CODES: "perc.ui.profile.modern@Download (.txt)",
+  MFA_DISMISS_CODES: "perc.ui.profile.modern@Done",
+  STEP_UP_TITLE: "perc.ui.profile.modern@Confirm your identity to continue",
+  STEP_UP_SUBTITLE_TOTP:
+    "perc.ui.profile.modern@Enter a 6-digit code from your authenticator app before completing this security change.",
+  STEP_UP_SUBTITLE_RECOVERY:
+    "perc.ui.profile.modern@Enter one of your single-use recovery codes before completing this security change.",
+  STEP_UP_CODE_REQUIRED: "perc.ui.profile.modern@Enter a verification code.",
+  STEP_UP_SUBMIT: "perc.ui.profile.modern@Confirm",
+  STEP_UP_USE_RECOVERY: "perc.ui.profile.modern@Use a recovery code",
+  STEP_UP_USE_TOTP: "perc.ui.profile.modern@Use an authenticator code",
+  STEP_UP_CANCEL: "perc.ui.profile.modern@Cancel",
+  STEP_UP_ERROR:
+    "perc.ui.profile.modern@Verification failed. Check your code and try again.",
 } as const;

@@ -16,7 +16,12 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { AuthApp, readAuthBootstrap } from "../../../main/ts/auth";
+import {
+  AuthApp,
+  MfaChallengePage,
+  MfaSetupPage,
+  readAuthBootstrap,
+} from "../../../main/ts/auth";
 import type { AuthBootstrap } from "../../../main/ts/auth";
 
 function makeBootstrap(overrides: Partial<AuthBootstrap> = {}): AuthBootstrap {
@@ -180,5 +185,195 @@ describe("AuthApp", () => {
     expect(boot.authCsrfToken).toBe("a456");
     expect(boot.csrfTokenValue).toBe("merged-tok");
     expect(boot.textDir).toBe("rtl");
+  });
+
+  it("reads mfaStateJson for mfa-challenge bootstrap", () => {
+    const mfaMeta = JSON.stringify({
+      hasValidTx: true,
+      txType: "CHALLENGE",
+      totpAvailable: true,
+      passkeyAvailable: false,
+      recoveryCodeAvailable: true,
+    });
+    document.body.innerHTML = `
+      <div id="perc-csrf-holder" data-csrf-name="OWASP_CSRFTOKEN" data-csrf-value="csrf-1"></div>
+      <script type="application/json" id="perc-auth-bootstrap">
+        ${JSON.stringify({
+          view: "mfa-challenge",
+          token: "",
+          authCsrfToken: "a-csrf",
+          mfaStateJson: mfaMeta,
+          csrfTokenName: "OWASP_CSRFTOKEN",
+          csrfTokenValue: "",
+          contextPath: "/Rhythmyx",
+          locale: "en-us",
+          textDir: "ltr",
+        })}
+      </script>
+    `;
+    const boot = readAuthBootstrap();
+    expect(boot.view).toBe("mfa-challenge");
+    expect(boot.mfaState?.hasValidTx).toBe(true);
+    expect(boot.mfaState?.totpAvailable).toBe(true);
+    expect(boot.mfaState?.recoveryCodeAvailable).toBe(true);
+  });
+
+  it("renders mfa-challenge expired notice when tx is invalid, supports TOTP & recovery toggle, and handles cancel", async () => {
+    render(
+      <AuthApp
+        bootstrap={makeBootstrap({
+          view: "mfa-challenge",
+          mfaState: {
+            hasValidTx: false,
+            txType: "",
+            totpAvailable: false,
+            passkeyAvailable: false,
+            recoveryCodeAvailable: false,
+          },
+        })}
+      />,
+    );
+    expect(screen.getByTestId("perc-auth-mfa-expired")).toBeTruthy();
+
+    document.body.innerHTML = "";
+    const navigateSpy = vi.fn();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: false,
+        status: 423,
+        text: async () =>
+          JSON.stringify({ error: "MFA_LOCKED", message: "Too many attempts. Locked." }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        text: async () =>
+          JSON.stringify({
+            authenticated: true,
+            redirectUrl: "/Rhythmyx/cm/app/spa.jsp",
+            recoveryCodesRemaining: 9,
+            message: "Verified",
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        text: async () => JSON.stringify({ cancelled: true, loginUrl: "/Rhythmyx/login" }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const activeBoot = makeBootstrap({
+      view: "mfa-challenge",
+      contextPath: "/Rhythmyx",
+      mfaState: {
+        hasValidTx: true,
+        txType: "CHALLENGE",
+        totpAvailable: true,
+        passkeyAvailable: false,
+        recoveryCodeAvailable: true,
+      },
+    });
+    render(<MfaChallengePage bootstrap={activeBoot} onNavigate={navigateSpy} />);
+
+    fireEvent.change(screen.getByTestId("perc-auth-mfa-code-input"), {
+      target: { value: "123456" },
+    });
+    fireEvent.click(screen.getByTestId("perc-auth-mfa-submit"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-auth-mfa-error").textContent).toContain("Locked");
+    });
+    expect(fetchMock.mock.calls[0][0]).toBe("/Rhythmyx/auth/challenge/totp");
+
+    fireEvent.click(screen.getByTestId("perc-auth-mfa-toggle-recovery"));
+    fireEvent.change(screen.getByTestId("perc-auth-mfa-code-input"), {
+      target: { value: "AB12C-DE34F" },
+    });
+    fireEvent.click(screen.getByTestId("perc-auth-mfa-submit"));
+
+    await waitFor(() => {
+      expect(navigateSpy).toHaveBeenCalledWith("/Rhythmyx/cm/app/spa.jsp");
+    });
+    expect(fetchMock.mock.calls[1][0]).toBe("/Rhythmyx/auth/challenge/recovery-code");
+
+    fireEvent.click(screen.getByTestId("perc-auth-mfa-cancel"));
+    await waitFor(() => {
+      expect(navigateSpy).toHaveBeenCalledWith("/Rhythmyx/login");
+    });
+  });
+
+  it("handles mfa-setup start, QR display, confirm recovery codes, and continue redirect", async () => {
+    const sampleKey = "JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP";
+    const navigateSpy = vi.fn();
+    const fetchMock = vi
+      .fn()
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        text: async () =>
+          JSON.stringify({
+            totpId: "totp-setup-1",
+            otpauthUri: `otpauth://totp/Percussion:Admin?secret=${sampleKey}`,
+            manualSecret: sampleKey,
+            issuer: "Percussion CMS",
+            accountName: "Admin",
+            digits: 6,
+            periodSeconds: 30,
+          }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        status: 200,
+        text: async () =>
+          JSON.stringify({
+            enrolled: true,
+            recoveryCodes: ["AAAA1-BBBB2", "CCCC3-DDDD4"],
+            redirectUrl: "/cm/app/spa.jsp",
+            message: "Enabled",
+          }),
+      });
+    vi.stubGlobal("fetch", fetchMock);
+
+    render(
+      <MfaSetupPage
+        bootstrap={makeBootstrap({
+          view: "mfa-setup",
+          mfaState: {
+            hasValidTx: true,
+            txType: "ENROLL_ONLY",
+            totpAvailable: false,
+            passkeyAvailable: false,
+            recoveryCodeAvailable: false,
+          },
+        })}
+        onNavigate={navigateSpy}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-auth-mfa-qr")).toBeTruthy();
+      expect(screen.getByTestId("perc-auth-mfa-manual-secret").textContent).toBe(
+        sampleKey,
+      );
+    });
+
+    fireEvent.change(screen.getByTestId("perc-auth-mfa-setup-code"), {
+      target: { value: "654321" },
+    });
+    fireEvent.click(screen.getByTestId("perc-auth-mfa-setup-confirm"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-auth-mfa-recovery-codes").textContent).toContain(
+        "AAAA1-BBBB2",
+      );
+    });
+    expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({
+      totpId: "totp-setup-1",
+      code: "654321",
+    });
+
+    fireEvent.click(screen.getByTestId("perc-auth-mfa-continue"));
+    expect(navigateSpy).toHaveBeenCalledWith("/cm/app/spa.jsp");
   });
 });

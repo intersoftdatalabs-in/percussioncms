@@ -266,4 +266,35 @@ class PSAuthSecurityDaoTest {
         .setParameter("tokenType", PSAuthToken.TYPE_EMAIL_VERIFY);
     verify(updateQuery).setParameter("userName", "alice");
   }
+
+  @Test
+  void totpRecoveryCodeLoginTxAndSessionVersionOperationsWork() {
+    EntityManager em = mock(EntityManager.class);
+    Query updateQuery = mock(Query.class);
+    when(em.createQuery(anyString())).thenReturn(updateQuery);
+    when(updateQuery.setParameter(anyString(), any())).thenReturn(updateQuery);
+    when(updateQuery.executeUpdate()).thenReturn(1);
+
+    PSAccountSecurity existing = new PSAccountSecurity();
+    existing.setUserName("alice");
+    existing.setSessionVersion(3L);
+    when(em.find(PSAccountSecurity.class, "alice")).thenReturn(existing);
+    when(em.merge(any(PSAccountSecurity.class))).thenAnswer(inv -> inv.getArgument(0));
+
+    PSAuthSecurityDao dao = createDao(em);
+    Date now = new Date();
+
+    assertEquals(1, dao.advanceTotpLastUsedStepAtomically("totp-1", 42L, now));
+    assertEquals(1, dao.revokeTotpByUser("alice", PSMfaTotp.STATUS_PENDING));
+    assertEquals(1, dao.consumeRecoveryCodeAtomically("rc-1", now));
+    assertEquals(1, dao.invalidateUnusedRecoveryCodesByUser("alice", now));
+    assertEquals(1, dao.consumeLoginTxAtomically("tx-1", PSAuthLoginTx.TYPE_MFA_CHALLENGE, now));
+    assertEquals(1, dao.incrementLoginTxAttemptsAtomically("tx-1", 5, now));
+    assertEquals(1, dao.cancelLoginTx("tx-1"));
+
+    assertEquals(3L, dao.findSessionVersion("alice"));
+    assertEquals(1L, dao.findSessionVersion("unknown"));
+    assertEquals(4L, dao.incrementSessionVersion("alice"));
+    assertEquals(2L, dao.incrementSessionVersion("bob"));
+  }
 }

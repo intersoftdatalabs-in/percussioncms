@@ -50,6 +50,7 @@
     Object viewAttr = request.getAttribute(PSAuthServlet.ATTR_VIEW);
     Object tokenAttr = request.getAttribute(PSAuthServlet.ATTR_TOKEN);
     Object authCsrfAttr = request.getAttribute(PSAuthServlet.ATTR_CSRF_TOKEN);
+    Object bootstrapJsonAttr = request.getAttribute(PSAuthServlet.ATTR_BOOTSTRAP_JSON);
 
     String view = viewAttr instanceof String && !((String) viewAttr).isBlank()
             ? (String) viewAttr
@@ -58,6 +59,16 @@
     String authCsrfToken = authCsrfAttr instanceof String && !((String) authCsrfAttr).isBlank()
             ? (String) authCsrfAttr
             : new PSAuthCsrfGuard().ensureSessionToken(request);
+    String mfaBootstrapJson = bootstrapJsonAttr instanceof String
+            ? (String) bootstrapJsonAttr
+            : "";
+
+    String pageTitle = switch (view) {
+        case "mfa-challenge" -> "Percussion CMS — Two-Step Verification";
+        case "mfa-setup" -> "Percussion CMS — Set Up Two-Step Verification";
+        case "verify-email" -> "Percussion CMS — Confirm Email";
+        default -> "Percussion CMS — Account";
+    };
 
     String locale = PSI18nUtils.getSystemLanguage();
     if (locale == null || locale.isBlank()) {
@@ -72,7 +83,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>Percussion CMS — Account</title>
+    <title><%= pageTitle %></title>
     <meta name="_csrf_header" content="<csrf:tokenname/>"/>
     <meta name="_csrf" content="<csrf:tokenvalue/>"/>
     <script src="<%= ctxPath %>/JavaScriptServlet"></script>
@@ -101,6 +112,7 @@
   "view":<%= jsonString(view) %>,
   "token":<%= jsonString(token) %>,
   "authCsrfToken":<%= jsonString(authCsrfToken) %>,
+  "mfaStateJson":<%= jsonString(mfaBootstrapJson) %>,
   "csrfTokenName":"OWASP_CSRFTOKEN",
   "csrfTokenValue":"",
   "contextPath":<%= jsonString(ctxPath) %>,

@@ -40,6 +40,7 @@ class ServerConfigsRestJaxrsRegistrationTest {
     "restAuditLogResource",
     "restAuthReadinessResource",
     "restAuthProfileResource",
+    "restAuthMfaResource",
     "restKeywordsResource",
     "restLocalesResource",
     "restAutoTranslationsResource",

@@ -24,6 +24,7 @@ import com.percussion.server.PSServer;
 import com.percussion.services.auth.account.IPSAccountSecurityService;
 import com.percussion.services.auth.account.PSEmailChangeResult;
 import com.percussion.services.auth.account.PSEmailVerificationStatus;
+import com.percussion.services.auth.mfa.IPSMfaService;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.share.service.exception.PSDataServiceException;
 import com.percussion.system.utils.PSSiteManageBean;
@@ -31,6 +32,7 @@ import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.data.PSUserProviderType;
 import com.percussion.user.service.IPSUserService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import java.util.Objects;
 import java.util.function.Supplier;
 import org.apache.commons.lang3.StringUtils;
@@ -48,23 +50,48 @@ public class AuthProfileAdaptor implements IAuthProfileAdaptor {
 
   private final IPSUserService userService;
   private final IPSAccountSecurityService accountSecurityService;
+  private final Supplier<HttpSession> sessionSupplier;
   private final Supplier<String> clientIpSupplier;
+  private IPSMfaService mfaService;
 
   @Autowired
   public AuthProfileAdaptor(
       IPSUserService userService, IPSAccountSecurityService accountSecurityService) {
-    this(userService, accountSecurityService, AuthProfileAdaptor::resolveCurrentClientIp);
+    this(
+        userService,
+        accountSecurityService,
+        AuthMfaAdaptor::resolveCurrentSession,
+        AuthProfileAdaptor::resolveCurrentClientIp);
   }
 
-  /** Package-visible constructor for isolated unit tests. */
+  /** Package-visible constructor for isolated M2 unit tests. */
   AuthProfileAdaptor(
       IPSUserService userService,
       IPSAccountSecurityService accountSecurityService,
       Supplier<String> clientIpSupplier) {
+    this(
+        userService,
+        accountSecurityService,
+        AuthMfaAdaptor::resolveCurrentSession,
+        clientIpSupplier);
+  }
+
+  /** Package-visible constructor for isolated M3 step-up unit tests. */
+  AuthProfileAdaptor(
+      IPSUserService userService,
+      IPSAccountSecurityService accountSecurityService,
+      Supplier<HttpSession> sessionSupplier,
+      Supplier<String> clientIpSupplier) {
     this.userService = Objects.requireNonNull(userService, "userService");
     this.accountSecurityService =
         Objects.requireNonNull(accountSecurityService, "accountSecurityService");
+    this.sessionSupplier = Objects.requireNonNull(sessionSupplier, "sessionSupplier");
     this.clientIpSupplier = Objects.requireNonNull(clientIpSupplier, "clientIpSupplier");
+  }
+
+  @Autowired(required = false)
+  public void setMfaService(IPSMfaService mfaService) {
+    this.mfaService = mfaService;
   }
 
   @Override
@@ -94,6 +121,7 @@ public class AuthProfileAdaptor implements IAuthProfileAdaptor {
     }
     PSCurrentUser current = loadCurrentUser();
     boolean isInternal = current.getProviderType() == PSUserProviderType.INTERNAL;
+    requireStepUpIfChangingVerifiedEmail(current, request.getEmail(), isInternal);
     PSEmailChangeResult result =
         accountSecurityService.stageEmailChange(
             current.getName(),
@@ -102,6 +130,22 @@ public class AuthProfileAdaptor implements IAuthProfileAdaptor {
             clientIpSupplier.get(),
             isInternal);
     return toActionDto(result);
+  }
+
+  private void requireStepUpIfChangingVerifiedEmail(
+      PSCurrentUser current, String newEmail, boolean isInternal) {
+    if (!isInternal || mfaService == null) {
+      return;
+    }
+    PSEmailVerificationStatus status =
+        accountSecurityService.getEmailStatus(current.getName(), current.getEmail(), false);
+    if (status == null || !status.emailVerified()) {
+      return;
+    }
+    String cleanNew = StringUtils.trimToEmpty(newEmail);
+    if (!cleanNew.equalsIgnoreCase(StringUtils.trimToEmpty(status.activeEmail()))) {
+      mfaService.requireStepUpIfEnrolled(current.getName(), sessionSupplier.get());
+    }
   }
 
   @Override

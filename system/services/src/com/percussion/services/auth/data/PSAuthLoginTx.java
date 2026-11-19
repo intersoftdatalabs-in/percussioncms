@@ -34,6 +34,7 @@ public class PSAuthLoginTx implements Serializable {
   private static final long serialVersionUID = 1L;
 
   public static final String TYPE_MFA_CHALLENGE = "MFA_CHALLENGE";
+  public static final String TYPE_MFA_ENROLL = "ENROLL_ONLY";
   public static final String TYPE_WEBAUTHN_REG = "WEBAUTHN_REG";
   public static final String TYPE_WEBAUTHN_AUTH = "WEBAUTHN_AUTH";
 

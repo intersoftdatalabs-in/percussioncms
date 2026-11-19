@@ -19,6 +19,10 @@ import com.percussion.error.PSMissingBeanConfigurationException;
 import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.services.auth.account.IPSAccountSecurityService;
 import com.percussion.services.auth.mail.IPSAuthMailService;
+import com.percussion.services.auth.mfa.IPSMfaService;
+import com.percussion.services.auth.mfa.IPSRecoveryCodeService;
+import com.percussion.services.auth.mfa.IPSTotpService;
+import com.percussion.services.auth.policy.IPSAuthPolicyService;
 import com.percussion.services.auth.ratelimit.IPSAuthRateLimiter;
 import com.percussion.services.auth.readiness.IPSAuthReadinessService;
 import com.percussion.services.auth.token.IPSAuthTokenService;
@@ -56,5 +60,23 @@ public final class PSAuthServiceLocator extends PSBaseServiceLocator {
   public static IPSAccountSecurityService getAccountSecurityService()
       throws PSMissingBeanConfigurationException {
     return (IPSAccountSecurityService) getBean("sys_accountSecurityService");
+  }
+
+  public static IPSTotpService getTotpService() throws PSMissingBeanConfigurationException {
+    return (IPSTotpService) getBean("sys_totpService");
+  }
+
+  public static IPSRecoveryCodeService getRecoveryCodeService()
+      throws PSMissingBeanConfigurationException {
+    return (IPSRecoveryCodeService) getBean("sys_recoveryCodeService");
+  }
+
+  public static IPSAuthPolicyService getAuthPolicyService()
+      throws PSMissingBeanConfigurationException {
+    return (IPSAuthPolicyService) getBean("sys_authPolicyService");
+  }
+
+  public static IPSMfaService getMfaService() throws PSMissingBeanConfigurationException {
+    return (IPSMfaService) getBean("sys_mfaService");
   }
 }

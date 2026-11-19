@@ -53,6 +53,40 @@ export function resolveLoginUrl(
   return withCmsContextPrefix("/login");
 }
 
+/** Resolves default SPA landing page respecting context path. */
+export function resolveDefaultAppUrl(
+  bootstrap: Pick<AuthBootstrap, "contextPath">,
+): string {
+  const ctx = (bootstrap.contextPath ?? "").replace(/\/+$/, "");
+  if (ctx) {
+    return `${ctx}/cm/app/spa.jsp`;
+  }
+  return withCmsContextPrefix("/cm/app/spa.jsp");
+}
+
+/**
+ * Validates that a server-supplied redirect target stays on the same origin as a
+ * single-slash root-relative URL, falling back when malformed or cross-origin.
+ */
+export function safeRedirectUrl(
+  url: string | undefined,
+  fallback: string,
+): string {
+  const trimmed = (url ?? "").trim();
+  if (!trimmed || !trimmed.startsWith("/") || trimmed.startsWith("//")) {
+    return fallback;
+  }
+  if (/[\r\n]/.test(trimmed)) {
+    return fallback;
+  }
+  return trimmed;
+}
+
+/** Triggers full-page navigation (default destination handler for completed auth). */
+export function defaultNavigate(url: string): void {
+  window.location.assign(url);
+}
+
 function extractErrorMessage(payload: unknown, fallback: string): {
   message: string;
   code: string;

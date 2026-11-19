@@ -938,4 +938,25 @@ export const PATHS = {
   get AUTH_PROFILE_EMAIL_RESEND() {
     return `${SERVICES_ROOT}/auth/profile/email/resend`;
   },
+  /**
+   * Self-service MFA status, TOTP enrollment, recovery codes, and step-up REST API (Milestone 3).
+   */
+  get AUTH_MFA_STATUS() {
+    return `${SERVICES_ROOT}/auth/mfa/status`;
+  },
+  get AUTH_MFA_STEP_UP() {
+    return `${SERVICES_ROOT}/auth/mfa/step-up`;
+  },
+  get AUTH_MFA_TOTP_START() {
+    return `${SERVICES_ROOT}/auth/mfa/totp/start`;
+  },
+  get AUTH_MFA_TOTP_CONFIRM() {
+    return `${SERVICES_ROOT}/auth/mfa/totp/confirm`;
+  },
+  get AUTH_MFA_TOTP() {
+    return `${SERVICES_ROOT}/auth/mfa/totp`;
+  },
+  get AUTH_MFA_RECOVERY_REGENERATE() {
+    return `${SERVICES_ROOT}/auth/mfa/recovery-codes/regenerate`;
+  },
 } as const;

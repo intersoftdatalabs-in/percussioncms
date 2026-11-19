@@ -24,6 +24,8 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.percussion.content.IPSMimeContentTypes;
 import com.percussion.services.audit.PSSystemAuditLogger;
+import com.percussion.services.auth.policy.PSLoginPolicyDecision;
+import com.percussion.services.security.PSServletRequestWrapper;
 import com.percussion.i18n.PSI18nUtils;
 import com.intsof.percussioncms.auditlog.codes.SecurityErrorCodes;
 import com.percussion.security.PSAuthenticationFailedException;
@@ -53,6 +55,7 @@ import java.util.Locale;
 import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Pattern;
+import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -517,8 +520,27 @@ public class PSLoginServlet extends HttpServlet {
       if (redirect == null) {
         redirect = CMS_INDEX_PAGE;
       }
+      String sessionLocale =
+          sess.getAttribute(PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG) instanceof String lang
+              ? lang
+              : null;
 
-      request = PSSecurityFilter.authenticate(request, response, uid, pwd);
+      Subject sub = PSSecurityFilter.verifyPrimaryCredentials(request, uid, pwd);
+      PSServletRequestWrapper roleReq = new PSServletRequestWrapper(request, sub);
+      String resolvedUser = PSSecurityFilter.extractSubjectUserName(roleReq, sub);
+      PSLoginPolicyDecision decision =
+          PSSecurityFilter.evaluateInteractivePolicy(roleReq, resolvedUser, false);
+      String safeRedirect = resolveSafePostLoginRedirect(request, redirect);
+
+      if (decision != PSLoginPolicyDecision.ALLOW_DIRECT_SESSION) {
+        PSSecurityFilter.beginMfaLoginChallenge(
+            request, response, sub, decision, safeRedirect, sessionLocale);
+        sess.removeAttribute(REDIRECT_URL);
+        return;
+      }
+
+      request =
+          PSSecurityFilter.finalizeAuthenticatedSession(request, response, sub, sessionLocale);
 
       // Audit immediately after successful authentication (before redirect), so a redirect
       // failure cannot drop the security audit record.
@@ -531,7 +553,6 @@ public class PSLoginServlet extends HttpServlet {
 
       // Jetty 12 UriCompliance: normalize separators; then PSRedirectValidation + URI rebuild
       // before sendRedirect (java/unvalidated-url-redirection residual on session redirect).
-      String safeRedirect = resolveSafePostLoginRedirect(request, redirect);
       response.sendRedirect(safeRedirect); // codeql[java/unvalidated-url-redirection]
 
       sess.removeAttribute(REDIRECT_URL);

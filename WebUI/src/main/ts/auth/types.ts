@@ -14,7 +14,19 @@
  * limitations under the License.
  */
 
-export type AuthView = "verify-email" | "forgot-username";
+export type AuthView =
+  | "verify-email"
+  | "forgot-username"
+  | "mfa-challenge"
+  | "mfa-setup";
+
+export interface MfaBootstrapState {
+  hasValidTx: boolean;
+  txType: string;
+  totpAvailable: boolean;
+  passkeyAvailable: boolean;
+  recoveryCodeAvailable: boolean;
+}
 
 export interface AuthBootstrap {
   view: AuthView;
@@ -25,6 +37,7 @@ export interface AuthBootstrap {
   contextPath: string;
   locale: string;
   textDir: "ltr" | "rtl";
+  mfaState?: MfaBootstrapState;
 }
 
 export interface VerifyEmailResponse {
@@ -36,4 +49,33 @@ export interface VerifyEmailResponse {
 export interface ForgotUsernameResponse {
   accepted: boolean;
   message: string;
+}
+
+export interface MfaChallengeResponse {
+  authenticated: boolean;
+  redirectUrl: string;
+  recoveryCodesRemaining: number;
+  message: string;
+}
+
+export interface TotpSetupStartResponse {
+  totpId: string;
+  otpauthUri: string;
+  manualSecret: string;
+  issuer: string;
+  accountName: string;
+  digits: number;
+  periodSeconds: number;
+}
+
+export interface TotpSetupConfirmResponse {
+  enrolled: boolean;
+  recoveryCodes: string[];
+  redirectUrl: string;
+  message: string;
+}
+
+export interface AuthCancelResponse {
+  cancelled: boolean;
+  loginUrl: string;
 }

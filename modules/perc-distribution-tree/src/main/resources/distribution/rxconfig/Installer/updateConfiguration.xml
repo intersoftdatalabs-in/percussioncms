@@ -277,6 +277,14 @@
 			<entry key="auth.rateLimit.forgotUsernamePerIpPerHour" default="15" />
 			<entry key="auth.rateLimit.forgotUsernamePerEmailPerHour" default="5" />
 			<entry key="auth.rateLimit.emailVerifyResendPerUserPerHour" default="5" />
+			<entry key="auth.mfa.requiredCohorts" default="" />
+			<entry key="auth.mfa.totpAllowedDriftSteps" default="1" />
+			<entry key="auth.mfa.maxFailedAttempts" default="5" />
+			<entry key="auth.mfa.lockoutMinutes" default="15" />
+			<entry key="auth.mfa.challengeTtlMinutes" default="10" />
+			<entry key="auth.mfa.stepUpWindowMinutes" default="5" />
+			<entry key="auth.rateLimit.mfaVerifyPerIpPerMinute" default="20" />
+			<entry key="auth.rateLimit.mfaVerifyPerUserPerMinute" default="10" />
 
 
 			<!-- Properties to remove if present -->

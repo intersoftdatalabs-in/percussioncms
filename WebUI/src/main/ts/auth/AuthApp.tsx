@@ -18,11 +18,46 @@ import React, { useEffect } from "react";
 import { BrandFooter } from "../ui-themes/components";
 import { ThemeProvider, useTheme } from "../ui-themes/ThemeProvider";
 import { ForgotUsernamePage } from "./ForgotUsernamePage";
+import { MfaChallengePage } from "./MfaChallengePage";
+import { MfaSetupPage } from "./MfaSetupPage";
 import { VerifyEmailPage } from "./VerifyEmailPage";
-import type { AuthBootstrap, AuthView } from "./types";
+import type { AuthBootstrap, AuthView, MfaBootstrapState } from "./types";
 import styles from "./AuthApp.module.css";
 
 const AUTH_BOOTSTRAP_ID = "perc-auth-bootstrap";
+
+const VALID_VIEWS: ReadonlySet<string> = new Set([
+  "verify-email",
+  "forgot-username",
+  "mfa-challenge",
+  "mfa-setup",
+]);
+
+function resolveAuthView(raw: string): AuthView {
+  return VALID_VIEWS.has(raw) ? (raw as AuthView) : "forgot-username";
+}
+
+function parseMfaState(rawJson: string): MfaBootstrapState | undefined {
+  if (!rawJson.trim()) {
+    return undefined;
+  }
+  try {
+    const parsed = JSON.parse(rawJson);
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      const rec = parsed as Record<string, unknown>;
+      return {
+        hasValidTx: Boolean(rec.hasValidTx),
+        txType: typeof rec.txType === "string" ? rec.txType : "",
+        totpAvailable: Boolean(rec.totpAvailable),
+        passkeyAvailable: Boolean(rec.passkeyAvailable),
+        recoveryCodeAvailable: Boolean(rec.recoveryCodeAvailable),
+      };
+    }
+  } catch {
+    console.error("[PercModernUI] Failed to parse #perc-auth-bootstrap mfaStateJson");
+  }
+  return undefined;
+}
 
 function readStringField(
   rec: Record<string, unknown>,
@@ -61,10 +96,10 @@ export function readAuthBootstrap(): AuthBootstrap {
     }
   }
   const rawView = readStringField(parsed, "view");
-  const view: AuthView =
-    rawView === "verify-email" ? "verify-email" : "forgot-username";
+  const view: AuthView = resolveAuthView(rawView);
   const csrf = resolveCsrfFromHolder(parsed);
   const rawDir = readStringField(parsed, "textDir", "ltr");
+  const mfaState = parseMfaState(readStringField(parsed, "mfaStateJson"));
 
   return {
     view,
@@ -75,11 +110,25 @@ export function readAuthBootstrap(): AuthBootstrap {
     contextPath: readStringField(parsed, "contextPath"),
     locale: readStringField(parsed, "locale", "en-us"),
     textDir: rawDir === "rtl" ? "rtl" : "ltr",
+    mfaState,
   };
 }
 
 export interface AuthAppProps {
   bootstrap: AuthBootstrap;
+}
+
+function renderAuthView(bootstrap: AuthBootstrap): React.ReactElement {
+  switch (bootstrap.view) {
+    case "verify-email":
+      return <VerifyEmailPage bootstrap={bootstrap} />;
+    case "mfa-challenge":
+      return <MfaChallengePage bootstrap={bootstrap} />;
+    case "mfa-setup":
+      return <MfaSetupPage bootstrap={bootstrap} />;
+    default:
+      return <ForgotUsernamePage bootstrap={bootstrap} />;
+  }
 }
 
 function AuthShell({ bootstrap }: AuthAppProps): React.ReactElement {
@@ -110,11 +159,7 @@ function AuthShell({ bootstrap }: AuthAppProps): React.ReactElement {
               />
             </div>
           ) : null}
-          {bootstrap.view === "verify-email" ? (
-            <VerifyEmailPage bootstrap={bootstrap} />
-          ) : (
-            <ForgotUsernamePage bootstrap={bootstrap} />
-          )}
+          {renderAuthView(bootstrap)}
         </div>
       </main>
       <BrandFooter />

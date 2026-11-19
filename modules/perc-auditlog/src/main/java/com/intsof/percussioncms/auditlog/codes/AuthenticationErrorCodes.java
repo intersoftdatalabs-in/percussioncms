@@ -65,6 +65,102 @@ public enum AuthenticationErrorCodes implements SystemErrorCode {
       "Session revoked for user {}",
       "Session revoke actor={} sourceIp={}"),
 
+  MFA_CHALLENGE_SUCCESS(
+      1005,
+      true,
+      AuditEventType.AUTH_LOGIN,
+      AuditOutcome.SUCCESS,
+      "MFA challenge succeeded for user {}",
+      "MFA challenge success actor={} factor={} sourceIp={}"),
+
+  MFA_CHALLENGE_FAILURE(
+      1006,
+      true,
+      AuditEventType.AUTH_FAILURE,
+      AuditOutcome.FAILURE,
+      "MFA challenge failed for user {}",
+      "MFA challenge failure actor={} factor={} reason={} sourceIp={}"),
+
+  MFA_LOCKOUT(
+      1007,
+      true,
+      AuditEventType.AUTH_FAILURE,
+      AuditOutcome.FAILURE,
+      "MFA temporarily locked for user {}",
+      "MFA lockout actor={} attempts={} sourceIp={}"),
+
+  MFA_FACTOR_ENROLLED(
+      1008,
+      true,
+      AuditEventType.USER_UPDATE,
+      AuditOutcome.SUCCESS,
+      "MFA factor enrolled for user {}",
+      "MFA factor enrolled actor={} factor={} sourceIp={}"),
+
+  MFA_FACTOR_REMOVED(
+      1009,
+      true,
+      AuditEventType.USER_UPDATE,
+      AuditOutcome.SUCCESS,
+      "MFA factor removed for user {}",
+      "MFA factor removed actor={} factor={} sourceIp={}"),
+
+  MFA_RECOVERY_CODE_USED(
+      1010,
+      true,
+      AuditEventType.AUTH_LOGIN,
+      AuditOutcome.SUCCESS,
+      "Recovery code used for user {}",
+      "Recovery code used actor={} remaining={} sourceIp={}"),
+
+  MFA_RECOVERY_CODES_REGENERATED(
+      1011,
+      true,
+      AuditEventType.USER_UPDATE,
+      AuditOutcome.SUCCESS,
+      "Recovery codes regenerated for user {}",
+      "Recovery codes regenerated actor={} count={} sourceIp={}"),
+
+  MFA_POLICY_BLOCKED(
+      1012,
+      true,
+      AuditEventType.ACCESS_DENIED,
+      AuditOutcome.FAILURE,
+      "Non-interactive authentication blocked by MFA policy for user {}",
+      "MFA policy blocked actor={} channel={} sourceIp={}"),
+
+  SESSION_VERSION_INVALIDATED(
+      1013,
+      true,
+      AuditEventType.AUTH_SESSION_TIMEOUT,
+      AuditOutcome.SUCCESS,
+      "Session invalidated due to security version change for user {}",
+      "Session version mismatch actor={} sessionVersion={} currentVersion={} sourceIp={}"),
+
+  EMAIL_VERIFICATION_EVENT(
+      1014,
+      true,
+      AuditEventType.USER_UPDATE,
+      AuditOutcome.SUCCESS,
+      "Email verification event for user {}",
+      "Email verification actor={} activity={} sourceIp={}"),
+
+  PASSWORD_RESET_EVENT(
+      1015,
+      true,
+      AuditEventType.USER_UPDATE,
+      AuditOutcome.SUCCESS,
+      "Password reset event for user {}",
+      "Password reset actor={} activity={} sourceIp={}"),
+
+  ADMIN_RECOVERY_EVENT(
+      1016,
+      true,
+      AuditEventType.USER_UPDATE,
+      AuditOutcome.SUCCESS,
+      "Admin recovery event for user {}",
+      "Admin recovery actor={} target={} activity={} sourceIp={}"),
+
   /** Non-auditable operational noise example. */
   SESSION_CACHE_MISS(
       1099,

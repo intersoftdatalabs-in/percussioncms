@@ -99,4 +99,46 @@ class AuditRedactorTest {
     assertTrue(out.length() <= 4001); // 4000 + ellipsis
     // password may be past the truncation point — length bound is the contract
   }
+
+  @Test
+  void redactsOtpauthUrisBase32SecretsRecoveryCodesAndQueryTokens() {
+    String uri =
+        "otpauth://totp/Percussion:alice?secret=JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP&issuer=Percussion";
+    String uriOut = redactor.redact("enroll uri=" + uri);
+    assertFalse(uriOut.contains("JBSWY3DPEHPK3PXP"));
+    assertTrue(uriOut.contains(AuditRedactor.REDACTED));
+
+    String base32Out = redactor.redact("manual key JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP done");
+    assertFalse(base32Out.contains("JBSWY3DPEHPK3PXPJBSWY3DPEHPK3PXP"));
+    assertTrue(base32Out.contains(AuditRedactor.REDACTED));
+
+    String recoveryOut = redactor.redact("used code 7K9P2-XQ4M8 for alice");
+    assertFalse(recoveryOut.contains("7K9P2-XQ4M8"));
+    assertTrue(recoveryOut.contains(AuditRedactor.REDACTED));
+
+    String urlTokenOut =
+        redactor.redact("https://cms.example.com/auth/verify-email?token=raw-256-bit-token&v=1");
+    assertFalse(urlTokenOut.contains("raw-256-bit-token"));
+    assertTrue(urlTokenOut.contains("token=" + AuditRedactor.REDACTED));
+    assertTrue(urlTokenOut.contains("&v=1"));
+  }
+
+  @Test
+  void preservesUuidsAndNormalHyphenatedWordsWhileRedactingSensitiveMfaKeys() {
+    String uuid = "550e8400-e29b-41d4-a716-446655440000";
+    assertTrue(redactor.redact("tx=" + uuid).contains(uuid));
+    assertEquals("FIRST-CLASS", redactor.redact("FIRST-CLASS"));
+
+    Map<String, String> attrs =
+        redactor.redactAttributes(
+            Map.of(
+                "totpCode", "123456",
+                "recoveryCode", "7K9P2-XQ4M8",
+                "challengeId", "abc123",
+                "actor", "alice"));
+    assertEquals(AuditRedactor.REDACTED, attrs.get("totpCode"));
+    assertEquals(AuditRedactor.REDACTED, attrs.get("recoveryCode"));
+    assertEquals(AuditRedactor.REDACTED, attrs.get("challengeId"));
+    assertEquals("alice", attrs.get("actor"));
+  }
 }

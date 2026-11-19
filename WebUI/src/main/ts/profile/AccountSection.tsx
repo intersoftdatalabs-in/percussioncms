@@ -22,10 +22,13 @@ import {
 } from "../api/client";
 import {
   getMyEmailStatus,
+  isStepUpRequiredError,
+  type MfaStepUpResponse,
   type ProfileEmailActionResult,
   type ProfileEmailStatus,
   requestMyEmailChange,
   resendMyEmailVerification,
+  verifyMfaStepUp,
 } from "../api/auth";
 import { allowedSessionCommunities } from "../api/user/communitySwitchApi";
 import {
@@ -38,6 +41,7 @@ import {
 import { i18nKeyAttr } from "../i18n/i18nDom";
 import { message } from "../i18n/message";
 import { EmailVerificationStatusBanner } from "./EmailVerificationStatus";
+import { InlineStepUpPrompt } from "./InlineStepUpPrompt";
 import { PROFILE_MSG } from "./messages";
 import {
   loadRememberLastCommunityPrefs,
@@ -58,6 +62,10 @@ export interface AccountSectionProps {
   loadEmailStatus?: () => Promise<ProfileEmailStatus>;
   requestEmailChange?: (email: string) => Promise<ProfileEmailActionResult>;
   resendEmailVerification?: () => Promise<ProfileEmailActionResult>;
+  verifyStepUp?: (
+    code: string,
+    recoveryCode?: boolean,
+  ) => Promise<MfaStepUpResponse>;
 }
 
 type LoadState =
@@ -99,6 +107,7 @@ export function AccountSection({
   loadEmailStatus = getMyEmailStatus,
   requestEmailChange = requestMyEmailChange,
   resendEmailVerification = resendMyEmailVerification,
+  verifyStepUp = verifyMfaStepUp,
 }: AccountSectionProps = {}): React.ReactElement {
   const reactId = useId();
   const formId = `perc-profile-account-form-${reactId}`;
@@ -128,6 +137,9 @@ export function AccountSection({
   const [emailStatus, setEmailStatus] = useState<ProfileEmailStatus | null>(null);
   const [isSavingCommunity, setIsSavingCommunity] = useState(false);
   const [isSavingRemember, setIsSavingRemember] = useState(false);
+  const [pendingStepUpEmail, setPendingStepUpEmail] = useState<string | null>(
+    null,
+  );
 
   const load = useCallback(async () => {
     setLoadState({ status: "loading" });
@@ -197,6 +209,10 @@ export function AccountSection({
       }
     } catch (err) {
       if (isSessionRedirectError(err)) {
+        return;
+      }
+      if (useStagedFlow && isStepUpRequiredError(err)) {
+        setPendingStepUpEmail(trimmed);
         return;
       }
       setFormError(formatApiError(err, message(PROFILE_MSG.SAVE_ERROR)));
@@ -498,6 +514,7 @@ export function AccountSection({
                     setEmailDraft(e.target.value);
                     setFieldError(null);
                     setSuccessMessage(null);
+                    setPendingStepUpEmail(null);
                   }}
                   disabled={isSaving}
                   aria-invalid={fieldError ? true : undefined}
@@ -561,6 +578,34 @@ export function AccountSection({
               isResending={isResendingEmail}
               onResend={() => void onResendVerification()}
             />
+            {pendingStepUpEmail !== null && (
+              <InlineStepUpPrompt
+                testIdPrefix="perc-profile-account-stepup"
+                verifyStepUp={verifyStepUp}
+                onVerified={async () => {
+                  const targetEmail = pendingStepUpEmail;
+                  setPendingStepUpEmail(null);
+                  if (!targetEmail) {
+                    return;
+                  }
+                  setIsSaving(true);
+                  try {
+                    await submitStagedEmailChange(targetEmail);
+                  } catch (retryErr) {
+                    if (!isSessionRedirectError(retryErr)) {
+                      setFormError(
+                        formatApiError(retryErr, message(PROFILE_MSG.SAVE_ERROR)),
+                      );
+                    }
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }}
+                onCancel={() => {
+                  setPendingStepUpEmail(null);
+                }}
+              />
+            )}
           </dd>
         </div>
 

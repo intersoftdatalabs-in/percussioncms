@@ -19,8 +19,10 @@ import com.percussion.services.auth.data.PSAccountSecurity;
 import com.percussion.services.auth.data.PSAuthLoginTx;
 import com.percussion.services.auth.data.PSAuthToken;
 import com.percussion.services.auth.data.PSMfaPasskey;
+import com.percussion.services.auth.data.PSMfaRecoveryCode;
 import com.percussion.services.auth.data.PSMfaTotp;
 import java.time.Instant;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -64,7 +66,35 @@ public interface IPSAuthSecurityDao {
 
   Optional<PSAuthLoginTx> findLoginTx(String txId);
 
+  int consumeLoginTxAtomically(String txId, String expectedType, Date now);
+
+  int incrementLoginTxAttemptsAtomically(String txId, int maxAttempts, Date now);
+
+  int cancelLoginTx(String txId);
+
   int purgeExpiredLoginTx(Instant cutoff);
+
+  PSMfaTotp saveTotp(PSMfaTotp totp);
+
+  Optional<PSMfaTotp> findTotpById(String totpId);
+
+  List<PSMfaTotp> findTotpByUserAndStatus(String userName, String status);
+
+  int advanceTotpLastUsedStepAtomically(String totpId, long newStep, Date usedAt);
+
+  int revokeTotpByUser(String userName, String currentStatus);
+
+  void saveRecoveryCodes(List<PSMfaRecoveryCode> codes);
+
+  List<PSMfaRecoveryCode> findUnusedRecoveryCodesByUser(String userName);
+
+  int consumeRecoveryCodeAtomically(String codeId, Date usedAt);
+
+  int invalidateUnusedRecoveryCodesByUser(String userName, Date usedAt);
+
+  long findSessionVersion(String userName);
+
+  long incrementSessionVersion(String userName);
 
   Map<String, Boolean> checkSchemaTablesPresent();
 }

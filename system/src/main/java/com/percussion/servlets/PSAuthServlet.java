@@ -15,23 +15,38 @@
  */
 package com.percussion.servlets;
 
+import com.percussion.security.PSRoleEntry;
+import com.percussion.security.PSUserEntry;
 import com.percussion.server.PSServer;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.services.auth.PSAuthServiceLocator;
 import com.percussion.services.auth.account.IPSAccountSecurityService;
 import com.percussion.services.auth.account.PSEmailVerifyResult;
 import com.percussion.services.auth.account.PSForgotUsernameResult;
+import com.percussion.services.auth.mfa.IPSMfaService;
+import com.percussion.services.auth.mfa.PSMfaChallengeOutcome;
+import com.percussion.services.auth.mfa.PSMfaLockoutException;
+import com.percussion.services.auth.mfa.PSMfaTxStatus;
+import com.percussion.services.auth.mfa.PSTotpConfirmOutcome;
+import com.percussion.services.auth.mfa.PSTotpEnrollmentStart;
 import com.percussion.services.auth.ratelimit.PSAuthRateLimitException;
+import com.percussion.services.security.PSJaasUtils;
 import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import javax.security.auth.Subject;
+import javax.security.auth.login.LoginException;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -40,12 +55,11 @@ import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 
 /**
- * Dedicated public servlet for unauthenticated email verification and account recovery flows under
- * {@code /auth/*}.
+ * Dedicated public servlet for unauthenticated email verification, MFA challenge/setup, and account
+ * recovery flows under {@code /auth/*}.
  *
- * <p>{@code GET} renders {@code /rxauth.jsp} without mutating state so email link scanners cannot
- * pre-consume single-use tokens. State changes execute only on CSRF- and origin-validated {@code
- * POST} requests.
+ * <p>{@code GET} renders {@code /rxauth.jsp} without mutating state. State changes execute only on
+ * CSRF- and origin-validated {@code POST} requests.
  */
 public class PSAuthServlet extends HttpServlet {
 
@@ -55,28 +69,62 @@ public class PSAuthServlet extends HttpServlet {
   public static final String ATTR_VIEW = "perc.auth.view";
   public static final String ATTR_TOKEN = "perc.auth.token";
   public static final String ATTR_CSRF_TOKEN = "perc.auth.csrfToken";
+  public static final String ATTR_BOOTSTRAP_JSON = "perc.auth.bootstrapJson";
 
   private static final String PATH_VERIFY_EMAIL = "/verify-email";
   private static final String PATH_FORGOT_USERNAME = "/forgot-username";
+  private static final String PATH_CHALLENGE = "/challenge";
+  private static final String PATH_CHALLENGE_TOTP = "/challenge/totp";
+  private static final String PATH_CHALLENGE_RECOVERY = "/challenge/recovery-code";
+  private static final String PATH_SETUP = "/setup";
+  private static final String PATH_SETUP_TOTP_START = "/setup/totp/start";
+  private static final String PATH_SETUP_TOTP_CONFIRM = "/setup/totp/confirm";
+  private static final String PATH_CANCEL = "/cancel";
+
   private static final String JSP_AUTH_HOST = "/rxauth.jsp";
   private static final int MAX_BODY_BYTES = 8192;
 
   private static final ObjectMapper JSON = JsonMapper.builder().build();
   private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<>() {};
 
+  @FunctionalInterface
+  interface SessionFinalizer {
+    HttpServletRequest finalizeSession(
+        HttpServletRequest req, HttpServletResponse res, Subject sub, String locale)
+        throws LoginException;
+  }
+
   private final transient IPSAccountSecurityService accountSecurityService;
+  private final transient IPSMfaService mfaService;
   private final transient PSAuthCsrfGuard csrfGuard;
+  private final transient SessionFinalizer sessionFinalizer;
 
   public PSAuthServlet() {
     this.accountSecurityService = null;
+    this.mfaService = null;
     this.csrfGuard = new PSAuthCsrfGuard();
+    this.sessionFinalizer = PSSecurityFilter::finalizeAuthenticatedSession;
   }
 
-  /** Package-visible constructor for isolated servlet tests. */
+  /** Package-visible constructor for isolated M2 tests. */
   PSAuthServlet(IPSAccountSecurityService accountSecurityService, PSAuthCsrfGuard csrfGuard) {
     this.accountSecurityService =
         Objects.requireNonNull(accountSecurityService, "accountSecurityService");
+    this.mfaService = null;
     this.csrfGuard = Objects.requireNonNull(csrfGuard, "csrfGuard");
+    this.sessionFinalizer = PSSecurityFilter::finalizeAuthenticatedSession;
+  }
+
+  /** Package-visible constructor for isolated M3 tests. */
+  PSAuthServlet(
+      IPSAccountSecurityService accountSecurityService,
+      IPSMfaService mfaService,
+      PSAuthCsrfGuard csrfGuard,
+      SessionFinalizer sessionFinalizer) {
+    this.accountSecurityService = accountSecurityService;
+    this.mfaService = Objects.requireNonNull(mfaService, "mfaService");
+    this.csrfGuard = Objects.requireNonNull(csrfGuard, "csrfGuard");
+    this.sessionFinalizer = Objects.requireNonNull(sessionFinalizer, "sessionFinalizer");
   }
 
   @Override
@@ -84,19 +132,21 @@ public class PSAuthServlet extends HttpServlet {
       throws ServletException, IOException {
     applySecurityHeaders(response);
     String subPath = normalizeSubPath(request.getPathInfo());
-    if (!PATH_VERIFY_EMAIL.equals(subPath) && !PATH_FORGOT_USERNAME.equals(subPath)) {
+    String view = resolveGetView(subPath);
+    if (view == null) {
       response.sendError(HttpServletResponse.SC_NOT_FOUND);
       return;
     }
 
-    String view = PATH_VERIFY_EMAIL.equals(subPath) ? "verify-email" : "forgot-username";
     String token =
         PATH_VERIFY_EMAIL.equals(subPath) ? StringUtils.trimToEmpty(request.getParameter("token")) : "";
+    String bootstrapJson = buildGetBootstrapJson(request, subPath);
     String csrfToken = csrfGuard.ensureSessionToken(request);
 
     request.setAttribute(ATTR_VIEW, view);
     request.setAttribute(ATTR_TOKEN, token);
     request.setAttribute(ATTR_CSRF_TOKEN, csrfToken);
+    request.setAttribute(ATTR_BOOTSTRAP_JSON, bootstrapJson);
 
     RequestDispatcher dispatcher = request.getRequestDispatcher(JSP_AUTH_HOST);
     if (dispatcher == null) {
@@ -124,15 +174,55 @@ public class PSAuthServlet extends HttpServlet {
 
     String subPath = normalizeSubPath(request.getPathInfo());
     Map<String, String> params = parseRequestPayload(request);
-    if (PATH_VERIFY_EMAIL.equals(subPath)) {
-      handleVerifyEmailPost(params.get("token"), response);
-      return;
+    dispatchPostRoute(request, response, subPath, params);
+  }
+
+  private void dispatchPostRoute(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      String subPath,
+      Map<String, String> params)
+      throws IOException {
+    switch (subPath) {
+      case PATH_VERIFY_EMAIL -> handleVerifyEmailPost(params.get("token"), response);
+      case PATH_FORGOT_USERNAME ->
+          handleForgotUsernamePost(params.get("email"), resolveClientIp(request), response);
+      case PATH_CHALLENGE_TOTP ->
+          handleChallengePost(request, response, params.get("code"), false);
+      case PATH_CHALLENGE_RECOVERY ->
+          handleChallengePost(request, response, params.get("code"), true);
+      case PATH_SETUP_TOTP_START ->
+          handleSetupTotpStartPost(request, response, params.get("label"));
+      case PATH_SETUP_TOTP_CONFIRM ->
+          handleSetupTotpConfirmPost(request, response, params.get("totpId"), params.get("code"));
+      case PATH_CANCEL -> handleCancelPost(request, response);
+      default -> response.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
-    if (PATH_FORGOT_USERNAME.equals(subPath)) {
-      handleForgotUsernamePost(params.get("email"), resolveClientIp(request), response);
-      return;
+  }
+
+  private static String resolveGetView(String subPath) {
+    return switch (subPath) {
+      case PATH_VERIFY_EMAIL -> "verify-email";
+      case PATH_FORGOT_USERNAME -> "forgot-username";
+      case PATH_CHALLENGE -> "mfa-challenge";
+      case PATH_SETUP -> "mfa-setup";
+      default -> null;
+    };
+  }
+
+  private String buildGetBootstrapJson(HttpServletRequest request, String subPath) {
+    if (!PATH_CHALLENGE.equals(subPath) && !PATH_SETUP.equals(subPath)) {
+      return "{}";
     }
-    response.sendError(HttpServletResponse.SC_NOT_FOUND);
+    String txId = extractAuthTxCookie(request);
+    PSMfaTxStatus tx = resolveMfaService().getTransactionStatus(txId);
+    Map<String, Object> meta = new LinkedHashMap<>();
+    meta.put("hasValidTx", tx.valid());
+    meta.put("txType", tx.txType());
+    meta.put("totpAvailable", tx.hasTotp());
+    meta.put("passkeyAvailable", tx.hasPasskey());
+    meta.put("recoveryCodeAvailable", tx.recoveryCodesRemaining() > 0);
+    return JSON.writeValueAsString(meta);
   }
 
   private void handleVerifyEmailPost(String rawToken, HttpServletResponse response)
@@ -156,11 +246,219 @@ public class PSAuthServlet extends HttpServlet {
       body.put("message", result.message());
       writeJson(response, HttpServletResponse.SC_OK, body);
     } catch (PSAuthRateLimitException ex) {
-      Map<String, Object> body = new LinkedHashMap<>();
-      body.put("accepted", false);
-      body.put("message", ex.getMessage());
-      writeJson(response, 429, body);
+      writeErrorJson(response, 429, "RATE_LIMITED", ex.getMessage());
     }
+  }
+
+  private void handleChallengePost(
+      HttpServletRequest request, HttpServletResponse response, String code, boolean recoveryCode)
+      throws IOException {
+    String txId = extractAuthTxCookie(request);
+    if (StringUtils.isBlank(txId)) {
+      writeErrorJson(
+          response,
+          HttpServletResponse.SC_BAD_REQUEST,
+          PSMfaChallengeOutcome.STATUS_TX_INVALID,
+          "Sign-in verification session has expired. Please sign in again.");
+      return;
+    }
+    try {
+      String clientIp = resolveClientIp(request);
+      PSMfaChallengeOutcome outcome =
+          recoveryCode
+              ? resolveMfaService().verifyChallengeRecoveryCode(txId, code, clientIp)
+              : resolveMfaService().verifyChallengeTotp(txId, code, clientIp);
+      if (!outcome.verified()) {
+        int codeStatus =
+            PSMfaChallengeOutcome.STATUS_TX_INVALID.equals(outcome.status())
+                ? HttpServletResponse.SC_BAD_REQUEST
+                : HttpServletResponse.SC_UNAUTHORIZED;
+        writeErrorJson(response, codeStatus, outcome.status(), outcome.message());
+        return;
+      }
+
+      String redirectUrl =
+          completeMfaSession(
+              request,
+              response,
+              txId,
+              outcome.userName(),
+              outcome.roles(),
+              outcome.redirectUrl(),
+              outcome.locale());
+      Map<String, Object> body = new LinkedHashMap<>();
+      body.put("authenticated", true);
+      body.put("redirectUrl", redirectUrl);
+      body.put("recoveryCodesRemaining", outcome.recoveryCodesRemaining());
+      body.put("message", outcome.message());
+      writeJson(response, HttpServletResponse.SC_OK, body);
+    } catch (PSMfaLockoutException ex) {
+      writeErrorJson(response, 423, "MFA_LOCKED", ex.getMessage());
+    } catch (PSAuthRateLimitException ex) {
+      writeErrorJson(response, 429, "RATE_LIMITED", ex.getMessage());
+    } catch (LoginException ex) {
+      writeErrorJson(
+          response,
+          HttpServletResponse.SC_UNAUTHORIZED,
+          "SESSION_FINALIZE_FAILED",
+          "Unable to complete sign-in. Please try again.");
+    }
+  }
+
+  private void handleSetupTotpStartPost(
+      HttpServletRequest request, HttpServletResponse response, String label) throws IOException {
+    String txId = extractAuthTxCookie(request);
+    try {
+      PSTotpEnrollmentStart start = resolveMfaService().startEnrollOnlyTotp(txId, label);
+      Map<String, Object> body = new LinkedHashMap<>();
+      body.put("totpId", start.totpId());
+      body.put("otpauthUri", start.otpauthUri());
+      body.put("manualSecret", start.manualSecret());
+      body.put("issuer", start.issuer());
+      body.put("accountName", start.accountName());
+      body.put("digits", start.digits());
+      body.put("periodSeconds", start.periodSeconds());
+      writeJson(response, HttpServletResponse.SC_OK, body);
+    } catch (IllegalArgumentException ex) {
+      writeErrorJson(
+          response,
+          HttpServletResponse.SC_BAD_REQUEST,
+          PSMfaChallengeOutcome.STATUS_TX_INVALID,
+          ex.getMessage());
+    }
+  }
+
+  private void handleSetupTotpConfirmPost(
+      HttpServletRequest request, HttpServletResponse response, String totpId, String code)
+      throws IOException {
+    String txId = extractAuthTxCookie(request);
+    if (StringUtils.isBlank(txId)) {
+      writeErrorJson(
+          response,
+          HttpServletResponse.SC_BAD_REQUEST,
+          PSMfaChallengeOutcome.STATUS_TX_INVALID,
+          "MFA setup session has expired. Sign in again to continue.");
+      return;
+    }
+    try {
+      PSTotpConfirmOutcome outcome =
+          resolveMfaService()
+              .completeEnrollOnlyTotp(txId, totpId, code, resolveClientIp(request));
+      if (!outcome.enrolled()) {
+        writeErrorJson(
+            response, HttpServletResponse.SC_UNAUTHORIZED, "INVALID_CODE", outcome.message());
+        return;
+      }
+
+      String redirectUrl =
+          completeMfaSession(
+              request,
+              response,
+              txId,
+              outcome.userName(),
+              outcome.roles(),
+              outcome.redirectUrl(),
+              outcome.locale());
+      Map<String, Object> body = new LinkedHashMap<>();
+      body.put("enrolled", true);
+      body.put("recoveryCodes", outcome.recoveryCodes());
+      body.put("redirectUrl", redirectUrl);
+      body.put("message", outcome.message());
+      writeJson(response, HttpServletResponse.SC_OK, body);
+    } catch (PSMfaLockoutException ex) {
+      writeErrorJson(response, 423, "MFA_LOCKED", ex.getMessage());
+    } catch (PSAuthRateLimitException ex) {
+      writeErrorJson(response, 429, "RATE_LIMITED", ex.getMessage());
+    } catch (IllegalArgumentException ex) {
+      writeErrorJson(
+          response,
+          HttpServletResponse.SC_BAD_REQUEST,
+          PSMfaChallengeOutcome.STATUS_TX_INVALID,
+          ex.getMessage());
+    } catch (LoginException ex) {
+      writeErrorJson(
+          response,
+          HttpServletResponse.SC_UNAUTHORIZED,
+          "SESSION_FINALIZE_FAILED",
+          "Unable to complete sign-in. Please try again.");
+    }
+  }
+
+  private void handleCancelPost(HttpServletRequest request, HttpServletResponse response)
+      throws IOException {
+    String txId = extractAuthTxCookie(request);
+    resolveMfaService().cancelTransaction(txId);
+    HttpSession sess = request.getSession(false);
+    if (sess != null) {
+      sess.removeAttribute(PSSecurityFilter.ATTR_PENDING_MFA_TX);
+    }
+    PSSecurityFilter.setAuthTxCookie(request, response, "", 0);
+    String ctxPath = StringUtils.trimToEmpty(request.getContextPath());
+    String loginUrl = ctxPath.isEmpty() ? "/login" : ctxPath + "/login";
+    writeJson(response, HttpServletResponse.SC_OK, Map.of("cancelled", true, "loginUrl", loginUrl));
+  }
+
+  private String completeMfaSession(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      String txId,
+      String userName,
+      List<String> roles,
+      String rawRedirect,
+      String locale)
+      throws LoginException {
+    Subject subject = resolveSubjectForTx(request, txId, userName, roles);
+    HttpServletRequest authReq =
+        sessionFinalizer.finalizeSession(request, response, subject, locale);
+    PSSecurityFilter.setAuthTxCookie(request, response, "", 0);
+    try {
+      PSSystemAuditLogger.loginSuccess(authReq, userName);
+    } catch (RuntimeException ex) {
+      log.debug("Login success audit skipped after MFA: {}", ex.getMessage());
+    }
+    String safeRedirect = PSLoginServlet.resolveSafePostLoginRedirect(request, rawRedirect);
+    String ctxPath = StringUtils.trimToEmpty(request.getContextPath());
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #50, same as PSLoginServlet) — "/" is HTTP URL context path delimiter, not an OS path.
+    if (!ctxPath.isEmpty()
+        && safeRedirect.startsWith("/")
+        // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #50, same as PSLoginServlet) — "/" is HTTP URL context path delimiter, not an OS path.
+        && !safeRedirect.startsWith(ctxPath + "/")
+        && !safeRedirect.equals(ctxPath)) {
+      return ctxPath + safeRedirect;
+    }
+    return safeRedirect;
+  }
+
+  private static Subject resolveSubjectForTx(
+      HttpServletRequest request, String txId, String userName, List<String> roles) {
+    HttpSession sess = request.getSession(false);
+    if (sess != null
+        && sess.getAttribute(PSSecurityFilter.ATTR_PENDING_MFA_TX)
+            instanceof PSSecurityFilter.PendingMfaContext pending
+        && Objects.equals(txId, pending.txId())
+        && userName.equalsIgnoreCase(pending.userName())
+        && pending.subject() != null) {
+      return pending.subject();
+    }
+    PSRoleEntry[] roleEntries =
+        roles == null
+            ? new PSRoleEntry[0]
+            : roles.stream().map(role -> new PSRoleEntry(role, 0)).toArray(PSRoleEntry[]::new);
+    PSUserEntry entry = new PSUserEntry(userName, 0, null, roleEntries, null, null);
+    return PSJaasUtils.userEntryToSubject(entry, null);
+  }
+
+  private static String extractAuthTxCookie(HttpServletRequest request) {
+    Cookie[] cookies = request.getCookies();
+    if (cookies == null) {
+      return "";
+    }
+    for (Cookie cookie : cookies) {
+      if (PSSecurityFilter.AUTH_TX_COOKIE_NAME.equals(cookie.getName())) {
+        return StringUtils.trimToEmpty(cookie.getValue());
+      }
+    }
+    return "";
   }
 
   private static int mapVerifyStatus(String status) {
@@ -179,6 +477,10 @@ public class PSAuthServlet extends HttpServlet {
         : PSAuthServiceLocator.getAccountSecurityService();
   }
 
+  private IPSMfaService resolveMfaService() {
+    return mfaService != null ? mfaService : PSAuthServiceLocator.getMfaService();
+  }
+
   private Map<String, String> parseRequestPayload(HttpServletRequest request) throws IOException {
     Map<String, String> out = new LinkedHashMap<>();
     String contentType = StringUtils.trimToEmpty(request.getContentType()).toLowerCase();
@@ -187,6 +489,9 @@ public class PSAuthServlet extends HttpServlet {
     }
     copyParamIfPresent(request, out, "token");
     copyParamIfPresent(request, out, "email");
+    copyParamIfPresent(request, out, "code");
+    copyParamIfPresent(request, out, "totpId");
+    copyParamIfPresent(request, out, "label");
     return out;
   }
 
@@ -258,6 +563,17 @@ public class PSAuthServlet extends HttpServlet {
     response.setHeader("Cache-Control", "no-store, no-cache, must-revalidate");
     response.setHeader("Pragma", "no-cache");
     response.setHeader("X-Content-Type-Options", "nosniff");
+  }
+
+  private static void writeErrorJson(
+      HttpServletResponse response, int status, String errorCode, String message)
+      throws IOException {
+    Map<String, Object> body = new LinkedHashMap<>();
+    body.put("authenticated", false);
+    body.put("error", errorCode);
+    body.put("status", errorCode);
+    body.put("message", StringUtils.defaultString(message));
+    writeJson(response, status, body);
   }
 
   private static void writeJson(

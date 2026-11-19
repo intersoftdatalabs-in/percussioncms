@@ -15,6 +15,7 @@
  */
 package com.percussion.rest.auth;
 
+import com.percussion.services.auth.mfa.PSStepUpRequiredException;
 import com.percussion.services.auth.ratelimit.PSAuthRateLimitException;
 import com.percussion.system.utils.PSSiteManageBean;
 import io.swagger.v3.oas.annotations.Operation;
@@ -30,7 +31,9 @@ import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import java.util.Map;
 import java.util.function.Supplier;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -130,6 +133,18 @@ public class AuthProfileResource {
   private <T> T executeMapped(Supplier<T> call) {
     try {
       return call.get();
+    } catch (PSStepUpRequiredException e) {
+      Response resp =
+          Response.status(428)
+              .type(MediaType.APPLICATION_JSON)
+              .entity(
+                  Map.of(
+                      "error",
+                      "STEP_UP_REQUIRED",
+                      "message",
+                      StringUtils.defaultString(e.getMessage())))
+              .build();
+      throw new WebApplicationException(e, resp);
     } catch (PSAuthRateLimitException e) {
       throw new WebApplicationException(e.getMessage(), e, 429);
     } catch (SecurityException e) {

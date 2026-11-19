@@ -89,3 +89,47 @@ export interface ProfileEmailActionResult {
   emailVerified: boolean;
   message: string;
 }
+
+export interface ProfileMfaStatus {
+  userName: string;
+  mfaMode: string;
+  mfaRequired: boolean;
+  totpEnabled: boolean;
+  passkeyCount: number;
+  recoveryCodesRemaining: number;
+  canDisableTotp: boolean;
+  stepUpActive: boolean;
+  stepUpExpiresAt: string | null;
+}
+
+export interface MfaStepUpResponse {
+  verified: boolean;
+  expiresAtEpochMs: number;
+  message: string;
+}
+
+export interface TotpEnrollStartResponse {
+  totpId: string;
+  otpauthUri: string;
+  manualSecret: string;
+  issuer: string;
+  accountName: string;
+  digits: number;
+  periodSeconds: number;
+}
+
+export interface TotpEnrollConfirmResponse {
+  enrolled: boolean;
+  recoveryCodes: string[];
+  message: string;
+}
+
+export interface RecoveryCodesRegenerateResponse {
+  recoveryCodes: string[];
+  message: string;
+}
+
+export interface MfaActionResult {
+  success: boolean;
+  message: string;
+}

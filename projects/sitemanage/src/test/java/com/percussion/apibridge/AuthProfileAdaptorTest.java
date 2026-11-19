@@ -29,6 +29,8 @@ import com.percussion.rest.auth.ProfileEmailStatus;
 import com.percussion.services.auth.account.IPSAccountSecurityService;
 import com.percussion.services.auth.account.PSEmailChangeResult;
 import com.percussion.services.auth.account.PSEmailVerificationStatus;
+import com.percussion.services.auth.mfa.IPSMfaService;
+import com.percussion.services.auth.mfa.PSStepUpRequiredException;
 import com.percussion.services.auth.ratelimit.PSAuthRateLimitException;
 import com.percussion.user.data.PSCurrentUser;
 import com.percussion.user.data.PSUserProviderType;
@@ -37,6 +39,7 @@ import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.springframework.mock.web.MockHttpSession;
 
 @Tag("UnitTest")
 class AuthProfileAdaptorTest {
@@ -121,5 +124,36 @@ class AuthProfileAdaptorTest {
         .thenThrow(new PSAuthRateLimitException());
     assertThrows(PSAuthRateLimitException.class, adaptor::resendMyEmailVerification);
     verify(accountService).resendVerification("editor1", "old@example.com", "203.0.113.10");
+  }
+
+  @Test
+  void requiresStepUpMfaBeforeChangingAnAlreadyVerifiedEmail() throws Exception {
+    IPSUserService userService = mock(IPSUserService.class);
+    IPSAccountSecurityService accountService = mock(IPSAccountSecurityService.class);
+    IPSMfaService mfaService = mock(IPSMfaService.class);
+    MockHttpSession session = new MockHttpSession();
+    AuthProfileAdaptor adaptor =
+        new AuthProfileAdaptor(userService, accountService, () -> session, () -> "203.0.113.10");
+    adaptor.setMfaService(mfaService);
+
+    when(userService.getCurrentUser())
+        .thenReturn(makeCurrent("editor1", PSUserProviderType.INTERNAL, "old@example.com"));
+    when(accountService.getEmailStatus("editor1", "old@example.com", false))
+        .thenReturn(
+            new PSEmailVerificationStatus(
+                "editor1",
+                "old@example.com",
+                true,
+                Instant.parse("2026-11-18T10:00:00Z"),
+                "",
+                "INTERACTIVE_MFA_REQUIRED",
+                true));
+    org.mockito.Mockito.doThrow(new PSStepUpRequiredException("Step-up required"))
+        .when(mfaService)
+        .requireStepUpIfEnrolled("editor1", session);
+
+    assertThrows(
+        PSStepUpRequiredException.class,
+        () -> adaptor.requestMyEmailChange(new ProfileEmailChangeRequest("new@example.com")));
   }
 }

@@ -285,4 +285,43 @@ describe("SecuritySection", () => {
     });
     expect(loadProfile).toHaveBeenCalledTimes(2);
   });
+
+  it("mounts MfaSecurityPanel for both INTERNAL and DIRECTORY users", async () => {
+    const mockMfa = vi.fn().mockResolvedValue({
+      userName: "Admin",
+      mfaMode: "optional",
+      mfaRequired: false,
+      totpEnabled: false,
+      passkeyCount: 0,
+      recoveryCodesRemaining: 0,
+      canDisableTotp: true,
+      stepUpActive: false,
+      stepUpExpiresAt: null,
+    });
+
+    const { unmount } = render(
+      <SecuritySection
+        loadProfile={vi.fn().mockResolvedValue(internalProfile())}
+        mfaPanelProps={{ loadMfaStatus: mockMfa }}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-security-form")).toBeTruthy();
+      expect(screen.getByTestId("perc-profile-mfa-status")).toBeTruthy();
+    });
+
+    unmount();
+    render(
+      <SecuritySection
+        loadProfile={vi.fn().mockResolvedValue(
+          internalProfile({ providerType: "DIRECTORY", emailEditable: false }),
+        )}
+        mfaPanelProps={{ loadMfaStatus: mockMfa }}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-security-external")).toBeTruthy();
+      expect(screen.getByTestId("perc-profile-mfa-status")).toBeTruthy();
+    });
+  });
 });

@@ -108,6 +108,7 @@ public class PSUserSession {
     session.m_UserEntries = new CopyOnWriteArrayList<>();
     session.m_usrMeta = m_usrMeta;
     session.m_usrProp = m_usrProp;
+    session.m_sessionVersion = m_sessionVersion;
 
     return session;
   }
@@ -1235,6 +1236,16 @@ public class PSUserSession {
 
   /** Logger for this class. */
   private static final Logger ms_log = LogManager.getLogger(PSUserSession.class);
+
+  private volatile long m_sessionVersion = 1L;
+
+  public long getSessionVersion() {
+    return m_sessionVersion;
+  }
+
+  public void setSessionVersion(long sessionVersion) {
+    this.m_sessionVersion = sessionVersion > 0 ? sessionVersion : 1L;
+  }
 
   /** The name used to store a client id as session private object. */
   public static final String CLIENTID = "clientId";

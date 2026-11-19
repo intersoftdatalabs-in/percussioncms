@@ -18,9 +18,16 @@ export { AuthApp, readAuthBootstrap } from "./AuthApp";
 export type { AuthAppProps } from "./AuthApp";
 export { VerifyEmailPage } from "./VerifyEmailPage";
 export { ForgotUsernamePage } from "./ForgotUsernamePage";
+export { MfaChallengePage } from "./MfaChallengePage";
+export { MfaSetupPage } from "./MfaSetupPage";
 export type {
   AuthBootstrap,
+  AuthCancelResponse,
   AuthView,
   ForgotUsernameResponse,
+  MfaBootstrapState,
+  MfaChallengeResponse,
+  TotpSetupConfirmResponse,
+  TotpSetupStartResponse,
   VerifyEmailResponse,
 } from "./types";
