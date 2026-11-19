@@ -21,11 +21,18 @@
  * menus (not a multi-row flat button dump). Shell chrome commands (search,
  * security, clipboard, refresh, help) land here; server-driven item menus
  * remain on {@link ActionToolbar}.</p>
+ *
+ * <p>Dropdown items render the DCE-familiar <strong>icon + label</strong>
+ * affordance (#6603): each command shows an inline SVG glyph from
+ * {@code actionIcons} next to its label. Labels, {@code aria-label}s,
+ * toggle checkmarks, and keyboard handling are unchanged; a command
+ * without a mapping stays label-only.</p>
  */
 
 import React, { useCallback, useEffect, useId, useRef, useState } from "react";
 import type { DisplayFormat } from "../api/contentExplorer/displayFormatsApi";
 import { message } from "../i18n/message";
+import { MenuCommandIcon } from "./actionIcons";
 import { displayFormatOptionKey } from "./displayFormatMap";
 import {
   buildExplorerMenuBarGroups,
@@ -439,6 +446,7 @@ export function ExplorerMenuBar(props: ExplorerMenuBarProps): React.JSX.Element 
                               {checked ? "✓" : "\u00a0\u00a0"}
                             </span>
                           ) : null}
+                          <MenuCommandIcon id={item.id} />
                           {label}
                         </button>
                       </li>
