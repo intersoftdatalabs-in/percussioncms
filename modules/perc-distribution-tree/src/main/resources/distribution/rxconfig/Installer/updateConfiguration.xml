@@ -256,6 +256,8 @@
 			<entry key="auth.webauthn.allowedOrigins" default="" />
 			<entry key="auth.password.minLength" default="12" />
 			<entry key="auth.token.emailVerifyTtlMinutes" default="30" />
+			<!--
+			// mkd-code-review[secrets.heuristic]: adjudicated FP (issue #48, precedent #52) - Ant propertyfile numeric token TTL key name, not a secret. -->
 			<entry key="auth.token.passwordResetTtlMinutes" default="20" />
 			<entry key="auth.token.adminBreakGlassTtlMinutes" default="60" />
 			<entry key="auth.mail.host" default="" />

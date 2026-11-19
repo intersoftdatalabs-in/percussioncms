@@ -19,7 +19,8 @@
  * Playwright surface: #6461 / parent #4531 — schedule one date set for
  * several item ids on the PublishingShell site workspace and report each
  * row (a per-item 403 is a named failure, not full success; cancel and
- * blank input never write).
+ * blank input never write). Load-path parity (#6695): a partial multi-id
+ * load names the failed id and Retry failed reloads only it.
  *
  * Tags: @publishing-item-schedule-batch @publish @smoke
  *
@@ -54,7 +55,12 @@ function itemIdFromDatesUrl(url) {
 }
 
 async function stubBatchApis(page, opts = {}) {
-  const state = { setCalls: [], failIds: opts.failIds || {} };
+  const state = {
+    setCalls: [],
+    getCalls: [],
+    failIds: opts.failIds || {},
+  };
+  const failGetOnce = new Set(opts.failGetOnceIds || []);
   await page.route("**/services/itemmanagement/item/pubhistory/**", async (route) => {
     await route.fulfill({
       status: 200,
@@ -78,6 +84,16 @@ async function stubBatchApis(page, opts = {}) {
   });
   await page.route("**/itemmanagement/item/getitemdates/**", async (route) => {
     const id = itemIdFromDatesUrl(route.request().url());
+    state.getCalls.push(id);
+    if (failGetOnce.has(id)) {
+      failGetOnce.delete(id);
+      await route.fulfill({
+        status: 404,
+        contentType: "application/json",
+        body: JSON.stringify({ message: "Item not found." }),
+      });
+      return;
+    }
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -224,6 +240,53 @@ test.describe("PublishingShell multi-item schedule dates (#6461)", () => {
       panel.getByTestId(`${TEST_IDS.batchItemPrefix}${FIRST_ID}`),
     ).toContainText(/saved/i);
     await expect(panel.getByTestId(TEST_IDS.success)).toHaveCount(0);
+    expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
+  });
+
+  test(`a partial load names the failure and Retry failed reloads only it ${TAGS.join(" ")}`, async ({
+    page,
+  }) => {
+    const consoleErrors = trackConsoleErrors(page);
+    const state = await stubBatchApis(page, {
+      failGetOnceIds: [SECOND_ID],
+    });
+
+    const panel = await openSiteWorkspaceSchedule(page);
+    await panel.getByTestId(TEST_IDS.input).fill(`${FIRST_ID}, ${SECOND_ID}`);
+    await panel.getByTestId(TEST_IDS.lookup).click();
+
+    await expect(panel.getByTestId(TEST_IDS.error)).toContainText(
+      /Loaded 1 of 2/i,
+      { timeout: 15000 },
+    );
+    await expect(panel.getByTestId(TEST_IDS.error)).toContainText(
+      new RegExp(`${SECOND_ID} \\(Item not found\\.\\)`),
+    );
+    await expect(panel.getByTestId(TEST_IDS.retry)).toBeVisible();
+    await expect(
+      panel.getByTestId(`${TEST_IDS.batchItemPrefix}${FIRST_ID}`),
+    ).toContainText(/saved/i);
+
+    await panel.getByTestId(TEST_IDS.retry).click();
+
+    await expect(panel.getByTestId(TEST_IDS.success)).toContainText(
+      /loaded for all 1 items/i,
+      { timeout: 15000 },
+    );
+    await expect(panel.getByTestId(TEST_IDS.error)).toHaveCount(0);
+    await expect(panel.getByTestId(TEST_IDS.retry)).toHaveCount(0);
+    await expect(
+      panel.getByTestId(`${TEST_IDS.batchItemPrefix}${FIRST_ID}`),
+    ).toContainText(/saved/i);
+    await expect(
+      panel.getByTestId(`${TEST_IDS.batchItemPrefix}${SECOND_ID}`),
+    ).toContainText(/saved/i);
+    expect(
+      state.getCalls.filter((id) => id === FIRST_ID).length,
+    ).toBe(1);
+    expect(
+      state.getCalls.filter((id) => id === SECOND_ID).length,
+    ).toBe(2);
     expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
   });
 });

@@ -87,7 +87,6 @@ describe("BulkStageDialog (#6469)", () => {
     const report: BulkStageReportInput = {
       okIds: ["42"],
       skippedFolders: [],
-      skippedOther: [],
       failures: [
         { id: "43", name: "About", status: 409, message: "HTTP 409" },
       ],
@@ -128,7 +127,6 @@ describe("BulkStageDialog (#6469)", () => {
     const runBatch = vi.fn().mockResolvedValue({
       okIds: [],
       skippedFolders: [],
-      skippedOther: [],
       failures: [
         { id: "42", name: "Home", status: 403, message: "HTTP 403" },
       ],
@@ -174,7 +172,6 @@ describe("BulkStageDialog (#6469)", () => {
     const runBatch = vi.fn().mockResolvedValue({
       okIds: ["42"],
       skippedFolders: ["News"],
-      skippedOther: [],
       failures: [],
     });
     const onDone = vi.fn();

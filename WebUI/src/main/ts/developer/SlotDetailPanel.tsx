@@ -476,6 +476,12 @@ export function SlotDetailPanel({
     setDescriptionError(null);
   }
 
+  function handleDescriptionKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelDescriptionEdit();
+    }
+  }
+
   async function handleDescriptionSave(): Promise<void> {
     if (
       isNew ||
@@ -569,6 +575,12 @@ export function SlotDetailPanel({
     setLabelEditing(false);
     setLabelDraft("");
     setLabelError(null);
+  }
+
+  function handleLabelKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelLabelEdit();
+    }
   }
 
   async function handleLabelSave(): Promise<void> {
@@ -933,7 +945,9 @@ export function SlotDetailPanel({
                       style={inputStyle}
                       value={labelDraft}
                       disabled={labelBusy}
+                      autoFocus
                       onChange={(e) => setLabelDraft(e.target.value)}
+                      onKeyDown={handleLabelKeyDown}
                     />
                     <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
                       <button
@@ -1046,7 +1060,9 @@ export function SlotDetailPanel({
                       style={inputStyle}
                       value={descriptionDraft}
                       disabled={descriptionBusy}
+                      autoFocus
                       onChange={(e) => setDescriptionDraft(e.target.value)}
+                      onKeyDown={handleDescriptionKeyDown}
                     />
                     <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
                       <button

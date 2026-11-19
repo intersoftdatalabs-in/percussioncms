@@ -2389,7 +2389,7 @@ From **Publish** (`spa.jsp?entry=publish`), open **Status**, **Logs**, or a **si
 
 **Empty and error states:** Blank item id is not a lookup. Invalid dates return **HTTP 400** (the panel shows the server validation message — past dates, unparseable values, or removal before publish). Forbidden updates return **HTTP 403** (reader or no assignment, or an application-level `FORBIDDEN` body). If another user has the item checked out, save returns **HTTP 409** and the panel shows that conflict. None of those responses are treated as success. A failed clear (**400** / **403** / **409**, or an application-level `FORBIDDEN` / `INVALID` / `BADCONFIG` body) stays on the clear confirm as an error — it is not success and the dates stay as loaded. After a successful save the panel reloads the stored publish and removal dates. After a successful clear the panel reloads and shows both dates empty. The optional comment is the workflow note sent with the save; it is not returned by the dates lookup, so it stays in the form until the next lookup. Clearing both dates and saving removes the schedule.
 
-**Several items at once:** enter two or more item ids in the lookup box, separated by commas or spaces (for example `16777215-101-9, 16777215-101-10`). **Load dates** reads each one and fills the form from the first id that loads; ids that fail to load are named in a per-item report. **Save dates** writes the same publish date, removal date, and comments to every listed id and then reloads each one (round-trip), continuing past a per-item failure so a later id can still save. A full run reports **Schedule dates saved for all N items**; a partial run is an error of the form **Saved M of N**, with each failed id named alongside its reason (for example `16777215-101-10 (User demo is editing this page.)`), plus a per-item list under the form. **Clear scheduled dates** confirms once for the whole list (**Clear the start and end publish dates on these N items?**) and clears each id the same way, reporting **Scheduled dates cleared for all N items** or a per-item partial failure. Cancel writes nothing and never reloads.
+**Several items at once:** enter two or more item ids in the lookup box, separated by commas or spaces (for example `16777215-101-9, 16777215-101-10`). **Load dates** reads each one and fills the form from the first id that loads; ids that fail to load are named in a per-item report, a full run reports **Schedule dates loaded for all N items**, and a partial load shows **Retry failed**. **Save dates** writes the same publish date, removal date, and comments to every listed id and then reloads each one (round-trip), continuing past a per-item failure so a later id can still save. A full run reports **Schedule dates saved for all N items**; a partial run is an error of the form **Saved M of N**, with each failed id named alongside its reason (for example `16777215-101-10 (User demo is editing this page.)`), plus a per-item list under the form. **Clear scheduled dates** confirms once for the whole list (**Clear the start and end publish dates on these N items?**) and clears each id the same way, reporting **Scheduled dates cleared for all N items** or a per-item partial failure. **Retry failed** re-saves, re-clears, or reloads only the failed ids (reloads need no form dates); each retried row flips to **saved** when the server accepts it, and the retry button clears when nothing is left to retry. A failed single-item save or clear also offers **Retry failed** for that item. Cancel writes nothing and never reloads.
 
 **Deep links** (same panel on Status, Logs, or the site workspace):
 
@@ -2446,7 +2446,7 @@ From **Publish** (`spa.jsp?entry=publish`), open a **site workspace** (Sites, th
 
 **Empty and error states:** Blank item id is not a takedown. HTTP 200 with application-level `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` is a failure — the panel shows the server warning and does **not** treat the item as unpublished. HTTP **400** (validation), **403** (forbidden), **404** (item not found), and **409** (someone else is editing the item) are shown in the panel and are **not** success. The content item remains in the CMS. Content Explorer Take Down remains the selection-based action for a Finder row. The panel shares the workspace item id — typing an id in any item panel updates the takedown lookup — and reuses the same linked-page confirm copy as Content Explorer.
 
-**Several items at once:** enter two or more item ids in the lookup box, separated by commas or spaces (for example `16777215-101-9, 16777215-101-10`). **Review take down** reads linked pages for every listed id and shows one confirm with the linked pages grouped per item; an id whose linked-page lookup fails is still confirmed with no linked pages and is named in the review report. **Take down** unpublishes every listed id through the same page/asset routes and continues past a per-item failure so a later id can still be taken down. A full run reports **Take down started for all N items**; a partial run is an error of the form **Taken down M of N**, with each failed id named alongside its reason (for example `16777215-101-10 (User demo is editing this page.)`), plus a per-item list under the form. A multi-id lookup does not reselect the shared workspace item — the list stays in the takedown box.
+**Several items at once:** enter two or more item ids in the lookup box, separated by commas or spaces (for example `16777215-101-9, 16777215-101-10`). **Review take down** reads linked pages for every listed id and shows one confirm with the linked pages grouped per item; an id whose linked-page lookup fails is still confirmed with no linked pages and is named in the review report. **Take down** unpublishes every listed id through the same page/asset routes and continues past a per-item failure so a later id can still be taken down. A full run reports **Take down started for all N items**; a partial run is an error of the form **Taken down M of N**, with each failed id named alongside its reason (for example `16777215-101-10 (User demo is editing this page.)`), plus a per-item list under the form. **Retry failed** takes down only the failed ids through the same routes (reusing the reviewed linked-page list, so no second confirm); each retried row flips to **taken down** when the server accepts it, and the retry button clears when nothing is left to retry. A failed single-item takedown also offers **Retry failed** for that item. A multi-id lookup does not reselect the shared workspace item — the list stays in the takedown box.
 
 **Deep links:**
 
@@ -2628,6 +2628,73 @@ no fixture is needed:
    status `ERROR` the checks skip (the cell's polls store is not
    provisioned) instead of failing.
 
+## Feeds entries: descriptor to generated feed (DTS)
+
+When a published site uses the feed widget, the generated feed is
+rendered by the DTS feeds service (`feeds`), not from the CMS content
+store. A feed descriptor selects its entries with a metadata query, so
+both the descriptor and the indexed rows must exist:
+
+1. An operator creates the descriptor through
+   `PUT /rss/descriptors` with the feed name, site, title, and a
+   JSON-encoded metadata query (for example,
+   `{"criteria": ["site = 'example'"], ...}`). The write requires
+   HTTP BASIC credentials in the `deliverymanager` role (the DTS
+   credentials provisioned for the install, not the CMS Admin login).
+2. Each entry is an indexed row under the same site, written through
+   the metadata extractor
+   (`POST /indexer/entry<page-path>` on `perc-metadata-services`,
+   also `deliverymanager`-gated) — see
+   "Metadata index search (DTS)" below.
+3. The generated feed reads through
+   `GET /rss/{site}/{feed}/localhost` and answers `200` `text/xml`
+   carrying the descriptor title plus the seeded entry titles and
+   abstracts. A feed that renders without the seeded entries means
+   the index rows never landed (or landed under a different site).
+4. A feed name that was never seeded redirects to the feeds error
+   page (`/feeds/error.html`) — that redirect is the documented
+   outcome for an unknown feed, not a failure.
+5. A liveness check runs first: `HEAD /rss/csrf` must answer on the
+   feeds deployment context. When the service is unreachable the
+   checks skip (the cell serves no feeds service); when the
+   descriptor or index writes answer `401`/`403` the checks skip
+   (no provisioned `deliverymanager` credentials) instead of
+   failing. The writer surface is CONFIDENTIAL, so the checks seed
+   over the published DTS HTTPS origin (`DTS_HTTPS_URL`) — when the
+   cell publishes no HTTPS origin the seeding cases skip instead of
+   failing, and plain-HTTP writes only redirect to the HTTPS port.
+
+## Metadata index search (DTS)
+
+When a published site needs its published content searchable, rows
+are indexed through the DTS metadata service
+(`perc-metadata-services`) extractor and read back through its query
+surface:
+
+1. An operator seeds a row through
+   `POST /indexer/entry<page-path>` (context-level `/indexer` root,
+   not under the `/metadata` query root) with the page path, site,
+   and `dcterms:title` / `dcterms:abstract` properties. The write
+   requires HTTP BASIC credentials in the `deliverymanager` role.
+2. A query through `POST /metadata/get` with an explicit quoted
+   criterion (`{"criteria": ["site = 'example'"], ...}`) answers
+   `200` with a result list; the seeded row appears in the
+   re-queried results. A query that stays empty after a seed means
+   the row never landed (or the criterion names a different site).
+3. Removing through `DELETE /indexer/entry<page-path>` takes the row
+   back out: a re-query no longer names the removed entry. A row
+   that survives its delete means the delete missed the stored page
+   path (the path keeps its leading slash).
+4. A liveness check runs first: `HEAD /metadata/csrf` must answer on
+   the metadata deployment context. When the service is unreachable
+   the checks skip (the cell serves no metadata service); when the
+   seed answers `401`/`403` the checks skip (no provisioned
+   `deliverymanager` credentials) instead of failing. The extractor
+   is CONFIDENTIAL, so the checks seed over the published DTS HTTPS
+   origin (`DTS_HTTPS_URL`) — when the cell publishes no HTTPS
+   origin the seeding cases skip instead of failing, and plain-HTTP
+   seeds only redirect to the HTTPS port.
+
 ## Failure modes to watch
 
 - Missing template/variant or broken relationship links
@@ -2644,6 +2711,11 @@ no fixture is needed:
 - Poll votes that do not move `totalVotes` on re-read, or question
   reads that disagree with the named read — see
   "Poll voting and results (DTS)" above
+- Generated feeds that render without their seeded entries, or unknown
+  feed names that do not redirect to the feeds error page — see
+  "Feeds entries: descriptor to generated feed (DTS)" above
+- Index queries that stay empty after a seed, or removed rows that keep
+  appearing in re-queries — see "Metadata index search (DTS)" above
 
 ## Related
 

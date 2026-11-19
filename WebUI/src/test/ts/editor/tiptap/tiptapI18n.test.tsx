@@ -61,6 +61,14 @@ const TIPTAP_KEYS = [
   EDITOR_MSG.TABLE_ADD_ROW,
   EDITOR_MSG.TABLE_REMOVE_ROW,
   EDITOR_MSG.TIPTAP_TOOLBAR,
+  EDITOR_MSG.TIPTAP_GROUP_HISTORY,
+  EDITOR_MSG.TIPTAP_GROUP_FORMATTING,
+  EDITOR_MSG.TIPTAP_GROUP_STYLE,
+  EDITOR_MSG.TIPTAP_GROUP_ALIGNMENT,
+  EDITOR_MSG.TIPTAP_GROUP_LISTS,
+  EDITOR_MSG.TIPTAP_GROUP_LINKS,
+  EDITOR_MSG.TIPTAP_GROUP_CODE,
+  EDITOR_MSG.TIPTAP_GROUP_TABLES,
   EDITOR_MSG.TIPTAP_UNDO,
   EDITOR_MSG.TIPTAP_REDO,
   EDITOR_MSG.TIPTAP_BOLD,
@@ -183,6 +191,24 @@ describe("TipTap i18n session locale", () => {
     expect(
       screen.getByTestId("editor-tiptap-toolbar-text").getAttribute("aria-label"),
     ).toBe("Formatierungsleiste");
+  });
+
+  it("toolbar group names follow the session locale", () => {
+    setCatalog({
+      [EDITOR_MSG.TIPTAP_GROUP_HISTORY]: "Verlauf",
+      [EDITOR_MSG.TIPTAP_GROUP_TABLES]: "Tabellen",
+    });
+    render(<TipTapToolbar editor={null} name="text" />);
+    const groups = screen
+      .getByTestId("editor-tiptap-toolbar-text")
+      .querySelectorAll('[role="group"]');
+    const names = Array.from(groups).map((g) => g.getAttribute("aria-label"));
+    expect(names).toContain("Verlauf");
+    expect(names).toContain("Tabellen");
+    // Every parity group carries a translated accessible name.
+    for (const g of Array.from(groups)) {
+      expect(g.getAttribute("aria-label")?.trim().length).toBeGreaterThan(0);
+    }
   });
 
   it("inline-link target options follow the session locale", () => {

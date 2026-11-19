@@ -77,6 +77,27 @@ function rowsFromReport(
   }
   return rows;
 }
+
+/** Merge one run into the visible per-item report; retried ids flip. */
+function mergeRows(
+  previous: ScheduleBatchRow[] | null,
+  saved: readonly string[],
+  failures: readonly ScheduleBatchFailure[],
+  okText: string,
+): ScheduleBatchRow[] {
+  const next = new Map<string, ScheduleBatchRow>();
+  for (const row of previous ?? []) {
+    next.set(row.id, row);
+  }
+  for (const row of rowsFromReport(saved, failures, okText)) {
+    next.set(row.id, row);
+  }
+  return [...next.values()];
+}
+
+/** Which batch op left failures behind for the retry button. */
+type ScheduleFailedOp = "save" | "clear" | "load";
+
 export interface ItemScheduleDatesPanelProps {
   itemId?: string;
   onItemIdChange?: (itemId: string) => void;
@@ -103,9 +124,13 @@ export function ItemScheduleDatesPanel({
   const [success, setSuccess] = useState<string | null>(null);
   const [report, setReport] = useState<ScheduleBatchRow[] | null>(null);
   const [reportTotal, setReportTotal] = useState(0);
+  const [failedIds, setFailedIds] = useState<string[]>([]);
+  const [failedOp, setFailedOp] = useState<ScheduleFailedOp | null>(null);
 
   useEffect(() => {
     setInputId(itemId ?? "");
+    setFailedIds([]);
+    setFailedOp(null);
   }, [itemId]);
 
   const load = useCallback(async (rawId: string) => {
@@ -134,36 +159,12 @@ export function ItemScheduleDatesPanel({
     setSuccess(null);
     setReport(null);
     setReportTotal(ids.length);
+    setFailedIds([]);
+    setFailedOp(null);
     setConfirmingClear(false);
     setLoadedId(ids[0]);
     try {
-      const batch = await loadScheduleDatesBatch(ids);
-      const first = batch.loaded[0];
-      if (first) {
-        setStartLocal(serverDateToDatetimeLocal(first.dates.startDate));
-        setEndLocal(serverDateToDatetimeLocal(first.dates.endDate));
-        setComments(first.dates.comments ?? "");
-      } else {
-        setStartLocal("");
-        setEndLocal("");
-        setComments("");
-      }
-      setReport(
-        rowsFromReport(
-          batch.loaded.map((row) => row.id),
-          batch.failures,
-          message(MSG.PUBLISH_SCHEDULE_BATCH_ITEM_OK),
-        ),
-      );
-      if (batch.failures.length > 0) {
-        setError(
-          fill(message(MSG.PUBLISH_SCHEDULE_BATCH_LOAD_PARTIAL), {
-            loaded: String(batch.loaded.length),
-            total: String(batch.total),
-            detail: formatScheduleBatchDetail(batch.failures),
-          }),
-        );
-      }
+      await loadBatch(ids);
     } finally {
       setLoading(false);
     }
@@ -175,6 +176,8 @@ export function ItemScheduleDatesPanel({
     setSuccess(null);
     setReport(null);
     setReportTotal(0);
+    setFailedIds([]);
+    setFailedOp(null);
     setConfirmingClear(false);
     setLoadedId(safe);
     try {
@@ -272,14 +275,81 @@ export function ItemScheduleDatesPanel({
       setLoadedId(safe);
       setConfirmingClear(false);
       setSuccess(message(MSG.PUBLISH_SCHEDULE_SAVED));
+      setFailedIds([]);
+      setFailedOp(null);
       onItemIdChange?.(safe);
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
       }
+      setFailedIds([safe]);
+      setFailedOp("save");
       setError(scheduleErrorMessage(err));
     } finally {
       setSaving(false);
+    }
+  }
+
+  /**
+   * Load every id; a per-item load failure never stops the rest.
+   *
+   * The initial lookup fills the edit form from the first loaded item.
+   * Retries pass `{ fillForm: false }` so they only merge report rows and
+   * refresh failed/success state — never clobbering the user's in-progress
+   * form values or the currently loaded id.
+   */
+  async function loadBatch(
+    ids: string[],
+    options?: { fillForm?: boolean },
+  ): Promise<void> {
+    const fillForm = options?.fillForm ?? true;
+    setError(null);
+    setSuccess(null);
+    setReportTotal(ids.length);
+    const batch = await loadScheduleDatesBatch(ids);
+    if (fillForm) {
+      const first = batch.loaded[0];
+      if (first) {
+        setStartLocal(serverDateToDatetimeLocal(first.dates.startDate));
+        setEndLocal(serverDateToDatetimeLocal(first.dates.endDate));
+        setComments(first.dates.comments ?? "");
+      } else {
+        setStartLocal("");
+        setEndLocal("");
+        setComments("");
+      }
+    }
+    setReport((previous) =>
+      mergeRows(
+        previous,
+        batch.loaded.map((row) => row.id),
+        batch.failures,
+        message(MSG.PUBLISH_SCHEDULE_BATCH_ITEM_OK),
+      ),
+    );
+    if (fillForm) {
+      setLoadedId(ids[0]);
+    }
+    setConfirmingClear(false);
+    if (batch.failures.length === 0) {
+      setFailedIds([]);
+      setFailedOp(null);
+      setSuccess(
+        fill(message(MSG.PUBLISH_SCHEDULE_BATCH_LOADED), {
+          total: String(batch.total),
+        }),
+      );
+    } else {
+      setFailedIds(batch.failures.map((failure) => failure.id));
+      setFailedOp("load");
+      setSuccess(null);
+      setError(
+        fill(message(MSG.PUBLISH_SCHEDULE_BATCH_LOAD_PARTIAL), {
+          loaded: String(batch.loaded.length),
+          total: String(batch.total),
+          detail: formatScheduleBatchDetail(batch.failures),
+        }),
+      );
     }
   }
 
@@ -290,12 +360,12 @@ export function ItemScheduleDatesPanel({
     setSaving(true);
     setError(null);
     setSuccess(null);
-    setReport(null);
     setReportTotal(ids.length);
     try {
       const batch = await saveScheduleDatesBatch(ids, dates);
-      setReport(
-        rowsFromReport(
+      setReport((previous) =>
+        mergeRows(
+          previous,
           batch.saved,
           batch.failures,
           message(MSG.PUBLISH_SCHEDULE_BATCH_ITEM_OK),
@@ -304,12 +374,16 @@ export function ItemScheduleDatesPanel({
       setLoadedId(ids[0]);
       setConfirmingClear(false);
       if (batch.failures.length === 0) {
+        setFailedIds([]);
+        setFailedOp(null);
         setSuccess(
           fill(message(MSG.PUBLISH_SCHEDULE_BATCH_SAVED), {
             total: String(batch.total),
           }),
         );
       } else {
+        setFailedIds(batch.failures.map((failure) => failure.id));
+        setFailedOp("save");
         setSuccess(null);
         setError(
           fill(message(MSG.PUBLISH_SCHEDULE_BATCH_PARTIAL), {
@@ -333,15 +407,15 @@ export function ItemScheduleDatesPanel({
     setClearing(true);
     setError(null);
     setSuccess(null);
-    setReport(null);
     setReportTotal(ids.length);
     try {
       const batch = await clearScheduleDatesBatch(
         ids,
         message(MSG.PUBLISH_SCHEDULE_INVALID),
       );
-      setReport(
-        rowsFromReport(
+      setReport((previous) =>
+        mergeRows(
+          previous,
           batch.saved,
           batch.failures,
           message(MSG.PUBLISH_SCHEDULE_BATCH_ITEM_OK),
@@ -354,6 +428,8 @@ export function ItemScheduleDatesPanel({
       setComments("");
       setLoadedId(ids[0]);
       if (batch.failures.length === 0) {
+        setFailedIds([]);
+        setFailedOp(null);
         setConfirmingClear(false);
         setSuccess(
           fill(message(MSG.PUBLISH_SCHEDULE_BATCH_CLEARED), {
@@ -361,6 +437,8 @@ export function ItemScheduleDatesPanel({
           }),
         );
       } else {
+        setFailedIds(batch.failures.map((failure) => failure.id));
+        setFailedOp("clear");
         setSuccess(null);
         setError(
           fill(message(MSG.PUBLISH_SCHEDULE_BATCH_CLEAR_PARTIAL), {
@@ -378,6 +456,39 @@ export function ItemScheduleDatesPanel({
     } finally {
       setClearing(false);
     }
+  }
+
+  async function onRetry(): Promise<void> {
+    const ids = failedIds;
+    if (ids.length === 0 || failedOp === null) {
+      return;
+    }
+    if (failedOp === "load") {
+      setLoading(true);
+      try {
+        await loadBatch(ids, { fillForm: false });
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+    if (failedOp === "clear") {
+      await clearBatch(ids);
+      return;
+    }
+    const startDate = datetimeLocalToServerDate(startLocal);
+    const endDate = datetimeLocalToServerDate(endLocal);
+    const rangeError = validateScheduleDateRange(startDate, endDate);
+    if (rangeError) {
+      setError(message(rangeError));
+      setSuccess(null);
+      return;
+    }
+    await saveBatch(ids, {
+      startDate,
+      endDate,
+      comments: comments.trim().slice(0, COMMENT_MAX),
+    });
   }
 
   async function onClear(e: React.FormEvent): Promise<void> {
@@ -422,14 +533,20 @@ export function ItemScheduleDatesPanel({
       onItemIdChange?.(safe);
       if (!reloaded.startDate && !reloaded.endDate) {
         setConfirmingClear(false);
+        setFailedIds([]);
+        setFailedOp(null);
         setSuccess(message(MSG.PUBLISH_SCHEDULE_CLEARED));
       } else {
+        setFailedIds([safe]);
+        setFailedOp("clear");
         setError(message(MSG.PUBLISH_SCHEDULE_INVALID));
       }
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
       }
+      setFailedIds([safe]);
+      setFailedOp("clear");
       setError(scheduleErrorMessage(err));
     } finally {
       setClearing(false);
@@ -467,7 +584,11 @@ export function ItemScheduleDatesPanel({
             id="item-schedule-id"
             name="itemId"
             value={inputId}
-            onChange={(e) => setInputId(e.target.value)}
+            onChange={(e) => {
+              setInputId(e.target.value);
+              setFailedIds([]);
+              setFailedOp(null);
+            }}
             data-testid="item-schedule-id"
             autoComplete="off"
           />
@@ -595,6 +716,16 @@ export function ItemScheduleDatesPanel({
             </div>
           </form>
         </div>
+      )}
+      {failedIds.length > 0 && !loading && !saving && !clearing && (
+        <button
+          type="button"
+          style={{ ...primaryButtonStyle, marginTop: 12 }}
+          data-testid="item-schedule-retry"
+          onClick={() => void onRetry()}
+        >
+          {message(MSG.PUBLISH_SCHEDULE_RETRY_FAILED)}
+        </button>
       )}
       {report && report.length > 0 && (
         <ul

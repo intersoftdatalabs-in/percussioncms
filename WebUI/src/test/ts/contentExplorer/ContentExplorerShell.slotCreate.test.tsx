@@ -181,21 +181,34 @@ describe("ContentExplorerShell slot create (#3497)", () => {
         ]}
       />,
     );
-    await waitFor(() => {
-      expect(screen.getByTestId("action-toolbar-item-Slot_Create")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(
+          screen.getByTestId("action-toolbar-item-Slot_Create"),
+        ).toBeTruthy();
+      },
+      // Timing-hardening for #6706: the default 1s waitFor flakes on
+      // oversubscribed CI boxes; the assertions themselves are unchanged.
+      { timeout: 10000 },
+    );
     fireEvent.click(screen.getByTestId("action-toolbar-item-Slot_Create"));
-    await waitFor(() => {
-      expect(screen.getByTestId("explorer-slot-create-apply")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("explorer-slot-create-apply")).toBeTruthy();
+      },
+      { timeout: 10000 },
+    );
     fireEvent.click(screen.getByTestId("explorer-slot-create-apply"));
-    await waitFor(() => {
-      expect(createItem).toHaveBeenCalledWith({
-        contentType: "percRichText",
-        folderPath: "/Sites",
-        templateId: undefined,
-      });
-    });
+    await waitFor(
+      () => {
+        expect(createItem).toHaveBeenCalledWith({
+          contentType: "percRichText",
+          folderPath: "/Sites",
+          templateId: undefined,
+        });
+      },
+      { timeout: 10000 },
+    );
     expect(addToSlot).toHaveBeenCalledWith({
       ownerId: 42,
       dependentId: 99,

@@ -110,7 +110,33 @@ describe("toClipboardItem (#3551)", () => {
     expect(mapped?.kind).toBe("page");
   });
 
-  it("maps page rows as pages", () => {
+  it("maps custom content types to a generic item kind, not page (#6581)", () => {
+    const resource = toClipboardItem(
+      row({
+        id: "c-1",
+        name: "Press release",
+        path: "/Sites/Demo/Press",
+        type: "myPressRelease",
+        category: "RESOURCE",
+      }),
+    );
+    expect(resource?.kind).toBe("item");
+
+    // Server-default ASSET category under /Sites is not a stock asset —
+    // it is a generic item, not a page (#6581).
+    const sitesAsset = toClipboardItem(
+      row({
+        id: "c-2",
+        name: "Home",
+        path: "/Sites/Demo/Home",
+        type: "customAsset",
+        category: "ASSET",
+      }),
+    );
+    expect(sitesAsset?.kind).toBe("item");
+  });
+
+  it("maps page category rows as pages", () => {
     const mapped = toClipboardItem(
       row({
         id: "p-1",

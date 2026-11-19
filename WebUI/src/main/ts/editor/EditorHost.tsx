@@ -157,9 +157,12 @@ import {
   applyRevisionFieldValue,
   canRestoreFromEditor,
   changedCompareFieldNames,
+  collapseWordDiffCell,
+  collapsedWordDiffHiddenWords,
   computeWordDiff,
   describeRestoredCompareField,
   editorRevisionErrorReason,
+  formatCollapsedWordDiffCount,
   formatCompareNavStatus,
   isEmptyRevisionCompare,
   parseRevisionId,
@@ -296,6 +299,7 @@ import {
   uniqueTransitionTriggers,
   workflowCommentContainsNul,
   focusWorkflowComment,
+  focusWorkflowTrigger,
 } from "./editorWorkflow";
 import {
   createEditorItem,
@@ -403,6 +407,86 @@ export function renderWordDiffCell(
             </ins>
           ),
         )}
+    </>
+  );
+}
+
+/**
+ * One compare cell with collapsible unchanged runs (#6672).
+ *
+ * <p>Long unchanged stretches collapse to an ellipsis with the hidden word
+ * count; one toggle per cell expands them again. The open/closed state is
+ * component state keyed by the caller (revision pair + field + side), so a
+ * parent re-render keeps the author's choice while a new compare starts
+ * collapsed. The toggle is a native button ({@code aria-expanded}), and
+ * {@code Escape} collapses an open cell without moving focus — the toggle
+ * itself stays mounted. Cells with no collapsed run render exactly what
+ * {@link renderWordDiffCell} renders, with no toggle.</p>
+ */
+function CollapsibleWordDiffCell({
+  segments,
+  side,
+  fieldName,
+}: {
+  segments: WordDiffSegment[];
+  side: "older" | "newer";
+  fieldName: string;
+}): React.ReactNode {
+  const [expanded, setExpanded] = useState(false);
+  const parts = collapseWordDiffCell(segments, side);
+  const hidden = collapsedWordDiffHiddenWords(parts);
+  const testSide = side === "older" ? "left" : "right";
+  if (hidden === 0) {
+    return renderWordDiffCell(segments, side);
+  }
+  return (
+    <>
+      {expanded ? (
+        renderWordDiffCell(segments, side)
+      ) : (
+        <>
+          {parts.map((part, index) =>
+            part.collapsed ? (
+              <span
+                key={index}
+                aria-hidden="true"
+                className={styles.compareEllipsis}
+              >
+                …
+              </span>
+            ) : part.kind === "same" ? (
+              <span key={index}>{part.text}</span>
+            ) : side === "older" ? (
+              <del key={index} className={styles.compareRemoved}>
+                {part.text}
+              </del>
+            ) : (
+              <ins key={index} className={styles.compareAdded}>
+                {part.text}
+              </ins>
+            ),
+          )}
+        </>
+      )}{" "}
+      <button
+        type="button"
+        className={styles.compareCellToggle}
+        data-testid={`editor-compare-cell-toggle-${testSide}-${fieldName}`}
+        aria-expanded={expanded}
+        onClick={() => setExpanded((open) => !open)}
+        onKeyDown={(event) => {
+          if (event.key === "Escape" && expanded) {
+            setExpanded(false);
+          }
+        }}
+      >
+        {expanded
+          ? message(EDITOR_MSG.COMPARE_CELL_COLLAPSE)
+          : formatCollapsedWordDiffCount(
+              message(EDITOR_MSG.COMPARE_CELL_EXPAND),
+              hidden,
+            )}
+      </button>
     </>
   );
 }
@@ -1214,6 +1298,16 @@ export function EditorHost({
   const [workflowAssigneeDialog, setWorkflowAssigneeDialog] = useState<string | null>(
     null,
   );
+  /**
+   * Deferred focus target after the assignee dialog closes (#6632). The
+   * panel stays disabled while the modal is open, so focus moves in an
+   * effect after the close re-enables it: the comment box when the pending
+   * trigger is comment-gated with a blank/NUL comment, else the trigger
+   * button that opened the dialog.
+   */
+  const [assigneeCancelFocus, setAssigneeCancelFocus] = useState<
+    { kind: "comment" } | { kind: "trigger"; trigger: string } | null
+  >(null);
   const [workflowErrorKey, setWorkflowErrorKey] = useState<string | null>(null);
   const [workflowErrorDetail, setWorkflowErrorDetail] = useState("");
   /**
@@ -2897,10 +2991,53 @@ export function EditorHost({
     if (workflowBusy) {
       return;
     }
+    const trigger = workflowAssigneeDialog;
     setWorkflowAssigneeDialog(null);
+    if (
+      trigger != null &&
+      triggerRequiresComment(trigger, effectiveCommentRequiredTriggers) &&
+      (workflowComment.trim().length === 0 ||
+        workflowCommentContainsNul(workflowComment))
+    ) {
+      // Comment-gate failure outlives the modal (#6632): keep the message
+      // on the panel (it was suppressed while the dialog was open). The
+      // close effect below lands focus where the fix happens.
+      setWorkflowDone(false);
+      setWorkflowErrorDetail("");
+      setWorkflowErrorKey(
+        workflowErrorFor(
+          workflowCommentContainsNul(workflowComment) ? "nul" : "comment",
+        ),
+      );
+      setAssigneeCancelFocus({ kind: "comment" });
+      return;
+    }
     setWorkflowErrorKey(null);
     setWorkflowErrorDetail("");
+    // Return focus to the trigger that opened the dialog (#6632). The
+    // close effect runs after the panel re-enables.
+    setAssigneeCancelFocus(
+      trigger != null ? { kind: "trigger", trigger } : null,
+    );
   }
+
+  /**
+   * Assignee-dialog close focus (#6632). Runs after the close re-renders
+   * with the panel re-enabled (controls stay disabled while the modal is
+   * open): the comment box for a comment-gate failure, otherwise the
+   * trigger button that opened the dialog.
+   */
+  useEffect(() => {
+    if (assigneeCancelFocus == null || workflowAssigneeDialog != null) {
+      return;
+    }
+    if (assigneeCancelFocus.kind === "comment") {
+      focusWorkflowComment();
+    } else {
+      focusWorkflowTrigger(assigneeCancelFocus.trigger);
+    }
+    setAssigneeCancelFocus(null);
+  }, [assigneeCancelFocus, workflowAssigneeDialog]);
 
   /**
    * Quick Approve/Reject action bar (#6483). Opens the comment confirm for
@@ -6205,7 +6342,12 @@ export function EditorHost({
                                     <span
                                       data-testid={`editor-compare-word-left-${field.name}`}
                                     >
-                                      {renderWordDiffCell(segments, "older")}
+                                      <CollapsibleWordDiffCell
+                                        key={`${compareResult.rev1}:${compareResult.rev2}:${field.name}:older`}
+                                        segments={segments}
+                                        side="older"
+                                        fieldName={field.name}
+                                      />
                                     </span>
                                   ) : (
                                     field.leftValue
@@ -6216,7 +6358,12 @@ export function EditorHost({
                                     <span
                                       data-testid={`editor-compare-word-right-${field.name}`}
                                     >
-                                      {renderWordDiffCell(segments, "newer")}
+                                      <CollapsibleWordDiffCell
+                                        key={`${compareResult.rev1}:${compareResult.rev2}:${field.name}:newer`}
+                                        segments={segments}
+                                        side="newer"
+                                        fieldName={field.name}
+                                      />
                                     </span>
                                   ) : (
                                     field.rightValue

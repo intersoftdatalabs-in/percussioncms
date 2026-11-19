@@ -551,7 +551,6 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
     summary.setOverrideSystemJQuery(site.isOverrideSystemJQuery());
     summary.setSiteAfterBodyOpenContent(site.getSiteAfterBodyOpenContent());
     summary.setSiteBeforeBodyCloseContent(site.getSiteBeforeBodyCloseContent());
-    summary.setOverrideSystemFoundation(site.isOverrideSystemFoundation());
     summary.setOverrideSystemJQueryUI(site.isOverrideSystemJQueryUI());
     summary.setSiteAdditionalHeadContent(site.getSiteAdditionalHeadContent());
     summary.setLabel(site.getLabel());

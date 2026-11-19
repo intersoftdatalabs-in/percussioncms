@@ -29,7 +29,6 @@ import type { PSPathItem } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
 import { mapPublishResponse } from "../publishing/publishActions";
 import { EXPLORER_MSG } from "./messages";
-import { resolvePublishKind } from "./itemPublish";
 import { isFolder } from "./selection";
 
 export interface ItemScheduleDates {
@@ -313,7 +312,8 @@ export async function setItemScheduleDates(
 }
 
 /**
- * Save schedule dates for a page or asset. Other types return false.
+ * Save schedule dates for any item with an id. Folders save nothing and
+ * return false.
  */
 export async function scheduleSelectedItem(
   item: PSPathItem,
@@ -339,8 +339,10 @@ export interface ScheduleBatchResult {
 }
 
 /**
- * Pages and assets only. Folders and other non-publishable rows are omitted.
- * Duplicate ids are written once.
+ * Any item with an id. Folders carry no schedule dates and are omitted;
+ * generic Items submit like Pages and Assets and the engine accepts or
+ * rejects with a named error (#6580 reversal). Duplicate ids are
+ * written once.
  */
 export function publishableScheduleTargets(
   items: readonly PSPathItem[],
@@ -352,7 +354,7 @@ export function publishableScheduleTargets(
     if (!id || seen.has(id)) {
       continue;
     }
-    if (resolvePublishKind(item) === "none") {
+    if (isFolder(item)) {
       continue;
     }
     seen.add(id);

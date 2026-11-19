@@ -16,10 +16,10 @@
  */
 
 /**
- * Create → New Copy for every checked page or asset (#5247 / parent #4530).
+ * Create → New Copy for every checked item (#5247 / parent #4530).
  *
  * <p>One confirm posts the existing same-folder {@code newCopy} API once per
- * page or asset. Folders are named and not copied. The folder list is told
+ * item. Folders are named and not copied. The folder list is told
  * about a copy only after that item's POST succeeds. HTTP 400, 403, or 409
  * on one item does not claim the whole selection was copied.</p>
  */
@@ -45,14 +45,12 @@ export interface MultiNewCopyFailure {
 export interface MultiNewCopyResult {
   copied: MultiNewCopyShown[];
   skippedFolderNames: string[];
-  skippedOtherNames: string[];
   failures: MultiNewCopyFailure[];
 }
 
 export interface MultiNewCopyPlan {
   eligible: PSPathItem[];
   skippedFolderNames: string[];
-  skippedOtherNames: string[];
 }
 
 export interface MultiNewCopyDispatch {
@@ -73,13 +71,12 @@ function itemLabel(item: PSPathItem): string {
   return (item.id ?? "").trim() || "item";
 }
 
-/** Pages and assets are copied. Folders and other rows are named and skipped. */
+/** Items are copied. Folders are named and skipped. */
 export function planMultiNewCopy(items: readonly PSPathItem[]): MultiNewCopyPlan {
   const plan = partitionStageSelection(items);
   return {
     eligible: plan.eligible,
     skippedFolderNames: plan.skippedFolders,
-    skippedOtherNames: plan.skippedOther,
   };
 }
 
@@ -132,7 +129,6 @@ export async function copyCheckedItems(
   return {
     copied,
     skippedFolderNames: plan.skippedFolderNames,
-    skippedOtherNames: plan.skippedOtherNames,
     failures,
   };
 }
@@ -147,13 +143,6 @@ export function describeMultiNewCopy(
       message(EXPLORER_MSG.NEW_COPY_SKIPPED_FOLDERS)
         .split("{names}")
         .join(result.skippedFolderNames.join(", ")),
-    );
-  }
-  if (result.skippedOtherNames.length > 0) {
-    parts.push(
-      message(EXPLORER_MSG.NEW_COPY_SKIPPED_OTHER)
-        .split("{names}")
-        .join(result.skippedOtherNames.join(", ")),
     );
   }
   if (result.failures.length > 0) {
@@ -183,8 +172,6 @@ function dispatchFromResult(result: MultiNewCopyResult): MultiNewCopyDispatch {
     messageKey = EXPLORER_MSG.NEW_COPY_BATCH_INCOMPLETE;
   } else if (result.skippedFolderNames.length > 0) {
     messageKey = EXPLORER_MSG.NEW_COPY_SKIPPED_FOLDERS;
-  } else if (result.skippedOtherNames.length > 0) {
-    messageKey = EXPLORER_MSG.NEW_COPY_SKIPPED_OTHER;
   }
   return {
     refresh: result.copied.length > 0,
@@ -194,8 +181,8 @@ function dispatchFromResult(result: MultiNewCopyResult): MultiNewCopyDispatch {
 }
 
 /**
- * Confirm once, then copy. Cancel and a selection with no page or asset
- * do not call {@code copyOne}.
+ * Confirm once, then copy. Cancel and a selection with no items do not
+ * call {@code copyOne}.
  */
 export async function runMultiNewCopy(input: {
   items: readonly PSPathItem[];
@@ -208,7 +195,6 @@ export async function runMultiNewCopy(input: {
     const noted = describeMultiNewCopy({
       copied: [],
       skippedFolderNames: plan.skippedFolderNames,
-      skippedOtherNames: plan.skippedOtherNames,
       failures: [],
     });
     return {

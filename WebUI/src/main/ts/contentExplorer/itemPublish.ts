@@ -47,11 +47,33 @@ function typeToken(item: PSPathItem): string {
 }
 
 /**
- * Classify whether Explorer can demand-publish this selection.
+ * Classify which demand endpoint serves this selection.
  *
- * <p>Unlike {@code resolvePreviewKind}, templates, links, and other non-page /
- * non-asset items with an id stay {@code "none"}. Preview's permissive
- * fallback would send those to {@code /publish/page/{id}}.</p>
+ * <p>This is an <strong>endpoint-affinity</strong> classifier, not an
+ * availability gate (#6580 reversal, parent #4530). {@code "page"} and
+ * {@code "asset"} pick the page- vs resource-addressed demand endpoint
+ * ({@code …/publish/page|resource/{id}}, staging, takedown, schedule dates,
+ * {@code …/item/pubhistory}). Generic custom-type Items (Rhythmyx Items that
+ * live outside {@code /Sites} and {@code /Assets} with no page/asset token)
+ * return {@code "none"} here, but the publish family must NOT treat that as
+ * "cannot publish": Pages, Assets, and Items are all 1st-class entities, so
+ * submitters default a {@code "none"}-with-id row to the page endpoint and
+ * let the engine accept or reject with a named error — the same all-children
+ * submit the ondemand/publish-now generator performs server-side
+ * ({@code PSPublisherService.executeDemandPublish} takes any numeric content
+ * ids; only nested folders publish separately and empty ids cannot be
+ * submitted).</p>
+ *
+ * <p>{@code "none"} therefore means only "no page/asset endpoint affinity":
+ * a missing / null row, a folder, a row without an id, or a generic Item
+ * with no page/asset token. The publish family defaults a
+ * {@code "none"}-with-id row to the page endpoint instead of gating on it.
+ * Non-publish families with genuinely page- or asset-scoped contracts
+ * (page templates, mobile preview, item/folder community-workflow
+ * assignment) may still read this signal; availability for Publish Now,
+ * stage / remove-from-staging, Take Down, schedule / clear-schedule,
+ * Publishing History, and checkout / check-in / force check-in is decided
+ * with {@code isFolder} + id presence instead.</p>
  */
 export function resolvePublishKind(
   item: PSPathItem | null | undefined,
@@ -261,8 +283,12 @@ export function formatTakedownConfirmBody(
 }
 
 /**
- * Demand-publish a page or asset. Other types return false so the
- * dispatcher can show that the action is not available.
+ * Demand-publish any item with an id. Generic Items (no page/asset token)
+ * ride the page endpoint and the engine accepts or rejects with a named
+ * error — Pages, Assets, and Items are all 1st-class entities (#6580
+ * reversal: all-children submit, mirroring the ondemand generator which
+ * takes any numeric content ids). Returns false for folders and rows
+ * with no id.
  *
  * <p>HTTP 200 with an application-level preflight status
  * ({@code FORBIDDEN}, {@code BADCONFIG}, {@code NOSTAGING_SERVERS},
@@ -272,27 +298,25 @@ export function formatTakedownConfirmBody(
  */
 export async function publishSelectedItem(item: PSPathItem): Promise<boolean> {
   const id = (item.id ?? "").trim();
-  if (!id) {
+  if (!id || isFolder(item)) {
     return false;
   }
   const kind = resolvePublishKind(item);
   const paths = itemPublishPaths();
-  if (kind === "page") {
-    await demandPublish(`${paths.pagePublish}/${encodeURIComponent(id)}`);
-    return true;
-  }
   if (kind === "asset") {
     await demandPublish(`${paths.resourcePublish}/${encodeURIComponent(id)}`);
     return true;
   }
-  return false;
+  await demandPublish(`${paths.pagePublish}/${encodeURIComponent(id)}`);
+  return true;
 }
 
 /**
- * Demand-publish pages and assets that are direct children of a folder.
- * Nested folders are skipped (publish those folders separately). An empty
- * folder publishes nothing. Application-level preflight failures are
- * recorded and do not count as a started job.
+ * Demand-publish every child with an id. Nested folders are skipped
+ * (publish those folders separately). Rows without an id cannot be
+ * submitted and are recorded as named failures so no child goes
+ * unmentioned. Application-level preflight failures are recorded and
+ * do not count as a started job.
  */
 export async function publishSelectedFolder(
   folder: PSPathItem,
@@ -302,14 +326,12 @@ export async function publishSelectedFolder(
     return {
       publishedIds: [],
       skippedFolders: [],
-      skippedOther: [],
       failures: [],
     };
   }
   const children = await findChildren(path);
   const publishedIds: string[] = [];
   const skippedFolders: string[] = [];
-  const skippedOther: string[] = [];
   const failures: StageItemFailure[] = [];
   const seen = new Set<string>();
   for (const child of children) {
@@ -323,8 +345,12 @@ export async function publishSelectedFolder(
       skippedFolders.push(stageItemLabel(child));
       continue;
     }
-    if (!id || resolvePublishKind(child) === "none") {
-      skippedOther.push(stageItemLabel(child));
+    if (!id) {
+      failures.push({
+        id,
+        name: stageItemLabel(child),
+        message: "missing content id",
+      });
       continue;
     }
     try {
@@ -342,13 +368,12 @@ export async function publishSelectedFolder(
       failures.push(failureFromPublish(child, err));
     }
   }
-  return { publishedIds, skippedFolders, skippedOther, failures };
+  return { publishedIds, skippedFolders, failures };
 }
 
 export interface PublishBatchResult {
   publishedIds: string[];
   skippedFolders: string[];
-  skippedOther: string[];
   failures: StageItemFailure[];
 }
 
@@ -370,9 +395,11 @@ function failureFromPublish(item: PSPathItem, err: unknown): StageItemFailure {
 }
 
 /**
- * Demand-publish every eligible page/asset. Folders and other types are
- * skipped. A 403/404/409 (or application-level preflight failure) on one
- * item is recorded and the rest of the selection still runs.
+ * Demand-publish every selected item. Folders are skipped (their children
+ * publish via the folder flow). Every non-folder row is submitted —
+ * including generic Items — and a 403/404/409 (or application-level
+ * preflight failure) on one item is recorded while the rest of the
+ * selection still runs.
  */
 export async function publishSelectedItems(
   items: readonly PSPathItem[],
@@ -399,7 +426,6 @@ export async function publishSelectedItems(
   return {
     publishedIds,
     skippedFolders: plan.skippedFolders,
-    skippedOther: plan.skippedOther,
     failures,
   };
 }
@@ -415,15 +441,6 @@ export function describePublishBatch(
         EXPLORER_MSG.PUBLISH_SKIPPED_FOLDERS,
         "{names}",
         result.skippedFolders.join(", "),
-      ),
-    );
-  }
-  if (result.skippedOther.length > 0) {
-    parts.push(
-      fillTemplate(
-        EXPLORER_MSG.PUBLISH_SKIPPED_OTHER,
-        "{names}",
-        result.skippedOther.join(", "),
       ),
     );
   }
@@ -454,8 +471,9 @@ async function demandPublish(url: string): Promise<void> {
 }
 
 /**
- * Take down (unpublish) a page or asset. Other types return false so the
- * dispatcher can show that the action is not available.
+ * Take down (unpublish) any item with an id. Generic Items ride the page
+ * endpoint and the engine accepts or rejects with a named error
+ * (#6580 reversal). Returns false for folders and rows with no id.
  *
  * <p>HTTP 200 with application-level preflight status
  * ({@code FORBIDDEN}, {@code BADCONFIG}, {@code NOSTAGING_SERVERS},
@@ -468,18 +486,11 @@ export async function takedownSelectedItem(
   linked: LinkedPageForTakedown[] = [],
 ): Promise<boolean> {
   const id = (item.id ?? "").trim();
-  if (!id) {
+  if (!id || isFolder(item)) {
     return false;
   }
   const kind = resolvePublishKind(item);
   const paths = itemPublishPaths();
-  if (kind === "page") {
-    await demandTakedown(
-      `${paths.pageTakedown}/${encodeURIComponent(id)}`,
-      linked,
-    );
-    return true;
-  }
   if (kind === "asset") {
     await demandTakedown(
       `${paths.resourceTakedown}/${encodeURIComponent(id)}`,
@@ -487,13 +498,16 @@ export async function takedownSelectedItem(
     );
     return true;
   }
-  return false;
+  await demandTakedown(
+    `${paths.pageTakedown}/${encodeURIComponent(id)}`,
+    linked,
+  );
+  return true;
 }
 
 export interface TakedownBatchResult {
   takenDownIds: string[];
   skippedFolders: string[];
-  skippedOther: string[];
   failures: StageItemFailure[];
 }
 
@@ -515,10 +529,10 @@ function failureFromTakedown(item: PSPathItem, err: unknown): StageItemFailure {
 }
 
 /**
- * Take down every eligible page/asset. Folders and other types are skipped.
- * Each item uses the same linked-page lookup and GET/PUT as
- * {@link takedownSelectedItem}. A failure on one item is recorded and the
- * rest of the selection still runs.
+ * Take down every selected item. Folders are skipped. Each item uses the
+ * same linked-page lookup and GET/PUT as {@link takedownSelectedItem}.
+ * A failure on one item is recorded and the rest of the selection still
+ * runs.
  */
 export async function takedownSelectedItems(
   items: readonly PSPathItem[],
@@ -546,7 +560,6 @@ export async function takedownSelectedItems(
   return {
     takenDownIds,
     skippedFolders: plan.skippedFolders,
-    skippedOther: plan.skippedOther,
     failures,
   };
 }
@@ -562,15 +575,6 @@ export function describeTakedownBatch(
         EXPLORER_MSG.TAKEDOWN_SKIPPED_FOLDERS,
         "{names}",
         result.skippedFolders.join(", "),
-      ),
-    );
-  }
-  if (result.skippedOther.length > 0) {
-    parts.push(
-      fillTemplate(
-        EXPLORER_MSG.TAKEDOWN_SKIPPED_OTHER,
-        "{names}",
-        result.skippedOther.join(", "),
       ),
     );
   }
@@ -607,8 +611,9 @@ async function demandTakedown(
 }
 
 /**
- * Stage a page or asset. Other types return false so the dispatcher can
- * show that the action is not available.
+ * Stage any item with an id. Generic Items ride the page staging endpoint
+ * and the engine accepts or rejects with a named error (#6580 reversal).
+ * Returns false for folders and rows with no id.
  *
  * <p>HTTP 200 with application-level preflight status
  * ({@code FORBIDDEN}, {@code BADCONFIG}, {@code NOSTAGING_SERVERS},
@@ -616,20 +621,17 @@ async function demandTakedown(
  */
 export async function stageSelectedItem(item: PSPathItem): Promise<boolean> {
   const id = (item.id ?? "").trim();
-  if (!id) {
+  if (!id || isFolder(item)) {
     return false;
   }
   const kind = resolvePublishKind(item);
   const paths = itemPublishPaths();
-  if (kind === "page") {
-    await demandPublish(`${paths.pageStaging}/${encodeURIComponent(id)}`);
-    return true;
-  }
   if (kind === "asset") {
     await demandPublish(`${paths.resourceStaging}/${encodeURIComponent(id)}`);
     return true;
   }
-  return false;
+  await demandPublish(`${paths.pageStaging}/${encodeURIComponent(id)}`);
+  return true;
 }
 
 export interface StageItemFailure {
@@ -643,14 +645,12 @@ export interface StageItemFailure {
 export interface StageBatchResult {
   stagedIds: string[];
   skippedFolders: string[];
-  skippedOther: string[];
   failures: StageItemFailure[];
 }
 
 export interface StageSelectionPlan {
   eligible: PSPathItem[];
   skippedFolders: string[];
-  skippedOther: string[];
 }
 
 function stageItemLabel(item: PSPathItem): string {
@@ -670,16 +670,17 @@ function fillTemplate(key: string, token: string, value: string): string {
 }
 
 /**
- * Split a multi-selection into pages/assets that can be staged and rows
- * that must be skipped (folders, templates, other types). Duplicate ids
- * are staged once.
+ * Split a multi-selection into submittable rows and folders. Every
+ * non-folder row is eligible — Pages, Assets, and generic Items alike
+ * (#6580 reversal: submit all, let the engine accept or reject). Only
+ * folders are skipped (their children run through the folder flow).
+ * Duplicate ids are staged once.
  */
 export function partitionStageSelection(
   items: readonly PSPathItem[],
 ): StageSelectionPlan {
   const eligible: PSPathItem[] = [];
   const skippedFolders: string[] = [];
-  const skippedOther: string[] = [];
   const seen = new Set<string>();
   for (const item of items) {
     const id = (item.id ?? "").trim();
@@ -692,13 +693,9 @@ export function partitionStageSelection(
       skippedFolders.push(stageItemLabel(item));
       continue;
     }
-    if (!id || resolvePublishKind(item) === "none") {
-      skippedOther.push(stageItemLabel(item));
-      continue;
-    }
     eligible.push(item);
   }
-  return { eligible, skippedFolders, skippedOther };
+  return { eligible, skippedFolders };
 }
 
 function failureFromStage(item: PSPathItem, err: unknown): StageItemFailure {
@@ -719,9 +716,9 @@ function failureFromStage(item: PSPathItem, err: unknown): StageItemFailure {
 }
 
 /**
- * Stage every eligible page/asset. Folders and other types are skipped.
- * A 403/404/409 (or application-level preflight failure) on one item is
- * recorded and the rest of the selection still runs.
+ * Stage every selected item. Folders are skipped. A 403/404/409 (or
+ * application-level preflight failure) on one item is recorded and the
+ * rest of the selection still runs.
  */
 export async function stageSelectedItems(
   items: readonly PSPathItem[],
@@ -748,7 +745,6 @@ export async function stageSelectedItems(
   return {
     stagedIds,
     skippedFolders: plan.skippedFolders,
-    skippedOther: plan.skippedOther,
     failures,
   };
 }
@@ -762,15 +758,6 @@ export function describeStageBatch(result: StageBatchResult): string | undefined
         EXPLORER_MSG.STAGE_SKIPPED_FOLDERS,
         "{names}",
         result.skippedFolders.join(", "),
-      ),
-    );
-  }
-  if (result.skippedOther.length > 0) {
-    parts.push(
-      fillTemplate(
-        EXPLORER_MSG.STAGE_SKIPPED_OTHER,
-        "{names}",
-        result.skippedOther.join(", "),
       ),
     );
   }
@@ -810,10 +797,10 @@ export async function listStageFolderChildren(
 }
 
 /**
- * Stage pages and assets that are direct children of a folder. Nested
- * folders are skipped (stage those folders separately). An empty folder
- * stages nothing. Application-level preflight failures are recorded and
- * do not count as staged (#6419, parent #4530).
+ * Stage items that are direct children of a folder. Nested folders are
+ * skipped (stage those folders separately). Rows without an id are
+ * recorded as named failures. Application-level preflight failures are
+ * recorded and do not count as staged (#6419, parent #4530).
  */
 export async function stageSelectedFolder(
   folder: PSPathItem,
@@ -823,14 +810,12 @@ export async function stageSelectedFolder(
     return {
       stagedIds: [],
       skippedFolders: [],
-      skippedOther: [],
       failures: [],
     };
   }
   const children = await findChildren(path);
   const stagedIds: string[] = [];
   const skippedFolders: string[] = [];
-  const skippedOther: string[] = [];
   const failures: StageItemFailure[] = [];
   const seen = new Set<string>();
   for (const child of children) {
@@ -844,8 +829,12 @@ export async function stageSelectedFolder(
       skippedFolders.push(stageItemLabel(child));
       continue;
     }
-    if (!id || resolvePublishKind(child) === "none") {
-      skippedOther.push(stageItemLabel(child));
+    if (!id) {
+      failures.push({
+        id,
+        name: stageItemLabel(child),
+        message: "missing content id",
+      });
       continue;
     }
     try {
@@ -863,12 +852,14 @@ export async function stageSelectedFolder(
       failures.push(failureFromStage(child, err));
     }
   }
-  return { stagedIds, skippedFolders, skippedOther, failures };
+  return { stagedIds, skippedFolders, failures };
 }
 
 /**
- * Remove a page or asset from staging. Other types return false so the
- * dispatcher can show that the action is not available.
+ * Remove any item with an id from staging. Generic Items ride the page
+ * staging-takedown endpoint and the engine accepts or rejects with a
+ * named error (#6580 reversal). Returns false for folders and rows
+ * with no id.
  *
  * <p>HTTP 200 with application-level preflight status
  * ({@code FORBIDDEN}, {@code BADCONFIG}, {@code NOSTAGING_SERVERS},
@@ -878,31 +869,27 @@ export async function removeFromStagingSelectedItem(
   item: PSPathItem,
 ): Promise<boolean> {
   const id = (item.id ?? "").trim();
-  if (!id) {
+  if (!id || isFolder(item)) {
     return false;
   }
   const kind = resolvePublishKind(item);
   const paths = itemPublishPaths();
-  if (kind === "page") {
-    await demandPublish(
-      `${paths.pageStagingTakedown}/${encodeURIComponent(id)}`,
-    );
-    return true;
-  }
   if (kind === "asset") {
     await demandPublish(
       `${paths.resourceStagingTakedown}/${encodeURIComponent(id)}`,
     );
     return true;
   }
-  return false;
+  await demandPublish(
+    `${paths.pageStagingTakedown}/${encodeURIComponent(id)}`,
+  );
+  return true;
 }
 
 /** Outcome of removing a checkbox multi-selection from staging. */
 export interface RemoveFromStagingBatchResult {
   removedIds: string[];
   skippedFolders: string[];
-  skippedOther: string[];
   failures: StageItemFailure[];
 }
 
@@ -925,9 +912,9 @@ function failureFromRemove(item: PSPathItem, err: unknown): StageItemFailure {
 }
 
 /**
- * Remove every eligible page/asset from staging. Folders and other types
- * are skipped. A 403/404/409 (or application-level preflight failure) on
- * one item is recorded and the rest of the selection still runs.
+ * Remove every selected item from staging. Folders are skipped. A
+ * 403/404/409 (or application-level preflight failure) on one item is
+ * recorded and the rest of the selection still runs.
  */
 export async function removeFromStagingSelectedItems(
   items: readonly PSPathItem[],
@@ -954,7 +941,6 @@ export async function removeFromStagingSelectedItems(
   return {
     removedIds,
     skippedFolders: plan.skippedFolders,
-    skippedOther: plan.skippedOther,
     failures,
   };
 }
@@ -970,15 +956,6 @@ export function describeRemoveFromStagingBatch(
         EXPLORER_MSG.UNSTAGE_SKIPPED_FOLDERS,
         "{names}",
         result.skippedFolders.join(", "),
-      ),
-    );
-  }
-  if (result.skippedOther.length > 0) {
-    parts.push(
-      fillTemplate(
-        EXPLORER_MSG.UNSTAGE_SKIPPED_OTHER,
-        "{names}",
-        result.skippedOther.join(", "),
       ),
     );
   }
@@ -1008,8 +985,7 @@ export function describeRemoveFromStagingBatch(
 export type BulkStageRowOutcome =
   | "ok"
   | "failed"
-  | "skipped-folder"
-  | "skipped-other";
+  | "skipped-folder";
 
 export interface BulkStageRow {
   name: string;
@@ -1025,7 +1001,6 @@ export interface BulkStageRow {
 export interface BulkStageReportInput {
   okIds: string[];
   skippedFolders: string[];
-  skippedOther: string[];
   failures: StageItemFailure[];
 }
 
@@ -1043,7 +1018,6 @@ export function buildBulkStageRows(
   );
   const failures = indexBulkStageFailures(result.failures);
   const folders = new Set(result.skippedFolders);
-  const other = new Set(result.skippedOther);
   const rows: BulkStageRow[] = [];
   const seen = new Set<string>();
   for (const item of items) {
@@ -1053,7 +1027,7 @@ export function buildBulkStageRows(
       continue;
     }
     seen.add(key);
-    const row = bulkStageRowForSelection(item, ok, failures, folders, other);
+    const row = bulkStageRowForSelection(item, ok, failures, folders);
     if (row) {
       rows.push(row);
     }
@@ -1062,15 +1036,20 @@ export function buildBulkStageRows(
   return rows;
 }
 
-/** First failure wins per id so duplicate reports do not double-count. */
+/**
+ * First failure wins per id so duplicate reports do not double-count.
+ * Rows without an id are keyed by their label so an id-less failure
+ * still finds its row instead of dropping silently.
+ */
 function indexBulkStageFailures(
   failures: readonly StageItemFailure[],
 ): Map<string, StageItemFailure> {
   const byId = new Map<string, StageItemFailure>();
   for (const failure of failures) {
     const id = (failure.id ?? "").trim();
-    if (id && !byId.has(id)) {
-      byId.set(id, failure);
+    const key = id || `name:${(failure.name ?? "").trim() || "item"}`;
+    if (!byId.has(key)) {
+      byId.set(key, failure);
     }
   }
   return byId;
@@ -1096,11 +1075,10 @@ function bulkStageRowForSelection(
   ok: ReadonlySet<string>,
   failures: ReadonlyMap<string, StageItemFailure>,
   folders: ReadonlySet<string>,
-  other: ReadonlySet<string>,
 ): BulkStageRow | null {
   const id = (item.id ?? "").trim();
   const label = stageItemLabel(item);
-  const failure = id ? failures.get(id) : undefined;
+  const failure = failures.get(id || `name:${label}`);
   if (failure) {
     return failedBulkStageRow(failure, label);
   }
@@ -1109,9 +1087,6 @@ function bulkStageRowForSelection(
   }
   if (folders.has(label)) {
     return { name: label, outcome: "skipped-folder" };
-  }
-  if (other.has(label)) {
-    return { name: label, outcome: "skipped-other" };
   }
   return null;
 }
@@ -1124,20 +1099,25 @@ function appendUnselectedFailures(
 ): void {
   for (const failure of failures) {
     const id = (failure.id ?? "").trim();
-    if (!id || indexed.get(id) !== failure) {
+    const key = id || `name:${(failure.name ?? "").trim() || "item"}`;
+    if (indexed.get(key) !== failure) {
       continue;
     }
-    const known = items.some((item) => (item.id ?? "").trim() === id);
+    const known = items.some((item) => {
+      const rowId = (item.id ?? "").trim();
+      const rowKey = rowId || `name:${stageItemLabel(item)}`;
+      return rowKey === key;
+    });
     if (!known) {
-      rows.push(failedBulkStageRow(failure, id));
+      rows.push(failedBulkStageRow(failure, id || failure.name || "item"));
     }
   }
 }
 
 /**
- * Remove pages and assets that are direct children of a folder from
- * staging. Nested folders are skipped (unstage those folders
- * separately). An empty folder removes nothing. Application-level
+ * Remove items that are direct children of a folder from staging.
+ * Nested folders are skipped (unstage those folders separately). Rows
+ * without an id are recorded as named failures. Application-level
  * preflight failures are recorded and do not count as removed (#6419,
  * parent #4530).
  */
@@ -1149,14 +1129,12 @@ export async function removeFromStagingSelectedFolder(
     return {
       removedIds: [],
       skippedFolders: [],
-      skippedOther: [],
       failures: [],
     };
   }
   const children = await findChildren(path);
   const removedIds: string[] = [];
   const skippedFolders: string[] = [];
-  const skippedOther: string[] = [];
   const failures: StageItemFailure[] = [];
   const seen = new Set<string>();
   for (const child of children) {
@@ -1170,8 +1148,12 @@ export async function removeFromStagingSelectedFolder(
       skippedFolders.push(stageItemLabel(child));
       continue;
     }
-    if (!id || resolvePublishKind(child) === "none") {
-      skippedOther.push(stageItemLabel(child));
+    if (!id) {
+      failures.push({
+        id,
+        name: stageItemLabel(child),
+        message: "missing content id",
+      });
       continue;
     }
     try {
@@ -1189,5 +1171,5 @@ export async function removeFromStagingSelectedFolder(
       failures.push(failureFromRemove(child, err));
     }
   }
-  return { removedIds, skippedFolders, skippedOther, failures };
+  return { removedIds, skippedFolders, failures };
 }

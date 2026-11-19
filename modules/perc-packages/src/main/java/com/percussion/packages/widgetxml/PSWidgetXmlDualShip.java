@@ -145,7 +145,6 @@ public final class PSWidgetXmlDualShip {
           "percImage",
           // residual long-tail
           "percBlogPost",
-          "percCalendar",
           "percCalendarTwo",
           "percDepartment",
           "percDirectory",

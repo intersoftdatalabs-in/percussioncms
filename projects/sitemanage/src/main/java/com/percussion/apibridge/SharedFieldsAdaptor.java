@@ -96,17 +96,16 @@ public class SharedFieldsAdaptor implements ISharedFieldsAdaptor {
   static final String ADMIN_REQUIRED = "Admin role required to read or write shared field groups";
 
   private static final List<String> DESIGN_GAPS =
-      List.of(
-          "SPA shared-field editor is not provided",
-          "System def (global fields) is a separate catalog (Developer System Def)");
+      List.of("System def (global fields) is a separate catalog (Developer System Def)");
 
   /**
    * Structured gaps on GET/PUT {@code .../controlProperties} (same remaining work as group
-   * detail).
+   * detail). The SPA shared-field editor (group create/save/delete, nested field
+   * add/delete, control-property + choice save on detail) has shipped, so no
+   * {@code SF_SPA_EDITOR} gap is reported here anymore.
    */
   static final List<DesignGap> CONTROL_PROPERTY_DESIGN_GAPS =
       List.of(
-          DesignGap.of("SF_SPA_EDITOR", "SPA shared-field editor is not provided"),
           DesignGap.of(
               "SF_SYSTEM_DEF_SEPARATE",
               "System def (global fields) is a separate catalog (Developer System Def)"));

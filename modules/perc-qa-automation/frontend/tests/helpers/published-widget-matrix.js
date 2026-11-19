@@ -22,7 +22,7 @@
  * <p>The pinned {@link WIDGETS} list is the source of truth for "every widget
  * type". It was captured from the shipped widget snippet templates
  * ({@code modules/perc-packages/.../widgets/<Name>/templates/<Name>Snippet.vm}):
- * 48 template widgets minus the three {@link WIDGET_EXCLUSIONS} (test-only
+ * 47 template widgets minus the three {@link WIDGET_EXCLUSIONS} (test-only
  * sample, jQuery script includes with no published markup). Each entry pins
  * the stable published-output hook the matrix spec asserts on that widget's
  * fixture page: a body CSS marker, a {@code <head>} marker for head-only
@@ -113,7 +113,6 @@ const WIDGETS = Object.freeze([
   Object.freeze({ name: "percArchiveList", label: "Archive List", kind: "static", marker: ".perc-archive-list", dts: null }),
   Object.freeze({ name: "percBlogIndexPage", label: "Blog Index", kind: "static", marker: ".perc-blog-list", dts: null }),
   Object.freeze({ name: "percBlogPost", label: "Blog Post", kind: "static", marker: ".perc-blog", dts: null }),
-  Object.freeze({ name: "percCalendar", label: "Calendar", kind: "static", marker: ".perc-calendar", dts: null }),
   Object.freeze({ name: "percCalendarTwo", label: "Calendar Two", kind: "static", marker: ".perc-calendar", dts: null }),
   Object.freeze({ name: "percCategoryList", label: "Category List", kind: "static", marker: ".perc-category-list", dts: null }),
   Object.freeze({ name: "percComments", label: "Comments View", kind: "dynamic", marker: ".perc-comments-view", dts: "comments" }),

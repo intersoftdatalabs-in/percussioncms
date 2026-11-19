@@ -69,6 +69,10 @@ import {
   type AllowedCommunityMap,
 } from "./displayFormatCommunities";
 import {
+  canSaveDescriptionEdit,
+  canSaveLabelEdit,
+} from "./displayFormatDetailSaveGuards";
+import {
   displayFormatDescriptionWrite,
   savedDisplayFormatDescription,
   storedDisplayFormatDescription,
@@ -429,18 +433,23 @@ export function DisplayFormatDetailPanel({
 
   async function handleDescriptionSave(): Promise<void> {
     if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !descriptionEditing ||
-      labelEditing ||
-      descriptionBusy ||
-      labelBusy ||
-      descriptionInflight.current ||
-      labelInflight.current ||
-      inflight.current ||
-      busy
+      !canSaveDescriptionEdit({
+        isNew,
+        hasDetail: detail != null,
+        hasWriteKey: !!writeKey,
+        descriptionEditing,
+        labelEditing,
+        busy,
+        descriptionBusy,
+        labelBusy,
+        descriptionInflight: descriptionInflight.current,
+        labelInflight: labelInflight.current,
+        inflight: inflight.current,
+      })
     ) {
+      return;
+    }
+    if (detail == null) {
       return;
     }
     const sent = displayFormatDescriptionWrite(detail, descriptionDraft);
@@ -531,18 +540,23 @@ export function DisplayFormatDetailPanel({
 
   async function handleLabelSave(): Promise<void> {
     if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !labelEditing ||
-      descriptionEditing ||
-      labelBusy ||
-      descriptionBusy ||
-      labelInflight.current ||
-      descriptionInflight.current ||
-      inflight.current ||
-      busy
+      !canSaveLabelEdit({
+        isNew,
+        hasDetail: detail != null,
+        hasWriteKey: !!writeKey,
+        labelEditing,
+        descriptionEditing,
+        busy,
+        descriptionBusy,
+        labelBusy,
+        descriptionInflight: descriptionInflight.current,
+        labelInflight: labelInflight.current,
+        inflight: inflight.current,
+      })
     ) {
+      return;
+    }
+    if (detail == null) {
       return;
     }
     const sent = displayFormatLabelWrite(detail, labelDraft);
@@ -606,6 +620,13 @@ export function DisplayFormatDetailPanel({
     setConfirmOpen(true);
   }
 
+  function deleteSaveFallback(err: unknown): string {
+    if (isApiError(err) && err.status === 403) return DEV_MSG.DF_FORBIDDEN;
+    if (isApiError(err) && err.status === 404) return DEV_MSG.DF_NOT_FOUND;
+    if (isApiError(err) && err.status === 409) return DEV_MSG.DF_SAVE_ERROR;
+    return DEV_MSG.DF_DELETE_ERROR;
+  }
+
   async function handleDelete(): Promise<void> {
     if (isNew || !writeKey || inflight.current) return;
     setConfirmOpen(false);
@@ -618,15 +639,7 @@ export function DisplayFormatDetailPanel({
       setNotice(DEV_MSG.DF_DELETED);
       onDeleted?.();
     } catch (err: unknown) {
-      const fallback =
-        isApiError(err) && err.status === 403
-          ? DEV_MSG.DF_FORBIDDEN
-          : isApiError(err) && err.status === 404
-            ? DEV_MSG.DF_NOT_FOUND
-            : isApiError(err) && err.status === 409
-              ? DEV_MSG.DF_SAVE_ERROR
-              : DEV_MSG.DF_DELETE_ERROR;
-      setError(panelErrMsg(err, fallback));
+      setError(panelErrMsg(err, deleteSaveFallback(err)));
     } finally {
       inflight.current = false;
       setBusy(false);

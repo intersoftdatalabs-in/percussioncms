@@ -4,7 +4,7 @@
 <Resources>
 	<!-- Preview Context -->
 	<file id="hover_intent_preview"
-		path="/web_resources/widgets/navBar/js/hoverIntent.js"
+		path="/web_resources/widgets/navBar/js/perc-hover-intent.js"
 		type="javascript" context="PREVIEW">
 		<dependency refid="percSystem.jquery" />
 	</file>
@@ -24,7 +24,7 @@
 
 	<!-- Publish Context -->
 	<file id="hover_intent"
-		path="/web_resources/widgets/navBar/js/hoverIntent.min.js"
+		path="/web_resources/widgets/navBar/js/perc-hover-intent.min.js"
 		type="javascript" context="PUBLISH">
 		<dependency refid="percSystem.jquery" />
 	</file>

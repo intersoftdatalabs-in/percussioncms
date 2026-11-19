@@ -101,6 +101,14 @@ export const EDITOR_MSG = {
   HTML_NUL:
     "perc.ui.editor@That HTML contains a character that cannot be saved.",
   TIPTAP_TOOLBAR: "perc.ui.editor@Formatting toolbar",
+  TIPTAP_GROUP_HISTORY: "perc.ui.editor@History",
+  TIPTAP_GROUP_FORMATTING: "perc.ui.editor@Text formatting",
+  TIPTAP_GROUP_STYLE: "perc.ui.editor@Style",
+  TIPTAP_GROUP_ALIGNMENT: "perc.ui.editor@Text alignment",
+  TIPTAP_GROUP_LISTS: "perc.ui.editor@Lists",
+  TIPTAP_GROUP_LINKS: "perc.ui.editor@Links",
+  TIPTAP_GROUP_CODE: "perc.ui.editor@Code",
+  TIPTAP_GROUP_TABLES: "perc.ui.editor@Tables",
   TIPTAP_UNDO: "perc.ui.editor@Undo",
   TIPTAP_REDO: "perc.ui.editor@Redo",
   TIPTAP_BOLD: "perc.ui.editor@Bold",
@@ -303,6 +311,7 @@ export const EDITOR_MSG = {
     "perc.ui.editor@That workflow transition is not allowed for this item.",
   WORKFLOW_COMMENT_REQUIRED:
     "perc.ui.editor@Enter a comment before running this transition.",
+  WORKFLOW_TRIGGER_REQUIRES_COMMENT: "perc.ui.editor@requires comment",
   WORKFLOW_COMMENT_NUL:
     "perc.ui.editor@That transition comment contains a character that cannot be saved.",
   WORKFLOW_ASSIGNEES: "perc.ui.editor@Ad-hoc assignees",
@@ -581,6 +590,8 @@ export const EDITOR_MSG = {
   COMPARE_USE_LEFT: "perc.ui.editor@Use older value",
   COMPARE_USE_RIGHT: "perc.ui.editor@Use newer value",
   COMPARE_WORD_DIFF: "perc.ui.editor@Show word-level changes",
+  COMPARE_CELL_EXPAND: "perc.ui.editor@Show {0} unchanged words",
+  COMPARE_CELL_COLLAPSE: "perc.ui.editor@Show less",
   COMPARE_TOOLBAR_LABEL: "perc.ui.editor@Revision compare controls",
   COMPARE_PREV_CHANGE: "perc.ui.editor@Previous change",
   COMPARE_NEXT_CHANGE: "perc.ui.editor@Next change",

@@ -231,8 +231,16 @@ export interface ClipboardItem {
   id: string;
   /** Item path (e.g. {@code /Sites/Foo/Bar}). */
   path: string;
-  /** Item type discriminator (page / asset / folder). */
-  kind: "page" | "asset" | "folder";
+  /**
+   * Item type discriminator (page / asset / generic item / folder).
+   *
+   * <p>{@code item} is a workflowed content item of a custom (non-stock)
+   * content type — Rhythmyx upgrade rows that are neither a stock page,
+   * nor a stock asset, nor a folder (#6581). Transport treats it like
+   * page/asset (copy/item + move/item); the distinct kind keeps future
+   * kind-switched UX (labels, icons, paste rules) honest.</p>
+   */
+  kind: "page" | "asset" | "item" | "folder";
   /** Display name (title for page/asset, name for folder). */
   name?: string;
   /** Permission snapshot from the source folder; surfaced for the

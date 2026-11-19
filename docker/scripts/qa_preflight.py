@@ -52,6 +52,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Iterable, Optional
 
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+import maven_local_repo  # noqa: E402  # resolve -Dmaven.repo.local like mvn (#6709)
+
 # Hard-coded product coordinates. Kept here (not in env) because the
 # preflight is a developer-machine tool and the coordinates are
 # stable across 8.2.x.
@@ -419,12 +424,14 @@ def _render(row: Optional[PreflightResult]) -> str:
     return f"{row.path}  mtime={row.mtime:.0f}{sha}"
 
 
-def _default_m2_root() -> Path:
-    """Cross-platform default for the maven local repository root."""
-    # `Path("~")` does NOT expand the tilde on Windows; expanduser on
-    # the string is the portable way to resolve the user's home.
-    home = os.path.expanduser("~")
-    return Path(home) / ".m2" / "repository"
+def _default_m2_root(repo_root: Optional[Path] = None) -> Path:
+    """Maven local repository root, resolved the way ``mvn`` would (#6709).
+
+    Honors ``-Dmaven.repo.local`` from ``MAVEN_ARGS`` / ``MAVEN_OPTS``, the
+    mavenrc files, ``.mvn/maven.config`` and ``settings.xml`` before falling
+    back to ``~/.m2/repository`` — see :mod:`maven_local_repo`.
+    """
+    return maven_local_repo.resolve_m2_repository(repo_root)
 
 
 def main(argv: Optional[list[str]] = None) -> int:
@@ -444,8 +451,12 @@ def main(argv: Optional[list[str]] = None) -> int:
     parser.add_argument(
         "--m2-root",
         type=Path,
-        default=_default_m2_root(),
-        help="Maven local repository root (default: ~/.m2/repository).",
+        default=None,
+        help=(
+            "Maven local repository root (default: resolved like mvn — "
+            "-Dmaven.repo.local in MAVEN_ARGS/MAVEN_OPTS/~/.mavenrc/"
+            ".mvn/maven.config, settings.xml, else ~/.m2/repository)."
+        ),
     )
     strict_group = parser.add_mutually_exclusive_group()
     strict_group.add_argument(
@@ -496,8 +507,13 @@ def main(argv: Optional[list[str]] = None) -> int:
         format="%(asctime)s %(levelname)s %(name)s %(message)s",
     )
 
+    m2_root = (
+        args.m2_root
+        if args.m2_root is not None
+        else _default_m2_root(args.repo_root)
+    )
     rows = run_preflight(
-        args.repo_root, args.m2_root, content_hash=args.content_hash
+        args.repo_root, m2_root, content_hash=args.content_hash
     )
     stale = is_stale(rows, content_hash=args.content_hash)
     report = format_report(rows, strict=args.strict, content_hash=args.content_hash)

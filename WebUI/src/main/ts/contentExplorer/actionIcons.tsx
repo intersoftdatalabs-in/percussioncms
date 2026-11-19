@@ -44,8 +44,10 @@
  * states such as {@code Folder_EXPANDED}, {@code *_EXPANDED} variants,
  * {@code ContentPathSeparator}, assignee avatars {@code MySelf}/{@code Nobody},
  * design-time {@code DTItem}, {@code Missing}) keep their existing modern
- * renderings (tree CSS / text) and are NOT re-mapped here — menu-bar and
- * context-menu icon coverage is the follow-on slice (see residual).</p>
+ * renderings (tree CSS / text) and are NOT re-mapped here. Menu-bar and
+ * context-menu icon coverage ({@code MENU_COMMAND_ICONS} +
+ * {@code MenuCommandIcon}, and {@code ActionIcon} reuse in
+ * {@code ContextMenu}) is the scope-2 follow-on (issue #6603).</p>
  *
  * <table>
  * <caption>DCE GIF to modern glyph mapping (toolbar scope)</caption>
@@ -66,6 +68,7 @@
  */
 
 import React from "react";
+import type { ExplorerMenuCommandId } from "./menuBarModel";
 
 export type ActionIconId =
   | "open"
@@ -601,6 +604,57 @@ const EXACT: Record<string, ActionIconId> = {
   linkexistingitemtoslot: "slot",
 };
 
+/** Menu-bar shell command id to glyph (#6603, scope 2). Every Content /
+ * View / Help leaf maps to a DCE-familiar glyph so the menu bar and the
+ * server-driven context menu share one icon vocabulary with the toolbar.
+ * Toggle checkmarks stay — icons are decoration alongside the label, and
+ * any future command without a row here renders label-only. */
+const MENU_COMMAND_ICONS: Record<ExplorerMenuCommandId, ActionIconId> = {
+  "content-search": "search",
+  "content-clipboard-add": "clipboard",
+  "content-multi-copy": "copy",
+  "content-multi-move": "move",
+  "content-multi-recycle": "delete",
+  "content-multi-purge": "purge",
+  "content-multi-restore": "restore",
+  "content-create-site": "site",
+  "content-site-copy": "site",
+  "content-site-rename": "rename",
+  "content-subfolder-copy": "folder",
+  "content-copy-folder-path": "copy",
+  "content-copy-item-guid": "copy",
+  "content-set-workflow": "workflow",
+  "content-set-folder-workflow": "workflow",
+  "content-set-folder-community": "user",
+  "content-set-folder-locale": "lang",
+  "content-set-folder-display-format": "grid",
+  "content-set-folder-allowed-sites": "site",
+  "content-set-community": "user",
+  "content-change-page-template": "template",
+  "content-mobile-preview": "preview",
+  "view-refresh": "refresh",
+  "view-search": "search",
+  "view-security": "security",
+  "view-item-properties": "properties",
+  "view-translations": "lang",
+  "view-relationships": "relationships",
+  "view-dependencies": "dependencies",
+  "view-clipboard": "clipboard",
+  "view-recent": "revisions",
+  "help-explorer": "help",
+  "help-about": "help",
+};
+
+/**
+ * Resolve the icon for an Explorer menu-bar shell command id, or
+ * {@code null} when the command has no mapping (caller renders label-only).
+ */
+export function resolveMenuCommandIcon(
+  id: ExplorerMenuCommandId,
+): ActionIconId | null {
+  return MENU_COMMAND_ICONS[id] ?? null;
+}
+
 /** Prefix fallbacks, checked in order after exact lookup. */
 const PREFIXES: Array<[string, ActionIconId]> = [
   ["workflowtransition", "transition"],
@@ -697,6 +751,12 @@ const iconWrapStyle: React.CSSProperties = {
 export interface ActionIconProps {
   /** Server action {@code name} (not the label). */
   name: string;
+  /**
+   * Test id for the decorative wrapper. Defaults to the toolbar chrome;
+   * the menu bar passes {@code menu-bar-icon} and the context menu passes
+   * {@code context-menu-icon} so surface specs can scope icon assertions.
+   */
+  testId?: string;
 }
 
 /**
@@ -710,7 +770,26 @@ export function ActionIcon(props: ActionIconProps): React.JSX.Element | null {
   }
   return (
     <span
-      data-testid="action-toolbar-icon"
+      data-testid={props.testId ?? "action-toolbar-icon"}
+      aria-hidden="true"
+      style={iconWrapStyle}
+    >
+      <Svg>{GLYPHS[icon]}</Svg>
+    </span>
+  );
+}
+
+/** Decorative icon for a menu-bar shell command id ({@code null} → label-only). */
+export function MenuCommandIcon(props: {
+  id: ExplorerMenuCommandId;
+}): React.JSX.Element | null {
+  const icon = resolveMenuCommandIcon(props.id);
+  if (!icon) {
+    return null;
+  }
+  return (
+    <span
+      data-testid="menu-bar-icon"
       aria-hidden="true"
       style={iconWrapStyle}
     >

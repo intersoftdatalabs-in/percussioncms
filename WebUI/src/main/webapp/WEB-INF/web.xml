@@ -468,6 +468,11 @@
     <!--
       PR-9: BrowserRouter path refresh → internal spa.jsp forward.
       Only allowlisted SPA entries under /cm/app and /cm/pages/app; real JSPs pass through.
+      REQUEST rescues direct pretty-URL loads; FORWARD covers root-context cells
+      (#6578) where PSDispatcherFilter strips the /Rhythmyx prefix via an internal
+      forward before this mapping can match on the REQUEST dispatch (same pattern
+      as the /cm/api/* mapping below). The forward target is spa.jsp (a real JSP),
+      so this mapping never re-triggers on its own forward (no loop).
     -->
     <filter>
         <filter-name>PSWebUiSpaFallbackFilter</filter-name>
@@ -477,11 +482,13 @@
         <filter-name>PSWebUiSpaFallbackFilter</filter-name>
         <url-pattern>/cm/app/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
     </filter-mapping>
     <filter-mapping>
         <filter-name>PSWebUiSpaFallbackFilter</filter-name>
         <url-pattern>/cm/pages/app/*</url-pattern>
         <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
     </filter-mapping>
     <!-- #6140: retired scheduler-console bookmarks under /ui/admin keep 301ing
          via the filter when the exact servlet mapping is bypassed. Kept ui/admin

@@ -30,7 +30,7 @@
  */
 
 import type { PSPathItem } from "../api/contentExplorer/types";
-import { isFolder } from "./selection";
+import { isAssetContentType, isFolder, isPageContentType } from "./selection";
 
 /** Maximum recent entries kept per operator (#6256). */
 export const MAX_RECENT_ITEMS = 10;
@@ -46,8 +46,20 @@ export interface RecentItem {
   name: string;
   /** CMS logical path (folders keep browse semantics). */
   path: string;
-  /** Folders browse in place; items re-open in the editor. */
-  kind: "folder" | "item";
+  /**
+   * Row kind. Folders browse in place; pages, assets, and generic custom-type
+   * items re-open in the editor. {@code item} is a workflowed row of a custom
+   * (non-stock) content type (#6581) — kept distinct from {@code page} so
+   * future kind-switched UX can tell them apart.
+   */
+  kind: "folder" | "page" | "asset" | "item";
+  /**
+   * Original server content-type name (e.g. {@code percPage}) for
+   * {@code item} rows, so re-open restores the row's own type instead of
+   * defaulting to {@code percPage} (#6581). Absent for folders and for
+   * entries recorded before this field existed.
+   */
+  contentType?: string | null;
 }
 
 /** A stored recent entry with its open timestamp. */
@@ -109,6 +121,23 @@ function sanitizeText(value: unknown): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+/**
+ * Normalize a stored recent kind. Unknown or missing kinds fall back to
+ * the generic {@code item} so legacy or corrupt entries still re-open.
+ */
+function normalizeRecentKind(raw: unknown): RecentItem["kind"] {
+  const normalized = typeof raw === "string" ? raw.trim().toLowerCase() : "";
+  switch (normalized) {
+    case "folder":
+    case "page":
+    case "asset":
+    case "item":
+      return normalized;
+    default:
+      return "item";
+  }
+}
+
 function sanitizeEntry(raw: unknown): RecentEntry | null {
   if (raw == null || typeof raw !== "object") {
     return null;
@@ -121,7 +150,8 @@ function sanitizeEntry(raw: unknown): RecentEntry | null {
     return null;
   }
   const rawName = sanitizeText(candidate.name);
-  const kind = candidate.kind === "folder" ? "folder" : "item";
+  const kind = normalizeRecentKind(candidate.kind);
+  const contentType = sanitizeText(candidate.contentType) || null;
   const openedAt =
     typeof candidate.openedAt === "string" && candidate.openedAt
       ? candidate.openedAt
@@ -131,6 +161,7 @@ function sanitizeEntry(raw: unknown): RecentEntry | null {
     name: rawName || path || id || "",
     path,
     kind,
+    contentType,
     openedAt,
   };
 }
@@ -222,6 +253,7 @@ export function recordRecentItem(
     name,
     path: item.path.trim(),
     kind: item.kind,
+    contentType: (item.contentType ?? "").trim() || null,
     openedAt: new Date().toISOString(),
   };
   const rest = existing.filter((prev) => recentItemKey(prev) !== key);
@@ -242,6 +274,12 @@ export function dropRecentItem(
 /**
  * Convert an opened shell row into a recordable recent. Returns
  * {@code null} when the row has neither id nor path (nothing to re-open).
+ *
+ * <p>The row's own kind is preserved — stock pages stay {@code page},
+ * stock assets stay {@code asset}, folders stay {@code folder}, and any
+ * other workflowed row is recorded as a generic {@code item} together
+ * with its server content-type name so re-open restores the row's type
+ * instead of defaulting to {@code percPage} (#6581).</p>
  */
 export function toRecentItem(item: PSPathItem | null | undefined): RecentItem | null {
   if (!item) {
@@ -253,5 +291,15 @@ export function toRecentItem(item: PSPathItem | null | undefined): RecentItem | 
     return null;
   }
   const name = (item.name ?? "").trim() || path || id;
-  return { id: id || null, name, path, kind: isFolder(item) ? "folder" : "item" };
+  if (isFolder(item)) {
+    return { id: id || null, name, path, kind: "folder", contentType: null };
+  }
+  if (isAssetContentType(item)) {
+    return { id: id || null, name, path, kind: "asset", contentType: null };
+  }
+  if (isPageContentType(item)) {
+    return { id: id || null, name, path, kind: "page", contentType: null };
+  }
+  const contentType = (item.type ?? "").trim() || null;
+  return { id: id || null, name, path, kind: "item", contentType };
 }

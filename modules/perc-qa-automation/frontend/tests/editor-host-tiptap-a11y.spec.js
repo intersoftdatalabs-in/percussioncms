@@ -151,6 +151,10 @@ function toolbar(page) {
   return page.locator('[data-testid="editor-tiptap-toolbar-text"]');
 }
 
+function percBar(page) {
+  return page.locator('[data-testid="editor-tiptap-perc-text"]');
+}
+
 async function activeTestId(page) {
   return page.evaluate(
     () => document.activeElement?.getAttribute("data-testid") ?? null,
@@ -310,6 +314,93 @@ test.describe("React Content Editor TipTap a11y evidence", () => {
       expect(await cellIndex()).toBe(1);
       await page.keyboard.press("Shift+Tab");
       expect(await cellIndex()).toBe(0);
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
+    "parity toolbar groups carry translated accessible names",
+    { tag: ["@explorer-content-editor", "@editor", "@html", "@tiptap", "@a11y"] },
+    async ({ page }) => {
+      const pageErrors = watchErrors(page);
+      await openEditor(page);
+      const names = await toolbar(page).evaluate((root) =>
+        Array.from(root.children)
+          .filter((el) => el.getAttribute("role") === "group")
+          .map((el) => el.getAttribute("aria-label")),
+      );
+      expect(names).toEqual([
+        "History",
+        "Text formatting",
+        "Style",
+        "Text alignment",
+        "Lists",
+        "Links",
+        "Code",
+        "Tables",
+      ]);
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
+    "plugin bar keeps one tab stop with arrow-key movement",
+    { tag: ["@explorer-content-editor", "@editor", "@html", "@tiptap", "@a11y"] },
+    async ({ page }) => {
+      const pageErrors = watchErrors(page);
+      await openEditor(page);
+      const bar = percBar(page);
+      // The plugin bar is a second toolbar with its own roving slot: Tab
+      // enters each editor toolbar exactly once.
+      const zeroStops = await bar.evaluate((root) =>
+        Array.from(root.querySelectorAll("button"))
+          .filter((el) => el.getAttribute("tabindex") === "0")
+          .map((el) => el.getAttribute("data-testid")),
+      );
+      expect(zeroStops).toEqual(["tiptap-perc-inline-link-text"]);
+      await bar.getByTestId("tiptap-perc-inline-link-text").focus();
+      expect(await activeTestId(page)).toBe("tiptap-perc-inline-link-text");
+      await page.keyboard.press("ArrowRight");
+      expect(await activeTestId(page)).toBe("tiptap-perc-inline-image-text");
+      await page.keyboard.press("End");
+      expect(await activeTestId(page)).toBe("tiptap-perc-source-text");
+      await page.keyboard.press("Home");
+      expect(await activeTestId(page)).toBe("tiptap-perc-inline-link-text");
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
+    "plugin inline-link dialog is a dialog with focus-in and Escape focus-return",
+    { tag: ["@explorer-content-editor", "@editor", "@html", "@tiptap", "@a11y"] },
+    async ({ page }) => {
+      const pageErrors = watchErrors(page);
+      await openEditor(page);
+      const bar = percBar(page);
+      const linkButton = bar.getByTestId("tiptap-perc-inline-link-text");
+      await linkButton.focus();
+      await page.keyboard.press("Enter");
+      const dialog = bar.getByRole("dialog");
+      await expect(dialog).toBeVisible();
+      await expect(dialog).toHaveAttribute(
+        "id",
+        "tiptap-perc-dialog-inline-link-text",
+      );
+      await expect(dialog).toHaveAttribute(
+        "aria-label",
+        "Insert inline link",
+      );
+      await expect(linkButton).toHaveAttribute("aria-expanded", "true");
+      await expect(linkButton).toHaveAttribute(
+        "aria-controls",
+        "tiptap-perc-dialog-inline-link-text",
+      );
+      expect(await activeTestId(page)).toBe("tiptap-perc-link-url-text");
+      await page.keyboard.press("Escape");
+      await expect(dialog).toBeHidden({ timeout: 5_000 });
+      expect(await bar.getByRole("dialog").count()).toBe(0);
+      expect(await activeTestId(page)).toBe("tiptap-perc-inline-link-text");
+      await expect(linkButton).toHaveAttribute("aria-expanded", "false");
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
   );

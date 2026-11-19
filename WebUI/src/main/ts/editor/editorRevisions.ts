@@ -219,14 +219,20 @@ export function splitWordDiffTokens(value: string): string[] {
   return value.split(/(\s+)/).filter((part) => part.length > 0);
 }
 
+/** Longest single token eligible for intra-word refinement (#6533). */
+const WORD_SUBSTITUTION_CHAR_CAP = 64;
+
 /**
  * Word-level diff of two compare cell values (#6533).
  *
  * <p>Tokenizes on whitespace (keeping the whitespace) and aligns tokens with a
  * longest-common-subsequence pass. Adjacent same-kind tokens are merged so the
  * render is a short run of {@code <span>}/{@code <ins>}/{@code <del>} nodes.
- * Returns a single {@code same} segment when the values are equal, and falls
- * back to whole-value removed+added when either side exceeds the token cap.</p>
+ * Single-word substitutions are refined to the changed characters
+ * ({@link refineWordSubstitution}) so typo fixes read as one marked letter
+ * instead of a whole marked word. Returns a single {@code same} segment when
+ * the values are equal, and falls back to whole-value removed+added when
+ * either side exceeds the token cap.</p>
  */
 export function computeWordDiff(
   left: string,
@@ -244,7 +250,7 @@ export function computeWordDiff(
   }
   const table = buildWordDiffTable(leftTokens, rightTokens);
   return mergeWordDiffSegments(
-    traceWordDiff(table, leftTokens, rightTokens),
+    refineSubstitutionPairs(traceWordDiff(table, leftTokens, rightTokens)),
   );
 }
 
@@ -331,6 +337,71 @@ function mergeWordDiffSegments(
 }
 
 /**
+ * Refine adjacent removed+added pairs to the changed characters (#6533).
+ *
+ * <p>Each pair is one word-level substitution (for example {@code "old"} vs
+ * {@code "new"}); pairs that qualify as single words are re-diffed at
+ * character level so {@code "grey"} vs {@code "gray"} marks just the
+ * {@code "e"}/{@code "a"}. A second merge pass coalesces the boundary runs
+ * the refinement can split (for example the {@code same} tail).</p>
+ */
+function refineSubstitutionPairs(
+  segments: WordDiffSegment[],
+): WordDiffSegment[] {
+  const refined: WordDiffSegment[] = [];
+  let i = 0;
+  while (i < segments.length) {
+    const current = segments[i];
+    const next = segments[i + 1];
+    if (current.kind === "removed" && next?.kind === "added") {
+      refined.push(...refineWordSubstitution(current.text, next.text));
+      i += 2;
+    } else {
+      refined.push(current);
+      i += 1;
+    }
+  }
+  return refined;
+}
+
+/** A substitution pair refines only when both sides are one short word. */
+function isRefinableSubstitution(removed: string, added: string): boolean {
+  if (!removed || !added) {
+    return false;
+  }
+  if (
+    removed.length > WORD_SUBSTITUTION_CHAR_CAP ||
+    added.length > WORD_SUBSTITUTION_CHAR_CAP
+  ) {
+    return false;
+  }
+  return !/\s/.test(removed) && !/\s/.test(added);
+}
+
+/**
+ * Character-level diff of one word-level substitution pair (#6533).
+ *
+ * <p>Reuses the token LCS over code points (`Array.from`, so astral symbols
+ * stay intact). Multi-word pairs and over-long single tokens keep their
+ * word-level removed+added marks instead of a noisy character scatter.</p>
+ */
+export function refineWordSubstitution(
+  removed: string,
+  added: string,
+): WordDiffSegment[] {
+  if (!isRefinableSubstitution(removed, added)) {
+    return [
+      { text: removed, kind: "removed" },
+      { text: added, kind: "added" },
+    ];
+  }
+  const leftChars = Array.from(removed);
+  const rightChars = Array.from(added);
+  const { table, cols } = buildWordDiffTable(leftChars, rightChars);
+  return mergeWordDiffSegments(traceWordDiff({ table, cols }, leftChars, rightChars));
+}
+
+/**
  * Copy one revision field value into the editor draft (#6080).
  *
  * <p>Field-level restore is a local draft edit: the caller saves through the
@@ -348,4 +419,172 @@ export function applyRevisionFieldValue(
     return draft;
   }
   return { ...draft, [field]: value };
+}
+
+/** Side of a compare cell a collapsed run renders for (#6672). */
+export type WordDiffCellSide = "older" | "newer";
+
+/**
+ * Context words kept at each edge of a collapsed unchanged run (#6672).
+ *
+ * <p>Classic unified-diff context: a middle run keeps the trailing words
+ * before the next change and the leading words after the previous one, so
+ * the changed words stay readable without scrolling through the field.</p>
+ */
+export const WORD_DIFF_COLLAPSE_CONTEXT_WORDS = 8;
+
+/**
+ * Minimum hidden words before an unchanged run collapses (#6672).
+ *
+ * <p>A run collapses only when hiding it removes at least this many words
+ * beyond the kept context, so short fields never gain a toggle.</p>
+ */
+export const WORD_DIFF_COLLAPSE_MIN_HIDDEN_WORDS = 10;
+
+/**
+ * One renderable piece of a compare cell with collapsed runs (#6672).
+ *
+ * <p>A {@code collapsed: false} piece renders as before (a plain span for
+ * {@code same} text, {@code <del>} for the older side, {@code <ins>} for
+ * the newer side). A {@code collapsed: true} piece renders as an ellipsis
+ * for {@code hiddenWords} unchanged words; the cell toggle expands all of
+ * them at once.</p>
+ */
+export type CollapsedWordDiffPart =
+  | { collapsed: false; text: string; kind: WordDiffSegment["kind"] }
+  | { collapsed: true; hiddenWords: number };
+
+/** Split text into words; interior whitespace is not preserved (#6672). */
+function splitCollapseWords(text: string): string[] {
+  return text.split(/\s+/).filter((word) => word.length > 0);
+}
+
+/**
+ * Split one unchanged run into kept edges plus a collapsed gap (#6672).
+ *
+ * <p>Returns {@code null} when the run is short enough to render whole.
+ * {@code keepHead} keeps the run's leading context words (a change precedes
+ * it) and {@code keepTail} keeps its trailing context words (a change
+ * follows it), so a middle run keeps both edges in reading order while an
+ * edge run keeps only the side facing its change.</p>
+ */
+function splitUnchangedRun(
+  words: string[],
+  keepHead: boolean,
+  keepTail: boolean,
+  context: number,
+  minimum: number,
+): CollapsedWordDiffPart[] | null {
+  const keepCount = (keepHead ? context : 0) + (keepTail ? context : 0);
+  if (words.length <= keepCount + minimum) {
+    return null;
+  }
+  const parts: CollapsedWordDiffPart[] = [];
+  if (keepHead) {
+    parts.push({
+      collapsed: false,
+      text: words.slice(0, context).join(" "),
+      kind: "same",
+    });
+  }
+  parts.push({ collapsed: true, hiddenWords: words.length - keepCount });
+  if (keepTail) {
+    parts.push({
+      collapsed: false,
+      text: words.slice(-context).join(" "),
+      kind: "same",
+    });
+  }
+  return parts;
+}
+
+/**
+ * Collapse long unchanged runs of a compare cell (#6672).
+ *
+ * <p>Keeps only the segments the given side renders ({@code same} plus the
+ * side's own marks) and replaces an unchanged run longer than the kept
+ * context plus {@code minHiddenWords} with a collapsed gap carrying the
+ * hidden word count. A leading run keeps its trailing context words, a
+ * trailing run keeps its leading context words, and a middle run keeps
+ * both edges. Runs collapse only when the cell also has a change to anchor
+ * the context to; an all-unchanged or empty cell renders as before so
+ * there is never a toggle with nothing to show.</p>
+ */
+export function collapseWordDiffCell(
+  segments: WordDiffSegment[],
+  side: WordDiffCellSide,
+  contextWords = WORD_DIFF_COLLAPSE_CONTEXT_WORDS,
+  minHiddenWords = WORD_DIFF_COLLAPSE_MIN_HIDDEN_WORDS,
+): CollapsedWordDiffPart[] {
+  const kept = (segments ?? []).filter(
+    (segment) =>
+      segment.kind === "same" ||
+      (side === "older"
+        ? segment.kind === "removed"
+        : segment.kind === "added"),
+  );
+  if (!kept.some((segment) => segment.kind !== "same")) {
+    return kept.map((segment) => ({
+      collapsed: false as const,
+      text: segment.text,
+      kind: segment.kind,
+    }));
+  }
+  const context = Math.max(0, Math.floor(contextWords));
+  const minimum = Math.max(0, Math.floor(minHiddenWords));
+  if (context === 0) {
+    return kept.map((segment) => ({
+      collapsed: false as const,
+      text: segment.text,
+      kind: segment.kind,
+    }));
+  }
+  const parts: CollapsedWordDiffPart[] = [];
+  kept.forEach((segment, index) => {
+    if (segment.kind !== "same") {
+      parts.push({ collapsed: false, text: segment.text, kind: segment.kind });
+      return;
+    }
+    const split = splitUnchangedRun(
+      splitCollapseWords(segment.text),
+      index > 0,
+      index < kept.length - 1,
+      context,
+      minimum,
+    );
+    if (split == null) {
+      parts.push({ collapsed: false, text: segment.text, kind: segment.kind });
+    } else {
+      parts.push(...split);
+    }
+  });
+  return parts;
+}
+
+/**
+ * Total hidden unchanged words across collapsed gaps (#6672).
+ *
+ * <p>The cell toggle names this count so authors know how much text one
+ * click reveals.</p>
+ */
+export function collapsedWordDiffHiddenWords(
+  parts: readonly CollapsedWordDiffPart[],
+): number {
+  return (parts ?? []).reduce(
+    (total, part) => total + (part.collapsed ? part.hiddenWords : 0),
+    0,
+  );
+}
+
+/**
+ * Fill the collapsed-cell toggle template (e.g.
+ * {@code "Show {0} unchanged words"} with the hidden word count). Mirrors
+ * {@link formatCompareNavStatus}: the template comes from
+ * {@code message()}, the substitution is pure and unit-tested.
+ */
+export function formatCollapsedWordDiffCount(
+  template: string,
+  hiddenWords: number,
+): string {
+  return String(template ?? "").replace("{0}", String(hiddenWords));
 }

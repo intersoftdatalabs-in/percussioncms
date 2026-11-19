@@ -17,6 +17,9 @@ RUN apt-get update \
 
 WORKDIR /opt/matrix
 
+# CVE-2026-114938 (GH-6664): defense-in-depth if cached base image precedes Temurin 21.0.13.1+2.
+ENV JDK_JAVA_OPTIONS="-XX:-UseBASE64Intrinsics"
+
 # Cell entrypoint + shared readiness helpers (HTTP + ApplicationContext markers).
 COPY matrix/cell-entrypoint.py /usr/local/bin/cell-entrypoint.py
 COPY scripts/rhythmyx_ready.py /usr/local/lib/perc/rhythmyx_ready.py

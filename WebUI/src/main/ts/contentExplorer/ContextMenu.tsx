@@ -30,10 +30,18 @@
  * and descendant names that also appear as roots are collapsed so MENU
  * parents stay nested (same catalog as the toolbar) rather than a flat
  * label dump (#3629).</p>
+ *
+ * <p>Items render the DCE-familiar <strong>icon + label</strong> affordance
+ * (#6603) via the shared {@code actionIcons} pipeline — same glyphs as
+ * the toolbar, so server actions look identical in both chrome surfaces.
+ * Labels and keyboard handling are unchanged; unmapped actions and the
+ * empty state stay label-only (text-first clarity).</p>
  */
 
 import React, { useEffect, useId, useState } from "react";
 import type { MenuAction } from "../api/contentExplorer/types";
+import { message } from "../i18n/message";
+import { ActionIcon } from "./actionIcons";
 import {
   prepareMenuActionTree,
   unwrapMenuActionChildren,
@@ -123,7 +131,7 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
     >
       {actions.length === 0 ? (
         <div role="presentation" data-testid="context-menu-empty">
-          (No actions)
+          {message("perc.ui.explorer@No actions")}
         </div>
       ) : (
         <ul
@@ -155,6 +163,7 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
                   onKeyDown={(e) => handleItemKey(e, action, isPivot, expanded)}
                   style={{ padding: "4px 8px", cursor: "pointer" }}
                 >
+                  <ActionIcon name={action.name} testId="context-menu-icon" />
                   {action.label}
                   {isPivot ? <span aria-hidden="true"> ▶</span> : null}
                 </div>
@@ -190,6 +199,7 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
                           }}
                           style={{ cursor: "pointer" }}
                         >
+                          <ActionIcon name={c.name} testId="context-menu-icon" />
                           {c.label}
                         </div>
                       </li>

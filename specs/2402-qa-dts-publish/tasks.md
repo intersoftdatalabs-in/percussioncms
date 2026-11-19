@@ -56,5 +56,18 @@
       pointer); qa-automation `AGENTS.md` documents new env vars; no
       hardcoded ports.
 - [x] T022 Full-suite default still surface-filtered.
-- [ ] T023 Epic closeout with AC1–AC5 evidence; `Fixes #6237` only when
+- [x] T023 Epic closeout with AC1–AC5 evidence; `Fixes #6237` only when
       every box is met.
+      Live-verification slice (this run, #6237): fresh `--with-dts` cell —
+      `qa-up` RESULT:OK (CMS H2 + DTS Tomcat), `qa-health --with-dts`
+      HTTP:200 + DTS_HTTP:200, `qa-publish-fixture` RESULT:OK,
+      `qa-seed-widget-fixtures` RESULT:OK; surface runs 62/62 green, zero
+      skipped (smoke 2, category-tree 3 incl. #6189 expand, poll 2, feed 4,
+      metadata 2 incl. the #6375 HTTPS seed block, form 2, comments 2,
+      widget matrix 45); CMS `server.log` zero ERROR/FATAL. Cell also
+      exposed a pre-fix `saveVisits` isolation failure in `metadata.log`
+      (same class as #6343): fixed here (`PSBlogPostVisitDao` /
+      `PSCookieConsentDao` drop explicit isolation, red-green unit proof,
+      live visit-persistence proof via `topblogposts`). Residuals #6670
+      (likes/forms DAOs, same class) + #6673 (percCalendar inventory,
+      pre-existing). AC1–AC5 all evidenced → `Fixes #6237` + `Fixes #6375`.

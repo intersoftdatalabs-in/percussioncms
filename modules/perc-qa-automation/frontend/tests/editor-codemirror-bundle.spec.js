@@ -104,6 +104,20 @@ const TEMPLATE_JSP_MIRRORS = [
   "WebUI/war/app/includes/template/editTemplate_js.jsp",
 ];
 
+// Classic template-metadata dialog widget (issue #5626 slice: classic
+// page-edit dialogs stay in scope until deleted). The template editor's
+// "Edit Meta Data" action (PercTemplateView) opens this jQuery dialog; its
+// iframe hosts the server-rendered code fields and save reads them through
+// the CodeMirror 5 instance the npm bundle creates
+// (`textarea.nextSibling.CodeMirror`, the fromTextArea wrapper contract).
+// Both dual-ship copies must carry the hardened read (enhanced-instance
+// value with plain-textarea fallback and a visible save-failure message
+// naming the field) and neither may reference a removed layout.
+const METADATA_DIALOG_MIRRORS = [
+  "WebUI/src/main/webapp/cm/widgets/perc_template_metadata_dialog.js",
+  "WebUI/war/widgets/perc_template_metadata_dialog.js",
+];
+
 // Issue #6362 (slice 2/3 — "no exceptions"): classic content/page-edit
 // dialogs beyond the template editor render code editing through the
 // sys_TextArea control in sys_Templates.xsl, which loads the same
@@ -155,6 +169,182 @@ function collectPomPaths(dir) {
     }
   }
   return found;
+}
+
+// Issue #5746 (detach lock): extensions swept for orphaned references to
+// the retired TinyMCE-hosted CodeMirror layout. Every tracked text type
+// that can be served, executed, or packaged is covered — web sources,
+// markup/config, and operator scripts. Prose is out of scope by design:
+// migration-history notes in Markdown legitimately discuss retired paths,
+// and `docs/`, `specs/`, `product-docs/` trees are not served code.
+// `pom.xml` files are covered with XML comment-stripping here too (the
+// manifest-lock test above owns the WebJar/unpack/version pins);
+// `package-lock.json` files only carry the npm registry tarball entry.
+const DETACH_SWEEP_EXTENSIONS = new Set([
+  ".java",
+  ".js",
+  ".jsx",
+  ".mjs",
+  ".cjs",
+  ".ts",
+  ".tsx",
+  ".jsp",
+  ".jspx",
+  ".htm",
+  ".html",
+  ".xhtm",
+  ".css",
+  ".vm",
+  ".tld",
+  ".tag",
+  ".xml",
+  ".xsl",
+  ".xslt",
+  ".dtd",
+  ".xsd",
+  ".wsdl",
+  ".properties",
+  ".json",
+  ".yaml",
+  ".yml",
+  ".txt",
+  ".py",
+  ".sh",
+  ".bat",
+  ".cmd",
+  ".contenttype",
+  ".pdt",
+  ".rpg",
+  ".acldef",
+  ".datasource",
+  ".workflowdef",
+  ".ent",
+  ".tbl",
+  ".frm",
+  ".extension",
+  ".application",
+  ".sample",
+]);
+const DETACH_SWEEP_SKIP_DIRS = new Set([
+  ".git",
+  "node_modules",
+  "target",
+  "test-results",
+  "playwright-report",
+  "specs", // frozen design docs, not live sources
+  "docs", // engineering/history notes, not live sources
+  "product-docs", // customer help, not served code
+]);
+const DETACH_SWEEP_SKIP_FILES = new Set([
+  // This spec documents the retired path as LEGACY_TINYMCE_BASE (a live
+  // string constant) so the live test above can assert the old layout
+  // 404s; the constant is the allow-list, not an orphan.
+  "modules/perc-qa-automation/frontend/tests/editor-codemirror-bundle.spec.js",
+]);
+
+function collectSourcePaths(dir) {
+  const found = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (DETACH_SWEEP_SKIP_DIRS.has(entry.name)) {
+        continue;
+      }
+      found.push(...collectSourcePaths(full));
+      continue;
+    }
+    if (!entry.isFile()) {
+      continue;
+    }
+    if (!DETACH_SWEEP_EXTENSIONS.has(path.extname(entry.name))) {
+      continue;
+    }
+    if (DETACH_SWEEP_SKIP_FILES.has(path.relative(REPO_ROOT, full))) {
+      continue;
+    }
+    found.push(full);
+  }
+  return found;
+}
+
+function stripXmlComments(text) {
+  // Test-only sweep helper, not a security boundary (see suppressions.md):
+  // strips XML comments so migration-history notes do not trip the detach
+  // sweep. Loops until stable so nested markers cannot leave a `<!--`
+  // residue behind the single-pass replace.
+  let prev;
+  do {
+    prev = text;
+    text = text.replace(/<!--[\s\S]*?-->/g, ""); // codeql[js/incomplete-multi-character-sanitization]
+  } while (text !== prev);
+  return text;
+}
+
+function stripCLikeComments(text) {
+  return text
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:])\/\/.*$/gm, "$1");
+}
+
+function stripHashComments(text) {
+  // `#` opens a line comment in Python, shell, and YAML. A `#` preceded
+  // by `:` is kept (URL scheme guard symmetry with the C-like stripper).
+  return text.replace(/(^|[^:])#.*$/gm, "$1");
+}
+
+function stripPropertiesComments(text) {
+  // In `.properties` files only a leading `#` or `!` opens a comment —
+  // mid-line markers are literal values and must be kept.
+  return text.replace(/^[#!].*$/gm, "");
+}
+
+function stripVelocityComments(text) {
+  return text
+    .replace(/#\*[\s\S]*?\*#/g, "")
+    .replace(/(^|[^:])##.*$/gm, "$1");
+}
+
+function stripBatchComments(text) {
+  return text.replace(/^\s*(?:REM\b|::).*$/gim, "");
+}
+
+// Strip comments so migration-history notes (e.g. "relocated from
+// modules/perc-tinymce", "legacy TinyMCE-hosted fallback path") do not trip
+// the sweep — only live code, markup, and string literals count. Mirrors
+// the manifest-lock test's XML-comment stripping above.
+const DETACH_COMMENT_STRIPPERS = {
+  ".java": stripCLikeComments,
+  ".js": stripCLikeComments,
+  ".jsx": stripCLikeComments,
+  ".mjs": stripCLikeComments,
+  ".cjs": stripCLikeComments,
+  ".ts": stripCLikeComments,
+  ".tsx": stripCLikeComments,
+  ".css": (text) => text.replace(/\/\*[\s\S]*?\*\//g, ""),
+  ".jsp": (text) => stripXmlComments(text.replace(/<%--[\s\S]*?--%>/g, "")),
+  ".jspx": (text) => stripXmlComments(text.replace(/<%--[\s\S]*?--%>/g, "")),
+  ".htm": stripXmlComments,
+  ".html": stripXmlComments,
+  ".xhtm": stripXmlComments,
+  ".xml": stripXmlComments,
+  ".xsl": stripXmlComments,
+  ".xslt": stripXmlComments,
+  ".dtd": stripXmlComments,
+  ".xsd": stripXmlComments,
+  ".wsdl": stripXmlComments,
+  ".vm": stripVelocityComments,
+  ".py": stripHashComments,
+  ".sh": stripHashComments,
+  ".yaml": stripHashComments,
+  ".yml": stripHashComments,
+  ".properties": stripPropertiesComments,
+  ".bat": stripBatchComments,
+  ".cmd": stripBatchComments,
+};
+
+function stripSourceComments(text, filePath) {
+  const stripper = DETACH_COMMENT_STRIPPERS[path.extname(filePath)];
+  return stripper ? stripper(text) : text;
 }
 
 test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
@@ -942,6 +1132,177 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
   );
 
   test(
+    "classic template metadata dialog reads CodeMirror values safely",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async () => {
+      // No live CMS needed: static pin for the #5626 metadata-dialog
+      // hardening slice. Save must read each code field through the
+      // CodeMirror 5 instance the npm bundle creates (the fromTextArea
+      // wrapper contract: `textarea.nextSibling.CodeMirror.getValue()`),
+      // fall back to the live textarea value when a field was not enhanced,
+      // and abort with a visible named-field message when a field is absent
+      // (previously a silent TypeError left the dialog open with no message).
+      // Both dual-ship mirrors carry the same contract; neither may
+      // reference the removed per-file layout or the retired TinyMCE-hosted
+      // path, and neither may keep the dead per-file-era editor vars.
+      const texts = METADATA_DIALOG_MIRRORS.map((rel) =>
+        fs.readFileSync(path.join(REPO_ROOT, rel), "utf8").replace(/\r\n/g, "\n"),
+      );
+      for (const [index, rel] of METADATA_DIALOG_MIRRORS.entries()) {
+        const text = texts[index];
+        expect(
+          text.length,
+          `${rel} must embed the metadata dialog widget`,
+        ).toBeGreaterThan(0);
+        for (const pin of [
+          "getCodeEditorValue",
+          "nextSibling.CodeMirror",
+          "getValue()",
+          "return field.val()",
+          "Template metadata field is missing: ",
+          "Could not read the template code fields",
+          "Nothing was saved.",
+        ]) {
+          expect(
+            text,
+            `${rel} must harden the CodeMirror save read (#5626): ${pin}`,
+          ).toContain(pin);
+        }
+        for (const dead of ["codeMirrorSet", "cm1"]) {
+          expect(
+            text,
+            `${rel} must not keep dead per-file-era editor vars: ${dead}`,
+          ).not.toContain(dead);
+        }
+        for (const line of text.split("\n")) {
+          if (!/codemirror/i.test(line)) {
+            continue;
+          }
+          expect(
+            line,
+            `${rel} must not reference the removed per-file layout: ${line}`,
+          ).not.toMatch(/codemirror\/(lib|mode|addon|keymap|theme)\//);
+          expect(
+            line,
+            `${rel} must not reference the retired TinyMCE-hosted bundle path: ${line}`,
+          ).not.toMatch(/sys_resources\/tinymce\//);
+        }
+      }
+      // Dual-ship consistency (header rule): the war mirror must carry the
+      // same Intersoft header as the webapp source.
+      for (const [index, rel] of METADATA_DIALOG_MIRRORS.entries()) {
+        expect(
+          texts[index],
+          `${rel} must carry the Intersoft copyright header`,
+        ).toContain("Copyright (c) 2026 Intersoft Data Labs, Inc.");
+        expect(
+          texts[index],
+          `${rel} must not keep the retired Percussion header`,
+        ).not.toContain("Percussion Software, Inc.");
+      }
+    },
+  );
+
+  test(
+    "classic metadata save read works against the served npm bundle",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      // Live proof for the #5626 metadata-dialog hardening slice on the
+      // served npm bundle: the exact read chain save uses
+      // (`textarea.nextSibling.CodeMirror.getValue()`) returns the enhanced
+      // value, an un-enhanced textarea still yields its live value (the
+      // fallback), and a missing field is detectable before anything is
+      // sent. Mirrors getCodeEditorValue in
+      // perc_template_metadata_dialog.js (both dual-ship copies, pinned
+      // statically above); the widget itself needs the full dialog harness
+      // so the bundle mechanics are proved here.
+      test.setTimeout(60_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          pageErrors.push(msg.text());
+        }
+      });
+
+      await loginAsAdmin(page);
+      await page.addScriptTag({ url: `${BASE_URL}${BUNDLE_JS}` });
+      await page.addStyleTag({ url: `${BASE_URL}${BUNDLE_CSS}` });
+
+      const read = await page.evaluate(() => {
+        document.body.innerHTML =
+          "<h1>Metadata save read live proof (#5626)</h1>" +
+          '<textarea id="additional_head_content"><p>Head</p></textarea>' +
+          '<textarea id="code_insert_after_body_start"><p>Body</p></textarea>' +
+          '<textarea id="plain_fallback"><p>Plain</p></textarea>';
+        // Enhance two fields exactly like the server-rendered form does.
+        for (const id of [
+          "additional_head_content",
+          "code_insert_after_body_start",
+        ]) {
+          window.CodeMirror.fromTextArea(document.getElementById(id), {
+            mode: "htmlmixed",
+            lineNumbers: true,
+          });
+        }
+        // Same algorithm as getCodeEditorValue in the dialog widget.
+        function readField(id) {
+          const el = document.getElementById(id);
+          if (!el) {
+            throw new Error("Template metadata field is missing: " + id);
+          }
+          if (
+            el.nextSibling &&
+            el.nextSibling.CodeMirror &&
+            typeof el.nextSibling.CodeMirror.getValue === "function"
+          ) {
+            return el.nextSibling.CodeMirror.getValue();
+          }
+          return el.value;
+        }
+        // Authors edit through the enhanced editors before save.
+        const enhanced = document.getElementById("additional_head_content");
+        enhanced.nextSibling.CodeMirror.setValue("<p>Head edited</p>");
+        let missingMessage = null;
+        try {
+          readField("no_such_field");
+        } catch (err) {
+          missingMessage = String((err && err.message) || err);
+        }
+        return {
+          enhanced: readField("additional_head_content"),
+          second: readField("code_insert_after_body_start"),
+          plain: readField("plain_fallback"),
+          missingMessage,
+        };
+      });
+      expect(
+        read.enhanced,
+        "enhanced field must read through the CodeMirror instance (#5626)",
+      ).toBe("<p>Head edited</p>");
+      expect(
+        read.second,
+        "second enhanced field must keep its value (#5626)",
+      ).toContain("Body");
+      expect(
+        read.plain,
+        "un-enhanced field must fall back to its live value (#5626)",
+      ).toContain("Plain");
+      expect(
+        read.missingMessage,
+        "missing field must raise a named error before anything is sent (#5626)",
+      ).toContain("Template metadata field is missing: no_such_field");
+      await page.screenshot({
+        path: "test-results/live-proof-5626-metadata-save-read.png",
+      });
+
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
+    },
+  );
+
+  test(
     "CodeMirror stays npm-tracked: no WebJar, no unpack, no version freeze",
     { tag: ["@explorer-content-editor", "@editor"] },
     async () => {
@@ -999,6 +1360,44 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
           `${path.relative(REPO_ROOT, lockPath)} must track node_modules/codemirror`,
         ).toBe(true);
       }
+    },
+  );
+
+  test(
+    "TinyMCE-hosted CodeMirror layout stays detached: no orphaned references",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async () => {
+      // No live CMS needed: static detach lock for issue #5746 (gate lifted
+      // by #5733 + #5734, both merged). The TinyMCE/classic surfaces that
+      // pointed at the retired TinyMCE-hosted CodeMirror layout
+      // (`sys_resources/tinymce/plugins/codemirror`, deleted with
+      // modules/perc-tinymce in #5734) were deleted with their references;
+      // every surviving `codemirror.bundle.*` reference resolves to a live
+      // consumer (template editor JSP mirrors, sys_TextArea XSL, the npm
+      // bundle entry itself) or to test/docs history. This sweep fails fast
+      // if a future change re-points a live source at the retired layout.
+      const sourcePaths = collectSourcePaths(REPO_ROOT);
+      expect(
+        sourcePaths.length,
+        "repo-wide source sweep must find tracked sources",
+      ).toBeGreaterThan(0);
+      const offenders = [];
+      for (const sourcePath of sourcePaths) {
+        const rel = path.relative(REPO_ROOT, sourcePath);
+        const text = stripSourceComments(
+          fs.readFileSync(sourcePath, "utf8"),
+          sourcePath,
+        );
+        for (const line of text.split("\n")) {
+          if (/tinymce\/plugins\/codemirror/.test(line)) {
+            offenders.push(`${rel}: ${line.trim()}`);
+          }
+        }
+      }
+      expect(
+        offenders.slice(0, 20),
+        "no live source may reference the retired TinyMCE-hosted CodeMirror path (#5746)",
+      ).toEqual([]);
     },
   );
 });

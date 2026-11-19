@@ -279,8 +279,14 @@ class TestMail2Resolve(unittest.TestCase):
         )
 
     def test_default_m2_root_is_user_repository(self):
-        resolved = hdj.default_m2_root()
-        self.assertTrue(str(resolved).replace("\\", "/").endswith(".m2/repository"))
+        with tempfile.TemporaryDirectory() as td, unittest.mock.patch.dict(
+            os.environ,
+            {"HOME": td, "USERPROFILE": td, "MAVEN_SKIP_RC": "1"},
+        ):
+            os.environ.pop("MAVEN_ARGS", None)
+            os.environ.pop("MAVEN_OPTS", None)
+            resolved = hdj.default_m2_root(Path(td))
+            self.assertEqual(resolved, Path(td) / ".m2" / "repository")
 
     def test_resolves_from_system_target(self):
         with tempfile.TemporaryDirectory() as td:

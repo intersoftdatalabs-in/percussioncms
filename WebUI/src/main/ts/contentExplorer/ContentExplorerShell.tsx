@@ -321,7 +321,7 @@ import {
   restoreCheckedItems,
   type MultiSelectRestoreOutcome,
 } from "./multiSelectRestore";
-import { openInEditor } from "./openInEditor";
+import { describeOpenItemUnavailable, openInEditor, openItemUnavailable } from "./openInEditor";
 import { openPreviewItem } from "./previewItem";
 import {
   ReducedActions,
@@ -1238,13 +1238,23 @@ function ContentExplorerShellInner({
     },
     onOpen: (item) => {
       // Opening an item appends to recents (dedupe, cap, folders included).
-      recordRecentOpen(item);
       if (isFolder(item)) {
+        recordRecentOpen(item);
         const folderPath =
           resolveExplorerListPath(item, item.path) ?? item.path;
         setSelection({ folderPath, item: null });
         return;
       }
+      // Rows with neither an id nor a path cannot reach the editor at
+      // all — surface the failed-summary copy instead of silently
+      // no-opening or recording an unopenable recent (#6596).
+      if (openItemUnavailable(item)) {
+        const msg = describeOpenItemUnavailable();
+        setError(msg);
+        setActionInvokeError(msg);
+        return;
+      }
+      recordRecentOpen(item);
       onOpenItem(item);
     },
     // Product default: Finder-equivalent page/asset preview (#2733). Hosts
@@ -2154,8 +2164,10 @@ function ContentExplorerShellInner({
   /**
    * Re-open a recent entry (#6256). The entry is probed first with zero
    * new REST: a deleted (404) entry is dropped with a status notice — not
-   * an error. Folders browse in place; items re-open in the editor. A
-   * successful re-open moves the entry to the front.
+   * an error. Folders browse in place; items re-open in the editor. The
+   * entry's own kind is restored — generic custom-type items re-open with
+   * their recorded content type instead of defaulting to percPage (#6581).
+   * A successful re-open moves the entry to the front.
    */
   const handleRecentOpen = useCallback(
     (entry: RecentEntry) => {
@@ -2175,11 +2187,19 @@ function ContentExplorerShellInner({
           return;
         }
         setRecentNotice(null);
+        const reopenType =
+          entry.kind === "folder"
+            ? "folder"
+            : entry.kind === "asset"
+              ? "percAsset"
+              : entry.kind === "item"
+                ? entry.contentType?.trim() || "percPage"
+                : "percPage";
         handlers.onOpen({
           id: entry.id ?? undefined,
           name: entry.name,
           path: entry.path,
-          type: entry.kind === "folder" ? "folder" : "percPage",
+          type: reopenType,
           leaf: entry.kind !== "folder",
         });
       })();

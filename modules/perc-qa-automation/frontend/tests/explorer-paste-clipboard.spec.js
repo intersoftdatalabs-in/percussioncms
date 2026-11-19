@@ -179,6 +179,11 @@ test.describe("Explorer paste clipboard into destination (#4638 / #4530)", () =>
         await expect(
           page.locator('[data-testid="clipboard-item-row"]').first(),
         ).toBeVisible();
+        // Kind badge: the staged asset row carries its own kind (#6581) —
+        // generic custom-type rows must never masquerade as pages.
+        await expect(
+          page.locator('[data-testid="clipboard-item-row"]').first(),
+        ).toHaveAttribute("data-clipboard-kind", "asset");
 
         const tree = page.locator(`[data-testid="${PASTE_TEST_IDS.tree}"]`);
         const destNode = tree.locator(`[data-testid*="${destFolderName}"]`).first();

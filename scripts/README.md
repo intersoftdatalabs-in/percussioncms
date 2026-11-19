@@ -168,6 +168,27 @@ stacking.
   `gh` auth for `natechadwick-intsof`, network for `git fetch`). Run as your
   user (user units), never root.
 
+### `night-cycle-notify.py`
+
+Fail-open webhook at the end of a `night-issue-prs` cycle. POSTs a small JSON
+body (`event=night-cycle-finished`, repo, report path, finished timestamp,
+hostname, and PR URLs parsed from the report) to
+`$NIGHT_CYCLE_WEBHOOK_URL`. Optional `$NIGHT_CYCLE_WEBHOOK_AUTH_HEADER` is a
+full `Name: value` header line; its value is never printed. If the URL is
+unset the script exits 0 silently. Timeouts are ~10s; the process always
+exits 0 so a notify failure cannot fail the cycle. Invoked as the last
+action of `.opencode/commands/night-issue-prs.md`.
+
+```bash
+python3 scripts/night-cycle-notify.py
+python3 -m pytest scripts/test_night_cycle_notify.py -v
+```
+
+This is an **operational** script, not part of spec 994. Env vars must be
+exported in the process that runs the cycle (interactive shell and/or the
+`percussioncms-night` systemd user service); the script does not read a
+config file.
+
 ### `build-cms-docs.bat` / `build-cms-docs.sh`
 
 Build the **product documentation Virtual Site** (`product-docs/`) to static HTML using the

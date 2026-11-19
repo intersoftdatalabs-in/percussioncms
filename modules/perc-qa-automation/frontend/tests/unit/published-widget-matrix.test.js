@@ -118,7 +118,7 @@ function templateDirsOnDisk() {
 
 describe("published-widget-matrix helpers (#6240)", () => {
   it("pins a closed, duplicate-free inventory of published widgets", () => {
-    assert.equal(WIDGETS.length, 45);
+    assert.equal(WIDGETS.length, 44);
     const names = WIDGETS.map((entry) => entry.name);
     assert.equal(new Set(names).size, names.length);
     for (const entry of WIDGETS) {

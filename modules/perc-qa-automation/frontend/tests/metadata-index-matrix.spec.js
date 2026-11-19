@@ -31,9 +31,13 @@
  * contract: without {@code DTS_BASE_URL} every case skips naming the
  * cell (#6237, green on the CMS-only cell); with a base URL each case
  * probes liveness ({@code HEAD <context>/metadata/csrf} — the service
- * lives under its Tomcat deployment context, issue #6342); a cell
- * whose extractor seed is auth-gated or CONFIDENTIAL-redirected skips
- * the seeding cases with a named reason instead of failing. Each
+ * lives under its Tomcat deployment context, issue #6342); writer
+ * calls (index seed and cleanup) ride the published DTS HTTPS origin
+ * ({@code DTS_HTTPS_URL}, #6375) because the extractor is
+ * CONFIDENTIAL — a cell that publishes no HTTPS origin skips the
+ * seeding cases with a named reason instead of failing, and
+ * auth-gated HTTPS writes skip naming the missing delivery
+ * credentials. Each
  * Playwright case seeds its own probe row under the fixed probe site
  * so cases stay independent under parallel workers. Seed and cleanup
  * ride the supported extractor contract (helpers {@code entryUrl} +
@@ -42,7 +46,10 @@
  * litter rows, #6557).</p>
  *
  * <p>Run (needs the DTS-providing cell):
- * {@code DTS_BASE_URL=https://<dts-cell-origin>
+ * {@code DTS_BASE_URL=http://<dts-cell-origin>
+ * DTS_HTTPS_URL=https://<dts-cell-origin>:<https-port>
+ * DTS_DELIVERY_USER=<deliverymanager-user>
+ * DTS_DELIVERY_PASSWORD=<deliverymanager-password>
  * npm run test:surface -- --path tests/metadata-index-matrix.spec.js}
  * from {@code modules/perc-qa-automation/frontend}. Without
  * {@code DTS_BASE_URL} every case skips with the named reason.</p>
@@ -50,19 +57,21 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
-const { test, expect } = require("@playwright/test");
+const { test, expect, request: baseRequest } = require("@playwright/test");
 const {
   MATRIX_SPEC,
   CASE_QUERY,
   CASE_SEEDED,
   CASE_CLEANUP,
   SKIP_NO_DTS_BASE,
+  SKIP_NO_DTS_HTTPS,
   skipServiceDown,
   skipUnprovisioned,
   dtsBaseUrl,
   dtsContextUrl,
   dtsServiceUrl,
   indexerServiceUrl,
+  dtsHttpsBaseUrl,
   entryUrl,
   deliveryAuthHeader,
   probeEntry,
@@ -125,10 +134,48 @@ async function querySite(request, svc) {
 }
 
 /**
+ * HTTPS writer context for the CONFIDENTIAL extractor writer paths
+ * (the index seed and cleanup): the extractor answers plain-HTTP
+ * calls with a 302 to the in-cell HTTPS port, so seeding rides the
+ * published DTS HTTPS origin (see {@code dtsHttpsBaseUrl}, #6375)
+ * through an untrusted-chain-allowed context — the cell TLS identity
+ * is shipped/self-signed. Skips by name when the cell publishes no
+ * HTTPS origin or the origin never answers (default H2 QA cell,
+ * pre-#6375 cell).
+ *
+ * <p>The caller disposes the returned context (try/finally) so a
+ * passing run leaves no request state behind.</p>
+ *
+ * @returns {Promise<{ httpsBase: URL, httpsRequest: object }>} HTTPS origin + context
+ */
+async function httpsWriterContext() {
+  const httpsBase = dtsHttpsBaseUrl();
+  test.skip(!httpsBase, `metadata index (Metadata): ${SKIP_NO_DTS_HTTPS}`);
+  const httpsRequest = await baseRequest.newContext({
+    ignoreHTTPSErrors: true,
+  });
+  let answered = false;
+  try {
+    // maxRedirects: 0 keeps a misconfigured-HTTPS answer as a plain
+    // response so the skip below engages; following the redirect would
+    // throw instead of skipping.
+    await httpsRequest.get(`${httpsBase.origin}/`, { maxRedirects: 0 });
+    answered = true;
+  } catch {
+    answered = false;
+  }
+  test.skip(
+    !answered,
+    `metadata index (Metadata): ${SKIP_NO_DTS_HTTPS} (no answer at ` +
+      `'${httpsBase.origin}/'; the cell predates the qa-up --with-dts HTTPS publish, #6375)`,
+  );
+  return { httpsBase, httpsRequest };
+}
+
+/**
  * Seeds the probe row through the extractor
  * ({@code POST /indexer/entry<path>} as {@code deliverymanager}),
- * skipping by name on the known cell limitations (auth-gated or
- * CONFIDENTIAL-redirected seed) and failing on any other rejection.
+ * skipping by name on the known cell limitation (auth-gated seed)
  * NOTE: the extractor resource lives at the context-level
  * {@code /indexer} root, not under the {@code /metadata} JAX-RS root
  * used by the query endpoints. The entry URL keeps the page path's
@@ -138,22 +185,22 @@ async function querySite(request, svc) {
  *
  * @returns {Promise<boolean>} true when the seed landed (never skips)
  */
-async function seedProbe(request, indexerSvc, entry) {
-  const seed = await request.post(entryUrl(indexerSvc, entry.path), {
+async function seedProbe(httpsRequest, httpsIndexerSvc, entry) {
+  const seed = await httpsRequest.post(entryUrl(httpsIndexerSvc, entry.path), {
     maxRedirects: 0,
     headers: deliveryAuthHeader(),
     data: entryPayload(entry),
   });
-  // Skip only for the known cell limitations (auth-gated or redirected
-  // seed); any other failure (5xx, 404, …) means the seed path itself
-  // is broken and must fail the test.
+  // Skip only for the known cell limitation (auth-gated seed); any
+  // other failure (5xx, 404, …) means the seed path itself is broken
+  // and must fail the test. The CONFIDENTIAL redirect is gone by
+  // construction: writers always ride the HTTPS origin.
   test.skip(
-    !seed.ok() && [401, 403, 302].includes(seed.status()),
+    !seed.ok() && [401, 403].includes(seed.status()),
     skipUnprovisioned(
       `the cell rejected the seeded entry '${entry.path}' (HTTP ${seed.status()}); ` +
-        `the shipped extractor is CONFIDENTIAL + deliverymanager-gated, so plain-HTTP cells ` +
-        `without provisioned DTS deliverymanager credentials (DTS_DELIVERY_USER / ` +
-        `DTS_DELIVERY_PASSWORD) and a reachable DTS HTTPS port cannot seed`,
+        `the shipped extractor is deliverymanager-gated, so cells without provisioned ` +
+        `DTS deliverymanager credentials (DTS_DELIVERY_USER / DTS_DELIVERY_PASSWORD) cannot seed`,
     ),
   );
   expect(
@@ -163,12 +210,12 @@ async function seedProbe(request, indexerSvc, entry) {
   return true;
 }
 
-async function removeProbe(request, indexerSvc, entry) {
+async function removeProbe(httpsRequest, httpsIndexerSvc, entry) {
   // Double slash via entryUrl (#6557 trap 2): the DAO matches pagepath
   // verbatim including the leading slash, and the {pagePath:.*} binding
   // only preserves it with the doubled slash. The single-slash form
   // deletes nothing while answering 204.
-  const cleanup = await request.delete(entryUrl(indexerSvc, entry.path), {
+  const cleanup = await httpsRequest.delete(entryUrl(httpsIndexerSvc, entry.path), {
     maxRedirects: 0,
     headers: deliveryAuthHeader(),
   });
@@ -233,13 +280,15 @@ test.describe("metadata index-search matrix", () => {
 
       await probeLiveness(request, base);
       const svc = dtsServiceUrl(base);
-      const indexerSvc = indexerServiceUrl(base);
       const entry = probeEntry();
+      const { httpsBase, httpsRequest } = await httpsWriterContext();
+      const httpsIndexerSvc = indexerServiceUrl(httpsBase);
       // The seed/assert/cleanup sequence runs in try/finally so a failed
-      // assertion never leaves the seeded row behind in the cell.
+      // assertion never leaves the seeded row behind in the cell, and the
+      // HTTPS context is always disposed.
       let seeded = false;
       try {
-        seeded = await seedProbe(request, indexerSvc, entry);
+        seeded = await seedProbe(httpsRequest, httpsIndexerSvc, entry);
         const rows = await querySite(request, svc);
         expect(
           rows.length > 0,
@@ -251,8 +300,9 @@ test.describe("metadata index-search matrix", () => {
         ).toBe(true);
       } finally {
         if (seeded) {
-          await removeProbe(request, indexerSvc, entry);
+          await removeProbe(httpsRequest, httpsIndexerSvc, entry);
         }
+        await httpsRequest.dispose();
       }
       recordCase(CASE_SEEDED);
     },
@@ -268,15 +318,20 @@ test.describe("metadata index-search matrix", () => {
 
       await probeLiveness(request, base);
       const svc = dtsServiceUrl(base);
-      const indexerSvc = indexerServiceUrl(base);
       const entry = probeEntry();
-      await seedProbe(request, indexerSvc, entry);
-      await removeProbe(request, indexerSvc, entry);
-      const rows = await querySite(request, svc);
-      expect(
-        rowHasPath(rows, entry.path),
-        `metadata: the index query must no longer contain the removed entry '${entry.path}'`,
-      ).toBe(false);
+      const { httpsBase, httpsRequest } = await httpsWriterContext();
+      const httpsIndexerSvc = indexerServiceUrl(httpsBase);
+      try {
+        await seedProbe(httpsRequest, httpsIndexerSvc, entry);
+        await removeProbe(httpsRequest, httpsIndexerSvc, entry);
+        const rows = await querySite(request, svc);
+        expect(
+          rowHasPath(rows, entry.path),
+          `metadata: the index query must no longer contain the removed entry '${entry.path}'`,
+        ).toBe(false);
+      } finally {
+        await httpsRequest.dispose();
+      }
       recordCase(CASE_CLEANUP);
     },
   );

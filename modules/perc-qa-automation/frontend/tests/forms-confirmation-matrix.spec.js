@@ -67,6 +67,7 @@ const {
   deliveryAuthHeader,
   probeFormName,
   retrievalDetail,
+  summariesTotal,
   buildConfirmationRow,
   validateConfirmationRow,
 } = require("./helpers/forms-confirmation-matrix");
@@ -182,20 +183,6 @@ async function readSummaries(request, svc, formName) {
     `forms: summaries for '${formName}' must answer 200 (HTTP ${read.status()})`,
   ).toBe(true);
   return { body: await readJson(read) };
-}
-
-function summariesTotal(body, formName) {
-  // The container serializes the summary list either through the bean
-  // getter (summaries) or the JAXB field (formsInfo) depending on the
-  // JSON provider — accept both shapes.
-  const summaries =
-    body && Array.isArray(body.summaries)
-      ? body.summaries
-      : body && Array.isArray(body.formsInfo)
-        ? body.formsInfo
-        : [];
-  const entry = summaries.find((row) => row && row.name === formName);
-  return entry && typeof entry.totalForms === "number" ? entry.totalForms : null;
 }
 
 test.describe("forms confirmation matrix", () => {

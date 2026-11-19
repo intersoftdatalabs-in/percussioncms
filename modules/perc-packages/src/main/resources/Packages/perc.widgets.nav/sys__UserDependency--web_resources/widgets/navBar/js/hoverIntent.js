@@ -1,18 +1,59 @@
 /*
- * Copyright 1999-2023 Percussion Software, Inc.
+ * hoverIntent r7 // 2013.02.11 // jQuery 1.9.0+
+ * http://cherne.net/brian/resources/jquery.hoverIntent.html
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * You may use hoverIntent under the terms of the MIT license.
+ * Copyright 2007, 2013 Brian Cherne
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ * Percussion-maintained copy (issue #6689): jQuery 4-compatible cleanups
+ * (`==` to `===`, `jQuery.extend` to `$.extend`); behavior contract unchanged
+ * for superfish 1.7.10. Byte-identical compat aliases (`hoverIntent.js` /
+ * `hoverIntent.min.js`) keep already-published pages and custom templates
+ * resolving; see the upgrade note.
+ */
+
+/**
+ * Percussion hover-intent shim ($.fn.hoverIntent, hoverIntent r7-derived).
+ *
+ * Percussion-maintained copy of the classic briancherne jQuery hoverIntent
+ * plugin (unmaintained 1.x line, no npm equivalent — issue #6655 spike
+ * verdict) carrying the `$.fn.hoverIntent` contract that superfish 1.7.10
+ * consumes at runtime (`$.fn.hoverIntent && !o.disableHI` in
+ * `applyHandlers`). superfish.js and navbar.js stay untouched; the payload
+ * references move to this file (preview) and its minified publish twin
+ * (perc-hover-intent.min.js). Byte-identical compat aliases
+ * (`hoverIntent.js` / `hoverIntent.min.js`) keep already-published pages
+ * and custom templates resolving; see the upgrade note.
+ *
+ * Contract (same as hoverIntent r7):
+ *   - `$(...).hoverIntent(handlerIn, handlerOut, selector)` — the form
+ *     superfish uses with its `li:has(...)` targets.
+ *   - `$(...).hoverIntent(handlerIn, handlerOut)` — direct binding.
+ *   - `$(...).hoverIntent({over, out, interval, sensitivity, timeout, ...})`.
+ *   - Defaults: interval 100ms, sensitivity 7px, timeout 0ms.
+ *   - `over` fires only once the pointer slows below the sensitivity
+ *     threshold, so fast diagonal pass-through never opens a submenu;
+ *     `out` fires `timeout` ms after mouseleave while hovering.
+ *   - All listeners use the `.hoverIntent` namespace so superfish
+ *     `destroy` (`off('.hoverIntent')`) keeps working unchanged.
  */
 (function ($) {
   $.fn.hoverIntent = function (handlerIn, handlerOut, selector) {
@@ -41,7 +82,7 @@
 
     // instantiate variables
     // cX, cY = current X and Y position of mouse, updated by mousemove event
-    // pX, pY = previous X and Y position of mouse, set by mouseover and polling interval
+    // pX, pY = previous X and Y position of mouse, set by mouseenter and polling interval
     var cX, cY, pX, pY;
 
     // A private function for getting mouse position
@@ -80,7 +121,7 @@
     // A private function for handling mouse 'hovering'
     var handleHover = function (e) {
       // copy objects to be passed into t (required for event object to be passed in IE)
-      var ev = jQuery.extend({}, e);
+      var ev = $.extend({}, e);
       var ob = this;
 
       // cancel hoverIntent timer if it exists
@@ -89,14 +130,14 @@
       }
 
       // if e.type == "mouseenter"
-      if (e.type == "mouseenter") {
+      if (e.type === "mouseenter") {
         // set "previous" X and Y position based on initial entry point
         pX = ev.pageX;
         pY = ev.pageY;
         // update "current" X and Y position based on mousemove
         $(ob).on("mousemove.hoverIntent", track);
         // start polling interval (self-calling timeout) to compare mouse coordinates over time
-        if (ob.hoverIntent_s != 1) {
+        if (ob.hoverIntent_s !== 1) {
           ob.hoverIntent_t = setTimeout(function () {
             compare(ev, ob);
           }, cfg.interval);
@@ -107,7 +148,7 @@
         // unbind expensive mousemove event
         $(ob).off("mousemove.hoverIntent", track);
         // if hoverIntent state is true, then call the mouseOut function after the specified delay
-        if (ob.hoverIntent_s == 1) {
+        if (ob.hoverIntent_s === 1) {
           ob.hoverIntent_t = setTimeout(function () {
             delay(ev, ob);
           }, cfg.timeout);

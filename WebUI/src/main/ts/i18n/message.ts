@@ -572,7 +572,10 @@ export const MSG = {
     "perc.ui.publish.modern@Cleared {saved} of {total}: {detail}",
   PUBLISH_SCHEDULE_BATCH_LOAD_PARTIAL:
     "perc.ui.publish.modern@Loaded {loaded} of {total}: {detail}",
+  PUBLISH_SCHEDULE_BATCH_LOADED:
+    "perc.ui.publish.modern@Schedule dates loaded for all {total} items",
   PUBLISH_SCHEDULE_BATCH_ITEM_OK: "perc.ui.publish.modern@saved",
+  PUBLISH_SCHEDULE_RETRY_FAILED: "perc.ui.publish.modern@Retry failed",
   PUBLISH_SCHEDULE_CLEAR_CONFIRM_MULTI:
     "perc.ui.publish.modern@Clear the start and end publish dates on these {total} items?",
   PUBLISH_NOW: "perc.ui.publish.title@Publish Now",
@@ -620,6 +623,7 @@ export const MSG = {
   PUBLISH_TAKEDOWN_BATCH_REVIEW_PARTIAL:
     "perc.ui.publish.modern@Reviewed {loaded} of {total}: {detail}",
   PUBLISH_TAKEDOWN_BATCH_ITEM_OK: "perc.ui.publish.modern@taken down",
+  PUBLISH_TAKEDOWN_RETRY_FAILED: "perc.ui.publish.modern@Retry failed",
   PUBLISH_TAKEDOWN_BATCH_CONFIRM:
     "perc.ui.publish.modern@Take down these {total} items? Linked pages are listed per item.",
   PUBLISH_STAGE: "perc.ui.publish.title@Stage / Remove From Staging",

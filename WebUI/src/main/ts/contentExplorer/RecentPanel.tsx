@@ -101,7 +101,11 @@ export function RecentPanel(props: RecentPanelProps): React.JSX.Element {
             const kindLabel = message(
               entry.kind === "folder"
                 ? EXPLORER_MSG.RECENT_KIND_FOLDER
-                : EXPLORER_MSG.RECENT_KIND_ITEM,
+                : entry.kind === "page"
+                  ? EXPLORER_MSG.RECENT_KIND_PAGE
+                  : entry.kind === "asset"
+                    ? EXPLORER_MSG.RECENT_KIND_ASSET
+                    : EXPLORER_MSG.RECENT_KIND_ITEM,
             );
             return (
               <li

@@ -51,8 +51,6 @@ public class PSSiteSummary extends PSDataItemSummarySingleFolderPath
 
   private boolean overrideSystemJQuery = false;
 
-  private boolean overrideSystemFoundation = false;
-
   private boolean overrideSystemJQueryUI = false;
 
   private String siteAdditionalHeadContent;
@@ -123,14 +121,6 @@ public class PSSiteSummary extends PSDataItemSummarySingleFolderPath
 
   public void setOverrideSystemJQuery(Boolean overrideSystemJQuery) {
     this.overrideSystemJQuery = overrideSystemJQuery;
-  }
-
-  public Boolean getOverrideSystemFoundation() {
-    return overrideSystemFoundation;
-  }
-
-  public void setOverrideSystemFoundation(Boolean overrideSystemFoundation) {
-    this.overrideSystemFoundation = overrideSystemFoundation;
   }
 
   public Boolean getOverrideSystemJQueryUI() {

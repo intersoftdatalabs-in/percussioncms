@@ -768,6 +768,60 @@ indexed content, account) selectable via `DTS_FIXTURE_*` env. To add a
 DTS-backed service later: append one entry to `DTS_SERVICES` plus its
 `interact<Service>` function (the matrix spec picks it up automatically).
 
+### Forms confirmation matrix (#6482 / parent #6238)
+
+US3 operator proof that a form submit against the in-cell DTS forms
+service is confirmed **and** retrievable: the visitor submit takes the
+success redirect, and the admin retrieval surface (summaries count +
+CSV export) reflects the submitted entry. The general interaction case
+for forms lives in the matrix above; this spec goes one level deeper
+(submit → retrieve → export round-trip) against the same service.
+
+| Item | Value |
+|------|--------|
+| Matrix spec | `frontend/tests/forms-confirmation-matrix.spec.js` (1 service × 3 cases) |
+| Helpers | `frontend/tests/helpers/forms-confirmation-matrix.js` (pinned inventory + row builder + validator) |
+| Contract | `contracts/results-matrix.schema.json` (`forms-confirmation-matrix` suite, `dts-cell` cell; + `contracts/results-matrix-forms.example.json`) |
+| Unit | `frontend/tests/unit/forms-confirmation-matrix.test.js` (no live CMS, no DTS cell) |
+| Tags | `@dts` + `@dts-forms` on every case |
+| Product help | `product-docs/8.2/admin/publishing.md` ("Forms submissions: confirm and retrieve (DTS)") |
+
+```bash
+cd modules/perc-qa-automation/frontend
+# Green path: needs the DTS-providing cell. Retrieval cases additionally
+# need the admin surface reachable from the caller (deliverymanager
+# credentials + host-reachable DTS HTTPS — both owned by #6375):
+DTS_BASE_URL=https://<dts-cell-origin> \
+  DTS_DELIVERY_USER=<user> DTS_DELIVERY_PASSWORD=<secret> \
+  npm run test:surface -- --path tests/forms-confirmation-matrix.spec.js
+# Single case:
+  npm run test:surface -- --path tests/forms-confirmation-matrix.spec.js --grep "summaries count increments"
+# No DTS cell (skip contract proven, exit 0):
+  npm run test:surface -- --path tests/forms-confirmation-matrix.spec.js
+# No live CMS:
+  npm run test:unit
+```
+
+Three-level skip contract (mirrors the interaction matrix): without
+`DTS_BASE_URL` every case skips naming the missing cell (#6237); with a
+base URL each case probes liveness (`HEAD <context>/forms/csrf` — the
+service lives under its Tomcat deployment context `perc-form-processor`,
+#6342) before touching the service. The two retrieval cases additionally
+skip by name when the cell cannot serve the `deliverymanager`-gated admin
+surface (missing credentials or an unreachable DTS HTTPS port for the
+`CONFIDENTIAL` redirect, #6375) — the skip carries the probed path, the
+received status, and the redirect target when the cell answers 302, so a
+skip proves *why* instead of just staying green. Submissions are
+self-seeded under a unique `qaconfirm-<stamp>` form name (valid per
+`PSFormService.isValidFormName`), so no CMS fixture is needed. Failure
+assertions are self-diagnosing: they name the received submit status, the
+before/after summaries totals, and the missing CSV probe marker.
+
+The inventory is closed: three pinned cases (`submitConfirm`,
+`summariesRetrievable`, `csvRetrievable`), one row. Each full matrix run
+validates the row against the schema and writes
+`frontend/test-results/forms-confirmation-matrix.json` (gitignored).
+
 ### Architecture Create section no-skip (#3589 / #3661 / #3672 / parent #3092)
 
 H2 operator proof that **Create section** is enabled on

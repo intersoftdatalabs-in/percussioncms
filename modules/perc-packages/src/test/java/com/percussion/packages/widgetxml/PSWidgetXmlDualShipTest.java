@@ -338,18 +338,18 @@ class PSWidgetXmlDualShipTest {
     assertEquals(
         new HashSet<>(PSWidgetXmlDualShip.BATCH_B_WIDGET_STEMS),
         foundStems,
-        "batch B must cover the 20 named widget stems");
+        "batch B must cover the 19 named widget stems");
     assertEquals(
         PSWidgetXmlDualShip.BATCH_B_WIDGET_STEMS.size(),
         installXmlWritten,
-        "batch B install materialize must cover 20 widgets");
+        "batch B install materialize must cover 19 widgets");
   }
 
   @Test
   void batchB_packageDirs_disjointFromBatchAAndTestAndSized() {
     assertFalse(PSWidgetXmlDualShip.BATCH_B_PACKAGE_DIRS.contains("perc.Test"));
     assertEquals(14, PSWidgetXmlDualShip.BATCH_B_PACKAGE_DIRS.size());
-    assertEquals(20, PSWidgetXmlDualShip.BATCH_B_WIDGET_STEMS.size());
+    assertEquals(19, PSWidgetXmlDualShip.BATCH_B_WIDGET_STEMS.size());
     assertEquals(
         PSWidgetXmlDualShip.BATCH_B_PACKAGE_DIRS,
         PSWidgetXmlPackageCompiler.DUAL_SHIP_BATCH_B_PACKAGE_DIRS);

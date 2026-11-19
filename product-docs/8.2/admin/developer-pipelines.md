@@ -337,6 +337,12 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
    Imported names must be single-segment and portable across the
    Windows/Linux/macOS install base (no path separators or `"` `:` `*` `?`
    `<` `>` `|`). Malformed XML is **400**.
+   An import whose design XML references auxiliary files that are not present
+   on the server (for example a `sys_*` export whose DTD/app files were never
+   copied over) fails closed with a named **400** and keeps no catalog row: a
+   late server-init failure rolls the partial create back, so a retry is not
+   a spurious **409**. Copy the referenced files into the application
+   directory first — auxiliary-file transfer is not part of this API.
 4. Non-Admin callers on either REST path receive **403**.
 
 ## Product path — delete application

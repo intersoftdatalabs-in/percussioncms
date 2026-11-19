@@ -32,7 +32,34 @@ import {
   type OpenEditorHostDeps,
 } from "../editor/openEditorHost";
 import { parseExplorerContentId } from "./menuCatalogLoad";
+import { EXPLORER_MSG } from "./messages";
+import { message } from "../i18n/message";
 import { isFolder } from "./selection";
+
+/**
+ * True when a non-folder row cannot be opened in the React editor at
+ * all — it carries neither a numeric/GUID content id nor a fallback
+ * path — so the caller should surface the failed-summary copy
+ * ({@link EXPLORER_MSG.OPEN_ITEM_UNAVAILABLE}) instead of silently
+ * no-opening (#6596). Folders return false: they browse in place and
+ * are never an open failure.
+ *
+ * <p>Pure so Vitest can drive it without rendering.</p>
+ */
+export function openItemUnavailable(item: PSPathItem): boolean {
+  if (isFolder(item)) {
+    return false;
+  }
+  if (parseExplorerContentId(item.id) != null) {
+    return false;
+  }
+  return String(item.path ?? "").trim().length === 0;
+}
+
+/** Failed-summary copy for {@link openItemUnavailable} rows. */
+export function describeOpenItemUnavailable(): string {
+  return message(EXPLORER_MSG.OPEN_ITEM_UNAVAILABLE);
+}
 
 /**
  * Open a content item in the React content editor. Folders stay in Explorer

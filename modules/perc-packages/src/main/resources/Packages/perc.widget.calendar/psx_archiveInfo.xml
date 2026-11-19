@@ -899,60 +899,6 @@
 							<PSXUserDependency
 								parentId="sys_UserDependency"
 								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="web_resources/widgets/calendar/images/calendar-bg.png">
-								<PSXDeployableObject>
-									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="web_resources/widgets/calendar/images/calendar-bg.png"
-										dependencyType="User" displayName="calendar-bg.png"
-										isAssociation="no" isIncluded="yes"
-										objectType="sys_UserDependency"
-										objectTypeName="User Dependency" supportsIdMapping="no"
-										supportsIdTypes="no" supportsParentId="no"
-										supportsUserDependencies="no">
-										<Dependencies />
-									</PSXDependency>
-									<RequiredClasses />
-								</PSXDeployableObject>
-							</PSXUserDependency>
-							<PSXUserDependency
-								parentId="sys_UserDependency"
-								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="rx_resources/widgets/calendar/css/calendar.css">
-								<PSXDeployableObject>
-									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="rx_resources/widgets/calendar/css/calendar.css"
-										dependencyType="User" displayName="calendar.css"
-										isAssociation="no" isIncluded="yes"
-										objectType="sys_UserDependency"
-										objectTypeName="User Dependency" supportsIdMapping="no"
-										supportsIdTypes="no" supportsParentId="no"
-										supportsUserDependencies="no">
-										<Dependencies />
-									</PSXDependency>
-									<RequiredClasses />
-								</PSXDeployableObject>
-							</PSXUserDependency>
-							<PSXUserDependency
-								parentId="sys_UserDependency"
-								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="rx_resources/widgets/calendar/images/calendarIcon.png">
-								<PSXDeployableObject>
-									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="rx_resources/widgets/calendar/images/calendarIcon.png"
-										dependencyType="User" displayName="calendarIcon.png"
-										isAssociation="no" isIncluded="yes"
-										objectType="sys_UserDependency"
-										objectTypeName="User Dependency" supportsIdMapping="no"
-										supportsIdTypes="no" supportsParentId="no"
-										supportsUserDependencies="no">
-										<Dependencies />
-									</PSXDependency>
-									<RequiredClasses />
-								</PSXDeployableObject>
-							</PSXUserDependency>
-							<PSXUserDependency
-								parentId="sys_UserDependency"
-								parentKey="Custom-sys_UserDependency" parentType="Custom"
 								path="rx_resources/widgets/percCalendarTwo/images/calendarIcon.png">
 								<PSXDeployableObject>
 									<PSXDependency autoDep="no" autoExpand="yes"
@@ -971,47 +917,11 @@
 							<PSXUserDependency
 								parentId="sys_UserDependency"
 								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="rx_resources/widgets/calendar/images/calendarIconOver.png">
-								<PSXDeployableObject>
-									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="rx_resources/widgets/calendar/images/calendarIconOver.png"
-										dependencyType="User" displayName="calendarIconOver.png"
-										isAssociation="no" isIncluded="yes"
-										objectType="sys_UserDependency"
-										objectTypeName="User Dependency" supportsIdMapping="no"
-										supportsIdTypes="no" supportsParentId="no"
-										supportsUserDependencies="no">
-										<Dependencies />
-									</PSXDependency>
-									<RequiredClasses />
-								</PSXDeployableObject>
-							</PSXUserDependency>
-							<PSXUserDependency
-								parentId="sys_UserDependency"
-								parentKey="Custom-sys_UserDependency" parentType="Custom"
 								path="rx_resources/widgets/percCalendarTwo/images/calendarIconOver.png">
 								<PSXDeployableObject>
 									<PSXDependency autoDep="no" autoExpand="yes"
 										dependencyId="rx_resources/widgets/percCalendarTwo/images/calendarIconOver.png"
 										dependencyType="User" displayName="calendarIconOver.png"
-										isAssociation="no" isIncluded="yes"
-										objectType="sys_UserDependency"
-										objectTypeName="User Dependency" supportsIdMapping="no"
-										supportsIdTypes="no" supportsParentId="no"
-										supportsUserDependencies="no">
-										<Dependencies />
-									</PSXDependency>
-									<RequiredClasses />
-								</PSXDeployableObject>
-							</PSXUserDependency>
-							<PSXUserDependency
-								parentId="sys_UserDependency"
-								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="web_resources/widgets/calendar/css/fullcalendar.css">
-								<PSXDeployableObject>
-									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="web_resources/widgets/calendar/css/fullcalendar.css"
-										dependencyType="User" displayName="fullcalendar.css"
 										isAssociation="no" isIncluded="yes"
 										objectType="sys_UserDependency"
 										objectTypeName="User Dependency" supportsIdMapping="no"
@@ -1048,24 +958,6 @@
 									<PSXDependency autoDep="no" autoExpand="yes"
 										dependencyId="web_resources/widgets/calendarTwo/css/fullcalendar.min.css"
 										dependencyType="User" displayName="fullcalendar.min.css"
-										isAssociation="no" isIncluded="yes"
-										objectType="sys_UserDependency"
-										objectTypeName="User Dependency" supportsIdMapping="no"
-										supportsIdTypes="no" supportsParentId="no"
-										supportsUserDependencies="no">
-										<Dependencies />
-									</PSXDependency>
-									<RequiredClasses />
-								</PSXDeployableObject>
-							</PSXUserDependency>
-							<PSXUserDependency
-								parentId="sys_UserDependency"
-								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="web_resources/widgets/calendar/js/fullcalendar.min.js">
-								<PSXDeployableObject>
-									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="web_resources/widgets/calendar/js/fullcalendar.min.js"
-										dependencyType="User" displayName="fullcalendar.min.js"
 										isAssociation="no" isIncluded="yes"
 										objectType="sys_UserDependency"
 										objectTypeName="User Dependency" supportsIdMapping="no"
@@ -1186,24 +1078,6 @@
 							<PSXUserDependency
 								parentId="sys_UserDependency"
 								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="web_resources/widgets/calendar/js/jquery.qtip.js">
-								<PSXDeployableObject>
-									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="web_resources/widgets/calendar/js/jquery.qtip.js"
-										dependencyType="User" displayName="jquery.qtip.js"
-										isAssociation="no" isIncluded="yes"
-										objectType="sys_UserDependency"
-										objectTypeName="User Dependency" supportsIdMapping="no"
-										supportsIdTypes="no" supportsParentId="no"
-										supportsUserDependencies="no">
-										<Dependencies />
-									</PSXDependency>
-									<RequiredClasses />
-								</PSXDeployableObject>
-							</PSXUserDependency>
-							<PSXUserDependency
-								parentId="sys_UserDependency"
-								parentKey="Custom-sys_UserDependency" parentType="Custom"
 								path="web_resources/widgets/calendarTwo/js/jquery.qtip.js">
 								<PSXDeployableObject>
 									<PSXDependency autoDep="no" autoExpand="yes"
@@ -1245,24 +1119,6 @@
 									<PSXDependency autoDep="no" autoExpand="yes"
 										dependencyId="web_resources/widgets/calendarTwo/js/moment.min.js"
 										dependencyType="User" displayName="moment.min.js"
-										isAssociation="no" isIncluded="yes"
-										objectType="sys_UserDependency"
-										objectTypeName="User Dependency" supportsIdMapping="no"
-										supportsIdTypes="no" supportsParentId="no"
-										supportsUserDependencies="no">
-										<Dependencies />
-									</PSXDependency>
-									<RequiredClasses />
-								</PSXDeployableObject>
-							</PSXUserDependency>
-							<PSXUserDependency
-								parentId="sys_UserDependency"
-								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="rxconfig/Resources/percCalendar.xml">
-								<PSXDeployableObject>
-									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="rxconfig/Resources/percCalendar.xml"
-										dependencyType="User" displayName="percCalendar.xml"
 										isAssociation="no" isIncluded="yes"
 										objectType="sys_UserDependency"
 										objectTypeName="User Dependency" supportsIdMapping="no"
@@ -1488,25 +1344,6 @@
 										dependencyType="User"
 										displayName="ui-icons_72a7cf_256x240.png" isAssociation="no"
 										isIncluded="yes" objectType="sys_UserDependency"
-										objectTypeName="User Dependency" supportsIdMapping="no"
-										supportsIdTypes="no" supportsParentId="no"
-										supportsUserDependencies="no">
-										<Dependencies />
-									</PSXDependency>
-									<RequiredClasses />
-								</PSXDeployableObject>
-							</PSXUserDependency>
-							<PSXUserDependency
-								parentId="sys_UserDependency"
-								parentKey="Custom-sys_UserDependency" parentType="Custom"
-								path="rx_resources/widgets/calendar/images/widgetCalendarSampleBackground.png">
-								<PSXDeployableObject>
-									<PSXDependency autoDep="no" autoExpand="yes"
-										dependencyId="rx_resources/widgets/calendar/images/widgetCalendarSampleBackground.png"
-										dependencyType="User"
-										displayName="widgetCalendarSampleBackground.png"
-										isAssociation="no" isIncluded="yes"
-										objectType="sys_UserDependency"
 										objectTypeName="User Dependency" supportsIdMapping="no"
 										supportsIdTypes="no" supportsParentId="no"
 										supportsUserDependencies="no">

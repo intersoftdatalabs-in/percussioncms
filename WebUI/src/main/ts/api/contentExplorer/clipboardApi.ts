@@ -24,7 +24,7 @@
  * <p>Endpoint mapping (#4638 — paste into the selected destination
  * folder, not back onto the source path):</p>
  * <ul>
- *   <li>page / asset → {@code POST /rest/folders/copy/item} (copy) or
+ *   <li>page / asset / item → {@code POST /rest/folders/copy/item} (copy) or
  *             {@code POST /rest/folders/move/item} (cut).</li>
  *   <li>folder → {@code POST /rest/folders/copy/folder} (copy) or
  *             {@code POST /rest/folders/move/folder} (cut).</li>
@@ -72,7 +72,8 @@ async function defaultPasteTransport(
   const body = { sourcePath: item.path, targetPath: dest };
   switch (item.kind) {
     case "page":
-    case "asset": {
+    case "asset":
+    case "item": {
       if (operation === "cut") {
         await moveFolderItem(body);
         return;

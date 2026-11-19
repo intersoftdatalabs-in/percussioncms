@@ -38,7 +38,6 @@ import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,7 +49,7 @@ import org.springframework.transaction.annotation.Transactional;
  */
 @Repository
 @Scope("singleton")
-@Transactional(propagation = Propagation.REQUIRED, isolation = Isolation.READ_COMMITTED)
+@Transactional(propagation = Propagation.REQUIRED)
 public class PSCookieConsentDao implements IPSCookieConsentDao {
 
   /** No-arg constructor required by Spring. The session factory is injected via the setter. */

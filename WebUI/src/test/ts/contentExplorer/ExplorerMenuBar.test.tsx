@@ -17,6 +17,10 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import type { ComponentProps } from "react";
 import { describe, expect, it, vi } from "vitest";
+import {
+  buildExplorerMenuBarGroups,
+} from "../../../main/ts/contentExplorer/menuBarModel";
+import { resolveMenuCommandIcon } from "../../../main/ts/contentExplorer/actionIcons";
 import { ExplorerMenuBar } from "../../../main/ts/contentExplorer/ExplorerMenuBar";
 import { renderA11yGate } from "./a11y";
 
@@ -251,6 +255,49 @@ describe("ExplorerMenuBar (#2731)", () => {
   it("passes the zero serious/critical axe-core gate", async () => {
     const { container } = renderBar({ multiSelectedCount: 1 });
     fireEvent.click(screen.getByTestId("explorer-menu-view"));
+    await renderA11yGate(container);
+  });
+
+  it("menu items render one decorative icon next to the label (#6603)", () => {
+    renderBar({
+      multiSelectedCount: 2,
+      hasSiteContext: true,
+      hasFolderContext: true,
+    });
+    for (const group of ["content", "view", "help"] as const) {
+      fireEvent.click(screen.getByTestId(`explorer-menu-${group}`));
+      const dropdown = screen.getByTestId(`explorer-menu-${group}-dropdown`);
+      const items = dropdown.querySelectorAll("button");
+      expect(items.length).toBeGreaterThan(0);
+      for (const item of Array.from(items)) {
+        const icons = item.querySelectorAll('[data-testid="menu-bar-icon"]');
+        // Mapped commands render exactly one icon; labels stay regardless.
+        expect(icons.length).toBeLessThanOrEqual(1);
+        expect((item.textContent ?? "").trim().length).toBeGreaterThan(0);
+        for (const icon of Array.from(icons)) {
+          expect(icon.getAttribute("aria-hidden")).toBe("true");
+          expect(icon.querySelector("svg")).toBeTruthy();
+        }
+      }
+      fireEvent.click(screen.getByTestId(`explorer-menu-${group}`));
+    }
+  });
+
+  it("every menu command id has a glyph mapping (#6603)", () => {
+    for (const group of buildExplorerMenuBarGroups()) {
+      for (const item of group.items) {
+        expect(resolveMenuCommandIcon(item.id), item.id).not.toBeNull();
+      }
+    }
+  });
+
+  it("passes the axe-core gate with the icon-bearing Content menu open (#6603)", async () => {
+    const { container } = renderBar({
+      multiSelectedCount: 2,
+      hasSiteContext: true,
+      hasFolderContext: true,
+    });
+    fireEvent.click(screen.getByTestId("explorer-menu-content"));
     await renderA11yGate(container);
   });
 });

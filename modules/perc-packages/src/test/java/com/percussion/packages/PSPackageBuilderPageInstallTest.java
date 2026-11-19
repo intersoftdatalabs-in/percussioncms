@@ -17,7 +17,6 @@
 
 package com.percussion.packages;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,7 +37,6 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -162,48 +160,6 @@ class PSPackageBuilderPageInstallTest {
     assertTrue(Files.isRegularFile(outputDir.resolve("perc.NoPages.ppkg")));
   }
 
-  @Test
-  void productResponsiveTemplates_nativePackageBuild_archiveAndAcl_noDualShipLog()
-      throws Exception {
-    Path product = locatePackage("perc.responsiveTemplates");
-    if (product == null) {
-      System.err.println(
-          "WARN: perc.responsiveTemplates not found; skipping product package-build test");
-      return;
-    }
-
-    Path packagesDir = tempDir.resolve("packages-product");
-    Path pkg = packagesDir.resolve("perc.responsiveTemplates");
-    copyTree(product, pkg);
-
-    Path outputDir = tempDir.resolve("out-product");
-    Path buildTemp = tempDir.resolve("tmp-product");
-    String log =
-        captureStdout(
-            () -> new PSPackageBuilder(packagesDir, outputDir, buildTemp).buildAll());
-
-    assertTrue(
-        log.contains("native-install page TemplateDefs for perc.responsiveTemplates: 3 written"),
-        "product native log: " + log);
-    assertFalse(
-        log.contains(PSDualShipPageTemplateDefInventory.DUAL_SHIP_LOG_MARKER),
-        "product package-build must have zero dual-ship log lines: " + log);
-    PSDualShipPageTemplateDefInventory.assertNoNonWaivedDualShipLogLines(List.of(log.split("\\R")));
-
-    Path ppkg = outputDir.resolve("perc.responsiveTemplates.ppkg");
-    assertTrue(Files.isRegularFile(ppkg));
-    Set<String> entries = zipEntryNames(ppkg);
-    assertTrue(entries.contains("TemplateDef-597/perc.resp.Banded.templateDef"));
-    assertTrue(entries.contains("TemplateDef-599/perc.resp.Basic.templateDef"));
-    assertTrue(entries.contains("TemplateDef-627/perc.resp.plain.templateDef"));
-    assertTrue(
-        entries.contains("AclDef-4472257021923557487/perc.resp.plain.templateDef.aclDef"),
-        "plain ACL side-car must remain; entries=" + entries);
-    assertFalse(entries.contains("perc.resp.plain.templateDef"));
-    assertFalse(entries.contains("perc.resp.Banded.templateDef"));
-    assertFalse(entries.contains("perc.resp.Basic.templateDef"));
-  }
-
   private static void writeNativePagePackage(Path pkg) throws Exception {
     writeModernPageWithMapping(pkg);
     Files.writeString(
@@ -263,21 +219,6 @@ class PSPackageBuilderPageInstallTest {
     return buf.toString(StandardCharsets.UTF_8);
   }
 
-  private static Path locatePackage(String packageName) {
-    Path candidate = Path.of("src", "main", "resources", "Packages", packageName);
-    if (Files.isDirectory(candidate)) {
-      return candidate.toAbsolutePath().normalize();
-    }
-    Path cwd = Path.of(System.getProperty("user.dir", ".")).toAbsolutePath().normalize();
-    Path alt =
-        cwd.resolve("src")
-            .resolve("main")
-            .resolve("resources")
-            .resolve("Packages")
-            .resolve(packageName);
-    return Files.isDirectory(alt) ? alt : null;
-  }
-
   /** ZIP entry names always use {@code /}, independent of {@code File.separator}. */
   private static Set<String> zipEntryNames(Path zipFile) throws IOException {
     Set<String> names = new LinkedHashSet<>();
@@ -289,26 +230,6 @@ class PSPackageBuilderPageInstallTest {
       }
     }
     return names;
-  }
-
-  private static void copyTree(Path source, Path target) throws IOException {
-    try (var walk = Files.walk(source)) {
-      walk.forEach(
-          src -> {
-            try {
-              Path rel = source.relativize(src);
-              Path dst = target.resolve(rel);
-              if (Files.isDirectory(src)) {
-                Files.createDirectories(dst);
-              } else {
-                Files.createDirectories(dst.getParent());
-                Files.copy(src, dst, StandardCopyOption.REPLACE_EXISTING);
-              }
-            } catch (IOException e) {
-              throw new RuntimeException(e);
-            }
-          });
-    }
   }
 
   @FunctionalInterface

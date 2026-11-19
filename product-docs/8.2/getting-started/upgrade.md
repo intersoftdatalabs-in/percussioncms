@@ -15,7 +15,7 @@ and installer guidance for the exact build you are deploying.
 ## Before you upgrade
 
 1. **Inventory** current CMS and DTS versions, OS, JDK, and database platform.
-2. **Read** the target release notes for breaking changes, property renames, and required JDK level (**JDK 21** for 8.2).
+2. **Read** the target release notes for breaking changes, property renames, and required JDK level (**JDK 21** for 8.2; prefer **JDK `21.0.13.1` or later** such as Eclipse Temurin `21.0.13.1+2` for **CVE-2026-114938**).
 3. **Back up**:
    - Install tree configuration (Jetty base, `rxconfig`, server properties, custom extensions)
    - Database(s)
@@ -38,7 +38,7 @@ and installer guidance for the exact build you are deploying.
 3. Take final backups.
 4. Run the **8.2 installer** in upgrade/update mode for the existing install root (or follow the package-specific silent upgrade flags).
 5. Allow schema / tablefactory and package install steps to complete; capture logs.
-6. Re-apply environment-specific configuration only when the installer does not preserve it (custom ports, reverse proxy headers, TLS keystores, external auth).
+6. Re-apply environment-specific configuration only when the installer does not preserve it (custom ports, reverse proxy headers, TLS keystores, external auth). If upgrading an existing **DTS** install whose `Deployment/Server/bin/setenv.*` scripts or Windows Procrun service registration (`PercussionProductionDTS` / `PercussionStagingDTS`) were preserved across upgrades, verify `-XX:-UseBASE64Intrinsics` is active as described in [Server operations](id:admin-server-ops).
 7. Start services; run smoke tests (login, open Site, edit page, publish sample, DTS widgets if used).
 8. Monitor logs for extension load failures and missing resources.
 
@@ -96,6 +96,41 @@ After the installer upgrade:
 Cookbook: [Convert definition XML (dual-run)](id:admin-definition-xml-dual-run).
 Do not confuse this with retired **dual-ship** page `*.templateDef` files — see
 [Product page packages](id:developer-page-packages).
+
+## Retired product widgets
+
+- **Legacy Calendar widget (`percCalendar`) removed.** The FullCalendar
+  1.6.7-based Calendar widget is retired and no longer installs or appears
+  in the widget catalog. Pages that used it should switch to
+  **Calendar 2.0** (`percCalendarTwo`), which renders the same
+  `percCalendarAsset` items on the supported FullCalendar 2.x line. The
+  shared calendar content type, its editor controls, and all Calendar 2.0
+  payload files are unchanged.
+
+- **Responsive base templates (`perc.resp.*`) removed.** The
+  `perc.responsiveTemplates` package (Banded / Basic / plain, Foundation
+  4.x) no longer installs and is dropped from all installer package
+  lists. Sites already upgraded keep their existing `perc.resp.*`
+  template definitions as ordinary templates — they are simply no
+  longer refreshed by the installer. Published pages lose the
+  system-emitted Foundation 4.x includes
+  (`/web_resources/cm/foundation/js/foundation.min.js`,
+  `foundation.min.css`, `normalize.css`) and the responsive viewport
+  meta tag; add your own responsive framework (Foundation 6 via npm is
+  recommended) or the viewport tag to the affected templates if you
+  still need them. The `overrideSystemFoundation` site flag has been
+  removed: it no longer appears on the Site REST/JSON surface, and the
+  legacy `OVERRIDE_FOUNDATION` database column (where present from an
+  earlier version) is ignored on upgrade.
+
+- **NavBar hoverIntent renamed with compat aliases.** The NavBar widget
+  payload now ships the hoverIntent bytes under canonical names
+  (`/web_resources/widgets/navBar/js/perc-hover-intent.js` for preview,
+  `perc-hover-intent.min.js` for publish). Byte-identical copies stay
+  published at the original filenames (`hoverIntent.js` /
+  `hoverIntent.min.js`), so already-published pages and custom templates
+  that reference the old URLs keep working with no action. Use the
+  `perc-` names for any new template references.
 
 ## Post-upgrade smoke tests
 

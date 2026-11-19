@@ -227,6 +227,31 @@ function probeFormName(stamp) {
 }
 
 /**
+ * Reads the submitted-entry total for one form out of an admin summaries
+ * body. The container serializes the summary list either through the bean
+ * getter ({@code summaries}) or the JAXB field ({@code formsInfo})
+ * depending on the JSON provider — accept both shapes. Returns
+ * {@code null} when the form has no entry or the total is not a number so
+ * callers can fail with before/after totals instead of a TypeError. Pure
+ * data shaping (no Playwright objects) so plain {@code node --test} unit
+ * tests cover it.
+ *
+ * @param {unknown} body parsed summaries JSON
+ * @param {string} formName probe form name to look up
+ * @returns {number|null} total submissions for the form, or null
+ */
+function summariesTotal(body, formName) {
+  const summaries =
+    body && Array.isArray(body.summaries)
+      ? body.summaries
+      : body && Array.isArray(body.formsInfo)
+        ? body.formsInfo
+        : [];
+  const entry = summaries.find((row) => row && row.name === formName);
+  return entry && typeof entry.totalForms === "number" ? entry.totalForms : null;
+}
+
+/**
  * Builds the one results-matrix row for the pinned forms entry. The row
  * shape mirrors {@code contracts/results-matrix.schema.json}; see
  * {@link validateConfirmationRow}.
@@ -368,6 +393,7 @@ module.exports = {
   deliveryAuthHeader,
   probeFormName,
   retrievalDetail,
+  summariesTotal,
   buildConfirmationRow,
   validateConfirmationRow,
   schemaPathFor,

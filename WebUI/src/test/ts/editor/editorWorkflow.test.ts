@@ -22,6 +22,7 @@ import {
   canRunEditorTransition,
   confirmEditorAssignees,
   focusWorkflowComment,
+  focusWorkflowTrigger,
   formatDelegatedAssigneeList,
   formatDelegationNotice,
   workflowCommentContainsNul,
@@ -291,6 +292,25 @@ describe("editorWorkflow (#4539)", () => {
   it("focusWorkflowComment returns false when the comment box is absent (#4554)", () => {
     document.body.innerHTML = "";
     expect(focusWorkflowComment()).toBe(false);
+  });
+
+  it("focusWorkflowTrigger returns focus to the trigger button (#6632)", () => {
+    document.body.innerHTML =
+      '<button data-testid="editor-workflow-trigger-Submit">Submit</button>';
+    const button = document.querySelector(
+      '[data-testid="editor-workflow-trigger-Submit"]',
+    ) as HTMLElement;
+    expect(focusWorkflowTrigger("Submit")).toBe(true);
+    expect(document.activeElement).toBe(button);
+    document.body.innerHTML = "";
+  });
+
+  it("focusWorkflowTrigger returns false for a blank trigger or a missing button (#6632)", () => {
+    document.body.innerHTML =
+      '<button data-testid="editor-workflow-trigger-Submit">Submit</button>';
+    expect(focusWorkflowTrigger("")).toBe(false);
+    expect(focusWorkflowTrigger("Reject")).toBe(false);
+    document.body.innerHTML = "";
   });
 
   it("canChangeEditorWorkflow accepts only a different listed id", () => {
