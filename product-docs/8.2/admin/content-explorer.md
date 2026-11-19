@@ -605,6 +605,12 @@ This does not change the snippet template (the separate **Change template**
 control still does that on the same slot) and does not reorder within a
 slot.
 
+**Escape** closes any of the four related-content dialogs — **Pick from
+folder**, **New related item**, **Change template**, and **Move to slot** —
+without posting, the same as **Cancel**, and keyboard focus returns to the
+button that opened the dialog. **Escape** while a dialog is busy (loading or
+applying) does nothing; use the dialog's own **Cancel** once it is idle.
+
 **Preview** is available in **View** and **Edit** for the already-open **page**
 or **asset** so authors do not need to bounce to Explorer solely to preview.
 It uses the same assembled preview as Explorer **Preview**: pages open Page
