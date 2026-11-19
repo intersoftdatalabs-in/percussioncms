@@ -65,12 +65,14 @@
         function _setTemplateContent(templateId)
         {
             var pageUrl = "";
+            // Intentional "/": joins REST URL path segments (TEMPLATE_EDITURL endpoint
+            // + template id for the AJAX GET below), not an OS filesystem path.
             if($.PercNavigationManager.getMode() === $.PercNavigationManager.MODE_EDIT) {
                 //Edit mode
-                pageUrl = $.perc_paths.TEMPLATE_EDITURL + "/" + templateId;
+                pageUrl = $.perc_paths.TEMPLATE_EDITURL + "/" + templateId; // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6701, same as #5897/#5898/#5910/#5924/#5927) — slash joins URL segments, not an OS path.
             } else {
                 //Read-only mode
-                pageUrl = $.perc_paths.TEMPLATE_EDITURL + "/" + templateId;
+                pageUrl = $.perc_paths.TEMPLATE_EDITURL + "/" + templateId; // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6701, same as #5897/#5898/#5910/#5924/#5927) — slash joins URL segments, not an OS path.
             }
 
             $.ajax({
