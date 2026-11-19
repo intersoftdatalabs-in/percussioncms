@@ -44,6 +44,7 @@ import {
   openSnippetPreview,
 } from "../contentExplorer/snippetPreview";
 import { parseExplorerContentId } from "../contentExplorer/menuCatalogLoad";
+import { captureDialogOpener, useDialogEscape } from "../architecture/useDialogEscape";
 import { message } from "../i18n/message";
 import {
   canChangeRelatedSnippetTemplate,
@@ -370,6 +371,13 @@ export function EditorRelatedContentPanel({
   const [loading, setLoading] = useState(true);
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [errorDetail, setErrorDetail] = useState("");
+
+  // Escape closes each inline sub-dialog; focus returns to its opener (#4532).
+  // Peer: EditorPublishNowDialog + architecture useDialogEscape dialogs.
+  useDialogEscape(pickerOpen, pickerBusy, cancelPicker);
+  useDialogEscape(quickAddOpen, quickAddBusy, cancelQuickAdd);
+  useDialogEscape(templateRow != null, templateBusy, cancelTemplateDialog);
+  useDialogEscape(slotMoveRow != null, slotMoveBusy, cancelSlotMoveDialog);
 
   useEffect(() => {
     let cancelled = false;
@@ -821,7 +829,10 @@ export function EditorRelatedContentPanel({
               className={styles.button}
               data-testid="editor-related-pick"
               disabled={inserting}
-              onClick={openPicker}
+              onClick={(e) => {
+                captureDialogOpener(e.currentTarget);
+                openPicker();
+              }}
             >
               {message(EDITOR_MSG.RELATED_PICK)}
             </button>
@@ -841,7 +852,10 @@ export function EditorRelatedContentPanel({
               className={styles.button}
               data-testid="editor-related-quick-add"
               disabled={inserting}
-              onClick={() => void openQuickAdd()}
+              onClick={(e) => {
+                captureDialogOpener(e.currentTarget);
+                void openQuickAdd();
+              }}
             >
               {message(EDITOR_MSG.RELATED_QUICK_ADD)}
             </button>
@@ -1197,7 +1211,10 @@ export function EditorRelatedContentPanel({
                   className={styles.button}
                   data-testid="editor-related-change-template"
                   disabled={templateBusy || slotMoveBusy || removingId != null || movingId != null}
-                  onClick={() => void openTemplateDialog(row)}
+                  onClick={(e) => {
+                    captureDialogOpener(e.currentTarget);
+                    void openTemplateDialog(row);
+                  }}
                 >
                   {message(EDITOR_MSG.RELATED_CHANGE_TEMPLATE)}
                 </button>
@@ -1208,7 +1225,10 @@ export function EditorRelatedContentPanel({
                   className={styles.button}
                   data-testid="editor-related-move-slot"
                   disabled={templateBusy || slotMoveBusy || removingId != null || movingId != null}
-                  onClick={() => openSlotMoveDialog(row)}
+                  onClick={(e) => {
+                    captureDialogOpener(e.currentTarget);
+                    openSlotMoveDialog(row);
+                  }}
                 >
                   {message(EDITOR_MSG.RELATED_MOVE_SLOT)}
                 </button>
