@@ -19,7 +19,7 @@
  * Related / inline content list, insert of an existing item, and remove of a slot row.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { formatApiError, isSessionRedirectError } from "../api/client";
 import { fetchLocal } from "../api/contentExplorer/relationshipsApi";
 import type { PSLocalDependencySummary } from "../api/contentExplorer/relationship";
@@ -44,7 +44,7 @@ import {
   openSnippetPreview,
 } from "../contentExplorer/snippetPreview";
 import { parseExplorerContentId } from "../contentExplorer/menuCatalogLoad";
-import { captureDialogOpener, useDialogEscape } from "../architecture/useDialogEscape";
+import { captureDialogOpener, useDialogEscape, useDialogFocusTrap } from "../architecture/useDialogEscape";
 import { message } from "../i18n/message";
 import {
   canChangeRelatedSnippetTemplate,
@@ -378,6 +378,17 @@ export function EditorRelatedContentPanel({
   useDialogEscape(quickAddOpen, quickAddBusy, cancelQuickAdd);
   useDialogEscape(templateRow != null, templateBusy, cancelTemplateDialog);
   useDialogEscape(slotMoveRow != null, slotMoveBusy, cancelSlotMoveDialog);
+
+  // aria-modal dialogs move focus inside on open and trap Tab (#6718).
+  // Peer: developer SnippetLibraryDialog + WorkflowAssociationDialog.
+  const pickerRef = useRef<HTMLDivElement | null>(null);
+  const quickAddRef = useRef<HTMLDivElement | null>(null);
+  const templateRef = useRef<HTMLDivElement | null>(null);
+  const slotMoveRef = useRef<HTMLDivElement | null>(null);
+  useDialogFocusTrap(pickerOpen, pickerRef);
+  useDialogFocusTrap(quickAddOpen, quickAddRef);
+  useDialogFocusTrap(templateRow != null, templateRef);
+  useDialogFocusTrap(slotMoveRow != null, slotMoveRef);
 
   useEffect(() => {
     let cancelled = false;
@@ -873,6 +884,7 @@ export function EditorRelatedContentPanel({
           {pickerOpen ? (
             <div
               className={styles.form}
+              ref={pickerRef}
               role="dialog"
               aria-modal="true"
               aria-labelledby="editor-related-pick-title"
@@ -973,6 +985,7 @@ export function EditorRelatedContentPanel({
           {quickAddOpen ? (
             <div
               className={styles.form}
+              ref={quickAddRef}
               role="dialog"
               aria-modal="true"
               aria-labelledby="editor-related-quick-add-title"
@@ -1291,11 +1304,13 @@ export function EditorRelatedContentPanel({
       {templateRow ? (
         <div
           className={styles.form}
+          ref={templateRef}
           role="dialog"
           aria-modal="true"
+          aria-labelledby="editor-related-template-title"
           data-testid="editor-related-template-dialog"
         >
-          <h3 className={styles.label}>{message(EDITOR_MSG.RELATED_CHANGE_TITLE)}</h3>
+          <h3 id="editor-related-template-title" className={styles.label}>{message(EDITOR_MSG.RELATED_CHANGE_TITLE)}</h3>
           {templateNotice ? (
             <div role="alert" data-testid="editor-related-template-notice">
               {templateNotice}
@@ -1338,11 +1353,13 @@ export function EditorRelatedContentPanel({
       {slotMoveRow ? (
         <div
           className={styles.form}
+          ref={slotMoveRef}
           role="dialog"
           aria-modal="true"
+          aria-labelledby="editor-related-slot-move-title"
           data-testid="editor-related-slot-move-dialog"
         >
-          <h3 className={styles.label}>{message(EDITOR_MSG.RELATED_MOVE_SLOT_TITLE)}</h3>
+          <h3 id="editor-related-slot-move-title" className={styles.label}>{message(EDITOR_MSG.RELATED_MOVE_SLOT_TITLE)}</h3>
           <label className={styles.field}>
             {message(EDITOR_MSG.RELATED_MOVE_SLOT_LABEL)}
             <select
