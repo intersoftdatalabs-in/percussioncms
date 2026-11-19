@@ -1304,4 +1304,113 @@ describe("SlotDetailPanel", () => {
       screen.getByTestId("developer-slot-set-description-text").getAttribute("data-slot-description"),
     ).toBe("List slot");
   });
+
+  it("returns focus to the label edit button after Escape (#6733)", async () => {
+    getSlotDetail.mockResolvedValue(sampleDetail);
+    render(<SlotDetailPanel idOrName="rffList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-slot-set-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-slot-set-label-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-slot-set-label-editor")).toBeNull();
+    expect(screen.getByTestId("developer-slot-set-label-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the label edit button after Cancel (#6733)", async () => {
+    getSlotDetail.mockResolvedValue(sampleDetail);
+    render(<SlotDetailPanel idOrName="rffList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-slot-set-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-cancel"));
+    expect(updateSlotDetail).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-slot-set-label-editor")).toBeNull();
+    expect(screen.getByTestId("developer-slot-set-label-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the label edit button after save (#6733)", async () => {
+    getSlotDetail.mockResolvedValue(sampleDetail);
+    updateSlotDetail.mockResolvedValue({ ...sampleDetail, label: "note" });
+    render(<SlotDetailPanel idOrName="rffList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-set-label-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-slot-set-label-input"), {
+      target: { value: " note " },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-label-save"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-slot-set-label-editor")).toBeNull();
+    });
+    expect(updateSlotDetail).toHaveBeenCalledWith("rffList", { label: "note" });
+    expect(screen.getByTestId("developer-slot-set-label-edit")).toHaveFocus();
+    expect(screen.getByTestId("developer-slot-set-label-notice")).toHaveAttribute("role", "status");
+  });
+
+  it("returns focus to the description edit button after Escape (#6733)", async () => {
+    getSlotDetail.mockResolvedValue(sampleDetail);
+    render(<SlotDetailPanel idOrName="rffList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-slot-set-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-slot-set-description-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-slot-set-description-editor")).toBeNull();
+    expect(screen.getByTestId("developer-slot-set-description-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the description edit button after Cancel (#6733)", async () => {
+    getSlotDetail.mockResolvedValue(sampleDetail);
+    render(<SlotDetailPanel idOrName="rffList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-slot-set-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-description-cancel"));
+    expect(updateSlotDetail).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-slot-set-description-editor")).toBeNull();
+    expect(screen.getByTestId("developer-slot-set-description-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the description edit button after save (#6733)", async () => {
+    getSlotDetail.mockResolvedValue(sampleDetail);
+    updateSlotDetail.mockResolvedValue({ ...sampleDetail, description: "note" });
+    render(<SlotDetailPanel idOrName="rffList" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-slot-set-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-slot-set-description-input"), {
+      target: { value: " note " },
+    });
+    fireEvent.click(screen.getByTestId("developer-slot-set-description-save"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-slot-set-description-editor")).toBeNull();
+    });
+    expect(updateSlotDetail).toHaveBeenCalledWith("rffList", { description: "note" });
+    expect(screen.getByTestId("developer-slot-set-description-edit")).toHaveFocus();
+    expect(screen.getByTestId("developer-slot-set-description-notice")).toHaveAttribute(
+      "role",
+      "status",
+    );
+  });
 });

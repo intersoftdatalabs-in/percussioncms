@@ -112,7 +112,9 @@ and the surface pass in
 2. Click **Set display format label**. The input is focused on open. Enter the
     new label, or leave it blank. **Cancel** (or **Escape**) closes the editor
     and does not call the server. Saving the same
-    label does not call the server.
+    label does not call the server. When the editor closes (Escape, Cancel,
+    or a successful save), focus returns to the **Set display format label**
+    button, and the save confirmation is announced via a live region.
 3. Click **Save label**. The request is
    `PUT /services/displayformats/{name}` with the label only. The name stays
    the catalog key. The description, columns, and allowed communities are
@@ -132,7 +134,9 @@ and the surface pass in
 2. Click **Set display format description**. Enter the new description, or
    leave it blank to clear the stored description. **Cancel** closes the
    editor and does not call the server. Saving the same description does not
-   call the server.
+   call the server. When the editor closes (Escape, Cancel, or a successful
+   save), focus returns to the **Set display format description** button,
+   and the save confirmation is announced via a live region.
 3. Click **Save description**. The request is
    `PUT /services/displayformats/{name}` with the description only. The name
    stays the catalog key. Columns and allowed communities are omitted, so the

@@ -23,6 +23,10 @@
  * Escape cancels the edit without writing (same as Cancel): no PUT fires
  * and the stored value is kept.
  *
+ * Focus return (#6733): when an editor closes (Escape, Cancel, or a
+ * successful save) the input unmounts, so focus must return to the
+ * invoking edit button instead of falling back to <body>.
+ *
  *   npm run test:surface -- --path tests/developer-slot-set-editors-keyboard.spec.js
  *
  * QA mode: perc-devctl qa-up → qa-health → TEST_CMS_URL → test:surface → qa-down.
@@ -206,6 +210,141 @@ test.describe("Developer slot set-label/set-description keyboard path (#6713)", 
       page.locator('[data-testid="developer-slot-set-description-text"]'),
     ).toHaveAttribute("data-slot-description", "Folder list");
     await page.screenshot({ path: `test-results/live-proof-6713-slot-description-keyboard.png` });
+
+    await deleteSlot(page, name);
+    assertClean(consoleErrors, pageErrors);
+  });
+});
+
+test.describe("Developer slot set-label/set-description focus return (#6733)", () => {
+  test.beforeEach(async ({ page }) => {
+    test.setTimeout(180_000);
+    await loginAsAdmin(page);
+  });
+
+  test("label editor returns focus to the edit button after Escape, Cancel, and Save", async ({
+    page,
+  }) => {
+    const { consoleErrors, pageErrors } = attachConsole(page);
+    await openSlots(page);
+    const name = uniqueSlotName();
+    await createSlot(page, name);
+
+    // Escape closes the editor and returns focus without writing.
+    await page.locator('[data-testid="developer-slot-set-label-edit"]').click();
+    const labelInput = page.locator('[data-testid="developer-slot-set-label-input"]');
+    await expect(labelInput).toBeFocused();
+    await labelInput.fill("not-saved");
+    await labelInput.press("Escape");
+    await expect(labelInput).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-slot-set-label-edit"]')).toBeFocused();
+    await expect(
+      page.locator('[data-testid="developer-slot-set-label-text"]'),
+    ).toHaveAttribute("data-slot-label", `${name} label`);
+
+    // Cancel closes the editor and returns focus without writing.
+    await page.locator('[data-testid="developer-slot-set-label-edit"]').click();
+    await expect(page.locator('[data-testid="developer-slot-set-label-input"]')).toBeFocused();
+    await page.locator('[data-testid="developer-slot-set-label-input"]').fill("not-saved");
+    await page.locator('[data-testid="developer-slot-set-label-cancel"]').click();
+    await expect(page.locator('[data-testid="developer-slot-set-label-input"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-slot-set-label-edit"]')).toBeFocused();
+    await expect(
+      page.locator('[data-testid="developer-slot-set-label-text"]'),
+    ).toHaveAttribute("data-slot-label", `${name} label`);
+
+    // Save writes, then returns focus to the edit button.
+    await page.locator('[data-testid="developer-slot-set-label-edit"]').click();
+    await page.locator('[data-testid="developer-slot-set-label-input"]').fill("focus-note");
+    const saved = page.waitForResponse(
+      (response) =>
+        response.request().method() === "PUT" &&
+        response.url().includes(`/services/slots/${encodeURIComponent(name)}`),
+    );
+    await page.locator('[data-testid="developer-slot-set-label-save"]').click();
+    const saveResponse = await saved;
+    expect(saveResponse.status(), await saveResponse.text()).toBe(200);
+    await expect(page.locator('[data-testid="developer-slot-set-label-input"]')).toHaveCount(0);
+    await expect(page.locator('[data-testid="developer-slot-set-label-edit"]')).toBeFocused();
+    await expect(page.locator('[data-testid="developer-slot-set-label-text"]')).toHaveAttribute(
+      "data-slot-label",
+      "focus-note",
+    );
+    await expect(page.locator('[data-testid="developer-slot-set-label-notice"]')).toHaveAttribute(
+      "role",
+      "status",
+    );
+    await page.screenshot({ path: `test-results/live-proof-6733-slot-label-focus-return.png` });
+
+    await deleteSlot(page, name);
+    assertClean(consoleErrors, pageErrors);
+  });
+
+  test("description editor returns focus to the edit button after Escape, Cancel, and Save", async ({
+    page,
+  }) => {
+    const { consoleErrors, pageErrors } = attachConsole(page);
+    await openSlots(page);
+    const name = uniqueSlotName();
+    await createSlot(page, name);
+
+    // Escape closes the editor and returns focus without writing.
+    await page.locator('[data-testid="developer-slot-set-description-edit"]').click();
+    const descriptionInput = page.locator('[data-testid="developer-slot-set-description-input"]');
+    await expect(descriptionInput).toBeFocused();
+    await descriptionInput.fill("not-saved");
+    await descriptionInput.press("Escape");
+    await expect(descriptionInput).toHaveCount(0);
+    await expect(
+      page.locator('[data-testid="developer-slot-set-description-edit"]'),
+    ).toBeFocused();
+    await expect(
+      page.locator('[data-testid="developer-slot-set-description-text"]'),
+    ).toHaveAttribute("data-slot-description", "Folder list");
+
+    // Cancel closes the editor and returns focus without writing.
+    await page.locator('[data-testid="developer-slot-set-description-edit"]').click();
+    await expect(
+      page.locator('[data-testid="developer-slot-set-description-input"]'),
+    ).toBeFocused();
+    await page.locator('[data-testid="developer-slot-set-description-input"]').fill("not-saved");
+    await page.locator('[data-testid="developer-slot-set-description-cancel"]').click();
+    await expect(
+      page.locator('[data-testid="developer-slot-set-description-input"]'),
+    ).toHaveCount(0);
+    await expect(
+      page.locator('[data-testid="developer-slot-set-description-edit"]'),
+    ).toBeFocused();
+    await expect(
+      page.locator('[data-testid="developer-slot-set-description-text"]'),
+    ).toHaveAttribute("data-slot-description", "Folder list");
+
+    // Save writes, then returns focus to the edit button.
+    await page.locator('[data-testid="developer-slot-set-description-edit"]').click();
+    await page.locator('[data-testid="developer-slot-set-description-input"]').fill("focus-note");
+    const saved = page.waitForResponse(
+      (response) =>
+        response.request().method() === "PUT" &&
+        response.url().includes(`/services/slots/${encodeURIComponent(name)}`),
+    );
+    await page.locator('[data-testid="developer-slot-set-description-save"]').click();
+    const saveResponse = await saved;
+    expect(saveResponse.status(), await saveResponse.text()).toBe(200);
+    await expect(
+      page.locator('[data-testid="developer-slot-set-description-input"]'),
+    ).toHaveCount(0);
+    await expect(
+      page.locator('[data-testid="developer-slot-set-description-edit"]'),
+    ).toBeFocused();
+    await expect(
+      page.locator('[data-testid="developer-slot-set-description-text"]'),
+    ).toHaveAttribute("data-slot-description", "focus-note");
+    await expect(
+      page.locator('[data-testid="developer-slot-set-description-notice"]'),
+    ).toHaveAttribute("role", "status");
+    await page.screenshot({
+      path: `test-results/live-proof-6733-slot-description-focus-return.png`,
+    });
 
     await deleteSlot(page, name);
     assertClean(consoleErrors, pageErrors);
