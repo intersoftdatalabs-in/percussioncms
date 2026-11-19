@@ -342,14 +342,16 @@ cycle). If `NIGHT_CYCLE_WEBHOOK_URL` is unset it is a silent no-op. Never
 print the value of `NIGHT_CYCLE_WEBHOOK_AUTH_HEADER`.
 
 ```bash
-python3 scripts/night-cycle-notify.py
+python3 "${NIGHT_CYCLE_NOTIFY_SCRIPT:-scripts/night-cycle-notify.py}"
 ```
 
 The script POSTs `event=night-cycle-finished` to `$NIGHT_CYCLE_WEBHOOK_URL`
 with repo, report path, finished timestamp, hostname, and PR URLs parsed
 from the report's `## PRs` / `Opened:` list when present. Optional
 `$NIGHT_CYCLE_WEBHOOK_AUTH_HEADER` is a full `Name: value` header line,
-applied verbatim.
+applied verbatim. Optional `$NIGHT_CYCLE_NOTIFY_SCRIPT` may be set to an
+absolute path to this script; if unset, the repo-relative path is used.
+The script already honors `$NIGHT_REPORT_PATH` and `$NIGHT_REPO`.
 
 ## Operator + model labels (apply to every PR / issue this run opens)
 
@@ -386,6 +388,6 @@ already does); in shell, prefer POSIX-portable patterns. Never hardcode `/` or
 
 Read `AGENTS.md` and `.grok/workflows/README.md` now. Then proceed phase by
 phase, recording each transition in the report's phase status table. When you
-finish the Report phase, run `python3 scripts/night-cycle-notify.py` as the
+finish the Report phase, run `python3 "${NIGHT_CYCLE_NOTIFY_SCRIPT:-scripts/night-cycle-notify.py}"` as the
 very last action, then stop. If the cycle aborts early, write whatever report
 is available and still run the notify script before stopping.

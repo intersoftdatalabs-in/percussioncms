@@ -180,9 +180,13 @@ exits 0 so a notify failure cannot fail the cycle. Invoked as the last
 action of `.opencode/commands/night-issue-prs.md`.
 
 ```bash
-python3 scripts/night-cycle-notify.py
+python3 "${NIGHT_CYCLE_NOTIFY_SCRIPT:-scripts/night-cycle-notify.py}"
 python3 -m pytest scripts/test_night_cycle_notify.py -v
 ```
+
+Optional `$NIGHT_CYCLE_NOTIFY_SCRIPT` may be set to an absolute path to this
+script; if unset, the repo-relative path is used. The script already honors
+`$NIGHT_REPORT_PATH` and `$NIGHT_REPO`.
 
 This is an **operational** script, not part of spec 994. Env vars must be
 exported in the process that runs the cycle (interactive shell and/or the

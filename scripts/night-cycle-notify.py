@@ -22,7 +22,10 @@ night-issue-prs cycle ends.
 If NIGHT_CYCLE_WEBHOOK_URL is unset or empty, exit 0 silently. Optional
 NIGHT_CYCLE_WEBHOOK_AUTH_HEADER is a full "Name: value" header line, applied
 verbatim; its value is never printed. Timeouts are ~10s. Always exits 0 —
-notify must never fail the cycle.
+notify must never fail the cycle. The night-issue-prs workflow may invoke
+this file via NIGHT_CYCLE_NOTIFY_SCRIPT (an optional absolute path); this
+module does not read that variable. NIGHT_REPORT_PATH and NIGHT_REPO are
+already supported here.
 """
 from __future__ import annotations
 
