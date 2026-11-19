@@ -46,7 +46,10 @@
  * <p>Dialog contract (#6589, same as the parity toolbar in #6588): each of
  * the six dialogs is a labelled {@code role="dialog"} — opening moves focus
  * into its first field and Escape closes it returning focus to the invoking
- * button. The bar keeps a single tab stop via roving tabindex
+ * button. The Browse content picker nested in the link/image dialogs
+ * follows the same contract one level deeper (#6658): focus moves into
+ * the picker on open and Escape closes only the picker, returning focus
+ * to the Browse button. The bar keeps a single tab stop via roving tabindex
  * (WAI-APG toolbar pattern over its own slot), so Tab enters each editor
  * toolbar exactly once.</p>
  */
@@ -448,6 +451,14 @@ function InlineLinkPanel({ editor, name, dialogId, onClose }: PanelProps): React
   const [resolveFailed, setResolveFailed] = useState(false);
   const [managed, setManaged] = useState<ManagedLinkRef | null>(null);
   const canApply = href.trim().length > 0 && !error && !resolving;
+  /** Browse trigger, for picker Escape focus-return (dialog contract). */
+  const browseButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  /** Close the picker returning focus to the Browse button (#6658). */
+  const closePickerAndRefocus = (): void => {
+    setPickerOpen(false);
+    browseButtonRef.current?.focus();
+  };
 
   async function pickContent(selection: ContentPickerSelection): Promise<void> {
     setPickerOpen(false);
@@ -534,6 +545,7 @@ function InlineLinkPanel({ editor, name, dialogId, onClose }: PanelProps): React
       />
       <button
         type="button"
+        ref={browseButtonRef}
         data-testid={`tiptap-perc-link-browse-${name}`}
         className={styles.tiptapLinkApply}
         disabled={resolving}
@@ -547,7 +559,7 @@ function InlineLinkPanel({ editor, name, dialogId, onClose }: PanelProps): React
           name={name}
           mode="link"
           onPick={(selection) => void pickContent(selection)}
-          onClose={() => setPickerOpen(false)}
+          onClose={closePickerAndRefocus}
         />
       ) : null}
       {resolving ? (
@@ -616,6 +628,14 @@ function InlineImagePanel({ editor, name, dialogId, onClose }: PanelProps): Reac
   const [resolveFailed, setResolveFailed] = useState(false);
   const [managed, setManaged] = useState<ManagedImageRef | null>(null);
   const canApply = src.trim().length > 0 && !error && !resolving;
+  /** Browse trigger, for picker Escape focus-return (dialog contract). */
+  const browseButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  /** Close the picker returning focus to the Browse button (#6658). */
+  const closePickerAndRefocus = (): void => {
+    setPickerOpen(false);
+    browseButtonRef.current?.focus();
+  };
 
   async function pickContent(selection: ContentPickerSelection): Promise<void> {
     setPickerOpen(false);
@@ -702,6 +722,7 @@ function InlineImagePanel({ editor, name, dialogId, onClose }: PanelProps): Reac
       />
       <button
         type="button"
+        ref={browseButtonRef}
         data-testid={`tiptap-perc-image-browse-${name}`}
         className={styles.tiptapLinkApply}
         disabled={resolving}
@@ -715,7 +736,7 @@ function InlineImagePanel({ editor, name, dialogId, onClose }: PanelProps): Reac
           name={name}
           mode="image"
           onPick={(selection) => void pickContent(selection)}
-          onClose={() => setPickerOpen(false)}
+          onClose={closePickerAndRefocus}
         />
       ) : null}
       {resolving ? (

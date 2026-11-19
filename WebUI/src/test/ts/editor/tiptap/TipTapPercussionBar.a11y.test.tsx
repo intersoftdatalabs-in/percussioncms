@@ -28,9 +28,9 @@
  */
 
 import { Editor } from "@tiptap/core";
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import React from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { createTipTapEditorExtensions } from "../../../../main/ts/editor/tiptap/tiptapSetup";
 import { TipTapPercussionBar } from "../../../../main/ts/editor/tiptap/TipTapPercussionBar";
 import { renderA11yGate } from "../../contentExplorer/a11y";
@@ -234,6 +234,52 @@ describe("TipTapPercussionBar a11y evidence (#6589)", () => {
       expect(document.activeElement).toBe(area);
       expect(screen.getByRole("dialog")).toBeTruthy();
     } finally {
+      editor.destroy();
+    }
+  });
+
+  it("Browse sub-dialog moves focus in; Escape closes only the picker (#6658)", async () => {
+    vi.spyOn(global, "fetch").mockImplementation(() =>
+      Promise.resolve(
+        new Response(
+          JSON.stringify({
+            PathItem: [
+              { id: "77", name: "About", path: "/Sites/About", type: "page" },
+            ],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        ),
+      ),
+    );
+    const editor = makeEditor();
+    try {
+      const { container } = render(
+        <TipTapPercussionBar editor={editor} name="text" />,
+      );
+      fireEvent.click(screen.getByTestId("tiptap-perc-inline-link-text"));
+      const browse = screen.getByTestId("tiptap-perc-link-browse-text");
+      fireEvent.click(browse);
+      await waitFor(() => {
+        expect(screen.getByTestId("tiptap-content-picker-text")).toBeTruthy();
+      });
+      // Focus-in: the first picker field takes focus on open.
+      expect(document.activeElement).toBe(
+        screen.getByTestId("tiptap-content-picker-path-text"),
+      );
+      // Two nested dialogs are open; the widget stays axe-green.
+      expect(screen.getAllByRole("dialog")).toHaveLength(2);
+      await renderA11yGate(percBar(container));
+      // Escape closes only the picker and returns focus to Browse.
+      fireEvent.keyDown(document.activeElement!, { key: "Escape" });
+      expect(screen.queryByTestId("tiptap-content-picker-text")).toBeNull();
+      // The host plugin dialog stays open (single dialog again).
+      expect(screen.getAllByRole("dialog")).toHaveLength(1);
+      expect(screen.getByRole("dialog").getAttribute("id")).toBe(
+        "tiptap-perc-dialog-inline-link-text",
+      );
+      expect(document.activeElement).toBe(browse);
+    } finally {
+      vi.restoreAllMocks();
       editor.destroy();
     }
   });

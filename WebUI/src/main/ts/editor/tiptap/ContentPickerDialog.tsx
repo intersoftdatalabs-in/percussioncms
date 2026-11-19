@@ -32,9 +32,15 @@
  * render-link preview and fills the same stored attributes classic wrote.
  * Manual entry stays available in the host dialog — the picker never
  * replaces it.</p>
+ *
+ * <p>Dialog contract (#6658, one nesting level deeper than the #6588/#6589
+ * host dialogs): opening the picker moves focus into its first field and
+ * Escape closes only the picker — the key is stopped from reaching the
+ * host plugin dialog — while the hosting panel returns focus to the
+ * Browse button.</p>
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { message } from "../../i18n/message";
 import { EDITOR_MSG } from "../messages";
 import styles from "../EditorHost.module.css";
@@ -102,6 +108,10 @@ export function ContentPickerDialog({
   const [searched, setSearched] = useState(false);
   const [hits, setHits] = useState<RelatedFolderRow[]>([]);
   const [picked, setPicked] = useState<ContentPickerSelection | null>(null);
+  const dialogRef = useRef<HTMLSpanElement | null>(null);
+
+  // Opening the picker moves focus into its first field (dialog contract,
+  // #6658 — same first-input convention as the #6589 host PanelShell).
 
   async function loadFolder(next: string): Promise<void> {
     const target = next.trim() || CONTENT_PICKER_DEFAULT_ROOT;
@@ -122,6 +132,13 @@ export function ContentPickerDialog({
   useEffect(() => {
     void loadFolder(CONTENT_PICKER_DEFAULT_ROOT);
     // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    const first = dialogRef.current?.querySelector<HTMLElement>(
+      "input, select, textarea",
+    );
+    first?.focus();
   }, []);
 
   async function runSearch(): Promise<void> {
@@ -179,10 +196,20 @@ export function ContentPickerDialog({
 
   return (
     <span
+      ref={dialogRef}
       role="dialog"
       aria-label={message(EDITOR_MSG.TIPTAP_PERC_PICK_TITLE)}
       data-testid={`tiptap-content-picker-${name}`}
       data-picker-mode={mode}
+      // Escape closes only the picker: stopPropagation keeps the host
+      // plugin dialog (which owns its own Escape handler one level up)
+      // open. The hosting panel's onClose returns focus to Browse (#6658).
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          e.stopPropagation();
+          onClose();
+        }
+      }}
       className={`${styles.tiptapLinkEditor} ${styles.tiptapPercDialog}`}
     >
       <span role="group" aria-label={message(EDITOR_MSG.TIPTAP_PERC_PICK_PATH)}>

@@ -31,6 +31,11 @@
  * the stored-attribute assertions mirror the classic
  * {@code percadvlink} / {@code percadvimage} serialization.</p>
  *
+ * <p>The Browse sub-dialog follows the same dialog contract one level
+ * deeper (#6658): opening Browse moves focus into the picker, Escape
+ * closes only the picker and returns focus to the Browse button, and the
+ * full widget axe gate stays green with the picker open.</p>
+ *
  * <p>Tags: {@code @explorer-content-editor} {@code @editor} {@code @html} {@code @tiptap}</p>
  *
  * <p>Run (QA mode after {@code perc-devctl qa-up}):
@@ -39,6 +44,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
 const {
   TEST_IDS,
   editorSpaUrl,
@@ -369,6 +375,45 @@ test.describe("TipTap content-picker lookup", () => {
       const text = savedTextField(puts);
       expect(text && text.value).toContain('sys_dependentid="88"');
       await expect(page.getByText(/^Saved$/)).toBeVisible();
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
+    "Browse sub-dialog moves focus in and Escape returns focus to Browse (#6658)",
+    { tag: ["@explorer-content-editor", "@editor", "@html", "@tiptap", "@a11y"] },
+    async ({ page }) => {
+      const pageErrors = watchErrors(page);
+      await stubEditorApis(page);
+      await stubPickerApis(page);
+      await openTiptapEditor(page);
+
+      await page.locator('[data-testid="tiptap-perc-inline-link-text"]').click();
+      await page.locator('[data-testid="tiptap-perc-link-browse-text"]').click();
+      const picker = page.locator('[data-testid="tiptap-content-picker-text"]');
+      await expect(picker).toBeVisible();
+      // Focus-in: opening Browse moves focus into the picker (path field).
+      await expect(
+        page.locator('[data-testid="tiptap-content-picker-path-text"]'),
+      ).toBeFocused();
+      // Full widget axe gate stays green with the nested picker open.
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="editor-tiptap-text"]',
+      });
+      // Live proof (C5): picker open with focus inside, host dialog behind.
+      await page.screenshot({
+        path: "test-results/live-proof-6658-content-picker-focus.png",
+      });
+      // Escape closes only the picker: the host link dialog stays open and
+      // focus returns to the Browse button.
+      await page.keyboard.press("Escape");
+      await expect(picker).toBeHidden({ timeout: 5_000 });
+      await expect(
+        page.locator("#tiptap-perc-dialog-inline-link-text"),
+      ).toBeVisible();
+      await expect(
+        page.locator('[data-testid="tiptap-perc-link-browse-text"]'),
+      ).toBeFocused();
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
   );
