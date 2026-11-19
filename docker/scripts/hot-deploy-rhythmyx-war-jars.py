@@ -83,6 +83,11 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Iterable, Optional
 
+_SCRIPTS_DIR = Path(__file__).resolve().parent
+if str(_SCRIPTS_DIR) not in sys.path:
+    sys.path.insert(0, str(_SCRIPTS_DIR))
+import maven_local_repo  # noqa: E402  # resolve -Dmaven.repo.local like mvn (#6709)
+
 LOG = logging.getLogger("hot-deploy-rhythmyx-war-jars")
 
 EXIT_OK = 0
@@ -134,9 +139,16 @@ def _repo_root() -> Path:
     return Path(__file__).resolve().parents[2]
 
 
-def default_m2_root() -> Path:
-    """Cross-platform Maven local repository (``Path('~')`` does not expand on Windows)."""
-    return Path(os.path.expanduser("~")) / ".m2" / "repository"
+def default_m2_root(repo_root: Optional[Path] = None) -> Path:
+    """Maven local repository, resolved the way ``mvn`` would (#6709).
+
+    Honors ``-Dmaven.repo.local`` from ``MAVEN_ARGS`` / ``MAVEN_OPTS``, the
+    mavenrc files, ``.mvn/maven.config`` and ``settings.xml`` before falling
+    back to ``~/.m2/repository`` — see :mod:`maven_local_repo`.
+    """
+    return maven_local_repo.resolve_m2_repository(
+        repo_root if repo_root is not None else _repo_root()
+    )
 
 
 def parse_pom_property(repo_root: Path, property_name: str) -> Optional[str]:
@@ -245,7 +257,11 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--m2-root",
         type=Path,
         default=None,
-        help="Maven local repository root (default: ~/.m2/repository).",
+        help=(
+            "Maven local repository root (default: resolved like mvn — "
+            "-Dmaven.repo.local via MAVEN_ARGS/MAVEN_OPTS/~/.mavenrc/"
+            ".mvn/maven.config, settings.xml, else ~/.m2/repository; #6709)."
+        ),
     )
     p.add_argument(
         "--dry-run",
@@ -378,7 +394,7 @@ def resolve_module_jars(
     repo_root: Path, *, m2_root: Optional[Path] = None
 ) -> tuple[list[tuple[str, Path]], int]:
     """Return ``[(artifactId, jar_path), ...]`` or an exit code on failure."""
-    resolved_m2 = m2_root if m2_root is not None else default_m2_root()
+    resolved_m2 = m2_root if m2_root is not None else default_m2_root(repo_root)
     project_version = parse_project_version(repo_root) or ""
     found: list[tuple[str, Path]] = []
     for rel, artifact_id in DEFAULT_MODULES:
@@ -483,7 +499,7 @@ def resolve_mail2_jars(
     repo_root: Path, *, m2_root: Optional[Path] = None
 ) -> tuple[list[tuple[str, Path]], int]:
     """Return extra runtime ``[(artifactId, jar_path), ...]`` or EXIT_JAR_NOT_FOUND."""
-    resolved_m2 = m2_root if m2_root is not None else default_m2_root()
+    resolved_m2 = m2_root if m2_root is not None else default_m2_root(repo_root)
     found: list[tuple[str, Path]] = []
     for artifact_id, version_prop, group_segments in EXTRA_RUNTIME_JARS:
         version = parse_pom_property(repo_root, version_prop)

@@ -76,7 +76,7 @@ DTS-only matrices (`--product dts`) skip this gate (no WebUI WAR on that path). 
 
 The preflight compares:
 
-- `~/.m2/repository/com/percussion/sitemanage/sitemanage-*.jar` — the freshly installed snapshot, and
+- `<m2>/com/percussion/sitemanage/sitemanage-*.jar` (`<m2>` = the Maven local repo, normally `~/.m2/repository`; see **Maven local repository resolution** below) — the freshly installed snapshot, and
 - `WebUI/target/perc-web-ui-*.war` — the WAR whose `WEB-INF/lib/sitemanage-*.jar` the dist tree will unpack.
 - Optionally a loose `sitemanage-*.jar` under `modules/perc-distribution-tree/target` when present.
 
@@ -89,6 +89,30 @@ The preflight compares:
 Use `--no-content-hash` for mtime-only comparison. With `--strict`, STALE returns exit code `2`; without `--strict` it prints the same line and returns `0` so callers can log without blocking.
 
 Matrix CMS cells always use the **strict** policy unless --skip-preflight is set.
+
+### Maven local repository resolution (#6709)
+
+`qa_preflight.py`, `hot-deploy-rhythmyx-war-jars.py` and `matrix-install-smoke.py` read SNAPSHOT jars from the **same Maven local repository `mvn` wrote to** (`docker/scripts/maven_local_repo.py`), not a hard-coded `~/.m2/repository`. First hit wins: `--m2-root`; `-Dmaven.repo.local=` in `MAVEN_ARGS` / `MAVEN_OPTS`; the same after sourcing the mavenrc files the POSIX `mvn` launcher sources (`/usr/local/etc/mavenrc`, `/etc/mavenrc`, `~/.mavenrc`; skipped when `MAVEN_SKIP_RC` is set) with the checkout root as cwd; `.mvn/maven.config`; `<localRepository>` in `~/.m2/settings.xml`; else `~/.m2/repository`.
+
+This lets a host give one set of checkouts its own local repo so two checkouts building the same `8.2.0-SNAPSHOT` never overwrite each other's jars. Example: isolate the opencode `night-issue-prs` worktrees (primary + shards) from a primary checkout on another branch with a cwd-scoped `~/.mavenrc` (machine-local — never commit a `.mvn/maven.config` for this, it would also redirect the primary checkout):
+
+```sh
+# ~/.mavenrc — sourced by `mvn` and `./mvnw` (and by the QA helpers above)
+__night_home="$HOME/.m2-night"
+if [ -f "$__night_home/enabled" ]; then
+  case "$(pwd -P)/" in
+    "$HOME/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs"*/*)
+      case " ${MAVEN_ARGS:-} ${MAVEN_OPTS:-} " in
+        *maven.repo.local*) ;;
+        *) MAVEN_ARGS="-Dmaven.repo.local=$__night_home/repository -Dmaven.build.cache.location=$__night_home/build-cache${MAVEN_ARGS:+ $MAVEN_ARGS}"
+           export MAVEN_ARGS ;;
+      esac ;;
+  esac
+fi
+unset __night_home
+```
+
+Seed the isolated repo with third-party artifacts only (`rsync -a --exclude='*-SNAPSHOT/' ~/.m2/repository/ ~/.m2-night/repository/`) so the first build does not re-download everything; project SNAPSHOTs are rebuilt in place. `~/.m2/settings.xml` (servers / mirrors) still applies because Maven reads it from `user.home`, not from the local repo.
 
 #### Rebuild-chain driver (#2533)
 

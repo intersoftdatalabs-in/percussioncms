@@ -464,7 +464,7 @@ def check_cms_rebuild_preflight(
     """
     import zipfile
 
-    m2 = m2_root if m2_root is not None else qa_preflight._default_m2_root()
+    m2 = m2_root if m2_root is not None else qa_preflight._default_m2_root(repo_root)
     try:
         rows = qa_preflight.run_preflight(repo_root, m2)
         report = qa_preflight.format_report(rows, strict=True)
@@ -1611,7 +1611,9 @@ def _build_parser() -> argparse.ArgumentParser:
         default=None,
         help=(
             "Maven local repository root for CMS preflight "
-            "(default: ~/.m2/repository). Intended for tests / CI overrides."
+            "(default: resolved like mvn — -Dmaven.repo.local via MAVEN_ARGS/"
+            "MAVEN_OPTS/~/.mavenrc/.mvn/maven.config, settings.xml, else "
+            "~/.m2/repository; #6709). Intended for tests / CI overrides."
         ),
     )
     p.add_argument(
