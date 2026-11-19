@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { fetchSites } from "../../api/home/homeApi";
 import {
   listContentLists,
@@ -78,6 +78,21 @@ type DesignNav =
   | "delivery";
 
 /**
+ * Focus the element with the given `data-testid`, if it is present and
+ * enabled. Returns true when focus landed. Content-list ids come from the
+ * server, so the testid is escaped for use inside an attribute selector.
+ */
+function focusByTestId(testId: string): boolean {
+  const escaped = testId.replace(/\\/g, "\\\\").replace(/"/g, '\\"');
+  const el = document.querySelector(`[data-testid="${escaped}"]`);
+  if (el instanceof HTMLElement && !el.hasAttribute("disabled")) {
+    el.focus();
+    return document.activeElement === el;
+  }
+  return false;
+}
+
+/**
  * Design section IA: editions, content lists, contexts/schemes, delivery types.
  */
 export function DesignSection(): React.ReactElement {
@@ -111,6 +126,39 @@ export function DesignSection(): React.ReactElement {
   const [clDescribe, setClDescribe] = useState<ContentListSummary | null>(null);
   const [clGenerator, setClGenerator] = useState<ContentListSummary | null>(null);
   const [clUrl, setClUrl] = useState<ContentListSummary | null>(null);
+
+  /**
+   * #6748: testid of the content-list row control that opened the current
+   * sub-panel. The panels replace the whole list view, so their inputs
+   * unmount on close and focus would fall back to <body>. Restore focus to
+   * the invoking row control when the panel closes (layout effect, same as
+   * useDialogEscape, so focus lands before paint with no body flash).
+   */
+  const clReturnFocusRef = useRef<string | null>(null);
+
+  /** True while any content-list sub-panel replaces the list view. */
+  const clPanelOpen =
+    clCopy !== null ||
+    clDescribe !== null ||
+    clGenerator !== null ||
+    clUrl !== null ||
+    clEdit !== null;
+
+  useLayoutEffect(() => {
+    if (clPanelOpen) {
+      return;
+    }
+    const testId = clReturnFocusRef.current;
+    if (!testId) {
+      return;
+    }
+    clReturnFocusRef.current = null;
+    if (focusByTestId(testId)) {
+      return;
+    }
+    // The invoking row is gone (deleted list): fall back to Add content list.
+    focusByTestId("design-add-content-list");
+  }, [clPanelOpen, contentLists]);
 
   useEffect(() => {
     fetchSites()
@@ -442,7 +490,11 @@ export function DesignSection(): React.ReactElement {
         <ContentListEditor
           contentList={clEdit === "new" ? null : clEdit}
           onCancel={() => setClEdit(null)}
-          onSaved={() => {
+          onSaved={(info) => {
+            // A confirmed delete removes the invoking row: fall back to Add.
+            if (info?.deleted) {
+              clReturnFocusRef.current = "design-add-content-list";
+            }
             setClEdit(null);
             reloadContentLists();
           }}
@@ -693,7 +745,10 @@ export function DesignSection(): React.ReactElement {
               type="button"
               data-testid="design-add-content-list"
               style={buttonStyle}
-              onClick={() => setClEdit("new")}
+              onClick={() => {
+                clReturnFocusRef.current = "design-add-content-list";
+                setClEdit("new");
+              }}
             >
               Add content list
             </button>
@@ -718,7 +773,10 @@ export function DesignSection(): React.ReactElement {
                       : "design-content-list-unnamed"
                   }
                   style={buttonStyle}
-                  onClick={() => setClEdit(c)}
+                  onClick={() => {
+                    clReturnFocusRef.current = `design-content-list-${c.contentListId}`;
+                    setClEdit(c);
+                  }}
                 >
                   {c.name}
                 </button>
@@ -727,7 +785,10 @@ export function DesignSection(): React.ReactElement {
                     type="button"
                     data-testid={`design-content-list-copy-${c.contentListId}`}
                     style={buttonStyle}
-                    onClick={() => setClCopy(c)}
+                    onClick={() => {
+                      clReturnFocusRef.current = `design-content-list-copy-${c.contentListId}`;
+                      setClCopy(c);
+                    }}
                   >
                     Copy
                   </button>
@@ -737,7 +798,10 @@ export function DesignSection(): React.ReactElement {
                     type="button"
                     style={buttonStyle}
                     data-testid={`design-content-list-describe-${c.contentListId}`}
-                    onClick={() => setClDescribe(c)}
+                    onClick={() => {
+                      clReturnFocusRef.current = `design-content-list-describe-${c.contentListId}`;
+                      setClDescribe(c);
+                    }}
                   >
                     Description
                   </button>
@@ -748,7 +812,10 @@ export function DesignSection(): React.ReactElement {
                       type="button"
                       style={buttonStyle}
                       data-testid={`design-content-list-generator-${c.contentListId}`}
-                      onClick={() => setClGenerator(c)}
+                      onClick={() => {
+                        clReturnFocusRef.current = `design-content-list-generator-${c.contentListId}`;
+                        setClGenerator(c);
+                      }}
                     >
                       Generator
                     </button>
@@ -758,7 +825,10 @@ export function DesignSection(): React.ReactElement {
                     type="button"
                     style={buttonStyle}
                     data-testid={`design-content-list-url-${c.contentListId}`}
-                    onClick={() => setClUrl(c)}
+                    onClick={() => {
+                      clReturnFocusRef.current = `design-content-list-url-${c.contentListId}`;
+                      setClUrl(c);
+                    }}
                   >
                     Legacy URL
                   </button>

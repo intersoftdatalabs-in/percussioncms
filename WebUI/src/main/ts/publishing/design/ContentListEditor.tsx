@@ -48,7 +48,12 @@ import { isLegacyContentList } from "./designLegacyTypes";
 
 export interface ContentListEditorProps {
   contentList: ContentListSummary | null;
-  onSaved: () => void;
+  /**
+   * Called after a successful save or a confirmed delete. `info.deleted` is
+   * true only for the delete path so the opener can pick a focus fallback
+   * (the invoking row is gone) — see DesignSection #6748.
+   */
+  onSaved: (info?: { deleted?: boolean }) => void;
   onCancel: () => void;
 }
 
@@ -182,7 +187,7 @@ export function ContentListEditor({
     try {
       await deleteContentList(contentList.contentListId);
       setDirty(false);
-      onSaved();
+      onSaved({ deleted: true });
     } catch (e) {
       if (isSessionRedirectError(e)) {
         return;
