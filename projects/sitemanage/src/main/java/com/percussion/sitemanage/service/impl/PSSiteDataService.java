@@ -362,7 +362,6 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     props.setCanonicalReplace(site.isCanonicalReplace());
     props.setOverrideSystemJQuery(site.isOverrideSystemJQuery());
     props.setOverrideSystemJQueryUI(site.isOverrideSystemJQueryUI());
-    props.setOverrideSystemFoundation(site.isOverrideSystemFoundation());
     props.setSiteAdditionalHeadContent(site.getSiteAdditionalHeadContent());
     props.setSiteAfterBodyOpenContent(site.getSiteAfterBodyOpenContent());
     props.setSiteBeforeBodyCloseContent(site.getSiteBeforeBodyCloseContent());
@@ -536,7 +535,6 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     site.setCanonicalReplace(props.isCanonicalReplace());
     site.setOverrideSystemJQuery(props.isOverrideSystemJQuery());
     site.setOverrideSystemJQueryUI(props.isOverrideSystemJQueryUI());
-    site.setOverrideSystemFoundation(props.isOverrideSystemFoundation());
     site.setSiteAdditionalHeadContent(props.getSiteAdditionalHeadContent().orElse(null));
     site.setSiteAfterBodyOpenContent(props.getSiteAfterBodyOpenContent().orElse(null));
     site.setSiteBeforeBodyCloseContent(props.getSiteBeforeBodyCloseContent().orElse(null));

@@ -800,7 +800,6 @@ public class SitesAdaptor implements ISiteAdaptor {
     ret.setDefaultDocument(site.getDefaultDocument());
     ret.setFolderRoot(site.getFolderRoot());
     ret.setSiteProtocol(site.getSiteProtocol());
-    ret.setOverrideSystemFoundation(site.isOverrideSystemFoundation());
     ret.setOverrideSystemJQuery(site.isOverrideSystemJQuery());
     ret.setOverrideSystemJQueryUI(site.isOverrideSystemJQueryUI());
     ret.setSiteAdditionalHeadContent(site.getSiteAdditionalHeadContent());

@@ -366,14 +366,6 @@ public class PSSiteProperties extends PSAbstractPersistantObject {
     this.overrideSystemJQuery = overrideSystemJQuery;
   }
 
-  public boolean isOverrideSystemFoundation() {
-    return overrideSystemFoundation;
-  }
-
-  public void setOverrideSystemFoundation(boolean overrideSystemFoundation) {
-    this.overrideSystemFoundation = overrideSystemFoundation;
-  }
-
   public boolean isOverrideSystemJQueryUI() {
     return overrideSystemJQueryUI;
   }
@@ -499,11 +491,6 @@ public class PSSiteProperties extends PSAbstractPersistantObject {
    * Indicates that the system JQuery version should not be injected into any pages or Templates.
    */
   private boolean overrideSystemJQuery;
-
-  /***
-   * Indicates the the system Foundation version should not be injected into any Pages or Templates
-   */
-  private boolean overrideSystemFoundation;
 
   /***
    * Indicates that the system JQueryUI version should not be injected into Templates

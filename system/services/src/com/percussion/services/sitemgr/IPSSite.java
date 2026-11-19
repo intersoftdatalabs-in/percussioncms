@@ -600,10 +600,6 @@ public interface IPSSite extends IPSCatalogSummary
 
     public void setOverrideSystemJQuery(boolean overrideSystemJQuery) ;
 
-    public boolean isOverrideSystemFoundation() ;
-
-    public void setOverrideSystemFoundation(boolean overrideSystemFoundation) ;
-
     public boolean isOverrideSystemJQueryUI();
 
     public void setOverrideSystemJQueryUI(boolean overrideSystemJQueryUI) ;

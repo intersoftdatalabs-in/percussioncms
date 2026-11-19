@@ -47,7 +47,6 @@ public class Site {
   private String defaultFileExtention;
   private boolean isCanonical = true;
   private boolean overrideSystemJQuery = false;
-  private boolean overrideSystemFoundation = false;
   private boolean overrideSystemJQueryUI = false;
   private String siteAdditionalHeadContent;
   private String siteBeforeBodyCloseContent;
@@ -168,14 +167,6 @@ public class Site {
 
   public void setOverrideSystemJQuery(boolean overrideSystemJQuery) {
     this.overrideSystemJQuery = overrideSystemJQuery;
-  }
-
-  public boolean isOverrideSystemFoundation() {
-    return overrideSystemFoundation;
-  }
-
-  public void setOverrideSystemFoundation(boolean overrideSystemFoundation) {
-    this.overrideSystemFoundation = overrideSystemFoundation;
   }
 
   public boolean isOverrideSystemJQueryUI() {

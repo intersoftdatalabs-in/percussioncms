@@ -958,7 +958,6 @@ public class ApiUtils {
       newSite.setDescription(orNull(s.getDescription()));
       newSite.setGuid(convertGuid(new PSGuid(orNull(s.getGuid()))));
       newSite.setName(s.getName());
-      newSite.setOverrideSystemFoundation(s.getOverrideSystemFoundation());
       newSite.setOverrideSystemJQuery(s.getOverrideSystemJQuery());
       newSite.setOverrideSystemJQueryUI(s.getOverrideSystemJQueryUI());
       newSite.setPageBasedSite(s.isCM1Site());
