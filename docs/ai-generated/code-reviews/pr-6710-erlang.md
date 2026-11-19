@@ -1,24 +1,32 @@
 ## Summary
 
-Machine analysis found **0** finding(s), **0** blocking bug(s).
+Machine analysis found **1** finding(s), **1** blocking bug(s).
 
 ## Scope
 
 - Base: origin/main
 - Head: HEAD
-- Files: 6 analyzed
+- Files: 7 analyzed
 - Persona: erlang 0.1.1
 - Persona source: ~/.local/share/mkd/agents/erlang
 
 ## Recommendation
 
-approve
+request-changes
 
 ## Gate
 
-- Blocking bugs: 0
+- Blocking bugs: 1
 - May commit/push: yes
 
 ## Issues
 
-_No issues._
+### Issue 1 -- Severity: bug
+
+- File: review
+- Rule: `llm.error`
+- Tool: `llm`
+- Description: model `ollama-dev-coder` failed: response contract: finding location is outside the provided diff
+- Status: open
+
+> Tip: To suppress false positives, add `// mkd-code-review[<rule_id>] <reason>` (e.g. `// mkd-code-review[paths.hardcoded_sep] web url join`) or `// codeql[<rule_id>] <reason>` on or above the line, or add an entry in `.mkd-code-review.toml`.
