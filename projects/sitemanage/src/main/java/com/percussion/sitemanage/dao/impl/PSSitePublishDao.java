@@ -2301,7 +2301,10 @@ public class PSSitePublishDao implements com.percussion.sitemanage.dao.IPSSitePu
   private static final String SELECTED_ITEMS_GENERATOR =
       "Java/global/percussion/system/sys_SelectedItemsGenerator";
 
-  /** Constant for the site root folder base. */
+  /** Constant for the site root folder base (CMS repository path, not an OS path). */
+  // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6729,
+  // same as #5898/#5910/#5927/#6325/#6358/#6359) — "/" joins the CMS repository
+  // path ("//Sites/<name>" via PSPathUtil.SITES_ROOT), not an OS path.
   private static final String FOLDER_ROOT_BASE = PSPathUtil.SITES_ROOT + "/";
 
   /** The log instance to use for this class, never <code>null</code>. */
