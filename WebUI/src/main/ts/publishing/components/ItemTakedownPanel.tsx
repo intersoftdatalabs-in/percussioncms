@@ -35,6 +35,7 @@ import {
   parseTakedownItemIds,
   reviewTakedownBatch,
   runTakedownBatch,
+  type TakedownBatchReviewReport,
 } from "../itemTakedownBatch";
 import {
   mapTakedownKind,
@@ -100,6 +101,9 @@ export interface ItemTakedownPanelProps {
   onItemIdChange?: (itemId: string) => void;
 }
 
+/** Which batch op left failures behind for the retry button. */
+type TakedownFailedOp = "run" | "review";
+
 function takedownErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     if (err.status === 403) {
@@ -140,6 +144,7 @@ export function ItemTakedownPanel({
   const [linked, setLinked] = useState<LinkedPageForTakedown[]>([]);
   const [reviewed, setReviewed] = useState(false);
   const [failedIds, setFailedIds] = useState<string[]>([]);
+  const [failedOp, setFailedOp] = useState<TakedownFailedOp | null>(null);
   const [multiIds, setMultiIds] = useState<string[]>([]);
   const [multiLinked, setMultiLinked] = useState<
     Record<string, LinkedPageForTakedown[]>
@@ -153,7 +158,30 @@ export function ItemTakedownPanel({
   useEffect(() => {
     setInputId(itemId ?? "");
     setFailedIds([]);
+    setFailedOp(null);
   }, [itemId]);
+
+  const applyReviewOutcome = useCallback(
+    (batch: TakedownBatchReviewReport): void => {
+      if (batch.failures.length > 0) {
+        setFailedIds(batch.failures.map((failure) => failure.id));
+        setFailedOp("review");
+        setError(
+          fill(message(MSG.PUBLISH_TAKEDOWN_BATCH_REVIEW_PARTIAL), {
+            // reviewed[] keeps failed ids (with no linked pages), so the
+            // loaded count excludes them.
+            loaded: String(batch.reviewed.length - batch.failures.length),
+            total: String(batch.total),
+            detail: formatTakedownBatchDetail(batch.failures),
+          }),
+        );
+      } else {
+        setFailedIds([]);
+        setFailedOp(null);
+      }
+    },
+    [],
+  );
 
   const review = useCallback(async (rawId: string) => {
     const ids = parseTakedownItemIds(rawId);
@@ -161,6 +189,7 @@ export function ItemTakedownPanel({
       setLinked([]);
       setReviewed(false);
       setFailedIds([]);
+      setFailedOp(null);
       setMultiIds([]);
       setMultiLinked({});
       setReport(null);
@@ -179,6 +208,7 @@ export function ItemTakedownPanel({
     const safe = ids[0];
     setMultiIds([]);
     setFailedIds([]);
+    setFailedOp(null);
     setMultiLinked({});
     setReport(null);
     setLoading(true);
@@ -197,35 +227,57 @@ export function ItemTakedownPanel({
     }
   }, []);
 
-  const reviewBatch = useCallback(async (ids: string[]) => {
-    setLoading(true);
-    setError(null);
-    setSuccess(null);
-    setFailedIds([]);
-    setReport(null);
-    setLinked([]);
-    try {
-      const batch = await reviewTakedownBatch(ids);
-      const byId: Record<string, LinkedPageForTakedown[]> = {};
-      for (const row of batch.reviewed) {
-        byId[row.id] = row.linked;
+  const reviewBatch = useCallback(
+    async (ids: string[]) => {
+      setLoading(true);
+      setError(null);
+      setSuccess(null);
+      setFailedIds([]);
+      setFailedOp(null);
+      setReport(null);
+      setLinked([]);
+      try {
+        const batch = await reviewTakedownBatch(ids);
+        const byId: Record<string, LinkedPageForTakedown[]> = {};
+        for (const row of batch.reviewed) {
+          byId[row.id] = row.linked;
+        }
+        setMultiIds(ids);
+        setMultiLinked(byId);
+        setReviewed(true);
+        applyReviewOutcome(batch);
+      } finally {
+        setLoading(false);
       }
-      setMultiIds(ids);
-      setMultiLinked(byId);
-      setReviewed(true);
-      if (batch.failures.length > 0) {
-        setError(
-          fill(message(MSG.PUBLISH_TAKEDOWN_BATCH_REVIEW_PARTIAL), {
-            loaded: String(batch.reviewed.length),
-            total: String(batch.total),
-            detail: formatTakedownBatchDetail(batch.failures),
-          }),
-        );
+    },
+    [applyReviewOutcome],
+  );
+
+  /**
+   * Re-read linked pages for the failed review ids only and merge the
+   * results into the same confirm; already-reviewed ids keep their
+   * linked pages, so no second full lookup is needed.
+   */
+  const retryReview = useCallback(
+    async (ids: string[]) => {
+      setLoading(true);
+      setError(null);
+      setSuccess(null);
+      try {
+        const batch = await reviewTakedownBatch(ids);
+        const byId: Record<string, LinkedPageForTakedown[]> = {};
+        for (const row of batch.reviewed) {
+          byId[row.id] = row.linked;
+        }
+        setMultiLinked((previous) => ({ ...previous, ...byId }));
+        setReviewed(true);
+        applyReviewOutcome(batch);
+      } finally {
+        setLoading(false);
       }
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+    },
+    [applyReviewOutcome],
+  );
 
   useEffect(() => {
     const initial = mapIdParam(itemId);
@@ -264,6 +316,7 @@ export function ItemTakedownPanel({
       );
       if (batch.failures.length === 0) {
         setFailedIds([]);
+        setFailedOp(null);
         setSuccess(
           fill(message(MSG.PUBLISH_TAKEDOWN_BATCH_DONE), {
             total: String(batch.total),
@@ -271,6 +324,7 @@ export function ItemTakedownPanel({
         );
       } else {
         setFailedIds(batch.failures.map((failure) => failure.id));
+        setFailedOp("run");
         setSuccess(null);
         setError(
           fill(message(MSG.PUBLISH_TAKEDOWN_BATCH_PARTIAL), {
@@ -288,6 +342,14 @@ export function ItemTakedownPanel({
     } finally {
       setSubmitting(false);
     }
+  }
+
+  async function onRetry(): Promise<void> {
+    if (failedOp === "review") {
+      await retryReview(failedIds);
+      return;
+    }
+    await runBatch(failedIds);
   }
 
   async function onTakeDown(e: React.FormEvent): Promise<void> {
@@ -321,17 +383,20 @@ export function ItemTakedownPanel({
       );
       if (!ok) {
         setFailedIds([safe]);
+        setFailedOp("run");
         setError(message(MSG.PUBLISH_ERROR));
         return;
       }
       onItemIdChange?.(safe);
       setFailedIds([]);
+      setFailedOp(null);
       setSuccess(message(MSG.PUBLISH_TAKEDOWN_SUCCESS));
     } catch (err) {
       if (isSessionRedirectError(err)) {
         return;
       }
       setFailedIds([safe]);
+      setFailedOp("run");
       setError(takedownErrorMessage(err));
     } finally {
       setSubmitting(false);
@@ -375,6 +440,7 @@ export function ItemTakedownPanel({
               setInputId(e.target.value);
               setReviewed(false);
               setFailedIds([]);
+              setFailedOp(null);
               setMultiIds([]);
               setSuccess(null);
             }}
@@ -517,12 +583,12 @@ export function ItemTakedownPanel({
           ))}
         </ul>
       )}
-      {failedIds.length > 0 && !submitting && (
+      {failedIds.length > 0 && failedOp !== null && !submitting && !loading && (
         <button
           type="button"
           style={{ ...primaryButtonStyle, marginTop: 12 }}
           data-testid="item-takedown-retry"
-          onClick={() => void runBatch(failedIds)}
+          onClick={() => void onRetry()}
         >
           {message(MSG.PUBLISH_TAKEDOWN_RETRY_FAILED)}
         </button>

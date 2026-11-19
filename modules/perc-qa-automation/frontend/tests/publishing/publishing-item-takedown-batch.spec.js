@@ -20,7 +20,9 @@
  * item ids from the PublishingShell site workspace with one confirm and a
  * per-item report (a per-item 403 is a named failure, not full success;
  * review alone writes nothing). #6677 adds a Retry failed run that takes
- * down only the failed ids and flips their rows.
+ * down only the failed ids and flips their rows. #6696 adds a Retry failed
+ * review that re-reads linked pages for only the failed ids and merges the
+ * results into the same confirm.
  *
  * Tags: @publishing-item-takedown-batch @publish @smoke
  *
@@ -53,10 +55,17 @@ function takedownIdFromUrl(url) {
   return match ? decodeURIComponent(match[1]) : "";
 }
 
+function linkedIdFromUrl(url) {
+  const match = /\/findLinkedItems\/([^/?#]+)/.exec(String(url || ""));
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
 async function stubBatchApis(page, opts = {}) {
   const state = {
     takedownCalls: [],
+    linkedCalls: [],
     failIds: opts.failIds || {},
+    failLinkedIds: opts.failLinkedIds || {},
   };
   // The workspace shares one item id across every item panel: looking up ids
   // in the takedown panel also nudges the history, actions-menu, and
@@ -87,6 +96,16 @@ async function stubBatchApis(page, opts = {}) {
     });
   });
   await page.route("**/itemmanagement/item/findLinkedItems/**", async (route) => {
+    const id = linkedIdFromUrl(route.request().url());
+    state.linkedCalls.push(id);
+    if (state.failLinkedIds[id]) {
+      await route.fulfill({
+        status: 500,
+        contentType: "application/json",
+        body: JSON.stringify({ message: state.failLinkedIds[id] }),
+      });
+      return;
+    }
     await route.fulfill({
       status: 200,
       contentType: "application/json",
@@ -161,7 +180,7 @@ function trackConsoleErrors(page) {
   return consoleErrors;
 }
 
-test.describe("PublishingShell multi-item takedown (#6462, retry #6677)", () => {
+test.describe("PublishingShell multi-item takedown (#6462, retry #6677, review-retry #6696)", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(90_000);
     await loginAsAdmin(page);
@@ -273,6 +292,70 @@ test.describe("PublishingShell multi-item takedown (#6462, retry #6677)", () => 
     await expect(panel.getByTestId(TEST_IDS.retry)).toHaveCount(0);
     await page.screenshot({
       path: "test-results/live-proof-6677-takedown-retry.png",
+    });
+    expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
+  });
+
+  test(`a failed linked-page lookup offers retry that re-reads only the failed id ${TAGS.join(" ")}`, async ({
+    page,
+  }) => {
+    const consoleErrors = trackConsoleErrors(page);
+    const state = await stubBatchApis(page, {
+      failLinkedIds: { [SECOND_ID]: "Linked lookup boom." },
+    });
+
+    const panel = await openSiteWorkspaceTakedown(page);
+    await panel.getByTestId(TEST_IDS.input).fill(`${FIRST_ID}, ${SECOND_ID}`);
+    await panel.getByTestId(TEST_IDS.review).click();
+
+    // The confirm still lists both ids; the failed id has no linked pages.
+    await expect(panel.getByTestId(TEST_IDS.confirm)).toBeVisible({
+      timeout: 15000,
+    });
+    await expect(panel.getByTestId(TEST_IDS.error)).toContainText(
+      /Reviewed 1 of 2/i,
+      { timeout: 15000 },
+    );
+    await expect(panel.getByTestId(TEST_IDS.error)).toContainText(
+      new RegExp(`${SECOND_ID} \\(`),
+    );
+    await expect(panel.getByTestId(TEST_IDS.retry)).toBeVisible();
+    await expect(
+      panel.getByTestId(`${TEST_IDS.batchLinkedEmptyPrefix}${SECOND_ID}`),
+    ).toBeVisible();
+    expect(state.takedownCalls).toEqual([]);
+
+    // Heal the lookup; the retry re-reads only the failed id and merges
+    // the linked pages into the same confirm.
+    await page.unroute("**/itemmanagement/item/findLinkedItems/**");
+    const retryReads = [];
+    await page.route(
+      "**/itemmanagement/item/findLinkedItems/**",
+      async (route) => {
+        retryReads.push(linkedIdFromUrl(route.request().url()));
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ArrayList: [{ pagePath: "/Sites/Demo/Home", id: "7" }],
+          }),
+        });
+      },
+    );
+    const before = state.linkedCalls.length;
+    await panel.getByTestId(TEST_IDS.retry).click();
+    await expect(panel.getByTestId(TEST_IDS.retry)).toHaveCount(0, {
+      timeout: 15000,
+    });
+    expect(retryReads).toEqual([SECOND_ID]);
+    expect(state.linkedCalls.length).toBe(before);
+    await expect(
+      panel.getByTestId(`${TEST_IDS.batchLinkedPrefix}${SECOND_ID}`),
+    ).toContainText("/Sites/Demo/Home");
+    await expect(panel.getByTestId(TEST_IDS.error)).toHaveCount(0);
+    await expect(panel.getByTestId(TEST_IDS.confirm)).toBeVisible();
+    await page.screenshot({
+      path: "test-results/live-proof-6696-takedown-review-retry.png",
     });
     expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
   });
