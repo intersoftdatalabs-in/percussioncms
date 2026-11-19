@@ -45,6 +45,7 @@ const {
   deliveryAuthHeader,
   probeFormName,
   retrievalDetail,
+  summariesTotal,
   buildConfirmationRow,
   validateConfirmationRow,
 } = require("../helpers/forms-confirmation-matrix");
@@ -147,6 +148,45 @@ describe("forms-confirmation-matrix helpers (#6482)", () => {
     assert.ok(decoded.startsWith("ps_manager:"), "shipped DTS development default user");
   });
 
+  it("reads entry totals from either summaries shape (bean getter or JAXB field)", () => {
+    // The container serializes the summary list through the bean getter
+    // (summaries) or the JAXB field (formsInfo) depending on the JSON
+    // provider — the retrieval case must accept both.
+    assert.equal(
+      summariesTotal(
+        { summaries: [{ name: "qaconfirm-1", totalForms: 3 }] },
+        "qaconfirm-1",
+      ),
+      3,
+    );
+    assert.equal(
+      summariesTotal(
+        { formsInfo: [{ name: "qaconfirm-1", totalForms: 3 }] },
+        "qaconfirm-1",
+      ),
+      3,
+    );
+    // Unknown forms, non-number totals, and unparseable bodies read as
+    // null so the spec fails with before/after totals, not a TypeError.
+    assert.equal(
+      summariesTotal({ summaries: [{ name: "other", totalForms: 1 }] }, "qaconfirm-1"),
+      null,
+    );
+    assert.equal(
+      summariesTotal({ summaries: [{ name: "qaconfirm-1" }] }, "qaconfirm-1"),
+      null,
+    );
+    assert.equal(
+      summariesTotal(
+        { summaries: [{ name: "qaconfirm-1", totalForms: "3" }] },
+        "qaconfirm-1",
+      ),
+      null,
+    );
+    assert.equal(summariesTotal(null, "qaconfirm-1"), null);
+    assert.equal(summariesTotal({}, "qaconfirm-1"), null);
+  });
+
   it("builds schema-valid rows and rolls fail over skip over pass", () => {
     assert.deepEqual(validateConfirmationRow(goodRow()), []);
     const skipped = buildConfirmationRow(
@@ -244,5 +284,9 @@ describe("forms-confirmation-matrix helpers (#6482)", () => {
       "summaries-retrievable case declared",
     );
     assert.ok(spec.includes("CSV export contains"), "csv-retrievable case declared");
+    assert.ok(
+      !spec.includes("function summariesTotal"),
+      "no local summariesTotal copy; the spec uses the helper",
+    );
   });
 });
