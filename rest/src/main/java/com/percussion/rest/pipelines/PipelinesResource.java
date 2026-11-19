@@ -68,7 +68,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 @Tag(
     name = "Pipelines",
     description =
-        "Data pipeline / XML application design catalog, Admin start/stop, Admin enable/disable, Admin delete, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, JDBC datasource backend persist/test, nested filter groups, binary resource persist/retrieve, HTML result-page persist, request tracing, and IR execute")
+        "Data pipeline / XML application design catalog, Admin start/stop, Admin enable/disable, Admin delete, validation, Pipeline IR, OpenAPI from resources, HTTP backend tank persist, JDBC datasource backend persist/test, nested filter groups, mapper mappings persist, binary resource persist/retrieve, HTML result-page persist, request tracing, and IR execute")
 public class PipelinesResource {
 
   private final IPipelinesAdaptor adaptor;
@@ -711,6 +711,51 @@ public class PipelinesResource {
       PipelineFilterGroup body) {
     try {
       return requireAdaptor().putFilterGroup(uriInfo.getBaseUri(), app, resource, body);
+    } catch (WebApplicationException e) {
+      throw e;
+    } catch (IllegalArgumentException e) {
+      throw new WebApplicationException(e.getMessage(), 400);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
+  /**
+   * Persist native IR mapper mappings (ordered document to backend rows) on a resource. An
+   * empty list clears the stage (explicit clear). Does not rewrite classic XML Applications.
+   * Persisted rows feed HTTP execute projection.
+   */
+  @PUT
+  @Path("/{app}/resources/{resource}/mapper")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Persist native pipeline mapper mappings on a resource",
+      description =
+          "Admin only. Saves the ordered document-to-backend mapping rows on native IR."
+              + " Empty list clears the stage. Each row needs documentField + backend;"
+              + " backendKind is COLUMN, EXTENSION, or OTHER (blank normalizes to OTHER)."
+              + " Classic XML Applications stay read-only.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Saved",
+            content = @Content(schema = @Schema(implementation = PipelineMapper.class))),
+        @ApiResponse(responseCode = "400", description = "Invalid row, kind, or name"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Application not found"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public PipelineMapper putMapper(
+      @PathParam("app") String app,
+      @PathParam("resource") String resource,
+      PipelineMapper body) {
+    try {
+      if (body == null) {
+        throw new IllegalArgumentException("Mapper body is required");
+      }
+      body.requireWriteFields();
+      return requireAdaptor().putMapper(uriInfo.getBaseUri(), app, resource, body);
     } catch (WebApplicationException e) {
       throw e;
     } catch (IllegalArgumentException e) {

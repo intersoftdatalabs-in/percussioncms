@@ -12,6 +12,11 @@ import { downloadXmlFile } from "../../../main/ts/api/developer/contentTypeImpor
 import { exportPipelineApplication } from "../../../main/ts/api/developer/pipelineImportExport";
 import { DEV_MSG } from "../../../main/ts/developer/messages";
 import { PipelineDetailPanel } from "../../../main/ts/developer/PipelineDetailPanel";
+import {
+  clientMapperRowError,
+  emptyMapperRow,
+  savedMapperRows,
+} from "../../../main/ts/developer/PipelineDetailPanel";
 
 vi.mock("../../../main/ts/api/developer/contentTypeImportExport", () => ({
   downloadXmlFile: vi.fn(),
@@ -39,6 +44,7 @@ vi.mock("../../../main/ts/api/developer/pipelinesApi", async (importOriginal) =>
   testDatasourceBackendConnection: vi.fn(),
   putWebhookHooks: vi.fn(),
   putFilterGroup: vi.fn(),
+  putMapper: vi.fn(),
   putBinaryResource: vi.fn(),
   retrieveBinaryResource: vi.fn(),
   putResultPage: vi.fn(),
@@ -67,6 +73,7 @@ const testDatasourceBackendConnection =
   pipelinesApi.testDatasourceBackendConnection as ReturnType<typeof vi.fn>;
 const putWebhookHooks = pipelinesApi.putWebhookHooks as ReturnType<typeof vi.fn>;
 const putFilterGroup = pipelinesApi.putFilterGroup as ReturnType<typeof vi.fn>;
+const putMapper = pipelinesApi.putMapper as ReturnType<typeof vi.fn>;
 const putBinaryResource = pipelinesApi.putBinaryResource as ReturnType<typeof vi.fn>;
 const retrieveBinaryResource = pipelinesApi.retrieveBinaryResource as ReturnType<
   typeof vi.fn
@@ -158,6 +165,7 @@ describe("PipelineDetailPanel", () => {
     testDatasourceBackendConnection.mockReset();
     putWebhookHooks.mockReset();
     putFilterGroup.mockReset();
+    putMapper.mockReset();
     putBinaryResource.mockReset();
     retrieveBinaryResource.mockReset();
     putResultPage.mockReset();
@@ -256,6 +264,10 @@ describe("PipelineDetailPanel", () => {
       status: 404,
       statusText: "Not Found",
       body: null,
+    });
+    putMapper.mockResolvedValue({
+      mappings: [{ documentField: "itemSku", backend: "sku", backendKind: "COLUMN" }],
+      allowEmptyDocReturn: false,
     });
   });
 
@@ -368,6 +380,7 @@ describe("PipelineDetailPanel", () => {
     expect(screen.queryByTestId("developer-pipe-invoke")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-http")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-webhook")).toBeNull();
+    expect(screen.queryByTestId("developer-pipe-mapper")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-binary")).toBeNull();
     expect(screen.queryByTestId("developer-pipe-problems")).toBeNull();
     expect(getApplicationValidation).not.toHaveBeenCalled();
@@ -953,6 +966,121 @@ describe("PipelineDetailPanel", () => {
         /loopback/i,
       );
     });
+  });
+
+  it("clientMapperRowError fail-closes on blank row fields, passes clean rows", () => {
+    expect(clientMapperRowError([])).toBeNull();
+    expect(
+      clientMapperRowError([{ documentField: "itemSku", backend: "sku" }]),
+    ).toBeNull();
+    expect(
+      clientMapperRowError([{ documentField: "  ", backend: "sku" }]),
+    ).toBe(DEV_MSG.PIPE_MAPPER_ROW_REQUIRED);
+    expect(
+      clientMapperRowError([{ documentField: "itemSku", backend: "  " }]),
+    ).toBe(DEV_MSG.PIPE_MAPPER_ROW_REQUIRED);
+  });
+
+  it("savedMapperRows falls back to a single empty row on clear", () => {
+    expect(savedMapperRows({ mappings: [] })).toEqual([emptyMapperRow()]);
+    expect(savedMapperRows(null)).toEqual([emptyMapperRow()]);
+    expect(
+      savedMapperRows({
+        mappings: [{ documentField: "itemSku", backend: "sku", backendKind: "COLUMN" }],
+      }),
+    ).toEqual([{ documentField: "itemSku", backend: "sku", backendKind: "COLUMN" }]);
+  });
+
+  it("Admin saves mapper rows for the selected resource", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-mapper")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-pipe-mapper-doc-0"), {
+      target: { value: "itemSku" },
+    });
+    fireEvent.change(screen.getByTestId("developer-pipe-mapper-backend-0"), {
+      target: { value: "sku" },
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-mapper-save"));
+    await waitFor(() => {
+      expect(putMapper).toHaveBeenCalledWith("sys_cmpDocuments", "contenteditor", {
+        mappings: [{ documentField: "itemSku", backend: "sku", backendKind: "OTHER" }],
+        allowEmptyDocReturn: false,
+      });
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-mapper-notice").textContent).toBe(
+        DEV_MSG.PIPE_MAPPER_SAVED,
+      );
+    });
+  });
+
+  it("Admin mapper rows prefill from stored IR and reorder", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    getPipelineIr.mockResolvedValue({
+      irVersion: "1.0",
+      source: "NATIVE",
+      resources: [
+        {
+          name: "contenteditor",
+          kind: "query",
+          stages: {
+            mapper: {
+              present: true,
+              allowEmptyDocReturn: true,
+              mappings: [
+                { documentField: "itemSku", backend: "sku", backendKind: "COLUMN" },
+                { documentField: "itemName", backend: "name", backendKind: "OTHER" },
+              ],
+            },
+          },
+        },
+      ],
+    });
+    renderDetail(true);
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-pipe-mapper-doc-0") as HTMLInputElement).value,
+      ).toBe("itemSku");
+    });
+    expect(
+      (screen.getByTestId("developer-pipe-mapper-backend-1") as HTMLInputElement).value,
+    ).toBe("name");
+    expect(
+      (screen.getByTestId("developer-pipe-mapper-allow-empty") as HTMLInputElement)
+        .checked,
+    ).toBe(true);
+    fireEvent.click(screen.getByTestId("developer-pipe-mapper-down-0"));
+    expect(
+      (screen.getByTestId("developer-pipe-mapper-doc-0") as HTMLInputElement).value,
+    ).toBe("itemName");
+    fireEvent.click(screen.getByTestId("developer-pipe-mapper-save"));
+    await waitFor(() => {
+      expect(putMapper).toHaveBeenCalledWith("sys_cmpDocuments", "contenteditor", {
+        mappings: [
+          { documentField: "itemName", backend: "name", backendKind: "OTHER" },
+          { documentField: "itemSku", backend: "sku", backendKind: "COLUMN" },
+        ],
+        allowEmptyDocReturn: true,
+      });
+    });
+  });
+
+  it("mapper save fail-closes on blank row fields", async () => {
+    getApplicationDetail.mockResolvedValue(sampleDetail);
+    renderDetail(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-mapper-doc-0")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-pipe-mapper-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-pipe-mapper-error").textContent).toBe(
+        DEV_MSG.PIPE_MAPPER_ROW_REQUIRED,
+      );
+    });
+    expect(putMapper).not.toHaveBeenCalled();
   });
 
   it("Admin saves binary resource and retrieves fixture bytes", async () => {

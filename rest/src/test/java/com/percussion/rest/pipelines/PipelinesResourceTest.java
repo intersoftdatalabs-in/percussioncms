@@ -469,6 +469,46 @@ public class PipelinesResourceTest {
   }
 
   @Test
+  public void putMapperDelegatesToAdaptor() {
+    PipelineMapper body = new PipelineMapper();
+    PipelineMapperEntry row = new PipelineMapperEntry();
+    row.setDocumentField("itemSku");
+    row.setBackend("sku");
+    row.setBackendKind("COLUMN");
+    body.setMappings(List.of(row));
+    body.setAllowEmptyDocReturn(Boolean.TRUE);
+    when(adaptor.putMapper(any(), eq("lookupApp"), eq("DatasetQ"), eq(body))).thenReturn(body);
+
+    PipelineMapper out = resource.putMapper("lookupApp", "DatasetQ", body);
+    assertEquals(1, out.getMappings().size());
+    assertEquals("itemSku", out.getMappings().get(0).getDocumentField());
+    assertEquals(Boolean.TRUE, out.getAllowEmptyDocReturn());
+    verify(adaptor).putMapper(any(), eq("lookupApp"), eq("DatasetQ"), eq(body));
+  }
+
+  @Test
+  public void putMapperMapsIllegalArgumentTo400() {
+    when(adaptor.putMapper(any(), eq("app"), eq("res"), any()))
+        .thenThrow(new IllegalArgumentException("Mapping row 1: backend is required"));
+
+    PipelineMapper body = new PipelineMapper();
+    PipelineMapperEntry row = new PipelineMapperEntry();
+    row.setDocumentField("itemSku");
+    body.setMappings(List.of(row));
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.putMapper("app", "res", body));
+    assertEquals(400, ex.getResponse().getStatus());
+    assertEquals("Mapping row 1: backend is required", ex.getMessage());
+  }
+
+  @Test
+  public void putMapperRejectsNullBodyWith400() {
+    WebApplicationException ex =
+        assertThrows(WebApplicationException.class, () -> resource.putMapper("app", "res", null));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
   public void putBinaryResourceDelegatesToAdaptor() {
     PipelineBinaryResource body = new PipelineBinaryResource();
     body.setPath("pipeline-binary-fixture");

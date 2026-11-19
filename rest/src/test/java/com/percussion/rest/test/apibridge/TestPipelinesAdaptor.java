@@ -27,6 +27,7 @@ import com.percussion.rest.pipelines.PipelineDatasourceBackend;
 import com.percussion.rest.pipelines.PipelineFilterGroup;
 import com.percussion.rest.pipelines.PipelineResultPage;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
+import com.percussion.rest.pipelines.PipelineMapper;
 import com.percussion.rest.pipelines.PipelineTracingSettings;
 import com.percussion.rest.pipelines.PipelineWebhookHooks;
 import com.percussion.services.pipeline.model.PipelineBinaryPayload;
@@ -183,6 +184,16 @@ public class TestPipelinesAdaptor implements IPipelinesAdaptor {
     }
     if (out.getOp() == null) {
       out.setOp("AND");
+    }
+    return out;
+  }
+
+  @Override
+  public PipelineMapper putMapper(
+      URI baseUri, String appName, String resourceName, PipelineMapper body) {
+    PipelineMapper out = body != null ? body : new PipelineMapper();
+    if (out.getAllowEmptyDocReturn() == null) {
+      out.setAllowEmptyDocReturn(Boolean.FALSE);
     }
     return out;
   }

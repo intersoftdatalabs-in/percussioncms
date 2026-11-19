@@ -32,6 +32,7 @@ import {
   putBinaryResource,
   putDatasourceBackend,
   putFilterGroup,
+  putMapper,
   putResultPage,
   putHttpBackendTank,
   putTracing,
@@ -57,6 +58,8 @@ import type {
   PipelineIrDocument,
   PipelineIrResource,
   PipelineIrStages,
+  PipelineMapper,
+  PipelineMapperEntry,
   PipelineRequestTrace,
   PipelineResultPage,
 } from "../api/developer/types";
@@ -309,6 +312,39 @@ function invokeErrMsg(err: unknown): string {
     return DEV_MSG.PIPE_FORBIDDEN;
   }
   return panelErrMsg(err, DEV_MSG.PIPE_INVOKE_ERROR);
+}
+
+/** Blank editable mapper row (kind defaults to OTHER server-side). */
+export function emptyMapperRow(): PipelineMapperEntry {
+  return { documentField: "", backend: "", backendKind: "OTHER" };
+}
+
+/**
+ * Client-side mapper row check: every row needs a document field and a backend
+ * field. An empty row list is an explicit stage clear, not an error.
+ */
+export function clientMapperRowError(rows: PipelineMapperEntry[]): string | null {
+  for (const row of rows || []) {
+    const field = (row?.documentField || "").trim();
+    const backend = (row?.backend || "").trim();
+    if (!field || !backend) {
+      return DEV_MSG.PIPE_MAPPER_ROW_REQUIRED;
+    }
+  }
+  return null;
+}
+
+/**
+ * Normalize a saved mapper echo into editor rows (single empty row when the
+ * stage has no mappings so the form never renders row-less after a clear).
+ */
+export function savedMapperRows(saved: PipelineMapper | null | undefined): PipelineMapperEntry[] {
+  const rows = (saved?.mappings || []).map((m) => ({
+    documentField: m?.documentField || "",
+    backend: m?.backend || "",
+    backendKind: m?.backendKind || "OTHER",
+  }));
+  return rows.length > 0 ? rows : [emptyMapperRow()];
 }
 
 function parseExecuteBody(raw: string):
@@ -673,6 +709,11 @@ export function PipelineDetailPanel({
   const [filterBusy, setFilterBusy] = useState(false);
   const [filterError, setFilterError] = useState<string | null>(null);
   const [filterNotice, setFilterNotice] = useState<string | null>(null);
+  const [mapperRows, setMapperRows] = useState<PipelineMapperEntry[]>([emptyMapperRow()]);
+  const [mapperAllowEmpty, setMapperAllowEmpty] = useState(false);
+  const [mapperBusy, setMapperBusy] = useState(false);
+  const [mapperError, setMapperError] = useState<string | null>(null);
+  const [mapperNotice, setMapperNotice] = useState<string | null>(null);
   const [binaryPath, setBinaryPath] = useState("pipeline-binary-fixture");
   const [binaryContentType, setBinaryContentType] = useState("text/plain");
   const [binaryBusy, setBinaryBusy] = useState(false);
@@ -706,6 +747,7 @@ export function PipelineDetailPanel({
   const dsInflight = useRef(false);
   const webhookInflight = useRef(false);
   const filterInflight = useRef(false);
+  const mapperInflight = useRef(false);
   const binaryInflight = useRef(false);
   const resultPageInflight = useRef(false);
   const tracingInflight = useRef(false);
@@ -751,6 +793,11 @@ export function PipelineDetailPanel({
     setFilterBusy(false);
     setFilterError(null);
     setFilterNotice(null);
+    setMapperRows([emptyMapperRow()]);
+    setMapperAllowEmpty(false);
+    setMapperBusy(false);
+    setMapperError(null);
+    setMapperNotice(null);
     setBinaryPath("pipeline-binary-fixture");
     setBinaryContentType("text/plain");
     setBinaryBusy(false);
@@ -853,6 +900,31 @@ export function PipelineDetailPanel({
     if (!match) return;
     const stored = match.stages?.backendTank?.datasourceId?.trim() || "";
     setDsId((current) => (current === stored ? current : stored));
+  }, [ir, resourceName]);
+
+  useEffect(() => {
+    const key = resourceName.trim();
+    if (!ir || !key) return;
+    const match = (ir.resources || []).find((r) => (r.name || "").trim() === key);
+    if (!match) return;
+    const storedRows = (match.stages?.mapper?.mappings || []).map((m) => ({
+      documentField: m?.documentField || "",
+      backend: m?.backend || "",
+      backendKind: m?.backendKind || "OTHER",
+    }));
+    const candidate = storedRows.length > 0 ? storedRows : [emptyMapperRow()];
+    setMapperRows((current) => {
+      if (current.length === candidate.length
+        && current.every((c, i) =>
+          c.documentField === candidate[i].documentField
+          && c.backend === candidate[i].backend
+          && (c.backendKind || "OTHER") === candidate[i].backendKind)) {
+        return current;
+      }
+      return candidate;
+    });
+    const storedAllow = match.stages?.mapper?.allowEmptyDocReturn === true;
+    setMapperAllowEmpty((current) => (current === storedAllow ? current : storedAllow));
   }, [ir, resourceName]);
 
   useEffect(() => {
@@ -1343,6 +1415,64 @@ export function PipelineDetailPanel({
     } finally {
       filterInflight.current = false;
       if (mountedRef.current) setFilterBusy(false);
+    }
+  }
+
+  function updateMapperRow(
+    index: number,
+    patch: Partial<PipelineMapperEntry>,
+  ): void {
+    setMapperRows((rows) => rows.map((r, i) => (i === index ? { ...r, ...patch } : r)));
+  }
+
+  function moveMapperRow(index: number, delta: -1 | 1): void {
+    setMapperRows((rows) => {
+      const target = index + delta;
+      if (target < 0 || target >= rows.length) return rows;
+      const next = rows.slice();
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  }
+
+  async function onSaveMapper(): Promise<void> {
+    if (!detail || mapperInflight.current) return;
+    const resource = resourceName.trim();
+    if (!resource) {
+      setMapperError(DEV_MSG.PIPE_MAPPER_RESOURCE_REQUIRED);
+      setMapperNotice(null);
+      return;
+    }
+    const invalid = clientMapperRowError(mapperRows);
+    if (invalid) {
+      setMapperError(invalid);
+      setMapperNotice(null);
+      return;
+    }
+    mapperInflight.current = true;
+    setMapperBusy(true);
+    setMapperError(null);
+    setMapperNotice(null);
+    try {
+      const saved = await putMapper(idOrName, resource, {
+        mappings: mapperRows.map((r) => ({
+          documentField: (r.documentField || "").trim(),
+          backend: (r.backend || "").trim(),
+          backendKind: (r.backendKind || "OTHER").trim() || "OTHER",
+        })),
+        allowEmptyDocReturn: mapperAllowEmpty,
+      });
+      if (!mountedRef.current) return;
+      setMapperRows(savedMapperRows(saved));
+      setMapperAllowEmpty(saved.allowEmptyDocReturn === true);
+      setMapperNotice(DEV_MSG.PIPE_MAPPER_SAVED);
+      await refreshIrSilently();
+    } catch (err: unknown) {
+      if (!mountedRef.current) return;
+      setMapperError(lifecycleErrMsg(err, DEV_MSG.PIPE_MAPPER_SAVE_ERROR));
+    } finally {
+      mapperInflight.current = false;
+      if (mountedRef.current) setMapperBusy(false);
     }
   }
 
@@ -2579,6 +2709,149 @@ export function PipelineDetailPanel({
                   style={{ ...errorAlert, marginTop: "12px" }}
                 >
                   {filterError}
+                </div>
+              ) : null}
+            </section>
+          ) : null}
+
+          {isAdmin ? (
+            <section style={{ marginBottom: "16px" }} data-testid="developer-pipe-mapper">
+              <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.PIPE_MAPPER}</h3>
+              <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>
+                {DEV_MSG.PIPE_MAPPER_HINT}
+              </p>
+              {mapperRows.map((row, i) => (
+                <div
+                  key={i}
+                  style={{ marginBottom: "12px", display: "flex", flexWrap: "wrap", gap: "8px" }}
+                >
+                  <input
+                    data-testid={`developer-pipe-mapper-doc-${i}`}
+                    aria-label={`${DEV_MSG.PIPE_MAPPER_DOC} ${i + 1}`}
+                    value={row.documentField || ""}
+                    onChange={(e) => updateMapperRow(i, { documentField: e.target.value })}
+                    disabled={mapperBusy}
+                    style={{ ...textInput, maxWidth: "180px" }}
+                    autoComplete="off"
+                  />
+                  <input
+                    data-testid={`developer-pipe-mapper-backend-${i}`}
+                    aria-label={`${DEV_MSG.PIPE_MAPPER_BACKEND} ${i + 1}`}
+                    value={row.backend || ""}
+                    onChange={(e) => updateMapperRow(i, { backend: e.target.value })}
+                    disabled={mapperBusy}
+                    style={{ ...textInput, maxWidth: "180px" }}
+                    autoComplete="off"
+                  />
+                  <select
+                    data-testid={`developer-pipe-mapper-kind-${i}`}
+                    aria-label={`${DEV_MSG.PIPE_MAPPER_KIND} ${i + 1}`}
+                    value={row.backendKind || "OTHER"}
+                    onChange={(e) => updateMapperRow(i, { backendKind: e.target.value })}
+                    disabled={mapperBusy}
+                    style={{ ...textInput, maxWidth: "140px" }}
+                  >
+                    <option value="COLUMN">COLUMN</option>
+                    <option value="EXTENSION">EXTENSION</option>
+                    <option value="OTHER">OTHER</option>
+                  </select>
+                  <button
+                    type="button"
+                    data-testid={`developer-pipe-mapper-up-${i}`}
+                    aria-label={`${DEV_MSG.PIPE_MAPPER_MOVE_UP} ${i + 1}`}
+                    disabled={mapperBusy || i === 0}
+                    onClick={() => moveMapperRow(i, -1)}
+                    style={mapperBusy || i === 0 ? disabledSecondary : secondaryButton}
+                  >
+                    ↑
+                  </button>
+                  <button
+                    type="button"
+                    data-testid={`developer-pipe-mapper-down-${i}`}
+                    aria-label={`${DEV_MSG.PIPE_MAPPER_MOVE_DOWN} ${i + 1}`}
+                    disabled={mapperBusy || i === mapperRows.length - 1}
+                    onClick={() => moveMapperRow(i, 1)}
+                    style={
+                      mapperBusy || i === mapperRows.length - 1
+                        ? disabledSecondary
+                        : secondaryButton
+                    }
+                  >
+                    ↓
+                  </button>
+                  <button
+                    type="button"
+                    data-testid={`developer-pipe-mapper-remove-${i}`}
+                    aria-label={`${DEV_MSG.PIPE_MAPPER_REMOVE_ROW} ${i + 1}`}
+                    disabled={mapperBusy}
+                    onClick={() =>
+                      setMapperRows((rows) => rows.filter((_, ri) => ri !== i))
+                    }
+                    style={mapperBusy ? disabledSecondary : secondaryButton}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              <div style={{ marginBottom: "12px" }}>
+                <button
+                  type="button"
+                  data-testid="developer-pipe-mapper-add"
+                  aria-label={DEV_MSG.PIPE_MAPPER_ADD_ROW}
+                  disabled={mapperBusy}
+                  onClick={() => setMapperRows((rows) => [...rows, emptyMapperRow()])}
+                  style={mapperBusy ? disabledSecondary : secondaryButton}
+                >
+                  {DEV_MSG.PIPE_MAPPER_ADD_ROW}
+                </button>
+              </div>
+              <div style={{ marginBottom: "12px" }}>
+                <label
+                  htmlFor="developer-pipe-mapper-allow-empty"
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px",
+                    fontSize: "0.9rem",
+                  }}
+                >
+                  <input
+                    id="developer-pipe-mapper-allow-empty"
+                    data-testid="developer-pipe-mapper-allow-empty"
+                    type="checkbox"
+                    checked={mapperAllowEmpty}
+                    onChange={(e) => setMapperAllowEmpty(e.target.checked)}
+                    disabled={mapperBusy}
+                  />
+                  {DEV_MSG.PIPE_MAPPER_ALLOW_EMPTY}
+                </label>
+              </div>
+              <button
+                type="button"
+                data-testid="developer-pipe-mapper-save"
+                aria-label={DEV_MSG.PIPE_MAPPER_SAVE}
+                disabled={mapperBusy}
+                onClick={() => void onSaveMapper()}
+                style={mapperBusy ? disabledPrimary : primaryButton}
+              >
+                {mapperBusy ? DEV_MSG.PIPE_MAPPER_SAVING : DEV_MSG.PIPE_MAPPER_SAVE}
+              </button>
+              {mapperNotice ? (
+                <div
+                  role="status"
+                  data-testid="developer-pipe-mapper-notice"
+                  style={{ ...successNotice, marginTop: "12px" }}
+                >
+                  {mapperNotice}
+                </div>
+              ) : null}
+              {mapperError ? (
+                <div
+                  role="alert"
+                  data-testid="developer-pipe-mapper-error"
+                  style={{ ...errorAlert, marginTop: "12px" }}
+                >
+                  {mapperError}
                 </div>
               ) : null}
             </section>

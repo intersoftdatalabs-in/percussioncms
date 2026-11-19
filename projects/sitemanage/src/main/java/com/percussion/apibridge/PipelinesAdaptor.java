@@ -43,6 +43,8 @@ import com.percussion.rest.pipelines.PipelineDatasourceBackend;
 import com.percussion.rest.pipelines.PipelineFilterGroup;
 import com.percussion.rest.pipelines.PipelineResultPage;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
+import com.percussion.rest.pipelines.PipelineMapper;
+import com.percussion.rest.pipelines.PipelineMapperEntry;
 import com.percussion.rest.pipelines.PipelineOpenApiGenerator;
 import com.percussion.rest.pipelines.PipelineTracingSettings;
 import com.percussion.rest.pipelines.PipelineWebhookHooks;
@@ -1017,6 +1019,131 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       }
       throw new WebApplicationException(msg, 400);
     }
+  }
+
+  @Override
+  public PipelineMapper putMapper(
+      URI baseUri, String appName, String resourceName, PipelineMapper body) {
+    requireAdmin();
+    String trimmedApp = requireValidApplicationName(appName);
+    String safeResource = requireValidResourceName(resourceName);
+    if (body == null) {
+      throw new WebApplicationException("Mapper body is required", 400);
+    }
+    List<PipelineMapperEntry> rows =
+        body.getMappings() != null ? body.getMappings() : List.of();
+    MapperStageIr stage = toMapperStageIr(rows, body.getAllowEmptyDocReturn());
+
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline mapper persist");
+    }
+    PSSecurityToken tok = req.getSecurityToken();
+    String name = resolveApplicationName(trimmedApp, summaryLoader.apply(tok));
+    if (name == null) {
+      throw new WebApplicationException("Application not found", 404);
+    }
+    try {
+      IPSPipelineIrService ir = irSupplier.get();
+      PipelineIrDocument doc = ir.load(name).orElse(null);
+      if (doc == null) {
+        PSApplication app = applicationLoader.apply(name, tok);
+        if (app != null) {
+          doc = ir.importClassicApplication(app);
+        } else {
+          doc = new PipelineIrDocument();
+          doc.getApp().setName(name);
+        }
+      }
+      doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
+      if (doc.getApp() == null || StringUtils.isBlank(doc.getApp().getName())) {
+        doc.getApp().setName(name);
+      }
+      PipelineResourceIr resource = doc.findResource(safeResource);
+      if (resource == null) {
+        resource = new PipelineResourceIr();
+        resource.setName(safeResource);
+        resource.setKind(PipelineResourceIr.KIND_QUERY);
+        doc.getResources().add(resource);
+      }
+      if (resource.getKind() == null
+          || PipelineResourceIr.KIND_UNKNOWN.equals(resource.getKind())) {
+        resource.setKind(PipelineResourceIr.KIND_QUERY);
+      }
+      PipelineStagesIr stages =
+          resource.getStages() != null ? resource.getStages() : new PipelineStagesIr();
+      stages.setMapper(stage);
+      resource.setStages(stages);
+      ir.save(doc);
+      return fromMapperStageIr(stage);
+    } catch (PSPipelineIrException e) {
+      String msg = e.getMessage() != null ? e.getMessage() : "Failed to persist mapper mappings";
+      if (isNotFoundMessage(msg)) {
+        throw new WebApplicationException("Pipeline application or resource not found", 404);
+      }
+      throw new WebApplicationException(msg, 400);
+    }
+  }
+
+  /**
+   * Normalize REST mapper rows into an IR mapper stage. Blank backend kinds default to {@code
+   * OTHER}; row order is preserved. Shape validation already ran in {@link
+   * PipelineMapper#requireWriteFields}; this is the normalization + conversion step.
+   */
+  static MapperStageIr toMapperStageIr(
+      List<PipelineMapperEntry> rows, Boolean allowEmptyDocReturn) {
+    MapperStageIr stage = new MapperStageIr();
+    stage.setPresent(true);
+    stage.setAllowEmptyDocReturn(Boolean.TRUE.equals(allowEmptyDocReturn));
+    List<MappingEntryIr> entries = new ArrayList<>();
+    if (rows != null) {
+      for (PipelineMapperEntry row : rows) {
+        if (row == null) {
+          continue;
+        }
+        MappingEntryIr entry = new MappingEntryIr();
+        entry.setDocumentField(row.getDocumentField() != null ? row.getDocumentField().trim() : "");
+        entry.setBackend(row.getBackend() != null ? row.getBackend().trim() : "");
+        entry.setBackendKind(normalizeBackendKind(row.getBackendKind()));
+        entries.add(entry);
+      }
+    }
+    stage.setMappings(entries);
+    return stage;
+  }
+
+  /** Normalize a backend kind token; blank becomes {@code OTHER}. */
+  static String normalizeBackendKind(String backendKind) {
+    if (StringUtils.isBlank(backendKind)) {
+      return MappingEntryIr.BACKEND_KIND_OTHER;
+    }
+    String normalized = backendKind.trim().toUpperCase(Locale.ROOT);
+    if (MappingEntryIr.BACKEND_KIND_COLUMN.equals(normalized)
+        || MappingEntryIr.BACKEND_KIND_EXTENSION.equals(normalized)) {
+      return normalized;
+    }
+    return MappingEntryIr.BACKEND_KIND_OTHER;
+  }
+
+  /** Convert a persisted IR mapper stage back to the REST echo shape. */
+  static PipelineMapper fromMapperStageIr(MapperStageIr stage) {
+    PipelineMapper out = new PipelineMapper();
+    out.setAllowEmptyDocReturn(stage != null && stage.isAllowEmptyDocReturn());
+    List<PipelineMapperEntry> rows = new ArrayList<>();
+    if (stage != null && stage.getMappings() != null) {
+      for (MappingEntryIr entry : stage.getMappings()) {
+        if (entry == null) {
+          continue;
+        }
+        PipelineMapperEntry row = new PipelineMapperEntry();
+        row.setDocumentField(entry.getDocumentField());
+        row.setBackend(entry.getBackend());
+        row.setBackendKind(entry.getBackendKind());
+        rows.add(row);
+      }
+    }
+    out.setMappings(rows);
+    return out;
   }
 
   @Override
@@ -2206,7 +2333,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     // Classic XML export/import ships via GET …/export + POST /import — same rule.
     // Admin enable/disable ships via PUT …/enabled — same rule.
     gaps.add(
-        "Pipe IR graph editor / classic XML write not supported (native HTTP backend tank persist is PUT …/backendTank; webhook hooks are PUT …/webhookHooks; nested filter groups are PUT …/filterGroup)");
+        "Pipe IR graph editor / classic XML write not supported (native HTTP backend tank persist is PUT …/backendTank; webhook hooks are PUT …/webhookHooks; nested filter groups are PUT …/filterGroup; mapper mappings are PUT …/mapper)");
     gaps.add("Classic application auxiliary-file transfer not supported via this API");
     return gaps;
   }

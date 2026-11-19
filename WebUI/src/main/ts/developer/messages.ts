@@ -1272,6 +1272,25 @@ export const DEV_MSG_KEYS = {
   PIPE_FILTER_SAVING: "perc.ui.developer@Saving…",
   PIPE_FILTER_SAVED: "perc.ui.developer@Nested filter groups saved.",
   PIPE_FILTER_SAVE_ERROR: "perc.ui.developer@Could not save nested filter groups.",
+  PIPE_MAPPER: "perc.ui.developer@Field mappings",
+  PIPE_MAPPER_HINT:
+    "perc.ui.developer@Save ordered document to backend mapping rows on this native resource. Test invoke projects HTTP fixture rows through these mappings. An empty row list clears the stage.",
+  PIPE_MAPPER_DOC: "perc.ui.developer@Document field",
+  PIPE_MAPPER_BACKEND: "perc.ui.developer@Backend field",
+  PIPE_MAPPER_KIND: "perc.ui.developer@Kind",
+  PIPE_MAPPER_ALLOW_EMPTY: "perc.ui.developer@Return empty document when no rows match",
+  PIPE_MAPPER_ADD_ROW: "perc.ui.developer@Add mapping row",
+  PIPE_MAPPER_REMOVE_ROW: "perc.ui.developer@Remove mapping row",
+  PIPE_MAPPER_MOVE_UP: "perc.ui.developer@Move row up",
+  PIPE_MAPPER_MOVE_DOWN: "perc.ui.developer@Move row down",
+  PIPE_MAPPER_SAVE: "perc.ui.developer@Save field mappings",
+  PIPE_MAPPER_SAVING: "perc.ui.developer@Saving…",
+  PIPE_MAPPER_SAVED: "perc.ui.developer@Field mappings saved.",
+  PIPE_MAPPER_SAVE_ERROR: "perc.ui.developer@Could not save field mappings.",
+  PIPE_MAPPER_ROW_REQUIRED:
+    "perc.ui.developer@Each mapping row needs a document field and a backend field.",
+  PIPE_MAPPER_RESOURCE_REQUIRED:
+    "perc.ui.developer@Enter a resource name before saving field mappings.",
   PIPE_FILTER_RESOURCE_REQUIRED:
     "perc.ui.developer@Enter a resource name before saving filter groups.",
   PIPE_FILTER_INVALID: "perc.ui.developer@Filter group is invalid.",

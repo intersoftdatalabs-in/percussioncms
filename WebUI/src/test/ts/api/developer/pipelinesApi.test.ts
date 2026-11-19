@@ -34,6 +34,9 @@ import {
   wrapPipelineFilterGroupForWire,
   unwrapPipelineFilterGroup,
   putFilterGroup,
+  wrapPipelineMapperForWire,
+  unwrapPipelineMapper,
+  putMapper,
   wrapPipelineBinaryResourceForWire,
   unwrapPipelineBinaryResource,
   putBinaryResource,
@@ -512,6 +515,48 @@ describe("pipelinesApi nested filter groups", () => {
       },
     });
     expect(out.op).toBe("AND");
+  });
+});
+
+describe("pipelinesApi mapper mappings persist (#6714)", () => {
+  it("wraps and unwraps PipelineMapper", () => {
+    expect(
+      wrapPipelineMapperForWire({
+        mappings: [{ documentField: "itemSku", backend: "sku", backendKind: "COLUMN" }],
+        allowEmptyDocReturn: true,
+      }),
+    ).toEqual({
+      PipelineMapper: {
+        mappings: [{ documentField: "itemSku", backend: "sku", backendKind: "COLUMN" }],
+        allowEmptyDocReturn: true,
+      },
+    });
+    expect(
+      unwrapPipelineMapper({
+        PipelineMapper: { mappings: [{ documentField: "itemSku", backend: "sku" }] },
+      }).mappings,
+    ).toEqual([{ documentField: "itemSku", backend: "sku" }]);
+  });
+
+  it("putMapper PUTs encoded path with WRAP_ROOT body", async () => {
+    const spy = vi.spyOn(client, "put").mockResolvedValue({
+      mappings: [{ documentField: "itemSku", backend: "sku", backendKind: "COLUMN" }],
+      allowEmptyDocReturn: false,
+    });
+    const out = await putMapper("app with spaces", "res/one", {
+      mappings: [{ documentField: "itemSku", backend: "sku", backendKind: "COLUMN" }],
+    });
+    expect(String(spy.mock.calls[0][0])).toContain(
+      `/pipelines/${encodeURIComponent("app with spaces")}/resources/${encodeURIComponent("res/one")}/mapper`,
+    );
+    expect(spy.mock.calls[0][1]).toEqual({
+      PipelineMapper: {
+        mappings: [{ documentField: "itemSku", backend: "sku", backendKind: "COLUMN" }],
+      },
+    });
+    expect(out.mappings).toEqual([
+      { documentField: "itemSku", backend: "sku", backendKind: "COLUMN" },
+    ]);
   });
 });
 

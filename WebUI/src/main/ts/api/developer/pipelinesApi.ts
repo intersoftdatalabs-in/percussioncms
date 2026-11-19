@@ -31,6 +31,7 @@ import type {
   PipelineFilterGroup,
   PipelineHttpBackendTank,
   PipelineIrDocument,
+  PipelineMapper,
   PipelineRequestTrace,
   PipelineTracingSettings,
   PipelineWebhookHooks,
@@ -489,6 +490,45 @@ export async function putFilterGroup(
     wrapPipelineFilterGroupForWire(body),
   );
   return unwrapPipelineFilterGroup(payload);
+}
+
+/** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineMapper}. */
+export const PIPELINE_MAPPER_ROOT = "PipelineMapper";
+
+export function wrapPipelineMapperForWire(body: PipelineMapper): {
+  PipelineMapper: PipelineMapper;
+} {
+  return { [PIPELINE_MAPPER_ROOT]: body ?? {} };
+}
+
+export function unwrapPipelineMapper(payload: unknown): PipelineMapper {
+  if (payload == null || typeof payload !== "object" || Array.isArray(payload)) {
+    throw new Error("Mapper mappings not found or empty response");
+  }
+  const root = payload as Record<string, unknown>;
+  const nested = root.PipelineMapper ?? root.pipelineMapper;
+  if (nested != null && typeof nested === "object" && !Array.isArray(nested)) {
+    return nested as PipelineMapper;
+  }
+  return root as PipelineMapper;
+}
+
+/**
+ * PUT /services/pipelines/{app}/resources/{resource}/mapper — Admin ordered mapper rows.
+ * Empty mappings clear the stage. Rows feed HTTP execute projection.
+ */
+export async function putMapper(
+  app: string,
+  resource: string,
+  body: PipelineMapper,
+): Promise<PipelineMapper> {
+  const appKey = encodeURIComponent(app);
+  const resourceKey = encodeURIComponent(resource);
+  const payload = await put<unknown>(
+    `${PATHS.PIPELINES}/${appKey}/resources/${resourceKey}/mapper`,
+    wrapPipelineMapperForWire(body),
+  );
+  return unwrapPipelineMapper(payload);
 }
 
 /** Jackson WRAP/UNWRAP_ROOT_VALUE root for {@link PipelineBinaryResource}. */
