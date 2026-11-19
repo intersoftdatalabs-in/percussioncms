@@ -278,6 +278,35 @@ import org.junit.jupiter.api.Test;
  * does not, close still honors superfish {@code delay: 400},
  * keyboard/touch/destroy unchanged) is enforced by the frontend vitest
  * parity test.
+ * <p>Slice 14 (issue #6686, parent #5627 remainder) migrates the
+ * calendarTwo MiniColors twins ({@code percCalendarTwo/js
+ * /jquery.minicolors.js} preview + published copies, plus their
+ * {@code css/jquery.minicolors.css} stylesheet twins) to the npm
+ * {@code @claviska/jquery-minicolors@2.2.4} dist (exact pin in the
+ * frontend manifest, so Dependabot watches the line). Version archaeology
+ * closed the byte-identity path the #6564 slice-12 ruling left open: the
+ * unscoped registry holds only 2.1.10, which predates the
+ * {@code swatches}/{@code keywords} surface the
+ * {@code percCalendarTwo} editor consumes, but the scoped
+ * {@code @claviska} line is the same author's continuation and 2.2.4 is
+ * the closest published ancestor of the vendored cut — normalized
+ * comparison shows the twins were 2.2.4 modulo a prettier reformatting
+ * and the prepended Percussion header, with zero functional Percussion
+ * mods. Both JS twins and both CSS twins are now byte-identical to the
+ * stock 2.2.4 dist (upstream MIT banner restored, Percussion header
+ * dropped, same precedent as the superfish/qTip/lightbox slices); the
+ * 2.2.4 CSS keeps the stock data-URI sprite, so no
+ * {@code jquery.minicolors.png} ships in the payload. The frontend
+ * vitest parity test pins byte-identity of all four files, the manifest
+ * pin, the MIT license, and the editor-consumed behavior (init with the
+ * {@code percCalendarTwo.js} option shape, swatch render, swatch-click
+ * persistence, value round-trip). Evaluated and deferred: the
+ * {@code 2.2.4 -> 2.3.6} upstream delta (removed 7-swatch cap, named
+ * swatches, dropped data-URI sprite in favor of an external png,
+ * focus-class restyle) changes editor rendering and needs its own
+ * editor-parity slice when taken — Dependabot proposes it through the
+ * normal update flow. No GPL code ships (upstream {@code license: MIT},
+ * banner and {@code LICENSE.md} in the published tarball).
  *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
@@ -452,10 +481,10 @@ class WidgetPayloadVendoredJsAuditTest {
               "Superfish Menu Plugin - v1.7.10"),
           Map.entry(
               "perc.widget.calendar/SupportFile-rx_resources/widgets/percCalendarTwo/js/jquery.minicolors.js",
-              "minicolors = {"),
+              "jQuery MiniColors"),
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--rx_resources/widgets/percCalendarTwo/js/jquery.minicolors.js",
-              "minicolors = {"),
+              "jQuery MiniColors"),
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/jquery.qtip.js",
               "qTip2 - Pretty powerful tooltips - v3.0.3"),
