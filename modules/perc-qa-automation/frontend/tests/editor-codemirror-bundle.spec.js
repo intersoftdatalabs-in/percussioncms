@@ -268,7 +268,16 @@ function collectSourcePaths(dir) {
 }
 
 function stripXmlComments(text) {
-  return text.replace(/<!--[\s\S]*?-->/g, "");
+  // Test-only sweep helper, not a security boundary (see suppressions.md):
+  // strips XML comments so migration-history notes do not trip the detach
+  // sweep. Loops until stable so nested markers cannot leave a `<!--`
+  // residue behind the single-pass replace.
+  let prev;
+  do {
+    prev = text;
+    text = text.replace(/<!--[\s\S]*?-->/g, ""); // codeql[js/incomplete-multi-character-sanitization]
+  } while (text !== prev);
+  return text;
 }
 
 function stripCLikeComments(text) {
