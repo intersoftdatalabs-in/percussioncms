@@ -32,6 +32,7 @@ import {
   isMenuVisibleByVisibilityContexts,
   normalizeVisibilityContextName,
   visibilityContextValues,
+  VISIBILITY_CONTEXT_ASSIGNMENT_TYPE,
   VISIBILITY_CONTEXT_CHECKOUT_STATUS,
   VISIBILITY_CONTEXT_CLIENT_CONTEXT,
   VISIBILITY_CONTEXT_COMMUNITY,
@@ -39,7 +40,9 @@ import {
   VISIBILITY_CONTEXT_FOLDER_SECURITY,
   VISIBILITY_CONTEXT_LOCALES,
   VISIBILITY_CONTEXT_OBJECT_TYPE,
+  VISIBILITY_CONTEXT_PUBLISHABLE_TYPE,
   VISIBILITY_CONTEXT_ROLES,
+  VISIBILITY_CONTEXT_WORKFLOWS,
   type ExplorerMenuVisibilityState,
 } from "../../../main/ts/contentExplorer/menuVisibility";
 
@@ -326,6 +329,138 @@ describe("isMenuVisibleByVisibilityContexts", () => {
       ],
     });
     expect(isMenuVisibleByVisibilityContexts(action, EMPTY_STATE)).toBe(true);
+  });
+});
+
+describe("selection-row identity gaps (#6618)", () => {
+  /**
+   * Exactly what ContentExplorerShell#menuVisibilityState supplies today:
+   * multi-select flag, user name, role identities, locale, row access
+   * band. No checkout status, no numeric content/object/workflow/
+   * community/assignment ids, no client context, no publishable type —
+   * none of those facts are on PSPathItem rows.
+   */
+  const SHELL_STATE: ExplorerMenuVisibilityState = {
+    multiSelected: false,
+    userName: "Admin",
+    userRoles: ["Admin"],
+    locale: "en-us",
+    accessLevel: "ADMIN",
+  };
+
+  function gapMenu(
+    contextId: string,
+    value: string | number,
+  ): MenuAction {
+    return menu(`gap-${contextId}`, {
+      visibilityContexts: [{ name: contextId, value } as never],
+    });
+  }
+
+  it("keeps every row-identity hide rule visible under the shell state", () => {
+    // One hide-rule per gap context, each with a value that WOULD hide
+    // the action if the shell knew the fact. All stay visible because
+    // the shell state carries none of these facts — the #6517
+    // permissive default, locked until a server follow-on exposes them.
+    const gaps: Array<[string, string | number]> = [
+      [VISIBILITY_CONTEXT_CHECKOUT_STATUS, "Checked Out"],
+      [VISIBILITY_CONTEXT_CONTENT_TYPE, "123"],
+      [VISIBILITY_CONTEXT_OBJECT_TYPE, "2"],
+      [VISIBILITY_CONTEXT_ASSIGNMENT_TYPE, "1"],
+      [VISIBILITY_CONTEXT_WORKFLOWS, "5"],
+      [VISIBILITY_CONTEXT_COMMUNITY, "1001"],
+      [VISIBILITY_CONTEXT_CLIENT_CONTEXT, "browse"],
+      [VISIBILITY_CONTEXT_PUBLISHABLE_TYPE, "page"],
+    ];
+    for (const [contextId, value] of gaps) {
+      expect(
+        isMenuVisibleByVisibilityContexts(gapMenu(contextId, value), SHELL_STATE),
+        `context ${contextId} stays permissive without row identity`,
+      ).toBe(true);
+    }
+  });
+
+  it("still hides evaluated contexts under the full shell state", () => {
+    // Contrast: the contexts the shell CAN resolve keep hiding menus
+    // under the exact same state — permissive is per-context, not global.
+    const byRole = gapMenu(VISIBILITY_CONTEXT_ROLES, "Admin");
+    expect(isMenuVisibleByVisibilityContexts(byRole, SHELL_STATE)).toBe(
+      false,
+    );
+    const byLocale = gapMenu(VISIBILITY_CONTEXT_LOCALES, "en-us");
+    expect(isMenuVisibleByVisibilityContexts(byLocale, SHELL_STATE)).toBe(
+      false,
+    );
+  });
+
+  it("evaluates assignment-type, workflow, and publishable-type ids once known", () => {
+    // Evaluator readiness: when a server follow-on exposes the identity
+    // fields, the hide rules work with no evaluator change.
+    expect(
+      isMenuVisibleByVisibilityContexts(gapMenu("1", "1"), {
+        assignmentType: 1,
+      }),
+    ).toBe(false);
+    expect(
+      isMenuVisibleByVisibilityContexts(gapMenu("1", "1"), {
+        assignmentType: 2,
+      }),
+    ).toBe(true);
+    expect(
+      isMenuVisibleByVisibilityContexts(
+        gapMenu(VISIBILITY_CONTEXT_ASSIGNMENT_TYPE, "1"),
+        EMPTY_STATE,
+      ),
+    ).toBe(true);
+
+    expect(
+      isMenuVisibleByVisibilityContexts(gapMenu("9", "5"), { workflowId: 5 }),
+    ).toBe(false);
+    expect(
+      isMenuVisibleByVisibilityContexts(gapMenu("9", "5"), { workflowId: 6 }),
+    ).toBe(true);
+    expect(
+      isMenuVisibleByVisibilityContexts(
+        gapMenu(VISIBILITY_CONTEXT_WORKFLOWS, "5"),
+        EMPTY_STATE,
+      ),
+    ).toBe(true);
+
+    const byPublishable = gapMenu(
+      VISIBILITY_CONTEXT_PUBLISHABLE_TYPE,
+      "page",
+    );
+    expect(
+      isMenuVisibleByVisibilityContexts(byPublishable, {
+        publishableType: "Page",
+      }),
+    ).toBe(false);
+    expect(
+      isMenuVisibleByVisibilityContexts(byPublishable, {
+        publishableType: "asset",
+      }),
+    ).toBe(true);
+    expect(isMenuVisibleByVisibilityContexts(byPublishable, EMPTY_STATE)).toBe(
+      true,
+    );
+  });
+
+  it("accepts string-form numeric ids for content, object, and workflow types", () => {
+    // Server DTOs may ship ids as strings; the evaluator already
+    // compares numerically, so a string "123" row id hides like 123.
+    expect(
+      isMenuVisibleByVisibilityContexts(gapMenu("3", 123), {
+        contentTypeId: "123",
+      }),
+    ).toBe(false);
+    expect(
+      isMenuVisibleByVisibilityContexts(gapMenu("4", "2"), { objectType: "2" }),
+    ).toBe(false);
+    expect(
+      isMenuVisibleByVisibilityContexts(gapMenu("9", "5"), {
+        workflowId: "5",
+      }),
+    ).toBe(false);
   });
 });
 

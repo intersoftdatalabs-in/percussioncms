@@ -1143,13 +1143,15 @@ function ContentExplorerShellInner({
   const multiSelectedItemsRef = useRef(multiSelectedItems);
   multiSelectedItemsRef.current = multiSelectedItems;
   /**
-   * Workbench visibility environment for menu filtering (#6517).
-   * Only client-known facts are supplied; everything else stays
+   * Workbench visibility environment for menu filtering (#6517, audited
+   * #6618). Only client-known facts are supplied; everything else stays
    * {@code undefined} so the evaluator stays permissive (see
-   * {@code menuVisibility}). Checkout status, content-type/workflow
-   * ids, community, and client-context tokens are not on
-   * {@code PSPathItem}, so those rules cannot hide menus yet — a
-   * documented server gap, not a silent ignore.
+   * {@code menuVisibility}). Evaluated today: multi-select, roles,
+   * locale, row access band. Permissive today: checkout status,
+   * content-type / object-type / workflow / community / assignment ids,
+   * client context, publishable type — none are on {@code PSPathItem}
+   * rows, so those rules cannot hide menus yet. Documented server gap
+   * (#6618; uiContexts is #6619), not a silent ignore.
    */
   const menuVisibilityState = useMemo<ExplorerMenuVisibilityState>(
     () => ({
