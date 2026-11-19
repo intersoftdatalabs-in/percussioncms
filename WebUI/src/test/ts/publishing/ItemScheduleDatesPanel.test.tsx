@@ -497,4 +497,142 @@ describe("ItemScheduleDatesPanel", () => {
     });
     expect(onItemIdChange).toHaveBeenCalledWith("42");
   });
+
+  it("retrying a partial batch save re-saves only the failed ids", async () => {
+    fetchDates.mockImplementation(async (id: string) => ({
+      itemId: id,
+      startDate: "",
+      endDate: "",
+      comments: "",
+    }));
+    let calls = 0;
+    saveDates.mockImplementation(async (dated: { itemId: string }) => {
+      calls += 1;
+      if (dated.itemId === "43" && calls <= 2) {
+        throw {
+          status: 403,
+          statusText: "Forbidden",
+          body: { message: "User demo is editing this page." },
+        };
+      }
+    });
+    render(<ItemScheduleDatesPanel />);
+    fireEvent.change(screen.getByTestId("item-schedule-id"), {
+      target: { value: "42 43" },
+    });
+    fireEvent.change(screen.getByTestId("item-schedule-start"), {
+      target: { value: "2026-09-18T09:00" },
+    });
+    fireEvent.click(screen.getByTestId("item-schedule-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-retry")).toBeTruthy();
+    });
+    expect(screen.getByTestId("item-schedule-error").textContent).toMatch(
+      /Saved 1 of 2/i,
+    );
+    fireEvent.click(screen.getByTestId("item-schedule-retry"));
+    await waitFor(() => {
+      expect(saveDates).toHaveBeenCalledTimes(3);
+    });
+    expect(saveDates).toHaveBeenNthCalledWith(3, {
+      itemId: "43",
+      startDate: "09/18/2026 09:00 am",
+      endDate: "",
+      comments: "",
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-success").textContent).toMatch(
+        /all 1 items/i,
+      );
+    });
+    expect(screen.queryByTestId("item-schedule-retry")).toBeNull();
+    expect(
+      screen.getByTestId("item-schedule-batch-item-42").textContent,
+    ).toMatch(/saved/i);
+    expect(
+      screen.getByTestId("item-schedule-batch-item-43").textContent,
+    ).toMatch(/saved/i);
+  });
+
+  it("retrying a partial batch clear re-clears only the failed ids", async () => {
+    fetchDates.mockImplementation(async (id: string) => ({
+      itemId: id,
+      startDate: "",
+      endDate: "",
+      comments: "",
+    }));
+    let calls = 0;
+    let failedOnce = false;
+    saveDates.mockImplementation(async (dated: { itemId: string }) => {
+      calls += 1;
+      if (dated.itemId === "43" && !failedOnce) {
+        failedOnce = true;
+        throw {
+          status: 409,
+          statusText: "Conflict",
+          body: { message: "User other is editing this page." },
+        };
+      }
+    });
+    render(<ItemScheduleDatesPanel />);
+    fireEvent.change(screen.getByTestId("item-schedule-id"), {
+      target: { value: "42, 43" },
+    });
+    fireEvent.click(screen.getByTestId("item-schedule-clear-submit"));
+    fireEvent.click(screen.getByTestId("item-schedule-clear-yes"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-error").textContent).toMatch(
+        /Cleared 1 of 2/i,
+      );
+    });
+    expect(screen.getByTestId("item-schedule-retry")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("item-schedule-retry"));
+    await waitFor(() => {
+      expect(saveDates).toHaveBeenCalledTimes(3);
+    });
+    expect(saveDates).toHaveBeenNthCalledWith(3, {
+      itemId: "43",
+      startDate: "",
+      endDate: "",
+      comments: "",
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-success").textContent).toMatch(
+        /cleared for all 1 items/i,
+      );
+    });
+    expect(screen.queryByTestId("item-schedule-retry")).toBeNull();
+    expect(screen.queryByTestId("item-schedule-clear-confirm")).toBeNull();
+  });
+
+  it("a failed single save offers retry for that item", async () => {
+    fetchDates.mockResolvedValue({
+      itemId: "42",
+      startDate: "",
+      endDate: "",
+      comments: "",
+    });
+    saveDates
+      .mockRejectedValueOnce({
+        status: 403,
+        statusText: "Forbidden",
+        body: { message: "User demo is editing this page." },
+      })
+      .mockResolvedValueOnce(undefined);
+    render(<ItemScheduleDatesPanel itemId="42" />);
+    await waitFor(() => expect(fetchDates).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId("item-schedule-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-error")).toBeTruthy();
+    });
+    expect(screen.getByTestId("item-schedule-retry")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("item-schedule-retry"));
+    await waitFor(() => {
+      expect(saveDates).toHaveBeenCalledTimes(2);
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-success")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("item-schedule-retry")).toBeNull();
+  });
 });
