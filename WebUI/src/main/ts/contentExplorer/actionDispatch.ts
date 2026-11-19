@@ -1928,6 +1928,32 @@ function recycledFailureKey(
 }
 
 /**
+ * Recycled-row HTTP failure result (403 permission, 404 gone, 409
+ * conflict). Returns undefined when the error is not a named row failure
+ * so the caller keeps the previous generic error path.
+ */
+function recycledRowFailure(
+  err: unknown,
+  statuses: readonly number[],
+  label: string,
+  notFoundKey: string,
+  conflictKey: string,
+): ActionDispatchResult | undefined {
+  if (!isApiError(err)) {
+    return undefined;
+  }
+  if (!statuses.includes(err.status)) {
+    return undefined;
+  }
+  const key = recycledFailureKey(err.status, notFoundKey, conflictKey);
+  return {
+    kind: "rest",
+    messageKey: key,
+    messageText: `${message(key)} — ${label} (HTTP ${err.status})`,
+  };
+}
+
+/**
  * Names an HTTP failure for single-item publish actions that stay on the
  * row instead of the generic error path. Undefined means rethrow.
  */
@@ -2435,20 +2461,15 @@ async function handleRestoreAction(
     await restoreRecycledItem(id);
     return { kind: "rest", refresh: true };
   } catch (err: unknown) {
-    if (
-      isApiError(err) &&
-      (err.status === 403 || err.status === 404 || err.status === 409)
-    ) {
-      const key = recycledFailureKey(
-        err.status,
-        EXPLORER_MSG.ACTION_RESTORE_NOT_FOUND,
-        EXPLORER_MSG.ACTION_RESTORE_CONFLICT,
-      );
-      return {
-        kind: "rest",
-        messageKey: key,
-        messageText: `${message(key)} — ${restoreLabel} (HTTP ${err.status})`,
-      };
+    const failure = recycledRowFailure(
+      err,
+      [403, 404, 409],
+      restoreLabel,
+      EXPLORER_MSG.ACTION_RESTORE_NOT_FOUND,
+      EXPLORER_MSG.ACTION_RESTORE_CONFLICT,
+    );
+    if (failure) {
+      return failure;
     }
     throw err;
   }
@@ -2496,20 +2517,15 @@ async function handlePurgeAction(
     }
     return { kind: "rest", refresh: true };
   } catch (err: unknown) {
-    if (
-      isApiError(err) &&
-      (err.status === 403 || err.status === 404 || err.status === 409)
-    ) {
-      const key = recycledFailureKey(
-        err.status,
-        EXPLORER_MSG.ACTION_PURGE_NOT_FOUND,
-        EXPLORER_MSG.ACTION_PURGE_CONFLICT,
-      );
-      return {
-        kind: "rest",
-        messageKey: key,
-        messageText: `${message(key)} — ${purgeLabel} (HTTP ${err.status})`,
-      };
+    const failure = recycledRowFailure(
+      err,
+      [403, 404, 409],
+      purgeLabel,
+      EXPLORER_MSG.ACTION_PURGE_NOT_FOUND,
+      EXPLORER_MSG.ACTION_PURGE_CONFLICT,
+    );
+    if (failure) {
+      return failure;
     }
     throw err;
   }
