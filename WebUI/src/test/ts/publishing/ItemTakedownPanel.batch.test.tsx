@@ -165,8 +165,78 @@ describe("ItemTakedownPanel batch", () => {
     expect(takeDown).toHaveBeenCalledTimes(1);
   });
 
-  it("keeps a multi-id lookup out of the shared workspace item", async () => {
+  it("partial review names failures and retry re-reads only the failed ids", async () => {
+    getMock
+      .mockRejectedValueOnce({
+        status: 500,
+        statusText: "Server Error",
+        body: null,
+      })
+      .mockResolvedValue(linkedBody("/Sites/Demo/Home"));
+    render(<ItemTakedownPanel />);
+    fireEvent.change(screen.getByTestId("item-takedown-id"), {
+      target: { value: "42, 43" },
+    });
+    fireEvent.click(screen.getByTestId("item-takedown-review"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-error")).toBeTruthy();
+    });
+    // The failed id still confirms with no linked pages and is named.
+    expect(screen.getByTestId("item-takedown-error").textContent).toContain(
+      "Reviewed 1 of 2",
+    );
+    expect(screen.getByTestId("item-takedown-error").textContent).toContain(
+      "42 (",
+    );
+    expect(screen.getByTestId("item-takedown-retry")).toBeTruthy();
+    expect(screen.getByTestId("item-takedown-batch-item-42")).toBeTruthy();
+    expect(
+      screen.getByTestId("item-takedown-batch-linked-empty-42"),
+    ).toBeTruthy();
+    // Retry re-reads only the failed id and merges into the same confirm.
+    const callsBefore = getMock.mock.calls.length;
+    expect(callsBefore).toBe(2);
+    fireEvent.click(screen.getByTestId("item-takedown-retry"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("item-takedown-retry")).toBeNull();
+    });
+    expect(getMock.mock.calls.length).toBe(callsBefore + 1);
+    expect(String(getMock.mock.calls[callsBefore]?.[0])).toContain("42");
+    expect(
+      screen.getByTestId("item-takedown-batch-linked-42").textContent,
+    ).toContain("/Sites/Demo/Home");
+    // The already-reviewed id keeps its linked pages.
+    expect(
+      screen.getByTestId("item-takedown-batch-linked-43").textContent,
+    ).toContain("/Sites/Demo/Home");
+    expect(screen.queryByTestId("item-takedown-error")).toBeNull();
+  });
+
+  it("full review success shows the confirm with no retry", async () => {
     getMock.mockResolvedValue({ ArrayList: [] });
+    await reviewBatch("42, 43");
+    expect(screen.getByTestId("item-takedown-confirm")).toBeTruthy();
+    expect(screen.queryByTestId("item-takedown-retry")).toBeNull();
+    expect(screen.queryByTestId("item-takedown-error")).toBeNull();
+  });
+
+  it("single-item review stays on the single confirm with no retry", async () => {
+    getMock.mockResolvedValue(linkedBody("/Sites/Demo/Home"));
+    render(<ItemTakedownPanel />);
+    fireEvent.change(screen.getByTestId("item-takedown-id"), {
+      target: { value: "42" },
+    });
+    fireEvent.click(screen.getByTestId("item-takedown-review"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-confirm")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("item-takedown-retry")).toBeNull();
+    expect(screen.getByTestId("item-takedown-linked").textContent).toContain(
+      "/Sites/Demo/Home",
+    );
+  });
+
+  it("keeps a multi-id lookup out of the shared workspace item", async () => {    getMock.mockResolvedValue({ ArrayList: [] });
     const onItemIdChange = vi.fn();
     render(<ItemTakedownPanel onItemIdChange={onItemIdChange} />);
     fireEvent.change(screen.getByTestId("item-takedown-id"), {
