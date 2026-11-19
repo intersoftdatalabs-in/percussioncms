@@ -300,7 +300,7 @@ function stripPropertiesComments(text) {
 
 function stripVelocityComments(text) {
   return text
-    .replace(/#\*[\s\S]*?\*#/, "")
+    .replace(/#\*[\s\S]*?\*#/g, "")
     .replace(/(^|[^:])##.*$/gm, "$1");
 }
 
