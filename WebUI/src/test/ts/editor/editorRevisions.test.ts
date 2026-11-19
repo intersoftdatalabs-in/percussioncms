@@ -19,9 +19,12 @@ import {
   applyRevisionFieldValue,
   canRestoreFromEditor,
   changedCompareFieldNames,
+  collapseWordDiffCell,
+  collapsedWordDiffHiddenWords,
   computeWordDiff,
   describeRestoredCompareField,
   editorRevisionErrorReason,
+  formatCollapsedWordDiffCount,
   formatCompareNavStatus,
   isEmptyRevisionCompare,
   parseRevisionId,
@@ -263,5 +266,113 @@ describe("editorRevisions", () => {
       { text: "", kind: "removed" },
       { text: "gray", kind: "added" },
     ]);
+  });
+
+  it("leaves short unchanged runs in compare cells untouched", () => {
+    const segments = computeWordDiff("The old title here", "The new title here");
+    expect(collapseWordDiffCell(segments, "older")).toEqual([
+      { collapsed: false, text: "The ", kind: "same" },
+      { collapsed: false, text: "old", kind: "removed" },
+      { collapsed: false, text: " title here", kind: "same" },
+    ]);
+    expect(collapseWordDiffCell(segments, "newer")).toEqual([
+      { collapsed: false, text: "The ", kind: "same" },
+      { collapsed: false, text: "new", kind: "added" },
+      { collapsed: false, text: " title here", kind: "same" },
+    ]);
+  });
+
+  it("keeps only the rendering side when collapsing", () => {
+    const segments = computeWordDiff("grey old", "gray new");
+    const older = collapseWordDiffCell(segments, "older");
+    expect(older.some((part) => !part.collapsed && part.kind === "added")).toBe(
+      false,
+    );
+    const newer = collapseWordDiffCell(segments, "newer");
+    expect(
+      newer.some((part) => !part.collapsed && part.kind === "removed"),
+    ).toBe(false);
+  });
+
+  it("collapses a long middle run keeping context on both edges", () => {
+    const pad = Array.from({ length: 30 }, (_, i) => `word${i}`).join(" ");
+    const segments = computeWordDiff(`${pad} old ${pad}`, `${pad} new ${pad}`);
+    const older = collapseWordDiffCell(segments, "older");
+    expect(older).toEqual([
+      { collapsed: true, hiddenWords: 22 },
+      {
+        collapsed: false,
+        text: Array.from({ length: 8 }, (_, i) => `word${22 + i}`).join(" "),
+        kind: "same",
+      },
+      { collapsed: false, text: "old", kind: "removed" },
+      {
+        collapsed: false,
+        text: Array.from({ length: 8 }, (_, i) => `word${i}`).join(" "),
+        kind: "same",
+      },
+      { collapsed: true, hiddenWords: 22 },
+    ]);
+    expect(collapsedWordDiffHiddenWords(older)).toBe(44);
+  });
+
+  it("keeps a middle run in reading order with context on both edges", () => {
+    const pad = (from: number) =>
+      Array.from({ length: 30 }, (_, i) => `word${from + i}`).join(" ");
+    const segments = computeWordDiff(
+      `${pad(0)} abc ${pad(30)} def ${pad(60)}`,
+      `${pad(0)} xyz ${pad(30)} uvw ${pad(60)}`,
+    );
+    expect(collapseWordDiffCell(segments, "older")).toEqual([
+      { collapsed: true, hiddenWords: 22 },
+      {
+        collapsed: false,
+        text: Array.from({ length: 8 }, (_, i) => `word${22 + i}`).join(" "),
+        kind: "same",
+      },
+      { collapsed: false, text: "abc", kind: "removed" },
+      {
+        collapsed: false,
+        text: Array.from({ length: 8 }, (_, i) => `word${30 + i}`).join(" "),
+        kind: "same",
+      },
+      { collapsed: true, hiddenWords: 14 },
+      {
+        collapsed: false,
+        text: Array.from({ length: 8 }, (_, i) => `word${52 + i}`).join(" "),
+        kind: "same",
+      },
+      { collapsed: false, text: "def", kind: "removed" },
+      {
+        collapsed: false,
+        text: Array.from({ length: 8 }, (_, i) => `word${60 + i}`).join(" "),
+        kind: "same",
+      },
+      { collapsed: true, hiddenWords: 22 },
+    ]);
+  });
+
+  it("does not collapse a run exactly at the threshold", () => {
+    const pad = Array.from({ length: 18 }, (_, i) => `word${i}`).join(" ");
+    const segments = computeWordDiff(`${pad} old`, `${pad} new`);
+    const older = collapseWordDiffCell(segments, "older");
+    expect(older.some((part) => part.collapsed)).toBe(false);
+    expect(collapsedWordDiffHiddenWords(older)).toBe(0);
+  });
+
+  it("never collapses a cell with no change to anchor to", () => {
+    expect(collapseWordDiffCell([], "older")).toEqual([]);
+    expect(
+      collapseWordDiffCell([{ text: "Same value here", kind: "same" }], "newer"),
+    ).toEqual([{ collapsed: false, text: "Same value here", kind: "same" }]);
+  });
+
+  it("names the hidden word count in the cell toggle template", () => {
+    expect(formatCollapsedWordDiffCount("Show {0} unchanged words", 44)).toBe(
+      "Show 44 unchanged words",
+    );
+    expect(formatCollapsedWordDiffCount("Show {0} unchanged words", 0)).toBe(
+      "Show 0 unchanged words",
+    );
   });
 });

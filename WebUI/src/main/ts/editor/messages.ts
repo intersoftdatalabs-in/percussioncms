@@ -590,6 +590,8 @@ export const EDITOR_MSG = {
   COMPARE_USE_LEFT: "perc.ui.editor@Use older value",
   COMPARE_USE_RIGHT: "perc.ui.editor@Use newer value",
   COMPARE_WORD_DIFF: "perc.ui.editor@Show word-level changes",
+  COMPARE_CELL_EXPAND: "perc.ui.editor@Show {0} unchanged words",
+  COMPARE_CELL_COLLAPSE: "perc.ui.editor@Show less",
   COMPARE_TOOLBAR_LABEL: "perc.ui.editor@Revision compare controls",
   COMPARE_PREV_CHANGE: "perc.ui.editor@Previous change",
   COMPARE_NEXT_CHANGE: "perc.ui.editor@Next change",
