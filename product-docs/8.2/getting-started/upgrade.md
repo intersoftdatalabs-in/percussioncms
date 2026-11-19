@@ -123,6 +123,15 @@ Do not confuse this with retired **dual-ship** page `*.templateDef` files — se
   legacy `OVERRIDE_FOUNDATION` database column (where present from an
   earlier version) is ignored on upgrade.
 
+- **NavBar hoverIntent renamed with compat aliases.** The NavBar widget
+  payload now ships the hoverIntent bytes under canonical names
+  (`/web_resources/widgets/navBar/js/perc-hover-intent.js` for preview,
+  `perc-hover-intent.min.js` for publish). Byte-identical copies stay
+  published at the original filenames (`hoverIntent.js` /
+  `hoverIntent.min.js`), so already-published pages and custom templates
+  that reference the old URLs keep working with no action. Use the
+  `perc-` names for any new template references.
+
 ## Post-upgrade smoke tests
 
 - [ ] Login and role-based navigation work.
