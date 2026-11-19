@@ -225,4 +225,29 @@ export const PROFILE_MSG = {
   STEP_UP_CANCEL: "perc.ui.profile.modern@Cancel",
   STEP_UP_ERROR:
     "perc.ui.profile.modern@Verification failed. Check your code and try again.",
+  STEP_UP_USE_PASSKEY: "perc.ui.profile.modern@Verify with passkey",
+
+  // Passkeys management (Milestone 4)
+  PASSKEYS_TITLE: "perc.ui.profile.modern@Passkeys",
+  PASSKEYS_SUBTITLE:
+    "perc.ui.profile.modern@Sign in with a device passkey (Face ID, Touch ID, Windows Hello) or security key.",
+  PASSKEYS_EMPTY: "perc.ui.profile.modern@No passkeys enrolled yet.",
+  PASSKEYS_SYNCED_BADGE: "perc.ui.profile.modern@Synced",
+  PASSKEYS_LABEL_PLACEHOLDER:
+    "perc.ui.profile.modern@Passkey name (e.g. Work Laptop)",
+  PASSKEYS_ADD: "perc.ui.profile.modern@Add passkey",
+  PASSKEYS_ADDING: "perc.ui.profile.modern@Follow browser prompt…",
+  PASSKEYS_RENAME: "perc.ui.profile.modern@Rename",
+  PASSKEYS_SAVE_NAME: "perc.ui.profile.modern@Save",
+  PASSKEYS_CANCEL: "perc.ui.profile.modern@Cancel",
+  PASSKEYS_DELETE: "perc.ui.profile.modern@Remove",
+  PASSKEYS_ADDED_SUCCESS: "perc.ui.profile.modern@Passkey registered.",
+  PASSKEYS_RENAMED_SUCCESS: "perc.ui.profile.modern@Passkey renamed.",
+  PASSKEYS_DELETED_SUCCESS: "perc.ui.profile.modern@Passkey removed.",
+  PASSKEYS_UNSUPPORTED:
+    "perc.ui.profile.modern@This browser does not support WebAuthn passkeys.",
+  PASSKEYS_LAST_FACTOR_HINT:
+    "perc.ui.profile.modern@Two-step verification is required for your account. Add an authenticator app or another passkey before removing your last passkey.",
+  PASSKEYS_ABORTED:
+    "perc.ui.profile.modern@Passkey ceremony was cancelled or failed. Try again.",
 } as const;

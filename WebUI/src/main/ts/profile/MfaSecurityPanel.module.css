@@ -206,3 +206,68 @@
   font-size: 0.88rem;
   font-weight: 600;
 }
+
+.passkeysSection {
+  margin-top: 1.15rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border, #d8dee9);
+}
+
+.passkeysHeading {
+  margin: 0 0 0.2rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text, #181c2c);
+}
+
+.passkeysList {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.passkeyItem {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.65rem 0.85rem;
+  border: 1px solid var(--color-border, #d8dee9);
+  border-radius: 6px;
+  background: var(--color-surface, #fff);
+}
+
+.passkeyMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.passkeyLabel {
+  font-weight: 600;
+  color: var(--color-text, #181c2c);
+}
+
+.badge {
+  display: inline-flex;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: #f0f9ff;
+  border: 1px solid #b9e6fe;
+  color: #026aa2;
+}
+
+.addPasskeyRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+  margin-top: 0.5rem;
+}

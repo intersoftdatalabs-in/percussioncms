@@ -15,6 +15,12 @@
  */
 
 import React, { useState } from "react";
+import {
+  browserSupportsWebAuthn,
+  startAuthentication,
+  type AuthenticationResponseJSON,
+  type PublicKeyCredentialRequestOptionsJSON,
+} from "@simplewebauthn/browser";
 import { i18nKeyAttr } from "../i18n/i18nDom";
 import { message } from "../i18n/message";
 import {
@@ -34,32 +40,82 @@ import type {
 } from "./types";
 import styles from "./AuthApp.module.css";
 
+interface PasskeyChallengeOptions {
+  challengeTxId: string;
+  optionsJson: string;
+}
+
 export interface MfaChallengePageProps {
   bootstrap: AuthBootstrap;
   onNavigate?: (url: string) => void;
+  runPasskeyAuth?: (
+    optionsJSON: PublicKeyCredentialRequestOptionsJSON,
+  ) => Promise<AuthenticationResponseJSON>;
+  supportsWebAuthn?: boolean;
 }
 
 /**
  * Unauthenticated second-factor verification page ({@code GET /auth/challenge}).
- * Supports authenticator 6-digit TOTP codes and single-use recovery codes.
+ * Supports WebAuthn passkeys, authenticator 6-digit TOTP codes, and single-use recovery codes.
  */
 export function MfaChallengePage({
   bootstrap,
   onNavigate = defaultNavigate,
+  runPasskeyAuth = (optionsJSON) => startAuthentication({ optionsJSON }),
+  supportsWebAuthn = browserSupportsWebAuthn(),
 }: MfaChallengePageProps): React.ReactElement {
   const mfaState = bootstrap.mfaState;
   const hasValidTx = Boolean(mfaState?.hasValidTx);
   const recoveryAvailable = mfaState?.recoveryCodeAvailable ?? true;
+  const showPasskeyOption = Boolean(mfaState?.passkeyAvailable) && supportsWebAuthn;
   const defaultUseRecovery =
     mfaState?.totpAvailable === false && Boolean(mfaState?.recoveryCodeAvailable);
 
   const [useRecovery, setUseRecovery] = useState(defaultUseRecovery);
   const [code, setCode] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [passkeyBusy, setPasskeyBusy] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const loginHref = resolveLoginUrl(bootstrap);
   const defaultAppHref = resolveDefaultAppUrl(bootstrap);
+
+  const onPasskeySignIn = async (): Promise<void> => {
+    setErrorMsg(null);
+    setPasskeyBusy(true);
+    try {
+      const opts = await postAuthJson<PasskeyChallengeOptions>(
+        resolveAuthEndpoint(bootstrap, "/challenge/passkey/options"),
+        {},
+        bootstrap,
+      );
+      const parsedOptions = JSON.parse(
+        opts.optionsJson,
+      ) as PublicKeyCredentialRequestOptionsJSON;
+      const assertion = await runPasskeyAuth(parsedOptions);
+      const res = await postAuthJson<MfaChallengeResponse>(
+        resolveAuthEndpoint(bootstrap, "/challenge/passkey/verify"),
+        {
+          challengeTxId: opts.challengeTxId,
+          credentialJson: JSON.stringify(assertion),
+        },
+        bootstrap,
+      );
+      if (res.authenticated) {
+        onNavigate(safeRedirectUrl(res.redirectUrl, defaultAppHref));
+      } else {
+        setErrorMsg(res.message || message(AUTH_MSG.MFA_CHALLENGE_GENERIC_ERROR));
+      }
+    } catch (err) {
+      const msg =
+        err instanceof AuthClientError
+          ? err.message
+          : message(AUTH_MSG.MFA_PASSKEY_ABORTED);
+      setErrorMsg(msg);
+    } finally {
+      setPasskeyBusy(false);
+    }
+  };
 
   const onSubmit = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
@@ -163,6 +219,35 @@ export function MfaChallengePage({
         {message(subtitleKey)}
       </p>
 
+      {showPasskeyOption && (
+        <div className={styles.passkeyWrap}>
+          <button
+            type="button"
+            className={styles.submit}
+            disabled={submitting || passkeyBusy}
+            onClick={() => void onPasskeySignIn()}
+            data-testid="perc-auth-mfa-passkey-btn"
+            {...i18nKeyAttr(
+              passkeyBusy
+                ? AUTH_MSG.MFA_PASSKEY_WAITING
+                : AUTH_MSG.MFA_PASSKEY_VERIFY_BTN,
+            )}
+          >
+            {message(
+              passkeyBusy
+                ? AUTH_MSG.MFA_PASSKEY_WAITING
+                : AUTH_MSG.MFA_PASSKEY_VERIFY_BTN,
+            )}
+          </button>
+          <p
+            className={styles.divider}
+            {...i18nKeyAttr(AUTH_MSG.MFA_PASSKEY_OR_CODE)}
+          >
+            {message(AUTH_MSG.MFA_PASSKEY_OR_CODE)}
+          </p>
+        </div>
+      )}
+
       <form onSubmit={(e) => void onSubmit(e)} noValidate>
         <div className={styles.formGroup}>
           <label
@@ -185,7 +270,7 @@ export function MfaChallengePage({
               setCode(e.target.value);
               setErrorMsg(null);
             }}
-            disabled={submitting}
+            disabled={submitting || passkeyBusy}
             data-testid="perc-auth-mfa-code-input"
           />
         </div>
@@ -193,7 +278,7 @@ export function MfaChallengePage({
         <button
           type="submit"
           className={styles.submit}
-          disabled={submitting}
+          disabled={submitting || passkeyBusy}
           data-testid="perc-auth-mfa-submit"
           {...i18nKeyAttr(
             submitting

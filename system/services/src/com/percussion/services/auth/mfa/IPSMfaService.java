@@ -63,4 +63,58 @@ public interface IPSMfaService {
   void disableProfileTotp(String userName, Collection<String> roles, HttpSession session);
 
   List<String> regenerateRecoveryCodes(String userName, HttpSession session);
+
+  PSPasskeyOptions startChallengePasskey(String txId, String requestOrigin);
+
+  PSMfaChallengeOutcome verifyChallengePasskey(
+      String txId,
+      String challengeTxId,
+      String credentialJson,
+      String requestOrigin,
+      String requestIp);
+
+  PSPasskeyOptions startEnrollOnlyPasskey(String txId, String label, String requestOrigin);
+
+  PSTotpConfirmOutcome completeEnrollOnlyPasskey(
+      String txId,
+      String challengeTxId,
+      String label,
+      String credentialJson,
+      String requestOrigin,
+      String requestIp);
+
+  PSPasskeyOptions startProfilePasskeyStepUp(
+      String userName, String requestOrigin, HttpSession session);
+
+  long verifyProfilePasskeyStepUp(
+      String userName,
+      String challengeTxId,
+      String credentialJson,
+      String requestOrigin,
+      String requestIp,
+      HttpSession session);
+
+  List<PSPasskeySummary> listProfilePasskeys(String userName);
+
+  boolean canDeleteLastPasskey(String userName, Collection<String> roles);
+
+  PSPasskeyOptions startProfilePasskeyRegistration(
+      String userName,
+      String displayName,
+      String label,
+      String requestOrigin,
+      HttpSession session);
+
+  PSPasskeyRegisterOutcome finishProfilePasskeyRegistration(
+      String userName,
+      String challengeTxId,
+      String label,
+      String credentialJson,
+      String requestOrigin,
+      HttpSession session);
+
+  void renameProfilePasskey(String userName, String passkeyId, String newLabel);
+
+  void deleteProfilePasskey(
+      String userName, String passkeyId, Collection<String> roles, HttpSession session);
 }

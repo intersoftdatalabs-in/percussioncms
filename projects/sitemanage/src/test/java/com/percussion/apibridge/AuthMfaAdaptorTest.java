@@ -22,8 +22,16 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
+import com.percussion.rest.auth.MfaActionResult;
 import com.percussion.rest.auth.MfaStepUpRequest;
 import com.percussion.rest.auth.MfaStepUpResponse;
+import com.percussion.rest.auth.PasskeyListResponse;
+import com.percussion.rest.auth.PasskeyOptionsRequest;
+import com.percussion.rest.auth.PasskeyOptionsResponse;
+import com.percussion.rest.auth.PasskeyRegisterFinishRequest;
+import com.percussion.rest.auth.PasskeyRegisterFinishResponse;
+import com.percussion.rest.auth.PasskeyRenameRequest;
+import com.percussion.rest.auth.PasskeyStepUpVerifyRequest;
 import com.percussion.rest.auth.ProfileMfaStatus;
 import com.percussion.rest.auth.RecoveryCodesRegenerateResponse;
 import com.percussion.rest.auth.TotpEnrollConfirmRequest;
@@ -31,6 +39,9 @@ import com.percussion.rest.auth.TotpEnrollConfirmResponse;
 import com.percussion.rest.auth.TotpEnrollStartRequest;
 import com.percussion.rest.auth.TotpEnrollStartResponse;
 import com.percussion.services.auth.mfa.IPSMfaService;
+import com.percussion.services.auth.mfa.PSPasskeyOptions;
+import com.percussion.services.auth.mfa.PSPasskeyRegisterOutcome;
+import com.percussion.services.auth.mfa.PSPasskeySummary;
 import com.percussion.services.auth.mfa.PSProfileMfaStatus;
 import com.percussion.services.auth.mfa.PSStepUpRequiredException;
 import com.percussion.services.auth.mfa.PSTotpConfirmOutcome;
@@ -110,5 +121,61 @@ class AuthMfaAdaptorTest {
         .thenReturn(List.of("22222-BBBBB"));
     RecoveryCodesRegenerateResponse regen = adaptor.regenerateRecoveryCodes();
     assertEquals(1, regen.getRecoveryCodes().size());
+  }
+
+  @Test
+  void delegatesPasskeyLifecycleAndStepUpOperationsScopedToSessionUser() throws Exception {
+    IPSUserService userService = mock(IPSUserService.class);
+    IPSMfaService mfaService = mock(IPSMfaService.class);
+    MockHttpSession session = new MockHttpSession();
+    AuthMfaAdaptor adaptor =
+        new AuthMfaAdaptor(
+            userService, mfaService, () -> session, () -> "203.0.113.9", () -> "https://cms.example.com");
+    when(userService.getCurrentUser()).thenReturn(makeCurrent("editor1"));
+
+    PSPasskeySummary summary =
+        new PSPasskeySummary(
+            "pk-1", "MacBook", "0000", List.of("internal"), true, true, Instant.now(), null);
+    when(mfaService.listProfilePasskeys("editor1")).thenReturn(List.of(summary));
+    when(mfaService.canDeleteLastPasskey("editor1", List.of("Editor"))).thenReturn(false);
+
+    PasskeyListResponse listed = adaptor.listPasskeys();
+    assertEquals(1, listed.getPasskeys().size());
+    assertEquals("MacBook", listed.getPasskeys().get(0).getLabel());
+    org.junit.jupiter.api.Assertions.assertFalse(listed.isCanDeleteLastPasskey());
+
+    when(mfaService.startProfilePasskeyRegistration(
+            "editor1", "editor1", "MacBook", "https://cms.example.com", session))
+        .thenReturn(new PSPasskeyOptions("reg-1", "{\"challenge\":\"c\"}"));
+    PasskeyOptionsResponse opts =
+        adaptor.startPasskeyRegistration(new PasskeyOptionsRequest("MacBook"));
+    assertEquals("reg-1", opts.getChallengeTxId());
+
+    when(mfaService.finishProfilePasskeyRegistration(
+            "editor1", "reg-1", "MacBook", "{}", "https://cms.example.com", session))
+        .thenReturn(new PSPasskeyRegisterOutcome(true, summary, List.of("11111-AAAAA"), "Saved"));
+    PasskeyRegisterFinishResponse finished =
+        adaptor.finishPasskeyRegistration(new PasskeyRegisterFinishRequest("reg-1", "MacBook", "{}"));
+    assertTrue(finished.isRegistered());
+    assertEquals(1, finished.getRecoveryCodes().size());
+
+    MfaActionResult renamed = adaptor.renamePasskey("pk-1", new PasskeyRenameRequest("New Key"));
+    assertTrue(renamed.isSuccess());
+
+    doThrow(new IllegalStateException("Last MFA factor"))
+        .when(mfaService)
+        .deleteProfilePasskey("editor1", "pk-1", List.of("Editor"), session);
+    assertThrows(IllegalStateException.class, () -> adaptor.deletePasskey("pk-1"));
+
+    when(mfaService.startProfilePasskeyStepUp("editor1", "https://cms.example.com", session))
+        .thenReturn(new PSPasskeyOptions("su-1", "{\"challenge\":\"s\"}"));
+    assertEquals("su-1", adaptor.startPasskeyStepUp().getChallengeTxId());
+
+    when(mfaService.verifyProfilePasskeyStepUp(
+            "editor1", "su-1", "{}", "https://cms.example.com", "203.0.113.9", session))
+        .thenReturn(1795000000000L);
+    MfaStepUpResponse suRes =
+        adaptor.verifyPasskeyStepUp(new PasskeyStepUpVerifyRequest("su-1", "{}"));
+    assertTrue(suRes.isVerified());
   }
 }

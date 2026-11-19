@@ -28,7 +28,9 @@ import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.MediaType;
@@ -191,6 +193,90 @@ public class AuthMfaResource {
       })
   public RecoveryCodesRegenerateResponse regenerateRecoveryCodes() {
     return executeMapped(() -> requireAdaptor().regenerateRecoveryCodes());
+  }
+
+  @GET
+  @Path("/passkeys")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "List active enrolled passkeys for the signed-in user")
+  public PasskeyListResponse listPasskeys() {
+    return executeMapped(() -> requireAdaptor().listPasskeys());
+  }
+
+  @POST
+  @Path("/passkeys/register/start")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Start WebAuthn passkey registration for the current user")
+  public PasskeyOptionsResponse startPasskeyRegistration(PasskeyOptionsRequest request) {
+    return executeMapped(
+        () ->
+            requireAdaptor()
+                .startPasskeyRegistration(
+                    request != null ? request : new PasskeyOptionsRequest()));
+  }
+
+  @POST
+  @Path("/passkeys/register/finish")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Finish WebAuthn passkey registration")
+  public PasskeyRegisterFinishResponse finishPasskeyRegistration(
+      PasskeyRegisterFinishRequest request) {
+    return executeMapped(
+        () -> {
+          if (request == null) {
+            throw new IllegalArgumentException("PasskeyRegisterFinishRequest body is required");
+          }
+          return requireAdaptor().finishPasskeyRegistration(request);
+        });
+  }
+
+  @PUT
+  @Path("/passkeys/{passkeyId}")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Rename an active passkey")
+  public MfaActionResult renamePasskey(
+      @PathParam("passkeyId") String passkeyId, PasskeyRenameRequest request) {
+    return executeMapped(
+        () -> {
+          if (request == null) {
+            throw new IllegalArgumentException("PasskeyRenameRequest body is required");
+          }
+          return requireAdaptor().renamePasskey(passkeyId, request);
+        });
+  }
+
+  @DELETE
+  @Path("/passkeys/{passkeyId}")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Remove an enrolled passkey (enforces step-up and last-factor policy)")
+  public MfaActionResult deletePasskey(@PathParam("passkeyId") String passkeyId) {
+    return executeMapped(() -> requireAdaptor().deletePasskey(passkeyId));
+  }
+
+  @POST
+  @Path("/step-up/passkey/start")
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Start passkey assertion challenge for session step-up MFA")
+  public PasskeyOptionsResponse startPasskeyStepUp() {
+    return executeMapped(() -> requireAdaptor().startPasskeyStepUp());
+  }
+
+  @POST
+  @Path("/step-up/passkey/verify")
+  @Consumes(MediaType.APPLICATION_JSON)
+  @Produces(MediaType.APPLICATION_JSON)
+  @Operation(summary = "Verify passkey assertion to grant step-up MFA assurance")
+  public MfaStepUpResponse verifyPasskeyStepUp(PasskeyStepUpVerifyRequest request) {
+    return executeMapped(
+        () -> {
+          if (request == null) {
+            throw new IllegalArgumentException("PasskeyStepUpVerifyRequest body is required");
+          }
+          return requireAdaptor().verifyPasskeyStepUp(request);
+        });
   }
 
   private <T> T executeMapped(Supplier<T> call) {

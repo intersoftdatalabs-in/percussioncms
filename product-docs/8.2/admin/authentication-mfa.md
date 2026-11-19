@@ -32,6 +32,7 @@ Authentication and recovery settings live in `rxconfig/Server/server.properties`
 | `auth.webauthn.rpId` | *(empty)* | WebAuthn Relying Party hostname without scheme or port (for example `example.com`). |
 | `auth.webauthn.rpName` | `Percussion CMS` | Human-readable WebAuthn Relying Party name. |
 | `auth.webauthn.allowedOrigins` | *(empty)* | Comma-separated HTTPS origins (for example `https://cms.example.com`). Localhost HTTP is warned as development-only. |
+| `auth.webauthn.userVerification` | `preferred` | WebAuthn user-verification requirement (`required`, `preferred`, or `discouraged`) for passkey registration and challenge assertions. |
 | `auth.token.emailVerifyTtlMinutes` | `30` | Lifetime for email verification tokens. |
 | `auth.token.passwordResetTtlMinutes` | `20` | Lifetime for password reset tokens. |
 | `auth.token.adminBreakGlassTtlMinutes` | `60` | Lifetime for admin break-glass recovery tokens. |
@@ -127,22 +128,37 @@ Users manage authenticator enrollment under **My profile → Security**:
 
 - **Authenticator app (TOTP):** Enrolling scans an `otpauth://` QR code or copies a Base32 setup key, encrypted at rest using AES-256-GCM derived from `rxconfig/secure/.key`. Confirming with a valid 6-digit code activates TOTP with anti-replay time-step tracking (`PSX_MFA_TOTP`).
 - **Single-use recovery codes:** Initial TOTP enrollment issues 10 salted PBKDF2-HMAC-SHA256 hashed recovery codes (`XXXXX-XXXXX`) shown **once** for copying or downloading as `.txt`. Each code can only be used once during `/auth/challenge` or step-up verification; users can regenerate a fresh batch at any time (invalidating unused prior codes).
-- **Mandatory enrollment on sign-in (`/auth/setup`):** When `auth.mfa.mode=required` or the user belongs to `auth.mfa.requiredCohorts` without an enrolled factor, signing in redirects through `/auth/setup` before an application session is issued.
+- **Mandatory enrollment on sign-in (`/auth/setup`):** When `auth.mfa.mode=required` or the user belongs to `auth.mfa.requiredCohorts` without an enrolled factor, signing in redirects through `/auth/setup` before an application session is issued. Users can complete mandatory onboarding with either an authenticator app (TOTP) or a WebAuthn passkey.
 - **Last-factor protection:** When policy requires MFA for an account, Percussion prevents removing the user's last remaining MFA factor (`409 CONFLICT` in REST and disabled UI controls).
+
+## Passkeys (WebAuthn / FIDO2)
+
+Percussion CMS supports phishing-resistant WebAuthn / FIDO2 passkeys (platform biometrics, synced passkeys, and hardware security keys) alongside TOTP:
+
+- **Profile enrollment and management:** Signed-in users add, rename, and remove passkeys under **My profile → Security**. Adding a passkey when no active recovery codes exist generates initial one-time recovery codes (`XXXXX-XXXXX`) once.
+- **Sign-in challenge & mandatory onboarding:** During sign-in, enrolled users can verify with a passkey via `/auth/challenge` (`POST /auth/challenge/passkey/options` and `POST /auth/challenge/passkey/verify`) or fall back to TOTP/recovery codes. Unenrolled users subject to mandatory MFA can enroll a passkey directly on `/auth/setup` (`POST /auth/setup/passkey/start` and `POST /auth/setup/passkey/finish`).
+- **Cryptographic and origin controls:** Server verification validates `ES256`, `RS256`, and `EdDSA` COSE public keys against configured `auth.webauthn.rpId`, `auth.webauthn.allowedOrigins` (or HTTPS canonical origin), single-use `PERC_AUTH_TX` challenge tokens, and `auth.webauthn.userVerification`. Synced/multi-device passkeys (`BE`/`BS` flags with `signCount=0`) remain compatible while non-zero counter regressions are rejected.
 
 ## Step-up authentication for sensitive self-service changes
 
-When a signed-in user already has an enrolled MFA factor, sensitive actions (changing a verified email address, disabling TOTP, or regenerating recovery codes) require a recent MFA verification within `auth.mfa.stepUpWindowMinutes`. If step-up assurance has expired, REST returns HTTP `428` (`STEP_UP_REQUIRED`), prompting the user inline to verify a TOTP or recovery code before automatically retrying the action.
+When a signed-in user already has an enrolled MFA factor, sensitive actions (changing a verified email address, disabling TOTP, renaming or deleting a passkey where required, or regenerating recovery codes) require a recent MFA verification within `auth.mfa.stepUpWindowMinutes`. If step-up assurance has expired, REST returns HTTP `428` (`STEP_UP_REQUIRED`), prompting the user inline to verify with a passkey, TOTP code, or recovery code before automatically retrying the action.
 
 ## Profile MFA REST API (`/services/auth/mfa/*`)
 
-Authenticated users query and manage TOTP and recovery codes through:
+Authenticated users query and manage TOTP, passkeys, and recovery codes through:
 
 - `GET /services/auth/mfa/status` — Current user's MFA policy requirement, TOTP/passkey counts, remaining recovery codes, `canDisableTotp`, and step-up window status.
 - `POST /services/auth/mfa/step-up` — Verify a TOTP or recovery code (`MfaStepUpRequest`) to refresh step-up assurance.
+- `POST /services/auth/mfa/step-up/passkey/start` — Begin passkey step-up authentication by issuing WebAuthn assertion options for the signed-in user's active passkeys.
+- `POST /services/auth/mfa/step-up/passkey/verify` — Complete passkey step-up verification (`PasskeyStepUpVerifyRequest`) and refresh the step-up window.
 - `POST /services/auth/mfa/totp/start` — Begin pending TOTP enrollment (`TotpEnrollStartRequest`) returning setup URI and manual key.
 - `POST /services/auth/mfa/totp/confirm` — Confirm pending TOTP setup (`TotpEnrollConfirmRequest`) and receive initial one-time recovery codes.
 - `DELETE /services/auth/mfa/totp` — Disable TOTP authenticator (enforces step-up and last-factor policy).
+- `GET /services/auth/mfa/passkeys` — List enrolled passkeys (`PasskeyListResponse`) and whether removing the last passkey is permitted.
+- `POST /services/auth/mfa/passkeys/register/start` — Begin passkey registration (`PasskeyOptionsRequest`), returning `challengeTxId` and WebAuthn creation options.
+- `POST /services/auth/mfa/passkeys/register/finish` — Verify passkey attestation (`PasskeyRegisterFinishRequest`), save the credential, and return one-time recovery codes when first enrolling MFA.
+- `PUT /services/auth/mfa/passkeys/{passkeyId}` — Rename an enrolled passkey (`PasskeyRenameRequest`).
+- `DELETE /services/auth/mfa/passkeys/{passkeyId}` — Remove an enrolled passkey (enforces step-up and last-factor policy).
 - `POST /services/auth/mfa/recovery-codes/regenerate` — Invalidate prior codes and generate 10 fresh recovery codes (enforces step-up).
 
 ## Audit logging & secret redaction

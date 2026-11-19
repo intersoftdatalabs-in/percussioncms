@@ -16,6 +16,10 @@
 
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import type {
+  AuthenticationResponseJSON,
+  RegistrationResponseJSON,
+} from "@simplewebauthn/browser";
 import {
   AuthApp,
   MfaChallengePage,
@@ -375,5 +379,135 @@ describe("AuthApp", () => {
 
     fireEvent.click(screen.getByTestId("perc-auth-mfa-continue"));
     expect(navigateSpy).toHaveBeenCalledWith("/cm/app/spa.jsp");
+  });
+
+  it("supports passkey verification in MfaChallengePage and passkey registration in MfaSetupPage", async () => {
+    const navigateSpy = vi.fn();
+    const fakeAssertion = { id: "cred-1", rawId: "cred-1", type: "public-key", response: {} } as unknown as AuthenticationResponseJSON;
+    const fakeRegistration = { id: "cred-2", rawId: "cred-2", type: "public-key", response: {} } as unknown as RegistrationResponseJSON;
+
+    const fetchMock = vi.fn(async (url: string) => {
+      if (url.endsWith("/challenge/passkey/options")) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () =>
+            JSON.stringify({
+              challengeTxId: "pk-chal-1",
+              optionsJson: JSON.stringify({ challenge: "c1", rpId: "localhost" }),
+            }),
+        };
+      }
+      if (url.endsWith("/challenge/passkey/verify")) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () =>
+            JSON.stringify({
+              authenticated: true,
+              redirectUrl: "/cm/app/spa.jsp",
+              recoveryCodesRemaining: 10,
+              message: "Verified",
+            }),
+        };
+      }
+      if (url.endsWith("/setup/totp/start")) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () =>
+            JSON.stringify({
+              totpId: "totp-setup-unused",
+              otpauthUri: "otpauth://totp/PercussionCMS:admin?secret=BASE32TEST",
+              manualEntryKey: "BASE32TEST",
+              issuer: "Percussion CMS",
+            }),
+        };
+      }
+      if (url.endsWith("/setup/passkey/start")) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () =>
+            JSON.stringify({
+              challengeTxId: "pk-reg-1",
+              optionsJson: JSON.stringify({ challenge: "r1", rp: { id: "localhost", name: "CMS" } }),
+            }),
+        };
+      }
+      if (url.endsWith("/setup/passkey/finish")) {
+        return {
+          ok: true,
+          status: 200,
+          text: async () =>
+            JSON.stringify({
+              enrolled: true,
+              recoveryCodes: ["PK111-PK222"],
+              redirectUrl: "/cm/app/spa.jsp",
+              message: "Saved",
+            }),
+        };
+      }
+      throw new Error(`Unexpected fetch URL: ${url}`);
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    const runAuth = vi.fn().mockResolvedValue(fakeAssertion);
+    const { unmount } = render(
+      <MfaChallengePage
+        bootstrap={makeBootstrap({
+          view: "mfa-challenge",
+          mfaState: {
+            hasValidTx: true,
+            txType: "CHALLENGE",
+            totpAvailable: false,
+            passkeyAvailable: true,
+            recoveryCodeAvailable: true,
+          },
+        })}
+        onNavigate={navigateSpy}
+        runPasskeyAuth={runAuth}
+        supportsWebAuthn={true}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("perc-auth-mfa-passkey-btn"));
+    await waitFor(() => {
+      expect(runAuth).toHaveBeenCalled();
+      expect(navigateSpy).toHaveBeenCalledWith("/cm/app/spa.jsp");
+    });
+
+    unmount();
+    const runRegister = vi.fn().mockResolvedValue(fakeRegistration);
+    render(
+      <MfaSetupPage
+        bootstrap={makeBootstrap({
+          view: "mfa-setup",
+          mfaState: {
+            hasValidTx: true,
+            txType: "ENROLL_ONLY",
+            totpAvailable: false,
+            passkeyAvailable: false,
+            recoveryCodeAvailable: false,
+          },
+        })}
+        onNavigate={navigateSpy}
+        runPasskeyRegister={runRegister}
+        supportsWebAuthn={true}
+      />,
+    );
+
+    fireEvent.click(screen.getByTestId("perc-auth-mfa-setup-mode-passkey"));
+    fireEvent.change(screen.getByTestId("perc-auth-mfa-setup-passkey-label"), {
+      target: { value: "Desk Key" },
+    });
+    fireEvent.click(screen.getByTestId("perc-auth-mfa-setup-passkey-btn"));
+
+    await waitFor(() => {
+      expect(runRegister).toHaveBeenCalled();
+      expect(screen.getByTestId("perc-auth-mfa-recovery-codes").textContent).toContain(
+        "PK111-PK222",
+      );
+    });
   });
 });

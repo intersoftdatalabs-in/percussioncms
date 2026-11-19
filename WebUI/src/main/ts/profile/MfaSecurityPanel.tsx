@@ -40,6 +40,10 @@ import { i18nKeyAttr } from "../i18n/i18nDom";
 import { message } from "../i18n/message";
 import { InlineStepUpPrompt } from "./InlineStepUpPrompt";
 import { PROFILE_MSG } from "./messages";
+import {
+  PasskeysSection,
+  type PasskeysSectionProps,
+} from "./PasskeysSection";
 import styles from "./MfaSecurityPanel.module.css";
 
 type PendingStepUpAction = "start" | "disable" | "regen" | null;
@@ -62,6 +66,7 @@ export interface MfaSecurityPanelProps {
   ) => Promise<TotpEnrollConfirmResponse>;
   disableTotp?: () => Promise<MfaActionResult>;
   regenerateRecoveryCodes?: () => Promise<RecoveryCodesRegenerateResponse>;
+  passkeysProps?: PasskeysSectionProps;
 }
 
 interface TotpEnrollSectionProps {
@@ -237,6 +242,7 @@ export function MfaSecurityPanel({
   confirmTotpEnrollment = confirmMyTotpEnrollment,
   disableTotp = disableMyTotp,
   regenerateRecoveryCodes = regenerateMyRecoveryCodes,
+  passkeysProps,
 }: MfaSecurityPanelProps = {}): React.ReactElement {
   const [loadState, setLoadState] = useState<PanelLoadState>({ kind: "loading" });
   const [enrollStart, setEnrollStart] = useState<TotpEnrollStartResponse | null>(
@@ -425,6 +431,7 @@ export function MfaSecurityPanel({
           {pendingStepUp && (
             <InlineStepUpPrompt
               testIdPrefix="perc-profile-mfa-stepup"
+              passkeyAvailable={loadState.mfaStatus.passkeyCount > 0}
               verifyStepUp={verifyStepUp}
               onVerified={onStepUpVerified}
               onCancel={() => setPendingStepUp(null)}
@@ -457,6 +464,16 @@ export function MfaSecurityPanel({
               onDismiss={() => setRecoveryCodes(null)}
             />
           )}
+
+          <PasskeysSection
+            {...passkeysProps}
+            onMutated={async (codes) => {
+              if (codes.length > 0) {
+                setRecoveryCodes(codes);
+              }
+              await refreshStatus();
+            }}
+          />
 
           {successMsg && (
             <p

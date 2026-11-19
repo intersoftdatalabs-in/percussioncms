@@ -285,6 +285,7 @@
 			<entry key="auth.mfa.stepUpWindowMinutes" default="5" />
 			<entry key="auth.rateLimit.mfaVerifyPerIpPerMinute" default="20" />
 			<entry key="auth.rateLimit.mfaVerifyPerUserPerMinute" default="10" />
+			<entry key="auth.webauthn.userVerification" default="preferred" />
 
 
 			<!-- Properties to remove if present -->

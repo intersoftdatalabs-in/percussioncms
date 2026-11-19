@@ -31,6 +31,8 @@ import static org.mockito.Mockito.when;
 import com.percussion.services.auth.IPSAuthSecurityDao;
 import com.percussion.services.auth.data.PSAccountSecurity;
 import com.percussion.services.auth.data.PSAuthLoginTx;
+import com.percussion.services.auth.data.PSMfaPasskey;
+import com.percussion.services.auth.mfa.IPSPasskeyService;
 import com.percussion.services.auth.mfa.IPSRecoveryCodeService;
 import com.percussion.services.auth.mfa.IPSTotpService;
 import com.percussion.services.auth.mfa.PSMfaChallengeOutcome;
@@ -146,5 +148,65 @@ class PSMfaServiceTest {
     assertTrue(enrolled.enrolled());
     assertEquals(2, enrolled.recoveryCodes().size());
     verify(dao, org.mockito.Mockito.atLeast(0)).incrementLoginTxAttemptsAtomically(anyString(), anyInt(), any());
+  }
+
+  @Test
+  void passkeyChallengeStepUpAndLastFactorDeletionGuardWork() {
+    IPSAuthSecurityDao dao = mock(IPSAuthSecurityDao.class);
+    IPSTotpService totp = mock(IPSTotpService.class);
+    IPSRecoveryCodeService rc = mock(IPSRecoveryCodeService.class);
+    IPSAuthPolicyService policy = mock(IPSAuthPolicyService.class);
+    IPSAuthRateLimiter rate = mock(IPSAuthRateLimiter.class);
+    IPSPasskeyService passkeyService = mock(IPSPasskeyService.class);
+    when(rate.tryConsume(anyString(), anyString(), anyLong(), any())).thenReturn(true);
+
+    Clock clock = Clock.fixed(Instant.parse("2026-11-19T01:00:00Z"), ZoneOffset.UTC);
+    Properties props = new Properties();
+    PSMfaService service =
+        new PSMfaService(dao, totp, rc, policy, rate, passkeyService, () -> props, clock);
+
+    PSAuthLoginTx challengeTx = new PSAuthLoginTx();
+    challengeTx.setTxId("chal-tx");
+    challengeTx.setTxType(PSAuthLoginTx.TYPE_MFA_CHALLENGE);
+    challengeTx.setUserName("alice");
+    challengeTx.setState(PSAuthLoginTx.STATE_PENDING);
+    challengeTx.setExpiresAt(Date.from(clock.instant().plusSeconds(300)));
+    challengeTx.setPayloadJson("{\"redirectUrl\":\"/cm/app/\",\"locale\":\"en-us\",\"roles\":[\"Admin\"]}");
+    when(dao.findLoginTx("chal-tx")).thenReturn(Optional.of(challengeTx));
+    when(dao.consumeLoginTxAtomically(eq("chal-tx"), eq(PSAuthLoginTx.TYPE_MFA_CHALLENGE), any()))
+        .thenReturn(1);
+    PSMfaPasskey pk = new PSMfaPasskey();
+    pk.setPasskeyId("pk-1");
+    pk.setUserName("alice");
+    when(dao.findActivePasskeysByUser("alice")).thenReturn(List.of(pk));
+    when(passkeyService.verifyAuthentication("alice", "web-tx-1", "{\"id\":\"c\"}", "https://cms"))
+        .thenReturn(pk);
+    when(rc.countRemaining("alice")).thenReturn(9L);
+
+    PSMfaChallengeOutcome chalOk =
+        service.verifyChallengePasskey("chal-tx", "web-tx-1", "{\"id\":\"c\"}", "https://cms", "127.0.0.1");
+    assertTrue(chalOk.verified());
+    assertEquals(9L, chalOk.recoveryCodesRemaining());
+
+    MockHttpSession session = new MockHttpSession();
+    when(policy.hasActiveFactor("alice")).thenReturn(true);
+    when(passkeyService.verifyAuthentication("alice", "su-tx-1", "{\"id\":\"c\"}", "https://cms"))
+        .thenReturn(pk);
+    long expiresAt =
+        service.verifyProfilePasskeyStepUp(
+            "alice", "su-tx-1", "{\"id\":\"c\"}", "https://cms", "127.0.0.1", session);
+    assertTrue(expiresAt > clock.instant().toEpochMilli());
+
+    when(policy.isMfaRequiredForUser("alice", List.of("Admin"))).thenReturn(true);
+    when(totp.hasActiveTotp("alice")).thenReturn(false);
+    assertFalse(service.canDeleteLastPasskey("alice", List.of("Admin")));
+    assertThrows(
+        IllegalStateException.class,
+        () -> service.deleteProfilePasskey("alice", "pk-1", List.of("Admin"), session));
+
+    when(totp.hasActiveTotp("alice")).thenReturn(true);
+    assertTrue(service.canDeleteLastPasskey("alice", List.of("Admin")));
+    service.deleteProfilePasskey("alice", "pk-1", List.of("Admin"), session);
+    verify(passkeyService).deletePasskey("alice", "pk-1");
   }
 }

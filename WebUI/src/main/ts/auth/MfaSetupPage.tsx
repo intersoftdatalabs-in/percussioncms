@@ -15,6 +15,12 @@
  */
 
 import React, { useCallback, useEffect, useState } from "react";
+import {
+  browserSupportsWebAuthn,
+  startRegistration,
+  type PublicKeyCredentialCreationOptionsJSON,
+  type RegistrationResponseJSON,
+} from "@simplewebauthn/browser";
 import { QRCodeSVG } from "qrcode.react";
 import { i18nKeyAttr } from "../i18n/i18nDom";
 import { message } from "../i18n/message";
@@ -40,9 +46,18 @@ import type {
 } from "./types";
 import styles from "./AuthApp.module.css";
 
+interface PasskeySetupStartResponse {
+  challengeTxId: string;
+  optionsJson: string;
+}
+
 export interface MfaSetupPageProps {
   bootstrap: AuthBootstrap;
   onNavigate?: (url: string) => void;
+  runPasskeyRegister?: (
+    optionsJSON: PublicKeyCredentialCreationOptionsJSON,
+  ) => Promise<RegistrationResponseJSON>;
+  supportsWebAuthn?: boolean;
 }
 
 interface RecoveryCodesViewProps {
@@ -123,8 +138,12 @@ function RecoveryCodesStep({
 export function MfaSetupPage({
   bootstrap,
   onNavigate = defaultNavigate,
+  runPasskeyRegister = (optionsJSON) => startRegistration({ optionsJSON }),
+  supportsWebAuthn = browserSupportsWebAuthn(),
 }: MfaSetupPageProps): React.ReactElement {
   const hasValidTx = Boolean(bootstrap.mfaState?.hasValidTx);
+  const [setupMode, setSetupMode] = useState<"totp" | "passkey">("totp");
+  const [passkeyLabel, setPasskeyLabel] = useState("");
   const [startData, setStartData] = useState<TotpSetupStartResponse | null>(null);
   const [confirmData, setConfirmData] =
     useState<TotpSetupConfirmResponse | null>(null);
@@ -160,10 +179,49 @@ export function MfaSetupPage({
   }, [bootstrap]);
 
   useEffect(() => {
-    if (hasValidTx) {
+    if (hasValidTx && setupMode === "totp" && !startData) {
       void startSetup();
     }
-  }, [hasValidTx, startSetup]);
+  }, [hasValidTx, setupMode, startData, startSetup]);
+
+  const onRegisterPasskey = async (): Promise<void> => {
+    setErrorMsg(null);
+    setSubmitting(true);
+    try {
+      const cleanLabel = passkeyLabel.trim();
+      const opts = await postAuthJson<PasskeySetupStartResponse>(
+        resolveAuthEndpoint(bootstrap, "/setup/passkey/start"),
+        { label: cleanLabel },
+        bootstrap,
+      );
+      const parsedOptions = JSON.parse(
+        opts.optionsJson,
+      ) as PublicKeyCredentialCreationOptionsJSON;
+      const registration = await runPasskeyRegister(parsedOptions);
+      const res = await postAuthJson<TotpSetupConfirmResponse>(
+        resolveAuthEndpoint(bootstrap, "/setup/passkey/finish"),
+        {
+          challengeTxId: opts.challengeTxId,
+          label: cleanLabel,
+          credentialJson: JSON.stringify(registration),
+        },
+        bootstrap,
+      );
+      if (res.enrolled) {
+        setConfirmData(res);
+      } else {
+        setErrorMsg(res.message || message(AUTH_MSG.MFA_CHALLENGE_GENERIC_ERROR));
+      }
+    } catch (err) {
+      const msg =
+        err instanceof AuthClientError
+          ? err.message
+          : message(AUTH_MSG.MFA_PASSKEY_ABORTED);
+      setErrorMsg(msg);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const onConfirmSubmit = async (event: React.FormEvent): Promise<void> => {
     event.preventDefault();
@@ -268,98 +326,182 @@ export function MfaSetupPage({
         />
       ) : (
         <>
-          <p
-            className={styles.subtitle}
-            {...i18nKeyAttr(AUTH_MSG.MFA_SETUP_SUBTITLE)}
-          >
-            {message(AUTH_MSG.MFA_SETUP_SUBTITLE)}
-          </p>
-
-          {loadingStart && (
-            <p className={styles.subtitle}>{message(AUTH_MSG.MFA_SETUP_LOADING)}</p>
+          {supportsWebAuthn && (
+            <div className={styles.modeTabs} role="tablist">
+              <button
+                type="button"
+                role="tab"
+                aria-selected={setupMode === "totp"}
+                className={
+                  setupMode === "totp" ? styles.modeTabActive : styles.modeTab
+                }
+                disabled={submitting}
+                onClick={() => {
+                  setSetupMode("totp");
+                  setErrorMsg(null);
+                }}
+                data-testid="perc-auth-mfa-setup-mode-totp"
+              >
+                {message(AUTH_MSG.MFA_SETUP_MODE_TOTP)}
+              </button>
+              <button
+                type="button"
+                role="tab"
+                aria-selected={setupMode === "passkey"}
+                className={
+                  setupMode === "passkey" ? styles.modeTabActive : styles.modeTab
+                }
+                disabled={submitting}
+                onClick={() => {
+                  setSetupMode("passkey");
+                  setErrorMsg(null);
+                }}
+                data-testid="perc-auth-mfa-setup-mode-passkey"
+              >
+                {message(AUTH_MSG.MFA_SETUP_MODE_PASSKEY)}
+              </button>
+            </div>
           )}
 
-          {!loadingStart && !startData && (
-            <button
-              type="button"
-              className={styles.submit}
-              onClick={() => void startSetup()}
-              data-testid="perc-auth-mfa-setup-retry"
-            >
-              {message(AUTH_MSG.MFA_SETUP_RETRY)}
-            </button>
-          )}
-
-          {startData && (
-            <>
-              <div className={styles.qrBox} data-testid="perc-auth-mfa-qr">
-                <QRCodeSVG value={startData.otpauthUri} size={192} />
-              </div>
-
-              <div className={styles.secretRow}>
-                <span className={styles.label}>
-                  {message(AUTH_MSG.MFA_SETUP_MANUAL_LABEL)}
-                </span>
-                <code
-                  className={styles.secretCode}
-                  data-testid="perc-auth-mfa-manual-secret"
+          {setupMode === "passkey" ? (
+            <div>
+              <p
+                className={styles.subtitle}
+                {...i18nKeyAttr(AUTH_MSG.MFA_SETUP_PASSKEY_SUBTITLE)}
+              >
+                {message(AUTH_MSG.MFA_SETUP_PASSKEY_SUBTITLE)}
+              </p>
+              <div className={styles.formGroup}>
+                <label
+                  className={styles.label}
+                  htmlFor="perc-auth-mfa-setup-passkey-label"
+                  {...i18nKeyAttr(AUTH_MSG.MFA_SETUP_PASSKEY_LABEL)}
                 >
-                  {startData.manualSecret}
-                </code>
+                  {message(AUTH_MSG.MFA_SETUP_PASSKEY_LABEL)}
+                </label>
+                <input
+                  id="perc-auth-mfa-setup-passkey-label"
+                  type="text"
+                  className={styles.input}
+                  placeholder={message(AUTH_MSG.MFA_SETUP_PASSKEY_PLACEHOLDER)}
+                  value={passkeyLabel}
+                  disabled={submitting}
+                  onChange={(e) => setPasskeyLabel(e.target.value)}
+                  data-testid="perc-auth-mfa-setup-passkey-label"
+                />
+              </div>
+              <button
+                type="button"
+                className={styles.submit}
+                disabled={submitting}
+                onClick={() => void onRegisterPasskey()}
+                data-testid="perc-auth-mfa-setup-passkey-btn"
+              >
+                {message(
+                  submitting
+                    ? AUTH_MSG.MFA_SETUP_PASSKEY_BUSY
+                    : AUTH_MSG.MFA_SETUP_PASSKEY_BTN,
+                )}
+              </button>
+            </div>
+          ) : (
+            <>
+              <p
+                className={styles.subtitle}
+                {...i18nKeyAttr(AUTH_MSG.MFA_SETUP_SUBTITLE)}
+              >
+                {message(AUTH_MSG.MFA_SETUP_SUBTITLE)}
+              </p>
+
+              {loadingStart && (
+                <p className={styles.subtitle}>
+                  {message(AUTH_MSG.MFA_SETUP_LOADING)}
+                </p>
+              )}
+
+              {!loadingStart && !startData && (
                 <button
                   type="button"
-                  className={styles.secondaryButton}
-                  onClick={() => {
-                    void copyTextToClipboard(startData.manualSecret).then((ok) =>
-                      setCopiedKey(ok),
-                    );
-                  }}
-                >
-                  {copiedKey
-                    ? message(AUTH_MSG.MFA_SETUP_COPIED)
-                    : message(AUTH_MSG.MFA_SETUP_COPY_KEY)}
-                </button>
-              </div>
-
-              <form onSubmit={(e) => void onConfirmSubmit(e)} noValidate>
-                <div className={styles.formGroup}>
-                  <label
-                    className={styles.label}
-                    htmlFor="perc-auth-mfa-setup-code"
-                    {...i18nKeyAttr(AUTH_MSG.MFA_SETUP_CODE_LABEL)}
-                  >
-                    {message(AUTH_MSG.MFA_SETUP_CODE_LABEL)}
-                  </label>
-                  <input
-                    id="perc-auth-mfa-setup-code"
-                    type="text"
-                    name="code"
-                    inputMode="numeric"
-                    autoComplete="one-time-code"
-                    placeholder="000000"
-                    className={styles.input}
-                    value={code}
-                    onChange={(e) => {
-                      setCode(e.target.value);
-                      setErrorMsg(null);
-                    }}
-                    disabled={submitting}
-                    data-testid="perc-auth-mfa-setup-code"
-                  />
-                </div>
-                <button
-                  type="submit"
                   className={styles.submit}
-                  disabled={submitting}
-                  data-testid="perc-auth-mfa-setup-confirm"
+                  onClick={() => void startSetup()}
+                  data-testid="perc-auth-mfa-setup-retry"
                 >
-                  {message(
-                    submitting
-                      ? AUTH_MSG.MFA_SETUP_CONFIRMING
-                      : AUTH_MSG.MFA_SETUP_CONFIRM,
-                  )}
+                  {message(AUTH_MSG.MFA_SETUP_RETRY)}
                 </button>
-              </form>
+              )}
+
+              {startData && (
+                <>
+                  <div className={styles.qrBox} data-testid="perc-auth-mfa-qr">
+                    <QRCodeSVG value={startData.otpauthUri} size={192} />
+                  </div>
+
+                  <div className={styles.secretRow}>
+                    <span className={styles.label}>
+                      {message(AUTH_MSG.MFA_SETUP_MANUAL_LABEL)}
+                    </span>
+                    <code
+                      className={styles.secretCode}
+                      data-testid="perc-auth-mfa-manual-secret"
+                    >
+                      {startData.manualSecret}
+                    </code>
+                    <button
+                      type="button"
+                      className={styles.secondaryButton}
+                      onClick={() => {
+                        void copyTextToClipboard(startData.manualSecret).then((ok) =>
+                          setCopiedKey(ok),
+                        );
+                      }}
+                    >
+                      {copiedKey
+                        ? message(AUTH_MSG.MFA_SETUP_COPIED)
+                        : message(AUTH_MSG.MFA_SETUP_COPY_KEY)}
+                    </button>
+                  </div>
+
+                  <form onSubmit={(e) => void onConfirmSubmit(e)} noValidate>
+                    <div className={styles.formGroup}>
+                      <label
+                        className={styles.label}
+                        htmlFor="perc-auth-mfa-setup-code"
+                        {...i18nKeyAttr(AUTH_MSG.MFA_SETUP_CODE_LABEL)}
+                      >
+                        {message(AUTH_MSG.MFA_SETUP_CODE_LABEL)}
+                      </label>
+                      <input
+                        id="perc-auth-mfa-setup-code"
+                        type="text"
+                        name="code"
+                        inputMode="numeric"
+                        autoComplete="one-time-code"
+                        placeholder="000000"
+                        className={styles.input}
+                        value={code}
+                        onChange={(e) => {
+                          setCode(e.target.value);
+                          setErrorMsg(null);
+                        }}
+                        disabled={submitting}
+                        data-testid="perc-auth-mfa-setup-code"
+                      />
+                    </div>
+                    <button
+                      type="submit"
+                      className={styles.submit}
+                      disabled={submitting}
+                      data-testid="perc-auth-mfa-setup-confirm"
+                    >
+                      {message(
+                        submitting
+                          ? AUTH_MSG.MFA_SETUP_CONFIRMING
+                          : AUTH_MSG.MFA_SETUP_CONFIRM,
+                      )}
+                    </button>
+                  </form>
+                </>
+              )}
             </>
           )}
 

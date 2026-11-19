@@ -17,14 +17,21 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
   confirmMyTotpEnrollment,
+  deleteMyPasskey,
   disableMyTotp,
+  finishMyPasskeyRegistration,
   getMyMfaStatus,
   isStepUpRequiredError,
+  listMyPasskeys,
   regenerateMyRecoveryCodes,
+  renameMyPasskey,
+  startMyPasskeyRegistration,
+  startMyPasskeyStepUp,
   startMyTotpEnrollment,
   verifyMfaStepUp,
+  verifyMyPasskeyStepUp,
 } from "../../../../main/ts/api/auth/authMfaApi";
-import { del, get, post } from "../../../../main/ts/api/client";
+import { del, get, post, put } from "../../../../main/ts/api/client";
 
 vi.mock("../../../../main/ts/api/client", async () => {
   const actual = await vi.importActual<
@@ -34,6 +41,7 @@ vi.mock("../../../../main/ts/api/client", async () => {
     ...actual,
     get: vi.fn(),
     post: vi.fn(),
+    put: vi.fn(),
     del: vi.fn(),
   };
 });
@@ -172,5 +180,82 @@ describe("authMfaApi", () => {
       }),
     ).toBe(false);
     expect(isStepUpRequiredError(new Error("boom"))).toBe(false);
+  });
+
+  it("handles passkey list, register, rename, delete, and passkey step-up helpers", async () => {
+    vi.mocked(get).mockResolvedValueOnce({
+      PasskeyListResponse: {
+        passkeys: [
+          {
+            passkeyId: "pk-1",
+            label: "MacBook Touch ID",
+            aaguid: "0000",
+            transports: ["internal"],
+            backupEligible: true,
+            backupState: true,
+            createdAt: "2026-11-19T00:00:00Z",
+            lastUsedAt: null,
+          },
+        ],
+        canDeleteLastPasskey: false,
+      },
+    });
+    const list = await listMyPasskeys();
+    expect(list.passkeys).toHaveLength(1);
+    expect(list.passkeys[0].backupState).toBe(true);
+    expect(list.canDeleteLastPasskey).toBe(false);
+
+    vi.mocked(post)
+      .mockResolvedValueOnce({
+        PasskeyOptionsResponse: { challengeTxId: "tx-r", optionsJson: "{\"challenge\":\"c\"}" },
+      })
+      .mockResolvedValueOnce({
+        PasskeyRegisterFinishResponse: {
+          registered: true,
+          passkey: { passkeyId: "pk-2", label: "YubiKey" },
+          recoveryCodes: ["11111-AAAAA"],
+          message: "Saved",
+        },
+      })
+      .mockResolvedValueOnce({
+        PasskeyOptionsResponse: { challengeTxId: "tx-s", optionsJson: "{}" },
+      })
+      .mockResolvedValueOnce({
+        MfaStepUpResponse: { verified: true, expiresAtEpochMs: 999999, message: "OK" },
+      });
+    vi.mocked(put).mockResolvedValueOnce({
+      MfaActionResult: { success: true, message: "Renamed" },
+    });
+    vi.mocked(del).mockResolvedValueOnce({
+      MfaActionResult: { success: true, message: "Removed" },
+    });
+
+    const startReg = await startMyPasskeyRegistration("YubiKey");
+    expect(startReg.challengeTxId).toBe("tx-r");
+    expect(post).toHaveBeenNthCalledWith(
+      1,
+      expect.stringContaining("/auth/mfa/passkeys/register/start"),
+      { PasskeyOptionsRequest: { label: "YubiKey" } },
+    );
+
+    const finReg = await finishMyPasskeyRegistration("tx-r", "YubiKey", "{\"id\":\"1\"}");
+    expect(finReg.registered).toBe(true);
+    expect(finReg.recoveryCodes).toEqual(["11111-AAAAA"]);
+
+    const renamed = await renameMyPasskey("pk-1", "New Name");
+    expect(renamed.success).toBe(true);
+    expect(put).toHaveBeenCalledWith(
+      expect.stringContaining("/auth/mfa/passkeys/pk-1"),
+      { PasskeyRenameRequest: { label: "New Name" } },
+    );
+
+    const removed = await deleteMyPasskey("pk-1");
+    expect(removed.success).toBe(true);
+
+    const suStart = await startMyPasskeyStepUp();
+    expect(suStart.challengeTxId).toBe("tx-s");
+
+    const suVerify = await verifyMyPasskeyStepUp("tx-s", "{\"id\":\"a\"}");
+    expect(suVerify.verified).toBe(true);
   });
 });

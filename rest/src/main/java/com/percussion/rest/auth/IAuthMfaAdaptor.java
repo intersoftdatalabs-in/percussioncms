@@ -29,4 +29,18 @@ public interface IAuthMfaAdaptor {
   MfaActionResult disableTotp();
 
   RecoveryCodesRegenerateResponse regenerateRecoveryCodes();
+
+  PasskeyListResponse listPasskeys();
+
+  PasskeyOptionsResponse startPasskeyRegistration(PasskeyOptionsRequest request);
+
+  PasskeyRegisterFinishResponse finishPasskeyRegistration(PasskeyRegisterFinishRequest request);
+
+  MfaActionResult renamePasskey(String passkeyId, PasskeyRenameRequest request);
+
+  MfaActionResult deletePasskey(String passkeyId);
+
+  PasskeyOptionsResponse startPasskeyStepUp();
+
+  MfaStepUpResponse verifyPasskeyStepUp(PasskeyStepUpVerifyRequest request);
 }

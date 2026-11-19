@@ -27,6 +27,7 @@ import com.percussion.services.auth.mfa.IPSMfaService;
 import com.percussion.services.auth.mfa.PSMfaChallengeOutcome;
 import com.percussion.services.auth.mfa.PSMfaLockoutException;
 import com.percussion.services.auth.mfa.PSMfaTxStatus;
+import com.percussion.services.auth.mfa.PSPasskeyOptions;
 import com.percussion.services.auth.mfa.PSTotpConfirmOutcome;
 import com.percussion.services.auth.mfa.PSTotpEnrollmentStart;
 import com.percussion.services.auth.ratelimit.PSAuthRateLimitException;
@@ -76,13 +77,17 @@ public class PSAuthServlet extends HttpServlet {
   private static final String PATH_CHALLENGE = "/challenge";
   private static final String PATH_CHALLENGE_TOTP = "/challenge/totp";
   private static final String PATH_CHALLENGE_RECOVERY = "/challenge/recovery-code";
+  private static final String PATH_CHALLENGE_PASSKEY_OPTIONS = "/challenge/passkey/options";
+  private static final String PATH_CHALLENGE_PASSKEY_VERIFY = "/challenge/passkey/verify";
   private static final String PATH_SETUP = "/setup";
   private static final String PATH_SETUP_TOTP_START = "/setup/totp/start";
   private static final String PATH_SETUP_TOTP_CONFIRM = "/setup/totp/confirm";
+  private static final String PATH_SETUP_PASSKEY_START = "/setup/passkey/start";
+  private static final String PATH_SETUP_PASSKEY_FINISH = "/setup/passkey/finish";
   private static final String PATH_CANCEL = "/cancel";
 
   private static final String JSP_AUTH_HOST = "/rxauth.jsp";
-  private static final int MAX_BODY_BYTES = 8192;
+  private static final int MAX_BODY_BYTES = 65536;
 
   private static final ObjectMapper JSON = JsonMapper.builder().build();
   private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<>() {};
@@ -191,10 +196,15 @@ public class PSAuthServlet extends HttpServlet {
           handleChallengePost(request, response, params.get("code"), false);
       case PATH_CHALLENGE_RECOVERY ->
           handleChallengePost(request, response, params.get("code"), true);
+      case PATH_CHALLENGE_PASSKEY_OPTIONS -> handleChallengePasskeyOptionsPost(request, response);
+      case PATH_CHALLENGE_PASSKEY_VERIFY ->
+          handleChallengePasskeyVerifyPost(request, response, params);
       case PATH_SETUP_TOTP_START ->
           handleSetupTotpStartPost(request, response, params.get("label"));
       case PATH_SETUP_TOTP_CONFIRM ->
           handleSetupTotpConfirmPost(request, response, params.get("totpId"), params.get("code"));
+      case PATH_SETUP_PASSKEY_START -> handleSetupPasskeyStartPost(request, response, params);
+      case PATH_SETUP_PASSKEY_FINISH -> handleSetupPasskeyFinishPost(request, response, params);
       case PATH_CANCEL -> handleCancelPost(request, response);
       default -> response.sendError(HttpServletResponse.SC_NOT_FOUND);
     }
@@ -296,6 +306,172 @@ public class PSAuthServlet extends HttpServlet {
       writeErrorJson(response, 423, "MFA_LOCKED", ex.getMessage());
     } catch (PSAuthRateLimitException ex) {
       writeErrorJson(response, 429, "RATE_LIMITED", ex.getMessage());
+    } catch (LoginException ex) {
+      writeErrorJson(
+          response,
+          HttpServletResponse.SC_UNAUTHORIZED,
+          "SESSION_FINALIZE_FAILED",
+          "Unable to complete sign-in. Please try again.");
+    }
+  }
+
+  private void handleChallengePasskeyOptionsPost(
+      HttpServletRequest request, HttpServletResponse response) throws IOException {
+    String txId = extractAuthTxCookie(request);
+    if (StringUtils.isBlank(txId)) {
+      writeErrorJson(
+          response,
+          HttpServletResponse.SC_BAD_REQUEST,
+          PSMfaChallengeOutcome.STATUS_TX_INVALID,
+          "Sign-in verification session has expired. Please sign in again.");
+      return;
+    }
+    try {
+      PSPasskeyOptions opts =
+          resolveMfaService().startChallengePasskey(txId, resolveRequestOrigin(request));
+      writeJson(
+          response,
+          HttpServletResponse.SC_OK,
+          Map.of("challengeTxId", opts.challengeTxId(), "optionsJson", opts.optionsJson()));
+    } catch (IllegalArgumentException | IllegalStateException ex) {
+      writeErrorJson(
+          response,
+          HttpServletResponse.SC_BAD_REQUEST,
+          PSMfaChallengeOutcome.STATUS_TX_INVALID,
+          ex.getMessage());
+    }
+  }
+
+  private void handleChallengePasskeyVerifyPost(
+      HttpServletRequest request, HttpServletResponse response, Map<String, String> params)
+      throws IOException {
+    String txId = extractAuthTxCookie(request);
+    if (StringUtils.isBlank(txId)) {
+      writeErrorJson(
+          response,
+          HttpServletResponse.SC_BAD_REQUEST,
+          PSMfaChallengeOutcome.STATUS_TX_INVALID,
+          "Sign-in verification session has expired. Please sign in again.");
+      return;
+    }
+    try {
+      PSMfaChallengeOutcome outcome =
+          resolveMfaService()
+              .verifyChallengePasskey(
+                  txId,
+                  params.get("challengeTxId"),
+                  params.get("credentialJson"),
+                  resolveRequestOrigin(request),
+                  resolveClientIp(request));
+      if (!outcome.verified()) {
+        int codeStatus =
+            PSMfaChallengeOutcome.STATUS_TX_INVALID.equals(outcome.status())
+                ? HttpServletResponse.SC_BAD_REQUEST
+                : HttpServletResponse.SC_UNAUTHORIZED;
+        writeErrorJson(response, codeStatus, outcome.status(), outcome.message());
+        return;
+      }
+      String redirectUrl =
+          completeMfaSession(
+              request,
+              response,
+              txId,
+              outcome.userName(),
+              outcome.roles(),
+              outcome.redirectUrl(),
+              outcome.locale());
+      Map<String, Object> body = new LinkedHashMap<>();
+      body.put("authenticated", true);
+      body.put("redirectUrl", redirectUrl);
+      body.put("recoveryCodesRemaining", outcome.recoveryCodesRemaining());
+      body.put("message", outcome.message());
+      writeJson(response, HttpServletResponse.SC_OK, body);
+    } catch (PSMfaLockoutException ex) {
+      writeErrorJson(response, 423, "MFA_LOCKED", ex.getMessage());
+    } catch (PSAuthRateLimitException ex) {
+      writeErrorJson(response, 429, "RATE_LIMITED", ex.getMessage());
+    } catch (LoginException ex) {
+      writeErrorJson(
+          response,
+          HttpServletResponse.SC_UNAUTHORIZED,
+          "SESSION_FINALIZE_FAILED",
+          "Unable to complete sign-in. Please try again.");
+    }
+  }
+
+  private void handleSetupPasskeyStartPost(
+      HttpServletRequest request, HttpServletResponse response, Map<String, String> params)
+      throws IOException {
+    String txId = extractAuthTxCookie(request);
+    try {
+      PSPasskeyOptions opts =
+          resolveMfaService()
+              .startEnrollOnlyPasskey(txId, params.get("label"), resolveRequestOrigin(request));
+      writeJson(
+          response,
+          HttpServletResponse.SC_OK,
+          Map.of("challengeTxId", opts.challengeTxId(), "optionsJson", opts.optionsJson()));
+    } catch (IllegalArgumentException | IllegalStateException ex) {
+      writeErrorJson(
+          response,
+          HttpServletResponse.SC_BAD_REQUEST,
+          PSMfaChallengeOutcome.STATUS_TX_INVALID,
+          ex.getMessage());
+    }
+  }
+
+  private void handleSetupPasskeyFinishPost(
+      HttpServletRequest request, HttpServletResponse response, Map<String, String> params)
+      throws IOException {
+    String txId = extractAuthTxCookie(request);
+    if (StringUtils.isBlank(txId)) {
+      writeErrorJson(
+          response,
+          HttpServletResponse.SC_BAD_REQUEST,
+          PSMfaChallengeOutcome.STATUS_TX_INVALID,
+          "MFA setup session has expired. Sign in again to continue.");
+      return;
+    }
+    try {
+      PSTotpConfirmOutcome outcome =
+          resolveMfaService()
+              .completeEnrollOnlyPasskey(
+                  txId,
+                  params.get("challengeTxId"),
+                  params.get("label"),
+                  params.get("credentialJson"),
+                  resolveRequestOrigin(request),
+                  resolveClientIp(request));
+      if (!outcome.enrolled()) {
+        writeErrorJson(
+            response, HttpServletResponse.SC_UNAUTHORIZED, "INVALID_CREDENTIAL", outcome.message());
+        return;
+      }
+      String redirectUrl =
+          completeMfaSession(
+              request,
+              response,
+              txId,
+              outcome.userName(),
+              outcome.roles(),
+              outcome.redirectUrl(),
+              outcome.locale());
+      Map<String, Object> body = new LinkedHashMap<>();
+      body.put("enrolled", true);
+      body.put("recoveryCodes", outcome.recoveryCodes());
+      body.put("redirectUrl", redirectUrl);
+      body.put("message", outcome.message());
+      writeJson(response, HttpServletResponse.SC_OK, body);
+    } catch (PSMfaLockoutException ex) {
+      writeErrorJson(response, 423, "MFA_LOCKED", ex.getMessage());
+    } catch (PSAuthRateLimitException ex) {
+      writeErrorJson(response, 429, "RATE_LIMITED", ex.getMessage());
+    } catch (IllegalArgumentException | IllegalStateException ex) {
+      writeErrorJson(
+          response,
+          HttpServletResponse.SC_BAD_REQUEST,
+          PSMfaChallengeOutcome.STATUS_TX_INVALID,
+          ex.getMessage());
     } catch (LoginException ex) {
       writeErrorJson(
           response,
@@ -492,6 +668,8 @@ public class PSAuthServlet extends HttpServlet {
     copyParamIfPresent(request, out, "code");
     copyParamIfPresent(request, out, "totpId");
     copyParamIfPresent(request, out, "label");
+    copyParamIfPresent(request, out, "challengeTxId");
+    copyParamIfPresent(request, out, "credentialJson");
     return out;
   }
 
@@ -507,8 +685,11 @@ public class PSAuthServlet extends HttpServlet {
         return;
       }
       for (Map.Entry<String, Object> entry : parsed.entrySet()) {
-        if (entry.getValue() instanceof String str) {
+        Object val = entry.getValue();
+        if (val instanceof String str) {
           out.put(entry.getKey(), str);
+        } else if (val instanceof Map || val instanceof List) {
+          out.put(entry.getKey(), JSON.writeValueAsString(val));
         }
       }
     } catch (RuntimeException ex) {
@@ -543,6 +724,24 @@ public class PSAuthServlet extends HttpServlet {
       path = path.substring(0, path.length() - 1);
     }
     return path;
+  }
+
+  private static String resolveRequestOrigin(HttpServletRequest request) {
+    String origin = StringUtils.trimToNull(request.getHeader("Origin"));
+    if (origin != null) {
+      return origin;
+    }
+    String scheme = StringUtils.defaultIfBlank(request.getScheme(), "http");
+    String host = request.getServerName();
+    int port = request.getServerPort();
+    if (StringUtils.isBlank(host)) {
+      return "";
+    }
+    boolean defaultPort =
+        ("http".equalsIgnoreCase(scheme) && port == 80)
+            || ("https".equalsIgnoreCase(scheme) && port == 443)
+            || port <= 0;
+    return defaultPort ? scheme + "://" + host : scheme + "://" + host + ":" + port;
   }
 
   private static String resolveClientIp(HttpServletRequest request) {

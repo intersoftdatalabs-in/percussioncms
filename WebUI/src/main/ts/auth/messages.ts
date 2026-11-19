@@ -75,4 +75,17 @@ export const AUTH_MSG = {
   MFA_SETUP_COPY_CODES: "perc.ui.auth.modern@Copy recovery codes",
   MFA_SETUP_DOWNLOAD_CODES: "perc.ui.auth.modern@Download (.txt)",
   MFA_SETUP_CONTINUE: "perc.ui.auth.modern@Continue to Percussion CMS",
+  MFA_PASSKEY_VERIFY_BTN: "perc.ui.auth.modern@Verify with passkey",
+  MFA_PASSKEY_WAITING: "perc.ui.auth.modern@Waiting for passkey…",
+  MFA_PASSKEY_OR_CODE: "perc.ui.auth.modern@or enter a code below",
+  MFA_PASSKEY_ABORTED:
+    "perc.ui.auth.modern@Passkey verification was cancelled or failed. Try again or use a verification code.",
+  MFA_SETUP_MODE_TOTP: "perc.ui.auth.modern@Authenticator app",
+  MFA_SETUP_MODE_PASSKEY: "perc.ui.auth.modern@Passkey",
+  MFA_SETUP_PASSKEY_SUBTITLE:
+    "perc.ui.auth.modern@Create a passkey saved on this device or your security key for faster, phishing-resistant verification.",
+  MFA_SETUP_PASSKEY_LABEL: "perc.ui.auth.modern@Passkey name (optional)",
+  MFA_SETUP_PASSKEY_PLACEHOLDER: "perc.ui.auth.modern@e.g. Work Laptop or YubiKey",
+  MFA_SETUP_PASSKEY_BTN: "perc.ui.auth.modern@Register passkey",
+  MFA_SETUP_PASSKEY_BUSY: "perc.ui.auth.modern@Follow your browser prompt…",
 } as const;

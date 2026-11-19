@@ -696,6 +696,137 @@ public class PSAuthSecurityDao implements IPSAuthSecurityDao {
   }
 
   @Override
+  public PSMfaPasskey savePasskey(PSMfaPasskey passkey) {
+    Objects.requireNonNull(passkey, "passkey");
+    if (StringUtils.isBlank(passkey.getPasskeyId())) {
+      throw new IllegalArgumentException("passkeyId is required");
+    }
+    requireReady();
+    return writeTransactionTemplate.execute(
+        status -> {
+          PSMfaPasskey merged = entityManager.merge(passkey);
+          entityManager.flush();
+          return merged;
+        });
+  }
+
+  @Override
+  public Optional<PSMfaPasskey> findPasskeyById(String passkeyId) {
+    if (StringUtils.isBlank(passkeyId)) {
+      return Optional.empty();
+    }
+    requireReady();
+    return Optional.ofNullable(
+        readTransactionTemplate.execute(
+            status -> entityManager.find(PSMfaPasskey.class, passkeyId.trim())));
+  }
+
+  @Override
+  public Optional<PSMfaPasskey> findActivePasskeyByCredentialId(String credentialId) {
+    if (StringUtils.isBlank(credentialId)) {
+      return Optional.empty();
+    }
+    requireReady();
+    List<PSMfaPasskey> rows =
+        readTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "SELECT p FROM PSMfaPasskey p WHERE p.credentialId = :credentialId"
+                            + " AND p.status = :status",
+                        PSMfaPasskey.class)
+                    .setParameter("credentialId", credentialId.trim())
+                    .setParameter("status", PSMfaPasskey.STATUS_ACTIVE)
+                    .setMaxResults(1)
+                    .getResultList());
+    if (rows == null || rows.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(rows.get(0));
+  }
+
+  @Override
+  public int renamePasskey(String passkeyId, String userName, String newLabel) {
+    if (StringUtils.isBlank(passkeyId)
+        || StringUtils.isBlank(userName)
+        || StringUtils.isBlank(newLabel)) {
+      return 0;
+    }
+    requireReady();
+    Integer updated =
+        writeTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "UPDATE PSMfaPasskey p SET p.label = :label"
+                            + " WHERE p.passkeyId = :passkeyId AND p.userName = :userName"
+                            + " AND p.status = :status")
+                    .setParameter("label", newLabel.trim())
+                    .setParameter("passkeyId", passkeyId.trim())
+                    .setParameter("userName", userName.trim())
+                    .setParameter("status", PSMfaPasskey.STATUS_ACTIVE)
+                    .executeUpdate());
+    return updated != null ? updated : 0;
+  }
+
+  @Override
+  public int revokePasskey(String passkeyId, String userName) {
+    if (StringUtils.isBlank(passkeyId) || StringUtils.isBlank(userName)) {
+      return 0;
+    }
+    requireReady();
+    Integer updated =
+        writeTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "UPDATE PSMfaPasskey p SET p.status = :revokedStatus"
+                            + " WHERE p.passkeyId = :passkeyId AND p.userName = :userName"
+                            + " AND p.status = :activeStatus")
+                    .setParameter("revokedStatus", PSMfaPasskey.STATUS_REVOKED)
+                    .setParameter("passkeyId", passkeyId.trim())
+                    .setParameter("userName", userName.trim())
+                    .setParameter("activeStatus", PSMfaPasskey.STATUS_ACTIVE)
+                    .executeUpdate());
+    return updated != null ? updated : 0;
+  }
+
+  @Override
+  public int updatePasskeySignCountAtomically(
+      String passkeyId,
+      long expectedSignCount,
+      long newSignCount,
+      boolean backupEligible,
+      boolean backupState,
+      Date lastUsedAt) {
+    if (StringUtils.isBlank(passkeyId)
+        || expectedSignCount < 0
+        || newSignCount < 0
+        || lastUsedAt == null) {
+      return 0;
+    }
+    requireReady();
+    Integer updated =
+        writeTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "UPDATE PSMfaPasskey p SET p.signCount = :newSignCount,"
+                            + " p.backupEligible = :be, p.backupState = :bs, p.lastUsedAt = :lastUsedAt"
+                            + " WHERE p.passkeyId = :passkeyId AND p.status = :status"
+                            + " AND p.signCount = :expectedSignCount")
+                    .setParameter("newSignCount", newSignCount)
+                    .setParameter("be", backupEligible ? "Y" : "N")
+                    .setParameter("bs", backupState ? "Y" : "N")
+                    .setParameter("lastUsedAt", lastUsedAt)
+                    .setParameter("passkeyId", passkeyId.trim())
+                    .setParameter("status", PSMfaPasskey.STATUS_ACTIVE)
+                    .setParameter("expectedSignCount", expectedSignCount)
+                    .executeUpdate());
+    return updated != null ? updated : 0;
+  }
+
+  @Override
   public Map<String, Boolean> checkSchemaTablesPresent() {
     requireReady();
     Map<String, Boolean> statusMap = new LinkedHashMap<>();

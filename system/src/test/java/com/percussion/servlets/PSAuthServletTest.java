@@ -30,6 +30,7 @@ import com.percussion.services.auth.mfa.IPSMfaService;
 import com.percussion.services.auth.mfa.PSMfaChallengeOutcome;
 import com.percussion.services.auth.mfa.PSMfaLockoutException;
 import com.percussion.services.auth.mfa.PSMfaTxStatus;
+import com.percussion.services.auth.mfa.PSPasskeyOptions;
 import com.percussion.services.auth.mfa.PSTotpConfirmOutcome;
 import com.percussion.services.auth.mfa.PSTotpEnrollmentStart;
 import com.percussion.services.auth.ratelimit.PSAuthRateLimitException;
@@ -302,5 +303,105 @@ class PSAuthServletTest {
     assertEquals(200, confirmRes.getStatus());
     assertTrue(confirmRes.getContentAsString().contains("\"enrolled\":true"));
     assertTrue(confirmRes.getContentAsString().contains("11111-AAAAA"));
+  }
+
+  @Test
+  void passkeyChallengeAndSetupEndpointsWorkWithCsrf() throws Exception {
+    when(mfaService.getTransactionStatus("tx-pk"))
+        .thenReturn(
+            new PSMfaTxStatus(
+                true,
+                "tx-pk",
+                "MFA_CHALLENGE",
+                "alice",
+                "/cm/app/",
+                "en-us",
+                List.of("Admin"),
+                true,
+                true,
+                8L,
+                Instant.now().plusSeconds(300)));
+    MockHttpServletRequest getChallenge = new MockHttpServletRequest("GET", "/auth/challenge");
+    getChallenge.setPathInfo("/challenge");
+    getChallenge.setCookies(new Cookie(PSSecurityFilter.AUTH_TX_COOKIE_NAME, "tx-pk"));
+    servlet.doGet(getChallenge, new MockHttpServletResponse());
+    String csrf = (String) getChallenge.getAttribute(PSAuthServlet.ATTR_CSRF_TOKEN);
+
+    when(mfaService.startChallengePasskey("tx-pk", "http://localhost"))
+        .thenReturn(new PSPasskeyOptions("w-tx-1", "{\"challenge\":\"abc\"}"));
+    MockHttpServletRequest optsReq =
+        new MockHttpServletRequest("POST", "/auth/challenge/passkey/options");
+    optsReq.setPathInfo("/challenge/passkey/options");
+    optsReq.setSession(getChallenge.getSession());
+    optsReq.setCookies(new Cookie(PSSecurityFilter.AUTH_TX_COOKIE_NAME, "tx-pk"));
+    optsReq.addHeader(PSAuthCsrfGuard.HEADER_NAME, csrf);
+    MockHttpServletResponse optsRes = new MockHttpServletResponse();
+    servlet.doPost(optsReq, optsRes);
+    assertEquals(200, optsRes.getStatus());
+    assertTrue(optsRes.getContentAsString().contains("\"challengeTxId\":\"w-tx-1\""));
+
+    when(mfaService.verifyChallengePasskey("tx-pk", "w-tx-1", "{\"id\":\"c1\"}", "http://localhost", "127.0.0.1"))
+        .thenReturn(
+            new PSMfaChallengeOutcome(
+                true,
+                PSMfaChallengeOutcome.STATUS_VERIFIED,
+                "Verified",
+                "alice",
+                "/cm/app/",
+                "en-us",
+                List.of("Admin"),
+                8L));
+    MockHttpServletRequest verifyReq =
+        new MockHttpServletRequest("POST", "/auth/challenge/passkey/verify");
+    verifyReq.setPathInfo("/challenge/passkey/verify");
+    verifyReq.setSession(getChallenge.getSession());
+    verifyReq.setCookies(new Cookie(PSSecurityFilter.AUTH_TX_COOKIE_NAME, "tx-pk"));
+    verifyReq.setRemoteAddr("127.0.0.1");
+    verifyReq.addHeader(PSAuthCsrfGuard.HEADER_NAME, csrf);
+    verifyReq.setContentType("application/json");
+    verifyReq.setContent(
+        "{\"challengeTxId\":\"w-tx-1\",\"credentialJson\":\"{\\\"id\\\":\\\"c1\\\"}\"}"
+            .getBytes(StandardCharsets.UTF_8));
+    MockHttpServletResponse verifyRes = new MockHttpServletResponse();
+    servlet.doPost(verifyReq, verifyRes);
+    assertEquals(200, verifyRes.getStatus());
+    assertTrue(verifyRes.getContentAsString().contains("\"authenticated\":true"));
+
+    when(mfaService.startEnrollOnlyPasskey("enroll-pk", "Work", "http://localhost"))
+        .thenReturn(new PSPasskeyOptions("reg-tx-1", "{\"rp\":{\"id\":\"localhost\"}}"));
+    MockHttpServletRequest setupStart =
+        new MockHttpServletRequest("POST", "/auth/setup/passkey/start");
+    setupStart.setPathInfo("/setup/passkey/start");
+    setupStart.setSession(getChallenge.getSession());
+    setupStart.setCookies(new Cookie(PSSecurityFilter.AUTH_TX_COOKIE_NAME, "enroll-pk"));
+    setupStart.addHeader(PSAuthCsrfGuard.HEADER_NAME, csrf);
+    setupStart.setContentType("application/json");
+    setupStart.setContent("{\"label\":\"Work\"}".getBytes(StandardCharsets.UTF_8));
+    MockHttpServletResponse setupStartRes = new MockHttpServletResponse();
+    servlet.doPost(setupStart, setupStartRes);
+    assertEquals(200, setupStartRes.getStatus());
+    assertTrue(setupStartRes.getContentAsString().contains("\"challengeTxId\":\"reg-tx-1\""));
+
+    when(mfaService.completeEnrollOnlyPasskey(
+            "enroll-pk", "reg-tx-1", "Work", "{\"id\":\"r1\"}", "http://localhost", "127.0.0.1"))
+        .thenReturn(
+            new PSTotpConfirmOutcome(
+                true, List.of("AAAAA-BBBBB"), "bob", "/cm/app/", "en-us", List.of("Editor"), "ok"));
+    MockHttpServletRequest setupFinish =
+        new MockHttpServletRequest("POST", "/auth/setup/passkey/finish");
+    setupFinish.setPathInfo("/setup/passkey/finish");
+    setupFinish.setSession(getChallenge.getSession());
+    setupFinish.setCookies(new Cookie(PSSecurityFilter.AUTH_TX_COOKIE_NAME, "enroll-pk"));
+    setupFinish.setRemoteAddr("127.0.0.1");
+    setupFinish.addHeader(PSAuthCsrfGuard.HEADER_NAME, csrf);
+    setupFinish.setContentType("application/json");
+    setupFinish.setContent(
+        "{\"challengeTxId\":\"reg-tx-1\",\"label\":\"Work\",\"credentialJson\":\"{\\\"id\\\":\\\"r1\\\"}\"}"
+            .getBytes(StandardCharsets.UTF_8));
+    MockHttpServletResponse setupFinishRes = new MockHttpServletResponse();
+    servlet.doPost(setupFinish, setupFinishRes);
+    assertEquals(200, setupFinishRes.getStatus());
+    assertTrue(setupFinishRes.getContentAsString().contains("\"enrolled\":true"));
+    assertTrue(setupFinishRes.getContentAsString().contains("AAAAA-BBBBB"));
   }
 }

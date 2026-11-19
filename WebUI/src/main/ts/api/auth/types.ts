@@ -133,3 +133,31 @@ export interface MfaActionResult {
   success: boolean;
   message: string;
 }
+
+export interface PasskeySummary {
+  passkeyId: string;
+  label: string;
+  aaguid: string | null;
+  transports: string[];
+  backupEligible: boolean;
+  backupState: boolean;
+  createdAt: string | null;
+  lastUsedAt: string | null;
+}
+
+export interface PasskeyListResponse {
+  passkeys: PasskeySummary[];
+  canDeleteLastPasskey: boolean;
+}
+
+export interface PasskeyOptionsResponse {
+  challengeTxId: string;
+  optionsJson: string;
+}
+
+export interface PasskeyRegisterFinishResponse {
+  registered: boolean;
+  passkey: PasskeySummary | null;
+  recoveryCodes: string[];
+  message: string;
+}

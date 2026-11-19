@@ -21,11 +21,15 @@ import com.percussion.services.auth.IPSAuthSecurityDao;
 import com.percussion.services.auth.data.PSAccountSecurity;
 import com.percussion.services.auth.data.PSAuthLoginTx;
 import com.percussion.services.auth.mfa.IPSMfaService;
+import com.percussion.services.auth.mfa.IPSPasskeyService;
 import com.percussion.services.auth.mfa.IPSRecoveryCodeService;
 import com.percussion.services.auth.mfa.IPSTotpService;
 import com.percussion.services.auth.mfa.PSMfaChallengeOutcome;
 import com.percussion.services.auth.mfa.PSMfaLockoutException;
 import com.percussion.services.auth.mfa.PSMfaTxStatus;
+import com.percussion.services.auth.mfa.PSPasskeyOptions;
+import com.percussion.services.auth.mfa.PSPasskeyRegisterOutcome;
+import com.percussion.services.auth.mfa.PSPasskeySummary;
 import com.percussion.services.auth.mfa.PSProfileMfaStatus;
 import com.percussion.services.auth.mfa.PSStepUpRequiredException;
 import com.percussion.services.auth.mfa.PSTotpConfirmOutcome;
@@ -76,11 +80,30 @@ public class PSMfaService implements IPSMfaService {
   private final IPSRecoveryCodeService recoveryCodeService;
   private final IPSAuthPolicyService authPolicyService;
   private final IPSAuthRateLimiter rateLimiter;
+  private final IPSPasskeyService passkeyService;
   private final Supplier<Properties> serverPropsSupplier;
   private final Clock clock;
   private final SecureRandom secureRandom = new SecureRandom();
 
   @Autowired
+  public PSMfaService(
+      IPSAuthSecurityDao authSecurityDao,
+      IPSTotpService totpService,
+      IPSRecoveryCodeService recoveryCodeService,
+      IPSAuthPolicyService authPolicyService,
+      IPSAuthRateLimiter rateLimiter,
+      IPSPasskeyService passkeyService) {
+    this(
+        authSecurityDao,
+        totpService,
+        recoveryCodeService,
+        authPolicyService,
+        rateLimiter,
+        passkeyService,
+        PSMfaService::defaultServerProperties,
+        Clock.systemUTC());
+  }
+
   public PSMfaService(
       IPSAuthSecurityDao authSecurityDao,
       IPSTotpService totpService,
@@ -93,6 +116,7 @@ public class PSMfaService implements IPSMfaService {
         recoveryCodeService,
         authPolicyService,
         rateLimiter,
+        null,
         PSMfaService::defaultServerProperties,
         Clock.systemUTC());
   }
@@ -105,11 +129,32 @@ public class PSMfaService implements IPSMfaService {
       IPSAuthRateLimiter rateLimiter,
       Supplier<Properties> serverPropsSupplier,
       Clock clock) {
+    this(
+        authSecurityDao,
+        totpService,
+        recoveryCodeService,
+        authPolicyService,
+        rateLimiter,
+        null,
+        serverPropsSupplier,
+        clock);
+  }
+
+  PSMfaService(
+      IPSAuthSecurityDao authSecurityDao,
+      IPSTotpService totpService,
+      IPSRecoveryCodeService recoveryCodeService,
+      IPSAuthPolicyService authPolicyService,
+      IPSAuthRateLimiter rateLimiter,
+      IPSPasskeyService passkeyService,
+      Supplier<Properties> serverPropsSupplier,
+      Clock clock) {
     this.authSecurityDao = Objects.requireNonNull(authSecurityDao, "authSecurityDao");
     this.totpService = Objects.requireNonNull(totpService, "totpService");
     this.recoveryCodeService = Objects.requireNonNull(recoveryCodeService, "recoveryCodeService");
     this.authPolicyService = Objects.requireNonNull(authPolicyService, "authPolicyService");
     this.rateLimiter = Objects.requireNonNull(rateLimiter, "rateLimiter");
+    this.passkeyService = passkeyService;
     this.serverPropsSupplier =
         Objects.requireNonNull(serverPropsSupplier, "serverPropsSupplier");
     this.clock = Objects.requireNonNull(clock, "clock");
@@ -375,6 +420,281 @@ public class PSMfaService implements IPSMfaService {
     List<String> codes = recoveryCodeService.generateAndReplaceCodes(cleanUser);
     PSSystemAuditLogger.mfaRecoveryCodesRegenerated(null, cleanUser, codes.size());
     return codes;
+  }
+
+  @Override
+  public PSPasskeyOptions startChallengePasskey(String txId, String requestOrigin) {
+    PSAuthLoginTx tx =
+        loadActiveTx(txId, PSAuthLoginTx.TYPE_MFA_CHALLENGE)
+            .orElseThrow(
+                () ->
+                    new IllegalArgumentException(
+                        "Sign-in verification session has expired. Please sign in again."));
+    return requirePasskeyService().startAuthentication(tx.getUserName(), requestOrigin);
+  }
+
+  @Override
+  public PSMfaChallengeOutcome verifyChallengePasskey(
+      String txId,
+      String challengeTxId,
+      String credentialJson,
+      String requestOrigin,
+      String requestIp) {
+    Optional<PSAuthLoginTx> txOpt = loadActiveTx(txId, PSAuthLoginTx.TYPE_MFA_CHALLENGE);
+    if (txOpt.isEmpty()) {
+      return invalidChallengeOutcome(
+          PSMfaChallengeOutcome.STATUS_TX_INVALID,
+          "Sign-in verification session has expired. Please sign in again.");
+    }
+    PSAuthLoginTx tx = txOpt.get();
+    String userName = tx.getUserName();
+    enforceVerifyRateLimits(userName, requestIp);
+    ensureNotLocked(userName);
+
+    try {
+      requirePasskeyService()
+          .verifyAuthentication(userName, challengeTxId, credentialJson, requestOrigin);
+    } catch (IllegalArgumentException | IllegalStateException ex) {
+      return handleChallengeFailure(tx, userName, "PASSKEY", ex.getMessage());
+    }
+
+    int consumed =
+        authSecurityDao.consumeLoginTxAtomically(
+            tx.getTxId(), PSAuthLoginTx.TYPE_MFA_CHALLENGE, Date.from(clock.instant()));
+    if (consumed != 1) {
+      return invalidChallengeOutcome(
+          PSMfaChallengeOutcome.STATUS_TX_INVALID,
+          "Sign-in verification session was already used or expired.");
+    }
+    return finalizeChallengeSuccessFactor(tx, userName, "PASSKEY");
+  }
+
+  @Override
+  public PSPasskeyOptions startEnrollOnlyPasskey(
+      String txId, String label, String requestOrigin) {
+    PSAuthLoginTx tx =
+        loadActiveTx(txId, PSAuthLoginTx.TYPE_MFA_ENROLL)
+            .orElseThrow(
+                () ->
+                    new IllegalArgumentException(
+                        "MFA setup session has expired. Sign in again to continue."));
+    return requirePasskeyService()
+        .startRegistration(tx.getUserName(), tx.getUserName(), label, requestOrigin);
+  }
+
+  @Override
+  public PSTotpConfirmOutcome completeEnrollOnlyPasskey(
+      String txId,
+      String challengeTxId,
+      String label,
+      String credentialJson,
+      String requestOrigin,
+      String requestIp) {
+    PSAuthLoginTx tx =
+        loadActiveTx(txId, PSAuthLoginTx.TYPE_MFA_ENROLL)
+            .orElseThrow(
+                () ->
+                    new IllegalArgumentException(
+                        "MFA setup session has expired. Sign in again to continue."));
+    String userName = tx.getUserName();
+    enforceVerifyRateLimits(userName, requestIp);
+    ensureNotLocked(userName);
+
+    try {
+      requirePasskeyService()
+          .finishRegistration(userName, challengeTxId, label, credentialJson, requestOrigin);
+    } catch (IllegalArgumentException | IllegalStateException ex) {
+      recordFailedAttempt(userName, "PASSKEY_ENROLL");
+      return new PSTotpConfirmOutcome(false, List.of(), userName, "", "", List.of(), ex.getMessage());
+    }
+
+    int updated =
+        authSecurityDao.consumeLoginTxAtomically(
+            tx.getTxId(), PSAuthLoginTx.TYPE_MFA_ENROLL, Date.from(clock.instant()));
+    if (updated != 1) {
+      return new PSTotpConfirmOutcome(
+          false,
+          List.of(),
+          userName,
+          "",
+          "",
+          List.of(),
+          "MFA setup session is no longer active. Sign in again.");
+    }
+
+    resetFailures(userName);
+    refreshAccountEnrollmentState(userName);
+    List<String> recoveryCodes = issueInitialRecoveryCodesIfNeeded(userName);
+    PSSystemAuditLogger.mfaFactorEnrolled(null, userName, "PASSKEY");
+
+    TxPayload payload = parsePayload(tx.getPayloadJson());
+    return new PSTotpConfirmOutcome(
+        true,
+        recoveryCodes,
+        userName,
+        payload.redirectUrl(),
+        payload.locale(),
+        payload.roles(),
+        "Passkey and recovery codes saved.");
+  }
+
+  @Override
+  public PSPasskeyOptions startProfilePasskeyStepUp(
+      String userName, String requestOrigin, HttpSession session) {
+    String cleanUser = requireUserName(userName);
+    if (session == null) {
+      throw new SecurityException("Authenticated session required");
+    }
+    return requirePasskeyService().startAuthentication(cleanUser, requestOrigin);
+  }
+
+  @Override
+  public long verifyProfilePasskeyStepUp(
+      String userName,
+      String challengeTxId,
+      String credentialJson,
+      String requestOrigin,
+      String requestIp,
+      HttpSession session) {
+    String cleanUser = requireUserName(userName);
+    if (session == null) {
+      throw new SecurityException("Authenticated session required");
+    }
+    enforceVerifyRateLimits(cleanUser, requestIp);
+    ensureNotLocked(cleanUser);
+
+    try {
+      requirePasskeyService()
+          .verifyAuthentication(cleanUser, challengeTxId, credentialJson, requestOrigin);
+    } catch (IllegalArgumentException ex) {
+      recordFailedAttempt(cleanUser, "STEP_UP_PASSKEY");
+      throw ex;
+    }
+
+    PSSystemAuditLogger.mfaChallengeSuccess(null, cleanUser, "STEP_UP_PASSKEY");
+    resetFailures(cleanUser);
+    long windowMinutes = readPositiveLong(PROP_STEP_UP_MINUTES, 5L);
+    Instant expiresAt = clock.instant().plus(Duration.ofMinutes(windowMinutes));
+    session.setAttribute(SESSION_ATTR_STEP_UP_UNTIL, expiresAt);
+    return expiresAt.toEpochMilli();
+  }
+
+  @Override
+  public List<PSPasskeySummary> listProfilePasskeys(String userName) {
+    String cleanUser = requireUserName(userName);
+    return requirePasskeyService().listPasskeys(cleanUser);
+  }
+
+  @Override
+  public boolean canDeleteLastPasskey(String userName, Collection<String> roles) {
+    String cleanUser = requireUserName(userName);
+    return !authPolicyService.isMfaRequiredForUser(cleanUser, roles)
+        || totpService.hasActiveTotp(cleanUser);
+  }
+
+  @Override
+  public PSPasskeyOptions startProfilePasskeyRegistration(
+      String userName,
+      String displayName,
+      String label,
+      String requestOrigin,
+      HttpSession session) {
+    String cleanUser = requireUserName(userName);
+    if (authPolicyService.hasActiveFactor(cleanUser)) {
+      requireStepUpIfEnrolled(cleanUser, session);
+    }
+    return requirePasskeyService().startRegistration(cleanUser, displayName, label, requestOrigin);
+  }
+
+  @Override
+  public PSPasskeyRegisterOutcome finishProfilePasskeyRegistration(
+      String userName,
+      String challengeTxId,
+      String label,
+      String credentialJson,
+      String requestOrigin,
+      HttpSession session) {
+    String cleanUser = requireUserName(userName);
+    if (authPolicyService.hasActiveFactor(cleanUser)) {
+      requireStepUpIfEnrolled(cleanUser, session);
+    }
+    PSPasskeyRegisterOutcome outcome =
+        requirePasskeyService()
+            .finishRegistration(cleanUser, challengeTxId, label, credentialJson, requestOrigin);
+    refreshAccountEnrollmentState(cleanUser);
+    List<String> recoveryCodes = issueInitialRecoveryCodesIfNeeded(cleanUser);
+    PSSystemAuditLogger.mfaFactorEnrolled(null, cleanUser, "PASSKEY");
+    return new PSPasskeyRegisterOutcome(
+        outcome.registered(), outcome.passkey(), recoveryCodes, outcome.message());
+  }
+
+  @Override
+  public void renameProfilePasskey(String userName, String passkeyId, String newLabel) {
+    requirePasskeyService().renamePasskey(requireUserName(userName), passkeyId, newLabel);
+  }
+
+  @Override
+  public void deleteProfilePasskey(
+      String userName, String passkeyId, Collection<String> roles, HttpSession session) {
+    String cleanUser = requireUserName(userName);
+    requireStepUpIfEnrolled(cleanUser, session);
+    int activePasskeys = authSecurityDao.findActivePasskeysByUser(cleanUser).size();
+    if (authPolicyService.isMfaRequiredForUser(cleanUser, roles)
+        && !totpService.hasActiveTotp(cleanUser)
+        && activePasskeys <= 1) {
+      throw new IllegalStateException(
+          "Cannot remove your last MFA factor while multi-factor authentication is required.");
+    }
+    requirePasskeyService().deletePasskey(cleanUser, passkeyId);
+    refreshAccountEnrollmentState(cleanUser);
+    PSSystemAuditLogger.mfaFactorRemoved(null, cleanUser, "PASSKEY");
+  }
+
+  private List<String> issueInitialRecoveryCodesIfNeeded(String cleanUser) {
+    if (recoveryCodeService.countRemaining(cleanUser) > 0) {
+      return List.of();
+    }
+    List<String> codes = recoveryCodeService.generateAndReplaceCodes(cleanUser);
+    PSSystemAuditLogger.mfaRecoveryCodesRegenerated(null, cleanUser, codes.size());
+    return codes;
+  }
+
+  private IPSPasskeyService requirePasskeyService() {
+    if (passkeyService == null) {
+      throw new IllegalStateException("Passkey service is not configured.");
+    }
+    return passkeyService;
+  }
+
+  private static PSMfaChallengeOutcome invalidChallengeOutcome(String status, String msg) {
+    return new PSMfaChallengeOutcome(false, status, msg, "", "", "", List.of(), 0L);
+  }
+
+  private PSMfaChallengeOutcome handleChallengeFailure(
+      PSAuthLoginTx tx, String userName, String factor, String message) {
+    int maxAttempts = (int) readPositiveLong(PROP_MAX_FAILED_ATTEMPTS, 5L);
+    authSecurityDao.incrementLoginTxAttemptsAtomically(
+        tx.getTxId(), maxAttempts, Date.from(clock.instant()));
+    recordFailedAttempt(userName, factor);
+    return new PSMfaChallengeOutcome(
+        false, PSMfaChallengeOutcome.STATUS_INVALID_CODE, message, userName, "", "", List.of(), 0L);
+  }
+
+  private PSMfaChallengeOutcome finalizeChallengeSuccessFactor(
+      PSAuthLoginTx tx, String userName, String factor) {
+    resetFailures(userName);
+    long remaining = recoveryCodeService.countRemaining(userName);
+    PSSystemAuditLogger.mfaChallengeSuccess(null, userName, factor);
+    TxPayload payload = parsePayload(tx.getPayloadJson());
+    return new PSMfaChallengeOutcome(
+        true,
+        PSMfaChallengeOutcome.STATUS_VERIFIED,
+        "Verification successful.",
+        userName,
+        payload.redirectUrl(),
+        payload.locale(),
+        payload.roles(),
+        remaining);
   }
 
   private PSMfaChallengeOutcome verifyChallengeFactor(

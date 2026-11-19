@@ -19,6 +19,14 @@ import com.percussion.rest.auth.IAuthMfaAdaptor;
 import com.percussion.rest.auth.MfaActionResult;
 import com.percussion.rest.auth.MfaStepUpRequest;
 import com.percussion.rest.auth.MfaStepUpResponse;
+import com.percussion.rest.auth.PasskeyListResponse;
+import com.percussion.rest.auth.PasskeyOptionsRequest;
+import com.percussion.rest.auth.PasskeyOptionsResponse;
+import com.percussion.rest.auth.PasskeyRegisterFinishRequest;
+import com.percussion.rest.auth.PasskeyRegisterFinishResponse;
+import com.percussion.rest.auth.PasskeyRenameRequest;
+import com.percussion.rest.auth.PasskeyStepUpVerifyRequest;
+import com.percussion.rest.auth.PasskeySummary;
 import com.percussion.rest.auth.ProfileMfaStatus;
 import com.percussion.rest.auth.RecoveryCodesRegenerateResponse;
 import com.percussion.rest.auth.TotpEnrollConfirmRequest;
@@ -28,6 +36,9 @@ import com.percussion.rest.auth.TotpEnrollStartResponse;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
 import com.percussion.services.auth.mfa.IPSMfaService;
+import com.percussion.services.auth.mfa.PSPasskeyOptions;
+import com.percussion.services.auth.mfa.PSPasskeyRegisterOutcome;
+import com.percussion.services.auth.mfa.PSPasskeySummary;
 import com.percussion.services.auth.mfa.PSProfileMfaStatus;
 import com.percussion.services.auth.mfa.PSTotpConfirmOutcome;
 import com.percussion.services.auth.mfa.PSTotpEnrollmentStart;
@@ -59,6 +70,7 @@ public class AuthMfaAdaptor implements IAuthMfaAdaptor {
   private final IPSMfaService mfaService;
   private final Supplier<HttpSession> sessionSupplier;
   private final Supplier<String> clientIpSupplier;
+  private final Supplier<String> originSupplier;
 
   @Autowired
   public AuthMfaAdaptor(IPSUserService userService, IPSMfaService mfaService) {
@@ -66,19 +78,31 @@ public class AuthMfaAdaptor implements IAuthMfaAdaptor {
         userService,
         mfaService,
         AuthMfaAdaptor::resolveCurrentSession,
-        AuthMfaAdaptor::resolveCurrentClientIp);
+        AuthMfaAdaptor::resolveCurrentClientIp,
+        AuthMfaAdaptor::resolveCurrentOrigin);
   }
 
-  /** Package-visible constructor for isolated unit tests. */
+  /** Package-visible constructor for isolated M3 unit tests. */
   AuthMfaAdaptor(
       IPSUserService userService,
       IPSMfaService mfaService,
       Supplier<HttpSession> sessionSupplier,
       Supplier<String> clientIpSupplier) {
+    this(userService, mfaService, sessionSupplier, clientIpSupplier, AuthMfaAdaptor::resolveCurrentOrigin);
+  }
+
+  /** Package-visible constructor for isolated M4 unit tests. */
+  AuthMfaAdaptor(
+      IPSUserService userService,
+      IPSMfaService mfaService,
+      Supplier<HttpSession> sessionSupplier,
+      Supplier<String> clientIpSupplier,
+      Supplier<String> originSupplier) {
     this.userService = Objects.requireNonNull(userService, "userService");
     this.mfaService = Objects.requireNonNull(mfaService, "mfaService");
     this.sessionSupplier = Objects.requireNonNull(sessionSupplier, "sessionSupplier");
     this.clientIpSupplier = Objects.requireNonNull(clientIpSupplier, "clientIpSupplier");
+    this.originSupplier = Objects.requireNonNull(originSupplier, "originSupplier");
   }
 
   @Override
@@ -164,6 +188,113 @@ public class AuthMfaAdaptor implements IAuthMfaAdaptor {
         codes, "Generated " + codes.size() + " new single-use recovery codes.");
   }
 
+  @Override
+  public PasskeyListResponse listPasskeys() {
+    PSCurrentUser current = loadCurrentUser();
+    List<PasskeySummary> items =
+        mfaService.listProfilePasskeys(current.getName()).stream()
+            .map(AuthMfaAdaptor::toPasskeySummaryDto)
+            .toList();
+    boolean canDeleteLast =
+        mfaService.canDeleteLastPasskey(current.getName(), current.getRoles());
+    return new PasskeyListResponse(items, canDeleteLast);
+  }
+
+  @Override
+  public PasskeyOptionsResponse startPasskeyRegistration(PasskeyOptionsRequest request) {
+    PSCurrentUser current = loadCurrentUser();
+    String label = request != null ? request.getLabel() : null;
+    PSPasskeyOptions opts =
+        mfaService.startProfilePasskeyRegistration(
+            current.getName(),
+            current.getName(),
+            label,
+            originSupplier.get(),
+            sessionSupplier.get());
+    return new PasskeyOptionsResponse(opts.challengeTxId(), opts.optionsJson());
+  }
+
+  @Override
+  public PasskeyRegisterFinishResponse finishPasskeyRegistration(
+      PasskeyRegisterFinishRequest request) {
+    if (request == null) {
+      throw new IllegalArgumentException("Passkey registration payload is required");
+    }
+    PSCurrentUser current = loadCurrentUser();
+    PSPasskeyRegisterOutcome outcome =
+        mfaService.finishProfilePasskeyRegistration(
+            current.getName(),
+            request.getChallengeTxId(),
+            request.getLabel(),
+            request.getCredentialJson(),
+            originSupplier.get(),
+            sessionSupplier.get());
+    return new PasskeyRegisterFinishResponse(
+        outcome.registered(),
+        toPasskeySummaryDto(outcome.passkey()),
+        outcome.recoveryCodes(),
+        outcome.message());
+  }
+
+  @Override
+  public MfaActionResult renamePasskey(String passkeyId, PasskeyRenameRequest request) {
+    if (request == null) {
+      throw new IllegalArgumentException("Passkey label is required");
+    }
+    PSCurrentUser current = loadCurrentUser();
+    mfaService.renameProfilePasskey(current.getName(), passkeyId, request.getLabel());
+    return new MfaActionResult(true, "Passkey renamed.");
+  }
+
+  @Override
+  public MfaActionResult deletePasskey(String passkeyId) {
+    PSCurrentUser current = loadCurrentUser();
+    mfaService.deleteProfilePasskey(
+        current.getName(), passkeyId, current.getRoles(), sessionSupplier.get());
+    return new MfaActionResult(true, "Passkey removed.");
+  }
+
+  @Override
+  public PasskeyOptionsResponse startPasskeyStepUp() {
+    PSCurrentUser current = loadCurrentUser();
+    PSPasskeyOptions opts =
+        mfaService.startProfilePasskeyStepUp(
+            current.getName(), originSupplier.get(), requireSession());
+    return new PasskeyOptionsResponse(opts.challengeTxId(), opts.optionsJson());
+  }
+
+  @Override
+  public MfaStepUpResponse verifyPasskeyStepUp(PasskeyStepUpVerifyRequest request) {
+    if (request == null) {
+      throw new IllegalArgumentException("Passkey step-up payload is required");
+    }
+    PSCurrentUser current = loadCurrentUser();
+    long expiresAt =
+        mfaService.verifyProfilePasskeyStepUp(
+            current.getName(),
+            request.getChallengeTxId(),
+            request.getCredentialJson(),
+            originSupplier.get(),
+            clientIpSupplier.get(),
+            requireSession());
+    return new MfaStepUpResponse(true, expiresAt, "Multi-factor verification confirmed.");
+  }
+
+  private static PasskeySummary toPasskeySummaryDto(PSPasskeySummary src) {
+    if (src == null) {
+      return null;
+    }
+    return new PasskeySummary(
+        src.passkeyId(),
+        src.label(),
+        src.aaguid(),
+        src.transports(),
+        src.backupEligible(),
+        src.backupState(),
+        src.createdAt(),
+        src.lastUsedAt());
+  }
+
   private PSCurrentUser loadCurrentUser() {
     try {
       PSCurrentUser current = userService.getCurrentUser();
@@ -210,6 +341,33 @@ public class AuthMfaAdaptor implements IAuthMfaAdaptor {
       return StringUtils.defaultIfBlank(req.getRemoteAddr(), "unknown");
     } catch (RuntimeException ex) {
       return "unknown";
+    }
+  }
+
+  static String resolveCurrentOrigin() {
+    try {
+      PSRequest psReq = PSSecurityFilter.getCurrentRequest();
+      HttpServletRequest req = psReq != null ? psReq.getServletRequest() : null;
+      if (req == null) {
+        return "";
+      }
+      String origin = StringUtils.trimToNull(req.getHeader("Origin"));
+      if (origin != null) {
+        return origin;
+      }
+      String scheme = StringUtils.defaultIfBlank(req.getScheme(), "http");
+      String host = req.getServerName();
+      if (StringUtils.isBlank(host)) {
+        return "";
+      }
+      int port = req.getServerPort();
+      boolean defaultPort =
+          ("http".equalsIgnoreCase(scheme) && port == 80)
+              || ("https".equalsIgnoreCase(scheme) && port == 443)
+              || port <= 0;
+      return defaultPort ? scheme + "://" + host : scheme + "://" + host + ":" + port;
+    } catch (RuntimeException ex) {
+      return "";
     }
   }
 }

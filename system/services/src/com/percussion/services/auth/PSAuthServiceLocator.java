@@ -20,6 +20,7 @@ import com.percussion.services.PSBaseServiceLocator;
 import com.percussion.services.auth.account.IPSAccountSecurityService;
 import com.percussion.services.auth.mail.IPSAuthMailService;
 import com.percussion.services.auth.mfa.IPSMfaService;
+import com.percussion.services.auth.mfa.IPSPasskeyService;
 import com.percussion.services.auth.mfa.IPSRecoveryCodeService;
 import com.percussion.services.auth.mfa.IPSTotpService;
 import com.percussion.services.auth.policy.IPSAuthPolicyService;
@@ -78,5 +79,10 @@ public final class PSAuthServiceLocator extends PSBaseServiceLocator {
 
   public static IPSMfaService getMfaService() throws PSMissingBeanConfigurationException {
     return (IPSMfaService) getBean("sys_mfaService");
+  }
+
+  public static IPSPasskeyService getPasskeyService()
+      throws PSMissingBeanConfigurationException {
+    return (IPSPasskeyService) getBean("sys_passkeyService");
   }
 }

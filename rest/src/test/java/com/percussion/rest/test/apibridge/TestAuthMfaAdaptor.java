@@ -19,12 +19,21 @@ import com.percussion.rest.auth.IAuthMfaAdaptor;
 import com.percussion.rest.auth.MfaActionResult;
 import com.percussion.rest.auth.MfaStepUpRequest;
 import com.percussion.rest.auth.MfaStepUpResponse;
+import com.percussion.rest.auth.PasskeyListResponse;
+import com.percussion.rest.auth.PasskeyOptionsRequest;
+import com.percussion.rest.auth.PasskeyOptionsResponse;
+import com.percussion.rest.auth.PasskeyRegisterFinishRequest;
+import com.percussion.rest.auth.PasskeyRegisterFinishResponse;
+import com.percussion.rest.auth.PasskeyRenameRequest;
+import com.percussion.rest.auth.PasskeyStepUpVerifyRequest;
+import com.percussion.rest.auth.PasskeySummary;
 import com.percussion.rest.auth.ProfileMfaStatus;
 import com.percussion.rest.auth.RecoveryCodesRegenerateResponse;
 import com.percussion.rest.auth.TotpEnrollConfirmRequest;
 import com.percussion.rest.auth.TotpEnrollConfirmResponse;
 import com.percussion.rest.auth.TotpEnrollStartRequest;
 import com.percussion.rest.auth.TotpEnrollStartResponse;
+import java.time.Instant;
 import java.util.List;
 import org.springframework.stereotype.Component;
 
@@ -77,5 +86,53 @@ public class TestAuthMfaAdaptor implements IAuthMfaAdaptor {
   public RecoveryCodesRegenerateResponse regenerateRecoveryCodes() {
     return new RecoveryCodesRegenerateResponse(
         List.of("33333-CCCCC", "44444-DDDDD"), "Regenerated");
+  }
+
+  @Override
+  public PasskeyListResponse listPasskeys() {
+    return new PasskeyListResponse(
+        List.of(
+            new PasskeySummary(
+                "pk-stub-1",
+                "Touch ID",
+                "00000000-0000-0000-0000-000000000000",
+                List.of("internal"),
+                true,
+                true,
+                Instant.parse("2026-11-19T00:00:00Z"),
+                null)),
+        true);
+  }
+
+  @Override
+  public PasskeyOptionsResponse startPasskeyRegistration(PasskeyOptionsRequest request) {
+    return new PasskeyOptionsResponse("reg-stub-1", "{\"challenge\":\"stub\"}");
+  }
+
+  @Override
+  public PasskeyRegisterFinishResponse finishPasskeyRegistration(
+      PasskeyRegisterFinishRequest request) {
+    return new PasskeyRegisterFinishResponse(
+        true, listPasskeys().getPasskeys().get(0), List.of(), "Registered");
+  }
+
+  @Override
+  public MfaActionResult renamePasskey(String passkeyId, PasskeyRenameRequest request) {
+    return new MfaActionResult(true, "Passkey renamed");
+  }
+
+  @Override
+  public MfaActionResult deletePasskey(String passkeyId) {
+    return new MfaActionResult(true, "Passkey removed");
+  }
+
+  @Override
+  public PasskeyOptionsResponse startPasskeyStepUp() {
+    return new PasskeyOptionsResponse("su-stub-1", "{\"challenge\":\"stub\"}");
+  }
+
+  @Override
+  public MfaStepUpResponse verifyPasskeyStepUp(PasskeyStepUpVerifyRequest request) {
+    return new MfaStepUpResponse(true, System.currentTimeMillis() + 300_000L, "Verified");
   }
 }

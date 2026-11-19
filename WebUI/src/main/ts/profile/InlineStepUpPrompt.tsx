@@ -15,7 +15,19 @@
  */
 
 import React, { useState } from "react";
-import { verifyMfaStepUp, type MfaStepUpResponse } from "../api/auth";
+import {
+  browserSupportsWebAuthn,
+  startAuthentication,
+  type AuthenticationResponseJSON,
+  type PublicKeyCredentialRequestOptionsJSON,
+} from "@simplewebauthn/browser";
+import {
+  startMyPasskeyStepUp,
+  verifyMfaStepUp,
+  verifyMyPasskeyStepUp,
+  type MfaStepUpResponse,
+  type PasskeyOptionsResponse,
+} from "../api/auth";
 import { formatApiError, isSessionRedirectError } from "../api/client";
 import { i18nKeyAttr } from "../i18n/i18nDom";
 import { message } from "../i18n/message";
@@ -24,10 +36,20 @@ import styles from "./MfaSecurityPanel.module.css";
 
 export interface InlineStepUpPromptProps {
   testIdPrefix: string;
+  passkeyAvailable?: boolean;
+  supportsWebAuthn?: boolean;
   verifyStepUp?: (
     code: string,
     recoveryCode?: boolean,
   ) => Promise<MfaStepUpResponse>;
+  startPasskeyStepUp?: () => Promise<PasskeyOptionsResponse>;
+  verifyPasskeyStepUp?: (
+    challengeTxId: string,
+    credentialJson: string,
+  ) => Promise<MfaStepUpResponse>;
+  runPasskeyAuth?: (
+    optionsJSON: PublicKeyCredentialRequestOptionsJSON,
+  ) => Promise<AuthenticationResponseJSON>;
   onVerified: () => Promise<void> | void;
   onCancel: () => void;
 }
@@ -37,7 +59,12 @@ export interface InlineStepUpPromptProps {
  */
 export function InlineStepUpPrompt({
   testIdPrefix,
+  passkeyAvailable = false,
+  supportsWebAuthn = browserSupportsWebAuthn(),
   verifyStepUp = verifyMfaStepUp,
+  startPasskeyStepUp = startMyPasskeyStepUp,
+  verifyPasskeyStepUp = verifyMyPasskeyStepUp,
+  runPasskeyAuth = (optionsJSON) => startAuthentication({ optionsJSON }),
   onVerified,
   onCancel,
 }: InlineStepUpPromptProps): React.ReactElement {
@@ -56,6 +83,34 @@ export function InlineStepUpPrompt({
     setBusy(true);
     try {
       const res = await verifyStepUp(clean, useRecovery);
+      if (!res.verified) {
+        setErrorMsg(res.message || message(PROFILE_MSG.STEP_UP_ERROR));
+        return;
+      }
+      await onVerified();
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setErrorMsg(formatApiError(err, message(PROFILE_MSG.STEP_UP_ERROR)));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const onPasskeyVerify = async (): Promise<void> => {
+    setErrorMsg(null);
+    setBusy(true);
+    try {
+      const opts = await startPasskeyStepUp();
+      const parsedOptions = JSON.parse(
+        opts.optionsJson,
+      ) as PublicKeyCredentialRequestOptionsJSON;
+      const assertion = await runPasskeyAuth(parsedOptions);
+      const res = await verifyPasskeyStepUp(
+        opts.challengeTxId,
+        JSON.stringify(assertion),
+      );
       if (!res.verified) {
         setErrorMsg(res.message || message(PROFILE_MSG.STEP_UP_ERROR));
         return;
@@ -131,6 +186,17 @@ export function InlineStepUpPrompt({
         </button>
       </div>
       <div>
+        {passkeyAvailable && supportsWebAuthn && (
+          <button
+            type="button"
+            className={styles.secondaryButton}
+            disabled={busy}
+            onClick={() => void onPasskeyVerify()}
+            data-testid={`${testIdPrefix}-passkey`}
+          >
+            {message(PROFILE_MSG.STEP_UP_USE_PASSKEY)}
+          </button>
+        )}
         <button
           type="button"
           className={styles.linkButton}

@@ -96,5 +96,23 @@ public interface IPSAuthSecurityDao {
 
   long incrementSessionVersion(String userName);
 
+  PSMfaPasskey savePasskey(PSMfaPasskey passkey);
+
+  Optional<PSMfaPasskey> findPasskeyById(String passkeyId);
+
+  Optional<PSMfaPasskey> findActivePasskeyByCredentialId(String credentialId);
+
+  int renamePasskey(String passkeyId, String userName, String newLabel);
+
+  int revokePasskey(String passkeyId, String userName);
+
+  int updatePasskeySignCountAtomically(
+      String passkeyId,
+      long expectedSignCount,
+      long newSignCount,
+      boolean backupEligible,
+      boolean backupState,
+      Date lastUsedAt);
+
   Map<String, Boolean> checkSchemaTablesPresent();
 }

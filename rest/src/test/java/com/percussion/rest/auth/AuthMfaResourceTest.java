@@ -137,5 +137,52 @@ class AuthMfaResourceTest {
             MfaStepUpRequest.class);
     assertEquals("123456", decoded.getCode());
     assertFalse(decoded.isRecoveryCode());
+
+    PasskeyRegisterFinishRequest pkDecoded =
+        mapper.readValue(
+            "{\"PasskeyRegisterFinishRequest\":{\"challengeTxId\":\"tx1\",\"label\":\"Laptop\",\"credentialJson\":\"{}\"}}",
+            PasskeyRegisterFinishRequest.class);
+    assertEquals("tx1", pkDecoded.getChallengeTxId());
+    assertEquals("Laptop", pkDecoded.getLabel());
+  }
+
+  @Test
+  void delegatesPasskeyEndpointsAndMapsLastFactorConflict() {
+    IAuthMfaAdaptor adaptor = mock(IAuthMfaAdaptor.class);
+    AuthMfaResource resource = new AuthMfaResource(adaptor);
+
+    PasskeySummary pk =
+        new PasskeySummary("pk-1", "YubiKey", "0000", List.of("usb"), false, false, Instant.now(), null);
+    when(adaptor.listPasskeys()).thenReturn(new PasskeyListResponse(List.of(pk), false));
+    assertFalse(resource.listPasskeys().isCanDeleteLastPasskey());
+
+    PasskeyOptionsRequest optReq = new PasskeyOptionsRequest("YubiKey");
+    when(adaptor.startPasskeyRegistration(optReq))
+        .thenReturn(new PasskeyOptionsResponse("ctx1", "{\"challenge\":\"abc\"}"));
+    assertEquals("ctx1", resource.startPasskeyRegistration(optReq).getChallengeTxId());
+
+    PasskeyRegisterFinishRequest finReq = new PasskeyRegisterFinishRequest("ctx1", "YubiKey", "{}");
+    when(adaptor.finishPasskeyRegistration(finReq))
+        .thenReturn(new PasskeyRegisterFinishResponse(true, pk, List.of("11111-AAAAA"), "Added"));
+    assertTrue(resource.finishPasskeyRegistration(finReq).isRegistered());
+
+    PasskeyRenameRequest renReq = new PasskeyRenameRequest("Work Key");
+    when(adaptor.renamePasskey("pk-1", renReq)).thenReturn(new MfaActionResult(true, "Renamed"));
+    assertTrue(resource.renamePasskey("pk-1", renReq).isSuccess());
+
+    doThrow(new IllegalStateException("Last MFA factor")).when(adaptor).deletePasskey("pk-1");
+    assertEquals(
+        409,
+        assertThrows(WebApplicationException.class, () -> resource.deletePasskey("pk-1"))
+            .getResponse()
+            .getStatus());
+
+    when(adaptor.startPasskeyStepUp()).thenReturn(new PasskeyOptionsResponse("su1", "{}"));
+    assertEquals("su1", resource.startPasskeyStepUp().getChallengeTxId());
+
+    PasskeyStepUpVerifyRequest suReq = new PasskeyStepUpVerifyRequest("su1", "{}");
+    when(adaptor.verifyPasskeyStepUp(suReq))
+        .thenReturn(new MfaStepUpResponse(true, 1795000000000L, "Verified"));
+    assertTrue(resource.verifyPasskeyStepUp(suReq).isVerified());
   }
 }

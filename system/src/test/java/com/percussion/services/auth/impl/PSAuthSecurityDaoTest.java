@@ -297,4 +297,39 @@ class PSAuthSecurityDaoTest {
     assertEquals(4L, dao.incrementSessionVersion("alice"));
     assertEquals(2L, dao.incrementSessionVersion("bob"));
   }
+
+  @Test
+  void passkeyPersistenceLookupRenameRevokeAndSignCountUpdateWork() {
+    EntityManager em = mock(EntityManager.class);
+    Query updateQuery = mock(Query.class);
+    @SuppressWarnings("unchecked")
+    TypedQuery<PSMfaPasskey> typedQuery = mock(TypedQuery.class);
+    when(em.createQuery(anyString())).thenReturn(updateQuery);
+    when(updateQuery.setParameter(anyString(), any())).thenReturn(updateQuery);
+    when(updateQuery.executeUpdate()).thenReturn(1);
+    when(em.createQuery(anyString(), eq(PSMfaPasskey.class))).thenReturn(typedQuery);
+    when(typedQuery.setParameter(anyString(), any())).thenReturn(typedQuery);
+    when(typedQuery.setMaxResults(1)).thenReturn(typedQuery);
+    when(em.merge(any(PSMfaPasskey.class))).thenAnswer(inv -> inv.getArgument(0));
+
+    PSMfaPasskey pk = new PSMfaPasskey();
+    pk.setPasskeyId("pk-1");
+    pk.setUserName("alice");
+    pk.setCredentialId("cred-1");
+    pk.setUserHandle("uh-1");
+    pk.setCosePublicKeyB64("pQECAyYgASFYIG==");
+    pk.setLabel("MacBook");
+    when(em.find(PSMfaPasskey.class, "pk-1")).thenReturn(pk);
+    when(typedQuery.getResultList()).thenReturn(List.of(pk));
+
+    PSAuthSecurityDao dao = createDao(em);
+    assertEquals("pk-1", dao.savePasskey(pk).getPasskeyId());
+    assertTrue(dao.findPasskeyById("pk-1").isPresent());
+    assertTrue(dao.findActivePasskeyByCredentialId("cred-1").isPresent());
+    assertEquals(1, dao.renamePasskey("pk-1", "alice", "YubiKey"));
+    assertEquals(
+        1, dao.updatePasskeySignCountAtomically("pk-1", 0L, 1L, true, true, new Date()));
+    assertEquals(1, dao.revokePasskey("pk-1", "alice"));
+    assertEquals(0, dao.renamePasskey(" ", "alice", "New"));
+  }
 }

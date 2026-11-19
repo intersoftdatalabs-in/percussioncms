@@ -959,4 +959,23 @@ export const PATHS = {
   get AUTH_MFA_RECOVERY_REGENERATE() {
     return `${SERVICES_ROOT}/auth/mfa/recovery-codes/regenerate`;
   },
+  /** Passkeys (WebAuthn) self-service and step-up API (Milestone 4). */
+  get AUTH_MFA_PASSKEYS() {
+    return `${SERVICES_ROOT}/auth/mfa/passkeys`;
+  },
+  get AUTH_MFA_PASSKEY_REGISTER_START() {
+    return `${SERVICES_ROOT}/auth/mfa/passkeys/register/start`;
+  },
+  get AUTH_MFA_PASSKEY_REGISTER_FINISH() {
+    return `${SERVICES_ROOT}/auth/mfa/passkeys/register/finish`;
+  },
+  authMfaPasskey(passkeyId: string) {
+    return `${SERVICES_ROOT}/auth/mfa/passkeys/${encodeURIComponent(passkeyId)}`;
+  },
+  get AUTH_MFA_STEP_UP_PASSKEY_START() {
+    return `${SERVICES_ROOT}/auth/mfa/step-up/passkey/start`;
+  },
+  get AUTH_MFA_STEP_UP_PASSKEY_VERIFY() {
+    return `${SERVICES_ROOT}/auth/mfa/step-up/passkey/verify`;
+  },
 } as const;

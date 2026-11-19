@@ -14,11 +14,15 @@
  * limitations under the License.
  */
 
-import { del, get, isApiError, post } from "../client";
+import { del, get, isApiError, post, put } from "../client";
 import { PATHS } from "../paths";
 import type {
   MfaActionResult,
   MfaStepUpResponse,
+  PasskeyListResponse,
+  PasskeyOptionsResponse,
+  PasskeyRegisterFinishResponse,
+  PasskeySummary,
   ProfileMfaStatus,
   RecoveryCodesRegenerateResponse,
   TotpEnrollConfirmResponse,
@@ -201,4 +205,135 @@ export async function disableMyTotp(): Promise<MfaActionResult> {
 export async function regenerateMyRecoveryCodes(): Promise<RecoveryCodesRegenerateResponse> {
   const payload = await post<unknown>(PATHS.AUTH_MFA_RECOVERY_REGENERATE);
   return unwrapRecoveryCodesRegenerateResponse(payload);
+}
+
+function normalizePasskeySummary(raw: unknown): PasskeySummary | null {
+  const rec = asRecord(raw);
+  if (!rec) {
+    return null;
+  }
+  const transportsRaw = rec.transports;
+  const transports = Array.isArray(transportsRaw)
+    ? transportsRaw.filter((t): t is string => typeof t === "string")
+    : typeof transportsRaw === "string" && transportsRaw.trim()
+      ? [transportsRaw]
+      : [];
+  return {
+    passkeyId: asString(rec.passkeyId),
+    label: asString(rec.label, "Passkey"),
+    aaguid: typeof rec.aaguid === "string" ? rec.aaguid : null,
+    transports,
+    backupEligible: Boolean(rec.backupEligible),
+    backupState: Boolean(rec.backupState),
+    createdAt: typeof rec.createdAt === "string" ? rec.createdAt : null,
+    lastUsedAt: typeof rec.lastUsedAt === "string" ? rec.lastUsedAt : null,
+  };
+}
+
+function normalizePasskeyArray(raw: unknown): PasskeySummary[] {
+  if (!raw) {
+    return [];
+  }
+  const arr = Array.isArray(raw) ? raw : [raw];
+  return arr
+    .map(normalizePasskeySummary)
+    .filter((item): item is PasskeySummary => item !== null && item.passkeyId.length > 0);
+}
+
+export function unwrapPasskeyListResponse(payload: unknown): PasskeyListResponse {
+  const body = unwrapRoot(payload, "PasskeyListResponse", "passkeyListResponse");
+  return {
+    passkeys: normalizePasskeyArray(body.passkeys),
+    canDeleteLastPasskey: Boolean(body.canDeleteLastPasskey),
+  };
+}
+
+export function unwrapPasskeyOptionsResponse(payload: unknown): PasskeyOptionsResponse {
+  const body = unwrapRoot(
+    payload,
+    "PasskeyOptionsResponse",
+    "passkeyOptionsResponse",
+  );
+  return {
+    challengeTxId: asString(body.challengeTxId),
+    optionsJson: asString(body.optionsJson),
+  };
+}
+
+export function unwrapPasskeyRegisterFinishResponse(
+  payload: unknown,
+): PasskeyRegisterFinishResponse {
+  const body = unwrapRoot(
+    payload,
+    "PasskeyRegisterFinishResponse",
+    "passkeyRegisterFinishResponse",
+  );
+  return {
+    registered: Boolean(body.registered),
+    passkey: normalizePasskeySummary(body.passkey),
+    recoveryCodes: asStringArray(body.recoveryCodes),
+    message: asString(body.message),
+  };
+}
+
+export async function listMyPasskeys(): Promise<PasskeyListResponse> {
+  const payload = await get<unknown>(PATHS.AUTH_MFA_PASSKEYS);
+  return unwrapPasskeyListResponse(payload);
+}
+
+export async function startMyPasskeyRegistration(
+  label = "",
+): Promise<PasskeyOptionsResponse> {
+  const payload = await post<unknown>(PATHS.AUTH_MFA_PASSKEY_REGISTER_START, {
+    PasskeyOptionsRequest: { label: (label ?? "").trim() },
+  });
+  return unwrapPasskeyOptionsResponse(payload);
+}
+
+export async function finishMyPasskeyRegistration(
+  challengeTxId: string,
+  label: string,
+  credentialJson: string,
+): Promise<PasskeyRegisterFinishResponse> {
+  const payload = await post<unknown>(PATHS.AUTH_MFA_PASSKEY_REGISTER_FINISH, {
+    PasskeyRegisterFinishRequest: {
+      challengeTxId: (challengeTxId ?? "").trim(),
+      label: (label ?? "").trim(),
+      credentialJson,
+    },
+  });
+  return unwrapPasskeyRegisterFinishResponse(payload);
+}
+
+export async function renameMyPasskey(
+  passkeyId: string,
+  label: string,
+): Promise<MfaActionResult> {
+  const payload = await put<unknown>(PATHS.authMfaPasskey(passkeyId), {
+    PasskeyRenameRequest: { label: (label ?? "").trim() },
+  });
+  return unwrapMfaActionResult(payload);
+}
+
+export async function deleteMyPasskey(passkeyId: string): Promise<MfaActionResult> {
+  const payload = await del<unknown>(PATHS.authMfaPasskey(passkeyId));
+  return unwrapMfaActionResult(payload);
+}
+
+export async function startMyPasskeyStepUp(): Promise<PasskeyOptionsResponse> {
+  const payload = await post<unknown>(PATHS.AUTH_MFA_STEP_UP_PASSKEY_START);
+  return unwrapPasskeyOptionsResponse(payload);
+}
+
+export async function verifyMyPasskeyStepUp(
+  challengeTxId: string,
+  credentialJson: string,
+): Promise<MfaStepUpResponse> {
+  const payload = await post<unknown>(PATHS.AUTH_MFA_STEP_UP_PASSKEY_VERIFY, {
+    PasskeyStepUpVerifyRequest: {
+      challengeTxId: (challengeTxId ?? "").trim(),
+      credentialJson,
+    },
+  });
+  return unwrapMfaStepUpResponse(payload);
 }
