@@ -2628,6 +2628,73 @@ no fixture is needed:
    status `ERROR` the checks skip (the cell's polls store is not
    provisioned) instead of failing.
 
+## Feeds entries: descriptor to generated feed (DTS)
+
+When a published site uses the feed widget, the generated feed is
+rendered by the DTS feeds service (`feeds`), not from the CMS content
+store. A feed descriptor selects its entries with a metadata query, so
+both the descriptor and the indexed rows must exist:
+
+1. An operator creates the descriptor through
+   `PUT /rss/descriptors` with the feed name, site, title, and a
+   JSON-encoded metadata query (for example,
+   `{"criteria": ["site = 'example'"], ...}`). The write requires
+   HTTP BASIC credentials in the `deliverymanager` role (the DTS
+   credentials provisioned for the install, not the CMS Admin login).
+2. Each entry is an indexed row under the same site, written through
+   the metadata extractor
+   (`POST /indexer/entry<page-path>` on `perc-metadata-services`,
+   also `deliverymanager`-gated) — see
+   "Metadata index search (DTS)" below.
+3. The generated feed reads through
+   `GET /rss/{site}/{feed}/localhost` and answers `200` `text/xml`
+   carrying the descriptor title plus the seeded entry titles and
+   abstracts. A feed that renders without the seeded entries means
+   the index rows never landed (or landed under a different site).
+4. A feed name that was never seeded redirects to the feeds error
+   page (`/feeds/error.html`) — that redirect is the documented
+   outcome for an unknown feed, not a failure.
+5. A liveness check runs first: `HEAD /rss/csrf` must answer on the
+   feeds deployment context. When the service is unreachable the
+   checks skip (the cell serves no feeds service); when the
+   descriptor or index writes answer `401`/`403` the checks skip
+   (no provisioned `deliverymanager` credentials) instead of
+   failing. The writer surface is CONFIDENTIAL, so the checks seed
+   over the published DTS HTTPS origin (`DTS_HTTPS_URL`) — when the
+   cell publishes no HTTPS origin the seeding cases skip instead of
+   failing, and plain-HTTP writes only redirect to the HTTPS port.
+
+## Metadata index search (DTS)
+
+When a published site needs its published content searchable, rows
+are indexed through the DTS metadata service
+(`perc-metadata-services`) extractor and read back through its query
+surface:
+
+1. An operator seeds a row through
+   `POST /indexer/entry<page-path>` (context-level `/indexer` root,
+   not under the `/metadata` query root) with the page path, site,
+   and `dcterms:title` / `dcterms:abstract` properties. The write
+   requires HTTP BASIC credentials in the `deliverymanager` role.
+2. A query through `POST /metadata/get` with an explicit quoted
+   criterion (`{"criteria": ["site = 'example'"], ...}`) answers
+   `200` with a result list; the seeded row appears in the
+   re-queried results. A query that stays empty after a seed means
+   the row never landed (or the criterion names a different site).
+3. Removing through `DELETE /indexer/entry<page-path>` takes the row
+   back out: a re-query no longer names the removed entry. A row
+   that survives its delete means the delete missed the stored page
+   path (the path keeps its leading slash).
+4. A liveness check runs first: `HEAD /metadata/csrf` must answer on
+   the metadata deployment context. When the service is unreachable
+   the checks skip (the cell serves no metadata service); when the
+   seed answers `401`/`403` the checks skip (no provisioned
+   `deliverymanager` credentials) instead of failing. The extractor
+   is CONFIDENTIAL, so the checks seed over the published DTS HTTPS
+   origin (`DTS_HTTPS_URL`) — when the cell publishes no HTTPS
+   origin the seeding cases skip instead of failing, and plain-HTTP
+   seeds only redirect to the HTTPS port.
+
 ## Failure modes to watch
 
 - Missing template/variant or broken relationship links
@@ -2644,6 +2711,11 @@ no fixture is needed:
 - Poll votes that do not move `totalVotes` on re-read, or question
   reads that disagree with the named read — see
   "Poll voting and results (DTS)" above
+- Generated feeds that render without their seeded entries, or unknown
+  feed names that do not redirect to the feeds error page — see
+  "Feeds entries: descriptor to generated feed (DTS)" above
+- Index queries that stay empty after a seed, or removed rows that keep
+  appearing in re-queries — see "Metadata index search (DTS)" above
 
 ## Related
 

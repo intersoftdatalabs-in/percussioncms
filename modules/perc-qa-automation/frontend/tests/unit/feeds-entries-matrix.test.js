@@ -38,6 +38,7 @@ const {
   RESULT_STATUSES,
   MATRIX_CELLS,
   SKIP_NO_DTS_BASE,
+  SKIP_NO_DTS_HTTPS,
   skipServiceDown,
   skipUnprovisioned,
   FEEDS_ENTRY,
@@ -45,6 +46,7 @@ const {
   dtsContextUrl,
   dtsServiceUrl,
   indexerServiceUrl,
+  dtsHttpsBaseUrl,
   entryUrl,
   deliveryAuthHeader,
   probeFeed,
@@ -85,6 +87,56 @@ describe("feeds-entries-matrix helpers (#6560)", () => {
       skipUnprovisioned("PUT /rss/descriptors answered HTTP 401").includes("deliverymanager"),
       "unprovisioned skip names the role gate",
     );
+  });
+
+  it("resolves the DTS HTTPS writer origin only from DTS_HTTPS_URL or the HTTPS port env", () => {
+    const savedUrl = process.env.DTS_HTTPS_URL;
+    const savedHostPort = process.env.DTS_HTTPS_HOST_PORT;
+    const savedPort = process.env.DTS_HTTPS_PORT;
+    try {
+      delete process.env.DTS_HTTPS_URL;
+      delete process.env.DTS_HTTPS_HOST_PORT;
+      delete process.env.DTS_HTTPS_PORT;
+      assert.equal(dtsHttpsBaseUrl(), null, "no HTTPS origin without env");
+      process.env.DTS_HTTPS_PORT = "8443";
+      assert.equal(
+        dtsHttpsBaseUrl().origin,
+        "https://127.0.0.1:8443",
+        "port env builds the loopback HTTPS origin",
+      );
+      process.env.DTS_HTTPS_HOST_PORT = "9443";
+      assert.equal(
+        dtsHttpsBaseUrl().origin,
+        "https://127.0.0.1:9443",
+        "host port env wins over the bare port",
+      );
+      process.env.DTS_HTTPS_URL = "https://dts.example:9443";
+      assert.equal(
+        dtsHttpsBaseUrl().origin,
+        "https://dts.example:9443",
+        "explicit URL wins over the port env",
+      );
+      assert.ok(
+        SKIP_NO_DTS_HTTPS.includes("DTS_HTTPS_URL"),
+        "https skip names the missing env",
+      );
+    } finally {
+      if (savedUrl === undefined) {
+        delete process.env.DTS_HTTPS_URL;
+      } else {
+        process.env.DTS_HTTPS_URL = savedUrl;
+      }
+      if (savedHostPort === undefined) {
+        delete process.env.DTS_HTTPS_HOST_PORT;
+      } else {
+        process.env.DTS_HTTPS_HOST_PORT = savedHostPort;
+      }
+      if (savedPort === undefined) {
+        delete process.env.DTS_HTTPS_PORT;
+      } else {
+        process.env.DTS_HTTPS_PORT = savedPort;
+      }
+    }
   });
 
   it("derives unique self-seeded probe feeds with two entries", () => {
