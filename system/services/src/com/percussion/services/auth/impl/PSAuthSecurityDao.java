@@ -147,6 +147,26 @@ public class PSAuthSecurityDao implements IPSAuthSecurityDao {
   }
 
   @Override
+  public List<PSAccountSecurity> findVerifiedByNormalizedEmail(String emailNormalized) {
+    if (StringUtils.isBlank(emailNormalized)) {
+      return List.of();
+    }
+    requireReady();
+    String norm = emailNormalized.trim().toLowerCase(Locale.ROOT);
+    List<PSAccountSecurity> rows =
+        readTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "SELECT a FROM PSAccountSecurity a WHERE a.emailNormalized = :email"
+                            + " AND a.emailVerified = 'Y' ORDER BY a.userName",
+                        PSAccountSecurity.class)
+                    .setParameter("email", norm)
+                    .getResultList());
+    return rows != null ? rows : List.of();
+  }
+
+  @Override
   public PSAccountSecurity saveAccountSecurity(PSAccountSecurity entity) {
     Objects.requireNonNull(entity, "entity");
     if (StringUtils.isBlank(entity.getUserName())) {
@@ -311,6 +331,50 @@ public class PSAuthSecurityDao implements IPSAuthSecurityDao {
       return Optional.empty();
     }
     return Optional.of(rows.get(0));
+  }
+
+  @Override
+  public int consumeAuthTokenAtomically(String tokenHash, String tokenType, Instant consumedAt) {
+    if (StringUtils.isBlank(tokenHash) || StringUtils.isBlank(tokenType) || consumedAt == null) {
+      return 0;
+    }
+    requireReady();
+    Date nowDate = Date.from(consumedAt);
+    Integer updated =
+        writeTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "UPDATE PSAuthToken t SET t.consumedAt = :consumedAt"
+                            + " WHERE t.tokenHash = :tokenHash AND t.tokenType = :tokenType"
+                            + " AND t.consumedAt IS NULL AND t.expiresAt > :consumedAt")
+                    .setParameter("consumedAt", nowDate)
+                    .setParameter("tokenHash", tokenHash.trim())
+                    .setParameter("tokenType", tokenType.trim())
+                    .executeUpdate());
+    return updated != null ? updated : 0;
+  }
+
+  @Override
+  public int invalidateUnconsumedTokens(String userName, String tokenType, Instant consumedAt) {
+    if (StringUtils.isBlank(userName) || StringUtils.isBlank(tokenType) || consumedAt == null) {
+      return 0;
+    }
+    requireReady();
+    Date nowDate = Date.from(consumedAt);
+    Integer updated =
+        writeTransactionTemplate.execute(
+            status ->
+                entityManager
+                    .createQuery(
+                        "UPDATE PSAuthToken t SET t.consumedAt = :consumedAt"
+                            + " WHERE t.userName = :userName AND t.tokenType = :tokenType"
+                            + " AND t.consumedAt IS NULL")
+                    .setParameter("consumedAt", nowDate)
+                    .setParameter("userName", userName.trim())
+                    .setParameter("tokenType", tokenType.trim())
+                    .executeUpdate());
+    return updated != null ? updated : 0;
   }
 
   @Override

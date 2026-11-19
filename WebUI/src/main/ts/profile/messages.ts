@@ -132,6 +132,19 @@ export const PROFILE_MSG = {
   SAVE_ERROR:
     "perc.ui.profile.modern@Unable to save your email. Check the address and try again.",
   EMAIL_INVALID: "perc.ui.profile.modern@Enter a valid email address.",
+  EMAIL_REQUIRED: "perc.ui.profile.modern@A valid email address is required.",
+  EMAIL_VERIFIED_BADGE: "perc.ui.profile.modern@Verified",
+  EMAIL_UNVERIFIED_BADGE: "perc.ui.profile.modern@Unverified",
+  EMAIL_PENDING_NOTICE:
+    "perc.ui.profile.modern@Verification pending for {0}. Your current email stays active until confirmed.",
+  EMAIL_RESEND: "perc.ui.profile.modern@Resend verification email",
+  EMAIL_RESENDING: "perc.ui.profile.modern@Sending verification…",
+  EMAIL_RESEND_SUCCESS:
+    "perc.ui.profile.modern@Verification email sent. Open the confirmation link to verify your address.",
+  EMAIL_RESEND_ERROR:
+    "perc.ui.profile.modern@Unable to send verification email right now.",
+  EMAIL_CHANGE_SENT:
+    "perc.ui.profile.modern@Verification email sent to {0}. Open the link to confirm.",
   EMPTY_VALUE: "perc.ui.profile.modern@Not set",
   NONE_LISTED: "perc.ui.profile.modern@None",
 

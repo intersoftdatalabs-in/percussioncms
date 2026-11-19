@@ -101,6 +101,12 @@ describe("LoginPage", () => {
     expect(screen.getByTestId("perc-login-locale")).toBeDefined();
     expect(screen.getByTestId("perc-login-submit")).toBeDefined();
 
+    const forgotLink = screen.getByTestId("perc-login-forgot-username");
+    expect(forgotLink.getAttribute("href")).toBe("/auth/forgot-username");
+    expect(forgotLink.getAttribute("data-i18n-key")).toBe(
+      "perc.ui.login.modern@Forgot username?",
+    );
+
     const csrf = screen.getByTestId("perc-login-csrf") as HTMLInputElement;
     expect(csrf.name).toBe("OWASP_CSRFTOKEN");
     expect(csrf.value).toBe("test-csrf-token");

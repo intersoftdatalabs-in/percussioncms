@@ -31,6 +31,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import "./bridge";
 import { ensureModernStyles } from "./ensureModernStyles";
+import { AuthApp, readAuthBootstrap } from "./auth";
 import { LoginPage, readLoginBootstrap } from "./login";
 import { LogoutPage, readLogoutBootstrap } from "./logout";
 
@@ -55,6 +56,16 @@ function bootLogout(): void {
   const bootstrap = readLogoutBootstrap();
   createRoot(el).render(React.createElement(LogoutPage, { bootstrap }));
   console.info("[PercModernUI] Logout SPA mounted.");
+}
+
+function bootAuth(): void {
+  const el = document.getElementById("perc-auth-root");
+  if (!el) {
+    return;
+  }
+  const bootstrap = readAuthBootstrap();
+  createRoot(el).render(React.createElement(AuthApp, { bootstrap }));
+  console.info("[PercModernUI] Auth SPA mounted.");
 }
 
 function findSpaRoot(): HTMLElement | null {
@@ -89,6 +100,10 @@ function boot(): void {
   }
   if (document.getElementById("perc-logout-root")) {
     bootLogout();
+    return;
+  }
+  if (document.getElementById("perc-auth-root")) {
+    bootAuth();
     return;
   }
   if (findSpaRoot()) {

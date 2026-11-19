@@ -926,4 +926,16 @@ export const PATHS = {
   get AUTH_ADMIN_MAIL_TEST() {
     return `${SERVICES_ROOT}/auth/admin/mail/test`;
   },
+  /**
+   * Self-service email verification and staged email change REST API (Milestone 2).
+   */
+  get AUTH_PROFILE_EMAIL() {
+    return `${SERVICES_ROOT}/auth/profile/email`;
+  },
+  get AUTH_PROFILE_EMAIL_CHANGE() {
+    return `${SERVICES_ROOT}/auth/profile/email/change`;
+  },
+  get AUTH_PROFILE_EMAIL_RESEND() {
+    return `${SERVICES_ROOT}/auth/profile/email/resend`;
+  },
 } as const;

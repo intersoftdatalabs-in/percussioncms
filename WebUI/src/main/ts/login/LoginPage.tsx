@@ -21,6 +21,7 @@ import { ThemeProvider } from "../ui-themes/ThemeProvider";
 import { useTheme } from "../ui-themes/ThemeProvider";
 import { i18nKeyAttr } from "../i18n/i18nDom";
 import { ensureMkdLanguage, configureMkdLanguage } from "../i18n/mkdLanguage";
+import { withCmsContextPrefix } from "../api/paths";
 import { LOGIN_KEYS, t } from "./i18n";
 import { LocaleSelect } from "./LocaleSelect";
 import { ensureTmxLoaded } from "./tmxLoader";
@@ -248,6 +249,17 @@ function LoginForm({ bootstrap }: LoginPageProps): React.ReactElement {
               {t(LOGIN_KEYS.SUBMIT)}
             </button>
           </form>
+
+          <div className={styles.recoveryRow}>
+            <a
+              href={withCmsContextPrefix("/auth/forgot-username")}
+              className={styles.recoveryLink}
+              data-testid="perc-login-forgot-username"
+              {...i18nKeyAttr(LOGIN_KEYS.FORGOT_USERNAME)}
+            >
+              {t(LOGIN_KEYS.FORGOT_USERNAME)}
+            </a>
+          </div>
 
           {bootstrap.error ? (
             <div

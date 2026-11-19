@@ -17,8 +17,11 @@ package com.percussion.services.auth;
 
 import com.percussion.error.PSMissingBeanConfigurationException;
 import com.percussion.services.PSBaseServiceLocator;
+import com.percussion.services.auth.account.IPSAccountSecurityService;
 import com.percussion.services.auth.mail.IPSAuthMailService;
+import com.percussion.services.auth.ratelimit.IPSAuthRateLimiter;
 import com.percussion.services.auth.readiness.IPSAuthReadinessService;
+import com.percussion.services.auth.token.IPSAuthTokenService;
 
 /** Service locator for authentication, MFA, mail, and readiness Spring beans. */
 public final class PSAuthServiceLocator extends PSBaseServiceLocator {
@@ -38,5 +41,20 @@ public final class PSAuthServiceLocator extends PSBaseServiceLocator {
   public static IPSAuthReadinessService getAuthReadinessService()
       throws PSMissingBeanConfigurationException {
     return (IPSAuthReadinessService) getBean("sys_authReadinessService");
+  }
+
+  public static IPSAuthRateLimiter getAuthRateLimiter()
+      throws PSMissingBeanConfigurationException {
+    return (IPSAuthRateLimiter) getBean("sys_authRateLimiter");
+  }
+
+  public static IPSAuthTokenService getAuthTokenService()
+      throws PSMissingBeanConfigurationException {
+    return (IPSAuthTokenService) getBean("sys_authTokenService");
+  }
+
+  public static IPSAccountSecurityService getAccountSecurityService()
+      throws PSMissingBeanConfigurationException {
+    return (IPSAccountSecurityService) getBean("sys_accountSecurityService");
   }
 }

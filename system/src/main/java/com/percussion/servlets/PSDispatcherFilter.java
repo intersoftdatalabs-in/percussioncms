@@ -77,6 +77,8 @@ public class PSDispatcherFilter implements Filter {
         "/sitelist",
         "/login",
         "/logout",
+        "/auth",
+        "/rxauth.jsp",
         "/rxwebdav",
         "/ui/actionpage/panel",
         "/user/apps",

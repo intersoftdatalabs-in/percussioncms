@@ -271,6 +271,12 @@
 			<entry key="auth.mail.connectTimeoutMs" default="10000" />
 			<entry key="auth.mail.socketTimeoutMs" default="10000" />
 			<entry key="auth.mail.fallbackWorkflowSmtp" default="true" />
+			<entry key="auth.email.required" default="true" />
+			<entry key="auth.email.uniqueForRecovery" default="false" />
+			<entry key="auth.directory.trustEmailVerified" default="false" />
+			<entry key="auth.rateLimit.forgotUsernamePerIpPerHour" default="15" />
+			<entry key="auth.rateLimit.forgotUsernamePerEmailPerHour" default="5" />
+			<entry key="auth.rateLimit.emailVerifyResendPerUserPerHour" default="5" />
 
 
 			<!-- Properties to remove if present -->

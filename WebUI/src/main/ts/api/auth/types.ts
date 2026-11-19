@@ -69,3 +69,23 @@ export interface AuthMailTestResult {
   source: string;
   message: string;
 }
+
+export interface ProfileEmailStatus {
+  userName: string;
+  email: string;
+  emailVerified: boolean;
+  emailVerifiedAt: string | null;
+  pendingEmail: string;
+  emailEditable: boolean;
+  emailRequired: boolean;
+  providerType: string;
+}
+
+export interface ProfileEmailActionResult {
+  verificationSent: boolean;
+  appliedImmediately: boolean;
+  email: string;
+  pendingEmail: string;
+  emailVerified: boolean;
+  message: string;
+}

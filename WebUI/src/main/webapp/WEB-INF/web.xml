@@ -600,6 +600,10 @@
         <servlet-class>com.percussion.servlets.PSLoginServlet</servlet-class>
     </servlet>
     <servlet>
+        <servlet-name>PSAuthServlet</servlet-name>
+        <servlet-class>com.percussion.servlets.PSAuthServlet</servlet-class>
+    </servlet>
+    <servlet>
         <servlet-name>rxwebdav</servlet-name>
         <servlet-class>com.percussion.utils.spring.PSPassThruDispatcherServlet</servlet-class>
         <init-param>
@@ -723,6 +727,10 @@
     <servlet-mapping>
         <servlet-name>RhythmyxLoginServlet</servlet-name>
         <url-pattern>/logout</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>PSAuthServlet</servlet-name>
+        <url-pattern>/auth/*</url-pattern>
     </servlet-mapping>
     
     <servlet-mapping>

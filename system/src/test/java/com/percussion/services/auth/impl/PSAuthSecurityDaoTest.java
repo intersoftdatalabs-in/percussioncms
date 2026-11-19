@@ -222,4 +222,48 @@ class PSAuthSecurityDaoTest {
     assertTrue(pk.isBackupEligible());
     assertFalse(pk.isBackupState());
   }
+
+  @Test
+  void findVerifiedByNormalizedEmailFiltersVerifiedRowsAndOrdersByUser() {
+    EntityManager em = mock(EntityManager.class);
+    @SuppressWarnings("unchecked")
+    TypedQuery<PSAccountSecurity> query = mock(TypedQuery.class);
+    when(em.createQuery(anyString(), eq(PSAccountSecurity.class))).thenReturn(query);
+    when(query.setParameter(anyString(), any())).thenReturn(query);
+
+    PSAccountSecurity alice = new PSAccountSecurity();
+    alice.setUserName("alice");
+    alice.setEmailNormalized("shared@example.com");
+    alice.setEmailVerified(true);
+    when(query.getResultList()).thenReturn(List.of(alice));
+
+    PSAuthSecurityDao dao = createDao(em);
+    assertTrue(dao.findVerifiedByNormalizedEmail("  ").isEmpty());
+    List<PSAccountSecurity> matches = dao.findVerifiedByNormalizedEmail(" Shared@EXAMPLE.COM ");
+
+    assertEquals(1, matches.size());
+    assertEquals("alice", matches.get(0).getUserName());
+    verify(query).setParameter("email", "shared@example.com");
+  }
+
+  @Test
+  void consumeAuthTokenAtomicallyAndInvalidateUnconsumedExecuteUpdates() {
+    EntityManager em = mock(EntityManager.class);
+    Query updateQuery = mock(Query.class);
+    when(em.createQuery(anyString())).thenReturn(updateQuery);
+    when(updateQuery.setParameter(anyString(), any())).thenReturn(updateQuery);
+    when(updateQuery.executeUpdate()).thenReturn(1).thenReturn(2);
+
+    PSAuthSecurityDao dao = createDao(em);
+    Instant now = Instant.parse("2026-11-18T12:00:00Z");
+
+    assertEquals(0, dao.consumeAuthTokenAtomically(" ", PSAuthToken.TYPE_EMAIL_VERIFY, now));
+    assertEquals(1, dao.consumeAuthTokenAtomically("digest123", PSAuthToken.TYPE_EMAIL_VERIFY, now));
+    assertEquals(2, dao.invalidateUnconsumedTokens("alice", PSAuthToken.TYPE_EMAIL_VERIFY, now));
+
+    verify(updateQuery).setParameter("tokenHash", "digest123");
+    verify(updateQuery, org.mockito.Mockito.times(2))
+        .setParameter("tokenType", PSAuthToken.TYPE_EMAIL_VERIFY);
+    verify(updateQuery).setParameter("userName", "alice");
+  }
 }

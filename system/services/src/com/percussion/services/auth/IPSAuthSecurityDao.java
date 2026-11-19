@@ -34,6 +34,8 @@ public interface IPSAuthSecurityDao {
 
   List<PSAccountSecurity> findByNormalizedEmail(String emailNormalized);
 
+  List<PSAccountSecurity> findVerifiedByNormalizedEmail(String emailNormalized);
+
   PSAccountSecurity saveAccountSecurity(PSAccountSecurity entity);
 
   List<PSMfaTotp> findActiveTotpByUser(String userName);
@@ -51,6 +53,10 @@ public interface IPSAuthSecurityDao {
   PSAuthToken saveToken(PSAuthToken token);
 
   Optional<PSAuthToken> findTokenByHash(String tokenHash);
+
+  int consumeAuthTokenAtomically(String tokenHash, String tokenType, Instant consumedAt);
+
+  int invalidateUnconsumedTokens(String userName, String tokenType, Instant consumedAt);
 
   int purgeExpiredTokens(Instant cutoff);
 

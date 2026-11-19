@@ -29,6 +29,44 @@ Authentication and recovery settings live in `rxconfig/Server/server.properties`
 | `auth.token.emailVerifyTtlMinutes` | `30` | Lifetime for email verification tokens. |
 | `auth.token.passwordResetTtlMinutes` | `20` | Lifetime for password reset tokens. |
 | `auth.token.adminBreakGlassTtlMinutes` | `60` | Lifetime for admin break-glass recovery tokens. |
+| `auth.email.required` | `true` | Require valid email addresses on internal human accounts (`PercussionAdmin` and `rxserver` service accounts are exempt). |
+| `auth.email.uniqueForRecovery` | `false` | When `true`, suppress automated Forgot Username reminders if multiple verified accounts share one email address. |
+| `auth.directory.trustEmailVerified` | `false` | Trust directory-synced emails as pre-verified (defaults `false`; directory email changes clear verification when false). |
+| `auth.rateLimit.forgotUsernamePerIpPerHour` | `15` | Hourly Forgot Username request limit per client IP (returns HTTP `429` above threshold). |
+| `auth.rateLimit.forgotUsernamePerEmailPerHour` | `5` | Hourly Forgot Username lookup limit per normalized email address (silently returns generic acknowledgment). |
+| `auth.rateLimit.emailVerifyResendPerUserPerHour` | `5` | Hourly verification link issuance limit per user account. |
+
+## Verified email lifecycle and staged email changes
+
+Percussion CMS tracks email verification independently from legacy role subject attributes in
+`PSX_ACCOUNT_SECURITY`:
+
+- **Staged internal email changes:** Internal users update their email under **My profile → Account**.
+  When changing an email (or verifying via **My profile → Account** / `POST /services/auth/profile/email/change`),
+  Percussion keeps the existing verified email address active in `PENDING_EMAIL` deferral until the user
+  opens the verification link and clicks **Confirm email address**. When replacing an existing verified
+  address, a security notification is also sent to the previous verified address.
+- **Scanner-safe verification links:** `GET /auth/verify-email?token=...` renders a confirmation screen
+  without consuming the token, preventing email security link scanners from invalidating links before the
+  user clicks. Verification only executes on `POST /auth/verify-email` with an origin and CSRF check,
+  backed by `auth.publicBaseUrl`.
+- **Directory accounts:** Directory (`DIRECTORY`) account email remains read-only in **My profile → Account**.
+  Whenever a directory email changes, Percussion clears prior verification unless
+  `auth.directory.trustEmailVerified=true`.
+- **Profile email APIs:** Signed-in users query and stage verification through
+  `GET /services/auth/profile/email`, `POST /services/auth/profile/email/change`, and
+  `POST /services/auth/profile/email/resend` (always scoped to the active session user).
+
+## Forgot Username recovery
+
+The sign-in page includes a **Forgot username?** link (`/auth/forgot-username`). Submitting an address
+via `POST /auth/forgot-username`:
+
+- Always returns the same generic acknowledgment message regardless of whether the address exists, is
+  unverified, or matches a user account (protecting against account enumeration).
+- Sends a username reminder email synchronously via `PSAuthMailService` **only** to **verified** email
+  addresses stored in `PSX_ACCOUNT_SECURITY`.
+- Enforces configurable per-IP and per-email Bucket4j rate limits.
 
 ## Dedicated synchronous auth mail (`auth.mail.*`)
 
