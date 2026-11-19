@@ -476,5 +476,162 @@ class TestWarBundlesSitemanage(unittest.TestCase):
         self.assertEqual(entry, "WEB-INF/lib/sitemanage-new.jar")
 
 
+def _write_class_jar(path: Path, entries: list[str], mtime: float = 300) -> None:
+    """Write a synthetic jar whose entries are (empty) .class files."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(path, "w") as zf:
+        for entry in entries:
+            zf.writestr(entry, b"\xca\xfe\xba\xbe fake-class")
+    os.utime(path, (mtime, mtime))
+
+
+def _write_java(path: Path, body: str = "package p; public class X {}") -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(body, encoding="utf-8")
+
+
+class TestSnapshotProvenance(unittest.TestCase):
+    """SNAPSHOT provenance guard: branch-built jars in the shared repo (#6709)."""
+
+    def setUp(self):
+        self.repo_helper = _Repo()
+        self.addCleanup(self.repo_helper.cleanup)
+        self.repo = self.repo_helper.layout_repo()
+        self.m2 = self.repo_helper.layout_m2()
+
+    def _layout_rest_sources(self) -> Path:
+        src = self.repo / "rest" / "src" / "main" / "java"
+        _write_java(src / "com" / "percussion" / "rest" / "PipesResource.java")
+        return src
+
+    def _m2_rest_jar(self, entries: list[str], *rel: str) -> Path:
+        jar = self.m2.joinpath(*rel)
+        _write_class_jar(jar, entries)
+        return jar
+
+    def test_clean_jar_passes(self):
+        self._layout_rest_sources()
+        self._m2_rest_jar(
+            ["com/percussion/rest/PipesResource.class"],
+            "com", "percussion", "rest", "rest", "8.2.0-SNAPSHOT",
+            "rest-8.2.0-SNAPSHOT.jar",
+        )
+        findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
+        self.assertFalse(qa_preflight.is_poisoned(findings))
+
+    def test_flattened_layout_jar_is_checked(self):
+        """Hosts with the flattened m2 layout are guarded too (#6709)."""
+        self._layout_rest_sources()
+        self._m2_rest_jar(
+            ["com/percussion/rest/pipelines/PipelineMapper.class"],
+            "com", "percussion", "rest", "8.2.0-SNAPSHOT",
+            "rest-8.2.0-SNAPSHOT.jar",
+        )
+        findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
+        self.assertTrue(qa_preflight.is_poisoned(findings))
+        self.assertEqual(findings[0].label, "rest")
+        self.assertIn(
+            "com/percussion/rest/pipelines/PipelineMapper.class",
+            findings[0].foreign_sample,
+        )
+
+    def test_inner_class_maps_to_outer_source(self):
+        self._layout_rest_sources()
+        self._m2_rest_jar(
+            ["com/percussion/rest/PipesResource$Inner.class"],
+            "com", "percussion", "rest", "rest", "8.2.0-SNAPSHOT",
+            "rest-8.2.0-SNAPSHOT.jar",
+        )
+        findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
+        self.assertFalse(qa_preflight.is_poisoned(findings))
+
+    def test_generated_sources_count_as_source(self):
+        src = self._layout_rest_sources()
+        gen = self.repo / "rest" / "target" / "generated-sources" / "annotations"
+        _write_java(gen / "com" / "percussion" / "rest" / "PipesMapperImpl.java")
+        self._m2_rest_jar(
+            [
+                "com/percussion/rest/PipesResource.class",
+                "com/percussion/rest/PipesMapperImpl.class",
+            ],
+            "com", "percussion", "rest", "rest", "8.2.0-SNAPSHOT",
+            "rest-8.2.0-SNAPSHOT.jar",
+        )
+        findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
+        self.assertFalse(qa_preflight.is_poisoned(findings))
+
+    def test_missing_jar_is_noop(self):
+        self._layout_rest_sources()
+        findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
+        self.assertFalse(qa_preflight.is_poisoned(findings))
+
+    def test_missing_source_root_is_skipped(self):
+        """Partial trees (no rest/ dir) never flag — avoid false positives."""
+        self._m2_rest_jar(
+            ["com/percussion/rest/pipelines/PipelineMapper.class"],
+            "com", "percussion", "rest", "8.2.0-SNAPSHOT",
+            "rest-8.2.0-SNAPSHOT.jar",
+        )
+        findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
+        self.assertFalse(qa_preflight.is_poisoned(findings))
+
+    def test_scratch_and_metadata_entries_ignored(self):
+        self._layout_rest_sources()
+        self._m2_rest_jar(
+            [
+                "META-INF/MANIFEST.MF",
+                "module-info.class",
+                "com/percussion/rest/package-info.class",
+                "com/percussion/rest/PipesResource.class",
+            ],
+            "com", "percussion", "rest", "rest", "8.2.0-SNAPSHOT",
+            "rest-8.2.0-SNAPSHOT.jar",
+        )
+        findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
+        self.assertFalse(qa_preflight.is_poisoned(findings))
+
+    def test_strict_main_exits_2_on_poison(self):
+        self._layout_rest_sources()
+        self._m2_rest_jar(
+            ["com/percussion/rest/pipelines/PipelineMapper.class"],
+            "com", "percussion", "rest", "8.2.0-SNAPSHOT",
+            "rest-8.2.0-SNAPSHOT.jar",
+        )
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = qa_preflight.main(
+                ["--repo-root", str(self.repo), "--m2-root", str(self.m2),
+                 "--strict", "--no-content-hash"]
+            )
+        self.assertEqual(rc, 2)
+        self.assertIn("POISONED: rest", buf.getvalue())
+
+    def test_no_provenance_flag_disables_check(self):
+        self._layout_rest_sources()
+        self._m2_rest_jar(
+            ["com/percussion/rest/pipelines/PipelineMapper.class"],
+            "com", "percussion", "rest", "8.2.0-SNAPSHOT",
+            "rest-8.2.0-SNAPSHOT.jar",
+        )
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = qa_preflight.main(
+                ["--repo-root", str(self.repo), "--m2-root", str(self.m2),
+                 "--strict", "--no-content-hash", "--no-provenance"]
+            )
+        # No sitemanage jar in fixture → not stale either, so rc is 0
+        # and the report carries no provenance section at all.
+        self.assertEqual(rc, 0)
+        self.assertNotIn("POISONED", buf.getvalue())
+        self.assertNotIn("PROVENANCE", buf.getvalue())
+
+    def test_flat_layout_fallback_for_sitemanage_m2_row(self):
+        """The stale-WAR m2 row is no longer blind on flattened hosts."""
+        jar = self.m2 / "com" / "percussion" / "sitemanage" / "8.2.0-SNAPSHOT" / \
+            "sitemanage-8.2.0-SNAPSHOT.jar"
+        _write_jar(jar, b"flat-layout-payload", 400)
+        self.assertEqual(qa_preflight.find_sitemanage_in_m2(self.m2), jar)
+
+
 if __name__ == "__main__":
     unittest.main()

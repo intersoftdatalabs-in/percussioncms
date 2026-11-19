@@ -37,6 +37,17 @@ container starts. Exit code is ``0`` when fresh, ``2`` when stale
 The check is filesystem-only — no docker, no curl, no maven. Operators
 run ``python3 docker/scripts/qa_preflight.py`` (or
 ``perc-devctl.py qa-preflight``) before ``qa-up``.
+
+SNAPSHOT provenance (#6709): the same run also verifies that the
+``rest`` / ``sitemanage`` SNAPSHOT jars in the resolved local repository
+were built from *this* checkout. Concurrent agent worktrees share one
+``~/.m2`` (or one ``~/.m2-night``); a ``clean install`` from a feature
+branch silently overwrites the SNAPSHOTs another cell's ``qa-up`` then
+boots — a Frankenstein mix that fails with Spring injection errors
+looking like product defects. Any ``.class`` entry in the m2 jar whose
+top-level type has no ``.java`` source in this checkout is reported as
+``POISONED:`` (strict mode exits ``2``). Disable with
+``--no-provenance``.
 """
 
 from __future__ import annotations
@@ -72,6 +83,28 @@ _WEBUI_WAR_PATTERN = re.compile(
 # Chunk size for streaming SHA-256 over jar / zip entry bytes.
 _HASH_CHUNK = 1024 * 1024
 
+# --- SNAPSHOT provenance (#6709) -------------------------------------------
+# (label, m2 group-relative dir, jar-name prefix, checkout source roots).
+# The group dir is searched at any depth: standard Maven layout
+# (``com/percussion/rest/rest/<version>/``) and the flattened layout some
+# hosts carry (``com/percussion/rest/<version>/``) both match.
+_PROVENANCE_ARTIFACTS: tuple[
+    tuple[str, str, str, tuple[str, ...]], ...
+] = (
+    ("rest", "com/percussion/rest", "rest", ("rest/src/main/java",)),
+    (
+        "sitemanage",
+        "com/percussion/sitemanage",
+        "sitemanage",
+        ("projects/sitemanage/src/main/java",),
+    ),
+)
+# Jar-name suffixes that are never the installed binary (same stem match).
+_PROVENANCE_SKIP_SUFFIXES = ("-sources.jar", "-javadoc.jar")
+# Max foreign class entries shown per artifact; the total count is always
+# reported so long tails do not flood agent logs.
+_PROVENANCE_SAMPLE = 10
+
 LOG = logging.getLogger("qa_preflight")
 
 
@@ -94,15 +127,52 @@ def _resolve_m2_dir(m2_root: Path) -> Path:
 
 
 def find_sitemanage_in_m2(m2_root: Path) -> Optional[Path]:
-    """Locate the newest ``sitemanage-*.jar`` under the maven local repo."""
-    base = _resolve_m2_dir(m2_root)
+    """Locate the newest ``sitemanage-*.jar`` under the maven local repo.
+
+    Standard Maven layout (``.../sitemanage/sitemanage/<version>/``) wins;
+    falls back to the flattened host layout (``.../sitemanage/<version>/``)
+    so the preflight is not blind on hosts that carry it (#6709).
+    """
+    standard = _resolve_m2_dir(m2_root)
+    if standard.is_dir():
+        candidates = [
+            p for p in standard.iterdir() if _SITEMANAGE_JAR_PATTERN.match(p.name)
+        ]
+        if candidates:
+            return max(candidates, key=lambda p: p.stat().st_mtime)
+    return find_snapshot_jar(m2_root, "com/percussion/sitemanage", "sitemanage")
+
+
+def find_snapshot_jar(
+    m2_root: Path, group_rel: str, artifact: str
+) -> Optional[Path]:
+    """Locate the newest ``<artifact>-*.jar`` at any depth under a group dir.
+
+    Covers both the standard Maven layout and flattened host layouts
+    (``.../<artifact>/<version>/`` with no artifact level, #6709).
+    ``*-sources.jar`` / ``*-javadoc.jar`` never match. Returns ``None``
+    when the group dir is absent or holds no binary jar.
+    """
+    base = m2_root / Path(*group_rel.split("/"))
     if not base.is_dir():
         return None
-    candidates = [p for p in base.iterdir() if _SITEMANAGE_JAR_PATTERN.match(p.name)]
+    pattern = re.compile(r"^" + re.escape(artifact) + r"-.*\.jar$")
+    candidates: list[Path] = []
+    try:
+        for p in base.rglob("*.jar"):
+            if not p.is_file():
+                continue
+            if not pattern.match(p.name):
+                continue
+            if p.name.endswith(_PROVENANCE_SKIP_SUFFIXES):
+                continue
+            candidates.append(p)
+    except OSError:
+        return None
     if not candidates:
         return None
-    # Pick the most recently modified — SNAPSHOT refresh leaves dated
-    # copies in place; the newest is the active install candidate.
+    # SNAPSHOT refresh leaves dated copies in place; the newest is the
+    # active install candidate.
     return max(candidates, key=lambda p: p.stat().st_mtime)
 
 
@@ -365,6 +435,140 @@ def is_stale(rows: Iterable[PreflightResult], *, content_hash: bool = True) -> b
     return war.mtime < m2.mtime  # type: ignore[operator]
 
 
+@dataclass(frozen=True)
+class ProvenanceFinding:
+    """One artifact whose m2 SNAPSHOT jar does not match this checkout."""
+
+    label: str  # "rest" / "sitemanage"
+    jar: Path
+    foreign_count: int  # total .class entries with no checkout source
+    foreign_sample: tuple[str, ...]  # first _PROVENANCE_SAMPLE entry names
+
+
+def _java_source_index(repo_root: Path, source_roots: Iterable[str]) -> set[str]:
+    """Index ``<top-level-type>.java`` paths (POSIX form) under source roots.
+
+    Inner-class entries (``Foo$Bar.class``) map to ``Foo.java`` at lookup
+    time, so only top-level ``*.java`` stems are indexed. Annotation
+    processing output (``target/generated-sources/*``) counts as source
+    when the module was built in this checkout; a ``clean`` checkout
+    without rebuilt generated sources may over-report — the finding text
+    says to rebuild in that case.
+    """
+    index: set[str] = set()
+    roots: list[Path] = []
+    for rel in source_roots:
+        root = repo_root / Path(*rel.split("/"))
+        if root.is_dir():
+            roots.append(root)
+        # Module dir is the source root minus trailing src/main/java.
+        parts = Path(*rel.split("/")).parts
+        if len(parts) > 3 and parts[-3:] == ("src", "main", "java"):
+            gen = repo_root / Path(*parts[:-3]) / "target" / "generated-sources"
+            if gen.is_dir():
+                try:
+                    roots.extend(d for d in gen.iterdir() if d.is_dir())
+                except OSError:
+                    pass
+    for root in roots:
+        try:
+            for java in root.rglob("*.java"):
+                try:
+                    index.add(java.relative_to(root).with_suffix("").as_posix())
+                except ValueError:
+                    continue
+        except OSError:
+            continue
+    return index
+
+
+def _jar_class_entries(jar_path: Path) -> list[str]:
+    """List ``.class`` entries in a jar, minus metadata and package-info."""
+    try:
+        with zipfile.ZipFile(jar_path, "r") as zf:
+            return [
+                name
+                for name in zf.namelist()
+                if name.endswith(".class")
+                and not name.startswith("META-INF/")
+                and name != "module-info.class"
+                and not name.endswith("/package-info.class")
+            ]
+    except (OSError, zipfile.BadZipFile):
+        return []
+
+
+def foreign_classes_in_jar(jar_path: Path, sources: set[str]) -> list[str]:
+    """Return class entries whose top-level type has no ``.java`` source."""
+    foreign: list[str] = []
+    for entry in _jar_class_entries(jar_path):
+        top = entry[: -len(".class")].split("$")[0]
+        if top not in sources:
+            foreign.append(entry)
+    return sorted(foreign)
+
+
+def check_snapshot_provenance(
+    repo_root: Path, m2_root: Path
+) -> list[ProvenanceFinding]:
+    """Flag m2 SNAPSHOT jars built from a different checkout/branch (#6709).
+
+    For each known artifact, when *both* the m2 jar and this checkout's
+    source roots exist, every jar ``.class`` without a matching checkout
+    ``.java`` is foreign — the jar came from another branch's
+    ``clean install`` into the shared local repo. Missing jars or missing
+    source roots (partial trees) are skipped, never flagged.
+    """
+    findings: list[ProvenanceFinding] = []
+    for label, group_rel, artifact, source_roots in _PROVENANCE_ARTIFACTS:
+        jar = find_snapshot_jar(m2_root, group_rel, artifact)
+        if jar is None:
+            continue
+        if not any(
+            (repo_root / Path(*rel.split("/"))).is_dir() for rel in source_roots
+        ):
+            continue
+        sources = _java_source_index(repo_root, source_roots)
+        foreign = foreign_classes_in_jar(jar, sources)
+        if foreign:
+            findings.append(
+                ProvenanceFinding(
+                    label=label,
+                    jar=jar,
+                    foreign_count=len(foreign),
+                    foreign_sample=tuple(foreign[:_PROVENANCE_SAMPLE]),
+                )
+            )
+    return findings
+
+
+def is_poisoned(findings: Iterable[ProvenanceFinding]) -> bool:
+    """Return ``True`` when any SNAPSHOT jar carries foreign classes."""
+    return any(f.foreign_count > 0 for f in findings)
+
+
+def format_provenance(findings: Iterable[ProvenanceFinding]) -> str:
+    """Render the provenance section of the preflight report."""
+    found = list(findings)
+    if not found:
+        return "PROVENANCE: OK — m2 SNAPSHOT jars match this checkout"
+    lines = []
+    for f in found:
+        lines.append(
+            f"POISONED: {f.label} {f.jar} carries "
+            f"{f.foreign_count} class(es) with no source in this checkout "
+            f"(branch-built jar in the shared local repo?) — "
+            f"rebuild with `clean install` from this checkout before qa-up"
+        )
+        for entry in f.foreign_sample:
+            lines.append(f"  foreign: {entry}")
+        if f.foreign_count > len(f.foreign_sample):
+            lines.append(
+                f"  ... and {f.foreign_count - len(f.foreign_sample)} more"
+            )
+    return "\n".join(lines)
+
+
 def format_report(
     rows: Iterable[PreflightResult],
     strict: bool,
@@ -439,7 +643,9 @@ def main(argv: Optional[list[str]] = None) -> int:
         prog="qa-preflight",
         description=(
             "Detect a stale WebUI WAR vs a freshly built sitemanage "
-            "SNAPSHOT before running perc-devctl qa-up (#2486 / #2532)."
+            "SNAPSHOT before running perc-devctl qa-up (#2486 / #2532), "
+            "and verify m2 SNAPSHOT jars were built from this checkout "
+            "(--no-provenance to skip, #6709)."
         ),
     )
     parser.add_argument(
@@ -495,6 +701,23 @@ def main(argv: Optional[list[str]] = None) -> int:
         default=None,
         help="Optional path to append the report to (agent workflows).",
     )
+    prov_group = parser.add_mutually_exclusive_group()
+    prov_group.add_argument(
+        "--provenance",
+        dest="provenance",
+        action="store_true",
+        help=(
+            "Verify m2 SNAPSHOT jars were built from this checkout "
+            "(default; branch-built jars in the shared repo fail strict)."
+        ),
+    )
+    prov_group.add_argument(
+        "--no-provenance",
+        dest="provenance",
+        action="store_false",
+        help="Skip the SNAPSHOT provenance check (#6709).",
+    )
+    parser.set_defaults(provenance=True)
     parser.add_argument(
         "--verbose",
         action="store_true",
@@ -516,14 +739,22 @@ def main(argv: Optional[list[str]] = None) -> int:
         args.repo_root, m2_root, content_hash=args.content_hash
     )
     stale = is_stale(rows, content_hash=args.content_hash)
+    findings = (
+        check_snapshot_provenance(args.repo_root, m2_root)
+        if args.provenance
+        else []
+    )
+    poisoned = is_poisoned(findings)
     report = format_report(rows, strict=args.strict, content_hash=args.content_hash)
+    if args.provenance:
+        report += "\n" + format_provenance(findings)
     print(report)
     if args.log_file is not None:
         args.log_file.parent.mkdir(parents=True, exist_ok=True)
         with args.log_file.open("a", encoding="utf-8") as fh:
             fh.write(report + "\n")
 
-    if stale and args.strict:
+    if (stale or poisoned) and args.strict:
         return 2
     return 0
 

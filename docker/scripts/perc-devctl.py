@@ -23,7 +23,9 @@ QA mode (H2-in-Docker, no host install — issue #1827 / #1927) adds:
   (``qa-up --with-dts`` companion, #6237); an explicit ``--container``
   removes only that container.
 * ``qa-preflight`` — rebuild-chain preflight; detect a stale WebUI WAR vs
-  a freshly built sitemanage SNAPSHOT (#2486)
+  a freshly built sitemanage SNAPSHOT (#2486), and verify the m2
+  ``rest`` / ``sitemanage`` SNAPSHOT jars were built from this checkout
+  (branch-built jars in the shared local repo poison the cell, #6709)
 * ``qa-up --skip-image-build`` — fail fast when the cached
   ``percussion-matrix-cell:local`` image lacks the in-image HEALTHCHECK
   (#2481); the precheck runs ``docker inspect`` and prints a clear
@@ -834,7 +836,9 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "qa-preflight",
         help=(
             "Detect a stale WebUI WAR vs a freshly built sitemanage "
-            "SNAPSHOT before qa-up (#2486 / #2532). Default content-hash "
+            "SNAPSHOT before qa-up (#2486 / #2532), and verify m2 "
+            "rest/sitemanage SNAPSHOTs were built from this checkout "
+            "(--no-provenance to skip, #6709). Default content hash "
             "(SHA-256 m2 jar vs WAR zip entry); --no-content-hash for "
             "mtime-only. Exits non-zero in --strict mode when stale."
         ),
@@ -844,6 +848,11 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         "--no-content-hash",
         action="store_true",
         help="Mtime-only comparison (disable default SHA-256 content hash).",
+    )
+    pqp.add_argument(
+        "--no-provenance",
+        action="store_true",
+        help="Skip the m2 SNAPSHOT provenance check (#6709).",
     )
     pqp.add_argument("--dry-run", action="store_true")
 
@@ -2896,14 +2905,17 @@ def cmd_qa_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int
 def cmd_qa_preflight(
     args: argparse.Namespace, paths: tuple[Path, Path, Path]
 ) -> int:
-    """Run the rebuild-chain preflight (#2486 / #2532).
+    """Run the rebuild-chain preflight (#2486 / #2532) plus #6709 provenance.
 
     Detects a stale WebUI WAR vs a freshly built sitemanage SNAPSHOT
     so the operator / agent does not launch a container that
-    silently ships an outdated ``sitemanage-*.jar`` inside the WAR.
-    Default uses SHA-256 content hash (mtime-resistant); pass
-    ``--no-content-hash`` for legacy mtime-only. Delegates to
-    ``docker/scripts/qa_preflight.py``.
+    silently ships an outdated ``sitemanage-*.jar`` inside the WAR,
+    and verifies the m2 ``rest`` / ``sitemanage`` SNAPSHOT jars were
+    built from this checkout (a branch-built jar in the shared local
+    repo otherwise poisons the cell). Default uses SHA-256 content
+    hash (mtime-resistant); pass ``--no-content-hash`` for legacy
+    mtime-only, ``--no-provenance`` to skip the provenance check.
+    Delegates to ``docker/scripts/qa_preflight.py``.
     """
     import qa_preflight
 
@@ -2921,6 +2933,8 @@ def cmd_qa_preflight(
     ]
     if getattr(args, "no_content_hash", False):
         argv.append("--no-content-hash")
+    if getattr(args, "no_provenance", False):
+        argv.append("--no-provenance")
     rc = qa_preflight.main(argv)
     # Mirror the rest of perc-devctl: emit a single RESULT line for agents.
     if rc == 0:

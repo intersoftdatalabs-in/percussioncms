@@ -114,6 +114,25 @@ unset __night_home
 
 Seed the isolated repo with third-party artifacts only (`rsync -a --exclude='*-SNAPSHOT/' ~/.m2/repository/ ~/.m2-night/repository/`) so the first build does not re-download everything; project SNAPSHOTs are rebuilt in place. `~/.m2/settings.xml` (servers / mirrors) still applies because Maven reads it from `user.home`, not from the local repo.
 
+**Rule: never `clean install` a non-base branch into the shared repo.** A branch build silently overwrites the `rest` / `sitemanage` `8.2.0-SNAPSHOT` jars every other cell boots from, and the victim cell then fails with Spring injection errors (`No qualifying bean`, `BeanDefinitionStoreException ... cannot be opened`) that look exactly like product defects — main-tip sources contain neither class (observed 2026-11-18/19, #6709). Either build branches only in an isolated local repo (above), or rebuild the base branch into the shared repo before anyone else's `qa-up`.
+
+#### SNAPSHOT provenance guard (#6709)
+
+`qa_preflight.py` also verifies the `rest` / `sitemanage` SNAPSHOT jars in the resolved local repo were built from **this checkout**: every `.class` entry whose top-level type has no `.java` source under `rest/src/main/java` (resp. `projects/sitemanage/src/main/java`, plus `target/generated-sources` when the module was built here) is **foreign** — the jar came from another branch's `clean install` into the shared repo. The report prints one `POISONED:` line per artifact (first 10 foreign classes + total count); `--strict` exits `2` when poisoned, `--no-provenance` skips the check (`perc-devctl.py qa-preflight` passes `--no-provenance` through). The lookup searches both the standard Maven layout (`com/percussion/rest/rest/<version>/`) and the flattened host layout (`com/percussion/rest/<version>/`) that some machines carry — the stale-WAR `m2:` row uses the same fallback, so the preflight is no longer blind on flattened hosts.
+
+Run it before every `qa-up` when agents share the host:
+
+```bash
+python3 docker/scripts/qa_preflight.py --strict
+# or: python3 docker/scripts/perc-devctl.py qa-preflight --strict
+```
+
+Staleness traps that still need a manual eye (compounding #6709 recoveries):
+
+- `perc-distribution-tree` **non-clean** `package` reuses previously unpacked deps from `target/` — after fixing `.m2`, the staged tree can still carry the poisoned jar. Only `clean package` re-resolves. Prefer `qa-rebuild-chain` (below), which always cleans.
+- `WebUI/target/perc-web-ui-*.war` embeds `WEB-INF/lib/rest-*.jar` from whatever `.m2` held at war-build time. `unzip -l` on the WAR does **not** reveal nested-jar classes (only the nested jar's md5 tells); rebuild the WAR after the `.m2` fix and compare hashes.
+- There is no `unzip` inside the cell images — in-cell jar forensics must use `python3 -c zipfile` (several negative "class absent" conclusions during the #6709 recovery were void until re-checked with python).
+
 #### Rebuild-chain driver (#2533)
 
 When preflight reports `STALE:` (or after any sitemanage / WebUI SNAPSHOT change that must land in the installer jar), run the portable driver instead of hand-typed `cd` + `mvnw` sequences:
