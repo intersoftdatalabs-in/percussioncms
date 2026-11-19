@@ -374,10 +374,22 @@ export const itemIconStyle: CSSProperties = {
 };
 
 export const emptyStateStyle: CSSProperties = {
-  padding: "24px 16px",
+  padding: "24px 16px 4px",
   // #777 on #fff is ~4.48:1 (fails WCAG AA). #555 is ~7.5:1 (#3646 empty list).
   color: "#555",
   fontStyle: "italic",
+  textAlign: "center",
+};
+
+/**
+ * Helpful empty-folder follow-up line under {@link emptyStateStyle}
+ * (#6596). Same AA-safe tone, roman so the hint scans as guidance rather
+ * than a second empty notice.
+ */
+export const emptyHintStyle: CSSProperties = {
+  padding: "0 16px 24px",
+  color: "#555",
+  fontSize: "0.85rem",
   textAlign: "center",
 };
 

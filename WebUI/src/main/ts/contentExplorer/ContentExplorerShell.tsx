@@ -321,7 +321,7 @@ import {
   restoreCheckedItems,
   type MultiSelectRestoreOutcome,
 } from "./multiSelectRestore";
-import { openInEditor } from "./openInEditor";
+import { describeOpenItemUnavailable, openInEditor, openItemUnavailable } from "./openInEditor";
 import { openPreviewItem } from "./previewItem";
 import {
   ReducedActions,
@@ -1238,13 +1238,23 @@ function ContentExplorerShellInner({
     },
     onOpen: (item) => {
       // Opening an item appends to recents (dedupe, cap, folders included).
-      recordRecentOpen(item);
       if (isFolder(item)) {
+        recordRecentOpen(item);
         const folderPath =
           resolveExplorerListPath(item, item.path) ?? item.path;
         setSelection({ folderPath, item: null });
         return;
       }
+      // Rows with neither an id nor a path cannot reach the editor at
+      // all — surface the failed-summary copy instead of silently
+      // no-opening or recording an unopenable recent (#6596).
+      if (openItemUnavailable(item)) {
+        const msg = describeOpenItemUnavailable();
+        setError(msg);
+        setActionInvokeError(msg);
+        return;
+      }
+      recordRecentOpen(item);
       onOpenItem(item);
     },
     // Product default: Finder-equivalent page/asset preview (#2733). Hosts
