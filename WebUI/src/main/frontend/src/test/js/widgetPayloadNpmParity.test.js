@@ -54,12 +54,14 @@
  * under the recorded MIT-ok ruling (upstream is MIT-licensed; no published
  * npm dist matches the payload's swatches/keywords surface).
  *
- * Slice 14 (issue #6689, parent #6522, spike #6655 follow-on) replaces
- * the nav hoverIntent pair below with a first-party `perc-hover-intent`
- * shim carrying the same `$.fn.hoverIntent`
+ * Slice 14 (issue #6689, parent #6522, spike #6655 follow-on) carries
+ * the nav hoverIntent bytes (classic briancherne 1.x, MIT-licensed) under
+ * canonical `perc-hover-intent` names with the same `$.fn.hoverIntent`
  * interval/sensitivity/timeout contract superfish consumes, so superfish
- * and `navbar.js` stay byte-identical: hoverIntent leaves the
- * stay-vendored list while MiniColors stays under the MIT-ok ruling.
+ * and `navbar.js` stay byte-identical, plus byte-identical compat aliases
+ * at the original filenames so already-published pages keep resolving:
+ * hoverIntent leaves the stay-vendored list while MiniColors stays under
+ * the MIT-ok ruling.
  *
  * Slice 3 migrates the directory-widget `list.min.js` to the npm list.js
  * 1.2.0 dist (byte-identical to the payload; Dependabot-tracked via the
@@ -1418,37 +1420,71 @@ const HOVER_INTENT_SHIM_PAYLOADS = [
   },
 ];
 
-// NavBar widget retired pair (issue #6689): deleted in the same change that
-// adds the shim above — pin the deletion so the bytes cannot come back.
-const HOVER_INTENT_RETIRED = [
-  path.join(
-    "modules",
-    "perc-packages",
-    "src",
-    "main",
-    "resources",
-    "Packages",
-    "perc.widgets.nav",
-    "sys__UserDependency--web_resources",
-    "widgets",
-    "navBar",
-    "js",
-    "hoverIntent.js",
-  ),
-  path.join(
-    "modules",
-    "perc-packages",
-    "src",
-    "main",
-    "resources",
-    "Packages",
-    "perc.widgets.nav",
-    "sys__UserDependency--web_resources",
-    "widgets",
-    "navBar",
-    "js",
-    "hoverIntent.min.js",
-  ),
+// NavBar widget compat aliases (issue #6689 review follow-up): the original
+// filenames stay shipped as byte-identical copies of the canonical pair so
+// already-published pages and custom templates keep resolving. Pin the
+// alias set — and their byte-identity — so neither side can drift.
+const HOVER_INTENT_COMPAT_ALIASES = [
+  {
+    alias: path.join(
+      "modules",
+      "perc-packages",
+      "src",
+      "main",
+      "resources",
+      "Packages",
+      "perc.widgets.nav",
+      "sys__UserDependency--web_resources",
+      "widgets",
+      "navBar",
+      "js",
+      "hoverIntent.js",
+    ),
+    canonical: path.join(
+      "modules",
+      "perc-packages",
+      "src",
+      "main",
+      "resources",
+      "Packages",
+      "perc.widgets.nav",
+      "sys__UserDependency--web_resources",
+      "widgets",
+      "navBar",
+      "js",
+      "perc-hover-intent.js",
+    ),
+  },
+  {
+    alias: path.join(
+      "modules",
+      "perc-packages",
+      "src",
+      "main",
+      "resources",
+      "Packages",
+      "perc.widgets.nav",
+      "sys__UserDependency--web_resources",
+      "widgets",
+      "navBar",
+      "js",
+      "hoverIntent.min.js",
+    ),
+    canonical: path.join(
+      "modules",
+      "perc-packages",
+      "src",
+      "main",
+      "resources",
+      "Packages",
+      "perc.widgets.nav",
+      "sys__UserDependency--web_resources",
+      "widgets",
+      "navBar",
+      "js",
+      "perc-hover-intent.min.js",
+    ),
+  },
 ];
 
 function loadHoverIntentShim(payloadRelPath) {
@@ -1496,24 +1532,27 @@ function hoverLeave($, el) {
   $(el).trigger("mouseleave");
 }
 
-describe("widget-payload first-party hover-intent shim (issue #6689)", () => {
-  it("shim payload pair exists and the vendored hoverIntent pair is gone", () => {
+describe("widget-payload hover-intent shim (issue #6689)", () => {
+  it("shim payload pair exists and the compat aliases match byte-for-byte", () => {
     for (const { payload } of HOVER_INTENT_SHIM_PAYLOADS) {
       expect(
         fs.existsSync(path.join(REPO_ROOT, payload)),
         `missing payload: ${payload}`,
       ).toBe(true);
     }
-    for (const retired of HOVER_INTENT_RETIRED) {
-      expect(
-        fs.existsSync(path.join(REPO_ROOT, retired)),
-        `retired payload still ships: ${retired}`,
-      ).toBe(false);
+    for (const { alias, canonical } of HOVER_INTENT_COMPAT_ALIASES) {
+      const aliasAbs = path.join(REPO_ROOT, alias);
+      expect(fs.existsSync(aliasAbs), `missing compat alias: ${alias}`).toBe(
+        true,
+      );
+      expect(fs.readFileSync(aliasAbs, "utf8")).toBe(
+        fs.readFileSync(path.join(REPO_ROOT, canonical), "utf8"),
+      );
     }
   });
 
   it.each(HOVER_INTENT_SHIM_PAYLOADS.map(({ payload }) => payload))(
-    "shim copy %s parses and carries the first-party banner",
+    "shim copy %s parses and carries the Percussion banner",
     (payloadRelPath) => {
       const source = fs.readFileSync(
         path.join(REPO_ROOT, payloadRelPath),

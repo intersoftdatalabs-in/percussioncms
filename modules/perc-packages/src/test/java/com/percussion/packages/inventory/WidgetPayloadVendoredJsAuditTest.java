@@ -258,23 +258,26 @@ import org.junit.jupiter.api.Test;
  * banner pins drop the package and its single Foundation row; no other
  * audited package ships foundation bytes.
  *
- * <p>Slice 14 (issue #6689, parent #6522, spike #6655 follow-on) replaces
- * the nav-widget hoverIntent pair ({@code hoverIntent.js} preview copy +
- * {@code hoverIntent.min.js} published copy, classic briancherne 1.x) with
- * a first-party {@code $.fn.hoverIntent}-compatible shim
- * ({@code perc-hover-intent.js} + {@code perc-hover-intent.min.js}). The
- * spike proved no npm path exists (npm {@code hoverintent} 2.x is the
- * incompatible vanilla rewrite with no {@code $.fn} surface; no
- * jQuery-compatible package is published), so the shim carries the same
- * interval/sensitivity/timeout contract superfish 1.7.10 consumes at
- * runtime and superfish plus {@code navbar.js} stay byte-identical. The
- * {@code percNavBar.xml} preview/publish entries and the
- * {@code psx_archiveInfo.xml} / {@code psx_archiveManifest.xml} entries
- * move to the shim files; the shim rows move from the third-party set to
- * the first-party set below with a first-party banner pin, and parity
- * (slow-intent opens, fast pass-through does not, close still honors
- * superfish {@code delay: 400}, keyboard/touch/destroy unchanged) is
- * enforced by the frontend vitest parity test.
+ * <p>Slice 14 (issue #6689, parent #6522, spike #6655 follow-on) carries
+ * the nav-widget hoverIntent bytes ({@code hoverIntent.js} preview copy +
+ * {@code hoverIntent.min.js} published copy, classic briancherne 1.x,
+ * MIT-licensed, Copyright 2007, 2013 Brian Cherne) under new canonical
+ * names ({@code perc-hover-intent.js} + {@code perc-hover-intent.min.js})
+ * with jQuery 4-compatible cleanups, plus byte-identical compat aliases at
+ * the original filenames so already-published pages and custom templates
+ * keep resolving (see the upgrade note). The spike proved no npm path
+ * exists (npm {@code hoverintent} 2.x is the incompatible vanilla rewrite
+ * with no {@code $.fn} surface; no jQuery-compatible package is published),
+ * so the copy keeps the same interval/sensitivity/timeout contract
+ * superfish 1.7.10 consumes at runtime and superfish plus {@code navbar.js}
+ * stay byte-identical. The {@code percNavBar.xml} preview/publish entries
+ * and the {@code psx_archiveInfo.xml} / {@code psx_archiveManifest.xml}
+ * entries move to the canonical files with matching alias entries; the rows
+ * move from the third-party set to the first-party set below with a
+ * first-party banner pin, and parity (slow-intent opens, fast pass-through
+ * does not, close still honors superfish {@code delay: 400},
+ * keyboard/touch/destroy unchanged) is enforced by the frontend vitest
+ * parity test.
  *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
@@ -406,7 +409,9 @@ class WidgetPayloadVendoredJsAuditTest {
           "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/navbar.js",
           "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/navbar.min.js",
           "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/perc-hover-intent.js",
-          "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/perc-hover-intent.min.js");
+          "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/perc-hover-intent.min.js",
+          "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/hoverIntent.js",
+          "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/hoverIntent.min.js");
 
   private static final Set<String> EXPECTED_JS_FILES =
       Stream.concat(EXPECTED_THIRD_PARTY_JS.stream(), EXPECTED_FIRST_PARTY_JS.stream())
@@ -465,6 +470,12 @@ class WidgetPayloadVendoredJsAuditTest {
               "Percussion hover-intent shim"),
           Map.entry(
               "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/perc-hover-intent.min.js",
+              "Percussion hover-intent shim"),
+          Map.entry(
+              "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/hoverIntent.js",
+              "Percussion hover-intent shim"),
+          Map.entry(
+              "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/hoverIntent.min.js",
               "Percussion hover-intent shim"),
           Map.entry(
               "perc.baseWidgets/sys__UserDependency--web_resources/cm/jslib/jquery-ui.js",

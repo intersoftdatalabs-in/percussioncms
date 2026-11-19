@@ -1,32 +1,49 @@
 /*
- * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ * hoverIntent r7 // 2013.02.11 // jQuery 1.9.0+
+ * http://cherne.net/brian/resources/jquery.hoverIntent.html
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+ * You may use hoverIntent under the terms of the MIT license.
+ * Copyright 2007, 2013 Brian Cherne
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ * Permission is hereby granted, free of charge, to any person obtaining a
+ * copy of this software and associated documentation files (the "Software"),
+ * to deal in the Software without restriction, including without limitation
+ * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ * and/or sell copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following conditions:
  *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ * DEALINGS IN THE SOFTWARE.
+ *
+ * Percussion-maintained copy (issue #6689): jQuery 4-compatible cleanups
+ * (`==` to `===`, `jQuery.extend` to `$.extend`); behavior contract unchanged
+ * for superfish 1.7.10. Byte-identical compat aliases (`hoverIntent.js` /
+ * `hoverIntent.min.js`) keep already-published pages and custom templates
+ * resolving; see the upgrade note.
  */
 
 /**
- * Percussion hover-intent shim (first-party $.fn.hoverIntent).
+ * Percussion hover-intent shim ($.fn.hoverIntent, hoverIntent r7-derived).
  *
- * Replaces the vendored classic briancherne jQuery hoverIntent plugin
- * (unmaintained 1.x line, no npm equivalent — issue #6655 spike verdict)
- * with the identical `$.fn.hoverIntent` contract that superfish 1.7.10
+ * Percussion-maintained copy of the classic briancherne jQuery hoverIntent
+ * plugin (unmaintained 1.x line, no npm equivalent — issue #6655 spike
+ * verdict) carrying the `$.fn.hoverIntent` contract that superfish 1.7.10
  * consumes at runtime (`$.fn.hoverIntent && !o.disableHI` in
- * `applyHandlers`). superfish.js and navbar.js stay untouched; only the
- * payload references move to this file (preview) and its minified publish
- * twin (perc-hover-intent.min.js).
+ * `applyHandlers`). superfish.js and navbar.js stay untouched; the payload
+ * references move to this file (preview) and its minified publish twin
+ * (perc-hover-intent.min.js). Byte-identical compat aliases
+ * (`hoverIntent.js` / `hoverIntent.min.js`) keep already-published pages
+ * and custom templates resolving; see the upgrade note.
  *
- * Contract (same as the retired plugin):
+ * Contract (same as hoverIntent r7):
  *   - `$(...).hoverIntent(handlerIn, handlerOut, selector)` — the form
  *     superfish uses with its `li:has(...)` targets.
  *   - `$(...).hoverIntent(handlerIn, handlerOut)` — direct binding.
