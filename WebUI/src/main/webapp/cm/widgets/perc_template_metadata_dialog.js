@@ -23,8 +23,6 @@
     var doctypeCustom;
     var dialogButtons;
     var doctypeSelected;
-    var codeMirrorSet = false;
-    var cm1, cm2, cm3;
 
     dialogButtons = {
       Save: {
@@ -110,7 +108,7 @@
           var getDocValue = metadataObj.HtmlMetadata.docType.options;
           doctypeSelected = metadataObj.HtmlMetadata.docType.selected;
 
-          for (i = 0; i < getDocValue.length; i++) {
+          for (var i = 0; i < getDocValue.length; i++) {
             if (getDocValue[i].option == "xhtml") {
               doctypeXHTML = getDocValue[i].value;
             } else if (getDocValue[i].option == "html5") {
@@ -127,6 +125,36 @@
             .trigger("click");
         },
       );
+    }
+
+    /**
+     * Reads the current value of a server-rendered metadata code field.
+     *
+     * The template edit form enhances these textareas with the npm-managed
+     * CodeMirror 5 bundle (issue #5626): CodeMirror 5 `fromTextArea` inserts
+     * the editor wrapper as the textarea's next sibling and exposes the
+     * instance as `wrapper.CodeMirror`, so the enhanced value must be read
+     * from the instance — the hidden textarea only holds the last synced
+     * value. When the field was not enhanced (plain textarea), falls back
+     * to its live value. Throws a named error when the field itself is
+     * absent so save aborts with a visible message instead of a silent
+     * TypeError (the dialog stays open and nothing is sent).
+     * @param field jQuery object wrapping the server-rendered textarea.
+     * @param fieldName server-side field name, used in the error message.
+     */
+    function getCodeEditorValue(field, fieldName) {
+      if (!field || field.length === 0) {
+        throw new Error("Template metadata field is missing: " + fieldName);
+      }
+      var textarea = field[0];
+      if (
+        textarea.nextSibling &&
+        textarea.nextSibling.CodeMirror &&
+        typeof textarea.nextSibling.CodeMirror.getValue === "function"
+      ) {
+        return textarea.nextSibling.CodeMirror.getValue();
+      }
+      return field.val();
     }
 
     function saveMetadata(templateId) {
@@ -153,27 +181,45 @@
         'textarea[id="perc_template_metadata_custom_doctype"]',
       );
 
-      var metadataObj = {
-        HtmlMetadata: {
-          additionalHeadContent:
-            additionalHeadContent[0].nextSibling.CodeMirror.getValue(),
-          afterBodyStartContent:
-            afterBodyStartContent[0].nextSibling.CodeMirror.getValue(),
-          beforeBodyCloseContent:
-            beforeBodyCloseContent[0].nextSibling.CodeMirror.getValue(),
-          id: templateId,
-          protectedRegion: protectedRegion.val(),
-          protectedRegionText: protectedRegionText.val(),
-          docType: {
-            selected: docTypeRadio.val(),
-            options: [
-              { option: "xhtml", value: "PERC_XHTML" },
-              { option: "html5", value: "PERC_HTML5" },
-              { option: "custom", value: docTypeTxt.val() },
-            ],
+      var metadataObj;
+      try {
+        metadataObj = {
+          HtmlMetadata: {
+            additionalHeadContent: getCodeEditorValue(
+              additionalHeadContent,
+              "additional_head_content",
+            ),
+            afterBodyStartContent: getCodeEditorValue(
+              afterBodyStartContent,
+              "code_insert_after_body_start",
+            ),
+            beforeBodyCloseContent: getCodeEditorValue(
+              beforeBodyCloseContent,
+              "code_insert_before_body_close",
+            ),
+            id: templateId,
+            protectedRegion: protectedRegion.val(),
+            protectedRegionText: protectedRegionText.val(),
+            docType: {
+              selected: docTypeRadio.val(),
+              options: [
+                { option: "xhtml", value: "PERC_XHTML" },
+                { option: "html5", value: "PERC_HTML5" },
+                { option: "custom", value: docTypeTxt.val() },
+              ],
+            },
           },
-        },
-      };
+        };
+      } catch (readError) {
+        $.perc_utils.alert_dialog({
+          title: "Template Save Failed",
+          content:
+            "Could not read the template code fields: " +
+            (readError && readError.message ? readError.message : readError) +
+            ". Nothing was saved.",
+        });
+        return;
+      }
       $.PercBlockUI();
       $.PercSiteTemplatesController(false).saveTemplateMetadata(
         metadataObj,

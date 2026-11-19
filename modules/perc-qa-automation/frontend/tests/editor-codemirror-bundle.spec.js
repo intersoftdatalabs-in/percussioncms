@@ -104,6 +104,20 @@ const TEMPLATE_JSP_MIRRORS = [
   "WebUI/war/app/includes/template/editTemplate_js.jsp",
 ];
 
+// Classic template-metadata dialog widget (issue #5626 slice: classic
+// page-edit dialogs stay in scope until deleted). The template editor's
+// "Edit Meta Data" action (PercTemplateView) opens this jQuery dialog; its
+// iframe hosts the server-rendered code fields and save reads them through
+// the CodeMirror 5 instance the npm bundle creates
+// (`textarea.nextSibling.CodeMirror`, the fromTextArea wrapper contract).
+// Both dual-ship copies must carry the hardened read (enhanced-instance
+// value with plain-textarea fallback and a visible save-failure message
+// naming the field) and neither may reference a removed layout.
+const METADATA_DIALOG_MIRRORS = [
+  "WebUI/src/main/webapp/cm/widgets/perc_template_metadata_dialog.js",
+  "WebUI/war/widgets/perc_template_metadata_dialog.js",
+];
+
 // Issue #6362 (slice 2/3 — "no exceptions"): classic content/page-edit
 // dialogs beyond the template editor render code editing through the
 // sys_TextArea control in sys_Templates.xsl, which loads the same
@@ -938,6 +952,177 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
         legendAt,
         `${SYS_TEMPLATES_XSL} must render the display prefs toolbar for code editors (#6467)`,
       ).toBeGreaterThan(-1);
+    },
+  );
+
+  test(
+    "classic template metadata dialog reads CodeMirror values safely",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async () => {
+      // No live CMS needed: static pin for the #5626 metadata-dialog
+      // hardening slice. Save must read each code field through the
+      // CodeMirror 5 instance the npm bundle creates (the fromTextArea
+      // wrapper contract: `textarea.nextSibling.CodeMirror.getValue()`),
+      // fall back to the live textarea value when a field was not enhanced,
+      // and abort with a visible named-field message when a field is absent
+      // (previously a silent TypeError left the dialog open with no message).
+      // Both dual-ship mirrors carry the same contract; neither may
+      // reference the removed per-file layout or the retired TinyMCE-hosted
+      // path, and neither may keep the dead per-file-era editor vars.
+      const texts = METADATA_DIALOG_MIRRORS.map((rel) =>
+        fs.readFileSync(path.join(REPO_ROOT, rel), "utf8").replace(/\r\n/g, "\n"),
+      );
+      for (const [index, rel] of METADATA_DIALOG_MIRRORS.entries()) {
+        const text = texts[index];
+        expect(
+          text.length,
+          `${rel} must embed the metadata dialog widget`,
+        ).toBeGreaterThan(0);
+        for (const pin of [
+          "getCodeEditorValue",
+          "nextSibling.CodeMirror",
+          "getValue()",
+          "return field.val()",
+          "Template metadata field is missing: ",
+          "Could not read the template code fields",
+          "Nothing was saved.",
+        ]) {
+          expect(
+            text,
+            `${rel} must harden the CodeMirror save read (#5626): ${pin}`,
+          ).toContain(pin);
+        }
+        for (const dead of ["codeMirrorSet", "cm1"]) {
+          expect(
+            text,
+            `${rel} must not keep dead per-file-era editor vars: ${dead}`,
+          ).not.toContain(dead);
+        }
+        for (const line of text.split("\n")) {
+          if (!/codemirror/i.test(line)) {
+            continue;
+          }
+          expect(
+            line,
+            `${rel} must not reference the removed per-file layout: ${line}`,
+          ).not.toMatch(/codemirror\/(lib|mode|addon|keymap|theme)\//);
+          expect(
+            line,
+            `${rel} must not reference the retired TinyMCE-hosted bundle path: ${line}`,
+          ).not.toMatch(/sys_resources\/tinymce\//);
+        }
+      }
+      // Dual-ship consistency (header rule): the war mirror must carry the
+      // same Intersoft header as the webapp source.
+      for (const [index, rel] of METADATA_DIALOG_MIRRORS.entries()) {
+        expect(
+          texts[index],
+          `${rel} must carry the Intersoft copyright header`,
+        ).toContain("Copyright (c) 2026 Intersoft Data Labs, Inc.");
+        expect(
+          texts[index],
+          `${rel} must not keep the retired Percussion header`,
+        ).not.toContain("Percussion Software, Inc.");
+      }
+    },
+  );
+
+  test(
+    "classic metadata save read works against the served npm bundle",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      // Live proof for the #5626 metadata-dialog hardening slice on the
+      // served npm bundle: the exact read chain save uses
+      // (`textarea.nextSibling.CodeMirror.getValue()`) returns the enhanced
+      // value, an un-enhanced textarea still yields its live value (the
+      // fallback), and a missing field is detectable before anything is
+      // sent. Mirrors getCodeEditorValue in
+      // perc_template_metadata_dialog.js (both dual-ship copies, pinned
+      // statically above); the widget itself needs the full dialog harness
+      // so the bundle mechanics are proved here.
+      test.setTimeout(60_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          pageErrors.push(msg.text());
+        }
+      });
+
+      await loginAsAdmin(page);
+      await page.addScriptTag({ url: `${BASE_URL}${BUNDLE_JS}` });
+      await page.addStyleTag({ url: `${BASE_URL}${BUNDLE_CSS}` });
+
+      const read = await page.evaluate(() => {
+        document.body.innerHTML =
+          "<h1>Metadata save read live proof (#5626)</h1>" +
+          '<textarea id="additional_head_content"><p>Head</p></textarea>' +
+          '<textarea id="code_insert_after_body_start"><p>Body</p></textarea>' +
+          '<textarea id="plain_fallback"><p>Plain</p></textarea>';
+        // Enhance two fields exactly like the server-rendered form does.
+        for (const id of [
+          "additional_head_content",
+          "code_insert_after_body_start",
+        ]) {
+          window.CodeMirror.fromTextArea(document.getElementById(id), {
+            mode: "htmlmixed",
+            lineNumbers: true,
+          });
+        }
+        // Same algorithm as getCodeEditorValue in the dialog widget.
+        function readField(id) {
+          const el = document.getElementById(id);
+          if (!el) {
+            throw new Error("Template metadata field is missing: " + id);
+          }
+          if (
+            el.nextSibling &&
+            el.nextSibling.CodeMirror &&
+            typeof el.nextSibling.CodeMirror.getValue === "function"
+          ) {
+            return el.nextSibling.CodeMirror.getValue();
+          }
+          return el.value;
+        }
+        // Authors edit through the enhanced editors before save.
+        const enhanced = document.getElementById("additional_head_content");
+        enhanced.nextSibling.CodeMirror.setValue("<p>Head edited</p>");
+        let missingMessage = null;
+        try {
+          readField("no_such_field");
+        } catch (err) {
+          missingMessage = String((err && err.message) || err);
+        }
+        return {
+          enhanced: readField("additional_head_content"),
+          second: readField("code_insert_after_body_start"),
+          plain: readField("plain_fallback"),
+          missingMessage,
+        };
+      });
+      expect(
+        read.enhanced,
+        "enhanced field must read through the CodeMirror instance (#5626)",
+      ).toBe("<p>Head edited</p>");
+      expect(
+        read.second,
+        "second enhanced field must keep its value (#5626)",
+      ).toContain("Body");
+      expect(
+        read.plain,
+        "un-enhanced field must fall back to its live value (#5626)",
+      ).toContain("Plain");
+      expect(
+        read.missingMessage,
+        "missing field must raise a named error before anything is sent (#5626)",
+      ).toContain("Template metadata field is missing: no_such_field");
+      await page.screenshot({
+        path: "test-results/live-proof-5626-metadata-save-read.png",
+      });
+
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
     },
   );
 
