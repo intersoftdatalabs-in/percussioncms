@@ -1532,7 +1532,8 @@ List entries use `SharedFieldGroupSummary`. Detail uses `SharedFieldGroupDetail`
 - `name`, `filename`
 - `fields[]`: `name`, `dataType`, `searchable`, `required`, `readOnly`, `occurrence`
   (`optional` / `required` / `oneOrMore` / `zeroOrMore` / `count` / `unknown`)
-- `designGaps[]` strings — remaining Workbench-only choice extras when present.
+- `designGaps[]` strings — remaining gap when present: system-def (global
+  fields) is a separate catalog (**Developer → System definition**).
   **Developer → Shared Fields** chrome can create, save, and delete a **group**,
   add or delete nested fields, and save control properties / choices (this
   catalog). Nested POST/DELETE `.../fields` and GET/PUT `.../controlProperties`

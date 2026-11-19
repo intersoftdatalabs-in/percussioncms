@@ -193,16 +193,17 @@ class DesignGapsStructuredTest {
 
   @Test
   void sharedFieldControlPropertyDesignGaps_matchGroupRemainingWork() {
-    assertEquals(2, SharedFieldsAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.size());
-    assertEquals("SF_SPA_EDITOR", SharedFieldsAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.get(0).getCode());
-    assertTrue(
-        SharedFieldsAdaptor.CONTROL_PROPERTY_DESIGN_GAPS
-            .get(0)
-            .getMessage()
-            .contains("SPA shared-field editor"));
+    // SF_SPA_EDITOR retired (#6126): the SPA shared-field editor (group
+    // create/save/delete, nested field add/delete, control-property + choice
+    // save on detail) has shipped, so only the system-def catalog split remains.
+    assertEquals(1, SharedFieldsAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.size());
     assertEquals(
         "SF_SYSTEM_DEF_SEPARATE",
-        SharedFieldsAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.get(1).getCode());
+        SharedFieldsAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.get(0).getCode());
+    assertTrue(
+        SharedFieldsAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.stream()
+            .noneMatch(g -> "SF_SPA_EDITOR".equals(g.getCode())),
+        () -> SharedFieldsAdaptor.CONTROL_PROPERTY_DESIGN_GAPS.toString());
   }
 
   @Test

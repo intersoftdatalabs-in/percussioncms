@@ -939,9 +939,8 @@ class SharedFieldsAdaptorTest {
     assertEquals("200", out.getProperties().get(0).getValue());
     assertEquals("local", out.getChoices().getType());
     assertEquals("open", out.getChoices().getEntries().get(0).getValue());
-    assertEquals(2, out.getDesignGaps().size());
-    assertEquals("SF_SPA_EDITOR", out.getDesignGaps().get(0).getCode());
-    assertEquals("SF_SYSTEM_DEF_SEPARATE", out.getDesignGaps().get(1).getCode());
+    assertEquals(1, out.getDesignGaps().size());
+    assertEquals("SF_SYSTEM_DEF_SEPARATE", out.getDesignGaps().get(0).getCode());
   }
 
   @Test
@@ -1008,7 +1007,7 @@ class SharedFieldsAdaptorTest {
         .saveContentEditorSharedDef(eq(def), eq(true), eq("test-session"), eq("Admin"));
     assertEquals("640", out.getProperties().get(0).getValue());
     assertTrue(
-        out.getDesignGaps().stream().anyMatch(g -> "SF_SPA_EDITOR".equals(g.getCode())),
+        out.getDesignGaps().stream().noneMatch(g -> "SF_SPA_EDITOR".equals(g.getCode())),
         () -> String.valueOf(out.getDesignGaps()));
     assertTrue(
         out.getDesignGaps().stream()
