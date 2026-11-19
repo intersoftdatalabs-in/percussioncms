@@ -23,7 +23,8 @@ deferred slices have since shipped to `main` and their issues are CLOSED:
   Playwright surface 2/2, product-docs `admin/content-explorer.md`
   **Move to slot**).
 
-T011 box in `tasks.md` is ticked; #6104 closeout PR records final verification.
+T011 box in `tasks.md` is ticked; closeout PR #6299 (merged 2026-11-13,
+`Fixes #6104`) closed #6104 — final verification recorded.
 
 ## T012 — FR-008 Compare decision: DEFER (not built)
 
