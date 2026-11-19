@@ -39,7 +39,27 @@ export const EXPLORER_MSG = {
   TREE_INLINE_NEW_FOLDER_BLANK: "perc.ui.explorer@Enter a folder name",
   LIST_LOADING: "perc.ui.explorer@Loading items",
   LIST_EMPTY: "perc.ui.explorer@No items in this folder",
+  /** Helpful empty-folder follow-up (#6596): names the create paths. */
+  LIST_EMPTY_HINT:
+    "perc.ui.explorer@Use New Item, Create Page, or Create Asset to add content to this folder.",
   LIST_LOAD_ERROR: "perc.ui.explorer@Failed to load items",
+  /**
+   * Named list-load failure summaries (#6596, parent #4530). The folder
+   * list shows Rhythmyx custom-type Items alongside pages/assets, so the
+   * summary names items — never just pages/assets. Rendered with a Retry
+   * affordance ({@link EXPLORER_MSG.RETRY}) instead of a bare raw error.
+   */
+  LIST_LOAD_ERROR_400:
+    "perc.ui.explorer@The item list request was not valid (HTTP 400)",
+  LIST_LOAD_ERROR_403:
+    "perc.ui.explorer@You do not have permission to list the items in this folder (HTTP 403)",
+  LIST_LOAD_ERROR_404:
+    "perc.ui.explorer@This folder was not found (HTTP 404)",
+  LIST_LOAD_ERROR_409:
+    "perc.ui.explorer@The item list could not be loaded because of a conflict (HTTP 409)",
+  /** Open failure for rows with neither an id nor a path (#6596). */
+  OPEN_ITEM_UNAVAILABLE:
+    "perc.ui.explorer@This item cannot be opened in the editor",
   COL_NAME: "perc.ui.explorer@Name",
   COL_TYPE: "perc.ui.explorer@Type",
   COL_PATH: "perc.ui.explorer@Path",

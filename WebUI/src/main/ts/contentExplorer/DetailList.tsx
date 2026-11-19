@@ -74,6 +74,7 @@
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { rowScheduleDates } from "./itemScheduleDates";
+import { isApiError, extractRestErrorMessage } from "../api/client";
 import {
   isNumericDisplayFormatId,
   paginatedFolder,
@@ -277,6 +278,54 @@ export function nextDetailRowIndex(
       return Math.min(count - 1, current + step);
   }
 }
+
+/**
+ * Named list-load failure summary (#6596, parent #4530). Maps the HTTP
+ * status to the item-aware copy (Rhythmyx custom-type Items list here
+ * alongside pages/assets, so the summary names items); unknown or absent
+ * statuses fall back to the generic LIST_LOAD_ERROR. Pure so Vitest can
+ * drive it without rendering.
+ */
+export function describeListLoadFailure(status: number | null): string {
+  switch (status) {
+    case 400:
+      return message(EXPLORER_MSG.LIST_LOAD_ERROR_400);
+    case 403:
+      return message(EXPLORER_MSG.LIST_LOAD_ERROR_403);
+    case 404:
+      return message(EXPLORER_MSG.LIST_LOAD_ERROR_404);
+    case 409:
+      return message(EXPLORER_MSG.LIST_LOAD_ERROR_409);
+    default:
+      return message(EXPLORER_MSG.LIST_LOAD_ERROR);
+  }
+}
+
+/**
+ * HTTP status carried by a list-load rejection, or null when the error
+ * is not status-carrying (network failure, malformed payload). Pure so
+ * Vitest can drive it without rendering.
+ */
+export function listLoadFailureStatus(err: unknown): number | null {
+  return isApiError(err) ? err.status : null;
+}
+
+/**
+ * Keyboard focus ring for detail-list rows (#6596). Rows are natively
+ * focusable via roving tabindex (#5761) but inline styles cannot express
+ * {@code :focus-visible}, so this class carries the ring. Plain
+ * {@code :focus} is suppressed so mouse clicks do not leave a sticky
+ * outline; keyboard operators still get the visible ring.
+ */
+const DETAIL_ROW_FOCUS_CSS = `
+.perc-explorer-detail-row:focus {
+  outline: none;
+}
+.perc-explorer-detail-row:focus-visible {
+  outline: 2px solid #1a73e8;
+  outline-offset: -2px;
+}
+`;
 
 /**
  * Per-operator hidden-column storage key for the detail-list column
@@ -510,6 +559,7 @@ import {
   detailTdCellStyle,
   detailThCellStyle,
   emptyStateStyle,
+  emptyHintStyle,
   errorStateStyle,
   folderIconButtonStyle,
   itemIconStyle,
@@ -690,6 +740,18 @@ export function DetailList({
   const [data, setData] = useState<PSPagedResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  /**
+   * HTTP status of the current list-load failure for the named summary
+   * ({@link describeListLoadFailure}); null while unloaded or for
+   * non-status failures. Reset alongside {@code error}.
+   */
+  const [errorStatus, setErrorStatus] = useState<number | null>(null);
+  /**
+   * Retry trigger for the list-load error state (#6596). Bumping the
+   * nonce re-runs the load effect from the first page without requiring
+   * a folder switch.
+   */
+  const [retryNonce, setRetryNonce] = useState(0);
   /** Client-side column sort of the loaded page; null keeps server order (#5759). */
   const [sort, setSort] = useState<DetailSortState | null>(null);
   /**
@@ -751,6 +813,7 @@ export function DetailList({
       setData(null);
       setPage(0);
       setError(null);
+      setErrorStatus(null);
       setSort(null);
       lastLoadedPath.current = null;
       return;
@@ -769,6 +832,7 @@ export function DetailList({
     let cancelled = false;
     setLoading(true);
     setError(null);
+    setErrorStatus(null);
     const params: Parameters<typeof paginatedFolder>[1] = {
       startIndex,
       maxResults: PAGE_SIZE,
@@ -783,8 +847,18 @@ export function DetailList({
       })
       .catch((err: unknown) => {
         if (cancelled) return;
-        const msg = err instanceof Error ? err.message : String(err);
-        setError(msg);
+        // Named failed-summary first (status-aware, item-aware copy);
+        // the raw detail follows only when it adds signal beyond the
+        // summary (a body message or a non-HTTP failure).
+        const status = listLoadFailureStatus(err);
+        if (err instanceof Error) {
+          setError(err.message);
+        } else if (isApiError(err)) {
+          setError(extractRestErrorMessage(err.body) ?? "");
+        } else {
+          setError(String(err));
+        }
+        setErrorStatus(status);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -792,7 +866,7 @@ export function DetailList({
     return () => {
       cancelled = true;
     };
-  }, [folderPath, page, displayFormatId]);
+  }, [folderPath, page, displayFormatId, retryNonce]);
 
   // Pager / folder changes reset row focus to the first row (#5761).
   // Kept separate from the data-load effect so the anchor resets even
@@ -950,11 +1024,27 @@ export function DetailList({
       </div>
     );
   }
-  if (error) {
+  if (error != null) {
     return (
       <div {...detailListRootProps(folderPath, displayFormatId, density)}>
-        <div style={errorStateStyle} role="alert">
-          {message(EXPLORER_MSG.LIST_LOAD_ERROR)}: {error}
+        <div style={errorStateStyle} role="alert" data-testid="detail-list-error">
+          <div data-testid="detail-list-error-summary">
+            {describeListLoadFailure(errorStatus)}
+            {error ? `: ${error}` : null}
+          </div>
+          <button
+            type="button"
+            data-testid="detail-list-retry"
+            aria-label={message(EXPLORER_MSG.RETRY)}
+            title={message(EXPLORER_MSG.RETRY)}
+            onClick={() => {
+              setPage(0);
+              setRetryNonce((n) => n + 1);
+            }}
+            style={detailColumnsToggleButtonStyle}
+          >
+            {message(EXPLORER_MSG.RETRY)}
+          </button>
         </div>
       </div>
     );
@@ -972,12 +1062,16 @@ export function DetailList({
         <div style={emptyStateStyle} data-testid="detail-list-empty">
           {message(EXPLORER_MSG.LIST_EMPTY)}
         </div>
+        <div style={emptyHintStyle} data-testid="detail-list-empty-hint">
+          {message(EXPLORER_MSG.LIST_EMPTY_HINT)}
+        </div>
       </div>
     );
   }
 
   return (
     <div {...detailListRootProps(folderPath, displayFormatId, density)}>
+      <style>{DETAIL_ROW_FOCUS_CSS}</style>
       <div style={detailColumnsToolbarStyle} data-testid="detail-columns-toolbar">
         <button
           type="button"
@@ -1210,6 +1304,7 @@ export function DetailList({
             return (
               <tr
                 key={idKey}
+                className="perc-explorer-detail-row"
                 data-testid={`detail-row-${idKey}`}
                 data-item-id={idKey}
                 data-row-kind={folderish ? "folder" : "item"}
