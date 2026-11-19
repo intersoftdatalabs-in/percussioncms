@@ -41,6 +41,7 @@ const {
   skipServiceDown,
   skipNoRetrieval,
   FORMS_ENTRY,
+  dtsBaseUrl,
   dtsContextUrl,
   dtsServiceUrl,
   dtsHttpsBaseUrl,
@@ -157,6 +158,25 @@ describe("forms-confirmation-matrix helpers (#6482)", () => {
     const probedUrl = new URL(probedAt[1]);
     assert.equal(probedUrl.origin, "https://dts.example");
     assert.equal(probedUrl.pathname, "/perc-form-processor/forms/csrf");
+  });
+
+  it("honors DTS_URL as an alias for DTS_BASE_URL (both documented)", () => {
+    // The spec + README run commands document DTS_URL=; the helper must
+    // honor it so those commands go green instead of all-skipping (#6710).
+    withEnv("DTS_BASE_URL", undefined, () => {
+      withEnv("DTS_URL", undefined, () => {
+        assert.equal(dtsBaseUrl(), null, "no env: CMS-only cell skips");
+      });
+      withEnv("DTS_URL", "http://127.0.0.1:9983/", () => {
+        assert.equal(dtsBaseUrl().origin, "http://127.0.0.1:9983");
+      });
+    });
+    // DTS_BASE_URL wins when both are set.
+    withEnv("DTS_BASE_URL", "http://127.0.0.1:9999/", () => {
+      withEnv("DTS_URL", "http://127.0.0.1:9983/", () => {
+        assert.equal(dtsBaseUrl().origin, "http://127.0.0.1:9999");
+      });
+    });
   });
 
   it("builds the default deliverymanager BASIC auth header", () => {
