@@ -44,7 +44,8 @@
  * default CMS-only cell and credential-less DTS cells stay green.</p>
  *
  * <p>Skip contract (mirrors the US3 interaction matrix): without
- * {@code DTS_BASE_URL} every case skips naming the missing cell (#6237);
+ * {@code DTS_BASE_URL} (or its {@code DTS_URL} banner alias) every case
+ * skips naming the missing cell (#6237);
  * with a base URL each case probes liveness ({@code HEAD
  * <context>/forms/csrf} — the service lives under its Tomcat deployment
  * context, issue #6342) before touching the service. Submissions are
@@ -58,6 +59,8 @@
 "use strict";
 
 const path = require("node:path");
+
+const dtsCell = require("./dts-cell");
 
 const MATRIX_SUITE = "forms-confirmation-matrix";
 const MATRIX_SPEC = "tests/forms-confirmation-matrix.spec.js";
@@ -74,10 +77,8 @@ const MATRIX_CELLS = Object.freeze(["dts-cell"]);
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Skip reason when no DTS-providing cell is configured. */
-const SKIP_NO_DTS_BASE =
-  "needs DTS_BASE_URL=(DTS-providing cell origin); " +
-  "default CMS-only H2 QA cell serves no DTS services (#6237)";
+/** Skip reason when no DTS-providing cell is configured (shared cell contract). */
+const SKIP_NO_DTS_BASE = dtsCell.SKIP_NO_DTS_BASE;
 
 /**
  * Skip reason when the DTS origin answers but the forms service does not.
@@ -160,15 +161,34 @@ const FORMS_ENTRY = Object.freeze({
 
 /**
  * @returns {URL|null} DTS-providing cell origin, or null when the cell is
- * CMS-only (default H2 QA cell: every case skips named)
+ * CMS-only (default H2 QA cell: every case skips named). Shared cell
+ * contract ({@code tests/helpers/dts-cell.js#dtsBaseUrl}): accepts the
+ * {@code DTS_URL} banner alias.
  */
 function dtsBaseUrl() {
-  const baseUrl = process.env.DTS_BASE_URL || "";
-  if (!baseUrl) {
-    return null;
-  }
-  return new URL(baseUrl);
+  return dtsCell.dtsBaseUrl();
 }
+
+/**
+ * In-cell DTS HTTPS origin for CONFIDENTIAL writer paths, or null when
+ * the cell publishes no HTTPS origin. Shared cell contract (see
+ * {@code tests/helpers/dts-cell.js#dtsHttpsBaseUrl}) — re-exported here
+ * so future HTTPS-gated retrieval work reuses the single choke point
+ * instead of adding another copy.
+ *
+ * @returns {URL|null} in-cell DTS HTTPS origin for host-side writer calls
+ */
+function dtsHttpsBaseUrl() {
+  return dtsCell.dtsHttpsBaseUrl();
+}
+
+/**
+ * Shared HTTPS writer context (see
+ * {@code tests/helpers/dts-cell.js#openDtsHttpsContext}): probes the
+ * origin, skips by name, and disposes on the skip path. Re-exported so
+ * the spec stays data-driven from this helper.
+ */
+const openDtsHttpsContext = dtsCell.openDtsHttpsContext;
 
 /**
  * Deployment context URL for the forms service: the DTS origin plus the
@@ -390,6 +410,8 @@ module.exports = {
   dtsBaseUrl,
   dtsContextUrl,
   dtsServiceUrl,
+  dtsHttpsBaseUrl,
+  openDtsHttpsContext,
   deliveryAuthHeader,
   probeFormName,
   retrievalDetail,

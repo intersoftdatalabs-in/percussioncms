@@ -35,7 +35,8 @@
  * <p>Two-level skip contract (mirrors the slice-1 seed
  * {@code tests/published-site-smoke.spec.js} and the spec env table): the
  * shell case skips without {@code PUBLISHED_SITE_URL}; the interaction
- * case skips without {@code DTS_URL}. With both set (the
+ * case skips without {@code DTS_URL} (or its {@code DTS_BASE_URL} matrix
+ * alias). With both set (the
  * {@code qa-up --with-dts} banner prints both) every case runs green
  * against the in-cell DTS — interactions self-seed with unique per-run
  * markers, so no pre-seeded DTS fixtures are required — except the feed
@@ -52,6 +53,8 @@
 
 "use strict";
 
+const dtsCell = require("./dts-cell");
+
 const SURFACE_SUITE = "published-widget-surfaces";
 
 /** Skip reason when the cell serves no published site (default H2 QA cell). */
@@ -59,21 +62,14 @@ const SKIP_NO_SITE =
   "needs PUBLISHED_SITE_URL=(in-cell published site origin); " +
   "default H2 QA cell has no DTS publish path (#6237)";
 
-/** Skip reason when the cell serves no DTS origin (default H2 QA cell). */
-const SKIP_NO_DTS =
-  "needs DTS_URL=(in-cell DTS origin from the qa-up --with-dts banner); " +
-  "default H2 QA cell serves no DTS services (#6237)";
+/** Skip reason when the cell serves no DTS origin (default H2 QA cell, shared cell contract). */
+const SKIP_NO_DTS = dtsCell.SKIP_NO_DTS_BASE;
 
 /**
- * Skip reason when the cell serves no DTS HTTPS origin (default H2 QA cell
- * and pre-#6375 cells). The metadata extractor seed path is CONFIDENTIAL,
- * so host-side self-seed specs need the published HTTPS origin from the
- * {@code qa-up --with-dts} banner ({@code DTS_HTTPS_URL}).
+ * Skip reason when the cell serves no DTS HTTPS origin (shared cell
+ * contract — the metadata extractor seed path is CONFIDENTIAL).
  */
-const SKIP_NO_DTS_HTTPS =
-  "needs DTS_HTTPS_URL=(in-cell DTS HTTPS origin from the qa-up --with-dts banner) " +
-  "or DTS_HTTPS_HOST_PORT=(published host port for the in-cell 8443); " +
-  "plain-HTTP seeds 302 to the unpublished HTTPS port (#6375)";
+const SKIP_NO_DTS_HTTPS = dtsCell.SKIP_NO_DTS_HTTPS;
 
 /**
  * Skip reason when the interaction fixture cannot be established against
@@ -232,40 +228,39 @@ function publishedSiteUrl() {
 
 /**
  * @returns {URL|null} in-cell DTS origin, or null when the cell serves no
- * DTS (default H2 QA cell: interaction cases skip named)
+ * DTS (default H2 QA cell: interaction cases skip named). Shared cell
+ * contract ({@code tests/helpers/dts-cell.js#dtsBaseUrl}): accepts both
+ * the {@code DTS_URL} banner name and the {@code DTS_BASE_URL} matrix
+ * name.
  */
 function dtsBaseUrl() {
-  const baseUrl = process.env.DTS_URL || "";
-  if (!baseUrl) {
-    return null;
-  }
-  return new URL(baseUrl);
+  return dtsCell.dtsBaseUrl();
 }
 
 /**
  * In-cell DTS HTTPS origin for CONFIDENTIAL seed paths (metadata
  * extractor, #6375), or null when the cell publishes no HTTPS origin.
- * Resolution mirrors the freeport contract: explicit
+ * Shared cell contract (see
+ * {@code tests/helpers/dts-cell.js#dtsHttpsBaseUrl}): explicit
  * {@code DTS_HTTPS_URL} wins, else {@code DTS_HTTPS_HOST_PORT} /
- * {@code DTS_HTTPS_PORT} build {@code https://127.0.0.1:<port>} — the
- * same loopback convention as {@link dtsBaseUrl}. The cell TLS identity
- * is shipped/self-signed, so callers must allow the untrusted chain
- * (Playwright {@code ignoreHTTPSErrors} / {@code curl -k}).
+ * {@code DTS_HTTPS_PORT} build {@code https://127.0.0.1:<port>}. The
+ * cell TLS identity is shipped/self-signed, so callers must allow the
+ * untrusted chain (Playwright {@code ignoreHTTPSErrors} /
+ * {@code curl -k}).
  *
  * @returns {URL|null} in-cell DTS HTTPS origin for host-side seeds
  */
 function dtsHttpsBaseUrl() {
-  const explicit = process.env.DTS_HTTPS_URL || "";
-  if (explicit) {
-    return new URL(explicit);
-  }
-  const port =
-    process.env.DTS_HTTPS_HOST_PORT || process.env.DTS_HTTPS_PORT || "";
-  if (!port) {
-    return null;
-  }
-  return new URL(`https://127.0.0.1:${port}`);
+  return dtsCell.dtsHttpsBaseUrl();
 }
+
+/**
+ * Shared HTTPS writer context (see
+ * {@code tests/helpers/dts-cell.js#openDtsHttpsContext}): probes the
+ * origin, skips by name, and disposes on the skip path. Re-exported so
+ * specs stay data-driven from this helper.
+ */
+const openDtsHttpsContext = dtsCell.openDtsHttpsContext;
 
 /**
  * @param {URL} siteOrigin published site origin from {@link publishedSiteUrl}
@@ -372,6 +367,7 @@ module.exports = {
   publishedSiteUrl,
   dtsBaseUrl,
   dtsHttpsBaseUrl,
+  openDtsHttpsContext,
   fixturePageUrl,
   dtsContextUrl,
   dtsServiceUrl,
