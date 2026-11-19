@@ -38,33 +38,51 @@
  *   empty/error and long-tail actions is preserved).</li>
  * </ul>
  *
- * <p>DCE precedent audit for the toolbar-mapped set (retire-or-map, scope 3
- * note): every classic GIF below either has a modern glyph here or is
- * explicitly retired with a reason. GIFs outside toolbar scope (tree-node
- * states such as {@code Folder_EXPANDED}, {@code *_EXPANDED} variants,
- * {@code ContentPathSeparator}, assignee avatars {@code MySelf}/{@code Nobody},
- * design-time {@code DTItem}, {@code Missing}) keep their existing modern
- * renderings (tree CSS / text) and are NOT re-mapped here. Menu-bar and
- * context-menu icon coverage ({@code MENU_COMMAND_ICONS} +
- * {@code MenuCommandIcon}, and {@code ActionIcon} reuse in
- * {@code ContextMenu}) is the scope-2 follow-on (issue #6603).</p>
+ * <p>DCE retire-or-map audit for the full classic vocabulary (issue #6604,
+ * follow-on to this scope-1 table and to scope-2 menu coverage in #6603):
+ * all 84 GIFs under {@code DesktopContentExplorer .../cx/images/} (55 base
+ * names + 29 {@code *_EXPANDED} variants, loaded via
+ * {@code PSImageIconLoader}) either have a modern glyph here or are
+ * explicitly retired with a replacement. Full per-GIF table lives in
+ * {@code docs/ai-generated/tasks/issue-6604-dce-icon-retire-map-audit.md};
+ * the contract is pinned by {@code dceIconAudit.test.ts}. Summary:</p>
  *
- * <table>
- * <caption>DCE GIF to modern glyph mapping (toolbar scope)</caption>
- * <tr><th>DCE GIF</th><th>Modern glyph</th></tr>
- * <tr><td>Folder / Folders / FolderRef</td><td>{@code folder}</td></tr>
- * <tr><td>Item</td><td>{@code item}</td></tr>
- * <tr><td>Inbox</td><td>{@code inbox}</td></tr>
- * <tr><td>CheckedOut / CheckedOutByMe</td><td>{@code checkout}</td></tr>
- * <tr><td>CheckedIn</td><td>{@code checkin}</td></tr>
- * <tr><td>MyContent / CommunityContent</td><td>{@code user}</td></tr>
- * <tr><td>CustomSearch / NewSearch / EmptySearch</td><td>{@code search}</td></tr>
- * <tr><td>AllContent / Category</td><td>{@code grid}</td></tr>
- * <tr><td>None / Other / OtherContent (generic)</td><td>label-only (retired:
- * no distinct modern meaning on a toolbar button)</td></tr>
- * <tr><td>FolderMarked (+_Expanded)</td><td>retired: no modern toolbar
- * equivalent; selection state already conveyed by row highlight</td></tr>
- * </table>
+ * <ul>
+ * <li>Mapped (glyph in this module): Folder / Folders / FolderRef,
+ * Item, Inbox, MyContent / CommunityContent ({@code user}), AllContent
+ * ({@code grid}), Refresh, Site / Sites, View / Views ({@code preview}),
+ * SavedSearch / NewSearch / EmptySearch / CustomSearch / StandardSearch /
+ * SearchResults ({@code search}), Relationship, Slot / SlotItem.</li>
+ * <li>Generic fallback (no distinct modern glyph; distinction carried by
+ * row highlight, tree label, or item rendering): FolderMarked /
+ * SiteSubfolderMarked (marked state = selection highlight), SiteSubfolder
+ * (site name stays in the tree label), DTItem (no design-time mode;
+ * renders as a generic item).</li>
+ * <li>Retired to text / CSS / existing chrome (resolve to {@code null},
+ * callers render label-only): checkout-state bitmaps CheckedIn /
+ * CheckedOut / CheckedOutByMe / Reader (replaced by the CheckoutOwnerPanel
+ * owner-name text); assignee avatars MySelf / Nobody / SomeOneElse /
+ * Assignee (no assignee picker UI; names render as text); ACL avatars
+ * user_member / group_member / virtual_role (FolderSecurity rows are
+ * text); Parent (breadcrumb ancestors); Outbox (no modern Outbox view);
+ * ROOT (tree root label); Category / SystemCategory / SystemView (text
+ * rows — note: the scope-1 table's "Category" row described the AllContent
+ * grid mapping; no {@code Category} toolbar action exists, so the pipeline
+ * stays label-only); ContentPathSeparator (ExplorerBreadcrumb bar);
+ * collapsedIcon / expandedIcon (▸/▾ disclosure with aria-expanded);
+ * up / down (header sort buttons with aria-sort); Admin ((Admin) status-bar
+ * text); update (SPA login flow); about / splash / main (Help menu + SPA
+ * loading states); Missing (text empty/error states by design); None /
+ * Other / OtherContent (generic kinds stay label-only).</li>
+ * <li>{@code *_EXPANDED} variants (29 files, incl. mixed-case
+ * FolderMarked_Expanded): retired as distinct bitmaps; expand state is
+ * carried by the tree disclosure control and the open/closed folder glyph.
+ * Each follows its base name's verdict above.</li>
+ * </ul>
+ *
+ * <p>Menu-bar and context-menu icon coverage ({@code MENU_COMMAND_ICONS} +
+ * {@code MenuCommandIcon}, and {@code ActionIcon} reuse in
+ * {@code ContextMenu}) was the scope-2 follow-on (issue #6603).</p>
  */
 
 import React from "react";
