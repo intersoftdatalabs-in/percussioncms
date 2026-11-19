@@ -572,6 +572,8 @@ export const MSG = {
     "perc.ui.publish.modern@Cleared {saved} of {total}: {detail}",
   PUBLISH_SCHEDULE_BATCH_LOAD_PARTIAL:
     "perc.ui.publish.modern@Loaded {loaded} of {total}: {detail}",
+  PUBLISH_SCHEDULE_BATCH_LOADED:
+    "perc.ui.publish.modern@Schedule dates loaded for all {total} items",
   PUBLISH_SCHEDULE_BATCH_ITEM_OK: "perc.ui.publish.modern@saved",
   PUBLISH_SCHEDULE_RETRY_FAILED: "perc.ui.publish.modern@Retry failed",
   PUBLISH_SCHEDULE_CLEAR_CONFIRM_MULTI:

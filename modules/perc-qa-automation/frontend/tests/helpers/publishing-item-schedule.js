@@ -36,6 +36,7 @@ const TEST_IDS = Object.freeze({
   end: "item-schedule-end",
   comments: "item-schedule-comments",
   save: "item-schedule-save",
+  retry: "item-schedule-retry",
   clearSubmit: "item-schedule-clear-submit",
   clearConfirm: "item-schedule-clear-confirm",
   clearYes: "item-schedule-clear-yes",

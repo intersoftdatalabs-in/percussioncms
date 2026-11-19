@@ -635,4 +635,91 @@ describe("ItemScheduleDatesPanel", () => {
     });
     expect(screen.queryByTestId("item-schedule-retry")).toBeNull();
   });
+
+  it("retrying a partial batch load reloads only the failed ids", async () => {
+    let failedOnce = false;
+    fetchDates.mockImplementation(async (id: string) => {
+      if (id === "43" && !failedOnce) {
+        failedOnce = true;
+        throw { status: 404, statusText: "Not Found", body: {} };
+      }
+      return {
+        itemId: id,
+        startDate: "09/18/2026 09:00 am",
+        endDate: "",
+        comments: "",
+      };
+    });
+    render(<ItemScheduleDatesPanel />);
+    fireEvent.change(screen.getByTestId("item-schedule-id"), {
+      target: { value: "42, 43" },
+    });
+    fireEvent.click(screen.getByTestId("item-schedule-load"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-error").textContent).toMatch(
+        /Loaded 1 of 2/i,
+      );
+    });
+    expect(
+      screen.getByTestId("item-schedule-batch-item-43").textContent,
+    ).toMatch(/43: Load failed/);
+    expect(screen.getByTestId("item-schedule-retry")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("item-schedule-retry"));
+    await waitFor(() => {
+      expect(fetchDates).toHaveBeenCalledTimes(3);
+    });
+    expect(fetchDates).toHaveBeenNthCalledWith(3, "43");
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-success").textContent).toMatch(
+        /loaded for all 1 items/i,
+      );
+    });
+    expect(screen.queryByTestId("item-schedule-retry")).toBeNull();
+    expect(
+      screen.getByTestId("item-schedule-batch-item-42").textContent,
+    ).toMatch(/saved/i);
+    expect(
+      screen.getByTestId("item-schedule-batch-item-43").textContent,
+    ).toMatch(/saved/i);
+  });
+
+  it("a full batch load reports success with no retry", async () => {
+    fetchDates.mockImplementation(async (id: string) => ({
+      itemId: id,
+      startDate: "09/18/2026 09:00 am",
+      endDate: "",
+      comments: "",
+    }));
+    render(<ItemScheduleDatesPanel />);
+    fireEvent.change(screen.getByTestId("item-schedule-id"), {
+      target: { value: "42, 43" },
+    });
+    fireEvent.click(screen.getByTestId("item-schedule-load"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-success").textContent).toMatch(
+        /loaded for all 2 items/i,
+      );
+    });
+    expect(screen.queryByTestId("item-schedule-retry")).toBeNull();
+    expect(
+      screen.getByTestId("item-schedule-batch-item-42").textContent,
+    ).toMatch(/saved/i);
+    expect(
+      screen.getByTestId("item-schedule-batch-item-43").textContent,
+    ).toMatch(/saved/i);
+  });
+
+  it("a failed single load offers no retry", async () => {
+    fetchDates.mockRejectedValue({
+      status: 404,
+      statusText: "Not Found",
+      body: {},
+    });
+    render(<ItemScheduleDatesPanel itemId="42" />);
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-error")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("item-schedule-retry")).toBeNull();
+    expect(screen.queryByTestId("item-schedule-batch-report")).toBeNull();
+  });
 });
