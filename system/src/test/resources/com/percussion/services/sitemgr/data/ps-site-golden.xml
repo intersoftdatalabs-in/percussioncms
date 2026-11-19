@@ -45,7 +45,6 @@
 	<login-page
 		xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:nil="true" />
 	<mobilePreviewEnabled>false</mobilePreviewEnabled>
-	<overrideSystemFoundation>false</overrideSystemFoundation>
 	<overrideSystemJQuery>false</overrideSystemJQuery>
 	<overrideSystemJQueryUI>false</overrideSystemJQueryUI>
 	<pageBased>true</pageBased>

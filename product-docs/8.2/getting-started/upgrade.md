@@ -118,8 +118,10 @@ Do not confuse this with retired **dual-ship** page `*.templateDef` files — se
   `foundation.min.css`, `normalize.css`) and the responsive viewport
   meta tag; add your own responsive framework (Foundation 6 via npm is
   recommended) or the viewport tag to the affected templates if you
-  still need them. The `overrideSystemFoundation` site flag is now a
-  no-op for rendering and is tracked for cleanup separately.
+  still need them. The `overrideSystemFoundation` site flag has been
+  removed: it no longer appears on the Site REST/JSON surface, and the
+  legacy `OVERRIDE_FOUNDATION` database column (where present from an
+  earlier version) is ignored on upgrade.
 
 ## Post-upgrade smoke tests
 

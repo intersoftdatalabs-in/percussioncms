@@ -261,7 +261,6 @@ class PSSitemgrXmlSerializationTest {
     site.setGenerateSitemap(false);
     site.setMobilePreviewEnabled(false);
     site.setOverrideSystemJQuery(false);
-    site.setOverrideSystemFoundation(false);
     site.setOverrideSystemJQueryUI(false);
 
     PSSiteProperty prop = sampleProperty();

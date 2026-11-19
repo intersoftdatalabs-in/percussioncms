@@ -152,6 +152,21 @@ public class SiteListSerialDeserialTest {
         "marshalled payload should reference site content, got: " + xml);
   }
 
+  /**
+   * Legacy payloads may still carry {@code overrideSystemFoundation} (removed in #6667). The
+   * production mapper enables {@code FAIL_ON_UNKNOWN_PROPERTIES}, so {@link Site} must accept +
+   * ignore the removed property instead of rejecting old clients, scripts, and saved payloads on
+   * POST /sites and PUT /sites/{nameOrId} (#6711 review).
+   */
+  @Test
+  public void productionMapperIgnoresLegacyOverrideSystemFoundation() {
+    ObjectMapper mapper = new JacksonContextResolver().getContext(Site.class);
+    var site =
+        mapper.readValue(
+            "{\"Site\":{\"name\":\"Help\",\"overrideSystemFoundation\":true}}", Site.class);
+    assertEquals("Help", site.getName());
+  }
+
   /** Empty list remains valid for sites-none catalogs. */
   @Test
   public void jaxbContextMarshalsEmptySiteList() throws Exception {

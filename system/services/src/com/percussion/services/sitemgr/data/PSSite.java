@@ -300,11 +300,6 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     private Boolean overrideSystemJQuery;
 
     @Basic
-    @Column(name = "OVERRIDE_FOUNDATION")
-    @Convert(converter = BooleanToTFCharConverter.class)
-    private Boolean overrideSystemFoundation;
-
-    @Basic
     @Column(name = "OVERRIDE_JQUERYUI")
     @Convert(converter = BooleanToTFCharConverter.class)
     private Boolean overrideSystemJQueryUI;
@@ -1067,17 +1062,6 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     @Override
     public void setOverrideSystemJQuery(boolean overrideSystemJQuery) {
         this.overrideSystemJQuery = overrideSystemJQuery;
-    }
-
-    @Override
-    @JsonProperty("overrideSystemFoundation")
-    public boolean isOverrideSystemFoundation() {
-        return Boolean.TRUE.equals(overrideSystemFoundation);
-    }
-
-    @Override
-    public void setOverrideSystemFoundation(boolean overrideSystemFoundation) {
-        this.overrideSystemFoundation = overrideSystemFoundation;
     }
 
     @Override
