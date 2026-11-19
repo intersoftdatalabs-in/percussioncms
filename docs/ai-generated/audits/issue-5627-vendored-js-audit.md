@@ -237,6 +237,39 @@ did not inventory: `handlebars-1.0.0.js`, `backbone-min.js`,
 `swagger-oauth.js` — all loaded by `cm/api/index.html`. Tracked as residual
 **#5672** (filed alongside the PR amending this audit).
 
+## Slice 14 refresh (Nov 2026 — full-tree re-sweep, issues #6686/#6687 filed)
+
+Re-verified on `origin/main`: every migration child of this audit is now
+CLOSED (#5660–#5668, #5672, #6068, #6069 + #6273/#6274, #6071, #6319 + #6403
++ #6502 + #6522 + #6562 + #6563 + #6564/PR #6656 + #6654/PR #6669, #6592,
+#6564 human-gate decisions recorded). Zero `*.min.js` remain under
+`WebUI/src/main/webapp/cm`; the `WidgetPayloadVendoredJsAuditTest` guard
+pins the whole `Packages` payload tree (22 packages, third-party +
+first-party expected sets, version-banner pins, no-unlisted-minified-bundle
+check). Remaining vendored rows and their dispositions:
+
+- **npm-tracked (Dependabot-visible):** calendarTwo fullcalendar 2.9.1 pair
+  (+ 2 documented Percussion mods), gcal.js + lang-all.js (2.9.1 dists),
+  moment 2.31.0, lodash, list.js 1.2.0, slick 2.0.0, superfish 1.7.10,
+  lightbox2 2.10.0 (+ #1441 hunks), qtip2 3.0.3, baseWidgets jquery-ui
+  1.14.2 (byte-identical to npm dist).
+- **Documented keep-vendored:** MiniColors twins (MIT-ok ruling, PR #6656),
+  nav hoverIntent pair (pending spike #6655).
+- **Open follow-ons (not duplicated):** #6655 (hoverIntent spike), #6667
+  (dead overrideSystemFoundation flag), #5626 (CodeMirror, in flight),
+  #5622 (TinyMCE replacement epic, record-only).
+- **Newly filed by this slice (deduped against open issues):** #6686
+  (MiniColors npm-tracked alternate, per the #6564 "may need alternate
+  plugin" decision) and #6687 (calendarTwo EOL FullCalendar 2.9.1
+  replacement plan — Dependabot-visible but upstream-dead since 2016).
+- **Dropped since the last refresh:** v1 percCalendar widget (FullCalendar
+  1.6.7, PR #6656) and the perc.responsiveTemplates package (Foundation
+  4.x, PR #6669, product-docs upgrade notes included).
+
+No other uncovered third-party JS/TS found; no further filings warranted
+(cap 8, filed 2, deferred remainder: none — the only unactioned rows are
+the four open follow-ons above, each already owned).
+
 ## Conclusion
 
 Nine coherent migration clusters (#5660–#5668, modulo numbering) cover every
