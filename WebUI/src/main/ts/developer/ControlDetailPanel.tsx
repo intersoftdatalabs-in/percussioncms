@@ -32,13 +32,13 @@ import type { ControlDef } from "../api/developer/types";
 import {
   backButton,
   catalogColors,
+  emptyStateText,
   errorAlert,
   metaGrid,
   monoCell,
-  tableHeaderRow,
-  tableRow,
 } from "./catalogStyles";
 import { CatalogConfirmDialog } from "./CatalogConfirmDialog";
+import { SimpleCatalogTable } from "./CatalogTable";
 import { panelErrMsg } from "./errors";
 import { DEV_MSG } from "./messages";
 
@@ -447,37 +447,27 @@ export function ControlDetailPanel({
           <section data-testid="developer-ctl-params">
             <h3 style={{ fontSize: "1rem" }}>{DEV_MSG.CTL_PARAMS}</h3>
             {params.length === 0 ? (
-              <p style={{ color: catalogColors.empty }}>{DEV_MSG.CTL_NONE}</p>
+              <p style={emptyStateText}>{DEV_MSG.CTL_NONE}</p>
             ) : (
-              <div style={{ overflowX: "auto" }}>
-                <table
-                  data-testid="developer-ctl-params-table"
-                  style={{ width: "100%", borderCollapse: "collapse", fontSize: "0.9rem" }}
-                >
-                  <thead>
-                    <tr style={tableHeaderRow}>
-                      <th style={{ padding: "8px" }}>{DEV_MSG.CTL_COL_PARAM}</th>
-                      <th style={{ padding: "8px" }}>{DEV_MSG.CTL_COL_TYPE}</th>
-                      <th style={{ padding: "8px" }}>{DEV_MSG.CTL_COL_REQ}</th>
-                      <th style={{ padding: "8px" }}>{DEV_MSG.CTL_COL_DEFAULT}</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {params.map((p, i) => (
-                      <tr key={`${p.name ?? "p"}-${i}`} style={tableRow}>
-                        <td style={{ padding: "8px", fontFamily: "monospace" }}>
-                          {p.name || "—"}
-                        </td>
-                        <td style={{ padding: "8px" }}>{p.dataType || p.paramType || "—"}</td>
-                        <td style={{ padding: "8px" }}>
-                          {p.required ? DEV_MSG.CTL_YES : DEV_MSG.CTL_NO}
-                        </td>
-                        <td style={{ padding: "8px" }}>{p.defaultValue || "—"}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <SimpleCatalogTable
+                tableTestId="developer-ctl-params-table"
+                rowTestId="developer-ctl-param-row"
+                columns={[
+                  DEV_MSG.CTL_COL_PARAM,
+                  DEV_MSG.CTL_COL_TYPE,
+                  DEV_MSG.CTL_COL_REQ,
+                  DEV_MSG.CTL_COL_DEFAULT,
+                ]}
+                rows={params.map((p, i) => ({
+                  key: `${p.name ?? "p"}-${i}`,
+                  cells: [
+                    <span style={monoCell}>{p.name || "—"}</span>,
+                    p.dataType || p.paramType || "—",
+                    p.required ? DEV_MSG.CTL_YES : DEV_MSG.CTL_NO,
+                    p.defaultValue || "—",
+                  ],
+                }))}
+              />
             )}
           </section>
 

@@ -133,6 +133,13 @@ test.describe("Developer CE control update/delete (#4214 / UI-01)", () => {
       "sys_EditBox",
     );
     await expect(page.locator('[data-testid="developer-ctl-system-readonly"]')).toBeVisible();
+    // UI-TABLE-01 residual (#6715): params render via shared SimpleCatalogTable.
+    await expect(page.locator('[data-testid="developer-ctl-params-table"]')).toBeVisible();
+    await expect(page.locator('[data-testid="developer-ctl-param-row-0"]')).toBeVisible();
+    await page
+      .locator('[data-testid="developer-ctl-params-table"]')
+      .scrollIntoViewIfNeeded();
+    await page.screenshot({ path: "test-results/live-proof-6715-control-params.png" });
     await expect(page.locator('[data-testid="developer-ctl-save"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="developer-ctl-delete"]')).toHaveCount(0);
     await expect(page.locator('[data-testid="developer-ctl-edit-xsl"]')).toHaveCount(0);

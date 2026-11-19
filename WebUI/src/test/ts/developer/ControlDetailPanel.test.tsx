@@ -108,6 +108,42 @@ describe("ControlDetailPanel", () => {
     expect(screen.queryByTestId("developer-ctl-params-table")).toBeNull();
   });
 
+  it("renders params via the shared catalog table with indexed rows", async () => {
+    getControlDetail.mockResolvedValue({
+      ...sampleDetail,
+      parameters: [
+        { name: "maxlength", dataType: "number", required: false, defaultValue: "255" },
+        { name: "rows", paramType: "number", required: true, defaultValue: "" },
+      ],
+    });
+    render(<ControlDetailPanel name="sys_EditBox" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-param-row-0")).toBeTruthy();
+    });
+    const first = screen.getByTestId("developer-ctl-param-row-0").textContent ?? "";
+    expect(first).toContain("maxlength");
+    expect(first).toContain("number");
+    expect(first).toContain(DEV_MSG.CTL_NO);
+    expect(first).toContain("255");
+    const second = screen.getByTestId("developer-ctl-param-row-1").textContent ?? "";
+    expect(second).toContain("rows");
+    expect(second).toContain(DEV_MSG.CTL_YES);
+  });
+
+  it("falls back to em-dashes for params with no metadata", async () => {
+    getControlDetail.mockResolvedValue({
+      ...sampleDetail,
+      parameters: [{ name: "", required: false }],
+    });
+    render(<ControlDetailPanel name="sys_EditBox" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ctl-param-row-0")).toBeTruthy();
+    });
+    const row = screen.getByTestId("developer-ctl-param-row-0").textContent ?? "";
+    expect(row).toContain("—");
+    expect(row).toContain(DEV_MSG.CTL_NO);
+  });
+
   it("shows session-redirect message via panelErrMsg", async () => {
     getControlDetail.mockRejectedValue(new SessionRedirectError());
     render(<ControlDetailPanel name="sys_EditBox" onBack={() => undefined} />);
