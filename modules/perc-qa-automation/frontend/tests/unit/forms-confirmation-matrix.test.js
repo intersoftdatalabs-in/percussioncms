@@ -37,11 +37,14 @@ const {
   RESULT_STATUSES,
   MATRIX_CELLS,
   SKIP_NO_DTS_BASE,
+  SKIP_NO_DTS_HTTPS,
   skipServiceDown,
   skipNoRetrieval,
   FORMS_ENTRY,
   dtsContextUrl,
   dtsServiceUrl,
+  dtsHttpsBaseUrl,
+  dtsHttpsServiceUrl,
   deliveryAuthHeader,
   probeFormName,
   retrievalDetail,
@@ -58,6 +61,24 @@ function goodRow() {
     { [CASE_SUBMIT]: "pass", [CASE_SUMMARIES]: "pass", [CASE_CSV]: "pass" },
     { spec: MATRIX_SPEC, updated: "2026-11-16" },
   );
+}
+
+function withEnv(name, value, fn) {
+  const previous = process.env[name];
+  if (value === undefined) {
+    delete process.env[name];
+  } else {
+    process.env[name] = value;
+  }
+  try {
+    fn();
+  } finally {
+    if (previous === undefined) {
+      delete process.env[name];
+    } else {
+      process.env[name] = previous;
+    }
+  }
 }
 
 describe("forms-confirmation-matrix helpers (#6482)", () => {
@@ -146,6 +167,46 @@ describe("forms-confirmation-matrix helpers (#6482)", () => {
     );
     assert.ok(decoded.includes(":"), "user:password shape");
     assert.ok(decoded.startsWith("ps_manager:"), "shipped DTS development default user");
+  });
+
+  it("resolves the published DTS HTTPS origin for CONFIDENTIAL retrieval (#6375)", () => {
+    assert.ok(
+      SKIP_NO_DTS_HTTPS.includes("DTS_HTTPS_URL"),
+      "https skip names the missing HTTPS origin",
+    );
+    // No HTTPS publish anywhere: retrieval skips instead of failing.
+    withEnv("DTS_HTTPS_URL", undefined, () => {
+      withEnv("DTS_HTTPS_HOST_PORT", undefined, () => {
+        withEnv("DTS_HTTPS_PORT", undefined, () => {
+          assert.equal(dtsHttpsBaseUrl(), null);
+        });
+      });
+    });
+    // Explicit banner origin wins, even when a host port is also set.
+    withEnv("DTS_HTTPS_HOST_PORT", "18445", () => {
+      withEnv("DTS_HTTPS_URL", "https://cell:18446/", () => {
+        assert.equal(dtsHttpsBaseUrl().origin, "https://cell:18446");
+      });
+    });
+    // Host-port fallback builds the loopback HTTPS origin.
+    withEnv("DTS_HTTPS_URL", undefined, () => {
+      withEnv("DTS_HTTPS_HOST_PORT", "18443", () => {
+        assert.equal(dtsHttpsBaseUrl().origin, "https://127.0.0.1:18443");
+      });
+    });
+    withEnv("DTS_HTTPS_URL", undefined, () => {
+      withEnv("DTS_HTTPS_HOST_PORT", undefined, () => {
+        withEnv("DTS_HTTPS_PORT", "18444", () => {
+          assert.equal(dtsHttpsBaseUrl().origin, "https://127.0.0.1:18444");
+        });
+      });
+    });
+    // Retrieval service URL mirrors the plain-HTTP shape under HTTPS.
+    const https = new URL("https://127.0.0.1:18443/");
+    assert.equal(
+      dtsHttpsServiceUrl(https),
+      "https://127.0.0.1:18443/perc-form-processor/forms",
+    );
   });
 
   it("reads entry totals from either summaries shape (bean getter or JAXB field)", () => {
@@ -263,6 +324,23 @@ describe("forms-confirmation-matrix helpers (#6482)", () => {
     assert.ok(spec.includes("DTS_BASE_URL"), "skip contract declared");
     assert.ok(spec.includes("dtsServiceUrl"), "cases run through the deployment context (#6342)");
     assert.ok(spec.includes("DTS_DELIVERY_USER"), "retrieval credential gap named");
+    assert.ok(spec.includes("DTS_HTTPS_URL"), "retrieval runs over the published HTTPS origin");
+    assert.ok(
+      spec.includes("ignoreHTTPSErrors"),
+      "HTTPS context allows the cell self-signed TLS identity",
+    );
+    assert.ok(
+      spec.includes("dtsHttpsServiceUrl"),
+      "retrieval cases address the service under HTTPS",
+    );
+    assert.ok(
+      spec.includes("httpsRetrievalContext"),
+      "retrieval cases share one HTTPS context opener",
+    );
+    assert.ok(
+      spec.includes("qa-seed-widget-fixtures"),
+      "credential seeding path named for operators",
+    );
     for (const name of ["CASE_SUBMIT", "CASE_SUMMARIES", "CASE_CSV"]) {
       assert.ok(spec.includes(name), `spec implements the ${name} case`);
     }

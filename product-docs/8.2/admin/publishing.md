@@ -2530,11 +2530,13 @@ forms service (`perc-form-processor`), not to the CMS content store:
      submitted entries (exporting marks the entries exported).
 3. A `401`/`403` on the retrieval URLs means the caller lacks the
    `deliverymanager` role — use the DTS credentials provisioned for the
-   install, not the CMS Admin login. Over plain HTTP the service redirects
-   to its HTTPS port first, so the DTS HTTPS endpoint must be reachable
-   from the caller: a container-local-only HTTPS port is not enough, and
-   the retrieval checks skip by name until the cell publishes HTTPS and
-   provisions known seed credentials.
+   install, not the CMS Admin login. The retrieval surface is
+   `CONFIDENTIAL`-gated, so always call it over the DTS HTTPS endpoint:
+   over plain HTTP the service answers a redirect to its HTTPS port
+   first, which a container-local-only HTTPS port cannot satisfy. Seed
+   a known credential for automation with `qa-seed-widget-fixtures
+   --delivery-password <secret>` and export the same secret for the
+   caller, then read summaries and CSV over HTTPS.
 
 ## Membership registration and login (DTS)
 
