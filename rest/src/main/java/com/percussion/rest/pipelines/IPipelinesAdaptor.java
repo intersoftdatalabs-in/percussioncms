@@ -122,6 +122,16 @@ public interface IPipelinesAdaptor {
       URI baseUri, String appName, String resourceName, PipelineBinaryResource body);
 
   /**
+   * Admin: persist the native IR mapper stage (ordered document to backend mappings) on one
+   * resource (MAP-01 / MAP-02 / MAP-09). An empty mappings list clears the stage. Classic XML
+   * Applications are not mutated. Persisted rows feed HTTP execute projection.
+   *
+   * @return saved mapper stage (normalized rows + effective empty-document flag), never {@code
+   *     null}
+   */
+  PipelineMapper putMapper(URI baseUri, String appName, String resourceName, PipelineMapper body);
+
+  /**
    * Admin: persist a native IR result-page binding (request extension + stylesheet URI), or
    * {@code presentation=none} to disable/omit XSL. Cloud URLs, credentials, and path traversal
    * are rejected. Classic XML Applications are not mutated.

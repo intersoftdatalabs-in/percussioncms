@@ -1,7 +1,7 @@
 ---
 id: admin-developer-pipelines
 title: Developer Pipelines
-description: Browse classic XML Applications, Admin start/stop, Admin enable/disable, Admin delete, pipe IR, OpenAPI from resources, HTTP datasource, JDBC datasource backend, nested filter groups, webhook hooks, binary resource retrieve, HTML result pages or raw JSON/XML, request tracing, Test invoke, and Problems from Developer Pipelines chrome
+description: Browse classic XML Applications, Admin start/stop, Admin enable/disable, Admin delete, pipe IR, OpenAPI from resources, HTTP datasource, JDBC datasource backend, nested filter groups, field mappings, webhook hooks, binary resource retrieve, HTML result pages or raw JSON/XML, request tracing, Test invoke, and Problems from Developer Pipelines chrome
 version: "8.2"
 order: 51
 tags: [admin, developer, pipelines]
@@ -32,8 +32,9 @@ lifecycle controls.
 The IR section calls `GET /services/pipelines/{idOrName}/ir`. When a native IR
 file exists under `ObjectStore/pipeline-ir/`, that document is shown (`source`
 `NATIVE`). Otherwise the server imports the classic application into IR **in
-memory** (`source` `CLASSIC_IMPORT`) until an Admin **saves an HTTP backend
-tank**, which writes native IR without rewriting classic XML Applications.
+memory** (`source` `CLASSIC_IMPORT`) until an Admin saves a stage binding — an
+HTTP backend tank, field mappings, or any sibling native PUT — which writes
+native IR without rewriting classic XML Applications.
 Classic **result pages** (`PSResultPage` / `PSResultPageSet`) import onto
 `resources[].resultPages[]` (request extension, MIME type, stylesheet URI).
 Relative application sheets such as `file:login.xsl` become `login.xsl`. Path
@@ -47,7 +48,7 @@ The **OpenAPI** section calls `GET /services/pipelines/{idOrName}/openapi`
 **download** an OpenAPI 3 document generated from the application's IR
 resources. It does not publish to an external registry.
 
-**Admins** also get **HTTP datasource**, **JDBC datasource backend**, **nested filter groups**, **HTTP webhook hooks**,
+**Admins** also get **HTTP datasource**, **JDBC datasource backend**, **nested filter groups**, **field mappings**, **HTTP webhook hooks**,
 **binary resource**, **result page (HTML)**, **request tracing**, **Test invoke**, and **Problems** on the same detail page:
 
 - **HTTP datasource** sets `adapterType=HTTP` and a **loopback / local fixture
@@ -105,6 +106,15 @@ resources. It does not publish to an external registry.
   groups fail closed (**400**). If the resource already has a non-local HTTP
   backend or leftover credentials in the URL, save is **400**. Classic XML
   Applications are not rewritten.
+- **Field mappings** save ordered **document field → backend field** rows on the
+  selected native resource via
+  `PUT /services/pipelines/{app}/resources/{resource}/mapper`. Each row needs a
+  document field and a backend field; the kind is `COLUMN`, `EXTENSION`, or
+  `OTHER` (blank normalizes to `OTHER`). An empty row list **clears** the stage.
+  Saving rows rewrites the resource's mapper stage without touching classic XML
+  Applications, and Test invoke projects HTTP fixture rows through the saved
+  mappings (for example `itemSku` / `itemName` keys instead of the raw `sku` /
+  `name` fixture keys).
 - **Request tracing** turns last-trace capture on or off for the application
   via `PUT /services/pipelines/{idOrName}/tracing`. After **Test invoke**,
   **Last trace** loads `GET …/lastTrace` and shows stages with timings.
@@ -233,6 +243,24 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
 4. Save an **HTTP datasource** tank (bundled fixture) if needed, then
    **Invoke**. The execute result includes mapped fixture rows that match the
    nested predicate (`SKU-1`) and does **not** invent empty rows.
+
+## Product path — field mappings
+
+1. As **Admin**, open an application detail page and enter a **resource** name
+   in **Test invoke** (data-set names are offered when present).
+2. In **Field mappings**, set each row's **Document field** (the projected
+   response property) and **Backend field** (the source column), with **Kind**
+   `COLUMN`, `EXTENSION`, or `OTHER`. Use **Add mapping row** for more rows;
+   the arrow buttons reorder rows and ✕ removes one. Removing every row and
+   saving **clears** the stage.
+3. Choose **Save field mappings**. Success shows a saved notice and the Pipe IR
+   inspect table lists the saved rows. A row with a blank document or backend
+   field fails closed in the chrome (or **400** from REST); an unknown kind is
+   **400**. Classic XML Applications are not rewritten.
+4. Save an **HTTP datasource** tank (bundled fixture) if needed, then
+   **Invoke**. The execute result JSON shows rows projected through the saved
+   mappings (for example `itemSku` / `itemName` keys) instead of the raw
+   fixture keys.
 
 ## Product path — HTTP webhook hooks
 
@@ -364,7 +392,8 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
 - Catalog and detail omit **hidden** applications from the list contract used by
   this chrome; hidden rows are not started or stopped here.
 - Pipe IR has no graph editor or drag-drop tanks. Admins may persist an HTTP
-  backend tank, a JDBC datasource backend, nested selector filter groups, HTTP webhook hooks, a binary
+  backend tank, a JDBC datasource backend, nested selector filter groups, field
+  mappings, HTTP webhook hooks, a binary
   resource, and an HTML result-page binding (native IR overlay) only.
 - Enable/disable ships in this chrome (Admin toolbar toggle + REST below).
   Classic application transfer is XML export/import (above); auxiliary-file
@@ -385,6 +414,8 @@ Integrator notes: [REST API — Pipelines](id:developer-rest).
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-datasource-backend.spec.js`.
 - Surface-filtered Playwright for nested filter groups save + Test invoke lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-nested-filter-groups.spec.js`.
+- Surface-filtered Playwright for field mappings save + Test invoke projection lives under
+  `modules/perc-qa-automation/frontend/tests/developer-pipelines-mapper-persist.spec.js`.
 - Surface-filtered Playwright for binary resource save + retrieve lives under
   `modules/perc-qa-automation/frontend/tests/developer-pipelines-binary-resource.spec.js`.
 - Surface-filtered Playwright for request tracing + last-trace lives under
@@ -422,6 +453,7 @@ The chrome calls:
 | HTTP tank | `PUT /services/pipelines/{app}/resources/{resource}/backendTank` (**Admin**) |
 | Webhook hooks | `PUT /services/pipelines/{app}/resources/{resource}/webhookHooks` (**Admin**) |
 | Filter groups | `PUT /services/pipelines/{app}/resources/{resource}/filterGroup` (**Admin**) |
+| Field mappings | `PUT /services/pipelines/{app}/resources/{resource}/mapper` (**Admin**) |
 | Binary resource | `PUT /services/pipelines/{app}/resources/{resource}/binaryResource` (**Admin**) |
 | Retrieve binary | `GET /services/pipelines/{app}/resources/{resource}/binary` |
 | Result page | `PUT /services/pipelines/{app}/resources/{resource}/resultPage` (**Admin**) |

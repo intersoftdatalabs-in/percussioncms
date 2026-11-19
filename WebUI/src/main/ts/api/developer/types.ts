@@ -479,6 +479,21 @@ export interface PipelineIrMappingEntry {
   backendKind?: string;
 }
 
+/** One editable mapper row for PUT /services/pipelines/{app}/resources/{resource}/mapper. */
+export interface PipelineMapperEntry {
+  documentField?: string;
+  backend?: string;
+  /** COLUMN, EXTENSION, or OTHER (blank normalizes to OTHER server-side). */
+  backendKind?: string;
+}
+
+/** Body for PUT /services/pipelines/{app}/resources/{resource}/mapper. */
+export interface PipelineMapper {
+  /** Ordered rows; empty clears the stage. */
+  mappings?: PipelineMapperEntry[];
+  allowEmptyDocReturn?: boolean;
+}
+
 /** Stage presence / inventory flags shared by IR stages. */
 export interface PipelineIrStagePresence {
   present?: boolean;

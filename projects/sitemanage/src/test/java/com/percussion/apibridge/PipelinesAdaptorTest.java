@@ -47,6 +47,8 @@ import com.percussion.rest.pipelines.PipelineDatasourceBackend;
 import com.percussion.rest.pipelines.PipelineFilterGroup;
 import com.percussion.rest.pipelines.PipelineResultPage;
 import com.percussion.rest.pipelines.PipelineHttpBackendTank;
+import com.percussion.rest.pipelines.PipelineMapper;
+import com.percussion.rest.pipelines.PipelineMapperEntry;
 import com.percussion.rest.pipelines.PipelineTracingSettings;
 import com.percussion.rest.pipelines.PipelineWebhookHooks;
 import com.percussion.security.PSSecurityToken;
@@ -57,6 +59,8 @@ import com.percussion.services.pipeline.binary.PSPipelineBinaryPath;
 import com.percussion.services.pipeline.xsl.PSPipelineResultPagePath;
 import com.percussion.services.pipeline.http.PSPipelineHttpUrl;
 import com.percussion.services.pipeline.model.BackendTankStageIr;
+import com.percussion.services.pipeline.model.MapperStageIr;
+import com.percussion.services.pipeline.model.MappingEntryIr;
 import com.percussion.services.pipeline.model.PipelineBinaryPayload;
 import com.percussion.services.pipeline.model.PipelineBinaryResourceIr;
 import com.percussion.services.pipeline.model.PipelineIrDocument;
@@ -1410,8 +1414,181 @@ class PipelinesAdaptorTest {
   }
 
   @Test
-  void putBinaryResource_requiresAdmin() {
+  void putMapper_requiresAdmin() {
     PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> false,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineMapper body = new PipelineMapper();
+      PipelineMapperEntry row = new PipelineMapperEntry();
+      row.setDocumentField("itemSku");
+      row.setBackend("sku");
+      body.setMappings(List.of(row));
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putMapper(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "items", body));
+      assertEquals(403, ex.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void putMapper_rejectsBlankNames() {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> mock(IPSPipelineIrService.class),
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineMapper body = new PipelineMapper();
+      PipelineMapperEntry row = new PipelineMapperEntry();
+      row.setDocumentField("itemSku");
+      row.setBackend("sku");
+      body.setMappings(List.of(row));
+      WebApplicationException ex =
+          assertThrows(
+              WebApplicationException.class,
+              () -> adaptor.putMapper(URI.create("http://localhost/"), "  ", "items", body));
+      assertEquals(400, ex.getResponse().getStatus());
+      WebApplicationException resEx =
+          assertThrows(
+              WebApplicationException.class,
+              () ->
+                  adaptor.putMapper(
+                      URI.create("http://localhost/"), "sys_cmpDocuments", "  ", body));
+      assertEquals(400, resEx.getResponse().getStatus());
+    }
+  }
+
+  @Test
+  void putMapper_savesNativeIrWithoutClassicXmlWrite() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.empty());
+    PipelineIrDocument imported = new PipelineIrDocument();
+    imported.setSource(PipelineIrDocument.SOURCE_CLASSIC_IMPORT);
+    imported.getApp().setName("sys_cmpDocuments");
+    PSApplication app = mock(PSApplication.class);
+    when(ir.importClassicApplication(app)).thenReturn(imported);
+
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> app,
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineMapper body = new PipelineMapper();
+      PipelineMapperEntry first = new PipelineMapperEntry();
+      first.setDocumentField("  itemSku  ");
+      first.setBackend(" sku ");
+      first.setBackendKind("column");
+      PipelineMapperEntry second = new PipelineMapperEntry();
+      second.setDocumentField("itemName");
+      second.setBackend("name");
+      body.setMappings(List.of(first, second));
+      body.setAllowEmptyDocReturn(Boolean.TRUE);
+      PipelineMapper saved =
+          adaptor.putMapper(URI.create("http://localhost/"), "sys_cmpDocuments", "items", body);
+      assertEquals(2, saved.getMappings().size());
+      assertEquals("itemSku", saved.getMappings().get(0).getDocumentField());
+      assertEquals("sku", saved.getMappings().get(0).getBackend());
+      assertEquals("COLUMN", saved.getMappings().get(0).getBackendKind());
+      assertEquals("OTHER", saved.getMappings().get(1).getBackendKind());
+      assertEquals(Boolean.TRUE, saved.getAllowEmptyDocReturn());
+      ArgumentCaptor<PipelineIrDocument> cap = ArgumentCaptor.forClass(PipelineIrDocument.class);
+      verify(ir).save(cap.capture());
+      PipelineIrDocument persisted = cap.getValue();
+      assertEquals(PipelineIrDocument.SOURCE_NATIVE, persisted.getSource());
+      MapperStageIr stage = persisted.findResource("items").getStages().getMapper();
+      assertTrue(stage.isPresent());
+      assertTrue(stage.isAllowEmptyDocReturn());
+      assertEquals(2, stage.getMappings().size());
+      assertEquals("itemSku", stage.getMappings().get(0).getDocumentField());
+      assertEquals("COLUMN", stage.getMappings().get(0).getBackendKind());
+      assertEquals("name", stage.getMappings().get(1).getBackend());
+      verify(app, never()).setName(any());
+    }
+  }
+
+  @Test
+  void putMapper_emptyListClearsStage() throws Exception {
+    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
+    IPSPipelineIrService ir = mock(IPSPipelineIrService.class);
+    PipelineIrDocument nativeDoc = new PipelineIrDocument();
+    nativeDoc.setSource(PipelineIrDocument.SOURCE_NATIVE);
+    nativeDoc.getApp().setName("sys_cmpDocuments");
+    PipelineResourceIr resource = new PipelineResourceIr();
+    resource.setName("items");
+    resource.setKind(PipelineResourceIr.KIND_QUERY);
+    PipelineStagesIr stages = new PipelineStagesIr();
+    MapperStageIr existing = new MapperStageIr();
+    existing.setPresent(true);
+    MappingEntryIr stale = new MappingEntryIr();
+    stale.setDocumentField("old");
+    stale.setBackend("old_col");
+    existing.setMappings(List.of(stale));
+    stages.setMapper(existing);
+    resource.setStages(stages);
+    nativeDoc.getResources().add(resource);
+    when(ir.load("sys_cmpDocuments")).thenReturn(Optional.of(nativeDoc));
+
+    PipelinesAdaptor adaptor =
+        new PipelinesAdaptor(
+            tok -> new PSApplicationSummary[] {sum},
+            () -> mock(IPSPipelineRuntimeService.class),
+            () -> ir,
+            (name, tok) -> mock(PSApplication.class),
+            () -> true,
+            noopLifecycle(),
+            (name, tok) -> detailNamed(name, true),
+            null);
+
+    try (MockedStatic<PSSecurityFilter> security = mockStatic(PSSecurityFilter.class)) {
+      stubCurrentRequest(security);
+      PipelineMapper body = new PipelineMapper();
+      body.setMappings(List.of());
+      PipelineMapper saved =
+          adaptor.putMapper(URI.create("http://localhost/"), "sys_cmpDocuments", "items", body);
+      assertTrue(saved.getMappings().isEmpty());
+      assertEquals(Boolean.FALSE, saved.getAllowEmptyDocReturn());
+      ArgumentCaptor<PipelineIrDocument> cap = ArgumentCaptor.forClass(PipelineIrDocument.class);
+      verify(ir).save(cap.capture());
+      MapperStageIr cleared =
+          cap.getValue().findResource("items").getStages().getMapper();
+      assertTrue(cleared.isPresent());
+      assertTrue(cleared.getMappings().isEmpty());
+    }
+  }
+
+  @Test
+  void putBinaryResource_requiresAdmin() {    PSApplicationSummary sum = summary(7, "sys_cmpDocuments", "docs", true, "r", false, false);
     PipelinesAdaptor adaptor =
         new PipelinesAdaptor(
             tok -> new PSApplicationSummary[] {sum},
