@@ -18,6 +18,7 @@
 package com.percussion.rest.sites;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonRootName;
 import com.percussion.rest.Guid;
@@ -38,6 +39,13 @@ import jakarta.xml.bind.annotation.XmlTransient;
 @XmlRootElement(name = "Site")
 @JsonRootName("Site")
 @JsonInclude(JsonInclude.Include.NON_NULL)
+// Removed in #6667; accepted + ignored for old clients (older scripts and
+// saved payloads may still send it). The production mapper enables
+// FAIL_ON_UNKNOWN_PROPERTIES, so without this POST /sites and
+// PUT /sites/{nameOrId} would reject those bodies. Plain ignore (not
+// allowSetters): no accessor remains, and allowSetters still fails unknown
+// properties under FAIL_ON_UNKNOWN_PROPERTIES.
+@JsonIgnoreProperties("overrideSystemFoundation")
 @Schema(name = "Site")
 public class Site {
 
