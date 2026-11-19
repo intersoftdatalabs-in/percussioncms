@@ -22,7 +22,7 @@ import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapConte
 import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
 import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentExplorerShell";
 import { renderA11yGate } from "./a11y";
-import { mockFetch } from "./setup";
+import { EXPLORER_SHELL_TEST_TIMEOUT, mockFetch } from "./setup";
 
 const adminBootstrap: SpaBootstrap = {
   userName: "Admin",
@@ -73,7 +73,13 @@ const slotCreateMenu = [
   },
 ];
 
-describe("ContentExplorerShell slot create (#3497)", () => {
+describe("ContentExplorerShell slot create (#3497)", {
+  // Load-hardening for #6742: sibling explorer suites share this 20s budget
+  // (#4558) while this spec previously ran on the 5s default — every 10s
+  // waitFor inside was already at/over the test timeout under full-suite
+  // CPU contention, so the gate was roulette.
+  timeout: EXPLORER_SHELL_TEST_TIMEOUT,
+}, () => {
   it("folder browse without a slot stays needs-slot and does not create", async () => {
     stubPathFetch();
     const addToSlot = vi.fn();
@@ -195,6 +201,16 @@ describe("ContentExplorerShell slot create (#3497)", () => {
     await waitFor(
       () => {
         expect(screen.getByTestId("explorer-slot-create-apply")).toBeTruthy();
+        // Readiness gate for #6742: the apply button renders before the
+        // async loadTypes/loadTemplates promises settle. Clicking earlier
+        // resolves an empty pick (handleApply no-ops with a notice), so
+        // createItem is never called and the test fails with "Number of
+        // calls: 0" only under full-suite load. Wait for the loaded type
+        // option (mirrors the picker-cancel test below) before applying.
+        expect(
+          (screen.getByTestId("explorer-slot-create-type") as HTMLSelectElement)
+            .value,
+        ).toBe("percRichText");
       },
       { timeout: 10000 },
     );
@@ -209,13 +225,23 @@ describe("ContentExplorerShell slot create (#3497)", () => {
       },
       { timeout: 10000 },
     );
-    expect(addToSlot).toHaveBeenCalledWith({
-      ownerId: 42,
-      dependentId: 99,
-      slotId: 3,
-      templateId: 4,
-    });
-    expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain("entry=editor");
+    // create -> add -> openWindow is an async chain: once create resolves,
+    // add/openWindow may still lag a tick under load, so assert them under
+    // a second waitFor instead of synchronously (#6742).
+    await waitFor(
+      () => {
+        expect(addToSlot).toHaveBeenCalledWith({
+          ownerId: 42,
+          dependentId: 99,
+          slotId: 3,
+          templateId: 4,
+        });
+        expect(String(openWindow.mock.calls[0]?.[0] ?? "")).toContain(
+          "entry=editor",
+        );
+      },
+      { timeout: 10000 },
+    );
     expect(String(openWindow.mock.calls[0]?.[0] ?? "")).not.toMatch(
       /editAsset\.jsp|itemassembly\.html/i,
     );
