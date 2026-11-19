@@ -171,6 +171,173 @@ function collectPomPaths(dir) {
   return found;
 }
 
+// Issue #5746 (detach lock): extensions swept for orphaned references to
+// the retired TinyMCE-hosted CodeMirror layout. Every tracked text type
+// that can be served, executed, or packaged is covered — web sources,
+// markup/config, and operator scripts. Prose is out of scope by design:
+// migration-history notes in Markdown legitimately discuss retired paths,
+// and `docs/`, `specs/`, `product-docs/` trees are not served code.
+// `pom.xml` files are covered with XML comment-stripping here too (the
+// manifest-lock test above owns the WebJar/unpack/version pins);
+// `package-lock.json` files only carry the npm registry tarball entry.
+const DETACH_SWEEP_EXTENSIONS = new Set([
+  ".java",
+  ".js",
+  ".jsx",
+  ".mjs",
+  ".cjs",
+  ".ts",
+  ".tsx",
+  ".jsp",
+  ".jspx",
+  ".htm",
+  ".html",
+  ".xhtm",
+  ".css",
+  ".vm",
+  ".tld",
+  ".tag",
+  ".xml",
+  ".xsl",
+  ".xslt",
+  ".dtd",
+  ".xsd",
+  ".wsdl",
+  ".properties",
+  ".json",
+  ".yaml",
+  ".yml",
+  ".txt",
+  ".py",
+  ".sh",
+  ".bat",
+  ".cmd",
+  ".contenttype",
+  ".pdt",
+  ".rpg",
+  ".acldef",
+  ".datasource",
+  ".workflowdef",
+  ".ent",
+  ".tbl",
+  ".frm",
+  ".extension",
+  ".application",
+  ".sample",
+]);
+const DETACH_SWEEP_SKIP_DIRS = new Set([
+  ".git",
+  "node_modules",
+  "target",
+  "test-results",
+  "playwright-report",
+  "specs", // frozen design docs, not live sources
+  "docs", // engineering/history notes, not live sources
+  "product-docs", // customer help, not served code
+]);
+const DETACH_SWEEP_SKIP_FILES = new Set([
+  // This spec documents the retired path as LEGACY_TINYMCE_BASE (a live
+  // string constant) so the live test above can assert the old layout
+  // 404s; the constant is the allow-list, not an orphan.
+  "modules/perc-qa-automation/frontend/tests/editor-codemirror-bundle.spec.js",
+]);
+
+function collectSourcePaths(dir) {
+  const found = [];
+  for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+    const full = path.join(dir, entry.name);
+    if (entry.isDirectory()) {
+      if (DETACH_SWEEP_SKIP_DIRS.has(entry.name)) {
+        continue;
+      }
+      found.push(...collectSourcePaths(full));
+      continue;
+    }
+    if (!entry.isFile()) {
+      continue;
+    }
+    if (!DETACH_SWEEP_EXTENSIONS.has(path.extname(entry.name))) {
+      continue;
+    }
+    if (DETACH_SWEEP_SKIP_FILES.has(path.relative(REPO_ROOT, full))) {
+      continue;
+    }
+    found.push(full);
+  }
+  return found;
+}
+
+function stripXmlComments(text) {
+  return text.replace(/<!--[\s\S]*?-->/g, "");
+}
+
+function stripCLikeComments(text) {
+  return text
+    .replace(/\/\*[\s\S]*?\*\//g, "")
+    .replace(/(^|[^:])\/\/.*$/gm, "$1");
+}
+
+function stripHashComments(text) {
+  // `#` opens a line comment in Python, shell, and YAML. A `#` preceded
+  // by `:` is kept (URL scheme guard symmetry with the C-like stripper).
+  return text.replace(/(^|[^:])#.*$/gm, "$1");
+}
+
+function stripPropertiesComments(text) {
+  // In `.properties` files only a leading `#` or `!` opens a comment —
+  // mid-line markers are literal values and must be kept.
+  return text.replace(/^[#!].*$/gm, "");
+}
+
+function stripVelocityComments(text) {
+  return text
+    .replace(/#\*[\s\S]*?\*#/, "")
+    .replace(/(^|[^:])##.*$/gm, "$1");
+}
+
+function stripBatchComments(text) {
+  return text.replace(/^\s*(?:REM\b|::).*$/gim, "");
+}
+
+// Strip comments so migration-history notes (e.g. "relocated from
+// modules/perc-tinymce", "legacy TinyMCE-hosted fallback path") do not trip
+// the sweep — only live code, markup, and string literals count. Mirrors
+// the manifest-lock test's XML-comment stripping above.
+const DETACH_COMMENT_STRIPPERS = {
+  ".java": stripCLikeComments,
+  ".js": stripCLikeComments,
+  ".jsx": stripCLikeComments,
+  ".mjs": stripCLikeComments,
+  ".cjs": stripCLikeComments,
+  ".ts": stripCLikeComments,
+  ".tsx": stripCLikeComments,
+  ".css": (text) => text.replace(/\/\*[\s\S]*?\*\//g, ""),
+  ".jsp": (text) => stripXmlComments(text.replace(/<%--[\s\S]*?--%>/g, "")),
+  ".jspx": (text) => stripXmlComments(text.replace(/<%--[\s\S]*?--%>/g, "")),
+  ".htm": stripXmlComments,
+  ".html": stripXmlComments,
+  ".xhtm": stripXmlComments,
+  ".xml": stripXmlComments,
+  ".xsl": stripXmlComments,
+  ".xslt": stripXmlComments,
+  ".dtd": stripXmlComments,
+  ".xsd": stripXmlComments,
+  ".wsdl": stripXmlComments,
+  ".vm": stripVelocityComments,
+  ".py": stripHashComments,
+  ".sh": stripHashComments,
+  ".yaml": stripHashComments,
+  ".yml": stripHashComments,
+  ".properties": stripPropertiesComments,
+  ".bat": stripBatchComments,
+  ".cmd": stripBatchComments,
+};
+
+function stripSourceComments(text, filePath) {
+  const stripper = DETACH_COMMENT_STRIPPERS[path.extname(filePath)];
+  return stripper ? stripper(text) : text;
+}
+
 test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
   test(
     "bundle serves the CodeMirror 5 API and edits HTML",
@@ -1184,6 +1351,44 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
           `${path.relative(REPO_ROOT, lockPath)} must track node_modules/codemirror`,
         ).toBe(true);
       }
+    },
+  );
+
+  test(
+    "TinyMCE-hosted CodeMirror layout stays detached: no orphaned references",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async () => {
+      // No live CMS needed: static detach lock for issue #5746 (gate lifted
+      // by #5733 + #5734, both merged). The TinyMCE/classic surfaces that
+      // pointed at the retired TinyMCE-hosted CodeMirror layout
+      // (`sys_resources/tinymce/plugins/codemirror`, deleted with
+      // modules/perc-tinymce in #5734) were deleted with their references;
+      // every surviving `codemirror.bundle.*` reference resolves to a live
+      // consumer (template editor JSP mirrors, sys_TextArea XSL, the npm
+      // bundle entry itself) or to test/docs history. This sweep fails fast
+      // if a future change re-points a live source at the retired layout.
+      const sourcePaths = collectSourcePaths(REPO_ROOT);
+      expect(
+        sourcePaths.length,
+        "repo-wide source sweep must find tracked sources",
+      ).toBeGreaterThan(0);
+      const offenders = [];
+      for (const sourcePath of sourcePaths) {
+        const rel = path.relative(REPO_ROOT, sourcePath);
+        const text = stripSourceComments(
+          fs.readFileSync(sourcePath, "utf8"),
+          sourcePath,
+        );
+        for (const line of text.split("\n")) {
+          if (/tinymce\/plugins\/codemirror/.test(line)) {
+            offenders.push(`${rel}: ${line.trim()}`);
+          }
+        }
+      }
+      expect(
+        offenders.slice(0, 20),
+        "no live source may reference the retired TinyMCE-hosted CodeMirror path (#5746)",
+      ).toEqual([]);
     },
   );
 });
