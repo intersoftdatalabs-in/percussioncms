@@ -110,6 +110,30 @@ describe("SharedFieldGroupDetailPanel", () => {
     expect(onBack).toHaveBeenCalled();
   });
 
+  it("lists the remaining system-def gap without a stale SPA-editor claim", async () => {
+    getSharedFieldGroupDetail.mockResolvedValue({
+      ...sampleDetail,
+      designGaps: ["System def (global fields) is a separate catalog (Developer System Def)"],
+    });
+    render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-gaps")).toBeTruthy();
+    });
+    const gaps = screen.getByTestId("developer-sf-gaps").textContent || "";
+    expect(gaps).toContain("System def");
+    expect(gaps).not.toContain("SPA shared-field editor");
+    expect(screen.queryByTestId("developer-sf-fields-table")).toBeTruthy();
+  });
+
+  it("hides the gaps section when the detail carries no gaps", async () => {
+    getSharedFieldGroupDetail.mockResolvedValue({ ...sampleDetail, designGaps: [] });
+    render(<SharedFieldGroupDetailPanel name="shared" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-sf-fields-table")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("developer-sf-gaps")).toBeNull();
+  });
+
   it("shows empty fields section when detail has none", async () => {
     getSharedFieldGroupDetail.mockResolvedValue({
       ...sampleDetail,

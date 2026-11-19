@@ -28,7 +28,7 @@ import java.util.List;
  * create/delete responses.
  *
  * <p>Control properties use GET/PUT {@code .../fields/{fieldName}/controlProperties}. Choice
- * filters / SPA editor / system-def remain later slices ({@code designGaps}).
+ * filters / system-def remain later slices ({@code designGaps}).
  */
 @XmlRootElement(name = "SharedFieldGroupDetail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
