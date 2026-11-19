@@ -104,7 +104,6 @@ WIDGET_FIXTURES = (
     ("percArchiveList", "Archive List", "static", ".perc-archive-list"),
     ("percBlogIndexPage", "Blog Index", "static", ".perc-blog-list"),
     ("percBlogPost", "Blog Post", "static", ".perc-blog"),
-    ("percCalendar", "Calendar", "static", ".perc-calendar"),
     ("percCalendarTwo", "Calendar Two", "static", ".perc-calendar"),
     ("percCategoryList", "Category List", "static", ".perc-category-list"),
     ("percComments", "Comments View", "dynamic", ".perc-comments-view"),

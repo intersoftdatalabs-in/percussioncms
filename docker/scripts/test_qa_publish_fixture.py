@@ -215,7 +215,7 @@ class WidgetFixturePagesTest(unittest.TestCase):
 
     def test_build_writes_every_widget_page(self):
         staging = self._staged()
-        self.assertEqual(len(qpf.WIDGET_FIXTURES), 45)
+        self.assertEqual(len(qpf.WIDGET_FIXTURES), 44)
         for name, _label, _kind, _marker in qpf.WIDGET_FIXTURES:
             page = staging / qpf.WIDGET_FIXTURE_DIR / f"{name}.html"
             self.assertTrue(page.is_file(), f"missing {page}")
