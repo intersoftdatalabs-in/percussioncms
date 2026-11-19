@@ -31,39 +31,48 @@
  * contract: without {@code DTS_BASE_URL} every case skips naming the cell
  * (#6237, green on the CMS-only cell); with a base URL each case probes
  * liveness ({@code HEAD <context>/forms/csrf} — the service lives under its
- * Tomcat deployment context, issue #6342); the two retrieval cases
- * additionally skip by name when the cell cannot serve the
- * {@code deliverymanager}-gated admin surface (missing credentials or an
- * unreachable DTS HTTPS port for the {@code CONFIDENTIAL} redirect).
+ * Tomcat deployment context, issue #6342). The visitor submit runs over
+ * plain HTTP (open surface). The two retrieval cases run over the
+ * published DTS HTTPS origin ({@code DTS_HTTPS_URL} from the
+ * {@code qa-up --with-dts} banner, #6375/#6599) with the provisioned
+ * {@code deliverymanager} credential, because the admin surface is
+ * {@code CONFIDENTIAL}-gated and plain-HTTP callers only see its 302
+ * redirect; a gated answer over HTTPS (401/403/302 — missing credential
+ * or unreachable HTTPS) still skips by name instead of failing.
  * Submissions are self-seeded under a unique {@code qaconfirm-<stamp>}
  * form name, so no CMS fixture is needed.</p>
  *
  * <p>Run (needs the DTS-providing cell):
- * {@code DTS_BASE_URL=https://<dts-cell-origin>
+ * {@code DTS_URL=http://<dts-cell-origin>
+ * DTS_HTTPS_URL=https://<dts-cell-https-origin>
+ * DTS_DELIVERY_USER=<user> DTS_DELIVERY_PASSWORD=<secret>
  * npm run test:surface -- --path tests/forms-confirmation-matrix.spec.js}
  * from {@code modules/perc-qa-automation/frontend}. Without
- * {@code DTS_BASE_URL} every case skips with the named reason. To turn the
- * retrieval cases green the cell must serve the admin surface — override
- * the shipped DTS development credentials when the cell provisions its own:
- * {@code DTS_DELIVERY_USER=<user> DTS_DELIVERY_PASSWORD=<secret>} (both
- * provisions — known seed credentials plus host-reachable DTS HTTPS — are
- * owned by the cell provisioning issue #6375).</p>
+ * {@code DTS_BASE_URL} (or {@code DTS_URL}) every case skips with the named
+ * reason; without {@code DTS_HTTPS_URL} the retrieval cases skip naming
+ * the missing HTTPS publish. Seed the credential first with
+ * {@code python docker/scripts/perc-devctl.py qa-seed-widget-fixtures
+ * --delivery-password <secret>} (parent #6237) and export the same secret
+ * as {@code DTS_DELIVERY_PASSWORD}.</p>
  */
 
 const fs = require("node:fs");
 const path = require("node:path");
-const { test, expect } = require("@playwright/test");
+const { test, expect, request: baseRequest } = require("@playwright/test");
 const {
   MATRIX_SPEC,
   CASE_SUBMIT,
   CASE_SUMMARIES,
   CASE_CSV,
   SKIP_NO_DTS_BASE,
+  SKIP_NO_DTS_HTTPS,
   skipServiceDown,
   skipNoRetrieval,
   dtsBaseUrl,
   dtsContextUrl,
   dtsServiceUrl,
+  dtsHttpsBaseUrl,
+  dtsHttpsServiceUrl,
   deliveryAuthHeader,
   probeFormName,
   retrievalDetail,
@@ -109,6 +118,25 @@ async function readJson(response) {
 }
 
 /**
+ * Opens the retrieval surface: the published DTS HTTPS origin plus a
+ * dedicated request context that allows the cell's self-signed TLS
+ * identity. The admin retrieval surface is {@code CONFIDENTIAL}-gated, so
+ * plain-HTTP callers only see its 302 redirect — the summaries and CSV
+ * reads must run here, not on the {@code DTS_BASE_URL} origin. Skips by
+ * name when the cell publishes no HTTPS origin.
+ *
+ * @returns {Promise<{ httpsBase: URL, httpsRequest: import("@playwright/test").APIRequestContext }>}
+ */
+async function httpsRetrievalContext() {
+  const httpsBase = dtsHttpsBaseUrl();
+  test.skip(!httpsBase, `forms confirmation (Forms): ${SKIP_NO_DTS_HTTPS}`);
+  const httpsRequest = await baseRequest.newContext({
+    ignoreHTTPSErrors: true,
+  });
+  return { httpsBase, httpsRequest };
+}
+
+/**
  * Submits one probe entry to a self-seeded form. The real widget posts to
  * the trailing-slash collect path (see the form widget JS: action +
  * "collect/"): that path is the openly served submit contract, while the
@@ -144,17 +172,17 @@ async function submitProbeEntry(request, svc, siteOrigin) {
 }
 
 /**
- * Reads the admin summaries for one form. Returns {@code null} when the
- * cell cannot serve the retrieval surface (auth-gated or redirected), so
- * the caller skips with the named reason; any other failure shape fails
- * the test.
+ * Reads the admin summaries for one form over the published DTS HTTPS
+ * origin. Returns {@code null} when the cell cannot serve the retrieval
+ * surface over HTTPS (auth-gated or redirected), so the caller skips with
+ * the named reason; any other failure shape fails the test.
  */
 async function readSummaries(request, svc, formName) {
   const url = `${svc}/form/cms/${encodeURIComponent(formName)}`;
   let read = null;
   try {
-    // maxRedirects: 0 keeps a CONFIDENTIAL-redirect (plain-HTTP cell) or a
-    // refused HTTPS port as a plain response so the skip below engages;
+    // maxRedirects: 0 keeps a gated answer (401/403) or a stray
+    // CONFIDENTIAL redirect as a plain response so the skip below engages;
     // following the redirect would throw instead of skipping.
     read = await request.get(url, {
       maxRedirects: 0,
@@ -236,40 +264,48 @@ test.describe("forms confirmation matrix", () => {
       test.skip(!base, `forms confirmation (Forms): ${SKIP_NO_DTS_BASE}`);
 
       await probeLiveness(request, base);
-      const svc = dtsServiceUrl(base);
-      const stamp = Date.now();
-      const formName = probeFormName(stamp);
-      const before = await readSummaries(request, svc, formName);
-      test.skip(!!before.skipped, before.skipped);
-      const beforeTotal = summariesTotal(before.body, formName) || 0;
+      // Retrieval runs over the published DTS HTTPS origin: the summaries
+      // endpoint is CONFIDENTIAL-gated, so plain-HTTP callers only see its
+      // 302 redirect. The submit itself is an open surface either way.
+      const { httpsBase, httpsRequest } = await httpsRetrievalContext();
+      try {
+        const svc = dtsHttpsServiceUrl(httpsBase);
+        const stamp = Date.now();
+        const formName = probeFormName(stamp);
+        const before = await readSummaries(httpsRequest, svc, formName);
+        test.skip(!!before.skipped, before.skipped);
+        const beforeTotal = summariesTotal(before.body, formName) || 0;
 
-      const marker = `qaconfirm-${stamp}`;
-      const collect = await request.post(`${svc}/form/collect/`, {
-        maxRedirects: 0,
-        form: {
-          action: "submit",
-          perc_formName: formName,
-          perc_hostUrl: base.origin,
-          qaconfirm: marker,
-        },
-      });
-      expect(
-        collect.status(),
-        `forms: submit to self-seeded form '${formName}' must take the success redirect (HTTP ${collect.status()})`,
-      ).toBe(302);
+        const marker = `qaconfirm-${stamp}`;
+        const collect = await httpsRequest.post(`${svc}/form/collect/`, {
+          maxRedirects: 0,
+          form: {
+            action: "submit",
+            perc_formName: formName,
+            perc_hostUrl: httpsBase.origin,
+            qaconfirm: marker,
+          },
+        });
+        expect(
+          collect.status(),
+          `forms: submit to self-seeded form '${formName}' must take the success redirect (HTTP ${collect.status()})`,
+        ).toBe(302);
 
-      const after = await readSummaries(request, svc, formName);
-      test.skip(!!after.skipped, after.skipped);
-      const afterTotal = summariesTotal(after.body, formName);
-      expect(
-        afterTotal,
-        `forms: summaries for '${formName}' must report the submitted entry (before=${beforeTotal}, after=${afterTotal})`,
-      ).not.toBeNull();
-      expect(
-        afterTotal,
-        `forms: summaries total for '${formName}' must increment (${beforeTotal} -> ${afterTotal})`,
-      ).toBe(beforeTotal + 1);
-      recordCase(CASE_SUMMARIES);
+        const after = await readSummaries(httpsRequest, svc, formName);
+        test.skip(!!after.skipped, after.skipped);
+        const afterTotal = summariesTotal(after.body, formName);
+        expect(
+          afterTotal,
+          `forms: summaries for '${formName}' must report the submitted entry (before=${beforeTotal}, after=${afterTotal})`,
+        ).not.toBeNull();
+        expect(
+          afterTotal,
+          `forms: summaries total for '${formName}' must increment (${beforeTotal} -> ${afterTotal})`,
+        ).toBe(beforeTotal + 1);
+        recordCase(CASE_SUMMARIES);
+      } finally {
+        await httpsRequest.dispose();
+      }
     },
   );
 
@@ -282,51 +318,61 @@ test.describe("forms confirmation matrix", () => {
       test.skip(!base, `forms confirmation (Forms): ${SKIP_NO_DTS_BASE}`);
 
       await probeLiveness(request, base);
-      const svc = dtsServiceUrl(base);
-      const { formName, marker } = await submitProbeEntry(request, svc, base.origin);
-
-      // The export path is deliverymanager-gated like the summaries; a
-      // gated/redirected cell skips by name instead of failing.
-      let csv = null;
+      // Export runs over the published DTS HTTPS origin like the
+      // summaries: a gated/redirected answer over HTTPS skips by name
+      // instead of failing.
+      const { httpsBase, httpsRequest } = await httpsRetrievalContext();
       try {
-        csv = await request.get(
-          `${svc}/form/cms/${encodeURIComponent(formName)}/${encodeURIComponent(`${formName}.csv`)}`,
-          { maxRedirects: 0, headers: deliveryAuthHeader() },
+        const svc = dtsHttpsServiceUrl(httpsBase);
+        const { formName, marker } = await submitProbeEntry(
+          httpsRequest,
+          svc,
+          httpsBase.origin,
         );
-      } catch (error) {
+
+        let csv = null;
+        try {
+          csv = await httpsRequest.get(
+            `${svc}/form/cms/${encodeURIComponent(formName)}/${encodeURIComponent(`${formName}.csv`)}`,
+            { maxRedirects: 0, headers: deliveryAuthHeader() },
+          );
+        } catch (error) {
+          test.skip(
+            true,
+            skipNoRetrieval(
+              `GET /forms/form/cms/${formName} export is unreachable ` +
+                `(${String((error && error.message) || error).slice(0, 120)})`,
+            ),
+          );
+        }
         test.skip(
-          true,
+          !csv.ok() && [401, 403, 302].includes(csv.status()),
           skipNoRetrieval(
-            `GET /forms/form/cms/${formName} export is unreachable ` +
-              `(${String((error && error.message) || error).slice(0, 120)})`,
+            retrievalDetail(
+              `/forms/form/cms/${formName} export`,
+              csv.status(),
+              csv.headers().location || null,
+            ),
           ),
         );
+        expect(
+          csv.ok(),
+          `forms: CSV export for '${formName}' must answer 200 (HTTP ${csv.status()})`,
+        ).toBe(true);
+        const contentType = csv.headers()["content-type"] || "";
+        expect(
+          /csv/i.test(contentType),
+          `forms: CSV export for '${formName}' must be text/csv (content-type=${contentType})`,
+        ).toBe(true);
+        const text = await csv.text();
+        expect(
+          text.includes(marker),
+          `forms: CSV export for '${formName}' must contain the submitted entry (marker=${marker})`,
+        ).toBe(true);
+        recordCase(CASE_CSV);
+      } finally {
+        await httpsRequest.dispose();
       }
-      test.skip(
-        !csv.ok() && [401, 403, 302].includes(csv.status()),
-        skipNoRetrieval(
-          retrievalDetail(
-            `/forms/form/cms/${formName} export`,
-            csv.status(),
-            csv.headers().location || null,
-          ),
-        ),
-      );
-      expect(
-        csv.ok(),
-        `forms: CSV export for '${formName}' must answer 200 (HTTP ${csv.status()})`,
-      ).toBe(true);
-      const contentType = csv.headers()["content-type"] || "";
-      expect(
-        /csv/i.test(contentType),
-        `forms: CSV export for '${formName}' must be text/csv (content-type=${contentType})`,
-      ).toBe(true);
-      const text = await csv.text();
-      expect(
-        text.includes(marker),
-        `forms: CSV export for '${formName}' must contain the submitted entry (marker=${marker})`,
-      ).toBe(true);
-      recordCase(CASE_CSV);
     },
   );
 });

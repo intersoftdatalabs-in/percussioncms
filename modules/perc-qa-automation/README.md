@@ -788,10 +788,12 @@ for forms lives in the matrix above; this spec goes one level deeper
 
 ```bash
 cd modules/perc-qa-automation/frontend
-# Green path: needs the DTS-providing cell. Retrieval cases additionally
-# need the admin surface reachable from the caller (deliverymanager
-# credentials + host-reachable DTS HTTPS — both owned by #6375):
-DTS_BASE_URL=https://<dts-cell-origin> \
+# Green path: needs the DTS-providing cell with its HTTPS publish plus the
+# provisioned deliverymanager credential (the CONFIDENTIAL retrieval
+# surface answers only over DTS_HTTPS_URL — plain-HTTP callers see its 302):
+python ../../../docker/scripts/perc-devctl.py qa-seed-widget-fixtures --delivery-password <secret>
+DTS_URL=http://<dts-cell-origin> \
+  DTS_HTTPS_URL=https://<dts-cell-https-origin> \
   DTS_DELIVERY_USER=<user> DTS_DELIVERY_PASSWORD=<secret> \
   npm run test:surface -- --path tests/forms-confirmation-matrix.spec.js
 # Single case:
@@ -803,15 +805,18 @@ DTS_BASE_URL=https://<dts-cell-origin> \
 ```
 
 Three-level skip contract (mirrors the interaction matrix): without
-`DTS_BASE_URL` every case skips naming the missing cell (#6237); with a
-base URL each case probes liveness (`HEAD <context>/forms/csrf` — the
-service lives under its Tomcat deployment context `perc-form-processor`,
-#6342) before touching the service. The two retrieval cases additionally
-skip by name when the cell cannot serve the `deliverymanager`-gated admin
-surface (missing credentials or an unreachable DTS HTTPS port for the
-`CONFIDENTIAL` redirect, #6375) — the skip carries the probed path, the
-received status, and the redirect target when the cell answers 302, so a
-skip proves *why* instead of just staying green. Submissions are
+`DTS_BASE_URL` (or `DTS_URL`) every case skips naming the missing cell
+(#6237); with a base URL each case probes liveness (`HEAD
+<context>/forms/csrf` — the service lives under its Tomcat deployment
+context `perc-form-processor`, #6342) before touching the service. The
+visitor submit runs over plain HTTP (open surface); the two retrieval
+cases run over the published DTS HTTPS origin (`DTS_HTTPS_URL` from the
+`qa-up --with-dts` banner, published since #6375/#6599) with the
+provisioned `deliverymanager` credential, because the admin surface is
+`CONFIDENTIAL`-gated — a retrieval answer of 401/403/302 over HTTPS
+(missing credential or unreachable HTTPS) still skips by name carrying
+the probed path, the received status, and the redirect target when the
+cell answers 302, so a skip proves *why* instead of just staying green. Submissions are
 self-seeded under a unique `qaconfirm-<stamp>` form name (valid per
 `PSFormService.isValidFormName`), so no CMS fixture is needed. Failure
 assertions are self-diagnosing: they name the received submit status, the

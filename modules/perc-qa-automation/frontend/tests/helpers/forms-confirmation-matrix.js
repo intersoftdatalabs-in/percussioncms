@@ -48,7 +48,13 @@
  * skips naming the missing cell (#6237);
  * with a base URL each case probes liveness ({@code HEAD
  * <context>/forms/csrf} — the service lives under its Tomcat deployment
- * context, issue #6342) before touching the service. Submissions are
+ * context, issue #6342) before touching the service. The visitor submit
+ * runs over plain HTTP (open surface). The two retrieval cases run over
+ * the published DTS HTTPS origin ({@link dtsHttpsBaseUrl} — the
+ * {@code CONFIDENTIAL} retrieval surface 302-redirects plain-HTTP callers
+ * to the in-cell HTTPS port, published by {@code qa-up --with-dts} since
+ * #6375/#6599) with the provisioned {@code deliverymanager} credential, so
+ * a fresh cell goes green instead of named-skipping. Submissions are
  * self-seeded under a unique {@code qaconfirm-<stamp>} form name (valid per
  * {@code PSFormService.isValidFormName}), so no CMS fixture is needed.</p>
  *
@@ -80,6 +86,9 @@ const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 /** Skip reason when no DTS-providing cell is configured (shared cell contract). */
 const SKIP_NO_DTS_BASE = dtsCell.SKIP_NO_DTS_BASE;
 
+/** Skip reason when the cell publishes no DTS HTTPS origin (shared cell contract). */
+const SKIP_NO_DTS_HTTPS = dtsCell.SKIP_NO_DTS_HTTPS;
+
 /**
  * Skip reason when the DTS origin answers but the forms service does not.
  * A 401/403 still counts as "served" (the service is up, the caller lacks
@@ -100,18 +109,15 @@ function skipServiceDown(baseUrl) {
 }
 
 /**
- * Skip reason when the admin retrieval surface cannot be read in this
- * cell. The summaries/export endpoints are {@code deliverymanager}-gated
- * (BASIC, {@code CONFIDENTIAL}), so plain-HTTP cells without provisioned
- * credentials — or without a reachable DTS HTTPS port for the
- * {@code CONFIDENTIAL} redirect — skip here instead of failing. Both
- * provisions (known seed credentials plus host-reachable DTS HTTPS) are
- * owned by the cell provisioning issue #6375; verified live 2026-11-17 on
- * the stock {@code qa-up --with-dts} cell, which answers the gated reads
- * with HTTP 302 to its container-local {@code https://<cell>:8443} port
- * while its install-time {@code ps_manager} password differs from the
- * shipped development default — so host-side retrieval stays
- * named-skipped until #6375 lands.
+ * Skip reason when the admin retrieval surface cannot be read over the
+ * published DTS HTTPS origin in this cell. The summaries/export endpoints
+ * are {@code deliverymanager}-gated (BASIC), so without the provisioned
+ * credential — seed it with {@code qa-seed-widget-fixtures
+ * --delivery-password <secret>} then export {@code DTS_DELIVERY_USER} /
+ * {@code DTS_DELIVERY_PASSWORD} — or without a reachable DTS HTTPS port,
+ * the two retrieval cases skip here instead of failing. The HTTPS publish
+ * itself landed in #6375/#6599; a 302/401/403 over HTTPS therefore names a
+ * cell-credential gap, not a missing platform feature.
  *
  * @param {string} detail what was probed and what the cell answered
  * @returns {string}
@@ -213,6 +219,19 @@ function dtsContextUrl(dtsOrigin) {
  */
 function dtsServiceUrl(dtsOrigin) {
   return `${dtsContextUrl(dtsOrigin)}${FORMS_ENTRY.root}`;
+}
+
+/**
+ * Service base URL for the forms retrieval cases: the in-cell DTS HTTPS
+ * origin plus the deployment context path (war name) plus the JAX-RS
+ * root, mirroring how the admin retrieval surface is addressed under the
+ * {@code CONFIDENTIAL} guarantee.
+ *
+ * @param {URL} dtsHttpsOrigin in-cell DTS HTTPS origin from {@link dtsHttpsBaseUrl}
+ * @returns {string} service base URL (no trailing slash)
+ */
+function dtsHttpsServiceUrl(dtsHttpsOrigin) {
+  return `${dtsHttpsOrigin.origin}/${FORMS_ENTRY.context}${FORMS_ENTRY.root}`;
 }
 
 /**
@@ -404,6 +423,7 @@ module.exports = {
   RESULT_STATUSES,
   MATRIX_CELLS,
   SKIP_NO_DTS_BASE,
+  SKIP_NO_DTS_HTTPS,
   skipServiceDown,
   skipNoRetrieval,
   FORMS_ENTRY,
@@ -411,7 +431,9 @@ module.exports = {
   dtsContextUrl,
   dtsServiceUrl,
   dtsHttpsBaseUrl,
+  dtsHttpsBaseUrl,
   openDtsHttpsContext,
+  dtsHttpsServiceUrl,
   deliveryAuthHeader,
   probeFormName,
   retrievalDetail,
