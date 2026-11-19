@@ -915,4 +915,15 @@ export const PATHS = {
   get AUDIT_LOG_ENTRIES() {
     return `${SERVICES_ROOT}/auditlog/entries`;
   },
+  /**
+   * Authentication, MFA, and recovery readiness administration API (Milestone 1).
+   * {@code GET /services/auth/admin/readiness} and {@code POST /services/auth/admin/mail/test}.
+   * AuthZ: Admin role only.
+   */
+  get AUTH_ADMIN_READINESS() {
+    return `${SERVICES_ROOT}/auth/admin/readiness`;
+  },
+  get AUTH_ADMIN_MAIL_TEST() {
+    return `${SERVICES_ROOT}/auth/admin/mail/test`;
+  },
 } as const;

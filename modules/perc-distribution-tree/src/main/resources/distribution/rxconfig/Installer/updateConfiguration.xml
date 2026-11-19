@@ -248,6 +248,29 @@
 			<entry key="allowLinksToOrphans" value="true" default="true"
 				operation="=" />
 			<entry key="screenshotCommandLine" default="" />
+			<entry key="auth.mfa.mode" default="optional" />
+			<entry key="auth.mfa.issuer" default="Percussion CMS" />
+			<entry key="auth.publicBaseUrl" default="" />
+			<entry key="auth.webauthn.rpId" default="" />
+			<entry key="auth.webauthn.rpName" default="Percussion CMS" />
+			<entry key="auth.webauthn.allowedOrigins" default="" />
+			<entry key="auth.password.minLength" default="12" />
+			<entry key="auth.token.emailVerifyTtlMinutes" default="30" />
+			<entry key="auth.token.passwordResetTtlMinutes" default="20" />
+			<entry key="auth.token.adminBreakGlassTtlMinutes" default="60" />
+			<entry key="auth.mail.host" default="" />
+			<entry key="auth.mail.port" default="587" />
+			<entry key="auth.mail.username" default="" />
+			<entry key="auth.mail.password" default="" />
+			<entry key="auth.mail.from" default="" />
+			<entry key="auth.mail.fromName" default="Percussion CMS" />
+			<entry key="auth.mail.startTls" default="true" />
+			<entry key="auth.mail.startTlsRequired" default="true" />
+			<entry key="auth.mail.ssl" default="false" />
+			<entry key="auth.mail.sslCheckServerIdentity" default="true" />
+			<entry key="auth.mail.connectTimeoutMs" default="10000" />
+			<entry key="auth.mail.socketTimeoutMs" default="10000" />
+			<entry key="auth.mail.fallbackWorkflowSmtp" default="true" />
 
 
 			<!-- Properties to remove if present -->

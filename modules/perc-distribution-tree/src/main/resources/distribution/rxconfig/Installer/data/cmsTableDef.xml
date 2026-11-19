@@ -5769,6 +5769,402 @@
             </index>
         </indexdefinitions>
     </table>
+    <!-- Authentication, MFA, and Account Recovery tables (Milestone 1) -->
+    <table name="PSX_ACCOUNT_SECURITY" allowSchemaChanges="y" alter="y" delolddata="n" isView="n">
+        <row>
+            <column name="USER_NAME">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>255</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="EMAIL_NORMALIZED">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>320</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="EMAIL_VERIFIED">
+                <jdbctype>CHAR</jdbctype>
+                <size>1</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="EMAIL_VERIFIED_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="PENDING_EMAIL">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>320</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="MFA_ENROLLMENT_STATE">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>32</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="ACCOUNT_POLICY">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>32</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="MFA_ENFORCEMENT_COHORT">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>64</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="SESSION_VERSION">
+                <jdbctype>BIGINT</jdbctype>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="MFA_ENFORCED_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="PASSWORD_CHANGED_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="FAILED_LOGIN_COUNT">
+                <jdbctype>INTEGER</jdbctype>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="LOCKED_UNTIL">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="RECOVERY_LOCKED_UNTIL">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="UPDATED_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>no</allowsnull>
+            </column>
+        </row>
+        <primarykey>
+            <name>USER_NAME</name>
+        </primarykey>
+        <indexdefinitions>
+            <index name="IX_ACCT_SEC_EMAIL" isUnique="n">
+                <name>EMAIL_NORMALIZED</name>
+            </index>
+        </indexdefinitions>
+    </table>
+    <table name="PSX_MFA_TOTP" allowSchemaChanges="y" alter="y" delolddata="n" isView="n">
+        <row>
+            <column name="TOTP_ID">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>64</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="USER_NAME">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>255</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="LABEL">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>128</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="SECRET_ENC">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>1024</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="ALGORITHM">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>16</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="DIGITS">
+                <jdbctype>INTEGER</jdbctype>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="PERIOD_SECONDS">
+                <jdbctype>INTEGER</jdbctype>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="STATUS">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>16</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="LAST_USED_STEP">
+                <jdbctype>BIGINT</jdbctype>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="CREATED_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="VERIFIED_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="LAST_USED_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>yes</allowsnull>
+            </column>
+        </row>
+        <primarykey>
+            <name>TOTP_ID</name>
+        </primarykey>
+        <indexdefinitions>
+            <index name="IX_MFA_TOTP_USER" isUnique="n">
+                <name>USER_NAME</name>
+            </index>
+        </indexdefinitions>
+    </table>
+    <table name="PSX_MFA_PASSKEY" allowSchemaChanges="y" alter="y" delolddata="n" isView="n">
+        <row>
+            <column name="PASSKEY_ID">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>64</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="USER_NAME">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>255</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="CREDENTIAL_ID">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>512</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="USER_HANDLE">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>128</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="COSE_PUBLIC_KEY_B64">
+                <jdbctype>CLOB</jdbctype>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="AAGUID">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>64</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="SIGN_COUNT">
+                <jdbctype>BIGINT</jdbctype>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="TRANSPORTS">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>255</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="BACKUP_ELIGIBLE">
+                <jdbctype>CHAR</jdbctype>
+                <size>1</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="BACKUP_STATE">
+                <jdbctype>CHAR</jdbctype>
+                <size>1</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="LABEL">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>128</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="STATUS">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>16</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="CREATED_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="LAST_USED_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>yes</allowsnull>
+            </column>
+        </row>
+        <primarykey>
+            <name>PASSKEY_ID</name>
+        </primarykey>
+        <indexdefinitions>
+            <index name="IX_MFA_PK_USER" isUnique="n">
+                <name>USER_NAME</name>
+            </index>
+            <index name="UX_MFA_PK_CRED_ID" isUnique="y">
+                <name>CREDENTIAL_ID</name>
+            </index>
+            <index name="IX_MFA_PK_UHANDLE" isUnique="n">
+                <name>USER_HANDLE</name>
+            </index>
+        </indexdefinitions>
+    </table>
+    <table name="PSX_MFA_RECOVERY_CODE" allowSchemaChanges="y" alter="y" delolddata="n" isView="n">
+        <row>
+            <column name="CODE_ID">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>64</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="USER_NAME">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>255</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="CODE_HASH">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>256</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="CODE_SALT">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>64</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="BATCH_ID">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>64</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="CREATED_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="USED_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>yes</allowsnull>
+            </column>
+        </row>
+        <primarykey>
+            <name>CODE_ID</name>
+        </primarykey>
+        <indexdefinitions>
+            <index name="IX_MFA_RC_USER" isUnique="n">
+                <name>USER_NAME</name>
+            </index>
+        </indexdefinitions>
+    </table>
+    <table name="PSX_AUTH_TOKEN" allowSchemaChanges="y" alter="y" delolddata="n" isView="n">
+        <row>
+            <column name="TOKEN_ID">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>64</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="TOKEN_HASH">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>128</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="TOKEN_TYPE">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>32</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="USER_NAME">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>255</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="TARGET_EMAIL">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>320</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="CREATED_BY">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>255</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="REQUEST_IP">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>64</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="CREATED_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="EXPIRES_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="CONSUMED_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>yes</allowsnull>
+            </column>
+        </row>
+        <primarykey>
+            <name>TOKEN_ID</name>
+        </primarykey>
+        <indexdefinitions>
+            <index name="UX_AUTH_TOK_HASH" isUnique="y">
+                <name>TOKEN_HASH</name>
+            </index>
+            <index name="IX_AUTH_TOK_USER" isUnique="n">
+                <name>USER_NAME</name>
+            </index>
+            <index name="IX_AUTH_TOK_EXP" isUnique="n">
+                <name>EXPIRES_AT</name>
+            </index>
+        </indexdefinitions>
+    </table>
+    <table name="PSX_AUTH_LOGIN_TX" allowSchemaChanges="y" alter="y" delolddata="n" isView="n">
+        <row>
+            <column name="TX_ID">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>64</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="TX_TYPE">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>32</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="USER_NAME">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>255</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="CHALLENGE_B64">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>256</size>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="PAYLOAD_JSON">
+                <jdbctype>CLOB</jdbctype>
+                <allowsnull>yes</allowsnull>
+            </column>
+            <column name="STATE">
+                <jdbctype>VARCHAR</jdbctype>
+                <size>32</size>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="ATTEMPT_COUNT">
+                <jdbctype>INTEGER</jdbctype>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="CREATED_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>no</allowsnull>
+            </column>
+            <column name="EXPIRES_AT">
+                <jdbctype>TIMESTAMP</jdbctype>
+                <allowsnull>no</allowsnull>
+            </column>
+        </row>
+        <primarykey>
+            <name>TX_ID</name>
+        </primarykey>
+        <indexdefinitions>
+            <index name="IX_AUTH_TX_USER" isUnique="n">
+                <name>USER_NAME</name>
+            </index>
+            <index name="IX_AUTH_TX_EXP" isUnique="n">
+                <name>EXPIRES_AT</name>
+            </index>
+        </indexdefinitions>
+    </table>
     <table name="PSX_BINARY" allowSchemaChanges="y" alter="y"  delolddata="n" isView="n">
         <row>
             <column name="ID">

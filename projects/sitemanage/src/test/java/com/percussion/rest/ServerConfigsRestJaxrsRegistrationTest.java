@@ -38,6 +38,7 @@ class ServerConfigsRestJaxrsRegistrationTest {
   private static final String[] REQUIRED_REFS = {
     "restServerConfigsResource",
     "restAuditLogResource",
+    "restAuthReadinessResource",
     "restKeywordsResource",
     "restLocalesResource",
     "restAutoTranslationsResource",
@@ -65,8 +66,9 @@ class ServerConfigsRestJaxrsRegistrationTest {
     String restBlock = xml.substring(restServer, end);
 
     for (String bean : REQUIRED_REFS) {
+      String needle = "bean=" + '"' + bean + '"';
       assertTrue(
-          restBlock.contains("bean=\"" + bean + "\""),
+          restBlock.contains(needle),
           "rest-jax-rs serviceBeans must ref "
               + bean
               + " (missing → CXF 404 for catalog REST)");

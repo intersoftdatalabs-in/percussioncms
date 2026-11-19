@@ -71,6 +71,7 @@ export const ADMIN_MSG = {
   TAB_TOOLS: "perc.ui.admin@System Tools",
   TOOL_CONSISTENCY: "perc.ui.admin.tools@Consistency Checker",
   TOOL_SECURITY_AUDIT: "perc.ui.admin.tools@Security Audit Log",
+  TOOL_AUTH_READINESS: "perc.ui.admin.tools@Auth & MFA Readiness",
   /**
    * Isolated tab/tool failure (#3195 / peer #3229). Arg {0} is the section label.
    */
@@ -110,4 +111,40 @@ export const ADMIN_MSG = {
   AUDIT_COL_ID: "perc.ui.admin.auditlog@Audit ID",
   AUDIT_COL_SOURCE_IP: "perc.ui.admin.auditlog@Source IP",
   AUDIT_COL_SERVER: "perc.ui.admin.auditlog@Server",
+
+  /** Auth & MFA Readiness tool (Milestone 1) */
+  AUTH_READINESS_TITLE: "perc.ui.admin.authreadiness@Auth & MFA Readiness",
+  AUTH_READINESS_DESCRIPTION:
+    "perc.ui.admin.authreadiness@Inspect transactional auth mail, WebAuthn origins, cluster encryption key fingerprint, schema tables, and account email/MFA coverage before enforcing MFA.",
+  AUTH_READINESS_REFRESH: "perc.ui.admin.authreadiness@Refresh",
+  AUTH_READINESS_FORBIDDEN:
+    "perc.ui.admin.authreadiness@Admin role is required to view authentication readiness.",
+  AUTH_READINESS_OVERALL_STATUS: "perc.ui.admin.authreadiness@Overall status",
+  AUTH_READINESS_MFA_MODE: "perc.ui.admin.authreadiness@MFA mode",
+  AUTH_READINESS_PASSWORD_POLICY: "perc.ui.admin.authreadiness@Min password length",
+  AUTH_READINESS_KEY_FINGERPRINT: "perc.ui.admin.authreadiness@Cluster key fingerprint",
+  AUTH_READINESS_TOTAL_ACCOUNTS: "perc.ui.admin.authreadiness@Total accounts",
+  AUTH_READINESS_READY_ACCOUNTS: "perc.ui.admin.authreadiness@Ready accounts",
+  AUTH_READINESS_MFA_ENROLLED: "perc.ui.admin.authreadiness@MFA enrolled",
+  AUTH_READINESS_EMAIL_ISSUES: "perc.ui.admin.authreadiness@Email issues",
+  AUTH_READINESS_INFRA_TITLE: "perc.ui.admin.authreadiness@Infrastructure prerequisites",
+  AUTH_READINESS_COL_CHECK: "perc.ui.admin.authreadiness@Check",
+  AUTH_READINESS_COL_STATUS: "perc.ui.admin.authreadiness@Status",
+  AUTH_READINESS_COL_SUMMARY: "perc.ui.admin.authreadiness@Summary",
+  AUTH_READINESS_COL_REMEDIATION: "perc.ui.admin.authreadiness@Remediation",
+  AUTH_READINESS_MAIL_TEST_TITLE: "perc.ui.admin.authreadiness@Send test auth email",
+  AUTH_READINESS_MAIL_TEST_LABEL: "perc.ui.admin.authreadiness@Recipient email",
+  AUTH_READINESS_MAIL_TEST_SEND: "perc.ui.admin.authreadiness@Send test email",
+  AUTH_READINESS_MAIL_TEST_SENDING: "perc.ui.admin.authreadiness@Sending…",
+  AUTH_READINESS_ACCOUNTS_TITLE: "perc.ui.admin.authreadiness@Accounts requiring remediation",
+  AUTH_READINESS_ISSUE_FILTER: "perc.ui.admin.authreadiness@Filter by issue",
+  AUTH_READINESS_FILTER_ALL: "perc.ui.admin.authreadiness@All issues",
+  AUTH_READINESS_NO_ISSUES:
+    "perc.ui.admin.authreadiness@All evaluated accounts satisfy email and MFA readiness checks.",
+  AUTH_READINESS_COL_USER: "perc.ui.admin.authreadiness@User",
+  AUTH_READINESS_COL_PROVIDER: "perc.ui.admin.authreadiness@Provider",
+  AUTH_READINESS_COL_EMAIL: "perc.ui.admin.authreadiness@Email",
+  AUTH_READINESS_COL_VERIFIED: "perc.ui.admin.authreadiness@Verified",
+  AUTH_READINESS_COL_FACTORS: "perc.ui.admin.authreadiness@MFA factors",
+  AUTH_READINESS_COL_ISSUES: "perc.ui.admin.authreadiness@Issues",
 } as const;

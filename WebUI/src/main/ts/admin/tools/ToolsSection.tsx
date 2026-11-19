@@ -18,12 +18,17 @@ import React, { useState } from "react";
 import { message } from "../../i18n/message";
 import { ADMIN_MSG } from "../messages";
 import { AdminSectionErrorBoundary } from "../AdminSectionErrorBoundary";
+import { AuthReadinessPanel } from "./AuthReadinessPanel";
 import { ConsistencyChecker } from "./ConsistencyChecker";
 import { SecurityAuditLogViewer } from "./SecurityAuditLogViewer";
 
-export type AdminToolId = "consistency" | "security-audit";
+export type AdminToolId = "consistency" | "security-audit" | "auth-readiness";
 
-const TOOLS: readonly AdminToolId[] = ["security-audit", "consistency"];
+const TOOLS: readonly AdminToolId[] = [
+  "security-audit",
+  "consistency",
+  "auth-readiness",
+];
 
 export function normalizeAdminTool(
   raw: string | null | undefined,
@@ -32,7 +37,7 @@ export function normalizeAdminTool(
     return "security-audit";
   }
   const n = raw.trim().toLowerCase();
-  if (n === "consistency" || n === "security-audit") {
+  if (n === "consistency" || n === "security-audit" || n === "auth-readiness") {
     return n;
   }
   return "security-audit";
@@ -89,7 +94,9 @@ export const ToolsSection: React.FC<ToolsSectionProps> = ({
           >
             {id === "security-audit"
               ? message(ADMIN_MSG.TOOL_SECURITY_AUDIT)
-              : message(ADMIN_MSG.TOOL_CONSISTENCY)}
+              : id === "consistency"
+                ? message(ADMIN_MSG.TOOL_CONSISTENCY)
+                : message(ADMIN_MSG.TOOL_AUTH_READINESS)}
           </button>
         ))}
       </div>
@@ -119,6 +126,20 @@ export const ToolsSection: React.FC<ToolsSectionProps> = ({
             label={message(ADMIN_MSG.TOOL_CONSISTENCY)}
           >
             <ConsistencyChecker />
+          </AdminSectionErrorBoundary>
+        </div>
+      )}
+      {activeTool === "auth-readiness" && (
+        <div
+          role="tabpanel"
+          id="panel-auth-readiness"
+          aria-labelledby="tab-auth-readiness"
+          data-testid="panel-auth-readiness"
+        >
+          <AdminSectionErrorBoundary
+            label={message(ADMIN_MSG.TOOL_AUTH_READINESS)}
+          >
+            <AuthReadinessPanel />
           </AdminSectionErrorBoundary>
         </div>
       )}

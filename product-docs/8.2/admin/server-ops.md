@@ -69,5 +69,6 @@ See [Ports & paths reference](id:reference-ports-paths) for common locations. Ex
 
 ## Related
 
+- [Authentication, MFA, and Recovery Readiness](id:admin-authentication-mfa)
 - [Installation Overview](id:install-overview)
 - [Upgrade Overview](id:upgrade-overview)

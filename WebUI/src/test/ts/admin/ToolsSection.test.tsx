@@ -34,11 +34,18 @@ vi.mock("../../../main/ts/admin/tools/ConsistencyChecker", () => ({
   ),
 }));
 
+vi.mock("../../../main/ts/admin/tools/AuthReadinessPanel", () => ({
+  AuthReadinessPanel: () => (
+    <div data-testid="mock-auth-readiness">Auth Readiness</div>
+  ),
+}));
+
 describe("ToolsSection", () => {
   it("normalizeAdminTool defaults to security-audit", () => {
     expect(normalizeAdminTool(undefined)).toBe("security-audit");
     expect(normalizeAdminTool("bogus")).toBe("security-audit");
     expect(normalizeAdminTool("consistency")).toBe("consistency");
+    expect(normalizeAdminTool("auth-readiness")).toBe("auth-readiness");
   });
 
   it("defaults to security audit tool", () => {
@@ -75,6 +82,15 @@ describe("ToolsSection", () => {
     fireEvent.click(screen.getByTestId("tool-tab-consistency"));
     expect(screen.getByTestId("mock-consistency")).toBeDefined();
     expect(screen.queryByTestId("mock-security-audit")).toBeNull();
+  });
+
+  it("switches to auth readiness panel", () => {
+    render(<ToolsSection />);
+    fireEvent.click(screen.getByTestId("tool-tab-auth-readiness"));
+    expect(screen.getByTestId("panel-auth-readiness").getAttribute("role")).toBe(
+      "tabpanel",
+    );
+    expect(screen.getByTestId("mock-auth-readiness")).toBeDefined();
   });
 });
 

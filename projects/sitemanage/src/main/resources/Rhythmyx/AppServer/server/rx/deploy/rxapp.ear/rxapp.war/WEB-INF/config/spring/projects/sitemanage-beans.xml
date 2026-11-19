@@ -123,6 +123,7 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restWorkflowsResource" />
             <ref bean="restApplicationFilesResource" />
             <ref bean="restAuditLogResource" />
+            <ref bean="restAuthReadinessResource" />
             <!-- AS-09 / #4307: Velocity tools + snippet catalog (missing → CXF 404) -->
             <ref bean="restVelocityResource" />
             <!-- #6481 Developer API key scope editor (missing → CXF 404) -->
