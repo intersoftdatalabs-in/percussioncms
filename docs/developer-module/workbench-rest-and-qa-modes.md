@@ -149,6 +149,8 @@ cd ../../WebUI && ../mvnw package -DskipTests
 ./mvnw license:aggregate-add-third-party
 cd deliverytiersuite/delivery-tier-suite/secure-membership && ../../../mvnw package -DskipTests
 cd ../../modules/perc-common-ui-bundle && ../../mvnw package -DskipTests
+cd ../../deliverytiersuite/delivery-tier-suite/delivery-tier-distribution && ../../../mvnw package -DskipTests
+cd ../../../modules/perc-openapi-webapp && ../../mvnw package -DskipTests
 cd ../perc-distribution-tree && ../../mvnw clean package -DskipTests
 # Windows: use mvnw.cmd and the same module order
 ```

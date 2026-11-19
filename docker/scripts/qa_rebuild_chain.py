@@ -27,7 +27,10 @@ wrapper (``mvnw`` / ``mvnw.cmd``), ``pathlib.Path``, and
 6. ``deliverytiersuite/delivery-tier-suite/delivery-tier-distribution`` —
    ``package -DskipTests`` when ``target/delivery-tier-distribution.jar``
    is missing (shipped DTS installer for ``qa-up --with-dts``; #6237).
-7. ``modules/perc-distribution-tree`` — ``clean package -DskipTests``
+7. ``modules/perc-openapi-webapp`` — ``package -DskipTests`` when no
+   ``target/perc-openapi-webapp-*.war`` exists (ANT unzips that WAR into
+   the ``/openapi`` Jetty context; #6703).
+8. ``modules/perc-distribution-tree`` — ``clean package -DskipTests``
 
 Each step emits a parseable ``RESULT:OK`` / ``RESULT:FAIL`` line. ``--dry-run``
 prints the planned argv + cwd for every step and never invokes Maven.
@@ -87,6 +90,13 @@ DTS_DIST_REL = (
     Path("deliverytiersuite") / "delivery-tier-suite" / "delivery-tier-distribution"
 )
 DTS_DIST_JAR_NAME = "delivery-tier-distribution.jar"
+
+# OpenAPI webapp WAR (default Maven finalName
+# ``perc-openapi-webapp-<version>.war``) unpacked by the dist-tree ANT
+# assembly into the ``/openapi`` Jetty context (#6703). Matched by glob
+# because the file name embeds the reactor version.
+OPENAPI_WEBAPP_REL = Path("modules") / "perc-openapi-webapp"
+OPENAPI_WEBAPP_WAR_GLOB = "perc-openapi-webapp-*.war"
 
 # Callable matching subprocess.run for tests to inject stubs.
 RunFn = Callable[..., subprocess.CompletedProcess]
@@ -216,6 +226,42 @@ def dts_distribution_step() -> ChainStep:
     )
 
 
+def openapi_webapp_war_path(repo_root: Path) -> Optional[Path]:
+    """First non-empty perc-openapi-webapp WAR under ``target/``, or None.
+
+    The WAR file name embeds the reactor version
+    (``perc-openapi-webapp-<version>.war``), so match by glob instead of a
+    fixed name.
+    """
+    target = (repo_root / OPENAPI_WEBAPP_REL / "target").resolve()
+    try:
+        wars = sorted(target.glob(OPENAPI_WEBAPP_WAR_GLOB))
+    except OSError:
+        return None
+    for war in wars:
+        try:
+            if war.is_file() and war.stat().st_size > 0:
+                return war
+        except OSError:
+            continue
+    return None
+
+
+def openapi_webapp_present(repo_root: Path) -> bool:
+    """True when the /openapi WAR the dist ANT assembly unzips is built."""
+    return openapi_webapp_war_path(repo_root) is not None
+
+
+def openapi_webapp_step() -> ChainStep:
+    """Package perc-openapi-webapp so ANT can unzip the /openapi WAR (#6703)."""
+    return ChainStep(
+        label="qa-rebuild-openapi-webapp",
+        module_rel=OPENAPI_WEBAPP_REL,
+        goals=("package",),
+        extra_args=("-DskipTests",),
+    )
+
+
 def resolve_mvnw(repo_root: Path) -> Path:
     """Return the repo-root Maven wrapper path for this OS.
 
@@ -252,6 +298,7 @@ def plan_chain(
         secure_membership_step(),
         common_ui_bundle_step(),
         dts_distribution_step(),
+        openapi_webapp_step(),
         ChainStep(
             label="qa-rebuild-dist",
             module_rel=Path("modules") / "perc-distribution-tree",
@@ -372,6 +419,14 @@ _SKIP_CHECKS: tuple[
         lambda root: (
             "dts-distribution-present "
             f"PATH:{dts_distribution_jar_path(root)}"
+        ),
+    ),
+    (
+        "qa-rebuild-openapi-webapp",
+        openapi_webapp_present,
+        lambda root: (
+            "openapi-webapp-present "
+            f"PATH:{openapi_webapp_war_path(root)}"
         ),
     ),
 )
@@ -592,6 +647,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
             "secure-membership package → "
             "perc-common-ui-bundle package (#4695) → "
             "delivery-tier-distribution package (#6237) → "
+            "perc-openapi-webapp package (#6703) → "
             "perc-distribution-tree package (#2533 / #4420). "
             "Uses repo-root mvnw/mvnw.cmd with shell=False."
         ),

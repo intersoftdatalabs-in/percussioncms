@@ -56,6 +56,7 @@ class _RepoLayout:
         (self.root / "WebUI").mkdir(parents=True)
         (self.root / "modules" / "perc-distribution-tree").mkdir(parents=True)
         (self.root / "modules" / "perc-common-ui-bundle").mkdir(parents=True)
+        (self.root / "modules" / "perc-openapi-webapp").mkdir(parents=True)
         (
             self.root
             / "deliverytiersuite"
@@ -81,7 +82,7 @@ class _RepoLayout:
 class TestPlanChain(unittest.TestCase):
     def test_full_chain_order_and_goals(self):
         steps = qa_rebuild_chain.plan_chain()
-        self.assertEqual(len(steps), 7)
+        self.assertEqual(len(steps), 8)
         self.assertEqual(steps[0].label, "qa-rebuild-sitemanage")
         self.assertEqual(steps[0].goals, ("clean", "install"))
         self.assertEqual(steps[0].extra_args, ())
@@ -104,9 +105,13 @@ class TestPlanChain(unittest.TestCase):
         self.assertEqual(steps[5].goals, ("package",))
         self.assertIn("-DskipTests", steps[5].extra_args)
         self.assertEqual(steps[5].module_rel, qa_rebuild_chain.DTS_DIST_REL)
-        self.assertEqual(steps[6].label, "qa-rebuild-dist")
-        self.assertEqual(steps[6].goals, ("clean", "package"))
+        self.assertEqual(steps[6].label, "qa-rebuild-openapi-webapp")
+        self.assertEqual(steps[6].goals, ("package",))
         self.assertIn("-DskipTests", steps[6].extra_args)
+        self.assertEqual(steps[6].module_rel, qa_rebuild_chain.OPENAPI_WEBAPP_REL)
+        self.assertEqual(steps[7].label, "qa-rebuild-dist")
+        self.assertEqual(steps[7].goals, ("clean", "package"))
+        self.assertIn("-DskipTests", steps[7].extra_args)
 
     def test_license_step_never_plans_non_recursive(self):
         for kwargs in ({}, {"dist_only": True}, {"skip_tests": True}):
@@ -124,7 +129,7 @@ class TestPlanChain(unittest.TestCase):
 
     def test_dist_only_includes_license_then_package(self):
         steps = qa_rebuild_chain.plan_chain(dist_only=True)
-        self.assertEqual(len(steps), 5)
+        self.assertEqual(len(steps), 6)
         self.assertEqual(steps[0].label, "qa-rebuild-license-inventory")
         self.assertEqual(steps[0].goals, (qa_rebuild_chain.LICENSE_AGGREGATE_GOAL,))
         self.assertEqual(steps[1].label, "qa-rebuild-secure-membership")
@@ -132,8 +137,11 @@ class TestPlanChain(unittest.TestCase):
         self.assertEqual(steps[3].label, "qa-rebuild-dts-distribution")
         self.assertEqual(steps[3].goals, ("package",))
         self.assertEqual(steps[3].module_rel, qa_rebuild_chain.DTS_DIST_REL)
-        self.assertEqual(steps[4].label, "qa-rebuild-dist")
+        self.assertEqual(steps[4].label, "qa-rebuild-openapi-webapp")
         self.assertEqual(steps[4].goals, ("package",))
+        self.assertEqual(steps[4].module_rel, qa_rebuild_chain.OPENAPI_WEBAPP_REL)
+        self.assertEqual(steps[5].label, "qa-rebuild-dist")
+        self.assertEqual(steps[5].goals, ("package",))
 
 
 class TestResolveMvnw(unittest.TestCase):
@@ -170,12 +178,14 @@ class TestDryRun(unittest.TestCase):
         self.assertIn("PLANNED STEP:qa-rebuild-secure-membership", out)
         self.assertIn("PLANNED STEP:qa-rebuild-common-ui-bundle", out)
         self.assertIn("PLANNED STEP:qa-rebuild-dts-distribution", out)
+        self.assertIn("PLANNED STEP:qa-rebuild-openapi-webapp", out)
         self.assertIn("PLANNED STEP:qa-rebuild-dist", out)
         self.assertIn("RESULT:OK STEP:qa-rebuild-sitemanage", out)
         self.assertIn("RESULT:OK STEP:qa-rebuild-webui", out)
         self.assertIn("RESULT:OK STEP:qa-rebuild-license-inventory", out)
         self.assertIn("RESULT:OK STEP:qa-rebuild-secure-membership", out)
         self.assertIn("RESULT:OK STEP:qa-rebuild-dts-distribution", out)
+        self.assertIn("RESULT:OK STEP:qa-rebuild-openapi-webapp", out)
         self.assertIn("RESULT:OK STEP:qa-rebuild-dist", out)
         self.assertIn("RESULT:OK STEP:qa-rebuild-chain", out)
         # Planned argv must include wrapper + goals
@@ -202,6 +212,7 @@ class TestDryRun(unittest.TestCase):
         self.assertIn("PLANNED STEP:qa-rebuild-secure-membership", out)
         self.assertIn("PLANNED STEP:qa-rebuild-common-ui-bundle", out)
         self.assertIn("PLANNED STEP:qa-rebuild-dts-distribution", out)
+        self.assertIn("PLANNED STEP:qa-rebuild-openapi-webapp", out)
         self.assertIn("PLANNED STEP:qa-rebuild-dist", out)
         self.assertIn("RESULT:OK STEP:qa-rebuild-chain", out)
 
@@ -212,6 +223,69 @@ class TestRealModeStubbed(unittest.TestCase):
         self.addCleanup(self.layout.cleanup)
 
     def test_success_runs_license_then_dist_when_inventory_missing(self):
+        fake = _FakeRun(returncodes=[0, 0, 0, 0, 0, 0, 0, 0])
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = qa_rebuild_chain.run_chain(
+                self.layout.root,
+                dry_run=False,
+                skip_tests=True,
+                log_dir=self.layout.root / "docker" / "logs",
+                run_fn=fake,
+            )
+        out = buf.getvalue()
+        self.assertEqual(rc, qa_rebuild_chain.EXIT_OK)
+        self.assertEqual(len(fake.calls), 8)
+        for call in fake.calls:
+            self.assertIs(call.get("shell"), False)
+            self.assertIn("cwd", call)
+            argv = call["argv"]
+            self.assertTrue(
+                argv[0].endswith("mvnw") or argv[0].endswith("mvnw.cmd"),
+                msg=f"argv0 should be mvnw wrapper, got {argv[0]!r}",
+            )
+            self.assertNotIn("-N", argv)
+            self.assertNotIn("--non-recursive", argv)
+
+        # Order: sitemanage → WebUI → license → secure-membership
+        # → common-ui-bundle → dts-distribution → openapi-webapp → dist
+        cwd0 = Path(fake.calls[0]["cwd"])
+        cwd1 = Path(fake.calls[1]["cwd"])
+        cwd2 = Path(fake.calls[2]["cwd"])
+        cwd3 = Path(fake.calls[3]["cwd"])
+        cwd4 = Path(fake.calls[4]["cwd"])
+        cwd5 = Path(fake.calls[5]["cwd"])
+        cwd6 = Path(fake.calls[6]["cwd"])
+        cwd7 = Path(fake.calls[7]["cwd"])
+        self.assertEqual(cwd0.name, "sitemanage")
+        self.assertEqual(cwd1.name, "WebUI")
+        self.assertEqual(cwd2, self.layout.root.resolve())
+        self.assertEqual(cwd3.name, "secure-membership")
+        self.assertEqual(cwd4.name, "perc-common-ui-bundle")
+        self.assertEqual(cwd5.name, "delivery-tier-distribution")
+        self.assertEqual(cwd6.name, "perc-openapi-webapp")
+        self.assertEqual(cwd7.name, "perc-distribution-tree")
+
+        # sitemanage with skip_tests
+        self.assertIn("-DskipTests", fake.calls[0]["argv"])
+        self.assertIn("install", fake.calls[0]["argv"])
+        self.assertIn("package", fake.calls[1]["argv"])
+        self.assertIn(qa_rebuild_chain.LICENSE_AGGREGATE_GOAL, fake.calls[2]["argv"])
+        self.assertIn("package", fake.calls[3]["argv"])
+        self.assertIn("package", fake.calls[4]["argv"])
+        self.assertIn("package", fake.calls[5]["argv"])
+        self.assertIn("package", fake.calls[6]["argv"])
+        self.assertIn("package", fake.calls[7]["argv"])
+        self.assertIn("RESULT:OK STEP:qa-rebuild-license-inventory", out)
+        self.assertIn("RESULT:OK STEP:qa-rebuild-secure-membership", out)
+        self.assertIn("RESULT:OK STEP:qa-rebuild-dts-distribution", out)
+        self.assertIn("RESULT:OK STEP:qa-rebuild-openapi-webapp", out)
+        self.assertIn("RESULT:OK STEP:qa-rebuild-chain", out)
+
+    def test_license_skipped_when_inventory_present(self):
+        inv = qa_rebuild_chain.maven_inventory_path(self.layout.root)
+        inv.parent.mkdir(parents=True, exist_ok=True)
+        inv.write_text("Apache License, Version 2.0\n", encoding="utf-8")
         fake = _FakeRun(returncodes=[0, 0, 0, 0, 0, 0, 0])
         buf = io.StringIO()
         with redirect_stdout(buf):
@@ -225,71 +299,13 @@ class TestRealModeStubbed(unittest.TestCase):
         out = buf.getvalue()
         self.assertEqual(rc, qa_rebuild_chain.EXIT_OK)
         self.assertEqual(len(fake.calls), 7)
-        for call in fake.calls:
-            self.assertIs(call.get("shell"), False)
-            self.assertIn("cwd", call)
-            argv = call["argv"]
-            self.assertTrue(
-                argv[0].endswith("mvnw") or argv[0].endswith("mvnw.cmd"),
-                msg=f"argv0 should be mvnw wrapper, got {argv[0]!r}",
-            )
-            self.assertNotIn("-N", argv)
-            self.assertNotIn("--non-recursive", argv)
-
-        # Order: sitemanage → WebUI → license → secure-membership
-        # → common-ui-bundle → dts-distribution → dist
-        cwd0 = Path(fake.calls[0]["cwd"])
-        cwd1 = Path(fake.calls[1]["cwd"])
-        cwd2 = Path(fake.calls[2]["cwd"])
-        cwd3 = Path(fake.calls[3]["cwd"])
-        cwd4 = Path(fake.calls[4]["cwd"])
-        cwd5 = Path(fake.calls[5]["cwd"])
-        cwd6 = Path(fake.calls[6]["cwd"])
-        self.assertEqual(cwd0.name, "sitemanage")
-        self.assertEqual(cwd1.name, "WebUI")
-        self.assertEqual(cwd2, self.layout.root.resolve())
-        self.assertEqual(cwd3.name, "secure-membership")
-        self.assertEqual(cwd4.name, "perc-common-ui-bundle")
-        self.assertEqual(cwd5.name, "delivery-tier-distribution")
-        self.assertEqual(cwd6.name, "perc-distribution-tree")
-
-        # sitemanage with skip_tests
-        self.assertIn("-DskipTests", fake.calls[0]["argv"])
-        self.assertIn("install", fake.calls[0]["argv"])
-        self.assertIn("package", fake.calls[1]["argv"])
-        self.assertIn(qa_rebuild_chain.LICENSE_AGGREGATE_GOAL, fake.calls[2]["argv"])
-        self.assertIn("package", fake.calls[3]["argv"])
-        self.assertIn("package", fake.calls[4]["argv"])
-        self.assertIn("package", fake.calls[5]["argv"])
-        self.assertIn("package", fake.calls[6]["argv"])
-        self.assertIn("RESULT:OK STEP:qa-rebuild-license-inventory", out)
-        self.assertIn("RESULT:OK STEP:qa-rebuild-secure-membership", out)
-        self.assertIn("RESULT:OK STEP:qa-rebuild-dts-distribution", out)
-        self.assertIn("RESULT:OK STEP:qa-rebuild-chain", out)
-
-    def test_license_skipped_when_inventory_present(self):
-        inv = qa_rebuild_chain.maven_inventory_path(self.layout.root)
-        inv.parent.mkdir(parents=True, exist_ok=True)
-        inv.write_text("Apache License, Version 2.0\n", encoding="utf-8")
-        fake = _FakeRun(returncodes=[0, 0, 0, 0, 0, 0])
-        buf = io.StringIO()
-        with redirect_stdout(buf):
-            rc = qa_rebuild_chain.run_chain(
-                self.layout.root,
-                dry_run=False,
-                skip_tests=True,
-                log_dir=self.layout.root / "docker" / "logs",
-                run_fn=fake,
-            )
-        out = buf.getvalue()
-        self.assertEqual(rc, qa_rebuild_chain.EXIT_OK)
-        self.assertEqual(len(fake.calls), 6)
         self.assertIn("SKIP STEP:qa-rebuild-license-inventory", out)
         self.assertIn("REASON:inventory-present", out)
         self.assertEqual(Path(fake.calls[2]["cwd"]).name, "secure-membership")
         self.assertEqual(Path(fake.calls[3]["cwd"]).name, "perc-common-ui-bundle")
         self.assertEqual(Path(fake.calls[4]["cwd"]).name, "delivery-tier-distribution")
-        self.assertEqual(Path(fake.calls[5]["cwd"]).name, "perc-distribution-tree")
+        self.assertEqual(Path(fake.calls[5]["cwd"]).name, "perc-openapi-webapp")
+        self.assertEqual(Path(fake.calls[6]["cwd"]).name, "perc-distribution-tree")
         for call in fake.calls:
             self.assertNotIn(qa_rebuild_chain.LICENSE_AGGREGATE_GOAL, call["argv"])
 
@@ -327,7 +343,7 @@ class TestRealModeStubbed(unittest.TestCase):
         jar = qa_rebuild_chain.dts_distribution_jar_path(self.layout.root)
         jar.parent.mkdir(parents=True, exist_ok=True)
         jar.write_bytes(b"fake-installer-bytes")
-        fake = _FakeRun(returncodes=[0, 0, 0, 0, 0, 0])
+        fake = _FakeRun(returncodes=[0, 0, 0, 0, 0, 0, 0])
         buf = io.StringIO()
         with redirect_stdout(buf):
             rc = qa_rebuild_chain.run_chain(
@@ -362,10 +378,87 @@ class TestRealModeStubbed(unittest.TestCase):
         self.assertEqual(rc, qa_rebuild_chain.EXIT_OK)
         cwd_names = [Path(c["cwd"]).name for c in fake.calls]
         self.assertIn("delivery-tier-distribution", cwd_names)
+        self.assertIn("perc-openapi-webapp", cwd_names)
         self.assertIn("RESULT:OK STEP:qa-rebuild-dts-distribution", out)
 
+    def test_openapi_webapp_step_is_pathlib_joined(self):
+        """#6703: /openapi WAR step uses pathlib joins, package -DskipTests."""
+        step = qa_rebuild_chain.openapi_webapp_step()
+        self.assertEqual(step.label, "qa-rebuild-openapi-webapp")
+        self.assertEqual(step.module_rel, qa_rebuild_chain.OPENAPI_WEBAPP_REL)
+        self.assertEqual(step.goals, ("package",))
+        self.assertIn("-DskipTests", step.extra_args)
+        # No hardcoded separators in the module-relative join.
+        self.assertEqual(
+            list(step.module_rel.parts),
+            ["modules", "perc-openapi-webapp"],
+        )
+
+    def test_openapi_runs_when_war_missing(self):
+        """#6703: fresh worktree (no target WAR) runs the openapi step."""
+        self.assertIsNone(
+            qa_rebuild_chain.openapi_webapp_war_path(self.layout.root)
+        )
+        fake = _FakeRun()
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = qa_rebuild_chain.run_chain(
+                self.layout.root,
+                dry_run=False,
+                skip_tests=True,
+                log_dir=self.layout.root / "docker" / "logs",
+                run_fn=fake,
+            )
+        out = buf.getvalue()
+        self.assertEqual(rc, qa_rebuild_chain.EXIT_OK)
+        cwd_names = [Path(c["cwd"]).name for c in fake.calls]
+        self.assertIn("perc-openapi-webapp", cwd_names)
+        self.assertIn("RESULT:OK STEP:qa-rebuild-openapi-webapp", out)
+
+    def test_openapi_skipped_when_war_present(self):
+        """#6703: built WAR skips the openapi step, dist still runs."""
+        target = (
+            self.layout.root
+            / qa_rebuild_chain.OPENAPI_WEBAPP_REL
+            / "target"
+        )
+        target.mkdir(parents=True, exist_ok=True)
+        (target / "perc-openapi-webapp-8.2.0-SNAPSHOT.war").write_bytes(
+            b"fake-war-bytes"
+        )
+        fake = _FakeRun(returncodes=[0] * 7)
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = qa_rebuild_chain.run_chain(
+                self.layout.root,
+                dry_run=False,
+                skip_tests=True,
+                log_dir=self.layout.root / "docker" / "logs",
+                run_fn=fake,
+            )
+        out = buf.getvalue()
+        self.assertEqual(rc, qa_rebuild_chain.EXIT_OK)
+        self.assertIn("SKIP STEP:qa-rebuild-openapi-webapp", out)
+        self.assertIn("REASON:openapi-webapp-present", out)
+        cwd_names = [Path(c["cwd"]).name for c in fake.calls]
+        self.assertNotIn("perc-openapi-webapp", cwd_names)
+        self.assertEqual(cwd_names[-1], "perc-distribution-tree")
+
+    def test_openapi_empty_war_is_not_present(self):
+        """#6703: a zero-byte WAR does not count as built."""
+        target = (
+            self.layout.root
+            / qa_rebuild_chain.OPENAPI_WEBAPP_REL
+            / "target"
+        )
+        target.mkdir(parents=True, exist_ok=True)
+        (target / "perc-openapi-webapp-8.2.0-SNAPSHOT.war").write_bytes(b"")
+        self.assertFalse(
+            qa_rebuild_chain.openapi_webapp_present(self.layout.root)
+        )
+
     def test_dist_only_runs_license_from_repo_root_when_missing(self):
-        fake = _FakeRun(returncodes=[0, 0, 0, 0, 0])
+        fake = _FakeRun(returncodes=[0, 0, 0, 0, 0, 0])
         buf = io.StringIO()
         with redirect_stdout(buf):
             rc = qa_rebuild_chain.run_chain(
@@ -377,14 +470,15 @@ class TestRealModeStubbed(unittest.TestCase):
             )
         out = buf.getvalue()
         self.assertEqual(rc, qa_rebuild_chain.EXIT_OK)
-        self.assertEqual(len(fake.calls), 5)
+        self.assertEqual(len(fake.calls), 6)
         self.assertEqual(Path(fake.calls[0]["cwd"]), self.layout.root.resolve())
         self.assertIn(qa_rebuild_chain.LICENSE_AGGREGATE_GOAL, fake.calls[0]["argv"])
         self.assertNotIn("-N", fake.calls[0]["argv"])
         self.assertEqual(Path(fake.calls[1]["cwd"]).name, "secure-membership")
         self.assertEqual(Path(fake.calls[2]["cwd"]).name, "perc-common-ui-bundle")
         self.assertEqual(Path(fake.calls[3]["cwd"]).name, "delivery-tier-distribution")
-        self.assertEqual(Path(fake.calls[4]["cwd"]).name, "perc-distribution-tree")
+        self.assertEqual(Path(fake.calls[4]["cwd"]).name, "perc-openapi-webapp")
+        self.assertEqual(Path(fake.calls[5]["cwd"]).name, "perc-distribution-tree")
         self.assertIn("RESULT:OK STEP:qa-rebuild-license-inventory", out)
 
     def test_license_failure_stops_dist(self):
@@ -518,6 +612,25 @@ class TestSkipReasonForStep(unittest.TestCase):
         self.assertIsNotNone(reason)
         assert reason is not None
         self.assertIn("dts-distribution-present", reason)
+
+    def test_openapi_webapp_reason_roundtrip(self):
+        step = self._step("qa-rebuild-openapi-webapp")
+        self.assertIsNone(
+            qa_rebuild_chain.skip_reason_for_step(step, self.layout.root)
+        )
+        target = (
+            self.layout.root
+            / qa_rebuild_chain.OPENAPI_WEBAPP_REL
+            / "target"
+        )
+        target.mkdir(parents=True, exist_ok=True)
+        (target / "perc-openapi-webapp-8.2.0-SNAPSHOT.war").write_bytes(
+            b"fake-war-bytes"
+        )
+        reason = qa_rebuild_chain.skip_reason_for_step(step, self.layout.root)
+        self.assertIsNotNone(reason)
+        assert reason is not None
+        self.assertIn("openapi-webapp-present", reason)
 
 
 class TestLicenseArgvBanned(unittest.TestCase):
