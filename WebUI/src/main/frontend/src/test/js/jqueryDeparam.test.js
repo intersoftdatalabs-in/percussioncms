@@ -31,6 +31,10 @@
  * building in PercNavigationManager). Fragment/hash-state, `$.bbq.*`,
  * `$.elemUrlAttr`, and `$.fn.*` helpers had zero repo-wide callers and are
  * intentionally not ported.
+ *
+ * Issue #6734 (parent audit #5627) additionally pins the upstream jQuery
+ * BBQ MIT notice retained in the shim source: a derived work must keep the
+ * original copyright and permission notice.
  */
 
 import { readFileSync } from "fs";
@@ -88,6 +92,19 @@ afterEach(() => {
 });
 
 describe("jquery.deparam.js first-party shim (issue #5663)", () => {
+  it("keeps the upstream jQuery BBQ MIT notice (issue #6734)", () => {
+    // The parse/merge algorithm is derived from MIT-licensed jQuery BBQ
+    // v1.1, so the file must retain Ben Alman's copyright and the MIT
+    // permission notice alongside the first-party header.
+    const src = readFileSync(SRC_PATH, "utf8");
+    expect(src).toContain('Copyright (c) 2010 "Cowboy" Ben Alman');
+    expect(src).toContain("Dual licensed under the MIT and GPL licenses");
+    expect(src).toContain("Permission is hereby granted");
+    expect(src).toContain(
+      "The above copyright notice and this permission notice shall be included",
+    );
+  });
+
   it("installs the BBQ query-string surface and nothing else", () => {
     expect(typeof $.deparam).toBe("function");
     expect(typeof $.deparam.querystring).toBe("function");
