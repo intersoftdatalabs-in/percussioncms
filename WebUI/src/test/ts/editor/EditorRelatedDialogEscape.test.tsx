@@ -143,3 +143,110 @@ describe("Editor related sub-dialogs Escape to cancel (#4532)", () => {
     expect(document.activeElement).toBe(opener);
   });
 });
+
+describe("Editor related sub-dialogs focus trap + accessible name (#6718)", () => {
+  afterEach(() => {
+    cleanup();
+  });
+
+  async function openTemplateDialog(): Promise<HTMLElement> {
+    render(<EditorRelatedContentPanel {...panelProps()} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-change-template")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-related-change-template"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-template-dialog")).toBeTruthy();
+    });
+    return screen.getByTestId("editor-related-template-dialog") as HTMLElement;
+  }
+
+  async function openSlotMoveDialog(): Promise<HTMLElement> {
+    render(<EditorRelatedContentPanel {...panelProps()} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-move-slot")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-related-move-slot"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-slot-move-dialog")).toBeTruthy();
+    });
+    return screen.getByTestId("editor-related-slot-move-dialog") as HTMLElement;
+  }
+
+  it("each sub-dialog exposes an accessible name", async () => {
+    render(<EditorRelatedContentPanel {...panelProps()} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-pick")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-related-pick"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-pick-dialog")).toBeTruthy();
+    });
+    expect(
+      screen.getByRole("dialog", { name: "Choose a page or asset" }),
+    ).toBeTruthy();
+    cleanup();
+
+    render(<EditorRelatedContentPanel {...panelProps()} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-quick-add")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-related-quick-add"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-related-quick-add-dialog")).toBeTruthy();
+    });
+    expect(
+      screen.getByRole("dialog", { name: "Create and attach a related item" }),
+    ).toBeTruthy();
+    cleanup();
+
+    await openTemplateDialog();
+    expect(
+      screen.getByRole("dialog", { name: "Change snippet template" }),
+    ).toBeTruthy();
+    cleanup();
+
+    await openSlotMoveDialog();
+    expect(
+      screen.getByRole("dialog", { name: "Move to another slot" }),
+    ).toBeTruthy();
+  });
+
+  it("opening the template dialog moves focus inside it", async () => {
+    const dialog = await openTemplateDialog();
+    await waitFor(() => {
+      expect(
+        dialog.contains(document.activeElement as Node | null),
+      ).toBe(true);
+    });
+  });
+
+  it("opening the slot-move dialog moves focus inside it", async () => {
+    const dialog = await openSlotMoveDialog();
+    await waitFor(() => {
+      expect(
+        dialog.contains(document.activeElement as Node | null),
+      ).toBe(true);
+    });
+  });
+
+  it("Tab on the last control wraps to the first, Shift+Tab wraps back", async () => {
+    const dialog = await openTemplateDialog();
+    await waitFor(() => {
+      expect(
+        dialog.contains(document.activeElement as Node | null),
+      ).toBe(true);
+    });
+    const select = screen.getByTestId(
+      "editor-related-template-select",
+    ) as HTMLElement;
+    const apply = screen.getByTestId(
+      "editor-related-template-apply",
+    ) as HTMLElement;
+    apply.focus();
+    fireEvent.keyDown(apply, { key: "Tab" });
+    expect(document.activeElement).toBe(select);
+    fireEvent.keyDown(select, { key: "Tab", shiftKey: true });
+    expect(document.activeElement).toBe(apply);
+  });
+});

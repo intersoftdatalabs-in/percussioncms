@@ -240,6 +240,25 @@ async function openEditor(page) {
   await expect(page.locator('[data-testid="editor-related-panel"]')).toBeVisible();
 }
 
+/**
+ * #6718: with a sub-dialog open, focus must be inside it and the axe
+ * gate must pass scoped to the open dialog.
+ */
+async function assertDialogOpenA11y(page, dialogTestId) {
+  const dialog = page.getByTestId(dialogTestId);
+  await expect(dialog).toBeVisible();
+  await expect
+    .poll(
+      async () =>
+        dialog.evaluate((el) => el.contains(document.activeElement)),
+      { timeout: 10_000 },
+    )
+    .toBe(true);
+  await expectNoSeriousA11yViolations(page, {
+    scope: `[data-testid="${dialogTestId}"]`,
+  });
+}
+
 test.describe("EditorHost related sub-dialogs Escape to cancel", () => {
   test.beforeEach(async ({ page }) => {
     test.setTimeout(45_000);
@@ -253,7 +272,7 @@ test.describe("EditorHost related sub-dialogs Escape to cancel", () => {
       const { pageErrors, consoleErrors } = watch(page);
       await openEditor(page);
       await page.getByTestId("editor-related-change-template").click();
-      await expect(page.getByTestId("editor-related-template-dialog")).toBeVisible();
+      await assertDialogOpenA11y(page, "editor-related-template-dialog");
       await page
         .getByTestId("editor-related-template-dialog")
         .evaluate((el) => {
@@ -276,7 +295,7 @@ test.describe("EditorHost related sub-dialogs Escape to cancel", () => {
       const { pageErrors, consoleErrors } = watch(page);
       await openEditor(page);
       await page.getByTestId("editor-related-move-slot").click();
-      await expect(page.getByTestId("editor-related-slot-move-dialog")).toBeVisible();
+      await assertDialogOpenA11y(page, "editor-related-slot-move-dialog");
       await page.keyboard.press("Escape");
       await expect(page.getByTestId("editor-related-slot-move-dialog")).toHaveCount(0);
       await expect(page.getByTestId("editor-related-move-slot")).toBeFocused();
@@ -291,7 +310,7 @@ test.describe("EditorHost related sub-dialogs Escape to cancel", () => {
       const { pageErrors, consoleErrors } = watch(page);
       await openEditor(page);
       await page.getByTestId("editor-related-pick").click();
-      await expect(page.getByTestId("editor-related-pick-dialog")).toBeVisible();
+      await assertDialogOpenA11y(page, "editor-related-pick-dialog");
       // Escape is ignored while the picker is busy (peer hook contract);
       // wait out the folder load like a real keypress would.
       await expect(page.getByTestId("editor-related-pick-loading")).toHaveCount(0);
@@ -309,7 +328,7 @@ test.describe("EditorHost related sub-dialogs Escape to cancel", () => {
       const { pageErrors, consoleErrors } = watch(page);
       await openEditor(page);
       await page.getByTestId("editor-related-quick-add").click();
-      await expect(page.getByTestId("editor-related-quick-add-dialog")).toBeVisible();
+      await assertDialogOpenA11y(page, "editor-related-quick-add-dialog");
       await page.keyboard.press("Escape");
       await expect(page.getByTestId("editor-related-quick-add-dialog")).toHaveCount(0);
       await expect(page.getByTestId("editor-related-quick-add")).toBeFocused();
