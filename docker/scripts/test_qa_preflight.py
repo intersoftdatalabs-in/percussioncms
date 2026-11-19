@@ -16,6 +16,7 @@ import os
 import sys
 import tempfile
 import unittest
+from unittest import mock
 import zipfile
 from contextlib import redirect_stdout
 from pathlib import Path
@@ -409,9 +410,15 @@ class TestPreflightNoOp(unittest.TestCase):
         self.assertIn("NOTE", report)
 
     def test_default_m2_root_is_home_m2(self):
-        # The default resolver should point at ~/.m2/repository regardless of cwd.
-        resolved = qa_preflight._default_m2_root()
-        self.assertTrue(str(resolved).replace("\\", "/").endswith(".m2/repository"))
+        # With no Maven override anywhere, the resolver falls back to ~/.m2/repository.
+        with tempfile.TemporaryDirectory() as td, mock.patch.dict(
+            os.environ,
+            {"HOME": td, "USERPROFILE": td, "MAVEN_SKIP_RC": "1"},
+        ):
+            os.environ.pop("MAVEN_ARGS", None)
+            os.environ.pop("MAVEN_OPTS", None)
+            resolved = qa_preflight._default_m2_root(Path(td))
+            self.assertEqual(resolved, Path(td) / ".m2" / "repository")
 
 
 class TestPreflightNoArtifacts(unittest.TestCase):
