@@ -620,7 +620,7 @@
 
         // Get array of lowercase keywords
         keywords = !settings.keywords ? [] : $.map(settings.keywords.split(','), function(a) {
-            return $.trim(a.toLowerCase());
+            return a.toLowerCase().trim();
         });
 
         // Set color string
@@ -1057,7 +1057,7 @@
 
             // Get array of lowercase keywords
             keywords = !settings.keywords ? [] : $.map(settings.keywords.split(','), function(a) {
-                return $.trim(a.toLowerCase());
+                return a.toLowerCase().trim();
             });
 
             // Set color string
