@@ -243,7 +243,10 @@ import org.junit.jupiter.api.Test;
  * lacks the {@code swatches}/{@code keywords} surface the
  * {@code percCalendarTwo} editor consumes), so byte-identical npm-tracking
  * is impossible and the pair stays pinned as documented vendored code,
- * same precedent as the nav hoverIntent row.
+ * same precedent as the nav hoverIntent row. (Superseded by slice 14
+ * below, which migrates the twins to
+ * {@code @claviska/jquery-minicolors@2.2.4} plus the documented jQuery 4
+ * trim patch.)
  *
  * <p>Slice 13 (issue #6654, parent #6522) drops the
  * {@code perc.responsiveTemplates} package (Foundation 4.x, 2013, EOL) per
@@ -291,16 +294,22 @@ import org.junit.jupiter.api.Test;
  * {@code @claviska} line is the same author's continuation and 2.2.4 is
  * the closest published ancestor of the vendored cut — normalized
  * comparison shows the twins were 2.2.4 modulo a prettier reformatting
- * and the prepended Percussion header, with zero functional Percussion
- * mods. Both JS twins and both CSS twins are now byte-identical to the
- * stock 2.2.4 dist (upstream MIT banner restored, Percussion header
- * dropped, same precedent as the superfish/qTip/lightbox slices); the
+ * and the prepended Percussion header, plus the Percussion jQuery 4
+ * trim fix ({@code $.trim(a.toLowerCase())} replaced with native
+ * {@code a.toLowerCase().trim()} in the two keyword paths, since
+ * {@code $.trim} was removed in jQuery 4). Both CSS twins are now
+ * byte-identical to the stock 2.2.4 dist and both JS twins are stock
+ * 2.2.4 plus exactly that documented two-hunk trim patch (upstream MIT
+ * banner restored, Percussion header dropped, same precedent as the
+ * superfish/qTip/lightbox slices); the
  * 2.2.4 CSS keeps the stock data-URI sprite, so no
  * {@code jquery.minicolors.png} ships in the payload. The frontend
- * vitest parity test pins byte-identity of all four files, the manifest
+ * vitest parity test pins byte-identity of the CSS twins,
+ * stock-plus-patch reconstruction of the JS twins, the manifest
  * pin, the MIT license, and the editor-consumed behavior (init with the
  * {@code percCalendarTwo.js} option shape, swatch render, swatch-click
- * persistence, value round-trip). Evaluated and deferred: the
+ * persistence, value round-trip, and non-empty {@code keywords} init
+ * under jQuery 4 without {@code $.trim}). Evaluated and deferred: the
  * {@code 2.2.4 -> 2.3.6} upstream delta (removed 7-swatch cap, named
  * swatches, dropped data-URI sprite in favor of an external png,
  * focus-class restyle) changes editor rendering and needs its own

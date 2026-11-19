@@ -46,13 +46,19 @@
  * Slice 9 (issue #6522) migrates the calendar qTip twins below to the npm
  * qtip2@3.0.3 dist with the two snippet call sites moved to the qTip2
  * options shape. The rest of the #6522 rows (v1 calendar widget,
- * nav hoverIntent, MiniColors twins, Foundation 4.x) stay vendored pending
+ * nav hoverIntent, Foundation 4.x) stay vendored pending
  * replace-or-drop decisions or legal sign-off. Slice 12 (issue #6564)
  * drops the v1 percCalendar widget per the recorded maintainer Drop
  * decision — its qTip copy and snippet call site are gone, so the parity
- * block below covers the calendarTwo copy only. MiniColors stays vendored
- * under the recorded MIT-ok ruling (upstream is MIT-licensed; no published
- * npm dist matches the payload's swatches/keywords surface).
+ * block below covers the calendarTwo copy only. Slice 14 (issue #6686)
+ * migrates the MiniColors twins to the npm
+ * @claviska/jquery-minicolors@2.2.4 dist (same author's continuation
+ * line — the unscoped registry holds only 2.1.10, which predates the
+ * swatches/keywords surface) plus the documented jQuery 4 trim patch:
+ * the payload JS twins differ from stock 2.2.4 in exactly the two
+ * `$.trim(a.toLowerCase())` → `a.toLowerCase().trim()` hunks (`$.trim`
+ * was removed in jQuery 4, which the WebUI ships), pinned below by
+ * stock-plus-patch reconstruction rather than byte-identity.
  *
  * Slice 14 (issue #6689, parent #6522, spike #6655 follow-on) carries
  * the nav hoverIntent bytes (classic briancherne 1.x, MIT-licensed) under
@@ -1868,12 +1874,43 @@ const MINICOLORS_CSS_PAYLOADS = [
   },
 ];
 
+// Documented jQuery 4 patch carried by the payload JS twins (issue
+// #6686): `$.trim` was removed in jQuery 4 (WebUI ships jquery ^4.0.0),
+// so any picker initialized with non-empty `keywords` threw
+// `$.trim is not a function` on stock 2.2.4. The payload restores the
+// pre-rebase Percussion fix — native `String.trim` — in exactly the two
+// keyword paths (init + updateFromInput). Reconstruction pins both the
+// stock bytes and the patch: any silent mod loss or drift fails loudly.
+const MINICOLORS_JQUERY4_TRIM_PATCH = {
+  stock: "$.trim(a.toLowerCase())",
+  patched: "a.toLowerCase().trim()",
+  occurrences: 2,
+};
+
+function stockMinicolorsWithJquery4TrimPatch(distSource, distLabel) {
+  const seen =
+    distSource.split(MINICOLORS_JQUERY4_TRIM_PATCH.stock).length - 1;
+  expect(
+    seen,
+    `${distLabel} no longer carries the expected ` +
+      `${MINICOLORS_JQUERY4_TRIM_PATCH.occurrences}x patched keyword ` +
+      `paths — re-verify against the published 2.2.4 tarball`,
+  ).toBe(MINICOLORS_JQUERY4_TRIM_PATCH.occurrences);
+  return distSource
+    .split(MINICOLORS_JQUERY4_TRIM_PATCH.stock)
+    .join(MINICOLORS_JQUERY4_TRIM_PATCH.patched);
+}
+
 function loadMinicolorsPayloadAsJqueryPlugin(payloadRelPath) {
   // The UMD dist closes over bare `jQuery` (browser-globals branch under
   // `window.eval`), so expose the jsdom-bound jQuery globally before
   // evaluating the payload bytes verbatim (same pattern as the
-  // superfish/slick loaders above). No jquery-migrate needed: the 2.2.4
-  // cut uses no jQuery-removed APIs (no jQuery.type/browser/live/size).
+  // superfish/slick loaders above). No jquery-migrate needed: the payload
+  // carries the documented jQuery 4 trim patch (native
+  // `a.toLowerCase().trim()` in the two keyword paths — `$.trim` was
+  // removed in jQuery 4, which the WebUI ships), so the only other
+  // jQuery-removed APIs (jQuery.type/browser/live/size) are absent and the
+  // stock 2.2.4 remainder runs unmodified.
   const $ = require(path.join(NODE_MODULES, "jquery", "dist", "jquery.js"));
   globalThis.jQuery = $;
   window.jQuery = $;
@@ -1903,13 +1940,33 @@ describe("widget-payload npm refresh parity (issue #6686: minicolors)", () => {
     }
   });
 
-  it("calendarTwo editor MiniColors payload bytes are byte-identical to the npm @claviska/jquery-minicolors dist", () => {
-    for (const { payload, npmDist } of [...MINICOLORS_PAYLOADS, ...MINICOLORS_CSS_PAYLOADS]) {
+  it("calendarTwo editor MiniColors payload CSS bytes are byte-identical to the npm @claviska/jquery-minicolors dist", () => {
+    for (const { payload, npmDist } of MINICOLORS_CSS_PAYLOADS) {
       const shipped = fs.readFileSync(path.join(REPO_ROOT, payload));
       const dist = fs.readFileSync(path.join(NODE_MODULES, npmDist));
       expect(
         shipped.equals(dist),
         `${payload} drifted from node_modules/${npmDist} — refresh from npm`,
+      ).toBe(true);
+    }
+  });
+
+  it("calendarTwo editor MiniColors payload JS bytes equal stock 2.2.4 plus the documented jQuery 4 trim patch", () => {
+    for (const { payload, npmDist } of MINICOLORS_PAYLOADS) {
+      const shipped = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
+      const dist = fs.readFileSync(path.join(NODE_MODULES, npmDist), "utf8");
+      const expected = stockMinicolorsWithJquery4TrimPatch(
+        dist,
+        `node_modules/${npmDist}`,
+      );
+      expect(
+        shipped === expected,
+        `${payload} is not stock node_modules/${npmDist} plus the ` +
+          `documented jQuery 4 trim patch (exactly ` +
+          `${MINICOLORS_JQUERY4_TRIM_PATCH.occurrences}x ` +
+          `"${MINICOLORS_JQUERY4_TRIM_PATCH.stock}" → ` +
+          `"${MINICOLORS_JQUERY4_TRIM_PATCH.patched}") — refresh from npm ` +
+          `and re-apply the patch`,
       ).toBe(true);
     }
   });
@@ -1955,10 +2012,10 @@ describe("widget-payload npm refresh parity (issue #6686: minicolors)", () => {
     const manifest = JSON.parse(
       fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
     );
-    // Exact pin (not a caret): the payloads are byte-identical to the 2.2.4
-    // dist, which is the closest published ancestor of the retired vendored
-    // cut (the registry's unscoped 2.1.10 lacks the swatches/keywords
-    // surface the editor consumes). Dependabot proposes 2.2.5+ through the
+    // Exact pin (not a caret): the payloads are the 2.2.4 dist plus the
+    // documented jQuery 4 trim patch, and 2.2.4 is the closest published
+    // ancestor of the retired vendored cut (the registry's unscoped 2.1.10
+    // lacks the swatches/keywords surface the editor consumes). Dependabot proposes 2.2.5+ through the
     // normal update flow; the 2.2.4 -> 2.3.6 delta (removed 7-swatch cap,
     // named swatches, dropped data-URI sprite) needs its own editor-parity
     // slice when taken.
@@ -2043,6 +2100,42 @@ describe("widget-payload npm refresh parity (issue #6686: minicolors)", () => {
       // Programmatic set round-trips through the value getter.
       element.minicolors("value", "#ff0000");
       expect(element.minicolors("value")).toBe("#ff0000");
+      document.body.innerHTML = "";
+    },
+  );
+
+  it.each(MINICOLORS_PAYLOADS.map(({ payload }) => payload))(
+    "editor copy %s initializes with non-empty keywords under jQuery 4 (native trim patch)",
+    (payloadRelPath) => {
+      const $ = loadMinicolorsPayloadAsJqueryPlugin(payloadRelPath);
+      // Simulate the production pages: CMS jQuery 4 WITHOUT jquery-migrate
+      // (an earlier block in this file loads migrate, which restores
+      // $.trim — delete it so this test proves the payload survives its
+      // absence; stock 2.2.4 throws `$.trim is not a function` here).
+      delete $.trim;
+      expect(typeof $.trim).toBe("undefined");
+      renderCalendarColorInput(document, "perc-keywords-input", "transparent");
+      const element = $("#perc-keywords-input").minicolors({
+        control: "hue",
+        defaultValue: "",
+        format: "hex",
+        keywords: "transparent, initial",
+        inline: false,
+        letterCase: "lowercase",
+        opacity: false,
+        position: "top left",
+        swatches: [],
+        change: function () {},
+        theme: "default",
+      });
+      expect(element.length).toBe(1);
+      // Both patched lines executed: init parsed the keywords (keyword
+      // value kept instead of falling back to defaultValue)...
+      expect(element.minicolors("value")).toBe("transparent");
+      // ...and the blur/updateFromInput path re-parses them without
+      // throwing (`$.trim is not a function` on stock 2.2.4).
+      $("#perc-keywords-input").trigger("blur");
+      expect(element.minicolors("value")).toBe("transparent");
       document.body.innerHTML = "";
     },
   );
