@@ -37,7 +37,7 @@
 
 - [x] T014 Standalone `clean install` on every changed module; record BUILD SUCCESS — tracked by #6154 (docs + Playwright-test-only change: no Maven module sources touched; WebUI Vitest + H2 surface run are the gates — see PR body)
 - [x] T015 Erlang pre-commit review; fix hard-gate findings — tracked by #6154
-- [x] T016 Record closeout note linking evidence (battery results, T011/T012 decisions, #6104 state, #6110 disposition); tick boxes — tracked by #6154 (`checklists/closeout.md`; #6104 OPEN p3 owns T011)
+- [x] T016 Record closeout note linking evidence (battery results, T011/T012 decisions, #6104 state, #6110 disposition); tick boxes — tracked by #6154 (`checklists/closeout.md`; #6104 CLOSED 2026-11-13 via #6299)
 - [x] T017 Open implementation PR (or no-PR closeout if WP1 finds zero gaps and WP2 defers with rationale); pause for review/merge — tracked by #6154
 
 ## Dependencies

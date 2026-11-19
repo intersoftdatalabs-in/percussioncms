@@ -1,6 +1,6 @@
 # Plan: React Active Assembly (996) — verify preview host, decide #6104 + Compare
 
-**Spec**: `spec.md` (this directory) · **Issue track**: #3475 (CLOSED, scalar overlay), #6104 (OPEN, related-content menu parity)
+**Spec**: `spec.md` (this directory) · **Issue track**: #3475 (CLOSED, scalar overlay), #6104 (CLOSED 2026-11-13 via #6299, related-content menu parity)
 **Branch**: `spec-plan-995-996` (planning only; implementation branches per phase)
 
 ## Goal
@@ -17,7 +17,7 @@ Prove the preview-first host + slot ops + scalar overlay work end-to-end (FR-001
 | FR-004 | Slot add/create/arrange via canvas relationship REST (selected slot; relationship id for arrange) | Shipped (#3480 lineage) — verify |
 | FR-005 | Scalar contenteditable overlay persists via itemmanagement | Shipped (#3475 CLOSED) — verify |
 | FR-006 | Denied/failed ops message; no silent loss | Shipped pattern — verify |
-| FR-007 | Related-content menu parity replacing `updaterelateditems.html` (R17) | OPEN issue #6104 — build or recorded reduced-scope decision |
+| FR-007 | Related-content menu parity replacing `updaterelateditems.html` (R17) | SHIPPED — #6104 CLOSED 2026-11-13 (reduced-scope decision + deferred slices #6224/#6225 via #6231/#6247; closeout #6299 `Fixes #6104`) |
 | FR-008 | Compare (`sys_Compare`) add-on | DEFERRED — decision recorded in spec + `checklists/closeout.md` T012 (#6105, via #6154); spec no longer promises it |
 
 Out of scope (spec): Explorer browse, Publish Now, revisions, translations, purge, Arrange_* from folder browse with no slot, Content Editor forms, dual-shipping Dojo AA JSPs.
