@@ -19,11 +19,18 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { MenuAction, PSPathItem } from "../../../main/ts/api/contentExplorer/types";
 
 const findChildren = vi.hoisted(() => vi.fn());
+const safeNavigateMock = vi.hoisted(() => vi.fn());
 
 vi.mock("../../../main/ts/api/contentExplorer/pathApi", async (importOriginal) => {
   const actual =
     await importOriginal<typeof import("../../../main/ts/api/contentExplorer/pathApi")>();
   return { ...actual, findChildren };
+});
+
+vi.mock("../../../main/ts/util/safeNavigate", async (importOriginal) => {
+  const actual =
+    await importOriginal<typeof import("../../../main/ts/util/safeNavigate")>();
+  return { ...actual, safeNavigate: safeNavigateMock };
 });
 
 import * as itemWorkflowApi from "../../../main/ts/api/contentExplorer/itemWorkflowApi";
@@ -4506,5 +4513,105 @@ describe("actionDispatch recycled-row context-menu Purge (#6254)", () => {
     });
     expect(onPurge).not.toHaveBeenCalled();
     expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+  });
+});
+
+describe("actionDispatch dispatcher fallthrough and thin branches (#6649)", () => {
+  it("unknown action falls through to client with no banner", async () => {
+    const result = await dispatchAction(action({ name: "Zzz_No_Such_Action" }), {
+      item: item(),
+    });
+    expect(result).toEqual({ kind: "client" });
+  });
+
+  it("Open calls back and stays client", async () => {
+    const onOpen = vi.fn();
+    const row = item();
+    const result = await dispatchAction(action({ name: "Open" }), {
+      item: row,
+      onOpen,
+    });
+    expect(result).toEqual({ kind: "client" });
+    expect(onOpen).toHaveBeenCalledWith(row);
+  });
+
+  it("Open without a callback stays client", async () => {
+    const result = await dispatchAction(action({ name: "Open" }), {
+      item: item(),
+    });
+    expect(result).toEqual({ kind: "client" });
+  });
+
+  it("Edit Properties opens the panel read-write, View Properties read-only", async () => {
+    const onShowItemProperties = vi.fn();
+    const edit = await dispatchAction(action({ name: "Edit_Properties" }), {
+      item: item(),
+      onShowItemProperties,
+    });
+    const view = await dispatchAction(action({ name: "View_Properties" }), {
+      item: item(),
+      onShowItemProperties,
+    });
+    expect(edit.kind).toBe("client");
+    expect(view.kind).toBe("client");
+    expect(onShowItemProperties).toHaveBeenNthCalledWith(1, false);
+    expect(onShowItemProperties).toHaveBeenNthCalledWith(2, true);
+  });
+
+  it("Properties on a folder asks for a content item", async () => {
+    const onShowItemProperties = vi.fn();
+    const result = await dispatchAction(action({ name: "Edit_Properties" }), {
+      item: item({ type: "Folder" }),
+      onShowItemProperties,
+    });
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_ITEM);
+    expect(onShowItemProperties).not.toHaveBeenCalled();
+  });
+
+  it("unavailable catalog action stays unavailable", async () => {
+    const result = await dispatchAction(
+      action({ name: "Compare", url: "../sys_Compare/compare.html" }),
+      { item: item() },
+    );
+    expect(result.kind).toBe("unavailable");
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_UNAVAILABLE);
+  });
+
+  it("legacy lifecycle URL navigates through the safe guard", async () => {
+    safeNavigateMock.mockReturnValue({
+      ok: true,
+      href: "/Rhythmyx/help/lifecycle.html",
+    });
+    const result = await dispatchAction(
+      action({
+        name: "Lifecycle_Analysis",
+        url: "/Rhythmyx/help/lifecycle.html",
+      }),
+      { item: item() },
+    );
+    expect(result.kind).toBe("legacy-file");
+    expect(safeNavigateMock).toHaveBeenCalledWith(
+      "/Rhythmyx/help/lifecycle.html",
+      expect.any(String),
+    );
+  });
+
+  it("legacy javascript: URL is rejected without navigating", async () => {
+    safeNavigateMock.mockReturnValue({ ok: false, reason: "javascript:" });
+    const result = await dispatchAction(
+      action({ name: "Lifecycle_Analysis", url: "javascript:alert(1)" }),
+      { item: item() },
+    );
+    expect(result.kind).toBe("legacy-file");
+    expect(safeNavigateMock).not.toHaveBeenCalled();
+  });
+
+  it("New Item host with no folder asks for a folder", async () => {
+    const result = await dispatchAction(action({ name: "Create_New_Item" }), {
+      item: null,
+      folderPath: null,
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.messageKey).toBe(EXPLORER_MSG.ACTION_NEEDS_FOLDER);
   });
 });

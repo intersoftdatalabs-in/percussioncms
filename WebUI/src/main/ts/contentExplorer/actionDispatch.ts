@@ -1878,113 +1878,1081 @@ function defaultOpenWindow(
   return window.open(url, target ?? "_blank", features ?? "noopener,noreferrer");
 }
 
-export async function dispatchAction(
+
+/** Shared snapshot for the dispatchAction branch table. */
+interface DispatchSeen {
+  kind: ActionKind;
+  item: PSPathItem | null | undefined;
+  name: string;
+}
+
+type DispatchBranch = (
   action: MenuAction,
   ctx: ActionDispatchContext,
-): Promise<ActionDispatchResult> {
-  const kind = classifyAction(action);
-  const item = ctx.item;
+  seen: DispatchSeen,
+) => ActionDispatchResult | undefined | Promise<ActionDispatchResult | undefined>;
 
-  if (kind === "workflow") {
-    const trigger = parseWorkflowTransitionTrigger(action.name);
-    if (trigger == null) {
-      return { kind, messageKey: EXPLORER_MSG.WORKFLOW_TRANSITION_FAILED };
+/** Maps an HTTP failure to the branch message key; undefined means rethrow. */
+function matchApiStatus(
+  err: unknown,
+  keysByStatus: Partial<Record<400 | 403 | 404 | 409, string>>,
+): string | undefined {
+  if (!isApiError(err)) {
+    return undefined;
+  }
+  return keysByStatus[err.status as 400 | 403 | 404 | 409];
+}
+
+/** Workflow single-transition HTTP mapping (400 rejected, 403 forbidden, 409 conflict). */
+function workflowErrorKey(err: unknown): string | undefined {
+  return matchApiStatus(err, {
+    400: EXPLORER_MSG.WORKFLOW_TRANSITION_REJECTED,
+    403: EXPLORER_MSG.WORKFLOW_TRANSITION_FORBIDDEN,
+    409: EXPLORER_MSG.WORKFLOW_TRANSITION_CONFLICT,
+  });
+}
+
+/** Recycled-row HTTP mapping (403 permission, 404 gone, 409 conflict). */
+function recycledFailureKey(
+  status: number,
+  notFoundKey: string,
+  conflictKey: string,
+): string {
+  if (status === 404) {
+    return notFoundKey;
+  }
+  if (status === 409) {
+    return conflictKey;
+  }
+  return EXPLORER_MSG.PERMISSION_DENIED;
+}
+
+/**
+ * Recycled-row HTTP failure result (403 permission, 404 gone, 409
+ * conflict). Returns undefined when the error is not a named row failure
+ * so the caller keeps the previous generic error path.
+ */
+function recycledRowFailure(
+  err: unknown,
+  statuses: readonly number[],
+  label: string,
+  notFoundKey: string,
+  conflictKey: string,
+): ActionDispatchResult | undefined {
+  if (!isApiError(err)) {
+    return undefined;
+  }
+  if (!statuses.includes(err.status)) {
+    return undefined;
+  }
+  const key = recycledFailureKey(err.status, notFoundKey, conflictKey);
+  return {
+    kind: "rest",
+    messageKey: key,
+    messageText: `${message(key)} — ${label} (HTTP ${err.status})`,
+  };
+}
+
+/**
+ * Names an HTTP failure for single-item publish actions that stay on the
+ * row instead of the generic error path. Undefined means rethrow.
+ */
+function httpFailureDetail(
+  err: unknown,
+  statuses: readonly number[],
+  label: string,
+): string | undefined {
+  if (!isApiError(err)) {
+    return undefined;
+  }
+  if (!statuses.includes(err.status)) {
+    return undefined;
+  }
+  return `${label} (HTTP ${err.status})`;
+}
+
+/** Workflow transition actions (single + multi-select). */
+async function handleWorkflowAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+  seen: DispatchSeen,
+): Promise<ActionDispatchResult | undefined> {
+  const { kind, item } = seen;
+  if (kind !== "workflow") {
+    return undefined;
+  }
+  const trigger = parseWorkflowTransitionTrigger(action.name);
+  if (trigger == null) {
+    return { kind, messageKey: EXPLORER_MSG.WORKFLOW_TRANSITION_FAILED };
+  }
+  const multi = ctx.selectedItems ?? [];
+  if (multi.length >= 2) {
+    return transitionMultiSelection(
+      ctx,
+      multi,
+      trigger,
+      action.commentRequired === true,
+    );
+  }
+  return runSingleWorkflowTransition(
+    ctx,
+    item,
+    trigger,
+    action.commentRequired === true,
+  );
+}
+
+async function runSingleWorkflowTransition(
+  ctx: ActionDispatchContext,
+  item: PSPathItem | null | undefined,
+  trigger: string,
+  commentRequired: boolean,
+): Promise<ActionDispatchResult> {
+  const kind = "workflow" as const;
+  if (!item?.id) {
+    return { kind, messageKey: EXPLORER_MSG.WORKFLOW_TRANSITION_FAILED };
+  }
+  let comment: string | undefined;
+  if (commentRequired) {
+    const entered = promptWorkflowComment(ctx, trigger);
+    if (entered == null) {
+      return { kind, messageKey: EXPLORER_MSG.WORKFLOW_COMMENT_REQUIRED };
     }
-    const multi = ctx.selectedItems ?? [];
-    if (multi.length >= 2) {
-      return transitionMultiSelection(ctx, multi, trigger, action.commentRequired === true);
+    comment = entered;
+  }
+  try {
+    if (ctx.runWorkflow) {
+      await ctx.runWorkflow(String(item.id), trigger, comment);
     }
-    if (!item?.id) {
-      return { kind, messageKey: EXPLORER_MSG.WORKFLOW_TRANSITION_FAILED };
+  } catch (err: unknown) {
+    const messageKey = workflowErrorKey(err);
+    if (messageKey) {
+      return { kind, messageKey };
     }
-    let comment: string | undefined;
-    if (action.commentRequired === true) {
-      const entered = promptWorkflowComment(ctx, trigger);
-      if (entered == null) {
-        return { kind, messageKey: EXPLORER_MSG.WORKFLOW_COMMENT_REQUIRED };
-      }
-      comment = entered;
+    throw err;
+  }
+  return { kind, refresh: true };
+}
+
+/** New content-item creation host (type picker, template picker, editor open). */
+async function handleNewItemAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+  seen: DispatchSeen,
+): Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
+  if (!isNewItemAction(action, ctx.parentName)) {
+    return undefined;
+  }
+  const folder = resolveFolderPathFromSelection(
+    ctx.folderPath,
+    item?.path,
+    item?.type,
+  );
+  if (!folder) {
+    return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_FOLDER };
+  }
+  const resolved = await resolveNewItemContentType(action, ctx);
+  if (resolved.cancelled) {
+    return { kind: "rest" };
+  }
+  if (!resolved.contentType) {
+    return {
+      kind: "rest",
+      messageKey: resolved.messageKey ?? EXPLORER_MSG.ACTION_NEEDS_TYPE,
+    };
+  }
+  const contentType = resolved.contentType;
+  const template = await resolveNewItemTemplate(ctx, folder, contentType);
+  if (template.cancelled) {
+    return { kind: "rest" };
+  }
+  if (template.messageKey) {
+    return { kind: "rest", messageKey: template.messageKey };
+  }
+  const create = ctx.createItem ?? createEditorItem;
+  const created = await create({
+    contentType,
+    folderPath: folder,
+    templateId: template.templateId,
+  });
+  const contentId = parseExplorerContentId(created.itemId);
+  if (contentId == null) {
+    return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_EDITOR_UNAVAILABLE };
+  }
+  const open = ctx.openWindow ?? defaultOpenWindow;
+  open(
+    buildEditorHostUrl(contentId, "edit"),
+    editorWindowName(contentId),
+    EDITOR_WINDOW_FEATURES,
+  );
+  return { kind: "rest", refresh: true };
+}
+
+/** Page-template choice for a new page; cancelled stops, messageKey explains why. */
+async function resolveNewItemTemplate(
+  ctx: ActionDispatchContext,
+  folder: string,
+  contentType: string,
+): Promise<{ templateId?: string; messageKey?: string; cancelled?: boolean }> {
+  if (!isExplorerPageType(contentType)) {
+    return {};
+  }
+  const load = ctx.loadPageTemplates ?? loadPageTemplates;
+  const templates = await load(folder, contentType);
+  if (templates.length === 0) {
+    return { messageKey: EXPLORER_MSG.ACTION_NEEDS_TEMPLATE };
+  }
+  if (templates.length === 1) {
+    return { templateId: templates[0]?.id };
+  }
+  if (!ctx.pickPageTemplate) {
+    return { messageKey: EXPLORER_MSG.ACTION_NEEDS_TEMPLATE };
+  }
+  const picked = await ctx.pickPageTemplate(templates);
+  if (!picked) {
+    return { cancelled: true };
+  }
+  return { templateId: picked };
+}
+
+/** Slot actions delegate to the slot dispatcher. */
+async function handleSlotAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+): Promise<ActionDispatchResult | undefined> {
+  if (!isSlotActionName(normalizeActionName(action.name))) {
+    return undefined;
+  }
+  return dispatchSlotAction(action, ctx);
+}
+
+/** Actions the catalog marks unavailable. */
+async function handleUnavailableAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+  seen: DispatchSeen,
+): Promise<ActionDispatchResult | undefined> {
+  const { kind } = seen;
+  if (kind !== "unavailable") {
+    return undefined;
+  }
+  return { kind, messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+}
+
+/**
+ * Shared incremental-queue target validation. Returns the failure result, or
+ * undefined when the selection may proceed.
+ */
+function incrementalTargetError(
+  item: PSPathItem | null | undefined,
+  id: string,
+  keys: { folder: string; empty: string; notItem: string },
+): ActionDispatchResult | undefined {
+  const folderName = (item?.name ?? item?.path ?? "folder").trim() || "folder";
+  if (item && isFolder(item)) {
+    return {
+      kind: "rest",
+      messageText: `${message(keys.folder)}: ${folderName}`,
+    };
+  }
+  if (!item || id.length === 0) {
+    return {
+      kind: "rest",
+      messageText: `${message(keys.empty)}`,
+    };
+  }
+  if (resolvePublishKind(item) === "none") {
+    return {
+      kind: "rest",
+      messageText: `${message(keys.notItem)}: ${folderName}`,
+    };
+  }
+  return undefined;
+}
+
+/** Approve the selected item onto the incremental queue. */
+async function handleApproveIncrementalAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+  seen: DispatchSeen,
+): Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
+  if (seen.name !== "approve_incremental") {
+    return undefined;
+  }
+  const approveId = item?.id == null ? "" : String(item.id).trim();
+  const invalid = incrementalTargetError(item, approveId, {
+    folder: EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_FOLDER,
+    empty: EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_EMPTY,
+    notItem: EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_NOT_ITEM,
+  });
+  if (invalid) {
+    return invalid;
+  }
+  const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+    EXPLORER_MSG.CONFIRM_APPROVE_INCREMENTAL,
+  );
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  try {
+    if (ctx.approveIncremental) {
+      await ctx.approveIncremental(approveId);
+    } else {
+      await approveSelectedItemToIncrementalQueue(approveId);
     }
-    try {
-      if (ctx.runWorkflow) {
-        await ctx.runWorkflow(String(item.id), trigger, comment);
-      }
-    } catch (err: unknown) {
-      if (isApiError(err)) {
-        if (err.status === 400) {
-          return { kind, messageKey: EXPLORER_MSG.WORKFLOW_TRANSITION_REJECTED };
+  } catch (err: unknown) {
+    const messageKey = matchApiStatus(err, {
+      400: EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_REJECTED,
+      403: EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_FORBIDDEN,
+      409: EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_CONFLICT,
+    });
+    if (messageKey) {
+      return { kind: "rest", messageKey };
+    }
+    throw err;
+  }
+  return {
+    kind: "rest",
+    refresh: true,
+    outcome: "success",
+    messageKey: EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_OK,
+    approvedItemId: approveId,
+  };
+}
+
+/** Clear the approved mark for the selected item on the incremental queue. */
+async function handleUnapproveIncrementalAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+  seen: DispatchSeen,
+): Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
+  if (seen.name !== "unapprove_incremental") {
+    return undefined;
+  }
+  const unapproveId = item?.id == null ? "" : String(item.id).trim();
+  const invalid = incrementalTargetError(item, unapproveId, {
+    folder: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_FOLDER,
+    empty: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_EMPTY,
+    notItem: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_NOT_ITEM,
+  });
+  if (invalid) {
+    return invalid;
+  }
+  const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+    EXPLORER_MSG.CONFIRM_UNAPPROVE_INCREMENTAL,
+  );
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  try {
+    if (ctx.unapproveIncremental) {
+      await ctx.unapproveIncremental(unapproveId);
+    } else {
+      await unapproveSelectedItemOnIncrementalQueue(unapproveId);
+    }
+  } catch (err: unknown) {
+    const messageKey = matchApiStatus(err, {
+      400: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_REJECTED,
+      403: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_FORBIDDEN,
+      409: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_CONFLICT,
+    });
+    if (messageKey) {
+      return { kind: "rest", messageKey };
+    }
+    throw err;
+  }
+  return {
+    kind: "rest",
+    refresh: true,
+    outcome: "success",
+    messageKey: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_OK,
+    unapprovedItemId: unapproveId,
+  };
+}
+
+/** Remove the selected item from the incremental queue. */
+async function handleRemoveIncrementalAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+  seen: DispatchSeen,
+): Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
+  if (seen.name !== "remove_incremental") {
+    return undefined;
+  }
+  const removeId = item?.id == null ? "" : String(item.id).trim();
+  const checked = ctx.selectedItems ?? [];
+  if (checked.length >= 2) {
+    return {
+      kind: "rest",
+      messageText: message(EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_MULTI),
+    };
+  }
+  const invalid = incrementalTargetError(item, removeId, {
+    folder: EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_FOLDER,
+    empty: EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_EMPTY,
+    notItem: EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_NOT_ITEM,
+  });
+  if (invalid) {
+    return invalid;
+  }
+  const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+    EXPLORER_MSG.CONFIRM_REMOVE_INCREMENTAL,
+  );
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  try {
+    if (ctx.removeIncremental) {
+      await ctx.removeIncremental(removeId);
+    } else {
+      await removeSelectedItemFromIncrementalQueue(removeId);
+    }
+  } catch (err: unknown) {
+    const messageKey = matchApiStatus(err, {
+      400: EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_REJECTED,
+      403: EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_FORBIDDEN,
+      409: EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_CONFLICT,
+    });
+    if (messageKey) {
+      return { kind: "rest", messageKey };
+    }
+    throw err;
+  }
+  return {
+    kind: "rest",
+    refresh: true,
+    outcome: "success",
+    messageKey: EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_OK,
+    removedItemId: removeId,
+  };
+}
+
+/**
+ * Same-folder itemmanagement new copy (#5006, multi-select #5247).
+ * Folders, sites, and a blank selection are not a copy. HTTP 400/403/409
+ * stay errors. Two or more checked rows copy each page and asset.
+ */
+async function handleNewCopyAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+  seen: DispatchSeen,
+): Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
+  if (seen.name !== "workflow_newversion") {
+    return undefined;
+  }
+  const checked = ctx.selectedItems ?? [];
+  if (checked.length >= 2) {
+    const batch = await runMultiNewCopy({
+      items: checked,
+      confirm: ctx.confirm ?? ((body) => window.confirm(body)),
+      copyOne: async (itemId) => {
+        if (ctx.createCopy) {
+          await ctx.createCopy(itemId);
+          return;
         }
-        if (err.status === 403) {
-          return { kind, messageKey: EXPLORER_MSG.WORKFLOW_TRANSITION_FORBIDDEN };
-        }
-        if (err.status === 409) {
-          return { kind, messageKey: EXPLORER_MSG.WORKFLOW_TRANSITION_CONFLICT };
-        }
-      }
+        return createNewCopy(itemId);
+      },
+      onItemCopied: ctx.onItemCopied,
+    });
+    return { kind: "rest", ...batch };
+  }
+  const copyId = item?.id == null ? "" : String(item.id).trim();
+  if (!item || isFolder(item) || copyId.length === 0) {
+    return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+  }
+  const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+    EXPLORER_MSG.CONFIRM_NEW_COPY,
+  );
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  try {
+    if (ctx.createCopy) {
+      await ctx.createCopy(copyId);
+    } else {
+      await createNewCopy(copyId);
+    }
+  } catch (err: unknown) {
+    const messageKey = matchApiStatus(err, {
+      400: EXPLORER_MSG.ACTION_NEW_COPY_REJECTED,
+      403: EXPLORER_MSG.ACTION_NEW_COPY_FORBIDDEN,
+      409: EXPLORER_MSG.ACTION_NEW_COPY_CONFLICT,
+    });
+    if (messageKey) {
+      return { kind: "rest", messageKey };
+    }
+    throw err;
+  }
+  return { kind: "rest", refresh: true };
+}
+
+/**
+ * Same-folder itemmanagement promotable version (#5007). Folders, sites,
+ * and a blank selection are not a version. HTTP 400/403/409 stay errors.
+ */
+async function handlePromotableVersionAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+  seen: DispatchSeen,
+): Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
+  if (seen.name !== "edit_promotableversion") {
+    return undefined;
+  }
+  const versionId = item?.id == null ? "" : String(item.id).trim();
+  if (!item || isFolder(item) || versionId.length === 0) {
+    return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+  }
+  const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+    EXPLORER_MSG.CONFIRM_PROMOTABLE,
+  );
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  try {
+    if (ctx.createPromotable) {
+      await ctx.createPromotable(versionId);
+    } else {
+      await createPromotableVersion(versionId);
+    }
+  } catch (err: unknown) {
+    const messageKey = matchApiStatus(err, {
+      400: EXPLORER_MSG.ACTION_PROMOTABLE_REJECTED,
+      403: EXPLORER_MSG.ACTION_PROMOTABLE_FORBIDDEN,
+      409: EXPLORER_MSG.ACTION_PROMOTABLE_CONFLICT,
+    });
+    if (messageKey) {
+      return { kind: "rest", messageKey };
+    }
+    throw err;
+  }
+  return { kind: "rest", refresh: true };
+}
+
+/** Recycled-row Restore through onRestore with named HTTP failures (#6254). */
+async function handleRestoreAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+  seen: DispatchSeen,
+): Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
+  if (seen.name !== "restore") {
+    return undefined;
+  }
+  const id = (item?.id ?? "").trim();
+  if (!item || !id) {
+    return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+  }
+  // HTTP 403/404/409 names the row so the operator knows which recycled
+  // item failed; the list is not refreshed and the selection stays (#6254).
+  // Other failures keep the previous generic error path.
+  const restoreLabel =
+    (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
+  try {
+    if (ctx.onRestore) {
+      await ctx.onRestore(item);
+      return { kind: "rest", refresh: true };
+    }
+    await restoreRecycledItem(id);
+    return { kind: "rest", refresh: true };
+  } catch (err: unknown) {
+    const failure = recycledRowFailure(
+      err,
+      [403, 404, 409],
+      restoreLabel,
+      EXPLORER_MSG.ACTION_RESTORE_NOT_FOUND,
+      EXPLORER_MSG.ACTION_RESTORE_CONFLICT,
+    );
+    if (failure) {
+      return failure;
+    }
+    throw err;
+  }
+}
+
+/** Recycled-row Purge with confirm and named HTTP failures (#6254). */
+async function handlePurgeAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+  seen: DispatchSeen,
+): Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
+  if (seen.name !== "purge") {
+    return undefined;
+  }
+  const purgeId = (item?.id ?? "").trim();
+  // Folders purge only from Recycling (toolbar parity); a live folder row
+  // keeps the previous "select a content item" outcome (#6254).
+  const recycledPurgeRow =
+    Boolean(purgeId) &&
+    isRecyclingExplorerPath(item?.path ?? item?.folderPath ?? "");
+  if (!item || !purgeId || (!recycledPurgeRow && isFolder(item))) {
+    return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+  }
+  const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+    // TMX key string is the confirm body (message() applied by caller if needed)
+    EXPLORER_MSG.CONFIRM_PURGE_BODY,
+  );
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  // HTTP 403/404/409 names the row so the operator knows which recycled
+  // item failed; the list is not refreshed and the selection stays (#6254).
+  // Other failures keep the previous generic error path.
+  const purgeLabel =
+    (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
+  try {
+    if (ctx.onPurge) {
+      await ctx.onPurge(item);
+      return { kind: "rest", refresh: true };
+    }
+    const purged = await purgeSelectedItem(item);
+    if (!purged) {
+      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    return { kind: "rest", refresh: true };
+  } catch (err: unknown) {
+    const failure = recycledRowFailure(
+      err,
+      [403, 404, 409],
+      purgeLabel,
+      EXPLORER_MSG.ACTION_PURGE_NOT_FOUND,
+      EXPLORER_MSG.ACTION_PURGE_CONFLICT,
+    );
+    if (failure) {
+      return failure;
+    }
+    throw err;
+  }
+}
+
+/** Take down (single, multi-select). */
+async function handleTakedownAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+  seen: DispatchSeen,
+): Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
+  if (!isTakedownActionName(seen.name)) {
+    return undefined;
+  }
+  const multi = ctx.selectedItems ?? [];
+  if (multi.length >= 2) {
+    return takedownMultiSelection(ctx, multi);
+  }
+  return runSingleTakedownItem(ctx, item);
+}
+
+async function runSingleTakedownItem(
+  ctx: ActionDispatchContext,
+  item: PSPathItem | null | undefined,
+): Promise<ActionDispatchResult> {
+  if (!item || isFolder(item)) {
+    return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+  }
+  const linked = await loadLinkedPagesForTakedown(item.id ?? "");
+  const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+    formatTakedownConfirmBody(linked),
+  );
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  // HTTP 400/403/404/409 names the item so the operator knows which row
+  // failed; the list is not refreshed and the selection stays (#5630).
+  // A 400 (malformed id, rejected before publish lookup — see #4598)
+  // names the item the same way instead of the generic error path (#5942).
+  // Other failures keep the previous generic error path.
+  const label = (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
+  try {
+    if (ctx.onTakedown) {
+      await ctx.onTakedown(item);
+      return { kind: "rest", refresh: true };
+    }
+    const takenDown = await takedownSelectedItem(item, linked);
+    if (!takenDown) {
+      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    return { kind: "rest", refresh: true };
+  } catch (err: unknown) {
+    const detail = httpFailureDetail(err, [400, 403, 404, 409], label);
+    if (detail == null) {
       throw err;
     }
-    return { kind, refresh: true };
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.TAKEDOWN_FAILED,
+      messageText: message(EXPLORER_MSG.TAKEDOWN_FAILED)
+        .split("{detail}")
+        .join(detail),
+    };
   }
+}
 
-  if (isNewItemAction(action, ctx.parentName)) {
-    const folder = resolveFolderPathFromSelection(
-      ctx.folderPath,
-      item?.path,
-      item?.type,
-    );
-    if (!folder) {
-      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_FOLDER };
-    }
-    const resolved = await resolveNewItemContentType(action, ctx);
-    if (resolved.cancelled) {
+/** Stage (single, folder, multi-select, bulk dialog). */
+async function handleStageAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+  seen: DispatchSeen,
+): Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
+  if (!isStageActionName(seen.name)) {
+    return undefined;
+  }
+  const multi = ctx.selectedItems ?? [];
+  if (multi.length >= 2) {
+    return stageMultiSelection(ctx, multi);
+  }
+  if (!item) {
+    return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+  }
+  if (isFolder(item)) {
+    return stageFolderSelection(ctx, item);
+  }
+  return runSingleStageItem(ctx, item);
+}
+
+async function runSingleStageItem(
+  ctx: ActionDispatchContext,
+  item: PSPathItem,
+): Promise<ActionDispatchResult> {
+  // Single item shares the bulk dialog chrome (#6530) so the confirm list
+  // + per-item report match multi-select. Injected onStage hooks keep
+  // the legacy confirm + banner flow.
+  if (
+    ctx.confirmBulkStage &&
+    !ctx.onStage &&
+    partitionStageSelection([item]).eligible.length === 1
+  ) {
+    const outcome = await ctx.confirmBulkStage({
+      mode: "stage",
+      items: [item],
+    });
+    if (outcome == null || !outcome.ran) {
       return { kind: "rest" };
     }
-    if (!resolved.contentType) {
-      return {
-        kind: "rest",
-        messageKey: resolved.messageKey ?? EXPLORER_MSG.ACTION_NEEDS_TYPE,
-      };
+    return { kind: "rest", refresh: outcome.refresh };
+  }
+  const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+    EXPLORER_MSG.CONFIRM_STAGE,
+  );
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  // HTTP 400/403/404/409 names the item so the operator knows which row
+  // failed; the list is not refreshed and the selection stays (#5631).
+  // A 400 (malformed id, rejected before publish lookup — see #4598)
+  // names the item the same way instead of the generic error path (#5943).
+  // Other failures keep the previous generic error path.
+  const stageLabel = (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
+  try {
+    if (ctx.onStage) {
+      await ctx.onStage(item);
+      return { kind: "rest", refresh: true };
     }
-    const contentType = resolved.contentType;
-    let templateId: string | undefined;
-    if (isExplorerPageType(contentType)) {
-      const load = ctx.loadPageTemplates ?? loadPageTemplates;
-      const templates = await load(folder, contentType);
-      if (templates.length === 0) {
-        return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_TEMPLATE };
-      }
-      templateId = templates[0]?.id;
-      if (templates.length > 1) {
-        if (!ctx.pickPageTemplate) {
-          return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_TEMPLATE };
-        }
-        const picked = await ctx.pickPageTemplate(templates);
-        if (!picked) {
-          return { kind: "rest" };
-        }
-        templateId = picked;
-      }
+    const staged = await stageSelectedItem(item);
+    if (!staged) {
+      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
     }
-    const create = ctx.createItem ?? createEditorItem;
-    const created = await create({
-      contentType,
-      folderPath: folder,
-      templateId,
+    return { kind: "rest", refresh: true };
+  } catch (err: unknown) {
+    const detail = httpFailureDetail(err, [400, 403, 404, 409], stageLabel);
+    if (detail == null) {
+      throw err;
+    }
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.STAGE_FAILED,
+      messageText: message(EXPLORER_MSG.STAGE_FAILED)
+        .split("{detail}")
+        .join(detail),
+    };
+  }
+}
+
+/** Remove from staging (single, folder, multi-select, bulk dialog). */
+async function handleUnstageAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+  seen: DispatchSeen,
+): Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
+  if (!isRemoveFromStagingActionName(seen.name)) {
+    return undefined;
+  }
+  const multi = ctx.selectedItems ?? [];
+  if (multi.length >= 2) {
+    return removeFromStagingMultiSelection(ctx, multi);
+  }
+  if (!item) {
+    return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+  }
+  if (isFolder(item)) {
+    return removeFromStagingFolderSelection(ctx, item);
+  }
+  return runSingleUnstageItem(ctx, item);
+}
+
+async function runSingleUnstageItem(
+  ctx: ActionDispatchContext,
+  item: PSPathItem,
+): Promise<ActionDispatchResult> {
+  // Single item shares the bulk dialog chrome (#6530) so the confirm list
+  // + per-item report match multi-select. Injected onRemoveFromStaging
+  // hooks keep the legacy confirm + banner flow.
+  if (
+    ctx.confirmBulkStage &&
+    !ctx.onRemoveFromStaging &&
+    partitionStageSelection([item]).eligible.length === 1
+  ) {
+    const outcome = await ctx.confirmBulkStage({
+      mode: "unstage",
+      items: [item],
     });
-    const contentId = parseExplorerContentId(created.itemId);
-    if (contentId == null) {
-      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_EDITOR_UNAVAILABLE };
+    if (outcome == null || !outcome.ran) {
+      return { kind: "rest" };
     }
-    const open = ctx.openWindow ?? defaultOpenWindow;
-    open(
-      buildEditorHostUrl(contentId, "edit"),
-      editorWindowName(contentId),
-      EDITOR_WINDOW_FEATURES,
-    );
+    return { kind: "rest", refresh: outcome.refresh };
+  }
+  const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+    EXPLORER_MSG.CONFIRM_REMOVE_FROM_STAGING,
+  );
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  // HTTP 400/403/404/409 names the item so the operator knows which row
+  // failed; the list is not refreshed and the selection stays (#5631).
+  // A 400 (malformed id, rejected before publish lookup — see #4598)
+  // names the item the same way instead of the generic error path (#5943).
+  // Other failures keep the previous generic error path.
+  const unstageLabel = (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
+  try {
+    if (ctx.onRemoveFromStaging) {
+      await ctx.onRemoveFromStaging(item);
+      return { kind: "rest", refresh: true };
+    }
+    const removed = await removeFromStagingSelectedItem(item);
+    if (!removed) {
+      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+    }
+    return { kind: "rest", refresh: true };
+  } catch (err: unknown) {
+    const detail = httpFailureDetail(err, [400, 403, 404, 409], unstageLabel);
+    if (detail == null) {
+      throw err;
+    }
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.UNSTAGE_FAILED,
+      messageText: message(EXPLORER_MSG.UNSTAGE_FAILED)
+        .split("{detail}")
+        .join(detail),
+    };
+  }
+}
+
+/** Schedule dates (single + multi-select). */
+async function handleScheduleAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+  seen: DispatchSeen,
+): Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
+  if (!isScheduleActionName(seen.name)) {
+    return undefined;
+  }
+  const resolved = resolveScheduleTargets(ctx, item);
+  if (!resolved.targets) {
+    return resolved.failure;
+  }
+  const targets = resolved.targets;
+  const seed = targets[0];
+  const current = await getItemScheduleDates(seed.id ?? "");
+  let picked: ItemScheduleDates | null = current;
+  if (ctx.pickScheduleDates) {
+    picked = await ctx.pickScheduleDates(seed, current, {
+      applyCount: targets.length,
+    });
+    if (!picked) {
+      return { kind: "rest" };
+    }
+  }
+  // Invalid range is refused before POST even when the picker hook hands
+  // back dates the dialog would have rejected (#5632). The list does not
+  // refresh, so prior dates stay intact.
+  const rangeKey = validateScheduleDateRange(
+    picked.startDate ?? "",
+    picked.endDate ?? "",
+  );
+  if (rangeKey) {
+    return {
+      kind: "rest",
+      messageKey: rangeKey,
+      messageText: message(rangeKey),
+    };
+  }
+  const confirmKey =
+    targets.length > 1
+      ? EXPLORER_MSG.CONFIRM_SCHEDULE_MULTI
+      : EXPLORER_MSG.CONFIRM_SCHEDULE;
+  const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(confirmKey);
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  const batch = await applyScheduleDates(targets, picked, ctx.onSchedule);
+  if (batch.saved === 0 && batch.failures.length === 0) {
+    return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+  }
+  // One row that saves nothing names the item so the operator knows which
+  // row failed (#5632). HTTP 400/403/404/409 carries the status; the list
+  // is not refreshed and the prior dates stay intact.
+  if (targets.length === 1 && batch.saved === 0 && batch.failures.length === 1) {
+    const only = batch.failures[0];
+    const detail =
+      only.status != null
+        ? `${only.name} (HTTP ${only.status})`
+        : `${only.name} (${only.message})`;
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.SCHEDULE_FAILED,
+      messageText: message(EXPLORER_MSG.SCHEDULE_FAILED)
+        .split("{detail}")
+        .join(detail),
+    };
+  }
+  if (batch.failures.length > 0) {
+    return {
+      kind: "rest",
+      messageText: formatScheduleBatchFailure(batch),
+      messageKey: EXPLORER_MSG.SCHEDULE_PARTIAL,
+      refresh: batch.saved > 0,
+    };
+  }
+  return { kind: "rest", refresh: true };
+}
+
+/** Schedule target rows, or the failure when nothing may be scheduled. */
+function resolveScheduleTargets(
+  ctx: ActionDispatchContext,
+  item: PSPathItem | null | undefined,
+):
+  | { targets: PSPathItem[]; failure?: undefined }
+  | { targets?: undefined; failure: ActionDispatchResult } {
+  const checked = ctx.selectedItems ?? [];
+  const multi = checked.length >= 2;
+  const targets = multi
+    ? publishableScheduleTargets(checked)
+    : item && !isFolder(item) && (item.id ?? "").trim()
+      ? [item]
+      : [];
+  if (targets.length > 0) {
+    return { targets };
+  }
+  const onlyFolders =
+    !multi && (!item || isFolder(item))
+      ? true
+      : multi &&
+        checked.every((row) => isFolder(row) || !(row.id ?? "").trim());
+  if (onlyFolders) {
+    return {
+      failure: { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM },
+    };
+  }
+  return {
+    failure: { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE },
+  };
+}
+
+/** Clear scheduled dates (single + multi-select). */
+async function handleClearScheduleAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+  seen: DispatchSeen,
+): Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
+  if (!isClearScheduledDatesActionName(seen.name)) {
+    return undefined;
+  }
+  const checked = ctx.selectedItems ?? [];
+  if (checked.length >= 2) {
+    return clearScheduleMultiSelection(ctx, checked);
+  }
+  if (!item || isFolder(item) || !(item.id ?? "").trim()) {
+    return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
+  }
+  if (ctx.confirmClearScheduledDates) {
+    const cleared = await ctx.confirmClearScheduledDates(item);
+    if (!cleared) {
+      return { kind: "rest" };
+    }
     return { kind: "rest", refresh: true };
   }
+  const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+    EXPLORER_MSG.CLEAR_SCHEDULE_BODY,
+  );
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  await setItemScheduleDates({
+    itemId: String(item.id ?? "").trim(),
+    startDate: "",
+    endDate: "",
+    comments: "",
+  });
+  return { kind: "rest", refresh: true };
+}
 
-  if (kind === "editor") {
+async function clearScheduleMultiSelection(
+  ctx: ActionDispatchContext,
+  checked: readonly PSPathItem[],
+): Promise<ActionDispatchResult> {
+  const targets = publishableScheduleTargets(checked);
+  const folderNames = skippedClearFolderNames(checked);
+  if (targets.length === 0) {
+    const noted =
+      folderNames.length > 0
+        ? message(EXPLORER_MSG.CLEAR_SCHEDULE_SKIPPED_FOLDERS)
+            .split("{names}")
+            .join(folderNames.join(", "))
+        : undefined;
+    return {
+      kind: "rest",
+      messageKey: EXPLORER_MSG.CLEAR_SCHEDULE_NOTHING,
+      messageText: noted ?? message(EXPLORER_MSG.CLEAR_SCHEDULE_NOTHING),
+    };
+  }
+  const confirmBody = message(EXPLORER_MSG.CONFIRM_CLEAR_SCHEDULE_MULTI)
+    .split("{count}")
+    .join(String(targets.length));
+  const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(confirmBody);
+  if (!ok) {
+    return { kind: "rest" };
+  }
+  const cleared = await clearScheduledDatesOnSelection(checked);
+  const described = describeClearScheduleSelection(cleared);
+  if (cleared.saved === 0 && cleared.failures.length === 0) {
+    return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
+  }
+  return {
+    kind: "rest",
+    refresh: described.refresh,
+    messageText: described.messageText,
+    messageKey: described.messageKey,
+  };
+}
+
+
+/** Editor host actions (Edit / View / revision promote). */
+async function handleEditorAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { kind, item } = seen;
+  if (!(kind === "editor")) {
+    return undefined;
+  }
     const editorName = normalizeActionName(action.name);
     if (!EDITOR_NAMES.has(editorName)) {
       return { kind, messageKey: EXPLORER_MSG.ACTION_EDITOR_UNAVAILABLE };
@@ -2006,17 +2974,15 @@ export async function dispatchAction(
     const open = ctx.openWindow ?? defaultOpenWindow;
     open(href, editorWindowName(contentId), EDITOR_WINDOW_FEATURES);
     return { kind };
-  }
+}
 
-  if (isSlotActionName(normalizeActionName(action.name))) {
-    return dispatchSlotAction(action, ctx);
+/** Legacy file rows: assembler preview, Data Flow guard, or safe navigation. */
+async function handleLegacyFileAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { kind } = seen;
+  if (!(kind === "legacy-file" && action.url)) {
+    return undefined;
   }
-
-  if (kind === "unavailable") {
-    return { kind, messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
-  }
-
-  if (kind === "legacy-file" && action.url) {
     const base =
       typeof window !== "undefined" ? window.location.href : "http://localhost/";
     if (isAssemblerPreviewUrl(action.url)) {
@@ -2033,64 +2999,110 @@ export async function dispatchAction(
       safeNavigate(action.url, base);
     }
     return { kind };
+}
+
+/** Client open callback. */
+async function handleOpenAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { item, name } = seen;
+  if (!(name === "open" && item && ctx.onOpen)) {
+    return undefined;
   }
-
-  const name = normalizeActionName(action.name);
-
-  if (name === "open" && item && ctx.onOpen) {
     ctx.onOpen(item);
     return { kind: "client" };
-  }
+}
 
-  if (name === "edit_properties" || name === "view_properties") {
+/** Item properties panel (edit / view). */
+async function handlePropertiesAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { item, name } = seen;
+  if (!(name === "edit_properties" || name === "view_properties")) {
+    return undefined;
+  }
     if (!item || isFolder(item)) {
       return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
     ctx.onShowItemProperties?.(name === "view_properties");
     return { kind: "client" };
-  }
+}
 
-  if (name === "translate") {
+/** Translations panel. */
+async function handleTranslateAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { item, name } = seen;
+  if (!(name === "translate")) {
+    return undefined;
+  }
     if (!item || isFolder(item) || parseExplorerContentId(item.id) == null) {
       return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
     ctx.onShowTranslations?.();
     return { kind: "client" };
-  }
+}
 
-  if (isWhereUsedAction(action)) {
+/** Where-used dependencies panel. */
+async function handleWhereUsedAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
+  if (!(isWhereUsedAction(action))) {
+    return undefined;
+  }
     if (!item || isFolder(item) || parseExplorerContentId(item.id) == null) {
       return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
     ctx.onShowDependencies?.();
     return { kind: "client" };
-  }
+}
 
-  if (name === "workflow_revisions") {
+/** Revisions panel. */
+async function handleRevisionsAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { item, name } = seen;
+  if (!(name === "workflow_revisions")) {
+    return undefined;
+  }
     ctx.onShowRevisions?.("revisions");
     if (!item || isFolder(item) || parseExplorerContentId(item.id) == null) {
       return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
     return { kind: "client" };
-  }
+}
 
-  if (name === "workflow_audittrail") {
+/** Audit-trail panel. */
+async function handleAuditTrailAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { item, name } = seen;
+  if (!(name === "workflow_audittrail")) {
+    return undefined;
+  }
     ctx.onShowRevisions?.("audit");
     if (!item || isFolder(item) || parseExplorerContentId(item.id) == null) {
       return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
     return { kind: "client" };
-  }
+}
 
-  if (isPublishingHistoryActionName(name)) {
+/** Publishing-history dialog. */
+async function handlePublishingHistoryAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { item, name } = seen;
+  if (!(isPublishingHistoryActionName(name))) {
+    return undefined;
+  }
     if (!item || isFolder(item)) {
       return { kind: "client", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
     ctx.onShowPublishingHistory?.(item);
     return { kind: "client" };
-  }
+}
 
-  if (name === "flush_cache") {
+/** Assembler cache flush with confirm. */
+async function handleFlushCacheAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { name } = seen;
+  if (!(name === "flush_cache")) {
+    return undefined;
+  }
     const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
       EXPLORER_MSG.CONFIRM_FLUSH_CACHE,
     );
@@ -2118,9 +3130,15 @@ export async function dispatchAction(
       messageKey: EXPLORER_MSG.ACTION_FLUSH_OK,
       outcome: "success",
     };
-  }
+}
 
-  if (name === "navreset") {
+/** Navigation reset with confirm. */
+async function handleNavResetAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { name } = seen;
+  if (!(name === "navreset")) {
+    return undefined;
+  }
     const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
       EXPLORER_MSG.CONFIRM_NAV_RESET,
     );
@@ -2133,318 +3151,15 @@ export async function dispatchAction(
       await resetNavigation();
     }
     return { kind: "rest" };
-  }
+}
 
-  if (name === "approve_incremental") {
-    const approveId = item?.id == null ? "" : String(item.id).trim();
-    const folderName = (item?.name ?? item?.path ?? "folder").trim() || "folder";
-    if (item && isFolder(item)) {
-      return {
-        kind: "rest",
-        messageText: `${message(EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_FOLDER)}: ${folderName}`,
-      };
-    }
-    if (!item || approveId.length === 0) {
-      return {
-        kind: "rest",
-        messageText: `${message(EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_EMPTY)}`,
-      };
-    }
-    if (resolvePublishKind(item) === "none") {
-      return {
-        kind: "rest",
-        messageText: `${message(EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_NOT_ITEM)}: ${folderName}`,
-      };
-    }
-    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
-      EXPLORER_MSG.CONFIRM_APPROVE_INCREMENTAL,
-    );
-    if (!ok) {
-      return { kind: "rest" };
-    }
-    try {
-      if (ctx.approveIncremental) {
-        await ctx.approveIncremental(approveId);
-      } else {
-        await approveSelectedItemToIncrementalQueue(approveId);
-      }
-    } catch (err: unknown) {
-      if (isApiError(err)) {
-        if (err.status === 400) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_REJECTED,
-          };
-        }
-        if (err.status === 403) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_FORBIDDEN,
-          };
-        }
-        if (err.status === 409) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_CONFLICT,
-          };
-        }
-      }
-      throw err;
-    }
-    return {
-      kind: "rest",
-      refresh: true,
-      outcome: "success",
-      messageKey: EXPLORER_MSG.ACTION_APPROVE_INCREMENTAL_OK,
-      approvedItemId: approveId,
-    };
+/** Copy preview URL to the clipboard (single + multi-select). */
+async function handleCopyUrlAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { name, item } = seen;
+  if (!(name === "copy_url_to_clipboard")) {
+    return undefined;
   }
-
-  if (name === "unapprove_incremental") {
-    const unapproveId = item?.id == null ? "" : String(item.id).trim();
-    const folderName = (item?.name ?? item?.path ?? "folder").trim() || "folder";
-    if (item && isFolder(item)) {
-      return {
-        kind: "rest",
-        messageText: `${message(EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_FOLDER)}: ${folderName}`,
-      };
-    }
-    if (!item || unapproveId.length === 0) {
-      return {
-        kind: "rest",
-        messageText: `${message(EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_EMPTY)}`,
-      };
-    }
-    if (resolvePublishKind(item) === "none") {
-      return {
-        kind: "rest",
-        messageText: `${message(EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_NOT_ITEM)}: ${folderName}`,
-      };
-    }
-    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
-      EXPLORER_MSG.CONFIRM_UNAPPROVE_INCREMENTAL,
-    );
-    if (!ok) {
-      return { kind: "rest" };
-    }
-    try {
-      if (ctx.unapproveIncremental) {
-        await ctx.unapproveIncremental(unapproveId);
-      } else {
-        await unapproveSelectedItemOnIncrementalQueue(unapproveId);
-      }
-    } catch (err: unknown) {
-      if (isApiError(err)) {
-        if (err.status === 400) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_REJECTED,
-          };
-        }
-        if (err.status === 403) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_FORBIDDEN,
-          };
-        }
-        if (err.status === 409) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_CONFLICT,
-          };
-        }
-      }
-      throw err;
-    }
-    return {
-      kind: "rest",
-      refresh: true,
-      outcome: "success",
-      messageKey: EXPLORER_MSG.ACTION_UNAPPROVE_INCREMENTAL_OK,
-      unapprovedItemId: unapproveId,
-    };
-  }
-
-  if (name === "remove_incremental") {
-    const removeId = item?.id == null ? "" : String(item.id).trim();
-    const folderName = (item?.name ?? item?.path ?? "folder").trim() || "folder";
-    const checked = ctx.selectedItems ?? [];
-    if (checked.length >= 2) {
-      return {
-        kind: "rest",
-        messageText: message(EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_MULTI),
-      };
-    }
-    if (item && isFolder(item)) {
-      return {
-        kind: "rest",
-        messageText: `${message(EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_FOLDER)}: ${folderName}`,
-      };
-    }
-    if (!item || removeId.length === 0) {
-      return {
-        kind: "rest",
-        messageText: `${message(EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_EMPTY)}`,
-      };
-    }
-    if (resolvePublishKind(item) === "none") {
-      return {
-        kind: "rest",
-        messageText: `${message(EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_NOT_ITEM)}: ${folderName}`,
-      };
-    }
-    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
-      EXPLORER_MSG.CONFIRM_REMOVE_INCREMENTAL,
-    );
-    if (!ok) {
-      return { kind: "rest" };
-    }
-    try {
-      if (ctx.removeIncremental) {
-        await ctx.removeIncremental(removeId);
-      } else {
-        await removeSelectedItemFromIncrementalQueue(removeId);
-      }
-    } catch (err: unknown) {
-      if (isApiError(err)) {
-        if (err.status === 400) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_REJECTED,
-          };
-        }
-        if (err.status === 403) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_FORBIDDEN,
-          };
-        }
-        if (err.status === 409) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_CONFLICT,
-          };
-        }
-      }
-      throw err;
-    }
-    return {
-      kind: "rest",
-      refresh: true,
-      outcome: "success",
-      messageKey: EXPLORER_MSG.ACTION_REMOVE_INCREMENTAL_OK,
-      removedItemId: removeId,
-    };
-  }
-
-  if (name === "workflow_newversion") {
-    // Same-folder itemmanagement new copy (#5006, multi-select #5247).
-    // Folders, sites, and a blank selection are not a copy. HTTP 400/403/409
-    // stay errors. Two or more checked rows copy each page and asset.
-    const checked = ctx.selectedItems ?? [];
-    if (checked.length >= 2) {
-      const batch = await runMultiNewCopy({
-        items: checked,
-        confirm: ctx.confirm ?? ((body) => window.confirm(body)),
-        copyOne: async (itemId) => {
-          if (ctx.createCopy) {
-            await ctx.createCopy(itemId);
-            return;
-          }
-          return createNewCopy(itemId);
-        },
-        onItemCopied: ctx.onItemCopied,
-      });
-      return { kind: "rest", ...batch };
-    }
-    const copyId = item?.id == null ? "" : String(item.id).trim();
-    if (!item || isFolder(item) || copyId.length === 0) {
-      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
-    }
-    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
-      EXPLORER_MSG.CONFIRM_NEW_COPY,
-    );
-    if (!ok) {
-      return { kind: "rest" };
-    }
-    try {
-      if (ctx.createCopy) {
-        await ctx.createCopy(copyId);
-      } else {
-        await createNewCopy(copyId);
-      }
-    } catch (err: unknown) {
-      if (isApiError(err)) {
-        if (err.status === 400) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.ACTION_NEW_COPY_REJECTED,
-          };
-        }
-        if (err.status === 403) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.ACTION_NEW_COPY_FORBIDDEN,
-          };
-        }
-        if (err.status === 409) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.ACTION_NEW_COPY_CONFLICT,
-          };
-        }
-      }
-      throw err;
-    }
-    return { kind: "rest", refresh: true };
-  }
-
-  if (name === "edit_promotableversion") {
-    // Same-folder itemmanagement promotable version (#5007). Folders, sites,
-    // and a blank selection are not a version. HTTP 400/403/409 stay errors.
-    const versionId = item?.id == null ? "" : String(item.id).trim();
-    if (!item || isFolder(item) || versionId.length === 0) {
-      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
-    }
-    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
-      EXPLORER_MSG.CONFIRM_PROMOTABLE,
-    );
-    if (!ok) {
-      return { kind: "rest" };
-    }
-    try {
-      if (ctx.createPromotable) {
-        await ctx.createPromotable(versionId);
-      } else {
-        await createPromotableVersion(versionId);
-      }
-    } catch (err: unknown) {
-      if (isApiError(err)) {
-        if (err.status === 400) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.ACTION_PROMOTABLE_REJECTED,
-          };
-        }
-        if (err.status === 403) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.ACTION_PROMOTABLE_FORBIDDEN,
-          };
-        }
-        if (err.status === 409) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.ACTION_PROMOTABLE_CONFLICT,
-          };
-        }
-      }
-      throw err;
-    }
-    return { kind: "rest", refresh: true };
-  }
-
-  if (name === "copy_url_to_clipboard") {
     const multi = ctx.selectedItems ?? [];
     if (multi.length >= 2) {
       return copyUrlMultiSelection(ctx, multi);
@@ -2470,100 +3185,15 @@ export async function dispatchAction(
       return { kind: "client", messageKey: EXPLORER_MSG.ACTION_COPY_URL_FAILED };
     }
     return { kind: "client" };
-  }
+}
 
-  if (name === "restore") {
-    const id = (item?.id ?? "").trim();
-    if (!item || !id) {
-      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
-    }
-    // HTTP 403/404/409 names the row so the operator knows which recycled
-    // item failed; the list is not refreshed and the selection stays (#6254).
-    // Other failures keep the previous generic error path.
-    const restoreLabel =
-      (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
-    try {
-      if (ctx.onRestore) {
-        await ctx.onRestore(item);
-        return { kind: "rest", refresh: true };
-      }
-      await restoreRecycledItem(id);
-      return { kind: "rest", refresh: true };
-    } catch (err: unknown) {
-      if (
-        isApiError(err) &&
-        (err.status === 403 || err.status === 404 || err.status === 409)
-      ) {
-        const key =
-          err.status === 403
-            ? EXPLORER_MSG.PERMISSION_DENIED
-            : err.status === 404
-              ? EXPLORER_MSG.ACTION_RESTORE_NOT_FOUND
-              : EXPLORER_MSG.ACTION_RESTORE_CONFLICT;
-        return {
-          kind: "rest",
-          messageKey: key,
-          messageText: `${message(key)} — ${restoreLabel} (HTTP ${err.status})`,
-        };
-      }
-      throw err;
-    }
+/** Publish now (single, folder, multi-select). */
+async function handlePublishNowAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { name, item } = seen;
+  if (!(name === "publish_now")) {
+    return undefined;
   }
-
-  if (name === "purge") {
-    const purgeId = (item?.id ?? "").trim();
-    // Folders purge only from Recycling (toolbar parity); a live folder row
-    // keeps the previous "select a content item" outcome (#6254).
-    const recycledPurgeRow =
-      Boolean(purgeId) &&
-      isRecyclingExplorerPath(item?.path ?? item?.folderPath ?? "");
-    if (!item || !purgeId || (!recycledPurgeRow && isFolder(item))) {
-      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
-    }
-    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
-      // TMX key string is the confirm body (message() applied by caller if needed)
-      EXPLORER_MSG.CONFIRM_PURGE_BODY,
-    );
-    if (!ok) {
-      return { kind: "rest" };
-    }
-    // HTTP 403/404/409 names the row so the operator knows which recycled
-    // item failed; the list is not refreshed and the selection stays (#6254).
-    // Other failures keep the previous generic error path.
-    const purgeLabel =
-      (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
-    try {
-      if (ctx.onPurge) {
-        await ctx.onPurge(item);
-        return { kind: "rest", refresh: true };
-      }
-      const purged = await purgeSelectedItem(item);
-      if (!purged) {
-        return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
-      }
-      return { kind: "rest", refresh: true };
-    } catch (err: unknown) {
-      if (
-        isApiError(err) &&
-        (err.status === 403 || err.status === 404 || err.status === 409)
-      ) {
-        const key =
-          err.status === 403
-            ? EXPLORER_MSG.PERMISSION_DENIED
-            : err.status === 404
-              ? EXPLORER_MSG.ACTION_PURGE_NOT_FOUND
-              : EXPLORER_MSG.ACTION_PURGE_CONFLICT;
-        return {
-          kind: "rest",
-          messageKey: key,
-          messageText: `${message(key)} — ${purgeLabel} (HTTP ${err.status})`,
-        };
-      }
-      throw err;
-    }
-  }
-
-  if (name === "publish_now") {
     const multi = ctx.selectedItems ?? [];
     if (multi.length >= 2) {
       return publishMultiSelection(ctx, multi);
@@ -2589,346 +3219,15 @@ export async function dispatchAction(
       return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
     }
     return { kind: "rest", refresh: true };
-  }
+}
 
-  if (isTakedownActionName(name)) {
-    const multi = ctx.selectedItems ?? [];
-    if (multi.length >= 2) {
-      return takedownMultiSelection(ctx, multi);
-    }
-    if (!item || isFolder(item)) {
-      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
-    }
-    const linked = await loadLinkedPagesForTakedown(item.id ?? "");
-    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
-      formatTakedownConfirmBody(linked),
-    );
-    if (!ok) {
-      return { kind: "rest" };
-    }
-    // HTTP 400/403/404/409 names the item so the operator knows which row
-    // failed; the list is not refreshed and the selection stays (#5630).
-    // A 400 (malformed id, rejected before publish lookup — see #4598)
-    // names the item the same way instead of the generic error path (#5942).
-    // Other failures keep the previous generic error path.
-    const label = (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
-    try {
-      if (ctx.onTakedown) {
-        await ctx.onTakedown(item);
-        return { kind: "rest", refresh: true };
-      }
-      const takenDown = await takedownSelectedItem(item, linked);
-      if (!takenDown) {
-        return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
-      }
-      return { kind: "rest", refresh: true };
-    } catch (err: unknown) {
-      if (
-        isApiError(err) &&
-        (err.status === 400 ||
-          err.status === 403 ||
-          err.status === 404 ||
-          err.status === 409)
-      ) {
-        return {
-          kind: "rest",
-          messageKey: EXPLORER_MSG.TAKEDOWN_FAILED,
-          messageText: message(EXPLORER_MSG.TAKEDOWN_FAILED)
-            .split("{detail}")
-            .join(`${label} (HTTP ${err.status})`),
-        };
-      }
-      throw err;
-    }
+/** Check out (single + multi-select). */
+async function handleCheckoutAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { name, item } = seen;
+  if (!(isCheckoutActionName(name))) {
+    return undefined;
   }
-
-  if (isStageActionName(name)) {
-    const multi = ctx.selectedItems ?? [];
-    if (multi.length >= 2) {
-      return stageMultiSelection(ctx, multi);
-    }
-    if (!item) {
-      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
-    }
-    if (isFolder(item)) {
-      return stageFolderSelection(ctx, item);
-    }
-    // Single item shares the bulk dialog chrome (#6530) so the confirm list
-    // + per-item report match multi-select. Injected onStage hooks keep
-    // the legacy confirm + banner flow.
-    if (
-      ctx.confirmBulkStage &&
-      !ctx.onStage &&
-      partitionStageSelection([item]).eligible.length === 1
-    ) {
-      const outcome = await ctx.confirmBulkStage({
-        mode: "stage",
-        items: [item],
-      });
-      if (outcome == null || !outcome.ran) {
-        return { kind: "rest" };
-      }
-      return { kind: "rest", refresh: outcome.refresh };
-    }
-    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
-      EXPLORER_MSG.CONFIRM_STAGE,
-    );
-    if (!ok) {
-      return { kind: "rest" };
-    }
-    // HTTP 400/403/404/409 names the item so the operator knows which row
-    // failed; the list is not refreshed and the selection stays (#5631).
-    // A 400 (malformed id, rejected before publish lookup — see #4598)
-    // names the item the same way instead of the generic error path (#5943).
-    // Other failures keep the previous generic error path.
-    const stageLabel = (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
-    try {
-      if (ctx.onStage) {
-        await ctx.onStage(item);
-        return { kind: "rest", refresh: true };
-      }
-      const staged = await stageSelectedItem(item);
-      if (!staged) {
-        return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
-      }
-      return { kind: "rest", refresh: true };
-    } catch (err: unknown) {
-      if (
-        isApiError(err) &&
-        (err.status === 400 ||
-          err.status === 403 ||
-          err.status === 404 ||
-          err.status === 409)
-      ) {
-        return {
-          kind: "rest",
-          messageKey: EXPLORER_MSG.STAGE_FAILED,
-          messageText: message(EXPLORER_MSG.STAGE_FAILED)
-            .split("{detail}")
-            .join(`${stageLabel} (HTTP ${err.status})`),
-        };
-      }
-      throw err;
-    }
-  }
-
-  if (isRemoveFromStagingActionName(name)) {
-    const multi = ctx.selectedItems ?? [];
-    if (multi.length >= 2) {
-      return removeFromStagingMultiSelection(ctx, multi);
-    }
-    if (!item) {
-      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
-    }
-    if (isFolder(item)) {
-      return removeFromStagingFolderSelection(ctx, item);
-    }
-    // Single item shares the bulk dialog chrome (#6530) so the confirm list
-    // + per-item report match multi-select. Injected onRemoveFromStaging
-    // hooks keep the legacy confirm + banner flow.
-    if (
-      ctx.confirmBulkStage &&
-      !ctx.onRemoveFromStaging &&
-      partitionStageSelection([item]).eligible.length === 1
-    ) {
-      const outcome = await ctx.confirmBulkStage({
-        mode: "unstage",
-        items: [item],
-      });
-      if (outcome == null || !outcome.ran) {
-        return { kind: "rest" };
-      }
-      return { kind: "rest", refresh: outcome.refresh };
-    }
-    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
-      EXPLORER_MSG.CONFIRM_REMOVE_FROM_STAGING,
-    );
-    if (!ok) {
-      return { kind: "rest" };
-    }
-    // HTTP 400/403/404/409 names the item so the operator knows which row
-    // failed; the list is not refreshed and the selection stays (#5631).
-    // A 400 (malformed id, rejected before publish lookup — see #4598)
-    // names the item the same way instead of the generic error path (#5943).
-    // Other failures keep the previous generic error path.
-    const unstageLabel = (item.name ?? item.path ?? item.id ?? "item").trim() || "item";
-    try {
-      if (ctx.onRemoveFromStaging) {
-        await ctx.onRemoveFromStaging(item);
-        return { kind: "rest", refresh: true };
-      }
-      const removed = await removeFromStagingSelectedItem(item);
-      if (!removed) {
-        return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
-      }
-      return { kind: "rest", refresh: true };
-    } catch (err: unknown) {
-      if (
-        isApiError(err) &&
-        (err.status === 400 ||
-          err.status === 403 ||
-          err.status === 404 ||
-          err.status === 409)
-      ) {
-        return {
-          kind: "rest",
-          messageKey: EXPLORER_MSG.UNSTAGE_FAILED,
-          messageText: message(EXPLORER_MSG.UNSTAGE_FAILED)
-            .split("{detail}")
-            .join(`${unstageLabel} (HTTP ${err.status})`),
-        };
-      }
-      throw err;
-    }
-  }
-
-  if (isScheduleActionName(name)) {
-    const checked = ctx.selectedItems ?? [];
-    const multi = checked.length >= 2;
-    const targets = multi
-      ? publishableScheduleTargets(checked)
-      : item && !isFolder(item) && (item.id ?? "").trim()
-        ? [item]
-        : [];
-    if (targets.length === 0) {
-      const onlyFolders =
-        !multi && (!item || isFolder(item))
-          ? true
-          : multi &&
-            checked.every((row) => isFolder(row) || !(row.id ?? "").trim());
-      if (onlyFolders) {
-        return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
-      }
-      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
-    }
-    const seed = targets[0];
-    const current = await getItemScheduleDates(seed.id ?? "");
-    let picked: ItemScheduleDates | null = current;
-    if (ctx.pickScheduleDates) {
-      picked = await ctx.pickScheduleDates(seed, current, {
-        applyCount: targets.length,
-      });
-      if (!picked) {
-        return { kind: "rest" };
-      }
-    }
-    // Invalid range is refused before POST even when the picker hook hands
-    // back dates the dialog would have rejected (#5632). The list does not
-    // refresh, so prior dates stay intact.
-    const rangeKey = validateScheduleDateRange(
-      picked.startDate ?? "",
-      picked.endDate ?? "",
-    );
-    if (rangeKey) {
-      return {
-        kind: "rest",
-        messageKey: rangeKey,
-        messageText: message(rangeKey),
-      };
-    }
-    const confirmKey =
-      targets.length > 1
-        ? EXPLORER_MSG.CONFIRM_SCHEDULE_MULTI
-        : EXPLORER_MSG.CONFIRM_SCHEDULE;
-    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(confirmKey);
-    if (!ok) {
-      return { kind: "rest" };
-    }
-    const batch = await applyScheduleDates(targets, picked, ctx.onSchedule);
-    if (batch.saved === 0 && batch.failures.length === 0) {
-      return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
-    }
-    // One row that saves nothing names the item so the operator knows which
-    // row failed (#5632). HTTP 400/403/404/409 carries the status; the list
-    // is not refreshed and the prior dates stay intact.
-    if (targets.length === 1 && batch.saved === 0 && batch.failures.length === 1) {
-      const only = batch.failures[0];
-      const detail =
-        only.status != null
-          ? `${only.name} (HTTP ${only.status})`
-          : `${only.name} (${only.message})`;
-      return {
-        kind: "rest",
-        messageKey: EXPLORER_MSG.SCHEDULE_FAILED,
-        messageText: message(EXPLORER_MSG.SCHEDULE_FAILED)
-          .split("{detail}")
-          .join(detail),
-      };
-    }
-    if (batch.failures.length > 0) {
-      return {
-        kind: "rest",
-        messageText: formatScheduleBatchFailure(batch),
-        messageKey: EXPLORER_MSG.SCHEDULE_PARTIAL,
-        refresh: batch.saved > 0,
-      };
-    }
-    return { kind: "rest", refresh: true };
-  }
-
-  if (isClearScheduledDatesActionName(name)) {
-    const checked = ctx.selectedItems ?? [];
-    if (checked.length >= 2) {
-      const targets = publishableScheduleTargets(checked);
-      const folderNames = skippedClearFolderNames(checked);
-      if (targets.length === 0) {
-        const noted =
-          folderNames.length > 0
-            ? message(EXPLORER_MSG.CLEAR_SCHEDULE_SKIPPED_FOLDERS)
-                .split("{names}")
-                .join(folderNames.join(", "))
-            : undefined;
-        return {
-          kind: "rest",
-          messageKey: EXPLORER_MSG.CLEAR_SCHEDULE_NOTHING,
-          messageText: noted ?? message(EXPLORER_MSG.CLEAR_SCHEDULE_NOTHING),
-        };
-      }
-      const confirmBody = message(EXPLORER_MSG.CONFIRM_CLEAR_SCHEDULE_MULTI)
-        .split("{count}")
-        .join(String(targets.length));
-      const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(confirmBody);
-      if (!ok) {
-        return { kind: "rest" };
-      }
-      const cleared = await clearScheduledDatesOnSelection(checked);
-      const described = describeClearScheduleSelection(cleared);
-      if (cleared.saved === 0 && cleared.failures.length === 0) {
-        return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
-      }
-      return {
-        kind: "rest",
-        refresh: described.refresh,
-        messageText: described.messageText,
-        messageKey: described.messageKey,
-      };
-    }
-    if (!item || isFolder(item) || !(item.id ?? "").trim()) {
-      return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
-    }
-    if (ctx.confirmClearScheduledDates) {
-      const cleared = await ctx.confirmClearScheduledDates(item);
-      if (!cleared) {
-        return { kind: "rest" };
-      }
-      return { kind: "rest", refresh: true };
-    }
-    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
-      EXPLORER_MSG.CLEAR_SCHEDULE_BODY,
-    );
-    if (!ok) {
-      return { kind: "rest" };
-    }
-    await setItemScheduleDates({
-      itemId: String(item.id ?? "").trim(),
-      startDate: "",
-      endDate: "",
-      comments: "",
-    });
-    return { kind: "rest", refresh: true };
-  }
-
-  if (isCheckoutActionName(name)) {
     const multi = ctx.selectedItems ?? [];
     if (multi.length >= 2) {
       return checkoutMultiSelection(ctx, multi);
@@ -2939,20 +3238,26 @@ export async function dispatchAction(
     try {
       await checkOutItem(String(item.id));
     } catch (err: unknown) {
-      if (isApiError(err)) {
-        if (err.status === 403) {
-          return { kind: "rest", messageKey: EXPLORER_MSG.CHECKOUT_FORBIDDEN };
-        }
-        if (err.status === 409 || err.status === 400) {
-          return { kind: "rest", messageKey: EXPLORER_MSG.CHECKOUT_CONFLICT };
-        }
+      const messageKey = matchApiStatus(err, {
+        400: EXPLORER_MSG.CHECKOUT_CONFLICT,
+        403: EXPLORER_MSG.CHECKOUT_FORBIDDEN,
+        409: EXPLORER_MSG.CHECKOUT_CONFLICT,
+      });
+      if (messageKey) {
+        return { kind: "rest", messageKey };
       }
       throw err;
     }
     return { kind: "rest", refresh: true };
-  }
+}
 
-  if (isCheckinActionName(name)) {
+/** Check in with an optional comment (single + multi-select). */
+async function handleCheckinAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { name, item } = seen;
+  if (!(isCheckinActionName(name))) {
+    return undefined;
+  }
     const multi = ctx.selectedItems ?? [];
     if (multi.length >= 2) {
       return checkinMultiSelection(ctx, multi);
@@ -2971,23 +3276,26 @@ export async function dispatchAction(
         comment.length > 0 ? comment : undefined,
       );
     } catch (err: unknown) {
-      if (isApiError(err)) {
-        if (err.status === 400) {
-          return { kind: "rest", messageKey: EXPLORER_MSG.CHECKIN_REJECTED };
-        }
-        if (err.status === 403) {
-          return { kind: "rest", messageKey: EXPLORER_MSG.CHECKIN_FORBIDDEN };
-        }
-        if (err.status === 409) {
-          return { kind: "rest", messageKey: EXPLORER_MSG.CHECKIN_CONFLICT };
-        }
+      const messageKey = matchApiStatus(err, {
+        400: EXPLORER_MSG.CHECKIN_REJECTED,
+        403: EXPLORER_MSG.CHECKIN_FORBIDDEN,
+        409: EXPLORER_MSG.CHECKIN_CONFLICT,
+      });
+      if (messageKey) {
+        return { kind: "rest", messageKey };
       }
       throw err;
     }
     return { kind: "rest", refresh: true, refreshCheckoutOwner: true };
-  }
+}
 
-  if (isForceCheckinActionName(name)) {
+/** Force check-in with confirm (single + multi-select). */
+async function handleForceCheckinAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { name, item } = seen;
+  if (!(isForceCheckinActionName(name))) {
+    return undefined;
+  }
     const multi = ctx.selectedItems ?? [];
     if (multi.length >= 2) {
       return forceCheckinMultiSelection(ctx, multi);
@@ -3008,26 +3316,27 @@ export async function dispatchAction(
         await forceCheckInItem(String(item.id));
       }
     } catch (err: unknown) {
-      if (isApiError(err)) {
-        if (err.status === 403) {
-          return { kind: "rest", messageKey: EXPLORER_MSG.FORCE_CHECKIN_FORBIDDEN };
-        }
-        if (err.status === 404) {
-          return { kind: "rest", messageKey: EXPLORER_MSG.FORCE_CHECKIN_NOT_FOUND };
-        }
-        if (err.status === 409 || err.status === 400) {
-          return {
-            kind: "rest",
-            messageKey: EXPLORER_MSG.FORCE_CHECKIN_NOT_CHECKED_OUT,
-          };
-        }
+      const messageKey = matchApiStatus(err, {
+        400: EXPLORER_MSG.FORCE_CHECKIN_NOT_CHECKED_OUT,
+        403: EXPLORER_MSG.FORCE_CHECKIN_FORBIDDEN,
+        404: EXPLORER_MSG.FORCE_CHECKIN_NOT_FOUND,
+        409: EXPLORER_MSG.FORCE_CHECKIN_NOT_CHECKED_OUT,
+      });
+      if (messageKey) {
+        return { kind: "rest", messageKey };
       }
       throw err;
     }
     return { kind: "rest", refresh: true };
-  }
+}
 
-  if (isAaPreviewAction(action.name, ctx.parentName)) {
+/** Active Assembly template preview host. */
+async function handleAaPreviewAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
+  if (!(isAaPreviewAction(action.name, ctx.parentName))) {
+    return undefined;
+  }
     if (!item || isFolder(item)) {
       return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
     }
@@ -3040,10 +3349,16 @@ export async function dispatchAction(
     const open = ctx.openWindow ?? defaultOpenWindow;
     open(href, assemblyWindowName(contentId), ASSEMBLY_WINDOW_FEATURES);
     return { kind: "rest" };
-  }
+}
 
+/** Template-leaf preview location fetch. */
+async function handleTemplatePreviewAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { item } = seen;
   const templateId = parseTemplateIdFromAction(action);
-  if (templateId != null && item && !isFolder(item)) {
+  if (!(templateId != null && item && !isFolder(item))) {
+    return undefined;
+  }
     const contentId = parseExplorerContentId(item.id);
     if (contentId == null) {
       return { kind: "rest", messageKey: EXPLORER_MSG.PREVIEW_UNAVAILABLE };
@@ -3057,25 +3372,97 @@ export async function dispatchAction(
     const open = ctx.openWindow ?? defaultOpenWindow;
     open(href, `percTemplatePreview_${contentId}`);
     return { kind: "rest" };
-  }
+}
 
-  if (isAssemblerPreviewUrl(action.url)) {
+/** Raw assembler preview passthrough. */
+async function handleAssemblerPreviewAction(action: MenuAction, ctx: ActionDispatchContext)
+: Promise<ActionDispatchResult | undefined> {
+  if (!(isAssemblerPreviewUrl(action.url))) {
+    return undefined;
+  }
     return openAssemblerPreviewForSelection(action, ctx);
-  }
+}
 
-  if (PREVIEW_PARENT_NAMES.has(name) || name === "preview") {
+/** Preview panel for preview-parent menus. */
+async function handlePreviewPanelAction(action: MenuAction, ctx: ActionDispatchContext, seen: DispatchSeen)
+: Promise<ActionDispatchResult | undefined> {
+  const { name, item } = seen;
+  if (!(PREVIEW_PARENT_NAMES.has(name) || name === "preview")) {
+    return undefined;
+  }
     if (!item || isFolder(item)) {
       return { kind: "rest", messageKey: EXPLORER_MSG.PREVIEW_UNAVAILABLE };
     }
     const preview = ctx.onPreview ?? openPreviewItem;
     await Promise.resolve(preview(item));
     return { kind: "rest" };
-  }
+}
 
-  if (isDataFlowActionUrl(action.url)) {
+/** Data Flow URLs never navigate from the SPA. */
+async function handleDataFlowAction(action: MenuAction, ctx: ActionDispatchContext)
+: Promise<ActionDispatchResult | undefined> {
+  if (!(isDataFlowActionUrl(action.url))) {
+    return undefined;
+  }
     return { kind: "unavailable", messageKey: EXPLORER_MSG.ACTION_UNAVAILABLE };
-  }
+}
 
+/** Branch handlers for dispatchAction, evaluated in order. */
+const DISPATCH_BRANCHES: readonly DispatchBranch[] = [
+  handleWorkflowAction,
+  handleNewItemAction,
+  handleEditorAction,
+  handleSlotAction,
+  handleUnavailableAction,
+  handleLegacyFileAction,
+  handleOpenAction,
+  handlePropertiesAction,
+  handleTranslateAction,
+  handleWhereUsedAction,
+  handleRevisionsAction,
+  handleAuditTrailAction,
+  handlePublishingHistoryAction,
+  handleFlushCacheAction,
+  handleNavResetAction,
+  handleApproveIncrementalAction,
+  handleUnapproveIncrementalAction,
+  handleRemoveIncrementalAction,
+  handleNewCopyAction,
+  handlePromotableVersionAction,
+  handleCopyUrlAction,
+  handleRestoreAction,
+  handlePurgeAction,
+  handlePublishNowAction,
+  handleTakedownAction,
+  handleStageAction,
+  handleUnstageAction,
+  handleScheduleAction,
+  handleClearScheduleAction,
+  handleCheckoutAction,
+  handleCheckinAction,
+  handleForceCheckinAction,
+  handleAaPreviewAction,
+  handleTemplatePreviewAction,
+  handleAssemblerPreviewAction,
+  handlePreviewPanelAction,
+  handleDataFlowAction,
+];
+
+export async function dispatchAction(
+  action: MenuAction,
+  ctx: ActionDispatchContext,
+): Promise<ActionDispatchResult> {
+  const seen: DispatchSeen = {
+    kind: classifyAction(action),
+    item: ctx.item ?? undefined,
+    name: normalizeActionName(action.name),
+  };
+  for (const handle of DISPATCH_BRANCHES) {
+    const result = await handle(action, ctx, seen);
+    if (result) {
+      return result;
+    }
+  }
   return { kind: "client" };
 }
 
