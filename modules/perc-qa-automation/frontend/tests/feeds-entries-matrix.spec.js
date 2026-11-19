@@ -32,9 +32,13 @@
  * contract: without {@code DTS_BASE_URL} every case skips naming the
  * cell (#6237, green on the CMS-only cell); with a base URL each case
  * probes liveness ({@code HEAD <context>/rss/csrf} — the service lives
- * under its Tomcat deployment context, issue #6342); a cell whose
- * descriptor or index writes are auth-gated or CONFIDENTIAL-redirected
- * skips the seeding cases with a named reason instead of failing. Each
+ * under its Tomcat deployment context, issue #6342); writer calls
+ * (descriptor PUT, index seed and cleanup) ride the published DTS
+ * HTTPS origin ({@code DTS_HTTPS_URL}, #6375) because the writer
+ * paths are CONFIDENTIAL — a cell that publishes no HTTPS origin
+ * skips the seeding cases with a named reason instead of failing,
+ * and auth-gated HTTPS writes skip naming the missing delivery
+ * credentials. Each
  * Playwright case seeds its own probe descriptor under a unique site
  * so cases stay independent under parallel workers (the descriptor PUT
  * scopes writes per site). Index-row seed and cleanup ride the
@@ -44,7 +48,10 @@
  * litter rows, #6557).</p>
  *
  * <p>Run (needs the DTS-providing cell):
- * {@code DTS_BASE_URL=https://<dts-cell-origin>
+ * {@code DTS_BASE_URL=http://<dts-cell-origin>
+ * DTS_HTTPS_URL=https://<dts-cell-origin>:<https-port>
+ * DTS_DELIVERY_USER=<deliverymanager-user>
+ * DTS_DELIVERY_PASSWORD=<deliverymanager-password>
  * npm run test:surface -- --path tests/feeds-entries-matrix.spec.js}
  * from {@code modules/perc-qa-automation/frontend}. Without
  * {@code DTS_BASE_URL} every case skips with the named reason.</p>
@@ -52,19 +59,21 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
-const { test, expect } = require("@playwright/test");
+const { test, expect, request: baseRequest } = require("@playwright/test");
 const {
   MATRIX_SPEC,
   CASE_DESCRIPTOR,
   CASE_ENTRIES,
   CASE_UNSEEDED,
   SKIP_NO_DTS_BASE,
+  SKIP_NO_DTS_HTTPS,
   skipServiceDown,
   skipUnprovisioned,
   dtsBaseUrl,
   dtsContextUrl,
   dtsServiceUrl,
   indexerServiceUrl,
+  dtsHttpsBaseUrl,
   entryUrl,
   deliveryAuthHeader,
   probeFeed,
@@ -112,6 +121,45 @@ async function readJson(response) {
 }
 
 /**
+ * HTTPS writer context for the CONFIDENTIAL writer paths (the
+ * descriptor PUT plus the index seed and cleanup): the writers answer
+ * plain-HTTP calls with a 302 to the in-cell HTTPS port, so seeding
+ * rides the published DTS HTTPS origin (see
+ * {@code dtsHttpsBaseUrl}, #6375) through an untrusted-chain-allowed
+ * context — the cell TLS identity is shipped/self-signed. Skips by
+ * name when the cell publishes no HTTPS origin or the origin never
+ * answers (default H2 QA cell, pre-#6375 cell).
+ *
+ * <p>The caller disposes the returned context (try/finally) so a
+ * passing run leaves no request state behind.</p>
+ *
+ * @returns {Promise<{ httpsBase: URL, httpsRequest: object }>} HTTPS origin + context
+ */
+async function httpsWriterContext() {
+  const httpsBase = dtsHttpsBaseUrl();
+  test.skip(!httpsBase, `feeds entries (Feeds): ${SKIP_NO_DTS_HTTPS}`);
+  const httpsRequest = await baseRequest.newContext({
+    ignoreHTTPSErrors: true,
+  });
+  let answered = false;
+  try {
+    // maxRedirects: 0 keeps a misconfigured-HTTPS answer as a plain
+    // response so the skip below engages; following the redirect would
+    // throw instead of skipping.
+    await httpsRequest.get(`${httpsBase.origin}/`, { maxRedirects: 0 });
+    answered = true;
+  } catch {
+    answered = false;
+  }
+  test.skip(
+    !answered,
+    `feeds entries (Feeds): ${SKIP_NO_DTS_HTTPS} (no answer at ` +
+      `'${httpsBase.origin}/'; the cell predates the qa-up --with-dts HTTPS publish, #6375)`,
+  );
+  return { httpsBase, httpsRequest };
+}
+
+/**
  * Seeds the probe descriptor ({@code PUT /rss/descriptors} as
  * {@code deliverymanager}) plus its index rows
  * ({@code POST /indexer/entry<path>}), skipping by name on the known
@@ -123,22 +171,22 @@ async function readJson(response) {
  * {@code pagePath} and DELETEs nothing while answering 204, so seeded
  * rows would linger (#6557 trap 2).
  */
-async function seedProbe(request, svc, indexerSvc, feed) {
-  const put = await request.put(`${svc}/descriptors`, {
+async function seedProbe(httpsRequest, httpsSvc, httpsIndexerSvc, feed) {
+  const put = await httpsRequest.put(`${httpsSvc}/descriptors`, {
     maxRedirects: 0,
     headers: deliveryAuthHeader(),
     data: descriptorPayload(feed),
   });
-  // Skip only for the known cell limitations (auth-gated or redirected
-  // seed); any other failure (5xx, 404, …) means the descriptor surface
-  // itself is broken and must fail the test.
+  // Skip only for the known cell limitation (auth-gated seed); any
+  // other failure (5xx, 404, …) means the descriptor surface itself
+  // is broken and must fail the test. The CONFIDENTIAL redirect is
+  // gone by construction: writers always ride the HTTPS origin.
   test.skip(
-    !put.ok() && [401, 403, 302].includes(put.status()),
+    !put.ok() && [401, 403].includes(put.status()),
     skipUnprovisioned(
       `PUT /rss/descriptors for site '${feed.site}' answered HTTP ${put.status()}; ` +
-        `the shipped feeds writer is deliverymanager-gated and CONFIDENTIAL, so plain-HTTP ` +
-        `cells without provisioned DTS deliverymanager credentials (DTS_DELIVERY_USER / ` +
-        `DTS_DELIVERY_PASSWORD) and a reachable DTS HTTPS port cannot seed`,
+        `the shipped feeds writer is deliverymanager-gated, so cells without provisioned ` +
+        `DTS deliverymanager credentials (DTS_DELIVERY_USER / DTS_DELIVERY_PASSWORD) cannot seed`,
     ),
   );
   expect(
@@ -147,17 +195,17 @@ async function seedProbe(request, svc, indexerSvc, feed) {
   ).toBe(true);
 
   for (const entry of feed.entries) {
-    const seed = await request.post(entryUrl(indexerSvc, entry.path), {
+    const seed = await httpsRequest.post(entryUrl(httpsIndexerSvc, entry.path), {
       maxRedirects: 0,
       headers: deliveryAuthHeader(),
       data: indexEntryPayload(entry, feed.site),
     });
     test.skip(
-      !seed.ok() && [401, 403, 302].includes(seed.status()),
+      !seed.ok() && [401, 403].includes(seed.status()),
       skipUnprovisioned(
         `POST /indexer/entry for '${entry.path}' answered HTTP ${seed.status()}; ` +
-          `the shipped extractor is CONFIDENTIAL + deliverymanager-gated, so plain-HTTP cells ` +
-          `without provisioned credentials and a reachable DTS HTTPS port cannot seed`,
+          `the shipped extractor is deliverymanager-gated, so cells without provisioned ` +
+          `credentials cannot seed`,
       ),
     );
     expect(
@@ -175,10 +223,10 @@ async function seedProbe(request, svc, indexerSvc, feed) {
  * to every other test. The row DELETEs go through {@link entryUrl}
  * (double slash, #6557 trap 2) so they actually remove the rows.
  */
-async function removeProbeRows(request, indexerSvc, feed) {
+async function removeProbeRows(httpsRequest, httpsIndexerSvc, feed) {
   for (const entry of feed.entries) {
-    const cleanup = await request
-      .delete(entryUrl(indexerSvc, entry.path), {
+    const cleanup = await httpsRequest
+      .delete(entryUrl(httpsIndexerSvc, entry.path), {
         maxRedirects: 0,
         headers: deliveryAuthHeader(),
       })
@@ -235,12 +283,21 @@ test.describe("feeds entries matrix", () => {
 
       await probeLiveness(request, base);
       const feed = probeFeed();
-      const svc = dtsServiceUrl(base);
-      const indexerSvc = indexerServiceUrl(base);
+      const { httpsBase, httpsRequest } = await httpsWriterContext();
       try {
-        await seedProbe(request, svc, indexerSvc, feed);
+        await seedProbe(
+          httpsRequest,
+          dtsServiceUrl(httpsBase),
+          indexerServiceUrl(httpsBase),
+          feed,
+        );
       } finally {
-        await removeProbeRows(request, indexerSvc, feed);
+        await removeProbeRows(
+          httpsRequest,
+          indexerServiceUrl(httpsBase),
+          feed,
+        );
+        await httpsRequest.dispose();
       }
       recordCase(CASE_DESCRIPTOR);
     },
@@ -257,9 +314,15 @@ test.describe("feeds entries matrix", () => {
       await probeLiveness(request, base);
       const feed = probeFeed();
       const svc = dtsServiceUrl(base);
-      const indexerSvc = indexerServiceUrl(base);
+      const { httpsBase, httpsRequest } = await httpsWriterContext();
+      const httpsIndexerSvc = indexerServiceUrl(httpsBase);
       try {
-        await seedProbe(request, svc, indexerSvc, feed);
+        await seedProbe(
+          httpsRequest,
+          dtsServiceUrl(httpsBase),
+          httpsIndexerSvc,
+          feed,
+        );
 
         const generated = await request.get(feedUrl(svc, feed), {
           headers: { Accept: "text/xml" },
@@ -290,7 +353,8 @@ test.describe("feeds entries matrix", () => {
           ).toContain(entry.abstract);
         }
       } finally {
-        await removeProbeRows(request, indexerSvc, feed);
+        await removeProbeRows(httpsRequest, httpsIndexerSvc, feed);
+        await httpsRequest.dispose();
       }
       recordCase(CASE_ENTRIES);
     },
