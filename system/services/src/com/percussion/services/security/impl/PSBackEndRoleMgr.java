@@ -226,21 +226,60 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
 
     //see base interface method for details
     public void setSubjectEmail(String subjectName, String subjectEmail) {
+        if (StringUtils.isBlank(subjectName)) {
+            throw new IllegalArgumentException("subjectName may not be null or empty");
+        }
+        String normalizedEmail = subjectEmail == null ? "" : subjectEmail.trim();
         RoleConfig config = null;
 
         try {
-            config = getRoleConfig();
-            setUserEmail(subjectName, subjectEmail, config.roleCfg);
-            config.objectStore.saveRoleConfiguration(config.roleCfg,
-                config.lockId, config.securityToken);
+            config = acquireRoleConfig();
+            applySubjectEmail(config.roleCfg, subjectName, normalizedEmail);
+            config.objectStore.saveRoleConfiguration(
+                config.roleCfg, config.lockId, config.securityToken);
         } catch (Exception e) {
-            String msg = "Failed to set the email: " + subjectEmail +
-                " to the user: " + subjectName;
-            ms_log.error(msg);
+            String msg =
+                "Failed to set the email: "
+                    + normalizedEmail
+                    + " to the user: "
+                    + subjectName;
+            ms_log.error(msg, e);
+            throw new RuntimeException(msg, e);
         } finally {
             if (config != null) {
                 releaseConfigLock(config.objectStore, config.lockId);
             }
+        }
+    }
+
+    /** Package-visible hook so unit tests can supply a mocked {@link RoleConfig}. */
+    RoleConfig acquireRoleConfig() {
+        return getRoleConfig();
+    }
+
+    /** Applies {@code sys_email} to the named global user subject inside {@code roleCfg}. */
+    static void applySubjectEmail(
+        PSRoleConfiguration roleCfg, String subjectName, String subjectEmail) {
+        if (roleCfg == null) {
+            throw new IllegalArgumentException("roleCfg may not be null");
+        }
+        if (StringUtils.isBlank(subjectName)) {
+            throw new IllegalArgumentException("subjectName may not be null or empty");
+        }
+        PSRelativeSubject relativeSub =
+            new PSRelativeSubject(subjectName, PSSubject.SUBJECT_TYPE_USER, null);
+        PSSubject subject = roleCfg.getGlobalSubject(relativeSub, true);
+        if (subject == null) {
+            throw new IllegalStateException(
+                "Unable to create or load global subject for " + subjectName);
+        }
+        PSAttributeList attrs = subject.getAttributes();
+        PSAttribute emailAttribute = attrs.getAttribute(EMAIL_ATTRIBUTE_NAME);
+        String stored = subjectEmail == null ? "" : subjectEmail.trim();
+        if (emailAttribute == null) {
+            attrs.setAttribute(EMAIL_ATTRIBUTE_NAME, Arrays.asList(stored));
+        } else {
+            emailAttribute.setValues(Arrays.asList(stored));
         }
     }
 
@@ -322,33 +361,6 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
         ms_log.info("Role description is updated for the role: " + roleName);
 
         return role;
-    }
-
-    /**
-     * Sets the provided email on the provided subject.
-     *
-     * @param subjectName  never <code>null</code> or empty.
-     * @param subjectEmail never <code>null</code> might be empty.
-     * @param roleCfg      never <code>null</code>
-     */
-    private void setUserEmail(String subjectName, String subjectEmail,
-        PSRoleConfiguration roleCfg) {
-        PSRelativeSubject relativeSub = new PSRelativeSubject(subjectName,
-                PSSubject.SUBJECT_TYPE_USER, null);
-        PSSubject subject = roleCfg.getGlobalSubject(relativeSub, true);
-
-        if (subject != null) {
-            PSAttributeList attrs = subject.getAttributes();
-            PSAttribute emailAttribute = attrs.getAttribute(EMAIL_ATTRIBUTE_NAME);
-
-            //email attribute is not already set up on this user, so set the attribute and value
-            if (emailAttribute == null) {
-                attrs.setAttribute(EMAIL_ATTRIBUTE_NAME,
-                    Arrays.asList(subjectEmail));
-            } else {
-                emailAttribute.setValues(Arrays.asList(subjectEmail));
-            }
-        }
     }
 
     /**
@@ -956,7 +968,7 @@ public class PSBackEndRoleMgr implements IPSBackEndRoleMgr {
      * The container class, used to hold the role configuration and its
      * related objects, which are used to update the role configuration.
      */
-    private class RoleConfig {
+    static class RoleConfig {
         /**
          * The role configuration, not <code>null</code> after initialized.
          */

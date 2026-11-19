@@ -37,6 +37,9 @@ import com.percussion.design.objectstore.PSSubject;
 import com.percussion.metadata.service.IPSMetadataService;
 import com.percussion.security.IPSPasswordFilter;
 import com.percussion.security.PSSecurityCatalogException;
+import com.percussion.services.auth.account.IPSAccountSecurityService;
+import com.percussion.services.auth.account.PSEmailChangeResult;
+import com.percussion.services.auth.account.PSEmailVerificationStatus;
 import com.percussion.services.security.IPSBackEndRoleMgr;
 import com.percussion.services.security.IPSRoleMgr;
 import com.percussion.services.security.PSJaasUtils;
@@ -266,6 +269,135 @@ class PSUserAccountProfileTest {
       assertEquals("admin@example.com", result.getEmail());
       // Directory email path is only for non-INTERNAL (find already loaded INTERNAL email)
       verify(roleMgr, never()).findUsers(anyList(), eq("Default"), eq("backend"));
+    }
+  }
+
+  @Nested
+  @DisplayName("Verified email lifecycle enforcement (M2)")
+  class EmailPolicyAndStaging {
+
+    @Test
+    void rejectsBlankSelfUpdateWhenEmailRequiredAndStagesVerifiedEmailChanges() throws Exception {
+      IPSAccountSecurityService accountSecurityService = mock(IPSAccountSecurityService.class);
+      when(accountSecurityService.isEmailRequired()).thenReturn(true);
+      userService.setAccountSecurityService(accountSecurityService);
+
+      PSCurrentUser current = internalUser("Editor1", "verified@example.com");
+      doReturn(current).when(userService).getCurrentUser();
+
+      PSUserAccountUpdate blankUpdate = new PSUserAccountUpdate();
+      blankUpdate.setEmail("   ");
+      assertThrows(PSValidationException.class, () -> userService.updateMyAccount(blankUpdate));
+
+      when(accountSecurityService.getEmailStatus("Editor1", "verified@example.com", false))
+          .thenReturn(
+              new PSEmailVerificationStatus(
+                  "Editor1",
+                  "verified@example.com",
+                  true,
+                  null,
+                  "",
+                  "INTERACTIVE_MFA_REQUIRED",
+                  true));
+      when(accountSecurityService.stageEmailChange(
+              eq("Editor1"),
+              eq("verified@example.com"),
+              eq("pending@example.com"),
+              any(),
+              eq(true)))
+          .thenReturn(
+              new PSEmailChangeResult(
+                  true, false, "verified@example.com", "pending@example.com", true, "Staged"));
+
+      PSUserAccountUpdate stagedUpdate = new PSUserAccountUpdate();
+      stagedUpdate.setEmail("pending@example.com");
+      PSCurrentUser res = userService.updateMyAccount(stagedUpdate);
+
+      assertEquals("verified@example.com", res.getEmail());
+      verify(backEndRoleMgr, never()).setSubjectEmail("Editor1", "pending@example.com");
+      verify(accountSecurityService)
+          .stageEmailChange(
+              eq("Editor1"),
+              eq("verified@example.com"),
+              eq("pending@example.com"),
+              any(),
+              eq(true));
+    }
+
+    @Test
+    void enforcesRequiredEmailOnCreateForHumanUsersWhileExemptingServiceAccounts() {
+      IPSAccountSecurityService accountSecurityService = mock(IPSAccountSecurityService.class);
+      when(accountSecurityService.isEmailRequired()).thenReturn(true);
+      when(accountSecurityService.isSystemServiceUser("PercussionAdmin")).thenReturn(true);
+      when(accountSecurityService.isSystemServiceUser("Editor2")).thenReturn(false);
+      when(backEndRoleMgr.getRhythmyxRoles())
+          .thenReturn(new java.util.ArrayList<>(List.of("Editor", "Admin")));
+      userService.setAccountSecurityService(accountSecurityService);
+
+      PSUser missingEmailHuman = new PSUser();
+      missingEmailHuman.setName("Editor2");
+      missingEmailHuman.setPassword("ValidPassword123!");
+      missingEmailHuman.setEmail("");
+      missingEmailHuman.setRoles(List.of("Editor"));
+
+      assertThrows(
+          PSValidationException.class, () -> userService.doValidation(missingEmailHuman, true));
+
+      PSUser serviceUser = new PSUser();
+      serviceUser.setName("PercussionAdmin");
+      serviceUser.setPassword("ValidPassword123!");
+      serviceUser.setEmail("");
+      serviceUser.setRoles(List.of("Admin"));
+      // Non-interactive service user bypasses human email-required check (SYSTEM_USERS check on name
+      // still applies inside validator if name is restricted; verify email field has no error)
+      PSValidationException ex =
+          assertThrows(
+              PSValidationException.class, () -> userService.doValidation(serviceUser, true));
+      assertFalse(ex.getValidationErrors().getFieldErrors().stream().anyMatch(err -> "email".equals(err.getField())));
+    }
+
+    @Test
+    void enforcesSharedPasswordPolicyOnCreateAndInternalUpdate() throws Exception {
+      when(backEndRoleMgr.getRhythmyxRoles())
+          .thenReturn(new java.util.ArrayList<>(List.of("Editor", "Admin")));
+
+      PSUser shortPwCreate = new PSUser();
+      shortPwCreate.setName("EditorShort");
+      shortPwCreate.setPassword("ShortPw12!");
+      shortPwCreate.setEmail("short@example.com");
+      shortPwCreate.setRoles(List.of("Editor"));
+
+      PSValidationException shortEx =
+          assertThrows(
+              PSValidationException.class, () -> userService.doValidation(shortPwCreate, true));
+      assertTrue(
+          shortEx.getValidationErrors().getFieldErrors().stream()
+              .anyMatch(err -> "password".equals(err.getField())));
+
+      PSUser validCreate = new PSUser();
+      validCreate.setName("EditorValid");
+      validCreate.setPassword("ValidPassword12!");
+      validCreate.setEmail("valid@example.com");
+      validCreate.setRoles(List.of("Editor"));
+      userService.doValidation(validCreate, true);
+
+      doReturn("Admin").when(userService).getCurrentUserName();
+      PSUser blankPwInternalUpdate = new PSUser();
+      blankPwInternalUpdate.setName("EditorValid");
+      blankPwInternalUpdate.setProviderType(PSUserProviderType.INTERNAL);
+      blankPwInternalUpdate.setPassword("");
+      blankPwInternalUpdate.setEmail("valid@example.com");
+      blankPwInternalUpdate.setRoles(List.of("Editor"));
+      userService.doValidation(blankPwInternalUpdate, false);
+
+      PSUser tooLongUpdate = new PSUser();
+      tooLongUpdate.setName("EditorValid");
+      tooLongUpdate.setProviderType(PSUserProviderType.INTERNAL);
+      tooLongUpdate.setPassword("a".repeat(151));
+      tooLongUpdate.setEmail("valid@example.com");
+      tooLongUpdate.setRoles(List.of("Editor"));
+      assertThrows(
+          PSValidationException.class, () -> userService.doValidation(tooLongUpdate, false));
     }
   }
 

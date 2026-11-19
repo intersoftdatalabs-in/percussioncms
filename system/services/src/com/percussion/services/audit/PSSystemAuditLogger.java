@@ -126,6 +126,196 @@ public final class PSSystemAuditLogger {
         ip);
   }
 
+  public static void mfaChallengeSuccess(
+      HttpServletRequest request, String username, String factor) {
+    String actor = nullToEmpty(username);
+    log(
+        AuthenticationErrorCodes.MFA_CHALLENGE_SUCCESS,
+        context(request, actor),
+        AuditOutcome.SUCCESS,
+        actor,
+        nullToEmpty(factor),
+        clientIp(request));
+  }
+
+  public static void mfaChallengeFailure(
+      HttpServletRequest request, String username, String factor, String reason) {
+    String actor = nullToEmpty(username);
+    log(
+        AuthenticationErrorCodes.MFA_CHALLENGE_FAILURE,
+        context(request, actor),
+        AuditOutcome.FAILURE,
+        actor,
+        nullToEmpty(factor),
+        nullToEmpty(reason),
+        clientIp(request));
+  }
+
+  public static void mfaLockout(HttpServletRequest request, String username, int attempts) {
+    String actor = nullToEmpty(username);
+    log(
+        AuthenticationErrorCodes.MFA_LOCKOUT,
+        context(request, actor),
+        AuditOutcome.FAILURE,
+        actor,
+        attempts,
+        clientIp(request));
+  }
+
+  public static void mfaFactorEnrolled(
+      HttpServletRequest request, String username, String factor) {
+    String actor = nullToEmpty(username);
+    log(
+        AuthenticationErrorCodes.MFA_FACTOR_ENROLLED,
+        context(request, actor),
+        AuditOutcome.SUCCESS,
+        actor,
+        nullToEmpty(factor),
+        clientIp(request));
+  }
+
+  public static void mfaFactorRemoved(
+      HttpServletRequest request, String username, String factor) {
+    String actor = nullToEmpty(username);
+    log(
+        AuthenticationErrorCodes.MFA_FACTOR_REMOVED,
+        context(request, actor),
+        AuditOutcome.SUCCESS,
+        actor,
+        nullToEmpty(factor),
+        clientIp(request));
+  }
+
+  public static void mfaRecoveryCodeUsed(
+      HttpServletRequest request, String username, long remaining) {
+    String actor = nullToEmpty(username);
+    log(
+        AuthenticationErrorCodes.MFA_RECOVERY_CODE_USED,
+        context(request, actor),
+        AuditOutcome.SUCCESS,
+        actor,
+        remaining,
+        clientIp(request));
+  }
+
+  public static void mfaRecoveryCodesRegenerated(
+      HttpServletRequest request, String username, int count) {
+    String actor = nullToEmpty(username);
+    log(
+        AuthenticationErrorCodes.MFA_RECOVERY_CODES_REGENERATED,
+        context(request, actor),
+        AuditOutcome.SUCCESS,
+        actor,
+        count,
+        clientIp(request));
+  }
+
+  public static void mfaPolicyBlocked(
+      HttpServletRequest request, String username, String channel) {
+    String actor = nullToEmpty(username);
+    log(
+        AuthenticationErrorCodes.MFA_POLICY_BLOCKED,
+        context(request, actor),
+        AuditOutcome.FAILURE,
+        actor,
+        nullToEmpty(channel),
+        clientIp(request));
+  }
+
+  public static void sessionVersionInvalidated(
+      HttpServletRequest request, String username, long sessionVersion, long currentVersion) {
+    String actor = nullToEmpty(username);
+    log(
+        AuthenticationErrorCodes.SESSION_VERSION_INVALIDATED,
+        context(request, actor),
+        AuditOutcome.SUCCESS,
+        actor,
+        sessionVersion,
+        currentVersion,
+        clientIp(request));
+  }
+
+  public static void passwordResetEvent(
+      HttpServletRequest request, String username, String activity, AuditOutcome outcome) {
+    passwordResetEvent(username, activity, clientIp(request), outcome, context(request, nullToEmpty(username)));
+  }
+
+  public static void passwordResetEvent(
+      String username, String activity, String sourceIp, AuditOutcome outcome) {
+    String actor = nullToEmpty(username);
+    AuditContext ctx =
+        AuditContext.builder().actor(actor).sourceIp(nullToEmpty(sourceIp)).build();
+    passwordResetEvent(actor, activity, sourceIp, outcome, ctx);
+  }
+
+  private static void passwordResetEvent(
+      String username,
+      String activity,
+      String sourceIp,
+      AuditOutcome outcome,
+      AuditContext ctx) {
+    String actor = nullToEmpty(username);
+    log(
+        AuthenticationErrorCodes.PASSWORD_RESET_EVENT,
+        ctx,
+        outcome != null ? outcome : AuditOutcome.SUCCESS,
+        actor,
+        nullToEmpty(activity),
+        nullToEmpty(sourceIp));
+  }
+
+  public static void adminRecoveryEvent(
+      HttpServletRequest request,
+      String actorAdmin,
+      String targetUser,
+      String activity,
+      AuditOutcome outcome) {
+    String actor = nullToEmpty(actorAdmin);
+    String target = nullToEmpty(targetUser);
+    AuditContext ctx =
+        AuditContext.builder()
+            .actor(actor)
+            .target(target)
+            .sourceIp(clientIp(request))
+            .sourceHost(sourceHost(request))
+            .build();
+    adminRecoveryEvent(actor, target, activity, clientIp(request), outcome, ctx);
+  }
+
+  public static void adminRecoveryEvent(
+      String actorAdmin,
+      String targetUser,
+      String activity,
+      String sourceIp,
+      AuditOutcome outcome) {
+    String actor = nullToEmpty(actorAdmin);
+    String target = nullToEmpty(targetUser);
+    AuditContext ctx =
+        AuditContext.builder()
+            .actor(actor)
+            .target(target)
+            .sourceIp(nullToEmpty(sourceIp))
+            .build();
+    adminRecoveryEvent(actor, target, activity, sourceIp, outcome, ctx);
+  }
+
+  private static void adminRecoveryEvent(
+      String actorAdmin,
+      String targetUser,
+      String activity,
+      String sourceIp,
+      AuditOutcome outcome,
+      AuditContext ctx) {
+    log(
+        AuthenticationErrorCodes.ADMIN_RECOVERY_EVENT,
+        ctx,
+        outcome != null ? outcome : AuditOutcome.SUCCESS,
+        nullToEmpty(actorAdmin),
+        nullToEmpty(targetUser),
+        nullToEmpty(activity),
+        nullToEmpty(sourceIp));
+  }
+
   /** Content create / update / delete / recycle / schedule dual-write. */
   public static void content(
       ContentErrorCodes code,

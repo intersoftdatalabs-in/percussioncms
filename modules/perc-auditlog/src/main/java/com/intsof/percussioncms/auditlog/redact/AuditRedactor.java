@@ -39,7 +39,8 @@ public final class AuditRedactor {
 
   private static final Pattern PASSWORD_KV =
       Pattern.compile(
-          "(?i)(password|passwd|pwd|secret|token|api[_-]?key|authorization|bearer)\\s*([:=])\\s*([^\\s,;]+)");
+          // mkd-code-review[secrets.heuristic]: adjudicated intentional (issue #50, same as M2) — regex scrubs credentials from audit logs, not a hardcoded secret.
+          "(?i)(password|passwd|pwd|secret|token|api[_-]?key|authorization|bearer)\\s*([:=])\\s*([^\\s,;&]+)");
 
   private static final Pattern BASIC_AUTH =
       Pattern.compile("(?i)(basic)\\s+[A-Za-z0-9+/=]{8,}");
@@ -48,7 +49,20 @@ public final class AuditRedactor {
       Pattern.compile("(?i)(://)([^/@\\s:]+):([^/@\\s]+)@");
 
   private static final Pattern CONNECTION_PASSWORD =
-      Pattern.compile("(?i)(password|pwd)=([^;&\\s]+)");
+      Pattern.compile(
+          // mkd-code-review[secrets.heuristic]: adjudicated intentional (issue #50, same as M2) — regex scrubs connection credentials from audit logs, not a hardcoded secret.
+          "(?i)(password|pwd)=([^;&\\s]+)");
+
+  private static final Pattern OTPAUTH_URI = Pattern.compile("(?i)otpauth://[^\\s\"'<>]+");
+
+  private static final Pattern MFA_SECRET_KV =
+      Pattern.compile(
+          "(?i)(recovery[_-]?code|totp[_-]?secret|manual[_-]?secret|otp[_-]?secret|backup[_-]?code|setup[_-]?key|totp|otp|challenge)\\s*([:=])\\s*([^\\s,;&]+)");
+
+  private static final Pattern SENSITIVE_QUERY_PARAM =
+      Pattern.compile("(?i)([?&](?:token|secret|code|otp|totp|recovery_code)=)([^&\\s\"'<>]+)");
+
+  private static final int MIN_BASE32_SECRET_LEN = 26;
 
   /**
    * Redact a single string value. {@code null} becomes empty string after redaction pipeline.
@@ -62,12 +76,142 @@ public final class AuditRedactor {
         input.length() > MAX_FIELD_LENGTH
             ? input.substring(0, MAX_FIELD_LENGTH) + "…"
             : input;
+    s = OTPAUTH_URI.matcher(s).replaceAll("otpauth://" + REDACTED);
+    s = SENSITIVE_QUERY_PARAM.matcher(s).replaceAll("$1" + REDACTED);
+    s = MFA_SECRET_KV.matcher(s).replaceAll("$1$2" + REDACTED);
     s = PASSWORD_KV.matcher(s).replaceAll("$1$2" + REDACTED);
     s = CONNECTION_PASSWORD.matcher(s).replaceAll("$1=" + REDACTED);
     s = URL_CREDENTIALS.matcher(s).replaceAll("$1" + REDACTED + ":" + REDACTED + "@");
     s = redactJwtLikeTokens(s);
     s = BASIC_AUTH.matcher(s).replaceAll("$1 " + REDACTED);
+    s = redactRecoveryCodeTokens(s);
+    s = redactBase32Secrets(s);
     return s;
+  }
+
+  /** Redacts standalone Crockford Base32 recovery codes formatted {@code XXXXX-XXXXX}. */
+  static String redactRecoveryCodeTokens(String s) {
+    if (s == null || s.length() < 11) {
+      return s;
+    }
+    final int n = s.length();
+    StringBuilder out = null;
+    int copyFrom = 0;
+    int i = 0;
+    while (i <= n - 11) {
+      if (isRecoveryCodeAt(s, i)) {
+        if (out == null) {
+          out = new StringBuilder(n);
+        }
+        out.append(s, copyFrom, i).append(REDACTED);
+        i += 11;
+        copyFrom = i;
+        continue;
+      }
+      i++;
+    }
+    return out == null ? s : out.append(s, copyFrom, n).toString();
+  }
+
+  private static boolean isRecoveryCodeAt(String s, int start) {
+    if (start > 0 && !isTokenBoundaryBefore(s.charAt(start - 1))) {
+      return false;
+    }
+    int end = start + 11;
+    if (end < s.length() && !isTokenBoundaryBefore(s.charAt(end))) {
+      return false;
+    }
+    if (s.charAt(start + 5) != '-') {
+      return false;
+    }
+    return hasValidRecoveryBody(s, start);
+  }
+
+  private static boolean hasValidRecoveryBody(String s, int start) {
+    boolean sawDigit = false;
+    for (int j = 0; j < 11; j++) {
+      if (j == 5) {
+        continue;
+      }
+      char c = s.charAt(start + j);
+      if (!isUpperAlnum(c)) {
+        return false;
+      }
+      if (c >= '0' && c <= '9') {
+        sawDigit = true;
+      }
+    }
+    return sawDigit;
+  }
+
+  /** Redacts standalone Base32 TOTP setup secrets ({@code [A-Z2-7]{26,}}). */
+  static String redactBase32Secrets(String s) {
+    if (s == null || s.length() < MIN_BASE32_SECRET_LEN) {
+      return s;
+    }
+    final int n = s.length();
+    StringBuilder out = null;
+    int copyFrom = 0;
+    int i = 0;
+    while (i < n) {
+      int runEnd = findBase32SecretEnd(s, i);
+      if (runEnd < 0) {
+        i = advancePastAlnum(s, i);
+        continue;
+      }
+      if (out == null) {
+        out = new StringBuilder(n);
+      }
+      out.append(s, copyFrom, i).append(REDACTED);
+      i = runEnd;
+      copyFrom = runEnd;
+    }
+    return out == null ? s : out.append(s, copyFrom, n).toString();
+  }
+
+  private static int findBase32SecretEnd(String s, int start) {
+    if (start > 0 && isAsciiAlnum(s.charAt(start - 1))) {
+      return -1;
+    }
+    int i = start;
+    while (i < s.length() && isUpperBase32Char(s.charAt(i))) {
+      i++;
+    }
+    int len = i - start;
+    if (len < MIN_BASE32_SECRET_LEN) {
+      return -1;
+    }
+    if (i < s.length() && isAsciiAlnum(s.charAt(i))) {
+      return -1;
+    }
+    return i;
+  }
+
+  private static int advancePastAlnum(String s, int pos) {
+    int i = pos;
+    if (i < s.length() && isAsciiAlnum(s.charAt(i))) {
+      while (i < s.length() && isAsciiAlnum(s.charAt(i))) {
+        i++;
+      }
+      return i;
+    }
+    return i + 1;
+  }
+
+  private static boolean isTokenBoundaryBefore(char c) {
+    return !isAsciiAlnum(c) && c != '-';
+  }
+
+  private static boolean isUpperBase32Char(char c) {
+    return (c >= 'A' && c <= 'Z') || (c >= '2' && c <= '7');
+  }
+
+  private static boolean isUpperAlnum(char c) {
+    return (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9');
+  }
+
+  private static boolean isAsciiAlnum(char c) {
+    return isUpperAlnum(c) || (c >= 'a' && c <= 'z');
   }
 
   /**
@@ -228,6 +372,12 @@ public final class AuditRedactor {
         || k.contains("apikey")
         || k.contains("api_key")
         || k.contains("authorization")
-        || k.contains("credential");
+        || k.contains("credential")
+        || k.contains("otp")
+        || k.contains("totp")
+        || k.contains("recovery")
+        || k.contains("backup")
+        || k.contains("challenge")
+        || k.contains("passkey");
   }
 }

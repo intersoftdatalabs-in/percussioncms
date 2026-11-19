@@ -36,6 +36,8 @@ export const LOGIN_KEYS = {
   PASSWORD: "perc.ui.login.modern@Password",
   LOCALE: "perc.ui.login.modern@Locale",
   SUBMIT: "perc.ui.login.modern@Login",
+  FORGOT_USERNAME: "perc.ui.login.modern@Forgot username?",
+  FORGOT_PASSWORD: "perc.ui.login.modern@Forgot password?",
 } as const;
 
 export type LoginKey = (typeof LOGIN_KEYS)[keyof typeof LOGIN_KEYS];

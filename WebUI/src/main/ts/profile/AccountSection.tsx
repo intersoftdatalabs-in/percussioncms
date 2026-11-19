@@ -20,6 +20,16 @@ import {
   formatApiError,
   isSessionRedirectError,
 } from "../api/client";
+import {
+  getMyEmailStatus,
+  isStepUpRequiredError,
+  type MfaStepUpResponse,
+  type ProfileEmailActionResult,
+  type ProfileEmailStatus,
+  requestMyEmailChange,
+  resendMyEmailVerification,
+  verifyMfaStepUp,
+} from "../api/auth";
 import { allowedSessionCommunities } from "../api/user/communitySwitchApi";
 import {
   type CurrentUserProfile,
@@ -30,6 +40,8 @@ import {
 } from "../api/user/userProfileApi";
 import { i18nKeyAttr } from "../i18n/i18nDom";
 import { message } from "../i18n/message";
+import { EmailVerificationStatusBanner } from "./EmailVerificationStatus";
+import { InlineStepUpPrompt } from "./InlineStepUpPrompt";
 import { PROFILE_MSG } from "./messages";
 import {
   loadRememberLastCommunityPrefs,
@@ -47,6 +59,13 @@ export interface AccountSectionProps {
   loadRememberLast?: () => Promise<RememberLastCommunityPrefs>;
   saveRememberLast?: (userName: string, remember: boolean) => Promise<boolean>;
   persistLastCommunity?: (userName: string, community: string) => Promise<string>;
+  loadEmailStatus?: () => Promise<ProfileEmailStatus>;
+  requestEmailChange?: (email: string) => Promise<ProfileEmailActionResult>;
+  resendEmailVerification?: () => Promise<ProfileEmailActionResult>;
+  verifyStepUp?: (
+    code: string,
+    recoveryCode?: boolean,
+  ) => Promise<MfaStepUpResponse>;
 }
 
 type LoadState =
@@ -85,6 +104,10 @@ export function AccountSection({
   loadRememberLast = loadRememberLastCommunityPrefs,
   saveRememberLast = saveRememberLastCommunityFlag,
   persistLastCommunity = saveLastCommunity,
+  loadEmailStatus = getMyEmailStatus,
+  requestEmailChange = requestMyEmailChange,
+  resendEmailVerification = resendMyEmailVerification,
+  verifyStepUp = verifyMfaStepUp,
 }: AccountSectionProps = {}): React.ReactElement {
   const reactId = useId();
   const formId = `perc-profile-account-form-${reactId}`;
@@ -110,8 +133,13 @@ export function AccountSection({
   const [formError, setFormError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isSaving, setIsSaving] = useState(false);
+  const [isResendingEmail, setIsResendingEmail] = useState(false);
+  const [emailStatus, setEmailStatus] = useState<ProfileEmailStatus | null>(null);
   const [isSavingCommunity, setIsSavingCommunity] = useState(false);
   const [isSavingRemember, setIsSavingRemember] = useState(false);
+  const [pendingStepUpEmail, setPendingStepUpEmail] = useState<string | null>(
+    null,
+  );
 
   const load = useCallback(async () => {
     setLoadState({ status: "loading" });
@@ -119,11 +147,13 @@ export function AccountSection({
     setFormError(null);
     setSuccessMessage(null);
     try {
-      const [profile, rememberPrefs] = await Promise.all([
+      const [profile, rememberPrefs, loadedEmailStatus] = await Promise.all([
         loadProfile(),
         loadRememberLast().catch(() => ({ remember: false, last: "" })),
+        loadEmailStatus().catch(() => null),
       ]);
       setEmailDraft(profile.email ?? "");
+      setEmailStatus(loadedEmailStatus);
       setDefaultCommunityDraft(allowedDefaultCommunityDraft(profile));
       setCommunityFieldError(null);
       setRememberLast(rememberPrefs.remember);
@@ -137,7 +167,7 @@ export function AccountSection({
         message: formatApiError(err, message(PROFILE_MSG.ACCOUNT_LOAD_ERROR)),
       });
     }
-  }, [loadProfile, loadRememberLast]);
+  }, [loadProfile, loadRememberLast, loadEmailStatus]);
 
   useEffect(() => {
     void load();
@@ -152,24 +182,92 @@ export function AccountSection({
     setFormError(null);
     setSuccessMessage(null);
 
-    if (!isValidEmailAddress(emailDraft)) {
+    const trimmed = emailDraft.trim();
+    if (!trimmed && emailStatus?.emailRequired) {
+      setFieldError(message(PROFILE_MSG.EMAIL_REQUIRED));
+      return;
+    }
+    if (!isValidEmailAddress(trimmed)) {
       setFieldError(message(PROFILE_MSG.EMAIL_INVALID));
       return;
     }
 
+    const useLegacySave =
+      saveEmail !== updateMyAccountEmail &&
+      requestEmailChange === requestMyEmailChange;
+    const useStagedFlow = !useLegacySave && emailStatus != null;
+
     setIsSaving(true);
     try {
-      const updated = await saveEmail(emailDraft.trim());
-      setLoadState({ status: "ready", profile: updated });
-      setEmailDraft(updated.email ?? "");
-      setSuccessMessage(message(PROFILE_MSG.SAVE_SUCCESS));
+      if (useStagedFlow) {
+        await submitStagedEmailChange(trimmed);
+      } else {
+        const updated = await saveEmail(trimmed);
+        setLoadState({ status: "ready", profile: updated });
+        setEmailDraft(updated.email ?? "");
+        setSuccessMessage(message(PROFILE_MSG.SAVE_SUCCESS));
+      }
     } catch (err) {
       if (isSessionRedirectError(err)) {
+        return;
+      }
+      if (useStagedFlow && isStepUpRequiredError(err)) {
+        setPendingStepUpEmail(trimmed);
         return;
       }
       setFormError(formatApiError(err, message(PROFILE_MSG.SAVE_ERROR)));
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const submitStagedEmailChange = async (trimmedEmail: string): Promise<void> => {
+    const res = await requestEmailChange(trimmedEmail);
+    setEmailStatus((prev) =>
+      prev
+        ? {
+            ...prev,
+            email: res.email || prev.email,
+            pendingEmail: res.pendingEmail,
+            emailVerified: res.emailVerified,
+          }
+        : prev,
+    );
+    if (res.emailVerified && res.email) {
+      setEmailDraft(res.email);
+    }
+    setSuccessMessage(
+      res.message ||
+        message(PROFILE_MSG.EMAIL_CHANGE_SENT).replace(
+          "{0}",
+          res.pendingEmail || trimmedEmail,
+        ),
+    );
+  };
+
+  const onResendVerification = async (): Promise<void> => {
+    setFormError(null);
+    setSuccessMessage(null);
+    setIsResendingEmail(true);
+    try {
+      const res = await resendEmailVerification();
+      setEmailStatus((prev) =>
+        prev
+          ? {
+              ...prev,
+              pendingEmail: res.pendingEmail || prev.pendingEmail,
+              emailVerified: res.emailVerified,
+            }
+          : prev,
+      );
+      setSuccessMessage(res.message || message(PROFILE_MSG.EMAIL_RESEND_SUCCESS));
+    } catch (err) {
+      if (isSessionRedirectError(err)) {
+        return;
+      }
+      setFormError(formatApiError(err, message(PROFILE_MSG.EMAIL_RESEND_ERROR)));
+    } finally {
+      setIsResendingEmail(false);
     }
   };
 
@@ -416,6 +514,7 @@ export function AccountSection({
                     setEmailDraft(e.target.value);
                     setFieldError(null);
                     setSuccessMessage(null);
+                    setPendingStepUpEmail(null);
                   }}
                   disabled={isSaving}
                   aria-invalid={fieldError ? true : undefined}
@@ -472,6 +571,40 @@ export function AccountSection({
                   {message(PROFILE_MSG.EMAIL_HELP_DIRECTORY)}
                 </p>
               </>
+            )}
+            <EmailVerificationStatusBanner
+              status={emailStatus}
+              emailEditable={profile.emailEditable}
+              isResending={isResendingEmail}
+              onResend={() => void onResendVerification()}
+            />
+            {pendingStepUpEmail !== null && (
+              <InlineStepUpPrompt
+                testIdPrefix="perc-profile-account-stepup"
+                verifyStepUp={verifyStepUp}
+                onVerified={async () => {
+                  const targetEmail = pendingStepUpEmail;
+                  setPendingStepUpEmail(null);
+                  if (!targetEmail) {
+                    return;
+                  }
+                  setIsSaving(true);
+                  try {
+                    await submitStagedEmailChange(targetEmail);
+                  } catch (retryErr) {
+                    if (!isSessionRedirectError(retryErr)) {
+                      setFormError(
+                        formatApiError(retryErr, message(PROFILE_MSG.SAVE_ERROR)),
+                      );
+                    }
+                  } finally {
+                    setIsSaving(false);
+                  }
+                }}
+                onCancel={() => {
+                  setPendingStepUpEmail(null);
+                }}
+              />
             )}
           </dd>
         </div>

@@ -915,4 +915,71 @@ export const PATHS = {
   get AUDIT_LOG_ENTRIES() {
     return `${SERVICES_ROOT}/auditlog/entries`;
   },
+  /**
+   * Authentication, MFA, and recovery readiness administration API (Milestone 1).
+   * {@code GET /services/auth/admin/readiness} and {@code POST /services/auth/admin/mail/test}.
+   * AuthZ: Admin role only.
+   */
+  get AUTH_ADMIN_READINESS() {
+    return `${SERVICES_ROOT}/auth/admin/readiness`;
+  },
+  get AUTH_ADMIN_MAIL_TEST() {
+    return `${SERVICES_ROOT}/auth/admin/mail/test`;
+  },
+  /**
+   * Self-service email verification and staged email change REST API (Milestone 2).
+   */
+  get AUTH_PROFILE_EMAIL() {
+    return `${SERVICES_ROOT}/auth/profile/email`;
+  },
+  get AUTH_PROFILE_EMAIL_CHANGE() {
+    return `${SERVICES_ROOT}/auth/profile/email/change`;
+  },
+  get AUTH_PROFILE_EMAIL_RESEND() {
+    return `${SERVICES_ROOT}/auth/profile/email/resend`;
+  },
+  /**
+   * Self-service MFA status, TOTP enrollment, recovery codes, and step-up REST API (Milestone 3).
+   */
+  get AUTH_MFA_STATUS() {
+    return `${SERVICES_ROOT}/auth/mfa/status`;
+  },
+  get AUTH_MFA_STEP_UP() {
+    return `${SERVICES_ROOT}/auth/mfa/step-up`;
+  },
+  get AUTH_MFA_TOTP_START() {
+    return `${SERVICES_ROOT}/auth/mfa/totp/start`;
+  },
+  get AUTH_MFA_TOTP_CONFIRM() {
+    return `${SERVICES_ROOT}/auth/mfa/totp/confirm`;
+  },
+  get AUTH_MFA_TOTP() {
+    return `${SERVICES_ROOT}/auth/mfa/totp`;
+  },
+  get AUTH_MFA_RECOVERY_REGENERATE() {
+    return `${SERVICES_ROOT}/auth/mfa/recovery-codes/regenerate`;
+  },
+  /** Passkeys (WebAuthn) self-service and step-up API (Milestone 4). */
+  get AUTH_MFA_PASSKEYS() {
+    return `${SERVICES_ROOT}/auth/mfa/passkeys`;
+  },
+  get AUTH_MFA_PASSKEY_REGISTER_START() {
+    return `${SERVICES_ROOT}/auth/mfa/passkeys/register/start`;
+  },
+  get AUTH_MFA_PASSKEY_REGISTER_FINISH() {
+    return `${SERVICES_ROOT}/auth/mfa/passkeys/register/finish`;
+  },
+  authMfaPasskey(passkeyId: string) {
+    return `${SERVICES_ROOT}/auth/mfa/passkeys/${encodeURIComponent(passkeyId)}`;
+  },
+  get AUTH_MFA_STEP_UP_PASSKEY_START() {
+    return `${SERVICES_ROOT}/auth/mfa/step-up/passkey/start`;
+  },
+  get AUTH_MFA_STEP_UP_PASSKEY_VERIFY() {
+    return `${SERVICES_ROOT}/auth/mfa/step-up/passkey/verify`;
+  },
+  /** Administrator break-glass MFA recovery endpoint (Milestone 5). */
+  get AUTH_ADMIN_RECOVERY() {
+    return `${SERVICES_ROOT}/auth/admin/recovery`;
+  },
 } as const;

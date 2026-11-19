@@ -27,6 +27,7 @@ import com.percussion.server.PSRequest;
 import com.percussion.server.PSRequestContext;
 import com.percussion.server.PSUserSession;
 import com.percussion.server.PSUserSessionManager;
+import com.percussion.services.audit.PSSystemAuditLogger;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.data.PSGuid;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
@@ -54,6 +55,7 @@ import com.percussion.servlet_utils.servlet.PSMockHttpServletRequest;
 import com.percussion.servlet_utils.servlet.PSMockHttpServletResponse;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.security.auth.Subject;
 import javax.security.auth.login.LoginException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -120,8 +122,13 @@ public class PSSecurityWs extends PSSecurityBaseWs implements IPSSecurityWs
          throw new IllegalArgumentException("password cannot be null or empty");
 
       // authenticate for supplied credentials
-      request = PSSecurityFilter
-         .authenticate(request, response, user, password);
+      Subject sub = PSSecurityFilter.verifyPrimaryCredentials(request, user, password);
+      if (!PSSecurityFilter.isSoapPasswordLoginAllowed(request, sub))
+      {
+         PSSystemAuditLogger.mfaPolicyBlocked(request, user, "SOAP_WS");
+         throw new LoginException("Multi-factor authentication is required for this account.");
+      }
+      request = PSSecurityFilter.finalizeAuthenticatedSession(request, response, sub, localeCode);
 
       // create the login object for return
       PSLogin login = new PSLogin();

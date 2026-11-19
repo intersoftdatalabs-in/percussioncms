@@ -76,7 +76,8 @@ function renderShell() {
 
 vi.mock("../../../main/ts/api/user/userPasswordApi", () => ({
   changeMyPassword: vi.fn().mockResolvedValue(undefined),
-  MIN_PASSWORD_LENGTH: 6,
+  MIN_PASSWORD_LENGTH: 12,
+  MAX_PASSWORD_LENGTH: 150,
   validatePasswordChange: vi.fn().mockReturnValue({ ok: true }),
 }));
 

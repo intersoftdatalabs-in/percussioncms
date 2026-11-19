@@ -35,6 +35,8 @@ import com.intsof.percussioncms.auditlog.AuditOutcome;
 import com.percussion.cms.IPSConstants;
 import com.percussion.cms.PSAuthenticateUserUtils;
 import com.percussion.services.audit.PSSystemAuditLogger;
+import com.percussion.services.auth.account.IPSAccountSecurityService;
+import com.percussion.services.auth.account.PSEmailVerificationStatus;
 import com.percussion.cms.objectstore.PSComponentSummary;
 import com.percussion.cms.objectstore.PSFolder;
 import com.percussion.design.objectstore.PSAttribute;
@@ -51,6 +53,7 @@ import com.percussion.security.IPSTypedPrincipal;
 import com.percussion.security.IPSTypedPrincipal.PrincipalTypes;
 import com.percussion.security.PSEncryptionException;
 import com.percussion.security.PSPasswordHandler;
+import com.percussion.security.PSPasswordPolicyValidator;
 import com.percussion.security.PSSecurityCatalogException;
 import com.percussion.security.PSSecurityException;
 import com.percussion.security.PSSecurityProvider;
@@ -59,6 +62,8 @@ import com.percussion.security.SecureStringUtils;
 import com.percussion.security.error.PSExceptionUtils;
 import com.percussion.server.PSRequest;
 import com.percussion.server.PSServer;
+import com.percussion.services.auth.IPSAuthSecurityDao;
+import com.percussion.services.auth.PSAuthServiceLocator;
 import com.percussion.services.catalog.PSTypeEnum;
 import com.percussion.services.guidmgr.PSGuidUtils;
 import com.percussion.services.guidmgr.data.PSLegacyGuid;
@@ -113,6 +118,8 @@ import com.percussion.utils.service.impl.PSUtilityService;
 import com.percussion.webservices.PSWebserviceUtils;
 import com.percussion.webservices.content.IPSContentWs;
 import com.percussion.webservices.security.IPSSecurityWs;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpSession;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.DELETE;
 import jakarta.ws.rs.GET;
@@ -133,6 +140,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -140,6 +148,7 @@ import java.util.List;
 // Java 11 Optional
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.ExecutorService;
@@ -193,6 +202,8 @@ public class PSUserService implements IPSUserService {
   private List<String> accessibilityRoles = null;
 
   private IPSSystemProperties systemProps;
+
+  private IPSAccountSecurityService accountSecurityService;
 
   private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
@@ -554,6 +565,7 @@ public class PSUserService implements IPSUserService {
 
       updateRoles(user.getName(), user.getRoles());
       backEndRoleMgr.setSubjectEmail(user.getName(), user.getEmail());
+      safeSyncAccountEmail(user.getName(), user.getEmail(), false);
     } catch (IPSGenericDao.SaveException e) {
       log.error(
           "Failed to create user {} because could not add roles to user: {}",
@@ -775,6 +787,9 @@ public class PSUserService implements IPSUserService {
     if (provider.equals(PSUserProviderType.INTERNAL)) {
       backEndRoleMgr.setSubjectEmail(user.getName(), user.getEmail());
       rvalue.setEmail(user.getEmail());
+      safeSyncAccountEmail(user.getName(), user.getEmail(), false);
+    } else {
+      safeSyncDirectoryUserEmail(user.getName());
     }
     try {
       PSSystemAuditLogger.userUpdate(
@@ -832,6 +847,14 @@ public class PSUserService implements IPSUserService {
           .throwIfInvalid();
     }
 
+    Optional<String> policyViolation =
+        PSPasswordPolicyValidator.validate(user.getPassword(), resolvePasswordMinLength());
+    if (policyViolation.isPresent()) {
+      PSParameterValidationUtils.validateParameters("changePassword")
+          .rejectField("password", policyViolation.get(), "***")
+          .throwIfInvalid();
+    }
+
     PSUserLogin login = new PSUserLogin();
     login.setUserid(userName);
     String cryptPW =
@@ -840,6 +863,7 @@ public class PSUserService implements IPSUserService {
             : passwordFilter.encrypt(user.getPassword());
     login.setPassword(cryptPW);
     userLoginDao.save(login);
+    bumpSessionVersionForPasswordChange(userName);
 
     try {
       PSSystemAuditLogger.userUpdate(
@@ -856,6 +880,37 @@ public class PSUserService implements IPSUserService {
     // XSS residual (Jackson/JAXB/CXF or documented pass-through): JSON/XML DTO via Jackson/JAXB;
     // not HTML body (alert #755)
     return rvalue; // codeql[java/xss]
+  }
+
+  private int resolvePasswordMinLength() {
+    try {
+      return PSPasswordPolicyValidator.resolveMinLength(PSServer.getServerProps());
+    } catch (RuntimeException ex) {
+      return PSPasswordPolicyValidator.DEFAULT_MIN_LENGTH;
+    }
+  }
+
+  private void bumpSessionVersionForPasswordChange(String userName) {
+    try {
+      IPSAuthSecurityDao dao = PSAuthServiceLocator.getAuthSecurityDao();
+      if (dao == null) {
+        return;
+      }
+      long nextVersion = dao.recordPasswordChangeAndBumpSessionVersion(userName, new Date());
+      HttpServletRequest req = currentServletRequest();
+      HttpSession sess = req != null ? req.getSession(false) : null;
+      if (sess != null) {
+        sess.setAttribute(PSSecurityFilter.ATTR_SESSION_VERSION, nextVersion);
+      }
+      PSRequest psReq = PSSecurityFilter.getCurrentRequest();
+      if (psReq != null && psReq.getUserSession() != null) {
+        psReq.getUserSession().setSessionVersion(nextVersion);
+      }
+    } catch (RuntimeException ex) {
+      log.debug(
+          "Session version increment skipped during changePassword (no Spring auth DAO): {}",
+          ex.getMessage());
+    }
   }
 
   /**
@@ -938,12 +993,7 @@ public class PSUserService implements IPSUserService {
         .rejectIfNull("update", update)
         .throwIfInvalid();
 
-    String email = StringUtils.trimToEmpty(update.getEmail());
-    if (isNotBlank(email) && !isValidEmailAddress(email)) {
-      PSParameterValidationUtils.validateParameters("updateMyAccount")
-          .rejectField("email", "Enter a valid email address.", email)
-          .throwIfInvalid();
-    }
+    String email = validateEmailForSelfUpdate(update);
 
     PSCurrentUser current = getCurrentUser();
     if (current.getProviderType() != PSUserProviderType.INTERNAL) {
@@ -955,8 +1005,13 @@ public class PSUserService implements IPSUserService {
           .throwIfInvalid();
     }
 
+    if (shouldStageVerifiedEmailChange(current, email)) {
+      return executeStagedEmailChange(current, email);
+    }
+
     try {
       backEndRoleMgr.setSubjectEmail(current.getName(), email);
+      safeSyncAccountEmail(current.getName(), email, false);
     } catch (RuntimeException e) {
       // Persist failed — audit FAILURE so the trail is not silent, then rethrow.
       logSelfServiceAccountUpdateAudit(AuditOutcome.FAILURE);
@@ -975,6 +1030,52 @@ public class PSUserService implements IPSUserService {
     // getCurrentUser() which can fail after the write (session/directory) with no rollback.
     current.setEmail(email);
     return current;
+  }
+
+  private String validateEmailForSelfUpdate(PSUserAccountUpdate update)
+      throws PSValidationException {
+    String email = StringUtils.trimToEmpty(update.getEmail());
+    if (isBlank(email)) {
+      if (accountSecurityService != null && accountSecurityService.isEmailRequired()) {
+        PSParameterValidationUtils.validateParameters("updateMyAccount")
+            .rejectField("email", "A valid email address is required.", email)
+            .throwIfInvalid();
+      }
+      return email;
+    }
+    if (!isValidEmailAddress(email)) {
+      PSParameterValidationUtils.validateParameters("updateMyAccount")
+          .rejectField("email", "Enter a valid email address.", email)
+          .throwIfInvalid();
+    }
+    return email;
+  }
+
+  private boolean shouldStageVerifiedEmailChange(PSCurrentUser current, String newEmail) {
+    if (accountSecurityService == null) {
+      return false;
+    }
+    PSEmailVerificationStatus status =
+        accountSecurityService.getEmailStatus(current.getName(), current.getEmail(), false);
+    return status.emailVerified()
+        && !newEmail.equalsIgnoreCase(StringUtils.trimToEmpty(status.activeEmail()));
+  }
+
+  private PSCurrentUser executeStagedEmailChange(PSCurrentUser current, String newEmail) {
+    try {
+      accountSecurityService.stageEmailChange(
+          current.getName(), current.getEmail(), newEmail, resolveClientIp(), true);
+      logSelfServiceAccountUpdateAudit(AuditOutcome.SUCCESS);
+      return current;
+    } catch (RuntimeException e) {
+      logSelfServiceAccountUpdateAudit(AuditOutcome.FAILURE);
+      log.error(
+          "Self-service staged email change failed for user {}: {}",
+          current.getName(),
+          PSExceptionUtils.getMessageForLog(e));
+      log.debug(PSExceptionUtils.getDebugMessageForLog(e));
+      throw e;
+    }
   }
 
   /**
@@ -1838,6 +1939,7 @@ public class PSUserService implements IPSUserService {
       for (PSImportedUser singleUser : users) {
         if (singleUser.getStatus() == null) {
           singleUser.setStatus(ImportStatus.SUCCESS);
+          safeSyncDirectoryUserEmail(singleUser.getName());
         }
       }
     } catch (Exception e) {
@@ -1883,6 +1985,48 @@ public class PSUserService implements IPSUserService {
 
     // force to reset the cached data for next calls to getAccessibilityRoles()
     accessibilityRoles = null;
+  }
+
+  @Autowired(required = false)
+  public void setAccountSecurityService(IPSAccountSecurityService accountSecurityService) {
+    this.accountSecurityService = accountSecurityService;
+  }
+
+  private void safeSyncAccountEmail(String userName, String email, boolean isDirectoryUser) {
+    if (accountSecurityService == null || StringUtils.isBlank(userName)) {
+      return;
+    }
+    try {
+      accountSecurityService.syncAccountEmailOnAdminSave(userName, email, isDirectoryUser);
+    } catch (RuntimeException e) {
+      log.warn(
+          "Unable to sync account security email state for {}: {}",
+          userName,
+          PSExceptionUtils.getMessageForLog(e));
+    }
+  }
+
+  private void safeSyncDirectoryUserEmail(String userName) {
+    if (accountSecurityService == null || StringUtils.isBlank(userName)) {
+      return;
+    }
+    try {
+      String email = getSubjectEmail(userName);
+      accountSecurityService.syncAccountEmailOnAdminSave(userName, email, true);
+    } catch (PSSecurityCatalogException | RuntimeException e) {
+      log.warn(
+          "Unable to sync imported directory email for {}: {}",
+          userName,
+          PSExceptionUtils.getMessageForLog(e));
+    }
+  }
+
+  private static String resolveClientIp() {
+    jakarta.servlet.http.HttpServletRequest req = currentServletRequest();
+    if (req == null) {
+      return "unknown";
+    }
+    return StringUtils.defaultIfBlank(req.getRemoteAddr(), "unknown");
   }
 
   public IPSSystemProperties getSystemProps() {
@@ -1960,6 +2104,9 @@ public class PSUserService implements IPSUserService {
           return;
         }
 
+        validateEmailPolicy(user, e);
+        validatePasswordPolicy(user, e);
+
         for (String rl : user.getRoles()) {
           if (!PSCollectionUtils.containsIgnoringCase(allRoles, rl)) {
             String msg =
@@ -2033,6 +2180,44 @@ public class PSUserService implements IPSUserService {
         log.debug(emsg);
         e.rejectValue("roles", "cannot.remove.own.admin.role", emsg);
       }
+    }
+
+    private void validateEmailPolicy(PSUser user, PSBeanValidationException e) {
+      if (accountSecurityService == null
+          || accountSecurityService.isSystemServiceUser(user.getName())) {
+        return;
+      }
+      String email = StringUtils.trimToEmpty(user.getEmail());
+      if (!email.isEmpty()) {
+        if (!isValidEmailAddress(email)) {
+          e.rejectValue("email", "user.emailInvalid", "Enter a valid email address.");
+        }
+        return;
+      }
+      boolean requiresEmail =
+          accountSecurityService.isEmailRequired()
+              && (isCreateUser || user.getProviderType() == PSUserProviderType.INTERNAL);
+      if (requiresEmail) {
+        e.rejectValue("email", "user.emailRequired", "A valid email address is required.");
+      }
+    }
+
+    private void validatePasswordPolicy(PSUser user, PSBeanValidationException e) {
+      if (accountSecurityService != null
+          && accountSecurityService.isSystemServiceUser(user.getName())) {
+        return;
+      }
+      boolean validateOnCreate = isCreateUser;
+      boolean validateOnInternalUpdate =
+          !isCreateUser
+              && user.getProviderType() == PSUserProviderType.INTERNAL
+              && StringUtils.isNotBlank(user.getPassword());
+      if (!validateOnCreate && !validateOnInternalUpdate) {
+        return;
+      }
+      Optional<String> violation =
+          PSPasswordPolicyValidator.validate(user.getPassword(), resolvePasswordMinLength());
+      violation.ifPresent(msg -> e.rejectValue("password", "user.password.policy", msg));
     }
   }
 }

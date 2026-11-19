@@ -69,7 +69,7 @@ describe("validatePasswordChange", () => {
   });
 
   it("requires confirm match", () => {
-    const r = validatePasswordChange("abcdef", "abcdeg", labels);
+    const r = validatePasswordChange("abcdefghijkl", "abcdefghijkm", labels);
     expect(r.ok).toBe(false);
     if (!r.ok) {
       expect(r.fields.confirmPassword).toBe(labels.mismatch);
@@ -77,7 +77,7 @@ describe("validatePasswordChange", () => {
   });
 
   it("accepts valid matching password", () => {
-    const r = validatePasswordChange("abcdef", "abcdef", labels);
+    const r = validatePasswordChange("abcdefghijkl", "abcdefghijkl", labels);
     expect(r.ok).toBe(true);
   });
 });
@@ -165,11 +165,11 @@ describe("SecuritySection", () => {
     expect(changePassword).not.toHaveBeenCalled();
 
     fireEvent.change(screen.getByTestId("perc-profile-security-new-password"), {
-      target: { value: "abcdef" },
+      target: { value: "abcdefghijkl" },
     });
     fireEvent.change(
       screen.getByTestId("perc-profile-security-confirm-password"),
-      { target: { value: "abcdeg" } },
+      { target: { value: "abcdefghijkm" } },
     );
     fireEvent.click(screen.getByTestId("perc-profile-security-submit"));
 
@@ -181,6 +181,22 @@ describe("SecuritySection", () => {
     expect(
       screen.getByTestId("perc-profile-security-confirm-password"),
     ).toHaveAttribute("aria-invalid", "true");
+    expect(changePassword).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByTestId("perc-profile-security-new-password"), {
+      target: { value: "a".repeat(151) },
+    });
+    fireEvent.change(
+      screen.getByTestId("perc-profile-security-confirm-password"),
+      { target: { value: "a".repeat(151) } },
+    );
+    fireEvent.click(screen.getByTestId("perc-profile-security-submit"));
+
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("perc-profile-security-new-error").textContent,
+      ).toMatch(/150/);
+    });
     expect(changePassword).not.toHaveBeenCalled();
   });
 
@@ -199,18 +215,18 @@ describe("SecuritySection", () => {
     });
 
     fireEvent.change(screen.getByTestId("perc-profile-security-new-password"), {
-      target: { value: "newpass1" },
+      target: { value: "NewValidPass12!" },
     });
     fireEvent.change(
       screen.getByTestId("perc-profile-security-confirm-password"),
-      { target: { value: "newpass1" } },
+      { target: { value: "NewValidPass12!" } },
     );
     fireEvent.click(screen.getByTestId("perc-profile-security-submit"));
 
     await waitFor(() => {
       expect(changePassword).toHaveBeenCalledWith({
         name: "Admin",
-        password: "newpass1",
+        password: "NewValidPass12!",
         email: "admin@example.com",
         roles: ["Admin"],
       });
@@ -251,11 +267,11 @@ describe("SecuritySection", () => {
     });
 
     fireEvent.change(screen.getByTestId("perc-profile-security-new-password"), {
-      target: { value: "newpass1" },
+      target: { value: "NewValidPass12!" },
     });
     fireEvent.change(
       screen.getByTestId("perc-profile-security-confirm-password"),
-      { target: { value: "newpass1" } },
+      { target: { value: "NewValidPass12!" } },
     );
     fireEvent.click(screen.getByTestId("perc-profile-security-submit"));
 
@@ -284,5 +300,44 @@ describe("SecuritySection", () => {
       expect(screen.getByTestId("perc-profile-security-form")).toBeTruthy();
     });
     expect(loadProfile).toHaveBeenCalledTimes(2);
+  });
+
+  it("mounts MfaSecurityPanel for both INTERNAL and DIRECTORY users", async () => {
+    const mockMfa = vi.fn().mockResolvedValue({
+      userName: "Admin",
+      mfaMode: "optional",
+      mfaRequired: false,
+      totpEnabled: false,
+      passkeyCount: 0,
+      recoveryCodesRemaining: 0,
+      canDisableTotp: true,
+      stepUpActive: false,
+      stepUpExpiresAt: null,
+    });
+
+    const { unmount } = render(
+      <SecuritySection
+        loadProfile={vi.fn().mockResolvedValue(internalProfile())}
+        mfaPanelProps={{ loadMfaStatus: mockMfa }}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-security-form")).toBeTruthy();
+      expect(screen.getByTestId("perc-profile-mfa-status")).toBeTruthy();
+    });
+
+    unmount();
+    render(
+      <SecuritySection
+        loadProfile={vi.fn().mockResolvedValue(
+          internalProfile({ providerType: "DIRECTORY", emailEditable: false }),
+        )}
+        mfaPanelProps={{ loadMfaStatus: mockMfa }}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-security-external")).toBeTruthy();
+      expect(screen.getByTestId("perc-profile-mfa-status")).toBeTruthy();
+    });
   });
 });

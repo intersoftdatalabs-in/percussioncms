@@ -25,8 +25,9 @@
 import { put } from "../client";
 import { PATHS } from "../paths";
 
-/** Legacy UI min length; server also rejects blank via parameter validation. */
-export const MIN_PASSWORD_LENGTH = 6;
+/** Server-aligned default min/max password bounds (auth.password.minLength=12, hard max 150). */
+export const MIN_PASSWORD_LENGTH = 12;
+export const MAX_PASSWORD_LENGTH = 150;
 
 export type PasswordChangeInput = {
   /** Signed-in user name (must match session; server rejects others). */
@@ -46,7 +47,7 @@ export type PasswordValidationResult =
   | { ok: false; fields: PasswordFieldErrors; formMessage?: string };
 
 /**
- * Client-side password form checks (length + confirm match).
+ * Client-side password form checks (length bounds + confirm match).
  * Messages are key-agnostic — callers pass localized strings.
  */
 export function validatePasswordChange(
@@ -55,17 +56,24 @@ export function validatePasswordChange(
   labels: {
     required: string;
     tooShort: string;
+    tooLong?: string;
     mismatch: string;
   },
+  minLength = MIN_PASSWORD_LENGTH,
+  maxLength = MAX_PASSWORD_LENGTH,
 ): PasswordValidationResult {
   const fields: PasswordFieldErrors = {};
   const next = newPassword ?? "";
   const confirm = confirmPassword ?? "";
+  const effectiveMin = Math.max(8, Math.min(MAX_PASSWORD_LENGTH, minLength));
 
   if (!next.trim()) {
     fields.newPassword = labels.required;
-  } else if (next.length < MIN_PASSWORD_LENGTH) {
+  } else if (next.length < effectiveMin) {
     fields.newPassword = labels.tooShort;
+  } else if (next.length > maxLength) {
+    fields.newPassword =
+      labels.tooLong ?? `Password must be at most ${maxLength} characters.`;
   }
 
   if (!confirm) {

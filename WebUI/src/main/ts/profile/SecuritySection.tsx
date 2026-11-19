@@ -26,11 +26,16 @@ import {
 } from "../api/user/userProfileApi";
 import {
   changeMyPassword,
+  MAX_PASSWORD_LENGTH,
   MIN_PASSWORD_LENGTH,
   validatePasswordChange,
 } from "../api/user/userPasswordApi";
 import { i18nKeyAttr } from "../i18n/i18nDom";
 import { message } from "../i18n/message";
+import {
+  MfaSecurityPanel,
+  type MfaSecurityPanelProps,
+} from "./MfaSecurityPanel";
 import { PROFILE_MSG } from "./messages";
 import styles from "./SecuritySection.module.css";
 
@@ -43,6 +48,8 @@ export interface SecuritySectionProps {
     email?: string;
     roles?: string[];
   }) => Promise<void>;
+  /** Optional MFA overrides passed to {@link MfaSecurityPanel}. */
+  mfaPanelProps?: MfaSecurityPanelProps;
 }
 
 type LoadState =
@@ -60,6 +67,7 @@ type LoadState =
 export function SecuritySection({
   loadProfile = getCurrentUserProfile,
   changePassword = changeMyPassword,
+  mfaPanelProps,
 }: SecuritySectionProps = {}): React.ReactElement {
   const reactId = useId();
   const formId = `perc-profile-security-form-${reactId}`;
@@ -131,6 +139,10 @@ export function SecuritySection({
       tooShort: message(PROFILE_MSG.PW_TOO_SHORT).replace(
         "{0}",
         String(MIN_PASSWORD_LENGTH),
+      ),
+      tooLong: message(PROFILE_MSG.PW_TOO_LONG).replace(
+        "{0}",
+        String(MAX_PASSWORD_LENGTH),
       ),
       mismatch: message(PROFILE_MSG.PW_MISMATCH),
     });
@@ -229,6 +241,7 @@ export function SecuritySection({
             {message(PROFILE_MSG.PW_EXTERNAL_BODY)}
           </p>
         </div>
+        <MfaSecurityPanel {...mfaPanelProps} />
       </div>
     );
   }
@@ -371,6 +384,8 @@ export function SecuritySection({
           </p>
         )}
       </div>
+
+      <MfaSecurityPanel {...mfaPanelProps} />
     </div>
   );
 }

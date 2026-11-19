@@ -20,6 +20,12 @@ import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 import com.percussion.cms.IPSConstants;
 import com.percussion.services.audit.PSSystemAuditLogger;
+import com.percussion.services.auth.PSAuthServiceLocator;
+import com.percussion.services.auth.data.PSAuthLoginTx;
+import com.percussion.services.auth.mfa.IPSMfaService;
+import com.percussion.services.auth.mfa.PSMfaTxStatus;
+import com.percussion.services.auth.policy.IPSAuthPolicyService;
+import com.percussion.services.auth.policy.PSLoginPolicyDecision;
 import com.percussion.design.objectstore.PSServerConfiguration;
 import com.percussion.i18n.PSI18nUtils;
 import com.percussion.security.PSSecurityProvider;
@@ -63,6 +69,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -79,6 +86,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Function;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.NameCallback;
@@ -269,6 +277,27 @@ public class PSSecurityFilter implements Filter {
    * This is of type {@link javax.security.auth.Subject}
    */
   public static final String SUBJECT = "RX_AUTHENTICATED_SUBJECT";
+
+  public static final String ATTR_SESSION_VERSION = "RX_SESSION_VERSION";
+
+  public static final String ATTR_MFA_STEP_UP_UNTIL = IPSMfaService.SESSION_ATTR_STEP_UP_UNTIL;
+
+  public static final String ATTR_PENDING_MFA_TX = "RX_PENDING_MFA_TX";
+
+  public static final String AUTH_TX_COOKIE_NAME = "PERC_AUTH_TX";
+
+  @FunctionalInterface
+  interface LoginVerifier {
+    Subject verify(HttpServletRequest request, String userId, String password) throws LoginException;
+  }
+
+  record PendingMfaContext(String txId, String userName, Subject subject) implements Serializable {}
+
+  static volatile Function<String, Long> sessionVersionResolver =
+      PSSecurityFilter::resolveCurrentSessionVersion;
+  static volatile IPSAuthPolicyService authPolicyServiceOverride;
+  static volatile IPSMfaService mfaServiceOverride;
+  static volatile LoginVerifier loginVerifierOverride;
 
   /**
    * Entries from the system and user security configurations. Published only after a reload has
@@ -685,12 +714,12 @@ public class PSSecurityFilter implements Filter {
        * 2. Check https request against Origin header...
        */
       Subject sub = (Subject) sess.getAttribute(SUBJECT);
-      boolean isBehindProxy = PSServer.isRequestBehindProxy(request);
-      if (PSServer.getServerProps()
-              .getProperty("disableCrossSiteRequestForgeryCheck", "false")
-              .equalsIgnoreCase("true")
-          || !checkForCrossSiteRequestForgery(request)
-          || isBehindProxy) {
+      boolean csrfDisabled =
+          PSServer.getServerProps() != null
+              && PSServer.getServerProps()
+                  .getProperty("disableCrossSiteRequestForgeryCheck", "false")
+                  .equalsIgnoreCase("true");
+      if (csrfDisabled || !checkForCrossSiteRequestForgery(request)) {
 
         if (handleSessionCheck(request, response)) return null;
 
@@ -874,30 +903,37 @@ public class PSSecurityFilter implements Filter {
         && request.getServletPath().startsWith(ms_externalApiRequests.get(0))) return false;
 
     // If Referer exists and does not match request then go to login.
-    if (!requestHeaderMatchesRequest(reqURI, request.getHeader("Referer"))) return true;
+    if (!requestHeaderMatchesRequest(request, reqURI, request.getHeader("Referer"))) return true;
 
     // If Origin exists and does not match request then go to login.
-    return !requestHeaderMatchesRequest(reqURI, request.getHeader("Origin"));
+    return !requestHeaderMatchesRequest(request, reqURI, request.getHeader("Origin"));
   }
 
   /**
-   * Match request header scheme, host, and port with request URI.
+   * Match request header origin against request URI origin and configured proxy/public origins.
    *
-   * @param requestURI The current request <code>null</code>.
-   * @param reqHeader The header to mtch against the request <code>null</code>.
-   * @return true if request matches header or header is missing. false if header does not match
-   *     request.
+   * @param request current HTTP request, never {@code null}.
+   * @param requestURI current request URI, never {@code null}.
+   * @param reqHeader Origin or Referer header to match, may be {@code null} or blank.
+   * @return {@code true} if header is missing/blank or matches an allowed origin, {@code false} if
+   *     cross-origin or unparseable.
    */
-  private boolean requestHeaderMatchesRequest(URI requestURI, String reqHeader) {
-    if (reqHeader == null) reqHeader = "";
-
-    if (!reqHeader.isEmpty() && StringUtils.isNotBlank(reqHeader)) {
-      URI headerURI = URI.create(SecureStringUtils.stripUrlParams(reqHeader));
-      return requestURI.getScheme().equals(headerURI.getScheme())
-          && requestURI.getHost().equals(headerURI.getHost())
-          && (requestURI.getPort() == headerURI.getPort());
+  private boolean requestHeaderMatchesRequest(
+      HttpServletRequest request, URI requestURI, String reqHeader) {
+    if (StringUtils.isBlank(reqHeader)) {
+      return true;
     }
-    return true;
+    String candidate =
+        PSAuthCsrfGuard.normalizeOrigin(SecureStringUtils.stripUrlParams(reqHeader));
+    if (candidate == null) {
+      return false;
+    }
+    Set<String> allowed = new PSAuthCsrfGuard().collectAllowedOrigins(request);
+    String reqOrigin = PSAuthCsrfGuard.normalizeOrigin(requestURI.toString());
+    if (reqOrigin != null) {
+      allowed.add(reqOrigin);
+    }
+    return allowed.contains(candidate);
   }
 
   /**
@@ -1036,12 +1072,20 @@ public class PSSecurityFilter implements Filter {
   private HttpServletRequest handleExternalAuth(
       HttpServletRequest request, HttpServletResponse response) throws IOException {
     try {
-      HttpServletRequest authReq = authenticate(request, response, null, null);
-      ms_log.debug(
-          "Successfully authenticated subject on thread {} using external authentication"
-              + " information",
-          Thread.currentThread().getName());
-      return authReq;
+      Subject sub = verifyPrimaryCredentials(request, null, null);
+      PSServletRequestWrapper wrapped = new PSServletRequestWrapper(request, sub);
+      String userName = extractSubjectUserName(wrapped, sub);
+      PSLoginPolicyDecision decision = evaluateInteractivePolicy(wrapped, userName, true);
+      if (decision == PSLoginPolicyDecision.ALLOW_DIRECT_SESSION) {
+        HttpServletRequest authReq = finalizeAuthenticatedSession(request, response, sub, null);
+        ms_log.debug(
+            "Successfully authenticated subject on thread {} using external authentication"
+                + " information",
+            Thread.currentThread().getName());
+        return authReq;
+      }
+      beginMfaLoginChallenge(request, response, sub, decision, null, null);
+      return null;
     } catch (LoginException e) {
       response.sendError(401, "Authentication Failed: " + e.getLocalizedMessage());
       return null;
@@ -1144,7 +1188,13 @@ public class PSSecurityFilter implements Filter {
    * @return The wrapped request, never <code>null</code>.
    */
   private HttpServletRequest handleAuthenticatedSubject(
-      HttpServletRequest request, HttpServletResponse response, Subject sub) {
+      HttpServletRequest request, HttpServletResponse response, Subject sub) throws IOException {
+    HttpSession httpSession = request.getSession(false);
+    String userName = extractSubjectUserName(new PSServletRequestWrapper(request, sub), sub);
+    if (!isSessionVersionValid(request, httpSession, null, userName)) {
+      invalidateStaleHttpSession(request, response, httpSession, userName);
+      return null;
+    }
     if (ms_log.isDebugEnabled()) {
       ms_log.debug(
           "{}{} found 'public credentials': {}",
@@ -1300,12 +1350,23 @@ public class PSSecurityFilter implements Filter {
         if (colonIndex > 0) {
           HttpServletRequest authReq;
           try {
-            authReq =
-                authenticate(
-                    request,
-                    response,
-                    decodedAuth.substring(0, colonIndex),
-                    decodedAuth.substring(colonIndex + 1));
+            String uid = decodedAuth.substring(0, colonIndex);
+            String pwd = decodedAuth.substring(colonIndex + 1);
+            Subject sub = verifyPrimaryCredentials(request, uid, pwd);
+            PSServletRequestWrapper roleCheckReq = new PSServletRequestWrapper(request, sub);
+            String resolvedUser = extractSubjectUserName(roleCheckReq, sub);
+            String channel =
+                request.getHeader(IPSHtmlParameters.SYS_USE_BASIC_AUTH) != null
+                    ? "HEADER_BASIC_AUTH"
+                    : "BASIC_AUTH";
+            if (!isNonInteractiveChannelAllowed(roleCheckReq, resolvedUser, channel)) {
+              PSSystemAuditLogger.mfaPolicyBlocked(request, resolvedUser, channel);
+              response.sendError(
+                  HttpServletResponse.SC_FORBIDDEN,
+                  "Multi-factor authentication is required for this account.");
+              return null;
+            }
+            authReq = finalizeAuthenticatedSession(request, response, sub, null);
           } catch (LoginException e) {
             sendMustAuthenticateError(response);
             return null;
@@ -1499,13 +1560,29 @@ public class PSSecurityFilter implements Filter {
     if (request == null) throw new IllegalArgumentException(ERROR_REQUEST_NULL);
     if (response == null) throw new IllegalArgumentException(ERROR_RESPONSE_NULL);
 
-    Subject sub;
+    Subject sub = verifyPrimaryCredentials(request, userId, password);
+    return finalizeAuthenticatedSession(request, response, sub, null);
+  }
 
-    // trim any whitespace from supplied user id
-    if (userId != null) userId = userId.trim();
+  /**
+   * Verifies primary username/password (or external) JAAS credentials and Rhythmyx role membership
+   * without mutating {@code HttpSession.SUBJECT}, creating a {@link PSUserSession}, or issuing
+   * {@code pssessionid}.
+   */
+  public static Subject verifyPrimaryCredentials(
+      HttpServletRequest request, String userId, String password) throws LoginException {
+    if (request == null) throw new IllegalArgumentException(ERROR_REQUEST_NULL);
+    String cleanUserId = userId != null ? userId.trim() : null;
+    if (loginVerifierOverride != null) {
+      return loginVerifierOverride.verify(request, cleanUserId, password);
+    }
+    return verifyCredentialsWithJaas(request, cleanUserId, password);
+  }
 
+  private static Subject verifyCredentialsWithJaas(
+      HttpServletRequest request, String userId, String password) throws LoginException {
     LoginContext lc = authenticate(request, userId, password);
-    sub = lc.getSubject();
+    Subject sub = lc.getSubject();
     PSServletRequestWrapper tmpReq = new PSServletRequestWrapper(request, sub);
     if (!hasRhythmyxRole(tmpReq)) {
       String msg =
@@ -1513,31 +1590,289 @@ public class PSSecurityFilter implements Filter {
       ms_log.info(msg);
       throw new PSMissingRoleException(msg);
     }
+    return sub;
+  }
 
-    request.getSession().setAttribute(SUBJECT, sub);
-    request = tmpReq;
+  /**
+   * Rotates {@code JSESSIONID}, records {@code SESSION_VERSION}, sets {@link #SUBJECT}, updates
+   * {@link PSUserSession}, and emits the {@code pssessionid} cookie.
+   */
+  public static HttpServletRequest finalizeAuthenticatedSession(
+      HttpServletRequest request, HttpServletResponse response, Subject sub, String locale)
+      throws LoginException {
+    if (request == null) throw new IllegalArgumentException(ERROR_REQUEST_NULL);
+    if (response == null) throw new IllegalArgumentException(ERROR_RESPONSE_NULL);
+    if (sub == null) throw new LoginException("Authenticated subject is required");
 
-    updateUserSession(request, response, true);
-
-    String secure = "";
-    if (request.isSecure()) {
-      secure = " Secure;";
+    if (!PSRequestInfoBase.isInited()) {
+      PSRequestInfo.initRequestInfo(request);
     }
 
-    String sameSite = " SameSite=";
-    // Create the pssessionid session
+    HttpSession sess = request.getSession(true);
+    sess.removeAttribute(ATTR_PENDING_MFA_TX);
+    sess = rotateHttpSession(request, sess);
+    if (StringUtils.isNotBlank(locale)) {
+      sess.setAttribute(PSI18nUtils.USER_SESSION_OBJECT_SYS_LANG, locale.trim());
+    }
+
+    PSServletRequestWrapper wrappedReq = new PSServletRequestWrapper(request, sub);
+    String userName = extractSubjectUserName(wrappedReq, sub);
+    long sessionVersion = sessionVersionResolver.apply(userName);
+
+    sess.setAttribute(SUBJECT, sub);
+    sess.setAttribute(ATTR_SESSION_VERSION, sessionVersion);
+
+    updateUserSession(wrappedReq, response, true);
+    PSRequest psReq = initRequest(wrappedReq, response);
+    if (psReq.getUserSession() != null) {
+      psReq.getUserSession().setSessionVersion(sessionVersion);
+    }
+
+    emitSessionCookie(wrappedReq, response, psReq.getUserSessionId());
+    return wrappedReq;
+  }
+
+  private static HttpSession rotateHttpSession(HttpServletRequest request, HttpSession current) {
+    try {
+      request.changeSessionId();
+      return request.getSession(true);
+    } catch (IllegalStateException ex) {
+      ms_log.debug("Session id rotation skipped: {}", ex.getMessage());
+      return current;
+    }
+  }
+
+  private static void emitSessionCookie(
+      HttpServletRequest request, HttpServletResponse response, String sessionId) {
+    String secure = isSecureTransport(request) ? " Secure;" : "";
+    String sameSite =
+        PSServer.getServerProps() != null
+            ? PSServer.getProperty("sameSiteCookieMode", "Lax")
+            : "Lax";
     response.addHeader(
         "Set-Cookie",
         IPSHtmlParameters.SYS_SESSIONID
             + "="
-            + initRequest(request, response).getUserSessionId()
-            + ";"
-            + "Path=/;"
+            + sessionId
+            + ";Path=/;"
             + secure
             + " HttpOnly; SameSite="
-            + PSServer.getProperty("sameSiteCookieMode", "Lax"));
+            + sameSite);
+  }
 
-    return request;
+  static boolean isSecureTransport(HttpServletRequest request) {
+    if (request.isSecure()) {
+      return true;
+    }
+    return "https".equalsIgnoreCase(StringUtils.trimToEmpty(request.getHeader("X-Forwarded-Proto")));
+  }
+
+  public static String extractSubjectUserName(HttpServletRequest req, Subject sub) {
+    if (req instanceof PSServletRequestWrapper wrapper && StringUtils.isNotBlank(wrapper.getRemoteUser())) {
+      return wrapper.getRemoteUser().trim();
+    }
+    if (sub != null) {
+      var converted = PSJaasUtils.convertSubject(sub);
+      if (converted != null && StringUtils.isNotBlank(converted.getName())) {
+        return converted.getName().trim();
+      }
+      for (Object cred : sub.getPublicCredentials()) {
+        if (cred instanceof String s && StringUtils.isNotBlank(s)) {
+          return s.trim();
+        }
+      }
+    }
+    return req != null ? StringUtils.trimToEmpty(req.getRemoteUser()) : "";
+  }
+
+  public static PSLoginPolicyDecision evaluateInteractivePolicy(
+      PSServletRequestWrapper wrappedReq, String userName, boolean isExternalSso) {
+    IPSAuthPolicyService policy = resolveAuthPolicyService();
+    if (policy == null) {
+      return PSLoginPolicyDecision.ALLOW_DIRECT_SESSION;
+    }
+    return policy.evaluateInteractiveLogin(userName, wrappedReq.getRoles(), isExternalSso);
+  }
+
+  public static boolean isSoapPasswordLoginAllowed(
+      HttpServletRequest request, Subject sub) {
+    IPSAuthPolicyService policy = resolveAuthPolicyService();
+    if (policy == null) {
+      return true;
+    }
+    PSServletRequestWrapper wrapper = new PSServletRequestWrapper(request, sub);
+    return policy.isNonInteractivePasswordChannelAllowed(
+        extractSubjectUserName(wrapper, sub), wrapper.getRoles(), "SOAP_WS");
+  }
+
+  private static boolean isNonInteractiveChannelAllowed(
+      PSServletRequestWrapper wrappedReq, String userName, String channel) {
+    IPSAuthPolicyService policy = resolveAuthPolicyService();
+    if (policy == null) {
+      return true;
+    }
+    return policy.isNonInteractivePasswordChannelAllowed(userName, wrappedReq.getRoles(), channel);
+  }
+
+  /**
+   * Creates a short-lived MFA challenge/enrollment transaction without granting {@link #SUBJECT}
+   * or {@code pssessionid} and redirects the browser to {@code /auth/challenge} or {@code
+   * /auth/setup}.
+   */
+  public static void beginMfaLoginChallenge(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      Subject sub,
+      PSLoginPolicyDecision decision,
+      String safeRedirectUrl,
+      String locale)
+      throws IOException {
+    IPSMfaService mfaService = resolveMfaService();
+    if (mfaService == null) {
+      response.sendError(
+          HttpServletResponse.SC_SERVICE_UNAVAILABLE, "MFA service is not initialized.");
+      return;
+    }
+    PSServletRequestWrapper wrapped = new PSServletRequestWrapper(request, sub);
+    String userName = extractSubjectUserName(wrapped, sub);
+    String txType =
+        decision == PSLoginPolicyDecision.REQUIRE_MFA_ENROLLMENT
+            ? PSAuthLoginTx.TYPE_MFA_ENROLL
+            : PSAuthLoginTx.TYPE_MFA_CHALLENGE;
+    PSMfaTxStatus tx =
+        mfaService.createLoginTransaction(
+            txType, userName, safeRedirectUrl, locale, wrapped.getRoles());
+
+    HttpSession sess = request.getSession(true);
+    sess.removeAttribute(SUBJECT);
+    sess.setAttribute(ATTR_PENDING_MFA_TX, new PendingMfaContext(tx.txId(), userName, sub));
+    new PSAuthCsrfGuard().ensureSessionToken(request);
+
+    setAuthTxCookie(request, response, tx.txId(), 600);
+    String ctxPath = request.getContextPath() != null ? request.getContextPath() : "";
+    String targetPath =
+        ctxPath
+            + (decision == PSLoginPolicyDecision.REQUIRE_MFA_ENROLLMENT
+                ? "/auth/setup"
+                : "/auth/challenge");
+    sendValidatedRedirect(response, request, targetPath);
+  }
+
+  public static void setAuthTxCookie(
+      HttpServletRequest request, HttpServletResponse response, String txId, int maxAgeSeconds) {
+    String secure = isSecureTransport(request) ? " Secure;" : "";
+    response.addHeader(
+        "Set-Cookie",
+        AUTH_TX_COOKIE_NAME
+            + "="
+            + StringUtils.defaultString(txId)
+            + ";Path=/;Max-Age="
+            + maxAgeSeconds
+            + ";"
+            + secure
+            + " HttpOnly; SameSite=Lax");
+  }
+
+  private static boolean isSessionVersionValid(
+      HttpServletRequest request,
+      HttpSession httpSession,
+      PSUserSession userSession,
+      String userName) {
+    if (StringUtils.isBlank(userName)) {
+      return true;
+    }
+    long currentVersion = sessionVersionResolver.apply(userName);
+    Long stamped = extractStampedVersion(httpSession, userSession);
+    boolean mismatch =
+        (stamped != null && stamped.longValue() != currentVersion)
+            || (stamped == null && currentVersion > 1L);
+    if (mismatch) {
+      PSSystemAuditLogger.sessionVersionInvalidated(
+          request, userName, stamped != null ? stamped : 0L, currentVersion);
+      return false;
+    }
+    return true;
+  }
+
+  private static Long extractStampedVersion(HttpSession httpSession, PSUserSession userSession) {
+    Object raw = httpSession != null ? httpSession.getAttribute(ATTR_SESSION_VERSION) : null;
+    if (raw instanceof Number n) {
+      return n.longValue();
+    }
+    if (userSession != null) {
+      return userSession.getSessionVersion();
+    }
+    return null;
+  }
+
+  private void invalidateStaleHttpSession(
+      HttpServletRequest request,
+      HttpServletResponse response,
+      HttpSession httpSession,
+      String userName)
+      throws IOException {
+    if (httpSession != null) {
+      Object psId = httpSession.getAttribute(IPSHtmlParameters.SYS_SESSIONID);
+      if (psId instanceof String sid && StringUtils.isNotBlank(sid)) {
+        PSUserSession rxSess = PSUserSessionManager.getUserSession(sid);
+        if (rxSess != null) {
+          PSUserSessionManager.releaseUserSession(rxSess);
+        }
+      }
+      try {
+        httpSession.invalidate();
+      } catch (IllegalStateException ex) {
+        ms_log.debug("Stale HTTP session already invalidated: {}", ex.getMessage());
+      }
+    }
+    if (StringUtils.isNotBlank(userName)) {
+      PSUserSessionManager.releaseSessionsForUser(userName);
+    }
+    if ("GET".equalsIgnoreCase(request.getMethod())) {
+      handleFormAuth(request, response);
+    } else {
+      sendAuthenticationError(request, response);
+    }
+  }
+
+  private static long resolveCurrentSessionVersion(String userName) {
+    if (StringUtils.isBlank(userName)) {
+      return 1L;
+    }
+    try {
+      return PSAuthServiceLocator.getAuthSecurityDao().findSessionVersion(userName.trim());
+    } catch (RuntimeException ex) {
+      return 1L;
+    }
+  }
+
+  private static IPSAuthPolicyService resolveAuthPolicyService() {
+    if (authPolicyServiceOverride != null) {
+      return authPolicyServiceOverride;
+    }
+    try {
+      return PSAuthServiceLocator.getAuthPolicyService();
+    } catch (RuntimeException ex) {
+      return null;
+    }
+  }
+
+  private static IPSMfaService resolveMfaService() {
+    if (mfaServiceOverride != null) {
+      return mfaServiceOverride;
+    }
+    try {
+      return PSAuthServiceLocator.getMfaService();
+    } catch (RuntimeException ex) {
+      return null;
+    }
+  }
+
+  static void resetAuthHooksForTest() {
+    sessionVersionResolver = PSSecurityFilter::resolveCurrentSessionVersion;
+    authPolicyServiceOverride = null;
+    mfaServiceOverride = null;
+    loginVerifierOverride = null;
   }
 
   /**
@@ -1557,6 +1892,12 @@ public class PSSecurityFilter implements Filter {
     PSUserSession rxSession = rxRequest.getUserSession();
     if (rxSession == null)
       throw new LoginException("The supplied request does not contain a valid rhythmyx session.");
+
+    String sessionUser = rxSession.getRealAuthenticatedUserEntry();
+    if (!isSessionVersionValid(request, request.getSession(false), rxSession, sessionUser)) {
+      PSUserSessionManager.releaseUserSession(rxSession);
+      throw new LoginException("The supplied rhythmyx session is no longer valid.");
+    }
 
     updateHttpSession(request, rxSession);
   }
@@ -1580,6 +1921,12 @@ public class PSSecurityFilter implements Filter {
 
     PSUserSession rxSession = PSUserSessionManager.getUserSession(sessionId);
     if (rxSession == null) throw new LoginException("The supplied rhythmyx session is invalid.");
+
+    String sessionUser = rxSession.getRealAuthenticatedUserEntry();
+    if (!isSessionVersionValid(request, request.getSession(false), rxSession, sessionUser)) {
+      PSUserSessionManager.releaseUserSession(rxSession);
+      throw new LoginException("The supplied rhythmyx session is no longer valid.");
+    }
 
     updateHttpSession(request, rxSession);
 

@@ -27,9 +27,11 @@ import com.percussion.server.cache.PSCacheManager;
 import com.percussion.services.legacy.IPSCmsObjectMgr;
 import com.percussion.services.legacy.PSCmsObjectMgrLocator;
 import com.percussion.utils.server.IPSCgiVariables;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
@@ -413,13 +415,51 @@ public class PSUserSessionManager extends Thread implements IPSServerConfigurati
   }
 
   /**
+   * Releases every active {@link PSUserSession} belonging to {@code userName} (case-insensitive).
+   *
+   * @param userName account username whose sessions should be revoked immediately.
+   * @return number of sessions released.
+   */
+  public static int releaseSessionsForUser(String userName) {
+    if (userName == null || userName.isBlank()) {
+      return 0;
+    }
+    String clean = userName.trim();
+    List<PSUserSession> matches = new ArrayList<>();
+    for (PSUserSession sess : ms_Sessions.values()) {
+      if (sess != null && clean.equalsIgnoreCase(sess.getRealAuthenticatedUserEntry())) {
+        matches.add(sess);
+      }
+    }
+    for (PSUserSession sess : matches) {
+      releaseUserSession(sess);
+    }
+    return matches.size();
+  }
+
+  static void registerSessionForTest(PSUserSession sess) {
+    if (sess != null && sess.getId() != null) {
+      ms_Sessions.put(sess.getId(), sess);
+    }
+  }
+
+  static void clearSessionsForTest() {
+    ms_Sessions.clear();
+    releasedUsers.clear();
+  }
+
+  /**
    * Does any necessary cleanup to close down a user session. Assumes that the session has not yet
    * been removed from the cache.
    *
    * @param sess The user session to close down; assumed non-<code>null</code>
    */
   private static void cleanUpSession(PSUserSession sess) {
-    PSCacheManager.getInstance().flushSession(sess.getId());
+    try {
+      PSCacheManager.getInstance().flushSession(sess.getId());
+    } catch (IllegalStateException ex) {
+      log.debug("Skipping cache flush during session release {}: {}", sess.getId(), ex.getMessage());
+    }
   }
 
   /**

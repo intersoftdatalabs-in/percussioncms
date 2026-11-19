@@ -36,6 +36,18 @@ vi.mock("../../../main/ts/api/preferences/preferencesApi", () => ({
   PREF_CONTEXT_PRIVATE: "private",
 }));
 
+vi.mock("../../../main/ts/api/auth", async () => {
+  const actual = await vi.importActual<
+    typeof import("../../../main/ts/api/auth")
+  >("../../../main/ts/api/auth");
+  return {
+    ...actual,
+    getMyEmailStatus: vi.fn().mockRejectedValue(new Error("stubbed")),
+    requestMyEmailChange: vi.fn(),
+    resendMyEmailVerification: vi.fn(),
+  };
+});
+
 function internalProfile(
   overrides: Partial<CurrentUserProfile> = {},
 ): CurrentUserProfile {
@@ -507,5 +519,214 @@ describe("AccountSection", () => {
       "perc-profile-account-remember-last",
     ) as HTMLInputElement;
     expect(box.checked).toBe(true);
+  });
+
+  it("displays verified badge, stages email change keeping active verified email, and shows pending notice", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(internalProfile());
+    const loadEmailStatus = vi.fn().mockResolvedValue({
+      userName: "Admin",
+      email: "admin@example.com",
+      emailVerified: true,
+      emailVerifiedAt: "2026-11-18T10:00:00Z",
+      pendingEmail: "",
+      emailEditable: true,
+      emailRequired: true,
+      providerType: "INTERNAL",
+    });
+    const requestEmailChange = vi.fn().mockResolvedValue({
+      verificationSent: true,
+      appliedImmediately: false,
+      email: "admin@example.com",
+      pendingEmail: "next@example.com",
+      emailVerified: true,
+      message: "Verification email sent to next@example.com.",
+    });
+
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        loadEmailStatus={loadEmailStatus}
+        requestEmailChange={requestEmailChange}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-email-verified-badge")).toBeTruthy();
+    });
+
+    const emailInput = screen.getByTestId(
+      "perc-profile-account-email",
+    ) as HTMLInputElement;
+    fireEvent.change(emailInput, { target: { value: "next@example.com" } });
+    fireEvent.click(screen.getByTestId("perc-profile-account-save"));
+
+    await waitFor(() => {
+      expect(requestEmailChange).toHaveBeenCalledWith("next@example.com");
+      expect(screen.getByTestId("perc-profile-email-pending").textContent).toContain(
+        "next@example.com",
+      );
+      expect(screen.getByTestId("perc-profile-account-success").textContent).toContain(
+        "next@example.com",
+      );
+    });
+    expect(emailInput.value).toBe("admin@example.com");
+  });
+
+  it("shows unverified badge, requires non-blank email when emailRequired=true, and resends verification", async () => {
+    const loadProfile = vi
+      .fn()
+      .mockResolvedValue(internalProfile({ email: "unverified@example.com" }));
+    const loadEmailStatus = vi.fn().mockResolvedValue({
+      userName: "Admin",
+      email: "unverified@example.com",
+      emailVerified: false,
+      emailVerifiedAt: null,
+      pendingEmail: "",
+      emailEditable: true,
+      emailRequired: true,
+      providerType: "INTERNAL",
+    });
+    const resendEmailVerification = vi.fn().mockResolvedValue({
+      verificationSent: true,
+      appliedImmediately: false,
+      email: "unverified@example.com",
+      pendingEmail: "unverified@example.com",
+      emailVerified: false,
+      message: "Verification email sent to unverified@example.com.",
+    });
+
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        loadEmailStatus={loadEmailStatus}
+        resendEmailVerification={resendEmailVerification}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-email-unverified-badge")).toBeTruthy();
+    });
+
+    fireEvent.click(screen.getByTestId("perc-profile-email-resend"));
+    await waitFor(() => {
+      expect(resendEmailVerification).toHaveBeenCalledTimes(1);
+      expect(screen.getByTestId("perc-profile-email-pending").textContent).toContain(
+        "unverified@example.com",
+      );
+    });
+
+    const emailInput = screen.getByTestId(
+      "perc-profile-account-email",
+    ) as HTMLInputElement;
+    fireEvent.change(emailInput, { target: { value: "   " } });
+    fireEvent.click(screen.getByTestId("perc-profile-account-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-account-email-error").textContent).toMatch(
+        /required/i,
+      );
+    });
+  });
+
+  it("hides resend button for directory users while showing verification status badge", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(
+      internalProfile({
+        name: "ldap.user",
+        providerType: "DIRECTORY",
+        emailEditable: false,
+        email: "ldap@corp.example",
+      }),
+    );
+    const loadEmailStatus = vi.fn().mockResolvedValue({
+      userName: "ldap.user",
+      email: "ldap@corp.example",
+      emailVerified: false,
+      emailVerifiedAt: null,
+      pendingEmail: "",
+      emailEditable: false,
+      emailRequired: true,
+      providerType: "DIRECTORY",
+    });
+
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        loadEmailStatus={loadEmailStatus}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-email-unverified-badge")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("perc-profile-email-resend")).toBeNull();
+  });
+
+  it("prompts inline step-up on HTTP 428 when changing verified email and retries cleanly", async () => {
+    const loadProfile = vi.fn().mockResolvedValue(internalProfile());
+    const loadEmailStatus = vi.fn().mockResolvedValue({
+      userName: "Admin",
+      email: "admin@example.com",
+      emailVerified: true,
+      emailVerifiedAt: "2026-11-18T10:00:00Z",
+      pendingEmail: "",
+      emailEditable: true,
+      emailRequired: true,
+      providerType: "INTERNAL",
+    });
+    const requestEmailChange = vi
+      .fn()
+      .mockRejectedValueOnce({
+        status: 428,
+        statusText: "Precondition Required",
+        body: { error: "STEP_UP_REQUIRED", message: "Recent MFA required." },
+      })
+      .mockResolvedValueOnce({
+        verificationSent: true,
+        appliedImmediately: false,
+        email: "admin@example.com",
+        pendingEmail: "stepup@example.com",
+        emailVerified: true,
+        message: "Verification email sent to stepup@example.com.",
+      });
+    const verifyStepUp = vi.fn().mockResolvedValue({
+      verified: true,
+      expiresAtEpochMs: Date.now() + 60_000,
+      message: "Verified",
+    });
+
+    render(
+      <AccountSection
+        loadProfile={loadProfile}
+        loadEmailStatus={loadEmailStatus}
+        requestEmailChange={requestEmailChange}
+        verifyStepUp={verifyStepUp}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-email-verified-badge")).toBeTruthy();
+    });
+
+    const emailInput = screen.getByTestId(
+      "perc-profile-account-email",
+    ) as HTMLInputElement;
+    fireEvent.change(emailInput, { target: { value: "stepup@example.com" } });
+    fireEvent.click(screen.getByTestId("perc-profile-account-save"));
+
+    await waitFor(() => {
+      expect(screen.getByTestId("perc-profile-account-stepup")).toBeTruthy();
+    });
+
+    fireEvent.change(screen.getByTestId("perc-profile-account-stepup-input"), {
+      target: { value: "246810" },
+    });
+    fireEvent.click(screen.getByTestId("perc-profile-account-stepup-submit"));
+
+    await waitFor(() => {
+      expect(verifyStepUp).toHaveBeenCalledWith("246810", false);
+      expect(requestEmailChange).toHaveBeenCalledTimes(2);
+      expect(screen.getByTestId("perc-profile-email-pending").textContent).toContain(
+        "stepup@example.com",
+      );
+    });
   });
 });

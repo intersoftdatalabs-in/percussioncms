@@ -170,14 +170,60 @@ Authenticated users open **My profile** from the header user menu (or deep link
 | **Internal** (local auth) | Change-password form: new password + confirm. The product calls the existing self-only `PUT /user/user/changepw` endpoint; you cannot change another user’s password from this page. |
 | **Directory / SSO** | A localized explanation that credentials are managed by the identity provider or IT — **no** password form that would always fail. |
 
-Password rules enforced by the server (complexity / history filters when configured)
-still apply. Client-side checks require a non-empty password of at least six characters
-and a matching confirmation before submit. After a **successful** change the Security
-section shows a success confirmation (not an error); the current session stays signed
-in, and the new password is required at the next sign-in. Failed validation (too short,
-mismatch, or a server-side rule) stays an error and does not change the stored
-password. Success and failure messages are announced to assistive technology via a
-live region.
+Password rules enforced by the server (`auth.password.minLength`, default **12**
+characters, allowed range **8**–**150**, maximum length **150** characters, plus
+any complexity / history filters) apply across create, change, and reset flows.
+Internal password verification uses constant-time digest comparison
+(`MessageDigest.isEqual`). After a **successful** change the Security section shows a
+success confirmation (not an error); the active self-service session stays signed in
+while other active sessions for that account are invalidated via `SESSION_VERSION`, and
+the new password is required at the next sign-in. Failed validation (too short, too
+long, mismatch, or a server-side rule) stays an error and does not change the stored
+password. Success and failure messages are announced to assistive technology via a live
+region.
+
+## My profile — Two-step verification (TOTP, passkeys, and recovery codes)
+
+In **My profile → Security**, signed-in users (both internal and directory accounts
+when governed by CMS MFA policy) can configure phishing-resistant passkeys and
+authenticator apps:
+
+- **Authenticator app (TOTP):** Click **Set up authenticator app** to scan the
+  inline `otpauth://` QR code (or copy the manual Base32 setup key) into an
+  authenticator app and enter a 6-digit verification code to activate it.
+- **Passkeys (WebAuthn / FIDO2):** Register one or more platform biometrics, synced
+  passkeys, or hardware security keys with custom labels; rename or remove passkeys
+  at any time.
+- **One-time recovery codes:** Initial enrollment generates 10 single-use recovery
+  codes (`XXXXX-XXXXX`) displayed **once** to copy or download as a `.txt` file. Store
+  them securely offline; regenerating a fresh batch invalidates all unused codes from
+  prior batches. Each code can be used once at `/auth/challenge` or step-up prompts.
+- **Step-up verification and last-factor protection:** Sensitive changes (disabling
+  TOTP, removing passkeys when required, regenerating recovery codes, or changing a
+  verified email address) prompt for recent step-up verification within
+  `auth.mfa.stepUpWindowMinutes` (HTTP `428`). While MFA policy requires enrollment for
+  your account, Percussion prevents removing your last usable factor.
+
+## My profile — Verified email and self-service account recovery
+
+In **My profile → Account** and on the sign-in screen (`/login`):
+
+- **Email verification & staged changes:** Check your verification badge under
+  **My profile → Account**. Internal accounts updating a verified email keep the
+  previous address active until clicking **Confirm email address** on the emailed
+  scanner-safe `/auth/verify-email` confirmation screen (and a security notice is
+  sent to the previous verified address). Directory account email addresses remain
+  read-only and are synced from the identity provider.
+- **Forgot username? (`/auth/forgot-username`):** Sends a reminder only to matching
+  verified email addresses using an enumeration-safe response.
+- **Forgot password? (`/auth/forgot-password`):** Sends a short-lived scanner-safe
+  password reset link (`/auth/reset-password`) to internal accounts with verified
+  email addresses, and sends identity-provider instructions for directory/SSO
+  accounts. Completing a password reset ends active CMS sessions and preserves your
+  enrolled MFA factors.
+
+For operator configuration, readiness checks, cohort rollout, and break-glass
+recovery, see [Authentication, MFA, and Recovery Readiness](id:admin-authentication-mfa).
 
 ## My profile — Preferences (default landing)
 
