@@ -29,6 +29,7 @@ import {
   ContentPickerDialog,
   type ContentPickerSelection,
 } from "../../../../main/ts/editor/tiptap/ContentPickerDialog";
+import { renderA11yGate } from "../../contentExplorer/a11y";
 
 const SITES_CHILDREN: PSPathItem[] = [
   { name: "News", path: "/Sites/News/", type: "folder" },
@@ -177,5 +178,64 @@ describe("ContentPickerDialog", () => {
     expect(onPick).not.toHaveBeenCalled();
     fireEvent.click(screen.getByTestId("tiptap-content-picker-close-text"));
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("moves focus into the picker on open (#6658)", async () => {
+    render(
+      <ContentPickerDialog
+        name="text"
+        mode="link"
+        onPick={() => undefined}
+        onClose={() => undefined}
+        listFolder={listFolder}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("tiptap-content-picker-text")).toBeTruthy();
+    });
+    // Focus-in: the first picker field takes focus on open.
+    expect(document.activeElement).toBe(
+      screen.getByTestId("tiptap-content-picker-path-text"),
+    );
+  });
+
+  it("Escape closes the picker; other keys do not (#6658)", async () => {
+    const onClose = vi.fn();
+    render(
+      <ContentPickerDialog
+        name="text"
+        mode="link"
+        onPick={() => undefined}
+        onClose={onClose}
+        listFolder={listFolder}
+      />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("tiptap-content-picker-text")).toBeTruthy();
+    });
+    const path = screen.getByTestId("tiptap-content-picker-path-text");
+    expect(document.activeElement).toBe(path);
+    fireEvent.keyDown(path, { key: "ArrowLeft" });
+    expect(onClose).not.toHaveBeenCalled();
+    fireEvent.keyDown(path, { key: "Escape" });
+    expect(onClose).toHaveBeenCalledTimes(1);
+  });
+
+  it("passes the axe gate with no serious/critical violations (#6658)", async () => {
+    const { container } = render(
+      <ContentPickerDialog
+        name="text"
+        mode="link"
+        onPick={() => undefined}
+        onClose={() => undefined}
+        listFolder={listFolder}
+      />,
+    );
+    await waitFor(() => {
+      expect(
+        screen.getAllByTestId("tiptap-content-picker-row-text"),
+      ).toHaveLength(2);
+    });
+    await renderA11yGate(container);
   });
 });
