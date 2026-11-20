@@ -17,7 +17,7 @@
 
 import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import type { ReactElement } from "react";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, afterEach } from "vitest";
 import { BootstrapProvider } from "../../../main/ts/app/bootstrap/BootstrapContext";
 import type { SpaBootstrap } from "../../../main/ts/app/bootstrap/types";
 import { ContentExplorerShell } from "../../../main/ts/contentExplorer/ContentExplorerShell";
@@ -73,6 +73,15 @@ const slotCreateMenu = [
   },
 ];
 
+// Noise-hardening for #6706: any path that reaches the default window.open
+// makes jsdom log "Not implemented: Window's open()", which interleaves
+// with full-suite output and masks real failures. Stub it for the whole
+// spec; the openWindow mocks below stay the assertions of record.
+const windowOpenStub = vi.spyOn(window, "open").mockReturnValue(null);
+afterEach(() => {
+  windowOpenStub.mockClear();
+});
+
 describe("ContentExplorerShell slot create (#3497)", {
   // Load-hardening for #6742: sibling explorer suites share this 20s budget
   // (#4558) while this spec previously ran on the 5s default — every 10s
@@ -84,6 +93,10 @@ describe("ContentExplorerShell slot create (#3497)", {
     stubPathFetch();
     const addToSlot = vi.fn();
     const createItem = vi.fn();
+    // Isolation for #6706: this path must never reach an editor open, so
+    // give it an explicit mock instead of the default window.open — a
+    // regression then fails on this assertion, not in jsdom noise.
+    const openWindow = vi.fn();
     renderShell(
       <ContentExplorerShell
         initialPath="/Sites"
@@ -92,6 +105,7 @@ describe("ContentExplorerShell slot create (#3497)", {
         loadWorkflowMenuActions={async () => null}
         addToSlot={addToSlot}
         createItem={createItem}
+        openWindow={openWindow}
       />,
     );
     await waitFor(() => {
@@ -105,6 +119,7 @@ describe("ContentExplorerShell slot create (#3497)", {
     });
     expect(createItem).not.toHaveBeenCalled();
     expect(addToSlot).not.toHaveBeenCalled();
+    expect(openWindow).not.toHaveBeenCalled();
     expect(screen.queryByTestId("explorer-slot-create-dialog")).toBeNull();
   });
 

@@ -82,7 +82,12 @@ describe("EditorHost recycle missing/conflict (#6773)", () => {
     expect(screen.getByTestId("editor-content-id").textContent).toContain("42");
     expect(screen.getByTestId("editor-form")).toBeTruthy();
     expect(screen.getByTestId("editor-recycle")).toBeTruthy();
-    expect(document.activeElement).toBe(screen.getByTestId("editor-recycle-error"));
+    // De-flake for #6706: error focus lands in a passive effect keyed on
+    // the error key, so asserting activeElement synchronously after the
+    // text match races the effect flush under full-suite load.
+    await waitFor(() => {
+      expect(document.activeElement).toBe(screen.getByTestId("editor-recycle-error"));
+    });
     expect(recycleItem).toHaveBeenCalledTimes(1);
   });
 
@@ -106,7 +111,10 @@ describe("EditorHost recycle missing/conflict (#6773)", () => {
     expect(screen.queryByTestId("editor-recycle-done")).toBeNull();
     expect(screen.getByTestId("editor-content-id").textContent).toContain("42");
     expect(screen.getByTestId("editor-form")).toBeTruthy();
-    expect(document.activeElement).toBe(screen.getByTestId("editor-recycle-error"));
+    // Same passive-effect focus race as the 404 test above (#6706).
+    await waitFor(() => {
+      expect(document.activeElement).toBe(screen.getByTestId("editor-recycle-error"));
+    });
     expect(recycleItem).toHaveBeenCalledTimes(1);
   });
 
