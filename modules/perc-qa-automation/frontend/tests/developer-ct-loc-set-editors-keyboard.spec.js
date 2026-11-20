@@ -256,6 +256,12 @@ test.describe("Developer CT/Locale set-label/set-description keyboard path (#674
     await page.locator('[data-testid="developer-ct-set-label-save"]').click();
     expect((await restored).status()).toBe(200);
     await page.screenshot({ path: `test-results/live-proof-6747-ct-label-keyboard.png` });
+
+    // Back releases the design lock (handleBack) so the next test can lock.
+    await page.locator('[data-testid="developer-ct-back"]').click();
+    await expect(page.locator('[data-testid="developer-ct-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
     assertClean(consoleErrors, pageErrors);
   });
 
@@ -308,6 +314,12 @@ test.describe("Developer CT/Locale set-label/set-description keyboard path (#674
       original,
     );
     await page.screenshot({ path: `test-results/live-proof-6747-ct-description-keyboard.png` });
+
+    // Back releases the design lock (handleBack) for a clean cell.
+    await page.locator('[data-testid="developer-ct-back"]').click();
+    await expect(page.locator('[data-testid="developer-ct-panel"]')).toBeVisible({
+      timeout: 20_000,
+    });
     assertClean(consoleErrors, pageErrors);
   });
 
