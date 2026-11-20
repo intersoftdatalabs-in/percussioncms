@@ -729,7 +729,9 @@ one interaction case per service (polls vote persists, feeds render,
 forms confirm + retrievable, comments appear per moderation rules, metadata
 index reflects published content, membership login round-trips). Static
 shells are US2; green interaction runs need the DTS-providing cell
-(#6237). Without `DTS_BASE_URL` every case skips naming its service (T020);
+(#6237). Without `DTS_BASE_URL` (or its `DTS_URL` banner alias — the
+name `qa-up --with-dts` prints) every case skips naming its service
+(T020);
 with a base URL each case probes liveness (`HEAD <root>/csrf`) and then
 its seeded fixture — unseeded fixtures skip with their own named reason.
 
@@ -743,7 +745,8 @@ its seeded fixture — unseeded fixtures skip with their own named reason.
 
 ```bash
 cd modules/perc-qa-automation/frontend
-# Needs the DTS-providing cell + seeded interaction fixtures:
+# Needs the DTS-providing cell + seeded interaction fixtures
+# (DTS_URL=, the qa-up --with-dts banner name, works as an alias):
 DTS_BASE_URL=https://<dts-cell-origin> \
   DTS_FIXTURE_POLL=qamatrix-poll DTS_FIXTURE_FORM=qamatrix-form \
   DTS_FIXTURE_SITE=EnterpriseInvestments DTS_FIXTURE_PAGE=/qamatrix \

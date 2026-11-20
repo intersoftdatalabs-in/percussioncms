@@ -41,6 +41,7 @@ const {
   skipNoFixture,
   DTS_SERVICES,
   tagForService,
+  dtsBaseUrl,
   dtsContextUrl,
   dtsServiceUrl,
   fixtureValue,
@@ -57,6 +58,24 @@ function goodRow() {
     { [CASE_INTERACT]: "pass" },
     { spec: MATRIX_SPEC, updated: "2026-11-13" },
   );
+}
+
+function withEnv(name, value, fn) {
+  const previous = process.env[name];
+  if (value === undefined) {
+    delete process.env[name];
+  } else {
+    process.env[name] = value;
+  }
+  try {
+    fn();
+  } finally {
+    if (previous === undefined) {
+      delete process.env[name];
+    } else {
+      process.env[name] = previous;
+    }
+  }
 }
 
 describe("dts-interaction-matrix helpers (#6241)", () => {
@@ -106,6 +125,10 @@ describe("dts-interaction-matrix helpers (#6241)", () => {
     }
     assert.ok(SKIP_NO_DTS_BASE.includes("DTS_BASE_URL"), "skip names the missing env");
     assert.ok(
+      SKIP_NO_DTS_BASE.includes("DTS_URL"),
+      "skip names the banner alias (shared cell contract)",
+    );
+    assert.ok(
       skipNoDts(DTS_SERVICES[0]).includes("DTS_BASE_URL"),
       "no-cell skip names the missing env",
     );
@@ -120,21 +143,24 @@ describe("dts-interaction-matrix helpers (#6241)", () => {
     assert.equal(fixtureValue(DTS_SERVICES[0]), "qamatrix-poll", "fixture default");
   });
 
-  it("resolves the DTS base URL only from DTS_BASE_URL", () => {
-    const saved = process.env.DTS_BASE_URL;
-    try {
-      delete process.env.DTS_BASE_URL;
-      const { dtsBaseUrl } = require("../helpers/dts-interaction-matrix");
-      assert.equal(dtsBaseUrl(), null);
-      process.env.DTS_BASE_URL = "https://dts.example";
-      assert.equal(dtsBaseUrl().origin, "https://dts.example");
-    } finally {
-      if (saved === undefined) {
-        delete process.env.DTS_BASE_URL;
-      } else {
-        process.env.DTS_BASE_URL = saved;
-      }
-    }
+  it("honors DTS_URL as an alias for DTS_BASE_URL (shared cell contract)", () => {
+    // Operators copy the qa-up --with-dts banner value (DTS_URL:); the
+    // helper must honor it so that command goes live instead of
+    // all-skipping (#6719).
+    withEnv("DTS_BASE_URL", undefined, () => {
+      withEnv("DTS_URL", undefined, () => {
+        assert.equal(dtsBaseUrl(), null, "no env: CMS-only cell skips");
+      });
+      withEnv("DTS_URL", "https://dts.example", () => {
+        assert.equal(dtsBaseUrl().origin, "https://dts.example");
+      });
+    });
+    // DTS_BASE_URL wins when both are set.
+    withEnv("DTS_BASE_URL", "https://dts.example", () => {
+      withEnv("DTS_URL", "http://127.0.0.1:9983/", () => {
+        assert.equal(dtsBaseUrl().origin, "https://dts.example");
+      });
+    });
   });
 
   it("builds rows the validator accepts", () => {
