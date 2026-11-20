@@ -114,6 +114,7 @@ import java.io.File;
 import java.io.FileFilter;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -319,6 +320,8 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     IPSSite site = siteMgr.findSite(siteName);
     if (site == null) {
       PSValidationErrorsBuilder builder = validateParameters("getSiteProperties");
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6730) — escaped quotes
+      // in a validation message, not a path separator; no File or Path use.
       String msg = "Cannot find site with name: \"" + siteName + "\"";
       builder.reject("siteName", msg).throwIfInvalid();
       return null;
@@ -392,6 +395,8 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     IPSSite site = siteMgr.findSite(siteName);
     if (site == null) {
       PSValidationErrorsBuilder builder = validateParameters("getSitePublishProperties");
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6730) — escaped quotes
+      // in a validation message, not a path separator; no File or Path use.
       String msg = "Cannot find site with name: \"" + siteName + "\"";
       builder.reject("siteName", msg).throwIfInvalid();
       return null;
@@ -424,6 +429,8 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     IPSGuid folderId = contentWs.getIdByPath(site.getFolderRoot());
     if (folderId == null) {
       PSValidationErrorsBuilder builder = validateParameters("getSiteProperties");
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6730) — escaped quotes
+      // in a validation message, not a path separator; no File or Path use.
       String msg = "Cannot find site root folder for site name: \"" + site.getName() + "\"";
       builder.reject("siteRootFolder", msg).throwIfInvalid();
     }
@@ -693,6 +700,9 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     notEmpty(props.getHomePageLinkText().orElse(""), "Home page link text cannot be empty.");
 
     String name = props.getName().orElse("");
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6730,
+    // same as #5898/#5910/#5927) — slashes join the CMS logical folder path (//Sites/<name>),
+    // not an OS path; Path.resolve would corrupt the repository path on Windows.
     String tgtFolderRoot = "//Sites/" + name;
     if (tgtFolderRoot.equalsIgnoreCase(site.getFolderRoot())) {
       return;
@@ -701,21 +711,28 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     PSValidationErrorsBuilder builder = validateParameters("saveSiteProperties");
 
     if (siteMgr.findSite(name) != null) {
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6730) — escaped quotes
+      // in the validation message below, not a path separator; no File or Path use.
       String msg =
           "Cannot rename site \""
               + site.getName()
-              + "\" to an existing site name: \""
+              + "\" to an existing site name: \"" // mkd-code-review[paths.hardcoded_sep] #6730 escaped-quote FP
               + name
-              + "\".";
+              + "\"."; // mkd-code-review[paths.hardcoded_sep] #6730 escaped-quote FP
       builder.rejectField("name", msg, name).throwIfInvalid();
     }
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6730,
+    // same as #5898/#5910/#5927) — "//Sites" is the CMS repository root logical path probed via
+    // IPSContentWs, not an OS path; Path.resolve would corrupt it on Windows.
     if (contentWs.isChildExistInFolder("//Sites", name)) {
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6730) — escaped quotes
+      // in the validation message below, not a path separator; no File or Path use.
       String msg =
           "Cannot rename site \""
               + site.getName()
-              + "\" to an existing site folder: \""
+              + "\" to an existing site folder: \"" // mkd-code-review[paths.hardcoded_sep] #6730 escaped-quote FP
               + name
-              + "\".";
+              + "\"."; // mkd-code-review[paths.hardcoded_sep] #6730 escaped-quote FP
       builder.rejectField("name", msg, name).throwIfInvalid();
     }
   }
@@ -980,6 +997,9 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     String destAssetFolder =
         PSFolderPathUtils.concatPath(PSAssetPathItemService.ASSET_ROOT, req.getDestFolder());
 
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6730,
+    // same as #5898/#5910/#5927) — strips the CMS logical trailing slash from repository folder
+    // paths built by PSFolderPathUtils.concatPath, not OS paths.
     validateCopyFolders(
         StringUtils.removeEnd(srcAssetFolder, "/"), StringUtils.removeEnd(destAssetFolder, "/"));
   }
@@ -1267,14 +1287,34 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     return siteStatSummary;
   }
 
+  /**
+   * Resolves a slash-separated relative path (such as {@code "/var/config/saas/siteconfig"}) under
+   * a filesystem base directory in a portable way. Each segment is resolved with {@link
+   * Path#resolve(String)} so the result uses the platform separator; a leading slash never escapes
+   * the base (empty segments are skipped rather than treated as an absolute root).
+   *
+   * @param base the filesystem base directory, assumed not {@code null}.
+   * @param slashSeparatedPath the relative path using {@code /} separators, assumed not {@code
+   *     null}.
+   * @return the resolved path under {@code base}, never {@code null}.
+   */
+  static Path resolveRxRelative(Path base, String slashSeparatedPath) {
+    Path result = base;
+    for (String segment : slashSeparatedPath.split("/")) {
+      if (!segment.isEmpty()) {
+        result = result.resolve(segment);
+      }
+    }
+    return result;
+  }
+
   public PSMapWrapper getSaaSSiteNames(boolean filterUsedSites) throws DataServiceLoadException {
     Map<String, String> resultMap = new HashMap<>();
-    File saasDir = new File(PSServer.getRxDir().getAbsolutePath() + SAAS_SITE_CONFIG_FOLDER_PATH);
+    File saasDir =
+        resolveRxRelative(PSServer.getRxDir().toPath(), SAAS_SITE_CONFIG_FOLDER_PATH).toFile();
     if (!saasDir.exists() || !saasDir.isDirectory()) {
       if (!saasDir.mkdirs()) {
-        log.error(
-            "Error creating SaaS configuration folder: {}",
-            PSServer.getRxDir().getAbsolutePath() + SAAS_SITE_CONFIG_FOLDER_PATH);
+        log.error("Error creating SaaS configuration folder: {}", saasDir.getAbsolutePath());
       }
     }
     FileFilter filter = new SuffixFileFilter(".json", IOCase.INSENSITIVE);
@@ -1344,11 +1384,9 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
   private PSSaasSiteConfig loadSiteConfig(String fileName, ObjectMapper mapper) {
     PSSaasSiteConfig saasSiteConfig = null;
     File file =
-        new File(
-            PSServer.getRxDir().getAbsolutePath()
-                + SAAS_SITE_CONFIG_FOLDER_PATH
-                + File.separator
-                + fileName);
+        resolveRxRelative(PSServer.getRxDir().toPath(), SAAS_SITE_CONFIG_FOLDER_PATH)
+            .resolve(fileName)
+            .toFile();
     try {
       saasSiteConfig = mapper.readValue(file, PSSaasSiteConfig.class);
     } catch (JacksonException e) {
@@ -1413,6 +1451,9 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
         if (itemSummary.isPage()) {
           pages.add(itemSummary);
         } else if (itemSummary.isFolder()) {
+          // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6730,
+          // same as #5898/#5910/#5927) — joins the CMS logical folder path (getFolderPaths entries
+          // are repository paths parsed by PSPathUtils.getFolderPath), not an OS path.
           String path = itemSummary.getFolderPaths().get(0) + "/" + itemSummary.getName();
           String folderPath = PSPathUtils.getFolderPath(path);
           newDirs.add(folderPath);
@@ -1468,6 +1509,10 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     int cssCount = 0;
 
     for (String themeName : themeNames) {
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6730,
+      // same as #5898/#5910/#5927) — finder-relative logical path consumed by
+      // IPSFileSystemService.getChildren (PSFileSystemService resolves via new File(root, path)
+      // and normalizes separators, so "/" is portable here); not a raw OS path join.
       String path = "/themes/" + themeName + "/";
 
       List<String> dirs = new ArrayList<>();
@@ -1602,13 +1647,15 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
     // is the site name unique?
     IPSSite existingSite = siteMgr.findSite(site.getName());
     if (existingSite != null) {
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6730) — escaped quotes
+      // in the validation message below, not a path separator; no File or Path use.
       builder.reject(
           "site.exists",
           "Cannot create a site with name \""
               + site.getName()
-              + "\" because a site named \""
+              + "\" because a site named \"" // mkd-code-review[paths.hardcoded_sep] #6730 escaped-quote FP
               + site.getName()
-              + "\" already exists.");
+              + "\" already exists."); // mkd-code-review[paths.hardcoded_sep] #6730 escaped-quote FP
       builder.throwIfInvalid();
     }
   }
@@ -1820,7 +1867,12 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
             String replacement = replaceMappings.get(original);
             String quotedOriginal = Pattern.quote(original);
             String quotedReplacement = Matcher.quoteReplacement(replacement);
+            // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6730,
+            // same as #5898/#5910/#5927) — matches the CMS path-boundary "/" inside asset field
+            // string values (repository paths/URLs embedded in content), not OS separators.
             if (replaceVal.contains(original + '/')) {
+              // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6730,
+              // same as #5898/#5910/#5927) — CMS path-boundary match in asset field values.
               replaceVal = replaceVal.replaceFirst(quotedOriginal + '/', quotedReplacement + '/');
             } else if (replaceVal.contains(original + '%')) {
               replaceVal = replaceVal.replaceFirst(quotedOriginal + '%', quotedReplacement + '%');
@@ -1876,6 +1928,9 @@ public class PSSiteDataService extends PSAbstractDataService<PSSite, PSSiteSumma
           PSFolderPathUtils.concatPath(PSPathUtils.ASSETS_FINDER_ROOT, origAssetPath);
       String copyAssetFolder =
           PSFolderPathUtils.concatPath(PSPathUtils.ASSETS_FINDER_ROOT, copiedAssetPath);
+      // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6730,
+      // same as #5898/#5910/#5927) — strips the CMS logical trailing slash from the Assets
+      // finder-root repository path, not an OS path.
       updateAssetListAsset(asset, copyAssetFolder, StringUtils.removeEnd(origAssetFolder, "/"));
     }
   }
