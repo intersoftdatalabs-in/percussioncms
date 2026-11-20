@@ -1873,6 +1873,45 @@ describe("DataTables dead styling removal + keep-vendored (issue #6002)", () => 
       }
     }
   });
+
+  it("pins the jquery-dropdown MIT copyright notice in all three trees (issue #6751)", () => {
+    // Residual of the #6734 vendored-JS sweep (grandparent audit #5627):
+    // the claviska jquery-dropdown twins declared `@license: MIT` with a
+    // Contribute link but named no copyright holder/year, so the notice was
+    // weaker than every other pinned payload row (hoverIntent, superfish,
+    // FullCalendar, qTip2, Lightbox, gcal, BBQ-derived deparam).
+    //
+    // Upstream archaeology (November 2026): the master file headers at
+    // claviska/jquery-dropdown (now soundasleep/jquery-dropdown) ship the
+    // same holder-less banner — the copyright lives in the upstream README
+    // ("Copyright A Beautiful Site, LLC", MIT licensed) and the surviving
+    // fork READMEs ("Copyright 2013 Cory LaViska for
+    // A Beautiful Site, LLC."). Same-author precedent: the MiniColors twins
+    // carry "Developed by Cory LaViska for A Beautiful Site, LLC" with the
+    // same MIT license line. There is no npm migration path (npm
+    // `jquery-dropdown` is a different plugin by techhysahil), so the pair
+    // stays keep-vendored with the README-attested holder/year restored in
+    // the banner of both twins. This test fails if either twin in any tree
+    // loses the copyright or permission notice.
+    const DROPDOWN_TWINS = [
+      "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.js",
+      "jslib/profiles/3x/jquery/plugins/jquery-dropdown/jquery.dropdown.css",
+    ];
+    for (const dest of DROPDOWN_TWINS) {
+      for (const root of TREES) {
+        const file = inTree(root, dest);
+        const text = fs.readFileSync(file, "utf8");
+        expect(
+          text,
+          `${file} missing upstream copyright holder`,
+        ).toContain("Copyright (c) 2013 Cory LaViska for A Beautiful Site, LLC.");
+        expect(
+          text,
+          `${file} missing MIT permission notice`,
+        ).toMatch(/MIT license: http:\/\/opensource\.org\/licenses\/MIT/);
+      }
+    }
+  });
 });
 
 /**

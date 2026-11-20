@@ -1,6 +1,8 @@
 /*
  * jQuery Dropdown: A simple dropdown plugin
  *
+ * Copyright (c) 2013 Cory LaViska for A Beautiful Site, LLC.
+ *
  * Contribute: https://github.com/claviska/jquery-dropdown
  *
  * @license: MIT license: http://opensource.org/licenses/MIT
