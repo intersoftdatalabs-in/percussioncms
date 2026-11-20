@@ -650,6 +650,7 @@ All converted to cross-platform Python 3.9+ (US2). All run from the repo root.
 | `verify-valid-fixes.py`           | Assert every `triage.md` row with `disposition == valid` has a non-empty `linked_pr`.                                                                                                                               | T035     |
 | `verify-suppressions.py`          | For every row in `suppressions.md`, grep the cited source line for the matching `// codeql[…] comment and `justification:` text.                                                                                    | T064     |
 | `verify-pr-review-resolution.py`  | For every `linked_pr` in `triage.md`, query `gh pr view --json reviewThreads` and fail if any thread has `isResolved: false` (Constitution IX, `SC-007`).                                                           | T078b    |
+| `verify-codeql-drained.py`          | For one PR, decide whether its CodeQL surface is drained: CodeQL check runs green on the head SHA **and** no open code-scanning alerts at the PR's files (alerts are scoped to `refs/pull/<N>/merge`, so PR-introduced alerts are visible and pre-existing main alerts are not flagged). A `// codeql[…]` comment alone never drains (issue #6784). Exit 0 drained / 1 not drained / 2 prerequisite. Test: `test_verify_codeql_drained.py`. Run before marking a CodeQL review thread `merged_blocker_drained`. | #6784    |
 | `test-verify-triage-inventory.py` | Self-test for `verify-triage-inventory.py` against `scripts/test-fixtures/triage-good.md` and `triage-bad.md`.                                                                                                      | T013     |
 
 #### Usage
@@ -664,6 +665,8 @@ python3 scripts/verify-valid-fixes.py
 python3 scripts/verify-suppressions.py
 python3 scripts/verify-distribution-archive.py
 python3 scripts/verify-pr-review-resolution.py
+# CodeQL-thread drain gate (issue #6784): run per PR before marking drained.
+python3 scripts/verify-codeql-drained.py --pr-number <N>
 ```
 
 #### Test fixtures

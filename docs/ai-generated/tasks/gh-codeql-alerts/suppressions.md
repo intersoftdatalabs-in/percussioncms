@@ -10,6 +10,28 @@ verbatim. Path-level exclusions (`.github/codeql/codeql-config.yml`
 `paths-ignore` / `query-filter` additions) MUST also have a row here with
 `file_path = .github/codeql/codeql-config.yml`.
 
+### Mechanism note — a `// codeql[...]` comment alone never closes an alert (issue #6784)
+
+**Trailing or same-line `// codeql[<rule-id>]` comments are not an
+inline-suppression mechanism GitHub code scanning honors.** Evidence: on PR
+#6770 a same-line `// codeql[js/incomplete-url-substring-sanitization]`
+comment was added on the spec line and the thread was reported "drained
+(FP + ledger)", yet alert #2101 stayed open and the CodeQL check kept
+failing — the "10/10 MERGEABLE" readiness claim overstated the PR state
+(human review then required the real fix).
+
+Closing a CodeQL alert requires either (a) a code rewrite that removes the
+flagged pattern (the alert auto-resolves as `fixed` on rescan — this is how
+#2101 actually closed), or (b) dismissal of the alert through code scanning
+with a reason. After either path, re-check that the CodeQL check is green
+before marking the thread drained.
+
+Machine check: `python3 scripts/verify-codeql-drained.py --pr-number <N>`
+(exit 0 drained / 1 not drained / 2 prerequisite). PR follow-up and
+cycle-verify MUST run it before reporting a CodeQL review thread as
+`merged_blocker_drained` — a comment-only "FP" with a failing check or an
+open alert is **not drained**.
+
 | alert_id | rule_id | file_path | line | justification | applied_on | applied_by | review_by |
 |----------|---------|-----------|------|---------------|------------|------------|-----------|
 
