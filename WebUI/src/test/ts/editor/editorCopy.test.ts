@@ -49,6 +49,16 @@ describe("editorCopy", () => {
     expect(editorCopyErrorReason(new Error("boom"))).toBe("failed");
   });
 
+  it("maps 409 to conflict and unknown statuses to failed (#6772)", () => {
+    expect(editorCopyErrorReason({ status: 409, statusText: "Conflict", body: {} })).toBe(
+      "conflict",
+    );
+    expect(
+      editorCopyErrorReason({ status: 500, statusText: "Server Error", body: {} }),
+    ).toBe("failed");
+    expect(editorCopyErrorReason({ statusText: "No status", body: {} })).toBe("failed");
+  });
+
   it("refuses a blank destination as HTTP 400 before copy/item", async () => {
     await expect(copyEditorItemToFolder("/Sites/Demo/Home", "  ")).rejects.toMatchObject({
       status: 400,
