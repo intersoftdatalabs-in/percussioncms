@@ -120,9 +120,26 @@ All license checks run 2026-11-20 via `npm view <pkg>[@<ver>] license`
 
 ## Residuals / open questions (not filed as issues per the #6687 slice scope)
 
-- v6 `dayGridMonth` CSS class names vs the snippet's `fc-*` responsive
-  overrides — verify in slice 2 (visual diff, not just class presence).
-- `fullcalendar.print.css` equivalent in the v6 bundle.
+- ~~v6 `dayGridMonth` CSS class names vs the snippet's `fc-*` responsive
+  overrides — verify in slice 2 (visual diff, not just class presence).~~
+  **Slice 2a landed (#6804 follow-on PR):** v6.1.15 Standard Bundle pinned
+  as the `fullcalendar-v6` npm alias (exact, both frontend manifests;
+  `fullcalendar@2.9.1` untouched) with a 6-assertion jsdom spike
+  (`calendarTwoFullcalendarV6CssMapping.test.js`) rendering the real
+  `index.global.min.js` dayGridMonth (42 day cells, event + `h2` title).
+  Findings: toolbar sections are gone (three unstyled `.fc-toolbar-chunk`
+  divs — the 480px override must be retargeted, v6 does not wrap on its
+  own); no `.fc-state-default` / `.fc-corner-*` anywhere (toggle buttons
+  need a compat rule); event text hook is `.fc-event-title` (not
+  `.fc-title`); view wrapper is `.fc-view-harness` (not
+  `.fc-view-container`); styles are JS-injected (`<style
+  data-fullcalendar>`, honors `meta[name=csp-nonce]` — feeds slice 3b).
+  Visual parity beyond DOM hooks (real browser screenshot diff) stays with
+  the slice-3 Playwright run.
+- ~~`fullcalendar.print.css` equivalent in the v6 bundle.~~ **Slice 2a
+  boundary:** the v6 bundle ships zero `*.css` and its injected CSSOM
+  carries no `@media print` rules — authoring that equivalent is slice 2b
+  scope (asserted as absence, not resolved, in the 2a spike).
 - Mini-calendar branch (`$.datepicker`) is jquery-ui, unaffected — but its
   `fullCalendarPage` link target assumes the full layout keeps its URL
   contract; preserve in slice 3.

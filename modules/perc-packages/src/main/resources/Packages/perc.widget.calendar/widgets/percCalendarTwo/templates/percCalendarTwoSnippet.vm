@@ -66,7 +66,7 @@
         padding: 9px 10px;
         text-align: center;
         text-decoration: none;
-        display: inline-block;f
+        display: inline-block;
         font-size: 12px;
         cursor: pointer;
         margin: 0px;
