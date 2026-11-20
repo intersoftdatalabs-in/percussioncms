@@ -25,7 +25,7 @@ This folder holds the raw alert fetch, the triage inventory, and the per-disposi
 - **Default setup**: must remain `not-configured` — verify with  
   `gh api repos/intersoftdatalabs-in/percussioncms/code-scanning/default-setup --jq .state`
 - **Code Quality**: must stay **disabled** (Settings → Code quality). Dynamic workflow `dynamic/github-code-scanning/codeql` ignores advanced config and can wipe default-branch alerts.
-- **Gate scripts**: `scripts/verify-codeql-analyzer-of-record.sh` (asserts the policy above); `scripts/verify-suppressions.sh` (asserts every suppression row has a `// codeql[rule-id]` anchor in source); `scripts/verify-pr-review-resolution.sh` (asserts every closing PR has 0 unresolved review threads).
+- **Gate scripts**: `scripts/verify-codeql-analyzer-of-record.py` (asserts the policy above); `scripts/verify-suppressions.py` (asserts every suppression-ledger row cites closure evidence — dismissal reason/URL or code-rewrite ref — instead of a `// codeql[rule-id]` comment that never closes an alert, issue #6823); `scripts/verify-pr-review-resolution.py` (asserts every closing PR has 0 unresolved review threads).
 
 ## Re-scan cadence
 

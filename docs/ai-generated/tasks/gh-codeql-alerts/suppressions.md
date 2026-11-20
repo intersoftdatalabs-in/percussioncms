@@ -4,13 +4,13 @@
 **Generated**: 2026-07-11 (initially empty; rows added per US4 closure)
 
 Schema follows `specs/004-zero-code-scanning-alerts/contracts/README.md` C3. Every
-inline `// codeql[rule-id]` suppression applied under this feature MUST have
-exactly one row here, with `justification` matching the inline comment
-verbatim. Path-level exclusions (`.github/codeql/codeql-config.yml`
+suppression applied under this feature MUST have exactly one row here.
+Path-level exclusions (`.github/codeql/codeql-config.yml`
 `paths-ignore` / `query-filter` additions) MUST also have a row here with
-`file_path = .github/codeql/codeql-config.yml`.
+`file_path = .github/codeql/codeql-config.yml` (or `config + sink` for
+combined path-exclusion + sink-annotation rows).
 
-### Mechanism note — a `// codeql[...]` comment alone never closes an alert (issue #6784)
+### Closure contract — the ledger row is the suppression mechanism of record (issues #6784 / #6823)
 
 **Trailing or same-line `// codeql[<rule-id>]` comments are not an
 inline-suppression mechanism GitHub code scanning honors.** Evidence: on PR
@@ -31,6 +31,36 @@ Machine check: `python3 scripts/verify-codeql-drained.py --pr-number <N>`
 cycle-verify MUST run it before reporting a CodeQL review thread as
 `merged_blocker_drained` — a comment-only "FP" with a failing check or an
 open alert is **not drained**.
+
+The disposition ladder is unchanged — **runtime fix → model pack → sink-line
+comment → path query-filters → dismiss last** — but the ladder steps are
+documentation, not closure: only the rewrite or the dismissal closes the
+alert. Accordingly each row's `justification` MUST cite the closure evidence,
+not merely the comment:
+
+- **Dismissal:** state the code-scanning dismissal (`Dismissed FP`, `dismiss
+  reason: won't fix/false positive`, …) with the alert URL or PR ref; or
+- **Code rewrite:** state what runtime fix removed the pattern
+  (barrier/guard/sanitizer, model pack, path filter) with the PR ref and
+  tests; or
+- **Local-analyzer adjudication (`mkd-` rows, no CodeQL alert ID):**
+  `Adjudicated intentional … // mkd-code-review[rule]` with issue +
+  precedent citation. The in-source `mkd-code-review[rule]` marker is the
+  local analyzer's mechanism and MUST remain on the cited sink;
+  `Path.resolve`/`File.separator` must not be applied to CMS logical
+  repository paths.
+
+Pre-existing sink-line `// codeql[rule-id]` anchors are tolerated as
+documentation and are NOT required. Do NOT re-edit annotated sinks only to
+chase re-fingerprinted alert IDs — each edit reopens a new ID (see rows
+marked "Do not re-edit sinks").
+
+Machine check: `python3 scripts/verify-suppressions.py` (exit 0 pass /
+1 fail). For each row it requires (1) closure evidence in `justification`
+per above, (2) every concretely cited source file to still exist, (3)
+`mkd-` rows to carry their `mkd-code-review[rule]` marker in source, and
+(4) config-anchored rows to resolve to an existing
+`.github/codeql/codeql-config.yml`.
 
 | alert_id | rule_id | file_path | line | justification | applied_on | applied_by | review_by |
 |----------|---------|-----------|------|---------------|------------|------------|-----------|
