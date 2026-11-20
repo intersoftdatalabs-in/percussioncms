@@ -263,6 +263,7 @@ def test_build_workflow_prompt_substitutes_json(tmp_path):
         "max_issues": 2,
         "base_branch": "main",
         "max_prs": 1,
+        "max_parallel_work": 1,
         "include_pr_followup": False,
         "low_priority_quota_pct": 20,
         "min_debt_slots": 0,
@@ -285,6 +286,7 @@ def test_build_workflow_args_serializes_to_json():
         "max_issues": 5,
         "base_branch": "release/8.2.x",
         "max_prs": 4,
+        "max_parallel_work": 1,
         "include_pr_followup": True,
         "low_priority_quota_pct": 20,
         "min_debt_slots": 0,
@@ -775,3 +777,23 @@ def test_run_worktree_cleanup_missing_script_is_noop(tmp_path):
     """No prune script present: log and return, never raise."""
     mod = _load_module()
     mod.run_worktree_cleanup(tmp_path / "does-not-exist", include_no_pr=False)
+
+
+def test_max_parallel_work_defaults_to_sequential():
+    """No flag: payload and env keep the sequential default (issue #6785)."""
+    mod = _load_module()
+    args = mod.parse_args([])
+    assert args.max_parallel_work == 1
+    payload = json.loads(mod.build_workflow_args(args))
+    assert payload["max_parallel_work"] == 1
+
+
+def test_max_parallel_work_forwarded_to_payload_and_env(tmp_path):
+    """--max-parallel-work 2 reaches the host payload and NIGHT_* env."""
+    mod = _load_module()
+    args = mod.parse_args(["--max-parallel-work", "2"])
+    assert args.max_parallel_work == 2
+    payload = json.loads(mod.build_workflow_args(args))
+    assert payload["max_parallel_work"] == 2
+    env = mod.build_env(args, tmp_path, "main", tmp_path / "night-report.md")
+    assert env["NIGHT_MAX_PARALLEL_WORK"] == "2"

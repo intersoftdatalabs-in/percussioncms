@@ -68,7 +68,9 @@ vars actually reach the plugin and the bash tool.
   `.grok/workflows/README.md`.
 - **Defaults**: `max_issues=3`, `base_branch=main`,
   `command=night-issue-prs`, `worktree=<home>/.opencode/worktrees/intersoft-workspace-percussioncms/night-issue-prs`,
-  `report=<worktree>/scratch/night-report.md`.
+  `report=<worktree>/scratch/night-report.md`, `max_parallel_work=1`
+  (sequential; pilot 2 seats need distinct `PERC_QA_CELL_SUFFIX` per seat —
+  see `night-phase-timer.py` and `docker/scripts/perc-devctl.py qa-up`).
 - **Operator overrides**: root `AGENTS.local.md` is gitignored, so git never
   carries it into the worktree — the launcher copies it one way
   (primary → worktree) on every sync and refreshes it when the primary
@@ -79,6 +81,9 @@ vars actually reach the plugin and the bash tool.
   python3 scripts/opencode-night-issue-prs.py --max-issues 3
   python3 scripts/opencode-night-issue-prs.py --dry-run --max-issues 5
   python3 scripts/opencode-night-issue-prs.py --max-issues 1 --max-prs 8 --no-include-pr-followup
+  # Pilot: 2 concurrent Work seats (host rule change still required; each seat
+  # exports a distinct PERC_QA_CELL_SUFFIX so QA cells stay isolated)
+  python3 scripts/opencode-night-issue-prs.py --max-issues 12 --max-parallel-work 2
   # Dev: sync worktree to local main instead of origin/main (no push required)
   python3 scripts/opencode-night-issue-prs.py --sync-from-local --max-issues 1
   # Verbose
@@ -127,6 +132,29 @@ vars actually reach the plugin and the bash tool.
   cross-platform-Python conventions are followed voluntarily (no `shell=True`,
   no hardcoded separators, stdlib-only at runtime, scratch under `./tmp`-equivalent).
 
+### `night-phase-timer.py`
+
+Wall-clock phase timer for the `night-issue-prs` workflow (issue #6785):
+records phase start/end timestamps to a JSON state file and renders a
+Markdown table for `night-report.md`, so regressions against the 45m–2h
+cycle target are visible.
+
+- **Usage** (run from the repo root; `--state` should sit next to the report):
+
+  ```bash
+  TIMINGS="$(dirname "$NIGHT_REPORT_PATH")/phase-timings.json"
+  python3 scripts/night-phase-timer.py start Work --state "$TIMINGS"
+  # ... phase runs ...
+  python3 scripts/night-phase-timer.py end Work --state "$TIMINGS"
+  python3 scripts/night-phase-timer.py report --state "$TIMINGS"
+  ```
+
+  `report` prints a `## Phase timings (wall-clock, UTC)` table plus a total
+  line — paste or append it into the report. A repeated `start` resets the
+  phase (retry-safe); `end` with no `start` exits 2. State defaults to
+  `$NIGHT_TIMINGS_PATH` else `./phase-timings.json`.
+- **Tests**: `python3 -m pytest scripts/test_night_phase_timer.py -v`.
+
 ### `night-timer-run.sh` / `night-timer-run.cmd`
 
 Timer entry point for the opencode `night-issue-prs` workflow: one bounded
@@ -154,6 +182,7 @@ stacking.
   ```bash
   scripts/night-timer-run.sh                      # one cycle, max 5 issues
   MAX_ISSUES=2 scripts/night-timer-run.sh         # smaller cycle
+  MAX_PARALLEL_WORK=2 scripts/night-timer-run.sh  # pilot: 2 Work seats
   scripts/night-timer-run.sh --dry-run            # validate without invoking opencode
   ```
 

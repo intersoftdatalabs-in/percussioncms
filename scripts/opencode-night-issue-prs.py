@@ -45,7 +45,8 @@ Erlang skill CLI before opening a PR; host/peer phases still spawn the
 
     python3 scripts/opencode-night-issue-prs.py [--max-issues N] [--base-branch BR]
                                                 [--worktree PATH] [--report-path PATH]
-                                                [--max-prs N] [--include-pr-followup | --no-include-pr-followup]
+                                                [--max-prs N] [--max-parallel-work N]
+                                                [--include-pr-followup | --no-include-pr-followup]
                                                 [--model MODEL] [--command NAME | --prompt TEXT]
                                                 [--sync-from-local] [--no-worktree-create]
                                                 [--dry-run] [-v]
@@ -326,6 +327,7 @@ def build_workflow_args(args: argparse.Namespace) -> str:
         "max_issues": args.max_issues,
         "base_branch": args.base_branch,
         "max_prs": args.max_prs,
+        "max_parallel_work": getattr(args, "max_parallel_work", 1),
         "include_pr_followup": bool(args.include_pr_followup),
         "low_priority_quota_pct": getattr(args, "low_priority_quota_pct", 20),
         "min_debt_slots": getattr(args, "min_debt_slots", 0),
@@ -417,6 +419,7 @@ def build_env(args: argparse.Namespace, worktree: Path, base_branch: str, report
     env["NIGHT_BASE_BRANCH"] = base_branch
     env["NIGHT_REPORT_PATH"] = str(report)
     env["NIGHT_OPERATOR"] = "opencode"
+    env["NIGHT_MAX_PARALLEL_WORK"] = str(getattr(args, "max_parallel_work", 1))
     env.setdefault("NIGHT_CODING_TOOL", "OpenCode")
     # Keep PWD in sync with cwd so subprocess shells (and opencode's bash
     # tool) resolve relative paths from the worktree, not from wherever
@@ -437,6 +440,16 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--worktree", default="", help="Override worktree path (default: ~/.opencode/worktrees/<repo>/night-issue-prs).")
     parser.add_argument("--report-path", default="", help="Override night-report.md path (default: <worktree>/scratch/night-report.md).")
     parser.add_argument("--max-prs", type=int, default=6, help="Max open PRs per follow-up pass (default: 6).")
+    parser.add_argument(
+        "--max-parallel-work",
+        type=int,
+        default=1,
+        help=(
+            "Max concurrent Work agents (default: 1 = sequential). Pilot 2 seats: "
+            "pass 2; each seat must export a distinct PERC_QA_CELL_SUFFIX so QA "
+            "cells stay isolated (see docker/scripts/perc-devctl.py qa-up)."
+        ),
+    )
     parser.add_argument(
         "--low-priority-quota-pct",
         type=int,
@@ -557,7 +570,7 @@ def main(argv: list[str] | None = None) -> int:
             len(cmd[-1]),
         )
         LOGGER.info("dry-run: cwd=%s", worktree)
-        LOGGER.info("dry-run: env NIGHT_WORKTREE_PATH=%s NIGHT_BASE_BRANCH=%s NIGHT_REPORT_PATH=%s", worktree, base_branch, report)
+        LOGGER.info("dry-run: env NIGHT_WORKTREE_PATH=%s NIGHT_BASE_BRANCH=%s NIGHT_REPORT_PATH=%s NIGHT_MAX_PARALLEL_WORK=%s", worktree, base_branch, report, getattr(args, "max_parallel_work", 1))
         if not worktree_exists(worktree):
             LOGGER.info("dry-run: worktree does not exist yet; would create from origin/%s", base_branch)
         return 0
