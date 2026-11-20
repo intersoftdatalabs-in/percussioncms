@@ -155,7 +155,8 @@ class MavenLocalRepoTest(unittest.TestCase):
         )
 
     def test_mavenrc_skipped_on_windows(self):
-        # _MAVENRC_FILES is POSIX-only by construction (#6781): on Windows the
+        # _POSIX_MAVENRC_SYSTEM_FILES is POSIX-only by construction (#6787,
+        # same class as #6781): on Windows the
         # probe must short-circuit before reading any mavenrc file. Patch
         # sys.platform (not os.name) so pathlib keeps its POSIX flavour.
         (self.home / ".mavenrc").write_text(
