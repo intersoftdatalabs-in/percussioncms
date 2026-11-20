@@ -386,9 +386,11 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
         "served bundle JS must carry the upstream CodeMirror MIT notice (#5626)",
       ).toBe(true);
       expect(
-        bundleJsText.includes("https://codemirror.net/5/LICENSE"),
+        bundleJsText,
         "served bundle JS must name the upstream MIT license URL (#5626)",
-      ).toBe(true);
+      ).toMatch(
+        /Distributed under an MIT license: https:\/\/codemirror\.net\/5\/LICENSE/,
+      );
       const bundleCssText = await cssResponse.text();
       expect(
         bundleCssText.includes("Marijn Haverbeke"),

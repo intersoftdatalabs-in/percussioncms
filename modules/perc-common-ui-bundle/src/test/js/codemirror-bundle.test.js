@@ -705,7 +705,11 @@ describe("codemirror bundle MIT notice stamp (issue #5626)", () => {
   });
 
   it("builds js/css banners that survive esbuild minification", () => {
-    const banners = buildCodeMirrorBundleBanners("5.65.21");
+    // Read the installed release so a Dependabot patch bump that changes
+    // the bundle bytes does not fail the stamp — the assertion still proves
+    // the banner names the bundled release.
+    const installedVersion = require("codemirror/package.json").version;
+    const banners = buildCodeMirrorBundleBanners(installedVersion);
     for (const banner of [banners.js, banners.css]) {
       // `/*!` opener: a legal comment by esbuild's definition, so the
       // stamp is emitted verbatim even with minify on.
@@ -715,7 +719,7 @@ describe("codemirror bundle MIT notice stamp (issue #5626)", () => {
       expect(banner.includes(CODEMIRROR_LICENSE_URL)).toBe(true);
       // The stamp names the upstream release it was built from, so a
       // Dependabot bump that changes the bytes also changes the stamp.
-      expect(banner.includes("codemirror@5.65.21")).toBe(true);
+      expect(banner.includes(`codemirror@${installedVersion}`)).toBe(true);
     }
   });
 
