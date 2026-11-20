@@ -123,6 +123,29 @@ class MavenLocalRepoTest(unittest.TestCase):
             self.home / "custom-repo",
         )
 
+    def test_mavenrc_skipped_on_windows(self):
+        # _MAVENRC_FILES is POSIX-only by construction (#6781): on Windows the
+        # probe must short-circuit before reading any mavenrc file. Patch
+        # sys.platform (not os.name) so pathlib keeps its POSIX flavour.
+        (self.home / ".mavenrc").write_text(
+            'MAVEN_ARGS="-Dmaven.repo.local=/from/mavenrc"\n', encoding="utf-8"
+        )
+        with mock.patch.object(sys, "platform", "win32"):
+            self.assertIsNone(mlr._from_mavenrc(self.repo, self._env()))
+            self.assertEqual(
+                mlr.resolve_m2_repository(self.repo, self._env()),
+                self.home / ".m2" / "repository",
+            )
+
+    def test_windows_shaped_repo_local_resolves_distinctly(self):
+        # Windows-shaped -Dmaven.repo.local values must round-trip through
+        # pathlib unmangled so concurrent worktrees keep distinct repos (#6709).
+        first = mlr.parse_repo_local(r"-Dmaven.repo.local=C:\night\worktree-a\repo")
+        second = mlr.parse_repo_local(r"-Dmaven.repo.local=C:\night\worktree-b\repo")
+        self.assertEqual(first, Path(r"C:\night\worktree-a\repo"))
+        self.assertEqual(second, Path(r"C:\night\worktree-b\repo"))
+        self.assertNotEqual(first, second)
+
 
 if __name__ == "__main__":
     unittest.main()
