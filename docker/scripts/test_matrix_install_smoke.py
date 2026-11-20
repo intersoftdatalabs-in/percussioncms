@@ -18,6 +18,7 @@ MATRIX = SCRIPTS.parent / "matrix"
 # Env keys freeport / matrix host-port resolution may set or read.
 _PORT_ENV_KEYS = (
     "QA_CMS_HOST_PORT",
+    "PERC_QA_CELL_SUFFIX",
     "CMS_HOST_PORT",
     "DTS_HOST_PORT",
     "MYSQL_PORT",
@@ -1679,6 +1680,85 @@ class CmsPreflightGateTests(unittest.TestCase):
         )
         self.assertTrue(args.skip_preflight)
         self.assertEqual(args.m2_root, Path("/tmp/fake-m2"))
+
+
+class CellSuffixIsolationTests(unittest.TestCase):
+    """Issue #6704: --cell-suffix / PERC_QA_CELL_SUFFIX scopes matrix cell
+    container names so parallel shards no longer share (and rm -f) one
+    fixed name."""
+
+    def setUp(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+
+    def test_default_cell_names_unchanged(self):
+        cell = smoke.CellSpec(product="cms", db_type="h2")
+        self.assertEqual(smoke.cell_container_name(cell), "perc-matrix-cms-h2")
+        dts = smoke.CellSpec(product="dts", db_type="h2")
+        self.assertEqual(smoke.cell_container_name(dts), "perc-matrix-dts-h2")
+
+    def test_env_suffix_scopes_cell_names(self):
+        os.environ["PERC_QA_CELL_SUFFIX"] = "qa-a"
+        self.assertEqual(
+            smoke.cell_container_name(smoke.CellSpec("cms", "h2")),
+            "perc-matrix-cms-h2-qa-a",
+        )
+        self.assertEqual(
+            smoke.cell_container_name(smoke.CellSpec("dts", "h2")),
+            "perc-matrix-dts-h2-qa-a",
+        )
+
+    def test_explicit_suffix_wins_over_env(self):
+        os.environ["PERC_QA_CELL_SUFFIX"] = "from-env"
+        self.assertEqual(
+            smoke.cell_container_name(smoke.CellSpec("cms", "h2"), suffix="flag"),
+            "perc-matrix-cms-h2-flag",
+        )
+
+    def test_suffix_sanitizes_to_safe_docker_fragment(self):
+        self.assertEqual(smoke.sanitize_cell_suffix(None), "")
+        self.assertEqual(smoke.sanitize_cell_suffix(" Qa B "), "qab")
+        self.assertEqual(
+            smoke.suffixed_cell_container_name("cms-h2", "QA_A/x"), "perc-matrix-cms-h2-qaax"
+        )
+        self.assertEqual(
+            smoke.suffixed_cell_container_name("cms-h2", ""), "perc-matrix-cms-h2"
+        )
+
+    def test_parser_exposes_cell_suffix(self):
+        args = smoke._build_parser().parse_args(
+            ["--product", "cms", "--db", "h2", "--cell-suffix", "qa-b"]
+        )
+        self.assertEqual(args.cell_suffix, "qa-b")
+        args = smoke._build_parser().parse_args(
+            ["--product", "cms", "--db", "h2"]
+        )
+        self.assertIsNone(args.cell_suffix)
+
+    def test_run_cell_dry_run_keeps_suffixed_container_name(self):
+        # run_cell must address (and pre-rm) the suffixed cell only —
+        # never the sibling-owned fixed name.
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            target = root / "modules" / "perc-distribution-tree" / "target"
+            target.mkdir(parents=True)
+            (target / "perc-distribution-tree.jar").write_bytes(b"stub-jar-content")
+            log_dir = root / "docker" / "logs"
+            log_dir.mkdir(parents=True)
+            db_services = smoke.build_db_services({})
+            result = smoke.run_cell(
+                smoke.CellSpec(product="cms", db_type="h2"),
+                repo_root=root,
+                compose_file=root / "docker-compose.yml",
+                keep=True,
+                probe_timeout=5,
+                dry_run=True,
+                log_dir=log_dir,
+                db_services=db_services,
+                cell_suffix="qa-a",
+            )
+            self.assertEqual(result.status, "pass")
+            self.assertEqual(result.container_name, "perc-matrix-cms-h2-qa-a")
 
 
 if __name__ == "__main__":

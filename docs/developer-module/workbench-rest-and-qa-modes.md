@@ -182,7 +182,8 @@ python docker/scripts/perc-devctl.py qa-up
 #    (Failed startup of context / BeanCurrentlyInCreationException) even when
 #    Jetty HTTP still answers (#2462 / #2423). Do not treat port-up alone as ready.
 python docker/scripts/perc-devctl.py qa-health
-# Host port: env QA_CMS_HOST_PORT / CMS_HOST_PORT, else docker port perc-matrix-cms-h2,
+# Host port: env QA_CMS_HOST_PORT / CMS_HOST_PORT, else docker port on this
+# shard's QA CMS cell (perc-matrix-cms-h2 + PERC_QA_CELL_SUFFIX when set, #6704),
 # else last docker/logs/qa-up-*.log, else preferred 9993 when free (#4597).
 # optional: --timeout-seconds 120  --interval-seconds 5
 # DETAIL:rhythmyx_context_failed → cell unusable; inspect docker logs; do not run Playwright
@@ -235,7 +236,7 @@ python docker/scripts/perc-devctl.py qa-down
 | Preferred baseline   | Host port `9993` when free and no env override                           |
 | Env override         | `QA_CMS_HOST_PORT` or `CMS_HOST_PORT` (matrix docker `-p` uses the same) |
 | Probe path           | `/Rhythmyx/rest/mimetypes` (default #2482; override via `RHYTHMYX_HEALTH_PATH`) |
-| Container name       | `perc-matrix-cms-h2`                                                     |
+| Container name       | `perc-matrix-cms-h2` (default; suffix-scoped per shard since #6704 — see below) |
 | Admin user           | `Admin` (password from install generated passwords)                      |
 | RESULT line contract | `RESULT:OK\|FAIL STEP:qa-up\|qa-health\|qa-down LOG:…`                   |
 | Context fail-fast    | `DETAIL:rhythmyx_context_failed MATCH:…` when Jetty logs show dead Rhythmyx Spring context (#2462); helper `docker/scripts/rhythmyx_ready.py` |
@@ -255,6 +256,8 @@ python docker/scripts/freeport-concurrent-smoke.py
 ```
 
 Full tiers (CLI dry-run, live sequential `qa-up` / `up`, env override, tear-down port free): see [docker/README.md](../../docker/README.md) → **Two-worktree concurrent freeport smoke**. Shared helpers: `docker/scripts/perc_host_ports.py` (used by `perc-devctl` + `matrix-install-smoke`). Parent freeport epic [#2001](https://github.com/intersoftdatalabs-in/percussioncms/issues/2001); sibling residual [#2004](https://github.com/intersoftdatalabs-in/percussioncms/issues/2004).
+
+**Parallel-shard cell isolation (#6704):** published ports were already freeport-scoped (#2005), but container names were one fixed global — one shard's `qa-up` `rm -f`'d the other's in-flight cell. Since #6704, `PERC_QA_CELL_SUFFIX` env (or `qa-up` / `qa-health` / `qa-down --cell-suffix`) scopes every QA cell name to `perc-matrix-<product>-<db>-<suffix>`; parallel shards must export distinct suffixes and keep the same suffix for the whole `qa-up` → `qa-health` → `qa-down` session. Unset keeps the legacy fixed names in this doc. Details + concurrent two-cell proof recipe: [docker/README.md](../../docker/README.md) → **QA cell name suffix (parallel shards)**.
 
 Equivalent low-level harness (same cell): `python docker/scripts/matrix-install-smoke.py --product cms --db h2 --keep` then destroy with `docker rm -f perc-matrix-cms-h2`. Prefer `perc-devctl.py qa-*` for agents.
 

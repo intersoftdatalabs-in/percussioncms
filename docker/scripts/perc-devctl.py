@@ -119,7 +119,15 @@ from typing import Iterable, List, Optional, Sequence
 _SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
-from perc_host_ports import find_free_port, is_port_free, resolve_host_port  # noqa: E402
+from perc_host_ports import (  # noqa: E402
+    QA_CELL_SUFFIX_ENV,
+    find_free_port,
+    is_port_free,
+    resolve_cell_suffix,
+    resolve_host_port,
+    sanitize_cell_suffix,
+    suffixed_cell_container_name,
+)
 from rhythmyx_ready import (  # noqa: E402
     DETAIL_CONTEXT_FAILED,
     DETAIL_SERVER_LOG_ERRORS,
@@ -180,6 +188,26 @@ QA_CMS_CONTAINER_PORT = 9992
 QA_DTS_CONTAINER = "perc-matrix-dts-h2"
 QA_DTS_CONTAINER_PORT = 9980
 QA_DTS_DB = "h2"
+
+
+def qa_cms_container(suffix: object = None) -> str:
+    """QA CMS cell container name for the current cell suffix (#6704).
+
+    ``None`` (default) resolves from :data:`PERC_QA_CELL_SUFFIX` env via
+    :func:`resolve_cell_suffix`; unset keeps the legacy fixed name
+    (:data:`QA_CMS_CONTAINER`) so single-worktree behavior is unchanged.
+    Parallel shards export distinct suffixes to hold isolated cells.
+    """
+    return suffixed_cell_container_name(
+        QA_CMS_CELL_ID, resolve_cell_suffix(suffix)
+    )
+
+
+def qa_dts_container(suffix: object = None) -> str:
+    """QA DTS cell container name for the current cell suffix (#6704)."""
+    return suffixed_cell_container_name(
+        f"dts-{QA_DTS_DB}", resolve_cell_suffix(suffix)
+    )
 # In-cell DTS Tomcat HTTPS listen port (``https.port`` in
 # ``conf/perc/perc-catalina.properties``) and the preferred host publish
 # for it. ``qa-up --with-dts`` publishes the mapping so host-side seeds
@@ -312,15 +340,18 @@ def parse_docker_port_host_port(text: str) -> Optional[int]:
 
 
 def published_qa_cms_host_port(
-    container: str = QA_CMS_CONTAINER,
+    container: Optional[str] = None,
     *,
     container_port: int = QA_CMS_CONTAINER_PORT,
 ) -> Optional[int]:
     """Host port currently published for the running H2 QA CMS cell (#4597).
 
-    Reads ``docker port <container> <container_port>/tcp``. Returns ``None``
+    Reads ``docker port`` on the cell for the current suffix (#6704;
+    ``None`` resolves via :func:`qa_cms_container`). Returns ``None``
     when docker is missing, the cell is down, or output is unparseable.
     """
+    if container is None:
+        container = qa_cms_container()
     if not container:
         return None
     completed = subprocess.run(
@@ -370,19 +401,24 @@ def latest_qa_up_log_host_port(repo_root: Path) -> Optional[int]:
     return parse_qa_up_log_host_port(text)
 
 
-def resolve_qa_health_host_port(repo_root: Path) -> tuple[int, str]:
+def resolve_qa_health_host_port(
+    repo_root: Path,
+    container: Optional[str] = None,
+) -> tuple[int, str]:
     """Host port for ``qa-health`` (running cell, not a fresh freeport) (#4597).
 
     Order:
 
     1. ``QA_CMS_HOST_PORT`` / ``CMS_HOST_PORT`` env (explicit operator override)
-    2. ``docker port`` on :data:`QA_CMS_CONTAINER`
+    2. ``docker port`` on the QA CMS cell for the current suffix (#6704)
     3. Newest ``qa-up-*.log`` host publish line
     4. :func:`resolve_qa_cms_host_port` (preferred-when-free / freeport)
 
     Returns ``(port, source)`` where source is ``env``, ``docker``, ``qa-up-log``,
     or ``preferred``.
     """
+    if container is None:
+        container = qa_cms_container()
     for key in ("QA_CMS_HOST_PORT", "CMS_HOST_PORT"):
         raw = os.environ.get(key, "").strip()
         if raw:
@@ -392,7 +428,7 @@ def resolve_qa_health_host_port(repo_root: Path) -> tuple[int, str]:
                 continue
             if 1 <= port <= 65535:
                 return port, "env"
-    published = published_qa_cms_host_port()
+    published = published_qa_cms_host_port(container)
     if published is not None:
         return published, "docker"
     logged = latest_qa_up_log_host_port(repo_root)
@@ -402,7 +438,7 @@ def resolve_qa_health_host_port(repo_root: Path) -> tuple[int, str]:
 
 
 def published_qa_dts_host_port(
-    container: str = QA_DTS_CONTAINER,
+    container: Optional[str] = None,
     *,
     container_port: int = QA_DTS_CONTAINER_PORT,
 ) -> Optional[int]:
@@ -410,8 +446,11 @@ def published_qa_dts_host_port(
 
     Thin wrapper over :func:`published_qa_cms_host_port` (generic
     ``docker port`` parsing); ``None`` when docker is missing, the DTS
-    cell is down, or output is unparseable.
+    cell is down, or output is unparseable. ``None`` container resolves
+    via :func:`qa_dts_container` (#6704).
     """
+    if container is None:
+        container = qa_dts_container()
     return published_qa_cms_host_port(
         container, container_port=container_port
     )
@@ -456,19 +495,24 @@ def latest_qa_up_log_dts_host_port(repo_root: Path) -> Optional[int]:
     return parse_qa_up_log_dts_host_port(text)
 
 
-def resolve_qa_dts_health_host_port(repo_root: Path) -> tuple[int, str]:
+def resolve_qa_dts_health_host_port(
+    repo_root: Path,
+    container: Optional[str] = None,
+) -> tuple[int, str]:
     """Host port for ``qa-health`` DTS (Tomcat) probing (#6237).
 
     Order:
 
     1. ``DTS_HOST_PORT`` / ``DTS_PORT`` env (explicit operator override)
-    2. ``docker port`` on :data:`QA_DTS_CONTAINER`
+    2. ``docker port`` on the QA DTS cell for the current suffix (#6704)
     3. Newest ``qa-up-*.log`` DTS host publish line
     4. :func:`resolve_qa_dts_host_port` (preferred-when-free / freeport)
 
     Returns ``(port, source)`` where source is ``env``, ``docker``,
     ``qa-up-log``, or ``preferred``.
     """
+    if container is None:
+        container = qa_dts_container()
     for key in ("DTS_HOST_PORT", "DTS_PORT"):
         raw = os.environ.get(key, "").strip()
         if raw:
@@ -478,7 +522,7 @@ def resolve_qa_dts_health_host_port(repo_root: Path) -> tuple[int, str]:
                 continue
             if 1 <= port <= 65535:
                 return port, "env"
-    published = published_qa_dts_host_port()
+    published = published_qa_dts_host_port(container)
     if published is not None:
         return published, "docker"
     logged = latest_qa_up_log_dts_host_port(repo_root)
@@ -829,6 +873,17 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "banner. Default (flag absent) path is unchanged."
         ),
     )
+    pqu.add_argument(
+        "--cell-suffix",
+        default=None,
+        help=(
+            "Isolate the cell name for parallel shards (#6704): the "
+            "sanitized value appends to perc-matrix-<product>-<db> so "
+            "this qa-up never rm -f's another shard's in-flight cell. "
+            f"Defaults to {QA_CELL_SUFFIX_ENV} env; unset keeps the "
+            "legacy fixed names."
+        ),
+    )
     pqu.add_argument("--dry-run", action="store_true")
 
     # --- Rebuild-chain preflight — #2486 / #2532 ---
@@ -953,8 +1008,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         default=None,
         help=(
             "Probe URL (default: QA_CMS_HOST_PORT / CMS_HOST_PORT env, else "
-            "docker port on perc-matrix-cms-h2, else last qa-up log, else "
-            f"preferred {PREFERRED_QA_CMS_HOST_PORT} when free)."
+            "docker port on this shard's QA CMS cell, else last qa-up log, "
+            f"else preferred {PREFERRED_QA_CMS_HOST_PORT} when free)."
         ),
     )
     pqh.add_argument(
@@ -965,6 +1020,16 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "(spec 2402-qa-dts-publish, #6237). Without the flag, a "
             "running DTS cell is still gated (auto-detect); the flag "
             "fails fast when the DTS cell is absent."
+        ),
+    )
+    pqh.add_argument(
+        "--cell-suffix",
+        default=None,
+        help=(
+            "Probe the cell for this parallel shard (#6704): the "
+            "sanitized value appends to perc-matrix-<product>-<db>. "
+            f"Defaults to {QA_CELL_SUFFIX_ENV} env; unset probes the "
+            "legacy fixed names."
         ),
     )
     pqh.add_argument("--dry-run", action="store_true")
@@ -978,8 +1043,21 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     pqd.add_argument(
         "--container",
-        default=QA_CMS_CONTAINER,
-        help=f"Container name to remove (default: {QA_CMS_CONTAINER}).",
+        default=None,
+        help=(
+            "Container name to remove (default: QA CMS cell for the "
+            f"current cell suffix, i.e. {QA_CMS_CONTAINER} when "
+            f"{QA_CELL_SUFFIX_ENV} is unset)."
+        ),
+    )
+    pqd.add_argument(
+        "--cell-suffix",
+        default=None,
+        help=(
+            "Isolate the cell name for parallel shards (#6704): appends "
+            "to perc-matrix-<product>-<db> so this qa-down only removes "
+            f"this shard's cell. Defaults to {QA_CELL_SUFFIX_ENV} env."
+        ),
     )
     pqd.add_argument("--dry-run", action="store_true")
 
@@ -996,15 +1074,20 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     pqpf.add_argument(
         "--container",
-        default=QA_DTS_CONTAINER,
-        help=f"DTS cell name (default: {QA_DTS_CONTAINER}).",
+        default=None,
+        help=(
+            "DTS cell name (default: QA DTS cell for the current cell "
+            f"suffix, i.e. {QA_DTS_CONTAINER} when {QA_CELL_SUFFIX_ENV} "
+            "is unset)."
+        ),
     )
     pqpf.add_argument(
         "--cms-container",
-        default=QA_CMS_CONTAINER,
+        default=None,
         help=(
-            "CMS cell name (web_resources source, default: "
-            f"{QA_CMS_CONTAINER})."
+            "CMS cell name (web_resources source, default: QA CMS cell "
+            "for the current cell suffix, i.e. "
+            f"{QA_CMS_CONTAINER} when {QA_CELL_SUFFIX_ENV} is unset)."
         ),
     )
     pqpf.add_argument(
@@ -1061,8 +1144,12 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     pqsf.add_argument(
         "--container",
-        default=QA_DTS_CONTAINER,
-        help=f"DTS cell name (default: {QA_DTS_CONTAINER}).",
+        default=None,
+        help=(
+            "DTS cell name (default: QA DTS cell for the current cell "
+            f"suffix, i.e. {QA_DTS_CONTAINER} when {QA_CELL_SUFFIX_ENV} "
+            "is unset)."
+        ),
     )
     pqsf.add_argument(
         "--install-root",
@@ -1142,8 +1229,12 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     pqdw.add_argument(
         "--container",
-        default=QA_CMS_CONTAINER,
-        help=f"QA cell name (default: {QA_CMS_CONTAINER}).",
+        default=None,
+        help=(
+            "QA cell name (default: QA CMS cell for the current cell "
+            f"suffix, i.e. {QA_CMS_CONTAINER} when {QA_CELL_SUFFIX_ENV} "
+            "is unset)."
+        ),
     )
     pqdw.add_argument(
         "--skip-object-storage-check",
@@ -1171,8 +1262,12 @@ def _build_arg_parser() -> argparse.ArgumentParser:
     )
     pqdj.add_argument(
         "--container",
-        default=QA_CMS_CONTAINER,
-        help=f"QA cell name (default: {QA_CMS_CONTAINER}).",
+        default=None,
+        help=(
+            "QA cell name (default: QA CMS cell for the current cell "
+            f"suffix, i.e. {QA_CMS_CONTAINER} when {QA_CELL_SUFFIX_ENV} "
+            "is unset)."
+        ),
     )
     pqdj.add_argument(
         "--restart-jetty",
@@ -1717,14 +1812,14 @@ def _qa_deploy_webui_ns(
     *,
     dry_run: bool,
     src: Optional[str] = None,
-    container: str = QA_CMS_CONTAINER,
+    container: Optional[str] = None,
     skip_object_storage_check: bool = False,
 ) -> argparse.Namespace:
     """Namespace for :func:`cmd_qa_deploy_webui` post-jar / post-up handoff."""
     return argparse.Namespace(
         dry_run=bool(dry_run),
         src=src,
-        container=container,
+        container=container or qa_cms_container(),
         skip_object_storage_check=bool(skip_object_storage_check),
     )
 
@@ -1761,7 +1856,7 @@ def cmd_qa_deploy_webui(args: argparse.Namespace, paths: tuple[Path, Path, Path]
         _qa_deploy_webui_argv(
             repo_root,
             getattr(args, "src", None),
-            args.container,
+            getattr(args, "container", None) or qa_cms_container(),
             bool(getattr(args, "skip_object_storage_check", False)),
         ),
         log_dir=log_dir,
@@ -1805,7 +1900,7 @@ def cmd_qa_deploy_war_jars(
         "qa-deploy-war-jars",
         _qa_deploy_war_jars_argv(
             repo_root,
-            getattr(args, "container", QA_CMS_CONTAINER),
+            getattr(args, "container", None) or qa_cms_container(),
             bool(getattr(args, "restart_jetty", False)),
             bool(getattr(args, "skip_sitemap_xml_check", False)),
             getattr(args, "dest", QA_WAR_JARS_DEST),
@@ -2176,6 +2271,7 @@ def _qa_matrix_up_argv(
     dry_run: bool,
     product: str = QA_CMS_PRODUCT,
     db: str = QA_CMS_DB,
+    cell_suffix: object = None,
 ) -> List[str]:
     """Build argv for matrix-install-smoke cell with ``--keep`` (pure).
 
@@ -2183,6 +2279,12 @@ def _qa_matrix_up_argv(
     ``product="dts"`` for the second (Tomcat) cell (#6237). Uses
     ``sys.executable`` so Windows/Linux/macOS all invoke the same
     interpreter that is running perc-devctl (no hardcoded ``python3``).
+
+    ``cell_suffix`` (#6704) is passed through as ``--cell-suffix`` when
+    non-empty so the child matrix names the same isolated cell the
+    banner / health / teardown paths resolve (env inheritance alone
+    would also carry it, but the explicit flag keeps dry-run argv
+    auditable).
 
     Host ports are pinned into the process env by
     :func:`ensure_qa_cms_host_port` / :func:`ensure_qa_dts_host_port`
@@ -2205,6 +2307,9 @@ def _qa_matrix_up_argv(
     ]
     if skip_image_build:
         argv.append("--skip-image-build")
+    suffix = resolve_cell_suffix(cell_suffix)
+    if suffix:
+        argv.extend(["--cell-suffix", suffix])
     if dry_run:
         argv.append("--dry-run")
     return argv
@@ -2222,8 +2327,14 @@ def _qa_print_endpoint_banner(
     password_lines: Optional[List[str]] = None,
     dts_host_port: Optional[int] = None,
     dts_https_host_port: Optional[int] = None,
+    container: Optional[str] = None,
+    dts_container: Optional[str] = None,
 ) -> None:
     """Emit agent-parseable endpoint + credential guidance after qa-up.
+
+    ``container`` / ``dts_container`` default to the cells for the
+    current suffix (#6704); pass explicit names only to banner a
+    non-default cell.
 
     Does not emit RESULT: lines — callers use ``_run_logged`` for that
     contract so agent parsers see a single OK/FAIL per step.
@@ -2247,12 +2358,16 @@ def _qa_print_endpoint_banner(
     values.
     """
     base = qa_cms_base_url(host_port)
+    if container is None:
+        container = qa_cms_container()
+    if dts_container is None:
+        dts_container = qa_dts_container()
     print(f"QA_CMS_HOST_PORT={host_port}")
     print(f"QA_CMS_URL:{base}")
     print(f"TEST_CMS_URL={base}")
     print(f"TEST_DB_TYPE={QA_CMS_DB}")
     print(f"TEST_PRODUCT={QA_CMS_PRODUCT}")
-    print(f"QA_CONTAINER:{QA_CMS_CONTAINER}")
+    print(f"QA_CONTAINER:{container}")
     print(f"ADMIN_USERNAME={QA_ADMIN_USERNAME}")
     emitted = False
     if password_lines:
@@ -2270,14 +2385,14 @@ def _qa_print_endpoint_banner(
         # server's async first-boot rotation, so always print the refresh
         # command next to the snapshot values.
         print(
-            f"QA_PASSWORD_SOURCE=docker exec {QA_CMS_CONTAINER} cat {pwd_path} "
+            f"QA_PASSWORD_SOURCE=docker exec {container} cat {pwd_path} "
             "(authoritative; banner ADMIN_PASSWORD_* values are best-effort "
             "and may lag first-boot rotation — re-export if login fails)"
         )
     else:
         print(
             "ADMIN_PASSWORD: fetch with "
-            f"docker exec {QA_CMS_CONTAINER} cat {pwd_path} "
+            f"docker exec {container} cat {pwd_path} "
             f"(authoritative; look for {QA_ADMIN_USERNAME}=…; Editor= and "
             "Contributor= too)"
         )
@@ -2312,7 +2427,7 @@ def _qa_print_endpoint_banner(
     # so a service ERROR is retrievable from a stable in-cell path without
     # tailing stdout. CMS-only default path above stays byte-identical.
     print(
-        f"DTS_LOGS=docker exec {QA_DTS_CONTAINER} ls "
+        f"DTS_LOGS=docker exec {dts_container} ls "
         f"{QA_INSTALL_ROOT}/Deployment/Server/logs"
     )
     print(
@@ -2397,12 +2512,26 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     Host port is resolved via :func:`ensure_qa_cms_host_port` (env override
     or freeport) and exported as ``QA_CMS_HOST_PORT`` / ``CMS_HOST_PORT`` so
     matrix-install-smoke docker ``-p`` and operators / Playwright agree (#2005).
+
+    Cell name isolation (#6704): ``--cell-suffix`` (else
+    ``PERC_QA_CELL_SUFFIX`` env) scopes the CMS/DTS container names to
+    ``perc-matrix-<product>-<db>-<suffix>`` so this qa-up never
+    ``rm -f``'s another shard's in-flight cell; the suffix is exported
+    for the child matrix run and passed as ``--cell-suffix``.
     """
     repo_root, _env_file, _compose_file = paths
     log_dir = _log_dir(repo_root)
     dry_run = bool(args.dry_run)
     probe_timeout = int(args.timeout_seconds)
     skip_image_build = bool(args.skip_image_build)
+    cell_suffix = resolve_cell_suffix(getattr(args, "cell_suffix", None))
+    if cell_suffix:
+        # Inherit into the child matrix-install-smoke process (belt and
+        # braces next to the explicit --cell-suffix argv below) and into
+        # every resolver in this process.
+        os.environ[QA_CELL_SUFFIX_ENV] = cell_suffix
+    container = qa_cms_container(cell_suffix)
+    dts_cell = qa_dts_container(cell_suffix)
     host_port = ensure_qa_cms_host_port()
 
     # Fail fast when --skip-image-build reuses a stale local matrix image
@@ -2445,6 +2574,7 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
         probe_timeout=probe_timeout,
         skip_image_build=skip_image_build,
         dry_run=dry_run,
+        cell_suffix=cell_suffix,
     )
     # Use a dedicated label so logs are easy to find for QA mode.
     # _run_logged emits RESULT:OK/FAIL STEP:qa-up LOG:<path>.
@@ -2485,6 +2615,7 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
             dry_run=dry_run,
             product="dts",
             db=QA_DTS_DB,
+            cell_suffix=cell_suffix,
         )
         rc_dts, log_dts = _run_logged(
             "qa-up-dts",
@@ -2511,11 +2642,13 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
             host_port,
             dts_host_port=dts_host_port,
             dts_https_host_port=dts_https_host_port,
+            container=container,
+            dts_container=dts_cell,
         )
         rc = EXIT_OK
         if deploy_webui:
             rc = cmd_qa_deploy_webui(
-                _qa_deploy_webui_ns(dry_run=True, container=QA_CMS_CONTAINER),
+                _qa_deploy_webui_ns(dry_run=True, container=container),
                 paths,
             )
             if rc != EXIT_OK:
@@ -2524,7 +2657,7 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
             return cmd_qa_deploy_war_jars(
                 argparse.Namespace(
                     dry_run=True,
-                    container=QA_CMS_CONTAINER,
+                    container=container,
                     restart_jetty=not bool(getattr(args, "no_restart_jetty", False)),
                     skip_sitemap_xml_check=False,
                     dest=QA_WAR_JARS_DEST,
@@ -2533,7 +2666,7 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
             )
         return rc
 
-    pwd_lines = _qa_fetch_generated_password_env_lines(QA_CMS_CONTAINER)
+    pwd_lines = _qa_fetch_generated_password_env_lines(container)
     admin_line = next(
         (ln for ln in pwd_lines if ln.startswith("ADMIN_PASSWORD=")),
         None,
@@ -2544,11 +2677,13 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
         password_lines=pwd_lines,
         dts_host_port=dts_host_port,
         dts_https_host_port=dts_https_host_port,
+        container=container,
+        dts_container=dts_cell,
     )
     rc = EXIT_OK
     if deploy_webui:
         rc = cmd_qa_deploy_webui(
-            _qa_deploy_webui_ns(dry_run=False, container=QA_CMS_CONTAINER),
+            _qa_deploy_webui_ns(dry_run=False, container=container),
             paths,
         )
         if rc != EXIT_OK:
@@ -2557,7 +2692,7 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
         return cmd_qa_deploy_war_jars(
             argparse.Namespace(
                 dry_run=False,
-                container=QA_CMS_CONTAINER,
+                container=container,
                 restart_jetty=not bool(getattr(args, "no_restart_jetty", False)),
                 skip_sitemap_xml_check=False,
                 dest=QA_WAR_JARS_DEST,
@@ -2604,9 +2739,13 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
     log_dir = _log_dir(repo_root)
     timeout = int(args.timeout_seconds)
     interval = int(args.interval_seconds)
-    host_port, port_source = resolve_qa_health_host_port(repo_root)
+    cell_suffix = resolve_cell_suffix(getattr(args, "cell_suffix", None))
+    container = qa_cms_container(cell_suffix)
+    dts_cell = qa_dts_container(cell_suffix)
+    host_port, port_source = resolve_qa_health_host_port(
+        repo_root, container=container
+    )
     url = args.url or qa_cms_probe_url(host_port)
-    container = QA_CMS_CONTAINER
     max_checks = max(1, timeout // interval) if interval > 0 else 1
     log_file = _new_log_file(log_dir, "qa-health")
     with_dts_flag = bool(getattr(args, "with_dts", False))
@@ -2617,7 +2756,7 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
         dts_url = ""
         if with_dts_flag:
             dts_host_port, dts_port_source = resolve_qa_dts_health_host_port(
-                repo_root
+                repo_root, container=dts_cell
             )
             dts_url = qa_dts_probe_url(dts_host_port)
         LOG.info(
@@ -2643,7 +2782,7 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
                     f"dts_url={dts_url}\n"
                     f"dts_host_port={dts_host_port}\n"
                     f"dts_port_source={dts_port_source}\n"
-                    f"dts_container={QA_DTS_CONTAINER}\n"
+                    f"dts_container={dts_cell}\n"
                 )
         if with_dts_flag:
             print(
@@ -2663,13 +2802,13 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
     # connection-refused Tomcat URL. A running DTS cell without the flag
     # is still gated (auto-detect) so `qa-up --with-dts` + plain
     # `qa-health` covers both legs.
-    dts_present = _docker_container_present(QA_DTS_CONTAINER)
+    dts_present = _docker_container_present(dts_cell)
     if with_dts_flag and not dts_present:
         with log_file.open("w", encoding="utf-8") as f:
             f.write("qa-health failed\n")
             f.write(f"url={url}\n")
             f.write(f"container={container}\n")
-            f.write(f"dts_container={QA_DTS_CONTAINER}\n")
+            f.write(f"dts_container={dts_cell}\n")
             f.write("detail=dts_container_missing\n")
             f.write(
                 "hint: qa-health --with-dts requires the QA DTS cell; "
@@ -2677,7 +2816,7 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
             )
         print(
             "RESULT:FAIL STEP:qa-health DETAIL:dts_container_missing "
-            f"MATCH:{QA_DTS_CONTAINER} HTTP:0 HEALTH:unknown "
+            f"MATCH:{dts_cell} HTTP:0 HEALTH:unknown "
             f"URL:{url} CONTAINER:{container} LOG:{log_file}"
         )
         return EXIT_SUBPROCESS_FAILED
@@ -2687,7 +2826,7 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
     dts_host_port = 0
     if dts_expected:
         dts_host_port, dts_port_source = resolve_qa_dts_health_host_port(
-            repo_root
+            repo_root, container=dts_cell
         )
         dts_url = qa_dts_probe_url(dts_host_port)
 
@@ -2865,10 +3004,17 @@ def cmd_qa_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int
     container is a no-op skip, never a failure, so the CMS-only default
     path stays green. An explicit ``--container <other>`` removes only
     that container.
+
+    ``--cell-suffix`` (else ``PERC_QA_CELL_SUFFIX`` env) scopes both
+    removals to this shard's cells (#6704) — a default ``qa-down`` in
+    one shard never removes another shard's suffixed cell.
     """
     repo_root, _env_file, _compose_file = paths
     log_dir = _log_dir(repo_root)
-    container = args.container or QA_CMS_CONTAINER
+    cell_suffix = resolve_cell_suffix(getattr(args, "cell_suffix", None))
+    default_container = qa_cms_container(cell_suffix)
+    default_dts = qa_dts_container(cell_suffix)
+    container = args.container or default_container
     dry_run = bool(args.dry_run)
     rc, log_file = _run_logged(
         "qa-down",
@@ -2881,21 +3027,21 @@ def cmd_qa_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int
     print(f"QA_CONTAINER:{container}")
     if rc == EXIT_OK:
         print("QA_DETAIL:removed (ports/disk freed)")
-    if container != QA_CMS_CONTAINER:
+    if container != default_container:
         return rc
-    dts_present = dry_run or _docker_container_present(QA_DTS_CONTAINER)
+    dts_present = dry_run or _docker_container_present(default_dts)
     if not dts_present:
-        print(f"QA_CONTAINER:{QA_DTS_CONTAINER}")
+        print(f"QA_CONTAINER:{default_dts}")
         print("QA_DETAIL:dts-absent-skip (no DTS cell to remove)")
         return rc
     rc_dts, _log_dts = _run_logged(
         "qa-down-dts",
-        _qa_destroy_argv(QA_DTS_CONTAINER),
+        _qa_destroy_argv(default_dts),
         log_dir=log_dir,
         cwd=repo_root,
         dry_run=dry_run,
     )
-    print(f"QA_CONTAINER:{QA_DTS_CONTAINER}")
+    print(f"QA_CONTAINER:{default_dts}")
     if rc_dts == EXIT_OK:
         print("QA_DETAIL:dts-removed (ports/disk freed)")
         return rc
@@ -2997,7 +3143,6 @@ def cmd_qa_rebuild_chain(
         return cmd_qa_deploy_webui(
             _qa_deploy_webui_ns(
                 dry_run=bool(args.dry_run),
-                container=QA_CMS_CONTAINER,
             ),
             paths,
         )
@@ -3028,8 +3173,8 @@ def _qa_publish_fixture_plan(
     cms_install = str(getattr(args, "cms_install_root", None) or QA_INSTALL_ROOT)
     dts_install = str(getattr(args, "install_root", None) or QA_INSTALL_ROOT)
     return argparse.Namespace(
-        container=args.container or QA_DTS_CONTAINER,
-        cms_container=args.cms_container or QA_CMS_CONTAINER,
+        container=getattr(args, "container", None) or qa_dts_container(),
+        cms_container=getattr(args, "cms_container", None) or qa_cms_container(),
         site_url=qpf.site_base_for(dts_base),
         category_url=qpf.category_url_for(dts_base),
         site_dir=staging / "site",
@@ -3171,7 +3316,7 @@ def _qa_seed_widget_fixtures_plan(
         else repo_root / "tmp" / "qa-seed-widget-fixtures"
     )
     return qswf.SeedPlan(
-        container=args.container or QA_DTS_CONTAINER,
+        container=getattr(args, "container", None) or qa_dts_container(),
         install_root=str(getattr(args, "install_root", None) or QA_INSTALL_ROOT),
         https_port=int(getattr(args, "https_port", None) or 8443),
         delivery_user=str(getattr(args, "delivery_user", None) or qswf.DELIVERY_USER_DEFAULT),
