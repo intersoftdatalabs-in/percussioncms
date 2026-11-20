@@ -103,28 +103,54 @@
       });
     }
 
+    /**
+     * Copies the server-provided doctype option values into the dialog
+     * closure (issue #6702: extracted from setMetaContent to keep that
+     * function's cognitive complexity within limits). Unknown option
+     * names are ignored; when an option repeats, the last entry wins —
+     * both matching the legacy loop. Seed values come from the current
+     * closure state so a repeated metadata response cannot blank out
+     * options the server omitted.
+     * @param options metadataObj.HtmlMetadata.docType.options array.
+     */
+    function applyDocTypeOptions(options) {
+      var values = {
+        xhtml: doctypeXHTML,
+        html5: doctypeHTML5,
+        custom: doctypeCustom,
+      };
+      for (var i = 0; i < options.length; i++) {
+        var entry = options[i];
+        if (Object.prototype.hasOwnProperty.call(values, entry.option)) {
+          values[entry.option] = entry.value;
+        }
+      }
+      doctypeXHTML = values.xhtml;
+      doctypeHTML5 = values.html5;
+      doctypeCustom = values.custom;
+    }
+
+    /**
+     * Clicks the doctype radio matching the server-selected value so the
+     * dialog reflects the stored template doctype (the _addFieldGroups
+     * radio handler syncs the custom-doctype textarea from the click).
+     * @param selected metadataObj.HtmlMetadata.docType.selected value.
+     */
+    function selectDoctypeRadio(selected) {
+      $("#edit-page-metadata-frame")
+        .contents()
+        .find("input[value='" + selected + "']")
+        .trigger("click");
+    }
+
     function setMetaContent(templateId) {
       $.PercSiteTemplatesController(false).loadTemplateMetadata(
         templateId,
         function (metadataObj) {
-          var getDocValue = metadataObj.HtmlMetadata.docType.options;
-          doctypeSelected = metadataObj.HtmlMetadata.docType.selected;
-
-          for (var i = 0; i < getDocValue.length; i++) {
-            if (getDocValue[i].option == "xhtml") {
-              doctypeXHTML = getDocValue[i].value;
-            } else if (getDocValue[i].option == "html5") {
-              doctypeHTML5 = getDocValue[i].value;
-            } else if (getDocValue[i].option == "custom") {
-              doctypeCustom = getDocValue[i].value;
-            }
-          }
-
-          var iframeContainer = $("#edit-page-metadata-frame").contents();
-
-          var ceField = iframeContainer
-            .find("input[value='" + doctypeSelected + "']")
-            .trigger("click");
+          var docType = metadataObj.HtmlMetadata.docType;
+          doctypeSelected = docType.selected;
+          applyDocTypeOptions(docType.options);
+          selectDoctypeRadio(doctypeSelected);
         },
       );
     }
