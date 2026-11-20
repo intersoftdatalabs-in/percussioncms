@@ -135,6 +135,9 @@ describe("ItemTakedownPanel batch", () => {
     });
     expect(takeDown).toHaveBeenCalledTimes(1);
     expect(takeDown.mock.calls[0]?.[0]).toMatchObject({ id: "43" });
+    expect(screen.getByTestId("item-takedown-success").textContent).toContain(
+      "Take down started for 1 item",
+    );
     expect(
       screen.getByTestId("item-takedown-batch-report-item-43").textContent,
     ).toContain("taken down");

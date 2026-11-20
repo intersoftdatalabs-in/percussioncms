@@ -564,17 +564,24 @@ export const MSG = {
     "perc.ui.publish.modern@Separate multiple item ids with commas or spaces to schedule them together",
   PUBLISH_SCHEDULE_BATCH_SAVED:
     "perc.ui.publish.modern@Schedule dates saved for all {total} items",
+  PUBLISH_SCHEDULE_BATCH_SAVED_SINGULAR:
+    "perc.ui.publish.modern@Schedule dates saved for 1 item",
   PUBLISH_SCHEDULE_BATCH_PARTIAL:
     "perc.ui.publish.modern@Saved {saved} of {total}: {detail}",
   PUBLISH_SCHEDULE_BATCH_CLEARED:
     "perc.ui.publish.modern@Scheduled dates cleared for all {total} items",
+  PUBLISH_SCHEDULE_BATCH_CLEARED_SINGULAR:
+    "perc.ui.publish.modern@Scheduled dates cleared for 1 item",
   PUBLISH_SCHEDULE_BATCH_CLEAR_PARTIAL:
     "perc.ui.publish.modern@Cleared {saved} of {total}: {detail}",
   PUBLISH_SCHEDULE_BATCH_LOAD_PARTIAL:
     "perc.ui.publish.modern@Loaded {loaded} of {total}: {detail}",
   PUBLISH_SCHEDULE_BATCH_LOADED:
     "perc.ui.publish.modern@Schedule dates loaded for all {total} items",
+  PUBLISH_SCHEDULE_BATCH_LOADED_SINGULAR:
+    "perc.ui.publish.modern@Schedule dates loaded for 1 item",
   PUBLISH_SCHEDULE_BATCH_ITEM_OK: "perc.ui.publish.modern@saved",
+  PUBLISH_SCHEDULE_BATCH_ITEM_CLEARED: "perc.ui.publish.modern@cleared",
   PUBLISH_SCHEDULE_RETRY_FAILED: "perc.ui.publish.modern@Retry failed",
   PUBLISH_SCHEDULE_CLEAR_CONFIRM_MULTI:
     "perc.ui.publish.modern@Clear the start and end publish dates on these {total} items?",
@@ -592,6 +599,8 @@ export const MSG = {
     "perc.ui.publish.modern@Publish these {total} items now?",
   PUBLISH_NOW_BATCH_DONE:
     "perc.ui.publish.modern@Publish now started for all {total} items",
+  PUBLISH_NOW_BATCH_DONE_SINGULAR:
+    "perc.ui.publish.modern@Publish now started for 1 item",
   PUBLISH_NOW_BATCH_PARTIAL:
     "perc.ui.publish.modern@Published {saved} of {total}: {detail}",
   PUBLISH_NOW_BATCH_ITEM_OK: "perc.ui.publish.modern@publish started",
@@ -618,6 +627,8 @@ export const MSG = {
     "perc.ui.publish.modern@Separate multiple item ids with commas or spaces to take them down together",
   PUBLISH_TAKEDOWN_BATCH_DONE:
     "perc.ui.publish.modern@Take down started for all {total} items",
+  PUBLISH_TAKEDOWN_BATCH_DONE_SINGULAR:
+    "perc.ui.publish.modern@Take down started for 1 item",
   PUBLISH_TAKEDOWN_BATCH_PARTIAL:
     "perc.ui.publish.modern@Taken down {saved} of {total}: {detail}",
   PUBLISH_TAKEDOWN_BATCH_REVIEW_PARTIAL:

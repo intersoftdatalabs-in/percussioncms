@@ -220,9 +220,11 @@ export function ItemPublishNowPanel({
       if (batch.failures.length === 0) {
         setFailedIds([]);
         setSuccess(
-          fill(message(MSG.PUBLISH_NOW_BATCH_DONE), {
-            total: String(batch.total),
-          }),
+          batch.total === 1
+            ? message(MSG.PUBLISH_NOW_BATCH_DONE_SINGULAR)
+            : fill(message(MSG.PUBLISH_NOW_BATCH_DONE), {
+                total: String(batch.total),
+              }),
         );
       } else {
         setFailedIds(batch.failures.map((failure) => failure.id));

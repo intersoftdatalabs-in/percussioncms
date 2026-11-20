@@ -123,6 +123,9 @@ describe("ItemPublishNowPanel batch retry", () => {
     });
     expect(publishNow).toHaveBeenCalledTimes(1);
     expect(publishNow.mock.calls[0]?.[0]).toMatchObject({ id: "43" });
+    expect(screen.getByTestId("item-publish-now-success").textContent).toContain(
+      "Publish now started for 1 item",
+    );
     expect(screen.queryByTestId("item-publish-now-retry")).toBeNull();
     expect(
       screen.getByTestId("item-publish-now-batch-report-item-43").textContent,

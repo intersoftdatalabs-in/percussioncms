@@ -318,9 +318,11 @@ export function ItemTakedownPanel({
         setFailedIds([]);
         setFailedOp(null);
         setSuccess(
-          fill(message(MSG.PUBLISH_TAKEDOWN_BATCH_DONE), {
-            total: String(batch.total),
-          }),
+          batch.total === 1
+            ? message(MSG.PUBLISH_TAKEDOWN_BATCH_DONE_SINGULAR)
+            : fill(message(MSG.PUBLISH_TAKEDOWN_BATCH_DONE), {
+                total: String(batch.total),
+              }),
         );
       } else {
         setFailedIds(batch.failures.map((failure) => failure.id));

@@ -281,7 +281,7 @@ test.describe("PublishingShell multi-item takedown (#6462, retry #6677, review-r
     const before = state.takedownCalls.length;
     await panel.getByTestId(TEST_IDS.retry).click();
     await expect(panel.getByTestId(TEST_IDS.success)).toContainText(
-      /all 1 items/i,
+      /Take down started for 1 item/i,
       { timeout: 15000 },
     );
     expect(retryCalls).toEqual([SECOND_ID]);

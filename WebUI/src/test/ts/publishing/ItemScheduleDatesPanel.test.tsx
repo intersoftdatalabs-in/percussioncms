@@ -457,6 +457,13 @@ describe("ItemScheduleDatesPanel", () => {
     expect(
       screen.getByTestId("item-schedule-batch-report"),
     ).toBeTruthy();
+    // Cleared rows report "cleared" so authors can tell which operation ran.
+    expect(
+      screen.getByTestId("item-schedule-batch-item-42").textContent,
+    ).toMatch(/cleared/i);
+    expect(
+      screen.getByTestId("item-schedule-batch-item-43").textContent,
+    ).toMatch(/cleared/i);
   });
 
   it("looking up several ids keeps the list and does not reselect the shell item", async () => {
@@ -542,7 +549,7 @@ describe("ItemScheduleDatesPanel", () => {
     });
     await waitFor(() => {
       expect(screen.getByTestId("item-schedule-success").textContent).toMatch(
-        /all 1 items/i,
+        /saved for 1 item/i,
       );
     });
     expect(screen.queryByTestId("item-schedule-retry")).toBeNull();
@@ -598,11 +605,15 @@ describe("ItemScheduleDatesPanel", () => {
     });
     await waitFor(() => {
       expect(screen.getByTestId("item-schedule-success").textContent).toMatch(
-        /cleared for all 1 items/i,
+        /cleared for 1 item/i,
       );
     });
     expect(screen.queryByTestId("item-schedule-retry")).toBeNull();
     expect(screen.queryByTestId("item-schedule-clear-confirm")).toBeNull();
+    // The retried row flips to "cleared", not "saved".
+    expect(
+      screen.getByTestId("item-schedule-batch-item-43").textContent,
+    ).toMatch(/cleared/i);
   });
 
   it("a failed single save offers retry for that item", async () => {
@@ -671,7 +682,7 @@ describe("ItemScheduleDatesPanel", () => {
     expect(fetchDates).toHaveBeenNthCalledWith(3, "43");
     await waitFor(() => {
       expect(screen.getByTestId("item-schedule-success").textContent).toMatch(
-        /loaded for all 1 items/i,
+        /loaded for 1 item/i,
       );
     });
     expect(screen.queryByTestId("item-schedule-retry")).toBeNull();
@@ -716,7 +727,7 @@ describe("ItemScheduleDatesPanel", () => {
     fireEvent.click(screen.getByTestId("item-schedule-retry"));
     await waitFor(() => {
       expect(screen.getByTestId("item-schedule-success").textContent).toMatch(
-        /loaded for all 1 items/i,
+        /loaded for 1 item/i,
       );
     });
     expect(screen.queryByTestId("item-schedule-retry")).toBeNull();

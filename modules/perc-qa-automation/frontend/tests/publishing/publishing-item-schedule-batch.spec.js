@@ -285,7 +285,7 @@ test.describe("PublishingShell multi-item schedule dates (#6461, save/clear retr
     await panel.getByTestId(TEST_IDS.retry).click();
 
     await expect(panel.getByTestId(TEST_IDS.success)).toContainText(
-      /loaded for all 1 items/i,
+      /loaded for 1 item/i,
       { timeout: 15000 },
     );
     await expect(panel.getByTestId(TEST_IDS.error)).toHaveCount(0);
@@ -339,7 +339,7 @@ test.describe("PublishingShell multi-item schedule dates (#6461, save/clear retr
     const before = state.setCalls.length;
     await panel.getByTestId(TEST_IDS.retry).click();
     await expect(panel.getByTestId(TEST_IDS.success)).toContainText(
-      /all 1 items/i,
+      /saved for 1 item/i,
       { timeout: 15000 },
     );
     expect(state.setCalls.length).toBe(before + 1);
@@ -385,7 +385,7 @@ test.describe("PublishingShell multi-item schedule dates (#6461, save/clear retr
     );
     await expect(
       panel.getByTestId(`${TEST_IDS.batchItemPrefix}${FIRST_ID}`),
-    ).toContainText(/saved/i);
+    ).toContainText(/cleared/i);
     await expect(panel.getByTestId(TEST_IDS.success)).toHaveCount(0);
     await expect(panel.getByTestId(TEST_IDS.retry)).toBeVisible();
 
@@ -397,7 +397,7 @@ test.describe("PublishingShell multi-item schedule dates (#6461, save/clear retr
     const before = state.setCalls.length;
     await panel.getByTestId(TEST_IDS.retry).click();
     await expect(panel.getByTestId(TEST_IDS.success)).toContainText(
-      /cleared for all 1 items/i,
+      /cleared for 1 item/i,
       { timeout: 15000 },
     );
     expect(state.setCalls.length).toBe(before + 1);
@@ -408,7 +408,7 @@ test.describe("PublishingShell multi-item schedule dates (#6461, save/clear retr
     ).toEqual([SECOND_ID]);
     await expect(
       panel.getByTestId(`${TEST_IDS.batchItemPrefix}${SECOND_ID}`),
-    ).toContainText(/saved/i);
+    ).toContainText(/cleared/i);
     await expect(panel.getByTestId(TEST_IDS.retry)).toHaveCount(0);
     await expect(panel.getByTestId(TEST_IDS.clearConfirm)).toHaveCount(0);
     await page.screenshot({
