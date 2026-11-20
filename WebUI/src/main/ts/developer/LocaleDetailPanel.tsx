@@ -38,6 +38,10 @@ import {
 } from "./localeDescription";
 import { LOC_DESC_MSG } from "./localeDescriptionMessages";
 import {
+  canSaveLocaleDescriptionEdit,
+  type LocaleSiblingEditorsEditing,
+} from "./localeDetailSaveGuards";
+import {
   localeDatePatternWrite,
   savedLocaleDatePattern,
   storedLocaleDatePattern,
@@ -929,36 +933,79 @@ export function LocaleDetailPanel({
     }
   }
 
+  // #6803: save-guard + outcome splits keep handleDescriptionSave at/below
+  // the arborist-metrics complexity thresholds. The readiness predicate
+  // lives in localeDetailSaveGuards as a pure, unit-tested helper; each
+  // outcome helper below owns one result (unchanged / rejected / applied /
+  // failed) so the orchestrator stays a flat guard-clause sequence with no
+  // nesting. No behavior change.
+  function descriptionSaveBlocked(): boolean {
+    const siblings: LocaleSiblingEditorsEditing = {
+      labelEditing,
+      datePatternEditing,
+      timePatternEditing,
+      dateTimePatternEditing,
+      decimalSepEditing,
+      groupingSepEditing,
+      currencyCodeEditing,
+      currencyPatternEditing,
+      textDirEditing,
+      firstDayEditing,
+      measurementEditing,
+      defaultTzEditing,
+      numberingSystemEditing,
+      calendarEditing,
+      statusEditing,
+    };
+    return (
+      !canSaveLocaleDescriptionEdit({
+        isNew,
+        hasDetail: detail != null,
+        hasWriteKey: Boolean(writeKey),
+        descriptionEditing,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        siblings,
+      })
+    );
+  }
+
+  function finishDescriptionUnchanged(): void {
+    setDescriptionEditing(false);
+    setDescriptionDraft("");
+    setDescriptionError(null);
+  }
+
+  function rejectDescriptionSave(previousShown: string): void {
+    setDescription(previousShown);
+    setDescriptionShown(previousShown);
+    setDescriptionError(LOC_DESC_MSG.ERROR);
+    setDescriptionNotice(null);
+  }
+
+  function applyDescriptionSaved(nextDetail: LocaleDetail, accepted: string): void {
+    setDetail(nextDetail);
+    setDescription(accepted);
+    setDescriptionShown(accepted);
+    setDescriptionEditing(false);
+    setDescriptionDraft("");
+    setDescriptionNotice(accepted ? LOC_DESC_MSG.SAVED : LOC_DESC_MSG.CLEARED);
+    onSaved?.(nextDetail);
+  }
+
+  function failDescriptionSave(err: unknown, previousShown: string): void {
+    setDescription(previousShown);
+    setDescriptionShown(previousShown);
+    setDescriptionError(panelErrMsg(err, descriptionSaveFallback(err)));
+    setDescriptionNotice(null);
+  }
+
   async function handleDescriptionSave(): Promise<void> {
-    if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !descriptionEditing ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
-    ) {
+    if (!detail || descriptionSaveBlocked()) {
       return;
     }
     const sent = localeDescriptionWrite(detail, descriptionDraft);
     if (sent === "unchanged") {
-      setDescriptionEditing(false);
-      setDescriptionDraft("");
-      setDescriptionError(null);
+      finishDescriptionUnchanged();
       return;
     }
     descriptionInflight.current = true;
@@ -973,25 +1020,12 @@ export function LocaleDetailPanel({
       const saved = await updateLocale(writeKey, sent);
       const accepted = savedLocaleDescription(sent, detail, saved);
       if (accepted == null) {
-        setDescription(previousShown);
-        setDescriptionShown(previousShown);
-        setDescriptionError(LOC_DESC_MSG.ERROR);
-        setDescriptionNotice(null);
+        rejectDescriptionSave(previousShown);
         return;
       }
-      const nextDetail: LocaleDetail = { ...detail, description: accepted };
-      setDetail(nextDetail);
-      setDescription(accepted);
-      setDescriptionShown(accepted);
-      setDescriptionEditing(false);
-      setDescriptionDraft("");
-      setDescriptionNotice(accepted ? LOC_DESC_MSG.SAVED : LOC_DESC_MSG.CLEARED);
-      onSaved?.(nextDetail);
+      applyDescriptionSaved({ ...detail, description: accepted }, accepted);
     } catch (err: unknown) {
-      setDescription(previousShown);
-      setDescriptionShown(previousShown);
-      setDescriptionError(panelErrMsg(err, descriptionSaveFallback(err)));
-      setDescriptionNotice(null);
+      failDescriptionSave(err, previousShown);
     } finally {
       descriptionInflight.current = false;
       setDescriptionBusy(false);
