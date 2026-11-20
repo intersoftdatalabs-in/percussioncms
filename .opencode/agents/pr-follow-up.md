@@ -78,11 +78,24 @@ exceeds a 30-minute budget.
 
 #### 2a. Conflict resolution (if `mergeable: false`)
 
+Identity + signing first (HARD — #6809). Follow-up commits authored as
+`opencode@local` / unsigned trip `required_signatures` and block merge.
+Before any rebase or commit in this worktree:
+
+```bash
+python3 scripts/verify-signed-commits.py ensure-identity --apply-from "$NIGHT_WORKTREE_PATH"
+```
+
+If it FAILs after `--apply-from`, STOP this PR and record it as
+`identity_blocked` — do not rebase or commit with a placeholder identity.
+
 ```bash
 cd "$worktree_path"
 git fetch origin "$base_branch"
 gh pr checkout <N>
-git rebase "origin/$base_branch"
+git rebase --gpg-sign "origin/$base_branch"
+# `--gpg-sign` is required: a plain rebase rewrites commits with the local
+# committer identity and STRIPS their signatures.
 ```
 
 If rebase conflicts:
@@ -92,7 +105,8 @@ If rebase conflicts:
 # After resolution:
 git add -A
 git rebase --continue
-# If `--force-with-lease` only after history rewrite:
+# Pre-push gate (HARD — #6809): non-zero → do NOT push.
+python3 scripts/verify-signed-commits.py check --base "origin/$base_branch"
 git push --force-with-lease origin HEAD
 # (NEVER `--force` to base_branch. NEVER without --force-with-lease.)
 ```
@@ -125,8 +139,18 @@ For each unresolved thread (oldest first):
 
 1. Read the comment. Understand the reviewer concern.
 2. Either:
-   - **Fix the code** if the concern is valid. Push the fix as a
-     follow-up commit (with proper `Fixes <thread>` attribution).
+   - **Fix the code** if the concern is valid. Commit the fix signed with
+     the work-step footer (HARD — #6809):
+
+     ```bash
+     git commit -S -m "<fix>: <subject>
+
+     Fixes <thread-link>
+
+     > Co-Authored by OpenCode ${coding_tool_version} using ${model_id} with agent night-issue-prs."
+     python3 scripts/verify-signed-commits.py check --base "origin/$base_branch"
+     # non-zero → do NOT push; re-create the commit signed, then re-run.
+     ```
    - **Reply inline** with a concrete mitigation: cite the commit SHA
      and describe what changed. Use `gh api` to post the reply:
 

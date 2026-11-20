@@ -266,8 +266,8 @@ def _effective_config(repo: Path | None, key: str) -> str:
     return (proc.stdout or "").strip()
 
 
-def collect_identity_problems(repo: Path | None) -> list[str]:
-    """Return reasons the next commit/rebase in ``repo`` would be unattributed/unsigned."""
+def _config_problems(repo: Path | None) -> list[str]:
+    """Return identity problems from the effective git config of ``repo``."""
     problems: list[str] = []
     name = _effective_config(repo, "user.name")
     email = _effective_config(repo, "user.email")
@@ -281,52 +281,72 @@ def collect_identity_problems(repo: Path | None) -> list[str]:
             f"signing disabled (effective commit.gpgsign={(gpgsign or 'unset')!r}); "
             "rebases strip signatures unless commit.gpgsign=true plus --gpg-sign"
         )
+    return problems
+
+
+def _env_override_problems() -> list[str]:
+    """Return identity problems from GIT_* env overrides shadowing git config."""
     import os
 
+    problems: list[str] = []
     for var in IDENTITY_ENV_VARS:
         value = (os.environ.get(var) or "").strip()
         if not value:
             continue
-        if var.endswith("_EMAIL"):
-            for problem in _email_problems(value):
-                problems.append(f"env {var} {problem} (overrides git config)")
-        else:
-            for problem in _name_problems(value):
-                problems.append(f"env {var} {problem} (overrides git config)")
+        checks = _email_problems if var.endswith("_EMAIL") else _name_problems
+        for problem in checks(value):
+            problems.append(f"env {var} {problem} (overrides git config)")
     return problems
+
+
+def collect_identity_problems(repo: Path | None) -> list[str]:
+    """Return reasons the next commit/rebase in ``repo`` would be unattributed/unsigned."""
+    return _config_problems(repo) + _env_override_problems()
+
+
+def _apply_identity(target: Path, apply_from: Path) -> int:
+    """Copy the shared identity/signing keys from ``apply_from`` into ``target``."""
+    probe = _git(apply_from, "rev-parse", "--is-inside-work-tree")
+    if probe.returncode != 0:
+        print(f"ERROR: --apply-from {apply_from} is not inside a git working tree.")
+        return 2
+    applied: list[str] = []
+    for key in IDENTITY_KEYS:
+        value = _effective_config(apply_from, key)
+        if not value:
+            continue
+        put = _git(target, "config", "--local", key, value)
+        if put.returncode != 0:
+            print(f"ERROR: could not set {key} in {target}: {(put.stderr or '').strip()}")
+            return 2
+        applied.append(f"{key}={value}")
+    if applied:
+        print(f"Applied identity from {apply_from} to {target}: " + ", ".join(applied))
+    else:
+        print(f"WARNING: source {apply_from} has none of {', '.join(IDENTITY_KEYS)} set; nothing applied.")
+    return 0
+
+
+def _report_identity_problems(target: Path, problems: list[str]) -> int:
+    print(f"FAIL: git identity in {target} would produce unattributed/unsigned commits:")
+    for problem in problems:
+        print(f"  - {problem}")
+    print("Fix: python3 scripts/verify-signed-commits.py ensure-identity "
+          "--apply-from \"$NIGHT_WORKTREE_PATH\", then rebase with "
+          "'git rebase --gpg-sign' and commit with 'git commit -S'.")
+    return 1
 
 
 def cmd_ensure_identity(repo: Path | None, apply_from: Path | None) -> int:
     """Verify (and optionally install) the shared work-step git identity."""
     target = repo if repo is not None else REPO_ROOT
     if apply_from is not None:
-        probe = _git(apply_from, "rev-parse", "--is-inside-work-tree")
-        if probe.returncode != 0:
-            print(f"ERROR: --apply-from {apply_from} is not inside a git working tree.")
-            return 2
-        applied: list[str] = []
-        for key in IDENTITY_KEYS:
-            value = _effective_config(apply_from, key)
-            if not value:
-                continue
-            put = _git(target, "config", "--local", key, value)
-            if put.returncode != 0:
-                print(f"ERROR: could not set {key} in {target}: {(put.stderr or '').strip()}")
-                return 2
-            applied.append(f"{key}={value}")
-        if applied:
-            print(f"Applied identity from {apply_from} to {target}: " + ", ".join(applied))
-        else:
-            print(f"WARNING: source {apply_from} has none of {', '.join(IDENTITY_KEYS)} set; nothing applied.")
+        rc = _apply_identity(target, apply_from)
+        if rc != 0:
+            return rc
     problems = collect_identity_problems(target)
     if problems:
-        print(f"FAIL: git identity in {target} would produce unattributed/unsigned commits:")
-        for problem in problems:
-            print(f"  - {problem}")
-        print("Fix: python3 scripts/verify-signed-commits.py ensure-identity "
-              "--apply-from \"$NIGHT_WORKTREE_PATH\", then rebase with "
-              "'git rebase --gpg-sign' and commit with 'git commit -S'.")
-        return 1
+        return _report_identity_problems(target, problems)
     name = _effective_config(target, "user.name")
     email = _effective_config(target, "user.email")
     print(f"OK: git identity in {target} is {name!r} <{email}> with signing enabled.")
