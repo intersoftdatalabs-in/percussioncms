@@ -26,6 +26,7 @@ import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.rest.explorer.IItemIdentityAdaptor;
 import com.percussion.rest.explorer.ItemIdentity;
 import com.percussion.server.PSRequest;
+import com.percussion.server.PSUserSession;
 import com.percussion.servlets.PSSecurityFilter;
 import com.percussion.share.service.exception.PSValidationException;
 import com.percussion.system.utils.PSSiteManageBean;
@@ -117,13 +118,14 @@ public class ItemIdentityAdaptor implements IItemIdentityAdaptor {
   }
 
   /**
-   * Community visibility guard (review #6814). The summary loaders perform no caller-AuthZ
-   * check (raw {@code loadComponentSummary}), so without this gate any authenticated caller
-   * could enumerate content-type / workflow / community ids and checkout owners of items
-   * outside their communities. Rows outside the caller's session communities are omitted
-   * like unknown ids. Non-community-scoped rows (community id {@code <= 0}: folders /
-   * all-community) stay visible; sessions without community restrictions stay unrestricted.
-   * Finer folder-ACL parity remains with the row access-band evaluator client-side.
+   * Community visibility guard (review #6814, hardened #6852). The summary loaders perform no
+   * caller-AuthZ check (raw {@code loadComponentSummary}), so without this gate any authenticated
+   * caller could enumerate content-type / workflow / community ids and checkout owners of items
+   * outside their communities. Rows outside the caller's session communities are omitted like
+   * unknown ids. Non-community-scoped rows (community id {@code <= 0}: folders / all-community)
+   * stay visible. Any AuthZ uncertainty fails closed: a missing request or session, or a null or
+   * empty community list, omits community-scoped rows unless the session is a verified Admin-role
+   * session. Finer folder-ACL parity remains with the row access-band evaluator client-side.
    */
   static boolean isVisibleToCaller(PSComponentSummary summary) {
     int communityId = summary.getCommunityId();
@@ -133,16 +135,39 @@ public class ItemIdentityAdaptor implements IItemIdentityAdaptor {
     try {
       PSRequest req = PSSecurityFilter.getCurrentRequest();
       if (req == null || req.getUserSession() == null) {
-        return true;
+        // No verifiable caller: omit community-scoped rows (issue #6852).
+        log.debug("identity row omitted: no request/session for community {}", communityId);
+        return false;
       }
-      List<String> communities = req.getUserSession().getUserCommunities(req);
-      if (communities == null || communities.isEmpty()) {
-        return true;
+      PSUserSession session = req.getUserSession();
+      List<String> communities = session.getUserCommunities(req);
+      if (communities != null && !communities.isEmpty()) {
+        return communities.contains(String.valueOf(communityId));
       }
-      return communities.contains(String.valueOf(communityId));
+      // Null/empty community list: only a verified Admin-role session is
+      // unrestricted, otherwise omit (issue #6852).
+      return isAdminSession(session);
     } catch (RuntimeException | PSInternalRequestCallException e) {
       // AuthZ uncertainty fails closed: omit rather than disclose (review #6814).
       log.debug("identity community check failed, omitting row: {}", e.getMessage());
+      return false;
+    }
+  }
+
+  /**
+   * Explicit unrestricted-session check for the null/empty-community-list branch (#6852).
+   * Mirrors the {@code roles.contains("Admin")} gate used by sibling apibridge adaptors; a
+   * session whose roles cannot be verified is not unrestricted.
+   */
+  static boolean isAdminSession(PSUserSession session) {
+    if (session == null) {
+      return false;
+    }
+    try {
+      List<String> roles = session.getUserRoles();
+      return roles != null && roles.contains("Admin");
+    } catch (RuntimeException e) {
+      log.debug("identity admin-role check failed, omitting row: {}", e.getMessage());
       return false;
     }
   }
