@@ -591,6 +591,65 @@ class TestSnapshotProvenance(unittest.TestCase):
         findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
         self.assertFalse(qa_preflight.is_poisoned(findings))
 
+    def test_package_private_sibling_maps_to_declaring_source(self):
+        """Sibling top-level types in one file are source-backed (#6651).
+
+        Sitemanage ``AssetAdaptor.java`` declares the package-private
+        ``PSStreamingOutput`` next to the public adaptor; the freshly
+        built jar carries ``PSStreamingOutput.class`` with no
+        ``PSStreamingOutput.java``. That entry must not flag as
+        branch-built/foreign.
+        """
+        src = (
+            self.repo / "projects" / "sitemanage" / "src" / "main" / "java"
+            / "com" / "percussion" / "apibridge"
+        )
+        _write_java(
+            src / "AssetAdaptor.java",
+            "package com.percussion.apibridge;\n"
+            "public class AssetAdaptor {}\n"
+            "class PSStreamingOutput implements jakarta.ws.rs.core.StreamingOutput {\n"
+            "  public void write(java.io.OutputStream o) {}\n"
+            "}\n",
+        )
+        jar = self.m2.joinpath(
+            "com", "percussion", "sitemanage", "8.2.0-SNAPSHOT",
+            "sitemanage-8.2.0-SNAPSHOT.jar",
+        )
+        _write_class_jar(
+            jar,
+            [
+                "com/percussion/apibridge/AssetAdaptor.class",
+                "com/percussion/apibridge/PSStreamingOutput.class",
+            ],
+        )
+        findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
+        self.assertFalse(qa_preflight.is_poisoned(findings))
+
+    def test_commented_declaration_does_not_clear_foreign_class(self):
+        """A commented-out declaration is not source (#6651).
+
+        Comment stripping must keep the gate strict: ``Ghost`` named
+        only in a ``//`` comment still flags as foreign.
+        """
+        src = self._layout_rest_sources()
+        _write_java(
+            src / "com" / "percussion" / "rest" / "Notes.java",
+            "package com.percussion.rest;\n"
+            "// class Ghost was removed\n"
+            "public class Notes {}\n",
+        )
+        self._m2_rest_jar(
+            [
+                "com/percussion/rest/Notes.class",
+                "com/percussion/rest/Ghost.class",
+            ],
+            "com", "percussion", "rest", "8.2.0-SNAPSHOT",
+            "rest-8.2.0-SNAPSHOT.jar",
+        )
+        findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
+        self.assertTrue(qa_preflight.is_poisoned(findings))
+
     def test_generated_sources_count_as_source(self):
         src = self._layout_rest_sources()
         gen = self.repo / "rest" / "target" / "generated-sources" / "annotations"

@@ -19,6 +19,8 @@
  *
  * <p>Sunny Sal says: "Streams of dashboards, not consciousness!"
  */
+package com.percussion.dashboardmanagement.dao;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

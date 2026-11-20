@@ -473,11 +473,16 @@ def _java_source_index(repo_root: Path, source_roots: Iterable[str]) -> set[str]
     """Index ``<top-level-type>.java`` paths (POSIX form) under source roots.
 
     Inner-class entries (``Foo$Bar.class``) map to ``Foo.java`` at lookup
-    time, so only top-level ``*.java`` stems are indexed. Annotation
-    processing output (``target/generated-sources/*``) counts as source
-    when the module was built in this checkout; a ``clean`` checkout
-    without rebuilt generated sources may over-report — the finding text
-    says to rebuild in that case.
+    time, so only top-level ``*.java`` stems are indexed. Package-private
+    sibling top-level types declared in the same file (e.g. sitemanage
+    ``AssetAdaptor.java`` also declaring ``PSStreamingOutput``) are
+    indexed by declared name as well — a ``.class`` for a declared
+    sibling is source-backed, not branch-built (#6651: the stem-only
+    index flagged those siblings as foreign and blocked ``qa-up``).
+    Annotation processing output (``target/generated-sources/*``) counts
+    as source when the module was built in this checkout; a ``clean``
+    checkout without rebuilt generated sources may over-report — the
+    finding text says to rebuild in that case.
     """
     index: set[str] = set()
     roots: list[Path] = []
@@ -498,12 +503,50 @@ def _java_source_index(repo_root: Path, source_roots: Iterable[str]) -> set[str]
         try:
             for java in root.rglob("*.java"):
                 try:
-                    index.add(java.relative_to(root).with_suffix("").as_posix())
+                    rel_posix = java.relative_to(root).with_suffix("").as_posix()
                 except ValueError:
                     continue
+                index.add(rel_posix)
+                for sibling in _declared_top_level_types(java):
+                    parent = rel_posix.rpartition("/")[0]
+                    index.add(f"{parent}/{sibling}" if parent else sibling)
         except OSError:
             continue
     return index
+
+
+# Top-level type declarations start at column 0 in java sources
+# (google-java-format keeps top-level types unindented; inner types are
+# nested and indented). Covers class/interface/enum/record/@interface
+# with any modifier prefix and optional leading annotations.
+_TOP_LEVEL_TYPE_DECL = re.compile(
+    r"^"
+    r"(?:@[\w.]+(?:\([^)]*\))?\s*)*"
+    r"(?:(?:public|protected|private|abstract|final|sealed|non-sealed|strictfp)\s+)*"
+    r"(?:class|interface|enum|record|@interface)\s+"
+    r"([A-Za-z_$][\w$]*)",
+    re.MULTILINE,
+)
+_LINE_COMMENT = re.compile(r"//.*$", re.MULTILINE)
+_BLOCK_COMMENT = re.compile(r"/\*.*?\*/", re.DOTALL)
+
+
+def _declared_top_level_types(java_file: Path) -> list[str]:
+    """Declared top-level type names in one ``.java`` file.
+
+    Comment-aware line scan (not a parser): strips ``//`` tails and
+    ``/* */`` spans, then matches column-0 declarations. A commented-out
+    declaration could add a spurious name — acceptable for a heuristic
+    gate that only *clears* a finding when a same-named declaration
+    exists in a real checkout source file.
+    """
+    try:
+        text = java_file.read_text(encoding="utf-8", errors="replace")
+    except OSError:
+        return []
+    text = _BLOCK_COMMENT.sub("", text)
+    text = _LINE_COMMENT.sub("", text)
+    return _TOP_LEVEL_TYPE_DECL.findall(text)
 
 
 def _jar_class_entries(jar_path: Path) -> list[str]:
