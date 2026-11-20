@@ -58,6 +58,9 @@ from pathlib import Path
 from typing import Mapping, Optional
 
 _REPO_LOCAL_RE = re.compile(r"""-Dmaven\.repo\.local=(?:"([^"]*)"|'([^']*)'|(\S+))""")
+# mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6781, precedent #6341) —
+# POSIX-only mavenrc paths by construction (sourced by the POSIX mvn launcher only);
+# _from_mavenrc returns None on Windows before these are ever read. Host joins use pathlib.
 _MAVENRC_FILES = ("/usr/local/etc/mavenrc", "/etc/mavenrc", "$HOME/.mavenrc")
 _MAVENRC_TIMEOUT_S = 5
 # Bound at import so callers' tests that stub ``subprocess.run`` (e.g. "dry
