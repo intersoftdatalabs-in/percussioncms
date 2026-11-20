@@ -23,7 +23,13 @@
  * path — a 500 from
  * {@code GET item/siteimpact/page/{id}} renders the named error alert with a
  * retry control, retry re-runs the load for the same item, success renders
- * rows, and a repeated failure keeps the alert.</p>
+ * rows, and a repeated failure keeps the alert. Focus follow-on (#6786):
+ * retrying unmounts the error alert (and the focused Retry button) while
+ * the load runs; after the retry settles, focus must land somewhere
+ * meaningful — the panel heading on success, or the Retry button again
+ * when the failure repeats — and the loading indicator is announced
+ * through a live region, never leaving {@code document.activeElement} on
+ * {@code <body>}.</p>
  *
  * <p>Tags: {@code @page-metadata-editor} {@code @editor}</p>
  *
@@ -202,7 +208,7 @@ test.describe("EditorHost site-impact load failure with retry (#6771)", () => {
   });
 
   test(
-    "500 shows the named error with retry; retry loads the rows",
+    "500 shows the named error with retry; retry loads the rows and moves focus to the heading",
     { tag: ["@page-metadata-editor", "@editor"] },
     async ({ page }) => {
       const errors = [];
@@ -210,7 +216,7 @@ test.describe("EditorHost site-impact load failure with retry (#6771)", () => {
       watchPage(page, errors, badResponses);
       let calls = 0;
       await mockEditorChrome(page, {
-        onSiteImpact: (route) => {
+        onSiteImpact: async (route) => {
           calls += 1;
           if (calls === 1) {
             return route.fulfill({
@@ -219,6 +225,9 @@ test.describe("EditorHost site-impact load failure with retry (#6771)", () => {
               body: "{}",
             });
           }
+          // Hold the retry load briefly so the live-region loading
+          // indicator is observable before the rows render (#6786).
+          await new Promise((resolve) => setTimeout(resolve, 500));
           return route.fulfill({
             status: 200,
             contentType: "application/json",
@@ -240,6 +249,9 @@ test.describe("EditorHost site-impact load failure with retry (#6771)", () => {
       const retry = page.locator('[data-testid="editor-retry-site-impact"]');
       await expect(retry).toBeVisible();
       await retry.click();
+      const loading = page.locator('[data-testid="editor-site-impact-loading"]');
+      await expect(loading).toBeVisible({ timeout: 20_000 });
+      await expect(loading).toHaveAttribute("role", "status");
       await expect(
         page.locator('[data-testid="editor-site-impact-page-row"]'),
       ).toContainText("Home", { timeout: 20_000 });
@@ -249,9 +261,14 @@ test.describe("EditorHost site-impact load failure with retry (#6771)", () => {
       await expect(
         page.locator('[data-testid="editor-site-impact-error"]'),
       ).toHaveCount(0);
+      // Retry unmounts the focused button while loading (#6786): focus must
+      // land on the panel heading, never on <body>.
+      await expect(
+        page.locator('[data-testid="editor-site-impact-heading"]'),
+      ).toBeFocused();
       expect(calls).toBeGreaterThanOrEqual(2);
       await page.screenshot({
-        path: "test-results/live-proof-6771-site-impact-retry.png",
+        path: "test-results/live-proof-6786-site-impact-retry-focus.png",
       });
       expectClean(errors, badResponses);
     },
@@ -287,6 +304,11 @@ test.describe("EditorHost site-impact load failure with retry (#6771)", () => {
       await expect(
         page.locator('[data-testid="editor-retry-site-impact"]'),
       ).toBeVisible();
+      // The retried failure unmounts the clicked button while loading
+      // (#6786): focus must return to the new Retry button, never <body>.
+      await expect(
+        page.locator('[data-testid="editor-retry-site-impact"]'),
+      ).toBeFocused();
       await expect(
         page.locator('[data-testid="editor-site-impact-pages-table"]'),
       ).toHaveCount(0);
