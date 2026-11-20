@@ -180,4 +180,67 @@ describe("page site impact panel (#5739)", () => {
     );
     expect(await screen.findByTestId("editor-site-impact-error")).toBeTruthy();
   });
+
+  it("retry re-runs the load and renders rows after a failure (#6771)", async () => {
+    let calls = 0;
+    render(
+      <EditorSiteImpactPanel
+        itemId="42"
+        loadSiteImpact={async () => {
+          calls += 1;
+          if (calls === 1) {
+            throw new Error("boom");
+          }
+          return {
+            pages: [
+              {
+                id: "7",
+                name: "Home",
+                path: "/Sites/Demo/Home",
+                site: "Demo",
+                status: "Live",
+                type: "Page",
+              },
+            ],
+            templates: [],
+          };
+        }}
+      />,
+    );
+    const retry = await screen.findByTestId("editor-retry-site-impact");
+    expect(screen.getByTestId("editor-site-impact-error")).toBeTruthy();
+    fireEvent.click(retry);
+    expect(await screen.findByTestId("editor-site-impact-pages-table")).toBeTruthy();
+    expect(screen.queryByTestId("editor-site-impact-error")).toBeNull();
+    expect(calls).toBe(2);
+  });
+
+  it("a repeated failure keeps the alert and offers retry again (#6771)", async () => {
+    let calls = 0;
+    render(
+      <EditorSiteImpactPanel
+        itemId="42"
+        loadSiteImpact={async () => {
+          calls += 1;
+          throw new Error(`boom ${calls}`);
+        }}
+      />,
+    );
+    expect(await screen.findByTestId("editor-retry-site-impact")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("editor-retry-site-impact"));
+    expect(await screen.findByTestId("editor-site-impact-error")).toBeTruthy();
+    expect(screen.getByTestId("editor-retry-site-impact")).toBeTruthy();
+    expect(calls).toBeGreaterThanOrEqual(2);
+  });
+
+  it("shows the loading indicator while the load is pending (#6771)", async () => {
+    let resolveLoad: (value: { pages: never[]; templates: never[] }) => void = () => undefined;
+    const pending = new Promise<{ pages: never[]; templates: never[] }>((resolve) => {
+      resolveLoad = resolve;
+    });
+    render(<EditorSiteImpactPanel itemId="42" loadSiteImpact={() => pending} />);
+    expect(await screen.findByTestId("editor-site-impact-loading")).toBeTruthy();
+    resolveLoad({ pages: [], templates: [] });
+    expect(await screen.findByTestId("editor-site-impact-empty")).toBeTruthy();
+  });
 });
