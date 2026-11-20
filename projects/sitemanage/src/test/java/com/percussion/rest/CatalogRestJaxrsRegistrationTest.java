@@ -69,6 +69,8 @@ class CatalogRestJaxrsRegistrationTest {
     "restContentExplorerFoldersResource",
     // #4644 EditorHost checkout / check-in
     "restEditorItemLockResource",
+    // #6783 Explorer row visibility identity batch
+    "restExplorerItemIdentityResource",
     // AS-09 / #4305 / #4307 Velocity tools + snippet catalog
     "restVelocityResource",
   };

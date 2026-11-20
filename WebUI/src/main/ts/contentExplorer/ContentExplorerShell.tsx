@@ -281,6 +281,11 @@ import {
 } from "./ExplorerTree";
 import { FolderSecurityPanel } from "./FolderSecurityPanel";
 import { CheckoutOwnerPanel } from "./CheckoutOwnerPanel";
+import {
+  getItemIdentityBatch,
+  toVisibilityCommunityId,
+  toVisibilityIdentityFields,
+} from "../api/contentExplorer/identityApi";
 import { ItemPropertiesPanel } from "./ItemPropertiesPanel";
 import { offerClearDisplayTitle } from "./setItemDisplayTitle";
 import type { ExplorerMenuCommandId } from "./menuBarModel";
@@ -1117,6 +1122,18 @@ function ContentExplorerShellInner({
   );
   /** Bumped only after a successful single-item check-in (#5199). */
   const [checkoutOwnerReload, setCheckoutOwnerReload] = useState(0);
+  /**
+   * Visibility-identity facts for the selected row (#6783). Resolved via
+   * {@code POST /rest/explorer/identity/batch} so Workbench hide-rules
+   * whose facts are not on {@code PSPathItem} rows can evaluate.
+   * {@code null} means unknown — the evaluator stays permissive.
+   */
+  const [identityFields, setIdentityFields] =
+    useState<Partial<ExplorerMenuVisibilityState> | null>(null);
+  /** Named identity-load failure; menus stay fully visible while set. */
+  const [identityError, setIdentityError] = useState<string | null>(null);
+  /** Bumped by the identity-error Retry button. */
+  const [identityReload, setIdentityReload] = useState(0);
   const [publishingHistoryItem, setPublishingHistoryItem] =
     useState<PSPathItem | null>(null);
   /**
@@ -1151,12 +1168,14 @@ function ContentExplorerShellInner({
    * #6618, shell-mode claim #6619). Only client-known facts are supplied;
    * everything else stays {@code undefined} so the evaluator stays
    * permissive (see {@code menuVisibility}). Evaluated today:
-   * multi-select, roles, locale, row access band, plus the SPA shell
+   * multi-select, roles, locale, row access band, the SPA shell
    * uiContext claim (menus scoped exclusively to other Workbench modes
-   * hide). Permissive today: checkout status, content-type / object-type
-   * / workflow / community / assignment ids, client context, publishable
-   * type — none are on {@code PSPathItem} rows, so those rules cannot
-   * hide menus yet. Documented server gap (#6618), not a silent ignore.
+   * hide), plus the selected-row identity resolved via
+   * {@code POST /rest/explorer/identity/batch} (#6783: checkout status,
+   * content/object/workflow/community ids). Still permissive:
+   * assignment and publishable-type ids (server follow-on) and client
+   * context — none are on {@code PSPathItem} rows. Documented server
+   * gap (#6618), not a silent ignore.
    */
   const menuVisibilityState = useMemo<ExplorerMenuVisibilityState>(
     () => ({
@@ -1165,6 +1184,13 @@ function ContentExplorerShellInner({
       userRoles: currentUserIdentities,
       locale: bootstrap.locale,
       accessLevel: selection.item?.accessLevel ?? undefined,
+      checkoutStatus: identityFields?.checkoutStatus ?? undefined,
+      contentTypeId: identityFields?.contentTypeId ?? undefined,
+      objectType: identityFields?.objectType ?? undefined,
+      assignmentType: identityFields?.assignmentType ?? undefined,
+      workflowId: identityFields?.workflowId ?? undefined,
+      publishableType: identityFields?.publishableType ?? undefined,
+      communityId: identityFields?.communityId ?? undefined,
     }),
     [
       multiSelectedIds,
@@ -1172,8 +1198,55 @@ function ContentExplorerShellInner({
       bootstrap.locale,
       currentUserIdentities,
       selection.item,
+      identityFields,
     ],
   );
+  /**
+   * Resolve visibility identity for the selected page/asset row (#6783).
+   * Same row gate as {@code CheckoutOwnerPanel} (pages/assets with an id;
+   * folders carry no identity). Failures are non-fatal: the error names
+   * the row and menus stay fully visible until Retry succeeds.
+   */
+  useEffect(() => {
+    const gated =
+      selection.item && isPageOrAssetContentType(selection.item)
+        ? selection.item
+        : null;
+    const rowId = gated?.id?.trim() ? String(gated.id).trim() : "";
+    if (!rowId) {
+      setIdentityFields(null);
+      setIdentityError(null);
+      return;
+    }
+    let cancelled = false;
+    setIdentityError(null);
+    void (async () => {
+      try {
+        const [record] = await getItemIdentityBatch([rowId]);
+        if (cancelled) return;
+        if (record == null) {
+          setIdentityFields(null);
+          return;
+        }
+        setIdentityFields({
+          ...toVisibilityIdentityFields(record),
+          communityId: toVisibilityCommunityId(record),
+        });
+      } catch (err: unknown) {
+        if (cancelled) return;
+        // Permissive: keep menus fully visible, name the failure.
+        setIdentityFields(null);
+        setIdentityError(
+          err instanceof Error && err.message
+            ? err.message
+            : message(EXPLORER_MSG.IDENTITY_LOAD_ERROR),
+        );
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [selection.item, identityReload]);
   const [multiCopyOpen, setMultiCopyOpen] = useState(false);
   const [multiCopyStatus, setMultiCopyStatus] = useState<{
     text: string;
@@ -3861,6 +3934,28 @@ function ContentExplorerShellInner({
                   ) : (
                     actionInvokeError
                   )}
+                </div>
+              ) : null}
+              {identityError ? (
+                <div
+                  data-testid="explorer-identity-error"
+                  role="alert"
+                  style={{ color: "#b00020", fontSize: "0.85rem", padding: "4px 0" }}
+                >
+                  {identityError !== message(EXPLORER_MSG.IDENTITY_LOAD_ERROR)
+                    ? identityError
+                    : message(EXPLORER_MSG.IDENTITY_LOAD_ERROR)}{" "}
+                  <button
+                    type="button"
+                    data-testid="explorer-identity-retry"
+                    onClick={() => {
+                      setIdentityError(null);
+                      setIdentityReload((n) => n + 1);
+                    }}
+                    style={{ minHeight: "44px", minWidth: "44px", padding: "8px 12px" }}
+                  >
+                    {message(EXPLORER_MSG.IDENTITY_RETRY)}
+                  </button>
                 </div>
               ) : null}
               <ActionToolbar

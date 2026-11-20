@@ -1292,15 +1292,15 @@ including whole cascade parents whose every child is hidden:
 | User roles | Bootstrap session identities |
 | Session locale | Bootstrap locale |
 | Row access band | Selected row's folder-access band |
+| Checkout status | Selected row identity (`POST /rest/explorer/identity/batch`) |
+| Content-type / object-type / workflow ids | Selected row identity (same batch endpoint) |
+| Community id | Selected row identity (same batch endpoint) |
 
 Rules the shell cannot resolve yet stay permissive: the action remains
-visible, exactly as before this change. Those facts are not on the list
-rows — checkout status, content-type / object-type / workflow /
-community / assignment ids, client-context token, publishable type.
-Closing them needs the identity fields on the path/paginated rows (or a
-lightweight batch endpoint), or server-side visibility filtering for the
-SPA entry. That gap is tracked as a server follow-on (#6618 row
-identity), not a silent ignore.
+visible, exactly as before this change. Those facts are not available —
+assignment and publishable-type ids (server follow-on) and the
+client-context token. Those gaps are tracked as server follow-ons, not
+silent ignores.
 
 **Per-mode `uiContexts` are enforced.** The modern shell claims one UI
 mode — the Content Explorer view it succeeds (`Content Explorer`) — and
