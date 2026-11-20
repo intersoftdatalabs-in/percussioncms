@@ -71,9 +71,15 @@ import maven_local_repo  # noqa: E402  # resolve -Dmaven.repo.local like mvn (#6
 # Hard-coded product coordinates. Kept here (not in env) because the
 # preflight is a developer-machine tool and the coordinates are
 # stable across 8.2.x.
+# NOTE (#6740): for groupId ``com.percussion`` the standard Maven
+# local-repo layout is ``com/percussion/<artifactId>/<version>/``
+# (groupPath/artifactId/version) — e.g. ``com/percussion/sitemanage/``
+# holds the version dirs directly. The doubled ``.../rest/rest/...``
+# path would only be standard for a groupId of ``com.percussion.rest``,
+# which no pom in this repo declares (verified by repo-wide grep).
 _M2_GROUP = "com/percussion/sitemanage"
 _M2_ARTIFACT = "sitemanage"
-_M2_DIR = _M2_GROUP + "/" + _M2_ARTIFACT
+_M2_DIR = _M2_GROUP
 _SITEMANAGE_JAR_PATTERN = re.compile(
     r"^" + re.escape(_M2_ARTIFACT) + r"-.*\.jar$"
 )
@@ -85,9 +91,13 @@ _HASH_CHUNK = 1024 * 1024
 
 # --- SNAPSHOT provenance (#6709) -------------------------------------------
 # (label, m2 group-relative dir, jar-name prefix, checkout source roots).
-# The group dir is searched at any depth: standard Maven layout
-# (``com/percussion/rest/rest/<version>/``) and the flattened layout some
-# hosts carry (``com/percussion/rest/<version>/``) both match.
+# The group dir is searched at any depth. NOTE (#6740): for groupId
+# ``com.percussion`` the single-level ``com/percussion/rest/<version>/``
+# layout IS the standard Maven layout (groupPath/artifactId/version) —
+# no repo script or Maven invocation produces it, because nothing needs
+# to: ``mvn install`` writes it directly. The doubled
+# ``com/percussion/rest/rest/<version>/`` path would only be standard for
+# a groupId of ``com.percussion.rest``, which no pom declares.
 _PROVENANCE_ARTIFACTS: tuple[
     tuple[str, str, str, tuple[str, ...]], ...
 ] = (
@@ -129,15 +139,27 @@ def _resolve_m2_dir(m2_root: Path) -> Path:
 def find_sitemanage_in_m2(m2_root: Path) -> Optional[Path]:
     """Locate the newest ``sitemanage-*.jar`` under the maven local repo.
 
-    Standard Maven layout (``.../sitemanage/sitemanage/<version>/``) wins;
-    falls back to the flattened host layout (``.../sitemanage/<version>/``)
-    so the preflight is not blind on hosts that carry it (#6709).
+    Standard Maven layout (``.../sitemanage/<version>/`` for groupId
+    ``com.percussion``) wins; falls back to an any-depth search under the
+    group dir so the preflight is not blind on hosts that carry an extra
+    nesting level (#6709, root-caused in #6740).
     """
     standard = _resolve_m2_dir(m2_root)
     if standard.is_dir():
-        candidates = [
-            p for p in standard.iterdir() if _SITEMANAGE_JAR_PATTERN.match(p.name)
-        ]
+        candidates: list[Path] = []
+        try:
+            for version_dir in standard.iterdir():
+                if not version_dir.is_dir():
+                    continue
+                candidates.extend(
+                    p
+                    for p in version_dir.iterdir()
+                    if p.is_file()
+                    and _SITEMANAGE_JAR_PATTERN.match(p.name)
+                    and not p.name.endswith(_PROVENANCE_SKIP_SUFFIXES)
+                )
+        except OSError:
+            candidates = []
         if candidates:
             return max(candidates, key=lambda p: p.stat().st_mtime)
     return find_snapshot_jar(m2_root, "com/percussion/sitemanage", "sitemanage")
@@ -148,8 +170,10 @@ def find_snapshot_jar(
 ) -> Optional[Path]:
     """Locate the newest ``<artifact>-*.jar`` at any depth under a group dir.
 
-    Covers both the standard Maven layout and flattened host layouts
-    (``.../<artifact>/<version>/`` with no artifact level, #6709).
+    Covers the standard Maven layout (``.../<artifact>/<version>/`` for
+    groupId ``com.percussion``) plus any extra nesting level, so the
+    preflight keeps working even if a host carries a non-standard depth
+    (#6709, root-caused in #6740).
     ``*-sources.jar`` / ``*-javadoc.jar`` never match. Returns ``None``
     when the group dir is absent or holds no binary jar.
     """

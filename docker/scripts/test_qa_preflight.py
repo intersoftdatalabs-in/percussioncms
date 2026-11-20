@@ -490,6 +490,45 @@ def _write_java(path: Path, body: str = "package p; public class X {}") -> None:
     path.write_text(body, encoding="utf-8")
 
 
+class TestFindSitemanageInM2(unittest.TestCase):
+    """Standard single-level m2 layout lookup (#6740).
+
+    For groupId ``com.percussion`` Maven writes jars to
+    ``com/percussion/sitemanage/<version>/`` directly — the fast path must
+    scan those version dirs (not a doubled ``.../sitemanage/sitemanage/``
+    level, which Maven never writes).
+    """
+
+    def setUp(self):
+        self.repo_helper = _Repo()
+        self.addCleanup(self.repo_helper.cleanup)
+        self.m2 = self.repo_helper.layout_m2()
+
+    def _artifact_dir(self) -> Path:
+        return self.m2 / "com" / "percussion" / "sitemanage"
+
+    def test_newest_jar_across_version_dirs_wins(self):
+        old = self._artifact_dir() / "8.1.8-SNAPSHOT" / "sitemanage-8.1.8-SNAPSHOT.jar"
+        new = self._artifact_dir() / "8.2.0-SNAPSHOT" / "sitemanage-8.2.0-SNAPSHOT.jar"
+        _write_class_jar(old, ["com/percussion/Old.class"], mtime=100)
+        _write_class_jar(new, ["com/percussion/New.class"], mtime=300)
+        self.assertEqual(qa_preflight.find_sitemanage_in_m2(self.m2), new)
+
+    def test_sources_and_javadoc_jars_ignored(self):
+        version = self._artifact_dir() / "8.2.0-SNAPSHOT"
+        _write_class_jar(
+            version / "sitemanage-8.2.0-SNAPSHOT-sources.jar",
+            ["com/percussion/Src.class"],
+            mtime=400,
+        )
+        binary = version / "sitemanage-8.2.0-SNAPSHOT.jar"
+        _write_class_jar(binary, ["com/percussion/Bin.class"], mtime=100)
+        self.assertEqual(qa_preflight.find_sitemanage_in_m2(self.m2), binary)
+
+    def test_missing_layout_returns_none(self):
+        self.assertIsNone(qa_preflight.find_sitemanage_in_m2(self.m2))
+
+
 class TestSnapshotProvenance(unittest.TestCase):
     """SNAPSHOT provenance guard: branch-built jars in the shared repo (#6709)."""
 
@@ -513,14 +552,21 @@ class TestSnapshotProvenance(unittest.TestCase):
         self._layout_rest_sources()
         self._m2_rest_jar(
             ["com/percussion/rest/PipesResource.class"],
-            "com", "percussion", "rest", "rest", "8.2.0-SNAPSHOT",
+            "com", "percussion", "rest", "8.2.0-SNAPSHOT",
             "rest-8.2.0-SNAPSHOT.jar",
         )
         findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
         self.assertFalse(qa_preflight.is_poisoned(findings))
 
-    def test_flattened_layout_jar_is_checked(self):
-        """Hosts with the flattened m2 layout are guarded too (#6709)."""
+    def test_single_level_standard_layout_jar_is_checked(self):
+        """Single-level m2 layout is the standard Maven layout (#6740).
+
+        For groupId ``com.percussion`` Maven writes
+        ``com/percussion/rest/<version>/`` directly (groupPath/artifactId/
+        version) — the ``.../rest/rest/...`` doubling assumed in #6738 would
+        only be standard for a ``com.percussion.rest`` groupId, which no pom
+        declares. A foreign class in the standard-layout jar must flag.
+        """
         self._layout_rest_sources()
         self._m2_rest_jar(
             ["com/percussion/rest/pipelines/PipelineMapper.class"],
@@ -539,7 +585,7 @@ class TestSnapshotProvenance(unittest.TestCase):
         self._layout_rest_sources()
         self._m2_rest_jar(
             ["com/percussion/rest/PipesResource$Inner.class"],
-            "com", "percussion", "rest", "rest", "8.2.0-SNAPSHOT",
+            "com", "percussion", "rest", "8.2.0-SNAPSHOT",
             "rest-8.2.0-SNAPSHOT.jar",
         )
         findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
@@ -554,7 +600,7 @@ class TestSnapshotProvenance(unittest.TestCase):
                 "com/percussion/rest/PipesResource.class",
                 "com/percussion/rest/PipesMapperImpl.class",
             ],
-            "com", "percussion", "rest", "rest", "8.2.0-SNAPSHOT",
+            "com", "percussion", "rest", "8.2.0-SNAPSHOT",
             "rest-8.2.0-SNAPSHOT.jar",
         )
         findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
@@ -584,7 +630,7 @@ class TestSnapshotProvenance(unittest.TestCase):
                 "com/percussion/rest/package-info.class",
                 "com/percussion/rest/PipesResource.class",
             ],
-            "com", "percussion", "rest", "rest", "8.2.0-SNAPSHOT",
+            "com", "percussion", "rest", "8.2.0-SNAPSHOT",
             "rest-8.2.0-SNAPSHOT.jar",
         )
         findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
