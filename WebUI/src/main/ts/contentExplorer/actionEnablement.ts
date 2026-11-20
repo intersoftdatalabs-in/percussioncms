@@ -452,7 +452,8 @@ export const EXPLORER_PUBLISHING_HISTORY_ACTION: MenuAction = {
   menuType: "MENUITEM",
 };
 
-/** Injected for Admin sessions when a page/asset is selected (#4561). */
+/** Injected for Admin sessions when any item is selected — pages, assets,
+ * and generic custom-type rows alike (#4561, #6651). */
 export const EXPLORER_FORCE_CHECKIN_ACTION: MenuAction = {
   name: "Force_Checkin",
   label: "Force Check-in",
@@ -460,7 +461,8 @@ export const EXPLORER_FORCE_CHECKIN_ACTION: MenuAction = {
   menuType: "MENUITEM",
 };
 
-/** Injected when a page/asset is selected (#4699). */
+/** Injected when any item is selected — pages, assets, and generic
+ * custom-type rows alike (#4699, #6651). */
 export const EXPLORER_CHECKOUT_ACTION: MenuAction = {
   name: "Check_Out",
   label: "Check Out",
@@ -492,7 +494,8 @@ export const EXPLORER_REMOVE_INCREMENTAL_ACTION: MenuAction = {
   menuType: "MENUITEM",
 };
 
-/** Injected when a page/asset is selected (#4699). */
+/** Injected when any item is selected — pages, assets, and generic
+ * custom-type rows alike (#4699, #6651). */
 export const EXPLORER_CHECKIN_ACTION: MenuAction = {
   name: "Check_In",
   label: "Check In",
