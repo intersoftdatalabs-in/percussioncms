@@ -28,9 +28,16 @@
  * panel. A load failure renders a named error alert with a retry control
  * ({@code editor-retry-site-impact}) that re-runs the load for the same
  * item id (#6771, parent #4532).</p>
+ *
+ * <p>Retrying unmounts the error alert (and the focused Retry button) while
+ * the load runs, so keyboard and screen-reader users would lose their
+ * place. After a retry settles, focus is returned to something meaningful:
+ * the panel heading on success, or the Retry button again when the load
+ * fails again — and the loading indicator is announced through a live
+ * region (#6786).</p>
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { formatApiError, isSessionRedirectError } from "../api/client";
 import { message } from "../i18n/message";
 import type { PageSiteImpact } from "./editorPageMetadata";
@@ -52,6 +59,10 @@ export function EditorSiteImpactPanel({
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [errorDetail, setErrorDetail] = useState("");
   const [attempt, setAttempt] = useState(0);
+  const [retryPending, setRetryPending] = useState(false);
+  const headingRef = useRef<HTMLHeadingElement>(null);
+  const retryRef = useRef<HTMLButtonElement>(null);
+  const loadingRef = useRef(true);
 
   useEffect(() => {
     let cancelled = false;
@@ -85,14 +96,51 @@ export function EditorSiteImpactPanel({
     };
   }, [itemId, loadSiteImpact, attempt]);
 
+  /**
+   * Return focus after a retry unmounts the control that had it (#6786).
+   * Clicking Retry replaces the error alert (and the focused Retry button)
+   * with the loading indicator, dropping focus to {@code <body>}. When the
+   * retried load settles, keyboard and screen-reader users land on what
+   * just changed: the panel heading on success, or the Retry button again
+   * when the failure repeats. The flag is set only by the Retry click and
+   * consumed here, so initial loads and item switches never steal focus.
+   * The previous-loading guard skips the click commit itself (the outgoing
+   * alert is still mounted there) and fires only on the settling
+   * transition, when the incoming heading or Retry button exists.
+   */
+  useEffect(() => {
+    const wasLoading = loadingRef.current;
+    loadingRef.current = loading;
+    if (loading || !wasLoading || !retryPending) {
+      return;
+    }
+    setRetryPending(false);
+    if (errorKey != null) {
+      retryRef.current?.focus();
+    } else {
+      headingRef.current?.focus();
+    }
+  }, [loading, errorKey, retryPending]);
+
   const pages = impact?.pages ?? [];
   const templates = impact?.templates ?? [];
 
   return (
     <section className={styles.form} data-testid="editor-site-impact-panel">
-      <h2 className={styles.label}>{message(EDITOR_MSG.SITE_IMPACT_TITLE)}</h2>
+      <h2
+        ref={headingRef}
+        tabIndex={-1}
+        className={styles.label}
+        data-testid="editor-site-impact-heading"
+      >
+        {message(EDITOR_MSG.SITE_IMPACT_TITLE)}
+      </h2>
       {loading ? (
-        <div className={styles.status} data-testid="editor-site-impact-loading">
+        <div
+          className={styles.status}
+          role="status"
+          data-testid="editor-site-impact-loading"
+        >
           {message(EDITOR_MSG.SITE_IMPACT_LOADING)}
         </div>
       ) : null}
@@ -107,9 +155,13 @@ export function EditorSiteImpactPanel({
           <div className={styles.actions}>
             <button
               type="button"
+              ref={retryRef}
               className={styles.button}
               data-testid="editor-retry-site-impact"
-              onClick={() => setAttempt((value) => value + 1)}
+              onClick={() => {
+                setRetryPending(true);
+                setAttempt((value) => value + 1);
+              }}
             >
               {message(EDITOR_MSG.LOAD_RETRY)}
             </button>

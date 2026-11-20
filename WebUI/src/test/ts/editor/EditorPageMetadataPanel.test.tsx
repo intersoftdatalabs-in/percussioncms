@@ -243,4 +243,68 @@ describe("page site impact panel (#5739)", () => {
     resolveLoad({ pages: [], templates: [] });
     expect(await screen.findByTestId("editor-site-impact-empty")).toBeTruthy();
   });
+
+  it("announces the loading state through a live region (#6786)", async () => {
+    let resolveLoad: (value: { pages: never[]; templates: never[] }) => void = () => undefined;
+    const pending = new Promise<{ pages: never[]; templates: never[] }>((resolve) => {
+      resolveLoad = resolve;
+    });
+    render(<EditorSiteImpactPanel itemId="42" loadSiteImpact={() => pending} />);
+    const loading = await screen.findByTestId("editor-site-impact-loading");
+    expect(loading.getAttribute("role")).toBe("status");
+    resolveLoad({ pages: [], templates: [] });
+    expect(await screen.findByTestId("editor-site-impact-empty")).toBeTruthy();
+  });
+
+  it("retry success moves focus to the panel heading (#6786)", async () => {
+    let calls = 0;
+    render(
+      <EditorSiteImpactPanel
+        itemId="42"
+        loadSiteImpact={async () => {
+          calls += 1;
+          if (calls === 1) {
+            throw new Error("boom");
+          }
+          return {
+            pages: [
+              {
+                id: "7",
+                name: "Home",
+                path: "/Sites/Demo/Home",
+                site: "Demo",
+                status: "Live",
+                type: "Page",
+              },
+            ],
+            templates: [],
+          };
+        }}
+      />,
+    );
+    const retry = await screen.findByTestId("editor-retry-site-impact");
+    fireEvent.click(retry);
+    expect(await screen.findByTestId("editor-site-impact-pages-table")).toBeTruthy();
+    const heading = screen.getByTestId("editor-site-impact-heading");
+    expect(document.activeElement).toBe(heading);
+    expect(document.activeElement?.tagName).not.toBe("BODY");
+  });
+
+  it("a repeated failure returns focus to the retry button (#6786)", async () => {
+    render(
+      <EditorSiteImpactPanel
+        itemId="42"
+        loadSiteImpact={async () => {
+          throw new Error("boom");
+        }}
+      />,
+    );
+    expect(await screen.findByTestId("editor-retry-site-impact")).toBeTruthy();
+    fireEvent.click(screen.getByTestId("editor-retry-site-impact"));
+    expect(await screen.findByTestId("editor-site-impact-error")).toBeTruthy();
+    expect(document.activeElement?.getAttribute("data-testid")).toBe(
+      "editor-retry-site-impact",
+    );
+    expect(document.activeElement?.tagName).not.toBe("BODY");
+  });
 });
