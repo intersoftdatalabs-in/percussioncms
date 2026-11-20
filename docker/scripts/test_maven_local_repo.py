@@ -102,6 +102,37 @@ class MavenLocalRepoTest(unittest.TestCase):
             self.home / ".m2" / "repository",
         )
 
+    def test_mavenrc_candidates_keep_precedence_with_portable_home_join(self):
+        candidates = mlr._mavenrc_candidates(
+            self.home, os_name="posix", platform="linux"
+        )
+        self.assertEqual(
+            candidates,
+            (
+                # mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6787) —
+                # expected POSIX system mavenrc literals; must name them to pin precedence.
+                Path("/usr/local/etc/mavenrc"),
+                Path("/etc/mavenrc"),
+                self.home / ".mavenrc",
+            ),
+        )
+        self.assertTrue(all(isinstance(c, Path) for c in candidates))
+        self.assertTrue(all("$HOME" not in str(c) for c in candidates))
+
+    def test_mavenrc_candidates_have_no_unix_roots_on_windows(self):
+        candidates = mlr._mavenrc_candidates(
+            self.home, os_name="nt", platform="win32"
+        )
+        self.assertEqual(candidates, (self.home / ".mavenrc",))
+        for candidate in candidates:
+            self.assertNotIn("$HOME", str(candidate))
+            self.assertFalse(
+                # mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6787) —
+                # exclusion pin must name the POSIX roots to prove they are absent on Windows.
+                str(candidate).startswith("/usr/")
+                or str(candidate) == "/etc/mavenrc"
+            )
+
     def test_maven_config(self):
         (self.repo / ".mvn").mkdir()
         (self.repo / ".mvn" / "maven.config").write_text(
@@ -124,7 +155,8 @@ class MavenLocalRepoTest(unittest.TestCase):
         )
 
     def test_mavenrc_skipped_on_windows(self):
-        # _MAVENRC_FILES is POSIX-only by construction (#6781): on Windows the
+        # _POSIX_MAVENRC_SYSTEM_FILES is POSIX-only by construction (#6787,
+        # same class as #6781): on Windows the
         # probe must short-circuit before reading any mavenrc file. Patch
         # sys.platform (not os.name) so pathlib keeps its POSIX flavour.
         (self.home / ".mavenrc").write_text(
