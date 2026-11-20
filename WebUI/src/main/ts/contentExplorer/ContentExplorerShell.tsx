@@ -1203,9 +1203,11 @@ function ContentExplorerShellInner({
   );
   /**
    * Resolve visibility identity for the selected page/asset row (#6783).
-   * Same row gate as {@code CheckoutOwnerPanel} (pages/assets with an id;
-   * folders carry no identity). Failures are non-fatal: the error names
-   * the row and menus stay fully visible until Retry succeeds.
+   * Keeps the page/asset gate even though {@code CheckoutOwnerPanel} now
+   * uses the wider workflow-eligibility gate (#6838): identity feeds menu
+   * visibility, the owner line follows the checkout trio. Failures are
+   * non-fatal: the error names the row and menus stay fully visible until
+   * Retry succeeds.
    */
   useEffect(() => {
     const gated =
@@ -3966,9 +3968,13 @@ function ContentExplorerShellInner({
             </div>
           </div>
           <CheckoutOwnerPanel
+            // Same eligibility as the checkout trio (#6838): any non-folder
+            // row with an id, including generic custom-type rows without a
+            // recognized type name (isPageOrAssetContentType is false for
+            // untyped rows, which hid the owner line after Check Out).
             itemId={
-              selection.item && isPageOrAssetContentType(selection.item)
-                ? (selection.item.id ?? null)
+              isWorkflowEligibleItem(selection.item)
+                ? (selection.item!.id ?? null)
                 : null
             }
             reloadToken={checkoutOwnerReload}

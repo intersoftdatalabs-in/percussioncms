@@ -3248,7 +3248,8 @@ async function handleCheckoutAction(action: MenuAction, ctx: ActionDispatchConte
       }
       throw err;
     }
-    return { kind: "rest", refresh: true };
+    // Reload the owner line so Checked out by names the holder (#6838).
+    return { kind: "rest", refresh: true, refreshCheckoutOwner: true };
 }
 
 /** Check in with an optional comment (single + multi-select). */

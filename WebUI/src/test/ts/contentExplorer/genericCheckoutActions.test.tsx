@@ -38,6 +38,7 @@ import { ActionToolbar } from "../../../main/ts/contentExplorer/ActionToolbar";
 import { CheckoutOwnerPanel } from "../../../main/ts/contentExplorer/CheckoutOwnerPanel";
 import { resolvePublishKind } from "../../../main/ts/contentExplorer/itemPublish";
 import { isPageOrAssetContentType } from "../../../main/ts/contentExplorer/selection";
+import { isWorkflowEligibleItem } from "../../../main/ts/contentExplorer/workflowEligibility";
 import { renderA11yGate } from "./a11y";
 
 /**
@@ -272,5 +273,89 @@ describe("generic checkout trio dispatch and owner panel (#6651)", () => {
       await screen.findByTestId("explorer-checkout-owner-user"),
     ).toHaveTextContent("editor");
     await renderA11yGate(container);
+  });
+});
+
+describe("generic checkout-owner panel gate (#6838)", () => {
+  /** Untyped generic row: no type name, outside /Sites and /Assets. */
+  function untypedGenericItem(overrides: Partial<PSPathItem> = {}): PSPathItem {
+    return {
+      name: "ext",
+      path: "/ContentLib/ext",
+      type: "",
+      id: "88",
+      leaf: true,
+      ...overrides,
+    };
+  }
+
+  /** The exact gate ContentExplorerShell passes to CheckoutOwnerPanel. */
+  function shellOwnerItemId(item: PSPathItem | null): string | null {
+    return isWorkflowEligibleItem(item) ? (item!.id ?? null) : null;
+  }
+
+  it("the old page/asset gate hides the owner line for untyped rows", () => {
+    expect(isPageOrAssetContentType(untypedGenericItem())).toBe(false);
+  });
+
+  it("the shell gate keeps the owner lookup for untyped rows with an id", () => {
+    expect(shellOwnerItemId(untypedGenericItem())).toBe("88");
+    expect(shellOwnerItemId(genericItem())).toBe("88");
+    expect(shellOwnerItemId(pageItem())).toBe("42");
+  });
+
+  it("the shell gate still hides folders, empty ids, and explicitly non-workflowed rows", () => {
+    expect(shellOwnerItemId(folderItem())).toBeNull();
+    expect(
+      shellOwnerItemId({ ...folderItem(), id: "7" } as PSPathItem),
+    ).toBeNull();
+    expect(shellOwnerItemId(null)).toBeNull();
+    expect(shellOwnerItemId(untypedGenericItem({ id: "" }))).toBeNull();
+    expect(shellOwnerItemId(untypedGenericItem({ id: "   " }))).toBeNull();
+    expect(
+      shellOwnerItemId({ ...untypedGenericItem(), workflowId: 0 } as PSPathItem),
+    ).toBeNull();
+  });
+
+  it("renders the owner line for an untyped generic selection (a11y gate)", async () => {
+    const itemId = shellOwnerItemId(untypedGenericItem());
+    const { container } = render(
+      <CheckoutOwnerPanel
+        itemId={itemId}
+        load={vi.fn().mockResolvedValue({
+          checkOutUser: "editor",
+          currentUser: "Admin",
+          itemName: "ext",
+        })}
+      />,
+    );
+    expect(
+      await screen.findByTestId("explorer-checkout-owner-user"),
+    ).toHaveTextContent("editor");
+    await renderA11yGate(container);
+  });
+
+  it("single Check Out of an untyped row reloads the owner line", async () => {
+    const checkOut = vi
+      .spyOn(itemWorkflowApi, "checkOutItem")
+      .mockResolvedValue(undefined);
+    const result = await dispatchAction(toolbarAction("Check_Out"), {
+      item: untypedGenericItem(),
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(result.refreshCheckoutOwner).toBe(true);
+    expect(checkOut).toHaveBeenCalledWith("88");
+  });
+
+  it("renders nothing when the shell gate passes null for a folder", () => {
+    const { container } = render(
+      <CheckoutOwnerPanel
+        itemId={shellOwnerItemId({ ...folderItem(), id: "7" } as PSPathItem)}
+      />,
+    );
+    expect(
+      container.querySelector('[data-testid="explorer-checkout-owner"]'),
+    ).toBeNull();
   });
 });

@@ -1538,6 +1538,7 @@ describe("actionDispatch", () => {
     });
     expect(result.kind).toBe("rest");
     expect(result.refresh).toBe(true);
+    expect(result.refreshCheckoutOwner).toBe(true);
     expect(checkOut).toHaveBeenCalledWith("42");
   });
 
