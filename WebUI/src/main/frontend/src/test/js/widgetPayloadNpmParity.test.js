@@ -51,14 +51,14 @@
  * drops the v1 percCalendar widget per the recorded maintainer Drop
  * decision — its qTip copy and snippet call site are gone, so the parity
  * block below covers the calendarTwo copy only. Slice 14 (issue #6686)
- * migrates the MiniColors twins to the npm
+ * first migrated the MiniColors twins to the npm
  * @claviska/jquery-minicolors@2.2.4 dist (same author's continuation
  * line — the unscoped registry holds only 2.1.10, which predates the
- * swatches/keywords surface) plus the documented jQuery 4 trim patch:
- * the payload JS twins differ from stock 2.2.4 in exactly the two
- * `$.trim(a.toLowerCase())` → `a.toLowerCase().trim()` hunks (`$.trim`
- * was removed in jQuery 4, which the WebUI ships), pinned below by
- * stock-plus-patch reconstruction rather than byte-identity.
+ * swatches/keywords surface) plus a documented jQuery 4 trim patch
+ * (the two `$.trim(a.toLowerCase())` → `a.toLowerCase().trim()` hunks;
+ * `$.trim` was removed in jQuery 4, which the WebUI ships). That
+ * stock-plus-patch contract is retired: slice 15 below rebased the
+ * twins onto stock 2.3.6, so byte-identity is the current pin.
  *
  * Slice 15 (issue #6723, parent #6686 residual) rebases the MiniColors
  * twins onto the npm @claviska/jquery-minicolors@2.3.6 dist the
@@ -1844,9 +1844,10 @@ const MINICOLORS_PAYLOADS = [
 const MINICOLORS_CSS_PAYLOADS = [
   {
     // Editor preview sprite stylesheet (percGoogleCalendarControl.xsl:
-    // jquery.minicolors.css FileDescriptor, rx_resources). Stock 2.2.4
-    // inlines the sprite as a data URI (no jquery.minicolors.png ships in
-    // the payload), so the rebased copy stays byte-identical with no png.
+    // jquery.minicolors.css FileDescriptor, rx_resources). Stock 2.3.6
+    // references the sprite as an external `url(jquery.minicolors.png)`
+    // (no data-URI inline), so the png ships as a payload twin next to
+    // the CSS and the copy stays byte-identical to the npm dist.
     payload: path.join(
       "modules",
       "perc-packages",
