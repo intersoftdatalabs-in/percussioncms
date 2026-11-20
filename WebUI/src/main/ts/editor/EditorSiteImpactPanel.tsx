@@ -25,7 +25,9 @@
  * page, loaded from the same
  * {@code GET item/siteimpact/page/{id}} endpoint. Read-only in every host
  * mode; empty results render an explicit empty state instead of a blank
- * panel.</p>
+ * panel. A load failure renders a named error alert with a retry control
+ * ({@code editor-retry-site-impact}) that re-runs the load for the same
+ * item id (#6771, parent #4532).</p>
  */
 
 import React, { useEffect, useState } from "react";
@@ -49,6 +51,7 @@ export function EditorSiteImpactPanel({
   const [loading, setLoading] = useState(true);
   const [errorKey, setErrorKey] = useState<string | null>(null);
   const [errorDetail, setErrorDetail] = useState("");
+  const [attempt, setAttempt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -80,7 +83,7 @@ export function EditorSiteImpactPanel({
     return () => {
       cancelled = true;
     };
-  }, [itemId, loadSiteImpact]);
+  }, [itemId, loadSiteImpact, attempt]);
 
   const pages = impact?.pages ?? [];
   const templates = impact?.templates ?? [];
@@ -101,6 +104,16 @@ export function EditorSiteImpactPanel({
         >
           {message(errorKey)}
           {errorDetail ? ` ${errorDetail}` : ""}
+          <div className={styles.actions}>
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-retry-site-impact"
+              onClick={() => setAttempt((value) => value + 1)}
+            >
+              {message(EDITOR_MSG.LOAD_RETRY)}
+            </button>
+          </div>
         </div>
       ) : null}
       {!loading && errorKey == null && pages.length === 0 && templates.length === 0 ? (
