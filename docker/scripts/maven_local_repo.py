@@ -58,10 +58,13 @@ from pathlib import Path
 from typing import Mapping, Optional
 
 _REPO_LOCAL_RE = re.compile(r"""-Dmaven\.repo\.local=(?:"([^"]*)"|'([^']*)'|(\S+))""")
-# mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6781, precedent #6341) —
-# POSIX-only mavenrc paths by construction (sourced by the POSIX mvn launcher only);
-# _from_mavenrc returns None on Windows before these are ever read. Host joins use pathlib.
-_MAVENRC_FILES = ("/usr/local/etc/mavenrc", "/etc/mavenrc", "$HOME/.mavenrc")
+_POSIX_MAVENRC_SYSTEM_FILES = (
+    # mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6787,
+    # same class as #6341) — POSIX system mavenrc paths the mvn launcher sources;
+    # only returned on the POSIX branch, never joined with host paths.
+    Path("/usr/local/etc/mavenrc"),
+    Path("/etc/mavenrc"),
+)
 _MAVENRC_TIMEOUT_S = 5
 # Bound at import so callers' tests that stub ``subprocess.run`` (e.g. "dry
 # run must not shell out to docker") neither see nor break this probe.
@@ -71,6 +74,27 @@ _run = subprocess.run
 def home_dir() -> Path:
     # `Path("~")` does NOT expand on Windows; expanduser on the string does.
     return Path(os.path.expanduser("~"))
+
+
+def _mavenrc_candidates(
+    home: Path | str,
+    *,
+    os_name: Optional[str] = None,
+    platform: Optional[str] = None,
+) -> tuple[Path, ...]:
+    """mavenrc probe list for ``home`` (existing precedence: system first).
+
+    The POSIX ``mvn`` launcher sources the system files then ``~/.mavenrc``;
+    the Windows launcher (``mvn.cmd``) sources none, so Windows semantics
+    yield only the portable home-dir join — never a hardcoded Unix root.
+    ``os_name``/``platform`` are test seams (default: live ``os``/``sys``).
+    """
+    name = os.name if os_name is None else os_name
+    plat = sys.platform if platform is None else platform
+    user_rc = Path(home) / ".mavenrc"
+    if name == "nt" or plat.startswith("win"):
+        return (user_rc,)
+    return (*_POSIX_MAVENRC_SYSTEM_FILES, user_rc)
 
 
 def default_m2_repository() -> Path:
@@ -98,7 +122,7 @@ def _from_mavenrc(cwd: Path, env: Mapping[str, str]) -> Optional[Path]:
     if os.name == "nt" or sys.platform.startswith("win") or env.get("MAVEN_SKIP_RC"):
         return None
     home = env.get("HOME") or os.path.expanduser("~")
-    present = [f for f in _MAVENRC_FILES if Path(f.replace("$HOME", home)).is_file()]
+    present = [str(f) for f in _mavenrc_candidates(home) if f.is_file()]
     if not present:
         return None
     script = "".join(f'[ -f "{f}" ] && . "{f}"\n' for f in present)
