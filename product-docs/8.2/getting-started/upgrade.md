@@ -107,6 +107,15 @@ Do not confuse this with retired **dual-ship** page `*.templateDef` files — se
   shared calendar content type, its editor controls, and all Calendar 2.0
   payload files are unchanged.
 
+  > **Calendar 2.0 styling contract (unchanged).** Calendar 2.0 pages keep
+  > their responsive toolbar stacking (narrow-viewport overrides) and the
+  > print stylesheet exactly as shipped — no template or site-CSS action is
+  > needed on upgrade. Custom site overrides that target the calendar's
+  > `fc-*` classes keep working: the planned FullCalendar v6 successor
+  > renames several of those hooks (toolbar sections become
+  > `.fc-toolbar-chunk`, theme button classes change), and that retargeting
+  > ships with the migration itself, not before it.
+
 - **Responsive base templates (`perc.resp.*`) removed.** The
   `perc.responsiveTemplates` package (Banded / Basic / plain, Foundation
   4.x) no longer installs and is dropped from all installer package
