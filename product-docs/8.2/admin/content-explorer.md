@@ -729,6 +729,9 @@ mode. Cancel does not call delete.
 A folder path is refused and is not deleted. HTTP **403** (not allowed),
 **404** (item or path not found), and **409** (in use or checked out) stay on
 the host as errors — they are not treated as success and the item stays open.
+The error names the open item and the failure kind (for example `This item was
+not found. (Home)`), and keyboard focus moves to the error so screen-reader
+and keyboard users land on what just failed.
 **View** and **Promote** do not show Recycle. This is not Explorer **Empty
 recycle bin** or a permanent purge.
 

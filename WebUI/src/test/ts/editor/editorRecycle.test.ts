@@ -21,6 +21,8 @@ import {
   editorClosedAfterRecycle,
   editorRecycleErrorReason,
   editorRecycleItemPath,
+  focusRecycleError,
+  formatRecycleItemNotice,
 } from "../../../main/ts/editor/editorRecycle";
 
 describe("editorRecycle", () => {
@@ -65,5 +67,41 @@ describe("editorRecycle", () => {
       editorRecycleErrorReason({ status: 409, statusText: "Conflict", body: {} }),
     ).toBe("conflict");
     expect(editorRecycleErrorReason(new Error("boom"))).toBe("failed");
+  });
+
+  it("names the open item in the recycle notice (#6773)", () => {
+    expect(formatRecycleItemNotice("This item was not found.", "Home")).toBe(
+      "This item was not found. (Home)",
+    );
+    expect(
+      formatRecycleItemNotice(
+        "This item cannot be recycled because it is in use or checked out.",
+        "Home",
+      ),
+    ).toBe(
+      "This item cannot be recycled because it is in use or checked out. (Home)",
+    );
+    expect(formatRecycleItemNotice("Could not recycle this item.", "  ")).toBe(
+      "Could not recycle this item.",
+    );
+    expect(formatRecycleItemNotice("Could not recycle this item.", null)).toBe(
+      "Could not recycle this item.",
+    );
+  });
+
+  it("focusRecycleError focuses the recycle error (#6773)", () => {
+    document.body.innerHTML =
+      '<div data-testid="editor-recycle-error" tabindex="-1"></div>';
+    const error = document.querySelector(
+      '[data-testid="editor-recycle-error"]',
+    ) as HTMLElement;
+    expect(focusRecycleError()).toBe(true);
+    expect(document.activeElement).toBe(error);
+    document.body.innerHTML = "";
+  });
+
+  it("focusRecycleError returns false when the recycle error is absent (#6773)", () => {
+    document.body.innerHTML = "";
+    expect(focusRecycleError()).toBe(false);
   });
 });

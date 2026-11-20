@@ -132,6 +132,8 @@ import {
   editorClosedAfterRecycle,
   editorRecycleErrorReason,
   editorRecycleItemPath,
+  focusRecycleError,
+  formatRecycleItemNotice,
   type EditorRecycleTarget,
 } from "./editorRecycle";
 import {
@@ -1437,6 +1439,7 @@ export function EditorHost({
   const [recycleBusy, setRecycleBusy] = useState(false);
   const [recycleErrorKey, setRecycleErrorKey] = useState<string | null>(null);
   const [recycleErrorDetail, setRecycleErrorDetail] = useState("");
+  const recycleErrorRef = useRef<HTMLDivElement>(null);
   const [sessionUser, setSessionUser] = useState("");
   const [lockUser, setLockUser] = useState("");
   /** User-info checkOutUser from the last checkout response (empty if omitted). */
@@ -4354,6 +4357,23 @@ export function EditorHost({
     }
   }
 
+  /**
+   * Focus the recycle error when a recycle failure lands (#6773). A 404
+   * (missing item) or 409 (in use / checked out) failure otherwise leaves
+   * focus on the Recycle trigger while the notice is further down the
+   * status stack; authors using a screen reader or keyboard land on what
+   * just failed instead. Mirrors the compare-results focus above.
+   */
+  useEffect(() => {
+    if (recycleErrorKey != null) {
+      if (recycleErrorRef.current != null) {
+        recycleErrorRef.current.focus();
+      } else {
+        focusRecycleError();
+      }
+    }
+  }, [recycleErrorKey]);
+
   function createErrorKeyFor(
     reason: ReturnType<typeof editorCreateErrorReason>,
   ): string {
@@ -5025,6 +5045,13 @@ export function EditorHost({
   const showRename = canRenameFromEditor(mode) && contentId != null;
   const showMove = canMoveFromEditor(mode) && contentId != null;
   const showRecycle = canRecycleFromEditor(mode) && contentId != null;
+  /**
+   * Item name for the recycle error notice (#6773). Falls back to the
+   * content id when the payload has no display name yet, mirroring
+   * {@code autosaveItemName} below.
+   */
+  const recycleItemName =
+    (payload?.name ?? "").trim() || (contentId != null ? String(contentId) : "");
   const showRestore = canRestoreFromEditor(mode) && contentId != null;
   const showWorkflowHistory =
     canViewWorkflowHistoryFromEditor(mode) && contentId != null;
@@ -6016,11 +6043,13 @@ export function EditorHost({
             ) : null}
             {recycleErrorKey ? (
               <div
+                ref={recycleErrorRef}
+                tabIndex={-1}
                 className={styles.status}
                 role="alert"
                 data-testid="editor-recycle-error"
               >
-                {message(recycleErrorKey)}
+                {formatRecycleItemNotice(message(recycleErrorKey), recycleItemName)}
                 {recycleErrorDetail ? ` ${recycleErrorDetail}` : ""}
               </div>
             ) : null}
