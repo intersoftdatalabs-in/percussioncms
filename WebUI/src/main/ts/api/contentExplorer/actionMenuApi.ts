@@ -137,6 +137,12 @@ export interface FindActionsParams {
   dynamic?: boolean;
   item?: boolean;
   cascading?: boolean;
+  /**
+   * UI-mode token (mode id or mode name) scoping the tree server-side
+   * (#6619): menus whose uiContexts entries are scoped exclusively to
+   * other modes are hidden (cascade). Omit for no constraint.
+   */
+  uiMode?: string;
 }
 
 /**
@@ -156,6 +162,8 @@ export async function findActions(
   if (params.item !== undefined) q.set("item", String(params.item));
   if (params.cascading !== undefined)
     q.set("cascading", String(params.cascading));
+  if (params.uiMode !== undefined && params.uiMode.trim())
+    q.set("uiMode", params.uiMode.trim());
   const qs = q.toString();
   const res = await get<unknown>(
     `${PATHS.ACTIONS_ROOT}/find${qs ? `?${qs}` : ""}`,

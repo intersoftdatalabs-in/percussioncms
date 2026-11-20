@@ -53,8 +53,11 @@
  * the shell). Options: expose the identity fields on path/paginated
  * rows (or a lightweight batch endpoint), or filter visibility
  * server-side for the SPA entry. Until then these rules stay visible,
- * exactly as before #6517. Per-mode uiContexts are a separate gap
- * (#6619).</p>
+ * exactly as before #6517. Per-mode uiContexts were a separate gap
+ * (#6619) and are now enforced: the shell claims one UI mode (see
+ * {@code SPA_SHELL_UI_MODE_NAME}) and menus scoped exclusively to other
+ * modes hide, both client-side here and server-side via
+ * {@code GET /actions/find?uiMode=}.</p>
  */
 
 import type {
@@ -98,6 +101,30 @@ const VISIBILITY_CONTEXT_ALIASES: Readonly<Record<string, string>> = {
   publishabletype: VISIBILITY_CONTEXT_PUBLISHABLE_TYPE,
   foldersecurity: VISIBILITY_CONTEXT_FOLDER_SECURITY,
 };
+
+/**
+ * Mode id the modern Explorer (SPA) shell claims when it evaluates
+ * per-mode UI contexts (#6619, parent #4530).
+ *
+ * <p>Mirrors the server contract
+ * ({@code ActionMenuModeUIContext.SPA_SHELL_MODE_ID}): the SPA shell is
+ * not a Workbench mode, so it claims a sentinel id no persisted
+ * {@code RXMENUMODE} row uses. Id-only matching never fires for the
+ * shell; {@link SPA_SHELL_UI_MODE_NAME} decides.</p>
+ */
+export const SPA_SHELL_UI_MODE_ID = "0";
+
+/**
+ * Mode name the modern Explorer (SPA) shell claims (#6619).
+ *
+ * <p>Mirrors the server contract
+ * ({@code ActionMenuModeUIContext.SPA_SHELL_MODE_NAME}): the Desktop
+ * Content Explorer view this shell succeeds. Menus scoped to a mode of
+ * this name (case-insensitive) stay visible; menus scoped exclusively to
+ * other modes hide — client-side here and server-side via
+ * {@code GET /actions/find?uiMode=}.</p>
+ */
+export const SPA_SHELL_UI_MODE_NAME = "Content Explorer";
 
 /**
  * Normalize a wire list that Jackson may serialize as a single object
@@ -464,11 +491,73 @@ export interface VisibilityMenuShape {
 }
 
 /**
+ * True when one mode/uicontext entry claims the SPA shell mode (#6619).
+ * Matches the entry mode id against {@link SPA_SHELL_UI_MODE_ID} or the
+ * entry mode name against {@link SPA_SHELL_UI_MODE_NAME}
+ * (case-insensitive); Jackson may serve ids as numbers.
+ */
+export function uiContextMatchesShellMode(
+  entry: ActionMenuModeUIContext | null | undefined,
+): boolean {
+  if (entry == null || typeof entry !== "object") {
+    return false;
+  }
+  const record = entry as unknown as Record<string, unknown>;
+  const idText =
+    record.modeId == null ? "" : String(record.modeId).trim();
+  if (idText && idText === SPA_SHELL_UI_MODE_ID) {
+    return true;
+  }
+  const nameText =
+    typeof record.modeName === "string" ? record.modeName.trim() : "";
+  return (
+    nameText.length > 0 &&
+    nameText.toLowerCase() === SPA_SHELL_UI_MODE_NAME.toLowerCase()
+  );
+}
+
+/**
+ * True when the menu survives the SPA shell UI-mode claim (#6619).
+ * Mirrors the server rule
+ * ({@code ActionMenuModeUIContext.isVisibleInUiMode}): no uiContexts
+ * entries means visible in every mode; otherwise visible when any entry
+ * matches the shell claim or when any entry is unresolvable (blank id
+ * and blank name — the shell cannot prove the menu is foreign, so it
+ * stays visible as before #6517).
+ */
+export function isMenuVisibleInShellMode(
+  menu: VisibilityMenuShape | null | undefined,
+): boolean {
+  const entries = asWireArray(menu?.uiContexts);
+  if (entries.length === 0) {
+    return true;
+  }
+  for (const entry of entries) {
+    if (entry == null || typeof entry !== "object") {
+      continue;
+    }
+    const record = entry as unknown as Record<string, unknown>;
+    const idText =
+      record.modeId == null ? "" : String(record.modeId).trim();
+    const nameText =
+      typeof record.modeName === "string" ? record.modeName.trim() : "";
+    if (!idText && !nameText) {
+      return true;
+    }
+    if (uiContextMatchesShellMode(entry)) {
+      return true;
+    }
+  }
+  return false;
+}
+
+/**
  * True when the menu survives Workbench visibility evaluation for the
- * given state. Unknown context names, unresolvable state, and uiContexts
- * entries are permissive (visible) — the client cannot resolve Workbench
- * mode ids, so uiContexts never hide a menu here; that gap is documented
- * in the operator docs and tracked as a server residual.
+ * given state. Unknown context names and unresolvable state stay
+ * permissive (visible). Per-mode uiContexts are enforced against the
+ * SPA shell claim ({@link isMenuVisibleInShellMode}): menus scoped
+ * exclusively to other Workbench modes hide — client-side here and
+ * server-side via {@code GET /actions/find?uiMode=}.
  */
 export function isMenuVisibleByVisibilityContexts(
   menu: VisibilityMenuShape | null | undefined,
@@ -480,6 +569,11 @@ export function isMenuVisibleByVisibilityContexts(
   if (state.multiSelected && !menuSupportsMultiSelect(menu)) {
     // Mirrors PSActionVisibilityChecker#isVisible: multi-object requests
     // hide actions that do not declare multi support.
+    return false;
+  }
+  // SPA shell UI-mode claim (#6619): menus scoped exclusively to other
+  // Workbench modes hide; unscoped and unresolvable entries stay visible.
+  if (!isMenuVisibleInShellMode(menu)) {
     return false;
   }
   const contexts = asWireArray(menu.visibilityContexts);

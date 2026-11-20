@@ -205,6 +205,7 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
       {actions.length === 0 ? (
         <span
           data-testid="action-toolbar-empty"
+          role="status"
           // #595959 keeps the hint gray while meeting WCAG AA contrast
           // on white (the previous #888 failed the shell a11y gate, #6517).
           style={{ color: "#595959" }}

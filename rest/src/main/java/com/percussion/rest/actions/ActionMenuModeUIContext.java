@@ -117,6 +117,90 @@ public class ActionMenuModeUIContext {
   }
 
   /**
+   * Mode id the modern Explorer (SPA) shell claims when it evaluates
+   * per-mode UI contexts (#6619, parent #4530).
+   *
+   * <p>The SPA shell is not a Workbench mode, so it claims a sentinel id
+   * that no persisted {@code RXMENUMODE} row uses (design tables use
+   * 1-based auto-increment ids). Id-only matching therefore never fires
+   * for the shell; name matching against {@link #SPA_SHELL_MODE_NAME}
+   * decides. Published here (server tier owns the contract) and mirrored
+   * by the WebUI evaluator; both tiers apply the same rule via
+   * {@link #isVisibleInUiMode}.</p>
+   */
+  public static final String SPA_SHELL_MODE_ID = "0";
+
+  /**
+   * Mode name the modern Explorer (SPA) shell claims (#6619).
+   *
+   * <p>The Desktop Content Explorer view this shell succeeds presented
+   * itself under this Workbench mode name, so menus scoped (via {@code
+   * PSMenuModeContextMapping}) to a mode of this name stay visible in the
+   * SPA while menus scoped exclusively to other modes hide. Matching is
+   * case-insensitive; entries with a blank id <em>and</em> a blank name
+   * are unresolvable and stay permissive (visible), matching the
+   * pre-#6517 behavior.</p>
+   */
+  public static final String SPA_SHELL_MODE_NAME = "Content Explorer";
+
+  /**
+   * Tests one mode/uicontext entry against a UI-mode token (#6619).
+   *
+   * @param entry the mapping entry, may be {@code null}
+   * @param uiMode the claimed mode token (id or name), may be blank
+   * @return {@code true} when the entry's mode id equals the token or its
+   *     mode name equals the token case-insensitively
+   */
+  public static boolean matchesUiMode(ActionMenuModeUIContext entry, String uiMode) {
+    if (entry == null || uiMode == null || uiMode.isBlank()) {
+      return false;
+    }
+    String token = uiMode.trim();
+    if (!token.isEmpty() && token.equals(entry.getModeId() == null ? "" : entry.getModeId().trim())) {
+      return true;
+    }
+    String entryName = entry.getModeName() == null ? "" : entry.getModeName().trim();
+    return !entryName.isEmpty() && entryName.equalsIgnoreCase(token);
+  }
+
+  /**
+   * Menu-level visibility for a UI-mode claim (#6619).
+   *
+   * <p>Semantics mirror the Workbench "Used in" allowlist: a menu with no
+   * {@code uiContexts} entries is visible in every mode; a scoped menu is
+   * visible when any entry matches the claim or when any entry is
+   * unresolvable (blank id and blank name — the client/server cannot prove
+   * the menu is foreign, so it stays visible as before #6517).</p>
+   *
+   * @param uiContexts the menu's mode/uicontext entries, may be {@code null}
+   * @param uiMode the claimed mode token (id or name), may be blank (no constraint)
+   * @return {@code true} when the menu survives the mode claim
+   */
+  public static boolean isVisibleInUiMode(
+      ActionMenuModeUIContext[] uiContexts, String uiMode) {
+    if (uiContexts == null || uiContexts.length == 0) {
+      return true;
+    }
+    if (uiMode == null || uiMode.isBlank()) {
+      return true;
+    }
+    for (ActionMenuModeUIContext entry : uiContexts) {
+      if (entry == null) {
+        continue;
+      }
+      String id = entry.getModeId() == null ? "" : entry.getModeId().trim();
+      String name = entry.getModeName() == null ? "" : entry.getModeName().trim();
+      if (id.isEmpty() && name.isEmpty()) {
+        return true;
+      }
+      if (matchesUiMode(entry, uiMode)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
    * Returns the description.
    *
    * @return the description

@@ -35,6 +35,7 @@ import {
   parseExplorerContentId,
 } from "../api/contentExplorer/pathItemId";
 import type { MenuAction, PSPathItem } from "../api/contentExplorer/types";
+import { SPA_SHELL_UI_MODE_NAME } from "./menuVisibility";
 import { isWorkflowEligibleItem } from "./workflowEligibility";
 
 export { parseExplorerContentId };
@@ -261,14 +262,20 @@ export function mergeAaTemplateMenusIntoCatalog(
 /**
  * Product default for Explorer toolbar / context-menu catalog load.
  *
- * <p>Always uses {@code GET /actions/find} for MENU cascade. When a
- * workflow-eligible item is selected, type menus are merged under existing
- * parents — they never replace the tree.</p>
+ * <p>Always uses the cascading {@code GET /actions/find} tree scoped to
+ * the SPA shell UI mode ({@code ?uiMode=} carries the shell claim, #6619:
+ * menus scoped exclusively to other Workbench modes never reach the
+ * toolbar). Per-content-type menus from
+ * {@code POST /actions/find/types} are merged under existing MENU
+ * parents — they never replace the cascade (that replacement dumped
+ * children as top-level toolbar buttons). Desktop-only / surface
+ * enablement is applied by the shell after load via
+ * {@link filterToolbarActions} / {@link filterContextMenuActions}.</p>
  */
 export async function loadExplorerMenuCatalog(
   item: PSPathItem | null,
 ): Promise<MenuAction[]> {
-  const menus = await findActions({});
+  const menus = await findActions({ uiMode: SPA_SHELL_UI_MODE_NAME });
   const tree = mapActionMenusToMenuActions(menus);
   const contentId =
     item && isWorkflowEligibleItem(item)
