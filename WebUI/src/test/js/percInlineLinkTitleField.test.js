@@ -22,10 +22,12 @@
  *   - inlineLinkTitleField trim/empty peers (pure functions below)
  *   - Legacy TinyMCE plugin removal guard (#5734): the retired
  *     percadvlink / percadvimage / rxinline plugin sources must stay deleted
- *   - sys_Templates.xsl frozen-control wiring (the deprecated sys_tinymce
- *     control still declares InlineLinkTitleField until classic editing
- *     retires; asserted here so neither a silent re-migration nor a dropped
- *     wiring regresses)
+ *   - sys_Templates.xsl retirement wiring (#6637): the retired sys_tinymce
+ *     control definition (with its InlineLinkTitleField classic param) must
+ *     stay deleted after the #5734 bundle removal — the React editor maps
+ *     the legacy field name to TipTap, so stored content types keep
+ *     rendering without the classic definition. Asserted here so a
+ *     reintroduced frozen definition fails fast.
  *
  * Server resolve/fallback is covered by PSInlineLinkTitleResolverTest +
  * PSRenderLinkServiceInlineTitleTest. Playwright residual lives under
@@ -372,7 +374,7 @@ describe("Retired TinyMCE plugin removal guard (#5734)", () => {
     });
   }
 
-  it("sys_Templates.xsl keeps the frozen InlineLinkTitleField wiring", () => {
+  it("sys_Templates.xsl keeps the retired sys_tinymce definition deleted", () => {
     const xsl = readFileSync(
       resolve(
         REPO_ROOT,
@@ -380,7 +382,8 @@ describe("Retired TinyMCE plugin removal guard (#5734)", () => {
       ),
       "utf8",
     );
-    expect(xsl).toContain('name="InlineLinkTitleField"');
-    expect(xsl).toContain("inlineLinkTitleField");
+    expect(xsl).not.toContain('name="sys_tinymce"');
+    expect(xsl).not.toContain("perc_tinymce_init");
+    expect(xsl).not.toContain('name="InlineLinkTitleField"');
   });
 });
