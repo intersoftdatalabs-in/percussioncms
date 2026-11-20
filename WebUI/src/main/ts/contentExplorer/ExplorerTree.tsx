@@ -82,6 +82,19 @@ export interface ExplorerTreeProps {
    * tree reloads the parent node itself.
    */
   onFolderCreated?: (folder: PSPathItem) => void;
+  /**
+   * Fires when the user right-clicks (or keyboard-opens with the
+   * context-menu key / Shift+F10) a tree folder row (#6826). The host
+   * opens the server catalog context menu scoped to that folder —
+   * the same surface {@code DetailList#onItemContextMenu} offers for
+   * list rows. Coordinates are viewport client coordinates for menu
+   * placement; keyboard opens derive them from the row rect.
+   */
+  onFolderContextMenu?: (
+    folder: PSPathItem,
+    clientX: number,
+    clientY: number,
+  ) => void;
 }
 
 /**
@@ -644,6 +657,15 @@ export interface ExplorerTreeNodeViewProps {
   onExpandIfCollapsed: (path: string, folder: PSPathItem) => void;
   /** Open inline new-folder row; rendered under the matching parent (#5882). */
   inlineCreate?: ExplorerTreeInlineCreateState | null;
+  /**
+   * Right-click / keyboard context-menu on this row (#6826). Threaded
+   * through recursion so every depth opens the folder-scoped menu.
+   */
+  onFolderContextMenu?: (
+    folder: PSPathItem,
+    clientX: number,
+    clientY: number,
+  ) => void;
 }
 
 /**
@@ -662,6 +684,7 @@ export function ExplorerTreeNodeView({
   onToggle,
   onExpandIfCollapsed,
   inlineCreate = null,
+  onFolderContextMenu,
 }: ExplorerTreeNodeViewProps): React.ReactElement {
   const path = folder.path;
   const pathKey = normalizeExplorerTreePathKey(path);
@@ -674,6 +697,20 @@ export function ExplorerTreeNodeView({
   const selected = isExplorerTreeNodeSelected(folder, pathKey, selectedPath);
   const nodeName = explorerSiteDisplayName(folder) || folder.name || "";
   const siteRoot = folderish && isExplorerSiteRootItem(folder);
+
+  /**
+   * Keyboard context-menu open (#6826): the context-menu key or
+   * Shift+F10 selects the row and opens the folder-scoped server menu.
+   * The menu anchors just below the row start since there is no pointer.
+   */
+  const openKeyboardContextMenu = (target: HTMLElement): void => {
+    onSelectFolder(path, folder);
+    if (!onFolderContextMenu) {
+      return;
+    }
+    const rect = target.getBoundingClientRect();
+    onFolderContextMenu(folder, rect.left + 24, rect.bottom + 4);
+  };
 
   // data-node-name is finder SITENAME / folder leaf; path may be a GUID
   // (#3684 / #3001). Playwright matches folded names against testid,
@@ -697,7 +734,25 @@ export function ExplorerTreeNodeView({
             onExpandIfCollapsed(path, folder);
           }
         }}
-        onKeyDown={(e) =>
+        onContextMenu={(e) => {
+          // Right-click selects the row (DCE nav-pane parity) and opens
+          // the folder-scoped server catalog menu (#6826). Without a host
+          // handler this is a plain selection, like a left click.
+          e.preventDefault();
+          onSelectFolder(path, folder);
+          onFolderContextMenu?.(folder, e.clientX, e.clientY);
+        }}
+        onKeyDown={(e) => {
+          // Keyboard equivalent of right-click (#6826): the context-menu
+          // key or Shift+F10. Handled here (not in the shared row-key
+          // helper) so the host handler stays optional and unit-testable
+          // per row without changing shared key semantics.
+          if (e.key === "ContextMenu" || (e.key === "F10" && e.shiftKey)) {
+            e.preventDefault();
+            e.stopPropagation();
+            openKeyboardContextMenu(e.currentTarget as HTMLElement);
+            return;
+          }
           handleExplorerTreeRowKeyDown(e, {
             folderish,
             isOpen,
@@ -705,8 +760,8 @@ export function ExplorerTreeNodeView({
             onSelect: () => onSelectFolder(path, folder),
             onToggle: () => onToggle(path, folder),
             onExpandIfCollapsed: () => onExpandIfCollapsed(path, folder),
-          })
-        }
+          });
+        }}
       >
         <span
           style={toggleStyle}
@@ -748,6 +803,7 @@ export function ExplorerTreeNodeView({
               onToggle={onToggle}
               onExpandIfCollapsed={onExpandIfCollapsed}
               inlineCreate={inlineCreate}
+              onFolderContextMenu={onFolderContextMenu}
             />
           ))}
       {folderish && isOpen && inlineCreate?.parentKey === pathKey ? (
@@ -899,6 +955,7 @@ export function ExplorerTree({
   onActivate,
   childrenEpoch = 0,
   onFolderCreated,
+  onFolderContextMenu,
 }: ExplorerTreeProps): React.ReactElement {
   const [expanded, setExpanded] = useState<Record<string, boolean>>(() => ({
     [normalizeExplorerTreePathKey(initialPath)]: true,
@@ -1263,6 +1320,7 @@ export function ExplorerTree({
           onToggle={toggle}
           onExpandIfCollapsed={expandIfCollapsed}
           inlineCreate={inlineCreate}
+          onFolderContextMenu={onFolderContextMenu}
         />
       ))}
       {inlineCreate &&
