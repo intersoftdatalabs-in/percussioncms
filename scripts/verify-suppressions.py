@@ -230,6 +230,27 @@ def _resolve_cited_file(
     return None
 
 
+def _check_file_part(
+    part: str, row: dict[str, str], resolved: Path
+) -> str | None:
+    """Check one resolved file_path cell part; ``None`` on success."""
+    if not resolved.is_file():
+        return (
+            f"row {row['alert_id']!r} ({row['rule']}) cites missing file: "
+            f"{part}"
+        )
+    if row["alert_id"].lower().startswith("mkd-") and SINGLE_RULE_RE.match(
+        row["rule"]
+    ):
+        marker = f"mkd-code-review[{row['rule']}]"
+        if marker not in resolved.read_text(encoding="utf-8", errors="replace"):
+            return (
+                f"row {row['alert_id']!r} lacks the in-source "
+                f"{marker} marker in {part}"
+            )
+    return None
+
+
 def _check_row(
     row: dict[str, str], source_root: Path, index: dict[str, list[str]]
 ) -> str | None:
@@ -241,7 +262,6 @@ def _check_row(
             "or the code-rewrite reference (runtime fix, barrier, filter, "
             "tests, PR link), not merely a // codeql[...] comment"
         )
-    is_mkd_row = row["alert_id"].lower().startswith("mkd-")
     parts: list[str] = []
     for chunk in row["path"].split("+"):
         spans = re.findall(r"`([^`]+)`", chunk)
@@ -259,18 +279,9 @@ def _check_row(
         resolved = _resolve_cited_file(part, source_root, index)
         if resolved is None:
             continue
-        if not resolved.is_file():
-            return (
-                f"row {row['alert_id']!r} ({row['rule']}) cites missing file: "
-                f"{part}"
-            )
-        if is_mkd_row and SINGLE_RULE_RE.match(row["rule"]):
-            marker = f"mkd-code-review[{row['rule']}]"
-            if marker not in resolved.read_text(encoding="utf-8", errors="replace"):
-                return (
-                    f"row {row['alert_id']!r} lacks the in-source "
-                    f"{marker} marker in {part}"
-                )
+        err = _check_file_part(part, row, resolved)
+        if err is not None:
+            return err
     return None
 
 

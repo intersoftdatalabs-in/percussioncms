@@ -166,7 +166,7 @@ def test_missing_cited_file_fails(tmp_path: Path) -> None:
 def test_mkd_row_requires_in_source_marker(tmp_path: Path) -> None:
     module = _load_module()
     java = tmp_path / "Bar.java"
-    java.write_text('public class Bar { String s = "/" + "x"; }\n', encoding="utf-8")
+    java.write_text('public class Bar { String s = "/" + "x"; }\n', encoding="utf-8")  # mkd-code-review[paths.hardcoded_sep]: adjudicated fixture (issue #6823; cf. #6778) — "/" is Java fixture content, not an OS path join.
     row = {
         "alert_id": "mkd-9999",
         "rule": "paths.hardcoded_sep",
@@ -179,7 +179,7 @@ def test_mkd_row_requires_in_source_marker(tmp_path: Path) -> None:
     assert "mkd-code-review[paths.hardcoded_sep]" in err
     java.write_text(
         'public class Bar {\n  // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #9999).\n'
-        '  String s = "/" + "x";\n}\n',
+        '  String s = "/" + "x";\n}\n',  # mkd-code-review[paths.hardcoded_sep]: adjudicated fixture (issue #6823; cf. #6778) — "/" is Java fixture content, not an OS path join.
         encoding="utf-8",
     )
     assert module._check_row(row, tmp_path, {}) is None
