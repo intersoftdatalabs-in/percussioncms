@@ -57,30 +57,44 @@ public final class ActionMenuUiModeFilter {
       return new ArrayList<>(menus);
     }
     for (ActionMenu menu : menus) {
-      if (menu == null || menu.getName() == null) {
-        continue;
+      ActionMenu kept = filterMenu(menu, uiMode);
+      if (kept != null) {
+        out.add(kept);
       }
-      if (!ActionMenuModeUIContext.isVisibleInUiMode(menu.getUiContexts(), uiMode)) {
-        continue;
-      }
-      ActionMenuList children = menu.getChildren();
-      if (children == null) {
-        out.add(menu);
-        continue;
-      }
-      List<ActionMenu> kept = filterMenusByUiMode(children, uiMode);
-      if (kept.isEmpty() && !children.isEmpty()) {
-        continue;
-      }
-      // Prune into a copy: the input tree (adaptor-owned) is never mutated,
-      // so hidden children of a visible parent do not leak to the caller.
-      ActionMenu copy = copyMenu(menu);
-      ActionMenuList pruned = new ActionMenuList();
-      pruned.addAll(kept);
-      copy.setChildren(pruned);
-      out.add(copy);
     }
     return out;
+  }
+
+  /**
+   * Filters one menu against a UI-mode claim.
+   *
+   * @param menu the menu, may be {@code null}
+   * @param uiMode the claimed mode token, never blank
+   * @return the surviving menu (a pruned copy when children were hidden),
+   *     or {@code null} when the menu hides
+   */
+  private static ActionMenu filterMenu(ActionMenu menu, String uiMode) {
+    if (menu == null || menu.getName() == null) {
+      return null;
+    }
+    if (!ActionMenuModeUIContext.isVisibleInUiMode(menu.getUiContexts(), uiMode)) {
+      return null;
+    }
+    ActionMenuList children = menu.getChildren();
+    if (children == null) {
+      return menu;
+    }
+    List<ActionMenu> kept = filterMenusByUiMode(children, uiMode);
+    if (kept.isEmpty() && !children.isEmpty()) {
+      return null;
+    }
+    // Prune into a copy: the input tree (adaptor-owned) is never mutated,
+    // so hidden children of a visible parent do not leak to the caller.
+    ActionMenu copy = copyMenu(menu);
+    ActionMenuList pruned = new ActionMenuList();
+    pruned.addAll(kept);
+    copy.setChildren(pruned);
+    return copy;
   }
 
   /**
