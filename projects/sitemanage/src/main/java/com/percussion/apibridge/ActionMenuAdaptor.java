@@ -65,11 +65,13 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -117,6 +119,35 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
   private final IPSUiDesignWs service;
   private final BooleanSupplier adminChecker;
   private final Supplier<List<PSActionMenu>> hibernateMenus;
+  private final long uiContextsCacheTtlMillis;
+
+  /**
+   * How long a bulk-loaded id to uiContexts snapshot stays valid. Explorer calls
+   * {@code /find} on selection changes, so repeat calls within the window skip the design
+   * load entirely; out-of-band Workbench edits surface after at most this delay.
+   * Package-visible for unit tests.
+   */
+  static final long DEFAULT_UI_CONTEXTS_CACHE_TTL_MILLIS = 30_000L;
+
+  /**
+   * Bulk uiContexts snapshots by persisted action id. Populated by {@link
+   * #overlayTreeUiContexts(List)}, cleared on every persist/delete through this adaptor.
+   * Best-effort read cache only: overlay failures stay permissive, so a stale or missing
+   * entry must never fail {@code /find}.
+   */
+  private final ConcurrentHashMap<Integer, CachedUiContexts> uiContextsCache =
+      new ConcurrentHashMap<>();
+
+  /** Immutable cache entry: converted DTO snapshot plus the load wall-clock. */
+  private static final class CachedUiContexts {
+    final ActionMenuModeUIContext[] uiContexts;
+    final long loadedAtMillis;
+
+    CachedUiContexts(ActionMenuModeUIContext[] uiContexts, long loadedAtMillis) {
+      this.uiContexts = uiContexts;
+      this.loadedAtMillis = loadedAtMillis;
+    }
+  }
 
   /** Per-request Hibernate catalog index (name/id → menu); cleared in write finally. */
   private static final ThreadLocal<Map<String, PSActionMenu>> REQUEST_HIBERNATE_INDEX =
@@ -144,9 +175,21 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       IPSUiDesignWs service,
       BooleanSupplier adminChecker,
       Supplier<List<PSActionMenu>> hibernateMenus) {
+    this(service, adminChecker, hibernateMenus, DEFAULT_UI_CONTEXTS_CACHE_TTL_MILLIS);
+  }
+
+  /**
+   * Package-visible for unit tests covering cache TTL expiry.
+   */
+  ActionMenuAdaptor(
+      IPSUiDesignWs service,
+      BooleanSupplier adminChecker,
+      Supplier<List<PSActionMenu>> hibernateMenus,
+      long uiContextsCacheTtlMillis) {
     this.service = service;
     this.adminChecker = adminChecker != null ? adminChecker : this::isCurrentUserAdmin;
     this.hibernateMenus = hibernateMenus != null ? hibernateMenus : this::loadHibernateMenus;
+    this.uiContextsCacheTtlMillis = uiContextsCacheTtlMillis;
   }
 
   @Override
@@ -329,19 +372,56 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
    * the server {@code ?uiMode=} filter and the shell evaluator filter on an always-empty
    * field. One unlocked {@code loadActions} call covers every menu id in the tree (roots +
    * descendants); failures leave the tree untouched (permissive, pre-#6788 behavior) and
-   * never fail {@code /find}. Package-visible for unit tests.</p>
+   * never fail {@code /find}.</p>
+   *
+   * <p>Loaded id to uiContexts snapshots are cached for {@link
+   * #DEFAULT_UI_CONTEXTS_CACHE_TTL_MILLIS} so repeat {@code /find} calls (Explorer fires
+   * them on selection changes) skip the design load; any persist/delete through this
+   * adaptor clears the cache (#6853). Package-visible for unit tests.</p>
    */
   void overlayTreeUiContexts(List<ActionMenu> tree) {
     if (tree == null || tree.isEmpty()) {
       return;
     }
-    List<Integer> ids = new ArrayList<>();
+    Set<Integer> ids = new LinkedHashSet<>();
     collectTreeActionIds(tree, ids);
     if (ids.isEmpty()) {
       return;
     }
-    List<IPSGuid> guids = new ArrayList<>(ids.size());
+    long now = System.currentTimeMillis();
+    Map<Integer, ActionMenuModeUIContext[]> uiById = new HashMap<>(ids.size() * 2);
+    List<Integer> missing = collectUncachedIds(ids, now, uiById);
+    if (!missing.isEmpty()) {
+      loadAndCacheUiContexts(missing, uiById);
+    }
+    applyTreeUiContexts(tree, uiById);
+  }
+
+  /**
+   * Splits tree ids into fresh cache hits (copied into {@code uiById}) and misses needing a
+   * design load. Package-visible for unit tests.
+   */
+  List<Integer> collectUncachedIds(
+      Set<Integer> ids, long now, Map<Integer, ActionMenuModeUIContext[]> uiById) {
+    List<Integer> missing = new ArrayList<>(ids.size());
     for (int id : ids) {
+      CachedUiContexts hit = uiContextsCache.get(id);
+      if (hit != null && now - hit.loadedAtMillis <= uiContextsCacheTtlMillis) {
+        uiById.put(id, hit.uiContexts);
+      } else {
+        missing.add(id);
+      }
+    }
+    return missing;
+  }
+
+  /**
+   * One unlocked design load for the cache-miss ids; stores converted snapshots for {@code
+   * /find} and the TTL cache. Failures stay permissive (pre-#6788 behavior).
+   */
+  void loadAndCacheUiContexts(List<Integer> missing, Map<Integer, ActionMenuModeUIContext[]> uiById) {
+    List<IPSGuid> guids = new ArrayList<>(missing.size());
+    for (int id : missing) {
       try {
         guids.add(PSAction.getGuidFromId(id));
       } catch (RuntimeException e) {
@@ -353,28 +433,34 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
     }
     List<PSAction> loaded;
     try {
-      loaded =
-          service.loadActions(guids, false, false, currentSession(), currentUser());
+      loaded = service.loadActions(guids, false, false, currentSession(), currentUser());
     } catch (RuntimeException | PSErrorResultsException e) {
       log.debug("Tree uiContexts overlay skipped: {}", e.toString());
       return;
     }
-    if (loaded == null || loaded.isEmpty()) {
+    if (loaded == null) {
       return;
     }
-    Map<Integer, PSAction> byId = new HashMap<>(loaded.size() * 2);
     for (PSAction action : loaded) {
       if (action != null) {
-        byId.put(action.getId(), action);
+        ActionMenuModeUIContext[] uiContexts = toDtoUiContexts(action.getModeUIContexts());
+        uiById.put(action.getId(), uiContexts);
+        uiContextsCache.put(
+            action.getId(), new CachedUiContexts(uiContexts, System.currentTimeMillis()));
       }
     }
-    applyTreeUiContexts(tree, byId);
+  }
+
+  /** Clears cached uiContexts snapshots after a persist/delete through this adaptor. */
+  void invalidateUiContextsCache() {
+    uiContextsCache.clear();
   }
 
   /**
    * Collects persisted action ids from a converted tree (roots + descendants).
+   * {@link LinkedHashSet} keeps first-seen order with O(1) dedup (#6853).
    */
-  private static void collectTreeActionIds(List<ActionMenu> menus, List<Integer> ids) {
+  private static void collectTreeActionIds(List<ActionMenu> menus, Set<Integer> ids) {
     if (menus == null) {
       return;
     }
@@ -382,7 +468,7 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       if (menu == null) {
         continue;
       }
-      if (menu.getId() > 0 && !ids.contains(menu.getId())) {
+      if (menu.getId() > 0) {
         ids.add(menu.getId());
       }
       collectTreeActionIds(menu.getChildren(), ids);
@@ -390,10 +476,12 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
   }
 
   /**
-   * Copies design uiContexts onto converted DTOs whose action id loaded above.
-   * Menus with no loaded design row keep their converted collections.
+   * Copies converted uiContexts snapshots onto DTOs whose action id resolved above.
+   * Menus with no loaded design row keep their converted collections. Arrays are cloned
+   * per menu so cached snapshots are never aliased into mutable DTO state.
    */
-  private static void applyTreeUiContexts(List<ActionMenu> menus, Map<Integer, PSAction> byId) {
+  private static void applyTreeUiContexts(
+      List<ActionMenu> menus, Map<Integer, ActionMenuModeUIContext[]> uiById) {
     if (menus == null) {
       return;
     }
@@ -401,11 +489,11 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       if (menu == null) {
         continue;
       }
-      PSAction domain = byId.get(menu.getId());
-      if (domain != null) {
-        menu.setUiContexts(toDtoUiContexts(domain.getModeUIContexts()));
+      ActionMenuModeUIContext[] uiContexts = uiById.get(menu.getId());
+      if (uiContexts != null) {
+        menu.setUiContexts(uiContexts.clone());
       }
-      applyTreeUiContexts(menu.getChildren(), byId);
+      applyTreeUiContexts(menu.getChildren(), uiById);
     }
   }
 
@@ -524,6 +612,7 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       applyWritableFields(domain, body);
       domain.getProperties().setProperty(REST_USER_MENU_PROP, PSAction.YES);
       service.saveActions(List.of(domain), true, session, user);
+      invalidateUiContextsCache();
       return toDto(domain);
     } catch (WebApplicationException | IllegalStateException e) {
       throw e;
@@ -578,6 +667,7 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       PSAction domain = loaded.get(0);
       applyWritableFields(domain, body);
       service.saveActions(List.of(domain), true, session, user);
+      invalidateUiContextsCache();
       return toDto(domain);
     } catch (WebApplicationException | IllegalArgumentException e) {
       throw e;
@@ -627,6 +717,7 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       rejectNonCascadingParent(domain);
       replaceChildren(domain, resolved);
       service.saveActions(List.of(domain), true, session, user);
+      invalidateUiContextsCache();
       return toDtoWithChildren(domain, resolved);
     } catch (WebApplicationException | IllegalArgumentException e) {
       throw e;
@@ -680,6 +771,7 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
         return false;
       }
       service.deleteActions(List.of(id), false, session, user);
+      invalidateUiContextsCache();
       return true;
     } catch (WebApplicationException e) {
       throw e;
