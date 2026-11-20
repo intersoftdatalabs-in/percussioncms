@@ -33,7 +33,9 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.UriInfo;
 import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -123,19 +125,21 @@ public class ItemIdentityResource {
     if (request == null || request.getIds() == null) {
       throw new WebApplicationException("ids are required", 400);
     }
-    List<String> ids = new ArrayList<>();
+    // Cap the raw payload before iterating: a huge list must fail fast instead
+    // of paying per-element work first (review #6814).
+    if (request.getIds().size() > MAX_IDS) {
+      throw new WebApplicationException("too many ids (max " + MAX_IDS + ")", 400);
+    }
+    Set<String> ids = new LinkedHashSet<>();
     for (String raw : request.getIds()) {
       String id = raw == null ? "" : raw.trim();
-      if (!id.isEmpty() && !ids.contains(id)) {
+      if (!id.isEmpty()) {
         ids.add(id);
       }
     }
     if (ids.isEmpty()) {
       throw new WebApplicationException("ids are required", 400);
     }
-    if (ids.size() > MAX_IDS) {
-      throw new WebApplicationException("too many ids (max " + MAX_IDS + ")", 400);
-    }
-    return ids;
+    return new ArrayList<>(ids);
   }
 }

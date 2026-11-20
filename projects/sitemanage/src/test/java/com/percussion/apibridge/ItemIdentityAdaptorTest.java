@@ -29,6 +29,10 @@ import com.percussion.itemmanagement.service.IPSItemWorkflowService;
 import com.percussion.itemmanagement.service.IPSItemWorkflowService.PSItemWorkflowServiceException;
 import com.percussion.itemmanagement.service.IPSWorkflowHelper;
 import com.percussion.rest.explorer.ItemIdentity;
+import com.percussion.server.PSRequest;
+import com.percussion.server.PSUserSession;
+import com.percussion.servlets.PSSecurityFilter;
+import com.percussion.share.service.exception.PSValidationException;
 import jakarta.ws.rs.WebApplicationException;
 import java.net.URI;
 import java.util.Arrays;
@@ -39,6 +43,8 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 @ExtendWith(MockitoExtension.class)
@@ -115,6 +121,71 @@ class ItemIdentityAdaptorTest {
   }
 
   @Test
+  void batchOmitsUnauthorizedLikeUnknown() throws Exception {
+    // Review #6814: an unauthorized id (typed validation failure from the service
+    // layer) is omitted exactly like an unknown id — no metadata leaks.
+    when(workflow.lookupCheckoutOwner("denied"))
+        .thenThrow(new DeniedValidationException("not authorized"));
+    when(workflow.lookupCheckoutOwner("42"))
+        .thenReturn(new PSItemUserInfo("Home", "", "admin", "Reader"));
+    when(workflowHelper.getComponentSummary("42")).thenReturn(summary(101L, 2, 5, 1001));
+    List<ItemIdentity> out = adaptor.lookupBatch(base, Arrays.asList("42", "denied"));
+    assertEquals(1, out.size());
+    assertEquals("42", out.get(0).getId());
+  }
+
+  @Test
+  void batchOmitsNullSummary() throws Exception {
+    when(workflow.lookupCheckoutOwner("42"))
+        .thenReturn(new PSItemUserInfo("Home", "", "admin", "Reader"));
+    when(workflowHelper.getComponentSummary("42")).thenReturn(null);
+    assertTrue(adaptor.lookupBatch(base, List.of("42")).isEmpty());
+  }
+
+  @Test
+  void batchOmitsOutsideCallerCommunities() throws Exception {
+    // Review #6814: summary loaders perform no caller-AuthZ check, so the adaptor
+    // omits rows outside the caller's session communities instead of disclosing
+    // their content-type / workflow / community ids and checkout owner.
+    when(workflow.lookupCheckoutOwner("42"))
+        .thenReturn(new PSItemUserInfo("Home", "", "admin", "Reader"));
+    when(workflowHelper.getComponentSummary("42")).thenReturn(summary(101L, 2, 5, 9999));
+    try (MockedStatic<PSSecurityFilter> filter = Mockito.mockStatic(PSSecurityFilter.class)) {
+      PSRequest req = Mockito.mock(PSRequest.class);
+      PSUserSession session = Mockito.mock(PSUserSession.class);
+      filter.when(PSSecurityFilter::getCurrentRequest).thenReturn(req);
+      when(req.getUserSession()).thenReturn(session);
+      when(session.getUserCommunities(req)).thenReturn(List.of("1001"));
+      assertTrue(adaptor.lookupBatch(base, List.of("42")).isEmpty());
+    }
+  }
+
+  @Test
+  void batchKeepsInsideCallerCommunities() throws Exception {
+    when(workflow.lookupCheckoutOwner("42"))
+        .thenReturn(new PSItemUserInfo("Home", "", "admin", "Reader"));
+    when(workflowHelper.getComponentSummary("42")).thenReturn(summary(101L, 2, 5, 1001));
+    try (MockedStatic<PSSecurityFilter> filter = Mockito.mockStatic(PSSecurityFilter.class)) {
+      PSRequest req = Mockito.mock(PSRequest.class);
+      PSUserSession session = Mockito.mock(PSUserSession.class);
+      filter.when(PSSecurityFilter::getCurrentRequest).thenReturn(req);
+      when(req.getUserSession()).thenReturn(session);
+      when(session.getUserCommunities(req)).thenReturn(List.of("1001"));
+      assertEquals(1, adaptor.lookupBatch(base, List.of("42")).size());
+    }
+  }
+
+  @Test
+  void batchUnexpectedFailurePropagatesTo500() throws Exception {
+    // Review #6814: a service outage must not masquerade as "not found" (which
+    // would silently fall back to permissive visibility). The resource maps the
+    // propagated exception to HTTP 500.
+    when(workflow.lookupCheckoutOwner("42")).thenThrow(new IllegalStateException("db down"));
+    assertThrows(
+        IllegalStateException.class, () -> adaptor.lookupBatch(base, List.of("42")));
+  }
+
+  @Test
   void batchEmptyIdsIs400() {
     WebApplicationException ex =
         assertThrows(WebApplicationException.class, () -> adaptor.lookupBatch(base, null));
@@ -143,5 +214,14 @@ class ItemIdentityAdaptorTest {
     summary.setWorkflowAppId(workflowAppId);
     summary.setCommunityId(communityId);
     return summary;
+  }
+
+  /** Concrete stand-in for the abstract {@link PSValidationException} (unauthorized-id path). */
+  private static final class DeniedValidationException extends PSValidationException {
+    private static final long serialVersionUID = 1L;
+
+    DeniedValidationException(String message) {
+      super(message);
+    }
   }
 }

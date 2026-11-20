@@ -105,6 +105,32 @@ class ItemIdentityResourceTest {
   }
 
   @Test
+  void batchHugeListFailsFast400() {
+    // Review #6814: the raw-size cap must reject before any per-element work,
+    // so a hostile/buggy 10k-id payload fails fast instead of grinding.
+    List<String> ids = new ArrayList<>();
+    for (int i = 0; i < 10_000; i++) {
+      ids.add("id-" + i);
+    }
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.lookupBatch(new ItemIdentityBatchRequest(ids)));
+    assertEquals(400, ex.getResponse().getStatus());
+  }
+
+  @Test
+  void batchDedupesPreservingOrder() {
+    // Review #6814: duplicates collapse via LinkedHashSet, first-seen order kept.
+    ItemIdentity identity = new ItemIdentity("1");
+    when(adaptor.lookupBatch(any(), eq(List.of("1", "2")))).thenReturn(List.of(identity));
+    List<ItemIdentity> out =
+        resource.lookupBatch(new ItemIdentityBatchRequest(Arrays.asList("1", "2", "1", " 2 ")));
+    assertEquals(1, out.size());
+    verify(adaptor).lookupBatch(any(), eq(List.of("1", "2")));
+  }
+
+  @Test
   void batchAdaptorFailureIs500() {
     when(adaptor.lookupBatch(any(), eq(List.of("42"))))
         .thenThrow(new IllegalStateException("down"));
