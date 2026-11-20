@@ -1316,6 +1316,18 @@ is visible in every mode; an entry the shell cannot resolve (blank mode
 id and blank mode name) stays permissive, exactly as before this
 change.
 
+The shell claims only the main display area mode (`CXMAIN`), not the
+navigation pane mode (`CXNAV`). The installer seed scopes six actions
+solely to the navigation pane — the **Create New** menu family, **Save As**
+(new-search context), **Delete Search** (saved-search context), and
+**Search Within Folder** — because in DCE those are tree/search surfaces,
+never main-toolbar items. Explorer already covers each of them in its own
+chrome (inline tree create, the create commands, saved-search management,
+and folder-scoped search), so navigation-pane-only actions stay hidden
+from the shell toolbar and right-click menu by design. If a legacy
+navigation-pane action you rely on does not appear, use the matching
+Explorer chrome above instead of re-scoping the menu to `CXMAIN`.
+
 ## Folder security
 
 Open folder ACL and properties from either:

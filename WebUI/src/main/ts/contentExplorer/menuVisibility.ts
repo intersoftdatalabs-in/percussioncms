@@ -125,6 +125,20 @@ export const SPA_SHELL_UI_MODE_ID = "4";
  * name (case-insensitive) stay visible; menus scoped exclusively to
  * other modes hide — client-side here and server-side via
  * {@code GET /actions/find?uiMode=}.</p>
+ *
+ * <p>CXNAV audit (#6824): the installer seed
+ * ({@code cmsTableData.xml} {@code RXMODEUICONTEXTACTION}, 397 rows)
+ * scopes exactly six actions solely to the navigation pane mode
+ * {@code CXNAV} ({@code MODEID 3}) — the {@code Create_New} cascade
+ * (1/15/16), {@code Save_As} (20, new-search context),
+ * {@code Delete_Search} (18, saved-search context), and
+ * {@code Search_Within_Folder} (212). In DCE those are nav-pane /
+ * search surfaces, never main-toolbar items, and the SPA already
+ * covers each natively (inline tree create, reduced create actions,
+ * SearchPanel saved-search CRUD and folder-scoped search) — so the
+ * single CXMAIN claim stands and CXNAV-only menus stay hidden by
+ * design. The genuine gap is separate: the SPA folder tree offers no
+ * right-click server-menu context menu at all (tracked follow-on).</p>
  */
 export const SPA_SHELL_UI_MODE_NAME = "CXMAIN";
 

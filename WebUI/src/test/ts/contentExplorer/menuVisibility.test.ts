@@ -667,4 +667,53 @@ describe("SPA shell UI-mode claim (#6619)", () => {
     ];
     expect(filterMenuActionsByVisibility(menus, EMPTY_STATE)).toEqual([]);
   });
+
+  it("hides seeded CXNAV-only nav-pane menus under the shell claim (#6824)", () => {
+    // Installer seed (cmsTableData.xml RXMODEUICONTEXTACTION) scopes the
+    // Create_New cascade and Search_Within_Folder solely to CXNAV
+    // (MODEID 3, navigation pane) — never main-toolbar items in DCE.
+    const createNew = menu("Create_New", {
+      menuType: "MENU",
+      uiContexts: [{ modeId: "3", modeName: "CXNAV" }],
+      children: [
+        menu("Create_New_Folder", {
+          uiContexts: [{ modeId: "3", modeName: "CXNAV" }],
+        }),
+        menu("Create_New_Item", {
+          uiContexts: [{ modeId: "3", modeName: "CXNAV" }],
+        }),
+      ],
+    });
+    const searchWithinFolder = menu("Search_Within_Folder", {
+      uiContexts: [{ modeId: "3", modeName: "CXNAV" }],
+    });
+    expect(isMenuVisibleInShellMode(createNew)).toBe(false);
+    expect(isMenuVisibleInShellMode(searchWithinFolder)).toBe(false);
+    expect(
+      filterMenuActionsByVisibility([createNew, searchWithinFolder], EMPTY_STATE),
+    ).toEqual([]);
+  });
+
+  it("keeps dual CXMAIN+CXNAV scoped menus visible (#6824)", () => {
+    const dual = menu("Edit", {
+      uiContexts: [
+        { modeId: "3", modeName: "CXNAV" },
+        { modeId: "4", modeName: "CXMAIN" },
+      ],
+    });
+    expect(isMenuVisibleInShellMode(dual)).toBe(true);
+    expect(isMenuVisibleByVisibilityContexts(dual, EMPTY_STATE)).toBe(true);
+  });
+
+  it("hides seeded IAMAIN-only menus under the shell claim (#6824)", () => {
+    // Active Assembly main area (MODEID 6) mirrors the QA regression seed:
+    // exclusively foreign modes hide, same as CXNAV-only ones.
+    const foreign = menu("aa_table_editor", {
+      uiContexts: [{ modeId: "6", modeName: "IAMAIN" }],
+    });
+    expect(isMenuVisibleInShellMode(foreign)).toBe(false);
+    expect(isMenuVisibleByVisibilityContexts(foreign, EMPTY_STATE)).toBe(
+      false,
+    );
+  });
 });

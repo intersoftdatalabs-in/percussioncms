@@ -22,12 +22,14 @@ import com.percussion.cms.objectstore.PSAction;
 import com.percussion.cms.objectstore.PSComponentProcessorProxy;
 import com.percussion.services.menus.PSActionMenu;
 import com.percussion.services.menus.RxmActionMenuConstants;
+import com.percussion.cms.objectstore.PSDbComponentCollection;
 import com.percussion.cms.objectstore.PSDisplayColumn;
 import com.percussion.cms.objectstore.PSDisplayFormat;
 import com.percussion.cms.objectstore.PSDFColumns;
 import com.percussion.cms.objectstore.PSDFMultiProperty;
 import com.percussion.cms.objectstore.PSKey;
 import com.percussion.cms.objectstore.PSMenuChild;
+import com.percussion.cms.objectstore.PSMenuModeContextMapping;
 import com.percussion.cms.objectstore.PSSearch;
 import com.percussion.cms.objectstore.PSSearchField;
 import com.percussion.cms.objectstore.PSSearchMultiProperty;
@@ -95,6 +97,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
 import javax.naming.NamingException;
@@ -3543,6 +3546,7 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       else
          clearRestUserMenuProperty(conn, spec.actionId);
       persistActionRelationsOn(conn, action);
+      persistActionModeMappingsOn(conn, action);
    }
 
    /**
@@ -3642,6 +3646,136 @@ public class PSUiDesignWs extends PSUiBaseWs implements IPSUiDesignWs
       if (node instanceof PSAction child)
          return child.getId();
       return -1;
+   }
+
+   /**
+    * Rewrite {@code RXMODEUICONTEXTACTION} when the in-memory mode mappings differ from the
+    * stored rows so REST create/PUT with {@code uiContexts} round-trips on the H2 JDBC
+    * fallback path (locator {@code updateActions} can skip the XML graph — same gap as
+    * children in {@link #persistActionRelationsOn}, #6824). A successful locator save
+    * marks the cloned components clean, so a state check alone would skip a write the
+    * database still needs; comparing content instead makes the fallback authoritative:
+    * identical rows are left untouched (label-only PUTs never wipe seed mappings),
+    * differing rows are replaced, and an explicit empty set clears.
+    *
+    * <p>Non-numeric ids are skipped; the REST facade already rejects them with 400 before
+    * this point. A {@code null} collection means "no information" and is left alone.</p>
+    *
+    * <p>When the connection is autocommit (typical H2 {@code DriverManager} tests and some
+    * pool checkouts), read + delete + inserts run in one explicit transaction, mirroring
+    * {@link #persistActionRelationsOn}. When autocommit is already false (Hibernate
+    * {@code doWork} inside an open transaction), this method does not commit or
+    * rollback.</p>
+    */
+   static void persistActionModeMappingsOn(Connection conn, PSAction action) throws SQLException
+   {
+      if (conn == null || action == null)
+         return;
+      PSDbComponentCollection mappings = action.getModeUIContexts();
+      if (mappings == null)
+         return;
+      int actionId = action.getId();
+      if (actionId <= 0)
+         return;
+      Set<String> wanted = new TreeSet<>();
+      Iterator<?> it = mappings.iterator();
+      while (it.hasNext())
+      {
+         int[] ids = modeMappingIds(it.next());
+         if (ids == null)
+            continue;
+         wanted.add(ids[0] + ":" + ids[1]);
+      }
+      boolean startedTx = false;
+      boolean previousAutoCommit = conn.getAutoCommit();
+      if (previousAutoCommit)
+      {
+         conn.setAutoCommit(false);
+         startedTx = true;
+      }
+      try
+      {
+         Set<String> stored = storedMappingPairs(conn, actionId);
+         if (stored.equals(wanted))
+            return;
+         try (PreparedStatement del =
+                   conn.prepareStatement("DELETE FROM RXMODEUICONTEXTACTION WHERE ACTIONID = ?");
+              PreparedStatement ins =
+                   conn.prepareStatement(
+                         "INSERT INTO RXMODEUICONTEXTACTION (MODEID, UICONTEXTID, ACTIONID) VALUES (?, ?, ?)"))
+         {
+            del.setInt(1, actionId);
+            del.executeUpdate();
+            for (String pair : wanted)
+            {
+               int colon = pair.indexOf(':');
+               ins.setInt(1, Integer.parseInt(pair.substring(0, colon)));
+               ins.setInt(2, Integer.parseInt(pair.substring(colon + 1)));
+               ins.setInt(3, actionId);
+               ins.executeUpdate();
+            }
+         }
+         if (startedTx)
+            conn.commit();
+      }
+      catch (SQLException e)
+      {
+         if (startedTx)
+         {
+            try
+            {
+               conn.rollback();
+            }
+            catch (SQLException rollbackEx)
+            {
+               e.addSuppressed(rollbackEx);
+            }
+         }
+         throw e;
+      }
+      finally
+      {
+         if (startedTx)
+            conn.setAutoCommit(true);
+      }
+   }
+
+   static Set<String> storedMappingPairs(Connection conn, int actionId) throws SQLException
+   {
+      Set<String> pairs = new TreeSet<>();
+      try (PreparedStatement ps =
+                conn.prepareStatement(
+                      "SELECT MODEID, UICONTEXTID FROM RXMODEUICONTEXTACTION WHERE ACTIONID = ?"))
+      {
+         ps.setInt(1, actionId);
+         try (ResultSet rs = ps.executeQuery())
+         {
+            while (rs.next())
+            {
+               pairs.add(rs.getInt(1) + ":" + rs.getInt(2));
+            }
+         }
+      }
+      return pairs;
+   }
+
+   static int[] modeMappingIds(Object node)
+   {
+      if (node instanceof PSMenuModeContextMapping mapping)
+      {
+         try
+         {
+            return new int[] {
+               Integer.parseInt(StringUtils.trimToEmpty(mapping.getModeId())),
+               Integer.parseInt(StringUtils.trimToEmpty(mapping.getContextId()))
+            };
+         }
+         catch (NumberFormatException e)
+         {
+            return null;
+         }
+      }
+      return null;
    }
 
    static void ensureActionRowPersisted(PSAction action)

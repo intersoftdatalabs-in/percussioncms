@@ -158,6 +158,11 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const baseId = useId();
+  /**
+   * Parent buttons keyed by action name so Escape can return focus to the
+   * invoking control instead of stranding it on {@code <body>} (#6824).
+   */
+  const menuButtonRefs = useRef(new Map<string, HTMLButtonElement | null>());
 
   useEffect(() => {
     // A selection refresh replaces the actions array while a menu is open.
@@ -173,6 +178,7 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
 
   useEffect(() => {
     if (!openMenu) return;
+    const menuName: string = openMenu;
     function onDocMouseDown(e: MouseEvent): void {
       const root = rootRef.current;
       if (!root) return;
@@ -183,6 +189,9 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
     function onKey(e: KeyboardEvent): void {
       if (e.key === "Escape") {
         setOpenMenu(null);
+        // Keyboard polish (#6824): return focus to the invoking parent
+        // button so keyboard operators stay in the toolbar flow.
+        menuButtonRefs.current.get(menuName)?.focus();
       }
     }
     document.addEventListener("mousedown", onDocMouseDown);
@@ -265,6 +274,13 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                   aria-expanded={expanded}
                   aria-controls={menuId}
                   title={a.description ?? a.label}
+                  ref={(el) => {
+                    if (el) {
+                      menuButtonRefs.current.set(a.name, el);
+                    } else {
+                      menuButtonRefs.current.delete(a.name);
+                    }
+                  }}
                   onClick={() =>
                     setOpenMenu((prev) => (prev === a.name ? null : a.name))
                   }

@@ -18,6 +18,7 @@
 package com.percussion.apibridge;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.cms.objectstore.PSDbComponentCollection;
@@ -91,5 +92,40 @@ public class ActionMenuUiContextsMappingTest {
         0, ActionMenuAdaptor.toDtoUiContexts(mappings()).length);
     assertEquals(
         0, ActionMenuAdaptor.toDtoUiContexts(null).length);
+  }
+
+  @Test
+  void toDtoUiContextsPreservesCxnavMapping() {
+    // Installer seed audit (#6824): the Create_New cascade and
+    // Search_Within_Folder live solely in CXNAV (MODEID 3, navigation
+    // pane). The mapping must preserve the nav-pane claim or it would
+    // degrade to an unresolvable (permissive) entry.
+    ActionMenuModeUIContext[] dtos =
+        ActionMenuAdaptor.toDtoUiContexts(
+            mappings(mapping("3", "CXNAV", "9", "Folder")));
+
+    assertEquals(1, dtos.length);
+    assertEquals("3", dtos[0].getModeId());
+    assertEquals("CXNAV", dtos[0].getModeName());
+    assertEquals("9", dtos[0].getContextId());
+    assertEquals("Folder", dtos[0].getContextName());
+  }
+
+  @Test
+  void cxnavEntryHiddenUnderCxmainClaimButVisibleUnderCxnavToken() {
+    // The SPA shell claims CXMAIN only (#6824 why-not): a CXNAV-scoped
+    // menu hides under the shell claim and survives a CXNAV token, so
+    // both halves of the contract stay locked against regressions.
+    ActionMenuModeUIContext[] dtos =
+        ActionMenuAdaptor.toDtoUiContexts(
+            mappings(mapping("3", "CXNAV", "9", "Folder")));
+
+    assertFalse(
+        ActionMenuModeUIContext.isVisibleInUiMode(
+            dtos, ActionMenuModeUIContext.SPA_SHELL_MODE_NAME));
+    assertTrue(
+        ActionMenuModeUIContext.isVisibleInUiMode(dtos, "CXNAV"));
+    assertTrue(
+        ActionMenuModeUIContext.isVisibleInUiMode(dtos, "3"));
   }
 }
