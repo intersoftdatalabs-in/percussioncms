@@ -887,6 +887,10 @@ export const PATHS = {
   editorItemCheckoutOwner(itemId: string) {
     return `${REST_ROOT}/editor/items/${encodeURIComponent(itemId)}/checkout-owner`;
   },
+  /** Batch visibility identity for Explorer rows (#6783). POST ids, get identity facts. */
+  get EXPLORER_IDENTITY_BATCH() {
+    return `${REST_ROOT}/explorer/identity/batch`;
+  },
   get ITEM_WORKFLOW_FORCE_CHECKOUT() {
     return `${SERVICES_ROOT}/itemmanagement/workflow/forceCheckOut/`;
   },

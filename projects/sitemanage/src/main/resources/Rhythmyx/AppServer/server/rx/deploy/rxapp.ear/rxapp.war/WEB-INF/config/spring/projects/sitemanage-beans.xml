@@ -130,6 +130,8 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
             <ref bean="restVelocityResource" />
             <!-- #6481 Developer API key scope editor (missing → CXF 404) -->
             <ref bean="restApiKeysResource" />
+            <!-- #6783 Explorer row visibility identity batch (missing → CXF 404) -->
+            <ref bean="restExplorerItemIdentityResource" />
         </jaxrs:serviceBeans>
         <jaxrs:extensionMappings>
             <entry key="json" value="application/json" />

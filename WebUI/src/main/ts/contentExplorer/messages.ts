@@ -692,6 +692,11 @@ export const EXPLORER_MSG = {
   /** Non-fatal load failure for the server action catalog. */
   SERVER_ACTIONS_LOAD_ERROR:
     "perc.ui.explorer@Could not load server actions",
+  /** Non-fatal visibility-identity failure — menus stay fully visible (#6783). */
+  IDENTITY_LOAD_ERROR:
+    "perc.ui.explorer@Could not load visibility details for this item. Menus stay fully visible.",
+  /** Retry label for the visibility-identity error. */
+  IDENTITY_RETRY: "perc.ui.explorer@Retry visibility details",
   /** Product shell: view tools row (search / security / display format). */
   VIEW_TOOLS_ARIA: "perc.ui.explorer@Explorer view tools",
   /** DCE-style top menu bar (#2731 / ContentExplorerMenu.xml groups). */
