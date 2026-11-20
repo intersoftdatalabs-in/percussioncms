@@ -76,9 +76,12 @@ describe("MfaSecurityPanel", () => {
       />,
     );
 
+    // Timing-hardening for #6749: the default 1s waitFor loses to full-suite
+    // CPU contention before the async status/enroll fetches resolve (same
+    // roulette class as #6742/#6706), so wait explicitly like the slotCreate spec.
     await waitFor(() => {
       expect(screen.getByTestId("perc-profile-mfa-enroll-start")).toBeTruthy();
-    });
+    }, { timeout: 10000 });
     fireEvent.click(screen.getByTestId("perc-profile-mfa-enroll-start"));
 
     await waitFor(() => {
@@ -86,7 +89,7 @@ describe("MfaSecurityPanel", () => {
       expect(screen.getByTestId("perc-profile-mfa-manual-secret").textContent).toBe(
         sampleKey,
       );
-    });
+    }, { timeout: 10000 });
 
     fireEvent.change(screen.getByTestId("perc-profile-mfa-enroll-code"), {
       target: { value: "123456" },
@@ -98,7 +101,7 @@ describe("MfaSecurityPanel", () => {
       expect(
         screen.getByTestId("perc-profile-mfa-recovery-codes").textContent,
       ).toContain("AAAA1-BBBB2");
-    });
+    }, { timeout: 10000 });
   });
 
   it("enforces last-factor guard visually when canDisableTotp is false", async () => {

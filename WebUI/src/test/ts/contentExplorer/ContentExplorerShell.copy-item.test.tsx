@@ -125,6 +125,9 @@ describe("ContentExplorerShell copy item (#3656)", () => {
     fireEvent.change(destInput, { target: { value: "/Assets/qa3656_dst" } });
     fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
 
+    // Timing-hardening for #6749: the default 1s waitFor loses to full-suite
+    // CPU contention before the post-copy refresh renders (same roulette
+    // class as #6742/#6706).
     await waitFor(() => {
       expect(copied).toBe(true);
       expect(copyUrls.some((u) => u.includes("/folders/copy/item"))).toBe(true);
@@ -132,7 +135,7 @@ describe("ContentExplorerShell copy item (#3656)", () => {
         false,
       );
       expect(screen.getByTestId("detail-row-a-3656-copy")).toBeInTheDocument();
-    });
+    }, { timeout: 10000 });
     await renderA11yGate(container);
   });
 
