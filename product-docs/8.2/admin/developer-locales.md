@@ -30,14 +30,22 @@ the previous flag.
 update does not send the language string, description, enabled status, or
 format profile, so those stay. The language string is immutable. The new
 label shows only after that save succeeds. A blank or whitespace label
-does not write. **Cancel** does not write. HTTP 400, 403, and 409 are not
+does not write. **Cancel** does not write. The input autofocuses when the
+editor opens; **Escape** cancels without saving, same as **Cancel**. When the
+editor closes (Escape, Cancel, or a successful save), focus returns to the
+invoking edit button, and the save confirmation is announced via a live
+region. HTTP 400, 403, and 409 are not
 success and leave the previous label.
 
 **Set locale description** on an existing locale saves the description only.
 The update does not send the language string, label, enabled status, or
 format profile, so those stay. The language string is immutable. The new
 description shows only after that save succeeds. A blank description
-clears the description. **Cancel** does not write. HTTP 400, 403, and 409
+clears the description. **Cancel** does not write. The input autofocuses when
+the editor opens; **Escape** cancels without saving, same as **Cancel**. When
+the editor closes (Escape, Cancel, or a successful save), focus returns to the
+invoking edit button, and the save confirmation is announced via a live
+region. HTTP 400, 403, and 409
 are not success and leave the previous description.
 
 **Set locale date pattern** on an existing locale saves the date pattern

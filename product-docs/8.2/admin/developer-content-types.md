@@ -262,7 +262,11 @@ until you hold the lock.
 2. Click **Lock**, then **Set content type description**. Enter the new
    description, or leave it blank to clear the stored description. **Cancel**
    closes the editor and does not call the server. Saving the same description
-   does not call the server.
+   does not call the server. The input autofocuses when the editor opens;
+   **Escape** cancels without saving, same as **Cancel**. When the editor
+   closes (Escape, Cancel, or a successful save), focus returns to the
+   **Set content type description** button, and the save confirmation is
+   announced via a live region.
 3. Click **Save description**. The request is
    `PUT /services/contenttypes/{idOrName}` with `description` only. Label,
    enabled, fields, workflows, and templates are omitted, so they stay. An
@@ -282,7 +286,11 @@ header and stays disabled until you hold the lock.
    label shows the internal name.
 2. Click **Lock**, then **Set content type label**. Enter the new label, or
    leave it blank. **Cancel** closes the editor and does not call the server.
-   Saving the same label does not call the server.
+   Saving the same label does not call the server. The input autofocuses when
+   the editor opens; **Escape** cancels without saving, same as **Cancel**.
+   When the editor closes (Escape, Cancel, or a successful save), focus returns
+   to the **Set content type label** button, and the save confirmation is
+   announced via a live region.
 3. Click **Save label**. The request is `PUT /services/contenttypes/{idOrName}`
    with `label` only. Description, enabled, fields, workflows, and templates
    are omitted, so they stay. An empty label does not clear the internal name.
