@@ -19,7 +19,7 @@
  * New copy / promotable version from the React Content Editor host (#4570).
  *
  * <p>Reuses itemmanagement {@code createNewCopy} / {@code createPromotableVersion}.
- * HTTP 403 and 404 are failures, not success.</p>
+ * HTTP 403, 404, and 409 are failures, not success.</p>
  */
 
 import { isApiError } from "../api/client";
@@ -33,6 +33,7 @@ export type EditorCopyErrorReason =
   | "forbidden"
   | "not_found"
   | "bad_request"
+  | "conflict"
   | "failed";
 
 /** Copy actions are available in edit mode when an item is open. */
@@ -49,7 +50,7 @@ export function parseCopyLandingContentId(
   return parseExplorerContentId(itemId);
 }
 
-/** Map REST failures so 400/403/404 are not treated as a successful copy. */
+/** Map REST failures so 400/403/404/409 are not treated as a successful copy. */
 export function editorCopyErrorReason(err: unknown): EditorCopyErrorReason {
   if (isApiError(err)) {
     if (err.status === 400) {
@@ -60,6 +61,9 @@ export function editorCopyErrorReason(err: unknown): EditorCopyErrorReason {
     }
     if (err.status === 404) {
       return "not_found";
+    }
+    if (err.status === 409) {
+      return "conflict";
     }
   }
   return "failed";

@@ -107,4 +107,42 @@ describe("CopyDestinationPickerDialog (#5551)", () => {
     expect(onPick).not.toHaveBeenCalled();
     expect(onCancel).toHaveBeenCalledTimes(1);
   });
+
+  it("shows a server error, focuses it, and clears it on edit (#6772)", async () => {
+    const onPick = vi.fn();
+    const onServerErrorClear = vi.fn();
+    const { container, rerender } = render(
+      <CopyDestinationPickerDialog
+        defaultPath="/Assets/Dst"
+        serverError="That folder already holds an item with this name. /Assets/Dst"
+        onServerErrorClear={onServerErrorClear}
+        onPick={onPick}
+        onCancel={() => undefined}
+      />,
+    );
+    const serverError = screen.getByTestId("explorer-copy-dest-server-error");
+    expect(serverError).toHaveTextContent(/already holds an item/i);
+    expect(serverError).toHaveTextContent(/\/Assets\/Dst/);
+    expect(document.activeElement).toBe(serverError);
+    expect(screen.getByTestId("explorer-copy-dest-input")).toHaveAttribute(
+      "aria-describedby",
+      expect.stringContaining("explorer-copy-dest-server-error"),
+    );
+    fireEvent.change(screen.getByTestId("explorer-copy-dest-input"), {
+      target: { value: "/Assets/Other" },
+    });
+    expect(onServerErrorClear).toHaveBeenCalledTimes(1);
+    expect(onPick).not.toHaveBeenCalled();
+    rerender(
+      <CopyDestinationPickerDialog
+        defaultPath="/Assets/Dst"
+        serverError={null}
+        onServerErrorClear={onServerErrorClear}
+        onPick={onPick}
+        onCancel={() => undefined}
+      />,
+    );
+    expect(screen.queryByTestId("explorer-copy-dest-server-error")).toBeNull();
+    await renderA11yGate(container);
+  });
 });

@@ -1420,6 +1420,9 @@ export function EditorHost({
   const [copyFolderOpen, setCopyFolderOpen] = useState(false);
   const [copyFolderDefault, setCopyFolderDefault] = useState("");
   const [copyFolderDone, setCopyFolderDone] = useState("");
+  /** HTTP 403/409 from a copy-to-folder pick. The picker stays open (#6772). */
+  const [copyFolderServerError, setCopyFolderServerError] = useState<string | null>(null);
+  const copyToFolderButtonRef = useRef<HTMLButtonElement>(null);
   const [renameName, setRenameName] = useState("");
   const [renameBusy, setRenameBusy] = useState(false);
   const [renameDone, setRenameDone] = useState(false);
@@ -3794,6 +3797,9 @@ export function EditorHost({
     if (reason === "not_found") {
       return EDITOR_MSG.COPY_NOT_FOUND;
     }
+    if (reason === "conflict") {
+      return EDITOR_MSG.COPY_CONFLICT;
+    }
     return EDITOR_MSG.COPY_FAILED;
   }
 
@@ -4039,6 +4045,7 @@ export function EditorHost({
     setCopyFolderDone("");
     setCopyErrorKey(null);
     setCopyErrorDetail("");
+    setCopyFolderServerError(null);
     try {
       const located = await loadItemLocation(String(contentId));
       const parent = parentFolderOfItemPath(located.path);
@@ -4062,6 +4069,7 @@ export function EditorHost({
 
   async function handleCopyToFolderPick(targetFolderPath: string): Promise<void> {
     setCopyFolderOpen(false);
+    setCopyFolderServerError(null);
     if (contentId == null || !canCopyFromEditor(mode)) {
       return;
     }
@@ -4090,6 +4098,16 @@ export function EditorHost({
         return;
       }
       const reason = editorCopyErrorReason(err);
+      // HTTP 403/409 keep the picker open with the named error (#6772):
+      // the open item is unchanged and no success notice is shown.
+      if (reason === "forbidden" || reason === "conflict") {
+        const errorKey = copyErrorKeyFor(reason);
+        setCopyFolderServerError(`${message(errorKey)} ${target}`);
+        setCopyFolderDefault(target);
+        setCopyFolderOpen(true);
+        setCopyFolderDone("");
+        return;
+      }
       setCopyErrorKey(copyErrorKeyFor(reason));
       setCopyErrorDetail(formatApiError(err, message(copyErrorKeyFor(reason))));
       setCopyFolderDone("");
@@ -5456,6 +5474,7 @@ export function EditorHost({
               type="button"
               className={styles.button}
               data-testid="editor-copy-to-folder"
+              ref={copyToFolderButtonRef}
               disabled={copyBusy || loading || payload == null || saving}
               onClick={() => void handleCopyToFolderOpen()}
             >
@@ -6608,10 +6627,16 @@ export function EditorHost({
       {copyFolderOpen ? (
         <CopyDestinationPickerDialog
           defaultPath={copyFolderDefault}
+          serverError={copyFolderServerError}
+          onServerErrorClear={() => setCopyFolderServerError(null)}
           onPick={(target) => {
             void handleCopyToFolderPick(target);
           }}
-          onCancel={() => setCopyFolderOpen(false)}
+          onCancel={() => {
+            setCopyFolderOpen(false);
+            setCopyFolderServerError(null);
+            copyToFolderButtonRef.current?.focus();
+          }}
         />
       ) : null}
       {moveOpen ? (

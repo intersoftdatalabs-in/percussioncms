@@ -25,12 +25,18 @@ const FOCUSABLE =
 
 export interface CopyDestinationPickerDialogProps {
   defaultPath: string;
+  /** Server failure (for example HTTP 403/409 from a host pick). Dialog stays open. */
+  serverError?: string | null;
+  /** Clears a shown {@code serverError} when the author edits the destination. */
+  onServerErrorClear?: () => void;
   onPick: (targetFolderPath: string) => void;
   onCancel: () => void;
 }
 
 export function CopyDestinationPickerDialog({
   defaultPath,
+  serverError = null,
+  onServerErrorClear,
   onPick,
   onCancel,
 }: CopyDestinationPickerDialogProps): React.ReactElement {
@@ -38,6 +44,7 @@ export function CopyDestinationPickerDialog({
   const [error, setError] = useState<string | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const serverErrorRef = useRef<HTMLParagraphElement>(null);
 
   useDialogEscape(true, false, onCancel);
 
@@ -72,7 +79,21 @@ export function CopyDestinationPickerDialog({
     return () => root.removeEventListener("keydown", onKey);
   }, []);
 
+  // A server failure (for example HTTP 409 on a host pick) names the
+  // destination inside this dialog, so move keyboard focus to it (#6772).
+  useEffect(() => {
+    if (serverError) {
+      serverErrorRef.current?.focus();
+    }
+  }, [serverError]);
+
   const trimmed = value.trim();
+  const describedBy = [
+    error ? "explorer-copy-dest-error" : null,
+    serverError ? "explorer-copy-dest-server-error" : null,
+  ]
+    .filter((id): id is string => id != null)
+    .join(" ");
 
   return (
     <div
@@ -127,15 +148,28 @@ export function CopyDestinationPickerDialog({
             id="explorer-copy-dest-input"
             data-testid="explorer-copy-dest-input"
             value={value}
-            aria-invalid={error ? true : undefined}
-            aria-describedby={error ? "explorer-copy-dest-error" : undefined}
+            aria-invalid={error || serverError ? true : undefined}
+            aria-describedby={describedBy ? describedBy : undefined}
             onChange={(e) => {
               setValue(e.target.value);
               setError(null);
+              onServerErrorClear?.();
             }}
             style={{ display: "block", width: "100%", marginTop: 6, padding: 6 }}
           />
         </label>
+        {serverError ? (
+          <p
+            id="explorer-copy-dest-server-error"
+            ref={serverErrorRef}
+            role="alert"
+            tabIndex={-1}
+            data-testid="explorer-copy-dest-server-error"
+            style={{ color: "#b91c1c", fontSize: 13, margin: "8px 0 0" }}
+          >
+            {serverError}
+          </p>
+        ) : null}
         {error ? (
           <p
             id="explorer-copy-dest-error"

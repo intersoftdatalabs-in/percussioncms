@@ -510,6 +510,8 @@ export const EDITOR_MSG = {
   CONFIRM_PROMOTABLE:
     "perc.ui.editor@Create a promotable version of this item in the same folder?",
   COPY_FAILED: "perc.ui.editor@Could not create a copy of this item.",
+  COPY_CONFLICT:
+    "perc.ui.editor@That folder already holds an item with this name.",
   COPY_FORBIDDEN: "perc.ui.editor@You are not allowed to copy this item.",
   COPY_NOT_FOUND: "perc.ui.editor@This item was not found.",
   COPY_UNAVAILABLE: "perc.ui.editor@Copy is only available while editing an item.",

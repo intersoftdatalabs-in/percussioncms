@@ -686,7 +686,12 @@ chosen folder. The public response is a status, not a new content id, so the
 host stays on the **original** item and shows that the copy landed in that
 folder. HTTP **400** (blank or invalid destination), **403** (not allowed), and
 **404** (item or destination missing) are errors on the host — they are not
-treated as success. **View** and **Promote** do not show **Copy to folder**.
+treated as success. HTTP **409** (the destination folder already holds an item
+with this name) and **403** keep the destination picker open with a named
+error that includes the destination folder — the host stays on the
+**original** item and shows no success notice. Cancel closes the picker,
+copies nothing, and returns keyboard focus to **Copy to folder**. **View** and
+**Promote** do not show **Copy to folder**.
 
 In **Edit** mode the host also shows **Rename** and a **Listing name** field for
 the already-open item. The name starts as the item's `sys_title`. Submit posts

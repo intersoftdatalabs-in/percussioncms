@@ -12982,10 +12982,9 @@ describe("EditorHost copy to folder (#4793)", () => {
     expect(screen.queryByTestId("editor-copy-to-folder")).toBeNull();
   });
 
-  it("surfaces HTTP 400, 403, and 404 without success", async () => {
+  it("surfaces HTTP 400 and 404 without success", async () => {
     for (const [status, pattern] of [
       [400, /not valid/i],
-      [403, /not allowed to copy/i],
       [404, /not found/i],
     ] as const) {
       cleanup();
@@ -13011,6 +13010,57 @@ describe("EditorHost copy to folder (#4793)", () => {
       });
       expect(screen.getByTestId("editor-content-id").textContent).toMatch(/42/);
       expect(screen.queryByTestId("editor-copy-to-folder-done")).toBeNull();
+    }
+  });
+
+  it("keeps HTTP 403 and 409 in the picker with a named error, then cancels (#6772)", async () => {
+    for (const [status, pattern] of [
+      [403, /not allowed to copy/i],
+      [409, /already holds an item/i],
+    ] as const) {
+      cleanup();
+      const copyItemToFolder = vi.fn().mockRejectedValue({
+        status,
+        statusText: String(status),
+        body: {},
+      });
+      renderHost("edit", { copyItemToFolder });
+      await waitFor(() => {
+        expect(screen.getByTestId("editor-copy-to-folder")).toBeTruthy();
+      });
+      fireEvent.click(screen.getByTestId("editor-copy-to-folder"));
+      await waitFor(() => {
+        expect(screen.getByTestId("explorer-copy-dest-input")).toBeTruthy();
+      });
+      fireEvent.change(screen.getByTestId("explorer-copy-dest-input"), {
+        target: { value: "//Sites/Other" },
+      });
+      fireEvent.click(screen.getByTestId("explorer-copy-dest-ok"));
+      await waitFor(() => {
+        expect(
+          screen.getByTestId("explorer-copy-dest-server-error").textContent,
+        ).toMatch(pattern);
+      });
+      // The named error also names the attempted destination folder.
+      expect(
+        screen.getByTestId("explorer-copy-dest-server-error").textContent,
+      ).toMatch(/Sites\/Other/);
+      // The picker stays open and focus moves to the dialog error.
+      expect(screen.getByTestId("explorer-copy-dest-picker")).toBeTruthy();
+      expect(document.activeElement).toBe(
+        screen.getByTestId("explorer-copy-dest-server-error"),
+      );
+      // No success notice, the open item is unchanged, and no host error.
+      expect(screen.queryByTestId("editor-copy-to-folder-done")).toBeNull();
+      expect(screen.queryByTestId("editor-copy-error")).toBeNull();
+      expect(screen.getByTestId("editor-content-id").textContent).toMatch(/42/);
+      // Cancel copies nothing and returns focus to the invoking button.
+      fireEvent.click(screen.getByTestId("explorer-copy-dest-cancel"));
+      await waitFor(() => {
+        expect(screen.queryByTestId("explorer-copy-dest-picker")).toBeNull();
+      });
+      expect(copyItemToFolder).toHaveBeenCalledTimes(1);
+      expect(document.activeElement).toBe(screen.getByTestId("editor-copy-to-folder"));
     }
   });
 });
