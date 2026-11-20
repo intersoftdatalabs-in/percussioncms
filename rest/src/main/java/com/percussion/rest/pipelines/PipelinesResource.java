@@ -1175,6 +1175,11 @@ public class PipelinesResource {
   static String contentDispositionAttachment(String filename) {
     return "attachment; filename=\""
         + asciiFilenameFallback(filename)
+        // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6759,
+        // same as #6525 ContentTypesResource twin) — RFC 6266 wire literal: the backslash
+        // is the Java escape for the quoted-filename delimiter and the slashes are HTTP
+        // header-value characters, not a filesystem path join; byte-identical on all
+        // platforms by protocol (same FP class as #5898/#5910/#5927).
         + "\"; filename*=UTF-8''"
         + rfc5987Encode(filename);
   }
