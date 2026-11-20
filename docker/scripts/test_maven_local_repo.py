@@ -103,7 +103,9 @@ class MavenLocalRepoTest(unittest.TestCase):
         )
 
     def test_mavenrc_candidates_keep_precedence_with_portable_home_join(self):
-        candidates = mlr._mavenrc_candidates(self.home)
+        candidates = mlr._mavenrc_candidates(
+            self.home, os_name="posix", platform="linux"
+        )
         self.assertEqual(
             candidates,
             (
