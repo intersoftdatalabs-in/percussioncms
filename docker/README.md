@@ -107,7 +107,9 @@ eval "$(python3 docker/scripts/maven_local_repo.py --repo-root .)"
 echo "$MAVEN_ARGS"  # -Dmaven.repo.local=<this-worktree>/tmp/m2-worktree/repository ...
 ```
 
-The directory is `<repo_root>/tmp/m2-worktree/repository` (`tmp/` is gitignored, so it never pollutes `git status` and vanishes with the worktree). Re-running is a no-op once seeded (marker file). Export the printed `MAVEN_ARGS` in every shell that runs `mvnw` from the shard — including the host workflow that launches Work agents — and `qa-up`'s automatic strict preflight verifies the resolved repo before every boot.
+The directory is `<repo_root>/tmp/m2-worktree/repository` (`tmp/` is gitignored, so it never pollutes `git status` and vanishes with the worktree). Seeding copies **all** non-`SNAPSHOT` artifacts from the shared repository, which is typically **several GB per shard** — plan host disk accordingly when running many concurrent shards (`du -sh tmp/m2-worktree` to check). Re-running is a no-op once seeded (marker file). Export the printed `MAVEN_ARGS` in every shell that runs `mvnw` from the shard — including the host workflow that launches Work agents — and `qa-up`'s automatic strict preflight verifies the resolved repo before every boot.
+
+The printed line is POSIX-shell syntax (`sh` / `bash`, Git Bash / WSL on Windows — not `cmd` / PowerShell, where `MAVEN_ARGS` must be set by hand). It appends the per-worktree flag *after* any existing `MAVEN_ARGS`, so it wins when `MAVEN_ARGS` already carries a `-Dmaven.repo.local` (Maven honors the last token), and it stays valid when the worktree path contains whitespace (#6807).
 
 The older per-host `~/.m2-night` recipe below still applies to the shared primary checkout; per-worktree repos take precedence whenever `MAVEN_ARGS` already carries `-Dmaven.repo.local` (first hit wins). `~/.m2/settings.xml` (servers / mirrors) still applies because Maven reads it from `user.home`, not from the local repo.
 
