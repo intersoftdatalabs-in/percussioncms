@@ -112,7 +112,7 @@ import urllib.error
 import urllib.request
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable, List, Optional, Sequence
+from typing import Iterable, List, NamedTuple, Optional, Sequence
 
 # Sibling freeport helpers (stdlib only). Ensure scripts dir is importable
 # when this file is loaded via importlib (unit tests) or as a script.
@@ -2585,6 +2585,337 @@ def _qa_up_preflight_check(
         return False, f"PREFLIGHT: I/O error during qa-up preflight: {exc}"
 
 
+class _QaUpContext(NamedTuple):
+    """Resolved ``qa-up`` runtime context (pure value object, #6782).
+
+    Groups the repo/cell/port resolution owned by
+    :func:`_qa_up_resolve_context` so :func:`cmd_qa_up` stays a thin
+    gate → start → finish pipeline under the complexity threshold.
+    """
+
+    repo_root: Path
+    log_dir: Path
+    dry_run: bool
+    probe_timeout: int
+    skip_image_build: bool
+    cell_suffix: str
+    container: str
+    dts_cell: str
+    host_port: int
+
+
+def _qa_up_resolve_context(
+    args: argparse.Namespace, paths: tuple[Path, Path, Path]
+) -> _QaUpContext:
+    """Resolve repo/cell/port context for ``qa-up`` (#6782).
+
+    Owns the cell-suffix inheritance (``os.environ``), the CMS/DTS
+    container names, and the host-port pin so the matrix child and the
+    banner agree (#2005 / #6704). No subprocesses, no prints.
+    """
+    repo_root, _env_file, _compose_file = paths
+    log_dir = _log_dir(repo_root)
+    dry_run = bool(args.dry_run)
+    probe_timeout = int(args.timeout_seconds)
+    skip_image_build = bool(args.skip_image_build)
+    cell_suffix = resolve_cell_suffix(getattr(args, "cell_suffix", None))
+    if cell_suffix:
+        # Inherit into the child matrix-install-smoke process (belt and
+        # braces next to the explicit --cell-suffix argv below) and into
+        # every resolver in this process.
+        os.environ[QA_CELL_SUFFIX_ENV] = cell_suffix
+    container = qa_cms_container(cell_suffix)
+    dts_cell = qa_dts_container(cell_suffix)
+    host_port = ensure_qa_cms_host_port()
+    return _QaUpContext(
+        repo_root=repo_root,
+        log_dir=log_dir,
+        dry_run=dry_run,
+        probe_timeout=probe_timeout,
+        skip_image_build=skip_image_build,
+        cell_suffix=cell_suffix,
+        container=container,
+        dts_cell=dts_cell,
+        host_port=host_port,
+    )
+
+
+def _qa_up_gate_preflight(
+    repo_root: Path, args: argparse.Namespace, dry_run: bool
+) -> Optional[int]:
+    """Automatic strict preflight gate for ``qa-up`` (#6739, #6782).
+
+    Refuses to boot the matrix cell when the WebUI WAR is stale vs the
+    m2 SNAPSHOT or when the resolved local repo holds a sibling
+    worktree's branch-built SNAPSHOTs (#2486 / #2532 / #6709).
+    Filesystem-only and cheaper than a 900s probe timeout on a
+    Frankenstein cell. Bypass with --skip-preflight (e.g. known-stale
+    debug); --dry-run never checks. NOTE: this is the outer fail-fast;
+    matrix-install-smoke keeps its own inner strict stale gate, and
+    parallel-cell *naming* isolation stays with #6704.
+
+    Returns ``EXIT_SUBPROCESS_FAILED`` when strict mode refuses, else
+    ``None`` (proceed).
+    """
+    if dry_run or bool(getattr(args, "skip_preflight", False)):
+        return None
+    preflight_ok, preflight_report = _qa_up_preflight_check(
+        repo_root,
+        getattr(args, "m2_root", None),
+        provenance=bool(getattr(args, "provenance", True)),
+    )
+    print(preflight_report)
+    if not preflight_ok:
+        print(
+            "RESULT:FAIL STEP:qa-preflight "
+            "DETAIL:qa_up_preflight_refused "
+            "HINT:rebuild-chain-or-isolated-m2"
+        )
+        print(
+            "QA_DETAIL:qa-up refused: stale WAR or poisoned m2 SNAPSHOT. "
+            "Run `python3 docker/scripts/perc-devctl.py qa-rebuild-chain "
+            "--then-qa-up`, or isolate this worktree with "
+            "`python3 docker/scripts/maven_local_repo.py "
+            "--repo-root .` + its MAVEN_ARGS export, then retry "
+            "(--skip-preflight overrides, not recommended)."
+        )
+        return EXIT_SUBPROCESS_FAILED
+    return None
+
+
+def _qa_up_gate_stale_image(
+    repo_root: Path,
+    skip_image_build: bool,
+    dry_run: bool,
+    probe_timeout: int,
+) -> Optional[int]:
+    """Fail fast when --skip-image-build reuses a stale matrix image (#6782).
+
+    Without this the smoke waits the full --probe-timeout window then
+    reports a confusing ``docker_health_timeout health=none``. See
+    docker/README.md → "Docker Health.Status (in-image HEALTHCHECK)"
+    and #2484.
+
+    Returns ``EXIT_SUBPROCESS_FAILED`` when the cached image lacks the
+    in-image HEALTHCHECK, else ``None`` (proceed).
+    """
+    if not (skip_image_build and not dry_run):
+        return None
+    hc_status = _qa_matrix_image_healthcheck_status()
+    if hc_status != QA_IMAGE_HEALTHCHECK_MISSING:
+        return None
+    rebuild_hint = (
+        "docker build -t "
+        f"{QA_MATRIX_IMAGE_TAG} "
+        f"-f {repo_root / 'docker' / 'matrix' / 'Dockerfile'} "
+        f"{repo_root / 'docker'}"
+    )
+    LOG.warning(
+        "Local matrix image %s lacks HEALTHCHECK (#2481); "
+        "qa-up --skip-image-build would otherwise hit "
+        "docker_health_timeout after %ss. Rebuild hint: %s",
+        QA_MATRIX_IMAGE_TAG,
+        probe_timeout,
+        rebuild_hint,
+    )
+    print(
+        f"RESULT:FAIL STEP:qa-up "
+        f"DETAIL:matrix_image_stale "
+        f"IMAGE:{QA_MATRIX_IMAGE_TAG} "
+        f"HINT:rebuild-image"
+    )
+    print(
+        f"QA_DETAIL:matrix image {QA_MATRIX_IMAGE_TAG} has no "
+        f"HEALTHCHECK (pre-#2481 bake). Drop --skip-image-build or "
+        f"run: {rebuild_hint}"
+    )
+    return EXIT_SUBPROCESS_FAILED
+
+
+def _qa_up_start_cms_cell(ctx: _QaUpContext) -> tuple:
+    """Bring up the CMS matrix cell via ``_run_logged`` (#6782).
+
+    Returns ``(rc, log_file)``; on failure ``rc`` is non-zero and the
+    agent-timeout detail line is already printed.
+    """
+    matrix_argv = _qa_matrix_up_argv(
+        ctx.repo_root,
+        probe_timeout=ctx.probe_timeout,
+        skip_image_build=ctx.skip_image_build,
+        dry_run=ctx.dry_run,
+        cell_suffix=ctx.cell_suffix,
+    )
+    # Use a dedicated label so logs are easy to find for QA mode.
+    # _run_logged emits RESULT:OK/FAIL STEP:qa-up LOG:<path>.
+    rc, log_file = _run_logged(
+        "qa-up",
+        matrix_argv,
+        log_dir=ctx.log_dir,
+        cwd=ctx.repo_root,
+        dry_run=ctx.dry_run,
+    )
+    if rc != EXIT_OK:
+        # Extra detail line for agent timeout diagnosis (RESULT already printed).
+        print(
+            f"QA_DETAIL:matrix-install-smoke failed "
+            f"timeout_seconds={ctx.probe_timeout} "
+            f"QA_CMS_HOST_PORT={ctx.host_port} LOG:{log_file}"
+        )
+    return rc, log_file
+
+
+def _qa_up_start_dts_cell(ctx: _QaUpContext, with_dts: bool) -> tuple:
+    """Bring up the DTS matrix cell beside CMS (#6237, #6782).
+
+    The default (flag absent) path is untouched. With ``--with-dts``
+    (spec 2402-qa-dts-publish), a second silent DTS install runs in its
+    own matrix cell beside CMS; the host port follows the
+    DTS_PORT/freeport convention (#2005) and is pinned before the
+    matrix run so both agree on the publish port, as is the HTTPS
+    publish port (#6375; mirrors the HTTP pin).
+
+    Returns ``(dts_host_port, dts_https_host_port, rc, log_file)`` where
+    the ports are ``None`` when ``with_dts`` is False and ``rc`` is
+    non-zero only when the DTS matrix run failed (detail already
+    printed).
+    """
+    if not with_dts:
+        return None, None, EXIT_OK, None
+    dts_host_port = ensure_qa_dts_host_port()
+    # Pin the HTTPS publish port too, before the matrix run, so
+    # matrix-install-smoke publishes the same mapping the banner
+    # prints (#6375; mirrors the HTTP pin above).
+    dts_https_host_port = ensure_qa_dts_https_host_port()
+    dts_argv = _qa_matrix_up_argv(
+        ctx.repo_root,
+        probe_timeout=ctx.probe_timeout,
+        skip_image_build=ctx.skip_image_build,
+        dry_run=ctx.dry_run,
+        product="dts",
+        db=QA_DTS_DB,
+        cell_suffix=ctx.cell_suffix,
+    )
+    rc_dts, log_dts = _run_logged(
+        "qa-up-dts",
+        dts_argv,
+        log_dir=ctx.log_dir,
+        cwd=ctx.repo_root,
+        dry_run=ctx.dry_run,
+    )
+    if rc_dts != EXIT_OK:
+        print(
+            f"QA_DETAIL:matrix-install-smoke (dts) failed "
+            f"timeout_seconds={ctx.probe_timeout} "
+            f"QA_DTS_HOST_PORT={dts_host_port} LOG:{log_dts}"
+        )
+    return dts_host_port, dts_https_host_port, rc_dts, log_dts
+
+
+def _qa_up_deploy_flags(
+    args: argparse.Namespace, skip_image_build: bool
+) -> tuple:
+    """Resolve post-up deploy flags for ``qa-up`` (#6782)."""
+    deploy_webui = bool(getattr(args, "then_qa_deploy_webui", False))
+    deploy_jars = bool(getattr(args, "then_qa_deploy_war_jars", False)) or (
+        deploy_webui and skip_image_build
+    )
+    return deploy_webui, deploy_jars
+
+
+def _qa_up_war_jars_ns(
+    dry_run: bool, container: str, no_restart_jetty: bool
+) -> argparse.Namespace:
+    """Namespace for :func:`cmd_qa_deploy_war_jars` ``qa-up`` handoff (#6782)."""
+    return argparse.Namespace(
+        dry_run=dry_run,
+        container=container,
+        restart_jetty=not bool(no_restart_jetty),
+        skip_sitemap_xml_check=False,
+        dest=QA_WAR_JARS_DEST,
+    )
+
+
+def _qa_up_finish_dry_run(
+    ctx: _QaUpContext,
+    args: argparse.Namespace,
+    paths: tuple[Path, Path, Path],
+    dts_host_port: Optional[int],
+    dts_https_host_port: Optional[int],
+    deploy_webui: bool,
+    deploy_jars: bool,
+) -> int:
+    """Dry-run finish: banner plus planned deploys (#6782)."""
+    _qa_print_endpoint_banner(
+        ctx.host_port,
+        dts_host_port=dts_host_port,
+        dts_https_host_port=dts_https_host_port,
+        container=ctx.container,
+        dts_container=ctx.dts_cell,
+    )
+    rc = EXIT_OK
+    if deploy_webui:
+        rc = cmd_qa_deploy_webui(
+            _qa_deploy_webui_ns(dry_run=True, container=ctx.container),
+            paths,
+        )
+        if rc != EXIT_OK:
+            return rc
+    if deploy_jars:
+        return cmd_qa_deploy_war_jars(
+            _qa_up_war_jars_ns(
+                True,
+                ctx.container,
+                bool(getattr(args, "no_restart_jetty", False)),
+            ),
+            paths,
+        )
+    return rc
+
+
+def _qa_up_finish_live(
+    ctx: _QaUpContext,
+    args: argparse.Namespace,
+    paths: tuple[Path, Path, Path],
+    dts_host_port: Optional[int],
+    dts_https_host_port: Optional[int],
+    deploy_webui: bool,
+    deploy_jars: bool,
+) -> int:
+    """Live finish: password banner plus post-up deploys (#6782)."""
+    pwd_lines = _qa_fetch_generated_password_env_lines(ctx.container)
+    admin_line = next(
+        (ln for ln in pwd_lines if ln.startswith("ADMIN_PASSWORD=")),
+        None,
+    )
+    _qa_print_endpoint_banner(
+        ctx.host_port,
+        admin_password_line=admin_line,
+        password_lines=pwd_lines,
+        dts_host_port=dts_host_port,
+        dts_https_host_port=dts_https_host_port,
+        container=ctx.container,
+        dts_container=ctx.dts_cell,
+    )
+    rc = EXIT_OK
+    if deploy_webui:
+        rc = cmd_qa_deploy_webui(
+            _qa_deploy_webui_ns(dry_run=False, container=ctx.container),
+            paths,
+        )
+        if rc != EXIT_OK:
+            return rc
+    if deploy_jars:
+        return cmd_qa_deploy_war_jars(
+            _qa_up_war_jars_ns(
+                False,
+                ctx.container,
+                bool(getattr(args, "no_restart_jetty", False)),
+            ),
+            paths,
+        )
+    return rc
+
+
 def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     """Bring up CMS on H2 in Docker and wait until the cell is ready.
 
@@ -2609,219 +2940,46 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     ``perc-matrix-<product>-<db>-<suffix>`` so this qa-up never
     ``rm -f``'s another shard's in-flight cell; the suffix is exported
     for the child matrix run and passed as ``--cell-suffix``.
+
+    Thin pipeline since #6782: context resolution, preflight gate,
+    stale-image gate, CMS start, DTS start, and deploy finish each live
+    in a named helper so this entry point stays under the complexity
+    gate. Behavior is unchanged.
     """
-    repo_root, _env_file, _compose_file = paths
-    log_dir = _log_dir(repo_root)
-    dry_run = bool(args.dry_run)
-    probe_timeout = int(args.timeout_seconds)
-    skip_image_build = bool(args.skip_image_build)
-    cell_suffix = resolve_cell_suffix(getattr(args, "cell_suffix", None))
-    if cell_suffix:
-        # Inherit into the child matrix-install-smoke process (belt and
-        # braces next to the explicit --cell-suffix argv below) and into
-        # every resolver in this process.
-        os.environ[QA_CELL_SUFFIX_ENV] = cell_suffix
-    container = qa_cms_container(cell_suffix)
-    dts_cell = qa_dts_container(cell_suffix)
-    host_port = ensure_qa_cms_host_port()
+    ctx = _qa_up_resolve_context(args, paths)
 
-    # Automatic strict preflight (#6739): refuse to boot the matrix cell
-    # when the WebUI WAR is stale vs the m2 SNAPSHOT or when the resolved
-    # local repo holds a sibling worktree's branch-built SNAPSHOTs
-    # (#2486 / #2532 / #6709). Filesystem-only and cheaper than a 900s
-    # probe timeout on a Frankenstein cell. Bypass with --skip-preflight
-    # (e.g. known-stale debug); --dry-run never checks. NOTE: this is the
-    # outer fail-fast; matrix-install-smoke keeps its own inner strict
-    # stale gate, and parallel-cell *naming* isolation stays with #6704.
-    if not dry_run and not bool(getattr(args, "skip_preflight", False)):
-        preflight_ok, preflight_report = _qa_up_preflight_check(
-            repo_root,
-            getattr(args, "m2_root", None),
-            provenance=bool(getattr(args, "provenance", True)),
-        )
-        print(preflight_report)
-        if not preflight_ok:
-            print(
-                "RESULT:FAIL STEP:qa-preflight "
-                "DETAIL:qa_up_preflight_refused "
-                "HINT:rebuild-chain-or-isolated-m2"
-            )
-            print(
-                "QA_DETAIL:qa-up refused: stale WAR or poisoned m2 SNAPSHOT. "
-                "Run `python3 docker/scripts/perc-devctl.py qa-rebuild-chain "
-                "--then-qa-up`, or isolate this worktree with "
-                "`python3 docker/scripts/maven_local_repo.py "
-                "--repo-root .` + its MAVEN_ARGS export, then retry "
-                "(--skip-preflight overrides, not recommended)."
-            )
-            return EXIT_SUBPROCESS_FAILED
+    gated = _qa_up_gate_preflight(ctx.repo_root, args, ctx.dry_run)
+    if gated is not None:
+        return gated
 
-    # Fail fast when --skip-image-build reuses a stale local matrix image
-    # whose HEALTHCHECK was baked before #2481 — without this the smoke
-    # waits the full --probe-timeout window then reports a confusing
-    # ``docker_health_timeout health=none``. See docker/README.md →
-    # "Docker Health.Status (in-image HEALTHCHECK)" and #2484.
-    if skip_image_build and not dry_run:
-        hc_status = _qa_matrix_image_healthcheck_status()
-        if hc_status == QA_IMAGE_HEALTHCHECK_MISSING:
-            rebuild_hint = (
-                "docker build -t "
-                f"{QA_MATRIX_IMAGE_TAG} "
-                f"-f {repo_root / 'docker' / 'matrix' / 'Dockerfile'} "
-                f"{repo_root / 'docker'}"
-            )
-            LOG.warning(
-                "Local matrix image %s lacks HEALTHCHECK (#2481); "
-                "qa-up --skip-image-build would otherwise hit "
-                "docker_health_timeout after %ss. Rebuild hint: %s",
-                QA_MATRIX_IMAGE_TAG,
-                probe_timeout,
-                rebuild_hint,
-            )
-            print(
-                f"RESULT:FAIL STEP:qa-up "
-                f"DETAIL:matrix_image_stale "
-                f"IMAGE:{QA_MATRIX_IMAGE_TAG} "
-                f"HINT:rebuild-image"
-            )
-            print(
-                f"QA_DETAIL:matrix image {QA_MATRIX_IMAGE_TAG} has no "
-                f"HEALTHCHECK (pre-#2481 bake). Drop --skip-image-build or "
-                f"run: {rebuild_hint}"
-            )
-            return EXIT_SUBPROCESS_FAILED
-
-    matrix_argv = _qa_matrix_up_argv(
-        repo_root,
-        probe_timeout=probe_timeout,
-        skip_image_build=skip_image_build,
-        dry_run=dry_run,
-        cell_suffix=cell_suffix,
+    gated = _qa_up_gate_stale_image(
+        ctx.repo_root, ctx.skip_image_build, ctx.dry_run, ctx.probe_timeout
     )
-    # Use a dedicated label so logs are easy to find for QA mode.
-    # _run_logged emits RESULT:OK/FAIL STEP:qa-up LOG:<path>.
-    rc, log_file = _run_logged(
-        "qa-up",
-        matrix_argv,
-        log_dir=log_dir,
-        cwd=repo_root,
-        dry_run=dry_run,
-    )
+    if gated is not None:
+        return gated
+
+    rc, _log_file = _qa_up_start_cms_cell(ctx)
     if rc != EXIT_OK:
-        # Extra detail line for agent timeout diagnosis (RESULT already printed).
-        print(
-            f"QA_DETAIL:matrix-install-smoke failed "
-            f"timeout_seconds={probe_timeout} "
-            f"QA_CMS_HOST_PORT={host_port} LOG:{log_file}"
-        )
         return rc
 
-    # --with-dts (spec 2402-qa-dts-publish, #6237): second silent DTS
-    # install in its own matrix cell (perc-matrix-dts-h2) beside CMS.
-    # Host port follows the DTS_PORT/freeport convention (#2005) and is
-    # pinned before the matrix run so both agree on the publish port.
-    # The default (flag absent) path below is untouched.
     with_dts = bool(getattr(args, "with_dts", False))
-    dts_host_port: Optional[int] = None
-    dts_https_host_port: Optional[int] = None
-    if with_dts:
-        dts_host_port = ensure_qa_dts_host_port()
-        # Pin the HTTPS publish port too, before the matrix run, so
-        # matrix-install-smoke publishes the same mapping the banner
-        # prints (#6375; mirrors the HTTP pin above).
-        dts_https_host_port = ensure_qa_dts_https_host_port()
-        dts_argv = _qa_matrix_up_argv(
-            repo_root,
-            probe_timeout=probe_timeout,
-            skip_image_build=skip_image_build,
-            dry_run=dry_run,
-            product="dts",
-            db=QA_DTS_DB,
-            cell_suffix=cell_suffix,
-        )
-        rc_dts, log_dts = _run_logged(
-            "qa-up-dts",
-            dts_argv,
-            log_dir=log_dir,
-            cwd=repo_root,
-            dry_run=dry_run,
-        )
-        if rc_dts != EXIT_OK:
-            print(
-                f"QA_DETAIL:matrix-install-smoke (dts) failed "
-                f"timeout_seconds={probe_timeout} "
-                f"QA_DTS_HOST_PORT={dts_host_port} LOG:{log_dts}"
-            )
-            return rc_dts
-
-    deploy_webui = bool(getattr(args, "then_qa_deploy_webui", False))
-    deploy_jars = bool(getattr(args, "then_qa_deploy_war_jars", False)) or (
-        deploy_webui and skip_image_build
+    dts_host_port, dts_https_host_port, rc_dts, _log_dts = (
+        _qa_up_start_dts_cell(ctx, with_dts)
     )
+    if rc_dts != EXIT_OK:
+        return rc_dts
 
-    if dry_run:
-        _qa_print_endpoint_banner(
-            host_port,
-            dts_host_port=dts_host_port,
-            dts_https_host_port=dts_https_host_port,
-            container=container,
-            dts_container=dts_cell,
-        )
-        rc = EXIT_OK
-        if deploy_webui:
-            rc = cmd_qa_deploy_webui(
-                _qa_deploy_webui_ns(dry_run=True, container=container),
-                paths,
-            )
-            if rc != EXIT_OK:
-                return rc
-        if deploy_jars:
-            return cmd_qa_deploy_war_jars(
-                argparse.Namespace(
-                    dry_run=True,
-                    container=container,
-                    restart_jetty=not bool(getattr(args, "no_restart_jetty", False)),
-                    skip_sitemap_xml_check=False,
-                    dest=QA_WAR_JARS_DEST,
-                ),
-                paths,
-            )
-        return rc
+    deploy_webui, deploy_jars = _qa_up_deploy_flags(args, ctx.skip_image_build)
 
-    pwd_lines = _qa_fetch_generated_password_env_lines(container)
-    admin_line = next(
-        (ln for ln in pwd_lines if ln.startswith("ADMIN_PASSWORD=")),
-        None,
-    )
-    _qa_print_endpoint_banner(
-        host_port,
-        admin_password_line=admin_line,
-        password_lines=pwd_lines,
-        dts_host_port=dts_host_port,
-        dts_https_host_port=dts_https_host_port,
-        container=container,
-        dts_container=dts_cell,
-    )
-    rc = EXIT_OK
-    if deploy_webui:
-        rc = cmd_qa_deploy_webui(
-            _qa_deploy_webui_ns(dry_run=False, container=container),
-            paths,
+    if ctx.dry_run:
+        return _qa_up_finish_dry_run(
+            ctx, args, paths, dts_host_port, dts_https_host_port,
+            deploy_webui, deploy_jars,
         )
-        if rc != EXIT_OK:
-            return rc
-    if deploy_jars:
-        return cmd_qa_deploy_war_jars(
-            argparse.Namespace(
-                dry_run=False,
-                container=container,
-                restart_jetty=not bool(getattr(args, "no_restart_jetty", False)),
-                skip_sitemap_xml_check=False,
-                dest=QA_WAR_JARS_DEST,
-            ),
-            paths,
-        )
-    return rc
+    return _qa_up_finish_live(
+        ctx, args, paths, dts_host_port, dts_https_host_port,
+        deploy_webui, deploy_jars,
+    )
 
 
 def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
