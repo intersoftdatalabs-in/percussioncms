@@ -335,9 +335,11 @@ export function ItemScheduleDatesPanel({
       setFailedIds([]);
       setFailedOp(null);
       setSuccess(
-        fill(message(MSG.PUBLISH_SCHEDULE_BATCH_LOADED), {
-          total: String(batch.total),
-        }),
+        batch.total === 1
+          ? message(MSG.PUBLISH_SCHEDULE_BATCH_LOADED_SINGULAR)
+          : fill(message(MSG.PUBLISH_SCHEDULE_BATCH_LOADED), {
+              total: String(batch.total),
+            }),
       );
     } else {
       setFailedIds(batch.failures.map((failure) => failure.id));
@@ -377,9 +379,11 @@ export function ItemScheduleDatesPanel({
         setFailedIds([]);
         setFailedOp(null);
         setSuccess(
-          fill(message(MSG.PUBLISH_SCHEDULE_BATCH_SAVED), {
-            total: String(batch.total),
-          }),
+          batch.total === 1
+            ? message(MSG.PUBLISH_SCHEDULE_BATCH_SAVED_SINGULAR)
+            : fill(message(MSG.PUBLISH_SCHEDULE_BATCH_SAVED), {
+                total: String(batch.total),
+              }),
         );
       } else {
         setFailedIds(batch.failures.map((failure) => failure.id));
@@ -418,7 +422,7 @@ export function ItemScheduleDatesPanel({
           previous,
           batch.saved,
           batch.failures,
-          message(MSG.PUBLISH_SCHEDULE_BATCH_ITEM_OK),
+          message(MSG.PUBLISH_SCHEDULE_BATCH_ITEM_CLEARED),
         ),
       );
       const first = batch.saved[0] ?? batch.failures[0]?.id ?? ids[0];
@@ -432,9 +436,11 @@ export function ItemScheduleDatesPanel({
         setFailedOp(null);
         setConfirmingClear(false);
         setSuccess(
-          fill(message(MSG.PUBLISH_SCHEDULE_BATCH_CLEARED), {
-            total: String(batch.total),
-          }),
+          batch.total === 1
+            ? message(MSG.PUBLISH_SCHEDULE_BATCH_CLEARED_SINGULAR)
+            : fill(message(MSG.PUBLISH_SCHEDULE_BATCH_CLEARED), {
+                total: String(batch.total),
+              }),
         );
       } else {
         setFailedIds(batch.failures.map((failure) => failure.id));

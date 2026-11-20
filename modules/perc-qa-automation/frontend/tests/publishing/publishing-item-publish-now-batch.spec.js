@@ -299,7 +299,7 @@ test.describe("PublishingShell multi-item publish now (#6472)", () => {
     const before = state.publishCalls.length;
     await panel.getByTestId("item-publish-now-retry").click();
     await expect(panel.getByTestId("item-publish-now-success")).toContainText(
-      /all 1 items/i,
+      /Publish now started for 1 item/i,
       { timeout: 15000 },
     );
     expect(retryCalls).toEqual([SECOND_ID]);
