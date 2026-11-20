@@ -301,6 +301,24 @@ describe("actionMenuApi REST wrappers", () => {
     expect(result).toEqual([]);
   });
 
+  it("findActions passes uiMode as a query param (#6619)", async () => {
+    const fetchMock = vi
+      .spyOn(global, "fetch")
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ ActionMenu: [] }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
+    const result = await findActions({ uiMode: "CXMAIN" });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const url = fetchMock.mock.calls[0]?.[0];
+    expect(String(url)).toBe(
+      `${PATHS.ACTIONS_ROOT}/find?uiMode=CXMAIN`,
+    );
+    expect(result).toEqual([]);
+  });
+
   it("findActions unwraps a raw JSON array wire shape (#2972)", async () => {
     vi.spyOn(global, "fetch").mockResolvedValueOnce(
       new Response(

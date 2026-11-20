@@ -20,8 +20,9 @@
  * (#6517 / parent #4530). Locks the documented mapping against
  * {@code PSActionVisibilityChecker} hide-on-match semantics so
  * Workbench-configured rules shape the React menus the way they shaped
- * DCE — and locks the permissive default for everything the client
- * cannot resolve (unknown names, missing state, uiContexts).
+ * DCE — locks the permissive default for everything the client cannot
+ * resolve (unknown names, missing state) — and locks the SPA shell
+ * UI-mode claim (#6619) that enforces per-mode uiContexts.
  */
 
 import { describe, expect, it } from "vitest";
@@ -30,7 +31,11 @@ import {
   asWireArray,
   filterMenuActionsByVisibility,
   isMenuVisibleByVisibilityContexts,
+  isMenuVisibleInShellMode,
   normalizeVisibilityContextName,
+  SPA_SHELL_UI_MODE_ID,
+  SPA_SHELL_UI_MODE_NAME,
+  uiContextMatchesShellMode,
   visibilityContextValues,
   VISIBILITY_CONTEXT_ASSIGNMENT_TYPE,
   VISIBILITY_CONTEXT_CHECKOUT_STATUS,
@@ -317,8 +322,10 @@ describe("isMenuVisibleByVisibilityContexts", () => {
     ).toBe(true);
   });
 
-  it("never hides on uiContexts alone (server gap stays permissive)", () => {
-    const action = menu("Mode", {
+  it("hides menus scoped exclusively to foreign modes (shell claim #6619)", () => {
+    // Supersedes the #6618 permissive lock: the SPA shell claim is now
+    // resolved, so foreign-scoped menus hide instead of staying visible.
+    const foreign = menu("Mode", {
       uiContexts: [
         {
           modeId: "999",
@@ -328,7 +335,24 @@ describe("isMenuVisibleByVisibilityContexts", () => {
         },
       ],
     });
-    expect(isMenuVisibleByVisibilityContexts(action, EMPTY_STATE)).toBe(true);
+    expect(isMenuVisibleByVisibilityContexts(foreign, EMPTY_STATE)).toBe(false);
+    const claimed = menu("Mode", {
+      uiContexts: [
+        {
+          modeId: "999",
+          modeName: "SomeWorkbenchMode",
+          contextId: "1",
+          contextName: "ctx",
+        },
+        {
+          modeId: "4",
+          modeName: "CXMAIN",
+          contextId: "1",
+          contextName: "ctx",
+        },
+      ],
+    });
+    expect(isMenuVisibleByVisibilityContexts(claimed, EMPTY_STATE)).toBe(true);
   });
 });
 
@@ -541,5 +565,106 @@ describe("filterMenuActionsByVisibility", () => {
     const out = filterMenuActionsByVisibility(menus, EMPTY_STATE);
     expect(out).toHaveLength(1);
     expect(out[0].children).toEqual(menus[0].children);
+  });
+});
+
+describe("SPA shell UI-mode claim (#6619)", () => {
+  it("publishes the shell claim", () => {
+    expect(SPA_SHELL_UI_MODE_ID).toBe("4");
+    expect(SPA_SHELL_UI_MODE_NAME).toBe("CXMAIN");
+  });
+
+  it("matches entries by shell mode name case-insensitively", () => {
+    expect(
+      uiContextMatchesShellMode({ modeId: "4", modeName: "CXMAIN" }),
+    ).toBe(true);
+    expect(
+      uiContextMatchesShellMode({ modeId: "7", modeName: "cxmain" }),
+    ).toBe(true);
+  });
+
+  it("matches entries by shell mode id, including numeric wire ids", () => {
+    expect(uiContextMatchesShellMode({ modeId: "4", modeName: "Other" })).toBe(
+      true,
+    );
+    expect(uiContextMatchesShellMode({ modeId: 4, modeName: "Other" })).toBe(
+      true,
+    );
+  });
+
+  it("rejects foreign modes, nulls, and blanks", () => {
+    expect(
+      uiContextMatchesShellMode({ modeId: "7", modeName: "Publishing" }),
+    ).toBe(false);
+    expect(uiContextMatchesShellMode(null)).toBe(false);
+    expect(uiContextMatchesShellMode(undefined)).toBe(false);
+    expect(uiContextMatchesShellMode({})).toBe(false);
+  });
+
+  it("keeps unscoped menus visible in shell mode", () => {
+    expect(isMenuVisibleInShellMode(null)).toBe(true);
+    expect(isMenuVisibleInShellMode(undefined)).toBe(true);
+    expect(isMenuVisibleInShellMode(menu("Copy"))).toBe(true);
+    expect(isMenuVisibleInShellMode(menu("Copy", { uiContexts: [] }))).toBe(
+      true,
+    );
+    // Single wire dicts unwrap like single visibilityContexts (#6517).
+    expect(
+      isMenuVisibleInShellMode(
+        menu("Copy", {
+          uiContexts: { modeId: "7", modeName: "Publishing" } as never,
+        }),
+      ),
+    ).toBe(false);
+  });
+
+  it("keeps menus scoped to the shell mode visible", () => {
+    const scoped = menu("Edit", {
+      uiContexts: [
+        { modeId: "7", modeName: "Publishing" },
+        { modeId: "4", modeName: "CXMAIN" },
+      ],
+    });
+    expect(isMenuVisibleInShellMode(scoped)).toBe(true);
+    expect(isMenuVisibleByVisibilityContexts(scoped, EMPTY_STATE)).toBe(true);
+  });
+
+  it("hides menus scoped exclusively to other modes", () => {
+    const foreign = menu("Publish", {
+      uiContexts: [
+        { modeId: "7", modeName: "Publishing" },
+        { modeId: "9", modeName: "Design" },
+      ],
+    });
+    expect(isMenuVisibleInShellMode(foreign)).toBe(false);
+    expect(isMenuVisibleByVisibilityContexts(foreign, EMPTY_STATE)).toBe(
+      false,
+    );
+    expect(filterMenuActionsByVisibility([foreign], EMPTY_STATE)).toEqual([]);
+  });
+
+  it("stays permissive for unresolvable entries", () => {
+    const unknown = menu("Legacy", {
+      uiContexts: [
+        { modeId: "7", modeName: "Publishing" },
+        { modeId: " ", modeName: " " },
+      ],
+    });
+    expect(isMenuVisibleInShellMode(unknown)).toBe(true);
+    expect(isMenuVisibleByVisibilityContexts(unknown, EMPTY_STATE)).toBe(true);
+  });
+
+  it("drops cascade parents whose children all hide on shell mode", () => {
+    const menus = [
+      menu("Parent", {
+        menuType: "MENU",
+        children: [
+          menu("ForeignChild", {
+            uiContexts: [{ modeId: "7", modeName: "Publishing" }],
+          }),
+        ],
+      }),
+    ];
+    expect(filterMenuActionsByVisibility(menus, EMPTY_STATE)).toEqual([]);
   });
 });

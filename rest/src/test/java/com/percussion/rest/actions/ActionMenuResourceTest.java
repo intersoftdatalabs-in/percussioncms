@@ -534,4 +534,50 @@ public class ActionMenuResourceTest {
     ActionMenuList out = resource.getAllowedTransitions(new AllowedWorkflowTransitionsRequest());
     assertTrue(out.isEmpty());
   }
+
+  @Test
+  public void findActionsBlankUiModeKeepsAll() throws Exception {
+    ActionMenu m = new ActionMenu();
+    m.setName("Edit");
+    when(adaptor.findMenus(null, null, null, null, null)).thenReturn(List.of(m));
+
+    List<ActionMenu> out = resource.findActions(null, null, null, null, null, null);
+    assertEquals(1, out.size());
+    assertEquals("Edit", out.get(0).getName());
+  }
+
+  @Test
+  public void findActionsUiModeHidesForeignMenus() throws Exception {
+    ActionMenu foreign = new ActionMenu();
+    foreign.setName("Publish");
+    ActionMenuModeUIContext ui = new ActionMenuModeUIContext();
+    ui.setModeId("7");
+    ui.setModeName("Publishing");
+    ui.setContextId("1");
+    foreign.setUiContexts(new ActionMenuModeUIContext[] {ui});
+    ActionMenu claimed = new ActionMenu();
+    claimed.setName("Edit");
+    ActionMenuModeUIContext mine = new ActionMenuModeUIContext();
+    mine.setModeId("4");
+    mine.setModeName("CXMAIN");
+    mine.setContextId("1");
+    claimed.setUiContexts(new ActionMenuModeUIContext[] {mine});
+    when(adaptor.findMenus(null, null, null, null, null))
+        .thenReturn(List.of(foreign, claimed));
+
+    List<ActionMenu> out =
+        resource.findActions(null, null, null, null, null, "CXMAIN");
+    assertEquals(1, out.size());
+    assertEquals("Edit", out.get(0).getName());
+  }
+
+  @Test
+  public void findActionsUiModeFailureIsEmptyNot500() throws Exception {
+    when(adaptor.findMenus(null, null, null, null, null))
+        .thenThrow(new RuntimeException("boom"));
+
+    List<ActionMenu> out =
+        resource.findActions(null, null, null, null, null, "CXMAIN");
+    assertTrue(out.isEmpty());
+  }
 }

@@ -564,11 +564,15 @@ const serverActionsLabelStyle: React.CSSProperties = {
 /**
  * Load the server action catalog for the current selection (#2849 / #2972 / #3379).
  *
- * <p>Always uses the cascading {@code GET /actions/find} tree. Per-content-type
+ * <p>Always uses the cascading {@code GET /actions/find} tree scoped to
+ * the SPA shell UI mode ({@code ?uiMode=}, #6619). Per-content-type
  * menus from {@code POST /actions/find/types} are merged under existing MENU
  * parents — they never replace the cascade (that replacement dumped children
- * as top-level toolbar buttons). Desktop-only / surface enablement is applied
- * by the shell after load via {@link filterToolbarActions} /
+ * as top-level toolbar buttons). Client-side visibility
+ * ({@code filterMenuActionsByVisibility}, incl. the shell uiContext
+ * claim) still shapes the merged tree, and desktop-only / surface
+ * enablement is applied by the shell after load via
+ * {@link filterToolbarActions} /
  * {@link filterContextMenuActions}.</p>
  */
 async function defaultLoadMenuActions(
@@ -1144,14 +1148,15 @@ function ContentExplorerShellInner({
   multiSelectedItemsRef.current = multiSelectedItems;
   /**
    * Workbench visibility environment for menu filtering (#6517, audited
-   * #6618). Only client-known facts are supplied; everything else stays
-   * {@code undefined} so the evaluator stays permissive (see
-   * {@code menuVisibility}). Evaluated today: multi-select, roles,
-   * locale, row access band. Permissive today: checkout status,
-   * content-type / object-type / workflow / community / assignment ids,
-   * client context, publishable type — none are on {@code PSPathItem}
-   * rows, so those rules cannot hide menus yet. Documented server gap
-   * (#6618; uiContexts is #6619), not a silent ignore.
+   * #6618, shell-mode claim #6619). Only client-known facts are supplied;
+   * everything else stays {@code undefined} so the evaluator stays
+   * permissive (see {@code menuVisibility}). Evaluated today:
+   * multi-select, roles, locale, row access band, plus the SPA shell
+   * uiContext claim (menus scoped exclusively to other Workbench modes
+   * hide). Permissive today: checkout status, content-type / object-type
+   * / workflow / community / assignment ids, client context, publishable
+   * type — none are on {@code PSPathItem} rows, so those rules cannot
+   * hide menus yet. Documented server gap (#6618), not a silent ignore.
    */
   const menuVisibilityState = useMemo<ExplorerMenuVisibilityState>(
     () => ({

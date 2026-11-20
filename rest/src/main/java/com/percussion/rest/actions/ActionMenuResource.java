@@ -1,5 +1,5 @@
 /*
- * Copyright 1999-2026 Percussion Software, Inc.
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -143,7 +143,13 @@ public class ActionMenuResource {
   @Produces(MediaType.APPLICATION_JSON)
   @Operation(
       summary = "Finds action menus",
-      description = "Returns a list of Action Menus that matches the criteria.",
+      description =
+          "Returns a list of Action Menus that matches the criteria. Optional uiMode"
+              + " scopes the tree to one UI mode (mode id or mode name, e.g. the SPA"
+              + " Explorer shell claim): menus whose uiContexts entries are scoped"
+              + " exclusively to other modes are hidden (cascade: hidden parents take"
+              + " their subtree). Menus without uiContexts, and entries the server"
+              + " cannot resolve, stay visible.",
       responses = {
         @ApiResponse(
             responseCode = "200",
@@ -159,12 +165,19 @@ public class ActionMenuResource {
       @Parameter(name = "label", required = false) @QueryParam("label") String label,
       @Parameter(name = "dynamic", required = false) @QueryParam("dynamic") Boolean dynamic,
       @Parameter(name = "item", required = false) @QueryParam("item") Boolean item,
-      @Parameter(name = "cascading", required = false) @QueryParam("cascading") Boolean cascading) {
+      @Parameter(name = "cascading", required = false) @QueryParam("cascading") Boolean cascading,
+      @Parameter(name = "uiMode", required = false) @QueryParam("uiMode") String uiMode) {
     var safeName = StringUtils.isBlank(name) ? null : name;
     var safeLabel = StringUtils.isBlank(label) ? null : label;
     try {
-      return Optional.ofNullable(adaptor.findMenus(safeName, safeLabel, item, dynamic, cascading))
-          .orElse(Collections.emptyList());
+      List<ActionMenu> menus =
+          Optional.ofNullable(adaptor.findMenus(safeName, safeLabel, item, dynamic, cascading))
+              .orElse(Collections.emptyList());
+      // SPA shell entry (#6619): hide menus scoped to foreign Workbench modes.
+      if (!StringUtils.isBlank(uiMode)) {
+        menus = ActionMenuUiModeFilter.filterMenusByUiMode(menus, uiMode.trim());
+      }
+      return menus;
     } catch (Exception e) {
       log.error("Error finding action menus: {}", e.getMessage(), e);
       return Collections.emptyList();

@@ -1296,12 +1296,25 @@ including whole cascade parents whose every child is hidden:
 Rules the shell cannot resolve yet stay permissive: the action remains
 visible, exactly as before this change. Those facts are not on the list
 rows — checkout status, content-type / object-type / workflow /
-community / assignment ids, client-context token, publishable type — nor
-(for per-mode `uiContexts`) the Workbench mode ids. Closing them needs the
-identity fields on the path/paginated rows (or a lightweight batch
-endpoint), or server-side visibility filtering for the SPA entry. Those
-gaps are tracked as server follow-ons (#6618 row identity, #6619 mode
-contexts), not silent ignores.
+community / assignment ids, client-context token, publishable type.
+Closing them needs the identity fields on the path/paginated rows (or a
+lightweight batch endpoint), or server-side visibility filtering for the
+SPA entry. That gap is tracked as a server follow-on (#6618 row
+identity), not a silent ignore.
+
+**Per-mode `uiContexts` are enforced.** The modern shell claims one UI
+mode — the Content Explorer view it succeeds (`Content Explorer`) — and
+an action scoped (via Workbench "Used in") exclusively to other modes is
+hidden from **both** the toolbar and the right-click menu, mirroring how
+DCE showed an action only in its configured modes. Enforcement happens
+in two places with the same rule: the server hides foreign-mode menus in
+the catalog tree when the shell passes its claim
+(`GET /services/actions/find?uiMode=Content%20Explorer`), and the shell
+evaluator applies the same claim to menus merged in from other endpoints
+(content-type / template menus). An action with no `uiContexts` entries
+is visible in every mode; an entry the shell cannot resolve (blank mode
+id and blank mode name) stays permissive, exactly as before this
+change.
 
 ## Folder security
 
