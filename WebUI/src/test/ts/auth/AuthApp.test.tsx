@@ -355,12 +355,15 @@ describe("AuthApp", () => {
       />,
     );
 
+    // Timing-hardening for #6749: the default 1s waitFor loses to full-suite
+    // CPU contention before the async start fetch resolves (same roulette
+    // class as #6742/#6706), so wait explicitly like the slotCreate spec.
     await waitFor(() => {
       expect(screen.getByTestId("perc-auth-mfa-qr")).toBeTruthy();
       expect(screen.getByTestId("perc-auth-mfa-manual-secret").textContent).toBe(
         sampleKey,
       );
-    });
+    }, { timeout: 10000 });
 
     fireEvent.change(screen.getByTestId("perc-auth-mfa-setup-code"), {
       target: { value: "654321" },
@@ -371,7 +374,7 @@ describe("AuthApp", () => {
       expect(screen.getByTestId("perc-auth-mfa-recovery-codes").textContent).toContain(
         "AAAA1-BBBB2",
       );
-    });
+    }, { timeout: 10000 });
     expect(JSON.parse(fetchMock.mock.calls[1][1].body)).toEqual({
       totpId: "totp-setup-1",
       code: "654321",
