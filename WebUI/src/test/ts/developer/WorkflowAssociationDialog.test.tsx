@@ -75,8 +75,16 @@ describe("WorkflowAssociationDialog (#6062 / FR §5.5)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("developer-wf-assoc-row-perc.review")).toBeTruthy();
     });
-    fireEvent.keyDown(window, { key: "Escape" });
-    expect(onCancel).toHaveBeenCalledTimes(1);
+    // De-flake for #6706 (sibling of the slotCreate timing flake): the
+    // Escape listener attaches in a passive effect after the rows render,
+    // so a synchronous keyDown under full-suite load can dispatch before
+    // the listener exists and onCancel stays at 0. Dispatch inside the
+    // waitFor so a missed dispatch retries; the loop stops at the first
+    // pass, so exactly-once still pins a single cancel.
+    await waitFor(() => {
+      fireEvent.keyDown(window, { key: "Escape" });
+      expect(onCancel).toHaveBeenCalledTimes(1);
+    });
     expect(onAssociate).not.toHaveBeenCalled();
   });
 
