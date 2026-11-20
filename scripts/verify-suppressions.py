@@ -251,6 +251,44 @@ def _check_file_part(
     return None
 
 
+def _split_path_parts(cell: str) -> list[str]:
+    """Split one file_path cell into its cited ``+``-separated parts.
+
+    Backtick-quoted tokens win (multi-token cells); a chunk without
+    backticks falls back to the stripped chunk itself. Empty chunks yield
+    no part here — callers still skip blank parts defensively.
+    """
+    parts: list[str] = []
+    for chunk in cell.split("+"):
+        spans = re.findall(r"`([^`]+)`", chunk)
+        if spans:
+            parts.extend(span.strip() for span in spans)
+        elif chunk.strip():
+            parts.append(chunk.strip().strip("`"))
+    return parts
+
+
+def _check_config_anchor(row: dict[str, str], source_root: Path) -> str | None:
+    """Check a ``CONFIG_PATH``-anchored part; ``None`` on success."""
+    if (source_root / CONFIG_PATH).is_file():
+        return None
+    return f"row {row['alert_id']!r} cites missing {CONFIG_PATH}"
+
+
+def _check_path_part(
+    part: str, row: dict[str, str], source_root: Path, index: dict[str, list[str]]
+) -> str | None:
+    """Check one cited file_path part; ``None`` on success or skip."""
+    if not part:
+        return None
+    if part == CONFIG_PATH:
+        return _check_config_anchor(row, source_root)
+    resolved = _resolve_cited_file(part, source_root, index)
+    if resolved is None:
+        return None
+    return _check_file_part(part, row, resolved)
+
+
 def _check_row(
     row: dict[str, str], source_root: Path, index: dict[str, list[str]]
 ) -> str | None:
@@ -262,24 +300,8 @@ def _check_row(
             "or the code-rewrite reference (runtime fix, barrier, filter, "
             "tests, PR link), not merely a // codeql[...] comment"
         )
-    parts: list[str] = []
-    for chunk in row["path"].split("+"):
-        spans = re.findall(r"`([^`]+)`", chunk)
-        if spans:
-            parts.extend(span.strip() for span in spans)
-        elif chunk.strip():
-            parts.append(chunk.strip().strip("`"))
-    for part in parts:
-        if not part:
-            continue
-        if part == CONFIG_PATH:
-            if not (source_root / CONFIG_PATH).is_file():
-                return f"row {row['alert_id']!r} cites missing {CONFIG_PATH}"
-            continue
-        resolved = _resolve_cited_file(part, source_root, index)
-        if resolved is None:
-            continue
-        err = _check_file_part(part, row, resolved)
+    for part in _split_path_parts(row["path"]):
+        err = _check_path_part(part, row, source_root, index)
         if err is not None:
             return err
     return None
