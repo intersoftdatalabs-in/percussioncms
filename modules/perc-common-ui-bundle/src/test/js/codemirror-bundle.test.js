@@ -25,9 +25,10 @@
  * These tests pin the three halves of that contract that a plain build would
  * only catch at runtime on a live CMS:
  *
- * 1. The bundled dependency stays on the CodeMirror 5 line until issue #5701
- *    lands the CodeMirror 6 replacement (a CM6 install changes the entry
- *    imports and the global-constructor contract).
+ * 1. The bundled dependency stays on the CodeMirror 5 line per the issue
+ *    #5701 end-of-life decision (no CodeMirror 6 migration — TipTap ships
+ *    its own source view, so CM5 stays the canonical classic bundle until
+ *    classic editing itself retires).
  * 2. `unwrapCodeMirror` recovers the constructor through every level of
  *    esbuild CJS/ESM interop nesting the entry can observe, so
  *    `window.CodeMirror` keeps working for the legacy consumers.
@@ -40,6 +41,10 @@
  *    toolbar needs (issue #6467): the dark theme CSS plus the
  *    `percCodeEditorPrefs` read/write/apply/step/toggle namespace, with
  *    storage-failure-tolerant helpers that degrade to defaults.
+ * 5. The shipped bundle pair carries the upstream MIT notice (issue #5626
+ *    license hygiene): esbuild minify strips the `//` notice from the npm
+ *    sources, so the build stamps it back on via `banner`, and the stamp
+ *    is pinned here plus by the build sanity-check and the live QA surface.
  */
 
 import { createRequire } from "module";
@@ -53,6 +58,10 @@ import {
   PERC_TEMPLATE_HTML_LINT_MODES,
   CODEMIRROR_BUNDLE_MARKERS,
   CODEMIRROR_PINNED_MAJOR,
+  CODEMIRROR_LICENSE_NOTICE,
+  CODEMIRROR_LICENSE_URL,
+  CODEMIRROR_LICENSE_MARKER,
+  buildCodeMirrorBundleBanners,
   PERC_CODEEDITOR_PREFS_KEY,
   PERC_CODEEDITOR_THEMES,
   PERC_CODEEDITOR_FONT_SIZE_DEFAULT,
@@ -71,7 +80,7 @@ import {
 const require = createRequire(import.meta.url);
 
 describe("codemirror npm dependency line", () => {
-  it("stays on the pinned CodeMirror major until #5701 lands CM6", () => {
+  it("stays on the pinned CodeMirror major per the #5701 EOL decision (no CM6)", () => {
     const pkg = require("codemirror/package.json");
     const major = Number(String(pkg.version).split(".")[0]);
     expect(major).toBe(CODEMIRROR_PINNED_MAJOR);
@@ -681,5 +690,56 @@ describe("applyPercCodeEditorPrefs", () => {
       applyPercCodeEditorPrefs(bare, { theme: "default", fontSize: 13 }),
     ).toBe(true);
     expect(bare.options.theme).toBe("default");
+  });
+});
+
+describe("codemirror bundle MIT notice stamp (issue #5626)", () => {
+  it("repeats the upstream notice wording verbatim", () => {
+    // The stamp must stay word-identical to the notice opening every
+    // lib/mode/addon source in the npm package — paraphrasing it would
+    // weaken the MIT attribution the LICENSE file requires.
+    expect(CODEMIRROR_LICENSE_NOTICE).toBe(
+      "CodeMirror, copyright (c) by Marijn Haverbeke and others",
+    );
+    expect(CODEMIRROR_LICENSE_URL).toBe("https://codemirror.net/5/LICENSE");
+  });
+
+  it("builds js/css banners that survive esbuild minification", () => {
+    const banners = buildCodeMirrorBundleBanners("5.65.21");
+    for (const banner of [banners.js, banners.css]) {
+      // `/*!` opener: a legal comment by esbuild's definition, so the
+      // stamp is emitted verbatim even with minify on.
+      expect(banner.startsWith("/*!")).toBe(true);
+      expect(banner.endsWith("*/")).toBe(true);
+      expect(banner.includes(CODEMIRROR_LICENSE_MARKER)).toBe(true);
+      expect(banner.includes(CODEMIRROR_LICENSE_URL)).toBe(true);
+      // The stamp names the upstream release it was built from, so a
+      // Dependabot bump that changes the bytes also changes the stamp.
+      expect(banner.includes("codemirror@5.65.21")).toBe(true);
+    }
+  });
+
+  it("wires the stamp into the esbuild build with a pinned legalComments", () => {
+    // The build script is the only writer of the shipped bundle pair, so
+    // pin its wiring statically: a dropped banner (or a legalComments flip
+    // that silently strips notices) fails here before packaging.
+    const scriptPath = join(
+      process.cwd(),
+      "build-scripts",
+      "bundle-codemirror.mjs",
+    );
+    const script = readFileSync(scriptPath, "utf8");
+    expect(
+      script.includes("buildCodeMirrorBundleBanners"),
+      "build must stamp the bundle pair via buildCodeMirrorBundleBanners",
+    ).toBe(true);
+    expect(
+      script.includes('legalComments: "eof"'),
+      "build must pin legalComments so notice retention never rides an esbuild default",
+    ).toBe(true);
+    expect(
+      script.includes("CODEMIRROR_LICENSE_MARKER"),
+      "build sanity-check must fail the build when the MIT notice is missing",
+    ).toBe(true);
   });
 });

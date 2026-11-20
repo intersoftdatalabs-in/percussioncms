@@ -72,7 +72,12 @@
  * no {@code org.webjars.npm:codemirror} in any {@code pom.xml}, no
  * {@code codemirror-unpack} build step, no {@code codemirror.version}
  * property, and {@code codemirror} declared + lockfile-tracked in both npm
- * manifests.</p></p>
+ * manifests.</p>
+ *
+ * <p>Issue #5626 (upstream MIT notice retention): esbuild minify strips the
+ * {@code //} MIT notice from the npm sources, so the build re-stamps the
+ * verbatim upstream wording onto the shipped pair via {@code banner}. The
+ * live bundle test asserts the served JS + CSS still carry the notice.</p></p>
  */
 
 const { test, expect } = require("@playwright/test");
@@ -371,6 +376,24 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
       expect(cssResponse.ok(), `bundle CSS not served: ${BUNDLE_CSS}`).toBe(
         true,
       );
+
+      // Issue #5626 license hygiene: the shipped minified pair must carry
+      // the upstream CodeMirror MIT notice (esbuild minify strips the `//`
+      // notice from the npm sources; the build re-stamps it via `banner`).
+      const bundleJsText = await jsResponse.text();
+      expect(
+        bundleJsText.includes("Marijn Haverbeke"),
+        "served bundle JS must carry the upstream CodeMirror MIT notice (#5626)",
+      ).toBe(true);
+      expect(
+        bundleJsText.includes("https://codemirror.net/5/LICENSE"),
+        "served bundle JS must name the upstream MIT license URL (#5626)",
+      ).toBe(true);
+      const bundleCssText = await cssResponse.text();
+      expect(
+        bundleCssText.includes("Marijn Haverbeke"),
+        "served bundle CSS must carry the upstream CodeMirror MIT notice (#5626)",
+      ).toBe(true);
 
       // The old per-file WebJar layout is gone.
       const legacyResponse = await page.request.get(

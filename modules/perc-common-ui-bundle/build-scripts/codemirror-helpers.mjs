@@ -84,11 +84,56 @@ export const CODEMIRROR_BUNDLE_MARKERS = [
 ];
 
 /**
- * The CodeMirror major line this bundle tracks. Pinned to 5 until issue
- * #5701 lands the CodeMirror 6 replacement; the vitest suite fails the build
- * if the npm dependency drifts off this line.
+ * The CodeMirror major line this bundle tracks. Pinned to 5: issue #5701
+ * recorded the end-of-life decision (no CodeMirror 6 migration — TipTap
+ * ships its own source view), so CodeMirror 5 stays the canonical classic
+ * source-view bundle until classic editing itself retires. The vitest suite
+ * fails the build if the npm dependency drifts off this line.
  */
 export const CODEMIRROR_PINNED_MAJOR = 5;
+
+/**
+ * Upstream MIT attribution for the npm-managed CodeMirror 5 package
+ * (issue #5626 license hygiene). CodeMirror 5 is MIT-licensed; every
+ * `lib/`, `mode/`, and `addon/` source file in the npm package opens with
+ * the notice below, and the package LICENSE requires the copyright +
+ * permission notice to ride along with redistributions — including the
+ * minified `codemirror.bundle.js` / `.css` pair this module ships.
+ *
+ * esbuild's `minify` drops that `//` notice because it is not a "legal"
+ * comment by esbuild's definition (no `@license` / `@preserve` / `!`
+ * marker), so the build script injects the verbatim upstream wording below
+ * as an esbuild `banner` (emitted verbatim, survives minification) instead
+ * of relying on comment passthrough.
+ */
+export const CODEMIRROR_LICENSE_NOTICE =
+  "CodeMirror, copyright (c) by Marijn Haverbeke and others";
+export const CODEMIRROR_LICENSE_URL = "https://codemirror.net/5/LICENSE";
+
+/**
+ * Short grep-able marker proving the upstream notice survived the build.
+ * The build sanity-check in `bundle-codemirror.mjs` and the live QA surface
+ * both fail without it.
+ */
+export const CODEMIRROR_LICENSE_MARKER = "Marijn Haverbeke";
+
+/**
+ * Builds the verbatim esbuild `banner` pair stamping the upstream MIT
+ * notice onto the shipped bundle pair. The `/*!` opener is deliberate: it
+ * is itself a legal comment, so the stamp survives even if a future edit
+ * flips `legalComments` off `eof`.
+ *
+ * @param {string} version the installed `codemirror` npm version (proves
+ *   which upstream release the stamp — and the bundle bytes — came from).
+ * @returns {{js: string, css: string}} the `banner` value for esbuild.
+ */
+export function buildCodeMirrorBundleBanners(version) {
+  const stamp =
+    `/*! ${CODEMIRROR_LICENSE_NOTICE} | ` +
+    `Distributed under an MIT license: ${CODEMIRROR_LICENSE_URL} | ` +
+    `via npm codemirror@${version} (issue #5626) */`;
+  return { js: stamp, css: stamp };
+}
 
 /**
  * HTML void elements: never need a closing tag, so an opener without one is
