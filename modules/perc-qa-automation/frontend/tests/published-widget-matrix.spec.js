@@ -28,7 +28,7 @@
  * {@code @widget-<name>} tag per widget.</p>
  *
  * <p>The suite is data-driven from
- * {@code tests/helpers/published-widget-matrix.js} (closed inventory, 45
+ * {@code tests/helpers/published-widget-matrix.js} (closed inventory, 44
  * widgets). {@code afterAll} assembles one results-matrix row per widget,
  * validates every row against
  * {@code contracts/results-matrix.schema.json}, and writes the matrix to
