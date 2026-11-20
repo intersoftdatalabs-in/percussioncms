@@ -1497,6 +1497,31 @@ class TestQaWithDts(unittest.TestCase):
         self.assertEqual(pdc.PREFERRED_QA_DTS_HOST_PORT, 9983)
         self.assertEqual(pdc.QA_DTS_CONTAINER_PORT, 9980)
 
+    def test_docker_read_server_log_uses_posix_container_paths(self):
+        """#6779 — server-log tail script targets POSIX in-cell paths (Linux cell FS)."""
+        captured = {}
+
+        class _Completed:
+            stdout = ""
+            stderr = ""
+
+        def _fake_run(argv, **kwargs):
+            captured["argv"] = argv
+            return _Completed()
+
+        # setUp stubs _docker_read_server_log (no live docker-exec); lift it here
+        # so this test exercises the real builder with a stubbed subprocess.
+        self._slog.stop()
+        try:
+            with unittest.mock.patch.object(pdc.subprocess, "run", _fake_run):
+                pdc._docker_read_server_log("c1", install_root="/opt/Percussion/")
+        finally:
+            self._slog.start()
+        script = captured["argv"][-1]
+        self.assertIn("/opt/Percussion/jetty/base/logs/server.log", script)
+        self.assertIn('"/opt/Percussion/jetty/base/logs"/*jetty*.log', script)
+        self.assertNotIn("\\", script)
+
     def test_parse_qa_up_log_dts_host_port(self):
         text = "QA_CMS_HOST_PORT=9993\nQA_DTS_HOST_PORT=9983\n"
         self.assertEqual(pdc.parse_qa_up_log_dts_host_port(text), 9983)

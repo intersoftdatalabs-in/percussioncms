@@ -150,6 +150,8 @@ DTS_HOST_PORT = PREFERRED_DTS_HOST_PORT
 DTS_CONTAINER_HTTPS_PORT = 8443
 PREFERRED_DTS_HTTPS_HOST_PORT = 8443
 CMS_PROBE_PATH = "/Rhythmyx/login"
+# mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6779, precedent #6781) —
+# URL path component for the HTTP readiness probe (build_probe_url), never an OS path.
 DTS_PROBE_PATH = "/"
 
 # Compose DB published host ports (docker-compose.yml ``${*_PORT:-…}:container``).
@@ -1174,6 +1176,8 @@ def _docker_read_server_log(
         return ""
     from rhythmyx_ready import container_cms_log_paths
 
+    # mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6779, precedent #6781) —
+    # in-container POSIX path (Linux cell FS); consumed by container_cms_log_paths + sh -c only.
     root = install_root.rstrip("/")
     paths = container_cms_log_paths(root)
     logs_dir = f"{root}/jetty/base/logs"
