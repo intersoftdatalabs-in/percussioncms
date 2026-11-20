@@ -254,6 +254,7 @@ public class PSSite implements IPSSite, IPSCatalogItem {
     private String resetPage;
 
     @Basic
+    // mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6728, precedent #52) - JPA column name for the page path, not a secret.
     @Column(name = "RESET_REQUEST_PASSWORD_PAGE")
     private String resetRequestPasswordPage;
 
