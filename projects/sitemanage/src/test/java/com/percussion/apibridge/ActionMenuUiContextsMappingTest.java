@@ -62,12 +62,12 @@ public class ActionMenuUiContextsMappingTest {
     ActionMenuModeUIContext[] dtos =
         ActionMenuAdaptor.toDtoUiContexts(
             mappings(
-                mapping("3", "Content Explorer", "1", "Folder"),
+                mapping("4", "CXMAIN", "1", "Folder"),
                 mapping("7", "Publishing", "2", "Site")));
 
     assertEquals(2, dtos.length);
-    assertEquals("3", dtos[0].getModeId());
-    assertEquals("Content Explorer", dtos[0].getModeName());
+    assertEquals("4", dtos[0].getModeId());
+    assertEquals("CXMAIN", dtos[0].getModeName());
     assertEquals("1", dtos[0].getContextId());
     assertEquals("Folder", dtos[0].getContextName());
     assertEquals("7", dtos[1].getModeId());
@@ -78,7 +78,7 @@ public class ActionMenuUiContextsMappingTest {
   void toDtoUiContextsShellClaimRoundTripsThroughMatcher() {
     ActionMenuModeUIContext[] dtos =
         ActionMenuAdaptor.toDtoUiContexts(
-            mappings(mapping("3", "Content Explorer", "1", "Folder")));
+            mappings(mapping("4", "CXMAIN", "1", "Folder")));
 
     assertTrue(
         ActionMenuModeUIContext.isVisibleInUiMode(

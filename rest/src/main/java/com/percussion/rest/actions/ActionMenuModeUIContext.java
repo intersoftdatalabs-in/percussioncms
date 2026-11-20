@@ -120,28 +120,32 @@ public class ActionMenuModeUIContext {
    * Mode id the modern Explorer (SPA) shell claims when it evaluates
    * per-mode UI contexts (#6619, parent #4530).
    *
-   * <p>The SPA shell is not a Workbench mode, so it claims a sentinel id
-   * that no persisted {@code RXMENUMODE} row uses (design tables use
-   * 1-based auto-increment ids). Id-only matching therefore never fires
-   * for the shell; name matching against {@link #SPA_SHELL_MODE_NAME}
-   * decides. Published here (server tier owns the contract) and mirrored
-   * by the WebUI evaluator; both tiers apply the same rule via
-   * {@link #isVisibleInUiMode}.</p>
+   * <p>The SPA shell succeeds the Desktop Content Explorer main display
+   * area, so it claims that seeded {@code RXMODE} row (installer
+   * {@code cmsTableData.xml}: {@code MODEID 4}, {@code NAME CXMAIN},
+   * {@code DISPLAYNAME 'Content Explorer - Main Display Area'}).
+   * {@code modeName} on the wire comes from {@code RXMODE.NAME}, so menus
+   * scoped to the Content Explorer main area (by far the most common
+   * scoping on a real install, e.g. the 397 seeded
+   * {@code RXMODEUICONTEXTACTION} rows) stay visible in the SPA, while
+   * menus scoped exclusively to other modes hide. Published here (server
+   * tier owns the contract) and mirrored by the WebUI evaluator; both
+   * tiers apply the same rule via {@link #isVisibleInUiMode}.</p>
    */
-  public static final String SPA_SHELL_MODE_ID = "0";
+  public static final String SPA_SHELL_MODE_ID = "4";
 
   /**
    * Mode name the modern Explorer (SPA) shell claims (#6619).
    *
-   * <p>The Desktop Content Explorer view this shell succeeds presented
-   * itself under this Workbench mode name, so menus scoped (via {@code
-   * PSMenuModeContextMapping}) to a mode of this name stay visible in the
-   * SPA while menus scoped exclusively to other modes hide. Matching is
-   * case-insensitive; entries with a blank id <em>and</em> a blank name
-   * are unresolvable and stay permissive (visible), matching the
-   * pre-#6517 behavior.</p>
+   * <p>The seeded {@code RXMODE} {@code NAME} of the Content Explorer main
+   * display area this shell succeeds ({@code CXMAIN}, {@code MODEID 4}).
+   * Menus scoped (via {@code PSMenuModeContextMapping}) to this mode stay
+   * visible in the SPA while menus scoped exclusively to other modes hide.
+   * Matching is case-insensitive; entries with a blank id <em>and</em> a
+   * blank name are unresolvable and stay permissive (visible), matching
+   * the pre-#6517 behavior.</p>
    */
-  public static final String SPA_SHELL_MODE_NAME = "Content Explorer";
+  public static final String SPA_SHELL_MODE_NAME = "CXMAIN";
 
   /**
    * Tests one mode/uicontext entry against a UI-mode token (#6619).

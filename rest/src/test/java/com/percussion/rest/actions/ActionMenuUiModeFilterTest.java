@@ -51,18 +51,18 @@ public class ActionMenuUiModeFilterTest {
 
   @Test
   public void shellClaimIsPublished() {
-    assertEquals("0", ActionMenuModeUIContext.SPA_SHELL_MODE_ID);
-    assertEquals("Content Explorer", ActionMenuModeUIContext.SPA_SHELL_MODE_NAME);
+    assertEquals("4", ActionMenuModeUIContext.SPA_SHELL_MODE_ID);
+    assertEquals("CXMAIN", ActionMenuModeUIContext.SPA_SHELL_MODE_NAME);
   }
 
   @Test
   public void matchesUiModeByNameCaseInsensitive() {
     assertTrue(
         ActionMenuModeUIContext.matchesUiMode(
-            entry("7", "Content Explorer"), "content explorer"));
+            entry("4", "CXMAIN"), "cxmain"));
     assertTrue(
         ActionMenuModeUIContext.matchesUiMode(
-            entry("7", "Content Explorer"), "Content Explorer"));
+            entry("4", "CXMAIN"), "CXMAIN"));
   }
 
   @Test
@@ -72,18 +72,18 @@ public class ActionMenuUiModeFilterTest {
 
   @Test
   public void matchesUiModeRejectsNullsAndBlanks() {
-    assertFalse(ActionMenuModeUIContext.matchesUiMode(null, "Content Explorer"));
-    assertFalse(ActionMenuModeUIContext.matchesUiMode(entry("7", "Content Explorer"), null));
-    assertFalse(ActionMenuModeUIContext.matchesUiMode(entry("7", "Content Explorer"), "  "));
+    assertFalse(ActionMenuModeUIContext.matchesUiMode(null, "CXMAIN"));
+    assertFalse(ActionMenuModeUIContext.matchesUiMode(entry("4", "CXMAIN"), null));
+    assertFalse(ActionMenuModeUIContext.matchesUiMode(entry("4", "CXMAIN"), "  "));
     assertFalse(
-        ActionMenuModeUIContext.matchesUiMode(entry("7", "Publishing"), "Content Explorer"));
+        ActionMenuModeUIContext.matchesUiMode(entry("7", "Publishing"), "CXMAIN"));
   }
 
   @Test
   public void unscopedMenuIsVisibleInEveryMode() {
-    assertTrue(ActionMenuModeUIContext.isVisibleInUiMode(null, "Content Explorer"));
+    assertTrue(ActionMenuModeUIContext.isVisibleInUiMode(null, "CXMAIN"));
     assertTrue(
-        ActionMenuModeUIContext.isVisibleInUiMode(new ActionMenuModeUIContext[0], "Content Explorer"));
+        ActionMenuModeUIContext.isVisibleInUiMode(new ActionMenuModeUIContext[0], "CXMAIN"));
   }
 
   @Test
@@ -99,21 +99,21 @@ public class ActionMenuUiModeFilterTest {
   @Test
   public void scopedToClaimedModeStaysVisible() {
     ActionMenuModeUIContext[] ui = {
-      entry("7", "Publishing"), entry("3", "Content Explorer")
+      entry("7", "Publishing"), entry("4", "CXMAIN")
     };
-    assertTrue(ActionMenuModeUIContext.isVisibleInUiMode(ui, "Content Explorer"));
+    assertTrue(ActionMenuModeUIContext.isVisibleInUiMode(ui, "CXMAIN"));
   }
 
   @Test
   public void scopedExclusivelyElsewhereHides() {
     ActionMenuModeUIContext[] ui = {entry("7", "Publishing"), entry("9", "Design")};
-    assertFalse(ActionMenuModeUIContext.isVisibleInUiMode(ui, "Content Explorer"));
+    assertFalse(ActionMenuModeUIContext.isVisibleInUiMode(ui, "CXMAIN"));
   }
 
   @Test
   public void unresolvableEntryStaysPermissive() {
     ActionMenuModeUIContext[] ui = {entry("7", "Publishing"), entry(" ", " ")};
-    assertTrue(ActionMenuModeUIContext.isVisibleInUiMode(ui, "Content Explorer"));
+    assertTrue(ActionMenuModeUIContext.isVisibleInUiMode(ui, "CXMAIN"));
   }
 
   @Test
@@ -126,11 +126,11 @@ public class ActionMenuUiModeFilterTest {
   @Test
   public void filterHidesForeignRootButKeepsClaimedSibling() {
     ActionMenu foreign = menu("Publish", entry("7", "Publishing"));
-    ActionMenu claimed = menu("Edit", entry("3", "Content Explorer"));
+    ActionMenu claimed = menu("Edit", entry("4", "CXMAIN"));
     ActionMenu unscoped = menu("Copy");
     List<ActionMenu> out =
         ActionMenuUiModeFilter.filterMenusByUiMode(
-            List.of(foreign, claimed, unscoped), "Content Explorer");
+            List.of(foreign, claimed, unscoped), "CXMAIN");
     assertEquals(2, out.size());
     assertEquals("Edit", out.get(0).getName());
     assertEquals("Copy", out.get(1).getName());
@@ -140,10 +140,10 @@ public class ActionMenuUiModeFilterTest {
   public void filterHiddenParentTakesSubtree() {
     ActionMenu parent = menu("Parent", entry("7", "Publishing"));
     ActionMenuList children = new ActionMenuList();
-    children.add(menu("Child", entry("3", "Content Explorer")));
+    children.add(menu("Child", entry("4", "CXMAIN")));
     parent.setChildren(children);
     List<ActionMenu> out =
-        ActionMenuUiModeFilter.filterMenusByUiMode(List.of(parent), "Content Explorer");
+        ActionMenuUiModeFilter.filterMenusByUiMode(List.of(parent), "CXMAIN");
     assertTrue(out.isEmpty());
   }
 
@@ -154,7 +154,7 @@ public class ActionMenuUiModeFilterTest {
     children.add(menu("Child", entry("7", "Publishing")));
     parent.setChildren(children);
     List<ActionMenu> out =
-        ActionMenuUiModeFilter.filterMenusByUiMode(List.of(parent), "Content Explorer");
+        ActionMenuUiModeFilter.filterMenusByUiMode(List.of(parent), "CXMAIN");
     assertTrue(out.isEmpty());
   }
 
@@ -163,10 +163,10 @@ public class ActionMenuUiModeFilterTest {
     ActionMenu parent = menu("Parent");
     ActionMenuList children = new ActionMenuList();
     children.add(menu("Gone", entry("7", "Publishing")));
-    children.add(menu("Kept", entry("3", "Content Explorer")));
+    children.add(menu("Kept", entry("4", "CXMAIN")));
     parent.setChildren(children);
     List<ActionMenu> out =
-        ActionMenuUiModeFilter.filterMenusByUiMode(List.of(parent), "Content Explorer");
+        ActionMenuUiModeFilter.filterMenusByUiMode(List.of(parent), "CXMAIN");
     assertEquals(1, out.size());
     assertEquals(1, out.get(0).getChildren().size());
     assertEquals("Kept", out.get(0).getChildren().get(0).getName());
@@ -178,10 +178,10 @@ public class ActionMenuUiModeFilterTest {
     parent.setLabel("Parent label");
     ActionMenuList children = new ActionMenuList();
     children.add(menu("Gone", entry("7", "Publishing")));
-    children.add(menu("Kept", entry("3", "Content Explorer")));
+    children.add(menu("Kept", entry("4", "CXMAIN")));
     parent.setChildren(children);
     List<ActionMenu> out =
-        ActionMenuUiModeFilter.filterMenusByUiMode(List.of(parent), "Content Explorer");
+        ActionMenuUiModeFilter.filterMenusByUiMode(List.of(parent), "CXMAIN");
     assertEquals(1, out.size());
     // Input still carries both children; the pruned copy carries the label.
     assertEquals(2, parent.getChildren().size());
@@ -191,6 +191,6 @@ public class ActionMenuUiModeFilterTest {
 
   @Test
   public void filterNullSafe() {
-    assertTrue(ActionMenuUiModeFilter.filterMenusByUiMode(null, "Content Explorer").isEmpty());
+    assertTrue(ActionMenuUiModeFilter.filterMenusByUiMode(null, "CXMAIN").isEmpty());
   }
 }

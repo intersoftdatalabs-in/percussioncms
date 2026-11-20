@@ -558,15 +558,15 @@ public class ActionMenuResourceTest {
     ActionMenu claimed = new ActionMenu();
     claimed.setName("Edit");
     ActionMenuModeUIContext mine = new ActionMenuModeUIContext();
-    mine.setModeId("3");
-    mine.setModeName("Content Explorer");
+    mine.setModeId("4");
+    mine.setModeName("CXMAIN");
     mine.setContextId("1");
     claimed.setUiContexts(new ActionMenuModeUIContext[] {mine});
     when(adaptor.findMenus(null, null, null, null, null))
         .thenReturn(List.of(foreign, claimed));
 
     List<ActionMenu> out =
-        resource.findActions(null, null, null, null, null, "Content Explorer");
+        resource.findActions(null, null, null, null, null, "CXMAIN");
     assertEquals(1, out.size());
     assertEquals("Edit", out.get(0).getName());
   }
@@ -577,7 +577,7 @@ public class ActionMenuResourceTest {
         .thenThrow(new RuntimeException("boom"));
 
     List<ActionMenu> out =
-        resource.findActions(null, null, null, null, null, "Content Explorer");
+        resource.findActions(null, null, null, null, null, "CXMAIN");
     assertTrue(out.isEmpty());
   }
 }

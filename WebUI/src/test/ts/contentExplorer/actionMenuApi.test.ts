@@ -310,11 +310,11 @@ describe("actionMenuApi REST wrappers", () => {
           headers: { "Content-Type": "application/json" },
         }),
       );
-    const result = await findActions({ uiMode: "Content Explorer" });
+    const result = await findActions({ uiMode: "CXMAIN" });
     expect(fetchMock).toHaveBeenCalledTimes(1);
     const url = fetchMock.mock.calls[0]?.[0];
     expect(String(url)).toBe(
-      `${PATHS.ACTIONS_ROOT}/find?uiMode=Content+Explorer`,
+      `${PATHS.ACTIONS_ROOT}/find?uiMode=CXMAIN`,
     );
     expect(result).toEqual([]);
   });

@@ -107,24 +107,26 @@ const VISIBILITY_CONTEXT_ALIASES: Readonly<Record<string, string>> = {
  * per-mode UI contexts (#6619, parent #4530).
  *
  * <p>Mirrors the server contract
- * ({@code ActionMenuModeUIContext.SPA_SHELL_MODE_ID}): the SPA shell is
- * not a Workbench mode, so it claims a sentinel id no persisted
- * {@code RXMENUMODE} row uses. Id-only matching never fires for the
- * shell; {@link SPA_SHELL_UI_MODE_NAME} decides.</p>
+ * ({@code ActionMenuModeUIContext.SPA_SHELL_MODE_ID}): the seeded
+ * {@code RXMODE} row of the Content Explorer main display area this
+ * shell succeeds ({@code MODEID 4}, {@code NAME CXMAIN}). Id matching
+ * fires for entries scoped to that row; {@link SPA_SHELL_UI_MODE_NAME}
+ * decides the rest.</p>
  */
-export const SPA_SHELL_UI_MODE_ID = "0";
+export const SPA_SHELL_UI_MODE_ID = "4";
 
 /**
  * Mode name the modern Explorer (SPA) shell claims (#6619).
  *
  * <p>Mirrors the server contract
- * ({@code ActionMenuModeUIContext.SPA_SHELL_MODE_NAME}): the Desktop
- * Content Explorer view this shell succeeds. Menus scoped to a mode of
- * this name (case-insensitive) stay visible; menus scoped exclusively to
+ * ({@code ActionMenuModeUIContext.SPA_SHELL_MODE_NAME}): the seeded
+ * {@code RXMODE} {@code NAME} of the Content Explorer main display area
+ * ({@code CXMAIN}, {@code MODEID 4}). Menus scoped to a mode of this
+ * name (case-insensitive) stay visible; menus scoped exclusively to
  * other modes hide — client-side here and server-side via
  * {@code GET /actions/find?uiMode=}.</p>
  */
-export const SPA_SHELL_UI_MODE_NAME = "Content Explorer";
+export const SPA_SHELL_UI_MODE_NAME = "CXMAIN";
 
 /**
  * Normalize a wire list that Jackson may serialize as a single object

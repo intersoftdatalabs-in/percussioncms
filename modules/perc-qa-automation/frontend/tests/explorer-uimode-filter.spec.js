@@ -18,14 +18,16 @@
  * Playwright surface: SPA shell UI-mode claim (#6619 / parent #4530).
  *
  * <p>{@code GET /Rhythmyx/services/actions/find} accepts the shell claim
- * as {@code ?uiMode=} (mode id or mode name). Scoped menus survive when
- * the token matches, and menus scoped exclusively to other modes are
+ * as {@code ?uiMode=} (mode id or mode name). The shell claims the seeded
+ * Content Explorer main-area mode ({@code CXMAIN} / {@code 4} per
+ * installer {@code cmsTableData.xml} {@code RXMODE}); scoped menus survive
+ * when the token matches, and menus scoped exclusively to other modes are
  * hidden (cascade). This spec locks the transport contract on the H2 QA
- * seed: the param is accepted (HTTP 200 JSON), and — because the seed
- * serves no uiContext-scoped menus — scoped and unscoped catalogs agree,
- * proving the filter is a no-op on unscoped data (no toolbar regression).
- * The enforcement logic itself is locked by Vitest
- * ({@code menuVisibility.test.ts}) and Surefire
+ * seed: the param is accepted (HTTP 200 JSON) for both the name and id
+ * spellings, and — because the seed serves no uiContext-scoped menus —
+ * scoped and unscoped catalogs agree, proving the filter is a no-op on
+ * unscoped data (no toolbar regression). The enforcement logic itself is
+ * locked by Vitest ({@code menuVisibility.test.ts}) and Surefire
  * ({@code ActionMenuUiModeFilterTest}).</p>
  *
  * <p>Tags: {@code @explorer-uimode} {@code @explorer} {@code @smoke}</p>
@@ -96,12 +98,22 @@ test.describe("Explorer action catalog UI-mode filter (#6619)", () => {
       const plainMenus = asArray(await unscoped.json());
 
       const scoped = await page.request.get(
-        `${FIND}?uiMode=${encodeURIComponent("Content Explorer")}`,
+        `${FIND}?uiMode=${encodeURIComponent("CXMAIN")}`,
       );
       expect(scoped.status()).toBe(200);
       const claimedMenus = asArray(await scoped.json());
 
       expect(claimedMenus.map((m) => m.name).sort()).toEqual(
+        plainMenus.map((m) => m.name).sort(),
+      );
+
+      // Seeded-row id spelling of the same claim agrees too (#6619: the
+      // H2 seed serves no uiContext-scoped menus, so all three catalogs
+      // must be identical here; enforcement itself is Vitest/Surefire
+      // locked against CXMAIN-scoped fixtures).
+      const byId = await page.request.get(`${FIND}?uiMode=4`);
+      expect(byId.status()).toBe(200);
+      expect(asArray(await byId.json()).map((m) => m.name).sort()).toEqual(
         plainMenus.map((m) => m.name).sort(),
       );
     },

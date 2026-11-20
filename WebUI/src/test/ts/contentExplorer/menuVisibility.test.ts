@@ -345,8 +345,8 @@ describe("isMenuVisibleByVisibilityContexts", () => {
           contextName: "ctx",
         },
         {
-          modeId: "0",
-          modeName: "Content Explorer",
+          modeId: "4",
+          modeName: "CXMAIN",
           contextId: "1",
           contextName: "ctx",
         },
@@ -570,24 +570,24 @@ describe("filterMenuActionsByVisibility", () => {
 
 describe("SPA shell UI-mode claim (#6619)", () => {
   it("publishes the shell claim", () => {
-    expect(SPA_SHELL_UI_MODE_ID).toBe("0");
-    expect(SPA_SHELL_UI_MODE_NAME).toBe("Content Explorer");
+    expect(SPA_SHELL_UI_MODE_ID).toBe("4");
+    expect(SPA_SHELL_UI_MODE_NAME).toBe("CXMAIN");
   });
 
   it("matches entries by shell mode name case-insensitively", () => {
     expect(
-      uiContextMatchesShellMode({ modeId: "7", modeName: "Content Explorer" }),
+      uiContextMatchesShellMode({ modeId: "4", modeName: "CXMAIN" }),
     ).toBe(true);
     expect(
-      uiContextMatchesShellMode({ modeId: "7", modeName: "content explorer" }),
+      uiContextMatchesShellMode({ modeId: "7", modeName: "cxmain" }),
     ).toBe(true);
   });
 
   it("matches entries by shell mode id, including numeric wire ids", () => {
-    expect(uiContextMatchesShellMode({ modeId: "0", modeName: "Other" })).toBe(
+    expect(uiContextMatchesShellMode({ modeId: "4", modeName: "Other" })).toBe(
       true,
     );
-    expect(uiContextMatchesShellMode({ modeId: 0, modeName: "Other" })).toBe(
+    expect(uiContextMatchesShellMode({ modeId: 4, modeName: "Other" })).toBe(
       true,
     );
   });
@@ -622,7 +622,7 @@ describe("SPA shell UI-mode claim (#6619)", () => {
     const scoped = menu("Edit", {
       uiContexts: [
         { modeId: "7", modeName: "Publishing" },
-        { modeId: "3", modeName: "Content Explorer" },
+        { modeId: "4", modeName: "CXMAIN" },
       ],
     });
     expect(isMenuVisibleInShellMode(scoped)).toBe(true);
