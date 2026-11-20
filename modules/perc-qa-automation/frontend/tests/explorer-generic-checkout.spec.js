@@ -10,21 +10,29 @@
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
 
 /**
- * Playwright surface: #6651 / parent #4530 — Explorer generic items keep the
- * checkout / check-in / force-check-in trio.
+ * Playwright surface: #6651 / parent #4530 — checkout trio for generic
+ * custom-type rows.
  *
- * The trio is gated on item-ness (non-folder + id), never on publish kind,
- * so a kind-"none" custom-type row outside /Sites and /Assets still shows
- * all three actions and submits the row id to the id-based workflow
- * endpoints. The row shape below is stubbed to classify kind-"none"
- * (path + type carry no page/asset token); the content id is a real H2 id
- * seeded via item/create, and all three workflow calls hit the real
- * backend — that is the server-acceptance proof the issue asks for.
+ * The workflow endpoints are id-based
+ * (`GET …/workflow/checkOut|checkIn|forceCheckIn/{id}`), so a generic
+ * custom-type row (no page/asset token, outside /Sites and /Assets) keeps
+ * Check Out, Check In, and Force Check-in visible and submitting. Hybrid
+ * proof: the listed row is mocked into the kind-"none" shape (the H2 seed
+ * has no stable generic folder), but the row id is a REAL seeded
+ * custom-type item and every checkout call below hits the REAL endpoint —
+ * a rejection would surface in the Server actions region and fail the
+ * test. The single Check In rides the editor endpoint
+ * (`POST /rest/editor/items/{id}/checkin`), like the page/asset flow.
+ *
+ * Combines the #6840 surface (kind-"none" shell assertion) with the
+ * #6847 surface by mayank-intsof (real custom-type seed, owner panel,
+ * live-proof screenshot, separate force check-in case).
  *
  * Run (QA mode after perc-devctl qa-up):
  * npm run test:surface -- --path tests/explorer-generic-checkout.spec.js
@@ -37,28 +45,31 @@ const {
   adminBasicAuthHeaders,
 } = require("./helpers/auth");
 const { expectNoSeriousA11yViolations } = require("./helpers/a11y");
+const { explorerSpaUrl } = require("./helpers/explorer-menu-bar");
 const {
-  assetsFolderUrl,
   uniqueCopyItemName,
+  assetsFolderUrl,
   seedDisposableEmptyFolder,
   seedDisposableAsset,
   recycleFolderWithItems,
   isKnownExplorerSitesConsoleNoise,
 } = require("./helpers/explorer-copy-item");
-const { explorerSpaUrl } = require("./helpers/explorer-menu-bar");
 
 const TAGS = ["@explorer-generic-checkout", "@explorer", "@item"];
 
-function kindNoneList(itemName, realId) {
-  return {
+/**
+ * Kind-"none" row for the seeded id: custom type, outside /Sites and
+ * /Assets, so resolvePublishKind cannot see a page/asset affinity.
+ */
+function genericListBody(id, name) {
+  return JSON.stringify({
     PagedItemList: {
       childrenInPage: [
         {
-          id: String(realId),
-          name: itemName,
-          path: `/Other/${itemName}`,
-          type: "percTemplate",
-          category: "template",
+          id: String(id),
+          name,
+          path: `/ContentLib/${name}`,
+          type: "MyCustomArticle",
           accessLevel: "WRITE",
           leaf: true,
         },
@@ -66,17 +77,141 @@ function kindNoneList(itemName, realId) {
       childrenCount: 1,
       startIndex: 0,
     },
-  };
+  });
 }
 
-test.describe("Explorer generic items checkout trio (#6651)", () => {
-  test.beforeEach(async ({ page }) => {
-    test.setTimeout(90_000);
-    await loginAsAdmin(page);
+async function seedGenericItem(request, stamp, prefix) {
+  expect(await (await request.get(assetsFolderUrl(BASE_URL))).status()).toBe(200);
+  const folderName = uniqueCopyItemName(`${prefix}f`, stamp);
+  const itemName = uniqueCopyItemName(prefix, stamp);
+  const sourceFolder = await seedDisposableEmptyFolder(
+    request,
+    BASE_URL,
+    adminBasicAuthHeaders(),
+    { parentPath: "Assets", name: folderName },
+  );
+  const sourcePath = String(sourceFolder.path || `/Assets/${folderName}`);
+  // rffFile/percFile are genuine legacy custom types (no page/asset token):
+  // the seeded id is custom-type content even though it lives under /Assets.
+  const seeded = await seedDisposableAsset(request, BASE_URL, adminBasicAuthHeaders(), {
+    parentPath: sourcePath,
+    name: itemName,
+    contentTypes: ["rffFile", "percFile"],
   });
+  return { sourceFolder, itemName, id: String(seeded.guid) };
+}
+
+test.describe("Explorer checkout trio for generic custom-type rows (#6651)", () => {
+  test(
+    "generic row exposes the trio; live checkOut + editor checkIn succeed",
+    { tag: TAGS },
+    async ({ page, request }) => {
+      test.setTimeout(180_000);
+      const jsErrors = [];
+      page.on("pageerror", (err) => jsErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") jsErrors.push(msg.text());
+      });
+      const stamp = Date.now();
+      /** @type {{ path?: string } | null} */
+      let sourceFolder = null;
+      try {
+        const seeded = await seedGenericItem(request, stamp, "qa6651gen");
+        sourceFolder = seeded.sourceFolder;
+        const { itemName, id } = seeded;
+        await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: genericListBody(id, itemName),
+          });
+        });
+
+        await loginAsAdmin(page);
+        await page.goto(explorerSpaUrl(BASE_URL));
+        await page.waitForLoadState("networkidle");
+        await expect(
+          page.locator('[data-testid="content-explorer-shell"]'),
+        ).toBeVisible({ timeout: 20_000 });
+
+        const itemRow = page.locator(
+          `[data-testid="detail-row-${id}"][data-row-kind="item"]`,
+        );
+        await expect(itemRow).toBeVisible({ timeout: 20_000 });
+        await itemRow.click();
+        const shell = page.locator(
+          `[data-testid="content-explorer-shell"][data-selected-item-id="${id}"]`,
+        );
+        await expect(shell).toBeVisible({ timeout: 10_000 });
+        // The stubbed custom-type row classifies kind-none (the #6651 case).
+        await expect(shell).toHaveAttribute("data-selected-item-kind", "none");
+
+        // The trio stays visible for the kind-"none" selection …
+        const checkout = page.locator('[data-testid="action-toolbar-item-Check_Out"]');
+        const checkin = page.locator('[data-testid="action-toolbar-item-Check_In"]');
+        const force = page.locator('[data-testid="action-toolbar-item-Force_Checkin"]');
+        await expect(checkout).toBeVisible({ timeout: 15_000 });
+        await expect(checkin).toBeVisible({ timeout: 15_000 });
+        await expect(force).toBeVisible({ timeout: 15_000 });
+        // … and the checkout-owner panel loads for the generic row.
+        await expect(page.locator('[data-testid="explorer-checkout-owner"]')).toBeVisible({
+          timeout: 15_000,
+        });
+        await expect(
+          page.locator('[data-testid="explorer-checkout-owner-error"]'),
+        ).toHaveCount(0);
+
+        // Live checkOut of the generic id (real endpoint, real 200).
+        const checkOutResp = page.waitForResponse(
+          "**/itemmanagement/workflow/checkOut/**",
+          { timeout: 30_000 },
+        );
+        await checkout.click();
+        expect((await checkOutResp).ok()).toBe(true);
+        await expect(
+          page.locator('[data-testid="explorer-server-actions-error"]'),
+        ).toHaveCount(0);
+        await page.screenshot({
+          path: `test-results/live-proof-6651-checkout-generic.png`,
+        });
+
+        // Live editor checkIn of the generic id (comment dialog + POST).
+        const checkInResp = page.waitForResponse("**/rest/editor/items/**/checkin**", {
+          timeout: 30_000,
+        });
+        await checkin.click();
+        await expect(page.locator('[data-testid="explorer-checkin-comment"]')).toBeVisible({
+          timeout: 10_000,
+        });
+        await page.locator('[data-testid="explorer-checkin-confirm"]').click();
+        expect((await checkInResp).ok()).toBe(true);
+        await expect(
+          page.locator('[data-testid="explorer-server-actions-error"]'),
+        ).toHaveCount(0);
+
+        await expectNoSeriousA11yViolations(page, {
+          scope: '[data-testid="content-explorer-shell"]',
+        });
+        const relatedConsole = jsErrors.filter(
+          (text) => !isKnownExplorerSitesConsoleNoise(text),
+        );
+        expect(relatedConsole, relatedConsole.join("\n")).toEqual([]);
+      } finally {
+        await page.unroute("**/pathmanagement/path/paginatedFolder**").catch(() => undefined);
+        if (sourceFolder && sourceFolder.path) {
+          await recycleFolderWithItems(
+            request,
+            BASE_URL,
+            adminBasicAuthHeaders(),
+            sourceFolder,
+          ).catch(() => undefined);
+        }
+      }
+    },
+  );
 
   test(
-    "UI: kind-none row shows the trio and all three id-based calls succeed",
+    "Admin live forceCheckIn succeeds for the generic id",
     { tag: TAGS },
     async ({ page, request }) => {
       test.setTimeout(180_000);
@@ -88,112 +223,49 @@ test.describe("Explorer generic items checkout trio (#6651)", () => {
       page.on("dialog", (dialog) => {
         void dialog.accept();
       });
-
       const stamp = Date.now();
-      const sourceName = uniqueCopyItemName("qa6651src", stamp);
-      const itemName = uniqueCopyItemName("qa6651gen", stamp);
       /** @type {{ path?: string } | null} */
       let sourceFolder = null;
-
       try {
-        expect(await (await request.get(assetsFolderUrl(BASE_URL))).status()).toBe(200);
-        sourceFolder = await seedDisposableEmptyFolder(
-          request,
-          BASE_URL,
-          adminBasicAuthHeaders(),
-          { parentPath: "Assets", name: sourceName },
-        );
-        const sourcePath = String(sourceFolder.path || `/Assets/${sourceName}`);
-        const seeded = await seedDisposableAsset(
-          request,
-          BASE_URL,
-          adminBasicAuthHeaders(),
-          { parentPath: sourcePath, name: itemName },
-        );
-        const realId = String(seeded.guid || "");
-        expect(realId.length).toBeGreaterThan(0);
-
+        const seeded = await seedGenericItem(request, stamp, "qa6651fce");
+        sourceFolder = seeded.sourceFolder;
+        const { itemName, id } = seeded;
         await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
           await route.fulfill({
             status: 200,
             contentType: "application/json",
-            body: JSON.stringify(kindNoneList(itemName, realId)),
+            body: genericListBody(id, itemName),
           });
         });
 
-        await page.goto(explorerSpaUrl(BASE_URL), {
-          waitForLoadState: "networkidle",
-        });
+        await loginAsAdmin(page);
+        await page.goto(explorerSpaUrl(BASE_URL));
+        await page.waitForLoadState("networkidle");
+        const itemRow = page.locator(
+          `[data-testid="detail-row-${id}"][data-row-kind="item"]`,
+        );
+        await expect(itemRow).toBeVisible({ timeout: 20_000 });
+        await itemRow.click();
         await expect(
-          page.locator('[data-testid="content-explorer-shell"]'),
-        ).toBeVisible({ timeout: 20_000 });
-
-        const row = page.locator(
-          `[data-testid="detail-row-${realId}"][data-row-kind="item"]`,
-        );
-        await expect(row).toBeVisible({ timeout: 20_000 });
-        await row.click();
-        const shell = page.locator(
-          `[data-testid="content-explorer-shell"][data-selected-item-id="${realId}"]`,
-        );
-        await expect(shell).toBeVisible({ timeout: 10_000 });
-        // The stubbed custom-type row classifies kind-none (the #6651 case).
-        await expect(shell).toHaveAttribute("data-selected-item-kind", "none");
-
-        const checkout = page.locator('[data-testid="action-toolbar-item-Check_Out"]');
-        const checkin = page.locator('[data-testid="action-toolbar-item-Check_In"]');
-        const force = page.locator('[data-testid="action-toolbar-item-Force_Checkin"]');
-        await expect(checkout).toBeVisible({ timeout: 15_000 });
-        await expect(checkin).toBeVisible({ timeout: 15_000 });
-        await expect(force).toBeVisible({ timeout: 15_000 });
-
-        // 1. Check Out submits the generic id to the id-based endpoint.
-        const [checkoutRes] = await Promise.all([
-          page.waitForResponse(
-            (res) => res.url().includes("/itemmanagement/workflow/checkOut/"),
-            { timeout: 20_000 },
+          page.locator(
+            `[data-testid="content-explorer-shell"][data-selected-item-id="${id}"]`,
           ),
-          checkout.click(),
-        ]);
-        expect(checkoutRes.status()).toBe(200);
-        await expect(
-          page.locator('[data-testid="explorer-server-actions-error"]'),
-        ).toHaveCount(0);
-
-        // 2. Check In with a comment uses the editor check-in for the same id.
-        await checkin.click();
-        await expect(
-          page.locator('[data-testid="explorer-checkin-comment"]'),
         ).toBeVisible({ timeout: 10_000 });
-        const [checkinRes] = await Promise.all([
-          page.waitForResponse(
-            (res) => res.url().includes("/rest/editor/items/"),
-            { timeout: 20_000 },
-          ),
-          page.locator('[data-testid="explorer-checkin-confirm"]').click(),
-        ]);
-        expect(checkinRes.status()).toBe(200);
-        await expect(
-          page.locator('[data-testid="explorer-server-actions-error"]'),
-        ).toHaveCount(0);
 
-        // 3. Force Check-in (Admin) succeeds once the generic id is checked out.
-        const [checkoutRes2] = await Promise.all([
-          page.waitForResponse(
-            (res) => res.url().includes("/itemmanagement/workflow/checkOut/"),
-            { timeout: 20_000 },
-          ),
-          checkout.click(),
-        ]);
-        expect(checkoutRes2.status()).toBe(200);
-        const [forceRes] = await Promise.all([
-          page.waitForResponse(
-            (res) => res.url().includes("/itemmanagement/workflow/forceCheckIn/"),
-            { timeout: 20_000 },
-          ),
-          force.click(),
-        ]);
-        expect(forceRes.status()).toBe(200);
+        // Check out first so force has a lock to steal (both real calls).
+        const checkOutResp = page.waitForResponse(
+          "**/itemmanagement/workflow/checkOut/**",
+          { timeout: 30_000 },
+        );
+        await page.locator('[data-testid="action-toolbar-item-Check_Out"]').click();
+        expect((await checkOutResp).ok()).toBe(true);
+
+        const forceResp = page.waitForResponse(
+          "**/itemmanagement/workflow/forceCheckIn/**",
+          { timeout: 30_000 },
+        );
+        await page.locator('[data-testid="action-toolbar-item-Force_Checkin"]').click();
+        expect((await forceResp).ok()).toBe(true);
         await expect(
           page.locator('[data-testid="explorer-server-actions-error"]'),
         ).toHaveCount(0);
