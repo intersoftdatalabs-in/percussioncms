@@ -854,6 +854,31 @@ class ProbeUrlTests(unittest.TestCase):
             "http://127.0.0.1:9983/",
         )
 
+    def test_probe_paths_are_url_roots_not_os_paths(self):
+        """#6779 — DTS_PROBE_PATH is a URL path root (HTTP probe), never an OS path."""
+        self.assertEqual(smoke.DTS_PROBE_PATH, "/")
+        self.assertTrue(smoke.build_probe_url("dts", 9983).endswith(smoke.DTS_PROBE_PATH))
+
+    def test_docker_read_server_log_uses_posix_container_paths(self):
+        """#6779 — server-log tail script targets POSIX in-cell paths (Linux cell FS)."""
+        import unittest.mock
+
+        captured = {}
+
+        class _Completed:
+            stdout = ""
+            stderr = ""
+
+        def _fake_run(argv, **kwargs):
+            captured["argv"] = argv
+            return _Completed()
+
+        with unittest.mock.patch.object(smoke.subprocess, "run", _fake_run):
+            smoke._docker_read_server_log("c1", install_root="/opt/Percussion/")
+        script = captured["argv"][-1]
+        self.assertIn("/opt/Percussion/jetty/base/logs", script)
+        self.assertNotIn("\\", script)
+
 
 class MatrixHostPortFreeportTests(unittest.TestCase):
     """#2005 — matrix docker -p / probe host port from env or freeport."""

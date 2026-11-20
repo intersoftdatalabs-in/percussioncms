@@ -168,6 +168,8 @@ PREFERRED_POSTGRES_HOST_PORT = 5433
 PREFERRED_MSSQL_HOST_PORT = 1433
 
 VERIFY_CMS_PATH = "/Rhythmyx/rest/folders/by-path/Assets"
+# mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6779, precedent #6781) —
+# URL path component for the HTTP verify probe (resolve_verify_dts_url), never an OS path.
 VERIFY_DTS_PATH = "/"
 
 # ---------------------------------------------------------------------------
@@ -216,6 +218,8 @@ def qa_dts_container(suffix: object = None) -> str:
 QA_DTS_CONTAINER_HTTPS_PORT = 8443
 PREFERRED_QA_DTS_HTTPS_HOST_PORT = 8443
 # Tomcat root probe for ``qa-health`` (mirrors matrix ``DTS_PROBE_PATH``).
+# mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6779, precedent #6781) —
+# URL path component for the HTTP health probe (qa_dts_probe_url), never an OS path.
 QA_DTS_PROBE_PATH = "/"
 # Same default as docker/scripts/hot-deploy-rhythmyx-war-jars.py --dest.
 QA_WAR_JARS_DEST = "/opt/Percussion/jetty/base/webapps/Rhythmyx/WEB-INF/lib"
@@ -1572,6 +1576,8 @@ def _docker_read_server_log(
         return ""
     paths = container_cms_log_paths(install_root)
     server_log = container_server_log_path(install_root)
+    # mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6779, precedent #6781) —
+    # in-container POSIX path (Linux cell FS, see docstring); script runs via sh -c in the cell.
     logs_dir = server_log.rsplit("/", 1)[0]
     n = max(1, int(tail_lines))
     parts: list[str] = []
