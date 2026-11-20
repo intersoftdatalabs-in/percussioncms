@@ -118,10 +118,7 @@ class CatalogRestJaxrsRegistrationTest {
   @Test
   void restJaxRsServiceBeansIncludeDeveloperCatalogResources() throws Exception {
     Path root = resolveRepoRoot();
-    Path beans =
-        root.resolve(
-            "projects/sitemanage/src/main/resources/Rhythmyx/AppServer/server/rx/deploy/"
-                + "rxapp.ear/rxapp.war/WEB-INF/config/spring/projects/sitemanage-beans.xml");
+    Path beans = sitemanageBeansXml(root);
     assertTrue(Files.isRegularFile(beans), "missing sitemanage-beans.xml at " + beans);
 
     String xml = Files.readString(beans, StandardCharsets.UTF_8);
@@ -134,7 +131,7 @@ class CatalogRestJaxrsRegistrationTest {
 
     for (String bean : REQUIRED_REFS) {
       assertTrue(
-          restBlock.contains("bean=\"" + bean + "\""),
+          indexOfBeanRef(restBlock, bean) >= 0,
           "rest-jax-rs serviceBeans must ref " + bean + " (missing → CXF 404 for catalog REST)");
     }
   }
@@ -142,10 +139,7 @@ class CatalogRestJaxrsRegistrationTest {
   @Test
   void restJaxRsProvidersIncludeViewExecuteRequestJsonReaderBeforeJackson() throws Exception {
     Path root = resolveRepoRoot();
-    Path beans =
-        root.resolve(
-            "projects/sitemanage/src/main/resources/Rhythmyx/AppServer/server/rx/deploy/"
-                + "rxapp.ear/rxapp.war/WEB-INF/config/spring/projects/sitemanage-beans.xml");
+    Path beans = sitemanageBeansXml(root);
     assertTrue(Files.isRegularFile(beans), "missing sitemanage-beans.xml at " + beans);
 
     String xml = Files.readString(beans, StandardCharsets.UTF_8);
@@ -158,26 +152,20 @@ class CatalogRestJaxrsRegistrationTest {
     int providersEnd = restBlock.indexOf("</jaxrs:providers>");
     assertTrue(providers >= 0 && providersEnd > providers, "rest-jax-rs providers block");
     String providerBlock = restBlock.substring(providers, providersEnd);
-    int reader = providerBlock.indexOf("bean=\"" + VIEW_EXECUTE_JSON_READER + "\"");
-    int searchReader = providerBlock.indexOf("bean=\"" + SEARCH_EXECUTE_JSON_READER + "\"");
-    int aclReader = providerBlock.indexOf("bean=\"" + ACL_LIST_JSON_READER + "\"");
-    int communityListReader =
-        providerBlock.indexOf("bean=\"" + COMMUNITY_LIST_JSON_READER + "\"");
-    int guidListReader = providerBlock.indexOf("bean=\"" + GUID_LIST_JSON_READER + "\"");
-    int addFolderReader = providerBlock.indexOf("bean=\"" + ADD_FOLDER_JSON_READER + "\"");
-    int findTypesReader = providerBlock.indexOf("bean=\"" + FIND_TYPES_JSON_READER + "\"");
-    int actionMenuReader = providerBlock.indexOf("bean=\"" + ACTION_MENU_JSON_READER + "\"");
-    int actionMenuListReader =
-        providerBlock.indexOf("bean=\"" + ACTION_MENU_LIST_JSON_READER + "\"");
-    int autoTranslationReader =
-        providerBlock.indexOf("bean=\"" + AUTO_TRANSLATION_ROWS_JSON_READER + "\"");
-    int displayFormatReader =
-        providerBlock.indexOf("bean=\"" + DISPLAY_FORMAT_JSON_READER + "\"");
-    int templateDetailReader =
-        providerBlock.indexOf("bean=\"" + TEMPLATE_DETAIL_JSON_READER + "\"");
-    int relationshipTypeReader =
-        providerBlock.indexOf("bean=\"" + RELATIONSHIP_TYPE_JSON_READER + "\"");
-    int jackson = providerBlock.indexOf("bean=\"jacksonProvider\"");
+    int reader = indexOfBeanRef(providerBlock, VIEW_EXECUTE_JSON_READER);
+    int searchReader = indexOfBeanRef(providerBlock, SEARCH_EXECUTE_JSON_READER);
+    int aclReader = indexOfBeanRef(providerBlock, ACL_LIST_JSON_READER);
+    int communityListReader = indexOfBeanRef(providerBlock, COMMUNITY_LIST_JSON_READER);
+    int guidListReader = indexOfBeanRef(providerBlock, GUID_LIST_JSON_READER);
+    int addFolderReader = indexOfBeanRef(providerBlock, ADD_FOLDER_JSON_READER);
+    int findTypesReader = indexOfBeanRef(providerBlock, FIND_TYPES_JSON_READER);
+    int actionMenuReader = indexOfBeanRef(providerBlock, ACTION_MENU_JSON_READER);
+    int actionMenuListReader = indexOfBeanRef(providerBlock, ACTION_MENU_LIST_JSON_READER);
+    int autoTranslationReader = indexOfBeanRef(providerBlock, AUTO_TRANSLATION_ROWS_JSON_READER);
+    int displayFormatReader = indexOfBeanRef(providerBlock, DISPLAY_FORMAT_JSON_READER);
+    int templateDetailReader = indexOfBeanRef(providerBlock, TEMPLATE_DETAIL_JSON_READER);
+    int relationshipTypeReader = indexOfBeanRef(providerBlock, RELATIONSHIP_TYPE_JSON_READER);
+    int jackson = indexOfBeanRef(providerBlock, "jacksonProvider");
     assertTrue(
         reader >= 0,
         "rest-jax-rs providers must ref "
@@ -289,10 +277,50 @@ class CatalogRestJaxrsRegistrationTest {
             + "allowedWorkflowTransitionsRequest)");
   }
 
+  /**
+   * Portable join for the sitemanage Spring beans file under the monorepo root. Multi-arg
+   * {@link Path#of} so no separator is baked into a literal (resolves the same file on Windows
+   * and Unix) — behaviour is identical to the previous single-literal form on Linux.
+   */
+  private static Path sitemanageBeansXml(Path root) {
+    return root.resolve(
+        Path.of(
+            "projects",
+            "sitemanage",
+            "src",
+            "main",
+            "resources",
+            "Rhythmyx",
+            "AppServer",
+            "server",
+            "rx",
+            "deploy",
+            "rxapp.ear",
+            "rxapp.war",
+            "WEB-INF",
+            "config",
+            "spring",
+            "projects",
+            "sitemanage-beans.xml"));
+  }
+
+  /**
+   * Index of a {@code bean="..."} ref inside a CXF config block, or -1 when absent. Centralises
+   * the XML attribute matcher so the quote-escape backslash lives on one line: it escapes the
+   * Java string quote and is not a filesystem separator (same class as the deployer
+   * XML-attribute precedent, adjudicated in issue #6831).
+   */
+  private static int indexOfBeanRef(String block, String bean) {
+    // mkd-code-review[paths.hardcoded_sep]: XML content matcher, not a filesystem path —
+    // the backslash escapes the Java string quote (issue #6831).
+    return block.indexOf("bean=\"" + bean + "\"");
+  }
+
   private static Path resolveRepoRoot() {
     Path cwd = Path.of("").toAbsolutePath().normalize();
     // Standalone: cd projects/sitemanage && ../../mvnw clean install
-    Path fromModule = cwd.resolve("../..").normalize();
+    // (chained parent resolves, so no separator is hardcoded)
+    Path fromModule = cwd.resolve("..").resolve("..").normalize();
     if (Files.isDirectory(fromModule.resolve("system"))
         && Files.isDirectory(fromModule.resolve("projects/sitemanage"))) {
       return fromModule;
