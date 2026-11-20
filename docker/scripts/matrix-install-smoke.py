@@ -91,7 +91,15 @@ from typing import Dict, Iterable, List, Mapping, Optional, Sequence, Set, Tuple
 _SCRIPTS_DIR = Path(__file__).resolve().parent
 if str(_SCRIPTS_DIR) not in sys.path:
     sys.path.insert(0, str(_SCRIPTS_DIR))
-from perc_host_ports import find_free_port, is_port_free, resolve_host_port  # noqa: E402
+from perc_host_ports import (  # noqa: E402
+    QA_CELL_SUFFIX_ENV,
+    find_free_port,
+    is_port_free,
+    resolve_cell_suffix,
+    resolve_host_port,
+    sanitize_cell_suffix,
+    suffixed_cell_container_name,
+)
 from rhythmyx_ready import (  # noqa: E402
     DETAIL_CONTEXT_FAILED,  # used in DETAIL strings via assess_rhythmyx_ready
     DETAIL_SERVER_LOG_ERRORS,  # noqa: F401 — stable DETAIL token for agents
@@ -1349,8 +1357,18 @@ def wait_for_http(
     return False, last or "timeout"
 
 
-def cell_container_name(cell: CellSpec) -> str:
-    return f"perc-matrix-{cell.cell_id}"
+def cell_container_name(cell: CellSpec, *, suffix: object = None) -> str:
+    """Container name for a matrix cell.
+
+    Parallel shards isolate their cells via ``--cell-suffix`` /
+    :data:`PERC_QA_CELL_SUFFIX` (issue #6704): the suffix appends to the
+    legacy fixed name so one shard's pre-run ``docker rm -f`` can no
+    longer kill another shard's in-flight cell. ``None`` (default)
+    resolves from the environment; unset keeps the legacy fixed name.
+    """
+    return suffixed_cell_container_name(
+        cell.cell_id, resolve_cell_suffix(suffix)
+    )
 
 
 def run_cell(
@@ -1366,9 +1384,10 @@ def run_cell(
     env_file: Optional[Path] = None,
     started_dbs: Optional[Set[str]] = None,
     engaged_dbs: Optional[Set[str]] = None,
+    cell_suffix: object = None,
 ) -> CellResult:
     started = time.time()
-    name = cell_container_name(cell)
+    name = cell_container_name(cell, suffix=cell_suffix)
     # Env override (QA_CMS_HOST_PORT / CMS_HOST_PORT / DTS_HOST_PORT) or freeport
     # so multi-worktree agents do not collide on preferred 9993/9983 (#2005).
     host_port = ensure_matrix_host_port(cell.product)
@@ -1598,6 +1617,17 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Do not docker build the matrix cell image",
     )
     p.add_argument(
+        "--cell-suffix",
+        default=None,
+        help=(
+            "Isolate this cell's container name for parallel shards "
+            "(issue #6704): the sanitized value appends to "
+            "perc-matrix-<product>-<db> so concurrent runs no longer "
+            "share (and rm -f) one fixed name. Defaults to "
+            f"{QA_CELL_SUFFIX_ENV} env; unset keeps legacy fixed names."
+        ),
+    )
+    p.add_argument(
         "--skip-preflight",
         action="store_true",
         help=(
@@ -1732,6 +1762,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
                 env_file=env_file,
                 started_dbs=started_by_matrix,
                 engaged_dbs=engaged_external,
+                cell_suffix=args.cell_suffix,
             )
             report.results.append(result)
             LOG.info(

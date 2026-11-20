@@ -25,6 +25,7 @@ SCRIPTS = Path(__file__).resolve().parent
 # Env keys that freeport resolution may set or read — clear between tests.
 _PORT_ENV_KEYS = (
     "QA_CMS_HOST_PORT",
+    "PERC_QA_CELL_SUFFIX",
     "CMS_HOST_PORT",
     "DTS_HOST_PORT",
     "CMS_PORT",
@@ -1974,6 +1975,134 @@ class TestFreeportAndUrlWiring(unittest.TestCase):
             out,
         )
         self.assertIn("VERIFY_DTS_URL=http://localhost:15552/", out)
+
+
+class QaCellSuffixIsolationTests(unittest.TestCase):
+    """Issue #6704: parallel shards isolate QA cells via --cell-suffix /
+    PERC_QA_CELL_SUFFIX so one shard's qa-up can no longer rm -f another
+    shard's in-flight cell."""
+
+    def setUp(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo_root = _stub_repo_root(Path(self.td.name))
+        matrix = self.repo_root / "docker" / "scripts" / "matrix-install-smoke.py"
+        matrix.write_text("# stub\n", encoding="utf-8")
+        self.runner = _CliRunner(self.repo_root)
+
+    def _qa_up_logs(self):
+        return sorted((self.repo_root / "docker" / "logs").glob("qa-up*.log"))
+
+    def _qa_down_logs(self):
+        return sorted((self.repo_root / "docker" / "logs").glob("qa-down*.log"))
+
+    def test_default_containers_are_legacy_fixed_names(self):
+        self.assertEqual(pdc.qa_cms_container(), "perc-matrix-cms-h2")
+        self.assertEqual(pdc.qa_dts_container(), "perc-matrix-dts-h2")
+        self.assertEqual(pdc.QA_CMS_CONTAINER, "perc-matrix-cms-h2")
+        self.assertEqual(pdc.QA_DTS_CONTAINER, "perc-matrix-dts-h2")
+
+    def test_suffix_env_scopes_container_names(self):
+        os.environ["PERC_QA_CELL_SUFFIX"] = "qa-a"
+        self.assertEqual(pdc.qa_cms_container(), "perc-matrix-cms-h2-qa-a")
+        self.assertEqual(pdc.qa_dts_container(), "perc-matrix-dts-h2-qa-a")
+
+    def test_explicit_suffix_wins_over_env(self):
+        os.environ["PERC_QA_CELL_SUFFIX"] = "from-env"
+        self.assertEqual(pdc.qa_cms_container("flag"), "perc-matrix-cms-h2-flag")
+        self.assertEqual(pdc.qa_dts_container("flag"), "perc-matrix-dts-h2-flag")
+
+    def test_suffix_sanitizes_to_safe_docker_fragment(self):
+        self.assertEqual(pdc.sanitize_cell_suffix(None), "")
+        self.assertEqual(pdc.sanitize_cell_suffix(""), "")
+        self.assertEqual(pdc.sanitize_cell_suffix("qa-a"), "qa-a")
+        self.assertEqual(pdc.sanitize_cell_suffix("Qa A/x_7"), "qaax7")
+        self.assertEqual(pdc.sanitize_cell_suffix("--qa--"), "qa")
+        self.assertEqual(
+            pdc.sanitize_cell_suffix("x" * 30), "x" * 24  # MAX_CELL_SUFFIX_LEN
+        )
+
+    def test_matrix_up_argv_has_no_cell_suffix_by_default(self):
+        argv = pdc._qa_matrix_up_argv(
+            self.repo_root,
+            probe_timeout=120,
+            skip_image_build=False,
+            dry_run=True,
+        )
+        self.assertNotIn("--cell-suffix", argv)
+
+    def test_matrix_up_argv_passes_cell_suffix_through(self):
+        argv = pdc._qa_matrix_up_argv(
+            self.repo_root,
+            probe_timeout=120,
+            skip_image_build=False,
+            dry_run=True,
+            cell_suffix="qa-a",
+        )
+        self.assertIn("--cell-suffix", argv)
+        self.assertIn("qa-a", argv)
+
+    def test_qa_up_dry_run_default_banner_keeps_fixed_name(self):
+        rc, out = self.runner.run(["qa-up", "--timeout-seconds", "60"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("QA_CONTAINER:perc-matrix-cms-h2", out)
+        for log in self._qa_up_logs():
+            self.assertNotIn(
+                "--cell-suffix", log.read_text(encoding="utf-8")
+            )
+
+    def test_qa_up_dry_run_flag_scopes_cell_and_matrix_argv(self):
+        rc, out = self.runner.run(
+            ["qa-up", "--cell-suffix", "qa-a", "--timeout-seconds", "60"]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("QA_CONTAINER:perc-matrix-cms-h2-qa-a", out)
+        logs = self._qa_up_logs()
+        self.assertTrue(logs, "expected qa-up dry-run logs")
+        self.assertTrue(
+            any("--cell-suffix qa-a" in log.read_text(encoding="utf-8") for log in logs),
+            "expected --cell-suffix passthrough in matrix dry-run argv",
+        )
+
+    def test_qa_up_dry_run_env_suffix_scopes_cell(self):
+        os.environ["PERC_QA_CELL_SUFFIX"] = "qa-b"
+        rc, out = self.runner.run(["qa-up", "--timeout-seconds", "60"])
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("QA_CONTAINER:perc-matrix-cms-h2-qa-b", out)
+
+    def test_qa_down_dry_run_suffix_scopes_both_removals(self):
+        rc, out = self.runner.run(
+            ["qa-down", "--cell-suffix", "qa-a"]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("QA_CONTAINER:perc-matrix-cms-h2-qa-a", out)
+        self.assertIn("QA_CONTAINER:perc-matrix-dts-h2-qa-a", out)
+        logs = self._qa_down_logs()
+        self.assertTrue(logs, "expected qa-down dry-run logs")
+        bodies = [log.read_text(encoding="utf-8") for log in logs]
+        self.assertTrue(
+            any("docker rm -f perc-matrix-cms-h2-qa-a" in b for b in bodies)
+        )
+        self.assertTrue(
+            any("docker rm -f perc-matrix-dts-h2-qa-a" in b for b in bodies)
+        )
+        # The sibling-owned fixed names must not be touched by a suffixed run.
+        for body in bodies:
+            self.assertNotIn(
+                "DRY-RUN: docker rm -f perc-matrix-cms-h2\n", body
+            )
+            self.assertNotIn(
+                "DRY-RUN: docker rm -f perc-matrix-dts-h2\n", body
+            )
+
+    def test_qa_health_dry_run_suffix_probes_suffixed_cell(self):
+        rc, out = self.runner.run(
+            ["qa-health", "--cell-suffix", "qa-a", "--timeout-seconds", "30"]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("CONTAINER:perc-matrix-cms-h2-qa-a", out)
 
 
 if __name__ == "__main__":

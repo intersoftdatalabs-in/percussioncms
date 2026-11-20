@@ -16,6 +16,7 @@ Resolution order for :func:`resolve_host_port`:
 from __future__ import annotations
 
 import os
+import re
 import socket
 from typing import Optional
 
@@ -65,3 +66,55 @@ def resolve_host_port(
     if preferred is not None and is_port_free(preferred):
         return preferred
     return find_free_port()
+
+
+# QA cell name suffix for parallel shards (issue #6704). ``qa-up`` used to
+# address a single fixed cell (``perc-matrix-cms-h2``) and unconditionally
+# ``docker rm -f`` it before ``docker run``, so two ``max_parallel_work=2``
+# shards in the same window deterministically killed each other's in-flight
+# cell. Exporting a distinct ``PERC_QA_CELL_SUFFIX`` per shard (or passing
+# ``--cell-suffix``) scopes every QA cell name to
+# ``perc-matrix-<product>-<db>-<suffix>`` so shards hold isolated cells.
+# Unset (the default) keeps the legacy fixed names — single-worktree
+# behavior is unchanged.
+QA_CELL_SUFFIX_ENV = "PERC_QA_CELL_SUFFIX"
+MAX_CELL_SUFFIX_LEN = 24
+_CELL_SUFFIX_BAD_CHARS_RE = re.compile(r"[^a-z0-9-]+")
+
+
+def sanitize_cell_suffix(raw: object) -> str:
+    """Normalize a QA cell name suffix to a safe docker-name fragment.
+
+    Lowercases, drops anything outside ``[a-z0-9-]``, strips leading /
+    trailing dashes, and truncates to :data:`MAX_CELL_SUFFIX_LEN`.
+    Empty / blank input maps to ``""`` (legacy fixed cell names).
+    """
+    if raw is None:
+        return ""
+    text = str(raw).strip().lower()
+    if not text:
+        return ""
+    text = _CELL_SUFFIX_BAD_CHARS_RE.sub("", text).strip("-")
+    return text[:MAX_CELL_SUFFIX_LEN]
+
+
+def resolve_cell_suffix(explicit: object = None) -> str:
+    """Resolve the effective QA cell suffix: explicit flag wins, else env.
+
+    ``explicit`` is the ``--cell-suffix`` value (``None`` when the flag
+    was not passed); the fallback reads :data:`QA_CELL_SUFFIX_ENV`.
+    """
+    if explicit is not None:
+        return sanitize_cell_suffix(explicit)
+    return sanitize_cell_suffix(os.environ.get(QA_CELL_SUFFIX_ENV, ""))
+
+
+def suffixed_cell_container_name(cell_id: str, suffix: object = "") -> str:
+    """QA cell container name for ``cell_id`` (e.g. ``cms-h2``).
+
+    Returns the legacy fixed name (``perc-matrix-<cell_id>``) when the
+    suffix sanitizes empty, else ``perc-matrix-<cell_id>-<suffix>``.
+    """
+    clean = sanitize_cell_suffix(suffix)
+    base = f"perc-matrix-{cell_id}"
+    return f"{base}-{clean}" if clean else base

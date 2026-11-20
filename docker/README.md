@@ -224,7 +224,50 @@ Do **not** hardcode `http://127.0.0.1:9993` in agent scripts — 9993 is only th
 
 **Host-side installer + MySQL freeport:** if `MYSQL_PORT` freeports away from `3306` and you run `scripts/install-cms-dev.py` against published MySQL on localhost, also set `PERC_DB_PORT` to the same host port (matrix cells do not need this — they use container DNS).
 
-**Remaining multi-worktree gaps** (parent [#2001](https://github.com/intersoftdatalabs-in/percussioncms/issues/2001)): fixed compose `container_name` values still limit true concurrent full stacks; freeport alone does not rename containers. Operator two-worktree checklist: [#2006](https://github.com/intersoftdatalabs-in/percussioncms/issues/2006) when present.
+**Remaining multi-worktree gaps** (parent [#2001](https://github.com/intersoftdatalabs-in/percussioncms/issues/2001)): fixed compose `container_name` values still limit true concurrent full stacks (dev `up`, not QA cells — those are suffix-scoped since #6704, see below); freeport alone does not rename compose containers. Operator two-worktree checklist: [#2006](https://github.com/intersoftdatalabs-in/percussioncms/issues/2006) when present.
+
+#### QA cell name suffix (parallel shards) — #6704
+
+`qa-up` used to address one fixed cell (`perc-matrix-cms-h2`) and unconditionally `docker rm -f` it before `docker run`, so two `max_parallel_work=2` pilot shards in the same window deterministically killed each other's in-flight cell (last-writer-wins). Since #6704 every QA cell container name honors a **cell suffix**:
+
+| Source | Example | Cell names |
+|---|---|---|
+| `--cell-suffix qa-a` (flag wins) | `qa-up --cell-suffix qa-a` | `perc-matrix-cms-h2-qa-a`, `perc-matrix-dts-h2-qa-a` |
+| `PERC_QA_CELL_SUFFIX=qa-a` env | `export PERC_QA_CELL_SUFFIX=qa-a` | same as above |
+| unset (default) | — | legacy fixed `perc-matrix-cms-h2`, `perc-matrix-dts-h2` |
+
+Rules:
+
+- The suffix sanitizes to `[a-z0-9-]` (lowercased, max 24 chars); blank stays legacy.
+- Export the **same** suffix for the whole session (`qa-up` → `qa-health` → `qa-down`, plus `qa-deploy-*`, `qa-publish-fixture`, `qa-seed-widget-fixtures`): every default `--container` and every `docker port` / `docker exec` / `docker rm -f` resolves against it. An explicit `--container` still wins for one-off targeting.
+- Parallel shards **must** use distinct suffixes (e.g. derived from the worktree or agent id). Two shards sharing a suffix (or both unset) keep the old last-writer-wins behavior by design — sequential re-runs in one shard rely on the pre-run `rm -f` to recycle their own cell.
+- `qa-up` passes `--cell-suffix` explicitly to the child `matrix-install-smoke` run and exports `PERC_QA_CELL_SUFFIX`, so `matrix-install-smoke.py --product cms --db h2 --keep` started by hand with the same env/flag addresses the same cell.
+- Host **ports** are unchanged (env pin → preferred → freeport, #2005); suffixes only scope names. Windows PowerShell equivalent: `$env:PERC_QA_CELL_SUFFIX="qa-a"`.
+
+Concurrent two-cell proof (names, companion to Tier 2 Path B which covers ports):
+
+```bash
+# Terminal A — shard A cell (CMS-only example; add --with-dts for the DTS leg)
+export PERC_QA_CELL_SUFFIX=shard-a
+python docker/scripts/perc-devctl.py qa-up --skip-image-build
+# QA_CONTAINER:perc-matrix-cms-h2-shard-a
+
+# Terminal B — shard B cell while A is still up (mutual kill pre-#6704)
+export PERC_QA_CELL_SUFFIX=shard-b
+python docker/scripts/perc-devctl.py qa-up --skip-image-build
+# QA_CONTAINER:perc-matrix-cms-h2-shard-b ; both containers coexist
+
+docker ps --format '{{.Names}}'
+# perc-matrix-cms-h2-shard-a + perc-matrix-cms-h2-shard-b, no fixed-name clobber
+
+# Health-check each cell against its own suffix, then tear down only your own:
+python docker/scripts/perc-devctl.py qa-health   # uses shard-b cell (env)
+export PERC_QA_CELL_SUFFIX=shard-a
+python docker/scripts/perc-devctl.py qa-health
+python docker/scripts/perc-devctl.py qa-down     # removes shard-a cells only
+```
+
+Never `qa-down` without the suffix that created the cell — the default (unset) run addresses the legacy fixed name, not your suffixed cell.
 
 #### Two-worktree concurrent freeport smoke (#2006)
 
@@ -291,7 +334,7 @@ python docker/scripts/perc-devctl.py up --dry-run
 
 ##### Tier 2 — live stacks (optional; real Docker + probes)
 
-Requires Docker, packaged CMS installer for QA (`modules/perc-distribution-tree` assembly jar), and free machine resources. **Container names are still global** (`perc-matrix-cms-h2`, `percussion-cms-dts`); two checkouts cannot both keep the same named container. Live concurrent smoke therefore uses **sequential ownership of the shared name** or **one live cell + freeport dry-run for the second** unless #2004 / follow-ups add worktree-scoped names.
+Requires Docker, packaged CMS installer for QA (`modules/perc-distribution-tree` assembly jar), and free machine resources. QA cell container names are isolated per shard since #6704 (see "QA cell name suffix" below): export a distinct `PERC_QA_CELL_SUFFIX` (or pass `--cell-suffix`) per concurrent checkout and two cells can stay up side by side. Without a suffix the legacy fixed names (`perc-matrix-cms-h2`, `perc-matrix-dts-h2`) still apply — last-writer-wins `rm -f`, so concurrent runs must use suffixes. (Dev compose stacks still share the single `percussion-cms-dts` container name; Path C below is unchanged.)
 
 **Path A — sequential QA (same host, prove freeport + probes + tear-down):**
 
