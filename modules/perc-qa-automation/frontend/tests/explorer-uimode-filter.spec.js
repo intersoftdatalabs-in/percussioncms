@@ -127,6 +127,10 @@ test.describe("Explorer action catalog UI-mode filter (#6619)", () => {
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="content-explorer-shell"]',
       });
+      // C5 live proof (passing-surface screenshot).
+      await page.screenshot({
+        path: "test-results/live-proof-6619-uimode.png",
+      });
     },
   );
 });
