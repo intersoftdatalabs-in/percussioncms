@@ -1274,14 +1274,26 @@ The **status bar** always renders under the folder list:
 visibility contexts (Workbench numeric ids `1`–`11` or alias spellings such
 as `checkoutStatus`, `roles`, `locales`) whose listed values *hide* the
 action when they match the current environment — the same hide-on-match
-semantics DCE used. The shell evaluates the rules it can resolve (checked
-row count vs multi-select support, user roles, session locale, community,
-row access band) and hides matching actions from **both** the toolbar and
-the right-click menu, including whole cascade parents whose every child is
-hidden. Rules the shell cannot resolve yet (checkout status, content-type /
-workflow ids, per-mode UI contexts — that detail is not on the list rows)
-stay permissive: the action remains visible, exactly as before this change.
-Those gaps are tracked as server follow-ons, not silent ignores.
+semantics DCE used. The shell evaluates the rules it can resolve and hides
+matching actions from **both** the toolbar and the right-click menu,
+including whole cascade parents whose every child is hidden:
+
+| Evaluated rule | Fact source |
+|----------------|-------------|
+| Checked-row count vs multi-select support | `SupportsMultiSelect` action property |
+| User roles | Bootstrap session identities |
+| Session locale | Bootstrap locale |
+| Row access band | Selected row's folder-access band |
+
+Rules the shell cannot resolve yet stay permissive: the action remains
+visible, exactly as before this change. Those facts are not on the list
+rows — checkout status, content-type / object-type / workflow /
+community / assignment ids, client-context token, publishable type — nor
+(for per-mode `uiContexts`) the Workbench mode ids. Closing them needs the
+identity fields on the path/paginated rows (or a lightweight batch
+endpoint), or server-side visibility filtering for the SPA entry. Those
+gaps are tracked as server follow-ons (#6618 row identity, #6619 mode
+contexts), not silent ignores.
 
 ## Folder security
 

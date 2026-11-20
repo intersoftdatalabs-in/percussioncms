@@ -35,6 +35,26 @@
  * client cannot evaluate is a server gap, not a silent rule; see the
  * operator docs section "DCE chrome model parity". Pure module: no DOM,
  * no fetch, no React — Vitest locks the mapping.</p>
+ *
+ * <p>Row-identity audit (#6618 / parent #4530): which of the 11 server
+ * contexts the shell can actually evaluate today, and which stay
+ * permissive because the facts are not on {@code PSPathItem} rows.
+ * Evaluated today (the shell supplies the facts): the multi-select rule
+ * ({@code SupportsMultiSelect} vs checked-row count), {@code 7} roles
+ * (bootstrap identities), {@code 8} locales (bootstrap locale), and
+ * {@code 11} folder security (selected-row {@code accessLevel}).
+ * Permissive today: {@code 6} checkout status (rows carry no checkout
+ * state — {@code CheckoutOwnerPanel} loads it per item via a separate
+ * call), {@code 3} content-type / {@code 4} object type / {@code 9}
+ * workflow ids (rows carry display strings such as {@code percPage},
+ * not numeric ids), {@code 2} community id (the SPA session exposes no
+ * community id), {@code 1} assignment type (not on rows), {@code 5}
+ * client context and {@code 10} publishable type (never populated by
+ * the shell). Options: expose the identity fields on path/paginated
+ * rows (or a lightweight batch endpoint), or filter visibility
+ * server-side for the SPA entry. Until then these rules stay visible,
+ * exactly as before #6517. Per-mode uiContexts are a separate gap
+ * (#6619).</p>
  */
 
 import type {
