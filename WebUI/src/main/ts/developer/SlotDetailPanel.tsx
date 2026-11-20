@@ -511,8 +511,12 @@ export function SlotDetailPanel({
     }
   }
 
-  async function handleDescriptionSave(): Promise<void> {
-    if (
+  // #6732: save-guard + outcome splits keep handleDescriptionSave at/below
+  // the arborist-metrics complexity thresholds. Each helper owns one
+  // outcome (blocked / unchanged / rejected / applied / failed) so the
+  // orchestrator stays a flat guard-clause sequence with no nesting.
+  function descriptionSaveBlocked(): boolean {
+    return (
       isNew ||
       !detail ||
       !writeKey ||
@@ -524,14 +528,46 @@ export function SlotDetailPanel({
       labelInflight.current ||
       inflight.current ||
       busy
-    ) {
+    );
+  }
+
+  function finishDescriptionUnchanged(): void {
+    setDescriptionEditing(false);
+    setDescriptionDraft("");
+    setDescriptionError(null);
+  }
+
+  function rejectDescriptionSave(previousShown: string): void {
+    setDescription(previousShown);
+    setDescriptionShown(previousShown);
+    setDescriptionError(SLOT_DESC_MSG.ERROR);
+    setDescriptionNotice(null);
+  }
+
+  function applyDescriptionSaved(nextDetail: SlotDetail, accepted: string): void {
+    setDetail(nextDetail);
+    setDescription(accepted);
+    setDescriptionShown(accepted);
+    setDescriptionEditing(false);
+    setDescriptionDraft("");
+    setDescriptionNotice(accepted ? SLOT_DESC_MSG.SAVED : SLOT_DESC_MSG.CLEARED);
+    onSaved?.(nextDetail);
+  }
+
+  function failDescriptionSave(err: unknown, previousShown: string): void {
+    setDescription(previousShown);
+    setDescriptionShown(previousShown);
+    setDescriptionError(panelErrMsg(err, descriptionSaveFallback(err)));
+    setDescriptionNotice(null);
+  }
+
+  async function handleDescriptionSave(): Promise<void> {
+    if (!detail || descriptionSaveBlocked()) {
       return;
     }
     const sent = slotDescriptionWrite(detail, descriptionDraft);
     if (sent === "unchanged") {
-      setDescriptionEditing(false);
-      setDescriptionDraft("");
-      setDescriptionError(null);
+      finishDescriptionUnchanged();
       return;
     }
     descriptionInflight.current = true;
@@ -546,25 +582,12 @@ export function SlotDetailPanel({
       const saved = await updateSlotDetail(writeKey, sent);
       const accepted = savedSlotDescription(sent, detail, saved);
       if (accepted == null) {
-        setDescription(previousShown);
-        setDescriptionShown(previousShown);
-        setDescriptionError(SLOT_DESC_MSG.ERROR);
-        setDescriptionNotice(null);
+        rejectDescriptionSave(previousShown);
         return;
       }
-      const nextDetail: SlotDetail = { ...detail, description: accepted };
-      setDetail(nextDetail);
-      setDescription(accepted);
-      setDescriptionShown(accepted);
-      setDescriptionEditing(false);
-      setDescriptionDraft("");
-      setDescriptionNotice(accepted ? SLOT_DESC_MSG.SAVED : SLOT_DESC_MSG.CLEARED);
-      onSaved?.(nextDetail);
+      applyDescriptionSaved({ ...detail, description: accepted }, accepted);
     } catch (err: unknown) {
-      setDescription(previousShown);
-      setDescriptionShown(previousShown);
-      setDescriptionError(panelErrMsg(err, descriptionSaveFallback(err)));
-      setDescriptionNotice(null);
+      failDescriptionSave(err, previousShown);
     } finally {
       descriptionInflight.current = false;
       setDescriptionBusy(false);
@@ -612,8 +635,12 @@ export function SlotDetailPanel({
     }
   }
 
-  async function handleLabelSave(): Promise<void> {
-    if (
+  // #6732: save-guard + outcome splits keep handleLabelSave at/below the
+  // arborist-metrics complexity thresholds. Each helper owns one outcome
+  // (blocked / unchanged / rejected / applied / failed) so the
+  // orchestrator stays a flat guard-clause sequence with no nesting.
+  function labelSaveBlocked(): boolean {
+    return (
       isNew ||
       !detail ||
       !writeKey ||
@@ -625,14 +652,46 @@ export function SlotDetailPanel({
       descriptionInflight.current ||
       inflight.current ||
       busy
-    ) {
+    );
+  }
+
+  function finishLabelUnchanged(): void {
+    setLabelEditing(false);
+    setLabelDraft("");
+    setLabelError(null);
+  }
+
+  function rejectLabelSave(previousShown: string, previousLabel: string): void {
+    setLabel(previousLabel);
+    setLabelShown(previousShown);
+    setLabelError(SLOT_LABEL_MSG.ERROR);
+    setLabelNotice(null);
+  }
+
+  function applyLabelSaved(nextDetail: SlotDetail, accepted: string, sentLabel: string): void {
+    setDetail(nextDetail);
+    setLabel(accepted);
+    setLabelShown(accepted);
+    setLabelEditing(false);
+    setLabelDraft("");
+    setLabelNotice(sentLabel ? SLOT_LABEL_MSG.SAVED : SLOT_LABEL_MSG.CLEARED);
+    onSaved?.(nextDetail);
+  }
+
+  function failLabelSave(err: unknown, previousShown: string, previousLabel: string): void {
+    setLabel(previousLabel);
+    setLabelShown(previousShown);
+    setLabelError(panelErrMsg(err, labelSaveFallback(err)));
+    setLabelNotice(null);
+  }
+
+  async function handleLabelSave(): Promise<void> {
+    if (!detail || labelSaveBlocked()) {
       return;
     }
     const sent = slotLabelWrite(detail, labelDraft);
     if (sent === "unchanged") {
-      setLabelEditing(false);
-      setLabelDraft("");
-      setLabelError(null);
+      finishLabelUnchanged();
       return;
     }
     labelInflight.current = true;
@@ -648,25 +707,12 @@ export function SlotDetailPanel({
       const saved = await updateSlotDetail(writeKey, sent);
       const accepted = savedSlotLabel(sent, detail, saved);
       if (accepted == null) {
-        setLabel(previousLabel);
-        setLabelShown(previousShown);
-        setLabelError(SLOT_LABEL_MSG.ERROR);
-        setLabelNotice(null);
+        rejectLabelSave(previousShown, previousLabel);
         return;
       }
-      const nextDetail: SlotDetail = { ...detail, label: accepted };
-      setDetail(nextDetail);
-      setLabel(accepted);
-      setLabelShown(accepted);
-      setLabelEditing(false);
-      setLabelDraft("");
-      setLabelNotice(sent.label ? SLOT_LABEL_MSG.SAVED : SLOT_LABEL_MSG.CLEARED);
-      onSaved?.(nextDetail);
+      applyLabelSaved({ ...detail, label: accepted }, accepted, sent.label);
     } catch (err: unknown) {
-      setLabel(previousLabel);
-      setLabelShown(previousShown);
-      setLabelError(panelErrMsg(err, labelSaveFallback(err)));
-      setLabelNotice(null);
+      failLabelSave(err, previousShown, previousLabel);
     } finally {
       labelInflight.current = false;
       setLabelBusy(false);
