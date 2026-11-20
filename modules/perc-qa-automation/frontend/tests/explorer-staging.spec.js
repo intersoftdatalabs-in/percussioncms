@@ -18,10 +18,18 @@
 /**
  * Explorer single-item Stage / Remove from Staging (#5631 / parent #4530).
  *
- * <p>One selected page row + Stage asks once, stages that item, and
- * refreshes the row. Remove from Staging asks once and clears the staged
- * state. Cancel changes nothing. HTTP 400/403/404/409 names the item and
- * leaves the selection intact.</p>
+ * <p>Dialog-parity edition (#6678): the production shell always routes
+ * single-item Stage/Unstage through {@code BulkStageDialog}
+ * ({@code confirmBulkStage}, #6530), so no native {@code window.confirm}
+ * fires. One selected page row + Stage opens the bulk dialog, confirms that
+ * item, and reports the row; Remove from Staging behaves the same. Cancel
+ * stages nothing. HTTP 400/403/409 name the item in the dialog report row
+ * (for example {@code Home — Failed (HTTP 403)}) and keep the selection —
+ * the transient Server-actions banner no longer appears for this flow.</p>
+ *
+ * <p>Success-path coverage overlaps
+ * {@code explorer-single-stage.spec.js}; it is kept here so this file still
+ * matches the retired confirm-flow coverage one for one.</p>
  *
  * <p>Run (QA mode after {@code perc-devctl qa-up}):
  * {@code npm run test:surface -- --path tests/explorer-staging.spec.js}
@@ -148,6 +156,7 @@ async function openListing(page) {
   await expect(
     page.locator('[data-testid="content-explorer-shell"][data-selected-item-id="42"]'),
   ).toBeVisible({ timeout: 10_000 });
+  await page.locator('[data-testid="detail-select-42"]').check();
 }
 
 test.describe("Explorer single-item Stage / Remove from Staging", () => {
@@ -164,18 +173,30 @@ test.describe("Explorer single-item Stage / Remove from Staging", () => {
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        expect(dialog.message()).toMatch(/Stage this item to the staging server/i);
-        void dialog.accept();
-      });
       const { staged, unstaged } = await installStagingRoutes(page);
       await openListing(page);
       const button = page.locator('[data-testid="action-toolbar-item-Stage"]');
       await expect(button).toBeVisible({ timeout: 15_000 });
       await button.click();
+      const dialog = page.locator('[data-testid="explorer-bulk-stage-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await expect(
+        page.locator('[data-testid="explorer-bulk-stage-items"]'),
+      ).toContainText(/Home/);
+      await page.locator('[data-testid="explorer-bulk-stage-confirm"]').click();
+      await expect(
+        page.locator('[data-testid="explorer-bulk-stage-summary"]'),
+      ).toContainText(/1 staged, 0 skipped, 0 failed/i, { timeout: 10_000 });
+      const rows = page.locator(
+        '[data-testid="explorer-bulk-stage-report-row"]',
+      );
+      await expect(rows).toHaveCount(1);
+      await expect(rows.nth(0)).toContainText(/Home.*Staged/i);
       await expect.poll(() => staged.length).toBe(1);
       expect(staged.some((url) => url.includes("/page/staging/42"))).toBe(true);
       expect(unstaged).toEqual([]);
+      await page.locator('[data-testid="explorer-bulk-stage-close"]').click();
+      await expect(dialog).toHaveCount(0);
       await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
         "data-list-epoch",
         "1",
@@ -198,10 +219,6 @@ test.describe("Explorer single-item Stage / Remove from Staging", () => {
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        expect(dialog.message()).toMatch(/Remove this item from staging/i);
-        void dialog.accept();
-      });
       const { staged, unstaged } = await installStagingRoutes(page);
       await openListing(page);
       const button = page.locator(
@@ -209,11 +226,29 @@ test.describe("Explorer single-item Stage / Remove from Staging", () => {
       );
       await expect(button).toBeVisible({ timeout: 15_000 });
       await button.click();
+      const dialog = page.locator('[data-testid="explorer-bulk-stage-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await expect(
+        page.locator('[data-testid="explorer-bulk-stage-items"]'),
+      ).toContainText(/Home/);
+      await page.locator('[data-testid="explorer-bulk-stage-confirm"]').click();
+      await expect(
+        page.locator('[data-testid="explorer-bulk-stage-summary"]'),
+      ).toContainText(/1 removed from staging, 0 skipped, 0 failed/i, {
+        timeout: 10_000,
+      });
+      const rows = page.locator(
+        '[data-testid="explorer-bulk-stage-report-row"]',
+      );
+      await expect(rows).toHaveCount(1);
+      await expect(rows.nth(0)).toContainText(/Home.*Removed from staging/i);
       await expect.poll(() => unstaged.length).toBe(1);
       expect(
         unstaged.some((url) => url.includes("/takedown/page/staging/42")),
       ).toBe(true);
       expect(staged).toEqual([]);
+      await page.locator('[data-testid="explorer-bulk-stage-close"]').click();
+      await expect(dialog).toHaveCount(0);
       await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
         "data-list-epoch",
         "1",
@@ -233,12 +268,13 @@ test.describe("Explorer single-item Stage / Remove from Staging", () => {
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        void dialog.dismiss();
-      });
       const { staged, unstaged } = await installStagingRoutes(page);
       await openListing(page);
       await page.locator('[data-testid="action-toolbar-item-Stage"]').click();
+      const dialog = page.locator('[data-testid="explorer-bulk-stage-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await page.locator('[data-testid="explorer-bulk-stage-cancel"]').click();
+      await expect(dialog).toHaveCount(0);
       await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
         "data-list-epoch",
         "0",
@@ -260,17 +296,29 @@ test.describe("Explorer single-item Stage / Remove from Staging", () => {
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        void dialog.accept();
-      });
       const { staged } = await installStagingRoutes(page, { homeStatus: 403 });
       await openListing(page);
       await page.locator('[data-testid="action-toolbar-item-Stage"]').click();
-      const error = page.locator('[data-testid="explorer-server-actions-error"]');
-      await expect(error).toBeVisible({ timeout: 10_000 });
-      await expect(error).toContainText(/Home \(HTTP 403\)/i);
-      await expect(error).toContainText(/Stage failed/i);
+      const dialog = page.locator('[data-testid="explorer-bulk-stage-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await page.locator('[data-testid="explorer-bulk-stage-confirm"]').click();
+      const summary = page.locator(
+        '[data-testid="explorer-bulk-stage-summary"]',
+      );
+      await expect(summary).toContainText(/0 staged, 0 skipped, 1 failed/i, {
+        timeout: 10_000,
+      });
+      const rows = page.locator(
+        '[data-testid="explorer-bulk-stage-report-row"]',
+      );
+      await expect(rows).toHaveCount(1);
+      await expect(rows.nth(0)).toContainText(/Home.*Failed.*HTTP 403/i);
       await expect.poll(() => staged.length).toBe(1);
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toHaveCount(0);
+      await page.locator('[data-testid="explorer-bulk-stage-close"]').click();
+      await expect(dialog).toHaveCount(0);
       await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
         "data-list-epoch",
         "0",
@@ -290,19 +338,32 @@ test.describe("Explorer single-item Stage / Remove from Staging", () => {
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        void dialog.accept();
-      });
       const { unstaged } = await installStagingRoutes(page, { homeStatus: 409 });
       await openListing(page);
       await page
         .locator('[data-testid="action-toolbar-item-Remove_from_Staging"]')
         .click();
-      const error = page.locator('[data-testid="explorer-server-actions-error"]');
-      await expect(error).toBeVisible({ timeout: 10_000 });
-      await expect(error).toContainText(/Home \(HTTP 409\)/i);
-      await expect(error).toContainText(/Remove from staging failed/i);
+      const dialog = page.locator('[data-testid="explorer-bulk-stage-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await page.locator('[data-testid="explorer-bulk-stage-confirm"]').click();
+      const summary = page.locator(
+        '[data-testid="explorer-bulk-stage-summary"]',
+      );
+      await expect(summary).toContainText(
+        /0 removed from staging, 0 skipped, 1 failed/i,
+        { timeout: 10_000 },
+      );
+      const rows = page.locator(
+        '[data-testid="explorer-bulk-stage-report-row"]',
+      );
+      await expect(rows).toHaveCount(1);
+      await expect(rows.nth(0)).toContainText(/Home.*Failed.*HTTP 409/i);
       await expect.poll(() => unstaged.length).toBe(1);
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toHaveCount(0);
+      await page.locator('[data-testid="explorer-bulk-stage-close"]').click();
+      await expect(dialog).toHaveCount(0);
       await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
         "data-list-epoch",
         "0",
@@ -322,17 +383,29 @@ test.describe("Explorer single-item Stage / Remove from Staging", () => {
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        void dialog.accept();
-      });
       const { staged } = await installStagingRoutes(page, { homeStatus: 400 });
       await openListing(page);
       await page.locator('[data-testid="action-toolbar-item-Stage"]').click();
-      const error = page.locator('[data-testid="explorer-server-actions-error"]');
-      await expect(error).toBeVisible({ timeout: 10_000 });
-      await expect(error).toContainText(/Home \(HTTP 400\)/i);
-      await expect(error).toContainText(/Stage failed/i);
+      const dialog = page.locator('[data-testid="explorer-bulk-stage-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await page.locator('[data-testid="explorer-bulk-stage-confirm"]').click();
+      const summary = page.locator(
+        '[data-testid="explorer-bulk-stage-summary"]',
+      );
+      await expect(summary).toContainText(/0 staged, 0 skipped, 1 failed/i, {
+        timeout: 10_000,
+      });
+      const rows = page.locator(
+        '[data-testid="explorer-bulk-stage-report-row"]',
+      );
+      await expect(rows).toHaveCount(1);
+      await expect(rows.nth(0)).toContainText(/Home.*Failed.*HTTP 400/i);
       await expect.poll(() => staged.length).toBe(1);
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toHaveCount(0);
+      await page.locator('[data-testid="explorer-bulk-stage-close"]').click();
+      await expect(dialog).toHaveCount(0);
       await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
         "data-list-epoch",
         "0",
@@ -352,19 +425,32 @@ test.describe("Explorer single-item Stage / Remove from Staging", () => {
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        void dialog.accept();
-      });
       const { unstaged } = await installStagingRoutes(page, { homeStatus: 400 });
       await openListing(page);
       await page
         .locator('[data-testid="action-toolbar-item-Remove_from_Staging"]')
         .click();
-      const error = page.locator('[data-testid="explorer-server-actions-error"]');
-      await expect(error).toBeVisible({ timeout: 10_000 });
-      await expect(error).toContainText(/Home \(HTTP 400\)/i);
-      await expect(error).toContainText(/Remove from staging failed/i);
+      const dialog = page.locator('[data-testid="explorer-bulk-stage-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await page.locator('[data-testid="explorer-bulk-stage-confirm"]').click();
+      const summary = page.locator(
+        '[data-testid="explorer-bulk-stage-summary"]',
+      );
+      await expect(summary).toContainText(
+        /0 removed from staging, 0 skipped, 1 failed/i,
+        { timeout: 10_000 },
+      );
+      const rows = page.locator(
+        '[data-testid="explorer-bulk-stage-report-row"]',
+      );
+      await expect(rows).toHaveCount(1);
+      await expect(rows.nth(0)).toContainText(/Home.*Failed.*HTTP 400/i);
       await expect.poll(() => unstaged.length).toBe(1);
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toHaveCount(0);
+      await page.locator('[data-testid="explorer-bulk-stage-close"]').click();
+      await expect(dialog).toHaveCount(0);
       await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
         "data-list-epoch",
         "0",
