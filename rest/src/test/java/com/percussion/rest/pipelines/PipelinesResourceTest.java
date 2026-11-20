@@ -1099,6 +1099,17 @@ public class PipelinesResourceTest {
     assertEquals("pipeline.xml", PipelinesResource.exportFilename("   "));
   }
 
+  @Test
+  public void contentDispositionAttachmentIncludesRfc5987FilenameStar() {
+    String ascii = PipelinesResource.contentDispositionAttachment("sys_foo.xml");
+    assertEquals(
+        "attachment; filename=\"sys_foo.xml\"; filename*=UTF-8''sys_foo.xml", ascii);
+
+    String mixed = PipelinesResource.contentDispositionAttachment("café.xml");
+    assertTrue(mixed.startsWith("attachment; filename=\"caf_.xml\"; filename*=UTF-8''"));
+    assertTrue(mixed.contains("filename*=UTF-8''caf%C3%A9.xml"));
+  }
+
   private static Map<String, Object> sampleOpenApiSpec() {    PipelineIrDocument ir = new PipelineIrDocument();
     ir.getApp().setName("sys_foo");
     com.percussion.services.pipeline.model.PipelineResourceIr res =
