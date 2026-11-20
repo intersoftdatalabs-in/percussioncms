@@ -129,6 +129,10 @@ import {
 } from "./contentTypeLabel";
 import { CT_LABEL_MSG } from "./contentTypeLabelMessages";
 import {
+  canSaveContentTypeDescriptionEdit,
+  canSaveContentTypeLabelEdit,
+} from "./contentTypeDetailSaveGuards";
+import {
   contentTypeFieldRequiredWrite,
   contentTypeWithFieldRequired,
   localContentTypeFields,
@@ -2013,22 +2017,27 @@ export function ContentTypeDetailPanel({
 
   async function handleLabelSave(): Promise<void> {
     if (
-      !detail ||
-      !labelEditing ||
-      !heldLockRef.current ||
-      busy ||
-      labelBusy ||
-      descriptionBusy ||
-      labelInflight.current ||
-      descriptionInflight.current ||
-      requiredInflight.current ||
-      searchableInflight.current ||
-      descriptionEditing ||
-      requiredEditing ||
-      requiredBusy ||
-      searchableEditing ||
-      searchableBusy
+      !canSaveContentTypeLabelEdit({
+        hasDetail: detail != null,
+        hasLock: heldLockRef.current,
+        labelEditing,
+        descriptionEditing,
+        busy,
+        labelBusy,
+        descriptionBusy,
+        labelInflight: labelInflight.current,
+        descriptionInflight: descriptionInflight.current,
+        requiredInflight: requiredInflight.current,
+        searchableInflight: searchableInflight.current,
+        requiredEditing,
+        requiredBusy,
+        searchableEditing,
+        searchableBusy,
+      })
     ) {
+      return;
+    }
+    if (detail == null) {
       return;
     }
     const sent = contentTypeLabelWrite(detail, labelDraft);
@@ -2114,22 +2123,27 @@ export function ContentTypeDetailPanel({
 
   async function handleDescriptionSave(): Promise<void> {
     if (
-      !detail ||
-      !descriptionEditing ||
-      !heldLockRef.current ||
-      busy ||
-      descriptionBusy ||
-      labelBusy ||
-      descriptionInflight.current ||
-      labelInflight.current ||
-      requiredInflight.current ||
-      searchableInflight.current ||
-      labelEditing ||
-      requiredEditing ||
-      requiredBusy ||
-      searchableEditing ||
-      searchableBusy
+      !canSaveContentTypeDescriptionEdit({
+        hasDetail: detail != null,
+        hasLock: heldLockRef.current,
+        descriptionEditing,
+        labelEditing,
+        busy,
+        descriptionBusy,
+        labelBusy,
+        descriptionInflight: descriptionInflight.current,
+        labelInflight: labelInflight.current,
+        requiredInflight: requiredInflight.current,
+        searchableInflight: searchableInflight.current,
+        requiredEditing,
+        requiredBusy,
+        searchableEditing,
+        searchableBusy,
+      })
     ) {
+      return;
+    }
+    if (detail == null) {
       return;
     }
     const sent = contentTypeDescriptionWrite(detail, descriptionDraft);
