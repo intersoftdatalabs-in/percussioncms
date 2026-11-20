@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.percussion.services.catalog.PSTypeEnum;
@@ -238,6 +239,22 @@ class PSSitemgrXmlSerializationTest {
     assertEquals(original.getContextId().toString(), restored.getContextId().toString());
   }
 
+  @Test
+  void elementTreeMismatchPathUsesXmlSlashRegardlessOfOsSeparator() throws Exception {
+    // Pins the paths.hardcoded_sep adjudication (issue #6731): the "/" in
+    // assertElementTreeEquals joins an XPath-style XML diagnostic path for
+    // assertion messages, never an OS filesystem path, so it must stay "/"
+    // on every platform (File.separator would corrupt the diagnostic on Windows).
+    Element expected = parseXml("<site><alpha/></site>").getDocumentElement();
+    Element actual = parseXml("<site><beta/></site>").getDocumentElement();
+    AssertionError failure =
+        assertThrows(
+            AssertionError.class, () -> assertElementTreeEquals(expected, actual, "site"));
+    assertTrue(
+        failure.getMessage().contains("site/alpha[0]"),
+        "diagnostic path must use XML slash: " + failure.getMessage());
+  }
+
   private static PSSite sampleSite() {
     PSSite site = new PSSite();
     site.setSiteId(100L);
@@ -369,8 +386,9 @@ class PSSitemgrXmlSerializationTest {
       if (en.getNodeType() == Node.TEXT_NODE) {
         assertEquals(en.getTextContent().trim(), an.getTextContent().trim(), "text at " + path);
       } else {
-        assertElementTreeEquals(
-            (Element) en, (Element) an, path + "/" + ((Element) en).getTagName() + "[" + i + "]");
+        // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6731, precedent #5898/#5910/#5927/#6325/#6358/#6359 + mkd-6729) - XPath-style XML element-tree diagnostic path for assertion messages, never an OS filesystem path; File.separator would corrupt the diagnostic on Windows.
+        String childPath = path + "/" + ((Element) en).getTagName() + "[" + i + "]";
+        assertElementTreeEquals((Element) en, (Element) an, childPath);
       }
     }
   }
