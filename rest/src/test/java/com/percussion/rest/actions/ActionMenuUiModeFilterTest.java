@@ -193,4 +193,35 @@ public class ActionMenuUiModeFilterTest {
   public void filterNullSafe() {
     assertTrue(ActionMenuUiModeFilter.filterMenusByUiMode(null, "CXMAIN").isEmpty());
   }
+
+  @Test
+  public void cxnavOnlyNavPaneMenuHidesUnderShellClaim() {
+    // Installer seed audit (#6824): the Create_New cascade (1/15/16) and
+    // Search_Within_Folder (212) are scoped solely to CXNAV (MODEID 3,
+    // navigation pane) — never main-toolbar items, so the SPA shell's
+    // single CXMAIN claim hides them by design.
+    ActionMenu createNew = menu("Create_New", entry("3", "CXNAV"));
+    ActionMenuList children = new ActionMenuList();
+    children.add(menu("Create_New_Folder", entry("3", "CXNAV")));
+    children.add(menu("Create_New_Item", entry("3", "CXNAV")));
+    createNew.setChildren(children);
+    ActionMenu searchWithinFolder = menu("Search_Within_Folder", entry("3", "CXNAV"));
+    List<ActionMenu> out =
+        ActionMenuUiModeFilter.filterMenusByUiMode(
+            List.of(createNew, searchWithinFolder), "CXMAIN");
+    assertTrue(out.isEmpty());
+  }
+
+  @Test
+  public void dualCxmainCxnavScopeSurvivesShellClaim() {
+    ActionMenuModeUIContext[] ui = {entry("3", "CXNAV"), entry("4", "CXMAIN")};
+    assertTrue(ActionMenuModeUIContext.isVisibleInUiMode(ui, "CXMAIN"));
+  }
+
+  @Test
+  public void iamainOnlyMenuHidesUnderShellClaim() {
+    // Active Assembly main area (MODEID 6) mirrors the QA regression seed.
+    ActionMenuModeUIContext[] ui = {entry("6", "IAMAIN")};
+    assertFalse(ActionMenuModeUIContext.isVisibleInUiMode(ui, "CXMAIN"));
+  }
 }

@@ -147,6 +147,32 @@ describe("ActionToolbar", () => {
     );
   });
 
+  it("returns focus to the parent button on Escape (#6824)", () => {
+    const nested: MenuAction[] = [
+      {
+        name: "new",
+        label: "New",
+        sortRank: 0,
+        menuType: "MENU",
+        children: [
+          {
+            name: "new-folder",
+            label: "Folder",
+            sortRank: 0,
+            menuType: "MENUITEM",
+          },
+        ],
+      },
+    ];
+    render(<ActionToolbar actions={nested} />);
+    const parent = screen.getByTestId("action-toolbar-item-new");
+    fireEvent.click(parent);
+    expect(screen.getByTestId("action-toolbar-menu-new")).toBeTruthy();
+    fireEvent.keyDown(document, { key: "Escape" });
+    expect(screen.queryByTestId("action-toolbar-menu-new")).toBeNull();
+    expect(document.activeElement).toBe(parent);
+  });
+
   it("does not dump multi-level MENU grandchildren as top-level toolbar buttons (#2730)", () => {
     const nested: MenuAction[] = [
       {

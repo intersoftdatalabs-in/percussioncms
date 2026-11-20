@@ -158,6 +158,10 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
       // Nested tree (roots + children) so Explorer ActionToolbar can render
       // cascading MENUs as dropdowns instead of a flat multi-row button dump (#2730).
       List<ActionMenu> tree = ApiUtils.convertPSActionMenuList(mgr.findActionMenusTree());
+      // The tree query never carries per-mode mappings — overlay them from
+      // one design load so ?uiMode= (and the shell evaluator) filter on
+      // real data instead of an always-empty field (#6824).
+      overlayTreeUiContexts(tree);
       return filterMenus(tree, name, label, item, dynamic, cascading);
     } finally {
       clearRequestHibernateIndex();
@@ -315,6 +319,93 @@ public class ActionMenuAdaptor implements IActionMenuAdaptor {
   static void applyPartialOverlayFlag(ActionMenu catalog, boolean overlayOk) {
     if (catalog != null && !overlayOk) {
       catalog.setPartialOverlay(true);
+    }
+  }
+
+  /**
+   * Bulk design overlay of per-mode uiContexts for a converted menu tree (#6824).
+   *
+   * <p>The {@code findActionMenusTree} path never carries mode mappings, so without this both
+   * the server {@code ?uiMode=} filter and the shell evaluator filter on an always-empty
+   * field. One unlocked {@code loadActions} call covers every menu id in the tree (roots +
+   * descendants); failures leave the tree untouched (permissive, pre-#6788 behavior) and
+   * never fail {@code /find}. Package-visible for unit tests.</p>
+   */
+  void overlayTreeUiContexts(List<ActionMenu> tree) {
+    if (tree == null || tree.isEmpty()) {
+      return;
+    }
+    List<Integer> ids = new ArrayList<>();
+    collectTreeActionIds(tree, ids);
+    if (ids.isEmpty()) {
+      return;
+    }
+    List<IPSGuid> guids = new ArrayList<>(ids.size());
+    for (int id : ids) {
+      try {
+        guids.add(PSAction.getGuidFromId(id));
+      } catch (RuntimeException e) {
+        log.debug("Tree uiContexts overlay skipped unresolvable menu id {}", id);
+      }
+    }
+    if (guids.isEmpty()) {
+      return;
+    }
+    List<PSAction> loaded;
+    try {
+      loaded =
+          service.loadActions(guids, false, false, currentSession(), currentUser());
+    } catch (RuntimeException | PSErrorResultsException e) {
+      log.debug("Tree uiContexts overlay skipped: {}", e.toString());
+      return;
+    }
+    if (loaded == null || loaded.isEmpty()) {
+      return;
+    }
+    Map<Integer, PSAction> byId = new HashMap<>(loaded.size() * 2);
+    for (PSAction action : loaded) {
+      if (action != null) {
+        byId.put(action.getId(), action);
+      }
+    }
+    applyTreeUiContexts(tree, byId);
+  }
+
+  /**
+   * Collects persisted action ids from a converted tree (roots + descendants).
+   */
+  private static void collectTreeActionIds(List<ActionMenu> menus, List<Integer> ids) {
+    if (menus == null) {
+      return;
+    }
+    for (ActionMenu menu : menus) {
+      if (menu == null) {
+        continue;
+      }
+      if (menu.getId() > 0 && !ids.contains(menu.getId())) {
+        ids.add(menu.getId());
+      }
+      collectTreeActionIds(menu.getChildren(), ids);
+    }
+  }
+
+  /**
+   * Copies design uiContexts onto converted DTOs whose action id loaded above.
+   * Menus with no loaded design row keep their converted collections.
+   */
+  private static void applyTreeUiContexts(List<ActionMenu> menus, Map<Integer, PSAction> byId) {
+    if (menus == null) {
+      return;
+    }
+    for (ActionMenu menu : menus) {
+      if (menu == null) {
+        continue;
+      }
+      PSAction domain = byId.get(menu.getId());
+      if (domain != null) {
+        menu.setUiContexts(toDtoUiContexts(domain.getModeUIContexts()));
+      }
+      applyTreeUiContexts(menu.getChildren(), byId);
     }
   }
 
