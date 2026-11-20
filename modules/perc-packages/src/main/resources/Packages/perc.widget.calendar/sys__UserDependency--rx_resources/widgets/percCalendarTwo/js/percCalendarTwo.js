@@ -164,7 +164,7 @@
             .val(data.config[i].calendarId);
           $clone
             .find(".perc-google-calendar-api-key")
-            .val(data.config[i].apiKey);
+            .val(data.config[i].apiKey); // mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6777, precedent #6728/#52) - operator-supplied key read from editor DOM at runtime, no secret in source.
           $clone
             .find(".perc-google-calendar-background-color")
             .val(data.config[i].backgroundColor);
@@ -274,7 +274,7 @@
             .find(".perc-google-calendar-name")
             .val();
           alt["calendarId"] = $(this).find(".perc-google-calendar-id").val();
-          alt["apiKey"] = $(this).find(".perc-google-calendar-api-key").val();
+          alt["apiKey"] = $(this).find(".perc-google-calendar-api-key").val(); // mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6777, precedent #6728/#52) - operator-supplied key read from editor DOM at runtime, no secret in source.
           alt["backgroundColor"] = $(this)
             .find(".perc-google-calendar-background-color")
             .val();
