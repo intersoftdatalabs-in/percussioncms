@@ -4258,4 +4258,150 @@ describe("ContentTypeDetailPanel", () => {
     );
     expect(setContentTypeSearchIndexing).not.toHaveBeenCalled();
   });
+
+  async function openLockedCtPanel() {
+    getContentTypeDetail.mockResolvedValue({ ...sampleDetail, fields: [] });
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-set-label-text")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-ct-set-label-edit") as HTMLButtonElement).disabled,
+      ).toBe(false);
+    });
+  }
+
+  it("focuses the label input when the editor opens (#6747)", async () => {
+    await openLockedCtPanel();
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-edit"));
+    expect(screen.getByTestId("developer-ct-set-label-input")).toHaveFocus();
+  });
+
+  it("Escape cancels the label edit without calling save (#6747)", async () => {
+    await openLockedCtPanel();
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-ct-set-label-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-ct-set-label-editor")).toBeNull();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-ct-set-label-text").getAttribute("data-ct-label"),
+    ).toBe("Page");
+  });
+
+  it("returns focus to the label edit button after Escape (#6747)", async () => {
+    await openLockedCtPanel();
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-ct-set-label-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-ct-set-label-editor")).toBeNull();
+    expect(screen.getByTestId("developer-ct-set-label-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the label edit button after Cancel (#6747)", async () => {
+    await openLockedCtPanel();
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-cancel"));
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-ct-set-label-editor")).toBeNull();
+    expect(screen.getByTestId("developer-ct-set-label-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the label edit button after Save (#6747)", async () => {
+    await openLockedCtPanel();
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-label-input"), {
+      target: { value: " note " },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-label-save"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-ct-set-label-editor")).toBeNull();
+    });
+    expect(updateContentTypeDetail).toHaveBeenCalledWith("percPage", { label: "note" });
+    expect(screen.getByTestId("developer-ct-set-label-edit")).toHaveFocus();
+    expect(screen.getByTestId("developer-ct-set-label-notice")).toHaveAttribute(
+      "role",
+      "status",
+    );
+  });
+
+  it("focuses the description input when the editor opens (#6747)", async () => {
+    await openLockedCtPanel();
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-edit"));
+    expect(screen.getByTestId("developer-ct-set-description-input")).toHaveFocus();
+  });
+
+  it("Escape cancels the description edit without calling save (#6747)", async () => {
+    await openLockedCtPanel();
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-ct-set-description-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-ct-set-description-editor")).toBeNull();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-ct-set-description-text").getAttribute("data-ct-description"),
+    ).toBe("Page type");
+  });
+
+  it("returns focus to the description edit button after Escape (#6747)", async () => {
+    await openLockedCtPanel();
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-ct-set-description-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-ct-set-description-editor")).toBeNull();
+    expect(screen.getByTestId("developer-ct-set-description-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the description edit button after Cancel (#6747)", async () => {
+    await openLockedCtPanel();
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-cancel"));
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-ct-set-description-editor")).toBeNull();
+    expect(screen.getByTestId("developer-ct-set-description-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the description edit button after Save (#6747)", async () => {
+    await openLockedCtPanel();
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-ct-set-description-input"), {
+      target: { value: " note " },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-set-description-save"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-ct-set-description-editor")).toBeNull();
+    });
+    expect(updateContentTypeDetail).toHaveBeenCalledWith("percPage", {
+      description: "note",
+    });
+    expect(screen.getByTestId("developer-ct-set-description-edit")).toHaveFocus();
+    expect(screen.getByTestId("developer-ct-set-description-notice")).toHaveAttribute(
+      "role",
+      "status",
+    );
+  });
 });

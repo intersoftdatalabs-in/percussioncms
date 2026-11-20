@@ -3385,4 +3385,144 @@ describe("LocaleDetailPanel", () => {
       fireEvent.click(screen.getByTestId("developer-loc-set-calendar-cancel"));
     }
   });
+
+  async function openLocalePanel() {
+    getLocaleDetail.mockResolvedValue(sampleDetail);
+    render(<LocaleDetailPanel idOrLang="en-us" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-loc-set-label-edit")).toBeTruthy();
+    });
+  }
+
+  it("focuses the label input when the editor opens (#6747)", async () => {
+    await openLocalePanel();
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-edit"));
+    expect(screen.getByTestId("developer-loc-set-label-input")).toHaveFocus();
+  });
+
+  it("Escape cancels the label edit without calling save (#6747)", async () => {
+    await openLocalePanel();
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-loc-set-label-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-loc-set-label-editor")).toBeNull();
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-loc-set-label-text").getAttribute("data-loc-label"),
+    ).toBe("English");
+  });
+
+  it("returns focus to the label edit button after Escape (#6747)", async () => {
+    await openLocalePanel();
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-loc-set-label-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-loc-set-label-editor")).toBeNull();
+    expect(screen.getByTestId("developer-loc-set-label-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the label edit button after Cancel (#6747)", async () => {
+    await openLocalePanel();
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-cancel"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-loc-set-label-editor")).toBeNull();
+    expect(screen.getByTestId("developer-loc-set-label-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the label edit button after Save (#6747)", async () => {
+    await openLocalePanel();
+    updateLocale.mockResolvedValue({ ...sampleDetail, label: "Renamed" });
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-label-input"), {
+      target: { value: "Renamed" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-label-save"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-loc-set-label-editor")).toBeNull();
+    });
+    expect(updateLocale).toHaveBeenCalled();
+    expect(screen.getByTestId("developer-loc-set-label-edit")).toHaveFocus();
+    expect(screen.getByTestId("developer-loc-set-label-notice")).toHaveAttribute(
+      "role",
+      "status",
+    );
+  });
+
+  it("focuses the description input when the editor opens (#6747)", async () => {
+    await openLocalePanel();
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-edit"));
+    expect(screen.getByTestId("developer-loc-set-description-input")).toHaveFocus();
+  });
+
+  it("Escape cancels the description edit without calling save (#6747)", async () => {
+    await openLocalePanel();
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-loc-set-description-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-loc-set-description-editor")).toBeNull();
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(
+      screen.getByTestId("developer-loc-set-description-text").getAttribute("data-loc-description"),
+    ).toBe("US English");
+  });
+
+  it("returns focus to the description edit button after Escape (#6747)", async () => {
+    await openLocalePanel();
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-loc-set-description-input"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-loc-set-description-editor")).toBeNull();
+    expect(screen.getByTestId("developer-loc-set-description-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the description edit button after Cancel (#6747)", async () => {
+    await openLocalePanel();
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-cancel"));
+    expect(updateLocale).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-loc-set-description-editor")).toBeNull();
+    expect(screen.getByTestId("developer-loc-set-description-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the description edit button after Save (#6747)", async () => {
+    await openLocalePanel();
+    updateLocale.mockResolvedValue({ ...sampleDetail, description: "note" });
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-loc-set-description-input"), {
+      target: { value: "note" },
+    });
+    fireEvent.click(screen.getByTestId("developer-loc-set-description-save"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-loc-set-description-editor")).toBeNull();
+    });
+    expect(updateLocale).toHaveBeenCalled();
+    expect(screen.getByTestId("developer-loc-set-description-edit")).toHaveFocus();
+    expect(screen.getByTestId("developer-loc-set-description-notice")).toHaveAttribute(
+      "role",
+      "status",
+    );
+  });
 });

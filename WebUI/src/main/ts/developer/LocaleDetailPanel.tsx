@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { extractRestErrorMessage, isApiError } from "../api/client";
 import {
@@ -360,6 +360,10 @@ export function LocaleDetailPanel({
   const numberingSystemInflight = useRef(false);
   const calendarInflight = useRef(false);
   const statusInflight = useRef(false);
+  const labelEditButtonRef = useRef<HTMLButtonElement | null>(null);
+  const descriptionEditButtonRef = useRef<HTMLButtonElement | null>(null);
+  const labelWasEditingRef = useRef(false);
+  const descriptionWasEditingRef = useRef(false);
 
   useEffect(() => {
     if (idOrLang == null) {
@@ -473,6 +477,31 @@ export function LocaleDetailPanel({
       cancelled = true;
     };
   }, [idOrLang]);
+
+  // #6747: when an inline set-label / set-description editor closes (Escape,
+  // Cancel, or save), the input unmounts and focus would fall back to
+  // <body>. Return focus to the invoking edit button so keyboard and
+  // screen-reader users keep their place on the page. Layout effect (same
+  // as useDialogEscape) so focus lands before paint with no body flash.
+  useLayoutEffect(() => {
+    if (labelWasEditingRef.current && !labelEditing) {
+      const btn = labelEditButtonRef.current;
+      if (btn && !btn.disabled && typeof btn.focus === "function") {
+        btn.focus();
+      }
+    }
+    labelWasEditingRef.current = labelEditing;
+  }, [labelEditing]);
+
+  useLayoutEffect(() => {
+    if (descriptionWasEditingRef.current && !descriptionEditing) {
+      const btn = descriptionEditButtonRef.current;
+      if (btn && !btn.disabled && typeof btn.focus === "function") {
+        btn.focus();
+      }
+    }
+    descriptionWasEditingRef.current = descriptionEditing;
+  }, [descriptionEditing]);
 
   const canSave =
     !busy &&
@@ -792,6 +821,12 @@ export function LocaleDetailPanel({
     setLabelError(null);
   }
 
+  function handleLabelKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelLabelEdit();
+    }
+  }
+
   async function handleLabelSave(): Promise<void> {
     if (
       isNew ||
@@ -886,6 +921,12 @@ export function LocaleDetailPanel({
     setDescriptionEditing(false);
     setDescriptionDraft("");
     setDescriptionError(null);
+  }
+
+  function handleDescriptionKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelDescriptionEdit();
+    }
   }
 
   async function handleDescriptionSave(): Promise<void> {
@@ -2879,6 +2920,7 @@ calendarEditing ||
               ) : null}
               {labelNotice ? (
                 <div
+                  role="status"
                   data-testid="developer-loc-set-label-notice"
                   style={{ color: "#276749", marginBottom: "8px" }}
                 >
@@ -2894,7 +2936,9 @@ calendarEditing ||
                     style={inputStyle}
                     value={labelDraft}
                     disabled={labelBusy}
+                    autoFocus
                     onChange={(e) => setLabelDraft(e.target.value)}
+                    onKeyDown={handleLabelKeyDown}
                   />
                   <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
                     <button
@@ -2934,6 +2978,7 @@ calendarEditing ||
               ) : (
                 <button
                   type="button"
+                  ref={labelEditButtonRef}
                   data-testid="developer-loc-set-label-edit"
                   aria-label={LOC_LABEL_MSG.ACTION}
                   disabled={
@@ -3020,6 +3065,7 @@ calendarEditing ||
               ) : null}
               {descriptionNotice ? (
                 <div
+                  role="status"
                   data-testid="developer-loc-set-description-notice"
                   style={{ color: "#276749", marginBottom: "8px" }}
                 >
@@ -3035,7 +3081,9 @@ calendarEditing ||
                     style={inputStyle}
                     value={descriptionDraft}
                     disabled={descriptionBusy}
+                    autoFocus
                     onChange={(e) => setDescriptionDraft(e.target.value)}
+                    onKeyDown={handleDescriptionKeyDown}
                   />
                   <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
                     <button
@@ -3075,6 +3123,7 @@ calendarEditing ||
               ) : (
                 <button
                   type="button"
+                  ref={descriptionEditButtonRef}
                   data-testid="developer-loc-set-description-edit"
                   aria-label={LOC_DESC_MSG.ACTION}
                   disabled={
