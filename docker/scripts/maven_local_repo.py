@@ -35,12 +35,22 @@ Resolution order (first hit wins; stdlib only, cross-platform):
   3. ``-Dmaven.repo.local=...`` in ``<repo_root>/.mvn/maven.config``.
   4. ``<localRepository>`` in ``~/.m2/settings.xml``.
   5. ``~/.m2/repository``.
+
+Per-worktree isolation (#6739): ``worktree_local_repository`` /
+``ensure_worktree_repository`` (plus this module's ``__main__`` CLI)
+assign each checkout its own ``-Dmaven.repo.local`` under
+``<repo_root>/tmp/m2-worktree/repository`` and seed third-party artifacts
+once, so concurrent shards never overwrite each other's ``SNAPSHOT`` jars.
+``qa-up`` auto-runs the strict preflight against the resolved repository
+and refuses with an isolation hint when it is stale or poisoned.
 """
 
 from __future__ import annotations
 
+import argparse
 import os
 import re
+import shutil
 import subprocess
 import sys
 import xml.etree.ElementTree as ET
@@ -143,3 +153,156 @@ def resolve_m2_repository(
         or _from_settings(home_dir())
         or default_m2_repository()
     )
+
+
+# Per-worktree local repositories (#6739).
+#
+# ``~/.m2-night`` is still shared across all night shards on a host: the
+# provenance guard flags cross-talk after the fact but nothing stops two
+# shards building the same ``8.2.0-SNAPSHOT`` concurrently. A per-worktree
+# repository (a directory *under the shard*, so every worktree resolves a
+# different path by construction) prevents the overwrite instead of
+# detecting it. The directory lives under ``<repo_root>/tmp`` (gitignored,
+# repo temp dir per root AGENTS.md) so it vanishes with the worktree and
+# never pollutes ``git status``.
+_WORKTREE_M2_DIRNAME = "m2-worktree"
+_WORKTREE_SEED_MARKER = ".worktree-m2-seeded"
+
+
+def worktree_local_repository(repo_root: Path) -> Path:
+    """Return the per-worktree Maven local repository for a checkout.
+
+    Portable: built with ``pathlib`` joins only, no separators. Distinct
+    for every worktree because ``repo_root`` differs per worktree.
+    """
+    return Path(repo_root).resolve() / "tmp" / _WORKTREE_M2_DIRNAME / "repository"
+
+
+def repo_local_flag(repo_path: Path) -> str:
+    """Format ``-Dmaven.repo.local=...`` for ``MAVEN_ARGS`` / ``MAVEN_OPTS``.
+
+    The value is the OS-native ``str`` of ``repo_path`` — correct for Maven
+    on every platform (the JVM accepts the native separator). Values
+    containing whitespace are wrapped in double quotes because
+    ``MAVEN_ARGS`` / ``MAVEN_OPTS`` are whitespace-split by the ``mvn``
+    launcher; :func:`parse_repo_local` strips those quotes on the way back.
+    Callers embedding the flag in a POSIX-shell export line (Git Bash / WSL)
+    must preserve backslashes (single-quoted ``export`` or ``cmd`` /
+    PowerShell) — a bare double-quoted POSIX export eats ``\\``.
+    """
+    text = str(repo_path)
+    if any(ch.isspace() for ch in text):
+        text = f'"{text}"'
+    return f"-Dmaven.repo.local={text}"
+
+
+def _is_snapshot_path(path: Path) -> bool:
+    """True when any path part carries Maven's ``SNAPSHOT`` marker."""
+    return any("SNAPSHOT" in part for part in path.parts)
+
+
+def _copy_third_party_tree(source: Path, repo: Path) -> None:
+    """Copy non-``SNAPSHOT`` files from ``source`` into ``repo`` (portable).
+
+    Existing destination files are kept (never overwrite a newer local
+    copy). ``SNAPSHOT`` version directories and files are pruned so
+    project snapshots are always rebuilt in place by the worktree.
+    """
+    for dirpath, dirnames, filenames in os.walk(source):
+        rel = Path(dirpath).relative_to(source)
+        if _is_snapshot_path(rel):
+            dirnames[:] = []
+            continue
+        # Prune SNAPSHOT version dirs in place so os.walk never descends.
+        dirnames[:] = [d for d in dirnames if "SNAPSHOT" not in d]
+        target_dir = repo / rel if str(rel) != "." else repo
+        target_dir.mkdir(parents=True, exist_ok=True)
+        for name in filenames:
+            if "SNAPSHOT" in name:
+                continue
+            dst = target_dir / name
+            if dst.exists():
+                continue
+            try:
+                shutil.copy2(Path(dirpath) / name, dst)
+            except OSError:
+                continue
+
+
+def ensure_worktree_repository(
+    repo_root: Path,
+    seed_from: Optional[Path] = None,
+) -> Path:
+    """Create the per-worktree repository, seeding third-party artifacts once.
+
+    Creates ``worktree_local_repository(repo_root)`` plus its parent chain,
+    then copies third-party (non-``SNAPSHOT``) artifacts from ``seed_from``
+    (default: the currently resolved shared repository) so the first
+    worktree build does not re-download the internet. Project ``SNAPSHOT``
+    jars are deliberately *not* copied — they are rebuilt in place by the
+    worktree's own ``clean install``, which is the isolation this exists
+    for. A marker file records the seed source; a second call with the same
+    source is a no-op (idempotent). Uses ``shutil`` / ``pathlib`` only —
+    no ``rsync`` dependency, so it runs on Windows runners too.
+    """
+    repo = worktree_local_repository(repo_root)
+    repo.mkdir(parents=True, exist_ok=True)
+    source = Path(seed_from) if seed_from is not None else resolve_m2_repository(repo_root)
+    marker = repo.parent / _WORKTREE_SEED_MARKER
+    try:
+        seeded = marker.read_text(encoding="utf-8").strip()
+    except OSError:
+        seeded = ""
+    if seeded == str(source):
+        return repo
+    if source.is_dir():
+        _copy_third_party_tree(source, repo)
+    try:
+        marker.write_text(str(source), encoding="utf-8")
+    except OSError:
+        pass
+    return repo
+
+
+def main(argv: Optional[list] = None) -> int:
+    """One-shot helper: create/seed the per-worktree repo and print the export."""
+    parser = argparse.ArgumentParser(
+        prog="maven-local-repo",
+        description=(
+            "Create (and seed once) the per-worktree Maven local repository "
+            "(#6739) and print the MAVEN_ARGS export that isolates this "
+            "checkout's SNAPSHOT builds from sibling worktrees."
+        ),
+    )
+    parser.add_argument(
+        "--repo-root",
+        type=Path,
+        default=Path(os.getcwd()),
+        help="Path to the Percussion CMS checkout root (default: cwd).",
+    )
+    parser.add_argument(
+        "--seed-from",
+        type=Path,
+        default=None,
+        help=(
+            "Shared repository to seed third-party artifacts from "
+            "(default: the currently resolved local repository)."
+        ),
+    )
+    parser.add_argument(
+        "--no-seed",
+        action="store_true",
+        help="Create the directory without copying third-party artifacts.",
+    )
+    args = parser.parse_args(argv)
+    repo = worktree_local_repository(args.repo_root)
+    repo.mkdir(parents=True, exist_ok=True)
+    if not args.no_seed:
+        repo = ensure_worktree_repository(args.repo_root, args.seed_from)
+    print(f'export MAVEN_ARGS="{repo_local_flag(repo)}${{MAVEN_ARGS:+ $MAVEN_ARGS}}"')
+    print(f"Per-worktree Maven local repo: {repo}", file=sys.stderr)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -124,5 +124,122 @@ class MavenLocalRepoTest(unittest.TestCase):
         )
 
 
+class TestWorktreeRepository(unittest.TestCase):
+    """Per-worktree local repositories enforce isolation (#6739)."""
+
+    def setUp(self) -> None:
+        self._td = tempfile.TemporaryDirectory()
+        self.addCleanup(self._td.cleanup)
+        self.home = Path(self._td.name) / "home"
+        self.repo = Path(self._td.name) / "checkout"
+        self.home.mkdir()
+        self.repo.mkdir()
+        patcher = mock.patch.dict(
+            os.environ, {"HOME": str(self.home), "USERPROFILE": str(self.home)}
+        )
+        patcher.start()
+        self.addCleanup(patcher.stop)
+
+    def _env(self, **extra: str) -> dict:
+        env = {k: v for k, v in os.environ.items() if k not in ("MAVEN_ARGS", "MAVEN_OPTS", "MAVEN_SKIP_RC")}
+        env.update(extra)
+        return env
+
+    def _seed_repo(self, seed: Path) -> None:
+        third_party = seed / "com" / "example" / "lib" / "1.0"
+        third_party.mkdir(parents=True)
+        (third_party / "lib-1.0.jar").write_bytes(b"third-party-bytes")
+        snap = seed / "com" / "percussion" / "rest" / "rest" / "8.2.0-SNAPSHOT"
+        snap.mkdir(parents=True)
+        (snap / "rest-8.2.0-SNAPSHOT.jar").write_bytes(b"branch-built-snapshot")
+        flat = seed / "com" / "percussion" / "sitemanage" / "8.2.0-SNAPSHOT"
+        flat.mkdir(parents=True)
+        (flat / "sitemanage-8.2.0-SNAPSHOT.jar").write_bytes(b"branch-built-snapshot")
+
+    def test_worktree_repo_lives_under_repo_tmp(self):
+        repo = mlr.worktree_local_repository(self.repo)
+        self.assertEqual(
+            repo, self.repo.resolve() / "tmp" / "m2-worktree" / "repository"
+        )
+
+    def test_distinct_per_worktree(self):
+        other = Path(self._td.name) / "other-checkout"
+        other.mkdir()
+        self.assertNotEqual(
+            mlr.worktree_local_repository(self.repo),
+            mlr.worktree_local_repository(other),
+        )
+
+    def test_repo_local_flag_format(self):
+        # Built from the same Path so the expectation holds on Windows
+        # (backslash separators) as well as POSIX.
+        probe = Path("/w/tmp/m2-worktree/repository")
+        self.assertEqual(
+            mlr.repo_local_flag(probe),
+            f"-Dmaven.repo.local={probe}",
+        )
+
+    def test_repo_local_flag_quotes_whitespace(self):
+        # MAVEN_ARGS is whitespace-split: paths with spaces must be quoted,
+        # and parse_repo_local must round-trip the quoted form.
+        probe = Path("/w/tmp/my checkout/m2-worktree/repository")
+        flag = mlr.repo_local_flag(probe)
+        self.assertEqual(flag, f'-Dmaven.repo.local="{probe}"')
+        self.assertEqual(mlr.parse_repo_local(flag), probe)
+
+    def test_ensure_seeds_third_party_only(self):
+        seed = Path(self._td.name) / "seed-m2"
+        seed.mkdir()
+        self._seed_repo(seed)
+        repo = mlr.ensure_worktree_repository(self.repo, seed)
+        self.assertEqual(repo, mlr.worktree_local_repository(self.repo))
+        seeded_jar = repo / "com" / "example" / "lib" / "1.0" / "lib-1.0.jar"
+        self.assertEqual(seeded_jar.read_bytes(), b"third-party-bytes")
+        leftovers = [
+            p for p in repo.rglob("*") if p.is_file() and "SNAPSHOT" in p.name
+        ]
+        self.assertEqual(leftovers, [])
+        marker = repo.parent / mlr._WORKTREE_SEED_MARKER
+        self.assertEqual(marker.read_text(encoding="utf-8").strip(), str(seed))
+
+    def test_ensure_is_idempotent(self):
+        seed = Path(self._td.name) / "seed-m2"
+        seed.mkdir()
+        self._seed_repo(seed)
+        first = mlr.ensure_worktree_repository(self.repo, seed)
+        marker = first.parent / mlr._WORKTREE_SEED_MARKER
+        marker_mtime = marker.stat().st_mtime_ns
+        second = mlr.ensure_worktree_repository(self.repo, seed)
+        self.assertEqual(first, second)
+        self.assertEqual(marker.stat().st_mtime_ns, marker_mtime)
+
+    def test_isolation_proof_two_worktrees_resolve_distinct(self):
+        """MAVEN_ARGS pointing at each worktree repo resolves back to it."""
+        other = Path(self._td.name) / "other-checkout"
+        other.mkdir()
+        repo_a = mlr.worktree_local_repository(self.repo)
+        repo_b = mlr.worktree_local_repository(other)
+        for repo in (repo_a, repo_b):
+            env = self._env(
+                MAVEN_ARGS=mlr.repo_local_flag(repo), MAVEN_SKIP_RC="1"
+            )
+            self.assertEqual(mlr.resolve_m2_repository(self.repo, env), repo)
+        self.assertNotEqual(repo_a, repo_b)
+
+    def test_cli_prints_maven_args_export(self):
+        import io
+        from contextlib import redirect_stdout
+
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = mlr.main(
+                ["--repo-root", str(self.repo), "--no-seed"]
+            )
+        self.assertEqual(rc, 0)
+        self.assertIn("-Dmaven.repo.local=", buf.getvalue())
+        self.assertIn("MAVEN_ARGS=", buf.getvalue())
+        self.assertTrue(mlr.worktree_local_repository(self.repo).is_dir())
+
+
 if __name__ == "__main__":
     unittest.main()
