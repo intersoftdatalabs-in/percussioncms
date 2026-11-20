@@ -201,15 +201,20 @@ def _alert_is_open(item: dict) -> bool:
     return instance.get("state") == "open"
 
 
-def open_alerts(repo: str) -> list[dict]:
+def open_alerts(repo: str, pr: int) -> list[dict]:
     """Return normalized open code-scanning alerts (number/rule/path).
 
-    Filters client-side on ``state`` instead of the ``?state=open`` query
+    Scoped to the PR ref (``refs/pull/<N>/merge``): without ``ref`` the
+    endpoint returns default-branch alerts only, so PR-introduced alerts
+    (e.g. #2101 on PR #6770) are invisible to the gate while pre-existing
+    main alerts at touched files read as false NOT DRAINED. Filters
+    client-side on ``state`` instead of the ``?state=open`` query
     parameter, which this repo's API surface rejects (HTTP 404) for some
     token scopes; the verdict is identical and deterministic.
     """
     payload = _run_gh_json(
-        ["api", f"repos/{repo}/code-scanning/alerts", "--paginate"]
+        ["api", f"repos/{repo}/code-scanning/alerts?ref=refs/pull/{pr}/merge",
+         "--paginate"]
     )
     items = payload if isinstance(payload, list) else []
     alerts: list[dict] = []
@@ -272,6 +277,8 @@ def evaluate(
                 f"CodeQL check {run['name']!r} has unexpected conclusion "
                 f"{conclusion!r} on the PR head SHA"
             )
+    # Alerts are already PR-ref scoped by open_alerts; the touched-file
+    # match keeps the verdict scoped to this PR's files.
     at_files = [
         alert
         for alert in alerts
@@ -305,7 +312,7 @@ def main(argv: list[str] | None = None) -> int:
         sha = pr_head_sha(args.repo, args.pr_number)
         files = pr_files(args.repo, args.pr_number)
         runs = check_runs_for_sha(args.repo, sha)
-        alerts = open_alerts(args.repo)
+        alerts = open_alerts(args.repo, args.pr_number)
     except GhError as exc:
         print(f"FAIL: {exc}", file=sys.stderr)
         return 2

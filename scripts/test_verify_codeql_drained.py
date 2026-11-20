@@ -202,3 +202,41 @@ def test_alert_is_open_falls_back_to_instance_state() -> None:
 
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
+def test_open_alerts_queries_pr_ref() -> None:
+    """open_alerts must scope to refs/pull/<N>/merge (#6791 thread 1)."""
+    module = _load()
+    seen: list[list[str]] = []
+
+    def fake_run_gh_json(args: list[str]) -> object:
+        seen.append(args)
+        return []
+
+    with mock.patch.object(module, "_run_gh_json", side_effect=fake_run_gh_json):
+        assert module.open_alerts("o/r", 6770) == []
+    assert seen == [
+        ["api", "repos/o/r/code-scanning/alerts?ref=refs/pull/6770/merge",
+         "--paginate"]
+    ]
+
+
+def test_open_alerts_filters_to_open_and_normalizes() -> None:
+    """Client-side state filter keeps open alerts, drops fixed/dismissed."""
+    module = _load()
+
+    def fake_run_gh_json(args: list[str]) -> object:
+        return [
+            {"number": 1, "state": "open",
+             "rule": {"id": "js/x"}, "most_recent_instance": {"location": {"path": "a.js"}}},
+            {"number": 2, "state": "fixed",
+             "rule": {"id": "js/x"}, "most_recent_instance": {"location": {"path": "b.js"}}},
+            {"number": 3, "state": None,
+             "most_recent_instance": {"state": "open", "location": {"path": "c.js"}},
+             "rule": {"id": "js/y"}},
+        ]
+
+    with mock.patch.object(module, "_run_gh_json", side_effect=fake_run_gh_json):
+        alerts = module.open_alerts("o/r", 123)
+    assert [(a["number"], a["rule"], a["path"]) for a in alerts] == [
+        (1, "js/x", "a.js"),
+        (3, "js/y", "c.js"),
+    ]
