@@ -236,29 +236,32 @@
 							<td class="perc-input-header">*Text Color</td>
 							<td></td>
 						</tr>
-						<!-- This is the template table row -->
+						<!-- This is the template table row (no ids: rows are
+						     cloned per calendar, so ids would duplicate) -->
 						<tr class="hide perc-google-calendar-row" role="presentation">
 							<td class="perc-input-td">
-								<input id="perc-google-calendar-name"
+								<input
 									class="perc-google-calendar-name" type="text"></input>
 							</td>
 							<td class="perc-input-td">
-								<input id="perc-google-calendar-id"
+								<input
 									class="perc-google-calendar-id" type="text"></input>
 							</td>
 							<td class="perc-input-td">
-								<input id="perc-google-calendar-api-key"
+								<input
 									class="perc-google-calendar-api-key" type="text"></input>
 							</td>
 							<td class="perc-input-td">
-								<input id="perc-google-calendar-background-color"
+								<input
 									class="perc-google-calendar-background-color"
-									data-control="hue" value="#3a87ad" type="text"></input>
+									data-control="hue" value="#3a87ad" type="text"
+									aria-label="Background color"></input>
 							</td>
 							<td class="perc-input-td">
-								<input id="perc-google-calendar-text-color"
+								<input
 									class="perc-google-calendar-text-color" data-control="hue"
-									value="#ffffff" type="text"></input>
+									value="#ffffff" type="text"
+									aria-label="Text color"></input>
 							</td>
 							<td class="perc-input-td">
 								<span class="perc-table-remove fa fa-minus"></span>

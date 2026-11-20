@@ -317,6 +317,24 @@ import org.junit.jupiter.api.Test;
  * normal update flow. No GPL code ships (upstream {@code license: MIT},
  * banner and {@code LICENSE.md} in the published tarball).
  *
+ * <p>Slice 15 (issue #6723, parent #6686 residual) is that editor-parity
+ * slice: it rebases the MiniColors twins onto the npm
+ * {@code @claviska/jquery-minicolors@2.3.6} dist the Dependabot #6762
+ * bump tracks (exact pin in the frontend manifest). Upstream absorbed
+ * the slice-14 trim fix natively, so both JS twins are byte-identical to
+ * the stock 2.3.6 dist with zero Percussion patches, and both CSS twins
+ * are byte-identical to the stock 2.3.6 CSS — which references an
+ * external {@code jquery.minicolors.png}, so the sprite ships as a
+ * payload twin next to each CSS copy with matching
+ * {@code psx_archiveInfo.xml} / {@code psx_archiveManifest.xml} entries.
+ * The same slice fixes the editor defect proper (added-row pickers got
+ * no working MiniColors instance: duplicate ids, no-op re-init, stale
+ * cloned state) with class-scoped per-row init in {@code
+ * percCalendarTwo.js} (both twins), id-free template rows plus
+ * screen-reader labels in {@code percGoogleCalendarControl.xsl} (both
+ * twins), and dedicated editor-behavior coverage in the frontend {@code
+ * percCalendarTwoEditor.test.js}.
+ *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
  * inventory can only drift together with an audit update. A migration PR that

@@ -60,6 +60,23 @@
  * was removed in jQuery 4, which the WebUI ships), pinned below by
  * stock-plus-patch reconstruction rather than byte-identity.
  *
+ * Slice 15 (issue #6723, parent #6686 residual) rebases the MiniColors
+ * twins onto the npm @claviska/jquery-minicolors@2.3.6 dist the
+ * Dependabot #6762 bump tracks (exact pin in the frontend manifest).
+ * Upstream 2.2.4 → 2.3.6 absorbed the slice-14 trim fix natively
+ * (`a.toLowerCase().trim()` in both keyword paths), so both JS twins are
+ * now byte-identical to the stock dist with zero Percussion patches;
+ * the 2.3.6 CSS drops the data-URI sprite for an external
+ * `jquery.minicolors.png`, so the sprite ships as a payload twin next to
+ * each CSS copy (with matching psx_archiveInfo/psx_archiveManifest
+ * entries). Behavior deltas taken with the rebase: removed 7-swatch cap,
+ * named `{name, color}` swatches with title tooltips, `transparent`
+ * swatch support, default position `bottom` (the editor still passes
+ * `top left` explicitly), and `trigger('focus')` input focus. MIT license
+ * unchanged. The same slice fixes the editor that consumes the twins
+ * (added-row pickers, issue #6723 proper) with dedicated editor-behavior
+ * coverage in percCalendarTwoEditor.test.js.
+ *
  * Slice 14 (issue #6689, parent #6522, spike #6655 follow-on) carries
  * the nav hoverIntent bytes (classic briancherne 1.x, MIT-licensed) under
  * canonical `perc-hover-intent` names with the same `$.fn.hoverIntent`
@@ -1874,43 +1891,22 @@ const MINICOLORS_CSS_PAYLOADS = [
   },
 ];
 
-// Documented jQuery 4 patch carried by the payload JS twins (issue
-// #6686): `$.trim` was removed in jQuery 4 (WebUI ships jquery ^4.0.0),
-// so any picker initialized with non-empty `keywords` threw
-// `$.trim is not a function` on stock 2.2.4. The payload restores the
-// pre-rebase Percussion fix — native `String.trim` — in exactly the two
-// keyword paths (init + updateFromInput). Reconstruction pins both the
-// stock bytes and the patch: any silent mod loss or drift fails loudly.
-const MINICOLORS_JQUERY4_TRIM_PATCH = {
-  stock: "$.trim(a.toLowerCase())",
-  patched: "a.toLowerCase().trim()",
-  occurrences: 2,
-};
-
-function stockMinicolorsWithJquery4TrimPatch(distSource, distLabel) {
-  const seen =
-    distSource.split(MINICOLORS_JQUERY4_TRIM_PATCH.stock).length - 1;
-  expect(
-    seen,
-    `${distLabel} no longer carries the expected ` +
-      `${MINICOLORS_JQUERY4_TRIM_PATCH.occurrences}x patched keyword ` +
-      `paths — re-verify against the published 2.2.4 tarball`,
-  ).toBe(MINICOLORS_JQUERY4_TRIM_PATCH.occurrences);
-  return distSource
-    .split(MINICOLORS_JQUERY4_TRIM_PATCH.stock)
-    .join(MINICOLORS_JQUERY4_TRIM_PATCH.patched);
-}
+// Slice 15 (issue #6723) rebased the payload twins onto stock 2.3.6 with
+// zero patches: upstream absorbed the slice-14 native-trim fix, so the
+// stock-plus-patch reconstruction is retired in favor of byte-identity.
+// Kept as a named constant so the failure message still names the two
+// keyword paths the jQuery-4 keywords test below exercises.
+const MINICOLORS_KEYWORD_PATH_COUNT = 2;
 
 function loadMinicolorsPayloadAsJqueryPlugin(payloadRelPath) {
   // The UMD dist closes over bare `jQuery` (browser-globals branch under
   // `window.eval`), so expose the jsdom-bound jQuery globally before
   // evaluating the payload bytes verbatim (same pattern as the
-  // superfish/slick loaders above). No jquery-migrate needed: the payload
-  // carries the documented jQuery 4 trim patch (native
-  // `a.toLowerCase().trim()` in the two keyword paths — `$.trim` was
-  // removed in jQuery 4, which the WebUI ships), so the only other
-  // jQuery-removed APIs (jQuery.type/browser/live/size) are absent and the
-  // stock 2.2.4 remainder runs unmodified.
+  // superfish/slick loaders above). Slice 15 rebased the payload onto
+  // stock 2.3.6, which carries native `a.toLowerCase().trim()` in both
+  // keyword paths (upstream absorbed the slice-14 jQuery 4 fix), so the
+  // only jQuery-removed APIs (jQuery.type/browser/live/size) are absent
+  // and the stock remainder runs unmodified.
   const $ = require(path.join(NODE_MODULES, "jquery", "dist", "jquery.js"));
   globalThis.jQuery = $;
   window.jQuery = $;
@@ -1951,22 +1947,13 @@ describe("widget-payload npm refresh parity (issue #6686: minicolors)", () => {
     }
   });
 
-  it("calendarTwo editor MiniColors payload JS bytes equal stock 2.2.4 plus the documented jQuery 4 trim patch", () => {
+  it("calendarTwo editor MiniColors payload JS bytes are byte-identical to the npm @claviska/jquery-minicolors dist", () => {
     for (const { payload, npmDist } of MINICOLORS_PAYLOADS) {
-      const shipped = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
-      const dist = fs.readFileSync(path.join(NODE_MODULES, npmDist), "utf8");
-      const expected = stockMinicolorsWithJquery4TrimPatch(
-        dist,
-        `node_modules/${npmDist}`,
-      );
+      const shipped = fs.readFileSync(path.join(REPO_ROOT, payload));
+      const dist = fs.readFileSync(path.join(NODE_MODULES, npmDist));
       expect(
-        shipped === expected,
-        `${payload} is not stock node_modules/${npmDist} plus the ` +
-          `documented jQuery 4 trim patch (exactly ` +
-          `${MINICOLORS_JQUERY4_TRIM_PATCH.occurrences}x ` +
-          `"${MINICOLORS_JQUERY4_TRIM_PATCH.stock}" → ` +
-          `"${MINICOLORS_JQUERY4_TRIM_PATCH.patched}") — refresh from npm ` +
-          `and re-apply the patch`,
+        shipped.equals(dist),
+        `${payload} drifted from node_modules/${npmDist} — refresh from npm`,
       ).toBe(true);
     }
   });
@@ -1976,35 +1963,30 @@ describe("widget-payload npm refresh parity (issue #6686: minicolors)", () => {
       const content = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
       expect(content, `${payload} version banner mismatch`).toMatch(versionRe);
       expect(content).toMatch(/opensource\.org\/licenses\/MIT/);
-      // The fork's prepended Percussion header is dropped (upstream banner
-      // restored, same precedent as the superfish/qTip/lightbox slices).
+      // The fork's prepended Percussion header stays dropped (upstream
+      // banner restored, same precedent as the superfish/qTip/lightbox
+      // slices).
       expect(content).not.toContain("Copyright 1999-2023 Percussion");
+      // Slice 15: upstream absorbed the native-trim jQuery 4 fix — the
+      // stock bytes carry it in both keyword paths with no `$.trim`.
+      expect(content).not.toContain("$.trim(");
+      const nativeTrim =
+        content.split("a.toLowerCase().trim()").length - 1;
+      expect(nativeTrim).toBe(MINICOLORS_KEYWORD_PATH_COUNT);
     }
-    // The editor stylesheet twin keeps the stock data-URI sprite (no
-    // jquery.minicolors.png ships in the payload), so no png is required.
+    // The 2.3.6 editor stylesheet drops the data-URI sprite for an
+    // external png: each CSS twin references it relatively and the png
+    // ships next to the CSS (with archive entries), so no png is missing.
     for (const { payload } of MINICOLORS_CSS_PAYLOADS) {
       const css = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
-      expect(css).toContain("data:image/png;base64,");
+      expect(css).toContain("url(jquery.minicolors.png)");
+      expect(css).not.toContain("data:image/png;base64,");
       expect(
         fs.existsSync(
-          path.join(
-            REPO_ROOT,
-            "modules",
-            "perc-packages",
-            "src",
-            "main",
-            "resources",
-            "Packages",
-            "perc.widget.calendar",
-            "SupportFile-rx_resources",
-            "widgets",
-            "percCalendarTwo",
-            "css",
-            "jquery.minicolors.png",
-          ),
+          path.join(path.dirname(path.join(REPO_ROOT, payload)), "jquery.minicolors.png"),
         ),
-        "unexpected jquery.minicolors.png — the rebased CSS inlines the sprite",
-      ).toBe(false);
+        `missing sprite twin for ${payload}`,
+      ).toBe(true);
     }
   });
 
@@ -2012,14 +1994,9 @@ describe("widget-payload npm refresh parity (issue #6686: minicolors)", () => {
     const manifest = JSON.parse(
       fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
     );
-    // Exact pin (not a caret): the payloads are the 2.2.4 dist plus the
-    // documented jQuery 4 trim patch, and 2.2.4 is the closest published
-    // ancestor of the retired vendored cut (the registry's unscoped 2.1.10
-    // lacks the swatches/keywords surface the editor consumes). Dependabot proposes 2.2.5+ through the
-    // normal update flow; the 2.2.4 -> 2.3.6 delta (removed 7-swatch cap,
-    // named swatches, dropped data-URI sprite) needs its own editor-parity
-    // slice when taken.
-    expect(manifest.dependencies["@claviska/jquery-minicolors"]).toBe("2.2.4");
+    // Exact pin (not a caret): the payloads are the 2.3.6 stock dist and
+    // later majors may rewrite the API and the bundle.
+    expect(manifest.dependencies["@claviska/jquery-minicolors"]).toBe("2.3.6");
     const installed = JSON.parse(
       fs.readFileSync(
         path.join(
@@ -2031,7 +2008,7 @@ describe("widget-payload npm refresh parity (issue #6686: minicolors)", () => {
         "utf8",
       ),
     );
-    expect(installed.version).toBe("2.2.4");
+    expect(installed.version).toBe("2.3.6");
     expect(installed.license).toBe("MIT");
   });
 
@@ -2105,13 +2082,14 @@ describe("widget-payload npm refresh parity (issue #6686: minicolors)", () => {
   );
 
   it.each(MINICOLORS_PAYLOADS.map(({ payload }) => payload))(
-    "editor copy %s initializes with non-empty keywords under jQuery 4 (native trim patch)",
+    "editor copy %s initializes with non-empty keywords under jQuery 4 (native trim)",
     (payloadRelPath) => {
       const $ = loadMinicolorsPayloadAsJqueryPlugin(payloadRelPath);
       // Simulate the production pages: CMS jQuery 4 WITHOUT jquery-migrate
       // (an earlier block in this file loads migrate, which restores
       // $.trim — delete it so this test proves the payload survives its
-      // absence; stock 2.2.4 throws `$.trim is not a function` here).
+      // absence; stock ≤2.2.4 threw `$.trim is not a function` here, and
+      // stock 2.3.6 carries the native trim natively).
       delete $.trim;
       expect(typeof $.trim).toBe("undefined");
       renderCalendarColorInput(document, "perc-keywords-input", "transparent");
@@ -2129,7 +2107,7 @@ describe("widget-payload npm refresh parity (issue #6686: minicolors)", () => {
         theme: "default",
       });
       expect(element.length).toBe(1);
-      // Both patched lines executed: init parsed the keywords (keyword
+      // Both native-trim lines executed: init parsed the keywords (keyword
       // value kept instead of falling back to defaultValue)...
       expect(element.minicolors("value")).toBe("transparent");
       // ...and the blur/updateFromInput path re-parses them without

@@ -38,10 +38,10 @@ import org.junit.jupiter.api.Test;
  * notice in copies and substantial portions. Two payload rows carried a
  * Percussion/Intersoft header in place of the upstream notice: the
  * nav-widget hoverIntent pair (upstream MIT banner restored and kept by the
- * merged #6725 shim, issue #6689) and the MiniColors twins (banner
- * restoration owned by open PR #6724, issue #6686 — excluded below so this
- * guard stays green across that rebase; #6724 pins the restored banner in
- * {@code WidgetPayloadVendoredJsAuditTest}).
+ * merged #6725 shim, issue #6689) and the MiniColors twins (banner restored
+ * by the merged #6724 rebase, issue #6686, and kept byte-identical through
+ * the #6723 2.3.6 rebase — the twins carry no identifiable upstream body
+ * markers, so the generic sweep below covers them trivially).
  *
  * <p>The generic sweep fails when any payload {@code .js} carries
  * identifiable upstream code (author/origin markers) while its header holds
@@ -52,12 +52,6 @@ import org.junit.jupiter.api.Test;
  * / {@link Files}; relative keys always use {@code '/'} separators.
  */
 class WidgetPayloadUpstreamNoticeGuardTest {
-
-  /** MiniColors twins — banner restoration owned by open PR #6724 (#6686). */
-  private static final List<String> MINICOLORS_EXCLUSION =
-      List.of(
-          "perc.widget.calendar/SupportFile-rx_resources/widgets/percCalendarTwo/js/jquery.minicolors.js",
-          "perc.widget.calendar/sys__UserDependency--rx_resources/widgets/percCalendarTwo/js/jquery.minicolors.js");
 
   /**
    * Markers that identify an upstream body. Each fires only on genuine
@@ -164,9 +158,6 @@ class WidgetPayloadUpstreamNoticeGuardTest {
     }
     Map<String, String> violations = new LinkedHashMap<>();
     for (String rel : payloadJs) {
-      if (MINICOLORS_EXCLUSION.contains(rel)) {
-        continue;
-      }
       String content = Files.readString(root.resolve(rel), StandardCharsets.UTF_8);
       String trigger =
           UPSTREAM_BODY_MARKERS.stream().filter(content::contains).findFirst().orElse(null);
