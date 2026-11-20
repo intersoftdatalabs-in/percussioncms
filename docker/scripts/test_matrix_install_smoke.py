@@ -67,7 +67,7 @@ class EnvAndPasswordTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as td:
             path = Path(td) / ".env.compose"
             path.write_text(
-                "# comment\nPOSTGRES_PASSWORD=from-file\nMYSQL_PASSWORD='quoted'\n",
+                "# comment\nPOSTGRES_PASSWORD=from-file\nMYSQL_PASSWORD='quoted'\n",  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
                 encoding="utf-8",
             )
             env = smoke.load_env_file(path)
@@ -834,7 +834,7 @@ class InstallArgvTests(unittest.TestCase):
         self.assertIn("--db.port=1521", argv)
         self.assertIn("--db.name=XEPDB1", argv)
         self.assertIn("--db.user=percuser", argv)
-        self.assertIn("--db.password=test-db-password", argv)
+        self.assertIn("--db.password=test-db-password", argv)  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
         self.assertIn("--db.schema=percuser", argv)
         self.assertIn("--db.ssl.enabled=false", argv)
         self.assertIn("--db.ssl.verify=false", argv)
@@ -1085,11 +1085,11 @@ class ComposeDbHostPortFreeportTests(unittest.TestCase):
             )
             (root / "docker-compose.yml").write_text("services: {}\n", encoding="utf-8")
             (root / ".env.compose.example").write_text(
-                "POSTGRES_PASSWORD=test-local-only\n"
-                "MYSQL_PASSWORD=test-local-only\n"
-                "MSSQL_SA_PASSWORD=test-local-only\n"
-                "ORACLE_APP_PASSWORD=test-local-only\n"
-                "ORACLE_PASSWORD=test-local-only\n",
+                "POSTGRES_PASSWORD=test-local-only\n"  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
+                "MYSQL_PASSWORD=test-local-only\n"  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
+                "MSSQL_SA_PASSWORD=test-local-only\n"  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
+                "ORACLE_APP_PASSWORD=test-local-only\n"  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
+                "ORACLE_PASSWORD=test-local-only\n",  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
                 encoding="utf-8",
             )
             os.environ["POSTGRES_PORT"] = "15444"
@@ -1247,11 +1247,11 @@ class DryRunCliTests(unittest.TestCase):
         # Credentials for external DB matrix cells (mirrors .env.compose.example).
         # Placeholders only — never real secrets (matrix harness unit tests).
         (root / ".env.compose.example").write_text(
-            "POSTGRES_PASSWORD=test-local-only\n"
-            "MYSQL_PASSWORD=test-local-only\n"
-            "MSSQL_SA_PASSWORD=test-local-only\n"
-            "ORACLE_APP_PASSWORD=test-local-only\n"
-            "ORACLE_PASSWORD=test-local-only\n",
+            "POSTGRES_PASSWORD=test-local-only\n"  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
+            "MYSQL_PASSWORD=test-local-only\n"  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
+            "MSSQL_SA_PASSWORD=test-local-only\n"  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
+            "ORACLE_APP_PASSWORD=test-local-only\n"  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
+            "ORACLE_PASSWORD=test-local-only\n",  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
             encoding="utf-8",
         )
 
@@ -1376,11 +1376,11 @@ class CmsPreflightGateTests(unittest.TestCase):
         )
         (repo / "docker-compose.yml").write_text("services: {}\n", encoding="utf-8")
         (repo / ".env.compose.example").write_text(
-            "POSTGRES_PASSWORD=test-local-only\n"
-            "MYSQL_PASSWORD=test-local-only\n"
-            "MSSQL_SA_PASSWORD=test-local-only\n"
-            "ORACLE_APP_PASSWORD=test-local-only\n"
-            "ORACLE_PASSWORD=test-local-only\n",
+            "POSTGRES_PASSWORD=test-local-only\n"  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
+            "MYSQL_PASSWORD=test-local-only\n"  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
+            "MSSQL_SA_PASSWORD=test-local-only\n"  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
+            "ORACLE_APP_PASSWORD=test-local-only\n"  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
+            "ORACLE_PASSWORD=test-local-only\n",  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
             encoding="utf-8",
         )
         (repo / "WebUI" / "target").mkdir(parents=True)
@@ -1648,7 +1648,7 @@ class CmsPreflightGateTests(unittest.TestCase):
             )
             (root / "docker-compose.yml").write_text("services: {}\n", encoding="utf-8")
             (root / ".env.compose.example").write_text(
-                "POSTGRES_PASSWORD=test-local-only\n",
+                "POSTGRES_PASSWORD=test-local-only\n",  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
                 encoding="utf-8",
             )
             empty_m2 = root / "empty-m2"
@@ -1759,6 +1759,65 @@ class CellSuffixIsolationTests(unittest.TestCase):
             )
             self.assertEqual(result.status, "pass")
             self.assertEqual(result.container_name, "perc-matrix-cms-h2-qa-a")
+
+
+class PlaceholderVocabularyGuardTests(unittest.TestCase):
+    """Issue #6778: pin the secrets.heuristic adjudication for this module.
+
+    Every ``*_PASSWORD`` fixture value literal in this test module must
+    belong to the explicit inert-placeholder set below. Adding a new
+    secret-looking literal fails the suite instead of silently growing
+    the FP cluster.
+    """
+
+    _INERT_VALUES = frozenset(
+        {
+            "from-file",
+            "quoted",
+            "test-db-password",
+            "test-local-only",
+            # Synthetic per-db fixture token asserted in the oracle
+            # docker-argv test (DB_PASSWORD plumbing); same placeholder
+            # family as the pg/my/sa-secret dict inputs, never a credential.
+            "ora-secret",
+        }
+    )
+
+    def test_password_fixture_values_are_allowlisted_placeholders(self):
+        import ast as _ast
+
+        src = Path(__file__).read_text(encoding="utf-8")
+        tree = _ast.parse(src)
+        outside = []
+        for node in _ast.walk(tree):
+            if isinstance(node, _ast.Constant) and isinstance(node.value, str):
+                for frag in node.value.split("\n"):
+                    # NOTE: deliberately no KEY=value-shaped literal on
+                    # these scanner lines (partition + word check are on
+                    # separate lines) so the guard adds no new heuristic row.
+                    key, sep, val = frag.partition("=")
+                    if sep and "PASSWORD" in key.upper():
+                        outside.append(val.strip().strip("'\""))
+        self.assertTrue(outside, "expected placeholder fixtures to exist")
+        for value in outside:
+            self.assertIn(
+                value,
+                self._INERT_VALUES,
+                "non-placeholder secret-looking value in "
+                + Path(__file__).name,
+            )
+
+    def test_inert_values_look_synthetic(self):
+        import re as _re
+
+        for value in sorted(self._INERT_VALUES):
+            self.assertTrue(
+                _re.fullmatch(r"[a-z][a-z0-9-]*", value) is not None
+                and len(value) <= 16,
+                "inert placeholder must stay short/lowercase/hyphenated: "
+                + str(len(value))
+                + " chars",
+            )
 
 
 if __name__ == "__main__":
