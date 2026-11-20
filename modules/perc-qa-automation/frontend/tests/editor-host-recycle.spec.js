@@ -86,6 +86,15 @@ test.describe("React Content Editor recycle open item", () => {
           pageErrors.push(text);
         }
       });
+      // Catch-alls first so later specific stubs win. Unmocked EditorHost
+      // load-time calls stay 404-silent for fake id 42 instead of hitting
+      // the QA server log as ERROR noise.
+      await page.route("**/services/**", (route) =>
+        route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/rest/**", (route) =>
+        route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+      );
       await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
         route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
       );
@@ -186,6 +195,137 @@ test.describe("React Content Editor recycle open item", () => {
         timeout: 20_000,
       });
       await expect(page.locator('[data-testid="editor-recycle"]')).toHaveCount(0);
+
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="editor-host"]',
+        exclude: ['[data-testid="translations-panel"]'],
+      });
+    },
+  );
+
+  test(
+    "maps 404 and 409 to named stay-on-item errors",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      const deletes = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          const text = msg.text();
+          if (text.includes("Failed to load resource")) {
+            return;
+          }
+          pageErrors.push(text);
+        }
+      });
+      // Catch-alls first so later specific stubs win. Unmocked EditorHost
+      // load-time calls stay 404-silent for fake id 42 instead of hitting
+      // the QA server log as ERROR noise.
+      await page.route("**/services/**", (route) =>
+        route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/rest/**", (route) =>
+        route.fulfill({ status: 404, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/services/itemmanagement/workflow/checkOut/**", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/rest/editor/items/**/checkout", (route) =>
+        route.fulfill({ status: 200, contentType: "application/json", body: "{}" }),
+      );
+      await page.route("**/services/itemmanagement/workflow/getTransitions/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemStateTransition: {
+              itemId: "42",
+              stateName: "Draft",
+              transitionTriggers: [],
+            },
+          }),
+        }),
+      );
+      await page.route("**/services/contenttypes/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(TYPE),
+        }),
+      );
+      await page.route("**/services/itemmanagement/item/fields/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(FIELDS),
+        }),
+      );
+      await page.route("**/pathmanagement/path/item/id/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify(PATH_ITEM),
+        }),
+      );
+      await page.route("**/rest/content-explorer/translations/**", (route) =>
+        route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ itemId: 42, locale: "en-us", variants: [] }),
+        }),
+      );
+      let deleteStatus = 200;
+      await page.route("**/rest/folders/item/**", async (route) => {
+        if (route.request().method() !== "DELETE") {
+          await route.continue();
+          return;
+        }
+        deletes.push(route.request().url());
+        await route.fulfill({
+          status: deleteStatus,
+          contentType: "application/json",
+          body: deleteStatus === 200 ? "{}" : JSON.stringify({ message: "no" }),
+        });
+      });
+
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      await expect(page.locator('[data-testid="editor-recycle"]')).toBeVisible({
+        timeout: 20_000,
+      });
+
+      page.once("dialog", (dialog) => dialog.dismiss());
+      await page.locator('[data-testid="editor-recycle"]').click();
+      await expect(page.locator('[data-testid="editor-content-id"]')).toContainText("42");
+      expect(deletes).toEqual([]);
+
+      deleteStatus = 404;
+      page.once("dialog", (dialog) => dialog.accept());
+      await page.locator('[data-testid="editor-recycle"]').click();
+      const missingError = page.locator('[data-testid="editor-recycle-error"]');
+      await expect(missingError).toContainText(/not found/i);
+      await expect(missingError).toContainText(/\(Home\)/);
+      await expect(missingError).toBeFocused();
+      await expect(page.locator('[data-testid="editor-recycle-done"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="editor-content-id"]')).toContainText("42");
+      await expect(page.locator('[data-testid="editor-form"]')).toBeVisible();
+      await expect(page.locator('[data-testid="editor-recycle"]')).toBeVisible();
+
+      deleteStatus = 409;
+      page.once("dialog", (dialog) => dialog.accept());
+      await page.locator('[data-testid="editor-recycle"]').click();
+      const conflictError = page.locator('[data-testid="editor-recycle-error"]');
+      await expect(conflictError).toContainText(/in use or checked out/i);
+      await expect(conflictError).toContainText(/\(Home\)/);
+      await expect(conflictError).toBeFocused();
+      await expect(page.locator('[data-testid="editor-recycle-done"]')).toHaveCount(0);
+      await expect(page.locator('[data-testid="editor-content-id"]')).toContainText("42");
+      await expect(page.locator('[data-testid="editor-form"]')).toBeVisible();
+      await expect(page.locator('[data-testid="editor-recycle"]')).toBeVisible();
+      expect(deletes.length).toBe(2);
+
+      await page.screenshot({ path: "test-results/live-proof-6773-recycle-errors.png" });
 
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       await expectNoSeriousA11yViolations(page, {

@@ -107,3 +107,41 @@ export function editorRecycleErrorReason(err: unknown): EditorRecycleErrorReason
   }
   return "failed";
 }
+
+/**
+ * Name the open item in a recycle notice (#6773). Mirrors
+ * {@code formatLockOwnerNotice}: a blank name keeps the base copy
+ * unchanged. HTTP 403/404/409 paths never clear the payload name before
+ * calling this, so the missing/conflict error still says which item the
+ * failure is about.
+ */
+export function formatRecycleItemNotice(
+  row: string,
+  itemName: string | null | undefined,
+): string {
+  const name = (itemName ?? "").trim();
+  return name ? `${row} (${name})` : row;
+}
+
+/**
+ * Move keyboard focus to the recycle error and scroll it into view (#6773).
+ * A 404/409 recycle failure otherwise leaves focus on the Recycle trigger
+ * while the fix lives nowhere on the form; this mirrors
+ * {@code focusWorkflowComment} for comment-gate blocks. Returns false when
+ * the error is not in the document (caller keeps the role="alert" notice
+ * as the fallback).
+ */
+export function focusRecycleError(): boolean {
+  if (typeof document === "undefined") {
+    return false;
+  }
+  const el = document.querySelector('[data-testid="editor-recycle-error"]');
+  if (!(el instanceof HTMLElement)) {
+    return false;
+  }
+  el.focus();
+  if (typeof el.scrollIntoView === "function") {
+    el.scrollIntoView({ block: "nearest" });
+  }
+  return true;
+}
