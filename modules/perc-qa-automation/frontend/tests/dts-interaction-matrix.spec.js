@@ -39,14 +39,16 @@
  * a time.</p>
  *
  * <p>Run (needs the DTS-providing cell + seeded interaction fixtures):
- * {@code DTS_BASE_URL=https://<dts-cell-origin>
+ * {@code DTS_BASE_URL=https://<dts-cell-origin>} (or {@code DTS_URL},
+ * the {@code qa-up --with-dts} banner alias)
  * DTS_FIXTURE_POLL=qamatrix-poll DTS_FIXTURE_FORM=qamatrix-form
  * DTS_FIXTURE_SITE=EnterpriseInvestments DTS_FIXTURE_PAGE=/qamatrix
  * DTS_FIXTURE_FEED=EnterpriseInvestments/qamatrix-feed/localhost
  * DTS_FIXTURE_USER=qa-matrix@example.com DTS_FIXTURE_PASSWORD=<secret>
  * npm run test:surface -- --path tests/dts-interaction-matrix.spec.js}
  * from {@code modules/perc-qa-automation/frontend}. Without
- * {@code DTS_BASE_URL} every case skips with the named reason.</p>
+ * {@code DTS_BASE_URL} (or its {@code DTS_URL} alias) every case skips
+ * with the named reason.</p>
  */
 
 const fs = require("node:fs");

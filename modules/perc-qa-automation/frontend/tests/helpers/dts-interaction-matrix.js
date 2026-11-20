@@ -31,7 +31,7 @@
  * widget.</p>
  *
  * <p>Two-level skip contract (mirrors US2): without {@code DTS_BASE_URL}
- * every case skips naming its service (T020, verifiable on the CMS-only
+ * (or its {@code DTS_URL} banner alias) every case skips naming its service (T020, verifiable on the CMS-only
  * cell); with a base URL the case probes liveness, then the seeded fixture
  * (poll, feed, form, site/page, query, account) — an unseeded fixture skips
  * with its own named reason instead of failing, so the #6237 cell can turn
@@ -44,6 +44,8 @@
 "use strict";
 
 const path = require("node:path");
+
+const dtsCell = require("./dts-cell");
 
 const MATRIX_SUITE = "dts-interaction-matrix";
 const MATRIX_SPEC = "tests/dts-interaction-matrix.spec.js";
@@ -59,10 +61,8 @@ const MATRIX_CELLS = Object.freeze(["dts-cell"]);
 const SERVICE_NAME_PATTERN = /^(polls|feeds|forms|comments|metadata|membership)$/;
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Skip reason when no DTS-providing cell is configured. */
-const SKIP_NO_DTS_BASE =
-  "needs DTS_BASE_URL=(DTS-providing cell origin); " +
-  "default CMS-only H2 QA cell serves no DTS services (#6237)";
+/** Skip reason when no DTS-providing cell is configured (shared cell contract). */
+const SKIP_NO_DTS_BASE = dtsCell.SKIP_NO_DTS_BASE;
 
 /**
  * Skip reason when the cell serves no DTS-providing origin at all.
@@ -208,15 +208,15 @@ function tagForService(name) {
 }
 
 /**
- * @returns {URL|null} DTS-providing cell origin, or null when the cell is
- * CMS-only (default H2 QA cell: every case skips named)
+ * DTS-providing cell origin, or null when the cell is CMS-only (default
+ * H2 QA cell: every case skips named). Delegates to the shared cell
+ * contract ({@code tests/helpers/dts-cell.js#dtsBaseUrl}): accepts the
+ * {@code DTS_URL} banner alias.
+ *
+ * @returns {URL|null}
  */
 function dtsBaseUrl() {
-  const baseUrl = process.env.DTS_BASE_URL || "";
-  if (!baseUrl) {
-    return null;
-  }
-  return new URL(baseUrl);
+  return dtsCell.dtsBaseUrl();
 }
 
 /**

@@ -49,8 +49,9 @@
  * gate interferes with the counts.</p>
  *
  * <p>Skip contract (mirrors the US3 membership matrix): without
- * {@code DTS_BASE_URL} every case skips naming the missing cell (#6237);
- * with a base URL each case probes liveness ({@code HEAD
+ * {@code DTS_BASE_URL} (or its {@code DTS_URL} banner alias) every case
+ * skips naming the missing cell (#6237); with a base URL each case
+ * probes liveness ({@code HEAD
  * <context>/polls/csrf} — the service lives under its Tomcat deployment
  * context, issue #6342) before touching the service. A cell whose polls
  * store answers {@code ERROR} to a save (unprovisioned polls database)
@@ -64,6 +65,8 @@
 "use strict";
 
 const path = require("node:path");
+
+const dtsCell = require("./dts-cell");
 
 const MATRIX_SUITE = "polls-vote-matrix";
 const MATRIX_SPEC = "tests/polls-vote-matrix.spec.js";
@@ -80,10 +83,8 @@ const MATRIX_CELLS = Object.freeze(["dts-cell"]);
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Skip reason when no DTS-providing cell is configured. */
-const SKIP_NO_DTS_BASE =
-  "needs DTS_BASE_URL=(DTS-providing cell origin); " +
-  "default CMS-only H2 QA cell serves no DTS services (#6237)";
+/** Skip reason when no DTS-providing cell is configured (shared cell contract). */
+const SKIP_NO_DTS_BASE = dtsCell.SKIP_NO_DTS_BASE;
 
 /**
  * Skip reason when the DTS origin answers but the polls service does
@@ -137,15 +138,15 @@ const POLLS_ENTRY = Object.freeze({
 });
 
 /**
- * @returns {URL|null} DTS-providing cell origin, or null when the cell is
- * CMS-only (default H2 QA cell: every case skips named)
+ * DTS-providing cell origin, or null when the cell is CMS-only (default
+ * H2 QA cell: every case skips named). Delegates to the shared cell
+ * contract ({@code tests/helpers/dts-cell.js#dtsBaseUrl}): accepts the
+ * {@code DTS_URL} banner alias.
+ *
+ * @returns {URL|null}
  */
 function dtsBaseUrl() {
-  const baseUrl = process.env.DTS_BASE_URL || "";
-  if (!baseUrl) {
-    return null;
-  }
-  return new URL(baseUrl);
+  return dtsCell.dtsBaseUrl();
 }
 
 /**

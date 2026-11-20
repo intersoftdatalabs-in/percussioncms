@@ -29,7 +29,8 @@
  * validates it against
  * {@code contracts/results-matrix.schema.json}, and writes it to
  * {@code test-results/polls-vote-matrix.json}. Three-level skip
- * contract: without {@code DTS_BASE_URL} every case skips naming the
+ * contract: without {@code DTS_BASE_URL} (or its {@code DTS_URL} banner
+ * alias) every case skips naming the
  * cell (#6237, green on the CMS-only cell); with a base URL each case
  * probes liveness ({@code HEAD <context>/polls/csrf} — the service
  * lives under its Tomcat deployment context, issue #6342); a cell whose
@@ -43,10 +44,12 @@
  * independent under parallel workers.</p>
  *
  * <p>Run (needs the DTS-providing cell):
- * {@code DTS_BASE_URL=https://<dts-cell-origin>
- * npm run test:surface -- --path tests/polls-vote-matrix.spec.js}
+ * {@code DTS_BASE_URL=https://<dts-cell-origin>} (or {@code DTS_URL},
+ * the {@code qa-up --with-dts} banner alias)
+ * {@code npm run test:surface -- --path tests/polls-vote-matrix.spec.js}
  * from {@code modules/perc-qa-automation/frontend}. Without
- * {@code DTS_BASE_URL} every case skips with the named reason.</p>
+ * {@code DTS_BASE_URL} (or its {@code DTS_URL} alias) every case skips
+ * with the named reason.</p>
  */
 
 const fs = require("node:fs");
