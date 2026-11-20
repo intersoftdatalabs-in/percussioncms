@@ -5,7 +5,9 @@
 # triggers (timer vs timer, timer vs manual) exit immediately instead of
 # stacking.
 # Usage: scripts/night-timer-run.sh [--max-issues N] [launcher args...]
-# Env: MAX_ISSUES overrides the default; MODEL overrides the pinned model
+# Env: MAX_ISSUES overrides the default; MAX_PARALLEL_WORK overrides the
+# Work seat count (default 1 = sequential; 2 = pilot seats, each with a
+# distinct PERC_QA_CELL_SUFFIX); MODEL overrides the pinned model
 # (default opencode-go/muse-spark-1.3-contributor#medium);
 # NIGHT_REPORT_PATH is stamped per run
 # so consecutive cycles don't overwrite scratch/night-report.md.
@@ -14,6 +16,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/.." && pwd)"
 LOCK_FILE="${LOCK_FILE:-${REPO_ROOT}/tmp/night-issue-prs.lock}"
 MAX_ISSUES="${MAX_ISSUES:-5}"
+MAX_PARALLEL_WORK="${MAX_PARALLEL_WORK:-1}"
 # Pinned model for unattended runs: the default model slot is too slow
 # (single inference step per ~5 min; whole cycles take 5h+). Override with
 # MODEL="<provider>/<model>#<variant>" (format of `opencode run --model`).
@@ -33,5 +36,5 @@ exec flock -n "${LOCK_FILE}" sh -c '
   WORKTREE="${NIGHT_WORKTREE_PATH:-'"${WORKTREE_DEFAULT}"'}"
   export NIGHT_REPORT_PATH="${WORKTREE}/scratch/night-report-${STAMP}.md"
   cd "'"${REPO_ROOT}"'"
-  exec python3 scripts/opencode-night-issue-prs.py --max-issues "'"${MAX_ISSUES}"'" --model "'"${MODEL}"'" "$@"
+  exec python3 scripts/opencode-night-issue-prs.py --max-issues "'"${MAX_ISSUES}"'" --max-parallel-work "'"${MAX_PARALLEL_WORK}"'" --model "'"${MODEL}"'" "$@"
 ' sh "$@"
