@@ -35,9 +35,9 @@ positional text). Parse them and pass to the workflow as described below.
 | `allowed_issue_authors` | string | empty | Extra maintainer logins (comma-sep) |
 | `require_issue_safety_check` | bool | `true` | Hard-skip destructive-instruction issues |
 | `unassigned_only` | bool | `true` | Skip assigned issues |
-| `include_stale_in_progress_cleanup` | bool | `true` | Free abandoned In Progress claims |
+| `include_stale_in_progress_cleanup` | bool | `true` | Free abandoned In Progress claims (`night-queue-claim.py sweep-stale`, Phase 2) |
 | `include_decision_front` | bool | `true` | Run `scripts/night-decision-front.py` before the Preflight/Reconcile/Triage walks; fall back to those agents when it fails or returns an incomplete signal set |
-| `stale_in_progress_hours` | int | `4` | Hours of inactivity before In Progress cleared |
+| `stale_in_progress_hours` | int | `24` | Hours since the last claim marker (label-only legacy claims: since issue `updatedAt`) before an In Progress claim with **no covering open PR** is cleared by `night-queue-claim.py sweep-stale`. Was 4h; cycles run 4–6h, so a 4h window let other runners strip live queue claims. |
 | `include_reconcile` | bool | `true` | Close 100%-implemented issues |
 | `max_reconcile_closes` | int | `100` | Max reconcile closes per run |
 | `max_reconcile_inspect` | int | `100` | Max open issues to inspect |
@@ -122,6 +122,7 @@ absent (count `-1` is unknown, not zero).
 |---|-------|-----------|-------------|
 | 1 | Identity | (inline — read env) | stamp args already passed |
 | 2 | Decision front | run `scripts/night-decision-front.py` (thin; fetch `scratch/alerts.json` first, pass `--alerts`; omit the flag on fetch failure → count `-1`, never fake `[]`) | `include_decision_front: false` |
+| 2a | Queue claim (HARD) | inline — `scripts/night-queue-claim.py claim` on every queue change (see "Queue claims") | never — every queued row is claimed before anything else runs |
 | 3 | Preflight (fallback) — stale In Progress cleanup | `preflight` | decision-front `signals_complete` (still write `scratch/preflight.json` via `scripts/write-preflight.py` — see below) |
 | 4 | Reconcile (fallback) | `reconcile` | decision-front filled the queue or `include_reconcile: false` |
 | 5 | PR follow-up PRE | `pr-follow-up` | no merge blockers from Preflight |
@@ -152,6 +153,63 @@ replace gated rows product-first with one-per-parent, debt only into
 `low_slots`, still capped by `max_issues`, no expansion). Human-only
 blockers are never filed — record `human_blocked_by` and yield the seat.
 Work claim-checks remain the backstop, not the plan.
+
+## Queue claims (HARD — 2.2.13-draft, 2026-11-20)
+
+An issue is claimed on GitHub **the moment it enters this run's queue**, not
+when Work starts. Serial Work can reach a queued row hours later; until
+2026-11-20 the issue sat unlabeled meanwhile, a runner on another machine
+queued it too (#6651: our #6840 vs mayank-intsof's #6847), and our Work then
+stripped that runner's fresh label on exit.
+
+The claim reuses the shared `in progress` label that every runner's
+decision-front / triage / Work claim-check already skips, plus one claim
+comment carrying a `<!-- night-claim:v1 action=claim cycle=<id> host=<host> -->`
+marker so runners can tell **whose** claim it is. All steps go through
+`scripts/night-queue-claim.py` (state in `scratch/claims.json`; run from the
+worktree with `--repo <repo>`):
+
+1. **Phase 1 (Identity) — start the cycle:** `python3 scripts/night-queue-claim.py --repo <repo> init`
+   prints `cycle_id`; export it as `NIGHT_CYCLE_ID` and hand it to every Work
+   sub-agent. A `claims.json` left by a crashed run is released first (rows
+   whose `scratch/work-<N>.json` is not `pr_opened`). When resuming an
+   interrupted run, pass `--cycle-id <old id>` so its claims stay.
+2. **Phase 2 — before fetching `scratch/issues-raw.json`:** when
+   `include_stale_in_progress_cleanup`, run
+   `... sweep-stale --stale-hours <stale_in_progress_hours>` (default 24). It
+   clears a claim only when its last claim marker (label with no marker: the
+   issue `updatedAt`) is older than the window **and** no open PR covers the
+   issue (`Fixes #N` / `issue-N` branch). Never clears assigned issues or this
+   cycle's claims; cap 40. This is the stale cleanup on the decision-front
+   path (Preflight Phase 2A uses the same command on the fallback path).
+3. **Right after decision-front writes its queue:**
+   `... claim --queue scratch/decision-front.json`. Every `conflicts` row
+   (`claimed_by_other`, `lost_race`, `assigned`, `closed`, `lookup_failed`) is
+   not ours: drop it from the queue, record `skipped:<reason>` in the report,
+   and backfill the seat through Triage. Never remove or override another
+   runner's label.
+4. **Every time the queue changes** (Triage, Triage follow-up 6b, gate-audit,
+   blocker substitution, host backfill): `... claim --queue scratch/triage.json`
+   (or `--issues <csv>`) for rows added, and
+   `... release --issues <csv> --reason <dropped_by_triage|gated|deferred|replaced_by_blocker>`
+   for rows removed. **Unclaimed rows never go to Work.**
+5. **Work exit:** `pr_opened` keeps the claim (the open PR plus label guard it
+   until merge; the stale sweep frees the label later if the issue stays open).
+   Every other exit releases with `--reason work_<status>` (Work does this
+   itself; see `work.md` step 9).
+6. **Report phase (before the worktree sweep and notify, aborted runs too):**
+   `... release-unfinished --work-dir scratch` releases every claim of this
+   cycle that never reached `pr_opened` (not reached, deferred, aborted).
+   Record its `released` / `kept_pr_opened` lists in the report.
+
+Ties: when two runners claim in the same window, the earliest claim comment
+(GitHub `createdAt`) wins and the other posts a release and yields — the
+script does this. If `gh` fails for a row it comes back as `lookup_failed`:
+do not Work it this cycle.
+
+Triage and Work treat issues listed `claimed` in `scratch/claims.json` for the
+current `NIGHT_CYCLE_ID` as this run's own queue — the `in progress` label on
+those is not a skip.
 
 ## Preflight output contract (skipped-preflight path)
 
@@ -367,6 +425,8 @@ Create labels if missing (`gh label create`).
 ## Hard bans
 
 - `git push --force` (use `--force-with-lease` only after rebase).
+- Removing an `in progress` label directly (`gh issue edit --remove-label`). Only `scripts/night-queue-claim.py release` / `release-unfinished` / `sweep-stale` remove it, and never another runner's live claim.
+- Spawning Work for a queue row this cycle has not claimed.
 - `--skipTests` / `-Dmaven.test.skip` in any Maven build gate.
 - `--force-with-lease` to `main` or `night-issue-prs-main`.
 - Direct push to `main` (PRs only).

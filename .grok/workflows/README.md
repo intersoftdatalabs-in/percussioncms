@@ -202,7 +202,7 @@ Runs as **Part A of Preflight** (not a separate agent) before PRE / Triage.
 | Rule | Behavior |
 |------|----------|
 | **Who** | Open issues with label **In Progress** (or exact `in progress` if that is the repo name) |
-| **Stale** | Issue `updatedAt` older than `stale_in_progress_hours` (default **4**, range 1–72) |
+| **Stale** | Last claim marker (label-only: issue `updatedAt`) older than `stale_in_progress_hours` (default **24**, range 1–72) **and** no covering open PR. OpenCode: `scripts/night-queue-claim.py sweep-stale`. |
 | **Action** | Remove In Progress + short comment (`night-issue-prs: removed stale In Progress…`) |
 | **Keep** | `updatedAt` within the window (active work / recent touch) |
 | **Cap** | At most **40** clears per run |
@@ -218,8 +218,8 @@ Just **before** any git/code work on a queued issue:
 2. Maintainer author gate → `skipped_non_maintainer_author` when blocked
 3. Destructive-instruction safety gate → `skipped_destructive_instructions` when blocked
 4. If **not safe for agents** / large multi-locale TMX (when `agent_safe_only`) → matching skip status
-5. If **In Progress** already present → `status=skipped_in_progress`, **do not** claim, continue to next queue item
-6. Only if clear → add **In Progress**, work, then **always remove** on exit
+5. If **In Progress** already present and this cycle holds no claim → `status=skipped_in_progress`, **do not** touch the label, continue to next queue item
+6. **Queue-time claims (2.2.13-draft, OpenCode):** the host already claimed the row (label + `night-claim:v1` comment) when it entered the queue, so Work proceeds on its own claim. On exit: `pr_opened` keeps the claim; any other status releases it via `scripts/night-queue-claim.py release`. Rows never reached are released in the Report phase (`release-unfinished`). Never remove another runner's label. (The `.rhai` runtime still claims at Work start until ported.)
 
 Triage may still prefer skipping In Progress issues; Work re-checks live so concurrent agents do not double-start. Stale cleanup at the start of the next run recovers labels left by hard crashes.
 

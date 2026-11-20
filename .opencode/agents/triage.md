@@ -60,7 +60,7 @@ gh issue list --repo intersoftdatalabs-in/percussioncms \
 
 Filter:
 
-- **Skip** if any label matches `not safe for agents`, `in progress`, `in-progress`.
+- **Skip** if any label matches `not safe for agents`, `in progress`, `in-progress` — **except** issues listed `claimed` in `scratch/claims.json` for the current `NIGHT_CYCLE_ID`: those are this run's own queue claims, keep them. The host claims every row you add to `slotted_for_work` before Work and releases rows you drop (command file "Queue claims").
 - **`qa task` / `QA (#N)` tickets are implement-eligible** like any other issue when unassigned and maintainer-authored (operator direction 2026-11-14: agents do QA work). Assigned ones stay out via `unassigned_only`. Do NOT use rationale `qa_ticket_human_owned`.
 - **Skip** if assignee is non-empty AND `unassigned_only=true`.
 - **Skip** if author is not in `maintainer_logins` AND `maintainer_authors_only=true`.

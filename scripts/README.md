@@ -586,6 +586,30 @@ Harvest GitHub PR **line review comments** (including closed/merged PRs) from `k
 - **Prereqs**: Python 3.9+, `gh` CLI authenticated.
 - **Tests**: `python3 -m pytest scripts/test_erlang_harvest_review_patterns.py -v`
 
+### `night-queue-claim.py`
+
+Queue-time issue claims for `night-issue-prs` (2.2.13-draft). Claims an issue
+on GitHub the moment it enters a cycle's queue — the shared `in progress`
+label plus a comment with a `<!-- night-claim:v1 action=claim cycle=… host=… -->`
+marker — so runners on other machines skip it. State: `scratch/claims.json`.
+
+- **Usage** (from the night worktree):
+
+  ```bash
+  python3 scripts/night-queue-claim.py init                       # new cycle id
+  python3 scripts/night-queue-claim.py sweep-stale --stale-hours 24
+  python3 scripts/night-queue-claim.py claim --queue scratch/decision-front.json
+  python3 scripts/night-queue-claim.py release --issues 123 --reason dropped_by_triage
+  python3 scripts/night-queue-claim.py release-unfinished --work-dir scratch
+  ```
+
+- **Rules in code**: never claims assigned / closed / already-claimed issues
+  (returned as `conflicts`); earliest claim comment wins a race; a release
+  removes the label only when no other runner's claim is active; the stale
+  sweep skips assigned issues, issues with a covering open PR and the current
+  cycle's claims.
+- **Tests**: `python3 -m pytest scripts/test_night_queue_claim.py` (fake `gh`).
+
 ### `night-decision-front.py` / `night-decision-front.cmd`
 
 Ranks the overnight implement queue from **gh JSON label/title facts** (no live

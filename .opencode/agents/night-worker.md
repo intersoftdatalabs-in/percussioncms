@@ -58,6 +58,7 @@ absent — a missing count is `-1` (unknown), not zero.
 |---|-------|-----------|-------------|
 | 1 | Identity | (inline — read env) | stamp args already passed; must populate `NIGHT_MODEL_ID` and `NIGHT_CODING_TOOL_VERSION` before any PR body or label is emitted |
 | 2 | Decision front | run `scripts/night-decision-front.py` (thin; fetch `scratch/alerts.json` first, pass `--alerts`; omit the flag on fetch failure → count `-1`, never fake `[]`) | `include_decision_front: false` |
+| 2a | Queue claim (HARD) | inline — `scripts/night-queue-claim.py` (`init` in Identity, `sweep-stale` before the issue fetch, `claim` the moment rows enter the queue, `release` when rows leave, `release-unfinished` in Report; command file "Queue claims") | never |
 | 3 | Preflight (fallback) — stale In Progress cleanup | `preflight` | decision-front `signals_complete` (host still writes canonical `scratch/preflight.json` via `scripts/write-preflight.py`; see command file) |
 | 4 | Reconcile (fallback) | `reconcile` | decision-front filled the queue or `include_reconcile: false` |
 | 5 | PR follow-up PRE | `pr-follow-up` | no merge blockers |
@@ -199,6 +200,7 @@ rewrite status to `failed` / `blocked=missing_build_evidence`.
 ## Hard bans
 
 - `git push --force` (use `--force-with-lease` only after rebase).
+- Removing an `in progress` label directly, or spawning Work for an unclaimed queue row (queue claims are HARD — command file "Queue claims").
 - `--skipTests` / `-Dmaven.test.skip` in any Maven build gate.
 - `--force-with-lease` to `main` or `night-issue-prs-main`.
 - Direct push to `main`.
