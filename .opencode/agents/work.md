@@ -39,12 +39,19 @@ Verify:
 - State is `open`.
 - Maintainer author (if `maintainer_authors_only=true`).
 - No `not safe for agents` label.
-- No `in progress` label (clear it via `gh issue edit --remove-label "In Progress"`
-  if it's stale; never claim a fresh in-progress).
+- **Claim (2.2.13-draft):** the host claimed this issue when it entered the
+  queue. Confirm `scratch/claims.json` lists `"<N>"` with `"state": "claimed"`
+  for cycle `$NIGHT_CYCLE_ID`; that `in progress` label is ours — proceed.
+  If the issue carries `in progress` and this cycle holds **no** claim (another
+  runner's or a label-only claim), return `status: skipped_in_progress` with
+  the owner and stop. **Never** remove someone else's label, fresh or stale —
+  stale claims are the host sweep's job. Running standalone with no host
+  claim: `python3 scripts/night-queue-claim.py claim --issues <N>` first and
+  stop with `skipped_in_progress` if it comes back in `conflicts`.
 - If a covering OPEN PR exists for this issue: **absorb into that PR** instead
   of opening a new one (`gh pr list --search "closes #N"`).
 
-Add `In Progress` label before starting; remove on exit.
+Do not add or remove the label with `gh issue edit`; `scripts/night-queue-claim.py` owns it.
 
 ### 2. Branch
 
@@ -243,11 +250,21 @@ Write `scratch/work-<N>.json`:
 If the build fails or the PR cannot be opened, write `status: failed` with
 a `reason` field. The host rewrites the disposition to `failed`.
 
-### 9. Remove In Progress label
+### 9. Claim on exit
+
+- `status: pr_opened` → keep the claim (do nothing). The open PR and the label
+  tell other runners the issue is taken until the PR merges.
+- Any other status (`failed`, `blocked`, `skipped_*`, `already_merged`,
+  `verified_no_change`) → release it so the next runner can take it:
 
 ```bash
-gh issue edit <N> --repo intersoftdatalabs-in/percussioncms --remove-label "In Progress"
+python3 scripts/night-queue-claim.py --repo intersoftdatalabs-in/percussioncms \
+  release --issues <N> --reason work_<status>
 ```
+
+The release removes the label only when no other runner holds a claim. Never
+`gh issue edit --remove-label "in progress"` directly — on 2026-11-20 that
+stripped mayank-intsof's live claim on #6651.
 
 ### 10. Close gate (HARD — 2026-11-05)
 

@@ -23,7 +23,7 @@ collect inventory. You do NOT file or close issues.
 |-----|---------|---------|
 | `repo` | `intersoftdatalabs-in/percussioncms` | GitHub repo. |
 | `base_branch` | `main` | PR base. |
-| `stale_in_progress_hours` | `4` | Hours of issue inactivity before clearing a stale `In Progress` label. |
+| `stale_in_progress_hours` | `24` | Hours since the last claim marker (label-only: issue inactivity) before clearing an `In Progress` claim that has no covering open PR. |
 | `include_stale_in_progress_cleanup` | `true` | Run Phase 2A. |
 | `max_inventory` | `80` | Cap on compact issue inventory. |
 | `agent_safe_only` | `true` | When true, log issues with `not safe for agents` / LargeI18n labels as `NotSafe: yes` for the skip matrix. |
@@ -34,29 +34,17 @@ collect inventory. You do NOT file or close issues.
 
 Skip if `include_stale_in_progress_cleanup=false`.
 
-Discover issues with the `In Progress` label using `gh issue list`
-(this is more robust than the jq-only pipe used in earlier drafts):
+Run the shared sweep (same command as the decision-front path; it reads
+claim markers, keeps assigned issues, issues with a covering open PR, and the
+current cycle's claims, and caps at 40):
 
 ```bash
-gh issue list --repo <repo> --state open \
-  --label "In Progress" \
-  --json number,updatedAt \
-  > scratch/in-progress.json
-
-gh issue list --repo <repo> --state open \
-  --label "in progress" \
-  --json number,updatedAt \
-  >> scratch/in-progress.json
-
-jq -s 'add | unique_by(.number)' scratch/in-progress.json > scratch/in-progress-unique.json
+python3 scripts/night-queue-claim.py --repo <repo> \
+  sweep-stale --stale-hours "${stale_in_progress_hours}" > scratch/stale-sweep.json
 ```
 
-For each issue with `updatedAt` older than `now() - stale_in_progress_hours` hours:
-
-```bash
-gh issue edit <N> --repo <repo> --remove-label "In Progress"
-gh issue comment <N> --repo <repo> --body "night-issue-prs: removed stale In Progress (no activity for ${stale_in_progress_hours}h+)"
-```
+Report `cleared` / `kept` from that file. Never `gh issue edit
+--remove-label` an In Progress label by hand.
 
 **Cap** at 40 clears per run (defensive; a runaway agent should not
 clear the entire backlog).
