@@ -1112,6 +1112,209 @@ class TestQaUpPreflightGate(unittest.TestCase):
         self.assertIn("RESULT:OK STEP:qa-up", out)
 
 
+class TestQaUpDecomposition(unittest.TestCase):
+    """Pins for the #6782 ``cmd_qa_up`` helpers (no docker, no maven).
+
+    The refactor extracts context resolution, the preflight gate, the
+    stale-image gate, cell starts, and deploy finish from ``cmd_qa_up``
+    with no behavior change; these tests pin each helper directly.
+    """
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo_root = _stub_repo_root(Path(self.td.name))
+        (self.repo_root / "docker" / "logs").mkdir(parents=True, exist_ok=True)
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+        self.paths = (self.repo_root, self.repo_root / ".env", self.repo_root / "up.yml")
+
+    def _ns(self, **overrides):
+        base = dict(
+            dry_run=True,
+            timeout_seconds=60,
+            skip_image_build=False,
+            cell_suffix=None,
+            skip_preflight=False,
+            m2_root=None,
+            provenance=True,
+            with_dts=False,
+            then_qa_deploy_webui=False,
+            then_qa_deploy_war_jars=False,
+            no_restart_jetty=False,
+        )
+        base.update(overrides)
+        return __import__("argparse").Namespace(**base)
+
+    def test_resolve_context_defaults(self):
+        ctx = pdc._qa_up_resolve_context(self._ns(), self.paths)
+        self.assertEqual(ctx.repo_root, self.repo_root)
+        self.assertTrue(ctx.dry_run)
+        self.assertEqual(ctx.probe_timeout, 60)
+        self.assertFalse(ctx.skip_image_build)
+        self.assertEqual(ctx.container, pdc.QA_CMS_CONTAINER)
+        self.assertGreater(ctx.host_port, 0)
+
+    def test_resolve_context_cell_suffix(self):
+        ctx = pdc._qa_up_resolve_context(
+            self._ns(cell_suffix="lane-b"), self.paths
+        )
+        self.assertEqual(ctx.cell_suffix, "lane-b")
+        self.assertIn("lane-b", ctx.container)
+        self.assertEqual(os.environ.get(pdc.QA_CELL_SUFFIX_ENV), "lane-b")
+
+    def test_gate_preflight_dry_run_never_checks(self):
+        with unittest.mock.patch.object(
+            pdc, "_qa_up_preflight_check",
+            side_effect=AssertionError("must not run on dry-run"),
+        ):
+            self.assertIsNone(
+                pdc._qa_up_gate_preflight(self.repo_root, self._ns(), True)
+            )
+
+    def test_gate_preflight_skip_flag_bypasses(self):
+        with unittest.mock.patch.object(
+            pdc, "_qa_up_preflight_check",
+            side_effect=AssertionError("must not run with --skip-preflight"),
+        ):
+            self.assertIsNone(
+                pdc._qa_up_gate_preflight(
+                    self.repo_root, self._ns(skip_preflight=True), False
+                )
+            )
+
+    def test_gate_preflight_refused_returns_failed(self):
+        import io
+        from contextlib import redirect_stdout
+
+        with unittest.mock.patch.object(
+            pdc, "_qa_up_preflight_check",
+            return_value=(False, "STALE: stubbed stale"),
+        ):
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc._qa_up_gate_preflight(
+                    self.repo_root, self._ns(dry_run=False), False
+                )
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("qa_up_preflight_refused", buf.getvalue())
+
+    def test_gate_preflight_pass_returns_none(self):
+        with unittest.mock.patch.object(
+            pdc, "_qa_up_preflight_check",
+            return_value=(True, "PREFLIGHT: stubbed fresh"),
+        ):
+            import io
+            from contextlib import redirect_stdout
+
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc._qa_up_gate_preflight(
+                    self.repo_root, self._ns(dry_run=False), False
+                )
+        self.assertIsNone(rc)
+
+    def test_gate_stale_image_dry_run_never_inspects(self):
+        with unittest.mock.patch.object(
+            pdc, "_qa_matrix_image_healthcheck_status",
+            side_effect=AssertionError("must not inspect on dry-run"),
+        ):
+            self.assertIsNone(
+                pdc._qa_up_gate_stale_image(self.repo_root, True, True, 60)
+            )
+
+    def test_gate_stale_image_fresh_proceeds(self):
+        with unittest.mock.patch.object(
+            pdc, "_qa_matrix_image_healthcheck_status",
+            return_value=pdc.QA_IMAGE_HEALTHCHECK_OK,
+        ):
+            self.assertIsNone(
+                pdc._qa_up_gate_stale_image(self.repo_root, True, False, 60)
+            )
+
+    def test_gate_stale_image_missing_refuses(self):
+        import io
+        from contextlib import redirect_stdout
+
+        with unittest.mock.patch.object(
+            pdc, "_qa_matrix_image_healthcheck_status",
+            return_value=pdc.QA_IMAGE_HEALTHCHECK_MISSING,
+        ):
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc._qa_up_gate_stale_image(
+                    self.repo_root, True, False, 60
+                )
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("matrix_image_stale", buf.getvalue())
+
+    def test_deploy_flags_matrix(self):
+        self.assertEqual(
+            pdc._qa_up_deploy_flags(self._ns(), False), (False, False)
+        )
+        self.assertEqual(
+            pdc._qa_up_deploy_flags(
+                self._ns(then_qa_deploy_webui=True), False
+            ),
+            (True, False),
+        )
+        # #3948 follow-on: webui deploy implies war-jars when the image
+        # was not rebuilt.
+        self.assertEqual(
+            pdc._qa_up_deploy_flags(
+                self._ns(then_qa_deploy_webui=True), True
+            ),
+            (True, True),
+        )
+        self.assertEqual(
+            pdc._qa_up_deploy_flags(
+                self._ns(then_qa_deploy_war_jars=True), False
+            ),
+            (False, True),
+        )
+
+    def test_war_jars_ns_restart_mapping(self):
+        ns = pdc._qa_up_war_jars_ns(False, "cell", False)
+        self.assertTrue(ns.restart_jetty)
+        self.assertFalse(ns.dry_run)
+        self.assertEqual(ns.dest, pdc.QA_WAR_JARS_DEST)
+        ns = pdc._qa_up_war_jars_ns(True, "cell", True)
+        self.assertFalse(ns.restart_jetty)
+        self.assertTrue(ns.dry_run)
+
+    def test_start_cms_cell_failure_prints_detail(self):
+        import io
+        from contextlib import redirect_stdout
+
+        ctx = pdc._qa_up_resolve_context(self._ns(), self.paths)
+        with unittest.mock.patch.object(
+            pdc, "_run_logged", return_value=(pdc.EXIT_SUBPROCESS_FAILED, "LOG"),
+        ):
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc, _log = pdc._qa_up_start_cms_cell(ctx)
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("matrix-install-smoke failed", buf.getvalue())
+
+    def test_start_dts_cell_absent_flag_is_noop(self):
+        ctx = pdc._qa_up_resolve_context(self._ns(), self.paths)
+        dts_port, dts_https, rc, log = pdc._qa_up_start_dts_cell(ctx, False)
+        self.assertIsNone(dts_port)
+        self.assertIsNone(dts_https)
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIsNone(log)
+
+    def test_start_dts_cell_dry_run_pins_ports(self):
+        ctx = pdc._qa_up_resolve_context(self._ns(), self.paths)
+        with unittest.mock.patch.object(
+            pdc, "_run_logged", return_value=(pdc.EXIT_OK, "LOG"),
+        ):
+            dts_port, dts_https, rc, _log = pdc._qa_up_start_dts_cell(ctx, True)
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertGreater(dts_port, 0)
+        self.assertGreater(dts_https, 0)
+
+
 class TestQaHealthRealMode(unittest.TestCase):
     def setUp(self):
         self.td = tempfile.TemporaryDirectory()
