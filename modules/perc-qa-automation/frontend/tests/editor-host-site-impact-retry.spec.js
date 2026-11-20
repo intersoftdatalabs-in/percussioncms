@@ -267,9 +267,14 @@ test.describe("EditorHost site-impact load failure with retry (#6771)", () => {
         page.locator('[data-testid="editor-site-impact-heading"]'),
       ).toBeFocused();
       expect(calls).toBeGreaterThanOrEqual(2);
-      await page.screenshot({
-        path: "test-results/live-proof-6786-site-impact-retry-focus.png",
-      });
+      await page
+        .locator('[data-testid="editor-site-impact-pages-table"]')
+        .scrollIntoViewIfNeeded();
+      await page
+        .locator('[data-testid="editor-site-impact-panel"]')
+        .screenshot({
+          path: "test-results/live-proof-6786-site-impact-retry-focus.png",
+        });
       expectClean(errors, badResponses);
     },
   );
