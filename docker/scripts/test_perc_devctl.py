@@ -861,7 +861,12 @@ class TestQaHelpers(unittest.TestCase):
         with unittest.mock.patch.object(
             pdc, "_qa_matrix_image_healthcheck_status",
             return_value=pdc.QA_IMAGE_HEALTHCHECK_MISSING,
-        ), unittest.mock.patch.object(pdc, "_run_logged") as mock_run:
+        ), unittest.mock.patch.object(pdc, "_run_logged") as mock_run, \
+            unittest.mock.patch.object(
+                pdc,
+                "_qa_up_preflight_check",
+                return_value=(True, "PREFLIGHT: stubbed fresh"),
+            ):
             rc = pdc.main([
                 "--repo-root", str(self.repo_root),
                 "qa-up", "--skip-image-build", "--timeout-seconds", "120",
@@ -883,6 +888,10 @@ class TestQaHelpers(unittest.TestCase):
             pdc,
             "_qa_fetch_generated_password_env_lines",
             return_value=["ADMIN_PASSWORD=demo", "EDITOR_PASSWORD=ed"],
+        ), unittest.mock.patch.object(
+            pdc,
+            "_qa_up_preflight_check",
+            return_value=(True, "PREFLIGHT: stubbed fresh"),
         ):
             rc = pdc.main([
                 "--repo-root", str(self.repo_root),
@@ -946,6 +955,161 @@ class TestQaHelpers(unittest.TestCase):
             pdc.qa_cms_probe_url(9993).endswith("/Rhythmyx/rest/mimetypes")
         )
         self.assertEqual(pdc.qa_cms_base_url(9993), "http://127.0.0.1:9993")
+
+
+class TestQaUpPreflightGate(unittest.TestCase):
+    """qa-up auto-runs the strict preflight before the matrix run (#6739)."""
+
+    def setUp(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo_root = _stub_repo_root(Path(self.td.name))
+        self.m2_root = Path(self.td.name) / "m2"
+        self.m2_root.mkdir()
+
+    def _write_jar(self, path: Path, entries: dict) -> None:
+        import zipfile
+
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with zipfile.ZipFile(path, "w") as zf:
+            for name, data in entries.items():
+                zf.writestr(name, data)
+
+    def _m2_sitemanage_jar(self) -> Path:
+        jar = (
+            self.m2_root / "com" / "percussion" / "sitemanage"
+            / "8.2.0-SNAPSHOT" / "sitemanage-8.2.0-SNAPSHOT.jar"
+        )
+        self._write_jar(jar, {"com/percussion/sitemanage/X.class": b"bytes"})
+        return jar
+
+    def _m2_rest_jar(self) -> Path:
+        jar = (
+            self.m2_root / "com" / "percussion" / "rest"
+            / "8.2.0-SNAPSHOT" / "rest-8.2.0-SNAPSHOT.jar"
+        )
+        self._write_jar(jar, {"com/example/Foreign.class": b"bytes"})
+        return jar
+
+    def test_empty_tree_passes(self):
+        """No built jars yet: preflight is a no-op, qa-up may proceed."""
+        ok, report = pdc._qa_up_preflight_check(self.repo_root, self.m2_root)
+        self.assertTrue(ok)
+        self.assertIn("PREFLIGHT:", report)
+        self.assertIn("PROVENANCE: OK", report)
+
+    def test_stale_war_missing_refuses(self):
+        """m2 SNAPSHOT present but no WAR built: stale, refuse to boot."""
+        self._m2_sitemanage_jar()
+        ok, report = pdc._qa_up_preflight_check(self.repo_root, self.m2_root)
+        self.assertFalse(ok)
+        self.assertIn("STALE:", report)
+
+    def test_poisoned_snapshot_refuses(self):
+        """Branch-built rest jar (foreign classes): poisoned, refuse."""
+        self._m2_rest_jar()
+        src = self.repo_root / "rest" / "src" / "main" / "java"
+        src.mkdir(parents=True)
+        (src / "Own.java").write_text("class Own {}", encoding="utf-8")
+        ok, report = pdc._qa_up_preflight_check(self.repo_root, self.m2_root)
+        self.assertFalse(ok)
+        self.assertIn("POISONED:", report)
+
+    def test_no_provenance_skips_poison_check(self):
+        """--no-provenance keeps the stale gate but drops the poison gate."""
+        self._m2_rest_jar()
+        src = self.repo_root / "rest" / "src" / "main" / "java"
+        src.mkdir(parents=True)
+        (src / "Own.java").write_text("class Own {}", encoding="utf-8")
+        ok, report = pdc._qa_up_preflight_check(
+            self.repo_root, self.m2_root, provenance=False
+        )
+        self.assertTrue(ok)
+        self.assertNotIn("POISONED:", report)
+
+    def test_matching_sources_pass_provenance(self):
+        """Jar whose classes all have checkout sources is not poisoned."""
+        self._write_jar(
+            self.m2_root / "com" / "percussion" / "rest"
+            / "8.2.0-SNAPSHOT" / "rest-8.2.0-SNAPSHOT.jar",
+            {"com/example/Foreign.class": b"bytes"},
+        )
+        src = self.repo_root / "rest" / "src" / "main" / "java" / "com" / "example"
+        src.mkdir(parents=True)
+        (src / "Foreign.java").write_text("class Foreign {}", encoding="utf-8")
+        ok, report = pdc._qa_up_preflight_check(self.repo_root, self.m2_root)
+        self.assertTrue(ok)
+        self.assertIn("PROVENANCE: OK", report)
+
+    def test_qa_up_refuses_and_never_starts_matrix(self):
+        """Failing preflight returns before any docker/matrix work."""
+        with unittest.mock.patch.object(
+            pdc, "_qa_up_preflight_check",
+            return_value=(False, "STALE: stubbed stale"),
+        ), unittest.mock.patch.object(pdc, "_run_logged") as mock_run:
+            rc, out = _CliRunner(self.repo_root).run(
+                ["qa-up", "--timeout-seconds", "60"], dry_run=False
+            )
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        mock_run.assert_not_called()
+        self.assertIn("RESULT:FAIL STEP:qa-preflight", out)
+
+    def test_qa_up_proceeds_when_preflight_passes(self):
+        """Passing preflight reaches the matrix run unchanged."""
+        fake_log = self.repo_root / "docker" / "logs" / "qa-up-fake.log"
+        fake_log.parent.mkdir(parents=True, exist_ok=True)
+        fake_log.write_text("RESULT:OK STEP:qa-up LOG:...\n", encoding="utf-8")
+        with unittest.mock.patch.object(
+            pdc, "_qa_up_preflight_check",
+            return_value=(True, "PREFLIGHT: stubbed fresh"),
+        ), unittest.mock.patch.object(
+            pdc, "_run_logged", return_value=(pdc.EXIT_OK, fake_log),
+        ), unittest.mock.patch.object(
+            pdc,
+            "_qa_fetch_generated_password_env_lines",
+            return_value=["ADMIN_PASSWORD=demo", "EDITOR_PASSWORD=ed"],
+        ):
+            rc, out = _CliRunner(self.repo_root).run(
+                ["qa-up", "--timeout-seconds", "60"], dry_run=False
+            )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("TEST_CMS_URL=", out)
+
+    def test_qa_up_skip_preflight_bypasses_check(self):
+        """--skip-preflight never invokes the check (known-stale debug)."""
+        fake_log = self.repo_root / "docker" / "logs" / "qa-up-fake.log"
+        fake_log.parent.mkdir(parents=True, exist_ok=True)
+        fake_log.write_text("RESULT:OK STEP:qa-up LOG:...\n", encoding="utf-8")
+        with unittest.mock.patch.object(
+            pdc, "_qa_up_preflight_check",
+            side_effect=AssertionError("must not run with --skip-preflight"),
+        ), unittest.mock.patch.object(
+            pdc, "_run_logged", return_value=(pdc.EXIT_OK, fake_log),
+        ), unittest.mock.patch.object(
+            pdc,
+            "_qa_fetch_generated_password_env_lines",
+            return_value=["ADMIN_PASSWORD=demo", "EDITOR_PASSWORD=ed"],
+        ):
+            rc, out = _CliRunner(self.repo_root).run(
+                ["qa-up", "--skip-preflight", "--timeout-seconds", "60"],
+                dry_run=False,
+            )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("TEST_CMS_URL=", out)
+
+    def test_qa_up_accepts_m2_root_and_no_provenance_flags(self):
+        """New flags parse and stay inert on the dry-run path."""
+        rc, out = _CliRunner(self.repo_root).run(
+            [
+                "qa-up", "--timeout-seconds", "60",
+                "--m2-root", str(self.m2_root),
+                "--no-provenance",
+            ]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-up", out)
 
 
 class TestQaHealthRealMode(unittest.TestCase):

@@ -884,6 +884,46 @@ def _build_arg_parser() -> argparse.ArgumentParser:
             "legacy fixed names."
         ),
     )
+    pqu.add_argument(
+        "--skip-preflight",
+        action="store_true",
+        help=(
+            "Skip the automatic strict rebuild-chain + SNAPSHOT-provenance "
+            "preflight before the matrix run (#2486 / #6709 / #6739). "
+            "Not recommended: without it a stale WAR or a branch-built "
+            "SNAPSHOT in the shared local repo boots a Frankenstein cell."
+        ),
+    )
+    pqu.add_argument(
+        "--m2-root",
+        type=Path,
+        default=None,
+        help=(
+            "Maven local repository root for the automatic preflight "
+            "(default: resolved like mvn — -Dmaven.repo.local in "
+            "MAVEN_ARGS/MAVEN_OPTS/~/.mavenrc/.mvn/maven.config, "
+            "settings.xml, else ~/.m2/repository). Point at a per-worktree "
+            "repo (docker/scripts/maven_local_repo.py, #6739) to isolate "
+            "this cell from sibling worktrees."
+        ),
+    )
+    pqu.add_argument(
+        "--provenance",
+        dest="provenance",
+        action="store_true",
+        help=(
+            "Verify m2 SNAPSHOT jars were built from this checkout during "
+            "the automatic preflight (default; branch-built jars in the "
+            "shared repo fail the gate, #6709)."
+        ),
+    )
+    pqu.add_argument(
+        "--no-provenance",
+        dest="provenance",
+        action="store_false",
+        help="Skip the SNAPSHOT provenance check in the automatic preflight.",
+    )
+    pqu.set_defaults(provenance=True)
     pqu.add_argument("--dry-run", action="store_true")
 
     # --- Rebuild-chain preflight — #2486 / #2532 ---
@@ -2494,6 +2534,51 @@ def _qa_fetch_admin_password(container_name: str) -> Optional[str]:
     return None
 
 
+def _qa_up_preflight_check(
+    repo_root: Path,
+    m2_root: Optional[Path] = None,
+    *,
+    provenance: bool = True,
+) -> tuple:
+    """Run the strict rebuild-chain + provenance preflight for ``qa-up``.
+
+    Filesystem-only (no docker): compares the ``sitemanage`` SNAPSHOT in
+    the resolved Maven local repository against the WebUI WAR the dist
+    tree would unpack (``STALE`` when they disagree, #2486 / #2532) and,
+    unless ``provenance`` is False, verifies the ``rest`` / ``sitemanage``
+    SNAPSHOT jars were built from *this* checkout (``POISONED`` when a
+    sibling worktree's branch build overwrote the shared repo, #6709).
+
+    Returns ``(ok, report)`` where ``ok`` is False when strict mode would
+    exit non-zero. Never raises — I/O problems render as a failing report
+    so ``qa-up`` fails fast instead of booting a stale cell. ``m2_root``
+    overrides the ``maven_local_repo`` resolution (``--m2-root``).
+    """
+    import maven_local_repo  # noqa: E402
+    import qa_preflight  # noqa: E402
+
+    try:
+        m2 = (
+            Path(m2_root)
+            if m2_root is not None
+            else maven_local_repo.resolve_m2_repository(repo_root)
+        )
+        rows = qa_preflight.run_preflight(repo_root, m2)
+        stale = qa_preflight.is_stale(rows)
+        findings = (
+            qa_preflight.check_snapshot_provenance(repo_root, m2)
+            if provenance
+            else []
+        )
+        poisoned = qa_preflight.is_poisoned(findings)
+        report = qa_preflight.format_report(rows, strict=True)
+        if provenance:
+            report += "\n" + qa_preflight.format_provenance(findings)
+        return (not stale and not poisoned), report
+    except Exception as exc:  # fail closed: never boot on an unchecked cell
+        return False, f"PREFLIGHT: I/O error during qa-up preflight: {exc}"
+
+
 def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     """Bring up CMS on H2 in Docker and wait until the cell is ready.
 
@@ -2533,6 +2618,37 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     container = qa_cms_container(cell_suffix)
     dts_cell = qa_dts_container(cell_suffix)
     host_port = ensure_qa_cms_host_port()
+
+    # Automatic strict preflight (#6739): refuse to boot the matrix cell
+    # when the WebUI WAR is stale vs the m2 SNAPSHOT or when the resolved
+    # local repo holds a sibling worktree's branch-built SNAPSHOTs
+    # (#2486 / #2532 / #6709). Filesystem-only and cheaper than a 900s
+    # probe timeout on a Frankenstein cell. Bypass with --skip-preflight
+    # (e.g. known-stale debug); --dry-run never checks. NOTE: this is the
+    # outer fail-fast; matrix-install-smoke keeps its own inner strict
+    # stale gate, and parallel-cell *naming* isolation stays with #6704.
+    if not dry_run and not bool(getattr(args, "skip_preflight", False)):
+        preflight_ok, preflight_report = _qa_up_preflight_check(
+            repo_root,
+            getattr(args, "m2_root", None),
+            provenance=bool(getattr(args, "provenance", True)),
+        )
+        print(preflight_report)
+        if not preflight_ok:
+            print(
+                "RESULT:FAIL STEP:qa-preflight "
+                "DETAIL:qa_up_preflight_refused "
+                "HINT:rebuild-chain-or-isolated-m2"
+            )
+            print(
+                "QA_DETAIL:qa-up refused: stale WAR or poisoned m2 SNAPSHOT. "
+                "Run `python3 docker/scripts/perc-devctl.py qa-rebuild-chain "
+                "--then-qa-up`, or isolate this worktree with "
+                "`python3 docker/scripts/maven_local_repo.py "
+                "--repo-root .` + its MAVEN_ARGS export, then retry "
+                "(--skip-preflight overrides, not recommended)."
+            )
+            return EXIT_SUBPROCESS_FAILED
 
     # Fail fast when --skip-image-build reuses a stale local matrix image
     # whose HEALTHCHECK was baked before #2481 — without this the smoke

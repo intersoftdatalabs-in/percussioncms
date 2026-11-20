@@ -90,11 +90,28 @@ Use `--no-content-hash` for mtime-only comparison. With `--strict`, STALE return
 
 Matrix CMS cells always use the **strict** policy unless --skip-preflight is set.
 
+`perc-devctl.py qa-up` auto-runs the same strict gate **before** the matrix run (#6739): stale WAR or poisoned SNAPSHOTs print `RESULT:FAIL STEP:qa-preflight DETAIL:qa_up_preflight_refused` and the cell never boots — cheaper than a 900s probe timeout on a Frankenstein cell. Bypass with `qa-up --skip-preflight` (known-stale debug only, not recommended); `--m2-root` and `--no-provenance` mirror the `qa-preflight` flags. `--dry-run` never checks.
+
 ### Maven local repository resolution (#6709)
 
 `qa_preflight.py`, `hot-deploy-rhythmyx-war-jars.py` and `matrix-install-smoke.py` read SNAPSHOT jars from the **same Maven local repository `mvn` wrote to** (`docker/scripts/maven_local_repo.py`), not a hard-coded `~/.m2/repository`. First hit wins: `--m2-root`; `-Dmaven.repo.local=` in `MAVEN_ARGS` / `MAVEN_OPTS`; the same after sourcing the mavenrc files the POSIX `mvn` launcher sources (`/usr/local/etc/mavenrc`, `/etc/mavenrc`, `~/.mavenrc`; skipped when `MAVEN_SKIP_RC` is set) with the checkout root as cwd; `.mvn/maven.config`; `<localRepository>` in `~/.m2/settings.xml`; else `~/.m2/repository`.
 
-This lets a host give one set of checkouts its own local repo so two checkouts building the same `8.2.0-SNAPSHOT` never overwrite each other's jars. Example: isolate the opencode `night-issue-prs` worktrees (primary + shards) from a primary checkout on another branch with a cwd-scoped `~/.mavenrc` (machine-local — never commit a `.mvn/maven.config` for this, it would also redirect the primary checkout):
+#### Per-worktree local repositories (#6739)
+
+`~/.m2-night` is still **shared across all night shards** on a host: the provenance guard flags cross-talk after the fact but nothing stops two shards building the same `8.2.0-SNAPSHOT` concurrently. Each shard should instead use its own repository **under the worktree**, so paths differ by construction:
+
+```bash
+# One time per shard checkout (portable: shutil copy, no rsync needed).
+# Seeds third-party artifacts once; project SNAPSHOTs are rebuilt in place.
+eval "$(python3 docker/scripts/maven_local_repo.py --repo-root .)"
+echo "$MAVEN_ARGS"  # -Dmaven.repo.local=<this-worktree>/tmp/m2-worktree/repository ...
+```
+
+The directory is `<repo_root>/tmp/m2-worktree/repository` (`tmp/` is gitignored, so it never pollutes `git status` and vanishes with the worktree). Re-running is a no-op once seeded (marker file). Export the printed `MAVEN_ARGS` in every shell that runs `mvnw` from the shard — including the host workflow that launches Work agents — and `qa-up`'s automatic strict preflight verifies the resolved repo before every boot.
+
+The older per-host `~/.m2-night` recipe below still applies to the shared primary checkout; per-worktree repos take precedence whenever `MAVEN_ARGS` already carries `-Dmaven.repo.local` (first hit wins). `~/.m2/settings.xml` (servers / mirrors) still applies because Maven reads it from `user.home`, not from the local repo.
+
+Per-host fallback (primary checkout only): isolate the opencode `night-issue-prs` worktrees (primary + shards) from a primary checkout on another branch with a cwd-scoped `~/.mavenrc` (machine-local — never commit a `.mvn/maven.config` for this, it would also redirect the primary checkout):
 
 ```sh
 # ~/.mavenrc — sourced by `mvn` and `./mvnw` (and by the QA helpers above)
@@ -112,7 +129,7 @@ fi
 unset __night_home
 ```
 
-Seed the isolated repo with third-party artifacts only (`rsync -a --exclude='*-SNAPSHOT/' ~/.m2/repository/ ~/.m2-night/repository/`) so the first build does not re-download everything; project SNAPSHOTs are rebuilt in place. `~/.m2/settings.xml` (servers / mirrors) still applies because Maven reads it from `user.home`, not from the local repo.
+Seed the per-host isolated repo with third-party artifacts only (`python3 docker/scripts/maven_local_repo.py --repo-root <worktree>` does the equivalent portable copy, or `rsync -a --exclude='*-SNAPSHOT/' ~/.m2/repository/ ~/.m2-night/repository/`) so the first build does not re-download everything; project SNAPSHOTs are rebuilt in place. `~/.m2/settings.xml` (servers / mirrors) still applies because Maven reads it from `user.home`, not from the local repo.
 
 **Rule: never `clean install` a non-base branch into the shared repo.** A branch build silently overwrites the `rest` / `sitemanage` `8.2.0-SNAPSHOT` jars every other cell boots from, and the victim cell then fails with Spring injection errors (`No qualifying bean`, `BeanDefinitionStoreException ... cannot be opened`) that look exactly like product defects — main-tip sources contain neither class (observed 2026-11-18/19, #6709). Either build branches only in an isolated local repo (above), or rebuild the base branch into the shared repo before anyone else's `qa-up`.
 
@@ -120,7 +137,7 @@ Seed the isolated repo with third-party artifacts only (`rsync -a --exclude='*-S
 
 `qa_preflight.py` also verifies the `rest` / `sitemanage` SNAPSHOT jars in the resolved local repo were built from **this checkout**: every `.class` entry whose top-level type has no `.java` source under `rest/src/main/java` (resp. `projects/sitemanage/src/main/java`, plus `target/generated-sources` when the module was built here) is **foreign** — the jar came from another branch's `clean install` into the shared repo. The report prints one `POISONED:` line per artifact (first 10 foreign classes + total count); `--strict` exits `2` when poisoned, `--no-provenance` skips the check (`perc-devctl.py qa-preflight` passes `--no-provenance` through). The lookup searches both the standard Maven layout (`com/percussion/rest/rest/<version>/`) and the flattened host layout (`com/percussion/rest/<version>/`) that some machines carry — the stale-WAR `m2:` row uses the same fallback, so the preflight is no longer blind on flattened hosts.
 
-Run it before every `qa-up` when agents share the host:
+Manual runs stay available (qa-up runs the same strict gate automatically since #6739):
 
 ```bash
 python3 docker/scripts/qa_preflight.py --strict
