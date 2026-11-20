@@ -30,8 +30,9 @@
  * `TinymceConfig.js` under `rx_resources/widgets/<form|commentsForm>/js/`)
  * with zero `sys_resources/tinymce` dependency, so published forms keep
  * working after the CMS TinyMCE bundle is retired (#5734). The classic
- * `sys_tinymce` control itself stays frozen per the #5874 owner decision
- * and is asserted deprecated, not deleted, here.
+ * `sys_tinymce` control itself was retired in #6637 (frozen definition +
+ * `perc_tinymce_init` runtime template deleted from `sys_Templates.xsl`
+ * after the bundle removal): it is asserted absent, not deprecated, here.
  */
 
 const { test, expect } = require("@playwright/test");
@@ -217,27 +218,37 @@ test.describe("Delivered widget TipTap editor (issues #5901, #5854)", () => {
   );
 
   test(
-    "classic sys_tinymce control stays frozen and is marked deprecated",
-    { tag: ["@editor", "@widget-editor", "@static"] },
+    "retired sys_tinymce control is absent from sys_Templates.xsl",
+    { tag: ["@editor", "@widget-editor"] },
     async () => {
-      // No live CMS needed. Per the #5874 owner decision the classic
-      // control is frozen (FileDescriptors unchanged) with a deprecation
-      // note until classic editing itself retires — assert both halves so
-      // neither a silent re-migration nor a dropped note regresses.
+      // No live CMS needed. #6637 retired the classic control after the
+      // #5734 bundle removal (classic rich-text editing retired with the
+      // bundle; the React editor maps the legacy sys_tinymce field name to
+      // TipTap, so stored content types keep rendering). Assert the removal
+      // half so a reintroduced frozen definition fails fast: no ControlMeta,
+      // no FileDescriptors, no perc_tinymce_init runtime template, and no
+      // InlineLinkTitleField classic wiring.
       const text = readRepo(SYS_TEMPLATES);
-      const meta = text.match(
-        /<psxctl:ControlMeta name="sys_tinymce"[\s\S]*?<\/psxctl:AssociatedFileList>/,
+      expect(text, "sys_tinymce ControlMeta must stay removed").not.toMatch(
+        /<psxctl:ControlMeta name="sys_tinymce"/,
       );
-      expect(meta, "sys_tinymce ControlMeta must exist").not.toBeNull();
-      const block = meta[0];
-      expect(block).toMatch(/DEPRECATED in 8\.2/);
-      expect(block).toMatch(/TinyMCE 6\.8\.6/);
-      // Frozen half: the classic FileDescriptors still point at the
-      // CMS-served TinyMCE tree (removed only with classic retirement).
-      expect(block).toContain("/sys_resources/tinymce/js/tinymce/tinymce.min.js");
-      expect(block).toContain(
-        "/sys_resources/tinymce/config/default_config.json",
+      expect(text, "sys_tinymce runtime templates must stay removed").not.toMatch(
+        /Control\[@name='sys_tinymce'\]/,
       );
+      expect(
+        text,
+        "perc_tinymce_init runtime template must stay removed",
+      ).not.toContain("perc_tinymce_init");
+      for (const banned of [
+        "/sys_resources/tinymce/",
+        "/rx_resources/tinymce",
+        'name="InlineLinkTitleField"',
+      ]) {
+        expect(
+          text,
+          `sys_Templates.xsl must not reference the retired TinyMCE surface: ${banned}`,
+        ).not.toContain(banned);
+      }
     },
   );
 });
