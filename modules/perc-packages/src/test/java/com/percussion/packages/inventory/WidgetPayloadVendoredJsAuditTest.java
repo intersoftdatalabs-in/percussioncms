@@ -335,6 +335,20 @@ import org.junit.jupiter.api.Test;
  * twins), and dedicated editor-behavior coverage in the frontend {@code
  * percCalendarTwoEditor.test.js}.
  *
+ * <p>Slice 16 (issue #6687, parent audit #5627) plans the replacement of
+ * the EOL FullCalendar 2.9.1 calendarTwo payload (dead upstream since
+ * 2016; Dependabot tracks the exact 2.9.1 pin but no fix line exists).
+ * This slice changes no payload bytes: it records the replacement plan
+ * ({@code docs/ai-generated/tasks/6687-fullcalendar-replacement-plan.md},
+ * recommending the maintained MIT-licensed FullCalendar v6 global-bundle
+ * line with a 4-slice phase-out) and locks the widget-consumed 2.x
+ * surface behaviorally in the frontend
+ * {@code calendarTwoFullcalendarSurface.test.js} (plugin entry point,
+ * Perc.events deferred, Perc.range 6-vs-52 expansion, destroy/re-init,
+ * gcal routing, lang-all localization) so the migration slices have a
+ * port-able acceptance bar. No keep-2.x-forever decision is recorded;
+ * that outcome needs explicit maintainer sign-off on #6687.
+ *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
  * inventory can only drift together with an audit update. A migration PR that
