@@ -937,7 +937,7 @@ def test_dry_run_reports_m2_isolation_without_creating_dirs(tmp_path):
     assert not absent_wt.exists()
 
 
-def test_m2_seed_defaults_on():
+def test_m2_seed_defaults_on(tmp_path):
     """Seeding is on by default; --no-m2-seed / --m2-seed-from parse (#6739)."""
     mod = _load_module()
     args = mod.parse_args([])
@@ -945,8 +945,9 @@ def test_m2_seed_defaults_on():
     assert args.m2_seed_from == ""
     args = mod.parse_args(["--no-m2-seed"])
     assert args.m2_seed is False
-    args = mod.parse_args(["--m2-seed-from", "/tmp/shared-m2"])
-    assert args.m2_seed_from == "/tmp/shared-m2"
+    seed_from = str(tmp_path / "shared-m2")
+    args = mod.parse_args(["--m2-seed-from", seed_from])
+    assert args.m2_seed_from == seed_from
 
 
 def _make_seed_source(root: Path) -> Path:
