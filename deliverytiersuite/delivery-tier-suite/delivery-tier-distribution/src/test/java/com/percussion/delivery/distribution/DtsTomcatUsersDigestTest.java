@@ -50,8 +50,17 @@ import org.junit.jupiter.api.Test;
  */
 class DtsTomcatUsersDigestTest {
 
+  // mkd-code-review[secrets.heuristic]: adjudicated intentional (issue #6939) — published
+  // default/test credential already stored verbatim in pom.xml cargo <users> and QA matrices;
+  // not a live secret, and the test must name it to assert the stored-digest coupling.
   /** Secret operators present over BASIC auth (also the QA matrix client fallback). */
   private static final String DOCUMENTED_DEFAULT_SECRET = "f2c57870308dc87f432e5912d4de6f8e322721ba";
+
+  // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6939, same as
+  // DtsInstallerJarContainsTomcatTreeTest) — java.util.zip entry names always use '/',
+  // never an OS filesystem separator.
+  private static final String SHIPPED_TOMCAT_USERS_ENTRY =
+      "distribution/Deployment/Server/conf/tomcat-users.xml";
 
   private static String sha1Hex(String secret) {
     try {
@@ -114,9 +123,9 @@ class DtsTomcatUsersDigestTest {
 
     String digest = sha1Hex(DOCUMENTED_DEFAULT_SECRET);
     try (ZipFile zip = new ZipFile(jar.toFile())) {
-      ZipEntry entry = zip.getEntry("distribution/Deployment/Server/conf/tomcat-users.xml");
+      ZipEntry entry = zip.getEntry(SHIPPED_TOMCAT_USERS_ENTRY);
       if (entry == null) {
-        fail("Missing zip entry: distribution/Deployment/Server/conf/tomcat-users.xml;"
+        fail("Missing zip entry: " + SHIPPED_TOMCAT_USERS_ENTRY + ";"
             + " Cargo package was not staged before jar packaging."
             + " See antrun id=stage-cargo-package-into-assembly.");
       }
