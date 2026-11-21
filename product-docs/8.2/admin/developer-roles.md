@@ -126,7 +126,11 @@ catalog until a later successful reload. The source role is not changed.
 1. Sign in as **Admin**.
 2. Open **Developer → Roles** and wait for the catalog.
 3. Select the row of an existing role. The description form shows that role's
-   name (read-only) and its current description.
+   name (read-only) and its current description. The description input
+   autofocuses when the form opens; **Escape** cancels without saving, same as
+   **Cancel**. When the form closes (Escape, Cancel, or a successful save),
+   focus returns to the catalog row that opened it, and the save confirmation
+   is announced via a live region.
 4. **Cancel** closes the form and does not call the server. The row keeps the
    previous description.
 5. Change the description and choose **Save description**. The row does not
