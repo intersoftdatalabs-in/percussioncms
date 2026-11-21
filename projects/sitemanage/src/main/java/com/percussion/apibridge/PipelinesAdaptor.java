@@ -1027,53 +1027,20 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
     requireAdmin();
     String trimmedApp = requireValidApplicationName(appName);
     String safeResource = requireValidResourceName(resourceName);
-    if (body == null) {
-      throw new WebApplicationException("Mapper body is required", 400);
-    }
+    requireMapperBody(body);
     List<PipelineMapperEntry> rows =
         body.getMappings() != null ? body.getMappings() : List.of();
     MapperStageIr stage = toMapperStageIr(rows, body.getAllowEmptyDocReturn());
-
-    PSRequest req = PSSecurityFilter.getCurrentRequest();
-    if (req == null) {
-      throw new IllegalStateException("No current request for pipeline mapper persist");
-    }
-    PSSecurityToken tok = req.getSecurityToken();
+    PSSecurityToken tok = currentMapperToken();
     String name = resolveApplicationName(trimmedApp, summaryLoader.apply(tok));
     if (name == null) {
       throw new WebApplicationException("Application not found", 404);
     }
     try {
       IPSPipelineIrService ir = irSupplier.get();
-      PipelineIrDocument doc = ir.load(name).orElse(null);
-      if (doc == null) {
-        PSApplication app = applicationLoader.apply(name, tok);
-        if (app != null) {
-          doc = ir.importClassicApplication(app);
-        } else {
-          doc = new PipelineIrDocument();
-          doc.getApp().setName(name);
-        }
-      }
-      doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
-      if (doc.getApp() == null || StringUtils.isBlank(doc.getApp().getName())) {
-        doc.getApp().setName(name);
-      }
-      PipelineResourceIr resource = doc.findResource(safeResource);
-      if (resource == null) {
-        resource = new PipelineResourceIr();
-        resource.setName(safeResource);
-        resource.setKind(PipelineResourceIr.KIND_QUERY);
-        doc.getResources().add(resource);
-      }
-      if (resource.getKind() == null
-          || PipelineResourceIr.KIND_UNKNOWN.equals(resource.getKind())) {
-        resource.setKind(PipelineResourceIr.KIND_QUERY);
-      }
-      PipelineStagesIr stages =
-          resource.getStages() != null ? resource.getStages() : new PipelineStagesIr();
-      stages.setMapper(stage);
-      resource.setStages(stages);
+      PipelineIrDocument doc = loadOrImportMapperDocument(ir, name, tok);
+      PipelineResourceIr resource = findOrCreateQueryResource(doc, safeResource);
+      attachMapperStage(resource, stage);
       ir.save(doc);
       return fromMapperStageIr(stage);
     } catch (PSPipelineIrException e) {
@@ -1083,6 +1050,36 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       }
       throw new WebApplicationException(msg, 400);
     }
+  }
+
+  /** Guard: a missing mapper body fails closed with 400. */
+  private static void requireMapperBody(PipelineMapper body) {
+    if (body == null) {
+      throw new WebApplicationException("Mapper body is required", 400);
+    }
+  }
+
+  /** Guard: mapper persist requires a current request security token. */
+  private static PSSecurityToken currentMapperToken() {
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline mapper persist");
+    }
+    return req.getSecurityToken();
+  }
+
+  /** Loads the native IR document, importing the classic application on first persist. */
+  private PipelineIrDocument loadOrImportMapperDocument(
+      IPSPipelineIrService ir, String name, PSSecurityToken tok) throws PSPipelineIrException {
+    return loadOrImportPipelineDocument(ir, name, tok);
+  }
+
+  /** Attaches the mapper stage to the resource, creating the stages holder when absent. */
+  private static void attachMapperStage(PipelineResourceIr resource, MapperStageIr stage) {
+    PipelineStagesIr stages =
+        resource.getStages() != null ? resource.getStages() : new PipelineStagesIr();
+    stages.setMapper(stage);
+    resource.setStages(stages);
   }
 
   /**
