@@ -170,13 +170,30 @@ test.describe("modern React Content Explorer — nested ActionToolbar menus (#27
         .poll(async () => parents.count(), { timeout: 15_000 })
         .toBeGreaterThan(0);
 
+      // #6927: snapshot rendered toolbar controls once so a missing MENU
+      // parent fails with catalog-vs-rendered state (seed gap like #6886
+      // vs render regression) instead of a bare locator timeout.
+      const renderedToolbarControls = await page
+        .locator(
+          `[data-testid="${TEST_IDS.actionToolbar}"] [data-testid^="action-toolbar-item-"]`,
+        )
+        .evaluateAll((els) =>
+          els.map(
+            (el) =>
+              `${el.getAttribute("data-testid")}|haspopup=${el.getAttribute("aria-haspopup")}`,
+          ),
+        );
+      const catalogMenuParentNames = menuParents.map((p) => p.name).join(",");
+
       for (const parentMenu of required) {
         const parentBtn = page.locator(
           `[data-testid="${TEST_IDS.actionToolbar}"] [data-testid="action-toolbar-item-${parentMenu.name}"][aria-haspopup="menu"]`,
         );
         await expect(
           parentBtn,
-          `MENU parent "${parentMenu.name}" must be one aria-haspopup=menu control`,
+          `MENU parent "${parentMenu.name}" must be one aria-haspopup=menu control ` +
+            `(catalog MENU parents=[${catalogMenuParentNames}]; ` +
+            `rendered=[${renderedToolbarControls.join(",")}])`,
         ).toBeVisible();
       }
 
