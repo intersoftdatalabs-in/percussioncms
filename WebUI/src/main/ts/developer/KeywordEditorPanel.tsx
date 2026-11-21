@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { isApiError } from "../api/client";
 import {
@@ -266,6 +266,11 @@ const inputStyle: React.CSSProperties = {
   font: "inherit",
 };
 
+/** #6907: where focus returns when a keyword inline editor closes. */
+type KeywordEditorReturnTarget =
+  | { scope: "keyword"; testid: string }
+  | { scope: "choice"; kind: "label" | "value" | "description" | "sequence"; index: number };
+
 export function KeywordEditorPanel({
   initial,
   onBack,
@@ -387,6 +392,39 @@ export function KeywordEditorPanel({
     keywordDescriptionEditing ||
     keywordLabelEditing ||
     keywordSequenceEditing;
+
+  // #6907: where focus returns when an inline editor closes (Escape, Cancel,
+  // or save). Keyword-level editors resolve by the invoking button testid;
+  // per-choice editors resolve by editor kind + row index (relabel/revalue
+  // swaps the row key, so a stored element would go stale after save).
+  const editorReturnRef = useRef<KeywordEditorReturnTarget | null>(null);
+  const prevEditorOpenRef = useRef(false);
+
+  // #6907: when an inline editor closes the input unmounts and focus would
+  // fall back to <body>. Return focus to the invoking edit button so
+  // keyboard and screen-reader users keep their place (mirrors #6733).
+  // Layout effect (same as useDialogEscape) so focus lands before paint.
+  useLayoutEffect(() => {
+    if (prevEditorOpenRef.current && !choiceEditOpen) {
+      const target = editorReturnRef.current;
+      editorReturnRef.current = null;
+      if (target) {
+        let btn: Element | null = null;
+        if (target.scope === "keyword") {
+          btn = document.querySelector(`[data-testid="${target.testid}"]`);
+        } else {
+          const buttons = document.querySelectorAll(
+            `[data-testid="developer-kw-choice-${target.kind}-edit"]`,
+          );
+          btn = buttons[target.index] ?? null;
+        }
+        if (btn instanceof HTMLButtonElement && !btn.disabled && document.contains(btn)) {
+          btn.focus();
+        }
+      }
+    }
+    prevEditorOpenRef.current = choiceEditOpen;
+  }, [choiceEditOpen]);
 
   useEffect(() => {
     if (!id || isNew) return;
@@ -730,6 +768,14 @@ export function KeywordEditorPanel({
     setLabelError(null);
   }
 
+  // #6907: Escape cancels the editor without writing, reusing the cancel
+  // guards above (busy/inflight stay, drafts cleared, stored values kept).
+  function handleChoiceLabelKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelChoiceLabelEdit();
+    }
+  }
+
   function startChoiceLabelEdit(index: number): void {
     if (
       !id ||
@@ -756,6 +802,7 @@ export function KeywordEditorPanel({
     setLabelDraft(listedChoices[index]?.label || "");
     setLabelError(null);
     setLabelNotice(null);
+    editorReturnRef.current = { scope: "choice", kind: "label", index };
   }
 
   async function handleChoiceLabelSave(): Promise<void> {
@@ -850,6 +897,14 @@ export function KeywordEditorPanel({
     setValueError(null);
   }
 
+  // #6907: Escape cancels the editor without writing, reusing the cancel
+  // guards above (busy/inflight stay, drafts cleared, stored values kept).
+  function handleChoiceValueKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelChoiceValueEdit();
+    }
+  }
+
   function startChoiceValueEdit(index: number): void {
     if (
       !id ||
@@ -877,6 +932,7 @@ export function KeywordEditorPanel({
     setValueDraft(listedChoices[index]?.value || "");
     setValueError(null);
     setValueNotice(null);
+    editorReturnRef.current = { scope: "choice", kind: "value", index };
   }
 
   async function handleChoiceValueSave(): Promise<void> {
@@ -977,6 +1033,14 @@ export function KeywordEditorPanel({
     setDescriptionError(null);
   }
 
+  // #6907: Escape cancels the editor without writing, reusing the cancel
+  // guards above (busy/inflight stay, drafts cleared, stored values kept).
+  function handleChoiceDescriptionKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelChoiceDescriptionEdit();
+    }
+  }
+
   function startChoiceDescriptionEdit(index: number): void {
     if (
       !id ||
@@ -1004,6 +1068,7 @@ export function KeywordEditorPanel({
     setDescriptionDraft(listedChoices[index]?.description || "");
     setDescriptionError(null);
     setDescriptionNotice(null);
+    editorReturnRef.current = { scope: "choice", kind: "description", index };
   }
 
   async function handleChoiceDescriptionSave(): Promise<void> {
@@ -1093,6 +1158,14 @@ export function KeywordEditorPanel({
     setSequenceError(null);
   }
 
+  // #6907: Escape cancels the editor without writing, reusing the cancel
+  // guards above (busy/inflight stay, drafts cleared, stored values kept).
+  function handleChoiceSequenceKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelChoiceSequenceEdit();
+    }
+  }
+
   function startChoiceSequenceEdit(index: number): void {
     if (
       !id ||
@@ -1121,6 +1194,7 @@ export function KeywordEditorPanel({
     setSequenceDraft(current != null ? String(current) : "");
     setSequenceError(null);
     setSequenceNotice(null);
+    editorReturnRef.current = { scope: "choice", kind: "sequence", index };
   }
 
   async function handleChoiceSequenceSave(): Promise<void> {
@@ -1216,6 +1290,14 @@ export function KeywordEditorPanel({
     setKeywordDescriptionError(null);
   }
 
+  // #6907: Escape cancels the editor without writing, reusing the cancel
+  // guards above (busy/inflight stay, drafts cleared, stored values kept).
+  function handleKeywordDescriptionKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelKeywordDescriptionEdit();
+    }
+  }
+
   function startKeywordDescriptionEdit(): void {
     if (
       !id ||
@@ -1239,6 +1321,7 @@ export function KeywordEditorPanel({
     setKeywordDescriptionDraft(keywordDescriptionShown);
     setKeywordDescriptionError(null);
     setKeywordDescriptionNotice(null);
+    editorReturnRef.current = { scope: "keyword", testid: "developer-kw-keyword-description-edit" };
   }
 
   async function handleKeywordDescriptionSave(): Promise<void> {
@@ -1315,6 +1398,14 @@ export function KeywordEditorPanel({
     setKeywordLabelError(null);
   }
 
+  // #6907: Escape cancels the editor without writing, reusing the cancel
+  // guards above (busy/inflight stay, drafts cleared, stored values kept).
+  function handleKeywordLabelKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelKeywordLabelEdit();
+    }
+  }
+
   function startKeywordLabelEdit(): void {
     if (
       !id ||
@@ -1339,6 +1430,7 @@ export function KeywordEditorPanel({
     setKeywordLabelDraft(keywordLabelShown);
     setKeywordLabelError(null);
     setKeywordLabelNotice(null);
+    editorReturnRef.current = { scope: "keyword", testid: "developer-kw-keyword-label-edit" };
   }
 
   async function handleKeywordLabelSave(): Promise<void> {
@@ -1420,6 +1512,14 @@ export function KeywordEditorPanel({
     setKeywordSequenceError(null);
   }
 
+  // #6907: Escape cancels the editor without writing, reusing the cancel
+  // guards above (busy/inflight stay, drafts cleared, stored values kept).
+  function handleKeywordSequenceKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelKeywordSequenceEdit();
+    }
+  }
+
   function startKeywordSequenceEdit(): void {
     if (
       !id ||
@@ -1445,6 +1545,7 @@ export function KeywordEditorPanel({
     setKeywordSequenceDraft(keywordSequenceShown);
     setKeywordSequenceError(null);
     setKeywordSequenceNotice(null);
+    editorReturnRef.current = { scope: "keyword", testid: "developer-kw-keyword-sequence-edit" };
   }
 
   async function handleKeywordSequenceSave(): Promise<void> {
@@ -1568,7 +1669,7 @@ export function KeywordEditorPanel({
         </div>
       ) : null}
       {notice ? (
-        <div data-testid="developer-kw-editor-notice" style={{ color: "#276749" }}>
+        <div role="status" data-testid="developer-kw-editor-notice" style={{ color: "#276749" }}>
           {notice}
         </div>
       ) : null}
@@ -1604,7 +1705,7 @@ export function KeywordEditorPanel({
             </div>
           ) : null}
           {keywordLabelNotice ? (
-            <div data-testid="developer-kw-keyword-label-notice" style={{ color: "#276749" }}>
+            <div role="status" data-testid="developer-kw-keyword-label-notice" style={{ color: "#276749" }}>
               {keywordLabelNotice}
             </div>
           ) : null}
@@ -1616,7 +1717,9 @@ export function KeywordEditorPanel({
                 data-testid="developer-kw-keyword-label-input"
                 style={inputStyle}
                 value={keywordLabelDraft}
+                autoFocus
                 onChange={(e) => setKeywordLabelDraft(e.target.value)}
+                onKeyDown={handleKeywordLabelKeyDown}
               />
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
                 <button
@@ -1721,7 +1824,7 @@ export function KeywordEditorPanel({
             </div>
           ) : null}
           {keywordDescriptionNotice ? (
-            <div
+            <div role="status"
               data-testid="developer-kw-keyword-description-notice"
               style={{ color: "#276749" }}
             >
@@ -1738,7 +1841,9 @@ export function KeywordEditorPanel({
                 data-testid="developer-kw-keyword-description-input"
                 style={inputStyle}
                 value={keywordDescriptionDraft}
+                autoFocus
                 onChange={(e) => setKeywordDescriptionDraft(e.target.value)}
+                onKeyDown={handleKeywordDescriptionKeyDown}
               />
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
                 <button
@@ -1839,7 +1944,7 @@ export function KeywordEditorPanel({
             </div>
           ) : null}
           {keywordSequenceNotice ? (
-            <div data-testid="developer-kw-keyword-sequence-notice" style={{ color: "#276749" }}>
+            <div role="status" data-testid="developer-kw-keyword-sequence-notice" style={{ color: "#276749" }}>
               {keywordSequenceNotice}
             </div>
           ) : null}
@@ -1851,7 +1956,9 @@ export function KeywordEditorPanel({
                 data-testid="developer-kw-keyword-sequence-input"
                 style={inputStyle}
                 value={keywordSequenceDraft}
+                autoFocus
                 onChange={(e) => setKeywordSequenceDraft(e.target.value)}
+                onKeyDown={handleKeywordSequenceKeyDown}
               />
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap", marginTop: "8px" }}>
                 <button
@@ -1960,7 +2067,7 @@ export function KeywordEditorPanel({
             </div>
           ) : null}
           {addNotice ? (
-            <div data-testid="developer-kw-add-choice-notice" style={{ color: "#276749" }}>
+            <div role="status" data-testid="developer-kw-add-choice-notice" style={{ color: "#276749" }}>
               {addNotice}
             </div>
           ) : null}
@@ -1970,7 +2077,7 @@ export function KeywordEditorPanel({
             </div>
           ) : null}
           {removeNotice ? (
-            <div data-testid="developer-kw-remove-choice-notice" style={{ color: "#276749" }}>
+            <div role="status" data-testid="developer-kw-remove-choice-notice" style={{ color: "#276749" }}>
               {removeNotice}
             </div>
           ) : null}
@@ -1980,7 +2087,7 @@ export function KeywordEditorPanel({
             </div>
           ) : null}
           {labelNotice ? (
-            <div data-testid="developer-kw-choice-label-notice" style={{ color: "#276749" }}>
+            <div role="status" data-testid="developer-kw-choice-label-notice" style={{ color: "#276749" }}>
               {labelNotice}
             </div>
           ) : null}
@@ -1990,7 +2097,7 @@ export function KeywordEditorPanel({
             </div>
           ) : null}
           {valueNotice ? (
-            <div data-testid="developer-kw-choice-value-notice" style={{ color: "#276749" }}>
+            <div role="status" data-testid="developer-kw-choice-value-notice" style={{ color: "#276749" }}>
               {valueNotice}
             </div>
           ) : null}
@@ -2004,7 +2111,7 @@ export function KeywordEditorPanel({
             </div>
           ) : null}
           {descriptionNotice ? (
-            <div data-testid="developer-kw-choice-description-notice" style={{ color: "#276749" }}>
+            <div role="status" data-testid="developer-kw-choice-description-notice" style={{ color: "#276749" }}>
               {descriptionNotice}
             </div>
           ) : null}
@@ -2018,7 +2125,7 @@ export function KeywordEditorPanel({
             </div>
           ) : null}
           {clearDescriptionNotice ? (
-            <div
+            <div role="status"
               data-testid="developer-kw-choice-description-clear-notice"
               style={{ color: "#276749" }}
             >
@@ -2031,7 +2138,7 @@ export function KeywordEditorPanel({
             </div>
           ) : null}
           {sequenceNotice ? (
-            <div data-testid="developer-kw-choice-sequence-notice" style={{ color: "#276749" }}>
+            <div role="status" data-testid="developer-kw-choice-sequence-notice" style={{ color: "#276749" }}>
               {sequenceNotice}
             </div>
           ) : null}
@@ -2216,7 +2323,9 @@ export function KeywordEditorPanel({
                   data-testid="developer-kw-choice-label-input"
                   style={inputStyle}
                   value={labelDraft}
+                  autoFocus
                   onChange={(e) => setLabelDraft(e.target.value)}
+                  onKeyDown={handleChoiceLabelKeyDown}
                 />
               </div>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
@@ -2270,7 +2379,9 @@ export function KeywordEditorPanel({
                   data-testid="developer-kw-choice-value-input"
                   style={inputStyle}
                   value={valueDraft}
+                  autoFocus
                   onChange={(e) => setValueDraft(e.target.value)}
+                  onKeyDown={handleChoiceValueKeyDown}
                 />
               </div>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
@@ -2323,7 +2434,9 @@ export function KeywordEditorPanel({
                   data-testid="developer-kw-choice-description-input"
                   style={inputStyle}
                   value={descriptionDraft}
+                  autoFocus
                   onChange={(e) => setDescriptionDraft(e.target.value)}
+                  onKeyDown={handleChoiceDescriptionKeyDown}
                 />
               </div>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
@@ -2374,7 +2487,9 @@ export function KeywordEditorPanel({
                   style={inputStyle}
                   inputMode="numeric"
                   value={sequenceDraft}
+                  autoFocus
                   onChange={(e) => setSequenceDraft(e.target.value)}
+                  onKeyDown={handleChoiceSequenceKeyDown}
                 />
               </div>
               <div style={{ display: "flex", gap: "8px", flexWrap: "wrap" }}>
