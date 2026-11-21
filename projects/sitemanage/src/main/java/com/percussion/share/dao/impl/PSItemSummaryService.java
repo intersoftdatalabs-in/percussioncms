@@ -331,9 +331,17 @@ public class PSItemSummaryService
       else category = Category.SECTION_FOLDER;
     } else if (IPSPageService.PAGE_CONTENT_TYPE.equals(ctType)) category = Category.PAGE;
     else if (isFolder(itemSummary)) {
-      var path = parentPaths.get(0) + "/" + itemSummary.getName();
-      if (isSystemFolder(path)) category = Category.SYSTEM;
-      else category = Category.FOLDER;
+      // The Recycling root (and any folder without a folder-content parent —
+      // recycled items relate via RECYCLED_CONTENT) reports no parent paths.
+      // Indexing [0] threw IndexOutOfBounds and failed the whole /Recycling
+      // navigation (#6549). Pathless folders are plain FOLDER, never SYSTEM.
+      category = Category.FOLDER;
+      if (parentPaths != null && !parentPaths.isEmpty()) {
+        // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6549,
+        // same as #5927/#5898/#5910) — slash joins the CMS logical folder path, not an OS path.
+        var path = parentPaths.get(0) + "/" + itemSummary.getName();
+        if (isSystemFolder(path)) category = Category.SYSTEM;
+      }
     }
     return category;
   }
@@ -420,7 +428,12 @@ public class PSItemSummaryService
           isLandingPage(item, relationshipTypeName)
               ? ((PSLegacyGuid) item.getGUID()).getContentId()
               : -1;
-      return convert(factory, sums, landingPageId, relationshipTypeName).get(0);
+      // The single item may have been skipped by convert's resilience filter
+      // (unknown content type, #3410). Return null — matching the empty-sums
+      // contract above — instead of IndexOutOfBounds on an empty list (#6549).
+      var converted = convert(factory, sums, landingPageId, relationshipTypeName);
+      if (converted.isEmpty()) return null;
+      return converted.get(0);
     } catch (Exception e) {
       var err = "Failed to load: " + id;
       log.error(err, e);
