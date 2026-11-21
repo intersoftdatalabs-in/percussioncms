@@ -197,19 +197,53 @@ test.describe("modern React Content Explorer — nested ActionToolbar menus (#27
         }
       }
 
-      const firstRequired = required[0].name;
+      // #6886: Arrange is the static MENU parent this spec guards — open it
+      // explicitly (not just required[0]) so the dropdown, its catalog
+      // children, and keyboard return-focus are covered in the default
+      // explorer state.
+      const arrange = required.find((p) => p.name === "Arrange");
+      expect(arrange, "Arrange must be among the static MENU parents").toBeDefined();
+      const arrangeChildNames =
+        (arrange && arrange.childNames) || [];
+      expect(
+        arrangeChildNames.length,
+        "Arrange must carry children in GET /actions/find",
+      ).toBeGreaterThan(0);
       await page
         .locator(
-          `[data-testid="${TEST_IDS.actionToolbar}"] [data-testid="action-toolbar-item-${firstRequired}"]`,
+          `[data-testid="${TEST_IDS.actionToolbar}"] [data-testid="action-toolbar-item-Arrange"]`,
         )
         .click();
       await expect(
-        page.locator(`[data-testid="action-toolbar-menu-${firstRequired}"]`),
+        page.locator(`[data-testid="action-toolbar-menu-Arrange"]`),
       ).toBeVisible({ timeout: 5_000 });
-      const items = page.locator(
-        `[data-testid="action-toolbar-menu-${firstRequired}"] [role="menuitem"]`,
+      const arrangeItems = page.locator(
+        `[data-testid="action-toolbar-menu-Arrange"] [role="menuitem"]`,
       );
-      await expect(items.first()).toBeVisible();
+      await expect(arrangeItems.first()).toBeVisible();
+      const arrangeLabels = await arrangeItems.evaluateAll((els) =>
+        els.map((el) => el.getAttribute("data-testid") ?? ""),
+      );      for (const childName of arrangeChildNames) {
+        expect(
+          arrangeLabels.includes(`action-toolbar-item-${childName}`),
+          `Arrange child "${childName}" must render as a menuitem`,
+        ).toBe(true);
+      }
+      // Live Proof (#6886): pass-run capture of the restored Arrange menu.
+      await page.screenshot({
+        path: "test-results/live-proof-6886-arrange-dropdown.png",
+      });
+      // Keyboard: Escape closes the Arrange menu and returns focus to the
+      // Arrange parent button (#6824).
+      await page.keyboard.press("Escape");
+      await expect(
+        page.locator(`[data-testid="action-toolbar-menu-Arrange"]`),
+      ).toBeHidden();
+      await expect(
+        page.locator(
+          `[data-testid="${TEST_IDS.actionToolbar}"] [data-testid="action-toolbar-item-Arrange"]`,
+        ),
+      ).toBeFocused();
     },
   );
 
