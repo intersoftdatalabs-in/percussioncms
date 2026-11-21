@@ -215,12 +215,11 @@ test.describe("Developer community editors keyboard path (#6906 / #1690)", () =>
     expect(writes, `one description write expected: ${writes.join(" | ")}`).toHaveLength(1);
 
     await expectNoSeriousA11yViolations(page, {
-      // Scoped to the two keyboard-path editor sections (#6906). The wider
-      // detail panel carries two pre-existing label-content-name-mismatch
-      // hits (developer-comm-back, developer-comm-roles-save) that predate
-      // this slice; filed as a follow-on residual, not re-litigated here.
-      scope:
-        ':is([data-testid="developer-comm-description-form"], [data-testid="developer-comm-rename"])',
+      // Full detail-panel scope (#6973): the two pre-existing
+      // label-content-name-mismatch hits (developer-comm-back,
+      // developer-comm-roles-save) were resolved by #6942, so the
+      // narrowing to the two editor sections is now stale.
+      scope: '[data-testid="developer-comm-detail"]',
     });
     await page.screenshot({ path: `test-results/live-proof-6906-comm-description-keyboard.png` });
 
