@@ -50,6 +50,56 @@ v6 views in `percCalendarTwoSnippet.vm`:
 them. The responsive rule stacks the three toolbar chunks below 480px, and
 the Calendar/List toggle buttons carry the previous theme look.
 
+## Layout switching
+
+The **Calendar/List toggle buttons** (`Show Calendar` / `Show List`)
+destroy and re-create the calendar instance when both layouts are enabled.
+Switching is instant (no animation) so printed and captured output is
+deterministic. The buttons expose `aria-pressed` mirroring the visible
+layout inside a `role="group"` labelled "Calendar layout", and the list
+region announces updates via `aria-live="polite"`.
+
+While the list fetch is in flight the list shows a **Loading events…**
+row; when no event survives the today-or-later filter the list shows an
+explicit **No upcoming events.** row instead of a blank region.
+
+## Google Calendar feeds (keep decision, #6945)
+
+Google feeds stay enabled. The widget ships the stock
+`@fullcalendar/google-calendar` 6.1.15 plugin, which loads feeds with a
+CORS `fetch()` against
+`https://www.googleapis.com/calendar/v3/calendars` — the 2.x JSONP feed
+path is gone with the old payload, so there is nothing JSONP-era left to
+remove. If your site sends a restrictive Content-Security-Policy, allow
+`connect-src https://www.googleapis.com` or Google feeds will fail to
+load. A feed configured **without** an API key fails gracefully: that
+source contributes zero events while the calendar and every other source
+keep rendering.
+
+## Print stylesheet
+
+The widget links `web_resources/widgets/calendarTwo/css/fullcalendar.
+print.css` with `media="print"`. As of 8.2 the rules target the v6
+renderer: calendar chrome (toolbar buttons, toggle buttons, source-filter
+bar) hides, background and highlight layers drop out, scrollers expand to
+full height, events flatten to black-on-white with `page-break-inside:
+avoid`, and list rows keep one row per page. The month grid and the event
+list print as plain markup.
+
+## Mini-calendar links
+
+The **Mini calendar** layout renders a month picker. Picking a day
+navigates to the full calendar page configured on the widget:
+
+```text
+<fullCalendarPage>?startDate=MM,DD,YYYY
+```
+
+For example, picking November 21, 2026 on a widget whose full page is
+`/calendar` navigates to `/calendar?startDate=11,21,2026`. Days that have
+events render highlighted; in edit/preview mode the picker is inert (no
+navigation).
+
 ## Layouts
 
 - **Calendar layout** renders the month grid above; event details come from
@@ -73,3 +123,11 @@ is unchanged by the runtime swap.
    `2.9.1`-era requests and no script errors.
 3. The month grid shows the current month with event titles; switching the
    widget **Language** to e.g. French localizes the month title.
+4. With toggle buttons enabled, **List View** shows the upcoming-events
+   list (or `Loading events…` then `No upcoming events.` on an empty
+   calendar); **Calendar View** switches back instantly.
+5. With a Google feed configured, the feed loads over
+   `https://www.googleapis.com`; under a restrictive CSP confirm
+   `connect-src https://www.googleapis.com` is allowed.
+6. Print-preview the page: toolbar buttons, toggle buttons, and the
+   source-filter bar hide while the grid and list print black-on-white.
