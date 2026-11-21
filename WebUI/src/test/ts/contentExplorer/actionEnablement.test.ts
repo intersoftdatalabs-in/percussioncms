@@ -209,6 +209,46 @@ describe("filterEnabledMenuActions", () => {
     );
   });
 
+  it("keeps the Arrange cascade as a context-menu pivot (#6889)", () => {
+    // Seeded Arrange children carry legacy relative sys_rcSupport URLs —
+    // same-origin, so the SPA keeps them as web-executable leaves and the
+    // MENU parent survives as a nested pivot instead of dropping.
+    const actions: MenuAction[] = [
+      {
+        name: "Arrange",
+        label: "Arrange",
+        sortRank: 1,
+        menuType: "MENU",
+        children: [
+          leaf({
+            name: "Arrange_MoveUpLeft",
+            url: "../sys_rcSupport/updaterelateditems.html",
+          }),
+          leaf({
+            name: "Arrange_MoveDownRight",
+            url: "../sys_rcSupport/updaterelateditems.html",
+          }),
+          leaf({
+            name: "Arrange_ChangeTemplateSlot",
+            url: "../sys_rcSupport/modifyslotitem.html",
+          }),
+          leaf({
+            name: "Arrange_Remove",
+            url: "../sys_rcSupport/updaterelateditems.html",
+          }),
+        ],
+      },
+    ];
+    const filtered = filterContextMenuActions(actions, BASE);
+    expect(filtered.map((a) => a.name)).toEqual(["Arrange"]);
+    expect(filtered[0]?.children?.map((c) => c.name)).toEqual([
+      "Arrange_MoveUpLeft",
+      "Arrange_MoveDownRight",
+      "Arrange_ChangeTemplateSlot",
+      "Arrange_Remove",
+    ]);
+  });
+
   it("collapses descendant names that were also dumped as toolbar roots (#3560)", () => {
     const actions: MenuAction[] = [
       {

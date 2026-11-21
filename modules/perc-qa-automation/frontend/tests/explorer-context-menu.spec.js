@@ -275,9 +275,42 @@ test.describe("modern React Content Explorer — nested row context MENU (#3629)
         ).first(),
       ).toBeVisible();
 
+      // #6889: Arrange is the static MENU parent this spec guards — open it
+      // explicitly (not just required[0]) so the pivot, its catalog
+      // children, and Escape-to-close are covered on the context-menu
+      // surface (same root cause as the #6886 toolbar dropdown).
+      const arrange = required.find((p) => p.name === "Arrange");
+      expect(arrange, "Arrange must be among the static MENU parents").toBeDefined();
+      const arrangeItem = menu.locator(
+        `[data-testid="context-menu-item-Arrange"][aria-haspopup="menu"]`,
+      );
+      await arrangeItem.evaluate((el) => {
+        el.scrollIntoView({ block: "center", inline: "nearest" });
+        el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+      await expect(
+        page.locator(`[data-testid="context-menu-submenu-Arrange"]`),
+      ).toBeVisible({ timeout: 5_000 });
+      const arrangeKids = page.locator(
+        `[data-testid="context-menu-submenu-Arrange"] [role="menuitem"]`,
+      );
+      await expect(arrangeKids.first()).toBeVisible();
+      const arrangeLabels = await arrangeKids.evaluateAll((els) =>
+        els.map((el) => el.getAttribute("data-testid") ?? ""),
+      );
+      for (const childName of arrange.childNames) {
+        expect(
+          arrangeLabels.includes(`context-menu-item-${childName}`),
+          `Arrange child "${childName}" must render as a submenu item`,
+        ).toBe(true);
+      }
+      // Escape closes the popup. Focus placement on close is #6864's
+      // slice — not asserted here.
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="context-menu"]',
       });
+      await page.keyboard.press("Escape");
+      await expect(menu).toBeHidden();
     },
   );
 });

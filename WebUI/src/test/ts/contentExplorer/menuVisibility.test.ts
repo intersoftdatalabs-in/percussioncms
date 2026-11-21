@@ -716,4 +716,44 @@ describe("SPA shell UI-mode claim (#6619)", () => {
       false,
     );
   });
+
+  it("keeps the seeded Arrange cascade visible once CXMAIN-scoped (#6889)", () => {
+    // Installer seed (cmsTableData.xml RXMODEUICONTEXTACTION) scopes the
+    // Arrange family to the Site Explorer Item context (MODEID 1) and —
+    // since #6886/#6889 — the modern Explorer main area (MODEID 4,
+    // CXMAIN). Before the CXMAIN rows, both the toolbar dropdown and the
+    // row context-menu pivot vanished under the shell claim even though
+    // the unscoped catalog still listed Arrange.
+    const arrangeChildren = [
+      "../sys_rcSupport/updaterelateditems.html",
+      "../sys_rcSupport/updaterelateditems.html",
+      "../sys_rcSupport/modifyslotitem.html",
+      "../sys_rcSupport/updaterelateditems.html",
+    ].map((url, index) =>
+      menu(["Arrange_MoveUpLeft", "Arrange_MoveDownRight", "Arrange_ChangeTemplateSlot", "Arrange_Remove"][index], {
+        url,
+        uiContexts: [
+          { modeId: "1", modeName: "Site Centric" },
+          { modeId: "4", modeName: "CXMAIN" },
+        ],
+      }),
+    );
+    const arrange = menu("Arrange", {
+      menuType: "MENU",
+      uiContexts: [
+        { modeId: "1", modeName: "Site Centric" },
+        { modeId: "4", modeName: "CXMAIN" },
+      ],
+      children: arrangeChildren,
+    });
+    expect(isMenuVisibleInShellMode(arrange)).toBe(true);
+    const visible = filterMenuActionsByVisibility([arrange], EMPTY_STATE);
+    expect(visible).toHaveLength(1);
+    expect(visible[0].children?.map((c) => c.name)).toEqual([
+      "Arrange_MoveUpLeft",
+      "Arrange_MoveDownRight",
+      "Arrange_ChangeTemplateSlot",
+      "Arrange_Remove",
+    ]);
+  });
 });
