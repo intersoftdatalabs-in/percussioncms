@@ -282,6 +282,34 @@ def parse_csv(raw: str | None) -> list[int]:
     return [int(t.strip().lstrip("#")) for t in (raw or "").split(",") if t.strip().lstrip("#").isdigit()]
 
 
+# ------------------------------------------------------- stale sweep helpers
+
+
+def sweep_guard_reason(row: dict, n: int, covered: set[int]) -> str | None:
+    """Pre-lookup keep reason for a labeled-open sweep row, else None.
+
+    Cheap guards that need no extra issue fetch: human-owned rows and
+    rows covered by an open PR are never stale.
+    """
+    if assignees(row):
+        return "assigned"
+    if n in covered:
+        return "open_pr"
+    return None
+
+
+def current_cycle_claimed(claims: list[dict], cycle: str) -> bool:
+    """True when one of the active claims belongs to this cycle."""
+    return any(a["cycle"] == cycle for a in claims)
+
+
+def stale_activity(claims: list[dict], issue: dict, row: dict) -> tuple[_dt.datetime | None, str]:
+    """Resolve (last activity, basis): newest claim, else updatedAt."""
+    if claims:
+        return parse_ts(claims[-1]["at"]), "claim"
+    return parse_ts(issue.get("updatedAt") or row.get("updatedAt") or ""), "updatedAt"
+
+
 # --------------------------------------------------------------- actions
 
 
@@ -492,35 +520,32 @@ class Claimer:
             if len(cleared) >= max_clears:
                 kept.append({"issue": n, "reason": "cap"})
                 continue
-            if assignees(row):
-                kept.append({"issue": n, "reason": "assigned"})
-                continue
-            if n in covered:
-                kept.append({"issue": n, "reason": "open_pr"})
+            reason = sweep_guard_reason(row, n, covered)
+            if reason is not None:
+                kept.append({"issue": n, "reason": reason})
                 continue
             issue = self.gh.issue(n)
-            act = active_claims(issue)
-            if any(a["cycle"] == self.cycle for a in act):
+            claims = active_claims(issue)
+            if current_cycle_claimed(claims, self.cycle):
                 kept.append({"issue": n, "reason": "this_cycle"})
                 continue
-            if act:
-                last = parse_ts(act[-1]["at"])
-                basis = "claim"
-            else:
-                last = parse_ts(issue.get("updatedAt") or row.get("updatedAt") or "")
-                basis = "updatedAt"
+            last, basis = stale_activity(claims, issue, row)
             if last is None or last > cutoff:
                 kept.append({"issue": n, "reason": "fresh"})
                 continue
-            self.gh.remove_label(n, label_name(issue))
-            self.gh.comment(
-                n,
-                self._release_body(
-                    "stale_" + basis + "_over_" + str(stale_hours) + "h_no_open_pr", scope="all"
-                ),
-            )
+            self._clear_stale(n, issue, stale_hours, basis)
             cleared.append(n)
         return {"cycle_id": self.cycle, "cleared": cleared, "kept": kept}
+
+    def _clear_stale(self, n: int, issue: dict, stale_hours: int, basis: str) -> None:
+        """Drop the label and post the stale-release comment for one issue."""
+        self.gh.remove_label(n, label_name(issue))
+        self.gh.comment(
+            n,
+            self._release_body(
+                "stale_" + basis + "_over_" + str(stale_hours) + "h_no_open_pr", scope="all"
+            ),
+        )
 
 
 def work_status(work_dir: Path | None, n: int) -> str:
