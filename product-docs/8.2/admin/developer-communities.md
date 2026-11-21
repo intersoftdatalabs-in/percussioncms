@@ -104,6 +104,17 @@ the current filter"; clearing the box restores the full list.
    status notice.
 4. A missing community is **404**. A role entry without id/guid is **400**.
 
+## Accessibility
+
+- The detail **Back to list** button and **Save roles** expose their visible
+  labels as their accessible names (no contradicting `aria-label`), so
+  screen readers and voice control hear/activate exactly what sighted users
+  see. Error text on the panel uses `role="alert"` and save confirmations
+  use a `role="status"` live region.
+- Keyboard: **Rename** and **description** editors autofocus on open,
+  **Escape** cancels without saving, and focus returns to the invoking edit
+  control when an editor closes.
+
 ## Product path — new-search defaults
 
 Workbench assigned which searches are offered as **new search** (`cxNewSearch`)

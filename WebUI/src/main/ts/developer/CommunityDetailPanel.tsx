@@ -792,7 +792,6 @@ export function CommunityDetailPanel({
         type="button"
         onClick={onBack}
         data-testid="developer-comm-back"
-        aria-label="Back to communities list"
         style={backButton}
       >
         ← {DEV_MSG.COMM_BACK}
@@ -1184,7 +1183,6 @@ export function CommunityDetailPanel({
               <button
                 type="button"
                 data-testid="developer-comm-roles-save"
-                aria-label="Save community roles"
                 disabled={busy || !dirty}
                 onClick={() => void handleSave()}
                 style={{
