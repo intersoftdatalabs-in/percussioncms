@@ -1150,68 +1150,23 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   public PipelineBinaryResource putBinaryResource(
       URI baseUri, String appName, String resourceName, PipelineBinaryResource body) {
     requireAdmin();
-    if (StringUtils.isBlank(appName) || !isSafeApplicationName(appName.trim())) {
-      throw new WebApplicationException("Invalid pipeline application name", 400);
-    }
-    if (StringUtils.isBlank(resourceName) || !isSafeResourceName(resourceName.trim())) {
-      throw new WebApplicationException("Invalid pipeline resource name", 400);
-    }
-    if (body == null) {
-      throw new WebApplicationException("Binary resource body is required", 400);
-    }
-    String path;
-    String contentType;
-    try {
-      path = PSPipelineBinaryPath.requireSafe(body.getPath());
-      contentType = PSPipelineBinaryPath.requireSafeContentType(body.getContentType());
-    } catch (PSPipelineIrException e) {
-      throw new WebApplicationException(
-          e.getMessage() != null ? e.getMessage() : "Invalid binary resource path", 400);
-    }
-
-    PSRequest req = PSSecurityFilter.getCurrentRequest();
-    if (req == null) {
-      throw new IllegalStateException("No current request for pipeline binary persist");
-    }
-    PSSecurityToken tok = req.getSecurityToken();
-    String name = resolveApplicationName(appName.trim(), summaryLoader.apply(tok));
+    String trimmedApp = requireValidApplicationName(appName);
+    String safeResource = requireValidResourceName(resourceName);
+    ValidatedBinaryResource payload = validateBinaryPayload(requireBinaryResourceBody(body));
+    PSSecurityToken tok = currentBinaryToken();
+    String name = resolveApplicationName(trimmedApp, summaryLoader.apply(tok));
     if (name == null) {
       throw new WebApplicationException("Application not found", 404);
     }
-    String safeResource = resourceName.trim();
     try {
       IPSPipelineIrService ir = irSupplier.get();
-      PipelineIrDocument doc = ir.load(name).orElse(null);
-      if (doc == null) {
-        PSApplication app = applicationLoader.apply(name, tok);
-        if (app != null) {
-          doc = ir.importClassicApplication(app);
-        } else {
-          doc = new PipelineIrDocument();
-          doc.getApp().setName(name);
-        }
-      }
-      doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
-      if (doc.getApp() == null || StringUtils.isBlank(doc.getApp().getName())) {
-        doc.getApp().setName(name);
-      }
-      PipelineResourceIr resource = doc.findResource(safeResource);
-      if (resource == null) {
-        resource = new PipelineResourceIr();
-        resource.setName(safeResource);
-        doc.getResources().add(resource);
-      }
+      PipelineIrDocument doc = loadOrImportBinaryDocument(ir, name, tok);
+      PipelineResourceIr resource = findOrCreateBinaryResource(doc, safeResource);
+      PipelineBinaryResourceIr stored = payload.toStoredIr();
       resource.setKind(PipelineResourceIr.KIND_BINARY);
-      PipelineBinaryResourceIr stored = new PipelineBinaryResourceIr();
-      stored.setPath(path);
-      stored.setContentType(contentType);
       resource.setBinary(stored);
       ir.save(doc);
-
-      PipelineBinaryResource saved = new PipelineBinaryResource();
-      saved.setPath(stored.getPath());
-      saved.setContentType(stored.getContentType());
-      return saved;
+      return payload.toResponse(stored);
     } catch (PSPipelineIrException e) {
       String msg = e.getMessage() != null ? e.getMessage() : "Failed to persist binary resource";
       if (isNotFoundMessage(msg)) {
@@ -1219,6 +1174,101 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
       }
       throw new WebApplicationException(msg, 400);
     }
+  }
+
+  /** Guard: a missing binary-resource body fails closed with 400. */
+  private static PipelineBinaryResource requireBinaryResourceBody(PipelineBinaryResource body) {
+    if (body == null) {
+      throw new WebApplicationException("Binary resource body is required", 400);
+    }
+    return body;
+  }
+
+  /** Guard: binary persist requires a current request security token. */
+  private static PSSecurityToken currentBinaryToken() {
+    PSRequest req = PSSecurityFilter.getCurrentRequest();
+    if (req == null) {
+      throw new IllegalStateException("No current request for pipeline binary persist");
+    }
+    return req.getSecurityToken();
+  }
+
+  /** Binary path + content-type validated against the Slice C path rules. */
+  private static final class ValidatedBinaryResource {
+    private final String path;
+    private final String contentType;
+
+    private ValidatedBinaryResource(String path, String contentType) {
+      this.path = path;
+      this.contentType = contentType;
+    }
+
+    private PipelineBinaryResourceIr toStoredIr() {
+      PipelineBinaryResourceIr stored = new PipelineBinaryResourceIr();
+      stored.setPath(path);
+      stored.setContentType(contentType);
+      return stored;
+    }
+
+    private PipelineBinaryResource toResponse(PipelineBinaryResourceIr stored) {
+      PipelineBinaryResource saved = new PipelineBinaryResource();
+      saved.setPath(stored.getPath());
+      saved.setContentType(stored.getContentType());
+      return saved;
+    }
+  }
+
+  /** Validates the binary path and content type; cloud/absolute/traversal values fail closed. */
+  private static ValidatedBinaryResource validateBinaryPayload(PipelineBinaryResource body) {
+    try {
+      return new ValidatedBinaryResource(
+          PSPipelineBinaryPath.requireSafe(body.getPath()),
+          PSPipelineBinaryPath.requireSafeContentType(body.getContentType()));
+    } catch (PSPipelineIrException e) {
+      throw new WebApplicationException(
+          e.getMessage() != null ? e.getMessage() : "Invalid binary resource path", 400);
+    }
+  }
+
+  /** Loads the native binary IR document, importing the classic application on first persist. */
+  private PipelineIrDocument loadOrImportBinaryDocument(
+      IPSPipelineIrService ir, String name, PSSecurityToken tok) throws PSPipelineIrException {
+    return loadOrImportPipelineDocument(ir, name, tok);
+  }
+
+  /**
+   * Shared load-or-import: native IR document, classic import on first persist, stamped native
+   * with the resolved application name.
+   */
+  private PipelineIrDocument loadOrImportPipelineDocument(
+      IPSPipelineIrService ir, String name, PSSecurityToken tok) throws PSPipelineIrException {
+    PipelineIrDocument doc = ir.load(name).orElse(null);
+    if (doc == null) {
+      PSApplication app = applicationLoader.apply(name, tok);
+      if (app != null) {
+        doc = ir.importClassicApplication(app);
+      } else {
+        doc = new PipelineIrDocument();
+        doc.getApp().setName(name);
+      }
+    }
+    doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
+    if (doc.getApp() == null || StringUtils.isBlank(doc.getApp().getName())) {
+      doc.getApp().setName(name);
+    }
+    return doc;
+  }
+
+  /** Finds the binary resource backing binary persist, creating it when absent. */
+  private static PipelineResourceIr findOrCreateBinaryResource(
+      PipelineIrDocument doc, String safeResource) {
+    PipelineResourceIr resource = doc.findResource(safeResource);
+    if (resource == null) {
+      resource = new PipelineResourceIr();
+      resource.setName(safeResource);
+      doc.getResources().add(resource);
+    }
+    return resource;
   }
 
   @Override
@@ -1376,21 +1426,7 @@ public class PipelinesAdaptor implements IPipelinesAdaptor {
   /** Loads the native IR document, importing the classic application on first persist. */
   private PipelineIrDocument loadOrImportResultPageDocument(
       IPSPipelineIrService ir, String name, PSSecurityToken tok) throws PSPipelineIrException {
-    PipelineIrDocument doc = ir.load(name).orElse(null);
-    if (doc == null) {
-      PSApplication app = applicationLoader.apply(name, tok);
-      if (app != null) {
-        doc = ir.importClassicApplication(app);
-      } else {
-        doc = new PipelineIrDocument();
-        doc.getApp().setName(name);
-      }
-    }
-    doc.setSource(PipelineIrDocument.SOURCE_NATIVE);
-    if (doc.getApp() == null || StringUtils.isBlank(doc.getApp().getName())) {
-      doc.getApp().setName(name);
-    }
-    return doc;
+    return loadOrImportPipelineDocument(ir, name, tok);
   }
 
   /** Finds the query resource backing result-page persist, creating it when absent. */
