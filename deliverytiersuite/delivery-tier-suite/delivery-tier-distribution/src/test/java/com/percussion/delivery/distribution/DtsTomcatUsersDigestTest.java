@@ -16,11 +16,14 @@
 
 package com.percussion.delivery.distribution;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -28,7 +31,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
+import javax.xml.parsers.DocumentBuilderFactory;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 /**
  * Regression guard for #6939: the shipped {@code Deployment/Server/conf/tomcat-users.xml} must
@@ -93,6 +101,9 @@ class DtsTomcatUsersDigestTest {
     String defaultBuild = pomXml.substring(0, profilesAt);
 
     String digest = sha1Hex(DOCUMENTED_DEFAULT_SECRET);
+    // mkd-code-review[secrets.heuristic]: adjudicated intentional (issue #6939) — asserting the
+    // build file stores a digest (not a live secret) in its password element is this guard's
+    // purpose; the expected value derives from the published default credential.
     assertTrue(
         defaultBuild.contains("<password>" + digest + "</password>"),
         "default-build cargo <users> password must be sha1(documented default secret) = "
@@ -115,13 +126,14 @@ class DtsTomcatUsersDigestTest {
 
   /** Shipping-jar guard: the assembled tomcat-users.xml ships the digest, not the secret. */
   @Test
-  void shippingJarTomcatUsersCarriesDigestNotSecret() throws IOException {
+  void shippingJarTomcatUsersCarriesDigestNotSecret() throws Exception {
     Path jar = Path.of("target", "delivery-tier-distribution.jar");
     if (!Files.isRegularFile(jar)) {
       return;
     }
 
     String digest = sha1Hex(DOCUMENTED_DEFAULT_SECRET);
+    String usersXml;
     try (ZipFile zip = new ZipFile(jar.toFile())) {
       ZipEntry entry = zip.getEntry(SHIPPED_TOMCAT_USERS_ENTRY);
       if (entry == null) {
@@ -129,20 +141,43 @@ class DtsTomcatUsersDigestTest {
             + " Cargo package was not staged before jar packaging."
             + " See antrun id=stage-cargo-package-into-assembly.");
       }
-      String usersXml;
       try (InputStream in = zip.getInputStream(entry)) {
         usersXml = new String(in.readAllBytes(), StandardCharsets.UTF_8);
       }
-      assertTrue(
-          usersXml.contains("name=\"ps_manager\""),
-          "shipped tomcat-users.xml must define the ps_manager deliverymanager user");
-      assertTrue(
-          usersXml.contains("password=\"" + digest + "\""),
-          "shipped tomcat-users.xml must store sha1(documented default secret) for ps_manager"
-              + " or fresh installs answer 401 (#6939)");
-      assertTrue(
-          !usersXml.contains("password=\"" + DOCUMENTED_DEFAULT_SECRET + "\""),
-          "shipped tomcat-users.xml must not store the documented secret verbatim (#6939)");
     }
+    assertTrue(
+        !usersXml.contains(DOCUMENTED_DEFAULT_SECRET),
+        "shipped tomcat-users.xml must not store the documented secret verbatim (#6939)");
+
+    Element psManager = findUserByName(parseXml(usersXml), "ps_manager");
+    assertNotNull(psManager, "shipped tomcat-users.xml must define the ps_manager user");
+    assertEquals(
+        digest,
+        psManager.getAttribute("password"),
+        "shipped tomcat-users.xml must store sha1(documented default secret) for ps_manager"
+            + " or fresh installs answer 401 (#6939)");
+  }
+
+  /**
+   * Parses trusted build output (the cargo-assembled tomcat-users.xml, which carries no DOCTYPE);
+   * external entities stay disabled as defense in depth.
+   */
+  private static Document parseXml(String xml) throws Exception {
+    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+    return factory.newDocumentBuilder().parse(new InputSource(new StringReader(xml)));
+  }
+
+  private static Element findUserByName(Document doc, String name) {
+    NodeList users = doc.getElementsByTagName("user");
+    for (int i = 0; i < users.getLength(); i++) {
+      Element el = (Element) users.item(i);
+      if (name.equals(el.getAttribute("name"))) {
+        return el;
+      }
+    }
+    return null;
   }
 }
