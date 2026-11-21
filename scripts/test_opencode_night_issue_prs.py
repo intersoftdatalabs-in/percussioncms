@@ -58,8 +58,8 @@ def test_resolve_worktree_precedence(tmp_path, monkeypatch):
     args = type("Args", (), {"worktree": ""})()
     assert mod.resolve_worktree(args) == mod.default_worktree_path()
 
-    monkeypatch.setenv("NIGHT_WORKTREE_PATH", "/tmp/from-env")
-    assert mod.resolve_worktree(args) == Path("/tmp/from-env")
+    monkeypatch.setenv("NIGHT_WORKTREE_PATH", str(tmp_path / "from-env"))
+    assert mod.resolve_worktree(args) == tmp_path / "from-env"
 
     monkeypatch.delenv("NIGHT_WORKTREE_PATH", raising=False)
     args = type("Args", (), {"worktree": str(tmp_path / "from-flag")})()
@@ -88,8 +88,8 @@ def test_resolve_report_path_precedence(tmp_path, monkeypatch):
     args = type("Args", (), {"report_path": ""})()
     assert mod.resolve_report_path(args, worktree) == worktree / "scratch" / "night-report.md"
 
-    monkeypatch.setenv("NIGHT_REPORT_PATH", "/tmp/env-report.md")
-    assert mod.resolve_report_path(args, worktree) == Path("/tmp/env-report.md")
+    monkeypatch.setenv("NIGHT_REPORT_PATH", str(tmp_path / "env-report.md"))
+    assert mod.resolve_report_path(args, worktree) == tmp_path / "env-report.md"
 
     monkeypatch.delenv("NIGHT_REPORT_PATH", raising=False)
     args = type("Args", (), {"report_path": str(tmp_path / "flag-report.md")})()
@@ -118,11 +118,11 @@ def test_build_env_sets_all_night_vars(tmp_path, monkeypatch):
     assert env["PWD"] == str(worktree), f"PWD not synced with worktree; got {env.get('PWD')!r}"
 
 
-def test_build_env_preserves_caller_night_coding_tool(monkeypatch):
+def test_build_env_preserves_caller_night_coding_tool(tmp_path, monkeypatch):
     mod = _load_module()
     monkeypatch.setenv("NIGHT_CODING_TOOL", "OpenCode Custom Build")
     args = type("Args", (), {"worktree": "", "base_branch": "main", "report_path": ""})()
-    env = mod.build_env(args, Path("/tmp/wt"), "main", Path("/tmp/report.md"))
+    env = mod.build_env(args, tmp_path / "wt", "main", tmp_path / "report.md")
     assert env["NIGHT_CODING_TOOL"] == "OpenCode Custom Build"
 
 
@@ -449,7 +449,7 @@ def test_ensure_worktree_sync_from_local_skips_fetch(monkeypatch, tmp_path):
     monkeypatch.setattr(subprocess, "run", fake_run)
     wt = tmp_path / "wt"
     wt.mkdir()
-    (wt / ".git").write_text("gitdir: /tmp/fake")
+    (wt / ".git").write_text(f"gitdir: {tmp_path / 'fake-gitdir'}")
     mod.ensure_worktree(wt, "main", tmp_path, sync_from_local=True)
 
     fetch_calls = [c for c in calls if c[:2] == ["git", "fetch"]]
