@@ -109,9 +109,18 @@ Record commands + `BUILD SUCCESS` + `Tests run: N, Failures: 0` in
 
 ### 5. Commit + push
 
+Identity + signing are HARD (#6809 — unsigned / `opencode@local` commits
+trip `required_signatures` and block merge). Before the first commit:
+
+```bash
+python3 scripts/verify-signed-commits.py ensure-identity --apply-from "$NIGHT_WORKTREE_PATH"
+```
+
+If it FAILs, STOP — do not commit with a placeholder identity.
+
 ```bash
 git add -A
-git commit -m "fix(<module>): <subject>
+git commit -S -m "fix(<module>): <subject>
 
 <body>
 
@@ -119,6 +128,9 @@ Fixes #<N>
 Parent: #<P>   (if applicable)
 
 > Co-Authored by OpenCode ${NIGHT_CODING_TOOL_VERSION} using ${NIGHT_MODEL_ID} with agent night-issue-prs."
+
+python3 scripts/verify-signed-commits.py check --base "origin/$NIGHT_BASE_BRANCH"
+# non-zero → do NOT push; re-create the commit(s) signed, then re-run.
 
 git push --set-upstream origin HEAD
 # `--force-with-lease` only if a previous attempt left the branch ahead;
