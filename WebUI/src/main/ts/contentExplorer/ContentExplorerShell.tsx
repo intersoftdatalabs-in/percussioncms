@@ -1162,6 +1162,13 @@ function ContentExplorerShellInner({
    * call setContextMenu (avoids stale workflow menus at the first item's XY).
    */
   const contextMenuRequestIdRef = useRef(0);
+  /**
+   * Row that opened the server context menu (#6864, parent #6826). Captured
+   * from {@code document.activeElement} at menu-open time so Escape /
+   * invoke close can return focus to the invoking tree / detail row instead
+   * of stranding keyboard operators on {@code <body>}. Cleared on close.
+   */
+  const contextMenuInvokerRef = useRef<HTMLElement | null>(null);
   const [listEpoch, setListEpoch] = useState(0);
   /**
    * Folder-mutation epoch for {@link ExplorerTree} only. Must not reuse
@@ -1791,6 +1798,18 @@ function ContentExplorerShellInner({
     (item: PSPathItem, clientX: number, clientY: number) => {
       setSelection((prev) => ({ ...prev, item }));
       const requestId = ++contextMenuRequestIdRef.current;
+      // Record the invoking row (#6864) before the popup steals focus —
+      // Escape / invoke close restores focus here. A Retry re-open fires
+      // from inside the popup, so keep the original row invoker then.
+      const opener = document.activeElement;
+      if (
+        !(opener instanceof HTMLElement) ||
+        opener.closest?.('[data-testid="explorer-context-menu-anchor"]') ==
+          null
+      ) {
+        contextMenuInvokerRef.current =
+          opener instanceof HTMLElement ? opener : null;
+      }
       // Mount the popup immediately with the loading placeholder so
       // right-click always answers (#6826); the loaded catalog swaps in
       // below. Stale generations (rapid right-clicks) never render.
@@ -1865,6 +1884,28 @@ function ContentExplorerShellInner({
     },
     [loadMenuActions, loadWorkflowMenuActions, bootstrap.isAdmin, menuVisibilityState],
   );
+
+  /**
+   * Close the server context menu and return focus to the invoking row
+   * (#6864, parent #6826). Without this, Escape / invoke close drops focus
+   * to {@code <body>} and keyboard operators lose their place in the tree
+   * or detail list. A detached invoker (row unmounted by a refresh) is
+   * left alone. Action invokes that open dialogs focus into the dialog
+   * afterwards via the dialog focus trap, so restoring first keeps the
+   * dialog-opener chain intact (dialog close returns here).
+   */
+  const closeContextMenu = useCallback(() => {
+    setContextMenu(null);
+    const invoker = contextMenuInvokerRef.current;
+    contextMenuInvokerRef.current = null;
+    if (
+      invoker &&
+      typeof invoker.focus === "function" &&
+      document.contains(invoker)
+    ) {
+      invoker.focus({ preventScroll: true });
+    }
+  }, []);
 
   /**
    * Error-state Retry (#6874, same pattern as the checkout-owner Retry in
@@ -4960,9 +5001,9 @@ function ContentExplorerShellInner({
                 ? `Context menu for ${contextMenu.label}`
                 : undefined
             }
-            onClose={() => setContextMenu(null)}
+            onClose={closeContextMenu}
             onInvoke={(actionName, action) => {
-              setContextMenu(null);
+              closeContextMenu();
               handleMenuInvoke(actionName, action);
             }}
           />
