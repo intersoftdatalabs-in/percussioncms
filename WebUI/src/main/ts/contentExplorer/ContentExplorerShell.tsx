@@ -529,8 +529,20 @@ type ContextMenuState = {
    * loaded actions in place.
    */
   loading?: boolean;
+  /**
+   * Catalog failed to load (#6874). Renders the error text with Retry
+   * instead of the empty-actions text; a retried load clears it.
+   */
+  loadError?: string | null;
   /** Row label for the popup accessible name (#6826). */
   label?: string;
+  /**
+   * Row the menu was opened for plus the pointer position (#6874). Retry
+   * re-runs the same catalog load without changing the selection.
+   */
+  item?: PSPathItem | null;
+  clientX?: number;
+  clientY?: number;
 } | null;
 
 const sidePanelStyle: React.CSSProperties = {
@@ -1787,7 +1799,17 @@ function ContentExplorerShellInner({
         height: window.innerHeight,
       });
       const label = item.title ?? item.name ?? item.path;
-      setContextMenu({ actions: [], x: pos.x, y: pos.y, loading: true, label });
+      setContextMenu({
+        actions: [],
+        x: pos.x,
+        y: pos.y,
+        loading: true,
+        label,
+        item,
+        clientX,
+        clientY,
+        loadError: null,
+      });
       void (async () => {
         try {
           const base = await loadMenuActions(item);
@@ -1819,20 +1841,45 @@ function ContentExplorerShellInner({
             x: pos.x,
             y: pos.y,
             label,
+            item,
+            clientX,
+            clientY,
+            loadError: null,
           });
         } catch {
           if (requestId !== contextMenuRequestIdRef.current) return;
+          // A failed catalog load is an error with Retry — never the
+          // empty-catalog text (#6874).
           setContextMenu({
             actions: [],
             x: pos.x,
             y: pos.y,
             label,
+            item,
+            clientX,
+            clientY,
+            loadError: message(EXPLORER_MSG.CONTEXT_MENU_LOAD_FAILED),
           });
         }
       })();
     },
     [loadMenuActions, loadWorkflowMenuActions, bootstrap.isAdmin, menuVisibilityState],
   );
+
+  /**
+   * Error-state Retry (#6874, same pattern as the checkout-owner Retry in
+   * #6871): re-runs the catalog load for the row the menu was opened for
+   * without changing the selection. A repeated failure keeps the error;
+   * the popup returns focus to Retry (see ContextMenu).
+   */
+  const handleContextMenuRetry = useCallback(() => {
+    if (!contextMenu || contextMenu.item == null) return;
+    handleItemContextMenu(
+      contextMenu.item,
+      contextMenu.clientX ?? contextMenu.x,
+      contextMenu.clientY ?? contextMenu.y,
+    );
+  }, [contextMenu, handleItemContextMenu]);
 
   /**
    * Tree folder right-click / keyboard open (#6826): select the folder
@@ -4906,6 +4953,8 @@ function ContentExplorerShellInner({
           <ContextMenu
             actions={contextMenu.actions}
             pending={contextMenu.loading}
+            loadError={contextMenu.loadError ?? null}
+            onRetry={handleContextMenuRetry}
             ariaLabel={
               contextMenu.label
                 ? `Context menu for ${contextMenu.label}`

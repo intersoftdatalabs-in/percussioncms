@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { MenuAction } from "../../../main/ts/api/contentExplorer/types";
 import { ContextMenu } from "../../../main/ts/contentExplorer/ContextMenu";
@@ -363,5 +363,110 @@ describe("ContextMenu", () => {
     );
     fireEvent.click(screen.getByTestId("context-menu-item-Paste"));
     await renderA11yGate(baseElement);
+  });
+
+  it("failed catalog load shows the error with Retry, not the empty text (#6874)", () => {
+    render(
+      <ContextMenu
+        actions={[]}
+        loadError="Could not load the available actions."
+        onRetry={() => undefined}
+      />,
+    );
+    const error = screen.getByTestId("context-menu-error");
+    expect(error.getAttribute("role")).toBe("alert");
+    expect(error.textContent).toMatch(/could not load/i);
+    expect(screen.getByTestId("context-menu-retry").textContent).toMatch(
+      /retry/i,
+    );
+    // A failure is not an empty catalog.
+    expect(screen.queryByTestId("context-menu-empty")).toBeNull();
+    expect(screen.queryByTestId("context-menu-loading")).toBeNull();
+  });
+
+  it("loading still wins while a retry is in flight (#6874)", () => {
+    render(
+      <ContextMenu
+        actions={[]}
+        pending
+        loadError="Could not load the available actions."
+        onRetry={() => undefined}
+      />,
+    );
+    expect(screen.getByTestId("context-menu-loading")).toBeTruthy();
+    expect(screen.queryByTestId("context-menu-error")).toBeNull();
+  });
+
+  it("Retry click calls onRetry; native button so keyboard activates it (#6874)", () => {
+    const onRetry = vi.fn();
+    render(
+      <ContextMenu
+        actions={[]}
+        loadError="Could not load the available actions."
+        onRetry={onRetry}
+      />,
+    );
+    const retry = screen.getByTestId("context-menu-retry");
+    expect(retry.tagName).toBe("BUTTON");
+    fireEvent.click(retry);
+    expect(onRetry).toHaveBeenCalledTimes(1);
+  });
+
+  it("error without onRetry shows text-only with no Retry button (#6874)", () => {
+    render(
+      <ContextMenu actions={[]} loadError="Could not load the available actions." />,
+    );
+    expect(screen.getByTestId("context-menu-error")).toBeTruthy();
+    expect(screen.queryByTestId("context-menu-retry")).toBeNull();
+    expect(screen.queryByTestId("context-menu-empty")).toBeNull();
+  });
+
+  it("passes the axe-core gate on the error state with Retry (#6874)", async () => {
+    const { baseElement } = render(
+      <ContextMenu
+        actions={[]}
+        loadError="Could not load the available actions."
+        onRetry={() => undefined}
+      />,
+    );
+    await renderA11yGate(baseElement);
+  });
+
+  it("keeps the error and returns focus to Retry when the retry fails (#6874)", async () => {
+    const onRetry = vi.fn();
+    const { rerender } = render(
+      <ContextMenu
+        actions={[]}
+        loadError="Could not load the available actions."
+        onRetry={onRetry}
+      />,
+    );
+    const retry = screen.getByTestId("context-menu-retry");
+    retry.focus();
+    expect(retry).toHaveFocus();
+    fireEvent.click(retry);
+    expect(onRetry).toHaveBeenCalledTimes(1);
+    // The retried load is pending: Retry unmounts for the loading text.
+    rerender(
+      <ContextMenu
+        actions={[]}
+        pending
+        loadError="Could not load the available actions."
+        onRetry={onRetry}
+      />,
+    );
+    expect(screen.queryByTestId("context-menu-retry")).toBeNull();
+    // The retry failed again: the error re-renders and focus returns.
+    rerender(
+      <ContextMenu
+        actions={[]}
+        loadError="Could not load the available actions."
+        onRetry={onRetry}
+      />,
+    );
+    expect(screen.getByTestId("context-menu-error")).toBeTruthy();
+    await waitFor(() => {
+      expect(screen.getByTestId("context-menu-retry")).toHaveFocus();
+    });
   });
 });

@@ -241,6 +241,13 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Could not load the recycle bin contents.",
   /** Context-menu catalog still loading (#6826): shown instead of the empty text. */
   CONTEXT_MENU_LOADING: "perc.ui.explorer@Loading actions…",
+  /**
+   * Context-menu catalog failed to load (#6874): shown instead of the
+   * empty text so a failure never reads as "nothing available".
+   * Paired with the Retry affordance (EXPLORER_MSG.RETRY).
+   */
+  CONTEXT_MENU_LOAD_FAILED:
+    "perc.ui.explorer@Could not load the available actions.",
   EMPTY_RECYCLE_REMOVED:
     "perc.ui.explorer@Removed {count} item(s) from the recycle bin: {names}",
   EMPTY_RECYCLE_ROW_REMOVED: "perc.ui.explorer@Removed",
