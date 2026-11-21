@@ -44,9 +44,17 @@ export function PublishingHistoryDialog({
 
   useEffect(() => {
     const root = rootRef.current;
+    const opener =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
     closeRef.current?.focus();
     if (!root) {
-      return;
+      return () => {
+        if (opener && opener.isConnected) {
+          opener.focus();
+        }
+      };
     }
     const focusables = (): HTMLElement[] =>
       Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE));
@@ -69,7 +77,14 @@ export function PublishingHistoryDialog({
       }
     };
     root.addEventListener("keydown", onKey);
-    return () => root.removeEventListener("keydown", onKey);
+    return () => {
+      root.removeEventListener("keydown", onKey);
+      // Return focus to the control that opened the dialog (a11y focus
+      // management — Escape/mouse close must not strand focus on body).
+      if (opener && opener.isConnected) {
+        opener.focus();
+      }
+    };
   }, []);
 
   return (

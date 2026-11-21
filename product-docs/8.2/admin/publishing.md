@@ -2402,7 +2402,7 @@ From **Publish** (`spa.jsp?entry=publish`), open **Status** or **Logs**. The **I
 - `spa.jsp?entry=publish&section=logs&itemId={id}`
 - Path form: `/cm/app/publish/status?itemId={id}` and `/cm/app/publish/logs?itemId={id}`
 
-Use **Open Logs** / **Open Status** in the panel to switch those sections without leaving the lookup. Site-level job status and publish logs stay on the same tabs. The **Schedule** panel below sits on the same Status / Logs tabs; site-workspace takedown is a separate Publishing step.
+Use **Open Logs** / **Open Status** in the panel to switch those sections without leaving the lookup. Site-level job status and publish logs stay on the same tabs. The lookup form is keyboard-operable, the loading state is announced as a live status, and the results table names each column header for assistive technology. The **Schedule** panel below sits on the same Status / Logs tabs; site-workspace takedown is a separate Publishing step.
 
 The same read-only panel also sits on the **site workspace** (Sites, then a site), below **Remove From Site**, so an operator can read back the editions and runs for the selected item without leaving the site context. It shares the workspace item id — typing an id in any item panel updates the history lookup — and uses the same `GET /services/itemmanagement/item/pubhistory/{id}` route with the same empty and error states. It never publishes, takes down, stages, or edits.
 
