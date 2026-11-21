@@ -294,6 +294,7 @@ import { CopyDestinationPickerDialog } from "./CopyDestinationPickerDialog";
 import { MoveDestinationPickerDialog } from "./MoveDestinationPickerDialog";
 import { PurgeConfirmDialog } from "./PurgeConfirmDialog";
 import { BulkStageDialog } from "./BulkStageDialog";
+import { TakedownConfirmDialog } from "./TakedownConfirmDialog";
 import { RecycleConfirmDialog } from "./RecycleConfirmDialog";
 import { RestoreConfirmDialog } from "./RestoreConfirmDialog";
 import {
@@ -1311,6 +1312,19 @@ function ContentExplorerShellInner({
     items: PSPathItem[];
     resolve: (outcome: { ran: boolean; refresh: boolean } | null) => void;
   } | null>(null);
+  /**
+   * Accessible Take Down confirm request (#6996, parent #4530). Resolved by
+   * the dialog with true only on confirm; cancel / Escape resolves false
+   * and nothing is taken down. Conditionally-rendered dialogs unmount on
+   * close, so {@code useDialogEscape} cannot restore focus for them —
+   * {@code finishTakedown} re-focuses the invoking control by testid.
+   */
+  const [takedownRequest, setTakedownRequest] = useState<{
+    items: PSPathItem[];
+    linkedPaths: string[];
+    openerTestId: string | null;
+    resolve: (confirmed: boolean) => void;
+  } | null>(null);
   const [clipboard, setClipboardState] = useState<Clipboard>(EMPTY_CLIPBOARD);
   const [clipboardMode, setClipboardMode] = useState<"copy" | "cut">("copy");
   /** Folder content id for security/properties (resolved from selection or path). */
@@ -2024,6 +2038,51 @@ function ContentExplorerShellInner({
     [bulkStageRequest],
   );
 
+  const confirmTakedown = useCallback(
+    (args: { items: readonly PSPathItem[]; linkedPaths: readonly string[] }) => {
+      const opener = document.activeElement;
+      captureDialogOpener(opener);
+      const openerTestId =
+        opener instanceof HTMLElement
+          ? opener.getAttribute("data-testid")
+          : null;
+      return new Promise<boolean>((resolve) => {
+        const previous = takedownRequest;
+        setTakedownRequest({
+          items: Array.from(args.items),
+          linkedPaths: Array.from(args.linkedPaths),
+          openerTestId,
+          resolve,
+        });
+        if (previous) {
+          previous.resolve(false);
+        }
+      });
+    },
+    [takedownRequest],
+  );
+
+  const finishTakedown = useCallback(
+    (confirmed: boolean) => {
+      const current = takedownRequest;
+      setTakedownRequest(null);
+      if (current) {
+        current.resolve(confirmed);
+      }
+      // The dialog unmounts on close, so focus would otherwise be lost to
+      // the body. Return it to the invoking control when it is still shown.
+      if (current?.openerTestId) {
+        const next = document.querySelector(
+          `[data-testid="${CSS.escape(current.openerTestId)}"]`,
+        );
+        if (next instanceof HTMLElement) {
+          next.focus();
+        }
+      }
+    },
+    [takedownRequest],
+  );
+
   const confirmClearScheduledDates = useCallback((item: PSPathItem) => {
     return new Promise<boolean>((resolve) => {
       const previous = clearScheduleResolveRef.current;
@@ -2212,6 +2271,7 @@ function ContentExplorerShellInner({
             },
             confirm: (body) => window.confirm(message(body)),
             confirmBulkStage,
+            confirmTakedown,
             runWorkflow: runWorkflowTransition,
             onShowTranslations: () => setShowTranslations(true),
             onShowItemProperties: (readOnly) => {
@@ -2319,6 +2379,7 @@ function ContentExplorerShellInner({
       pickScheduleDates,
       confirmClearScheduledDates,
       confirmBulkStage,
+      confirmTakedown,
       promptCheckinComment,
       loadContentTypes,
       slot,
@@ -4335,6 +4396,14 @@ function ContentExplorerShellInner({
           mode={bulkStageRequest.mode}
           items={bulkStageRequest.items}
           onDone={finishBulkStage}
+        />
+      ) : null}
+      {takedownRequest ? (
+        <TakedownConfirmDialog
+          items={takedownRequest.items}
+          linkedPaths={takedownRequest.linkedPaths}
+          onConfirm={() => finishTakedown(true)}
+          onCancel={() => finishTakedown(false)}
         />
       ) : null}
       {multiRestoreStatus ? (

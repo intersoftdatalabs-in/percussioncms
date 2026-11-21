@@ -50,6 +50,7 @@ import {
 import { checkinEditorItem } from "../editor/itemFieldsApi";
 import {
   formatTakedownConfirmBody,
+  linkedPagePathsForConfirm,
   isCheckinActionName,
   isCheckoutActionName,
   isForceCheckinActionName,
@@ -294,6 +295,18 @@ export interface ActionDispatchContext {
     mode: "stage" | "unstage";
     items: readonly PSPathItem[];
   }) => Promise<{ ran: boolean; refresh: boolean } | null>;
+  /**
+   * Accessible Take Down confirm dialog (#6996, parent #4530). The shell
+   * opens {@code TakedownConfirmDialog} and resolves true only when the
+   * operator confirms; cancel / Escape resolves false and nothing is
+   * taken down. When absent, dispatch keeps the legacy {@code confirm}
+   * ({@code window.confirm}) flow. Linked pages are pre-sliced to the
+   * ten-path confirm cap by the caller.
+   */
+  confirmTakedown?: (args: {
+    items: readonly PSPathItem[];
+    linkedPaths: readonly string[];
+  }) => Promise<boolean>;
   /**
    * Checkbox multi-selection. When length is 2 or more, Publish now,
    * Stage, Take Down, Remove from Staging, Check Out, workflow
@@ -1410,9 +1423,19 @@ async function takedownMultiSelection(
   const confirmBody = message(EXPLORER_MSG.CONFIRM_TAKEDOWN_MULTI)
     .split("{count}")
     .join(String(plan.eligible.length));
-  const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(confirmBody);
-  if (!ok) {
-    return { kind: "rest" };
+  if (ctx.confirmTakedown) {
+    const confirmed = await ctx.confirmTakedown({
+      items: plan.eligible,
+      linkedPaths: [],
+    });
+    if (!confirmed) {
+      return { kind: "rest" };
+    }
+  } else {
+    const ok = (ctx.confirm ?? ((body) => window.confirm(body)))(confirmBody);
+    if (!ok) {
+      return { kind: "rest" };
+    }
   }
   const result = await runTakedownBatch(items, ctx.onTakedown);
   const messageText = describeTakedownBatch(result);
@@ -2556,11 +2579,22 @@ async function runSingleTakedownItem(
     return { kind: "rest", messageKey: EXPLORER_MSG.ACTION_NEEDS_ITEM };
   }
   const linked = await loadLinkedPagesForTakedown(item.id ?? "");
-  const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
-    formatTakedownConfirmBody(linked),
-  );
-  if (!ok) {
-    return { kind: "rest" };
+  const linkedPaths = linkedPagePathsForConfirm(linked);
+  if (ctx.confirmTakedown) {
+    const confirmed = await ctx.confirmTakedown({
+      items: [item],
+      linkedPaths,
+    });
+    if (!confirmed) {
+      return { kind: "rest" };
+    }
+  } else {
+    const ok = (ctx.confirm ?? ((b) => window.confirm(b)))(
+      formatTakedownConfirmBody(linked),
+    );
+    if (!ok) {
+      return { kind: "rest" };
+    }
   }
   // HTTP 400/403/404/409 names the item so the operator knows which row
   // failed; the list is not refreshed and the selection stays (#5630).

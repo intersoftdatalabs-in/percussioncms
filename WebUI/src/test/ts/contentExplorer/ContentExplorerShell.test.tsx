@@ -650,7 +650,24 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       return url.includes("paginatedFolder") || url.includes("/folder/");
     }).length;
 
+    screen.getByTestId("action-toolbar-item-Take_Down").focus();
     fireEvent.click(screen.getByTestId("action-toolbar-item-Take_Down"));
+
+    // Single-item Take Down confirms through the accessible dialog (#6996):
+    // the application-level failure lands in the Server-actions banner.
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-takedown-confirm"),
+      ).toBeInTheDocument();
+    });
+    expect(screen.getByTestId("explorer-takedown-confirm")).toHaveAttribute(
+      "role",
+      "alertdialog",
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-takedown-cancel")).toHaveFocus();
+    });
+    fireEvent.click(screen.getByTestId("explorer-takedown-confirm-ok"));
 
     await waitFor(() => {
       expect(
@@ -667,6 +684,12 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       return url.includes("paginatedFolder") || url.includes("/folder/");
     }).length;
     expect(folderLoadsAfter).toBe(folderLoadsBefore);
+    // The accessible dialog returns focus to the invoking toolbar control.
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("action-toolbar-item-Take_Down"),
+      ).toHaveFocus();
+    });
     await renderA11yGate(container);
   });
 

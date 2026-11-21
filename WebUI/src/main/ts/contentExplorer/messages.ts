@@ -1036,6 +1036,10 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Nothing in the selection can be taken down. Folders are not taken down.",
   TAKEDOWN_FAILED:
     "perc.ui.explorer@Take down failed: {detail}",
+  TAKEDOWN_DIALOG_TITLE:
+    "perc.ui.explorer@Take down (unpublish)",
+  TAKEDOWN_DIALOG_CONFIRM:
+    "perc.ui.explorer@Take down",
   CONFIRM_STAGE:
     "perc.ui.explorer@Stage this item to the staging server?",
   CONFIRM_STAGE_MULTI:

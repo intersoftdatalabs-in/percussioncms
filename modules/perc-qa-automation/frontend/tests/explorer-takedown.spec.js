@@ -18,9 +18,11 @@
 /**
  * Explorer single-item Take Down / unpublish (#5630 / parent #4530).
  *
- * <p>One selected page row + Take Down asks once, unpublishes that item,
- * and refreshes the row. Cancel takes nothing down. HTTP 400/403/404/409 names
- * the item and leaves the selection intact.</p>
+ * <p>One selected page row + Take Down opens the accessible confirm dialog
+ * (#6996: alertdialog chrome, focus starts on Cancel, Escape cancels with
+ * focus return), unpublishes that item, and refreshes the row. Cancel takes
+ * nothing down. HTTP 400/403/404/409 names the item and leaves the
+ * selection intact.</p>
  *
  * <p>Run (QA mode after {@code perc-devctl qa-up}):
  * {@code npm run test:surface -- --path tests/explorer-takedown.spec.js}
@@ -81,6 +83,23 @@ async function installTakedownRoutes(page, opts = {}) {
       body: JSON.stringify({ ArrayList: [] }),
     });
   });
+  // Mock the checkout-owner lookup so the mocked row ids never hit the
+  // real server (a lookup for a fake id logs a server ERROR). Benign
+  // reader assignment: nothing is checked out.
+  await page.route("**/rest/editor/items/**/checkout-owner", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        EditorItemLockInfo: {
+          itemName: "Home",
+          checkOutUser: "",
+          currentUser: "Admin",
+          assignmentType: "Reader",
+        },
+      }),
+    });
+  });
   const fulfill = async (route) => {
     const url = route.request().url();
     if (url.includes("/staging/")) {
@@ -135,15 +154,23 @@ test.describe("Explorer single-item Take Down", () => {
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        expect(dialog.message()).toMatch(/Take down \(unpublish\) this item/i);
-        void dialog.accept();
-      });
       const takenDown = await installTakedownRoutes(page);
       await openListing(page);
       const button = page.locator('[data-testid="action-toolbar-item-Take_Down"]');
       await expect(button).toBeVisible({ timeout: 15_000 });
-      await button.click();
+      // Keyboard path: focus the toolbar control and activate with Enter.
+      await button.focus();
+      await page.keyboard.press("Enter");
+      const dialog = page.locator('[data-testid="explorer-takedown-confirm"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await expect(dialog).toHaveAttribute("role", "alertdialog");
+      await expect(dialog).toContainText(/Take down \(unpublish\) this item/i);
+      // Destructive confirm: focus starts on Cancel, not Take down.
+      await expect(page.locator('[data-testid="explorer-takedown-cancel"]')).toBeFocused();
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="explorer-takedown-confirm"]',
+      });
+      await page.locator('[data-testid="explorer-takedown-confirm-ok"]').click();
       await expect.poll(() => takenDown.length).toBe(1);
       expect(takenDown.some((url) => url.includes("/takedown/page/42"))).toBe(true);
       await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
@@ -168,12 +195,13 @@ test.describe("Explorer single-item Take Down", () => {
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        void dialog.dismiss();
-      });
       const takenDown = await installTakedownRoutes(page);
       await openListing(page);
       await page.locator('[data-testid="action-toolbar-item-Take_Down"]').click();
+      const dialog = page.locator('[data-testid="explorer-takedown-confirm"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await page.locator('[data-testid="explorer-takedown-cancel"]').click();
+      await expect(dialog).toBeHidden({ timeout: 10_000 });
       await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
         "data-list-epoch",
         "0",
@@ -187,6 +215,32 @@ test.describe("Explorer single-item Take Down", () => {
   );
 
   test(
+    "Escape cancels and returns focus to the toolbar button",
+    {
+      tag: ["@explorer", "@explorer-takedown", "@explorer-single-takedown"],
+    },
+    async ({ page }) => {
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      const takenDown = await installTakedownRoutes(page);
+      await openListing(page);
+      const button = page.locator('[data-testid="action-toolbar-item-Take_Down"]');
+      await button.click();
+      const dialog = page.locator('[data-testid="explorer-takedown-confirm"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await page.keyboard.press("Escape");
+      await expect(dialog).toBeHidden({ timeout: 10_000 });
+      expect(takenDown).toEqual([]);
+      await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
+        "data-list-epoch",
+        "0",
+      );
+      await expect(button).toBeFocused({ timeout: 10_000 });
+      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
+    },
+  );
+
+  test(
     "HTTP 403 names the item and keeps the selection",
     {
       tag: ["@explorer", "@explorer-takedown", "@explorer-single-takedown"],
@@ -194,12 +248,12 @@ test.describe("Explorer single-item Take Down", () => {
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        void dialog.accept();
-      });
       const takenDown = await installTakedownRoutes(page, { homeStatus: 403 });
       await openListing(page);
       await page.locator('[data-testid="action-toolbar-item-Take_Down"]').click();
+      const dialog = page.locator('[data-testid="explorer-takedown-confirm"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await page.locator('[data-testid="explorer-takedown-confirm-ok"]').click();
       const error = page.locator('[data-testid="explorer-server-actions-error"]');
       await expect(error).toBeVisible({ timeout: 10_000 });
       await expect(error).toContainText(/Home \(HTTP 403\)/i);
@@ -224,12 +278,12 @@ test.describe("Explorer single-item Take Down", () => {
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        void dialog.accept();
-      });
       const takenDown = await installTakedownRoutes(page, { homeStatus: 400 });
       await openListing(page);
       await page.locator('[data-testid="action-toolbar-item-Take_Down"]').click();
+      const dialog = page.locator('[data-testid="explorer-takedown-confirm"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await page.locator('[data-testid="explorer-takedown-confirm-ok"]').click();
       const error = page.locator('[data-testid="explorer-server-actions-error"]');
       await expect(error).toBeVisible({ timeout: 10_000 });
       await expect(error).toContainText(/Home \(HTTP 400\)/i);
