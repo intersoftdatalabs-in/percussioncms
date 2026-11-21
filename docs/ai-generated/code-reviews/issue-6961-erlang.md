@@ -1,0 +1,34 @@
+## Summary
+
+Machine analysis found **1** finding(s) (1 suppressed), **0** blocking bug(s).
+
+## Scope
+
+- Base: origin/main
+- Head: HEAD
+- Files: 2 analyzed
+- In-diff: 1 finding(s); preexisting: 0
+- Persona: erlang 0.1.1
+- Persona source: ~/.local/share/mkd/agents/erlang
+
+## Recommendation
+
+approve
+
+## Gate
+
+- Blocking bugs: 0
+- May commit/push: yes
+
+## Issues
+
+_No active issues._
+
+### Suppressed Findings (1)
+
+<details>
+<summary>Click to view suppressed findings (not blocking gate)</summary>
+
+- `paths.hardcoded_sep` on `projects/sitemanage/src/main/java/com/percussion/share/dao/impl/PSItemSummaryService.java:364` -- *Justification*: : adjudicated intentional (issue #6549, (via in_source_mkd)
+
+</details>
