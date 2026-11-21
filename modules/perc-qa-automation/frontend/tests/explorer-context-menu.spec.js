@@ -350,4 +350,118 @@ test.describe("modern React Content Explorer — nested row context MENU (#3629)
       await expect(menu).toBeHidden();
     },
   );
+
+  test(
+    "slot-less Arrange children render aria-disabled with slot tooltip; activation is a no-op (#6950)",
+    { tag: ["@explorer-context-menu", "@explorer"] },
+    async ({ page }) => {
+      const rows = await openFolderWithEnabledRows(page);
+
+      // Expected Arrange children come from the live catalog so a seed
+      // change fails here with a catalog-shaped message, not a timeout.
+      const catalog = await fetchActionsFind(page);
+      expect(
+        catalog.url,
+        "GET /actions/find must succeed so slot-less Arrange children are asserted (#6950)",
+      ).toBeTruthy();
+      expect(
+        catalog.status,
+        `GET /actions/find must be HTTP 200, got ${catalog.status} at ${catalog.url}`,
+      ).toBe(200);
+      const arrangeCatalog = collectMenuParents(catalog.payload).find(
+        (p) => p.name === "Arrange",
+      );
+      expect(
+        arrangeCatalog,
+        "GET /actions/find must include the Arrange MENU parent",
+      ).toBeDefined();
+      expect(
+        arrangeCatalog?.childNames.length ?? 0,
+        "Arrange must have slot-less children to assert (#6950)",
+      ).toBeGreaterThan(0);
+      const arrangeChildren = arrangeCatalog?.childNames ?? [];
+
+      await rows.first().click({ button: "right" });
+      const menu = page.locator(`[data-testid="${TEST_IDS.contextMenu}"]`);
+      await expect(menu).toBeVisible({ timeout: 10_000 });
+
+      // Folder browse selects no Active Assembly slot, so every Arrange
+      // child must render the #6950 disabled contract (same as the
+      // toolbar #6915 state).
+      const arrangeItem = menu.locator(
+        '[data-testid="context-menu-item-Arrange"][aria-haspopup="menu"]',
+      );
+      await expect(
+        arrangeItem,
+        'Arrange pivot must stay a nested pivot on a slot-less row',
+      ).toBeVisible();
+      await arrangeItem.evaluate((el) => {
+        el.scrollIntoView({ block: "center", inline: "nearest" });
+        el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+      const submenu = page.locator(
+        '[data-testid="context-menu-submenu-Arrange"]',
+      );
+      await expect(submenu).toBeVisible({ timeout: 5_000 });
+
+      for (const childName of arrangeChildren) {
+        const kid = submenu.locator(
+          `[data-testid="context-menu-item-${childName}"]`,
+        );
+        await expect(
+          kid,
+          `Arrange child "${childName}" must render in the open submenu`,
+        ).toBeVisible();
+        await expect(
+          kid,
+          `slot-less "${childName}" must be aria-disabled`,
+        ).toHaveAttribute("aria-disabled", "true");
+        await expect(
+          kid,
+          `slot-less "${childName}" tooltip must name the missing slot`,
+        ).toHaveAttribute("title", /slot/i);
+        await expect(
+          kid,
+          `slot-less "${childName}" accessible name must name the missing slot`,
+        ).toHaveAttribute("aria-label", /slot/i);
+        // Disabled children stay focusable so keyboard and screen-reader
+        // discovery are unchanged (same contract as the toolbar).
+        await expect(
+          kid,
+          `slot-less "${childName}" must stay focusable`,
+        ).toHaveAttribute("tabindex", "0");
+      }
+      // The Arrange pivot itself stays enabled so the submenu stays
+      // discoverable for keyboard and screen-reader operators.
+      await expect(arrangeItem).not.toHaveAttribute("aria-disabled", "true");
+
+      // Dispatched activation on a disabled child is a no-op: the
+      // submenu stays open and no invoke navigation or dialog follows.
+      const firstChild = submenu.locator(
+        `[data-testid="context-menu-item-${arrangeChildren[0]}"]`,
+      );
+      await firstChild.evaluate((el) => {
+        el.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      });
+      await expect(
+        submenu,
+        "clicking a disabled Arrange child must keep the submenu open",
+      ).toBeVisible();
+      await firstChild.focus();
+      await page.keyboard.press("Enter");
+      await expect(
+        submenu,
+        "Enter on a disabled Arrange child must keep the submenu open",
+      ).toBeVisible();
+
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="context-menu"]',
+      });
+
+      // Escape closes the popup. Focus placement on close is #6864's
+      // slice — not asserted here.
+      await page.keyboard.press("Escape");
+      await expect(menu).toBeHidden();
+    },
+  );
 });
