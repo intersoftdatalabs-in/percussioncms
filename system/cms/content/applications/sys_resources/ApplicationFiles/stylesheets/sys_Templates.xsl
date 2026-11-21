@@ -1491,8 +1491,53 @@ onchange    %Script;       #IMPLIED
             </span>
          </div>
          <script>
-            var editor = CodeMirror.fromTextArea(document.getElementById('<xsl:value-of select="@paramName" />'), {
-            mode: '<xsl:value-of select="$codeeditor_effective_mode" />',
+            // Issue #6902: the npm CodeMirror bundle may fail to load (404,
+            // deploy skew, ad-blocker). Guard the enhancement: when the
+            // global is missing (or fromTextArea throws), leave the plain
+            // textarea editable and render a role=alert load notice instead
+            // of throwing and aborting this script block. The bundle-present
+            // path below is unchanged (including autofocus).
+            var editor = null;
+            function percCodeEditorShowLoadError(fieldId) {
+               var badge = document.querySelector('[data-perc-codeeditor-mode-badge="' + fieldId + '"]');
+               var host = badge ? badge.parentNode : null;
+               if (host === null || host === undefined) {
+                  return;
+               }
+               if (host.querySelector('[data-perc-codeeditor-load-error="' + fieldId + '"]')) {
+                  return;
+               }
+               var notice = document.createElement('span');
+               notice.setAttribute('role', 'alert');
+               notice.setAttribute('data-perc-codeeditor-load-error', fieldId);
+               notice.textContent = 'Code editor could not be loaded. You can still edit this field as plain text.';
+               host.appendChild(notice);
+               var field = document.getElementById(fieldId);
+               if (field) {
+                  field.removeAttribute('readonly');
+                  field.removeAttribute('disabled');
+               }
+               var toolbarButton = host.querySelector('[data-perc-codeeditor-theme-toggle="' + fieldId + '"]');
+               if (toolbarButton) {
+                  toolbarButton.disabled = true;
+               }
+               var decreaseButton = host.querySelector('[data-perc-codeeditor-font-decrease="' + fieldId + '"]');
+               if (decreaseButton) {
+                  decreaseButton.disabled = true;
+               }
+               var increaseButton = host.querySelector('[data-perc-codeeditor-font-increase="' + fieldId + '"]');
+               if (increaseButton) {
+                  increaseButton.disabled = true;
+               }
+            }
+            function percCodeEditorInit(fieldId, mode) {
+               if (typeof CodeMirror === 'undefined' || typeof CodeMirror.fromTextArea !== 'function') {
+                  percCodeEditorShowLoadError(fieldId);
+                  return null;
+               }
+               try {
+                  return CodeMirror.fromTextArea(document.getElementById(fieldId), {
+                  mode: mode,
             theme: 'default',
             lineNumbers: true,
             gutters: ["CodeMirror-linenumbers", "CodeMirror-lint-markers"],
@@ -1508,7 +1553,13 @@ onchange    %Script;       #IMPLIED
             autocorrect: true,
             autofocus: true,
             screenReaderLabel: 'HTML Source Code Editor'});
-            window.percCodeEditorInstances = window.percCodeEditorInstances || {};
+                } catch (editorError) {
+                   percCodeEditorShowLoadError(fieldId);
+                   return null;
+                }
+             }
+             editor = percCodeEditorInit('<xsl:value-of select="@paramName" />', '<xsl:value-of select="$codeeditor_effective_mode" />');
+             window.percCodeEditorInstances = window.percCodeEditorInstances || {};
             function percCodeEditorSyncPrefsUi(fieldId) {
                var entry = window.percCodeEditorInstances[fieldId];
                if (entry === undefined || entry === null) {
@@ -1572,6 +1623,12 @@ onchange    %Script;       #IMPLIED
             }
             (function () {
                var fieldId = '<xsl:value-of select="@paramName" />';
+               if (editor === null || editor === undefined) {
+                  return;
+               }
+               if (typeof CodeMirror === 'undefined') {
+                  return;
+               }
                var api = CodeMirror.percCodeEditorPrefs;
                if (api === undefined || api === null) {
                   return;
