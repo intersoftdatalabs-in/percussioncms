@@ -38,6 +38,14 @@ Erlang skill CLI before opening a PR; host/peer phases still spawn the
   source of truth.
 - Runs with `--standalone` so the private server inherits the NIGHT_* env
   vars. A shared background service may have been started without them.
+- Per-worktree Maven isolation (#6707, on by default): the launcher
+  prepends `-Dmaven.repo.local=<worktree>/tmp/m2-worktree/repository` to
+  `MAVEN_ARGS` and records the effective path in `NIGHT_M2_REPO`, so night
+  agents never overwrite the shared `~/.m2` SNAPSHOTs another cell boots.
+  An explicit `-Dmaven.repo.local` already present in `MAVEN_ARGS` keeps
+  winning (Maven last-wins); `--no-m2-isolate` opts out entirely. The
+  launcher creates the directory but never seeds it — warm-start once via
+  `python3 docker/scripts/maven_local_repo.py --repo-root <worktree>`.
 - The `--dry-run` flag prints the resolved command without invoking `opencode`.
   Use it for cron wiring validation.
 
@@ -49,6 +57,7 @@ Erlang skill CLI before opening a PR; host/peer phases still spawn the
                                                 [--include-pr-followup | --no-include-pr-followup]
                                                 [--model MODEL] [--command NAME | --prompt TEXT]
                                                 [--sync-from-local] [--no-worktree-create]
+                                                [--m2-isolate | --no-m2-isolate]
                                                 [--dry-run] [-v]
 
 ## Examples
@@ -92,6 +101,7 @@ import argparse
 import json
 import logging
 import os
+import re
 import shlex
 import shutil
 import subprocess
@@ -104,6 +114,13 @@ DEFAULT_BASE_BRANCH = "main"
 AGENT_NAME = "night-worker"
 COMMAND_DIR = Path(".opencode") / "commands"
 ARGUMENTS_PLACEHOLDER = "$ARGUMENTS"
+
+# Per-worktree Maven local repository segment (#6707). The layout mirrors
+# docker/scripts/maven_local_repo.worktree_local_repository so the launcher
+# and the QA helpers resolve the same directory by construction.
+_M2_WORKTREE_DIRNAME = "m2-worktree"
+_M2_SEED_MARKER = ".worktree-m2-seeded"
+_REPO_LOCAL_RE = re.compile(r"""-Dmaven\.repo\.local=(?:"([^"]*)"|'([^']*)'|(\S+))""")
 
 LOGGER = logging.getLogger(__name__)
 
@@ -421,6 +438,23 @@ def build_env(args: argparse.Namespace, worktree: Path, base_branch: str, report
     env["NIGHT_OPERATOR"] = "opencode"
     env["NIGHT_MAX_PARALLEL_WORK"] = str(getattr(args, "max_parallel_work", 1))
     env.setdefault("NIGHT_CODING_TOOL", "OpenCode")
+    if getattr(args, "m2_isolate", True):
+        # Per-worktree Maven local repo (#6707): night agents used to share
+        # ~/.m2 across shards, so a `clean install` from a feature branch
+        # overwrote the rest/sitemanage SNAPSHOTs another cell's qa-up then
+        # booted (Frankenstein classpath, Spring context failure). Prepend
+        # (not append): Maven applies the LAST -Dmaven.repo.local, so an
+        # explicit operator value already in MAVEN_ARGS keeps winning while
+        # the default run isolates into the worktree.
+        repo = worktree_maven_repo(worktree)
+        existing = env.get("MAVEN_ARGS", "")
+        flag = maven_repo_local_flag(repo)
+        if str(repo) not in existing:
+            env["MAVEN_ARGS"] = f"{flag} {existing}" if existing.strip() else flag
+        explicit = last_repo_local_value(existing)
+        env["NIGHT_M2_REPO"] = (
+            str(Path(os.path.expanduser(explicit))) if explicit else str(repo)
+        )
     # Keep PWD in sync with cwd so subprocess shells (and opencode's bash
     # tool) resolve relative paths from the worktree, not from wherever
     # this launcher was invoked. Windows MSYS / Git-Bash may re-derive
@@ -428,6 +462,58 @@ def build_env(args: argparse.Namespace, worktree: Path, base_branch: str, report
     # best-effort sync for POSIX shells and most modern Windows tools.
     env["PWD"] = str(worktree)
     return env
+
+
+def worktree_maven_repo(worktree: Path) -> Path:
+    """Return the per-worktree Maven local repository for a checkout (#6707).
+
+    Portable: built with ``pathlib`` joins only, never string separators.
+    Distinct for every worktree because ``worktree`` differs per worktree.
+    The directory lives under ``<worktree>/tmp`` (gitignored repo temp dir
+    per root AGENTS.md) so it vanishes with the worktree and never pollutes
+    ``git status``. Layout matches
+    ``docker/scripts/maven_local_repo.worktree_local_repository`` (which
+    also resolves, so the two agree even across symlinked ``/tmp``).
+    """
+    return Path(worktree).resolve() / "tmp" / _M2_WORKTREE_DIRNAME / "repository"
+
+
+def maven_repo_local_flag(repo: Path) -> str:
+    """Format ``-Dmaven.repo.local=...`` for ``MAVEN_ARGS`` / ``MAVEN_OPTS``.
+
+    Values containing whitespace are wrapped in double quotes because the
+    ``mvn`` launcher whitespace-splits those variables; quoting matches the
+    canonical ``docker/scripts/maven_local_repo.repo_local_flag``.
+    """
+    text = str(repo)
+    if any(ch.isspace() for ch in text):
+        text = f'"{text}"'
+    return f"-Dmaven.repo.local={text}"
+
+
+def last_repo_local_value(text: str) -> str | None:
+    """Return the last ``-Dmaven.repo.local=`` value in ``text`` (Maven: last wins)."""
+    if not text:
+        return None
+    value = None
+    for match in _REPO_LOCAL_RE.finditer(text):
+        value = next(g for g in match.groups() if g is not None)
+    return value
+
+
+def ensure_night_m2_repo(worktree: Path) -> Path:
+    """Create the per-worktree Maven local repository directory (#6707).
+
+    Creates the parent chain only — never copies or downloads artifacts, so
+    the launcher stays fast and side-effect-light. The first worktree
+    ``mvn`` run populates the repo; operators who want a warm start can
+    pre-seed third-party artifacts once via
+    ``python3 docker/scripts/maven_local_repo.py --repo-root <worktree>``.
+    Idempotent: safe to call on every run.
+    """
+    repo = worktree_maven_repo(worktree)
+    repo.mkdir(parents=True, exist_ok=True)
+    return repo
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -524,6 +610,20 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--m2-isolate",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "Isolate this run's Maven builds into the per-worktree local "
+            "repository <worktree>/tmp/m2-worktree/repository via MAVEN_ARGS "
+            "(default: true; #6707). Without it, branch-built rest/sitemanage "
+            "SNAPSHOTs overwrite the shared ~/.m2 every other cell boots. "
+            "Pass --no-m2-isolate only when the operator manages "
+            "-Dmaven.repo.local explicitly. An explicit -Dmaven.repo.local "
+            "already present in MAVEN_ARGS always wins (Maven last-wins)."
+        ),
+    )
+    parser.add_argument(
         "--log-level",
         default="INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
@@ -571,6 +671,12 @@ def main(argv: list[str] | None = None) -> int:
         )
         LOGGER.info("dry-run: cwd=%s", worktree)
         LOGGER.info("dry-run: env NIGHT_WORKTREE_PATH=%s NIGHT_BASE_BRANCH=%s NIGHT_REPORT_PATH=%s NIGHT_MAX_PARALLEL_WORK=%s", worktree, base_branch, report, getattr(args, "max_parallel_work", 1))
+        LOGGER.info(
+            "dry-run: m2 isolation=%s repo=%s MAVEN_ARGS=%s",
+            getattr(args, "m2_isolate", True),
+            env.get("NIGHT_M2_REPO", "<shared>"),
+            env.get("MAVEN_ARGS", "<unchanged>"),
+        )
         if not worktree_exists(worktree):
             LOGGER.info("dry-run: worktree does not exist yet; would create from origin/%s", base_branch)
         return 0
@@ -588,6 +694,17 @@ def main(argv: list[str] | None = None) -> int:
         run_worktree_cleanup(repo_root, include_no_pr=args.cleanup_include_no_pr)
 
     report.parent.mkdir(parents=True, exist_ok=True)
+
+    if getattr(args, "m2_isolate", True):
+        # Create the per-worktree repo dir now so the path exported in
+        # MAVEN_ARGS exists before the agent's first `mvn` (which would
+        # create it anyway — this just makes dry-run logs and preflight
+        # resolution deterministic). Never seeds or downloads: the first
+        # build populates it; see ensure_night_m2_repo.
+        m2_repo = ensure_night_m2_repo(worktree)
+        LOGGER.info("per-worktree Maven local repo: %s", m2_repo)
+    else:
+        LOGGER.info("m2 isolation disabled (--no-m2-isolate); using shared local repo")
 
     LOGGER.info("invoking: %s", shlex.join(cmd))
     try:
