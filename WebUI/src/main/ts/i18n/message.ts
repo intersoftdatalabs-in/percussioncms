@@ -165,6 +165,8 @@ export const MSG = {
   NO_SITES_ADMIN: "perc.ui.home@Click Create Site",
   // Publishing shell (reuse perc.ui.publish.* where present; net-new under modern)
   PUBLISH_TITLE: "perc.ui.navMenu.publish@Publish",
+  PUBLISH_SUBTITLE:
+    "perc.ui.publish.modern@Sites & servers first — Design and Runtime available when needed.",
   PUBLISH_SECTION_SITES: "perc.ui.publish.modern@Sites & Servers",
   PUBLISH_SECTION_STATUS: "perc.ui.publish.title@Status",
   PUBLISH_SECTION_LOGS: "perc.ui.publish.modern@Logs",

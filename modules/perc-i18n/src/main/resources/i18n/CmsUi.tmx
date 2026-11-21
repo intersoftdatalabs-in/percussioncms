@@ -26065,6 +26065,10 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Showing {0} of {1} history rows">
       <tuv xml:lang="en-us"><seg>Showing {0} of {1} history rows</seg></tuv>
     </tu>
+    <!-- #6894: PublishingShell header subtitle as i18n key. en-us only. -->
+    <tu tuid="perc.ui.publish.modern@Sites &amp; servers first — Design and Runtime available when needed.">
+      <tuv xml:lang="en-us"><seg>Sites &amp; servers first — Design and Runtime available when needed.</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.publish.modern@Publish Forbidden">
       <tuv xml:lang="en-us"><seg>You are not allowed to publish.</seg></tuv>
       <tuv xml:lang="ar"><seg>غير مسموح لك بالنشر.</seg></tuv>
