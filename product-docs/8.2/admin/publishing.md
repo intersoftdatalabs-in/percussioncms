@@ -31,6 +31,16 @@ channels (static files, FTP, database, custom locations).
 
 Directory / Faculty Directory pages list people by **query** (organization and department on `percPerson`), not by unlinking members from the Directory asset. After a person is correctly non-matching, use full site publish or an explicit page publish, then purge CDN if disk HTML is clean but HTTP is stale. Procedure: [Faculty Directory membership and publish](id:admin-faculty-directory).
 
+### Operate the Publishing shell by keyboard (Publishing shell)
+
+From **Publish** (`spa.jsp?entry=publish`), the section nav (**Sites**, **Status**, **Logs**,
+**Design**, **Runtime**) is a single tab stop: **Tab** lands on the open section, then
+**ArrowRight** / **ArrowLeft** move across the sections (wrapping at the ends) and open the
+newly focused section, while **Home** / **End** jump to **Sites** / **Runtime**. Pointer
+clicks keep working unchanged; the arrow keys are the keyboard equivalent of clicking a
+section. When a panel has unsaved changes, the shell asks to confirm before the section
+switches, and focus stays on the current section when the switch is cancelled.
+
 ### Create a site (Publishing shell)
 
 From **Publish** (`spa.jsp?entry=publish`), the **Sites** toolbar **Create site** button (and the
