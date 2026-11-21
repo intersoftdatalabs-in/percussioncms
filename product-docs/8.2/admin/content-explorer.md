@@ -1222,7 +1222,11 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
 - **Right-click a selected list row** (Sites, Assets, or a folder with children)
   opens the same catalog as a **nested context menu** — MENU parents stay
   expandable, not a flat list of every child label. Desktop-only actions stay hidden.
-  Keyboard equivalent: focus the row and press **Shift+F10** (or the context-menu key)
+  The **Arrange** parent opens a submenu with **Move Up/Left**, **Move
+  Down/Right**, **Change Template/Slot**, and **Remove from Slot** (the same
+  children as the Server actions toolbar dropdown); choosing a child without
+  an Active Assembly slot snippet selected names what is missing instead of
+  calling the server. Keyboard equivalent: focus the row and press **Shift+F10** (or the context-menu key)
   to open the same row-scoped menu anchored at the row; plain **F10** does nothing.
   The popup names the row, answers immediately with a **Loading actions…**
   placeholder while the catalog resolves, moves focus inside, and **Escape** closes it,
