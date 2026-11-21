@@ -1217,6 +1217,10 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
 - **Right-click a selected list row** (Sites, Assets, or a folder with children)
   opens the same catalog as a **nested context menu** — MENU parents stay
   expandable, not a flat list of every child label. Desktop-only actions stay hidden.
+  Keyboard equivalent: focus the row and press **Shift+F10** (or the context-menu key)
+  to open the same row-scoped menu anchored at the row; plain **F10** does nothing.
+  The popup names the row, answers immediately with a **Loading actions…**
+  placeholder while the catalog resolves, moves focus inside, and **Escape** closes it.
 - **Right-click a folder in the navigation tree** (or focus the tree row and press
   **Shift+F10** / the context-menu key) opens the same server catalog scoped to
   that folder, so tree-only operators reach the folder commands without selecting
