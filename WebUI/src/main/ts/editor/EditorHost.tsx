@@ -54,6 +54,7 @@ import { formatApiError, isApiError, isSessionRedirectError } from "../api/clien
 import { CopyDestinationPickerDialog } from "../contentExplorer/CopyDestinationPickerDialog";
 import { MoveDestinationPickerDialog } from "../contentExplorer/MoveDestinationPickerDialog";
 import { parsePositiveInt } from "../assembly/assemblyHostUrl";
+import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { message } from "../i18n/message";
 import { mergeEditorRows, type EditorFieldRow } from "./controlKinds";
 import {
@@ -1363,6 +1364,30 @@ export function EditorHost({
   const [publishServerError, setPublishServerError] = useState<string | null>(
     null,
   );
+  /**
+   * Publish now opener for focus return (#6932). The confirm dialog
+   * unmounts on close, so the shared escape hook cannot restore focus —
+   * the close paths below return focus here explicitly.
+   */
+  const publishButtonRef = useRef<HTMLButtonElement | null>(null);
+
+  function focusPublishButton(): void {
+    const el = publishButtonRef.current;
+    if (el && typeof el.focus === "function" && document.contains(el)) {
+      el.focus();
+    }
+  }
+
+  // Return focus to Publish now after the confirm closes (#6932). The
+  // confirm unmounts on close while its button is still disabled, so focus
+  // must wait for the commit that re-enables the button.
+  const prevPublishOpenRef = useRef(false);
+  useEffect(() => {
+    if (prevPublishOpenRef.current && !publishOpen) {
+      focusPublishButton();
+    }
+    prevPublishOpenRef.current = publishOpen;
+  }, [publishOpen]);
   const [scheduleOpen, setScheduleOpen] = useState(false);
   const [scheduleBusy, setScheduleBusy] = useState(false);
   const [scheduleSaving, setScheduleSaving] = useState(false);
@@ -5291,12 +5316,16 @@ export function EditorHost({
           {showPublish ? (
             <button
               type="button"
+              ref={publishButtonRef}
               className={styles.button}
               data-testid="editor-publish-now"
               disabled={
                 publishBusy || publishOpen || loading || payload == null || saving
               }
-              onClick={() => handleOpenPublish()}
+              onClick={(e) => {
+                captureDialogOpener(e.currentTarget);
+                handleOpenPublish();
+              }}
             >
               {message(publishBusy ? EDITOR_MSG.PUBLISHING : EDITOR_MSG.PUBLISH_NOW)}
             </button>

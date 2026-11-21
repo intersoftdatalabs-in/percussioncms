@@ -15,8 +15,11 @@
  * limitations under the License.
  */
 
-import React from "react";
-import { useDialogEscape } from "../architecture/useDialogEscape";
+import React, { useRef } from "react";
+import {
+  useDialogEscape,
+  useDialogFocusTrap,
+} from "../architecture/useDialogEscape";
 import { message } from "../i18n/message";
 import { EDITOR_MSG } from "./messages";
 
@@ -31,6 +34,11 @@ export interface EditorPublishNowDialogProps {
 /**
  * One confirm demand-publishes the open editor page or asset (#5939).
  * Cancel does not call the server. Failures stay on this dialog.
+ *
+ * <p>Keyboard/a11y (#6932): Tab cycles inside the modal, initial focus
+ * lands on Cancel, Escape cancels, and focus returns to the Publish now
+ * button on close. A server failure is announced via an alert and linked
+ * from the confirm button with {@code aria-describedby}.</p>
  */
 export function EditorPublishNowDialog({
   busy = false,
@@ -39,9 +47,13 @@ export function EditorPublishNowDialog({
   onConfirm,
 }: EditorPublishNowDialogProps): React.ReactElement {
   useDialogEscape(true, busy, onCancel);
+  const dialogRef = useRef<HTMLDivElement | null>(null);
+  useDialogFocusTrap(true, dialogRef);
+  const errorId = "editor-publish-now-error";
 
   return (
     <div
+      ref={dialogRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby="editor-publish-now-title"
@@ -85,6 +97,7 @@ export function EditorPublishNowDialog({
         {serverError ? (
           <p
             role="alert"
+            id={errorId}
             data-testid="editor-publish-now-error"
             style={{ color: "#b91c1c", fontSize: 13, margin: "8px 0 0" }}
           >
@@ -110,6 +123,7 @@ export function EditorPublishNowDialog({
           <button
             type="submit"
             data-testid="editor-publish-now-confirm"
+            aria-describedby={serverError ? errorId : undefined}
             disabled={busy}
           >
             {message(

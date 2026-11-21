@@ -501,7 +501,12 @@ application-level `FORBIDDEN`, `BADCONFIG`, `NOSTAGING_SERVERS`, or `INVALID` is
 failure: the dialog shows the server warning and does not treat the job as started.
 HTTP **400** (the request was rejected), **403** (publish not allowed), and **409**
 (the item cannot be published right now) stay on the dialog — they are not success,
-the dialog stays open, and the item stays open.
+the dialog stays open, and the item stays open. Keyboard: opening the dialog moves
+focus to **Cancel**, **Tab** cycles between **Cancel** and **Publish** without leaving
+the dialog, **Escape** cancels and returns focus to **Publish now**, and a successful
+publish returns focus there as well. A server failure is announced in the dialog and
+linked from the **Publish** button for assistive tech. Dialog strings resolve through
+the TMX catalog (`perc.ui.editor@…`).
 **View** and **Promote** stay read-only (no Publish now). Templates and other
 non-page/non-asset types stay unavailable. Does not open the demand-publish servlet.
 

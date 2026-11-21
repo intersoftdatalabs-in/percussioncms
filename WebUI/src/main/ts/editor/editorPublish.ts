@@ -152,7 +152,11 @@ export async function publishEditorItem(
   const body = await get<unknown>(`${base}/${encodeURIComponent(id)}`);
   const preflight = mapPublishResponse(body);
   if (preflight) {
-    throw new Error(preflight.message || preflight.token || "Publish failed");
+    throw new Error(
+      preflight.message ||
+        preflight.token ||
+        message(EDITOR_MSG.PUBLISH_FAILED),
+    );
   }
   return true;
 }
@@ -216,7 +220,11 @@ export async function stageEditorItem(
   const body = await get<unknown>(`${base}/${encodeURIComponent(id)}`);
   const preflight = mapPublishResponse(body);
   if (preflight) {
-    throw new Error(preflight.message || preflight.token || "Stage failed");
+    throw new Error(
+      preflight.message ||
+        preflight.token ||
+        message(EDITOR_MSG.STAGE_FAILED),
+    );
   }
   return true;
 }
@@ -253,7 +261,9 @@ export async function removeEditorItemFromStaging(
   const preflight = mapPublishResponse(body);
   if (preflight) {
     throw new Error(
-      preflight.message || preflight.token || "Remove from staging failed",
+      preflight.message ||
+        preflight.token ||
+        message(EDITOR_MSG.REMOVE_FROM_STAGING_FAILED),
     );
   }
   return true;
@@ -304,7 +314,11 @@ export async function takedownEditorItem(
     linked.length > 0 ? await put<unknown>(url, linked) : await get<unknown>(url);
   const preflight = mapPublishResponse(body);
   if (preflight) {
-    throw new Error(preflight.message || preflight.token || "Takedown failed");
+    throw new Error(
+      preflight.message ||
+        preflight.token ||
+        message(EDITOR_MSG.TAKEDOWN_FAILED),
+    );
   }
   return true;
 }
