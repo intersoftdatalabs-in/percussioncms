@@ -1,0 +1,43 @@
+name: night-claim-cleanup
+
+# Issue #6890: the night-issue-prs queue claim adds the `in progress` label
+# the moment an issue enters the queue. Claims that reached a PR kept the
+# label after the PR merged and the issue auto-closed, so
+# `label:"in progress"` searches mixed live claims with finished work.
+# This workflow drops the label the moment any issue closes (merge-close or
+# manual close, human or agent) and posts a release marker so the claim
+# history resolves to no active claims. One-off backlog sweeps (issues
+# closed before this workflow existed) use:
+#   python3 scripts/night-queue-claim.py release-closed
+
+on:
+  issues:
+    types: [closed]
+
+permissions:
+  issues: write
+
+jobs:
+  release-claim:
+    name: release in-progress claim
+    if: >
+      contains(github.event.issue.labels.*.name, 'in progress') ||
+      contains(github.event.issue.labels.*.name, 'in-progress')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove in-progress label and record release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ISSUE: ${{ github.event.issue.number }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          for lab in "in progress" "in-progress"; do
+            if gh issue view "$ISSUE" --repo "$REPO" --json labels \
+                -q '.labels[].name' | grep -qx "$lab"; then
+              gh issue edit "$ISSUE" --repo "$REPO" --remove-label "$lab"
+            fi
+          done
+          gh issue comment "$ISSUE" --repo "$REPO" --body \
+            "night-issue-prs: claim released (issue_closed).
+          <!-- night-claim:v1 action=release cycle=workflow-${RUN_ID} host=github-actions reason=issue_closed scope=all -->"
