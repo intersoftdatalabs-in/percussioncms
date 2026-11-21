@@ -19,34 +19,46 @@
 #set($resourcePrefix = "")##
 #end##
 ##
+## Slice 2 (#6919/2) authors the v6 print equivalent: these rules target
+## 2.x grid classes, so print output stays unstyled until that slice.
       <link rel="stylesheet" href="$resourcePrefix/web_resources/widgets/calendarTwo/css/fullcalendar.print.css" type="text/css" media="print" />
       <style>
       @media only screen
       and (max-width: 480px)
       {
-        .fc-left {
-          float: left !important;
+        /* v6 retarget (slice 1, #6919): the v6 toolbar is a flex row of
+        three unstyled .fc-toolbar-chunk divs — the 2.x .fc-left/.fc-center/
+        .fc-right sections no longer render and v6 does not wrap the toolbar
+        by itself — so the stacking override targets the chunks. */
+        .fc-header-toolbar {
+          flex-wrap: wrap !important;
+        }
+        .fc-toolbar-chunk {
           display:block !important;
           width: 100% !important;
           margin: 5px !important;
           text-align: center !important;
         }
+      }
 
-        .fc-right {
-          float: left !important;
-          display:block !important;
-          width: 100% !important;
-          margin: 5px !important;
-          text-align: center !important;
-        }
-
-        .fc-center {
-          float: left !important;
-          display:block !important;
-          width: 100% !important;
-          margin: 5px !important;
-          text-align: center !important;
-        }
+      /* v6 toggle compat (slice 1, #6919): the Calendar/List toggle buttons
+      reuse the 2.x theme classes (.fc-state-default/.fc-corner-*) outside
+      the calendar root, which v6 never styles — carry the 2.x default look
+      here so the toggles keep their shape. */
+      .perc-toggle-button-container .fc-button.fc-state-default {
+        background-color: #f5f5f5;
+        background-image: linear-gradient(to bottom, #ffffff, #e6e6e6);
+        border: 1px solid #cccccc;
+        color: #333333;
+        text-shadow: 0 1px 1px rgba(255, 255, 255, 0.75);
+      }
+      .perc-toggle-button-container .fc-button.fc-corner-left {
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+      }
+      .perc-toggle-button-container .fc-button.fc-corner-right {
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
       }
 
       .perc-full-calendar {
@@ -196,17 +208,37 @@
       <script>
       window.addEventListener('DOMContentLoaded', function() {
       /**
-      * Extremely important note:
-      * The fullcalendar.js file has been modified to make the event list available
-      * as a global variable in the Perc namespace by resolving a deferred object. The object is
-      * resolved in the reportEvents function. Also, the stock fullcalendar.js file is hard-coded to
-      * Retrieve 6 weeks of events. This needed to be changed to allow for events in list view
-      * to appear even if they are beyond that 6 week range. The Perc.range property is set below
-      * depending on the layout type. This is used in the computeRange method in the JavaScript file.
-      * Updating the fullcalendar.js with a future version of the stock file will require a manual change
-      * to keep both of these modifications in place.
+      * v6 note (slice 1, issue #6919, plan #6687): the calendarTwo payload
+      * is now the stock FullCalendar v6.1.15 global bundle — no fork mods
+      * (WidgetPayloadVendoredJsAuditTest + widgetPayloadNpmParity.test.js
+      * pin byte-identity with the npm dists). The two Percussion behaviors
+      * the 2.x payload carried are re-derived in this template: (1) the
+      * per-widget Perc.events deferred is resolved inside the v6 events
+      * function (and by the list-view direct fetch) instead of the old
+      * reportEvents payload hunk; (2) the Perc.range month-expansion is
+      * replaced by an explicit 52-week fetch window for list layout (v6
+      * dayGridMonth always renders a fixed 6 weeks) instead of the old
+      * computeRange payload hunk. Perc.range is still assigned for
+      * compatibility but no longer steers fetching. Refreshing the payload
+      * to a future stock v6 dist needs no manual mod re-application.
       **/
 
+## v6 view mapping (slice 1, #6919): 2.x 'month' -> v6 'dayGridMonth';
+## 'agendaWeek'/'agendaDay' -> 'timeGridWeek'/'timeGridDay'; 'basicWeek'/
+## 'basicDay' -> 'dayGridWeek'/'dayGridDay' (basic hides times, see
+## displayEventTime below).
+#set($v6WeekView = 'timeGridWeek')
+#set($v6DayView = 'timeGridDay')
+#if($perc_calendar_detail == 'basic')
+#set($v6WeekView = 'dayGridWeek')
+#set($v6DayView = 'dayGridDay')
+#end
+#set($v6initialView = 'dayGridMonth')
+#if($perc_calendar_type == 'Week')
+#set($v6initialView = $v6WeekView)
+#elseif($perc_calendar_type == 'Day')
+#set($v6initialView = $v6DayView)
+#end
 	$(function(){
 
         $('#perc-event-list-${calendarContentId}-${widgetId}').hide();
@@ -218,6 +250,8 @@
         if(!Perc.events) {
             Perc.events = {};
         }
+        // Retained for compatibility (the 2.x computeRange payload mod is
+        // gone; list layout now fetches an explicit 52-week window below).
 #if($perc_layout_type == 'list')##
         Perc.range = 52;
 #else##
@@ -229,28 +263,129 @@
         var percShowCalIcon = '$perc_enable_calendar_icon';
         var percShowEventDate = '$perc_show_event_date';
         var percShowEventTime = '$perc_show_event_time';
+        var percCalendarTarget = 'calendar-${calendarContentId}-${widgetId}';
+        var percCalendarInstance = null;
 
-        initializeCalendar();
+        if( layoutType == 'list' ) {
+          percInitListView();
+        } else {
+          initializeCalendar();
+        }
 
         if( layoutType == 'calendar' ) {
           $('#perc-button-container-${calendarContentId}-${widgetId}').fadeIn();
         }
 
+        // Formats a native Date as YYYY-MM-DD for the DTS dated query.
+        // (v6 fetchInfo.start/end are native Dates; the 2.x snippet read the
+        // moment internals via start._d.)
+        function percFormatDtsDate(d) {
+          var month = (d.getMonth() + 1) < 10 ? '0' + (d.getMonth() + 1) : '' + (d.getMonth() + 1);
+          var day = d.getDate() < 10 ? '0' + d.getDate() : '' + d.getDate();
+          return d.getFullYear() + '-' + month + '-' + day;
+        }
+
+        // Shared DTS fetch behind both the month events function and the
+        // list-view direct fetch: two metadata calls (the backend has no OR
+        // operator) whose event arrays concatenate, mirroring the 2.x
+        // snippet. Returns a jQuery promise for the combined event array.
+        // Events pass through untouched (v6 maps unknown fields such as
+        // summary into extendedProps); date normalization for rendering
+        // happens in percNormalizeEvent below.
+        function percFetchDtsEvents(startValue, endValue) {
+          var serviceUrl = "/perc-metadata-services/metadata/dated/get";
+          /*
+            * get the results from delivery tier service and return
+            * below we are looking to restrict the amount of information
+            * pulled back from the DTS.  The dates are found and used to
+            * restrict to the current selected month in the calendar.
+            */
+          var dataObj = {"criteria":["type = 'page'", "perc:calendar = '$calName'", "perc:start_date >= '" + startValue + "'","perc:start_date <= '" + endValue + "'"]}
+          // here the last value condition perc:start_Date < is present to prevent duplicate events from populating between first call and second
+          var dataObj2 = {"criteria":["type = 'page'", "perc:calendar = '$calName'", "perc:end_date >= '" + startValue + "'", "perc:start_date < '" + startValue + "'"]}
+          /*
+            * Here we make two calls to the metadata service as a workaround as the backend currently doesn't support OR operations.
+            * @param endOfCall here the function is called twice, when endOfCall is true the combined events resolve the outer promise
+            * @param firstEvents passes the results from the first metadata call to the second call.
+            */
+          var makeApiCall = function(dataObj, endOfCall, firstEvents) {
+            var deferred = jQuery.Deferred();
+            jQuery.PercServiceUtils.makeXdmJsonRequest(null,serviceUrl,jQuery.PercServiceUtils.TYPE_POST,function(status, results)
+            {
+              if(status == jQuery.PercServiceUtils.STATUS_SUCCESS) {
+                if(endOfCall){
+                  if(typeof(firstEvents) === "undefined"){
+                    firstEvents = [];
+                  }
+                  deferred.resolve(firstEvents.concat(jQuery.PercServiceUtils.toJSON(results.data).events));
+                }
+                else
+                  deferred.resolve(jQuery.PercServiceUtils.toJSON(results.data).events);
+              }
+              else {
+                deferred.resolve([]);
+              }
+            }, dataObj);
+            return deferred.promise();
+          }
+          var combined = jQuery.Deferred();
+          jQuery.when( makeApiCall(dataObj, false, []) ).then(function(events) {
+            jQuery.when( makeApiCall(dataObj2, true, events) ).then(function(allEvents) {
+              combined.resolve(allEvents);
+            });
+          });
+          return combined.promise();
+        }
+
+        // Normalizes one raw event for the v6 pipeline: moment parses the
+        // same date shapes the 2.x build accepted, and native Dates keep the
+        // list renderer (moment(event.start)) working. Unknown fields ride
+        // along untouched into v6 extendedProps (summary, url, ...).
+        function percNormalizeEvent(event) {
+          var copy = jQuery.extend({}, event);
+          copy.start = moment(event.start).toDate();
+          if(event.end) {
+            copy.end = moment(event.end).toDate();
+          }
+          return copy;
+        }
+
+        // Resolves the per-widget Perc.events deferred consumed by the
+        // list-view renderer (re-derived from the 2.x reportEvents payload
+        // mod, which cannot ship in a stock v6 dist).
+        function percResolveWidgetEvents(events) {
+          Perc.events[percCalendarTarget].resolve(events);
+        }
+
         function initializeCalendar() {
 
-        $("#calendar-${calendarContentId}-${widgetId}").fullCalendar({
+        var calendarEl = document.getElementById(percCalendarTarget);
+        var calendarOptions = {
 
-            timeFormat: '${perc_time_format}',
-            #if($calStartDate != "")
-            defaultDate: '$calStartDate',
+            #if($perc_time_format == 'hh:mmt')
+            eventTimeFormat: { hour: 'numeric', minute: '2-digit', hour12: true },
+            #else
+            eventTimeFormat: { hour: 'numeric', minute: '2-digit', hour12: false },
             #end
-            lang: '${perc_calendar_display_language}',
+            #if($perc_calendar_detail == 'basic' && $perc_calendar_type != 'month')
+            displayEventTime: false,
+            #end
+            #if($perc_show_page_summary)
+            eventDataTransform: function(eventData) {
+              eventData.allDay = false;
+              return eventData;
+            },
+            #end
+            #if($calStartDate != "")
+            initialDate: '$calStartDate',
+            #end
+            locale: '${perc_calendar_display_language}',
             firstDay: $perc_start_day_number,
-            defaultView: '#if($perc_calendar_type != 'month')$perc_calendar_detail#end$perc_calendar_type',
-            header: {
+            initialView: '$v6initialView',
+            headerToolbar: {
                 left: 'title',
                 center: 'prev,next today',
-                right: 'month,${perc_calendar_detail}Week,${perc_calendar_detail}Day'
+                right: 'dayGridMonth,${v6WeekView},${v6DayView}'
             },
 
             eventSources: [
@@ -265,57 +400,25 @@
             #end
 
                 {
-                    events: function(start, end, timezone, callback)
+                    events: function(fetchInfo, successCallback, failureCallback)
           {
               #if($perc.isEditMode() || $perc.isPreviewMode())
-                  callback($pagesInCal);
+                  var previewEvents = $pagesInCal;
+                  percResolveWidgetEvents(previewEvents);
+                  successCallback(previewEvents);
               #else
-                  /*
-                    * get the results from delivery tier service and return
-                    * below we are looking to restrict the amount of information
-                    * pulled back from the DTS.  The dates are found and used to
-                    * restrict to the current selected month in the calendar.
-                    */
-                  var start2 = new Date(start._d);
-                  var end2 = new Date(end._d);
-                  var startMonth = start2.getMonth()+1 < 10 ? '0' + (start2.getMonth()+1) : start2.getMonth()+1;
-                  var endMonth = end2.getMonth()+1 < 10 ? '0' + (end2.getMonth()+1) : end2.getMonth()+1;
-                  var startDay = start2.getDate() < 10 ? '0' + start2.getDate() : start2.getDate();
-                  var endDay = end2.getDate() < 10 ? '0' + end2.getDate() : end2.getDate();
-                  var startValue = start2.getFullYear() + '-' + startMonth + '-' + startDay;
-                  var endValue = end2.getFullYear() + '-' + endMonth + '-' + endDay;
-                  var serviceUrl = "/perc-metadata-services/metadata/dated/get";
-                  var dataObj = {"criteria":["type = 'page'", "perc:calendar = '$calName'", "perc:start_date >= '" + startValue + "'","perc:start_date <= '" + endValue + "'"]}
-                  // here the last value condition perc:start_Date < is present to prevent duplicate events from populating between first call and second
-                  var dataObj2 = {"criteria":["type = 'page'", "perc:calendar = '$calName'", "perc:end_date >= '" + startValue + "'", "perc:start_date < '" + startValue + "'"]}
-                  /*
-                    * Here we make two calls to the metadata service as a workaround as the backend currently doesn't support OR operations.
-                    * @param endOfCall here the function is called twice, when endOfCall is true the callback populates the page with the calendar events
-                    * @param firstEvents passes the results from the first metadata call to the second call.
-                    */
-                  var makeApiCall = function(dataObj, endOfCall, firstEvents) {
-                      var deferred = jQuery.Deferred();
-                      jQuery.PercServiceUtils.makeXdmJsonRequest(null,serviceUrl,jQuery.PercServiceUtils.TYPE_POST,function(status, results)
-                      {
-                          if(status == jQuery.PercServiceUtils.STATUS_SUCCESS) {
-                              if(endOfCall){
-                                if(typeof(firstEvents) === "undefined"){
-								    firstEvents = [];
-								}
-                                callback(firstEvents.concat(jQuery.PercServiceUtils.toJSON(results.data).events));
-                          }
-                              else
-                                  deferred.resolve(jQuery.PercServiceUtils.toJSON(results.data).events);
-                          }
-                          else {
-                              deferred.resolve([]);
-                          }
-                      }, dataObj);
-                      return deferred.promise();
-                  }
-                  jQuery.when( makeApiCall(dataObj, false, []) ).then(function(events) {
-                      makeApiCall(dataObj2, true, events);
-                  });
+                  var startValue = percFormatDtsDate(fetchInfo.start);
+                  var endValue = percFormatDtsDate(fetchInfo.end);
+                  jQuery.when( percFetchDtsEvents(startValue, endValue) ).then(
+                    function(allEvents) {
+                      var normalized = jQuery.map(allEvents, percNormalizeEvent);
+                      percResolveWidgetEvents(allEvents);
+                      successCallback(normalized);
+                    },
+                    function() {
+                      percResolveWidgetEvents([]);
+                      successCallback([]);
+                    });
               #end
           },
         className: 'perc-calendar-other',
@@ -324,19 +427,19 @@
             ],
             editable: false,
 
-      dayClick: function(date, allDay, jsEvent, view) {
+      dateClick: function(info) {
       if(typeof(percCalenderDayClick) === typeof(Function)){
       // if you need to bind to the dayClick even, define a function with a definition that
       // looks like function percCalenderDayClick(div_id, object,date,allDay,jsEvent,view)
-      percCalenderDayClick("#calendar-${calendarContentId}-${widgetId}",$(this),date,allDay,jsEvent,view);
+      percCalenderDayClick("#calendar-${calendarContentId}-${widgetId}",jQuery(info.dayEl),info.date,info.allDay,info.jsEvent,info.view);
       }
       },
-      eventRender: function(event, element) {
+      eventDidMount: function(info) {
       #if($perc_show_page_summary)
-      event['allDay'] = false;
-      if(event.summary !='' && event.summary != null && event.summary != 'undefined') {
-      element.qtip({
-      content: { text: event.summary },
+      var summary = info.event.extendedProps ? info.event.extendedProps.summary : null;
+      if(summary !== '' && summary != null && typeof summary !== 'undefined') {
+      jQuery(info.el).qtip({
+      content: { text: summary },
       position: {
       my: 'bottom center',
       at: 'top center'
@@ -350,21 +453,40 @@
       #end
       }
 
-      });
+          };
+
+          percCalendarInstance = new FullCalendar.Calendar(calendarEl, calendarOptions);
+          percCalendarInstance.render();
 
       } //end initialize calendar
 
-      if( layoutType == 'list' ) {
+      // List layout renders without a visible calendar instance (v6
+      // dayGridMonth has no 52-week mode): the snippet fetches an explicit
+      // 52-week window directly through the shared DTS routine, re-deriving
+      // the Perc.range = 52 expansion the 2.x computeRange payload mod
+      // provided. Slice 2 (#6919/2) hardens list/toggle parity.
+      function percInitListView() {
         $('#calendar-${calendarContentId}-${widgetId}').hide();
         $('.perc-mini-calendar').hide();
-        jQuery.when(Perc.events['calendar-${calendarContentId}-${widgetId}'])
-		 .then(
-			function(resolvedEvents) {
-				console.log('processing event list');
-				percProcessEventList(resolvedEvents, maxResults);
-			},
-			function(err) { console.log('errpr processing event list', err); }
-		  );
+        #if($perc.isEditMode() || $perc.isPreviewMode())
+        var listEvents = $pagesInCal;
+        percResolveWidgetEvents(listEvents);
+        percProcessEventList(listEvents, maxResults);
+        #else
+        var listStart = new Date();
+        listStart.setDate(1);
+        listStart.setHours(0, 0, 0, 0);
+        var listEnd = new Date(listStart.getTime());
+        listEnd.setDate(listEnd.getDate() + 364);
+        jQuery.when( percFetchDtsEvents(percFormatDtsDate(listStart), percFormatDtsDate(listEnd)) ).then(
+          function(resolvedEvents) {
+            console.log('processing event list');
+            percResolveWidgetEvents(resolvedEvents);
+            percProcessEventList(resolvedEvents, maxResults);
+          },
+          function(err) { console.log('error processing event list', err); percProcessEventList([], maxResults); }
+        );
+        #end
       }
 
       // This method hides the calendar view, shows the list view, and populates the target with the event list
@@ -374,7 +496,7 @@
 
             //  fullcalendar does not presort the event dates
             eventObject.sort(function(x, y){
-                return x.start - y.start;
+                return new Date(x.start) - new Date(y.start);
 			});
 
             percCurrentDate = new Date();
@@ -458,26 +580,25 @@
       $('#showCalendarButton-${calendarContentId}-${widgetId}').on("click", function() {
         $('#perc-event-list-${calendarContentId}-${widgetId}').hide();
         Perc.range = 6;
-        $('#calendar-${calendarContentId}-${widgetId}').fadeIn().fullCalendar( 'destroy' );
+        if (percCalendarInstance) {
+          percCalendarInstance.destroy();
+          percCalendarInstance = null;
+        }
+        $('#calendar-${calendarContentId}-${widgetId}').show();
         initializeCalendar();
         $('#perc-button-container-${calendarContentId}-${widgetId}').fadeIn();
       });
       $('#showListButton-${calendarContentId}-${widgetId}').on("click",function() {
         $('#perc-button-container-${calendarContentId}-${widgetId}').hide();
-        $('#calendar-${calendarContentId}-${widgetId}').fullCalendar( 'destroy' );
+        if (percCalendarInstance) {
+          percCalendarInstance.destroy();
+          percCalendarInstance = null;
+        }
         Perc.events['calendar-${calendarContentId}-${widgetId}'] = jQuery.Deferred();
-        jQuery.when(Perc.events['calendar-${calendarContentId}-${widgetId}']).then(
-			function( resolvedEvents ){
-              percProcessEventList(resolvedEvents, maxResults);
-			},
-			function(err) { console.log('error processing events', err); }
-		);
         Perc.range = 52;
-        $('#perc-event-list-${calendarContentId}-${widgetId}').fadeIn();
         $('#perc-event-list-${calendarContentId}-${widgetId} ul').empty();
-        $('#calendar-${calendarContentId}-${widgetId}').show();
-        initializeCalendar();
-          $('#calendar-${calendarContentId}-${widgetId}').hide();
+        percInitListView();
+        $('#perc-event-list-${calendarContentId}-${widgetId}').fadeIn();
         });
 	});
     });

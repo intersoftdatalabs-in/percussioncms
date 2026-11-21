@@ -349,6 +349,23 @@ import org.junit.jupiter.api.Test;
  * port-able acceptance bar. No keep-2.x-forever decision is recorded;
  * that outcome needs explicit maintainer sign-off on #6687.
  *
+ * <p>Slice 17 (issue #6919, parent audit #5627, plan #6687) migrates the
+ * calendarTwo fullcalendar pair plus the gcal + lang-all companions to
+ * the stock FullCalendar v6.1.15 global dists (exact
+ * {@code fullcalendar-v6*} alias pins in both WebUI frontend manifests,
+ * so Dependabot watches the lines; the EOL {@code fullcalendar@2.9.1}
+ * pin stays installed until slice 3 drops it). The 2.x Percussion payload
+ * mods are gone with the fork: both behaviors are re-derived in
+ * {@code percCalendarTwoSnippet.vm} (the per-widget {@code Perc.events}
+ * deferred resolves inside the v6 events function and the list-view
+ * direct fetch; list layout fetches an explicit 52-week window instead
+ * of the old {@code computeRange} expansion), so all four payloads are
+ * byte-identical stock (LF-normalized, per {@code .gitattributes}
+ * {@code *.js text}), as enforced by the frontend vitest parity test.
+ * The banner pins below move to the v6 bundle banners, and the
+ * fork-mod marker test is replaced by a stock-shipment test asserting
+ * the payloads carry no Percussion mods and no 2.x remnants.
+ *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
  * inventory can only drift together with an audit update. A migration PR that
@@ -495,10 +512,10 @@ class WidgetPayloadVendoredJsAuditTest {
       Map.ofEntries(
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/fullcalendar.js",
-              "FullCalendar v2.9.1"),
+              "FullCalendar Standard Bundle v6.1.15"),
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/fullcalendar.min.js",
-              "FullCalendar v2.9.1"),
+              "FullCalendar Standard Bundle v6.1.15"),
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/moment.min.js",
               "version : 2.31.0"),
@@ -531,10 +548,10 @@ class WidgetPayloadVendoredJsAuditTest {
               "qTip2 - Pretty powerful tooltips - v3.0.3"),
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/gcal.js",
-              "googleCalendarId"),
+              "FullCalendar Google Calendar Plugin v6.1.15"),
           Map.entry(
               "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/lang-all.js",
-              "fullCalendar.datepickerLang"),
+              "FullCalendar Core v6.1.15"),
           Map.entry(
               "perc.widgets.nav/sys__UserDependency--web_resources/widgets/navBar/js/perc-hover-intent.js",
               "Percussion hover-intent shim"),
@@ -659,27 +676,32 @@ class WidgetPayloadVendoredJsAuditTest {
   }
 
   @Test
-  void calendarTwoFullcalendarCarriesPercussionMods() throws IOException {
+  void calendarTwoFullcalendarShipsStockV6() throws IOException {
     Path root = packagesRoot();
-    List<String> rebasedPair =
+    List<String> v6Payloads =
         List.of(
             "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/fullcalendar.js",
-            "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/fullcalendar.min.js");
-    Map<String, String> missing = new LinkedHashMap<>();
-    for (String rel : rebasedPair) {
+            "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/fullcalendar.min.js",
+            "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/gcal.js",
+            "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/js/lang-all.js");
+    Map<String, String> problems = new LinkedHashMap<>();
+    for (String rel : v6Payloads) {
       String content = Files.readString(root.resolve(rel), StandardCharsets.UTF_8);
-      // Slice 5 (#6502) rebase: the reportEvents mod resolves the per-widget
-      // Perc.events deferred consumed by percCalendarTwoSnippet.vm, and the
-      // month-view computeRange mod reads Perc.range instead of hard-coded 6.
-      for (String marker : List.of("Perc.events", ".resolve(", "Perc.range")) {
-        if (!content.contains(marker)) {
-          missing.put(rel, marker);
+      // Slice 17 (#6919) migration: the payloads are stock v6.1.15 dists —
+      // both Percussion fork behaviors moved into percCalendarTwoSnippet.vm
+      // (Perc.events resolved in the v6 events function / list-view direct
+      // fetch; explicit 52-week list window), so no payload mod may remain.
+      for (String marker : List.of("Perc.events", "Perc.range")) {
+        if (content.contains(marker)) {
+          problems.put(rel, marker);
         }
       }
-      assertTrue(!content.contains("<%= meta.title %>"),
-          rel + " still ships an unexpanded meta banner — rebase from fullcalendar@2.9.1");
+      assertTrue(!content.contains("FullCalendar v2.9.1"),
+          rel + " still ships 2.x bytes — refresh from fullcalendar@6.1.15");
+      assertTrue(!content.contains("<%= meta."),
+          rel + " still ships an unexpanded meta banner");
     }
-    assertTrue(missing.isEmpty(),
-        "Percussion fork mods missing from rebased calendarTwo fullcalendar pair: " + missing);
+    assertTrue(problems.isEmpty(),
+        "Percussion fork mods in stock calendarTwo v6 payloads: " + problems);
   }
 }
