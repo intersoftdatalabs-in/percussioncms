@@ -118,6 +118,10 @@ async function createCommunity(page, name) {
 
 async function openCommunity(page, name) {
   await page.locator(`[data-comm-name="${name}"]`).click();
+  await expect(page.locator('[data-testid="developer-comm-rename-edit"]')).toBeVisible({
+    timeout: 20_000,
+  });
+  await page.locator('[data-testid="developer-comm-rename-edit"]').click();
   await expect(page.locator('[data-testid="developer-comm-rename-name"]')).toBeVisible({
     timeout: 20_000,
   });
@@ -147,6 +151,8 @@ test.describe("Developer community rename (#5177 / #1690)", () => {
     await expect(title).toContainText(name);
     await expect(title).not.toContainText(drafted);
     await page.locator('[data-testid="developer-comm-rename-cancel"]').click();
+    await expect(input).toHaveCount(0);
+    await page.locator('[data-testid="developer-comm-rename-edit"]').click();
     await expect(input).toHaveValue(name);
     expect(posts, `unexpected rename POST: ${posts.join(" | ")}`).toEqual([]);
 

@@ -193,8 +193,9 @@ describe("CommunitiesPanel", () => {
     });
     fireEvent.click(screen.getByTestId("developer-comm-open"));
     await waitFor(() => {
-      expect(screen.getByTestId("developer-comm-rename-name")).toBeTruthy();
+      expect(screen.getByTestId("developer-comm-rename-edit")).toBeTruthy();
     });
+    fireEvent.click(screen.getByTestId("developer-comm-rename-edit"));
     fireEvent.change(screen.getByTestId("developer-comm-rename-name"), {
       target: { value: "Enterprise" },
     });
@@ -244,6 +245,7 @@ describe("CommunitiesPanel", () => {
         "System community",
       );
     });
+    fireEvent.click(screen.getByTestId("developer-comm-description-edit"));
     fireEvent.change(screen.getByTestId("developer-comm-description-input"), {
       target: { value: "Updated notes" },
     });

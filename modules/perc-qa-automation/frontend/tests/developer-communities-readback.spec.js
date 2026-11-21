@@ -313,6 +313,7 @@ test.describe("Developer communities catalog readback (#5916)", () => {
     );
 
     // Description write then readback on detail and in the catalog.
+    await page.locator('[data-testid="developer-comm-description-edit"]').click();
     await page.locator('[data-testid="developer-comm-description-input"]').fill(description);
     await page.locator('[data-testid="developer-comm-description-save"]').click();
     await expect(page.locator('[data-testid="developer-comm-detail-notice"]')).toBeVisible({

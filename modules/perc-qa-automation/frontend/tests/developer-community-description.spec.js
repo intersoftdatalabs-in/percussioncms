@@ -121,6 +121,10 @@ async function createCommunity(page, name) {
 
 async function openCommunity(page, name) {
   await page.locator(`[data-comm-name="${name}"]`).click();
+  await expect(page.locator('[data-testid="developer-comm-description-edit"]')).toBeVisible({
+    timeout: 20_000,
+  });
+  await page.locator('[data-testid="developer-comm-description-edit"]').click();
   await expect(page.locator('[data-testid="developer-comm-description-input"]')).toBeVisible({
     timeout: 20_000,
   });
@@ -158,6 +162,8 @@ test.describe("Developer community description (#5178 / #1690)", () => {
     await expect(stored).not.toContainText(drafted);
     await expect(title).toContainText(name);
     await page.locator('[data-testid="developer-comm-description-cancel"]').click();
+    await expect(input).toHaveCount(0);
+    await page.locator('[data-testid="developer-comm-description-edit"]').click();
     await expect(input).toHaveValue("");
     expect(posts, `unexpected description POST: ${posts.join(" | ")}`).toEqual([]);
 

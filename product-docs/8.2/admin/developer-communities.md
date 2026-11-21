@@ -50,9 +50,12 @@ the current filter"; clearing the box restores the full list.
    non-Admin session is **403**. After a successful create, the catalog
    includes the new row when you return to the list, and the detail panel
    still offers **role membership** save.
-5. Open an existing community. Under **Rename community**, the name field
-   starts as the current name. The detail title does not change while you
-   type. **Cancel** restores the field and does not call the server.
+5. Open an existing community. Under **Rename community**, click **Edit name**
+   to open the editor; the name field autofocuses and starts as the current
+   name. The detail title does not change while you type. **Escape** cancels
+   without saving, same as **Cancel**, which restores the field and does not
+   call the server. When the editor closes (Escape, Cancel, or a successful
+   rename), focus returns to **Edit name**.
 6. Enter a new name (required, unique, case-insensitive, at most **50**
    characters; spaces are allowed) and click **Rename**. Rename stays disabled
    for a blank name, a name longer than 50 characters, or the same name.
@@ -61,10 +64,14 @@ the current filter"; clearing the box restores the full list.
    the detail title and in the catalog. After a successful rename, the detail
    title and the catalog row show the new name (the catalog does not show it
    before the rename succeeds). Description and role membership are unchanged.
-7. Open an existing community. Under **Community description**, the field
-   starts as the stored description (empty when none is stored). The detail
-   text does not change while you type. **Cancel** restores the field and
-   does not call the server. **Save description** stays disabled when the
+7. Open an existing community. Under **Community description**, click
+   **Edit description** to open the editor; the field autofocuses and starts
+   as the stored description (empty when none is stored). The detail
+   text does not change while you type. **Escape** cancels without saving,
+   same as **Cancel**, which restores the field and does not call the
+   server. When the editor closes (Escape, Cancel, or a successful save),
+   focus returns to **Edit description**, and the save confirmation is
+   announced via a live region. **Save description** stays disabled when the
    trimmed text matches the stored description, including whitespace-only
    when the stored description is empty.
 8. Enter a new description (at most **255** characters) or clear the field,
