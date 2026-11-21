@@ -86,7 +86,14 @@ async function openFolderWithEnabledRows(page) {
       .first();
     if ((await node.count()) > 0) {
       await node.click({ timeout: 10_000 });
-      await page.waitForLoadState("networkidle").catch(() => {});
+      // Best-effort idle wait: the click already landed and the expects
+      // below still gate the surface — log and continue instead of
+      // swallowing silently (#6926).
+      await page.waitForLoadState("networkidle").catch((err) => {
+        console.warn(
+          `[explorer-context-menu] networkidle wait skipped after tree click: ${err && err.message ? err.message : err}`,
+        );
+      });
     }
   }
 
