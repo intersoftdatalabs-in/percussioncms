@@ -40,8 +40,20 @@ import { LOC_DESC_MSG } from "./localeDescriptionMessages";
 import {
   canSaveLocaleDescriptionEdit,
   canSaveLocaleFieldEdit,
+  canStartCalendarEdit,
+  canStartCurrencyCodeEdit,
+  canStartCurrencyPatternEdit,
   canStartDatePatternEdit,
   canStartDateTimePatternEdit,
+  canStartDecimalSepEdit,
+  canStartDefaultTzEdit,
+  canStartDescriptionEdit,
+  canStartFirstDayEdit,
+  canStartGroupingSepEdit,
+  canStartLabelEdit,
+  canStartMeasurementEdit,
+  canStartNumberingSystemEdit,
+  canStartTextDirEdit,
   canStartTimePatternEdit,
   isLocaleOtherEditorOpen,
   type LocaleFieldEditorsEditing,
@@ -795,26 +807,24 @@ export function LocaleDetailPanel({
     );
   }
 
+  // #6952: the remaining start guards funnel through the per-field
+  // canStart*Edit helpers in localeDetailSaveGuards. Each start path
+  // previously inlined the same ~19-term OR chain (create-mode / detail /
+  // dedicated busy fold, one flag per sibling editor), which pushed every
+  // starter over the cyclomatic budget. The helpers keep the exact "every
+  // other editor open, self excluded" semantics — except the measurement,
+  // default-TZ, numbering-system, and calendar starters, whose inline chains
+  // also name the self editor and keep blocking a restart. No behavior
+  // change. startEnabledStatusEdit keeps its historic narrower sibling set
+  // and stays inline.
   function startLabelEdit(): void {
     if (
-      isNew ||
-      !detail ||
-      dedicatedWriteBlocked() ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
+      !canStartLabelEdit({
+        isNew,
+        hasDetail: detail != null,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        editing: collectLocaleFieldEditors(),
+      })
     ) {
       return;
     }
@@ -899,24 +909,12 @@ export function LocaleDetailPanel({
 
   function startDescriptionEdit(): void {
     if (
-      isNew ||
-      !detail ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
+      !canStartDescriptionEdit({
+        isNew,
+        hasDetail: detail != null,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        editing: collectLocaleFieldEditors(),
+      })
     ) {
       return;
     }
@@ -1340,24 +1338,12 @@ export function LocaleDetailPanel({
 
   function startDecimalSepEdit(): void {
     if (
-      isNew ||
-      !detail ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
+      !canStartDecimalSepEdit({
+        isNew,
+        hasDetail: detail != null,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        editing: collectLocaleFieldEditors(),
+      })
     ) {
       return;
     }
@@ -1434,24 +1420,12 @@ export function LocaleDetailPanel({
 
   function startGroupingSepEdit(): void {
     if (
-      isNew ||
-      !detail ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
+      !canStartGroupingSepEdit({
+        isNew,
+        hasDetail: detail != null,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        editing: collectLocaleFieldEditors(),
+      })
     ) {
       return;
     }
@@ -1528,24 +1502,12 @@ export function LocaleDetailPanel({
 
   function startCurrencyCodeEdit(): void {
     if (
-      isNew ||
-      !detail ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
+      !canStartCurrencyCodeEdit({
+        isNew,
+        hasDetail: detail != null,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        editing: collectLocaleFieldEditors(),
+      })
     ) {
       return;
     }
@@ -1623,24 +1585,12 @@ export function LocaleDetailPanel({
 
   function startCurrencyPatternEdit(): void {
     if (
-      isNew ||
-      !detail ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
+      !canStartCurrencyPatternEdit({
+        isNew,
+        hasDetail: detail != null,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        editing: collectLocaleFieldEditors(),
+      })
     ) {
       return;
     }
@@ -1717,24 +1667,12 @@ export function LocaleDetailPanel({
 
   function startTextDirEdit(): void {
     if (
-      isNew ||
-      !detail ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
+      !canStartTextDirEdit({
+        isNew,
+        hasDetail: detail != null,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        editing: collectLocaleFieldEditors(),
+      })
     ) {
       return;
     }
@@ -1918,24 +1856,12 @@ export function LocaleDetailPanel({
 
   function startFirstDayEdit(): void {
     if (
-      isNew ||
-      !detail ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
+      !canStartFirstDayEdit({
+        isNew,
+        hasDetail: detail != null,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        editing: collectLocaleFieldEditors(),
+      })
     ) {
       return;
     }
@@ -2025,25 +1951,12 @@ export function LocaleDetailPanel({
 
   function startMeasurementEdit(): void {
     if (
-      isNew ||
-      !detail ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
+      !canStartMeasurementEdit({
+        isNew,
+        hasDetail: detail != null,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        editing: collectLocaleFieldEditors(),
+      })
     ) {
       return;
     }
@@ -2125,25 +2038,12 @@ export function LocaleDetailPanel({
 
   function startDefaultTzEdit(): void {
     if (
-      isNew ||
-      !detail ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
+      !canStartDefaultTzEdit({
+        isNew,
+        hasDetail: detail != null,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        editing: collectLocaleFieldEditors(),
+      })
     ) {
       return;
     }
@@ -2225,25 +2125,12 @@ export function LocaleDetailPanel({
 
   function startNumberingSystemEdit(): void {
     if (
-      isNew ||
-      !detail ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
+      !canStartNumberingSystemEdit({
+        isNew,
+        hasDetail: detail != null,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        editing: collectLocaleFieldEditors(),
+      })
     ) {
       return;
     }
@@ -2327,25 +2214,12 @@ export function LocaleDetailPanel({
 
   function startCalendarEdit(): void {
     if (
-      isNew ||
-      !detail ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
+      !canStartCalendarEdit({
+        isNew,
+        hasDetail: detail != null,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        editing: collectLocaleFieldEditors(),
+      })
     ) {
       return;
     }
