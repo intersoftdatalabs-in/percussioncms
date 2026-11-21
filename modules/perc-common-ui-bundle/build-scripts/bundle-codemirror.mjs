@@ -42,7 +42,11 @@ import { existsSync, mkdirSync, readFileSync, statSync } from "node:fs";
 import { createRequire } from "node:module";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { CODEMIRROR_BUNDLE_MARKERS } from "./codemirror-helpers.mjs";
+import {
+  CODEMIRROR_BUNDLE_MARKERS,
+  CODEMIRROR_LICENSE_MARKER,
+  buildCodeMirrorBundleBanners,
+} from "./codemirror-helpers.mjs";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const moduleDir = dirname(here);
@@ -62,6 +66,14 @@ await build({
   outfile: join(outDir, "codemirror.bundle.js"),
   bundle: true,
   minify: true,
+  // Issue #5626 license hygiene: esbuild's minify drops CodeMirror's `//`
+  // upstream MIT notice (not a "legal" comment by esbuild's definition), so
+  // stamp the verbatim upstream wording onto both outputs via `banner`
+  // (emitted verbatim, survives minification). `legalComments` is pinned
+  // explicitly so the retention behavior never depends on an esbuild
+  // default again.
+  legalComments: "eof",
+  banner: buildCodeMirrorBundleBanners(codemirrorPkg.version),
   // Classic IIFE script. `globalName` is intentionally NOT set: the entry
   // assigns `window.CodeMirror` itself, and esbuild's globalName footer
   // would overwrite it with the entry's export namespace (`{ default: fn }`)
@@ -92,6 +104,20 @@ for (const marker of CODEMIRROR_BUNDLE_MARKERS) {
   if (!bundleJs.includes(marker)) {
     console.error(
       `ERROR: bundle is missing expected CodeMirror 5 marker: ${marker}`,
+    );
+    process.exit(1);
+  }
+}
+
+// License hygiene (issue #5626): the minified outputs must carry the
+// upstream MIT notice — MIT redistribution without it is a compliance
+// defect, and esbuild minify strips the `//` notice from the npm sources.
+for (const name of ["codemirror.bundle.js", "codemirror.bundle.css"]) {
+  const text = readFileSync(join(outDir, name), "utf8");
+  if (!text.includes(CODEMIRROR_LICENSE_MARKER)) {
+    console.error(
+      `ERROR: ${name} is missing the upstream CodeMirror MIT notice ` +
+        `(${CODEMIRROR_LICENSE_MARKER}): license banner wiring regressed.`,
     );
     process.exit(1);
   }
