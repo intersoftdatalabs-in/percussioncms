@@ -17,11 +17,13 @@
 
 /**
  * Shows who has the selected item checked out (#4910, extended to generic
- * custom-type rows without a recognized type name in #6838).
- * Folders and rows without an id pass a null item id and render nothing.
+ * custom-type rows without a recognized type name in #6838). A failed
+ * lookup offers Retry, which re-runs the lookup for the current item
+ * (#6871). Folders and rows without an id pass a null item id and render
+ * nothing.
  */
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { message } from "../i18n/message";
 import {
   checkoutOwnerErrorReason,
@@ -49,6 +51,20 @@ export function CheckoutOwnerPanel({
   const [owner, setOwner] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  /**
+   * Bumped by the error-state Retry button (#6871, residual from #6838).
+   * Re-runs the lookup for the current itemId without waiting for a
+   * selection change or a checkout action. Mirrors the identity-error
+   * Retry in ContentExplorerShell (#6783).
+   */
+  const [retryKey, setRetryKey] = useState(0);
+  const retryButtonRef = useRef<HTMLButtonElement | null>(null);
+  /**
+   * Set on Retry click; when the retried lookup fails again the button
+   * unmounts during loading, so focus is returned to it once the error
+   * re-renders (keyboard operators are not stranded on <body>).
+   */
+  const returnFocusToRetryRef = useRef(false);
 
   useEffect(() => {
     const id = (itemId ?? "").trim();
@@ -81,7 +97,14 @@ export function CheckoutOwnerPanel({
     return () => {
       cancelled = true;
     };
-  }, [itemId, load, reloadToken]);
+  }, [itemId, load, reloadToken, retryKey]);
+
+  useEffect(() => {
+    if (error && returnFocusToRetryRef.current) {
+      returnFocusToRetryRef.current = false;
+      retryButtonRef.current?.focus();
+    }
+  }, [error]);
 
   if (!(itemId ?? "").trim()) {
     return null;
@@ -103,9 +126,23 @@ export function CheckoutOwnerPanel({
         </span>
       ) : null}
       {error ? (
-        <span data-testid="explorer-checkout-owner-error" style={{ color: "#b00020" }}>
-          {error}
-        </span>
+        <>
+          <span data-testid="explorer-checkout-owner-error" style={{ color: "#b00020" }}>
+            {error}
+          </span>{" "}
+          <button
+            type="button"
+            data-testid="explorer-checkout-owner-retry"
+            ref={retryButtonRef}
+            onClick={() => {
+              returnFocusToRetryRef.current = true;
+              setRetryKey((n) => n + 1);
+            }}
+            style={{ minHeight: "44px", minWidth: "44px", padding: "8px 12px" }}
+          >
+            {message(EXPLORER_MSG.RETRY)}
+          </button>
+        </>
       ) : null}
       {!loading && !error && owner ? (
         <span data-testid="explorer-checkout-owner-user">{owner}</span>

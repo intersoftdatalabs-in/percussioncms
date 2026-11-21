@@ -15,9 +15,10 @@
  * limitations under the License.
  */
 
-import { render, screen, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import { CheckoutOwnerPanel } from "../../../main/ts/contentExplorer/CheckoutOwnerPanel";
+import { renderA11yGate } from "./a11y";
 
 describe("CheckoutOwnerPanel (#4910)", () => {
   it("shows the checkout user", async () => {
@@ -98,6 +99,60 @@ describe("CheckoutOwnerPanel (#4910)", () => {
     );
     await waitFor(() => {
       expect(screen.getByTestId("explorer-checkout-owner-error")).toBeTruthy();
+    });
+  });
+
+  it("offers Retry on a failed lookup; Retry re-runs the lookup (#6871)", async () => {
+    const load = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 403, statusText: "Forbidden" })
+      .mockResolvedValueOnce({
+        checkOutUser: "editor",
+        currentUser: "Admin",
+        itemName: "Home",
+      });
+    const { container } = render(<CheckoutOwnerPanel itemId="42" load={load} />);
+    const retry = await screen.findByTestId("explorer-checkout-owner-retry");
+    expect(retry).toHaveTextContent(/retry/i);
+    expect(load).toHaveBeenCalledTimes(1);
+    fireEvent.click(retry);
+    expect(await screen.findByTestId("explorer-checkout-owner-user")).toHaveTextContent(
+      "editor",
+    );
+    expect(load).toHaveBeenCalledTimes(2);
+    expect(load).toHaveBeenLastCalledWith("42");
+    await renderA11yGate(container);
+  });
+
+  it("passes the a11y gate on the error state with Retry (#6871)", async () => {
+    const { container } = render(
+      <CheckoutOwnerPanel
+        itemId="42"
+        load={vi.fn().mockRejectedValue({ status: 403, statusText: "Forbidden" })}
+      />,
+    );
+    await screen.findByTestId("explorer-checkout-owner-retry");
+    await renderA11yGate(container);
+  });
+
+  it("keeps the error and returns focus to Retry when the retry fails (#6871)", async () => {
+    const load = vi.fn().mockRejectedValue(new Error("still down"));
+    render(<CheckoutOwnerPanel itemId="42" load={load} />);
+    const retry = await screen.findByTestId("explorer-checkout-owner-retry");
+    // Native button: keyboard-focusable and activated by Enter/Space.
+    expect(retry.tagName).toBe("BUTTON");
+    retry.focus();
+    expect(retry).toHaveFocus();
+    fireEvent.click(retry);
+    await waitFor(() => {
+      expect(load.mock.calls.length).toBeGreaterThanOrEqual(2);
+    });
+    const retryAgain = await screen.findByTestId("explorer-checkout-owner-retry");
+    expect(
+      screen.getByTestId("explorer-checkout-owner-error"),
+    ).toBeTruthy();
+    await waitFor(() => {
+      expect(retryAgain).toHaveFocus();
     });
   });
 });
