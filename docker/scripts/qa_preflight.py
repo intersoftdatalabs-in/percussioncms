@@ -281,10 +281,17 @@ def find_sitemanage_zip_entry(archive_path: Optional[Path]) -> Optional[str]:
             lib_hits: list[str] = []
             other_hits: list[str] = []
             for name in zf.namelist():
-                base = name.rsplit("/", 1)[-1]
+                # mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6925,
+                # precedent #6341/#6779) — ZIP entry namespace always uses '/'
+                # per spec (zipfile namelist); the backslash fold only
+                # normalizes non-conformant producers. Host joins use pathlib.
+                base = name.replace("\\", "/").rsplit("/", 1)[-1]
                 if not (base.startswith(_M2_ARTIFACT + "-") and base.endswith(".jar")):
                     continue
                 # Prefer WEB-INF/lib/… (product layout)
+                # mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6925,
+                # precedent #6341/#6779) — ZIP entry match; the backslash branch
+                # only normalizes non-conformant entries, never host paths.
                 if "/WEB-INF/lib/" in ("/" + name.replace("\\", "/")) or name.startswith(
                     "WEB-INF/lib/"
                 ):
