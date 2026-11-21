@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import React from "react";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import { EditorWorkflowHistoryPanel } from "../../../main/ts/editor/EditorWorkflowHistoryPanel";
 
 describe("EditorWorkflowHistoryPanel (#5829)", () => {
@@ -106,5 +106,31 @@ describe("EditorWorkflowHistoryPanel (#5829)", () => {
     expect(
       screen.queryByTestId("editor-workflow-history-empty"),
     ).toBeNull();
+  });
+
+  it("announces loading through a live region (#6896)", () => {
+    render(<EditorWorkflowHistoryPanel comments={[]} loading />);
+    expect(
+      screen.getByTestId("editor-workflow-history-loading"),
+    ).toHaveAttribute("role", "status");
+  });
+
+  it("retry re-runs the host load for the same item (#6896)", () => {
+    const onRetryLoad = vi.fn();
+    render(
+      <EditorWorkflowHistoryPanel
+        comments={[]}
+        loadErrorKey="perc.ui.editor@Could not load the workflow history."
+        onRetryLoad={onRetryLoad}
+      />,
+    );
+    expect(
+      screen.getByTestId("editor-retry-workflow-history-load"),
+    ).toBeTruthy();
+    expect(
+      screen.getByTestId("editor-retry-workflow-history-load").textContent,
+    ).toMatch(/retry/i);
+    fireEvent.click(screen.getByTestId("editor-retry-workflow-history-load"));
+    expect(onRetryLoad).toHaveBeenCalledTimes(1);
   });
 });

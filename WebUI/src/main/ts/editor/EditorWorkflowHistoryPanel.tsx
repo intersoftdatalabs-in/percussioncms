@@ -23,7 +23,10 @@
  * {@code revisions/{id}} payload as restore/compare) and passes the
  * recorded transition comments down. Lists date, user, transition type,
  * and comment; an item with no recorded comments shows an explicit empty
- * state instead of a blank panel. Never restores and never transitions.</p>
+ * state instead of a blank panel. Never restores and never transitions.
+ * A load failure renders a named error alert with a retry control
+ * ({@code editor-retry-workflow-history-load}) that re-runs the load for
+ * the same item (#6896, parent #4532).</p>
  */
 
 import React from "react";
@@ -37,6 +40,7 @@ export interface EditorWorkflowHistoryPanelProps {
   loading?: boolean;
   loadErrorKey?: string | null;
   loadErrorDetail?: string;
+  onRetryLoad?: () => void;
 }
 
 export function EditorWorkflowHistoryPanel({
@@ -44,6 +48,7 @@ export function EditorWorkflowHistoryPanel({
   loading = false,
   loadErrorKey = null,
   loadErrorDetail = "",
+  onRetryLoad,
 }: EditorWorkflowHistoryPanelProps): React.ReactElement {
   return (
     <div className={styles.form} data-testid="editor-workflow-history">
@@ -51,6 +56,7 @@ export function EditorWorkflowHistoryPanel({
       {loading ? (
         <div
           className={styles.status}
+          role="status"
           data-testid="editor-workflow-history-loading"
         >
           {message(EDITOR_MSG.WORKFLOW_HISTORY_LOADING)}
@@ -64,6 +70,16 @@ export function EditorWorkflowHistoryPanel({
         >
           {message(loadErrorKey)}
           {loadErrorDetail ? ` ${loadErrorDetail}` : ""}
+          <div className={styles.actions}>
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-retry-workflow-history-load"
+              onClick={() => onRetryLoad?.()}
+            >
+              {message(EDITOR_MSG.LOAD_RETRY)}
+            </button>
+          </div>
         </div>
       ) : null}
       {!loading && loadErrorKey == null && comments.length === 0 ? (
