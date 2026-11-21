@@ -41,14 +41,15 @@ const { collectMenuParents } = require("./helpers/explorer-action-toolbar-catalo
 
 const DESKTOP_ONLY_NAME = "night-desktop-only-cx";
 
-async function fetchActionsFind(page) {
-  return page.evaluate(async () => {
+async function fetchActionsFind(page, query = "") {
+  return page.evaluate(async (qs) => {
     const paths = [
       "/Rhythmyx/services/actions/find",
       "/services/actions/find",
       "/Rhythmyx/rest/actions/find",
     ];
-    for (const url of paths) {
+    for (const base of paths) {
+      const url = qs ? `${base}${qs}` : base;
       try {
         const res = await fetch(url, { credentials: "same-origin" });
         if (!res.ok) {
@@ -60,7 +61,7 @@ async function fetchActionsFind(page) {
       }
     }
     return { url: null, status: 0, payload: null };
-  });
+  }, query);
 }
 
 async function openFolderWithEnabledRows(page) {
@@ -222,6 +223,35 @@ test.describe("modern React Content Explorer — nested row context MENU (#3629)
         required.map((p) => p.name).sort(),
         "static MENU parents must stay nested in GET /actions/find",
       ).toEqual([...requiredNames].sort());
+
+      // #6963: the SPA loads the cascade scoped to the shell UI mode
+      // (GET /actions/find?uiMode=CXMAIN, #6619). The unscoped catalog
+      // above stays green on a stale cell while the scoped tree drops
+      // Arrange — assert the scoped tree keeps the Arrange MENU parent
+      // with the same children so a missing seed/backfill row fails here
+      // with a seed-shaped message instead of a pivot timeout below.
+      const scoped = await fetchActionsFind(page, "?uiMode=CXMAIN");
+      expect(
+        scoped.url,
+        "GET /actions/find?uiMode=CXMAIN must succeed (SPA shell claim #6619)",
+      ).toBeTruthy();
+      expect(
+        scoped.status,
+        `GET /actions/find?uiMode=CXMAIN must be HTTP 200, got ${scoped.status} at ${scoped.url}`,
+      ).toBe(200);
+      const scopedArrange = collectMenuParents(scoped.payload).find(
+        (p) => p.name === "Arrange",
+      );
+      expect(
+        scopedArrange,
+        "scoped catalog must keep the Arrange MENU parent " +
+          "(RXMODEUICONTEXTACTION (4,3) seed for 111-115, #6886/#6918)",
+      ).toBeDefined();
+      const arrangeUnscoped = required.find((p) => p.name === "Arrange");
+      expect(
+        [...(scopedArrange?.childNames ?? [])].sort(),
+        "scoped Arrange children must match the unscoped cascade",
+      ).toEqual([...(arrangeUnscoped?.childNames ?? [])].sort());
 
       await rows.first().click({ button: "right" });
       const menu = page.locator(`[data-testid="${TEST_IDS.contextMenu}"]`);
