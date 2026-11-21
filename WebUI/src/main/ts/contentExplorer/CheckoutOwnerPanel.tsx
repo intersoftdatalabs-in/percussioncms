@@ -16,8 +16,9 @@
  */
 
 /**
- * Shows who has the selected page or asset checked out (#4910).
- * Folders pass a null item id and render nothing.
+ * Shows who has the selected item checked out (#4910, extended to generic
+ * custom-type rows without a recognized type name in #6838).
+ * Folders and rows without an id pass a null item id and render nothing.
  */
 
 import React, { useEffect, useState } from "react";
@@ -30,7 +31,7 @@ import {
 import { EXPLORER_MSG } from "./messages";
 
 export interface CheckoutOwnerPanelProps {
-  /** Page or asset id. Null hides the panel (folders). */
+  /** Item id. Null hides the panel (folders, rows without an id). */
   itemId: string | null;
   /**
    * Changes only after a successful check-in. The same token leaves the
