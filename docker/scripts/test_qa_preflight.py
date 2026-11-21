@@ -476,6 +476,52 @@ class TestWarBundlesSitemanage(unittest.TestCase):
         self.assertEqual(entry, "WEB-INF/lib/sitemanage-new.jar")
 
 
+class TestZipEntrySeparatorAdjudication(unittest.TestCase):
+    """#6925: ZIP-entry '/' handling is spec-mandated, not a sep defect.
+
+    ``find_sitemanage_zip_entry`` splits and matches on '/' because the
+    ZIP entry namespace always uses '/' per spec (zipfile namelist),
+    independent of the host OS separator — the same FP class as
+    #6341/#6779. These pins fail the suite if the logic is ever rewritten
+    onto host-path joins.
+    """
+
+    def setUp(self):
+        self.repo_helper = _Repo()
+        self.addCleanup(self.repo_helper.cleanup)
+        self.repo = self.repo_helper.layout_repo()
+
+    def _war_path(self) -> Path:
+        return self.repo / "WebUI" / "target" / "perc-web-ui-8.2.0-SNAPSHOT.war"
+
+    def test_backslash_entry_still_matches_web_inf_lib(self):
+        # Non-conformant producer wrote '\' separators; the normalizing
+        # branch must still classify the entry under WEB-INF/lib.
+        war_path = self._war_path()
+        with zipfile.ZipFile(war_path, "w") as zf:
+            zf.writestr("WEB-INF\\lib\\sitemanage-back.jar", b"back")
+        self.assertEqual(
+            qa_preflight.find_sitemanage_zip_entry(war_path),
+            "WEB-INF\\lib\\sitemanage-back.jar",
+        )
+
+    def test_basename_split_uses_zip_namespace_slash(self):
+        war_path = self._war_path()
+        with zipfile.ZipFile(war_path, "w") as zf:
+            zf.writestr("nested/deep/sitemanage-deep.jar", b"deep")
+        self.assertEqual(
+            qa_preflight.find_sitemanage_zip_entry(war_path),
+            "nested/deep/sitemanage-deep.jar",
+        )
+
+    def test_suppression_marker_present_on_zip_sinks(self):
+        source = (SCRIPTS / "qa_preflight.py").read_text(encoding="utf-8")
+        self.assertIn(
+            "# mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6925",
+            source,
+        )
+
+
 def _write_class_jar(path: Path, entries: list[str], mtime: float = 300) -> None:
     """Write a synthetic jar whose entries are (empty) .class files."""
     path.parent.mkdir(parents=True, exist_ok=True)
