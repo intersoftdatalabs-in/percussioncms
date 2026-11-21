@@ -1,3 +1,62 @@
+/*
+ * Copyright (c) 2026 Intersoft Data Labs, Inc.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ *
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+/*
+ * calendarTwo print stylesheet — v6 equivalent (issue #6919 slice 2,
+ * parent plan #6687, audit #5627).
+ *
+ * <p>The 2.x-era rules below targeted the FullCalendar 2.9.1 grid
+ * ({@code .fc-row}, {@code .fc-content-skeleton}, {@code .fc-time-grid},
+ * {@code .fc-agenda-view}, {@code .fc-slats}, bare {@code .fc-resizer}).
+ * The slice-1 migration (issue #6944) replaced the payload with the stock
+ * FullCalendar v6.1.15 global bundle, whose renderer emits none of those
+ * hooks — so every grid rule is retargeted at the v6 classes the shipped
+ * bundle actually renders (verified against
+ * {@code widgets/calendarTwo/js/fullcalendar.min.js}):
+ *
+ * <ul>
+ *   <li>{@code .fc-row} week rows -&gt; v6 daygrid {@code td}s
+ *       ({@code .fc-daygrid-day}) and body rows.</li>
+ *   <li>{@code .fc-content-skeleton} positioning -&gt;
+ *       {@code .fc-daygrid-day-events} static flow.</li>
+ *   <li>{@code .fc-more / .fc-more-cell} overflow links -&gt;
+ *       {@code .fc-daygrid-more-link}; the overflow popover
+ *       ({@code .fc-popover}) stays hidden as before.</li>
+ *   <li>{@code .fc-time-grid / .fc-agenda-view / .fc-slats} time views -&gt;
+ *       {@code .fc-timegrid*} hooks; the axis gutter and slot lines drop
+ *       out, events stack statically.</li>
+ *   <li>Bare {@code .fc-resizer} handles -&gt;
+ *       {@code .fc-event-resizer}.</li>
+ * </ul>
+ *
+ * <p>Kept verbatim: the {@code .fc} root cap, the black-on-white
+ * {@code .fc-event} flattening with {@code page-break-inside: avoid}, the
+ * background/highlight layer hiding, the visible/auto scroller expansion,
+ * and the interactive-chrome hiding ({@code .fc button} also covers the
+ * snippet Calendar/List toggle buttons, which reuse {@code .fc-button}
+ * outside the calendar root). Added for slice 2: the snippet source-filter
+ * bar ({@code .perc-button-container}) hides in print, and list-view rows
+ * ({@code .perc-event-list-element}) avoid page breaks.
+ *
+ * <p>This file is Percussion-authored (the v6 bundle ships zero CSS — the
+ * styles arrive JS-injected), so it is intentionally NOT covered by the
+ * payload byte-identity pins; {@code calendarTwoV6PrintStylesheet.test.js}
+ * locks the v6 hooks instead.
+ */
 .fc {
   max-width: 100% !important;
 }
@@ -6,10 +65,10 @@
   color: #000 !important;
   page-break-inside: avoid;
 }
-.fc-event .fc-resizer {
+.fc-event .fc-event-resizer {
   display: none;
 }
-.fc-row,
+.fc-daygrid-day,
 hr,
 tbody,
 td,
@@ -19,97 +78,71 @@ thead {
   background: #fff !important;
 }
 .fc-bg,
-.fc-bgevent-container,
-.fc-bgevent-skeleton,
-.fc-business-container,
-.fc-helper-container,
-.fc-helper-skeleton,
-.fc-highlight-container,
-.fc-highlight-skeleton {
+.fc-highlight {
   display: none;
 }
-.fc tbody .fc-row {
+.fc .fc-daygrid-body table {
+  height: auto !important;
+}
+.fc-daygrid-day {
   height: auto !important;
   min-height: 0 !important;
 }
-.fc tbody .fc-row .fc-content-skeleton {
+.fc-daygrid-day-events {
   position: static;
   padding-bottom: 0 !important;
 }
-.fc tbody .fc-row .fc-content-skeleton tbody tr:last-child td {
-  padding-bottom: 1em;
-}
-.fc tbody .fc-row .fc-content-skeleton table {
-  height: 1em;
-}
-.fc-more,
-.fc-more-cell {
+.fc-daygrid-more-link,
+.fc-popover {
   display: none !important;
 }
-.fc tr.fc-limited {
-  display: table-row !important;
-}
-.fc td.fc-limited {
-  display: table-cell !important;
-}
-.fc-popover {
-  display: none;
-}
-.fc-time-grid {
+.fc-timegrid,
+.fc-timegrid-body {
   min-height: 0 !important;
 }
-.fc-agenda-view .fc-axis {
+.fc-timegrid-axis {
   display: none;
 }
-.fc-slats,
-.fc-time-grid hr {
+.fc-timegrid-slots,
+.fc-timegrid hr {
   display: none !important;
 }
-.fc-time-grid .fc-content-skeleton {
-  position: static;
-}
-.fc-time-grid .fc-content-skeleton table {
+.fc-timegrid-body table {
   height: 4em;
 }
-.fc-time-grid .fc-event-container {
-  margin: 0 !important;
-}
-.fc-time-grid .fc-event {
+.fc-timegrid-event {
   position: static !important;
   margin: 3px 2px !important;
 }
-.fc-time-grid .fc-event.fc-not-end {
-  border-bottom-width: 1px !important;
-}
-.fc-time-grid .fc-event.fc-not-end:after {
-  content: "...";
-}
-.fc-time-grid .fc-event.fc-not-start {
-  border-top-width: 1px !important;
-}
-.fc-time-grid .fc-event.fc-not-start:before {
-  content: "...";
-}
-.fc-time-grid .fc-event .fc-time {
+.fc-timegrid-event .fc-event-time {
   white-space: normal !important;
 }
-.fc-time-grid .fc-event .fc-time span {
-  display: none;
-}
-.fc-time-grid .fc-event .fc-time:after {
-  content: attr(data-full);
-}
-.fc-day-grid-container,
+.fc-daygrid-body,
 .fc-scroller,
-.fc-time-grid-container {
+.fc-timegrid-body {
   overflow: visible !important;
   height: auto !important;
 }
-.fc-row {
+.fc-daygrid-body tr {
   border: 0 !important;
   margin: 0 !important;
 }
-.fc button,
+.fc .fc-button,
 .fc-button-group {
-  display: none;
+  display: none !important;
+}
+
+/* Snippet chrome: the source-filter bar and the Calendar/List toggles are
+interactive controls — they carry no meaning on paper. The toggle rule
+above already hides the toggle buttons via their .fc-button reuse; the
+containers hide here so no empty bars print. */
+.perc-toggle-button-container,
+.perc-button-container {
+  display: none !important;
+}
+
+/* List layout is plain markup and prints naturally; keep each row on one
+page and mirror the event flattening above. */
+.perc-event-list-element {
+  page-break-inside: avoid;
 }

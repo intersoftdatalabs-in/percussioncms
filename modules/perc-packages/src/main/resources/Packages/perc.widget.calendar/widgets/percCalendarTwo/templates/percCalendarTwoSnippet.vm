@@ -5,9 +5,13 @@
 #set($googleSourceCount = $googleSourceCount + 1)##
 #end##
 #if( $perc_enable_view_toggle_buttons == "true")##
-  <div id="perc-toggle-button-container" class="perc-toggle-button-container" >
-  <button type="button" id="showCalendarButton-${calendarContentId}-${widgetId}" class="fc-button fc-state-default fc-corner-left fc-corner-right perc-type-toggle" >Calendar View</button>
-  <button type="button" id="showListButton-${calendarContentId}-${widgetId}" class="fc-button fc-state-default fc-corner-left fc-corner-right perc-type-toggle" >List View</button>
+  <div id="perc-toggle-button-container" class="perc-toggle-button-container" role="group" aria-label="Calendar layout">
+  ## Slice 2 (#6919/2): aria-pressed mirrors the visible layout so the toggle
+  ## state is perceivable; the handlers below keep the pair in sync. Buttons
+  ## switch with show()/hide() (no fadeIn) so captured output is
+  ## deterministic for screenshot-diff parity.
+  <button type="button" id="showCalendarButton-${calendarContentId}-${widgetId}" class="fc-button fc-state-default fc-corner-left fc-corner-right perc-type-toggle" aria-pressed="true" >Calendar View</button>
+  <button type="button" id="showListButton-${calendarContentId}-${widgetId}" class="fc-button fc-state-default fc-corner-left fc-corner-right perc-type-toggle" aria-pressed="false" >List View</button>
   </div>
 #end##
 ##
@@ -19,8 +23,12 @@
 #set($resourcePrefix = "")##
 #end##
 ##
-## Slice 2 (#6919/2) authors the v6 print equivalent: these rules target
-## 2.x grid classes, so print output stays unstyled until that slice.
+## Print stylesheet (v6 equivalent, slice 2 #6945): retargeted from the
+## 2.x grid hooks (.fc-row/.fc-content-skeleton/.fc-time-grid/...) to the
+## v6 classes the shipped 6.1.15 bundle renders (.fc-daygrid-day,
+## .fc-timegrid-*, .fc-event-resizer, ...), plus snippet-chrome hiding
+## (.perc-toggle-button-container/.perc-button-container) and list-row
+## page-break rules.
       <link rel="stylesheet" href="$resourcePrefix/web_resources/widgets/calendarTwo/css/fullcalendar.print.css" type="text/css" media="print" />
       <style>
       @media only screen
@@ -202,7 +210,7 @@
         </li>
     </ul>
 </div>
-<div id='perc-event-list-${calendarContentId}-${widgetId}' class="perc-event-list">
+<div id='perc-event-list-${calendarContentId}-${widgetId}' class="perc-event-list" aria-live="polite">
     <ul></ul>
 </div>
       <script>
@@ -273,7 +281,7 @@
         }
 
         if( layoutType == 'calendar' ) {
-          $('#perc-button-container-${calendarContentId}-${widgetId}').fadeIn();
+          $('#perc-button-container-${calendarContentId}-${widgetId}').show();
         }
 
         // Formats a native Date as YYYY-MM-DD for the DTS dated query.
@@ -389,6 +397,15 @@
             },
 
             eventSources: [
+            ## gcal keep decision (slice 2, #6945; #6804 slice-3b remnant):
+            ## KEEP. The shipped gcal.js is the stock v6 google-calendar
+            ## plugin, which loads feeds with CORS fetch() against
+            ## https://www.googleapis.com/calendar/v3/calendars — the 2.x
+            ## JSONP script-injection path is gone with the 2.9.1 payload.
+            ## Under a restrictive site CSP this needs
+            ## connect-src https://www.googleapis.com. A source without an
+            ## API key fails gracefully (errorCallback, no crash — pinned by
+            ## calendarTwoGcalKeepDecision.test.js).
             #if($googleSourceCount > 0)
             #foreach($googleSource in $googleCalendarArray)
                 {
@@ -464,10 +481,18 @@
       // dayGridMonth has no 52-week mode): the snippet fetches an explicit
       // 52-week window directly through the shared DTS routine, re-deriving
       // the Perc.range = 52 expansion the 2.x computeRange payload mod
-      // provided. Slice 2 (#6919/2) hardens list/toggle parity.
+      // provided. Slice 2 (#6919/2) adds a loading row while the DTS fetch
+      // is in flight (cleared by percProcessEventList) so the list region
+      // is never a blank hole, and switches with show()/hide() instead of
+      // fadeIn() for deterministic screenshot-diff captures.
       function percInitListView() {
         $('#calendar-${calendarContentId}-${widgetId}').hide();
         $('.perc-mini-calendar').hide();
+        var percEventList = $('#perc-event-list-${calendarContentId}-${widgetId}');
+        percEventList.show();
+        percEventList.find('ul').empty().append(
+          '<li class="perc-event-list-element perc-event-list-loading">Loading events&#8230;</li>'
+        );
         #if($perc.isEditMode() || $perc.isPreviewMode())
         var listEvents = $pagesInCal;
         percResolveWidgetEvents(listEvents);
@@ -480,7 +505,6 @@
         listEnd.setDate(listEnd.getDate() + 364);
         jQuery.when( percFetchDtsEvents(percFormatDtsDate(listStart), percFormatDtsDate(listEnd)) ).then(
           function(resolvedEvents) {
-            console.log('processing event list');
             percResolveWidgetEvents(resolvedEvents);
             percProcessEventList(resolvedEvents, maxResults);
           },
@@ -492,7 +516,12 @@
       // This method hides the calendar view, shows the list view, and populates the target with the event list
         function percProcessEventList(eventObject, maxResults) {
 
-            $('#perc-event-list-${calendarContentId}-${widgetId}').fadeIn();
+            var percTargetEventList = $('#perc-event-list-${calendarContentId}-${widgetId}');
+            percTargetEventList.show();
+
+            // Drop the loading row (percInitListView) before populating; an
+            // empty result set falls through to the empty state below.
+            percTargetEventList.find('ul').empty();
 
             //  fullcalendar does not presort the event dates
             eventObject.sort(function(x, y){
@@ -501,8 +530,8 @@
 
             percCurrentDate = new Date();
 
-            //  indentifies the target for the event list, and the template to clone
-            var percTargetEventList = $('#perc-event-list-${calendarContentId}-${widgetId}');
+            //  indentifies the template to clone (the list target was
+            //  resolved and cleared above, dropping the loading row).
             var percEventStructureListRoot = $('#perc-event-list-template-${calendarContentId}-${widgetId} ul li');
             var percEventListElem = percEventStructureListRoot.clone();
             var eventCount = 0;
@@ -574,6 +603,15 @@
 
             }); // end each eventObject
 
+            // Empty state: an explicit row instead of a blank region when
+            // no event survives the today-or-later + maxResults filter
+            // (mirrors the loading row rendered by percInitListView).
+            if (eventIterator == 0) {
+                percTargetEventList.find('ul').append(
+                    '<li class="perc-event-list-element perc-event-list-first perc-event-list-last perc-event-list-empty">No upcoming events.</li>'
+                );
+            }
+
         }   // end function percProcessEventList
 
 
@@ -586,7 +624,9 @@
         }
         $('#calendar-${calendarContentId}-${widgetId}').show();
         initializeCalendar();
-        $('#perc-button-container-${calendarContentId}-${widgetId}').fadeIn();
+        $('#perc-button-container-${calendarContentId}-${widgetId}').show();
+        $('#showCalendarButton-${calendarContentId}-${widgetId}').attr('aria-pressed', 'true');
+        $('#showListButton-${calendarContentId}-${widgetId}').attr('aria-pressed', 'false');
       });
       $('#showListButton-${calendarContentId}-${widgetId}').on("click",function() {
         $('#perc-button-container-${calendarContentId}-${widgetId}').hide();
@@ -598,7 +638,8 @@
         Perc.range = 52;
         $('#perc-event-list-${calendarContentId}-${widgetId} ul').empty();
         percInitListView();
-        $('#perc-event-list-${calendarContentId}-${widgetId}').fadeIn();
+        $('#showCalendarButton-${calendarContentId}-${widgetId}').attr('aria-pressed', 'false');
+        $('#showListButton-${calendarContentId}-${widgetId}').attr('aria-pressed', 'true');
         });
 	});
     });
