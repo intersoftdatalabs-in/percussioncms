@@ -95,6 +95,56 @@ export function isLocaleSiblingEditorOpen(editing: LocaleSiblingEditorsEditing):
   );
 }
 
+/**
+ * Full 16-editor snapshot for the generic field save guard (follow-on #6841,
+ * parent #6747). The description-centric {@link LocaleSiblingEditorsEditing}
+ * omits the description editor (it is `self` on that path); every other field
+ * save must also treat an open description editor as a blocking sibling, so
+ * the generic path carries all sixteen flags plus the self key to exclude.
+ */
+export interface LocaleFieldEditorsEditing extends LocaleSiblingEditorsEditing {
+  descriptionEditing: boolean;
+}
+
+export interface LocaleFieldSaveReadiness {
+  isNew: boolean;
+  hasDetail: boolean;
+  hasWriteKey: boolean;
+  fieldEditing: boolean;
+  dedicatedBlocked: boolean;
+  siblingOpen: boolean;
+}
+
+/**
+ * True when the field editor may attempt a save. Unsaved (create-mode)
+ * locales have no write key yet, and a running save or an open sibling
+ * editor blocks a new attempt. All thirteen over-budget sibling save guards
+ * in {@code LocaleDetailPanel} funnel through this single predicate, so the
+ * inline ~20-term OR chains (plus the duplicated terms some handlers carried)
+ * collapse to one guard call per save path. No behavior change: the sibling
+ * set stays "every other editor open", duplicates included.
+ */
+export function canSaveLocaleFieldEdit(state: LocaleFieldSaveReadiness): boolean {
+  if (state.isNew || !state.hasDetail || !state.hasWriteKey || !state.fieldEditing) {
+    return false;
+  }
+  return !state.dedicatedBlocked && !state.siblingOpen;
+}
+
+/**
+ * True when any editor other than {@code except} is open. Clearing the self
+ * flag before the rollup keeps the predicate a flat two-branch check while
+ * preserving the exact "every other editor" semantics of the inline guards.
+ */
+export function isLocaleOtherEditorOpen(
+  editing: LocaleFieldEditorsEditing,
+  except: keyof LocaleFieldEditorsEditing,
+): boolean {
+  const cleared: LocaleFieldEditorsEditing = { ...editing };
+  cleared[except] = false;
+  return cleared.descriptionEditing || isLocaleSiblingEditorOpen(cleared);
+}
+
 export interface LocaleDescriptionSaveReadiness {
   isNew: boolean;
   hasDetail: boolean;
@@ -107,11 +157,16 @@ export interface LocaleDescriptionSaveReadiness {
 /**
  * True when the description editor may attempt a save. Unsaved (create-mode)
  * locales have no write key yet, and a running save or an open sibling
- * editor blocks a new attempt.
+ * editor blocks a new attempt. Delegates to the generic field predicate so
+ * there is exactly one readiness truth table to pin.
  */
 export function canSaveLocaleDescriptionEdit(state: LocaleDescriptionSaveReadiness): boolean {
-  if (state.isNew || !state.hasDetail || !state.hasWriteKey || !state.descriptionEditing) {
-    return false;
-  }
-  return !state.dedicatedBlocked && !isLocaleSiblingEditorOpen(state.siblings);
+  return canSaveLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    hasWriteKey: state.hasWriteKey,
+    fieldEditing: state.descriptionEditing,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleSiblingEditorOpen(state.siblings),
+  });
 }

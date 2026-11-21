@@ -39,6 +39,9 @@ import {
 import { LOC_DESC_MSG } from "./localeDescriptionMessages";
 import {
   canSaveLocaleDescriptionEdit,
+  canSaveLocaleFieldEdit,
+  isLocaleOtherEditorOpen,
+  type LocaleFieldEditorsEditing,
   type LocaleSiblingEditorsEditing,
 } from "./localeDetailSaveGuards";
 import {
@@ -1033,6 +1036,53 @@ export function LocaleDetailPanel({
     }
   }
 
+  // #6841: generic sibling-save guard shared by the thirteen field save
+  // paths below. Each handler previously inlined the same ~20-term chain
+  // (create-mode / detail / write-key / self preconditions, the dedicated
+  // busy fold, one flag per sibling editor — some handlers even repeated
+  // terms). Collecting the sixteen editor flags once and funneling the
+  // readiness check through canSaveLocaleFieldEdit keeps every handler a
+  // flat guard-clause sequence at/below the complexity budget.
+  // handleLabelSave stays inline (5-term guard, already small) and
+  // handleEnabledStatusSave keeps its historic narrower sibling set, so both
+  // are out of scope here. No behavior change.
+  function collectLocaleFieldEditors(): LocaleFieldEditorsEditing {
+    return {
+      labelEditing,
+      descriptionEditing,
+      datePatternEditing,
+      timePatternEditing,
+      dateTimePatternEditing,
+      decimalSepEditing,
+      groupingSepEditing,
+      currencyCodeEditing,
+      currencyPatternEditing,
+      textDirEditing,
+      firstDayEditing,
+      measurementEditing,
+      defaultTzEditing,
+      numberingSystemEditing,
+      calendarEditing,
+      statusEditing,
+    };
+  }
+
+  function localeFieldSaveBlocked(
+    fieldEditing: boolean,
+    self: keyof LocaleFieldEditorsEditing,
+  ): boolean {
+    return (
+      !canSaveLocaleFieldEdit({
+        isNew,
+        hasDetail: detail != null,
+        hasWriteKey: Boolean(writeKey),
+        fieldEditing,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        siblingOpen: isLocaleOtherEditorOpen(collectLocaleFieldEditors(), self),
+      })
+    );
+  }
+
   function startDatePatternEdit(): void {
     if (
       isNew ||
@@ -1070,28 +1120,7 @@ export function LocaleDetailPanel({
   }
 
   async function handleDatePatternSave(): Promise<void> {
-    if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !datePatternEditing ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
-    ) {
+    if (!detail || localeFieldSaveBlocked(datePatternEditing, "datePatternEditing")) {
       return;
     }
     const sent = localeDatePatternWrite(detail, datePatternDraft);
@@ -1185,28 +1214,7 @@ export function LocaleDetailPanel({
   }
 
   async function handleTimePatternSave(): Promise<void> {
-    if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !timePatternEditing ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
-    ) {
+    if (!detail || localeFieldSaveBlocked(timePatternEditing, "timePatternEditing")) {
       return;
     }
     const sent = localeTimePatternWrite(detail, timePatternDraft);
@@ -1300,28 +1308,7 @@ export function LocaleDetailPanel({
   }
 
   async function handleDateTimePatternSave(): Promise<void> {
-    if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !dateTimePatternEditing ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
-    ) {
+    if (!detail || localeFieldSaveBlocked(dateTimePatternEditing, "dateTimePatternEditing")) {
       return;
     }
     const sent = localeDateTimePatternWrite(detail, dateTimePatternDraft);
@@ -1415,28 +1402,7 @@ export function LocaleDetailPanel({
   }
 
   async function handleDecimalSepSave(): Promise<void> {
-    if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !decimalSepEditing ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
-    ) {
+    if (!detail || localeFieldSaveBlocked(decimalSepEditing, "decimalSepEditing")) {
       return;
     }
     const sent = localeDecimalSepWrite(detail, decimalSepDraft);
@@ -1530,28 +1496,7 @@ export function LocaleDetailPanel({
   }
 
   async function handleGroupingSepSave(): Promise<void> {
-    if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !groupingSepEditing ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
-    ) {
+    if (!detail || localeFieldSaveBlocked(groupingSepEditing, "groupingSepEditing")) {
       return;
     }
     const sent = localeGroupingSepWrite(detail, groupingSepDraft);
@@ -1645,29 +1590,7 @@ export function LocaleDetailPanel({
   }
 
   async function handleCurrencyCodeSave(): Promise<void> {
-    if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !currencyCodeEditing ||
-      currencyPatternEditing ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
-    ) {
+    if (!detail || localeFieldSaveBlocked(currencyCodeEditing, "currencyCodeEditing")) {
       return;
     }
     const sent = localeCurrencyCodeWrite(detail, currencyCodeDraft);
@@ -1762,28 +1685,7 @@ export function LocaleDetailPanel({
   }
 
   async function handleCurrencyPatternSave(): Promise<void> {
-    if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !currencyPatternEditing ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
-    ) {
+    if (!detail || localeFieldSaveBlocked(currencyPatternEditing, "currencyPatternEditing")) {
       return;
     }
     const sent = localeCurrencyPatternWrite(detail, currencyPatternDraft);
@@ -1877,33 +1779,7 @@ export function LocaleDetailPanel({
   }
 
   async function handleTextDirSave(): Promise<void> {
-    if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
-    ) {
+    if (!detail || localeFieldSaveBlocked(textDirEditing, "textDirEditing")) {
       return;
     }
     const sent = localeTextDirWrite(detail, textDirDraft);
@@ -2104,32 +1980,7 @@ export function LocaleDetailPanel({
   }
 
   async function handleFirstDaySave(): Promise<void> {
-    if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
-    ) {
+    if (!detail || localeFieldSaveBlocked(firstDayEditing, "firstDayEditing")) {
       return;
     }
     const sent = localeFirstDayOfWeekWrite(detail, firstDayDraft);
@@ -2237,28 +2088,7 @@ export function LocaleDetailPanel({
   }
 
   async function handleMeasurementSave(): Promise<void> {
-    if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !measurementEditing ||
-defaultTzEditing ||
-numberingSystemEditing ||
-calendarEditing ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      statusEditing
-    ) {
+    if (!detail || localeFieldSaveBlocked(measurementEditing, "measurementEditing")) {
       return;
     }
     const sent = localeMeasurementSystemWrite(detail, measurementDraft);
@@ -2358,28 +2188,7 @@ calendarEditing ||
   }
 
   async function handleDefaultTzSave(): Promise<void> {
-    if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      statusEditing
-    ) {
+    if (!detail || localeFieldSaveBlocked(defaultTzEditing, "defaultTzEditing")) {
       return;
     }
     const sent = localeDefaultTzWrite(detail, defaultTzDraft);
@@ -2479,28 +2288,7 @@ calendarEditing ||
   }
 
   async function handleNumberingSystemSave(): Promise<void> {
-    if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !numberingSystemEditing ||
-      calendarEditing ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      statusEditing
-    ) {
+    if (!detail || localeFieldSaveBlocked(numberingSystemEditing, "numberingSystemEditing")) {
       return;
     }
     const sent = localeNumberingSystemWrite(detail, numberingSystemDraft);
@@ -2602,28 +2390,7 @@ calendarEditing ||
   }
 
   async function handleCalendarSave(): Promise<void> {
-    if (
-      isNew ||
-      !detail ||
-      !writeKey ||
-      !calendarEditing ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      statusEditing
-    ) {
+    if (!detail || localeFieldSaveBlocked(calendarEditing, "calendarEditing")) {
       return;
     }
     const sent = localeCalendarWrite(detail, calendarDraft);

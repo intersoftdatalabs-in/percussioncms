@@ -18,13 +18,17 @@
 import { describe, expect, it } from "vitest";
 import {
   canSaveLocaleDescriptionEdit,
+  canSaveLocaleFieldEdit,
   isLocaleCurrencySiblingEditing,
+  isLocaleOtherEditorOpen,
   isLocalePatternSiblingEditing,
   isLocaleRegionalSiblingEditing,
   isLocaleSiblingEditorOpen,
   isLocaleSystemSiblingEditing,
   isLocaleTextSiblingEditing,
   type LocaleDescriptionSaveReadiness,
+  type LocaleFieldEditorsEditing,
+  type LocaleFieldSaveReadiness,
   type LocaleSiblingEditorsEditing,
 } from "../../../main/ts/developer/localeDetailSaveGuards";
 
@@ -122,5 +126,66 @@ describe("canSaveLocaleDescriptionEdit", () => {
         canSaveLocaleDescriptionEdit({ ...ready, siblings: { ...idleSiblings, [key]: true } }),
       ).toBe(false);
     }
+  });
+});
+
+const idleFieldEditors: LocaleFieldEditorsEditing = {
+  ...idleSiblings,
+  descriptionEditing: false,
+};
+
+const fieldEditorKeys = Object.keys(idleFieldEditors) as (keyof LocaleFieldEditorsEditing)[];
+
+const readyField: LocaleFieldSaveReadiness = {
+  isNew: false,
+  hasDetail: true,
+  hasWriteKey: true,
+  fieldEditing: true,
+  dedicatedBlocked: false,
+  siblingOpen: false,
+};
+
+describe("isLocaleOtherEditorOpen", () => {
+  it("is idle when no editor is open", () => {
+    for (const self of fieldEditorKeys) {
+      expect(isLocaleOtherEditorOpen(idleFieldEditors, self)).toBe(false);
+    }
+  });
+
+  it("ignores the self editor but flags every other open editor", () => {
+    for (const self of fieldEditorKeys) {
+      expect(isLocaleOtherEditorOpen({ ...idleFieldEditors, [self]: true }, self)).toBe(false);
+      for (const other of fieldEditorKeys) {
+        if (other === self) continue;
+        expect(isLocaleOtherEditorOpen({ ...idleFieldEditors, [other]: true }, self)).toBe(true);
+      }
+    }
+  });
+
+  it("flags an open description editor from any other field path", () => {
+    expect(isLocaleOtherEditorOpen({ ...idleFieldEditors, descriptionEditing: true }, "datePatternEditing")).toBe(
+      true,
+    );
+    expect(isLocaleOtherEditorOpen({ ...idleFieldEditors, descriptionEditing: true }, "descriptionEditing")).toBe(
+      false,
+    );
+  });
+});
+
+describe("canSaveLocaleFieldEdit", () => {
+  it("allows a save when the editor is open, keyed, and nothing is running", () => {
+    expect(canSaveLocaleFieldEdit(readyField)).toBe(true);
+  });
+
+  it("blocks create mode, missing detail, missing write key, and a closed editor", () => {
+    expect(canSaveLocaleFieldEdit({ ...readyField, isNew: true })).toBe(false);
+    expect(canSaveLocaleFieldEdit({ ...readyField, hasDetail: false })).toBe(false);
+    expect(canSaveLocaleFieldEdit({ ...readyField, hasWriteKey: false })).toBe(false);
+    expect(canSaveLocaleFieldEdit({ ...readyField, fieldEditing: false })).toBe(false);
+  });
+
+  it("blocks while another save path is running or a sibling editor is open", () => {
+    expect(canSaveLocaleFieldEdit({ ...readyField, dedicatedBlocked: true })).toBe(false);
+    expect(canSaveLocaleFieldEdit({ ...readyField, siblingOpen: true })).toBe(false);
   });
 });
