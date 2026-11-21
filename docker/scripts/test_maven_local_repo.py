@@ -34,6 +34,44 @@ import maven_local_repo as mlr  # noqa: E402
 _POSIX = os.name != "nt"
 
 
+def _usable_posix_shells() -> "list[str]":
+    """POSIX shells able to run the export eval round-trip probe.
+
+    Human review (PR #6862): on Windows runners ``shutil.which("bash")``
+    can resolve to the WSL launcher stub under ``%SystemRoot%\\System32``,
+    which exits non-zero with no stderr and would fail the round-trip
+    for reasons unrelated to the export format. Candidates resolved
+    under ``%SystemRoot%`` are skipped on ``nt``, and every remaining
+    candidate must pass a ``[shell, "-c", "true"]`` probe.
+    """
+    import shutil
+    import subprocess
+
+    shells = [s for s in ("sh", "bash") if shutil.which(s)]
+    usable: "list[str]" = []
+    for shell in shells:
+        if os.name == "nt":
+            system_root = os.environ.get("SystemRoot", r"C:\Windows")
+            try:
+                resolved = str(Path(shutil.which(shell)).resolve())
+            except OSError:
+                continue
+            if resolved.lower().startswith(system_root.lower().rstrip("\\") + "\\"):
+                continue
+        try:
+            probe = subprocess.run(
+                [shell, "-c", "true"],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        except OSError:
+            continue
+        if probe.returncode == 0:
+            usable.append(shell)
+    return usable
+
+
 class MavenLocalRepoTest(unittest.TestCase):
     def setUp(self) -> None:
         self._td = tempfile.TemporaryDirectory()
@@ -306,11 +344,10 @@ class TestWorktreeRepository(unittest.TestCase):
         ``splitlines()`` so they hold on CRLF checkouts too.
         """
         import io
-        import shutil
         import subprocess
         from contextlib import redirect_stdout
 
-        shells = [s for s in ("sh", "bash") if shutil.which(s)]
+        shells = _usable_posix_shells()
         if not shells:
             self.skipTest(
                 "no POSIX shell on PATH: export round-trip needs sh "
