@@ -47,13 +47,45 @@ function renderDialog(overrides: {
 }
 
 describe("WorkflowAssociationDialog (#6062 / FR §5.5)", () => {
+  // Load-hardening for #6837 (sibling of the #6706/#6742 slotCreate timing
+  // flake): under full-suite CPU contention the catalog load + passive
+  // effects (Escape listener, focus trap) can exceed the 1s waitFor default,
+  // so every async chain below carries an explicit 10s budget (inside the
+  // 20s vitest testTimeout). No assertion is weakened.
+  const WF_ASSOC_WAIT_MS = 10_000;
+
+  // Click-after-ready for #6837: the confirm button stays disabled until a
+  // non-duplicate row is picked (handleAssociate no-ops on null selection),
+  // so a confirm click issued before the pick state flushes silently stages
+  // nothing. Gate the click on the button being enabled.
+  async function clickConfirmWhenReady() {
+    await waitFor(
+      () => {
+        expect(
+          (
+            screen.getByTestId(
+              "developer-wf-assoc-confirm",
+            ) as HTMLButtonElement
+          ).disabled,
+        ).toBe(false);
+      },
+      { timeout: WF_ASSOC_WAIT_MS },
+    );
+    fireEvent.click(screen.getByTestId("developer-wf-assoc-confirm"));
+  }
+
   it("associates the picked workflow on confirm", async () => {
     const { onAssociate, onCancel } = renderDialog();
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-wf-assoc-row-perc.review")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(
+          screen.getByTestId("developer-wf-assoc-row-perc.review"),
+        ).toBeTruthy();
+      },
+      { timeout: WF_ASSOC_WAIT_MS },
+    );
     fireEvent.click(screen.getByTestId("developer-wf-assoc-pick-perc.review"));
-    fireEvent.click(screen.getByTestId("developer-wf-assoc-confirm"));
+    await clickConfirmWhenReady();
     expect(onAssociate).toHaveBeenCalledTimes(1);
     expect(onAssociate).toHaveBeenCalledWith("perc.review", CATALOG[1]);
     expect(onCancel).not.toHaveBeenCalled();
@@ -61,9 +93,14 @@ describe("WorkflowAssociationDialog (#6062 / FR §5.5)", () => {
 
   it("cancel stages nothing (edges unchanged)", async () => {
     const { onAssociate, onCancel } = renderDialog();
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-wf-assoc-row-Default Workflow")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(
+          screen.getByTestId("developer-wf-assoc-row-Default Workflow"),
+        ).toBeTruthy();
+      },
+      { timeout: WF_ASSOC_WAIT_MS },
+    );
     fireEvent.click(screen.getByTestId("developer-wf-assoc-pick-Default Workflow"));
     fireEvent.click(screen.getByTestId("developer-wf-assoc-cancel"));
     expect(onCancel).toHaveBeenCalledTimes(1);
@@ -72,44 +109,85 @@ describe("WorkflowAssociationDialog (#6062 / FR §5.5)", () => {
 
   it("Escape cancels without associating", async () => {
     const { onAssociate, onCancel } = renderDialog();
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-wf-assoc-row-perc.review")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(
+          screen.getByTestId("developer-wf-assoc-row-perc.review"),
+        ).toBeTruthy();
+      },
+      { timeout: WF_ASSOC_WAIT_MS },
+    );
     // De-flake for #6706 (sibling of the slotCreate timing flake): the
     // Escape listener attaches in a passive effect after the rows render,
     // so a synchronous keyDown under full-suite load can dispatch before
     // the listener exists and onCancel stays at 0. Dispatch inside the
     // waitFor so a missed dispatch retries; the loop stops at the first
     // pass, so exactly-once still pins a single cancel.
-    await waitFor(() => {
-      fireEvent.keyDown(window, { key: "Escape" });
-      expect(onCancel).toHaveBeenCalledTimes(1);
-    });
+    await waitFor(
+      () => {
+        fireEvent.keyDown(window, { key: "Escape" });
+        expect(onCancel).toHaveBeenCalledTimes(1);
+      },
+      { timeout: WF_ASSOC_WAIT_MS },
+    );
     expect(onAssociate).not.toHaveBeenCalled();
   });
 
   it("search narrows the catalog rows", async () => {
     renderDialog();
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-wf-assoc-row-perc.review")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(
+          screen.getByTestId("developer-wf-assoc-row-perc.review"),
+        ).toBeTruthy();
+      },
+      { timeout: WF_ASSOC_WAIT_MS },
+    );
     fireEvent.change(screen.getByTestId("developer-wf-assoc-search"), {
       target: { value: "review" },
     });
-    expect(screen.queryByTestId("developer-wf-assoc-row-Default Workflow")).toBeNull();
-    expect(screen.getByTestId("developer-wf-assoc-row-perc.review")).toBeTruthy();
+    // Filtered rows derive from sync useMemo state, but assert inside a
+    // bounded wait so a slow effect flush under full-suite load retries
+    // instead of failing the narrowed assertions outright.
+    await waitFor(
+      () => {
+        expect(
+          screen.queryByTestId("developer-wf-assoc-row-Default Workflow"),
+        ).toBeNull();
+        expect(
+          screen.getByTestId("developer-wf-assoc-row-perc.review"),
+        ).toBeTruthy();
+      },
+      { timeout: WF_ASSOC_WAIT_MS },
+    );
   });
 
   it("blocks confirm for an already-associated workflow", async () => {
     const { onAssociate } = renderDialog({ associatedNames: ["perc.review"] });
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-wf-assoc-row-perc.review")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(
+          screen.getByTestId("developer-wf-assoc-row-perc.review"),
+        ).toBeTruthy();
+      },
+      { timeout: WF_ASSOC_WAIT_MS },
+    );
     fireEvent.click(screen.getByTestId("developer-wf-assoc-pick-perc.review"));
-    expect(screen.getByTestId("developer-wf-assoc-dup")).toBeTruthy();
-    expect(
-      (screen.getByTestId("developer-wf-assoc-confirm") as HTMLButtonElement).disabled,
-    ).toBe(true);
+    // The duplicate hint derives from pick state flushed through effects;
+    // wait for it instead of asserting synchronously after the click.
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("developer-wf-assoc-dup")).toBeTruthy();
+        expect(
+          (
+            screen.getByTestId(
+              "developer-wf-assoc-confirm",
+            ) as HTMLButtonElement
+          ).disabled,
+        ).toBe(true);
+      },
+      { timeout: WF_ASSOC_WAIT_MS },
+    );
     fireEvent.click(screen.getByTestId("developer-wf-assoc-confirm"));
     expect(onAssociate).not.toHaveBeenCalled();
   });
@@ -117,9 +195,12 @@ describe("WorkflowAssociationDialog (#6062 / FR §5.5)", () => {
   it("shows the load error and still cancels cleanly", async () => {
     const loadWorkflows = vi.fn(() => Promise.reject(new Error("boom")));
     const { onAssociate, onCancel } = renderDialog({ loadWorkflows });
-    await waitFor(() => {
-      expect(screen.getByTestId("developer-wf-assoc-error")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("developer-wf-assoc-error")).toBeTruthy();
+      },
+      { timeout: WF_ASSOC_WAIT_MS },
+    );
     fireEvent.click(screen.getByTestId("developer-wf-assoc-cancel"));
     expect(onCancel).toHaveBeenCalledTimes(1);
     expect(onAssociate).not.toHaveBeenCalled();

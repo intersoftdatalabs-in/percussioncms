@@ -100,14 +100,58 @@ function renderHost(overrides: Record<string, unknown> = {}) {
   return { checkout, loadFields, loadRevisions, compareRevisions, restoreRevision };
 }
 
+// Load-hardening for #6837 (sibling of the #6706/#6742 slotCreate timing
+// flake): under full-suite CPU contention every async chain in this spec can
+// exceed the 1s waitFor default, so every wait below carries an explicit 10s
+// budget (inside the 20s vitest testTimeout). No assertion is weakened.
+const COMPARE_WAIT_MS = 10_000;
+
 async function openComparePanel() {
-  await waitFor(() => {
-    expect(screen.getByTestId("editor-form")).toBeTruthy();
-  });
+  await waitFor(
+    () => {
+      expect(screen.getByTestId("editor-form")).toBeTruthy();
+    },
+    { timeout: COMPARE_WAIT_MS },
+  );
   fireEvent.click(screen.getByTestId("editor-restore-toggle"));
-  await waitFor(() => {
-    expect(screen.getByTestId("editor-compare-left")).toBeTruthy();
-  });
+  await waitFor(
+    () => {
+      expect(screen.getByTestId("editor-compare-left")).toBeTruthy();
+    },
+    { timeout: COMPARE_WAIT_MS },
+  );
+  // Readiness gate for #6837: the compare selects render before the async
+  // loadRevisions in handleRestoreOpen settles, so editor-compare-run stays
+  // disabled (empty compareLeft/compareRight) until the revisions land. A
+  // synchronous run click before that either no-ops or records
+  // COMPARE_NEED_TWO while the table waitFor below times out — the same
+  // signature as the #6742 slotCreate flake. Never proceed on a disabled run.
+  await waitFor(
+    () => {
+      expect(
+        (screen.getByTestId("editor-compare-run") as HTMLButtonElement)
+          .disabled,
+      ).toBe(false);
+    },
+    { timeout: COMPARE_WAIT_MS },
+  );
+}
+
+// Click-after-ready for #6837: re-assert the run button is enabled at click
+// time (a re-render between openComparePanel and the click can re-disable
+// it while compareBusy flips), then click. Callers must await this instead
+// of fireEvent.click on editor-compare-run directly.
+async function clickCompareRun() {
+  await waitFor(
+    () => {
+      expect(
+        (screen.getByTestId("editor-compare-run") as HTMLButtonElement)
+          .disabled,
+      ).toBe(false);
+    },
+    { timeout: COMPARE_WAIT_MS },
+  );
+  fireEvent.click(screen.getByTestId("editor-compare-run"));
 }
 
 describe("EditorHost revision compare view polish", () => {
@@ -123,28 +167,37 @@ describe("EditorHost revision compare view polish", () => {
     });
     renderHost({ compareRevisions: vi.fn().mockReturnValue(pending) });
     await openComparePanel();
-    fireEvent.click(screen.getByTestId("editor-compare-run"));
-    await waitFor(() => {
-      expect(screen.getByTestId("editor-compare-loading")).toBeTruthy();
-    });
+    await clickCompareRun();
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("editor-compare-loading")).toBeTruthy();
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
     expect(screen.getByTestId("editor-compare-loading")).toHaveProperty(
       "role",
       "status",
     );
     resolveCompare(compare);
-    await waitFor(() => {
-      expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
     expect(screen.queryByTestId("editor-compare-loading")).toBeNull();
   });
 
   it("changed-only filter hides unchanged rows and can show them again", async () => {
     renderHost();
     await openComparePanel();
-    fireEvent.click(screen.getByTestId("editor-compare-run"));
-    await waitFor(() => {
-      expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
-    });
+    await clickCompareRun();
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
     expect(
       screen.getByTestId("editor-compare-row-displaytitle"),
     ).toBeTruthy();
@@ -160,10 +213,13 @@ describe("EditorHost revision compare view polish", () => {
   it("names the source revision in the field-restored notice", async () => {
     renderHost();
     await openComparePanel();
-    fireEvent.click(screen.getByTestId("editor-compare-run"));
-    await waitFor(() => {
-      expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
-    });
+    await clickCompareRun();
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
     fireEvent.click(screen.getByTestId("editor-compare-use-left-sys_title"));
     expect(
       screen.getByTestId("editor-compare-field-restored").textContent,
@@ -177,21 +233,30 @@ describe("EditorHost revision compare view polish", () => {
   it("moves focus to the results and then to the restored notice", async () => {
     renderHost();
     await openComparePanel();
-    fireEvent.click(screen.getByTestId("editor-compare-run"));
-    await waitFor(() => {
-      expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
-    });
-    await waitFor(() => {
-      expect(document.activeElement).toBe(
-        screen.getByTestId("editor-compare-results"),
-      );
-    });
+    await clickCompareRun();
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
+    await waitFor(
+      () => {
+        expect(document.activeElement).toBe(
+          screen.getByTestId("editor-compare-results"),
+        );
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
     fireEvent.click(screen.getByTestId("editor-compare-use-left-sys_title"));
-    await waitFor(() => {
-      expect(document.activeElement).toBe(
-        screen.getByTestId("editor-compare-field-restored"),
-      );
-    });
+    await waitFor(
+      () => {
+        expect(document.activeElement).toBe(
+          screen.getByTestId("editor-compare-field-restored"),
+        );
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
   });
 
   it("marks added and removed words inside changed cells", async () => {
@@ -211,12 +276,15 @@ describe("EditorHost revision compare view polish", () => {
       }),
     });
     await openComparePanel();
-    fireEvent.click(screen.getByTestId("editor-compare-run"));
-    await waitFor(() => {
-      expect(
-        screen.getByTestId("editor-compare-word-left-sys_title"),
-      ).toBeTruthy();
-    });
+    await clickCompareRun();
+    await waitFor(
+      () => {
+        expect(
+          screen.getByTestId("editor-compare-word-left-sys_title"),
+        ).toBeTruthy();
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
     const older = screen.getByTestId("editor-compare-word-left-sys_title");
     const newer = screen.getByTestId("editor-compare-word-right-sys_title");
     expect(older.querySelector("del")?.textContent).toBe("old");
@@ -244,12 +312,15 @@ describe("EditorHost revision compare view polish", () => {
       }),
     });
     await openComparePanel();
-    fireEvent.click(screen.getByTestId("editor-compare-run"));
-    await waitFor(() => {
-      expect(
-        screen.getByTestId("editor-compare-word-left-sys_title"),
-      ).toBeTruthy();
-    });
+    await clickCompareRun();
+    await waitFor(
+      () => {
+        expect(
+          screen.getByTestId("editor-compare-word-left-sys_title"),
+        ).toBeTruthy();
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
     const older = screen.getByTestId("editor-compare-word-left-sys_title");
     const newer = screen.getByTestId("editor-compare-word-right-sys_title");
     expect(older.querySelector("del")?.textContent).toBe("e");
@@ -263,10 +334,13 @@ describe("EditorHost revision compare view polish", () => {
   it("word-diff toggle is keyboard-focusable and falls back to plain values", async () => {
     renderHost();
     await openComparePanel();
-    fireEvent.click(screen.getByTestId("editor-compare-run"));
-    await waitFor(() => {
-      expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
-    });
+    await clickCompareRun();
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
     const toggle = screen.getByTestId("editor-compare-word-diff");
     expect(toggle).toHaveProperty("checked", true);
     expect(
@@ -290,10 +364,13 @@ describe("EditorHost revision compare view polish", () => {
   it("announces compare results through a live region", async () => {
     renderHost();
     await openComparePanel();
-    fireEvent.click(screen.getByTestId("editor-compare-run"));
-    await waitFor(() => {
-      expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
-    });
+    await clickCompareRun();
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
     const results = screen.getByTestId("editor-compare-results");
     expect(results).toHaveProperty("role", "region");
     expect(results.getAttribute("aria-live")).toBe("polite");
@@ -336,10 +413,13 @@ describe("EditorHost revision compare view polish", () => {
       }),
     });
     await openComparePanel();
-    fireEvent.click(screen.getByTestId("editor-compare-run"));
-    await waitFor(() => {
-      expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
-    });
+    await clickCompareRun();
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
     const status = screen.getByTestId("editor-compare-nav-status");
     expect(status).toHaveProperty("role", "status");
     expect(status.textContent).toBe("Change 1 of 2: sys_title");
@@ -348,18 +428,24 @@ describe("EditorHost revision compare view polish", () => {
     expect(prev).toHaveProperty("disabled", true);
     expect(next).toHaveProperty("disabled", false);
     fireEvent.click(next);
-    await waitFor(() => {
-      expect(status.textContent).toBe("Change 2 of 2: body");
-    });
+    await waitFor(
+      () => {
+        expect(status.textContent).toBe("Change 2 of 2: body");
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
     expect(document.activeElement).toBe(
       screen.getByTestId("editor-compare-row-body"),
     );
     expect(next).toHaveProperty("disabled", true);
     expect(prev).toHaveProperty("disabled", false);
     fireEvent.click(prev);
-    await waitFor(() => {
-      expect(status.textContent).toBe("Change 1 of 2: sys_title");
-    });
+    await waitFor(
+      () => {
+        expect(status.textContent).toBe("Change 1 of 2: sys_title");
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
     expect(document.activeElement).toBe(
       screen.getByTestId("editor-compare-row-sys_title"),
     );
@@ -368,10 +454,13 @@ describe("EditorHost revision compare view polish", () => {
   it("passes the axe gate on the compare surface", async () => {
     renderHost();
     await openComparePanel();
-    fireEvent.click(screen.getByTestId("editor-compare-run"));
-    await waitFor(() => {
-      expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
-    });
+    await clickCompareRun();
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("editor-compare-table")).toBeTruthy();
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
     await renderA11yGate(screen.getByTestId("editor-compare"));
   });
 });
