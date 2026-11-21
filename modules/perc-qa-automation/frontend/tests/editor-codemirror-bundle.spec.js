@@ -1050,7 +1050,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
         codeeditorStart,
         `${SYS_TEMPLATES_XSL} must keep the codeeditor branch`,
       ).toBeGreaterThan(-1);
-      const scriptStart = text.indexOf("fromTextArea", codeeditorStart);
+      const scriptStart = text.indexOf("fromTextArea(", codeeditorStart);
       expect(
         scriptStart,
         `${SYS_TEMPLATES_XSL} code editor must create a CodeMirror instance`,
@@ -1119,7 +1119,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
         branch,
         `${SYS_TEMPLATES_XSL} must resolve an effective editor mode (#6528)`,
       ).toContain("codeeditor_effective_mode");
-      const scriptStart = branch.indexOf("fromTextArea");
+      const scriptStart = branch.indexOf("fromTextArea(");
       expect(
         scriptStart,
         `${SYS_TEMPLATES_XSL} code editor must create a CodeMirror instance`,
@@ -1127,8 +1127,12 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
       const scriptBlock = branch.slice(scriptStart, scriptStart + 1200);
       expect(
         scriptBlock,
-        `${SYS_TEMPLATES_XSL} must wire codeeditor_mode into the editor mode (#6528)`,
-      ).toContain("mode: '<xsl:value-of select=\"$codeeditor_effective_mode\" />'");
+        `${SYS_TEMPLATES_XSL} must wire codeeditor_mode into the editor (#6528)`,
+      ).toContain("mode: mode,");
+      expect(
+        branch,
+        `${SYS_TEMPLATES_XSL} must pass the effective mode into the guarded init (#6528)`,
+      ).toContain("percCodeEditorInit('<xsl:value-of select=\"@paramName\" />', '<xsl:value-of select=\"$codeeditor_effective_mode\" />')");
       expect(
         scriptBlock,
         `${SYS_TEMPLATES_XSL} must not hardcode the editor mode (#6528)`,
