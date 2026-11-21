@@ -104,8 +104,9 @@ class DtsTomcatUsersDigestTest {
     // mkd-code-review[secrets.heuristic]: adjudicated intentional (issue #6939) — asserting the
     // build file stores a digest (not a live secret) in its password element is this guard's
     // purpose; the expected value derives from the published default credential.
+    String expectedStoredPassword = "<password>" + digest + "</password>";
     assertTrue(
-        defaultBuild.contains("<password>" + digest + "</password>"),
+        defaultBuild.contains(expectedStoredPassword),
         "default-build cargo <users> password must be sha1(documented default secret) = "
             + digest
             + " or the shipped tomcat-users.xml cannot authenticate (#6939)");
