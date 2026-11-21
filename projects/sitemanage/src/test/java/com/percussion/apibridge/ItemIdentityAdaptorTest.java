@@ -67,7 +67,7 @@ class ItemIdentityAdaptorTest {
     when(workflow.lookupCheckoutOwner("42"))
         .thenReturn(new PSItemUserInfo("Home", "admin", "admin", "Reader"));
     when(workflowHelper.getComponentSummary("42")).thenReturn(summary(101L, 2, 5, 1001));
-    List<ItemIdentity> out = adaptor.lookupBatch(base, List.of("42"));
+    List<ItemIdentity> out = lookupWithCommunities("42", List.of("1001"));
     assertEquals(1, out.size());
     ItemIdentity identity = out.get(0);
     assertEquals("42", identity.getId());
@@ -85,7 +85,8 @@ class ItemIdentityAdaptorTest {
     when(workflow.lookupCheckoutOwner("42"))
         .thenReturn(new PSItemUserInfo("Home", "editor", "admin", "Reader"));
     when(workflowHelper.getComponentSummary("42")).thenReturn(summary(101L, 2, 5, 1001));
-    assertEquals("Checked Out", adaptor.lookupBatch(base, List.of("42")).get(0).getCheckoutStatus());
+    assertEquals(
+        "Checked Out", lookupWithCommunities("42", List.of("1001")).get(0).getCheckoutStatus());
   }
 
   @Test
@@ -93,7 +94,7 @@ class ItemIdentityAdaptorTest {
     when(workflow.lookupCheckoutOwner("42"))
         .thenReturn(new PSItemUserInfo("Home", "", "admin", "Reader"));
     when(workflowHelper.getComponentSummary("42")).thenReturn(summary(101L, 2, 5, 1001));
-    assertEquals("", adaptor.lookupBatch(base, List.of("42")).get(0).getCheckoutStatus());
+    assertEquals("", lookupWithCommunities("42", List.of("1001")).get(0).getCheckoutStatus());
   }
 
   @Test
@@ -115,7 +116,11 @@ class ItemIdentityAdaptorTest {
     when(workflowHelper.getComponentSummary("42")).thenReturn(summary(101L, 2, 5, 1001));
     when(workflow.lookupCheckoutOwner("missing"))
         .thenThrow(new PSItemWorkflowServiceException("not found"));
-    List<ItemIdentity> out = adaptor.lookupBatch(base, Arrays.asList("42", " ", "missing"));
+    List<ItemIdentity> out;
+    try (MockedStatic<PSSecurityFilter> filter = Mockito.mockStatic(PSSecurityFilter.class)) {
+      stubSession(filter, List.of("1001"), null);
+      out = adaptor.lookupBatch(base, Arrays.asList("42", " ", "missing"));
+    }
     assertEquals(1, out.size());
     assertEquals("42", out.get(0).getId());
   }
@@ -129,7 +134,11 @@ class ItemIdentityAdaptorTest {
     when(workflow.lookupCheckoutOwner("42"))
         .thenReturn(new PSItemUserInfo("Home", "", "admin", "Reader"));
     when(workflowHelper.getComponentSummary("42")).thenReturn(summary(101L, 2, 5, 1001));
-    List<ItemIdentity> out = adaptor.lookupBatch(base, Arrays.asList("42", "denied"));
+    List<ItemIdentity> out;
+    try (MockedStatic<PSSecurityFilter> filter = Mockito.mockStatic(PSSecurityFilter.class)) {
+      stubSession(filter, List.of("1001"), null);
+      out = adaptor.lookupBatch(base, Arrays.asList("42", "denied"));
+    }
     assertEquals(1, out.size());
     assertEquals("42", out.get(0).getId());
   }
@@ -176,6 +185,81 @@ class ItemIdentityAdaptorTest {
   }
 
   @Test
+  void batchOmitsCommunityScopedRowWithoutRequest() throws Exception {
+    // Issue #6852: a missing request must fail closed, not disclose the row.
+    when(workflow.lookupCheckoutOwner("42"))
+        .thenReturn(new PSItemUserInfo("Home", "", "admin", "Reader"));
+    when(workflowHelper.getComponentSummary("42")).thenReturn(summary(101L, 2, 5, 1001));
+    try (MockedStatic<PSSecurityFilter> filter = Mockito.mockStatic(PSSecurityFilter.class)) {
+      filter.when(PSSecurityFilter::getCurrentRequest).thenReturn(null);
+      assertTrue(adaptor.lookupBatch(base, List.of("42")).isEmpty());
+    }
+  }
+
+  @Test
+  void batchOmitsCommunityScopedRowWithoutSession() throws Exception {
+    // Issue #6852: a request with no user session must fail closed.
+    when(workflow.lookupCheckoutOwner("42"))
+        .thenReturn(new PSItemUserInfo("Home", "", "admin", "Reader"));
+    when(workflowHelper.getComponentSummary("42")).thenReturn(summary(101L, 2, 5, 1001));
+    try (MockedStatic<PSSecurityFilter> filter = Mockito.mockStatic(PSSecurityFilter.class)) {
+      PSRequest req = Mockito.mock(PSRequest.class);
+      filter.when(PSSecurityFilter::getCurrentRequest).thenReturn(req);
+      when(req.getUserSession()).thenReturn(null);
+      assertTrue(adaptor.lookupBatch(base, List.of("42")).isEmpty());
+    }
+  }
+
+  @Test
+  void batchOmitsCommunityScopedRowWithEmptyCommunities() throws Exception {
+    // Issue #6852: a user assigned to no communities sees no community-scoped rows.
+    when(workflow.lookupCheckoutOwner("42"))
+        .thenReturn(new PSItemUserInfo("Home", "", "admin", "Reader"));
+    when(workflowHelper.getComponentSummary("42")).thenReturn(summary(101L, 2, 5, 1001));
+    try (MockedStatic<PSSecurityFilter> filter = Mockito.mockStatic(PSSecurityFilter.class)) {
+      stubSession(filter, List.of(), List.of("Editor"));
+      assertTrue(adaptor.lookupBatch(base, List.of("42")).isEmpty());
+    }
+  }
+
+  @Test
+  void batchOmitsCommunityScopedRowWithNullCommunities() throws Exception {
+    // Issue #6852: a null community list is uncertainty and fails closed.
+    when(workflow.lookupCheckoutOwner("42"))
+        .thenReturn(new PSItemUserInfo("Home", "", "admin", "Reader"));
+    when(workflowHelper.getComponentSummary("42")).thenReturn(summary(101L, 2, 5, 1001));
+    try (MockedStatic<PSSecurityFilter> filter = Mockito.mockStatic(PSSecurityFilter.class)) {
+      stubSession(filter, null, List.of());
+      assertTrue(adaptor.lookupBatch(base, List.of("42")).isEmpty());
+    }
+  }
+
+  @Test
+  void batchAdminSessionWithEmptyCommunitiesKeepsRow() throws Exception {
+    // Issue #6852: only a verified Admin-role session is unrestricted on an
+    // empty community list.
+    when(workflow.lookupCheckoutOwner("42"))
+        .thenReturn(new PSItemUserInfo("Home", "", "admin", "Reader"));
+    when(workflowHelper.getComponentSummary("42")).thenReturn(summary(101L, 2, 5, 1001));
+    try (MockedStatic<PSSecurityFilter> filter = Mockito.mockStatic(PSSecurityFilter.class)) {
+      stubSession(filter, List.of(), List.of("Admin"));
+      assertEquals(1, adaptor.lookupBatch(base, List.of("42")).size());
+    }
+  }
+
+  @Test
+  void batchNonCommunityRowVisibleWithoutRequest() throws Exception {
+    // Non-community-scoped rows (community id <= 0) stay visible even with no
+    // verifiable caller.
+    when(workflow.lookupCheckoutOwner("7"))
+        .thenReturn(new PSItemUserInfo("Sites", "", "admin", "Reader"));
+    when(workflowHelper.getComponentSummary("7")).thenReturn(summary(0L, 1, 0, -1));
+    try (MockedStatic<PSSecurityFilter> filter = Mockito.mockStatic(PSSecurityFilter.class)) {
+      filter.when(PSSecurityFilter::getCurrentRequest).thenReturn(null);
+      assertEquals(1, adaptor.lookupBatch(base, List.of("7")).size());
+    }
+  }
+  @Test
   void batchUnexpectedFailurePropagatesTo500() throws Exception {
     // Review #6814: a service outage must not masquerade as "not found" (which
     // would silently fall back to permissive visibility). The resource maps the
@@ -204,6 +288,36 @@ class ItemIdentityAdaptorTest {
     assertEquals("Checked Out By Me", ItemIdentityAdaptor.toCheckoutStatus("Admin", "admin"));
     assertEquals("Checked Out", ItemIdentityAdaptor.toCheckoutStatus("editor", "admin"));
     assertEquals("Checked Out", ItemIdentityAdaptor.toCheckoutStatus("editor", null));
+  }
+
+  /**
+   * Runs a single-id batch lookup with the security filter stubbed to a session carrying the
+   * given communities (#6852 fail-closed guard needs a verifiable caller).
+   */
+  private List<ItemIdentity> lookupWithCommunities(String id, List<String> communities)
+      throws Exception {
+    try (MockedStatic<PSSecurityFilter> filter = Mockito.mockStatic(PSSecurityFilter.class)) {
+      stubSession(filter, communities, null);
+      return adaptor.lookupBatch(base, List.of(id));
+    }
+  }
+
+  /**
+   * Stubs the current request/session with the given communities and roles. Roles are only
+   * stubbed when non-null: a non-empty community list never consults them, and Mockito
+   * strict stubs reject stubbings the code under test does not use.
+   */
+  private static void stubSession(
+      MockedStatic<PSSecurityFilter> filter, List<String> communities, List<String> roles)
+      throws Exception {
+    PSRequest req = Mockito.mock(PSRequest.class);
+    PSUserSession session = Mockito.mock(PSUserSession.class);
+    filter.when(PSSecurityFilter::getCurrentRequest).thenReturn(req);
+    when(req.getUserSession()).thenReturn(session);
+    when(session.getUserCommunities(req)).thenReturn(communities);
+    if (roles != null) {
+      when(session.getUserRoles()).thenReturn(roles);
+    }
   }
 
   private static PSComponentSummary summary(

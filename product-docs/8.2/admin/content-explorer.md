@@ -1296,6 +1296,12 @@ including whole cascade parents whose every child is hidden:
 | Content-type / object-type / workflow ids | Selected row identity (same batch endpoint) |
 | Community id | Selected row identity (same batch endpoint) |
 
+Community-scoped rows are only returned when the caller session verifies
+membership in that community (or the Admin role when the session carries
+no community list). Without a verifiable session the row is omitted, so
+the endpoint never discloses checkout status or numeric ids for items
+outside the caller's communities.
+
 Rules the shell cannot resolve yet stay permissive: the action remains
 visible, exactly as before this change. Those facts are not available —
 assignment and publishable-type ids (server follow-on) and the
