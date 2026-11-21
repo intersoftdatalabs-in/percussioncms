@@ -89,7 +89,7 @@ describe("ContentExplorerShell slot create (#3497)", {
   // CPU contention, so the gate was roulette.
   timeout: EXPLORER_SHELL_TEST_TIMEOUT,
 }, () => {
-  it("folder browse without a slot stays needs-slot and does not create", async () => {
+  it("folder browse without a slot disables Slot_Create with a slot tooltip (#6915)", async () => {
     stubPathFetch();
     const addToSlot = vi.fn();
     const createItem = vi.fn();
@@ -111,12 +111,12 @@ describe("ContentExplorerShell slot create (#3497)", {
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar-item-Slot_Create")).toBeTruthy();
     });
-    fireEvent.click(screen.getByTestId("action-toolbar-item-Slot_Create"));
-    await waitFor(() => {
-      expect(screen.getByTestId("explorer-server-actions-error").textContent).toMatch(
-        /select a slot/i,
-      );
-    });
+    // DCE parity (#6915): aria-disabled + tooltip instead of a status hint.
+    const create = screen.getByTestId("action-toolbar-item-Slot_Create");
+    expect(create.getAttribute("aria-disabled")).toBe("true");
+    expect(create.getAttribute("title")).toMatch(/select a slot/i);
+    fireEvent.click(create);
+    fireEvent.keyDown(create, { key: "Enter" });
     expect(createItem).not.toHaveBeenCalled();
     expect(addToSlot).not.toHaveBeenCalled();
     expect(openWindow).not.toHaveBeenCalled();

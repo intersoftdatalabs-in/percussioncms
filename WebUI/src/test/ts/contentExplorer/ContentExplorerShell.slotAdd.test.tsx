@@ -103,7 +103,7 @@ const slotAddMenu = [
 ];
 
 describe("ContentExplorerShell slot add (#3495)", () => {
-  it("folder browse without a slot stays needs-slot and does not POST", async () => {
+  it("folder browse without a slot disables Slot_Add with a slot tooltip (#6915)", async () => {
     stubPathFetch();
     const addToSlot = vi.fn();
     renderShell(
@@ -118,12 +118,12 @@ describe("ContentExplorerShell slot add (#3495)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar-item-Slot_Add")).toBeTruthy();
     });
-    fireEvent.click(screen.getByTestId("action-toolbar-item-Slot_Add"));
-    await waitFor(() => {
-      expect(screen.getByTestId("explorer-server-actions-error").textContent).toMatch(
-        /select a slot/i,
-      );
-    });
+    // DCE parity (#6915): aria-disabled + tooltip instead of a status hint.
+    const add = screen.getByTestId("action-toolbar-item-Slot_Add");
+    expect(add.getAttribute("aria-disabled")).toBe("true");
+    expect(add.getAttribute("title")).toMatch(/select a slot/i);
+    fireEvent.click(add);
+    fireEvent.keyDown(add, { key: "Enter" });
     expect(addToSlot).not.toHaveBeenCalled();
     expect(screen.queryByTestId("explorer-slot-add-dialog")).toBeNull();
   });

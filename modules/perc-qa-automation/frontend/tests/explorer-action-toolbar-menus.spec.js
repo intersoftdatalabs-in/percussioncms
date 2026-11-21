@@ -229,6 +229,53 @@ test.describe("modern React Content Explorer — nested ActionToolbar menus (#27
           `Arrange child "${childName}" must render as a menuitem`,
         ).toBe(true);
       }
+      // #6915 (DCE parity): with no Active Assembly slot snippet selected,
+      // Arrange children render aria-disabled with a tooltip naming the
+      // missing slot context instead of dispatching a status hint.
+      // Roving tabindex still lists each item as one tab stop.
+      const disabledFlags = await arrangeItems.evaluateAll((els) =>
+        els.map((el) => ({
+          testId: el.getAttribute("data-testid") ?? "",
+          disabled: el.getAttribute("aria-disabled"),
+          title: el.getAttribute("title") ?? "",
+        })),
+      );
+      expect(
+        disabledFlags.length,
+        "Arrange menu must list its catalog children",
+      ).toBeGreaterThan(0);
+      for (const flag of disabledFlags) {
+        expect(
+          flag.disabled,
+          `slot-less Arrange child "${flag.testId}" must be aria-disabled`,
+        ).toBe("true");
+        expect(
+          flag.title,
+          `slot-less Arrange child "${flag.testId}" tooltip must name the missing slot context`,
+        ).toMatch(/slot/i);
+      }
+      await expect(arrangeItems.first()).toHaveAttribute("tabindex", "0");
+      await expect(
+        arrangeItems.nth(1),
+        "roving tabindex keeps one tab stop while disabled items stay focusable",
+      ).toHaveAttribute("tabindex", "-1");
+      // Keyboard: ArrowDown lands on (not skips) the disabled second item…
+      await arrangeItems.first().focus();
+      await page.keyboard.press("ArrowDown");
+      await expect(arrangeItems.nth(1)).toBeFocused();
+      // …and Enter on it is a no-op: no server call, no error, menu open.
+      await page.keyboard.press("Enter");
+      await expect(
+        page.locator(`[data-testid="action-toolbar-menu-Arrange"]`),
+      ).toBeVisible();
+      await expect(
+        page.locator('[data-testid="explorer-server-actions-error"]'),
+      ).toHaveCount(0);
+      // Changed surface keeps the axe gate green while the disabled
+      // Arrange menu is open (#6915 / T082b).
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="action-toolbar-menu-Arrange"]',
+      });
       // Live Proof (#6886): pass-run capture of the restored Arrange menu.
       await page.screenshot({
         path: "test-results/live-proof-6886-arrange-dropdown.png",
