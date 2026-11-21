@@ -70,6 +70,12 @@
  * view — the displayed rows in display order with the visible columns
  * only — as an RFC 4180 file built client-side from the already-loaded
  * page (no new REST). Only the loaded page is exported.</p>
+ *
+ * <p>#6863 (parent #6826): a focused row opens the same item-scoped
+ * server menu pointer right-click offers via the context-menu key or
+ * Shift+F10 (plain F10 is ignored). The row is selected first and the
+ * popup anchors at the row rect; loading, focus-into-popup, and Escape
+ * behavior are the shared shell menu behavior.</p>
  */
 
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -1377,6 +1383,22 @@ export function DetailList({
                 }}
                 onKeyDown={(e) => {
                   if (!visible) return;
+                  // Keyboard equivalent of right-click (#6863, parent
+                  // #6826): the context-menu key or Shift+F10 selects the
+                  // row and opens the same item-scoped server menu
+                  // pointer right-click offers. The menu anchors just
+                  // below the row start since there is no pointer.
+                  // Plain F10 is ignored. Handled before Enter/arrows
+                  // so the menu key never falls through to navigation.
+                  if (e.key === "ContextMenu" || (e.key === "F10" && e.shiftKey)) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onSelectItem(item);
+                    if (!onItemContextMenu) return;
+                    const rect = e.currentTarget.getBoundingClientRect();
+                    onItemContextMenu(item, rect.left + 24, rect.bottom + 4);
+                    return;
+                  }
                   if (e.key === "Enter") {
                     onActivateItem?.(item);
                     return;
