@@ -56,6 +56,8 @@ def _usable_posix_shells() -> "list[str]":
                 resolved = str(Path(shutil.which(shell)).resolve())
             except OSError:
                 continue
+            # mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6807, same class as #6787) —
+            # nt-guarded %SystemRoot% prefix guard; backslash names Windows semantics, not a portable join.
             if resolved.lower().startswith(system_root.lower().rstrip("\\") + "\\"):
                 continue
         try:
