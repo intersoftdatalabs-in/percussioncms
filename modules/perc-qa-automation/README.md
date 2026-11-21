@@ -830,6 +830,19 @@ The inventory is closed: three pinned cases (`submitConfirm`,
 validates the row against the schema and writes
 `frontend/test-results/forms-confirmation-matrix.json` (gitignored).
 
+The confirmation pages themselves (`perc-form-processor` war
+`success.html` / `error.html`, mirrored under `src/test/webapp`) carry
+stable automation hooks — `data-testid="forms-confirmation-success"` /
+`"forms-confirmation-error"` with the long-standing user-visible copy —
+exported from the helper as `SUCCESS_PAGE_TESTID` / `SUCCESS_PAGE_COPY`
+(+ `ERROR_PAGE_*`) with the pure `pageHasConfirmationMarker(html,
+marker)` predicate, so the future follow-the-redirect proof and the
+credentialed retrieval-green run assert the same contract the unit tests
+pin. Known gap (#6893, unassigned): the default redirect targets are
+only packaged under `WEB-INF` with the Jersey servlet on `/*`, so a
+branch-built cell must prove the landing page servable before the spec
+follows the redirect live.
+
 ### Architecture Create section no-skip (#3589 / #3661 / #3672 / parent #3092)
 
 H2 operator proof that **Create section** is enabled on
