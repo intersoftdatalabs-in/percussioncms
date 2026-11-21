@@ -6,7 +6,7 @@ Machine analysis found **0** finding(s), **0** blocking bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 3 analyzed
+- Files: 6 analyzed
 - Persona: erlang 0.1.1
 - Persona source: ~/.local/share/mkd/agents/erlang
 
@@ -33,5 +33,5 @@ redirect immediately below the flagged line (`landing` GET asserts HTTP
 200 plus `pageHasConfirmationMarker` and the user-visible copy) — the
 finding describes the pre-#6893 gap, not the diff. Suppressed inline
 with `// mkd-code-review[llm.ollama-dev-coder]: adjudicated stale (issue
-#6893)`; the re-run above is clean (0 findings). No genuine defect was
+#6893)`; the re-runs above are clean (0 findings). No genuine defect was
 suppressed around.
