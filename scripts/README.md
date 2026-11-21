@@ -84,12 +84,19 @@ vars actually reach the plugin and the bash tool.
   Frankenstein-classpath Spring failure). An explicit `-Dmaven.repo.local`
   already present in `MAVEN_ARGS` keeps winning (Maven last-wins);
   `--no-m2-isolate` opts out entirely. The launcher creates the directory
-  but never seeds it — warm-start third-party artifacts once with
-  `python3 docker/scripts/maven_local_repo.py --repo-root <worktree>`
-  (skips project SNAPSHOTs by design; see `docker/README.md`). The
+  and then seeds third-party (non-`SNAPSHOT`) artifacts from the resolved
+  shared repository exactly once (marker-guarded at
+  `<worktree>/tmp/m2-worktree/.worktree-m2-seeded`; repeat runs are a
+  no-op), so the first worktree build does not re-download the internet —
+  `--no-m2-seed` skips seeding, `--m2-seed-from <dir>` overrides the source.
+  Seeding is best-effort (warns, never aborts the run) and never runs under
+  `--dry-run`; it is also skipped when an explicit `-Dmaven.repo.local`
+  redirects the agent's builds elsewhere. Project `SNAPSHOT`s are never
+  copied — they are rebuilt in place (see `docker/README.md`). The
   `qa-up` strict preflight (`--m2-root` default resolves the same way via
   `maven_local_repo.resolve_m2_repository`) fails fast on stale or poisoned
-  jars before the matrix run.
+  jars before the matrix run. The one-shot manual equivalent remains
+  `python3 docker/scripts/maven_local_repo.py --repo-root <worktree>`.
 - **Usage**:
 
   ```bash

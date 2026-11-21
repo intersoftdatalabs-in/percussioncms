@@ -43,9 +43,15 @@ Erlang skill CLI before opening a PR; host/peer phases still spawn the
   `MAVEN_ARGS` and records the effective path in `NIGHT_M2_REPO`, so night
   agents never overwrite the shared `~/.m2` SNAPSHOTs another cell boots.
   An explicit `-Dmaven.repo.local` already present in `MAVEN_ARGS` keeps
-  winning (Maven last-wins); `--no-m2-isolate` opts out entirely. The
-  launcher creates the directory but never seeds it — warm-start once via
-  `python3 docker/scripts/maven_local_repo.py --repo-root <worktree>`.
+  winning (Maven last-wins); `--no-m2-isolate` opts out entirely.
+- Per-worktree Maven seed-once (#6739, on by default): after creating the
+  directory, the launcher seeds third-party (non-`SNAPSHOT`) artifacts from
+  the resolved shared repository exactly once (marker-guarded, idempotent),
+  so the first worktree build does not re-download the internet. Project
+  `SNAPSHOT`s are never copied — they are rebuilt in place, which is the
+  isolation this exists for. `--no-m2-seed` skips seeding; `--m2-seed-from`
+  overrides the source. Seeding is best-effort (warns, never aborts launch)
+  and never runs under `--dry-run`.
 - The `--dry-run` flag prints the resolved command without invoking `opencode`.
   Use it for cron wiring validation.
 
@@ -98,6 +104,7 @@ Erlang skill CLI before opening a PR; host/peer phases still spawn the
 from __future__ import annotations
 
 import argparse
+import importlib.util
 import json
 import logging
 import os
@@ -107,6 +114,7 @@ import shutil
 import subprocess
 import sys
 from pathlib import Path
+from typing import Optional
 
 REPO_SLUG = "intersoft-workspace-percussioncms"
 COMPONENT = "night-issue-prs"
@@ -117,9 +125,11 @@ ARGUMENTS_PLACEHOLDER = "$ARGUMENTS"
 
 # Per-worktree Maven local repository segment (#6707). The layout mirrors
 # docker/scripts/maven_local_repo.worktree_local_repository so the launcher
-# and the QA helpers resolve the same directory by construction.
+# and the QA helpers resolve the same directory by construction. Seeding
+# itself is delegated to that canonical helper (#6739) — no layout, marker,
+# or copy logic is duplicated here.
 _M2_WORKTREE_DIRNAME = "m2-worktree"
-_M2_SEED_MARKER = ".worktree-m2-seeded"
+_M2_HELPER_REL = Path("docker") / "scripts" / "maven_local_repo.py"
 _REPO_LOCAL_RE = re.compile(r"""-Dmaven\.repo\.local=(?:"([^"]*)"|'([^']*)'|(\S+))""")
 
 LOGGER = logging.getLogger(__name__)
@@ -505,15 +515,83 @@ def ensure_night_m2_repo(worktree: Path) -> Path:
     """Create the per-worktree Maven local repository directory (#6707).
 
     Creates the parent chain only — never copies or downloads artifacts, so
-    the launcher stays fast and side-effect-light. The first worktree
-    ``mvn`` run populates the repo; operators who want a warm start can
-    pre-seed third-party artifacts once via
-    ``python3 docker/scripts/maven_local_repo.py --repo-root <worktree>``.
+    the launcher stays fast and side-effect-light. Third-party warm-start
+    is a separate, marker-guarded step: see seed_worktree_m2_repo (#6739).
     Idempotent: safe to call on every run.
     """
     repo = worktree_maven_repo(worktree)
     repo.mkdir(parents=True, exist_ok=True)
     return repo
+
+
+def _load_maven_local_repo():
+    """Load the canonical ``docker/scripts/maven_local_repo.py`` helper (#6739).
+
+    ``importlib`` from the file location (resolved from this file's checkout
+    root): no ``sys.path`` pollution, no subprocess, Windows-safe. The
+    launcher reuses ``resolve_m2_repository`` (shared-source resolution) and
+    ``ensure_worktree_repository`` (seed-once copy + marker) instead of
+    duplicating layout or copy logic.
+    """
+    helper = Path(__file__).resolve().parent.parent / _M2_HELPER_REL
+    spec = importlib.util.spec_from_file_location("maven_local_repo", helper)
+    if spec is None or spec.loader is None:
+        raise LauncherError(f"cannot load Maven helper at {helper}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def seed_worktree_m2_repo(
+    worktree: Path,
+    *,
+    seed_from: Optional[Path] = None,
+    env: Optional[dict] = None,
+) -> Path:
+    """Seed third-party artifacts into the per-worktree repo, once (#6739).
+
+    Copies non-``SNAPSHOT`` artifacts from ``seed_from`` (default: the shared
+    local repository resolved the way ``mvn`` would from the launcher's own
+    environment — before the worktree flag is applied) into
+    ``worktree_maven_repo(worktree)``. Project ``SNAPSHOT`` jars are never
+    copied; they are rebuilt in place by the worktree's own ``clean
+    install``. A marker records the seed source, so a second call with the
+    same source is a no-op (idempotent across runs).
+
+    Best-effort by design: any failure is logged as a warning and the
+    worktree repo path is still returned — a cold (unseeded) repo only costs
+    the first build its downloads, and must never abort the night run.
+    """
+    repo = worktree_maven_repo(worktree)
+    repo.mkdir(parents=True, exist_ok=True)
+    try:
+        helper = _load_maven_local_repo()
+        source = (
+            Path(seed_from)
+            if seed_from is not None
+            else helper.resolve_m2_repository(worktree, env=dict(os.environ) if env is None else env)
+        )
+        helper.ensure_worktree_repository(worktree, source)
+        LOGGER.info("per-worktree Maven repo seeded from %s", source)
+    except Exception as exc:  # noqa: BLE001 — warm-start must never abort launch
+        LOGGER.warning("per-worktree Maven repo seed skipped: %s", exc)
+    return repo
+
+
+def should_seed_worktree_repo(args: argparse.Namespace, env: dict, m2_repo: Path) -> bool:
+    """Decide whether the launcher seeds the per-worktree repo this run (#6739).
+
+    Seeds only when isolation is on, seeding is on (``--m2-seed``), and the
+    agent will actually build into the worktree repo — i.e. ``NIGHT_M2_REPO``
+    (Maven last-wins over the prepended flag) still points at it. An
+    explicit operator ``-Dmaven.repo.local`` redirects builds elsewhere, so
+    seeding the worktree repo would be wasted I/O.
+    """
+    return (
+        bool(getattr(args, "m2_isolate", True))
+        and bool(getattr(args, "m2_seed", True))
+        and env.get("NIGHT_M2_REPO", "") == str(m2_repo)
+    )
 
 
 def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
@@ -624,6 +702,28 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
         ),
     )
     parser.add_argument(
+        "--m2-seed",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help=(
+            "Seed third-party (non-SNAPSHOT) artifacts into the per-worktree "
+            "local repository once, from the resolved shared repository "
+            "(default: true; #6739). Marker-guarded: repeat runs are a no-op. "
+            "Project SNAPSHOTs are never copied. Pass --no-m2-seed on "
+            "disk-constrained hosts (first build then downloads everything)."
+        ),
+    )
+    parser.add_argument(
+        "--m2-seed-from",
+        default="",
+        help=(
+            "Override the shared repository used as the --m2-seed source "
+            "(default: resolved the way mvn would from MAVEN_ARGS / "
+            "mavenrc / settings.xml). Only used when the agent builds into "
+            "the worktree repo (no explicit -Dmaven.repo.local)."
+        ),
+    )
+    parser.add_argument(
         "--log-level",
         default="INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
@@ -699,10 +799,19 @@ def main(argv: list[str] | None = None) -> int:
         # Create the per-worktree repo dir now so the path exported in
         # MAVEN_ARGS exists before the agent's first `mvn` (which would
         # create it anyway — this just makes dry-run logs and preflight
-        # resolution deterministic). Never seeds or downloads: the first
-        # build populates it; see ensure_night_m2_repo.
+        # resolution deterministic). Third-party warm-start is marker-guarded
+        # and best-effort: see seed_worktree_m2_repo (#6739).
         m2_repo = ensure_night_m2_repo(worktree)
         LOGGER.info("per-worktree Maven local repo: %s", m2_repo)
+        if should_seed_worktree_repo(args, env, m2_repo):
+            seed_from = Path(args.m2_seed_from).expanduser() if getattr(args, "m2_seed_from", "") else None
+            seed_worktree_m2_repo(worktree, seed_from=seed_from)
+        else:
+            LOGGER.info(
+                "per-worktree Maven repo seed skipped (m2_seed=%s, NIGHT_M2_REPO=%s)",
+                getattr(args, "m2_seed", True),
+                env.get("NIGHT_M2_REPO", "<shared>"),
+            )
     else:
         LOGGER.info("m2 isolation disabled (--no-m2-isolate); using shared local repo")
 

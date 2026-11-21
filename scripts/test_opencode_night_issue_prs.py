@@ -25,6 +25,7 @@ from __future__ import annotations
 import importlib.util
 import json
 import os
+import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -934,3 +935,122 @@ def test_dry_run_reports_m2_isolation_without_creating_dirs(tmp_path):
     assert str(absent_wt / "tmp" / "m2-worktree") in completed.stderr.replace("\\", "/") or \
         "m2-worktree" in completed.stderr
     assert not absent_wt.exists()
+
+
+def test_m2_seed_defaults_on():
+    """Seeding is on by default; --no-m2-seed / --m2-seed-from parse (#6739)."""
+    mod = _load_module()
+    args = mod.parse_args([])
+    assert args.m2_seed is True
+    assert args.m2_seed_from == ""
+    args = mod.parse_args(["--no-m2-seed"])
+    assert args.m2_seed is False
+    args = mod.parse_args(["--m2-seed-from", "/tmp/shared-m2"])
+    assert args.m2_seed_from == "/tmp/shared-m2"
+
+
+def _make_seed_source(root: Path) -> Path:
+    """Build a fake shared repo: one third-party jar + one SNAPSHOT jar."""
+    third = root / "org" / "example" / "lib" / "1.0"
+    third.mkdir(parents=True)
+    (third / "lib-1.0.jar").write_bytes(b"third-party")
+    snap = root / "com" / "percussion" / "rest" / "8.2.0-SNAPSHOT"
+    snap.mkdir(parents=True)
+    (snap / "rest-8.2.0-SNAPSHOT.jar").write_bytes(b"snapshot-branch-build")
+    return root
+
+
+def test_seed_worktree_copies_third_party_skips_snapshots(tmp_path):
+    """seed_worktree_m2_repo warms third-party artifacts once, never SNAPSHOTs."""
+    mod = _load_module()
+    seed = _make_seed_source(tmp_path / "shared-m2")
+    worktree = tmp_path / "wt"
+    repo = mod.seed_worktree_m2_repo(worktree, seed_from=seed)
+    assert repo == mod.worktree_maven_repo(worktree)
+    assert (repo / "org" / "example" / "lib" / "1.0" / "lib-1.0.jar").is_file()
+    assert not list(repo.rglob("*SNAPSHOT*"))
+    marker = repo.parent / ".worktree-m2-seeded"
+    assert marker.is_file()
+    # Second call is a marker-guarded no-op even when the source is gone.
+    shutil.rmtree(seed)
+    assert mod.seed_worktree_m2_repo(worktree, seed_from=seed) == repo
+    assert (repo / "org" / "example" / "lib" / "1.0" / "lib-1.0.jar").is_file()
+
+
+def test_seed_resolves_default_source_from_maven_args(tmp_path, monkeypatch):
+    """seed_from=None resolves the shared repo like mvn (MAVEN_ARGS first)."""
+    mod = _load_module()
+    seed = _make_seed_source(tmp_path / "shared-m2")
+    monkeypatch.setenv("MAVEN_ARGS", f"-Dmaven.repo.local={seed}")
+    worktree = tmp_path / "wt"
+    repo = mod.seed_worktree_m2_repo(worktree)
+    assert (repo / "org" / "example" / "lib" / "1.0" / "lib-1.0.jar").is_file()
+    assert not list(repo.rglob("*SNAPSHOT*"))
+
+
+def test_seed_failure_warns_never_raises(tmp_path, monkeypatch, caplog):
+    """A broken helper/env must not abort the night run (best-effort seed)."""
+    mod = _load_module()
+
+    def _boom():
+        raise RuntimeError("no helper here")
+
+    monkeypatch.setattr(mod, "_load_maven_local_repo", _boom)
+    worktree = tmp_path / "wt"
+    with caplog.at_level("WARNING", logger=mod.LOGGER.name):
+        repo = mod.seed_worktree_m2_repo(worktree, seed_from=tmp_path / "missing")
+    assert repo == mod.worktree_maven_repo(worktree)
+    assert repo.is_dir()
+    assert any("seed skipped" in rec.message for rec in caplog.records)
+
+
+def _seed_env(mod, monkeypatch, worktree, monkeypatch_env=True):
+    """Build the post-build_env env for a worktree (isolation on)."""
+    if monkeypatch_env:
+        monkeypatch.delenv("MAVEN_ARGS", raising=False)
+    args = mod.parse_args([])
+    return mod, args, mod.build_env(args, worktree, "main", worktree / "report.md")
+
+
+def test_should_seed_by_default(tmp_path, monkeypatch):
+    """Default run seeds the repo the agent will build into."""
+    mod = _load_module()
+    worktree = tmp_path / "wt"
+    mod, args, env = _seed_env(mod, monkeypatch, worktree)
+    m2_repo = mod.worktree_maven_repo(worktree)
+    assert env["NIGHT_M2_REPO"] == str(m2_repo)
+    assert mod.should_seed_worktree_repo(args, env, m2_repo) is True
+
+
+def test_should_not_seed_when_opted_out(tmp_path, monkeypatch):
+    """--no-m2-seed and --no-m2-isolate both disable seeding."""
+    mod = _load_module()
+    worktree = tmp_path / "wt"
+    m2_repo = mod.worktree_maven_repo(worktree)
+    _, args, env = _seed_env(mod, monkeypatch, worktree)
+    args = mod.parse_args(["--no-m2-seed"])
+    assert mod.should_seed_worktree_repo(args, env, m2_repo) is False
+    args = mod.parse_args(["--no-m2-isolate"])
+    env = mod.build_env(args, worktree, "main", worktree / "report.md")
+    assert mod.should_seed_worktree_repo(args, env, m2_repo) is False
+
+
+def test_should_not_seed_when_operator_repo_wins(tmp_path, monkeypatch):
+    """Explicit -Dmaven.repo.local redirects builds: seeding is wasted I/O."""
+    mod = _load_module()
+    explicit = tmp_path / "operator-repo"
+    monkeypatch.setenv("MAVEN_ARGS", f"-Dmaven.repo.local={explicit}")
+    worktree = tmp_path / "wt"
+    args = mod.parse_args([])
+    env = mod.build_env(args, worktree, "main", worktree / "report.md")
+    m2_repo = mod.worktree_maven_repo(worktree)
+    assert env["NIGHT_M2_REPO"] == str(explicit)
+    assert mod.should_seed_worktree_repo(args, env, m2_repo) is False
+
+
+def test_launcher_loader_agrees_with_docker_helper(tmp_path):
+    """The launcher's own loader resolves the same repo as the docker helper."""
+    mod = _load_module()
+    helper = mod._load_maven_local_repo()
+    for wt in (tmp_path / "wt", tmp_path / "wt with space"):
+        assert helper.worktree_local_repository(wt) == mod.worktree_maven_repo(wt)
