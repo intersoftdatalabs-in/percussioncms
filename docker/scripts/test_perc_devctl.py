@@ -812,6 +812,27 @@ class TestQaHelpers(unittest.TestCase):
         self.assertNotIn("--skip-image-build", argv)
         self.assertIn("--keep", argv)
 
+    def test_qa_matrix_up_argv_omits_skip_preflight_by_default(self):
+        """Default argv keeps the inner matrix stale gate strict (#6857)."""
+        argv = pdc._qa_matrix_up_argv(
+            self.repo_root,
+            probe_timeout=120,
+            skip_image_build=False,
+            dry_run=True,
+        )
+        self.assertNotIn("--skip-preflight", argv)
+
+    def test_qa_matrix_up_argv_forwards_skip_preflight(self):
+        """--skip-preflight reaches the child matrix run (#6857)."""
+        argv = pdc._qa_matrix_up_argv(
+            self.repo_root,
+            probe_timeout=120,
+            skip_image_build=False,
+            dry_run=True,
+            skip_preflight=True,
+        )
+        self.assertIn("--skip-preflight", argv)
+
     def test_qa_destroy_argv(self):
         argv = pdc._qa_destroy_argv("perc-matrix-cms-h2")
         self.assertEqual(argv, ["docker", "rm", "-f", "perc-matrix-cms-h2"])
@@ -1182,6 +1203,15 @@ class TestQaUpDecomposition(unittest.TestCase):
                     self.repo_root, self._ns(skip_preflight=True), False
                 )
             )
+
+    def test_resolve_context_carries_skip_preflight(self):
+        """The flag survives context resolution to both cell starts (#6857)."""
+        ctx = pdc._qa_up_resolve_context(
+            self._ns(skip_preflight=True), self.paths
+        )
+        self.assertTrue(ctx.skip_preflight)
+        ctx_default = pdc._qa_up_resolve_context(self._ns(), self.paths)
+        self.assertFalse(ctx_default.skip_preflight)
 
     def test_gate_preflight_refused_returns_failed(self):
         import io
@@ -2677,6 +2707,33 @@ class QaCellSuffixIsolationTests(unittest.TestCase):
             any("--cell-suffix qa-a" in log.read_text(encoding="utf-8") for log in logs),
             "expected --cell-suffix passthrough in matrix dry-run argv",
         )
+
+    def test_qa_up_dry_run_skip_preflight_reaches_matrix_argv(self):
+        """One --skip-preflight covers outer + inner gates (#6857)."""
+        rc, out = self.runner.run(
+            ["qa-up", "--skip-preflight", "--timeout-seconds", "60"]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        logs = self._qa_up_logs()
+        self.assertTrue(logs, "expected qa-up dry-run logs")
+        self.assertTrue(
+            any("--skip-preflight" in log.read_text(encoding="utf-8") for log in logs),
+            "expected --skip-preflight passthrough in matrix dry-run argv",
+        )
+
+    def test_qa_up_dry_run_skip_preflight_reaches_dts_argv(self):
+        """The DTS cell argv honors the flag too (#6857)."""
+        rc, out = self.runner.run(
+            ["qa-up", "--with-dts", "--skip-preflight", "--timeout-seconds", "60"]
+        )
+        self.assertEqual(rc, pdc.EXIT_OK)
+        logs = self._qa_up_logs()
+        self.assertTrue(logs, "expected qa-up dry-run logs")
+        for log in logs:
+            self.assertIn(
+                "--skip-preflight", log.read_text(encoding="utf-8"),
+                f"expected --skip-preflight in {log.name}",
+            )
 
     def test_qa_up_dry_run_env_suffix_scopes_cell(self):
         os.environ["PERC_QA_CELL_SUFFIX"] = "qa-b"

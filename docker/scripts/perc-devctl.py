@@ -894,6 +894,8 @@ def _build_arg_parser() -> argparse.ArgumentParser:
         help=(
             "Skip the automatic strict rebuild-chain + SNAPSHOT-provenance "
             "preflight before the matrix run (#2486 / #6709 / #6739). "
+            "The flag is forwarded to the child matrix-install-smoke run "
+            "so its own inner stale gate is skipped too (#6857). "
             "Not recommended: without it a stale WAR or a branch-built "
             "SNAPSHOT in the shared local repo boots a Frankenstein cell."
         ),
@@ -2318,6 +2320,7 @@ def _qa_matrix_up_argv(
     product: str = QA_CMS_PRODUCT,
     db: str = QA_CMS_DB,
     cell_suffix: object = None,
+    skip_preflight: bool = False,
 ) -> List[str]:
     """Build argv for matrix-install-smoke cell with ``--keep`` (pure).
 
@@ -2331,6 +2334,12 @@ def _qa_matrix_up_argv(
     banner / health / teardown paths resolve (env inheritance alone
     would also carry it, but the explicit flag keeps dry-run argv
     auditable).
+
+    ``skip_preflight`` (#6857) is forwarded as ``--skip-preflight`` so
+    one ``qa-up --skip-preflight`` bypasses both the outer preflight
+    gate and the child matrix-install-smoke inner stale gate; without
+    the forward the documented bypass still refused with
+    ``DETAIL:preflight_stale``.
 
     Host ports are pinned into the process env by
     :func:`ensure_qa_cms_host_port` / :func:`ensure_qa_dts_host_port`
@@ -2353,6 +2362,8 @@ def _qa_matrix_up_argv(
     ]
     if skip_image_build:
         argv.append("--skip-image-build")
+    if skip_preflight:
+        argv.append("--skip-preflight")
     suffix = resolve_cell_suffix(cell_suffix)
     if suffix:
         argv.extend(["--cell-suffix", suffix])
@@ -2598,6 +2609,7 @@ class _QaUpContext(NamedTuple):
     dry_run: bool
     probe_timeout: int
     skip_image_build: bool
+    skip_preflight: bool
     cell_suffix: str
     container: str
     dts_cell: str
@@ -2618,6 +2630,7 @@ def _qa_up_resolve_context(
     dry_run = bool(args.dry_run)
     probe_timeout = int(args.timeout_seconds)
     skip_image_build = bool(args.skip_image_build)
+    skip_preflight = bool(getattr(args, "skip_preflight", False))
     cell_suffix = resolve_cell_suffix(getattr(args, "cell_suffix", None))
     if cell_suffix:
         # Inherit into the child matrix-install-smoke process (belt and
@@ -2633,6 +2646,7 @@ def _qa_up_resolve_context(
         dry_run=dry_run,
         probe_timeout=probe_timeout,
         skip_image_build=skip_image_build,
+        skip_preflight=skip_preflight,
         cell_suffix=cell_suffix,
         container=container,
         dts_cell=dts_cell,
@@ -2651,8 +2665,9 @@ def _qa_up_gate_preflight(
     Filesystem-only and cheaper than a 900s probe timeout on a
     Frankenstein cell. Bypass with --skip-preflight (e.g. known-stale
     debug); --dry-run never checks. NOTE: this is the outer fail-fast;
-    matrix-install-smoke keeps its own inner strict stale gate, and
-    parallel-cell *naming* isolation stays with #6704.
+    the flag is also forwarded into the child matrix-install-smoke
+    argv so its own inner strict stale gate is skipped too (#6857),
+    and parallel-cell *naming* isolation stays with #6704.
 
     Returns ``EXIT_SUBPROCESS_FAILED`` when strict mode refuses, else
     ``None`` (proceed).
@@ -2742,6 +2757,7 @@ def _qa_up_start_cms_cell(ctx: _QaUpContext) -> tuple:
         ctx.repo_root,
         probe_timeout=ctx.probe_timeout,
         skip_image_build=ctx.skip_image_build,
+        skip_preflight=ctx.skip_preflight,
         dry_run=ctx.dry_run,
         cell_suffix=ctx.cell_suffix,
     )
@@ -2790,6 +2806,7 @@ def _qa_up_start_dts_cell(ctx: _QaUpContext, with_dts: bool) -> tuple:
         ctx.repo_root,
         probe_timeout=ctx.probe_timeout,
         skip_image_build=ctx.skip_image_build,
+        skip_preflight=ctx.skip_preflight,
         dry_run=ctx.dry_run,
         product="dts",
         db=QA_DTS_DB,
