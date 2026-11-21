@@ -40,6 +40,7 @@ const {
   skipServiceDown,
   skipNoModeration,
   COMMENTS_ENTRY,
+  dtsBaseUrl,
   dtsContextUrl,
   dtsServiceUrl,
   deliveryAuthHeader,
@@ -58,6 +59,24 @@ function goodRow() {
   );
 }
 
+function withEnv(name, value, fn) {
+  const previous = process.env[name];
+  if (value === undefined) {
+    delete process.env[name];
+  } else {
+    process.env[name] = value;
+  }
+  try {
+    fn();
+  } finally {
+    if (previous === undefined) {
+      delete process.env[name];
+    } else {
+      process.env[name] = previous;
+    }
+  }
+}
+
 describe("comments-moderation-matrix helpers (#6485)", () => {
   it("pins a closed inventory: the comments service with three moderation cases", () => {
     assert.deepEqual(CASE_NAMES, [CASE_SUBMIT, CASE_APPROVE, CASE_REJECT]);
@@ -70,6 +89,10 @@ describe("comments-moderation-matrix helpers (#6485)", () => {
     assert.equal(COMMENTS_ENTRY.csrf, "/comment/csrf");
     assert.equal(COMMENTS_ENTRY.widget, "percComments");
     assert.ok(SKIP_NO_DTS_BASE.includes("DTS_BASE_URL"), "skip names the missing env");
+    assert.ok(
+      SKIP_NO_DTS_BASE.includes("DTS_URL"),
+      "skip names the banner alias (shared cell contract)",
+    );
     assert.ok(
       skipServiceDown("https://dts.example").includes(COMMENTS_ENTRY.csrf),
       "service-down skip names the probed endpoint",
@@ -84,6 +107,26 @@ describe("comments-moderation-matrix helpers (#6485)", () => {
       skipNoModeration("queue unreachable").includes("#6375"),
       "moderation skip names the provisioning tracker",
     );
+  });
+
+  it("honors DTS_URL as an alias for DTS_BASE_URL (shared cell contract)", () => {
+    // Operators copy the qa-up --with-dts banner value (DTS_URL:); the
+    // helper must honor it so that command goes live instead of
+    // all-skipping (#6719).
+    withEnv("DTS_BASE_URL", undefined, () => {
+      withEnv("DTS_URL", undefined, () => {
+        assert.equal(dtsBaseUrl(), null, "no env: CMS-only cell skips");
+      });
+      withEnv("DTS_URL", "http://127.0.0.1:9983/", () => {
+        assert.equal(dtsBaseUrl().origin, "http://127.0.0.1:9983");
+      });
+    });
+    // DTS_BASE_URL wins when both are set.
+    withEnv("DTS_BASE_URL", "http://127.0.0.1:9999/", () => {
+      withEnv("DTS_URL", "http://127.0.0.1:9983/", () => {
+        assert.equal(dtsBaseUrl().origin, "http://127.0.0.1:9999");
+      });
+    });
   });
 
   it("derives unique self-seeded probe threads with marker-shaped site and page", () => {

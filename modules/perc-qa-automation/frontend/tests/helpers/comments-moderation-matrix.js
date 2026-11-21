@@ -69,6 +69,8 @@
 
 const path = require("node:path");
 
+const dtsCell = require("./dts-cell");
+
 const MATRIX_SUITE = "comments-moderation-matrix";
 const MATRIX_SPEC = "tests/comments-moderation-matrix.spec.js";
 const SCHEMA_FILE = "results-matrix.schema.json";
@@ -84,10 +86,8 @@ const MATRIX_CELLS = Object.freeze(["dts-cell"]);
 
 const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 
-/** Skip reason when no DTS-providing cell is configured. */
-const SKIP_NO_DTS_BASE =
-  "needs DTS_BASE_URL=(DTS-providing cell origin); " +
-  "default CMS-only H2 QA cell serves no DTS services (#6237)";
+/** Skip reason when no DTS-providing cell is configured (shared cell contract). */
+const SKIP_NO_DTS_BASE = dtsCell.SKIP_NO_DTS_BASE;
 
 /**
  * Skip reason when the DTS origin answers but the comments service does
@@ -145,15 +145,15 @@ const COMMENTS_ENTRY = Object.freeze({
 });
 
 /**
- * @returns {URL|null} DTS-providing cell origin, or null when the cell is
- * CMS-only (default H2 QA cell: every case skips named)
+ * DTS-providing cell origin, or null when the cell is CMS-only (default
+ * H2 QA cell: every case skips named). Delegates to the shared cell
+ * contract ({@code tests/helpers/dts-cell.js#dtsBaseUrl}): accepts the
+ * {@code DTS_URL} banner alias.
+ *
+ * @returns {URL|null}
  */
 function dtsBaseUrl() {
-  const baseUrl = process.env.DTS_BASE_URL || "";
-  if (!baseUrl) {
-    return null;
-  }
-  return new URL(baseUrl);
+  return dtsCell.dtsBaseUrl();
 }
 
 /**
