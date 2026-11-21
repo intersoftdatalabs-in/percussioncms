@@ -25,7 +25,7 @@ and assets without launching Desktop Content Explorer (DCE). Open it from the SP
 | **Tree + detail list** | Folder navigation and list of children; folder/item type icons plus optional display-format columns |
 | **Views catalog** | System **Views** category under the left tree (My / Community / All / Other Content) |
 | **Views → My Content → Inbox** | Assignment list (not a top-level Explorer root — see below) |
-| **Context menu** | Right-click an item or folder row for the same catalog filtered for the popup surface |
+| **Context menu** | Right-click an item or folder row for the same catalog filtered for the popup surface. A failed catalog load shows an error with **Retry** — never the empty-catalog text — and Retry reloads the same row; see [Server actions](#server-actions-how-they-run) |
 | **Status bar** | Always-visible footer under the list: selection count, folder item count, last-operation feedback, and the signed-in user (see **Status bar and DCE chrome-model parity**) |
 
 **Approve for incremental** is always on the server-actions toolbar. It asks
@@ -178,7 +178,11 @@ menu-bar shell commands (search, security, clipboard, refresh, help, site/folder
 operations) each carry their own matching glyph. Unmapped commands and the empty
 context-menu state stay label-only; the empty text uses the same i18n key as the
 toolbar empty text (`perc.ui.explorer@No actions`), so it is locale-resolved
-instead of hardcoded English.
+instead of hardcoded English. A failed context-menu catalog load is an error,
+not an empty catalog: the popup shows **Could not load the available actions**
+with **Retry**, which reloads the same row (a repeated failure keeps the error
+and returns keyboard focus to **Retry**); only a successful empty catalog shows
+**No actions**.
 
 ### Classic DCE icon vocabulary (retire-or-map)
 

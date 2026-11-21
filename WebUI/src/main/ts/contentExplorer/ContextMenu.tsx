@@ -36,6 +36,11 @@
  * the toolbar, so server actions look identical in both chrome surfaces.
  * Labels and keyboard handling are unchanged; unmapped actions and the
  * empty state stay label-only (text-first clarity).</p>
+ *
+ * <p>Loading, error, and empty are three distinct states (#6826, #6874):
+ * a pending catalog shows the loading placeholder, a failed catalog shows
+ * the error text with a Retry button that re-runs the load, and only a
+ * successful empty catalog shows <strong>No actions</strong>.</p>
  */
 
 import React, { useEffect, useId, useRef, useState } from "react";
@@ -65,6 +70,19 @@ export interface ContextMenuProps {
    * as "nothing available". Cleared when the loaded actions arrive.
    */
   pending?: boolean;
+  /**
+   * Catalog failed to load (#6874). Renders the error text plus the Retry
+   * affordance instead of the empty-actions text, so a failed
+   * {@code /actions/find} never reads as "nothing available". Takes effect
+   * only when the menu is not pending and no actions rendered.
+   */
+  loadError?: string | null;
+  /**
+   * Re-runs the catalog load for the same row (#6874, same Retry pattern
+   * as the checkout-owner panel in #6871). Rendered only with
+   * {@code loadError}; absent means the error text shows without Retry.
+   */
+  onRetry?: () => void;
 }
 
 /**
@@ -89,11 +107,21 @@ function activate(
 }
 
 export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
-  const { onInvoke, onClose, ariaLabel, className, pending } = props;
+  const { onInvoke, onClose, ariaLabel, className, pending, loadError, onRetry } =
+    props;
   const actions = prepareMenuActionTree(props.actions);
   const [openPivot, setOpenPivot] = useState<string | null>(null);
   const baseId = useId();
   const menuRef = useRef<HTMLDivElement | null>(null);
+  const retryButtonRef = useRef<HTMLButtonElement | null>(null);
+  /**
+   * Set on Retry click (#6874, same focus-return pattern as the
+   * checkout-owner panel in #6871). The button unmounts while the retried
+   * load is pending, so when the retry fails again focus is returned to
+   * the re-rendered Retry button instead of stranding keyboard operators
+   * on the menu container.
+   */
+  const retryArmedRef = useRef(false);
 
   useEffect(() => {
     setOpenPivot(null);
@@ -110,11 +138,32 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
     menuRef.current?.focus({ preventScroll: true });
   }, []);
 
+  useEffect(() => {
+    if (loadError && !pending && retryArmedRef.current) {
+      retryArmedRef.current = false;
+      retryButtonRef.current?.focus();
+    }
+  }, [loadError, pending]);
+
+  function handleRetry(): void {
+    retryArmedRef.current = true;
+    onRetry?.();
+  }
+
   function handleContainerKey(e: React.KeyboardEvent<HTMLDivElement>): void {
     if (e.key === "Escape") {
       onClose?.();
     }
   }
+
+  /**
+   * Loading, error, and empty are three distinct states (#6826, #6874).
+   * The error state swaps the container to an alertdialog: a bare
+   * {@code role="menu"} with no menuitem children fails the axe
+   * {@code aria-required-children} gate, and the failure plus its Retry
+   * button is an alert, not a choice list.
+   */
+  const showError = !pending && !!loadError && actions.length === 0;
 
   function handleItemKey(
     e: React.KeyboardEvent<HTMLDivElement>,
@@ -134,7 +183,7 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
 
   return (
     <div
-      role="menu"
+      role={showError ? "alertdialog" : "menu"}
       aria-label={ariaLabel ?? "Context menu"}
       className={className}
       data-testid="context-menu"
@@ -158,6 +207,32 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
             aria-live="polite"
           >
             {message(EXPLORER_MSG.CONTEXT_MENU_LOADING)}
+          </div>
+        ) : loadError ? (
+          <div
+            role="alert"
+            data-testid="context-menu-error"
+            style={{ padding: "4px 8px" }}
+          >
+            {loadError}
+            {onRetry ? (
+              <div style={{ marginTop: 4 }}>
+                <button
+                  type="button"
+                  data-testid="context-menu-retry"
+                  ref={retryButtonRef}
+                  onClick={handleRetry}
+                  style={{
+                    minHeight: "44px",
+                    minWidth: "44px",
+                    padding: "8px 12px",
+                    cursor: "pointer",
+                  }}
+                >
+                  {message(EXPLORER_MSG.RETRY)}
+                </button>
+              </div>
+            ) : null}
           </div>
         ) : (
           <div role="presentation" data-testid="context-menu-empty">
