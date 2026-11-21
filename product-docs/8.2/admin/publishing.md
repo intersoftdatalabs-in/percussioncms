@@ -2557,14 +2557,20 @@ forms service (`perc-form-processor`), not to the CMS content store:
    - `GET /forms/form/cms/list` — summaries for every collected form.
    - `GET /forms/form/cms/{formName}/{file}.csv` — CSV export of the
      submitted entries (exporting marks the entries exported).
-3. A `401`/`403` on the retrieval URLs means the caller lacks the
-   `deliverymanager` role — use the DTS credentials provisioned for the
-   install, not the CMS Admin login. The retrieval surface is
-   `CONFIDENTIAL`-gated, so always call it over the DTS HTTPS endpoint:
-   over plain HTTP the service answers a redirect to its HTTPS port
-   first, which a container-local-only HTTPS port cannot satisfy. Seed
-   a known credential for automation with `qa-seed-widget-fixtures
-   --delivery-password <secret>` and export the same secret for the
+3. A `401`/`403` on the retrieval URLs means the caller failed the
+   `deliverymanager` check — use the DTS credentials for the install
+   (`ps_manager` plus the install default secret), not the CMS Admin
+   login, and confirm the caller presents the right secret for that
+   user. The retrieval surface is `CONFIDENTIAL`-gated, so always call
+   it over the DTS HTTPS endpoint: over plain HTTP the service answers
+   a redirect to its HTTPS port first, which a container-local-only
+   HTTPS port cannot satisfy. The shipped `tomcat-users.xml` stores the
+   SHA-1 digest of the default secret (the DTS realm hashes presented
+   credentials with SHA), so a hand-provisioned password must likewise
+   be written as its SHA-1 hex digest, not plaintext — or the next
+   retrieval call answers `401`. Seed a known credential for automation
+   with `qa-seed-widget-fixtures --delivery-password <secret>` (it
+   digests the password for you) and export the same secret for the
    caller, then read summaries and CSV over HTTPS.
 
 The visitor-facing confirmation pages keep stable hooks for automation:
