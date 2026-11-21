@@ -59,11 +59,14 @@ When your task used a **git worktree** under `.opencode/worktrees/`:
 
 ## Session start (related HARD GATE)
 
-Disposable worktrees do **not** receive gitignored `AGENTS.local.md` from the
-primary checkout. At session start, read personal overrides from the **primary**
-tree when the worktree copy is missing — see
-`.kilo/rules/agents-local-from-parent.md` and root `AGENTS.md` →
-**AGENTS.local.md across git worktrees**.
+`AGENTS.local.md` is gitignored, so `git worktree add` will not carry it.
+The night-issue-prs workflow seeds it (root and nested module files) with
+`python3 scripts/night-seed-worktree.py <worktree>` after every worktree
+it creates — the dedicated night worktree, lane/shard worktrees, and any
+other tree the cycle adds. No git hook is required. At session start, if
+the worktree copy is still missing, seed it or read personal overrides
+from the **primary** tree — see `.kilo/rules/agents-local-from-parent.md`
+and root `AGENTS.md` → **AGENTS.local.md across git worktrees**.
 
 ## Cross-tool coordination
 

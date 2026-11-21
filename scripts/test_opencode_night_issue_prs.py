@@ -640,6 +640,20 @@ def test_ensure_worktree_missing_agents_local_is_noop(tmp_path):
     assert mod.worktree_exists(wt)
 
 
+def test_ensure_worktree_propagates_nested_agents_local(tmp_path):
+    """Fresh worktree add must also copy nested module AGENTS.local.md."""
+    mod = _load_module()
+    seed = _seed_repo(tmp_path)
+    (seed / "AGENTS.local.md").write_text("# root\n")
+    nested = seed / "modules" / "webui"
+    nested.mkdir(parents=True)
+    (nested / "AGENTS.local.md").write_text("# module\n")
+    wt = tmp_path / "wt"
+    mod.ensure_worktree(wt, "main", seed, sync_from_local=True)
+    assert (wt / "AGENTS.local.md").read_text() == "# root\n"
+    assert (wt / "modules" / "webui" / "AGENTS.local.md").read_text() == "# module\n"
+
+
 def test_ensure_worktree_returns_to_sync_branch(tmp_path):
     """Regression (disk-fill incident): a prior run may leave the dedicated
     worktree on a feature branch. ensure_worktree must switch it back to the

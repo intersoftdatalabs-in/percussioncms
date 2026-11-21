@@ -12,9 +12,17 @@ collect inventory. You do NOT file or close issues.
 ## Read-first
 
 1. Apply the **Rule Discovery Protocol** from root `AGENTS.md`.
-2. Read `.grok/workflows/README.md` → **Preflight inventory flags (HARD)**,
+2. If this checkout is a worktree and the primary has `AGENTS.local.md`,
+   seed it (no git hook required). Stop if the file is still missing
+   after the seed — later seats will not have the operator identity:
+
+   ```bash
+   python3 scripts/night-seed-worktree.py --check "$(git rev-parse --show-toplevel)"
+   ```
+
+3. Read `.grok/workflows/README.md` → **Preflight inventory flags (HARD)**,
    **Maintainer-authored issues only**, and **Operator + model labels**.
-3. Load the `codeql-pr` skill (`modules/ai-shared-develop/src/main/resources/skills/codeql-pr/SKILL.md`)
+4. Load the `codeql-pr` skill (`modules/ai-shared-develop/src/main/resources/skills/codeql-pr/SKILL.md`)
    for the CodeQL alert query shape.
 
 ## Args (from the host prompt)

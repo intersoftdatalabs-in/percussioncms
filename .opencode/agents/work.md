@@ -56,12 +56,16 @@ Do not add or remove the label with `gh issue edit`; `scripts/night-queue-claim.
 ### 2. Branch
 
 First, prove you are in the assigned worktree — run this BEFORE any
-`git checkout`, edit, or build, and abort the turn if it fails:
+`git checkout`, edit, or build, and abort the turn if it fails. For solo
+runs that path is `$NIGHT_WORKTREE_PATH`. For a parallel-pilot seat, use
+the host-assigned lane/shard path instead.
 
 ```bash
-cd "$NIGHT_WORKTREE_PATH"
-test "$(git rev-parse --show-toplevel)" = "$NIGHT_WORKTREE_PATH" \
+cd "$NIGHT_WORKTREE_PATH"   # or the host-assigned lane/shard path
+test "$(git rev-parse --show-toplevel)" = "$PWD" \
   || { echo "WRONG WORKTREE: $(git rev-parse --show-toplevel)"; exit 1; }
+python3 scripts/night-seed-worktree.py --check "$(git rev-parse --show-toplevel)" \
+  || { echo "STOP: primary has AGENTS.local.md but this worktree still does not"; exit 1; }
 git fetch origin "$NIGHT_BASE_BRANCH"
 git checkout -b "fix/issue-<N>-<short-slug>" "origin/$NIGHT_BASE_BRANCH"
 ```
@@ -110,10 +114,12 @@ Record commands + `BUILD SUCCESS` + `Tests run: N, Failures: 0` in
 ### 5. Commit + push
 
 Identity + signing are HARD (#6809 — unsigned / `opencode@local` commits
-trip `required_signatures` and block merge). Before the first commit:
+trip `required_signatures` and block merge). Before the first commit,
+`--apply-from` must point at the assigned worktree (the night worktree or
+the lane/shard path), which Step 2 already seeded:
 
 ```bash
-python3 scripts/verify-signed-commits.py ensure-identity --apply-from "$NIGHT_WORKTREE_PATH"
+python3 scripts/verify-signed-commits.py ensure-identity --apply-from "$(git rev-parse --show-toplevel)"
 ```
 
 If it FAILs, STOP — do not commit with a placeholder identity.
