@@ -19,6 +19,10 @@ import { describe, expect, it } from "vitest";
 import {
   canSaveLocaleDescriptionEdit,
   canSaveLocaleFieldEdit,
+  canStartDatePatternEdit,
+  canStartDateTimePatternEdit,
+  canStartLocaleFieldEdit,
+  canStartTimePatternEdit,
   isLocaleCurrencySiblingEditing,
   isLocaleOtherEditorOpen,
   isLocalePatternSiblingEditing,
@@ -29,6 +33,8 @@ import {
   type LocaleDescriptionSaveReadiness,
   type LocaleFieldEditorsEditing,
   type LocaleFieldSaveReadiness,
+  type LocaleFieldStartReadiness,
+  type LocalePatternStartState,
   type LocaleSiblingEditorsEditing,
 } from "../../../main/ts/developer/localeDetailSaveGuards";
 
@@ -187,5 +193,88 @@ describe("canSaveLocaleFieldEdit", () => {
   it("blocks while another save path is running or a sibling editor is open", () => {
     expect(canSaveLocaleFieldEdit({ ...readyField, dedicatedBlocked: true })).toBe(false);
     expect(canSaveLocaleFieldEdit({ ...readyField, siblingOpen: true })).toBe(false);
+  });
+});
+
+const readyStart: LocaleFieldStartReadiness = {
+  isNew: false,
+  hasDetail: true,
+  dedicatedBlocked: false,
+  siblingOpen: false,
+};
+
+describe("canStartLocaleFieldEdit", () => {
+  it("allows an edit when keyed with detail and nothing is running", () => {
+    expect(canStartLocaleFieldEdit(readyStart)).toBe(true);
+  });
+
+  it("blocks create mode, missing detail, and a running save", () => {
+    expect(canStartLocaleFieldEdit({ ...readyStart, isNew: true })).toBe(false);
+    expect(canStartLocaleFieldEdit({ ...readyStart, hasDetail: false })).toBe(false);
+    expect(canStartLocaleFieldEdit({ ...readyStart, dedicatedBlocked: true })).toBe(false);
+  });
+
+  it("blocks while a sibling editor is open", () => {
+    expect(canStartLocaleFieldEdit({ ...readyStart, siblingOpen: true })).toBe(false);
+  });
+});
+
+const readyPatternStart: LocalePatternStartState = {
+  isNew: false,
+  hasDetail: true,
+  dedicatedBlocked: false,
+  editing: idleFieldEditors,
+};
+
+const patternStartGuards = {
+  datePatternEditing: canStartDatePatternEdit,
+  timePatternEditing: canStartTimePatternEdit,
+  dateTimePatternEditing: canStartDateTimePatternEdit,
+} as const;
+
+type PatternStartField = keyof typeof patternStartGuards;
+
+const patternStartFields = Object.keys(patternStartGuards) as PatternStartField[];
+
+describe("pattern start guards", () => {
+  it("allows an edit when idle and keyed", () => {
+    for (const field of patternStartFields) {
+      expect(patternStartGuards[field](readyPatternStart)).toBe(true);
+    }
+  });
+
+  it("ignores the self editor flag", () => {
+    for (const field of patternStartFields) {
+      expect(
+        patternStartGuards[field]({
+          ...readyPatternStart,
+          editing: { ...idleFieldEditors, [field]: true },
+        }),
+      ).toBe(true);
+    }
+  });
+
+  it("blocks create mode, missing detail, and a running save", () => {
+    for (const field of patternStartFields) {
+      expect(patternStartGuards[field]({ ...readyPatternStart, isNew: true })).toBe(false);
+      expect(patternStartGuards[field]({ ...readyPatternStart, hasDetail: false })).toBe(false);
+      expect(patternStartGuards[field]({ ...readyPatternStart, dedicatedBlocked: true })).toBe(
+        false,
+      );
+    }
+  });
+
+  it("blocks while any other editor is open", () => {
+    for (const field of patternStartFields) {
+      for (const other of fieldEditorKeys) {
+        if (other === field) continue;
+        expect(
+          patternStartGuards[field]({
+            ...readyPatternStart,
+            editing: { ...idleFieldEditors, [other]: true },
+          }),
+        ).toBe(false);
+      }
+    }
   });
 });

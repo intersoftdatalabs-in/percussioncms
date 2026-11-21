@@ -40,6 +40,9 @@ import { LOC_DESC_MSG } from "./localeDescriptionMessages";
 import {
   canSaveLocaleDescriptionEdit,
   canSaveLocaleFieldEdit,
+  canStartDatePatternEdit,
+  canStartDateTimePatternEdit,
+  canStartTimePatternEdit,
   isLocaleOtherEditorOpen,
   type LocaleFieldEditorsEditing,
   type LocaleSiblingEditorsEditing,
@@ -1083,26 +1086,20 @@ export function LocaleDetailPanel({
     );
   }
 
+  // #6888: pattern start guards funnel through the per-field
+  // canStart*PatternEdit helpers in localeDetailSaveGuards. Each start path
+  // previously inlined the same ~19-term OR chain (create-mode / detail /
+  // dedicated busy fold, one flag per sibling editor), which pushed every
+  // starter over the cyclomatic budget. The helpers keep the exact "every
+  // other editor open, self excluded" semantics. No behavior change.
   function startDatePatternEdit(): void {
     if (
-      isNew ||
-      !detail ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      timePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
+      !canStartDatePatternEdit({
+        isNew,
+        hasDetail: detail != null,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        editing: collectLocaleFieldEditors(),
+      })
     ) {
       return;
     }
@@ -1179,24 +1176,12 @@ export function LocaleDetailPanel({
 
   function startTimePatternEdit(): void {
     if (
-      isNew ||
-      !detail ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      dateTimePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
+      !canStartTimePatternEdit({
+        isNew,
+        hasDetail: detail != null,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        editing: collectLocaleFieldEditors(),
+      })
     ) {
       return;
     }
@@ -1273,24 +1258,12 @@ export function LocaleDetailPanel({
 
   function startDateTimePatternEdit(): void {
     if (
-      isNew ||
-      !detail ||
-      dedicatedWriteBlocked() ||
-      labelEditing ||
-      descriptionEditing ||
-      datePatternEditing ||
-      timePatternEditing ||
-      decimalSepEditing ||
-      groupingSepEditing ||
-      currencyCodeEditing ||
-      currencyPatternEditing ||
-      textDirEditing ||
-      firstDayEditing ||
-      measurementEditing ||
-      defaultTzEditing ||
-      numberingSystemEditing ||
-      calendarEditing ||
-      statusEditing
+      !canStartDateTimePatternEdit({
+        isNew,
+        hasDetail: detail != null,
+        dedicatedBlocked: dedicatedWriteBlocked(),
+        editing: collectLocaleFieldEditors(),
+      })
     ) {
       return;
     }
