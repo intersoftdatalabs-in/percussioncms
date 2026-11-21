@@ -40,6 +40,8 @@
     "date-fns": "^4.4.0",
     "fullcalendar": "2.9.1",
     "fullcalendar-v6": "npm:fullcalendar@6.1.15",
+    "fullcalendar-v6-google": "npm:@fullcalendar/google-calendar@6.1.15",
+    "fullcalendar-v6-locales": "npm:@fullcalendar/core@6.1.15",
     "handlebars": "^4.7.10",
     "hoverintent": "^2.2.1",
     "jquery": "^4.0.0",

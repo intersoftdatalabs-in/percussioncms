@@ -119,6 +119,16 @@
  * behavior (`percImageSnippet.vm` renders `a[data-lightbox]` anchors;
  * album grouping survives a quote-break attribute value, and keyboard
  * navigation advances the album).
+ *
+ * Slice 1 (issue #6919, plan #6687) migrates the calendarTwo fullcalendar
+ * pair plus the gcal + lang-all companions to the stock FullCalendar
+ * v6.1.15 global dists below (exact fullcalendar-v6* alias pins in the
+ * frontend manifest, so Dependabot watches the lines; the EOL
+ * fullcalendar@2.9.1 pin stays installed until slice 3 drops it). The 2.x
+ * Percussion payload mods are re-derived in percCalendarTwoSnippet.vm, so
+ * the payloads are byte-identical stock. Pinned below: byte-identity with
+ * the npm dists, the 6.1.15 MIT banners, the manifest pins, and the locale
+ * set the widget `locale:` option consumes.
  */
 
 import { describe, expect, it } from "vitest";
@@ -534,79 +544,65 @@ const FULLCALENDAR_BASE = path.join(
   "js",
 );
 
-// CalendarTwo fullcalendar pair (percCalendarTwo.xml: fullcalendar-js,
-// gcal-js, lang-all-js). Slice 5 of #6502 rebases the pair onto the npm
-// fullcalendar@2.9.1 dist with the two Percussion mods re-applied (see the
-// percCalendarTwoSnippet.vm contract comment): reportEvents resolves the
-// per-widget Perc.events deferred, and month-view computeRange reads
-// Perc.range instead of the stock hard-coded 6. Byte-identity with the npm
-// dist is impossible for a fork, so this block reconstructs the expected
-// payload from the installed dist plus the documented patches and pins the
-// reconstruction byte-identical — any silent mod loss or drift fails loudly.
-const FULLCALENDAR_NONMIN_PATCHES = [
-  ["<%= meta.title %> v<%= meta.version %>", "FullCalendar v2.9.1"],
-  ["<%= meta.homepage %>", "http://fullcalendar.io/"],
-  ["<%= meta.copyright %>", "2016 Adam Shaw"],
-  [
-    '\tevents = _events;\n\t\trenderEvents();',
-    '\tevents = _events;\n\t\tvar target = element[0]["id"];\n' +
-      "\t\tPerc.events[target].resolve(_events);\n\t\trenderEvents();",
-  ],
-  [
-    "range.end.add(6 - rowCnt, 'weeks');",
-    "range.end.add(Perc.range - rowCnt, 'weeks');",
-  ],
-];
-
-// The stock .min.js dist already ships the expanded banner; only the two
-// mod hunks are re-applied (same mangled scope as the stock min: `y` is
-// nested in the Qa calendar constructor, so the element parameter `c` is
-// in scope at the reportEvents patch site).
-const FULLCALENDAR_MIN_PATCHES = [
-  [
-    "function y(a){ia=a,v()}",
-    "function y(a){ia=a;var target=c[0].id;Perc.events[target].resolve(a),v()}",
-  ],
-  ['6-b,"weeks")', 'Perc.range-b,"weeks")'],
-];
-
-const FULLCALENDAR_PAYLOADS = [
+// CalendarTwo v6 payloads (percCalendarTwo.xml: fullcalendar-js, gcal-js,
+// lang-all-js). Slice 1 of #6919 swaps the EOL 2.9.1 payloads for the stock
+// FullCalendar v6.1.15 global dists, byte-identical to the npm packages
+// installed under the fullcalendar-v6* aliases (exact pins in both WebUI
+// frontend manifests, so Dependabot watches the lines):
+//   fullcalendar.js     <- fullcalendar/index.global.js (Standard Bundle)
+//   fullcalendar.min.js <- fullcalendar/index.global.min.js
+//   gcal.js             <- @fullcalendar/google-calendar/index.global.js
+//   lang-all.js         <- @fullcalendar/core/locales-all.global.js
+// The 2.x Percussion payload mods are gone with the fork: both behaviors are
+// re-derived in percCalendarTwoSnippet.vm (Perc.events resolved inside the
+// v6 events function / list-view direct fetch; explicit 52-week list fetch
+// window), so the payloads ship stock. Byte-identity (LF-normalized — the
+// repo stores *.js as text per .gitattributes) pins the payloads: any silent
+// mod or drift fails loudly.
+const V6_PAYLOADS = [
   {
-    // Published/preview copy (percCalendarTwo.xml: fullcalendar-js). The
-    // non-min dist also carries an unexpanded version:"<%= meta.version %>"
-    // wart that ships in fullcalendar@2.9.1 upstream — preserved verbatim.
+    // Preview copy (percCalendarTwo.xml: fullcalendar-js).
     payload: path.join(FULLCALENDAR_BASE, "fullcalendar.js"),
-    npmDist: path.join("fullcalendar", "dist", "fullcalendar.js"),
-    patches: FULLCALENDAR_NONMIN_PATCHES,
+    npmDist: path.join("fullcalendar-v6", "index.global.js"),
+    npmPackage: "fullcalendar-v6",
+    banner: "FullCalendar Standard Bundle v6.1.15",
   },
   {
+    // Published copy (percCalendarTwo.xml: fullcalendar-js).
     payload: path.join(FULLCALENDAR_BASE, "fullcalendar.min.js"),
-    npmDist: path.join("fullcalendar", "dist", "fullcalendar.min.js"),
-    patches: FULLCALENDAR_MIN_PATCHES,
+    npmDist: path.join("fullcalendar-v6", "index.global.min.js"),
+    npmPackage: "fullcalendar-v6",
+    banner: "FullCalendar Standard Bundle v6.1.15",
+  },
+  {
+    // Google Calendar source companion for googleCalendarId feeds
+    // (percCalendarTwoSnippet.vm googleCalendarArray loop; the v6 plugin
+    // understands the same googleCalendarApiKey/googleCalendarId options).
+    payload: path.join(FULLCALENDAR_BASE, "gcal.js"),
+    npmDist: path.join("fullcalendar-v6-google", "index.global.js"),
+    npmPackage: "fullcalendar-v6-google",
+    banner: "FullCalendar Google Calendar Plugin v6.1.15",
+  },
+  {
+    // Locale companion for the widget `locale:` option
+    // (percCalendarTwoSnippet.vm `locale: '${perc_calendar_display_language}'`).
+    payload: path.join(FULLCALENDAR_BASE, "lang-all.js"),
+    npmDist: path.join("fullcalendar-v6-locales", "locales-all.global.js"),
+    npmPackage: "fullcalendar-v6-locales",
+    banner: "FullCalendar Core v6.1.15",
   },
 ];
 
-function rebaseFullcalendarFromNpmDist(npmDistRelPath, patches) {
+function readLfNormalizedFile(filePath) {
   // The repo normalizes *.js to LF on commit (.gitattributes `*.js text`),
-  // so the reconstruction normalizes the stock dist the same way before
-  // patching; the payloads stay LF-verbatim and platform-stable.
-  let expected = fs
-    .readFileSync(path.join(NODE_MODULES, npmDistRelPath), "utf8")
-    .replace(/\r\n/g, "\n");
-  for (const [from, to] of patches) {
-    const occurrences = expected.split(from).length - 1;
-    expect(
-      occurrences,
-      `rebase patch site not unique in node_modules/${npmDistRelPath}: ${from.slice(0, 60)}`,
-    ).toBe(1);
-    expected = expected.split(from).join(to);
-  }
-  return expected;
+  // so the comparison normalizes the installed dist the same way; payloads
+  // stay LF-verbatim and platform-stable.
+  return fs.readFileSync(filePath, "utf8").replace(/\r\n/g, "\n");
 }
 
-describe("widget-payload npm refresh parity (issue #6502 slice 5: fullcalendar)", () => {
-  it("calendarTwo fullcalendar pair exists under the audited Packages tree", () => {
-    for (const { payload } of FULLCALENDAR_PAYLOADS) {
+describe("widget-payload npm refresh parity (issue #6919 slice 1: calendarTwo v6)", () => {
+  it("calendarTwo v6 payloads exist under the audited Packages tree", () => {
+    for (const { payload } of V6_PAYLOADS) {
       expect(
         fs.existsSync(path.join(REPO_ROOT, payload)),
         `missing payload: ${payload}`,
@@ -614,251 +610,80 @@ describe("widget-payload npm refresh parity (issue #6502 slice 5: fullcalendar)"
     }
   });
 
-  it("calendarTwo fullcalendar pair equals stock 2.9.1 dist plus the two Percussion mods", () => {
-    for (const { payload, npmDist, patches } of FULLCALENDAR_PAYLOADS) {
-      const shipped = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
-      const expected = rebaseFullcalendarFromNpmDist(npmDist, patches);
+  it("calendarTwo v6 payload bytes are byte-identical to the npm v6 dists", () => {
+    for (const { payload, npmDist } of V6_PAYLOADS) {
+      const shipped = readLfNormalizedFile(path.join(REPO_ROOT, payload));
+      const expected = readLfNormalizedFile(path.join(NODE_MODULES, npmDist));
       expect(
         shipped === expected,
-        `${payload} is not stock node_modules/${npmDist} plus the documented ` +
-          "Percussion mods — re-apply the slice-5 rebase, do not hand-edit",
+        `${payload} is not stock node_modules/${npmDist} — refresh from npm, do not hand-edit`,
       ).toBe(true);
     }
   });
 
-  it("installed fullcalendar dist is 2.9.1 and payloads carry the expanded banner", () => {
-    const installed = JSON.parse(
-      fs.readFileSync(
-        path.join(NODE_MODULES, "fullcalendar", "package.json"),
-        "utf8",
-      ),
-    );
-    expect(installed.version).toBe("2.9.1");
-    for (const { payload } of FULLCALENDAR_PAYLOADS) {
+  it("installed v6 dists are 6.1.15 MIT and payloads carry the v6 banners", () => {
+    for (const { payload, npmPackage, banner } of V6_PAYLOADS) {
+      const installed = JSON.parse(
+        fs.readFileSync(
+          path.join(NODE_MODULES, npmPackage, "package.json"),
+          "utf8",
+        ),
+      );
+      expect(installed.version).toBe("6.1.15");
+      expect(installed.license).toBe("MIT");
       const content = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
-      expect(content).toMatch(/FullCalendar v2\.9\.1/);
-      expect(content).toMatch(/Perc\.events/);
-      expect(content).toMatch(/Perc\.range/);
+      expect(content).toContain(banner);
+      // The 2.x fork mods live in the snippet now — the payloads ship stock.
+      expect(content).not.toContain("Perc.events");
+      expect(content).not.toContain("Perc.range");
+      expect(content).not.toContain("FullCalendar v2.9.1");
+      expect(content).not.toContain("<%= meta.");
     }
-    // The rebase fixes the published min copy: it previously shipped a
-    // different uglify mangling with an unexpanded version field.
-    const minified = fs.readFileSync(
-      path.join(REPO_ROOT, FULLCALENDAR_BASE, "fullcalendar.min.js"),
-      "utf8",
-    );
-    expect(minified).toMatch(/version:"2\.9\.1"/);
-    expect(minified).not.toMatch(/<%= meta\./);
   });
 
-  it("frontend manifests pin fullcalendar to 2.9.1 (npm audit visible)", () => {
+  it("frontend manifests pin the v6 lines exact and keep 2.9.1 until slice 3", () => {
     const manifest = JSON.parse(
       fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
     );
-    // Exact pin (not a caret): the payload is the 2.9.1 dist plus the
-    // Percussion mods, and later majors rewrite the API and the bundle.
+    // Exact pins (not carets): the payloads are the 6.1.15 dists and later
+    // majors restructure the bundle.
+    expect(manifest.dependencies["fullcalendar-v6"]).toBe(
+      "npm:fullcalendar@6.1.15",
+    );
+    expect(manifest.dependencies["fullcalendar-v6-google"]).toBe(
+      "npm:@fullcalendar/google-calendar@6.1.15",
+    );
+    expect(manifest.dependencies["fullcalendar-v6-locales"]).toBe(
+      "npm:@fullcalendar/core@6.1.15",
+    );
+    // The EOL fullcalendar@2.9.1 pin stays installed until slice 3 (#6919/3)
+    // drops it — no payload references it after this slice.
     expect(manifest.dependencies["fullcalendar"]).toBe("2.9.1");
   });
 
-  it("rebased calendarTwo fullcalendar pair parses as valid JavaScript", () => {
-    for (const { payload } of FULLCALENDAR_PAYLOADS) {
+  it("v6 calendarTwo payloads parse as valid JavaScript", () => {
+    for (const { payload } of V6_PAYLOADS) {
       const source = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
       expect(() => new Script(source), `${payload} failed to parse`).not.toThrow();
     }
   });
-});
 
-const CALENDARTWO_BASE = path.join(
-  "modules",
-  "perc-packages",
-  "src",
-  "main",
-  "resources",
-  "Packages",
-  "perc.widget.calendar",
-  "sys__UserDependency--web_resources",
-  "widgets",
-  "calendarTwo",
-  "js",
-);
-
-// CalendarTwo gcal + lang-all companions (percCalendarTwo.xml: gcal-js,
-// lang-all-js). Slice 6 of #6522 replaces the differently-minified payload
-// copies with the npm fullcalendar@2.9.1 dist bytes verbatim (exact pin in
-// both WebUI frontend manifests from slice 5, so Dependabot watches the
-// base version). Version archaeology: the old gcal was the minified
-// equivalent of the stock dist gcal logic, and the old lang-all covered
-// the same 56-locale set with only minifier-artifact diffs
-// (trailing-semicolon elision, comma-expression parens) — both payloads
-// are behavior-preserving byte swaps. The stock gcal banner ships the
-// unexpanded <%= meta.* %> wart verbatim (comment-only, inert — same
-// precedent as the slice-5 non-min version wart).
-const GCAL_LANGALL_PAYLOADS = [
-  {
-    // GCal source companion for googleCalendarId feeds
-    // (percCalendarTwoSnippet.vm googleCalendarArray loop).
-    payload: path.join(CALENDARTWO_BASE, "gcal.js"),
-    npmDist: path.join("fullcalendar", "dist", "gcal.js"),
-    marker: "googleCalendarId",
-  },
-  {
-    // Locale companion for the widget `lang:` option
-    // (percCalendarTwoSnippet.vm `lang: '${perc_calendar_display_language}'`).
-    payload: path.join(CALENDARTWO_BASE, "lang-all.js"),
-    npmDist: path.join("fullcalendar", "dist", "lang-all.js"),
-    marker: "fullCalendar.datepickerLang",
-  },
-];
-
-function loadCalendarTwoCompanionRuntime() {
-  // Mirror the widget script order (percCalendarTwo.xml): jquery, moment,
-  // fullcalendar.min.js, then the gcal/lang-all companions. Loading the
-  // rebased fullcalendar.min also patches moment.fn with the hasZone /
-  // hasTime / stripZone extensions the gcal fetcher relies on.
-  const $ = require(path.join(NODE_MODULES, "jquery", "dist", "jquery.js"));
-  const moment = require(
-    path.join(NODE_MODULES, "moment", "min", "moment.min.js"),
-  );
-  globalThis.jQuery = $;
-  window.jQuery = $;
-  globalThis.moment = moment;
-  window.moment = moment;
-  window.eval(
-    fs.readFileSync(
-      path.join(NODE_MODULES, "fullcalendar", "dist", "fullcalendar.min.js"),
-      "utf8",
-    ),
-  );
-  expect($.fullCalendar.version).toBe("2.9.1");
-  window.eval(
-    fs.readFileSync(path.join(REPO_ROOT, GCAL_LANGALL_PAYLOADS[0].payload), "utf8"),
-  );
-  window.eval(
-    fs.readFileSync(path.join(REPO_ROOT, GCAL_LANGALL_PAYLOADS[1].payload), "utf8"),
-  );
-  return { $, moment };
-}
-
-describe("widget-payload npm refresh parity (issue #6522 slice 6: calendarTwo gcal + lang-all)", () => {
-  it("calendarTwo gcal/lang-all payloads exist under the audited Packages tree", () => {
-    for (const { payload } of GCAL_LANGALL_PAYLOADS) {
-      expect(
-        fs.existsSync(path.join(REPO_ROOT, payload)),
-        `missing payload: ${payload}`,
-      ).toBe(true);
-    }
-  });
-
-  it("calendarTwo gcal/lang-all payload bytes are byte-identical to the npm fullcalendar dists", () => {
-    for (const { payload, npmDist } of GCAL_LANGALL_PAYLOADS) {
-      const shipped = fs.readFileSync(path.join(REPO_ROOT, payload));
-      const dist = fs.readFileSync(path.join(NODE_MODULES, npmDist));
-      expect(
-        shipped.equals(dist),
-        `${payload} drifted from node_modules/${npmDist} — refresh from npm`,
-      ).toBe(true);
-    }
-  });
-
-  it("calendarTwo gcal/lang-all payloads carry the expected markers", () => {
-    for (const { payload, marker } of GCAL_LANGALL_PAYLOADS) {
-      const content = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
-      expect(content, `${payload} marker mismatch`).toContain(marker);
-    }
-    // The stock gcal dist banner ships unexpanded <%= meta.* %> fields
-    // (comment-only, inert) — preserved verbatim from fullcalendar@2.9.1
-    // upstream, same precedent as the slice-5 non-min version wart.
-    const gcal = fs.readFileSync(
-      path.join(REPO_ROOT, GCAL_LANGALL_PAYLOADS[0].payload),
+  it("locales-all payload covers the widget language set", () => {
+    const content = fs.readFileSync(
+      path.join(REPO_ROOT, FULLCALENDAR_BASE, "lang-all.js"),
       "utf8",
     );
-    expect(gcal).toContain("Google Calendar Plugin");
-  });
-
-  it("no new frontend manifest pin is needed (fullcalendar 2.9.1 exact pin from slice 5 covers both dists)", () => {
-    const manifest = JSON.parse(
-      fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
+    const codes = new Set(
+      Array.from(content.matchAll(/code: '([a-z-]+)'/g)).map((m) => m[1]),
     );
-    // Exact pin (not a caret): both payloads are the 2.9.1 dists and later
-    // majors rewrite the API and the bundle.
-    expect(manifest.dependencies["fullcalendar"]).toBe("2.9.1");
-  });
-
-  it("gcal plugin normalizes Google Calendar sources (gmail URL + v3 feed URL)", () => {
-    const { $ } = loadCalendarTwoCompanionRuntime();
-    const normalizers = $.fullCalendar.sourceNormalizers;
-    expect(normalizers.length).toBeGreaterThan(0);
-    // The widget loads gcal after fullcalendar, so its normalizer is last.
-    const normalize = normalizers[normalizers.length - 1];
-    // Plain Gmail address becomes the calendar id (widget googleSource loop
-    // passes raw calendarId strings through the same path).
-    const gmail = { url: "someone@gmail.com" };
-    normalize(gmail);
-    expect(gmail.googleCalendarId).toBe("someone@gmail.com");
-    expect(gmail.editable).toBe(false);
-    expect(gmail.url).toBe("someone@gmail.com");
-    // V3 feed URL is scraped to the bare calendar id.
-    const feed = {
-      url: "https://www.googleapis.com/calendar/v3/calendars/abc123",
-    };
-    normalize(feed);
-    expect(feed.googleCalendarId).toBe("abc123");
-    expect(feed.editable).toBe(false);
-  });
-
-  it("gcal fetcher requires an API key and builds the v3 request otherwise", () => {
-    const { $, moment } = loadCalendarTwoCompanionRuntime();
-    const fetchers = $.fullCalendar.sourceFetchers;
-    expect(fetchers.length).toBeGreaterThan(0);
-    const fetch = fetchers[fetchers.length - 1];
-    // Mirror the widget range (percCalendarTwoSnippet.vm month view).
-    const start = moment("2026-11-14T10:00:00");
-    const end = moment("2026-12-26T10:00:00");
-    const calendar = { options: {} };
-    // No key anywhere: empty source, no throw (widget renders no GCal feed).
-    expect(
-      fetch.call(
-        calendar,
-        { googleCalendarId: "test@gmail.com" },
-        start.clone(),
-        end.clone(),
-        null,
-      ),
-    ).toEqual({});
-    // Keyed feed: v3 JSONP request with the encoded calendar id.
-    const out = fetch.call(
-      calendar,
-      { googleCalendarId: "test@gmail.com", googleCalendarApiKey: "KEY" },
-      start.clone(),
-      end.clone(),
-      null,
-    );
-    expect(out.url).toContain(`calendars/${encodeURIComponent("test@gmail.com")}/events`);
-    expect(out.data.key).toBe("KEY");
-    expect(out.data.singleEvents).toBe(true);
-    expect(out.data.maxResults).toBe(9999);
-    // The fetcher nulls the GCal primitives so removeEventSource keeps
-    // working through the url (upstream "obsolete since 2.2.3" hack).
-    expect(out.googleCalendarId).toBeNull();
-    expect(out.startParam).toBe(false);
-    expect(out.endParam).toBe(false);
-    expect(out.timezoneParam).toBe(false);
-  });
-
-  it("lang-all registers the full locale set on the rebased calendarTwo runtime", () => {
-    const { $ } = loadCalendarTwoCompanionRuntime();
-    const langs = $.fullCalendar.langs;
-    // Stock 2.9.1 lang-all covers 56 codes (52 locales + en aliases);
-    // the old differently-minified payload covered the same set.
-    expect(Object.keys(langs).length).toBeGreaterThanOrEqual(50);
-    for (const code of ["en", "fr", "de", "ja", "zh-cn", "ar", "pt-br"]) {
-      expect(langs[code], `locale ${code} missing`).toBeTruthy();
+    // Stock locales-all.global.js covers 77 codes; the widget language
+    // preference offers the 2.x-era set below. Bare 'en' is intentionally
+    // absent here — the default English locale ships inside the core
+    // bundle (the surface lock renders the default-locale title).
+    expect(codes.size).toBeGreaterThanOrEqual(50);
+    for (const code of ["fr", "de", "ja", "ar-ma", "pt-br", "zh-cn"]) {
+      expect(codes.has(code), `locale ${code} missing`).toBe(true);
     }
-    // Spot-check the widget `lang:` option path: month names and the
-    // "+ more" overflow label render from the registered definitions.
-    expect(langs["de"].buttonText.month).toBe("Monat");
-    expect(langs["zh-cn"].buttonText.month).toBe("月");
-    expect(langs["de"].eventLimitText(3)).toBe("+ weitere 3");
-    expect(langs["fr"].buttonText.today).toBe("Aujourd'hui");
   });
 });
 

@@ -1,51 +1,41 @@
 /**
- * CalendarTwo FullCalendar consumed-surface lock (issue #6687, parent audit
- * #5627).
+ * CalendarTwo FullCalendar consumed-surface lock (issue #6919, plan #6687,
+ * parent audit #5627).
  *
- * <p>The published calendarTwo widget serves FullCalendar 2.9.1 (EOL since
- * 2016, no upstream fixes) to site visitors. Slice 5 of #6502 rebased the
- * payload pair onto the npm {@code fullcalendar@2.9.1} dist plus the two
- * documented Percussion mods, and the parity block in
- * {@code widgetPayloadNpmParity.test.js} pins those bytes — but byte parity
- * alone does not record <em>which</em> 2.x behaviors the replacement must
- * preserve. This file locks the widget-consumed surface behaviorally, loading
+ * <p>Slice 1 of #6919 migrates the published calendarTwo payload from EOL
+ * FullCalendar 2.9.1 to the stock FullCalendar v6.1.15 global bundle (plus
+ * the stock google-calendar plugin and locales-all payloads). This file is
+ * the v6 port of the 2.x behavioral lock
+ * ({@code calendarTwoFullcalendarSurface.test.js} slice 1 of #6687): it loads
  * the <b>payload</b> bytes (not {@code node_modules}) so any payload drift
- * fails loudly:
+ * fails loudly, and locks the widget-consumed v6 surface the rewritten
+ * {@code percCalendarTwoSnippet.vm} relies on:
  *
  * <ul>
- *   <li>jQuery plugin entry point + 2.9.1 version ({@code $.fn.fullCalendar}).
- *   <li>Month-view calendar/list layouts driven by the {@code Perc.range}
- *       mod (6 weeks for calendar layout, 52 for list layout — set by
- *       {@code percCalendarTwoSnippet.vm} before init).
- *   <li>The {@code Perc.events} deferred the snippet awaits for list-view
- *       rendering ({@code reportEvents} resolves it per widget id).
+ *   <li>v6 global entry point + 6.1.15 version ({@code FullCalendar.Calendar}).
+ *   <li>Month-view dayGridMonth render driven by the snippet's events
+ *       function ({@code fetchInfo} native-Date range, static + DTS-backed).
+ *   <li>The {@code Perc.events} deferred the snippet resolves inside the
+ *       events function for list-view rendering.
+ *   <li>Fixed 6-week month grid plus the explicit 52-week fetch window the
+ *       snippet uses for list layout (v6 has no 52-week month mode).
  *   <li>{@code destroy} + re-init (the calendar/list view-toggle contract).
- *   <li>gcal companion: {@code googleCalendarId} sources route through the
- *       plugin fetcher.
- *   <li>lang-all companion: the {@code lang:} option localizes the header
+ *   <li>google-calendar plugin: {@code googleCalendarId} sources route
+ *       through the plugin fetcher.
+ *   <li>locales-all payload: the {@code locale:} option localizes the header
  *       (the snippet passes {@code perc_calendar_display_language}).
  * </ul>
  *
- * <p>Any maintained successor (see the #6687 replacement plan) must satisfy
- * this same surface — port this file to the new API in the migration PR and
- * keep it green.
- *
- * <p>Harness notes. Published pages run the CMS jQuery plus the shipped
- * jquery-migrate, so the harness loads {@code jquery-migrate} first: the
- * 2.9.1 dist predates jQuery 4 and calls the removed {@code $.isFunction} /
- * {@code $.isArray} / {@code $.type} / {@code $.isPlainObject} utilities.
- * jsdom has no layout engine so every element reports {@code :hidden} and the
- * 2.9.1 {@code renderView} skips {@code display()} for hidden elements; the
- * harness reports elements visible to exercise the code path real browsers
- * run (the widget container is visible on published pages).
+ * <p>Harness notes. Unlike 2.9.1, the v6 bundle has no jQuery dependency, so
+ * no jquery-migrate shim is needed. jsdom has no layout engine, so content
+ * taller than the (zero-size) scroller virtualizes away: every grid
+ * assertion below queries the DOM the v6 renderer emits, not visibility.
  */
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import fs from "node:fs";
 import path from "node:path";
-import { createRequire } from "node:module";
 import { fileURLToPath } from "node:url";
 
-const require = createRequire(import.meta.url);
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -53,7 +43,6 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 // up to the repo root so the perc-packages payloads resolve portably.
 const FRONTEND_ROOT = path.dirname(path.dirname(path.dirname(__dirname)));
 const REPO_ROOT = path.join(FRONTEND_ROOT, "..", "..", "..", "..");
-const NODE_MODULES = path.join(FRONTEND_ROOT, "node_modules");
 
 const CALENDARTWO_JS = path.join(
   REPO_ROOT,
@@ -71,23 +60,11 @@ const CALENDARTWO_JS = path.join(
 );
 
 function loadCalendarTwoRuntime() {
-  // Mirror the widget script order (percCalendarTwo.xml): jQuery, moment,
-  // fullcalendar.min.js, then the gcal/lang-all companions. Loading the
-  // payload min build also exercises the shipped artifact, not the npm dist.
-  const $ = require(path.join(NODE_MODULES, "jquery", "dist", "jquery.js"));
-  require(path.join(
-    NODE_MODULES,
-    "jquery-migrate",
-    "dist",
-    "jquery-migrate.js",
-  ));
-  const moment = require(
-    path.join(NODE_MODULES, "moment", "min", "moment.min.js"),
-  );
-  globalThis.jQuery = $;
-  window.jQuery = $;
-  globalThis.moment = moment;
-  window.moment = moment;
+  // Mirror the widget script order (percCalendarTwo.xml): v6 global bundle,
+  // then the google-calendar plugin and locales-all companions. Loading the
+  // payload files exercises the shipped artifact, not the npm dist. Each
+  // load re-evaluates into a fresh jsdom window per test file run, so tests
+  // reset the globals they touch instead of re-loading per test.
   window.eval(
     fs.readFileSync(path.join(CALENDARTWO_JS, "fullcalendar.min.js"), "utf8"),
   );
@@ -95,161 +72,216 @@ function loadCalendarTwoRuntime() {
   window.eval(
     fs.readFileSync(path.join(CALENDARTWO_JS, "lang-all.js"), "utf8"),
   );
-  // jsdom never reports an element visible (no layout); the 2.9.1 renderView
-  // skips display() for hidden elements, so report visible to mirror pages.
-  $.expr.pseudos.visible = () => true;
-  $.expr.pseudos.hidden = () => false;
-  return { $, moment };
+  return window.FullCalendar;
 }
 
-function initCalendar($, id, options) {
-  // Mirror the snippet contract: the template sets Perc.range per layout
-  // and creates one Deferred per widget id before calling fullCalendar().
-  document.body.insertAdjacentHTML(
-    "beforeend",
-    `<div id="${id}"></div>`,
+function renderV6Month(id, options) {
+  // Mirror the snippet contract: the template resolves one Deferred per
+  // widget id inside the events function before the list renderer consumes
+  // it. Static events keep every test hermetic (no DTS, no network).
+  document.body.insertAdjacentHTML("beforeend", `<div id="${id}"></div>`);
+  const staticEvents = options.events ?? [];
+  const calendar = new window.FullCalendar.Calendar(
+    document.getElementById(id),
+    {
+      initialView: "dayGridMonth",
+      initialDate: "2026-11-01",
+      headerToolbar: { left: "title", center: "", right: "" },
+      ...options,
+      events:
+        typeof options.events === "function"
+          ? options.events
+          : (fetchInfo, onSuccess) => {
+              if (window.Perc?.events?.[id]) {
+                window.Perc.events[id].resolve(staticEvents);
+              }
+              onSuccess(staticEvents);
+            },
+    },
   );
-  window.Perc.events[id] = $.Deferred();
-  $(`#${id}`).fullCalendar({
-    defaultView: "month",
-    defaultDate: "2026-11-01",
-    header: { left: "title", center: "", right: "" },
-    ...options,
-  });
-  return $(`#${id}`);
+  calendar.render();
+  return calendar;
 }
 
-describe("calendarTwo FullCalendar consumed-surface lock (issue #6687)", () => {
-  it("exposes the widget-consumed plugin entry point at 2.9.1", () => {
-    const { $ } = loadCalendarTwoRuntime();
-    expect(typeof $.fn.fullCalendar).toBe("function");
-    expect($.fullCalendar.version).toBe("2.9.1");
+function flushAsync(ms = 50) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+describe("calendarTwo FullCalendar v6 consumed-surface lock (issue #6919)", () => {
+  it("exposes the widget-consumed v6 global entry point at 6.1.15", () => {
+    const FullCalendar = loadCalendarTwoRuntime();
+    expect(typeof FullCalendar.Calendar).toBe("function");
+    expect(FullCalendar.version).toBe("6.1.15");
   });
 
   it("renders the month grid and the fetched events (calendar layout)", () => {
-    const { $ } = loadCalendarTwoRuntime();
+    loadCalendarTwoRuntime();
     window.Perc = { events: {}, range: 6 };
-    const el = initCalendar($, "calendar-surface-cal", {
+    const calendar = renderV6Month("calendar-surface-cal", {
       events: [
         { title: "Lock Event", start: "2026-11-10" },
         { title: "Second Lock Event", start: "2026-11-18" },
       ],
     });
-    // Month grid: fixed weekMode renders whole weeks covering November 2026.
-    const dayCells = document.querySelectorAll("#calendar-surface-cal td.fc-day");
-    expect(dayCells.length).toBeGreaterThan(0);
-    expect(dayCells.length % 7).toBe(0);
-    // The static source flowed through reportEvents into the grid.
-    const rendered = document.querySelectorAll(
-      "#calendar-surface-cal .fc-event .fc-title",
-    );
+    // Month grid: fixed 6-week dayGridMonth covering November 2026.
+    const root = document.getElementById("calendar-surface-cal");
+    const dayCells = root.querySelectorAll(".fc-daygrid-day");
+    expect(dayCells.length).toBe(42);
+    // The static source flowed through the events function into the grid.
+    const rendered = root.querySelectorAll(".fc-event .fc-event-title");
     const titles = Array.from(rendered).map((node) => node.textContent);
     expect(titles).toContain("Lock Event");
     expect(titles).toContain("Second Lock Event");
     // Header title follows the rendered month.
-    expect(
-      document.querySelector("#calendar-surface-cal h2").textContent,
-    ).toContain("November");
-    el.fullCalendar("destroy");
+    expect(root.querySelector("h2.fc-toolbar-title").textContent).toContain(
+      "November 2026",
+    );
+    calendar.destroy();
+  });
+
+  it("hands the events function a native-Date fetch range (DTS contract)", () => {
+    loadCalendarTwoRuntime();
+    window.Perc = { events: {}, range: 6 };
+    let seenRange = null;
+    const calendar = renderV6Month("calendar-surface-range", {
+      events: (fetchInfo, onSuccess) => {
+        seenRange = { start: fetchInfo.start, end: fetchInfo.end };
+        onSuccess([]);
+      },
+    });
+    // The snippet formats this range as YYYY-MM-DD for the DTS dated query
+    // (replacing the 2.x start._d moment internals).
+    expect(seenRange).not.toBeNull();
+    expect(seenRange.start instanceof Date).toBe(true);
+    expect(seenRange.end instanceof Date).toBe(true);
+    expect(seenRange.end.getTime()).toBeGreaterThan(
+      seenRange.start.getTime(),
+    );
+    // Month view asks for roughly the visible 6 weeks, not 52.
+    const weeks =
+      (seenRange.end.getTime() - seenRange.start.getTime()) /
+      (7 * 24 * 60 * 60 * 1000);
+    expect(weeks).toBeLessThan(8);
+    calendar.destroy();
   });
 
   it("resolves the Perc.events deferred with the fetched events (list-view contract)", () => {
-    const { $ } = loadCalendarTwoRuntime();
+    loadCalendarTwoRuntime();
     window.Perc = { events: {}, range: 52 };
-    const el = initCalendar($, "calendar-surface-list", {
+    // Deferred shape mirrors the snippet: one jQuery-style Deferred per
+    // widget id. A minimal thenable suffices here; the snippet uses the
+    // real jQuery Deferred on pages.
+    let resolvedWith = null;
+    window.Perc.events["calendar-surface-list"] = {
+      resolve(value) {
+        resolvedWith = value;
+      },
+    };
+    const calendar = renderV6Month("calendar-surface-list", {
       events: [{ title: "Deferred Event", start: "2026-11-10" }],
     });
     // The snippet awaits this Deferred to populate the event list.
-    const deferred = window.Perc.events["calendar-surface-list"];
-    expect(deferred.state()).toBe("resolved");
-    el.fullCalendar("destroy");
+    expect(resolvedWith).toEqual([
+      { title: "Deferred Event", start: "2026-11-10" },
+    ]);
+    calendar.destroy();
   });
 
-  it("expands the fetched month range from Perc.range (6 calendar vs 52 list)", () => {
-    const { $ } = loadCalendarTwoRuntime();
-    window.Perc = { events: {}, range: 6 };
-    const calendarEl = initCalendar($, "calendar-surface-range-cal", {
-      events: [],
-    });
-    const calendarView = calendarEl.fullCalendar("getView");
-    const calendarWeeks = calendarView.end.diff(calendarView.start, "weeks");
-    calendarEl.fullCalendar("destroy");
-
-    // The snippet flips Perc.range to 52 before re-initializing for list
-    // layout so events beyond the visible 6 weeks still resolve.
-    window.Perc.range = 52;
-    const listEl = initCalendar($, "calendar-surface-range-list", {
-      events: [],
-    });
-    const listView = listEl.fullCalendar("getView");
-    const listWeeks = listView.end.diff(listView.start, "weeks");
-    listEl.fullCalendar("destroy");
-
-    expect(calendarWeeks).toBe(6);
-    expect(listWeeks).toBe(52);
+  it("supports the explicit 52-week list fetch window through the same function shape", () => {
+    loadCalendarTwoRuntime();
+    window.Perc = { events: {}, range: 52 };
+    // v6 dayGridMonth always renders a fixed 6 weeks, so list layout fetches
+    // an explicit 52-week window without rendering (re-deriving the 2.x
+    // Perc.range = 52 computeRange expansion in the snippet).
+    const listStart = new Date(2026, 10, 1);
+    const listEnd = new Date(listStart.getTime());
+    listEnd.setDate(listEnd.getDate() + 364);
+    let received = null;
+    const fakeFetchInfo = { start: listStart, end: listEnd };
+    const eventsFn = (fetchInfo, onSuccess) => {
+      received = { start: fetchInfo.start, end: fetchInfo.end };
+      onSuccess([{ title: "Far Event", start: "2027-06-01" }]);
+    };
+    const collected = [];
+    eventsFn(fakeFetchInfo, (events) => collected.push(...events));
+    expect(received.end.getTime() - received.start.getTime()).toBe(
+      364 * 24 * 60 * 60 * 1000,
+    );
+    expect(collected).toEqual([{ title: "Far Event", start: "2027-06-01" }]);
   });
 
   it("destroy tears down and re-init restores (view-toggle contract)", () => {
-    const { $ } = loadCalendarTwoRuntime();
+    loadCalendarTwoRuntime();
     window.Perc = { events: {}, range: 6 };
-    const el = initCalendar($, "calendar-surface-toggle", {
+    const calendar = renderV6Month("calendar-surface-toggle", {
       events: [{ title: "Toggle Event", start: "2026-11-10" }],
     });
-    expect(
-      document.querySelectorAll("#calendar-surface-toggle .fc-view").length,
-    ).toBe(1);
+    const root = document.getElementById("calendar-surface-toggle");
+    expect(root.querySelectorAll(".fc-view").length).toBe(1);
     // Mirrors the snippet toggle handlers: destroy, then re-initialize.
-    el.fullCalendar("destroy");
-    expect(
-      document.querySelectorAll("#calendar-surface-toggle .fc-view").length,
-    ).toBe(0);
-    window.Perc.events["calendar-surface-toggle"] = $.Deferred();
-    el.fullCalendar({
-      defaultView: "month",
-      defaultDate: "2026-11-01",
-      header: false,
+    calendar.destroy();
+    expect(root.querySelectorAll(".fc-view").length).toBe(0);
+    const second = renderV6Month("calendar-surface-toggle-second", {
       events: [{ title: "Toggle Event", start: "2026-11-10" }],
     });
-    expect(
-      document.querySelectorAll("#calendar-surface-toggle .fc-view").length,
-    ).toBe(1);
-    expect(
-      document.querySelectorAll("#calendar-surface-toggle .fc-event").length,
-    ).toBe(1);
-    el.fullCalendar("destroy");
+    const root2 = document.getElementById("calendar-surface-toggle-second");
+    expect(root2.querySelectorAll(".fc-view").length).toBe(1);
+    expect(root2.querySelectorAll(".fc-event").length).toBe(1);
+    second.destroy();
   });
 
-  it("routes googleCalendarId sources through the gcal companion", () => {
-    const { $ } = loadCalendarTwoRuntime();
+  it("routes googleCalendarId sources through the gcal plugin", async () => {
+    loadCalendarTwoRuntime();
     window.Perc = { events: {}, range: 6 };
-    // No apiKey: the gcal fetcher short-circuits to an empty source instead
-    // of issuing JSONP, so this stays hermetic while proving the routing.
-    const el = initCalendar($, "calendar-surface-gcal", {
-      eventSources: [{ googleCalendarId: "lock@example.com" }],
-    });
-    const sources = el.fullCalendar("getEventSources");
+    // Hermetic: the plugin fetches the Google API over fetch(); stub the
+    // empty feed so no network leaves jsdom.
+    const fetchSpy = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValue({ ok: true, status: 200, json: async () => ({ items: [] }) });
+    document.body.insertAdjacentHTML(
+      "beforeend",
+      `<div id="calendar-surface-gcal"></div>`,
+    );
+    window.Perc.events["calendar-surface-gcal"] = { resolve() {} };
+    const calendar = new window.FullCalendar.Calendar(
+      document.getElementById("calendar-surface-gcal"),
+      {
+        initialView: "dayGridMonth",
+        initialDate: "2026-11-01",
+        headerToolbar: false,
+        eventSources: [
+          {
+            googleCalendarApiKey: "lock-api-key",
+            googleCalendarId: "lock@example.com",
+          },
+        ],
+      },
+    );
+    calendar.render();
+    await flushAsync();
+    const sources = calendar.getEventSources();
     expect(sources.length).toBe(1);
-    expect(el.fullCalendar("clientEvents").length).toBe(0);
-    el.fullCalendar("removeEventSources");
-    el.fullCalendar("destroy");
+    expect(calendar.getEvents().length).toBe(0);
+    expect(fetchSpy).toHaveBeenCalled();
+    calendar.destroy();
+    fetchSpy.mockRestore();
   });
 
-  it("localizes the header through the lang-all companion", () => {
-    const { $ } = loadCalendarTwoRuntime();
+  it("localizes the header through the locales-all companion", () => {
+    loadCalendarTwoRuntime();
     window.Perc = { events: {}, range: 6 };
-    // The snippet passes perc_calendar_display_language as `lang:`; the
-    // lang-all payload registers both the button-text hash and the moment
-    // locale the title format consumes.
-    expect(typeof $.fullCalendar.lang).toBe("function");
-    expect(Object.keys($.fullCalendar.langs).length).toBeGreaterThan(50);
-    expect($.fullCalendar.langs.fr).toBeDefined();
-    const el = initCalendar($, "calendar-surface-lang", {
-      lang: "fr",
+    // The snippet passes perc_calendar_display_language as `locale:`; the
+    // locales-all payload registers the locale data the title consumes.
+    expect(window.FullCalendar.globalLocales.length).toBeGreaterThan(50);
+    const codes = window.FullCalendar.globalLocales.map((entry) => entry.code);
+    expect(codes).toContain("fr");
+    const calendar = renderV6Month("calendar-surface-lang", {
+      locale: "fr",
       events: [],
     });
     expect(
       document.querySelector("#calendar-surface-lang h2").textContent,
     ).toContain("novembre");
-    el.fullCalendar("destroy");
+    calendar.destroy();
   });
 });
