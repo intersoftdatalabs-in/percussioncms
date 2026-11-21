@@ -2564,6 +2564,14 @@ forms service (`perc-form-processor`), not to the CMS content store:
    --delivery-password <secret>` and export the same secret for the
    caller, then read summaries and CSV over HTTPS.
 
+The visitor-facing confirmation pages keep stable hooks for automation:
+the success page carries `data-testid="forms-confirmation-success"`
+(announced as a polite status) and the error page carries
+`data-testid="forms-confirmation-error"` (announced as an alert), both
+with the long-standing user-visible wording. Custom `perc_successUrl` /
+`perc_errorUrl` redirects bypass these pages; the default redirect
+targets the service's own success page under its deployment context.
+
 ## Membership registration and login (DTS)
 
 When a published site uses the login widget, visitor accounts live in

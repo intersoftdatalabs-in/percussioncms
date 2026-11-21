@@ -50,6 +50,11 @@ const {
   probeFormName,
   retrievalDetail,
   summariesTotal,
+  SUCCESS_PAGE_TESTID,
+  SUCCESS_PAGE_COPY,
+  ERROR_PAGE_TESTID,
+  ERROR_PAGE_COPY,
+  pageHasConfirmationMarker,
   buildConfirmationRow,
   validateConfirmationRow,
 } = require("../helpers/forms-confirmation-matrix");
@@ -332,6 +337,80 @@ describe("forms-confirmation-matrix helpers (#6482)", () => {
     for (const row of example) {
       assert.deepEqual(validateConfirmationRow(row), []);
     }
+  });
+
+  it("pins the confirmation-page hooks and copy", () => {
+    assert.equal(SUCCESS_PAGE_TESTID, "forms-confirmation-success");
+    assert.equal(ERROR_PAGE_TESTID, "forms-confirmation-error");
+    assert.equal(SUCCESS_PAGE_COPY, "Your form submission was successful.");
+    assert.equal(ERROR_PAGE_COPY, "An error occurred during form submission.");
+    for (const page of ["success", "error"]) {
+      const html = fs.readFileSync(
+        path.join(
+          MODULE_DIR,
+          "..",
+          "..",
+          "deliverytiersuite",
+          "delivery-tier-suite",
+          "forms",
+          "src",
+          "main",
+          "java",
+          "webapp",
+          "WEB-INF",
+          `${page}.html`,
+        ),
+        "utf8",
+      );
+      const marker = page === "success" ? SUCCESS_PAGE_TESTID : ERROR_PAGE_TESTID;
+      const copy = page === "success" ? SUCCESS_PAGE_COPY : ERROR_PAGE_COPY;
+      assert.ok(
+        pageHasConfirmationMarker(html, marker),
+        `${page}.html carries its stable automation hook`,
+      );
+      assert.ok(html.includes(copy), `${page}.html keeps the user-visible copy`);
+      assert.ok(
+        !html.includes("windows-1250"),
+        `${page}.html no longer declares a legacy charset`,
+      );
+    }
+  });
+
+  it("pageHasConfirmationMarker matches the hook, not the copy", () => {
+    const legacy = `<h4 style="position: absolute;">${SUCCESS_PAGE_COPY}</h4>`;
+    assert.equal(pageHasConfirmationMarker(legacy, SUCCESS_PAGE_TESTID), false);
+    assert.equal(
+      pageHasConfirmationMarker(
+        `<main data-testid="${SUCCESS_PAGE_TESTID}">${SUCCESS_PAGE_COPY}</main>`,
+        SUCCESS_PAGE_TESTID,
+      ),
+      true,
+    );
+    assert.equal(
+      pageHasConfirmationMarker(
+        `<main data-testid="${ERROR_PAGE_TESTID}">${ERROR_PAGE_COPY}</main>`,
+        SUCCESS_PAGE_TESTID,
+      ),
+      false,
+    );
+    assert.equal(pageHasConfirmationMarker(null, SUCCESS_PAGE_TESTID), false);
+    assert.equal(pageHasConfirmationMarker(undefined, SUCCESS_PAGE_TESTID), false);
+    assert.equal(pageHasConfirmationMarker(42, SUCCESS_PAGE_TESTID), false);
+    assert.equal(pageHasConfirmationMarker("", SUCCESS_PAGE_TESTID), false);
+    assert.equal(
+      pageHasConfirmationMarker(
+        `<main data-testid="${SUCCESS_PAGE_TESTID}">ok</main>`,
+        "",
+      ),
+      false,
+    );
+    assert.equal(
+      pageHasConfirmationMarker(
+        `<main data-testid="${SUCCESS_PAGE_TESTID}">ok</main>`,
+        null,
+      ),
+      false,
+    );
   });
 
   it("is referenced by the matrix spec for every pinned case", () => {

@@ -78,6 +78,21 @@ const CASE_SUMMARIES = "summariesRetrievable";
 const CASE_CSV = "csvRetrievable";
 const CASE_NAMES = Object.freeze([CASE_SUBMIT, CASE_SUMMARIES, CASE_CSV]);
 
+/**
+ * Stable automation hooks on the DTS forms confirmation pages
+ * ({@code perc-form-processor} war {@code success.html} / {@code error.html}).
+ * The user-visible copy is the long-standing wording; the
+ * {@code data-testid} attributes are the machine-stable contract the
+ * confirmation matrix asserts after following the success redirect. Both
+ * pages keep HTML5 + UTF-8 markup with a {@code role} appropriate to the
+ * outcome ({@code status} for success, {@code alert} for error) so
+ * assistive technology announces the result.
+ */
+const SUCCESS_PAGE_TESTID = "forms-confirmation-success";
+const SUCCESS_PAGE_COPY = "Your form submission was successful.";
+const ERROR_PAGE_TESTID = "forms-confirmation-error";
+const ERROR_PAGE_COPY = "An error occurred during form submission.";
+
 const RESULT_STATUSES = Object.freeze(["pass", "fail", "skip"]);
 const MATRIX_CELLS = Object.freeze(["dts-cell"]);
 
@@ -291,6 +306,24 @@ function summariesTotal(body, formName) {
 }
 
 /**
+ * Reports whether a confirmation page body carries the stable automation
+ * hook for the expected outcome. Pure string matching (no Playwright
+ * objects) so plain {@code node --test} unit tests cover it, including the
+ * legacy page shape (right copy, no hook) which reports {@code false} for
+ * the marker while still containing the copy.
+ *
+ * @param {unknown} html response body of the confirmation page
+ * @param {string} marker expected {@code data-testid} value
+ * @returns {boolean} true when the body contains the marker hook
+ */
+function pageHasConfirmationMarker(html, marker) {
+  if (typeof html !== "string" || typeof marker !== "string" || marker.length === 0) {
+    return false;
+  }
+  return html.includes(`data-testid="${marker}"`);
+}
+
+/**
  * Builds the one results-matrix row for the pinned forms entry. The row
  * shape mirrors {@code contracts/results-matrix.schema.json}; see
  * {@link validateConfirmationRow}.
@@ -420,6 +453,10 @@ module.exports = {
   CASE_SUMMARIES,
   CASE_CSV,
   CASE_NAMES,
+  SUCCESS_PAGE_TESTID,
+  SUCCESS_PAGE_COPY,
+  ERROR_PAGE_TESTID,
+  ERROR_PAGE_COPY,
   RESULT_STATUSES,
   MATRIX_CELLS,
   SKIP_NO_DTS_BASE,
@@ -431,13 +468,13 @@ module.exports = {
   dtsContextUrl,
   dtsServiceUrl,
   dtsHttpsBaseUrl,
-  dtsHttpsBaseUrl,
   openDtsHttpsContext,
   dtsHttpsServiceUrl,
   deliveryAuthHeader,
   probeFormName,
   retrievalDetail,
   summariesTotal,
+  pageHasConfirmationMarker,
   buildConfirmationRow,
   validateConfirmationRow,
   schemaPathFor,
