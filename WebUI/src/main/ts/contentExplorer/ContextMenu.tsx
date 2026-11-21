@@ -41,11 +41,25 @@
  * a pending catalog shows the loading placeholder, a failed catalog shows
  * the error text with a Retry button that re-runs the load, and only a
  * successful empty catalog shows <strong>No actions</strong>.</p>
+ *
+ * <p>Slot-dependent children render {@code aria-disabled} with a tooltip
+ * naming the missing slot context when no Active Assembly slot (or no
+ * snippet in the slot) is selected (#6950, same contract as the
+ * {@code ActionToolbar} #6915 state): the controls stay focusable so
+ * pivot keyboard traversal and screen-reader discovery are unchanged,
+ * and activation is a no-op instead of a server call. The host
+ * dispatcher keeps the {@code ACTION_NEEDS_SLOT} /
+ * {@code ACTION_NEEDS_RELATIONSHIP} status hint as a fallback for
+ * direct activations. The {@code arrange} MENU parent itself is never
+ * disabled — it opens the submenu so keyboard and screen-reader
+ * operators can discover the disabled children.</p>
  */
 
 import React, { useEffect, useId, useRef, useState } from "react";
 import type { MenuAction } from "../api/contentExplorer/types";
+import type { AssemblySlotContext } from "../assembly/slotContext";
 import { message } from "../i18n/message";
+import { slotActionDisabledReason } from "./ActionToolbar";
 import { ActionIcon } from "./actionIcons";
 import {
   prepareMenuActionTree,
@@ -83,6 +97,15 @@ export interface ContextMenuProps {
    * {@code loadError}; absent means the error text shows without Retry.
    */
   onRetry?: () => void;
+  /**
+   * Selected Active Assembly slot (and optional snippet relationship).
+   * Folder browse passes {@code null}: slot-dependent children then render
+   * {@code aria-disabled} with a tooltip naming the missing slot context
+   * (#6950, same contract as {@code ActionToolbar} #6915) instead of
+   * dispatching a needs-slot status hint. The dispatcher keeps the hint
+   * as a fallback for direct activations.
+   */
+  slot?: AssemblySlotContext | null;
 }
 
 /**
@@ -109,6 +132,7 @@ function activate(
 export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
   const { onInvoke, onClose, ariaLabel, className, pending, loadError, onRetry } =
     props;
+  const slot = props.slot ?? null;
   const actions = prepareMenuActionTree(props.actions);
   const [openPivot, setOpenPivot] = useState<string | null>(null);
   const baseId = useId();
@@ -170,12 +194,13 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
     action: MenuAction,
     isPivot: boolean,
     expanded: boolean,
+    disabled?: boolean,
   ): void {
     if (ACTIVATE_KEYS.has(e.key)) {
       e.preventDefault();
       if (isPivot) {
         setOpenPivot(expanded ? null : action.name);
-      } else {
+      } else if (!disabled) {
         activate(action, undefined, onInvoke);
       }
     }
@@ -249,6 +274,20 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
             const isPivot = kids.length > 0;
             const expanded = openPivot === action.name;
             const submenuId = `${baseId}-${action.name}-submenu`;
+            // Slot-less disabled state (#6950, DCE parity — same contract
+            // as the toolbar #6915): the item stays focusable
+            // ({@code aria-disabled}, not {@code disabled}) so pivot
+            // keyboard traversal and screen-reader discovery are
+            // unchanged; activation is a no-op and the tooltip +
+            // extended aria-label name the missing slot context. Pivots
+            // (including Arrange) stay enabled so the submenu stays
+            // discoverable — {@code slotActionDisabledReason} already
+            // answers {@code null} for the {@code arrange} parent.
+            const leafReason = isPivot
+              ? null
+              : slotActionDisabledReason(action.name, slot);
+            const leafDisabled = leafReason != null;
+            const leafHint = leafDisabled ? message(leafReason) : null;
             return (
               <li key={action.name} role="none">
                 <div
@@ -258,16 +297,31 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
                   aria-haspopup={isPivot ? "menu" : undefined}
                   aria-expanded={isPivot ? expanded : undefined}
                   aria-controls={isPivot ? submenuId : undefined}
+                  aria-disabled={leafDisabled || undefined}
+                  aria-label={
+                    leafDisabled ? `${action.label}. ${leafHint}` : undefined
+                  }
+                  title={leafDisabled ? (leafHint ?? action.label) : undefined}
                   data-testid={`context-menu-item-${action.name}`}
                   onClick={() => {
                     if (isPivot) {
                       setOpenPivot(expanded ? null : action.name);
-                    } else {
+                    } else if (!leafDisabled) {
                       activate(action, undefined, onInvoke);
                     }
                   }}
-                  onKeyDown={(e) => handleItemKey(e, action, isPivot, expanded)}
-                  style={{ padding: "4px 8px", cursor: "pointer" }}
+                  onKeyDown={(e) =>
+                    handleItemKey(e, action, isPivot, expanded, leafDisabled)
+                  }
+                  style={
+                    leafDisabled
+                      ? {
+                          padding: "4px 8px",
+                          cursor: "not-allowed",
+                          opacity: 0.55,
+                        }
+                      : { padding: "4px 8px", cursor: "pointer" }
+                  }
                 >
                   <ActionIcon name={action.name} testId="context-menu-icon" />
                   {action.label}
@@ -286,30 +340,65 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
                       borderLeft: "2px solid #ccc",
                     }}
                   >
-                    {kids.map((c) => (
-                      <li
-                        key={c.name}
-                        role="none"
-                        style={{ padding: "2px 4px" }}
-                      >
-                        <div
-                          role="menuitem"
-                          tabIndex={0}
-                          data-testid={`context-menu-item-${c.name}`}
-                          onClick={() => activate(c, action, onInvoke)}
-                          onKeyDown={(e) => {
-                            if (ACTIVATE_KEYS.has(e.key)) {
-                              e.preventDefault();
-                              activate(c, action, onInvoke);
-                            }
-                          }}
-                          style={{ cursor: "pointer" }}
+                    {kids.map((c) => {
+                      // Same slot-less disabled contract as top-level
+                      // leaves (#6950): Arrange children stay focusable
+                      // with the missing-context tooltip + aria-label,
+                      // and activation is a no-op.
+                      const childReason = slotActionDisabledReason(c.name, slot);
+                      const childDisabled = childReason != null;
+                      const childHint = childDisabled
+                        ? message(childReason)
+                        : null;
+                      return (
+                        <li
+                          key={c.name}
+                          role="none"
+                          style={{ padding: "2px 4px" }}
                         >
-                          <ActionIcon name={c.name} testId="context-menu-icon" />
-                          {c.label}
-                        </div>
-                      </li>
-                    ))}
+                          <div
+                            role="menuitem"
+                            tabIndex={0}
+                            aria-disabled={childDisabled || undefined}
+                            aria-label={
+                              childDisabled
+                                ? `${c.label}. ${childHint}`
+                                : undefined
+                            }
+                            title={
+                              childDisabled
+                                ? (childHint ?? c.label)
+                                : undefined
+                            }
+                            data-testid={`context-menu-item-${c.name}`}
+                            onClick={() => {
+                              if (!childDisabled) {
+                                activate(c, action, onInvoke);
+                              }
+                            }}
+                            onKeyDown={(e) => {
+                              if (ACTIVATE_KEYS.has(e.key)) {
+                                e.preventDefault();
+                                if (!childDisabled) {
+                                  activate(c, action, onInvoke);
+                                }
+                              }
+                            }}
+                            style={
+                              childDisabled
+                                ? { cursor: "not-allowed", opacity: 0.55 }
+                                : { cursor: "pointer" }
+                            }
+                          >
+                            <ActionIcon
+                              name={c.name}
+                              testId="context-menu-icon"
+                            />
+                            {c.label}
+                          </div>
+                        </li>
+                      );
+                    })}
                   </ul>
                 ) : null}
               </li>

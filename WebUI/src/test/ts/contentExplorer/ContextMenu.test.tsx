@@ -469,4 +469,158 @@ describe("ContextMenu", () => {
       expect(screen.getByTestId("context-menu-retry")).toHaveFocus();
     });
   });
+
+  describe("slot-less Arrange disabled parity (#6950)", () => {
+    const ARRANGE_MENU: MenuAction[] = [
+      {
+        name: "Arrange",
+        label: "Arrange",
+        sortRank: 0,
+        menuType: "MENU",
+        children: [
+          {
+            name: "Arrange_MoveUpLeft",
+            label: "Move Up",
+            sortRank: 0,
+            menuType: "MENUITEM",
+          },
+          {
+            name: "Arrange_MoveDownRight",
+            label: "Move Down",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+          {
+            name: "Arrange_ChangeTemplateSlot",
+            label: "Change Template",
+            sortRank: 2,
+            menuType: "MENUITEM",
+          },
+          {
+            name: "Arrange_Remove",
+            label: "Remove from Slot",
+            sortRank: 3,
+            menuType: "MENUITEM",
+          },
+        ],
+      },
+      { name: "Slot_Add", label: "Slot Add", sortRank: 1, menuType: "MENUITEM" },
+      { name: "open", label: "Open", sortRank: 2, menuType: "MENUITEM" },
+    ];
+
+    const ARRANGE_CHILDREN = [
+      "Arrange_MoveUpLeft",
+      "Arrange_MoveDownRight",
+      "Arrange_ChangeTemplateSlot",
+      "Arrange_Remove",
+    ];
+
+    function openArrangePivot(): void {
+      fireEvent.click(screen.getByTestId("context-menu-item-Arrange"));
+      expect(screen.getByTestId("context-menu-submenu-Arrange")).toBeTruthy();
+    }
+
+    it("renders Arrange children aria-disabled with a slot tooltip when no slot is selected", () => {
+      render(<ContextMenu actions={ARRANGE_MENU} slot={null} />);
+      openArrangePivot();
+      for (const child of ARRANGE_CHILDREN) {
+        const el = screen.getByTestId(`context-menu-item-${child}`);
+        expect(el.getAttribute("aria-disabled")).toBe("true");
+        expect(el.getAttribute("title")).toMatch(/slot/i);
+        expect(el.getAttribute("aria-label")).toMatch(/slot/i);
+        // Disabled children stay focusable so keyboard/SR discovery is
+        // unchanged (same contract as the toolbar #6915 state).
+        expect(el.getAttribute("tabindex")).toBe("0");
+      }
+      // The Arrange pivot stays enabled so the submenu stays discoverable.
+      expect(
+        screen.getByTestId("context-menu-item-Arrange").getAttribute(
+          "aria-disabled",
+        ),
+      ).toBeNull();
+      // Flat slot actions answer the same contract.
+      expect(
+        screen.getByTestId("context-menu-item-Slot_Add").getAttribute(
+          "aria-disabled",
+        ),
+      ).toBe("true");
+      // Non-slot leaves are unaffected.
+      expect(
+        screen.getByTestId("context-menu-item-open").getAttribute(
+          "aria-disabled",
+        ),
+      ).toBeNull();
+    });
+
+    it("disabled activation is a no-op for click and keyboard", () => {
+      const onInvoke = vi.fn();
+      render(
+        <ContextMenu actions={ARRANGE_MENU} slot={null} onInvoke={onInvoke} />,
+      );
+      openArrangePivot();
+      const move = screen.getByTestId("context-menu-item-Arrange_MoveUpLeft");
+      fireEvent.click(move);
+      fireEvent.keyDown(move, { key: "Enter" });
+      fireEvent.keyDown(move, { key: " " });
+      expect(onInvoke).not.toHaveBeenCalled();
+      // The submenu stays open after the no-op activation.
+      expect(screen.getByTestId("context-menu-submenu-Arrange")).toBeTruthy();
+      // Flat disabled leaves are a no-op too.
+      fireEvent.click(screen.getByTestId("context-menu-item-Slot_Add"));
+      expect(onInvoke).not.toHaveBeenCalled();
+    });
+
+    it("slot without a snippet names the missing item but enables Slot_Add", () => {
+      render(
+        <ContextMenu
+          actions={ARRANGE_MENU}
+          slot={{ ownerId: 42, slotId: 3 }}
+        />,
+      );
+      openArrangePivot();
+      const remove = screen.getByTestId("context-menu-item-Arrange_Remove");
+      expect(remove.getAttribute("aria-disabled")).toBe("true");
+      expect(remove.getAttribute("title")).toMatch(/item in the slot/i);
+      expect(
+        screen.getByTestId("context-menu-item-Slot_Add").getAttribute(
+          "aria-disabled",
+        ),
+      ).toBeNull();
+    });
+
+    it("snippet selection enables every Arrange child and invokes", () => {
+      const onInvoke = vi.fn();
+      render(
+        <ContextMenu
+          actions={ARRANGE_MENU}
+          slot={{ ownerId: 42, slotId: 3, relationshipId: 88 }}
+          onInvoke={onInvoke}
+        />,
+      );
+      openArrangePivot();
+      for (const child of ARRANGE_CHILDREN) {
+        expect(
+          screen.getByTestId(`context-menu-item-${child}`).getAttribute(
+            "aria-disabled",
+          ),
+        ).toBeNull();
+      }
+      fireEvent.click(screen.getByTestId("context-menu-item-Arrange_Remove"));
+      expect(onInvoke).toHaveBeenCalledWith(
+        "Arrange_Remove",
+        expect.objectContaining({
+          name: "Arrange_Remove",
+          parentName: "Arrange",
+        }),
+      );
+    });
+
+    it("passes the zero serious/critical axe-core gate with slot-less disabled children", async () => {
+      const { baseElement } = render(
+        <ContextMenu actions={ARRANGE_MENU} slot={null} />,
+      );
+      openArrangePivot();
+      await renderA11yGate(baseElement);
+    });
+  });
 });
