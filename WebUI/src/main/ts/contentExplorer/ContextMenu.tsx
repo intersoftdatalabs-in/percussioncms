@@ -38,7 +38,7 @@
  * empty state stay label-only (text-first clarity).</p>
  */
 
-import React, { useEffect, useId, useState } from "react";
+import React, { useEffect, useId, useRef, useState } from "react";
 import type { MenuAction } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
 import { ActionIcon } from "./actionIcons";
@@ -46,6 +46,7 @@ import {
   prepareMenuActionTree,
   unwrapMenuActionChildren,
 } from "./actionEnablement";
+import { EXPLORER_MSG } from "./messages";
 
 export interface ContextMenuProps {
   /** Server-provided menu actions (already filtered for the current selection). */
@@ -58,6 +59,12 @@ export interface ContextMenuProps {
   ariaLabel?: string;
   /** Optional CSS class name for the menu container. */
   className?: string;
+  /**
+   * Catalog still loading (#6826). Renders the loading placeholder instead
+   * of the empty-actions text so a slow {@code /actions/find} does not read
+   * as "nothing available". Cleared when the loaded actions arrive.
+   */
+  pending?: boolean;
 }
 
 /**
@@ -82,14 +89,26 @@ function activate(
 }
 
 export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
-  const { onInvoke, onClose, ariaLabel, className } = props;
+  const { onInvoke, onClose, ariaLabel, className, pending } = props;
   const actions = prepareMenuActionTree(props.actions);
   const [openPivot, setOpenPivot] = useState<string | null>(null);
   const baseId = useId();
+  const menuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     setOpenPivot(null);
   }, [props.actions]);
+
+  /**
+   * Move focus into the popup on open (#6826): keyboard opens
+   * (context-menu key / Shift+F10 on a tree row) leave focus on the row,
+   * so Escape-to-close and screen-reader announcement only work once the
+   * menu itself is focused. Runs on mount only — loaded actions replace
+   * the list in place without stealing focus back.
+   */
+  useEffect(() => {
+    menuRef.current?.focus({ preventScroll: true });
+  }, []);
 
   function handleContainerKey(e: React.KeyboardEvent<HTMLDivElement>): void {
     if (e.key === "Escape") {
@@ -119,6 +138,8 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
       aria-label={ariaLabel ?? "Context menu"}
       className={className}
       data-testid="context-menu"
+      tabIndex={-1}
+      ref={menuRef}
       onKeyDown={handleContainerKey}
       style={{
         background: "#fff",
@@ -130,9 +151,19 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
       }}
     >
       {actions.length === 0 ? (
-        <div role="presentation" data-testid="context-menu-empty">
-          {message("perc.ui.explorer@No actions")}
-        </div>
+        pending ? (
+          <div
+            role="presentation"
+            data-testid="context-menu-loading"
+            aria-live="polite"
+          >
+            {message(EXPLORER_MSG.CONTEXT_MENU_LOADING)}
+          </div>
+        ) : (
+          <div role="presentation" data-testid="context-menu-empty">
+            {message("perc.ui.explorer@No actions")}
+          </div>
+        )
       ) : (
         <ul
           role="presentation"

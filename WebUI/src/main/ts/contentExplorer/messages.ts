@@ -239,6 +239,8 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@The recycle bin is already empty — there is nothing to delete.",
   EMPTY_RECYCLE_LOAD_FAILED:
     "perc.ui.explorer@Could not load the recycle bin contents.",
+  /** Context-menu catalog still loading (#6826): shown instead of the empty text. */
+  CONTEXT_MENU_LOADING: "perc.ui.explorer@Loading actions…",
   EMPTY_RECYCLE_REMOVED:
     "perc.ui.explorer@Removed {count} item(s) from the recycle bin: {names}",
   EMPTY_RECYCLE_ROW_REMOVED: "perc.ui.explorer@Removed",

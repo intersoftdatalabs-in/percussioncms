@@ -1217,6 +1217,13 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
 - **Right-click a selected list row** (Sites, Assets, or a folder with children)
   opens the same catalog as a **nested context menu** — MENU parents stay
   expandable, not a flat list of every child label. Desktop-only actions stay hidden.
+- **Right-click a folder in the navigation tree** (or focus the tree row and press
+  **Shift+F10** / the context-menu key) opens the same server catalog scoped to
+  that folder, so tree-only operators reach the folder commands without selecting
+  a list row first. The folder is selected, the popup names it
+  (for example **Context menu for Foo**), it answers immediately with a
+  **Loading actions…** placeholder while the catalog resolves, focus moves into
+  the popup, and **Escape** closes it.
 - **Right-click a recycled row** (a page, asset, or folder listed under
   **Recycling**) also offers **Restore** and **Purge** — the same actions as the
   reduced-actions toolbar, without requiring toolbar buttons. **Restore** returns

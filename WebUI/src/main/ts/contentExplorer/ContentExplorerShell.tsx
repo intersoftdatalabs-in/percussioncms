@@ -523,6 +523,14 @@ type ContextMenuState = {
   actions: MenuAction[];
   x: number;
   y: number;
+  /**
+   * Catalog still loading (#6826). The popup mounts immediately with the
+   * loading placeholder so right-click always answers, then swaps in the
+   * loaded actions in place.
+   */
+  loading?: boolean;
+  /** Row label for the popup accessible name (#6826). */
+  label?: string;
 } | null;
 
 const sidePanelStyle: React.CSSProperties = {
@@ -1771,6 +1779,15 @@ function ContentExplorerShellInner({
     (item: PSPathItem, clientX: number, clientY: number) => {
       setSelection((prev) => ({ ...prev, item }));
       const requestId = ++contextMenuRequestIdRef.current;
+      // Mount the popup immediately with the loading placeholder so
+      // right-click always answers (#6826); the loaded catalog swaps in
+      // below. Stale generations (rapid right-clicks) never render.
+      const pos = clampContextMenuPosition(clientX, clientY, {
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+      const label = item.title ?? item.name ?? item.path;
+      setContextMenu({ actions: [], x: pos.x, y: pos.y, loading: true, label });
       void (async () => {
         try {
           const base = await loadMenuActions(item);
@@ -1790,10 +1807,6 @@ function ContentExplorerShellInner({
             ...menuVisibilityState,
             accessLevel: item.accessLevel ?? undefined,
           });
-          const pos = clampContextMenuPosition(clientX, clientY, {
-            width: window.innerWidth,
-            height: window.innerHeight,
-          });
           setContextMenu({
             actions: withExplorerApproveIncrementalAction(
               filterContextMenuActions(
@@ -1805,22 +1818,34 @@ function ContentExplorerShellInner({
             ),
             x: pos.x,
             y: pos.y,
+            label,
           });
         } catch {
           if (requestId !== contextMenuRequestIdRef.current) return;
-          const pos = clampContextMenuPosition(clientX, clientY, {
-            width: window.innerWidth,
-            height: window.innerHeight,
-          });
           setContextMenu({
             actions: [],
             x: pos.x,
             y: pos.y,
+            label,
           });
         }
       })();
     },
     [loadMenuActions, loadWorkflowMenuActions, bootstrap.isAdmin, menuVisibilityState],
+  );
+
+  /**
+   * Tree folder right-click / keyboard open (#6826): select the folder
+   * (folderPath so the list follows, like a left click) and open the
+   * server catalog menu scoped to that folder — the same popup the
+   * detail list offers for rows.
+   */
+  const handleTreeFolderContextMenu = useCallback(
+    (folder: PSPathItem, clientX: number, clientY: number) => {
+      handleSelectFolder(folder.path, folder);
+      handleItemContextMenu(folder, clientX, clientY);
+    },
+    [handleSelectFolder, handleItemContextMenu],
   );
 
   const pickContentType = useCallback((types: ContentTypeChoice[]) => {
@@ -4277,6 +4302,9 @@ function ContentExplorerShellInner({
           // Inline tree create (#5882) reloads its own parent node; the
           // detail list still needs a refresh to show the new folder.
           onFolderCreated={handleRefreshList}
+          // Tree folder right-click / Shift+F10 (#6826): folder-scoped
+          // server catalog menu, same popup as detail-row right-click.
+          onFolderContextMenu={handleTreeFolderContextMenu}
         />
         <ViewsCatalogTree
           listViews={listViews}
@@ -4877,6 +4905,12 @@ function ContentExplorerShellInner({
         >
           <ContextMenu
             actions={contextMenu.actions}
+            pending={contextMenu.loading}
+            ariaLabel={
+              contextMenu.label
+                ? `Context menu for ${contextMenu.label}`
+                : undefined
+            }
             onClose={() => setContextMenu(null)}
             onInvoke={(actionName, action) => {
               setContextMenu(null);
