@@ -1480,14 +1480,27 @@ onchange    %Script;       #IMPLIED
          </xsl:choose>
       </xsl:variable>
       <xsl:if test="$codeeditor = 'yes'">
+         <!-- Issue #6903: every user-visible string in this legend routes
+           through getLocaleString ($lang) with the English text as the
+           @-fallback key suffix, so non-English sessions no longer get a
+           mixed-language code editor. Missing translations fall back to the
+           en-us pivot (PSTmxResourceBundle lookup chain). The
+           data-perc-codeeditor-* hooks are unchanged for Playwright.
+           The bundle-load notice and the CodeMirror screenReaderLabel are
+           JS-rendered, so the server-rendered English is staged on
+           data-* attributes (HTML-escaped by the serializer) instead of
+           being inlined into JS string literals, where a translated
+           apostrophe would break the script. -->
          <div class="perc-codeeditor-legend" data-perc-codeeditor-mode="{$codeeditor_effective_mode}">
-            <span>Find: Ctrl-F (Mac: Cmd-F) | Find next: Ctrl-G (Mac: Cmd-G) | Find previous: Shift-Ctrl-G (Mac: Shift-Cmd-G) | Replace: Shift-Ctrl-F (Mac: Cmd-Alt-F) | Replace all: Shift-Ctrl-R (Mac: Shift-Cmd-Alt-F) | Validation: unbalanced tags are flagged in the gutter before save - red error, yellow warning; hover a marker for details</span>
-            <span class="perc-codeeditor-mode" data-perc-codeeditor-mode-badge="{@paramName}">Mode: <xsl:value-of select="$codeeditor_effective_mode"/></span>
+            <xsl:attribute name="data-perc-codeeditor-load-error-text"><xsl:call-template name="getLocaleString"><xsl:with-param name="key" select="'psx.ce.codeeditor.load.error@Code editor could not be loaded. You can still edit this field as plain text.'"/><xsl:with-param name="lang" select="$lang"/></xsl:call-template></xsl:attribute>
+            <xsl:attribute name="data-perc-codeeditor-screenreader-label"><xsl:call-template name="getLocaleString"><xsl:with-param name="key" select="'psx.ce.codeeditor.screenreader.label@HTML Source Code Editor'"/><xsl:with-param name="lang" select="$lang"/></xsl:call-template></xsl:attribute>
+            <span><xsl:call-template name="getLocaleString"><xsl:with-param name="key" select="'psx.ce.codeeditor.legend.shortcuts@Find: Ctrl-F (Mac: Cmd-F) | Find next: Ctrl-G (Mac: Cmd-G) | Find previous: Shift-Ctrl-G (Mac: Shift-Cmd-G) | Replace: Shift-Ctrl-F (Mac: Cmd-Alt-F) | Replace all: Shift-Ctrl-R (Mac: Shift-Cmd-Alt-F)'"/><xsl:with-param name="lang" select="$lang"/></xsl:call-template><xsl:text> | </xsl:text><xsl:call-template name="getLocaleString"><xsl:with-param name="key" select="'psx.ce.codeeditor.legend.validation@Validation: unbalanced tags are flagged in the gutter before save - red error, yellow warning; hover a marker for details'"/><xsl:with-param name="lang" select="$lang"/></xsl:call-template></span>
+            <span class="perc-codeeditor-mode" data-perc-codeeditor-mode-badge="{@paramName}"><xsl:call-template name="getLocaleString"><xsl:with-param name="key" select="'psx.ce.codeeditor.mode.label@Mode:'"/><xsl:with-param name="lang" select="$lang"/></xsl:call-template><xsl:text> </xsl:text><xsl:value-of select="$codeeditor_effective_mode"/></span>
             <span class="perc-codeeditor-display-prefs">
-               <button type="button" data-perc-codeeditor-theme-toggle="{@paramName}" aria-pressed="false" aria-label="Toggle dark mode for the code editor" onclick="percCodeEditorToggleTheme('{@paramName}')">Dark mode</button>
-               <button type="button" data-perc-codeeditor-font-decrease="{@paramName}" aria-label="Decrease code editor font size" onclick="percCodeEditorStepFontSize('{@paramName}', -1)">A-</button>
+               <button type="button" data-perc-codeeditor-theme-toggle="{@paramName}" aria-pressed="false" onclick="percCodeEditorToggleTheme('{@paramName}')"><xsl:attribute name="aria-label"><xsl:call-template name="getLocaleString"><xsl:with-param name="key" select="'psx.ce.codeeditor.theme.toggle.label@Toggle dark mode for the code editor'"/><xsl:with-param name="lang" select="$lang"/></xsl:call-template></xsl:attribute><xsl:call-template name="getLocaleString"><xsl:with-param name="key" select="'psx.ce.codeeditor.theme.dark@Dark mode'"/><xsl:with-param name="lang" select="$lang"/></xsl:call-template></button>
+               <button type="button" data-perc-codeeditor-font-decrease="{@paramName}" onclick="percCodeEditorStepFontSize('{@paramName}', -1)"><xsl:attribute name="aria-label"><xsl:call-template name="getLocaleString"><xsl:with-param name="key" select="'psx.ce.codeeditor.font.decrease.label@Decrease code editor font size'"/><xsl:with-param name="lang" select="$lang"/></xsl:call-template></xsl:attribute><xsl:call-template name="getLocaleString"><xsl:with-param name="key" select="'psx.ce.codeeditor.font.decrease@A-'"/><xsl:with-param name="lang" select="$lang"/></xsl:call-template></button>
                <span data-perc-codeeditor-font-size="{@paramName}" aria-live="polite">13px</span>
-               <button type="button" data-perc-codeeditor-font-increase="{@paramName}" aria-label="Increase code editor font size" onclick="percCodeEditorStepFontSize('{@paramName}', 1)">A+</button>
+               <button type="button" data-perc-codeeditor-font-increase="{@paramName}" onclick="percCodeEditorStepFontSize('{@paramName}', 1)"><xsl:attribute name="aria-label"><xsl:call-template name="getLocaleString"><xsl:with-param name="key" select="'psx.ce.codeeditor.font.increase.label@Increase code editor font size'"/><xsl:with-param name="lang" select="$lang"/></xsl:call-template></xsl:attribute><xsl:call-template name="getLocaleString"><xsl:with-param name="key" select="'psx.ce.codeeditor.font.increase@A+'"/><xsl:with-param name="lang" select="$lang"/></xsl:call-template></button>
             </span>
          </div>
          <script>
@@ -1516,7 +1529,13 @@ onchange    %Script;       #IMPLIED
                var notice = document.createElement('span');
                notice.setAttribute('role', 'alert');
                notice.setAttribute('data-perc-codeeditor-load-error', fieldId);
-               notice.textContent = 'Code editor could not be loaded. You can still edit this field as plain text.';
+               // Issue #6903: the notice text is staged server-side on the
+               // legend data attribute (getLocaleString, $lang) so the
+               // script carries no hardcoded locale string. The literal is
+               // a null-guard only: the attribute is always rendered by the
+               // legend branch above.
+               var loadErrorText = host.getAttribute('data-perc-codeeditor-load-error-text') || 'Code editor could not be loaded. You can still edit this field as plain text.';
+               notice.textContent = loadErrorText;
                host.appendChild(notice);
                var field = document.getElementById(fieldId);
                if (field) {
@@ -1535,6 +1554,23 @@ onchange    %Script;       #IMPLIED
                if (increaseButton) {
                   increaseButton.disabled = true;
                }
+            }
+            // Issue #6903: the CodeMirror screen-reader label is staged
+            // server-side on the legend data attribute (getLocaleString,
+            // $lang) so the script carries no hardcoded locale string. The
+            // literal is a null-guard only: the attribute is always
+            // rendered by the legend branch above.
+            function percCodeEditorScreenReaderLabel(fieldId) {
+               var fallback = 'HTML Source Code Editor';
+               var badge = document.querySelector('[data-perc-codeeditor-mode-badge="' + fieldId + '"]');
+               if (badge === null || badge === undefined || !badge.parentNode || !badge.parentNode.getAttribute) {
+                  return fallback;
+               }
+               var staged = badge.parentNode.getAttribute('data-perc-codeeditor-screenreader-label');
+               if (staged === null || staged === undefined || staged === '') {
+                  return fallback;
+               }
+               return staged;
             }
             function percCodeEditorInit(fieldId, mode) {
                if (typeof CodeMirror === 'undefined' || typeof CodeMirror.fromTextArea !== 'function') {
@@ -1557,7 +1593,7 @@ onchange    %Script;       #IMPLIED
             styleActiveLine: true,
             spellcheck: true,
             autocorrect: true,
-            screenReaderLabel: 'HTML Source Code Editor'});
+            screenReaderLabel: percCodeEditorScreenReaderLabel(fieldId)});
                 } catch (editorError) {
                    percCodeEditorShowLoadError(fieldId);
                    return null;
