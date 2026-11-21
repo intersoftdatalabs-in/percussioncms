@@ -2230,3 +2230,186 @@ describe("KeywordEditorPanel change keyword sequence", () => {
     );
   });
 });
+
+describe("KeywordEditorPanel inline editor keyboard path (#6907)", () => {
+  beforeEach(() => {
+    (window as unknown as { I18N?: { message: (key: string) => string } }).I18N = {
+      message: (key: string) => key,
+    };
+    getKeyword.mockReset();
+    updateKeyword.mockReset();
+    createKeyword.mockReset();
+    deleteKeyword.mockReset();
+    getKeyword.mockResolvedValue(withTwoChoices);
+    updateKeyword.mockResolvedValue(withTwoChoices);
+  });
+
+  function choiceEditButton(kind: string, label: string): HTMLButtonElement {
+    const button = document.querySelector(
+      `[data-testid="developer-kw-choice-${kind}-edit"][data-choice-label="${label}"]`,
+    );
+    if (!(button instanceof HTMLButtonElement)) {
+      throw new Error(`missing ${kind} edit button for ${label}`);
+    }
+    return button;
+  }
+
+  async function openKeywordEditor(kind: "label" | "description" | "sequence"): Promise<void> {
+    const edit = screen.getByTestId(`developer-kw-keyword-${kind}-edit`) as HTMLButtonElement;
+    await waitFor(() => {
+      expect(edit.disabled).toBe(false);
+    });
+    fireEvent.click(edit);
+    await waitFor(() => {
+      expect(screen.getByTestId(`developer-kw-keyword-${kind}-input`)).toBeTruthy();
+    });
+  }
+
+  async function openChoiceEditor(
+    kind: "label" | "value" | "description" | "sequence",
+    label: string,
+  ): Promise<void> {
+    await waitFor(() => {
+      expect(choiceEditButton(kind, label).disabled).toBe(false);
+    });
+    fireEvent.click(choiceEditButton(kind, label));
+    await waitFor(() => {
+      expect(screen.getByTestId(`developer-kw-choice-${kind}-input`)).toBeTruthy();
+    });
+  }
+
+  it.each(["label", "description", "sequence"] as const)(
+    "focuses the keyword %s input when the editor opens (#6907)",
+    async (kind) => {
+      renderEditor(withTwoChoices);
+      await openKeywordEditor(kind);
+      expect(screen.getByTestId(`developer-kw-keyword-${kind}-input`)).toHaveFocus();
+    },
+  );
+
+  it.each(["label", "description", "sequence"] as const)(
+    "Escape cancels the keyword %s edit without writing and returns focus (#6907)",
+    async (kind) => {
+      renderEditor(withTwoChoices);
+      await openKeywordEditor(kind);
+      fireEvent.change(screen.getByTestId(`developer-kw-keyword-${kind}-input`), {
+        target: { value: "not-saved" },
+      });
+      fireEvent.keyDown(screen.getByTestId(`developer-kw-keyword-${kind}-input`), {
+        key: "Escape",
+      });
+      expect(updateKeyword).not.toHaveBeenCalled();
+      expect(screen.queryByTestId(`developer-kw-keyword-${kind}-input`)).toBeNull();
+      expect(screen.getByTestId(`developer-kw-keyword-${kind}-edit`)).toHaveFocus();
+      expect(keywordLabelText().getAttribute("data-keyword-label")).toBe("Priority");
+      expect(keywordDescriptionText().getAttribute("data-keyword-description")).toBe(
+        "Item priority",
+      );
+      expect(keywordSequenceText().getAttribute("data-keyword-sequence")).toBe("4");
+    },
+  );
+
+  it("Cancel returns focus to the keyword label edit button (#6907)", async () => {
+    renderEditor(withTwoChoices);
+    await openKeywordEditor("label");
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-label-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-label-cancel"));
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-kw-keyword-label-input")).toBeNull();
+    expect(screen.getByTestId("developer-kw-keyword-label-edit")).toHaveFocus();
+    expect(keywordLabelText().getAttribute("data-keyword-label")).toBe("Priority");
+  });
+
+  it("save returns focus to the keyword label edit button with a status notice (#6907)", async () => {
+    updateKeyword.mockImplementation(async (_id: string, body: KeywordSummary) => ({
+      ...withTwoChoices,
+      label: body.label,
+    }));
+    renderEditor(withTwoChoices);
+    await openKeywordEditor("label");
+    fireEvent.change(screen.getByTestId("developer-kw-keyword-label-input"), {
+      target: { value: " Renamed " },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-keyword-label-save"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-kw-keyword-label-input")).toBeNull();
+    });
+    expect(updateKeyword).toHaveBeenCalledWith(
+      "42",
+      expect.objectContaining({ label: "Renamed" }),
+    );
+    expect(screen.getByTestId("developer-kw-keyword-label-edit")).toHaveFocus();
+    expect(screen.getByTestId("developer-kw-keyword-label-notice")).toHaveAttribute(
+      "role",
+      "status",
+    );
+    expect(keywordLabelText().getAttribute("data-keyword-label")).toBe("Renamed");
+  });
+
+  it.each(["label", "value", "description", "sequence"] as const)(
+    "focuses the choice %s input when the editor opens (#6907)",
+    async (kind) => {
+      renderEditor(withTwoChoices);
+      await openChoiceEditor(kind, "Low");
+      expect(screen.getByTestId(`developer-kw-choice-${kind}-input`)).toHaveFocus();
+    },
+  );
+
+  it.each(["label", "value", "description", "sequence"] as const)(
+    "Escape cancels the choice %s edit without writing and returns focus (#6907)",
+    async (kind) => {
+      renderEditor(withTwoChoices);
+      await openChoiceEditor(kind, "Low");
+      fireEvent.change(screen.getByTestId(`developer-kw-choice-${kind}-input`), {
+        target: { value: "not-saved" },
+      });
+      fireEvent.keyDown(screen.getByTestId(`developer-kw-choice-${kind}-input`), {
+        key: "Escape",
+      });
+      expect(updateKeyword).not.toHaveBeenCalled();
+      expect(screen.queryByTestId(`developer-kw-choice-${kind}-input`)).toBeNull();
+      expect(choiceEditButton(kind, "Low")).toHaveFocus();
+      expect(choiceByLabel("Low")).toBeTruthy();
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-value")).toBe("low");
+      expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
+    },
+  );
+
+  it("Cancel returns focus to the choice description row button (#6907)", async () => {
+    renderEditor(withTwoChoices);
+    await openChoiceEditor("description", "Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-description-input"), {
+      target: { value: "not-saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-choice-description-cancel"));
+    expect(updateKeyword).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-kw-choice-description-input")).toBeNull();
+    expect(choiceEditButton("description", "Low")).toHaveFocus();
+    expect(choiceByLabel("Low")?.getAttribute("data-choice-description")).toBe("bottom");
+  });
+
+  it("save returns focus to the relabeled choice row button with a status notice (#6907)", async () => {
+    updateKeyword.mockImplementation(async (_id: string, body: KeywordSummary) => body);
+    renderEditor(withTwoChoices);
+    await openChoiceEditor("label", "Low");
+    fireEvent.change(screen.getByTestId("developer-kw-choice-label-input"), {
+      target: { value: " Medium " },
+    });
+    fireEvent.click(screen.getByTestId("developer-kw-choice-label-save"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-kw-choice-label-input")).toBeNull();
+    });
+    expect(updateKeyword).toHaveBeenCalledWith(
+      "42",
+      expect.objectContaining({ label: "Priority" }),
+    );
+    expect(choiceEditButton("label", "Medium")).toHaveFocus();
+    expect(screen.getByTestId("developer-kw-choice-label-notice")).toHaveAttribute(
+      "role",
+      "status",
+    );
+    expect(choiceByLabel("Medium")?.getAttribute("data-choice-value")).toBe("low");
+  });
+});

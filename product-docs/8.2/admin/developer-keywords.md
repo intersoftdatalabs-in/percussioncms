@@ -76,7 +76,11 @@ Each field saves only itself: a label save does not send the description,
 sequence, or choices, so those stay. A description save omits choices, so
 stored choices stay, and a blank description clears the keyword description.
 A sequence save sends only the sequence. The new value shows only after
-that save succeeds. **Cancel** does not write. HTTP **400** and **403**
+that save succeeds. The input autofocuses when the editor opens;
+**Escape** cancels without saving, same as **Cancel**. When the editor
+closes (Escape, Cancel, or a successful save), focus returns to the
+invoking edit button, and the save confirmation is announced via a live
+region. **Cancel** does not write. HTTP **400** and **403**
 leave the previous value (the keywords service maps duplicate labels to
 **400**; it returns no **409**).
 
@@ -89,8 +93,12 @@ leave the previous value (the keywords service maps duplicate labels to
    choice after confirming.
 
 Choice writes keep the stored keyword label, description, and sequence and
-send the full choice list with the one change applied. Removing the last
-choice clears the list and does not delete the keyword. A blank choice
+send the full choice list with the one change applied. Each choice editor
+input autofocuses when it opens; **Escape** cancels without saving, same
+as **Cancel**, and focus returns to the row's edit button when the editor
+closes (Escape, Cancel, or a successful save). The save confirmation is
+announced via a live region. Removing the last choice clears the list and
+does not delete the keyword. A blank choice
 label or value does not write. HTTP **400** and **403** leave the
 previous choices (the keywords service returns no **409**; the editor
 still treats one as a failed save).
