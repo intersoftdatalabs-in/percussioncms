@@ -1315,6 +1315,226 @@ class TestQaUpDecomposition(unittest.TestCase):
         self.assertGreater(dts_https, 0)
 
 
+class TestQaHealthDecomposition(unittest.TestCase):
+    """Pins for the #6832 ``cmd_qa_health`` helpers (no docker, no curl).
+
+    The refactor extracts context resolution, the dry-run finish, the
+    DTS gate, per-check probes, context-fail/success finish, and the
+    timeout finish from ``cmd_qa_health`` with no behavior change;
+    these tests pin each helper directly.
+    """
+
+    def setUp(self):
+        self.td = tempfile.TemporaryDirectory()
+        self.addCleanup(self.td.cleanup)
+        self.repo_root = _stub_repo_root(Path(self.td.name))
+        (self.repo_root / "docker" / "logs").mkdir(parents=True, exist_ok=True)
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+        self.paths = (self.repo_root, self.repo_root / ".env", self.repo_root / "up.yml")
+
+    def _ns(self, **overrides):
+        base = dict(
+            dry_run=False,
+            timeout_seconds=5,
+            interval_seconds=5,
+            cell_suffix=None,
+            with_dts=False,
+            url=None,
+        )
+        base.update(overrides)
+        return __import__("argparse").Namespace(**base)
+
+    def _ctx(self, **overrides):
+        return pdc._qa_health_resolve_context(self._ns(**overrides), self.paths)
+
+    def test_resolve_context_defaults(self):
+        ctx = self._ctx()
+        self.assertEqual(ctx.repo_root, self.repo_root)
+        self.assertEqual(ctx.timeout, 5)
+        self.assertEqual(ctx.interval, 5)
+        self.assertEqual(ctx.max_checks, 1)
+        self.assertEqual(ctx.container, pdc.QA_CMS_CONTAINER)
+        self.assertEqual(ctx.dts_cell, pdc.qa_dts_container(None))
+        self.assertFalse(ctx.with_dts_flag)
+        self.assertIn("127.0.0.1", ctx.url)
+        self.assertGreater(ctx.host_port, 0)
+
+    def test_resolve_context_cell_suffix(self):
+        ctx = self._ctx(cell_suffix="lane-b")
+        self.assertIn("lane-b", ctx.container)
+        self.assertIn("lane-b", ctx.dts_cell)
+
+    def test_resolve_context_max_checks_floor(self):
+        ctx = pdc._qa_health_resolve_context(
+            self._ns(timeout_seconds=0, interval_seconds=0), self.paths
+        )
+        self.assertEqual(ctx.max_checks, 1)
+
+    def test_finish_dry_run_ok(self):
+        import io
+        from contextlib import redirect_stdout
+
+        ctx = self._ctx()
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = pdc._qa_health_finish_dry_run(ctx)
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-health", buf.getvalue())
+        self.assertNotIn("DTS_HTTP", buf.getvalue())
+
+    def test_finish_dry_run_with_dts(self):
+        import io
+        from contextlib import redirect_stdout
+
+        ctx = self._ctx(with_dts=True)
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = pdc._qa_health_finish_dry_run(ctx)
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("DTS_HTTP:200", buf.getvalue())
+        self.assertIn("DTS_URL:", buf.getvalue())
+
+    def test_resolve_dts_missing_flagged_cell_returns_none(self):
+        import io
+        from contextlib import redirect_stdout
+
+        ctx = self._ctx(with_dts=True)
+        with unittest.mock.patch.object(
+            pdc, "_docker_container_present", return_value=False
+        ):
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                dts = pdc._qa_health_resolve_dts(ctx)
+        self.assertIsNone(dts)
+        self.assertIn("dts_container_missing", buf.getvalue())
+
+    def test_resolve_dts_absent_flag_is_noop(self):
+        ctx = self._ctx()
+        with unittest.mock.patch.object(
+            pdc, "_docker_container_present", return_value=False
+        ):
+            dts = pdc._qa_health_resolve_dts(ctx)
+        self.assertIsNotNone(dts)
+        assert dts is not None
+        self.assertFalse(dts.expected)
+        self.assertEqual(dts.url, "")
+
+    def test_resolve_dts_auto_detect_running_cell(self):
+        ctx = self._ctx()
+        with unittest.mock.patch.object(
+            pdc, "_docker_container_present", return_value=True
+        ):
+            dts = pdc._qa_health_resolve_dts(ctx)
+        self.assertIsNotNone(dts)
+        assert dts is not None
+        self.assertTrue(dts.expected)
+        self.assertIn("127.0.0.1", dts.url)
+
+    def test_probe_ready_clean(self):
+        ctx = self._ctx()
+        dts = pdc._QaHealthDts(
+            expected=False, url="", host_port=0, port_source="none"
+        )
+        with unittest.mock.patch.object(pdc, "_curl_status", return_value=200), \
+             unittest.mock.patch.object(pdc, "_docker_health", return_value="healthy"), \
+             unittest.mock.patch.object(
+                 pdc, "_docker_logs_tail",
+                 return_value="INFO [Server] Started @7879ms\n",
+             ), \
+             unittest.mock.patch.object(pdc, "_docker_read_server_log", return_value=""):
+            probe = pdc._qa_health_probe(ctx, dts)
+        self.assertEqual(probe.code, 200)
+        self.assertEqual(probe.dts_code, 0)
+        self.assertTrue(probe.dts_ready)
+        self.assertTrue(probe.ready)
+
+    def test_poll_fail_fast_no_sleep(self):
+        import io
+        from contextlib import redirect_stdout
+
+        dead_ctx = "Failed startup of context Rhythmyx\n"
+        ctx = self._ctx()
+        dts = pdc._QaHealthDts(
+            expected=False, url="", host_port=0, port_source="none"
+        )
+        with unittest.mock.patch.object(pdc, "_curl_status", return_value=200), \
+             unittest.mock.patch.object(pdc, "_docker_health", return_value="unhealthy"), \
+             unittest.mock.patch.object(pdc, "_docker_logs_tail", return_value=dead_ctx), \
+             unittest.mock.patch.object(pdc, "_docker_read_server_log", return_value=""), \
+             unittest.mock.patch.object(pdc.time, "sleep") as mock_sleep:
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc._qa_health_poll(ctx, dts)
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("rhythmyx_context_failed", buf.getvalue())
+        mock_sleep.assert_not_called()
+
+    def test_poll_success_first_check(self):
+        import io
+        from contextlib import redirect_stdout
+
+        ctx = self._ctx()
+        dts = pdc._QaHealthDts(
+            expected=False, url="", host_port=0, port_source="none"
+        )
+        with unittest.mock.patch.object(pdc, "_curl_status", return_value=200), \
+             unittest.mock.patch.object(pdc, "_docker_health", return_value="healthy"), \
+             unittest.mock.patch.object(
+                 pdc, "_docker_logs_tail",
+                 return_value="INFO [Server] Started @7879ms\n",
+             ), \
+             unittest.mock.patch.object(pdc, "_docker_read_server_log", return_value=""), \
+             unittest.mock.patch.object(pdc.time, "sleep"):
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc._qa_health_poll(ctx, dts)
+        self.assertEqual(rc, pdc.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:qa-health", buf.getvalue())
+
+    def test_finish_timeout_plain(self):
+        import io
+        from contextlib import redirect_stdout
+
+        ctx = self._ctx()
+        dts = pdc._QaHealthDts(
+            expected=False, url="", host_port=0, port_source="none"
+        )
+        probe = pdc._QaHealthProbe(
+            code=0, dts_code=0, dts_ready=True, health="starting",
+            logs="", server_logs="", ready=False, detail="not_checked",
+        )
+        with unittest.mock.patch.object(pdc, "_docker_logs_tail", return_value=""), \
+             unittest.mock.patch.object(pdc, "_docker_read_server_log", return_value=""), \
+             unittest.mock.patch.object(
+                 pdc, "published_qa_cms_host_port", return_value=None
+             ):
+            buf = io.StringIO()
+            with redirect_stdout(buf):
+                rc = pdc._qa_health_finish_timeout(ctx, dts, probe)
+        self.assertEqual(rc, pdc.EXIT_SUBPROCESS_FAILED)
+        self.assertIn("DETAIL:timeout after 5s", buf.getvalue())
+
+    def test_port_mismatch_hint(self):
+        ctx = self._ctx()
+        with unittest.mock.patch.object(
+            pdc, "published_qa_cms_host_port", return_value=None
+        ):
+            self.assertIsNone(pdc._qa_health_port_mismatch_hint(ctx, 0))
+            self.assertEqual(pdc._qa_health_timeout_mismatch_suffix(ctx, 0), "")
+        with unittest.mock.patch.object(
+            pdc, "published_qa_cms_host_port", return_value=46239
+        ):
+            hint = pdc._qa_health_port_mismatch_hint(ctx, 0)
+            self.assertIsNotNone(hint)
+            assert hint is not None
+            self.assertIn("46239", hint)
+            suffix = pdc._qa_health_timeout_mismatch_suffix(ctx, 0)
+            self.assertIn("HINT:cell_publishes:46239", suffix)
+            # A live probe never carries the mismatch hint.
+            self.assertIsNone(pdc._qa_health_port_mismatch_hint(ctx, 200))
+
+
 class TestQaHealthRealMode(unittest.TestCase):
     def setUp(self):
         self.td = tempfile.TemporaryDirectory()

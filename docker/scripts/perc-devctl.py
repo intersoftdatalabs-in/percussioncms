@@ -2982,6 +2982,453 @@ def cmd_qa_up(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     )
 
 
+class _QaHealthContext(NamedTuple):
+    """Resolved ``qa-health`` runtime context (pure value object, #6832).
+
+    Groups the repo/cell/port/url resolution owned by
+    :func:`_qa_health_resolve_context` so :func:`cmd_qa_health` stays a
+    thin resolve → dry-run/gate → poll → timeout pipeline under the
+    complexity gate. No subprocesses, no prints.
+    """
+
+    repo_root: Path
+    log_dir: Path
+    log_file: Path
+    timeout: int
+    interval: int
+    max_checks: int
+    container: str
+    dts_cell: str
+    host_port: int
+    port_source: str
+    url: str
+    with_dts_flag: bool
+
+
+class _QaHealthDts(NamedTuple):
+    """DTS leg of a ``qa-health`` run (#6237, #6832)."""
+
+    expected: bool
+    url: str
+    host_port: int
+    port_source: str
+
+
+class _QaHealthProbe(NamedTuple):
+    """One poll iteration: HTTP codes, health, logs, readiness (#6832)."""
+
+    code: int
+    dts_code: int
+    dts_ready: bool
+    health: str
+    logs: str
+    server_logs: str
+    ready: bool
+    detail: str
+
+
+def _qa_health_resolve_context(
+    args: argparse.Namespace, paths: tuple[Path, Path, Path]
+) -> _QaHealthContext:
+    """Resolve repo/cell/port/url context for ``qa-health`` (#6832).
+
+    Owns the cell-suffix container names, the CMS host-port resolution,
+    and the probe-URL / poll-budget derivation. No subprocesses, no
+    prints — the DTS leg needs a live ``docker`` presence check and
+    stays with :func:`_qa_health_resolve_dts`.
+    """
+    repo_root, _env_file, _compose_file = paths
+    log_dir = _log_dir(repo_root)
+    timeout = int(args.timeout_seconds)
+    interval = int(args.interval_seconds)
+    cell_suffix = resolve_cell_suffix(getattr(args, "cell_suffix", None))
+    container = qa_cms_container(cell_suffix)
+    dts_cell = qa_dts_container(cell_suffix)
+    host_port, port_source = resolve_qa_health_host_port(
+        repo_root, container=container
+    )
+    url = args.url or qa_cms_probe_url(host_port)
+    max_checks = max(1, timeout // interval) if interval > 0 else 1
+    log_file = _new_log_file(log_dir, "qa-health")
+    with_dts_flag = bool(getattr(args, "with_dts", False))
+    return _QaHealthContext(
+        repo_root=repo_root,
+        log_dir=log_dir,
+        log_file=log_file,
+        timeout=timeout,
+        interval=interval,
+        max_checks=max_checks,
+        container=container,
+        dts_cell=dts_cell,
+        host_port=host_port,
+        port_source=port_source,
+        url=url,
+        with_dts_flag=with_dts_flag,
+    )
+
+
+def _qa_health_finish_dry_run(ctx: _QaHealthContext) -> int:
+    """Print the ``qa-health`` plan and RESULT line for ``--dry-run`` (#6832).
+
+    No subprocesses, no sleeps. Output contract (log file keys and both
+    RESULT line shapes) is unchanged from the inline block it replaces.
+    """
+    dts_host_port: Optional[int] = None
+    dts_port_source = "none"
+    dts_url = ""
+    if ctx.with_dts_flag:
+        dts_host_port, dts_port_source = resolve_qa_dts_health_host_port(
+            ctx.repo_root, container=ctx.dts_cell
+        )
+        dts_url = qa_dts_probe_url(dts_host_port)
+    LOG.info(
+        "DRY-RUN: qa-health plan: %d checks x %ds interval against %s "
+        "(+ Rhythmyx context + product log scan + docker Health.Status on %s)",
+        ctx.max_checks,
+        ctx.interval,
+        ctx.url,
+        ctx.container,
+    )
+    with ctx.log_file.open("w", encoding="utf-8") as f:
+        f.write(
+            f"DRY-RUN: qa-health max_checks={ctx.max_checks} interval={ctx.interval}\n"
+            f"url={ctx.url}\n"
+            f"host_port={ctx.host_port}\n"
+            f"port_source={ctx.port_source}\n"
+            f"container={ctx.container}\n"
+            f"log_scan=rhythmyx_context_fail_markers+server_log_errors\n"
+            f"docker_health=inspect Health.Status\n"
+        )
+        if ctx.with_dts_flag:
+            f.write(
+                f"dts_url={dts_url}\n"
+                f"dts_host_port={dts_host_port}\n"
+                f"dts_port_source={dts_port_source}\n"
+                f"dts_container={ctx.dts_cell}\n"
+            )
+    if ctx.with_dts_flag:
+        print(
+            f"RESULT:OK STEP:qa-health HTTP:200 DTS_HTTP:200 URL:{ctx.url} "
+            f"DTS_URL:{dts_url} "
+            f"HEALTH:healthy CONTAINER:{ctx.container} LOG:{ctx.log_file}"
+        )
+    else:
+        print(
+            f"RESULT:OK STEP:qa-health HTTP:200 URL:{ctx.url} "
+            f"HEALTH:healthy CONTAINER:{ctx.container} LOG:{ctx.log_file}"
+        )
+    return EXIT_OK
+
+
+def _qa_health_resolve_dts(ctx: _QaHealthContext) -> Optional[_QaHealthDts]:
+    """Resolve the DTS leg: fail fast on a missing requested cell (#6832).
+
+    Dual gate (#6237): an explicitly requested (``--with-dts``) but
+    absent DTS cell fails fast instead of burning the probe timeout on
+    a connection-refused Tomcat URL. A running DTS cell without the
+    flag is still gated (auto-detect) so ``qa-up --with-dts`` + plain
+    ``qa-health`` covers both legs.
+
+    Returns the DTS leg, or ``None`` when the missing-cell FAIL line
+    was already printed (caller returns ``EXIT_SUBPROCESS_FAILED``).
+    """
+    dts_present = _docker_container_present(ctx.dts_cell)
+    if ctx.with_dts_flag and not dts_present:
+        with ctx.log_file.open("w", encoding="utf-8") as f:
+            f.write("qa-health failed\n")
+            f.write(f"url={ctx.url}\n")
+            f.write(f"container={ctx.container}\n")
+            f.write(f"dts_container={ctx.dts_cell}\n")
+            f.write("detail=dts_container_missing\n")
+            f.write(
+                "hint: qa-health --with-dts requires the QA DTS cell; "
+                "bring it up with qa-up --with-dts first (#6237).\n"
+            )
+        print(
+            "RESULT:FAIL STEP:qa-health DETAIL:dts_container_missing "
+            f"MATCH:{ctx.dts_cell} HTTP:0 HEALTH:unknown "
+            f"URL:{ctx.url} CONTAINER:{ctx.container} LOG:{ctx.log_file}"
+        )
+        return None
+    dts_expected = ctx.with_dts_flag or dts_present
+    dts_url = ""
+    dts_port_source = "none"
+    dts_host_port = 0
+    if dts_expected:
+        dts_host_port, dts_port_source = resolve_qa_dts_health_host_port(
+            ctx.repo_root, container=ctx.dts_cell
+        )
+        dts_url = qa_dts_probe_url(dts_host_port)
+    return _QaHealthDts(
+        expected=dts_expected,
+        url=dts_url,
+        host_port=dts_host_port,
+        port_source=dts_port_source,
+    )
+
+
+def _qa_health_probe(ctx: _QaHealthContext, dts: _QaHealthDts) -> _QaHealthProbe:
+    """Run one poll iteration: HTTP, health, logs, readiness (#6832).
+
+    No prints, no sleeps — the caller decides fail-fast / success /
+    keep-polling from the returned probe.
+    """
+    code = _curl_status(ctx.url, timeout=5.0)
+    dts_code = (
+        _curl_status(dts.url, timeout=5.0) if dts.expected else 0
+    )
+    ready_dts = (
+        not dts.expected or dts_code in (200, 302, 401, 403)
+    )
+    health = _docker_health(ctx.container)
+    logs = _docker_logs_tail(ctx.container)
+    server_logs = _docker_read_server_log(ctx.container)
+    ready, detail = assess_rhythmyx_ready(
+        code, logs, server_log_text=server_logs,
+    )
+    return _QaHealthProbe(
+        code=code,
+        dts_code=dts_code,
+        dts_ready=ready_dts,
+        health=health,
+        logs=logs,
+        server_logs=server_logs,
+        ready=ready,
+        detail=detail,
+    )
+
+
+def _qa_health_fail_context(
+    ctx: _QaHealthContext, probe: _QaHealthProbe, check: int
+) -> int:
+    """Fail fast on a dead Spring context / product-log ERRORs (#6832).
+
+    Immediate FAIL even when HTTP answers (Jetty up, dirty startup —
+    #2462 / #2556). Log keys and RESULT line unchanged.
+    """
+    match = _match_from_logs(probe.logs, probe.server_logs, probe.detail)
+    detail_token = (
+        DETAIL_SERVER_LOG_ERRORS
+        if DETAIL_SERVER_LOG_ERRORS in probe.detail
+        else DETAIL_CONTEXT_FAILED
+    )
+    with ctx.log_file.open("w", encoding="utf-8") as f:
+        f.write("qa-health failed\n")
+        f.write(f"url={ctx.url}\n")
+        f.write(f"last_http={probe.code}\n")
+        f.write(f"container_health={probe.health}\n")
+        f.write(f"check={check}\n")
+        f.write(f"container={ctx.container}\n")
+        f.write(f"detail={probe.detail}\n")
+        f.write(f"match={match}\n")
+        f.write(
+            "hint: Rhythmyx startup not clean; Jetty HTTP may "
+            "still bind. Inspect docker logs and jetty/base/logs/server.log "
+            "+ Installer logs (parent #2423 / #2556). Do not treat port-up as ready.\n"
+        )
+    print(
+        f"RESULT:FAIL STEP:qa-health DETAIL:{detail_token} "
+        f"MATCH:{match} HTTP:{probe.code} HEALTH:{probe.health} "
+        f"URL:{ctx.url} CONTAINER:{ctx.container} LOG:{ctx.log_file}"
+    )
+    return EXIT_SUBPROCESS_FAILED
+
+
+def _qa_health_succeed(
+    ctx: _QaHealthContext,
+    dts: _QaHealthDts,
+    probe: _QaHealthProbe,
+    check: int,
+) -> int:
+    """Record a clean poll: HTTP + logs + healthy (+ DTS probe) (#6832).
+
+    HTTP + clean logs + docker healthy (parity with compose verify),
+    plus the Tomcat probe when the DTS cell is expected. Log keys and
+    both RESULT line shapes unchanged.
+    """
+    with ctx.log_file.open("w", encoding="utf-8") as f:
+        f.write("qa-health success\n")
+        f.write(f"url={ctx.url}\n")
+        f.write(f"http={probe.code}\n")
+        f.write(f"container_health={probe.health}\n")
+        f.write(f"check={check}\n")
+        f.write(f"container={ctx.container}\n")
+        f.write("rhythmyx_context=ok\n")
+        f.write("server_log=ok\n")
+        if dts.expected:
+            f.write(f"dts_url={dts.url}\n")
+            f.write(f"dts_http={probe.dts_code}\n")
+            f.write(f"dts_port_source={dts.port_source}\n")
+    if dts.expected:
+        print(
+            f"RESULT:OK STEP:qa-health HTTP:{probe.code} "
+            f"DTS_HTTP:{probe.dts_code} HEALTH:{probe.health} "
+            f"URL:{ctx.url} DTS_URL:{dts.url} "
+            f"CONTAINER:{ctx.container} LOG:{ctx.log_file}"
+        )
+    else:
+        print(
+            f"RESULT:OK STEP:qa-health HTTP:{probe.code} HEALTH:{probe.health} "
+            f"URL:{ctx.url} CONTAINER:{ctx.container} LOG:{ctx.log_file}"
+        )
+    return EXIT_OK
+
+
+def _qa_health_port_mismatch_hint(
+    ctx: _QaHealthContext, last_code: int
+) -> Optional[str]:
+    """Port-mismatch log hint when the probe is dead but the cell moved (#6832).
+
+    Returns the ``hint:`` log line for #4597 (preferred/env probe port
+    has no HTTP but the cell publishes another host port), else
+    ``None``. Same ``docker port`` query the inline timeout path made.
+    """
+    published_now = published_qa_cms_host_port(ctx.container)
+    if (
+        last_code == 0
+        and published_now is not None
+        and published_now != ctx.host_port
+    ):
+        return (
+            f"hint: probe port {ctx.host_port} (source={ctx.port_source}) has no HTTP "
+            f"but {ctx.container} publishes {published_now}. Re-run with "
+            f"QA_CMS_HOST_PORT={published_now} or qa-health --url "
+            f"{qa_cms_probe_url(published_now)} (#4597).\n"
+        )
+    return None
+
+
+def _qa_health_timeout_mismatch_suffix(
+    ctx: _QaHealthContext, last_code: int
+) -> str:
+    """``HINT:cell_publishes:`` RESULT suffix for the timeout path (#6832).
+
+    Empty unless the probe is dead while the cell publishes another
+    host port (#4597). Same ``docker port`` query the inline path made.
+    """
+    published_now = published_qa_cms_host_port(ctx.container)
+    mismatch = ""
+    if (
+        last_code == 0
+        and published_now is not None
+        and published_now != ctx.host_port
+    ):
+        mismatch = (
+            f" HINT:cell_publishes:{published_now} "
+            f"(probe_source={ctx.port_source} preferred_or_env={ctx.host_port})"
+        )
+    return mismatch
+
+
+def _qa_health_write_timeout_log(
+    ctx: _QaHealthContext,
+    dts: _QaHealthDts,
+    probe: _QaHealthProbe,
+    final_detail: Optional[str],
+    final_match: Optional[str],
+) -> None:
+    """Write the timeout-path log file (re-scan DETAIL preferred) (#6832)."""
+    with ctx.log_file.open("w", encoding="utf-8") as f:
+        f.write("qa-health failed\n")
+        f.write(f"url={ctx.url}\n")
+        f.write(f"last_http={probe.code}\n")
+        f.write(f"container_health={probe.health}\n")
+        f.write(f"timeout_seconds={ctx.timeout}\n")
+        f.write(f"interval_seconds={ctx.interval}\n")
+        f.write(f"container={ctx.container}\n")
+        f.write(f"last_detail={probe.detail}\n")
+        if dts.expected:
+            f.write(f"dts_url={dts.url}\n")
+            f.write(f"dts_http={probe.dts_code}\n")
+            f.write(f"dts_port_source={dts.port_source}\n")
+        if final_match:
+            f.write(f"match={final_match}\n")
+            f.write(
+                "hint: startup failure markers found in docker logs / product logs; "
+                "see parent #2423 / #2556. HTTP-only ready is insufficient.\n"
+            )
+        else:
+            f.write(
+                "hint: run qa-up first; ensure installer jar is built "
+                "(modules/perc-distribution-tree package); if Jetty is up but "
+                "login fails, scan docker logs and jetty/base/logs/server.log; "
+                "also check docker inspect Health.Status on the QA cell\n"
+            )
+        mismatch_hint = _qa_health_port_mismatch_hint(ctx, probe.code)
+        if mismatch_hint:
+            f.write(mismatch_hint)
+
+
+def _qa_health_print_timeout(
+    ctx: _QaHealthContext,
+    dts: _QaHealthDts,
+    probe: _QaHealthProbe,
+    final_detail: Optional[str],
+    final_match: Optional[str],
+) -> int:
+    """Print the timeout-path RESULT line (server-logs > context > plain) (#6832)."""
+    dts_suffix = ""
+    if dts.expected:
+        dts_suffix = f" DTS_HTTP:{probe.dts_code} DTS_URL:{dts.url}"
+    if final_detail and DETAIL_SERVER_LOG_ERRORS in final_detail:
+        print(
+            f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_SERVER_LOG_ERRORS} "
+            f"MATCH:{final_match} HTTP:{probe.code} HEALTH:{probe.health} "
+            f"URL:{ctx.url} CONTAINER:{ctx.container}{dts_suffix} LOG:{ctx.log_file}"
+        )
+    elif final_match:
+        print(
+            f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_CONTEXT_FAILED} "
+            f"MATCH:{final_match} HTTP:{probe.code} HEALTH:{probe.health} "
+            f"URL:{ctx.url} CONTAINER:{ctx.container}{dts_suffix} LOG:{ctx.log_file}"
+        )
+    else:
+        mismatch = _qa_health_timeout_mismatch_suffix(ctx, probe.code)
+        print(
+            f"RESULT:FAIL STEP:qa-health DETAIL:timeout after {ctx.timeout}s "
+            f"(last_http={probe.code} health={probe.health}) URL:{ctx.url} "
+            f"CONTAINER:{ctx.container}{dts_suffix}{mismatch} LOG:{ctx.log_file}"
+        )
+    return EXIT_SUBPROCESS_FAILED
+
+
+def _qa_health_finish_timeout(
+    ctx: _QaHealthContext, dts: _QaHealthDts, probe: _QaHealthProbe
+) -> int:
+    """Timeout path: re-scan logs once more so DETAIL prefers startup failure (#6832)."""
+    final_logs = _docker_logs_tail(ctx.container)
+    final_server = _docker_read_server_log(ctx.container)
+    final_detail = _log_scan_fail_detail(final_logs, final_server)
+    final_match = (
+        _match_from_logs(final_logs, final_server, final_detail)
+        if final_detail
+        else None
+    )
+    _qa_health_write_timeout_log(ctx, dts, probe, final_detail, final_match)
+    return _qa_health_print_timeout(ctx, dts, probe, final_detail, final_match)
+
+
+def _qa_health_poll(ctx: _QaHealthContext, dts: _QaHealthDts) -> int:
+    """Run the poll loop: fail-fast, success, or timeout finish (#6832).
+
+    One :func:`_qa_health_probe` per check (same docker/HTTP call
+    sequence as the inline loop); sleeps between checks including
+    after the last one, as before.
+    """
+    last_probe: Optional[_QaHealthProbe] = None
+    for check in range(1, ctx.max_checks + 1):
+        probe = _qa_health_probe(ctx, dts)
+        last_probe = probe
+        # Fail-fast: dead Spring context or ERROR/FATAL in product/install logs.
+        if DETAIL_CONTEXT_FAILED in probe.detail or DETAIL_SERVER_LOG_ERRORS in probe.detail:
+            return _qa_health_fail_context(ctx, probe, check)
+        if probe.ready and probe.health == "healthy" and probe.dts_ready:
+            return _qa_health_succeed(ctx, dts, probe, check)
+        time.sleep(ctx.interval)
+    assert last_probe is not None  # max_checks >= 1 guarantees one iteration
+    return _qa_health_finish_timeout(ctx, dts, last_probe)
+
+
 def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
     """Poll the QA CMS probe URL until ready or a clear timeout / context fail.
 
@@ -3014,262 +3461,19 @@ def cmd_qa_health(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> i
     ``Failed startup of context`` / ``NoClassDefFoundError``. After copying
     ``sitemanage`` into the QA WAR ``WEB-INF/lib``, also copy a matching
     ``perc-system`` (``--skip-image-build`` does not refresh it).
+
+    Thin pipeline since #6832: context resolution, dry-run finish, DTS
+    gating, per-check probes, context-fail/success finish, and the
+    timeout finish each live in a named helper so this entry point
+    stays under the complexity gate. Behavior is unchanged.
     """
-    repo_root, _env_file, _compose_file = paths
-    log_dir = _log_dir(repo_root)
-    timeout = int(args.timeout_seconds)
-    interval = int(args.interval_seconds)
-    cell_suffix = resolve_cell_suffix(getattr(args, "cell_suffix", None))
-    container = qa_cms_container(cell_suffix)
-    dts_cell = qa_dts_container(cell_suffix)
-    host_port, port_source = resolve_qa_health_host_port(
-        repo_root, container=container
-    )
-    url = args.url or qa_cms_probe_url(host_port)
-    max_checks = max(1, timeout // interval) if interval > 0 else 1
-    log_file = _new_log_file(log_dir, "qa-health")
-    with_dts_flag = bool(getattr(args, "with_dts", False))
-
+    ctx = _qa_health_resolve_context(args, paths)
     if args.dry_run:
-        dts_host_port: Optional[int] = None
-        dts_port_source = "none"
-        dts_url = ""
-        if with_dts_flag:
-            dts_host_port, dts_port_source = resolve_qa_dts_health_host_port(
-                repo_root, container=dts_cell
-            )
-            dts_url = qa_dts_probe_url(dts_host_port)
-        LOG.info(
-            "DRY-RUN: qa-health plan: %d checks x %ds interval against %s "
-            "(+ Rhythmyx context + product log scan + docker Health.Status on %s)",
-            max_checks,
-            interval,
-            url,
-            container,
-        )
-        with log_file.open("w", encoding="utf-8") as f:
-            f.write(
-                f"DRY-RUN: qa-health max_checks={max_checks} interval={interval}\n"
-                f"url={url}\n"
-                f"host_port={host_port}\n"
-                f"port_source={port_source}\n"
-                f"container={container}\n"
-                f"log_scan=rhythmyx_context_fail_markers+server_log_errors\n"
-                f"docker_health=inspect Health.Status\n"
-            )
-            if with_dts_flag:
-                f.write(
-                    f"dts_url={dts_url}\n"
-                    f"dts_host_port={dts_host_port}\n"
-                    f"dts_port_source={dts_port_source}\n"
-                    f"dts_container={dts_cell}\n"
-                )
-        if with_dts_flag:
-            print(
-                f"RESULT:OK STEP:qa-health HTTP:200 DTS_HTTP:200 URL:{url} "
-                f"DTS_URL:{dts_url} "
-                f"HEALTH:healthy CONTAINER:{container} LOG:{log_file}"
-            )
-        else:
-            print(
-                f"RESULT:OK STEP:qa-health HTTP:200 URL:{url} "
-                f"HEALTH:healthy CONTAINER:{container} LOG:{log_file}"
-            )
-        return EXIT_OK
-
-    # Dual gate (#6237): an explicitly requested (--with-dts) but absent
-    # DTS cell fails fast instead of burning the probe timeout on a
-    # connection-refused Tomcat URL. A running DTS cell without the flag
-    # is still gated (auto-detect) so `qa-up --with-dts` + plain
-    # `qa-health` covers both legs.
-    dts_present = _docker_container_present(dts_cell)
-    if with_dts_flag and not dts_present:
-        with log_file.open("w", encoding="utf-8") as f:
-            f.write("qa-health failed\n")
-            f.write(f"url={url}\n")
-            f.write(f"container={container}\n")
-            f.write(f"dts_container={dts_cell}\n")
-            f.write("detail=dts_container_missing\n")
-            f.write(
-                "hint: qa-health --with-dts requires the QA DTS cell; "
-                "bring it up with qa-up --with-dts first (#6237).\n"
-            )
-        print(
-            "RESULT:FAIL STEP:qa-health DETAIL:dts_container_missing "
-            f"MATCH:{dts_cell} HTTP:0 HEALTH:unknown "
-            f"URL:{url} CONTAINER:{container} LOG:{log_file}"
-        )
+        return _qa_health_finish_dry_run(ctx)
+    dts = _qa_health_resolve_dts(ctx)
+    if dts is None:
         return EXIT_SUBPROCESS_FAILED
-    dts_expected = with_dts_flag or dts_present
-    dts_url = ""
-    dts_port_source = "none"
-    dts_host_port = 0
-    if dts_expected:
-        dts_host_port, dts_port_source = resolve_qa_dts_health_host_port(
-            repo_root, container=dts_cell
-        )
-        dts_url = qa_dts_probe_url(dts_host_port)
-
-    last_code = 0
-    last_dts_code = 0
-    last_health = "unknown"
-    last_detail = "not_checked"
-    for check in range(1, max_checks + 1):
-        last_code = _curl_status(url, timeout=5.0)
-        last_dts_code = (
-            _curl_status(dts_url, timeout=5.0) if dts_expected else 0
-        )
-        dts_ready = (
-            not dts_expected or last_dts_code in (200, 302, 401, 403)
-        )
-        last_health = _docker_health(container)
-        logs = _docker_logs_tail(container)
-        server_logs = _docker_read_server_log(container)
-        ready, last_detail = assess_rhythmyx_ready(
-            last_code, logs, server_log_text=server_logs,
-        )
-
-        # Fail-fast: dead Spring context or ERROR/FATAL in product/install logs.
-        if DETAIL_CONTEXT_FAILED in last_detail or DETAIL_SERVER_LOG_ERRORS in last_detail:
-            match = _match_from_logs(logs, server_logs, last_detail)
-            detail_token = (
-                DETAIL_SERVER_LOG_ERRORS
-                if DETAIL_SERVER_LOG_ERRORS in last_detail
-                else DETAIL_CONTEXT_FAILED
-            )
-            with log_file.open("w", encoding="utf-8") as f:
-                f.write("qa-health failed\n")
-                f.write(f"url={url}\n")
-                f.write(f"last_http={last_code}\n")
-                f.write(f"container_health={last_health}\n")
-                f.write(f"check={check}\n")
-                f.write(f"container={container}\n")
-                f.write(f"detail={last_detail}\n")
-                f.write(f"match={match}\n")
-                f.write(
-                    "hint: Rhythmyx startup not clean; Jetty HTTP may "
-                    "still bind. Inspect docker logs and jetty/base/logs/server.log "
-                    "+ Installer logs (parent #2423 / #2556). Do not treat port-up as ready.\n"
-                )
-            print(
-                f"RESULT:FAIL STEP:qa-health DETAIL:{detail_token} "
-                f"MATCH:{match} HTTP:{last_code} HEALTH:{last_health} "
-                f"URL:{url} CONTAINER:{container} LOG:{log_file}"
-            )
-            return EXIT_SUBPROCESS_FAILED
-
-        # HTTP + clean logs + docker healthy (parity with compose verify),
-        # plus the Tomcat probe when the DTS cell is expected.
-        if ready and last_health == "healthy" and dts_ready:
-            with log_file.open("w", encoding="utf-8") as f:
-                f.write("qa-health success\n")
-                f.write(f"url={url}\n")
-                f.write(f"http={last_code}\n")
-                f.write(f"container_health={last_health}\n")
-                f.write(f"check={check}\n")
-                f.write(f"container={container}\n")
-                f.write("rhythmyx_context=ok\n")
-                f.write("server_log=ok\n")
-                if dts_expected:
-                    f.write(f"dts_url={dts_url}\n")
-                    f.write(f"dts_http={last_dts_code}\n")
-                    f.write(f"dts_port_source={dts_port_source}\n")
-            if dts_expected:
-                print(
-                    f"RESULT:OK STEP:qa-health HTTP:{last_code} "
-                    f"DTS_HTTP:{last_dts_code} HEALTH:{last_health} "
-                    f"URL:{url} DTS_URL:{dts_url} "
-                    f"CONTAINER:{container} LOG:{log_file}"
-                )
-            else:
-                print(
-                    f"RESULT:OK STEP:qa-health HTTP:{last_code} HEALTH:{last_health} "
-                    f"URL:{url} CONTAINER:{container} LOG:{log_file}"
-                )
-            return EXIT_OK
-
-        time.sleep(interval)
-
-    # Timeout path: re-scan logs once more so DETAIL prefers startup failure.
-    final_logs = _docker_logs_tail(container)
-    final_server = _docker_read_server_log(container)
-    final_detail = _log_scan_fail_detail(final_logs, final_server)
-    final_match = (
-        _match_from_logs(final_logs, final_server, final_detail)
-        if final_detail
-        else None
-    )
-    with log_file.open("w", encoding="utf-8") as f:
-        f.write("qa-health failed\n")
-        f.write(f"url={url}\n")
-        f.write(f"last_http={last_code}\n")
-        f.write(f"container_health={last_health}\n")
-        f.write(f"timeout_seconds={timeout}\n")
-        f.write(f"interval_seconds={interval}\n")
-        f.write(f"container={container}\n")
-        f.write(f"last_detail={last_detail}\n")
-        if dts_expected:
-            f.write(f"dts_url={dts_url}\n")
-            f.write(f"dts_http={last_dts_code}\n")
-            f.write(f"dts_port_source={dts_port_source}\n")
-        if final_match:
-            f.write(f"match={final_match}\n")
-            f.write(
-                "hint: startup failure markers found in docker logs / product logs; "
-                "see parent #2423 / #2556. HTTP-only ready is insufficient.\n"
-            )
-        else:
-            f.write(
-                "hint: run qa-up first; ensure installer jar is built "
-                "(modules/perc-distribution-tree package); if Jetty is up but "
-                "login fails, scan docker logs and jetty/base/logs/server.log; "
-                "also check docker inspect Health.Status on the QA cell\n"
-            )
-        published_now = published_qa_cms_host_port(container)
-        if (
-            last_code == 0
-            and published_now is not None
-            and published_now != host_port
-        ):
-            f.write(
-                f"hint: probe port {host_port} (source={port_source}) has no HTTP "
-                f"but {container} publishes {published_now}. Re-run with "
-                f"QA_CMS_HOST_PORT={published_now} or qa-health --url "
-                f"{qa_cms_probe_url(published_now)} (#4597).\n"
-            )
-    dts_suffix = ""
-    if dts_expected:
-        dts_suffix = f" DTS_HTTP:{last_dts_code} DTS_URL:{dts_url}"
-    if final_detail and DETAIL_SERVER_LOG_ERRORS in final_detail:
-        print(
-            f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_SERVER_LOG_ERRORS} "
-            f"MATCH:{final_match} HTTP:{last_code} HEALTH:{last_health} "
-            f"URL:{url} CONTAINER:{container}{dts_suffix} LOG:{log_file}"
-        )
-    elif final_match:
-        print(
-            f"RESULT:FAIL STEP:qa-health DETAIL:{DETAIL_CONTEXT_FAILED} "
-            f"MATCH:{final_match} HTTP:{last_code} HEALTH:{last_health} "
-            f"URL:{url} CONTAINER:{container}{dts_suffix} LOG:{log_file}"
-        )
-    else:
-        published_now = published_qa_cms_host_port(container)
-        mismatch = ""
-        if (
-            last_code == 0
-            and published_now is not None
-            and published_now != host_port
-        ):
-            mismatch = (
-                f" HINT:cell_publishes:{published_now} "
-                f"(probe_source={port_source} preferred_or_env={host_port})"
-            )
-        print(
-            f"RESULT:FAIL STEP:qa-health DETAIL:timeout after {timeout}s "
-            f"(last_http={last_code} health={last_health}) URL:{url} "
-            f"CONTAINER:{container}{dts_suffix}{mismatch} LOG:{log_file}"
-        )
-    return EXIT_SUBPROCESS_FAILED
+    return _qa_health_poll(ctx, dts)
 
 
 def cmd_qa_down(args: argparse.Namespace, paths: tuple[Path, Path, Path]) -> int:
