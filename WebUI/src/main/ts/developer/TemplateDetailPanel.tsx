@@ -1876,10 +1876,11 @@ export function TemplateDetailPanel({
               </div>
             </div>
             <div style={{ ...sourceShell, display: "flex", minHeight: 200 }}>
+              {/* Line-number gutter is decorative: numbers duplicate the editable source text. */}
               <div
                 ref={gutterRef}
                 data-testid="developer-tpl-source-lines"
-                aria-label={DEV_MSG.TPL_SOURCE_LINE_NUMBERS_ARIA}
+                aria-hidden="true"
                 style={{
                   flex: "0 0 auto",
                   minWidth: `${Math.max(2, gutterDigits) + 1}ch`,

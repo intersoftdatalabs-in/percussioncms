@@ -247,7 +247,8 @@ Choose **Preview highlight** to switch from the edit textarea to a read-only
 highlighted preview, and **Edit source** to switch back. The preview is a
 labelled region you can move keyboard focus into with **Tab** (it scrolls
 independently of the line-number gutter), and both panes expose the
-**Template source** accessible name to screen readers.
+**Template source** accessible name to screen readers. The line-number gutter
+itself is decorative and hidden from assistive technology.
 
 Automated H2 surface coverage lives in
 `modules/perc-qa-automation/frontend/tests/developer-template-source-a11y.spec.js`

@@ -634,7 +634,6 @@ export const DEV_MSG_KEYS = {
   TPL_SOURCE_COPY_FAILED: "perc.ui.developer@Copy failed",
   TPL_SOURCE_EDIT: "perc.ui.developer@Edit source",
   TPL_SOURCE_PREVIEW: "perc.ui.developer@Preview highlight",
-  TPL_SOURCE_LINE_NUMBERS_ARIA: "perc.ui.developer@Line numbers",
   TPL_SNIPPET_OPEN: "perc.ui.developer@Insert snippet",
   TPL_SNIPPET_TITLE: "perc.ui.developer@Snippet library",
   TPL_SNIPPET_HINT:
