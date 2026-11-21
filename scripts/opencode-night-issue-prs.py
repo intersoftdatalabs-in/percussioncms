@@ -110,7 +110,6 @@ import logging
 import os
 import re
 import shlex
-import shutil
 import subprocess
 import sys
 from pathlib import Path
@@ -192,9 +191,9 @@ def ensure_worktree(worktree: Path, base_branch: str, repo_root: Path, sync_from
     Uncommitted state is stashed with a labeled entry first — never
     discarded, never carried onto the sync branch.
 
-    After either path, root `AGENTS.local.md` (gitignored, so never carried
-    by git itself) is copied into the worktree one way; see
-    `propagate_agents_local`.
+    After either path, root and nested `AGENTS.local.md` files (gitignored,
+    so never carried by git itself) are copied into the worktree one way;
+    see `propagate_agents_local`.
 
     Default sync ref is `origin/<base_branch>` (production-safe). Pass
     `sync_from_local=True` to sync to local `<base_branch>` instead — for
@@ -323,25 +322,39 @@ def run_worktree_cleanup(repo_root: Path, *, include_no_pr: bool = False) -> Non
         )
 
 
-def propagate_agents_local(repo_root: Path, worktree: Path) -> None:
-    """Copy root `AGENTS.local.md` into the worktree (one way, best effort).
+def _load_seed_helper():
+    """Load scripts/night-seed-worktree.py (hyphenated filename)."""
+    path = Path(__file__).resolve().parent / "night-seed-worktree.py"
+    spec = importlib.util.spec_from_file_location("night_seed_worktree", path)
+    if spec is None or spec.loader is None:
+        raise ImportError(f"cannot load {path}")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
 
-    `AGENTS.local.md` is gitignored, so `git worktree add` and
-    `git reset --hard` never carry it over — without this copy, agents
-    running in the worktree miss the personal/operator overrides. The copy
-    runs on every sync so edits in the primary checkout propagate; never
-    copy back (worktree edits must not clobber the primary file). Missing
-    source is a silent no-op.
+
+def propagate_agents_local(repo_root: Path, worktree: Path) -> None:
+    """Copy `AGENTS.local.md` into the worktree (one way, best effort).
+
+    Root and nested module `AGENTS.local.md` files are gitignored, so
+    `git worktree add` and `git reset --hard` never carry them over —
+    without this copy, agents running in the worktree miss the
+    personal/operator overrides. The copy runs on every sync so edits in
+    the primary checkout propagate (`overwrite=True`); never copy back
+    (worktree edits must not clobber the primary file). Missing source is
+    a silent no-op. See `scripts/night-seed-worktree.py`.
     """
-    source = Path(repo_root) / "AGENTS.local.md"
-    if not source.is_file():
-        return
     try:
-        shutil.copy2(source, Path(worktree) / "AGENTS.local.md")
+        helper = _load_seed_helper()
+        copied = helper.seed_agents_local(
+            Path(worktree), primary=Path(repo_root), overwrite=True
+        )
     except OSError as exc:
         LOGGER.warning("could not propagate AGENTS.local.md: %s", exc)
-    else:
-        LOGGER.info("propagated AGENTS.local.md to %s", worktree)
+        return
+    if copied:
+        names = ", ".join(rel.as_posix() for rel in copied)
+        LOGGER.info("propagated AGENTS.local.md (%s) to %s", names, worktree)
 
 
 def build_workflow_args(args: argparse.Namespace) -> str:

@@ -154,6 +154,32 @@ vars actually reach the plugin and the bash tool.
   cross-platform-Python conventions are followed voluntarily (no `shell=True`,
   no hardcoded separators, stdlib-only at runtime, scratch under `./tmp`-equivalent).
 
+### `night-seed-worktree.py` / `night-seed-worktree.sh` / `night-seed-worktree.cmd`
+
+Copy gitignored `AGENTS.local.md` files (root and nested module copies) one
+way from the primary checkout into a git worktree. The night-issue-prs
+cycle calls this immediately after every `git worktree add` (the dedicated
+night worktree is also seeded by the launcher on every sync) so lane and
+shard worktrees get the operator GH identity and signing settings without
+a post-checkout hook.
+
+- **Usage**:
+
+  ```bash
+  python3 scripts/night-seed-worktree.py <worktree>
+  python3 scripts/night-seed-worktree.py --check <worktree>
+  bash scripts/night-seed-worktree.sh --check <worktree>
+  ```
+
+  `--check` seeds if missing, then exits 2 if the primary still has
+  `AGENTS.local.md` that the worktree does not (seat-start / preflight
+  stop). `--overwrite` refreshes existing copies from the primary. Missing
+  source is a no-op. The script never prints file contents.
+
+- **For other runners**: pull this workflow and keep your own
+  `AGENTS.local.md` in your primary checkout. No git hook is required.
+- **Tests**: `python3 -m pytest scripts/test_night_seed_worktree.py -v`.
+
 ### `night-phase-timer.py`
 
 Wall-clock phase timer for the `night-issue-prs` workflow (issue #6785):

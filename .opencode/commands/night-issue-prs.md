@@ -106,11 +106,33 @@ together:
 ```bash
 git fetch origin "$NIGHT_BASE_BRANCH"
 git worktree add -B night-issue-prs-main "$NIGHT_WORKTREE_PATH" "origin/$NIGHT_BASE_BRANCH"
+python3 scripts/night-seed-worktree.py "$NIGHT_WORKTREE_PATH"
 cd "$NIGHT_WORKTREE_PATH"
 ```
 
 All work happens inside the worktree. Branch is `night-issue-prs-main`,
 rebased to `origin/<base_branch>` between runs.
+
+### Lane / shard worktrees (`max_parallel_work` ≥ 2)
+
+When the run has more than one Work seat, the host creates a sibling
+worktree per seat immediately after the dedicated night worktree is
+ready. Conventional paths (next to `$NIGHT_WORKTREE_PATH`):
+`night-lane-a`, `night-lane-b`. Seed **immediately** after each add —
+`AGENTS.local.md` is gitignored, so the lane will otherwise miss the
+operator identity and signing settings. No git hook is required.
+
+```bash
+NIGHT_ROOT="$(dirname "$NIGHT_WORKTREE_PATH")"
+for lane in night-lane-a night-lane-b; do
+  git worktree add -B "$lane" "$NIGHT_ROOT/$lane" "origin/$NIGHT_BASE_BRANCH"
+  python3 scripts/night-seed-worktree.py "$NIGHT_ROOT/$lane"
+done
+```
+
+Assign each Work agent one of those paths. If you create any other
+worktree during the cycle, run the same seeder right after
+`git worktree add`.
 
 ## Phases (in order)
 
