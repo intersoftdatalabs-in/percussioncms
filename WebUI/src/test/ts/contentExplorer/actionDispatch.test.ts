@@ -2253,6 +2253,74 @@ describe("actionDispatch", () => {
     expect(onTakedown).toHaveBeenCalled();
   });
 
+  it("Take Down prefers the accessible dialog and passes linked paths (#6996)", async () => {
+    const onTakedown = vi.fn().mockResolvedValue(undefined);
+    const confirmTakedown = vi.fn().mockResolvedValue(true);
+    const confirm = vi.fn().mockReturnValue(true);
+    vi.spyOn(global, "fetch").mockResolvedValueOnce(
+      new Response(
+        JSON.stringify({
+          ArrayList: [{ pagePath: "/Sites/Demo/Home" }],
+        }),
+        { status: 200, headers: { "Content-Type": "application/json" } },
+      ),
+    );
+    const result = await dispatchAction(action({ name: "Take_Down" }), {
+      item: item(),
+      onTakedown,
+      confirm,
+      confirmTakedown,
+    });
+    expect(result.kind).toBe("rest");
+    expect(result.refresh).toBe(true);
+    expect(confirmTakedown).toHaveBeenCalledTimes(1);
+    expect(confirmTakedown.mock.calls[0]?.[0].items).toHaveLength(1);
+    expect(confirmTakedown.mock.calls[0]?.[0].linkedPaths).toContain(
+      "/Sites/Demo/Home",
+    );
+    expect(confirm).not.toHaveBeenCalled();
+    expect(onTakedown).toHaveBeenCalled();
+  });
+
+  it("Take Down dialog cancel takes nothing down (#6996)", async () => {
+    const onTakedown = vi.fn();
+    const confirmTakedown = vi.fn().mockResolvedValue(false);
+    vi.spyOn(global, "fetch").mockResolvedValue(
+      new Response("[]", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      }),
+    );
+    const result = await dispatchAction(action({ name: "Take_Down" }), {
+      item: item(),
+      onTakedown,
+      confirmTakedown,
+    });
+    expect(onTakedown).not.toHaveBeenCalled();
+    expect(result.refresh).toBeUndefined();
+  });
+
+  it("multi-select Take Down prefers the accessible dialog (#6996)", async () => {
+    const onTakedown = vi.fn().mockResolvedValue(undefined);
+    const confirmTakedown = vi.fn().mockResolvedValue(true);
+    const confirm = vi.fn().mockReturnValue(true);
+    const result = await dispatchAction(action({ name: "Take_Down" }), {
+      item: item(),
+      selectedItems: [
+        item(),
+        item({ id: "43", name: "About", path: "/Sites/Demo/About" }),
+      ],
+      onTakedown,
+      confirm,
+      confirmTakedown,
+    });
+    expect(result.kind).toBe("rest");
+    expect(confirmTakedown).toHaveBeenCalledTimes(1);
+    expect(confirmTakedown.mock.calls[0]?.[0].items).toHaveLength(2);
+    expect(confirm).not.toHaveBeenCalled();
+    expect(onTakedown).toHaveBeenCalledTimes(2);
+  });
+
   it("multi-select Take Down confirms once and unpublishes each page and asset", async () => {
     const onTakedown = vi.fn().mockResolvedValue(undefined);
     const confirm = vi.fn().mockReturnValue(true);

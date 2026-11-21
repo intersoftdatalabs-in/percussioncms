@@ -26083,6 +26083,13 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Sites &amp; servers first — Design and Runtime available when needed.">
       <tuv xml:lang="en-us"><seg>Sites &amp; servers first — Design and Runtime available when needed.</seg></tuv>
     </tu>
+    <!-- #6996: Explorer Take Down confirm dialog chrome (parent #4530). en-us only. -->
+    <tu tuid="perc.ui.explorer@Take down (unpublish)">
+      <tuv xml:lang="en-us"><seg>Take down (unpublish)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Take down">
+      <tuv xml:lang="en-us"><seg>Take down</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.publish.modern@Publish Forbidden">
       <tuv xml:lang="en-us"><seg>You are not allowed to publish.</seg></tuv>
       <tuv xml:lang="ar"><seg>غير مسموح لك بالنشر.</seg></tuv>

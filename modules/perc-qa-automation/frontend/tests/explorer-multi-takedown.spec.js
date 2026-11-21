@@ -17,6 +17,11 @@
 /**
  * Explorer multi-select Take Down (#4812 / parent #4530).
  *
+ * <p>One accessible confirm (#6996: alertdialog chrome, focus starts on
+ * Cancel, Escape cancels) takes down each selected page/asset and names
+ * skipped folders; a 403/404/409 on one item is recorded while the rest
+ * still run.</p>
+ *
  * <p>Run (QA mode after {@code perc-devctl qa-up}):
  * {@code npm run test:surface -- --path tests/explorer-multi-takedown.spec.js}
  * from {@code modules/perc-qa-automation/frontend}.</p>
@@ -85,6 +90,23 @@ async function installTakedownRoutes(page, opts = {}) {
       body: JSON.stringify({ ArrayList: [] }),
     });
   });
+  // Mock the checkout-owner lookup so the mocked row ids never hit the
+  // real server (a lookup for a fake id logs a server ERROR). Benign
+  // reader assignment: nothing is checked out.
+  await page.route("**/rest/editor/items/**/checkout-owner", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        EditorItemLockInfo: {
+          itemName: "Home",
+          checkOutUser: "",
+          currentUser: "Admin",
+          assignmentType: "Reader",
+        },
+      }),
+    });
+  });
   const fulfill = async (route) => {
     const url = route.request().url();
     if (url.includes("/staging/")) {
@@ -142,15 +164,26 @@ test.describe("Explorer multi-select Take Down", () => {
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        expect(dialog.message()).toMatch(/Take down 2 selected items/i);
-        void dialog.accept();
-      });
       const takenDown = await installTakedownRoutes(page);
       await openListing(page);
       const button = page.locator('[data-testid="action-toolbar-item-Take_Down"]');
       await expect(button).toBeVisible({ timeout: 15_000 });
       await button.click();
+      const dialog = page.locator('[data-testid="explorer-takedown-confirm"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await expect(dialog).toHaveAttribute("role", "alertdialog");
+      await expect(dialog).toContainText(/Take down 2 selected items/i);
+      await expect(
+        page.locator('[data-testid="explorer-takedown-confirm-items"]'),
+      ).toContainText(/Home/);
+      await expect(
+        page.locator('[data-testid="explorer-takedown-confirm-items"]'),
+      ).toContainText(/About/);
+      await expect(page.locator('[data-testid="explorer-takedown-cancel"]')).toBeFocused();
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="explorer-takedown-confirm"]',
+      });
+      await page.locator('[data-testid="explorer-takedown-confirm-ok"]').click();
       await expect(
         page.locator('[data-testid="explorer-server-actions-error"]'),
       ).toContainText(/Folders are not taken down: News/i, {
@@ -179,12 +212,13 @@ test.describe("Explorer multi-select Take Down", () => {
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        void dialog.dismiss();
-      });
       const takenDown = await installTakedownRoutes(page);
       await openListing(page);
       await page.locator('[data-testid="action-toolbar-item-Take_Down"]').click();
+      const dialog = page.locator('[data-testid="explorer-takedown-confirm"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await page.keyboard.press("Escape");
+      await expect(dialog).toBeHidden({ timeout: 10_000 });
       await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
         "data-list-epoch",
         "0",
@@ -205,12 +239,12 @@ test.describe("Explorer multi-select Take Down", () => {
     async ({ page }) => {
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
-      page.on("dialog", (dialog) => {
-        void dialog.accept();
-      });
       const takenDown = await installTakedownRoutes(page, { aboutStatus: 403 });
       await openListing(page);
       await page.locator('[data-testid="action-toolbar-item-Take_Down"]').click();
+      const dialog = page.locator('[data-testid="explorer-takedown-confirm"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await page.locator('[data-testid="explorer-takedown-confirm-ok"]').click();
       const error = page.locator('[data-testid="explorer-server-actions-error"]');
       await expect(error).toBeVisible({ timeout: 10_000 });
       await expect(error).toContainText(/About \(HTTP 403\)/i);
