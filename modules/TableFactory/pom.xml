@@ -56,6 +56,12 @@
             <artifactId>derbynet</artifactId>
             <scope>test</scope>
         </dependency>
+        <!-- #6914: H2-backed upgrade-backfill regression test (product embedded backend). -->
+        <dependency>
+            <groupId>com.h2database</groupId>
+            <artifactId>h2</artifactId>
+            <scope>test</scope>
+        </dependency>
         <dependency>
             <groupId>commons-io</groupId>
             <artifactId>commons-io</artifactId>
