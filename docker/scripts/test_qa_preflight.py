@@ -497,12 +497,20 @@ class TestZipEntrySeparatorAdjudication(unittest.TestCase):
     def test_backslash_entry_still_matches_web_inf_lib(self):
         # Non-conformant producer wrote '\' separators; the normalizing
         # branch must still classify the entry under WEB-INF/lib.
+        # Portable (#6925 review): zipfile stores the entry with '/' on
+        # some platforms (windows-latest), so assert against the stored
+        # namelist()[0] rather than the raw backslash literal.
         war_path = self._war_path()
         with zipfile.ZipFile(war_path, "w") as zf:
             zf.writestr("WEB-INF\\lib\\sitemanage-back.jar", b"back")
+        with zipfile.ZipFile(war_path, "r") as zf:
+            stored = zf.namelist()[0]
+        self.assertEqual(
+            stored.replace("\\", "/"), "WEB-INF/lib/sitemanage-back.jar"
+        )
         self.assertEqual(
             qa_preflight.find_sitemanage_zip_entry(war_path),
-            "WEB-INF\\lib\\sitemanage-back.jar",
+            stored,
         )
 
     def test_basename_split_uses_zip_namespace_slash(self):
