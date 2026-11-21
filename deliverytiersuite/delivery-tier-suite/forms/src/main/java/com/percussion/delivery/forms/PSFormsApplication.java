@@ -19,6 +19,8 @@ package com.percussion.delivery.forms;
 
 import com.percussion.delivery.exceptions.PSJsonMappingErrorResponse;
 import com.percussion.delivery.exceptions.PSUncaughtError;
+import com.percussion.delivery.forms.IPSFormRestService;
+import com.percussion.delivery.forms.impl.PSFormConfirmationResource;
 import com.percussion.delivery.forms.impl.PSFormRestService;
 import jakarta.ws.rs.ApplicationPath;
 import org.glassfish.jersey.logging.LoggingFeature;
@@ -55,6 +57,7 @@ public class PSFormsApplication extends ResourceConfig {
     register(SpringLifecycleListener.class);
     register(SpringWebApplicationInitializer.class);
     register(PSFormRestService.class);
+    register(PSFormConfirmationResource.class);
     register(LoggingFeature.class);
     register(RolesAllowedDynamicFeature.class);
     register(PSJsonMappingErrorResponse.class);

@@ -2574,6 +2574,11 @@ the success page carries `data-testid="forms-confirmation-success"`
 with the long-standing user-visible wording. Custom `perc_successUrl` /
 `perc_errorUrl` redirects bypass these pages; the default redirect
 targets the service's own success page under its deployment context.
+The default targets are served by the service itself (`GET
+/perc-form-processor/success.html` and `GET
+/perc-form-processor/error.html` answer HTTP 200 with the packaged
+pages), so the landing page after a submit always resolves — including
+the container error pages, which forward to the same error target.
 
 ## Membership registration and login (DTS)
 
