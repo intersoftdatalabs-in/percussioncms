@@ -19,9 +19,13 @@ import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/re
 import React from "react";
 import { afterEach, describe, expect, it, vi } from "vitest";
 import {
+  applyFileInputChange,
   blobPreviewSrc,
+  clearFileField,
   displayBinaryFileName,
   FileFieldWidget,
+  previewUrlForPick,
+  requestStoredDownload,
   saveBinaryDownload,
 } from "../../../../main/ts/editor/widgets/FileFieldWidget";
 import { ImageFieldWidget } from "../../../../main/ts/editor/widgets/ImageFieldWidget";
@@ -355,5 +359,96 @@ describe("FileFieldWidget", () => {
     fireEvent.change(input, { target: { files: [file] } });
     const preview = await waitFor(() => screen.getByTestId("editor-image-preview-img"));
     expect(preview.getAttribute("src") || "").toMatch(/^blob:/);
+  });
+
+  it("previewUrlForPick only mints blob previews for opted-in images", () => {
+    expect(
+      previewUrlForPick(false, new File(["x"], "hero.png", { type: "image/png" })),
+    ).toBeNull();
+    expect(
+      previewUrlForPick(true, new File(["x"], "doc.pdf", { type: "application/pdf" })),
+    ).toBeNull();
+    const url = previewUrlForPick(
+      true,
+      new File(["x"], "hero.png", { type: "image/png" }),
+    );
+    expect(url || "").toMatch(/^blob:/);
+    if (url) {
+      URL.revokeObjectURL(url);
+    }
+  });
+
+  it("applyFileInputChange restores the stored name on dialog cancel", () => {
+    const onFile = vi.fn();
+    const setFilename = vi.fn();
+    const setPicked = vi.fn();
+    const base = {
+      preview: false,
+      previousPreviewUrl: null,
+      storedName: "brief.pdf",
+      onFile,
+      setFilename,
+      setPicked,
+      setCleared: vi.fn(),
+      setPreviewUrl: vi.fn(),
+    };
+    applyFileInputChange({
+      ...base,
+      file: null,
+      storedHasBinary: true,
+      cleared: false,
+    });
+    expect(setPicked).toHaveBeenCalledWith(false);
+    expect(setFilename).toHaveBeenCalledWith("brief.pdf");
+    expect(onFile).toHaveBeenCalledWith(null);
+    applyFileInputChange({
+      ...base,
+      file: null,
+      storedHasBinary: false,
+      cleared: false,
+    });
+    expect(setFilename).toHaveBeenCalledWith("");
+  });
+
+  it("requestStoredDownload reports empty without calling the server", async () => {
+    const downloadBinary = vi.fn();
+    const setDownloadError = vi.fn();
+    requestStoredDownload({
+      itemId: "42",
+      field: "img",
+      storedName: "",
+      filename: "",
+      present: false,
+      downloadBinary,
+      setDownloadError,
+    });
+    expect(downloadBinary).not.toHaveBeenCalled();
+    expect(setDownloadError).toHaveBeenCalledWith(expect.stringContaining("img"));
+  });
+
+  it("clearFileField resets state and reports whether stored bytes were held", () => {
+    const onFile = vi.fn();
+    const onClear = vi.fn();
+    const input = document.createElement("input");
+    const setPreviewUrl = vi.fn();
+    const base = {
+      input,
+      previewUrl: null,
+      onFile,
+      onClear,
+      setFilename: vi.fn(),
+      setStoredName: vi.fn(),
+      setPresent: vi.fn(),
+      setPicked: vi.fn(),
+      setCleared: vi.fn(),
+      setDownloadError: vi.fn(),
+      setPreviewUrl,
+    };
+    clearFileField({ ...base, hadStored: true });
+    expect(onFile).toHaveBeenCalledWith(null);
+    expect(onClear).toHaveBeenCalledWith(true);
+    expect(base.setCleared).toHaveBeenCalledWith(true);
+    clearFileField({ ...base, hadStored: false });
+    expect(onClear).toHaveBeenLastCalledWith(false);
   });
 });

@@ -4997,6 +4997,7 @@ function ContentExplorerShellInner({
             pending={contextMenu.loading}
             loadError={contextMenu.loadError ?? null}
             onRetry={handleContextMenuRetry}
+            slot={slot}
             ariaLabel={
               contextMenu.label
                 ? `Context menu for ${contextMenu.label}`

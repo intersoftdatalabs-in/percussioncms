@@ -747,10 +747,19 @@
 								-Xverify:none -Djava.awt.headless=true</cargo.jvmargs>
                             <cargo.servlet.port>9980</cargo.servlet.port>
                         </properties>
+                        <!-- #6939: cargo writes <users> verbatim into conf/tomcat-users.xml,
+                             but the shipped server.xml authenticates the UserDatabaseRealm
+                             through MessageDigestCredentialHandler algorithm="SHA", which
+                             compares SHA-1 hex digests. The stored value must therefore be
+                             the SHA-1 hex of the documented default deliverymanager secret
+                             (sha1("f2c57870308dc87f432e5912d4de6f8e322721ba")), so the
+                             documented credential authenticates out of the box with no
+                             reseeding. The jetty9x profile below keeps its own Jetty
+                             HashLoginService realm and is intentionally untouched. -->
                         <users>
                             <user>
                                 <name>ps_manager</name>
-                                <password>f2c57870308dc87f432e5912d4de6f8e322721ba</password>
+                                <password>7ebd74be76776f88c1bbdf8af8aada190dc3f204</password>
                                 <roles>
                                     <role>deliverymanager</role>
                                 </roles>

@@ -647,6 +647,144 @@ class TestSnapshotProvenance(unittest.TestCase):
             findings[0].foreign_sample,
         )
 
+    def test_6899_sitemanage_secondary_types_pass(self):
+        """Exact #6899 shapes pass through the sitemanage artifact (#6899).
+
+        A clean-main ``clean install`` of sitemanage emits five secondary
+        top-level classes with no same-named source — ``PSStreamingOutput``
+        (AssetAdaptor.java), ``PropertyId`` + ``HashCalculator``
+        (PSMetadataProperty.java, stacked annotations on the first),
+        ``PageSaveRunner`` (javadoc'd, ``implements Runnable``), and
+        ``PerformanceStats`` (declared *before* its file's primary type).
+        None is foreign; the pre-#6829 same-stem-only index flagged all
+        five and ``qa-up`` refused with POISONED. This pins the reported
+        checkout through the sitemanage roots (prior #6829 pins only
+        exercised the rest artifact with a single synthetic secondary).
+        """
+        src = self.repo / "projects" / "sitemanage" / "src" / "main" / "java"
+        apibridge = src / "com" / "percussion" / "apibridge"
+        _write_java(
+            apibridge / "AssetAdaptor.java",
+            "package com.percussion.apibridge;\n"
+            "public class AssetAdaptor {\n"
+            "    public void setPathService(Object pathService) {\n"
+            "        if (pathService != null) {\n"
+            "            configure(pathService);\n"
+            "        }\n"
+            "    }\n"
+            "}\n"
+            "class PSStreamingOutput implements StreamingOutput {\n"
+            "    public void write(Object output) {\n"
+            "        copyStream(output);\n"
+            "    }\n"
+            "}\n",
+        )
+        assembler = src / "com" / "percussion" / "pagemanagement" / "assembler"
+        _write_java(
+            assembler / "PSMetadataProperty.java",
+            "package com.percussion.pagemanagement.assembler;\n"
+            "import java.io.Serializable;\n"
+            "public class PSMetadataProperty {\n"
+            "    public String getName() {\n"
+            "        return name;\n"
+            "    }\n"
+            "}\n"
+            "@Embeddable\n"
+            '@SuppressWarnings("serial")\n'
+            "class PropertyId implements Serializable {\n"
+            "    private static final long serialVersionUID = 1L;\n"
+            "}\n"
+            "class HashCalculator {\n"
+            '    private static final String HEXES = "0123456789ABCDEF";\n'
+            "}\n",
+        )
+        impl = (
+            src / "com" / "percussion" / "sitemanage"
+            / "importer" / "helpers" / "impl"
+        )
+        _write_java(
+            impl / "PSHelperPerformanceMonitor.java",
+            "package com.percussion.sitemanage.importer.helpers.impl;\n"
+            "class PerformanceStats {\n"
+            "    public String identifier;\n"
+            "}\n"
+            "public class PSHelperPerformanceMonitor {\n"
+            "}\n",
+        )
+        _write_java(
+            impl / "PSPageExtractorHelper.java",
+            "package com.percussion.sitemanage.importer.helpers.impl;\n"
+            "/**\n"
+            " * @author LucasPiccoli\n"
+            " */\n"
+            "class PageSaveRunner implements Runnable {\n"
+            '    private static final String STATUS_MESSAGE = "OUCH:";\n'
+            "    @Override\n"
+            "    public void run() {\n"
+            "    }\n"
+            "}\n"
+            "public class PSPageExtractorHelper {\n"
+            "}\n",
+        )
+        jar = (
+            self.m2 / "com" / "percussion" / "sitemanage" / "8.2.0-SNAPSHOT"
+            / "sitemanage-8.2.0-SNAPSHOT.jar"
+        )
+        _write_class_jar(
+            jar,
+            [
+                "com/percussion/apibridge/AssetAdaptor.class",
+                "com/percussion/apibridge/PSStreamingOutput.class",
+                "com/percussion/pagemanagement/assembler/PSMetadataProperty.class",
+                "com/percussion/pagemanagement/assembler/PropertyId.class",
+                "com/percussion/pagemanagement/assembler/HashCalculator.class",
+                "com/percussion/sitemanage/importer/helpers/impl/"
+                "PSHelperPerformanceMonitor.class",
+                "com/percussion/sitemanage/importer/helpers/impl/"
+                "PerformanceStats.class",
+                "com/percussion/sitemanage/importer/helpers/impl/"
+                "PSPageExtractorHelper.class",
+                "com/percussion/sitemanage/importer/helpers/impl/"
+                "PageSaveRunner.class",
+            ],
+        )
+        findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
+        self.assertFalse(qa_preflight.is_poisoned(findings))
+
+    def test_6899_sitemanage_genuinely_foreign_still_flags(self):
+        """The #6899 mapping must not swallow branch-only classes (#6899).
+
+        Same sitemanage layout as above, but the jar carries a class no
+        checkout source declares — a different branch's build keeps
+        flagging POISONED.
+        """
+        src = self.repo / "projects" / "sitemanage" / "src" / "main" / "java"
+        apibridge = src / "com" / "percussion" / "apibridge"
+        _write_java(
+            apibridge / "AssetAdaptor.java",
+            "package com.percussion.apibridge;\n"
+            "public class AssetAdaptor {}\n"
+            "class PSStreamingOutput implements StreamingOutput {}\n",
+        )
+        jar = (
+            self.m2 / "com" / "percussion" / "sitemanage" / "8.2.0-SNAPSHOT"
+            / "sitemanage-8.2.0-SNAPSHOT.jar"
+        )
+        _write_class_jar(
+            jar,
+            [
+                "com/percussion/apibridge/AssetAdaptor.class",
+                "com/percussion/apibridge/PSStreamingOutput.class",
+                "com/percussion/apibridge/BranchOnly.class",
+            ],
+        )
+        findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
+        self.assertTrue(qa_preflight.is_poisoned(findings))
+        self.assertIn(
+            "com/percussion/apibridge/BranchOnly.class",
+            findings[0].foreign_sample,
+        )
+
     def test_comment_and_string_noise_does_not_declare_types(self):
         """Fake declarations in comments/strings declare nothing (#6829)."""
         src = self.repo / "rest" / "src" / "main" / "java"

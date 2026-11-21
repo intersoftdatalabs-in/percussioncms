@@ -75,12 +75,26 @@ This gate is **stricter than Erlang**: even a clean code review does not authori
 
 ### AGENTS.local.md across git worktrees (HARD GATE)
 
-Root `AGENTS.local.md` is **gitignored** and is **not** copied into agent git
-worktrees (`.kilo/worktrees/`, `.worktrees/`, `~/.grok/worktrees/`,
-`.opencode/worktrees/`, overnight workflow worktrees, etc.) — with one
-exception: the `night-issue-prs` launcher (`scripts/opencode-night-issue-prs.py`
-→ `propagate_agents_local`) copies it one way, primary → worktree, on every
-sync. That copy is a convenience, not the contract: the read-from-primary
+Root `AGENTS.local.md` is **gitignored** and is **not** carried by
+`git worktree add` or `git reset --hard`. The night-issue-prs workflow
+seeds it (and any nested module `AGENTS.local.md` files) one way,
+primary → worktree:
+
+- The launcher (`scripts/opencode-night-issue-prs.py` →
+  `propagate_agents_local`) copies into the dedicated `night-issue-prs`
+  worktree on every sync and refreshes when the primary copy changes.
+- After every `git worktree add` the cycle performs — lane worktrees
+  (`night-lane-a` / `night-lane-b`), shard worktrees, and any other
+  worktree the host or a sub-agent creates — run
+  `python3 scripts/night-seed-worktree.py <worktree>` so the new tree is
+  seeded immediately. A seat-start `--check` seeds if missing and stops
+  before committing if the primary still has a file the worktree does not.
+
+No git hook is required. A post-checkout hook can still help other tools,
+but a runner on another machine (for example Mayank's) only needs its own
+`AGENTS.local.md` in the primary checkout; pulling this workflow is enough.
+
+That copy is a convenience, not the contract: the read-from-primary
 protocol below still applies everywhere (including when the copy is absent
 or stale).
 
@@ -425,9 +439,11 @@ task work in the primary checkout. A shared worktree lets one task's
 
 1. **Create** — one worktree + one branch per task, from current upstream:
    `git worktree add <root>/<slug> -b <task-branch> origin/<base>`
-   (preferred roots: repo-local `.kilo/worktrees/` (gitignored) or the agent
-   host's designated worktree root). Never `-B` onto a branch another
-   worktree already has checked out.
+   then `python3 scripts/night-seed-worktree.py <root>/<slug>` so gitignored
+   `AGENTS.local.md` is present (no hook required). Preferred roots:
+   repo-local `.kilo/worktrees/` (gitignored) or the agent host's designated
+   worktree root. Never `-B` onto a branch another worktree already has
+   checked out.
 2. **Guaranteed removal** — the worktree MUST be deleted however the task ends:
    * **Completion** — remove after PR merge/close (sequence below).
    * **Cancellation / interruption** — wrap task shells so cleanup runs on

@@ -1637,7 +1637,9 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
       // the enhancement init is typeof-guarded with a fromTextArea-throw
       // fallback that leaves the plain textarea editable and renders a
       // role=alert load notice, and the prefs-restore IIFE bails when no
-      // editor was created. The bundle-present path keeps autofocus.
+      // editor was created. Issue #6938: the bundle-present path ships no
+      // autofocus option, so dialog open keeps its natural initial focus
+      // while bundle-present editing is otherwise unchanged.
       const text = fs
         .readFileSync(path.join(REPO_ROOT, SYS_TEMPLATES_XSL), "utf8")
         .replace(/\r\n/g, "\n");
@@ -1677,8 +1679,12 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
       ).toContain("if (editor === null || editor === undefined)");
       expect(
         branch,
-        `${SYS_TEMPLATES_XSL} bundle-present path must keep autofocus (#6902)`,
-      ).toContain("autofocus: true");
+        `${SYS_TEMPLATES_XSL} bundle-present path must not steal focus on dialog open (#6938)`,
+      ).not.toContain("autofocus:");
+      expect(
+        branch,
+        `${SYS_TEMPLATES_XSL} code editor must keep its screen-reader label without autofocus (#6938)`,
+      ).toContain("screenReaderLabel");
     },
   );
 
@@ -1690,7 +1696,10 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
       // sys_Templates.xsl (XSL value-ofs substituted, nothing else
       // rewritten): bundle present renders the CodeMirror editor with no
       // load notice; bundle missing leaves the textarea editable with a
-      // visible role=alert notice and no uncaught exception.
+      // visible role=alert notice and no uncaught exception. Issue #6938:
+      // the bundle-present init must not move focus (no autofocus option),
+      // must keep the screen-reader label, and must still take focus on
+      // author intent.
       test.setTimeout(90_000);
       const pageErrors = [];
       page.on("pageerror", (err) => pageErrors.push(String(err)));
@@ -1706,26 +1715,32 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
       const scriptText = sysTextAreaCodeeditorScript(fieldId, "htmlmixed");
       const legendHtml = sysTextAreaCodeeditorLegend(fieldId, "htmlmixed");
 
-      // Bundle present: the shipped init enhances the textarea exactly as
-      // before (no behavior change, autofocus included).
+      // Bundle present: the shipped init enhances the textarea. Issue
+      // #6938: init must not move focus — the dialog keeps its natural
+      // initial focus and the editor takes focus only on author intent.
       await page.evaluate((html) => {
         document.body.innerHTML =
           "<h1>Code editor bundle-present proof (#6902)</h1>" + html;
       }, legendHtml);
       await page.addScriptTag({ url: `${BASE_URL}${BUNDLE_JS}` });
       await page.addScriptTag({ content: scriptText });
-      const present = await page.evaluate((id) => ({
-        enhanced: document.querySelectorAll(".CodeMirror").length,
-        notice: document.querySelectorAll(
-          `[data-perc-codeeditor-load-error="${id}"]`,
-        ).length,
-        mode: document
-          .querySelector(".CodeMirror")
-          .CodeMirror.getOption("mode"),
-        themeToggleDisabled: document.querySelector(
-          `[data-perc-codeeditor-theme-toggle="${id}"]`,
-        ).disabled,
-      }), fieldId);
+      const present = await page.evaluate((id) => {
+        const wrapper = document.querySelector(".CodeMirror");
+        const editor = wrapper.CodeMirror;
+        return {
+          enhanced: document.querySelectorAll(".CodeMirror").length,
+          notice: document.querySelectorAll(
+            `[data-perc-codeeditor-load-error="${id}"]`,
+          ).length,
+          mode: editor.getOption("mode"),
+          themeToggleDisabled: document.querySelector(
+            `[data-perc-codeeditor-theme-toggle="${id}"]`,
+          ).disabled,
+          autofocusOption: editor.getOption("autofocus"),
+          focusStolen: wrapper.contains(document.activeElement),
+          screenReaderLabel: editor.getOption("screenReaderLabel"),
+        };
+      }, fieldId);
       expect(
         present.enhanced,
         "bundle present must enhance the textarea (#6902)",
@@ -1742,6 +1757,39 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
         present.themeToggleDisabled,
         "bundle present must keep the display toolbar live (#6902)",
       ).toBe(false);
+      expect(
+        present.autofocusOption,
+        "shipped init must not request autofocus so dialog open keeps its natural focus (#6938)",
+      ).toBeFalsy();
+      expect(
+        present.focusStolen,
+        "shipped init must not move focus into the editor on open (#6938)",
+      ).toBe(false);
+      expect(
+        present.screenReaderLabel,
+        "screen-reader announcement of the editor region must survive (#6938)",
+      ).toBe("HTML Source Code Editor");
+
+      // Author intent still focuses the editor: explicit focus() lands
+      // inside the CodeMirror wrapper with no console/page errors.
+      const intent = await page.evaluate(() => {
+        const editor = document.querySelector(".CodeMirror").CodeMirror;
+        editor.focus();
+        return {
+          hasFocus: editor.hasFocus(),
+          activeInside: document
+            .querySelector(".CodeMirror")
+            .contains(document.activeElement),
+        };
+      });
+      expect(
+        intent.hasFocus,
+        "editor must still take focus on author intent (#6938)",
+      ).toBe(true);
+      expect(
+        intent.activeInside,
+        "author-intent focus must land inside the editor (#6938)",
+      ).toBe(true);
 
       // Bundle blocked/missing: same shipped script, no CodeMirror global.
       await page.evaluate((html) => {

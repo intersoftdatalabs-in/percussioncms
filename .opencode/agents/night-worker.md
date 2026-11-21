@@ -130,12 +130,27 @@ do not spawn `work`, missing preflight data does not block the run, and
 
 ## Parallelism
 
-- Sequential by default. Same-parent overlap is the only legitimate
-  parallelism reason (one parent per run).
+- Sequential by default (`max_parallel_work=1`). Same-parent overlap is the
+  only legitimate parallelism reason (one parent per run).
 - `reconcile` and `pr-follow-up PRE` may run as parallel `subagent` calls — both
   are read-mostly inventory operations that do not race on labels.
-- `work` sub-agents run **sequentially**. One `subagent` call per implement row,
-  one parent at a time.
+- `work` sub-agents run **sequentially** when `max_parallel_work=1`. One
+  `subagent` call per implement row, one parent at a time.
+- **Parallel seats (`max_parallel_work` ≥ 2).** Before spawning Work agents,
+  create one sibling worktree per seat (conventional: `night-lane-a`,
+  `night-lane-b` next to `$NIGHT_WORKTREE_PATH`) and seed each one
+  immediately so the lane has `AGENTS.local.md`. No git hook is required:
+
+  ```bash
+  NIGHT_ROOT="$(dirname "$NIGHT_WORKTREE_PATH")"
+  git worktree add -B night-lane-a "$NIGHT_ROOT/night-lane-a" "origin/$NIGHT_BASE_BRANCH"
+  python3 scripts/night-seed-worktree.py "$NIGHT_ROOT/night-lane-a"
+  ```
+
+  Assign that path to the Work agent. Repeat for lane b (and further
+  seats). If you `git worktree add` any other path, seed it the same way.
+  If the primary has `AGENTS.local.md` but a lane still does not after
+  seeding, do not start work in that lane.
 
 ## Operator + model labels
 

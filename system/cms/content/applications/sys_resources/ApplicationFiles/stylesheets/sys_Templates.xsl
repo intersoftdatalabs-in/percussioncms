@@ -1508,8 +1508,14 @@ onchange    %Script;       #IMPLIED
             // deploy skew, ad-blocker). Guard the enhancement: when the
             // global is missing (or fromTextArea throws), leave the plain
             // textarea editable and render a role=alert load notice instead
-            // of throwing and aborting this script block. The bundle-present
-            // path below is unchanged (including autofocus).
+            // of throwing and aborting this script block.
+            // Issue #6938: the bundle-present path ships no autofocus
+            // option. CodeMirror 5 autofocus focuses the editor on init,
+            // which yanked focus into the editor on every dialog open even
+            // when the author opened the dialog to read or to act on
+            // another field first. The dialog keeps its natural initial
+            // focus; the editor still takes focus on author intent (click
+            // or Tab into it) and keeps its screen-reader label.
             var editor = null;
             function percCodeEditorShowLoadError(fieldId) {
                var badge = document.querySelector('[data-perc-codeeditor-mode-badge="' + fieldId + '"]');
@@ -1587,7 +1593,6 @@ onchange    %Script;       #IMPLIED
             styleActiveLine: true,
             spellcheck: true,
             autocorrect: true,
-            autofocus: true,
             screenReaderLabel: percCodeEditorScreenReaderLabel(fieldId)});
                 } catch (editorError) {
                    percCodeEditorShowLoadError(fieldId);
