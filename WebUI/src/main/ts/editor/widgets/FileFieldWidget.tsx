@@ -94,6 +94,150 @@ function downloadErrorMessage(field: string, status: number | undefined): string
   return message(EDITOR_MSG.FILE_DOWNLOAD_FAILED) + named;
 }
 
+/**
+ * Blob preview URL for a freshly picked file, or null when preview is off,
+ * the pick is not an image, or object URLs are unavailable. An unsafe (non
+ * blob:) object URL is revoked before returning null so no tainted value
+ * survives. Behavior-preserving extraction from {@code FileFieldWidget}'s
+ * change handler (#6960: keeps the component under the cognitive budget).
+ */
+export function previewUrlForPick(preview: boolean, file: File): string | null {
+  if (!preview || !file.type.startsWith("image/")) {
+    return null;
+  }
+  if (typeof URL === "undefined" || typeof URL.createObjectURL !== "function") {
+    return null;
+  }
+  const objectUrl = URL.createObjectURL(file);
+  if (blobPreviewSrc(objectUrl)) {
+    return objectUrl;
+  }
+  URL.revokeObjectURL(objectUrl);
+  return null;
+}
+
+export interface FileInputChangeRequest {
+  file: File | null;
+  preview: boolean;
+  previousPreviewUrl: string | null;
+  storedHasBinary: boolean;
+  cleared: boolean;
+  storedName: string;
+  onFile: (file: File | null) => void;
+  setFilename: (value: string) => void;
+  setPicked: (value: boolean) => void;
+  setCleared: (value: boolean) => void;
+  setPreviewUrl: (value: string | null) => void;
+}
+
+/**
+ * File-input change handling for {@code FileFieldWidget}. Revokes the prior
+ * preview, records a pick, or restores the stored name on dialog cancel.
+ */
+export function applyFileInputChange(request: FileInputChangeRequest): void {
+  if (request.previousPreviewUrl) {
+    URL.revokeObjectURL(request.previousPreviewUrl);
+    request.setPreviewUrl(null);
+  }
+  if (!request.file) {
+    request.setPicked(false);
+    request.setFilename(
+      request.storedHasBinary && !request.cleared ? request.storedName : "",
+    );
+    request.onFile(null);
+    return;
+  }
+  request.setCleared(false);
+  request.setPicked(true);
+  request.setFilename(displayBinaryFileName(request.file.name));
+  request.onFile(request.file);
+  const previewUrl = previewUrlForPick(request.preview, request.file);
+  if (previewUrl) {
+    request.setPreviewUrl(previewUrl);
+  }
+}
+
+export interface StoredDownloadRequest {
+  itemId: string;
+  field: string;
+  storedName: string;
+  filename: string;
+  present: boolean;
+  downloadBinary: (
+    itemId: string,
+    field: string,
+    storedName: string,
+  ) => Promise<ItemEditorBinaryDownload>;
+  setDownloadError: (value: string) => void;
+}
+
+/**
+ * Download-button handling for {@code FileFieldWidget}. Downloads stored
+ * bytes only — never an unsaved local pick.
+ */
+export function requestStoredDownload(request: StoredDownloadRequest): void {
+  request.setDownloadError("");
+  if (!request.present) {
+    request.setDownloadError(
+      `${message(EDITOR_MSG.FILE_DOWNLOAD_EMPTY)} (${request.field})`,
+    );
+    return;
+  }
+  void request
+    .downloadBinary(request.itemId, request.field, request.storedName)
+    .then((result) => {
+      if (
+        !saveBinaryDownload(result.bytes, result.filename || request.filename)
+      ) {
+        request.setDownloadError(
+          `${message(EDITOR_MSG.FILE_DOWNLOAD_EMPTY)} (${request.field})`,
+        );
+      }
+    })
+    .catch((err: { status?: number }) => {
+      request.setDownloadError(
+        downloadErrorMessage(request.field, err?.status),
+      );
+    });
+}
+
+export interface ClearFileFieldRequest {
+  input: HTMLInputElement | null;
+  previewUrl: string | null;
+  hadStored: boolean;
+  onFile: (file: File | null) => void;
+  onClear?: (hadStored: boolean) => void;
+  setFilename: (value: string) => void;
+  setStoredName: (value: string) => void;
+  setPresent: (value: boolean) => void;
+  setPicked: (value: boolean) => void;
+  setCleared: (value: boolean) => void;
+  setDownloadError: (value: string) => void;
+  setPreviewUrl: (value: string | null) => void;
+}
+
+/**
+ * Clear-button handling for {@code FileFieldWidget}. Local clear only;
+ * the server is not called until the host saves.
+ */
+export function clearFileField(request: ClearFileFieldRequest): void {
+  if (request.previewUrl) {
+    URL.revokeObjectURL(request.previewUrl);
+    request.setPreviewUrl(null);
+  }
+  if (request.input) {
+    request.input.value = "";
+  }
+  request.setFilename("");
+  request.setStoredName("");
+  request.setPresent(false);
+  request.setPicked(false);
+  request.setCleared(true);
+  request.setDownloadError("");
+  request.onFile(null);
+  request.onClear?.(request.hadStored);
+}
+
 export interface FileFieldWidgetProps {
   itemId: string;
   name: string;
@@ -210,37 +354,19 @@ export function FileFieldWidget({
         aria-invalid={invalid ? true : undefined}
         aria-describedby={describedById}
         onChange={(e) => {
-          const file = e.target.files?.[0] ?? null;
-          if (previewUrl) {
-            URL.revokeObjectURL(previewUrl);
-            setPreviewUrl(null);
-          }
-          if (file) {
-            setCleared(false);
-            setPicked(true);
-            setFilename(displayBinaryFileName(file.name));
-            onFile(file);
-            if (
-              preview &&
-              file.type.startsWith("image/") &&
-              typeof URL !== "undefined" &&
-              typeof URL.createObjectURL === "function"
-            ) {
-              const objectUrl = URL.createObjectURL(file);
-              const safe = blobPreviewSrc(objectUrl);
-              if (safe) {
-                setPreviewUrl(safe);
-              } else {
-                URL.revokeObjectURL(objectUrl);
-              }
-            }
-          } else {
-            setPicked(false);
-            setFilename(
-              storedPresent.current && !cleared ? storedName : "",
-            );
-            onFile(null);
-          }
+          applyFileInputChange({
+            file: e.target.files?.[0] ?? null,
+            preview,
+            previousPreviewUrl: previewUrl,
+            storedHasBinary: storedPresent.current,
+            cleared,
+            storedName,
+            onFile,
+            setFilename,
+            setPicked,
+            setCleared,
+            setPreviewUrl,
+          });
         }}
       />
       <span
@@ -263,24 +389,15 @@ export function FileFieldWidget({
         disabled={!ready}
         aria-label={message(EDITOR_MSG.FILE_DOWNLOAD)}
         onClick={() => {
-          setDownloadError("");
-          if (!present) {
-            setDownloadError(
-              `${message(EDITOR_MSG.FILE_DOWNLOAD_EMPTY)} (${name})`,
-            );
-            return;
-          }
-          void downloadBinary(itemId, name, storedName)
-            .then((result) => {
-              if (!saveBinaryDownload(result.bytes, result.filename || filename)) {
-                setDownloadError(
-                  `${message(EDITOR_MSG.FILE_DOWNLOAD_EMPTY)} (${name})`,
-                );
-              }
-            })
-            .catch((err: { status?: number }) => {
-              setDownloadError(downloadErrorMessage(name, err?.status));
-            });
+          requestStoredDownload({
+            itemId,
+            field: name,
+            storedName,
+            filename,
+            present,
+            downloadBinary,
+            setDownloadError,
+          });
         }}
       >
         {message(EDITOR_MSG.FILE_DOWNLOAD)}
@@ -292,22 +409,20 @@ export function FileFieldWidget({
           data-testid={`editor-file-clear-${name}`}
           aria-label={message(EDITOR_MSG.FILE_CLEAR)}
           onClick={() => {
-            const hadStored = storedPresent.current && !cleared;
-            if (previewUrl) {
-              URL.revokeObjectURL(previewUrl);
-              setPreviewUrl(null);
-            }
-            if (inputEl.current) {
-              inputEl.current.value = "";
-            }
-            setFilename("");
-            setStoredName("");
-            setPresent(false);
-            setPicked(false);
-            setCleared(true);
-            setDownloadError("");
-            onFile(null);
-            onClear?.(hadStored);
+            clearFileField({
+              input: inputEl.current,
+              previewUrl,
+              hadStored: storedPresent.current && !cleared,
+              onFile,
+              onClear,
+              setFilename,
+              setStoredName,
+              setPresent,
+              setPicked,
+              setCleared,
+              setDownloadError,
+              setPreviewUrl,
+            });
           }}
         >
           {message(EDITOR_MSG.FILE_CLEAR)}
