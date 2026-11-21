@@ -34,41 +34,87 @@ cannot drift apart silently.
 
 ## Operator workflow
 
-All commands run from `modules/perc-qa-automation/frontend`.
+All cell commands run from the repo root; the Playwright runs from
+`modules/perc-qa-automation/frontend`. The static and interaction
+matrices need the DTS-providing cell, so boot it **first**: the fixture
+publisher stages pages into the DTS cell and has nowhere to deploy on a
+CMS-only cell.
 
-1. Bring up the CMS-only cell and check health:
+1. Start from a clean cell, boot CMS + DTS together, and check health:
 
    ```bash
-   python docker/scripts/perc-devctl.py qa-up
+   python docker/scripts/perc-devctl.py qa-down
+   python docker/scripts/perc-devctl.py qa-up --with-dts
    python docker/scripts/perc-devctl.py qa-health
    ```
 
-2. Run the index (works on the CMS-only cell; no publish path needed):
+   The endpoint banner prints `TEST_CMS_URL`, `QA_CMS_HOST_PORT`,
+   `DTS_URL` (accepted anywhere `DTS_BASE_URL` is), the published-site
+   placeholders, and the admin password source. Always use the printed
+   `TEST_CMS_URL` (freeport contract — never hardcode the port), and do
+   not continue past an unhealthy `qa-health`: it fail-fasts on dead
+   webapps that still answer HTTP.
+
+   When `qa-up` refuses with `qa_up_preflight_refused`, the WebUI WAR is
+   stale against the local-repo SNAPSHOT or the shared repo holds a
+   sibling worktree's branch-built SNAPSHOTs. Rebuild from this checkout
+   (`python docker/scripts/perc-devctl.py qa-rebuild-chain --then-qa-up`)
+   or isolate the worktree
+   (`python docker/scripts/maven_local_repo.py --repo-root .`, export the
+   printed `MAVEN_ARGS`, retry). A refusal that persists after a
+   from-checkout rebuild with matching content hashes is a preflight
+   false positive (package-private classes compiled from shared source
+   files) — re-run that boot with `--skip-preflight`, which relaxes the
+   outer gate while the install still uses this checkout's packaged
+   distribution (`perc-distribution-tree.jar`).
+
+2. Run the index (works on the CMS-only cell too; no publish path needed):
 
    ```bash
-   TEST_CMS_URL=http://127.0.0.1:${QA_CMS_HOST_PORT} \
-     ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up> \
+   TEST_CMS_URL=<from-qa-up-banner> \
+     ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-banner> \
      npm run test:surface -- --path tests/coverage-matrix-index.spec.js
    ```
 
-   Use the `TEST_CMS_URL` printed by `qa-up` (freeport contract — never hardcode the port).
+   The banner password is a best-effort snapshot of the cell's
+   first-boot rotation; when login fails, re-read the in-cell generated
+   passwords with the refresh command the banner prints next to the
+   values.
 
-3. For the static matrix, publish the fixture site first, then point at it:
+3. Publish the fixture site, then run the static matrix:
 
    ```bash
    python docker/scripts/perc-devctl.py qa-publish-fixture
-   PUBLISHED_SITE_URL=<from-qa-up-or-fixture> \
-     PUBLISHED_CATEGORY_URL=<from-fixture> \
+   PUBLISHED_SITE_URL=<from-fixture-output> \
+     PUBLISHED_CATEGORY_URL=<from-fixture-output> \
      npm run test:surface -- --path tests/published-widget-matrix.spec.js
    ```
 
-4. For the interaction matrix, bring up the DTS-providing cell:
+   The publisher prints both URLs and repoints the category URL at the
+   fixture category page (only the category-list case reads it). No CMS
+   credentials are needed: every case is an anonymous GET against the
+   published origin.
+
+4. Seed the DTS fixtures, then run the interaction matrix:
 
    ```bash
-   python docker/scripts/perc-devctl.py qa-up --with-dts
-   DTS_URL=<from-banner> \
+   python docker/scripts/perc-devctl.py qa-seed-widget-fixtures
+   DTS_URL=<from-qa-up-banner> \
      npm run test:surface -- --path tests/dts-interaction-matrix.spec.js
    ```
+
+   `DTS_BASE_URL` works anywhere `DTS_URL` does. The membership case
+   additionally needs `DTS_FIXTURE_USER` + `DTS_FIXTURE_PASSWORD`
+   naming a registered account, and skips by name without them; the
+   comments case probes the live service directly. The polls, forms, and
+   feeds interaction cases assert the pinned static fixtures
+   (`qamatrix-poll`, `qamatrix-form`,
+   `EnterpriseInvestments/qamatrix-feed/localhost`) and keep their named
+   skips until those fixtures are provisioned — the deep per-service
+   matrices (`polls-vote`, `feeds-entries`, `forms-confirmation`,
+   `comments-moderation`, `membership-registration`, `metadata-index`)
+   self-seed a unique probe per run instead, so they go green with no
+   pre-provisioned fixtures.
 
 5. Tear down what you started: `python docker/scripts/perc-devctl.py qa-down`.
 
@@ -80,8 +126,10 @@ instead of failing.
 - No CMS cell → every case skips naming the missing cell.
 - No `PUBLISHED_SITE_URL` → static cases skip naming the missing publish path.
 - No `DTS_BASE_URL` (or its `DTS_URL` alias) → interaction cases skip naming the service.
-- Unseeded fixtures skip with their own named reason — the DTS cell turns cases green one
-  fixture at a time (`qa-seed-widget-fixtures` provisions them).
+- Unseeded fixtures skip with their own named reason — the seeder provisions
+  the feed-surface fixture and the delivery credential; the pinned static
+  interaction fixtures (poll, form, feed, membership account) stay skipped
+  by name until they are provisioned.
 
 A full run with skips is still a passing run; the results JSON
 (`test-results/coverage-matrix-index.json`) records which services were proven and which
@@ -89,16 +137,32 @@ skipped, so there are no unexplained passes.
 
 ## Fixture rebuild
 
-The fixture site is rebuildable from the cell tooling alone:
+The fixture site is rebuildable from the cell tooling alone — no manual
+publishing, no tribal fixtures:
 
-- `python docker/scripts/perc-devctl.py qa-publish-fixture` stages the
-  `widgets/<Name>.html` fixture pages on the in-cell published site.
-- `python docker/scripts/perc-devctl.py qa-seed-widget-fixtures` provisions the DTS
-  interaction fixtures (poll, form, feed, user; delivery credentials via
-  `--delivery-password` for the metadata extractor block).
+- `python docker/scripts/perc-devctl.py qa-publish-fixture` copies the
+  publish-time `web_resources` tree from the CMS cell and stages the
+  fixture home page, the category page, and one `widgets/<Name>.html`
+  page per pinned widget (44) on the in-cell published site, then prints
+  `PUBLISHED_SITE_URL` / `PUBLISHED_CATEGORY_URL` for the static matrix.
+- `python docker/scripts/perc-devctl.py qa-seed-widget-fixtures`
+  provisions the deliverymanager password, the feed-surface fixture
+  (`qacell/qasurface-fixture` plus its metadata index rows, consumed by
+  the published feed surface), and the metadata extractor credential.
+  Pass `--delivery-password` (or set `DTS_DELIVERY_PASSWORD`) when the
+  password must be reproducible by hand; otherwise a fresh random value
+  is provisioned per seed and never printed.
 
-If a fixture step stops reproducing the matrices, file it against the coverage epic so the
-rebuild path stays honest.
+What stays skipped after a rebuild is a contract, not a gap: the polls,
+forms, and feeds interaction cases skip until their static fixtures are
+provisioned, membership skips without `DTS_FIXTURE_USER` /
+`DTS_FIXTURE_PASSWORD`, and the index spec still verifies the whole
+family — every dynamic widget names a service with an interaction case,
+every service has a proving artifact, and this page still pins the same
+suites and counts.
+
+If a fixture step stops reproducing the matrices, file it against the
+coverage epic so the rebuild path stays honest.
 
 ## Related
 

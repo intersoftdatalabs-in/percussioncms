@@ -680,7 +680,7 @@ expand case lives in `published-category-tree-fancytree.spec.js` (closes the
 
 | Item | Value |
 |------|--------|
-| Matrix spec | `frontend/tests/published-widget-matrix.spec.js` (45 widgets × 1 case) |
+| Matrix spec | `frontend/tests/published-widget-matrix.spec.js` (44 widgets × 1 case) |
 | Expand spec | `frontend/tests/published-category-tree-fancytree.spec.js` (assets + init + expand) |
 | Helpers | `frontend/tests/helpers/published-widget-matrix.js` (pinned inventory + row builder + validator) |
 | Contract | `contracts/results-matrix.schema.json` (`published-widget-matrix` suite, `published-site` cell, `staticRender` case; + `contracts/results-matrix-widget.example.json`) |
@@ -711,7 +711,7 @@ The inventory (`WIDGETS`) is closed: the unit test fails when a shipped
 `widgets/<Name>/templates` directory is neither pinned nor listed in
 `WIDGET_EXCLUSIONS` (`PSWidget_TestProperties`, `percJQueryWidget`,
 `percJQueryUIWidget`) and when a pinned widget has no shipped template. Each
-full matrix run validates all 45 rows against the schema and writes
+full matrix run validates all 44 rows against the schema and writes
 `frontend/test-results/published-widget-matrix.json` (gitignored). Fixture
 contract: one page per widget at `/widgets/<WidgetName>.html` on the
 published origin, staged by `docker/scripts/qa_publish_fixture.py`
