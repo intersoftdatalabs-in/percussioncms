@@ -98,7 +98,7 @@ Erlang skill CLI before opening a PR; host/peer phases still spawn the
 ## Task Scheduler wiring (Windows)
 
     schtasks /create /tn "percussioncms-night" /tr \\
-        "cmd /c cd /d C:\\path\\to\\percussioncms && python scripts\\opencode-night-issue-prs.py --max-issues 3" \\
+        "cmd /c cd /d C:\\path\\to\\percussioncms && python scripts\\opencode-night-issue-prs.py --max-issues 3" \\  # mkd-code-review[paths.hardcoded_sep]: adjudicated FP (issue #6924, precedent #6779/#6781) — Windows-only Task Scheduler doc example, never an OS path join.
         /sc daily /st 01:00
 """
 from __future__ import annotations
