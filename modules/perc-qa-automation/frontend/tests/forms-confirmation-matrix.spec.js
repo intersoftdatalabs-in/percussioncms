@@ -17,7 +17,8 @@
 /**
  * US3 forms confirmation matrix (#6482 / parent #6238): submit a form
  * against the in-cell DTS forms service and prove the confirmation is
- * retrievable — the visitor submit takes the success redirect, and the
+ * retrievable — the visitor submit takes the success redirect and follows
+ * it to the landing page (stable confirmation hook, issue #6893), and the
  * admin retrieval surface (summaries count + CSV export) reflects the
  * submitted entry.
  *
@@ -66,6 +67,8 @@ const {
   CASE_CSV,
   SKIP_NO_DTS_BASE,
   SKIP_NO_DTS_HTTPS,
+  SUCCESS_PAGE_TESTID,
+  SUCCESS_PAGE_COPY,
   skipServiceDown,
   skipNoRetrieval,
   dtsBaseUrl,
@@ -77,6 +80,7 @@ const {
   probeFormName,
   retrievalDetail,
   summariesTotal,
+  pageHasConfirmationMarker,
   buildConfirmationRow,
   validateConfirmationRow,
 } = require("./helpers/forms-confirmation-matrix");
@@ -160,14 +164,38 @@ async function submitProbeEntry(request, svc, siteOrigin) {
       qaconfirm: marker,
     },
   });
+  // mkd-code-review[llm.ollama-dev-coder]: adjudicated stale (issue #6893) —
+  // the redirect IS followed below: the landing GET asserts HTTP 200 plus
+  // the confirmation hook and copy. The finding describes the pre-fix gap.
   expect(
     collect.status(),
     `forms: submit to self-seeded form '${formName}' must take the success redirect (HTTP ${collect.status()})`,
   ).toBe(302);
+  const location = String(collect.headers().location || "");
   expect(
-    String(collect.headers().location || ""),
+    location,
     `forms: submit to '${formName}' must redirect at the success page`,
   ).toMatch(/\/success\.html$/);
+  // Follow the redirect: the default target must be servable (HTTP 200)
+  // carrying the stable confirmation hook (issue #6893 — a bare 302 to
+  // an unservable page used to stay green here).
+  const landingUrl = location.startsWith("http")
+    ? location
+    : `${siteOrigin.replace(/\/$/, "")}${location.startsWith("/") ? "" : "/"}${location}`;
+  const landing = await request.get(landingUrl);
+  expect(
+    landing.status(),
+    `forms: success redirect target for '${formName}' must be servable (HTTP ${landing.status()})`,
+  ).toBe(200);
+  const landingBody = await landing.text();
+  expect(
+    pageHasConfirmationMarker(landingBody, SUCCESS_PAGE_TESTID),
+    `forms: success page for '${formName}' must carry the confirmation hook (${SUCCESS_PAGE_TESTID})`,
+  ).toBe(true);
+  expect(
+    landingBody.includes(SUCCESS_PAGE_COPY),
+    `forms: success page for '${formName}' must keep the user-visible copy`,
+  ).toBe(true);
   return { formName, marker };
 }
 
