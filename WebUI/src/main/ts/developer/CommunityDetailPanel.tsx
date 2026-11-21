@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { captureDialogOpener } from "../architecture/useDialogEscape";
 import { isApiError } from "../api/client";
 import {
@@ -75,6 +75,7 @@ import {
   visibilitySummaryCounts,
 } from "./communityVisibilityFilters";
 import { panelErrMsg } from "./errors";
+import { COMM_EDIT_MSG } from "./communityEditMessages";
 import { DEV_MSG } from "./messages";
 
 const filterControlStyle: React.CSSProperties = {
@@ -270,6 +271,14 @@ export function CommunityDetailPanel({
   const [name, setName] = useState("");
   const [renameDraft, setRenameDraft] = useState("");
   const [descriptionDraft, setDescriptionDraft] = useState("");
+  /** #6906: inline rename/description editors open on demand (autofocus) and
+   * return focus to the invoking edit button on close (Escape/Cancel/save). */
+  const [renameEditing, setRenameEditing] = useState(false);
+  const [descriptionEditing, setDescriptionEditing] = useState(false);
+  const renameEditButtonRef = useRef<HTMLButtonElement | null>(null);
+  const descriptionEditButtonRef = useRef<HTMLButtonElement | null>(null);
+  const renameWasEditingRef = useRef(false);
+  const descriptionWasEditingRef = useRef(false);
   const [allRoles, setAllRoles] = useState<CommunityRoleSummary[]>([]);
   const [selectedKeys, setSelectedKeys] = useState<Set<string>>(new Set());
   const [error, setError] = useState<string | null>(null);
@@ -355,6 +364,8 @@ export function CommunityDetailPanel({
     setDetail(null);
     setRenameDraft("");
     setDescriptionDraft("");
+    setRenameEditing(false);
+    setDescriptionEditing(false);
     setError(null);
     setNotice(null);
     setVisibleObjects([]);
@@ -411,6 +422,31 @@ export function CommunityDetailPanel({
       nsdReqId.current += 1;
     };
   }, [idOrName, loadNewSearchDefaults]);
+
+  // #6906: when an inline rename / description editor closes (Escape, Cancel,
+  // or save), the input unmounts and focus would fall back to <body>. Return
+  // focus to the invoking edit button so keyboard and screen-reader users
+  // keep their place on the page. Layout effect (same as useDialogEscape) so
+  // focus lands before paint with no body flash.
+  useLayoutEffect(() => {
+    if (renameWasEditingRef.current && !renameEditing) {
+      const btn = renameEditButtonRef.current;
+      if (btn && !btn.disabled && typeof btn.focus === "function") {
+        btn.focus();
+      }
+    }
+    renameWasEditingRef.current = renameEditing;
+  }, [renameEditing]);
+
+  useLayoutEffect(() => {
+    if (descriptionWasEditingRef.current && !descriptionEditing) {
+      const btn = descriptionEditButtonRef.current;
+      if (btn && !btn.disabled && typeof btn.focus === "function") {
+        btn.focus();
+      }
+    }
+    descriptionWasEditingRef.current = descriptionEditing;
+  }, [descriptionEditing]);
 
   const initialKeys = useMemo(
     () =>
@@ -531,10 +567,26 @@ export function CommunityDetailPanel({
     }
   }
 
-  function handleDescriptionCancel(): void {
+  function openDescriptionEdit(): void {
     if (busy || inflight.current) return;
     setDescriptionDraft(detail?.description || "");
     setError(null);
+    setDescriptionEditing(true);
+  }
+
+  function handleDescriptionCancel(): void {
+    if (busy || inflight.current) return;
+    setDescriptionDraft(detail?.description || "");
+    setDescriptionEditing(false);
+    setError(null);
+  }
+
+  // #6906: Escape cancels the description editor without writing, reusing the
+  // existing cancel guard (busy/inflight stay, draft cleared, stored kept).
+  function handleDescriptionKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>): void {
+    if (e.key === "Escape") {
+      handleDescriptionCancel();
+    }
   }
 
   async function handleDescription(): Promise<void> {
@@ -566,6 +618,7 @@ export function CommunityDetailPanel({
             },
       );
       setDescriptionDraft(savedDescription);
+      setDescriptionEditing(false);
       setNotice(
         savedDescription
           ? DEV_MSG.COMM_DESCRIPTION_SAVED
@@ -580,10 +633,26 @@ export function CommunityDetailPanel({
     }
   }
 
-  function handleRenameCancel(): void {
+  function openRenameEdit(): void {
     if (busy || inflight.current) return;
     setRenameDraft(detail?.name || "");
     setError(null);
+    setRenameEditing(true);
+  }
+
+  function handleRenameCancel(): void {
+    if (busy || inflight.current) return;
+    setRenameDraft(detail?.name || "");
+    setRenameEditing(false);
+    setError(null);
+  }
+
+  // #6906: Escape cancels the rename editor without writing, reusing the
+  // existing cancel guard (busy/inflight stay, draft cleared, stored kept).
+  function handleRenameKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      handleRenameCancel();
+    }
   }
 
   async function handleRename(): Promise<void> {
@@ -616,6 +685,7 @@ export function CommunityDetailPanel({
       );
       setRenameDraft(renamed);
       setName(renamed);
+      setRenameEditing(false);
       setNotice(DEV_MSG.COMM_RENAMED);
       onRenamed?.(current, renamed);
     } catch (err: unknown) {
@@ -833,63 +903,87 @@ export function CommunityDetailPanel({
               <p style={{ color: catalogColors.muted, fontSize: "0.9rem", margin: "0 0 8px" }}>
                 {DEV_MSG.COMM_DESCRIPTION_HINT}
               </p>
-              {communityDescriptionDraftTooLong(descriptionDraft) ? (
-                <div
-                  role="alert"
-                  data-testid="developer-comm-description-error"
-                  style={{ ...errorAlert, marginBottom: "8px" }}
-                >
-                  {DEV_MSG.COMM_DESCRIPTION_TOO_LONG}
-                </div>
-              ) : null}
-              <label
-                htmlFor="comm-description"
-                style={{ display: "block", marginBottom: "4px" }}
-              >
-                {DEV_MSG.COMM_DESCRIPTION_LABEL}
-              </label>
-              <textarea
-                id="comm-description"
-                data-testid="developer-comm-description-input"
-                style={{ ...inputStyle, minHeight: "4.5rem", resize: "vertical" }}
-                value={descriptionDraft}
-                disabled={busy}
-                aria-label={DEV_MSG.COMM_DESCRIPTION}
-                onChange={(e) => {
-                  setDescriptionDraft(e.target.value);
-                  if (error) setError(null);
-                }}
-              />
-              <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
+              {descriptionEditing ? (
+                <>
+                  {communityDescriptionDraftTooLong(descriptionDraft) ? (
+                    <div
+                      role="alert"
+                      data-testid="developer-comm-description-error"
+                      style={{ ...errorAlert, marginBottom: "8px" }}
+                    >
+                      {DEV_MSG.COMM_DESCRIPTION_TOO_LONG}
+                    </div>
+                  ) : null}
+                  <label
+                    htmlFor="comm-description"
+                    style={{ display: "block", marginBottom: "4px" }}
+                  >
+                    {DEV_MSG.COMM_DESCRIPTION_LABEL}
+                  </label>
+                  <textarea
+                    id="comm-description"
+                    data-testid="developer-comm-description-input"
+                    style={{ ...inputStyle, minHeight: "4.5rem", resize: "vertical" }}
+                    value={descriptionDraft}
+                    disabled={busy}
+                    aria-label={DEV_MSG.COMM_DESCRIPTION}
+                    autoFocus
+                    onChange={(e) => {
+                      setDescriptionDraft(e.target.value);
+                      if (error) setError(null);
+                    }}
+                    onKeyDown={handleDescriptionKeyDown}
+                  />
+                  <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-comm-description-save"
+                      disabled={
+                        busy || !isCommunityDescriptionReady(detail.description, descriptionDraft)
+                      }
+                      onClick={() => void handleDescription()}
+                      style={{
+                        padding: "8px 16px",
+                        background:
+                          busy || !isCommunityDescriptionReady(detail.description, descriptionDraft)
+                            ? catalogColors.disabled
+                            : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor:
+                          busy || !isCommunityDescriptionReady(detail.description, descriptionDraft)
+                            ? "not-allowed"
+                            : "pointer",
+                      }}
+                    >
+                      {busy ? DEV_MSG.COMM_DESCRIPTION_BUSY : DEV_MSG.COMM_DESCRIPTION_SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-comm-description-cancel"
+                      disabled={busy}
+                      onClick={handleDescriptionCancel}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: busy ? "wait" : "pointer",
+                      }}
+                    >
+                      {DEV_MSG.COMM_CANCEL}
+                    </button>
+                  </div>
+                </>
+              ) : (
                 <button
                   type="button"
-                  data-testid="developer-comm-description-save"
-                  disabled={
-                    busy || !isCommunityDescriptionReady(detail.description, descriptionDraft)
-                  }
-                  onClick={() => void handleDescription()}
-                  style={{
-                    padding: "8px 16px",
-                    background:
-                      busy || !isCommunityDescriptionReady(detail.description, descriptionDraft)
-                        ? catalogColors.disabled
-                        : catalogColors.accent,
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor:
-                      busy || !isCommunityDescriptionReady(detail.description, descriptionDraft)
-                        ? "not-allowed"
-                        : "pointer",
-                  }}
-                >
-                  {busy ? DEV_MSG.COMM_DESCRIPTION_BUSY : DEV_MSG.COMM_DESCRIPTION_SAVE}
-                </button>
-                <button
-                  type="button"
-                  data-testid="developer-comm-description-cancel"
+                  ref={descriptionEditButtonRef}
+                  data-testid="developer-comm-description-edit"
+                  aria-label={COMM_EDIT_MSG.DESCRIPTION_EDIT}
                   disabled={busy}
-                  onClick={handleDescriptionCancel}
+                  onClick={openDescriptionEdit}
                   style={{
                     padding: "8px 16px",
                     background: "transparent",
@@ -898,9 +992,9 @@ export function CommunityDetailPanel({
                     cursor: busy ? "wait" : "pointer",
                   }}
                 >
-                  {DEV_MSG.COMM_CANCEL}
+                  {COMM_EDIT_MSG.DESCRIPTION_EDIT}
                 </button>
-              </div>
+              )}
             </section>
             <dl style={metaGrid}>
               <dt>{DEV_MSG.COMM_META_ID}</dt>
@@ -920,58 +1014,82 @@ export function CommunityDetailPanel({
               <p style={{ color: catalogColors.muted, fontSize: "0.9rem", margin: "0 0 8px" }}>
                 {DEV_MSG.COMM_RENAME_HINT}
               </p>
-              {communityRenameDraftTooLong(renameDraft) ? (
-                <div
-                  role="alert"
-                  data-testid="developer-comm-rename-error"
-                  style={{ ...errorAlert, marginBottom: "8px" }}
-                >
-                  {DEV_MSG.COMM_NAME_TOO_LONG}
-                </div>
-              ) : null}
-              <label htmlFor="comm-rename-name" style={{ display: "block", marginBottom: "4px" }}>
-                {DEV_MSG.COMM_FORM_NAME}
-              </label>
-              <input
-                id="comm-rename-name"
-                data-testid="developer-comm-rename-name"
-                style={inputStyle}
-                value={renameDraft}
-                disabled={busy}
-                aria-label={DEV_MSG.COMM_RENAME}
-                onChange={(e) => {
-                  setRenameDraft(e.target.value);
-                  if (error) setError(null);
-                }}
-              />
-              <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
+              {renameEditing ? (
+                <>
+                  {communityRenameDraftTooLong(renameDraft) ? (
+                    <div
+                      role="alert"
+                      data-testid="developer-comm-rename-error"
+                      style={{ ...errorAlert, marginBottom: "8px" }}
+                    >
+                      {DEV_MSG.COMM_NAME_TOO_LONG}
+                    </div>
+                  ) : null}
+                  <label htmlFor="comm-rename-name" style={{ display: "block", marginBottom: "4px" }}>
+                    {DEV_MSG.COMM_FORM_NAME}
+                  </label>
+                  <input
+                    id="comm-rename-name"
+                    data-testid="developer-comm-rename-name"
+                    style={inputStyle}
+                    value={renameDraft}
+                    disabled={busy}
+                    aria-label={DEV_MSG.COMM_RENAME}
+                    autoFocus
+                    onChange={(e) => {
+                      setRenameDraft(e.target.value);
+                      if (error) setError(null);
+                    }}
+                    onKeyDown={handleRenameKeyDown}
+                  />
+                  <div style={{ marginTop: "8px", display: "flex", gap: "8px" }}>
+                    <button
+                      type="button"
+                      data-testid="developer-comm-rename-save"
+                      disabled={busy || !isCommunityRenameReady(detail.name, renameDraft)}
+                      onClick={() => void handleRename()}
+                      style={{
+                        padding: "8px 16px",
+                        background:
+                          busy || !isCommunityRenameReady(detail.name, renameDraft)
+                            ? catalogColors.disabled
+                            : catalogColors.accent,
+                        color: "#fff",
+                        border: "none",
+                        borderRadius: "4px",
+                        cursor:
+                          busy || !isCommunityRenameReady(detail.name, renameDraft)
+                            ? "not-allowed"
+                            : "pointer",
+                      }}
+                    >
+                      {busy ? DEV_MSG.COMM_RENAME_BUSY : DEV_MSG.COMM_RENAME_SAVE}
+                    </button>
+                    <button
+                      type="button"
+                      data-testid="developer-comm-rename-cancel"
+                      disabled={busy}
+                      onClick={handleRenameCancel}
+                      style={{
+                        padding: "8px 16px",
+                        background: "transparent",
+                        border: `1px solid ${catalogColors.softBorder}`,
+                        borderRadius: "4px",
+                        cursor: busy ? "wait" : "pointer",
+                      }}
+                    >
+                      {DEV_MSG.COMM_CANCEL}
+                    </button>
+                  </div>
+                </>
+              ) : (
                 <button
                   type="button"
-                  data-testid="developer-comm-rename-save"
-                  disabled={busy || !isCommunityRenameReady(detail.name, renameDraft)}
-                  onClick={() => void handleRename()}
-                  style={{
-                    padding: "8px 16px",
-                    background:
-                      busy || !isCommunityRenameReady(detail.name, renameDraft)
-                        ? catalogColors.disabled
-                        : catalogColors.accent,
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "4px",
-                    cursor:
-                      busy || !isCommunityRenameReady(detail.name, renameDraft)
-                        ? "not-allowed"
-                        : "pointer",
-                  }}
-                >
-                  {busy ? DEV_MSG.COMM_RENAME_BUSY : DEV_MSG.COMM_RENAME_SAVE}
-                </button>
-                <button
-                  type="button"
-                  data-testid="developer-comm-rename-cancel"
+                  ref={renameEditButtonRef}
+                  data-testid="developer-comm-rename-edit"
+                  aria-label={COMM_EDIT_MSG.RENAME_EDIT}
                   disabled={busy}
-                  onClick={handleRenameCancel}
+                  onClick={openRenameEdit}
                   style={{
                     padding: "8px 16px",
                     background: "transparent",
@@ -980,9 +1098,9 @@ export function CommunityDetailPanel({
                     cursor: busy ? "wait" : "pointer",
                   }}
                 >
-                  {DEV_MSG.COMM_CANCEL}
+                  {COMM_EDIT_MSG.RENAME_EDIT}
                 </button>
-              </div>
+              )}
             </section>
             <div style={{ marginTop: "12px" }}>
               <button

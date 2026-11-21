@@ -770,6 +770,7 @@ describe("CommunityDetailPanel", () => {
         "Default Community",
       );
     });
+    fireEvent.click(screen.getByTestId("developer-comm-rename-edit"));
     const save = screen.getByTestId("developer-comm-rename-save") as HTMLButtonElement;
     expect(save.disabled).toBe(true);
     fireEvent.change(screen.getByTestId("developer-comm-rename-name"), {
@@ -796,12 +797,15 @@ describe("CommunityDetailPanel", () => {
     getCommunityDetail.mockResolvedValue(sampleDetail);
     render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-comm-rename-name")).toBeTruthy();
+      expect(screen.getByTestId("developer-comm-rename-edit")).toBeTruthy();
     });
+    fireEvent.click(screen.getByTestId("developer-comm-rename-edit"));
     fireEvent.change(screen.getByTestId("developer-comm-rename-name"), {
       target: { value: "Enterprise" },
     });
     fireEvent.click(screen.getByTestId("developer-comm-rename-cancel"));
+    expect(screen.queryByTestId("developer-comm-rename-name")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-comm-rename-edit"));
     expect((screen.getByTestId("developer-comm-rename-name") as HTMLInputElement).value).toBe(
       "Default",
     );
@@ -815,8 +819,9 @@ describe("CommunityDetailPanel", () => {
     getCommunityDetail.mockResolvedValue(sampleDetail);
     render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-comm-rename-save")).toBeTruthy();
+      expect(screen.getByTestId("developer-comm-rename-edit")).toBeTruthy();
     });
+    fireEvent.click(screen.getByTestId("developer-comm-rename-edit"));
     fireEvent.change(screen.getByTestId("developer-comm-rename-name"), {
       target: { value: "   " },
     });
@@ -845,8 +850,9 @@ describe("CommunityDetailPanel", () => {
     const onRenamed = vi.fn();
     render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} onRenamed={onRenamed} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-comm-rename-name")).toBeTruthy();
+      expect(screen.getByTestId("developer-comm-rename-edit")).toBeTruthy();
     });
+    fireEvent.click(screen.getByTestId("developer-comm-rename-edit"));
     for (const [status, message] of [
       [400, DEV_MSG.COMM_NAME_INVALID],
       [403, DEV_MSG.COMM_FORBIDDEN],
@@ -896,6 +902,7 @@ describe("CommunityDetailPanel", () => {
         "System default",
       );
     });
+    fireEvent.click(screen.getByTestId("developer-comm-description-edit"));
     const save = screen.getByTestId("developer-comm-description-save") as HTMLButtonElement;
     expect(save.disabled).toBe(true);
     fireEvent.change(screen.getByTestId("developer-comm-description-input"), {
@@ -936,6 +943,7 @@ describe("CommunityDetailPanel", () => {
       label: "Default Community",
       id: 1001,
     });
+    fireEvent.click(screen.getByTestId("developer-comm-description-edit"));
     fireEvent.change(screen.getByTestId("developer-comm-description-input"), {
       target: { value: "   " },
     });
@@ -954,12 +962,15 @@ describe("CommunityDetailPanel", () => {
     getCommunityDetail.mockResolvedValue(sampleDetail);
     render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-comm-description-input")).toBeTruthy();
+      expect(screen.getByTestId("developer-comm-description-edit")).toBeTruthy();
     });
+    fireEvent.click(screen.getByTestId("developer-comm-description-edit"));
     fireEvent.change(screen.getByTestId("developer-comm-description-input"), {
       target: { value: "Draft only" },
     });
     fireEvent.click(screen.getByTestId("developer-comm-description-cancel"));
+    expect(screen.queryByTestId("developer-comm-description-input")).toBeNull();
+    fireEvent.click(screen.getByTestId("developer-comm-description-edit"));
     expect(
       (screen.getByTestId("developer-comm-description-input") as HTMLTextAreaElement).value,
     ).toBe("System default");
@@ -973,8 +984,9 @@ describe("CommunityDetailPanel", () => {
     getCommunityDetail.mockResolvedValue(sampleDetail);
     render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
     await waitFor(() => {
-      expect(screen.getByTestId("developer-comm-description-save")).toBeTruthy();
+      expect(screen.getByTestId("developer-comm-description-edit")).toBeTruthy();
     });
+    fireEvent.click(screen.getByTestId("developer-comm-description-edit"));
     fireEvent.change(screen.getByTestId("developer-comm-description-input"), {
       target: { value: "D".repeat(256) },
     });
@@ -1002,8 +1014,9 @@ describe("CommunityDetailPanel", () => {
       />,
     );
     await waitFor(() => {
-      expect(screen.getByTestId("developer-comm-description-input")).toBeTruthy();
+      expect(screen.getByTestId("developer-comm-description-edit")).toBeTruthy();
     });
+    fireEvent.click(screen.getByTestId("developer-comm-description-edit"));
     for (const [status, message] of [
       [400, DEV_MSG.COMM_DESCRIPTION_ERROR],
       [403, DEV_MSG.COMM_FORBIDDEN],
@@ -1030,5 +1043,178 @@ describe("CommunityDetailPanel", () => {
     }
     expect(onDescriptionSaved).not.toHaveBeenCalled();
     expect(updateCommunityDescription).toHaveBeenCalledTimes(3);
+  });
+
+  it("focuses the rename input when the editor opens (#6906)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-rename-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-rename-edit"));
+    expect(screen.getByTestId("developer-comm-rename-name")).toHaveFocus();
+  });
+
+  it("focuses the description textarea when the editor opens (#6906)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-description-edit"));
+    expect(screen.getByTestId("developer-comm-description-input")).toHaveFocus();
+  });
+
+  it("Escape in rename cancels without posting and keeps the stored name (#6906)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-rename-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-rename-edit"));
+    fireEvent.change(screen.getByTestId("developer-comm-rename-name"), {
+      target: { value: "Not saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-comm-rename-name"), {
+      key: "Escape",
+    });
+    expect(renameCommunity).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-comm-rename-name")).toBeNull();
+    expect(screen.getByTestId("developer-comm-detail-title").textContent).toContain(
+      "Default Community",
+    );
+    expect(screen.getByTestId("developer-comm-detail-title").textContent).not.toContain(
+      "Not saved",
+    );
+  });
+
+  it("Escape in description cancels without posting and keeps the stored text (#6906)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-comm-description-input"), {
+      target: { value: "Not saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-comm-description-input"), {
+      key: "Escape",
+    });
+    expect(updateCommunityDescription).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-comm-description-input")).toBeNull();
+    expect(screen.getByTestId("developer-comm-description").textContent).toContain(
+      "System default",
+    );
+    expect(screen.getByTestId("developer-comm-description").textContent).not.toContain(
+      "Not saved",
+    );
+  });
+
+  it("returns focus to the rename edit button after Escape (#6906)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-rename-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-rename-edit"));
+    fireEvent.change(screen.getByTestId("developer-comm-rename-name"), {
+      target: { value: "Not saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-comm-rename-name"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-comm-rename-name")).toBeNull();
+    expect(screen.getByTestId("developer-comm-rename-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the rename edit button after Cancel (#6906)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-rename-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-rename-edit"));
+    fireEvent.change(screen.getByTestId("developer-comm-rename-name"), {
+      target: { value: "Not saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-rename-cancel"));
+    expect(renameCommunity).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-comm-rename-name")).toBeNull();
+    expect(screen.getByTestId("developer-comm-rename-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the description edit button after Cancel (#6906)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-comm-description-input"), {
+      target: { value: "Not saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-description-cancel"));
+    expect(updateCommunityDescription).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-comm-description-input")).toBeNull();
+    expect(screen.getByTestId("developer-comm-description-edit")).toHaveFocus();
+  });
+
+  it("returns focus to the description edit button after save with a status notice (#6906)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    updateCommunityDescription.mockResolvedValue({
+      name: "Default",
+      label: "Default Community",
+      description: "Updated notes",
+      id: 1001,
+    });
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-description-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-description-edit"));
+    fireEvent.change(screen.getByTestId("developer-comm-description-input"), {
+      target: { value: "Updated notes" },
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-description-save"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-comm-description-input")).toBeNull();
+    });
+    expect(updateCommunityDescription).toHaveBeenCalledWith("Default", {
+      description: "Updated notes",
+    });
+    expect(screen.getByTestId("developer-comm-description-edit")).toHaveFocus();
+    expect(screen.getByTestId("developer-comm-detail-notice")).toHaveAttribute(
+      "role",
+      "status",
+    );
+  });
+
+  it("returns focus to the rename edit button after save with a status notice (#6906)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    renameCommunity.mockResolvedValue({
+      name: "Enterprise",
+      label: "Enterprise",
+      id: 1001,
+      guid: { stringValue: "0-10-1001" },
+    });
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-rename-edit")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-rename-edit"));
+    fireEvent.change(screen.getByTestId("developer-comm-rename-name"), {
+      target: { value: "Enterprise" },
+    });
+    fireEvent.click(screen.getByTestId("developer-comm-rename-save"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-comm-rename-name")).toBeNull();
+    });
+    expect(renameCommunity).toHaveBeenCalledWith("Default", { name: "Enterprise" });
+    expect(screen.getByTestId("developer-comm-rename-edit")).toHaveFocus();
+    expect(screen.getByTestId("developer-comm-detail-notice")).toHaveAttribute(
+      "role",
+      "status",
+    );
   });
 });
