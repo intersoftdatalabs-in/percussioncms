@@ -1453,8 +1453,6 @@ GADGET_DESC_DASHBOARD_CONFIG:
   },
 
   DEVELOPER: {
-    COMM_BACK_ARIA: "perc.ui.developer@Back to communities list",
-    COMM_ROLES_SAVE_ARIA: "perc.ui.developer@Save community roles",
     SHELL_NAV_ARIA: "perc.ui.developer@Developer sections",
     KW_BACK_ARIA: "perc.ui.developer@Back to keywords list",
     KW_SAVE_ARIA: "perc.ui.developer@Save keyword",
