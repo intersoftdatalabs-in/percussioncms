@@ -1899,16 +1899,81 @@ export function EditorHost({
   }, [fieldErrors, rows]);
 
   /**
+   * True when the summary editor hides behind the sanitized read-only
+   * preview: {@code percPage} items with auto-summary on, on the summary
+   * row only (#5739). Extracted from {@code renderFieldRow} so the row
+   * renderer stays under the cognitive-complexity gate (#6959).
+   */
+  function isSummaryPreviewRow(row: EditorFieldRow): boolean {
+    return (
+      isPageMetadata &&
+      autoSummaryOn &&
+      row.name.trim().toLowerCase() === PAGE_METADATA_SUMMARY_FIELD
+    );
+  }
+
+  /**
+   * Editable control for one metadata field row (#5739). Extracted from
+   * {@code renderFieldRow} for the cognitive-complexity gate (#6959);
+   * props and wiring are unchanged.
+   */
+  function renderRowControl(row: EditorFieldRow): React.ReactElement {
+    return (
+      <EditorFieldControl
+        row={row}
+        itemId={String(contentId)}
+        locked={readOnly || !canEdit || row.readOnly}
+        invalid={Boolean(fieldErrors[row.name])}
+        describedById={
+          fieldErrors[row.name] ? editorFieldErrorId(row.name) : undefined
+        }
+        forceAriaRequired={
+          isPageMetadata &&
+          PAGE_METADATA_ARIA_REQUIRED_FIELDS.has(row.name.trim().toLowerCase())
+        }
+        onChange={setField}
+        onFile={setFile}
+        onClear={markBinaryClear}
+        imageAltValue={row.kind === "image" ? imageAltFor(row.name) : undefined}
+        onImageAlt={setImageAlt}
+        loadKeywords={loadKeywords}
+        onKeywordChoices={reportKeywordChoices}
+        loadCommunities={loadCommunities}
+        loadBinaryMeta={loadBinaryMeta}
+        downloadBinary={downloadBinary}
+      />
+    );
+  }
+
+  /**
+   * Inline error text for one metadata field row (#6933). Extracted from
+   * {@code renderFieldRow} for the cognitive-complexity gate (#6959);
+   * markup, ids, and testids are unchanged.
+   */
+  function renderRowError(row: EditorFieldRow): React.ReactElement | null {
+    if (!fieldErrors[row.name]) {
+      return null;
+    }
+    return (
+      <span
+        className={styles.fieldError}
+        role="alert"
+        id={editorFieldErrorId(row.name)}
+        data-testid={`editor-field-error-${row.name}`}
+      >
+        {fieldErrors[row.name]}
+      </span>
+    );
+  }
+
+  /**
    * One metadata field row. Shared by the flat list and the page-metadata
    * groups (#5739): for {@code percPage} items the summary editor hides
    * behind the sanitized read-only preview while auto-summary is on, and
    * filename / link-text / browser-title carry {@code aria-required}.
    */
   function renderFieldRow(row: EditorFieldRow): React.ReactElement {
-    const showSummaryPreview =
-      isPageMetadata &&
-      autoSummaryOn &&
-      row.name.trim().toLowerCase() === PAGE_METADATA_SUMMARY_FIELD;
+    const showSummaryPreview = isSummaryPreviewRow(row);
     return (
       <label
         key={`${row.name}:${discardEpoch}:${
@@ -1931,42 +1996,9 @@ export function EditorHost({
         {showSummaryPreview ? (
           <PageSummaryPreview html={pageSummaryValue} />
         ) : (
-          <EditorFieldControl
-            row={row}
-            itemId={String(contentId)}
-            locked={readOnly || !canEdit || row.readOnly}
-            invalid={Boolean(fieldErrors[row.name])}
-            describedById={
-              fieldErrors[row.name]
-                ? editorFieldErrorId(row.name)
-                : undefined
-            }
-            forceAriaRequired={
-              isPageMetadata &&
-              PAGE_METADATA_ARIA_REQUIRED_FIELDS.has(row.name.trim().toLowerCase())
-            }
-            onChange={setField}
-            onFile={setFile}
-            onClear={markBinaryClear}
-            imageAltValue={row.kind === "image" ? imageAltFor(row.name) : undefined}
-            onImageAlt={setImageAlt}
-            loadKeywords={loadKeywords}
-            onKeywordChoices={reportKeywordChoices}
-            loadCommunities={loadCommunities}
-            loadBinaryMeta={loadBinaryMeta}
-            downloadBinary={downloadBinary}
-          />
+          renderRowControl(row)
         )}
-        {fieldErrors[row.name] ? (
-          <span
-            className={styles.fieldError}
-            role="alert"
-            id={editorFieldErrorId(row.name)}
-            data-testid={`editor-field-error-${row.name}`}
-          >
-            {fieldErrors[row.name]}
-          </span>
-        ) : null}
+        {renderRowError(row)}
       </label>
     );
   }
