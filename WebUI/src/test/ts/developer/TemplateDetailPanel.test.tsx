@@ -269,6 +269,34 @@ describe("TemplateDetailPanel", () => {
     });
   });
 
+  it("labels the source editor and preview for assistive tech (#5626)", async () => {
+    getTemplateDetailMock.mockResolvedValue({
+      name: "perc.page",
+      label: "Page",
+      templateSource: multiLineSource,
+    });
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-source-edit")).toBeTruthy();
+    });
+
+    // Edit textarea carries the visible section heading as its accessible name.
+    const editBox = screen.getByRole("textbox", { name: "Template source" });
+    expect(editBox.getAttribute("data-testid")).toBe("developer-tpl-source-edit");
+
+    fireEvent.click(screen.getByTestId("developer-tpl-source-mode"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-source-preview")).toBeTruthy();
+    });
+
+    // Highlight preview is a labelled, keyboard-focusable scroll region.
+    const preview = screen.getByRole("region", { name: "Template source" });
+    expect(preview.getAttribute("data-testid")).toBe("developer-tpl-source-preview");
+    expect(preview.getAttribute("tabindex")).toBe("0");
+    preview.focus();
+    expect(document.activeElement).toBe(preview);
+  });
+
   it("mounts ObjectAclSection with template kind and object guid (#3319)", async () => {
     getTemplateDetailMock.mockResolvedValue({
       ...sampleDetail,
