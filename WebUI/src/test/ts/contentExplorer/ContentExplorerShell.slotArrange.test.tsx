@@ -92,7 +92,7 @@ describe("ContentExplorerShell slot arrange (#3496)", () => {
     vi.restoreAllMocks();
   });
 
-  it("folder browse without a slot stays needs-slot and does not invent arrange", async () => {
+  it("folder browse without a slot disables arrange children with a slot tooltip (#6915)", async () => {
     stubPathFetch();
     const removeSlotRel = vi.fn();
     const moveSlotRel = vi.fn();
@@ -111,18 +111,22 @@ describe("ContentExplorerShell slot arrange (#3496)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar-item-Arrange_Remove")).toBeTruthy();
     });
-    fireEvent.click(screen.getByTestId("action-toolbar-item-Arrange_Remove"));
-    await waitFor(() => {
-      expect(screen.getByTestId("explorer-server-actions-error").textContent).toMatch(
-        /select a slot/i,
-      );
-    });
+    // DCE parity (#6915): aria-disabled + tooltip name the missing slot
+    // context instead of dispatching a needs-slot status hint.
+    const remove = screen.getByTestId("action-toolbar-item-Arrange_Remove");
+    expect(remove.getAttribute("aria-disabled")).toBe("true");
+    expect(remove.getAttribute("title")).toMatch(/select a slot/i);
+    fireEvent.click(remove);
+    fireEvent.keyDown(remove, { key: "Enter" });
     expect(removeSlotRel).not.toHaveBeenCalled();
     expect(moveSlotRel).not.toHaveBeenCalled();
     expect(changeSlotTemplate).not.toHaveBeenCalled();
+    expect(
+      screen.queryByTestId("explorer-server-actions-error")?.textContent ?? "",
+    ).not.toMatch(/select a slot/i);
   });
 
-  it("slot without a snippet stays needs-snippet and does not call REST", async () => {
+  it("slot without a snippet disables arrange children naming the missing item (#6915)", async () => {
     stubPathFetch();
     const removeSlotRel = vi.fn();
     renderShell(
@@ -138,13 +142,15 @@ describe("ContentExplorerShell slot arrange (#3496)", () => {
     await waitFor(() => {
       expect(screen.getByTestId("action-toolbar-item-Arrange_Remove")).toBeTruthy();
     });
-    fireEvent.click(screen.getByTestId("action-toolbar-item-Arrange_Remove"));
-    await waitFor(() => {
-      expect(screen.getByTestId("explorer-server-actions-error").textContent).toMatch(
-        /item in the slot/i,
-      );
-    });
+    const remove = screen.getByTestId("action-toolbar-item-Arrange_Remove");
+    expect(remove.getAttribute("aria-disabled")).toBe("true");
+    expect(remove.getAttribute("title")).toMatch(/item in the slot/i);
+    fireEvent.click(remove);
+    fireEvent.keyDown(remove, { key: "Enter" });
     expect(removeSlotRel).not.toHaveBeenCalled();
+    expect(
+      screen.queryByTestId("explorer-server-actions-error")?.textContent ?? "",
+    ).not.toMatch(/item in the slot/i);
   });
 
   it("move and remove call relationship REST when a snippet is selected", async () => {

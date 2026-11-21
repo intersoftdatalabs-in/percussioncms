@@ -43,6 +43,14 @@
  * same movement keys across its buttons. Character type-ahead is
  * intentionally deferred (documented in the operator help).</p>
  *
+ * <p>Slot-dependent children render {@code aria-disabled} with a tooltip
+ * naming the missing slot context when no Active Assembly slot (or no
+ * snippet in the slot) is selected (#6915, DCE parity): the controls stay
+ * focusable so roving tabindex and screen-reader discovery are unchanged,
+ * and activation is a no-op instead of a server call. The dispatcher keeps
+ * the {@code ACTION_NEEDS_SLOT} / {@code ACTION_NEEDS_RELATIONSHIP} status
+ * hint as a fallback for direct activations.</p>
+ *
  * <p>Toolbar refreshes when the {@link ActionToolbarProps.actions} prop
  * changes (e.g. on selection change the parent fetches the allowed
  * actions via {@code GET /actions/find} (plus merged type menus) and
@@ -52,11 +60,19 @@
 import React, { useEffect, useId, useRef, useState } from "react";
 import type { MenuAction } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
+import {
+  isSlotActionName,
+  slotContextHasRelationship,
+  slotContextHasSlot,
+  type AssemblySlotContext,
+} from "../assembly/slotContext";
+import { normalizeActionName } from "./actionDispatch";
 import { ActionIcon } from "./actionIcons";
 import {
   prepareToolbarActions,
   unwrapMenuActionChildren,
 } from "./actionEnablement";
+import { EXPLORER_MSG } from "./messages";
 import { WORKFLOW_MENU_NAME } from "./workflowMenuActions";
 
 export interface ActionToolbarProps {
@@ -66,9 +82,53 @@ export interface ActionToolbarProps {
   /** Optional i18n message for the no-actions placeholder. */
   emptyMessage?: string;
   className?: string;
+  /**
+   * Selected Active Assembly slot (and optional snippet relationship).
+   * Folder browse passes {@code null}: slot-dependent children then render
+   * {@code aria-disabled} with a tooltip naming the missing slot context
+   * (#6915) instead of dispatching a needs-slot status hint. The dispatcher
+   * keeps the hint as a fallback for direct activations.
+   */
+  slot?: AssemblySlotContext | null;
 }
 
 const ACTIVATE_KEYS = new Set(["Enter", " "]);
+
+/**
+ * Slot actions that only need a slot — snippet creation/addition works with
+ * a bare slot selection, so they stay enabled once a slot is present (#6915).
+ */
+const SLOT_ONLY_ACTION_NAMES = new Set([
+  "slot_add",
+  "slot_create",
+  "paste_as_link_to_slot",
+]);
+
+/**
+ * Resolve why a toolbar control is unavailable without an Active Assembly
+ * slot context (#6915). Returns the i18n message key naming the missing
+ * context, or {@code null} when the action may invoke. The {@code arrange}
+ * MENU parent itself is never disabled — it opens the dropdown so keyboard
+ * and screen-reader operators can discover the disabled children.
+ */
+export function slotActionDisabledReason(
+  actionName: string | undefined | null,
+  slot: AssemblySlotContext | null | undefined,
+): string | null {
+  const name = normalizeActionName(actionName);
+  if (name === "arrange" || !isSlotActionName(name)) {
+    return null;
+  }
+  if (SLOT_ONLY_ACTION_NAMES.has(name)) {
+    return slotContextHasSlot(slot) ? null : EXPLORER_MSG.ACTION_NEEDS_SLOT;
+  }
+  if (!slotContextHasSlot(slot)) {
+    return EXPLORER_MSG.ACTION_NEEDS_SLOT;
+  }
+  return slotContextHasRelationship(slot)
+    ? null
+    : EXPLORER_MSG.ACTION_NEEDS_RELATIONSHIP;
+}
 
 /**
  * Resolve the next roving-tabindex position for a menu movement key (#6827).
@@ -123,6 +183,23 @@ const menuItemStyle: React.CSSProperties = {
   background: "transparent",
   cursor: "pointer",
   font: "inherit",
+};
+
+/**
+ * Slot-less disabled affordance (#6915, DCE parity). The control stays
+ * focusable ({@code aria-disabled}, not {@code disabled}) so roving
+ * tabindex, arrow-key traversal, and screen-reader discovery are unchanged.
+ */
+const menuItemDisabledStyle: React.CSSProperties = {
+  ...menuItemStyle,
+  opacity: 0.55,
+  cursor: "not-allowed",
+};
+
+const buttonDisabledStyle: React.CSSProperties = {
+  ...buttonStyle,
+  opacity: 0.55,
+  cursor: "not-allowed",
 };
 
 /** Keyboard focus ring for icon+label buttons (#6515 polish). */
@@ -190,7 +267,7 @@ function activate(
 }
 
 export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
-  const { onInvoke, ariaLabel, emptyMessage, className } = props;
+  const { onInvoke, ariaLabel, emptyMessage, className, slot = null } = props;
   const actions = prepareToolbarActions(props.actions);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
   /**
@@ -495,15 +572,42 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                       focusMenuItem(a.name, target);
                     }}
                   >
-                    {kids.map((child, childIdx) => (
+                    {kids.map((child, childIdx) => {
+                      // Slot-less disabled state (#6915, DCE parity): the
+                      // item stays in the roving-tabindex order and keeps
+                      // its tab stop so keyboard/SR discovery is unchanged;
+                      // activation is a no-op and the tooltip + extended
+                      // aria-label name the missing slot context.
+                      const disabledReason = slotActionDisabledReason(
+                        child.name,
+                        slot,
+                      );
+                      const childDisabled = disabledReason != null;
+                      const childHint = childDisabled
+                        ? message(disabledReason)
+                        : null;
+                      return (
                       <li key={child.name} role="none">
                         <button
                           type="button"
                           role="menuitem"
                           data-testid={`action-toolbar-item-${child.name}`}
-                          aria-label={child.label}
-                          title={child.description ?? child.label}
-                          style={menuItemStyle}
+                          aria-label={
+                            childDisabled
+                              ? `${child.label}. ${childHint}`
+                              : child.label
+                          }
+                          aria-disabled={childDisabled || undefined}
+                          title={
+                            childDisabled
+                              ? (childHint ?? child.label)
+                              : (child.description ?? child.label)
+                          }
+                          style={
+                            childDisabled
+                              ? menuItemDisabledStyle
+                              : menuItemStyle
+                          }
                           tabIndex={activeIdx === childIdx ? 0 : -1}
                           ref={(el) => {
                             const arr =
@@ -513,12 +617,18 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                             menuItemRefs.current.set(a.name, arr);
                           }}
                           onClick={() => {
+                            if (childDisabled) {
+                              return;
+                            }
                             activate(child, a, onInvoke);
                             setOpenMenu(null);
                           }}
                           onKeyDown={(e) => {
                             if (ACTIVATE_KEYS.has(e.key)) {
                               e.preventDefault();
+                              if (childDisabled) {
+                                return;
+                              }
                               activate(child, a, onInvoke);
                               setOpenMenu(null);
                             }
@@ -530,23 +640,38 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                           {child.label}
                         </button>
                       </li>
-                    ))}
+                      );
+                    })}
                   </ul>
                 ) : null}
               </div>
             );
           }
+          // Leaf MENUITEM (or parent without children): single button. Slot
+          // actions rendered flat answer the same slot-less disabled
+          // contract as dropdown children (#6915).
+          const leafDisabledReason = slotActionDisabledReason(a.name, slot);
+          const leafDisabled = leafDisabledReason != null;
+          const leafHint = leafDisabled ? message(leafDisabledReason) : null;
           return (
             <button
               type="button"
               key={a.name}
               data-testid={`action-toolbar-item-${a.name}`}
-              aria-label={a.label}
-              title={a.description ?? a.label}
-              onClick={() => activate(a, undefined, onInvoke)}
+              aria-label={leafDisabled ? `${a.label}. ${leafHint}` : a.label}
+              aria-disabled={leafDisabled || undefined}
+              title={
+                leafDisabled ? (leafHint ?? a.label) : (a.description ?? a.label)
+              }
+              onClick={() => {
+                if (leafDisabled) {
+                  return;
+                }
+                activate(a, undefined, onInvoke);
+              }}
               onFocus={applyFocusRing}
               onBlur={clearFocusRing}
-              style={buttonStyle}
+              style={leafDisabled ? buttonDisabledStyle : buttonStyle}
             >
               <ActionIcon name={a.name} />
               {a.label}

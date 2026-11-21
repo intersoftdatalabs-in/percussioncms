@@ -17,7 +17,11 @@
 import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import type { MenuAction } from "../../../main/ts/api/contentExplorer/types";
-import { ActionToolbar } from "../../../main/ts/contentExplorer/ActionToolbar";
+import {
+  ActionToolbar,
+  slotActionDisabledReason,
+} from "../../../main/ts/contentExplorer/ActionToolbar";
+import { EXPLORER_MSG } from "../../../main/ts/contentExplorer/messages";
 import {
   ActionIcon,
   normalizeActionKey,
@@ -532,6 +536,182 @@ describe("ActionToolbar", () => {
       expect(document.activeElement).toBe(approve);
       fireEvent.keyDown(approve, { key: "Home" });
       expect(document.activeElement).toBe(submit);
+    });
+  });
+
+  describe("slot-less Arrange disabled state (#6915)", () => {
+    const ARRANGE_MENU: MenuAction[] = [
+      {
+        name: "Arrange",
+        label: "Arrange",
+        sortRank: 0,
+        menuType: "MENU",
+        children: [
+          {
+            name: "Arrange_MoveUpLeft",
+            label: "Move Up",
+            sortRank: 0,
+            menuType: "MENUITEM",
+          },
+          {
+            name: "Arrange_MoveDownRight",
+            label: "Move Down",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+          {
+            name: "Arrange_ChangeTemplateSlot",
+            label: "Change Template",
+            sortRank: 2,
+            menuType: "MENUITEM",
+          },
+          {
+            name: "Arrange_Remove",
+            label: "Remove from Slot",
+            sortRank: 3,
+            menuType: "MENUITEM",
+          },
+        ],
+      },
+      { name: "Slot_Add", label: "Slot Add", sortRank: 1, menuType: "MENUITEM" },
+    ];
+
+    const ARRANGE_CHILDREN = [
+      "Arrange_MoveUpLeft",
+      "Arrange_MoveDownRight",
+      "Arrange_ChangeTemplateSlot",
+      "Arrange_Remove",
+    ];
+
+    function openArrangeMenu(): void {
+      fireEvent.click(screen.getByTestId("action-toolbar-item-Arrange"));
+      expect(screen.getByTestId("action-toolbar-menu-Arrange")).toBeTruthy();
+    }
+
+    it("renders Arrange children aria-disabled with a slot tooltip when no slot is selected", () => {
+      render(<ActionToolbar actions={ARRANGE_MENU} slot={null} />);
+      openArrangeMenu();
+      for (const child of ARRANGE_CHILDREN) {
+        const el = screen.getByTestId(`action-toolbar-item-${child}`);
+        expect(el.getAttribute("aria-disabled")).toBe("true");
+        expect(el.getAttribute("title")).toMatch(/slot/i);
+        expect(el.getAttribute("aria-label")).toMatch(/slot/i);
+      }
+      // The Arrange parent stays enabled so the menu stays discoverable.
+      expect(
+        screen.getByTestId("action-toolbar-item-Arrange").getAttribute(
+          "aria-disabled",
+        ),
+      ).toBeNull();
+      // Flat slot actions answer the same contract.
+      expect(
+        screen.getByTestId("action-toolbar-item-Slot_Add").getAttribute(
+          "aria-disabled",
+        ),
+      ).toBe("true");
+    });
+
+    it("disabled activation is a no-op and keeps the menu open", () => {
+      const onInvoke = vi.fn();
+      render(
+        <ActionToolbar actions={ARRANGE_MENU} slot={null} onInvoke={onInvoke} />,
+      );
+      openArrangeMenu();
+      const move = screen.getByTestId("action-toolbar-item-Arrange_MoveUpLeft");
+      fireEvent.click(move);
+      fireEvent.keyDown(move, { key: "Enter" });
+      fireEvent.keyDown(move, { key: " " });
+      expect(onInvoke).not.toHaveBeenCalled();
+      expect(screen.getByTestId("action-toolbar-menu-Arrange")).toBeTruthy();
+    });
+
+    it("keeps disabled items in the roving-tabindex order", () => {
+      render(<ActionToolbar actions={ARRANGE_MENU} slot={null} />);
+      openArrangeMenu();
+      const menu = screen.getByTestId("action-toolbar-menu-Arrange");
+      expect(menu.querySelectorAll('[tabindex="0"]').length).toBe(1);
+      // Arrow keys land on (not skip) disabled items so SR users discover them.
+      const moveUp = screen.getByTestId("action-toolbar-item-Arrange_MoveUpLeft");
+      fireEvent.keyDown(moveUp, { key: "ArrowDown" });
+      expect(document.activeElement).toBe(
+        screen.getByTestId("action-toolbar-item-Arrange_MoveDownRight"),
+      );
+    });
+
+    it("slot without a snippet names the missing item but enables Slot_Add", () => {
+      render(
+        <ActionToolbar actions={ARRANGE_MENU} slot={{ ownerId: 42, slotId: 3 }} />,
+      );
+      openArrangeMenu();
+      const remove = screen.getByTestId("action-toolbar-item-Arrange_Remove");
+      expect(remove.getAttribute("aria-disabled")).toBe("true");
+      expect(remove.getAttribute("title")).toMatch(/item in the slot/i);
+      expect(
+        screen.getByTestId("action-toolbar-item-Slot_Add").getAttribute(
+          "aria-disabled",
+        ),
+      ).toBeNull();
+    });
+
+    it("snippet selection enables every Arrange child", () => {
+      const onInvoke = vi.fn();
+      render(
+        <ActionToolbar
+          actions={ARRANGE_MENU}
+          slot={{ ownerId: 42, slotId: 3, relationshipId: 88 }}
+          onInvoke={onInvoke}
+        />,
+      );
+      openArrangeMenu();
+      for (const child of ARRANGE_CHILDREN) {
+        expect(
+          screen.getByTestId(`action-toolbar-item-${child}`).getAttribute(
+            "aria-disabled",
+          ),
+        ).toBeNull();
+      }
+      expect(
+        screen.getByTestId("action-toolbar-item-Slot_Add").getAttribute(
+          "aria-disabled",
+        ),
+      ).toBeNull();
+      fireEvent.click(screen.getByTestId("action-toolbar-item-Arrange_Remove"));
+      expect(onInvoke).toHaveBeenCalledWith(
+        "Arrange_Remove",
+        expect.objectContaining({ name: "Arrange_Remove", parentName: "Arrange" }),
+      );
+    });
+
+    it("passes the zero serious/critical axe-core gate with slot-less disabled children", async () => {
+      const { container } = render(
+        <ActionToolbar actions={ARRANGE_MENU} slot={null} ariaLabel="Item actions" />,
+      );
+      openArrangeMenu();
+      await renderA11yGate(container);
+    });
+
+    it("slotActionDisabledReason matches the dispatcher hint contract", () => {
+      expect(slotActionDisabledReason("Arrange", null)).toBeNull();
+      expect(slotActionDisabledReason("Open", null)).toBeNull();
+      expect(slotActionDisabledReason("Arrange_MoveUpLeft", null)).toBe(
+        EXPLORER_MSG.ACTION_NEEDS_SLOT,
+      );
+      expect(slotActionDisabledReason("Slot_Add", null)).toBe(
+        EXPLORER_MSG.ACTION_NEEDS_SLOT,
+      );
+      expect(
+        slotActionDisabledReason("Arrange_Remove", { ownerId: 1, slotId: 2 }),
+      ).toBe(EXPLORER_MSG.ACTION_NEEDS_RELATIONSHIP);
+      expect(
+        slotActionDisabledReason("Slot_Add", { ownerId: 1, slotId: 2 }),
+      ).toBeNull();
+      expect(
+        slotActionDisabledReason("Arrange_MoveUpLeft", {
+          ownerId: 1,
+          slotId: 2,
+          relationshipId: 9,
+        }),
+      ).toBeNull();
     });
   });
 });

@@ -4077,6 +4077,7 @@ function ContentExplorerShellInner({
                 actions={menuActions}
                 ariaLabel={message(EXPLORER_MSG.SERVER_ACTIONS_ARIA)}
                 onInvoke={handleMenuInvoke}
+                slot={slot}
               />
             </div>
           </div>
