@@ -270,6 +270,41 @@ No other uncovered third-party JS/TS found; no further filings warranted
 (cap 8, filed 2, deferred remainder: none — the only unactioned rows are
 the four open follow-ons above, each already owned).
 
+## Slice 17 refresh (Nov 2026 — post-#6687 full-tree re-sweep, issue #6919 filed)
+
+Re-verified on `origin/main` (`b0c991ca22`): every migration child of this
+audit is now CLOSED except the two record-only/in-flight tracks — #5626
+(CodeMirror npm migration, sibling lane this cycle, read-only overlap) and
+#5622 (TinyMCE replacement epic). Closed since the slice-14 refresh:
+#6655 (hoverIntent spike → first-party `perc-hover-intent.js` shim + byte-
+identical compat aliases, PR #6725), #6667 (dead foundation flag), #6686
+(MiniColors twins rebased to `@claviska/jquery-minicolors@2.3.6`,
+PRs #6724/#6766, Dependabot #6762), #6723 (added-row picker defect),
+#6751 (jquery.dropdown MIT notice), #6687 (FC 2.9.1 replacement plan +
+surface lock, PR #6792), #6804 (spike 2a CSS class-delta, PR #6812).
+`cm/api/lib` (the § "Audit gap" swagger-era copies) is gone with the
+`cm/api` retirement; still zero `*.min.js` under
+`WebUI/src/main/webapp/cm`; the DTS tree holds 7 first-party `.js`
+(#6071 guard); `system/**` `.js` is generated help content + first-party
+FastForward samples (no third-party banners); no TinyMCE bundle remains in
+the tree (first-party `TinymceConfig.js` twins only, guard-pinned).
+Remaining vendored rows and their dispositions:
+
+- **npm-tracked (Dependabot-visible):** unchanged from slice 14, plus
+  MiniColors 2.3.6 (zero-patch byte-identical twins + sprite payload) and
+  the first-party hoverIntent shim (compat aliases keep published pages
+  resolving).
+- **Documented keep-vendored:** none — every remaining third-party row is
+  npm-tracked; the only un-owned EOL row is FullCalendar 2.9.1 below.
+- **Open follow-ons (not duplicated):** #5626 (CodeMirror, in flight),
+  #5622 (TinyMCE replacement epic, record-only).
+- **Newly filed by this slice (deduped against open issues):** #6919
+  (execute the FullCalendar v6 migration for calendarTwo — plan #6687
+  slices 3 migration + 4 cleanup plus the unlanded #6804 spike remnants
+  2b print / 3 mini-calendar contract / 3b gcal CSP; 2.9.1 payload still
+  ships, v6 alias pinned spike-only). No other uncovered third-party
+  JS/TS found; no further filings warranted.
+
 ## Conclusion
 
 Nine coherent migration clusters (#5660–#5668, modulo numbering) cover every
