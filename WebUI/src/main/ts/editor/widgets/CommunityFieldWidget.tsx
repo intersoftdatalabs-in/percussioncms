@@ -60,6 +60,11 @@ export interface CommunityFieldWidgetProps {
   value: string;
   readOnly: boolean;
   invalid?: boolean;
+  /**
+   * DOM id of the row's inline error text (#6933). Set only while the row
+   * carries an error so {@code aria-describedby} never dangles.
+   */
+  describedById?: string;
   required?: boolean;
   onChange: (value: string) => void;
   loadCommunities?: () => Promise<CommunitySummary[]>;
@@ -70,6 +75,7 @@ export function CommunityFieldWidget({
   value,
   readOnly,
   invalid,
+  describedById,
   required,
   onChange,
   loadCommunities = listCommunities,
@@ -104,6 +110,7 @@ export function CommunityFieldWidget({
       disabled={readOnly}
       aria-invalid={invalid ? true : undefined}
       aria-required={required ? true : undefined}
+      aria-describedby={describedById}
       onChange={(e) => onChange(e.target.value)}
     >
       <option value="">{message(EDITOR_MSG.COMMUNITY_EMPTY)}</option>

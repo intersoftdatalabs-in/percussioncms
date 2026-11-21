@@ -149,6 +149,11 @@ export interface KeywordFieldWidgetProps {
   value: string;
   readOnly: boolean;
   invalid?: boolean;
+  /**
+   * DOM id of the row's inline error text (#6933). Set only while the row
+   * carries an error so {@code aria-describedby} never dangles.
+   */
+  describedById?: string;
   required?: boolean;
   onChange: (value: string) => void;
   loadKeywords?: () => Promise<KeywordSummary[]>;
@@ -164,6 +169,7 @@ export function KeywordFieldWidget({
   value,
   readOnly,
   invalid,
+  describedById,
   required,
   onChange,
   loadKeywords = () => listKeywords(true),
@@ -223,6 +229,7 @@ export function KeywordFieldWidget({
         disabled={readOnly}
         aria-invalid={invalid ? true : undefined}
         aria-required={required ? true : undefined}
+        aria-describedby={describedById}
         onChange={(e) => onChange(e.target.value)}
       >
         <option value="">{message(EDITOR_MSG.KEYWORD_EMPTY)}</option>

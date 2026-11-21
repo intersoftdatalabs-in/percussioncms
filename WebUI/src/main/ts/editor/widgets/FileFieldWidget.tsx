@@ -98,6 +98,12 @@ export interface FileFieldWidgetProps {
   itemId: string;
   name: string;
   readOnly: boolean;
+  invalid?: boolean;
+  /**
+   * DOM id of the row's inline error text (#6933). Set only while the row
+   * carries an error so {@code aria-describedby} never dangles.
+   */
+  describedById?: string;
   accept?: string;
   preview?: boolean;
   loadMeta?: (itemId: string, field: string) => Promise<ItemEditorBinaryMeta>;
@@ -119,6 +125,8 @@ export function FileFieldWidget({
   itemId,
   name,
   readOnly,
+  invalid,
+  describedById,
   accept,
   preview = false,
   loadMeta = fetchItemEditorBinary,
@@ -199,6 +207,8 @@ export function FileFieldWidget({
         accept={accept}
         disabled={readOnly}
         aria-label={message(preview ? EDITOR_MSG.IMAGE_CHOOSE : EDITOR_MSG.FILE_CHOOSE)}
+        aria-invalid={invalid ? true : undefined}
+        aria-describedby={describedById}
         onChange={(e) => {
           const file = e.target.files?.[0] ?? null;
           if (previewUrl) {

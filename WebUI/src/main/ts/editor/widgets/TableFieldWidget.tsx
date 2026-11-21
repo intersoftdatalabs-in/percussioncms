@@ -30,6 +30,7 @@ export function TableFieldWidget({
   value,
   readOnly,
   invalid,
+  describedById,
   required,
   onChange,
 }: {
@@ -37,6 +38,11 @@ export function TableFieldWidget({
   value: string;
   readOnly: boolean;
   invalid?: boolean;
+  /**
+   * DOM id of the row's inline error text (#6933). Set only while the row
+   * carries an error so {@code aria-describedby} never dangles.
+   */
+  describedById?: string;
   required?: boolean;
   onChange: (value: string) => void;
 }): React.ReactElement {
@@ -103,6 +109,7 @@ export function TableFieldWidget({
                     aria-label={`${column} ${rowIndex + 1}`}
                     aria-invalid={invalid ? true : undefined}
                     aria-required={required ? true : undefined}
+                    aria-describedby={describedById}
                     onChange={(e) => setCell(rowIndex, colIndex, e.target.value)}
                   />
                 </td>

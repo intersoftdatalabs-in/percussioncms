@@ -33,6 +33,11 @@ export interface DateFieldWidgetProps {
   kind: EditorDateKind;
   readOnly: boolean;
   invalid?: boolean;
+  /**
+   * DOM id of the row's inline error text (#6933). Set only while the row
+   * carries an error so {@code aria-describedby} never dangles.
+   */
+  describedById?: string;
   required?: boolean;
   onChange: (value: string) => void;
 }
@@ -46,6 +51,7 @@ export function DateFieldWidget({
   kind,
   readOnly,
   invalid,
+  describedById,
   required,
   onChange,
 }: DateFieldWidgetProps): React.ReactElement {
@@ -70,6 +76,7 @@ export function DateFieldWidget({
         disabled={readOnly}
         aria-invalid={invalid ? true : undefined}
         aria-required={required ? true : undefined}
+        aria-describedby={describedById}
         onChange={(e) => onChange(fromWidgetValue(kind, e.target.value))}
       />
       {showClear ? (
