@@ -123,12 +123,13 @@
  * Slice 1 (issue #6919, plan #6687) migrates the calendarTwo fullcalendar
  * pair plus the gcal + lang-all companions to the stock FullCalendar
  * v6.1.15 global dists below (exact fullcalendar-v6* alias pins in the
- * frontend manifest, so Dependabot watches the lines; the EOL
- * fullcalendar@2.9.1 pin stays installed until slice 3 drops it). The 2.x
- * Percussion payload mods are re-derived in percCalendarTwoSnippet.vm, so
- * the payloads are byte-identical stock. Pinned below: byte-identity with
- * the npm dists, the 6.1.15 MIT banners, the manifest pins, and the locale
- * set the widget `locale:` option consumes.
+ * frontend manifest, so Dependabot watches the lines; slice 3, issue
+ * #6946, drops the EOL fullcalendar@2.9.1 pin — no payload references
+ * the EOL line). The 2.x Percussion payload mods are re-derived in
+ * percCalendarTwoSnippet.vm, so the payloads are byte-identical stock.
+ * Pinned below: byte-identity with the npm dists, the 6.1.15 MIT
+ * banners, the manifest pins, the manifest absence of the EOL pin, and
+ * the locale set the widget `locale:` option consumes.
  */
 
 import { describe, expect, it } from "vitest";
@@ -641,7 +642,7 @@ describe("widget-payload npm refresh parity (issue #6919 slice 1: calendarTwo v6
     }
   });
 
-  it("frontend manifests pin the v6 lines exact and keep 2.9.1 until slice 3", () => {
+  it("frontend manifests pin the v6 lines exact and drop the EOL 2.9.1 pin", () => {
     const manifest = JSON.parse(
       fs.readFileSync(path.join(FRONTEND_ROOT, "package.json"), "utf8"),
     );
@@ -656,9 +657,10 @@ describe("widget-payload npm refresh parity (issue #6919 slice 1: calendarTwo v6
     expect(manifest.dependencies["fullcalendar-v6-locales"]).toBe(
       "npm:@fullcalendar/core@6.1.15",
     );
-    // The EOL fullcalendar@2.9.1 pin stays installed until slice 3 (#6919/3)
-    // drops it — no payload references it after this slice.
-    expect(manifest.dependencies["fullcalendar"]).toBe("2.9.1");
+    // Slice 3 (#6919/3, issue #6946): the EOL fullcalendar@2.9.1 pin is
+    // gone from the manifest — no payload references the EOL line, so
+    // Dependabot no longer watches a line that ships nothing.
+    expect(manifest.dependencies["fullcalendar"]).toBeUndefined();
   });
 
   it("v6 calendarTwo payloads parse as valid JavaScript", () => {

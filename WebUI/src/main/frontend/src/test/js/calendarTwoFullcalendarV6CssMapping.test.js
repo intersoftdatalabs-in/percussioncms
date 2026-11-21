@@ -7,10 +7,9 @@
  * surface against the recommended successor line — {@code fullcalendar@6.1.15}
  * Standard Bundle (MIT), installed under the {@code fullcalendar-v6} npm
  * alias so the EOL {@code fullcalendar@2.9.1} pin (payload + parity guard)
- * stays untouched — and records exactly which snippet CSS hooks die under v6
- * so the slice-3 migration knows what to retarget. No payload, snippet, or
- * manifest <em>behavior</em> changes here: the v6 bundle is test-fixture
- * only until the migration slice.
+ * could be dropped cleanly in slice 3 — the v6 bundle is test-fixture
+ * only until the migration slice. No payload, snippet, or manifest
+ * <em>behavior</em> changes here beyond the recorded mapping.
  *
  * <p>Mapping (v2 shipped → v6.1.15), verified by the assertions below against
  * the real v6 dist in jsdom:
@@ -120,7 +119,7 @@ function injectedV6CssText() {
 }
 
 describe("calendarTwo FullCalendar v6 CSS class deltas (issue #6804 slice 2a)", () => {
-  it("pins fullcalendar-v6 to 6.1.15 MIT without moving the 2.9.1 pin", () => {
+  it("pins fullcalendar-v6 to 6.1.15 MIT with the EOL 2.9.1 pin dropped", () => {
     const installed = JSON.parse(
       fs.readFileSync(path.join(V6_ROOT, "package.json"), "utf8"),
     );
@@ -132,9 +131,9 @@ describe("calendarTwo FullCalendar v6 CSS class deltas (issue #6804 slice 2a)", 
     expect(manifest.dependencies["fullcalendar-v6"]).toBe(
       "npm:fullcalendar@6.1.15",
     );
-    // The EOL line stays exactly where slice 5 put it (payload + parity
-    // guard owner): this slice only *adds* the v6 spike pin alongside it.
-    expect(manifest.dependencies["fullcalendar"]).toBe("2.9.1");
+    // Slice 3 (#6919/3, issue #6946): the EOL line is gone from the
+    // manifest — no payload references fullcalendar@2.9.1.
+    expect(manifest.dependencies["fullcalendar"]).toBeUndefined();
   });
 
   it("exposes the v6 global entry point at 6.1.15", () => {

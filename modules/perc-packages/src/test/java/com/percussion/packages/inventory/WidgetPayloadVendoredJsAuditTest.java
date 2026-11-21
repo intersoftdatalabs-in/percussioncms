@@ -366,6 +366,15 @@ import org.junit.jupiter.api.Test;
  * fork-mod marker test is replaced by a stock-shipment test asserting
  * the payloads carry no Percussion mods and no 2.x remnants.
  *
+ * <p>Slice 18 (issue #6946, slice 3 of #6919) drops the EOL
+ * {@code fullcalendar@2.9.1} exact pin from both WebUI frontend manifests
+ * ({@code WebUI/package.json} and
+ * {@code WebUI/src/main/frontend/package.json}, locks regenerated
+ * alongside). No payload referenced the EOL line after slice 17, so
+ * Dependabot no longer watches a line that ships nothing; the
+ * {@code fullcalendar-v6*} alias pins stay exact at 6.1.15. No payload
+ * bytes, snippet markup, or expected sets change in this slice.
+ *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
  * inventory can only drift together with an audit update. A migration PR that
