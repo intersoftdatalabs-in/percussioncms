@@ -46,6 +46,14 @@ export interface EditorWorkflowPanelProps {
   errorKey?: string | null;
   errorDetail?: string;
   /**
+   * True when the visible panel error is a comment-gate failure (missing
+   * or NUL comment, #6931). The comment box is marked invalid and its
+   * accessible description points at the inline error so screen-reader
+   * and keyboard users hear where the fix goes; any other error leaves
+   * the comment box unmarked.
+   */
+  commentInvalid?: boolean;
+  /**
    * Panel-level transition-list load failure (#5769). When set, the panel
    * shows a load notice with retry instead of the empty-allowlist hint so
    * operators can tell "no transitions allowed" from "the list failed to load".
@@ -76,6 +84,7 @@ export function EditorWorkflowPanel({
   busy = false,
   errorKey,
   errorDetail,
+  commentInvalid = false,
   loadErrorKey,
   loadErrorDetail,
   onRetryLoad,
@@ -179,9 +188,14 @@ export function EditorWorkflowPanel({
         <textarea
           className={styles.textarea}
           data-testid="editor-workflow-comment"
+          id="editor-workflow-comment"
           value={comment}
           disabled={busy}
           rows={3}
+          aria-invalid={commentInvalid ? true : undefined}
+          aria-describedby={
+            commentInvalid ? "editor-workflow-comment-error" : undefined
+          }
           onChange={(e) => onCommentChange(e.target.value)}
         />
       </label>
@@ -270,6 +284,7 @@ export function EditorWorkflowPanel({
           className={styles.status}
           role="alert"
           data-testid="editor-workflow-error"
+          id={commentInvalid ? "editor-workflow-comment-error" : undefined}
         >
           {message(errorKey)}
           {errorDetail ? ` ${errorDetail}` : ""}

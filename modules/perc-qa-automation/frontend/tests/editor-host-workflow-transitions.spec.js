@@ -206,6 +206,17 @@ test.describe("React Content Editor workflow transitions", () => {
       await expect(
         page.locator(`[data-testid="${TEST_IDS.comment}"]`),
       ).toBeFocused();
+      // Invalid association (#6931): the comment box is marked invalid and
+      // described by the inline error so screen readers announce the fix.
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.comment}"]`),
+      ).toHaveAttribute("aria-invalid", "true");
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.comment}"]`),
+      ).toHaveAttribute("aria-describedby", "editor-workflow-comment-error");
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.error}"]`),
+      ).toHaveAttribute("id", "editor-workflow-comment-error");
 
       await page.locator(`[data-testid="${TEST_IDS.comment}"]`).fill("needs work");
       await page.locator(`[data-testid="${triggerTestId("Reject")}"]`).click();
@@ -215,6 +226,13 @@ test.describe("React Content Editor workflow transitions", () => {
       expect(parsed.comment).toBe("needs work");
       expect(isTransitionWithCommentsUrl(transitionCalls[0])).toBe(true);
       await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toBeVisible();
+      // Success clears the invalid marking with the error (#6931).
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.comment}"]`),
+      ).not.toHaveAttribute("aria-invalid", "true");
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.error}"]`),
+      ).toHaveCount(0);
       await page.screenshot({
         path: `test-results/live-proof-4554-workflow-transitions.png`,
       });
