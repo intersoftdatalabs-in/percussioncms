@@ -1217,4 +1217,24 @@ describe("CommunityDetailPanel", () => {
       "status",
     );
   });
+
+  it("exposes visible-text accessible names on back + roles-save (#6942)", async () => {
+    getCommunityDetail.mockResolvedValue(sampleDetail);
+    render(<CommunityDetailPanel idOrName="Default" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-comm-roles-save")).toBeTruthy();
+    });
+    // label-content-name-mismatch: no contradicting aria-label; the
+    // accessible name must contain the visible label text.
+    const back = screen.getByTestId("developer-comm-back");
+    expect(back.getAttribute("aria-label")).toBeNull();
+    expect(
+      screen.getByRole("button", { name: /Back to list/ }),
+    ).toBe(back);
+    const rolesSave = screen.getByTestId("developer-comm-roles-save");
+    expect(rolesSave.getAttribute("aria-label")).toBeNull();
+    expect(
+      screen.getByRole("button", { name: /Save roles/ }),
+    ).toBe(rolesSave);
+  });
 });
