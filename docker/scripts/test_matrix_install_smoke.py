@@ -28,6 +28,12 @@ _PORT_ENV_KEYS = (
 )
 
 
+# Dummy start_db roots for pins that never touch the filesystem
+# (portable base — never a hardcoded Unix-only absolute like /tmp).
+_UNUSED_ROOT = Path(tempfile.gettempdir()) / "matrix-pin-unused-root"
+_UNUSED_COMPOSE = Path(tempfile.gettempdir()) / "matrix-pin-unused-compose.yml"
+
+
 def _clear_port_env() -> None:
     for key in _PORT_ENV_KEYS:
         os.environ.pop(key, None)
@@ -1784,6 +1790,468 @@ class CellSuffixIsolationTests(unittest.TestCase):
             )
             self.assertEqual(result.status, "pass")
             self.assertEqual(result.container_name, "perc-matrix-cms-h2-qa-a")
+
+
+class StartDbOutcomePinTests(unittest.TestCase):
+    """#6780 pins: start_db lifecycle outcomes (captured pre-decomposition)."""
+
+    def setUp(self):
+        _clear_port_env()
+        self.addCleanup(_clear_port_env)
+        self._db_services = smoke.build_db_services({})
+
+    def test_h2_returns_none_without_docker(self):
+        self.assertIsNone(
+            smoke.start_db(
+                _UNUSED_ROOT,
+                _UNUSED_COMPOSE,
+                "h2",
+                dry_run=True,
+                db_services=self._db_services,
+            )
+        )
+
+    def test_dry_run_reports_started_and_pins_env(self):
+        started = smoke.start_db(
+            _UNUSED_ROOT,
+            _UNUSED_COMPOSE,
+            "postgresql",
+            dry_run=True,
+            db_services=self._db_services,
+        )
+        self.assertTrue(started)
+        self.assertTrue(os.environ.get("POSTGRES_PORT", "").isdigit())
+
+    def test_already_running_returns_false(self):
+        import subprocess as _subprocess
+        import unittest.mock
+
+        with unittest.mock.patch.object(
+            smoke, "_docker_container_running", return_value=True
+        ), unittest.mock.patch.object(
+            smoke,
+            "_run",
+            return_value=_subprocess.CompletedProcess([], 0, "", ""),
+        ):
+            started = smoke.start_db(
+                _UNUSED_ROOT,
+                _UNUSED_COMPOSE,
+                "postgresql",
+                dry_run=False,
+                db_services=self._db_services,
+            )
+        self.assertFalse(started)
+
+    def test_unhealthy_wait_raises_runtime_error(self):
+        import subprocess as _subprocess
+        import unittest.mock
+
+        services = smoke.build_db_services({})
+        with unittest.mock.patch.object(
+            smoke, "_docker_container_running", return_value=False
+        ), unittest.mock.patch.object(
+            smoke,
+            "_run",
+            return_value=_subprocess.CompletedProcess([], 0, "", ""),
+        ), unittest.mock.patch.object(
+            smoke, "wait_for_container_healthy", return_value=(False, "pin-detail")
+        ):
+            with self.assertRaises(RuntimeError) as ctx:
+                smoke.start_db(
+                    _UNUSED_ROOT,
+                    _UNUSED_COMPOSE,
+                    "oracle",
+                    dry_run=False,
+                    db_services=services,
+                )
+        self.assertIn("pin-detail", str(ctx.exception))
+
+
+class WaitForHttpOutcomePinTests(unittest.TestCase):
+    """#6780 pins: exact wait_for_http (ok, detail) outcomes pre-decomposition."""
+
+    def setUp(self):
+        self._slog = unittest.mock.patch.object(
+            smoke, "_docker_read_server_log", return_value=""
+        ) if hasattr(unittest, "mock") else None
+        if self._slog is None:
+            import unittest.mock as _m
+
+            self._slog = _m.patch.object(
+                smoke, "_docker_read_server_log", return_value=""
+            )
+        self._slog.start()
+        self.addCleanup(self._slog.stop)
+
+    def _resp(self, code):
+        import unittest.mock as _m
+
+        resp = _m.MagicMock()
+        resp.getcode.return_value = code
+        resp.__enter__.return_value = resp
+        resp.__exit__.return_value = False
+        return resp
+
+    def test_http_error_ready_code_returns_success(self):
+        import unittest.mock
+        import urllib.error
+
+        err = urllib.error.HTTPError(
+            "http://127.0.0.1:9993/Rhythmyx/login", 403, "Forbidden", {}, None
+        )
+        with unittest.mock.patch.object(
+            smoke.urllib.request, "urlopen", side_effect=err
+        ):
+            ok, detail = smoke.wait_for_http(
+                "http://127.0.0.1:9993/Rhythmyx/login",
+                timeout_seconds=30,
+                dry_run=False,
+                container_name=None,
+            )
+        self.assertTrue(ok)
+        self.assertEqual(detail, "HTTP 403")
+
+    def test_zero_timeout_returns_timeout_without_http(self):
+        import unittest.mock
+
+        with unittest.mock.patch.object(
+            smoke.urllib.request, "urlopen"
+        ) as mock_http:
+            ok, detail = smoke.wait_for_http(
+                "http://127.0.0.1:9993/Rhythmyx/login",
+                timeout_seconds=0,
+                dry_run=False,
+                container_name=None,
+            )
+        self.assertFalse(ok)
+        self.assertEqual(detail, "timeout")
+        mock_http.assert_not_called()
+
+    def test_zero_timeout_with_container_reports_last_timeout(self):
+        import unittest.mock
+
+        dead = "WARN [WebAppContext] Failed startup of context Rhythmyx\n"
+        with unittest.mock.patch.object(
+            smoke, "_docker_logs_tail", return_value=dead
+        ):
+            ok, detail = smoke.wait_for_http(
+                "http://127.0.0.1:9993/Rhythmyx/login",
+                timeout_seconds=0,
+                dry_run=False,
+                container_name="perc-matrix-cms-h2",
+            )
+        self.assertFalse(ok)
+        self.assertIn("rhythmyx_context_failed", detail)
+        self.assertIn("last=timeout", detail)
+
+    def test_transient_url_error_records_last_message(self):
+        import unittest.mock
+        import urllib.error
+
+        times = iter([100.0, 100.0, 200.0])
+        with unittest.mock.patch.object(
+            smoke.urllib.request,
+            "urlopen",
+            side_effect=urllib.error.URLError("pin-boom"),
+        ), unittest.mock.patch.object(
+            smoke.time, "sleep"
+        ), unittest.mock.patch.object(
+            smoke.time, "time", side_effect=lambda: next(times)
+        ):
+            ok, detail = smoke.wait_for_http(
+                "http://127.0.0.1:9993/Rhythmyx/login",
+                timeout_seconds=30,
+                dry_run=False,
+                container_name=None,
+            )
+        self.assertFalse(ok)
+        self.assertIn("pin-boom", detail)
+
+    def test_http_500_then_200_recovers(self):
+        import unittest.mock
+        import urllib.error
+
+        err = urllib.error.HTTPError(
+            "http://127.0.0.1:9993/Rhythmyx/login", 500, "Server Error", {}, None
+        )
+        times = iter([100.0, 100.0, 100.0, 200.0])
+        with unittest.mock.patch.object(
+            smoke.urllib.request, "urlopen", side_effect=[err, self._resp(200)]
+        ), unittest.mock.patch.object(
+            smoke.time, "sleep"
+        ), unittest.mock.patch.object(
+            smoke.time, "time", side_effect=lambda: next(times)
+        ):
+            ok, detail = smoke.wait_for_http(
+                "http://127.0.0.1:9993/Rhythmyx/login",
+                timeout_seconds=30,
+                dry_run=False,
+                container_name=None,
+            )
+        self.assertTrue(ok)
+        self.assertEqual(detail, "HTTP 200")
+
+
+class RunCellOutcomePinTests(unittest.TestCase):
+    """#6780 pins: run_cell CellResult outcomes pre-decomposition."""
+
+    def setUp(self):
+        _clear_port_env()
+        self._saved_env = dict(os.environ)
+        self.addCleanup(self._restore_env)
+        self._db_services = smoke.build_db_services({})
+
+    def _restore_env(self):
+        os.environ.clear()
+        os.environ.update(self._saved_env)
+
+    def _stub_jar(self, root: Path) -> None:
+        target = root / "modules" / "perc-distribution-tree" / "target"
+        target.mkdir(parents=True)
+        (target / "perc-distribution-tree.jar").write_bytes(b"stub-jar-content")
+
+    def _cell(self, product="cms", db_type="h2"):
+        return smoke.CellSpec(product=product, db_type=db_type)
+
+    def _run_kwargs(self, root: Path, **over):
+        kw = dict(
+            repo_root=root,
+            compose_file=root / "docker-compose.yml",
+            keep=False,
+            probe_timeout=30,
+            dry_run=True,
+            log_dir=root / "logs",
+            db_services=self._db_services,
+        )
+        kw.update(over)
+        return kw
+
+    def test_dry_run_h2_passes_with_dry_run_detail(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._stub_jar(root)
+            (root / "logs").mkdir()
+            result = smoke.run_cell(self._cell(), **self._run_kwargs(root))
+        self.assertEqual(result.status, "pass")
+        self.assertEqual(result.detail, "dry-run")
+        self.assertEqual(result.container_name, "")
+        self.assertTrue(result.probe_url.startswith("http://127.0.0.1:"))
+        self.assertTrue(result.log_path.endswith(".log"))
+
+    def test_dry_run_keep_preserves_container_name(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._stub_jar(root)
+            (root / "logs").mkdir()
+            result = smoke.run_cell(
+                self._cell(), **self._run_kwargs(root, keep=True)
+            )
+        self.assertEqual(result.status, "pass")
+        self.assertEqual(result.container_name, "perc-matrix-cms-h2")
+
+    def test_missing_jar_fails(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            (root / "logs").mkdir()
+            result = smoke.run_cell(self._cell(), **self._run_kwargs(root))
+        self.assertEqual(result.status, "fail")
+        self.assertIn("perc-distribution-tree.jar", result.detail)
+
+    def test_start_db_error_fails(self):
+        import unittest.mock
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._stub_jar(root)
+            (root / "logs").mkdir()
+            with unittest.mock.patch.object(
+                smoke, "start_db", side_effect=RuntimeError("pin-db-down")
+            ):
+                result = smoke.run_cell(self._cell(), **self._run_kwargs(root))
+        self.assertEqual(result.status, "fail")
+        self.assertEqual(result.detail, "pin-db-down")
+
+    def test_docker_run_failure_fails(self):
+        import subprocess as _subprocess
+        import unittest.mock
+
+        def _fake_run(argv, **kwargs):
+            if list(argv)[:2] == ["docker", "run"]:
+                raise _subprocess.CalledProcessError(1, argv)
+            return _subprocess.CompletedProcess(argv, 0, stdout="", stderr="")
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._stub_jar(root)
+            (root / "logs").mkdir()
+            with unittest.mock.patch.object(
+                smoke, "_run", side_effect=_fake_run
+            ):
+                result = smoke.run_cell(
+                    self._cell(), **self._run_kwargs(root, dry_run=False)
+                )
+        self.assertEqual(result.status, "fail")
+        self.assertTrue(result.detail.startswith("docker run failed"))
+
+    def test_probe_failure_fails_and_destroys(self):
+        import subprocess as _subprocess
+        import unittest.mock
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._stub_jar(root)
+            (root / "logs").mkdir()
+            with unittest.mock.patch.object(
+                smoke,
+                "_run",
+                return_value=_subprocess.CompletedProcess([], 0, "", ""),
+            ), unittest.mock.patch.object(
+                smoke, "wait_for_http", return_value=(False, "pin-probe-nope")
+            ), unittest.mock.patch.object(
+                smoke, "destroy_container"
+            ) as mock_destroy:
+                result = smoke.run_cell(
+                    self._cell(), **self._run_kwargs(root, dry_run=False)
+                )
+        self.assertEqual(result.status, "fail")
+        self.assertEqual(result.detail, "probe failed: pin-probe-nope")
+        # Pre-run destroy plus post-failure teardown (keep=False).
+        self.assertEqual(mock_destroy.call_count, 2)
+
+    def test_probe_success_writes_cell_log(self):
+        import subprocess as _subprocess
+        import unittest.mock
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._stub_jar(root)
+            (root / "logs").mkdir()
+            with unittest.mock.patch.object(
+                smoke,
+                "_run",
+                return_value=_subprocess.CompletedProcess([], 0, "pin-out", ""),
+            ), unittest.mock.patch.object(
+                smoke, "wait_for_http", return_value=(True, "HTTP 200")
+            ):
+                result = smoke.run_cell(
+                    self._cell(), **self._run_kwargs(root, dry_run=False)
+                )
+                self.assertEqual(result.status, "pass")
+                self.assertEqual(result.detail, "HTTP 200")
+                self.assertIn(
+                    "pin-out",
+                    Path(result.log_path).read_text(encoding="utf-8"),
+                )
+
+
+class MainOutcomePinTests(unittest.TestCase):
+    """#6780 pins: main() exit codes + RESULT lines pre-decomposition."""
+
+    def setUp(self):
+        _clear_port_env()
+        self._saved_env = dict(os.environ)
+        self.addCleanup(self._restore_env)
+        self._saved_services = {
+            k: dict(v) for k, v in smoke.DB_SERVICES.items()
+        }
+        self.addCleanup(self._restore_services)
+
+    def _restore_env(self):
+        os.environ.clear()
+        os.environ.update(self._saved_env)
+
+    def _restore_services(self):
+        smoke.DB_SERVICES.clear()
+        smoke.DB_SERVICES.update(self._saved_services)
+
+    def _stub_repo(self, root: Path, with_jar=True) -> None:
+        if with_jar:
+            target = root / "modules" / "perc-distribution-tree" / "target"
+            target.mkdir(parents=True)
+            (target / "perc-distribution-tree.jar").write_bytes(b"stub-jar-content")
+        (root / "docker" / "logs").mkdir(parents=True)
+        (root / ".env.compose.example").write_text(
+            "POSTGRES_PASSWORD=test-local-only\n",  # mkd-code-review[secrets.heuristic]: adjudicated FP (issue #6778, precedent #6569/#6610/#6341) - test-only placeholder, never a live credential.
+            encoding="utf-8",
+        )
+
+    def _main(self, *argv):
+        import io
+        from contextlib import redirect_stdout
+
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = smoke.main(list(argv))
+        return rc, buf.getvalue()
+
+    def test_invalid_product_fails_invocation(self):
+        with tempfile.TemporaryDirectory() as td:
+            rc, out = self._main(
+                "--repo-root", str(Path(td)), "--product", "nope", "--dry-run"
+            )
+        self.assertEqual(rc, smoke.EXIT_INVOCATION)
+        self.assertIn("RESULT:FAIL STEP:matrix LOG:", out)
+
+    def test_missing_jar_fails_cell(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._stub_repo(root, with_jar=False)
+            rc, out = self._main(
+                "--repo-root", str(root),
+                "--product", "cms", "--db", "h2",
+                "--dry-run", "--skip-image-build", "--skip-preflight",
+            )
+        self.assertEqual(rc, smoke.EXIT_CELL_FAILED)
+        self.assertIn("RESULT:FAIL STEP:matrix", out)
+
+    def test_dry_run_h2_ok_reports_result_ok(self):
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._stub_repo(root)
+            rc, out = self._main(
+                "--repo-root", str(root),
+                "--product", "cms", "--db", "h2",
+                "--dry-run", "--skip-image-build", "--skip-preflight",
+            )
+        self.assertEqual(rc, smoke.EXIT_OK)
+        self.assertIn("RESULT:OK STEP:matrix LOG:", out)
+
+    def test_docker_missing_fails_invocation(self):
+        import unittest.mock
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._stub_repo(root)
+            with unittest.mock.patch.object(
+                smoke.shutil, "which", return_value=None
+            ):
+                rc, out = self._main(
+                    "--repo-root", str(root),
+                    "--product", "cms", "--db", "h2",
+                    "--skip-image-build", "--skip-preflight",
+                )
+        self.assertEqual(rc, smoke.EXIT_INVOCATION)
+        self.assertIn("RESULT:FAIL STEP:matrix LOG:", out)
+
+    def test_preflight_stale_refuses_matrix(self):
+        import unittest.mock
+
+        with tempfile.TemporaryDirectory() as td:
+            root = Path(td)
+            self._stub_repo(root)
+            with unittest.mock.patch.object(
+                smoke,
+                "check_cms_rebuild_preflight",
+                return_value=(False, "PREFLIGHT: pin-stale"),
+            ):
+                rc, out = self._main(
+                    "--repo-root", str(root),
+                    "--product", "cms", "--db", "h2",
+                    "--dry-run", "--skip-image-build",
+                )
+        self.assertEqual(rc, smoke.EXIT_CELL_FAILED)
+        self.assertIn("pin-stale", out)
+        self.assertIn("preflight_stale", out)
 
 
 class PlaceholderVocabularyGuardTests(unittest.TestCase):

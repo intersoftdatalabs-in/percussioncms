@@ -838,6 +838,58 @@ def build_matrix_image(repo_root: Path, *, dry_run: bool) -> None:
     )
 
 
+def _start_db_compose_argv(
+    compose_file: Path,
+    env_file: Optional[Path],
+    profile: str,
+    service: str,
+) -> List[str]:
+    """``docker compose up`` argv for one external DB service (pure)."""
+    argv = [
+        "docker",
+        "compose",
+        "-f",
+        str(compose_file),
+    ]
+    if env_file is not None and env_file.is_file():
+        argv.extend(["--env-file", str(env_file)])
+    argv.extend(
+        [
+            "--profile",
+            profile,
+            "up",
+            "-d",
+            service,
+        ]
+    )
+    return argv
+
+
+def _start_db_wait_healthy(
+    container: str,
+    db_type: str,
+    healthy_timeout_raw: str,
+    *,
+    dry_run: bool,
+) -> None:
+    """Compose-healthcheck wait for heavy DBs (Oracle XE); raises on failure."""
+    if not healthy_timeout_raw.strip():
+        return
+    try:
+        healthy_timeout = int(healthy_timeout_raw)
+    except ValueError:
+        healthy_timeout = 0
+    if healthy_timeout > 0:
+        ok, detail = wait_for_container_healthy(
+            container, healthy_timeout, dry_run=dry_run
+        )
+        if not ok:
+            raise RuntimeError(
+                f"Waiting for healthy status on {container} failed after "
+                f"{healthy_timeout}s (db_type={db_type}): {detail}"
+            )
+
+
 def start_db(
     repo_root: Path,
     compose_file: Path,
@@ -878,24 +930,11 @@ def start_db(
     if not dry_run and _docker_container_running(container):
         LOG.info("DB container %s already running; skipping compose up", container)
     else:
-        argv = [
-            "docker",
-            "compose",
-            "-f",
-            str(compose_file),
-        ]
-        if env_file is not None and env_file.is_file():
-            argv.extend(["--env-file", str(env_file)])
-        argv.extend(
-            [
-                "--profile",
-                profile,
-                "up",
-                "-d",
-                service,
-            ]
+        _run(
+            _start_db_compose_argv(compose_file, env_file, profile, service),
+            dry_run=dry_run,
+            check=not dry_run,
         )
-        _run(argv, dry_run=dry_run, check=not dry_run)
         started_by_matrix = True
 
     _run(
@@ -913,21 +952,12 @@ def start_db(
     )
     # Heavy DBs (Oracle XE) may report TCP open before PDB/APP_USER is ready.
     # Wait for compose healthcheck when the service defines one.
-    healthy_timeout_raw = meta.get("healthy_timeout") or ""
-    if healthy_timeout_raw.strip():
-        try:
-            healthy_timeout = int(healthy_timeout_raw)
-        except ValueError:
-            healthy_timeout = 0
-        if healthy_timeout > 0:
-            ok, detail = wait_for_container_healthy(
-                container, healthy_timeout, dry_run=dry_run
-            )
-            if not ok:
-                raise RuntimeError(
-                    f"Waiting for healthy status on {container} failed after "
-                    f"{healthy_timeout}s (db_type={db_type}): {detail}"
-                )
+    _start_db_wait_healthy(
+        container,
+        db_type,
+        meta.get("healthy_timeout") or "",
+        dry_run=dry_run,
+    )
     return started_by_matrix
 
 
@@ -1226,6 +1256,144 @@ def _startup_log_fail_detail(
     return None
 
 
+@dataclass
+class _HttpPollState:
+    """Mutable per-poll observations threaded through wait_for_http helpers."""
+
+    last: str = ""
+    last_health: str = "unknown"
+
+
+def _http_fail_fast_scan(
+    container_name: str,
+    require_docker_health: bool,
+    state: _HttpPollState,
+) -> Optional[Tuple[bool, str]]:
+    """Pre-HTTP fail-fast: context-death log markers end the poll immediately."""
+    logs = _docker_logs_tail(container_name)
+    server_logs = _docker_read_server_log(container_name)
+    fail_detail = _startup_log_fail_detail(logs, server_logs)
+    if fail_detail is None:
+        return None
+    health_suffix = ""
+    if require_docker_health:
+        state.last_health, _status = inspect_container_health(container_name)
+        health_suffix = f" health={state.last_health}"
+    return (
+        False,
+        f"{fail_detail} last={state.last or 'n/a'}{health_suffix}",
+    )
+
+
+def _http_docker_health_gate(
+    container_name: str,
+    state: _HttpPollState,
+) -> Optional[Tuple[bool, str]]:
+    """Docker Health.Status gate for one poll (unhealthy / exited fail-fast)."""
+    last_health, status = inspect_container_health(container_name)
+    state.last_health = last_health
+    if last_health == "unhealthy":
+        return (
+            False,
+            f"{DETAIL_DOCKER_UNHEALTHY} health={last_health} "
+            f"status={status} last={state.last or 'n/a'}",
+        )
+    if status in ("exited", "dead", "removing"):
+        return (
+            False,
+            f"{DETAIL_CONTAINER_NOT_RUNNING} status={status} "
+            f"health={last_health} last={state.last or 'n/a'}",
+        )
+    return None
+
+
+def _http_ready_outcome(
+    code: int,
+    container_name: Optional[str],
+    require_docker_health: bool,
+    state: _HttpPollState,
+) -> Optional[Tuple[bool, str]]:
+    """Translate one ready HTTP code into a final result (None = keep polling)."""
+    if container_name:
+        logs = _docker_logs_tail(container_name)
+        server_logs = _docker_read_server_log(container_name)
+        fail_detail = _startup_log_fail_detail(
+            logs, server_logs, http_code=code,
+        )
+        if fail_detail is not None:
+            return False, fail_detail
+    if require_docker_health and state.last_health != "healthy":
+        return None
+    if require_docker_health:
+        return True, f"HTTP {code} health={state.last_health}"
+    return True, f"HTTP {code}"
+
+
+def _http_poll_once(
+    url: str,
+    container_name: Optional[str],
+    require_docker_health: bool,
+    state: _HttpPollState,
+) -> Optional[Tuple[bool, str]]:
+    """One poll iteration: GET ``url``, map transport outcomes (None = retry)."""
+    try:
+        req = urllib.request.Request(url, method="GET")
+        with urllib.request.urlopen(req, timeout=10) as resp:
+            code = resp.getcode()
+            if is_http_ready_code(code):
+                outcome = _http_ready_outcome(
+                    code, container_name, require_docker_health, state
+                )
+                if outcome is not None:
+                    return outcome
+            state.last = f"HTTP {code}"
+    except urllib.error.HTTPError as exc:
+        if is_http_ready_code(exc.code):
+            outcome = _http_ready_outcome(
+                exc.code, container_name, require_docker_health, state
+            )
+            if outcome is not None:
+                return outcome
+        state.last = f"HTTPError {exc.code}"
+    except (urllib.error.URLError, TimeoutError, OSError) as exc:
+        state.last = str(exc)
+    return None
+
+
+def _http_timeout_outcome(
+    container_name: Optional[str],
+    require_docker_health: bool,
+    state: _HttpPollState,
+) -> Tuple[bool, str]:
+    """Final log/health scan after the deadline (prefers startup-failure DETAIL)."""
+    if container_name is None:
+        return False, state.last or "timeout"
+    logs = _docker_logs_tail(container_name)
+    server_logs = _docker_read_server_log(container_name)
+    fail_detail = _startup_log_fail_detail(logs, server_logs)
+    if fail_detail is not None:
+        health_suffix = f" health={state.last_health}" if require_docker_health else ""
+        return (
+            False,
+            f"{fail_detail} last={state.last or 'timeout'}{health_suffix}",
+        )
+    if not require_docker_health:
+        return False, state.last or "timeout"
+    last_health, status = inspect_container_health(container_name)
+    state.last_health = last_health
+    if last_health == "unhealthy":
+        return (
+            False,
+            f"{DETAIL_DOCKER_UNHEALTHY} health={last_health} "
+            f"status={status} last={state.last or 'timeout'}",
+        )
+    return (
+        False,
+        f"{DETAIL_DOCKER_HEALTH_TIMEOUT} health={last_health} "
+        f"status={status} last={state.last or 'timeout'}",
+    )
+
+
 def wait_for_http(
     url: str,
     *,
@@ -1258,107 +1426,21 @@ def wait_for_http(
     if dry_run:
         return True, "dry-run"
     deadline = time.time() + timeout_seconds
-    last = ""
-    last_health = "unknown"
+    state = _HttpPollState()
     while time.time() < deadline:
         # Fail-fast: Jetty up + dirty Spring / product logs must not wait full timeout.
         if container_name:
-            logs = _docker_logs_tail(container_name)
-            server_logs = _docker_read_server_log(container_name)
-            fail_detail = _startup_log_fail_detail(logs, server_logs)
-            if fail_detail is not None:
-                health_suffix = ""
-                if require_docker_health:
-                    last_health, _st = inspect_container_health(container_name)
-                    health_suffix = f" health={last_health}"
-                return (
-                    False,
-                    f"{fail_detail} last={last or 'n/a'}{health_suffix}",
-                )
-            if require_docker_health:
-                last_health, status = inspect_container_health(container_name)
-                if last_health == "unhealthy":
-                    return (
-                        False,
-                        f"{DETAIL_DOCKER_UNHEALTHY} health={last_health} "
-                        f"status={status} last={last or 'n/a'}",
-                    )
-                if status in ("exited", "dead", "removing"):
-                    return (
-                        False,
-                        f"{DETAIL_CONTAINER_NOT_RUNNING} status={status} "
-                        f"health={last_health} last={last or 'n/a'}",
-                    )
-        try:
-            req = urllib.request.Request(url, method="GET")
-            with urllib.request.urlopen(req, timeout=10) as resp:
-                code = resp.getcode()
-                if is_http_ready_code(code):
-                    # Re-check logs after a "ready" HTTP so false positives fail.
-                    if container_name:
-                        logs = _docker_logs_tail(container_name)
-                        server_logs = _docker_read_server_log(container_name)
-                        fail_detail = _startup_log_fail_detail(
-                            logs, server_logs, http_code=code,
-                        )
-                        if fail_detail is not None:
-                            return False, fail_detail
-                    if require_docker_health:
-                        # Host HTTP ready is not enough — need inspect healthy.
-                        if last_health != "healthy":
-                            last = f"HTTP {code} health={last_health}"
-                        else:
-                            return True, f"HTTP {code} health={last_health}"
-                    else:
-                        return True, f"HTTP {code}"
-                last = f"HTTP {code}"
-        except urllib.error.HTTPError as exc:
-            # Some login paths return 401/403 before auth — treat as up.
-            if is_http_ready_code(exc.code):
-                if container_name:
-                    logs = _docker_logs_tail(container_name)
-                    server_logs = _docker_read_server_log(container_name)
-                    fail_detail = _startup_log_fail_detail(
-                        logs, server_logs, http_code=exc.code,
-                    )
-                    if fail_detail is not None:
-                        return False, fail_detail
-                if require_docker_health:
-                    if last_health != "healthy":
-                        last = f"HTTP {exc.code} health={last_health}"
-                    else:
-                        return True, f"HTTP {exc.code} health={last_health}"
-                else:
-                    return True, f"HTTP {exc.code}"
-            last = f"HTTPError {exc.code}"
-        except (urllib.error.URLError, TimeoutError, OSError) as exc:
-            last = str(exc)
+            outcome = _http_fail_fast_scan(
+                container_name, require_docker_health, state
+            ) or _http_docker_health_gate(container_name, state)
+            if outcome is not None:
+                return outcome
+        outcome = _http_poll_once(url, container_name, require_docker_health, state)
+        if outcome is not None:
+            return outcome
         time.sleep(interval_seconds)
     # Final log scan so timeout DETAIL prefers startup failure when present.
-    if container_name:
-        logs = _docker_logs_tail(container_name)
-        server_logs = _docker_read_server_log(container_name)
-        fail_detail = _startup_log_fail_detail(logs, server_logs)
-        if fail_detail is not None:
-            health_suffix = f" health={last_health}" if require_docker_health else ""
-            return (
-                False,
-                f"{fail_detail} last={last or 'timeout'}{health_suffix}",
-            )
-        if require_docker_health:
-            last_health, status = inspect_container_health(container_name)
-            if last_health == "unhealthy":
-                return (
-                    False,
-                    f"{DETAIL_DOCKER_UNHEALTHY} health={last_health} "
-                    f"status={status} last={last or 'timeout'}",
-                )
-            return (
-                False,
-                f"{DETAIL_DOCKER_HEALTH_TIMEOUT} health={last_health} "
-                f"status={status} last={last or 'timeout'}",
-            )
-    return False, last or "timeout"
+    return _http_timeout_outcome(container_name, require_docker_health, state)
 
 
 def cell_container_name(cell: CellSpec, *, suffix: object = None) -> str:
@@ -1375,22 +1457,18 @@ def cell_container_name(cell: CellSpec, *, suffix: object = None) -> str:
     )
 
 
-def run_cell(
-    cell: CellSpec,
-    *,
-    repo_root: Path,
-    compose_file: Path,
-    keep: bool,
-    probe_timeout: int,
-    dry_run: bool,
-    log_dir: Path,
-    db_services: Mapping[str, Mapping[str, str]],
-    env_file: Optional[Path] = None,
-    started_dbs: Optional[Set[str]] = None,
-    engaged_dbs: Optional[Set[str]] = None,
-    cell_suffix: object = None,
-) -> CellResult:
-    started = time.time()
+@dataclass
+class _CellPlan:
+    """Resolved per-cell launch coordinates (ports, probe URL, log path inputs)."""
+
+    name: str
+    host_port: int
+    probe_url: str
+    https_host_port: Optional[int]
+
+
+def _run_cell_plan(cell: CellSpec, *, cell_suffix: object = None) -> _CellPlan:
+    """Resolve container name, host publishes, and probe URL for one cell."""
     name = cell_container_name(cell, suffix=cell_suffix)
     # Env override (QA_CMS_HOST_PORT / CMS_HOST_PORT / DTS_HOST_PORT) or freeport
     # so multi-worktree agents do not collide on preferred 9993/9983 (#2005).
@@ -1414,95 +1492,130 @@ def run_cell(
             https_host_port,
             DTS_CONTAINER_HTTPS_PORT,
         )
-    cell_log = log_dir / f"matrix-{cell.cell_id}-{_ts()}.log"
-    db_meta = dict(db_services[cell.db_type])
-
-    try:
-        jar = resolve_installer_jar(repo_root, cell.product)
-    except FileNotFoundError as exc:
-        return CellResult(
-            cell_id=cell.cell_id,
-            product=cell.product,
-            db_type=cell.db_type,
-            status="fail",
-            detail=str(exc),
-            duration_seconds=time.time() - started,
-            log_path=str(cell_log),
-        )
-
-    LOG.info("Cell %s using jar %s (%s bytes)", cell.cell_id, jar, jar.stat().st_size if jar.is_file() else 0)
-
-    destroy_container(name, dry_run=dry_run)
-    try:
-        ownership = start_db(
-            repo_root,
-            compose_file,
-            cell.db_type,
-            dry_run=dry_run,
-            db_services=db_services,
-            env_file=env_file,
-        )
-    except RuntimeError as exc:
-        return CellResult(
-            cell_id=cell.cell_id,
-            product=cell.product,
-            db_type=cell.db_type,
-            status="fail",
-            container_name=name,
-            probe_url=probe_url,
-            detail=str(exc),
-            duration_seconds=time.time() - started,
-            log_path=str(cell_log),
-        )
-    if ownership is not None:
-        if engaged_dbs is not None:
-            engaged_dbs.add(cell.db_type)
-        if ownership and started_dbs is not None:
-            started_dbs.add(cell.db_type)
-
-    run_argv = build_docker_run_argv(
-        image=MATRIX_IMAGE_TAG,
-        container_name=name,
-        product=cell.product,
-        db_type=cell.db_type,
-        installer_jar_host=jar,
+    return _CellPlan(
+        name=name,
         host_port=host_port,
-        network=MATRIX_NETWORK,
-        db_meta=db_meta,
-        keep=keep,
+        probe_url=probe_url,
         https_host_port=https_host_port,
     )
+
+
+def _cell_fail_result(
+    cell: CellSpec,
+    *,
+    detail: str,
+    started: float,
+    cell_log: Path,
+    container_name: str = "",
+    probe_url: str = "",
+) -> CellResult:
+    """Fail ``CellResult`` with uniform duration / log-path bookkeeping."""
+    return CellResult(
+        cell_id=cell.cell_id,
+        product=cell.product,
+        db_type=cell.db_type,
+        status="fail",
+        container_name=container_name,
+        probe_url=probe_url,
+        detail=detail,
+        duration_seconds=time.time() - started,
+        log_path=str(cell_log),
+    )
+
+
+def _cell_pass_result(
+    cell: CellSpec,
+    plan: _CellPlan,
+    *,
+    keep: bool,
+    detail: str,
+    started: float,
+    cell_log: Path,
+) -> CellResult:
+    """Pass ``CellResult``; container name is kept only under ``--keep``."""
+    return CellResult(
+        cell_id=cell.cell_id,
+        product=cell.product,
+        db_type=cell.db_type,
+        status="pass",
+        container_name=plan.name if keep else "",
+        probe_url=plan.probe_url,
+        detail=detail,
+        duration_seconds=time.time() - started,
+        log_path=str(cell_log),
+    )
+
+
+def _log_cell_jar(cell: CellSpec, jar: Path) -> None:
+    """Log the installer jar backing one cell (size probe kept out of run_cell)."""
+    LOG.info(
+        "Cell %s using jar %s (%s bytes)", cell.cell_id, jar, _jar_size_or_zero(jar)
+    )
+
+
+def _jar_size_or_zero(jar: Path) -> int:
+    """Jar size for logging; missing files report 0 instead of raising."""
+    return jar.stat().st_size if jar.is_file() else 0
+
+
+def _record_db_ownership(
+    ownership: Optional[bool],
+    db_type: str,
+    started_dbs: Optional[Set[str]],
+    engaged_dbs: Optional[Set[str]],
+) -> None:
+    """Record start_db ownership for matrix teardown bookkeeping."""
+    if ownership is not None:
+        if engaged_dbs is not None:
+            engaged_dbs.add(db_type)
+        if ownership and started_dbs is not None:
+            started_dbs.add(db_type)
+
+
+def _run_cell_launch(
+    cell: CellSpec,
+    plan: _CellPlan,
+    run_argv: List[str],
+    *,
+    keep: bool,
+    probe_timeout: int,
+    dry_run: bool,
+    cell_log: Path,
+    started: float,
+) -> Tuple[Optional[CellResult], str]:
+    """``docker run`` + probe wait + log capture.
+
+    Returns ``(fail_result, probe_detail)`` — ``fail_result`` is ``None`` when
+    the probe passed, and ``probe_detail`` is the wait detail for the pass
+    record. Capture container logs while waiting: CMS cells pass
+    container_name so a dead Rhythmyx ApplicationContext fails the probe
+    even if Jetty HTTP still answers (#2462 / #2423). After #2481
+    HEALTHCHECK, CMS cells also require docker Health.Status=healthy and
+    fail-fast when already unhealthy (#2535). Host log scan remains
+    belt-and-braces.
+    """
     try:
         _run(run_argv, dry_run=dry_run, check=not dry_run)
     except subprocess.CalledProcessError as exc:
-        return CellResult(
-            cell_id=cell.cell_id,
-            product=cell.product,
-            db_type=cell.db_type,
-            status="fail",
-            container_name=name,
-            probe_url=probe_url,
+        return _cell_fail_result(
+            cell,
+            container_name=plan.name,
+            probe_url=plan.probe_url,
             detail=f"docker run failed: {exc}",
-            duration_seconds=time.time() - started,
-            log_path=str(cell_log),
-        )
-
-    # Capture container logs while waiting. CMS cells pass container_name so
-    # a dead Rhythmyx ApplicationContext fails the probe even if Jetty HTTP
-    # still answers (#2462 / #2423). After #2481 HEALTHCHECK, CMS cells also
-    # require docker Health.Status=healthy and fail-fast when already
-    # unhealthy (#2535). Host log scan remains belt-and-braces.
+            started=started,
+            cell_log=cell_log,
+        ), ""
     is_cms = cell.product == "cms"
     ok, detail = wait_for_http(
-        probe_url,
+        plan.probe_url,
         timeout_seconds=probe_timeout,
         dry_run=dry_run,
-        container_name=name if is_cms else None,
+        container_name=plan.name if is_cms else None,
         require_docker_health=is_cms,
     )
     if not dry_run:
         logs = _run(
-            ["docker", "logs", name],
+            ["docker", "logs", plan.name],
             dry_run=False,
             capture=True,
             check=False,
@@ -1515,32 +1628,103 @@ def run_cell(
 
     if not ok:
         if not keep:
-            destroy_container(name, dry_run=dry_run)
-        return CellResult(
-            cell_id=cell.cell_id,
-            product=cell.product,
-            db_type=cell.db_type,
-            status="fail",
-            container_name=name,
-            probe_url=probe_url,
+            destroy_container(plan.name, dry_run=dry_run)
+        return _cell_fail_result(
+            cell,
+            container_name=plan.name,
+            probe_url=plan.probe_url,
             detail=f"probe failed: {detail}",
-            duration_seconds=time.time() - started,
-            log_path=str(cell_log),
+            started=started,
+            cell_log=cell_log,
+        ), ""
+    return None, detail
+
+
+def run_cell(
+    cell: CellSpec,
+    *,
+    repo_root: Path,
+    compose_file: Path,
+    keep: bool,
+    probe_timeout: int,
+    dry_run: bool,
+    log_dir: Path,
+    db_services: Mapping[str, Mapping[str, str]],
+    env_file: Optional[Path] = None,
+    started_dbs: Optional[Set[str]] = None,
+    engaged_dbs: Optional[Set[str]] = None,
+    cell_suffix: object = None,
+) -> CellResult:
+    started = time.time()
+    plan = _run_cell_plan(cell, cell_suffix=cell_suffix)
+    cell_log = log_dir / f"matrix-{cell.cell_id}-{_ts()}.log"
+    db_meta = dict(db_services[cell.db_type])
+
+    try:
+        jar = resolve_installer_jar(repo_root, cell.product)
+    except FileNotFoundError as exc:
+        return _cell_fail_result(
+            cell, detail=str(exc), started=started, cell_log=cell_log
         )
 
-    if not keep:
-        destroy_container(name, dry_run=dry_run)
+    _log_cell_jar(cell, jar)
 
-    return CellResult(
-        cell_id=cell.cell_id,
+    destroy_container(plan.name, dry_run=dry_run)
+    try:
+        ownership = start_db(
+            repo_root,
+            compose_file,
+            cell.db_type,
+            dry_run=dry_run,
+            db_services=db_services,
+            env_file=env_file,
+        )
+    except RuntimeError as exc:
+        return _cell_fail_result(
+            cell,
+            container_name=plan.name,
+            probe_url=plan.probe_url,
+            detail=str(exc),
+            started=started,
+            cell_log=cell_log,
+        )
+    _record_db_ownership(ownership, cell.db_type, started_dbs, engaged_dbs)
+
+    run_argv = build_docker_run_argv(
+        image=MATRIX_IMAGE_TAG,
+        container_name=plan.name,
         product=cell.product,
         db_type=cell.db_type,
-        status="pass",
-        container_name=name if keep else "",
-        probe_url=probe_url,
+        installer_jar_host=jar,
+        host_port=plan.host_port,
+        network=MATRIX_NETWORK,
+        db_meta=db_meta,
+        keep=keep,
+        https_host_port=plan.https_host_port,
+    )
+    fail, detail = _run_cell_launch(
+        cell,
+        plan,
+        run_argv,
+        keep=keep,
+        probe_timeout=probe_timeout,
+        dry_run=dry_run,
+        cell_log=cell_log,
+        started=started,
+    )
+    if fail is not None:
+        return fail
+
+    if not keep:
+        destroy_container(plan.name, dry_run=dry_run)
+
+    return _cell_pass_result(
+        cell,
+        plan,
+        keep=keep,
         detail=detail,
-        duration_seconds=time.time() - started,
-        log_path=str(cell_log),
+        started=started,
+        cell_log=cell_log,
     )
 
 
@@ -1658,6 +1842,175 @@ def _build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def _main_env_services(
+    repo_root: Path, args: argparse.Namespace
+) -> Tuple[Path, Dict[str, Dict[str, str]]]:
+    """Resolve env file, merge process env, build DB services (+DB_SERVICES sync)."""
+    env_file = resolve_env_file(repo_root, args.env_file)
+    file_env = load_env_file(env_file)
+    # Process env overrides file values for passwords/users.
+    merged_env: Dict[str, str] = dict(file_env)
+    merged_env.update({k: v for k, v in os.environ.items() if v})
+    db_services = build_db_services(merged_env)
+    # Keep module snapshot in sync for any helper still reading DB_SERVICES.
+    DB_SERVICES.clear()
+    DB_SERVICES.update(db_services)
+    return env_file, db_services
+
+
+def _main_selection(
+    args: argparse.Namespace, db_services: Mapping[str, Mapping[str, str]]
+) -> Optional[Tuple[List[str], List[str]]]:
+    """Parse/validate ``--product`` / ``--db`` (+ password gate)."""
+    try:
+        products = parse_csv(args.product, PRODUCTS, "product")
+        dbs = parse_csv(args.db, DB_TYPES, "db")
+        require_db_passwords(db_services, dbs)
+    except ValueError as exc:
+        LOG.error("%s", exc)
+        print("RESULT:FAIL STEP:matrix LOG:")
+        return None
+    return products, dbs
+
+
+def _main_gate_preflight(
+    args: argparse.Namespace, repo_root: Path, products: Sequence[str]
+) -> Optional[int]:
+    """CMS rebuild-chain preflight gate (#2531); exit code or None to continue."""
+    # DTS-only matrices skip this gate. Operators who intentionally bypass use
+    # --skip-preflight (e.g. known-stale debug; not recommended for CI).
+    if "cms" not in products:
+        return None
+    if args.skip_preflight:
+        LOG.warning(
+            "Skipping CMS rebuild-chain preflight (--skip-preflight); "
+            "cells may install a stale WebUI WAR"
+        )
+        print("PREFLIGHT: skipped (--skip-preflight)")
+        return None
+    m2_root = (
+        args.m2_root.resolve()
+        if args.m2_root is not None
+        else None
+    )
+    preflight_ok, preflight_report = check_cms_rebuild_preflight(
+        repo_root, m2_root
+    )
+    print(preflight_report)
+    if not preflight_ok:
+        LOG.error(
+            "CMS rebuild-chain preflight STALE — refusing matrix "
+            "before install/start (use --skip-preflight to override)"
+        )
+        print(
+            f"RESULT:FAIL STEP:matrix-preflight "
+            f"DETAIL:{DETAIL_PREFLIGHT_STALE}"
+        )
+        return EXIT_CELL_FAILED
+    return None
+
+
+def _main_run_cells(
+    args: argparse.Namespace,
+    repo_root: Path,
+    compose_file: Path,
+    env_file: Path,
+    cells: Sequence[CellSpec],
+    log_dir: Path,
+    db_services: Mapping[str, Mapping[str, str]],
+    engaged_external: Set[str],
+    started_by_matrix: Set[str],
+    report: MatrixReport,
+) -> int:
+    """Image build + cell loop + report write; returns the matrix exit code."""
+    ensure_network(MATRIX_NETWORK, dry_run=args.dry_run)
+    if not args.skip_image_build:
+        try:
+            build_matrix_image(repo_root, dry_run=args.dry_run)
+        except subprocess.CalledProcessError as exc:
+            LOG.error("matrix image build failed: %s", exc)
+            print("RESULT:FAIL STEP:matrix-image LOG:")
+            return EXIT_CELL_FAILED
+
+    for cell in cells:
+        LOG.info("=== matrix cell %s ===", cell.cell_id)
+        result = run_cell(
+            cell,
+            repo_root=repo_root,
+            compose_file=compose_file,
+            keep=args.keep,
+            probe_timeout=args.probe_timeout,
+            dry_run=args.dry_run,
+            log_dir=log_dir,
+            db_services=db_services,
+            env_file=env_file,
+            started_dbs=started_by_matrix,
+            engaged_dbs=engaged_external,
+            cell_suffix=args.cell_suffix,
+        )
+        report.results.append(result)
+        LOG.info(
+            "Cell %s → %s (%0.1fs) %s",
+            result.cell_id,
+            result.status,
+            result.duration_seconds,
+            result.detail,
+        )
+
+    report.finished_at = datetime.now(timezone.utc).isoformat()
+    report_path = log_dir / f"matrix-results-{_ts()}.json"
+    report_path.write_text(
+        json.dumps(report.to_dict(), indent=2) + "\n", encoding="utf-8"
+    )
+
+    failed = [r for r in report.results if r.status == "fail"]
+    if failed:
+        print(f"RESULT:FAIL STEP:matrix LOG:{report_path}")
+        return EXIT_CELL_FAILED
+    print(f"RESULT:OK STEP:matrix LOG:{report_path}")
+    return EXIT_OK
+
+
+def _main_teardown(
+    args: argparse.Namespace,
+    compose_file: Path,
+    started_by_matrix: Set[str],
+    engaged_external: Set[str],
+    db_services: Mapping[str, Mapping[str, str]],
+    env_file: Path,
+) -> None:
+    """Always attempt DB teardown after cells (pass or fail), unless opted out."""
+    # Only consider DBs this run actually engaged (start_db called).
+    to_stop = select_dbs_to_stop(
+        started_by_matrix=started_by_matrix,
+        used_external=engaged_external,
+        keep=args.keep,
+        keep_db=args.keep_db,
+        stop_db=args.stop_db,
+    )
+    if to_stop:
+        LOG.info(
+            "Tearing down external DBs: %s",
+            ", ".join(sorted(to_stop)),
+        )
+        stop_external_dbs(
+            compose_file,
+            to_stop,
+            dry_run=args.dry_run,
+            db_services=db_services,
+            env_file=env_file,
+        )
+    elif engaged_external and (args.keep or args.keep_db):
+        LOG.info(
+            "Leaving external DBs running (%s)",
+            "--keep" if args.keep else "--keep-db",
+        )
+    elif engaged_external and not started_by_matrix and not args.stop_db:
+        LOG.info(
+            "Leaving pre-existing external DBs running (not started by this matrix run)"
+        )
+
+
 def main(argv: Optional[Sequence[str]] = None) -> int:
     logging.basicConfig(
         level=logging.INFO,
@@ -1668,61 +2021,23 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     script_path = Path(__file__).resolve()
     repo_root = (args.repo_root or repo_root_from(script_path)).resolve()
     compose_file = (args.compose_file or (repo_root / DEFAULT_COMPOSE_FILE)).resolve()
-    env_file = resolve_env_file(repo_root, args.env_file)
-    file_env = load_env_file(env_file)
-    # Process env overrides file values for passwords/users.
-    merged_env: Dict[str, str] = dict(file_env)
-    merged_env.update({k: v for k, v in os.environ.items() if v})
-    db_services = build_db_services(merged_env)
-    # Keep module snapshot in sync for any helper still reading DB_SERVICES.
-    DB_SERVICES.clear()
-    DB_SERVICES.update(db_services)
+    env_file, db_services = _main_env_services(repo_root, args)
     log_dir = repo_root / "docker" / "logs"
     log_dir.mkdir(parents=True, exist_ok=True)
 
-    try:
-        products = parse_csv(args.product, PRODUCTS, "product")
-        dbs = parse_csv(args.db, DB_TYPES, "db")
-        require_db_passwords(db_services, dbs)
-    except ValueError as exc:
-        LOG.error("%s", exc)
-        print(f"RESULT:FAIL STEP:matrix LOG:")
+    selection = _main_selection(args, db_services)
+    if selection is None:
         return EXIT_INVOCATION
+    products, dbs = selection
 
     LOG.info("Using compose env file %s", env_file)
     cells = expand_matrix(products, dbs)
 
     # CMS rebuild-chain preflight (#2531): refuse before install/start when the
     # WebUI WAR is older than m2 sitemanage (or WAR missing while m2 present).
-    # DTS-only matrices skip this gate. Operators who intentionally bypass use
-    # --skip-preflight (e.g. known-stale debug; not recommended for CI).
-    if "cms" in products:
-        if args.skip_preflight:
-            LOG.warning(
-                "Skipping CMS rebuild-chain preflight (--skip-preflight); "
-                "cells may install a stale WebUI WAR"
-            )
-            print("PREFLIGHT: skipped (--skip-preflight)")
-        else:
-            m2_root = (
-                args.m2_root.resolve()
-                if args.m2_root is not None
-                else None
-            )
-            preflight_ok, preflight_report = check_cms_rebuild_preflight(
-                repo_root, m2_root
-            )
-            print(preflight_report)
-            if not preflight_ok:
-                LOG.error(
-                    "CMS rebuild-chain preflight STALE — refusing matrix "
-                    "before install/start (use --skip-preflight to override)"
-                )
-                print(
-                    f"RESULT:FAIL STEP:matrix-preflight "
-                    f"DETAIL:{DETAIL_PREFLIGHT_STALE}"
-                )
-                return EXIT_CELL_FAILED
+    gated = _main_gate_preflight(args, repo_root, products)
+    if gated is not None:
+        return gated
 
     # Pin compose DB host publishes once for the whole matrix so concurrent
     # worktrees get a stable freeport set before any compose up (#2004).
@@ -1742,86 +2057,28 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         return EXIT_INVOCATION
 
     try:
-        ensure_network(MATRIX_NETWORK, dry_run=args.dry_run)
-        if not args.skip_image_build:
-            try:
-                build_matrix_image(repo_root, dry_run=args.dry_run)
-            except subprocess.CalledProcessError as exc:
-                LOG.error("matrix image build failed: %s", exc)
-                print("RESULT:FAIL STEP:matrix-image LOG:")
-                exit_code = EXIT_CELL_FAILED
-                return exit_code
-
-        for cell in cells:
-            LOG.info("=== matrix cell %s ===", cell.cell_id)
-            result = run_cell(
-                cell,
-                repo_root=repo_root,
-                compose_file=compose_file,
-                keep=args.keep,
-                probe_timeout=args.probe_timeout,
-                dry_run=args.dry_run,
-                log_dir=log_dir,
-                db_services=db_services,
-                env_file=env_file,
-                started_dbs=started_by_matrix,
-                engaged_dbs=engaged_external,
-                cell_suffix=args.cell_suffix,
-            )
-            report.results.append(result)
-            LOG.info(
-                "Cell %s → %s (%0.1fs) %s",
-                result.cell_id,
-                result.status,
-                result.duration_seconds,
-                result.detail,
-            )
-
-        report.finished_at = datetime.now(timezone.utc).isoformat()
-        report_path = log_dir / f"matrix-results-{_ts()}.json"
-        report_path.write_text(
-            json.dumps(report.to_dict(), indent=2) + "\n", encoding="utf-8"
+        exit_code = _main_run_cells(
+            args,
+            repo_root,
+            compose_file,
+            env_file,
+            cells,
+            log_dir,
+            db_services,
+            engaged_external,
+            started_by_matrix,
+            report,
         )
-
-        failed = [r for r in report.results if r.status == "fail"]
-        if failed:
-            print(f"RESULT:FAIL STEP:matrix LOG:{report_path}")
-            exit_code = EXIT_CELL_FAILED
-        else:
-            print(f"RESULT:OK STEP:matrix LOG:{report_path}")
-            exit_code = EXIT_OK
         return exit_code
     finally:
-        # Always attempt DB teardown after cells (pass or fail), unless opted out.
-        # Only consider DBs this run actually engaged (start_db called).
-        to_stop = select_dbs_to_stop(
-            started_by_matrix=started_by_matrix,
-            used_external=engaged_external,
-            keep=args.keep,
-            keep_db=args.keep_db,
-            stop_db=args.stop_db,
+        _main_teardown(
+            args,
+            compose_file,
+            started_by_matrix,
+            engaged_external,
+            db_services,
+            env_file,
         )
-        if to_stop:
-            LOG.info(
-                "Tearing down external DBs: %s",
-                ", ".join(sorted(to_stop)),
-            )
-            stop_external_dbs(
-                compose_file,
-                to_stop,
-                dry_run=args.dry_run,
-                db_services=db_services,
-                env_file=env_file,
-            )
-        elif engaged_external and (args.keep or args.keep_db):
-            LOG.info(
-                "Leaving external DBs running (%s)",
-                "--keep" if args.keep else "--keep-db",
-            )
-        elif engaged_external and not started_by_matrix and not args.stop_db:
-            LOG.info(
-                "Leaving pre-existing external DBs running (not started by this matrix run)"
-            )
 
 
 if __name__ == "__main__":
