@@ -41,6 +41,9 @@ Subcommands (all write/refresh ``scratch/claims.json``):
   release-unfinished
                   Report phase: release every claim of this cycle whose
                   ``scratch/work-<N>.json`` is not ``pr_opened``
+  release-closed  release every claim whose issue is now CLOSED (merge-close
+                  or otherwise) and clear the label from all CLOSED issues
+                  still carrying it; keeps OPEN issues untouched
   sweep-stale     clear claims older than ``--stale-hours`` (default 24)
                   with no covering open PR; never touches assigned issues
                   or the current cycle's claims
@@ -133,6 +136,14 @@ class Gh:
     def labeled_open(self) -> list[dict]:
         out = self.run(
             ["issue", "list", "--repo", self.repo, "--state", "open", "--label", LABEL,
+             "--limit", "200", "--json", "number,updatedAt,assignees,labels"],
+            None,
+        )
+        return json.loads(out or "[]")
+
+    def labeled_closed(self) -> list[dict]:
+        out = self.run(
+            ["issue", "list", "--repo", self.repo, "--state", "closed", "--label", LABEL,
              "--limit", "200", "--json", "number,updatedAt,assignees,labels"],
             None,
         )
@@ -417,6 +428,59 @@ class Claimer:
             released += self.release([n], reason if not status else "work_" + status)["released"]
         return {"cycle_id": self.cycle, "released": released, "kept_pr_opened": kept}
 
+    def release_closed(self, numbers: list[int] | None = None, max_clears: int = 40) -> dict:
+        """Release claims whose issues are now CLOSED and drop the label.
+
+        Merge-closed (or otherwise closed) issues kept the ``in progress``
+        label forever: ``release-unfinished`` deliberately keeps
+        ``pr_opened`` claims to guard the open PR, and ``sweep-stale``
+        only scans OPEN labeled issues. A claim on a closed issue is
+        definitionally dead, so CLOSED issues always lose the label here —
+        own claim records move to ``released`` (reason ``issue_closed``)
+        and every cleared row gets a release comment so the marker history
+        resolves to no active claims.
+
+        Scans this cycle's non-terminal claims plus every CLOSED issue
+        still carrying the label (the pre-fix backlog). OPEN issues are
+        kept untouched.
+        """
+        self._require_cycle()
+        own = [int(k) for k, rec in self.state.get("claims", {}).items()
+               if rec.get("state") not in TERMINAL]
+        if numbers:
+            own = list(dict.fromkeys(own + [int(n) for n in numbers]))
+        try:
+            labeled = [int(r["number"]) for r in self.gh.labeled_closed()]
+        except RuntimeError:
+            labeled = []
+        todo = list(dict.fromkeys(own + labeled))
+        released, cleared, kept = [], [], []
+        for n in todo:
+            if len(released) + len(cleared) >= max_clears:
+                kept.append({"issue": n, "reason": "cap"})
+                continue
+            try:
+                issue = self.gh.issue(n)
+            except RuntimeError:
+                kept.append({"issue": n, "reason": "lookup_failed"})
+                continue
+            if str(issue.get("state", "OPEN")).upper() != "CLOSED":
+                kept.append({"issue": n, "reason": "open"})
+                continue
+            rec = self.state.get("claims", {}).get(str(n))
+            mine = rec is not None and rec.get("state") not in TERMINAL
+            if has_label(issue):
+                self.gh.remove_label(n, label_name(issue))
+            self.gh.comment(n, self._release_body("issue_closed", scope="all"))
+            if mine:
+                self._record(n, state="released", reason="issue_closed",
+                             released_at=iso(self.now()))
+                released.append(n)
+            else:
+                cleared.append(n)
+        return {"cycle_id": self.cycle, "released": released,
+                "cleared": cleared, "kept": kept}
+
     # -- stale sweep
     def sweep_stale(self, stale_hours: int, max_clears: int = 40) -> dict:
         self._require_cycle()
@@ -496,6 +560,10 @@ def main(argv: list[str] | None = None, runner: Runner = default_runner) -> int:
     s = sub.add_parser("release-unfinished")
     s.add_argument("--work-dir", default="scratch")
 
+    s = sub.add_parser("release-closed")
+    s.add_argument("--issues", help="comma-separated issue numbers (extra to the cycle's claims)")
+    s.add_argument("--max-clears", type=int, default=40)
+
     s = sub.add_parser("sweep-stale")
     s.add_argument("--stale-hours", type=int, default=24)
     s.add_argument("--max-clears", type=int, default=40)
@@ -511,6 +579,8 @@ def main(argv: list[str] | None = None, runner: Runner = default_runner) -> int:
         out = c.release(parse_csv(args.issues), args.reason)
     elif args.cmd == "release-unfinished":
         out = c.release_unfinished(Path(args.work_dir))
+    elif args.cmd == "release-closed":
+        out = c.release_closed(parse_csv(args.issues), args.max_clears)
     else:
         out = c.sweep_stale(max(1, args.stale_hours), args.max_clears)
     print(json.dumps(out, indent=2))

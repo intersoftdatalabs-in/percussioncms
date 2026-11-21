@@ -10175,11 +10175,10 @@
             <column name="UICONTEXTID">3</column>
             <column name="ACTIONID">115</column>
         </row>
-        <!-- #6886/#6889: Arrange family in the modern Explorer shell (CXMAIN,
+        <!-- #6886: Arrange family in the modern Explorer shell (CXMAIN,
              main display area). Mirrors the Site Explorer Item scoping so
              GET /actions/find?uiMode=CXMAIN keeps the Arrange MENU parent
-             with children: the toolbar renders it as a dropdown (#6886) and
-             the row context menu mounts it as a nested pivot (#6889). -->
+             with children and the toolbar renders it as a dropdown. -->
         <row onTableCreateOnly="no" action="i">
             <column name="MODEID">4</column>
             <column name="UICONTEXTID">3</column>

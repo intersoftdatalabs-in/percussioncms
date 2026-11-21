@@ -44,8 +44,9 @@ were built from *this* checkout. Concurrent agent worktrees share one
 ``~/.m2`` (or one ``~/.m2-night``); a ``clean install`` from a feature
 branch silently overwrites the SNAPSHOTs another cell's ``qa-up`` then
 boots — a Frankenstein mix that fails with Spring injection errors
-looking like product defects. Any ``.class`` entry in the m2 jar whose
-top-level type has no ``.java`` source in this checkout is reported as
+looking like product defects. Any ``.class`` entry in the m2 jar whose top-level type is declared
+by no ``.java`` in this checkout (same stem or sibling top-level type
+in the declaring file, #6829) is reported as
 ``POISONED:`` (strict mode exits ``2``). Disable with
 ``--no-provenance``.
 """
@@ -56,6 +57,7 @@ import argparse
 import hashlib
 import logging
 import os
+import posixpath  # jar/ZIP entry namespaces (always '/'), never OS paths
 import re
 import sys
 import zipfile
@@ -114,6 +116,23 @@ _PROVENANCE_SKIP_SUFFIXES = ("-sources.jar", "-javadoc.jar")
 # Max foreign class entries shown per artifact; the total count is always
 # reported so long tails do not flood agent logs.
 _PROVENANCE_SAMPLE = 10
+
+# Matches a top-level type declaration in comment/string-stripped source
+# (group ``name``). ``delim`` is the preceding ``^`` / ``;`` / ``{`` / ``}``
+# used to measure brace depth at the declaration. ``@interface`` must
+# precede ``interface`` so annotation types match as one keyword.
+_TYPE_DECL_RE = re.compile(
+    r"(?P<delim>^|[;{}])\s*(?:@\w+(?:\s*\([^()]*\))?\s*)*"
+    r"(?:(?:public|protected|private|static|final|abstract|sealed|non-sealed"
+    r"|strictfp)\s+)*"
+    r"(?:class|@interface|interface|enum|record)\s+"
+    r"(?P<name>[A-Za-z_$][\w$]*)",
+    re.MULTILINE,
+)
+_PACKAGE_DECL_RE = re.compile(
+    r"^\s*package\s+(?P<pkg>[A-Za-z_$][\w$.]*)\s*;",
+    re.MULTILINE,
+)
 
 LOG = logging.getLogger("qa_preflight")
 
@@ -469,17 +488,97 @@ class ProvenanceFinding:
     foreign_sample: tuple[str, ...]  # first _PROVENANCE_SAMPLE entry names
 
 
-def _java_source_index(repo_root: Path, source_roots: Iterable[str]) -> set[str]:
-    """Index ``<top-level-type>.java`` paths (POSIX form) under source roots.
+def _blank(span: str) -> str:
+    """Blank a comment/literal span, preserving newlines (offsets stable)."""
+    return "".join("\n" if ch == "\n" else " " for ch in span)
 
-    Inner-class entries (``Foo$Bar.class``) map to ``Foo.java`` at lookup
-    time, so only top-level ``*.java`` stems are indexed. Annotation
-    processing output (``target/generated-sources/*``) counts as source
-    when the module was built in this checkout; a ``clean`` checkout
-    without rebuilt generated sources may over-report — the finding text
-    says to rebuild in that case.
+
+def _quoted_end(text: str, i: int, quote: str) -> int:
+    """End offset (exclusive) of the quoted span opening at ``i``.
+
+    Backslash escapes are skipped; an unterminated literal runs to the
+    end of its line (or end of input) rather than raising.
     """
-    index: set[str] = set()
+    n = len(text)
+    j = i + 1
+    while j < n:
+        ch = text[j]
+        if ch == "\\":
+            j += 2
+        elif ch == quote:
+            return j + 1
+        elif ch == "\n":
+            return j
+        else:
+            j += 1
+    return n
+
+
+def _noise_span_end(text: str, i: int) -> int | None:
+    """End offset (exclusive) of the comment/literal span opening at ``i``.
+
+    Returns ``None`` when ``text[i]`` starts code. Unclosed spans run to
+    end of input rather than raising.
+    """
+    two = text[i : i + 2]
+    if two == "//":
+        nl = text.find("\n", i)
+        return len(text) if nl == -1 else nl
+    if two == "/*":
+        close = text.find("*/", i + 2)
+        return len(text) if close == -1 else close + 2
+    if text[i : i + 3] == '"""':
+        close = text.find('"""', i + 3)
+        return len(text) if close == -1 else close + 3
+    if text[i] == '"':
+        return _quoted_end(text, i, '"')
+    if text[i] == "'":
+        return _quoted_end(text, i, "'")
+    return None
+
+
+def _strip_java_noise(text: str) -> str:
+    """Remove comments and literal spans so braces/keywords scan cleanly.
+
+    Spans are replaced by blanks of equal length, keeping offsets stable
+    for the brace-depth scan.
+    """
+    out: list[str] = []
+    i = 0
+    n = len(text)
+    while i < n:
+        end = _noise_span_end(text, i)
+        if end is None:
+            out.append(text[i])
+            i += 1
+        else:
+            out.append(_blank(text[i:end]))
+            i = end
+    return "".join(out)
+
+
+def _declared_top_level_types(stripped: str) -> list[str]:
+    """Return top-level type names declared in stripped ``.java`` source.
+
+    Only declarations at brace depth ``0`` (outside every type body)
+    count, so inner/nested classes never mask a genuinely foreign jar
+    entry. Balanced braces inside stripped annotations are depth-neutral.
+    """
+    found: list[str] = []
+    for m in _TYPE_DECL_RE.finditer(stripped):
+        delim = m.group("delim")
+        depth = stripped.count("{", 0, m.start() + len(delim)) - stripped.count(
+            "}", 0, m.start() + len(delim)
+        )
+        if depth == 0:
+            found.append(m.group("name"))
+    return found
+
+
+def _collect_source_roots(
+    repo_root: Path, source_roots: Iterable[str]
+) -> list[Path]:
+    """Resolve checkout source dirs plus built annotation-processing output."""
     roots: list[Path] = []
     for rel in source_roots:
         root = repo_root / Path(*rel.split("/"))
@@ -494,13 +593,65 @@ def _java_source_index(repo_root: Path, source_roots: Iterable[str]) -> set[str]
                     roots.extend(d for d in gen.iterdir() if d.is_dir())
                 except OSError:
                     pass
-    for root in roots:
+    return roots
+
+
+def _index_java_file(index: set[str], root: Path, java: Path) -> None:
+    """Add one ``.java`` file's same-stem and declared-type entries."""
+    try:
+        rel = java.relative_to(root).with_suffix("").as_posix()
+    except ValueError:
+        return
+    # Same-stem entry: always indexed, even when the file cannot be
+    # read or parsed below.
+    index.add(rel)
+    try:
+        stripped = _strip_java_noise(
+            java.read_text(encoding="utf-8", errors="replace")
+        )
+    except OSError:
+        return
+    pkg_m = _PACKAGE_DECL_RE.search(stripped)
+    if pkg_m is not None:
+        pkg_dir = pkg_m.group("pkg").replace(".", "/")
+    else:
+        # No package statement (default package, e.g. the pre-#6824
+        # ``IPSDashboardDataRepository``): declare types at the jar root,
+        # mirroring the compiler.
+        pkg_dir = ""
+    parent = rel.rpartition("/")[0]  # "" when the stem is at the root
+    for name in _declared_top_level_types(stripped):
+        if pkg_dir:
+            # posixpath: jar/ZIP entry namespaces always use '/'
+            # (zipfile namelist), independent of the host OS.
+            index.add(posixpath.join(pkg_dir, name))
+        else:
+            index.add(name)
+        # File-directory entry: covers sources whose package statement
+        # disagrees with their path.
+        if parent and parent != pkg_dir:
+            index.add(posixpath.join(parent, name))
+
+
+def _java_source_index(repo_root: Path, source_roots: Iterable[str]) -> set[str]:
+    """Index jar-entry stems (POSIX form) for every declaring ``.java``.
+
+    Each ``*.java`` file contributes its same-stem entry plus one entry
+    per declared top-level type (``package/path/TypeName``), so files
+    declaring several top-level types — e.g. ``AssetAdaptor.java`` also
+    declaring ``PSStreamingOutput`` (#6829) — map every class the
+    compiler emits for them. Inner-class entries (``Foo$Bar.class``) map
+    to ``Foo`` at lookup time. Annotation processing output
+    (``target/generated-sources/*``) counts as source when the module
+    was built in this checkout; a ``clean`` checkout without rebuilt
+    generated sources may over-report — the finding text says to rebuild
+    in that case.
+    """
+    index: set[str] = set()
+    for root in _collect_source_roots(repo_root, source_roots):
         try:
             for java in root.rglob("*.java"):
-                try:
-                    index.add(java.relative_to(root).with_suffix("").as_posix())
-                except ValueError:
-                    continue
+                _index_java_file(index, root, java)
         except OSError:
             continue
     return index
@@ -523,7 +674,14 @@ def _jar_class_entries(jar_path: Path) -> list[str]:
 
 
 def foreign_classes_in_jar(jar_path: Path, sources: set[str]) -> list[str]:
-    """Return class entries whose top-level type has no ``.java`` source."""
+    """Return class entries with no declaring ``.java`` source.
+
+    ``sources`` is the :func:`_java_source_index` (same-stem entries plus
+    every declared top-level type per file, so multi-type files like
+    ``AssetAdaptor.java`` / ``PSStreamingOutput`` map cleanly). Only the
+    top-level segment (before ``$``) is looked up; inner classes follow
+    their outer type.
+    """
     foreign: list[str] = []
     for entry in _jar_class_entries(jar_path):
         top = entry[: -len(".class")].split("$")[0]
@@ -538,10 +696,11 @@ def check_snapshot_provenance(
     """Flag m2 SNAPSHOT jars built from a different checkout/branch (#6709).
 
     For each known artifact, when *both* the m2 jar and this checkout's
-    source roots exist, every jar ``.class`` without a matching checkout
-    ``.java`` is foreign — the jar came from another branch's
-    ``clean install`` into the shared local repo. Missing jars or missing
-    source roots (partial trees) are skipped, never flagged.
+    source roots exist, every jar ``.class`` whose top-level type is
+    declared by no checkout ``.java`` (same stem or sibling top-level
+    type in the declaring file) is foreign — the jar came from another
+    branch's ``clean install`` into the shared local repo. Missing jars
+    or missing source roots (partial trees) are skipped, never flagged.
     """
     findings: list[ProvenanceFinding] = []
     for label, group_rel, artifact, source_roots in _PROVENANCE_ARTIFACTS:

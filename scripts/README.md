@@ -84,12 +84,19 @@ vars actually reach the plugin and the bash tool.
   Frankenstein-classpath Spring failure). An explicit `-Dmaven.repo.local`
   already present in `MAVEN_ARGS` keeps winning (Maven last-wins);
   `--no-m2-isolate` opts out entirely. The launcher creates the directory
-  but never seeds it — warm-start third-party artifacts once with
-  `python3 docker/scripts/maven_local_repo.py --repo-root <worktree>`
-  (skips project SNAPSHOTs by design; see `docker/README.md`). The
+  and then seeds third-party (non-`SNAPSHOT`) artifacts from the resolved
+  shared repository exactly once (marker-guarded at
+  `<worktree>/tmp/m2-worktree/.worktree-m2-seeded`; repeat runs are a
+  no-op), so the first worktree build does not re-download the internet —
+  `--no-m2-seed` skips seeding, `--m2-seed-from <dir>` overrides the source.
+  Seeding is best-effort (warns, never aborts the run) and never runs under
+  `--dry-run`; it is also skipped when an explicit `-Dmaven.repo.local`
+  redirects the agent's builds elsewhere. Project `SNAPSHOT`s are never
+  copied — they are rebuilt in place (see `docker/README.md`). The
   `qa-up` strict preflight (`--m2-root` default resolves the same way via
   `maven_local_repo.resolve_m2_repository`) fails fast on stale or poisoned
-  jars before the matrix run.
+  jars before the matrix run. The one-shot manual equivalent remains
+  `python3 docker/scripts/maven_local_repo.py --repo-root <worktree>`.
 - **Usage**:
 
   ```bash
@@ -616,13 +623,18 @@ marker — so runners on other machines skip it. State: `scratch/claims.json`.
   python3 scripts/night-queue-claim.py claim --queue scratch/decision-front.json
   python3 scripts/night-queue-claim.py release --issues 123 --reason dropped_by_triage
   python3 scripts/night-queue-claim.py release-unfinished --work-dir scratch
+  python3 scripts/night-queue-claim.py release-closed   # drop label from merge-closed issues + backlog
   ```
 
 - **Rules in code**: never claims assigned / closed / already-claimed issues
   (returned as `conflicts`); earliest claim comment wins a race; a release
   removes the label only when no other runner's claim is active; the stale
   sweep skips assigned issues, issues with a covering open PR and the current
-  cycle's claims.
+  cycle's claims. `release-closed` (#6890) releases this cycle's claims whose
+  issues are now CLOSED and clears the label from every other CLOSED issue
+  still carrying it (a claim on a closed issue is dead, so no live claim is
+  disturbed); OPEN issues are kept. The `.github/workflows/night-claim-cleanup.yml`
+  `issues: closed` workflow does the same at close time for future merges.
 - **Tests**: `python3 -m pytest scripts/test_night_queue_claim.py` (fake `gh`).
 
 ### `night-decision-front.py` / `night-decision-front.cmd`
@@ -705,7 +717,7 @@ Each entry below has been ported to cross-platform Python 3.9+ with pytest cover
 - `verify-no-bare-ipsobjectstoreerrors.py` — Phase 2b (#3143 / parent #2616) freeze gate: no **new** bare production `IPSObjectStoreErrors` imports / `implements` / qualified constant uses outside an explicit allow-list (interface + utils `ObjectStoreErrorCode` bridge only; residual production list empty after #3175/#3176/#3177 — Desktop CX, Design ACL, deployer, LockManager, Handler retypes landed). Tests and comment-only mentions are ignored. Test: `test_verify_no_bare_ipsobjectstoreerrors.py`. Run: `python3 scripts/verify-no-bare-ipsobjectstoreerrors.py` (Windows: `python scripts\verify-no-bare-ipsobjectstoreerrors.py`); `--list-allowlist` prints residual paths.
 - `verify-no-bare-ipserrors.py` — Phase 2b (#3586 / parent #2616) freeze gate for **remaining** `IPS*Errors` families (`IPSWebserviceErrors`, `IPSTransformationErrors`, plus other live catalogs under `system/` and `modules/`). Fails on **new** bare production call-sites outside an explicit allow-list: interface files named `IPS*Errors.java`, typed `*ErrorCodes.java` / `*ErrorCode.java` bridges, and exact residual paths in `ipserrors-residual-allowlist.txt` (sitemanage leftovers converted in #3584/#3846; system/services leftovers in #3847; servlet/WebDAV leftovers in #3848; webservices/transformation leftover call sites in #3585; leftover system/webservices SOAP/ws in #3861; leftover system/src/main cms builders in #3882; leftover cms handlers in #3883; leftover cms.objectstore + client in #3884; leftover cms.objectstore.server in #3900; leftover extensions-main in #3756/#3938; leftover system/src/main com.percussion.data (+ macro/vfs) in #3939; leftover system/src/main com.percussion.mail in #4017; leftover system/src/main com.percussion.cx in #4013; leftover IPSServerErrors DTD/workflow/relationship/date/CMS in #4142; leftover PSServer/handlers/parsers/console in #4150; leftover system/server command/cache/actions/clone/compare/config in #4153; leftover system search IPSSearchErrors in #4155; leftover system/src/main relationship.effect in #4156; leftover system install JDBC table-factory in #4157; leftover servletutils PSTomcatUtils in #4195; leftover PSDtdTree IPSXmlErrors in #4197; system server core leftovers in #4262; leftover system server webservices handlers in #4263; leftover modules+misc system in #4264; leftover Testing Extensions in #4337; leftover Tools/RxFix in #4339; leftover Testing/cms HttpItemCopier in #4338; leftover sitemanage apibridge SlotRelationshipAdaptor in #4881 — residual allow-list empty after #4881; deployer catalog/client #3739, server/handlers #3740, PSDeployJexlUtils #4196). `IPSObjectStoreErrors` stays on the sibling #3143 gate. Tests and comment-only mentions are ignored. Do **not** add directory prefixes — a new file under the same tree must fail until it is listed with an issue link. Test: `test_verify_no_bare_ipserrors.py`. Run: `python3 scripts/verify-no-bare-ipserrors.py` (Windows: `python scripts\verify-no-bare-ipserrors.py`); `--list-allowlist` prints residual paths; `--dump-residuals` reprints current production leftovers for allow-list maintenance.
 - `verify-codeql-analyzer-of-record.py` — asserts the advanced CodeQL workflow + config + playbook are in place and that the default-setup is `not-configured`. Test: `test_verify_codeql_analyzer_of_record.py`.
-- `verify-signed-commits.py` — pre-push gate for the night-issue-prs work + follow-up paths (#6809): `check` fails when any commit in `<base>..<head>` (default `origin/main..HEAD`) has a placeholder/unattributed author/committer or no valid (`G`) signature, so the `required_signatures` ruleset can never block a merge; `ensure-identity` fails when the effective git identity would produce unattributed/unsigned commits, and `--apply-from <work-repo>` installs the work step's identity/signing config before rebasing (`git rebase --gpg-sign`) or committing (`git commit -S`). Test: `test_verify_signed_commits.py`. Run: `python3 scripts/verify-signed-commits.py check` (Windows: `python scripts\verify-signed-commits.py check`).
+- `verify-signed-commits.py` — pre-push gate for the night-issue-prs work + follow-up paths (#6809): `check` fails when any commit in `<base>..<head>` (default `origin/main..HEAD`) has a placeholder/unattributed author/committer or no valid (`G`) signature, so the `required_signatures` ruleset can never block a merge; `ensure-identity` fails when the effective git identity would produce unattributed/unsigned commits, and `--apply-from <work-repo>` installs the work step's identity/signing config before rebasing (`git rebase --gpg-sign`) or committing (`git commit -S`). Test: `test_verify_signed_commits.py`. Run: `python3 scripts/verify-signed-commits.py check` (Windows: `python scripts\verify-signed-commits.py check`). Wired into CI on every PR (no path filter — the gate inspects commits, not files) by `.github/workflows/signed-commits.yml` (#6855): full-history checkout, gate behavioral suite as a hard step, live `check --base "origin/${{ github.base_ref }}"` as an advisory step (CI runners carry no signer keyrings, so `required_signatures` stays the merge blocker). Contract: `test_signed_commits_workflow.py`.
 
 ### `004-zero-code-scanning-alerts` workflow scripts
 

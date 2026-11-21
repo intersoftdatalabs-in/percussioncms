@@ -34,6 +34,16 @@ _UNUSED_ROOT = Path(tempfile.gettempdir()) / "matrix-pin-unused-root"
 _UNUSED_COMPOSE = Path(tempfile.gettempdir()) / "matrix-pin-unused-compose.yml"
 
 
+def _fixture_path(name: str) -> Path:
+    """Portable test-fixture path under the platform temp dir (issue #6887).
+
+    Replaces Unix-only absolute temp-dir literals so this suite also
+    runs on Windows checkouts. Fixtures are stringified into argv / parsed
+    CLI values only and are never required to exist on disk.
+    """
+    return Path(tempfile.gettempdir()) / name
+
+
 def _clear_port_env() -> None:
     for key in _PORT_ENV_KEYS:
         os.environ.pop(key, None)
@@ -207,7 +217,7 @@ class ResolveJarTests(unittest.TestCase):
 
 class DockerRunArgvTests(unittest.TestCase):
     def test_cms_postgresql_argv(self):
-        jar = Path("/tmp/fake-cms.jar")
+        jar = _fixture_path("fake-cms.jar")
         argv = smoke.build_docker_run_argv(
             image=smoke.MATRIX_IMAGE_TAG,
             container_name="perc-matrix-cms-postgresql",
@@ -234,7 +244,7 @@ class DockerRunArgvTests(unittest.TestCase):
             container_name="perc-matrix-cms-h2",
             product="cms",
             db_type="h2",
-            installer_jar_host=Path("/tmp/j.jar"),
+            installer_jar_host=_fixture_path("j.jar"),
             host_port=9993,
             network=smoke.MATRIX_NETWORK,
             db_meta=smoke.DB_SERVICES["h2"],
@@ -245,7 +255,7 @@ class DockerRunArgvTests(unittest.TestCase):
         self.assertNotIn("DB_HOST=", joined)
 
     def test_cms_oracle_argv(self):
-        jar = Path("/tmp/fake-cms.jar")
+        jar = _fixture_path("fake-cms.jar")
         db_meta = smoke.build_db_services(
             {
                 "ORACLE_APP_PASSWORD": "ora-secret",
@@ -961,7 +971,7 @@ class MatrixHostPortFreeportTests(unittest.TestCase):
             container_name="perc-matrix-cms-h2",
             product="cms",
             db_type="h2",
-            installer_jar_host=Path("/tmp/j.jar"),
+            installer_jar_host=_fixture_path("j.jar"),
             host_port=host_port,
             network=smoke.MATRIX_NETWORK,
             db_meta=smoke.DB_SERVICES["h2"],
@@ -1706,11 +1716,12 @@ class CmsPreflightGateTests(unittest.TestCase):
             self.assertNotIn("STALE", out)
 
     def test_parser_exposes_skip_preflight_and_m2_root(self):
+        fake_m2 = str(_fixture_path("fake-m2"))
         args = smoke._build_parser().parse_args(
-            ["--skip-preflight", "--m2-root", "/tmp/fake-m2"]
+            ["--skip-preflight", "--m2-root", fake_m2]
         )
         self.assertTrue(args.skip_preflight)
-        self.assertEqual(args.m2_root, Path("/tmp/fake-m2"))
+        self.assertEqual(args.m2_root, Path(fake_m2))
 
 
 class CellSuffixIsolationTests(unittest.TestCase):

@@ -77,8 +77,11 @@ class FakeGh:
             self.issues[int(args[2])]["comments"].append({"body": stdin, "createdAt": self.tick()})
             return ""
         if args[:2] == ["issue", "list"]:
+            want = "OPEN"
+            if "--state" in args:
+                want = args[args.index("--state") + 1].upper()
             rows = [i for i in self.issues.values()
-                    if i["state"] == "OPEN" and nqc.has_label(i)]
+                    if i["state"] == want and nqc.has_label(i)]
             return json.dumps(rows)
         if args[:2] == ["pr", "list"]:
             return json.dumps(self.prs)
@@ -256,6 +259,60 @@ def test_sweep_never_clears_current_cycle():
         assert labels(gh, 30) == ["in progress"]
 
 
+def test_release_closed_drops_label_on_merge_close_and_keeps_open():
+    gh = FakeGh()
+    gh.add(50)  # claimed, then merge-closed
+    gh.add(51)  # claimed, stays open with an open PR
+    with tempfile.TemporaryDirectory() as tmp:
+        c = claimer(gh, tmp)
+        c.init()
+        c.claim([50, 51])
+        gh.issues[50]["state"] = "CLOSED"
+        out = c.release_closed()
+        assert out["released"] == [50]
+        assert out["cleared"] == []
+        assert labels(gh, 50) == []
+        assert labels(gh, 51) == ["in progress"]  # untouched
+        assert any(k["issue"] == 51 and k["reason"] == "open" for k in out["kept"])
+        state = json.loads((Path(tmp) / "claims.json").read_text())
+        assert state["claims"]["50"]["state"] == "released"
+        assert state["claims"]["50"]["reason"] == "issue_closed"
+        assert state["claims"]["51"]["state"] == "claimed"
+        body = gh.issues[50]["comments"][-1]["body"]
+        assert "reason=issue_closed" in body
+        # scope=all resolves the marker history: no active claims remain
+        assert nqc.active_claims(gh.issues[50]) == []
+
+
+def test_release_closed_clears_legacy_labeled_closed_backlog():
+    gh = FakeGh()
+    gh.add(60, labels=["in progress"], state="CLOSED")  # legacy label, no markers
+    gh.add(61, labels=["in progress"], state="CLOSED",
+           comments=[other_claim("old-cycle", "2026-11-19T10:00:00Z")])  # foreign markers
+    gh.add(62, labels=["in progress"], state="OPEN")  # live open claim: not ours to touch
+    with tempfile.TemporaryDirectory() as tmp:
+        c = claimer(gh, tmp)
+        c.init()
+        out = c.release_closed()
+        assert sorted(out["cleared"]) == [60, 61]
+        assert labels(gh, 60) == [] and labels(gh, 61) == []
+        assert labels(gh, 62) == ["in progress"]  # open sweep never sees closed-only rows
+        assert nqc.active_claims(gh.issues[61]) == []
+        assert "reason=issue_closed" in gh.issues[60]["comments"][-1]["body"]
+
+
+def test_release_closed_respects_cap_and_lookup_failures():
+    gh = FakeGh()
+    gh.add(70, labels=["in progress"], state="CLOSED")
+    gh.add(71, labels=["in progress"], state="CLOSED")
+    with tempfile.TemporaryDirectory() as tmp:
+        c = claimer(gh, tmp)
+        c.init()
+        out = c.release_closed(max_clears=1)
+        assert len(out["released"]) + len(out["cleared"]) == 1
+        assert out["kept"][0]["reason"] == "cap"
+
+
 def test_queue_numbers_shapes():
     with tempfile.TemporaryDirectory() as tmp:
         p = Path(tmp) / "q.json"
@@ -281,3 +338,18 @@ def test_cli_claim_round_trip():
         assert nqc.main(["--repo", "o/r", "--claims", claims, "release", "--issues", "40",
                          "--reason", "deferred"], runner=gh) == 0
         assert labels(gh, 40) == []
+
+
+def test_cli_release_closed_round_trip():
+    gh = FakeGh()
+    gh.add(70)
+    with tempfile.TemporaryDirectory() as tmp:
+        claims = str(Path(tmp) / "claims.json")
+        assert nqc.main(["--repo", "o/r", "--claims", claims, "--host", "h", "init"], runner=gh) == 0
+        assert nqc.main(["--repo", "o/r", "--claims", claims, "claim", "--issues", "#70"], runner=gh) == 0
+        assert labels(gh, 70) == ["in progress"]
+        gh.issues[70]["state"] = "CLOSED"  # PR merged
+        assert nqc.main(["--repo", "o/r", "--claims", claims, "release-closed"], runner=gh) == 0
+        assert labels(gh, 70) == []
+        state = json.loads(Path(claims).read_text())
+        assert state["claims"]["70"]["state"] == "released"
