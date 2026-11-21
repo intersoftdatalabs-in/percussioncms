@@ -1445,10 +1445,10 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
         <property name="repositoryDirectory" value="${rxdeploydir}/rxconfig/LDAP" />
     </bean>
     -->
-    <!--
-    <bean id="defaultPasswordEncryptionBean" class="com.percussion.user.service.impl.PSDefaultPasswordEncryptionBean"
-        autowire="constructor" />
-        -->
+    <!-- Dead commented-out defaultPasswordEncryptionBean block removed (issue #6830):
+         preexisting secrets.heuristic hit on a class-name string inside a comment, not a
+         real secret. The live bean is wired via @Component("defaultPasswordEncryptionBean")
+         on PSDefaultPasswordEncryptionBean; this XML was never instantiated. -->
 
     <!--
       <bean id="siteSectionMetaDataService" class="com.percussion.sitemanage.service.impl.PSSiteSectionMetaDataService" autowire="constructor"/>
