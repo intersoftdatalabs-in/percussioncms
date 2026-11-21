@@ -187,6 +187,63 @@ describe("EditorHost workflow history panel (#5829)", () => {
     ).toBeNull();
   });
 
+  it("retry re-runs the load for the same item and renders rows on success (#6896)", async () => {
+    const loadRevisions = vi
+      .fn()
+      .mockRejectedValueOnce({ status: 500, message: "boom" })
+      .mockResolvedValue(historySummary);
+    renderHost({ loadRevisions });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-history-toggle")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-history-toggle"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("editor-workflow-history-load-error"),
+      ).toBeTruthy();
+    });
+    expect(
+      screen.getByTestId("editor-retry-workflow-history-load"),
+    ).toBeTruthy();
+    fireEvent.click(screen.getByTestId("editor-retry-workflow-history-load"));
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-history-table")).toBeTruthy();
+    });
+    expect(loadRevisions).toHaveBeenCalledTimes(2);
+    expect(loadRevisions).toHaveBeenNthCalledWith(2, "42");
+    expect(
+      screen.queryByTestId("editor-workflow-history-load-error"),
+    ).toBeNull();
+  });
+
+  it("a repeated retry failure keeps the alert with retry offered (#6896)", async () => {
+    const loadRevisions = vi
+      .fn()
+      .mockRejectedValue({ status: 500, message: "boom" });
+    renderHost({ loadRevisions });
+    await waitFor(() => {
+      expect(screen.getByTestId("editor-workflow-history-toggle")).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-workflow-history-toggle"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("editor-workflow-history-load-error"),
+      ).toBeTruthy();
+    });
+    fireEvent.click(screen.getByTestId("editor-retry-workflow-history-load"));
+    await waitFor(() => {
+      expect(loadRevisions).toHaveBeenCalledTimes(2);
+    });
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("editor-retry-workflow-history-load"),
+      ).toBeTruthy();
+    });
+    expect(
+      screen.queryByTestId("editor-workflow-history-table"),
+    ).toBeNull();
+  });
+
   it("shows the toggle in view mode (read-only history)", async () => {
     const loadRevisions = vi.fn().mockResolvedValue(historySummary);
     renderHost({ mode: "view", loadRevisions });

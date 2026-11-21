@@ -4697,16 +4697,12 @@ export function EditorHost({
     }
   }
 
-  async function handleWorkflowHistoryOpen(): Promise<void> {
+  async function loadWorkflowHistory(): Promise<void> {
     if (contentId == null || !canViewWorkflowHistoryFromEditor(mode)) {
       return;
     }
-    setWorkflowHistoryOpen((prev) => !prev);
     setWorkflowHistoryLoadErrorKey(null);
     setWorkflowHistoryLoadErrorDetail("");
-    if (workflowHistoryOpen) {
-      return;
-    }
     setWorkflowHistoryBusy(true);
     try {
       const summary = await loadRevisions(String(contentId));
@@ -4723,6 +4719,17 @@ export function EditorHost({
     } finally {
       setWorkflowHistoryBusy(false);
     }
+  }
+
+  async function handleWorkflowHistoryOpen(): Promise<void> {
+    if (contentId == null || !canViewWorkflowHistoryFromEditor(mode)) {
+      return;
+    }
+    setWorkflowHistoryOpen((prev) => !prev);
+    if (workflowHistoryOpen) {
+      return;
+    }
+    await loadWorkflowHistory();
   }
 
   async function loadScheduledTransitionsDates(): Promise<void> {
@@ -6575,6 +6582,7 @@ export function EditorHost({
                 loading={workflowHistoryBusy}
                 loadErrorKey={workflowHistoryLoadErrorKey}
                 loadErrorDetail={workflowHistoryLoadErrorDetail}
+                onRetryLoad={() => void loadWorkflowHistory()}
               />
             ) : null}
             {showScheduledTransitions && scheduledTransitionsOpen ? (
