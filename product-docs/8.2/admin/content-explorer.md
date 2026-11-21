@@ -1258,6 +1258,19 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
 Selecting a server action either navigates to a product-safe same-origin URL or refreshes the
 list after a client-handled command (for example a workflow transition).
 
+### Toolbar keyboard operation
+
+The **Server actions** toolbar is fully operable without a pointer
+(WCAG 2.1.1). **Tab** moves between the toolbar controls (each open
+dropdown is a single tab stop). With a dropdown open, **ArrowDown** and
+**ArrowUp** move across its items (wrapping at the ends), and **Home** /
+**End** jump to the first / last item. Pressing **ArrowDown** (or
+**ArrowUp**) on a closed parent opens it on the first (or last) item.
+**Escape** closes the menu and returns focus to the parent button;
+**Tab** closes the menu as focus leaves. The labeled **Workflow** group
+answers the same movement keys across its one-click triggers.
+Type-ahead (jump-to-letter) is not offered.
+
 ## Status bar and DCE chrome-model parity
 
 Desktop Content Explorer drove its chrome (main menu bar, toolbars, status bar,

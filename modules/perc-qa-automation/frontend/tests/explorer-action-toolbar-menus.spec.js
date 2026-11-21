@@ -37,6 +37,9 @@ const {
   explorerSpaUrl,
 } = require("./helpers/explorer-menu-bar");
 const { collectMenuParents } = require("./helpers/explorer-action-toolbar-catalog");
+const {
+  expectNoSeriousA11yViolations,
+} = require("./helpers/a11y");
 
 test.describe("modern React Content Explorer — nested ActionToolbar menus (#2730)", () => {
   /** Uncaught page errors + unexpected console errors for C5. */
@@ -207,6 +210,82 @@ test.describe("modern React Content Explorer — nested ActionToolbar menus (#27
         `[data-testid="action-toolbar-menu-${firstRequired}"] [role="menuitem"]`,
       );
       await expect(items.first()).toBeVisible();
+    },
+  );
+
+  test(
+    "keyboard traversal across an open toolbar dropdown (#6827)",
+    { tag: ["@explorer-action-toolbar", "@explorer"] },
+    async ({ page }) => {
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.actionToolbar}"]`),
+      ).toBeVisible({ timeout: 15_000 });
+
+      const parents = page.locator(
+        `[data-testid="${TEST_IDS.actionToolbar}"] [data-testid^="action-toolbar-item-"][aria-haspopup="menu"]`,
+      );
+      await expect
+        .poll(async () => parents.count(), { timeout: 15_000 })
+        .toBeGreaterThan(0);
+      const firstParent = parents.first();
+      const parentTestId = await firstParent.getAttribute("data-testid");
+      const parentName = String(parentTestId).replace(
+        "action-toolbar-item-",
+        "",
+      );
+      const menu = page.locator(
+        `[data-testid="action-toolbar-menu-${parentName}"]`,
+      );
+      const activeTestId = () =>
+        page.evaluate(
+          () => document.activeElement?.getAttribute("data-testid") ?? "",
+        );
+
+      // ArrowDown on the parent opens the menu on the first item (#6827).
+      await firstParent.focus();
+      await page.keyboard.press("ArrowDown");
+      await expect(menu).toBeVisible({ timeout: 5_000 });
+      const items = menu.locator('[role="menuitem"]');
+      const count = await items.count();
+      expect(count, "open dropdown must have traversable items").toBeGreaterThan(
+        1,
+      );
+      expect(await activeTestId()).toBe(
+        await items.nth(0).getAttribute("data-testid"),
+      );
+      // Roving tabindex: exactly one tab stop while open.
+      await expect(menu.locator('[tabindex="0"]')).toHaveCount(1);
+
+      // ArrowDown walks forward; End/Home jump; Escape returns to parent.
+      await page.keyboard.press("ArrowDown");
+      expect(await activeTestId()).toBe(
+        await items.nth(1).getAttribute("data-testid"),
+      );
+      await page.keyboard.press("End");
+      expect(await activeTestId()).toBe(
+        await items.nth(count - 1).getAttribute("data-testid"),
+      );
+      await page.keyboard.press("Home");
+      expect(await activeTestId()).toBe(
+        await items.nth(0).getAttribute("data-testid"),
+      );
+
+      // Changed surface keeps the axe gate green while the menu is open.
+      await expectNoSeriousA11yViolations(page, {
+        scope: `[data-testid="action-toolbar-menu-${parentName}"]`,
+      });
+
+      await page.keyboard.press("Escape");
+      await expect(menu).toBeHidden();
+      expect(await activeTestId()).toBe(parentTestId);
+
+      // Live Proof (#6827): pass-run capture of the keyboard-operated menu.
+      await firstParent.focus();
+      await page.keyboard.press("ArrowDown");
+      await expect(menu).toBeVisible({ timeout: 5_000 });
+      await page.screenshot({
+        path: "test-results/live-proof-6827-toolbar-keyboard.png",
+      });
     },
   );
 });

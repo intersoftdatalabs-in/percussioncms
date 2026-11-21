@@ -33,6 +33,16 @@
  * {@code actionIcons} next to its label. Labels, {@code aria-label}s, and
  * keyboard handling are unchanged; unmapped actions stay label-only.</p>
  *
+ * <p>Open dropdowns implement the WAI-APG menu-button keyboard contract
+ * (#6827): items use roving {@code tabindex} (one tab stop per menu),
+ * {@code ArrowDown}/{@code ArrowUp}/{@code Home}/{@code End} move focus
+ * across the items (wrapping at the ends), {@code ArrowDown}/
+ * {@code ArrowUp} on the parent button opens the menu and lands on the
+ * first/last item, and {@code Escape} closes the menu and returns focus
+ * to the parent button (#6824). The one-click Workflow group answers the
+ * same movement keys across its buttons. Character type-ahead is
+ * intentionally deferred (documented in the operator help).</p>
+ *
  * <p>Toolbar refreshes when the {@link ActionToolbarProps.actions} prop
  * changes (e.g. on selection change the parent fetches the allowed
  * actions via {@code GET /actions/find} (plus merged type menus) and
@@ -59,6 +69,33 @@ export interface ActionToolbarProps {
 }
 
 const ACTIVATE_KEYS = new Set(["Enter", " "]);
+
+/**
+ * Resolve the next roving-tabindex position for a menu movement key (#6827).
+ * Returns {@code null} when the key is not a movement key. Indexes wrap at
+ * both ends so keyboard operators can cycle long catalog menus.
+ */
+function menuMoveTarget(
+  key: string,
+  active: number,
+  count: number,
+): number | null {
+  if (count <= 0) {
+    return null;
+  }
+  switch (key) {
+    case "ArrowDown":
+      return (active + 1) % count;
+    case "ArrowUp":
+      return (active - 1 + count) % count;
+    case "Home":
+      return 0;
+    case "End":
+      return count - 1;
+    default:
+      return null;
+  }
+}
 
 const toolbarStyle: React.CSSProperties = {
   display: "flex",
@@ -156,6 +193,13 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
   const { onInvoke, ariaLabel, emptyMessage, className } = props;
   const actions = prepareToolbarActions(props.actions);
   const [openMenu, setOpenMenu] = useState<string | null>(null);
+  /**
+   * Roving-tabindex cursor for the open dropdown (#6827). Only the item at
+   * this index carries {@code tabIndex=0}; every other item is
+   * {@code tabIndex=-1} so the menu is a single tab stop. Reset whenever a
+   * different menu opens (at most one menu is open at a time).
+   */
+  const [menuFocus, setMenuFocus] = useState<number>(0);
   const rootRef = useRef<HTMLDivElement | null>(null);
   const baseId = useId();
   /**
@@ -163,6 +207,74 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
    * invoking control instead of stranding it on {@code <body>} (#6824).
    */
   const menuButtonRefs = useRef(new Map<string, HTMLButtonElement | null>());
+  /**
+   * Open-dropdown item buttons keyed by menu name, in render order (#6827).
+   * The movement handlers focus through this map instead of DOM queries so
+   * focus never lands on a stale node after a catalog refresh.
+   */
+  const menuItemRefs = useRef(new Map<string, Array<HTMLButtonElement | null>>());
+  /**
+   * One-click Workflow group buttons keyed by group name, in render order
+   * (#6827). Arrow keys move focus across the group without changing tab
+   * stops (the buttons stay individually tabbable).
+   */
+  const groupItemRefs = useRef(new Map<string, Array<HTMLButtonElement | null>>());
+  /**
+   * Keyboard-open landing position (#6827). {@code ArrowDown}/{@code ArrowUp}
+   * on a parent button opens the menu and must land focus on the
+   * first/last item after commit, when the item refs exist. Consumed once
+   * by the {@code [openMenu]} effect below.
+   */
+  const pendingMenuFocus = useRef<{ menu: string; index: number } | null>(null);
+
+  /** Live (non-detached) item buttons for a menu, in render order (#6827). */
+  function liveMenuItems(menuName: string): HTMLButtonElement[] {
+    return (menuItemRefs.current.get(menuName) ?? []).filter(
+      (el): el is HTMLButtonElement => el instanceof HTMLButtonElement,
+    );
+  }
+
+  /** Move the roving cursor and DOM focus to one menu item (#6827). */
+  function focusMenuItem(menuName: string, index: number): void {
+    const items = liveMenuItems(menuName);
+    if (items.length === 0) {
+      return;
+    }
+    const wrapped =
+      ((index % items.length) + items.length) % items.length;
+    setMenuFocus(wrapped);
+    items[wrapped]?.focus({ preventScroll: true });
+  }
+
+  /** Open a menu from the keyboard, landing on one item (#6827). */
+  function openMenuAt(menuName: string, index: number): void {
+    pendingMenuFocus.current = { menu: menuName, index };
+    setOpenMenu(menuName);
+  }
+
+  /** Arrow-key traversal across one-click Workflow group buttons (#6827). */
+  function handleGroupKeyDown(
+    e: React.KeyboardEvent,
+    groupName: string,
+  ): void {
+    const items = (groupItemRefs.current.get(groupName) ?? []).filter(
+      (el): el is HTMLButtonElement => el instanceof HTMLButtonElement,
+    );
+    if (items.length === 0) {
+      return;
+    }
+    const current = items.indexOf(document.activeElement as HTMLButtonElement);
+    const target = menuMoveTarget(
+      e.key,
+      current === -1 ? 0 : current,
+      items.length,
+    );
+    if (target === null) {
+      return;
+    }
+    e.preventDefault();
+    items[target]?.focus({ preventScroll: true });
+  }
 
   useEffect(() => {
     // A selection refresh replaces the actions array while a menu is open.
@@ -175,6 +287,30 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
       return actions.some((a) => a.name === prev) ? prev : null;
     });
   }, [actions]);
+
+  useEffect(() => {
+    // Land keyboard focus inside a newly opened menu (#6827). Mouse opens
+    // also move focus to the first item so the roving cursor and DOM focus
+    // never disagree; Escape still returns focus to the parent (#6824).
+    // Runs on open only — refreshes that keep the menu open (#5006) leave
+    // focus alone because {@code openMenu} is unchanged.
+    if (!openMenu) {
+      return;
+    }
+    const pending = pendingMenuFocus.current;
+    pendingMenuFocus.current = null;
+    const items = liveMenuItems(openMenu);
+    if (items.length === 0) {
+      return;
+    }
+    const target =
+      pending && pending.menu === openMenu
+        ? ((pending.index % items.length) + items.length) % items.length
+        : 0;
+    setMenuFocus(target);
+    items[target]?.focus({ preventScroll: true });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openMenu ]);
 
   useEffect(() => {
     if (!openMenu) return;
@@ -192,6 +328,10 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
         // Keyboard polish (#6824): return focus to the invoking parent
         // button so keyboard operators stay in the toolbar flow.
         menuButtonRefs.current.get(menuName)?.focus();
+      } else if (e.key === "Tab") {
+        // Tab leaves the menu like any other composite widget (#6827):
+        // close it so a detached dropdown never lingers behind focus.
+        setOpenMenu(null);
       }
     }
     document.addEventListener("mousedown", onDocMouseDown);
@@ -237,7 +377,7 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                 <span style={groupLabelStyle} aria-hidden="true">
                   {a.label}
                 </span>
-                {children.map((c) => (
+                {children.map((c, childIdx) => (
                   <button
                     type="button"
                     key={c.name}
@@ -245,6 +385,13 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                     aria-label={c.label}
                     title={c.description ?? c.label}
                     onClick={() => activate(c, a, onInvoke)}
+                    onKeyDown={(e) => handleGroupKeyDown(e, a.name)}
+                    ref={(el) => {
+                      const arr = groupItemRefs.current.get(a.name) ?? [];
+                      arr[childIdx] = el;
+                      arr.length = children.length;
+                      groupItemRefs.current.set(a.name, arr);
+                    }}
                     onFocus={applyFocusRing}
                     onBlur={clearFocusRing}
                     style={buttonStyle}
@@ -260,6 +407,14 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
           if (hasChildren(a)) {
             const expanded = openMenu === a.name;
             const menuId = `${baseId}-${a.name}-menu`;
+            const kids = unwrapMenuActionChildren(a.children);
+            // Roving cursor for this menu (#6827). Only one menu is open
+            // at a time and {@code menuFocus} resets on open, so the
+            // shared cursor is always this menu's while it is expanded.
+            const activeIdx =
+              kids.length === 0
+                ? 0
+                : ((menuFocus % kids.length) + kids.length) % kids.length;
             return (
               <div
                 key={a.name}
@@ -290,6 +445,26 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                       setOpenMenu((prev) =>
                         prev === a.name ? null : a.name,
                       );
+                      return;
+                    }
+                    // WAI-APG menu-button open keys (#6827): ArrowDown
+                    // opens on the first item, ArrowUp on the last. When
+                    // already open the keys walk the items instead.
+                    if (e.key === "ArrowDown" || e.key === "ArrowUp") {
+                      e.preventDefault();
+                      if (openMenu !== a.name) {
+                        openMenuAt(
+                          a.name,
+                          e.key === "ArrowDown" ? 0 : kids.length - 1,
+                        );
+                      } else {
+                        focusMenuItem(
+                          a.name,
+                          e.key === "ArrowDown"
+                            ? activeIdx + 1
+                            : activeIdx - 1,
+                        );
+                      }
                     }
                   }}
                   onFocus={applyFocusRing}
@@ -307,8 +482,20 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                     aria-label={a.label}
                     data-testid={`action-toolbar-menu-${a.name}`}
                     style={dropdownStyle}
+                    onKeyDown={(e) => {
+                      const target = menuMoveTarget(
+                        e.key,
+                        activeIdx,
+                        kids.length,
+                      );
+                      if (target === null) {
+                        return;
+                      }
+                      e.preventDefault();
+                      focusMenuItem(a.name, target);
+                    }}
                   >
-                    {unwrapMenuActionChildren(a.children).map((child) => (
+                    {kids.map((child, childIdx) => (
                       <li key={child.name} role="none">
                         <button
                           type="button"
@@ -317,6 +504,14 @@ export function ActionToolbar(props: ActionToolbarProps): React.JSX.Element {
                           aria-label={child.label}
                           title={child.description ?? child.label}
                           style={menuItemStyle}
+                          tabIndex={activeIdx === childIdx ? 0 : -1}
+                          ref={(el) => {
+                            const arr =
+                              menuItemRefs.current.get(a.name) ?? [];
+                            arr[childIdx] = el;
+                            arr.length = kids.length;
+                            menuItemRefs.current.set(a.name, arr);
+                          }}
                           onClick={() => {
                             activate(child, a, onInvoke);
                             setOpenMenu(null);
