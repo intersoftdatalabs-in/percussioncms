@@ -207,8 +207,11 @@ function PublishingShellInner({
         <h1 style={{ margin: 0, fontSize: "1.25rem" }}>
           {message(MSG.PUBLISH_TITLE)}
         </h1>
-        <p style={{ margin: "4px 0 0", fontSize: "0.85rem", color: "#555" }}>
-          Sites &amp; servers first — Design and Runtime available when needed.
+        <p
+          style={{ margin: "4px 0 0", fontSize: "0.85rem", color: "#555" }}
+          data-testid="publishing-shell-subtitle"
+        >
+          {message(MSG.PUBLISH_SUBTITLE)}
         </p>
       </header>
       <nav

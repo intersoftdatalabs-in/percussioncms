@@ -39,7 +39,10 @@ From **Publish** (`spa.jsp?entry=publish`), the section nav (**Sites**, **Status
 newly focused section, while **Home** / **End** jump to **Sites** / **Runtime**. Pointer
 clicks keep working unchanged; the arrow keys are the keyboard equivalent of clicking a
 section. When a panel has unsaved changes, the shell asks to confirm before the section
-switches, and focus stays on the current section when the switch is cancelled.
+switches, and focus stays on the current section when the switch is cancelled. The
+header subtitle (**Sites & servers first — Design and Runtime available when needed.**)
+resolves through the session-locale TMX catalog (`PUBLISH_SUBTITLE` key, English default
+shipped; other locales fall back to the English text until translated).
 
 ### Create a site (Publishing shell)
 

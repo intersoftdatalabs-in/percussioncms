@@ -16,7 +16,8 @@
  */
 
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
+import { MSG } from "@/i18n/message";
 import {
   defaultLandingSection,
   PublishingShell,
@@ -49,6 +50,29 @@ vi.mock("@/api/publishing/itemScheduleDatesApi", () => ({
 }));
 
 describe("PublishingShell", () => {
+  afterEach(() => {
+    delete window.I18N;
+  });
+
+  it("renders the header subtitle through the PUBLISH_SUBTITLE key (#6894)", () => {
+    render(<PublishingShell />);
+    expect(screen.getByTestId("publishing-shell-subtitle")).toHaveTextContent(
+      "Sites & servers first — Design and Runtime available when needed.",
+    );
+  });
+
+  it("routes the subtitle through the catalog, not a hardcoded node (#6894)", () => {
+    window.I18N = {
+      message: (key: string) =>
+        key === MSG.PUBLISH_SUBTITLE
+          ? "CATALOG_PUBLISH_SUBTITLE"
+          : key.slice(key.lastIndexOf("@") + 1),
+    };
+    render(<PublishingShell />);
+    expect(screen.getByTestId("publishing-shell-subtitle")).toHaveTextContent(
+      "CATALOG_PUBLISH_SUBTITLE",
+    );
+  });
   it("defaults landing to sites (ops first, not Design)", () => {
     expect(defaultLandingSection()).toBe("sites");
     render(<PublishingShell />);

@@ -111,6 +111,26 @@ test.describe("PublishingShell section-nav keyboard operation (#4531)", () => {
     await mockShellApis(page);
   });
 
+  test(`header subtitle resolves through the PUBLISH_SUBTITLE key ${TAGS.join(" ")}`, async ({
+    page,
+  }) => {
+    const consoleErrors = collectConsoleErrors(page);
+    await page.goto(publishingShellUrl(BASE_URL), {
+      waitUntil: "domcontentloaded",
+    });
+    await expect(page.getByTestId("publishing-shell")).toBeVisible({
+      timeout: 30000,
+    });
+    await expect(page.getByTestId("publishing-shell-subtitle")).toHaveText(
+      "Sites & servers first — Design and Runtime available when needed.",
+      { timeout: 15000 },
+    );
+    await page.screenshot({
+      path: "test-results/live-proof-6894-shell-subtitle.png",
+    });
+    expect(consoleErrors).toEqual([]);
+  });
+
   test(`arrow keys walk the sections with wrap ${TAGS.join(" ")}`, async ({
     page,
   }) => {
