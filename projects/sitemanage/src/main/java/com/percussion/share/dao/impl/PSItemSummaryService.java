@@ -322,28 +322,47 @@ public class PSItemSummaryService
 
   private Category getCategory(
       PSItemSummary itemSummary, String navType, boolean isLandingPage, List<String> parentPaths) {
-    var ctType = itemSummary.getContentTypeName();
-    var category = Category.ASSET;
-    if (isLandingPage) category = Category.LANDING_PAGE;
-    else if (navType != null) {
-      if (navType.equals(PSSectionTypeEnum.externallink.name()))
-        category = Category.EXTERNAL_SECTION_FOLDER;
-      else category = Category.SECTION_FOLDER;
-    } else if (IPSPageService.PAGE_CONTENT_TYPE.equals(ctType)) category = Category.PAGE;
-    else if (isFolder(itemSummary)) {
-      // The Recycling root (and any folder without a folder-content parent —
-      // recycled items relate via RECYCLED_CONTENT) reports no parent paths.
-      // Indexing [0] threw IndexOutOfBounds and failed the whole /Recycling
-      // navigation (#6549). Pathless folders are plain FOLDER, never SYSTEM.
-      category = Category.FOLDER;
-      if (parentPaths != null && !parentPaths.isEmpty()) {
-        // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6549,
-        // same as #5927/#5898/#5910) — slash joins the CMS logical folder path, not an OS path.
-        var path = parentPaths.get(0) + "/" + itemSummary.getName();
-        if (isSystemFolder(path)) category = Category.SYSTEM;
-      }
+    if (isLandingPage) {
+      return Category.LANDING_PAGE;
     }
-    return category;
+    if (navType != null) {
+      return categoryForNavType(navType);
+    }
+    if (IPSPageService.PAGE_CONTENT_TYPE.equals(itemSummary.getContentTypeName())) {
+      return Category.PAGE;
+    }
+    if (isFolder(itemSummary)) {
+      return categoryForFolder(itemSummary, parentPaths);
+    }
+    return Category.ASSET;
+  }
+
+  private Category categoryForNavType(String navType) {
+    if (PSSectionTypeEnum.externallink.name().equals(navType)) {
+      return Category.EXTERNAL_SECTION_FOLDER;
+    }
+    return Category.SECTION_FOLDER;
+  }
+
+  private Category categoryForFolder(PSItemSummary itemSummary, List<String> parentPaths) {
+    if (isSystemFolderPath(itemSummary, parentPaths)) {
+      return Category.SYSTEM;
+    }
+    return Category.FOLDER;
+  }
+
+  private boolean isSystemFolderPath(PSItemSummary itemSummary, List<String> parentPaths) {
+    // The Recycling root (and any folder without a folder-content parent —
+    // recycled items relate via RECYCLED_CONTENT) reports no parent paths.
+    // Indexing [0] threw IndexOutOfBounds and failed the whole /Recycling
+    // navigation (#6549). Pathless folders are plain FOLDER, never SYSTEM.
+    if (parentPaths == null || parentPaths.isEmpty()) {
+      return false;
+    }
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6549,
+    // same as #5927/#5898/#5910) — slash joins the CMS logical folder path, not an OS path.
+    var path = parentPaths.get(0) + "/" + itemSummary.getName();
+    return isSystemFolder(path);
   }
 
   private boolean isSystemFolder(String folderPath) {
