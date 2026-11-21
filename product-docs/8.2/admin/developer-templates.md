@@ -238,6 +238,21 @@ Automated H2 surface coverage lives in
 `modules/perc-qa-automation/frontend/tests/developer-template-sites.spec.js`
 (`npm run test:surface -- --path tests/developer-template-sites.spec.js`).
 
+## Edit template source
+
+**Template source** is a plain-text editor with line numbers, syntax
+highlighting, and copy/snippet actions — no CodeMirror dependency
+([un-vendor CodeMirror](https://github.com/intersoftdatalabs-in/percussioncms/issues/5626)).
+Choose **Preview highlight** to switch from the edit textarea to a read-only
+highlighted preview, and **Edit source** to switch back. The preview is a
+labelled region you can move keyboard focus into with **Tab** (it scrolls
+independently of the line-number gutter), and both panes expose the
+**Template source** accessible name to screen readers.
+
+Automated H2 surface coverage lives in
+`modules/perc-qa-automation/frontend/tests/developer-template-source-a11y.spec.js`
+(`npm run test:surface -- --path tests/developer-template-source-a11y.spec.js`).
+
 ## Insert a Velocity snippet (AS-09)
 
 While editing **Template source**, choose **Insert snippet** to open the built-in

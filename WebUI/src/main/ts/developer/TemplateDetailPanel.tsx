@@ -1827,7 +1827,7 @@ export function TemplateDetailPanel({
                 marginBottom: "8px",
               }}
             >
-              <h3 style={{ fontSize: "1rem", margin: 0 }}>{DEV_MSG.TPL_SOURCE}</h3>
+              <h3 id="developer-tpl-source-heading" style={{ fontSize: "1rem", margin: 0 }}>{DEV_MSG.TPL_SOURCE}</h3>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <button
                   type="button"
@@ -1904,6 +1904,7 @@ export function TemplateDetailPanel({
                 <textarea
                   ref={sourceEditRef}
                   data-testid="developer-tpl-source-edit"
+                  aria-labelledby="developer-tpl-source-heading"
                   style={{
                     flex: 1,
                     minWidth: 0,
@@ -1931,6 +1932,9 @@ export function TemplateDetailPanel({
               ) : (
                 <pre
                   data-testid="developer-tpl-source-preview"
+                  role="region"
+                  aria-labelledby="developer-tpl-source-heading"
+                  tabIndex={0}
                   style={{
                     flex: 1,
                     minWidth: 0,
