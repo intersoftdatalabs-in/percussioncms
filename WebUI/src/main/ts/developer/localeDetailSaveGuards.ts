@@ -145,6 +145,84 @@ export function isLocaleOtherEditorOpen(
   return cleared.descriptionEditing || isLocaleSiblingEditorOpen(cleared);
 }
 
+export interface LocaleFieldStartReadiness {
+  isNew: boolean;
+  hasDetail: boolean;
+  dedicatedBlocked: boolean;
+  siblingOpen: boolean;
+}
+
+/**
+ * True when the field editor may enter edit mode. Starting an edit needs no
+ * write key and no open self flag (unlike the save path): create-mode locales
+ * have nothing to edit yet, a missing detail means no shown value to draft
+ * from, and a running save or an open sibling editor blocks a new attempt.
+ * The three pattern start guards in {@code LocaleDetailPanel}
+ * ({@code startDatePatternEdit}, {@code startTimePatternEdit},
+ * {@code startDateTimePatternEdit}) funnel through this single predicate, so
+ * each inline ~19-term OR chain (residual #6888, parent #6841) collapses to
+ * one guard call per start path. No behavior change: the sibling set stays
+ * "every other editor open", self excluded.
+ */
+export function canStartLocaleFieldEdit(state: LocaleFieldStartReadiness): boolean {
+  if (state.isNew || !state.hasDetail || state.dedicatedBlocked) {
+    return false;
+  }
+  return !state.siblingOpen;
+}
+
+export interface LocalePatternStartState {
+  isNew: boolean;
+  hasDetail: boolean;
+  dedicatedBlocked: boolean;
+  editing: LocaleFieldEditorsEditing;
+}
+
+/**
+ * True when the date pattern editor may enter edit mode. Thin per-field
+ * wrapper that excludes the date pattern editor itself from the sibling
+ * rollup, preserving the exact inline semantics of
+ * {@code startDatePatternEdit}.
+ */
+export function canStartDatePatternEdit(state: LocalePatternStartState): boolean {
+  return canStartLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleOtherEditorOpen(state.editing, "datePatternEditing"),
+  });
+}
+
+/**
+ * True when the time pattern editor may enter edit mode. Thin per-field
+ * wrapper that excludes the time pattern editor itself from the sibling
+ * rollup, preserving the exact inline semantics of
+ * {@code startTimePatternEdit}.
+ */
+export function canStartTimePatternEdit(state: LocalePatternStartState): boolean {
+  return canStartLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleOtherEditorOpen(state.editing, "timePatternEditing"),
+  });
+}
+
+/**
+ * True when the date/time pattern editor may enter edit mode. Thin per-field
+ * wrapper that excludes the date/time pattern editor itself from the sibling
+ * rollup, preserving the exact inline semantics of
+ * {@code startDateTimePatternEdit}.
+ */
+export function canStartDateTimePatternEdit(state: LocalePatternStartState): boolean {
+  return canStartLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleOtherEditorOpen(state.editing, "dateTimePatternEditing"),
+  });
+}
+
 export interface LocaleDescriptionSaveReadiness {
   isNew: boolean;
   hasDetail: boolean;
