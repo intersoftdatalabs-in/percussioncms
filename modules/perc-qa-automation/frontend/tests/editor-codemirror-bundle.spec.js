@@ -136,6 +136,25 @@ const SYS_TEMPLATES_BUNDLE_JS =
 const SYS_TEMPLATES_BUNDLE_CSS =
   "<psxctl:FileLocation>/sys_resources/codemirror/codemirror/codemirror.bundle.css</psxctl:FileLocation>";
 
+// Issue #6903: every user-visible string the sys_TextArea codeeditor legend
+// renders must resolve through getLocaleString ($lang) — key + English
+// @-fallback — with the key registered in the canonical TMX catalog.
+const SYS_TEMPLATES_TMX =
+  "modules/perc-i18n/src/main/resources/i18n/SystemResources.tmx";
+const CODEEDITOR_I18N_KEYS = [
+  "psx.ce.codeeditor.legend.shortcuts@Find: Ctrl-F (Mac: Cmd-F) | Find next: Ctrl-G (Mac: Cmd-G) | Find previous: Shift-Ctrl-G (Mac: Shift-Cmd-G) | Replace: Shift-Ctrl-F (Mac: Cmd-Alt-F) | Replace all: Shift-Ctrl-R (Mac: Shift-Cmd-Alt-F)",
+  "psx.ce.codeeditor.legend.validation@Validation: unbalanced tags are flagged in the gutter before save - red error, yellow warning; hover a marker for details",
+  "psx.ce.codeeditor.mode.label@Mode:",
+  "psx.ce.codeeditor.theme.dark@Dark mode",
+  "psx.ce.codeeditor.theme.toggle.label@Toggle dark mode for the code editor",
+  "psx.ce.codeeditor.font.decrease@A-",
+  "psx.ce.codeeditor.font.decrease.label@Decrease code editor font size",
+  "psx.ce.codeeditor.font.increase@A+",
+  "psx.ce.codeeditor.font.increase.label@Increase code editor font size",
+  "psx.ce.codeeditor.load.error@Code editor could not be loaded. You can still edit this field as plain text.",
+  "psx.ce.codeeditor.screenreader.label@HTML Source Code Editor",
+];
+
 function codemirrorLoaderLines(jspPath) {
   const text = fs
     .readFileSync(path.join(REPO_ROOT, jspPath), "utf8")
@@ -180,16 +199,20 @@ function sysTextAreaCodeeditorScript(fieldId, mode) {
 
 // Minimal faithful mirror of the XSL-rendered codeeditor legend + textarea:
 // same hooks (badge, toolbar, size readout) so the fallback notice lands
-// where the shipped script puts it.
+// where the shipped script puts it. The staged i18n data attributes carry
+// the en-us resolutions (issue #6903) exactly as getLocaleString renders
+// them for an English session.
 function sysTextAreaCodeeditorLegend(fieldId, mode) {
   return (
-    `<div class="perc-codeeditor-legend" data-perc-codeeditor-mode="${mode}">` +
+    `<div class="perc-codeeditor-legend" data-perc-codeeditor-mode="${mode}"` +
+    ` data-perc-codeeditor-load-error-text="Code editor could not be loaded. You can still edit this field as plain text."` +
+    ` data-perc-codeeditor-screenreader-label="HTML Source Code Editor">` +
     `<span class="perc-codeeditor-mode" data-perc-codeeditor-mode-badge="${fieldId}">Mode: ${mode}</span>` +
     `<span class="perc-codeeditor-display-prefs">` +
-    `<button type="button" data-perc-codeeditor-theme-toggle="${fieldId}" aria-pressed="false">Dark mode</button>` +
-    `<button type="button" data-perc-codeeditor-font-decrease="${fieldId}">A-</button>` +
-    `<span data-perc-codeeditor-font-size="${fieldId}">13px</span>` +
-    `<button type="button" data-perc-codeeditor-font-increase="${fieldId}">A+</button>` +
+    `<button type="button" data-perc-codeeditor-theme-toggle="${fieldId}" aria-pressed="false" aria-label="Toggle dark mode for the code editor">Dark mode</button>` +
+    `<button type="button" data-perc-codeeditor-font-decrease="${fieldId}" aria-label="Decrease code editor font size">A-</button>` +
+    `<span data-perc-codeeditor-font-size="${fieldId}" aria-live="polite">13px</span>` +
+    `<button type="button" data-perc-codeeditor-font-increase="${fieldId}" aria-label="Increase code editor font size">A+</button>` +
     `</span></div>` +
     `<textarea id="${fieldId}"><p>Hello</p></textarea>`
   );
@@ -1007,7 +1030,10 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
         legendAt,
         `${SYS_TEMPLATES_XSL} must render the find/replace legend for code editors (#6465)`,
       ).toBeGreaterThan(-1);
-      const legendBlock = branch.slice(legendAt, legendAt + 800);
+      // Issue #6903 stages the locale strings on data-* attributes ahead
+      // of the spans, so the hint text sits further past the legend open
+      // tag than the original 800-char window.
+      const legendBlock = branch.slice(legendAt, legendAt + 1600);
       for (const hint of [
         "Ctrl-F",
         "Ctrl-G",
@@ -1079,7 +1105,10 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
         legendAt,
         `${SYS_TEMPLATES_XSL} must keep the code-editor legend`,
       ).toBeGreaterThan(-1);
-      const legendBlock = text.slice(legendAt, legendAt + 1400);
+      // Issue #6903 stages the locale strings on data-* attributes ahead
+      // of the spans, so the marker copy sits further past the legend open
+      // tag than the original 1400-char window.
+      const legendBlock = text.slice(legendAt, legendAt + 2400);
       for (const hint of [
         "Validation",
         "unbalanced",
@@ -1209,6 +1238,123 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
         legendAt,
         `${SYS_TEMPLATES_XSL} must render the display prefs toolbar for code editors (#6467)`,
       ).toBeGreaterThan(-1);
+    },
+  );
+
+  test(
+    "sys_TextArea code editor legend resolves display strings through TMX",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async () => {
+      // No live CMS needed: static pin for issue #6903. The codeeditor
+      // legend block rendered hardcoded English (shortcut legend, Mode
+      // badge, Dark mode / A- / A+ display prefs, load notice, CodeMirror
+      // screen-reader label), so non-English sessions got a mixed-language
+      // editor. Every legend string must now route through getLocaleString
+      // ($lang) with the English text as the @-fallback key suffix, each
+      // key must be registered in SystemResources.tmx with an en-us pivot
+      // matching the rendered default, and the data-perc-codeeditor-*
+      // hooks must stay intact. JS-rendered strings (load notice,
+      // screenReaderLabel) are staged on legend data attributes so the
+      // init script carries no locale-sensitive literal — the remaining
+      // script literals are null-guards for a missing attribute, which the
+      // shipped XSL always renders.
+      const text = fs
+        .readFileSync(path.join(REPO_ROOT, SYS_TEMPLATES_XSL), "utf8")
+        .replace(/\r\n/g, "\n");
+      const codeeditorStart = text.indexOf('$codeeditor = \'yes\'');
+      expect(
+        codeeditorStart,
+        `${SYS_TEMPLATES_XSL} must keep the codeeditor branch`,
+      ).toBeGreaterThan(-1);
+      const branch = text.slice(codeeditorStart);
+      const legendOpen = branch.indexOf('<div class="perc-codeeditor-legend"');
+      expect(
+        legendOpen,
+        `${SYS_TEMPLATES_XSL} must render the codeeditor legend (#6903)`,
+      ).toBeGreaterThan(-1);
+      const legendClose = branch.indexOf("</div>", legendOpen);
+      expect(
+        legendClose,
+        `${SYS_TEMPLATES_XSL} legend must close (#6903)`,
+      ).toBeGreaterThan(legendOpen);
+      const legendMarkup = branch.slice(legendOpen, legendClose);
+      for (const key of CODEEDITOR_I18N_KEYS) {
+        const english = key.slice(key.indexOf("@") + 1);
+        // The English default survives only as the key suffix inside a
+        // getLocaleString call — never as rendered literal markup.
+        expect(
+          legendMarkup,
+          `${SYS_TEMPLATES_XSL} legend must resolve ${key} through getLocaleString (#6903)`,
+        ).toContain(`<xsl:with-param name="key" select="'${key}'"`);
+        expect(
+          legendMarkup,
+          `${SYS_TEMPLATES_XSL} legend must pass the session lang for ${key} (#6903)`,
+        ).toContain('<xsl:with-param name="lang" select="$lang"/>');
+        expect(
+          english.length > 0,
+          `CODEEDITOR_I18N_KEYS entry must carry an English default: ${key}`,
+        ).toBe(true);
+      }
+      for (const literal of [
+        "<span>Find:",
+        ">Mode: <",
+        ">Dark mode</button>",
+        ">A-</button>",
+        ">A+</button>",
+        'aria-label="Toggle dark mode',
+        'aria-label="Decrease code editor',
+        'aria-label="Increase code editor',
+      ]) {
+        expect(
+          legendMarkup,
+          `${SYS_TEMPLATES_XSL} legend must not hardcode English ${literal} (#6903)`,
+        ).not.toContain(literal);
+      }
+      for (const hook of [
+        'data-perc-codeeditor-mode="{$codeeditor_effective_mode}"',
+        "data-perc-codeeditor-mode-badge",
+        "data-perc-codeeditor-theme-toggle",
+        "data-perc-codeeditor-font-decrease",
+        "data-perc-codeeditor-font-increase",
+        "data-perc-codeeditor-font-size",
+        "data-perc-codeeditor-load-error-text",
+        "data-perc-codeeditor-screenreader-label",
+      ]) {
+        expect(
+          legendMarkup,
+          `${SYS_TEMPLATES_XSL} legend must keep the ${hook} hook (#6903)`,
+        ).toContain(hook);
+      }
+      // The staged JS strings must be read from the legend attributes, and
+      // the init script must add no new XSL interpolation beyond field id
+      // + effective mode (pinned by the #6902 extractor above, which throws
+      // on a third instruction).
+      for (const pin of [
+        "getAttribute('data-perc-codeeditor-load-error-text')",
+        "getAttribute('data-perc-codeeditor-screenreader-label')",
+        "percCodeEditorScreenReaderLabel(fieldId)",
+      ]) {
+        expect(
+          branch,
+          `${SYS_TEMPLATES_XSL} init script must read the staged locale strings (#6903): ${pin}`,
+        ).toContain(pin);
+      }
+      const tmx = fs
+        .readFileSync(path.join(REPO_ROOT, SYS_TEMPLATES_TMX), "utf8")
+        .replace(/\r\n/g, "\n");
+      for (const key of CODEEDITOR_I18N_KEYS) {
+        const english = key.slice(key.indexOf("@") + 1);
+        expect(
+          tmx,
+          `${SYS_TEMPLATES_TMX} must register ${key} (#6903)`,
+        ).toContain(`<tu tuid="${key}">`);
+        expect(
+          tmx,
+          `${SYS_TEMPLATES_TMX} must carry the en-us pivot for ${key} (#6903)`,
+        ).toContain(
+          `<tuv xml:lang="en-us"><seg>${english}</seg></tuv>`,
+        );
+      }
     },
   );
 

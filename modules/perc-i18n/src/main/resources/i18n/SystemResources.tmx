@@ -250,6 +250,45 @@
       <tuv xml:lang="te"><seg>కింది ఫీల్డ్(లు) ధ్రువీకరణ లోపాలను సృష్టించాయి:</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>以下字段产生了验证错误：</seg></tuv>
     <tuv xml:lang="ru"><seg>В следующих полях возникли ошибки проверки:</seg></tuv><tuv xml:lang="he"><seg>השדות הבאים יצרו שגיאות אימות:</seg></tuv><tuv xml:lang="uk"><seg>Наступні поля спричинили помилки перевірки:</seg></tuv><tuv xml:lang="lou"><seg>La following field(s) produced validation erè-yé:</seg></tuv><tuv xml:lang="pl"><seg>Następujące pola spowodowały błędy weryfikacyjne:</seg></tuv><tuv xml:lang="tr"><seg>Aşağıdaki alan(lar) doğrulama hataları üretti:</seg></tuv><tuv xml:lang="zh-cn"><seg>以下字段产生了验证错误：</seg></tuv><tuv xml:lang="ja-jp"><seg>次のフィールドで検証エラーが発生しました:</seg></tuv><tuv xml:lang="nb"><seg>Følgende felt(er) ga valideringsfeil:</seg></tuv><tuv xml:lang="sv"><seg>Följande fält gav valideringsfel:</seg></tuv></tu>
+    <!-- Issue #6903: sys_TextArea code-editor legend + display prefs. The
+      XSL-rendered legend used to carry hardcoded English; the strings below
+      route through getLocaleString ($lang) with the English @-fallback as
+      the en-us pivot. Per-key translations are owned by i18n_translate.py;
+      until a locale ships a TUV the lookup chain falls back to en-us, so
+      non-English sessions keep working in English (no regression). -->
+    <tu tuid="psx.ce.codeeditor.legend.shortcuts@Find: Ctrl-F (Mac: Cmd-F) | Find next: Ctrl-G (Mac: Cmd-G) | Find previous: Shift-Ctrl-G (Mac: Shift-Cmd-G) | Replace: Shift-Ctrl-F (Mac: Cmd-Alt-F) | Replace all: Shift-Ctrl-R (Mac: Shift-Cmd-Alt-F)">
+      <tuv xml:lang="en-us"><seg>Find: Ctrl-F (Mac: Cmd-F) | Find next: Ctrl-G (Mac: Cmd-G) | Find previous: Shift-Ctrl-G (Mac: Shift-Cmd-G) | Replace: Shift-Ctrl-F (Mac: Cmd-Alt-F) | Replace all: Shift-Ctrl-R (Mac: Shift-Cmd-Alt-F)</seg></tuv>
+    </tu>
+    <tu tuid="psx.ce.codeeditor.legend.validation@Validation: unbalanced tags are flagged in the gutter before save - red error, yellow warning; hover a marker for details">
+      <tuv xml:lang="en-us"><seg>Validation: unbalanced tags are flagged in the gutter before save - red error, yellow warning; hover a marker for details</seg></tuv>
+    </tu>
+    <tu tuid="psx.ce.codeeditor.mode.label@Mode:">
+      <tuv xml:lang="en-us"><seg>Mode:</seg></tuv>
+    </tu>
+    <tu tuid="psx.ce.codeeditor.theme.dark@Dark mode">
+      <tuv xml:lang="en-us"><seg>Dark mode</seg></tuv>
+    </tu>
+    <tu tuid="psx.ce.codeeditor.theme.toggle.label@Toggle dark mode for the code editor">
+      <tuv xml:lang="en-us"><seg>Toggle dark mode for the code editor</seg></tuv>
+    </tu>
+    <tu tuid="psx.ce.codeeditor.font.decrease@A-">
+      <tuv xml:lang="en-us"><seg>A-</seg></tuv>
+    </tu>
+    <tu tuid="psx.ce.codeeditor.font.decrease.label@Decrease code editor font size">
+      <tuv xml:lang="en-us"><seg>Decrease code editor font size</seg></tuv>
+    </tu>
+    <tu tuid="psx.ce.codeeditor.font.increase@A+">
+      <tuv xml:lang="en-us"><seg>A+</seg></tuv>
+    </tu>
+    <tu tuid="psx.ce.codeeditor.font.increase.label@Increase code editor font size">
+      <tuv xml:lang="en-us"><seg>Increase code editor font size</seg></tuv>
+    </tu>
+    <tu tuid="psx.ce.codeeditor.load.error@Code editor could not be loaded. You can still edit this field as plain text.">
+      <tuv xml:lang="en-us"><seg>Code editor could not be loaded. You can still edit this field as plain text.</seg></tuv>
+    </tu>
+    <tu tuid="psx.ce.codeeditor.screenreader.label@HTML Source Code Editor">
+      <tuv xml:lang="en-us"><seg>HTML Source Code Editor</seg></tuv>
+    </tu>
     <tu tuid="psx.relationship.type@New Copy">
       <tuv xml:lang="en-us"><seg>New Copy</seg></tuv>
       <tuv xml:lang="ar"><seg>نسخة جديدة</seg></tuv>
