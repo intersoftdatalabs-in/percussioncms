@@ -2852,6 +2852,18 @@ export function EditorHost({
     return EDITOR_MSG.WORKFLOW_FAILED;
   }
 
+  /**
+   * True when the visible workflow error is a comment-gate failure (#6931).
+   * Only those errors mark the panel comment box invalid; transport and
+   * allowlist failures leave it unmarked.
+   */
+  function isCommentGateError(key: string | null | undefined): boolean {
+    return (
+      key === EDITOR_MSG.WORKFLOW_COMMENT_REQUIRED ||
+      key === EDITOR_MSG.WORKFLOW_COMMENT_NUL
+    );
+  }
+
   function addWorkflowAssignee(): void {
     const next = normalizeAdhocAssignees([
       ...workflowAssignees,
@@ -6593,6 +6605,10 @@ export function EditorHost({
                 busy={workflowBusy || saving || workflowAssigneeDialog != null}
                 errorKey={workflowAssigneeDialog ? null : workflowErrorKey}
                 errorDetail={workflowAssigneeDialog ? "" : workflowErrorDetail}
+                commentInvalid={
+                  workflowAssigneeDialog == null &&
+                  isCommentGateError(workflowErrorKey)
+                }
                 loadErrorKey={workflowLoadErrorKey}
                 loadErrorDetail={workflowLoadErrorDetail}
                 onRetryLoad={() => void handleRetryWorkflowLoad()}

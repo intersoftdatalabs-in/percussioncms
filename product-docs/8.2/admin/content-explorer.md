@@ -447,7 +447,12 @@ those triggers until the comment field is filled — for example a workflow that
 marks **Approve** as comment-required blocks **Approve** with an empty comment,
 while an unlisted, non-reject trigger still runs. The reject-style names
 (**Reject**, **Return**, **Disapprove**, **Decline**, and **Send Back**) always
-require a comment, even when the server list does not name them. The same region has **Ad-hoc assignees**: type a user
+require a comment, even when the server list does not name them. When a
+comment-required trigger is blocked for a missing or unsavable comment, the host
+marks the **Transition comment** box as invalid and links it to the inline
+message, and focus moves into the box so keyboard and screen-reader users land
+where the fix goes; a successful transition clears that marking with the
+message. The same region has **Ad-hoc assignees**: type a user
 name and **Add assignee**. When `getTransitions` lists that trigger in
 `assigneeRequiredTriggers` (the destination state has ad-hoc assignment enabled),
 choosing the trigger opens a confirm. **Cancel** does not call the server.
