@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { isApiError } from "../api/client";
 import {
   addRoleUser,
@@ -556,6 +556,18 @@ export function RolesPanel(): React.ReactElement {
   const copyUsersGen = useRef(0);
   const editNameRef = useRef<string | null>(null);
   const copySourceRef = useRef<string | null>(null);
+  /** Role name whose edit form just closed; drives #6905 focus return. */
+  const lastEditNameRef = useRef<string | null>(null);
+  /** Armed row-focus return, satisfied once the row is in the DOM. */
+  const focusReturnNameRef = useRef<string | null>(null);
+  const prevEditOpenRef = useRef(false);
+
+  function findRoleRow(name: string): HTMLElement | null {
+    const row = Array.from(document.querySelectorAll("[data-role-name]")).find(
+      (el) => el.getAttribute("data-role-name") === name,
+    );
+    return row instanceof HTMLElement ? row : null;
+  }
 
   useEffect(() => {
     mountedRef.current = true;
@@ -564,6 +576,32 @@ export function RolesPanel(): React.ReactElement {
       membersGen.current += 1;
     };
   }, []);
+
+  const editOpen = editName != null;
+  // #6905: when the edit form closes (Escape, Cancel, or save), return focus
+  // to the catalog row that opened it so keyboard and screen-reader users keep
+  // their place (mirrors #6733). A save reloads the catalog (setCatalog(null)
+  // unmounts the row), so the return stays armed until the row is back in the
+  // DOM. Layout effect so focus lands before paint.
+  useLayoutEffect(() => {
+    if (editOpen) {
+      lastEditNameRef.current = editName;
+      focusReturnNameRef.current = null;
+    } else if (prevEditOpenRef.current) {
+      focusReturnNameRef.current = lastEditNameRef.current;
+    }
+    prevEditOpenRef.current = editOpen;
+    const name = focusReturnNameRef.current;
+    // Only take focus when it was lost to <body> (form unmount); never steal
+    // focus the user has since moved elsewhere while the reload settles.
+    if (!editOpen && name != null && document.activeElement === document.body) {
+      const row = findRoleRow(name);
+      if (row != null && document.contains(row)) {
+        focusReturnNameRef.current = null;
+        row.focus();
+      }
+    }
+  }, [editOpen, editName, catalog]);
 
   function clearMembers() {
     membersGen.current += 1;
@@ -935,6 +973,14 @@ export function RolesPanel(): React.ReactElement {
     setEditHomePage("");
   }
 
+  // #6905: Escape cancels the edit form without writing, reusing the existing
+  // cancelEdit guards (busy/inflight stay, drafts cleared, stored values kept).
+  function handleEditFormKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
+    if (e.key === "Escape") {
+      cancelEdit();
+    }
+  }
+
   async function handleCreate(): Promise<void> {
     if (!isRoleCreateReady(draftName) || createInflight.current) {
       return;
@@ -1190,12 +1236,12 @@ export function RolesPanel(): React.ReactElement {
         </div>
       ) : null}
       {editNotice ? (
-        <div data-testid="developer-roles-edit-notice" style={{ color: "#276749", marginBottom: "12px" }}>
+        <div role="status" data-testid="developer-roles-edit-notice" style={{ color: "#276749", marginBottom: "12px" }}>
           {editNotice}
         </div>
       ) : null}
       {homeNotice ? (
-        <div data-testid="developer-roles-homepage-notice" style={{ color: "#276749", marginBottom: "12px" }}>
+        <div role="status" data-testid="developer-roles-homepage-notice" style={{ color: "#276749", marginBottom: "12px" }}>
           {homeNotice}
         </div>
       ) : null}
@@ -1265,7 +1311,9 @@ export function RolesPanel(): React.ReactElement {
               style={inputStyle}
               value={editDescription}
               disabled={detailLocked}
+              autoFocus
               onChange={(event) => setEditDescription(event.target.value)}
+              onKeyDown={handleEditFormKeyDown}
             />
           </div>
           <div style={fieldStyle}>
@@ -1279,6 +1327,7 @@ export function RolesPanel(): React.ReactElement {
               value={editHomePage}
               disabled={detailLocked}
               onChange={(event) => setEditHomePage(event.target.value)}
+              onKeyDown={handleEditFormKeyDown}
             />
             <span style={{ color: catalogColors.muted, fontSize: "0.85rem" }}>
               {DEV_MSG.ROLES_HOME_HINT}

@@ -1302,4 +1302,115 @@ describe("RolesPanel", () => {
     ).toContain("Author");
     expect(browseRoles).toHaveBeenCalledTimes(1);
   });
+
+  it("focuses the description input when the edit form opens (#6905)", async () => {
+    browseRoles.mockResolvedValue(authorCatalog());
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    expect(screen.getByTestId("developer-roles-edit-description")).toHaveFocus();
+  });
+
+  it("Escape cancels the edit without calling save (#6905)", async () => {
+    browseRoles.mockResolvedValue(authorCatalog());
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    fireEvent.change(screen.getByTestId("developer-roles-edit-description"), {
+      target: { value: "Not saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-roles-edit-description"), {
+      key: "Escape",
+    });
+    expect(updateRoleDescription).not.toHaveBeenCalled();
+    expect(updateRoleHomePage).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-roles-edit-form")).toBeNull();
+    expect(document.querySelector('[data-role-description="Author"]')?.textContent).toBe(
+      "Authors content",
+    );
+  });
+
+  it("Escape from the home page input cancels the edit without calling save (#6905)", async () => {
+    browseRoles.mockResolvedValue(authorCatalog("Authors content", "Home"));
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    fireEvent.change(screen.getByTestId("developer-roles-edit-homepage"), {
+      target: { value: "Not saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-roles-edit-homepage"), {
+      key: "Escape",
+    });
+    expect(updateRoleDescription).not.toHaveBeenCalled();
+    expect(updateRoleHomePage).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-roles-edit-form")).toBeNull();
+    expect(document.querySelector('[data-role-homepage="Author"]')?.textContent).toBe("Home");
+  });
+
+  it("returns focus to the catalog row after Escape (#6905)", async () => {
+    browseRoles.mockResolvedValue(authorCatalog());
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    fireEvent.change(screen.getByTestId("developer-roles-edit-description"), {
+      target: { value: "Not saved" },
+    });
+    fireEvent.keyDown(screen.getByTestId("developer-roles-edit-description"), {
+      key: "Escape",
+    });
+    expect(screen.queryByTestId("developer-roles-edit-form")).toBeNull();
+    expect(document.querySelector('[data-role-name="Author"]')).toHaveFocus();
+  });
+
+  it("returns focus to the catalog row after Cancel (#6905)", async () => {
+    browseRoles.mockResolvedValue(authorCatalog());
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    fireEvent.change(screen.getByTestId("developer-roles-edit-description"), {
+      target: { value: "Not saved" },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-edit-cancel"));
+    expect(updateRoleDescription).not.toHaveBeenCalled();
+    expect(screen.queryByTestId("developer-roles-edit-form")).toBeNull();
+    expect(document.querySelector('[data-role-name="Author"]')).toHaveFocus();
+  });
+
+  it("returns focus to the catalog row after save with a status notice (#6905)", async () => {
+    browseRoles
+      .mockResolvedValueOnce(authorCatalog("Authors content"))
+      .mockResolvedValueOnce(authorCatalog("Updated copy"));
+    updateRoleDescription.mockResolvedValue({ name: "Author", description: "Updated copy" });
+    render(<RolesPanel />);
+    await waitFor(() => {
+      expect(document.querySelector('[data-role-name="Author"]')).toBeTruthy();
+    });
+    fireEvent.click(document.querySelector('[data-role-name="Author"]') as Element);
+    fireEvent.change(screen.getByTestId("developer-roles-edit-description"), {
+      target: { value: "Updated copy" },
+    });
+    fireEvent.click(screen.getByTestId("developer-roles-edit-save"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("developer-roles-edit-form")).toBeNull();
+    });
+    expect(updateRoleDescription).toHaveBeenCalledWith({
+      name: "Author",
+      description: "Updated copy",
+    });
+    expect(document.querySelector('[data-role-name="Author"]')).toHaveFocus();
+    expect(screen.getByTestId("developer-roles-edit-notice")).toHaveAttribute(
+      "role",
+      "status",
+    );
+  });
 });
