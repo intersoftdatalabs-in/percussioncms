@@ -75,6 +75,21 @@ vars actually reach the plugin and the bash tool.
   carries it into the worktree — the launcher copies it one way
   (primary → worktree) on every sync and refreshes it when the primary
   copy changes. Never edited in, or copied back from, the worktree.
+- **Maven isolation** (#6707, on by default): the launcher prepends
+  `-Dmaven.repo.local=<worktree>/tmp/m2-worktree/repository` to `MAVEN_ARGS`
+  and records the effective path in `NIGHT_M2_REPO`, so every `mvn` the night
+  agents run resolves/installs inside the worktree instead of the shared
+  `~/.m2` — a `clean install` from a feature branch can no longer overwrite
+  the rest/sitemanage SNAPSHOTs another cell's `qa-up` boots (the
+  Frankenstein-classpath Spring failure). An explicit `-Dmaven.repo.local`
+  already present in `MAVEN_ARGS` keeps winning (Maven last-wins);
+  `--no-m2-isolate` opts out entirely. The launcher creates the directory
+  but never seeds it — warm-start third-party artifacts once with
+  `python3 docker/scripts/maven_local_repo.py --repo-root <worktree>`
+  (skips project SNAPSHOTs by design; see `docker/README.md`). The
+  `qa-up` strict preflight (`--m2-root` default resolves the same way via
+  `maven_local_repo.resolve_m2_repository`) fails fast on stale or poisoned
+  jars before the matrix run.
 - **Usage**:
 
   ```bash

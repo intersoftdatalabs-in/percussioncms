@@ -797,3 +797,140 @@ def test_max_parallel_work_forwarded_to_payload_and_env(tmp_path):
     assert payload["max_parallel_work"] == 2
     env = mod.build_env(args, tmp_path, "main", tmp_path / "night-report.md")
     assert env["NIGHT_MAX_PARALLEL_WORK"] == "2"
+
+
+# --- Per-worktree Maven isolation (#6707) ----------------------------------
+
+
+def _load_docker_maven_helper():
+    """Load docker/scripts/maven_local_repo.py for cross-check tests."""
+    helper = (
+        Path(__file__).resolve().parent.parent
+        / "docker" / "scripts" / "maven_local_repo.py"
+    )
+    spec = importlib.util.spec_from_file_location("maven_local_repo", helper)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_worktree_maven_repo_layout(tmp_path):
+    """Per-worktree repo: tmp/m2-worktree/repository joins, distinct per worktree."""
+    mod = _load_module()
+    repo_a = mod.worktree_maven_repo(tmp_path / "lane-a")
+    repo_b = mod.worktree_maven_repo(tmp_path / "lane-b")
+    assert repo_a.parts[-3:] == ("tmp", "m2-worktree", "repository")
+    assert repo_a != repo_b
+    assert repo_a.parent.parent.parent == (tmp_path / "lane-a").resolve()
+    # Portable: built from joins, so no literal separator was concatenated.
+    assert ".." not in repo_a.parts
+
+
+def test_maven_repo_local_flag_quoting(tmp_path):
+    """Flag is bare for plain paths, double-quoted when whitespace is present."""
+    mod = _load_module()
+    plain = mod.worktree_maven_repo(tmp_path / "wt")
+    assert mod.maven_repo_local_flag(plain) == f"-Dmaven.repo.local={plain}"
+    spaced = Path(str(tmp_path) + " with space") / "wt"
+    flag = mod.maven_repo_local_flag(mod.worktree_maven_repo(spaced))
+    assert flag.startswith('-Dmaven.repo.local="') and flag.endswith('"')
+
+
+def test_launcher_flag_agrees_with_docker_helper(tmp_path):
+    """Launcher and docker/scripts/maven_local_repo.py must resolve the same repo."""
+    mod = _load_module()
+    docker_helper = _load_docker_maven_helper()
+    for wt in (tmp_path / "wt", tmp_path / "wt with space"):
+        launcher_repo = mod.worktree_maven_repo(wt)
+        docker_repo = docker_helper.worktree_local_repository(wt)
+        assert launcher_repo == docker_repo
+        assert mod.maven_repo_local_flag(launcher_repo) == docker_helper.repo_local_flag(
+            docker_repo
+        )
+
+
+def test_build_env_isolates_m2_by_default(tmp_path, monkeypatch):
+    """Default run: MAVEN_ARGS gains the worktree flag; NIGHT_M2_REPO points at it."""
+    mod = _load_module()
+    monkeypatch.delenv("MAVEN_ARGS", raising=False)
+    worktree = tmp_path / "wt"
+    args = mod.parse_args([])
+    env = mod.build_env(args, worktree, "main", worktree / "report.md")
+    repo = mod.worktree_maven_repo(worktree)
+    assert env["MAVEN_ARGS"] == f"-Dmaven.repo.local={repo}"
+    assert env["NIGHT_M2_REPO"] == str(repo)
+
+
+def test_build_env_respects_explicit_repo_local(tmp_path, monkeypatch):
+    """An explicit -Dmaven.repo.local already in MAVEN_ARGS keeps winning (last-wins)."""
+    mod = _load_module()
+    explicit = tmp_path / "operator-repo"
+    monkeypatch.setenv("MAVEN_ARGS", f"-Dmaven.repo.local={explicit}")
+    worktree = tmp_path / "wt"
+    args = mod.parse_args([])
+    env = mod.build_env(args, worktree, "main", worktree / "report.md")
+    # The launcher flag is prepended, but the operator value stays effective.
+    assert mod.last_repo_local_value(env["MAVEN_ARGS"]) == str(explicit)
+    assert env["NIGHT_M2_REPO"] == str(explicit)
+
+
+def test_build_env_m2_prepend_idempotent(tmp_path, monkeypatch):
+    """MAVEN_ARGS already carrying our flag must not grow a duplicate."""
+    mod = _load_module()
+    worktree = tmp_path / "wt"
+    repo = mod.worktree_maven_repo(worktree)
+    monkeypatch.setenv("MAVEN_ARGS", f"-Dmaven.repo.local={repo}")
+    args = mod.parse_args([])
+    env = mod.build_env(args, worktree, "main", worktree / "report.md")
+    assert env["MAVEN_ARGS"].count(str(repo)) == 1
+
+
+def test_build_env_no_m2_isolate_opts_out(tmp_path, monkeypatch):
+    """--no-m2-isolate: MAVEN_ARGS untouched, no NIGHT_M2_REPO."""
+    mod = _load_module()
+    monkeypatch.setenv("MAVEN_ARGS", "-Xmx2g")
+    worktree = tmp_path / "wt"
+    args = mod.parse_args(["--no-m2-isolate"])
+    assert args.m2_isolate is False
+    env = mod.build_env(args, worktree, "main", worktree / "report.md")
+    assert env["MAVEN_ARGS"] == "-Xmx2g"
+    assert "NIGHT_M2_REPO" not in env
+
+
+def test_m2_isolate_defaults_on():
+    """No flag: isolation stays on (issue #6707)."""
+    mod = _load_module()
+    assert mod.parse_args([]).m2_isolate is True
+
+
+def test_ensure_night_m2_repo_creates_dir(tmp_path):
+    """ensure_night_m2_repo creates the chain and is idempotent."""
+    mod = _load_module()
+    repo = mod.ensure_night_m2_repo(tmp_path / "wt")
+    assert repo == mod.worktree_maven_repo(tmp_path / "wt")
+    assert repo.is_dir()
+    assert mod.ensure_night_m2_repo(tmp_path / "wt") == repo
+
+
+def test_dry_run_reports_m2_isolation_without_creating_dirs(tmp_path):
+    """--dry-run logs the isolation decision and creates nothing."""
+    absent_wt = tmp_path / "dry-run-m2-wt"
+    completed = subprocess.run(
+        [sys.executable, str(SCRIPT_PATH),
+         "--worktree", str(absent_wt),
+         "--dry-run",
+         "--log-level", "INFO"],
+        shell=False,
+        check=False,
+        timeout=15,
+        capture_output=True,
+        text=True,
+        cwd=str(tmp_path),
+        env={**os.environ, "NIGHT_BASE_BRANCH": "main"},
+    )
+    assert completed.returncode == 0, completed.stderr
+    assert "m2 isolation" in completed.stderr
+    assert str(absent_wt / "tmp" / "m2-worktree") in completed.stderr.replace("\\", "/") or \
+        "m2-worktree" in completed.stderr
+    assert not absent_wt.exists()
