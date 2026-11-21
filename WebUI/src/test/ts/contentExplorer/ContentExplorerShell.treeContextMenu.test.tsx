@@ -173,4 +173,111 @@ describe("ContentExplorerShell tree context menu (#6826)", () => {
     fireEvent.keyDown(screen.getByTestId("context-menu"), { key: "Escape" });
     expect(screen.queryByTestId("context-menu")).not.toBeInTheDocument();
   });
+
+  it("Escape returns focus to the invoking tree row (#6864)", async () => {
+    stubTreeAndListFetch();
+    const loadMenuActions = vi.fn(async () => [
+      {
+        name: "tree-probe-action",
+        label: "Tree probe action",
+        sortRank: 1,
+        menuType: "MENUITEM" as const,
+      },
+    ]);
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={loadMenuActions}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+    await waitFor(() => expect(treeRow()).toBeInTheDocument());
+
+    // Keyboard operators open the menu from the focused row; the shell
+    // records document.activeElement as the invoker (#6864).
+    treeRow().focus();
+    expect(treeRow()).toHaveFocus();
+    fireEvent.contextMenu(treeRow(), { clientX: 100, clientY: 200 });
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("context-menu-item-tree-probe-action"),
+      ).toBeInTheDocument(),
+    );
+    expect(screen.getByTestId("context-menu")).toHaveFocus();
+
+    fireEvent.keyDown(screen.getByTestId("context-menu"), { key: "Escape" });
+    expect(screen.queryByTestId("context-menu")).not.toBeInTheDocument();
+    // Focus is back on the invoking row, not stranded on <body>.
+    expect(treeRow()).toHaveFocus();
+
+    await renderA11yGate(container);
+  });
+
+  it("Escape returns focus to the invoking detail row (#6864)", async () => {
+    const ROW = {
+      id: "n-6864",
+      path: "/Sites/Foo",
+      folderPath: "/Sites/Foo",
+      name: "Foo",
+      type: "file",
+      accessLevel: "WRITE",
+    };
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [ROW],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [TREE_FOLDER, ROW],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    const loadMenuActions = vi.fn(async () => [
+      {
+        name: "detail-probe-action",
+        label: "Detail probe action",
+        sortRank: 1,
+        menuType: "MENUITEM" as const,
+      },
+    ]);
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={loadMenuActions}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+    const detailRow = await screen.findByTestId("detail-row-n-6864");
+
+    detailRow.focus();
+    expect(detailRow).toHaveFocus();
+    fireEvent.contextMenu(detailRow, { clientX: 120, clientY: 220 });
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("context-menu-item-detail-probe-action"),
+      ).toBeInTheDocument(),
+    );
+
+    // Invoke close shares the same restore helper as Escape: activating a
+    // non-dialog action returns focus to the invoking row too (#6864).
+    fireEvent.keyDown(screen.getByTestId("context-menu"), { key: "Escape" });
+    expect(screen.queryByTestId("context-menu")).not.toBeInTheDocument();
+    expect(detailRow).toHaveFocus();
+
+    await renderA11yGate(container);
+  });
 });

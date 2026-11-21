@@ -1225,14 +1225,17 @@ Menus and toolbar buttons come from the server action catalog used by Content Ex
   Keyboard equivalent: focus the row and press **Shift+F10** (or the context-menu key)
   to open the same row-scoped menu anchored at the row; plain **F10** does nothing.
   The popup names the row, answers immediately with a **Loading actions…**
-  placeholder while the catalog resolves, moves focus inside, and **Escape** closes it.
+  placeholder while the catalog resolves, moves focus inside, and **Escape** closes it,
+  returning focus to the row you opened it from so keyboard operators keep
+  their place in the list. Choosing an action that opens a dialog moves
+  focus into that dialog instead (dialog-managed focus).
 - **Right-click a folder in the navigation tree** (or focus the tree row and press
   **Shift+F10** / the context-menu key) opens the same server catalog scoped to
   that folder, so tree-only operators reach the folder commands without selecting
   a list row first. The folder is selected, the popup names it
   (for example **Context menu for Foo**), it answers immediately with a
   **Loading actions…** placeholder while the catalog resolves, focus moves into
-  the popup, and **Escape** closes it.
+  the popup, and **Escape** closes it, returning focus to the tree row.
 - **Right-click a recycled row** (a page, asset, or folder listed under
   **Recycling**) also offers **Restore** and **Purge** — the same actions as the
   reduced-actions toolbar, without requiring toolbar buttons. **Restore** returns
