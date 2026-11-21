@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { message, MSG } from "../i18n/message";
 import { mapIdParam, mapJobIdParam, mapRequestIdParam, mapSectionParam } from "./deepLinkMap";
 import { DirtyFormProvider, useDirtyForm } from "./dirtyFormContext";
@@ -82,6 +82,34 @@ export function defaultLandingSection(): PublishSection {
   return "sites";
 }
 
+/**
+ * Resolve the next section-nav position for a keyboard movement key (#4531).
+ * Returns `null` when the key is not a movement key. Left/Right wrap at
+ * both ends so keyboard operators can cycle the section list; Home/End
+ * jump to the first/last section.
+ */
+export function sectionNavMoveTarget(
+  key: string,
+  index: number,
+  count: number,
+): number | null {
+  if (count <= 0 || index < 0) {
+    return null;
+  }
+  switch (key) {
+    case "ArrowRight":
+      return (index + 1) % count;
+    case "ArrowLeft":
+      return (index - 1 + count) % count;
+    case "Home":
+      return 0;
+    case "End":
+      return count - 1;
+    default:
+      return null;
+  }
+}
+
 function PublishingShellInner({
   section,
   siteId,
@@ -109,6 +137,12 @@ function PublishingShellInner({
     token: number;
   } | null>(null);
   const { confirmIfDirty } = useDirtyForm();
+  /**
+   * Section-nav buttons in render order (#4531). Arrow-key traversal
+   * focuses through this map instead of DOM queries so focus never lands
+   * on a stale node after the section list changes (showDesign toggle).
+   */
+  const navRefs = useRef(new Map<PublishSection, HTMLButtonElement | null>());
 
   useEffect(() => {
     setHistoryItemId(mapIdParam(itemId));
@@ -121,14 +155,38 @@ function PublishingShellInner({
     return [...OPS_SECTIONS, ...advanced];
   }, [showDesign]);
 
-  function navigate(next: PublishSection): void {
+  function navigate(next: PublishSection): boolean {
     if (next === active) {
-      return;
+      return true;
     }
     if (!confirmIfDirty()) {
-      return;
+      return false;
     }
     setActive(next);
+    return true;
+  }
+
+  /**
+   * Section-nav keyboard operation (#4531): ArrowLeft/ArrowRight move
+   * across the sections with wrap, Home/End jump to the first/last
+   * section. Movement uses automatic activation — the newly focused
+   * section opens — so keyboard and pointer operators land on the same
+   * view. A blocked dirty-form confirm keeps focus where it was.
+   */
+  function handleNavKeyDown(e: React.KeyboardEvent, id: PublishSection): void {
+    const index = sections.findIndex((s) => s.id === id);
+    const target = sectionNavMoveTarget(e.key, index, sections.length);
+    if (target === null) {
+      return;
+    }
+    e.preventDefault();
+    const next = sections[target];
+    if (!next) {
+      return;
+    }
+    if (navigate(next.id)) {
+      navRefs.current.get(next.id)?.focus();
+    }
   }
 
   function openRunningJob(jobId: string): void {
@@ -162,10 +220,20 @@ function PublishingShellInner({
           <button
             key={s.id}
             type="button"
+            ref={(el) => {
+              if (el) {
+                navRefs.current.set(s.id, el);
+              } else {
+                navRefs.current.delete(s.id);
+              }
+            }}
             style={navButtonStyle(active === s.id)}
             aria-current={active === s.id ? "page" : undefined}
             aria-label={message(s.key)}
+            data-testid={`publish-nav-${s.id}`}
+            tabIndex={active === s.id ? 0 : -1}
             onClick={() => navigate(s.id)}
+            onKeyDown={(e) => handleNavKeyDown(e, s.id)}
           >
             {message(s.key)}
           </button>
