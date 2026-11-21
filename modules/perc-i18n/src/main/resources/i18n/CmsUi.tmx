@@ -23649,6 +23649,20 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
       <tuv xml:lang="zh-cn"><seg>地位</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>地位</seg></tuv>
     <tuv xml:lang="ru"><seg>Статус</seg></tuv><tuv xml:lang="he"><seg>סטָטוּס</seg></tuv><tuv xml:lang="uk"><seg>Статус</seg></tuv><tuv xml:lang="lou"><seg>Status</seg></tuv><tuv xml:lang="pl"><seg>Status</seg></tuv><tuv xml:lang="tr"><seg>Durum</seg></tuv><tuv xml:lang="nb"><seg>Status</seg></tuv><tuv xml:lang="sv"><seg>Status</seg></tuv></tu>
+    <tu tuid="perc.ui.publishing.history@View History">
+      <tuv xml:lang="en-us"><seg>View history</seg></tuv></tu>
+    <tu tuid="perc.ui.publishing.history@No Publishing History For this item">
+      <tuv xml:lang="en-us"><seg>No publishing history for this item yet</seg></tuv></tu>
+    <tu tuid="perc.ui.publish.modern@Look up a page or asset by item id. Deep-link Status or Logs with itemId.">
+      <tuv xml:lang="en-us"><seg>Look up a page or asset by item id. Deep-link Status or Logs with itemId.</seg></tuv></tu>
+    <tu tuid="perc.ui.publish.modern@Enter an item id">
+      <tuv xml:lang="en-us"><seg>Enter an item id</seg></tuv></tu>
+    <tu tuid="perc.ui.publish.modern@Invalid item id">
+      <tuv xml:lang="en-us"><seg>Invalid item id</seg></tuv></tu>
+    <tu tuid="perc.ui.publish.modern@Open Status">
+      <tuv xml:lang="en-us"><seg>Open Status</seg></tuv></tu>
+    <tu tuid="perc.ui.publish.modern@Open Logs">
+      <tuv xml:lang="en-us"><seg>Open Logs</seg></tuv></tu>
     <tu tuid="perc.ui.publishing.history@Error Fetching History">
       <tuv xml:lang="en-us"><seg>Error fetching publishing history for:</seg></tuv>
       <tuv xml:lang="ar"><seg>حدث خطأ أثناء جلب سجل النشر لـ:</seg></tuv>

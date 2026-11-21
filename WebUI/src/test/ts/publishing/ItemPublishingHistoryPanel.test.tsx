@@ -168,4 +168,36 @@ describe("ItemPublishingHistoryPanel", () => {
     });
     expect(fetchHistory).not.toHaveBeenCalled();
   });
+
+  it("announces loading via a live status region", async () => {
+    fetchHistory.mockReturnValue(new Promise(() => {}));
+    render(<ItemPublishingHistoryPanel currentSection="logs" itemId="42" />);
+    await waitFor(() => {
+      expect(screen.getByRole("status")).toBeTruthy();
+    });
+  });
+
+  it("marks history table headers with column scope", async () => {
+    fetchHistory.mockResolvedValue([
+      {
+        server: "prod",
+        location: "/home",
+        revisionId: 3,
+        publishedDate: 300,
+        operation: "publish",
+        status: "SUCCESS",
+      },
+    ]);
+    const { container } = render(
+      <ItemPublishingHistoryPanel currentSection="status" itemId="7" />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("item-history-table")).toBeTruthy();
+    });
+    const headers = Array.from(container.querySelectorAll("th"));
+    expect(headers.length).toBe(6);
+    for (const header of headers) {
+      expect(header.getAttribute("scope")).toBe("col");
+    }
+  });
 });

@@ -221,4 +221,50 @@ test.describe("React Content Editor publish history", () => {
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
   );
+
+  test(
+    "keyboard opens history and Escape closes it returning focus",
+    { tag: ["@explorer-content-editor", "@editor", "@publish"] },
+    async ({ page }) => {
+      const historyCalls = [];
+      const publishCalls = [];
+      const pageErrors = [];
+      consoleOn(page, pageErrors);
+      await stubEditorApis(page, {
+        historyCalls,
+        publishCalls,
+        history: {
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            ItemPublishingHistory: [
+              { server: "prod", operation: "publish", status: "SUCCESS" },
+            ],
+          }),
+        },
+      });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=view"));
+      const toggle = page.locator(`[data-testid="${TEST_IDS.history}"]`);
+      await expect(toggle).toBeVisible({ timeout: 20_000 });
+      await toggle.focus();
+      await page.keyboard.press("Enter");
+      const dialog = page.locator(`[data-testid="${TEST_IDS.dialog}"]`);
+      await expect(dialog).toBeVisible();
+      await expect.poll(() => historyCalls.length).toBe(1);
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.close}"]`),
+      ).toBeFocused();
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.row}"]`),
+      ).toContainText("prod");
+      await page.screenshot({
+        path: "test-results/live-proof-6928-publish-history-keyboard.png",
+      });
+      await page.keyboard.press("Escape");
+      await expect(dialog).toBeHidden();
+      await expect(toggle).toBeFocused();
+      expect(publishCalls).toEqual([]);
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
 });

@@ -180,7 +180,11 @@ export function ItemPublishingHistoryPanel({
           {otherLabel}
         </a>
       </form>
-      {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
+      {loading && (
+        <p role="status" data-testid="item-history-loading">
+          {message(MSG.PUBLISH_LOADING)}
+        </p>
+      )}
       {error && (
         <p
           style={errorStyle}
@@ -209,12 +213,12 @@ export function ItemPublishingHistoryPanel({
         >
           <thead>
             <tr>
-              <th style={thStyle}>{message(MSG.PUBLISH_ITEM_HISTORY_SERVER)}</th>
-              <th style={thStyle}>{message(MSG.PUBLISH_ITEM_HISTORY_LOCATION)}</th>
-              <th style={thStyle}>{message(MSG.PUBLISH_ITEM_HISTORY_REVISION)}</th>
-              <th style={thStyle}>{message(MSG.PUBLISH_ITEM_HISTORY_DATE)}</th>
-              <th style={thStyle}>{message(MSG.PUBLISH_ITEM_HISTORY_OPERATION)}</th>
-              <th style={thStyle}>{message(MSG.PUBLISH_ITEM_HISTORY_STATUS)}</th>
+              <th style={thStyle} scope="col">{message(MSG.PUBLISH_ITEM_HISTORY_SERVER)}</th>
+              <th style={thStyle} scope="col">{message(MSG.PUBLISH_ITEM_HISTORY_LOCATION)}</th>
+              <th style={thStyle} scope="col">{message(MSG.PUBLISH_ITEM_HISTORY_REVISION)}</th>
+              <th style={thStyle} scope="col">{message(MSG.PUBLISH_ITEM_HISTORY_DATE)}</th>
+              <th style={thStyle} scope="col">{message(MSG.PUBLISH_ITEM_HISTORY_OPERATION)}</th>
+              <th style={thStyle} scope="col">{message(MSG.PUBLISH_ITEM_HISTORY_STATUS)}</th>
             </tr>
           </thead>
           <tbody>

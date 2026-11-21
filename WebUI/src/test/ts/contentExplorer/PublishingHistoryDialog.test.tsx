@@ -69,4 +69,27 @@ describe("PublishingHistoryDialog", () => {
     });
     expect(screen.queryByTestId("item-history-empty")).toBeNull();
   });
+
+  it("returns focus to the opener when the dialog unmounts", async () => {
+    fetchHistory.mockResolvedValue([]);
+    render(
+      <button type="button" data-testid="history-opener">
+        History
+      </button>,
+    );
+    const opener = screen.getByTestId("history-opener");
+    opener.focus();
+    expect(document.activeElement).toBe(opener);
+    const dialog = render(
+      <PublishingHistoryDialog itemId="42" onClose={vi.fn()} />,
+    );
+    await waitFor(() => {
+      expect(screen.getByTestId("item-history-empty")).toBeTruthy();
+    });
+    expect(document.activeElement).toBe(
+      screen.getByTestId("explorer-publishing-history-close"),
+    );
+    dialog.unmount();
+    expect(document.activeElement).toBe(opener);
+  });
 });
