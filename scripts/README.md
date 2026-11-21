@@ -616,13 +616,18 @@ marker — so runners on other machines skip it. State: `scratch/claims.json`.
   python3 scripts/night-queue-claim.py claim --queue scratch/decision-front.json
   python3 scripts/night-queue-claim.py release --issues 123 --reason dropped_by_triage
   python3 scripts/night-queue-claim.py release-unfinished --work-dir scratch
+  python3 scripts/night-queue-claim.py release-closed   # drop label from merge-closed issues + backlog
   ```
 
 - **Rules in code**: never claims assigned / closed / already-claimed issues
   (returned as `conflicts`); earliest claim comment wins a race; a release
   removes the label only when no other runner's claim is active; the stale
   sweep skips assigned issues, issues with a covering open PR and the current
-  cycle's claims.
+  cycle's claims. `release-closed` (#6890) releases this cycle's claims whose
+  issues are now CLOSED and clears the label from every other CLOSED issue
+  still carrying it (a claim on a closed issue is dead, so no live claim is
+  disturbed); OPEN issues are kept. The `.github/workflows/night-claim-cleanup.yml`
+  `issues: closed` workflow does the same at close time for future merges.
 - **Tests**: `python3 -m pytest scripts/test_night_queue_claim.py` (fake `gh`).
 
 ### `night-decision-front.py` / `night-decision-front.cmd`
