@@ -34,6 +34,46 @@ import maven_local_repo as mlr  # noqa: E402
 _POSIX = os.name != "nt"
 
 
+def _usable_posix_shells() -> "list[str]":
+    """POSIX shells able to run the export eval round-trip probe.
+
+    Human review (PR #6862): on Windows runners ``shutil.which("bash")``
+    can resolve to the WSL launcher stub under ``%SystemRoot%\\System32``,
+    which exits non-zero with no stderr and would fail the round-trip
+    for reasons unrelated to the export format. Candidates resolved
+    under ``%SystemRoot%`` are skipped on ``nt``, and every remaining
+    candidate must pass a ``[shell, "-c", "true"]`` probe.
+    """
+    import shutil
+    import subprocess
+
+    shells = [s for s in ("sh", "bash") if shutil.which(s)]
+    usable: "list[str]" = []
+    for shell in shells:
+        if os.name == "nt":
+            system_root = os.environ.get("SystemRoot", r"C:\Windows")
+            try:
+                resolved = str(Path(shutil.which(shell)).resolve())
+            except OSError:
+                continue
+            # mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6807, same class as #6787) —
+            # nt-guarded %SystemRoot% prefix guard; backslash names Windows semantics, not a portable join.
+            if resolved.lower().startswith(system_root.lower().rstrip("\\") + "\\"):
+                continue
+        try:
+            probe = subprocess.run(
+                [shell, "-c", "true"],
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+        except OSError:
+            continue
+        if probe.returncode == 0:
+            usable.append(shell)
+    return usable
+
+
 class MavenLocalRepoTest(unittest.TestCase):
     def setUp(self) -> None:
         self._td = tempfile.TemporaryDirectory()
@@ -294,6 +334,68 @@ class TestWorktreeRepository(unittest.TestCase):
         self.assertIn("-Dmaven.repo.local=", buf.getvalue())
         self.assertIn("MAVEN_ARGS=", buf.getvalue())
         self.assertTrue(mlr.worktree_local_repository(self.repo).is_dir())
+
+    def test_cli_export_eval_round_trip_with_spaces(self):
+        """The printed export must survive ``eval`` in sh/bash (#6807).
+
+        Full README path — ``eval "$(python3 .../maven_local_repo.py
+        --repo-root .)"`` — with a space-containing checkout path and a
+        stale ``-Dmaven.repo.local`` already in ``MAVEN_ARGS``: the
+        per-worktree flag must come last so it wins under Maven's (and
+        :func:`parse_repo_local`'s) last-wins rule. Assertions use
+        ``splitlines()`` so they hold on CRLF checkouts too.
+        """
+        import io
+        import subprocess
+        from contextlib import redirect_stdout
+
+        shells = _usable_posix_shells()
+        if not shells:
+            self.skipTest(
+                "no POSIX shell on PATH: export round-trip needs sh "
+                "(follow-up: cover cmd/PowerShell export form, issue #6807)"
+            )
+        spaced = Path(self._td.name) / "my checkout"
+        spaced.mkdir()
+        buf = io.StringIO()
+        with redirect_stdout(buf):
+            rc = mlr.main(["--repo-root", str(spaced), "--no-seed"])
+        self.assertEqual(rc, 0)
+        lines = buf.getvalue().splitlines()
+        self.assertTrue(lines and lines[0].startswith("export MAVEN_ARGS="))
+        line = lines[0]
+        expected = mlr.worktree_local_repository(spaced)
+        for shell in shells:
+            for preset in ("", "-Dmaven.repo.local=/stale/repo -B"):
+                env = {
+                    k: v for k, v in os.environ.items() if k != "MAVEN_ARGS"
+                }
+                if preset:
+                    env["MAVEN_ARGS"] = preset
+                proc = subprocess.run(
+                    [shell, "-c", 'eval "$1"; printf "%s" "$MAVEN_ARGS"', "_", line],
+                    env=env,
+                    capture_output=True,
+                    text=True,
+                    timeout=30,
+                )
+                where = f"{shell} preset={preset!r}"
+                self.assertEqual(proc.returncode, 0, f"{where}: {proc.stderr}")
+                self.assertEqual(
+                    mlr.parse_repo_local(proc.stdout), expected, where
+                )
+            # Re-eval (user sources the line twice) stays sticky on our repo.
+            proc = subprocess.run(
+                [shell, "-c", 'eval "$1"; eval "$1"; printf "%s" "$MAVEN_ARGS"', "_", line],
+                env={k: v for k, v in os.environ.items() if k != "MAVEN_ARGS"},
+                capture_output=True,
+                text=True,
+                timeout=30,
+            )
+            self.assertEqual(proc.returncode, 0, f"{shell} re-eval: {proc.stderr}")
+            self.assertEqual(
+                mlr.parse_repo_local(proc.stdout), expected, f"{shell} re-eval"
+            )
 
 
 if __name__ == "__main__":

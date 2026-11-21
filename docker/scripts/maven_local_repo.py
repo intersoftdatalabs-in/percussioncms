@@ -50,6 +50,7 @@ from __future__ import annotations
 import argparse
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import sys
@@ -215,7 +216,8 @@ def repo_local_flag(repo_path: Path) -> str:
     launcher; :func:`parse_repo_local` strips those quotes on the way back.
     Callers embedding the flag in a POSIX-shell export line (Git Bash / WSL)
     must preserve backslashes (single-quoted ``export`` or ``cmd`` /
-    PowerShell) — a bare double-quoted POSIX export eats ``\\``.
+    PowerShell) — a bare double-quoted POSIX export eats ``\\``. The
+    ``__main__`` export line handles this with :func:`shlex.quote` (#6807).
     """
     text = str(repo_path)
     if any(ch.isspace() for ch in text):
@@ -292,7 +294,17 @@ def ensure_worktree_repository(
 
 
 def main(argv: Optional[list] = None) -> int:
-    """One-shot helper: create/seed the per-worktree repo and print the export."""
+    """One-shot helper: create/seed the per-worktree repo and print the export.
+
+    The printed line is a POSIX-shell (``sh``/``bash``, Git Bash, WSL)
+    ``export`` — not ``cmd``/PowerShell syntax. The per-worktree flag is
+    appended *after* any existing ``MAVEN_ARGS`` so it wins under Maven's
+    (and :func:`parse_repo_local`'s) last-wins rule for repeated
+    ``-Dmaven.repo.local`` tokens, and it is :func:`shlex.quote`-quoted so
+    worktree paths containing whitespace survive ``eval`` (POSIX
+    assignments perform no field splitting, and single quotes preserve
+    backslashes for Windows-style paths under Git Bash).
+    """
     parser = argparse.ArgumentParser(
         prog="maven-local-repo",
         description=(
@@ -326,7 +338,12 @@ def main(argv: Optional[list] = None) -> int:
     repo.mkdir(parents=True, exist_ok=True)
     if not args.no_seed:
         repo = ensure_worktree_repository(args.repo_root, args.seed_from)
-    print(f'export MAVEN_ARGS="{repo_local_flag(repo)}${{MAVEN_ARGS:+ $MAVEN_ARGS}}"')
+    # Append after any existing MAVEN_ARGS (last wins) and shlex.quote the
+    # flag so whitespace paths survive `eval` in sh/bash (#6807). POSIX
+    # `export NAME=value` assignments skip field splitting, so the
+    # unquoted ${MAVEN_ARGS:+...} expansion keeps any spaces inside the
+    # pre-existing value intact while the quoted flag stays one token.
+    print(f"export MAVEN_ARGS=${{MAVEN_ARGS:+$MAVEN_ARGS }}{shlex.quote(repo_local_flag(repo))}")
     print(f"Per-worktree Maven local repo: {repo}", file=sys.stderr)
     return 0
 
