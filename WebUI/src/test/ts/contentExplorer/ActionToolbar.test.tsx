@@ -406,6 +406,134 @@ describe("ActionToolbar", () => {
     fireEvent.blur(button);
     expect(button.style.outline).toBe("");
   });
+
+  describe("dropdown arrow-key navigation (#6827)", () => {
+    const MENU: MenuAction[] = [
+      {
+        name: "new",
+        label: "New",
+        sortRank: 0,
+        menuType: "MENU",
+        children: [
+          { name: "new-folder", label: "Folder", sortRank: 0, menuType: "MENUITEM" },
+          { name: "new-page", label: "Page", sortRank: 1, menuType: "MENUITEM" },
+          { name: "new-site", label: "Site", sortRank: 2, menuType: "MENUITEM" },
+        ],
+      },
+    ];
+
+    function item(name: string): HTMLElement {
+      return screen.getByTestId(`action-toolbar-item-${name}`) as HTMLElement;
+    }
+
+    it("ArrowDown on the parent opens the menu on the first item", () => {
+      render(<ActionToolbar actions={MENU} />);
+      fireEvent.keyDown(item("new"), { key: "ArrowDown" });
+      expect(screen.getByTestId("action-toolbar-menu-new")).toBeTruthy();
+      expect(document.activeElement).toBe(item("new-folder"));
+      expect(item("new-folder").getAttribute("tabindex")).toBe("0");
+      expect(item("new-page").getAttribute("tabindex")).toBe("-1");
+      expect(item("new-site").getAttribute("tabindex")).toBe("-1");
+    });
+
+    it("ArrowUp on the parent opens the menu on the last item", () => {
+      render(<ActionToolbar actions={MENU} />);
+      fireEvent.keyDown(item("new"), { key: "ArrowUp" });
+      expect(screen.getByTestId("action-toolbar-menu-new")).toBeTruthy();
+      expect(document.activeElement).toBe(item("new-site"));
+    });
+
+    it("ArrowDown/ArrowUp cycle focus across items with wrap", () => {
+      render(<ActionToolbar actions={MENU} />);
+      fireEvent.click(item("new"));
+      // Mouse open lands focus on the first item so arrows work right away.
+      expect(document.activeElement).toBe(item("new-folder"));
+      fireEvent.keyDown(item("new-folder"), { key: "ArrowDown" });
+      expect(document.activeElement).toBe(item("new-page"));
+      fireEvent.keyDown(item("new-page"), { key: "ArrowDown" });
+      expect(document.activeElement).toBe(item("new-site"));
+      // Wraps past the last item back to the first.
+      fireEvent.keyDown(item("new-site"), { key: "ArrowDown" });
+      expect(document.activeElement).toBe(item("new-folder"));
+      // ArrowUp from the first item wraps to the last.
+      fireEvent.keyDown(item("new-folder"), { key: "ArrowUp" });
+      expect(document.activeElement).toBe(item("new-site"));
+    });
+
+    it("Home/End jump to the first/last item", () => {
+      render(<ActionToolbar actions={MENU} />);
+      fireEvent.click(item("new"));
+      fireEvent.keyDown(item("new-folder"), { key: "End" });
+      expect(document.activeElement).toBe(item("new-site"));
+      expect(item("new-site").getAttribute("tabindex")).toBe("0");
+      expect(item("new-folder").getAttribute("tabindex")).toBe("-1");
+      fireEvent.keyDown(item("new-site"), { key: "Home" });
+      expect(document.activeElement).toBe(item("new-folder"));
+    });
+
+    it("keeps one tab stop per open menu (roving tabindex)", () => {
+      render(<ActionToolbar actions={MENU} />);
+      fireEvent.click(item("new"));
+      const tabbable = screen
+        .getByTestId("action-toolbar-menu-new")
+        .querySelectorAll('[tabindex="0"]');
+      expect(tabbable.length).toBe(1);
+      expect(tabbable[0]).toBe(item("new-folder"));
+    });
+
+    it("Escape from inside the menu returns focus to the parent", () => {
+      render(<ActionToolbar actions={MENU} />);
+      fireEvent.keyDown(item("new"), { key: "ArrowDown" });
+      expect(document.activeElement).toBe(item("new-folder"));
+      fireEvent.keyDown(document, { key: "Escape" });
+      expect(screen.queryByTestId("action-toolbar-menu-new")).toBeNull();
+      expect(document.activeElement).toBe(item("new"));
+    });
+
+    it("Tab closes the menu so no detached dropdown lingers", () => {
+      render(<ActionToolbar actions={MENU} />);
+      fireEvent.click(item("new"));
+      expect(screen.getByTestId("action-toolbar-menu-new")).toBeTruthy();
+      fireEvent.keyDown(document, { key: "Tab" });
+      expect(screen.queryByTestId("action-toolbar-menu-new")).toBeNull();
+    });
+
+    it("passes the zero serious/critical axe-core gate with a menu open", async () => {
+      const { container } = render(
+        <ActionToolbar actions={MENU} ariaLabel="Item actions" />,
+      );
+      fireEvent.click(item("new"));
+      expect(screen.getByTestId("action-toolbar-menu-new")).toBeTruthy();
+      await renderA11yGate(container);
+    });
+
+    it("arrow keys move focus across the one-click Workflow group", () => {
+      const actions: MenuAction[] = [
+        {
+          name: "workflow",
+          label: "Workflow",
+          sortRank: 9000,
+          menuType: "MENU",
+          children: [
+            { name: "workflow-transition:Submit", label: "Submit", sortRank: 1, menuType: "MENUITEM" },
+            { name: "workflow-transition:Approve", label: "Approve", sortRank: 2, menuType: "MENUITEM" },
+          ],
+        },
+      ];
+      render(<ActionToolbar actions={actions} />);
+      const submit = item("workflow-transition:Submit");
+      const approve = item("workflow-transition:Approve");
+      submit.focus();
+      fireEvent.keyDown(submit, { key: "ArrowDown" });
+      expect(document.activeElement).toBe(approve);
+      fireEvent.keyDown(approve, { key: "ArrowUp" });
+      expect(document.activeElement).toBe(submit);
+      fireEvent.keyDown(submit, { key: "End" });
+      expect(document.activeElement).toBe(approve);
+      fireEvent.keyDown(approve, { key: "Home" });
+      expect(document.activeElement).toBe(submit);
+    });
+  });
 });
 
 describe("actionIcons", () => {
