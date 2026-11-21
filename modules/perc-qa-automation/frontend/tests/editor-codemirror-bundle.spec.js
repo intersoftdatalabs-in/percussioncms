@@ -143,6 +143,58 @@ function codemirrorLoaderLines(jspPath) {
   return text.split("\n").filter((line) => /codemirror/i.test(line));
 }
 
+// Issue #6902 (bundle-missing fallback): extract the exact inline script
+// the sys_TextArea codeeditor branch ships, substituting only the two XSL
+// value-ofs (field id + effective mode) so the live both-paths test executes
+// the shipped code instead of a paraphrase. Fails fast if the branch grows a
+// third XSL instruction the substitution does not know.
+function sysTextAreaCodeeditorScript(fieldId, mode) {
+  const text = fs
+    .readFileSync(path.join(REPO_ROOT, SYS_TEMPLATES_XSL), "utf8")
+    .replace(/\r\n/g, "\n");
+  const branchStart = text.indexOf("$codeeditor = 'yes'");
+  expect(
+    branchStart,
+    `${SYS_TEMPLATES_XSL} must keep the codeeditor branch`,
+  ).toBeGreaterThan(-1);
+  const scriptOpen = text.indexOf("<script>", branchStart);
+  const scriptClose = text.indexOf("</script>", scriptOpen);
+  expect(scriptOpen, `${SYS_TEMPLATES_XSL} code editor must ship an init script`).toBeGreaterThan(-1);
+  expect(scriptClose, `${SYS_TEMPLATES_XSL} code editor init script must close`).toBeGreaterThan(scriptOpen);
+  let script = text.slice(scriptOpen + "<script>".length, scriptClose);
+  const leftovers = script.match(/<xsl:[^>]+>/g) || [];
+  for (const tag of leftovers) {
+    expect(
+      tag,
+      `${SYS_TEMPLATES_XSL} init script must only interpolate field id + mode (#6902): ${tag}`,
+    ).toMatch(/<xsl:value-of select="(?:@paramName|\$codeeditor_effective_mode)" \/>/);
+  }
+  script = script.split('<xsl:value-of select="@paramName" />').join(fieldId);
+  script = script.split('<xsl:value-of select="$codeeditor_effective_mode" />').join(mode);
+  expect(
+    script,
+    `${SYS_TEMPLATES_XSL} init script must be plain JS after substitution (#6902)`,
+  ).not.toContain("<xsl:");
+  return script;
+}
+
+// Minimal faithful mirror of the XSL-rendered codeeditor legend + textarea:
+// same hooks (badge, toolbar, size readout) so the fallback notice lands
+// where the shipped script puts it.
+function sysTextAreaCodeeditorLegend(fieldId, mode) {
+  return (
+    `<div class="perc-codeeditor-legend" data-perc-codeeditor-mode="${mode}">` +
+    `<span class="perc-codeeditor-mode" data-perc-codeeditor-mode-badge="${fieldId}">Mode: ${mode}</span>` +
+    `<span class="perc-codeeditor-display-prefs">` +
+    `<button type="button" data-perc-codeeditor-theme-toggle="${fieldId}" aria-pressed="false">Dark mode</button>` +
+    `<button type="button" data-perc-codeeditor-font-decrease="${fieldId}">A-</button>` +
+    `<span data-perc-codeeditor-font-size="${fieldId}">13px</span>` +
+    `<button type="button" data-perc-codeeditor-font-increase="${fieldId}">A+</button>` +
+    `</span></div>` +
+    `<textarea id="${fieldId}"><p>Hello</p></textarea>`
+  );
+}
+
 // Issue #6363 (slice 3/3): the WebJar + Ant-unpack removal and the root-POM
 // freeze lift are build-manifest facts. This pins the manifests the migration
 // owns so a re-introduced WebJar, unpack step, version property, or dropped
@@ -998,7 +1050,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
         codeeditorStart,
         `${SYS_TEMPLATES_XSL} must keep the codeeditor branch`,
       ).toBeGreaterThan(-1);
-      const scriptStart = text.indexOf("fromTextArea", codeeditorStart);
+      const scriptStart = text.indexOf("fromTextArea(", codeeditorStart);
       expect(
         scriptStart,
         `${SYS_TEMPLATES_XSL} code editor must create a CodeMirror instance`,
@@ -1067,7 +1119,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
         branch,
         `${SYS_TEMPLATES_XSL} must resolve an effective editor mode (#6528)`,
       ).toContain("codeeditor_effective_mode");
-      const scriptStart = branch.indexOf("fromTextArea");
+      const scriptStart = branch.indexOf("fromTextArea(");
       expect(
         scriptStart,
         `${SYS_TEMPLATES_XSL} code editor must create a CodeMirror instance`,
@@ -1075,8 +1127,12 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
       const scriptBlock = branch.slice(scriptStart, scriptStart + 1200);
       expect(
         scriptBlock,
-        `${SYS_TEMPLATES_XSL} must wire codeeditor_mode into the editor mode (#6528)`,
-      ).toContain("mode: '<xsl:value-of select=\"$codeeditor_effective_mode\" />'");
+        `${SYS_TEMPLATES_XSL} must wire codeeditor_mode into the editor (#6528)`,
+      ).toContain("mode: mode,");
+      expect(
+        branch,
+        `${SYS_TEMPLATES_XSL} must pass the effective mode into the guarded init (#6528)`,
+      ).toContain("percCodeEditorInit('<xsl:value-of select=\"@paramName\" />', '<xsl:value-of select=\"$codeeditor_effective_mode\" />')");
       expect(
         scriptBlock,
         `${SYS_TEMPLATES_XSL} must not hardcode the editor mode (#6528)`,
@@ -1423,6 +1479,186 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
         offenders.slice(0, 20),
         "no live source may reference the retired TinyMCE-hosted CodeMirror path (#5746)",
       ).toEqual([]);
+    },
+  );
+
+  test(
+    "sys_TextArea code editor degrades gracefully when the bundle is missing",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async () => {
+      // No live CMS needed: static pin for issue #6902. The sys_TextArea
+      // code-editor must not call CodeMirror.fromTextArea unconditionally:
+      // the enhancement init is typeof-guarded with a fromTextArea-throw
+      // fallback that leaves the plain textarea editable and renders a
+      // role=alert load notice, and the prefs-restore IIFE bails when no
+      // editor was created. The bundle-present path keeps autofocus.
+      const text = fs
+        .readFileSync(path.join(REPO_ROOT, SYS_TEMPLATES_XSL), "utf8")
+        .replace(/\r\n/g, "\n");
+      const codeeditorStart = text.indexOf('$codeeditor = \'yes\'');
+      expect(
+        codeeditorStart,
+        `${SYS_TEMPLATES_XSL} must keep the codeeditor branch`,
+      ).toBeGreaterThan(-1);
+      const branch = text.slice(codeeditorStart);
+      for (const pin of [
+        "typeof CodeMirror === 'undefined'",
+        "percCodeEditorShowLoadError",
+        "percCodeEditorInit",
+        "data-perc-codeeditor-load-error",
+        "} catch (editorError)",
+      ]) {
+        expect(
+          branch,
+          `${SYS_TEMPLATES_XSL} code editor must guard the bundle load (#6902): ${pin}`,
+        ).toContain(pin);
+      }
+      expect(
+        branch,
+        `${SYS_TEMPLATES_XSL} load notice must announce through an assertive live region (#6902)`,
+      ).toContain("setAttribute('role', 'alert')");
+      expect(
+        branch,
+        `${SYS_TEMPLATES_XSL} fallback must keep the plain textarea editable (#6902)`,
+      ).toContain("removeAttribute('disabled')");
+      expect(
+        branch,
+        `${SYS_TEMPLATES_XSL} fallback must not leave dead toolbar buttons enabled (#6902)`,
+      ).toContain("toolbarButton.disabled = true");
+      expect(
+        branch,
+        `${SYS_TEMPLATES_XSL} prefs restore must bail when no editor was created (#6902)`,
+      ).toContain("if (editor === null || editor === undefined)");
+      expect(
+        branch,
+        `${SYS_TEMPLATES_XSL} bundle-present path must keep autofocus (#6902)`,
+      ).toContain("autofocus: true");
+    },
+  );
+
+  test(
+    "sys_TextArea code editor guards both bundle paths with the shipped script",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async ({ page }) => {
+      // Live proof for issue #6902 running the exact script text shipped in
+      // sys_Templates.xsl (XSL value-ofs substituted, nothing else
+      // rewritten): bundle present renders the CodeMirror editor with no
+      // load notice; bundle missing leaves the textarea editable with a
+      // visible role=alert notice and no uncaught exception.
+      test.setTimeout(90_000);
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          pageErrors.push(msg.text());
+        }
+      });
+
+      await loginAsAdmin(page);
+
+      const fieldId = "cm-guard-proof";
+      const scriptText = sysTextAreaCodeeditorScript(fieldId, "htmlmixed");
+      const legendHtml = sysTextAreaCodeeditorLegend(fieldId, "htmlmixed");
+
+      // Bundle present: the shipped init enhances the textarea exactly as
+      // before (no behavior change, autofocus included).
+      await page.evaluate((html) => {
+        document.body.innerHTML =
+          "<h1>Code editor bundle-present proof (#6902)</h1>" + html;
+      }, legendHtml);
+      await page.addScriptTag({ url: `${BASE_URL}${BUNDLE_JS}` });
+      await page.addScriptTag({ content: scriptText });
+      const present = await page.evaluate((id) => ({
+        enhanced: document.querySelectorAll(".CodeMirror").length,
+        notice: document.querySelectorAll(
+          `[data-perc-codeeditor-load-error="${id}"]`,
+        ).length,
+        mode: document
+          .querySelector(".CodeMirror")
+          .CodeMirror.getOption("mode"),
+        themeToggleDisabled: document.querySelector(
+          `[data-perc-codeeditor-theme-toggle="${id}"]`,
+        ).disabled,
+      }), fieldId);
+      expect(
+        present.enhanced,
+        "bundle present must enhance the textarea (#6902)",
+      ).toBe(1);
+      expect(
+        present.notice,
+        "bundle present must not render a load notice (#6902)",
+      ).toBe(0);
+      expect(
+        present.mode,
+        "bundle present must keep the effective mode (#6902)",
+      ).toBe("htmlmixed");
+      expect(
+        present.themeToggleDisabled,
+        "bundle present must keep the display toolbar live (#6902)",
+      ).toBe(false);
+
+      // Bundle blocked/missing: same shipped script, no CodeMirror global.
+      await page.evaluate((html) => {
+        try {
+          delete window.CodeMirror;
+        } catch (ignored) {
+          window.CodeMirror = undefined;
+        }
+        try {
+          delete window.editor;
+        } catch (ignored) {
+          window.editor = undefined;
+        }
+        try {
+          delete window.percCodeEditorInstances;
+        } catch (ignored) {
+          window.percCodeEditorInstances = undefined;
+        }
+        document.body.innerHTML =
+          "<h1>Code editor bundle-missing proof (#6902)</h1>" + html;
+      }, legendHtml);
+      expect(
+        await page.evaluate(() => typeof window.CodeMirror),
+        "precondition: the CodeMirror global must be absent (#6902)",
+      ).toBe("undefined");
+      await page.addScriptTag({ content: scriptText });
+      const notice = page.locator(`[data-perc-codeeditor-load-error="${fieldId}"]`);
+      await expect(
+        notice,
+        "bundle missing must render a load notice (#6902)",
+      ).toBeVisible();
+      await expect(
+        notice,
+        "load notice must announce through an assertive live region (#6902)",
+      ).toHaveAttribute("role", "alert");
+      expect(
+        await page.evaluate(() => document.querySelectorAll(".CodeMirror").length),
+        "bundle missing must not create an editor wrapper (#6902)",
+      ).toBe(0);
+      const field = page.locator(`#${fieldId}`);
+      await expect(
+        field,
+        "bundle missing must leave the plain textarea visible (#6902)",
+      ).toBeVisible();
+      await field.fill("<p>plain-text fallback edit</p>");
+      await expect(field).toHaveValue("<p>plain-text fallback edit</p>");
+      for (const hook of [
+        `data-perc-codeeditor-theme-toggle="${fieldId}"`,
+        `data-perc-codeeditor-font-decrease="${fieldId}"`,
+        `data-perc-codeeditor-font-increase="${fieldId}"`,
+      ]) {
+        await expect(
+          page.locator(`[${hook}]`),
+          `bundle missing must disable the dead toolbar control ${hook} (#6902)`,
+        ).toBeDisabled();
+      }
+      await page.screenshot({
+        path: "../../../docs/ai-generated/proofs/issue-6902-codeeditor-bundle-guard.png",
+      });
+
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
     },
   );
 });
