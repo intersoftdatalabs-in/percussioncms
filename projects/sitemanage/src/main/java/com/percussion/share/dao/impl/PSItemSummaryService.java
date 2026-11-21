@@ -337,6 +337,8 @@ public class PSItemSummaryService
       // navigation (#6549). Pathless folders are plain FOLDER, never SYSTEM.
       category = Category.FOLDER;
       if (parentPaths != null && !parentPaths.isEmpty()) {
+        // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6549,
+        // same as #5927/#5898/#5910) — slash joins the CMS logical folder path, not an OS path.
         var path = parentPaths.get(0) + "/" + itemSummary.getName();
         if (isSystemFolder(path)) category = Category.SYSTEM;
       }
