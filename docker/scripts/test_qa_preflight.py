@@ -591,6 +591,89 @@ class TestSnapshotProvenance(unittest.TestCase):
         findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
         self.assertFalse(qa_preflight.is_poisoned(findings))
 
+    def test_multi_top_level_types_in_one_file_pass(self):
+        """Sibling top-level types map to their declaring file (#6829).
+
+        Mirrors ``AssetAdaptor.java`` declaring package-private
+        ``PSStreamingOutput``: a clean-checkout rebuild emits both
+        classes, and neither is foreign.
+        """
+        src = self.repo / "rest" / "src" / "main" / "java"
+        src_pkg = src / "com" / "percussion" / "rest"
+        _write_java(
+            src_pkg / "PipesResource.java",
+            "package com.percussion.rest;\n"
+            "public class PipesResource {}\n"
+            "class PipesHelper implements Runnable {\n"
+            "    class Inner {}\n"
+            "}\n",
+        )
+        self._m2_rest_jar(
+            [
+                "com/percussion/rest/PipesResource.class",
+                "com/percussion/rest/PipesHelper.class",
+                "com/percussion/rest/PipesHelper$Inner.class",
+            ],
+            "com", "percussion", "rest", "8.2.0-SNAPSHOT",
+            "rest-8.2.0-SNAPSHOT.jar",
+        )
+        findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
+        self.assertFalse(qa_preflight.is_poisoned(findings))
+
+    def test_genuinely_foreign_class_in_same_package_still_flags(self):
+        """An undeclared same-package class is still foreign (#6829).
+
+        The sibling-type mapping must not degenerate into "any class in
+        a known package is fine" — a different branch's jar keeps
+        flagging.
+        """
+        src = self.repo / "rest" / "src" / "main" / "java"
+        src_pkg = src / "com" / "percussion" / "rest"
+        _write_java(
+            src_pkg / "PipesResource.java",
+            "package com.percussion.rest;\n"
+            "public class PipesResource {}\n"
+            "class PipesHelper {}\n",
+        )
+        self._m2_rest_jar(
+            ["com/percussion/rest/PipesBranchOnly.class"],
+            "com", "percussion", "rest", "8.2.0-SNAPSHOT",
+            "rest-8.2.0-SNAPSHOT.jar",
+        )
+        findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
+        self.assertTrue(qa_preflight.is_poisoned(findings))
+        self.assertIn(
+            "com/percussion/rest/PipesBranchOnly.class",
+            findings[0].foreign_sample,
+        )
+
+    def test_comment_and_string_noise_does_not_declare_types(self):
+        """Fake declarations in comments/strings declare nothing (#6829)."""
+        src = self.repo / "rest" / "src" / "main" / "java"
+        src_pkg = src / "com" / "percussion" / "rest"
+        _write_java(
+            src_pkg / "PipesResource.java",
+            "package com.percussion.rest;\n"
+            "// class CommentFake {}\n"
+            "/* class BlockFake {} */\n"
+            'String s = "class StringFake {}";\n'
+            "public class PipesResource {}\n",
+        )
+        self._m2_rest_jar(
+            [
+                "com/percussion/rest/PipesResource.class",
+                "com/percussion/rest/CommentFake.class",
+            ],
+            "com", "percussion", "rest", "8.2.0-SNAPSHOT",
+            "rest-8.2.0-SNAPSHOT.jar",
+        )
+        findings = qa_preflight.check_snapshot_provenance(self.repo, self.m2)
+        self.assertTrue(qa_preflight.is_poisoned(findings))
+        self.assertIn(
+            "com/percussion/rest/CommentFake.class",
+            findings[0].foreign_sample,
+        )
+
     def test_generated_sources_count_as_source(self):
         src = self._layout_rest_sources()
         gen = self.repo / "rest" / "target" / "generated-sources" / "annotations"
