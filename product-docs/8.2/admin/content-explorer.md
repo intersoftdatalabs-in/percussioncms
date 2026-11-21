@@ -351,7 +351,10 @@ success. Validation errors (empty required fields, HTTP **400**) stay on the
 form as before. When the save is blocked with invalid fields, the
 host also shows one error summary above the form listing each invalid field;
 choosing a summary entry moves focus to that field row — for rich-text rows
-focus lands inside the editor body, not on the row label or toolbar. HTTP **400** and
+focus lands inside the editor body, not on the row label or toolbar. Each
+invalid control also names its inline error text through `aria-describedby`,
+so screen readers announce the message as that field's description; valid
+rows carry no description reference. HTTP **400** and
 **403** errors the host maps onto named fields appear in that summary too.
 A successful save clears the summary. After a successful fields PUT the host
 reloads the item (`GET /services/itemmanagement/item/fields/{id}`) so the
@@ -421,7 +424,8 @@ an empty required field keeps the form on screen and shows an inline error on
 that row — the host does not PUT a partial save. Keyboard focus moves to the
 first invalid row (form order) and that row is scrolled into view — on a
 rich-text row focus lands inside the editor body. The inline
-error text stays. A successful save does not move focus. HTTP **400** from
+error text stays, and the invalid control names it through `aria-describedby`.
+A successful save does not move focus. HTTP **400** from
 `PUT /services/itemmanagement/item/fields/{id}` is mapped onto the named field
 when the error body includes that field (`errorData`, `field`, `fieldName`, or a
 quoted name in the message). When that 400 names a field, focus moves to that

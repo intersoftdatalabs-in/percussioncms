@@ -51,6 +51,11 @@ export interface TipTapFieldWidgetProps {
   value: string;
   readOnly: boolean;
   invalid?: boolean;
+  /**
+   * DOM id of the row's inline error text (#6933). Set only while the row
+   * carries an error so {@code aria-describedby} never dangles.
+   */
+  describedById?: string;
   onChange: (value: string) => void;
 }
 
@@ -59,6 +64,7 @@ export function TipTapFieldWidget({
   value,
   readOnly,
   invalid = false,
+  describedById,
   onChange,
 }: TipTapFieldWidgetProps): React.ReactElement {
   const mountRef = useRef<HTMLDivElement | null>(null);
@@ -129,7 +135,11 @@ export function TipTapFieldWidget({
   const bumpToolbarTick = useCallback(() => {
     setToolbarTick((tick) => tick + 1);
   }, []);
-  useSyncTipTapEditor(editorRef, { value, readOnly, invalid }, bumpToolbarTick);
+  useSyncTipTapEditor(
+    editorRef,
+    { value, readOnly, invalid, describedById },
+    bumpToolbarTick,
+  );
 
   return (
     <div
@@ -164,10 +174,15 @@ export function TipTapFieldWidget({
  */
 function useSyncTipTapEditor(
   editorRef: React.RefObject<Editor | null>,
-  state: { value: string; readOnly: boolean; invalid: boolean },
+  state: {
+    value: string;
+    readOnly: boolean;
+    invalid: boolean;
+    describedById?: string;
+  },
   onSync?: () => void,
 ): void {
-  const { value, readOnly, invalid } = state;
+  const { value, readOnly, invalid, describedById } = state;
 
   useEffect(() => {
     // Silent like the content sync below: flipping the editable flag must
@@ -210,5 +225,10 @@ function useSyncTipTapEditor(
     } else {
       dom.removeAttribute("aria-invalid");
     }
-  }, [editorRef, readOnly, invalid]);
+    if (describedById) {
+      dom.setAttribute("aria-describedby", describedById);
+    } else {
+      dom.removeAttribute("aria-describedby");
+    }
+  }, [editorRef, readOnly, invalid, describedById]);
 }

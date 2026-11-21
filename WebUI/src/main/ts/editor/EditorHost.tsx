@@ -60,6 +60,7 @@ import {
   collectFieldErrorSummaryEntries,
   collectInvalidDateFieldErrors,
   collectRequiredFieldErrors,
+  editorFieldErrorId,
   firstInvalidEditorFieldName,
   focusInvalidEditorField,
   mapSaveApiErrorToFieldErrors,
@@ -807,6 +808,7 @@ function EditorFieldControl({
   itemId,
   locked,
   invalid,
+  describedById,
   forceAriaRequired,
   onChange,
   onFile,
@@ -823,6 +825,12 @@ function EditorFieldControl({
   itemId: string;
   locked: boolean;
   invalid?: boolean;
+  /**
+   * DOM id of the row's inline error text (#6933). Defined only while the
+   * row carries an error, so controls can point {@code aria-describedby} at
+   * it without a dangling reference when the row is valid.
+   */
+  describedById?: string;
   /**
    * Page-metadata parity (#5739): force {@code aria-required} on filename /
    * link-text / browser-title without changing schema validation.
@@ -858,6 +866,7 @@ function EditorFieldControl({
           value={row.value}
           readOnly={locked}
           invalid={invalid}
+          describedById={describedById}
           onChange={(value) => onChange(row.name, value)}
         />
         {showClear ? (
@@ -880,6 +889,8 @@ function EditorFieldControl({
         itemId={itemId}
         name={row.name}
         readOnly={locked}
+        invalid={invalid}
+        describedById={describedById}
         loadMeta={loadBinaryMeta}
         downloadBinary={downloadBinary}
         onFile={(file) => onFile(row.name, file)}
@@ -893,6 +904,8 @@ function EditorFieldControl({
         itemId={itemId}
         name={row.name}
         readOnly={locked}
+        invalid={invalid}
+        describedById={describedById}
         altValue={imageAltValue ?? ""}
         onAlt={(value) => onImageAlt?.(row.name, value)}
         loadMeta={loadBinaryMeta}
@@ -909,6 +922,7 @@ function EditorFieldControl({
         value={fieldValueAsString(row.value)}
         readOnly={locked}
         invalid={invalid}
+        describedById={describedById}
         required={row.required}
         loadKeywords={loadKeywords}
         onChoices={
@@ -927,6 +941,7 @@ function EditorFieldControl({
         value={row.value}
         readOnly={locked}
         invalid={invalid}
+        describedById={describedById}
         required={row.required}
         loadCommunities={loadCommunities}
         onChange={(value) => onChange(row.name, value)}
@@ -941,6 +956,7 @@ function EditorFieldControl({
         kind={row.kind}
         readOnly={locked}
         invalid={invalid}
+        describedById={describedById}
         required={row.required}
         onChange={(value) => onChange(row.name, value)}
       />
@@ -953,6 +969,7 @@ function EditorFieldControl({
         value={fieldValueAsString(row.value)}
         readOnly={locked}
         invalid={invalid}
+        describedById={describedById}
         required={row.required}
         onChange={(value) => onChange(row.name, value)}
       />
@@ -971,6 +988,7 @@ function EditorFieldControl({
           readOnly={locked}
           aria-invalid={invalid ? true : undefined}
           aria-required={ariaRequired ? true : undefined}
+          aria-describedby={describedById}
           onChange={(e) => onChange(row.name, e.target.value)}
         />
         {showClear ? (
@@ -1004,6 +1022,7 @@ function EditorFieldControl({
           disabled={locked}
           aria-invalid={invalid ? true : undefined}
           aria-required={ariaRequired ? true : undefined}
+          aria-describedby={describedById}
           onChange={(e) => onChange(row.name, e.target.value)}
         >
           <option value="">{message(EDITOR_MSG.YESNO_EMPTY)}</option>
@@ -1041,6 +1060,7 @@ function EditorFieldControl({
           readOnly={locked}
           aria-invalid={invalid ? true : undefined}
           aria-required={ariaRequired ? true : undefined}
+          aria-describedby={describedById}
           onChange={(e) => onChange(row.name, e.target.value)}
         />
         {showClear ? (
@@ -1071,6 +1091,7 @@ function EditorFieldControl({
           readOnly={locked}
           aria-invalid={invalid ? true : undefined}
           aria-required={ariaRequired ? true : undefined}
+          aria-describedby={describedById}
           onChange={(e) => onChange(row.name, e.target.value)}
         />
         {showClear ? (
@@ -1099,6 +1120,7 @@ function EditorFieldControl({
         readOnly={locked}
         aria-invalid={invalid ? true : undefined}
         aria-required={ariaRequired ? true : undefined}
+        aria-describedby={describedById}
         onChange={(e) => onChange(row.name, e.target.value)}
       />
       {showTextClear ? (
@@ -1914,6 +1936,11 @@ export function EditorHost({
             itemId={String(contentId)}
             locked={readOnly || !canEdit || row.readOnly}
             invalid={Boolean(fieldErrors[row.name])}
+            describedById={
+              fieldErrors[row.name]
+                ? editorFieldErrorId(row.name)
+                : undefined
+            }
             forceAriaRequired={
               isPageMetadata &&
               PAGE_METADATA_ARIA_REQUIRED_FIELDS.has(row.name.trim().toLowerCase())
@@ -1934,6 +1961,7 @@ export function EditorHost({
           <span
             className={styles.fieldError}
             role="alert"
+            id={editorFieldErrorId(row.name)}
             data-testid={`editor-field-error-${row.name}`}
           >
             {fieldErrors[row.name]}

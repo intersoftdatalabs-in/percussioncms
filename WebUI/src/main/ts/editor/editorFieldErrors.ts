@@ -389,6 +389,16 @@ export interface EditorFieldErrorSummaryEntry {
 }
 
 /**
+ * Stable DOM id for the inline error text of an editor field row. The
+ * invalid control points at it with {@code aria-describedby} so screen
+ * readers announce the message as the field's description (#6933); the
+ * summary jump-to-field focus logic keys off the same row testids.
+ */
+export function editorFieldErrorId(fieldName: string): string {
+  return `editor-field-error-${fieldName}`;
+}
+
+/**
  * Ordered entries for the save-blocked error summary region. Form order;
  * only fields with a non-empty error. Labels fall back to the field name so
  * the summary never renders a blank entry.
