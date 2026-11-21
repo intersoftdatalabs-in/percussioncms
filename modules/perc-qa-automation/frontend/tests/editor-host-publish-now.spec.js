@@ -140,6 +140,16 @@ async function stubEditorApis(page, opts) {
       }),
     }),
   );
+  // EditorHost also reads allowed workflows on mount (#6483 bar). Without a
+  // stub the fake ids 42/99 reach the real workflow service and log
+  // server-side ERRORs; the UI under test does not depend on the payload.
+  await page.route("**/services/itemmanagement/workflow/allowedWorkflows/**", (route) =>
+    route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({}),
+    }),
+  );
   await page.route("**/services/sitemanage/publish/**", async (route) => {
     publishCalls.push(route.request().url());
     const status = publishStatus ? publishStatus.status : 200;
@@ -306,6 +316,74 @@ test.describe("React Content Editor Publish now", () => {
       ).toHaveCount(0);
       expect(publishCalls).toEqual([]);
       await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+    },
+  );
+
+  test(
+    "Escape cancels and focus returns to Publish now",
+    { tag: ["@explorer-content-editor", "@editor", "@publish"] },
+    async ({ page }) => {
+      const publishCalls = [];
+      const pageErrors = [];
+      consoleOn(page, pageErrors);
+      await stubEditorApis(page, { publishCalls });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      const publishNow = page.locator(`[data-testid="${TEST_IDS.publishNow}"]`);
+      await expect(publishNow).toBeVisible({
+        timeout: 20_000,
+      });
+      await publishNow.click();
+      const dialog = page.locator(
+        `[data-testid="${TEST_IDS.publishDialog}"]`,
+      );
+      await expect(dialog).toBeVisible();
+      // Initial focus lands on Cancel, the first control in the trap.
+      await expect(
+        page.locator(`[data-testid="${TEST_IDS.publishCancel}"]`),
+      ).toBeFocused();
+      await page.keyboard.press("Escape");
+      await expect(dialog).toHaveCount(0);
+      expect(publishCalls).toEqual([]);
+      // Focus returns to the opener so keyboard users keep their place.
+      await expect(publishNow).toBeFocused();
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+      expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
+    },
+  );
+
+  test(
+    "Tab cycles inside the dialog while it is open",
+    { tag: ["@explorer-content-editor", "@editor", "@publish"] },
+    async ({ page }) => {
+      const publishCalls = [];
+      await stubEditorApis(page, { publishCalls });
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=edit"));
+      const publishNow = page.locator(`[data-testid="${TEST_IDS.publishNow}"]`);
+      await expect(publishNow).toBeVisible({
+        timeout: 20_000,
+      });
+      await publishNow.click();
+      const dialog = page.locator(
+        `[data-testid="${TEST_IDS.publishDialog}"]`,
+      );
+      await expect(dialog).toBeVisible();
+      const cancel = page.locator(`[data-testid="${TEST_IDS.publishCancel}"]`);
+      const confirm = page.locator(
+        `[data-testid="${TEST_IDS.publishConfirm}"]`,
+      );
+      await expect(cancel).toBeFocused();
+      await page.keyboard.press("Tab");
+      await expect(confirm).toBeFocused();
+      await page.keyboard.press("Tab");
+      await expect(cancel).toBeFocused();
+      await page.keyboard.press("Shift+Tab");
+      await expect(confirm).toBeFocused();
+      // Focus never left the modal and nothing was published.
+      await expect(dialog).toBeVisible();
+      expect(publishCalls).toEqual([]);
+      await page.keyboard.press("Escape");
+      await expect(dialog).toHaveCount(0);
+      await expect(publishNow).toBeFocused();
     },
   );
 
