@@ -713,4 +713,26 @@ class WidgetPayloadVendoredJsAuditTest {
     assertTrue(problems.isEmpty(),
         "Percussion fork mods in stock calendarTwo v6 payloads: " + problems);
   }
+
+  @Test
+  void calendarTwoStylesheetKeepsUpstreamNotice() throws IOException {
+    Path root = packagesRoot();
+    String rel =
+        "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/css/fullcalendar.min.css";
+    String content = Files.readString(root.resolve(rel), StandardCharsets.UTF_8);
+    // Issue #6994 review: the stylesheet derives from the FullCalendar
+    // v2.9.1 stylesheet, so the MIT attribution must stay in the banner
+    // (/*! form so minifiers preserve it). The JS-only audit sweep does
+    // not cover CSS payloads (follow-on #7002), so pin it here.
+    for (String marker :
+        List.of(
+            "Derived from FullCalendar v2.9.1 Stylesheet",
+            "(c) 2016 Adam Shaw",
+            "MIT license",
+            "https://fullcalendar.io/")) {
+      assertTrue(content.contains(marker), rel + " missing upstream notice marker: " + marker);
+    }
+    assertTrue(content.startsWith("/*!"),
+        rel + " banner must use /*! so minifiers preserve the MIT notice");
+  }
 }

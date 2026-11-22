@@ -1,5 +1,7 @@
-/*
+/*!
  * CalendarTwo widget stylesheet (issue #6919).
+ * Derived from FullCalendar v2.9.1 Stylesheet
+ * (c) 2016 Adam Shaw, MIT license, https://fullcalendar.io/
  *
  * The rules below are the retained FullCalendar 2.x-era widget styles plus
  * the Percussion mini-calendar additions, kept serving the v6 renderer:
