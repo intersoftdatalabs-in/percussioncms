@@ -42,7 +42,7 @@ const {
 const STORED =
   '<p><b>Bold</b> and <i>italic</i></p>' +
   '<ul><li>one</li><li>two</li></ul>' +
-  '<table><tbody><tr><td>cell</td></tr></tbody></table>' +
+  '<table><thead><tr><th>head</th></tr></thead><tbody><tr><td>cell</td></tr></tbody></table>' +
   '<p>Before</p><span class="perc-blog-more-link"/><p>After</p>';
 
 const FIELDS = {
@@ -179,8 +179,13 @@ test.describe("React Content Editor read-only TipTap parity", () => {
       await expect(viewHtml.locator("em")).toContainText("italic");
       await expect(viewHtml.locator("b")).toHaveCount(0);
       await expect(viewHtml.locator("ul > li")).toHaveCount(2);
+      // StarterKit serializes every row under a single tbody (the legacy
+      // thead wrapper is unwrapped — same output the editing view produces
+      // for this stored value, not raw stored markup passed through).
+      await expect(viewHtml.locator("tbody")).toHaveCount(1);
+      await expect(viewHtml.locator("thead")).toHaveCount(0);
+      await expect(viewHtml.locator("table th")).toContainText("head");
       await expect(viewHtml.locator("table td")).toContainText("cell");
-      await expect(viewHtml.locator("tbody")).toHaveCount(0);
       await expect(viewHtml).toContainText("After");
       await expect(page.locator(`[data-testid="${TEST_IDS.save}"]`)).toHaveCount(0);
 
