@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 import os
+import shlex
 import sys
 import tempfile
 import unittest
@@ -102,6 +103,33 @@ class MavenLocalRepoTest(unittest.TestCase):
         self.assertEqual(
             mlr.parse_repo_local('-Dmaven.repo.local="/with space/repo"'), Path("/with space/repo")
         )
+
+    def test_parse_repo_local_unwraps_fully_quoted_export_flag(self):
+        # --m2 export lines shlex.quote the whole flag (#6807: single
+        # quotes preserve Windows backslashes under eval), so the opening
+        # quote sits before -D. The parser must unwrap first or a Windows
+        # path keeps a trailing quote (#6709 review).
+        export = (
+            "export MAVEN_ARGS=${MAVEN_ARGS:+$MAVEN_ARGS }"
+            "'-Dmaven.repo.local=C:\\night\\lane\\tmp\\m2-worktree\\repository'"
+        )
+        self.assertEqual(
+            mlr.parse_repo_local(export),
+            Path("C:\\night\\lane\\tmp\\m2-worktree\\repository"),
+        )
+        # Double-quoted whole flag (shlex falls back to it when the value
+        # itself holds a single quote).
+        export_dq = 'export MAVEN_ARGS="-Dmaven.repo.local=C:\\night\\lane\\repo"'
+        self.assertEqual(
+            mlr.parse_repo_local(export_dq), Path("C:\\night\\lane\\repo")
+        )
+        # Quoted value inside a quoted flag (whitespace path) round-trips.
+        probe = Path("/w/tmp/my checkout/m2-worktree/repository")
+        export_ws = (
+            "export MAVEN_ARGS=${MAVEN_ARGS:+$MAVEN_ARGS }"
+            f"{shlex.quote(mlr.repo_local_flag(probe))}"
+        )
+        self.assertEqual(mlr.parse_repo_local(export_ws), probe)
 
     def test_default_is_home_m2_repository(self):
         resolved = mlr.resolve_m2_repository(self.repo, self._env(MAVEN_SKIP_RC="1"))

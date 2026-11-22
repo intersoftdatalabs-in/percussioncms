@@ -322,7 +322,7 @@ def main(argv: list[str] | None = None) -> int:
                 seed_from=args.m2_seed_from,
                 seed=not args.no_m2_seed,
             )
-        except (OSError, FileNotFoundError) as exc:
+        except OSError as exc:
             print(f"night-seed-worktree: per-worktree Maven repo failed: {exc}", file=sys.stderr)
             return 1
         print(export)
