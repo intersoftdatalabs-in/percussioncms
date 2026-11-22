@@ -82,7 +82,8 @@
                 type: "GET",
                 success: function(data, textstatus){
                     var ifrUrl = data + "&nocache=v1";
-                    $("#edit-page-metadata").append("<iframe name='edit-page-metadata-frame' id='edit-page-metadata-frame' title='Template metadata fields' height='100%' style='border:0;' width='100%' src='" + ifrUrl + "' ></iframe>");
+                    var iframeTitle = I18N.message("perc.ui.page.edit.dialog@Template metadata fields").replace(/&/g, "&amp;").replace(/'/g, "&#39;").replace(/"/g, "&quot;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+                    $("#edit-page-metadata").append("<iframe name='edit-page-metadata-frame' id='edit-page-metadata-frame' title='" + iframeTitle + "' height='100%' style='border:0;' width='100%' src='" + ifrUrl + "' ></iframe>");
                     $("#edit-page-metadata-frame").on("load",function(){
                         _addFieldGroups();
                         setMetaContent(templateId);
