@@ -6,9 +6,9 @@ Machine analysis found **0** finding(s), **0** blocking bug(s).
 
 - Base: origin/main
 - Head: HEAD
-- Files: 5 analyzed
+- Files: 4 analyzed
 - Persona: erlang 0.1.1
-- Persona source: ~/.local/share/mkd/agents/erlang
+- Persona source: [erlang-persona-path]
 
 ## Recommendation
 
