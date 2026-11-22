@@ -16,7 +16,10 @@
  */
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import { useDialogEscape } from "../architecture/useDialogEscape";
+import {
+  useDialogEscape,
+  useDialogFocusTrap,
+} from "../architecture/useDialogEscape";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
 import {
@@ -28,9 +31,6 @@ import {
   type BulkStageRow,
 } from "./itemPublish";
 import { EXPLORER_MSG } from "./messages";
-
-const FOCUSABLE =
-  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 export type BulkStageMode = "stage" | "unstage";
 
@@ -102,34 +102,11 @@ export function BulkStageDialog({
     }
   });
 
+  useDialogFocusTrap(true, rootRef, okRef);
+
+  // Re-anchor initial focus when the wizard step swaps the actions (#7003).
   useEffect(() => {
-    const root = rootRef.current;
     okRef.current?.focus();
-    if (!root) {
-      return;
-    }
-    const focusables = (): HTMLElement[] =>
-      Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE));
-    const onKey = (ev: KeyboardEvent) => {
-      if (ev.key !== "Tab") {
-        return;
-      }
-      const list = focusables();
-      if (list.length === 0) {
-        return;
-      }
-      const first = list[0];
-      const last = list[list.length - 1];
-      if (ev.shiftKey && document.activeElement === first) {
-        ev.preventDefault();
-        last.focus();
-      } else if (!ev.shiftKey && document.activeElement === last) {
-        ev.preventDefault();
-        first.focus();
-      }
-    };
-    root.addEventListener("keydown", onKey);
-    return () => root.removeEventListener("keydown", onKey);
   }, [step]);
 
   const eligible = plan.eligible;

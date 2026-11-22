@@ -184,6 +184,14 @@ with **Retry**, which reloads the same row (a repeated failure keeps the error
 and returns keyboard focus to **Retry**); only a successful empty catalog shows
 **No actions**.
 
+Every Explorer confirm and picker dialog shares one keyboard contract
+(#7003): focus moves into the dialog on open (destructive confirms start on
+**Cancel** so an accidental **Enter** cannot confirm; pickers start in the
+name or path field), **Tab** and **Shift+Tab** cycle inside the dialog and
+never leak to the shell behind it, and **Escape** (or **Cancel**) closes the
+dialog and returns focus to the toolbar control or menu item that opened it.
+Closing a dialog never changes content: cancel and **Escape** send no request.
+
 ### Classic DCE icon vocabulary (retire-or-map)
 
 The classic Desktop Content Explorer shipped 84 icon files for its tree,

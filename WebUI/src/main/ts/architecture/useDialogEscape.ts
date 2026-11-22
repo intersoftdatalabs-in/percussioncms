@@ -79,6 +79,22 @@ export function useDialogEscape(
     }
   }, [open]);
 
+  // Unmounted while still open (#6988, shared for #7003): return focus
+  // to the captured opener instead of stranding it on body. A passive
+  // cleanup runs after the unmount commit, so the focus move sticks.
+  useEffect(() => {
+    return () => {
+      if (!wasOpenRef.current) {
+        return;
+      }
+      const el = openerRef.current;
+      openerRef.current = null;
+      if (el && typeof el.focus === "function" && document.contains(el)) {
+        el.focus();
+      }
+    };
+  }, []);
+
   useEffect(() => {
     if (!open) {
       return;
@@ -111,10 +127,20 @@ function focusableIn(root: HTMLElement): HTMLElement[] {
 /**
  * Keep Tab/Shift+Tab inside an open modal (WCAG 2.1 focus trap).
  * Call with a ref on the {@code role="dialog"} root.
+ *
+ * <p>{@code initialRef} names the control that takes initial focus
+ * (destructive confirms focus Cancel so an accidental Enter cannot
+ * confirm; pickers focus their text field; wizards their primary
+ * button). The ref must resolve inside the dialog root; when it is
+ * absent or outside the root the first focusable control is used.
+ * When focus is somehow outside the container, Tab re-anchors to the
+ * first control (Shift+Tab to the last), and Tab with no focusable
+ * control at all is swallowed.</p>
  */
 export function useDialogFocusTrap(
   open: boolean,
   containerRef: { current: HTMLElement | null },
+  initialRef?: { current: HTMLElement | null },
 ): void {
   useEffect(() => {
     if (!open) {
@@ -124,7 +150,11 @@ export function useDialogFocusTrap(
     if (!root) {
       return;
     }
-    const initial = focusableIn(root)[0];
+    const preferred = initialRef?.current;
+    const initial =
+      preferred && root.contains(preferred)
+        ? preferred
+        : focusableIn(root)[0];
     if (initial && typeof initial.focus === "function") {
       initial.focus();
     }
@@ -152,5 +182,5 @@ export function useDialogFocusTrap(
     };
     root.addEventListener("keydown", onKey);
     return () => root.removeEventListener("keydown", onKey);
-  }, [open, containerRef]);
+  }, [open, containerRef, initialRef]);
 }
