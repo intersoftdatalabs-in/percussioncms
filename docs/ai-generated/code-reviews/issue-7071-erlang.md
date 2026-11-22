@@ -22,3 +22,7 @@ approve
 ## Issues
 
 _No issues._
+
+### Codex review
+
+No actionable regressions were identified. The localized fallbacks preserve existing English defaults, all four TMX entries are valid and unique, and the three focused test suites passed all 30 tests.
