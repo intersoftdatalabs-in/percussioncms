@@ -718,6 +718,9 @@ counterpart is needed.
   output is piped to a JSON parser. Use `2>/dev/null`, shape output with
   `-q`/`--jq`, or use this wrapper.
 - **Tests**: `python3 -m pytest scripts/test_gh_json.py -v` (fake `gh`).
+- **Reach lint**: `python3 -m pytest scripts/test_night_gh_json_hygiene.py -v`
+  (no network; pins #7020 — every `gh --json` night-agent doc carries the
+  rule, and no live `2>&1 | … json` pipes remain in agent/rule/script files).
 
 ### `night-decision-front.py` / `night-decision-front.cmd`
 

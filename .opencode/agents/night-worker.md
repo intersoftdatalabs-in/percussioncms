@@ -42,6 +42,16 @@ specialists; you do not edit production source directly.
 3. Apply `WebUI/AGENTS.md` Playwright gate and `modules/perc-qa-automation/AGENTS.md`
    QA-mode surface filter when any work touches WebUI or perc-qa-automation.
 
+**gh JSON hygiene (HARD — #6986):** gh ≥ 2.105 prints a multi-line
+`gh event listen ...` hint to **stderr** after `gh pr view` and related
+commands. NEVER merge stderr into stdout (`2>&1`) when the output is
+piped to a JSON parser — the hint lands in the JSON stream and
+`json.load` dies with `JSONDecodeError`. Use `2>/dev/null`, shape output
+with `-q`/`--jq`, or run `python3 scripts/gh-json.py <gh args...>`
+(keeps stdout pure JSON, fails loudly on non-zero exit). This applies to
+every phase the host executes inline (Claim-check, Preflight/Reconcile/
+Triage walks, PRE/POST follow-up) — not only to `work` sub-agents.
+
 ## Args (passed via $ARGUMENTS or read from the user message)
 
 Defaults and meanings live in `.opencode/commands/night-issue-prs.md`. Re-derive

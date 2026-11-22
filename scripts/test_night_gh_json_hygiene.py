@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+# -*- coding: utf-8 -*-
+# Copyright (c) 2026 Intersoft Data Labs, Inc.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#
+# See the License for the specific language governing permissions and
+# limitations under the License.
+"""Lint: gh JSON hygiene rule reach + no live 2>&1-into-JSON pipes (#7020).
+
+Follow-up to #6986 / #7015. #7015 added the hygiene rule and
+``scripts/gh-json.py``, but the rule only landed in
+``.opencode/agents/work.md`` (plus the Grok ``work_prompt``) — the next
+cycle's night-worker PRE follow-up re-hit ``JSONDecodeError`` from a
+``gh ... --json ... 2>&1 | ... json.load`` pipe. This test pins the fix:
+
+- every night agent doc that runs ``gh --json`` carries the rule, and
+- no agent / rule / script file keeps a *live* ``2>&1 | ... json`` pipe
+  (documented anti-pattern mentions that say NEVER / dies / wrapper
+  nearby are allowed — they teach the rule, they don't run it).
+"""
+from __future__ import annotations
+
+import re
+from pathlib import Path
+
+REPO_ROOT = Path(__file__).resolve().parent.parent
+AGENT_GLOB = ".opencode/agents/*.md"
+RHAI = REPO_ROOT / ".grok" / "workflows" / "night-issue-prs.rhai"
+
+RULE_MARKERS = ("gh JSON hygiene", "gh-json.py")
+
+# A shell pipe that merges gh stderr into a JSON consumer. The negated
+# character class keeps the match to one logical line (no accidental
+# cross-line hits from a bare `2>&1` log redirect elsewhere in a file).
+DANGEROUS_PIPE_RE = re.compile(r"2>&1\s*\|[^\n]*json", re.IGNORECASE)
+
+# Words that prove a `2>&1 | ... json` line is a *documented* anti-pattern
+# (the fix's own explanation), not a live instruction. Checked
+# case-insensitively in a ±5-line window around the match.
+DOCUMENTED_CUES = (
+    "never",
+    "dies",
+    "die with",
+    "anti-pattern",
+    "must not",
+    "do not",
+    "wrapper",
+    "blessed",
+    "reintroduces the bug",
+)
+
+# Files scanned for live pipes: every place a night agent copies shell
+# from. Agent docs, both workflow dialects, helper scripts, and CI.
+SCAN_GLOBS = (
+    ".opencode/agents/*.md",
+    ".opencode/commands/*.md",
+    ".grok/workflows/*.rhai",
+    ".kilo/workflows/*.md",
+    "scripts/*.py",
+    ".github/workflows/*.yml",
+    ".github/workflows/*.yaml",
+)
+
+
+def _read(path: Path) -> str:
+    return path.read_text(encoding="utf-8")
+
+
+def test_agent_docs_carrying_gh_json_carry_the_rule() -> None:
+    """Every `.opencode/agents/*.md` that runs `gh --json` shows the rule."""
+    missing = [
+        str(path.relative_to(REPO_ROOT))
+        for path in sorted(REPO_ROOT.glob(AGENT_GLOB))
+        if "--json" in _read(path)
+        and not any(marker in _read(path) for marker in RULE_MARKERS)
+    ]
+    assert not missing, (
+        "agent docs run `gh --json` without the gh JSON hygiene rule "
+        f"(#7020): {missing}"
+    )
+
+
+def test_no_live_stderr_merge_into_json_parser() -> None:
+    """No live `2>&1 | ... json` pipes in agent/rule/script files (#7020).
+
+    Documented NEVER anti-patterns (like the two strings in this very
+    test) are excluded via the cue window below.
+    """
+    violations: list[str] = []
+    seen: set[Path] = set()
+    for glob in SCAN_GLOBS:
+        for path in sorted(REPO_ROOT.glob(glob)):
+            if path in seen or not path.is_file():
+                continue
+            seen.add(path)
+            lines = _read(path).splitlines()
+            for lineno, line in enumerate(lines, start=1):
+                if not DANGEROUS_PIPE_RE.search(line):
+                    continue
+                window = "\n".join(
+                    lines[max(0, lineno - 6) : min(len(lines), lineno + 5)]
+                ).lower()
+                if not any(cue in window for cue in DOCUMENTED_CUES):
+                    violations.append(f"{path.relative_to(REPO_ROOT)}:{lineno}")
+    assert not violations, (
+        "NEVER allow live `2>&1 | ... json` pipes: they feed the gh 2.105 "
+        f"stderr hint into a JSON parser (#6986/#7020): {violations}"
+    )
+
+
+def test_rhai_prompts_carry_the_rule() -> None:
+    """Grok work + follow-up + preflight + triage + cluster prompts (#7020)."""
+    text = _read(RHAI)
+    count = text.count("gh JSON hygiene")
+    assert count >= 5, (
+        "expected the hygiene rule in work + pr-follow-up + preflight + "
+        f"triage + cluster prompts, found {count} mention(s)"
+    )
+    for prompt_var in ("work_prompt", "pr_prompt_core", "pf_prompt",
+                       "triage_prompt", "cl_prompt"):
+        assert prompt_var in text, f"prompt variable gone: {prompt_var}"
