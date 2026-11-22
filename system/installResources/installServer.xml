@@ -900,17 +900,11 @@
 		<!-- Create custom controls directory -->
 		<mkdir dir="${install.rx_resources}/stylesheets/controls" />
 
-		<!-- Copy tinymce from sys_resources to rx_resources -->
-
-		<!-- tinymce -->
-		<unzip src="${extrasdir}/perc_tinymcedist.zip"
-			dest="${install.sys_resources}/tinymce" />
-		<mkdir dir="${install.sys_resources}/tinymce/config/" />
-		<PSCopy todir="${install.rx_resources}/tinymce/config"
-			overwrite="false">
-			<fileset
-				file="${install.sys_resources}/tinymce/config/customer_config_override.json" />
-		</PSCopy>
+		<!-- #7031: perc_tinymcedist.zip retired with modules/perc-tinymce (#5734);
+			no extras zip is staged anymore, so the unzip plus its dependent
+			tinymce config-copy steps are removed. Fresh installs no longer ship
+			sys_resources/tinymce; upgrades clean the stale tree via
+			removeRetiredTinymceShippedTree in the dist-tree Installer. -->
 
 		<!-- Upgrade rx_ephox.js <if> <and> <available file="${install.rx_resources}/ephox/rx_ephox.js"/>
 			<equals arg1="${install.type}" arg2="upgrade"/> </and> <then> <PSCopy todir="${install.rx_resources}/ephox"
