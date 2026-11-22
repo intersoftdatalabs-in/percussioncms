@@ -1032,7 +1032,7 @@ export function SiteWorkspace({
           onClick={() => void loadIncrementalPreview()}
           data-testid="publish-incremental-preview-btn"
         >
-          {message(MSG.PUBLISH_INCREMENTAL)} preview
+          {message(MSG.PUBLISH_INCREMENTAL_PREVIEW)}
         </button>
         <button
           type="button"
@@ -1041,8 +1041,9 @@ export function SiteWorkspace({
           onClick={() => void runIncrementalPublish()}
           data-testid="publish-incremental-confirm"
         >
-          {message(MSG.PUBLISH_INCREMENTAL)}
-          {shouldUseApprovalPath(relatedPreview) ? " (with approval)" : ""}
+          {shouldUseApprovalPath(relatedPreview)
+            ? message(MSG.PUBLISH_INCREMENTAL_WITH_APPROVAL)
+            : message(MSG.PUBLISH_INCREMENTAL)}
         </button>
       </div>
 
@@ -1333,7 +1334,7 @@ export function SiteWorkspace({
           {relatedPreview.length > 0 && (
             <div style={{ marginTop: 12 }} data-testid="publish-related-approval">
               <h4 style={{ fontSize: "0.95rem" }}>
-                {message(MSG.PUBLISH_RELATED_ITEMS)} for approval
+                {message(MSG.PUBLISH_RELATED_ITEMS_FOR_APPROVAL)}
               </h4>
               <table style={tableStyle}>
                 <thead>
@@ -1345,12 +1346,18 @@ export function SiteWorkspace({
                         onChange={(e) =>
                           toggleSelectAllRelated(e.target.checked)
                         }
-                        aria-label="select all related items"
+                        aria-label={message(
+                          MSG.PUBLISH.SECTIONS.SITE.SELECT_ALL_ARIA,
+                        )}
                         data-testid="publish-related-select-all"
                       />
                     </th>
-                    <th style={thStyle}>Item</th>
-                    <th style={thStyle}>Id</th>
+                    <th style={thStyle}>
+                      {message(MSG.PUBLISH.SECTIONS.SITE.ITEM_HEADING)}
+                    </th>
+                    <th style={thStyle}>
+                      {message(MSG.PUBLISH.SECTIONS.SITE.ID_HEADING)}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1365,7 +1372,9 @@ export function SiteWorkspace({
                               type="checkbox"
                               checked={selectedRelated.has(id)}
                               onChange={() => toggleRelated(id)}
-                              aria-label={`approve related ${id}`}
+                              aria-label={message(
+                                MSG.PUBLISH.SECTIONS.SITE.APPROVE_RELATED_ARIA,
+                              ).replace("{0}", id)}
                             />
                           )}
                         </td>
@@ -1376,9 +1385,13 @@ export function SiteWorkspace({
                   })}
                 </tbody>
               </table>
-              <p style={{ fontSize: "0.85rem", color: "#555" }}>
-                Selected for approval: {selectedRelated.size} of{" "}
-                {allRelatedIds.length}
+              <p
+                style={{ fontSize: "0.85rem", color: "#555" }}
+                data-testid="publish-related-approval-count"
+              >
+                {message(MSG.PUBLISH_RELATED_APPROVAL_COUNT)
+                  .replace("{0}", String(selectedRelated.size))
+                  .replace("{1}", String(allRelatedIds.length))}
               </p>
             </div>
           )}
