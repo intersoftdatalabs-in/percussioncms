@@ -60,7 +60,8 @@ const BODY =
 const SUMMARY =
   "<p>Teaser<span " +
   'class="perc-blog-more-link"></span> continued after the fold.</p>' +
-  '<p><span class="rx_inlinevariant">' +
+  '<p><span class="rx_inlinevariant" rxinlineslot="105" ' +
+  'inlinetype="rxvariant" sys_dependentid="77">' +
   '<img alt="@inlinemarker@" width="9" height="8" src="../sys_resources/images/inlinestart.png"/>' +
   '<a href="/Sites/Enterprise/about">About</a>' +
   '<img alt="@inlinemarker@" width="9" height="8" src="../sys_resources/images/inlineend.png"/>' +
@@ -212,12 +213,20 @@ test.describe("template-content TipTap render parity", () => {
       await expect(body.locator('img[alt="Pic"]')).toHaveCount(1);
 
       // Summary: more-link continuation and the inline-variant link render.
+      // The wrapper carries the inline-template relationship
+      // (rxinlineslot/inlinetype/sys_dependentid): dropping it would drop
+      // the relationship, so it must survive the render.
       const summary = page.locator('[data-testid="editor-field-pr_summary"]');
       await expect(summary).toContainText("continued after the fold");
       await expect(summary.locator('a[href="/Sites/Enterprise/about"]')).toContainText(
         "About",
       );
       await expect(summary.locator('img[alt="@inlinemarker@"]')).toHaveCount(2);
+      const variant = summary.locator("span.rx_inlinevariant");
+      await expect(variant).toHaveCount(1);
+      await expect(variant).toHaveAttribute("rxinlineslot", "105");
+      await expect(variant).toHaveAttribute("inlinetype", "rxvariant");
+      await expect(variant).toHaveAttribute("sys_dependentid", "77");
 
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       await expectNoSeriousA11yViolations(page, {

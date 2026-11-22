@@ -32,12 +32,15 @@ import {
  * <p>Zero drift is asserted as
  * {@code normalize(roundTrip(stored)) === normalize(stored)}: the same
  * canonicalization the spike corpus (#5650) and the plugin rewrite (#5652)
- * use. Two template-variant wrappers are accepted representation drift with
- * content preserved: the {@code rx_ephox_inlinevariant} block {@code div}
- * (stripped at publish by {@code PSDivTagCleanup}) and the
- * {@code rx_inlinevariant} inline {@code span} (a classic edit-time
- * affordance consumed only by the retired classic {@code editorinline.js});
- * the link text and marker images inside them round-trip intact.</p>
+ * use. The two template-variant wrappers round-trip intact — with their
+ * relationship attributes: the {@code rx_ephox_inlinevariant} block
+ * {@code div} and the {@code rx_inlinevariant} inline {@code span} carry
+ * {@code rxinlineslot} / {@code inlinetype="rxvariant"} /
+ * {@code sys_dependentid} in stored content (via
+ * {@code PSSingleValueBuilder}), so the schema keeps them. Publish-time
+ * stripping ({@code PSDivTagCleanup}) applies to the published output, never
+ * to the stored edit-time value; the link text and marker images inside the
+ * wrappers round-trip along with them.</p>
  */
 
 interface TemplateFieldEntry {
@@ -99,30 +102,42 @@ describe("template-content TipTap parity (#7048)", () => {
     });
   }
 
-  it("preserves inline-variant link content while normalizing the edit-time wrapper", () => {
+  it("preserves the inline-variant wrapper with its relationship attributes", () => {
     const stored =
-      '<p><span class="rx_inlinevariant">' +
+      '<p><span class="rx_inlinevariant" rxinlineslot="105" ' +
+      'inlinetype="rxvariant" sys_dependentid="77">' +
       '<img alt="@inlinemarker@" width="9" height="8" src="../sys_resources/images/inlinestart.png"/>' +
-      '<a href="/Sites/Enterprise/about">About</a>' +
+      '<a href="/x">X</a>' +
       '<img alt="@inlinemarker@" width="9" height="8" src="../sys_resources/images/inlineend.png"/>' +
       "</span> continues.</p>";
     const out = roundTripHtmlFragment(stored);
-    // Link text and both marker images survive; only the classic
-    // edit-time span wrapper is normalized away.
-    expect(out).toContain('href="/Sites/Enterprise/about"');
-    expect(out).toContain("About</a>");
+    // Dropping the wrapper would drop the inline-template relationship and
+    // PSInlineLinkField would delete it on save: the wrapper and every
+    // relationship attribute survive the round-trip.
+    expect(normalizeHtmlForRoundTrip(out)).toBe(
+      normalizeHtmlForRoundTrip(stored),
+    );
+    expect(out).toContain("rx_inlinevariant");
+    expect(out).toContain('rxinlineslot="105"');
+    expect(out).toContain('inlinetype="rxvariant"');
+    expect(out).toContain('sys_dependentid="77"');
+    expect(out).toContain('href="/x"');
     expect(out).toContain("inlinestart.png");
     expect(out).toContain("inlineend.png");
-    expect(out).not.toContain("rx_inlinevariant");
   });
 
-  it("preserves block-variant text while normalizing the publish-stripped wrapper", () => {
+  it("preserves the block-variant wrapper with its relationship attributes", () => {
     const stored =
-      '<div class="rx_ephox_inlinevariant"><p>Block variant text</p></div>';
+      '<div class="rx_ephox_inlinevariant" rxinlineslot="106" ' +
+      'inlinetype="rxvariant" sys_dependentid="78"><p>Snippet body</p></div>';
     const out = roundTripHtmlFragment(stored);
-    expect(out).toContain("Block variant text");
-    // PSDivTagCleanup strips this wrapper div at publish, so the editor
-    // normalizing it away matches the published form.
-    expect(out).not.toContain("rx_ephox_inlinevariant");
+    // PSDivTagCleanup strips this wrapper div at publish, but the stored
+    // edit-time value keeps it: flattening here would lose the relationship.
+    expect(normalizeHtmlForRoundTrip(out)).toBe(
+      normalizeHtmlForRoundTrip(stored),
+    );
+    expect(out).toContain("rx_ephox_inlinevariant");
+    expect(out).toContain('rxinlineslot="106"');
+    expect(out).toContain("Snippet body");
   });
 });

@@ -37,6 +37,12 @@ export const PERC_GLOBAL_VARIABLE_CLASS = "perc-global-variable-marker";
 /** Stored-time marker class for the blog "more" link. */
 export const PERC_MORE_LINK_CLASS = "perc-blog-more-link";
 
+/** Stored-time inline template-variant wrapper (carries the rxvariant relationship). */
+export const PERC_INLINE_VARIANT_CLASS = "rx_inlinevariant";
+
+/** Stored-time block template-variant wrapper (carries the rxvariant relationship). */
+export const PERC_BLOCK_VARIANT_CLASS = "rx_ephox_inlinevariant";
+
 /** Inline-slot attribute the server assembly side keys on. */
 export const PERC_INLINE_SLOT_ATTR = "rxinlineslot";
 
