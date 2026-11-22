@@ -154,6 +154,11 @@ public final class PSItemDefinition extends PSItemDefSummary implements IPSCompo
    * @return the request resource name, never <code>null</code> or empty.
    */
   public String getInternalRequestResource() {
+    // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7018,
+    // same class as #5927/#5898/#5910) — the slash joins the internal request
+    // resource app/page name parsed by PSServer.getInternalRequestHandler via
+    // indexOf("/"); it is a logical request separator, not an OS path, so
+    // File.separator/Path must NOT be used here (backslash would fail dispatch).
     return getAppName() + "/" + getContentEditor().getName();
   }
 
