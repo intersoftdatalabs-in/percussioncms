@@ -256,7 +256,6 @@
       #if( ($googleSourceCount >= 1 || $perc_show_perc_events_button == 'Y'))
       <form>
       <div id="perc-button-container-${calendarContentId}-${widgetId}" class="perc-button-container" role="group" aria-label="Calendar sources">
-      #foreach($googleSource in $googleCalendarArray)
       ## Backward-compat (#7034 review): filter buttons keep the unsuffixed
       ## perc-<className> class alongside the scoped one, so site/theme CSS
       ## and scripts targeting the legacy hooks keep matching; the sweep
