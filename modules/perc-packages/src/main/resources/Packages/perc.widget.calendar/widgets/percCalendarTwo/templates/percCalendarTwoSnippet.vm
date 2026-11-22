@@ -88,6 +88,10 @@
         text-decoration: none;
         display: inline-block;
         font-size: 12px;
+        /* Native <button> elements do not inherit the page font from the
+        div-based controls they replace (source-filter a11y, #6992) —
+        pin the surrounding type so the swap is visually identical. */
+        font-family: inherit;
         cursor: pointer;
         margin: 0px;
         margin-top: 5px;
@@ -96,6 +100,14 @@
         -ms-user-select: none;
         user-select: none;
         -o-user-select: none;
+      }
+
+      /* Source-filter a11y (#6992): keyboard-only indicator for the
+      native filter buttons. :focus-visible keeps the mouse path
+      pixel-identical — the ring renders for keyboard focus only. */
+      .perc-calendar-button:focus-visible {
+        outline: 2px solid #005fcc;
+        outline-offset: 2px;
       }
 
       .perc-disabled-calendar-button {
@@ -170,11 +182,54 @@
       </style>
 
 	  <script>
+      ## Source-filter keyboard path (#6992, residual of #6945): the
+      ## filter controls below are native <button> elements, so Tab /
+      ## Enter / Space work without extra key handling and the pressed
+      ## state is perceivable via aria-pressed. hideCalendarSource is a
+      ## global (not closure-scoped) so both the delegated listener and
+      ## any direct call resolve it. Layer toggling skips the <button>
+      ## controls themselves — they share the layer class for color but
+      ## must stay visible/operable so focus is never dropped.
+      ## Multi-widget scoping (#7029 review): every widget instance on
+      ## the page renders this script, so the wiring below only binds
+      ## this instance's container (plus a percBound guard against a
+      ## double-fire) — otherwise N widgets bind every filter button N
+      ## times and each click toggles N times (net no-op for even N).
+      ## The clicked button is passed through so aria-pressed syncs on
+      ## the instance that was activated (button ids are not yet
+      ## widget-scoped — see #7034); direct calls without a button fall
+      ## back to getElementById. The layer sweep itself stays page-wide
+      ## by class (also #7034): widgets sharing a source toggle together.
+      function hideCalendarSource(calendarClass, buttonEl) {
+        var button = buttonEl || document.getElementById(calendarClass + '-button');
+        var nowOff = false;
+        if (button) {
+          nowOff = button.classList.toggle('perc-disabled-calendar-button');
+          button.setAttribute('aria-pressed', nowOff ? 'false' : 'true');
+        }
+        var layers = document.querySelectorAll('.' + calendarClass);
+        for (var i = 0; i < layers.length; i++) {
+          if (layers[i].tagName !== 'BUTTON') {
+            layers[i].classList.toggle('perc-hide-calendar');
+          }
+        }
+        return nowOff;
+      }
       window.addEventListener('DOMContentLoaded', function() {
-		  function hideCalendarSource(calendarClass) {
-			$('#'+calendarClass+'-button').toggleClass("perc-disabled-calendar-button");
-			$('.'+calendarClass).toggleClass("perc-hide-calendar");
-		  };
+        var container = document.querySelector('#perc-button-container-${calendarContentId}-${widgetId}');
+        var scope = container || document;
+        var filters = scope.querySelectorAll('[data-calendar-source]');
+        for (var i = 0; i < filters.length; i++) {
+          if (filters[i].dataset && filters[i].dataset.percBound) {
+            continue;
+          }
+          if (filters[i].dataset) {
+            filters[i].dataset.percBound = '1';
+          }
+          filters[i].addEventListener('click', function() {
+            hideCalendarSource(this.getAttribute('data-calendar-source'), this);
+          });
+        }
       });
       </script>
 
@@ -183,13 +238,13 @@
 
       #if( ($googleSourceCount >= 1 || $perc_show_perc_events_button == 'Y'))
       <form>
-      <div id="perc-button-container-${calendarContentId}-${widgetId}" class="perc-button-container">
+      <div id="perc-button-container-${calendarContentId}-${widgetId}" class="perc-button-container" role="group" aria-label="Calendar sources">
       #foreach($googleSource in $googleCalendarArray)
-      <div id="perc-${googleSource.getString('className')}-button" class="perc-calendar-button perc-$googleSource.getString('className')" onClick="hideCalendarSource('perc-${googleSource.getString('className')}')">$googleSource.getString('calendarName')</div>
+      <button type="button" id="perc-${googleSource.getString('className')}-button" class="perc-calendar-button perc-$googleSource.getString('className')" data-calendar-source="perc-${googleSource.getString('className')}" aria-pressed="true">$googleSource.getString('calendarName')</button>
       #end
 
       #if($perc_show_perc_events_button == 'Y' && $perc_event_button_label != '')
-      <div id="perc-calendar-other-button" class="perc-calendar-button perc-calendar-other" onClick="hideCalendarSource('perc-calendar-other')">$perc_event_button_label</div>
+      <button type="button" id="perc-calendar-other-button" class="perc-calendar-button perc-calendar-other" data-calendar-source="perc-calendar-other" aria-pressed="true">$perc_event_button_label</button>
       #end
       </div>
       </form>
