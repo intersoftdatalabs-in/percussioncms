@@ -26247,6 +26247,13 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.explorer@Cancel">
       <tuv xml:lang="en-us"><seg>Cancel</seg></tuv>
     </tu>
+    <!-- #6987: Explorer demand-publish/takedown preflight throw fallbacks (parent #4532). en-us only. -->
+    <tu tuid="perc.ui.explorer@Publish failed">
+      <tuv xml:lang="en-us"><seg>Publish failed</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Takedown failed">
+      <tuv xml:lang="en-us"><seg>Takedown failed</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.publish.modern@Publish Forbidden">
       <tuv xml:lang="en-us"><seg>You are not allowed to publish.</seg></tuv>
       <tuv xml:lang="ar"><seg>غير مسموح لك بالنشر.</seg></tuv>

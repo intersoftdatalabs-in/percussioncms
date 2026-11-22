@@ -466,7 +466,11 @@ async function demandPublish(url: string): Promise<void> {
   const body = await get<unknown>(url);
   const preflight = mapPublishResponse(body);
   if (preflight) {
-    throw new Error(preflight.message || preflight.token || "Publish failed");
+    throw new Error(
+      preflight.message ||
+        preflight.token ||
+        message(EXPLORER_MSG.DEMAND_PUBLISH_FAILED),
+    );
   }
 }
 
@@ -606,7 +610,11 @@ async function demandTakedown(
       : await get<unknown>(url);
   const preflight = mapPublishResponse(body);
   if (preflight) {
-    throw new Error(preflight.message || preflight.token || "Takedown failed");
+    throw new Error(
+      preflight.message ||
+        preflight.token ||
+        message(EXPLORER_MSG.DEMAND_TAKEDOWN_FAILED),
+    );
   }
 }
 
