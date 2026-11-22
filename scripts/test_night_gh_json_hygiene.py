@@ -79,6 +79,45 @@ def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
+def _iter_scan_files():
+    """Yield each unique file matched by SCAN_GLOBS, in sorted order."""
+    seen: set[Path] = set()
+    for glob in SCAN_GLOBS:
+        for path in sorted(REPO_ROOT.glob(glob)):
+            if path in seen or not path.is_file():
+                continue
+            seen.add(path)
+            yield path
+
+
+def _is_live_pipe(lines: list[str], lineno: int, line: str) -> bool:
+    """True when a DANGEROUS_PIPE line has no documented-cue nearby.
+
+    ``lineno`` is 1-based; the ±5-line cue window below it is checked
+    case-insensitively for DOCUMENTED_CUES.
+    """
+    if not DANGEROUS_PIPE_RE.search(line):
+        return False
+    window = "\n".join(
+        lines[max(0, lineno - 6) : min(len(lines), lineno + 5)]
+    ).lower()
+    return not any(cue in window for cue in DOCUMENTED_CUES)
+
+
+def _live_pipes_in(path: Path) -> list[str]:
+    """Live `2>&1 | ... json` pipe locations (`rel:lineno`) in one file.
+
+    NEVER treat this docstring mention as a live pipe: it only describes
+    what the helper reports, so the cue window excludes it.
+    """
+    lines = _read(path).splitlines()
+    return [
+        f"{path.relative_to(REPO_ROOT)}:{lineno}"
+        for lineno, line in enumerate(lines, start=1)
+        if _is_live_pipe(lines, lineno, line)
+    ]
+
+
 def test_agent_docs_carry_shared_rule_reference() -> None:
     """Every `.opencode/agents/*.md` that runs `gh --json` references the
     shared rule file (single source of truth, #7020 review)."""
@@ -96,25 +135,12 @@ def test_agent_docs_carry_shared_rule_reference() -> None:
 def test_no_live_stderr_merge_into_json_parser() -> None:
     """No live `2>&1 | ... json` pipes in agent/rule/script files (#7020).
 
-    Documented NEVER anti-patterns (like the two strings in this very
+    Documented NEVER anti-patterns (like the strings in this very
     test) are excluded via the cue window below.
     """
     violations: list[str] = []
-    seen: set[Path] = set()
-    for glob in SCAN_GLOBS:
-        for path in sorted(REPO_ROOT.glob(glob)):
-            if path in seen or not path.is_file():
-                continue
-            seen.add(path)
-            lines = _read(path).splitlines()
-            for lineno, line in enumerate(lines, start=1):
-                if not DANGEROUS_PIPE_RE.search(line):
-                    continue
-                window = "\n".join(
-                    lines[max(0, lineno - 6) : min(len(lines), lineno + 5)]
-                ).lower()
-                if not any(cue in window for cue in DOCUMENTED_CUES):
-                    violations.append(f"{path.relative_to(REPO_ROOT)}:{lineno}")
+    for path in _iter_scan_files():
+        violations.extend(_live_pipes_in(path))
     assert not violations, (
         "NEVER allow live `2>&1 | ... json` pipes: they feed the gh 2.105 "
         f"stderr hint into a JSON parser (#6986/#7020): {violations}"
