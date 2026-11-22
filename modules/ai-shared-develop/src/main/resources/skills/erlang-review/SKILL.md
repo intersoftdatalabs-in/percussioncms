@@ -14,11 +14,12 @@ The Erlang review skill moved to the canonical install at
 ```text
 mkd-code-review analyze --pack percussion --format markdown --gate advisory \
     --git-base origin/main \
-    --models <models-dir>/models.ollama-dev-coder.toml
+    --machine-only
 ```
 
-Resolve `<models-dir>` from your local mkd-code-review install. Never record
-the absolute filesystem path.
+Do **not** use the local Ollama pool (`models.ollama-dev-coder.toml`): it is
+disabled on the night host because it caused memory contention (operator
+direction 2026-11-22).
 
 Pipe the report through `python3 scripts/sanitize-erlang-review.py` before
 writing it down or pasting it anywhere (raw CLI stdout embeds
