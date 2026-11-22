@@ -1,3 +1,9 @@
+/*!
+ * Slick carousel theme stylesheet v1.9.0 (issue #7002, parent audit #5627).
+ * Upstream: Slick by Ken Wheeler, MIT license,
+ * https://github.com/kenwheeler/slick
+ * Kept verbatim from the vendored copy; do not hand-edit.
+ */
 @charset 'UTF-8';
 /* Slider */
 .slick-loading .slick-list {

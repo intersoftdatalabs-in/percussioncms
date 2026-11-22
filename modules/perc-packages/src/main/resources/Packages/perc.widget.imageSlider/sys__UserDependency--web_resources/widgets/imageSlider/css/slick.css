@@ -1,3 +1,9 @@
+/*!
+ * Slick carousel stylesheet v1.9.0 (issue #7002, parent audit #5627).
+ * Upstream: Slick by Ken Wheeler, MIT license,
+ * https://github.com/kenwheeler/slick
+ * Kept verbatim from the vendored copy; do not hand-edit.
+ */
 /* Slider */
 .slick-slider {
   position: relative;
