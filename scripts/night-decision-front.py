@@ -348,6 +348,10 @@ def rule_skip_issue(issue: dict) -> tuple[bool, str]:
         return True, "in_progress"
     if "migrated" in labels:
         return True, "migrated"
+    if "blocked" in labels:
+        # External gate (soak / customer env / human UAT / upstream).
+        # Stays out of every queue until a human removes the label.
+        return True, "blocked_label"
     if issue["assignees"]:
         return True, "assigned"
     return False, ""
