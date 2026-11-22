@@ -192,6 +192,20 @@ never leak to the shell behind it, and **Escape** (or **Cancel**) closes the
 dialog and returns focus to the toolbar control or menu item that opened it.
 Closing a dialog never changes content: cancel and **Escape** send no request.
 
+### Folder tree keyboard map
+
+The folder tree is a single **Tab** stop (roving tabindex): **Tab** enters
+the tree on the selected row and the next **Tab** leaves it. Inside the
+tree, **ArrowDown** / **ArrowUp** move focus and the selection together to
+the next / previous visible row (collapsed subtrees are skipped; the move
+wraps past the last / first row), **Home** / **End** jump to the first /
+last visible row, **ArrowRight** / **ArrowLeft** expand / collapse a
+folder, **Enter** or **Space** opens the selected folder, typing the first
+letters of a folder name jumps to it (type-ahead), and the context-menu
+key (or **Shift+F10**) opens the folder menu. The focused row shows a
+visible outline for keyboard operators; mouse clicks do not leave a sticky
+ring.
+
 ### Classic DCE icon vocabulary (retire-or-map)
 
 The classic Desktop Content Explorer shipped 84 icon files for its tree,
