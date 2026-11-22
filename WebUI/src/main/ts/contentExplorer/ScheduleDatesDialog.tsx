@@ -15,8 +15,11 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useRef, useState } from "react";
-import { useDialogEscape } from "../architecture/useDialogEscape";
+import React, { useRef, useState } from "react";
+import {
+  useDialogEscape,
+  useDialogFocusTrap,
+} from "../architecture/useDialogEscape";
 import { message } from "../i18n/message";
 import {
   datetimeLocalToServerDate,
@@ -26,9 +29,6 @@ import {
   type ItemScheduleDates,
 } from "./itemScheduleDates";
 import { EXPLORER_MSG } from "./messages";
-
-const FOCUSABLE =
-  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 const COMMENT_MAX = 500;
 
@@ -64,35 +64,7 @@ export function ScheduleDatesDialog({
 
   useDialogEscape(true, false, onCancel);
 
-  useEffect(() => {
-    const root = rootRef.current;
-    startRef.current?.focus();
-    if (!root) {
-      return;
-    }
-    const focusables = (): HTMLElement[] =>
-      Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE));
-    const onKey = (ev: KeyboardEvent) => {
-      if (ev.key !== "Tab") {
-        return;
-      }
-      const list = focusables();
-      if (list.length === 0) {
-        return;
-      }
-      const first = list[0];
-      const last = list[list.length - 1];
-      if (ev.shiftKey && document.activeElement === first) {
-        ev.preventDefault();
-        last.focus();
-      } else if (!ev.shiftKey && document.activeElement === last) {
-        ev.preventDefault();
-        first.focus();
-      }
-    };
-    root.addEventListener("keydown", onKey);
-    return () => root.removeEventListener("keydown", onKey);
-  }, []);
+  useDialogFocusTrap(true, rootRef, startRef);
 
   function submit(): void {
     const startDate = datetimeLocalToServerDate(startLocal);

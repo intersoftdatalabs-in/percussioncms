@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useRef } from "react";
-import { useDialogEscape } from "../architecture/useDialogEscape";
+import React, { useRef } from "react";
+import {
+  useDialogEscape,
+  useDialogFocusTrap,
+} from "../architecture/useDialogEscape";
 import { message } from "../i18n/message";
 import { ItemPublishingHistoryPanel } from "../publishing/components/ItemPublishingHistoryPanel";
 import { EXPLORER_MSG } from "./messages";
-
-const FOCUSABLE =
-  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 export interface PublishingHistoryDialogProps {
   itemId: string;
@@ -42,50 +42,7 @@ export function PublishingHistoryDialog({
 
   useDialogEscape(true, false, onClose);
 
-  useEffect(() => {
-    const root = rootRef.current;
-    const opener =
-      document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
-    closeRef.current?.focus();
-    if (!root) {
-      return () => {
-        if (opener && opener.isConnected) {
-          opener.focus();
-        }
-      };
-    }
-    const focusables = (): HTMLElement[] =>
-      Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE));
-    const onKey = (ev: KeyboardEvent) => {
-      if (ev.key !== "Tab") {
-        return;
-      }
-      const list = focusables();
-      if (list.length === 0) {
-        return;
-      }
-      const first = list[0];
-      const last = list[list.length - 1];
-      if (ev.shiftKey && document.activeElement === first) {
-        ev.preventDefault();
-        last.focus();
-      } else if (!ev.shiftKey && document.activeElement === last) {
-        ev.preventDefault();
-        first.focus();
-      }
-    };
-    root.addEventListener("keydown", onKey);
-    return () => {
-      root.removeEventListener("keydown", onKey);
-      // Return focus to the control that opened the dialog (a11y focus
-      // management — Escape/mouse close must not strand focus on body).
-      if (opener && opener.isConnected) {
-        opener.focus();
-      }
-    };
-  }, []);
+  useDialogFocusTrap(true, rootRef, closeRef);
 
   return (
     <div

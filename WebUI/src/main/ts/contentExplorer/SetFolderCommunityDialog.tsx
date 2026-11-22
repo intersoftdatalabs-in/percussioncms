@@ -15,14 +15,14 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useRef, useState } from "react";
-import { useDialogEscape } from "../architecture/useDialogEscape";
+import React, { useRef, useState } from "react";
+import {
+  useDialogEscape,
+  useDialogFocusTrap,
+} from "../architecture/useDialogEscape";
 import type { FolderCommunityChoice } from "../api/contentExplorer/folderCommunityApi";
 import { message } from "../i18n/message";
 import { EXPLORER_MSG } from "./messages";
-
-const FOCUSABLE =
-  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 export interface SetFolderCommunityDialogProps {
   choices: FolderCommunityChoice[];
@@ -52,33 +52,7 @@ export function SetFolderCommunityDialog({
 
   useDialogEscape(true, busy, onCancel);
 
-  useEffect(() => {
-    const root = rootRef.current;
-    selectRef.current?.focus();
-    if (!root) {
-      return;
-    }
-    const onKey = (ev: KeyboardEvent) => {
-      if (ev.key !== "Tab") {
-        return;
-      }
-      const list = Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE));
-      if (list.length === 0) {
-        return;
-      }
-      const first = list[0];
-      const last = list[list.length - 1];
-      if (ev.shiftKey && document.activeElement === first) {
-        ev.preventDefault();
-        last.focus();
-      } else if (!ev.shiftKey && document.activeElement === last) {
-        ev.preventDefault();
-        first.focus();
-      }
-    };
-    root.addEventListener("keydown", onKey);
-    return () => root.removeEventListener("keydown", onKey);
-  }, []);
+  useDialogFocusTrap(true, rootRef, selectRef);
 
   return (
     <div
