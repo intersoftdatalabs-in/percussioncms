@@ -399,6 +399,38 @@ import {
   mergeWorkflowMenuActions,
 } from "./workflowMenuActions";
 
+/**
+ * Bulk-confirm outcome shown in the shared live-region banners (#7037).
+ * The helper modules only report run outcomes; dialog cancel resolves to
+ * the neutral {@code "cancelled"} no-op announcement instead.
+ */
+export type BulkConfirmOutcome = "success" | "partial" | "none" | "cancelled";
+
+/** Announced outcome stored by the bulk-confirm banners (#7037). */
+export type BulkConfirmStatus = {
+  text: string;
+  outcome: BulkConfirmOutcome;
+};
+
+/**
+ * Live-region presentation shared by the bulk-confirm banners: success and
+ * the cancel no-op announce politely, per-item failures assertively.
+ */
+export function bulkConfirmLiveProps(outcome: BulkConfirmOutcome): {
+  role: "status" | "alert";
+  live: "polite" | "assertive";
+  background: string;
+} {
+  if (outcome === "success" || outcome === "cancelled") {
+    return {
+      role: "status",
+      live: "polite",
+      background: outcome === "success" ? "#ecfdf5" : "#f1f5f9",
+    };
+  }
+  return { role: "alert", live: "assertive", background: "#fef2f2" };
+}
+
 export interface ContentExplorerShellProps {
   /** Folder path to display on mount; defaults to product root. */
   initialPath?: string;
@@ -1292,17 +1324,17 @@ function ContentExplorerShellInner({
   const [multiRecycleOpen, setMultiRecycleOpen] = useState(false);
   const [multiRecycleStatus, setMultiRecycleStatus] = useState<{
     text: string;
-    outcome: MultiFolderRecycleOutcome;
+    outcome: MultiFolderRecycleOutcome | "cancelled";
   } | null>(null);
   const [multiPurgeOpen, setMultiPurgeOpen] = useState(false);
   const [multiPurgeStatus, setMultiPurgeStatus] = useState<{
     text: string;
-    outcome: MultiSelectPurgeOutcome;
+    outcome: MultiSelectPurgeOutcome | "cancelled";
   } | null>(null);
   const [multiRestoreOpen, setMultiRestoreOpen] = useState(false);
   const [multiRestoreStatus, setMultiRestoreStatus] = useState<{
     text: string;
-    outcome: MultiSelectRestoreOutcome;
+    outcome: MultiSelectRestoreOutcome | "cancelled";
   } | null>(null);
   /**
    * Bulk Stage / Remove-from-Staging dialog request (#6469). Resolved by
@@ -1316,6 +1348,22 @@ function ContentExplorerShellInner({
     openerTestId: string | null;
     resolve: (outcome: { ran: boolean; refresh: boolean } | null) => void;
   } | null>(null);
+  /**
+   * Bulk Stage / Remove-from-Staging cancel no-op announcement (#7037).
+   * The in-dialog report already announces run outcomes; only a cancel
+   * before the run lands here so screen readers hear the no-op.
+   */
+  const [bulkStageStatus, setBulkStageStatus] = useState<{
+    text: string;
+    mode: "stage" | "unstage";
+  } | null>(null);
+  /**
+   * Invoking-control testid for the boolean bulk-confirm dialogs
+   * (recycle / purge / restore, #7037). The dialogs unmount on close, so
+   * the opener is re-queried by testid like {@code finishTakedown} (#6996)
+   * instead of relying on the hook's element capture alone.
+   */
+  const bulkConfirmOpenerRef = useRef<string | null>(null);
   /**
    * Accessible Take Down confirm request (#6996, parent #4530). Resolved by
    * the dialog with true only on confirm; cancel / Escape resolves false
@@ -1482,8 +1530,7 @@ function ContentExplorerShellInner({
     },
     onRestoreChecked: () => {
       if (multiSelectedItemsRef.current.size >= 2) {
-        setMultiRestoreStatus(null);
-        setMultiRestoreOpen(true);
+        openBulkConfirm("restore");
       }
     },
     onPurge: async (item) => {
@@ -1497,8 +1544,7 @@ function ContentExplorerShellInner({
     },
     onPurgeChecked: () => {
       if (multiSelectedItemsRef.current.size >= 2) {
-        setMultiPurgeStatus(null);
-        setMultiPurgeOpen(true);
+        openBulkConfirm("purge");
       }
     },
     onEmptyRecycle: async () => {
@@ -2029,6 +2075,7 @@ function ContentExplorerShellInner({
             opener instanceof HTMLElement
               ? opener.getAttribute("data-testid")
               : null;
+          setBulkStageStatus(null);
           setBulkStageRequest({
             mode: args.mode,
             items: Array.from(args.items),
@@ -2051,6 +2098,18 @@ function ContentExplorerShellInner({
       if (current) {
         current.resolve(outcome);
       }
+      // A cancel before the run announces the no-op (#7037). Report-close
+      // stays silent: the in-dialog summary already announced the run.
+      if (!outcome.ran && current) {
+        setBulkStageStatus({
+          text: message(
+            current.mode === "stage"
+              ? EXPLORER_MSG.BULK_STAGE_CANCELLED
+              : EXPLORER_MSG.BULK_UNSTAGE_CANCELLED,
+          ),
+          mode: current.mode,
+        });
+      }
       // The dialog unmounts on close, so focus would otherwise be lost to
       // the body. Return it to the invoking control when it is still shown.
       if (current?.openerTestId) {
@@ -2063,6 +2122,91 @@ function ContentExplorerShellInner({
       }
     },
     [bulkStageRequest],
+  );
+
+  /**
+   * Open one of the boolean bulk-confirm dialogs (recycle / purge /
+   * restore, #7037). Captures the invoking control and clears any stale
+   * status so the next outcome announces exactly once.
+   */
+  const openBulkConfirm = useCallback(
+    (kind: "recycle" | "purge" | "restore") => {
+      const opener = document.activeElement;
+      captureDialogOpener(opener);
+      bulkConfirmOpenerRef.current =
+        opener instanceof HTMLElement
+          ? opener.getAttribute("data-testid")
+          : null;
+      if (kind === "recycle") {
+        setMultiRecycleStatus(null);
+        setMultiRecycleOpen(true);
+      } else if (kind === "purge") {
+        setMultiPurgeStatus(null);
+        setMultiPurgeOpen(true);
+      } else {
+        setMultiRestoreStatus(null);
+        setMultiRestoreOpen(true);
+      }
+    },
+    [],
+  );
+
+  /**
+   * Close a bulk-confirm dialog with its announced outcome (#7037): the
+   * formatted run result, or the neutral cancel no-op. A null status closes
+   * silently — the confirm path uses it so the dialog dismisses at once and
+   * the batch resolves the announcement when it lands. Returns focus to
+   * the invoking toolbar control like {@code finishTakedown} (#6996).
+   * Escape reaches the same path through the dialog's
+   * {@code useDialogEscape} cancel.
+   */
+  const closeBulkConfirm = useCallback(
+    (
+      kind: "recycle" | "purge" | "restore",
+      status: BulkConfirmStatus | null,
+    ) => {
+      if (kind === "recycle") {
+        setMultiRecycleOpen(false);
+        if (status) {
+          setMultiRecycleStatus(status);
+        }
+      } else if (kind === "purge") {
+        setMultiPurgeOpen(false);
+        if (status) {
+          setMultiPurgeStatus(status);
+        }
+      } else {
+        setMultiRestoreOpen(false);
+        if (status) {
+          setMultiRestoreStatus(status);
+        }
+      }
+      const openerTestId = bulkConfirmOpenerRef.current;
+      bulkConfirmOpenerRef.current = null;
+      // Content-menu commands close the menu, so the invoking item is gone
+      // by close time — fall back to the Content menu button so keyboard
+      // users keep a stable return target. Toolbar openers (action-purge,
+      // action-restore) stay mounted and hit the direct lookup.
+      const candidates =
+        openerTestId != null
+          ? [
+              openerTestId,
+              ...(openerTestId.startsWith("explorer-multi-")
+                ? ["explorer-menu-content"]
+                : []),
+            ]
+          : [];
+      for (const id of candidates) {
+        const next = document.querySelector(
+          `[data-testid="${CSS.escape(id)}"]`,
+        );
+        if (next instanceof HTMLElement) {
+          next.focus();
+          break;
+        }
+      }
+    },
+    [],
   );
 
   const confirmTakedown = useCallback(
@@ -2672,20 +2816,17 @@ function ContentExplorerShellInner({
           break;
         case "content-multi-recycle":
           if (multiSelectedItemsRef.current.size > 0) {
-            setMultiRecycleStatus(null);
-            setMultiRecycleOpen(true);
+            openBulkConfirm("recycle");
           }
           break;
         case "content-multi-purge":
           if (multiSelectedItemsRef.current.size > 0) {
-            setMultiPurgeStatus(null);
-            setMultiPurgeOpen(true);
+            openBulkConfirm("purge");
           }
           break;
         case "content-multi-restore":
           if (multiSelectedItemsRef.current.size > 0) {
-            setMultiRestoreStatus(null);
-            setMultiRestoreOpen(true);
+            openBulkConfirm("restore");
           }
           break;
         case "content-create-site":
@@ -3840,6 +3981,7 @@ function ContentExplorerShellInner({
       siteNameForCopy,
       sourceFolderPathForCopy,
       showSubfolderCopy,
+      openBulkConfirm,
     ],
   );
 
@@ -4368,30 +4510,32 @@ function ContentExplorerShellInner({
           onCancel={() => setMultiMoveOpen(false)}
         />
       ) : null}
-      {multiRecycleStatus ? (
-        <div
-          data-testid="explorer-multi-recycle-result"
-          data-outcome={multiRecycleStatus.outcome}
-          role={multiRecycleStatus.outcome === "success" ? "status" : "alert"}
-          aria-live={
-            multiRecycleStatus.outcome === "success" ? "polite" : "assertive"
-          }
-          style={{
-            gridColumn: "1 / -1",
-            padding: "8px 12px",
-            background:
-              multiRecycleStatus.outcome === "success" ? "#ecfdf5" : "#fef2f2",
-            color: "#0f172a",
-          }}
-        >
-          {multiRecycleStatus.text}
-        </div>
-      ) : null}
+      {multiRecycleStatus
+        ? (() => {
+            const live = bulkConfirmLiveProps(multiRecycleStatus.outcome);
+            return (
+              <div
+                data-testid="explorer-multi-recycle-result"
+                data-outcome={multiRecycleStatus.outcome}
+                role={live.role}
+                aria-live={live.live}
+                style={{
+                  gridColumn: "1 / -1",
+                  padding: "8px 12px",
+                  background: live.background,
+                  color: "#0f172a",
+                }}
+              >
+                {multiRecycleStatus.text}
+              </div>
+            );
+          })()
+        : null}
       {multiRecycleOpen ? (
         <RecycleConfirmDialog
           onConfirm={() => {
-            setMultiRecycleOpen(false);
             const items = Array.from(multiSelectedItemsRef.current.values());
+            closeBulkConfirm("recycle", null);
             void recycleCheckedItems(items, (itemPath) =>
               deleteFolderItem(itemPath),
             ).then((result) => {
@@ -4404,33 +4548,40 @@ function ContentExplorerShellInner({
               }
             });
           }}
-          onCancel={() => setMultiRecycleOpen(false)}
+          onCancel={() =>
+            closeBulkConfirm("recycle", {
+              text: message(EXPLORER_MSG.MULTI_RECYCLE_CANCELLED),
+              outcome: "cancelled",
+            })
+          }
         />
       ) : null}
-      {multiPurgeStatus ? (
-        <div
-          data-testid="explorer-multi-purge-result"
-          data-outcome={multiPurgeStatus.outcome}
-          role={multiPurgeStatus.outcome === "success" ? "status" : "alert"}
-          aria-live={
-            multiPurgeStatus.outcome === "success" ? "polite" : "assertive"
-          }
-          style={{
-            gridColumn: "1 / -1",
-            padding: "8px 12px",
-            background:
-              multiPurgeStatus.outcome === "success" ? "#ecfdf5" : "#fef2f2",
-            color: "#0f172a",
-          }}
-        >
-          {multiPurgeStatus.text}
-        </div>
-      ) : null}
+      {multiPurgeStatus
+        ? (() => {
+            const live = bulkConfirmLiveProps(multiPurgeStatus.outcome);
+            return (
+              <div
+                data-testid="explorer-multi-purge-result"
+                data-outcome={multiPurgeStatus.outcome}
+                role={live.role}
+                aria-live={live.live}
+                style={{
+                  gridColumn: "1 / -1",
+                  padding: "8px 12px",
+                  background: live.background,
+                  color: "#0f172a",
+                }}
+              >
+                {multiPurgeStatus.text}
+              </div>
+            );
+          })()
+        : null}
       {multiPurgeOpen ? (
         <PurgeConfirmDialog
           onConfirm={() => {
-            setMultiPurgeOpen(false);
             const items = Array.from(multiSelectedItemsRef.current.values());
+            closeBulkConfirm("purge", null);
             void purgeCheckedItems(items, (guid) => purgeRecycledItem(guid)).then(
               (result) => {
                 setMultiPurgeStatus({
@@ -4443,7 +4594,12 @@ function ContentExplorerShellInner({
               },
             );
           }}
-          onCancel={() => setMultiPurgeOpen(false)}
+          onCancel={() =>
+            closeBulkConfirm("purge", {
+              text: message(EXPLORER_MSG.MULTI_PURGE_CANCELLED),
+              outcome: "cancelled",
+            })
+          }
         />
       ) : null}
       {bulkStageRequest ? (
@@ -4453,6 +4609,22 @@ function ContentExplorerShellInner({
           onDone={finishBulkStage}
         />
       ) : null}
+      {bulkStageStatus ? (
+        <div
+          data-testid="explorer-bulk-stage-cancelled"
+          data-mode={bulkStageStatus.mode}
+          role="status"
+          aria-live="polite"
+          style={{
+            gridColumn: "1 / -1",
+            padding: "8px 12px",
+            background: "#f1f5f9",
+            color: "#0f172a",
+          }}
+        >
+          {bulkStageStatus.text}
+        </div>
+      ) : null}
       {takedownRequest ? (
         <TakedownConfirmDialog
           items={takedownRequest.items}
@@ -4461,30 +4633,32 @@ function ContentExplorerShellInner({
           onCancel={() => finishTakedown(false)}
         />
       ) : null}
-      {multiRestoreStatus ? (
-        <div
-          data-testid="explorer-multi-restore-result"
-          data-outcome={multiRestoreStatus.outcome}
-          role={multiRestoreStatus.outcome === "success" ? "status" : "alert"}
-          aria-live={
-            multiRestoreStatus.outcome === "success" ? "polite" : "assertive"
-          }
-          style={{
-            gridColumn: "1 / -1",
-            padding: "8px 12px",
-            background:
-              multiRestoreStatus.outcome === "success" ? "#ecfdf5" : "#fef2f2",
-            color: "#0f172a",
-          }}
-        >
-          {multiRestoreStatus.text}
-        </div>
-      ) : null}
+      {multiRestoreStatus
+        ? (() => {
+            const live = bulkConfirmLiveProps(multiRestoreStatus.outcome);
+            return (
+              <div
+                data-testid="explorer-multi-restore-result"
+                data-outcome={multiRestoreStatus.outcome}
+                role={live.role}
+                aria-live={live.live}
+                style={{
+                  gridColumn: "1 / -1",
+                  padding: "8px 12px",
+                  background: live.background,
+                  color: "#0f172a",
+                }}
+              >
+                {multiRestoreStatus.text}
+              </div>
+            );
+          })()
+        : null}
       {multiRestoreOpen ? (
         <RestoreConfirmDialog
           onConfirm={() => {
-            setMultiRestoreOpen(false);
             const items = Array.from(multiSelectedItemsRef.current.values());
+            closeBulkConfirm("restore", null);
             void restoreCheckedItems(items, (guid) =>
               restoreRecycledItem(guid),
             ).then((result) => {
@@ -4497,7 +4671,12 @@ function ContentExplorerShellInner({
               }
             });
           }}
-          onCancel={() => setMultiRestoreOpen(false)}
+          onCancel={() =>
+            closeBulkConfirm("restore", {
+              text: message(EXPLORER_MSG.MULTI_RESTORE_CANCELLED),
+              outcome: "cancelled",
+            })
+          }
         />
       ) : null}
       <div

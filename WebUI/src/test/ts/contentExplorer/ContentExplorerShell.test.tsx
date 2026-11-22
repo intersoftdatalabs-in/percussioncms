@@ -2622,8 +2622,7 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
-  it("cancel on multi-select purge sends no purge requests (#4883)", async () => {
-    const purgeUrls: string[] = [];
+  it("cancel on multi-select purge sends no purge requests (#4883)", async () => {    const purgeUrls: string[] = [];
     mockFetch(async (input, init) => {
       const url = typeof input === "string" ? input : (input as Request).url;
       const method = String(init?.method ?? "GET").toUpperCase();
@@ -2679,7 +2678,13 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     fireEvent.click(screen.getByTestId("detail-select-guid-b"));
     fireEvent.click(screen.getByTestId("action-purge"));
     fireEvent.click(await screen.findByTestId("explorer-purge-cancel"));
-    expect(screen.queryByTestId("explorer-multi-purge-result")).toBeNull();
+    // Cancel announces the no-op through the shared live region (#7037).
+    const purgeCancelled = await screen.findByTestId(
+      "explorer-multi-purge-result",
+    );
+    expect(purgeCancelled.getAttribute("data-outcome")).toBe("cancelled");
+    expect(purgeCancelled.getAttribute("role")).toBe("status");
+    expect(purgeCancelled.textContent).toContain("Purge cancelled");
     expect(purgeUrls).toEqual([]);
   });
 
@@ -2830,7 +2835,13 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     fireEvent.click(screen.getByTestId("detail-select-guid-b"));
     fireEvent.click(screen.getByTestId("action-restore"));
     fireEvent.click(await screen.findByTestId("explorer-restore-cancel"));
-    expect(screen.queryByTestId("explorer-multi-restore-result")).toBeNull();
+    // Cancel announces the no-op through the shared live region (#7037).
+    const restoreCancelled = await screen.findByTestId(
+      "explorer-multi-restore-result",
+    );
+    expect(restoreCancelled.getAttribute("data-outcome")).toBe("cancelled");
+    expect(restoreCancelled.getAttribute("role")).toBe("status");
+    expect(restoreCancelled.textContent).toContain("Restore cancelled");
     expect(restoreUrls).toEqual([]);
   });
 

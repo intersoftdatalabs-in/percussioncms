@@ -43,7 +43,7 @@ function displayName(item: PSPathItem): string {
   const name = (item.name || "").trim();
   if (name) return name;
   const path = (item.path || "").trim();
-  return path || "(unnamed)";
+  return path || message(EXPLORER_MSG.MULTI_UNNAMED_ITEM);
 }
 
 /**

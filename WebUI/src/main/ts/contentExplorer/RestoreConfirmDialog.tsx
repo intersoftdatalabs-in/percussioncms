@@ -42,10 +42,13 @@ export function RestoreConfirmDialog({
 }: RestoreConfirmDialogProps): React.ReactElement {
   const rootRef = useRef<HTMLDivElement>(null);
   const okRef = useRef<HTMLButtonElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
 
   useDialogEscape(true, false, onCancel);
 
-  useDialogFocusTrap(true, rootRef, okRef);
+  // Bulk confirm: initial focus lands on Cancel, not Restore, so an
+  // accidental Enter cannot confirm (#7003 contract, #7037).
+  useDialogFocusTrap(true, rootRef, cancelRef);
 
   return (
     <div
@@ -93,6 +96,7 @@ export function RestoreConfirmDialog({
         <div style={{ display: "flex", gap: 8, justifyContent: "flex-end" }}>
           <button
             type="button"
+            ref={cancelRef}
             data-testid="explorer-restore-cancel"
             onClick={onCancel}
           >

@@ -26281,6 +26281,100 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.explorer@Cancel">
       <tuv xml:lang="en-us"><seg>Cancel</seg></tuv>
     </tu>
+    <!-- #7037: Explorer bulk recycle / purge / restore confirm + announcement chrome (parent #4530). en-us only. -->
+    <tu tuid="perc.ui.explorer@Recycle selected">
+      <tuv xml:lang="en-us"><seg>Recycle selected</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Recycle the checked items? Folders in the selection are skipped.">
+      <tuv xml:lang="en-us"><seg>Recycle the checked items? Folders in the selection are skipped.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Recycled {count} item(s)">
+      <tuv xml:lang="en-us"><seg>Recycled {count} item(s)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Recycled {count} item(s); some recycles failed and were not rolled back">
+      <tuv xml:lang="en-us"><seg>Recycled {count} item(s); some recycles failed and were not rolled back</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@No items were recycled">
+      <tuv xml:lang="en-us"><seg>No items were recycled</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Skipped folders: {names}">
+      <tuv xml:lang="en-us"><seg>Skipped folders: {names}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Recycle failed for: {details}">
+      <tuv xml:lang="en-us"><seg>Recycle failed for: {details}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Recycle cancelled — nothing was recycled.">
+      <tuv xml:lang="en-us"><seg>Recycle cancelled — nothing was recycled.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Purge selected">
+      <tuv xml:lang="en-us"><seg>Purge selected</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Permanently purge the selected recycled items? This cannot be undone.">
+      <tuv xml:lang="en-us"><seg>Permanently purge the selected recycled items? This cannot be undone.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Purged {count} item(s)">
+      <tuv xml:lang="en-us"><seg>Purged {count} item(s)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Purged {count} item(s); the rest of the selection was not purged">
+      <tuv xml:lang="en-us"><seg>Purged {count} item(s); the rest of the selection was not purged</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@No items were purged">
+      <tuv xml:lang="en-us"><seg>No items were purged</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Purge failed for: {details}">
+      <tuv xml:lang="en-us"><seg>Purge failed for: {details}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Purge cancelled — nothing was purged.">
+      <tuv xml:lang="en-us"><seg>Purge cancelled — nothing was purged.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Restore selected">
+      <tuv xml:lang="en-us"><seg>Restore selected</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Restore the checked pages, assets, and folders to their original folders?">
+      <tuv xml:lang="en-us"><seg>Restore the checked pages, assets, and folders to their original folders?</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Restored {count} item(s)">
+      <tuv xml:lang="en-us"><seg>Restored {count} item(s)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Restored {count} item(s); the rest of the selection was not restored">
+      <tuv xml:lang="en-us"><seg>Restored {count} item(s); the rest of the selection was not restored</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@No items were restored">
+      <tuv xml:lang="en-us"><seg>No items were restored</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Restore failed for: {details}">
+      <tuv xml:lang="en-us"><seg>Restore failed for: {details}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Restore cancelled — nothing was restored.">
+      <tuv xml:lang="en-us"><seg>Restore cancelled — nothing was restored.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Purge">
+      <tuv xml:lang="en-us"><seg>Purge</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Restore">
+      <tuv xml:lang="en-us"><seg>Restore</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Delete Confirmation">
+      <tuv xml:lang="en-us"><seg>Delete Confirmation</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Restore this recycled item to its original folder?">
+      <tuv xml:lang="en-us"><seg>Restore this recycled item to its original folder?</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@The selected item was not found">
+      <tuv xml:lang="en-us"><seg>The selected item was not found</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@The recycled item was not found">
+      <tuv xml:lang="en-us"><seg>The recycled item was not found</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@(unnamed)">
+      <tuv xml:lang="en-us"><seg>(unnamed)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Staging cancelled — nothing was staged.">
+      <tuv xml:lang="en-us"><seg>Staging cancelled — nothing was staged.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Remove from staging cancelled — nothing was removed.">
+      <tuv xml:lang="en-us"><seg>Remove from staging cancelled — nothing was removed.</seg></tuv>
+    </tu>
     <!-- #6987: Explorer demand-publish/takedown preflight throw fallbacks (parent #4532). en-us only. -->
     <tu tuid="perc.ui.explorer@Publish failed">
       <tuv xml:lang="en-us"><seg>Publish failed</seg></tuv>
