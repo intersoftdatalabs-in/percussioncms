@@ -995,15 +995,19 @@ silent drop.
 An open folder with no children shows the empty state plus a hint naming
 the create paths (**New Item**, **Create Page**, **Create Asset**), so an
 upgraded Rhythmyx site with only custom-type Items still tells operators
-where content comes from. When the folder list itself fails to load, the
+where content comes from. While the folder list is loading, the list shows
+a loading status that screen readers announce once (a polite live region);
+it clears as soon as the rows render. When the folder list itself fails to load, the
 error names the cause — an invalid request (**HTTP 400**), no permission
 (**HTTP 403**), a missing folder (**HTTP 404**), or a conflict
-(**HTTP 409**) — instead of a bare failure, and offers **Retry**, which
-reloads the same folder without switching away. Rows keep the arrow-key
+(**HTTP 409**) — names the folder that failed to load, instead of a bare failure,
+and offers **Retry**, which reloads the same folder without switching away. Rows keep the arrow-key
 path (**Up/Down** move, **Home/End** jump, **Enter** opens the row in the
 editor) with a visible focus ring for keyboard operators; a row that
 cannot open at all reports that it cannot be opened instead of silently
-staying put.
+staying put. The pager (**Previous**/**Next**, page position, item count)
+and the incremental-approval **Approved** badge follow the session language
+through the same translation catalog as the rest of the list chrome.
 
 ### Empty the recycle bin
 

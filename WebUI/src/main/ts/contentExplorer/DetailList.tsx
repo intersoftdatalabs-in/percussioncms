@@ -1024,7 +1024,11 @@ export function DetailList({
   if (!folderPath) {
     return (
       <div {...detailListRootProps(folderPath, displayFormatId, density)}>
-        <div style={emptyStateStyle} data-testid="detail-list-empty">
+        <div
+          style={emptyStateStyle}
+          role="status"
+          data-testid="detail-list-empty"
+        >
           {message(EXPLORER_MSG.LIST_EMPTY)}
         </div>
       </div>
@@ -1037,6 +1041,12 @@ export function DetailList({
           <div data-testid="detail-list-error-summary">
             {describeListLoadFailure(errorStatus)}
             {error ? `: ${error}` : null}
+          </div>
+          <div data-testid="detail-list-error-folder">
+            {message(EXPLORER_MSG.LIST_LOAD_ERROR_FOLDER).replace(
+              "{path}",
+              folderPath ?? "",
+            )}
           </div>
           <button
             type="button"
@@ -1056,16 +1066,32 @@ export function DetailList({
     );
   }
   if (loading && children.length === 0) {
+    // role="status" carries an implicit polite live region + atomic
+    // announcement, so screen readers announce the loading text once when
+    // this node mounts. Re-renders keep the same node with identical
+    // text, which assistive tech does not re-announce (#7036).
     return (
       <div {...detailListRootProps(folderPath, displayFormatId, density)}>
-        <div style={emptyStateStyle}>{message(EXPLORER_MSG.LIST_LOADING)}</div>
+        <div
+          style={emptyStateStyle}
+          role="status"
+          data-testid="detail-list-loading"
+        >
+          {message(EXPLORER_MSG.LIST_LOADING)}
+        </div>
       </div>
     );
   }
   if (!loading && children.length === 0) {
+    // Polite announcement when the loaded folder resolves empty; the
+    // testid pair stays stable for the H2 list-state spec (#7036).
     return (
       <div {...detailListRootProps(folderPath, displayFormatId, density)}>
-        <div style={emptyStateStyle} data-testid="detail-list-empty">
+        <div
+          style={emptyStateStyle}
+          role="status"
+          data-testid="detail-list-empty"
+        >
           {message(EXPLORER_MSG.LIST_EMPTY)}
         </div>
         <div style={emptyHintStyle} data-testid="detail-list-empty-hint">
@@ -1481,7 +1507,7 @@ export function DetailList({
                         data-testid={`detail-incremental-approved-${idKey}`}
                       >
                         {" "}
-                        Approved
+                        {message(EXPLORER_MSG.DETAIL_INCREMENTAL_APPROVED)}
                       </span>
                     ) : null}
                     {c === "name" && shownCommunity ? (
@@ -1593,23 +1619,38 @@ export function DetailList({
         }}
         data-testid="detail-pagination"
       >
-        <button type="button" disabled={page === 0} onClick={goPrev}>
-          ‹ Prev
+        <button
+          type="button"
+          disabled={page === 0}
+          onClick={goPrev}
+          aria-label={message(EXPLORER_MSG.DETAIL_PAGER_PREV)}
+        >
+          {message(EXPLORER_MSG.DETAIL_PAGER_PREV)}
         </button>
         <span>
-          Page {page + 1}
-          {totalPages != null ? ` of ${totalPages}` : ""}
+          {totalPages != null
+            ? message(EXPLORER_MSG.DETAIL_PAGER_PAGE_OF_TOTAL)
+                .replace("{page}", String(page + 1))
+                .replace("{total}", String(totalPages))
+            : message(EXPLORER_MSG.DETAIL_PAGER_PAGE).replace(
+                "{page}",
+                String(page + 1),
+              )}
         </span>
         <button
           type="button"
           disabled={totalPages != null && page + 1 >= totalPages}
           onClick={goNext}
+          aria-label={message(EXPLORER_MSG.DETAIL_PAGER_NEXT)}
         >
-          Next ›
+          {message(EXPLORER_MSG.DETAIL_PAGER_NEXT)}
         </button>
         {totalCount != null && (
           <span style={{ marginLeft: "auto" }}>
-            {totalCount} {totalCount === 1 ? "item" : "items"}
+            {message(EXPLORER_MSG.DETAIL_PAGER_TOTAL).replace(
+              "{count}",
+              String(totalCount),
+            )}
           </span>
         )}
       </div>

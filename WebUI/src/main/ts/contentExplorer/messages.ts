@@ -57,6 +57,13 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@This folder was not found (HTTP 404)",
   LIST_LOAD_ERROR_409:
     "perc.ui.explorer@The item list could not be loaded because of a conflict (HTTP 409)",
+  /**
+   * Error-state folder line (#7036, parent #4530). Names the folder whose
+   * list failed so the alert reads as "this folder failed", not a bare
+   * failure; `{path}` is replaced with the open folder path at the call
+   * site. Rendered under `detail-list-error-folder`.
+   */
+  LIST_LOAD_ERROR_FOLDER: "perc.ui.explorer@Folder: {path}",
   /** Open failure for rows with neither an id nor a path (#6596). */
   OPEN_ITEM_UNAVAILABLE:
     "perc.ui.explorer@This item cannot be opened in the editor",
@@ -77,6 +84,30 @@ export const EXPLORER_MSG = {
   DETAIL_DENSITY_LABEL: "perc.ui.explorer@Row density",
   /** Detail-list export-current-view button (#6079). */
   DETAIL_EXPORT_CSV: "perc.ui.explorer@Export CSV",
+  /**
+   * Incremental-approval row badge (#5056, keyed #7036 parent #4530).
+   * Shown after the server accepts the approve call.
+   */
+  DETAIL_INCREMENTAL_APPROVED: "perc.ui.explorer@Approved",
+  /** Detail-list pager previous-page button (#7036, parent #4530). */
+  DETAIL_PAGER_PREV: "perc.ui.explorer@Previous",
+  /** Detail-list pager next-page button (#7036, parent #4530). */
+  DETAIL_PAGER_NEXT: "perc.ui.explorer@Next",
+  /**
+   * Detail-list pager position without a server total (#7036).
+   * `{page}` is the 1-based visible page.
+   */
+  DETAIL_PAGER_PAGE: "perc.ui.explorer@Page {page}",
+  /**
+   * Detail-list pager position with a server total (#7036). `{page}` is
+   * the 1-based visible page, `{total}` the page count.
+   */
+  DETAIL_PAGER_PAGE_OF_TOTAL: "perc.ui.explorer@Page {page} of {total}",
+  /**
+   * Detail-list pager row count (#7036). `{count}` is the server total
+   * (or the loaded rows when the total is absent).
+   */
+  DETAIL_PAGER_TOTAL: "perc.ui.explorer@{count} item(s)",
   /** Comfortable (default) row-density option (#5883). */
   DETAIL_DENSITY_COMFORTABLE: "perc.ui.explorer@Comfortable",
   /** Compact row-density option (#5883). */

@@ -35,6 +35,8 @@ import {
   nextDetailRowIndex,
 } from "../../../main/ts/contentExplorer/DetailList";
 import type { PSPathItem } from "../../../main/ts/api/contentExplorer/types";
+import { EXPLORER_MSG } from "../../../main/ts/contentExplorer/messages";
+import { message } from "../../../main/ts/i18n/message";
 import { renderA11yGate } from "./a11y";
 import { mockFetch } from "./setup";
 
@@ -313,7 +315,11 @@ describe("DetailList arrow-key navigation", () => {
     expect(screen.getByTestId("detail-row-a-1")).toHaveAttribute("tabindex", "0");
 
     // Next page reloads the list and the tab stop returns to row one.
-    fireEvent.click(screen.getByText("Next ›"));
+    fireEvent.click(
+      screen.getByRole("button", {
+        name: message(EXPLORER_MSG.DETAIL_PAGER_NEXT),
+      }),
+    );
     await waitFor(() => expect(fetchCalls).toBe(2));
     await waitFor(() =>
       expect(screen.getByTestId("detail-row-c-3")).toHaveAttribute("tabindex", "0"),
