@@ -1388,6 +1388,52 @@ describe("actionDispatch", () => {
     expect(result.messageText ?? "").not.toMatch(/Home \(HTTP/);
   });
 
+  it("multi-select Publish Now routes non-Error batch failures through the catalog (#7056)", async () => {
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N =
+      {
+        message: (key: string) =>
+          key === EXPLORER_MSG.BATCH_PUBLISH_FAILED
+            ? "échec de publication (catalogue)"
+            : key,
+      };
+    try {
+      const onPublish = vi.fn(async () => {
+        throw "kaput";
+      });
+      const result = await dispatchAction(action({ name: "Publish_Now" }), {
+        item: item(),
+        selectedItems: [
+          item({ id: "42", name: "Home" }),
+          item({ id: "43", name: "About" }),
+        ],
+        onPublish,
+        confirm: () => true,
+      });
+      expect(result.messageKey).toBe(EXPLORER_MSG.PUBLISH_BATCH_INCOMPLETE);
+      expect(result.messageText ?? "").toContain(
+        "Home (échec de publication (catalogue))",
+      );
+    } finally {
+      delete (window as unknown as Record<string, unknown>).I18N;
+    }
+  });
+
+  it("multi-select Publish Now keeps the non-Error batch default byte-identical (#7056)", async () => {
+    const onPublish = vi.fn(async () => {
+      throw "kaput";
+    });
+    const result = await dispatchAction(action({ name: "Publish_Now" }), {
+      item: item(),
+      selectedItems: [
+        item({ id: "42", name: "Home" }),
+        item({ id: "43", name: "About" }),
+      ],
+      onPublish,
+      confirm: () => true,
+    });
+    expect(result.messageText ?? "").toContain("Home (publish failed)");
+  });
+
   it("multi-select of only folders does not publish", async () => {
     const onPublish = vi.fn();
     const result = await dispatchAction(action({ name: "Publish_Now" }), {
@@ -2388,6 +2434,52 @@ describe("actionDispatch", () => {
     expect(result.messageKey).toBe(EXPLORER_MSG.TAKEDOWN_BATCH_INCOMPLETE);
     expect(result.messageText ?? "").toMatch(/About \(HTTP 403\)/);
     expect(result.messageText ?? "").not.toMatch(/Home \(HTTP/);
+  });
+
+  it("multi-select Take Down routes non-Error batch failures through the catalog (#7056)", async () => {
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N =
+      {
+        message: (key: string) =>
+          key === EXPLORER_MSG.BATCH_TAKEDOWN_FAILED
+            ? "échec du retrait (catalogue)"
+            : key,
+      };
+    try {
+      const onTakedown = vi.fn(async () => {
+        throw "kaput";
+      });
+      const result = await dispatchAction(action({ name: "Take_Down" }), {
+        item: item(),
+        selectedItems: [
+          item({ id: "42", name: "Home" }),
+          item({ id: "43", name: "About" }),
+        ],
+        onTakedown,
+        confirm: () => true,
+      });
+      expect(result.messageKey).toBe(EXPLORER_MSG.TAKEDOWN_BATCH_INCOMPLETE);
+      expect(result.messageText ?? "").toContain(
+        "Home (échec du retrait (catalogue))",
+      );
+    } finally {
+      delete (window as unknown as Record<string, unknown>).I18N;
+    }
+  });
+
+  it("multi-select Take Down keeps the non-Error batch default byte-identical (#7056)", async () => {
+    const onTakedown = vi.fn(async () => {
+      throw "kaput";
+    });
+    const result = await dispatchAction(action({ name: "Take_Down" }), {
+      item: item(),
+      selectedItems: [
+        item({ id: "42", name: "Home" }),
+        item({ id: "43", name: "About" }),
+      ],
+      onTakedown,
+      confirm: () => true,
+    });
+    expect(result.messageText ?? "").toContain("Home (takedown failed)");
   });
 
   it("multi-select of only folders does not take down", async () => {

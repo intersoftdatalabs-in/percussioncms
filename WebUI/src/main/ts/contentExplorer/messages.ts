@@ -1116,6 +1116,19 @@ export const EXPLORER_MSG = {
   BULK_UNSTAGE_NOT_REMOVED: "perc.ui.explorer@Not removed from staging",
   BULK_STAGE_FAILED: "perc.ui.explorer@Stage failed",
   BULK_UNSTAGE_FAILED: "perc.ui.explorer@Remove from staging failed",
+  /**
+   * Publish / takedown / stage / unstage batch-helper failure details —
+   * catalog-routed so session locales apply instead of hardcoded lowercase
+   * English (#7056, parent #4532). en-us defaults are byte-identical to the
+   * previous literals.
+   */
+  BATCH_MISSING_CONTENT_ID: "perc.ui.explorer@missing content id",
+  BATCH_NOT_PUBLISHED: "perc.ui.explorer@not published",
+  BATCH_PUBLISH_FAILED: "perc.ui.explorer@publish failed",
+  BATCH_NOT_TAKEN_DOWN: "perc.ui.explorer@not taken down",
+  BATCH_TAKEDOWN_FAILED: "perc.ui.explorer@takedown failed",
+  BATCH_NOT_STAGED: "perc.ui.explorer@not staged",
+  BATCH_NOT_REMOVED: "perc.ui.explorer@not removed",
   CONFIRM_SCHEDULE:
     "perc.ui.explorer@Save schedule publish dates for this item?",
   CONFIRM_SCHEDULE_MULTI:
