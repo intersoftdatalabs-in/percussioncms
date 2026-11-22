@@ -21,6 +21,17 @@ Do **not** use the local Ollama pool (`models.ollama-dev-coder.toml`): it is
 disabled on the night host because it caused memory contention (operator
 direction 2026-11-22).
 
+After that static gate is clean, run Codex as the LLM reviewer from the same
+checkout (no prompt argument; `--base` forbids one):
+
+```text
+timeout 900 codex review --base origin/main -c model_reasoning_effort=medium
+```
+
+In-diff `[P0]`/`[P1]` findings BLOCK; `[P2]`/`[P3]` are recorded only;
+Codex unavailable is recorded, not a block. Sanitize its stdout too and add
+it under `### Codex review` in the same PR-body section.
+
 Pipe the report through `python3 scripts/sanitize-erlang-review.py` before
 writing it down or pasting it anywhere (raw CLI stdout embeds
 home-directory paths and provider ids — never commit or paste it raw).

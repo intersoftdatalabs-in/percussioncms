@@ -45,6 +45,34 @@ Read the canonical spec at:
    (`models.openrouter-free.toml`) is an opt-in alternative only when its
    provider key is already present; never require it.
 4. Enforce the strict gate from the persona spec.
+4a. **Codex review (after the Erlang static gate, operator direction 2026-11-22).**
+    Only once the `mkd-code-review --machine-only` gate is clean (fix static
+    BLOCKs first; don't spend Codex on a diff that fails them), run the Codex
+    CLI as the LLM reviewer from the same checkout:
+
+    ```bash
+    mkdir -p scratch
+    timeout 900 codex review --base origin/main -c model_reasoning_effort=medium \
+      > scratch/codex-review-<N>.md 2> scratch/codex-review-<N>.log
+    ```
+
+    - `codex review` is read-only. `--base` cannot be combined with a custom
+      prompt argument, so pass none; Codex reads the repo `AGENTS.md`.
+    - Stdout is the final review: prioritized findings (`[P0]`..`[P3]` with
+      file:line) or a "no actionable regressions" summary.
+    - BLOCK on real **in-diff** `[P0]`/`[P1]` findings: fix them, re-run the
+      static gate and Codex. `[P2]`/`[P3]` and preexisting issues are recorded,
+      not blocking (file genuine leftovers as issues per the usual rules).
+    - If Codex is unavailable (not on `PATH`, not logged in, rate-limited, or
+      `timeout` hits), record `Codex review: unavailable (<reason>)` and do not
+      block when the static gate is clean. Never print or read
+      `~/.codex/auth.json` or any token, and never run `codex login`.
+    - Never start or call a local Ollama server for this step.
+    - Pipe the Codex stdout through `python3 scripts/sanitize-erlang-review.py`
+      and append it under a `### Codex review` subsection of the same
+      `## Pre-push local code review` PR-body section and to `docs/ai-generated/code-reviews/pr-<N>-erlang.md`.
+    A Codex BLOCK is a BLOCK verdict (hand the findings to `erlang-fix`
+    like any hard-gate bug); do not approve or merge over it.
 5. **Pre-push local code review:** pipe the FULL CLI markdown through
    `scripts/sanitize-erlang-review.py` FIRST (it redacts home-directory
    paths, the provider key env var name, provider route ids, and stray
