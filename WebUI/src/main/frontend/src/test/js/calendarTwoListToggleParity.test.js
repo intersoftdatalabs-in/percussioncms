@@ -82,6 +82,17 @@ describe("calendarTwo list-view + view-toggle parity (issue #6945)", () => {
     // Affordance: pressed state mirrors the visible layout (initial +
     // both handlers).
     expect(snippet).toContain('role="group"');
+    // The toggle group accessible name is preference-driven (#7030,
+    // residual of #6992): the group renders
+    // $perc_layout_toggle_group_label (HTML-escaped) with a Velocity
+    // fallback guard preserving the English default for pre-existing
+    // widget instances.
+    expect(snippet).toContain(
+      'aria-label="$tools.esc.html($perc_layout_toggle_group_label)"',
+    );
+    expect(snippet).toContain(
+      "#if(!$perc_layout_toggle_group_label)#set($perc_layout_toggle_group_label = 'Calendar layout')#end",
+    );
     expect(snippet).toContain("aria-pressed=\"true\"");
     expect(snippet).toContain("aria-pressed=\"false\"");
     expect(snippet).toContain(".attr('aria-pressed', 'true')");

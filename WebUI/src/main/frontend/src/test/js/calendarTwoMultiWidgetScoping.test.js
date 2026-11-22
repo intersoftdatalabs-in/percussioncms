@@ -152,9 +152,14 @@ describe("calendarTwo multi-widget filter scoping (issue #7034)", () => {
       expect(button).toContain('aria-pressed="true"');
       expect(button).toContain("data-calendar-source=");
     }
-    // The filter bar stays a labelled group.
+    // The filter bar stays a labelled group. The accessible name is
+    // preference-driven (#7030): the group renders
+    // $perc_source_filter_group_label (HTML-escaped) with a Velocity
+    // fallback guard preserving the English default.
     expect(snippet).toContain('class="perc-button-container" role="group"');
-    expect(snippet).toContain('aria-label="Calendar sources"');
+    expect(snippet).toContain(
+      'aria-label="$tools.esc.html($perc_source_filter_group_label)"',
+    );
     // Global toggle: caller-supplied button wins (per-instance pressed
     // sync), otherwise the scoped-id fallback resolves this widget's
     // own button; the sweep skips the BUTTON controls so focus is never

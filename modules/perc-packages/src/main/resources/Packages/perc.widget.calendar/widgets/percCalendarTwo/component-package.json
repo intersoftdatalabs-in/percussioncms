@@ -111,6 +111,14 @@
           "expression": "$widgetProps.get(\"perc_list_empty_text\")"
         },
         {
+          "variable": "perc_source_filter_group_label",
+          "expression": "$widgetProps.get(\"perc_source_filter_group_label\")"
+        },
+        {
+          "variable": "perc_layout_toggle_group_label",
+          "expression": "$widgetProps.get(\"perc_layout_toggle_group_label\")"
+        },
+        {
           "variable": "eventDateFormat",
           "expression": "$widgetProps.get(\"eventDateFormat\")"
         },
@@ -224,7 +232,7 @@
         },
         {
           "variable": "__widgetCode",
-          "expression": "##Widget properties\n      $widgetProps = $perc.widget.item.properties;\n      $perc_layout_type = $widgetProps.get(\"perc_layout_type\");\n      $perc_max_results = $widgetProps.get(\"perc_max_results\");\n      $perc_enable_calendar_icon = $widgetProps.get(\"enableCalenderIcon\");\n      $perc_show_event_date = $widgetProps.get(\"showEventDate\");\n      $perc_show_event_time = $widgetProps.get(\"showEventTime\");\n      $perc_calendar_view = $widgetProps.get(\"perc_calendar_view\");\n      $perc_calendar_type = $widgetProps.get(\"perc_calendar_type\");\n      $perc_calendar_detail = $widgetProps.get(\"perc_calendar_detail\");\n      $perc_show_page_summary = $widgetProps.get(\"perc_show_page_summary\");\n      $perc_calendar_display_language = $widgetProps.get(\"perc_calendar_display_language\");\n      $perc_start_day_number = $widgetProps.get(\"perc_start_day\").replace(\"Day_\",\"\");\n      $perc_show_perc_events_button = $widgetProps.get(\"perc_show_perc_events_button\");\n      $perc_event_button_label = $widgetProps.get(\"perc_event_button_label\");\n      $perc_list_loading_text = $widgetProps.get(\"perc_list_loading_text\");\n      $perc_list_empty_text = $widgetProps.get(\"perc_list_empty_text\");\n      $eventDateFormat = $widgetProps.get(\"eventDateFormat\");\n      $eventTimeFormat = $widgetProps.get(\"eventTimeFormat\");\n      $perc_event_title_tag_type = $widgetProps.get(\"perc_event_title_tag_type\");\n      $perc_enable_view_toggle_buttons = $widgetProps.get(\"perc_enable_view_toggle_buttons\");\n\n\n      $perc_time_format = $widgetProps.get(\"perc_time_format\");\n      if($perc_time_format == \"ampm\")\n          $perc_time_format = \"hh:mmt\";\n      else\n          $perc_time_format = \"HH:mm\";\n\n      $pagesInCal = \"[]\";\n      $calTitle = \"\";\n      $calStartDate = \"\";\n      $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n      $id = \"\";\n      $perc.setWidgetContents($assetItems);\n      if ( ! $assetItems.isEmpty() ) {\n          $assetItem = $assetItems.get(0);\n          $id = $assetItem.id;\n          $widgetId = $perc.widget.item.id;\n          $calTitle = $assetItem.getNode().getProperty(\"calendar_title\").String;\n          $calName = $assetItem.getNode().getProperty(\"sys_title\").String;\n          $fullCalendarPage = $assetItem.getNode().getProperty(\"full_calendar_page\").String;\n          $calStartDate = $assetItem.getNode().getProperty(\"calendar_start_date\").String;\n          $pagesInCal = $rx.pageutils.getPagesForCalendar($calName).toString();\n          $data = $assetItem.Node.getProperty('rx:googleSetupData').getString();\n          $json = $rx.pageutils.createJsonObject($data);\n          $googleCalendarArray = $json.getJSONArray(\"config\");\n          $calendarContentId = $assetItem.Node.getProperty('rx:sys_contentid').getString();\n      }\n\n      $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n\n      if(empty($rootclass)){\n          $rootclass = \"\";\n      }\n\n      $dsUrl = $rx.pageutils.getDeliveryServer();\n\n      $dynamicListData = $tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\");"
+          "expression": "##Widget properties\n      $widgetProps = $perc.widget.item.properties;\n      $perc_layout_type = $widgetProps.get(\"perc_layout_type\");\n      $perc_max_results = $widgetProps.get(\"perc_max_results\");\n      $perc_enable_calendar_icon = $widgetProps.get(\"enableCalenderIcon\");\n      $perc_show_event_date = $widgetProps.get(\"showEventDate\");\n      $perc_show_event_time = $widgetProps.get(\"showEventTime\");\n      $perc_calendar_view = $widgetProps.get(\"perc_calendar_view\");\n      $perc_calendar_type = $widgetProps.get(\"perc_calendar_type\");\n      $perc_calendar_detail = $widgetProps.get(\"perc_calendar_detail\");\n      $perc_show_page_summary = $widgetProps.get(\"perc_show_page_summary\");\n      $perc_calendar_display_language = $widgetProps.get(\"perc_calendar_display_language\");\n      $perc_start_day_number = $widgetProps.get(\"perc_start_day\").replace(\"Day_\",\"\");\n      $perc_show_perc_events_button = $widgetProps.get(\"perc_show_perc_events_button\");\n      $perc_event_button_label = $widgetProps.get(\"perc_event_button_label\");\n      $perc_list_loading_text = $widgetProps.get(\"perc_list_loading_text\");\n      $perc_list_empty_text = $widgetProps.get(\"perc_list_empty_text\");\n      $perc_source_filter_group_label = $widgetProps.get(\"perc_source_filter_group_label\");\n      $perc_layout_toggle_group_label = $widgetProps.get(\"perc_layout_toggle_group_label\");\n      $eventDateFormat = $widgetProps.get(\"eventDateFormat\");\n      $eventTimeFormat = $widgetProps.get(\"eventTimeFormat\");\n      $perc_event_title_tag_type = $widgetProps.get(\"perc_event_title_tag_type\");\n      $perc_enable_view_toggle_buttons = $widgetProps.get(\"perc_enable_view_toggle_buttons\");\n\n\n      $perc_time_format = $widgetProps.get(\"perc_time_format\");\n      if($perc_time_format == \"ampm\")\n          $perc_time_format = \"hh:mmt\";\n      else\n          $perc_time_format = \"HH:mm\";\n\n      $pagesInCal = \"[]\";\n      $calTitle = \"\";\n      $calStartDate = \"\";\n      $assetItems = $rx.pageutils.widgetContents($sys.assemblyItem, $perc.widget, null, null);\n      $id = \"\";\n      $perc.setWidgetContents($assetItems);\n      if ( ! $assetItems.isEmpty() ) {\n          $assetItem = $assetItems.get(0);\n          $id = $assetItem.id;\n          $widgetId = $perc.widget.item.id;\n          $calTitle = $assetItem.getNode().getProperty(\"calendar_title\").String;\n          $calName = $assetItem.getNode().getProperty(\"sys_title\").String;\n          $fullCalendarPage = $assetItem.getNode().getProperty(\"full_calendar_page\").String;\n          $calStartDate = $assetItem.getNode().getProperty(\"calendar_start_date\").String;\n          $pagesInCal = $rx.pageutils.getPagesForCalendar($calName).toString();\n          $data = $assetItem.Node.getProperty('rx:googleSetupData').getString();\n          $json = $rx.pageutils.createJsonObject($data);\n          $googleCalendarArray = $json.getJSONArray(\"config\");\n          $calendarContentId = $assetItem.Node.getProperty('rx:sys_contentid').getString();\n      }\n\n      $rootclass = $perc.widget.item.cssProperties.get('rootclass');\n\n      if(empty($rootclass)){\n          $rootclass = \"\";\n      }\n\n      $dsUrl = $rx.pageutils.getDeliveryServer();\n\n      $dynamicListData = $tools.esc.html(\"{ deliveryurl : '\" + $dsUrl + \"'}\");"
         }
       ]
     }
@@ -724,6 +732,22 @@
       "datatype": "string",
       "required": false,
       "defaultValue": "No upcoming events.",
+      "enumValues": []
+    },
+    {
+      "name": "perc_source_filter_group_label",
+      "displayName": "Source filter group label",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "Calendar sources",
+      "enumValues": []
+    },
+    {
+      "name": "perc_layout_toggle_group_label",
+      "displayName": "Layout toggle group label",
+      "datatype": "string",
+      "required": false,
+      "defaultValue": "Calendar layout",
       "enumValues": []
     }
   ],
