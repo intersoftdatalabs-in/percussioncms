@@ -26139,6 +26139,20 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.explorer@Could not clear scheduled dates.">
       <tuv xml:lang="en-us"><seg>Could not clear scheduled dates.</seg></tuv>
     </tu>
+    <!-- #7032: Explorer Schedule / Clear-scheduled-dates native-confirm strings (parent #7032).
+         The multi-schedule Playwright spec asserted /every selected page and asset/i while the
+         product confirm reads "every selected item" — the spec was realigned by #7026, and these
+         en-us-only TUs register the confirm copy in the catalog so non-English sessions resolve
+         it instead of silent English fallback. -->
+    <tu tuid="perc.ui.explorer@Save schedule publish dates for this item?">
+      <tuv xml:lang="en-us"><seg>Save schedule publish dates for this item?</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Save the same schedule publish dates for every selected item? Folders are skipped.">
+      <tuv xml:lang="en-us"><seg>Save the same schedule publish dates for every selected item? Folders are skipped.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Clear start and end publish dates on {count} selected items? Folders in the selection are not cleared.">
+      <tuv xml:lang="en-us"><seg>Clear start and end publish dates on {count} selected items? Folders in the selection are not cleared.</seg></tuv>
+    </tu>
     <!-- #6997: Explorer Bulk Stage / Remove-from-Staging dialog chrome (parent #4530). en-us only. -->
     <tu tuid="perc.ui.explorer@Stage selected items">
       <tuv xml:lang="en-us"><seg>Stage selected items</seg></tuv>
