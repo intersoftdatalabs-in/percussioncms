@@ -1,0 +1,10 @@
+shared.bindings:
+$sys.title = $sys.item.getProperty("rx:title")
+$sys.body = $sys.item.getProperty("rx:body")
+shared.regions:
+perc-content
+shared.outputFormat: Page
+variants:
+- promo.page residualBindings=1 residualRegions=1
+- promo.snippet residualBindings=2 residualRegions=1
+- promo.shared residualBindings=0 residualRegions=0
