@@ -71,7 +71,11 @@ region announces updates via `aria-live="polite"`.
 
 While the list fetch is in flight the list shows a **Loading events…**
 row; when no event survives the today-or-later filter the list shows an
-explicit **No upcoming events.** row instead of a blank region.
+explicit **No upcoming events.** row instead of a blank region. Both
+strings are widget preferences — **List loading text** and **List empty
+text** (English defaults as above) — so a non-English widget can
+localize the `aria-live="polite"` list region instead of announcing
+English; existing widgets keep the English output unchanged.
 
 ## Google Calendar feeds (keep decision, #6945)
 

@@ -70,8 +70,13 @@
  *       (unchanged by slice 2); what slice 2 owns — and what is pinned
  *       here — is the highlight hook plus the link-URL contract.</li>
  *   <li>Keyboard operation of the source-filter buttons (issue #6992)
- *       and list-string i18n (issue #6993) are owned residuals and are
- *       intentionally <b>not</b> asserted here.</li>
+ *       is an owned residual and is intentionally <b>not</b> asserted
+ *       here (see
+ *       {@code calendar-two-source-filter-keyboard.spec.js}).</li>
+ *   <li>List-string i18n (issue #6993) keeps its English defaults here
+ *       so this parity lock stays byte-stable; the preference override
+ *       path is locked separately by
+ *       {@code calendar-two-list-strings-i18n.spec.js}.</li>
  * </ul>
  *
  * <p>Run:
