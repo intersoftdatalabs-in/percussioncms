@@ -682,6 +682,18 @@ public final class PSItemDefinition extends PSItemDefSummary implements IPSCompo
   }
 
   /**
+   * Set whether this content editor is hidden from lists showing content editors (hide from
+   * menu). The flag round-trips through {@link #toXml} ({@code isHidden} attribute) and is
+   * applied to the design node definition on save, so REST {@code PUT
+   * .../contenttypes/{idOrName}/hideFromMenu} can persist it via IPSContentDesignWs.
+   *
+   * @param hidden <code>true</code> to hide from menus, <code>false</code> to show.
+   */
+  public void setHidden(boolean hidden) {
+    m_isHidden = hidden;
+  }
+
+  /**
    * Determine if the supplied field name references a complex child.
    *
    * @param fieldSetName The field name, may not be <code>null</code> or empty.

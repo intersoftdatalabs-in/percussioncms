@@ -1373,6 +1373,51 @@ public class ContentTypesResource {
     }
   }
 
+  @PUT
+  @Path("/{idOrName}/hideFromMenu")
+  @Consumes({MediaType.APPLICATION_JSON})
+  @Produces({MediaType.APPLICATION_JSON})
+  @Operation(
+      summary = "Hide a content type from menus or show it again",
+      description =
+          "CD-01 meta write: sets the content type hide-from-menu flag for runtime menus."
+              + " Admin only. Requires a design-session lock already held by the current user"
+              + " (POST .../lock). Does not acquire or release the lock. GET .../{idOrName}"
+              + " reflects hideFromMenu after a successful PUT. Jackson root wrap is"
+              + " ContentTypeHideFromMenu.",
+      responses = {
+        @ApiResponse(
+            responseCode = "200",
+            description = "Updated (lock is still held)",
+            content = @Content(schema = @Schema(implementation = ContentTypeDetail.class))),
+        @ApiResponse(responseCode = "400", description = "hideFromMenu is required"),
+        @ApiResponse(responseCode = "403", description = "Admin role required"),
+        @ApiResponse(responseCode = "404", description = "Content type not found"),
+        @ApiResponse(
+            responseCode = "409",
+            description = "Design lock required, or locked by another user"),
+        @ApiResponse(responseCode = "500", description = "Error")
+      })
+  public ContentTypeDetail setContentTypeHideFromMenu(
+      @PathParam("idOrName") String idOrName, ContentTypeHideFromMenu body) {
+    if (body == null || body.getHideFromMenu() == null) {
+      throw new WebApplicationException("hideFromMenu is required", 400);
+    }
+    try {
+      ContentTypeDetail detail =
+          requireAdaptor()
+              .setContentTypeHideFromMenu(uriInfo.getBaseUri(), idOrName, body.getHideFromMenu());
+      if (detail == null) {
+        throw new WebApplicationException("Content type not found: " + idOrName, 404);
+      }
+      return detail;
+    } catch (RuntimeException e) {
+      throw mapEnabledFailure(e);
+    } catch (Exception e) {
+      throw new WebApplicationException(e, 500);
+    }
+  }
+
   @GET
   @Path("/{idOrName}/searchIndexing")
   @Produces({MediaType.APPLICATION_JSON})

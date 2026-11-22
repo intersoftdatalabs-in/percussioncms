@@ -13,6 +13,7 @@
 | Public REST detail (**new P0.2**) | Read-only field catalog + meta      | `GET /services/contenttypes/{idOrName}`        |
 | Public REST lock/unlock           | Self-only design-session lock       | `POST /services/contenttypes/{idOrName}/lock` / `.../unlock` |
 | Public REST PUT save              | Held-lock save (label/description/…) | `PUT /services/contenttypes/{idOrName}`        |
+| Public REST hide-from-menu write  | CD-01 meta write (Admin, held lock) | `PUT /services/contenttypes/{idOrName}/hideFromMenu` |
 | Public REST icon strategy (CD-11) | GET/PUT none\|specified\|fromFileField | `GET/PUT /services/contenttypes/{idOrName}/icon` |
 | Public REST POST create           | Persist new type (Workbench Finish) | `POST /services/contenttypes`                  |
 | Public REST shared-field list     | CD-15 catalog (Admin only)          | `GET /services/sharedfields`                   |
@@ -86,7 +87,7 @@ with a held design lock released on save). Empty list clears. Admin 403; unknown
 | Item-level pre/post exits & validations              | CD-09        | Properties tab                                    |
 | Edit workflow/template associations                  | CD-08, CD-12 | **CD-08 REST PUT .../allowedWorkflows** (#3763, held design lock); **CD-12 REST PUT .../allowedTemplates** (#3775, held design lock; full replace, empty list clears) |
 | Enable/disable search indexing at type level         | CD-10        | **REST `GET`/`PUT /contenttypes/{id}/searchIndexing`** (#3996, root field-set `isUserSearchable`; held design lock on PUT; 409 without). Default on. Distinct from per-field `searchable`. SPA Properties checkbox still open |
-| Enable/disable as design action                      | CD-13        | **REST `PUT /contenttypes/{id}/enabled`** (#3773, held design lock; 409 without) |
+| Enable/disable as design action                      | CD-13        | **REST `PUT /contenttypes/{id}/enabled`** (#3773, held design lock; 409 without). **Hide-from-menu `PUT /contenttypes/{id}/hideFromMenu`** (#6935, held design lock; also accepted on bulk PUT detail; SPA toolbar checkbox) |
 | Content type **icon strategy**                       | CD-11        | **REST `GET/PUT /contenttypes/{id}/icon`** (#3997, held design lock for PUT; `none` clears value; blank non-none value 400; no binary upload; SPA picker still Workbench) |
 | Shared field file **write**                          | CD-15        | **Group create/save/delete shipped** (`POST /services/sharedfields`, `PUT …/{idOrName}`, `DELETE …/{idOrName}`, #3944). **Field create/delete shipped** (`POST …/fields`, `DELETE …/fields/{fieldName}`, persistable `PSField` + display mapping, Admin 403, lock 409, #3954). **Control/choice write shipped** (`GET`/`PUT …/fields/{fieldName}/controlProperties`, empty `properties` clears, omitted `choices` unchanged, request lock released on save, #3984). SPA editor still open |
 | System def **write** (existing field properties)     | CD-16        | **PUT `/services/systemdef` shipped** (#3958, Admin 403, lock 409). **Field create/delete shipped** (`POST /services/systemdef/fields`, `DELETE …/fields/{fieldName}`, persistable `PSField` + display mapping, Admin 403, lock 409, #3964). Control/stylesheet/flow and SPA editor still SOAP |

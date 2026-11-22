@@ -314,6 +314,11 @@ export type ContentTypeUpdateBody = {
   label?: string;
   description?: string;
   enabled?: boolean;
+  /**
+   * Accepted on bulk PUT (omit to leave unchanged). Prefer
+   * {@link setContentTypeHideFromMenu} (CD-01 meta write).
+   */
+  hideFromMenu?: boolean;
   fields?: Pick<
     ContentTypeFieldSummary,
     "name" | "fieldSet" | "searchable" | "required" | "occurrence" | "label" | "sequence"
@@ -556,6 +561,8 @@ export function wrapContentTypeDetailForWire(
  * unlocked or locked by another user.
  *
  * <p>Do not send {@code enabled} here — use {@link setContentTypeEnabled} (CD-13).
+ * Do not send {@code hideFromMenu} here — use {@link setContentTypeHideFromMenu}
+ * (CD-01 meta write).
  * Do not send type-level search indexing here — use
  * {@link setContentTypeSearchIndexing} (CD-10).
  * Do not send {@code allowedWorkflows} here — use
@@ -606,6 +613,40 @@ export async function setContentTypeEnabled(
   const payload = await put<unknown>(
     `${PATHS.CONTENT_TYPES}/${key}/enabled`,
     wrapContentTypeEnabledForWire(enabled),
+  );
+  return unwrapContentTypeDetail(payload);
+}
+
+/** Jackson {@code WRAP_ROOT_VALUE} root for {@code ContentTypeHideFromMenu}. */
+export const CONTENT_TYPE_HIDE_FROM_MENU_ROOT = "ContentTypeHideFromMenu";
+
+/**
+ * Build the wire JSON body for {@code PUT .../hideFromMenu} under
+ * {@link CONTENT_TYPE_HIDE_FROM_MENU_ROOT}. A flat {@code { hideFromMenu }}
+ * body fails server UNWRAP_ROOT_VALUE.
+ */
+export function wrapContentTypeHideFromMenuForWire(
+  hideFromMenu: boolean,
+): Record<string, { hideFromMenu: boolean }> {
+  return { [CONTENT_TYPE_HIDE_FROM_MENU_ROOT]: { hideFromMenu } };
+}
+
+/**
+ * PUT /services/contenttypes/{idOrName}/hideFromMenu — CD-01 meta write.
+ *
+ * <p>Requires a design-session lock already held by the current user
+ * ({@link lockContentType}). Does not acquire or release the lock. HTTP 409
+ * when unlocked or locked by another user. Response is {@code ContentTypeDetail}
+ * with the new {@code hideFromMenu} value (lock still held).
+ */
+export async function setContentTypeHideFromMenu(
+  idOrName: string,
+  hideFromMenu: boolean,
+): Promise<ContentTypeDetail> {
+  const key = encodeURIComponent(idOrName);
+  const payload = await put<unknown>(
+    `${PATHS.CONTENT_TYPES}/${key}/hideFromMenu`,
+    wrapContentTypeHideFromMenuForWire(hideFromMenu),
   );
   return unwrapContentTypeDetail(payload);
 }

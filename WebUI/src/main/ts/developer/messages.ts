@@ -213,6 +213,7 @@ export const DEV_MSG_KEYS = {
   CT_FORM_LABEL: "perc.ui.developer@Label",
   CT_FORM_DESCRIPTION: "perc.ui.developer@Description",
   CT_FORM_ENABLED: "perc.ui.developer@Enabled",
+  CT_FORM_HIDE_FROM_MENU: "perc.ui.developer@Hide from menu",
   CT_FORM_SEARCH_INDEXING: "perc.ui.developer@Search indexing",
   CT_SI_LOAD_ERROR: "perc.ui.developer@Could not load search indexing. Default is on.",
   CT_SI_SAVE_ERROR: "perc.ui.developer@Could not save search indexing.",

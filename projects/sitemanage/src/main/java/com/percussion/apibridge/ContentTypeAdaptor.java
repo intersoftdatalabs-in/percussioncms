@@ -797,7 +797,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
         DesignGap.of(
             "CT_CREATE_DELETE",
             "Create via POST /contenttypes. Rename via PUT /contenttypes/{idOrName}/name"
-                + " (held lock). DELETE /contenttypes/{idOrName} requires a held"
+                + " (held lock). Hide from menu via PUT /contenttypes/{idOrName}/hideFromMenu"
+                + " (held lock; also accepted on bulk PUT detail). DELETE"
+                + " /contenttypes/{idOrName} requires a held"
                 + " design lock. PUT save requires a held design lock for"
                 + " label/description/enabled, field searchable/occurrence, workflows (+ default),"
                 + " and templates"));
@@ -1093,6 +1095,69 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     } catch (Exception e) {
       log.error("Failed to enable/disable content type {}: {}", idOrName, e.getMessage(), e);
       throw new IllegalStateException("Failed to enable/disable content type", e);
+    }
+  }
+
+  @Override
+  public ContentTypeDetail setContentTypeHideFromMenu(
+      URI baseUri, String idOrName, boolean hideFromMenu) {
+    requireAdmin();
+    requireSessionUserForLock();
+    if (StringUtils.isBlank(idOrName)) {
+      throw new IllegalArgumentException("idOrName is required");
+    }
+    String trimmed = idOrName.trim();
+    if (trimmed.contains("*")) {
+      throw new IllegalArgumentException("idOrName must not contain wildcards");
+    }
+    String session = currentSession();
+    String user = currentUser();
+    try {
+      PSItemDefinition current = resolveItemDef(trimmed, true);
+      if (current == null) {
+        return null;
+      }
+      IPSGuid ctGuid = new PSGuid(PSTypeEnum.NODEDEF, current.getTypeId());
+      requireHeldLock(ctGuid);
+      List<PSItemDefinition> locked;
+      try {
+        locked =
+            designSvc.loadContentTypes(
+                Collections.singletonList(ctGuid), true, false, session, user);
+      } catch (PSErrorResultsException e) {
+        throw lockConflict(e, "Could not hide/show content type in menus");
+      }
+      if (locked == null || locked.isEmpty() || locked.get(0) == null) {
+        return null;
+      }
+      PSItemDefinition def = locked.get(0);
+      def.setHidden(hideFromMenu);
+      try {
+        designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
+      } catch (PSErrorsException e) {
+        if (hasLockError(e.getErrors())) {
+          throw lockConflict(e, "Could not hide/show content type in menus");
+        }
+        log.error(
+            "Failed to save content type hide-from-menu flag {}: {}", idOrName, e.getMessage(), e);
+        throw new IllegalStateException("Failed to save content type hide-from-menu flag", e);
+      }
+      PSItemDefinition reloaded = reloadItemDef(trimmed);
+      if (reloaded != null && reloaded != def) {
+        reloaded.setHidden(hideFromMenu);
+        return toDetail(reloaded);
+      }
+      return toDetail(def);
+    } catch (ContentTypeDesignLockException
+        | IllegalArgumentException
+        | WebApplicationException e) {
+      throw e;
+    } catch (PSInvalidContentTypeException e) {
+      log.debug("Content type not found for hide-from-menu: {}", idOrName);
+      return null;
+    } catch (Exception e) {
+      log.error("Failed to hide/show content type in menus {}: {}", idOrName, e.getMessage(), e);
+      throw new IllegalStateException("Failed to hide/show content type in menus", e);
     }
   }
 
@@ -2532,6 +2597,9 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
     }
     if (body.getEnabled() != null) {
       def.setEnabled(body.getEnabled());
+    }
+    if (body.getHideFromMenu() != null) {
+      def.setHidden(body.getHideFromMenu());
     }
   }
 

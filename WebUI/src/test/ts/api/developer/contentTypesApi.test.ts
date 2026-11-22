@@ -29,6 +29,7 @@ import {
   getContentTypeSearchIndexing,
   setContentTypeAllowedWorkflows,
   setContentTypeEnabled,
+  setContentTypeHideFromMenu,
   setContentTypeSearchIndexing,
   setContentTypeIcon,
   getContentTypeIcon,
@@ -49,6 +50,7 @@ import {
   wrapContentTypeDetailForWire,
   wrapContentTypeFieldForWire,
   wrapContentTypeEnabledForWire,
+  wrapContentTypeHideFromMenuForWire,
   wrapContentTypeSearchIndexingForWire,
   wrapContentTypeNameForWire,
   wrapContentTypeWorkflowsForWire,
@@ -479,6 +481,65 @@ describe("setContentTypeEnabled CD-13 dedicated PUT (#3781)", () => {
     await setContentTypeEnabled("perc Page", true);
     expect(String(fetchMock.mock.calls[0][0])).toContain(
       `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/enabled`,
+    );
+  });
+});
+
+describe("setContentTypeHideFromMenu CD-01 meta write (#6935)", () => {
+  const fetchMock = vi.fn();
+
+  beforeEach(() => {
+    fetchMock.mockReset();
+    vi.stubGlobal("fetch", fetchMock);
+  });
+
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  function jsonResponse(body: unknown, status = 200): Response {
+    return new Response(JSON.stringify(body), {
+      status,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  it("wraps hideFromMenu under ContentTypeHideFromMenu", () => {
+    expect(wrapContentTypeHideFromMenuForWire(false)).toEqual({
+      ContentTypeHideFromMenu: { hideFromMenu: false },
+    });
+    expect(wrapContentTypeHideFromMenuForWire(true)).toEqual({
+      ContentTypeHideFromMenu: { hideFromMenu: true },
+    });
+  });
+
+  it("PUTs /contenttypes/{id}/hideFromMenu without lock or unlock", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({
+        ContentTypeDetail: { name: "percPage", hideFromMenu: true },
+      }),
+    );
+
+    const saved = await setContentTypeHideFromMenu("percPage", true);
+    expect(saved.hideFromMenu).toBe(true);
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    const init = fetchMock.mock.calls[0][1] as RequestInit;
+    expect(init.method).toBe("PUT");
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/percPage/hideFromMenu`,
+    );
+    expect(JSON.parse(String(init.body))).toEqual({
+      ContentTypeHideFromMenu: { hideFromMenu: true },
+    });
+  });
+
+  it("encodes idOrName on the hideFromMenu path", async () => {
+    fetchMock.mockResolvedValueOnce(
+      jsonResponse({ ContentTypeDetail: { name: "perc Page", hideFromMenu: false } }),
+    );
+    await setContentTypeHideFromMenu("perc Page", false);
+    expect(String(fetchMock.mock.calls[0][0])).toContain(
+      `${PATHS.CONTENT_TYPES}/${encodeURIComponent("perc Page")}/hideFromMenu`,
     );
   });
 });
