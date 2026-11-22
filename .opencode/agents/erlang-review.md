@@ -27,21 +27,20 @@ Read the canonical spec at:
    ```bash
    mkd-code-review analyze --pack percussion --format markdown --gate advisory \
      --git-base origin/main \
-     --models <models-dir>/models.ollama-dev-coder.toml
+     --machine-only
    ```
 
-   Resolve `<models-dir>` from your local mkd-code-review install (the
-   directory holding `models.ollama-dev-coder.toml`). Never record the
-   absolute filesystem path.
+   **No Ollama (HARD, operator direction 2026-11-22):** never pass
+   `--models <...>/models.ollama-dev-coder.toml` and never start or call a
+   local Ollama server — it is disabled on the night host because it caused
+   memory contention. Do not pass `--require-llm`; never print any provider
+   key or name its env var, and never add paid fallbacks.
 
-   Expect the Erlang persona, Scope Base/Head set, and the local Ollama
-   route (no `--require-llm`; never print any provider key or name its env
-   var, and never add paid fallbacks). BLOCK on real **in-diff** bugs only;
-   preexisting rows do not BLOCK. An unavailable LLM stage (`llm.error` or
-   an LLM warning, e.g. Ollama down) is recorded in the report and disclosed
-   in the PR body — it is not a merge block when in-diff machine findings
-   are 0 (host decides; a machine-only result short-circuits as clean under
-   the same condition). Deterministic hard-gate failures may still skip
+   Expect the Erlang persona and Scope Base/Head set. BLOCK on real
+   **in-diff** bugs only; preexisting rows do not BLOCK. The skipped LLM
+   stage is noted in the report and disclosed in the PR body — it is not a
+   merge block when in-diff machine findings are 0 (host decides; a
+   machine-only result short-circuits as clean under the same condition). Deterministic hard-gate failures may still skip
    inference and must be fixed before retry. OpenRouter
    (`models.openrouter-free.toml`) is an opt-in alternative only when its
    provider key is already present; never require it.
