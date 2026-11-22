@@ -63,6 +63,9 @@ From `scratch/preflight.json` `peer_pr_eligible`, take up to
 **Hard exclusions** (skip immediately):
 
 - CONFLICTING / DIRTY (`mergeable: false`). Leave for `pr-follow-up`.
+- A PR labeled `blocked`, or whose `Fixes #N` issue is labeled `blocked`, or one with an open human
+  CHANGES_REQUESTED review and no new commits since it. Waiting on a human;
+  do not re-review.
 - Own-model-only: this session's `model:<id>` and **no** other `model:*`
   and **no** other `operator:*` (Grok / kilo / etc.). Agent must not
   approve itself.

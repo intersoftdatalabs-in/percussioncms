@@ -63,6 +63,11 @@ where ANY of:
 - `mergeable: false` (CONFLICTING or DIRTY)
 - `unresolved_thread_count > 0` (human or AI equal)
 
+**Never queue a PR labeled `blocked`, or whose `Fixes #N` issue is labeled `blocked`** (HARD, operator direction 2026-11-22): it is
+waiting on a human decision, so no rebase, merge-from-main, or deferral
+reply on its threads. Re-posting "deferring" every cycle is noise
+(observed: #6835 got 8 identical deferral replies in 2 days).
+
 **Failing / pending CI alone is NOT a queue reason.** Per rhai
 "PR follow-up: conflicts + review threads only (no CI polling)".
 

@@ -62,6 +62,7 @@ any is false, return `status: skipped` with a `reason` field. The
 | **B1 — touched modules** | Every Maven module whose sources, tests, resources, or `pom.xml` were touched by any absorbed PR or by conflict-resolution edits: standalone `mvnw clean install` from the module dir (testCompile + module tests). **No** `-DskipTests`, compile-only, or single-class `-Dtest`. |
 | **B2 — API shape** | If the union changes `final`/`sealed` or public/protected (or package-visible cross-module) signatures: Work C2 reverse-dep greps + clean install. |
 | **B3 — evidence** | Structured result + cluster PR body must include `modules_built` and `build_evidence` (exact commands + `BUILD SUCCESS` + `Tests run: N`). Docs-only unions use `modules_built=none`. |
+| **B4 — not blocked** | Never absorb a PR labeled `blocked`, or whose `Fixes #N` issue is labeled `blocked`. |
 | **Host fail-close** | If the agent returns `cluster_opened` without `modules_built` and `BUILD SUCCESS` in `build_evidence`, the host rewrites status to `failed / blocked=missing_build_evidence`. |
 
 ## Steps

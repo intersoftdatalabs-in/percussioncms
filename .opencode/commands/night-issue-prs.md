@@ -189,7 +189,10 @@ gets the `blocked` label plus one comment naming the gate and who clears it
 (`gh issue edit <N> --add-label blocked`), in the same step that releases its
 claim as `gated`. decision-front skips `blocked` issues (`blocked_label`), so
 they are never re-queued or re-checked; only a human removing the label
-returns them to the pool. Never remove `blocked` yourself. Agent-actionable
+returns them to the pool. Never remove `blocked` yourself. The same label
+on a PR (or on the issue it fixes) keeps that PR out of PR follow-up, peer
+review, host Erlang leftover review, and clustering: no rebases,
+merge-from-main, re-reviews, or deferral replies until a human removes it. Agent-actionable
 blockers still go through `blocker_proposals` instead of the label.
 
 ## Queue claims (HARD — 2.2.13-draft, 2026-11-20)
