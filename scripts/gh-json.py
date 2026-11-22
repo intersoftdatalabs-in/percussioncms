@@ -39,6 +39,8 @@ Prefer ``--jq`` for shaping output instead of piping through Python.
 """
 from __future__ import annotations
 
+import os
+import shutil
 import subprocess
 import sys
 
@@ -46,6 +48,47 @@ USAGE = (
     "usage: python3 scripts/gh-json.py <gh args...>\n"
     "example: python3 scripts/gh-json.py issue view 123 --json number,title\n"
 )
+
+
+def resolve_gh() -> str | None:
+    """Resolve the ``gh`` executable honoring Windows ``PATHEXT``.
+
+    ``subprocess.run(["gh", ...], shell=False)`` on Windows relies on
+    ``CreateProcess`` search, which appends ``.exe`` only — a ``gh.cmd``
+    shim earlier on ``PATH`` (e.g. the regression-test fake, or a real
+    ``.cmd``-shim install) is silently skipped in favour of a ``gh.exe``
+    later on ``PATH``. ``shutil.which`` honors the full ``PATHEXT``
+    (``.COM;.EXE;.BAT;.CMD;...``), so resolve explicitly and exec the
+    absolute path. On POSIX this finds the same binary ``execvp`` would.
+
+    The explicit ``nt`` scan below is belt-and-braces for runtimes whose
+    ``which`` does not apply ``PATHEXT``; it also makes the Windows lookup
+    unit-testable on any host by simulating ``nt`` (see
+    ``test_resolve_gh_honors_pathext_cmd_shim``).
+
+    Returns ``None`` when ``gh`` is not on ``PATH``.
+    """
+    exe = shutil.which("gh")
+    if exe is not None:
+        return exe
+    if os.name != "nt":
+        return None
+    pathext = os.environ.get("PATHEXT", ".COM;.EXE;.BAT;.CMD").split(";")
+    exts = [e if e.startswith(".") else f".{e}" for e in pathext if e]
+    for directory in os.environ.get("PATH", "").split(os.pathsep):
+        if not directory:
+            continue
+        try:
+            entries = {name.lower(): name for name in os.listdir(directory)}
+        except OSError:
+            continue
+        for ext in ("", *exts):
+            # Lowercase compare: Windows filesystems are usually
+            # case-insensitive, so ``gh.CMD`` must match ``gh.cmd``.
+            hit = entries.get(f"gh{ext}".lower())
+            if hit is not None:
+                return os.path.join(directory, hit)
+    return None
 
 
 def main(argv: list[str]) -> int:
@@ -56,8 +99,12 @@ def main(argv: list[str]) -> int:
     if not args or args[0] in ("-h", "--help"):
         sys.stdout.write(USAGE)
         return 0 if args else 2
+    exe = resolve_gh()
+    if exe is None:
+        print("gh-json: `gh` not found on PATH", file=sys.stderr)
+        return 127
     try:
-        proc = subprocess.run(["gh", *args], check=False)
+        proc = subprocess.run([exe, *args], check=False)
     except FileNotFoundError:
         print("gh-json: `gh` not found on PATH", file=sys.stderr)
         return 127

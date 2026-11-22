@@ -31,6 +31,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import pytest
+
 SCRIPT_DIR = Path(__file__).resolve().parent
 GH_JSON = SCRIPT_DIR / "gh-json.py"
 
@@ -89,6 +91,41 @@ def _run(env: dict[str, str], *args: str) -> subprocess.CompletedProcess[str]:
         text=True,
         env=env,
     )
+
+
+def _load_gh_json_module():
+    """Import ``scripts/gh-json.py`` (hyphenated name) for unit-level checks."""
+    import importlib.util
+
+    spec = importlib.util.spec_from_file_location("gh_json_under_test", GH_JSON)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+def test_resolve_gh_honors_pathext_cmd_shim(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Windows lookup must honor a ``PATHEXT`` ``gh.cmd`` shim (BLOCK, #6986).
+
+    Regression proof for the Windows-only CI red: a ``CreateProcess``-style
+    bare-``gh`` search appends ``.exe`` only, so a ``gh.cmd`` earlier on
+    ``PATH`` is skipped and the real ``gh`` runs instead (exit 4 without
+    ``GH_TOKEN``). ``resolve_gh`` must find the ``gh.cmd`` shim via
+    ``PATHEXT``. ``nt`` is simulated so this proves the Windows code path
+    on any host — the ``.cmd`` file is only resolved here, never executed;
+    the real Windows CI run proves execution.
+    """
+    fake_cmd = tmp_path / "gh.cmd"
+    fake_cmd.write_text("@echo off\n", encoding="utf-8")
+    monkeypatch.setattr(os, "name", "nt")
+    monkeypatch.setenv("PATH", str(tmp_path))
+    monkeypatch.setenv("PATHEXT", ".COM;.EXE;.BAT;.CMD")
+    gh_json = _load_gh_json_module()
+    # String compare (not ``Path``): ``Path`` dispatches on the patched
+    # ``os.name`` and would build a ``WindowsPath`` on a POSIX host.
+    assert gh_json.resolve_gh() == str(fake_cmd)
 
 
 def test_stdout_stays_pure_json_despite_stderr_hint(tmp_path: Path) -> None:
