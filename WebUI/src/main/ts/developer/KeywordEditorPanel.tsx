@@ -51,6 +51,11 @@ import {
 } from "./keywordChoiceAdd";
 import { KW_LABEL_MSG } from "./keywordLabelMessages";
 import { KW_SEQUENCE_MSG } from "./keywordSequenceMessages";
+import {
+  anyFlagSet,
+  isKeywordEditStartContended,
+  isKeywordWriteContended,
+} from "./keywordEditorGuards";
 import { DEV_MSG } from "./messages";
 
 function choiceDescriptionText(choice: KeywordChoiceSummary): string {
@@ -1033,6 +1038,47 @@ export function KeywordEditorPanel({
     setDescriptionError(null);
   }
 
+  // #6985: aggregates for the keyword-level guards below. Each stays flat
+  // (a single `.some(Boolean)`) so the cyclomatic cost of the original
+  // 15+ disjunct chains moves into the pure predicates in
+  // keywordEditorGuards.ts instead of living in every handler.
+  function keywordLevelInflight(): boolean {
+    return anyFlagSet([
+      keywordDescriptionInflight.current,
+      keywordLabelInflight.current,
+      keywordSequenceInflight.current,
+    ]);
+  }
+
+  function choiceLevelInflight(): boolean {
+    return anyFlagSet([
+      addInflight.current,
+      removeInflight.current,
+      labelInflight.current,
+      valueInflight.current,
+      descriptionInflight.current,
+      sequenceInflight.current,
+    ]);
+  }
+
+  function choiceLevelBusy(): boolean {
+    return anyFlagSet([addBusy, removeBusy, labelBusy, valueBusy, descriptionBusy, sequenceBusy]);
+  }
+
+  function keywordStartContention(): {
+    writeBusy: boolean;
+    confirmOpen: boolean;
+    editOpen: boolean;
+    inflight: boolean;
+  } {
+    return {
+      writeBusy: choiceWriteBusy || busy,
+      confirmOpen: confirmKind != null,
+      editOpen: choiceEditOpen,
+      inflight: choiceLevelInflight() || keywordLevelInflight(),
+    };
+  }
+
   // #6907: Escape cancels the editor without writing, reusing the cancel
   // guards above (busy/inflight stay, drafts cleared, stored values kept).
   function handleChoiceDescriptionKeyDown(e: React.KeyboardEvent<HTMLInputElement>): void {
@@ -1299,22 +1345,10 @@ export function KeywordEditorPanel({
   }
 
   function startKeywordDescriptionEdit(): void {
-    if (
-      !id ||
-      isNew ||
-      !detailReady ||
-      choiceWriteBusy ||
-      busy ||
-      confirmKind != null ||
-      choiceEditOpen ||
-      keywordDescriptionInflight.current || keywordLabelInflight.current || keywordSequenceInflight.current ||
-      descriptionInflight.current ||
-      labelInflight.current ||
-      valueInflight.current ||
-      sequenceInflight.current ||
-      addInflight.current ||
-      removeInflight.current
-    ) {
+    if (!id || isNew || !detailReady) {
+      return;
+    }
+    if (isKeywordEditStartContended(keywordStartContention())) {
       return;
     }
     setKeywordDescriptionEditing(true);
@@ -1325,28 +1359,16 @@ export function KeywordEditorPanel({
   }
 
   async function handleKeywordDescriptionSave(): Promise<void> {
+    if (!id || isNew || !serverKeyword || !detailReady || !keywordDescriptionEditing) {
+      return;
+    }
     if (
-      !id ||
-      isNew ||
-      !serverKeyword ||
-      !detailReady ||
-      !keywordDescriptionEditing ||
-      keywordDescriptionInflight.current || keywordLabelInflight.current || keywordSequenceInflight.current ||
-      descriptionInflight.current ||
-      labelInflight.current ||
-      valueInflight.current ||
-      sequenceInflight.current ||
-      addInflight.current ||
-      removeInflight.current ||
-      addBusy ||
-      removeBusy ||
-      labelBusy ||
-      valueBusy ||
-      descriptionBusy ||
-      sequenceBusy ||
-      keywordSequenceBusy ||
-      busy ||
-      confirmKind
+      isKeywordWriteContended({
+        inflight: choiceLevelInflight() || keywordLevelInflight(),
+        peerBusy: choiceLevelBusy() || keywordSequenceBusy,
+        busy,
+        confirmKind,
+      })
     ) {
       return;
     }
@@ -1407,23 +1429,10 @@ export function KeywordEditorPanel({
   }
 
   function startKeywordLabelEdit(): void {
-    if (
-      !id ||
-      isNew ||
-      !detailReady ||
-      choiceWriteBusy ||
-      busy ||
-      confirmKind != null ||
-      choiceEditOpen ||
-      keywordLabelInflight.current ||
-      keywordDescriptionInflight.current ||
-      descriptionInflight.current ||
-      labelInflight.current ||
-      valueInflight.current ||
-      sequenceInflight.current ||
-      addInflight.current ||
-      removeInflight.current
-    ) {
+    if (!id || isNew || !detailReady) {
+      return;
+    }
+    if (isKeywordEditStartContended(keywordStartContention())) {
       return;
     }
     setKeywordLabelEditing(true);
@@ -1434,30 +1443,16 @@ export function KeywordEditorPanel({
   }
 
   async function handleKeywordLabelSave(): Promise<void> {
+    if (!id || isNew || !serverKeyword || !detailReady || !keywordLabelEditing) {
+      return;
+    }
     if (
-      !id ||
-      isNew ||
-      !serverKeyword ||
-      !detailReady ||
-      !keywordLabelEditing ||
-      keywordLabelInflight.current ||
-      keywordDescriptionInflight.current ||
-      descriptionInflight.current ||
-      labelInflight.current ||
-      valueInflight.current ||
-      sequenceInflight.current ||
-      addInflight.current ||
-      removeInflight.current ||
-      addBusy ||
-      removeBusy ||
-      labelBusy ||
-      valueBusy ||
-      descriptionBusy ||
-      sequenceBusy ||
-      keywordDescriptionBusy ||
-      keywordSequenceBusy ||
-      busy ||
-      confirmKind
+      isKeywordWriteContended({
+        inflight: choiceLevelInflight() || keywordLevelInflight(),
+        peerBusy: choiceLevelBusy() || keywordDescriptionBusy || keywordSequenceBusy,
+        busy,
+        confirmKind,
+      })
     ) {
       return;
     }
@@ -1521,24 +1516,10 @@ export function KeywordEditorPanel({
   }
 
   function startKeywordSequenceEdit(): void {
-    if (
-      !id ||
-      isNew ||
-      !detailReady ||
-      choiceWriteBusy ||
-      busy ||
-      confirmKind != null ||
-      choiceEditOpen ||
-      keywordSequenceInflight.current ||
-      keywordLabelInflight.current ||
-      keywordDescriptionInflight.current ||
-      descriptionInflight.current ||
-      labelInflight.current ||
-      valueInflight.current ||
-      sequenceInflight.current ||
-      addInflight.current ||
-      removeInflight.current
-    ) {
+    if (!id || isNew || !detailReady) {
+      return;
+    }
+    if (isKeywordEditStartContended(keywordStartContention())) {
       return;
     }
     setKeywordSequenceEditing(true);
@@ -1549,16 +1530,16 @@ export function KeywordEditorPanel({
   }
 
   async function handleKeywordSequenceSave(): Promise<void> {
+    if (!id || isNew || !serverKeyword || !detailReady || !keywordSequenceEditing) {
+      return;
+    }
     if (
-      !id ||
-      isNew ||
-      !serverKeyword ||
-      !detailReady ||
-      !keywordSequenceEditing ||
-      keywordSequenceInflight.current ||
-      choiceWriteBusy ||
-      busy ||
-      confirmKind
+      isKeywordWriteContended({
+        inflight: keywordSequenceInflight.current,
+        peerBusy: choiceWriteBusy,
+        busy,
+        confirmKind,
+      })
     ) {
       return;
     }
