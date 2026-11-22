@@ -90,6 +90,16 @@ const DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;
 const SKIP_NO_DTS_BASE = dtsCell.SKIP_NO_DTS_BASE;
 
 /**
+ * Skip reason when the cell serves no DTS HTTPS origin (default H2 QA
+ * cell and pre-#6375 cells). The CONFIDENTIAL moderation paths ride the
+ * published HTTPS origin from the {@code qa-up --with-dts} banner
+ * ({@code DTS_HTTPS_URL}); plain-HTTP reads 302 to the unpublished
+ * HTTPS port (#6375). Shared cell contract
+ * ({@code tests/helpers/dts-cell.js}).
+ */
+const SKIP_NO_DTS_HTTPS = dtsCell.SKIP_NO_DTS_HTTPS;
+
+/**
  * Skip reason when the DTS origin answers but the comments service does
  * not. A 401/403 still counts as "served" (the service is up, the caller
  * lacks the role); only unreachable / 404 probes land here. The probed
@@ -181,6 +191,30 @@ function dtsContextUrl(dtsOrigin) {
 function dtsServiceUrl(dtsOrigin) {
   return `${dtsContextUrl(dtsOrigin)}${COMMENTS_ENTRY.root}`;
 }
+
+/**
+ * In-cell DTS HTTPS origin for the CONFIDENTIAL moderation paths (the
+ * moderator queue plus the approve/reject writes), or null when the
+ * cell publishes no HTTPS origin. Shared cell contract
+ * ({@code tests/helpers/dts-cell.js#dtsHttpsBaseUrl}): explicit
+ * {@code DTS_HTTPS_URL} wins, else {@code DTS_HTTPS_HOST_PORT} /
+ * {@code DTS_HTTPS_PORT} build {@code https://127.0.0.1:<port>}. The
+ * cell TLS identity is shipped/self-signed, so callers must allow the
+ * untrusted chain (Playwright {@code ignoreHTTPSErrors}).
+ *
+ * @returns {URL|null} in-cell DTS HTTPS origin for host-side moderation calls
+ */
+function dtsHttpsBaseUrl() {
+  return dtsCell.dtsHttpsBaseUrl();
+}
+
+/**
+ * Shared HTTPS moderator context for the CONFIDENTIAL moderation paths
+ * (see {@code tests/helpers/dts-cell.js#openDtsHttpsContext}): probes
+ * the origin, skips by name, and disposes on the skip path. Re-exported
+ * so the spec stays data-driven from this helper.
+ */
+const openDtsHttpsContext = dtsCell.openDtsHttpsContext;
 
 /**
  * BASIC credentials for the role-protected moderation endpoints
@@ -356,12 +390,15 @@ module.exports = {
   RESULT_STATUSES,
   MATRIX_CELLS,
   SKIP_NO_DTS_BASE,
+  SKIP_NO_DTS_HTTPS,
   skipServiceDown,
   skipNoModeration,
   COMMENTS_ENTRY,
   dtsBaseUrl,
   dtsContextUrl,
   dtsServiceUrl,
+  dtsHttpsBaseUrl,
+  openDtsHttpsContext,
   deliveryAuthHeader,
   probeThread,
   buildModerationRow,
