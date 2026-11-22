@@ -26090,6 +26090,55 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.explorer@Take down">
       <tuv xml:lang="en-us"><seg>Take down</seg></tuv>
     </tu>
+    <!-- #6998: Explorer Schedule / Clear-scheduled-dates dialog chrome (parent #4530). en-us only. -->
+    <tu tuid="perc.ui.explorer@Schedule">
+      <tuv xml:lang="en-us"><seg>Schedule</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Publish date">
+      <tuv xml:lang="en-us"><seg>Publish date</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Removal date">
+      <tuv xml:lang="en-us"><seg>Removal date</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Comments">
+      <tuv xml:lang="en-us"><seg>Comments</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Clear dates">
+      <tuv xml:lang="en-us"><seg>Clear dates</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@OK">
+      <tuv xml:lang="en-us"><seg>OK</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@These dates apply to every selected item. Folders are skipped.">
+      <tuv xml:lang="en-us"><seg>These dates apply to every selected item. Folders are skipped.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Publish and removal dates cannot be the same">
+      <tuv xml:lang="en-us"><seg>Publish and removal dates cannot be the same</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Enter a valid date range. Removal must be after publish.">
+      <tuv xml:lang="en-us"><seg>Enter a valid date range. Removal must be after publish.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@That schedule comment contains a character that cannot be saved.">
+      <tuv xml:lang="en-us"><seg>That schedule comment contains a character that cannot be saved.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Schedule failed">
+      <tuv xml:lang="en-us"><seg>Schedule failed</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Clear scheduled dates">
+      <tuv xml:lang="en-us"><seg>Clear scheduled dates</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Clear publish and removal dates for this item?">
+      <tuv xml:lang="en-us"><seg>Clear publish and removal dates for this item?</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Current dates">
+      <tuv xml:lang="en-us"><seg>Current dates</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@This item has no scheduled dates.">
+      <tuv xml:lang="en-us"><seg>This item has no scheduled dates.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Could not clear scheduled dates.">
+      <tuv xml:lang="en-us"><seg>Could not clear scheduled dates.</seg></tuv>
+    </tu>
     <!-- #6997: Explorer Bulk Stage / Remove-from-Staging dialog chrome (parent #4530). en-us only. -->
     <tu tuid="perc.ui.explorer@Stage selected items">
       <tuv xml:lang="en-us"><seg>Stage selected items</seg></tuv>

@@ -21,6 +21,12 @@ export interface SchedulePickerSession {
   current: ItemScheduleDates;
   /** Publishable rows this dialog will write. 1 is the single-item path. */
   applyCount: number;
+  /**
+   * Invoking control testid for focus return on close (#6998). The
+   * conditionally-rendered dialog unmounts, so {@code useDialogEscape}
+   * cannot restore focus for it — the shell re-focuses this control.
+   */
+  openerTestId: string | null;
   resolve: (dates: ItemScheduleDates | null) => void;
 }
 

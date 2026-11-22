@@ -92,6 +92,7 @@ export function ScheduleDatesDialog({
       role="dialog"
       aria-modal="true"
       aria-labelledby="explorer-schedule-title"
+      aria-describedby={applyCount > 1 ? "explorer-schedule-multi" : undefined}
       data-testid="explorer-schedule-dialog"
       style={{
         position: "fixed",
@@ -123,6 +124,7 @@ export function ScheduleDatesDialog({
         </h2>
         {applyCount > 1 ? (
           <p
+            id="explorer-schedule-multi"
             data-testid="explorer-schedule-multi"
             style={{ fontSize: 13, margin: "0 0 12px" }}
           >

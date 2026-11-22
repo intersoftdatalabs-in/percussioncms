@@ -21,7 +21,9 @@
  * <p>One selected page row + Schedule opens the dates dialog; saving persists
  * the start/end dates and refreshes the row. An invalid range (removal before
  * publish) stays on the dialog and posts nothing. Cancel changes nothing.
- * HTTP 400/403/404/409 names the item and leaves the prior dates intact.</p>
+ * HTTP 400/403/404/409 names the item and leaves the prior dates intact.
+ * Keyboard Enter on the toolbar control opens the dialog, Escape cancels,
+ * and focus returns to the toolbar control (#6998).</p>
  *
  * <p>Run (QA mode after {@code perc-devctl qa-up}):
  * {@code npm run test:surface -- --path tests/explorer-schedule.spec.js}
@@ -89,6 +91,50 @@ async function installScheduleRoutes(page, opts = {}) {
           comments: "",
         },
       }),
+    });
+  });
+  // Mock the identity batch and allowed-template lookups so the mocked row
+  // ids never hit the real server (a lookup for a fake id logs a server
+  // ERROR). Benign empty results: nothing is checked out, no menus merge.
+  await page.route("**/rest/explorer/identity/batch", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: "{}",
+    });
+  });
+  await page.route("**/actions/find/templates/**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: "{}",
+    });
+  });
+  // Mock the checkout-owner lookup so the mocked row ids never hit the
+  // real server (a lookup for a fake id logs a server ERROR). Benign
+  // reader assignment: nothing is checked out.
+  await page.route("**/rest/editor/items/**/checkout-owner", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        EditorItemLockInfo: {
+          itemName: "Home",
+          checkOutUser: "",
+          currentUser: "Admin",
+          assignmentType: "Reader",
+        },
+      }),
+    });
+  });
+  // Mock the workflow-transitions lookup so the mocked row ids never hit
+  // the real server (a lookup for a fake id logs a server ERROR). Benign
+  // empty triggers: the workflow menu group stays hidden.
+  await page.route("**/itemmanagement/workflow/getTransitions/**", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: "{}",
     });
   });
   await page.route("**/itemmanagement/item/setitemdates**", async (route) => {
@@ -236,6 +282,43 @@ test.describe("Explorer single-item Schedule publish dates", () => {
       await expect(
         page.locator('[data-testid="explorer-server-actions-error"]'),
       ).toHaveCount(0);
+      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
+    },
+  );
+
+  test(
+    "keyboard Enter opens the dialog; Escape cancels and returns focus",
+    {
+      tag: ["@explorer", "@explorer-schedule", "@explorer-single-schedule"],
+    },
+    async ({ page }) => {
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      const posted = await installScheduleRoutes(page);
+      await openListing(page);
+      const button = page.locator('[data-testid="action-toolbar-item-Schedule"]');
+      await expect(button).toBeVisible({ timeout: 15_000 });
+      // Keyboard path: focus the toolbar control and activate with Enter.
+      await button.focus();
+      await page.keyboard.press("Enter");
+      const dialog = page.locator('[data-testid="explorer-schedule-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await expect(dialog).toHaveAttribute("role", "dialog");
+      await expect(dialog).toHaveAttribute("aria-modal", "true");
+      // Form dialog: initial focus lands on the publish-date input.
+      await expect(page.locator('[data-testid="explorer-schedule-start"]')).toBeFocused();
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="explorer-schedule-dialog"]',
+      });
+      await page.keyboard.press("Escape");
+      await expect(dialog).toBeHidden({ timeout: 10_000 });
+      expect(posted).toEqual([]);
+      await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
+        "data-list-epoch",
+        "0",
+      );
+      // Focus returns to the invoking toolbar control on close.
+      await expect(button).toBeFocused({ timeout: 10_000 });
       expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
     },
   );
