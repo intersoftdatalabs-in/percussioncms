@@ -760,6 +760,8 @@ export const EDITOR_MSG = {
   SITE_IMPACT_STATUS: "perc.ui.editor@Status",
   SITE_IMPACT_TEMPLATE_NAME: "perc.ui.editor@Template Name",
   SITE_IMPACT_NO_TEMPLATES: "perc.ui.editor@No Templates Found",
+  SITE_IMPACT_SHOW: "perc.ui.editor@Show site impact",
+  SITE_IMPACT_HIDE: "perc.ui.editor@Hide site impact",
   WORKFLOW_HISTORY_TITLE: "perc.ui.editor@Workflow history",
   WORKFLOW_HISTORY_LOADING: "perc.ui.editor@Loading workflow history…",
   WORKFLOW_HISTORY_LOAD_FAILED:

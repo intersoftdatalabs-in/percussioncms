@@ -31,6 +31,12 @@
  * through a live region, never leaving {@code document.activeElement} on
  * {@code <body>}.</p>
  *
+ * <p>Section-toggle follow-on (#6897, parent #4532): the site-impact
+ * section is open by default and collapses through its header toggle,
+ * which exposes the open state through {@code aria-expanded} /
+ * {@code aria-controls} like the restore, workflow-history, and
+ * scheduled-transitions toggles.</p>
+ *
  * <p>Tags: {@code @page-metadata-editor} {@code @editor}</p>
  *
  * <p>Run (QA mode after {@code perc-devctl qa-up}):
@@ -275,6 +281,40 @@ test.describe("EditorHost site-impact load failure with retry (#6771)", () => {
         .screenshot({
           path: "test-results/live-proof-6786-site-impact-retry-focus.png",
         });
+      expectClean(errors, badResponses);
+    },
+  );
+
+  test(
+    "section toggle collapses and re-opens the panel with an exposed expanded state (#6897)",
+    { tag: ["@page-metadata-editor", "@editor"] },
+    async ({ page }) => {
+      const errors = [];
+      const badResponses = [];
+      watchPage(page, errors, badResponses);
+      await mockEditorChrome(page);
+
+      await page.goto(editorSpaUrl(BASE_URL, `contentId=${PAGE_ID}&mode=edit`));
+      await expect(page.locator(`[data-testid="${TEST_IDS.host}"]`)).toBeVisible({
+        timeout: 20_000,
+      });
+      const toggle = page.locator('[data-testid="editor-site-impact-toggle"]');
+      const panel = page.locator('[data-testid="editor-site-impact-panel"]');
+      // Open by default so the panel stays visible exactly as before.
+      await expect(toggle).toBeVisible({ timeout: 20_000 });
+      await expect(toggle).toHaveAttribute("aria-expanded", "true");
+      await expect(toggle).toHaveAttribute("aria-controls", "editor-site-impact-panel");
+      await expect(panel).toBeVisible({ timeout: 20_000 });
+      await toggle.click();
+      await expect(panel).toHaveCount(0);
+      await expect(toggle).toHaveAttribute("aria-expanded", "false");
+      await toggle.click();
+      await expect(panel).toBeVisible({ timeout: 20_000 });
+      await expect(toggle).toHaveAttribute("aria-expanded", "true");
+      await expect(panel).toHaveAttribute("id", "editor-site-impact-panel");
+      await panel.screenshot({
+        path: "test-results/live-proof-6897-site-impact-toggle.png",
+      });
       expectClean(errors, badResponses);
     },
   );

@@ -60,7 +60,11 @@ export function EditorScheduledTransitionsPanel({
   onClearSchedule,
 }: EditorScheduledTransitionsPanelProps): React.ReactElement {
   return (
-    <div className={styles.form} data-testid="editor-scheduled-transitions">
+    <div
+      className={styles.form}
+      id="editor-scheduled-transitions-panel"
+      data-testid="editor-scheduled-transitions"
+    >
       <h2 className={styles.label}>
         {message(EDITOR_MSG.SCHEDULED_TRANSITIONS_TITLE)}
       </h2>

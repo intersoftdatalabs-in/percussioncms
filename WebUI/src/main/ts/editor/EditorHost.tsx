@@ -1547,6 +1547,12 @@ export function EditorHost({
     useState<string | null>(null);
   const [scheduledTransitionsLoadErrorDetail, setScheduledTransitionsLoadErrorDetail] =
     useState("");
+  /**
+   * Site-impact section collapsed state (#6897, parent #4532). Open by
+   * default so the panel stays visible on load exactly as before; the new
+   * header toggle only adds collapsibility plus an exposed expanded state.
+   */
+  const [siteImpactOpen, setSiteImpactOpen] = useState(true);
   const [createOpen, setCreateOpen] = useState(contentId == null);
   const [createTypes, setCreateTypes] = useState<ContentTypeSummary[]>([]);
   const [createType, setCreateType] = useState("");
@@ -1859,7 +1865,9 @@ export function EditorHost({
   /**
    * Page-metadata dialog chrome (#5739): collapsible groups, auto-summary
    * preview, filename filter, and site-impact panel for {@code percPage}
-   * items. Other content types keep the flat field list.
+   * items. Other content types keep the flat field list. The site-impact
+   * section is open by default and collapses through its header toggle
+   * (#6897).
    */
   const isPageMetadata = payload != null && isExplorerPageType(payload.contentType);
   const pageMetadata = useMemo(
@@ -5698,6 +5706,8 @@ export function EditorHost({
               type="button"
               className={styles.button}
               data-testid="editor-restore-toggle"
+              aria-expanded={restoreOpen}
+              aria-controls="editor-restore-panel"
               disabled={restoreBusy || loading || payload == null}
               onClick={() => void handleRestoreOpen()}
             >
@@ -5711,6 +5721,8 @@ export function EditorHost({
               type="button"
               className={styles.button}
               data-testid="editor-workflow-history-toggle"
+              aria-expanded={workflowHistoryOpen}
+              aria-controls="editor-workflow-history-panel"
               disabled={workflowHistoryBusy || loading || payload == null}
               onClick={() => void handleWorkflowHistoryOpen()}
             >
@@ -5726,6 +5738,8 @@ export function EditorHost({
               type="button"
               className={styles.button}
               data-testid="editor-scheduled-transitions-toggle"
+              aria-expanded={scheduledTransitionsOpen}
+              aria-controls="editor-scheduled-transitions-panel"
               disabled={
                 scheduledTransitionsBusy || loading || payload == null
               }
@@ -5735,6 +5749,23 @@ export function EditorHost({
                 scheduledTransitionsOpen
                   ? EDITOR_MSG.SCHEDULED_TRANSITIONS_HIDE
                   : EDITOR_MSG.SCHEDULED_TRANSITIONS_OPEN,
+              )}
+            </button>
+          ) : null}
+          {isPageMetadata && contentId != null ? (
+            <button
+              type="button"
+              className={styles.button}
+              data-testid="editor-site-impact-toggle"
+              aria-expanded={siteImpactOpen}
+              aria-controls="editor-site-impact-panel"
+              disabled={loading || payload == null}
+              onClick={() => setSiteImpactOpen((open) => !open)}
+            >
+              {message(
+                siteImpactOpen
+                  ? EDITOR_MSG.SITE_IMPACT_HIDE
+                  : EDITOR_MSG.SITE_IMPACT_SHOW,
               )}
             </button>
           ) : null}
@@ -6186,7 +6217,11 @@ export function EditorHost({
               </div>
             ) : null}
             {showRestore && restoreOpen ? (
-              <div className={styles.form} data-testid="editor-restore-panel">
+              <div
+                className={styles.form}
+                id="editor-restore-panel"
+                data-testid="editor-restore-panel"
+              >
                 {restoreLoadErrorKey ? (
                   <div
                     className={styles.status}
@@ -6758,7 +6793,7 @@ export function EditorHost({
                     rows.map((row) => renderFieldRow(row))
                   )}
                 </form>
-                {isPageMetadata && contentId != null ? (
+                {isPageMetadata && contentId != null && siteImpactOpen ? (
                   <EditorSiteImpactPanel itemId={String(contentId)} />
                 ) : null}
               </>

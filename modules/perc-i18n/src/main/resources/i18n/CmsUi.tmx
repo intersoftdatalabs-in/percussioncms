@@ -28562,6 +28562,12 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.editor@Publish now is only available for pages and assets.">
       <tuv xml:lang="en-us"><seg>Publish now is only available for pages and assets.</seg></tuv>
     </tu>
+    <tu tuid="perc.ui.editor@Show site impact">
+      <tuv xml:lang="en-us"><seg>Show site impact</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.editor@Hide site impact">
+      <tuv xml:lang="en-us"><seg>Hide site impact</seg></tuv>
+    </tu>
 
   </body>
 </tmx>

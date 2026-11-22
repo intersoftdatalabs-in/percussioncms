@@ -114,10 +114,24 @@ describe("EditorHost workflow history panel (#5829)", () => {
     // Collapsed by default: no fetch fires and no panel renders.
     expect(loadRevisions).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor-workflow-history")).toBeNull();
+    // Section toggle exposes its collapsed state (#6897).
+    expect(
+      screen.getByTestId("editor-workflow-history-toggle").getAttribute("aria-expanded"),
+    ).toBe("false");
+    expect(
+      screen.getByTestId("editor-workflow-history-toggle").getAttribute("aria-controls"),
+    ).toBe("editor-workflow-history-panel");
     fireEvent.click(screen.getByTestId("editor-workflow-history-toggle"));
     await waitFor(() => {
       expect(screen.getByTestId("editor-workflow-history-table")).toBeTruthy();
     });
+    // Open state is exposed and the controls target names the panel.
+    expect(
+      screen.getByTestId("editor-workflow-history-toggle").getAttribute("aria-expanded"),
+    ).toBe("true");
+    expect(
+      screen.getByTestId("editor-workflow-history").getAttribute("id"),
+    ).toBe("editor-workflow-history-panel");
     expect(loadRevisions).toHaveBeenCalledWith("42");
     // Only the recorded row renders; the fully blank row is dropped.
     expect(
@@ -141,6 +155,10 @@ describe("EditorHost workflow history panel (#5829)", () => {
       expect(screen.queryByTestId("editor-workflow-history")).toBeNull();
     });
     expect(loadRevisions).toHaveBeenCalledTimes(1);
+    // Closing flips the exposed state back.
+    expect(
+      screen.getByTestId("editor-workflow-history-toggle").getAttribute("aria-expanded"),
+    ).toBe("false");
   });
 
   it("shows an empty state when no comments are recorded", async () => {

@@ -451,6 +451,34 @@ describe("EditorHost revision compare view polish", () => {
     );
   });
 
+  it("restore toggle exposes its expanded state (#6897)", async () => {
+    renderHost();
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("editor-restore-toggle")).toBeTruthy();
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
+    // Collapsed by default: no panel renders.
+    expect(screen.queryByTestId("editor-restore-panel")).toBeNull();
+    expect(
+      screen.getByTestId("editor-restore-toggle").getAttribute("aria-expanded"),
+    ).toBe("false");
+    expect(
+      screen.getByTestId("editor-restore-toggle").getAttribute("aria-controls"),
+    ).toBe("editor-restore-panel");
+    fireEvent.click(screen.getByTestId("editor-restore-toggle"));
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("editor-restore-panel")).toBeTruthy();
+      },
+      { timeout: COMPARE_WAIT_MS },
+    );
+    expect(
+      screen.getByTestId("editor-restore-toggle").getAttribute("aria-expanded"),
+    ).toBe("true");
+  });
+
   it("passes the axe gate on the compare surface", async () => {
     renderHost();
     await openComparePanel();
