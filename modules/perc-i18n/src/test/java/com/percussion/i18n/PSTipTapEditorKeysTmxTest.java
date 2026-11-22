@@ -78,6 +78,7 @@ public class PSTipTapEditorKeysTmxTest {
       "Link address",
       "Apply link",
       "Close link editor",
+      "Leave the address empty to remove the link.",
       "That link address cannot be used.",
       "Inline code",
       "Code block",
@@ -189,6 +190,34 @@ public class PSTipTapEditorKeysTmxTest {
     }
     assertTrue(
         gaps.isEmpty(), "CmsUi.tmx TipTap keys missing above-floor TUVs: " + gaps);
+  }
+
+  /**
+   * Floor-locale back-fill for issue #7081 (PR #7075 review): every TipTap toolbar/dialog key
+   * has a non-blank TUV in each of the 9 shipped floor locales, so de/fr/zh-tw/es/… sessions
+   * do not fall back to English for a single hint while the other 86 keys translate.
+   */
+  private static final List<String> FLOOR_LOCALES =
+      List.of("de", "fr", "zh-tw", "es", "nl", "pt", "ru", "uk", "lou");
+
+  @Test
+  public void floorLocales_haveFullTipTapCoverage() throws Exception {
+    Path cmsUi = resolveCmsUiTmx();
+    assertNotNull(cmsUi, "CmsUi.tmx not found");
+    Map<String, Set<String>> langsByTuid = loadLangsByTuid(parse(cmsUi));
+    List<String> gaps = new ArrayList<>();
+    List<String> allToolbarKeys = new ArrayList<>(EXPECTED_ENGLISH);
+    allToolbarKeys.addAll(GROUP_ENGLISH);
+    for (String en : allToolbarKeys) {
+      String tuid = "perc.ui.editor@" + en;
+      Set<String> langs = langsByTuid.getOrDefault(tuid, Set.of());
+      for (String loc : FLOOR_LOCALES) {
+        if (!langs.contains(loc)) {
+          gaps.add(tuid + " [" + loc + "]");
+        }
+      }
+    }
+    assertTrue(gaps.isEmpty(), "CmsUi.tmx TipTap keys missing floor-locale TUVs: " + gaps);
   }
 
   /**

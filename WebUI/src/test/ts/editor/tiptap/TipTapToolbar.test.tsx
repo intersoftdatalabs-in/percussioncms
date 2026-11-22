@@ -89,6 +89,105 @@ describe("TipTapToolbar", () => {
     }
   });
 
+  it("toggles italic on the selection", () => {
+    const editor = makeEditor();
+    try {
+      render(<TipTapToolbar editor={editor} name="text" />);
+      editor.commands.selectAll();
+      fireEvent.click(screen.getByTestId("tiptap-italic-text"));
+      expect(editor.getHTML()).toContain("<em>Hello</em>");
+      expect(editor.isActive("italic")).toBe(true);
+    } finally {
+      editor.destroy();
+    }
+  });
+
+  it("toggles an ordered list", () => {
+    const editor = makeEditor();
+    try {
+      render(<TipTapToolbar editor={editor} name="text" />);
+      fireEvent.click(screen.getByTestId("tiptap-numlist-text"));
+      const html = editor.getHTML();
+      expect(html).toContain("<ol>");
+      expect(html).toContain("Hello");
+      expect(editor.isActive("orderedList")).toBe(true);
+    } finally {
+      editor.destroy();
+    }
+  });
+
+  it("removes the link through the unlink control", () => {
+    const editor = makeEditor('<p><a href="https://example.com/x">Hello</a></p>');
+    try {
+      render(<TipTapToolbar editor={editor} name="text" />);
+      editor.commands.selectAll();
+      // The unlink control arms only inside a link.
+      fireEvent.click(screen.getByTestId("tiptap-unlink-text"));
+      expect(editor.getHTML()).not.toContain("<a");
+      expect(editor.getHTML()).toContain("Hello");
+    } finally {
+      editor.destroy();
+    }
+  });
+
+  it("disables unlink outside a link", () => {
+    const editor = makeEditor();
+    try {
+      render(<TipTapToolbar editor={editor} name="text" />);
+      editor.commands.selectAll();
+      expect(
+        (screen.getByTestId("tiptap-unlink-text") as HTMLButtonElement).disabled,
+      ).toBe(true);
+    } finally {
+      editor.destroy();
+    }
+  });
+
+  it("shows the empty-state hint and selects the existing address on open", () => {
+    const editor = makeEditor('<p><a href="https://example.com/x">Hello</a></p>');
+    try {
+      render(<TipTapToolbar editor={editor} name="text" />);
+      editor.commands.selectAll();
+      fireEvent.click(screen.getByTestId("tiptap-link-text"));
+      const input = screen.getByTestId(
+        "tiptap-link-url-text",
+      ) as HTMLInputElement;
+      // Empty-state copy: an empty address removes the link.
+      expect(
+        screen.getByText("Leave the address empty to remove the link."),
+      ).toBeTruthy();
+      expect(input.getAttribute("aria-describedby")).toBeTruthy();
+      // Focus polish: editing an existing link selects its address so
+      // typing replaces it instead of appending.
+      expect(input.selectionStart).toBe(0);
+      expect(input.selectionEnd).toBe(input.value.length);
+      expect(input.value.length).toBeGreaterThan(0);
+    } finally {
+      editor.destroy();
+    }
+  });
+
+  it("hides the remove-hint when the dialog adds a link to plain text", () => {
+    const editor = makeEditor("<p>Hello</p>");
+    try {
+      render(<TipTapToolbar editor={editor} name="text" />);
+      editor.commands.selectAll();
+      fireEvent.click(screen.getByTestId("tiptap-link-text"));
+      const input = screen.getByTestId(
+        "tiptap-link-url-text",
+      ) as HTMLInputElement;
+      // No link under the selection, so there is nothing to remove: the
+      // hint stays out and no dangling describedby points at it (#7075
+      // review).
+      expect(
+        screen.queryByText("Leave the address empty to remove the link."),
+      ).toBeNull();
+      expect(input.getAttribute("aria-describedby")).toBeNull();
+    } finally {
+      editor.destroy();
+    }
+  });
+
   it("toggles a code block", () => {
     const editor = makeEditor("<p>var x = 1;</p>");
     try {

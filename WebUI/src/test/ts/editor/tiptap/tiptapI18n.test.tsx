@@ -89,6 +89,7 @@ const TIPTAP_KEYS = [
   EDITOR_MSG.TIPTAP_LINK_URL,
   EDITOR_MSG.TIPTAP_LINK_APPLY,
   EDITOR_MSG.TIPTAP_LINK_CLOSE,
+  EDITOR_MSG.TIPTAP_LINK_EMPTY_HINT,
   EDITOR_MSG.TIPTAP_LINK_UNSAFE,
   EDITOR_MSG.TIPTAP_CODE_INLINE,
   EDITOR_MSG.TIPTAP_CODE_BLOCK,
@@ -274,6 +275,27 @@ describe("TipTap i18n session locale", () => {
         "Mitte",
         "Unten",
       ]);
+    } finally {
+      editor.destroy();
+    }
+  });
+
+  it("link empty-state hint renders and follows the session locale", () => {
+    setCatalog({
+      [EDITOR_MSG.TIPTAP_LINK_EMPTY_HINT]: "Adresse leer lassen",
+    });
+    // The hint only renders when the selection is inside a link (#7075
+    // review): open the dialog on a linked selection.
+    const editor = makeEditor('<p><a href="https://example.com/x">Hello</a></p>');
+    try {
+      render(<TipTapToolbar editor={editor} name="text" />);
+      editor.commands.selectAll();
+      fireEvent.click(screen.getByTestId("tiptap-link-text"));
+      const input = screen.getByTestId("tiptap-link-url-text");
+      const hint = screen.getByText("Adresse leer lassen");
+      expect(input.getAttribute("aria-describedby")).toBe(
+        hint.getAttribute("id"),
+      );
     } finally {
       editor.destroy();
     }
