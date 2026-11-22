@@ -571,6 +571,7 @@ export function ItemTakedownPanel({
         <ul
           data-testid="item-takedown-batch-report"
           aria-label={message(MSG.PUBLISH_TAKEDOWN)}
+          aria-live="polite"
           style={{ margin: "12px 0 0", paddingLeft: 18, fontSize: 13 }}
         >
           {report.map((row) => (
@@ -604,6 +605,7 @@ export function ItemTakedownPanel({
       {success && (
         <p
           data-testid="item-takedown-success"
+          role="status"
           style={{ color: "#166534", fontSize: 13 }}
         >
           {success}
