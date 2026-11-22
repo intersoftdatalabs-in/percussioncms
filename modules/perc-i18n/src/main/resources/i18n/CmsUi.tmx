@@ -26083,6 +26083,31 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Sites &amp; servers first — Design and Runtime available when needed.">
       <tuv xml:lang="en-us"><seg>Sites &amp; servers first — Design and Runtime available when needed.</seg></tuv>
     </tu>
+    <!-- #7005: SiteWorkspace incremental approval chrome (parent #4531). en-us only. -->
+    <tu tuid="perc.ui.publish.modern@Incremental preview">
+      <tuv xml:lang="en-us"><seg>Incremental preview</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Incremental (with approval)">
+      <tuv xml:lang="en-us"><seg>Incremental (with approval)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Publish Related Items for approval">
+      <tuv xml:lang="en-us"><seg>Publish Related Items for approval</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Selected for approval: {0} of {1}">
+      <tuv xml:lang="en-us"><seg>Selected for approval: {0} of {1}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.site@Select all related items">
+      <tuv xml:lang="en-us"><seg>Select all related items</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.site@Item">
+      <tuv xml:lang="en-us"><seg>Item</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.site@Id">
+      <tuv xml:lang="en-us"><seg>Id</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.sections.site@Approve related {0}">
+      <tuv xml:lang="en-us"><seg>Approve related {0}</seg></tuv>
+    </tu>
     <!-- #6996: Explorer Take Down confirm dialog chrome (parent #4530). en-us only. -->
     <tu tuid="perc.ui.explorer@Take down (unpublish)">
       <tuv xml:lang="en-us"><seg>Take down (unpublish)</seg></tuv>

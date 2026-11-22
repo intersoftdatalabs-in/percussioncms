@@ -189,6 +189,9 @@ export const MSG = {
   PUBLISH_CONFIRM_RETRY:
     "perc.ui.publish.modern@Retry this failed publish for the same site and server?",
   PUBLISH_INCREMENTAL: "perc.ui.publish.modern@Incremental",
+  PUBLISH_INCREMENTAL_PREVIEW: "perc.ui.publish.modern@Incremental preview",
+  PUBLISH_INCREMENTAL_WITH_APPROVAL:
+    "perc.ui.publish.modern@Incremental (with approval)",
   PUBLISH_CONFIRM_INCREMENTAL:
     "perc.ui.publish.modern@Confirm Incremental Publish",
   PUBLISH_JOB_STARTED: "perc.ui.publish.modern@Publish Job Started",
@@ -513,6 +516,11 @@ export const MSG = {
   PUBLISH_SET_DEFAULT: "perc.ui.publish.modern@Set as Publish Now Server",
   PUBLISH_IGNORE_UNMODIFIED: "perc.ui.publish.modern@Ignore Unmodified Assets",
   PUBLISH_RELATED_ITEMS: "perc.ui.publish.modern@Publish Related Items",
+  PUBLISH_RELATED_ITEMS_FOR_APPROVAL:
+    "perc.ui.publish.modern@Publish Related Items for approval",
+  /** Args: {0}=selected rows, {1}=total rows */
+  PUBLISH_RELATED_APPROVAL_COUNT:
+    "perc.ui.publish.modern@Selected for approval: {0} of {1}",
   PUBLISH_SAVE: "perc.ui.publish.modern@Save",
   PUBLISH_DELETE_SERVER: "perc.ui.publish.title@Delete Server",
   PUBLISH_COPY_SERVER: "perc.ui.publish.modern@Copy Server",
@@ -1159,6 +1167,10 @@ GADGET_DESC_DASHBOARD_CONFIG:
       SITE: {
         SELECT_ALL_ARIA: "perc.ui.publish.sections.site@Select all related items",
         ITEM_HEADING: "perc.ui.publish.sections.site@Item",
+        ID_HEADING: "perc.ui.publish.sections.site@Id",
+        /** Args: {0}=related content id */
+        APPROVE_RELATED_ARIA:
+          "perc.ui.publish.sections.site@Approve related {0}",
         QUEUE_STATUS_FILTER_ARIA:
           "perc.ui.publish.sections.site@Filter queue by approval status",
         QUEUE_STATUS_FILTER_ALL:

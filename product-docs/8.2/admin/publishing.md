@@ -907,6 +907,8 @@ From **Publish** (`spa.jsp?entry=publish`), open a site card, select a publish s
 
 **Clear queue** (shown when the preview has at least one row) asks for confirmation, then calls `DELETE …/sitemanage/publish/incremental/content/{site}/{server}` with no content id. Confirm deletes the incremental queue for that site and server (live or staging) and reloads the list. An empty reload shows the empty-queue message. If the server still returns rows, those rows stay and the workspace says some items are still queued. Cancel does not call the server. HTTP **403** and **404** (site or server not found) stay on the workspace as errors; this is not incremental publish and not remove-one-row.
 
+The preview chrome itself — the **Incremental preview** button, the **Incremental (with approval)** confirm label when related items exist, the **Publish Related Items for approval** heading, and the **Selected for approval: {selected} of {total}** count — resolves through the session-locale TMX catalog (`PUBLISH_INCREMENTAL_PREVIEW`, `PUBLISH_INCREMENTAL_WITH_APPROVAL`, `PUBLISH_RELATED_ITEMS_FOR_APPROVAL`, `PUBLISH_RELATED_APPROVAL_COUNT` with `{0}`=selected `{1}`=total so translated templates may reorder the placeholders; English defaults shipped, other locales fall back to the English text until translated). The related table headings (**Item**, **Id**) and the row/select-all screen-reader names likewise resolve through keys, so localized sessions hear the translated names.
+
 ### Set one context variable (Design)
 
 From **Publish** (`spa.jsp?entry=publish&section=design`), open **Design** then **Sites**.
