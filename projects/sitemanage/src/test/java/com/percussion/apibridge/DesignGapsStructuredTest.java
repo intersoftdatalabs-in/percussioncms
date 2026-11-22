@@ -57,6 +57,7 @@ class DesignGapsStructuredTest {
         "CT_CREATE_DELETE",
         "POST /contenttypes",
         "PUT /contenttypes/{idOrName}/name",
+        "hideFromMenu",
         "DELETE",
         "held");
     assertGapMessageContains(gaps, "CT_FIELD_CREATE_DELETE", "POST/DELETE", "/fields", "held");

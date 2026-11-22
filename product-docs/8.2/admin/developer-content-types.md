@@ -210,28 +210,38 @@ name (bulk `PUT /services/contenttypes/{idOrName}` still does not rename).
    is still loading.
 4. The **detail toolbar at the top of the panel** (sticky) shows **Lock**,
    **Save content type**, **Unlock**, **Export XML**, **Rename content type**,
-   **Delete content type**, the **Enabled** checkbox, **Search indexing**, and
+   **Delete content type**, the **Enabled** checkbox, **Hide from menu**,
+   and
    **Icon strategy**. The type name and
    **Allowed templates** add/remove chrome are visible immediately (add/remove
    stay **disabled** until the type body has loaded and you hold the lock). The
-   status line starts as **Not locked**. Label, description, enabled, type-level
+   status line starts as **Not locked**. Label, description, enabled,
+   hide-from-menu, type-level
    search indexing, icon strategy, field flags, local field display labels, and
    association editors stay
    **read-only** until you hold the lock. You do not need to scroll past the
-   fields table to lock or save. Enabled, Search indexing, and Icon strategy
+   fields table to lock or save. Enabled, Hide from menu, Search indexing, and Icon strategy
    stay disabled until you hold the lock; a failed lock (**409**) does not steal
    another user's lock or enable the checkboxes, icon source/value, template
    add/remove, control property value editors, or Save.
 5. Click **Lock**. Status becomes **Locked by you**. If another user already
    holds the lock, the panel shows an error and Save stays disabled (the product
    does **not** steal the lock).
-6. Change the **Description**, **Enabled** checkbox, **Search indexing**
+6. Change the **Description**, **Enabled** checkbox, **Hide from menu**
+   checkbox, **Search indexing**
    checkbox, **Icon strategy**, a **local** field display label on the Fields
    table, and any other unlocked fields, then click
    **Save content type**. Save writes while the lock is still held. It does
    **not** unlock. **Enabled** is written with a dedicated
    `PUT /services/contenttypes/{idOrName}/enabled` (CD-13), not the bulk
-   content-type save. **Search indexing** is the Workbench Properties **Enable
+   content-type save. **Hide from menu** is the Workbench content-type
+   visibility flag: hidden types stay out of runtime content menus. It is
+   written with a dedicated
+   `PUT /services/contenttypes/{idOrName}/hideFromMenu` (held lock; missing
+   flag is **400**, unlocked or lost-lock save is **409**), and is also
+   accepted on the bulk detail PUT (`hideFromMenu` omitted leaves the flag
+   unchanged). `GET .../{idOrName}` reflects the flag after a successful PUT.
+   **Search indexing** is the Workbench Properties **Enable
    searching for this Content Type** flag (root field-set `isUserSearchable`;
    default on). It is written with
    `GET`/`PUT /services/contenttypes/{idOrName}/searchIndexing` (CD-10) after a
@@ -751,6 +761,7 @@ The chrome calls:
 | Mark one local field required | `PUT /services/contenttypes/{idOrName}` (`fields: [{ name, required }]` only; other fields, label, and description stay; shared and system fields are **400**; held lock) |
 | Mark one field searchable | `PUT /services/contenttypes/{idOrName}` (`fields: [{ name, searchable }]` only; other fields and the type-level search indexing flag stay; held lock; not `PUT .../searchIndexing`) |
 | Enable / disable | `PUT /services/contenttypes/{idOrName}/enabled` (CD-13; requires a held lock; does not acquire or release it) |
+| Hide from menu / show | `PUT /services/contenttypes/{idOrName}/hideFromMenu` (CD-01 meta write; requires a held lock; missing flag **400**; unlocked or lost-lock **409**; also accepted on the bulk detail PUT; `GET .../{idOrName}` reflects the flag) |
 | Type-level search indexing | `GET` / `PUT /services/contenttypes/{idOrName}/searchIndexing` (CD-10; Developer detail **Search indexing** checkbox after lock; PUT requires a held lock; default on; not the per-field searchable flag) |
 | Load icon strategy | `GET /services/contenttypes/{idOrName}/icon` (CD-11; no lock; `none` / `specified` / `fromFileField`) |
 | Set icon strategy | `PUT /services/contenttypes/{idOrName}/icon` (CD-11; Admin; held lock; `none` clears value; blank non-none is **400**; no binary upload; SPA Properties picker after lock) |

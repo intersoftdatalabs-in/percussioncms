@@ -133,6 +133,12 @@ public class TestContentTypeAdaptor implements IContentTypesAdaptor {
   }
 
   @Override
+  public ContentTypeDetail setContentTypeHideFromMenu(
+      URI baseUri, String idOrName, boolean hideFromMenu) {
+    return null;
+  }
+
+  @Override
   public ContentTypeSearchIndexing getContentTypeSearchIndexing(URI baseUri, String idOrName) {
     return new ContentTypeSearchIndexing(true);
   }

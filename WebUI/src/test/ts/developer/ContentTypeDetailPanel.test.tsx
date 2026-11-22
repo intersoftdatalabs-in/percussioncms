@@ -26,6 +26,7 @@ vi.mock("../../../main/ts/api/developer/contentTypesApi", async (importOriginal)
     getContentTypeDetail: vi.fn(),
     updateContentTypeDetail: vi.fn(),
     setContentTypeEnabled: vi.fn(),
+    setContentTypeHideFromMenu: vi.fn(),
     getContentTypeSearchIndexing: vi.fn(),
     setContentTypeSearchIndexing: vi.fn(),
     getContentTypeIcon: vi.fn(),
@@ -100,6 +101,9 @@ const updateContentTypeDetail = contentTypesApi.updateContentTypeDetail as Retur
   typeof vi.fn
 >;
 const setContentTypeEnabled = contentTypesApi.setContentTypeEnabled as ReturnType<typeof vi.fn>;
+const setContentTypeHideFromMenu = contentTypesApi.setContentTypeHideFromMenu as ReturnType<
+  typeof vi.fn
+>;
 const getContentTypeSearchIndexing = contentTypesApi.getContentTypeSearchIndexing as ReturnType<
   typeof vi.fn
 >;
@@ -174,6 +178,7 @@ describe("ContentTypeDetailPanel", () => {
     getContentTypeDetail.mockReset();
     updateContentTypeDetail.mockReset();
     setContentTypeEnabled.mockReset();
+    setContentTypeHideFromMenu.mockReset();
     getContentTypeSearchIndexing.mockReset();
     setContentTypeSearchIndexing.mockReset();
     getContentTypeIcon.mockReset();
@@ -222,6 +227,10 @@ describe("ContentTypeDetailPanel", () => {
     setContentTypeEnabled.mockImplementation(async (_id, enabled: boolean) => ({
       ...sampleDetail,
       enabled,
+    }));
+    setContentTypeHideFromMenu.mockImplementation(async (_id, hideFromMenu: boolean) => ({
+      ...sampleDetail,
+      hideFromMenu,
     }));
     getContentTypeSearchIndexing.mockResolvedValue({ searchIndexing: true });
     getContentTypeIcon.mockResolvedValue({ source: "none" });
@@ -933,6 +942,9 @@ describe("ContentTypeDetailPanel", () => {
     render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
     expect(screen.getByTestId("developer-ct-lock-toolbar")).toBeTruthy();
     expect((screen.getByTestId("developer-ct-enabled") as HTMLInputElement).disabled).toBe(true);
+    expect((screen.getByTestId("developer-ct-hide-from-menu") as HTMLInputElement).disabled).toBe(
+      true,
+    );
     expect(
       (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).disabled,
     ).toBe(true);
@@ -977,6 +989,49 @@ describe("ContentTypeDetailPanel", () => {
     fireEvent.click(screen.getByTestId("developer-ct-save"));
     await waitFor(() => {
       expect(setContentTypeEnabled).toHaveBeenCalledWith("percPage", false);
+    });
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+    expect(unlockContentType).not.toHaveBeenCalled();
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-detail-notice").textContent).toMatch(/saved/i);
+    });
+    expect(screen.getByTestId("developer-ct-lock-status").textContent).toBe("Locked by you");
+  });
+
+  it("keeps the hide-from-menu toggle disabled until lock (#6935)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-hide-from-menu")).toBeTruthy();
+    });
+    const box = screen.getByTestId("developer-ct-hide-from-menu") as HTMLInputElement;
+    expect(box.disabled).toBe(true);
+    expect(box.checked).toBe(false);
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
+    expect(setContentTypeHideFromMenu).not.toHaveBeenCalled();
+    expect(updateContentTypeDetail).not.toHaveBeenCalled();
+  });
+
+  it("saves hide-from-menu via dedicated PUT after lock (#6935)", async () => {
+    getContentTypeDetail.mockResolvedValue(sampleDetail);
+    render(<ContentTypeDetailPanel idOrName="percPage" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect((screen.getByTestId("developer-ct-lock") as HTMLButtonElement).disabled).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-lock"));
+    await waitFor(() => {
+      expect(
+        (screen.getByTestId("developer-ct-hide-from-menu") as HTMLInputElement).disabled,
+      ).toBe(false);
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-hide-from-menu"));
+    expect((screen.getByTestId("developer-ct-hide-from-menu") as HTMLInputElement).checked).toBe(
+      true,
+    );
+    expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(false);
+    fireEvent.click(screen.getByTestId("developer-ct-save"));
+    await waitFor(() => {
+      expect(setContentTypeHideFromMenu).toHaveBeenCalledWith("percPage", true);
     });
     expect(updateContentTypeDetail).not.toHaveBeenCalled();
     expect(unlockContentType).not.toHaveBeenCalled();

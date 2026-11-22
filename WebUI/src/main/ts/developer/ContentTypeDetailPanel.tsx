@@ -45,6 +45,7 @@ import {
   contentTypeIconPutBody,
   setContentTypeAllowedWorkflows,
   setContentTypeEnabled,
+  setContentTypeHideFromMenu,
   setContentTypeIcon,
   setContentTypeSearchIndexing,
   unlockContentType,
@@ -579,6 +580,8 @@ export function ContentTypeDetailPanel({
   const searchableInflight = useRef(false);
   const [nameDraft, setNameDraft] = useState("");
   const [enabled, setEnabled] = useState(true);
+  /** Hide from menus (CD-01 meta write); default shown. Distinct from type state. */
+  const [hideFromMenu, setHideFromMenu] = useState(false);
   /** Type-level search indexing (CD-10); default on. Distinct from per-field searchable. */
   const [searchIndexing, setSearchIndexing] = useState(true);
   const [savedSearchIndexing, setSavedSearchIndexing] = useState(true);
@@ -709,6 +712,7 @@ export function ContentTypeDetailPanel({
     searchableInflight.current = false;
     setHeldLock(false);
     heldLockRef.current = false;
+    setHideFromMenu(false);
     setSearchIndexing(true);
     setSavedSearchIndexing(true);
     setSearchIndexingLoadError(null);
@@ -803,6 +807,7 @@ export function ContentTypeDetailPanel({
         setDescription(asContentTypeText(normalized.description));
         setDescriptionShown(storedContentTypeDescription(asContentTypeText(normalized.description)));
         setEnabled(normalized.enabled !== false);
+        setHideFromMenu(normalized.hideFromMenu === true);
         setFieldDrafts(toDrafts(normalized.fields));
         setWorkflows(
           withDefaultWorkflowFlags(normalized.allowedWorkflows, normalized.defaultWorkflow),
@@ -931,6 +936,7 @@ export function ContentTypeDetailPanel({
   const controlSectionDirty = controlPropsDirty || choicesDirty;
 
   const searchIndexingDirty = searchIndexing !== savedSearchIndexing;
+  const hideFromMenuDirty = detail != null && hideFromMenu !== (detail.hideFromMenu === true);
 
   const savedIconApplied = applyIconEnvelope(savedIcon);
   const iconDirty =
@@ -946,6 +952,7 @@ export function ContentTypeDetailPanel({
       description !== (detail.description || "") ||
       enabled !== (detail.enabled !== false) ||
       searchIndexingDirty ||
+      hideFromMenuDirty ||
       fieldsDirty ||
       orderDirty ||
       workflowsDirty ||
@@ -1170,6 +1177,7 @@ export function ContentTypeDetailPanel({
     setDescription(asContentTypeText(normalized.description));
     setDescriptionShown(storedContentTypeDescription(asContentTypeText(normalized.description)));
     setEnabled(normalized.enabled !== false);
+    setHideFromMenu(normalized.hideFromMenu === true);
     setFieldDrafts(toDrafts(normalized.fields));
     setWorkflows(
       withDefaultWorkflowFlags(normalized.allowedWorkflows, normalized.defaultWorkflow),
@@ -1545,6 +1553,7 @@ export function ContentTypeDetailPanel({
     }
     setDetail(saved);
     setEnabled(saved.enabled !== false);
+    setHideFromMenu(saved.hideFromMenu === true);
   }
 
   function restoreSavedContentTypeWorkflows(source: ContentTypeDetail | null): void {
@@ -1593,6 +1602,7 @@ export function ContentTypeDetailPanel({
   function hasPendingSaveWork(enabledDirty: boolean, bulkNeeded: boolean): boolean {
     return (
       enabledDirty ||
+      hideFromMenuDirty ||
       searchIndexingDirty ||
       workflowsDirty ||
       templatesDirty ||
@@ -1649,6 +1659,19 @@ export function ContentTypeDetailPanel({
     // (CD-13 two-call save; no shared rollback).
     progress.saved = normalizeDetailLists(
       await setContentTypeEnabled(activeKeyRef.current, enabled),
+    );
+  }
+
+  async function saveContentTypeHideFromMenuSection(
+    progress: ContentTypeSaveProgress,
+  ): Promise<void> {
+    if (!hideFromMenuDirty) {
+      return;
+    }
+    // Hide-from-menu PUT alongside enabled so a failed toggle cannot leave bulk
+    // fields persisted (CD-01 meta write; no shared rollback).
+    progress.saved = normalizeDetailLists(
+      await setContentTypeHideFromMenu(activeKeyRef.current, hideFromMenu),
     );
   }
 
@@ -1727,6 +1750,7 @@ export function ContentTypeDetailPanel({
         ? {
             ...normalizeDetailLists(workflowSaved),
             enabled: progress.saved.enabled,
+            hideFromMenu: progress.saved.hideFromMenu,
           }
         : normalizeDetailLists(workflowSaved);
     } catch (wfErr) {
@@ -1758,6 +1782,7 @@ export function ContentTypeDetailPanel({
       progress.saved = {
         ...bulkSaved,
         enabled: progress.saved?.enabled ?? bulkSaved.enabled,
+        hideFromMenu: progress.saved?.hideFromMenu ?? bulkSaved.hideFromMenu,
         allowedWorkflows: progress.workflowSaved?.allowedWorkflows ?? bulkSaved.allowedWorkflows,
         defaultWorkflow: progress.workflowSaved?.defaultWorkflow ?? bulkSaved.defaultWorkflow,
       };
@@ -1916,6 +1941,7 @@ export function ContentTypeDetailPanel({
     setDescription(asContentTypeText(normalized.description));
     setDescriptionShown(storedContentTypeDescription(asContentTypeText(normalized.description)));
     setEnabled(normalized.enabled !== false);
+    setHideFromMenu(normalized.hideFromMenu === true);
     setFieldDrafts(toDrafts(normalized.fields));
     setWorkflows(
       withDefaultWorkflowFlags(normalized.allowedWorkflows, normalized.defaultWorkflow),
@@ -1943,6 +1969,7 @@ export function ContentTypeDetailPanel({
         applyContentTypeFieldOrderSequences(fieldPatches, fieldOrder, childFieldOrders);
       }
       await saveContentTypeEnabledSection(progress, pre.enabledDirty);
+      await saveContentTypeHideFromMenuSection(progress);
       await saveContentTypeSearchIndexingSection(progress, pre.current);
       await saveContentTypeIconSection(progress, pre.current);
       await saveContentTypeWorkflowsSection(progress, pre.current);
@@ -2462,9 +2489,9 @@ export function ContentTypeDetailPanel({
         </div>
       ) : null}
 
-      {/* Always mount lock/enabled/search-indexing/template chrome so Playwright
+      {/* Always mount lock/enabled/hide-from-menu/search-indexing/template chrome so Playwright
           and operators see it before GET detail finishes and without scrolling
-          past the fields table (#3834 #3835 #3836 #4035). */}
+          past the fields table (#3834 #3835 #3836 #4035 #6935). */}
       <div
         role="toolbar"
         aria-label={DEV_MSG.CT_LOCK_TOOLBAR}
@@ -2611,6 +2638,22 @@ export function ContentTypeDetailPanel({
             disabled={!canEdit}
           />
           {DEV_MSG.CT_FORM_ENABLED}
+        </label>
+        <label style={{ display: "flex", alignItems: "center", gap: 8, marginLeft: "8px" }}>
+          <input
+            type="checkbox"
+            data-testid="developer-ct-hide-from-menu"
+            aria-label={DEV_MSG.CT_FORM_HIDE_FROM_MENU}
+            checked={hideFromMenu}
+            onChange={() => {
+              if (!canEdit) {
+                return;
+              }
+              setHideFromMenu((v) => !v);
+            }}
+            disabled={!canEdit}
+          />
+          {DEV_MSG.CT_FORM_HIDE_FROM_MENU}
         </label>
         <label style={{ display: "flex", alignItems: "center", gap: 8 }}>
           <input

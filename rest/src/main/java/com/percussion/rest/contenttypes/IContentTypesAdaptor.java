@@ -153,6 +153,21 @@ public interface IContentTypesAdaptor {
   ContentTypeDetail setContentTypeEnabled(URI baseUri, String idOrName, boolean enabled);
 
   /**
+   * Set whether a content type is hidden from menus (CD-01 meta write). Requires a
+   * design-session lock already held by the current user (peer lock REST). Does not acquire or
+   * release the lock. Persists {@code PSItemDefinition.setHidden} via
+   * {@code IPSContentDesignWs}; the server design save applies the flag to the node definition.
+   *
+   * @param baseUri requesting URI
+   * @param idOrName content type uuid (numeric) or internal name
+   * @param hideFromMenu {@code true} to hide from menus, {@code false} to show
+   * @return updated detail, or {@code null} when not found
+   * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
+   *     user
+   */
+  ContentTypeDetail setContentTypeHideFromMenu(URI baseUri, String idOrName, boolean hideFromMenu);
+
+  /**
    * Load type-level search indexing for a content type (CD-10). No design lock is required.
    * Reflects the root mapper field-set {@code isUserSearchable} (Workbench Properties {@code
    * Enable searching for this Content Type}). Default is on when the field-set is missing.

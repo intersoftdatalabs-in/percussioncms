@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.nullable;
 import static org.mockito.Mockito.mock;
@@ -284,6 +285,53 @@ public class ContentTypesResourceDetailTest {
             WebApplicationException.class,
             () -> resource.replaceAllowedTemplates("percPage", new NamedObjectRefList()));
     assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setHideFromMenuSuccess() {
+    ContentTypeDetail updated = new ContentTypeDetail();
+    updated.setName("percPage");
+    updated.setHideFromMenu(Boolean.TRUE);
+    when(adaptor.setContentTypeHideFromMenu(any(), eq("percPage"), eq(true))).thenReturn(updated);
+    ContentTypeDetail out = resource.setContentTypeHideFromMenu("percPage", new ContentTypeHideFromMenu(true));
+    assertEquals(Boolean.TRUE, out.getHideFromMenu());
+  }
+
+  @Test
+  public void setHideFromMenuNotFound() {
+    when(adaptor.setContentTypeHideFromMenu(any(), eq("missing"), anyBoolean())).thenReturn(null);
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeHideFromMenu("missing", new ContentTypeHideFromMenu(true)));
+    assertEquals(404, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setHideFromMenuRequiresLock() {
+    when(adaptor.setContentTypeHideFromMenu(any(), eq("percPage"), anyBoolean()))
+        .thenThrow(
+            new ContentTypeDesignLockException(
+                "Could not hide/show content type in menus; design lock required"));
+    WebApplicationException ex =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeHideFromMenu("percPage", new ContentTypeHideFromMenu(true)));
+    assertEquals(409, ex.getResponse().getStatus());
+  }
+
+  @Test
+  public void setHideFromMenuMissingFlagIsBadRequest() {
+    WebApplicationException nullBody =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeHideFromMenu("percPage", null));
+    assertEquals(400, nullBody.getResponse().getStatus());
+    WebApplicationException nullFlag =
+        assertThrows(
+            WebApplicationException.class,
+            () -> resource.setContentTypeHideFromMenu("percPage", new ContentTypeHideFromMenu()));
+    assertEquals(400, nullFlag.getResponse().getStatus());
   }
 
   @Test
