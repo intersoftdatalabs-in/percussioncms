@@ -1137,6 +1137,8 @@ function ContentExplorerShellInner({
   const clearScheduleResolveRef = useRef<((cleared: boolean) => void) | null>(
     null,
   );
+  /** Invoking control testid for clear-schedule focus return (#6998). */
+  const clearScheduleOpenerRef = useRef<string | null>(null);
   const [checkinCommentOpen, setCheckinCommentOpen] = useState(false);
   const checkinCommentResolveRef = useRef<((comment: string | null) => void) | null>(
     null,
@@ -1995,9 +1997,15 @@ function ContentExplorerShellInner({
       options?: { applyCount: number },
     ) => {
       return new Promise<ItemScheduleDates | null>((resolve) => {
+        const opener = document.activeElement;
+        captureDialogOpener(opener);
         const session = {
           current,
           applyCount: options?.applyCount ?? 1,
+          openerTestId:
+            opener instanceof HTMLElement
+              ? opener.getAttribute("data-testid")
+              : null,
           resolve,
         };
         schedulePickerRef.current = replaceSchedulePickerSession(
@@ -2106,6 +2114,12 @@ function ContentExplorerShellInner({
     return new Promise<boolean>((resolve) => {
       const previous = clearScheduleResolveRef.current;
       clearScheduleResolveRef.current = resolve;
+      const opener = document.activeElement;
+      captureDialogOpener(opener);
+      clearScheduleOpenerRef.current =
+        opener instanceof HTMLElement
+          ? opener.getAttribute("data-testid")
+          : null;
       setClearScheduleItem(item);
       if (previous) {
         previous(false);
@@ -2116,9 +2130,21 @@ function ContentExplorerShellInner({
   const finishClearSchedule = useCallback((cleared: boolean) => {
     const resolve = clearScheduleResolveRef.current;
     clearScheduleResolveRef.current = null;
+    const openerTestId = clearScheduleOpenerRef.current;
+    clearScheduleOpenerRef.current = null;
     setClearScheduleItem(null);
     if (resolve) {
       resolve(cleared);
+    }
+    // The dialog unmounts on close, so focus would otherwise be lost to
+    // the body. Return it to the invoking control when it is still shown.
+    if (openerTestId) {
+      const next = document.querySelector(
+        `[data-testid="${CSS.escape(openerTestId)}"]`,
+      );
+      if (next instanceof HTMLElement) {
+        next.focus();
+      }
     }
   }, []);
 
@@ -2127,6 +2153,16 @@ function ContentExplorerShellInner({
     schedulePickerRef.current = null;
     setSchedulePicker(null);
     settleSchedulePickerSession(current, dates);
+    // The dialog unmounts on close, so focus would otherwise be lost to
+    // the body. Return it to the invoking control when it is still shown.
+    if (current?.openerTestId) {
+      const next = document.querySelector(
+        `[data-testid="${CSS.escape(current.openerTestId)}"]`,
+      );
+      if (next instanceof HTMLElement) {
+        next.focus();
+      }
+    }
   }, []);
 
   const promptCheckinComment = useCallback(() => {

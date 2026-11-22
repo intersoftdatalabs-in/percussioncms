@@ -210,6 +210,41 @@ describe("ScheduleDatesDialog", () => {
     await renderA11yGate(container);
   });
 
+  it("focuses the publish-date input on open", () => {
+    render(
+      <ScheduleDatesDialog
+        current={CURRENT}
+        onSave={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    // Form dialog: initial focus lands on the first field, not on Save.
+    expect(screen.getByTestId("explorer-schedule-start")).toHaveFocus();
+  });
+
+  it("traps Tab inside the dialog", () => {
+    render(
+      <ScheduleDatesDialog
+        current={CURRENT}
+        onSave={vi.fn()}
+        onCancel={vi.fn()}
+      />,
+    );
+    const dialog = screen.getByTestId("explorer-schedule-dialog");
+    const start = screen.getByTestId("explorer-schedule-start");
+    const save = screen.getByTestId("explorer-schedule-save");
+    expect(start).toHaveFocus();
+    save.focus();
+    expect(save).toHaveFocus();
+    // Tab from the last control wraps to the first.
+    fireEvent.keyDown(dialog, { key: "Tab" });
+    expect(document.activeElement).toBe(start);
+    // Shift+Tab from the first control wraps to the last.
+    start.focus();
+    fireEvent.keyDown(dialog, { key: "Tab", shiftKey: true });
+    expect(document.activeElement).toBe(save);
+  });
+
   it("has no serious a11y violations", async () => {
     const { container } = render(
       <ScheduleDatesDialog

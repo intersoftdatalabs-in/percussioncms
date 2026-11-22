@@ -1017,6 +1017,83 @@ describe("ContentExplorerShell product composition (#2400)", () => {
     await renderA11yGate(container);
   });
 
+  it("Schedule dialog cancel returns focus to the toolbar control (#6998)", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("getitemdates")) {
+        return new Response(
+          JSON.stringify({
+            ItemDates: { itemId: "42", startDate: "", endDate: "" },
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return new Response(
+          JSON.stringify({
+            PagedItemList: {
+              childrenInPage: [
+                {
+                  id: "42",
+                  name: "Home",
+                  path: "/Sites/Demo/Home",
+                  type: "page",
+                  accessLevel: "WRITE",
+                },
+              ],
+              childrenCount: 1,
+              startIndex: 0,
+            },
+            PathItem: [],
+          }),
+          { status: 200, headers: { "Content-Type": "application/json" } },
+        );
+      }
+      return new Response("{}", {
+        status: 200,
+        headers: { "Content-Type": "application/json" },
+      });
+    });
+    vi.spyOn(window, "confirm").mockReturnValue(true);
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    await waitFor(() => {
+      expect(screen.getByTestId("action-toolbar-item-Schedule")).toBeInTheDocument();
+    });
+
+    // The accessible dialog returns focus to the invoking toolbar
+    // control on close (#6998, parent #4530).
+    screen.getByTestId("action-toolbar-item-Schedule").focus();
+    fireEvent.click(screen.getByTestId("action-toolbar-item-Schedule"));
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-schedule-dialog")).toBeInTheDocument();
+    });
+    // Form dialog: initial focus lands on the publish-date input.
+    await waitFor(() => {
+      expect(screen.getByTestId("explorer-schedule-start")).toHaveFocus();
+    });
+    fireEvent.click(screen.getByTestId("explorer-schedule-cancel"));
+    await waitFor(() => {
+      expect(screen.queryByTestId("explorer-schedule-dialog")).not.toBeInTheDocument();
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("action-toolbar-item-Schedule")).toHaveFocus();
+    });
+    await renderA11yGate(container);
+  });
+
   it("Publishing History opens the panel; HTTP 404 is an error not success (#4559)", async () => {
     mockFetch(async (input) => {
       const url = typeof input === "string" ? input : (input as Request).url;

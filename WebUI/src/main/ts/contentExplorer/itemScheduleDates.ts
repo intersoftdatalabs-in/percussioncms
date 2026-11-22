@@ -307,7 +307,7 @@ export async function setItemScheduleDates(
   const body = await post<unknown>(itemDatesRoot().setDates, envelope);
   const preflight = mapPublishResponse(body);
   if (preflight) {
-    throw new Error(preflight.message || preflight.token || "Schedule failed");
+    throw new Error(preflight.message || preflight.token || message(EXPLORER_MSG.SCHEDULE_FAILED_SHORT));
   }
 }
 
@@ -368,9 +368,9 @@ export function scheduleFailureMessage(err: unknown): string {
     return err.message.trim();
   }
   if (isApiError(err)) {
-    return formatApiError(err, "Schedule failed");
+    return formatApiError(err, message(EXPLORER_MSG.SCHEDULE_FAILED_SHORT));
   }
-  return "Schedule failed";
+  return message(EXPLORER_MSG.SCHEDULE_FAILED_SHORT);
 }
 
 /** Folder labels skipped by a clear. Duplicate names are listed once. */

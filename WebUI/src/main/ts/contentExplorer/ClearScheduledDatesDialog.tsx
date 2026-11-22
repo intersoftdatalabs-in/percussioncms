@@ -15,8 +15,11 @@
  * limitations under the License.
  */
 
-import React, { useEffect, useState } from "react";
-import { useDialogEscape } from "../architecture/useDialogEscape";
+import React, { useEffect, useRef, useState } from "react";
+import {
+  useDialogEscape,
+  useDialogFocusTrap,
+} from "../architecture/useDialogEscape";
 import type { PSPathItem } from "../api/contentExplorer/types";
 import { message } from "../i18n/message";
 import {
@@ -45,12 +48,19 @@ export function ClearScheduledDatesDialog({
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const itemId = (item.id ?? "").trim();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
 
   useDialogEscape(true, busy, () => {
     if (!busy) {
       onDone(false);
     }
   });
+
+  // Destructive confirm: Tab cycles inside the dialog and initial focus
+  // lands on Cancel so an accidental Enter cannot clear (mirrors the Take
+  // Down confirm, #6996; polish slice #6998, parent #4530).
+  useDialogFocusTrap(true, rootRef, cancelRef);
 
   useEffect(() => {
     let cancelled = false;
@@ -96,6 +106,7 @@ export function ClearScheduledDatesDialog({
 
   return (
     <div
+      ref={rootRef}
       role="dialog"
       aria-modal="true"
       aria-labelledby="explorer-clear-schedule-title"
@@ -156,6 +167,7 @@ export function ClearScheduledDatesDialog({
         <div style={{ display: "flex", justifyContent: "flex-end", gap: 8, marginTop: 16 }}>
           <button
             type="button"
+            ref={cancelRef}
             data-testid="explorer-clear-schedule-cancel"
             disabled={busy}
             onClick={() => onDone(false)}
