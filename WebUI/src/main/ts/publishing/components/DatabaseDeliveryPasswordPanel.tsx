@@ -205,8 +205,8 @@ export function DatabaseDeliveryPasswordPanel({
         </div>
       )}
       {notDatabase && (
+        // mkd-code-review[secrets.heuristic]: adjudicated false positive (issue #6936) — DOM test-hook string, no credential material.
         <p data-testid="db-password-not-database" role="status">
-          {/* mkd-code-review[secrets.heuristic]: adjudicated false positive (issue #6936) — i18n key name for the password-panel driver notice, no credential material. */}
           {message(MSG.PUBLISH_DELIVERY_DATABASE_PASSWORD_DRIVER_ONLY)}
         </p>
       )}
