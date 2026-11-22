@@ -271,4 +271,43 @@ test.describe("Explorer tree keyboard navigation", () => {
       expect(consoleErrors, consoleErrors.join(" | ")).toEqual([]);
     },
   );
+
+  test(
+    "external selection change moves the tab stop to the selected row",
+    {
+      tag: ["@explorer", "@explorer-tree-keyboard-nav"],
+    },
+    async ({ page }) => {
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      const consoleErrors = [];
+      page.on("console", (msg) => {
+        if (msg.type() === "error") consoleErrors.push(msg.text());
+      });
+      await installTreeRoutes(page);
+      await openExplorer(page);
+      await revealSiblings(page);
+
+      // Arrow down Holly -> Birch: focus, selection, and the tab stop move
+      // together onto Birch.
+      await treeRow(page, "/Sites/Foo/Holly").focus();
+      await page.keyboard.press("ArrowDown");
+      await expect(selectedTreeItem(page, "/Sites/Foo/Birch")).toBeVisible({ timeout: 10_000 });
+      await expect(treeRow(page, "/Sites/Foo/Birch")).toBeFocused();
+
+      // External selection change via the breadcrumb: Birch is still
+      // rendered, but the tab stop must move to the newly selected row
+      // instead of staying on the previously arrowed row (#7045 review).
+      await page.locator('[data-testid="explorer-breadcrumb-segment"][data-path="/Sites/Foo"]').click();
+      await expect(selectedTreeItem(page, "/Sites/Foo")).toBeVisible({ timeout: 10_000 });
+      const tabStops = page.locator('[data-testid="explorer-tree"] [role="treeitem"][tabindex="0"]');
+      await expect(tabStops).toHaveCount(1);
+      await expect(
+        page.locator('[data-testid="tree-node-/Sites/Foo"] [role="treeitem"][tabindex="0"]'),
+      ).toHaveCount(1);
+
+      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
+      expect(consoleErrors, consoleErrors.join(" | ")).toEqual([]);
+    },
+  );
 });

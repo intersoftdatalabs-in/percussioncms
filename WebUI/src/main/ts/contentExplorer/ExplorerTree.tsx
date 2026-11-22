@@ -1191,6 +1191,20 @@ export function ExplorerTree({
     [onSelectFolder],
   );
 
+  /**
+   * External-selection reset (#7045 review): `selectedPath` can change
+   * without keyboard interaction (breadcrumb segment, list double-click
+   * into a folder). `tabStopKey` below prefers `focusKey` while it is
+   * still visible, so a stale `focusKey` would keep the tab stop on the
+   * previously arrowed row. Clearing it lets the selection branch move
+   * the tab stop to the newly selected row. Selection follows focus, so
+   * `focusKey` always equals `selectedPath` after a keyboard move and the
+   * clear loses nothing.
+   */
+  useEffect(() => {
+    setFocusKey(null);
+  }, [selectedPath]);
+
   useEffect(
     () => () => {
       if (typeAheadRef.current.timer) {

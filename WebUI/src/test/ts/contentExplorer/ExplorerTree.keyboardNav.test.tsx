@@ -199,6 +199,44 @@ describe("ExplorerTree arrow-key navigation (#7035)", () => {
     expect(tabStops()[0]).toBe(treeItem("/Sites/Frost"));
   });
 
+  it("moves the tab stop to the selected row after an external selection change", async () => {
+    const onSelectFolder = vi.fn();
+    mockSiblings();
+    const rendered = render(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath="/Sites/Alpha"
+        onSelectFolder={onSelectFolder}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Sites/Frost")).toBeInTheDocument(),
+    );
+    // Arrow down onto Beta: the tab stop follows focus.
+    focusTreeItem("/Sites/Alpha");
+    fireEvent.keyDown(document.activeElement!, { key: "ArrowDown" });
+    expect(onSelectFolder).toHaveBeenCalledWith(
+      "/Sites/Beta",
+      expect.objectContaining({ path: "/Sites/Beta" }),
+    );
+    expect(tabStops()).toHaveLength(1);
+    expect(tabStops()[0]).toBe(treeItem("/Sites/Beta"));
+    // External selection change (breadcrumb, list double-click into a
+    // folder): Beta is still rendered, but the tab stop must move to the
+    // newly selected row instead of staying on the old focusKey (#7045
+    // review).
+    rendered.rerender(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath="/Sites/Frost"
+        onSelectFolder={onSelectFolder}
+      />,
+    );
+    await waitFor(() => expect(tabStops()).toHaveLength(1));
+    expect(tabStops()[0]).toBe(treeItem("/Sites/Frost"));
+    await renderA11yGate(rendered.container);
+  });
+
   it("labels rows with tree levels and carries the focus-ring class", async () => {
     await renderSiblingTree();
     for (const path of ["/Sites/Alpha", "/Sites/Beta", "/Sites/Frost"]) {
