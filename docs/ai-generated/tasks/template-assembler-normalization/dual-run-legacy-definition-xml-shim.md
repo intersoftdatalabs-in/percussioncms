@@ -182,9 +182,25 @@ Retired legacy XML on disk is never loaded; the failure message names it and poi
 - Multi-RDBMS matrix or host-only install validation
 - Phase 4 Design SPA (#2631) or full Phase 5 help rewrite (#2632)
 
+## Deprecation audit (#7051)
+
+Slice 3/3 audit
+([shim-deprecation-audit-7051.md](./shim-deprecation-audit-7051.md), parent
+#2626): every shim/dual-load/dual-ship surface re-verified on current main —
+shim selection policy + tests keep (production caller `PSWidgetDao`),
+`GadgetRegistry` single-load keep, DualShip helpers keep (package-build
+modern materialize), compilers + inventory gates keep permanently as upgrade
+inputs / G4 guards, `@Deprecated` markers rejected (would add usage-site
+warnings), `LEGACY_*` name collisions elsewhere recorded out of scope. M1
+recount: Widget XML **0**, waiver empty, `component-package.json` **77**
+(new baseline). Ordered removal plan, smallest-first Step 1 (delete the dead
+`GadgetRegistry.xml` classpath resource) filed as residual #7094. No policy
+change — dual-run stays RETIRED.
+
 ## See also
 
 - [definition-xml-shim-removal-criteria.md](./definition-xml-shim-removal-criteria.md) — Phase 5 metrics, gates, time-box, inventory (#2835)
+- [shim-deprecation-audit-7051.md](./shim-deprecation-audit-7051.md) — slice 3/3 deprecation audit: per-surface verdicts + ordered removal plan (#7051, parent #2626)
 - [ADR-004](./adr/004-no-definition-xml-packaging.md) — no definition XML for product packaging
 - [component-package-manifest.md](./component-package-manifest.md) — modern ship format (when present on branch)
 - [plan.md](./plan.md) — Phase 3 / Phase 5 goals
