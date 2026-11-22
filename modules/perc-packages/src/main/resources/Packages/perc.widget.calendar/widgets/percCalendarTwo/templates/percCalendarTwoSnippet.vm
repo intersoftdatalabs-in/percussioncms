@@ -89,7 +89,7 @@
         display: inline-block;
         font-size: 12px;
         /* Native <button> elements do not inherit the page font from the
-        div-based controls they replace (source-filter a11y, #6992) —
+        div-based controls they replace (source-filter a11y, #6992/#7034) —
         pin the surrounding type so the swap is visually identical. */
         font-family: inherit;
         cursor: pointer;
@@ -122,8 +122,24 @@
         color: #ffffff;
       }
 
+      ## Multi-widget scoping (#7034): every event-layer class below is
+      ## suffixed with this widget instance's content/widget ids, so two
+      ## calendarTwo widgets on one page never share a layer class and a
+      ## source toggle in one widget cannot hide the other widget's
+      ## events. The unscoped .perc-calendar-other base rule above keeps
+      ## coloring the Percussion-events button; the scoped rule after the
+      ## feed loop colors that instance's own event layers.
+      ## Backward-compat (#7034 review): buttons and FullCalendar layers
+      ## keep the unsuffixed class alongside the scoped one, so legacy
+      ## site/theme hooks keep matching while the sweep keys off the
+      ## scoped class via data-calendar-source.
+      .perc-calendar-other-${calendarContentId}-${widgetId} {
+        background-color: #3a87ad;
+        color: #ffffff;
+      }
+
 #foreach($googleSource in $googleCalendarArray)##
-        .perc-$googleSource.getString("className") {
+        .perc-$googleSource.getString("className")-${calendarContentId}-${widgetId} {
         background-color: $googleSource.getString("backgroundColor") !important;
         color: $googleSource.getString("textColor") !important;
         border: $googleSource.getString("backgroundColor") !important;
@@ -190,16 +206,17 @@
       ## any direct call resolve it. Layer toggling skips the <button>
       ## controls themselves — they share the layer class for color but
       ## must stay visible/operable so focus is never dropped.
-      ## Multi-widget scoping (#7029 review): every widget instance on
-      ## the page renders this script, so the wiring below only binds
-      ## this instance's container (plus a percBound guard against a
-      ## double-fire) — otherwise N widgets bind every filter button N
-      ## times and each click toggles N times (net no-op for even N).
-      ## The clicked button is passed through so aria-pressed syncs on
-      ## the instance that was activated (button ids are not yet
-      ## widget-scoped — see #7034); direct calls without a button fall
-      ## back to getElementById. The layer sweep itself stays page-wide
-      ## by class (also #7034): widgets sharing a source toggle together.
+      ## Multi-widget scoping (#7034): every filter button id and every
+      ## event-layer class below carries this instance's
+      ## ${calendarContentId}-${widgetId} suffix, so two widgets on one
+      ## page never emit duplicate ids and never share a layer class. The
+      ## sweep stays a class query, but the class itself is now unique
+      ## per widget instance — toggling a source hides only this
+      ## widget's layers and getElementById resolves this widget's own
+      ## button. The wiring binds only this instance's container (plus a
+      ## percBound guard against double-binding when several instances
+      ## render this script); the clicked button is passed through so
+      ## aria-pressed syncs on the activated instance.
       function hideCalendarSource(calendarClass, buttonEl) {
         var button = buttonEl || document.getElementById(calendarClass + '-button');
         var nowOff = false;
@@ -240,11 +257,17 @@
       <form>
       <div id="perc-button-container-${calendarContentId}-${widgetId}" class="perc-button-container" role="group" aria-label="Calendar sources">
       #foreach($googleSource in $googleCalendarArray)
-      <button type="button" id="perc-${googleSource.getString('className')}-button" class="perc-calendar-button perc-$googleSource.getString('className')" data-calendar-source="perc-${googleSource.getString('className')}" aria-pressed="true">$googleSource.getString('calendarName')</button>
+      ## Backward-compat (#7034 review): filter buttons keep the unsuffixed
+      ## perc-<className> class alongside the scoped one, so site/theme CSS
+      ## and scripts targeting the legacy hooks keep matching; the sweep
+      ## itself keys off the scoped data-calendar-source. Ids stay
+      ## instance-suffixed (duplicate DOM ids were the #7034 defect).
+      #foreach($googleSource in $googleCalendarArray)
+      <button type="button" id="perc-${googleSource.getString('className')}-${calendarContentId}-${widgetId}-button" class="perc-calendar-button perc-$googleSource.getString('className') perc-$googleSource.getString('className')-${calendarContentId}-${widgetId}" data-calendar-source="perc-${googleSource.getString('className')}-${calendarContentId}-${widgetId}" aria-pressed="true">$googleSource.getString('calendarName')</button>
       #end
 
       #if($perc_show_perc_events_button == 'Y' && $perc_event_button_label != '')
-      <button type="button" id="perc-calendar-other-button" class="perc-calendar-button perc-calendar-other" data-calendar-source="perc-calendar-other" aria-pressed="true">$perc_event_button_label</button>
+      <button type="button" id="perc-calendar-other-${calendarContentId}-${widgetId}-button" class="perc-calendar-button perc-calendar-other perc-calendar-other-${calendarContentId}-${widgetId}" data-calendar-source="perc-calendar-other-${calendarContentId}-${widgetId}" aria-pressed="true">$perc_event_button_label</button>
       #end
       </div>
       </form>
@@ -466,7 +489,11 @@
                 {
                     googleCalendarApiKey: '${googleSource.getString("apiKey")}',
                     googleCalendarId: '${googleSource.getString("calendarId")}',
-                    className: 'perc-${googleSource.getString("className")}'
+                    ## Backward-compat (#7034 review): FullCalendar stamps every
+                    ## class in the array, so layers carry the scoped class
+                    ## for the per-instance sweep plus the unsuffixed class
+                    ## for legacy site/theme CSS.
+                    className: ['perc-${googleSource.getString("className")}', 'perc-${googleSource.getString("className")}-${calendarContentId}-${widgetId}']
                 }#if($velocityCount <= $googleSourceCount),#end
             #end
             #end
@@ -493,7 +520,7 @@
                     });
               #end
           },
-        className: 'perc-calendar-other',
+        className: ['perc-calendar-other', 'perc-calendar-other-${calendarContentId}-${widgetId}'],
 
         }
             ],
