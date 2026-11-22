@@ -19,7 +19,8 @@
  * Developer template source editor accessible names + keyboard reachability
  * (#5626 UX polish: edit textarea and highlight preview expose the
  * "Template source" accessible name; the scrollable preview is a labelled,
- * keyboard-focusable region).
+ * keyboard-focusable region; the line-number gutter is decorative and hidden
+ * from assistive tech via aria-hidden).
  *
  * Opens Developer → Templates, opens the first template detail, asserts the
  * source textarea accessible name, toggles to preview highlight, and asserts
@@ -154,6 +155,12 @@ test.describe("Developer template source editor a11y (#5626)", () => {
     expect(await preview.evaluate((el) => el === document.activeElement)).toBe(
       true,
     );
+
+    // Line-number gutter is decorative: hidden from AT (no generic-div label).
+    const gutter = page.locator('[data-testid="developer-tpl-source-lines"]');
+    await expect(gutter).toBeVisible({ timeout: 10_000 });
+    expect(await gutter.getAttribute("aria-hidden")).toBe("true");
+    expect(await gutter.getAttribute("aria-label")).toBeNull();
 
     assertConsoleClean(pageErrors, consoleErrors);
   });

@@ -46,6 +46,11 @@
 | `perc.ui.publish.modern@Driver` / Delivery Type / Folder / Save | form labels     | es, hi     | Server editor   | Done   |
 | `perc.ui.publish.modern@Set as Publish Now Server`              | default flag    | es, hi     | Server editor   | Done   |
 | `perc.ui.publish.modern@Discard Changes`                        | dirty guard     | es, hi     | Shell nav       | Done   |
+| `perc.ui.publishing.history@View History`                     | View history    | en-us only | Item history    | Done   |
+| `perc.ui.publishing.history@No Publishing History For this item` | empty item history | en-us only | Item history | Done   |
+| `perc.ui.publish.modern@Look up a page or asset by item id. Deep-link Status or Logs with itemId.` | history hint | en-us only | Item history | Done |
+| `perc.ui.publish.modern@Enter an item id` / `@Invalid item id` | history id validation | en-us only | Item history | Done |
+| `perc.ui.publish.modern@Open Status` / `@Open Logs`           | history deep links | en-us only | Item history | Done  |
 
 ## Sign-off
 

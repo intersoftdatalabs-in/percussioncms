@@ -19,9 +19,21 @@ import { describe, expect, it } from "vitest";
 import {
   canSaveLocaleDescriptionEdit,
   canSaveLocaleFieldEdit,
+  canStartCalendarEdit,
+  canStartCurrencyCodeEdit,
+  canStartCurrencyPatternEdit,
   canStartDatePatternEdit,
   canStartDateTimePatternEdit,
+  canStartDecimalSepEdit,
+  canStartDefaultTzEdit,
+  canStartDescriptionEdit,
+  canStartFirstDayEdit,
+  canStartGroupingSepEdit,
+  canStartLabelEdit,
   canStartLocaleFieldEdit,
+  canStartMeasurementEdit,
+  canStartNumberingSystemEdit,
+  canStartTextDirEdit,
   canStartTimePatternEdit,
   isLocaleCurrencySiblingEditing,
   isLocaleOtherEditorOpen,
@@ -270,6 +282,104 @@ describe("pattern start guards", () => {
         if (other === field) continue;
         expect(
           patternStartGuards[field]({
+            ...readyPatternStart,
+            editing: { ...idleFieldEditors, [other]: true },
+          }),
+        ).toBe(false);
+      }
+    }
+  });
+});
+
+// #6952 (parent #6841): the remaining twelve start guards funnel through the
+// same per-field wrapper pattern. Eight starters exclude the self editor from
+// the sibling rollup; the measurement, default-TZ, numbering-system, and
+// calendar starters preserve their historic inline self term, so an
+// already-open self editor keeps blocking a restart. startEnabledStatusEdit
+// keeps its narrower sibling set inline and stays out of scope.
+const remainingStartGuards = {
+  labelEditing: canStartLabelEdit,
+  descriptionEditing: canStartDescriptionEdit,
+  decimalSepEditing: canStartDecimalSepEdit,
+  groupingSepEditing: canStartGroupingSepEdit,
+  currencyCodeEditing: canStartCurrencyCodeEdit,
+  currencyPatternEditing: canStartCurrencyPatternEdit,
+  textDirEditing: canStartTextDirEdit,
+  firstDayEditing: canStartFirstDayEdit,
+} as const;
+
+type RemainingStartField = keyof typeof remainingStartGuards;
+
+const remainingStartFields = Object.keys(remainingStartGuards) as RemainingStartField[];
+
+// Starters whose inline chains also name the self editor: an already-open
+// self editor keeps blocking a restart (preserved historic semantics).
+const selfBlockingStartGuards = {
+  measurementEditing: canStartMeasurementEdit,
+  defaultTzEditing: canStartDefaultTzEdit,
+  numberingSystemEditing: canStartNumberingSystemEdit,
+  calendarEditing: canStartCalendarEdit,
+} as const;
+
+type SelfBlockingStartField = keyof typeof selfBlockingStartGuards;
+
+const selfBlockingStartFields = Object.keys(selfBlockingStartGuards) as SelfBlockingStartField[];
+
+describe("remaining start guards", () => {
+  it("allows an edit when idle and keyed", () => {
+    for (const field of [...remainingStartFields, ...selfBlockingStartFields]) {
+      const guard =
+        field in remainingStartGuards
+          ? remainingStartGuards[field as RemainingStartField]
+          : selfBlockingStartGuards[field as SelfBlockingStartField];
+      expect(guard(readyPatternStart)).toBe(true);
+    }
+  });
+
+  it("ignores the self editor flag", () => {
+    for (const field of remainingStartFields) {
+      expect(
+        remainingStartGuards[field]({
+          ...readyPatternStart,
+          editing: { ...idleFieldEditors, [field]: true },
+        }),
+      ).toBe(true);
+    }
+  });
+
+  it("keeps blocking while the self editor is already open", () => {
+    for (const field of selfBlockingStartFields) {
+      expect(
+        selfBlockingStartGuards[field]({
+          ...readyPatternStart,
+          editing: { ...idleFieldEditors, [field]: true },
+        }),
+      ).toBe(false);
+    }
+  });
+
+  it("blocks create mode, missing detail, and a running save", () => {
+    for (const field of [...remainingStartFields, ...selfBlockingStartFields]) {
+      const guard =
+        field in remainingStartGuards
+          ? remainingStartGuards[field as RemainingStartField]
+          : selfBlockingStartGuards[field as SelfBlockingStartField];
+      expect(guard({ ...readyPatternStart, isNew: true })).toBe(false);
+      expect(guard({ ...readyPatternStart, hasDetail: false })).toBe(false);
+      expect(guard({ ...readyPatternStart, dedicatedBlocked: true })).toBe(false);
+    }
+  });
+
+  it("blocks while any other editor is open", () => {
+    for (const field of [...remainingStartFields, ...selfBlockingStartFields]) {
+      const guard =
+        field in remainingStartGuards
+          ? remainingStartGuards[field as RemainingStartField]
+          : selfBlockingStartGuards[field as SelfBlockingStartField];
+      for (const other of fieldEditorKeys) {
+        if (other === field) continue;
+        expect(
+          guard({
             ...readyPatternStart,
             editing: { ...idleFieldEditors, [other]: true },
           }),

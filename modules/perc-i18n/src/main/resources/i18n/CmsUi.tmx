@@ -23649,6 +23649,20 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
       <tuv xml:lang="zh-cn"><seg>地位</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>地位</seg></tuv>
     <tuv xml:lang="ru"><seg>Статус</seg></tuv><tuv xml:lang="he"><seg>סטָטוּס</seg></tuv><tuv xml:lang="uk"><seg>Статус</seg></tuv><tuv xml:lang="lou"><seg>Status</seg></tuv><tuv xml:lang="pl"><seg>Status</seg></tuv><tuv xml:lang="tr"><seg>Durum</seg></tuv><tuv xml:lang="nb"><seg>Status</seg></tuv><tuv xml:lang="sv"><seg>Status</seg></tuv></tu>
+    <tu tuid="perc.ui.publishing.history@View History">
+      <tuv xml:lang="en-us"><seg>View history</seg></tuv></tu>
+    <tu tuid="perc.ui.publishing.history@No Publishing History For this item">
+      <tuv xml:lang="en-us"><seg>No publishing history for this item yet</seg></tuv></tu>
+    <tu tuid="perc.ui.publish.modern@Look up a page or asset by item id. Deep-link Status or Logs with itemId.">
+      <tuv xml:lang="en-us"><seg>Look up a page or asset by item id. Deep-link Status or Logs with itemId.</seg></tuv></tu>
+    <tu tuid="perc.ui.publish.modern@Enter an item id">
+      <tuv xml:lang="en-us"><seg>Enter an item id</seg></tuv></tu>
+    <tu tuid="perc.ui.publish.modern@Invalid item id">
+      <tuv xml:lang="en-us"><seg>Invalid item id</seg></tuv></tu>
+    <tu tuid="perc.ui.publish.modern@Open Status">
+      <tuv xml:lang="en-us"><seg>Open Status</seg></tuv></tu>
+    <tu tuid="perc.ui.publish.modern@Open Logs">
+      <tuv xml:lang="en-us"><seg>Open Logs</seg></tuv></tu>
     <tu tuid="perc.ui.publishing.history@Error Fetching History">
       <tuv xml:lang="en-us"><seg>Error fetching publishing history for:</seg></tuv>
       <tuv xml:lang="ar"><seg>حدث خطأ أثناء جلب سجل النشر لـ:</seg></tuv>
@@ -26069,6 +26083,13 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Sites &amp; servers first — Design and Runtime available when needed.">
       <tuv xml:lang="en-us"><seg>Sites &amp; servers first — Design and Runtime available when needed.</seg></tuv>
     </tu>
+    <!-- #6996: Explorer Take Down confirm dialog chrome (parent #4530). en-us only. -->
+    <tu tuid="perc.ui.explorer@Take down (unpublish)">
+      <tuv xml:lang="en-us"><seg>Take down (unpublish)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Take down">
+      <tuv xml:lang="en-us"><seg>Take down</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.publish.modern@Publish Forbidden">
       <tuv xml:lang="en-us"><seg>You are not allowed to publish.</seg></tuv>
       <tuv xml:lang="ar"><seg>غير مسموح لك بالنشر.</seg></tuv>
@@ -28413,6 +28434,40 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.editor@Tables">
       <tuv xml:lang="en-us"><seg>Tables</seg></tuv>
     <tuv xml:lang="de"><seg>Tabellen</seg></tuv><tuv xml:lang="fr"><seg>Tableaux</seg></tuv><tuv xml:lang="zh-tw"><seg>表格</seg></tuv><tuv xml:lang="es"><seg>Tablas</seg></tuv><tuv xml:lang="nl"><seg>Tabellen</seg></tuv><tuv xml:lang="pt"><seg>Tabelas</seg></tuv><tuv xml:lang="ru"><seg>Таблицы</seg></tuv><tuv xml:lang="uk"><seg>Таблиці</seg></tuv><tuv xml:lang="hi"><seg>तालिकाएँ</seg></tuv><tuv xml:lang="bn"><seg>সারণি</seg></tuv><tuv xml:lang="te"><seg>పట్టికలు</seg></tuv><tuv xml:lang="tr"><seg>Tablolar</seg></tuv><tuv xml:lang="ar"><seg>الجداول</seg></tuv><tuv xml:lang="he"><seg>טבלאות</seg></tuv><tuv xml:lang="it"><seg>Tabelle</seg></tuv><tuv xml:lang="ja-jp"><seg>表</seg></tuv><tuv xml:lang="nb"><seg>Tabeller</seg></tuv><tuv xml:lang="pl"><seg>Tabele</seg></tuv><tuv xml:lang="sv"><seg>Tabeller</seg></tuv><tuv xml:lang="zh-cn"><seg>表格</seg></tuv><tuv xml:lang="lou"><seg>Tables</seg></tuv></tu>
+    <!-- #6932: Publish now dialog keys as i18n keys. en-us only. -->
+    <tu tuid="perc.ui.editor@Publish now">
+      <tuv xml:lang="en-us"><seg>Publish now</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.editor@Publishing…">
+      <tuv xml:lang="en-us"><seg>Publishing…</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.editor@Publish this item now?">
+      <tuv xml:lang="en-us"><seg>Publish this item now?</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.editor@Publish started.">
+      <tuv xml:lang="en-us"><seg>Publish started.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.editor@Could not publish this item.">
+      <tuv xml:lang="en-us"><seg>Could not publish this item.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.editor@Publish">
+      <tuv xml:lang="en-us"><seg>Publish</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.editor@Cancel">
+      <tuv xml:lang="en-us"><seg>Cancel</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.editor@You are not allowed to publish this item.">
+      <tuv xml:lang="en-us"><seg>You are not allowed to publish this item.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.editor@The publish request was rejected. The item was not published.">
+      <tuv xml:lang="en-us"><seg>The publish request was rejected. The item was not published.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.editor@This item cannot be published right now. It was not published.">
+      <tuv xml:lang="en-us"><seg>This item cannot be published right now. It was not published.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.editor@Publish now is only available for pages and assets.">
+      <tuv xml:lang="en-us"><seg>Publish now is only available for pages and assets.</seg></tuv>
+    </tu>
 
   </body>
 </tmx>

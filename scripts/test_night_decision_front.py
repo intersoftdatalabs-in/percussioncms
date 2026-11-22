@@ -369,3 +369,13 @@ if __name__ == "__main__":
     test_debt_seated_cooldown_yields_to_unseated_across_tiers()
     test_qa_tickets_queue_like_any_issue()
     print("ok")
+
+
+def test_blocked_label_is_skipped_until_removed():
+    gated = issue(6088, "human UAT gated fix", labels=["blocked"])
+    fresh = issue(6200, "fresh product fix")
+    assert df.rule_skip_issue(gated) == (True, "blocked_label")
+    nums = [q["issue_number"] for q in df.run([gated, fresh], [], 3, 0, "model:x", 3)["queue"]]
+    assert nums == [6200]
+    gated["labels"] = []
+    assert df.rule_skip_issue(gated) == (False, "")

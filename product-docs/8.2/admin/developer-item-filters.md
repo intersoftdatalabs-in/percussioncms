@@ -55,6 +55,16 @@ Admin REST contract — it is **not** the classic Workbench rule-builder UI.
    PUT (REST clients that do not send the field) leaves stored rules unchanged
    — this chrome always sends the current draft.
 
+## Readback
+
+The catalog and detail panels are thin reads over the Admin REST contract —
+opening a row never writes. The catalog lists every filter by **name** with
+its rule count, parent filter, and description; opening a row shows the
+stored **name** (read-only), **description**, parent, legacy authtype, and
+rule rows exactly as `GET /services/itemfilters/{idOrName}` returns them. A
+filter created in the shell appears as a new catalog row with its description
+after save, and disappears from the catalog after delete.
+
 ## Limits
 
 - Name is immutable after create.

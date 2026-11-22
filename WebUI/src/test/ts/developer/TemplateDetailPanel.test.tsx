@@ -141,6 +141,17 @@ describe("TemplateDetailPanel", () => {
     expect(onBack).toHaveBeenCalled();
   });
 
+  it("hides the decorative line-number gutter from assistive tech", async () => {
+    getTemplateDetailMock.mockResolvedValue(sampleDetail);
+    render(<TemplateDetailPanel idOrName="perc.page" onBack={() => undefined} />);
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-tpl-source-lines")).toBeTruthy();
+    });
+    const gutter = screen.getByTestId("developer-tpl-source-lines");
+    expect(gutter.getAttribute("aria-hidden")).toBe("true");
+    expect(gutter.hasAttribute("aria-label")).toBe(false);
+  });
+
   it("opens snippet library and inserts catalog text into source", async () => {
     getTemplateDetailMock.mockResolvedValue({
       ...sampleDetail,

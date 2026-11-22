@@ -223,6 +223,214 @@ export function canStartDateTimePatternEdit(state: LocalePatternStartState): boo
   });
 }
 
+/**
+ * True when the label editor may enter edit mode. Thin per-field wrapper
+ * that excludes the label editor itself from the sibling rollup, preserving
+ * the exact inline semantics of {@code startLabelEdit} (residual #6952,
+ * parent #6841). No behavior change: the sibling set stays "every other
+ * editor open", self excluded.
+ */
+export function canStartLabelEdit(state: LocalePatternStartState): boolean {
+  return canStartLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleOtherEditorOpen(state.editing, "labelEditing"),
+  });
+}
+
+/**
+ * True when the description editor may enter edit mode. Thin per-field
+ * wrapper that excludes the description editor itself from the sibling
+ * rollup, preserving the exact inline semantics of
+ * {@code startDescriptionEdit} (residual #6952, parent #6841). No behavior
+ * change: the sibling set stays "every other editor open", self excluded.
+ */
+export function canStartDescriptionEdit(state: LocalePatternStartState): boolean {
+  return canStartLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleOtherEditorOpen(state.editing, "descriptionEditing"),
+  });
+}
+
+/**
+ * True when the decimal separator editor may enter edit mode. Thin per-field
+ * wrapper that excludes the decimal separator editor itself from the sibling
+ * rollup, preserving the exact inline semantics of
+ * {@code startDecimalSepEdit} (residual #6952, parent #6841). No behavior
+ * change: the sibling set stays "every other editor open", self excluded.
+ */
+export function canStartDecimalSepEdit(state: LocalePatternStartState): boolean {
+  return canStartLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleOtherEditorOpen(state.editing, "decimalSepEditing"),
+  });
+}
+
+/**
+ * True when the grouping separator editor may enter edit mode. Thin
+ * per-field wrapper that excludes the grouping separator editor itself from
+ * the sibling rollup, preserving the exact inline semantics of
+ * {@code startGroupingSepEdit} (residual #6952, parent #6841). No behavior
+ * change: the sibling set stays "every other editor open", self excluded.
+ */
+export function canStartGroupingSepEdit(state: LocalePatternStartState): boolean {
+  return canStartLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleOtherEditorOpen(state.editing, "groupingSepEditing"),
+  });
+}
+
+/**
+ * True when the currency code editor may enter edit mode. Thin per-field
+ * wrapper that excludes the currency code editor itself from the sibling
+ * rollup, preserving the exact inline semantics of
+ * {@code startCurrencyCodeEdit} (residual #6952, parent #6841). No behavior
+ * change: the sibling set stays "every other editor open", self excluded.
+ */
+export function canStartCurrencyCodeEdit(state: LocalePatternStartState): boolean {
+  return canStartLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleOtherEditorOpen(state.editing, "currencyCodeEditing"),
+  });
+}
+
+/**
+ * True when the currency pattern editor may enter edit mode. Thin per-field
+ * wrapper that excludes the currency pattern editor itself from the sibling
+ * rollup, preserving the exact inline semantics of
+ * {@code startCurrencyPatternEdit} (residual #6952, parent #6841). No
+ * behavior change: the sibling set stays "every other editor open", self
+ * excluded.
+ */
+export function canStartCurrencyPatternEdit(state: LocalePatternStartState): boolean {
+  return canStartLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleOtherEditorOpen(state.editing, "currencyPatternEditing"),
+  });
+}
+
+/**
+ * True when the text direction editor may enter edit mode. Thin per-field
+ * wrapper that excludes the text direction editor itself from the sibling
+ * rollup, preserving the exact inline semantics of {@code startTextDirEdit}
+ * (residual #6952, parent #6841). No behavior change: the sibling set stays
+ * "every other editor open", self excluded.
+ */
+export function canStartTextDirEdit(state: LocalePatternStartState): boolean {
+  return canStartLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleOtherEditorOpen(state.editing, "textDirEditing"),
+  });
+}
+
+/**
+ * True when the first-day-of-week editor may enter edit mode. Thin per-field
+ * wrapper that excludes the first-day editor itself from the sibling rollup,
+ * preserving the exact inline semantics of {@code startFirstDayEdit}
+ * (residual #6952, parent #6841). No behavior change: the sibling set stays
+ * "every other editor open", self excluded.
+ */
+export function canStartFirstDayEdit(state: LocalePatternStartState): boolean {
+  return canStartLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleOtherEditorOpen(state.editing, "firstDayEditing"),
+  });
+}
+
+/**
+ * True when the measurement system editor may enter edit mode. Thin
+ * per-field wrapper preserving the exact inline semantics of
+ * {@code startMeasurementEdit} (residual #6952, parent #6841): unlike the
+ * sibling starters above, that inline chain also names the measurement
+ * editor itself, so an already-open measurement editor keeps blocking a
+ * restart. No behavior change.
+ */
+export function canStartMeasurementEdit(state: LocalePatternStartState): boolean {
+  if (state.editing.measurementEditing) {
+    return false;
+  }
+  return canStartLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleOtherEditorOpen(state.editing, "measurementEditing"),
+  });
+}
+
+/**
+ * True when the default time-zone editor may enter edit mode. Thin per-field
+ * wrapper preserving the exact inline semantics of
+ * {@code startDefaultTzEdit} (residual #6952, parent #6841): unlike the
+ * sibling starters above, that inline chain also names the default-TZ editor
+ * itself, so an already-open default-TZ editor keeps blocking a restart. No
+ * behavior change.
+ */
+export function canStartDefaultTzEdit(state: LocalePatternStartState): boolean {
+  if (state.editing.defaultTzEditing) {
+    return false;
+  }
+  return canStartLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleOtherEditorOpen(state.editing, "defaultTzEditing"),
+  });
+}
+
+/**
+ * True when the numbering system editor may enter edit mode. Thin per-field
+ * wrapper preserving the exact inline semantics of
+ * {@code startNumberingSystemEdit} (residual #6952, parent #6841): unlike the
+ * sibling starters above, that inline chain also names the numbering-system
+ * editor itself, so an already-open numbering-system editor keeps blocking a
+ * restart. No behavior change.
+ */
+export function canStartNumberingSystemEdit(state: LocalePatternStartState): boolean {
+  if (state.editing.numberingSystemEditing) {
+    return false;
+  }
+  return canStartLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleOtherEditorOpen(state.editing, "numberingSystemEditing"),
+  });
+}
+
+/**
+ * True when the calendar editor may enter edit mode. Thin per-field wrapper
+ * preserving the exact inline semantics of {@code startCalendarEdit}
+ * (residual #6952, parent #6841): unlike the sibling starters above, that
+ * inline chain also names the calendar editor itself, so an already-open
+ * calendar editor keeps blocking a restart. No behavior change.
+ */
+export function canStartCalendarEdit(state: LocalePatternStartState): boolean {
+  if (state.editing.calendarEditing) {
+    return false;
+  }
+  return canStartLocaleFieldEdit({
+    isNew: state.isNew,
+    hasDetail: state.hasDetail,
+    dedicatedBlocked: state.dedicatedBlocked,
+    siblingOpen: isLocaleOtherEditorOpen(state.editing, "calendarEditing"),
+  });
+}
+
 export interface LocaleDescriptionSaveReadiness {
   isNew: boolean;
   hasDetail: boolean;
