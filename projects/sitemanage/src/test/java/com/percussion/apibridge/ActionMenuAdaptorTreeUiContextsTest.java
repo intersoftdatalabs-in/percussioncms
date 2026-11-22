@@ -224,6 +224,115 @@ class ActionMenuAdaptorTreeUiContextsTest {
     assertEquals(nodes, countOverlaid(tree));
   }
 
+  /**
+   * H2-level enabled-vs-bypassed evidence (#6859): the issue asks for {@code GET
+   * /actions/find} timings with the #6853 cache enabled vs bypassed (TTL=0).
+   * Explorer fires {@code /find} on every selection change, modeled here as {@code
+   * repeats} back-to-back overlays over a real-sized catalog with a simulated 150ms
+   * design load. The cached adaptor pays one load; the TTL=0 adaptor pays one load
+   * per repeat (each sleep advances the wall clock past the zero TTL, so expiry is
+   * deterministic). Absolute numbers are mock-backed (they prove call elimination,
+   * not DB latency); MySQL/MSSQL measurement stays a human-env residual.
+   */
+  @Test
+  void repeatedFindCachedVsBypassed_loadCountsAndLatency() throws Exception {
+    int roots = 40;
+    int perRoot = 10;
+    int repeats = 5;
+    Catalog cachedCatalog = buildSizedCatalog(roots, perRoot);
+    Catalog bypassedCatalog = buildSizedCatalog(roots, perRoot);
+
+    IPSUiDesignWs cachedWs = mock(IPSUiDesignWs.class);
+    when(cachedWs.loadActions(anyList(), eq(false), eq(false), eq("test-session"), eq("Admin")))
+        .thenAnswer(
+            inv -> {
+              Thread.sleep(150);
+              return cachedCatalog.domains;
+            });
+    ActionMenuAdaptor cached = new ActionMenuAdaptor(cachedWs, () -> true);
+
+    long cachedStart = System.nanoTime();
+    for (int i = 0; i < repeats; i++) {
+      cached.overlayTreeUiContexts(cachedCatalog.tree);
+    }
+    long cachedMillis = (System.nanoTime() - cachedStart) / 1_000_000;
+
+    IPSUiDesignWs bypassedWs = mock(IPSUiDesignWs.class);
+    when(bypassedWs.loadActions(anyList(), eq(false), eq(false), eq("test-session"), eq("Admin")))
+        .thenAnswer(
+            inv -> {
+              Thread.sleep(150);
+              return bypassedCatalog.domains;
+            });
+    ActionMenuAdaptor bypassed = new ActionMenuAdaptor(bypassedWs, () -> true, null, 0L);
+
+    long bypassedStart = System.nanoTime();
+    for (int i = 0; i < repeats; i++) {
+      bypassed.overlayTreeUiContexts(bypassedCatalog.tree);
+    }
+    long bypassedMillis = (System.nanoTime() - bypassedStart) / 1_000_000;
+
+    System.out.println(
+        "[uiContexts-cache-vs-bypass] nodes="
+            + cachedCatalog.nodes
+            + " repeats="
+            + repeats
+            + " cachedLoads=1 cachedMs="
+            + cachedMillis
+            + " bypassedLoads="
+            + repeats
+            + " bypassedMs="
+            + bypassedMillis);
+
+    verify(cachedWs, times(1))
+        .loadActions(anyList(), eq(false), eq(false), eq("test-session"), eq("Admin"));
+    verify(bypassedWs, times(repeats))
+        .loadActions(anyList(), eq(false), eq(false), eq("test-session"), eq("Admin"));
+    assertEquals(cachedCatalog.nodes, countOverlaid(cachedCatalog.tree));
+    assertEquals(bypassedCatalog.nodes, countOverlaid(bypassedCatalog.tree));
+  }
+
+  /**
+   * Real-sized catalog fixture for latency comparisons: {@code roots} roots x {@code
+   * perRoot} children plus a duplicate id per root to exercise {@code LinkedHashSet}
+   * dedup (mirrors the #6853 shape).
+   */
+  private static Catalog buildSizedCatalog(int roots, int perRoot) {
+    List<ActionMenu> tree = new ArrayList<>(roots);
+    List<PSAction> domains = new ArrayList<>(roots * (perRoot + 1));
+    int id = 1000;
+    for (int r = 0; r < roots; r++) {
+      ActionMenu root = dtoMenu(id, "Root" + r);
+      domains.add(domainAction(id, "3", "CXNAV"));
+      id++;
+      ActionMenuList children = new ActionMenuList();
+      for (int c = 0; c < perRoot; c++) {
+        ActionMenu child = dtoMenu(id, "Root" + r + "_Child" + c);
+        children.add(child);
+        domains.add(domainAction(id, "3", "CXNAV"));
+        id++;
+      }
+      ActionMenu dup = dtoMenu(id - 1, "Root" + r + "_ChildDup");
+      children.add(dup);
+      root.setChildren(children);
+      tree.add(root);
+    }
+    return new Catalog(tree, domains, roots * (perRoot + 2));
+  }
+
+  /** Catalog fixture bundle: DTO tree, backing domain rows, and overlaid node count. */
+  private static final class Catalog {
+    final List<ActionMenu> tree;
+    final List<PSAction> domains;
+    final int nodes;
+
+    Catalog(List<ActionMenu> tree, List<PSAction> domains, int nodes) {
+      this.tree = tree;
+      this.domains = domains;
+      this.nodes = nodes;
+    }
+  }
+
   @Test
   void expiredCacheReloadsFromDesign() throws Exception {
     ActionMenuAdaptor shortTtl = new ActionMenuAdaptor(designWs, () -> true, null, 0L);
