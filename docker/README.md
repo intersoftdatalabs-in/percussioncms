@@ -109,6 +109,16 @@ echo "$MAVEN_ARGS"  # -Dmaven.repo.local=<this-worktree>/tmp/m2-worktree/reposit
 
 The directory is `<repo_root>/tmp/m2-worktree/repository` (`tmp/` is gitignored, so it never pollutes `git status` and vanishes with the worktree). Seeding copies **all** non-`SNAPSHOT` artifacts from the shared repository, which is typically **several GB per shard** — plan host disk accordingly when running many concurrent shards (`du -sh tmp/m2-worktree` to check). Re-running is a no-op once seeded (marker file). Export the printed `MAVEN_ARGS` in every shell that runs `mvnw` from the shard — including the host workflow that launches Work agents — and `qa-up`'s automatic strict preflight verifies the resolved repo before every boot.
 
+Lane/shard seats created with plain `git worktree add` never inherit the launcher's `MAVEN_ARGS`/`NIGHT_M2_REPO`, so their `mvnw` still writes into the shared `~/.m2` (#6709). Those seats get the same isolation through the worktree seed step they already run:
+
+```bash
+# Same repo + export as above, combined with the AGENTS.local.md seed.
+eval "$(python3 scripts/night-seed-worktree.py --m2 .)"
+echo "$MAVEN_ARGS"  # -Dmaven.repo.local=<this-worktree>/tmp/m2-worktree/repository ...
+```
+
+`--m2` is opt-in (the plain seed stays a cheap metadata copy): `--m2-seed-from <repo>` overrides the seed source, `--no-m2-seed` creates the directory without copying. The step fails loudly (exit 1) when the helper cannot load, so a seat never mistakes an unisolated shell for an isolated one.
+
 The printed line is POSIX-shell syntax (`sh` / `bash`, Git Bash / WSL on Windows — not `cmd` / PowerShell, where `MAVEN_ARGS` must be set by hand). It appends the per-worktree flag *after* any existing `MAVEN_ARGS`, so it wins when `MAVEN_ARGS` already carries a `-Dmaven.repo.local` (Maven honors the last token), and it stays valid when the worktree path contains whitespace (#6807).
 
 The older per-host `~/.m2-night` recipe below still applies to the shared primary checkout; per-worktree repos take precedence whenever `MAVEN_ARGS` already carries `-Dmaven.repo.local` (first hit wins). `~/.m2/settings.xml` (servers / mirrors) still applies because Maven reads it from `user.home`, not from the local repo.

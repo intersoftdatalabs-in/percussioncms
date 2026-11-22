@@ -225,3 +225,93 @@ def test_cli_check_is_ok_when_primary_has_none(tmp_path: Path) -> None:
     )
     assert completed.returncode == 0
     assert "no AGENTS.local.md" in completed.stdout
+
+
+def _plain_worktree(tmp_path: Path, name: str = "seat") -> Path:
+    """A non-git directory standing in for a lane worktree (m2 tests)."""
+    wt = tmp_path / name
+    wt.mkdir()
+    return wt
+
+
+def test_m2_is_opt_in_without_flag(tmp_path: Path) -> None:
+    """Without --m2 the seed must not create a per-worktree Maven repo."""
+    primary = _seed_repo(tmp_path)
+    wt = _add_worktree(primary, tmp_path / "lane")
+    completed = subprocess.run(
+        [sys.executable, str(SCRIPT_PATH), str(wt)],
+        check=False,
+        shell=False,
+        timeout=60,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0
+    assert not (wt / "tmp" / "m2-worktree").exists()
+
+
+def test_m2_no_seed_creates_repo_and_prints_export(tmp_path: Path) -> None:
+    """--m2 --no-m2-seed creates the repo dir and prints an eval-able export."""
+    mod = _load_module()
+    wt = _plain_worktree(tmp_path)
+    rc = mod.main(["--m2", "--no-m2-seed", "--primary", str(tmp_path), str(wt)])
+    assert rc == 0
+    repo = wt / "tmp" / "m2-worktree" / "repository"
+    assert repo.is_dir()
+
+
+def test_m2_cli_export_round_trips_through_canonical_parser(tmp_path: Path) -> None:
+    """The printed export resolves back to the worktree repo via the helper."""
+    wt = _plain_worktree(tmp_path)
+    completed = subprocess.run(
+        [sys.executable, str(SCRIPT_PATH), "--m2", "--no-m2-seed", "--primary", str(tmp_path), str(wt)],
+        check=False,
+        shell=False,
+        timeout=60,
+        capture_output=True,
+        text=True,
+    )
+    assert completed.returncode == 0
+    export = next(line for line in completed.stdout.splitlines() if "MAVEN_ARGS" in line)
+    assert export.startswith("export MAVEN_ARGS=")
+    helper_spec = importlib.util.spec_from_file_location(
+        "maven_local_repo",
+        SCRIPT_DIR.parent / "docker" / "scripts" / "maven_local_repo.py",
+    )
+    assert helper_spec is not None and helper_spec.loader is not None
+    helper = importlib.util.module_from_spec(helper_spec)
+    helper_spec.loader.exec_module(helper)
+    resolved = helper.parse_repo_local(export)
+    assert resolved is not None
+    assert resolved == wt.resolve() / "tmp" / "m2-worktree" / "repository"
+    assert "Per-worktree Maven local repo" in completed.stderr
+
+
+def test_m2_seeds_third_party_and_skips_snapshots(tmp_path: Path) -> None:
+    """--m2 copies release artifacts but never project SNAPSHOT jars."""
+    mod = _load_module()
+    wt = _plain_worktree(tmp_path)
+    seed_from = tmp_path / "shared-m2"
+    third_party = seed_from / "com" / "example" / "lib" / "1.0" / "lib-1.0.jar"
+    third_party.parent.mkdir(parents=True)
+    third_party.write_bytes(b"third-party")
+    snapshot = seed_from / "com" / "percussion" / "rest" / "8.2.0-SNAPSHOT" / "rest-8.2.0-SNAPSHOT.jar"
+    snapshot.parent.mkdir(parents=True)
+    snapshot.write_bytes(b"poison")
+    rc = mod.main(["--m2", "--m2-seed-from", str(seed_from), "--primary", str(tmp_path), str(wt)])
+    assert rc == 0
+    repo = wt / "tmp" / "m2-worktree" / "repository"
+    assert (repo / "com" / "example" / "lib" / "1.0" / "lib-1.0.jar").is_file()
+    assert not (repo / "com" / "percussion" / "rest" / "8.2.0-SNAPSHOT" / "rest-8.2.0-SNAPSHOT.jar").exists()
+    # Second run with the same source is a marker-guarded no-op.
+    rc = mod.main(["--m2", "--m2-seed-from", str(seed_from), "--primary", str(tmp_path), str(wt)])
+    assert rc == 0
+
+
+def test_m2_missing_helper_exits_1(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """--m2 fails loudly when the canonical helper cannot load."""
+    mod = _load_module()
+    wt = _plain_worktree(tmp_path)
+    monkeypatch.setattr(mod, "_M2_HELPER_REL", Path("docker") / "scripts" / "does-not-exist.py")
+    rc = mod.main(["--m2", "--no-m2-seed", "--primary", str(tmp_path), str(wt)])
+    assert rc == 1

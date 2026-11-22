@@ -168,13 +168,19 @@ a post-checkout hook.
   ```bash
   python3 scripts/night-seed-worktree.py <worktree>
   python3 scripts/night-seed-worktree.py --check <worktree>
+  python3 scripts/night-seed-worktree.py --m2 <worktree>
+  eval "$(python3 scripts/night-seed-worktree.py --m2 <worktree>)"
   bash scripts/night-seed-worktree.sh --check <worktree>
   ```
 
   `--check` seeds if missing, then exits 2 if the primary still has
   `AGENTS.local.md` that the worktree does not (seat-start / preflight
-  stop). `--overwrite` refreshes existing copies from the primary. Missing
-  source is a no-op. The script never prints file contents.
+  stop). `--overwrite` refreshes existing copies from the primary. `--m2`
+  (opt-in, #6709) also creates the per-worktree Maven local repository via
+  the canonical `docker/scripts/maven_local_repo.py` helper and prints the
+  `MAVEN_ARGS` export that isolates the seat's SNAPSHOT builds from sibling
+  worktrees (`--m2-seed-from` overrides the seed source, `--no-m2-seed`
+  skips the copy). Missing source is a no-op. The script never prints file contents.
 
 - **For other runners**: pull this workflow and keep your own
   `AGENTS.local.md` in your primary checkout. No git hook is required.

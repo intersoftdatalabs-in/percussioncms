@@ -59,6 +59,12 @@ from pathlib import Path
 from typing import Mapping, Optional
 
 _REPO_LOCAL_RE = re.compile(r"""-Dmaven\.repo\.local=(?:"([^"]*)"|'([^']*)'|(\S+))""")
+# Fully-quoted flag as emitted by the --m2 export lines (shlex.quote wraps
+# the whole flag, not just the value, so Windows backslashes survive eval).
+_QUOTED_REPO_LOCAL_RES = (
+    re.compile(r"""'-Dmaven\.repo\.local=([^']*)'"""),
+    re.compile(r'''"-Dmaven\.repo\.local=([^"]*)"'''),
+)
 _POSIX_MAVENRC_SYSTEM_FILES = (
     # mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #6787,
     # same class as #6341) — POSIX system mavenrc paths the mvn launcher sources;
@@ -104,11 +110,23 @@ def default_m2_repository() -> Path:
 
 
 def parse_repo_local(text: Optional[str]) -> Optional[Path]:
-    """Return the last ``-Dmaven.repo.local=`` value in ``text`` (Maven: last wins)."""
+    """Return the last ``-Dmaven.repo.local=`` value in ``text`` (Maven: last wins).
+
+    Also unwraps a fully-quoted flag (``'-Dmaven.repo.local=...'``): the
+    ``--m2`` export lines quote the whole flag with :func:`shlex.quote`
+    so Windows backslashes survive a POSIX ``eval`` (#6807), which leaves
+    the opening quote *before* ``-D`` and would otherwise leak the closing
+    quote into the parsed path on Windows (#6709 review).
+    """
     if not text:
         return None
+    unwrapped = text
+    for quoted in _QUOTED_REPO_LOCAL_RES:
+        unwrapped = quoted.sub(
+            lambda match: f"-Dmaven.repo.local={match.group(1)}", unwrapped
+        )
     value = None
-    for match in _REPO_LOCAL_RE.finditer(text):
+    for match in _REPO_LOCAL_RE.finditer(unwrapped):
         value = next(g for g in match.groups() if g is not None)
     if not value:
         return None
