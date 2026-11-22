@@ -69,6 +69,13 @@
  * the 2.3.6 CSS drops the data-URI sprite for an external
  * `jquery.minicolors.png`, so the sprite ships as a payload twin next to
  * each CSS copy (with matching psx_archiveInfo/psx_archiveManifest
+ * entries). The CSS twins additionally carry the #7002 upstream-attribution
+ * preserve-comment banner (issue #7033: the parity pin compares
+ * banner-stripped bytes and pins the banner separately, so the Java
+ * WidgetPayloadUpstreamNoticeGuardTest and this file agree).
+ * the 2.3.6 CSS drops the data-URI sprite for an external
+ * `jquery.minicolors.png`, so the sprite ships as a payload twin next to
+ * each CSS copy (with matching psx_archiveInfo/psx_archiveManifest
  * entries). Behavior deltas taken with the rebase: removed 7-swatch cap,
  * named `{name, color}` swatches with title tooltips, `transparent`
  * swatch support, default position `bottom` (the editor still passes
@@ -1674,7 +1681,9 @@ const MINICOLORS_CSS_PAYLOADS = [
     // jquery.minicolors.css FileDescriptor, rx_resources). Stock 2.3.6
     // references the sprite as an external `url(jquery.minicolors.png)`
     // (no data-URI inline), so the png ships as a payload twin next to
-    // the CSS and the copy stays byte-identical to the npm dist.
+    // the CSS and the copy stays byte-identical to the npm dist after the
+    // leading /*! attribution banner (issue #7002, pinned below and by
+    // the Java guard; see issue #7033).
     payload: path.join(
       "modules",
       "perc-packages",
@@ -1726,6 +1735,18 @@ const MINICOLORS_CSS_PAYLOADS = [
 // keyword paths the jQuery-4 keywords test below exercises.
 const MINICOLORS_KEYWORD_PATH_COUNT = 2;
 
+// Issue #7033: the vendored CSS twins carry a leading /*! ... */
+// upstream-attribution banner (issue #7002, pinned by
+// WidgetPayloadUpstreamNoticeGuardTest in perc-packages) that the npm dist
+// does not ship, so strict byte-identity contradicts the guard. Strip the
+// single leading preserve-comment banner before comparing, and pin the
+// banner separately below so the attribution cannot be silently dropped.
+const CSS_ATTRIBUTION_BANNER_RE = /^\/\*![\s\S]*?\*\/\s*/;
+
+function stripCssAttributionBanner(css) {
+  return css.replace(CSS_ATTRIBUTION_BANNER_RE, "");
+}
+
 function loadMinicolorsPayloadAsJqueryPlugin(payloadRelPath) {
   // The UMD dist closes over bare `jQuery` (browser-globals branch under
   // `window.eval`), so expose the jsdom-bound jQuery globally before
@@ -1766,11 +1787,14 @@ describe("widget-payload npm refresh parity (issue #6686: minicolors)", () => {
 
   it("calendarTwo editor MiniColors payload CSS bytes are byte-identical to the npm @claviska/jquery-minicolors dist", () => {
     for (const { payload, npmDist } of MINICOLORS_CSS_PAYLOADS) {
-      const shipped = fs.readFileSync(path.join(REPO_ROOT, payload));
-      const dist = fs.readFileSync(path.join(NODE_MODULES, npmDist));
+      const shipped = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
+      const dist = fs.readFileSync(path.join(NODE_MODULES, npmDist), "utf8");
+      // Issue #7033: banner-headed payload — strip the single leading /*! */
+      // attribution banner (pinned below and by the Java guard) before
+      // comparing, so the shipped bytes stay attributable AND refresh-pinned.
       expect(
-        shipped.equals(dist),
-        `${payload} drifted from node_modules/${npmDist} — refresh from npm`,
+        stripCssAttributionBanner(shipped) === dist,
+        `${payload} drifted from node_modules/${npmDist} — refresh from npm (compare after the leading /*! attribution banner)`,
       ).toBe(true);
     }
   });
@@ -1807,6 +1831,12 @@ describe("widget-payload npm refresh parity (issue #6686: minicolors)", () => {
     // ships next to the CSS (with archive entries), so no png is missing.
     for (const { payload } of MINICOLORS_CSS_PAYLOADS) {
       const css = fs.readFileSync(path.join(REPO_ROOT, payload), "utf8");
+      // Issue #7033: the twins carry the #7002 /*! */ attribution banner
+      // the npm dist does not ship — pin it here (and in the Java guard)
+      // so the banner-stripped parity above cannot hide a dropped notice.
+      expect(css).toMatch(/^\/\*![\s\S]*?\*\//);
+      expect(css).toContain("Cory LaViska");
+      expect(stripCssAttributionBanner(css)).not.toContain("Cory LaViska");
       expect(css).toContain("url(jquery.minicolors.png)");
       expect(css).not.toContain("data:image/png;base64,");
       expect(
