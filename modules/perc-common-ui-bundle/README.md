@@ -17,7 +17,9 @@ those generated resources inside
 
 `build-scripts/bundle-codemirror.mjs` (npm script `bundle:codemirror`,
 Maven `bundle-codemirror` execution) bundles the `codemirror` npm package
-(pinned to CodeMirror 5 until #5701 lands the CodeMirror 6 replacement)
+(pinned to CodeMirror 5 per the #5701 end-of-life decision — no CodeMirror 6
+migration, so CodeMirror 5 stays the canonical classic source-view bundle
+until classic editing itself retires)
 into `target/classes/META-INF/resources/sys_resources/codemirror/codemirror/`
 (`codemirror.bundle.js` + `codemirror.bundle.css`). The classic template
 editor (`editTemplate_js.jsp` mirrors) and the `sys_TextArea` code-editor
