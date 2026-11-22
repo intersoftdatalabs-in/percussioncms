@@ -277,9 +277,6 @@
 	<property name="install.confmgr.immutable.dir"
 		value="${install.dir}/configmgr" />
 
-	<!-- Projects Installation property -->
-	<property name="INSTALL_PROJECTS" value="yes" />
-
 	<!-- Package properties -->
 	<property name="ant.install"
 		value="com.percussion.ant.install" />
