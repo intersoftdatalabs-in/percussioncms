@@ -40,6 +40,7 @@ const {
 const {
   expectNoSeriousA11yViolations,
 } = require("./helpers/a11y");
+const { proofScreenshot } = require("./helpers/proof-shot");
 
 const TAGS = ["@publish-site-schedule-dates", "@publish", "@smoke"];
 
@@ -206,9 +207,7 @@ test.describe("PublishingShell site-workspace schedule clear confirm (#6929)", (
     await page.keyboard.press("Shift+Tab");
     await expect(cancel).toBeFocused();
 
-    await confirm.screenshot({
-      path: "../../../docs/ai-generated/proofs/issue-6929-schedule-clear-confirm.png",
-    });
+    await proofScreenshot(confirm, "issue-6929-schedule-clear-confirm.png");
     await yes.click();
     await expect(panel.getByTestId("item-schedule-success")).toContainText(
       /cleared/i,

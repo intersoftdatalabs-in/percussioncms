@@ -33,6 +33,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { proofScreenshot } = require("./helpers/proof-shot");
 
 function developerContentTypesUrl() {
   const q = new URLSearchParams({
@@ -160,9 +161,7 @@ test.describe("Developer content type child field-set order (#6464)", () => {
     await openFolderDetail(page);
     expect(await aclNames(page)).toEqual([secondName, firstName, initial[2]]);
     await page.locator('[data-testid="developer-ct-fields"]').scrollIntoViewIfNeeded();
-    await page.screenshot({
-      path: "../../../docs/ai-generated/proofs/issue-6464-child-fieldset-order.png",
-    });
+    await proofScreenshot(page, "issue-6464-child-fieldset-order.png");
 
     // Restore the saved order.
     await page.locator('[data-testid="developer-ct-lock"]').click();

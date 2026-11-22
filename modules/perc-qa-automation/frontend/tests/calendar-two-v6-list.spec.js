@@ -86,6 +86,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { test, expect } = require("@playwright/test");
+const { proofScreenshot } = require("./helpers/proof-shot");
 
 const REPO_ROOT = path.join(__dirname, "..", "..", "..", "..");
 const CALENDARTWO_JS = path.join(
@@ -130,12 +131,6 @@ const SNIPPET_PATH = path.join(
   "percCalendarTwo",
   "templates",
   "percCalendarTwoSnippet.vm",
-);
-const PROOF_DIR = path.join(
-  REPO_ROOT,
-  "docs",
-  "ai-generated",
-  "proofs",
 );
 
 // Escape the script-closing sequence for safe inlining into the harness
@@ -512,9 +507,7 @@ test.describe("calendarTwo v6 list/toggle/print/mini parity (issue #6978)", () =
     await expect(list).toBeVisible();
     await expect(list).toHaveAttribute("aria-live", "polite");
 
-    await page.screenshot({
-      path: path.join(PROOF_DIR, "issue-6978-list.png"),
-    });
+    await proofScreenshot(page, "issue-6978-list.png");
 
     // Toggle back: destroy + re-init restores the month view.
     await calButton.click();
@@ -526,9 +519,7 @@ test.describe("calendarTwo v6 list/toggle/print/mini parity (issue #6978)", () =
     await expect(listButton).toHaveAttribute("aria-pressed", "false");
     await expect(page.evaluate(() => window.Perc.range)).resolves.toBe(6);
 
-    await page.screenshot({
-      path: path.join(PROOF_DIR, "issue-6978-toggle-back.png"),
-    });
+    await proofScreenshot(page, "issue-6978-toggle-back.png");
 
     expectQuiet(noise);
   });
@@ -569,9 +560,7 @@ test.describe("calendarTwo v6 list/toggle/print/mini parity (issue #6978)", () =
     await expect(list.locator(".perc-event-list-element")).toHaveCount(1);
     await expect(list).toHaveAttribute("aria-live", "polite");
 
-    await page.screenshot({
-      path: path.join(PROOF_DIR, "issue-6978-list-empty.png"),
-    });
+    await proofScreenshot(page, "issue-6978-list-empty.png");
 
     expectQuiet(noise);
   });
@@ -619,9 +608,7 @@ test.describe("calendarTwo v6 list/toggle/print/mini parity (issue #6978)", () =
       page.locator("#perc-event-list-cal1-w1 .perc-event-list-element").first(),
     ).toHaveCSS("page-break-inside", "avoid");
 
-    await page.screenshot({
-      path: path.join(PROOF_DIR, "issue-6978-print.png"),
-    });
+    await proofScreenshot(page, "issue-6978-print.png");
 
     expectQuiet(noise);
   });
@@ -721,9 +708,7 @@ test.describe("calendarTwo v6 list/toggle/print/mini parity (issue #6978)", () =
       /highlight/,
     );
 
-    await page.screenshot({
-      path: path.join(PROOF_DIR, "issue-6978-mini.png"),
-    });
+    await proofScreenshot(page, "issue-6978-mini.png");
 
     expectQuiet(noise);
   });

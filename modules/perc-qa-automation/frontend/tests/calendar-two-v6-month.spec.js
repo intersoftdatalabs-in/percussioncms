@@ -40,6 +40,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { test, expect } = require("@playwright/test");
+const { proofScreenshot } = require("./helpers/proof-shot");
 
 const REPO_ROOT = path.join(__dirname, "..", "..", "..", "..");
 const CALENDARTWO_JS = path.join(
@@ -55,13 +56,6 @@ const CALENDARTWO_JS = path.join(
   "widgets",
   "calendarTwo",
   "js",
-);
-const PROOF_PNG = path.join(
-  REPO_ROOT,
-  "docs",
-  "ai-generated",
-  "proofs",
-  "issue-6919-calendar-two-v6-month.png",
 );
 
 function inlinePayload(filename) {
@@ -155,7 +149,7 @@ test.describe("calendarTwo v6 month render (issue #6919 slice 1)", () => {
     });
     await expect(page.locator("#cal-fr h2")).toContainText("novembre");
 
-    await page.screenshot({ path: PROOF_PNG });
+    await proofScreenshot(page, "issue-6919-calendar-two-v6-month.png");
 
     // View-toggle mechanics: destroy tears down, re-init restores.
     await page.evaluate(() => {
