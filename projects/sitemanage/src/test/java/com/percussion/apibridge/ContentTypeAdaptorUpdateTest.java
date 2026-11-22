@@ -29,6 +29,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -67,6 +68,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
 
 /**
  * PUT content-type save requires a held design-session lock (does not auto lock-save-unlock).
@@ -330,6 +332,51 @@ class ContentTypeAdaptorUpdateTest {
             IllegalStateException.class, () -> adaptor.updateContentType(null, "311", body));
     assertTrue(ex.getMessage().toLowerCase().contains("template"), ex.getMessage());
     verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+  }
+
+  @Test
+  void update_unresolvableTemplateRefFailsBeforeContentTypeSave() throws Exception {
+    adaptor = spy(adaptor);
+    stubHeldLock();
+    stubLockedDefinition("percPage", "Page", "desc");
+    doThrow(new IllegalArgumentException("allowedTemplates[0] template not found: nope"))
+        .when(adaptor)
+        .resolveTemplateGuids(any());
+    ContentTypeDetail body = new ContentTypeDetail();
+    NamedObjectRef ref = new NamedObjectRef();
+    ref.setName("nope");
+    body.setAllowedTemplates(List.of(ref));
+
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class, () -> adaptor.updateContentType(null, "311", body));
+    assertTrue(ex.getMessage().toLowerCase().contains("template"), ex.getMessage());
+    verify(designWs, never()).saveContentTypes(anyList(), anyBoolean(), any(), any());
+    verify(designWs, never())
+        .saveAssociatedTemplates(any(), anyList(), anyBoolean(), any(), any());
+  }
+
+  @Test
+  void update_resolvesTemplateRefsBeforeContentTypeSave() throws Exception {
+    adaptor = spy(adaptor);
+    stubHeldLock();
+    stubLockedDefinition("percPage", "Page", "desc");
+    IPSGuid tpl = new PSGuid(PSTypeEnum.TEMPLATE, 501L);
+    doReturn(List.of(tpl)).when(adaptor).resolveTemplateGuids(any());
+    ContentTypeDetail body = new ContentTypeDetail();
+    NamedObjectRef ref = new NamedObjectRef();
+    ref.setName("rffSnTitle");
+    body.setAllowedTemplates(List.of(ref));
+
+    adaptor.updateContentType(null, "311", body);
+
+    InOrder order = inOrder(adaptor, designWs);
+    order.verify(adaptor).resolveTemplateGuids(any());
+    order.verify(designWs).saveContentTypes(anyList(), eq(false), eq("test-session"), eq("Admin"));
+    order
+        .verify(designWs)
+        .saveAssociatedTemplates(
+            eq(guid), eq(List.of(tpl)), eq(false), eq("test-session"), eq("Admin"));
   }
 
   @Test
