@@ -173,6 +173,102 @@ class PSPageXmlSharedSnippetDedupeTest {
   }
 
   @Test
+  void expandCarriesNonDedupedModelFields() throws Exception {
+    List<PSPageXmlModel> variants = threeVariants();
+    // Compiler-visible non-deduped fields (label stem fallback, mime type,
+    // publish-when) plus every other carried scalar.
+    for (PSPageXmlModel variant : variants) {
+      variant.setSourceFileName(variant.getName() + ".templateDef");
+      variant.setLabel("Label " + variant.getName());
+      variant.setDescription("Description " + variant.getName());
+      variant.setGuid("guid-" + variant.getName());
+      variant.setMimeType("text/xml");
+      variant.setCharset("UTF-8");
+      variant.setActiveAssemblyType("asm-" + variant.getName());
+      variant.setPublishWhen("Never");
+      variant.setLocationPrefix("/site");
+      variant.setLocationSuffix(".html");
+    }
+
+    PSPageXmlSharedSnippetDedupe.DedupedModels deduped =
+        PSPageXmlSharedSnippetDedupe.dedupeModels(variants);
+
+    for (int i = 0; i < variants.size(); i++) {
+      PSPageXmlModel original = variants.get(i);
+      PSPageXmlModel expanded = deduped.getVariants().get(i).expand();
+
+      assertEquals(original.getName(), expanded.getName());
+      assertEquals(original.getSourceFileName(), expanded.getSourceFileName());
+      assertEquals(original.getLabel(), expanded.getLabel());
+      assertEquals(original.getDescription(), expanded.getDescription());
+      assertEquals(original.getGuid(), expanded.getGuid());
+      assertEquals(original.getAssembler(), expanded.getAssembler());
+      assertEquals(original.getOutputFormat(), expanded.getOutputFormat());
+      assertEquals(original.getTemplateType(), expanded.getTemplateType());
+      assertEquals(original.getMimeType(), expanded.getMimeType());
+      assertEquals(original.getCharset(), expanded.getCharset());
+      assertEquals(original.getActiveAssemblyType(), expanded.getActiveAssemblyType());
+      assertEquals(original.getPublishWhen(), expanded.getPublishWhen());
+      assertEquals(original.getLocationPrefix(), expanded.getLocationPrefix());
+      assertEquals(original.getLocationSuffix(), expanded.getLocationSuffix());
+      assertEquals(original.getTemplateBody(), expanded.getTemplateBody());
+
+      PSPageXmlCompileResult before = PSPageXmlCompiler.compile(original, testContext());
+      PSPageXmlCompileResult after = PSPageXmlCompiler.compile(expanded, testContext());
+      assertEquals(
+          before.getTextArtifacts(),
+          after.getTextArtifacts(),
+          "template source bytes must be byte-identical after dedupe");
+      assertEquals(
+          before.getManifest().getTemplates().get(0),
+          after.getManifest().getTemplates().get(0));
+    }
+  }
+
+  @Test
+  void expandPreservesNullName() throws Exception {
+    PSPageXmlModel nameless = new PSPageXmlModel();
+    nameless.setSourceFileName("promo.templateDef");
+    nameless.setOutputFormat("Page");
+    addBinding(nameless, "$sys.title", "$sys.item.getProperty(\"rx:title\")");
+    nameless.getRegionHoles().add(contentHole());
+
+    PSPageXmlSharedSnippetDedupe.DedupedModels deduped =
+        PSPageXmlSharedSnippetDedupe.dedupeModels(List.of(nameless));
+
+    // Display name falls back to the file stem, but the model itself stays nameless.
+    assertEquals("promo", deduped.getVariants().get(0).getVariantName());
+    assertNull(deduped.getVariants().get(0).expand().getName());
+  }
+
+  @Test
+  void nullEntriesRejectedUpFront() {
+    PSPageXmlModel withNullBinding = new PSPageXmlModel();
+    withNullBinding.setName("promo.page");
+    addBinding(withNullBinding, "$sys.title", "$sys.item.getProperty(\"rx:title\")");
+    withNullBinding.getBindings().add(null);
+
+    assertThrows(
+        PSPageXmlException.class,
+        () -> PSPageXmlSharedSnippetDedupe.dedupeModels(List.of(withNullBinding)));
+
+    PSPageXmlModel withNullHole = new PSPageXmlModel();
+    withNullHole.setName("promo.page");
+    withNullHole.getRegionHoles().add(null);
+
+    assertThrows(
+        PSPageXmlException.class,
+        () -> PSPageXmlSharedSnippetDedupe.dedupeModels(List.of(withNullHole)));
+
+    PSComponentPackageManifest.TemplateRef template = manifestTemplate("promo.page", "page");
+    template.getBindings().add(null);
+
+    assertThrows(
+        PSPageXmlException.class,
+        () -> PSPageXmlSharedSnippetDedupe.dedupeManifestTemplates(List.of(template)));
+  }
+
+  @Test
   void dedupeModels_emptyOrNull_throws() {
     assertThrows(
         PSPageXmlException.class, () -> PSPageXmlSharedSnippetDedupe.dedupeModels(List.of()));

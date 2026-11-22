@@ -307,20 +307,26 @@ public final class PSPageXmlSharedSnippetDedupe {
    * Build the per-position plan for one ordered entry list against its shared entries: each
    * position holds the shared index ({@code >= 0}) or the residual slot (encoded {@code -1 -
    * idx}), appending deep copies of residual entries in encounter order.
+   *
+   * @throws PSPageXmlException when an entry is null — a null slot would desynchronize the plan
+   *     from the residuals on {@code expand()} (same fail-fast contract as the variant-level
+   *     null check in {@link #dedupeModels})
    */
   private static <T> List<Integer> planEntries(
-      List<T> entries, List<T> sharedEntries, List<T> residuals, EntryCopier<T> copier) {
+      List<T> entries, List<T> sharedEntries, List<T> residuals, EntryCopier<T> copier)
+      throws PSPageXmlException {
     List<Integer> plan = new ArrayList<>(entries.size());
     for (T entry : entries) {
-      int sharedIdx = entry != null ? sharedEntries.indexOf(entry) : -1;
+      if (entry == null) {
+        throw new PSPageXmlException("Shared-snippet dedupe entry must not be null");
+      }
+      int sharedIdx = sharedEntries.indexOf(entry);
       if (sharedIdx >= 0) {
         plan.add(sharedIdx);
         continue;
       }
       plan.add(-1 - residuals.size());
-      if (entry != null) {
-        residuals.add(copier.copy(entry));
-      }
+      residuals.add(copier.copy(entry));
     }
     return plan;
   }
@@ -392,47 +398,40 @@ public final class PSPageXmlSharedSnippetDedupe {
 
   /**
    * One template variant's view of the shared assembly: a reference to the single {@link
-   * SharedAssembly} plus only this variant's residuals. Position plans record, per original
-   * entry, the shared index ({@code >= 0}) or the residual index (encoded {@code -1 - idx}),
-   * so {@link #expand()} restores the exact original order even when shared entries appear in
-   * different positions per variant (byte-identical renders).
+   * SharedAssembly} plus only this variant's residuals, alongside a deep copy of the original
+   * model carrying every non-deduped field (name, source file, label, mime type, publish-when,
+   * and friends). Position plans record, per original entry, the shared index ({@code >= 0})
+   * or the residual index (encoded {@code -1 - idx}), so {@link #expand()} restores the exact
+   * original model — entry order and untouched fields alike.
    */
   public static final class VariantView {
     private final String variantName;
+    private final PSPageXmlModel original;
     private final SharedAssembly shared;
     private final List<PSPageXmlModel.Binding> residualBindings;
     private final List<Integer> bindingPlan;
     private final List<PSPageXmlModel.RegionHole> residualRegionHoles;
     private final List<Integer> regionPlan;
-    private final String outputFormat;
-    private final String assembler;
-    private final String templateType;
-    private final String templateBody;
 
     private VariantView(
         String variantName,
+        PSPageXmlModel original,
         SharedAssembly shared,
         List<PSPageXmlModel.Binding> residualBindings,
         List<Integer> bindingPlan,
         List<PSPageXmlModel.RegionHole> residualRegionHoles,
-        List<Integer> regionPlan,
-        String outputFormat,
-        String assembler,
-        String templateType,
-        String templateBody) {
+        List<Integer> regionPlan) {
       this.variantName = variantName;
+      this.original = original;
       this.shared = shared;
       this.residualBindings = List.copyOf(residualBindings);
       this.bindingPlan = List.copyOf(bindingPlan);
       this.residualRegionHoles = List.copyOf(residualRegionHoles);
       this.regionPlan = List.copyOf(regionPlan);
-      this.outputFormat = outputFormat;
-      this.assembler = assembler;
-      this.templateType = templateType;
-      this.templateBody = templateBody;
     }
 
-    static VariantView of(PSPageXmlModel variant, SharedAssembly shared) {
+    static VariantView of(PSPageXmlModel variant, SharedAssembly shared)
+        throws PSPageXmlException {
       List<PSPageXmlModel.Binding> residuals = new ArrayList<>();
       List<Integer> bindingPlan =
           planEntries(
@@ -444,18 +443,17 @@ public final class PSPageXmlSharedSnippetDedupe {
               shared.getCommonRegionHoles(),
               residualRegions,
               VariantView::copyRegionStatic);
-      String name = variant.getName() != null ? variant.getName() : variant.pageStem();
+      // Display name only: the raw (possibly null) name travels inside the held original so a
+      // nameless model does not gain one on expand().
+      String display = variant.getName() != null ? variant.getName() : variant.pageStem();
       return new VariantView(
-          name,
+          display,
+          copyModel(variant),
           shared,
           residuals,
           bindingPlan,
           residualRegions,
-          regionPlan,
-          variant.getOutputFormat(),
-          variant.getAssembler(),
-          variant.getTemplateType(),
-          variant.getTemplateBody());
+          regionPlan);
     }
 
     /** Variant template name (never null when the model has a name or source file). */
@@ -480,20 +478,17 @@ public final class PSPageXmlSharedSnippetDedupe {
 
     /** This variant's own declared output format (may be null). */
     public String getOutputFormat() {
-      return outputFormat;
+      return original.getOutputFormat();
     }
 
     /**
      * Merge shared + residual state back into the full per-variant model in exact original
-     * order, so the render pipeline sees byte-identical inputs before and after dedupe.
+     * order, carrying every non-deduped field (name, source file, label, mime type,
+     * publish-when, location prefix/suffix, and friends) from the held original, so the render
+     * pipeline sees byte-identical inputs before and after dedupe.
      */
     public PSPageXmlModel expand() {
-      PSPageXmlModel model = new PSPageXmlModel();
-      model.setName(variantName);
-      model.setOutputFormat(outputFormat);
-      model.setAssembler(assembler);
-      model.setTemplateType(templateType);
-      model.setTemplateBody(templateBody);
+      PSPageXmlModel model = copyModel(original);
       List<PSPageXmlModel.Binding> bindings = new ArrayList<>(bindingPlan.size());
       for (int plan : bindingPlan) {
         if (plan >= 0) {
@@ -513,6 +508,45 @@ public final class PSPageXmlSharedSnippetDedupe {
       }
       model.setRegionHoles(holes);
       return model;
+    }
+
+    /**
+     * Deep copy of a variant model: every scalar field plus deep copies of the entry lists, so
+     * the view holds the original state minus nothing and {@link #expand()} cannot leak
+     * mutations back into the caller's model.
+     */
+    private static PSPageXmlModel copyModel(PSPageXmlModel source) {
+      PSPageXmlModel copy = new PSPageXmlModel();
+      copy.setSourceFileName(source.getSourceFileName());
+      copy.setName(source.getName());
+      copy.setLabel(source.getLabel());
+      copy.setDescription(source.getDescription());
+      copy.setGuid(source.getGuid());
+      copy.setAssembler(source.getAssembler());
+      copy.setOutputFormat(source.getOutputFormat());
+      copy.setTemplateType(source.getTemplateType());
+      copy.setMimeType(source.getMimeType());
+      copy.setCharset(source.getCharset());
+      copy.setActiveAssemblyType(source.getActiveAssemblyType());
+      copy.setPublishWhen(source.getPublishWhen());
+      copy.setLocationPrefix(source.getLocationPrefix());
+      copy.setLocationSuffix(source.getLocationSuffix());
+      copy.setTemplateBody(source.getTemplateBody());
+      List<PSPageXmlModel.Binding> bindings = new ArrayList<>();
+      if (source.getBindings() != null) {
+        for (PSPageXmlModel.Binding binding : source.getBindings()) {
+          bindings.add(binding != null ? copyBindingStatic(binding) : null);
+        }
+      }
+      copy.setBindings(bindings);
+      List<PSPageXmlModel.RegionHole> holes = new ArrayList<>();
+      if (source.getRegionHoles() != null) {
+        for (PSPageXmlModel.RegionHole hole : source.getRegionHoles()) {
+          holes.add(hole != null ? copyRegionStatic(hole) : null);
+        }
+      }
+      copy.setRegionHoles(holes);
+      return copy;
     }
 
     private static List<PSPageXmlModel.Binding> safeBindingsStatic(PSPageXmlModel variant) {
@@ -676,7 +710,8 @@ public final class PSPageXmlSharedSnippetDedupe {
     }
 
     static TemplateVariantView of(
-        PSComponentPackageManifest.TemplateRef template, SharedTemplateAssembly shared) {
+        PSComponentPackageManifest.TemplateRef template, SharedTemplateAssembly shared)
+        throws PSPageXmlException {
       List<PSComponentPackageManifest.Binding> residuals = new ArrayList<>();
       List<Integer> plan =
           planEntries(
