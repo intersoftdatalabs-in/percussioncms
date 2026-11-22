@@ -206,7 +206,7 @@ export function S3DeliveryAccessKeyPanel({
             <span data-testid="s3-access-key-default">{shown(defaultFlag)}</span>
           </p>
           <p data-testid="s3-access-key-status" role="status">
-            Access key: {message(MSG.PUBLISH_DELIVERY_S3_ACCESS_KEY_NEVER_SHOWN)}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_ACCESS_KEY)}: {message(MSG.PUBLISH_DELIVERY_S3_ACCESS_KEY_NEVER_SHOWN)}
           </p>
         </div>
       )}

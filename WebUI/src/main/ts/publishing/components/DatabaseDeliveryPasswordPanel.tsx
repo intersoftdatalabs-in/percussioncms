@@ -200,7 +200,7 @@ export function DatabaseDeliveryPasswordPanel({
             <span data-testid="db-password-database">{shown(databaseOrSid)}</span>
           </p>
           <p data-testid="db-password-status" role="status">
-            Password: {message(MSG.PUBLISH_DELIVERY_DATABASE_PASSWORD_NEVER_SHOWN)}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PASSWORD)}: {message(MSG.PUBLISH_DELIVERY_DATABASE_PASSWORD_NEVER_SHOWN)}
           </p>
         </div>
       )}

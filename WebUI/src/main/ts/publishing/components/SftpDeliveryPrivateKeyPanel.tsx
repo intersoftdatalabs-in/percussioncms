@@ -209,7 +209,7 @@ export function SftpDeliveryPrivateKeyPanel({
             <span data-testid="sftp-private-key-default">{shown(defaultFlag)}</span>
           </p>
           <p data-testid="sftp-private-key-status" role="status">
-            Private key: {message(MSG.PUBLISH_DELIVERY_SFTP_PRIVATE_KEY_NEVER_SHOWN)}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PRIVATE_KEY)}: {message(MSG.PUBLISH_DELIVERY_SFTP_PRIVATE_KEY_NEVER_SHOWN)}
           </p>
         </div>
       )}

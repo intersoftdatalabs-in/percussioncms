@@ -20,7 +20,9 @@
  *
  * Asserts the FTP folder delivery panel renders its title, summary labels,
  * helper text, and actions through MSG.PUBLISH_DELIVERY_* keys (English
- * defaults byte-identical to the previous bare literals), plus a live-proof
+ * defaults byte-identical to the previous bare literals), plus the FTP
+ * password panel summary status row renders its "Password:" label through
+ * MSG.PUBLISH_DELIVERY_SUMMARY_PASSWORD (#7076 follow-up), plus a live-proof
  * screenshot of the passing surface.
  *
  * Tags: @publishing-delivery-panels-i18n @publish @smoke
@@ -155,6 +157,15 @@ test.describe("PublishingShell Sites delivery panels i18n", () => {
     );
     await expect(page.getByTestId("ftp-folder-save")).toHaveText("Save folder");
     await expect(page.getByTestId("ftp-folder-cancel")).toHaveText("Cancel");
+
+    await page.getByTestId("ftp-password-open").click();
+    await expect(page.getByTestId("ftp-password-status")).toBeVisible({
+      timeout: 20000,
+    });
+    await expect(page.getByTestId("ftp-password-status")).toContainText("Password:");
+    await expect(page.getByTestId("ftp-password-status")).toContainText(
+      "Stored password is never shown.",
+    );
 
     await page.screenshot({ path: "test-results/live-proof-6936-delivery-panels.png" });
     expect(jsErrors).toEqual([]);

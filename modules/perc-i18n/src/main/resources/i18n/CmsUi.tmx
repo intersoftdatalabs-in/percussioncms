@@ -26359,6 +26359,22 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.explorer@{count} item(s)">
       <tuv xml:lang="en-us"><seg>{count} item(s)</seg></tuv>
     </tu>
+    <!-- #7076: summary status labels keyed from delivery-panel review threads (parent #6936 follow-up). en-us only. -->
+    <tu tuid="perc.ui.publish.modern@Password">
+      <tuv xml:lang="en-us"><seg>Password</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Passphrase">
+      <tuv xml:lang="en-us"><seg>Passphrase</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Private key">
+      <tuv xml:lang="en-us"><seg>Private key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Access key">
+      <tuv xml:lang="en-us"><seg>Access key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Secret key">
+      <tuv xml:lang="en-us"><seg>Secret key</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.publish.modern@Publish Forbidden">
       <tuv xml:lang="en-us"><seg>You are not allowed to publish.</seg></tuv>
       <tuv xml:lang="ar"><seg>غير مسموح لك بالنشر.</seg></tuv>

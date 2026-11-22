@@ -193,7 +193,7 @@ export function FtpDeliveryPasswordPanel({
             {message(MSG.PUBLISH_FOLDER)}: <span data-testid="ftp-password-folder">{shown(folder)}</span>
           </p>
           <p data-testid="ftp-password-status" role="status">
-            Password: {message(MSG.PUBLISH_DELIVERY_FTP_PASSWORD_NEVER_SHOWN)}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PASSWORD)}: {message(MSG.PUBLISH_DELIVERY_FTP_PASSWORD_NEVER_SHOWN)}
           </p>
         </div>
       )}

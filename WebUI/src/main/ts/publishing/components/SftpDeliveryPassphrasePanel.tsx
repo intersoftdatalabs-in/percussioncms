@@ -212,7 +212,7 @@ export function SftpDeliveryPassphrasePanel({
             <span data-testid="sftp-passphrase-default">{shown(defaultFlag)}</span>
           </p>
           <p data-testid="sftp-passphrase-status" role="status">
-            Passphrase: {message(MSG.PUBLISH_DELIVERY_SFTP_PASSPHRASE_NEVER_SHOWN)}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PASSPHRASE)}: {message(MSG.PUBLISH_DELIVERY_SFTP_PASSPHRASE_NEVER_SHOWN)}
           </p>
         </div>
       )}

@@ -205,7 +205,7 @@ export function S3DeliverySecretKeyPanel({
             <span data-testid="s3-secret-key-default">{shown(defaultFlag)}</span>
           </p>
           <p data-testid="s3-secret-key-status" role="status">
-            Secret key: {message(MSG.PUBLISH_DELIVERY_S3_SECRET_KEY_NEVER_SHOWN)}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_SECRET_KEY)}: {message(MSG.PUBLISH_DELIVERY_S3_SECRET_KEY_NEVER_SHOWN)}
           </p>
         </div>
       )}

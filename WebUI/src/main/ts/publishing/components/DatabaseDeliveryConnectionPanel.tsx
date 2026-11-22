@@ -260,7 +260,7 @@ export function DatabaseDeliveryConnectionPanel({
             {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}: <span data-testid="db-conn-default">{shown(defaultFlag)}</span>
           </p>
           <p data-testid="db-conn-password-status" role="status">
-            Password: {message(MSG.PUBLISH_DELIVERY_DATABASE_PASSWORD_NEVER_SHOWN)}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PASSWORD)}: {message(MSG.PUBLISH_DELIVERY_DATABASE_PASSWORD_NEVER_SHOWN)}
           </p>
         </div>
       )}
