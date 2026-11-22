@@ -25,13 +25,11 @@ collect inventory. You do NOT file or close issues.
 4. Load the `codeql-pr` skill (`modules/ai-shared-develop/src/main/resources/skills/codeql-pr/SKILL.md`)
    for the CodeQL alert query shape.
 
-**gh JSON hygiene (HARD — #6986):** gh ≥ 2.105 prints a multi-line
-`gh event listen ...` hint to **stderr** after `gh pr view` and related
-commands. NEVER merge stderr into stdout (`2>&1`) when the output is
-piped to a JSON parser — the hint lands in the JSON stream and
-`json.load` dies with `JSONDecodeError`. Use `2>/dev/null`, shape output
-with `-q`/`--jq`, or run `python3 scripts/gh-json.py <gh args...>`
-(keeps stdout pure JSON, fails loudly on non-zero exit).
+**gh JSON hygiene (HARD — #6986):** NEVER merge gh stderr into stdout
+(`2>&1`) when the output is piped to a JSON parser — gh ≥ 2.105 prints a
+multi-line hint to stderr that kills `json.load` with `JSONDecodeError`.
+Use `2>/dev/null`, `-q`/`--jq`, or `python3 scripts/gh-json.py <gh args...>`.
+Full rule: `scripts/gh-json-hygiene.md`.
 
 ## Args (from the host prompt)
 

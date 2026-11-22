@@ -1026,7 +1026,7 @@ pr_prompt_core += "Do NOT babysit, wait for, poll, re-check, or fix CI / check r
 pr_prompt_core += "Do NOT sleep/loop on `gh pr checks` or Actions. One snapshot is optional for the\n";
 pr_prompt_core += "report only; never block the pass on pending/failing checks.\n\n";
 
-pr_prompt_core += "gh JSON hygiene (HARD — #6986): NEVER 2>&1 gh --json into a JSON parser"
+pr_prompt_core += "gh JSON hygiene (HARD — #6986): NEVER 2>&1 gh --json into a JSON parser (full rule: scripts/gh-json-hygiene.md)"
     + " (gh >= 2.105 stderr event-listen hint breaks json.load); use 2>/dev/null,"
     + " -q/--jq, or python3 scripts/gh-json.py.\n\n";
 
@@ -1280,7 +1280,7 @@ if b_pf.remaining < 2 {
     pf_prompt += "inventory field = markdown: header MaintainerLogins=... then one line per issue:\n";
     pf_prompt += "  #N | author | pN|Unset | title | InProgress? | NotSafe? | LargeI18n? | Destructive? | 1-line\n";
     pf_prompt += "  then **Cycle Verify residuals** and **QA: Failed** sections (one line each).\n\n";
-    pf_prompt += "gh JSON hygiene (HARD — #6986): NEVER 2>&1 gh --json into a JSON parser"
+    pf_prompt += "gh JSON hygiene (HARD — #6986): NEVER 2>&1 gh --json into a JSON parser (full rule: scripts/gh-json-hygiene.md)"
         + " (gh >= 2.105 stderr event-listen hint breaks json.load); use 2>/dev/null,"
         + " -q/--jq, or python3 scripts/gh-json.py.\n\n";
 
@@ -1718,7 +1718,7 @@ triage_prompt += "  UNION allowed_issue_authors=[" + allowed_issue_authors + "].
 triage_prompt += "  Re-verify with gh when inventory author is missing or dubious:\n";
 triage_prompt += "    gh issue view N --repo " + repo + " --json author\n";
 triage_prompt += "    gh api repos/" + repo + "/collaborators --paginate (or trust Discover's MaintainerLogins).\n";
-triage_prompt += "gh JSON hygiene (HARD — #6986): NEVER 2>&1 gh --json into a JSON parser"
+triage_prompt += "gh JSON hygiene (HARD — #6986): NEVER 2>&1 gh --json into a JSON parser (full rule: scripts/gh-json-hygiene.md)"
     + " (gh >= 2.105 stderr event-listen hint breaks json.load); use 2>/dev/null,"
     + " -q/--jq, or python3 scripts/gh-json.py.\n";
 triage_prompt += "  Never queue non-maintainer authors even if issue_numbers requested them (fail closed).\n";
@@ -2330,7 +2330,7 @@ for item in queue {
         work_prompt += "BEFORE any git/code work, BEFORE you add In Progress):\n";
         work_prompt += "  1) Fresh fetch: gh issue view " + inum.to_string() + " --repo " + repo
             + " --json labels,assignees,state,title,body,author\n";
-        work_prompt += "  1b) gh JSON hygiene (HARD — #6986): NEVER 2>&1 gh --json into a JSON parser"
+        work_prompt += "  1b) gh JSON hygiene (HARD — #6986): NEVER 2>&1 gh --json into a JSON parser (full rule: scripts/gh-json-hygiene.md)"
             + " (gh >= 2.105 stderr event-listen hint breaks json.load); use 2>/dev/null,"
             + " -q/--jq, or python3 scripts/gh-json.py.\n";
         work_prompt += "  2) If state is not OPEN: status=skipped, summary why; do not work.\n";
@@ -2989,7 +2989,7 @@ if include_pr_cluster && (!signals_ok || cluster_recommended) {
 
         cl_prompt += "DETECT thrash groups:\n";
         cl_prompt += "D1) List ALL owned open PRs (number, head, createdAt, mergeable, files via gh pr view --json files).\n";
-        cl_prompt += "gh JSON hygiene (HARD — #6986): NEVER 2>&1 gh --json into a JSON parser"
+        cl_prompt += "gh JSON hygiene (HARD — #6986): NEVER 2>&1 gh --json into a JSON parser (full rule: scripts/gh-json-hygiene.md)"
             + " (gh >= 2.105 stderr event-listen hint breaks json.load); use 2>/dev/null,"
             + " -q/--jq, or python3 scripts/gh-json.py.\n";
         cl_prompt += "D2) Group PRs that share thrash paths (examples that often thrash overnight):\n";

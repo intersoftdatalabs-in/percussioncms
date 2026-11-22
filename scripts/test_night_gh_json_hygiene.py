@@ -19,10 +19,12 @@
 Follow-up to #6986 / #7015. #7015 added the hygiene rule and
 ``scripts/gh-json.py``, but the rule only landed in
 ``.opencode/agents/work.md`` (plus the Grok ``work_prompt``) — the next
-cycle's night-worker PRE follow-up re-hit ``JSONDecodeError`` from a
-``gh ... --json ... 2>&1 | ... json.load`` pipe. This test pins the fix:
+cycle's night-worker PRE follow-up re-hit ``JSONDecodeError`` by merging
+gh stderr into a JSON parser. This test pins the fix:
 
-- every night agent doc that runs ``gh --json`` carries the rule, and
+- every night agent doc that runs ``gh --json`` references the shared
+  rule file (``scripts/gh-json-hygiene.md`` — one source of truth, #7020
+  review), and
 - no agent / rule / script file keeps a *live* ``2>&1 | ... json`` pipe
   (documented anti-pattern mentions that say NEVER / dies / wrapper
   nearby are allowed — they teach the rule, they don't run it).
@@ -36,7 +38,9 @@ REPO_ROOT = Path(__file__).resolve().parent.parent
 AGENT_GLOB = ".opencode/agents/*.md"
 RHAI = REPO_ROOT / ".grok" / "workflows" / "night-issue-prs.rhai"
 
-RULE_MARKERS = ("gh JSON hygiene", "gh-json.py")
+# Shared single-source-of-truth rule file (#7020 review): agent docs and
+# rhai prompts reference this instead of pasting the full paragraph.
+SHARED_RULE_REF = "gh-json-hygiene.md"
 
 # A shell pipe that merges gh stderr into a JSON consumer. The negated
 # character class keeps the match to one logical line (no accidental
@@ -75,17 +79,17 @@ def _read(path: Path) -> str:
     return path.read_text(encoding="utf-8")
 
 
-def test_agent_docs_carrying_gh_json_carry_the_rule() -> None:
-    """Every `.opencode/agents/*.md` that runs `gh --json` shows the rule."""
+def test_agent_docs_carry_shared_rule_reference() -> None:
+    """Every `.opencode/agents/*.md` that runs `gh --json` references the
+    shared rule file (single source of truth, #7020 review)."""
     missing = [
         str(path.relative_to(REPO_ROOT))
         for path in sorted(REPO_ROOT.glob(AGENT_GLOB))
-        if "--json" in _read(path)
-        and not any(marker in _read(path) for marker in RULE_MARKERS)
+        if "--json" in _read(path) and SHARED_RULE_REF not in _read(path)
     ]
     assert not missing, (
-        "agent docs run `gh --json` without the gh JSON hygiene rule "
-        f"(#7020): {missing}"
+        "agent docs run `gh --json` without referencing the shared gh JSON "
+        f"hygiene rule `scripts/{SHARED_RULE_REF}` (#7020): {missing}"
     )
 
 
@@ -118,12 +122,16 @@ def test_no_live_stderr_merge_into_json_parser() -> None:
 
 
 def test_rhai_prompts_carry_the_rule() -> None:
-    """Grok work + follow-up + preflight + triage + cluster prompts (#7020)."""
+    """Grok work + follow-up + preflight + triage + cluster prompts (#7020).
+
+    Prompts reference the shared rule file (single source of truth, #7020
+    review) instead of pasting the full paragraph.
+    """
     text = _read(RHAI)
-    count = text.count("gh JSON hygiene")
+    count = text.count(SHARED_RULE_REF)
     assert count >= 5, (
-        "expected the hygiene rule in work + pr-follow-up + preflight + "
-        f"triage + cluster prompts, found {count} mention(s)"
+        "expected the shared hygiene rule reference in work + pr-follow-up "
+        f"+ preflight + triage + cluster prompts, found {count} mention(s)"
     )
     for prompt_var in ("work_prompt", "pr_prompt_core", "pf_prompt",
                        "triage_prompt", "cl_prompt"):
