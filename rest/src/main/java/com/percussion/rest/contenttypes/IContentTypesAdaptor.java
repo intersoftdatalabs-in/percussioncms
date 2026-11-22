@@ -99,7 +99,14 @@ public interface IContentTypesAdaptor {
    * property values use {@link #replaceFieldControlProperties}. Local field create/delete uses
    * {@link #addLocalField} / {@link #deleteLocalField}.
    *
+   * <p>Template refs are validated before the content-type save, so an unresolvable template
+   * name/guid throws without persisting anything. A failure inside the association write itself
+   * (after the content-type save) still throws {@link IllegalStateException} describing partial
+   * success — retry via {@link #replaceAllowedTemplates}.
+   *
    * @return updated detail, or {@code null} when not found
+   * @throws IllegalArgumentException when input is invalid, including an unresolvable template
+   *     name/guid
    * @throws ContentTypeDesignLockException when no lock is held or the lock is owned by another
    *     user
    */

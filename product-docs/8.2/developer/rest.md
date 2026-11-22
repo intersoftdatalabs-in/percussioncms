@@ -1204,6 +1204,14 @@ product does not steal another user's lock. See [Developer Content Types](id:adm
 a template id or name in the body does not exist. The lock stays held after a
 successful PUT so further association or design edits can continue.
 
+Bulk detail save ordering: `PUT /services/contenttypes/{idOrName}` with a
+non-null `allowedTemplates` list validates every template ref **before** the
+content-type save — an unknown name/guid is **400** with nothing persisted.
+The association write itself still runs after the content-type save, so a
+failure inside that write returns **500** describing partial success; retry
+just the template update with `PUT .../allowedTemplates` (the lock is still
+held).
+
 ### Item-level exits and validations (CD-09)
 
 `GET /services/contenttypes/{idOrName}/itemExits` returns item-level **input

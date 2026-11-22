@@ -1179,9 +1179,12 @@ public class ContentTypesResource {
               + " and saves without releasing the lock (POST .../unlock). Association lists:"
               + " omit/null = leave unchanged; non-null list = full replace (empty clears"
               + " workflows/templates). GET responses always include association arrays (may be"
-              + " empty). Template associations are written after content-type save in a separate"
-              + " design call — if that fails, meta/field/workflow changes may already be"
-              + " committed (error message indicates partial success). Name/id and system field"
+              + " empty). Template refs are validated before the content-type save — an"
+              + " unknown name/guid fails 400 with nothing persisted. The template"
+              + " associations are still written after the content-type save in a separate"
+              + " design call — if that write itself fails, meta/field/workflow changes may"
+              + " already be committed (error message indicates partial success; retry the"
+              + " template update via PUT .../allowedTemplates). Name/id and system field"
               + " structure are not changed — rename uses PUT .../name. Field rule expressions"
               + " use PUT"
               + " .../fields/{fieldName}/ruleExpressions. Control property values use PUT"
@@ -1197,8 +1200,9 @@ public class ContentTypesResource {
             responseCode = "400",
             description =
                 "Invalid input (blank local field display label, label write on"
-                    + " system/shared field, unknown child field set, or duplicate"
-                    + " field sequence)"),
+                    + " system/shared field, unknown child field set, duplicate"
+                    + " field sequence, or unresolvable allowed template"
+                    + " name/guid — nothing is saved in that case)"),
         @ApiResponse(responseCode = "403", description = "Admin role required"),
         @ApiResponse(
             responseCode = "404",
@@ -1209,8 +1213,9 @@ public class ContentTypesResource {
         @ApiResponse(
             responseCode = "500",
             description =
-                "Error — may indicate partial success when template association save fails after"
-                    + " content type was already saved"),
+                "Error — may indicate partial success when the template association write"
+                    + " itself fails after the content type was already saved (retry the"
+                    + " template update)"),
       })
   public ContentTypeDetail updateContentType(
       @PathParam("idOrName") String idOrName, ContentTypeDetail body) {

@@ -894,10 +894,14 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       applyFieldUpdates(def, body.getFields());
       applyWorkflowUpdates(def, body);
       boolean needTemplates = body.getAllowedTemplates() != null;
+      // Pre-validate template refs before the content-type save so an unknown
+      // name/guid fails fast (400) with nothing persisted. The two design writes
+      // still share no rollback — a failure inside saveAssociatedTemplates itself
+      // remains partial success (see error text below).
+      List<IPSGuid> templateGuids =
+          needTemplates ? resolveTemplateGuids(body.getAllowedTemplates()) : List.of();
       try {
         // Keep the held design lock after save; clients release via POST .../unlock.
-        // Content-type save and template association save are sequential design writes
-        // without a shared rollback — template failure after CT save is partial success.
         designSvc.saveContentTypes(Collections.singletonList(def), false, session, user);
       } catch (PSErrorsException e) {
         log.error("Failed to save content type {}: {}", idOrName, e.getMessage(), e);
@@ -905,7 +909,6 @@ public class ContentTypeAdaptor implements IContentTypesAdaptor {
       }
       if (needTemplates) {
         try {
-          List<IPSGuid> templateGuids = resolveTemplateGuids(body.getAllowedTemplates());
           designSvc.saveAssociatedTemplates(ctGuid, templateGuids, false, session, user);
         } catch (PSErrorsException e) {
           log.error(

@@ -768,6 +768,7 @@ The chrome calls:
 | Rename | `PUT /services/contenttypes/{idOrName}/name` (CD-01; Admin; held lock; unique name, no spaces; bulk PUT does not rename; SPA **Rename content type** on detail) |
 | Save allowed workflows | `PUT /services/contenttypes/{idOrName}/allowedWorkflows` (requires a held lock; does not unlock) |
 | Replace allowed templates | `PUT /services/contenttypes/{idOrName}/allowedTemplates` (held lock; full replace) |
+| Bulk save with templates | `PUT /services/contenttypes/{idOrName}` with `allowedTemplates` (held lock; refs validated before anything is saved — unknown name/guid **400**, nothing persisted; association-write failure after the content-type save is **500** partial success — retry `PUT .../allowedTemplates`) |
 | Confirm allowed templates | `GET /services/contenttypes/{idOrName}/allowedTemplates` |
 | Replace item-level exits | `PUT /services/contenttypes/{idOrName}/itemExits` (CD-09; held lock; full replace of translations/validations; `applyWhen` empty clears, omit preserves matching GET rows) |
 | Confirm item-level exits | `GET /services/contenttypes/{idOrName}/itemExits` |
