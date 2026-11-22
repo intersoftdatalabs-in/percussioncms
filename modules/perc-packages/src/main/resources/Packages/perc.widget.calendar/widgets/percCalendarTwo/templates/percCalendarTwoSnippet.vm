@@ -190,8 +190,18 @@
       ## any direct call resolve it. Layer toggling skips the <button>
       ## controls themselves — they share the layer class for color but
       ## must stay visible/operable so focus is never dropped.
-      function hideCalendarSource(calendarClass) {
-        var button = document.getElementById(calendarClass + '-button');
+      ## Multi-widget scoping (#7029 review): every widget instance on
+      ## the page renders this script, so the wiring below only binds
+      ## this instance's container (plus a percBound guard against a
+      ## double-fire) — otherwise N widgets bind every filter button N
+      ## times and each click toggles N times (net no-op for even N).
+      ## The clicked button is passed through so aria-pressed syncs on
+      ## the instance that was activated (button ids are not yet
+      ## widget-scoped — see #7034); direct calls without a button fall
+      ## back to getElementById. The layer sweep itself stays page-wide
+      ## by class (also #7034): widgets sharing a source toggle together.
+      function hideCalendarSource(calendarClass, buttonEl) {
+        var button = buttonEl || document.getElementById(calendarClass + '-button');
         var nowOff = false;
         if (button) {
           nowOff = button.classList.toggle('perc-disabled-calendar-button');
@@ -206,10 +216,18 @@
         return nowOff;
       }
       window.addEventListener('DOMContentLoaded', function() {
-        var filters = document.querySelectorAll('[data-calendar-source]');
+        var container = document.querySelector('#perc-button-container-${calendarContentId}-${widgetId}');
+        var scope = container || document;
+        var filters = scope.querySelectorAll('[data-calendar-source]');
         for (var i = 0; i < filters.length; i++) {
+          if (filters[i].dataset && filters[i].dataset.percBound) {
+            continue;
+          }
+          if (filters[i].dataset) {
+            filters[i].dataset.percBound = '1';
+          }
           filters[i].addEventListener('click', function() {
-            hideCalendarSource(this.getAttribute('data-calendar-source'));
+            hideCalendarSource(this.getAttribute('data-calendar-source'), this);
           });
         }
       });

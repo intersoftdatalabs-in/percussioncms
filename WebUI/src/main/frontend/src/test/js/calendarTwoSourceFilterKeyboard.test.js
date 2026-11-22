@@ -42,6 +42,12 @@
  *       off-state, and never hides the {@code <button>} controls
  *       themselves (they share the layer class for color but must
  *       stay visible so focus is never dropped).</li>
+ *   <li>Multi-widget safe ({@code #7029} review): the wiring binds
+ *       only this instance's button container (plus a
+ *       {@code percBound} double-fire guard), and the clicked button
+ *       is passed through so {@code aria-pressed} syncs on the
+ *       activated instance — N widgets no longer bind every filter
+ *       N times.</li>
  *   <li>Keyboard focus is visible ({@code :focus-visible} ring only
  *       — the mouse path stays pixel-identical) and buttons inherit
  *       the surrounding type.</li>
@@ -98,7 +104,15 @@ describe("calendarTwo source-filter keyboard path (issue #6992)", () => {
     const snippet = fs.readFileSync(SNIPPET, "utf8");
     // Global declaration — callable from delegated listeners and any
     // direct call (the old closure-scoped copy was a ReferenceError).
-    expect(snippet).toContain("function hideCalendarSource(calendarClass) {");
+    // The second parameter carries the clicked button so aria-pressed
+    // syncs on the activated instance when several widgets share the
+    // page (button ids are not widget-scoped yet — see #7034).
+    expect(snippet).toContain(
+      "function hideCalendarSource(calendarClass, buttonEl) {",
+    );
+    expect(snippet).toContain(
+      "var button = buttonEl || document.getElementById(calendarClass + '-button');",
+    );
     // Pressed state mirrors visibility; the caller learns the off-state.
     expect(snippet).toContain(
       "button.setAttribute('aria-pressed', nowOff ? 'false' : 'true')",
@@ -113,6 +127,14 @@ describe("calendarTwo source-filter keyboard path (issue #6992)", () => {
     // Delegated wiring survives re-renders of the container.
     expect(snippet).toContain("data-calendar-source]");
     expect(snippet).toContain("addEventListener('click'");
+    // Multi-widget scoping (#7029 review): each rendered script binds
+    // only its own container, guarded against double-binding, and
+    // forwards the clicked button for per-instance pressed sync.
+    expect(snippet).toContain("querySelector('#perc-button-container-");
+    expect(snippet).toContain("dataset.percBound");
+    expect(snippet).toContain(
+      "hideCalendarSource(this.getAttribute('data-calendar-source'), this);",
+    );
   });
 
   it("keyboard focus is visible without changing the mouse path", () => {
