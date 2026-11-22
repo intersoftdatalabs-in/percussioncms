@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   fetchItemScheduleDates,
   saveItemScheduleDates,
@@ -23,6 +23,10 @@ import {
 import {
   isSessionRedirectError,
 } from "../../api/client";
+import {
+  captureDialogOpener,
+  useDialogEscape,
+} from "../../architecture/useDialogEscape";
 import {
   datetimeLocalToServerDate,
   serverDateToDatetimeLocal,
@@ -47,6 +51,9 @@ import {
 } from "../publishing.styles";
 
 const COMMENT_MAX = 500;
+
+const CONFIRM_FOCUSABLE =
+  'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
 
 function fill(template: string, vars: Record<string, string>): string {
   let out = template;
@@ -126,6 +133,52 @@ export function ItemScheduleDatesPanel({
   const [reportTotal, setReportTotal] = useState(0);
   const [failedIds, setFailedIds] = useState<string[]>([]);
   const [failedOp, setFailedOp] = useState<ScheduleFailedOp | null>(null);
+  const confirmRef = useRef<HTMLDivElement>(null);
+  const cancelRef = useRef<HTMLButtonElement>(null);
+
+  const cancelClearConfirm = useCallback(() => {
+    setConfirmingClear(false);
+  }, []);
+
+  // Escape cancels the clear confirm (never mid-clear) and focus returns to
+  // the Clear scheduled dates button that opened it (#6929, parent #4531).
+  useDialogEscape(confirmingClear, clearing, cancelClearConfirm);
+
+  // Tab/Shift+Tab cycle inside the clear confirm; initial focus lands on
+  // Cancel so an accidental Enter never clears a schedule. Mirrors the
+  // Take Down confirm (TakedownConfirmDialog, #6996).
+  useEffect(() => {
+    if (!confirmingClear) {
+      return;
+    }
+    const root = confirmRef.current;
+    cancelRef.current?.focus();
+    if (!root) {
+      return;
+    }
+    const focusables = (): HTMLElement[] =>
+      Array.from(root.querySelectorAll<HTMLElement>(CONFIRM_FOCUSABLE));
+    const onKey = (ev: KeyboardEvent) => {
+      if (ev.key !== "Tab") {
+        return;
+      }
+      const list = focusables();
+      if (list.length === 0) {
+        return;
+      }
+      const first = list[0];
+      const last = list[list.length - 1];
+      if (ev.shiftKey && document.activeElement === first) {
+        ev.preventDefault();
+        last.focus();
+      } else if (!ev.shiftKey && document.activeElement === last) {
+        ev.preventDefault();
+        first.focus();
+      }
+    };
+    root.addEventListener("keydown", onKey);
+    return () => root.removeEventListener("keydown", onKey);
+  }, [confirmingClear]);
 
   useEffect(() => {
     setInputId(itemId ?? "");
@@ -674,7 +727,8 @@ export function ItemScheduleDatesPanel({
             type="button"
             data-testid="item-schedule-clear-submit"
             disabled={loading || saving || clearing}
-            onClick={() => {
+            onClick={(e) => {
+              captureDialogOpener(e.currentTarget);
               const ids = parseScheduleItemIds(inputId);
               const fallback = ids.length > 0 ? ids : [mapIdParam(loadedId)];
               if (!fallback[0]) {
@@ -693,8 +747,17 @@ export function ItemScheduleDatesPanel({
         </div>
       </form>
       {confirmingClear && (
-        <div data-testid="item-schedule-clear-confirm" style={{ marginTop: 12 }}>
-          <p style={{ margin: "0 0 8px", fontSize: 13 }}>
+        <div
+          ref={confirmRef}
+          role="alertdialog"
+          aria-labelledby="item-schedule-clear-confirm-text"
+          data-testid="item-schedule-clear-confirm"
+          style={{ marginTop: 12 }}
+        >
+          <p
+            id="item-schedule-clear-confirm-text"
+            style={{ margin: "0 0 8px", fontSize: 13 }}
+          >
             {reportTotal > 1
               ? fill(message(MSG.PUBLISH_SCHEDULE_CLEAR_CONFIRM_MULTI), {
                   total: String(reportTotal),
@@ -708,11 +771,13 @@ export function ItemScheduleDatesPanel({
                 style={primaryButtonStyle}
                 data-testid="item-schedule-clear-yes"
                 disabled={loading || saving || clearing}
+                aria-describedby={error ? "item-schedule-error" : undefined}
               >
                 {message(MSG.PUBLISH_SCHEDULE_CLEAR_SUBMIT)}
               </button>
               <button
                 type="button"
+                ref={cancelRef}
                 data-testid="item-schedule-clear-cancel"
                 disabled={clearing}
                 onClick={() => setConfirmingClear(false)}
@@ -751,14 +816,27 @@ export function ItemScheduleDatesPanel({
           ))}
         </ul>
       )}
-      {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
+      {loading && (
+        <p role="status" data-testid="item-schedule-loading">
+          {message(MSG.PUBLISH_LOADING)}
+        </p>
+      )}
       {error && (
-        <p style={errorStyle} role="alert" data-testid="item-schedule-error">
+        <p
+          id="item-schedule-error"
+          style={errorStyle}
+          role="alert"
+          data-testid="item-schedule-error"
+        >
           {error}
         </p>
       )}
       {success && (
-        <p data-testid="item-schedule-success" style={{ color: "#166534", fontSize: 13 }}>
+        <p
+          role="status"
+          data-testid="item-schedule-success"
+          style={{ color: "#166534", fontSize: 13 }}
+        >
           {success}
         </p>
       )}
