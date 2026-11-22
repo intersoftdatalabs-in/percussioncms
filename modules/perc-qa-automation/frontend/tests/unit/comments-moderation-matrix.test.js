@@ -37,12 +37,15 @@ const {
   RESULT_STATUSES,
   MATRIX_CELLS,
   SKIP_NO_DTS_BASE,
+  SKIP_NO_DTS_HTTPS,
   skipServiceDown,
   skipNoModeration,
   COMMENTS_ENTRY,
   dtsBaseUrl,
   dtsContextUrl,
   dtsServiceUrl,
+  dtsHttpsBaseUrl,
+  openDtsHttpsContext,
   deliveryAuthHeader,
   probeThread,
   buildModerationRow,
@@ -127,6 +130,60 @@ describe("comments-moderation-matrix helpers (#6485)", () => {
         assert.equal(dtsBaseUrl().origin, "http://127.0.0.1:9999");
       });
     });
+  });
+
+  it("resolves the DTS HTTPS moderator origin only from DTS_HTTPS_URL or the HTTPS port env", () => {
+    // Parity with the feeds/metadata matrices: the CONFIDENTIAL
+    // moderation legs ride the published DTS HTTPS origin (#7072).
+    const savedUrl = process.env.DTS_HTTPS_URL;
+    const savedHostPort = process.env.DTS_HTTPS_HOST_PORT;
+    const savedPort = process.env.DTS_HTTPS_PORT;
+    try {
+      delete process.env.DTS_HTTPS_URL;
+      delete process.env.DTS_HTTPS_HOST_PORT;
+      delete process.env.DTS_HTTPS_PORT;
+      assert.equal(dtsHttpsBaseUrl(), null, "no HTTPS origin without env");
+      process.env.DTS_HTTPS_PORT = "8443";
+      assert.equal(
+        dtsHttpsBaseUrl().origin,
+        "https://127.0.0.1:8443",
+        "port env builds the loopback HTTPS origin",
+      );
+      process.env.DTS_HTTPS_HOST_PORT = "9443";
+      assert.equal(
+        dtsHttpsBaseUrl().origin,
+        "https://127.0.0.1:9443",
+        "host port env wins over the bare port",
+      );
+      process.env.DTS_HTTPS_URL = "https://dts.example:9443";
+      assert.equal(
+        dtsHttpsBaseUrl().origin,
+        "https://dts.example:9443",
+        "explicit URL wins over the port env",
+      );
+      assert.ok(SKIP_NO_DTS_HTTPS.includes("DTS_HTTPS_URL"), "https skip names the missing env");
+      assert.equal(
+        openDtsHttpsContext,
+        require("../helpers/dts-cell").openDtsHttpsContext,
+        "moderator context is the shared dts-cell helper, not a per-spec copy",
+      );
+    } finally {
+      if (savedUrl === undefined) {
+        delete process.env.DTS_HTTPS_URL;
+      } else {
+        process.env.DTS_HTTPS_URL = savedUrl;
+      }
+      if (savedHostPort === undefined) {
+        delete process.env.DTS_HTTPS_HOST_PORT;
+      } else {
+        process.env.DTS_HTTPS_HOST_PORT = savedHostPort;
+      }
+      if (savedPort === undefined) {
+        delete process.env.DTS_HTTPS_PORT;
+      } else {
+        process.env.DTS_HTTPS_PORT = savedPort;
+      }
+    }
   });
 
   it("derives unique self-seeded probe threads with marker-shaped site and page", () => {
@@ -272,6 +329,26 @@ describe("comments-moderation-matrix helpers (#6485)", () => {
     assert.ok(spec.includes('"approve"'), "approve verb passed");
     assert.ok(spec.includes('"reject"'), "reject verb passed");
     assert.ok(spec.includes("moderation/asmoderator"), "moderator queue resolves probe ids");
+    // The CONFIDENTIAL moderation legs ride the shared HTTPS context so
+    // the self-signed cell identity exercises them live (#7072).
+    assert.ok(spec.includes("openDtsHttpsContext"), "gated legs use the shared HTTPS context");
+    assert.ok(
+      spec.includes("moderatorHttpsContext"),
+      "gated legs open through one spec-level wrapper",
+    );
+    assert.ok(
+      spec.includes("httpsRequest.dispose()"),
+      "gated legs dispose the HTTPS context (no leak)",
+    );
+    assert.ok(spec.includes("dtsServiceUrl(httpsBase)"), "gated legs ride the HTTPS origin");
+    assert.ok(
+      spec.includes("moderatorQueueItems"),
+      "queue items helper shared by id + state reads",
+    );
+    assert.ok(
+      spec.includes("REJECTED"),
+      "reject leg proves the queue state flips to REJECTED (one-minute public grace window)",
+    );
     for (const name of ["CASE_SUBMIT", "CASE_APPROVE", "CASE_REJECT"]) {
       assert.ok(spec.includes(name), `spec implements the ${name} case`);
     }

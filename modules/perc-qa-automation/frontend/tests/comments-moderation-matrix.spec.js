@@ -20,7 +20,11 @@
  * a self-seeded visitor comment is submitted through the open surface,
  * approved through the {@code deliverymanager}-gated moderation surface
  * and confirmed publicly visible, then a second probe is rejected and
- * confirmed hidden from the public list.
+ * confirmed REJECTED in the moderator queue (the public list keeps a
+ * rejected comment visible for a one-minute grace window after its
+ * creation — {@code PSCommentsService#AMOUNT_MINUTES_COMMENT_VISIBLE} —
+ * so the deterministic reject proof is the queue state, not an
+ * immediate public absence).
  *
  * <p>Tags: {@code @dts} plus {@code @dts-comments}.</p>
  *
@@ -37,7 +41,12 @@
  * without provisioned {@code deliverymanager} credentials — or without
  * a reachable DTS HTTPS port for the {@code CONFIDENTIAL} redirect on
  * the moderation paths — skips the gated legs with a named reason
- * instead of failing (provisioning tracked in #6375). Probe threads are
+ * instead of failing (provisioning tracked in #6375). The gated legs
+ * (moderator queue plus approve/reject writes) ride the shared
+ * {@code tests/helpers/dts-cell.js#openDtsHttpsContext} HTTPS context,
+ * so the self-signed cell identity no longer skips them with a TLS
+ * reason (#7072); the open surface (submit, public list) stays on the
+ * plain-HTTP fixture request. Probe threads are
  * self-seeded under a unique {@code qamod-<stamp>} site + page, so no
  * CMS fixture and no pre-seeded comment thread are needed; each case
  * submits its own probe thread so cases stay independent under parallel
@@ -52,7 +61,7 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
-const { test, expect } = require("@playwright/test");
+const { test, expect, request: baseRequest } = require("@playwright/test");
 const {
   MATRIX_SPEC,
   CASE_SUBMIT,
@@ -64,6 +73,7 @@ const {
   dtsBaseUrl,
   dtsContextUrl,
   dtsServiceUrl,
+  openDtsHttpsContext,
   deliveryAuthHeader,
   probeThread,
   buildModerationRow,
@@ -107,6 +117,28 @@ async function readJson(response) {
 }
 
 /**
+ * HTTPS moderator context for the CONFIDENTIAL moderation paths (the
+ * moderator queue plus the approve/reject writes): the gated paths
+ * answer plain-HTTP calls with a 302 to the in-cell HTTPS port, so the
+ * gated reads and writes ride the published DTS HTTPS origin (shared
+ * {@code tests/helpers/dts-cell.js#openDtsHttpsContext}, #7072) through
+ * an untrusted-chain-allowed context — the cell TLS identity is
+ * shipped/self-signed. Skips by name when the cell publishes no HTTPS
+ * origin or the origin never answers (default H2 QA cell, pre-#6375
+ * cell).
+ *
+ * <p>The caller disposes the returned context (try/finally) so a
+ * passing run leaves no request state behind.</p>
+ *
+ * @returns {Promise<{ httpsBase: URL, httpsRequest: object }>} HTTPS origin + context
+ */
+async function moderatorHttpsContext() {
+  return openDtsHttpsContext(test, baseRequest, {
+    label: "comments moderation (Comments)",
+  });
+}
+
+/**
  * Submits one self-seeded probe comment through the open visitor
  * surface. An HTTP-level failure on a live service is a real failure;
  * the submit surface needs no credentials.
@@ -134,16 +166,15 @@ async function submitProbeComment(request, svc, thread) {
 }
 
 /**
- * Resolves the ids of queued probe comments carrying the marker through
- * the moderator queue. A 401/403 means the cell did not provision usable
- * {@code deliverymanager} credentials; an unreachable endpoint (the
- * {@code CONFIDENTIAL} redirect to a missing DTS HTTPS port) means the
- * gated surface cannot be read here — both are named skips, not product
- * failures.
+ * Reads the raw moderator-queue items for the probe thread. A 401/403
+ * means the cell did not provision usable {@code deliverymanager}
+ * credentials; an unreachable endpoint (the {@code CONFIDENTIAL}
+ * redirect to a missing DTS HTTPS port) means the gated surface cannot
+ * be read here — both are named skips, not product failures.
  *
- * @returns {string[]|null} queued ids, or null when the queue is unreadable here
+ * @returns {object[]} queue items (each carrying {@code id} and {@code approvalState})
  */
-async function moderatorIdsFor(request, svc, thread, authHeaders) {
+async function moderatorQueueItems(request, svc, thread, authHeaders) {
   let queue = null;
   try {
     queue = await request.post(`${svc}/moderation/asmoderator`, {
@@ -173,7 +204,21 @@ async function moderatorIdsFor(request, svc, thread, authHeaders) {
     `comments: the moderator queue for '${thread.site}${thread.page}' must stay readable (HTTP ${queue.status()})`,
   ).toBe(true);
   const body = await readJson(queue);
-  const items = Array.isArray(body) ? body : (body && body.comments) || [];
+  return Array.isArray(body) ? body : (body && body.comments) || [];
+}
+
+/**
+ * Resolves the ids of queued probe comments carrying the marker through
+ * the moderator queue. A 401/403 means the cell did not provision usable
+ * {@code deliverymanager} credentials; an unreachable endpoint (the
+ * {@code CONFIDENTIAL} redirect to a missing DTS HTTPS port) means the
+ * gated surface cannot be read here — both are named skips, not product
+ * failures.
+ *
+ * @returns {string[]|null} queued ids, or null when the queue is unreadable here
+ */
+async function moderatorIdsFor(request, svc, thread, authHeaders) {
+  const items = await moderatorQueueItems(request, svc, thread, authHeaders);
   const ids = [];
   for (const item of items || []) {
     if (item && JSON.stringify(item).includes(thread.marker) && item.id) {
@@ -280,11 +325,23 @@ test.describe("comments moderation matrix", () => {
         recordCase(CASE_SUBMIT);
         return;
       }
-      const queued = await moderatorIdsFor(request, svc, thread, deliveryAuthHeader());
-      expect(
-        queued.length > 0,
-        `comments: probe '${thread.marker}' must be queued for moderation once submitted`,
-      ).toBe(true);
+      // Queued path: the moderator queue is CONFIDENTIAL-gated, so the
+      // probe rides the shared HTTPS context (self-signed skip live).
+      const { httpsBase, httpsRequest } = await moderatorHttpsContext();
+      try {
+        const queued = await moderatorIdsFor(
+          httpsRequest,
+          dtsServiceUrl(httpsBase),
+          thread,
+          deliveryAuthHeader(),
+        );
+        expect(
+          queued.length > 0,
+          `comments: probe '${thread.marker}' must be queued for moderation once submitted`,
+        ).toBe(true);
+      } finally {
+        await httpsRequest.dispose();
+      }
       recordCase(CASE_SUBMIT);
     },
   );
@@ -300,12 +357,23 @@ test.describe("comments moderation matrix", () => {
       await probeLiveness(request, base);
       const svc = dtsServiceUrl(base);
       const thread = await submitProbeComment(request, svc, probeThread());
-      const queued = await moderatorIdsFor(request, svc, thread, deliveryAuthHeader());
-      expect(
-        queued.length > 0,
-        `comments: probe '${thread.marker}' must be queued before it can be approved`,
-      ).toBe(true);
-      await applyModeration(request, svc, "approve", queued, thread);
+      const { httpsBase, httpsRequest } = await moderatorHttpsContext();
+      try {
+        const httpsSvc = dtsServiceUrl(httpsBase);
+        const queued = await moderatorIdsFor(
+          httpsRequest,
+          httpsSvc,
+          thread,
+          deliveryAuthHeader(),
+        );
+        expect(
+          queued.length > 0,
+          `comments: probe '${thread.marker}' must be queued before it can be approved`,
+        ).toBe(true);
+        await applyModeration(httpsRequest, httpsSvc, "approve", queued, thread);
+      } finally {
+        await httpsRequest.dispose();
+      }
       expect(
         await publicListsMarker(request, svc, thread),
         `comments: probe '${thread.marker}' must be publicly listed after approve`,
@@ -325,16 +393,42 @@ test.describe("comments moderation matrix", () => {
       await probeLiveness(request, base);
       const svc = dtsServiceUrl(base);
       const thread = await submitProbeComment(request, svc, probeThread());
-      const queued = await moderatorIdsFor(request, svc, thread, deliveryAuthHeader());
-      expect(
-        queued.length > 0,
-        `comments: probe '${thread.marker}' must be queued before it can be rejected`,
-      ).toBe(true);
-      await applyModeration(request, svc, "reject", queued, thread);
-      expect(
-        await publicListsMarker(request, svc, thread),
-        `comments: probe '${thread.marker}' must stay hidden from the public list after reject`,
-      ).toBe(false);
+      const { httpsBase, httpsRequest } = await moderatorHttpsContext();
+      try {
+        const httpsSvc = dtsServiceUrl(httpsBase);
+        const queued = await moderatorIdsFor(
+          httpsRequest,
+          httpsSvc,
+          thread,
+          deliveryAuthHeader(),
+        );
+        expect(
+          queued.length > 0,
+          `comments: probe '${thread.marker}' must be queued before it can be rejected`,
+        ).toBe(true);
+        await applyModeration(httpsRequest, httpsSvc, "reject", queued, thread);
+        // The reject decision lands on the queue item immediately, but the
+        // public list keeps showing a REJECTED comment for a one-minute
+        // grace window after its creation (PSCommentsService#getComments,
+        // AMOUNT_MINUTES_COMMENT_VISIBLE) — so the deterministic live proof
+        // is the queue state flipping to REJECTED, not an immediate public
+        // absence microseconds after the PUT.
+        const after = await moderatorQueueItems(
+          httpsRequest,
+          httpsSvc,
+          thread,
+          deliveryAuthHeader(),
+        );
+        const states = (after || [])
+          .filter((item) => item && queued.includes(String(item.id)))
+          .map((item) => item.approvalState);
+        expect(
+          states.length > 0 && states.every((state) => state === "REJECTED"),
+          `comments: probe '${thread.marker}' must read back REJECTED after reject (saw [${states.join(", ")}])`,
+        ).toBe(true);
+      } finally {
+        await httpsRequest.dispose();
+      }
       recordCase(CASE_REJECT);
     },
   );

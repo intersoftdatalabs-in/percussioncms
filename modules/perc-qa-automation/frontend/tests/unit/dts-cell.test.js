@@ -242,6 +242,7 @@ describe("dts-cell shared helpers (#6719)", () => {
       "forms-confirmation-matrix.js",
       "feeds-entries-matrix.js",
       "metadata-index-matrix.js",
+      "comments-moderation-matrix.js",
       "published-widget-surfaces.js",
     ]) {
       const src = fs.readFileSync(path.join(HELPERS_DIR, name), "utf8");
@@ -258,7 +259,11 @@ describe("dts-cell shared helpers (#6719)", () => {
   });
 
   it("is used by the matrix specs: no per-spec httpsWriterContext copies remain", () => {
-    for (const name of ["feeds-entries-matrix.spec.js", "metadata-index-matrix.spec.js"]) {
+    for (const name of [
+      "feeds-entries-matrix.spec.js",
+      "metadata-index-matrix.spec.js",
+      "comments-moderation-matrix.spec.js",
+    ]) {
       const spec = fs.readFileSync(path.join(FRONTEND_DIR, name), "utf8");
       assert.ok(spec.includes("openDtsHttpsContext"), `${name} opens the shared HTTPS writer context`);
       assert.ok(
