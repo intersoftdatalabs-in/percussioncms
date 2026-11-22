@@ -763,6 +763,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       return url.includes("paginatedFolder") || url.includes("/folder/");
     }).length;
 
+    // The accessible dialog returns focus to the invoking toolbar
+    // control on close (#6997, parent #4530).
+    screen.getByTestId("action-toolbar-item-Stage").focus();
     fireEvent.click(screen.getByTestId("action-toolbar-item-Stage"));
 
     // Single-item Stage shares the bulk dialog chrome (#6530): the
@@ -800,6 +803,9 @@ describe("ContentExplorerShell product composition (#2400)", () => {
       return url.includes("paginatedFolder") || url.includes("/folder/");
     }).length;
     expect(folderLoadsAfter).toBe(folderLoadsBefore);
+    await waitFor(() => {
+      expect(screen.getByTestId("action-toolbar-item-Stage")).toHaveFocus();
+    });
     await renderA11yGate(container);
   });
 

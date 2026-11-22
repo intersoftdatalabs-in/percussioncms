@@ -1098,6 +1098,12 @@ export const EXPLORER_MSG = {
   BULK_STAGE_CLOSE: "perc.ui.explorer@Close",
   BULK_STAGE_REPORT_EMPTY:
     "perc.ui.explorer@No items were processed.",
+  BULK_STAGE_REQUEST_FAILED: "perc.ui.explorer@Request failed",
+  BULK_STAGE_UNNAMED_ITEM: "perc.ui.explorer@item",
+  BULK_STAGE_NOT_STAGED: "perc.ui.explorer@Not staged",
+  BULK_UNSTAGE_NOT_REMOVED: "perc.ui.explorer@Not removed from staging",
+  BULK_STAGE_FAILED: "perc.ui.explorer@Stage failed",
+  BULK_UNSTAGE_FAILED: "perc.ui.explorer@Remove from staging failed",
   CONFIRM_SCHEDULE:
     "perc.ui.explorer@Save schedule publish dates for this item?",
   CONFIRM_SCHEDULE_MULTI:

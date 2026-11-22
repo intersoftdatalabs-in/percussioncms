@@ -72,6 +72,23 @@ async function installStageRoutes(page, opts = {}) {
   const aboutStatus = opts.aboutStatus ?? 200;
   /** @type {string[]} */
   const staged = [];
+  // Mock the checkout-owner lookup so the mocked row ids never hit the
+  // real server (a lookup for a fake id logs a server ERROR). Benign
+  // reader assignment: nothing is checked out (#6997, same as takedown).
+  await page.route("**/rest/editor/items/**/checkout-owner", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        EditorItemLockInfo: {
+          itemName: "Home",
+          checkOutUser: "",
+          currentUser: "Admin",
+          assignmentType: "Reader",
+        },
+      }),
+    });
+  });
   await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
     await route.fulfill({
       status: 200,
@@ -311,6 +328,42 @@ test.describe("Explorer multi-select Stage", () => {
         "data-list-epoch",
         "0",
       );
+      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
+    },
+  );
+
+  test(
+    "keyboard Enter opens the dialog; Escape cancels and returns focus (#6997)",
+    { tag: ["@explorer", "@explorer-staging", "@explorer-multi-stage"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      const staged = await installStageRoutes(page);
+      await openListing(page);
+      const stage = page.locator('[data-testid="action-toolbar-item-Stage"]');
+      await expect(stage).toBeVisible({ timeout: 15_000 });
+      // Keyboard path: focus the toolbar control and activate with Enter.
+      await stage.focus();
+      await page.keyboard.press("Enter");
+      const dialog = page.locator('[data-testid="explorer-bulk-stage-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await expect(dialog).toHaveAttribute("role", "dialog");
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="explorer-bulk-stage-dialog"]',
+      });
+      // Live proof: keyboard-opened bulk dialog before Escape.
+      await page.screenshot({
+        path: "test-results/live-proof-6997-bulk-stage.png",
+      });
+      // Escape cancels: nothing staged, no refresh, focus returns.
+      await page.keyboard.press("Escape");
+      await expect(dialog).toHaveCount(0);
+      await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
+        "data-list-epoch",
+        "0",
+      );
+      expect(staged).toEqual([]);
+      await expect(stage).toBeFocused();
       expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
     },
   );

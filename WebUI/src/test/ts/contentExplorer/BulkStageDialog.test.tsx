@@ -194,4 +194,75 @@ describe("BulkStageDialog (#6469)", () => {
     fireEvent.click(screen.getByTestId("explorer-bulk-stage-close"));
     expect(onDone).toHaveBeenCalledWith({ ran: true, refresh: true });
   });
+
+  it("Escape cancels without running the batch (#6997)", async () => {
+    const runBatch = vi.fn();
+    const onDone = vi.fn();
+    const { container } = render(
+      <BulkStageDialog
+        mode="stage"
+        items={[page("42", "Home")]}
+        runBatch={runBatch}
+        onDone={onDone}
+      />,
+    );
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(runBatch).not.toHaveBeenCalled();
+    expect(onDone).toHaveBeenCalledWith({ ran: false, refresh: false });
+    await renderA11yGate(container);
+  });
+
+  it("Tab cycles focus inside the dialog and Escape is a no-op while running (#6997)", () => {
+    const runBatch = vi.fn().mockImplementation(() => new Promise(() => {}));
+    const onDone = vi.fn();
+    render(
+      <BulkStageDialog
+        mode="unstage"
+        items={[page("42", "Home")]}
+        runBatch={runBatch}
+        onDone={onDone}
+      />,
+    );
+    const cancel = screen.getByTestId("explorer-bulk-stage-cancel");
+    const confirm = screen.getByTestId("explorer-bulk-stage-confirm");
+    // Initial focus lands on the confirm control.
+    expect(confirm).toHaveFocus();
+    // Tab from the last focusable wraps to the first.
+    fireEvent.keyDown(screen.getByTestId("explorer-bulk-stage-dialog"), {
+      key: "Tab",
+    });
+    expect(cancel).toHaveFocus();
+    // Shift+Tab from the first wraps to the last.
+    fireEvent.keyDown(screen.getByTestId("explorer-bulk-stage-dialog"), {
+      key: "Tab",
+      shiftKey: true,
+    });
+    expect(confirm).toHaveFocus();
+    fireEvent.click(confirm);
+    expect(screen.getByTestId("explorer-bulk-stage-running")).toBeInTheDocument();
+    // Escape while the batch runs neither cancels nor resolves.
+    fireEvent.keyDown(window, { key: "Escape" });
+    expect(onDone).not.toHaveBeenCalled();
+  });
+
+  it("batch throw reports the catalog request-failed copy (#6997)", async () => {
+    const runBatch = vi.fn().mockRejectedValue(new Error("boom"));
+    const onDone = vi.fn();
+    render(
+      <BulkStageDialog
+        mode="stage"
+        items={[page("42", "Home")]}
+        runBatch={runBatch}
+        onDone={onDone}
+      />,
+    );
+    fireEvent.click(screen.getByTestId("explorer-bulk-stage-confirm"));
+    const summary = await screen.findByTestId("explorer-bulk-stage-summary");
+    expect(summary).toHaveTextContent(/0 staged, 0 skipped, 1 failed/);
+    const rows = screen.getAllByTestId("explorer-bulk-stage-report-row");
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toHaveTextContent(/Home.*Failed.*Request failed/);
+    fireEvent.click(screen.getByTestId("explorer-bulk-stage-close"));
+    expect(onDone).toHaveBeenCalledWith({ ran: true, refresh: false });
+  });
 });

@@ -1305,11 +1305,13 @@ function ContentExplorerShellInner({
   /**
    * Bulk Stage / Remove-from-Staging dialog request (#6469). Resolved by
    * the dialog; dispatch refreshes the list when the report ran with
-   * staged/removed rows.
+   * staged/removed rows. The invoking control testid is kept so focus
+   * returns to it when the conditionally-rendered dialog unmounts (#6997).
    */
   const [bulkStageRequest, setBulkStageRequest] = useState<{
     mode: "stage" | "unstage";
     items: PSPathItem[];
+    openerTestId: string | null;
     resolve: (outcome: { ran: boolean; refresh: boolean } | null) => void;
   } | null>(null);
   /**
@@ -2013,9 +2015,16 @@ function ContentExplorerShellInner({
       return new Promise<{ ran: boolean; refresh: boolean } | null>(
         (resolve) => {
           const previous = bulkStageRequest;
+          const opener = document.activeElement;
+          captureDialogOpener(opener);
+          const openerTestId =
+            opener instanceof HTMLElement
+              ? opener.getAttribute("data-testid")
+              : null;
           setBulkStageRequest({
             mode: args.mode,
             items: Array.from(args.items),
+            openerTestId,
             resolve,
           });
           if (previous) {
@@ -2033,6 +2042,16 @@ function ContentExplorerShellInner({
       setBulkStageRequest(null);
       if (current) {
         current.resolve(outcome);
+      }
+      // The dialog unmounts on close, so focus would otherwise be lost to
+      // the body. Return it to the invoking control when it is still shown.
+      if (current?.openerTestId) {
+        const next = document.querySelector(
+          `[data-testid="${CSS.escape(current.openerTestId)}"]`,
+        );
+        if (next instanceof HTMLElement) {
+          next.focus();
+        }
       }
     },
     [bulkStageRequest],
