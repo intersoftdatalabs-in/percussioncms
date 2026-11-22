@@ -19,6 +19,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 import {
   ExplorerTree,
+  collectVisibleExplorerTreeKeys,
   isExplorerTreeMoveTarget,
   nextExplorerTreeRowIndex,
   treeRowMoveForKey,
@@ -106,10 +107,12 @@ describe("ExplorerTree keyboard-move helpers (#7035)", () => {
     expect(treeRowMoveForKey("a")).toBeNull();
   });
 
-  it("wraps ArrowUp/ArrowDown at the ends, jumps Home/End", () => {
+  it("clamps ArrowUp/ArrowDown at the ends, jumps Home/End", () => {
     expect(nextExplorerTreeRowIndex(3, 0, "next")).toBe(1);
-    expect(nextExplorerTreeRowIndex(3, 2, "next")).toBe(0);
-    expect(nextExplorerTreeRowIndex(3, 0, "prev")).toBe(2);
+    // APG tree pattern (#7045 review): no wrap — clamping keeps focus on
+    // the last/first row instead of jumping the selection to the far end.
+    expect(nextExplorerTreeRowIndex(3, 2, "next")).toBe(2);
+    expect(nextExplorerTreeRowIndex(3, 0, "prev")).toBe(0);
     expect(nextExplorerTreeRowIndex(3, 2, "prev")).toBe(1);
     expect(nextExplorerTreeRowIndex(3, 1, "first")).toBe(0);
     expect(nextExplorerTreeRowIndex(3, 1, "last")).toBe(2);
@@ -149,24 +152,17 @@ describe("ExplorerTree arrow-key navigation (#7035)", () => {
     await renderA11yGate(container);
   });
 
-  it("ArrowUp/ArrowDown wrap around the ends", async () => {
+  it("ArrowUp/ArrowDown clamp at the ends", async () => {
     const onSelectFolder = vi.fn();
     await renderSiblingTree(onSelectFolder);
-    // ArrowDown on the last row wraps to the first.
+    // ArrowDown on the last row stays on the last row (no wrap, #7045).
     focusTreeItem("/Sites/Frost");
     fireEvent.keyDown(document.activeElement!, { key: "ArrowDown" });
-    expect(onSelectFolder).toHaveBeenLastCalledWith(
-      "/Sites/Alpha",
-      expect.objectContaining({ path: "/Sites/Alpha" }),
-    );
-    expect(document.activeElement).toBe(treeItem("/Sites/Alpha"));
-    // ArrowUp on the first row wraps to the last.
-    fireEvent.keyDown(document.activeElement!, { key: "ArrowUp" });
-    expect(onSelectFolder).toHaveBeenLastCalledWith(
-      "/Sites/Frost",
-      expect.objectContaining({ path: "/Sites/Frost" }),
-    );
     expect(document.activeElement).toBe(treeItem("/Sites/Frost"));
+    // ArrowUp on the first row stays on the first row.
+    focusTreeItem("/Sites/Alpha");
+    fireEvent.keyDown(document.activeElement!, { key: "ArrowUp" });
+    expect(document.activeElement).toBe(treeItem("/Sites/Alpha"));
   });
 
   it("Home/End jump to the first/last visible row", async () => {
@@ -219,5 +215,104 @@ describe("ExplorerTree arrow-key navigation (#7035)", () => {
         css.includes(".perc-explorer-tree-row:focus-visible"),
       ),
     ).toBe(true);
+  });
+});
+
+describe("ExplorerTree visible-row tab stop (#7045)", () => {
+  const FOO: PSPathItem = {
+    id: "visible-keys-foo",
+    path: "/Sites/Foo",
+    name: "Foo",
+    type: "folder",
+    hasFolderChildren: true,
+  };
+  const LEAF: PSPathItem = {
+    id: "visible-keys-leaf",
+    path: "/Sites/Leaf",
+    name: "Leaf",
+    type: "folder",
+    hasFolderChildren: false,
+  };
+  const BAR: PSPathItem = {
+    id: "visible-keys-bar",
+    path: "/Sites/Foo/Bar",
+    name: "Bar",
+    type: "folder",
+    hasFolderChildren: false,
+  };
+
+  it("collectVisibleExplorerTreeKeys walks open subtrees in display order", () => {
+    expect(
+      collectVisibleExplorerTreeKeys(
+        [FOO, LEAF],
+        { "/Sites": true, "/Sites/Foo": true },
+        {
+          "/Sites": { loaded: true, loading: false, error: null, children: [FOO, LEAF] },
+          "/Sites/Foo": { loaded: true, loading: false, error: null, children: [BAR] },
+        },
+      ),
+    ).toEqual(["/Sites/Foo", "/Sites/Foo/Bar", "/Sites/Leaf"]);
+  });
+
+  it("collectVisibleExplorerTreeKeys skips collapsed subtrees", () => {
+    expect(
+      collectVisibleExplorerTreeKeys(
+        [FOO, LEAF],
+        { "/Sites": true, "/Sites/Foo": false },
+        {
+          "/Sites": { loaded: true, loading: false, error: null, children: [FOO, LEAF] },
+          "/Sites/Foo": { loaded: true, loading: false, error: null, children: [BAR] },
+        },
+      ),
+    ).toEqual(["/Sites/Foo", "/Sites/Leaf"]);
+  });
+
+  it("collapsing an ancestor keeps exactly one tab stop on a visible row", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.endsWith("/pathmanagement/path/folder/Sites")) {
+        return pathItemListResponse([FOO, LEAF]);
+      }
+      if (url.endsWith("/pathmanagement/path/folder/Sites/Foo")) {
+        return pathItemListResponse([BAR]);
+      }
+      return pathItemListResponse([]);
+    });
+    const onSelectFolder = vi.fn();
+    const { container } = render(
+      <ExplorerTree
+        initialPath="/Sites"
+        selectedPath={null}
+        onSelectFolder={onSelectFolder}
+      />,
+    );
+    await waitFor(() =>
+      expect(screen.getByTestId("tree-node-/Sites/Foo")).toBeInTheDocument(),
+    );
+    // Expand Foo so Bar renders, then arrow down into the child row: the
+    // tab stop follows focus onto Bar.
+    fireEvent.click(screen.getByTestId("tree-toggle-/Sites/Foo"));
+    await waitFor(() =>
+      expect(
+        screen.getByTestId("tree-node-/Sites/Foo/Bar"),
+      ).toBeInTheDocument(),
+    );
+    focusTreeItem("/Sites/Foo");
+    fireEvent.keyDown(document.activeElement!, { key: "ArrowDown" });
+    expect(onSelectFolder).toHaveBeenCalledWith(
+      "/Sites/Foo/Bar",
+      expect.objectContaining({ path: "/Sites/Foo/Bar" }),
+    );
+    expect(tabStops()).toHaveLength(1);
+    // Collapse the ancestor with the mouse toggle: Bar unmounts while it
+    // is still the last-interacted key. The tree must keep exactly one
+    // tab stop, and it must be a row that is still rendered.
+    fireEvent.click(screen.getByTestId("tree-toggle-/Sites/Foo"));
+    await waitFor(() =>
+      expect(screen.queryByTestId("tree-node-/Sites/Foo/Bar")).toBeNull(),
+    );
+    expect(tabStops()).toHaveLength(1);
+    expect(tabStops()[0]).toBe(treeItem("/Sites/Foo"));
+    await renderA11yGate(container);
   });
 });

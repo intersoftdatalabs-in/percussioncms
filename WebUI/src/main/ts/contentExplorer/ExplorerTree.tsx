@@ -409,6 +409,47 @@ export function resolveExplorerTreeRoot(
 }
 
 /**
+ * Normalized keys of the rows the tree actually renders, in display
+ * order (#7045 review: the roving tab stop must resolve against the
+ * rendered rows, not the last-interacted key).
+ *
+ * <p>Mirrors {@link ExplorerTreeNodeView}: a folderish child renders its
+ * {@code state.children} (guarded by {@link isSafeExplorerTreeChild})
+ * only while its key is open in {@code expanded}. Pure so Vitest can
+ * drive it without rendering.</p>
+ */
+export function collectVisibleExplorerTreeKeys(
+  rootChildren: PSPathItem[],
+  expanded: Record<string, boolean>,
+  nodes: Record<string, NodeState>,
+): string[] {
+  const out: string[] = [];
+  const visit = (folder: PSPathItem): void => {
+    const pathKey = normalizeExplorerTreePathKey(folder.path);
+    out.push(pathKey);
+    if (!isFolder(folder)) {
+      return;
+    }
+    if (!(expanded[pathKey] ?? expanded[folder.path] ?? false)) {
+      return;
+    }
+    const state =
+      nodes[pathKey] ??
+      nodes[lookupNodeKey(nodes, folder.path) ?? ""] ??
+      EMPTY_STATE;
+    for (const child of state.children.filter((candidate) =>
+      isSafeExplorerTreeChild(folder.path, folder.folderPath, candidate.path),
+    )) {
+      visit(child);
+    }
+  };
+  for (const child of rootChildren) {
+    visit(child);
+  }
+  return out;
+}
+
+/**
  * First surfaced load error: the root error wins, otherwise the first
  * node error (#5793).
  */
@@ -622,9 +663,11 @@ export function treeRowMoveForKey(key: string): ExplorerTreeRowMove | null {
 }
 
 /**
- * Next visible-row index for a move. ArrowUp/ArrowDown wrap around the
- * visible rows so focus never leaves the tree; Home/End jump to the
- * first/last row. An empty tree stays at 0.
+ * Next visible-row index for a move. ArrowUp/ArrowDown clamp at the ends
+ * (WAI-ARIA APG tree pattern, #7045 review) so focus never leaves the
+ * tree and a repeat ArrowDown on the last row cannot silently jump the
+ * selection (and the list fetch) back to the first row; Home/End jump
+ * to the first/last row. An empty tree stays at 0.
  */
 export function nextExplorerTreeRowIndex(
   count: number,
@@ -634,9 +677,9 @@ export function nextExplorerTreeRowIndex(
   if (count <= 0) return 0;
   switch (move) {
     case "next":
-      return (current + 1) % count;
+      return Math.min(current + 1, count - 1);
     case "prev":
-      return (current - 1 + count) % count;
+      return Math.max(current - 1, 0);
     case "first":
       return 0;
     case "last":
@@ -1058,10 +1101,11 @@ function listVisibleTreeItems(container: HTMLElement): Element[] {
 
 /**
  * Arrow-key row move at the tree container (#7035, parent #4530): DOM
- * focus and selection move together across the visible rows (wrapping at
- * the ends); Home/End jump to the first/last row. Consumes the key
- * (returns true) on a successful move. Text-entry targets keep native
- * behavior via {@link isExplorerTreeMoveTarget}.
+ * focus and selection move together across the visible rows (clamped at
+ * the ends per the WAI-ARIA APG tree pattern, #7045 review); Home/End
+ * jump to the first/last row. Consumes the key (returns true) on a
+ * successful move. Text-entry targets keep native behavior via
+ * {@link isExplorerTreeMoveTarget}.
  */
 function moveExplorerTreeFocus(
   container: HTMLElement,
@@ -1441,20 +1485,38 @@ export function ExplorerTree({
   );
 
   /**
-   * Effective roving tab stop (#7035): the last interacted row wins; the
-   * shell selection (or the first root child) covers the pre-interaction
-   * render so the tree is always a single tab stop.
+   * Effective roving tab stop (#7035, #7045 review): resolved against the
+   * rendered rows so the tree always keeps exactly one tab stop. The last
+   * interacted row wins while it is still visible; otherwise the shell
+   * selection wins while visible; otherwise the first visible row. A
+   * focusKey naming a collapsed, not-yet-loaded, deleted, or renamed row
+   * no longer strands every row at tabIndex=-1, and an external selection
+   * change (breadcrumb, list double-click into a folder) moves the tab
+   * stop to the newly selected row instead of staying on the old row.
    */
+  const visibleRowKeys = useMemo(
+    () =>
+      collectVisibleExplorerTreeKeys(rootState.children, expanded, nodes),
+    [rootState.children, expanded, nodes],
+  );
   const tabStopKey = useMemo(() => {
+    if (visibleRowKeys.length === 0) {
+      return null;
+    }
     if (focusKey) {
-      return focusKey;
+      const focusNorm = normalizeExplorerTreePathKey(focusKey);
+      if (visibleRowKeys.includes(focusNorm)) {
+        return focusNorm;
+      }
     }
     if (selectedPath) {
-      return normalizeExplorerTreePathKey(selectedPath);
+      const selectedNorm = normalizeExplorerTreePathKey(selectedPath);
+      if (visibleRowKeys.includes(selectedNorm)) {
+        return selectedNorm;
+      }
     }
-    const first = rootState.children[0];
-    return first ? normalizeExplorerTreePathKey(first.path) : null;
-  }, [focusKey, selectedPath, rootState.children]);
+    return visibleRowKeys[0];
+  }, [focusKey, selectedPath, visibleRowKeys]);
 
   const inlineCreate: ExplorerTreeInlineCreateState | null = inlineParent
     ? {

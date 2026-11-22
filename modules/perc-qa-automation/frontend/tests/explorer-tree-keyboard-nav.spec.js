@@ -18,11 +18,11 @@
  * Explorer tree keyboard navigation (#7035 / parent #4530).
  *
  * <p>ArrowUp/ArrowDown step DOM focus and selection together across the
- * visible rows (wrapping at the ends, skipping collapsed subtrees);
- * Home/End jump to the first/last visible row. Roving tabindex keeps the
- * whole tree on a single tab stop, and the focused row carries a
- * {@code :focus-visible} ring. Expand/collapse, activation, type-ahead,
- * and context-menu behavior are unchanged.</p>
+ * visible rows (clamped at the ends per the WAI-ARIA APG tree pattern,
+ * skipping collapsed subtrees); Home/End jump to the first/last visible
+ * row. Roving tabindex keeps the whole tree on a single tab stop, and
+ * the focused row carries a {@code :focus-visible} ring. Expand/collapse,
+ * activation, type-ahead, and context-menu behavior are unchanged.</p>
  *
  * <p>Routes are fully mocked so the surface is deterministic on H2 qa-up:
  * folder roots Sites/Assets, Sites child Foo, Foo children Holly/Birch/
@@ -179,7 +179,7 @@ test.describe("Explorer tree keyboard navigation", () => {
   );
 
   test(
-    "arrow moves skip collapsed subtrees and wrap at the ends",
+    "arrow moves skip collapsed subtrees and clamp at the ends",
     {
       tag: ["@explorer", "@explorer-tree-keyboard-nav"],
     },
@@ -203,10 +203,30 @@ test.describe("Explorer tree keyboard navigation", () => {
       await expect(selectedTreeItem(page, "/Assets")).toBeVisible({ timeout: 10_000 });
       await expect(treeRow(page, "/Assets")).toBeFocused();
 
-      // Wrap-around: ArrowDown past the last row returns to Sites.
+      // Clamp: ArrowDown on the last row stays on the last row (APG tree
+      // pattern, #7045) instead of wrapping to Sites.
       await page.keyboard.press("ArrowDown");
-      await expect(selectedTreeItem(page, "/Sites")).toBeVisible({ timeout: 10_000 });
+      await expect(treeRow(page, "/Assets")).toBeFocused();
+      await expect(selectedTreeItem(page, "/Assets")).toBeVisible({ timeout: 10_000 });
+
+      // Clamp: ArrowUp on the first row stays on the first row.
+      await page.keyboard.press("Home");
       await expect(treeRow(page, "/Sites")).toBeFocused();
+      await page.keyboard.press("ArrowUp");
+      await expect(treeRow(page, "/Sites")).toBeFocused();
+
+      // Collapsing an ancestor of the focused row keeps exactly one tab
+      // stop on a visible row (#7045): arrow down into Birch, collapse
+      // Foo with the toggle, and the tab stop falls back to a rendered
+      // row instead of stranding every row at tabindex="-1".
+      await page.locator('[data-testid="tree-toggle-/Sites/Foo"]').click();
+      await expect(page.locator('[data-testid="tree-node-/Sites/Foo/Cedar"]')).toBeVisible({ timeout: 10_000 });
+      await treeRow(page, "/Sites/Foo/Holly").focus();
+      await page.keyboard.press("ArrowDown");
+      await expect(treeRow(page, "/Sites/Foo/Birch")).toBeFocused();
+      await page.locator('[data-testid="tree-toggle-/Sites/Foo"]').click();
+      await expect(page.locator('[data-testid="tree-node-/Sites/Foo/Birch"]')).toBeHidden({ timeout: 10_000 });
+      await expect(page.locator('[data-testid="explorer-tree"] [role="treeitem"][tabindex="0"]')).toHaveCount(1);
 
       expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
       expect(consoleErrors, consoleErrors.join(" | ")).toEqual([]);

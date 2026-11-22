@@ -198,7 +198,8 @@ The folder tree is a single **Tab** stop (roving tabindex): **Tab** enters
 the tree on the selected row and the next **Tab** leaves it. Inside the
 tree, **ArrowDown** / **ArrowUp** move focus and the selection together to
 the next / previous visible row (collapsed subtrees are skipped; the move
-wraps past the last / first row), **Home** / **End** jump to the first /
+stops at the last / first row instead of wrapping, following the WAI-ARIA
+APG tree pattern), **Home** / **End** jump to the first /
 last visible row, **ArrowRight** / **ArrowLeft** expand / collapse a
 folder, **Enter** or **Space** opens the selected folder, typing the first
 letters of a folder name jumps to it (type-ahead), and the context-menu
