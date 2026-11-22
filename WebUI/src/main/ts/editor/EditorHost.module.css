@@ -514,6 +514,15 @@
   color: #b91c1c;
 }
 
+/* Empty-state hint under the link address field (#7047): an empty address
+   removes the link instead of applying one. Muted so the dialog keeps its
+   compact inline shape; the input points at it via aria-describedby. */
+.tiptapLinkHint {
+  flex-basis: 100%;
+  font-size: 12px;
+  color: #475569;
+}
+
 /* Percussion plugin markers (#5652) render as uneditable badges in the
    editor. The classes are global CMS contracts (also emitted by the
    TinyMCE plugins), so they are matched with :global under the hashed

@@ -78,6 +78,7 @@ public class PSTipTapEditorKeysTmxTest {
       "Link address",
       "Apply link",
       "Close link editor",
+      "Leave the address empty to remove the link.",
       "That link address cannot be used.",
       "Inline code",
       "Code block",

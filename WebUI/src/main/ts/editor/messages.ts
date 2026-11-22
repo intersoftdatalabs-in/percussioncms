@@ -129,6 +129,8 @@ export const EDITOR_MSG = {
   TIPTAP_LINK_URL: "perc.ui.editor@Link address",
   TIPTAP_LINK_APPLY: "perc.ui.editor@Apply link",
   TIPTAP_LINK_CLOSE: "perc.ui.editor@Close link editor",
+  TIPTAP_LINK_EMPTY_HINT:
+    "perc.ui.editor@Leave the address empty to remove the link.",
   TIPTAP_LINK_UNSAFE:
     "perc.ui.editor@That link address cannot be used.",
   TIPTAP_CODE_INLINE: "perc.ui.editor@Inline code",

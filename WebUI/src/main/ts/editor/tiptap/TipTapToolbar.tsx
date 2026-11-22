@@ -251,12 +251,19 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
    */
   const [rovingAction, setRovingAction] = useState<string>("undo");
   const linkEditorId = `tiptap-link-editor-${name}`;
+  const linkHintId = `tiptap-link-hint-${name}`;
 
   // Opening the link editor moves focus into the address field (dialog
   // contract); the input mounts with the dialog so an effect covers it.
+  // When editing an existing link the address is selected, so typing
+  // replaces it instead of appending (#7047 focus polish).
   useEffect(() => {
     if (linkOpen) {
-      linkInputRef.current?.focus();
+      const input = linkInputRef.current;
+      input?.focus();
+      if (input && input.value) {
+        input.select();
+      }
     }
   }, [linkOpen]);
 
@@ -661,6 +668,7 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
             ref={linkInputRef}
             data-testid={`tiptap-link-url-${name}`}
             aria-label={message(EDITOR_MSG.TIPTAP_LINK_URL)}
+            aria-describedby={linkHintId}
             className={styles.tiptapLinkInput}
             value={linkUrl}
             placeholder="https://…"
@@ -675,6 +683,9 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
               }
             }}
           />
+          <span id={linkHintId} className={styles.tiptapLinkHint}>
+            {message(EDITOR_MSG.TIPTAP_LINK_EMPTY_HINT)}
+          </span>
           <button
             type="button"
             data-testid={`tiptap-link-apply-${name}`}
