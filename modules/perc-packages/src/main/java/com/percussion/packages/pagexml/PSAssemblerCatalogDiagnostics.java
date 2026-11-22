@@ -57,6 +57,12 @@ import java.util.stream.Collectors;
  * Report#withoutStaleCatalogEntries()} returns the collection pass (pruned catalog, same
  * per-template verdicts) so operators can retire dead assembler registrations (issue #6267 /
  * parent #2626).
+ *
+ * <p>Every render/install path consumes only the first {@code templates[]} entry. {@link
+ * Report#getRenderPaths()} names that single render entry per manifest — canonical assembler
+ * id plus resolved path — and lists the sibling variants the render path ignores, so a
+ * multi-template manifest gets a readable explanation instead of a silent drop (issue #7049 /
+ * parent #2626).
  */
 public final class PSAssemblerCatalogDiagnostics {
 
@@ -165,14 +171,100 @@ public final class PSAssemblerCatalogDiagnostics {
     }
   }
 
+  /**
+   * The single template entry a manifest's render pipeline consumes (issue #7049 / parent #2626).
+   *
+   * <p>Every render/install path ({@link PSPageXmlTemplateDefEmitter#emit}, {@link
+   * PSPageXmlManifestReadback}, {@link PSPageXmlNativeInstall}) consumes only the first
+   * {@code templates[]} entry. This value names that entry — the first non-null template,
+   * mirroring {@code templates[0]} while skipping nulls like {@link #diagnoseAll} — with its
+   * canonical assembler id ({@link PSPageXmlTemplateDefEmitter#canonicalAssemblerId}) and
+   * resolved extension path, plus the sibling variant names the single-template path ignores so
+   * multi-template manifests get a readable explanation instead of a silent drop.
+   */
+  public static final class RenderPath {
+    private final String manifestId;
+    private final String templateName;
+    private final String declaredAssembler;
+    private final String canonicalAssemblerId;
+    private final String resolvedPath;
+    private final List<String> ignoredVariantNames;
+
+    private RenderPath(
+        String manifestId,
+        String templateName,
+        String declaredAssembler,
+        String canonicalAssemblerId,
+        String resolvedPath,
+        List<String> ignoredVariantNames) {
+      this.manifestId = manifestId;
+      this.templateName = templateName;
+      this.declaredAssembler = declaredAssembler;
+      this.canonicalAssemblerId = canonicalAssemblerId;
+      this.resolvedPath = resolvedPath;
+      this.ignoredVariantNames =
+          Collections.unmodifiableList(new ArrayList<>(ignoredVariantNames));
+    }
+
+    /** Owning manifest id (never null). */
+    public String getManifestId() {
+      return manifestId;
+    }
+
+    /** Render entry template name; null when the manifest declares no template. */
+    public String getTemplateName() {
+      return templateName;
+    }
+
+    /** Declared {@code templates[].assembler} of the render entry; null when none. */
+    public String getDeclaredAssembler() {
+      return declaredAssembler;
+    }
+
+    /**
+     * Canonical registered catalog id for the render entry (never blank when non-null); null
+     * when the render entry is missing or declares a blank/unregistered assembler.
+     */
+    public String getCanonicalAssemblerId() {
+      return canonicalAssemblerId;
+    }
+
+    /** Registered extension path the render entry resolves to; null when unresolvable. */
+    public String getResolvedPath() {
+      return resolvedPath;
+    }
+
+    /** Sibling variant names the single-template render path ignores (never null). */
+    public List<String> getIgnoredVariantNames() {
+      return ignoredVariantNames;
+    }
+
+    /** True when the manifest declares a render entry (first non-null template). */
+    public boolean hasRenderTemplate() {
+      return templateName != null;
+    }
+
+    /** True when the render entry resolves to a registered extension path. */
+    public boolean isResolvable() {
+      return hasRenderTemplate() && resolvedPath != null;
+    }
+
+    /** Number of sibling variants the single-template render path ignores. */
+    public int getIgnoredVariantCount() {
+      return ignoredVariantNames.size();
+    }
+  }
+
   /** Assembler-catalog diagnostics report for one or more manifests. */
   public static final class Report {
     private final List<CatalogEntry> catalog;
     private final List<Entry> entries;
+    private final List<RenderPath> renderPaths;
 
-    private Report(List<CatalogEntry> catalog, List<Entry> entries) {
+    private Report(List<CatalogEntry> catalog, List<Entry> entries, List<RenderPath> renderPaths) {
       this.catalog = Collections.unmodifiableList(new ArrayList<>(catalog));
       this.entries = Collections.unmodifiableList(new ArrayList<>(entries));
+      this.renderPaths = Collections.unmodifiableList(new ArrayList<>(renderPaths));
     }
 
     /** Registered catalog rows in registration order (never null, never empty). */
@@ -183,6 +275,15 @@ public final class PSAssemblerCatalogDiagnostics {
     /** Per-template diagnoses in manifest iteration order (never null). */
     public List<Entry> getEntries() {
       return entries;
+    }
+
+    /**
+     * Single-template render paths, one per diagnosed manifest in iteration order (never null).
+     * Each names the template entry the render pipeline consumes plus the sibling variants it
+     * ignores.
+     */
+    public List<RenderPath> getRenderPaths() {
+      return renderPaths;
     }
 
     /** Number of {@link Status#OK} entries. */
@@ -251,7 +352,7 @@ public final class PSAssemblerCatalogDiagnostics {
           kept.add(row);
         }
       }
-      return new Report(kept, entries);
+      return new Report(kept, entries, renderPaths);
     }
 
     /** True when every diagnosed template resolves (vacuously true when empty). */
@@ -315,6 +416,28 @@ public final class PSAssemblerCatalogDiagnostics {
             .append(escapeCell(detailOf(e)))
             .append(" |\n");
       }
+      sb.append("\nRender paths (single template consumed per manifest):\n\n");
+      sb.append("| Manifest | Render template | Canonical assembler | Resolves to | Ignored variants |\n");
+      sb.append("|---|---|---|---|---|\n");
+      for (RenderPath r : renderPaths) {
+        sb.append("| ")
+            .append(escapeCell(r.getManifestId()))
+            .append(" | ")
+            .append(escapeCell(r.getTemplateName() != null ? r.getTemplateName() : "—"))
+            .append(" | ")
+            .append(
+                escapeCell(
+                    r.getCanonicalAssemblerId() != null ? r.getCanonicalAssemblerId() : "—"))
+            .append(" | ")
+            .append(escapeCell(r.getResolvedPath() != null ? r.getResolvedPath() : "—"))
+            .append(" | ")
+            .append(
+                escapeCell(
+                    r.getIgnoredVariantNames().isEmpty()
+                        ? "—"
+                        : String.join(", ", r.getIgnoredVariantNames())))
+            .append(" |\n");
+      }
       return sb.toString();
     }
 
@@ -347,6 +470,21 @@ public final class PSAssemblerCatalogDiagnostics {
         }
         if (e.getReason() != null) {
           sb.append(" : ").append(singleLine(e.getReason()));
+        }
+        sb.append("\n");
+      }
+      for (RenderPath r : renderPaths) {
+        sb.append("RENDER ")
+            .append(r.getManifestId())
+            .append(" / ")
+            .append(r.getTemplateName() != null ? r.getTemplateName() : "(no template)");
+        if (r.getResolvedPath() != null) {
+          sb.append(" -> ").append(r.getResolvedPath());
+        }
+        if (!r.getIgnoredVariantNames().isEmpty()) {
+          sb.append(" (ignores: ")
+              .append(String.join(", ", r.getIgnoredVariantNames()))
+              .append(")");
         }
         sb.append("\n");
       }
@@ -422,22 +560,26 @@ public final class PSAssemblerCatalogDiagnostics {
   public static Report diagnoseAll(Collection<PSComponentPackageManifest> manifests) {
     Objects.requireNonNull(manifests, "manifests");
     List<Entry> entries = new ArrayList<>();
+    List<RenderPath> renderPaths = new ArrayList<>();
     for (PSComponentPackageManifest manifest : manifests) {
       if (manifest == null) {
         continue;
       }
+      String manifestId = manifestIdOf(manifest);
       List<PSComponentPackageManifest.TemplateRef> templates = manifest.getTemplates();
       if (templates == null) {
+        renderPaths.add(resolveRenderPath(manifestId, null));
         continue;
       }
       for (PSComponentPackageManifest.TemplateRef template : templates) {
         if (template == null) {
           continue;
         }
-        entries.add(diagnoseOne(manifestIdOf(manifest), template));
+        entries.add(diagnoseOne(manifestId, template));
       }
+      renderPaths.add(resolveRenderPath(manifestId, templates));
     }
-    return new Report(readCatalog(), entries);
+    return new Report(readCatalog(), entries, renderPaths);
   }
 
   private static String manifestIdOf(PSComponentPackageManifest manifest) {
@@ -493,6 +635,53 @@ public final class PSAssemblerCatalogDiagnostics {
       String manifestId, String templateName, String declared, String reason, String fixHint) {
     return new Entry(
         manifestId, templateName, declared, Status.BLOCKED, null, reason, fixHint, null);
+  }
+
+  /**
+   * Resolve the single-template render path for one manifest (issue #7049 / parent #2626): the
+   * first non-null {@code templates[]} entry is the render entry every render/install path
+   * consumes; later non-null entries are ignored sibling variants.
+   *
+   * @param manifestId owning manifest id (never null)
+   * @param templates manifest templates; null or empty means no render entry
+   * @return render path (never null)
+   */
+  private static RenderPath resolveRenderPath(
+      String manifestId, List<PSComponentPackageManifest.TemplateRef> templates) {
+    PSComponentPackageManifest.TemplateRef render = null;
+    List<String> ignored = new ArrayList<>();
+    if (templates != null) {
+      for (PSComponentPackageManifest.TemplateRef template : templates) {
+        if (template == null) {
+          continue;
+        }
+        if (render == null) {
+          render = template;
+        } else {
+          ignored.add(variantNameOf(template));
+        }
+      }
+    }
+    if (render == null) {
+      return new RenderPath(manifestId, null, null, null, null, List.of());
+    }
+    String name = render.getName();
+    if (name == null || name.isBlank()) {
+      name = manifestId;
+    }
+    String declared = render.getAssembler();
+    String canonical = PSPageXmlTemplateDefEmitter.canonicalAssemblerId(declared);
+    String resolved =
+        canonical != null
+            ? PSPageXmlTemplateDefEmitter.REGISTERED_ASSEMBLER_PATHS.get(canonical)
+            : null;
+    return new RenderPath(manifestId, name, declared, canonical, resolved, ignored);
+  }
+
+  /** Display name for an ignored sibling variant (blank names fall back to a placeholder). */
+  private static String variantNameOf(PSComponentPackageManifest.TemplateRef template) {
+    String name = template.getName();
+    return name != null && !name.isBlank() ? name : "(unnamed variant)";
   }
 
   /**

@@ -96,6 +96,23 @@ extension prefix — either fails fast naming the manifest id and the registered
 Author a registered id in every modern manifest; the migration dry-run reports
 unregistered assemblers as `BLOCKED`.
 
+### Single-template render path
+
+Every render and install path consumes only the **first** `templates[]` entry
+(`Java code: PSPageXmlTemplateDefEmitter.emit`, `PSPageXmlManifestReadback`,
+`PSPageXmlNativeInstall`). The declared assembler is normalized to one canonical
+catalog id before it resolves (`Java code: PSPageXmlTemplateDefEmitter.canonicalAssemblerId`):
+surrounding whitespace is trimmed, full extension paths reduce to their leaf, the legacy
+`xslAssembler` alias counts as `legacyAssembler`, and matching is case-insensitive — so
+`"  XSLAssembler  "` and `"legacyAssembler"` render through the same registered path.
+
+A manifest that declares several `templates[]` variants still renders through the first
+entry only; the remaining variants are ignored. The assembler diagnostics panel
+(`Java code: PSAssemblerCatalogDiagnostics`) names the render entry per manifest — canonical
+id plus resolved path — and lists the ignored sibling variants, so an authoring mistake
+shows up as a readable row instead of a silently dropped template. Keep one template per
+manifest unless a follow-on variant story consumes the rest.
+
 ## Assembler-model readback from the manifest
 
 Tooling reads a normalized assembler-model definition back through the modern

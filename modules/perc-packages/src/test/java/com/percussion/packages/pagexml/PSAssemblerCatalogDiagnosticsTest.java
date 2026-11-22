@@ -224,6 +224,118 @@ class PSAssemblerCatalogDiagnosticsTest {
     assertTrue(!report.getCatalog().isEmpty());
   }
 
+  @Test
+  void renderPath_singleTemplateNormalized() {
+    PSAssemblerCatalogDiagnostics.Report report =
+        PSAssemblerCatalogDiagnostics.diagnose(
+            manifest("perc.probe", template("plain", "htmlAssembler")));
+
+    assertEquals(1, report.getRenderPaths().size());
+    PSAssemblerCatalogDiagnostics.RenderPath render = report.getRenderPaths().get(0);
+    assertEquals("perc.probe", render.getManifestId());
+    assertEquals("plain", render.getTemplateName());
+    assertEquals("htmlAssembler", render.getDeclaredAssembler());
+    assertEquals("htmlAssembler", render.getCanonicalAssemblerId());
+    assertEquals(
+        "Java/global/percussion/assembly/htmlAssembler", render.getResolvedPath());
+    assertTrue(render.hasRenderTemplate());
+    assertTrue(render.isResolvable());
+    assertEquals(0, render.getIgnoredVariantCount());
+    assertTrue(render.getIgnoredVariantNames().isEmpty());
+  }
+
+  @Test
+  void renderPath_aliasAndCaseNormalizedToCanonicalId() {
+    PSAssemblerCatalogDiagnostics.Report report =
+        PSAssemblerCatalogDiagnostics.diagnose(
+            manifest("perc.probe", template("legacy", "  XSLAssembler  ")));
+
+    PSAssemblerCatalogDiagnostics.RenderPath render = report.getRenderPaths().get(0);
+    assertEquals("legacyAssembler", render.getCanonicalAssemblerId());
+    assertEquals(
+        "Java/global/percussion/assembly/legacyAssembler", render.getResolvedPath());
+    assertTrue(render.isResolvable());
+  }
+
+  @Test
+  void renderPath_multiTemplateFlagsIgnoredVariants() {
+    PSAssemblerCatalogDiagnostics.Report report =
+        PSAssemblerCatalogDiagnostics.diagnose(
+            manifest(
+                "perc.probe",
+                template("plain", "htmlAssembler"),
+                template("rich", "velocityAssembler")));
+
+    assertEquals(1, report.getRenderPaths().size());
+    PSAssemblerCatalogDiagnostics.RenderPath render = report.getRenderPaths().get(0);
+    assertEquals("plain", render.getTemplateName());
+    assertEquals(
+        "Java/global/percussion/assembly/htmlAssembler", render.getResolvedPath());
+    assertEquals(1, render.getIgnoredVariantCount());
+    assertEquals(List.of("rich"), render.getIgnoredVariantNames());
+  }
+
+  @Test
+  void renderPath_skipsNullLeadingEntry() {
+    PSComponentPackageManifest probe = new PSComponentPackageManifest();
+    probe.setId("perc.probe");
+    probe.setTemplates(Arrays.asList(null, template("plain", "markdownAssembler")));
+
+    PSAssemblerCatalogDiagnostics.Report report = PSAssemblerCatalogDiagnostics.diagnose(probe);
+
+    assertEquals(1, report.getTotalCount());
+    PSAssemblerCatalogDiagnostics.RenderPath render = report.getRenderPaths().get(0);
+    assertEquals("plain", render.getTemplateName());
+    assertEquals("markdownAssembler", render.getCanonicalAssemblerId());
+    assertTrue(render.isResolvable());
+  }
+
+  @Test
+  void renderPath_blankAssemblerUnresolvable() {
+    PSAssemblerCatalogDiagnostics.Report report =
+        PSAssemblerCatalogDiagnostics.diagnose(manifest("perc.probe", template("plain", "  ")));
+
+    PSAssemblerCatalogDiagnostics.RenderPath render = report.getRenderPaths().get(0);
+    assertTrue(render.hasRenderTemplate());
+    assertTrue(!render.isResolvable());
+    assertNull(render.getCanonicalAssemblerId());
+    assertNull(render.getResolvedPath());
+  }
+
+  @Test
+  void renderPath_emptyManifestHasNoRenderTemplate() {
+    PSAssemblerCatalogDiagnostics.Report report =
+        PSAssemblerCatalogDiagnostics.diagnose(manifest("perc.empty"));
+
+    assertEquals(1, report.getRenderPaths().size());
+    PSAssemblerCatalogDiagnostics.RenderPath render = report.getRenderPaths().get(0);
+    assertEquals("perc.empty", render.getManifestId());
+    assertTrue(!render.hasRenderTemplate());
+    assertTrue(!render.isResolvable());
+    assertEquals(0, render.getIgnoredVariantCount());
+  }
+
+  @Test
+  void renderPath_renderedInMarkdownAndTextPanels() {
+    PSAssemblerCatalogDiagnostics.Report report =
+        PSAssemblerCatalogDiagnostics.diagnose(
+            manifest(
+                "perc.probe",
+                template("plain", "htmlAssembler"),
+                template("rich", "velocityAssembler")));
+
+    String markdown = report.toMarkdown();
+    assertTrue(markdown.contains("Render paths (single template consumed per manifest)"));
+    assertTrue(markdown.contains("| perc.probe | plain | htmlAssembler |"));
+    assertTrue(markdown.contains("rich"));
+
+    String text = report.toText();
+    assertTrue(
+        text.contains(
+            "RENDER perc.probe / plain -> Java/global/percussion/assembly/htmlAssembler"
+                + " (ignores: rich)"));
+  }
+
   private static PSComponentPackageManifest manifest(
       String id, PSComponentPackageManifest.TemplateRef... templates) {
     PSComponentPackageManifest manifest = new PSComponentPackageManifest();
