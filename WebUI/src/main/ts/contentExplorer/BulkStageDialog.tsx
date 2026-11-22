@@ -172,8 +172,10 @@ export function BulkStageDialog({
           skippedFolders: plan.skippedFolders,
           failures: eligible.map((item) => ({
             id: (item.id ?? "").trim(),
-            name: (item.name ?? item.path ?? item.id ?? "item").trim() || "item",
-            message: "request failed",
+            name:
+              (item.name ?? item.path ?? item.id ?? "").trim() ||
+              message(EXPLORER_MSG.BULK_STAGE_UNNAMED_ITEM),
+            message: message(EXPLORER_MSG.BULK_STAGE_REQUEST_FAILED),
           })),
         }),
       );
@@ -350,8 +352,8 @@ export function BulkStageDialog({
                       key={(item.id ?? "").trim() || item.path}
                       data-testid="explorer-bulk-stage-item"
                     >
-                      {(item.name ?? item.path ?? item.id ?? "item").trim() ||
-                        "item"}
+                      {(item.name ?? item.path ?? item.id ?? "").trim() ||
+                        message(EXPLORER_MSG.BULK_STAGE_UNNAMED_ITEM)}
                     </li>
                   ))}
                 </ul>

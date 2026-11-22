@@ -26090,6 +26090,100 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.explorer@Take down">
       <tuv xml:lang="en-us"><seg>Take down</seg></tuv>
     </tu>
+    <!-- #6997: Explorer Bulk Stage / Remove-from-Staging dialog chrome (parent #4530). en-us only. -->
+    <tu tuid="perc.ui.explorer@Stage selected items">
+      <tuv xml:lang="en-us"><seg>Stage selected items</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Remove selected items from staging">
+      <tuv xml:lang="en-us"><seg>Remove selected items from staging</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Items to stage:">
+      <tuv xml:lang="en-us"><seg>Items to stage:</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Items to remove from staging:">
+      <tuv xml:lang="en-us"><seg>Items to remove from staging:</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Stage {count} items">
+      <tuv xml:lang="en-us"><seg>Stage {count} items</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Remove {count} items from staging">
+      <tuv xml:lang="en-us"><seg>Remove {count} items from staging</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Staging {count} items…">
+      <tuv xml:lang="en-us"><seg>Staging {count} items…</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Removing {count} items from staging…">
+      <tuv xml:lang="en-us"><seg>Removing {count} items from staging…</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Staging results">
+      <tuv xml:lang="en-us"><seg>Staging results</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Remove from staging results">
+      <tuv xml:lang="en-us"><seg>Remove from staging results</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@{ok} staged, {skipped} skipped, {failed} failed.">
+      <tuv xml:lang="en-us"><seg>{ok} staged, {skipped} skipped, {failed} failed.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@{ok} removed from staging, {skipped} skipped, {failed} failed.">
+      <tuv xml:lang="en-us"><seg>{ok} removed from staging, {skipped} skipped, {failed} failed.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Staged">
+      <tuv xml:lang="en-us"><seg>Staged</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Removed from staging">
+      <tuv xml:lang="en-us"><seg>Removed from staging</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Failed">
+      <tuv xml:lang="en-us"><seg>Failed</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Skipped — folder">
+      <tuv xml:lang="en-us"><seg>Skipped — folder</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Close">
+      <tuv xml:lang="en-us"><seg>Close</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@No items were processed.">
+      <tuv xml:lang="en-us"><seg>No items were processed.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Request failed">
+      <tuv xml:lang="en-us"><seg>Request failed</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@item">
+      <tuv xml:lang="en-us"><seg>item</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Not staged">
+      <tuv xml:lang="en-us"><seg>Not staged</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Not removed from staging">
+      <tuv xml:lang="en-us"><seg>Not removed from staging</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Stage failed">
+      <tuv xml:lang="en-us"><seg>Stage failed</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Remove from staging failed">
+      <tuv xml:lang="en-us"><seg>Remove from staging failed</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Stage {count} selected items to the staging server? Folders in the selection are not staged.">
+      <tuv xml:lang="en-us"><seg>Stage {count} selected items to the staging server? Folders in the selection are not staged.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Remove {count} selected items from staging? Folders in the selection are not removed.">
+      <tuv xml:lang="en-us"><seg>Remove {count} selected items from staging? Folders in the selection are not removed.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Nothing in the selection can be staged. Folders are not staged.">
+      <tuv xml:lang="en-us"><seg>Nothing in the selection can be staged. Folders are not staged.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Nothing in the selection can be removed from staging. Folders are not removed.">
+      <tuv xml:lang="en-us"><seg>Nothing in the selection can be removed from staging. Folders are not removed.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Folders are not staged: {names}">
+      <tuv xml:lang="en-us"><seg>Folders are not staged: {names}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Folders are not removed from staging: {names}">
+      <tuv xml:lang="en-us"><seg>Folders are not removed from staging: {names}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Cancel">
+      <tuv xml:lang="en-us"><seg>Cancel</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.publish.modern@Publish Forbidden">
       <tuv xml:lang="en-us"><seg>You are not allowed to publish.</seg></tuv>
       <tuv xml:lang="ar"><seg>غير مسموح لك بالنشر.</seg></tuv>

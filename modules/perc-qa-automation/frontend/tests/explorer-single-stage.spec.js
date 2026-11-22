@@ -91,6 +91,23 @@ async function installListingRoutes(page) {
   const staged = [];
   /** @type {string[]} */
   const unstaged = [];
+  // Mock the checkout-owner lookup so the mocked row ids never hit the
+  // real server (a lookup for a fake id logs a server ERROR). Benign
+  // reader assignment: nothing is checked out (#6997, same as takedown).
+  await page.route("**/rest/editor/items/**/checkout-owner", async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        EditorItemLockInfo: {
+          itemName: "Home",
+          checkOutUser: "",
+          currentUser: "Admin",
+          assignmentType: "Reader",
+        },
+      }),
+    });
+  });
   await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
     await route.fulfill({
       status: 200,
@@ -277,6 +294,42 @@ test.describe("Explorer single-item and folder-children Stage dialog", () => {
       await expectNoSeriousA11yViolations(page, {
         scope: '[data-testid="content-explorer-shell"]',
       });
+      expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
+    },
+  );
+
+  test(
+    "keyboard Enter opens Stage; Escape cancels and returns focus (#6997)",
+    { tag: ["@explorer", "@explorer-staging", "@explorer-single-stage"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      page.on("pageerror", (err) => pageErrors.push(String(err)));
+      const { staged } = await installListingRoutes(page);
+      await openListing(page);
+      const home = page.locator('[data-testid="detail-row-42"][data-row-kind="item"]');
+      await expect(home).toBeVisible({ timeout: 20_000 });
+      await home.click();
+      await page.locator('[data-testid="detail-select-42"]').check();
+      const stage = page.locator('[data-testid="action-toolbar-item-Stage"]');
+      await expect(stage).toBeVisible({ timeout: 15_000 });
+      // Keyboard path: focus the toolbar control and activate with Enter.
+      await stage.focus();
+      await page.keyboard.press("Enter");
+      const dialog = page.locator('[data-testid="explorer-bulk-stage-dialog"]');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      await expect(dialog).toHaveAttribute("role", "dialog");
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="explorer-bulk-stage-dialog"]',
+      });
+      // Escape cancels: nothing staged, no refresh, focus returns.
+      await page.keyboard.press("Escape");
+      await expect(dialog).toHaveCount(0);
+      await expect(page.locator('[data-testid="explorer-nav"]')).toHaveAttribute(
+        "data-list-epoch",
+        "0",
+      );
+      expect(staged).toEqual([]);
+      await expect(stage).toBeFocused();
       expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
     },
   );

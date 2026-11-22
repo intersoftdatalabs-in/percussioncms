@@ -662,7 +662,7 @@ function stageItemLabel(item: PSPathItem): string {
   if (path) {
     return path;
   }
-  return (item.id ?? "").trim() || "item";
+  return (item.id ?? "").trim() || message(EXPLORER_MSG.BULK_STAGE_UNNAMED_ITEM);
 }
 
 function fillTemplate(key: string, token: string, value: string): string {
@@ -707,11 +707,11 @@ function failureFromStage(item: PSPathItem, err: unknown): StageItemFailure {
       message: `HTTP ${err.status}`,
     };
   }
-  const text = err instanceof Error ? err.message : "stage failed";
+  const text = err instanceof Error ? err.message : message(EXPLORER_MSG.BULK_STAGE_FAILED);
   return {
     id: (item.id ?? "").trim(),
     name: stageItemLabel(item),
-    message: text || "stage failed",
+    message: text || message(EXPLORER_MSG.BULK_STAGE_FAILED),
   };
 }
 
@@ -733,7 +733,7 @@ export async function stageSelectedItems(
         failures.push({
           id: (item.id ?? "").trim(),
           name: stageItemLabel(item),
-          message: "not staged",
+          message: message(EXPLORER_MSG.BULK_STAGE_NOT_STAGED),
         });
       } else {
         stagedIds.push((item.id ?? "").trim());
@@ -903,11 +903,13 @@ function failureFromRemove(item: PSPathItem, err: unknown): StageItemFailure {
     };
   }
   const text =
-    err instanceof Error ? err.message : "remove from staging failed";
+    err instanceof Error
+      ? err.message
+      : message(EXPLORER_MSG.BULK_UNSTAGE_FAILED);
   return {
     id: (item.id ?? "").trim(),
     name: stageItemLabel(item),
-    message: text || "remove from staging failed",
+    message: text || message(EXPLORER_MSG.BULK_UNSTAGE_FAILED),
   };
 }
 
@@ -929,7 +931,7 @@ export async function removeFromStagingSelectedItems(
         failures.push({
           id: (item.id ?? "").trim(),
           name: stageItemLabel(item),
-          message: "not removed",
+          message: message(EXPLORER_MSG.BULK_UNSTAGE_NOT_REMOVED),
         });
       } else {
         removedIds.push((item.id ?? "").trim());
