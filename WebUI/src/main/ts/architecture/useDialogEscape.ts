@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef } from "react";
 
 /** Last structure-toolbar control that opened a dialog (#3350). */
 let pendingOpener: HTMLElement | null = null;
@@ -39,6 +39,117 @@ function takePendingOpener(): HTMLElement | null {
   return ae instanceof HTMLElement ? ae : null;
 }
 
+/** Keep the latest callback in a ref without re-subscribing effects. */
+function useLatest(fn: () => void): { current: () => void } {
+  const ref = useRef(fn);
+  ref.current = fn;
+  return ref;
+}
+
+/** Focus when the element is still attached; no-op otherwise. */
+function focusSafely(el: HTMLElement | null | undefined): void {
+  if (!el) {
+    return;
+  }
+  if (typeof el.focus !== "function" || !document.contains(el)) {
+    return;
+  }
+  el.focus();
+}
+
+/** Take the captured opener out of the ref and focus it. */
+function restoreOpener(openerRef: { current: HTMLElement | null }): void {
+  const el = openerRef.current;
+  openerRef.current = null;
+  focusSafely(el);
+}
+
+/** Capture the opener on the first open render (#3350). */
+function useOpenerCapture(open: boolean): {
+  openerRef: { current: HTMLElement | null };
+  wasOpenRef: { current: boolean };
+} {
+  const openerRef = useRef<HTMLElement | null>(null);
+  const wasOpenRef = useRef(false);
+  if (open && !wasOpenRef.current) {
+    openerRef.current = takePendingOpener();
+  }
+  wasOpenRef.current = open;
+  return { openerRef, wasOpenRef };
+}
+
+/** Return focus when the dialog closes. */
+function useOpenerRestore(
+  open: boolean,
+  openerRef: { current: HTMLElement | null },
+): void {
+  useLayoutEffect(() => {
+    if (open) {
+      return;
+    }
+    restoreOpener(openerRef);
+  }, [open, openerRef]);
+}
+
+/** Return focus when unmounted while still open (#6988, shared for #7003). */
+function useUnmountOpenerRestore(
+  openerRef: { current: HTMLElement | null },
+  wasOpenRef: { current: boolean },
+): void {
+  // Read through a stable getter: the cleanup needs the unmount-time value,
+  // which the exhaustive-deps rule flags when read as `.current` inline.
+  const isStillOpen = useCallback(
+    () => wasOpenRef.current,
+    [wasOpenRef],
+  );
+  useEffect(() => {
+    return () => {
+      if (!isStillOpen()) {
+        return;
+      }
+      restoreOpener(openerRef);
+    };
+  }, [openerRef, isStillOpen]);
+}
+
+function isEscapeEvent(ev: KeyboardEvent): boolean {
+  return ev.key === "Escape";
+}
+
+/** Build the window keydown handler so the effect stays flat. */
+function createEscapeHandler(
+  isBusy: () => boolean,
+  fire: () => void,
+): (ev: KeyboardEvent) => void {
+  return (ev: KeyboardEvent) => {
+    if (!isEscapeEvent(ev) || isBusy()) {
+      return;
+    }
+    ev.preventDefault();
+    ev.stopPropagation();
+    fire();
+  };
+}
+
+/** Close on Escape while open and not busy. */
+function useEscapeKey(
+  open: boolean,
+  busy: boolean,
+  fireRef: { current: () => void },
+): void {
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    const onKey = createEscapeHandler(
+      () => busy,
+      () => fireRef.current(),
+    );
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open, busy, fireRef]);
+}
+
 /**
  * Close Architecture dialogs on Escape when open and not busy (#3098 a11y).
  * Peer: Design TemplateDetailDrawer Escape handler.
@@ -54,65 +165,11 @@ export function useDialogEscape(
   busy: boolean,
   onCancel: () => void,
 ): void {
-  const onCancelRef = useRef(onCancel);
-  onCancelRef.current = onCancel;
-
-  const openerRef = useRef<HTMLElement | null>(null);
-  const wasOpenRef = useRef(false);
-
-  if (open && !wasOpenRef.current) {
-    openerRef.current = takePendingOpener();
-  }
-  wasOpenRef.current = open;
-
-  useLayoutEffect(() => {
-    if (open) {
-      return;
-    }
-    const el = openerRef.current;
-    if (!el) {
-      return;
-    }
-    openerRef.current = null;
-    if (typeof el.focus === "function" && document.contains(el)) {
-      el.focus();
-    }
-  }, [open]);
-
-  // Unmounted while still open (#6988, shared for #7003): return focus
-  // to the captured opener instead of stranding it on body. A passive
-  // cleanup runs after the unmount commit, so the focus move sticks.
-  useEffect(() => {
-    return () => {
-      if (!wasOpenRef.current) {
-        return;
-      }
-      const el = openerRef.current;
-      openerRef.current = null;
-      if (el && typeof el.focus === "function" && document.contains(el)) {
-        el.focus();
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!open) {
-      return;
-    }
-    const onKey = (ev: KeyboardEvent) => {
-      if (ev.key !== "Escape") {
-        return;
-      }
-      if (busy) {
-        return;
-      }
-      ev.preventDefault();
-      ev.stopPropagation();
-      onCancelRef.current();
-    };
-    window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
-  }, [open, busy]);
+  const fireRef = useLatest(onCancel);
+  const { openerRef, wasOpenRef } = useOpenerCapture(open);
+  useOpenerRestore(open, openerRef);
+  useUnmountOpenerRestore(openerRef, wasOpenRef);
+  useEscapeKey(open, busy, fireRef);
 }
 
 const FOCUSABLE =
@@ -122,6 +179,70 @@ function focusableIn(root: HTMLElement): HTMLElement[] {
   return Array.from(root.querySelectorAll<HTMLElement>(FOCUSABLE)).filter(
     (el) => el.tabIndex !== -1 && !el.hasAttribute("disabled"),
   );
+}
+
+/** Preferred initial control when it sits inside the dialog root. */
+function resolveInitialFocus(
+  root: HTMLElement,
+  preferred: HTMLElement | null | undefined,
+): HTMLElement | undefined {
+  if (preferred && root.contains(preferred)) {
+    return preferred;
+  }
+  return focusableIn(root)[0];
+}
+
+/** Focus the trap's starting control (first focusable by default). */
+function focusInitialControl(
+  root: HTMLElement,
+  preferred: HTMLElement | null | undefined,
+): void {
+  focusSafely(resolveInitialFocus(root, preferred));
+}
+
+/**
+ * Pick the wrap target for a Tab step, or null when focus already cycles.
+ *
+ * @param inside whether the active element sits inside the dialog root.
+ */
+function trapTarget(
+  shift: boolean,
+  inside: boolean,
+  active: Element | null,
+  first: HTMLElement,
+  last: HTMLElement,
+): HTMLElement | null {
+  if (shift) {
+    return active === first || !inside ? last : null;
+  }
+  return active === last || !inside ? first : null;
+}
+
+/** Build the container keydown handler so the effect stays flat. */
+function createTabTrapHandler(root: HTMLElement): (ev: KeyboardEvent) => void {
+  return (ev: KeyboardEvent) => {
+    if (ev.key !== "Tab") {
+      return;
+    }
+    const list = focusableIn(root);
+    if (list.length === 0) {
+      ev.preventDefault();
+      return;
+    }
+    const first = list[0];
+    const last = list[list.length - 1];
+    const target = trapTarget(
+      ev.shiftKey,
+      root.contains(document.activeElement),
+      document.activeElement,
+      first,
+      last,
+    );
+    if (target) {
+      ev.preventDefault();
+      target.focus();
+    }
+  };
 }
 
 /**
@@ -150,36 +271,8 @@ export function useDialogFocusTrap(
     if (!root) {
       return;
     }
-    const preferred = initialRef?.current;
-    const initial =
-      preferred && root.contains(preferred)
-        ? preferred
-        : focusableIn(root)[0];
-    if (initial && typeof initial.focus === "function") {
-      initial.focus();
-    }
-    const onKey = (ev: KeyboardEvent) => {
-      if (ev.key !== "Tab") {
-        return;
-      }
-      const list = focusableIn(root);
-      if (list.length === 0) {
-        ev.preventDefault();
-        return;
-      }
-      const firstEl = list[0];
-      const lastEl = list[list.length - 1];
-      const active = document.activeElement;
-      if (ev.shiftKey) {
-        if (active === firstEl || !root.contains(active)) {
-          ev.preventDefault();
-          lastEl.focus();
-        }
-      } else if (active === lastEl || !root.contains(active)) {
-        ev.preventDefault();
-        firstEl.focus();
-      }
-    };
+    focusInitialControl(root, initialRef?.current);
+    const onKey = createTabTrapHandler(root);
     root.addEventListener("keydown", onKey);
     return () => root.removeEventListener("keydown", onKey);
   }, [open, containerRef, initialRef]);
