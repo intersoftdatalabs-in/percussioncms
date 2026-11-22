@@ -663,6 +663,39 @@ marker — so runners on other machines skip it. State: `scratch/claims.json`.
   `issues: closed` workflow does the same at close time for future merges.
 - **Tests**: `python3 -m pytest scripts/test_night_queue_claim.py` (fake `gh`).
 
+### `night-cycle-verify-gate.py`
+
+Night cycle-verify turn-closure gate (#7019). A `cycle-verify` turn that
+ends while builds still run in the background stalls the whole cycle
+(no fresh `scratch/cycle-verify.json`, no Report), and sub-agent sessions
+get no "background completion notice" — so the turn must finish its
+gates in-turn, and the host must verify that before moving on.
+
+- **Usage** (from the night worktree):
+
+  ```bash
+  # Host gate right after the cycle-verify task returns (exit 0 = proceed):
+  python3 scripts/night-cycle-verify-gate.py check \
+    --work-dir "$NIGHT_WORKTREE_PATH" --cycle-id "$NIGHT_CYCLE_ID" \
+    --dispatched-at 2026-11-22T03:10:20Z \
+    --output-file /tmp/cv-task-stdout.txt
+
+  # Foreground sentinel wait INSIDE the turn (instead of &, nohup, setsid):
+  python3 scripts/night-cycle-verify-gate.py wait \
+    --sentinel scratch/cv-maven-chain.done --timeout 7200 --poll 15
+  ```
+
+- **Rules in code**: `check` requires BOTH the `CYCLE_VERIFY_DONE ...`
+  stdout line AND `scratch/cycle-verify.json` stamping the current
+  `cycle_id` with an mtime later than the dispatch instant (previous-cycle
+  files are rejected as `stale_cycle_id`, pre-dispatch files as
+  `stale_mtime`). Non-zero exit = re-dispatch once with an explicit
+  "previous attempt returned while builds were still running" note; still
+  failing = record `cycle_verify: incomplete` and run Report anyway.
+  `wait` blocks in the foreground until the sentinel appears; a timeout
+  is concrete blocked evidence, not a silent stall.
+- **Tests**: `python3 -m pytest scripts/test_night_cycle_verify_gate.py -v` (no network).
+
 ### `gh-json.py`
 
 `gh` JSON hygiene wrapper for night workers (#6986). gh 2.105.0 prints a
