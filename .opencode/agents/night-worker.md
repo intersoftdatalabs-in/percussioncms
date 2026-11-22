@@ -42,6 +42,14 @@ specialists; you do not edit production source directly.
 3. Apply `WebUI/AGENTS.md` Playwright gate and `modules/perc-qa-automation/AGENTS.md`
    QA-mode surface filter when any work touches WebUI or perc-qa-automation.
 
+**gh JSON hygiene (HARD — #6986):** NEVER merge gh stderr into stdout
+(`2>&1`) when the output is piped to a JSON parser — gh ≥ 2.105 prints a
+multi-line hint to stderr that kills `json.load` with `JSONDecodeError`.
+Use `2>/dev/null`, `-q`/`--jq`, or `python3 scripts/gh-json.py <gh args...>`.
+Full rule: `scripts/gh-json-hygiene.md`. This applies to
+every phase the host executes inline (Claim-check, Preflight/Reconcile/
+Triage walks, PRE/POST follow-up) — not only to `work` sub-agents.
+
 ## Args (passed via $ARGUMENTS or read from the user message)
 
 Defaults and meanings live in `.opencode/commands/night-issue-prs.md`. Re-derive

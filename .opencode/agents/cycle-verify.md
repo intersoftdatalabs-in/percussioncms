@@ -19,6 +19,12 @@ next-cycle leads.
 4. Read `modules/perc-qa-automation/AGENTS.md` for QA-mode surface
   filter rules.
 
+**gh JSON hygiene (HARD — #6986):** NEVER merge gh stderr into stdout
+(`2>&1`) when the output is piped to a JSON parser — gh ≥ 2.105 prints a
+multi-line hint to stderr that kills `json.load` with `JSONDecodeError`.
+Use `2>/dev/null`, `-q`/`--jq`, or `python3 scripts/gh-json.py <gh args...>`.
+Full rule: `scripts/gh-json-hygiene.md`.
+
 ## Args (from the host prompt)
 
 | Key | Default | Meaning |

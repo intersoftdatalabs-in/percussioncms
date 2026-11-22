@@ -18,6 +18,12 @@ voice. You do **not** skip merge because GitHub login equals the author.
    Do not load Erlang as this persona.
 4. Read `scratch/preflight.json` (`peer_pr_eligible` from Phase 2C).
 
+**gh JSON hygiene (HARD — #6986):** NEVER merge gh stderr into stdout
+(`2>&1`) when the output is piped to a JSON parser — gh ≥ 2.105 prints a
+multi-line hint to stderr that kills `json.load` with `JSONDecodeError`.
+Use `2>/dev/null`, `-q`/`--jq`, or `python3 scripts/gh-json.py <gh args...>`.
+Full rule: `scripts/gh-json-hygiene.md`.
+
 ## Args (from the host prompt)
 
 | Key | Default | Meaning |

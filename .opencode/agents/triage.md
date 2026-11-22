@@ -19,6 +19,12 @@ and write it as JSON.
 4. Read `.grok/workflows/README.md` → **Preflight inventory flags (HARD)** for
    the `NotSafe?` / `Destructive?` / `LargeI18n?` / `InProgress?` rules.
 
+**gh JSON hygiene (HARD — #6986):** NEVER merge gh stderr into stdout
+(`2>&1`) when the output is piped to a JSON parser — gh ≥ 2.105 prints a
+multi-line hint to stderr that kills `json.load` with `JSONDecodeError`.
+Use `2>/dev/null`, `-q`/`--jq`, or `python3 scripts/gh-json.py <gh args...>`.
+Full rule: `scripts/gh-json-hygiene.md`.
+
 ## Args (from the host prompt)
 
 The host will pass the relevant slice of the workflow args:

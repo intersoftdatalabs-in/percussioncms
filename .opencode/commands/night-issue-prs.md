@@ -73,6 +73,12 @@ positional text). Parse them and pass to the workflow as described below.
    if it exists in this repo; otherwise re-derive gates from
    `.grok/workflows/README.md`.
 
+**gh JSON hygiene (HARD — #6986):** NEVER merge gh stderr into stdout
+(`2>&1`) when the output is piped to a JSON parser — gh ≥ 2.105 prints a
+multi-line hint to stderr that kills `json.load` with `JSONDecodeError`.
+Use `2>/dev/null`, `-q`/`--jq`, or `python3 scripts/gh-json.py <gh args...>`.
+Full rule: `scripts/gh-json-hygiene.md`.
+
 ## Environment (set by the `night` plugin before this prompt runs)
 
 | Var | Default | Purpose |
