@@ -409,6 +409,47 @@ export function resolveExplorerTreeRoot(
 }
 
 /**
+ * Normalized keys of the rows the tree actually renders, in display
+ * order (#7045 review: the roving tab stop must resolve against the
+ * rendered rows, not the last-interacted key).
+ *
+ * <p>Mirrors {@link ExplorerTreeNodeView}: a folderish child renders its
+ * {@code state.children} (guarded by {@link isSafeExplorerTreeChild})
+ * only while its key is open in {@code expanded}. Pure so Vitest can
+ * drive it without rendering.</p>
+ */
+export function collectVisibleExplorerTreeKeys(
+  rootChildren: PSPathItem[],
+  expanded: Record<string, boolean>,
+  nodes: Record<string, NodeState>,
+): string[] {
+  const out: string[] = [];
+  const visit = (folder: PSPathItem): void => {
+    const pathKey = normalizeExplorerTreePathKey(folder.path);
+    out.push(pathKey);
+    if (!isFolder(folder)) {
+      return;
+    }
+    if (!(expanded[pathKey] ?? expanded[folder.path] ?? false)) {
+      return;
+    }
+    const state =
+      nodes[pathKey] ??
+      nodes[lookupNodeKey(nodes, folder.path) ?? ""] ??
+      EMPTY_STATE;
+    for (const child of state.children.filter((candidate) =>
+      isSafeExplorerTreeChild(folder.path, folder.folderPath, candidate.path),
+    )) {
+      visit(child);
+    }
+  };
+  for (const child of rootChildren) {
+    visit(child);
+  }
+  return out;
+}
+
+/**
  * First surfaced load error: the root error wins, otherwise the first
  * node error (#5793).
  */
@@ -511,8 +552,9 @@ function stepExplorerTreeRow(
 /**
  * ARIA tree keyboard behavior for one row (#5793: extracted from the
  * inline {@code onKeyDown} so {@code ExplorerTree} stays under the
- * complexity gate). ArrowDown/ArrowUp intentionally fall through to
- * native focus traversal.
+ * complexity gate). ArrowUp/ArrowDown/Home/End are handled at the tree
+ * container (visible-row moves, #7035) and intentionally fall through
+ * here so row focus traversal is owned in exactly one place.
  */
 export function handleExplorerTreeRowKeyDown(
   e: React.KeyboardEvent,
@@ -593,6 +635,91 @@ export function matchExplorerTreeTypeAhead(
 }
 
 /**
+ * Vertical tree row-focus moves (#7035, parent #4530). Mirrors the
+ * detail-list row-move vocabulary (#5761): ArrowUp/ArrowDown step between
+ * visible rows, Home/End jump to the ends. Pure so Vitest can drive it
+ * without rendering.
+ */
+export type ExplorerTreeRowMove = "next" | "prev" | "first" | "last";
+
+/**
+ * Map a keyboard key to a tree row-focus move. Returns null for keys the
+ * tree does not move on (Enter/Space/ArrowLeft/ArrowRight keep their
+ * existing row paths; printable keys belong to type-ahead).
+ */
+export function treeRowMoveForKey(key: string): ExplorerTreeRowMove | null {
+  switch (key) {
+    case "ArrowDown":
+      return "next";
+    case "ArrowUp":
+      return "prev";
+    case "Home":
+      return "first";
+    case "End":
+      return "last";
+    default:
+      return null;
+  }
+}
+
+/**
+ * Next visible-row index for a move. ArrowUp/ArrowDown clamp at the ends
+ * (WAI-ARIA APG tree pattern, #7045 review) so focus never leaves the
+ * tree and a repeat ArrowDown on the last row cannot silently jump the
+ * selection (and the list fetch) back to the first row; Home/End jump
+ * to the first/last row. An empty tree stays at 0.
+ */
+export function nextExplorerTreeRowIndex(
+  count: number,
+  current: number,
+  move: ExplorerTreeRowMove,
+): number {
+  if (count <= 0) return 0;
+  switch (move) {
+    case "next":
+      return Math.min(current + 1, count - 1);
+    case "prev":
+      return Math.max(current - 1, 0);
+    case "first":
+      return 0;
+    case "last":
+      return count - 1;
+  }
+}
+
+/**
+ * Whether a keydown target may receive a tree row-focus move (#7035).
+ * Text-entry hosts (the inline new-folder input, search fields) keep
+ * native ArrowUp/ArrowDown/Home/End behavior so typing is untouched.
+ */
+export function isExplorerTreeMoveTarget(target: EventTarget | null): boolean {
+  const el = target as HTMLElement | null;
+  if (!el || typeof el.closest !== "function") {
+    return false;
+  }
+  return (
+    el.closest('input, textarea, select, [contenteditable="true"]') == null
+  );
+}
+
+/**
+ * Keyboard focus ring for tree rows (#7035). Rows are focusable via
+ * roving tabindex but inline styles cannot express {@code :focus-visible},
+ * so this class carries the ring. Plain {@code :focus} is suppressed so
+ * mouse clicks do not leave a sticky outline; keyboard operators still
+ * get the visible ring (same pattern as the detail-list rows, #6596).
+ */
+const TREE_ROW_FOCUS_CSS = `
+.perc-explorer-tree-row:focus {
+  outline: none;
+}
+.perc-explorer-tree-row:focus-visible {
+  outline: 2px solid #1a73e8;
+  outline-offset: -2px;
+}
+`;
+
+/**
  * Node loading state + lazy {@code ensureLoaded} fetch (#5793: extracted
  * hook so the component body stays under the complexity gate).
  */
@@ -658,6 +785,13 @@ export interface ExplorerTreeNodeViewProps {
   /** Open inline new-folder row; rendered under the matching parent (#5882). */
   inlineCreate?: ExplorerTreeInlineCreateState | null;
   /**
+   * Roving-tabindex anchor for arrow-key row navigation (#7035). The row
+   * whose key equals this value is the single tab stop; every other row
+   * renders {@code tabIndex=-1}. Threaded through the recursion so nested
+   * rows resolve the same anchor.
+   */
+  tabStopKey?: string | null;
+  /**
    * Right-click / keyboard context-menu on this row (#6826). Threaded
    * through recursion so every depth opens the folder-scoped menu.
    */
@@ -684,6 +818,7 @@ export function ExplorerTreeNodeView({
   onToggle,
   onExpandIfCollapsed,
   inlineCreate = null,
+  tabStopKey = null,
   onFolderContextMenu,
 }: ExplorerTreeNodeViewProps): React.ReactElement {
   const path = folder.path;
@@ -726,7 +861,9 @@ export function ExplorerTreeNodeView({
         role="treeitem"
         aria-expanded={folderish ? isOpen : undefined}
         aria-selected={selected}
-        tabIndex={0}
+        aria-level={depth + 1}
+        className="perc-explorer-tree-row"
+        tabIndex={tabStopKey != null && pathKey === tabStopKey ? 0 : -1}
         style={nodeRowStyle(selected, depth)}
         onClick={() => {
           onSelectFolder(path, folder);
@@ -803,6 +940,7 @@ export function ExplorerTreeNodeView({
               onToggle={onToggle}
               onExpandIfCollapsed={onExpandIfCollapsed}
               inlineCreate={inlineCreate}
+              tabStopKey={tabStopKey}
               onFolderContextMenu={onFolderContextMenu}
             />
           ))}
@@ -948,6 +1086,67 @@ function findFolderItemForPath(
   return null;
 }
 
+/**
+ * Visible tree rows in display order, excluding the open inline
+ * new-folder row (#5882). Shared by type-ahead (#5841) and arrow-key
+ * moves (#7035) so both navigate the same live row set.
+ */
+function listVisibleTreeItems(container: HTMLElement): Element[] {
+  return Array.from(container.querySelectorAll('[role="treeitem"]')).filter(
+    (el) =>
+      el.getAttribute("data-testid") !== "tree-inline-new-folder" &&
+      el.closest('[data-testid="tree-inline-new-folder"]') == null,
+  );
+}
+
+/**
+ * Arrow-key row move at the tree container (#7035, parent #4530): DOM
+ * focus and selection move together across the visible rows (clamped at
+ * the ends per the WAI-ARIA APG tree pattern, #7045 review); Home/End
+ * jump to the first/last row. Consumes the key (returns true) on a
+ * successful move. Text-entry targets keep native behavior via
+ * {@link isExplorerTreeMoveTarget}.
+ */
+function moveExplorerTreeFocus(
+  container: HTMLElement,
+  key: string,
+  target: EventTarget | null,
+  onMove: (path: string, folder: PSPathItem | null) => void,
+  findFolder: (path: string) => PSPathItem | null,
+): boolean {
+  const move = treeRowMoveForKey(key);
+  if (!move || !isExplorerTreeMoveTarget(target)) {
+    return false;
+  }
+  const items = listVisibleTreeItems(container);
+  if (items.length === 0) {
+    return false;
+  }
+  const active = document.activeElement as HTMLElement | null;
+  const activeItem = active?.closest?.('[role="treeitem"]');
+  // No row focused yet: ArrowDown/Home land on the first row,
+  // ArrowUp/End on the last row.
+  const current = activeItem
+    ? items.indexOf(activeItem)
+    : move === "next" || move === "first"
+      ? -1
+      : items.length;
+  const next = nextExplorerTreeRowIndex(items.length, current, move);
+  const host = (items[next] as HTMLElement).closest?.(
+    '[data-testid^="tree-node-"]',
+  );
+  const testid = host?.getAttribute("data-testid") ?? "";
+  const path = testid.startsWith("tree-node-")
+    ? testid.slice("tree-node-".length)
+    : "";
+  if (!path) {
+    return false;
+  }
+  (items[next] as HTMLElement).focus();
+  onMove(path, findFolder(path));
+  return true;
+}
+
 export function ExplorerTree({
   initialPath = "/",
   selectedPath,
@@ -970,6 +1169,41 @@ export function ExplorerTree({
     buffer: string;
     timer: ReturnType<typeof setTimeout> | null;
   }>({ buffer: "", timer: null });
+
+  /**
+   * Roving-tabindex anchor (#7035): normalized path of the tab-stop row.
+   * Every in-tree selection (click, Enter/Space, type-ahead, arrow keys)
+   * funnels through {@code handleSelectFolder} so the tab stop follows
+   * the operator; the shell-provided selection (or the first root child)
+   * covers the pre-interaction render.
+   */
+  const [focusKey, setFocusKey] = useState<string | null>(null);
+
+  /**
+   * Selection funnel (#7035): keeps the roving tab stop on the selected
+   * row and reports the selection to the shell.
+   */
+  const handleSelectFolder = useCallback(
+    (path: string, folder: PSPathItem | null) => {
+      setFocusKey(normalizeExplorerTreePathKey(path));
+      onSelectFolder(path, folder);
+    },
+    [onSelectFolder],
+  );
+
+  /**
+   * External-selection reset (#7045 review): `selectedPath` can change
+   * without keyboard interaction (breadcrumb segment, list double-click
+   * into a folder). `tabStopKey` below prefers `focusKey` while it is
+   * still visible, so a stale `focusKey` would keep the tab stop on the
+   * previously arrowed row. Clearing it lets the selection branch move
+   * the tab stop to the newly selected row. Selection follows focus, so
+   * `focusKey` always equals `selectedPath` after a keyboard move and the
+   * clear loses nothing.
+   */
+  useEffect(() => {
+    setFocusKey(null);
+  }, [selectedPath]);
 
   useEffect(
     () => () => {
@@ -1177,28 +1411,41 @@ export function ExplorerTree({
    * Classic Explorer type-ahead (#5841): printable keys typed while the
    * tree is focused accumulate for ~1s into a prefix; focus jumps to the
    * next visible row whose label starts with the prefix (wrap-around) and
-   * selection follows focus. Non-printable keys, modified keys, and keys
-   * already handled by the row (Enter/Space/arrows) are ignored. No
-   * match keeps the current selection. Zero new REST — client-side only.
+   * selection follows focus. Vertical moves (ArrowUp/ArrowDown/Home/End,
+   * #7035) run first so focus and selection step together; non-printable
+   * keys, modified keys, and keys already handled by the row
+   * (Enter/Space/arrows) are ignored. No match keeps the current
+   * selection. Zero new REST — client-side only.
    */
   const onTreeTypeAheadKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.defaultPrevented || !isExplorerTreeTypeAheadKey(e)) {
+      if (e.defaultPrevented) {
         return;
       }
       const container = treeRef.current;
       if (!container) {
         return;
       }
+      // Vertical moves own ArrowUp/ArrowDown/Home/End (#7035); rows let
+      // these keys bubble here so focus and selection move together.
+      if (
+        moveExplorerTreeFocus(
+          container,
+          e.key,
+          e.target,
+          handleSelectFolder,
+          (path) => findFolderItemForPath(nodesRef.current, path),
+        )
+      ) {
+        e.preventDefault();
+        return;
+      }
+      if (!isExplorerTreeTypeAheadKey(e)) {
+        return;
+      }
       // The open inline new-folder row is a peer treeitem (ARIA ownership)
       // but must not steal type-ahead focus or selection (#5882).
-      const items = Array.from(
-        container.querySelectorAll('[role="treeitem"]'),
-      ).filter(
-        (el) =>
-          el.getAttribute("data-testid") !== "tree-inline-new-folder" &&
-          el.closest('[data-testid="tree-inline-new-folder"]') == null,
-      );
+      const items = listVisibleTreeItems(container);
       if (items.length === 0) {
         return;
       }
@@ -1237,12 +1484,12 @@ export function ExplorerTree({
       }
       e.preventDefault();
       (items[hit] as HTMLElement).focus();
-      onSelectFolder(
+      handleSelectFolder(
         rows[hit].path,
         findFolderItemForPath(nodesRef.current, rows[hit].path),
       );
     },
-    [onSelectFolder, nodesRef],
+    [handleSelectFolder, nodesRef],
   );
 
   const { rootState, rootKey } = resolveExplorerTreeRoot(nodes, initialPath);
@@ -1250,6 +1497,40 @@ export function ExplorerTree({
     () => resolveExplorerTreeError(nodes, rootState.error),
     [nodes, rootState.error],
   );
+
+  /**
+   * Effective roving tab stop (#7035, #7045 review): resolved against the
+   * rendered rows so the tree always keeps exactly one tab stop. The last
+   * interacted row wins while it is still visible; otherwise the shell
+   * selection wins while visible; otherwise the first visible row. A
+   * focusKey naming a collapsed, not-yet-loaded, deleted, or renamed row
+   * no longer strands every row at tabIndex=-1, and an external selection
+   * change (breadcrumb, list double-click into a folder) moves the tab
+   * stop to the newly selected row instead of staying on the old row.
+   */
+  const visibleRowKeys = useMemo(
+    () =>
+      collectVisibleExplorerTreeKeys(rootState.children, expanded, nodes),
+    [rootState.children, expanded, nodes],
+  );
+  const tabStopKey = useMemo(() => {
+    if (visibleRowKeys.length === 0) {
+      return null;
+    }
+    if (focusKey) {
+      const focusNorm = normalizeExplorerTreePathKey(focusKey);
+      if (visibleRowKeys.includes(focusNorm)) {
+        return focusNorm;
+      }
+    }
+    if (selectedPath) {
+      const selectedNorm = normalizeExplorerTreePathKey(selectedPath);
+      if (visibleRowKeys.includes(selectedNorm)) {
+        return selectedNorm;
+      }
+    }
+    return visibleRowKeys[0];
+  }, [focusKey, selectedPath, visibleRowKeys]);
 
   const inlineCreate: ExplorerTreeInlineCreateState | null = inlineParent
     ? {
@@ -1305,6 +1586,7 @@ export function ExplorerTree({
         ref={treeRef}
         onKeyDown={onTreeTypeAheadKeyDown}
       >
+      <style>{TREE_ROW_FOCUS_CSS}</style>
       {rootState.loading && rootState.children.length === 0 && (
         <div style={emptyStateStyle}>{message(EXPLORER_MSG.TREE_LOADING)}</div>
       )}
@@ -1316,10 +1598,11 @@ export function ExplorerTree({
           expanded={expanded}
           nodes={nodes}
           selectedPath={selectedPath}
-          onSelectFolder={onSelectFolder}
+          onSelectFolder={handleSelectFolder}
           onToggle={toggle}
           onExpandIfCollapsed={expandIfCollapsed}
           inlineCreate={inlineCreate}
+          tabStopKey={tabStopKey}
           onFolderContextMenu={onFolderContextMenu}
         />
       ))}

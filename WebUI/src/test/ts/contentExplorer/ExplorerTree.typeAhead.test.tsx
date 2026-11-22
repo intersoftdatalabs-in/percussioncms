@@ -77,6 +77,12 @@ function focusTreeItem(path: string): HTMLElement {
   return item;
 }
 
+function treeItem(path: string): HTMLElement {
+  return screen
+    .getByTestId(`tree-node-${path}`)
+    .querySelector('[role="treeitem"]') as HTMLElement;
+}
+
 describe("ExplorerTree type-ahead helpers (#5841)", () => {
   it("accepts single printable keys and rejects navigation/modifiers", () => {
     expect(isExplorerTreeTypeAheadKey({ key: "b" })).toBe(true);
@@ -168,24 +174,31 @@ describe("ExplorerTree type-ahead (#5841)", () => {
     );
   });
 
-  it("ignores non-printable keys and keeps selection on no match", async () => {
+  it("moves on ArrowDown and keeps selection on no-match prefix", async () => {
     const onSelectFolder = vi.fn();
     const { container } = await renderSiblingTree(onSelectFolder);
     const alphaItem = focusTreeItem("/Sites/Alpha");
-    // Navigation keys fall through to native traversal: no type-ahead jump.
+    // ArrowDown moves focus + selection to the next row (#7035): it is
+    // consumed by the container move handler, not type-ahead.
     fireEvent.keyDown(document.activeElement!, { key: "ArrowDown" });
-    expect(onSelectFolder).not.toHaveBeenCalled();
-    // No-match prefix keeps selection and focus.
+    expect(onSelectFolder).toHaveBeenCalledWith(
+      "/Sites/Beta",
+      expect.objectContaining({ path: "/Sites/Beta" }),
+    );
+    expect(document.activeElement).toBe(treeItem("/Sites/Beta"));
+    expect(document.activeElement).not.toBe(alphaItem);
+    // No-match prefix keeps selection and focus on the moved row.
+    onSelectFolder.mockClear();
     fireEvent.keyDown(document.activeElement!, { key: "z" });
     expect(onSelectFolder).not.toHaveBeenCalled();
-    expect(document.activeElement).toBe(alphaItem);
+    expect(document.activeElement).toBe(treeItem("/Sites/Beta"));
     // Enter still activates via the row handler (pre-existing behavior);
     // the row preventDefaults so type-ahead skips the already-handled key.
     onSelectFolder.mockClear();
     fireEvent.keyDown(document.activeElement!, { key: "Enter" });
     expect(onSelectFolder).toHaveBeenCalledWith(
-      "/Sites/Alpha",
-      expect.objectContaining({ path: "/Sites/Alpha" }),
+      "/Sites/Beta",
+      expect.objectContaining({ path: "/Sites/Beta" }),
     );
     await renderA11yGate(container);
   });
