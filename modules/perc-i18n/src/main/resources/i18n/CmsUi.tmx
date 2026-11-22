@@ -26301,6 +26301,55 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.explorer@not removed">
       <tuv xml:lang="en-us"><seg>not removed</seg></tuv>
     </tu>
+    <!-- #7036: Explorer detail-list loading/empty/error states + pager + approval badge (parent #4530). en-us only. -->
+    <tu tuid="perc.ui.explorer@Loading items">
+      <tuv xml:lang="en-us"><seg>Loading items</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@No items in this folder">
+      <tuv xml:lang="en-us"><seg>No items in this folder</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Use New Item, Create Page, or Create Asset to add content to this folder.">
+      <tuv xml:lang="en-us"><seg>Use New Item, Create Page, or Create Asset to add content to this folder.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Failed to load items">
+      <tuv xml:lang="en-us"><seg>Failed to load items</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@The item list request was not valid (HTTP 400)">
+      <tuv xml:lang="en-us"><seg>The item list request was not valid (HTTP 400)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@You do not have permission to list the items in this folder (HTTP 403)">
+      <tuv xml:lang="en-us"><seg>You do not have permission to list the items in this folder (HTTP 403)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@This folder was not found (HTTP 404)">
+      <tuv xml:lang="en-us"><seg>This folder was not found (HTTP 404)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@The item list could not be loaded because of a conflict (HTTP 409)">
+      <tuv xml:lang="en-us"><seg>The item list could not be loaded because of a conflict (HTTP 409)</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Folder: {path}">
+      <tuv xml:lang="en-us"><seg>Folder: {path}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Retry">
+      <tuv xml:lang="en-us"><seg>Retry</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Approved">
+      <tuv xml:lang="en-us"><seg>Approved</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Previous">
+      <tuv xml:lang="en-us"><seg>Previous</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Next">
+      <tuv xml:lang="en-us"><seg>Next</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Page {page}">
+      <tuv xml:lang="en-us"><seg>Page {page}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@Page {page} of {total}">
+      <tuv xml:lang="en-us"><seg>Page {page} of {total}</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@{count} item(s)">
+      <tuv xml:lang="en-us"><seg>{count} item(s)</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.publish.modern@Publish Forbidden">
       <tuv xml:lang="en-us"><seg>You are not allowed to publish.</seg></tuv>
       <tuv xml:lang="ar"><seg>غير مسموح لك بالنشر.</seg></tuv>
