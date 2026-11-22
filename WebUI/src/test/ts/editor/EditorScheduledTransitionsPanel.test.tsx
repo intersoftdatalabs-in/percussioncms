@@ -96,6 +96,21 @@ describe("EditorScheduledTransitionsPanel (#5830)", () => {
     expect(onRetryLoad).toHaveBeenCalledTimes(1);
   });
 
+  it("announces loading through a live region (#6898)", () => {
+    render(<EditorScheduledTransitionsPanel entries={[]} loading />);
+    const loading = screen.getByTestId(
+      "editor-scheduled-transitions-loading",
+    );
+    expect(loading).toHaveAttribute("role", "status");
+    expect(loading.textContent).toMatch(/loading/i);
+    expect(
+      screen.queryByTestId("editor-scheduled-transitions-list"),
+    ).toBeNull();
+    expect(
+      screen.queryByTestId("editor-scheduled-transitions-empty"),
+    ).toBeNull();
+  });
+
   it("offers Set and Clear only when the caller allows setting", () => {
     const onSetSchedule = vi.fn();
     const onClearSchedule = vi.fn();

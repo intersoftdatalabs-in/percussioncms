@@ -71,6 +71,7 @@ export function EditorScheduledTransitionsPanel({
       {loading ? (
         <div
           className={styles.status}
+          role="status"
           data-testid="editor-scheduled-transitions-loading"
         >
           {message(EDITOR_MSG.SCHEDULED_TRANSITIONS_LOADING)}
