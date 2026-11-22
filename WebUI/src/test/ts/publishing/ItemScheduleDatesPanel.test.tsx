@@ -779,4 +779,108 @@ describe("ItemScheduleDatesPanel", () => {
     expect(screen.queryByTestId("item-schedule-retry")).toBeNull();
     expect(screen.queryByTestId("item-schedule-batch-report")).toBeNull();
   });
+
+  it("announces loading as a live status", async () => {
+    fetchDates.mockImplementation(() => new Promise<never>(() => {}));
+    render(<ItemScheduleDatesPanel itemId="42" />);
+    const loading = await screen.findByTestId("item-schedule-loading");
+    expect(loading).toHaveAttribute("role", "status");
+  });
+
+  it("announces a saved schedule as a live status", async () => {
+    fetchDates.mockResolvedValue({
+      itemId: "42",
+      startDate: "09/18/2026 09:00 am",
+      endDate: "09/19/2026 10:00 am",
+      comments: "",
+    });
+    saveDates.mockResolvedValue();
+    render(<ItemScheduleDatesPanel itemId="42" />);
+    await waitFor(() => expect(fetchDates).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId("item-schedule-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-success")).toBeTruthy();
+    });
+    expect(screen.getByTestId("item-schedule-success")).toHaveAttribute(
+      "role",
+      "status",
+    );
+  });
+
+  it("clear confirm is an alertdialog with initial focus on Cancel", async () => {
+    fetchDates.mockResolvedValue({
+      itemId: "42",
+      startDate: "09/18/2026 09:00 am",
+      endDate: "09/19/2026 10:00 am",
+      comments: "",
+    });
+    render(<ItemScheduleDatesPanel itemId="42" />);
+    await waitFor(() => expect(fetchDates).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId("item-schedule-clear-submit"));
+    const confirm = screen.getByTestId("item-schedule-clear-confirm");
+    expect(confirm).toHaveAttribute("role", "alertdialog");
+    expect(
+      screen.getByRole("alertdialog", { name: /clear the start/i }),
+    ).toBe(confirm);
+    // Destructive Yes keeps DOM order first; focus starts on Cancel so an
+    // accidental Enter never clears the schedule (#6929).
+    await waitFor(() => {
+      expect(document.activeElement).toBe(
+        screen.getByTestId("item-schedule-clear-cancel"),
+      );
+    });
+  });
+
+  it("Escape cancels the clear confirm and returns focus to the opener", async () => {
+    fetchDates.mockResolvedValue({
+      itemId: "42",
+      startDate: "09/18/2026 09:00 am",
+      endDate: "09/19/2026 10:00 am",
+      comments: "",
+    });
+    render(<ItemScheduleDatesPanel itemId="42" />);
+    await waitFor(() => expect(fetchDates).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId("item-schedule-clear-submit"));
+    expect(screen.getByTestId("item-schedule-clear-confirm")).toBeTruthy();
+    fireEvent.keyDown(window, { key: "Escape" });
+    await waitFor(() => {
+      expect(
+        screen.queryByTestId("item-schedule-clear-confirm"),
+      ).toBeNull();
+    });
+    expect(saveDates).not.toHaveBeenCalled();
+    expect(document.activeElement).toBe(
+      screen.getByTestId("item-schedule-clear-submit"),
+    );
+  });
+
+  it("Tab cycles inside the clear confirm", async () => {
+    fetchDates.mockResolvedValue({
+      itemId: "42",
+      startDate: "09/18/2026 09:00 am",
+      endDate: "09/19/2026 10:00 am",
+      comments: "",
+    });
+    render(<ItemScheduleDatesPanel itemId="42" />);
+    await waitFor(() => expect(fetchDates).toHaveBeenCalled());
+    fireEvent.click(screen.getByTestId("item-schedule-clear-submit"));
+    const yes = screen.getByTestId("item-schedule-clear-yes");
+    const cancel = screen.getByTestId("item-schedule-clear-cancel");
+    await waitFor(() => {
+      expect(document.activeElement).toBe(cancel);
+    });
+    // Shift+Tab on the first control wraps to the last.
+    // (Wait for the load round-trip first: the confirm button is disabled
+    // while loading and disabled controls are outside the trap.)
+    await waitFor(() => {
+      expect(yes).not.toBeDisabled();
+    });
+    const confirm = screen.getByTestId("item-schedule-clear-confirm");
+    yes.focus();
+    fireEvent.keyDown(confirm, { key: "Tab", shiftKey: true });
+    expect(document.activeElement).toBe(cancel);
+    // Tab on the last control wraps to the first.
+    fireEvent.keyDown(confirm, { key: "Tab" });
+    expect(document.activeElement).toBe(yes);
+  });
 });
