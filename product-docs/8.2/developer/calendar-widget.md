@@ -73,6 +73,19 @@ While the list fetch is in flight the list shows a **Loading events…**
 row; when no event survives the today-or-later filter the list shows an
 explicit **No upcoming events.** row instead of a blank region.
 
+## Source-filter buttons (keyboard access, #6992)
+
+The **source-filter buttons** (one per Google feed plus the Percussion
+events button, shown above the calendar in Calendar layout) toggle the
+per-source event layers. They are native buttons inside a
+`role="group"` labelled "Calendar sources", so keyboard users Tab to a
+filter and press **Enter** or **Space** to toggle it — the same
+show/hide contract as a mouse click. Each button exposes
+`aria-pressed` (`true` while its source is shown) and a dimmed style
+while its source is hidden; keyboard focus paints a visible outline
+that mouse clicks never show, so the mouse-path rendering is
+unchanged.
+
 ## Google Calendar feeds (keep decision, #6945)
 
 Google feeds stay enabled. The widget ships the stock
