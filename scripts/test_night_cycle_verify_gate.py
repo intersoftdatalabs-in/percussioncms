@@ -172,7 +172,12 @@ def test_wait_blocks_until_background_job_finishes(tmp_path):
     finally:
         worker.join()
     assert verdict["ok"] is True, verdict
-    assert time.monotonic() - started >= 0.3
+    # Windows timer coalescing can undershoot time.sleep(0.3) by a few
+    # ms (observed 0.297 on windows-latest CI), so assert a relaxed
+    # lower bound. The behavioral guarantee — wait returns only after
+    # the sentinel the background job writes appears — is covered by
+    # the sentinel-content assertion below.
+    assert time.monotonic() - started >= 0.2
     assert sentinel.read_text(encoding="utf-8") == "BUILD SUCCESS"
 
 
