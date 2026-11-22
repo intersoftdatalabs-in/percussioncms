@@ -284,9 +284,12 @@ describe("TipTap i18n session locale", () => {
     setCatalog({
       [EDITOR_MSG.TIPTAP_LINK_EMPTY_HINT]: "Adresse leer lassen",
     });
-    const editor = makeEditor();
+    // The hint only renders when the selection is inside a link (#7075
+    // review): open the dialog on a linked selection.
+    const editor = makeEditor('<p><a href="https://example.com/x">Hello</a></p>');
     try {
       render(<TipTapToolbar editor={editor} name="text" />);
+      editor.commands.selectAll();
       fireEvent.click(screen.getByTestId("tiptap-link-text"));
       const input = screen.getByTestId("tiptap-link-url-text");
       const hint = screen.getByText("Adresse leer lassen");

@@ -668,7 +668,7 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
             ref={linkInputRef}
             data-testid={`tiptap-link-url-${name}`}
             aria-label={message(EDITOR_MSG.TIPTAP_LINK_URL)}
-            aria-describedby={linkHintId}
+            aria-describedby={linkActive ? linkHintId : undefined}
             className={styles.tiptapLinkInput}
             value={linkUrl}
             placeholder="https://…"
@@ -683,9 +683,11 @@ export function TipTapToolbar({ editor, name }: TipTapToolbarProps): React.React
               }
             }}
           />
-          <span id={linkHintId} className={styles.tiptapLinkHint}>
-            {message(EDITOR_MSG.TIPTAP_LINK_EMPTY_HINT)}
-          </span>
+          {linkActive ? (
+            <span id={linkHintId} className={styles.tiptapLinkHint}>
+              {message(EDITOR_MSG.TIPTAP_LINK_EMPTY_HINT)}
+            </span>
+          ) : null}
           <button
             type="button"
             data-testid={`tiptap-link-apply-${name}`}

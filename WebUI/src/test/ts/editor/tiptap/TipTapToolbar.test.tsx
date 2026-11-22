@@ -167,6 +167,27 @@ describe("TipTapToolbar", () => {
     }
   });
 
+  it("hides the remove-hint when the dialog adds a link to plain text", () => {
+    const editor = makeEditor("<p>Hello</p>");
+    try {
+      render(<TipTapToolbar editor={editor} name="text" />);
+      editor.commands.selectAll();
+      fireEvent.click(screen.getByTestId("tiptap-link-text"));
+      const input = screen.getByTestId(
+        "tiptap-link-url-text",
+      ) as HTMLInputElement;
+      // No link under the selection, so there is nothing to remove: the
+      // hint stays out and no dangling describedby points at it (#7075
+      // review).
+      expect(
+        screen.queryByText("Leave the address empty to remove the link."),
+      ).toBeNull();
+      expect(input.getAttribute("aria-describedby")).toBeNull();
+    } finally {
+      editor.destroy();
+    }
+  });
+
   it("toggles a code block", () => {
     const editor = makeEditor("<p>var x = 1;</p>");
     try {

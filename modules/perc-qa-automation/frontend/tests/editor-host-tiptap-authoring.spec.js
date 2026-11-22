@@ -233,13 +233,15 @@ test.describe("React Content Editor TipTap authoring slice", () => {
       expect(listHtml).toContain("<ol>");
       expect(listHtml).toContain("<em>");
 
-      // Link dialog: the empty-state hint names the empty-removes contract,
-      // and editing selects the existing address for replacement.
+      // Link dialog on plain text: no link under the selection, so the
+      // remove-hint stays out and only the address field shows (#7075
+      // review — the hint reads oddly when there is no link to remove).
       await page.locator('[data-testid="tiptap-link-text"]').click();
       const linkInput = page.locator('[data-testid="tiptap-link-url-text"]');
       await expect(
         page.getByText("Leave the address empty to remove the link."),
-      ).toBeVisible();
+      ).toHaveCount(0);
+      expect(await linkInput.getAttribute("aria-describedby")).toBeNull();
       await linkInput.fill("https://example.com/authoring");
       await expect(linkInput).toHaveValue("https://example.com/authoring");
       await page.locator('[data-testid="tiptap-link-apply-text"]').click();
@@ -247,9 +249,11 @@ test.describe("React Content Editor TipTap authoring slice", () => {
       // Unlink arms only inside a link now that one is applied.
       await expect(page.locator('[data-testid="tiptap-unlink-text"]')).toBeEnabled();
 
-      // Live Proof: reopen the link dialog so the shot shows the toolbar
-      // state (pressed italic/ordered-list, armed unlink) plus the
-      // empty-state hint copy and the selected existing address.
+      // Live Proof: put the caret inside the applied link, then reopen
+      // the link dialog — now the empty-state hint names the
+      // empty-removes contract and editing selects the existing address
+      // for replacement.
+      await editable.locator('a[href="https://example.com/authoring"]').click();
       await page.locator('[data-testid="tiptap-link-text"]').click();
       await expect(
         page.getByText("Leave the address empty to remove the link."),
