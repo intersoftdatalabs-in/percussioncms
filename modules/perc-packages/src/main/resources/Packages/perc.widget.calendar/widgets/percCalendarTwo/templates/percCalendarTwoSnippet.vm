@@ -540,13 +540,22 @@
       // is in flight (cleared by percProcessEventList) so the list region
       // is never a blank hole, and switches with show()/hide() instead of
       // fadeIn() for deterministic screenshot-diff captures.
+      ## List-state strings (#6993, residual of #6945): editor-overridable
+      ## widget preferences with English defaults preserving the slice-2
+      ## output, so pre-existing widget instances (no stored pref) render
+      ## exactly as before while non-English widgets can localize the
+      ## aria-live list region instead of announcing hardcoded English.
+      ## $tools.esc.javascript keeps editor quotes (e.g. French
+      ## apostrophes) from breaking the single-quoted row strings below.
+      #if(!$perc_list_loading_text)#set($perc_list_loading_text = 'Loading events…')#end
+      #if(!$perc_list_empty_text)#set($perc_list_empty_text = 'No upcoming events.')#end
       function percInitListView() {
         $('#calendar-${calendarContentId}-${widgetId}').hide();
         $('.perc-mini-calendar').hide();
         var percEventList = $('#perc-event-list-${calendarContentId}-${widgetId}');
         percEventList.show();
         percEventList.find('ul').empty().append(
-          '<li class="perc-event-list-element perc-event-list-loading">Loading events&#8230;</li>'
+          '<li class="perc-event-list-element perc-event-list-loading">$tools.esc.javascript($perc_list_loading_text)</li>'
         );
         #if($perc.isEditMode() || $perc.isPreviewMode())
         var listEvents = $pagesInCal;
@@ -663,7 +672,7 @@
             // (mirrors the loading row rendered by percInitListView).
             if (eventIterator == 0) {
                 percTargetEventList.find('ul').append(
-                    '<li class="perc-event-list-element perc-event-list-first perc-event-list-last perc-event-list-empty">No upcoming events.</li>'
+                    '<li class="perc-event-list-element perc-event-list-first perc-event-list-last perc-event-list-empty">$tools.esc.javascript($perc_list_empty_text)</li>'
                 );
             }
 
