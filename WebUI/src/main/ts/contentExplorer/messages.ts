@@ -967,6 +967,12 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Not every selected item was published. {detail}",
   PUBLISH_NOTHING_ELIGIBLE:
     "perc.ui.explorer@Nothing in the selection can be published. Folders are not published.",
+  /**
+   * Demand-publish preflight throw fallback — catalog-routed so session
+   * locales apply instead of hardcoded English (#6987, parent #4532).
+   * en-us default unchanged ("Publish failed").
+   */
+  DEMAND_PUBLISH_FAILED: "perc.ui.explorer@Publish failed",
   CONFIRM_FORCE_CHECKIN:
     "perc.ui.explorer@Force check-in this item? Other users will lose their checkout.",
   CONFIRM_FORCE_CHECKIN_MULTI:
@@ -1034,6 +1040,12 @@ export const EXPLORER_MSG = {
     "perc.ui.explorer@Not every selected item was taken down. {detail}",
   TAKEDOWN_NOTHING_ELIGIBLE:
     "perc.ui.explorer@Nothing in the selection can be taken down. Folders are not taken down.",
+  /**
+   * Demand-takedown preflight throw fallback — catalog-routed so session
+   * locales apply instead of hardcoded English (#6987, parent #4532).
+   * en-us default unchanged ("Takedown failed").
+   */
+  DEMAND_TAKEDOWN_FAILED: "perc.ui.explorer@Takedown failed",
   TAKEDOWN_FAILED:
     "perc.ui.explorer@Take down failed: {detail}",
   TAKEDOWN_DIALOG_TITLE:
