@@ -113,6 +113,22 @@ id plus resolved path — and lists the ignored sibling variants, so an authorin
 shows up as a readable row instead of a silently dropped template. Keep one template per
 manifest unless a follow-on variant story consumes the rest.
 
+### Shared-snippet assembly across template variants
+
+When a manifest does declare several `templates[]` variants (page / snippet / shared
+holes), the snippet assembly they repeat — common JEXL bindings, common region holes,
+common output-format defaults — is computed once instead of copy-pasted per variant
+(`Java code: PSPageXmlSharedSnippetDedupe`). Each variant references that single shared
+assembly and keeps only its own residuals (variant-specific bindings, extra regions);
+expanding shared plus residuals restores the exact original variant, so variant renders
+stay byte-identical before and after the dedupe pass.
+
+Authoring rule: put bindings, region holes, and install defaults every variant needs in
+the shared set; keep variant-only entries on the variant. When the variants disagree on
+the output format (or on an install default such as mime type), there is no shared value —
+each variant keeps its own, and nothing is silently unified. Manifest-level slots stay
+shared across variants as before; they need no dedupe.
+
 ## Assembler-model readback from the manifest
 
 Tooling reads a normalized assembler-model definition back through the modern
