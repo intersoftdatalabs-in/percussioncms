@@ -266,11 +266,16 @@ public final class PSPageXmlTemplateDefEmitter {
   }
 
   /**
-   * Resolve a short id (or the leaf of a full extension path) against {@link
-   * #REGISTERED_ASSEMBLER_PATHS}; {@code null} when unregistered. The {@code xslAssembler} alias
-   * resolves to the {@code legacyAssembler} path.
+   * Normalize one assembler declaration to its registered catalog id (issue #7049 / parent #2626):
+   * the single canonical key every render/install path resolves through. Trims whitespace,
+   * takes the leaf of full extension paths, maps the legacy {@code xslAssembler} alias to
+   * {@code legacyAssembler}, and matches catalog keys case-insensitively.
+   *
+   * @param assembler short manifest id or full extension path; may be blank
+   * @return registered catalog key (e.g. {@code "htmlAssembler"}); null when blank or
+   *     unregistered
    */
-  private static String lookupRegisteredPath(String assembler) {
+  public static String canonicalAssemblerId(String assembler) {
     if (assembler == null || assembler.isBlank()) {
       return null;
     }
@@ -282,14 +287,24 @@ public final class PSPageXmlTemplateDefEmitter {
     }
     String lower = leaf.toLowerCase(Locale.ROOT);
     if (lower.equals("xslassembler")) {
-      return REGISTERED_ASSEMBLER_PATHS.get("legacyAssembler");
+      return "legacyAssembler";
     }
-    for (Map.Entry<String, String> entry : REGISTERED_ASSEMBLER_PATHS.entrySet()) {
-      if (entry.getKey().toLowerCase(Locale.ROOT).equals(lower)) {
-        return entry.getValue();
+    for (String key : REGISTERED_ASSEMBLER_PATHS.keySet()) {
+      if (key.toLowerCase(Locale.ROOT).equals(lower)) {
+        return key;
       }
     }
     return null;
+  }
+
+  /**
+   * Resolve a short id (or the leaf of a full extension path) against {@link
+   * #REGISTERED_ASSEMBLER_PATHS}; {@code null} when unregistered. The {@code xslAssembler} alias
+   * resolves to the {@code legacyAssembler} path.
+   */
+  private static String lookupRegisteredPath(String assembler) {
+    String canonical = canonicalAssemblerId(assembler);
+    return canonical != null ? REGISTERED_ASSEMBLER_PATHS.get(canonical) : null;
   }
 
   /** Map modern template type ({@code page}/{@code global}/…) to legacy {@code output-format}. */
