@@ -192,6 +192,35 @@ public class PSTipTapEditorKeysTmxTest {
   }
 
   /**
+   * Floor-locale back-fill for issue #7081: every TipTap toolbar/dialog key has a non-blank
+   * TUV in each of the 9 shipped floor locales, so de/fr/zh-tw/es/nl/pt/ru/uk/lou sessions
+   * render translated strings instead of silent English fallback for a single key while the
+   * other 86 toolbar/dialog keys translate.
+   */
+  private static final List<String> FLOOR_LOCALES =
+      List.of("de", "fr", "zh-tw", "es", "nl", "pt", "ru", "uk", "lou");
+
+  @Test
+  public void floorLocales_haveFullTipTapCoverage() throws Exception {
+    Path cmsUi = resolveCmsUiTmx();
+    assertNotNull(cmsUi, "CmsUi.tmx not found");
+    Map<String, Set<String>> langsByTuid = loadLangsByTuid(parse(cmsUi));
+    List<String> gaps = new ArrayList<>();
+    List<String> allToolbarKeys = new ArrayList<>(EXPECTED_ENGLISH);
+    allToolbarKeys.addAll(GROUP_ENGLISH);
+    for (String en : allToolbarKeys) {
+      String tuid = "perc.ui.editor@" + en;
+      Set<String> langs = langsByTuid.getOrDefault(tuid, Set.of());
+      for (String loc : FLOOR_LOCALES) {
+        if (!langs.contains(loc)) {
+          gaps.add(tuid + " [" + loc + "]");
+        }
+      }
+    }
+    assertTrue(gaps.isEmpty(), "CmsUi.tmx TipTap keys missing floor-locale TUVs: " + gaps);
+  }
+
+  /**
    * Regression guard for issue #6172: the #6162 back-fill shipped 11 Telugu TipTap segments
    * containing literal ASCII {@code u200c} (a dropped-backslash ZWNJ escape). Nothing at runtime
    * unescapes it, so it renders as visible garbage in the editor. Every
