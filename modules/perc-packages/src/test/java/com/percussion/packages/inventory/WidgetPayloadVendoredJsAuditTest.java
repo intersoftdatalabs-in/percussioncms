@@ -366,6 +366,15 @@ import org.junit.jupiter.api.Test;
  * fork-mod marker test is replaced by a stock-shipment test asserting
  * the payloads carry no Percussion mods and no 2.x remnants.
  *
+ * <p>Slice 18 (issue #6946, slice 3 of #6919) drops the EOL
+ * {@code fullcalendar@2.9.1} exact pin from both WebUI frontend manifests
+ * ({@code WebUI/package.json} and
+ * {@code WebUI/src/main/frontend/package.json}, locks regenerated
+ * alongside). No payload referenced the EOL line after slice 17, so
+ * Dependabot no longer watches a line that ships nothing; the
+ * {@code fullcalendar-v6*} alias pins stay exact at 6.1.15. No payload
+ * bytes, snippet markup, or expected sets change in this slice.
+ *
  * <p>This test fails when a {@code .js} file is added to or removed from the
  * audited widget packages, or when a pinned version banner changes, so the
  * inventory can only drift together with an audit update. A migration PR that
@@ -703,5 +712,27 @@ class WidgetPayloadVendoredJsAuditTest {
     }
     assertTrue(problems.isEmpty(),
         "Percussion fork mods in stock calendarTwo v6 payloads: " + problems);
+  }
+
+  @Test
+  void calendarTwoStylesheetKeepsUpstreamNotice() throws IOException {
+    Path root = packagesRoot();
+    String rel =
+        "perc.widget.calendar/sys__UserDependency--web_resources/widgets/calendarTwo/css/fullcalendar.min.css";
+    String content = Files.readString(root.resolve(rel), StandardCharsets.UTF_8);
+    // Issue #6994 review: the stylesheet derives from the FullCalendar
+    // v2.9.1 stylesheet, so the MIT attribution must stay in the banner
+    // (/*! form so minifiers preserve it). The JS-only audit sweep does
+    // not cover CSS payloads (follow-on #7002), so pin it here.
+    for (String marker :
+        List.of(
+            "Derived from FullCalendar v2.9.1 Stylesheet",
+            "(c) 2016 Adam Shaw",
+            "MIT license",
+            "https://fullcalendar.io/")) {
+      assertTrue(content.contains(marker), rel + " missing upstream notice marker: " + marker);
+    }
+    assertTrue(content.startsWith("/*!"),
+        rel + " banner must use /*! so minifiers preserve the MIT notice");
   }
 }

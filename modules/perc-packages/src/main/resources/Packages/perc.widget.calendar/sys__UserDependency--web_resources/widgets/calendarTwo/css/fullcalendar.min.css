@@ -1,7 +1,18 @@
 /*!
- * FullCalendar v2.9.1 Stylesheet
- * Docs & License: http://fullcalendar.io/
- * (c) 2016 Adam Shaw
+ * CalendarTwo widget stylesheet (issue #6919).
+ * Derived from FullCalendar v2.9.1 Stylesheet
+ * (c) 2016 Adam Shaw, MIT license, https://fullcalendar.io/
+ *
+ * The rules below are the retained FullCalendar 2.x-era widget styles plus
+ * the Percussion mini-calendar additions, kept serving the v6 renderer:
+ * FullCalendar v6 ships no CSS of its own (JS-injected styles only), and
+ * the generic hooks here (.fc, .fc-event, toolbar spacing, event colors,
+ * table layout) still match v6 output. Selectors v6 never emits (.fc-row
+ * skeletons, .fc-state-default, .fc-corner-*, .fc-view-container, ...) are
+ * inert. The Calendar/List toggle buttons carry their own compat rule in
+ * percCalendarTwoSnippet.vm; the print equivalent lives in
+ * fullcalendar.print.css. Do not hand-edit: visual changes need a
+ * real-browser screenshot diff (precedent: #6945 proofs).
  */
 
 /* Mini Calendar Styles  */

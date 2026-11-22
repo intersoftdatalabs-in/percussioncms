@@ -32,6 +32,16 @@ The widget package carries, under
 `percCalendarTwo.xml` loads these scripts for both preview and published
 output; no bundler is required on delivered sites.
 
+## Dependency tracking
+
+The EOL `fullcalendar@2.9.1` npm pin is gone from both WebUI frontend
+manifests (`WebUI/package.json`,
+`WebUI/src/main/frontend/package.json`, slice 3, #6946): no payload
+referenced the EOL line after the v6 migration, so Dependabot no longer
+watches a line that ships nothing. The `fullcalendar-v6*` aliases stay
+exact-pinned at 6.1.15, and the frontend parity test
+(`widgetPayloadNpmParity.test.js`) fails if the EOL pin returns.
+
 ## View mapping (2.x → v6)
 
 The widget **Default calendar type** and **Detail Level** preferences map to
