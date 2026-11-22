@@ -35,10 +35,11 @@
  */
 
 import { Editor } from "@tiptap/core";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { message } from "../../i18n/message";
 import { EDITOR_MSG } from "../messages";
 import { preparePercussionHtml } from "../tiptap/tiptapPercussion";
+import { roundTripHtmlFragment } from "../tiptap/tiptapRoundTrip";
 import { createTipTapEditorExtensions } from "../tiptap/tiptapSetup";
 import { setTipTapContentWithoutHistory } from "../tiptap/tiptapHistorySync";
 import { sanitizeWordPastedHtml } from "../tiptap/tiptapWordPaste";
@@ -67,6 +68,111 @@ export function TipTapFieldWidget({
   describedById,
   onChange,
 }: TipTapFieldWidgetProps): React.ReactElement {
+  // #7046 (slice 1/3): read-only rows render a static schema-normalized
+  // view instead of mounting an interactive ProseMirror instance. View mode
+  // (and checked-out-to-other / schema-readonly rows) can never edit, so a
+  // live editor there only costs lifecycle work and a focusable widget that
+  // swallows arrow keys. Splitting keeps every hook call unconditional
+  // inside its own component; flipping readOnly unmounts one side and mounts
+  // the other (the editor destroy runs in the editable unmount cleanup).
+  if (readOnly) {
+    return (
+      <ReadOnlyTipTapView
+        name={name}
+        value={value}
+        invalid={invalid}
+        describedById={describedById}
+      />
+    );
+  }
+  return (
+    <EditableTipTapField
+      name={name}
+      value={value}
+      invalid={invalid}
+      describedById={describedById}
+      onChange={onChange}
+    />
+  );
+}
+
+/**
+ * Static read-only render of a stored HTML value (#7046).
+ *
+ * <p>Parity by construction: the markup is exactly what the editing view
+ * serializes for the same stored value ({@code preparePercussionHtml} plus
+ * the shared extension set via {@code roundTripHtmlFragment}), so View mode
+ * shows what Edit mode edits — TinyMCE-era aliases, percussion markers,
+ * lists, and tables included. ProseMirror drops refused markup
+ * (script/event, NUL-adjacent) at parse time, so this render is no more
+ * permissive than the editor surface it mirrors.</p>
+ *
+ * <p>The full row contract is preserved: the same {@code editor-field-}
+ * testid, {@code data-editor-kind/engine} markers, editor classes,
+ * {@code contenteditable="false"}, {@code readonly}, and aria wiring — only
+ * the live ProseMirror view (and its key handling) is gone, announced via
+ * {@code role="textbox"} + {@code aria-readonly} so screen readers hear the
+ * same read-only text control as before.</p>
+ */
+function ReadOnlyTipTapView({
+  name,
+  value,
+  invalid = false,
+  describedById,
+}: {
+  name: string;
+  value: string;
+  invalid?: boolean;
+  describedById?: string;
+}): React.ReactElement {
+  const html = useMemo(() => roundTripHtmlFragment(value ?? ""), [value]);
+  const staticRef = useRef<HTMLDivElement | null>(null);
+  // `readonly` is not a typed div prop; the editor host contract predates
+  // this view (`readonly=""` asserted by editor-host-html-tiptap.spec.js),
+  // so it is set imperatively like the editable sync effect does.
+  useEffect(() => {
+    staticRef.current?.setAttribute("readonly", "");
+  }, []);
+  return (
+    <div
+      data-testid={`editor-tiptap-${name}`}
+      className={`${styles.readonly} ${styles.tiptapHost}`}
+      // Same label-click guard as the editable host: the row renders inside
+      // an implicit <label> and a plain div is not labelable.
+      onClick={(e) => e.preventDefault()}
+    >
+      <div
+        ref={staticRef}
+        data-testid={`editor-field-${name}`}
+        data-editor-kind="html"
+        data-editor-engine="tiptap"
+        className={`${styles.textarea} ${styles.tiptap} tiptap-editor`}
+        contentEditable={false}
+        role="textbox"
+        aria-readonly="true"
+        aria-multiline="true"
+        aria-label={message(EDITOR_MSG.HTML_LABEL)}
+        aria-invalid={invalid ? "true" : undefined}
+        aria-describedby={describedById}
+        dangerouslySetInnerHTML={{ __html: html }}
+      />
+    </div>
+  );
+}
+
+function EditableTipTapField({
+  name,
+  value,
+  invalid = false,
+  describedById,
+  onChange,
+}: {
+  name: string;
+  value: string;
+  invalid?: boolean;
+  describedById?: string;
+  onChange: (value: string) => void;
+}): React.ReactElement {
   const mountRef = useRef<HTMLDivElement | null>(null);
   const editorRef = useRef<Editor | null>(null);
   const [toolbarEditor, setToolbarEditor] = useState<Editor | null>(null);
@@ -79,8 +185,6 @@ export function TipTapFieldWidget({
   if (initialRef.current === null) {
     initialRef.current = value;
   }
-  const readOnlyRef = useRef(readOnly);
-  readOnlyRef.current = readOnly;
 
   useEffect(() => {
     const mount = mountRef.current;
@@ -93,7 +197,9 @@ export function TipTapFieldWidget({
       // Stored Percussion marker shorthands are prepared before parsing,
       // mirroring the TinyMCE plugins' BeforeSetContent handlers.
       content: preparePercussionHtml(initialRef.current ?? ""),
-      editable: !readOnlyRef.current,
+      // This component only mounts for editable rows (read-only rows render
+      // ReadOnlyTipTapView); the editable flag never flips at runtime.
+      editable: true,
       onUpdate: ({ editor: updated }) => {
         onChangeRef.current(updated.getHTML());
       },
@@ -137,14 +243,14 @@ export function TipTapFieldWidget({
   }, []);
   useSyncTipTapEditor(
     editorRef,
-    { value, readOnly, invalid, describedById },
+    { value, invalid, describedById },
     bumpToolbarTick,
   );
 
   return (
     <div
       data-testid={`editor-tiptap-${name}`}
-      className={`${readOnly ? styles.readonly : ""} ${styles.tiptapHost}`}
+      className={styles.tiptapHost}
       // The field row renders inside an implicit <label> (EditorHost). A div
       // is not labelable, so the label forwards editor clicks to the first
       // labelable control in the row — the Clear button (#5650: clicking the
@@ -154,10 +260,10 @@ export function TipTapFieldWidget({
       // first, so forwarding focuses it harmlessly.
       onClick={(e) => e.preventDefault()}
     >
-      {!readOnly && toolbarEditor ? (
+      {toolbarEditor ? (
         <TipTapToolbar editor={toolbarEditor} name={name} />
       ) : null}
-      {!readOnly && toolbarEditor ? (
+      {toolbarEditor ? (
         <TipTapPercussionBar editor={toolbarEditor} name={name} />
       ) : null}
       <div ref={mountRef} />
@@ -170,27 +276,19 @@ export function TipTapFieldWidget({
  * silent (no onUpdate echo, so external saves never loop back through
  * {@code onChange}) and history-free (#6262: a programmatic setContent used
  * to push an undo step, so Ctrl+Z after revert/restore resurrected discarded
- * edits); the editable/aria flags track their props directly.
+ * edits). Read-only rows never mount here (see ReadOnlyTipTapView), so the
+ * editable/aria flags below are the always-editable path.
  */
 function useSyncTipTapEditor(
   editorRef: React.RefObject<Editor | null>,
   state: {
     value: string;
-    readOnly: boolean;
     invalid: boolean;
     describedById?: string;
   },
   onSync?: () => void,
 ): void {
-  const { value, readOnly, invalid, describedById } = state;
-
-  useEffect(() => {
-    // Silent like the content sync below: flipping the editable flag must
-    // not echo the document back through onChange (TipTap v3 emits an
-    // update here by default). A stored NUL stays in the row value so the
-    // save-side HTML gate (#5696) can refuse it with a field message.
-    editorRef.current?.setEditable(!readOnly, false);
-  }, [editorRef, readOnly]);
+  const { value, invalid, describedById } = state;
 
   useEffect(() => {
     const editor = editorRef.current;
@@ -215,11 +313,10 @@ function useSyncTipTapEditor(
     if (!dom) {
       return;
     }
-    if (readOnly) {
-      dom.setAttribute("readonly", "");
-    } else {
-      dom.removeAttribute("readonly");
-    }
+    // Always-editable path (read-only rows render ReadOnlyTipTapView and
+    // carry their own `readonly` marker): keep the stale-attribute cleanup
+    // so a remount never inherits a readonly flag from a recycled node.
+    dom.removeAttribute("readonly");
     if (invalid) {
       dom.setAttribute("aria-invalid", "true");
     } else {
@@ -230,5 +327,5 @@ function useSyncTipTapEditor(
     } else {
       dom.removeAttribute("aria-describedby");
     }
-  }, [editorRef, readOnly, invalid, describedById]);
+  }, [editorRef, invalid, describedById]);
 }
