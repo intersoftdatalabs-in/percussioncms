@@ -84,6 +84,7 @@ const { test, expect } = require("@playwright/test");
 const fs = require("fs");
 const path = require("path");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { proofScreenshot } = require("./helpers/proof-shot");
 
 const PLUGIN_BASE = "/Rhythmyx/sys_resources/codemirror/codemirror";
 const BUNDLE_JS = `${PLUGIN_BASE}/codemirror.bundle.js`;
@@ -1846,9 +1847,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
           `bundle missing must disable the dead toolbar control ${hook} (#6902)`,
         ).toBeDisabled();
       }
-      await page.screenshot({
-        path: "../../../docs/ai-generated/proofs/issue-6902-codeeditor-bundle-guard.png",
-      });
+      await proofScreenshot(page, "issue-6902-codeeditor-bundle-guard.png");
 
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual(
         [],

@@ -37,6 +37,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { proofScreenshot } = require("./helpers/proof-shot");
 
 function developerContentTypesUrl() {
   const q = new URLSearchParams({
@@ -165,9 +166,7 @@ test.describe("Developer content type child field-set create (#6509)", () => {
         `second child field (existing set) should save, got ${second.status}: ${second.text}`,
       ).toBe(200);
 
-      await page.screenshot({
-        path: "../../../docs/ai-generated/proofs/issue-6509-child-fieldset-create.png",
-      });
+      await proofScreenshot(page, "issue-6509-child-fieldset-create.png");
       cleanupNote = "fields saved, deleting type";
     } finally {
       // Delete requires the held lock; best-effort unlock when delete fails.

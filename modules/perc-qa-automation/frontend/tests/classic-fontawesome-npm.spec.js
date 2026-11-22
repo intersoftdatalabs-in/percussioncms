@@ -37,6 +37,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { proofScreenshot } = require("./helpers/proof-shot");
 
 const FA_CSS_URL =
   "/Rhythmyx/cm/jslib/profiles/3x/libraries/fontawesome/css/all.css";
@@ -146,9 +147,7 @@ test.describe("Classic-UI FontAwesome from npm (issue #6321)", () => {
 
       // C5 live proof (issue #6321): dashboard with FA5-native icons
       // rendered from the single npm 5.15.4 webfonts.
-      await page.screenshot({
-        path: "../../../docs/ai-generated/proofs/issue-6321-fontawesome-dashboard.png",
-      });
+      await proofScreenshot(page, "issue-6321-fontawesome-dashboard.png");
     },
   );
 
