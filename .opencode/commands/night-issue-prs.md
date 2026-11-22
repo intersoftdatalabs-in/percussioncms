@@ -176,6 +176,16 @@ replace gated rows product-first with one-per-parent, debt only into
 blockers are never filed — record `human_blocked_by` and yield the seat.
 Work claim-checks remain the backstop, not the plan.
 
+**`blocked` label (HARD, operator direction 2026-11-21):** an issue the
+gate-audit, Triage, or Work yields as gated (`soak_gate` / `customer_env` /
+`human_uat` / `maintainer_decision` / upstream-blocked / `human_blocked_by`)
+gets the `blocked` label plus one comment naming the gate and who clears it
+(`gh issue edit <N> --add-label blocked`), in the same step that releases its
+claim as `gated`. decision-front skips `blocked` issues (`blocked_label`), so
+they are never re-queued or re-checked; only a human removing the label
+returns them to the pool. Never remove `blocked` yourself. Agent-actionable
+blockers still go through `blocker_proposals` instead of the label.
+
 ## Queue claims (HARD — 2.2.13-draft, 2026-11-20)
 
 An issue is claimed on GitHub **the moment it enters this run's queue**, not

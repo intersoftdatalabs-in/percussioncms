@@ -231,6 +231,8 @@ FAIL). A `skip` for a gate is only half the job:
     confirmations, ops soak sign-off) → do NOT file agent work. Record
     `human_blocked_by` (condition + human owner, e.g. support/product) in
     the rationale and give the seat to the next epic.
+    Also emit it in `blocked_labels` (`{issue, gate, owner}`): the host
+    adds the `blocked` label + one gate comment so no later cycle reseats it.
 - **One level only.** Do not recurse into the blocker's own blockers this
   run — note a deeper chain in the rationale and move on.
 - **Caps.** At most 3 `blocker_proposals` per blocked issue; the host
