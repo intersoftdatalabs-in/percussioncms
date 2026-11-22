@@ -1,3 +1,10 @@
+/*!
+ * jQuery MiniColors stylesheet (issue #7002, parent audit #5627).
+ * Upstream: jQuery MiniColors, a tiny color picker built on jQuery,
+ * developed by Cory LaViska for A Beautiful Site, LLC.
+ * Licensed under the MIT license: http://opensource.org/licenses/MIT
+ * Kept verbatim from the vendored copy; do not hand-edit.
+ */
 .minicolors {
   position: relative;
 }

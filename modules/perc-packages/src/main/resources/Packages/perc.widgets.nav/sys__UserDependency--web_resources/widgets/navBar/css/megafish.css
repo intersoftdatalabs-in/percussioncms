@@ -1,3 +1,11 @@
+/*!
+ * jQuery Superfish menu styles v1.7.10 (issue #7002, parent audit #5627).
+ * Upstream: jQuery Superfish Menu Plugin, Copyright (c) 2018 Joel Birch.
+ * Dual licensed under the MIT and GPL licenses:
+ *	http://www.opensource.org/licenses/mit-license.php
+ *	http://www.gnu.org/licenses/gpl.html
+ * Kept verbatim from the vendored copy; do not hand-edit.
+ */
 /*** ESSENTIAL STYLES ***/
 .sf-menu {
   position: relative;

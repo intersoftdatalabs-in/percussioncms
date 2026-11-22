@@ -53,6 +53,23 @@ When changing packaging:
 - Keep platform entry points (`.bat` / `.cmd` / `.sh`) in lockstep where operators need them.
 - Document install/upgrade impact for operators.
 
+### Keep upstream license notices in widget payloads
+
+Widget packages ship third-party JavaScript **and stylesheets** verbatim to
+every CMS and on to published sites (for example FullCalendar, Slick,
+Superfish, Lightbox, MiniColors, and jQuery UI copies under
+`modules/perc-packages/src/main/resources/Packages`). Those files are
+invisible to `npm audit` and Dependabot, and MIT-licensed code must keep its
+copyright and permission notice. So when you touch a vendored payload file:
+
+- Keep the upstream `/*!` attribution banner at the top of the file — it
+  survives minifiers. Do not replace it with a first-party-only header.
+- Keep the vendored bytes verbatim; restyle by overriding in site CSS, not
+  by hand-editing the copy.
+- `WidgetPayloadUpstreamNoticeGuardTest` enforces this: a payload `.js` or
+  `.css` that carries identifiable upstream hooks but no upstream notice in
+  its header fails the build.
+
 ## REST vs extensions
 
 Prefer **public REST + adaptors** for new integration surfaces that clients will call over HTTP.

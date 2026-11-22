@@ -1,3 +1,12 @@
+/*!
+ * Lightbox v2.10.0 styles (issue #7002, parent audit #5627).
+ * Upstream: Lightbox by Lokesh Dhakar,
+ * http://lokeshdhakar.com/projects/lightbox2/
+ * Copyright 2007, 2018 Lokesh Dhakar.
+ * Released under the MIT license.
+ * https://github.com/lokesh/lightbox2/blob/master/LICENSE
+ * Kept verbatim from the vendored copy; do not hand-edit.
+ */
 html.lb-disable-scrolling {
   overflow: hidden;
   /* Position fixed required for iOS. Just putting overflow: hidden; on the body is not enough. */
