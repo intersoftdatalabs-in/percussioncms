@@ -20,9 +20,6 @@ import { getServer, updateServer } from "../../api/publishing/serversApi";
 import { message, MSG } from "../../i18n/message";
 import {
   buildSftpPassphraseBody,
-  SFTP_PASSPHRASE_DRIVER_ONLY,
-  SFTP_PASSPHRASE_NEVER_SHOWN,
-  SFTP_PASSPHRASE_REQUIRED,
   sftpPassphraseHttpFailure,
   validateSftpPassphrase,
 } from "../deliveryServerSftpPassphrase";
@@ -50,7 +47,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = sftpPassphraseHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, SFTP_PASSPHRASE_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_SFTP_PASSPHRASE_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -189,45 +186,45 @@ export function SftpDeliveryPassphrasePanel({
 
   return (
     <div data-testid="sftp-passphrase-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>SFTP passphrase</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_SFTP_PASSPHRASE)}</h3>
       {sftp && (
         <div data-testid="sftp-passphrase-summary">
           <p>
-            Name: <span data-testid="sftp-passphrase-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="sftp-passphrase-name">{shown(name)}</span>
           </p>
           <p>
-            Driver: <span data-testid="sftp-passphrase-driver">{shown(driver)}</span>
+            {message(MSG.PUBLISH_DRIVER)}: <span data-testid="sftp-passphrase-driver">{shown(driver)}</span>
           </p>
           <p>
-            Host: <span data-testid="sftp-passphrase-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="sftp-passphrase-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="sftp-passphrase-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="sftp-passphrase-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="sftp-passphrase-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="sftp-passphrase-user">{shown(user)}</span>
           </p>
           <p>
-            Folder: <span data-testid="sftp-passphrase-folder">{shown(folder)}</span>
+            {message(MSG.PUBLISH_FOLDER)}: <span data-testid="sftp-passphrase-folder">{shown(folder)}</span>
           </p>
           <p>
-            Default:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}:{" "}
             <span data-testid="sftp-passphrase-default">{shown(defaultFlag)}</span>
           </p>
           <p data-testid="sftp-passphrase-status" role="status">
-            Passphrase: {SFTP_PASSPHRASE_NEVER_SHOWN}
+            Passphrase: {message(MSG.PUBLISH_DELIVERY_SFTP_PASSPHRASE_NEVER_SHOWN)}
           </p>
         </div>
       )}
       {notSftp && (
         <p data-testid="sftp-passphrase-not-sftp" role="status">
-          {SFTP_PASSPHRASE_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_SFTP_PASSPHRASE_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="sftp-passphrase-form">
           <div style={formRowStyle}>
-            <label htmlFor="sftp-passphrase-input">* New passphrase</label>
+            <label htmlFor="sftp-passphrase-input">{message(MSG.PUBLISH_DELIVERY_LABEL_NEW_PASSPHRASE)}</label>
             <input
               id="sftp-passphrase-input"
               data-testid="sftp-passphrase-input"
@@ -256,7 +253,7 @@ export function SftpDeliveryPassphrasePanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set SFTP passphrase
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_SFTP_PASSPHRASE)}
           </button>
         )}
         {editing && (
@@ -268,7 +265,7 @@ export function SftpDeliveryPassphrasePanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save SFTP passphrase
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_SFTP_PASSPHRASE)}
             </button>
             <button
               type="button"
@@ -277,7 +274,7 @@ export function SftpDeliveryPassphrasePanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

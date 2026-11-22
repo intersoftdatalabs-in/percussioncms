@@ -27,9 +27,6 @@ import {
 } from "../deliveryServerFtpHost";
 import {
   buildFtpPasswordBody,
-  FTP_PASSWORD_DRIVER_ONLY,
-  FTP_PASSWORD_NEVER_SHOWN,
-  FTP_PASSWORD_REQUIRED,
   ftpPasswordHttpFailure,
   validateFtpPassword,
 } from "../deliveryServerFtpPassword";
@@ -47,7 +44,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = ftpPasswordHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, FTP_PASSWORD_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_FTP_PASSWORD_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -180,35 +177,35 @@ export function FtpDeliveryPasswordPanel({
 
   return (
     <div data-testid="ftp-password-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>FTP password</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_FTP_PASSWORD)}</h3>
       {ftp && (
         <div data-testid="ftp-password-summary">
           <p>
-            Host: <span data-testid="ftp-password-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="ftp-password-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="ftp-password-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="ftp-password-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="ftp-password-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="ftp-password-user">{shown(user)}</span>
           </p>
           <p>
-            Folder: <span data-testid="ftp-password-folder">{shown(folder)}</span>
+            {message(MSG.PUBLISH_FOLDER)}: <span data-testid="ftp-password-folder">{shown(folder)}</span>
           </p>
           <p data-testid="ftp-password-status" role="status">
-            Password: {FTP_PASSWORD_NEVER_SHOWN}
+            Password: {message(MSG.PUBLISH_DELIVERY_FTP_PASSWORD_NEVER_SHOWN)}
           </p>
         </div>
       )}
       {notFtp && (
         <p data-testid="ftp-password-not-ftp" role="status">
-          {FTP_PASSWORD_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_FTP_PASSWORD_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="ftp-password-form">
           <div style={formRowStyle}>
-            <label htmlFor="ftp-password-input">* New password</label>
+            <label htmlFor="ftp-password-input">{message(MSG.PUBLISH_DELIVERY_LABEL_NEW_PASSWORD)}</label>
             <input
               id="ftp-password-input"
               data-testid="ftp-password-input"
@@ -237,7 +234,7 @@ export function FtpDeliveryPasswordPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set password
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_PASSWORD)}
           </button>
         )}
         {editing && (
@@ -249,7 +246,7 @@ export function FtpDeliveryPasswordPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save password
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_PASSWORD)}
             </button>
             <button
               type="button"
@@ -258,7 +255,7 @@ export function FtpDeliveryPasswordPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

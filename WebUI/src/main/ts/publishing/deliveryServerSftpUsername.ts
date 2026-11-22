@@ -16,6 +16,7 @@
  */
 
 import type { PublishServer, PublishServerProperty } from "./types";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -43,10 +44,10 @@ export type SftpUsernameHttpFailure = "bad_request" | "forbidden" | "conflict";
 export function validateSftpUsername(raw: string): SftpUsernameResult {
   const username = raw.trim();
   if (!username) {
-    return { ok: false, error: SFTP_USERNAME_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_SFTP_USERNAME_REQUIRED) };
   }
   if (username.length > SFTP_USERNAME_MAX_LENGTH) {
-    return { ok: false, error: SFTP_USERNAME_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_SFTP_USERNAME_TOO_LONG) };
   }
   return { ok: true, username };
 }

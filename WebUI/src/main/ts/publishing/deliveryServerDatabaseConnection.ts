@@ -15,6 +15,7 @@
  */
 
 import type { PublishServer, PublishServerProperty } from "./types";
+import { message, MSG } from "../i18n/message";
 import {
   DATABASE_HOST_MAX_LENGTH,
   DATABASE_HOST_PROPERTY,
@@ -57,23 +58,23 @@ export function validateDatabaseConnection(raw: {
 }): DatabaseConnectionResult {
   const host = raw.host.trim();
   if (!host) {
-    return { ok: false, error: DATABASE_HOST_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_DATABASE_HOST_REQUIRED) };
   }
   if (host.length > DATABASE_HOST_MAX_LENGTH) {
-    return { ok: false, error: DATABASE_HOST_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_DATABASE_HOST_TOO_LONG) };
   }
   const userId = raw.userId.trim();
   if (!userId) {
-    return { ok: false, error: DATABASE_USER_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_DATABASE_USER_REQUIRED) };
   }
   if (userId.length > DATABASE_USER_MAX_LENGTH) {
-    return { ok: false, error: DATABASE_USER_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_DATABASE_USER_TOO_LONG) };
   }
   if (!raw.password || !raw.password.trim()) {
-    return { ok: false, error: DATABASE_PASSWORD_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_DATABASE_PASSWORD_REQUIRED) };
   }
   if (raw.password.length > DATABASE_PASSWORD_MAX_LENGTH) {
-    return { ok: false, error: DATABASE_PASSWORD_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_DATABASE_PASSWORD_TOO_LONG) };
   }
   return { ok: true, host, userId, password: raw.password };
 }

@@ -23,8 +23,6 @@ import { serverDriver, serverProperty, unwrapPublishServer } from "../deliverySe
 import {
   buildLocalFolderBody,
   isLocalDeliveryDriver,
-  LOCAL_FOLDER_DRIVER_ONLY,
-  LOCAL_FOLDER_TOO_LONG,
   localFolderHttpFailure,
   validateLocalFolder,
   withUpdatedLocalFolder,
@@ -43,7 +41,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = localFolderHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, LOCAL_FOLDER_TOO_LONG);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_LOCAL_FOLDER_TOO_LONG));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -177,23 +175,23 @@ export function LocalDeliveryFolderPanel({
 
   return (
     <div data-testid="local-folder-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>Local folder</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_LOCAL_FOLDER)}</h3>
       {local && (
         <div data-testid="local-folder-summary">
           <p>
-            Folder: <span data-testid="local-folder-current">{shown(folder)}</span>
+            {message(MSG.PUBLISH_FOLDER)}: <span data-testid="local-folder-current">{shown(folder)}</span>
           </p>
         </div>
       )}
       {notLocal && (
         <p data-testid="local-folder-not-local" role="status">
-          {LOCAL_FOLDER_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_LOCAL_FOLDER_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="local-folder-form">
           <div style={formRowStyle}>
-            <label htmlFor="local-folder-input">Folder</label>
+            <label htmlFor="local-folder-input">{message(MSG.PUBLISH_FOLDER)}</label>
             <input
               id="local-folder-input"
               data-testid="local-folder-input"
@@ -205,7 +203,7 @@ export function LocalDeliveryFolderPanel({
               }}
             />
           </div>
-          <p data-testid="local-folder-optional">Leave blank to clear the folder.</p>
+          <p data-testid="local-folder-optional">{message(MSG.PUBLISH_DELIVERY_HINT_CLEAR_FOLDER)}</p>
         </div>
       )}
       {error && (
@@ -222,7 +220,7 @@ export function LocalDeliveryFolderPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set folder
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_FOLDER)}
           </button>
         )}
         {editing && (
@@ -234,7 +232,7 @@ export function LocalDeliveryFolderPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save folder
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_FOLDER)}
             </button>
             <button
               type="button"
@@ -243,7 +241,7 @@ export function LocalDeliveryFolderPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

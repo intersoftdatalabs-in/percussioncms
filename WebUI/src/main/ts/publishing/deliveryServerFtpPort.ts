@@ -16,6 +16,7 @@
  */
 
 import type { PublishServer, PublishServerProperty } from "./types";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -45,10 +46,10 @@ export type FtpPortHttpFailure = "bad_request" | "forbidden" | "conflict";
 export function validateFtpPort(raw: string): FtpPortResult {
   const port = raw.trim();
   if (!port) {
-    return { ok: false, error: FTP_PORT_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_FTP_PORT_REQUIRED) };
   }
   if (port.length > FTP_PORT_MAX_LENGTH) {
-    return { ok: false, error: FTP_PORT_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_FTP_PORT_TOO_LONG) };
   }
   if (!/^[0-9]+$/.test(port)) {
     return { ok: false, error: FTP_PORT_NOT_NUMERIC };

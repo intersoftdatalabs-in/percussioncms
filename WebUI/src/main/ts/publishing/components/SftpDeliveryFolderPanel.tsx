@@ -20,8 +20,6 @@ import { getServer, updateServer } from "../../api/publishing/serversApi";
 import { message, MSG } from "../../i18n/message";
 import {
   buildSftpFolderBody,
-  SFTP_FOLDER_DRIVER_ONLY,
-  SFTP_FOLDER_TOO_LONG,
   sftpFolderHttpFailure,
   validateSftpFolder,
   withUpdatedSftpFolder,
@@ -47,7 +45,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = sftpFolderHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, SFTP_FOLDER_TOO_LONG);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_SFTP_FOLDER_TOO_LONG));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -186,38 +184,38 @@ export function SftpDeliveryFolderPanel({
 
   return (
     <div data-testid="sftp-folder-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>SFTP folder</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_SFTP_FOLDER)}</h3>
       {sftp && (
         <div data-testid="sftp-folder-summary">
           <p>
-            Name: <span data-testid="sftp-folder-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="sftp-folder-name">{shown(name)}</span>
           </p>
           <p>
-            Host: <span data-testid="sftp-folder-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="sftp-folder-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="sftp-folder-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="sftp-folder-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="sftp-folder-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="sftp-folder-user">{shown(user)}</span>
           </p>
           <p>
-            Folder: <span data-testid="sftp-folder-current">{shown(folder)}</span>
+            {message(MSG.PUBLISH_FOLDER)}: <span data-testid="sftp-folder-current">{shown(folder)}</span>
           </p>
           <p>
-            Default: <span data-testid="sftp-folder-default">{shown(defaultFlag)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}: <span data-testid="sftp-folder-default">{shown(defaultFlag)}</span>
           </p>
         </div>
       )}
       {notSftp && (
         <p data-testid="sftp-folder-not-sftp" role="status">
-          {SFTP_FOLDER_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_SFTP_FOLDER_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="sftp-folder-form">
           <div style={formRowStyle}>
-            <label htmlFor="sftp-folder-input">Folder</label>
+            <label htmlFor="sftp-folder-input">{message(MSG.PUBLISH_FOLDER)}</label>
             <input
               id="sftp-folder-input"
               data-testid="sftp-folder-input"
@@ -229,7 +227,7 @@ export function SftpDeliveryFolderPanel({
               }}
             />
           </div>
-          <p data-testid="sftp-folder-optional">Leave blank to clear the folder.</p>
+          <p data-testid="sftp-folder-optional">{message(MSG.PUBLISH_DELIVERY_HINT_CLEAR_FOLDER)}</p>
         </div>
       )}
       {error && (
@@ -246,7 +244,7 @@ export function SftpDeliveryFolderPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set folder
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_FOLDER)}
           </button>
         )}
         {editing && (
@@ -258,7 +256,7 @@ export function SftpDeliveryFolderPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save folder
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_FOLDER)}
             </button>
             <button
               type="button"
@@ -267,7 +265,7 @@ export function SftpDeliveryFolderPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

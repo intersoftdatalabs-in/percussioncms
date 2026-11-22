@@ -25,8 +25,6 @@ import {
 } from "../deliveryServerDatabaseHost";
 import {
   buildDatabasePortBody,
-  DATABASE_PORT_DRIVER_ONLY,
-  DATABASE_PORT_REQUIRED,
   databasePortHttpFailure,
   validateDatabasePort,
   withUpdatedDatabasePort,
@@ -54,7 +52,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = databasePortHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, DATABASE_PORT_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_DATABASE_PORT_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -196,42 +194,42 @@ export function DatabaseDeliveryPortPanel({
 
   return (
     <div data-testid="db-port-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>Database port</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_DB_PORT)}</h3>
       {database && (
         <div data-testid="db-port-summary">
           <p>
-            Name: <span data-testid="db-port-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="db-port-name">{shown(name)}</span>
           </p>
           <p>
-            Driver: <span data-testid="db-port-driver">{shown(driver)}</span>
+            {message(MSG.PUBLISH_DRIVER)}: <span data-testid="db-port-driver">{shown(driver)}</span>
           </p>
           <p>
-            Host: <span data-testid="db-port-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="db-port-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="db-port-current">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="db-port-current">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="db-port-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="db-port-user">{shown(user)}</span>
           </p>
           <p>
-            Database / SID:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DATABASE_SID)}:{" "}
             <span data-testid="db-port-database">{shown(databaseOrSid)}</span>
           </p>
           <p>
-            Default: <span data-testid="db-port-default">{shown(defaultFlag)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}: <span data-testid="db-port-default">{shown(defaultFlag)}</span>
           </p>
         </div>
       )}
       {notDatabase && (
         <p data-testid="db-port-not-database" role="status">
-          {DATABASE_PORT_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_DATABASE_PORT_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="db-port-form">
           <div style={formRowStyle}>
-            <label htmlFor="db-port-input">* Port</label>
+            <label htmlFor="db-port-input">{message(MSG.PUBLISH_DELIVERY_LABEL_PORT)}</label>
             <input
               id="db-port-input"
               data-testid="db-port-input"
@@ -260,7 +258,7 @@ export function DatabaseDeliveryPortPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set port
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_PORT)}
           </button>
         )}
         {editing && (
@@ -272,7 +270,7 @@ export function DatabaseDeliveryPortPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save port
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_PORT)}
             </button>
             <button
               type="button"
@@ -281,7 +279,7 @@ export function DatabaseDeliveryPortPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

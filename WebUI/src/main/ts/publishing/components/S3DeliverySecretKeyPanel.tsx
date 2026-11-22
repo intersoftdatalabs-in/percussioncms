@@ -21,9 +21,6 @@ import { message, MSG } from "../../i18n/message";
 import { isS3DeliveryDriver } from "../deliveryServerS3Bucket";
 import {
   buildS3SecretKeyBody,
-  S3_SECRET_KEY_DRIVER_ONLY,
-  S3_SECRET_KEY_NEVER_SHOWN,
-  S3_SECRET_KEY_REQUIRED,
   s3SecretKeyHttpFailure,
   validateS3SecretKey,
 } from "../deliveryServerS3SecretKey";
@@ -50,7 +47,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = s3SecretKeyHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, S3_SECRET_KEY_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_S3_SECRET_KEY_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -186,41 +183,41 @@ export function S3DeliverySecretKeyPanel({
 
   return (
     <div data-testid="s3-secret-key-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>Amazon S3 secret key</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_S3_SECRET_KEY)}</h3>
       {s3 && (
         <div data-testid="s3-secret-key-summary">
           <p>
-            Name: <span data-testid="s3-secret-key-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="s3-secret-key-name">{shown(name)}</span>
           </p>
           <p>
-            Driver: <span data-testid="s3-secret-key-driver">{shown(driver)}</span>
+            {message(MSG.PUBLISH_DRIVER)}: <span data-testid="s3-secret-key-driver">{shown(driver)}</span>
           </p>
           <p>
-            Bucket:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_BUCKET)}:{" "}
             <span data-testid="s3-secret-key-bucket">{shown(bucket)}</span>
           </p>
           <p>
-            Region:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_REGION)}:{" "}
             <span data-testid="s3-secret-key-region">{shown(region)}</span>
           </p>
           <p>
-            Default:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}:{" "}
             <span data-testid="s3-secret-key-default">{shown(defaultFlag)}</span>
           </p>
           <p data-testid="s3-secret-key-status" role="status">
-            Secret key: {S3_SECRET_KEY_NEVER_SHOWN}
+            Secret key: {message(MSG.PUBLISH_DELIVERY_S3_SECRET_KEY_NEVER_SHOWN)}
           </p>
         </div>
       )}
       {notS3 && (
         <p data-testid="s3-secret-key-not-s3" role="status">
-          {S3_SECRET_KEY_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_S3_SECRET_KEY_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="s3-secret-key-form">
           <div style={formRowStyle}>
-            <label htmlFor="s3-secret-key-input">* New secret key</label>
+            <label htmlFor="s3-secret-key-input">{message(MSG.PUBLISH_DELIVERY_LABEL_NEW_SECRET_KEY)}</label>
             <input
               id="s3-secret-key-input"
               data-testid="s3-secret-key-input"
@@ -249,7 +246,7 @@ export function S3DeliverySecretKeyPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set S3 secret key
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_S3_SECRET_KEY)}
           </button>
         )}
         {editing && (
@@ -261,7 +258,7 @@ export function S3DeliverySecretKeyPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save S3 secret key
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_S3_SECRET_KEY)}
             </button>
             <button
               type="button"
@@ -270,7 +267,7 @@ export function S3DeliverySecretKeyPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

@@ -25,8 +25,6 @@ import {
 } from "../deliveryServerDatabaseHost";
 import {
   buildDatabaseUserBody,
-  DATABASE_USER_DRIVER_ONLY,
-  DATABASE_USER_REQUIRED,
   databaseUserHttpFailure,
   validateDatabaseUser,
   withUpdatedDatabaseUser,
@@ -54,7 +52,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = databaseUserHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, DATABASE_USER_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_DATABASE_USER_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -196,42 +194,42 @@ export function DatabaseDeliveryUserPanel({
 
   return (
     <div data-testid="db-user-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>Database user id</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_DB_USER)}</h3>
       {database && (
         <div data-testid="db-user-summary">
           <p>
-            Name: <span data-testid="db-user-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="db-user-name">{shown(name)}</span>
           </p>
           <p>
-            Driver: <span data-testid="db-user-driver">{shown(driver)}</span>
+            {message(MSG.PUBLISH_DRIVER)}: <span data-testid="db-user-driver">{shown(driver)}</span>
           </p>
           <p>
-            Host: <span data-testid="db-user-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="db-user-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="db-user-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="db-user-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="db-user-current">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="db-user-current">{shown(user)}</span>
           </p>
           <p>
-            Database / SID:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DATABASE_SID)}:{" "}
             <span data-testid="db-user-database">{shown(databaseOrSid)}</span>
           </p>
           <p>
-            Default: <span data-testid="db-user-default">{shown(defaultFlag)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}: <span data-testid="db-user-default">{shown(defaultFlag)}</span>
           </p>
         </div>
       )}
       {notDatabase && (
         <p data-testid="db-user-not-database" role="status">
-          {DATABASE_USER_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_DATABASE_USER_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="db-user-form">
           <div style={formRowStyle}>
-            <label htmlFor="db-user-input">* User ID</label>
+            <label htmlFor="db-user-input">{message(MSG.PUBLISH_DELIVERY_LABEL_USER_ID)}</label>
             <input
               id="db-user-input"
               data-testid="db-user-input"
@@ -259,7 +257,7 @@ export function DatabaseDeliveryUserPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set user id
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_USER_ID)}
           </button>
         )}
         {editing && (
@@ -271,7 +269,7 @@ export function DatabaseDeliveryUserPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save user id
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_USER_ID)}
             </button>
             <button
               type="button"
@@ -280,7 +278,7 @@ export function DatabaseDeliveryUserPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

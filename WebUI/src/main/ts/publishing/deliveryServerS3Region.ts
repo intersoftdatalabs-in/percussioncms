@@ -16,6 +16,7 @@
  */
 
 import type { PublishServer, PublishServerProperty } from "./types";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -45,10 +46,10 @@ export type S3RegionHttpFailure = "bad_request" | "forbidden" | "conflict";
 export function validateS3Region(raw: string): S3RegionResult {
   const region = raw.trim();
   if (!region) {
-    return { ok: false, error: S3_REGION_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_S3_REGION_REQUIRED) };
   }
   if (region.length > S3_REGION_MAX_LENGTH) {
-    return { ok: false, error: S3_REGION_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_S3_REGION_TOO_LONG) };
   }
   return { ok: true, region };
 }

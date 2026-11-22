@@ -17,6 +17,7 @@
 
 import type { PublishServer, PublishServerProperty } from "./types";
 import { isOracleDeliveryDriver } from "./deliveryServerDatabaseSid";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -49,10 +50,10 @@ export { isOracleDeliveryDriver };
 export function validateOracleSchema(raw: string): OracleSchemaResult {
   const schema = raw.trim();
   if (!schema) {
-    return { ok: false, error: ORACLE_SCHEMA_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_ORACLE_SCHEMA_REQUIRED) };
   }
   if (schema.length > ORACLE_SCHEMA_MAX_LENGTH) {
-    return { ok: false, error: ORACLE_SCHEMA_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_ORACLE_SCHEMA_TOO_LONG) };
   }
   return { ok: true, schema };
 }

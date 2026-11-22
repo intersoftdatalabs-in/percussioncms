@@ -21,8 +21,6 @@ import { getServer, updateServer } from "../../api/publishing/serversApi";
 import { message, MSG } from "../../i18n/message";
 import {
   buildDatabaseNameBody,
-  DATABASE_NAME_DRIVER_ONLY,
-  DATABASE_NAME_REQUIRED,
   databaseNameHttpFailure,
   isMysqlOrMssqlDeliveryDriver,
   validateDatabaseName,
@@ -51,7 +49,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = databaseNameHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, DATABASE_NAME_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_DATABASE_NAME_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -197,43 +195,43 @@ export function DatabaseDeliveryNamePanel({
 
   return (
     <div data-testid="db-dbname-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>Database name</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_DB_NAME)}</h3>
       {mysqlMssql && (
         <div data-testid="db-dbname-summary">
           <p>
-            Name: <span data-testid="db-dbname-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="db-dbname-name">{shown(name)}</span>
           </p>
           <p>
-            Driver: <span data-testid="db-dbname-driver">{shown(driver)}</span>
+            {message(MSG.PUBLISH_DRIVER)}: <span data-testid="db-dbname-driver">{shown(driver)}</span>
           </p>
           <p>
-            Host: <span data-testid="db-dbname-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="db-dbname-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="db-dbname-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="db-dbname-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="db-dbname-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="db-dbname-user">{shown(user)}</span>
           </p>
           <p>
-            Database:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DATABASE)}:{" "}
             <span data-testid="db-dbname-current">{shown(databaseName)}</span>
           </p>
           <p>
-            Default:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}:{" "}
             <span data-testid="db-dbname-default">{shown(defaultFlag)}</span>
           </p>
         </div>
       )}
       {notMysqlMssql && (
         <p data-testid="db-dbname-not-database" role="status">
-          {DATABASE_NAME_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_DATABASE_NAME_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="db-dbname-form">
           <div style={formRowStyle}>
-            <label htmlFor="db-dbname-input">* Database</label>
+            <label htmlFor="db-dbname-input">{message(MSG.PUBLISH_DELIVERY_LABEL_DATABASE)}</label>
             <input
               id="db-dbname-input"
               data-testid="db-dbname-input"
@@ -261,7 +259,7 @@ export function DatabaseDeliveryNamePanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set database name
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_DATABASE_NAME)}
           </button>
         )}
         {editing && (
@@ -273,7 +271,7 @@ export function DatabaseDeliveryNamePanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save database name
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_DATABASE_NAME)}
             </button>
             <button
               type="button"
@@ -282,7 +280,7 @@ export function DatabaseDeliveryNamePanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

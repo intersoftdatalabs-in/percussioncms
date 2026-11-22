@@ -20,8 +20,6 @@ import { formatApiError, isApiError } from "../../api/client";
 import { testServerConnection } from "../../api/publishing/serversApi";
 import { message, MSG } from "../../i18n/message";
 import {
-  CONNECTION_TEST_FAILURE,
-  CONNECTION_TEST_SUCCESS,
   connectionTestHttpFailure,
   isConnectionTestSuccess,
 } from "../deliveryServerConnectionTest";
@@ -82,9 +80,9 @@ export function DeliveryServerConnectionTestPanel({
     try {
       const data = await testServerConnection(siteId, serverId);
       if (isConnectionTestSuccess(data)) {
-        setNotice(CONNECTION_TEST_SUCCESS);
+        setNotice(message(MSG.PUBLISH_DELIVERY_CONNECTION_TEST_SUCCESS));
       } else {
-        setNotice(CONNECTION_TEST_FAILURE);
+        setNotice(message(MSG.PUBLISH_DELIVERY_CONNECTION_TEST_FAILURE));
         setFailed(true);
       }
     } catch (err) {
@@ -96,7 +94,7 @@ export function DeliveryServerConnectionTestPanel({
 
   return (
     <div data-testid="delivery-connection-test-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>Connection test</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_CONNECTION_TEST)}</h3>
       {notice && !error && (
         <p
           style={failed ? errorStyle : emptyStyle}
@@ -119,7 +117,7 @@ export function DeliveryServerConnectionTestPanel({
           disabled={busy}
           onClick={() => void runTest()}
         >
-          Test connection
+          {message(MSG.PUBLISH_DELIVERY_ACTION_TEST_CONNECTION)}
         </button>
       </div>
     </div>

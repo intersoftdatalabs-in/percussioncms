@@ -17,6 +17,7 @@
 
 import type { PublishServer, PublishServerProperty } from "./types";
 import { propsToMap } from "./serverFormModel";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -68,10 +69,10 @@ export function serverProperty(server: PublishServer, key: string): string {
 export function validateFtpHost(raw: string): FtpHostResult {
   const host = raw.trim();
   if (!host) {
-    return { ok: false, error: FTP_HOST_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_FTP_HOST_REQUIRED) };
   }
   if (host.length > FTP_HOST_MAX_LENGTH) {
-    return { ok: false, error: FTP_HOST_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_FTP_HOST_TOO_LONG) };
   }
   return { ok: true, host };
 }

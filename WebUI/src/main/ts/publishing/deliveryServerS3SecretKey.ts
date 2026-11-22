@@ -16,6 +16,7 @@
 
 import type { PublishServerProperty } from "./types";
 import { isSecretPropertyKey, redactSecretsForLog } from "./serverSecrets";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -50,10 +51,10 @@ export type S3SecretKeyHttpFailure = "bad_request" | "forbidden" | "conflict";
 export function validateS3SecretKey(raw: string): S3SecretKeyResult {
   const secretKey = raw.trim();
   if (!secretKey) {
-    return { ok: false, error: S3_SECRET_KEY_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_S3_SECRET_KEY_REQUIRED) };
   }
   if (secretKey.length > S3_SECRET_KEY_MAX_LENGTH) {
-    return { ok: false, error: S3_SECRET_KEY_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_S3_SECRET_KEY_TOO_LONG) };
   }
   return { ok: true, secretKey };
 }

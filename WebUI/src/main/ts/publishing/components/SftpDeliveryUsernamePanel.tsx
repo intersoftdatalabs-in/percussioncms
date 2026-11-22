@@ -21,8 +21,6 @@ import { getServer, updateServer } from "../../api/publishing/serversApi";
 import { message, MSG } from "../../i18n/message";
 import {
   buildSftpUsernameBody,
-  SFTP_USERNAME_DRIVER_ONLY,
-  SFTP_USERNAME_REQUIRED,
   sftpUsernameHttpFailure,
   validateSftpUsername,
   withUpdatedSftpUsername,
@@ -48,7 +46,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = sftpUsernameHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, SFTP_USERNAME_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_SFTP_USERNAME_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -187,38 +185,38 @@ export function SftpDeliveryUsernamePanel({
 
   return (
     <div data-testid="sftp-username-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>SFTP username</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_SFTP_USERNAME)}</h3>
       {sftp && (
         <div data-testid="sftp-username-summary">
           <p>
-            Name: <span data-testid="sftp-username-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="sftp-username-name">{shown(name)}</span>
           </p>
           <p>
-            Host: <span data-testid="sftp-username-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="sftp-username-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="sftp-username-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="sftp-username-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="sftp-username-current">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="sftp-username-current">{shown(user)}</span>
           </p>
           <p>
-            Folder: <span data-testid="sftp-username-folder">{shown(folder)}</span>
+            {message(MSG.PUBLISH_FOLDER)}: <span data-testid="sftp-username-folder">{shown(folder)}</span>
           </p>
           <p>
-            Default: <span data-testid="sftp-username-default">{shown(defaultFlag)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}: <span data-testid="sftp-username-default">{shown(defaultFlag)}</span>
           </p>
         </div>
       )}
       {notSftp && (
         <p data-testid="sftp-username-not-sftp" role="status">
-          {SFTP_USERNAME_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_SFTP_USERNAME_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="sftp-username-form">
           <div style={formRowStyle}>
-            <label htmlFor="sftp-username-input">* User ID</label>
+            <label htmlFor="sftp-username-input">{message(MSG.PUBLISH_DELIVERY_LABEL_USER_ID)}</label>
             <input
               id="sftp-username-input"
               data-testid="sftp-username-input"
@@ -246,7 +244,7 @@ export function SftpDeliveryUsernamePanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set username
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_USERNAME)}
           </button>
         )}
         {editing && (
@@ -258,7 +256,7 @@ export function SftpDeliveryUsernamePanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save username
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_USERNAME)}
             </button>
             <button
               type="button"
@@ -267,7 +265,7 @@ export function SftpDeliveryUsernamePanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

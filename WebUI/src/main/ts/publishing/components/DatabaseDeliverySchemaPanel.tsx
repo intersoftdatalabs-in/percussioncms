@@ -21,8 +21,6 @@ import { getServer, updateServer } from "../../api/publishing/serversApi";
 import { message, MSG } from "../../i18n/message";
 import {
   buildOracleSchemaBody,
-  ORACLE_SCHEMA_DRIVER_ONLY,
-  ORACLE_SCHEMA_REQUIRED,
   isOracleDeliveryDriver,
   oracleSchemaHttpFailure,
   validateOracleSchema,
@@ -51,7 +49,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = oracleSchemaHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, ORACLE_SCHEMA_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_ORACLE_SCHEMA_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -196,45 +194,45 @@ export function DatabaseDeliverySchemaPanel({
 
   return (
     <div data-testid="db-schema-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>Oracle schema</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_DB_SCHEMA)}</h3>
       {oracle && (
         <div data-testid="db-schema-summary">
           <p>
-            Name: <span data-testid="db-schema-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="db-schema-name">{shown(name)}</span>
           </p>
           <p>
-            Driver: <span data-testid="db-schema-driver">{shown(driver)}</span>
+            {message(MSG.PUBLISH_DRIVER)}: <span data-testid="db-schema-driver">{shown(driver)}</span>
           </p>
           <p>
-            Host: <span data-testid="db-schema-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="db-schema-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="db-schema-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="db-schema-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="db-schema-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="db-schema-user">{shown(user)}</span>
           </p>
           <p>
-            SID: <span data-testid="db-schema-sid">{shown(sid)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_SID)}: <span data-testid="db-schema-sid">{shown(sid)}</span>
           </p>
           <p>
-            Schema: <span data-testid="db-schema-current">{shown(schema)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_SCHEMA)}: <span data-testid="db-schema-current">{shown(schema)}</span>
           </p>
           <p>
-            Default:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}:{" "}
             <span data-testid="db-schema-default">{shown(defaultFlag)}</span>
           </p>
         </div>
       )}
       {notOracle && (
         <p data-testid="db-schema-not-oracle" role="status">
-          {ORACLE_SCHEMA_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_ORACLE_SCHEMA_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="db-schema-form">
           <div style={formRowStyle}>
-            <label htmlFor="db-schema-input">* Schema</label>
+            <label htmlFor="db-schema-input">{message(MSG.PUBLISH_DELIVERY_LABEL_SCHEMA)}</label>
             <input
               id="db-schema-input"
               data-testid="db-schema-input"
@@ -262,7 +260,7 @@ export function DatabaseDeliverySchemaPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set Oracle schema
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_ORACLE_SCHEMA)}
           </button>
         )}
         {editing && (
@@ -274,7 +272,7 @@ export function DatabaseDeliverySchemaPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save Oracle schema
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_ORACLE_SCHEMA)}
             </button>
             <button
               type="button"
@@ -283,7 +281,7 @@ export function DatabaseDeliverySchemaPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

@@ -17,6 +17,7 @@
 
 import type { PublishServerProperty } from "./types";
 import { isSecretPropertyKey, redactSecretsForLog } from "./serverSecrets";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -52,10 +53,10 @@ export type DatabasePasswordHttpFailure = "bad_request" | "forbidden" | "conflic
  */
 export function validateDatabasePassword(raw: string): DatabasePasswordResult {
   if (!raw || !raw.trim()) {
-    return { ok: false, error: DATABASE_PASSWORD_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_DATABASE_PASSWORD_REQUIRED) };
   }
   if (raw.length > DATABASE_PASSWORD_MAX_LENGTH) {
-    return { ok: false, error: DATABASE_PASSWORD_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_DATABASE_PASSWORD_TOO_LONG) };
   }
   return { ok: true, password: raw };
 }

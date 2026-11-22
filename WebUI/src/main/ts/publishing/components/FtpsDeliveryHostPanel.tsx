@@ -21,8 +21,6 @@ import { getServer, updateServer } from "../../api/publishing/serversApi";
 import { message, MSG } from "../../i18n/message";
 import {
   buildFtpsHostBody,
-  FTPS_HOST_DRIVER_ONLY,
-  FTPS_HOST_REQUIRED,
   ftpsHostHttpFailure,
   isFtpsDeliveryDriver,
   validateFtpsHost,
@@ -48,7 +46,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = ftpsHostHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, FTPS_HOST_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_FTPS_HOST_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -187,38 +185,38 @@ export function FtpsDeliveryHostPanel({
 
   return (
     <div data-testid="ftps-host-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>FTPS host</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_FTPS_HOST)}</h3>
       {ftps && (
         <div data-testid="ftps-host-summary">
           <p>
-            Name: <span data-testid="ftps-host-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="ftps-host-name">{shown(name)}</span>
           </p>
           <p>
-            Host: <span data-testid="ftps-host-current">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="ftps-host-current">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="ftps-host-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="ftps-host-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="ftps-host-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="ftps-host-user">{shown(user)}</span>
           </p>
           <p>
-            Folder: <span data-testid="ftps-host-folder">{shown(folder)}</span>
+            {message(MSG.PUBLISH_FOLDER)}: <span data-testid="ftps-host-folder">{shown(folder)}</span>
           </p>
           <p>
-            Default: <span data-testid="ftps-host-default">{shown(defaultFlag)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}: <span data-testid="ftps-host-default">{shown(defaultFlag)}</span>
           </p>
         </div>
       )}
       {notFtps && (
         <p data-testid="ftps-host-not-ftps" role="status">
-          {FTPS_HOST_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_FTPS_HOST_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="ftps-host-form">
           <div style={formRowStyle}>
-            <label htmlFor="ftps-host-input">* Host</label>
+            <label htmlFor="ftps-host-input">{message(MSG.PUBLISH_DELIVERY_LABEL_HOST)}</label>
             <input
               id="ftps-host-input"
               data-testid="ftps-host-input"
@@ -246,7 +244,7 @@ export function FtpsDeliveryHostPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set host
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_HOST)}
           </button>
         )}
         {editing && (
@@ -258,7 +256,7 @@ export function FtpsDeliveryHostPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save host
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_HOST)}
             </button>
             <button
               type="button"
@@ -267,7 +265,7 @@ export function FtpsDeliveryHostPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

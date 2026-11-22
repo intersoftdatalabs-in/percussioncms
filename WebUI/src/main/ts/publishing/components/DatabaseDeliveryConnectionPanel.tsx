@@ -25,7 +25,6 @@ import {
   withUpdatedDatabaseConnection,
 } from "../deliveryServerDatabaseConnection";
 import {
-  DATABASE_HOST_REQUIRED,
   databaseNameOrSid,
   isDatabaseDeliveryDriver,
 } from "../deliveryServerDatabaseHost";
@@ -53,7 +52,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = databaseConnectionHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, DATABASE_HOST_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_DATABASE_HOST_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -235,45 +234,45 @@ export function DatabaseDeliveryConnectionPanel({
 
   return (
     <div data-testid="db-conn-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>Database connection</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_DB_CONNECTION)}</h3>
       {database && (
         <div data-testid="db-conn-summary">
           <p>
-            Name: <span data-testid="db-conn-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="db-conn-name">{shown(name)}</span>
           </p>
           <p>
-            Driver: <span data-testid="db-conn-driver">{shown(driver)}</span>
+            {message(MSG.PUBLISH_DRIVER)}: <span data-testid="db-conn-driver">{shown(driver)}</span>
           </p>
           <p>
-            Host: <span data-testid="db-conn-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="db-conn-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="db-conn-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="db-conn-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="db-conn-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="db-conn-user">{shown(user)}</span>
           </p>
           <p>
-            Database / SID:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DATABASE_SID)}:{" "}
             <span data-testid="db-conn-database">{shown(databaseOrSid)}</span>
           </p>
           <p>
-            Default: <span data-testid="db-conn-default">{shown(defaultFlag)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}: <span data-testid="db-conn-default">{shown(defaultFlag)}</span>
           </p>
           <p data-testid="db-conn-password-status" role="status">
-            Password: {DATABASE_PASSWORD_NEVER_SHOWN}
+            Password: {message(MSG.PUBLISH_DELIVERY_DATABASE_PASSWORD_NEVER_SHOWN)}
           </p>
         </div>
       )}
       {notDatabase && (
         <p data-testid="db-conn-not-database" role="status">
-          Database connection can be set only on a database delivery server.
+          {message(MSG.PUBLISH_DELIVERY_DATABASE_CONNECTION_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="db-conn-form">
           <div style={formRowStyle}>
-            <label htmlFor="db-conn-host-input">* Host</label>
+            <label htmlFor="db-conn-host-input">{message(MSG.PUBLISH_DELIVERY_LABEL_HOST)}</label>
             <input
               id="db-conn-host-input"
               data-testid="db-conn-host-input"
@@ -287,7 +286,7 @@ export function DatabaseDeliveryConnectionPanel({
             />
           </div>
           <div style={formRowStyle}>
-            <label htmlFor="db-conn-user-input">* User ID</label>
+            <label htmlFor="db-conn-user-input">{message(MSG.PUBLISH_DELIVERY_LABEL_USER_ID)}</label>
             <input
               id="db-conn-user-input"
               data-testid="db-conn-user-input"
@@ -301,7 +300,7 @@ export function DatabaseDeliveryConnectionPanel({
             />
           </div>
           <div style={formRowStyle}>
-            <label htmlFor="db-conn-password-input">* New password</label>
+            <label htmlFor="db-conn-password-input">{message(MSG.PUBLISH_DELIVERY_LABEL_NEW_PASSWORD)}</label>
             <input
               id="db-conn-password-input"
               data-testid="db-conn-password-input"
@@ -331,7 +330,7 @@ export function DatabaseDeliveryConnectionPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set connection
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_CONNECTION)}
           </button>
         )}
         {editing && (
@@ -343,7 +342,7 @@ export function DatabaseDeliveryConnectionPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save connection
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_CONNECTION)}
             </button>
             <button
               type="button"
@@ -352,7 +351,7 @@ export function DatabaseDeliveryConnectionPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}
@@ -360,4 +359,3 @@ export function DatabaseDeliveryConnectionPanel({
     </div>
   );
 }
-

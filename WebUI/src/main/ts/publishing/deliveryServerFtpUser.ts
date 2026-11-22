@@ -16,6 +16,7 @@
  */
 
 import type { PublishServer, PublishServerProperty } from "./types";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -43,10 +44,10 @@ export type FtpUserHttpFailure = "bad_request" | "forbidden" | "conflict";
 export function validateFtpUser(raw: string): FtpUserResult {
   const userId = raw.trim();
   if (!userId) {
-    return { ok: false, error: FTP_USER_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_FTP_USER_REQUIRED) };
   }
   if (userId.length > FTP_USER_MAX_LENGTH) {
-    return { ok: false, error: FTP_USER_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_FTP_USER_TOO_LONG) };
   }
   return { ok: true, userId };
 }

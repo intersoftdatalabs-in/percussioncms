@@ -17,6 +17,7 @@
 
 import React from "react";
 import { formRowStyle } from "../../publishing.styles";
+import { message, MSG } from "../../../i18n/message";
 
 export interface DatabaseDriverFieldsProps {
   driver: string;
@@ -78,14 +79,14 @@ export function DatabaseDriverFields({
   return (
     <div data-testid={`driver-db-${d.toLowerCase()}`}>
       <Field
-        label="Database server"
+        label={message(MSG.PUBLISH_DELIVERY_SUMMARY_DATABASE_SERVER)}
         propKey="server"
         properties={properties}
         onChange={onChange}
         required
       />
       <Field
-        label="Port"
+        label={message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}
         propKey="port"
         properties={properties}
         onChange={onChange}
@@ -93,7 +94,7 @@ export function DatabaseDriverFields({
       />
       {(d === "MYSQL" || d === "MSSQL") && (
         <Field
-          label="Database name"
+          label={message(MSG.PUBLISH_DELIVERY_SUMMARY_DATABASE)}
           propKey="database"
           properties={properties}
           onChange={onChange}
@@ -102,7 +103,7 @@ export function DatabaseDriverFields({
       )}
       {d === "ORACLE" && (
         <Field
-          label="SID / service"
+          label={message(MSG.PUBLISH_DELIVERY_SUMMARY_SID_SERVICE)}
           propKey="sid"
           properties={properties}
           onChange={onChange}
@@ -110,14 +111,14 @@ export function DatabaseDriverFields({
         />
       )}
       <Field
-        label="User ID"
+        label={message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}
         propKey="userid"
         properties={properties}
         onChange={onChange}
         required
       />
       <Field
-        label="Password"
+        label={message(MSG.PUBLISH_DELIVERY_SUMMARY_PASSWORD)}
         propKey="password"
         properties={properties}
         onChange={onChange}
@@ -126,7 +127,7 @@ export function DatabaseDriverFields({
       />
       {d === "MSSQL" && (
         <Field
-          label="Owner"
+          label={message(MSG.PUBLISH_DELIVERY_SUMMARY_OWNER)}
           propKey="owner"
           properties={properties}
           onChange={onChange}
@@ -135,7 +136,7 @@ export function DatabaseDriverFields({
       )}
       {d === "ORACLE" && (
         <Field
-          label="Schema"
+          label={message(MSG.PUBLISH_DELIVERY_SUMMARY_SCHEMA)}
           propKey="schema"
           properties={properties}
           onChange={onChange}

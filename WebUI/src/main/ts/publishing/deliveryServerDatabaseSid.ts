@@ -16,6 +16,7 @@
  */
 
 import type { PublishServer, PublishServerProperty } from "./types";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -49,10 +50,10 @@ export function isOracleDeliveryDriver(driver: string): boolean {
 export function validateOracleSid(raw: string): OracleSidResult {
   const sid = raw.trim();
   if (!sid) {
-    return { ok: false, error: ORACLE_SID_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_ORACLE_SID_REQUIRED) };
   }
   if (sid.length > ORACLE_SID_MAX_LENGTH) {
-    return { ok: false, error: ORACLE_SID_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_ORACLE_SID_TOO_LONG) };
   }
   return { ok: true, sid };
 }

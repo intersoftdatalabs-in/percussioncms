@@ -27,8 +27,6 @@ import {
 } from "../deliveryServerFtpHost";
 import {
   buildFtpUserBody,
-  FTP_USER_DRIVER_ONLY,
-  FTP_USER_REQUIRED,
   ftpUserHttpFailure,
   validateFtpUser,
   withUpdatedUser,
@@ -47,7 +45,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = ftpUserHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, FTP_USER_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_FTP_USER_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -182,32 +180,32 @@ export function FtpDeliveryUserPanel({
 
   return (
     <div data-testid="ftp-user-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>FTP user id</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_FTP_USER)}</h3>
       {ftp && (
         <div data-testid="ftp-user-summary">
           <p>
-            Host: <span data-testid="ftp-user-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="ftp-user-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="ftp-user-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="ftp-user-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="ftp-user-current">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="ftp-user-current">{shown(user)}</span>
           </p>
           <p>
-            Folder: <span data-testid="ftp-user-folder">{shown(folder)}</span>
+            {message(MSG.PUBLISH_FOLDER)}: <span data-testid="ftp-user-folder">{shown(folder)}</span>
           </p>
         </div>
       )}
       {notFtp && (
         <p data-testid="ftp-user-not-ftp" role="status">
-          {FTP_USER_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_FTP_USER_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="ftp-user-form">
           <div style={formRowStyle}>
-            <label htmlFor="ftp-user-input">* User ID</label>
+            <label htmlFor="ftp-user-input">{message(MSG.PUBLISH_DELIVERY_LABEL_USER_ID)}</label>
             <input
               id="ftp-user-input"
               data-testid="ftp-user-input"
@@ -235,7 +233,7 @@ export function FtpDeliveryUserPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set user id
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_USER_ID)}
           </button>
         )}
         {editing && (
@@ -247,7 +245,7 @@ export function FtpDeliveryUserPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save user id
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_USER_ID)}
             </button>
             <button
               type="button"
@@ -256,7 +254,7 @@ export function FtpDeliveryUserPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

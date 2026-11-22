@@ -21,8 +21,6 @@ import { getServer, updateServer } from "../../api/publishing/serversApi";
 import { message, MSG } from "../../i18n/message";
 import {
   buildS3BucketBody,
-  S3_BUCKET_DRIVER_ONLY,
-  S3_BUCKET_REQUIRED,
   isS3DeliveryDriver,
   s3BucketHttpFailure,
   validateS3Bucket,
@@ -51,7 +49,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = s3BucketHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, S3_BUCKET_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_S3_BUCKET_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -189,37 +187,37 @@ export function S3DeliveryBucketPanel({
 
   return (
     <div data-testid="s3-bucket-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>Amazon S3 bucket</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_S3_BUCKET)}</h3>
       {s3 && (
         <div data-testid="s3-bucket-summary">
           <p>
-            Name: <span data-testid="s3-bucket-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="s3-bucket-name">{shown(name)}</span>
           </p>
           <p>
-            Driver: <span data-testid="s3-bucket-driver">{shown(driver)}</span>
+            {message(MSG.PUBLISH_DRIVER)}: <span data-testid="s3-bucket-driver">{shown(driver)}</span>
           </p>
           <p>
-            Region: <span data-testid="s3-bucket-region">{shown(region)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_REGION)}: <span data-testid="s3-bucket-region">{shown(region)}</span>
           </p>
           <p>
-            Bucket:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_BUCKET)}:{" "}
             <span data-testid="s3-bucket-current">{shown(bucket)}</span>
           </p>
           <p>
-            Default:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}:{" "}
             <span data-testid="s3-bucket-default">{shown(defaultFlag)}</span>
           </p>
         </div>
       )}
       {notS3 && (
         <p data-testid="s3-bucket-not-s3" role="status">
-          {S3_BUCKET_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_S3_BUCKET_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="s3-bucket-form">
           <div style={formRowStyle}>
-            <label htmlFor="s3-bucket-input">* Bucket</label>
+            <label htmlFor="s3-bucket-input">{message(MSG.PUBLISH_DELIVERY_LABEL_BUCKET)}</label>
             <input
               id="s3-bucket-input"
               data-testid="s3-bucket-input"
@@ -247,7 +245,7 @@ export function S3DeliveryBucketPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set S3 bucket
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_S3_BUCKET)}
           </button>
         )}
         {editing && (
@@ -259,7 +257,7 @@ export function S3DeliveryBucketPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save S3 bucket
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_S3_BUCKET)}
             </button>
             <button
               type="button"
@@ -268,7 +266,7 @@ export function S3DeliveryBucketPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

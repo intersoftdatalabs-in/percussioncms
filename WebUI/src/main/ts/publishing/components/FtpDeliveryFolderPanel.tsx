@@ -27,8 +27,6 @@ import {
 } from "../deliveryServerFtpHost";
 import {
   buildFtpFolderBody,
-  FTP_FOLDER_DRIVER_ONLY,
-  FTP_FOLDER_TOO_LONG,
   ftpFolderHttpFailure,
   validateFtpFolder,
   withUpdatedFolder,
@@ -47,7 +45,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = ftpFolderHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, FTP_FOLDER_TOO_LONG);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_FTP_FOLDER_TOO_LONG));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -183,32 +181,32 @@ export function FtpDeliveryFolderPanel({
 
   return (
     <div data-testid="ftp-folder-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>FTP folder</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_FTP_FOLDER)}</h3>
       {ftp && (
         <div data-testid="ftp-folder-summary">
           <p>
-            Host: <span data-testid="ftp-folder-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="ftp-folder-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="ftp-folder-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="ftp-folder-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="ftp-folder-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="ftp-folder-user">{shown(user)}</span>
           </p>
           <p>
-            Folder: <span data-testid="ftp-folder-current">{shown(folder)}</span>
+            {message(MSG.PUBLISH_FOLDER)}: <span data-testid="ftp-folder-current">{shown(folder)}</span>
           </p>
         </div>
       )}
       {notFtp && (
         <p data-testid="ftp-folder-not-ftp" role="status">
-          {FTP_FOLDER_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_FTP_FOLDER_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="ftp-folder-form">
           <div style={formRowStyle}>
-            <label htmlFor="ftp-folder-input">Folder</label>
+            <label htmlFor="ftp-folder-input">{message(MSG.PUBLISH_FOLDER)}</label>
             <input
               id="ftp-folder-input"
               data-testid="ftp-folder-input"
@@ -220,7 +218,7 @@ export function FtpDeliveryFolderPanel({
               }}
             />
           </div>
-          <p data-testid="ftp-folder-optional">Leave blank to clear the folder.</p>
+          <p data-testid="ftp-folder-optional">{message(MSG.PUBLISH_DELIVERY_HINT_CLEAR_FOLDER)}</p>
         </div>
       )}
       {error && (
@@ -237,7 +235,7 @@ export function FtpDeliveryFolderPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set folder
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_FOLDER)}
           </button>
         )}
         {editing && (
@@ -249,7 +247,7 @@ export function FtpDeliveryFolderPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save folder
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_FOLDER)}
             </button>
             <button
               type="button"
@@ -258,7 +256,7 @@ export function FtpDeliveryFolderPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

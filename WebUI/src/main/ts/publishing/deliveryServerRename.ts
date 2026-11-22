@@ -17,6 +17,7 @@
 
 import type { PublishServer } from "./types";
 import { unwrapPublishServer } from "./deliveryServerFtpHost";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER.NAME is VARCHAR(50). Keep in step with
@@ -67,13 +68,13 @@ export function validateDeliveryServerRenameName(
 ): DeliveryServerRenameResult {
   const name = raw.trim();
   if (!name) {
-    return { ok: false, error: DELIVERY_SERVER_NAME_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_DELIVERY_SERVER_NAME_REQUIRED) };
   }
   if (name.length > DELIVERY_SERVER_NAME_MAX_LENGTH) {
-    return { ok: false, error: DELIVERY_SERVER_NAME_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_DELIVERY_SERVER_NAME_TOO_LONG) };
   }
   if (!NAME_PATTERN.test(name)) {
-    return { ok: false, error: DELIVERY_SERVER_NAME_INVALID };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_DELIVERY_SERVER_NAME_INVALID) };
   }
   const current = currentName.trim().toLowerCase();
   const taken = siblingNames.some((sibling) => {
@@ -81,7 +82,7 @@ export function validateDeliveryServerRenameName(
     return other !== "" && other !== current && other === name.toLowerCase();
   });
   if (taken) {
-    return { ok: false, error: DELIVERY_SERVER_NAME_DUPLICATE };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_DELIVERY_SERVER_NAME_DUPLICATE) };
   }
   return { ok: true, name };
 }

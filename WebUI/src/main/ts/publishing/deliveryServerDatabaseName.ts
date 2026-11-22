@@ -16,6 +16,7 @@
  */
 
 import type { PublishServer, PublishServerProperty } from "./types";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -51,10 +52,10 @@ export function isMysqlOrMssqlDeliveryDriver(driver: string): boolean {
 export function validateDatabaseName(raw: string): DatabaseNameResult {
   const databaseName = raw.trim();
   if (!databaseName) {
-    return { ok: false, error: DATABASE_NAME_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_DATABASE_NAME_REQUIRED) };
   }
   if (databaseName.length > DATABASE_NAME_MAX_LENGTH) {
-    return { ok: false, error: DATABASE_NAME_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_DATABASE_NAME_TOO_LONG) };
   }
   return { ok: true, databaseName };
 }

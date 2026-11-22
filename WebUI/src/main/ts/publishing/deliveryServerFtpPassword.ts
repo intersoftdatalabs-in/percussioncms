@@ -17,6 +17,7 @@
 
 import type { PublishServerProperty } from "./types";
 import { isSecretPropertyKey, redactSecretsForLog } from "./serverSecrets";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -49,10 +50,10 @@ export type FtpPasswordHttpFailure = "bad_request" | "forbidden" | "conflict";
  */
 export function validateFtpPassword(raw: string): FtpPasswordResult {
   if (!raw || !raw.trim()) {
-    return { ok: false, error: FTP_PASSWORD_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_FTP_PASSWORD_REQUIRED) };
   }
   if (raw.length > FTP_PASSWORD_MAX_LENGTH) {
-    return { ok: false, error: FTP_PASSWORD_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_FTP_PASSWORD_TOO_LONG) };
   }
   return { ok: true, password: raw };
 }
