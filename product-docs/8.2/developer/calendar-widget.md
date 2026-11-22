@@ -103,6 +103,32 @@ load. A feed configured **without** an API key fails gracefully: that
 source contributes zero events while the calendar and every other source
 keep rendering.
 
+## Source-filter buttons
+
+Each widget instance renders a **Calendar sources** filter bar
+(`role="group"`, labelled "Calendar sources") with one native button
+per Google feed plus one for Percussion events. The buttons are
+keyboard-operable (Tab to reach, Enter or Space to toggle) and expose
+`aria-pressed` mirroring the layer visibility, with a
+`:focus-visible`-only ring so the mouse path is pixel-identical.
+
+## Multiple widgets on one page
+
+Filter button ids and event-layer classes are suffixed with the widget
+instance's content and widget ids, so two Calendar 2.0 widgets on the
+same page never emit duplicate DOM ids and never share a layer class.
+Toggling a source in one widget hides only that widget's events and
+flips only that widget's `aria-pressed` state — even when both widgets
+configure the same feed. No page changes are needed to get this
+isolation; it is baked into the rendered markup.
+
+**Upgrade note:** buttons and event layers keep the unsuffixed
+`perc-<className>` class alongside the suffixed one, so existing
+site/theme CSS targeting the legacy hooks keeps matching and the toggle
+sweep keys off the suffixed class. Button *ids* are suffixed only —
+duplicate DOM ids were the defect — so scripts that addressed the old
+unsuffixed button ids must target the suffixed ids instead.
+
 ## Print stylesheet
 
 The widget links `web_resources/widgets/calendarTwo/css/fullcalendar.
