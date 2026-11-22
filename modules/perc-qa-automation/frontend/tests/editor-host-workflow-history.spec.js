@@ -201,10 +201,27 @@ test.describe("EditorHost workflow history", () => {
       await expect(page.getByTestId(TEST_IDS.form)).toBeVisible();
       // Collapsed by default: no history fetch fires and no panel renders.
       await expect(page.getByTestId("editor-workflow-history-toggle")).toBeVisible();
+      // Section toggle exposes its collapsed state (#6897, parent #4532).
+      await expect(page.getByTestId("editor-workflow-history-toggle")).toHaveAttribute(
+        "aria-expanded",
+        "false",
+      );
+      await expect(page.getByTestId("editor-workflow-history-toggle")).toHaveAttribute(
+        "aria-controls",
+        "editor-workflow-history-panel",
+      );
       await expect(page.getByTestId("editor-workflow-history")).toHaveCount(0);
       expect(historyGets).toBe(0);
       await page.getByTestId("editor-workflow-history-toggle").click();
       await expect(page.getByTestId("editor-workflow-history-table")).toBeVisible();
+      await expect(page.getByTestId("editor-workflow-history-toggle")).toHaveAttribute(
+        "aria-expanded",
+        "true",
+      );
+      await expect(page.getByTestId("editor-workflow-history")).toHaveAttribute(
+        "id",
+        "editor-workflow-history-panel",
+      );
       expect(historyGets).toBe(1);
       await expect(page.getByTestId("editor-workflow-history-row-0")).toBeVisible();
       await expect(page.getByTestId("editor-workflow-history-date-0")).toContainText(

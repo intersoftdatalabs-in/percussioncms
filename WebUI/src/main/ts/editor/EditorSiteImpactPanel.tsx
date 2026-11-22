@@ -35,6 +35,10 @@
  * the panel heading on success, or the Retry button again when the load
  * fails again — and the loading indicator is announced through a live
  * region (#6786).</p>
+ *
+ * <p>The host renders this panel inside a collapsible section whose header
+ * toggle ({@code editor-site-impact-toggle}) exposes the open state through
+ * {@code aria-expanded} / {@code aria-controls} (#6897, parent #4532).</p>
  */
 
 import React, { useEffect, useRef, useState } from "react";
@@ -126,7 +130,11 @@ export function EditorSiteImpactPanel({
   const templates = impact?.templates ?? [];
 
   return (
-    <section className={styles.form} data-testid="editor-site-impact-panel">
+    <section
+      className={styles.form}
+      id="editor-site-impact-panel"
+      data-testid="editor-site-impact-panel"
+    >
       <h2
         ref={headingRef}
         tabIndex={-1}

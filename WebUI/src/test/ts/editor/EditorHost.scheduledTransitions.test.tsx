@@ -82,6 +82,13 @@ describe("EditorHost scheduled transitions panel (#5830)", () => {
     // Collapsed by default: no dates fetch fires and no panel renders.
     expect(loadScheduleDates).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor-scheduled-transitions")).toBeNull();
+    // Section toggle exposes its collapsed state (#6897).
+    expect(
+      screen.getByTestId("editor-scheduled-transitions-toggle").getAttribute("aria-expanded"),
+    ).toBe("false");
+    expect(
+      screen.getByTestId("editor-scheduled-transitions-toggle").getAttribute("aria-controls"),
+    ).toBe("editor-scheduled-transitions-panel");
     fireEvent.click(
       screen.getByTestId("editor-scheduled-transitions-toggle"),
     );
@@ -90,6 +97,13 @@ describe("EditorHost scheduled transitions panel (#5830)", () => {
         screen.getByTestId("editor-scheduled-transitions-list"),
       ).toBeTruthy();
     });
+    // Open state is exposed and the controls target names the panel.
+    expect(
+      screen.getByTestId("editor-scheduled-transitions-toggle").getAttribute("aria-expanded"),
+    ).toBe("true");
+    expect(
+      screen.getByTestId("editor-scheduled-transitions").getAttribute("id"),
+    ).toBe("editor-scheduled-transitions-panel");
     expect(loadScheduleDates).toHaveBeenCalledWith("42");
     expect(
       screen.getByTestId("editor-scheduled-transition-embargo-date")
@@ -107,6 +121,10 @@ describe("EditorHost scheduled transitions panel (#5830)", () => {
       expect(screen.queryByTestId("editor-scheduled-transitions")).toBeNull();
     });
     expect(loadScheduleDates).toHaveBeenCalledTimes(1);
+    // Closing flips the exposed state back.
+    expect(
+      screen.getByTestId("editor-scheduled-transitions-toggle").getAttribute("aria-expanded"),
+    ).toBe("false");
   });
 
   it("shows an empty state when no dates are scheduled", async () => {

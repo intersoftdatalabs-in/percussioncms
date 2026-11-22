@@ -51,7 +51,11 @@ export function EditorWorkflowHistoryPanel({
   onRetryLoad,
 }: EditorWorkflowHistoryPanelProps): React.ReactElement {
   return (
-    <div className={styles.form} data-testid="editor-workflow-history">
+    <div
+      className={styles.form}
+      id="editor-workflow-history-panel"
+      data-testid="editor-workflow-history"
+    >
       <h2 className={styles.label}>{message(EDITOR_MSG.WORKFLOW_HISTORY_TITLE)}</h2>
       {loading ? (
         <div
