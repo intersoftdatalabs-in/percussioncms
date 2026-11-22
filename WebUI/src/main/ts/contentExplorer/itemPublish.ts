@@ -349,7 +349,7 @@ export async function publishSelectedFolder(
       failures.push({
         id,
         name: stageItemLabel(child),
-        message: "missing content id",
+        message: message(EXPLORER_MSG.BATCH_MISSING_CONTENT_ID),
       });
       continue;
     }
@@ -359,7 +359,7 @@ export async function publishSelectedFolder(
         failures.push({
           id,
           name: stageItemLabel(child),
-          message: "not published",
+          message: message(EXPLORER_MSG.BATCH_NOT_PUBLISHED),
         });
       } else {
         publishedIds.push(id);
@@ -386,11 +386,12 @@ function failureFromPublish(item: PSPathItem, err: unknown): StageItemFailure {
       message: `HTTP ${err.status}`,
     };
   }
-  const text = err instanceof Error ? err.message : "publish failed";
+  const text =
+    err instanceof Error ? err.message : message(EXPLORER_MSG.BATCH_PUBLISH_FAILED);
   return {
     id: (item.id ?? "").trim(),
     name: stageItemLabel(item),
-    message: text || "publish failed",
+    message: text || message(EXPLORER_MSG.BATCH_PUBLISH_FAILED),
   };
 }
 
@@ -414,7 +415,7 @@ export async function publishSelectedItems(
         failures.push({
           id: (item.id ?? "").trim(),
           name: stageItemLabel(item),
-          message: "not published",
+          message: message(EXPLORER_MSG.BATCH_NOT_PUBLISHED),
         });
       } else {
         publishedIds.push((item.id ?? "").trim());
@@ -462,14 +463,17 @@ export function describePublishBatch(
   return parts.join(" ");
 }
 
-async function demandPublish(url: string): Promise<void> {
+async function demandPublish(
+  url: string,
+  fallbackKey: string = EXPLORER_MSG.DEMAND_PUBLISH_FAILED,
+): Promise<void> {
   const body = await get<unknown>(url);
   const preflight = mapPublishResponse(body);
   if (preflight) {
     throw new Error(
       preflight.message ||
         preflight.token ||
-        message(EXPLORER_MSG.DEMAND_PUBLISH_FAILED),
+        message(fallbackKey),
     );
   }
 }
@@ -524,11 +528,14 @@ function failureFromTakedown(item: PSPathItem, err: unknown): StageItemFailure {
       message: `HTTP ${err.status}`,
     };
   }
-  const text = err instanceof Error ? err.message : "takedown failed";
+  const text =
+    err instanceof Error
+      ? err.message
+      : message(EXPLORER_MSG.BATCH_TAKEDOWN_FAILED);
   return {
     id: (item.id ?? "").trim(),
     name: stageItemLabel(item),
-    message: text || "takedown failed",
+    message: text || message(EXPLORER_MSG.BATCH_TAKEDOWN_FAILED),
   };
 }
 
@@ -552,7 +559,7 @@ export async function takedownSelectedItems(
         failures.push({
           id: (item.id ?? "").trim(),
           name: stageItemLabel(item),
-          message: "not taken down",
+          message: message(EXPLORER_MSG.BATCH_NOT_TAKEN_DOWN),
         });
       } else {
         takenDownIds.push((item.id ?? "").trim());
@@ -625,7 +632,10 @@ async function demandTakedown(
  *
  * <p>HTTP 200 with application-level preflight status
  * ({@code FORBIDDEN}, {@code BADCONFIG}, {@code NOSTAGING_SERVERS},
- * {@code INVALID}, …) is a failure — same as classic Finder.</p>
+ * {@code INVALID}, …) is a failure — same as classic Finder. The staging
+ * preflight throw surfaces {@code Stage failed}, not the demand-publish
+ * {@code Publish failed} fallback (#7056 naming decision: the operator
+ * staged, so the defensive text names staging).</p>
  */
 export async function stageSelectedItem(item: PSPathItem): Promise<boolean> {
   const id = (item.id ?? "").trim();
@@ -635,10 +645,16 @@ export async function stageSelectedItem(item: PSPathItem): Promise<boolean> {
   const kind = resolvePublishKind(item);
   const paths = itemPublishPaths();
   if (kind === "asset") {
-    await demandPublish(`${paths.resourceStaging}/${encodeURIComponent(id)}`);
+    await demandPublish(
+      `${paths.resourceStaging}/${encodeURIComponent(id)}`,
+      EXPLORER_MSG.BULK_STAGE_FAILED,
+    );
     return true;
   }
-  await demandPublish(`${paths.pageStaging}/${encodeURIComponent(id)}`);
+  await demandPublish(
+    `${paths.pageStaging}/${encodeURIComponent(id)}`,
+    EXPLORER_MSG.BULK_STAGE_FAILED,
+  );
   return true;
 }
 
@@ -841,7 +857,7 @@ export async function stageSelectedFolder(
       failures.push({
         id,
         name: stageItemLabel(child),
-        message: "missing content id",
+        message: message(EXPLORER_MSG.BATCH_MISSING_CONTENT_ID),
       });
       continue;
     }
@@ -851,7 +867,7 @@ export async function stageSelectedFolder(
         failures.push({
           id,
           name: stageItemLabel(child),
-          message: "not staged",
+          message: message(EXPLORER_MSG.BATCH_NOT_STAGED),
         });
       } else {
         stagedIds.push(id);
@@ -871,7 +887,9 @@ export async function stageSelectedFolder(
  *
  * <p>HTTP 200 with application-level preflight status
  * ({@code FORBIDDEN}, {@code BADCONFIG}, {@code NOSTAGING_SERVERS},
- * {@code INVALID}, …) is a failure — same as classic Finder.</p>
+ * {@code INVALID}, …) is a failure — same as classic Finder. The preflight
+ * throw surfaces {@code Remove from staging failed} (#7056 naming decision,
+ * same as staging above).</p>
  */
 export async function removeFromStagingSelectedItem(
   item: PSPathItem,
@@ -885,11 +903,13 @@ export async function removeFromStagingSelectedItem(
   if (kind === "asset") {
     await demandPublish(
       `${paths.resourceStagingTakedown}/${encodeURIComponent(id)}`,
+      EXPLORER_MSG.BULK_UNSTAGE_FAILED,
     );
     return true;
   }
   await demandPublish(
     `${paths.pageStagingTakedown}/${encodeURIComponent(id)}`,
+    EXPLORER_MSG.BULK_UNSTAGE_FAILED,
   );
   return true;
 }
@@ -1162,7 +1182,7 @@ export async function removeFromStagingSelectedFolder(
       failures.push({
         id,
         name: stageItemLabel(child),
-        message: "missing content id",
+        message: message(EXPLORER_MSG.BATCH_MISSING_CONTENT_ID),
       });
       continue;
     }
@@ -1172,7 +1192,7 @@ export async function removeFromStagingSelectedFolder(
         failures.push({
           id,
           name: stageItemLabel(child),
-          message: "not removed",
+          message: message(EXPLORER_MSG.BATCH_NOT_REMOVED),
         });
       } else {
         removedIds.push(id);

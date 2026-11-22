@@ -26279,6 +26279,28 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.explorer@Takedown failed">
       <tuv xml:lang="en-us"><seg>Takedown failed</seg></tuv>
     </tu>
+    <!-- #7056: Explorer publish/takedown/stage/unstage batch-helper failure details (parent #4532). en-us only. -->
+    <tu tuid="perc.ui.explorer@missing content id">
+      <tuv xml:lang="en-us"><seg>missing content id</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@not published">
+      <tuv xml:lang="en-us"><seg>not published</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@publish failed">
+      <tuv xml:lang="en-us"><seg>publish failed</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@not taken down">
+      <tuv xml:lang="en-us"><seg>not taken down</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@takedown failed">
+      <tuv xml:lang="en-us"><seg>takedown failed</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@not staged">
+      <tuv xml:lang="en-us"><seg>not staged</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.explorer@not removed">
+      <tuv xml:lang="en-us"><seg>not removed</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.publish.modern@Publish Forbidden">
       <tuv xml:lang="en-us"><seg>You are not allowed to publish.</seg></tuv>
       <tuv xml:lang="ar"><seg>غير مسموح لك بالنشر.</seg></tuv>

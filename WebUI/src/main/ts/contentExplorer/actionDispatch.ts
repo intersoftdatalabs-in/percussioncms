@@ -1387,12 +1387,12 @@ async function runPublishBatch(
           ? err.message
           : status != null
             ? `HTTP ${status}`
-            : "publish failed";
+            : message(EXPLORER_MSG.BATCH_PUBLISH_FAILED);
       failures.push({
         id: (item.id ?? "").trim(),
         name: (item.name ?? item.id ?? "item").trim() || "item",
         status,
-        message: text || "publish failed",
+        message: text || message(EXPLORER_MSG.BATCH_PUBLISH_FAILED),
       });
     }
   }
@@ -1474,12 +1474,12 @@ async function runTakedownBatch(
           ? err.message
           : status != null
             ? `HTTP ${status}`
-            : "takedown failed";
+            : message(EXPLORER_MSG.BATCH_TAKEDOWN_FAILED);
       failures.push({
         id: (item.id ?? "").trim(),
         name: (item.name ?? item.id ?? "item").trim() || "item",
         status,
-        message: text || "takedown failed",
+        message: text || message(EXPLORER_MSG.BATCH_TAKEDOWN_FAILED),
       });
     }
   }
