@@ -2320,6 +2320,9 @@ for item in queue {
         work_prompt += "BEFORE any git/code work, BEFORE you add In Progress):\n";
         work_prompt += "  1) Fresh fetch: gh issue view " + inum.to_string() + " --repo " + repo
             + " --json labels,assignees,state,title,body,author\n";
+        work_prompt += "  1b) gh JSON hygiene (HARD — #6986): NEVER 2>&1 gh --json into a JSON parser"
+            + " (gh >= 2.105 stderr event-listen hint breaks json.load); use 2>/dev/null,"
+            + " -q/--jq, or python3 scripts/gh-json.py.\n";
         work_prompt += "  2) If state is not OPEN: status=skipped, summary why; do not work.\n";
         work_prompt += "  3) MAINTAINER AUTHOR GATE (maintainer_authors_only="
             + maintainer_authors_only.to_string() + "):\n";

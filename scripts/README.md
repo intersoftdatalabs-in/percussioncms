@@ -663,6 +663,29 @@ marker — so runners on other machines skip it. State: `scratch/claims.json`.
   `issues: closed` workflow does the same at close time for future merges.
 - **Tests**: `python3 -m pytest scripts/test_night_queue_claim.py` (fake `gh`).
 
+### `gh-json.py`
+
+`gh` JSON hygiene wrapper for night workers (#6986). gh 2.105.0 prints a
+multi-line `gh event listen ...` hint to **stderr** after `gh pr view` and
+related commands, so `gh ... --json ... 2>&1 | python3 -c 'json.load(...)'`
+dies with `JSONDecodeError`. This wrapper forwards `gh` stdout
+byte-identical, inherits stderr untouched (visible, never merged into the
+JSON stream), and fails loudly with the same exit code on a non-zero `gh`
+exit (`gh` missing from `PATH` is exit 127). Pure Python, so no `.cmd`
+counterpart is needed.
+
+- **Usage** (never wrap this in `2>&1` — that reintroduces the bug):
+
+  ```bash
+  python3 scripts/gh-json.py issue view 123 --json number,title,body
+  python3 scripts/gh-json.py pr view 456 --json number --jq .number
+  ```
+
+- **Rule for workers**: never merge stderr into stdout (`2>&1`) when `gh`
+  output is piped to a JSON parser. Use `2>/dev/null`, shape output with
+  `-q`/`--jq`, or use this wrapper.
+- **Tests**: `python3 -m pytest scripts/test_gh_json.py -v` (fake `gh`).
+
 ### `night-decision-front.py` / `night-decision-front.cmd`
 
 Ranks the overnight implement queue from **gh JSON label/title facts** (no live
