@@ -34,6 +34,7 @@ describe("Developer DEV_MSG i18n keys", () => {
     expect(DEV_MSG.CT_FORM_SEARCH_INDEXING).toBe("Search indexing");
     expect(DEV_MSG.CT_FORM_HIDE_FROM_MENU).toBe("Hide from menu");
     expect(DEV_MSG.CT_SI_LOAD_ERROR).toBe("Could not load search indexing. Default is on.");
+    expect(DEV_MSG.CT_SI_SAVE_ERROR).toBe("Could not save search indexing.");
     expect(DEV_MSG.CT_CONTROL_PROPS).toBe("Control property values");
     expect(DEV_MSG.CT_INCLUDE).toBe("Include system or shared field");
     expect(DEV_MSG.CT_INCLUDE_ACTION).toBe("Include field");

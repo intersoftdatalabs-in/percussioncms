@@ -1177,6 +1177,8 @@ describe("ContentTypeDetailPanel", () => {
     const box = screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement;
     expect(box.disabled).toBe(true);
     expect(box.checked).toBe(true);
+    // No load failure: no describedby reference dangles (#7083 CD-10 polish).
+    expect(box.getAttribute("aria-describedby")).toBeNull();
     fireEvent.click(box);
     expect(box.checked).toBe(true);
     expect((screen.getByTestId("developer-ct-save") as HTMLButtonElement).disabled).toBe(true);
@@ -1309,6 +1311,16 @@ describe("ContentTypeDetailPanel", () => {
       (screen.getByTestId("developer-ct-search-indexing") as HTMLInputElement).checked,
     ).toBe(true);
     expect(screen.queryByTestId("developer-ct-detail-error")).toBeNull();
+    // Screen-reader context (#7083 CD-10 polish): the checkbox names the load
+    // notice so the fallback-to-default-on state is announced on focus.
+    expect(
+      screen
+        .getByTestId("developer-ct-search-indexing")
+        .getAttribute("aria-describedby"),
+    ).toBe("developer-ct-search-indexing-load-error-text");
+    expect(
+      screen.getByTestId("developer-ct-search-indexing-load-error").getAttribute("id"),
+    ).toBe("developer-ct-search-indexing-load-error-text");
   });
 
   it("clears the held lock when search indexing PUT returns 409 (#4035 CD-10)", async () => {

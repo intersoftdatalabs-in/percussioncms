@@ -2660,6 +2660,11 @@ export function ContentTypeDetailPanel({
             type="checkbox"
             data-testid="developer-ct-search-indexing"
             aria-label={DEV_MSG.CT_FORM_SEARCH_INDEXING}
+            aria-describedby={
+              searchIndexingLoadError
+                ? "developer-ct-search-indexing-load-error-text"
+                : undefined
+            }
             checked={searchIndexing}
             onChange={() => {
               if (!canEdit) {
@@ -2673,6 +2678,7 @@ export function ContentTypeDetailPanel({
         </label>
         {searchIndexingLoadError ? (
           <span
+            id="developer-ct-search-indexing-load-error-text"
             data-testid="developer-ct-search-indexing-load-error"
             role="status"
             style={{ color: catalogColors.error, fontSize: "0.85rem" }}

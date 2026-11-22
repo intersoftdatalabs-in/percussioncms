@@ -211,6 +211,7 @@ name (bulk `PUT /services/contenttypes/{idOrName}` still does not rename).
 4. The **detail toolbar at the top of the panel** (sticky) shows **Lock**,
    **Save content type**, **Unlock**, **Export XML**, **Rename content type**,
    **Delete content type**, the **Enabled** checkbox, **Hide from menu**,
+   **Search indexing**,
    and
    **Icon strategy**. The type name and
    **Allowed templates** add/remove chrome are visible immediately (add/remove
