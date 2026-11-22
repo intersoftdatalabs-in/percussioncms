@@ -291,4 +291,60 @@ test.describe("EditorHost scheduled transitions", () => {
       expect(pageErrors).toEqual([]);
     },
   );
+
+  test(
+    "loading indicator is announced through a polite live region (#6898)",
+    { tag: ["@explorer-content-editor", "@editor", "@workflow"] },
+    async ({ page }) => {
+      const pageErrors = trackErrors(page);
+      const store = {
+        dates: {
+          itemId: "42",
+          startDate: "09/18/2026 09:00 am",
+          endDate: "09/19/2026 10:00 am",
+          comments: "",
+        },
+        posts: [],
+      };
+      await stubCommon(page, store);
+      // Hold the dates response so the transient loading state stays
+      // observable long enough to assert its live-region semantics.
+      await page.unroute("**/services/itemmanagement/item/getitemdates/**");
+      await page.route(
+        "**/services/itemmanagement/item/getitemdates/**",
+        async (route) => {
+          await new Promise((resolve) => setTimeout(resolve, 1500));
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({ ItemDates: store.dates }),
+          });
+        },
+      );
+      await page.goto(editorSpaUrl(BASE_URL, "contentId=42&mode=view"));
+      await expect(page.getByTestId(TEST_IDS.form)).toBeVisible();
+      await page.getByTestId("editor-scheduled-transitions-toggle").click();
+      const loading = page.getByTestId(
+        "editor-scheduled-transitions-loading",
+      );
+      await expect(loading).toBeVisible();
+      await expect(loading).toHaveAttribute("role", "status");
+      await expect(loading).toContainText(/loading/i);
+      await loading.screenshot({
+        path: "test-results/live-proof-6898-scheduled-transitions-loading.png",
+      });
+      // The held response resolves into the populated rows; the live
+      // region clears instead of lingering beside the results.
+      await expect(
+        page.getByTestId("editor-scheduled-transitions-list"),
+      ).toBeVisible({ timeout: 20_000 });
+      await expect(
+        page.getByTestId("editor-scheduled-transitions-loading"),
+      ).toHaveCount(0);
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="editor-scheduled-transitions"]',
+      });
+      expect(pageErrors).toEqual([]);
+    },
+  );
 });
