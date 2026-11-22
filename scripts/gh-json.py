@@ -50,6 +50,25 @@ USAGE = (
 )
 
 
+def _canonicalize_on_disk(path: str) -> str:
+    """Return ``path`` with the true on-disk filename case.
+
+    ``shutil.which`` on Windows builds the result from ``PATHEXT`` case
+    (e.g. ``gh.CMD`` for an on-disk ``gh.cmd``), so an exact-string
+    compare against the real entry fails. Re-listing the parent and
+    returning the true entry keeps ``resolve_gh`` exact on every host
+    (POSIX ``which`` already returns the exact name, so this is a
+    no-op there). Falls back to ``path`` untouched when the parent
+    cannot be listed.
+    """
+    parent, name = os.path.split(path)
+    try:
+        entries = {entry.lower(): entry for entry in os.listdir(parent or ".")}
+    except OSError:
+        return path
+    return os.path.join(parent, entries.get(name.lower(), name))
+
+
 def resolve_gh() -> str | None:
     """Resolve the ``gh`` executable honoring Windows ``PATHEXT``.
 
@@ -70,7 +89,7 @@ def resolve_gh() -> str | None:
     """
     exe = shutil.which("gh")
     if exe is not None:
-        return exe
+        return _canonicalize_on_disk(exe)
     if os.name != "nt":
         return None
     pathext = os.environ.get("PATHEXT", ".COM;.EXE;.BAT;.CMD").split(";")

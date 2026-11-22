@@ -128,6 +128,21 @@ def test_resolve_gh_honors_pathext_cmd_shim(
     assert gh_json.resolve_gh() == str(fake_cmd)
 
 
+def test_canonicalize_on_disk_restores_true_entry_case(tmp_path: Path) -> None:
+    """``_canonicalize_on_disk`` maps PATHEXT case back to on-disk case.
+
+    Windows ``shutil.which("gh")`` returns the path built with PATHEXT
+    case (``gh.CMD``) rather than the on-disk name (``gh.cmd``). This
+    proves the canonicalizer on any host by feeding it the upper-case
+    spelling directly — no ``nt`` simulation needed.
+    """
+    fake_cmd = tmp_path / "gh.cmd"
+    fake_cmd.write_text("@echo off\n", encoding="utf-8")
+    gh_json = _load_gh_json_module()
+    miscased = os.path.join(str(tmp_path), "GH.CMD")
+    assert gh_json._canonicalize_on_disk(miscased) == str(fake_cmd)
+
+
 def test_stdout_stays_pure_json_despite_stderr_hint(tmp_path: Path) -> None:
     """The gh 2.105 stderr hint must not leak into the JSON stream (#6986)."""
     env = _install_fake_gh(tmp_path)
