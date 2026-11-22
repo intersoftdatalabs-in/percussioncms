@@ -217,13 +217,16 @@ gh issue list --repo <repo> --state open \
 Cap new issues at `max_cycle_verify_residuals`. Beyond that, record
 deferred failures in the JSON but do not file.
 
-Write `scratch/cycle-verify.json`:
+Write `scratch/cycle-verify.json` (always stamp the current cycle id —
+the host passes it as `cycle_id`; the turn-closure gate rejects files
+stamping any other cycle or predating the dispatch):
 
 ```json
 {
   "phase": "cycle-verify",
   "executor": "sub-agent:cycle-verify",
   "repo": "intersoftdatalabs-in/percussioncms",
+  "cycle_id": "<current cycle id — REQUIRED since #7019>",
   "integration_tip": {
     "kind": "cluster|pr|base",
     "ref": "cluster/night-issue-...|refs/pull/456/head|origin/main",
@@ -320,6 +323,16 @@ Discover/Triage LEAD queue directly.
   and the full Playwright pass before returning — "waiting on builds" is
   not a DONE state. Return ONLY with status green (evidence) or failed
   (failures_filed URLs).
+- **No background detach (HARD — #7019).** Never start Maven or QA chains
+  with `&`, `nohup`, `setsid` (or `start /b` on Windows) and end the turn
+  while they still run — sub-agent sessions get no "background completion
+  notice", so the parent stalls with no verify JSON and no Report. Run
+  every chain in the foreground with a long tool timeout. If one tool
+  call cannot span the chain, end the chain with
+  `touch scratch/cv-<chain>.done` (sentinel) and block on it in the SAME
+  turn with `python3 scripts/night-cycle-verify-gate.py wait --sentinel
+  scratch/cv-<chain>.done --timeout 7200 --poll 15` — a timeout is blocked
+  evidence, not a silent stall.
 
 ### 9. Output
 

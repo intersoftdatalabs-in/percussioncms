@@ -78,8 +78,28 @@ absent — a missing count is `-1` (unknown), not zero.
 | 11 | PR follow-up POST | `pr-follow-up` | no PRs opened + no PRE blockers |
 | 12 | PR cluster | `pr-cluster` | `cluster_recommended` is false (known). Do **not** spawn just because owned PR count ≥ `cluster_min_prs` |
 | 13 | Security audit | `security-audit` | `open_alert_count == 0` (known zero only; `-1`/missing runs fail-open) |
-| 14 | Cycle verify | `cycle-verify` | no PR / cluster opened |
+| 14 | Cycle verify | `cycle-verify` | no PR / cluster opened (then run the turn-closure gate below — #7019) |
 | 15 | Report | (inline) | never |
+
+### Cycle-verify turn-closure gate (HARD — #7019)
+
+When dispatching `cycle-verify`, record the dispatch instant
+(`date -u +%Y-%m-%dT%H:%M:%SZ`) and pass `cycle_id: $NIGHT_CYCLE_ID` in its
+prompt. After the `cycle-verify` task returns, and before Report, run:
+
+```bash
+python3 scripts/night-cycle-verify-gate.py check \
+  --work-dir "$NIGHT_WORKTREE_PATH" --cycle-id "$NIGHT_CYCLE_ID" \
+  --dispatched-at <cycle-verify dispatch instant> \
+  --output-file <file holding the task stdout>
+```
+
+Non-zero exit = re-dispatch ONCE with an explicit "previous attempt
+returned while builds were still running — run every gate in the
+foreground this time" note. Still failing = record
+`cycle_verify: incomplete` in the report and run Report anyway
+(release-unfinished, summary/webhook) instead of going idle. Never accept
+a turn whose `scratch/cycle-verify.json` stamps another cycle.
 
 ## Sub-agent dispatch
 
