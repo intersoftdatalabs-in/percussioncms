@@ -133,7 +133,7 @@ export async function runPublishNowBatch(
     try {
       const ok = await publish(pathItemForPublishNow(id, kind));
       if (!ok) {
-        failures.push({ id, message: "not published" });
+        failures.push({ id, message: message(MSG.PUBLISH_NOW_BATCH_NOT_PUBLISHED) });
       } else {
         published.push(id);
       }

@@ -497,6 +497,7 @@ export function ItemPublishNowPanel({
         <ul
           data-testid="item-publish-now-batch-report"
           aria-label={message(MSG.PUBLISH_NOW)}
+          aria-live="polite"
           style={{ margin: "12px 0 0", paddingLeft: 18, fontSize: 13 }}
         >
           {report.map((row) => (
@@ -522,6 +523,7 @@ export function ItemPublishNowPanel({
       {success && (
         <p
           data-testid="item-publish-now-success"
+          role="status"
           style={{ color: "#166534", fontSize: 13 }}
         >
           {success}

@@ -614,6 +614,17 @@ export const MSG = {
   PUBLISH_NOW_BATCH_PARTIAL:
     "perc.ui.publish.modern@Published {saved} of {total}: {detail}",
   PUBLISH_NOW_BATCH_ITEM_OK: "perc.ui.publish.modern@publish started",
+  /**
+   * Publish-Now / Takedown batch-helper failure details — catalog-routed so
+   * session locales apply instead of hardcoded English (#7071, parent #4532).
+   * en-us defaults are byte-identical to the previous literals.
+   */
+  PUBLISH_NOW_BATCH_NOT_PUBLISHED: "perc.ui.publish.modern@not published",
+  PUBLISH_TAKEDOWN_BATCH_NOT_TAKEN_DOWN:
+    "perc.ui.publish.modern@not taken down",
+  PUBLISH_TAKEDOWN_BATCH_REVIEW_FAILED: "perc.ui.publish.modern@Review failed",
+  PUBLISH_TAKEDOWN_BATCH_RUN_FAILED:
+    "perc.ui.publish.modern@Take down failed",
   PUBLISH_NOW_RETRY_FAILED: "perc.ui.publish.modern@Retry failed",
   PUBLISH_NOW_STALE_TITLE: "perc.ui.publish.modern@Template changes pending",
   PUBLISH_NOW_STALE_UNSAVED:

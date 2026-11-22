@@ -23663,6 +23663,15 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
       <tuv xml:lang="en-us"><seg>Open Status</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Open Logs">
       <tuv xml:lang="en-us"><seg>Open Logs</seg></tuv></tu>
+    <!-- #7071: Publish-Now/Takedown batch-helper failure details (parent #4532). en-us only. -->
+    <tu tuid="perc.ui.publish.modern@not published">
+      <tuv xml:lang="en-us"><seg>not published</seg></tuv></tu>
+    <tu tuid="perc.ui.publish.modern@not taken down">
+      <tuv xml:lang="en-us"><seg>not taken down</seg></tuv></tu>
+    <tu tuid="perc.ui.publish.modern@Review failed">
+      <tuv xml:lang="en-us"><seg>Review failed</seg></tuv></tu>
+    <tu tuid="perc.ui.publish.modern@Take down failed">
+      <tuv xml:lang="en-us"><seg>Take down failed</seg></tuv></tu>
     <tu tuid="perc.ui.publishing.history@Error Fetching History">
       <tuv xml:lang="en-us"><seg>Error fetching publishing history for:</seg></tuv>
       <tuv xml:lang="ar"><seg>حدث خطأ أثناء جلب سجل النشر لـ:</seg></tuv>

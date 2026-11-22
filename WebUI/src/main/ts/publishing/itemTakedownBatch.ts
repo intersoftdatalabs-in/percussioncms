@@ -168,7 +168,10 @@ export async function reviewTakedownBatch(
       reviewed.push({ id, linked: await loadLinked(id) });
     } catch (err: unknown) {
       reviewed.push({ id, linked: [] });
-      failures.push({ id, message: failureMessage(err, "Review failed") });
+      failures.push({
+        id,
+        message: failureMessage(err, message(MSG.PUBLISH_TAKEDOWN_BATCH_REVIEW_FAILED)),
+      });
     }
   }
   return { total: ids.length, reviewed, failures };
@@ -195,12 +198,15 @@ export async function runTakedownBatch(
         linkedById[id] ?? [],
       );
       if (!ok) {
-        failures.push({ id, message: "not taken down" });
+        failures.push({ id, message: message(MSG.PUBLISH_TAKEDOWN_BATCH_NOT_TAKEN_DOWN) });
       } else {
         takenDown.push(id);
       }
     } catch (err: unknown) {
-      failures.push({ id, message: failureMessage(err, "Take down failed") });
+      failures.push({
+        id,
+        message: failureMessage(err, message(MSG.PUBLISH_TAKEDOWN_BATCH_RUN_FAILED)),
+      });
     }
   }
   return { total: ids.length, takenDown, failures };
