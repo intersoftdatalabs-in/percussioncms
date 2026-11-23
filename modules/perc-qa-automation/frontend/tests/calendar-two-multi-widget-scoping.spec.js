@@ -178,7 +178,9 @@ function expectQuiet(noise) {
 }
 
 test.describe("calendarTwo multi-widget filter scoping (issue #7034)", () => {
-  test("two instances share no ids and toggle independently", async ({
+  test("two instances share no ids and toggle independently",
+    { tag: ["@static"] },
+    async ({
     page,
   }) => {
     test.setTimeout(90_000);
@@ -263,7 +265,9 @@ test.describe("calendarTwo multi-widget filter scoping (issue #7034)", () => {
     expectQuiet(noise);
   });
 
-  test("keyboard path toggles per instance without disturbing the other", async ({
+  test("keyboard path toggles per instance without disturbing the other",
+    { tag: ["@static"] },
+    async ({
     page,
   }) => {
     test.setTimeout(90_000);

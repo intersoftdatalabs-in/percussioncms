@@ -937,7 +937,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
 
   test(
     "classic template JSP mirrors load the same npm bundle",
-    { tag: ["@explorer-content-editor", "@editor"] },
+    { tag: ["@explorer-content-editor", "@editor", "@static"] },
     async () => {
       // No live CMS needed: static dual-ship consistency. A stale mirror
       // pointing at the removed per-file layout would 404 its CodeMirror
@@ -974,7 +974,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
 
   test(
     "sys_TextArea code-editor control loads the same npm bundle",
-    { tag: ["@explorer-content-editor", "@editor"] },
+    { tag: ["@explorer-content-editor", "@editor", "@static"] },
     async () => {
       // No live CMS needed: static pin for issue #6362 (slice 2/3). The
       // sys_TextArea code-editor is the remaining classic page-edit dialog
@@ -1009,7 +1009,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
 
   test(
     "sys_TextArea code editor shows find/replace legend and line numbers",
-    { tag: ["@explorer-content-editor", "@editor"] },
+    { tag: ["@explorer-content-editor", "@editor", "@static"] },
     async () => {
       // No live CMS needed: static pin for issue #6465. The template
       // editor source-view (sys_TextArea with codeeditor=yes) keeps
@@ -1060,7 +1060,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
 
   test(
     "sys_TextArea code editor enables validation markers before save",
-    { tag: ["@explorer-content-editor", "@editor"] },
+    { tag: ["@explorer-content-editor", "@editor", "@static"] },
     async () => {
       // No live CMS needed: static pin for issue #6466. The template
       // editor source-view (sys_TextArea with codeeditor=yes) turns the
@@ -1126,7 +1126,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
 
   test(
     "sys_TextArea codeeditor_mode takes effect with a lint-safe fallback",
-    { tag: ["@explorer-content-editor", "@editor"] },
+    { tag: ["@explorer-content-editor", "@editor", "@static"] },
     async () => {
       // No live CMS needed: static pin for issue #6528. The codeeditor_mode
       // param used to be dead (read into $codeeditor_mode but never
@@ -1196,7 +1196,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
 
   test(
     "sys_TextArea code editor offers persisted dark-mode and font-size prefs",
-    { tag: ["@explorer-content-editor", "@editor"] },
+    { tag: ["@explorer-content-editor", "@editor", "@static"] },
     async () => {
       // No live CMS needed: static pin for issue #6467. The template
       // editor source-view (sys_TextArea with codeeditor=yes) renders a
@@ -1244,7 +1244,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
 
   test(
     "sys_TextArea code editor legend resolves display strings through TMX",
-    { tag: ["@explorer-content-editor", "@editor"] },
+    { tag: ["@explorer-content-editor", "@editor", "@static"] },
     async () => {
       // No live CMS needed: static pin for issue #6903. The codeeditor
       // legend block rendered hardcoded English (shortcut legend, Mode
@@ -1361,7 +1361,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
 
   test(
     "classic template metadata dialog reads CodeMirror values safely",
-    { tag: ["@explorer-content-editor", "@editor"] },
+    { tag: ["@explorer-content-editor", "@editor", "@static"] },
     async () => {
       // No live CMS needed: static pin for the #5626 metadata-dialog
       // hardening slice. Save must read each code field through the
@@ -1532,7 +1532,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
 
   test(
     "CodeMirror stays npm-tracked: no WebJar, no unpack, no version freeze",
-    { tag: ["@explorer-content-editor", "@editor"] },
+    { tag: ["@explorer-content-editor", "@editor", "@static"] },
     async () => {
       // No live CMS needed: static build-manifest lock for issue #6363
       // acceptance (no `codemirror` WebJar reference in any pom.xml, no
@@ -1593,7 +1593,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
 
   test(
     "TinyMCE-hosted CodeMirror layout stays detached: no orphaned references",
-    { tag: ["@explorer-content-editor", "@editor"] },
+    { tag: ["@explorer-content-editor", "@editor", "@static"] },
     async () => {
       // No live CMS needed: static detach lock for issue #5746 (gate lifted
       // by #5733 + #5734, both merged). The TinyMCE/classic surfaces that
@@ -1631,7 +1631,7 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
 
   test(
     "sys_TextArea code editor degrades gracefully when the bundle is missing",
-    { tag: ["@explorer-content-editor", "@editor"] },
+    { tag: ["@explorer-content-editor", "@editor", "@static"] },
     async () => {
       // No live CMS needed: static pin for issue #6902. The sys_TextArea
       // code-editor must not call CodeMirror.fromTextArea unconditionally:

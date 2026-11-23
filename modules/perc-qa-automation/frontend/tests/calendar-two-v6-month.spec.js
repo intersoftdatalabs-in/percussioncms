@@ -81,7 +81,9 @@ function harnessHtml() {
 }
 
 test.describe("calendarTwo v6 month render (issue #6919 slice 1)", () => {
-  test("month grid, events, title, destroy/re-init and fr locale render with zero console errors", async ({
+  test("month grid, events, title, destroy/re-init and fr locale render with zero console errors",
+    { tag: ["@static"] },
+    async ({
     page,
   }) => {
     test.setTimeout(90_000);

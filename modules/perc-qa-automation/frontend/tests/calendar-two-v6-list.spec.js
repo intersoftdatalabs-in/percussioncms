@@ -422,7 +422,9 @@ function expectQuiet(noise) {
 }
 
 test.describe("calendarTwo v6 list/toggle/print/mini parity (issue #6978)", () => {
-  test("list-view render + toggle round-trip with loading row and aria-pressed sync", async ({
+  test("list-view render + toggle round-trip with loading row and aria-pressed sync",
+    { tag: ["@static"] },
+    async ({
     page,
   }) => {
     test.setTimeout(90_000);
@@ -524,7 +526,9 @@ test.describe("calendarTwo v6 list/toggle/print/mini parity (issue #6978)", () =
     expectQuiet(noise);
   });
 
-  test("list-view empty state replaces the loading row", async ({ page }) => {
+  test("list-view empty state replaces the loading row",
+    { tag: ["@static"] },
+    async ({ page }) => {
     test.setTimeout(90_000);
     const noise = [];
     listenForNoise(page, noise);
@@ -565,7 +569,9 @@ test.describe("calendarTwo v6 list/toggle/print/mini parity (issue #6978)", () =
     expectQuiet(noise);
   });
 
-  test("print-media emulation hides chrome and flattens events", async ({
+  test("print-media emulation hides chrome and flattens events",
+    { tag: ["@static"] },
+    async ({
     page,
   }) => {
     test.setTimeout(90_000);
@@ -613,7 +619,9 @@ test.describe("calendarTwo v6 list/toggle/print/mini parity (issue #6978)", () =
     expectQuiet(noise);
   });
 
-  test("mini-calendar highlight hook + fullCalendarPage link contract", async ({
+  test("mini-calendar highlight hook + fullCalendarPage link contract",
+    { tag: ["@static"] },
+    async ({
     page,
   }) => {
     test.setTimeout(90_000);

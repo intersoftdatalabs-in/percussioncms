@@ -154,6 +154,40 @@ this entry keeps `@profile` on the overnight extended matrix (#2498).
 (use freeport `TEST_CMS_URL` from `qa-up`). Do **not** replace `test:golden` with the
 full suite; use path/tag/`test:golden-extended` only.
 
+#### Static pins (`@static` — no live CMS, runs in PR CI) (#7133)
+
+Many Playwright specs carry **static pins**: tests that `fs.readFileSync`
+repo sources and assert on their contents (dual-ship mirrors, npm-bundle
+references, TMX registrations, snippet defaults) with no live CMS. PR CI
+(`.github/workflows/h2-qa-playwright.yml`, job **QA wiring**) runs them via
+
+```bash
+cd modules/perc-qa-automation/frontend
+npm run test:surface -- --tag static
+# raw Playwright form: npx playwright test --grep "@static"
+```
+
+Run it with a clean surface environment: `run-surface` merges `SURFACE_PATH`
+/ `SURFACE_GREP` / `SURFACE_TAG` from the environment with the CLI tag, so an
+inherited `SURFACE_PATH` (e.g. the CI wiring job's `tests/login.spec.js`
+default) would scope the run to one file and find zero `@static` tests. PR CI
+uses a dedicated step with no `SURFACE_*` env for exactly this reason.
+
+**Convention (HARD):** a test that needs no live CMS must carry the `@static`
+tag (alongside its surface tags) so PR CI executes it. Two flavors qualify:
+
+| Flavor | Fixtures | Example |
+|--------|----------|---------|
+| Pure repo-source pin | none (`async () =>`) — `fs`/`path` reads + `expect` only | `editor-codemirror-bundle.spec.js` dual-ship/TMX pins |
+| Hermetic render | `page` via `setContent` only — never `loginAs*`, never `BASE_URL`, never `page.goto(http…)` | `calendar-two-*-i18n.spec.js` snippet renders |
+
+**Hard bans:** no `loginAs*` / `BASE_URL` / network navigation inside an
+`@static` test; no file-level `test.skip` or `beforeEach` login gating the
+file that would silently skip the tagged tests without a CMS (keep such
+files' static coverage in `tests/unit/*.test.js`, which PR CI already runs
+via `npm run test:unit`). When in doubt, run the tagged set with no CMS
+before pushing — a skipped `@static` test is a defect, not coverage.
+
 #### Stale matrix image — fail-fast on `--skip-image-build` (#2484)
 
 `perc-devctl qa-up` waits on Docker `Health.Status=healthy` for the matrix

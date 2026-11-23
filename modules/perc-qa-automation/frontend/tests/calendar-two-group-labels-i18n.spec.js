@@ -145,7 +145,9 @@ function prefDefaults() {
 }
 
 test.describe("calendarTwo group labels are preference-driven (#7030)", () => {
-  test("defaults preserve the pre-existing English output", async () => {
+  test("defaults preserve the pre-existing English output",
+    { tag: ["@static"] },
+    async () => {
     const defaults = prefDefaults();
     expect(defaults["perc_source_filter_group_label"]).toBe(
       "Calendar sources",
@@ -171,7 +173,9 @@ test.describe("calendarTwo group labels are preference-driven (#7030)", () => {
     );
   });
 
-  test("French override reaches both groups intact, quotes survive", async ({
+  test("French override reaches both groups intact, quotes survive",
+    { tag: ["@static"] },
+    async ({
     page,
   }) => {
     test.setTimeout(60_000);

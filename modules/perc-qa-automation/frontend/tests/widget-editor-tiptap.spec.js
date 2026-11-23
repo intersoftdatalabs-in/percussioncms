@@ -65,7 +65,7 @@ function readRepo(rel) {
 test.describe("Delivered widget TipTap editor (issues #5901, #5854)", () => {
   test(
     "widget packages load the TipTap triad with no sys_resources/tinymce",
-    { tag: ["@editor", "@widget-editor"] },
+    { tag: ["@editor", "@widget-editor", "@static"] },
     async () => {
       // No live CMS needed: static shipped-artifact consistency. A stale
       // copy (the #5950 failure mode) or a reintroduced TinyMCE script
@@ -218,7 +218,7 @@ test.describe("Delivered widget TipTap editor (issues #5901, #5854)", () => {
 
   test(
     "classic sys_tinymce control stays frozen and is marked deprecated",
-    { tag: ["@editor", "@widget-editor"] },
+    { tag: ["@editor", "@widget-editor", "@static"] },
     async () => {
       // No live CMS needed. Per the #5874 owner decision the classic
       // control is frozen (FileDescriptors unchanged) with a deprecation

@@ -174,7 +174,9 @@ function expectQuiet(noise) {
 }
 
 test.describe("calendarTwo source-filter keyboard path (issue #6992)", () => {
-  test("Tab reaches both filters; Enter/Space toggle layers with aria-pressed sync", async ({
+  test("Tab reaches both filters; Enter/Space toggle layers with aria-pressed sync",
+    { tag: ["@static"] },
+    async ({
     page,
   }) => {
     test.setTimeout(90_000);
@@ -258,7 +260,9 @@ test.describe("calendarTwo source-filter keyboard path (issue #6992)", () => {
     expectQuiet(noise);
   });
 
-  test("mouse click reaches the same state as the keyboard path", async ({
+  test("mouse click reaches the same state as the keyboard path",
+    { tag: ["@static"] },
+    async ({
     page,
   }) => {
     test.setTimeout(90_000);
@@ -298,7 +302,9 @@ test.describe("calendarTwo source-filter keyboard path (issue #6992)", () => {
     expectQuiet(noise);
   });
 
-  test("two widgets on one page bind once each; click syncs the clicked instance", async ({
+  test("two widgets on one page bind once each; click syncs the clicked instance",
+    { tag: ["@static"] },
+    async ({
     page,
   }) => {
     test.setTimeout(90_000);
