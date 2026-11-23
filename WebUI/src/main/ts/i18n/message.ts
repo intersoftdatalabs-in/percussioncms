@@ -39,16 +39,35 @@ declare global {
 /**
  * Human-readable fallback when TMX is not loaded.
  * Percussion keys often look like {@code perc.ui.home.modern@Home} — use text after {@code @}.
+ *
+ * <p>Positional {@code {0}}, {@code {1}}, … tokens are interpolated from
+ * {@code args} (same positional convention as the server-side
+ * {@code ___psxReplaceMsgTokens} in {@code tmx.jsp}), so a missing catalog
+ * entry for a parameterized key (e.g. {@code ...@Unknown file driver: {0}},
+ * issue #7106) still renders the argument instead of a literal {@code {0}}.
+ * Indices with no corresponding argument are left intact.</p>
  */
-export function fallbackLabelFromKey(key: string): string {
+export function fallbackLabelFromKey(key: string, args?: unknown[]): string {
+  let label: string;
   if (!key) {
     return "";
   }
   const at = key.lastIndexOf("@");
   if (at >= 0 && at < key.length - 1) {
-    return key.slice(at + 1);
+    label = key.slice(at + 1);
+  } else {
+    label = key;
   }
-  return key;
+  if (args == null || args.length === 0) {
+    return label;
+  }
+  return label.replace(/\{(\d+)\}/g, (token, index: string) => {
+    const i = Number(index);
+    if (i < args.length && args[i] != null) {
+      return String(args[i]);
+    }
+    return token;
+  });
 }
 
 /**
@@ -61,15 +80,24 @@ export function resolveMessage(key: string, args?: unknown[]): string {
       const resolved = args != null ? i18n.message(key, args) : i18n.message(key);
       // Real translation: non-empty and not an echo of the catalog key
       if (typeof resolved === "string" && resolved.trim() && resolved !== key) {
+        // Server trims missing keys to the text after @ WITHOUT substituting
+        // args (tmx.jsp ___psxTrimKey). When the "translation" is exactly that
+        // uninterpolated fallback, interpolate here so a stale catalog that
+        // lacks the TU still renders args instead of a literal {0} (#7106).
+        // A genuine translation that already substituted args differs from the
+        // plain fallback, so this never double-substitutes.
+        if (args != null && resolved === fallbackLabelFromKey(key)) {
+          return fallbackLabelFromKey(key, args);
+        }
         return resolved;
       }
-      // Missing key / empty stub / key echo → human text after @
-      return fallbackLabelFromKey(key);
+      // Missing key / empty stub / key echo → human text after @ (args interpolated, #7106)
+      return fallbackLabelFromKey(key, args);
     } catch {
-      return fallbackLabelFromKey(key);
+      return fallbackLabelFromKey(key, args);
     }
   }
-  return fallbackLabelFromKey(key);
+  return fallbackLabelFromKey(key, args);
 }
 
 const tracked = createTrackedMessage((key, args) => resolveMessage(key, args));
