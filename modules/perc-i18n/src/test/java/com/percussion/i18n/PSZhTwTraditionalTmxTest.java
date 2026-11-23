@@ -44,15 +44,19 @@ import org.xml.sax.InputSource;
  *
  * <p>The {@code zh-tw} catalog was repaired by converting every
  * byte-identical {@code zh-cn} / {@code zh-tw} pair with OpenCC
- * {@code s2twp} (see {@code scripts/repair_zh_tw_takedown.py}). This test
+ * {@code s2tw} (script-only; see {@code scripts/repair_zh_tw_takedown.py}).
+ * An earlier pass used {@code s2twp}, whose Taiwan phrase substitutions
+ * (项目→專案, 发布→釋出) changed meaning where 项目 means "item" and
+ * 发布 means "publish"; those were reverted to the {@code s2tw} forms
+ * (#7145 review). This test
  * fails when a {@code zh-tw} segment still equals its {@code zh-cn} source
  * <em>and</em> contains a Simplified-only character, which is exactly what
  * a machine back-fill reintroduces (the engine copies Simplified script
  * into both tags).
  *
  * <p>{@link #SIMPLIFIED_ONLY} is a curated allowlist derived from the
- * pre-fix catalog: every character OpenCC {@code s2twp} rewrites at the
- * single-character level, minus every character that still appears in the
+ * pre-fix catalog: every character OpenCC {@code s2tw} rewrites at the
+ * single-character level (identical to {@code s2twp}'s character table), minus every character that still appears in the
  * repaired {@code zh-tw} corpus (so context-dependent survivals such as
  * {@code 台} in {@code 台灣}, and script-neutral characters, can never
  * false-positive). Measured coverage on the pre-fix catalog: 2,387 of the

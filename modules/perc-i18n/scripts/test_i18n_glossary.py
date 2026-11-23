@@ -181,6 +181,20 @@ class RepairPlanTest(unittest.TestCase):
             '{0} items {1}', '{0} items {1}', 'w', problems))
         self.assertEqual(problems, [])
 
+    @unittest.skipUnless(HAS_OPENCC, 'opencc package not installed')
+    def test_converter_is_script_only_no_taiwan_phrases(self):
+        # #7145 review: s2twp's Taiwan phrase substitutions (项目→專案,
+        # 发布→釋出) change meaning where 项目 means "item" and 发布 means
+        # "publish". The repair converter must be script-only, with
+        # OpenCC's 發佈 normalized to the catalog convention 發布 (#7116).
+        convert = repair._converter()
+        self.assertEqual(convert('过滤项目'), '過濾項目')
+        self.assertEqual(convert('发布失败'), '發布失敗')
+        self.assertEqual(convert('文件'), '文件')
+        self.assertNotIn('專案', convert('过滤项目'))
+        self.assertNotIn('釋出', convert('发布失败'))
+        self.assertNotIn('發佈', convert('发布失败'))
+
 
 if __name__ == '__main__':
     unittest.main()

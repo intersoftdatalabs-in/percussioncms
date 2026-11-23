@@ -2910,7 +2910,7 @@
       <tuv xml:lang="it"><seg>Filtri degli articoli</seg></tuv>
       <tuv xml:lang="nl"><seg>Artikelfilters</seg></tuv>
       <tuv xml:lang="te"><seg>అంశం ఫిల్టర్లు</seg></tuv>
-      <tuv xml:lang="zh-tw"><seg>專案過濾器</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>項目過濾器</seg></tuv>
     <tuv xml:lang="ru"><seg>Фильтры предметов</seg></tuv><tuv xml:lang="he"><seg>מסנני פריט</seg></tuv><tuv xml:lang="uk"><seg>Фільтри предметів</seg></tuv><tuv xml:lang="lou"><seg>Item Filters</seg></tuv><tuv xml:lang="pl"><seg>Filtry przedmiotów</seg></tuv><tuv xml:lang="tr"><seg>Öğe Filtreleri</seg></tuv><tuv xml:lang="de"><seg>Artikelfilter</seg></tuv><tuv xml:lang="zh-cn"><seg>项目过滤器</seg></tuv><tuv xml:lang="ja-jp"><seg>アイテムフィルター</seg></tuv><tuv xml:lang="nb"><seg>Elementfiltre</seg></tuv><tuv xml:lang="pt"><seg>Filtros de itens</seg></tuv><tuv xml:lang="sv"><seg>Objektfilter</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Loading item filters…">
       <tuv xml:lang="en-us"><seg>Loading item filters…</seg></tuv>
@@ -2922,7 +2922,7 @@
       <tuv xml:lang="it"><seg>Caricamento filtri articolo…</seg></tuv>
       <tuv xml:lang="nl"><seg>Artikelfilters laden…</seg></tuv>
       <tuv xml:lang="te"><seg>ఐటెమ్ ఫిల్టర్‌లను లోడ్ చేస్తోంది...</seg></tuv>
-      <tuv xml:lang="zh-tw"><seg>正在載入專案過濾器...</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>正在載入項目過濾器...</seg></tuv>
     <tuv xml:lang="ru"><seg>Загрузка фильтров товаров…</seg></tuv><tuv xml:lang="he"><seg>טוען מסנני פריט...</seg></tuv><tuv xml:lang="uk"><seg>Завантаження фільтрів елементів…</seg></tuv><tuv xml:lang="lou"><seg>Chajman item filters…</seg></tuv><tuv xml:lang="pl"><seg>Ładowanie filtrów elementów…</seg></tuv><tuv xml:lang="tr"><seg>Öğe filtreleri yükleniyor…</seg></tuv><tuv xml:lang="de"><seg>Artikelfilter werden geladen…</seg></tuv><tuv xml:lang="zh-cn"><seg>正在加载项目过滤器...</seg></tuv><tuv xml:lang="ja-jp"><seg>アイテムフィルターを読み込み中…</seg></tuv><tuv xml:lang="nb"><seg>Laster inn elementfiltre …</seg></tuv><tuv xml:lang="pt"><seg>Carregando filtros de itens…</seg></tuv><tuv xml:lang="sv"><seg>Laddar objektfilter...</seg></tuv></tu>
     <tu tuid="perc.ui.developer@No item filters returned.">
       <tuv xml:lang="en-us"><seg>No item filters returned.</seg></tuv>
@@ -2934,7 +2934,7 @@
       <tuv xml:lang="it"><seg>Nessun filtro articolo restituito.</seg></tuv>
       <tuv xml:lang="nl"><seg>Er zijn geen artikelfilters geretourneerd.</seg></tuv>
       <tuv xml:lang="te"><seg>ఐటెమ్ ఫిల్టర్‌లు ఏవీ తిరిగి ఇవ్వబడలేదు.</seg></tuv>
-      <tuv xml:lang="zh-tw"><seg>沒有返回專案過濾器。</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>沒有返回項目過濾器。</seg></tuv>
     <tuv xml:lang="ru"><seg>Фильтры товаров не возвращены.</seg></tuv><tuv xml:lang="he"><seg>לא הוחזרו מסנני פריטים.</seg></tuv><tuv xml:lang="uk"><seg>Фільтри елементів не повернуто.</seg></tuv><tuv xml:lang="lou"><seg>Non item filters returned.</seg></tuv><tuv xml:lang="pl"><seg>Nie zwrócono żadnych filtrów elementów.</seg></tuv><tuv xml:lang="tr"><seg>Hiçbir öğe filtresi döndürülmedi.</seg></tuv><tuv xml:lang="de"><seg>Es wurden keine Artikelfilter zurückgegeben.</seg></tuv><tuv xml:lang="zh-cn"><seg>没有返回项目过滤器。</seg></tuv><tuv xml:lang="ja-jp"><seg>アイテムフィルターは返されませんでした。</seg></tuv><tuv xml:lang="nb"><seg>Ingen varefiltre ble returnert.</seg></tuv><tuv xml:lang="pt"><seg>Nenhum filtro de item foi retornado.</seg></tuv><tuv xml:lang="sv"><seg>Inga objektfilter returnerades.</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Could not load item filters.">
       <tuv xml:lang="en-us"><seg>Could not load item filters.</seg></tuv>
@@ -2946,7 +2946,7 @@
       <tuv xml:lang="it"><seg>Impossibile caricare i filtri degli articoli.</seg></tuv>
       <tuv xml:lang="nl"><seg>Kan itemfilters niet laden.</seg></tuv>
       <tuv xml:lang="te"><seg>అంశం ఫిల్టర్‌లను లోడ్ చేయడం సాధ్యపడలేదు.</seg></tuv>
-      <tuv xml:lang="zh-tw"><seg>無法載入專案過濾器。</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>無法載入項目過濾器。</seg></tuv>
     <tuv xml:lang="ru"><seg>Не удалось загрузить фильтры элементов.</seg></tuv><tuv xml:lang="he"><seg>לא ניתן לטעון מסנני פריט.</seg></tuv><tuv xml:lang="uk"><seg>Не вдалося завантажити фільтри елементів.</seg></tuv><tuv xml:lang="lou"><seg>Could pa load item filters.</seg></tuv><tuv xml:lang="pl"><seg>Nie można wczytać filtrów elementów.</seg></tuv><tuv xml:lang="tr"><seg>Öğe filtreleri yüklenemedi.</seg></tuv><tuv xml:lang="de"><seg>Artikelfilter konnten nicht geladen werden.</seg></tuv><tuv xml:lang="zh-cn"><seg>无法加载项目过滤器。</seg></tuv><tuv xml:lang="ja-jp"><seg>アイテムフィルターをロードできませんでした。</seg></tuv><tuv xml:lang="nb"><seg>Kunne ikke laste inn elementfiltre.</seg></tuv><tuv xml:lang="pt"><seg>Não foi possível carregar filtros de itens.</seg></tuv><tuv xml:lang="sv"><seg>Det gick inte att läsa in objektfilter.</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Assembly item filters (rules applied when resolving related content). Open a row for rules and parent linkage. Create/edit is a later slice.">
       <tuv xml:lang="en-us"><seg>Assembly item filters (rules applied when resolving related content). Open a row for rules and parent linkage. Create/edit is a later slice.</seg></tuv>
@@ -2958,7 +2958,7 @@
       <tuv xml:lang="it"><seg>Filtri degli elementi dell'assieme (regole applicate durante la risoluzione del contenuto correlato). Apri una riga per le regole e il collegamento genitore. Crea/modifica è una sezione successiva.</seg></tuv>
       <tuv xml:lang="nl"><seg>Assemblage-itemfilters (regels die worden toegepast bij het oplossen van gerelateerde inhoud). Open een rij voor regels en bovenliggende koppelingen. Maken/bewerken is een later segment.</seg></tuv>
       <tuv xml:lang="te"><seg>అసెంబ్లీ ఐటెమ్ ఫిల్టర్‌లు (సంబంధిత కంటెంట్‌ని పరిష్కరించేటప్పుడు నియమాలు వర్తిస్తాయి). నియమాలు మరియు పేరెంట్ లింకేజీ కోసం అడ్డు వరుసను తెరవండి. సృష్టించు/సవరించు అనేది తర్వాత స్లైస్.</seg></tuv>
-      <tuv xml:lang="zh-tw"><seg>程式集專案過濾器（解析相關內容時應用的規則）。開啟一行用於規則和父級連結。建立/編輯是稍後的切片。</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>程式集項目過濾器（解析相關內容時應用的規則）。開啟一行用於規則和父級連結。建立/編輯是稍後的切片。</seg></tuv>
     <tuv xml:lang="ru"><seg>Фильтры элементов сборки (правила, применяемые при разрешении связанного содержимого). Откройте строку для правил и родительской связи. Создание/редактирование — это более поздний фрагмент.</seg></tuv><tuv xml:lang="he"><seg>מסנני פריטי הרכבה (הכללים החלים בעת פתרון תוכן קשור). פתח שורה עבור כללים והצמדת הורה. יצירה/עריכה היא פרוסה מאוחרת יותר.</seg></tuv><tuv xml:lang="uk"><seg>Фільтри елементів складання (правила, що застосовуються під час вирішення пов’язаного вмісту). Відкрийте рядок для правил і батьківського зв’язку. Створення/редагування є пізнішим фрагментом.</seg></tuv><tuv xml:lang="lou"><seg>Assembly item filters (rules applied when resolving related kontni). Ouvri yon row pou rules épi parent linkage. Create/edit sé yon later slice.</seg></tuv><tuv xml:lang="pl"><seg>Filtry elementów zestawu (reguły stosowane podczas rozwiązywania powiązanych treści). Otwórz wiersz dla reguł i powiązań nadrzędnych. Tworzenie/edytowanie to późniejszy fragment.</seg></tuv><tuv xml:lang="tr"><seg>Montaj öğesi filtreleri (ilgili içerik çözümlenirken uygulanan kurallar). Kurallar ve üst bağlantı için bir satır açın. Oluşturma/düzenleme daha sonraki bir dilimdir.</seg></tuv><tuv xml:lang="de"><seg>Filter für Baugruppenelemente (Regeln, die beim Auflösen verwandter Inhalte angewendet werden). Öffnen Sie eine Zeile für Regeln und übergeordnete Verknüpfungen. Erstellen/Bearbeiten ist ein späteres Segment.</seg></tuv><tuv xml:lang="zh-cn"><seg>程序集项目过滤器（解析相关内容时应用的规则）。打开一行用于规则和父级链接。创建/编辑是稍后的切片。</seg></tuv><tuv xml:lang="ja-jp"><seg>アセンブリ項目フィルター (関連コンテンツを解決するときに適用されるルール)。ルールと親リンクの行を開きます。作成/編集は後のスライスです。</seg></tuv><tuv xml:lang="nb"><seg>Monteringselementfiltre (regler som brukes ved løsning av relatert innhold). Åpne en rad for regler og overordnet kobling. Opprett/rediger er en senere del.</seg></tuv><tuv xml:lang="pt"><seg>Filtros de itens de montagem (regras aplicadas ao resolver conteúdo relacionado). Abra uma linha para regras e vinculação pai. Criar/editar é uma fatia posterior.</seg></tuv><tuv xml:lang="sv"><seg>Filter för monteringsobjekt (regler som tillämpas vid lösning av relaterat innehåll). Öppna en rad för regler och överordnad länkning. Skapa/redigera är en senare del.</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Parent filter">
       <tuv xml:lang="en-us"><seg>Parent filter</seg></tuv>
@@ -2982,7 +2982,7 @@
       <tuv xml:lang="it"><seg>Caricamento filtro articolo…</seg></tuv>
       <tuv xml:lang="nl"><seg>Artikelfilter laden…</seg></tuv>
       <tuv xml:lang="te"><seg>ఐటెమ్ ఫిల్టర్ లోడ్ అవుతోంది...</seg></tuv>
-      <tuv xml:lang="zh-tw"><seg>正在載入專案過濾器...</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>正在載入項目過濾器...</seg></tuv>
     <tuv xml:lang="ru"><seg>Загрузка фильтра товаров…</seg></tuv><tuv xml:lang="he"><seg>טוען מסנן פריט...</seg></tuv><tuv xml:lang="uk"><seg>Завантаження фільтра елементів…</seg></tuv><tuv xml:lang="lou"><seg>Chajman item filter…</seg></tuv><tuv xml:lang="pl"><seg>Ładowanie filtra elementów…</seg></tuv><tuv xml:lang="tr"><seg>Öğe filtresi yükleniyor…</seg></tuv><tuv xml:lang="de"><seg>Artikelfilter wird geladen…</seg></tuv><tuv xml:lang="zh-cn"><seg>正在加载项目过滤器...</seg></tuv><tuv xml:lang="ja-jp"><seg>アイテムフィルターを読み込み中…</seg></tuv><tuv xml:lang="nb"><seg>Laster elementfilter …</seg></tuv><tuv xml:lang="pt"><seg>Carregando filtro de item…</seg></tuv><tuv xml:lang="sv"><seg>Laddar objektfilter...</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Could not load item filter.">
       <tuv xml:lang="en-us"><seg>Could not load item filter.</seg></tuv>
@@ -2994,7 +2994,7 @@
       <tuv xml:lang="it"><seg>Impossibile caricare il filtro degli elementi.</seg></tuv>
       <tuv xml:lang="nl"><seg>Kan itemfilter niet laden.</seg></tuv>
       <tuv xml:lang="te"><seg>అంశం ఫిల్టర్‌ను లోడ్ చేయడం సాధ్యపడలేదు.</seg></tuv>
-      <tuv xml:lang="zh-tw"><seg>無法載入專案過濾器。</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>無法載入項目過濾器。</seg></tuv>
     <tuv xml:lang="ru"><seg>Не удалось загрузить фильтр товаров.</seg></tuv><tuv xml:lang="he"><seg>לא ניתן לטעון את מסנן הפריטים.</seg></tuv><tuv xml:lang="uk"><seg>Не вдалося завантажити фільтр елементів.</seg></tuv><tuv xml:lang="lou"><seg>Could pa load item filter.</seg></tuv><tuv xml:lang="pl"><seg>Nie można wczytać filtra elementów.</seg></tuv><tuv xml:lang="tr"><seg>Öğe filtresi yüklenemedi.</seg></tuv><tuv xml:lang="de"><seg>Artikelfilter konnte nicht geladen werden.</seg></tuv><tuv xml:lang="zh-cn"><seg>无法加载项目过滤器。</seg></tuv><tuv xml:lang="ja-jp"><seg>アイテムフィルターを読み込めませんでした。</seg></tuv><tuv xml:lang="nb"><seg>Kunne ikke laste elementfilteret.</seg></tuv><tuv xml:lang="pt"><seg>Não foi possível carregar o filtro de item.</seg></tuv><tuv xml:lang="sv"><seg>Det gick inte att läsa in objektfiltret.</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Legacy authtype">
       <tuv xml:lang="en-us"><seg>Legacy authtype</seg></tuv>
@@ -3054,7 +3054,7 @@
       <tuv xml:lang="it"><seg>Creazione/aggiornamento/eliminazione del filtro elemento non supportato tramite questa API</seg></tuv>
       <tuv xml:lang="nl"><seg>Artikelfilter maken/bijwerken/verwijderen wordt niet ondersteund via deze API</seg></tuv>
       <tuv xml:lang="te"><seg>ఐటెమ్ ఫిల్టర్ ఈ API ద్వారా సృష్టించడానికి / నవీకరించడానికి / తొలగించడానికి మద్దతు ఇవ్వదు</seg></tuv>
-      <tuv xml:lang="zh-tw"><seg>不支援通過此 API 建立/更新/刪除專案過濾器</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>不支援通過此 API 建立/更新/刪除項目過濾器</seg></tuv>
     <tuv xml:lang="ru"><seg>Создание, обновление и удаление фильтра элементов не поддерживается через этот API.</seg></tuv><tuv xml:lang="he"><seg>מסנן פריטים יצירה/עדכון/מחיקה אינו נתמך באמצעות ממשק API זה</seg></tuv><tuv xml:lang="uk"><seg>Створення/оновлення/видалення фільтра елементів не підтримується цим API</seg></tuv><tuv xml:lang="lou"><seg>Item filter kréyé / mizajou / efase pa supported via sa-a API</seg></tuv><tuv xml:lang="pl"><seg>Tworzenie/aktualizacja/usuwanie filtra elementów nie jest obsługiwane przez ten interfejs API</seg></tuv><tuv xml:lang="tr"><seg>Öğe filtresi oluşturma/güncelleme/silme bu API aracılığıyla desteklenmiyor</seg></tuv><tuv xml:lang="de"><seg>Das Erstellen/Aktualisieren/Löschen von Elementfiltern wird über diese API nicht unterstützt</seg></tuv><tuv xml:lang="zh-cn"><seg>不支持通过此 API 创建/更新/删除项目过滤器</seg></tuv><tuv xml:lang="ja-jp"><seg>この API ではアイテム フィルターの作成/更新/削除はサポートされていません</seg></tuv><tuv xml:lang="nb"><seg>Elementfilter opprette / oppdatere / slette støttes ikke via denne API</seg></tuv><tuv xml:lang="pt"><seg>Criação/atualização/exclusão de filtro de item não suportada por esta API</seg></tuv><tuv xml:lang="sv"><seg>Objektfilter skapa / uppdatera / ta bort stöds inte via detta API</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Rule and parameter editing not supported via this API">
       <tuv xml:lang="en-us"><seg>Rule and parameter editing not supported via this API</seg></tuv>
@@ -4592,7 +4592,7 @@
       <tuv xml:lang="en-us"><seg>Full site publish and section design live outside the Developer catalog</seg></tuv>
       <tuv xml:lang="bn"><seg>সম্পূর্ণ সাইট প্রকাশ এবং বিভাগের নকশা বিকাশকারী ক্যাটালগের বাইরে লাইভ৷</seg></tuv>
       <tuv xml:lang="pt"><seg>Publicação completa do site e design de seção ao vivo fora do catálogo do desenvolvedor</seg></tuv>
-      <tuv xml:lang="zh-tw"><seg>完整站點發布和部分設計在開發人員目錄之外即時釋出</seg></tuv>
+      <tuv xml:lang="zh-tw"><seg>完整站點發布和部分設計在開發人員目錄之外即時發布</seg></tuv>
 
     <tuv xml:lang="fr-ca"><seg>Publication complète du site et conception des sections en dehors du catalogue des développeurs</seg></tuv><tuv xml:lang="ru"><seg>Полная публикация сайта и дизайн разделов вне каталога разработчиков.</seg></tuv><tuv xml:lang="he"><seg>פרסום האתר המלא ועיצוב המדורים בשידור חי מחוץ לקטלוג המפתחים</seg></tuv><tuv xml:lang="uk"><seg>Повна публікація сайту та дизайн розділів доступні поза каталогом розробника</seg></tuv><tuv xml:lang="lou"><seg>Full sit pibliyé épi section design live outside la Developer catalog</seg></tuv><tuv xml:lang="pl"><seg>Publikacja pełnej witryny i projektowanie sekcji na żywo poza katalogiem programistów</seg></tuv><tuv xml:lang="tr"><seg>Tam site yayınlama ve bölüm tasarımı, Geliştirici kataloğunun dışında yayında</seg></tuv><tuv xml:lang="hi"><seg>पूरी साइट का प्रकाशन और अनुभाग डिज़ाइन डेवलपर कैटलॉग के बाहर लाइव होता है</seg></tuv><tuv xml:lang="te"><seg>డెవలపర్ కేటలాగ్ వెలుపల పూర్తి సైట్ ప్రచురణ మరియు విభాగం రూపకల్పన ప్రత్యక్ష ప్రసారం చేయబడుతుంది</seg></tuv><tuv xml:lang="es"><seg>Publicación completa del sitio y diseño de secciones en vivo fuera del catálogo de desarrolladores</seg></tuv><tuv xml:lang="fr"><seg>Publication complète du site et conception des sections en dehors du catalogue des développeurs</seg></tuv><tuv xml:lang="de"><seg>Vollständige Website-Veröffentlichung und Abschnittsgestaltung live außerhalb des Entwicklerkatalogs</seg></tuv><tuv xml:lang="zh-cn"><seg>完整站点发布和部分设计在开发人员目录之外实时发布</seg></tuv><tuv xml:lang="ar"><seg>نشر الموقع بالكامل وتصميم الأقسام مباشرة خارج كتالوج المطورين</seg></tuv><tuv xml:lang="it"><seg>Pubblicazione completa del sito e progettazione delle sezioni in tempo reale al di fuori del catalogo degli sviluppatori</seg></tuv><tuv xml:lang="ja-jp"><seg>サイト全体の公開とセクションのデザインは開発者カタログの外で公開されます</seg></tuv><tuv xml:lang="nb"><seg>Full sidepublisering og seksjonsdesign live utenfor utviklerkatalogen</seg></tuv><tuv xml:lang="nl"><seg>Volledige sitepublicatie en sectieontwerp live buiten de ontwikkelaarscatalogus</seg></tuv><tuv xml:lang="sv"><seg>Fullständig webbplatspublicering och avsnittsdesign live utanför utvecklarkatalogen</seg></tuv></tu>
     <tu tuid="perc.ui.developer@Workflow association is browsed under the Workflows catalog">

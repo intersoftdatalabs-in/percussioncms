@@ -22,7 +22,11 @@ locales:
    across ``CmsUi.tmx`` / ``SystemResources.tmx`` / ``DeveloperUi.tmx``
    carry byte-identical ``zh-cn`` / ``zh-tw`` segments. This script converts
    the identical ``zh-tw`` segments to Traditional script with OpenCC
-   ``s2twp`` (Taiwan phrasing) over the ``zh-cn`` source text. Units whose
+   ``s2tw`` (script-only, no vocabulary changes) over the ``zh-cn`` source
+   text. ``s2twp`` (Taiwan phrasing) is deliberately NOT used: its phrase
+   substitutions (项目→專案 "project", 发布→釋出 "release", 文件→檔案)
+   change meaning in UI strings where 项目 means "item" and 发布 means
+   "publish" (#7145 review). Units whose
    ``zh-tw`` already differs (human/review-fixed, e.g. ``登入`` vs
    ``登录``) are left untouched.
 2. "Take Down" is translated literally ("write down" / "knock down" /
@@ -80,7 +84,15 @@ def cache_key(text: str, target: str) -> str:
 
 
 def _converter():
-    """Lazy OpenCC s2twp converter with a fail-loud install hint."""
+    """Lazy OpenCC s2tw converter with a fail-loud install hint.
+
+    Script-only conversion: s2twp's Taiwan phrase substitutions
+    (项目→專案, 发布→釋出) change meaning where 项目 means "item" and
+    发布 means "publish" (#7145 review). The wrapper additionally
+    normalizes OpenCC's 發佈 to the catalog convention 發布 (per the
+    #7116 review: "Should be 發布失敗") so future runs reproduce the
+    repaired spelling.
+    """
     try:
         from opencc import OpenCC
     except ImportError as e:
@@ -89,7 +101,12 @@ def _converter():
             "conversion (pip install opencc). "
             'Use --skip-zh-tw to run only the Take Down repair.'
         ) from e
-    return OpenCC('s2twp').convert
+    script_only = OpenCC('s2tw').convert
+
+    def convert(text: str) -> str:
+        return script_only(text).replace('發佈', '發布')
+
+    return convert
 
 
 def _check_placeholders(old: str, new: str, where: str,
