@@ -76,7 +76,12 @@ describe("saveScheduleDatesBatch", () => {
     const fetch = vi.fn().mockImplementation(async (id: string) => dates(id));
     const report = await saveScheduleDatesBatch(
       ["42", "43"],
-      { startDate: "09/18/2026 09:00 am", endDate: "", comments: "go" },
+      {
+        startDate: "09/18/2026 09:00 am",
+        endDate: "09/19/2026 10:00 am",
+        comments: "go",
+      },
+      "Invalid schedule dates",
       save,
       fetch,
     );
@@ -85,10 +90,57 @@ describe("saveScheduleDatesBatch", () => {
     expect(save).toHaveBeenNthCalledWith(1, {
       itemId: "42",
       startDate: "09/18/2026 09:00 am",
-      endDate: "",
+      endDate: "09/19/2026 10:00 am",
       comments: "go",
     });
     expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("a reload that drops the sent dates is a per-item failure, not success", async () => {
+    const save = vi.fn().mockResolvedValue(undefined);
+    const fetch = vi.fn().mockImplementation(async (id: string) => ({
+      itemId: id,
+      startDate: "",
+      endDate: "",
+      comments: "",
+    }));
+    const report = await saveScheduleDatesBatch(
+      ["42"],
+      {
+        startDate: "09/18/2026 09:00 am",
+        endDate: "09/19/2026 10:00 am",
+        comments: "",
+      },
+      "Invalid schedule dates",
+      save,
+      fetch,
+    );
+    expect(report.saved).toEqual([]);
+    expect(report.failures).toEqual([
+      { id: "42", message: "Invalid schedule dates" },
+    ]);
+  });
+
+  it("formatting-only reload drift still counts as saved", async () => {
+    const save = vi.fn().mockResolvedValue(undefined);
+    const fetch = vi.fn().mockResolvedValue({
+      itemId: "42",
+      startDate: "09/18/2026 09:00 AM",
+      endDate: "09/19/2026 10:00 AM",
+      comments: "",
+    });
+    const report = await saveScheduleDatesBatch(
+      ["42"],
+      {
+        startDate: "09/18/2026 09:00 am",
+        endDate: "09/19/2026 10:00 am",
+        comments: "",
+      },
+      "Invalid schedule dates",
+      save,
+      fetch,
+    );
+    expect(report).toEqual({ total: 1, saved: ["42"], failures: [] });
   });
 
   it("continues past a per-item failure and names it", async () => {
@@ -101,10 +153,16 @@ describe("saveScheduleDatesBatch", () => {
         body: { message: "Expiry is not after embargo" },
       })
       .mockResolvedValue(undefined);
-    const fetch = vi.fn().mockImplementation(async (id: string) => dates(id));
+    const fetch = vi.fn().mockImplementation(async (id: string) => ({
+      itemId: id,
+      startDate: "",
+      endDate: "",
+      comments: "",
+    }));
     const report = await saveScheduleDatesBatch(
       ["42", "43", "44"],
       { startDate: "", endDate: "", comments: "" },
+      "Invalid schedule dates",
       save,
       fetch,
     );
@@ -120,12 +178,23 @@ describe("saveScheduleDatesBatch", () => {
     const fetch = vi
       .fn()
       .mockRejectedValueOnce(new Error("Gone"))
-      .mockImplementation(async (id: string) => dates(id));
-    const report = await saveScheduleDatesBatch(["42", "43"], {
-      startDate: "",
-      endDate: "",
-      comments: "",
-    }, save, fetch);
+      .mockImplementation(async (id: string) => ({
+        itemId: id,
+        startDate: "",
+        endDate: "",
+        comments: "",
+      }));
+    const report = await saveScheduleDatesBatch(
+      ["42", "43"],
+      {
+        startDate: "",
+        endDate: "",
+        comments: "",
+      },
+      "Invalid schedule dates",
+      save,
+      fetch,
+    );
     expect(report.saved).toEqual(["43"]);
     expect(report.failures).toEqual([{ id: "42", message: "Gone" }]);
   });

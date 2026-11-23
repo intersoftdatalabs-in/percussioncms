@@ -37,6 +37,7 @@ export {
   loadScheduleDatesBatch,
   parseScheduleItemIds,
   saveScheduleDatesBatch,
+  scheduleDatesPersisted,
 } from "./itemScheduleBatch";
 export type {
   ScheduleBatchFailure,
