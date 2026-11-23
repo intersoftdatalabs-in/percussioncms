@@ -68,7 +68,37 @@ CMS-only cell.
    outer gate while the install still uses this checkout's packaged
    distribution (`perc-distribution-tree.jar`).
 
-2. Run the index (works on the CMS-only cell too; no publish path needed):
+2. Run the creation matrix (CMS-only cell, no publish path needed):
+
+   ```bash
+   TEST_CMS_URL=<from-qa-up-banner> \
+     ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-banner> \
+     TEST_DB_TYPE=h2 TEST_PRODUCT=cms \
+     npm run test:surface -- --path tests/content-create-matrix.spec.js
+   # Single type:
+   npm run test:surface -- --path tests/content-create-matrix.spec.js --grep "percPage:"
+   # Inventory (live catalog cross-check + row validation):
+   TEST_CMS_URL=<from-qa-up-banner> \
+     ADMIN_USERNAME=Admin ADMIN_PASSWORD=<from-qa-up-banner> \
+     npm run test:surface -- --path tests/content-create-inventory.spec.js
+   ```
+
+   Every pinned built-in type (54) gets a create round-trip case (New-item
+   create, save, reopen with values round-tripped) plus a negative case
+   (blank required field shows a message, nothing persisted) — 108 cases,
+   one results row per type validated against
+   `contracts/results-matrix.schema.json` and written to
+   `test-results/content-create-matrix.json`. The run is self-accounting:
+   the inventory spec fails when the live catalog holds a creatable type
+   that is neither pinned nor a documented `SYSTEM_EXCLUSIONS` entry, so a
+   full run contains zero unexplained passes. Without a live CMS-only cell
+   every case skips by named reason (the liveness probe on
+   `GET <TEST_CMS_URL>/Rhythmyx/login` answers nothing) and the run still
+   exits 0 with a schema-valid all-skip matrix. To add a type the CMS ships
+   later, append one entry to `BUILT_IN_TYPES` in
+   `tests/helpers/content-create-matrix.js` (two cases, no other edits).
+
+3. Run the index (works on the CMS-only cell too; no publish path needed):
 
    ```bash
    TEST_CMS_URL=<from-qa-up-banner> \
@@ -81,7 +111,7 @@ CMS-only cell.
    passwords with the refresh command the banner prints next to the
    values.
 
-3. Publish the fixture site, then run the static matrix:
+4. Publish the fixture site, then run the static matrix:
 
    ```bash
    python docker/scripts/perc-devctl.py qa-publish-fixture
@@ -95,7 +125,7 @@ CMS-only cell.
    credentials are needed: every case is an anonymous GET against the
    published origin.
 
-4. Seed the DTS fixtures, then run the interaction matrix:
+5. Seed the DTS fixtures, then run the interaction matrix:
 
    ```bash
    python docker/scripts/perc-devctl.py qa-seed-widget-fixtures
@@ -116,7 +146,7 @@ CMS-only cell.
    self-seed a unique probe per run instead, so they go green with no
    pre-provisioned fixtures.
 
-5. Tear down what you started: `python docker/scripts/perc-devctl.py qa-down`.
+6. Tear down what you started: `python docker/scripts/perc-devctl.py qa-down`.
 
 ## Skip contracts (no cell, no failure)
 
