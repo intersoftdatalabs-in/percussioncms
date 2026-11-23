@@ -121,6 +121,12 @@ keyboard-operable (Tab to reach, Enter or Space to toggle) and expose
 `aria-pressed` mirroring the layer visibility, with a
 `:focus-visible`-only ring so the mouse path is pixel-identical.
 
+The Percussion events button label is itself a widget preference —
+**Percussion event button label** (English default "Other") — so a
+non-English widget can localize the filter name instead of announcing
+English; existing widgets without a stored value keep rendering
+"Other" unchanged.
+
 Both group labels are widget preferences — **Source filter group
 label** and **Layout toggle group label** (English defaults as above)
 — so a non-English widget can localize the group names instead of

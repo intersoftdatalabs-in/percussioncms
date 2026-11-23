@@ -12,10 +12,17 @@
 ## with English defaults, HTML-escaped since they render as element
 ## content — a non-English widget with localized group labels no
 ## longer announces English button names.
+## Percussion-events filter button (#7142, residual of #7118): the
+## filter button below renders $perc_event_button_label with the
+## English default 'Other' (component-package.json) — pre-existing
+## instances with no stored pref render the named default instead of
+## an empty, unnamed button. HTML-escaped since it renders as element
+## content, so editor quotes cannot break the button markup.
 #if(!$perc_source_filter_group_label)#set($perc_source_filter_group_label = 'Calendar sources')#end
 #if(!$perc_layout_toggle_group_label)#set($perc_layout_toggle_group_label = 'Calendar layout')#end
 #if(!$perc_calendar_view_button_label)#set($perc_calendar_view_button_label = 'Calendar View')#end
 #if(!$perc_list_view_button_label)#set($perc_list_view_button_label = 'List View')#end
+#if(!$perc_event_button_label)#set($perc_event_button_label = 'Other')#end
 <div class="$!{rootclass} perc-calendar" data="$!dynamicListData">
 #if( ! $perc.widgetContents.isEmpty() )##
 #set($googleSourceCount = 0)##
@@ -284,7 +291,7 @@
       #end
 
       #if($perc_show_perc_events_button == 'Y' && $perc_event_button_label != '')
-      <button type="button" id="perc-calendar-other-${calendarContentId}-${widgetId}-button" class="perc-calendar-button perc-calendar-other perc-calendar-other-${calendarContentId}-${widgetId}" data-calendar-source="perc-calendar-other-${calendarContentId}-${widgetId}" aria-pressed="true">$perc_event_button_label</button>
+      <button type="button" id="perc-calendar-other-${calendarContentId}-${widgetId}-button" class="perc-calendar-button perc-calendar-other perc-calendar-other-${calendarContentId}-${widgetId}" data-calendar-source="perc-calendar-other-${calendarContentId}-${widgetId}" aria-pressed="true">$tools.esc.html($perc_event_button_label)</button>
       #end
       </div>
       </form>
