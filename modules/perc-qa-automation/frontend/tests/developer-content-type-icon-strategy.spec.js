@@ -405,29 +405,43 @@ test.describe("Developer content type icon strategy (CD-11 / #4047)", () => {
     // NOTE: own type (not the default percPage row) so this test stays
     // independent of lock state from other specs.
     await expect(source).toBeDisabled();
-    await lockBtn.click();
-    await expect(status).toHaveText(/Locked by you/i, { timeout: 20_000 });
-    await expect(source).toBeEnabled();
-    await expect(source).toHaveAttribute(
-      "aria-describedby",
-      "developer-ct-icon-load-error-text",
-    );
-    await expect(value).toHaveAttribute(
-      "aria-describedby",
-      "developer-ct-icon-load-error-text",
-    );
-
     try {
+      await lockBtn.click();
+      await expect(status).toHaveText(/Locked by you/i, { timeout: 20_000 });
+      await expect(source).toBeEnabled();
+      await expect(source).toHaveAttribute(
+        "aria-describedby",
+        "developer-ct-icon-load-error-text",
+      );
+      await expect(value).toHaveAttribute(
+        "aria-describedby",
+        "developer-ct-icon-load-error-text",
+      );
+
       await unlockBtn.click();
       await expect(status).toHaveText(/Not locked/i, { timeout: 20_000 });
     } finally {
+      // Cleanup (#7140 review): the try opens right after lockBtn.click()
+      // so a failed assertion above cannot leak the real lock on
+      // percRawHtmlAsset into later specs and re-runs. Button path first,
+      // then the REST unlock fallback like the #7120 409 test.
+      // Best-effort: the assertions above already ran.
       try {
         if (await unlockBtn.isEnabled()) {
           await unlockBtn.click();
           await expect(status).toHaveText(/Not locked/i, { timeout: 20_000 });
         }
       } catch (e) {
-        // Best-effort cleanup; the assertions above already ran.
+        try {
+          const lockedTypeName = (
+            await page.locator('[data-testid="developer-ct-detail-name"]').innerText()
+          ).trim();
+          await page.request.post(
+            `${BASE_URL}/Rhythmyx/services/contenttypes/${encodeURIComponent(lockedTypeName)}/unlock`,
+          );
+        } catch (e2) {
+          // Best-effort cleanup; the assertions above already ran.
+        }
       }
     }
 
