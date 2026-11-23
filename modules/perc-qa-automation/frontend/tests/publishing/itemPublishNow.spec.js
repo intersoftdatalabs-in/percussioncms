@@ -289,4 +289,102 @@ test.describe("PublishingShell site-workspace publish now", () => {
       );
     },
   );
+
+  test(
+    "publish run announces loading as a live status and focuses the result",
+    { tag: ["@publishing", "@publishing-publish-now"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      const consoleErrors = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err));
+      });
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          consoleErrors.push(msg.text());
+        }
+      });
+      await stubPublishSiteApis(page);
+
+      // Keep the run hermetic: sibling workspace panels (site detail,
+      // publishing actions, publishing history) request data for the stubbed
+      // fixture and would otherwise 404 in the console.
+      await page.route("**/services/sites/Demo", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            Site: { name: "Demo", siteId: "9", id: "9" },
+          }),
+        });
+      });
+      await page.route("**/sitemanage/publish/publishingActions/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([]),
+        });
+      });
+      await page.route("**/itemmanagement/item/pubhistory/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([]),
+        });
+      });
+
+      // Hold the publish call so the loading status is observable mid-run.
+      await page.unroute("**/sitemanage/publish/page/**");
+      await page.route("**/sitemanage/publish/page/**", async (route) => {
+        if (route.request().url().includes("/staging/")) {
+          await route.continue();
+          return;
+        }
+        await page.waitForTimeout(1500);
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ status: "Success" }),
+        });
+      });
+
+      await page.goto(publishSitesUrl("9", "42"));
+      await expect(page.locator('[data-testid="item-publish-now"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      await page.locator('[data-testid="item-publish-now-review"]').click();
+      await expect(page.locator('[data-testid="item-publish-now-submit"]')).toBeVisible({
+        timeout: 10_000,
+      });
+      await page.locator('[data-testid="item-publish-now-submit"]').click();
+
+      // Loading announces through a polite live region (#7087): the
+      // region stays mounted and only its text changes, so assert the
+      // announcement text itself, not just visibility.
+      const loading = page.locator('[data-testid="item-publish-now-loading"]');
+      await expect(loading).toBeVisible({ timeout: 10_000 });
+      await expect(loading).toHaveAttribute("role", "status");
+      await expect(loading).toHaveText(/Loading/i);
+      await expect(page.locator('[data-testid="item-publish-now-busy"]')).toHaveAttribute(
+        "aria-busy",
+        "true",
+      );
+
+      // Keyboard flow: focus lands on the announced result.
+      const success = page.locator('[data-testid="item-publish-now-success"]');
+      await expect(success).toBeVisible({ timeout: 15_000 });
+      await expect(success).toBeFocused();
+      await page.screenshot({
+        path: "test-results/live-proof-7087-publish-now-announce.png",
+      });
+
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
+      expect(
+        consoleErrors,
+        `console errors: ${consoleErrors.join(" | ")}`,
+      ).toEqual([]);
+    },
+  );
 });
