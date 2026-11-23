@@ -70,11 +70,11 @@ For PRs authored by this run's operators (`operator:opencode` /
 
 ```bash
 gh pr list --repo <repo> --author @me --state open \
-  --json number,title,headRefName,mergeable,reviewDecision,statusCheckRollup,files,createdAt,labels \
+  --json number,title,headRefName,mergeable,reviewDecision,statusCheckRollup,files,createdAt,labels,reviews,commits \
   > scratch/owned-prs.json
 
 gh pr list --repo <repo> --search "is:open is:pr author:@me OR label:operator:opencode OR label:operator:night-issue-prs" \
-  --state open --json number,title,headRefName,mergeable,reviewDecision \
+  --state open --json number,title,headRefName,mergeable,reviewDecision,reviews,commits \
   > scratch/owned-prs-fallback.json
 ```
 
@@ -99,12 +99,31 @@ gh api graphql -F query='
 ' -f owner=intersoftdatalabs-in -f repo=percussioncms -F pr=<N>
 ```
 
+For each owned PR, compute `unaddressed_change_request` from `reviews`
+and `commits`:
+
+- For each reviewer, take that reviewer's latest review by `submittedAt`.
+  Every reviewer counts (human, bot, or other agent/model). Do not
+  exclude bots or the current session's model.
+- If any reviewer's latest review has `state: CHANGES_REQUESTED` and no
+  PR commit has `committedDate` after that review's `submittedAt`, set
+  `unaddressed_change_request: true`.
+- Otherwise `false`. A review body with no inline threads still counts
+  (motivating case: #7100).
+
 Classify each owned PR as:
 
-- `mergeable: true` + 0 unresolved threads → `status: ready`
+- `mergeable: true` + 0 unresolved threads + `unaddressed_change_request: false` → `status: ready`
 - `mergeable: false` (CONFLICTING or DIRTY) → `status: blocker_conflict`
 - Unresolved threads > 0 → `status: blocker_threads`
-- Both → `status: blocker_both`
+- `unaddressed_change_request: true` and mergeable + 0 unresolved threads → `status: blocker_change_request`
+- Conflict plus threads (and/or an unaddressed change request) → `status: blocker_both`
+- Threads plus an unaddressed change request (mergeable) → `status: blocker_threads`
+- Conflict plus an unaddressed change request (no threads) → `status: blocker_conflict`
+
+A PR can be `blocker_conflict` / `blocker_threads` / `blocker_both`
+and also have `unaddressed_change_request: true`; always persist the
+boolean even when status already reflects another blocker.
 
 ### Phase 2C — Peer-PR eligibility inventory
 
@@ -129,7 +148,8 @@ Eligible for peer review if **all** of:
 
 NOT eligible: own-model-only (only this session's `model:*` and no other
 operator), pure human PRs, rule-only PRs without human approval,
-CONFLICTING/DIRTY (leave for follow-up).
+CONFLICTING/DIRTY or an unaddressed `CHANGES_REQUESTED` review with no
+new commits (leave for `pr-follow-up`).
 
 ### Phase 2D — Compact issue inventory (cap `max_inventory`)
 
@@ -193,8 +213,9 @@ Write `scratch/preflight.json`:
       "number": 100,
       "title": "...",
       "head": "fix/issue-1234-slug",
-      "status": "blocker_conflict|blocker_threads|blocker_both|ready",
+      "status": "blocker_conflict|blocker_threads|blocker_change_request|blocker_both|ready",
       "unresolved_thread_count": 2,
+      "unaddressed_change_request": false,
       "mergeable": false
     }
   ],
@@ -233,6 +254,12 @@ Write `scratch/preflight.json`:
 ```
 
 ### Phase 2H — Skip matrix (derived)
+
+Set `include_pr_followup_pre` and `include_pr_followup_post` to `true`
+when at least one owned PR is a follow-up blocker: `mergeable: false`,
+or `unresolved_thread_count > 0`, or `unaddressed_change_request: true`.
+Do **not** count a PR labeled `blocked`, or whose `Fixes #N` issue is
+labeled `blocked`, toward those flags (follow-up will skip it).
 
 Emit a `signals.json` companion that downstream phases consume:
 

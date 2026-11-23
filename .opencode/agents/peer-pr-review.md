@@ -63,9 +63,11 @@ From `scratch/preflight.json` `peer_pr_eligible`, take up to
 **Hard exclusions** (skip immediately):
 
 - CONFLICTING / DIRTY (`mergeable: false`). Leave for `pr-follow-up`.
-- A PR labeled `blocked`, or whose `Fixes #N` issue is labeled `blocked`, or one with an open human
-  CHANGES_REQUESTED review and no new commits since it. Waiting on a human;
-  do not re-review.
+- A PR labeled `blocked`, or whose `Fixes #N` issue is labeled `blocked`.
+  Waiting on a human; do not re-review.
+- A PR with an unaddressed `CHANGES_REQUESTED` review (any reviewer:
+  human, bot, or other agent/model) and no new commits since that
+  review. Leave for `pr-follow-up`; do not re-review or merge.
 - Own-model-only: this session's `model:<id>` and **no** other `model:*`
   and **no** other `operator:*` (Grok / kilo / etc.). Agent must not
   approve itself.
@@ -143,6 +145,9 @@ Never `rm -rf` a worktree directory. Record removed paths in
 - Never skip other-model PRs because `gh` login equals the PR author.
 - Never merge pure-human or unapproved rule-only PRs.
 - Never merge CONFLICTING / DIRTY PRs.
+- Never re-review or merge a PR that has an unaddressed
+  `CHANGES_REQUESTED` review and no new commits since it. That PR
+  belongs to `pr-follow-up`.
 
 ### 5. Write the structured output
 
