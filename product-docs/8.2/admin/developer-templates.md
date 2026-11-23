@@ -254,6 +254,26 @@ Automated H2 surface coverage lives in
 `modules/perc-qa-automation/frontend/tests/developer-template-source-a11y.spec.js`
 (`npm run test:surface -- --path tests/developer-template-source-a11y.spec.js`).
 
+### Classic template dialogs use the npm CodeMirror bundle
+
+The classic template editor and its secondary surfaces (template metadata
+dialog, `sys_TextArea` code editor in page-edit dialogs, revision compare)
+do **not** ship a vendored editor: they load one shared bundle built from the
+`codemirror` npm package by `modules/perc-common-ui-bundle` —
+
+- `/sys_resources/codemirror/codemirror/codemirror.bundle.js`
+- `/sys_resources/codemirror/codemirror/codemirror.bundle.css`
+
+There are zero checked-in CodeMirror library copies and no references to the
+retired TinyMCE-hosted path (`sys_resources/tinymce/plugins/codemirror`,
+removed with `modules/perc-tinymce`); the revision-compare surface renders
+server-side diff HTML and loads no editor at all. Customizers must reference
+the bundle path above and must never copy the bundle (or any `codemirror/`
+package file) into site themes or `rx_resources` overrides — a copy silently
+freezes the editor and drops security fixes. The metadata dialog frame carries
+the accessible name **Template metadata fields** for screen readers.
+([Un-vendor CodeMirror](https://github.com/intersoftdatalabs-in/percussioncms/issues/5626).)
+
 ## Insert a Velocity snippet (AS-09)
 
 While editing **Template source**, choose **Insert snippet** to open the built-in

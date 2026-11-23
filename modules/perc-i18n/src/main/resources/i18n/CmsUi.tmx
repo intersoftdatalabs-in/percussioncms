@@ -13056,6 +13056,10 @@ Fortsätta?</seg></tuv></tu>
       <tuv xml:lang="zh-cn"><seg>附加代码</seg></tuv>
       <tuv xml:lang="zh-tw"><seg>附加代码</seg></tuv>
     <tuv xml:lang="ru"><seg>Дополнительный код</seg></tuv><tuv xml:lang="he"><seg>קוד נוסף</seg></tuv><tuv xml:lang="uk"><seg>Додатковий код</seg></tuv><tuv xml:lang="lou"><seg>Additional Code</seg></tuv><tuv xml:lang="pl"><seg>Dodatkowy kod</seg></tuv><tuv xml:lang="tr"><seg>Ek Kod</seg></tuv><tuv xml:lang="nb"><seg>Tilleggskode</seg></tuv><tuv xml:lang="sv"><seg>Tilläggskod</seg></tuv></tu>
+    <!-- #7096: iframe title keyed from perc_template_metadata_dialog review thread (parent #7041). en-us only. -->
+    <tu tuid="perc.ui.page.edit.dialog@Template metadata fields">
+      <tuv xml:lang="en-us"><seg>Template metadata fields</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.page.edit.dialog@Redirect Creation Error">
       <tuv xml:lang="en-us"><seg>Redirect creation error</seg></tuv>
       <tuv xml:lang="ar"><seg>إعادة توجيه خطأ الإنشاء</seg></tuv>

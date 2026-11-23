@@ -124,6 +124,23 @@ const METADATA_DIALOG_MIRRORS = [
   "WebUI/war/widgets/perc_template_metadata_dialog.js",
 ];
 
+// Issue #7041 (slice 2/3: config/diff views off vendored copies). The
+// revision-compare surface (compare.jsp + htmldiff.js + PercCompareService)
+// renders server-side diff HTML — it must never load a vendored code editor
+// (no CodeMirror copy, no TinyMCE-hosted path, no editor bundle script). Pin
+// every dual-ship copy so a future edit cannot sneak a vendored editor into
+// the diff view.
+const DIFF_VIEW_MIRRORS = [
+  "WebUI/src/main/webapp/cm/app/compare.jsp",
+  "WebUI/src/main/webapp/cm/pages/app/compare.jsp",
+  "WebUI/war/app/compare.jsp",
+  "WebUI/src/main/webapp/cm/widgets/htmldiff.js",
+  "WebUI/war/widgets/htmldiff.js",
+  "WebUI/src/main/webapp/cm/services/PercCompareService.js",
+  "WebUI/src/main/webapp/cm/app/js/legacy/services/PercCompareService.js",
+  "WebUI/war/services/PercCompareService.js",
+];
+
 // Issue #6362 (slice 2/3 — "no exceptions"): classic content/page-edit
 // dialogs beyond the template editor render code editing through the
 // sys_TextArea control in sys_Templates.xsl, which loads the same
@@ -1396,6 +1413,28 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
             `${rel} must harden the CodeMirror save read (#5626): ${pin}`,
           ).toContain(pin);
         }
+        // Issue #7041: the metadata iframe hosts the server-rendered code
+        // fields — it must carry an accessible name so screen readers
+        // announce the frame instead of a bare "frame". Both mirrors build
+        // the title from the i18n key (attribute-escaped) and concatenate
+        // the escaped value into the frame markup — never a hard-coded
+        // English literal.
+        expect(
+          text,
+          `${rel} must key the metadata iframe title through i18n (#7041)`,
+        ).toContain("perc.ui.page.edit.dialog@Template metadata fields");
+        expect(
+          text,
+          `${rel} must concatenate the escaped title into the iframe markup (#7041)`,
+        ).toContain(`title='" +`);
+        expect(
+          text,
+          `${rel} must concatenate the escaped title into the iframe markup (#7041)`,
+        ).toContain(`iframeTitle +`);
+        expect(
+          text,
+          `${rel} must not hard-code the English iframe title (#7041)`,
+        ).not.toContain(`title='Template metadata fields'`);
         for (const dead of ["codeMirrorSet", "cm1"]) {
           expect(
             text,
@@ -1427,6 +1466,48 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
           texts[index],
           `${rel} must not keep the retired Percussion header`,
         ).not.toContain("Percussion Software, Inc.");
+      }
+    },
+  );
+
+  test(
+    "revision compare surfaces stay off vendored editor copies",
+    { tag: ["@explorer-content-editor", "@editor"] },
+    async () => {
+      // No live CMS needed: static pin for issue #7041 (slice 2/3 diff
+      // views). The revision-compare surface renders server-side diff HTML
+      // through htmldiff.js + PercCompareService — no code editor is
+      // involved, so no mirror may reference CodeMirror (vendored copy, npm
+      // bundle, or legacy TinyMCE-hosted path) or load an editor script.
+      // Every dual-ship copy is pinned so a future edit cannot sneak a
+      // vendored editor into the diff view.
+      for (const rel of DIFF_VIEW_MIRRORS) {
+        const text = fs
+          .readFileSync(path.join(REPO_ROOT, rel), "utf8")
+          .replace(/\r\n/g, "\n");
+        expect(
+          text.length,
+          `${rel} must embed the compare surface`,
+        ).toBeGreaterThan(0);
+        for (const line of text.split("\n")) {
+          if (!/codemirror/i.test(line)) {
+            continue;
+          }
+          expect(
+            line,
+            `${rel} must not reference CodeMirror in the diff view: ${line}`,
+          ).toBe("");
+        }
+        for (const line of text.split("\n")) {
+          expect(
+            line,
+            `${rel} must not reference the retired TinyMCE-hosted editor path: ${line}`,
+          ).not.toMatch(/sys_resources\/tinymce\//);
+          expect(
+            line,
+            `${rel} must not load a TinyMCE vendor script: ${line}`,
+          ).not.toMatch(/tinymce.*\.js/i);
+        }
       }
     },
   );
