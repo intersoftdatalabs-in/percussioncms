@@ -278,27 +278,19 @@
       }
       if (_isPageDirty()) {
         alert(I18N.message("perc.ui.content.viewer@Page Changed"));
-        $.fn.jmodal({
-          data: { innerText: I18N.message("perc.ui.content.viewer@Yes") },
+        // First-party dialog (issue #7181): the retired GPL-only jmodal
+        // call is replaced with the maintained $.perc_utils.confirm_dialog
+        // (jQuery UI). Both buttons keep the original acknowledge behavior.
+        var previewAck = I18N.message("perc.ui.content.viewer@Yes");
+        $.perc_utils.confirm_dialog({
           title: I18N.message("perc.ui.content.viewer@Information"),
-          content: I18N.message("perc.ui.content.viewer@No Preview Available"),
-          buttonText: {
-            button1: I18N.message("perc.ui.content.viewer@Yes Button"),
-            button2: I18N.message("perc.ui.content.viewer@No Button"),
-            button3: "",
+          question: I18N.message("perc.ui.content.viewer@No Preview Available"),
+          type: "YES_NO",
+          success: function () {
+            alert(previewAck);
           },
-          fixed: true,
-          button1Event: function (obj, args) {
-            alert(obj.innerText);
-            args.complete();
-          },
-          button2Event: function (obj, args) {
-            alert(obj.innerText);
-            args.complete();
-          },
-          button3Event: function (obj, args) {
-            alert(obj.innerText);
-            args.complete();
+          cancel: function () {
+            alert(previewAck);
           },
         });
         return;

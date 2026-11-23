@@ -76,16 +76,11 @@
 				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.metadata.js</psxctl:FileLocation>
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
+			<!-- First-party carousel (issue #7181): replaces retired jQuery Tools scrollable. -->
 			<psxctl:FileDescriptor
-				name="tools.scrollable-1.1.2.js" type="script"
+				name="jquery.percscrollable.js" type="script"
 				mimetype="text/javascript">
-				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/tools.scrollable-1.1.2.js</psxctl:FileLocation>
-				<psxctl:Timestamp />
-			</psxctl:FileDescriptor>
-			<psxctl:FileDescriptor
-				name="tools.scrollable.mousewheel-1.0.1.js" type="script"
-				mimetype="text/javascript">
-				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/tools.scrollable.mousewheel-1.0.1.js</psxctl:FileLocation>
+				<psxctl:FileLocation>/cm/jslib/profiles/3x/jquery/plugins/jquery-percutils/jquery.percscrollable.js</psxctl:FileLocation>
 				<psxctl:Timestamp />
 			</psxctl:FileDescriptor>
 			<psxctl:FileDescriptor

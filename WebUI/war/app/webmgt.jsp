@@ -149,7 +149,6 @@
     <link rel="stylesheet" type="text/css" href="../css/perc_save_as_dialog.css"/>
     <link rel="stylesheet" type="text/css" href="../css/perc_newsitedialog.css"/>
     <link rel="stylesheet" type="text/css" href="../css/perc_new_page_button.css"/>
-    <link rel="stylesheet" type="text/css" href="../css/jquery.jmodal.css"/>
     <link rel="stylesheet" type="text/css" href="../css/styles.css"/>
     <link rel="stylesheet" type="text/css" href="../css/perc_template_layout.css"/>
     <link rel="stylesheet" type="text/css" href="../css/PercCommentsDialog.css"/>
@@ -191,7 +190,6 @@
 
     <%-- --%>
     <script src="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.xmldom-1.0.js"></script>
-    <script src="../jslib/profiles/3x/jquery/plugins/jquery-perc-retiredjs/jquery.jmodal.js"></script>
 
     <script src="../widgets/PercSimpleMenu/PercSimpleMenu.js"></script>
     <script src="../widgets/PercPageDataTable/PercPageDataTable.js"></script>

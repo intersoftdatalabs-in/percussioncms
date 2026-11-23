@@ -25,7 +25,8 @@
  * is pinned below with its version banner, license marker, consumer, npm
  * availability, and follow-on migration issue. The same files are mirrored
  * under `cm/vendor/js/legacy/` and `WebUI/war/jslib/` (presence pinned;
- * content drift between the mirrors is recorded in #7181).
+ * broader content drift between the mirrors is recorded in #7181 and
+ * owned by a follow-on).
  *
  * Inventory (canonical path under cm/jslib):
  *
@@ -49,13 +50,15 @@
  * | retiredjs/jquery.jsonp.js | 2012 Aubourg | MIT | common-ui-bundle | none | #7180 |
  * | retiredjs/jquery.jfeed.js | 2007 Hovinne | MIT/GPL | common-ui-bundle | none | #7180 |
  * | retiredjs/jquery.xmldom-1.0.js + libraries duplicate | v1.0 2009 Out West | MIT/GPL | webmgt/editTemplate packs + JSP tags | none | #7180 |
- * | retiredjs/jquery.jmodal.js | v2.0 2009 Jericho | GPL-ONLY | webmgt/editTemplate packs + JSP tags | none | #7181 |
- * | retiredjs/tools.scrollable-1.1.2.js + mousewheel | 2009 Piirainen | MIT/GPL-2+ | common_js.jsp + shared-common.js | none (holder) | #7181 |
- * | libraries/perc-retiredjs/rAF.js | 2011 Moller polyfill | snippet/PD | perc_editTemplate pack (droppable) | n/a (native) | #7181 |
- * | jquery-testrunner/testrunner.js | 2009 QUnit-era | MIT/GPL | manual testing pages only | n/a (QUnit npm #6068) | #7181 |
- * | retiredjs/json2.js | 2017-06-12 Crockford | Public Domain | manual testing pages only | n/a (native JSON) | #7181 |
+ * | retiredjs/jquery.jmodal.js | v2.0 2009 Jericho | GPL-ONLY | REMOVED #7181 (confirm_dialog) | n/a |
+ * | retiredjs/tools.scrollable-1.1.2.js + mousewheel | 2009 Piirainen | MIT/GPL-2+ | REMOVED #7181 (percscrollable shim) | n/a |
+ * | libraries/perc-retiredjs/rAF.js | 2011 Moller polyfill | snippet/PD | REMOVED #7181 (native rAF) | n/a |
+ * | jquery-testrunner/testrunner.js | 2009 QUnit-era | MIT/GPL | REMOVED #7181 (dead 404 refs) | n/a |
+ * | retiredjs/json2.js | 2017-06-12 Crockford | Public Domain | REMOVED #7181 (native JSON) | n/a |
  *
- * First-party (no migration): jquery-percutils/jquery.percutils.js and
+ * First-party (no migration): jquery-percutils/jquery.percutils.js,
+ * jquery-percutils/jquery.percscrollable.js (the #7181 carousel shim with
+ * the retired scrollable's $.fn.scrollable API), and
  * jquery-perc-retiredjs/jquery.deparam.js carry Intersoft headers (the
  * deparam shim is the #5663 BBQ replacement, upstream notice retained).
  *
@@ -123,17 +126,44 @@ const THIRD_PARTY = [
   [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.jfeed.js`, /Hovinne/, /MIT/, 7180],
   [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.xmldom-1.0.js`, /xmlDOM Plugin v1\.0/, /MIT and GPL/, 7180],
   [`${JSLIB}/libraries/perc-retiredjs/jquery.xmldom-1.0.js`, /xmlDOM Plugin v1\.0/, /MIT and GPL/, 7180],
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.jmodal.js`, /version: 2\.0/, /Licensed under the GPL/, 7181],
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/tools.scrollable-1.1.2.js`, /Tero Piirainen/, /MIT and GPL/, 7181],
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/tools.scrollable.mousewheel-1.0.1.js`, /Tero Piirainen/, /MIT and GPL/, 7181],
-  [`${JSLIB}/libraries/perc-retiredjs/rAF.js`, /requestAnimationFrame/, null, 7181],
-  [`${JSLIB}/jquery/plugins/jquery-testrunner/testrunner.js`, /John Resig/, /MIT/, 7181],
-  [`${JSLIB}/jquery/plugins/jquery-perc-retiredjs/json2.js`, /json2\.js/, /Public Domain/, 7181],
+  // #7181 rows removed: jmodal / tools.scrollable pair / rAF / testrunner /
+  // json2 were deleted from all three trees (see RETIRED_7181 below).
 ];
 
 const FIRST_PARTY = [
   `${JSLIB}/jquery/plugins/jquery-percutils/jquery.percutils.js`,
   `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.deparam.js`,
+  // #7181 carousel shim: same $.fn.scrollable API as the retired jTools
+  // plugin, first-party maintained.
+  `${JSLIB}/jquery/plugins/jquery-percutils/jquery.percscrollable.js`,
+];
+
+/** Issue #7181 retired cluster: deleted from all three trees, refs dropped. */
+const RETIRED_7181 = [
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.jmodal.js`,
+    needles: ["jquery.jmodal", "fn.jmodal", "hideJmodal"],
+  },
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/tools.scrollable-1.1.2.js`,
+    needles: ["tools.scrollable-1.1.2"],
+  },
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/tools.scrollable.mousewheel-1.0.1.js`,
+    needles: ["scrollable.mousewheel"],
+  },
+  {
+    rel: `${JSLIB}/libraries/perc-retiredjs/rAF.js`,
+    needles: ["perc-retiredjs/rAF"],
+  },
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-testrunner/testrunner.js`,
+    needles: ["testrunner/testrunner"],
+  },
+  {
+    rel: `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/json2.js`,
+    needles: ["retiredjs/json2"],
+  },
 ];
 
 const RETAINED_SIMPLEDATEFORMAT = [
@@ -167,6 +197,8 @@ const DIRECT_LOADS = [
   "jquery-perc-retiredjs/jquery.tooltip.js",
   "jquery-perc-retiredjs/jquery.autocomplete.js",
   "jquery-perc-retiredjs/timepicker.js",
+  // #7181 carousel shim (first-party replacement for tools.scrollable).
+  "jquery-percutils/jquery.percscrollable.js",
 ];
 
 describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
@@ -193,15 +225,57 @@ describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
     }
   });
 
-  it("keeps the GPL-only jmodal grant visible (legal flag, #7181)", () => {
-    const head = readHead(
-      path.join(
-        WEBAPP_CM,
-        `${JSLIB}/jquery/plugins/jquery-perc-retiredjs/jquery.jmodal.js`,
-      ),
-    );
-    expect(head).toMatch(/Licensed under the GPL/);
-    expect(head).not.toMatch(/MIT|Apache/i);
+  it("retired #7181 cluster stays deleted and unreferenced (GPL jmodal gone)", () => {
+    // The GPL-only jmodal grant must not reappear anywhere in the source
+    // tree: the file is deleted and no reference to it (or its $.fn API)
+    // may remain. Same for the retired scrollable pair, rAF, testrunner,
+    // and json2.
+    for (const { rel, needles } of RETIRED_7181) {
+      for (const tree of [WEBAPP_CM, WAR_ROOT]) {
+        const relNoJslib = rel.replace(/^jslib\//, "");
+        const candidates =
+          tree === WEBAPP_CM
+            ? [
+                path.join(tree, rel),
+                path.join(tree, "vendor/js/legacy", relNoJslib),
+              ]
+            : [path.join(tree, rel)];
+        for (const abs of candidates) {
+          expect(fs.existsSync(abs), `retired file resurrected: ${abs}`).toBe(
+            false,
+          );
+        }
+      }
+    }
+    const roots = [WEBAPP_CM, MINIFY_DIR];
+    const skipDir = (p) =>
+      p.split(path.sep).includes("jslib") ||
+      p.split(path.sep).includes("vendor");
+    for (const { rel, needles } of RETIRED_7181) {
+      const base = path.basename(rel);
+      const hits = [];
+      for (const root of roots) {
+        const walk = (dir) => {
+          for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+            const full = path.join(dir, entry.name);
+            if (entry.isDirectory()) {
+              if (!skipDir(full)) walk(full);
+            } else if (/\.(jsp|html|xls|xsl|js|json|css)$/.test(entry.name)) {
+              // The first-party shim documents what it replaces in prose
+              // ("retired jQuery Tools Scrollable"); only dotted file/API
+              // references count as resurrections.
+              if (full.endsWith("jquery.percscrollable.js")) continue;
+              const content = fs.readFileSync(full, "utf8");
+              for (const needle of needles) {
+                if (content.includes(needle)) hits.push(`${full} :: ${needle}`);
+              }
+            }
+          }
+        };
+        walk(root);
+      }
+      expect(hits, `retired ${base} still referenced`).toEqual([]);
+    }
   });
 
   it("marks first-party shims with the Intersoft header (no migration)", () => {
@@ -249,7 +323,7 @@ describe("jslib vendored-JS slice-1 audit (issue #7165)", () => {
     }
   });
 
-  it("mirrors carry the audited set (triple-tree reality, drift in #7181)", () => {
+  it("mirrors carry the audited set (triple-tree reality; #7181 cluster gone everywhere)", () => {
     for (const [rel] of THIRD_PARTY) {
       // The vendor mirror hangs directly under profiles/ (no jslib/ prefix);
       // the war mirror roots its own jslib/.

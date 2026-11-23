@@ -53,7 +53,6 @@
 <%@include file="../app/includes/common_css.jsp"%>
 <!--link rel="stylesheet" type="text/css" href="../css/perc_mcol.css"-->
 <link rel="stylesheet" type="text/css" href="../css/PercContentBrowserWidget.css">
-<link rel="stylesheet" type="text/css" href="../css/jquery.jmodal.css">
 <link rel="stylesheet" type="text/css" href="../css/layout.css">
 <link rel="stylesheet" type="text/css" href="../css/styles.css">
 
