@@ -62,13 +62,19 @@ the Calendar/List toggle buttons carry the previous theme look.
 
 ## Layout switching
 
-The **Calendar/List toggle buttons** (`Show Calendar` / `Show List`)
+The **Calendar/List toggle buttons** (`Calendar View` / `List View`)
 destroy and re-create the calendar instance when both layouts are enabled.
 Switching is instant (no animation) so printed and captured output is
 deterministic. The buttons expose `aria-pressed` mirroring the visible
 layout inside a `role="group"` (accessible name from the **Layout
 toggle group label** preference, default "Calendar layout"), and the
 list region announces updates via `aria-live="polite"`.
+
+Both button labels are widget preferences — **Calendar view button
+label** and **List view button label** (English defaults as above) —
+so a non-English widget can localize the button names instead of
+announcing English; existing widgets keep the English output
+unchanged.
 
 While the list fetch is in flight the list shows a **Loading events…**
 row; when no event survives the today-or-later filter the list shows an
@@ -170,7 +176,9 @@ navigation).
 - **List layout** renders the upcoming-events list directly (up to **Max
   results**): it fetches an explicit 52-week window through the same DTS
   query instead of rendering a hidden calendar.
-- **Calendar/List toggle buttons** (`Show Calendar` / `Show List`) destroy
+- **Calendar/List toggle buttons** (`Calendar View` / `List View`,
+  labels from the **Calendar view button label** / **List view button
+  label** preferences) destroy
   and re-create the calendar instance when both layouts are enabled.
 
 ## Editor

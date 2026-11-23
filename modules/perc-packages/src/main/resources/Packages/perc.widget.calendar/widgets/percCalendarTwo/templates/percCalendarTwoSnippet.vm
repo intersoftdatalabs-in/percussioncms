@@ -6,8 +6,16 @@
 ## non-English widgets can localize the group names instead of
 ## announcing hardcoded English. $tools.esc.html keeps editor quotes
 ## from breaking the aria-label attributes at the two group sites.
+## View-toggle button text (#7118, residual of #7030): the Calendar/List
+## button labels are likewise preference-driven
+## ($perc_calendar_view_button_label / $perc_list_view_button_label)
+## with English defaults, HTML-escaped since they render as element
+## content — a non-English widget with localized group labels no
+## longer announces English button names.
 #if(!$perc_source_filter_group_label)#set($perc_source_filter_group_label = 'Calendar sources')#end
 #if(!$perc_layout_toggle_group_label)#set($perc_layout_toggle_group_label = 'Calendar layout')#end
+#if(!$perc_calendar_view_button_label)#set($perc_calendar_view_button_label = 'Calendar View')#end
+#if(!$perc_list_view_button_label)#set($perc_list_view_button_label = 'List View')#end
 <div class="$!{rootclass} perc-calendar" data="$!dynamicListData">
 #if( ! $perc.widgetContents.isEmpty() )##
 #set($googleSourceCount = 0)##
@@ -20,8 +28,8 @@
   ## state is perceivable; the handlers below keep the pair in sync. Buttons
   ## switch with show()/hide() (no fadeIn) so captured output is
   ## deterministic for screenshot-diff parity.
-  <button type="button" id="showCalendarButton-${calendarContentId}-${widgetId}" class="fc-button fc-state-default fc-corner-left fc-corner-right perc-type-toggle" aria-pressed="true" >Calendar View</button>
-  <button type="button" id="showListButton-${calendarContentId}-${widgetId}" class="fc-button fc-state-default fc-corner-left fc-corner-right perc-type-toggle" aria-pressed="false" >List View</button>
+  <button type="button" id="showCalendarButton-${calendarContentId}-${widgetId}" class="fc-button fc-state-default fc-corner-left fc-corner-right perc-type-toggle" aria-pressed="true" >$tools.esc.html($perc_calendar_view_button_label)</button>
+  <button type="button" id="showListButton-${calendarContentId}-${widgetId}" class="fc-button fc-state-default fc-corner-left fc-corner-right perc-type-toggle" aria-pressed="false" >$tools.esc.html($perc_list_view_button_label)</button>
   </div>
 #end##
 ##
