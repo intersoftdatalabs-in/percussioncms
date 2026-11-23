@@ -26,14 +26,17 @@ export const FTP_PASSWORD_MAX_LENGTH = 255;
 
 export const FTP_PASSWORD_PROPERTY = "password";
 
+// mkd-code-review[secrets.heuristic]: adjudicated FP (issue #7078, in-diff precedent #7076/#6936) — UI validation message string, no credential material.
 export const FTP_PASSWORD_REQUIRED = "FTP password is required";
 
+// mkd-code-review[secrets.heuristic]: adjudicated FP (issue #7078, in-diff precedent #7076/#6936) — UI validation message string, no credential material.
 export const FTP_PASSWORD_TOO_LONG = "FTP password must be 255 characters or fewer";
 
 export const FTP_PASSWORD_DRIVER_ONLY =
   "FTP password can be set only on an FTP delivery server.";
 
 /** The stored secret is never shown. The summary carries this fixed status instead. */
+// mkd-code-review[secrets.heuristic]: adjudicated FP (issue #7078, in-diff precedent #7076/#6936) — UI status message string, no credential material.
 export const FTP_PASSWORD_NEVER_SHOWN = "Stored password is never shown.";
 
 export type FtpPasswordResult = { ok: true; password: string } | { ok: false; error: string };
