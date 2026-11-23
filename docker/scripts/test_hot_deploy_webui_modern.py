@@ -58,6 +58,11 @@ def _stub_subprocess(*, docker_ps_names=("perc-matrix-cms-h2",), returncodes=Non
                 stderr="",
             )
         if argv[:2] == ["docker", "exec"]:
+            # The tar-pipe fallback (#7157) extracts via docker exec tar.
+            if "tar" in argv:
+                return subprocess.CompletedProcess(
+                    args=argv, returncode=returncodes.get("tar", 0), stdout="", stderr=""
+                )
             return subprocess.CompletedProcess(
                 args=argv, returncode=returncodes.get("exec", 0), stdout="", stderr=""
             )
@@ -401,12 +406,54 @@ class TestDeploy(unittest.TestCase):
             self.assertEqual(rc, hdw.EXIT_CONTAINER_NOT_RUNNING)
 
     def test_docker_cp_failure(self):
+        # docker cp AND the tar-pipe fallback both fail -> exit 5.
         with tempfile.TemporaryDirectory() as td:
             src = _write_modern_tree(Path(td), include_object_storage=True)
-            _calls, fake_run = _stub_subprocess(returncodes={"cp": 1})
+            _calls, fake_run = _stub_subprocess(returncodes={"cp": 1, "tar": 1})
             with unittest.mock.patch.object(hdw.subprocess, "run", side_effect=fake_run):
                 rc = hdw.deploy(src, dry_run=False)
             self.assertEqual(rc, hdw.EXIT_DOCKER_FAILED)
+
+    def test_docker_cp_failure_falls_back_to_tar_pipe(self):
+        """#7157: ``docker cp`` fails but the tar pipe succeeds -> exit 0.
+
+        Verifies a fallback ``docker exec -i <cell> tar -xf - -C <dir>``
+        call per file and that one piped archive holds the exact source
+        bytes under the file basename.
+        """
+        import io
+        import tarfile
+
+        with tempfile.TemporaryDirectory() as td:
+            src = _write_modern_tree(Path(td), include_object_storage=True)
+            calls, fake_run = _stub_subprocess(returncodes={"cp": 1})
+            with unittest.mock.patch.object(hdw.subprocess, "run", side_effect=fake_run):
+                rc = hdw.deploy(src, dry_run=False)
+            self.assertEqual(rc, hdw.EXIT_OK)
+            tar_calls = [
+                c for c in calls
+                if c[0][:2] == ["docker", "exec"] and "tar" in c[0]
+            ]
+            files = hdw.iter_src_files(src.resolve())
+            self.assertEqual(len(tar_calls), len(files), msg=f"one tar fallback per file: {calls}")
+            first_argv = tar_calls[0][0]
+            self.assertEqual(first_argv[2], "-i")
+            self.assertEqual(first_argv[3:7], ["perc-matrix-cms-h2", "tar", "-xf", "-"])
+            payload = tar_calls[0][1].get("input")
+            self.assertIsNotNone(payload, msg="tar fallback must pipe archive bytes via input=")
+            with tarfile.open(fileobj=io.BytesIO(payload), mode="r") as tf:
+                members = tf.getmembers()
+                self.assertEqual(len(members), 1)
+                # The member is the bare basename of one deployed file with
+                # the exact source bytes.
+                matches = [f for f in files if f.name == members[0].name]
+                self.assertEqual(len(matches), 1, msg=members[0].name)
+                extracted = tf.extractfile(members[0])
+                assert extracted is not None
+                self.assertEqual(extracted.read(), matches[0].read_bytes())
+                # Codex review (P2): the archive must preserve the source
+                # mtime so Jetty Last-Modified stays ahead for stable URLs.
+                self.assertEqual(members[0].mtime, int(matches[0].stat().st_mtime))
 
     def test_skip_marker_allows_stale_bundle(self):
         with tempfile.TemporaryDirectory() as td:
