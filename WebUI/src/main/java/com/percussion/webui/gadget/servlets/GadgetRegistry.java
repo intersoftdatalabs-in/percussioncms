@@ -38,7 +38,9 @@ import tools.jackson.core.json.JsonFactory;
  * <p><strong>Single-load (ADR-004 / #2788 / #3025 / #2852 / residual #5810 / parent #2632;
  * dual-load fallback removed #6440):</strong> loads only the modern {@code gadget-catalog.json}
  * on the classpath. The legacy {@code GadgetRegistry.xml} fallback was retired in #5810 and its
- * selection remnants (dual-load overload, legacy source, legacy counters) were removed here:
+ * selection remnants (dual-load overload, legacy source, legacy counters) were removed here;
+ * the dead {@code com/percussion/webui/gadget/servlets/GadgetRegistry.xml} classpath resource
+ * itself was deleted (#7094, absence pinned by {@code GadgetRegistryTest}):
  * when the modern catalog is absent, empty, or unreadable the load returns an empty map and logs
  * ERROR (no silent legacy load, nothing invented). Do <strong>not</strong> reintroduce a
  * legacy fallback.
@@ -64,9 +66,9 @@ public final class GadgetRegistry {
       "com/percussion/webui/gadget/servlets/gadget-catalog.json";
 
   /**
-   * Which resource satisfied the last {@link #loadGadgetTypeMap()} call. The retired legacy
-   * {@code GadgetRegistry.xml} source ({@code LEGACY_REGISTRY_XML}) was removed with the
-   * dual-load fallback (#6440) — it can never be produced.
+   * Which resource satisfied the last {@link #loadGadgetTypeMap()} call. There is no legacy
+   * value: the dual-load fallback was removed (#6440) and the dead {@code GadgetRegistry.xml}
+   * classpath resource itself was deleted (#7094) — only the values below can ever be produced.
    */
   public enum Source {
     /** Modern {@code gadget-catalog.json}. */

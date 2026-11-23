@@ -18,6 +18,7 @@ package com.percussion.webui.gadget.servlets;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
@@ -28,8 +29,9 @@ import org.junit.Test;
 /**
  * Regression for v8.1.7 PR #722 / #885: Percussion + Deprecated groups. Issue #2788 / #3025
  * single-load: {@code gadget-catalog.json} is the sole runtime source (dual-load fallback
- * removed #6440; legacy {@code GadgetRegistry.xml} parser removed #6447) — modern
- * absent/empty/unreadable yields an empty map with source NONE.
+ * removed #6440; legacy {@code GadgetRegistry.xml} parser removed #6447; dead classpath
+ * resource deleted #7094) — modern absent/empty/unreadable yields an empty map with source
+ * NONE.
  */
 public class GadgetRegistryTest {
 
@@ -198,6 +200,20 @@ public class GadgetRegistryTest {
     assertTrue(
         "shipped gadget-catalog.json must be on the WebUI classpath",
         GadgetRegistry.class.getClassLoader().getResource(GadgetRegistry.CATALOG_RESOURCE) != null);
+  }
+
+  /**
+   * Issue #7107 (shim-audit step 2, parent #2626): the dead {@code GadgetRegistry.xml}
+   * classpath resource was deleted (#7094) — it must never silently return. Fails if the
+   * file is ever re-added under the old path.
+   */
+  @Test
+  public void deletedLegacyRegistryXmlIsAbsentFromClasspath() {
+    assertNull(
+        "deleted legacy GadgetRegistry.xml must stay off the WebUI classpath",
+        GadgetRegistry.class
+            .getClassLoader()
+            .getResource("com/percussion/webui/gadget/servlets/GadgetRegistry.xml"));
   }
 
   /**
