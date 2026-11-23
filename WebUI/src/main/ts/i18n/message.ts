@@ -80,6 +80,15 @@ export function resolveMessage(key: string, args?: unknown[]): string {
       const resolved = args != null ? i18n.message(key, args) : i18n.message(key);
       // Real translation: non-empty and not an echo of the catalog key
       if (typeof resolved === "string" && resolved.trim() && resolved !== key) {
+        // Server trims missing keys to the text after @ WITHOUT substituting
+        // args (tmx.jsp ___psxTrimKey). When the "translation" is exactly that
+        // uninterpolated fallback, interpolate here so a stale catalog that
+        // lacks the TU still renders args instead of a literal {0} (#7106).
+        // A genuine translation that already substituted args differs from the
+        // plain fallback, so this never double-substitutes.
+        if (args != null && resolved === fallbackLabelFromKey(key)) {
+          return fallbackLabelFromKey(key, args);
+        }
         return resolved;
       }
       // Missing key / empty stub / key echo → human text after @ (args interpolated, #7106)

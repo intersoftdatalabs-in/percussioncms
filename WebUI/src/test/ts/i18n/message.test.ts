@@ -49,6 +49,26 @@ describe("message / TMX fallback", () => {
     ).toBe("Unknown file driver: WEIRD");
   });
 
+  it("message interpolates args when I18N returns the server-trimmed label (#7106)", () => {
+    // Real tmx.jsp behavior for a missing TU: ___psxTrimKey returns the text
+    // after @ with NO arg substitution (not a full-key echo).
+    (window as unknown as { I18N: { message: (k: string) => string } }).I18N = {
+      message: (k: string) => k.slice(k.lastIndexOf("@") + 1),
+    };
+    expect(
+      message("perc.ui.publish.modern@Unknown file driver: {0}", ["WEIRD"]),
+    ).toBe("Unknown file driver: WEIRD");
+  });
+
+  it("message does not double-substitute a genuine translation (#7106)", () => {
+    // Server substitutes args when the TU exists; resolveMessage must pass it through.
+    (window as unknown as { I18N: { message: () => string } }).I18N = {
+      message: () => "Unknown file driver: WEIRD",
+    };
+    expect(
+      message("perc.ui.publish.modern@Unknown file driver: {0}", ["WEIRD"]),
+    ).toBe("Unknown file driver: WEIRD");
+  });
   it("message interpolates args when I18N is missing (#7106)", () => {
     expect(
       message("perc.ui.publish.modern@Unknown file driver: {0}", ["WEIRD"]),
