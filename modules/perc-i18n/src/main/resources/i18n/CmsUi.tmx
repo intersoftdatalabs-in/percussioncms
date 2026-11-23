@@ -26383,6 +26383,613 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Secret key">
       <tuv xml:lang="en-us"><seg>Secret key</seg></tuv>
     </tu>
+    <!-- #7105: delivery-panel PUBLISH_DELIVERY_* canonical units (follow-on to #7076). en-us only; other locales fall back to en-us. -->
+    <tu tuid="perc.ui.publish.modern@Delivery type name already exists">
+      <tuv xml:lang="en-us"><seg>Delivery type name already exists</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database connection">
+      <tuv xml:lang="en-us"><seg>Database connection</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database host">
+      <tuv xml:lang="en-us"><seg>Database host</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database name">
+      <tuv xml:lang="en-us"><seg>Database name</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@MSSQL owner">
+      <tuv xml:lang="en-us"><seg>MSSQL owner</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database password">
+      <tuv xml:lang="en-us"><seg>Database password</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database port">
+      <tuv xml:lang="en-us"><seg>Database port</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Oracle schema">
+      <tuv xml:lang="en-us"><seg>Oracle schema</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Oracle SID">
+      <tuv xml:lang="en-us"><seg>Oracle SID</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database user id">
+      <tuv xml:lang="en-us"><seg>Database user id</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP folder">
+      <tuv xml:lang="en-us"><seg>FTP folder</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP host">
+      <tuv xml:lang="en-us"><seg>FTP host</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP password">
+      <tuv xml:lang="en-us"><seg>FTP password</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP port">
+      <tuv xml:lang="en-us"><seg>FTP port</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP user id">
+      <tuv xml:lang="en-us"><seg>FTP user id</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTPS folder">
+      <tuv xml:lang="en-us"><seg>FTPS folder</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTPS host">
+      <tuv xml:lang="en-us"><seg>FTPS host</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTPS port">
+      <tuv xml:lang="en-us"><seg>FTPS port</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTPS user id">
+      <tuv xml:lang="en-us"><seg>FTPS user id</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP folder">
+      <tuv xml:lang="en-us"><seg>SFTP folder</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP host">
+      <tuv xml:lang="en-us"><seg>SFTP host</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP passphrase">
+      <tuv xml:lang="en-us"><seg>SFTP passphrase</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP port">
+      <tuv xml:lang="en-us"><seg>SFTP port</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP private key">
+      <tuv xml:lang="en-us"><seg>SFTP private key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP username">
+      <tuv xml:lang="en-us"><seg>SFTP username</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Amazon S3 access key">
+      <tuv xml:lang="en-us"><seg>Amazon S3 access key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Amazon S3 bucket">
+      <tuv xml:lang="en-us"><seg>Amazon S3 bucket</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Amazon S3 region">
+      <tuv xml:lang="en-us"><seg>Amazon S3 region</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Amazon S3 secret key">
+      <tuv xml:lang="en-us"><seg>Amazon S3 secret key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Local folder">
+      <tuv xml:lang="en-us"><seg>Local folder</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Connection test">
+      <tuv xml:lang="en-us"><seg>Connection test</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Mark delivery server as default">
+      <tuv xml:lang="en-us"><seg>Mark delivery server as default</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Rename delivery server">
+      <tuv xml:lang="en-us"><seg>Rename delivery server</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@* Host">
+      <tuv xml:lang="en-us"><seg>* Host</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@* Port">
+      <tuv xml:lang="en-us"><seg>* Port</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@* User ID">
+      <tuv xml:lang="en-us"><seg>* User ID</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@* New password">
+      <tuv xml:lang="en-us"><seg>* New password</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@* Database">
+      <tuv xml:lang="en-us"><seg>* Database</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@* Owner">
+      <tuv xml:lang="en-us"><seg>* Owner</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@* Schema">
+      <tuv xml:lang="en-us"><seg>* Schema</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@* SID">
+      <tuv xml:lang="en-us"><seg>* SID</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@* Name">
+      <tuv xml:lang="en-us"><seg>* Name</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@* Bucket">
+      <tuv xml:lang="en-us"><seg>* Bucket</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@* Region">
+      <tuv xml:lang="en-us"><seg>* Region</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@* New access key">
+      <tuv xml:lang="en-us"><seg>* New access key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@* New secret key">
+      <tuv xml:lang="en-us"><seg>* New secret key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@* New passphrase">
+      <tuv xml:lang="en-us"><seg>* New passphrase</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@* New private key">
+      <tuv xml:lang="en-us"><seg>* New private key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database server">
+      <tuv xml:lang="en-us"><seg>Database server</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Server IP / host">
+      <tuv xml:lang="en-us"><seg>Server IP / host</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SID / service">
+      <tuv xml:lang="en-us"><seg>SID / service</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Host">
+      <tuv xml:lang="en-us"><seg>Host</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Port">
+      <tuv xml:lang="en-us"><seg>Port</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@User ID">
+      <tuv xml:lang="en-us"><seg>User ID</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Type">
+      <tuv xml:lang="en-us"><seg>Type</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Default">
+      <tuv xml:lang="en-us"><seg>Default</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database">
+      <tuv xml:lang="en-us"><seg>Database</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database / SID">
+      <tuv xml:lang="en-us"><seg>Database / SID</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Region">
+      <tuv xml:lang="en-us"><seg>Region</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Bucket">
+      <tuv xml:lang="en-us"><seg>Bucket</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Owner">
+      <tuv xml:lang="en-us"><seg>Owner</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Schema">
+      <tuv xml:lang="en-us"><seg>Schema</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SID">
+      <tuv xml:lang="en-us"><seg>SID</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Cancel">
+      <tuv xml:lang="en-us"><seg>Cancel</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set connection">
+      <tuv xml:lang="en-us"><seg>Set connection</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save connection">
+      <tuv xml:lang="en-us"><seg>Save connection</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set host">
+      <tuv xml:lang="en-us"><seg>Set host</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save host">
+      <tuv xml:lang="en-us"><seg>Save host</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set database name">
+      <tuv xml:lang="en-us"><seg>Set database name</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save database name">
+      <tuv xml:lang="en-us"><seg>Save database name</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set MSSQL owner">
+      <tuv xml:lang="en-us"><seg>Set MSSQL owner</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save MSSQL owner">
+      <tuv xml:lang="en-us"><seg>Save MSSQL owner</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set password">
+      <tuv xml:lang="en-us"><seg>Set password</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save password">
+      <tuv xml:lang="en-us"><seg>Save password</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set port">
+      <tuv xml:lang="en-us"><seg>Set port</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save port">
+      <tuv xml:lang="en-us"><seg>Save port</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set Oracle schema">
+      <tuv xml:lang="en-us"><seg>Set Oracle schema</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save Oracle schema">
+      <tuv xml:lang="en-us"><seg>Save Oracle schema</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set Oracle SID">
+      <tuv xml:lang="en-us"><seg>Set Oracle SID</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save Oracle SID">
+      <tuv xml:lang="en-us"><seg>Save Oracle SID</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set user id">
+      <tuv xml:lang="en-us"><seg>Set user id</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save user id">
+      <tuv xml:lang="en-us"><seg>Save user id</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set folder">
+      <tuv xml:lang="en-us"><seg>Set folder</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save folder">
+      <tuv xml:lang="en-us"><seg>Save folder</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set username">
+      <tuv xml:lang="en-us"><seg>Set username</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save username">
+      <tuv xml:lang="en-us"><seg>Save username</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set SFTP private key">
+      <tuv xml:lang="en-us"><seg>Set SFTP private key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save SFTP private key">
+      <tuv xml:lang="en-us"><seg>Save SFTP private key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set SFTP passphrase">
+      <tuv xml:lang="en-us"><seg>Set SFTP passphrase</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save SFTP passphrase">
+      <tuv xml:lang="en-us"><seg>Save SFTP passphrase</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set S3 access key">
+      <tuv xml:lang="en-us"><seg>Set S3 access key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save S3 access key">
+      <tuv xml:lang="en-us"><seg>Save S3 access key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set S3 region">
+      <tuv xml:lang="en-us"><seg>Set S3 region</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save S3 region">
+      <tuv xml:lang="en-us"><seg>Save S3 region</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set S3 bucket">
+      <tuv xml:lang="en-us"><seg>Set S3 bucket</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save S3 bucket">
+      <tuv xml:lang="en-us"><seg>Save S3 bucket</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Set S3 secret key">
+      <tuv xml:lang="en-us"><seg>Set S3 secret key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save S3 secret key">
+      <tuv xml:lang="en-us"><seg>Save S3 secret key</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Rename">
+      <tuv xml:lang="en-us"><seg>Rename</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save name">
+      <tuv xml:lang="en-us"><seg>Save name</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Mark as default">
+      <tuv xml:lang="en-us"><seg>Mark as default</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Save default">
+      <tuv xml:lang="en-us"><seg>Save default</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Test connection">
+      <tuv xml:lang="en-us"><seg>Test connection</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Leave blank to clear the folder.">
+      <tuv xml:lang="en-us"><seg>Leave blank to clear the folder.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Mark this server as the site default? Other servers lose the default badge only after a successful save.">
+      <tuv xml:lang="en-us"><seg>Mark this server as the site default? Other servers lose the default badge only after a successful save.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database connection can be set only on a database delivery server.">
+      <tuv xml:lang="en-us"><seg>Database connection can be set only on a database delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Yes">
+      <tuv xml:lang="en-us"><seg>Yes</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@No">
+      <tuv xml:lang="en-us"><seg>No</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Select">
+      <tuv xml:lang="en-us"><seg>Select</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Connection test failed. Check the server settings and try again.">
+      <tuv xml:lang="en-us"><seg>Connection test failed. Check the server settings and try again.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Connection test succeeded.">
+      <tuv xml:lang="en-us"><seg>Connection test succeeded.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database host can be set only on a database delivery server.">
+      <tuv xml:lang="en-us"><seg>Database host can be set only on a database delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database host is required">
+      <tuv xml:lang="en-us"><seg>Database host is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database host must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>Database host must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database name can be set only on a MySQL or MSSQL delivery server.">
+      <tuv xml:lang="en-us"><seg>Database name can be set only on a MySQL or MSSQL delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database name is required">
+      <tuv xml:lang="en-us"><seg>Database name is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database name must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>Database name must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database password can be set only on a database delivery server.">
+      <tuv xml:lang="en-us"><seg>Database password can be set only on a database delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Stored password is never shown.">
+      <tuv xml:lang="en-us"><seg>Stored password is never shown.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database password is required">
+      <tuv xml:lang="en-us"><seg>Database password is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database password must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>Database password must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database port can be set only on a database delivery server.">
+      <tuv xml:lang="en-us"><seg>Database port can be set only on a database delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database port is required">
+      <tuv xml:lang="en-us"><seg>Database port is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database port must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>Database port must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database user id can be set only on a database delivery server.">
+      <tuv xml:lang="en-us"><seg>Database user id can be set only on a database delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database user id is required">
+      <tuv xml:lang="en-us"><seg>Database user id is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Database user id must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>Database user id must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@This server is already the default.">
+      <tuv xml:lang="en-us"><seg>This server is already the default.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Default flag must be true to mark a delivery server as default.">
+      <tuv xml:lang="en-us"><seg>Default flag must be true to mark a delivery server as default.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Publish server name already exists">
+      <tuv xml:lang="en-us"><seg>Publish server name already exists</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Invalid character in server name. Characters allowed are: a-z, 0-9, ., _ and -.">
+      <tuv xml:lang="en-us"><seg>Invalid character in server name. Characters allowed are: a-z, 0-9, ., _ and -.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Name is a required field.">
+      <tuv xml:lang="en-us"><seg>Name is a required field.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Server name cannot have more than 50 characters.">
+      <tuv xml:lang="en-us"><seg>Server name cannot have more than 50 characters.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTPS folder can be set only on an FTPS delivery server.">
+      <tuv xml:lang="en-us"><seg>FTPS folder can be set only on an FTPS delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTPS folder must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>FTPS folder must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTPS host can be set only on an FTPS delivery server.">
+      <tuv xml:lang="en-us"><seg>FTPS host can be set only on an FTPS delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTPS host is required">
+      <tuv xml:lang="en-us"><seg>FTPS host is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTPS host must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>FTPS host must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTPS port can be set only on an FTPS delivery server.">
+      <tuv xml:lang="en-us"><seg>FTPS port can be set only on an FTPS delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTPS port is required">
+      <tuv xml:lang="en-us"><seg>FTPS port is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTPS port must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>FTPS port must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTPS user id can be set only on an FTPS delivery server.">
+      <tuv xml:lang="en-us"><seg>FTPS user id can be set only on an FTPS delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTPS user id is required">
+      <tuv xml:lang="en-us"><seg>FTPS user id is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTPS user id must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>FTPS user id must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP folder can be set only on an FTP delivery server.">
+      <tuv xml:lang="en-us"><seg>FTP folder can be set only on an FTP delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP folder must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>FTP folder must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP host can be set only on an FTP delivery server.">
+      <tuv xml:lang="en-us"><seg>FTP host can be set only on an FTP delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP host is required">
+      <tuv xml:lang="en-us"><seg>FTP host is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP host must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>FTP host must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP password can be set only on an FTP delivery server.">
+      <tuv xml:lang="en-us"><seg>FTP password can be set only on an FTP delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP password is required">
+      <tuv xml:lang="en-us"><seg>FTP password is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP password must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>FTP password must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP port can be set only on an FTP delivery server.">
+      <tuv xml:lang="en-us"><seg>FTP port can be set only on an FTP delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP port is required">
+      <tuv xml:lang="en-us"><seg>FTP port is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP port must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>FTP port must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP user id can be set only on an FTP delivery server.">
+      <tuv xml:lang="en-us"><seg>FTP user id can be set only on an FTP delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP user id is required">
+      <tuv xml:lang="en-us"><seg>FTP user id is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@FTP user id must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>FTP user id must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Local folder can be set only on a Local delivery server.">
+      <tuv xml:lang="en-us"><seg>Local folder can be set only on a Local delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Local folder must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>Local folder must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@MSSQL owner can be set only on an MSSQL delivery server.">
+      <tuv xml:lang="en-us"><seg>MSSQL owner can be set only on an MSSQL delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@MSSQL owner is required">
+      <tuv xml:lang="en-us"><seg>MSSQL owner is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@MSSQL owner must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>MSSQL owner must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Oracle schema can be set only on an Oracle delivery server.">
+      <tuv xml:lang="en-us"><seg>Oracle schema can be set only on an Oracle delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Oracle schema is required">
+      <tuv xml:lang="en-us"><seg>Oracle schema is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Oracle schema must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>Oracle schema must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Oracle SID can be set only on an Oracle delivery server.">
+      <tuv xml:lang="en-us"><seg>Oracle SID can be set only on an Oracle delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Oracle SID is required">
+      <tuv xml:lang="en-us"><seg>Oracle SID is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Oracle SID must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>Oracle SID must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@S3 access key can be set only on an Amazon S3 delivery server.">
+      <tuv xml:lang="en-us"><seg>S3 access key can be set only on an Amazon S3 delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Stored access key is never shown.">
+      <tuv xml:lang="en-us"><seg>Stored access key is never shown.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@S3 access key is required">
+      <tuv xml:lang="en-us"><seg>S3 access key is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@S3 access key must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>S3 access key must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@S3 bucket can be set only on an Amazon S3 delivery server.">
+      <tuv xml:lang="en-us"><seg>S3 bucket can be set only on an Amazon S3 delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@S3 bucket is required">
+      <tuv xml:lang="en-us"><seg>S3 bucket is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@S3 bucket must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>S3 bucket must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@S3 region can be set only on an Amazon S3 delivery server.">
+      <tuv xml:lang="en-us"><seg>S3 region can be set only on an Amazon S3 delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@S3 region is required">
+      <tuv xml:lang="en-us"><seg>S3 region is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@S3 region must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>S3 region must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@S3 secret key can be set only on an Amazon S3 delivery server.">
+      <tuv xml:lang="en-us"><seg>S3 secret key can be set only on an Amazon S3 delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Stored secret key is never shown.">
+      <tuv xml:lang="en-us"><seg>Stored secret key is never shown.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@S3 secret key is required">
+      <tuv xml:lang="en-us"><seg>S3 secret key is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@S3 secret key must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>S3 secret key must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP folder can be set only on an SFTP delivery server.">
+      <tuv xml:lang="en-us"><seg>SFTP folder can be set only on an SFTP delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP folder must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>SFTP folder must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP host can be set only on an SFTP delivery server.">
+      <tuv xml:lang="en-us"><seg>SFTP host can be set only on an SFTP delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP host is required">
+      <tuv xml:lang="en-us"><seg>SFTP host is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP host must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>SFTP host must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP passphrase can be set only on an SFTP delivery server.">
+      <tuv xml:lang="en-us"><seg>SFTP passphrase can be set only on an SFTP delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Stored passphrase is never shown.">
+      <tuv xml:lang="en-us"><seg>Stored passphrase is never shown.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP passphrase is required">
+      <tuv xml:lang="en-us"><seg>SFTP passphrase is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP passphrase must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>SFTP passphrase must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP port can be set only on an SFTP delivery server.">
+      <tuv xml:lang="en-us"><seg>SFTP port can be set only on an SFTP delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP port is required">
+      <tuv xml:lang="en-us"><seg>SFTP port is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP port must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>SFTP port must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP private key can be set only on an SFTP delivery server.">
+      <tuv xml:lang="en-us"><seg>SFTP private key can be set only on an SFTP delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@Stored private key is never shown.">
+      <tuv xml:lang="en-us"><seg>Stored private key is never shown.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP private key is required">
+      <tuv xml:lang="en-us"><seg>SFTP private key is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP private key must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>SFTP private key must be 255 characters or fewer</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP username can be set only on an SFTP delivery server.">
+      <tuv xml:lang="en-us"><seg>SFTP username can be set only on an SFTP delivery server.</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP username is required">
+      <tuv xml:lang="en-us"><seg>SFTP username is required</seg></tuv>
+    </tu>
+    <tu tuid="perc.ui.publish.modern@SFTP username must be 255 characters or fewer">
+      <tuv xml:lang="en-us"><seg>SFTP username must be 255 characters or fewer</seg></tuv>
+    </tu>
     <tu tuid="perc.ui.publish.modern@Publish Forbidden">
       <tuv xml:lang="en-us"><seg>You are not allowed to publish.</seg></tuv>
       <tuv xml:lang="ar"><seg>غير مسموح لك بالنشر.</seg></tuv>
