@@ -43,6 +43,15 @@ export interface EditorWorkflowPanelProps {
   assigneeRequiredTriggers?: readonly string[] | null;
   onTransition: (trigger: string) => void;
   busy?: boolean;
+  /**
+   * True while a panel transition run is in flight (#7134, parent #4532).
+   * Rendered as a persistently-mounted polite live region (same pattern as
+   * the publish/takedown loading rows, #7087/#7125) so screen-reader users
+   * hear the run start; the text swaps on the same node because a live
+   * region mounted together with its text is missed by most SR/browser
+   * combos. Reuses the assignee-dialog busy copy — no new i18n key.
+   */
+  transitionRunning?: boolean;
   errorKey?: string | null;
   errorDetail?: string;
   /**
@@ -82,6 +91,7 @@ export function EditorWorkflowPanel({
   assigneeRequiredTriggers,
   onTransition,
   busy = false,
+  transitionRunning = false,
   errorKey,
   errorDetail,
   commentInvalid = false,
@@ -181,6 +191,13 @@ export function EditorWorkflowPanel({
           })}
         </div>
       )}
+      <p
+        className={styles.meta}
+        role="status"
+        data-testid="editor-workflow-running"
+      >
+        {transitionRunning ? message(EDITOR_MSG.WORKFLOW_ASSIGNEE_BUSY) : ""}
+      </p>
       <label className={styles.field}>
         <span className={styles.label} id="editor-workflow-comment-label">
           {message(EDITOR_MSG.WORKFLOW_COMMENT)}

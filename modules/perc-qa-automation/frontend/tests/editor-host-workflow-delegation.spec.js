@@ -225,7 +225,8 @@ test.describe("React Content Editor transition delegation notice", () => {
         await expect(page.locator(`[data-testid="${TEST_IDS.workflowState}"]`)).toContainText(
           "Draft",
         );
-        await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toHaveCount(0);
+        // No success claimed (#7134): the result region stays mounted but empty.
+        await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toBeEmpty();
         await expect(page.getByTestId(DELEGATED)).toHaveCount(0);
         expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       }

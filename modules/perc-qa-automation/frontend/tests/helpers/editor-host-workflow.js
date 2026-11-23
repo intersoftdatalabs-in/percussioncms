@@ -32,6 +32,7 @@ const TEST_IDS = Object.freeze({
   comment: "editor-workflow-comment",
   error: "editor-workflow-error",
   done: "editor-workflow-done",
+  running: "editor-workflow-running",
   triggerPrefix: "editor-workflow-trigger-",
 });
 

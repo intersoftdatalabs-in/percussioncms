@@ -177,7 +177,9 @@ test.describe("React Content Editor server-driven comment-required transitions",
       await page.locator(`[data-testid="${triggerTestId("Approve")}"]`).click();
       await expect(page.getByTestId(TEST_IDS.error)).toContainText(/enter a comment/i);
       expect(calls).toEqual([]);
-      await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toHaveCount(0);
+      // Comment gate claims no success (#7134): the result region stays
+      // mounted but empty.
+      await expect(page.locator(`[data-testid="${TEST_IDS.done}"]`)).toBeEmpty();
 
       await page.locator(`[data-testid="${triggerTestId("Submit")}"]`).click();
       await expect.poll(() => calls.length).toBe(1);
