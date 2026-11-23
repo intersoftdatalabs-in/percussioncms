@@ -332,29 +332,35 @@ test.describe("Developer content type search indexing chrome (#4035 CD-10)", () 
     const status = page.locator('[data-testid="developer-ct-lock-status"]');
 
     await expect(box).toBeDisabled();
-    await lockBtn.click();
-    await expect(status).toHaveText(/Locked by you/i, { timeout: 20_000 });
-    await expect(box).toBeEnabled();
-    await box.click();
-    await expect(saveBtn).toBeEnabled();
-    await saveBtn.click();
-    await expect(page.locator('[data-testid="developer-ct-detail-error"]')).toBeVisible({
-      timeout: 20_000,
-    });
-    await expect(status).toHaveText(/Not locked/i);
-    await expect(box).toBeDisabled();
-    await expect(saveBtn).toBeDisabled();
-
-    // Cleanup (#7083): the 409 above was route-faked, so the real lock from
-    // lockBtn is still held by this session — release it so re-runs and other
-    // specs start clean. Same-session unlock; no PUTs were persisted.
-    const lockedTypeName = (
-      await page.locator('[data-testid="developer-ct-detail-name"]').innerText()
-    ).trim();
-    const cleanupUnlock = await page.request.post(
-      `${BASE_URL}/Rhythmyx/services/contenttypes/${encodeURIComponent(lockedTypeName)}/unlock`,
-    );
-    expect(cleanupUnlock.ok(), `cleanup unlock HTTP ${cleanupUnlock.status()}`).toBe(true);
+    try {
+      await lockBtn.click();
+      await expect(status).toHaveText(/Locked by you/i, { timeout: 20_000 });
+      await expect(box).toBeEnabled();
+      await box.click();
+      await expect(saveBtn).toBeEnabled();
+      await saveBtn.click();
+      await expect(page.locator('[data-testid="developer-ct-detail-error"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(status).toHaveText(/Not locked/i);
+      await expect(box).toBeDisabled();
+      await expect(saveBtn).toBeDisabled();
+    } finally {
+      // Cleanup (#7083): the 409 above was route-faked, so the real lock
+      // from lockBtn is still held by this session — release it in a
+      // finally so a failed assertion above cannot leak the lock into
+      // later specs and re-runs. Best-effort: the assertions already ran.
+      try {
+        const lockedTypeName = (
+          await page.locator('[data-testid="developer-ct-detail-name"]').innerText()
+        ).trim();
+        await page.request.post(
+          `${BASE_URL}/Rhythmyx/services/contenttypes/${encodeURIComponent(lockedTypeName)}/unlock`,
+        );
+      } catch (e) {
+        // Best-effort cleanup; the assertions above already ran.
+      }
+    }
   });
 
   test("GET searchIndexing failure shows non-blocking notice; lock still works (#7083 CD-10)", async ({
@@ -402,8 +408,9 @@ test.describe("Developer content type search indexing chrome (#4035 CD-10)", () 
     await expect(box).toBeChecked();
 
     // Lock still works and the checkbox names the notice for screen readers.
-    // NOTE: own type (not the default percPage row) — the 409 test above holds
-    // a real server-side lock on the default row (its 409 is route-faked).
+    // NOTE: own type (not the default percPage row) — the 409 test above
+    // releases its real server-side lock in its own finally cleanup, but
+    // this test stays independent of that lock state either way.
     await expect(box).toBeDisabled();
     await lockBtn.click();
     await expect(status).toHaveText(/Locked by you/i, { timeout: 20_000 });
