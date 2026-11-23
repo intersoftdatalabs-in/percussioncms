@@ -26711,9 +26711,6 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Select">
       <tuv xml:lang="en-us"><seg>Select</seg></tuv>
     </tu>
-    <tu tuid="perc.ui.publish.modern@Unknown file driver: {0}">
-      <tuv xml:lang="en-us"><seg>Unknown file driver: {0}</seg></tuv>
-    </tu>
     <tu tuid="perc.ui.publish.modern@Connection test failed. Check the server settings and try again.">
       <tuv xml:lang="en-us"><seg>Connection test failed. Check the server settings and try again.</seg></tuv>
     </tu>
@@ -27106,7 +27103,7 @@ Osparade ändringar av '{1}' kan gå förlorade.</seg></tuv></tu>
       <tuv xml:lang="zh-tw"><seg>服务器名称</seg></tuv>
     <tuv xml:lang="ru"><seg>Имя сервера</seg></tuv><tuv xml:lang="he"><seg>שם השרת</seg></tuv><tuv xml:lang="uk"><seg>Ім'я сервера</seg></tuv><tuv xml:lang="lou"><seg>Sèrvé non</seg></tuv><tuv xml:lang="pl"><seg>Nazwa serwera</seg></tuv><tuv xml:lang="tr"><seg>Sunucu adı</seg></tuv><tuv xml:lang="nb"><seg>Servernavn</seg></tuv><tuv xml:lang="sv"><seg>Servernamn</seg></tuv></tu>
     <tu tuid="perc.ui.publish.modern@Delivery Type">
-      <tuv xml:lang="en-us"><seg>Delivery Type</seg></tuv>
+      <tuv xml:lang="en-us"><seg>Delivery type</seg></tuv>
       <tuv xml:lang="ar"><seg>نوع التسليم</seg></tuv>
       <tuv xml:lang="bn"><seg>ডেলিভারির ধরন</seg></tuv>
       <tuv xml:lang="de"><seg>Lieferart</seg></tuv>

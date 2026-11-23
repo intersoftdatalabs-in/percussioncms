@@ -52,16 +52,19 @@ import org.xml.sax.InputSource;
  * (#6894/#7056/#7076); other locales resolve through the {@code regional -&gt; base -&gt;
  * en-us} chain, so no bulk translation back-fill is in scope for this issue.
  *
- * <p>Note: {@code Unknown file driver: {0}} is also registered by open PR #7149 (issue #7106);
- * both PRs add the identical {@code en-us}-only unit at disjoint anchors, so whichever lands
- * second drops its copy on rebase.
+ * <p>Note: {@code Unknown file driver: {0}} is also registered by #7149 (issue #7106),
+ * which landed first; this change pins that merged copy instead of adding its own.
+ *
+ * <p>One key is case-divergent by design: tuid {@code perc.ui.publish.modern@Delivery Type}
+ * ships sentence-case {@code Delivery type} (product UI convention), so it is pinned in
+ * {@code EXPECTED_SEG_BY_TUID} instead of {@code EXPECTED_ENGLISH} (which derives the tuid
+ * from the English text and requires the segment to equal the suffix).
  */
 public class PSPublishDeliveryPanelKeysTmxTest {
 
   /** Expected {@code perc.ui.publish.modern@...} tuid suffix (English) for every delivery key. */
   private static final List<String> EXPECTED_ENGLISH = List.of(
       "Delivery type name already exists",
-      "Delivery Type",
       "Database connection",
       "Database host",
       "Database name",
@@ -271,9 +274,19 @@ public class PSPublishDeliveryPanelKeysTmxTest {
       "SFTP username is required",
       "SFTP username must be 255 characters or fewer");
 
+  /**
+   * Explicit tuid-to-segment pins for keys whose shipped {@code en-us} copy intentionally differs
+   * from the tuid suffix (product UI sentence-case convention). Matched on tuid, not on
+   * segment-equals-suffix.
+   */
+  private static final Map<String, String> EXPECTED_SEG_BY_TUID =
+      Map.of("perc.ui.publish.modern@Delivery Type", "Delivery type");
+
   @Test
   public void deliveryPanelKeys_areRegisteredWithEnglish() throws Exception {
-    assertKeysRegistered(loadEnSegsByTuid(), EXPECTED_ENGLISH);
+    Map<String, List<String>> enSegsByTuid = loadEnSegsByTuid();
+    assertKeysRegistered(enSegsByTuid, EXPECTED_ENGLISH);
+    assertExplicitSegs(enSegsByTuid, EXPECTED_SEG_BY_TUID);
   }
 
   private static Map<String, List<String>> loadEnSegsByTuid() throws Exception {
@@ -330,6 +343,25 @@ public class PSPublishDeliveryPanelKeysTmxTest {
         duplicated.isEmpty(), "CmsUi.tmx has duplicate delivery-panel keys: " + duplicated);
     assertTrue(
         mismatched.isEmpty(), "CmsUi.tmx en-us seg differs from TS fallback: " + mismatched);
+  }
+
+  private static void assertExplicitSegs(
+      Map<String, List<String>> enSegsByTuid, Map<String, String> expectedByTuid) {
+    List<String> problems = new ArrayList<>();
+    for (Map.Entry<String, String> e : expectedByTuid.entrySet()) {
+      List<String> segs = enSegsByTuid.get(e.getKey());
+      if (segs == null || segs.isEmpty()) {
+        problems.add(e.getKey() + " -> missing");
+      } else {
+        if (segs.size() > 1) {
+          problems.add(e.getKey() + " -> duplicate (" + segs.size() + " en-us segs)");
+        }
+        if (!e.getValue().equals(segs.get(0))) {
+          problems.add(e.getKey() + " -> " + segs.get(0));
+        }
+      }
+    }
+    assertTrue(problems.isEmpty(), "CmsUi.tmx explicit tuid pins failed: " + problems);
   }
 
   /**
