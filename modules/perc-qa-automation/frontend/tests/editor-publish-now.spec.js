@@ -149,10 +149,15 @@ test.describe("React Content Editor Publish now dialog (#5939)", () => {
       await stubEditorApis(page, { publishCalls });
       await openPublishDialog(page);
       expect(publishCalls).toEqual([]);
+      // The done region stays mounted and empty until publish completes
+      // (persistent live region, #7135) — it must not pop in with its text.
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeAttached();
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeEmpty();
       await page.locator(`[data-testid="${TEST_IDS.publishConfirm}"]`).click();
       await expect.poll(() => publishCalls.length).toBe(1);
       expect(isPagePublishUrl(publishCalls[0])).toBe(true);
       await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeVisible();
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).not.toBeEmpty();
       await expect(
         page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
       ).toHaveCount(0);
@@ -175,7 +180,7 @@ test.describe("React Content Editor Publish now dialog (#5939)", () => {
         page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
       ).toHaveCount(0);
       expect(publishCalls).toEqual([]);
-      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeEmpty();
     },
   );
 
@@ -200,7 +205,7 @@ test.describe("React Content Editor Publish now dialog (#5939)", () => {
       await expect(
         page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
       ).toBeVisible();
-      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeEmpty();
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
   );
@@ -226,7 +231,7 @@ test.describe("React Content Editor Publish now dialog (#5939)", () => {
       await expect(
         page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
       ).toBeVisible();
-      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeEmpty();
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
   );
@@ -252,7 +257,7 @@ test.describe("React Content Editor Publish now dialog (#5939)", () => {
       await expect(
         page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
       ).toBeVisible();
-      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeEmpty();
     },
   );
 });

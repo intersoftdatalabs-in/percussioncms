@@ -5290,11 +5290,21 @@ export function EditorHost({
               )}
             </span>
           ) : null}
-          {publishDone ? (
-            <span className={styles.meta} data-testid="editor-publish-done">
-              {message(EDITOR_MSG.PUBLISH_DONE)}
-            </span>
-          ) : null}
+          {/*
+            Publish result (#7135, parent #4532): the status region stays
+            mounted and only its text changes. A live region mounted
+            together with its text is missed by most SR/browser combos, so
+            the completion announcement would be unreliable (same pattern
+            as the workflow transition result, #7134).
+          */}
+          <span
+            className={styles.meta}
+            role="status"
+            tabIndex={-1}
+            data-testid="editor-publish-done"
+          >
+            {publishDone ? message(EDITOR_MSG.PUBLISH_DONE) : ""}
+          </span>
           {scheduleDone ? (
             <span className={styles.meta} data-testid="editor-schedule-done">
               {message(EDITOR_MSG.SCHEDULE_DONE)}
