@@ -4609,22 +4609,30 @@ function ContentExplorerShellInner({
           onDone={finishBulkStage}
         />
       ) : null}
-      {bulkStageStatus ? (
-        <div
-          data-testid="explorer-bulk-stage-cancelled"
-          data-mode={bulkStageStatus.mode}
-          role="status"
-          aria-live="polite"
-          style={{
-            gridColumn: "1 / -1",
-            padding: "8px 12px",
-            background: "#f1f5f9",
-            color: "#0f172a",
-          }}
-        >
-          {bulkStageStatus.text}
-        </div>
-      ) : null}
+      {/*
+        Bulk Stage / Remove-from-Staging cancel no-op banner (#7037). The
+        region stays mounted and only its text changes: a live region that
+        mounts together with its text is unreliable, so the empty region
+        renders without banner chrome and gains it when a status lands.
+      */}
+      <div
+        data-testid="explorer-bulk-stage-cancelled"
+        data-mode={bulkStageStatus ? bulkStageStatus.mode : undefined}
+        role="status"
+        aria-live="polite"
+        style={
+          bulkStageStatus
+            ? {
+                gridColumn: "1 / -1",
+                padding: "8px 12px",
+                background: "#f1f5f9",
+                color: "#0f172a",
+              }
+            : { gridColumn: "1 / -1" }
+        }
+      >
+        {bulkStageStatus ? bulkStageStatus.text : ""}
+      </div>
       {takedownRequest ? (
         <TakedownConfirmDialog
           items={takedownRequest.items}

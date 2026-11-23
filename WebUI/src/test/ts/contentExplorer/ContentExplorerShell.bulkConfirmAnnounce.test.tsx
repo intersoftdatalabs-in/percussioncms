@@ -440,4 +440,71 @@ describe("ContentExplorerShell bulk-confirm announcements (#7037)", () => {
     // hardcoded literal, so catalog locales apply to the announcement.
     expect(result.textContent).toContain("(unnamed)");
   });
+
+  it("bulk-stage cancel announces through a persistent shared live region", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return listingResponse([
+          {
+            id: "42",
+            name: "Home",
+            path: "/Sites/Demo/Home",
+            type: "page",
+            accessLevel: "WRITE",
+          },
+        ]);
+      }
+      return jsonResponse({});
+    });
+
+    renderShell(
+      <ContentExplorerShell
+        initialPath="/Sites/Demo"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => [
+          {
+            name: "Publish_Now",
+            label: "Publish Now",
+            sortRank: 1,
+            menuType: "MENUITEM",
+          },
+        ]}
+        loadWorkflowMenuActions={async () => null}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-row-42")).toBeInTheDocument();
+    });
+    // The region stays mounted from the start so the announcement is a
+    // text change, not a mount-with-text (which SR/browser combos miss).
+    const region = screen.getByTestId("explorer-bulk-stage-cancelled");
+    expect(region.getAttribute("role")).toBe("status");
+    expect(region.getAttribute("aria-live")).toBe("polite");
+    expect(region.textContent).toBe("");
+
+    fireEvent.click(screen.getByTestId("detail-row-42"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("action-toolbar-item-Stage"),
+      ).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("action-toolbar-item-Stage"));
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-bulk-stage-dialog"),
+      ).toBeInTheDocument();
+    });
+    fireEvent.click(screen.getByTestId("explorer-bulk-stage-cancel"));
+
+    // Cancelling swaps the text of the same node instead of mounting a
+    // new region, so the no-op announces reliably.
+    await waitFor(() => {
+      expect(
+        screen.getByTestId("explorer-bulk-stage-cancelled"),
+      ).toHaveTextContent(/cancel/i);
+    });
+    expect(screen.getByTestId("explorer-bulk-stage-cancelled")).toBe(region);
+  });
 });
