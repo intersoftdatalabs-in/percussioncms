@@ -196,6 +196,9 @@ test.describe("Explorer context-menu catalog failure shows error with Retry (#68
           .toBeGreaterThanOrEqual(2);
         await expect(error).toBeVisible({ timeout: 15_000 });
         await expect(retry).toBeFocused({ timeout: 15_000 });
+        await page.screenshot({
+          path: `test-results/live-proof-6874-context-menu-retry-focus.png`,
+        });
 
         // Pointer Retry against the now-healthy catalog swaps in actions.
         await retry.click();

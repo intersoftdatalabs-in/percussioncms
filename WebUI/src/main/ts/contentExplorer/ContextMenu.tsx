@@ -117,6 +117,26 @@ export interface ContextMenuProps {
  */
 const ACTIVATE_KEYS = new Set(["Enter", " "]);
 
+/**
+ * Visible keyboard focus ring for the catalog Retry button (#7122).
+ * Buttons are focusable by default but the menu container carries no UA
+ * outline styling, so the focus returned after a failed retry would be
+ * invisible to sighted keyboard operators. Inline styles cannot express
+ * {@code :focus-visible}, so this class carries the ring (same pattern
+ * as the tree rows in {@code ExplorerTree}, #7035, and the detail-list
+ * rows, #6596). Plain {@code :focus} is suppressed so pointer clicks do
+ * not leave a sticky outline.
+ */
+const CONTEXT_MENU_RETRY_FOCUS_CSS = `
+.perc-context-menu-retry:focus {
+  outline: none;
+}
+.perc-context-menu-retry:focus-visible {
+  outline: 2px solid #1a73e8;
+  outline-offset: 2px;
+}
+`;
+
 function activate(
   action: MenuAction,
   parent: MenuAction | undefined,
@@ -138,14 +158,6 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
   const baseId = useId();
   const menuRef = useRef<HTMLDivElement | null>(null);
   const retryButtonRef = useRef<HTMLButtonElement | null>(null);
-  /**
-   * Set on Retry click (#6874, same focus-return pattern as the
-   * checkout-owner panel in #6871). The button unmounts while the retried
-   * load is pending, so when the retry fails again focus is returned to
-   * the re-rendered Retry button instead of stranding keyboard operators
-   * on the menu container.
-   */
-  const retryArmedRef = useRef(false);
 
   useEffect(() => {
     setOpenPivot(null);
@@ -162,15 +174,32 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
     menuRef.current?.focus({ preventScroll: true });
   }, []);
 
+  /**
+   * Return focus to Retry on the pending → error transition (#7122).
+   * The button unmounts while the retried load is pending, so when the
+   * retry fails again focus is returned to the re-rendered button instead
+   * of stranding keyboard operators on the menu container / {@code <body>}.
+   *
+   * <p>Derived from the committed transition — not from a click-armed
+   * flag. The flag variant raced: the first failure's effect can flush
+   * after the Retry click arms it (likely under full-suite contention),
+   * consuming the flag on the stale commit so the retry's own error
+   * commit never refocused. Passive effects flush in commit order, so the
+   * ref below is an ordered state machine: a delayed first-failure effect
+   * focuses the still-mounted button harmlessly (or no-ops via the ref
+   * when a later pending render already unmounted it), and the retry's
+   * own error commit always refocuses afterwards.</p>
+   */
+  const prevPendingRef = useRef(false);
   useEffect(() => {
-    if (loadError && !pending && retryArmedRef.current) {
-      retryArmedRef.current = false;
+    const wasPending = prevPendingRef.current;
+    prevPendingRef.current = !!pending;
+    if (loadError && !pending && wasPending) {
       retryButtonRef.current?.focus();
     }
   }, [loadError, pending]);
 
   function handleRetry(): void {
-    retryArmedRef.current = true;
     onRetry?.();
   }
 
@@ -224,6 +253,7 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
         overflowY: "auto",
       }}
     >
+      <style>{CONTEXT_MENU_RETRY_FOCUS_CSS}</style>
       {actions.length === 0 ? (
         pending ? (
           <div
@@ -245,6 +275,7 @@ export function ContextMenu(props: ContextMenuProps): React.JSX.Element {
                 <button
                   type="button"
                   data-testid="context-menu-retry"
+                  className="perc-context-menu-retry"
                   ref={retryButtonRef}
                   onClick={handleRetry}
                   style={{
