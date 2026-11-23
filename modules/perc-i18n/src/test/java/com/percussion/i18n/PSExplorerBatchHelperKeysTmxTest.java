@@ -279,7 +279,7 @@ public class PSExplorerBatchHelperKeysTmxTest {
           pos[0] += 4;
           break;
         default:
-          throw new IllegalArgumentException("Bad escape '\\" + e + "' in cache JSON");
+          throw new IllegalArgumentException("Bad escape '\\" + e + "' in cache JSON"); // mkd-code-review[paths.hardcoded_sep]: adjudicated intentional (issue #7116) — backslash is JSON-escape in test helper message, not OS path; real paths use Paths.get joins
       }
     }
   }
