@@ -211,4 +211,141 @@ test.describe("Explorer checkout-owner Retry on failed lookup (#6871)", () => {
       }
     },
   );
+
+  test(
+    "successful retry disarms focus; later fresh failure does not steal focus (#7146)",
+    { tag: [...TAGS, "@explorer-checkout-owner-retry-focus"] },
+    async ({ page, request }) => {
+      test.setTimeout(180_000);
+      const jsErrors = [];
+      page.on("pageerror", (err) => jsErrors.push(String(err)));
+      page.on("console", (msg) => {
+        if (msg.type() === "error") jsErrors.push(msg.text());
+      });
+      const stamp = Date.now();
+      /** @type {{ path?: string }[]} */
+      const foldersToRecycle = [];
+      try {
+        const seededA = await seedGenericItem(request, stamp, "qa7146a");
+        foldersToRecycle.push(seededA.sourceFolder);
+        const seededB = await seedGenericItem(request, stamp, "qa7146b");
+        foldersToRecycle.push(seededB.sourceFolder);
+        const { id: idA, itemName: nameA } = seededA;
+        const { id: idB, itemName: nameB } = seededB;
+        await page.route("**/pathmanagement/path/paginatedFolder**", async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              PagedItemList: {
+                childrenInPage: [
+                  {
+                    id: String(idA),
+                    name: nameA,
+                    path: `/ContentLib/${nameA}`,
+                    accessLevel: "WRITE",
+                    leaf: true,
+                  },
+                  {
+                    id: String(idB),
+                    name: nameB,
+                    path: `/ContentLib/${nameB}`,
+                    accessLevel: "WRITE",
+                    leaf: true,
+                  },
+                ],
+                childrenCount: 2,
+                startIndex: 0,
+              },
+            }),
+          });
+        });
+
+        // Item A: fail once, then name Admin. Item B: always fail.
+        let ownerCallsA = 0;
+        await page.route("**/rest/editor/items/*/checkout-owner*", async (route) => {
+          const url = route.request().url();
+          if (url.includes(`/items/${idA}/`)) {
+            ownerCallsA += 1;
+            if (ownerCallsA <= 1) {
+              await route.fulfill({ status: 403, contentType: "application/json", body: "{}" });
+              return;
+            }
+            await route.fulfill({
+              status: 200,
+              contentType: "application/json",
+              body: JSON.stringify({
+                itemName: nameA,
+                checkOutUser: "Admin",
+                currentUser: "Admin",
+              }),
+            });
+            return;
+          }
+          await route.fulfill({ status: 403, contentType: "application/json", body: "{}" });
+        });
+
+        await loginAsAdmin(page);
+        await page.goto(explorerSpaUrl(BASE_URL));
+        await page.waitForLoadState("networkidle");
+        await expect(
+          page.locator('[data-testid="content-explorer-shell"]'),
+        ).toBeVisible({ timeout: 20_000 });
+
+        // Fail A, then Retry into success: the success path must disarm the
+        // pending retry-focus request (#7146).
+        const rowA = page.locator(
+          `[data-testid="detail-row-${idA}"][data-row-kind="item"]`,
+        );
+        await expect(rowA).toBeVisible({ timeout: 20_000 });
+        await rowA.click();
+        const retryA = page.locator('[data-testid="explorer-checkout-owner-retry"]');
+        await expect(
+          page.locator('[data-testid="explorer-checkout-owner-error"]'),
+        ).toBeVisible({ timeout: 15_000 });
+        await retryA.click();
+        await expect(
+          page.locator('[data-testid="explorer-checkout-owner-user"]'),
+        ).toHaveText("Admin", { timeout: 15_000 });
+
+        // Fresh failure for B in the same mount: a new Retry renders, keeps
+        // the visible ring class, but must not take focus unprompted.
+        const rowB = page.locator(
+          `[data-testid="detail-row-${idB}"][data-row-kind="item"]`,
+        );
+        await rowB.click();
+        await expect(
+          page.locator('[data-testid="explorer-checkout-owner-error"]'),
+        ).toBeVisible({ timeout: 15_000 });
+        const retryB = page.locator('[data-testid="explorer-checkout-owner-retry"]');
+        await expect(retryB).toBeVisible();
+        await expect(retryB).toHaveClass(/perc-checkout-owner-retry/);
+        await expect(retryB).not.toBeFocused();
+        await page.screenshot({
+          path: `test-results/live-proof-7146-checkout-owner-no-theft.png`,
+        });
+
+        await expectNoSeriousA11yViolations(page, {
+          scope: '[data-testid="content-explorer-shell"]',
+        });
+        const relatedConsole = jsErrors.filter(
+          (text) => !isKnownExplorerSitesConsoleNoise(text),
+        );
+        expect(relatedConsole, relatedConsole.join("\n")).toEqual([]);
+      } finally {
+        await page.unroute("**/rest/editor/items/*/checkout-owner*").catch(() => undefined);
+        await page.unroute("**/pathmanagement/path/paginatedFolder**").catch(() => undefined);
+        for (const folder of foldersToRecycle) {
+          if (folder && folder.path) {
+            await recycleFolderWithItems(
+              request,
+              BASE_URL,
+              adminBasicAuthHeaders(),
+              folder,
+            ).catch(() => undefined);
+          }
+        }
+      }
+    },
+  );
 });
