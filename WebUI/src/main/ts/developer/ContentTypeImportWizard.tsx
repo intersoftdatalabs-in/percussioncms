@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { isApiError } from "../api/client";
 import {
   contentTypeNameFromDesignXml,
@@ -56,6 +56,9 @@ function importErrMsg(err: unknown): string {
   if (isApiError(err) && err.status === 409) {
     return panelErrMsg(err, DEV_MSG.CT_IMPORT_DUPLICATE);
   }
+  if (isApiError(err) && err.status === 403) {
+    return panelErrMsg(err, DEV_MSG.CT_IMPORT_FORBIDDEN);
+  }
   if (
     err instanceof Error &&
     /invalid content-type design XML|missing name|design XML is required/i.test(err.message)
@@ -66,19 +69,37 @@ function importErrMsg(err: unknown): string {
 }
 
 /**
- * Catalog CD-14 create-only import: file picker + unique name (no overwrite).
+ * Catalog CD-14 create-only import: file picker + file-drop + unique name (no overwrite).
+ *
+ * {@code existingNames} enables a client-side duplicate pre-check so an
+ * already-cataloged name is rejected without a POST (server 409 remains the
+ * authority for races). Comparison is case-insensitive, matching the REST
+ * catalog duplicate rule.
  */
 export function ContentTypeImportWizard({
   onImported,
+  existingNames,
 }: {
   onImported?: (detail: ContentTypeDetail) => void;
+  existingNames?: readonly string[];
 }): React.ReactElement {
   const [xml, setXml] = useState("");
   const [fileName, setFileName] = useState("");
   const [uniqueName, setUniqueName] = useState("");
   const [busy, setBusy] = useState(false);
+  const [dragOver, setDragOver] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
+  const errorRef = useRef<HTMLDivElement | null>(null);
+
+  // Screen-reader users get role=alert automatically, but keyboard / sighted
+  // users keep focus on the control that failed. Move focus into the error
+  // region so the message is reachable without scanning the page.
+  useEffect(() => {
+    if (error) {
+      errorRef.current?.focus();
+    }
+  }, [error]);
 
   async function onFileChange(file: File | null) {
     setError(null);
@@ -112,6 +133,13 @@ export function ContentTypeImportWizard({
         setError(DEV_MSG.CT_IMPORT_BAD_NAME);
         return;
       }
+      const taken = (existingNames ?? []).some(
+        (known) => String(known ?? "").trim().toLowerCase() === name.toLowerCase(),
+      );
+      if (taken) {
+        setError(DEV_MSG.CT_IMPORT_DUPLICATE);
+        return;
+      }
     }
     setBusy(true);
     try {
@@ -130,6 +158,38 @@ export function ContentTypeImportWizard({
     <section
       data-testid="developer-ct-import"
       aria-label={DEV_MSG.CT_IMPORT}
+      aria-busy={busy}
+      onDragOver={(e) => {
+        if (busy) {
+          return;
+        }
+        // Only advertise the drop target for file drags; text dragged into
+        // the name field must keep its native behavior.
+        const types = e.dataTransfer?.types;
+        const hasFiles =
+          !!e.dataTransfer?.files?.length ||
+          (types ? Array.prototype.includes.call(types, "Files") : false);
+        if (!hasFiles) {
+          return;
+        }
+        e.preventDefault();
+        setDragOver(true);
+      }}
+      onDragLeave={() => setDragOver(false)}
+      onDrop={(e) => {
+        const file = e.dataTransfer?.files?.[0] ?? null;
+        if (!file) {
+          // Text (or other non-file) drop, e.g. into the unique-name field:
+          // leave native behavior and selected import state alone.
+          return;
+        }
+        e.preventDefault();
+        setDragOver(false);
+        if (busy) {
+          return;
+        }
+        void onFileChange(file);
+      }}
       style={{
         marginBottom: "16px",
         padding: "12px",
@@ -142,15 +202,21 @@ export function ContentTypeImportWizard({
       </p>
       {error ? (
         <div
+          ref={errorRef}
+          tabIndex={-1}
           role="alert"
           data-testid="developer-ct-import-error"
-          style={{ color: catalogColors.error, marginBottom: "8px" }}
+          style={{ color: catalogColors.error, marginBottom: "8px", outline: "none" }}
         >
           {error}
         </div>
       ) : null}
       {notice ? (
-        <div data-testid="developer-ct-import-notice" style={{ color: "#276749", marginBottom: "8px" }}>
+        <div
+          role="status"
+          data-testid="developer-ct-import-notice"
+          style={{ color: "#276749", marginBottom: "8px" }}
+        >
           {notice}
         </div>
       ) : null}
@@ -213,6 +279,20 @@ export function ContentTypeImportWizard({
           </span>
         ) : null}
       </div>
+      <p
+        data-testid="developer-ct-import-dropzone"
+        style={{
+          margin: "8px 0 0",
+          padding: "8px",
+          fontSize: "0.85rem",
+          color: dragOver ? catalogColors.accent : catalogColors.muted,
+          border: `1px dashed ${dragOver ? catalogColors.accent : catalogColors.softBorder}`,
+          borderRadius: "4px",
+          textAlign: "center",
+        }}
+      >
+        {DEV_MSG.CT_IMPORT_DROP_HINT}
+      </p>
     </section>
   );
 }

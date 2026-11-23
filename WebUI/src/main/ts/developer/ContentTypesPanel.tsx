@@ -260,7 +260,10 @@ export function ContentTypesPanel(): React.ReactElement {
           {DEV_MSG.CT_NEW}
         </button>
       </div>
-      <ContentTypeImportWizard onImported={() => void reload()} />
+      <ContentTypeImportWizard
+        onImported={() => void reload()}
+        existingNames={(items ?? []).map((ct) => asCatalogText(ct.name)).filter((n) => n.length > 0)}
+      />
       {copyOf ? (
         copyReview != null ? (
           <div

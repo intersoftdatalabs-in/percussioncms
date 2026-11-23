@@ -200,4 +200,71 @@ test.describe("Developer content type import/export (#4034 CD-14)", () => {
       `console error: ${unexpectedConsole.join(" | ")}`,
     ).toEqual([]);
   });
+
+  test("import wizard exposes file-drop, live regions, and keyboard picker", async ({
+    page,
+  }) => {
+    test.setTimeout(120_000);
+    const pageErrors = [];
+    const consoleErrors = [];
+    page.on("pageerror", (err) => {
+      pageErrors.push(String((err && err.message) || err));
+    });
+    page.on("console", (msg) => {
+      if (msg.type() === "error") {
+        consoleErrors.push(msg.text());
+      }
+    });
+
+    await loginAsAdmin(page);
+    await openContentTypesCatalog(page);
+
+    const wizard = page.locator('[data-testid="developer-ct-import"]');
+    await expect(wizard).toBeVisible();
+    await expect(wizard).toHaveAttribute("aria-busy", "false");
+    const dropzone = page.locator('[data-testid="developer-ct-import-dropzone"]');
+    await expect(dropzone).toBeVisible();
+    await expect(dropzone).toContainText(/drop an ItemDefData XML file/i);
+    const fileInput = page.locator('[data-testid="developer-ct-import-file"]');
+    await expect(fileInput).toBeEnabled();
+    await fileInput.focus();
+    await expect(fileInput).toBeFocused();
+
+    const droppedName = await page.evaluate(() => {
+      const section = document.querySelector('[data-testid="developer-ct-import"]');
+      const xml =
+        '<ItemDefData appName="psx_ce" objectType="1">' +
+        '<PSXItemDefSummary name="dropcheck" label="Drop Check" />' +
+        "</ItemDefData>";
+      const file = new File([xml], "dropcheck.xml", { type: "application/xml" });
+      const transfer = new DataTransfer();
+      transfer.items.add(file);
+      section.dispatchEvent(
+        new DragEvent("drop", {
+          bubbles: true,
+          cancelable: true,
+          dataTransfer: transfer,
+        }),
+      );
+      return file.name;
+    });
+    await expect(page.locator('[data-testid="developer-ct-import-filename"]')).toContainText(
+      droppedName,
+      { timeout: 15_000 },
+    );
+    await expect(page.locator('[data-testid="developer-ct-import-name"]')).toHaveValue(
+      "dropcheck",
+    );
+
+    await page.screenshot({ path: "test-results/live-proof-7085-import-export.png" });
+
+    expect(pageErrors, `pageerror: ${pageErrors.join(" | ")}`).toEqual([]);
+    const unexpectedConsole = consoleErrors.filter(
+      (t) => !/Failed to load resource/i.test(t) && !/favicon/i.test(t),
+    );
+    expect(
+      unexpectedConsole,
+      `console error: ${unexpectedConsole.join(" | ")}`,
+    ).toEqual([]);
+  });
 });

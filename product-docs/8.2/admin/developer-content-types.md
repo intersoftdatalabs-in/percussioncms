@@ -688,12 +688,16 @@ click **Lock** again and retry.
 **Import** is **create only**. It does **not** overwrite an existing type.
 
 1. Return to the catalog (**Back to list**).
-2. Under **Import XML**, choose an `ItemDefData` XML file.
+2. Under **Import XML**, choose an `ItemDefData` XML file — or drag the file
+   and drop it anywhere on the **Import XML** section.
 3. Enter a **unique name** (no spaces or wildcards) when the XML name already
    exists on the server. The chrome rewrites `PSXItemDefSummary@name` before
-   `POST /services/contenttypes/import`.
+   `POST /services/contenttypes/import`. Names already in the catalog are
+   rejected immediately (client-side pre-check, case-insensitive); the server
+   still answers **409** for races.
 4. Click **Import content type**. The catalog reloads and lists the new type.
-5. Invalid XML is **400**. A name that already exists is **409** (no replace).
+5. Invalid XML is **400**. Non-Admin callers are **403** (import and export).
+   A name that already exists is **409** (no replace).
    The product does **not** steal locks on existing types.
 
 ## Enable or disable a content type
@@ -782,7 +786,7 @@ The chrome calls:
 | Delete local field | `DELETE /services/contenttypes/{idOrName}/fields/{fieldName}` (CD-03; held lock; **204**; system/shared **400**) |
 | Unlock | `POST /services/contenttypes/{idOrName}/unlock` |
 | Export design XML | `GET /services/contenttypes/{idOrName}/export` (Admin; no lock; `application/xml` attachment) |
-| Import design XML | `POST /services/contenttypes/import` (Admin; create-only ItemDefData XML; 400 invalid; 409 duplicate) |
+| Import design XML | `POST /services/contenttypes/import` (Admin; create-only ItemDefData XML; file picker or drag-drop; cataloged names pre-checked client-side; 400 invalid; 403 non-Admin; 409 duplicate) |
 | Delete | `DELETE /services/contenttypes/{idOrName}` (Admin; held lock; 204; 409 if unlocked or another user holds the lock; 400 if dependents; SPA Delete on detail after Lock) |
 
 Integrator notes: [REST API — Content types](id:developer-rest). Object ACL on

@@ -172,6 +172,7 @@ export const DEV_MSG_KEYS = {
   CT_EXPORT: "perc.ui.developer@Export XML",
   CT_EXPORT_ERROR: "perc.ui.developer@Could not export content type.",
   CT_EXPORT_NOT_FOUND: "perc.ui.developer@Content type not found.",
+  CT_EXPORT_FORBIDDEN: "perc.ui.developer@Admin role is required to export content types.",
   CT_IMPORT: "perc.ui.developer@Import XML",
   CT_IMPORT_HINT:
     "perc.ui.developer@Import creates a new content type from ItemDefData XML. Duplicate names are rejected (no overwrite). Choose a unique name when the XML already exists on the server.",
@@ -183,6 +184,8 @@ export const DEV_MSG_KEYS = {
   CT_IMPORT_ERROR: "perc.ui.developer@Could not import content type.",
   CT_IMPORT_INVALID: "perc.ui.developer@Invalid content-type design XML.",
   CT_IMPORT_DUPLICATE: "perc.ui.developer@A content type with that name already exists.",
+  CT_IMPORT_FORBIDDEN: "perc.ui.developer@Admin role is required to import content types.",
+  CT_IMPORT_DROP_HINT: "perc.ui.developer@Or drop an ItemDefData XML file here.",
   CT_IMPORT_BAD_NAME: "perc.ui.developer@Name is required, must not contain spaces or wildcards.",
   CT_IMPORT_NO_FILE: "perc.ui.developer@Choose an ItemDefData XML file to import.",
   CT_IMPORTED: "perc.ui.developer@Content type imported.",

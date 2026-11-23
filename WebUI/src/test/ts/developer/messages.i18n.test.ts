@@ -41,6 +41,16 @@ describe("Developer DEV_MSG i18n keys", () => {
     expect("CTL_GAP_USER" in DEV_MSG_KEYS).toBe(false);
   });
 
+  it("resolves content-type import/export forbidden and drop hints", () => {
+    expect(DEV_MSG.CT_IMPORT_FORBIDDEN).toBe(
+      "Admin role is required to import content types.",
+    );
+    expect(DEV_MSG.CT_EXPORT_FORBIDDEN).toBe(
+      "Admin role is required to export content types.",
+    );
+    expect(DEV_MSG.CT_IMPORT_DROP_HINT).toBe("Or drop an ItemDefData XML file here.");
+  });
+
   it("fallbackLabelFromKey extracts text after @", () => {
     expect(fallbackLabelFromKey("perc.ui.developer@Hello")).toBe("Hello");
     expect(fallbackLabelFromKey("perc.ui.developer@A / B")).toBe("A / B");
