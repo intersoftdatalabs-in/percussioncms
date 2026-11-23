@@ -15,14 +15,20 @@
  */
 
 /**
- * Playwright surface: #6929 / parent #4531 — site-workspace Schedule panel
- * clear confirm keyboard operation (ITM-05 UX closure).
+ * Playwright surface: #6929 / #7127 / parent #4531 — site-workspace Schedule
+ * panel clear confirm keyboard operation (ITM-05 UX closure) plus set/save
+ * persistence parity.
  *
  * The clear confirm is an inline `alertdialog`: initial focus lands on
  * Cancel, Tab/Shift+Tab cycle inside, Escape cancels without writing and
  * returns focus to the Clear scheduled dates button. Confirming posts empty
  * dates through the existing setitemdates route and reloads the empty
  * schedule.
+ *
+ * The set flow posts the `ItemDates` envelope through the same route and
+ * the panel reloads and verifies the stored schedule: a save whose reload
+ * no longer carries the sent dates reports Invalid schedule dates (with
+ * retry) instead of success — the same parity the clear path enforces.
  *
  * Tags: @publish-site-schedule-dates @publish @smoke
  *
@@ -90,12 +96,16 @@ async function stubScheduleApis(page, store) {
       const raw = route.request().postData() || "{}";
       const parsed = JSON.parse(raw);
       const next = parsed.ItemDates || parsed;
-      store.dates = {
-        itemId: String(next.itemId || "42"),
-        startDate: next.startDate || "",
-        endDate: next.endDate || "",
-        comments: next.comments || "",
-      };
+      // freezeDates: the server acknowledges the write but keeps serving the
+      // old schedule, so the UI must report a persistence failure (#7127).
+      if (!store.freezeDates) {
+        store.dates = {
+          itemId: String(next.itemId || "42"),
+          startDate: next.startDate || "",
+          endDate: next.endDate || "",
+          comments: next.comments || "",
+        };
+      }
       await route.fulfill({
         status: 200,
         contentType: "application/json",
@@ -126,6 +136,94 @@ async function loadDates(panel, id) {
   await panel.getByTestId("item-schedule-id").fill(id);
   await panel.getByTestId("item-schedule-load").click();
 }
+
+test.describe("PublishingShell site-workspace schedule set persistence (#7127)", () => {
+  test.beforeEach(async ({ page }) => {
+    await loginAsAdmin(page);
+  });
+
+  test(`Save dates posts the envelope and the form shows the reloaded schedule ${TAGS.join(" ")}`, async ({
+    page,
+  }) => {
+    const consoleErrors = collectConsoleErrors(page);
+    const store = {
+      dates: {
+        itemId: "42",
+        startDate: "09/18/2026 09:00 am",
+        endDate: "09/19/2026 10:00 am",
+        comments: "",
+      },
+      posts: [],
+    };
+    await stubScheduleApis(page, store);
+    const panel = await openSchedulePanel(page);
+    await loadDates(panel, "42");
+    await expect(panel.getByTestId("item-schedule-start")).toHaveValue(
+      "2026-09-18T09:00",
+    );
+
+    await panel.getByTestId("item-schedule-start").fill("2026-09-20T09:00");
+    await panel.getByTestId("item-schedule-end").fill("2026-09-21T10:00");
+    await panel.getByTestId("item-schedule-save").click();
+    await expect(panel.getByTestId("item-schedule-success")).toContainText(
+      /saved/i,
+      { timeout: 15000 },
+    );
+    // Set/clear parity: the save round-trips through the same setitemdates
+    // route as clear, and the form shows the reloaded stored schedule.
+    expect(store.posts.length).toBe(1);
+    const posted = JSON.parse(store.posts[0]);
+    expect(posted.ItemDates.startDate).toBe("09/20/2026 09:00 am");
+    expect(posted.ItemDates.endDate).toBe("09/21/2026 10:00 am");
+    await expect(panel.getByTestId("item-schedule-start")).toHaveValue(
+      "2026-09-20T09:00",
+    );
+    await expect(panel.getByTestId("item-schedule-end")).toHaveValue(
+      "2026-09-21T10:00",
+    );
+    await expect(panel.getByTestId("item-schedule-error")).toHaveCount(0);
+    await expectNoSeriousA11yViolations(page, {
+      scope: '[data-testid="item-schedule-dates"]',
+    });
+
+    await proofScreenshot(panel, "issue-7127-schedule-set-persisted.png");
+    expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
+  });
+
+  test(`Save that the server silently drops reports invalid, not success ${TAGS.join(" ")}`, async ({
+    page,
+  }) => {
+    const consoleErrors = collectConsoleErrors(page);
+    const store = {
+      dates: {
+        itemId: "42",
+        startDate: "09/18/2026 09:00 am",
+        endDate: "09/19/2026 10:00 am",
+        comments: "",
+      },
+      // The write is acknowledged but the stored schedule never changes.
+      freezeDates: true,
+      posts: [],
+    };
+    await stubScheduleApis(page, store);
+    const panel = await openSchedulePanel(page);
+    await loadDates(panel, "42");
+
+    await panel.getByTestId("item-schedule-start").fill("2026-09-20T09:00");
+    await panel.getByTestId("item-schedule-end").fill("2026-09-21T10:00");
+    await panel.getByTestId("item-schedule-save").click();
+    await expect(panel.getByTestId("item-schedule-error")).toContainText(
+      /invalid schedule dates/i,
+      { timeout: 15000 },
+    );
+    await expect(panel.getByTestId("item-schedule-success")).toHaveCount(0);
+    // The attempted dates stay in the form so retry re-sends them (#7127).
+    await expect(panel.getByTestId("item-schedule-start")).toHaveValue(
+      "2026-09-20T09:00",
+    );
+    expect(consoleErrors, consoleErrors.join("\n")).toEqual([]);
+  });
+});
 
 test.describe("PublishingShell site-workspace schedule clear confirm (#6929)", () => {
   test.beforeEach(async ({ page }) => {

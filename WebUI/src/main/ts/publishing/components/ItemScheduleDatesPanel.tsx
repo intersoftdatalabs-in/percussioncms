@@ -41,6 +41,7 @@ import {
   parseScheduleItemIds,
   saveScheduleDatesBatch,
   scheduleBatchFailureMessage,
+  scheduleDatesPersisted,
   type ScheduleBatchFailure,
 } from "../itemScheduleBatch";
 import {
@@ -320,16 +321,26 @@ export function ItemScheduleDatesPanel({
         comments: savedComments,
       });
       // GET item dates does not return the workflow comment. Reload start/end
-      // only so a successful save still shows the stored schedule.
+      // only so a successful save still shows the stored schedule. A reload
+      // that no longer carries the sent dates is a persistence failure, not
+      // success — the same parity the clear path enforces (#7127). The
+      // attempted values stay in the form so Retry failed re-sends them
+      // instead of the stored schedule it just proved wrong.
       const saved = await fetchItemScheduleDates(safe);
-      setStartLocal(serverDateToDatetimeLocal(saved.startDate));
-      setEndLocal(serverDateToDatetimeLocal(saved.endDate));
-      setComments(savedComments);
       setLoadedId(safe);
       setConfirmingClear(false);
-      setSuccess(message(MSG.PUBLISH_SCHEDULE_SAVED));
-      setFailedIds([]);
-      setFailedOp(null);
+      if (scheduleDatesPersisted({ startDate, endDate, comments: "" }, saved)) {
+        setStartLocal(serverDateToDatetimeLocal(saved.startDate));
+        setEndLocal(serverDateToDatetimeLocal(saved.endDate));
+        setComments(savedComments);
+        setSuccess(message(MSG.PUBLISH_SCHEDULE_SAVED));
+        setFailedIds([]);
+        setFailedOp(null);
+      } else {
+        setFailedIds([safe]);
+        setFailedOp("save");
+        setError(message(MSG.PUBLISH_SCHEDULE_INVALID));
+      }
       onItemIdChange?.(safe);
     } catch (err) {
       if (isSessionRedirectError(err)) {
@@ -417,7 +428,11 @@ export function ItemScheduleDatesPanel({
     setSuccess(null);
     setReportTotal(ids.length);
     try {
-      const batch = await saveScheduleDatesBatch(ids, dates);
+      const batch = await saveScheduleDatesBatch(
+        ids,
+        dates,
+        message(MSG.PUBLISH_SCHEDULE_INVALID),
+      );
       setReport((previous) =>
         mergeRows(
           previous,

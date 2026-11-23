@@ -24,6 +24,7 @@ import {
   isApiError,
 } from "../api/client";
 import type { ItemScheduleDates } from "../contentExplorer/itemScheduleDates";
+import { parseServerScheduleDate } from "../contentExplorer/itemScheduleDates";
 import { message, MSG } from "../i18n/message";
 import { mapIdParam } from "./deepLinkMap";
 
@@ -109,13 +110,52 @@ export interface ScheduleBatchDates {
 }
 
 /**
+ * True when a reloaded schedule still carries the dates that were sent.
+ * Empty matches empty; two set dates match when they parse to the same
+ * instant (formatting-only drift such as `AM` vs `am` still counts).
+ * Unparseable pairs fall back to a case-insensitive text compare so a
+ * server echo in another format is not misread as a dropped save.
+ * Comments are excluded: the dates lookup does not return them.
+ */
+export function scheduleDatesPersisted(
+  sent: ScheduleBatchDates,
+  stored: ItemScheduleDates,
+): boolean {
+  return (
+    scheduleSidePersisted(sent.startDate, stored.startDate) &&
+    scheduleSidePersisted(sent.endDate, stored.endDate)
+  );
+}
+
+function scheduleSidePersisted(sent: string, stored: string): boolean {
+  const a = sent.trim();
+  const b = stored.trim();
+  if (!a && !b) {
+    return true;
+  }
+  if (!a || !b) {
+    return false;
+  }
+  const pa = parseServerScheduleDate(a);
+  const pb = parseServerScheduleDate(b);
+  if (pa && pb) {
+    return pa.getTime() === pb.getTime();
+  }
+  return a.toLowerCase() === b.toLowerCase();
+}
+
+/**
  * Save the same dates to every id, then reload each one (round-trip) so a
- * successful row is confirmed against the stored schedule. Continues after a
- * per-item failure so a later row can still save.
+ * successful row is confirmed against the stored schedule. A row whose
+ * reload no longer carries the sent dates counts as a failure with
+ * {@code notSavedMessage}, mirroring the clear batch — a silent server
+ * drop is never reported as saved. Continues after a per-item failure so
+ * a later row can still save.
  */
 export async function saveScheduleDatesBatch(
   ids: readonly string[],
   dates: ScheduleBatchDates,
+  notSavedMessage: string,
   save: (dated: ItemScheduleDates) => Promise<void> = saveItemScheduleDates,
   fetch: (itemId: string) => Promise<ItemScheduleDates> = fetchItemScheduleDates,
 ): Promise<ScheduleBatchReport> {
@@ -124,8 +164,12 @@ export async function saveScheduleDatesBatch(
   for (const id of ids) {
     try {
       await save({ ...dates, itemId: id });
-      await fetch(id);
-      saved.push(id);
+      const reloaded = await fetch(id);
+      if (scheduleDatesPersisted(dates, reloaded)) {
+        saved.push(id);
+      } else {
+        failures.push({ id, message: notSavedMessage });
+      }
     } catch (err: unknown) {
       failures.push({ id, message: failureMessage(err, "Schedule failed") });
     }

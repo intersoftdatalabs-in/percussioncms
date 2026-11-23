@@ -117,6 +117,62 @@ describe("ItemScheduleDatesPanel", () => {
     expect(screen.getByTestId("item-schedule-comments")).toHaveValue("go live");
   });
 
+  it("a save the server drops reports invalid instead of success", async () => {
+    fetchDates
+      .mockResolvedValueOnce({
+        itemId: "42",
+        startDate: "09/18/2026 09:00 am",
+        endDate: "09/19/2026 10:00 am",
+        comments: "",
+      })
+      // Save acknowledges the write, but the reload still shows the old
+      // schedule — the dates were not persisted.
+      .mockResolvedValueOnce({
+        itemId: "42",
+        startDate: "09/18/2026 09:00 am",
+        endDate: "09/19/2026 10:00 am",
+        comments: "",
+      });
+    saveDates.mockResolvedValue();
+    render(<ItemScheduleDatesPanel itemId="42" />);
+    await waitFor(() => expect(fetchDates).toHaveBeenCalled());
+    fireEvent.change(screen.getByTestId("item-schedule-start"), {
+      target: { value: "2026-09-20T09:00" },
+    });
+    fireEvent.change(screen.getByTestId("item-schedule-end"), {
+      target: { value: "2026-09-21T10:00" },
+    });
+    fireEvent.click(screen.getByTestId("item-schedule-save"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-error").textContent).toMatch(
+        /Invalid schedule dates/i,
+      );
+    });
+    expect(screen.queryByTestId("item-schedule-success")).toBeNull();
+    // The attempted dates stay in the form so retry re-sends them.
+    expect(screen.getByTestId("item-schedule-start")).toHaveValue(
+      "2026-09-20T09:00",
+    );
+    expect(screen.getByTestId("item-schedule-retry")).toBeTruthy();
+    // Retry re-sends the attempted dates, not the stored schedule (#7127).
+    fetchDates.mockResolvedValueOnce({
+      itemId: "42",
+      startDate: "09/20/2026 09:00 am",
+      endDate: "09/21/2026 10:00 am",
+      comments: "",
+    });
+    fireEvent.click(screen.getByTestId("item-schedule-retry"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-schedule-success")).toBeTruthy();
+    });
+    expect(saveDates).toHaveBeenLastCalledWith({
+      itemId: "42",
+      startDate: "09/20/2026 09:00 am",
+      endDate: "09/21/2026 10:00 am",
+      comments: "",
+    });
+  });
+
   it("surfaces HTTP 400 as an invalid-dates error", async () => {
     fetchDates.mockResolvedValue({
       itemId: "42",
@@ -317,7 +373,7 @@ describe("ItemScheduleDatesPanel", () => {
   it("saves one date set to several ids and reports every row", async () => {
     fetchDates.mockImplementation(async (id: string) => ({
       itemId: id,
-      startDate: "",
+      startDate: "09/18/2026 09:00 am",
       endDate: "",
       comments: "",
     }));
@@ -364,7 +420,7 @@ describe("ItemScheduleDatesPanel", () => {
   it("a per-item save failure keeps the other row and names the failure", async () => {
     fetchDates.mockImplementation(async (id: string) => ({
       itemId: id,
-      startDate: "",
+      startDate: "09/18/2026 09:00 am",
       endDate: "",
       comments: "",
     }));
@@ -508,7 +564,7 @@ describe("ItemScheduleDatesPanel", () => {
   it("retrying a partial batch save re-saves only the failed ids", async () => {
     fetchDates.mockImplementation(async (id: string) => ({
       itemId: id,
-      startDate: "",
+      startDate: "09/18/2026 09:00 am",
       endDate: "",
       comments: "",
     }));
