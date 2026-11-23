@@ -898,6 +898,16 @@ export function DetailList({
 
   const totalCount = data?.totalCount;
   /**
+   * Page-turn fetch in flight with stale rows still mounted (#7089,
+   * parent #4530). The first-load `detail-list-loading` region only
+   * mounts when `children.length === 0`, so page turns (`page > 0`)
+   * otherwise announce nothing. This flag drives a second `role=status`
+   * region (`detail-list-loading-more`) on the same LIST_LOADING i18n
+   * key plus `aria-busy` on the list/pager — the two regions never
+   * co-mount, so the first-load announcement is not duplicated.
+   */
+  const pageTurnLoading = loading && children.length > 0;
+  /**
    * Full folder row count for the grid's {@code aria-rowcount} (#5842).
    * The server total spans every page; only when it is absent do we
    * fall back to the loaded rows so the count never reads 0 on a
@@ -1102,8 +1112,29 @@ export function DetailList({
   }
 
   return (
+    // NOTE (#7089): the root stays free of `aria-busy` on purpose — the
+    // page-turn `role=status` region below must not sit inside a busy
+    // container, or assistive tech may defer its announcement until the
+    // fetch completes (when the region unmounts and the announcement is
+    // lost). Busy state lives on the table + pager only.
     <div {...detailListRootProps(folderPath, displayFormatId, density)}>
       <style>{DETAIL_ROW_FOCUS_CSS}</style>
+      {/*
+        * Page-turn announcement (#7089): stale rows stay mounted while
+        * the next page fetches. The region is always mounted (empty when
+        * idle) and only its text flips to LIST_LOADING during the fetch,
+        * so screen readers that announce changes — not initial mount
+        * text — still speak the page turn. Never co-populated with the
+        * first-load `detail-list-loading` region (which only renders
+        * when children are empty), on the same LIST_LOADING i18n key.
+        */}
+      <div
+        style={emptyStateStyle}
+        role="status"
+        data-testid="detail-list-loading-more"
+      >
+        {pageTurnLoading ? message(EXPLORER_MSG.LIST_LOADING) : null}
+      </div>
       <div style={detailColumnsToolbarStyle} data-testid="detail-columns-toolbar">
         <button
           type="button"
@@ -1190,7 +1221,12 @@ export function DetailList({
           </div>
         ) : null}
       </div>
-      <table style={detailTableStyle(compact)} aria-rowcount={gridRowCount}>
+      <table
+        style={detailTableStyle(compact)}
+        aria-rowcount={gridRowCount}
+        aria-busy={loading ? true : undefined}
+        data-testid="detail-table"
+      >
         <thead style={theadStyle}>
           <tr>
             {multiSelectEnabled ? (
@@ -1618,10 +1654,13 @@ export function DetailList({
           color: "#555",
         }}
         data-testid="detail-pagination"
+        aria-busy={loading ? true : undefined}
       >
         <button
           type="button"
-          disabled={page === 0}
+          data-testid="detail-pager-prev"
+          disabled={page === 0 || loading}
+          aria-disabled={pageTurnLoading ? "true" : undefined}
           onClick={goPrev}
           aria-label={message(EXPLORER_MSG.DETAIL_PAGER_PREV)}
         >
@@ -1639,7 +1678,9 @@ export function DetailList({
         </span>
         <button
           type="button"
-          disabled={totalPages != null && page + 1 >= totalPages}
+          data-testid="detail-pager-next"
+          disabled={(totalPages != null && page + 1 >= totalPages) || loading}
+          aria-disabled={pageTurnLoading ? "true" : undefined}
           onClick={goNext}
           aria-label={message(EXPLORER_MSG.DETAIL_PAGER_NEXT)}
         >

@@ -1027,7 +1027,13 @@ the create paths (**New Item**, **Create Page**, **Create Asset**), so an
 upgraded Rhythmyx site with only custom-type Items still tells operators
 where content comes from. While the folder list is loading, the list shows
 a loading status that screen readers announce once (a polite live region);
-it clears as soon as the rows render. When the folder list itself fails to load, the
+it clears as soon as the rows render. Turning the pager to another page
+keeps the current rows mounted while the next page loads, announces that
+load through the same polite loading status (the first-load status does
+not repeat), and marks the table and pager busy with the pager controls
+disabled until the new rows arrive. The loading status sits outside the
+busy-marked table so assistive technology announces it while the fetch
+is still in flight. When the folder list itself fails to load, the
 error names the cause — an invalid request (**HTTP 400**), no permission
 (**HTTP 403**), a missing folder (**HTTP 404**), or a conflict
 (**HTTP 409**) — names the folder that failed to load, instead of a bare failure,
