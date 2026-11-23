@@ -21,8 +21,6 @@ import { getServer, updateServer } from "../../api/publishing/serversApi";
 import { message, MSG } from "../../i18n/message";
 import {
   buildSftpPortBody,
-  SFTP_PORT_DRIVER_ONLY,
-  SFTP_PORT_REQUIRED,
   sftpPortHttpFailure,
   validateSftpPort,
   withUpdatedSftpPort,
@@ -48,7 +46,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = sftpPortHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, SFTP_PORT_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_SFTP_PORT_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -187,38 +185,38 @@ export function SftpDeliveryPortPanel({
 
   return (
     <div data-testid="sftp-port-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>SFTP port</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_SFTP_PORT)}</h3>
       {sftp && (
         <div data-testid="sftp-port-summary">
           <p>
-            Name: <span data-testid="sftp-port-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="sftp-port-name">{shown(name)}</span>
           </p>
           <p>
-            Host: <span data-testid="sftp-port-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="sftp-port-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="sftp-port-current">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="sftp-port-current">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="sftp-port-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="sftp-port-user">{shown(user)}</span>
           </p>
           <p>
-            Folder: <span data-testid="sftp-port-folder">{shown(folder)}</span>
+            {message(MSG.PUBLISH_FOLDER)}: <span data-testid="sftp-port-folder">{shown(folder)}</span>
           </p>
           <p>
-            Default: <span data-testid="sftp-port-default">{shown(defaultFlag)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}: <span data-testid="sftp-port-default">{shown(defaultFlag)}</span>
           </p>
         </div>
       )}
       {notSftp && (
         <p data-testid="sftp-port-not-sftp" role="status">
-          {SFTP_PORT_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_SFTP_PORT_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="sftp-port-form">
           <div style={formRowStyle}>
-            <label htmlFor="sftp-port-input">* Port</label>
+            <label htmlFor="sftp-port-input">{message(MSG.PUBLISH_DELIVERY_LABEL_PORT)}</label>
             <input
               id="sftp-port-input"
               data-testid="sftp-port-input"
@@ -247,7 +245,7 @@ export function SftpDeliveryPortPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set port
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_PORT)}
           </button>
         )}
         {editing && (
@@ -259,7 +257,7 @@ export function SftpDeliveryPortPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save port
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_PORT)}
             </button>
             <button
               type="button"
@@ -268,7 +266,7 @@ export function SftpDeliveryPortPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

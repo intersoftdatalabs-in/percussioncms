@@ -21,8 +21,6 @@ import { getServer, updateServer } from "../../api/publishing/serversApi";
 import { message, MSG } from "../../i18n/message";
 import {
   buildFtpHostBody,
-  FTP_HOST_DRIVER_ONLY,
-  FTP_HOST_REQUIRED,
   ftpHostHttpFailure,
   isFtpDeliveryDriver,
   serverDriver,
@@ -45,7 +43,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = ftpHostHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, FTP_HOST_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_FTP_HOST_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -180,32 +178,32 @@ export function FtpDeliveryHostPanel({
 
   return (
     <div data-testid="ftp-host-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>FTP host</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_FTP_HOST)}</h3>
       {ftp && (
         <div data-testid="ftp-host-summary">
           <p>
-            Host: <span data-testid="ftp-host-current">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="ftp-host-current">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="ftp-host-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="ftp-host-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="ftp-host-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="ftp-host-user">{shown(user)}</span>
           </p>
           <p>
-            Folder: <span data-testid="ftp-host-folder">{shown(folder)}</span>
+            {message(MSG.PUBLISH_FOLDER)}: <span data-testid="ftp-host-folder">{shown(folder)}</span>
           </p>
         </div>
       )}
       {notFtp && (
         <p data-testid="ftp-host-not-ftp" role="status">
-          {FTP_HOST_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_FTP_HOST_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="ftp-host-form">
           <div style={formRowStyle}>
-            <label htmlFor="ftp-host-input">* Host</label>
+            <label htmlFor="ftp-host-input">{message(MSG.PUBLISH_DELIVERY_LABEL_HOST)}</label>
             <input
               id="ftp-host-input"
               data-testid="ftp-host-input"
@@ -233,7 +231,7 @@ export function FtpDeliveryHostPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set host
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_HOST)}
           </button>
         )}
         {editing && (
@@ -245,7 +243,7 @@ export function FtpDeliveryHostPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save host
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_HOST)}
             </button>
             <button
               type="button"
@@ -254,7 +252,7 @@ export function FtpDeliveryHostPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

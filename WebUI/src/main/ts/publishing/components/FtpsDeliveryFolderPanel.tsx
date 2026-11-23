@@ -21,8 +21,6 @@ import { getServer, updateServer } from "../../api/publishing/serversApi";
 import { message, MSG } from "../../i18n/message";
 import {
   buildFtpsFolderBody,
-  FTPS_FOLDER_DRIVER_ONLY,
-  FTPS_FOLDER_TOO_LONG,
   ftpsFolderHttpFailure,
   validateFtpsFolder,
   withUpdatedFtpsFolder,
@@ -48,7 +46,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = ftpsFolderHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, FTPS_FOLDER_TOO_LONG);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_FTPS_FOLDER_TOO_LONG));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -187,38 +185,38 @@ export function FtpsDeliveryFolderPanel({
 
   return (
     <div data-testid="ftps-folder-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>FTPS folder</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_FTPS_FOLDER)}</h3>
       {ftps && (
         <div data-testid="ftps-folder-summary">
           <p>
-            Name: <span data-testid="ftps-folder-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="ftps-folder-name">{shown(name)}</span>
           </p>
           <p>
-            Host: <span data-testid="ftps-folder-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="ftps-folder-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="ftps-folder-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="ftps-folder-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="ftps-folder-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="ftps-folder-user">{shown(user)}</span>
           </p>
           <p>
-            Folder: <span data-testid="ftps-folder-current">{shown(folder)}</span>
+            {message(MSG.PUBLISH_FOLDER)}: <span data-testid="ftps-folder-current">{shown(folder)}</span>
           </p>
           <p>
-            Default: <span data-testid="ftps-folder-default">{shown(defaultFlag)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}: <span data-testid="ftps-folder-default">{shown(defaultFlag)}</span>
           </p>
         </div>
       )}
       {notFtps && (
         <p data-testid="ftps-folder-not-ftps" role="status">
-          {FTPS_FOLDER_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_FTPS_FOLDER_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="ftps-folder-form">
           <div style={formRowStyle}>
-            <label htmlFor="ftps-folder-input">Folder</label>
+            <label htmlFor="ftps-folder-input">{message(MSG.PUBLISH_FOLDER)}</label>
             <input
               id="ftps-folder-input"
               data-testid="ftps-folder-input"
@@ -230,7 +228,7 @@ export function FtpsDeliveryFolderPanel({
               }}
             />
           </div>
-          <p data-testid="ftps-folder-optional">Leave blank to clear the folder.</p>
+          <p data-testid="ftps-folder-optional">{message(MSG.PUBLISH_DELIVERY_HINT_CLEAR_FOLDER)}</p>
         </div>
       )}
       {error && (
@@ -247,7 +245,7 @@ export function FtpsDeliveryFolderPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set folder
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_FOLDER)}
           </button>
         )}
         {editing && (
@@ -259,7 +257,7 @@ export function FtpsDeliveryFolderPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save folder
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_FOLDER)}
             </button>
             <button
               type="button"
@@ -268,7 +266,7 @@ export function FtpsDeliveryFolderPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

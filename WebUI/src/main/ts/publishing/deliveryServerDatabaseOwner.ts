@@ -16,6 +16,7 @@
  */
 
 import type { PublishServer, PublishServerProperty } from "./types";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -49,10 +50,10 @@ export function isMssqlDeliveryDriver(driver: string): boolean {
 export function validateMssqlOwner(raw: string): MssqlOwnerResult {
   const owner = raw.trim();
   if (!owner) {
-    return { ok: false, error: MSSQL_OWNER_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_MSSQL_OWNER_REQUIRED) };
   }
   if (owner.length > MSSQL_OWNER_MAX_LENGTH) {
-    return { ok: false, error: MSSQL_OWNER_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_MSSQL_OWNER_TOO_LONG) };
   }
   return { ok: true, owner };
 }

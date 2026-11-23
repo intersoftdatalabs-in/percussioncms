@@ -16,6 +16,7 @@
  */
 
 import type { PublishServer, PublishServerProperty } from "./types";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -45,10 +46,10 @@ export type SftpPortHttpFailure = "bad_request" | "forbidden" | "conflict";
 export function validateSftpPort(raw: string): SftpPortResult {
   const port = raw.trim();
   if (!port) {
-    return { ok: false, error: SFTP_PORT_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_SFTP_PORT_REQUIRED) };
   }
   if (port.length > SFTP_PORT_MAX_LENGTH) {
-    return { ok: false, error: SFTP_PORT_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_SFTP_PORT_TOO_LONG) };
   }
   if (!/^[0-9]+$/.test(port)) {
     return { ok: false, error: SFTP_PORT_NOT_NUMERIC };

@@ -16,6 +16,7 @@
  */
 
 import type { PublishServer, PublishServerProperty } from "./types";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -51,10 +52,10 @@ export function isFtpsDeliveryDriver(
 export function validateFtpsHost(raw: string): FtpsHostResult {
   const host = raw.trim();
   if (!host) {
-    return { ok: false, error: FTPS_HOST_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_FTPS_HOST_REQUIRED) };
   }
   if (host.length > FTPS_HOST_MAX_LENGTH) {
-    return { ok: false, error: FTPS_HOST_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_FTPS_HOST_TOO_LONG) };
   }
   return { ok: true, host };
 }

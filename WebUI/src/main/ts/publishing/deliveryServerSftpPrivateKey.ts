@@ -17,6 +17,7 @@
 
 import type { PublishServerProperty } from "./types";
 import { isSecretPropertyKey, redactSecretsForLog } from "./serverSecrets";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -58,10 +59,10 @@ export function isSftpDeliveryDriver(
 export function validateSftpPrivateKey(raw: string): SftpPrivateKeyResult {
   const privateKey = raw.trim();
   if (!privateKey) {
-    return { ok: false, error: SFTP_PRIVATE_KEY_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_SFTP_PRIVATE_KEY_REQUIRED) };
   }
   if (privateKey.length > SFTP_PRIVATE_KEY_MAX_LENGTH) {
-    return { ok: false, error: SFTP_PRIVATE_KEY_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_SFTP_PRIVATE_KEY_TOO_LONG) };
   }
   return { ok: true, privateKey };
 }

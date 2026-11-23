@@ -21,8 +21,6 @@ import { getServer, updateServer } from "../../api/publishing/serversApi";
 import { message, MSG } from "../../i18n/message";
 import {
   buildDatabaseHostBody,
-  DATABASE_HOST_DRIVER_ONLY,
-  DATABASE_HOST_REQUIRED,
   databaseHostHttpFailure,
   databaseNameOrSid,
   isDatabaseDeliveryDriver,
@@ -52,7 +50,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = databaseHostHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, DATABASE_HOST_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_DATABASE_HOST_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -194,42 +192,42 @@ export function DatabaseDeliveryHostPanel({
 
   return (
     <div data-testid="db-host-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>Database host</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_DB_HOST)}</h3>
       {database && (
         <div data-testid="db-host-summary">
           <p>
-            Name: <span data-testid="db-host-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="db-host-name">{shown(name)}</span>
           </p>
           <p>
-            Driver: <span data-testid="db-host-driver">{shown(driver)}</span>
+            {message(MSG.PUBLISH_DRIVER)}: <span data-testid="db-host-driver">{shown(driver)}</span>
           </p>
           <p>
-            Host: <span data-testid="db-host-current">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="db-host-current">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="db-host-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="db-host-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="db-host-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="db-host-user">{shown(user)}</span>
           </p>
           <p>
-            Database / SID:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DATABASE_SID)}:{" "}
             <span data-testid="db-host-database">{shown(databaseOrSid)}</span>
           </p>
           <p>
-            Default: <span data-testid="db-host-default">{shown(defaultFlag)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}: <span data-testid="db-host-default">{shown(defaultFlag)}</span>
           </p>
         </div>
       )}
       {notDatabase && (
         <p data-testid="db-host-not-database" role="status">
-          {DATABASE_HOST_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_DATABASE_HOST_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="db-host-form">
           <div style={formRowStyle}>
-            <label htmlFor="db-host-input">* Host</label>
+            <label htmlFor="db-host-input">{message(MSG.PUBLISH_DELIVERY_LABEL_HOST)}</label>
             <input
               id="db-host-input"
               data-testid="db-host-input"
@@ -257,7 +255,7 @@ export function DatabaseDeliveryHostPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set host
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_HOST)}
           </button>
         )}
         {editing && (
@@ -269,7 +267,7 @@ export function DatabaseDeliveryHostPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save host
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_HOST)}
             </button>
             <button
               type="button"
@@ -278,7 +276,7 @@ export function DatabaseDeliveryHostPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

@@ -27,8 +27,6 @@ import {
 } from "../deliveryServerFtpHost";
 import {
   buildFtpPortBody,
-  FTP_PORT_DRIVER_ONLY,
-  FTP_PORT_REQUIRED,
   ftpPortHttpFailure,
   validateFtpPort,
   withUpdatedPort,
@@ -47,7 +45,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = ftpPortHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, FTP_PORT_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_FTP_PORT_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -182,32 +180,32 @@ export function FtpDeliveryPortPanel({
 
   return (
     <div data-testid="ftp-port-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>FTP port</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_FTP_PORT)}</h3>
       {ftp && (
         <div data-testid="ftp-port-summary">
           <p>
-            Host: <span data-testid="ftp-port-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="ftp-port-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="ftp-port-current">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="ftp-port-current">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="ftp-port-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="ftp-port-user">{shown(user)}</span>
           </p>
           <p>
-            Folder: <span data-testid="ftp-port-folder">{shown(folder)}</span>
+            {message(MSG.PUBLISH_FOLDER)}: <span data-testid="ftp-port-folder">{shown(folder)}</span>
           </p>
         </div>
       )}
       {notFtp && (
         <p data-testid="ftp-port-not-ftp" role="status">
-          {FTP_PORT_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_FTP_PORT_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="ftp-port-form">
           <div style={formRowStyle}>
-            <label htmlFor="ftp-port-input">* Port</label>
+            <label htmlFor="ftp-port-input">{message(MSG.PUBLISH_DELIVERY_LABEL_PORT)}</label>
             <input
               id="ftp-port-input"
               data-testid="ftp-port-input"
@@ -236,7 +234,7 @@ export function FtpDeliveryPortPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set port
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_PORT)}
           </button>
         )}
         {editing && (
@@ -248,7 +246,7 @@ export function FtpDeliveryPortPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save port
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_PORT)}
             </button>
             <button
               type="button"
@@ -257,7 +255,7 @@ export function FtpDeliveryPortPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

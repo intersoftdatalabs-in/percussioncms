@@ -15,6 +15,7 @@
  */
 
 import type { PublishServer, PublishServerProperty } from "./types";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -40,7 +41,7 @@ export type SftpFolderHttpFailure = "bad_request" | "forbidden" | "conflict";
 export function validateSftpFolder(raw: string): SftpFolderResult {
   const folder = raw.trim();
   if (folder.length > SFTP_FOLDER_MAX_LENGTH) {
-    return { ok: false, error: SFTP_FOLDER_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_SFTP_FOLDER_TOO_LONG) };
   }
   return { ok: true, folder };
 }

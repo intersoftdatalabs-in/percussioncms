@@ -23,8 +23,6 @@ import { message, MSG } from "../../i18n/message";
 import { serverDriver, serverProperty } from "../deliveryServerFtpHost";
 import {
   buildDeliveryServerDefaultBody,
-  DELIVERY_SERVER_ALREADY_DEFAULT,
-  DELIVERY_SERVER_DEFAULT_REQUIRED,
   deliveryServerDefaultHttpFailure,
   isDefaultDeliveryServer,
   shouldSkipDefaultWrite,
@@ -45,7 +43,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = deliveryServerDefaultHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, DELIVERY_SERVER_DEFAULT_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_DELIVERY_SERVER_DEFAULT_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -63,7 +61,7 @@ function shown(value: string): string {
 }
 
 function defaultLabel(server: PublishServer): string {
-  return isDefaultDeliveryServer(server) ? "Yes" : "No";
+  return isDefaultDeliveryServer(server) ? message(MSG.PUBLISH_DELIVERY_DELIVERY_YES) : message(MSG.PUBLISH_DELIVERY_DELIVERY_NO);
 }
 
 /**
@@ -117,7 +115,7 @@ export function DeliveryServerDefaultPanel({
       if (shouldSkipDefaultWrite(server)) {
         setEditing(false);
         setDirty(false);
-        setError(DELIVERY_SERVER_ALREADY_DEFAULT);
+        setError(message(MSG.PUBLISH_DELIVERY_DELIVERY_SERVER_ALREADY_DEFAULT));
         return;
       }
       setEditing(true);
@@ -146,7 +144,7 @@ export function DeliveryServerDefaultPanel({
       return;
     }
     if (shouldSkipDefaultWrite(loaded)) {
-      setError(DELIVERY_SERVER_ALREADY_DEFAULT);
+      setError(message(MSG.PUBLISH_DELIVERY_DELIVERY_SERVER_ALREADY_DEFAULT));
       setEditing(false);
       setDirty(false);
       return;
@@ -173,34 +171,33 @@ export function DeliveryServerDefaultPanel({
 
   return (
     <div data-testid="delivery-server-default-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>Mark delivery server as default</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_SERVER_DEFAULT)}</h3>
       {loaded && (
         <div data-testid="delivery-server-default-summary">
           <p>
-            Name:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}:{" "}
             <span data-testid="delivery-server-default-name">{shown(name)}</span>
           </p>
           <p>
-            Driver:{" "}
+            {message(MSG.PUBLISH_DRIVER)}:{" "}
             <span data-testid="delivery-server-default-driver">{shown(driver)}</span>
           </p>
           <p>
-            Type: <span data-testid="delivery-server-default-type">{shown(type)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_TYPE)}: <span data-testid="delivery-server-default-type">{shown(type)}</span>
           </p>
           <p>
-            Default:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}:{" "}
             <span data-testid="delivery-server-default-flag">{shown(defaultFlag)}</span>
           </p>
           <p>
-            Folder:{" "}
+            {message(MSG.PUBLISH_FOLDER)}:{" "}
             <span data-testid="delivery-server-default-folder">{shown(folder)}</span>
           </p>
         </div>
       )}
       {editing && (
         <p data-testid="delivery-server-default-form">
-          Mark this server as the site default? Other servers lose the default
-          badge only after a successful save.
+          {message(MSG.PUBLISH_DELIVERY_HINT_MARK_DEFAULT)}
         </p>
       )}
       {error && (
@@ -221,7 +218,7 @@ export function DeliveryServerDefaultPanel({
             disabled={busy || alreadyDefault}
             onClick={() => void open()}
           >
-            Mark as default
+            {message(MSG.PUBLISH_DELIVERY_ACTION_MARK_AS_DEFAULT)}
           </button>
         )}
         {editing && (
@@ -233,7 +230,7 @@ export function DeliveryServerDefaultPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save default
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_DEFAULT)}
             </button>
             <button
               type="button"
@@ -242,7 +239,7 @@ export function DeliveryServerDefaultPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

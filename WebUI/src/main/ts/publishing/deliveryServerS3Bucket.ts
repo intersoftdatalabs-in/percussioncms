@@ -16,6 +16,7 @@
  */
 
 import type { PublishServer, PublishServerProperty } from "./types";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -50,10 +51,10 @@ export function isS3DeliveryDriver(driver: string | undefined | null): boolean {
 export function validateS3Bucket(raw: string): S3BucketResult {
   const bucket = raw.trim();
   if (!bucket) {
-    return { ok: false, error: S3_BUCKET_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_S3_BUCKET_REQUIRED) };
   }
   if (bucket.length > S3_BUCKET_MAX_LENGTH) {
-    return { ok: false, error: S3_BUCKET_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_S3_BUCKET_TOO_LONG) };
   }
   return { ok: true, bucket };
 }

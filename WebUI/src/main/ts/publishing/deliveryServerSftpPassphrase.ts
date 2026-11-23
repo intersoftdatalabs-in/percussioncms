@@ -16,6 +16,7 @@
 
 import type { PublishServerProperty } from "./types";
 import { isSecretPropertyKey, redactSecretsForLog } from "./serverSecrets";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -55,10 +56,10 @@ export type SftpPassphraseHttpFailure = "bad_request" | "forbidden" | "conflict"
 export function validateSftpPassphrase(raw: string): SftpPassphraseResult {
   const passphrase = raw.trim();
   if (!passphrase) {
-    return { ok: false, error: SFTP_PASSPHRASE_REQUIRED };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_SFTP_PASSPHRASE_REQUIRED) };
   }
   if (passphrase.length > SFTP_PASSPHRASE_MAX_LENGTH) {
-    return { ok: false, error: SFTP_PASSPHRASE_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_SFTP_PASSPHRASE_TOO_LONG) };
   }
   return { ok: true, passphrase };
 }

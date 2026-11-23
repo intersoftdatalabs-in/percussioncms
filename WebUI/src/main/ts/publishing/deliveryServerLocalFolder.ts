@@ -16,6 +16,7 @@
  */
 
 import type { PublishServer, PublishServerProperty } from "./types";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -47,7 +48,7 @@ export function isLocalDeliveryDriver(driver: string): boolean {
 export function validateLocalFolder(raw: string): LocalFolderResult {
   const folder = raw.trim();
   if (folder.length > LOCAL_FOLDER_MAX_LENGTH) {
-    return { ok: false, error: LOCAL_FOLDER_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_LOCAL_FOLDER_TOO_LONG) };
   }
   return { ok: true, folder };
 }

@@ -92,28 +92,28 @@ export function FileDriverFields({
     return (
       <div data-testid={`driver-${d.toLowerCase()}`}>
         <Field
-          label="Server IP / host"
+          label={message(MSG.PUBLISH_DELIVERY_SUMMARY_SERVER_IP_HOST)}
           propKey="serverip"
           properties={properties}
           onChange={onChange}
           required
         />
         <Field
-          label="Port"
+          label={message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}
           propKey="port"
           properties={properties}
           onChange={onChange}
           required
         />
         <Field
-          label="User ID"
+          label={message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}
           propKey="userid"
           properties={properties}
           onChange={onChange}
           required
         />
         <Field
-          label="Password"
+          label={message(MSG.PUBLISH_DELIVERY_SUMMARY_PASSWORD)}
           propKey="password"
           properties={properties}
           onChange={onChange}
@@ -121,14 +121,14 @@ export function FileDriverFields({
         />
         {(d === "SFTP" || d === "FTP" || d === "FTPS") && (
           <Field
-            label="Private key"
+            label={message(MSG.PUBLISH_DELIVERY_SUMMARY_PRIVATE_KEY)}
             propKey="privateKey"
             properties={properties}
             onChange={onChange}
           />
         )}
         <Field
-          label="Folder"
+          label={message(MSG.PUBLISH_FOLDER)}
           propKey="folder"
           properties={properties}
           onChange={onChange}
@@ -141,35 +141,35 @@ export function FileDriverFields({
     return (
       <div data-testid="driver-s3">
         <Field
-          label="Access key"
+          label={message(MSG.PUBLISH_DELIVERY_SUMMARY_ACCESS_KEY)}
           propKey="accesskey"
           properties={properties}
           onChange={onChange}
           required
         />
         <Field
-          label="Secret key"
+          label={message(MSG.PUBLISH_DELIVERY_SUMMARY_SECRET_KEY)}
           propKey="securitykey"
           properties={properties}
           onChange={onChange}
           required
         />
         <Field
-          label="Bucket"
+          label={message(MSG.PUBLISH_DELIVERY_SUMMARY_BUCKET)}
           propKey="bucketlocation"
           properties={properties}
           onChange={onChange}
           required
         />
         <div style={formRowStyle}>
-          <label htmlFor="drv-region">* Region</label>
+          <label htmlFor="drv-region">{message(MSG.PUBLISH_DELIVERY_LABEL_REGION)}</label>
           {regions.length > 0 ? (
             <select
               id="drv-region"
               value={properties.region ?? ""}
               onChange={(e) => onChange("region", e.target.value)}
             >
-              <option value="">Select</option>
+              <option value="">{message(MSG.PUBLISH_DELIVERY_DELIVERY_SELECT)}</option>
               {regions.map((r) => (
                 <option key={r} value={r}>
                   {r}
@@ -188,5 +188,5 @@ export function FileDriverFields({
     );
   }
 
-  return <p data-testid="driver-unknown">Unknown file driver: {driver}</p>;
+  return <p data-testid="driver-unknown">{message(MSG.PUBLISH_DELIVERY_DELIVERY_UNKNOWN_FILE_DRIVER, [driver])}</p>;
 }

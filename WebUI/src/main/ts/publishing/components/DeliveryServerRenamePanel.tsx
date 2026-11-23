@@ -23,7 +23,6 @@ import { serverDriver, serverProperty } from "../deliveryServerFtpHost";
 import {
   buildDeliveryServerRenameBody,
   DELIVERY_SERVER_NAME_MAX_LENGTH,
-  DELIVERY_SERVER_NAME_REQUIRED,
   deliveryServerDisplayName,
   deliveryServerRenameHttpFailure,
   isDefaultDeliveryServer,
@@ -45,7 +44,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = deliveryServerRenameHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, DELIVERY_SERVER_NAME_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_DELIVERY_SERVER_NAME_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -63,7 +62,7 @@ function shown(value: string): string {
 }
 
 function defaultLabel(server: PublishServer): string {
-  return isDefaultDeliveryServer(server) ? "Yes" : "No";
+  return isDefaultDeliveryServer(server) ? message(MSG.PUBLISH_DELIVERY_DELIVERY_YES) : message(MSG.PUBLISH_DELIVERY_DELIVERY_NO);
 }
 
 /**
@@ -175,26 +174,26 @@ export function DeliveryServerRenamePanel({
 
   return (
     <div data-testid="delivery-server-rename-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>Rename delivery server</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_SERVER_RENAME)}</h3>
       {loaded && (
         <div data-testid="delivery-server-rename-summary">
           <p>
-            Name:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}:{" "}
             <span data-testid="delivery-server-rename-current">{shown(name)}</span>
           </p>
           <p>
-            Driver:{" "}
+            {message(MSG.PUBLISH_DRIVER)}:{" "}
             <span data-testid="delivery-server-rename-driver">{shown(driver)}</span>
           </p>
           <p>
-            Type: <span data-testid="delivery-server-rename-type">{shown(type)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_TYPE)}: <span data-testid="delivery-server-rename-type">{shown(type)}</span>
           </p>
           <p>
-            Default:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}:{" "}
             <span data-testid="delivery-server-rename-default">{shown(defaultFlag)}</span>
           </p>
           <p>
-            Folder:{" "}
+            {message(MSG.PUBLISH_FOLDER)}:{" "}
             <span data-testid="delivery-server-rename-folder">{shown(folder)}</span>
           </p>
         </div>
@@ -202,7 +201,7 @@ export function DeliveryServerRenamePanel({
       {editing && (
         <div data-testid="delivery-server-rename-form">
           <div style={formRowStyle}>
-            <label htmlFor="delivery-server-rename-input">* Name</label>
+            <label htmlFor="delivery-server-rename-input">{message(MSG.PUBLISH_DELIVERY_LABEL_NAME)}</label>
             <input
               id="delivery-server-rename-input"
               data-testid="delivery-server-rename-input"
@@ -235,7 +234,7 @@ export function DeliveryServerRenamePanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Rename
+            {message(MSG.PUBLISH_DELIVERY_ACTION_RENAME)}
           </button>
         )}
         {editing && (
@@ -247,7 +246,7 @@ export function DeliveryServerRenamePanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save name
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_NAME)}
             </button>
             <button
               type="button"
@@ -256,7 +255,7 @@ export function DeliveryServerRenamePanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

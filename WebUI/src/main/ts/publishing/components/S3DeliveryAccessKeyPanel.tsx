@@ -22,9 +22,6 @@ import { message, MSG } from "../../i18n/message";
 import { isS3DeliveryDriver } from "../deliveryServerS3Bucket";
 import {
   buildS3AccessKeyBody,
-  S3_ACCESS_KEY_DRIVER_ONLY,
-  S3_ACCESS_KEY_NEVER_SHOWN,
-  S3_ACCESS_KEY_REQUIRED,
   s3AccessKeyHttpFailure,
   validateS3AccessKey,
 } from "../deliveryServerS3AccessKey";
@@ -51,7 +48,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = s3AccessKeyHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, S3_ACCESS_KEY_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_S3_ACCESS_KEY_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -187,41 +184,41 @@ export function S3DeliveryAccessKeyPanel({
 
   return (
     <div data-testid="s3-access-key-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>Amazon S3 access key</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_S3_ACCESS_KEY)}</h3>
       {s3 && (
         <div data-testid="s3-access-key-summary">
           <p>
-            Name: <span data-testid="s3-access-key-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="s3-access-key-name">{shown(name)}</span>
           </p>
           <p>
-            Driver: <span data-testid="s3-access-key-driver">{shown(driver)}</span>
+            {message(MSG.PUBLISH_DRIVER)}: <span data-testid="s3-access-key-driver">{shown(driver)}</span>
           </p>
           <p>
-            Bucket:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_BUCKET)}:{" "}
             <span data-testid="s3-access-key-bucket">{shown(bucket)}</span>
           </p>
           <p>
-            Region:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_REGION)}:{" "}
             <span data-testid="s3-access-key-region">{shown(region)}</span>
           </p>
           <p>
-            Default:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}:{" "}
             <span data-testid="s3-access-key-default">{shown(defaultFlag)}</span>
           </p>
           <p data-testid="s3-access-key-status" role="status">
-            Access key: {S3_ACCESS_KEY_NEVER_SHOWN}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_ACCESS_KEY)}: {message(MSG.PUBLISH_DELIVERY_S3_ACCESS_KEY_NEVER_SHOWN)}
           </p>
         </div>
       )}
       {notS3 && (
         <p data-testid="s3-access-key-not-s3" role="status">
-          {S3_ACCESS_KEY_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_S3_ACCESS_KEY_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="s3-access-key-form">
           <div style={formRowStyle}>
-            <label htmlFor="s3-access-key-input">* New access key</label>
+            <label htmlFor="s3-access-key-input">{message(MSG.PUBLISH_DELIVERY_LABEL_NEW_ACCESS_KEY)}</label>
             <input
               id="s3-access-key-input"
               data-testid="s3-access-key-input"
@@ -250,7 +247,7 @@ export function S3DeliveryAccessKeyPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set S3 access key
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_S3_ACCESS_KEY)}
           </button>
         )}
         {editing && (
@@ -262,7 +259,7 @@ export function S3DeliveryAccessKeyPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save S3 access key
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_S3_ACCESS_KEY)}
             </button>
             <button
               type="button"
@@ -271,7 +268,7 @@ export function S3DeliveryAccessKeyPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

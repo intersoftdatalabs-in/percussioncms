@@ -21,8 +21,6 @@ import { getServer, updateServer } from "../../api/publishing/serversApi";
 import { message, MSG } from "../../i18n/message";
 import {
   buildOracleSidBody,
-  ORACLE_SID_DRIVER_ONLY,
-  ORACLE_SID_REQUIRED,
   isOracleDeliveryDriver,
   oracleSidHttpFailure,
   validateOracleSid,
@@ -51,7 +49,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = oracleSidHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, ORACLE_SID_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_ORACLE_SID_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -191,42 +189,42 @@ export function DatabaseDeliverySidPanel({
 
   return (
     <div data-testid="db-sid-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>Oracle SID</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_DB_SID)}</h3>
       {oracle && (
         <div data-testid="db-sid-summary">
           <p>
-            Name: <span data-testid="db-sid-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="db-sid-name">{shown(name)}</span>
           </p>
           <p>
-            Driver: <span data-testid="db-sid-driver">{shown(driver)}</span>
+            {message(MSG.PUBLISH_DRIVER)}: <span data-testid="db-sid-driver">{shown(driver)}</span>
           </p>
           <p>
-            Host: <span data-testid="db-sid-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="db-sid-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="db-sid-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="db-sid-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="db-sid-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="db-sid-user">{shown(user)}</span>
           </p>
           <p>
-            SID: <span data-testid="db-sid-current">{shown(sid)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_SID)}: <span data-testid="db-sid-current">{shown(sid)}</span>
           </p>
           <p>
-            Default:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}:{" "}
             <span data-testid="db-sid-default">{shown(defaultFlag)}</span>
           </p>
         </div>
       )}
       {notOracle && (
         <p data-testid="db-sid-not-oracle" role="status">
-          {ORACLE_SID_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_ORACLE_SID_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="db-sid-form">
           <div style={formRowStyle}>
-            <label htmlFor="db-sid-input">* SID</label>
+            <label htmlFor="db-sid-input">{message(MSG.PUBLISH_DELIVERY_LABEL_SID)}</label>
             <input
               id="db-sid-input"
               data-testid="db-sid-input"
@@ -254,7 +252,7 @@ export function DatabaseDeliverySidPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set Oracle SID
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_ORACLE_SID)}
           </button>
         )}
         {editing && (
@@ -266,7 +264,7 @@ export function DatabaseDeliverySidPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save Oracle SID
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_ORACLE_SID)}
             </button>
             <button
               type="button"
@@ -275,7 +273,7 @@ export function DatabaseDeliverySidPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

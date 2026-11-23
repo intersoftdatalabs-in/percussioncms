@@ -16,6 +16,7 @@
  */
 
 import type { PublishServer, PublishServerProperty } from "./types";
+import { message, MSG } from "../i18n/message";
 
 /**
  * PSX_PUBSERVER_PROPERTIES.PROPERTYVALUE is VARCHAR(255). Keep in step with
@@ -41,7 +42,7 @@ export type FtpsFolderHttpFailure = "bad_request" | "forbidden" | "conflict";
 export function validateFtpsFolder(raw: string): FtpsFolderResult {
   const folder = raw.trim();
   if (folder.length > FTPS_FOLDER_MAX_LENGTH) {
-    return { ok: false, error: FTPS_FOLDER_TOO_LONG };
+    return { ok: false, error: message(MSG.PUBLISH_DELIVERY_FTPS_FOLDER_TOO_LONG) };
   }
   return { ok: true, folder };
 }

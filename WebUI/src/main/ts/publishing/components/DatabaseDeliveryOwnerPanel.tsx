@@ -21,8 +21,6 @@ import { getServer, updateServer } from "../../api/publishing/serversApi";
 import { message, MSG } from "../../i18n/message";
 import {
   buildMssqlOwnerBody,
-  MSSQL_OWNER_DRIVER_ONLY,
-  MSSQL_OWNER_REQUIRED,
   isMssqlDeliveryDriver,
   mssqlOwnerHttpFailure,
   validateMssqlOwner,
@@ -51,7 +49,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = mssqlOwnerHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, MSSQL_OWNER_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_MSSQL_OWNER_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -192,46 +190,46 @@ export function DatabaseDeliveryOwnerPanel({
 
   return (
     <div data-testid="db-owner-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>MSSQL owner</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_DB_OWNER)}</h3>
       {mssql && (
         <div data-testid="db-owner-summary">
           <p>
-            Name: <span data-testid="db-owner-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="db-owner-name">{shown(name)}</span>
           </p>
           <p>
-            Driver: <span data-testid="db-owner-driver">{shown(driver)}</span>
+            {message(MSG.PUBLISH_DRIVER)}: <span data-testid="db-owner-driver">{shown(driver)}</span>
           </p>
           <p>
-            Host: <span data-testid="db-owner-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="db-owner-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="db-owner-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="db-owner-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="db-owner-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="db-owner-user">{shown(user)}</span>
           </p>
           <p>
-            Database:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DATABASE)}:{" "}
             <span data-testid="db-owner-database">{shown(database)}</span>
           </p>
           <p>
-            Owner: <span data-testid="db-owner-current">{shown(owner)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_OWNER)}: <span data-testid="db-owner-current">{shown(owner)}</span>
           </p>
           <p>
-            Default:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}:{" "}
             <span data-testid="db-owner-default">{shown(defaultFlag)}</span>
           </p>
         </div>
       )}
       {notMssql && (
         <p data-testid="db-owner-not-mssql" role="status">
-          {MSSQL_OWNER_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_MSSQL_OWNER_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="db-owner-form">
           <div style={formRowStyle}>
-            <label htmlFor="db-owner-input">* Owner</label>
+            <label htmlFor="db-owner-input">{message(MSG.PUBLISH_DELIVERY_LABEL_OWNER)}</label>
             <input
               id="db-owner-input"
               data-testid="db-owner-input"
@@ -259,7 +257,7 @@ export function DatabaseDeliveryOwnerPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set MSSQL owner
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_MSSQL_OWNER)}
           </button>
         )}
         {editing && (
@@ -271,7 +269,7 @@ export function DatabaseDeliveryOwnerPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save MSSQL owner
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_MSSQL_OWNER)}
             </button>
             <button
               type="button"
@@ -280,7 +278,7 @@ export function DatabaseDeliveryOwnerPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

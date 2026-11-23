@@ -22,9 +22,6 @@ import { message, MSG } from "../../i18n/message";
 import {
   buildSftpPrivateKeyBody,
   isSftpDeliveryDriver,
-  SFTP_PRIVATE_KEY_DRIVER_ONLY,
-  SFTP_PRIVATE_KEY_NEVER_SHOWN,
-  SFTP_PRIVATE_KEY_REQUIRED,
   sftpPrivateKeyHttpFailure,
   validateSftpPrivateKey,
 } from "../deliveryServerSftpPrivateKey";
@@ -51,7 +48,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = sftpPrivateKeyHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, SFTP_PRIVATE_KEY_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_SFTP_PRIVATE_KEY_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -189,42 +186,42 @@ export function SftpDeliveryPrivateKeyPanel({
 
   return (
     <div data-testid="sftp-private-key-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>SFTP private key</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_SFTP_PRIVATE_KEY)}</h3>
       {sftp && (
         <div data-testid="sftp-private-key-summary">
           <p>
-            Name: <span data-testid="sftp-private-key-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="sftp-private-key-name">{shown(name)}</span>
           </p>
           <p>
-            Driver: <span data-testid="sftp-private-key-driver">{shown(driver)}</span>
+            {message(MSG.PUBLISH_DRIVER)}: <span data-testid="sftp-private-key-driver">{shown(driver)}</span>
           </p>
           <p>
-            Host: <span data-testid="sftp-private-key-host">{shown(host)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_HOST)}: <span data-testid="sftp-private-key-host">{shown(host)}</span>
           </p>
           <p>
-            Port: <span data-testid="sftp-private-key-port">{shown(port)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PORT)}: <span data-testid="sftp-private-key-port">{shown(port)}</span>
           </p>
           <p>
-            User ID: <span data-testid="sftp-private-key-user">{shown(user)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_USER_ID)}: <span data-testid="sftp-private-key-user">{shown(user)}</span>
           </p>
           <p>
-            Default:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}:{" "}
             <span data-testid="sftp-private-key-default">{shown(defaultFlag)}</span>
           </p>
           <p data-testid="sftp-private-key-status" role="status">
-            Private key: {SFTP_PRIVATE_KEY_NEVER_SHOWN}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_PRIVATE_KEY)}: {message(MSG.PUBLISH_DELIVERY_SFTP_PRIVATE_KEY_NEVER_SHOWN)}
           </p>
         </div>
       )}
       {notSftp && (
         <p data-testid="sftp-private-key-not-sftp" role="status">
-          {SFTP_PRIVATE_KEY_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_SFTP_PRIVATE_KEY_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="sftp-private-key-form">
           <div style={formRowStyle}>
-            <label htmlFor="sftp-private-key-input">* New private key</label>
+            <label htmlFor="sftp-private-key-input">{message(MSG.PUBLISH_DELIVERY_LABEL_NEW_PRIVATE_KEY)}</label>
             <input
               id="sftp-private-key-input"
               data-testid="sftp-private-key-input"
@@ -253,7 +250,7 @@ export function SftpDeliveryPrivateKeyPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set SFTP private key
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_SFTP_PRIVATE_KEY)}
           </button>
         )}
         {editing && (
@@ -265,7 +262,7 @@ export function SftpDeliveryPrivateKeyPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save SFTP private key
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_SFTP_PRIVATE_KEY)}
             </button>
             <button
               type="button"
@@ -274,7 +271,7 @@ export function SftpDeliveryPrivateKeyPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}

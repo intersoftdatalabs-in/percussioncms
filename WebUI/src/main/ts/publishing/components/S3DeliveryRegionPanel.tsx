@@ -22,8 +22,6 @@ import { message, MSG } from "../../i18n/message";
 import { isS3DeliveryDriver } from "../deliveryServerS3Bucket";
 import {
   buildS3RegionBody,
-  S3_REGION_DRIVER_ONLY,
-  S3_REGION_REQUIRED,
   s3RegionHttpFailure,
   validateS3Region,
   withUpdatedS3Region,
@@ -51,7 +49,7 @@ function saveErrorMessage(err: unknown): string {
   if (isApiError(err)) {
     const kind = s3RegionHttpFailure(err.status);
     if (kind === "bad_request") {
-      return formatApiError(err, S3_REGION_REQUIRED);
+      return formatApiError(err, message(MSG.PUBLISH_DELIVERY_S3_REGION_REQUIRED));
     }
     if (kind === "forbidden") {
       return formatApiError(err, message(MSG.PUBLISH_FORBIDDEN));
@@ -189,37 +187,37 @@ export function S3DeliveryRegionPanel({
 
   return (
     <div data-testid="s3-region-panel" style={{ marginBottom: 12 }}>
-      <h3 style={{ fontSize: "1rem" }}>Amazon S3 region</h3>
+      <h3 style={{ fontSize: "1rem" }}>{message(MSG.PUBLISH_DELIVERY_TITLE_S3_REGION)}</h3>
       {s3 && (
         <div data-testid="s3-region-summary">
           <p>
-            Name: <span data-testid="s3-region-name">{shown(name)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_NAME)}: <span data-testid="s3-region-name">{shown(name)}</span>
           </p>
           <p>
-            Driver: <span data-testid="s3-region-driver">{shown(driver)}</span>
+            {message(MSG.PUBLISH_DRIVER)}: <span data-testid="s3-region-driver">{shown(driver)}</span>
           </p>
           <p>
-            Region:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_REGION)}:{" "}
             <span data-testid="s3-region-current">{shown(region)}</span>
           </p>
           <p>
-            Bucket: <span data-testid="s3-region-bucket">{shown(bucket)}</span>
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_BUCKET)}: <span data-testid="s3-region-bucket">{shown(bucket)}</span>
           </p>
           <p>
-            Default:{" "}
+            {message(MSG.PUBLISH_DELIVERY_SUMMARY_DEFAULT)}:{" "}
             <span data-testid="s3-region-default">{shown(defaultFlag)}</span>
           </p>
         </div>
       )}
       {notS3 && (
         <p data-testid="s3-region-not-s3" role="status">
-          {S3_REGION_DRIVER_ONLY}
+          {message(MSG.PUBLISH_DELIVERY_S3_REGION_DRIVER_ONLY)}
         </p>
       )}
       {editing && (
         <div data-testid="s3-region-form">
           <div style={formRowStyle}>
-            <label htmlFor="s3-region-input">* Region</label>
+            <label htmlFor="s3-region-input">{message(MSG.PUBLISH_DELIVERY_LABEL_REGION)}</label>
             <input
               id="s3-region-input"
               data-testid="s3-region-input"
@@ -247,7 +245,7 @@ export function S3DeliveryRegionPanel({
             disabled={busy}
             onClick={() => void open()}
           >
-            Set S3 region
+            {message(MSG.PUBLISH_DELIVERY_ACTION_SET_S3_REGION)}
           </button>
         )}
         {editing && (
@@ -259,7 +257,7 @@ export function S3DeliveryRegionPanel({
               disabled={busy}
               onClick={() => void save()}
             >
-              Save S3 region
+              {message(MSG.PUBLISH_DELIVERY_ACTION_SAVE_S3_REGION)}
             </button>
             <button
               type="button"
@@ -268,7 +266,7 @@ export function S3DeliveryRegionPanel({
               disabled={busy}
               onClick={cancel}
             >
-              Cancel
+              {message(MSG.PUBLISH_DELIVERY_ACTION_CANCEL)}
             </button>
           </>
         )}
