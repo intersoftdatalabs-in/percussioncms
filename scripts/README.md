@@ -656,6 +656,7 @@ marker — so runners on other machines skip it. State: `scratch/claims.json`.
   python3 scripts/night-queue-claim.py release --issues 123 --reason dropped_by_triage
   python3 scripts/night-queue-claim.py release-unfinished --work-dir scratch
   python3 scripts/night-queue-claim.py release-closed   # drop label from merge-closed issues + backlog
+  python3 scripts/night-queue-claim.py pre-pr-check --issues 123   # re-check before gh pr create (#7132)
   ```
 
 - **Rules in code**: never claims assigned / closed / already-claimed issues
@@ -665,7 +666,11 @@ marker — so runners on other machines skip it. State: `scratch/claims.json`.
   cycle's claims. `release-closed` (#6890) releases this cycle's claims whose
   issues are now CLOSED and clears the label from every other CLOSED issue
   still carrying it (a claim on a closed issue is dead, so no live claim is
-  disturbed); OPEN issues are kept. The `.github/workflows/night-claim-cleanup.yml`
+  disturbed); OPEN issues are kept. `pre-pr-check` (#7132) re-reads named
+  issues immediately before `gh pr create` — CLOSED issues (or released
+  claims) come back as `skip` rows (exit 3) so the Work step stands down
+  instead of opening a PR for a dead issue; it is read-only and never touches
+  labels, comments, or claims.json. The `.github/workflows/night-claim-cleanup.yml`
   `issues: closed` workflow does the same at close time for future merges.
 - **Tests**: `python3 -m pytest scripts/test_night_queue_claim.py` (fake `gh`).
 
