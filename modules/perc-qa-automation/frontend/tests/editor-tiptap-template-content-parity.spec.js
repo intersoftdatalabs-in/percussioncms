@@ -61,7 +61,8 @@ const SUMMARY =
   "<p>Teaser<span " +
   'class="perc-blog-more-link"></span> continued after the fold.</p>' +
   '<p><span class="rx_inlinevariant" rxinlineslot="105" ' +
-  'inlinetype="rxvariant" sys_dependentid="77">' +
+  'inlinetype="rxvariant" sys_dependentid="77" sys_dependentvariantid="512" ' +
+  'sys_relationshipid="9001" rxselectedtext="About" contenteditable="false">' +
   '<img alt="@inlinemarker@" width="9" height="8" src="../sys_resources/images/inlinestart.png"/>' +
   '<a href="/Sites/Enterprise/about">About</a>' +
   '<img alt="@inlinemarker@" width="9" height="8" src="../sys_resources/images/inlineend.png"/>' +
@@ -227,6 +228,12 @@ test.describe("template-content TipTap render parity", () => {
       await expect(variant).toHaveAttribute("rxinlineslot", "105");
       await expect(variant).toHaveAttribute("inlinetype", "rxvariant");
       await expect(variant).toHaveAttribute("sys_dependentid", "77");
+      // #7104: the full stored attribute set survives the render — the
+      // save path keys the inline-template relationship off these.
+      await expect(variant).toHaveAttribute("sys_dependentvariantid", "512");
+      await expect(variant).toHaveAttribute("sys_relationshipid", "9001");
+      await expect(variant).toHaveAttribute("rxselectedtext", "About");
+      await expect(variant).toHaveAttribute("contenteditable", "false");
 
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
       await expectNoSeriousA11yViolations(page, {

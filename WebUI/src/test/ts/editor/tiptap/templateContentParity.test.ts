@@ -140,4 +140,76 @@ describe("template-content TipTap parity (#7048)", () => {
     expect(out).toContain('rxinlineslot="106"');
     expect(out).toContain("Snippet body");
   });
+
+  it("round-trips the #7104 block repro with wrapper and attributes intact", () => {
+    // Exact stored shape from #7104: PSSingleValueBuilder moves the
+    // relationship attributes onto the block wrapper; the snippet payload
+    // keeps its own presentational div.
+    const stored =
+      '<div class="rx_ephox_inlinevariant" rxinlineslot="105" ' +
+      'inlinetype="rxvariant" sys_dependentid="77" ' +
+      'sys_dependentvariantid="512">' +
+      '<div class="snippet"><p>Snippet body</p></div></div><p>after</p>';
+    const out = roundTripHtmlFragment(stored);
+    // The wrapper and every relationship attribute survive: with them gone,
+    // PSInlineLinkField.getInlineRelationships would no longer find the
+    // inline template and the save would delete the relationship.
+    expect(out).toContain("rx_ephox_inlinevariant");
+    expect(out).toContain('rxinlineslot="105"');
+    expect(out).toContain('inlinetype="rxvariant"');
+    expect(out).toContain('sys_dependentid="77"');
+    expect(out).toContain('sys_dependentvariantid="512"');
+    expect(out).toContain("Snippet body");
+    expect(out).toContain("after");
+  });
+
+  it("round-trips the #7104 inline repro with wrapper and attributes intact", () => {
+    // Exact stored shape from #7104: the classic editorinline.js span with
+    // the relationship attributes moved onto it.
+    const stored =
+      '<p>See <span class="rx_inlinevariant" rxinlineslot="105" ' +
+      'inlinetype="rxvariant" sys_dependentid="77" ' +
+      'sys_dependentvariantid="512"><a href="/x">X</a></span> ok</p>';
+    const out = roundTripHtmlFragment(stored);
+    expect(normalizeHtmlForRoundTrip(out)).toBe(
+      normalizeHtmlForRoundTrip(stored),
+    );
+    expect(out).toContain("rx_inlinevariant");
+    expect(out).toContain('rxinlineslot="105"');
+    expect(out).toContain('inlinetype="rxvariant"');
+    expect(out).toContain('sys_dependentid="77"');
+    expect(out).toContain('sys_dependentvariantid="512"');
+    expect(out).toContain('href="/x"');
+  });
+
+  it("preserves the full stored attribute set on variant wrappers", () => {
+    // Stored wrappers may also carry the inline relationship id (once
+    // saved), the broken-link selected text, and the edit-time lock flag:
+    // all three must survive the round-trip untouched.
+    const stored =
+      '<p>See <span class="rx_inlinevariant" rxinlineslot="105" ' +
+      'inlinetype="rxvariant" sys_dependentid="77" ' +
+      'sys_dependentvariantid="512" sys_relationshipid="9001" ' +
+      'rxselectedtext="X" contenteditable="false">' +
+      '<a href="/x">X</a></span> ok</p>' +
+      '<div class="rx_ephox_inlinevariant" rxinlineslot="105" ' +
+      'inlinetype="rxvariant" sys_dependentid="77" ' +
+      'sys_dependentvariantid="512" sys_relationshipid="9002" ' +
+      'rxselectedtext="Snippet body" contenteditable="false">' +
+      "<p>Snippet body</p></div>";
+    const out = roundTripHtmlFragment(stored);
+    for (const attr of [
+      'sys_dependentvariantid="512"',
+      'sys_relationshipid="9001"',
+      'sys_relationshipid="9002"',
+      'rxselectedtext="X"',
+      'rxselectedtext="Snippet body"',
+      'contenteditable="false"',
+    ]) {
+      expect(out).toContain(attr);
+    }
+    expect(normalizeHtmlForRoundTrip(out)).toBe(
+      normalizeHtmlForRoundTrip(stored),
+    );
+  });
 });

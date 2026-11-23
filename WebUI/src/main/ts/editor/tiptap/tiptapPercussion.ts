@@ -52,6 +52,9 @@ export const PERC_INLINE_TYPE_ATTR = "inlinetype";
 /** Original selected text kept for broken-link cleanup. */
 export const PERC_SELECTED_TEXT_ATTR = "rxselectedtext";
 
+/** Edit-time lock flag stored on legacy inline-template wrappers. */
+export const PERC_CONTENT_EDITABLE_ATTR = "contenteditable";
+
 /** CMS dependent-item id for an inline link or image. */
 export const PERC_DEPENDENT_ID_ATTR = "sys_dependentid";
 

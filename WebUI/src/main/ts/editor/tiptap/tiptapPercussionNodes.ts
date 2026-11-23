@@ -55,6 +55,7 @@ import { Image } from "@tiptap/extension-image";
 import { Node, mergeAttributes } from "@tiptap/core";
 import {
   PERC_BLOCK_VARIANT_CLASS,
+  PERC_CONTENT_EDITABLE_ATTR,
   PERC_DEPENDENT_ID_ATTR,
   PERC_DEPENDENT_VARIANT_ATTR,
   PERC_GLOBAL_VARIABLE_CLASS,
@@ -293,6 +294,13 @@ function variantRelationshipAttributes(): Record<string, unknown> {
     [PERC_DEPENDENT_ID_ATTR]: percAttribute(PERC_DEPENDENT_ID_ATTR),
     [PERC_DEPENDENT_VARIANT_ATTR]: percAttribute(PERC_DEPENDENT_VARIANT_ATTR),
     [PERC_RELATIONSHIP_ATTR]: percAttribute(PERC_RELATIONSHIP_ATTR),
+    // #7104: the stored wrappers also carry the broken-link selected text
+    // and the edit-time lock flag. Both must survive the round-trip:
+    // processInlineLink falls back to rxselectedtext for broken-link
+    // cleanup, and dropping contenteditable would misrepresent the stored
+    // lock state on the next save.
+    [PERC_SELECTED_TEXT_ATTR]: percAttribute(PERC_SELECTED_TEXT_ATTR),
+    [PERC_CONTENT_EDITABLE_ATTR]: percAttribute(PERC_CONTENT_EDITABLE_ATTR),
   };
 }
 
