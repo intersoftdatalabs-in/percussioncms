@@ -266,6 +266,34 @@ test.describe("Explorer bulk-confirm announcements (#7037)", () => {
   });
 
   test(
+    "live regions stay mounted with empty text before any action (#7113)",
+    { tag: ["@explorer", "@explorer-bulk-confirm", "@a11y"] },
+    async ({ page }) => {
+      await installBulkConfirmRoutes(page);
+      await openExplorer(page);
+
+      // Persistent-region proof: the recycle/purge/restore result nodes
+      // are attached (exactly one each) with empty text before any bulk
+      // action runs, so outcome announcements are text swaps — not
+      // mount-with-text, which SR/browser combos miss.
+      for (const testId of [
+        "explorer-multi-recycle-result",
+        "explorer-multi-purge-result",
+        "explorer-multi-restore-result",
+      ]) {
+        const region = page.locator(`[data-testid="${testId}"]`);
+        await expect(region).toHaveCount(1, { timeout: 15_000 });
+        await expect(region).toHaveAttribute("role", "status");
+        await expect(region).toHaveAttribute("aria-live", "polite");
+        await expect(region).toHaveText("");
+      }
+      await expectNoSeriousA11yViolations(page, {
+        scope: '[data-testid="content-explorer-shell"]',
+      });
+    },
+  );
+
+  test(
     "keyboard: recycle confirm announces success and returns focus",
     { tag: ["@explorer", "@explorer-bulk-confirm", "@a11y"] },
     async ({ page }) => {

@@ -507,4 +507,50 @@ describe("ContentExplorerShell bulk-confirm announcements (#7037)", () => {
     });
     expect(screen.getByTestId("explorer-bulk-stage-cancelled")).toBe(region);
   });
+
+  it("recycle/purge/restore result regions stay mounted with empty text before any action", async () => {
+    mockFetch(async (input) => {
+      const url = typeof input === "string" ? input : (input as Request).url;
+      if (url.includes("paginatedFolder") || url.includes("/folder/")) {
+        return listingResponse([
+          {
+            id: "page-a",
+            name: "Alpha",
+            path: "/Assets/Src/Alpha",
+            type: "percPage",
+            category: "page",
+            leaf: true,
+          },
+        ]);
+      }
+      return jsonResponse({});
+    });
+
+    const { container } = renderShell(
+      <ContentExplorerShell
+        initialPath="/Assets/Src"
+        loadDisplayFormats={async () => []}
+        loadMenuActions={async () => []}
+      />,
+    );
+
+    await waitFor(() => {
+      expect(screen.getByTestId("detail-select-page-a")).toBeInTheDocument();
+    });
+    // Persistent live regions (#7113): mounted from the start with empty
+    // text and no banner chrome, so outcome announcements are text swaps
+    // rather than mount-with-text (which SR/browser combos miss).
+    for (const testId of [
+      "explorer-multi-recycle-result",
+      "explorer-multi-purge-result",
+      "explorer-multi-restore-result",
+    ]) {
+      const region = screen.getByTestId(testId);
+      expect(region.getAttribute("role")).toBe("status");
+      expect(region.getAttribute("aria-live")).toBe("polite");
+      expect(region.textContent).toBe("");
+      expect(region.hasAttribute("data-outcome")).toBe(false);
+    }
+    await renderA11yGate(container);
+  });
 });

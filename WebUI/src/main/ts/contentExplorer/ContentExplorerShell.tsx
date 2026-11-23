@@ -4510,27 +4510,39 @@ function ContentExplorerShellInner({
           onCancel={() => setMultiMoveOpen(false)}
         />
       ) : null}
-      {multiRecycleStatus
-        ? (() => {
-            const live = bulkConfirmLiveProps(multiRecycleStatus.outcome);
-            return (
-              <div
-                data-testid="explorer-multi-recycle-result"
-                data-outcome={multiRecycleStatus.outcome}
-                role={live.role}
-                aria-live={live.live}
-                style={{
-                  gridColumn: "1 / -1",
-                  padding: "8px 12px",
-                  background: live.background,
-                  color: "#0f172a",
-                }}
-              >
-                {multiRecycleStatus.text}
-              </div>
-            );
-          })()
-        : null}
+      {/*
+        Bulk recycle result banner (#7037). The region stays mounted and
+        only its text changes: a live region that mounts together with its
+        text is unreliable, so the empty region renders without banner
+        chrome and gains it when a status lands.
+      */}
+      <div
+        data-testid="explorer-multi-recycle-result"
+        data-outcome={multiRecycleStatus ? multiRecycleStatus.outcome : undefined}
+        role={
+          multiRecycleStatus
+            ? bulkConfirmLiveProps(multiRecycleStatus.outcome).role
+            : "status"
+        }
+        aria-live={
+          multiRecycleStatus
+            ? bulkConfirmLiveProps(multiRecycleStatus.outcome).live
+            : "polite"
+        }
+        style={
+          multiRecycleStatus
+            ? {
+                gridColumn: "1 / -1",
+                padding: "8px 12px",
+                background: bulkConfirmLiveProps(multiRecycleStatus.outcome)
+                  .background,
+                color: "#0f172a",
+              }
+            : { gridColumn: "1 / -1" }
+        }
+      >
+        {multiRecycleStatus ? multiRecycleStatus.text : ""}
+      </div>
       {multiRecycleOpen ? (
         <RecycleConfirmDialog
           onConfirm={() => {
@@ -4556,27 +4568,37 @@ function ContentExplorerShellInner({
           }
         />
       ) : null}
-      {multiPurgeStatus
-        ? (() => {
-            const live = bulkConfirmLiveProps(multiPurgeStatus.outcome);
-            return (
-              <div
-                data-testid="explorer-multi-purge-result"
-                data-outcome={multiPurgeStatus.outcome}
-                role={live.role}
-                aria-live={live.live}
-                style={{
-                  gridColumn: "1 / -1",
-                  padding: "8px 12px",
-                  background: live.background,
-                  color: "#0f172a",
-                }}
-              >
-                {multiPurgeStatus.text}
-              </div>
-            );
-          })()
-        : null}
+      {/*
+        Bulk purge result banner (#7037). Same persistent-region pattern as
+        the recycle banner above: always mounted, text-only swaps.
+      */}
+      <div
+        data-testid="explorer-multi-purge-result"
+        data-outcome={multiPurgeStatus ? multiPurgeStatus.outcome : undefined}
+        role={
+          multiPurgeStatus
+            ? bulkConfirmLiveProps(multiPurgeStatus.outcome).role
+            : "status"
+        }
+        aria-live={
+          multiPurgeStatus
+            ? bulkConfirmLiveProps(multiPurgeStatus.outcome).live
+            : "polite"
+        }
+        style={
+          multiPurgeStatus
+            ? {
+                gridColumn: "1 / -1",
+                padding: "8px 12px",
+                background: bulkConfirmLiveProps(multiPurgeStatus.outcome)
+                  .background,
+                color: "#0f172a",
+              }
+            : { gridColumn: "1 / -1" }
+        }
+      >
+        {multiPurgeStatus ? multiPurgeStatus.text : ""}
+      </div>
       {multiPurgeOpen ? (
         <PurgeConfirmDialog
           onConfirm={() => {
@@ -4641,27 +4663,37 @@ function ContentExplorerShellInner({
           onCancel={() => finishTakedown(false)}
         />
       ) : null}
-      {multiRestoreStatus
-        ? (() => {
-            const live = bulkConfirmLiveProps(multiRestoreStatus.outcome);
-            return (
-              <div
-                data-testid="explorer-multi-restore-result"
-                data-outcome={multiRestoreStatus.outcome}
-                role={live.role}
-                aria-live={live.live}
-                style={{
-                  gridColumn: "1 / -1",
-                  padding: "8px 12px",
-                  background: live.background,
-                  color: "#0f172a",
-                }}
-              >
-                {multiRestoreStatus.text}
-              </div>
-            );
-          })()
-        : null}
+      {/*
+        Bulk restore result banner (#7037). Same persistent-region pattern:
+        always mounted, text-only swaps.
+      */}
+      <div
+        data-testid="explorer-multi-restore-result"
+        data-outcome={multiRestoreStatus ? multiRestoreStatus.outcome : undefined}
+        role={
+          multiRestoreStatus
+            ? bulkConfirmLiveProps(multiRestoreStatus.outcome).role
+            : "status"
+        }
+        aria-live={
+          multiRestoreStatus
+            ? bulkConfirmLiveProps(multiRestoreStatus.outcome).live
+            : "polite"
+        }
+        style={
+          multiRestoreStatus
+            ? {
+                gridColumn: "1 / -1",
+                padding: "8px 12px",
+                background: bulkConfirmLiveProps(multiRestoreStatus.outcome)
+                  .background,
+                color: "#0f172a",
+              }
+            : { gridColumn: "1 / -1" }
+        }
+      >
+        {multiRestoreStatus ? multiRestoreStatus.text : ""}
+      </div>
       {multiRestoreOpen ? (
         <RestoreConfirmDialog
           onConfirm={() => {
