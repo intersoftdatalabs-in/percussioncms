@@ -40,7 +40,9 @@ const {
   listedPageSiteNames,
   foldSiteName,
   detailRowHasExactName,
-  detailRowMatchesFoldedSite,
+  detailRowHasExactFoldedName,
+  pickSiteTreeNodeTestId,
+  classifyListSnapshot,
 } = require("./helpers/explorer-preview-view");
 const {
   TEST_IDS,
@@ -148,19 +150,201 @@ async function findListedPageViaRest(request) {
 }
 
 /**
+ * Wait for the detail list to navigate away from a previous folder (#7193).
+ * After a tree/folder click React may briefly keep rendering the old rows
+ * (settled, wrong folder) or a {@code detail-list-loading} placeholder;
+ * acting on either lands the test in the wrong directory. The list root
+ * carries {@code data-folder-path}, which flips on navigation before the
+ * rows arrive. Bounded and non-fatal: when the click re-opens the folder
+ * that is already listed the path never changes and the caller falls
+ * through to {@code listSettled} on already-correct rows.
+ * @param {import("@playwright/test").Page} page
+ * @param {string|null} before data-folder-path captured before the click
+ * @param {number} [timeout]
+ */
+async function awaitListPathChange(page, before, timeout = 15_000) {
+  if (before == null) return;
+  const list = page.locator(`[data-testid="${PREVIEW_IDS.list}"]`);
+  // Non-fatal by design: a re-open of the already-listed folder never
+  // changes path, and the caller falls through to listSettled (#7193).
+  await expect
+    .poll(
+      async () =>
+        ((await list.getAttribute("data-folder-path").catch(() => null)) ===
+        before
+          ? "same"
+          : "changed"),
+      { timeout },
+    )
+    .toMatch(/changed/)
+    .then(
+      () => true,
+      () => false,
+    );
+}
+
+/**
+ * One in-page snapshot of the detail list's rows (#7193). A single
+ * evaluate() roundtrip: per-row getAttribute / textContent calls hang
+ * without an inner timeout when a row never reaches actionability-stable
+ * (churning layout), wedging the whole poll budget inside the first
+ * iteration. evaluate() has no actionability waits, so it always resolves.
+ * @param {import("@playwright/test").Locator} list
+ * @returns {Promise<{loading?: boolean, error?: boolean, rows?: Array<{named: boolean, texted: boolean}>}|null>}
+ */
+async function snapshotDetailList(list) {
+  return list
+    .evaluate((el) => {
+      if (el.querySelector('[data-testid="detail-list-loading"]')) {
+        return { loading: true };
+      }
+      if (el.querySelector('[data-testid="detail-list-error"]')) {
+        return { error: true };
+      }
+      const rows = [
+        ...el.querySelectorAll('tbody tr[data-testid^="detail-row-"]'),
+      ];
+      return {
+        rows: rows.map((tr) => ({
+          named: Boolean((tr.getAttribute("data-item-name") || "").trim()),
+          texted: Boolean((tr.textContent || "").trim()),
+        })),
+      };
+    })
+    .catch(() => null);
+}
+
+/**
+ * Snapshot the list's current rows signature (#7193): joined row testids,
+ * or a marker for the loading/error/empty states.
+ * @param {import("@playwright/test").Page} page
+ * @param {string} listSel
+ * @returns {Promise<string>}
+ */
+async function listRowsSignature(page, listSel) {
+  return page
+    .locator(listSel)
+    .evaluate((el) => {
+      if (el.querySelector('[data-testid="detail-list-loading"]')) {
+        return "loading";
+      }
+      if (el.querySelector('[data-testid="detail-list-error"]')) {
+        return "error";
+      }
+      return [
+        ...el.querySelectorAll('tbody tr[data-testid^="detail-row-"]'),
+      ]
+        .map((tr) => tr.getAttribute("data-testid"))
+        .join("|");
+    })
+    .catch(() => "detached");
+}
+
+/**
+ * Wait for the detail list to show different rows after a navigation click
+ * (#7193 P2). DetailList retains the previous folder's children while the
+ * destination fetch runs (a loading placeholder only renders when there
+ * are no children at all), so a freshly-flipped data-folder-path with old
+ * rows still reads "settled". Bounded and non-fatal: falls through to
+ * {@code listSettled} on timeout (re-open of the same folder, or an empty
+ * destination whose signature legitimately matches).
+ * @param {import("@playwright/test").Page} page
+ * @param {string} listSel
+ * @param {string} beforeSig rows signature captured before the click
+ * @param {number} [timeout]
+ */
+async function awaitListRowsChanged(page, listSel, beforeSig, timeout = 30_000) {
+  await expect
+    .poll(async () => {
+      const state = await listRowsSignature(page, listSel);
+      if (state === "loading" || state === "detached") return "waiting";
+      return state === beforeSig ? "same" : "changed";
+    }, { timeout })
+    .toMatch(/changed/)
+    .then(
+      () => true,
+      () => false,
+    );
+}
+
+/**
+ * element persists across SPA navigations (React re-render), so bare
+ * "attached" waits pass while skeleton rows are still loading; acting on
+ * those transient rows then hangs until the test timeout. A settled list
+ * has zero rows (genuinely empty folder) or every row backed by a real
+ * item. Settle-ness reads the {@code data-item-name} attribute (always
+ * rendered by DetailList) plus {@code textContent}: {@code innerText} is
+ * visibility-dependent and stays empty on hidden/duplicate list nodes,
+ * which wedged the first version of this helper in a 60s poll loop. The
+ * default 60s budget tolerates slow H2 cells under suite load (#7193:
+ * the right-click test's Pages listing needed well over 15s once); the
+ * happy path resolves on the first settled poll.
+ * @param {import("@playwright/test").Page} page
+ * @param {import("@playwright/test").Locator} list
+ * @param {number} [timeout]
+ */
+async function listSettled(page, list, timeout = 60_000) {
+  await list.waitFor({ state: "attached", timeout });
+  await expect
+    .poll(async () => classifyListSnapshot(await snapshotDetailList(list)), {
+      timeout,
+    })
+    .toMatch(/^(settled|empty)$/);
+}
+
+/**
+ * True when the detail list already shows site content: page/item rows,
+ * or a Pages folder row (#7193). Site roots list their Pages chrome
+ * directly after the tree click (#3696), so the caller must skip the
+ * site-row open instead of navigating away.
+ * @param {import("@playwright/test").Locator} list
+ * @returns {Promise<boolean>}
+ */
+async function listShowsSiteContent(list) {
+  const items = list.locator(
+    'tbody tr[data-testid^="detail-row-"][data-row-kind="item"]',
+  );
+  if ((await items.count().catch(() => 0)) > 0) return true;
+  const folders = list.locator(
+    'tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]',
+  );
+  const n = await folders.count().catch(() => 0);
+  for (let i = 0; i < n; i += 1) {
+    const name = await folders.nth(i).getAttribute("data-item-name").catch(() => "");
+    if (String(name || "") === "Pages") return true;
+  }
+  return false;
+}
+
+/**
  * Prefer the folder-icon open control (peer #3328); fall back to dblclick.
  * @param {import("@playwright/test").Locator} row
  */
 async function openDetailFolderRow(row) {
   const icon = row.locator('[data-testid^="detail-folder-icon-"]').first();
-  try {
-    await icon.waitFor({ state: "attached", timeout: 1_000 });
-    await icon.click();
-  } catch {
-    await row.dblclick({ force: true });
-  }
   const page = row.page();
+  const listSel = `[data-testid="${PREVIEW_IDS.list}"]`;
+  const before = await page
+    .locator(listSel)
+    .getAttribute("data-folder-path")
+    .catch(() => null);
+  const beforeSig = await listRowsSignature(page, listSel);
+  try {
+    await icon.waitFor({ state: "attached", timeout: 5_000 });
+    // Bounded: an unactionable (stale/disabled) icon must fall through to
+    // dblclick instead of burning the whole test timeout (#7193).
+    await icon.click({ timeout: 10_000 });
+  } catch {
+    await row.dblclick({ force: true, timeout: 10_000 });
+  }
   await listWaitReady(page);
+  // Destination sync (#7193 P2): the click may leave the old folder's rows
+  // rendered while the fetch runs; wait for the folder path to flip and
+  // the rows to turn over before judging them, or a stale "settled" list
+  // sends the test elsewhere.
+  await awaitListPathChange(page, before);
+  await awaitListRowsChanged(page, listSel, beforeSig);
+  await listSettled(page, page.locator(listSel));
 }
 
 /**
@@ -169,19 +353,23 @@ async function openDetailFolderRow(row) {
  * @param {import("@playwright/test").Locator} list
  */
 async function openPagesFolderIfPresent(page, list) {
-  const pagesRow = list
-    .locator('tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]')
-    .filter({ hasText: "Pages" })
-    .first();
-  try {
-    await pagesRow.waitFor({ state: "attached", timeout: 3_000 });
-  } catch {
-    return;
+  await listSettled(page, list);
+  // Exact data-item-name match (#7193): the old hasText("Pages") filter
+  // also matched item rows whose titles merely contain "Pages".
+  const folders = list.locator(
+    'tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]',
+  );
+  const n = await folders.count().catch(() => 0);
+  let pagesRow = null;
+  for (let i = 0; i < n; i += 1) {
+    const row = folders.nth(i);
+    const name = await row.getAttribute("data-item-name").catch(() => null);
+    if (String(name || "") === "Pages") {
+      pagesRow = row;
+      break;
+    }
   }
-  const text = ((await pagesRow.innerText().catch(() => "")) || "").trim();
-  if (!detailRowHasExactName(text, "Pages") && !/\bPages\b/.test(text)) {
-    return;
-  }
+  if (!pagesRow) return;
   await openDetailFolderRow(pagesRow);
 }
 
@@ -213,47 +401,79 @@ async function openSitesThenPages(page, listed) {
   const wanted = new Set(listedPageSiteNames(listed).map((n) => foldSiteName(n)));
   const listedName = listed && listed.name ? String(listed.name) : "";
   const siteCount = await siteTreeNodes.count();
-  let clicked = false;
+  const beforeSitePath = await tree
+    .page()
+    .locator(`[data-testid="${PREVIEW_IDS.list}"]`)
+    .getAttribute("data-folder-path")
+    .catch(() => null);
+  const beforeSiteSig = await listRowsSignature(
+    tree.page(),
+    `[data-testid="${PREVIEW_IDS.list}"]`,
+  );
+  // Exact site-root pick (#7193): a substring match on the full testid
+  // false-matches nested folders whose paths contain the site name
+  // (AboutCorporateInvestments for CorporateInvestments) and navigates
+  // away from the site's Pages listing.
+  const treeTestids = [];
   for (let i = 0; i < siteCount; i += 1) {
-    const node = siteTreeNodes.nth(i);
-    const testid = (await node.getAttribute("data-testid")) || "";
-    const folded = foldSiteName(testid);
-    const nameMatch =
-      wanted.size === 0 || [...wanted].some((n) => folded.includes(n));
-    if (!nameMatch) continue;
-    await node.click({ force: true });
-    clicked = true;
-    break;
+    treeTestids.push(
+      await siteTreeNodes.nth(i).getAttribute("data-testid").catch(() => ""),
+    );
   }
-  if (!clicked) {
+  const pickedTestid = pickSiteTreeNodeTestId(treeTestids, wanted);
+  if (pickedTestid) {
+    await tree
+      .locator(`[data-testid="${pickedTestid}"]`)
+      .first()
+      .click({ force: true });
+  } else if (siteCount > 0) {
     await siteTreeNodes.first().click({ force: true });
   }
   await listWaitReady(page);
+  // Destination sync: don't judge the rows until the list navigated away
+  // from the pre-click folder and turned its rows over (#7193 P2).
+  await awaitListPathChange(page, beforeSitePath);
+  await awaitListRowsChanged(
+    page,
+    `[data-testid="${PREVIEW_IDS.list}"]`,
+    beforeSiteSig,
+  );
 
   const list = page.locator(`[data-testid="${PREVIEW_IDS.list}"]`);
-  const siteRows = list.locator(
-    'tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]',
-  );
-  let openedSite = false;
-  const siteHint = String(listedPageSiteNames(listed)[0] || "Corporate").replace(
-    /[_\s-]+/g,
-    ".*",
-  );
-  const matchingSite = siteRows.filter({ hasText: new RegExp(siteHint, "i") }).first();
-  try {
-    await matchingSite.waitFor({ state: "attached", timeout: 5_000 });
-    await openDetailFolderRow(matchingSite);
-    openedSite = true;
-  } catch {
-    openedSite = false;
-  }
-  if (!openedSite) {
-    const firstSite = siteRows.first();
-    try {
-      await firstSite.waitFor({ state: "attached", timeout: 5_000 });
-      await openDetailFolderRow(firstSite);
-    } catch {
-      // Tree click may already have opened the site listing.
+  await listSettled(page, list);
+
+  // The tree click on a site root already lists that site's Pages chrome
+  // (#3696). Skip the site-row open when the list already shows site
+  // content: the old substring hint otherwise false-matches child folders
+  // whose names contain the site name (AboutCorporateInvestments for
+  // CorporateInvestments) and navigates away from Pages (#7193).
+  if (!(await listShowsSiteContent(list))) {
+    const siteRows = list.locator(
+      'tbody tr[data-testid^="detail-row-"][data-row-kind="folder"]',
+    );
+    const rowCount = await siteRows.count().catch(() => 0);
+    let siteRow = null;
+    for (let i = 0; i < rowCount; i += 1) {
+      const row = siteRows.nth(i);
+      const itemName = await row.getAttribute("data-item-name").catch(() => null);
+      if (
+        itemName &&
+        wanted.size > 0 &&
+        detailRowHasExactFoldedName(itemName, wanted)
+      ) {
+        siteRow = row;
+        break;
+      }
+    }
+    if (!siteRow && wanted.size === 0 && rowCount > 0) {
+      siteRow = siteRows.first();
+    }
+    if (siteRow) {
+      try {
+        await openDetailFolderRow(siteRow);
+      } catch {
+        // Tree click may already have opened the site listing.
+      }
     }
   }
 
@@ -327,7 +547,14 @@ test.describe("modern React Content Editor — first slice", () => {
       });
       await expect(page.locator('[data-testid="editor-overlay"]')).toBeVisible();
       await expect(page.locator('[data-testid="perc-spa-app"]')).toHaveCount(0);
-      await expect(page.locator('[data-testid="editor-error"]')).toBeVisible();
+      // Bare entry=editor renders the create panel ("asks for an item"),
+      // not editor-error: editor-error is reserved for load failures and
+      // linkback warnings (#7193; EditorHost "asks for an item when
+      // contentId is missing" Vitest pin).
+      await expect(page.locator('[data-testid="editor-create-panel"]')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.locator('[data-testid="editor-create-empty"]')).toBeVisible();
       expect(blocked, `CM1 / Data Flow editor must not be requested: ${blocked.join(" ")}`).toEqual(
         [],
       );
