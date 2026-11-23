@@ -1,0 +1,10 @@
+{
+  "mcp": {
+    "servers": {
+      "mkd": {
+        "type": "remote",
+        "url": "https://beta.monkeyking.dev/mcp"
+      }
+    }
+  }
+}
