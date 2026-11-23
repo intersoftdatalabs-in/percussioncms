@@ -20,6 +20,7 @@ import { describe, expect, it, vi, beforeEach } from "vitest";
 import { get } from "@/api/client";
 import { takedownSelectedItem } from "@/contentExplorer/itemPublish";
 import { ItemTakedownPanel } from "@/publishing/components/ItemTakedownPanel";
+import { renderA11yGate } from "../contentExplorer/a11y";
 
 vi.mock("@/contentExplorer/itemPublish", async (importOriginal) => {
   const actual =
@@ -239,7 +240,8 @@ describe("ItemTakedownPanel batch", () => {
     );
   });
 
-  it("keeps a multi-id lookup out of the shared workspace item", async () => {    getMock.mockResolvedValue({ ArrayList: [] });
+  it("keeps a multi-id lookup out of the shared workspace item", async () => {
+    getMock.mockResolvedValue({ ArrayList: [] });
     const onItemIdChange = vi.fn();
     render(<ItemTakedownPanel onItemIdChange={onItemIdChange} />);
     fireEvent.change(screen.getByTestId("item-takedown-id"), {
@@ -250,5 +252,139 @@ describe("ItemTakedownPanel batch", () => {
       expect(screen.getByTestId("item-takedown-confirm")).toBeTruthy();
     });
     expect(onItemIdChange).not.toHaveBeenCalled();
+  });
+});
+
+describe("ItemTakedownPanel loading announcements (#7087)", () => {
+  beforeEach(() => {
+    getMock.mockReset();
+    takeDown.mockReset();
+    takeDown.mockResolvedValue(true);
+  });
+
+  it("announces the linked-page lookup as a polite live status", async () => {
+    let resolveLookup!: (value: unknown) => void;
+    getMock.mockImplementationOnce(
+      () =>
+        new Promise((resolve) => {
+          resolveLookup = resolve;
+        }),
+    );
+    render(<ItemTakedownPanel />);
+    fireEvent.change(screen.getByTestId("item-takedown-id"), {
+      target: { value: "42" },
+    });
+    fireEvent.click(screen.getByTestId("item-takedown-review"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-loading")).toBeTruthy();
+    });
+    expect(screen.getByTestId("item-takedown-loading")).toHaveAttribute(
+      "role",
+      "status",
+    );
+    expect(screen.getByTestId("item-takedown-busy")).toHaveAttribute(
+      "aria-busy",
+      "true",
+    );
+    resolveLookup(linkedBody("/Sites/Demo/Home"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-submit")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("item-takedown-loading")).toBeNull();
+    expect(screen.getByTestId("item-takedown-busy")).toHaveAttribute(
+      "aria-busy",
+      "false",
+    );
+  });
+
+  it("announces the take-down run and moves focus to the result", async () => {
+    getMock.mockResolvedValue({ ArrayList: [] });
+    let resolveRun!: (value: boolean) => void;
+    takeDown.mockImplementationOnce(
+      () =>
+        new Promise<boolean>((resolve) => {
+          resolveRun = resolve;
+        }),
+    );
+    render(<ItemTakedownPanel />);
+    fireEvent.change(screen.getByTestId("item-takedown-id"), {
+      target: { value: "42" },
+    });
+    fireEvent.click(screen.getByTestId("item-takedown-review"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-submit")).toBeTruthy();
+    });
+    screen.getByTestId("item-takedown-submit").focus();
+    fireEvent.click(screen.getByTestId("item-takedown-submit"));
+    // The submit phase previously rendered no indicator at all; it now
+    // announces through the same polite live region as the lookup.
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-loading")).toBeTruthy();
+    });
+    expect(screen.getByTestId("item-takedown-loading")).toHaveAttribute(
+      "role",
+      "status",
+    );
+    resolveRun(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-success")).toBeTruthy();
+    });
+    expect(document.activeElement).toBe(
+      screen.getByTestId("item-takedown-success"),
+    );
+  });
+
+  it("moves focus to the error result on a failed run", async () => {
+    getMock.mockResolvedValue({ ArrayList: [] });
+    takeDown.mockRejectedValueOnce({
+      status: 404,
+      statusText: "Not Found",
+      body: null,
+    });
+    render(<ItemTakedownPanel />);
+    fireEvent.change(screen.getByTestId("item-takedown-id"), {
+      target: { value: "42" },
+    });
+    fireEvent.click(screen.getByTestId("item-takedown-review"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-submit")).toBeTruthy();
+    });
+    screen.getByTestId("item-takedown-submit").focus();
+    fireEvent.click(screen.getByTestId("item-takedown-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-error")).toBeTruthy();
+    });
+    expect(document.activeElement).toBe(
+      screen.getByTestId("item-takedown-error"),
+    );
+  });
+
+  it("leaves focus alone when the run was not started from inside the panel", async () => {
+    getMock.mockResolvedValue({ ArrayList: [] });
+    render(<ItemTakedownPanel />);
+    fireEvent.change(screen.getByTestId("item-takedown-id"), {
+      target: { value: "42" },
+    });
+    fireEvent.click(screen.getByTestId("item-takedown-review"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-submit")).toBeTruthy();
+    });
+    // fireEvent.click does not take focus, so the run starts with focus
+    // outside the panel — completion must not yank it back.
+    expect(
+      screen.getByTestId("item-takedown").contains(document.activeElement),
+    ).toBe(false);
+    fireEvent.click(screen.getByTestId("item-takedown-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-takedown-success")).toBeTruthy();
+    });
+    expect(document.activeElement).not.toBe(
+      screen.getByTestId("item-takedown-success"),
+    );
+  });
+
+  it("renders with zero serious/critical a11y violations (#7087)", async () => {
+    const { container } = render(<ItemTakedownPanel />);
+    await renderA11yGate(container);
   });
 });

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   formatApiError,
   isApiError,
@@ -154,6 +154,51 @@ export function ItemTakedownPanel({
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const resultRef = useRef<HTMLParagraphElement | null>(null);
+  const submittingRef = useRef(false);
+  const focusInsideAtSubmit = useRef(false);
+
+  // Focus intent is captured synchronously in the submit handlers below,
+  // BEFORE React disables the trigger and browsers move focus to <body>.
+  // The completion effect then honours that intent (see below).
+  function noteSubmitFocus(): void {
+    const section = sectionRef.current;
+    focusInsideAtSubmit.current =
+      !!section && section.contains(document.activeElement);
+  }
+
+  // Keyboard flow (#7087, parent #4532): when a take-down submit/run
+  // finishes, move focus to the announced result (success or error) so
+  // keyboard and screen-reader users land on the outcome. The intent is
+  // captured when the run starts (a real click/Enter leaves focus inside
+  // the panel); at completion focus moves only when the user did not tab
+  // elsewhere mid-run (focus still inside the panel, or lost to <body>
+  // because the trigger disabled) — never yanking focus back from outside.
+  // Review lookups (loading) leave focus alone: the confirm is next in tab
+  // order, and the auto-review on itemId change must never steal focus.
+  // The plain-text loading row announces via role="status" (no focus move,
+  // no animation, so reduced-motion needs no carve-out).
+  useEffect(() => {
+    const was = submittingRef.current;
+    submittingRef.current = submitting;
+    if (!was || submitting) {
+      return;
+    }
+    const section = sectionRef.current;
+    const result = resultRef.current;
+    const active = document.activeElement;
+    if (
+      focusInsideAtSubmit.current &&
+      result &&
+      section &&
+      (active === document.body || section.contains(active))
+    ) {
+      result.focus();
+    }
+    focusInsideAtSubmit.current = false;
+  }, [submitting]);
 
   useEffect(() => {
     setInputId(itemId ?? "");
@@ -301,6 +346,7 @@ export function ItemTakedownPanel({
   }
 
   async function runBatch(ids: string[]): Promise<void> {
+    noteSubmitFocus();
     setSubmitting(true);
     setError(null);
     setSuccess(null);
@@ -375,6 +421,7 @@ export function ItemTakedownPanel({
       await review(safe);
       return;
     }
+    noteSubmitFocus();
     setSubmitting(true);
     setError(null);
     setSuccess(null);
@@ -411,6 +458,7 @@ export function ItemTakedownPanel({
     <section
       data-testid="item-takedown"
       aria-labelledby="item-takedown-title"
+      ref={sectionRef}
       style={{
         marginBottom: 20,
         padding: 12,
@@ -429,7 +477,11 @@ export function ItemTakedownPanel({
         {message(MSG.PUBLISH_TAKEDOWN_HINT)}{" "}
         {message(MSG.PUBLISH_TAKEDOWN_IDS_HINT)}
       </p>
-      <form onSubmit={onLookup} style={toolbarStyle}>
+      {/* Busy region excludes the loading live region below: AT may defer
+          live-region updates inside aria-busy=true, which would swallow the
+          in-progress announcement (#7087). */}
+      <div data-testid="item-takedown-busy" aria-busy={loading || submitting}>
+        <form onSubmit={onLookup} style={toolbarStyle}>
         <div style={{ ...formRowStyle, marginBottom: 0, maxWidth: 280 }}>
           <label htmlFor="item-takedown-id">
             {message(MSG.PUBLISH_ITEM_HISTORY_ITEM_ID)}
@@ -596,9 +648,20 @@ export function ItemTakedownPanel({
           {message(MSG.PUBLISH_TAKEDOWN_RETRY_FAILED)}
         </button>
       )}
-      {loading && <p>{message(MSG.PUBLISH_LOADING)}</p>}
+      </div>
+      {(loading || submitting) && (
+        <p role="status" data-testid="item-takedown-loading">
+          {message(MSG.PUBLISH_LOADING)}
+        </p>
+      )}
       {error && (
-        <p style={errorStyle} role="alert" data-testid="item-takedown-error">
+        <p
+          style={errorStyle}
+          role="alert"
+          data-testid="item-takedown-error"
+          tabIndex={-1}
+          ref={resultRef}
+        >
           {error}
         </p>
       )}
@@ -607,6 +670,8 @@ export function ItemTakedownPanel({
           data-testid="item-takedown-success"
           role="status"
           style={{ color: "#166534", fontSize: 13 }}
+          tabIndex={-1}
+          ref={resultRef}
         >
           {success}
         </p>

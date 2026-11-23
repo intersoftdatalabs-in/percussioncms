@@ -19,6 +19,7 @@ import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { ItemPublishNowPanel } from "@/publishing/components/ItemPublishNowPanel";
 import { publishSelectedItem } from "@/contentExplorer/itemPublish";
+import { renderA11yGate } from "../contentExplorer/a11y";
 
 vi.mock("@/contentExplorer/itemPublish", async (importOriginal) => {
   const actual =
@@ -168,5 +169,120 @@ describe("ItemPublishNowPanel batch retry", () => {
       expect(screen.getByTestId("item-publish-now-confirm")).toBeTruthy();
     });
     expect(onItemIdChange).not.toHaveBeenCalled();
+  });
+});
+
+describe("ItemPublishNowPanel loading announcements (#7087)", () => {
+  beforeEach(() => {
+    publishNow.mockReset();
+    publishNow.mockResolvedValue(true);
+  });
+
+  async function reviewTwoIds(): Promise<void> {
+    render(<ItemPublishNowPanel />);
+    fireEvent.change(screen.getByTestId("item-publish-now-id"), {
+      target: { value: "42 43" },
+    });
+    fireEvent.click(screen.getByTestId("item-publish-now-review"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-publish-now-submit")).toBeTruthy();
+    });
+  }
+
+  it("announces the run as a polite live status and marks the panel busy", async () => {
+    let resolveFirst!: (value: boolean) => void;
+    publishNow.mockImplementationOnce(
+      () =>
+        new Promise<boolean>((resolve) => {
+          resolveFirst = resolve;
+        }),
+    );
+    await reviewTwoIds();
+    fireEvent.click(screen.getByTestId("item-publish-now-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-publish-now-loading")).toBeTruthy();
+    });
+    expect(screen.getByTestId("item-publish-now-loading")).toHaveAttribute(
+      "role",
+      "status",
+    );
+    expect(screen.getByTestId("item-publish-now-busy")).toHaveAttribute(
+      "aria-busy",
+      "true",
+    );
+    resolveFirst(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("item-publish-now-success")).toBeTruthy();
+    });
+    expect(screen.queryByTestId("item-publish-now-loading")).toBeNull();
+    expect(screen.getByTestId("item-publish-now-busy")).toHaveAttribute(
+      "aria-busy",
+      "false",
+    );
+  });
+
+  it("moves focus to the announced result when focus stayed in the panel", async () => {
+    await reviewTwoIds();
+    screen.getByTestId("item-publish-now-submit").focus();
+    fireEvent.click(screen.getByTestId("item-publish-now-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-publish-now-success")).toBeTruthy();
+    });
+    expect(document.activeElement).toBe(
+      screen.getByTestId("item-publish-now-success"),
+    );
+  });
+
+  it("moves focus to the error result on a failed run", async () => {
+    publishNow.mockRejectedValueOnce({
+      status: 403,
+      statusText: "Forbidden",
+      body: null,
+    });
+    render(<ItemPublishNowPanel itemId="42" />);
+    fireEvent.click(screen.getByTestId("item-publish-now-review"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-publish-now-submit")).toBeTruthy();
+    });
+    screen.getByTestId("item-publish-now-submit").focus();
+    fireEvent.click(screen.getByTestId("item-publish-now-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-publish-now-error")).toBeTruthy();
+    });
+    expect(document.activeElement).toBe(
+      screen.getByTestId("item-publish-now-error"),
+    );
+  });
+
+  it("leaves focus alone when the run was not started from inside the panel", async () => {
+    let resolveFirst!: (value: boolean) => void;
+    publishNow.mockImplementationOnce(
+      () =>
+        new Promise<boolean>((resolve) => {
+          resolveFirst = resolve;
+        }),
+    );
+    await reviewTwoIds();
+    // fireEvent.click does not take focus, so the run starts with focus
+    // outside the panel — completion must not yank it back.
+    expect(
+      screen.getByTestId("item-publish-now").contains(document.activeElement),
+    ).toBe(false);
+    fireEvent.click(screen.getByTestId("item-publish-now-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("item-publish-now-loading")).toBeTruthy();
+    });
+    resolveFirst(true);
+    await waitFor(() => {
+      expect(screen.getByTestId("item-publish-now-success")).toBeTruthy();
+    });
+    expect(document.activeElement).not.toBe(
+      screen.getByTestId("item-publish-now-success"),
+    );
+  });
+
+  it("renders with zero serious/critical a11y violations (#7087)", async () => {
+    const { container } = render(<ItemPublishNowPanel />);
+    await renderA11yGate(container);
   });
 });

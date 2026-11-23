@@ -298,4 +298,118 @@ test.describe("PublishingShell site-workspace takedown", () => {
       );
     },
   );
+
+  test(
+    "lookup and take-down runs announce loading and focus the result",
+    { tag: ["@publishing", "@publishing-takedown"] },
+    async ({ page }) => {
+      const pageErrors = [];
+      const consoleErrors = [];
+      page.on("pageerror", (err) => {
+        pageErrors.push(String(err));
+      });
+      page.on("console", (msg) => {
+        if (msg.type() === "error") {
+          consoleErrors.push(msg.text());
+        }
+      });
+      await stubPublishSiteApis(page, {
+        linkedBody: {
+          ArrayList: [{ pagePath: "/Sites/Demo/Home", id: "7" }],
+        },
+      });
+
+      // Keep the run hermetic: sibling workspace panels (site detail,
+      // publishing actions, publishing history) request data for the stubbed
+      // fixture and would otherwise 404 in the console.
+      await page.route("**/services/sites/Demo", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({
+            Site: { name: "Demo", siteId: "9", id: "9" },
+          }),
+        });
+      });
+      await page.route("**/sitemanage/publish/publishingActions/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([]),
+        });
+      });
+      await page.route("**/itemmanagement/item/pubhistory/**", async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([]),
+        });
+      });
+
+      // Hold the linked-item lookup so the loading status is observable.
+      await page.unroute("**/itemmanagement/item/findLinkedItems/**");
+      await page.route(
+        "**/itemmanagement/item/findLinkedItems/**",
+        async (route) => {
+          await page.waitForTimeout(1500);
+          await route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({
+              ArrayList: [{ pagePath: "/Sites/Demo/Home", id: "7" }],
+            }),
+          });
+        },
+      );
+
+      await page.goto(publishSitesUrl("9", "42"));
+      await expect(page.locator('[data-testid="item-takedown"]')).toBeVisible({
+        timeout: 20_000,
+      });
+
+      // Lookup announces through a polite live region (#7087).
+      const loading = page.locator('[data-testid="item-takedown-loading"]');
+      await expect(loading).toBeVisible({ timeout: 10_000 });
+      await expect(loading).toHaveAttribute("role", "status");
+      await expect(page.locator('[data-testid="item-takedown-busy"]')).toHaveAttribute(
+        "aria-busy",
+        "true",
+      );
+
+      await expect(page.locator('[data-testid="item-takedown-submit"]')).toBeVisible({
+        timeout: 10_000,
+      });
+
+      // Hold the take-down call: the submit phase previously rendered no
+      // indicator at all and now announces through the same live region.
+      await page.unroute("**/sitemanage/publish/takedown/**");
+      await page.route("**/sitemanage/publish/takedown/**", async (route) => {
+        await page.waitForTimeout(1500);
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ status: "Success" }),
+        });
+      });
+      await page.locator('[data-testid="item-takedown-submit"]').click();
+      await expect(loading).toBeVisible({ timeout: 10_000 });
+      await expect(loading).toHaveAttribute("role", "status");
+
+      // Keyboard flow: focus lands on the announced result.
+      const success = page.locator('[data-testid="item-takedown-success"]');
+      await expect(success).toBeVisible({ timeout: 15_000 });
+      await expect(success).toBeFocused();
+      await page.screenshot({
+        path: "test-results/live-proof-7087-takedown-announce.png",
+      });
+
+      expect(pageErrors, `uncaught pageerror: ${pageErrors.join(" | ")}`).toEqual(
+        [],
+      );
+      expect(
+        consoleErrors,
+        `console errors: ${consoleErrors.join(" | ")}`,
+      ).toEqual([]);
+    },
+  );
 });
