@@ -226,12 +226,17 @@ class ActionMenuAdaptorTreeUiContextsTest {
 
   /**
    * H2-level enabled-vs-bypassed evidence (#6859): the issue asks for {@code GET
-   * /actions/find} timings with the #6853 cache enabled vs bypassed (TTL=0).
+   * /actions/find} timings with the #6853 cache enabled vs bypassed.
    * Explorer fires {@code /find} on every selection change, modeled here as {@code
    * repeats} back-to-back overlays over a real-sized catalog with a simulated 150ms
-   * design load. The cached adaptor pays one load; the TTL=0 adaptor pays one load
-   * per repeat (each sleep advances the wall clock past the zero TTL, so expiry is
-   * deterministic). Absolute numbers are mock-backed (they prove call elimination,
+   * design load. The cached adaptor pays one load; the bypass adaptor pays one load
+   * per repeat. The bypass uses a negative TTL so expiry is deterministic: with
+   * TTL=0, repeats landing in the same millisecond as the load see age 0, which
+   * satisfies the production {@code age <= ttl} freshness check and cache-hits,
+   * under-counting the mock (flaked as "wanted 5, got 3-4" on loaded hosts, #7128).
+   * A negative TTL can never be satisfied by a non-negative age, so every repeat
+   * deterministically misses without touching production cache behavior.
+   * Absolute numbers are mock-backed (they prove call elimination,
    * not DB latency); MySQL/MSSQL measurement stays a human-env residual.
    */
   @Test
@@ -264,7 +269,9 @@ class ActionMenuAdaptorTreeUiContextsTest {
               Thread.sleep(150);
               return bypassedCatalog.domains;
             });
-    ActionMenuAdaptor bypassed = new ActionMenuAdaptor(bypassedWs, () -> true, null, 0L);
+    // Negative TTL: every repeat deterministically bypasses the cache (see javadoc).
+    // TTL=0 is NOT sufficient — same-millisecond repeats satisfy age <= ttl and flake (#7128).
+    ActionMenuAdaptor bypassed = new ActionMenuAdaptor(bypassedWs, () -> true, null, -1L);
 
     long bypassedStart = System.nanoTime();
     for (int i = 0; i < repeats; i++) {
