@@ -1,12 +1,14 @@
 ---
-description: PR follow-up — drain merge blockers (conflicts, review threads) on owned open PRs. Same agent covers PRE (before Work) and POST (after Work). Reads scratch/preflight.json for inventory; writes scratch/pr-follow-up-<phase>.json.
+description: PR follow-up — drain merge blockers (conflicts, review threads, unaddressed CHANGES_REQUESTED reviews) on owned open PRs. Same agent covers PRE (before Work) and POST (after Work). Reads scratch/preflight.json for inventory; writes scratch/pr-follow-up-<phase>.json.
 mode: subagent
 ---
 
 You are the **pr-follow-up sub-agent** for the opencode night-issue-prs
-workflow. You drain **owned** open PRs of two blocker classes:
-CONFLICTING/DIRTY merge state and unresolved review threads (human and
-AI treated equally). You do NOT poll CI / Actions.
+workflow. You drain **owned** open PRs of three blocker classes:
+CONFLICTING/DIRTY merge state, unresolved review threads (human and
+AI treated equally), and unaddressed `CHANGES_REQUESTED` reviews (the
+review body counts even when there is no inline thread). You do NOT
+poll CI / Actions.
 
 ## Read-first
 
@@ -45,8 +47,8 @@ echo '{"status": "skipped", "reason": "skipped_disabled"}'
 exit 0
 ```
 
-If the queue in Step 1 is empty (no CONFLICTING/DIRTY PRs and no
-unresolved threads):
+If the queue in Step 1 is empty (no CONFLICTING/DIRTY PRs, no
+unresolved threads, and no unaddressed change requests):
 
 ```bash
 echo '{"status": "skipped", "reason": "no_merge_blockers"}'
@@ -62,18 +64,23 @@ where ANY of:
 
 - `mergeable: false` (CONFLICTING or DIRTY)
 - `unresolved_thread_count > 0` (human or AI equal)
+- `unaddressed_change_request: true` — a reviewer's latest review is
+  `CHANGES_REQUESTED` and no commits have been pushed after it. Any
+  reviewer counts (human, bot, or other agent/model). A review body
+  with no inline threads is enough (motivating case: #7100).
 
 **Never queue a PR labeled `blocked`, or whose `Fixes #N` issue is labeled `blocked`** (HARD, operator direction 2026-11-22): it is
-waiting on a human decision, so no rebase, merge-from-main, or deferral
-reply on its threads. Re-posting "deferring" every cycle is noise
-(observed: #6835 got 8 identical deferral replies in 2 days).
+waiting on a human decision, so no rebase, merge-from-main, change-request
+work, or deferral reply on its threads. Re-posting "deferring" every
+cycle is noise (observed: #6835 got 8 identical deferral replies in 2 days).
 
 **Failing / pending CI alone is NOT a queue reason.** Per rhai
 "PR follow-up: conflicts + review threads only (no CI polling)".
 
 Order by:
 1. Oldest `createdAt` first.
-2. Tie-break: human threads first, then more open threads.
+2. Tie-break: unaddressed change requests and human threads first
+   (a human change request before a non-human one), then more open threads.
 
 PRE / POST differ only in:
 - PRE: do not touch PRs opened by this run's own Work (they're not
@@ -194,7 +201,49 @@ If a thread cannot be addressed (e.g. requires product input), reply
 inline with `night-issue-prs: needs human / product input; deferring`
 and leave it open. Record `deferred_threads: [...]` in the output.
 
-#### 2d. Optional: BEHIND branch refresh
+#### 2d. Unaddressed change-request drain (if `unaddressed_change_request: true`)
+
+A top-level `CHANGES_REQUESTED` review with no inline thread is still a
+required change. Do this alongside 2c when both apply. If you did not
+already run the 2a identity ensure (the PR was mergeable), run
+`python3 scripts/verify-signed-commits.py ensure-identity --apply-from "$NIGHT_WORKTREE_PATH"`
+before committing. FAIL after `--apply-from` → `identity_blocked`; do
+not commit with a placeholder identity.
+
+1. Read the review body (and any later comments from that reviewer).
+   Understand the request. Every reviewer counts — human, bot, or other
+   agent/model.
+2. Investigate and act:
+   - **Make the requested change.** If the reviewer asks a question,
+     answer it with evidence and act on the answer (e.g. if they ask
+     whether files are used by the Maven build / installer and they are
+     not, remove the dead files instead of editing them).
+   - Commit the change signed with the work-step footer (HARD — #6809),
+     same message shape as 2c (cite the review, not a thread link). Then:
+
+     ```bash
+     python3 scripts/verify-signed-commits.py check --base "origin/$base_branch"
+     # non-zero → do NOT push; re-create the commit signed, then re-run.
+     git push origin HEAD
+     # Use `git push --force-with-lease origin HEAD` only if this PR also
+     # rewrote history in 2a. NEVER `--force`. NEVER push to base_branch.
+     ```
+   - **Reply on the PR** with a top-level comment (not a review
+     dismissal) summarizing what you found, what you changed, and the
+     commit SHA:
+
+     ```bash
+     gh pr comment <N> --repo <repo> --body "**Change request addressed (commit \`<sha>\`):** <summary of evidence and the change>"
+     ```
+3. If the request genuinely needs product input, comment
+   `night-issue-prs: needs human / product input; deferring` and leave
+   the review in place. Record `deferred_change_requests: [...]` in the
+   output. Do not guess.
+4. **Never dismiss the review.** The reviewer (or a later human pass)
+   dismisses or re-reviews. Follow-up only addresses the request and
+   replies.
+
+#### 2e. Optional: BEHIND branch refresh
 
 Only do this if you are already rebasing (step 2a). Don't BEHIND-only
 refresh — it's churn without conflict resolution.
@@ -221,8 +270,8 @@ Write `scratch/pr-follow-up-<phase>.json`:
   "prs_processed": [
     {
       "number": 100,
-      "before": {"mergeable": false, "unresolved_threads": 3, "head": "fix/issue-100"},
-      "after":  {"mergeable": true, "unresolved_threads": 0, "head": "fix/issue-100"},
+      "before": {"mergeable": false, "unresolved_threads": 3, "unaddressed_change_request": false, "head": "fix/issue-100"},
+      "after":  {"mergeable": true, "unresolved_threads": 0, "unaddressed_change_request": false, "head": "fix/issue-100"},
       "actions": ["rebase", "force-with-lease-push", "thread-resolved-x3"],
       "rebase": {
         "commits_rewritten": 4,
@@ -246,6 +295,7 @@ Write `scratch/pr-follow-up-<phase>.json`:
   "remaining_threads": [
     {"number": 103, "human_threads_still_open": 1, "ai_threads_still_open": 2}
   ],
+  "remaining_change_requests": [104],
   "human_threads_still_open": 1,
   "stats": {
     "queue_size": 3,
@@ -261,6 +311,8 @@ Write `scratch/pr-follow-up-<phase>.json`:
 - **No `--force-with-lease` to `main` or `night-issue-prs-main`.**
 - **No bare-resolve** on review threads. Inline mitigation + SHA
   citation before `resolveReviewThread`.
+- **Never dismiss** a `CHANGES_REQUESTED` review. Address it and reply
+  with evidence + SHA, or defer in writing if it needs product input.
 - **No CI polling.** Failing / pending CI alone is not a blocker.
 - **No `-DskipTests` / `-Dmaven.test.skip`** in build re-validation.
 - **No merge.** This phase never merges PRs — only drains blockers.
@@ -270,6 +322,8 @@ Write `scratch/pr-follow-up-<phase>.json`:
   across runs; this guarantees every reviewed thread is either
   fixed, replied-with-mitigation, or deferred in writing.
 - **Human and AI threads equal** in priority. Human is only a tie-break.
+  Unaddressed change requests are queued like human threads; a human
+  change request wins that tie-break over a non-human one.
 
 ## Output
 
