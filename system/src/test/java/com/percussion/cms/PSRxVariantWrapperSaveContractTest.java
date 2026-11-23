@@ -17,33 +17,47 @@
 package com.percussion.cms;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 
+import com.percussion.design.objectstore.PSLocator;
+import com.percussion.design.objectstore.PSRelationship;
+import com.percussion.design.objectstore.PSRelationshipConfig;
+import com.percussion.design.objectstore.PSRelationshipConfigTest;
 import com.percussion.system.utils.IPSHtmlParameters;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import com.percussion.xml.PSXmlDocumentBuilder;
+import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.NodeList;
 
 /**
  * Save contract for legacy inline-template ({@code rxvariant}) wrappers
  * round-tripped through the React (TipTap) editor (#7104, parent #5622).
  *
- * <p>The editor submits {@code editor.getHTML()}; on save
- * {@code PSInlineLinkField.processField} keeps the inline relationship only
- * when the wrapper element still carries {@code rxinlineslot} +
- * {@code inlinetype} (and {@code processInlineLink} additionally requires
- * {@code sys_dependentid} + {@code sys_dependentvariantid}). If the editor
- * flattened the wrapper into static HTML, those attributes would be gone and
- * the save would delete the inline relationship.
+ * <p>The editor submits {@code editor.getHTML()}; on save the field pipeline
+ * joins each stored wrapper to its inline relationship through
+ * {@code rxinlineslot} and {@link PSInlineLinkField#modifyField(Element, java.util.Map,
+ * java.util.Collection) PSInlineLinkField.modifyField}, which rewrites the
+ * wrapper's slot/variant/dependent ids from the relationship. If the editor
+ * flattened the wrapper into static HTML, the save path would find no inline
+ * slot to process and the inline relationship would be lost
+ * ({@code PSInlineLinkField} then deletes it on save).
  *
  * <p>These tests parse the exact TipTap-serialized HTML for the stored
  * legacy shapes (block {@code div.rx_ephox_inlinevariant} written by
  * {@code PSSingleValueBuilder.updateLegacyVariant}, inline
  * {@code span.rx_inlinevariant} written by classic {@code editorinline.js})
- * and assert every attribute the save path keys on is present with the
- * submitted values, using the production attribute-name constants so a
- * rename on either side breaks the test.
+ * into a w3c DOM, run them through the production {@code modifyField} save
+ * routine with a real relationship map, and assert the wrapper is recognized
+ * as an inline slot and rewritten from the relationship — using the
+ * production attribute-name constants so a rename on either side breaks the
+ * test.
  */
 @Tag("UnitTest")
 public class PSRxVariantWrapperSaveContractTest {
@@ -68,52 +82,115 @@ public class PSRxVariantWrapperSaveContractTest {
           + "sys_dependentvariantid=\"512\"><a href=\"/x\">X</a></span> ok</p>";
 
   @Test
-  public void blockVariantWrapperKeepsSaveRequiredAttributes() {
-    Document doc = Jsoup.parseBodyFragment(BLOCK_SERIALIZED);
-    Element wrapper = doc.selectFirst("div.rx_ephox_inlinevariant");
+  public void blockVariantWrapperIsRewrittenFromRelationshipOnSave() throws Exception {
+    Element wrapper = parseWrapper(BLOCK_SERIALIZED, "div", "rx_ephox_inlinevariant");
 
-    // The wrapper itself must survive: without it there is no element for
-    // processField to match the inline relationship against.
+    // The TipTap round-trip must deliver the wrapper with the attributes
+    // the save path joins on — otherwise there is nothing to process.
     assertEquals(
-        "Snippet body",
-        wrapper.text(),
-        "snippet text must survive the editor round-trip");
+        "105",
+        wrapper.getAttribute(PSInlineLinkField.RX_INLINESLOT),
+        "rxinlineslot must survive the editor round-trip");
+    assertEquals(
+        "rxvariant",
+        wrapper.getAttribute(PSInlineLinkField.RX_INLINETYPE),
+        "inlinetype must survive the editor round-trip");
 
-    assertSaveRequiredAttributes(wrapper);
+    // The stored field carries the relationship id the save pipeline joins
+    // on; the relationship contributes the authoritative slot/variant ids.
+    wrapper.setAttribute(IPSHtmlParameters.SYS_RELATIONSHIPID, "7");
+    PSRelationship rel = variantRelationship(7, 305);
+    List<PSRelationship> modified = new ArrayList<>();
+
+    PSInlineLinkField.modifyField(wrapper, Collections.singletonMap(7, rel), modified);
+
+    assertEquals(
+        "105",
+        wrapper.getAttribute(PSInlineLinkField.RX_INLINESLOT),
+        "save must keep the wrapper on the relationship slot");
+    assertEquals(
+        "305",
+        wrapper.getAttribute(IPSHtmlParameters.SYS_DEPENDENTID),
+        "save must rewrite the dependent id from the relationship");
+    assertEquals(
+        "512",
+        wrapper.getAttribute(IPSHtmlParameters.SYS_DEPENDENTVARIANTID),
+        "save must rewrite the dependent variant id from the relationship");
+    assertEquals(1, modified.size(), "processed relationship must be reported as modified");
+    assertSame(rel, modified.get(0), "processed relationship must be the mapped one");
   }
 
   @Test
-  public void inlineVariantWrapperKeepsSaveRequiredAttributes() {
-    Document doc = Jsoup.parseBodyFragment(INLINE_SERIALIZED);
-    Element wrapper = doc.selectFirst("span.rx_inlinevariant");
+  public void inlineVariantWrapperIsRewrittenFromRelationshipOnSave() throws Exception {
+    Element wrapper = parseWrapper(INLINE_SERIALIZED, "span", "rx_inlinevariant");
 
-    assertEquals("X", wrapper.selectFirst("a[href=/x]").text());
-    assertSaveRequiredAttributes(wrapper);
+    assertEquals(
+        "105",
+        wrapper.getAttribute(PSInlineLinkField.RX_INLINESLOT),
+        "rxinlineslot must survive the editor round-trip");
+    assertEquals(
+        "rxvariant",
+        wrapper.getAttribute(PSInlineLinkField.RX_INLINETYPE),
+        "inlinetype must survive the editor round-trip");
+
+    wrapper.setAttribute(IPSHtmlParameters.SYS_RELATIONSHIPID, "9");
+    PSRelationship rel = variantRelationship(9, 311);
+    List<PSRelationship> modified = new ArrayList<>();
+
+    PSInlineLinkField.modifyField(wrapper, Collections.singletonMap(9, rel), modified);
+
+    assertEquals(
+        "105",
+        wrapper.getAttribute(PSInlineLinkField.RX_INLINESLOT),
+        "save must keep the wrapper on the relationship slot");
+    assertEquals(
+        "311",
+        wrapper.getAttribute(IPSHtmlParameters.SYS_DEPENDENTID),
+        "save must rewrite the dependent id from the relationship");
+    assertEquals(
+        "512",
+        wrapper.getAttribute(IPSHtmlParameters.SYS_DEPENDENTVARIANTID),
+        "save must rewrite the dependent variant id from the relationship");
+    assertEquals(1, modified.size(), "processed relationship must be reported as modified");
+    assertSame(rel, modified.get(0), "processed relationship must be the mapped one");
   }
 
   /**
-   * Asserts the exact attributes {@code PSInlineLinkField.processField} and
-   * {@code processInlineLink} require to keep (rather than delete) the inline
-   * relationship for an element on save.
+   * Builds the inline-template relationship the save path would supply for
+   * the stored wrapper: an ActiveAssembly relationship carrying the
+   * authoritative slot and variant ids as user properties.
    */
-  private static void assertSaveRequiredAttributes(Element wrapper) {
-    // processField matches inline content on these two attributes.
-    assertEquals(
-        "105", wrapper.attr(PSInlineLinkField.RX_INLINESLOT), "rxinlineslot must survive");
-    assertEquals(
-        "rxvariant",
-        wrapper.attr(PSInlineLinkField.RX_INLINETYPE),
-        "inlinetype must survive");
+  private static PSRelationship variantRelationship(int id, int dependentId) throws Exception {
+    PSRelationship rel =
+        new PSRelationship(
+            id,
+            new PSLocator(300, 1),
+            new PSLocator(dependentId, 2),
+            PSRelationshipConfigTest.getConfigs()
+                .getConfig(PSRelationshipConfig.TYPE_ACTIVE_ASSEMBLY));
+    rel.setProperty(IPSHtmlParameters.SYS_SLOTID, "105");
+    rel.setProperty(IPSHtmlParameters.SYS_VARIANTID, "512");
+    return rel;
+  }
 
-    // processInlineLink throws when either id is missing and deletes the
-    // relationship when the wrapper carrying them is gone.
-    assertEquals(
-        "77",
-        wrapper.attr(IPSHtmlParameters.SYS_DEPENDENTID),
-        "sys_dependentid must survive");
-    assertEquals(
-        "512",
-        wrapper.attr(IPSHtmlParameters.SYS_DEPENDENTVARIANTID),
-        "sys_dependentvariantid must survive");
+  /**
+   * Parses a TipTap-serialized fragment into a w3c DOM (the element model
+   * the save path operates on) and returns the wrapper element.
+   */
+  private static Element parseWrapper(String fragment, String tag, String cssClass)
+      throws Exception {
+    String xml = "<root>" + fragment + "</root>";
+    Document doc =
+        PSXmlDocumentBuilder.createXmlDocument(
+            new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)), false);
+    NodeList nodes = doc.getDocumentElement().getElementsByTagName(tag);
+    for (int i = 0; i < nodes.getLength(); i++) {
+      Element el = (Element) nodes.item(i);
+      if (cssClass.equals(el.getAttribute("class"))) {
+        return el;
+      }
+    }
+    throw new IllegalStateException(
+        "wrapper <" + tag + " class=\"" + cssClass + "\"> not found in fragment");
   }
 }
