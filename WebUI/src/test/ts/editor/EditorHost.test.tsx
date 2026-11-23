@@ -11516,12 +11516,17 @@ describe("EditorHost publish now (#4540)", () => {
     fireEvent.click(screen.getByTestId("editor-publish-now"));
     expect(screen.getByTestId("editor-publish-now-dialog")).toBeTruthy();
     expect(publishItem).not.toHaveBeenCalled();
+    // The done region stays mounted (persistent live region, #7135) and is
+    // empty until the publish completes.
+    expect(screen.getByTestId("editor-publish-done").textContent).toBe("");
     fireEvent.click(screen.getByTestId("editor-publish-now-confirm"));
     await waitFor(() => {
       expect(publishItem).toHaveBeenCalledWith("42", "page");
     });
     await waitFor(() => {
-      expect(screen.getByTestId("editor-publish-done")).toBeTruthy();
+      expect(screen.getByTestId("editor-publish-done").textContent).toMatch(
+        /publish started/i,
+      );
     });
     expect(screen.queryByTestId("editor-publish-now-dialog")).toBeNull();
     expect(screen.queryByTestId("editor-publish-now-error")).toBeNull();
@@ -11556,7 +11561,8 @@ describe("EditorHost publish now (#4540)", () => {
       expect(screen.queryByTestId("editor-publish-now-dialog")).toBeNull();
     });
     expect(publishItem).not.toHaveBeenCalled();
-    expect(screen.queryByTestId("editor-publish-done")).toBeNull();
+    // Cancel leaves the persistently mounted done region empty (#7135).
+    expect(screen.getByTestId("editor-publish-done").textContent).toBe("");
   });
 
   it("keeps HTTP 403 on the dialog as failure, not success", async () => {
@@ -11592,7 +11598,8 @@ describe("EditorHost publish now (#4540)", () => {
         /not allowed/i,
       );
     });
-    expect(screen.queryByTestId("editor-publish-done")).toBeNull();
+    // Failure leaves the persistently mounted done region empty (#7135).
+    expect(screen.getByTestId("editor-publish-done").textContent).toBe("");
     expect(screen.getByTestId("editor-publish-now-dialog")).toBeTruthy();
   });
 

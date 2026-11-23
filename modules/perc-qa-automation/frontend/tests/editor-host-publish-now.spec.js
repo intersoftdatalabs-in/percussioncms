@@ -194,12 +194,17 @@ test.describe("React Content Editor Publish now", () => {
         page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
       ).toBeVisible();
       expect(publishCalls).toEqual([]);
+      // The done region stays mounted and empty until publish completes
+      // (persistent live region, #7135) — it must not pop in with its text.
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeAttached();
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeEmpty();
       await page.locator(`[data-testid="${TEST_IDS.publishConfirm}"]`).click();
       await expect.poll(() => publishCalls.length).toBe(1);
       expect(isPagePublishUrl(publishCalls[0])).toBe(true);
       expect(parsePublishUrl(publishCalls[0]).itemId).toBe("42");
       expect(publishCalls[0]).not.toMatch(/demandpublishing/);
       await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeVisible();
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).not.toBeEmpty();
       await expect(page.locator(`[data-testid="${TEST_IDS.publishError}"]`)).toHaveCount(0);
       expect(leftover, `leftover CE requested: ${leftover.join(" ")}`).toEqual([]);
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
@@ -239,7 +244,7 @@ test.describe("React Content Editor Publish now", () => {
       await expect(page.locator(`[data-testid="${TEST_IDS.publishDialogError}"]`)).toContainText(
         /Publication stopped|not allowed/i,
       );
-      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeEmpty();
     },
   );
 
@@ -265,7 +270,7 @@ test.describe("React Content Editor Publish now", () => {
       await expect(
         page.locator(`[data-testid="${TEST_IDS.publishDialogError}"]`),
       ).toContainText(/rejected/i);
-      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeEmpty();
       await expect(
         page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
       ).toBeVisible();
@@ -275,7 +280,7 @@ test.describe("React Content Editor Publish now", () => {
       await expect(
         page.locator(`[data-testid="${TEST_IDS.publishDialogError}"]`),
       ).toContainText(/not allowed/i);
-      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeEmpty();
       await expect(
         page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
       ).toBeVisible();
@@ -285,7 +290,7 @@ test.describe("React Content Editor Publish now", () => {
       await expect(
         page.locator(`[data-testid="${TEST_IDS.publishDialogError}"]`),
       ).toContainText(/cannot be published right now/i);
-      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeEmpty();
       await expect(
         page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
       ).toBeVisible();
@@ -315,7 +320,7 @@ test.describe("React Content Editor Publish now", () => {
         page.locator(`[data-testid="${TEST_IDS.publishDialog}"]`),
       ).toHaveCount(0);
       expect(publishCalls).toEqual([]);
-      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeEmpty();
     },
   );
 
@@ -346,7 +351,7 @@ test.describe("React Content Editor Publish now", () => {
       expect(publishCalls).toEqual([]);
       // Focus returns to the opener so keyboard users keep their place.
       await expect(publishNow).toBeFocused();
-      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toHaveCount(0);
+      await expect(page.locator(`[data-testid="${TEST_IDS.publishDone}"]`)).toBeEmpty();
       expect(pageErrors, `console/page errors: ${pageErrors.join(" | ")}`).toEqual([]);
     },
   );
