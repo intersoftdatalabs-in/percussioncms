@@ -39,8 +39,11 @@ const {
   foldSiteName,
   isExplorerSiteRootTestId,
   detailRowHasExactName,
+  detailRowHasExactFoldedName,
   detailRowMatchesFoldedSite,
   treeNodeMatchesFoldedSite,
+  pickSiteTreeNodeTestId,
+  classifyListSnapshot,
 } = require("../helpers/explorer-preview-view");
 
 describe("explorer-preview-view helpers (#2733)", () => {
@@ -469,6 +472,35 @@ describe("explorer-preview-view helpers (#2733)", () => {
     );
   });
 
+  it("detailRowHasExactFoldedName rejects child folders containing the site name (#7193)", () => {
+    assert.equal(
+      detailRowHasExactFoldedName("Corporate_Investments", [
+        "corporateinvestments",
+      ]),
+      true,
+    );
+    assert.equal(
+      detailRowHasExactFoldedName("CorporateInvestments", [
+        "corporateinvestments",
+      ]),
+      true,
+    );
+    assert.equal(
+      detailRowHasExactFoldedName("AboutCorporateInvestments", [
+        "corporateinvestments",
+      ]),
+      false,
+    );
+    assert.equal(
+      detailRowHasExactFoldedName("Corporate_Investments", []),
+      false,
+    );
+    assert.equal(
+      detailRowHasExactFoldedName("", ["corporateinvestments"]),
+      false,
+    );
+  });
+
   it("isExplorerSiteRootTestId rejects nested Pages nodes", () => {
     assert.equal(
       isExplorerSiteRootTestId("tree-node-/Sites/Corporate_Investments/"),
@@ -482,6 +514,55 @@ describe("explorer-preview-view helpers (#2733)", () => {
     assert.equal(
       isExplorerSiteRootTestId("tree-node-/Sites/Corporate_Investments/Pages/"),
       false,
+    );
+  });
+
+  it("pickSiteTreeNodeTestId prefers the exact site root over nested false-matches (#7193)", () => {
+    const nodes = [
+      "tree-node-/Sites/CorporateInvestments/AboutCorporateInvestments",
+      "tree-node-/Sites/CorporateInvestments/",
+    ];
+    assert.equal(
+      pickSiteTreeNodeTestId(nodes, ["corporateinvestments"]),
+      "tree-node-/Sites/CorporateInvestments/",
+    );
+    assert.equal(pickSiteTreeNodeTestId([], ["corporateinvestments"]), null);
+    assert.equal(pickSiteTreeNodeTestId(nodes, []), nodes[1]);
+    // Underscore finder names still fold to the repository site name.
+    assert.equal(
+      pickSiteTreeNodeTestId(
+        ["tree-node-/Sites/Corporate_Investments/"],
+        ["corporateinvestments"],
+      ),
+      "tree-node-/Sites/Corporate_Investments/",
+    );
+  });
+
+  it("classifyListSnapshot drives the settled poll state machine (#7193)", () => {
+    assert.equal(classifyListSnapshot(null), "detached");
+    assert.equal(classifyListSnapshot({ loading: true }), "loading");
+    assert.equal(classifyListSnapshot({ error: true }), "error");
+    assert.equal(classifyListSnapshot({ rows: [] }), "empty");
+    assert.equal(classifyListSnapshot({}), "empty");
+    assert.equal(
+      classifyListSnapshot({
+        rows: [{ named: true, texted: true }],
+      }),
+      "settled",
+    );
+    // A text-only row (icon cells render no name) still counts as settled.
+    assert.equal(
+      classifyListSnapshot({
+        rows: [{ named: false, texted: true }],
+      }),
+      "settled",
+    );
+    // One blank row (skeleton / churning layout) keeps the poll waiting.
+    assert.equal(
+      classifyListSnapshot({
+        rows: [{ named: true, texted: true }, { named: false, texted: false }],
+      }),
+      "loading",
     );
   });
 

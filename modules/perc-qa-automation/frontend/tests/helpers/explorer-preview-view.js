@@ -538,6 +538,26 @@ function detailRowMatchesFoldedSite(rowText, wantedFolded) {
 }
 
 /**
+ * Exact folded-name match against a detail row's {@code data-item-name}
+ * (#7193). Substring matching ({@code detailRowMatchesFoldedSite} on the
+ * full row text) false-matches child folders whose names merely contain
+ * the site name — e.g. {@code AboutCorporateInvestments} wins over the
+ * site root for wanted {@code corporateinvestments} — and navigates the
+ * spec away from the site's Pages listing. Exact folded equality on the
+ * row's item name keeps the site-root pick precise (finder underscores,
+ * case, spaces and dashes still fold).
+ * @param {unknown} itemName detail row {@code data-item-name}
+ * @param {Iterable<string>} wantedFolded folded site names
+ * @returns {boolean}
+ */
+function detailRowHasExactFoldedName(itemName, wantedFolded) {
+  const folded = foldSiteName(itemName);
+  const wanted = [...(wantedFolded || [])].filter(Boolean);
+  if (!folded || wanted.length === 0) return false;
+  return wanted.includes(folded);
+}
+
+/**
  * True when a tree testid is a Sites <em>root</em> child
  * ({@code tree-node-/Sites/Corporate_Investments/}), not a nested
  * {@code /Sites/{site}/Pages} node.
@@ -583,6 +603,59 @@ function treeNodeMatchesFoldedSite(
   return wanted.some((n) => haystacks.some((h) => h.includes(n)));
 }
 
+/**
+ * Classify a detail-list snapshot for the settled poll (#7193). Pure
+ * state machine over {@code snapshotDetailList}-shaped input so it stays
+ * unit-testable: load failures surface loudly as "error" because "empty"
+ * would let the caller sail past into the wrong folder and fail far from
+ * the cause.
+ * @param {{loading?: boolean, error?: boolean, rows?: Array<{named: boolean, texted: boolean}>}|null} snap
+ * @returns {string} detached | loading | error | empty | settled
+ */
+function classifyListSnapshot(snap) {
+  if (!snap) return "detached";
+  if (snap.loading) return "loading";
+  if (snap.error) return "error";
+  if (!snap.rows || snap.rows.length === 0) return "empty";
+  return snap.rows.every((r) => r.named || r.texted) ? "settled" : "loading";
+}
+
+/**
+ * Pick the Sites tree node testid for a REST-listed site (#7193). The old
+ * inline substring match on the full testid false-matched nested folders
+ * whose paths merely contain the site name — e.g.
+ * {@code tree-node-/Sites/CorporateInvestments/AboutCorporateInvestments}
+ * wins over the site root for wanted {@code corporateinvestments} — and
+ * navigated the spec away from the site's Pages listing. Prefer an exact
+ * folded match on the last path segment of a Sites <em>root</em> child;
+ * fall back to the legacy substring pick, then the first root (or node).
+ * @param {Array<string>} testids tree node {@code data-testid} values
+ * @param {Iterable<string>} wantedFolded folded site names
+ * @returns {string|null} picked testid, or null when there are no nodes
+ */
+function pickSiteTreeNodeTestId(testids, wantedFolded) {
+  const ids = [...(testids || [])].filter(Boolean);
+  if (ids.length === 0) return null;
+  const wanted = [...(wantedFolded || [])].filter(Boolean);
+  const roots = ids.filter(isExplorerSiteRootTestId);
+  const pool = roots.length > 0 ? roots : ids;
+  if (wanted.length === 0) return pool[0] || null;
+  const lastSegment = (id) =>
+    String(id || "")
+      .replace(/\/+$/, "")
+      .split("/")
+      .filter(Boolean)
+      .pop() || "";
+  const exact = pool.find((id) =>
+    detailRowHasExactFoldedName(lastSegment(id), wanted),
+  );
+  if (exact) return exact;
+  const sub = pool.find((id) =>
+    wanted.some((n) => foldSiteName(id).includes(n)),
+  );
+  return sub || pool[0] || null;
+}
+
 module.exports = {
   TEST_IDS,
   explorerEntryUrl,
@@ -610,7 +683,10 @@ module.exports = {
   listedPageSiteNames,
   foldSiteName,
   detailRowHasExactName,
+  detailRowHasExactFoldedName,
   detailRowMatchesFoldedSite,
   treeNodeMatchesFoldedSite,
   isExplorerSiteRootTestId,
+  pickSiteTreeNodeTestId,
+  classifyListSnapshot,
 };
