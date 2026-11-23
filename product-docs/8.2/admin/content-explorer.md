@@ -25,7 +25,7 @@ and assets without launching Desktop Content Explorer (DCE). Open it from the SP
 | **Tree + detail list** | Folder navigation and list of children; folder/item type icons plus optional display-format columns |
 | **Views catalog** | System **Views** category under the left tree (My / Community / All / Other Content) |
 | **Views → My Content → Inbox** | Assignment list (not a top-level Explorer root — see below) |
-| **Context menu** | Right-click an item or folder row for the same catalog filtered for the popup surface. A failed catalog load shows an error with **Retry** — never the empty-catalog text — and Retry reloads the same row; see [Server actions](#server-actions-how-they-run) |
+| **Context menu** | Right-click an item or folder row for the same catalog filtered for the popup surface. A failed catalog load shows an error with **Retry** — never the empty-catalog text — and Retry reloads the same row; when the retry also fails the error stays and focus returns to **Retry** (with a visible focus ring) so keyboard operators can retry again without leaving the popup; see [Server actions](#server-actions-how-they-run) |
 | **Status bar** | Always-visible footer under the list: selection count, folder item count, last-operation feedback, and the signed-in user (see **Status bar and DCE chrome-model parity**) |
 
 **Approve for incremental** is always on the server-actions toolbar. It asks
