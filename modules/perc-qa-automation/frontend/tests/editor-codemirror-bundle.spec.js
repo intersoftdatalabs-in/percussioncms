@@ -1415,11 +1415,26 @@ test.describe("Classic CodeMirror npm bundle (issues #5626, #5784)", () => {
         }
         // Issue #7041: the metadata iframe hosts the server-rendered code
         // fields — it must carry an accessible name so screen readers
-        // announce the frame instead of a bare "frame".
+        // announce the frame instead of a bare "frame". Both mirrors build
+        // the title from the i18n key (attribute-escaped) and concatenate
+        // the escaped value into the frame markup — never a hard-coded
+        // English literal.
         expect(
           text,
-          `${rel} must name the metadata iframe for assistive technology (#7041)`,
-        ).toContain("title='Template metadata fields'");
+          `${rel} must key the metadata iframe title through i18n (#7041)`,
+        ).toContain("perc.ui.page.edit.dialog@Template metadata fields");
+        expect(
+          text,
+          `${rel} must concatenate the escaped title into the iframe markup (#7041)`,
+        ).toContain(`title='" +`);
+        expect(
+          text,
+          `${rel} must concatenate the escaped title into the iframe markup (#7041)`,
+        ).toContain(`iframeTitle +`);
+        expect(
+          text,
+          `${rel} must not hard-code the English iframe title (#7041)`,
+        ).not.toContain(`title='Template metadata fields'`);
         for (const dead of ["codeMirrorSet", "cm1"]) {
           expect(
             text,
