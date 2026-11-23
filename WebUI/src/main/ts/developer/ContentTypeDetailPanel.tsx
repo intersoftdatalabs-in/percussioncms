@@ -1729,6 +1729,7 @@ export function ContentTypeDetailPanel({
       }
     } catch (iconErr) {
       restoreSavedContentTypeCore(progress.saved);
+      progress.saveFallback = DEV_MSG.CT_ICON_SAVE_ERROR;
       throw iconErr;
     }
   }
@@ -2687,6 +2688,7 @@ export function ContentTypeDetailPanel({
         <p style={{ color: catalogColors.muted, fontSize: "0.9rem" }}>{DEV_MSG.CT_ICON_HINT}</p>
         {iconError ? (
           <p
+            id="developer-ct-icon-load-error-text"
             role="status"
             data-testid="developer-ct-icon-error"
             style={{ color: catalogColors.error }}
@@ -2710,6 +2712,7 @@ export function ContentTypeDetailPanel({
               id="ct-icon-source"
               data-testid="developer-ct-icon-source"
               aria-label={DEV_MSG.CT_ICON_SOURCE}
+              aria-describedby={iconError ? "developer-ct-icon-load-error-text" : undefined}
               style={inputStyle}
               value={iconSource}
               disabled={!canEdit}
@@ -2744,6 +2747,7 @@ export function ContentTypeDetailPanel({
               list="ct-icon-file-fields"
               data-testid="developer-ct-icon-value"
               aria-label={DEV_MSG.CT_ICON_VALUE}
+              aria-describedby={iconError ? "developer-ct-icon-load-error-text" : undefined}
               style={inputStyle}
               placeholder={DEV_MSG.CT_ICON_VALUE_PLACEHOLDER}
               value={iconValue}
