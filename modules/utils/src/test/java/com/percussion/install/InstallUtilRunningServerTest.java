@@ -21,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.io.IOException;
 import java.net.DatagramSocket;
@@ -129,27 +130,50 @@ public class InstallUtilRunningServerTest {
    * UDP-only holders must not make a TCP port look unavailable (install/DTS probes are TCP-only).
    * Repeat several iterations so intermittent Windows Winsock SO_REUSEADDR+UDP races surface in
    * CI rather than only occasionally (GH-2779).
+   *
+   * <p>Each iteration holds a UDP-only socket on an OS-assigned ephemeral port. Under parallel
+   * load (parallel CMS cells/builds on one host, GH-7154) another process can bind the TCP side
+   * of that same port number between the UDP bind and the probe; that is environmental
+   * contention, not a UDP-bleed defect. A failed probe with a real TCP listener accepting is
+   * therefore retried with a fresh ephemeral port instead of failing the test.
    */
   @Test
   void portAvailable_ignoresUdpBinding() throws Exception {
     final int iterations = 25;
-    for (int i = 0; i < iterations; i++) {
-      final int iteration = i;
+    final int maxCollisions = 25;
+    int collisions = 0;
+    for (int verified = 0; verified < iterations; ) {
+      final int completed = verified;
       // Bind explicitly (reuse off) so the hold is a pure UDP exclusive binding.
       try (DatagramSocket hold = new DatagramSocket(null)) {
         hold.setReuseAddress(false);
         hold.bind(new InetSocketAddress(0));
         final int port = hold.getLocalPort();
-        assertTrue(
-            InstallUtil.portAvailable(port),
-            () ->
-                "UDP-only binding on port "
-                    + port
-                    + " must leave TCP available (iteration "
-                    + iteration
-                    + " of "
-                    + iterations
-                    + ")");
+        if (!InstallUtil.portAvailable(port)) {
+          if (InstallUtil.isLocalTcpPortAccepting(port)) {
+            collisions++;
+            final int seen = collisions;
+            assertTrue(
+                seen <= maxCollisions,
+                () ->
+                    "too many environmental TCP collisions on ephemeral UDP ports ("
+                        + seen
+                        + " of "
+                        + maxCollisions
+                        + " allowed)");
+            continue;
+          }
+          fail(
+              () ->
+                  "UDP-only binding on port "
+                      + port
+                      + " must leave TCP available (verified "
+                      + completed
+                      + " of "
+                      + iterations
+                      + ", no TCP listener accepting)");
+        }
+        verified++;
       }
     }
   }
