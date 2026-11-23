@@ -21,10 +21,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.net.URISyntaxException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
 import java.util.ArrayList;
+import java.util.HexFormat;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -95,6 +98,190 @@ public class PSExplorerBatchHelperKeysTmxTest {
         offenders.isEmpty(),
         "CmsUi.tmx Explorer batch-helper keys lack ship-matrix translations (#7082): "
             + offenders);
+  }
+
+  /**
+   * Guards issue #7116: {@code scripts/cache/i18n_translate.json} once kept stale takedown-sense
+   * segments ({@code no derribado}, {@code Der Abbau ist fehlgeschlagen}, {@code 删除失败}, ...), so
+   * a re-run of {@code i18n_translate.py} would write them back over the corrected TMX. Every
+   * cache entry for these 7 batch-helper sources must agree with the shipped {@code CmsUi.tmx}
+   * {@code <seg>} (cache key is {@code sha256(target + "\\0" + source)}, same as
+   * {@code i18n_translate.cache_key}). Missing keys are fine (uncached); disagreements fail.
+   */
+  @Test
+  public void batchHelperCache_agreesWithShippedTmx() throws Exception {
+    Map<String, Map<String, String>> segsByTuid = loadSegsByTuid();
+    Path cacheFile = resolveTranslateCache();
+    assertNotNull(cacheFile, "i18n_translate.json not found");
+    Map<String, String> cached = parseFlatJsonStringMap(cacheFile);
+
+    List<String> offenders = new ArrayList<>();
+    for (String en : EXPECTED_ENGLISH) {
+      String tuid = "perc.ui.explorer@" + en;
+      Map<String, String> segs = segsByTuid.get(tuid);
+      if (segs == null) {
+        continue;
+      }
+      for (String lang : REQUIRED_NON_EN_LOCALES) {
+        String seg = segs.get(lang);
+        if (seg == null) {
+          continue;
+        }
+        String cachedValue = cached.get(translateCacheKey(en, lang));
+        if (cachedValue != null && !cachedValue.equals(seg)) {
+          offenders.add(
+              tuid + " [" + lang + "] cache=" + cachedValue + " tmx=" + seg);
+        }
+      }
+    }
+    assertTrue(
+        offenders.isEmpty(),
+        "i18n_translate.json cache disagrees with shipped CmsUi.tmx (#7116): "
+            + offenders);
+  }
+
+  /** Mirror of {@code i18n_translate.cache_key}: {@code sha256(target + "\\0" + text)}. */
+  private static String translateCacheKey(String text, String target) throws Exception {
+    MessageDigest digest = MessageDigest.getInstance("SHA-256");
+    digest.update(target.getBytes(StandardCharsets.UTF_8));
+    digest.update((byte) 0);
+    digest.update(text.getBytes(StandardCharsets.UTF_8));
+    return HexFormat.of().formatHex(digest.digest());
+  }
+
+  /**
+   * Resolve {@code scripts/cache/i18n_translate.json} portably: prefer the module-relative path
+   * (Maven surefire runs with the module dir as CWD), then fall back to repo-root-relative.
+   */
+  private static Path resolveTranslateCache() {
+    Path[] candidates =
+        new Path[] {
+          Paths.get("scripts", "cache", "i18n_translate.json"),
+          Paths.get(
+              "modules", "perc-i18n", "scripts", "cache", "i18n_translate.json"),
+        };
+    for (Path c : candidates) {
+      Path abs = c.toAbsolutePath().normalize();
+      if (Files.isRegularFile(abs)) {
+        return abs;
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Parse a flat JSON {@code {"key": "value", ...}} object. Only string keys/values are
+   * supported; full JSON is not needed for the checked-in string cache.
+   */
+  private static Map<String, String> parseFlatJsonStringMap(Path json) throws Exception {
+    String raw = Files.readString(json, StandardCharsets.UTF_8).trim();
+    Map<String, String> map = new LinkedHashMap<>();
+    int[] pos = {0};
+    skipWs(raw, pos);
+    expect(raw, pos, '{');
+    skipWs(raw, pos);
+    if (peek(raw, pos) == '}') {
+      return map;
+    }
+    while (true) {
+      skipWs(raw, pos);
+      String key = readJsonString(raw, pos);
+      skipWs(raw, pos);
+      expect(raw, pos, ':');
+      skipWs(raw, pos);
+      String value = readJsonString(raw, pos);
+      map.put(key, value);
+      skipWs(raw, pos);
+      char c = peek(raw, pos);
+      if (c == ',') {
+        pos[0]++;
+        continue;
+      }
+      if (c == '}') {
+        break;
+      }
+      throw new IllegalArgumentException("Unexpected char '" + c + "' in cache JSON");
+    }
+    return map;
+  }
+
+  private static void skipWs(String raw, int[] pos) {
+    while (pos[0] < raw.length()
+        && (raw.charAt(pos[0]) == ' '
+            || raw.charAt(pos[0]) == '\n'
+            || raw.charAt(pos[0]) == '\r'
+            || raw.charAt(pos[0]) == '\t')) {
+      pos[0]++;
+    }
+  }
+
+  private static char peek(String raw, int[] pos) {
+    if (pos[0] >= raw.length()) {
+      throw new IllegalArgumentException("Truncated cache JSON");
+    }
+    return raw.charAt(pos[0]);
+  }
+
+  private static void expect(String raw, int[] pos, char want) {
+    if (peek(raw, pos) != want) {
+      throw new IllegalArgumentException("Expected '" + want + "' in cache JSON");
+    }
+    pos[0]++;
+  }
+
+  private static String readJsonString(String raw, int[] pos) {
+    expect(raw, pos, '"');
+    StringBuilder sb = new StringBuilder();
+    while (true) {
+      char c = peek(raw, pos);
+      if (c == '"') {
+        pos[0]++;
+        return sb.toString();
+      }
+      if (c != '\\') {
+        sb.append(c);
+        pos[0]++;
+        continue;
+      }
+      pos[0]++;
+      char e = peek(raw, pos);
+      pos[0]++;
+      switch (e) {
+        case '"':
+          sb.append('"');
+          break;
+        case '\\':
+          sb.append('\\');
+          break;
+        case '/':
+          sb.append('/');
+          break;
+        case 'b':
+          sb.append('\b');
+          break;
+        case 'f':
+          sb.append('\f');
+          break;
+        case 'n':
+          sb.append('\n');
+          break;
+        case 'r':
+          sb.append('\r');
+          break;
+        case 't':
+          sb.append('\t');
+          break;
+        case 'u':
+          if (pos[0] + 4 > raw.length()) {
+            throw new IllegalArgumentException("Truncated unicode escape in cache JSON");
+          }
+          sb.append((char) Integer.parseInt(raw.substring(pos[0], pos[0] + 4), 16));
+          pos[0] += 4;
+          break;
+        default:
+          throw new IllegalArgumentException("Bad escape '\\" + e + "' in cache JSON");
+      }
+    }
   }
 
   private static Map<String, Map<String, String>> loadSegsByTuid() throws Exception {
