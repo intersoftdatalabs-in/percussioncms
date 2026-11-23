@@ -18,6 +18,11 @@
 /**
  * Explorer shows who has the selected page or asset checked out (#4910).
  *
+ * The listed ids are stubs, so every backend call the shell fires for the
+ * selected row (checkout-owner lookup + #6783 identity batch) is stubbed
+ * too — an unstubbed identity batch for the fake id 42 hits the real
+ * backend as HTTP 500 and trips the console-clean assertion (#7192).
+ *
  * {@code npm run test:surface -- --path tests/explorer-checkout-owner.spec.js}
  */
 
@@ -94,6 +99,29 @@ test.describe("modern React Content Explorer — checkout owner", () => {
           body: ownerBody("editor"),
         });
       });
+      // #7192: selecting the stubbed row also fires POST
+      // /rest/explorer/identity/batch (#6783) with the fake id 42. Without
+      // this stub the real backend maps the unknown id to HTTP 500, whose
+      // "Failed to load resource" trips the console-clean assertion below.
+      // Same companion stub as explorer-visibility-identity.spec.js.
+      let batches = 0;
+      await page.route("**/rest/explorer/identity/batch", async (route) => {
+        batches += 1;
+        await route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify([
+            {
+              id: "42",
+              checkoutStatus: "Checked Out",
+              contentTypeId: 123,
+              objectType: 2,
+              workflowId: 5,
+              communityId: 1001,
+            },
+          ]),
+        });
+      });
 
       await page.goto(explorerSpaUrl(BASE_URL));
       await page.waitForLoadState("networkidle");
@@ -111,6 +139,8 @@ test.describe("modern React Content Explorer — checkout owner", () => {
         { timeout: 10_000 },
       );
       expect(lookups).toBeGreaterThan(0);
+      expect(batches, "identity batch must fire for the selected row").toBeGreaterThan(0);
+      await expect(page.locator('[data-testid="explorer-identity-error"]')).toHaveCount(0);
       expect(pageErrors, pageErrors.join(" | ")).toEqual([]);
       expect(consoleErrors, consoleErrors.join(" | ")).toEqual([]);
     },
