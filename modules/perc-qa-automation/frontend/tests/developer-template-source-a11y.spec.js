@@ -41,6 +41,7 @@
 
 const { test, expect } = require("@playwright/test");
 const { loginAsAdmin, BASE_URL } = require("./helpers/auth");
+const { proofScreenshot } = require("./helpers/proof-shot");
 const {
   catalogRowSelector,
 } = require("./helpers/developer-catalog-selectors");
@@ -154,6 +155,13 @@ test.describe("Developer template source editor a11y (#5626)", () => {
     await preview.focus();
     expect(await preview.evaluate((el) => el === document.activeElement)).toBe(
       true,
+    );
+
+    // Live proof (issue #7042 close-out re-proof): capture the labelled
+    // highlight preview for the committed proof PNG.
+    await proofScreenshot(
+      page,
+      "issue-7042-developer-template-source-preview.png",
     );
 
     // Line-number gutter is decorative: hidden from AT (no generic-div label).
