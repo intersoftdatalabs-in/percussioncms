@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-import { cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import React from "react";
 import { MemoryRouter, Route, Routes } from "react-router";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -42,6 +42,19 @@ const fields: ItemEditorFields = {
     { name: "displaytitle", value: "Welcome" },
   ],
 };
+
+/**
+ * Wall-clock budget for the move/copy destination-picker gates (#7151).
+ * Opening either picker awaits {@code loadItemLocation} before mounting
+ * the dialog, so the mount is a real async round trip — not synchronous
+ * post-click state. Under full-suite parallel load the round trip plus
+ * re-render can exceed the 1s testing-library default (observed:
+ * {@code explorer-copy-dest-cancel} never mounted within budget while the
+ * same test passed isolated). Same rationale as
+ * {@code RETRY_ROUND_TRIP_TIMEOUT} (#7122): a loaded worker is merely
+ * slow, and slowness alone must not fail the test.
+ */
+const PICKER_MOUNT_TIMEOUT = 15_000;
 
 // jsdom Range has no caret geometry; ProseMirror scrollToSelection (via the
 // fragment Apply chain's focus()) needs these two or the transaction throws.
@@ -12934,9 +12947,12 @@ describe("EditorHost move to folder (#4774)", () => {
       expect(screen.getByTestId("editor-move")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("editor-move"));
-    await waitFor(() => {
-      expect(screen.getByTestId("explorer-move-dest-input")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("explorer-move-dest-input")).toBeTruthy();
+      },
+      { timeout: PICKER_MOUNT_TIMEOUT },
+    );
     fireEvent.change(screen.getByTestId("explorer-move-dest-input"), {
       target: { value: "//Sites/Other" },
     });
@@ -12953,13 +12969,24 @@ describe("EditorHost move to folder (#4774)", () => {
   it("does not move when the picker is cancelled", async () => {
     const moveItem = vi.fn();
     renderHost("edit", { moveItem });
-    await waitFor(() => {
-      expect(screen.getByTestId("editor-move")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("editor-move")).toBeTruthy();
+      },
+      { timeout: PICKER_MOUNT_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("editor-move"));
-    await waitFor(() => {
-      expect(screen.getByTestId("explorer-move-dest-cancel")).toBeTruthy();
-    });
+    // Deterministic drain (#7151): the open handler awaits loadItemLocation
+    // (a resolved-promise mock — microtask-only) before mounting the dialog,
+    // so flushing with act settles the mount without wall-clock polling.
+    // The bounded gate below is strictly a backstop for loaded-worker lag.
+    await act(async () => {});
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("explorer-move-dest-cancel")).toBeTruthy();
+      },
+      { timeout: PICKER_MOUNT_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("explorer-move-dest-cancel"));
     expect(moveItem).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor-move-done")).toBeNull();
@@ -12972,9 +12999,12 @@ describe("EditorHost move to folder (#4774)", () => {
       expect(screen.getByTestId("editor-move")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("editor-move"));
-    await waitFor(() => {
-      expect(screen.getByTestId("explorer-move-dest-ok")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("explorer-move-dest-ok")).toBeTruthy();
+      },
+      { timeout: PICKER_MOUNT_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("explorer-move-dest-ok"));
     await waitFor(() => {
       expect(screen.getByTestId("editor-move-error").textContent).toMatch(
@@ -13009,9 +13039,12 @@ describe("EditorHost move to folder (#4774)", () => {
         expect(screen.getByTestId("editor-move")).toBeTruthy();
       });
       fireEvent.click(screen.getByTestId("editor-move"));
-      await waitFor(() => {
-        expect(screen.getByTestId("explorer-move-dest-input")).toBeTruthy();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByTestId("explorer-move-dest-input")).toBeTruthy();
+        },
+        { timeout: PICKER_MOUNT_TIMEOUT },
+      );
       fireEvent.change(screen.getByTestId("explorer-move-dest-input"), {
         target: { value: "//Sites/Other" },
       });
@@ -13078,9 +13111,12 @@ describe("EditorHost copy to folder (#4793)", () => {
       expect(screen.getByTestId("editor-copy-to-folder")).toBeTruthy();
     });
     fireEvent.click(screen.getByTestId("editor-copy-to-folder"));
-    await waitFor(() => {
-      expect(screen.getByTestId("explorer-copy-dest-input")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("explorer-copy-dest-input")).toBeTruthy();
+      },
+      { timeout: PICKER_MOUNT_TIMEOUT },
+    );
     fireEvent.change(screen.getByTestId("explorer-copy-dest-input"), {
       target: { value: "//Sites/Other" },
     });
@@ -13099,13 +13135,24 @@ describe("EditorHost copy to folder (#4793)", () => {
   it("does not copy when the picker is cancelled", async () => {
     const copyItemToFolder = vi.fn();
     renderHost("edit", { copyItemToFolder });
-    await waitFor(() => {
-      expect(screen.getByTestId("editor-copy-to-folder")).toBeTruthy();
-    });
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("editor-copy-to-folder")).toBeTruthy();
+      },
+      { timeout: PICKER_MOUNT_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("editor-copy-to-folder"));
-    await waitFor(() => {
-      expect(screen.getByTestId("explorer-copy-dest-cancel")).toBeTruthy();
-    });
+    // Deterministic drain (#7151): the open handler awaits loadItemLocation
+    // (a resolved-promise mock — microtask-only) before mounting the dialog,
+    // so flushing with act settles the mount without wall-clock polling.
+    // The bounded gate below is strictly a backstop for loaded-worker lag.
+    await act(async () => {});
+    await waitFor(
+      () => {
+        expect(screen.getByTestId("explorer-copy-dest-cancel")).toBeTruthy();
+      },
+      { timeout: PICKER_MOUNT_TIMEOUT },
+    );
     fireEvent.click(screen.getByTestId("explorer-copy-dest-cancel"));
     expect(copyItemToFolder).not.toHaveBeenCalled();
     expect(screen.queryByTestId("editor-copy-to-folder-done")).toBeNull();
@@ -13135,9 +13182,12 @@ describe("EditorHost copy to folder (#4793)", () => {
         expect(screen.getByTestId("editor-copy-to-folder")).toBeTruthy();
       });
       fireEvent.click(screen.getByTestId("editor-copy-to-folder"));
-      await waitFor(() => {
-        expect(screen.getByTestId("explorer-copy-dest-input")).toBeTruthy();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByTestId("explorer-copy-dest-input")).toBeTruthy();
+        },
+        { timeout: PICKER_MOUNT_TIMEOUT },
+      );
       fireEvent.change(screen.getByTestId("explorer-copy-dest-input"), {
         target: { value: "//Sites/Other" },
       });
@@ -13166,9 +13216,12 @@ describe("EditorHost copy to folder (#4793)", () => {
         expect(screen.getByTestId("editor-copy-to-folder")).toBeTruthy();
       });
       fireEvent.click(screen.getByTestId("editor-copy-to-folder"));
-      await waitFor(() => {
-        expect(screen.getByTestId("explorer-copy-dest-input")).toBeTruthy();
-      });
+      await waitFor(
+        () => {
+          expect(screen.getByTestId("explorer-copy-dest-input")).toBeTruthy();
+        },
+        { timeout: PICKER_MOUNT_TIMEOUT },
+      );
       fireEvent.change(screen.getByTestId("explorer-copy-dest-input"), {
         target: { value: "//Sites/Other" },
       });
