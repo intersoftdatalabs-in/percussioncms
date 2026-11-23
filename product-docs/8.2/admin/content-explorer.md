@@ -207,6 +207,21 @@ key (or **Shift+F10**) opens the folder menu. The focused row shows a
 visible outline for keyboard operators; mouse clicks do not leave a sticky
 ring.
 
+### Views catalog keyboard map
+
+The Views catalog tree follows the same contract as the folder tree: it is
+a single **Tab** stop (roving tabindex) — **Tab** enters the catalog on the
+selected view (or the Views root before anything is selected) and the next
+**Tab** leaves it. Inside the catalog, **ArrowDown** / **ArrowUp** move
+focus and the selection together to the next / previous visible row
+(collapsed category groups are skipped; the move stops at the last / first
+row instead of wrapping), and **Home** / **End** jump to the first / last
+visible row. Moving onto a view runs it, exactly like clicking that view;
+moving onto a category group or the Views root moves focus only —
+**Enter**, **Space**, **ArrowRight**, and **ArrowLeft** still expand and
+collapse groups. The focused row shows the same visible outline as the
+folder tree; mouse clicks do not leave a sticky ring.
+
 ### Classic DCE icon vocabulary (retire-or-map)
 
 The classic Desktop Content Explorer shipped 84 icon files for its tree,
