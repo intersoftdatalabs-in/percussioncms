@@ -156,4 +156,118 @@ describe("ContentTypeImportWizard", () => {
     });
     expect(importContentType).not.toHaveBeenCalled();
   });
+
+  it("surfaces 403 forbidden", async () => {
+    importContentType.mockRejectedValue({
+      status: 403,
+      statusText: "Forbidden",
+      body: { message: "Admin role is required" },
+    });
+    render(<ContentTypeImportWizard />);
+    fireEvent.change(screen.getByTestId("developer-ct-import-file"), {
+      target: { files: [xmlFile(SAMPLE_XML)] },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-import-filename")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-import-name"), {
+      target: { value: "cd14forbidden" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-import-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-import-error").textContent).toContain(
+        DEV_MSG.CT_IMPORT_FORBIDDEN,
+      );
+    });
+  });
+
+  it("blocks cataloged duplicate names client-side without POST", async () => {
+    render(<ContentTypeImportWizard existingNames={["percPage", "cd14Taken"]} />);
+    fireEvent.change(screen.getByTestId("developer-ct-import-file"), {
+      target: { files: [xmlFile(SAMPLE_XML)] },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-import-filename")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-import-name"), {
+      target: { value: "PERCPAGE" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-import-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-import-error").textContent).toBe(
+        DEV_MSG.CT_IMPORT_DUPLICATE,
+      );
+    });
+    expect(importContentType).not.toHaveBeenCalled();
+  });
+
+  it("accepts a dropped XML file and pre-fills the name", async () => {
+    render(<ContentTypeImportWizard />);
+    const section = screen.getByTestId("developer-ct-import");
+    fireEvent.drop(section, {
+      dataTransfer: { files: [xmlFile(SAMPLE_XML, "dropped.xml")] },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-import-filename").textContent).toBe(
+        "dropped.xml",
+      );
+    });
+    expect((screen.getByTestId("developer-ct-import-name") as HTMLInputElement).value).toBe(
+      "importedOne",
+    );
+    expect(screen.getByTestId("developer-ct-import-dropzone").textContent).toContain(
+      DEV_MSG.CT_IMPORT_DROP_HINT,
+    );
+  });
+
+  it("ignores text drops without clearing the selected file", async () => {
+    render(<ContentTypeImportWizard />);
+    const section = screen.getByTestId("developer-ct-import");
+    fireEvent.change(screen.getByTestId("developer-ct-import-file"), {
+      target: { files: [xmlFile(SAMPLE_XML, "kept.xml")] },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-import-filename").textContent).toBe(
+        "kept.xml",
+      );
+    });
+    // Text dragged into the name field bubbles to the section with no files.
+    fireEvent.drop(section, { dataTransfer: { files: [] } });
+    expect(screen.getByTestId("developer-ct-import-filename").textContent).toBe(
+      "kept.xml",
+    );
+    expect((screen.getByTestId("developer-ct-import-name") as HTMLInputElement).value).toBe(
+      "importedOne",
+    );
+  });
+
+  it("announces success via role=status and moves focus to errors", async () => {
+    importContentType.mockResolvedValue({ name: "cd14polish", label: "Polished" });
+    render(<ContentTypeImportWizard />);
+    fireEvent.change(screen.getByTestId("developer-ct-import-file"), {
+      target: { files: [xmlFile(SAMPLE_XML)] },
+    });
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-import-filename")).toBeTruthy();
+    });
+    fireEvent.change(screen.getByTestId("developer-ct-import-name"), {
+      target: { value: "cd14polish" },
+    });
+    fireEvent.click(screen.getByTestId("developer-ct-import-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-import-notice")).toBeTruthy();
+    });
+    expect(screen.getByTestId("developer-ct-import-notice").getAttribute("role")).toBe(
+      "status",
+    );
+  });
+
+  it("moves focus into the error region on validation failure", async () => {
+    render(<ContentTypeImportWizard />);
+    fireEvent.click(screen.getByTestId("developer-ct-import-submit"));
+    await waitFor(() => {
+      expect(screen.getByTestId("developer-ct-import-error")).toBeTruthy();
+    });
+    expect(document.activeElement).toBe(screen.getByTestId("developer-ct-import-error"));
+  });
 });

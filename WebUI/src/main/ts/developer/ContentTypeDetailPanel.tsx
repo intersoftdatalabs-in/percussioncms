@@ -1368,6 +1368,9 @@ export function ContentTypeDetailPanel({
     if (isApiError(err) && err.status === 404) {
       return panelErrMsg(err, DEV_MSG.CT_EXPORT_NOT_FOUND);
     }
+    if (isApiError(err) && err.status === 403) {
+      return panelErrMsg(err, DEV_MSG.CT_EXPORT_FORBIDDEN);
+    }
     return panelErrMsg(err, DEV_MSG.CT_EXPORT_ERROR);
   }
 
